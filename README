@@ -1,0 +1,20 @@
+This git repository stores files of configurations for Emacs 23
+The author is Takaaki ISHIKAWA <takaxp@ieee.org>
+
+Call the emacs lisp files in your .emacs file as follows.
+------------------------
+(require 'emacs.el)
+(require 'utility)
+(require 'org-mode)
+(when (eq window-system 'ns)
+  (require 'mac))
+(require 'keybinding)
+------------------------
+
+  - STRUCTURE
+	./emacs.el			Main file and set core configurations to use Emacs
+	./utility.el		Defines functions to use Emacs handy
+	./org-mode.el		Configurations for Org-mode
+	./mac.el			Configurations to use Emacs on Macintosh
+	./keybinding.el		Global settings of keybindings
+	
