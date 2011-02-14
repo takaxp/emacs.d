@@ -17,6 +17,14 @@
 (defun set-xattr-mac ()
   (interactive)
   (progn
+    ;; Exception for a buffer saved on external devices
+    (if (and
+	 (not (string-match "^/ssh" (buffer-file-name)))
+	 (not (string-match "^/Volumes" (buffer-file-name))))
+	(set-xattr))))	
+(defun set-xattr ()
+  (interactive)
+  (progn
     (setq mime-for-xattr
 	  (coding-system-get buffer-file-coding-system 'mime-charset))
     (setq encoding-for-xattr nil)
@@ -24,15 +32,14 @@
      ((eq mime-for-xattr 'utf-8) (setq encoding-for-xattr "UTF-8;134217984"))
      ((eq mime-for-xattr 'shift_jis) (setq encoding-for-xattr "SHIFT_JIS;2561"))
      ((eq mime-for-xattr 'euc-jp) (setq encoding-for-xattr "EUC-JP;2361")))
-    (if (and (not (eq encoding-for-xattr nil))
-	     ;; Exception for a buffer saved on external devices
-	     (not (string-match "^/Volumes" (buffer-file-name))))
+    (if (not (eq encoding-for-xattr nil))
 	(shell-command
 	 (format "xattr -w com.apple.TextEncoding \"%s\" %s"
 		 encoding-for-xattr (buffer-name (current-buffer)))))))
 ; Exception for spcific hosts
 (if (or
-     (string= "mbp.local" (system-name)) (string= "mini.local" (system-name)))
+     (string= "mbp.local" (system-name))
+     (string= "mini.local" (system-name)))
     (add-hook 'after-save-hook 'set-xattr-mac)); add metadata after save
 
 
@@ -64,68 +71,5 @@
 (setq lookup-use-kakasi nil)
 ;        (ndeb "~/Storage/Dic/COBUILD5")
 
-
-;;; MobileOrg ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; http://orgmode.org/manual/Setting-up-the-staging-area.html
-
-;(setq org-mobile-files "next.org")
-(setq org-mobile-files (quote ("~/Dropbox/org/next.org" "~/Dropbox/org/support.org" "~/Dropbox/org/note.org")))
-
-;; Set a file to capture data from iOS devices
-(setq org-mobile-inbox-for-pull (concat org-directory "captured.org"))
-; Upload location stored org files (index.org will be created)
-(setq org-mobile-directory "~/Dropbox/MobileOrg/")
-;(setq org-mobile-directory "/scpc:hoge@hoge.com:/path/to/the/mobileorg/")
-;(setq org-mobile-directory "/Volumes/webdav/mobileorg/")
-;(setq org-mobile-directory "~/Desktop/mobileorg/")
-
-
-;;; Menu to push or pull org files using MobileOrg
-(defun org-mobile-sync ()
-  (interactive)
-  (setq org-mobile-sync-type
-	(read-from-minibuffer "How do you sync the org files? (pull or push) "))
-  (message "%s" org-mobile-sync-type)
-  (cond
-   ((string= "pull" org-mobile-sync-type)(org-mobile-pull))
-   ((string= "push" org-mobile-sync-type)(org-mobile-push))))       
-;  (if (yes-or-no-p "How do you sync the org files? ")
-
-
-; Whenever this file is read, pull files from the server
-(message "%s" "MobileOrg sync ... [pull]")
-(sleep-for 1.0)
-(org-mobile-pull)
-
-
-;;; Automatic called functions when Emacs enters idle time ;;;;;;;;;;;;;;;;;;;;
-(defun sleep-after-reload ()
-  (interactive)
-  (message "%s" "reloading...")
-  (sleep-for 0.5)
-
-  ; Set alarms of org-agenda
-  (message "%s" "set alarms")
-  (sleep-for 0.5)
-  (org-agenda-to-appt)
-  (sleep-for 0.5)
-
-  ; Export an iCal file
-  (message "%s" "iCal export")
-  (sleep-for 0.5)
-  (reload-ical-export)
-  (sleep-for 0.5)
-
-  ; Send org files to the server
-  (message "%s" "MobileOrg sync ... [push]")
-  (sleep-for 0.5)
-  (org-mobile-push)
-
-; add new functions here
-;
-  (message "%s" "done")
-  (sleep-for 0.5)
-  (message "%s" "")
-)
 
 (provide 'mac)
