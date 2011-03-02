@@ -165,4 +165,35 @@
      "display dialog \"Hello world!\" \r"
      ))))
 
-(provide 'utility)
+
+;;; Automatic call functions when Emacs enters idle time ;;;;;;;;;;;;;;;;;;;;
+(defun sleep-after-reload ()
+  (interactive)
+  (message "%s" "reloading...")
+  (sleep-for 0.5)
+
+  ; Set alarms of org-agenda
+  (message "%s" "set alarms")
+  (sleep-for 0.5)
+  (org-agenda-to-appt)
+  (sleep-for 0.5)
+
+  ; Export an iCal file
+  (message "%s" "iCal export")
+  (sleep-for 0.5)
+  (reload-ical-export)
+  (sleep-for 0.5)
+
+  ; Send org files to the server
+  (message "%s" "MobileOrg sync ... [push]")
+  (sleep-for 0.5)
+  (org-mobile-push)
+
+; add new functions here
+;
+  (message "%s" "done")
+  (sleep-for 0.5)
+  (message "%s" "")
+)
+
+(provide 'takaxp-utility)

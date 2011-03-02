@@ -1,7 +1,7 @@
 ;;; Global keybindings
 ;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;; Cite: http://www.uranus.dti.ne.jp/~shiro-/soft/xyzzy/keybind.html
-
+;; M-x describe-bindings
 
 (global-set-key (kbd "C-c 1") 'reload-ical-export)
 (global-set-key (kbd "C-c 2") 'do-org-update-statistics-cookies)
@@ -20,6 +20,8 @@
 (global-set-key (kbd "C-M-h") 'recentf-open-files)
 (global-set-key (kbd "C-M--") 'add-itemize-head)
 (global-set-key (kbd "C-M-s") 'anything-spotlight)
+(global-set-key (kbd "C-M-w") 'lookup-word)
+;(global-set-key (kbd "C-M-i") 'eshell)
 
 (global-set-key (kbd "M-+") 'word-count-mode)
 ;; Paste command by Command+v 
@@ -84,7 +86,7 @@
 ;(define-key global-map [?\C-\M-2] 'my-move-frame-down)
 ;(define-key global-map [?\C-\M-3] 'my-move-frame-up)
 
-(provide 'keybinding)
+(provide 'takaxp-keybinding)
 
 ;; old setting
 ; (global-set-key [?\C-:] 'my-anything)

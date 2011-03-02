@@ -51,25 +51,5 @@
 ;(mac-set-input-method-parameters "jp.monokakido.inputmethod.Kawasemi" 'cursor-type "red")
 ;(mac-set-input-method-parameter "com.google.inputmethod.Japanese.base" 'title "具")
 
-;; Use dictionary in Emacs (require EB Library, eblook, and lookup.el)
-(autoload 'lookup "lookup" nil t)
-(autoload 'lookup-region "lookup" nil t)
-(autoload 'lookup-pattern "lookup" nil t)
-; (autoload 'lookup-wood "lookup" nil t) ; for ispell
-(define-key ctl-x-map "l" 'lookup)
-(define-key ctl-x-map "y" 'lookup-region)
-(define-key ctl-x-map "\C-y" 'lookup-pattern)
-(setq lookup-search-agents
-      '(
-        (ndeb "~/Storage/Dic/COBUILD5")
-        (ndeb "~/Storage/Dic/LDOCE4")
-        (ndeb "~/Storage/Dic/eijiro")
-;        (ndeb "~/Storage/Dic/COBUILD5/COBUILD/DATA/HONMON")
-        ))
-(setq lookup-default-dictionary-options
-      '((:stemmer .  stem-english)))
-(setq lookup-use-kakasi nil)
-;        (ndeb "~/Storage/Dic/COBUILD5")
 
-
-(provide 'mac)
+(provide 'takaxp-mac)
