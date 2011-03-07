@@ -1,19 +1,15 @@
-;;; Configuration for Mac
-;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
+;;;; Configuration for Mac
+;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
-;; Spotlight search with anything.el
+;;; Spotlight search with anything.el
 (defun anything-spotlight ()
   (interactive)
   (anything-other-buffer
    '(anything-c-source-mac-spotlight)
    " *anything-spotlight*"))
 
-;; QuickLook can show a file saved by Emacs 
-;(setq encoding-for-xattr "SHIFT_JIS;2561")
-;(setq encoding-for-xattr "UTF-8;134217984")
-;(setq encoding-for-xattr "EUC-JP;2361")
-;(setq encoding-for-xattr "MACINTOSH;0")
-;(setq encoding-for-xattr "ISO-2022-JP;2080")
+;;; QuickLook can show a file saved by Emacs 
+;; Cal xattr setting function through checking exception
 (defun set-xattr-mac ()
   (interactive)
   (progn
@@ -22,12 +18,18 @@
 	 (not (string-match "^/ssh" (buffer-file-name)))
 	 (not (string-match "^/Volumes" (buffer-file-name))))
 	(set-xattr))))	
+;; Cal xattr command to add metadata
 (defun set-xattr ()
   (interactive)
   (progn
     (setq mime-for-xattr
 	  (coding-system-get buffer-file-coding-system 'mime-charset))
     (setq encoding-for-xattr nil)
+    ;;(setq encoding-for-xattr "SHIFT_JIS;2561")
+    ;;(setq encoding-for-xattr "UTF-8;134217984")
+    ;;(setq encoding-for-xattr "EUC-JP;2361")
+    ;;(setq encoding-for-xattr "MACINTOSH;0")
+    ;;(setq encoding-for-xattr "ISO-2022-JP;2080")
     (cond
      ((eq mime-for-xattr 'utf-8) (setq encoding-for-xattr "UTF-8;134217984"))
      ((eq mime-for-xattr 'shift_jis) (setq encoding-for-xattr "SHIFT_JIS;2561"))
@@ -36,14 +38,14 @@
 	(shell-command
 	 (format "xattr -w com.apple.TextEncoding \"%s\" %s"
 		 encoding-for-xattr (buffer-name (current-buffer)))))))
-; Exception for spcific hosts
+;; Exception for spcific hosts
 (if (or
      (string= "mbp.local" (system-name))
      (string= "mini.local" (system-name)))
-    (add-hook 'after-save-hook 'set-xattr-mac)); add metadata after save
+    (add-hook 'after-save-hook 'set-xattr-mac)) ; add metadata after save
 
-
-;; Flag for inline-patch
+;;; Flag related to inline-patch
+;; Set the default input method for Mac
 (setq default-input-method "MacOSX")
 ;; To input two-byte character with Shift key under inline-patch
 (mac-add-key-passed-to-system 'shift)
@@ -51,5 +53,8 @@
 ;(mac-set-input-method-parameters "jp.monokakido.inputmethod.Kawasemi" 'cursor-type "red")
 ;(mac-set-input-method-parameter "com.google.inputmethod.Japanese.base" 'title "具")
 
+;;; ispell / aspell / Flyspell
+;; Overwrite ispell-program-name
+(setq-default ispell-program-name "/opt/local/bin/aspell")
 
 (provide 'takaxp-mac)

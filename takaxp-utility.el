@@ -1,9 +1,9 @@
-;;; Utility functions
-;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
+;;;; Utility functions
+;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 ;;; Move frame to any position on display 
-;; Cite: http://www.bookshelf.jp/soft/meadow_30.html#SEC411
-(defvar my-move-frame-distance 293) ;; mounts // mbp=394, 1frame=586
+;;; Cite: http://www.bookshelf.jp/soft/meadow_30.html#SEC411
+(defvar my-move-frame-distance 293) ;; mounts // mbp=394, one frame=586
 (defun my-move-frame (&optional vertical horizon)
   "Move frame to a new position with vertical and horizon value"
   (when window-system
@@ -53,7 +53,7 @@
   (move-beginning-of-line 1)
   (insert "  - "))
 
-;;; Show a file on the current buffer
+;;; Show an org-file on the current buffer
 (defun show-org-buffer (file)
   (interactive)
   (if (get-buffer file)
@@ -63,8 +63,8 @@
     (find-file "~/Dropbox/org/next.org")))
 
 ;;; Show yes or no when you try to kill Emacs
-;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
-;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
+;;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
+;;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
 (defun confirm-save-buffers-kill-emacs ()
   (interactive)
   (if (yes-or-no-p "Are you sure to quit Emacs now? ")
@@ -72,7 +72,7 @@
     (kill-buffer (buffer-name))))
 
 ;;; Insert a date and time quickly
-;; Cite: http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
+;;; Cite: http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 (defun insert-formatted-current-date ()
   (interactive)
   (insert (format-time-string "%Y-%m-%d")))
@@ -81,7 +81,7 @@
   (insert (format-time-string "%H:%M")))
 
 ;;; Visible-bell
-;; visible-bell
+;; Use visible-bell
 (setq visible-bell t)
 ;; Alternative to the default behavior of visible-bell
 (defcustom echo-area-bell-string " BEEP ";
@@ -143,7 +143,7 @@
       (message "%s" (buffer-file-name))
 )
 
-;;; Send focused region to the end of buffer
+;;; Send a region focused to the end of buffer
 (defun forward-region-to-tail ()
   (interactive)
   (progn
@@ -152,18 +152,16 @@
     (goto-char (point-max))
     (yank)
     (goto-char save-current-pos)
-    (message "Forward the region to the end of buffer ... done")
-))
+    (message "Forward the region to the end of buffer ... done")))
 
 ;;; Test function for AppleScript
-;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
+;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
 (defun do-test-applescript ()
   (interactive)
   (do-applescript
    (format
     (concat
-     "display dialog \"Hello world!\" \r"
-     ))))
+     "display dialog \"Hello world!\" \r"))))
 
 
 ;;; Automatic call functions when Emacs enters idle time ;;;;;;;;;;;;;;;;;;;;
@@ -172,28 +170,26 @@
   (message "%s" "reloading...")
   (sleep-for 0.5)
 
-  ; Set alarms of org-agenda
+  ;; Set alarms of org-agenda
   (message "%s" "set alarms")
   (sleep-for 0.5)
   (org-agenda-to-appt)
   (sleep-for 0.5)
 
-  ; Export an iCal file
+  ;; Export an iCal file
   (message "%s" "iCal export")
   (sleep-for 0.5)
   (reload-ical-export)
   (sleep-for 0.5)
 
-  ; Send org files to the server
+  ;; Send org files to the server
   (message "%s" "MobileOrg sync ... [push]")
   (sleep-for 0.5)
   (org-mobile-push)
 
-; add new functions here
-;
+  ;; add new functions here
   (message "%s" "done")
   (sleep-for 0.5)
-  (message "%s" "")
-)
+  (message "%s" ""))
 
 (provide 'takaxp-utility)
