@@ -4,9 +4,12 @@
 ;;; Cite: http://www.uranus.dti.ne.jp/~shiro-/soft/xyzzy/keybind.html
 ;;; Note: M-x descbinds-anything, M-x describe-bindings
 
+(message "* --[ Loading an init file, takaxp-keybinding.el ] --")
+
 ;;; C-<key>
 (global-set-key (kbd "C-0") 'insert-formatted-current-date)
 (global-set-key (kbd "C--") 'insert-formatted-current-time)
+(global-set-key (kbd "C-=") 'insert-formatted-signature)
 (global-set-key (kbd "C-:") 'my-anything)
 ;;; Hide or show current block of souces
 (global-set-key (kbd "C-;") 'hs-hide-block)
@@ -15,8 +18,6 @@
 ;;; C-c <key>
 ;; Spell checking within a specified region
 (global-set-key (kbd "C-c 0") 'ispell-region)
-(global-set-key (kbd "C-c 1") 'reload-ical-export)
-(global-set-key (kbd "C-c 2") 'do-org-update-statistics-cookies)
 (global-set-key (kbd "C-c 3") 'do-test-applescript)
 (global-set-key (kbd "C-c w") 'sdic-describe-word-at-point)
 ;; Move cursor to a specific line
@@ -25,12 +26,12 @@
 (global-set-key (kbd "C-c c") 'compile)
 ;; Call org-capture (replace the org-remember)
 (global-set-key (kbd "C-c r") 'org-capture)
-;; Show a menu to pull or push of org-mobile
-(global-set-key (kbd "C-c m") 'org-mobile-sync)
 ;; Show speedbar
 (global-set-key (kbd "C-c b") 'speedbar)
 ;; occur
 (global-set-key (kbd "C-c o") 'occur)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c a") 'org-agenda)
 
 ;;; C-<key> C-<key>
 ;; Backup the buffer whenever the buffer is saved
@@ -71,7 +72,7 @@
 (global-set-key (kbd "C-M--") 'add-itemize-head)
 (global-set-key (kbd "C-M-s") 'anything-spotlight)
 (global-set-key (kbd "C-M-w") 'sdic-describe-word)
-(global-set-key (kbd "C-M-2") 'lookup-word)
+(global-set-key (kbd "C-M-c") 'lookup-word)
 ;(global-set-key (kbd "C-M-i") 'eshell)
 ;; Focus on the previous split window (oppose to C-x o)
 (global-set-key (kbd "C-M-p") '(lambda () (interactive) (other-window -1)))
@@ -80,18 +81,16 @@
 ;(global-set-key [C-M-up] '(lambda () (interactive) (other-window -1)))
 ;(global-set-key [C-M-down] '(lambda () (interactive) (other-window 1)))
 
-
 ;;; Editing with a rectangle region
 (global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
 (global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
 (global-set-key (kbd "C-x r C-w") 'rm-kill-region)
 (global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
 
-
-;;; Track positions of the cursor
-;; Move the cursor to the previous position
+;;; Undo position of the cursor
+;; [point-undo.el] Move the cursor to the previous position
 (global-set-key (kbd "<f7>") 'point-undo)
-;; Redo of point-undo
+;; [point-undo.el] Redo of point-undo
 (global-set-key (kbd "S-<f7>") 'point-redo)
 
 ;; Drag and Drop config. for Emacs 23 (2010-07-20)

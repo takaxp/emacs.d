@@ -1,6 +1,15 @@
 ;;;; Utility functions
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
+(message "* --[ Loading an init file, takaxp-utility.el ] --")
+
+;; Use visible-bell
+(setq visible-bell t)
+;; Call a routine function when Emacs is idle
+(run-with-idle-timer 120 t 'sleep-after-reload)
+
+;;-----------------------------------------------------------------------------
+
 ;;; Move frame to any position on display 
 ;;; Cite: http://www.bookshelf.jp/soft/meadow_30.html#SEC411
 (defvar my-move-frame-distance 293) ;; mounts // mbp=394, one frame=586
@@ -79,10 +88,12 @@
 (defun insert-formatted-current-time ()
   (interactive)
   (insert (format-time-string "%H:%M")))
+(defun insert-formatted-signature ()
+  (interactive)
+  (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
+		  "  <" user-mail-address ">")))
 
 ;;; Visible-bell
-;; Use visible-bell
-(setq visible-bell t)
 ;; Alternative to the default behavior of visible-bell
 (defcustom echo-area-bell-string " BEEP ";
   "Message displayed in mode-line by `echo-area-bell' function."
@@ -144,11 +155,12 @@
 )
 
 ;;; Send a region focused to the end of buffer
+(setq region-beginning nil)
 (defun forward-region-to-tail ()
-  (interactive)
+  (interactive "r")
   (progn
-    (setq save-current-pos (region-beginning))
-    (kill-region (region-beginning) (region-end))
+    (setq save-current-pos (start))
+    (kill-region (start) (end))
     (goto-char (point-max))
     (yank)
     (goto-char save-current-pos)
@@ -162,6 +174,20 @@
    (format
     (concat
      "display dialog \"Hello world!\" \r"))))
+
+;;; Setup Auto-install.el
+(defun init-auto-install ()
+  (interactive)
+  (require 'auto-install)
+  ;; defalut install path for elisp
+  (setq auto-install-directory "~/env/config/emacs/")
+  ;; wget for MacOSX
+  (setq auto-install-wget-command "/opt/local/bin/wget")
+  ;; Check the server when booting Emacs
+  ;; But, auto-install-from-emacswiki will call it automatically.
+  (auto-install-update-emacswiki-package-name t)
+  ;; compatibility
+  (auto-install-compatibility-setup)) ; for install-elisp users
 
 
 ;;; Automatic call functions when Emacs enters idle time ;;;;;;;;;;;;;;;;;;;;

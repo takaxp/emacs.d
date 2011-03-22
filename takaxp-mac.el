@@ -1,6 +1,8 @@
 ;;;; Configuration for Mac
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
+(message "* --[ Loading an init file, takaxp-mac.el ] --")
+
 ;;; Spotlight search with anything.el
 (defun anything-spotlight ()
   (interactive)
@@ -56,5 +58,38 @@
 ;;; ispell / aspell / Flyspell
 ;; Overwrite ispell-program-name
 (setq-default ispell-program-name "/opt/local/bin/aspell")
+
+;;; Testing nextstep only ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; These setting will be moved to takaxp-init.el
+
+;;; Shrink or Expand region
+(autoload 'hideshowvis-enable "hideshowvis" "Highlight foldable regions")
+(autoload 'hideshowvis-minor-mode "hideshowvis"
+  "Will indicate regions foldable with hideshow in the fringe."
+  'interactive)
+(dolist (hook (list 'emacs-lisp-mode-hook
+		    'c++-mode-hook))
+  (add-hook hook 'hideshowvis-enable))
+
+;;; matlab.el
+(autoload 'matlab-mode "matlab" "Enter Matlab mode." t)
+(setq auto-mode-alist (cons '("\\.m\\'" . matlab-mode) auto-mode-alist))
+(autoload 'matlab-shell "matlab" "Interactive Matlab mode." t)
+
+;;; auto-complete
+(require 'auto-complete-config)
+(global-auto-complete-mode t)
+
+;; Use migemo
+;(require 'migemo)
+;; set off as default
+;(setq migemo-isearch-enable-p nil)
+
+;;; Search option
+;; igrep (M-x grep Override)
+(require 'igrep)
+(igrep-define lgrep (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8"))
+(igrep-find-define lgrep (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8"))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (provide 'takaxp-mac)
