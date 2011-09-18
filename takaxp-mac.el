@@ -1,66 +1,10 @@
 ;;;; Configuration for Mac
+;;;;                                       Last Update: 2011-09-18@09:01
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-mac.el ] --")
 
-;;; Spotlight search with anything.el
-(defun anything-spotlight ()
-  (interactive)
-  (anything-other-buffer
-   '(anything-c-source-mac-spotlight)
-   " *anything-spotlight*"))
-
-;;; QuickLook can show a file saved by Emacs 
-;; Cal xattr setting function through checking exception
-(defun set-xattr-mac ()
-  (interactive)
-  (progn
-    ;; Exception for a buffer saved on external devices
-    (if (and
-	 (not (string-match "^/ssh" (buffer-file-name)))
-	 (not (string-match "^/Volumes" (buffer-file-name))))
-	(set-xattr))))	
-;; Cal xattr command to add metadata
-(defun set-xattr ()
-  (interactive)
-  (progn
-    (setq mime-for-xattr
-	  (coding-system-get buffer-file-coding-system 'mime-charset))
-    (setq encoding-for-xattr nil)
-    ;;(setq encoding-for-xattr "SHIFT_JIS;2561")
-    ;;(setq encoding-for-xattr "UTF-8;134217984")
-    ;;(setq encoding-for-xattr "EUC-JP;2361")
-    ;;(setq encoding-for-xattr "MACINTOSH;0")
-    ;;(setq encoding-for-xattr "ISO-2022-JP;2080")
-    (cond
-     ((eq mime-for-xattr 'utf-8) (setq encoding-for-xattr "UTF-8;134217984"))
-     ((eq mime-for-xattr 'shift_jis) (setq encoding-for-xattr "SHIFT_JIS;2561"))
-     ((eq mime-for-xattr 'euc-jp) (setq encoding-for-xattr "EUC-JP;2361")))
-    (if (not (eq encoding-for-xattr nil))
-	(shell-command
-	 (format "xattr -w com.apple.TextEncoding \"%s\" %s"
-		 encoding-for-xattr (buffer-name (current-buffer)))))))
-;; Exception for spcific hosts
-(if (or
-     (string= "mbp.local" (system-name))
-     (string= "mini.local" (system-name)))
-    (add-hook 'after-save-hook 'set-xattr-mac)) ; add metadata after save
-
-;;; Flag related to inline-patch
-;; Set the default input method for Mac
-(setq default-input-method "MacOSX")
-;; To input two-byte character with Shift key under inline-patch
-(mac-add-key-passed-to-system 'shift)
-;; Set Kawasemi as a input method
-;(mac-set-input-method-parameters "jp.monokakido.inputmethod.Kawasemi" 'cursor-type "red")
-;(mac-set-input-method-parameter "com.google.inputmethod.Japanese.base" 'title "具")
-
-;;; ispell / aspell / Flyspell
-;; Overwrite ispell-program-name
-(setq-default ispell-program-name "/opt/local/bin/aspell")
-
 ;;; Testing nextstep only ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; These setting will be moved to takaxp-init.el
 
 ;;; Shrink or Expand region
 (autoload 'hideshowvis-enable "hideshowvis" "Highlight foldable regions")
@@ -71,25 +15,74 @@
 		    'c++-mode-hook))
   (add-hook hook 'hideshowvis-enable))
 
-;;; matlab.el
+
+;;; [mode] matlab
 (autoload 'matlab-mode "matlab" "Enter Matlab mode." t)
 (setq auto-mode-alist (cons '("\\.m\\'" . matlab-mode) auto-mode-alist))
 (autoload 'matlab-shell "matlab" "Interactive Matlab mode." t)
 
+
 ;;; auto-complete
+;; http://cx4a.org/software/auto-complete/manual.ja.html
+(require 'auto-complete)
 (require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "~/env/config/emacs/ac-dict")
+(ac-config-default)
+;; ac-modes にあるメジャーモードで有効にする
+;; lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
 (global-auto-complete-mode t)
+;; 追加のメジャーモードを設定
+;(add-to-list 'ac-modes 'org-mode)
+(add-to-list 'ac-modes 'objc-mode)
+;; n文字以上で補完表示する
+(setq ac-auto-start 4)
+;; n秒後にメニューを表示
+(setq ac-auto-show-menu 0.5)
+;; ツールチップを表示しない
+(setq ac-use-quick-help nil)
+;; C-n/C-p でメニューをたどる
+(setq ac-use-menu-map t)
+;; 次の2つは，デフォルトで設定されている
+;(define-key ac-menu-map (kbd "C-n") 'ac-next)
+;(define-key ac-menu-map (kbd "C-p") 'ac-previous)
+(define-key ac-completing-map "\t" 'ac-complete)
+(define-key ac-completing-map "\r" nil)
 
-;; Use migemo
-;(require 'migemo)
-;; set off as default
-;(setq migemo-isearch-enable-p nil)
+;(setq ac-auto-start nil)
+;(ac-set-trigger-key "TAB")
+;(setq ac-candidate-max 10)
 
-;;; Search option
+;;; Search option ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; igrep (M-x grep Override)
-(require 'igrep)
-(igrep-define lgrep (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8"))
-(igrep-find-define lgrep (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8"))
+(when (require 'igrep nil t)
+  (igrep-define lgrep (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8"))
+  (igrep-find-define lgrep
+		     (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8")))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defcustom open-current-directory-console-program "iTerm2.app"
+  "Specify a console program"
+  :type 'string
+  :group 'takaxp-mac)
+
+(defun open-current-directory ()
+  " Open Current Directory for MacOSX
+  0) Put this function in your .emacs
+  1) M-x open-current-directory
+  2) Terminal will open automatically
+  3) Type M-v to paste and move to a path to the current directory in Emacs"
+  (interactive)
+  (let ((file-path (buffer-file-name (current-buffer))))
+    (unless (string= file-path nil)
+      (let ((directory
+	    (substring file-path 0
+		       (-
+			(length file-path)
+			(length (buffer-name (current-buffer)))))))
+	(message "%s" directory)
+	(shell-command-to-string (concat "echo cd " directory " |pbcopy"))
+	(shell-command-to-string
+	 (concat "open -a " open-current-directory-console-program))))))
 
 (provide 'takaxp-mac)

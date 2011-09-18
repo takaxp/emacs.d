@@ -3,18 +3,22 @@ The author is Takaaki ISHIKAWA <takaxp@ieee.org>
 
 Write the following emacs lisp files in your .emacs
 ------------------------
-(require 'takaxp.el)
+(require 'takaxp-init)
+(require 'takaxp-face)
 (require 'takaxp-utility)
-(require 'takaxp-org-mode)
 (when (eq window-system 'ns)
   (require 'takaxp-mac))
+(require 'takaxp-org-mode)
+(require 'takaxp-private)
 (require 'takaxp-keybinding)
 ------------------------
 
   - STRUCTURE
-./takaxp-init.el        [CLOSED]    Core configurations for using Emacs
+./takaxp-init.el        [ OPEN ]    Core configurations for using Emacs
+./takaxp-face.el	[ OPEN ]    Font, Face, and frame display settings
 ./takaxp-utility.el     [ OPEN ]    Defines functions for using Emacs more handy
-./takaxp-org-mode.el    [CLOSED]    Configurations for Org-mode
+./takaxp-org-mode.el    [ OPEN ]    Configurations for Org-mode
 ./takaxp-mac.el         [ OPEN ]    Configurations only for Macintosh
+./takaxp-private.el	[CLOSED]    Setting with private variables
 ./takaxp-keybinding.el  [ OPEN ]    Global settings of keybindings
 	

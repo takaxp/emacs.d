@@ -1,14 +1,10 @@
 ;;;; Utility functions
+;;;;                                       Last Update: 2011-09-18@11:02
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
 
-;; Use visible-bell
-(setq visible-bell t)
-;; Call a routine function when Emacs is idle
-(run-with-idle-timer 120 t 'sleep-after-reload)
-
-;;-----------------------------------------------------------------------------
+(run-with-idle-timer 60 t 'sleep-after-reload)
 
 ;;; Move frame to any position on display 
 ;;; Cite: http://www.bookshelf.jp/soft/meadow_30.html#SEC411
@@ -20,7 +16,7 @@
            (top (frame-parameter (selected-frame) 'top))
            (left (frame-parameter (selected-frame) 'left))
            (mpos (if meadowy
-                     (cdr (mouse-position))
+		     (cdr (mouse-position))
                    (cdr (mouse-pixel-position))))
            (hoff (* (or horizon 0) my-move-frame-distance))
            (voff (* (or vertical 0) my-move-frame-distance)))
@@ -32,49 +28,35 @@
 ;                                  (+ (car mpos) hoff)
 ;                                  (+ (cdr mpos) voff)))
 )))
+
 (defun my-move-frame-up ()
-  "Move frame up"
-  (interactive)
-  (my-move-frame -1 0))
+  "Move frame up" (interactive) (my-move-frame -1 0))
 (defun my-move-frame-down ()
-  "Move frame down"
-  (interactive)
-  (my-move-frame 1 0))
+  "Move frame down" (interactive) (my-move-frame 1 0))
 (defun my-move-frame-left ()
-  "Move frame left"
-  (interactive)
-  (my-move-frame 0 -1))
+  "Move frame left" (interactive) (my-move-frame 0 -1))
 (defun my-move-frame-right ()
-  "Move frame right"
-  (interactive)
-  (my-move-frame 0 1))
+  "Move frame right" (interactive) (my-move-frame 0 1))
 
-;;; Export org files as an iCal format file
-(defun reload-ical-export ()
-  (interactive)
-  (if (string= major-mode 'org-mode)
-      (progn
-	(org-export-icalendar-combine-agenda-files))))
-
-;;; Insert "  - " at the head of line
 (defun add-itemize-head ()
+  "Insert \"  - \" at the head of line"
   (interactive)
   (move-beginning-of-line 1)
   (insert "  - "))
 
-;;; Show an org-file on the current buffer
 (defun show-org-buffer (file)
+  "Show an org-file on the current buffer"
   (interactive)
   (if (get-buffer file)
       (let ((buffer (get-buffer file)))
 	(switch-to-buffer buffer)
 	(message "%s" file))
-    (find-file "~/Dropbox/org/next.org")))
+    (find-file (concat org-directory file))))
 
-;;; Show yes or no when you try to kill Emacs
 ;;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
 ;;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
 (defun confirm-save-buffers-kill-emacs ()
+  "Show yes or no when you try to kill Emacs"
   (interactive)
   (if (yes-or-no-p "Are you sure to quit Emacs now? ")
     (save-buffers-kill-emacs)
@@ -122,14 +104,15 @@
 	    echo-area-bell-string)
 ;	   'face '(:background "red")
 ;	   'face '(:foreground "#FFFFFF" :background "#FF4040")
-	   'face '(:foreground "#FFFFFF" :background "#C1252D")
+;	   'face '(:foreground "#FFFFFF" :background "#C1252D")
+;	   'face '(:foreground "#FFFFFF" :background "#FD8A4B")
+	   'face '(:foreground "#FFFFFF" :background "#FF7D7D")
 	   ))
     (setq echo-area-bell-cached-string echo-area-bell-string))
   (message echo-area-bell-propertized-string)
   (sit-for echo-area-bell-delay)
   (message ""))
 (setq ring-bell-function 'echo-area-bell)
-
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 (defun count-words-buffer ()
@@ -144,28 +127,6 @@
       (message "buffer contains %d words." count))))
 
 
-;;; Test function to verify a function (C-c C-b)
-(defun testfunc ()
-  (interactive)
-;  (message buffer-file-coding-system);
-;  (message (coding-system-get buffer-file-coding-system 'mime-charset))
-;  (message "%s" (system-name))
-;  (if (string-match "^/Users" (buffer-file-name))
-      (message "%s" (buffer-file-name))
-)
-
-;;; Send a region focused to the end of buffer
-(setq region-beginning nil)
-(defun forward-region-to-tail ()
-  (interactive "r")
-  (progn
-    (setq save-current-pos (start))
-    (kill-region (start) (end))
-    (goto-char (point-max))
-    (yank)
-    (goto-char save-current-pos)
-    (message "Forward the region to the end of buffer ... done")))
-
 ;;; Test function for AppleScript
 ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
 (defun do-test-applescript ()
@@ -175,47 +136,196 @@
     (concat
      "display dialog \"Hello world!\" \r"))))
 
-;;; Setup Auto-install.el
+(defcustom my-auto-install-batch-list-el-url nil
+  "URL of a auto-install-batch-list.el"
+  :type 'string
+  :group 'takaxp-utility)
+
 (defun init-auto-install ()
+  "Setup Auto-install.el"
   (interactive)
-  (require 'auto-install)
-  ;; defalut install path for elisp
-  (setq auto-install-directory "~/env/config/emacs/")
-  ;; wget for MacOSX
-  (setq auto-install-wget-command "/opt/local/bin/wget")
-  ;; Check the server when booting Emacs
-  ;; But, auto-install-from-emacswiki will call it automatically.
-  (auto-install-update-emacswiki-package-name t)
-  ;; compatibility
-  (auto-install-compatibility-setup)) ; for install-elisp users
+  (when (and (require 'auto-install nil t)
+	     my-auto-install-batch-list-el-url)
+    (setq auto-install-batch-list-el-url my-auto-install-batch-list-el-url)
+    (setq auto-install-directory "~/env/config/emacs/")
+    (setq auto-install-wget-command "/opt/local/bin/wget")
+    (auto-install-update-emacswiki-package-name t)
+    ;; compatibility
+    (auto-install-compatibility-setup))) ; for install-elisp users
+
+(defun get-random-string (length)
+  "Get a string contain the length digit number with random selection"
+  (interactive)
+  (random t)
+  (cond ((> length 0)
+	 (let
+	     ((count length)
+	      (string nil)
+	      (tmp nil))
+	   (while (< 0 count)
+	     (setq count (1- count))
+	     (setq tmp string)
+	     (setq string
+		   (concat tmp (number-to-string (random 10)))))
+	   (message "%s" string)))
+	(t "0")))
+
+;;; Publish an xml file to show a Gantt Chart
+(defcustom default-timeline-csv-file nil
+  "source.csv"
+  :type 'string
+  :group 'takaxp-utility)
+
+(defcustom default-timeline-xml-business-file nil
+  "XML file for business schedule"
+  :type 'string
+  :group 'takaxp-utility)
+
+(defcustom default-timeline-xml-private-file nil
+  "XML file for private schedule"
+  :type 'string
+  :group 'takaxp-utility)
+
+(defcustom default-timeline nil
+  "a template index.html"
+  :type 'string
+  :group 'takaxp-utility)
+
+(defun export-timeline-business ()
+  "Export schedule table as an XML source to create an web page"
+  (interactive)
+  (when (and default-timeline
+	     (and default-timeline-csv-file default-timeline-xml-business-file))
+    (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
+    (org-table-export default-timeline-csv-file "orgtbl-to-csv")
+    (shell-command-to-string (concat "org2gantt.pl > "
+				     default-timeline-xml-business-file))
+    (shell-command-to-string (concat "open " default-timeline))))
 
 
-;;; Automatic call functions when Emacs enters idle time ;;;;;;;;;;;;;;;;;;;;
+(defun export-timeline-private ()
+  "Export schedule table as an XML source to create an web page"
+  (interactive)
+  (when (and default-timeline
+	     (and default-timeline-csv-file default-timeline-xml-private-file))
+    (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
+    (org-table-export default-timeline-csv-file "orgtbl-to-csv")
+    (shell-command-to-string (concat "org2gantt.pl > "
+				     default-timeline-xml-private-file))
+    (shell-command-to-string (concat "open " default-timeline))))
+
+(defun toggle-single-wide-frame ()
+  "Change the width of the frame to a single width frame"
+  (interactive)
+  (delete-other-windows)
+  (modify-frame-parameters (selected-frame)
+			   (append
+			    '((vertical-scroll-bars . nil)
+			      (width . 80))))
+  (redraw-frame (selected-frame)))
+
+(defun toggle-double-wide-frame ()
+  "Change the width of the frame to a double width frame"
+  (interactive)
+  (delete-other-windows)
+  (modify-frame-parameters (selected-frame)
+			   (append
+			    '((vertical-scroll-bars . nil)
+			      (width . 163))))
+  (redraw-frame (selected-frame))
+  (split-window-horizontally))
+
+(defun set-alerms-from-file (file)
+  (let
+      ((lines (read-line file)))
+    (while lines
+      (set-alerm-from-line (decode-coding-string (car lines) 'utf-8))
+      (setq lines (cdr lines)))))
+
+(defun set-alerm-from-line (line)
+  "NOTE: this function need (require 'todochiku)"
+  (when (require 'todochiku nil t)
+    (let
+	((hour nil)
+	 (min nil)
+	 (current-hour nil)
+	 (current-min nil)
+	 (action nil))
+      (when (string-match "\\([0-2][0-9]\\):\\([0-5][0-9]\\)" line)
+	(setq hour (substring line (match-beginning 1) (match-end 1)))
+	(setq min (substring line (match-beginning 2) (match-end 2)))
+	(when (string-match
+	       "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
+	  (setq action (substring line (match-beginning 1) (match-end 1)))))
+      (when (and (and hour min) action)
+	(message "[%s:%s] => %s" hour min action)
+	(setq current-hour (format-time-string "%H" (current-time)))
+	(setq current-min (format-time-string "%M" (current-time)))
+	(when (> (+ (* (string-to-number hour) 60) (string-to-number min))
+		 (+ (* (string-to-number current-hour) 60)
+		    (string-to-number current-min)))
+	  (run-at-time (format "%s:%s" hour min) nil
+		       'todochiku-message
+		       "== REMINDER ==" (format "%s:%s %s" hour min action)
+		       "Emacs" 'sticky))))))
+  
+(defun read-line (file)
+  "Make a list from a file, which is divided by LF code"
+  (with-temp-buffer
+    (insert-file-contents-literally file)
+    (split-string
+     (buffer-string) "\n" t)))
+
+;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
+;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
+(defun browse-url-chrome (url &optional new-window)
+  "Set default browser to open a URL"
+  (interactive (browse-url-interactive-arg "URL: "))
+  (start-process "google-chrome" nil "google-chrome" url))
+;; Open a link with google-chrome for Linux
+(when (not (eq window-system 'ns))
+  (setq browse-url-browser-function 'browse-url-generic
+	browse-url-generic-program "google-chrome")
+)
+;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
+;(setq browse-url-browser-function 'browse-url-default-windows-browser)
+;(setq browse-url-browser-function 'browse-url-chrome)
+
+
 (defun sleep-after-reload ()
+  "Automatic call functions when Emacs enters idle time"
   (interactive)
   (message "%s" "reloading...")
-  (sleep-for 0.5)
 
   ;; Set alarms of org-agenda
   (message "%s" "set alarms")
-  (sleep-for 0.5)
   (org-agenda-to-appt)
-  (sleep-for 0.5)
 
   ;; Export an iCal file
   (message "%s" "iCal export")
-  (sleep-for 0.5)
   (reload-ical-export)
-  (sleep-for 0.5)
 
   ;; Send org files to the server
   (message "%s" "MobileOrg sync ... [push]")
-  (sleep-for 0.5)
   (org-mobile-push)
+
+  ;; Reset recentf
+  (recentf-save-list)
 
   ;; add new functions here
   (message "%s" "done")
-  (sleep-for 0.5)
+  (sit-for 0.5)
   (message "%s" ""))
 
 (provide 'takaxp-utility)
+
+;;;
+;; Not available
+;;
+;;(defun do-sleep-after-reload ()
+;;  "a routine function when Emacs is idle"
+;;  (interactive)
+;;  ;; Avoid application failure related to IME inline-patch
+;;  (if ns-marked-overlay
+;;      (message "ns-marked-overlay: %s" ns-marked-overlay)
+;;    (sleep-after-reload)))
