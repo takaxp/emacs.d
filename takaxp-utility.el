@@ -1,5 +1,5 @@
 ;;;; Utility functions
-;;;;                                       Last Update: 2011-09-18@11:02
+;;;;                                       Last Update: 2011-09-18@23:54
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
@@ -142,7 +142,10 @@
   :group 'takaxp-utility)
 
 (defun init-auto-install ()
-  "Setup Auto-install.el"
+  "Setup auto-install.el.
+1. Set my-auto-install-batch-list-el-url
+2. M-x init-auto-install
+3. M-x auto-install-batch hoge"
   (interactive)
   (when (and (require 'auto-install nil t)
 	     my-auto-install-batch-list-el-url)
@@ -236,11 +239,21 @@
   (split-window-horizontally))
 
 (defun set-alerms-from-file (file)
+  "Make alerms from org-mode tables. If you have an org-mode file with tables with the following format:
+|----+--------+-------------------------------------------------------------|
+| ID |   Time | Content                                                     |
+|----+--------+-------------------------------------------------------------|
+|  1 |  07:00 | Wakeup                                                      |
+|  2 |        | Read papers                                                 |
+|  3 |  12:00 | Clean up your desk                                          |
+When it is 7:00 and 12:00, Growl notify with a message which is specified
+content column from the table. The line ID number is 2 will be ignored."
   (let
       ((lines (read-line file)))
     (while lines
       (set-alerm-from-line (decode-coding-string (car lines) 'utf-8))
-      (setq lines (cdr lines)))))
+      (setq lines (cdr lines))
+      (message ""))))
 
 (defun set-alerm-from-line (line)
   "NOTE: this function need (require 'todochiku)"

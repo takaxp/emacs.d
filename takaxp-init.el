@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-09-18@10:33
+;;;;                                       Last Update: 2011-09-19@00:27
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html
 
@@ -67,6 +67,11 @@
   (setq auto-mode-alist
 	(cons '("\\.po[tx]?\\'\\|\\.po\\." . po-mode)
 	      auto-mode-alist)))
+
+;;; [mode] Info
+(when (require 'info nil t)
+  (add-to-list 'Info-additional-directory-list
+	     "/Users/taka/devel/git/org-ja/work/"))
 
 ;;; [mode] org
 ;; see takaxp-org-mode.el
@@ -231,9 +236,24 @@
     '(add-to-list 'ispell-skip-region-alist '("[^\000-\377]")))
   (setq ispell-dictionarry "english")
   (setq ispell-personal-dictionary "~/env/dot_files/.aspell.en.pws")
-  (setq ispell-aspell-supports-utf8 t))
-  ;; ignore .tex
-  ;; (setq ispell-parser 'tex)
+  ;; http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
+  ;; This will also avoid an IM-OFF issue for flyspell-mode.
+  (setq ispell-local-dictionary-alist
+      '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
+	     ("-d" "en" "--encoding=utf-8") nil utf-8)))
+;  (setq ispell-aspell-supports-utf8 t)
+;  (setq ispell-encoding8-command t)
+  )
+
+;;; Flyspell
+(dolist
+    (hook
+     '(text-mode-hook change-log-mode-hook c++-mode-hook
+		      latex-mode-hook org-mode-hook))
+  (add-hook hook (lambda () (flyspell-mode 1))))
+(add-hook 'c++-mode-hook
+	  (lambda () (flyspell-prog-mode)))
+
 
 (provide 'takaxp-init)
 
@@ -336,9 +356,3 @@
 ;(setq lookup-use-kakasi nil)
 
 ;; Flyspell does NOT have a good compatibility with IME of Macintosh
-;(dolist (hook '(text-mode-hook change-log-mode-hook
-;			       c++-mode-hook org-mode-hook))
-;  (add-hook hook (lambda () (flyspell-mode t))))
-;(dolist (hook '(latex-mode-hook))
-;  (add-hook hook (lambda () (flyspell-mode nil))))
-

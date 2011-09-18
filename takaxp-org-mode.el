@@ -1,5 +1,5 @@
 ;;;; Configuration for org-mode
-;;;;                                       Last Update: 2011-09-18@10:16
+;;;;                                       Last Update: 2011-09-18@12:34
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-org-mode.el ] --")
@@ -145,6 +145,10 @@
 ;	  (lambda() (add-hook 'before-save-hook
 ;			      'org-agenda-to-appt t)))
 
+;;; org-refile
+(setq org-refile-targets
+      (quote (("next.org" :level . 1)
+	      ("sleep.org" :level . 1))))
 
 ;;; Pomodoro ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; http://orgmode.org/worg/org-gtd-etc.html
