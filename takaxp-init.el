@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-09-19@00:27
+;;;;                                       Last Update: 2011-09-19@18:36
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html
 
@@ -22,7 +22,8 @@
 ;(set-buffer-process-coding-system 'utf-8 'utf-8)
 (set-buffer-file-coding-system 'utf-8)
 (prefer-coding-system 'utf-8-unix)
-(set-locale-environment "ja_JP.UTF-8")
+;(set-locale-environment "ja_JP.UTF-8")
+(set-locale-environment "en_US.UTF-8")
 (when (eq window-system 'ns)
   (setq default-input-method "MacOSX")
   (mac-add-key-passed-to-system 'shift))
@@ -75,7 +76,6 @@
 
 ;;; [mode] org
 ;; see takaxp-org-mode.el
-
 
 ;;; Settings for emacs core system ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Use unlimited undo buffer
@@ -200,6 +200,7 @@
 ;; Note: Call this before org-mode, conflicting with remember.el (C-c r t)
 (when (require 'sense-region nil t)
   (sense-region-on))
+;; (cua-mode t) ;; cua-mode has also rectangular function
 
 ;;; Time stamp
 (when (require 'time-stamp nil t)
