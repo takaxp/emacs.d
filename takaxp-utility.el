@@ -1,5 +1,5 @@
 ;;;; Utility functions
-;;;;                                       Last Update: 2011-09-18@23:54
+;;;;                                       Last Update: 2011-10-01@11:48
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
@@ -288,6 +288,24 @@ content column from the table. The line ID number is 2 will be ignored."
     (insert-file-contents-literally file)
     (split-string
      (buffer-string) "\n" t)))
+
+(defun reset-frame-height-30 ()
+  (interactive)
+  (set-frame-height (selected-frame) 30))
+
+(defun reset-frame-height-60 ()
+  (interactive)
+  (set-frame-height (selected-frame) 60))
+
+(defun reset-frame-height ()
+  "Reset the hight of frame"
+  (interactive)
+  (set-frame-height (selected-frame)
+		    (string-to-number
+		     (read-from-minibuffer "Height: "
+					   (number-to-string
+					    (frame-height))))))
+		    
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim

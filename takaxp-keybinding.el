@@ -1,5 +1,5 @@
 ;;;; Global keybindings
-;;;;                                      Last Update: 2011-09-18@10:21
+;;;;                                      Last Update: 2011-10-06@09:55
 ;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;; Cite: http://www.gnu.org/software/emacs/manual/html_node/emacs/Key-Bindings.html#Key-Bindings
 ;;; Cite: http://www.uranus.dti.ne.jp/~shiro-/soft/xyzzy/keybind.html
@@ -39,8 +39,10 @@
 ;;; C-c <key>
 ;; Spell checking within a specified region
 (global-set-key (kbd "C-c 0") 'ispell-region)
+; C-c 1 is assigned to org-mode
+; C-c 2 is assigned to org-mode
 (global-set-key (kbd "C-c 3") 'do-test-applescript)
-(global-set-key (kbd "C-c w") 'sdic-describe-word-at-point)
+(global-set-key (kbd "C-c w") 'sdic-describe-word)
 ;; Move cursor to a specific line
 (global-set-key (kbd "C-c g") 'goto-line)
 ;; Call make command
@@ -105,9 +107,10 @@
 (global-set-key (kbd "C-M-r") 'my-anything)
 (global-set-key (kbd "C-M-s") 'anything-spotlight)
 (global-set-key (kbd "C-M--") 'add-itemize-head)
-(global-set-key (kbd "C-M-w") 'sdic-describe-word)
+(global-set-key (kbd "C-M-w") 'sdic-describe-word-at-point)
 (global-set-key (kbd "C-M-c") 'lookup-word)
-;(global-set-key (kbd "C-M-i") 'eshell)
+;(global-set-key (kbd "C-M-i") '(lambda () (interactive)
+;				 (shell-command "open -a iTerm2.app")))
 ;; Focus on the previous split window (oppose to C-x o)
 (global-set-key (kbd "C-M-p") '(lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "C-M-n") '(lambda () (interactive) (other-window 1)))

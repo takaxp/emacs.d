@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-09-18@11:14
+;;;;                                       Last Update: 2011-09-23@13:24
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-face.el ] --")
@@ -54,6 +54,7 @@
 	   ;; 837 is the setting for right side for MBP
 	   (width . 80) ; Width  : character count
 	   (height . 60); Height : character count
+	   (alpha . (100 50))
 	   ) initial-frame-alist)))
 
  ((eq window-system 'x) ; for Linux
@@ -115,8 +116,6 @@
 
 ;; Turn on font-lock mode for Emacs
 (global-font-lock-mode t)
-(cond ((not running-xemacs)
-       (global-font-lock-mode t)))
 
 ;; Avoid exceeding of line display
 (unless truncate-lines

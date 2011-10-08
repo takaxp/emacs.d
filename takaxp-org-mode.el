@@ -1,5 +1,5 @@
 ;;;; Configuration for org-mode
-;;;;                                       Last Update: 2011-09-18@12:34
+;;;;                                       Last Update: 2011-10-08@17:48
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-org-mode.el ] --")
@@ -7,6 +7,7 @@
 (require 'org-install)
 (require 'org-extension)
 (require 'org-habit)
+(require 'org-mobile)
 
 (setq auto-mode-alist
       (cons (cons "\\.org$" 'org-mode) auto-mode-alist))
@@ -39,6 +40,11 @@
 ;; タイムスタンプによるログ収集設定
 (setq org-log-done t) ; t ではなく，'(done), '(state) を指定できる
 
+;; ログをドロアーに入れる
+(setq org-log-into-drawer t)
+
+;; タイマーの音
+; (lsetq org-clock-sound "");
 
 ;;; Org-Agenda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; アジェンダ作成対象（指定しないとagendaが生成されない）
@@ -90,15 +96,18 @@
 ; 2010-06-13 の形式では，タグとして認識されない
 (defun get-current-date-tags () (format-time-string "%Y%m%d"))
 (setq org-default-notes-file (concat org-directory "next.org"))
-(setq org-capture-words-notes-file (concat org-directory "words.org"))
-(setq org-capture-notes-file (concat org-directory "note.org"))
-(setq org-capture-research-file (concat org-directory "research.org"))
-(setq org-capture-buffer-file (concat org-directory "buffer.org"))
+(defvar org-capture-words-notes-file (concat org-directory "words.org"))
+(defvar org-capture-notes-file (concat org-directory "note.org"))
+(defvar org-capture-research-file (concat org-directory "research.org"))
+(defvar org-capture-buffer-file (concat org-directory "buffer.org"))
+(defvar org-capture-today-file (concat org-directory "today.org"))
+
 ; see org.pdf:p73
 (setq org-capture-templates
  `(("t" "TODO 項目を INBOX に貼り付ける" entry (file+headline nil "INBOX")
     "** TODO %?\n\t")
-   ("l" "本日のチェックリスト" entry (file+headline nil "INBOX")
+   ("l" "本日のチェックリスト" entry
+    (file+headline ,org-capture-today-file "Today")
     "** FOCUS 本日のチェックリスト %T\n（起床時間の記録）[[http://www.hayaoki-seikatsu.com/users/takaxp/][早起き日記]] \n（朝食）\n  - [ ] %?\n（昼食）\n（帰宅／夕食）\n----\n（研究速報）\n  - [ ] \n")
    ("i" "アイディアを書き込む" entry (file+headline nil "INBOX")
     "** %?\n  - \n\t%U")
@@ -122,7 +131,8 @@
     "** note %?\n# \n  - \n\t%U")
    ("`" ,(concat "ノートをバッファ "org-capture-buffer-file " に書き込む")
     entry (file+headline ,org-capture-buffer-file "Buffer")
-    "** %(get-random-string 16) %U\n\n%?\n\n----")))
+    "** %(get-random-string 16) %U\n\n%?\n\n----")
+))
 
 
 ;;; appt.el ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -296,6 +306,7 @@
 (define-key org-mode-map (kbd "C-c m") 'org-mobile-sync)
 (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
 (define-key org-mode-map (kbd "<S-f5>") 'widen)
+
 
 (provide 'takaxp-org-mode)
 

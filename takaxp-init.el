@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-09-19@18:36
+;;;;                                       Last Update: 2011-10-06@10:03
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html
 
@@ -148,6 +148,8 @@
 (when (require 'anything-startup nil t)
   (require 'anything-c-moccur nil t)
 ;  (setq moccur-split-word t)
+;  (setq anything-c-locate-options `("locate" "-w"))
+
   (when (require 'migemo nil t)
     (setq moccur-use-migemo t))
   
@@ -157,7 +159,8 @@
      '(anything-c-source-recentf
        anything-c-source-file-name-history
        anything-c-source-buffers
-       anything-c-source-emacs-commands)
+       anything-c-source-emacs-commands
+       anything-c-source-locate)
      " *my-anything*"))
   
   (defun my-anything-buffer ()
@@ -247,13 +250,13 @@
   )
 
 ;;; Flyspell
-(dolist
-    (hook
-     '(text-mode-hook change-log-mode-hook c++-mode-hook
-		      latex-mode-hook org-mode-hook))
-  (add-hook hook (lambda () (flyspell-mode 1))))
-(add-hook 'c++-mode-hook
-	  (lambda () (flyspell-prog-mode)))
+;;(dolist
+;;    (hook
+;;     '(text-mode-hook change-log-mode-hook c++-mode-hook
+;;		      latex-mode-hook org-mode-hook))
+;;  (add-hook hook (lambda () (flyspell-mode 1))))
+;;(add-hook 'c++-mode-hook
+;;	  (lambda () (flyspell-prog-mode)))
 
 
 (provide 'takaxp-init)
