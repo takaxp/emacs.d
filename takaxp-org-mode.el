@@ -1,5 +1,5 @@
 ;;;; Configuration for org-mode
-;;;;                                       Last Update: 2011-10-14@13:00
+;;;;                                       Last Update: 2011-10-14@13:19
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-org-mode.el ] --")
@@ -74,7 +74,8 @@
 
 ;;; iCal ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; アジェンダの iCal エクスポートファイル
-(setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
+;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
+;; (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
 ;; iCal の説明文
 (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
 ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
