@@ -1,5 +1,5 @@
 ;;;; Configuration for org-mode
-;;;;                                       Last Update: 2011-10-08@17:48
+;;;;                                       Last Update: 2011-10-14@13:00
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-org-mode.el ] --")
@@ -8,6 +8,7 @@
 (require 'org-extension)
 (require 'org-habit)
 (require 'org-mobile)
+(require 'org-tree-slide) ;; 自作コード
 
 (setq auto-mode-alist
       (cons (cons "\\.org$" 'org-mode) auto-mode-alist))
@@ -47,9 +48,6 @@
 ; (lsetq org-clock-sound "");
 
 ;;; Org-Agenda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; アジェンダ作成対象（指定しないとagendaが生成されない）
-;; ここを間違うと，MobileOrg, iCal export もうまくいかない
-(setq org-agenda-files (file-expand-wildcards (concat org-directory "*.org")))
 ;; Set the view span as day in an agenda view, the default is week
 (setq org-agenda-span 'day)
 ;; アジェンダに警告を表示する期間
@@ -67,9 +65,12 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(org-agenda-files '("~/Dropbox/org/next.org")))
+ '(org-agenda-files '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org")))
 ; "~/Dropbox/org/note.org" "~/Dropbox/org/stack.org" "~/Dropbox/org/support.org"
 
+;; アジェンダ作成対象（指定しないとagendaが生成されない）
+;; ここを間違うと，MobileOrg, iCal export もうまくいかない
+;(setq org-agenda-files (file-expand-wildcards (concat org-directory "*.org")))
 
 ;;; iCal ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; アジェンダの iCal エクスポートファイル
@@ -300,6 +301,10 @@
   (interactive)
   (org-update-statistics-cookies 'all))
 
+;; org-tree-slide
+(setq alerm-table "~/Dropbox/org/today.org")
+(run-at-time "00:00" nil 'set-alerms-from-file alerm-table)
+
 ;; Keybindings for org-mode
 (define-key org-mode-map (kbd "C-c 1") 'reload-ical-export)
 (define-key org-mode-map (kbd "C-c 2") 'do-org-update-statistics-cookies)
@@ -307,6 +312,9 @@
 (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
 (define-key org-mode-map (kbd "<S-f5>") 'widen)
 
+;; 起動時にモバイルで環境で編集したファイルを読み込む
+(message "%s" "MobileOrg sync ... [pull]")
+(org-mobile-pull);; need org-mode
 
 (provide 'takaxp-org-mode)
 
