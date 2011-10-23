@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-09-23@13:24
+;;;;                                       Last Update: 2011-10-23@11:30
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-face.el ] --")
@@ -53,7 +53,7 @@
 	   ;; 26 is the setting for Butler's Docklet
 	   ;; 837 is the setting for right side for MBP
 	   (width . 80) ; Width  : character count
-	   (height . 60); Height : character count
+	   (height . 30); Height : character count
 	   (alpha . (100 50))
 	   ) initial-frame-alist)))
 
@@ -87,14 +87,18 @@
 (require 'popwin "popwin")
 (setq display-buffer-function 'popwin:display-buffer)
 (setq popwin:special-display-config
-      (append '(("*Completions*" :height 10 :position top)
-		("*Org Agenda*"  :height 10)
-		("*Occur*"       :height 10)
-		("*sdic*"        :height 15)
-		("*anything*"    :height 15)
-		("*my-anything*" :height 15)
-		("*my-anything-buffer*"    :height 45)
-		("*eshell*"      :height 15))
+      (append '(("*Completions*" :height 10 :position top :noselect t)
+		("*Calendar*"    :height 15 :position top)
+		("*Org Agenda*"  :height 10 :position bottom)
+		("*Agenda Commands*"  :height 10 :position bottom)
+		("*Org Select*"  :height 10 :position bottom)
+		("*Occur*"       :height 10 :position bottom)
+		("*sdic*"        :height 15 :position bottom)
+		("*anything*"    :height 15 :position bottom)
+		("*my-anything*" :height 15 :position bottom)
+		("*my-anything-buffer*"    :height 45 :position bottom)
+;		("*cfw-calendar*" :height 40 :position top)
+		("*eshell*"      :height 15 :position bottom))
 	      popwin:special-display-config))
 
 ;;; Colors ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -102,12 +106,23 @@
 (set-cursor-color "#AAAAAA") ; #91C3FF
 ;(add-to-list 'default-frame-alist '(cursor-type . (hbar . 5)))
 ;(add-to-list 'default-frame-alist '(cursor-type . bar))
+
 (when (eq window-system 'ns)
-  ;; when Kawasemi is ON
+  ;; when IME is ON
+  (mac-set-input-method-parameter
+   "com.google.inputmethod.Japanese.base" 'cursor-color "#91C3FF")
+  (mac-set-input-method-parameter
+   "com.google.inputmethod.Japanese.base" 'title "Ｇ")
+  (mac-set-input-method-parameter
+   "com.apple.inputmethod.Kotoeri.Japanese" 'cursor-color "#91C3FF")
   (mac-set-input-method-parameter
    "jp.monokakido.inputmethod.Kawasemi.Japanese" 'cursor-color "#91C3FF")
 
-  ;; when Kawasemi is OFF
+  ;; when IME is OFF
+  (mac-set-input-method-parameter
+   "com.google.inputmethod.Japanese.Roman" 'cursor-color "#AAAAAA")
+  (mac-set-input-method-parameter
+   "com.apple.inputmethod.Kotoeri.Roman" 'cursor-color "#AAAAAA")
   (mac-set-input-method-parameter
    "jp.monokakido.inputmethod.Kawasemi.Roman" 'cursor-color "#AAAAAA"))
 
