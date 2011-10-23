@@ -1,5 +1,5 @@
 ;;;; Utility functions
-;;;;                                       Last Update: 2011-10-01@11:48
+;;;;                                       Last Update: 2011-10-18@08:44
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
@@ -238,8 +238,8 @@
   (redraw-frame (selected-frame))
   (split-window-horizontally))
 
-(defun set-alerms-from-file (file)
-  "Make alerms from org-mode tables. If you have an org-mode file with tables with the following format:
+(defun set-alarms-from-file (file)
+  "Make alarms from org-mode tables. If you have an org-mode file with tables with the following format:
 |----+--------+-------------------------------------------------------------|
 | ID |   Time | Content                                                     |
 |----+--------+-------------------------------------------------------------|
@@ -251,11 +251,11 @@ content column from the table. The line ID number is 2 will be ignored."
   (let
       ((lines (read-line file)))
     (while lines
-      (set-alerm-from-line (decode-coding-string (car lines) 'utf-8))
+      (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
       (setq lines (cdr lines))
       (message ""))))
 
-(defun set-alerm-from-line (line)
+(defun set-alarm-from-line (line)
   "NOTE: this function need (require 'todochiku)"
   (when (require 'todochiku nil t)
     (let

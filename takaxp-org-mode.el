@@ -1,5 +1,5 @@
 ;;;; Configuration for org-mode
-;;;;                                       Last Update: 2011-10-14@13:19
+;;;;                                       Last Update: 2011-10-20@11:38
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-org-mode.el ] --")
@@ -92,8 +92,6 @@
 ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
 (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
 
-
-
 ;;; Org-capture ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 2010-06-13 の形式では，タグとして認識されない
 (defun get-current-date-tags () (format-time-string "%Y%m%d"))
@@ -161,6 +159,7 @@
 (setq org-refile-targets
       (quote (("next.org" :level . 1)
 	      ("sleep.org" :level . 1))))
+
 
 ;;; Pomodoro ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; http://orgmode.org/worg/org-gtd-etc.html
@@ -303,8 +302,8 @@
   (org-update-statistics-cookies 'all))
 
 ;; org-tree-slide
-(setq alerm-table "~/Dropbox/org/today.org")
-(run-at-time "00:00" nil 'set-alerms-from-file alerm-table)
+(setq alarm-table "~/Dropbox/org/today.org")
+(run-at-time "00:00" nil 'set-alarms-from-file alarm-table)
 
 ;; Keybindings for org-mode
 (define-key org-mode-map (kbd "C-c 1") 'reload-ical-export)

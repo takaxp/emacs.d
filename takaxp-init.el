@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-10-06@10:03
+;;;;                                       Last Update: 2011-10-23@10:43
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html
 
@@ -20,6 +20,8 @@
 (setq buffer-file-coding-system 'utf-8)
 (setq save-buffer-coding-system 'utf-8-unix)
 ;(set-buffer-process-coding-system 'utf-8 'utf-8)
+;(setq process-coding-system-alist
+;      (cons '("grep" utf-8 . utf-8) process-coding-system-alist))
 (set-buffer-file-coding-system 'utf-8)
 (prefer-coding-system 'utf-8-unix)
 ;(set-locale-environment "ja_JP.UTF-8")
@@ -152,7 +154,14 @@
 
   (when (require 'migemo nil t)
     (setq moccur-use-migemo t))
-  
+
+;; M-x anything-grep-by-name
+  (setq anything-grep-alist
+	'(("Org-files" ("egrep -Hin %s *.org" "~/Dropbox/org/"))
+	  (".emacs.d" ("egrep -Hin %s *.el" "~/.emacs.d/"))
+	  ("ChangeLog" ("egrep -Hin %s ChangeLog" "~/"))))
+  ;;	("Spotlight" ("mdfind %s -onlyin ~/Dropbox/Documents/Library/" ""))))
+
   (defun my-anything ()
     (interactive)
     (anything-other-buffer
@@ -195,15 +204,12 @@
 ;;; Paste text only without any additional attributions (ex. Copy from Excel)
 (setq yank-excluded-properties t)
 
-;;; Rectangular editing（by sense-region.el）
-;; C-space C-space: specify rectangular area visually,
-;; C-w: kill-region, M-w: kill-ring-save, C-y: yank, M-%: query-replace,
-;; C-M-%: query-replace-regexp, C-i: indent-for-tab-command),
-;; M-x: comment-region
-;; Note: Call this before org-mode, conflicting with remember.el (C-c r t)
-(when (require 'sense-region nil t)
-  (sense-region-on))
-;; (cua-mode t) ;; cua-mode has also rectangular function
+;;; Rectangular editing
+(setq cua-enable-cua-keys nil)
+(cua-mode t)
+;; not recommend
+(setq cua-rectangle-mark-key (kbd "C-SPC"))
+
 
 ;;; Time stamp
 (when (require 'time-stamp nil t)
@@ -226,6 +232,7 @@
   ;; Dictionary (Japanese => English)
   (setq sdic-waei-dictionary-list
 	'((sdicf-client "~/Dropbox/Dic/EIJIRO5/WAEI-118.sdic"))))
+
 
 ;;; Use aspell for spell checking instead of ispell.
 ;;; 'ns => sudo port install aspell aspell-dict-en
@@ -257,6 +264,9 @@
 ;;  (add-hook hook (lambda () (flyspell-mode 1))))
 ;;(add-hook 'c++-mode-hook
 ;;	  (lambda () (flyspell-prog-mode)))
+
+;; Call zone as screen saver of Emacs
+(run-with-idle-timer 600 t 'zone)
 
 
 (provide 'takaxp-init)
