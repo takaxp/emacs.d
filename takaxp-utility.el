@@ -1,5 +1,5 @@
 ;;;; Utility functions
-;;;;                                       Last Update: 2011-10-30@19:23
+;;;;                                       Last Update: 2011-10-30@19:36
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
@@ -232,7 +232,6 @@
 (defun toggle-double-wide-frame ()
   "Change the width of the frame to a double width frame"
   (interactive)
-  (delete-other-windows)
   (modify-frame-parameters (selected-frame)
 			   (append
 			    '((vertical-scroll-bars . nil)
