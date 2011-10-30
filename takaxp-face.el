@@ -1,12 +1,13 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-10-23@11:30
+;;;;                                       Last Update: 2011-10-30@08:49
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-face.el ] --")
 
 ;;; ElScreen (require apel) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Note: change a string in the elscreen.el from "mac" to "ns"
-(load "elscreen" "ElScreen" t)
+;; 2011-10-26: e2wm's perspective (two) mode is more useful for me.
+;(load "elscreen" "ElScreen" t)
 
 ;;; Frame display parameters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Use visible-bell
@@ -41,20 +42,23 @@
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
 
+;; To avoid an error setting up the frame widthdt
+(set-frame-width (selected-frame) 79)
+
 ;; Default window position to show a Emacs frame
 ;; Dynabook UX: top=0, left=0, width=80, height=32
 (cond
  ((eq window-system 'ns) ; for Macintosh
   (setq initial-frame-alist
 	(append
-	 '((vertical-scroll-bars . nil)		
-	   (top . 22)  ; Y-pos from (0,0) the height of menu bar is 22pix.
+	 '((top . 22)  ; Y-pos from (0,0) the height of menu bar is 22pix.
 	   (left . 0)  ; X-pos from (0,0) ; 420 is the center for MBP
 	   ;; 26 is the setting for Butler's Docklet
 	   ;; 837 is the setting for right side for MBP
 	   (width . 80) ; Width  : character count
-	   (height . 30); Height : character count
+	   (height . 35); Height : character count
 	   (alpha . (100 50))
+	   (vertical-scroll-bars . nil)
 	   ) initial-frame-alist)))
 
  ((eq window-system 'x) ; for Linux
@@ -77,6 +81,9 @@
 	   (height . 26)
 	   ) initial-frame-alist))))
 
+;; Apply the initial setting to default
+(setq default-frame-alist initial-frame-alist)
+
 ;; Avoid adding a new line at the end of buffer
 (setq next-line-add-newlines nil)
 
@@ -87,19 +94,35 @@
 (require 'popwin "popwin")
 (setq display-buffer-function 'popwin:display-buffer)
 (setq popwin:special-display-config
-      (append '(("*Completions*" :height 10 :position top :noselect t)
-		("*Calendar*"    :height 15 :position top)
+      (append '(("*Completions*" :height 10 :position bottom :noselect t)
+		("*Calendar*"    :height 10 :position bottom)
 		("*Org Agenda*"  :height 10 :position bottom)
 		("*Agenda Commands*"  :height 10 :position bottom)
 		("*Org Select*"  :height 10 :position bottom)
 		("*Occur*"       :height 10 :position bottom)
-		("*sdic*"        :height 15 :position bottom)
-		("*anything*"    :height 15 :position bottom)
-		("*my-anything*" :height 15 :position bottom)
-		("*my-anything-buffer*"    :height 45 :position bottom)
+		("*sdic*"        :height 10 :position bottom)
+		("*anything*"    :height 10 :position bottom)
+		("*anything complete*"    :height 10 :position bottom)
+		("*my-anything*" :height 10 :position bottom)
+		("*my-anything-buffer*"    :height 10 :position bottom)
 ;		("*cfw-calendar*" :height 40 :position top)
-		("*eshell*"      :height 15 :position bottom))
+		("*eshell*"      :height 10 :position bottom))
 	      popwin:special-display-config))
+
+;;; e2wm.el
+(require 'e2wm)
+(setq e2wm:c-two-recipe
+      '(- (:lower-size 10)
+	  (| left right)
+	  sub))
+(setq e2wm:c-two-winfo
+      '((:name left )
+	(:name right )
+	(:name sub :default-hide t)))
+(setq e2wm:c-two-right-default 'left) ; left, prev
+;; To avoid rebooting issue when using desktop.el and recentf.el
+(add-hook 'kill-emacs-hook 'e2wm:stop-management)
+
 
 ;;; Colors ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cursor (see also takaxp-mac.el)
@@ -178,8 +201,7 @@
     (set-default 'line-spacing 2)
     ;; Anti aliasing with Quartz 2D
     (setq mac-allow-anti-aliasing t)
-    ;; Apply the initial setting to default
-    (setq default-frame-alist initial-frame-alist)))
+    ))
  
  ((eq window-system 'x)
   (set-face-attribute 'default nil

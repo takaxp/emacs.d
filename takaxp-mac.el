@@ -1,5 +1,5 @@
 ;;;; Configuration for Mac
-;;;;                                       Last Update: 2011-09-18@09:01
+;;;;                                       Last Update: 2011-10-18@16:36
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-mac.el ] --")
@@ -54,10 +54,10 @@
 
 ;;; Search option ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; igrep (M-x grep Override)
-(when (require 'igrep nil t)
-  (igrep-define lgrep (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8"))
-  (igrep-find-define lgrep
-		     (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8")))
+(require 'igrep)
+(igrep-define lgrep (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8"))
+(igrep-find-define lgrep
+		   (igrep-use-zgrep nil) (igrep-regex-option "-n -Ou8"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

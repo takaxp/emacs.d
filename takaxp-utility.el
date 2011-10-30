@@ -1,5 +1,5 @@
 ;;;; Utility functions
-;;;;                                       Last Update: 2011-10-18@08:44
+;;;;                                       Last Update: 2011-10-30@17:45
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
@@ -55,6 +55,7 @@
 
 ;;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
 ;;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
+;; A simple solution is (setq confirm-kill-emacs 'y-or-n-p).
 (defun confirm-save-buffers-kill-emacs ()
   "Show yes or no when you try to kill Emacs"
   (interactive)
@@ -217,14 +218,16 @@
 				     default-timeline-xml-private-file))
     (shell-command-to-string (concat "open " default-timeline))))
 
+
 (defun toggle-single-wide-frame ()
   "Change the width of the frame to a single width frame"
   (interactive)
-  (delete-other-windows)
+  (e2wm:stop-management)
   (modify-frame-parameters (selected-frame)
 			   (append
 			    '((vertical-scroll-bars . nil)
-			      (width . 80))))
+			      (width . 80)
+			      (height . 35))))
   (redraw-frame (selected-frame)))
 
 (defun toggle-double-wide-frame ()
@@ -234,9 +237,11 @@
   (modify-frame-parameters (selected-frame)
 			   (append
 			    '((vertical-scroll-bars . nil)
-			      (width . 163))))
+			      (width . 163)
+			      (height . 60))))
   (redraw-frame (selected-frame))
-  (split-window-horizontally))
+  (e2wm:start-management)
+  (e2wm:dp-two))
 
 (defun set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file with tables with the following format:
@@ -292,6 +297,10 @@ content column from the table. The line ID number is 2 will be ignored."
 (defun reset-frame-height-30 ()
   (interactive)
   (set-frame-height (selected-frame) 30))
+
+(defun reset-frame-height-35 ()
+  (interactive)
+  (set-frame-height (selected-frame) 35))
 
 (defun reset-frame-height-60 ()
   (interactive)

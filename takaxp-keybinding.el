@@ -1,5 +1,5 @@
 ;;;; Global keybindings
-;;;;                                      Last Update: 2011-10-06@09:55
+;;;;                                      Last Update: 2011-10-27@10:08
 ;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;; Cite: http://www.gnu.org/software/emacs/manual/html_node/emacs/Key-Bindings.html#Key-Bindings
 ;;; Cite: http://www.uranus.dti.ne.jp/~shiro-/soft/xyzzy/keybind.html

@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-10-23@10:43
+;;;;                                       Last Update: 2011-10-29@17:48
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html
 
@@ -84,13 +84,13 @@
 (setq undo-outer-limit nil)
 
 ;; Set the GC size 10times larger
-(setq gc-cons-threshold (* 10 gc-cons-threshold))
+;(setq gc-cons-threshold (* 10 gc-cons-threshold))
 
 ;; Remember the last buffer and restore it when starting up
 ;; It will write files as .emacs.desktop and .emacs.desktop.locks
 ;; Cite: http://www.emacswiki.org/emacs/DeskTop
 (desktop-save-mode 1)
-(setq desktop-files-not-to-save "\\(^/tmp\\|^/var\\|^/ssh:\\)") 
+;(setq desktop-files-not-to-save "\\(^/tmp\\|^/var\\|^/ssh:\\)") 
 
 ;; history size to store
 (setq history-length 1000)
@@ -205,10 +205,10 @@
 (setq yank-excluded-properties t)
 
 ;;; Rectangular editing
-(setq cua-enable-cua-keys nil)
-(cua-mode t)
+;(setq cua-enable-cua-keys nil)
+;(cua-mode t)
 ;; not recommend
-(setq cua-rectangle-mark-key (kbd "C-SPC"))
+;(setq cua-rectangle-mark-key (kbd "C-SPC"))
 
 
 ;;; Time stamp
