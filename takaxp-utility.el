@@ -1,5 +1,5 @@
 ;;;; Utility functions
-;;;;                                       Last Update: 2011-10-30@17:45
+;;;;                                       Last Update: 2011-10-30@19:23
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
@@ -227,8 +227,7 @@
 			   (append
 			    '((vertical-scroll-bars . nil)
 			      (width . 80)
-			      (height . 35))))
-  (redraw-frame (selected-frame)))
+			      (height . 35)))))
 
 (defun toggle-double-wide-frame ()
   "Change the width of the frame to a double width frame"
@@ -239,7 +238,6 @@
 			    '((vertical-scroll-bars . nil)
 			      (width . 163)
 			      (height . 60))))
-  (redraw-frame (selected-frame))
   (e2wm:start-management)
   (e2wm:dp-two))
 
