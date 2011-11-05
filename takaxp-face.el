@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-10-30@08:49
+;;;;                                       Last Update: 2011-11-05@17:04
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-face.el ] --")
@@ -43,7 +43,7 @@
 (setq inhibit-startup-screen t)
 
 ;; To avoid an error setting up the frame widthdt
-(set-frame-width (selected-frame) 79)
+(set-frame-width (selected-frame) 81)
 
 ;; Default window position to show a Emacs frame
 ;; Dynabook UX: top=0, left=0, width=80, height=32
@@ -109,45 +109,21 @@
 		("*eshell*"      :height 10 :position bottom))
 	      popwin:special-display-config))
 
-;;; e2wm.el
-(require 'e2wm)
-(setq e2wm:c-two-recipe
-      '(- (:lower-size 10)
-	  (| left right)
-	  sub))
-(setq e2wm:c-two-winfo
-      '((:name left )
-	(:name right )
-	(:name sub :default-hide t)))
-(setq e2wm:c-two-right-default 'left) ; left, prev
-;; To avoid rebooting issue when using desktop.el and recentf.el
-(add-hook 'kill-emacs-hook 'e2wm:stop-management)
-
 
 ;;; Colors ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cursor (see also takaxp-mac.el)
 (set-cursor-color "#AAAAAA") ; #91C3FF
 ;(add-to-list 'default-frame-alist '(cursor-type . (hbar . 5)))
 ;(add-to-list 'default-frame-alist '(cursor-type . bar))
+(add-hook 'input-methoad-activate-hook
+	  (lambda () (set-cursor-color "#91C3FF")))
+(add-hook 'input-method-inactivate-hook
+	  (lambda () (set-cursor-color "#AAAAAA")))
 
-(when (eq window-system 'ns)
+(when (and (eq window-system 'ns) (= emacs-major-version 23))
   ;; when IME is ON
   (mac-set-input-method-parameter
-   "com.google.inputmethod.Japanese.base" 'cursor-color "#91C3FF")
-  (mac-set-input-method-parameter
-   "com.google.inputmethod.Japanese.base" 'title "Ｇ")
-  (mac-set-input-method-parameter
-   "com.apple.inputmethod.Kotoeri.Japanese" 'cursor-color "#91C3FF")
-  (mac-set-input-method-parameter
-   "jp.monokakido.inputmethod.Kawasemi.Japanese" 'cursor-color "#91C3FF")
-
-  ;; when IME is OFF
-  (mac-set-input-method-parameter
-   "com.google.inputmethod.Japanese.Roman" 'cursor-color "#AAAAAA")
-  (mac-set-input-method-parameter
-   "com.apple.inputmethod.Kotoeri.Roman" 'cursor-color "#AAAAAA")
-  (mac-set-input-method-parameter
-   "jp.monokakido.inputmethod.Kawasemi.Roman" 'cursor-color "#AAAAAA"))
+   "com.google.inputmethod.Japanese.base" 'title "Ｇ"))
 
 ;; Blink cursor
 (blink-cursor-mode t)

@@ -1,5 +1,5 @@
 ;;;; Configuration for org-mode
-;;;;                                       Last Update: 2011-10-20@11:38
+;;;;                                       Last Update: 2011-10-31@13:01
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-org-mode.el ] --")
@@ -248,7 +248,7 @@
 	("Repeat"      :foreground "#CC9999") ; for interval tasks
 	("Mag"         :foreground "#9966CC")
 	("buy"         :foreground "#9966CC")
-	("Coding"      :foreground "#CC9999" :weight bold)
+	("Implements"  :foreground "#CC9999" :weight bold)
 	("Editing"     :foreground "#CC9999" :weight bold)
 	("Duty"        :foreground "#CC9999" :weight bold)
 	("Survey"      :foreground "#CC9999" :weight bold)

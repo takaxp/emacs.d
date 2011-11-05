@@ -1,5 +1,5 @@
 ;;;; Global keybindings
-;;;;                                      Last Update: 2011-10-27@10:08
+;;;;                                      Last Update: 2011-11-05@16:06
 ;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;; Cite: http://www.gnu.org/software/emacs/manual/html_node/emacs/Key-Bindings.html#Key-Bindings
 ;;; Cite: http://www.uranus.dti.ne.jp/~shiro-/soft/xyzzy/keybind.html
@@ -14,7 +14,6 @@
   ;; Drag and Drop config. for Emacs 23 (2010-07-20)
   (global-set-key [ns-drag-file] 'ns-find-file))
 
-
 ;;; Single key
 (when (require 'point-undo nil t)
   ;; [point-undo.el] Move the cursor to the previous position
@@ -26,7 +25,6 @@
 ;; Backspace key means C-d
 (global-set-key [kp-delete] 'delete-char)
 
-
 ;;; C-<key>
 (global-set-key (kbd "C-0") 'insert-formatted-current-date)
 (global-set-key (kbd "C--") 'insert-formatted-current-time)
@@ -34,7 +32,6 @@
 ;;; Hide or show current block of souces
 (global-set-key (kbd "C-;") 'hs-hide-block)
 (global-set-key (kbd "C-'") 'hs-show-block)
-
 
 ;;; C-c <key>
 ;; Spell checking within a specified region
@@ -57,11 +54,9 @@
 (global-set-key (kbd "C-c l") 'org-store-link)
 (global-set-key (kbd "C-c a") 'org-agenda)
 
-
 ;;; C-x <key>
-(global-set-key (kbd "C-x -") 'toggle-single-wide-frame)
-(global-set-key (kbd "C-x =") 'toggle-double-wide-frame)
-
+(global-set-key (kbd "C-x -") 'change-frame-width-single)
+(global-set-key (kbd "C-x =") 'change-frame-width-double)
 
 ;;; C-<key> C-<key>
 ;; Show ibuffer powered by anything
@@ -72,7 +67,7 @@
 (global-set-key (kbd "C-x C-c") 'confirm-save-buffers-kill-emacs)
 ;; Move focused region to the end of buffer
 ;(global-set-key (kbd "C-x C-e") 'forward-region-to-tail)
-
+;(global-set-key (kbd "C-c C-o") 'org-open-at-point-with-e2wm)
 
 ;;; M-<key>
 (global-set-key (kbd "M-+") 'word-count-mode)
@@ -82,19 +77,22 @@
 (global-set-key (kbd "M-p") 'scroll-down)
 ;; Frontward page scrolling instead of C-v
 (global-set-key (kbd "M-n") 'scroll-up)
-;; Move the frame to left side of the current position
-(global-set-key (kbd "M-1") 'my-move-frame-left)
-;; Move the frame to right side of the current position
-(global-set-key (kbd "M-3") 'my-move-frame-right)
+;; Move the frame to somewhere (default: 0,0)
+(global-set-key (kbd "M-0") 'move-frame-with-user-specify)
+;; Move the frame to left side of the current position (require 'frame-cmds)
+(global-set-key (kbd "M-1") '(lambda () (interactive) (move-frame-left 200)))
+;; Move the frame to the center of the window display (require 'takaxp-utility)
+(global-set-key (kbd "M-2") 'move-frame-to-center)
+;; Move the frame to right side of the current position (require 'frame-cmds)
+(global-set-key (kbd "M-3") '(lambda () (interactive) (move-frame-right 200)))
 ;; [ElScreen] move to right tab
 ;(global-set-key (kbd "M-3") 'elscreen-previous)
 ;; [Elscreen] move to left tab
 ;(global-set-key (kbd "M-4") 'elscreen-next)
 ;; show previous buffer
-(global-set-key (kbd "M-'") 'previous-buffer)
+(global-set-key (kbd "M-[") 'previous-buffer)
 ;; show next buffer
-(global-set-key (kbd "M-;") 'next-buffer)
-
+(global-set-key (kbd "M-]") 'next-buffer)
 
 ;;; C-M-<key>: Personal setting for fast action
 (global-set-key (kbd "C-M-o") '(lambda () (interactive)
@@ -114,9 +112,8 @@
 ;; Focus on the previous split window (oppose to C-x o)
 (global-set-key (kbd "C-M-p") '(lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "C-M-n") '(lambda () (interactive) (other-window 1)))
-(global-set-key (kbd "C-M-b") 'end-of-buffer)
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-
+(global-set-key (kbd "C-M-b") 'end-of-buffer)
 
 ;;; Multiple combination
 ;; Editing with a rectangle region

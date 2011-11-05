@@ -1,6 +1,29 @@
+2011-11-05  Takaaki ISHIKAWA  <takaxp@ieee.org>
+
+	* takaxp-frame-control.el: A new elisp to control frame position and size
+	Depends on e2wm.el and frame-cmds.el.
+
+	* takaxp-utility.el:
+	Remove some functions a new elisp file `takaxp-frame-control.el'.
+
+	* takaxp-face.el (input-methoad-activate-hook):
+	Use `input-method-active-hook' and `input-method-inactivate-hook'
+	instead of `mac-set-input-method-parameter'.
+	Remove config. for e2wm.el (see `takaxp-frame-control.el').
+
+	* takaxp-keybinding.el : Replace method and change key assign
+	Replace `toggle-single-wide-frame' to `change-frame-width-single'.
+	Replace `toggle-double-wide-frame' to `change-frame-width-double'.
+	Replace `my-move-frame-left' to `move-frame-left' with frame-cmds.el
+	Replace `my-move-frame-right' to `move-frame-right' with frame-cmds.el
+	Change `(kbd "M-;")' to `(kbd "M-'")'.
+	Change `(kbd "M-[")' to `(kbd "M-]")'.
+
+	* takaxp-init.el: Disable auto start of M-x zone.
+
 2011-10-30  Takaaki ISHIKAWA  <takaxp@ieee.org>
 
-	* .emacs.d/takaxp-utility.el (toggle-single-wide-frame): 
+	* .emacs.d/takaxp-utility.el (toggle-single-wide-frame):
 	Change functions to use e2wm with two perspective
 	toggle-single-wide-frame: set default size without e2wm.
 	toggle-double-wide-frame: set frame double size, and e2wm.

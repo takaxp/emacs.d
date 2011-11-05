@@ -1,42 +1,10 @@
 ;;;; Utility functions
-;;;;                                       Last Update: 2011-10-30@19:36
+;;;;                                       Last Update: 2011-11-05@17:07
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
 
 (run-with-idle-timer 60 t 'sleep-after-reload)
-
-;;; Move frame to any position on display 
-;;; Cite: http://www.bookshelf.jp/soft/meadow_30.html#SEC411
-(defvar my-move-frame-distance 293) ;; mounts // mbp=394, one frame=586
-(defun my-move-frame (&optional vertical horizon)
-  "Move frame to a new position with vertical and horizon value"
-  (when window-system
-    (let* ((meadowy (featurep 'meadow))
-           (top (frame-parameter (selected-frame) 'top))
-           (left (frame-parameter (selected-frame) 'left))
-           (mpos (if meadowy
-		     (cdr (mouse-position))
-                   (cdr (mouse-pixel-position))))
-           (hoff (* (or horizon 0) my-move-frame-distance))
-           (voff (* (or vertical 0) my-move-frame-distance)))
-      (set-frame-position (selected-frame) (+ left hoff) (+ top voff))
-;; The mouse follow the window moving.
-;      (if meadowy
-;          (set-mouse-position (selected-frame) (car mpos) (cdr mpos))
-;        (set-mouse-pixel-position (selected-frame)
-;                                  (+ (car mpos) hoff)
-;                                  (+ (cdr mpos) voff)))
-)))
-
-(defun my-move-frame-up ()
-  "Move frame up" (interactive) (my-move-frame -1 0))
-(defun my-move-frame-down ()
-  "Move frame down" (interactive) (my-move-frame 1 0))
-(defun my-move-frame-left ()
-  "Move frame left" (interactive) (my-move-frame 0 -1))
-(defun my-move-frame-right ()
-  "Move frame right" (interactive) (my-move-frame 0 1))
 
 (defun add-itemize-head ()
   "Insert \"  - \" at the head of line"
@@ -127,7 +95,6 @@
 	(setq count (1+ count)))
       (message "buffer contains %d words." count))))
 
-
 ;;; Test function for AppleScript
 ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
 (defun do-test-applescript ()
@@ -206,7 +173,6 @@
 				     default-timeline-xml-business-file))
     (shell-command-to-string (concat "open " default-timeline))))
 
-
 (defun export-timeline-private ()
   "Export schedule table as an XML source to create an web page"
   (interactive)
@@ -218,27 +184,12 @@
 				     default-timeline-xml-private-file))
     (shell-command-to-string (concat "open " default-timeline))))
 
-
-(defun toggle-single-wide-frame ()
-  "Change the width of the frame to a single width frame"
-  (interactive)
-  (e2wm:stop-management)
-  (modify-frame-parameters (selected-frame)
-			   (append
-			    '((vertical-scroll-bars . nil)
-			      (width . 80)
-			      (height . 35)))))
-
-(defun toggle-double-wide-frame ()
-  "Change the width of the frame to a double width frame"
-  (interactive)
-  (modify-frame-parameters (selected-frame)
-			   (append
-			    '((vertical-scroll-bars . nil)
-			      (width . 163)
-			      (height . 60))))
-  (e2wm:start-management)
-  (e2wm:dp-two))
+;(defun org-open-at-point-with-e2wm (&optional arg)
+;  (interactive)
+;  (message "OVERWRIDE: org-open-at-point")
+;  (when arg
+;    (toggle-double-wide-frame arg))
+;  (org-open-at-point))
 
 (defun set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file with tables with the following format:
@@ -291,27 +242,6 @@ content column from the table. The line ID number is 2 will be ignored."
     (split-string
      (buffer-string) "\n" t)))
 
-(defun reset-frame-height-30 ()
-  (interactive)
-  (set-frame-height (selected-frame) 30))
-
-(defun reset-frame-height-35 ()
-  (interactive)
-  (set-frame-height (selected-frame) 35))
-
-(defun reset-frame-height-60 ()
-  (interactive)
-  (set-frame-height (selected-frame) 60))
-
-(defun reset-frame-height ()
-  "Reset the hight of frame"
-  (interactive)
-  (set-frame-height (selected-frame)
-		    (string-to-number
-		     (read-from-minibuffer "Height: "
-					   (number-to-string
-					    (frame-height))))))
-		    
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim

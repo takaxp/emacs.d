@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-10-30@18:13
+;;;;                                       Last Update: 2011-11-03@18:15
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html
 
@@ -26,7 +26,7 @@
 (prefer-coding-system 'utf-8-unix)
 ;(set-locale-environment "ja_JP.UTF-8")
 (set-locale-environment "en_US.UTF-8")
-(when (eq window-system 'ns)
+(when (and (eq window-system 'ns) (= emacs-major-version 23)) 
   (setq default-input-method "MacOSX")
   (mac-add-key-passed-to-system 'shift))
 
@@ -265,9 +265,8 @@
 ;;(add-hook 'c++-mode-hook
 ;;	  (lambda () (flyspell-prog-mode)))
 
-;; Call zone as screen saver of Emacs
-(run-with-idle-timer 600 t 'zone)
-
+;; Call zone as screen saver of Emacs (CAUTION: high-load)
+;(run-with-idle-timer 600 t 'zone)
 
 (provide 'takaxp-init)
 
