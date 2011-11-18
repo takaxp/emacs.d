@@ -1,5 +1,5 @@
 ;;;; Functions to control the frame and window
-;;;;                                       Last Update: 2011-11-05@16:42
+;;;;                                       Last Update: 2011-11-14@13:53
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;
 ;; NOTE: This elisp requires two external elisps.
@@ -7,7 +7,19 @@
 ;; [e2wm] 
 ;; 1) http://github.com/kiwanami/emacs-window-manager/raw/master/e2wm.el
 ;; 2) http://github.com/kiwanami/emacs-window-layout/raw/master/window-layout.el
-(require 'e2wm)
+(when (require 'e2wm nil t)
+;;; Setting for e2wm.el
+  (setq e2wm:c-two-recipe
+	'(- (:lower-size 10)
+	    (| left right)
+	    sub))
+  (setq e2wm:c-two-winfo
+	'((:name left )
+	  (:name right )
+	  (:name sub :default-hide t)))
+  (setq e2wm:c-two-right-default 'left) ; left, prev
+  ;; To avoid rebooting issue when using desktop.el and recentf.el
+  (add-hook 'kill-emacs-hook 'e2wm:stop-management))
 
 ;; [frame-cmds]
 ;; 1) http://www.emacswiki.org/emacs/download/frame-cmds.el
@@ -39,20 +51,10 @@
 ;(global-set-key (kbd "C-x -") 'change-frame-width-single)
 ;; Set the frame width double size
 ;(global-set-key (kbd "C-x =") 'change-frame-width-double)
-
-;;; Setting for e2wm.el
-(setq e2wm:c-two-recipe
-      '(- (:lower-size 10)
-	  (| left right)
-	  sub))
-(setq e2wm:c-two-winfo
-      '((:name left )
-	(:name right )
-	(:name sub :default-hide t)))
-(setq e2wm:c-two-right-default 'left) ; left, prev
-;; To avoid rebooting issue when using desktop.el and recentf.el
-(add-hook 'kill-emacs-hook 'e2wm:stop-management)
-
+;; Move the current frame to the top of the window display
+;(global-set-key (kbd "<f1>") 'move-frame-to-edge-top)
+;; [point-undo.el] Move the cursor to the previous position
+;(global-set-key (kbd "S-<f1>") 'move-frame-to-edge-bottom)
 
 (message "* --[ Loading an init file, takaxp-frame-control.el ] --")
 
@@ -76,10 +78,29 @@
   :type 'integer
   :group 'takaxp-frame-control)
 
+(defcustom move-frame-pixel-menubar-offset 22
+  "Offset of the menubar. The default height is 22 for MacOSX"
+  :type 'integer
+  :group 'taka-frame-control)
+
 (defcustom move-frame-pixel-offset '(0 . 0)
   "Offset of the center position"
   :type 'sexp
   :group 'takaxp-frame-control)
+
+(defcustom auto-move-frame-to-center nil
+  "Toggle status of moving frame to center"
+  :type 'boolean
+  :group 'takaxp-frame-control)
+  
+(defun toggle-auto-move-frame-to-center ()
+  "Change whether move the frame to center automatically"
+  (interactive)
+  (cond (auto-move-frame-to-center
+	 (setq auto-move-frame-to-center nil)
+	 (message "Toggle auto move OFF"))
+	(t (setq auto-move-frame-to-center t)
+	   (message "Toggle auto move ON"))))
 
 (defun move-frame-to-horizontal-center ()
   "Move the current frame to the horizontal center of the window display."
@@ -97,6 +118,24 @@
 		      (+ (cdr move-frame-pixel-offset)
 			 (/ (- (display-pixel-height)
 			       (frame-pixel-height)) 2))))
+
+(defun move-frame-to-edge-top ()
+  "Move the current frame to the top of the window display"
+  (interactive)
+  (set-frame-position (selected-frame)
+		      (frame-parameter (selected-frame) 'left)
+		      0))
+
+(defun move-frame-to-edge-bottom ()
+  "Move the current frame to the top of the window display
+   If you find the frame is NOT moved to the bottom exactly,
+   Please set `move-frame-pixel-menubar-offset'.
+   22 is the default value for MacOSX"
+  (interactive)
+  (set-frame-position (selected-frame)
+		      (frame-parameter (selected-frame) 'left)		      
+		      (- (- (display-pixel-height) (frame-pixel-height))
+			 move-frame-pixel-menubar-offset)))
 
 (defun move-frame-to-center ()
   "Move the current frame to the center of the window display."
@@ -122,7 +161,7 @@
    Use prefix to specify the destination position."
   (interactive "P")
   (let ((pos-x 0)
-	(pos-y 0))
+	(pos-y move-frame-pixel-menubar-offset))
     (when arg
       (setq pos-x (string-to-number
 		   (read-from-minibuffer
@@ -150,7 +189,8 @@
 	   (set-frame-size (selected-frame)
 			   frame-width-single frame-height-small)))
     (switch-to-buffer selected-buffer)
-    (move-frame-to-center)))
+    (when auto-move-frame-to-center
+      (move-frame-to-center))))
 
 (defun change-frame-width-double (&optional arg)
   "Change the width of the frame to double width frame"
@@ -161,7 +201,8 @@
 	(t
 	 (set-frame-size (selected-frame)
 			 frame-width-double frame-height-small)))
-  (move-frame-to-center)
+  (when auto-move-frame-to-center
+    (move-frame-to-center))
   (e2wm:start-management)
   (e2wm:dp-two))
 
@@ -169,5 +210,24 @@
   "Reset the hight of the current frame."
   (interactive "nNew Height: ")
   (set-frame-height (selected-frame) new-height))
+
+;;; popwin.el
+(when (require 'popwin "popwin" t)
+  (setq display-buffer-function 'popwin:display-buffer)
+  (setq popwin:special-display-config
+	(append '(("*Completions*" :height 10 :position bottom :noselect t)
+		  ("*Calendar*"    :height 10 :position top)
+		  ("*Org Agenda*"  :height 10 :position bottom)
+		  ("*Agenda Commands*"  :height 10 :position bottom)
+		  ("*Org Select*"  :height 10 :position bottom)
+		  ("*Occur*"       :height 10 :position bottom)
+		  ("*sdic*"        :height 10 :position bottom)
+		  ("*anything*"    :height 10 :position bottom)
+		  ("*anything complete*"    :height 10 :position bottom)
+		  ("*my-anything*" :height 10 :position bottom)
+		  ("*my-anything-buffer*"    :height 10 :position bottom)
+		  ;;		("*cfw-calendar*" :height 40 :position top)
+		  ("*eshell*"      :height 10 :position bottom))
+		popwin:special-display-config)))
 
 (provide 'takaxp-frame-control)

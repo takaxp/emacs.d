@@ -1,14 +1,15 @@
 ;;;; Configuration for org-mode
-;;;;                                       Last Update: 2011-10-31@13:01
+;;;;                                       Last Update: 2011-11-14@14:07
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-org-mode.el ] --")
 
 (require 'org-install)
-(require 'org-extension)
+(require 'org-extension nil t)
 (require 'org-habit)
 (require 'org-mobile)
-(require 'org-tree-slide) ;; 自作コード
+(require 'org-tree-slide nil t)
+;(autoload 'tree-slide-play "org-tree-slide" "Start to play slide" t nil)
 
 (setq auto-mode-alist
       (cons (cons "\\.org$" 'org-mode) auto-mode-alist))
@@ -60,13 +61,16 @@
 	"----------------"
 	(800 1000 1200 1400 1600 1800 2000 2200 2400 2600)))
 ;;; Org files for creating agenda
-(custom-set-variables
+;(custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(org-agenda-files '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org")))
+; '(org-agenda-files '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org")))
 ; "~/Dropbox/org/note.org" "~/Dropbox/org/stack.org" "~/Dropbox/org/support.org"
+
+(setq org-agenda-files
+      '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org"))
 
 ;; アジェンダ作成対象（指定しないとagendaが生成されない）
 ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
@@ -136,24 +140,24 @@
 
 
 ;;; appt.el ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; アラーム表示を有効にする
+;; アラーム表示を有効にする
 (appt-activate 1)
-; window を フレーム内に表示する
+;; window を フレーム内に表示する
 (setq appt-display-format 'window)
-; window を継続表示する時間[s]
-(setq appt-display-duration 10)
-; ビープ音の有無
+;; window を継続表示する時間[s]
+(setq appt-display-duration 3)
+;; ビープ音の有無
 (setq appt-audible t)
-; 何分前から警告表示を開始するか[m]
-(setq appt-message-warning-time 10)
-; モードラインにアラームを表示する
+;; 何分前から警告表示を開始するか[m]
+(setq appt-message-warning-time 3)
+;; モードラインにアラームを表示する
 (setq appt-display-mode-line t)
-; org-agenda の内容をアラームに登録する
-(org-agenda-to-appt)
-; 保存時にアラームを登録
-;(add-hook 'org-mode-hook
-;	  (lambda() (add-hook 'before-save-hook
-;			      'org-agenda-to-appt t)))
+;; org-agenda の内容をアラームに登録する
+(org-agenda-to-appt t '((headline "TODO")))
+;; 保存時にアラームを登録
+(add-hook 'org-mode-hook
+	  (lambda() (add-hook 'before-save-hook
+			      'org-agenda-to-appt t '((headline "TODO")))))
 
 ;;; org-refile
 (setq org-refile-targets
@@ -184,7 +188,9 @@
    (concat "growlnotify -s -a Emacs -t \"++ Pomodoro ++\" -m \""
 	   "The end of " growl-pomodoro-task-name "!\""))
   (shell-command-to-string
-   (concat "say The end of " growl-pomodoro-task-name)))
+;   (concat "say The end of " growl-pomodoro-task-name)
+   (concat "say -v Kyoko " growl-pomodoro-task-name)
+   ))
 (add-hook 'org-timer-done-hook 'growl-pomodoro-timer)
 
 
@@ -238,6 +244,11 @@
 	("NOTICE" :foreground "#FFFFFF" :background "#FF0000")
 	("FOCUS"  :foreground "#FF0000" :background "#FFCC66")
 	("TIME"   :foreground "#FF9900")))
+;; Color for priorities
+;; (setq org-priority-faces
+;;       '(("?A" :foreground "#E01B4C" :background "#FFFFFF" :weight bold)
+;; 	("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
+;; 	("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
 ;; Color setting for Tags
 (setq org-tag-faces
       '(("Achievement" :foreground "#66CC66")
@@ -314,7 +325,10 @@
 
 ;; 起動時にモバイルで環境で編集したファイルを読み込む
 (message "%s" "MobileOrg sync ... [pull]")
-(org-mobile-pull);; need org-mode
+(org-mobile-pull) ;; need org-mode
+
+;; Rich calendar
+(autoload 'cfw:open-org-calendar  "calfw-org" "Rich calendar for org-mode" t)
 
 (provide 'takaxp-org-mode)
 

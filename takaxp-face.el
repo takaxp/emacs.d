@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-11-05@17:04
+;;;;                                       Last Update: 2011-11-13@17:28
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-face.el ] --")
@@ -90,32 +90,20 @@
 ;; Limit the final word to a line break code (automatically correct)
 (setq require-final-newline t)
 
-;;; popwin.el
-(require 'popwin "popwin")
-(setq display-buffer-function 'popwin:display-buffer)
-(setq popwin:special-display-config
-      (append '(("*Completions*" :height 10 :position bottom :noselect t)
-		("*Calendar*"    :height 10 :position bottom)
-		("*Org Agenda*"  :height 10 :position bottom)
-		("*Agenda Commands*"  :height 10 :position bottom)
-		("*Org Select*"  :height 10 :position bottom)
-		("*Occur*"       :height 10 :position bottom)
-		("*sdic*"        :height 10 :position bottom)
-		("*anything*"    :height 10 :position bottom)
-		("*anything complete*"    :height 10 :position bottom)
-		("*my-anything*" :height 10 :position bottom)
-		("*my-anything-buffer*"    :height 10 :position bottom)
-;		("*cfw-calendar*" :height 40 :position top)
-		("*eshell*"      :height 10 :position bottom))
-	      popwin:special-display-config))
-
-
 ;;; Colors ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cursor (see also takaxp-mac.el)
-(set-cursor-color "#AAAAAA") ; #91C3FF
 ;(add-to-list 'default-frame-alist '(cursor-type . (hbar . 5)))
 ;(add-to-list 'default-frame-alist '(cursor-type . bar))
-(add-hook 'input-methoad-activate-hook
+
+;(add-hook 'window-configuration-change-hook
+(defun update-cursor-color ()
+  (interactive)
+  (if current-input-method (set-cursor-color "#91C3FF")
+    (set-cursor-color "#AAAAAA")))
+(update-cursor-color)
+(run-with-idle-timer 10 t 'update-cursor-color)
+
+(add-hook 'input-method-activate-hook
 	  (lambda () (set-cursor-color "#91C3FF")))
 (add-hook 'input-method-inactivate-hook
 	  (lambda () (set-cursor-color "#AAAAAA")))
@@ -123,10 +111,10 @@
 (when (and (eq window-system 'ns) (= emacs-major-version 23))
   ;; when IME is ON
   (mac-set-input-method-parameter
-   "com.google.inputmethod.Japanese.base" 'title "Ｇ"))
+   "com.google.inputmethod.Japanese.base" 'title "G"))
 
-;; Blink cursor
-(blink-cursor-mode t)
+;; Disable cursor blink
+(blink-cursor-mode -1)
 
 ;; Turn on font-lock mode for Emacs
 (global-font-lock-mode t)

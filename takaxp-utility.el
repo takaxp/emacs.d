@@ -1,16 +1,43 @@
 ;;;; Utility functions
-;;;;                                       Last Update: 2011-11-05@17:07
+;;;;                                       Last Update: 2011-11-17@17:27
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
 
 (run-with-idle-timer 60 t 'sleep-after-reload)
+;; She will be mad if you do nothing within 5 min.
+(run-with-idle-timer 600 t
+		     '(lambda () 
+			(shell-command-to-string
+			 "say -v Kyoko おいおまえ，遊んでないで，仕事しろ")))
+
+;; Start Emacs with scratch buffer even though it call session.el/desktop.el
+(add-hook 'emacs-startup-hook '(lambda () (switch-to-buffer "*scratch*")))
+
+(defun org2dokuwiki-cp-kill-ring ()
+  "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
+  (interactive)
+  (cond (buffer-file-name
+	 (kill-new
+	  (shell-command-to-string
+	   (concat "cat " buffer-file-name "| perl "
+		   (expand-file-name "~/env/scripts/org2dokuwiki.pl"))))
+	 (message "Copy %s ... done" buffer-file-name)
+	 (sit-for 1.5)
+	 (message ""))
+	(t (message "There is NOT such a file."))))
 
 (defun add-itemize-head ()
-  "Insert \"  - \" at the head of line"
+  "Insert \"  - \" at the head of line.
+  If the cursor is already at the head of line, it is NOT returned back to the
+  original position again. Otherwise, the cursor is moved to the right of the
+  inserted string."
   (interactive)
-  (move-beginning-of-line 1)
-  (insert "  - "))
+  (cond ((= (point) (line-beginning-position))
+	 (insert "  - "))
+	(t (save-excursion
+	     (move-beginning-of-line 1)
+	     (insert "  - ")))))
 
 (defun show-org-buffer (file)
   "Show an org-file on the current buffer"
@@ -19,17 +46,18 @@
       (let ((buffer (get-buffer file)))
 	(switch-to-buffer buffer)
 	(message "%s" file))
-    (find-file (concat org-directory file))))
+    (find-file (concat "~/Dropbox/org/" file))))
 
 ;;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
 ;;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
 ;; A simple solution is (setq confirm-kill-emacs 'y-or-n-p).
-(defun confirm-save-buffers-kill-emacs ()
+(defun confirm-save-buffers-kill-emacs (&optional arg)
   "Show yes or no when you try to kill Emacs"
-  (interactive)
-  (if (yes-or-no-p "Are you sure to quit Emacs now? ")
-    (save-buffers-kill-emacs)
-    (kill-buffer (buffer-name))))
+  (interactive "P")
+  (cond (arg (save-buffers-kill-emacs))
+	(t
+	 (when (yes-or-no-p "Are you sure to quit Emacs now? ")
+	   (save-buffers-kill-emacs)))))
 
 ;;; Insert a date and time quickly
 ;;; Cite: http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
@@ -82,6 +110,9 @@
   (sit-for echo-area-bell-delay)
   (message ""))
 (setq ring-bell-function 'echo-area-bell)
+;; (setq ring-bell-function
+;;       '(lambda () (message "                                          BEEP!")))
+
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 (defun count-words-buffer ()
@@ -217,14 +248,14 @@ content column from the table. The line ID number is 2 will be ignored."
 	 (current-hour nil)
 	 (current-min nil)
 	 (action nil))
-      (when (string-match "\\([0-2][0-9]\\):\\([0-5][0-9]\\)" line)
+      (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
 	(setq hour (substring line (match-beginning 1) (match-end 1)))
 	(setq min (substring line (match-beginning 2) (match-end 2)))
 	(when (string-match
 	       "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
 	  (setq action (substring line (match-beginning 1) (match-end 1)))))
       (when (and (and hour min) action)
-	(message "[%s:%s] => %s" hour min action)
+;	(message "[%s:%s] => %s" hour min action)
 	(setq current-hour (format-time-string "%H" (current-time)))
 	(setq current-min (format-time-string "%M" (current-time)))
 	(when (> (+ (* (string-to-number hour) 60) (string-to-number min))
@@ -262,28 +293,21 @@ content column from the table. The line ID number is 2 will be ignored."
 (defun sleep-after-reload ()
   "Automatic call functions when Emacs enters idle time"
   (interactive)
-  (message "%s" "reloading...")
-
-  ;; Set alarms of org-agenda
-  (message "%s" "set alarms")
-  (org-agenda-to-appt)
-
-  ;; Export an iCal file
-  (message "%s" "iCal export")
-  (reload-ical-export)
-
-  ;; Send org files to the server
-  (message "%s" "MobileOrg sync ... [push]")
-  (org-mobile-push)
-
-  ;; Reset recentf
-  (recentf-save-list)
-
-  ;; add new functions here
-  (message "%s" "done")
-  (sit-for 0.5)
-  (message "%s" ""))
-
+  (cond (e2wm:pst-minor-mode
+	 (message "Do nothing, when e2wm is active :-)"))
+	(t
+	 (save-excursion
+	   (save-restriction
+	     (message "%s" "reloading...")
+	     (reload-ical-export) ;; require org-mode.el
+	     (message "%s" "MobileOrg sync ... [push]")
+	     (org-mobile-push)
+	     ;; Not good for e2wm when the cursor is left side (meybe)
+	     (recentf-save-list)
+	     (message "%s" "done")
+	     (sit-for 0.5)
+	     (message "%s" ""))))))
+  
 (provide 'takaxp-utility)
 
 ;;;

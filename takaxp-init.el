@@ -1,7 +1,7 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-11-03@18:15
+;;;;                                       Last Update: 2011-11-19@01:17
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
-;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html
+;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html (GREAT!)
 
 (message "* --[ Loading an init file, takaxp-init.el ] --")
 
@@ -29,6 +29,11 @@
 (when (and (eq window-system 'ns) (= emacs-major-version 23)) 
   (setq default-input-method "MacOSX")
   (mac-add-key-passed-to-system 'shift))
+
+;;; Future works
+;; (when (require 'mozc nil t)
+;;   (setq default-input-method "japanese-mozc")
+;;   (setq mozc-mode-string "M"))
 
 ;;; [mode] ChangeLog
 ;(setq user-full-name "Your NAME")
@@ -65,19 +70,34 @@
 	  '(lambda ()
 	     (setq auto-fill-function nil)))
 
-;;; [mode] PO
-(when (autoload 'po-mode "po-mode" nil nil)
-  (setq auto-mode-alist
-	(cons '("\\.po[tx]?\\'\\|\\.po\\." . po-mode)
-	      auto-mode-alist)))
+;;; [mode] latex-math-preview
+(require 'latex-math-preview nil t)
+
+;;; [mode] PO (po-mode.el and po-mode+.el)
+;; http://www.emacswiki.org/emacs/PoMode
+;; http://www.emacswiki.org/emacs/po-mode+.el
+(autoload 'po-mode "po-mode+" nil nil)
+(setq auto-mode-alist
+      (cons '("\\.po[tx]?\\'\\|\\.po\\." . po-mode)
+	    auto-mode-alist))
 
 ;;; [mode] Info
 (when (require 'info nil t)
   (add-to-list 'Info-additional-directory-list
-	     "/Users/taka/devel/git/org-ja/work/"))
+	       (expand-file-name "~/devel/git/org-ja/work/")))
 
 ;;; [mode] org
 ;; see takaxp-org-mode.el
+
+;;; Cycle-buffer
+;; http://www.emacswiki.org/emacs/download/cycle-buffer.el
+(autoload 'cycle-buffer "cycle-buffer" "Cycle forward." t)
+(autoload 'cycle-buffer-backward "cycle-buffer" "Cycle backward." t)
+;; Count a buffer shown in another window when using e2wm with two perspective
+(setq cycle-buffer-allow-visible t)
+(setq cycle-buffer-show-length 12)
+(setq cycle-buffer-show-format '(" <(%s)>" . " %s"))
+
 
 ;;; Settings for emacs core system ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Use unlimited undo buffer
@@ -86,28 +106,40 @@
 ;; Set the GC size 10times larger
 ;(setq gc-cons-threshold (* 10 gc-cons-threshold))
 
-;; Remember the last buffer and restore it when starting up
-;; It will write files as .emacs.desktop and .emacs.desktop.locks
-;; Cite: http://www.emacswiki.org/emacs/DeskTop
-(desktop-save-mode 1)
-(setq desktop-files-not-to-save "\\(^/tmp\\|^/var\\|^/ssh:\\)") 
-
 ;; history size to store
 (setq history-length 1000)
 
 ;; Save command history
 (savehist-mode 1)
 
-;; .recentf auto save
+;; (built-in) .recentf auto save
 ; http://d.hatena.ne.jp/tomoya/20110217/1297928222
 (when (require 'recentf nil t)
   (setq recentf-max-saved-items 2000)
   (setq recentf-exclude '(".recentf"))
   (setq recentf-auto-cleanup 10)
-  (setq recentf-auto-save-timer
-        (run-with-idle-timer 60 t 'recentf-save-list))
+  ;; see takaxp-utility.el
+  ;; (setq recentf-auto-save-timer
+  ;;       (run-with-idle-timer 60 t 'recentf-save-list))
   (setq recentf-exclude '("^/tmp.*" "^/var/folders.*" "/TAGS$"))
   (recentf-mode 1))
+
+;; (built-in) Remember the last buffer and restore it when starting up
+;; It will write files as .emacs.desktop and .emacs.desktop.locks
+;; Cite: http://www.emacswiki.org/emacs/DeskTop
+(when (require 'desktop nil t)
+  (desktop-save-mode 1)
+  (setq desktop-files-not-to-save "\\(^/tmp\\|^/var\\|^/ssh:\\)"))
+
+;;; Session.el
+;;; http://emacs-session.sourceforge.net/
+(when (require 'session nil t)
+  (add-hook 'after-init-hook 'session-initialize)
+  (add-to-list 'session-globals-exclude 'org-mark-ring)
+  ;; Change save point of session.el
+  (setq session-save-file (expand-file-name "~/Dropbox/.session"))
+  ;; Combine with desktop.el
+  (setq desktop-globals-to-save '(desktop-missing-file-warning)))
 
 ;; Auto save
 ;; Cite: http://0xcc.net/misc/auto-save/
@@ -115,7 +147,9 @@
   (run-with-idle-timer 0.5 t 'auto-save-buffers))
 
 ;; Backup with generation files by backup-dir.el
-;; http://www.northbound-train.com/emacs.html
+;; Cite: http://www.emacswiki.org/emacs/BackupDirectory
+;;       http://www.northbound-train.com/emacs-hosted/backup-dir.el
+;;       http://www.northbound-train.com/emacs.html
 (make-variable-buffer-local 'backup-inhibited)
 (when (and (require 'backup-dir nil t)
 	   (file-directory-p "~/env/emacs_backup"))
@@ -128,10 +162,11 @@
 	version-control t))
 
 ;; C/Migemo
-; NOTE: M-x migemo-toggle-isearch-enable
-(setq completion-ignore-case t)
+;; NOTE: M-x migemo-toggle-isearch-enable
+;; Cite: http://www.kaoriya.net/software/cmigemo
 (when (and (executable-find "cmigemo")
 	   (require 'migemo nil t))
+  (setq completion-ignore-case t) ;; case-independent
   (setq migemo-command "cmigemo")
   (setq migemo-options '("-q" "--emacs" "-i" "\a"))
   (setq migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
@@ -148,14 +183,20 @@
 
 ;; anything
 (when (require 'anything-startup nil t)
+  ;; http://svn.coderepos.org/share/lang/elisp/anything-c-moccur/trunk/anything-c-moccur.el
+  ;; http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
   (require 'anything-c-moccur nil t)
 ;  (setq moccur-split-word t)
 ;  (setq anything-c-locate-options `("locate" "-w"))
 
+  ;; M-x install-elisp-from-emacswiki recentf-ext.el
+  ;; http://www.emacswiki.org/cgi-bin/wiki/download/recentf-ext.el
+  (require 'recentf-ext nil t)
+
   (when (require 'migemo nil t)
     (setq moccur-use-migemo t))
 
-;; M-x anything-grep-by-name
+  ;; M-x anything-grep-by-name
   (setq anything-grep-alist
 	'(("Org-files" ("egrep -Hin %s *.org" "~/Dropbox/org/"))
 	  (".emacs.d" ("egrep -Hin %s *.el" "~/.emacs.d/"))
@@ -198,8 +239,8 @@
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 
 ;; Remember cursor position and make it possible to undo
-;; Cite: M-x install-elisp http://www.emacswiki.org/cgi-bin/wiki/download/point-undo.el
-(require 'point-undo nil t)
+;; Cite: http://www.emacswiki.org/cgi-bin/wiki/download/point-undo.el
+(autoload 'point-undo "point-undo" nil t)
 
 ;;; Paste text only without any additional attributions (ex. Copy from Excel)
 (setq yank-excluded-properties t)
@@ -210,8 +251,7 @@
 ;; not recommend
 (setq cua-rectangle-mark-key (kbd "C-SPC"))
 
-
-;;; Time stamp
+;;; (built-in) Time stamp
 (when (require 'time-stamp nil t)
   (add-hook 'before-save-hook 'time-stamp)
   (setq time-stamp-active t)
@@ -221,18 +261,17 @@
   (setq time-stamp-line-limit 10)) ; def=8
 
 ;;; sdic (reqiure load-path setting)
-(when (autoload 'sdic-describe-word "sdic" "英単語の意味を調べる" t nil)
-  (autoload 'sdic-describe-word-at-point "sdic"
-    "カーソルの位置の英単語の意味を調べる" t nil)
-  (setq sdic-face-color "#3333FF")
-  (setq sdic-default-coding-system 'utf-8)
-  ;; Dictionary (English => Japanese)
-  (setq sdic-eiwa-dictionary-list
-	'((sdicf-client "~/Dropbox/Dic/EIJIRO5/EIJI-118.sdic")))
-  ;; Dictionary (Japanese => English)
-  (setq sdic-waei-dictionary-list
-	'((sdicf-client "~/Dropbox/Dic/EIJIRO5/WAEI-118.sdic"))))
-
+(autoload 'sdic-describe-word "sdic" "英単語の意味を調べる" t nil)
+(autoload 'sdic-describe-word-at-point "sdic"
+  "カーソルの位置の英単語の意味を調べる" t nil)
+(setq sdic-face-color "#3333FF")
+(setq sdic-default-coding-system 'utf-8)
+;; Dictionary (English => Japanese)
+(setq sdic-eiwa-dictionary-list
+      '((sdicf-client "~/Dropbox/Dic/EIJIRO6/EIJI-128.sdic")))
+;; Dictionary (Japanese => English)
+(setq sdic-waei-dictionary-list
+      '((sdicf-client "~/Dropbox/Dic/EIJIRO6/WAEI-128.sdic")))
 
 ;;; Use aspell for spell checking instead of ispell.
 ;;; 'ns => sudo port install aspell aspell-dict-en
@@ -251,10 +290,9 @@
   ;; This will also avoid an IM-OFF issue for flyspell-mode.
   (setq ispell-local-dictionary-alist
       '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
-	     ("-d" "en" "--encoding=utf-8") nil utf-8)))
+	     ("-d" "en" "--encoding=utf-8") nil utf-8))))
 ;  (setq ispell-aspell-supports-utf8 t)
 ;  (setq ispell-encoding8-command t)
-  )
 
 ;;; Flyspell
 ;;(dolist
@@ -267,6 +305,10 @@
 
 ;; Call zone as screen saver of Emacs (CAUTION: high-load)
 ;(run-with-idle-timer 600 t 'zone)
+
+;; Count words (Toggle this mode: M-+)
+;; http://taiyaki.org/elisp/word-count/src/word-count.el
+(autoload 'word-count-mode "word-count" "Minor mode to count words." t nil)
 
 (provide 'takaxp-init)
 
@@ -303,7 +345,6 @@
 ;; iBuffer で list-buffers をオーバーライド // C-x C-b で表示
 ;(defalias 'list-buffers 'ibuffer)
 
-
 ;;; lookup for dictionary (require EB Library, eblook, and lookup.el)
 ;; package download: http://sourceforge.net/projects/lookup
 ;; http://lookup.sourceforge.net/docs/ja/index.shtml#Top
@@ -315,6 +356,7 @@
 ;(autoload 'lookup-select-dictionaries "lookup" nil t)
 ;; Search Agents
 ;; ndeb option requries "eblook" command
+; Use expand-file-name!
 ;(setq lookup-search-agents `((ndeb ,(concat homedir "/Dropbox/Dic/COBUILD5"))
 ;			     (ndeb ,(concat homedir "/Dropbox/Dic/LDOCE4"))))
 

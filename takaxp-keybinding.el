@@ -1,5 +1,5 @@
 ;;;; Global keybindings
-;;;;                                      Last Update: 2011-11-05@16:06
+;;;;                                      Last Update: 2011-11-13@15:08
 ;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;; Cite: http://www.gnu.org/software/emacs/manual/html_node/emacs/Key-Bindings.html#Key-Bindings
 ;;; Cite: http://www.uranus.dti.ne.jp/~shiro-/soft/xyzzy/keybind.html
@@ -14,24 +14,32 @@
   ;; Drag and Drop config. for Emacs 23 (2010-07-20)
   (global-set-key [ns-drag-file] 'ns-find-file))
 
+;; Use command key for Emacs 24
+;(when (= emacs-major-version 24)
+;  (global-set-key (kbd "S-SPC") '(lambda () (message "toggle-input-method"))))
+
 ;;; Single key
-(when (require 'point-undo nil t)
-  ;; [point-undo.el] Move the cursor to the previous position
-  (global-set-key (kbd "<f7>") 'point-undo)
-  ;; [point-undo.el] Redo of point-undo
-  (global-set-key (kbd "S-<f7>") 'point-redo))
+(autoload 'point-undo "point-undo" nil t)
+;; [point-undo.el] Move the cursor to the previous position
+(global-set-key (kbd "<f7>") 'point-undo)
+;; [point-undo.el] Redo of point-undo
+(global-set-key (kbd "S-<f7>") 'point-redo)
 ;; delete key means C-d
 (global-set-key [delete] 'delete-char)
 ;; Backspace key means C-d
 (global-set-key [kp-delete] 'delete-char)
+;; Move the current frame to the top of the window display
+(global-set-key (kbd "<f1>") 'move-frame-to-edge-top)
+;; [point-undo.el] Move the cursor to the previous position
+(global-set-key (kbd "S-<f1>") 'move-frame-to-edge-bottom)
 
 ;;; C-<key>
 (global-set-key (kbd "C-0") 'insert-formatted-current-date)
 (global-set-key (kbd "C--") 'insert-formatted-current-time)
 (global-set-key (kbd "C-=") 'insert-formatted-signature)
 ;;; Hide or show current block of souces
-(global-set-key (kbd "C-;") 'hs-hide-block)
-(global-set-key (kbd "C-'") 'hs-show-block)
+(global-set-key (kbd "C-(") 'hs-hide-block)
+(global-set-key (kbd "C-)") 'hs-show-block)
 
 ;;; C-c <key>
 ;; Spell checking within a specified region
@@ -49,10 +57,10 @@
 ;; Show speedbar
 (global-set-key (kbd "C-c b") 'speedbar)
 ;; occur
-;(global-set-key (kbd "C-c o") 'occur)
 (global-set-key (kbd "C-c o") 'anything-c-moccur-occur-by-moccur)
 (global-set-key (kbd "C-c l") 'org-store-link)
 (global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 
 ;;; C-x <key>
 (global-set-key (kbd "C-x -") 'change-frame-width-single)
@@ -89,10 +97,9 @@
 ;(global-set-key (kbd "M-3") 'elscreen-previous)
 ;; [Elscreen] move to left tab
 ;(global-set-key (kbd "M-4") 'elscreen-next)
-;; show previous buffer
-(global-set-key (kbd "M-[") 'previous-buffer)
-;; show next buffer
-(global-set-key (kbd "M-]") 'next-buffer)
+;; The previous buffer put on the right side of me.
+(global-set-key (kbd "M-]") 'cycle-buffer)
+(global-set-key (kbd "M-[") 'cycle-buffer-backward)
 
 ;;; C-M-<key>: Personal setting for fast action
 (global-set-key (kbd "C-M-o") '(lambda () (interactive)
@@ -127,4 +134,3 @@
 ;;; Note:
 ; C-<prior> = Ctrl+PageDown
 ; C-<next>  = Ctrl+PageUp
-
