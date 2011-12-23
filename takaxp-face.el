@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-11-13@17:28
+;;;;                                       Last Update: 2011-12-08@14:49
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-face.el ] --")
@@ -11,6 +11,7 @@
 
 ;;; Frame display parameters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Use visible-bell
+;; (see takaxp-utility.el, Alternative to the default behavior of visible-bell)
 (setq visible-bell t)
 
 ;; Show line number in the mode line.
@@ -23,7 +24,7 @@
 ;;(display-time-mode t)
 
 ;; Show battery information on the mode line.
-;;(display-battery-mode t)
+;; (display-battery-mode t)
 
 ;; Show scroll bar or not
 (set-scroll-bar-mode nil) ; 'right
@@ -41,6 +42,10 @@
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
+
+;; color for regexp expression
+(set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
+(set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
 
 ;; To avoid an error setting up the frame widthdt
 (set-frame-width (selected-frame) 81)

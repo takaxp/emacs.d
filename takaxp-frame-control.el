@@ -1,5 +1,5 @@
 ;;;; Functions to control the frame and window
-;;;;                                       Last Update: 2011-11-14@13:53
+;;;;                                       Last Update: 2011-12-22@17:13
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;
 ;; NOTE: This elisp requires two external elisps.
@@ -24,7 +24,7 @@
 ;; [frame-cmds]
 ;; 1) http://www.emacswiki.org/emacs/download/frame-cmds.el
 ;; 2) http://www.emacswiki.org/emacs/download/frame-fns.el
-(require 'frame-cmds)
+(require 'frame-cmds nil t)
 
 ;;
 ;;  M-0       => Move to the frame to the initial position (0,0)
@@ -213,16 +213,19 @@
 
 ;;; popwin.el
 (when (require 'popwin "popwin" t)
+  ;; (setq special-display-function 'popwin:special-display-popup-window)
   (setq display-buffer-function 'popwin:display-buffer)
   (setq popwin:special-display-config
 	(append '(("*Completions*" :height 10 :position bottom :noselect t)
+		  ("CAPTURE-next.org" :height 10 :position bottom :noselect t)
 		  ("*Calendar*"    :height 10 :position top)
+		  ("*wclock*"      :height 10 :position bottom)
 		  ("*Org Agenda*"  :height 10 :position bottom)
 		  ("*Agenda Commands*"  :height 10 :position bottom)
 		  ("*Org Select*"  :height 10 :position bottom)
 		  ("*Occur*"       :height 10 :position bottom)
 		  ("*sdic*"        :height 10 :position bottom)
-		  ("*anything*"    :height 10 :position bottom)
+;		  ("*anything*"    :height 10 :position bottom)
 		  ("*anything complete*"    :height 10 :position bottom)
 		  ("*my-anything*" :height 10 :position bottom)
 		  ("*my-anything-buffer*"    :height 10 :position bottom)

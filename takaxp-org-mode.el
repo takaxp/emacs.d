@@ -1,5 +1,5 @@
 ;;;; Configuration for org-mode
-;;;;                                       Last Update: 2011-11-14@14:07
+;;;;                                       Last Update: 2011-12-23@19:44
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-org-mode.el ] --")
@@ -8,11 +8,10 @@
 (require 'org-extension nil t)
 (require 'org-habit)
 (require 'org-mobile)
-(require 'org-tree-slide nil t)
-;(autoload 'tree-slide-play "org-tree-slide" "Start to play slide" t nil)
 
 (setq auto-mode-alist
       (cons (cons "\\.org$" 'org-mode) auto-mode-alist))
+(push '("\\.txt\\'" . org-mode) auto-mode-alist)
 
 ;; contribution を使う
 ;(setq load-path (append '("~/devel/taka/org-mode/contrib/lisp") load-path))
@@ -153,11 +152,11 @@
 ;; モードラインにアラームを表示する
 (setq appt-display-mode-line t)
 ;; org-agenda の内容をアラームに登録する
-(org-agenda-to-appt t '((headline "TODO")))
+;; (org-agenda-to-appt t '((headline "TODO")))
 ;; 保存時にアラームを登録
-(add-hook 'org-mode-hook
-	  (lambda() (add-hook 'before-save-hook
-			      'org-agenda-to-appt t '((headline "TODO")))))
+;;(add-hook 'org-mode-hook
+;;	  (lambda() (add-hook 'before-save-hook
+;;			      'org-agenda-to-appt t '((headline "TODO")))))
 
 ;;; org-refile
 (setq org-refile-targets
@@ -169,10 +168,11 @@
 ;; http://orgmode.org/worg/org-gtd-etc.html
 (add-to-list 'org-modules 'org-timer)
 (setq org-timer-default-timer 25)
-(add-hook 'org-clock-in-hook
-	  '(lamda ()
-		  (if (not org-timer-current-timer)
-		      (org-timer-set-timer '(16)))))
+;; (add-hook 'org-clock-in-hook
+;; 	  '(lamda ()
+;; 		  (if (not org-timer-current-timer)
+;; 		      (org-timer-set-timer '(16)))))
+
 (setq growl-pomodoro-default-task-name "doing the task")
 (setq growl-pomodoro-task-name 'growl-pomodoro-default-task-name)
 
@@ -192,7 +192,6 @@
    (concat "say -v Kyoko " growl-pomodoro-task-name)
    ))
 (add-hook 'org-timer-done-hook 'growl-pomodoro-timer)
-
 
 ;;; MobileOrg ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; http://orgmode.org/manual/Setting-up-the-staging-area.html
@@ -227,12 +226,12 @@
 (defun show-next-org () (show-org-buffer "next.org"))
 (defun show-today-org () (show-org-buffer "today.org"))
 
-
 ;;; Face ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Font lock を使う
 (global-font-lock-mode 1)
 (add-hook 'org-mode-hook 'turn-on-font-lock)
-;; 起動時にすべてのツリーを閉じておく
+;; ウィンドウの端で折り返す（想定と逆の振る舞い．どこかにバグがある）
 (setq org-startup-truncated nil)
 ;; サブツリー以下の * を略式表示する
 (setq org-hide-leading-stars t)
@@ -250,8 +249,11 @@
 ;; 	("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
 ;; 	("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
 ;; Color setting for Tags
+
 (setq org-tag-faces
-      '(("Achievement" :foreground "#66CC66")
+      '(
+;;; (:foreground "#0000FF" :bold t)	; default. do NOT put this bottom
+	("Achievement" :foreground "#66CC66")
 	("Background"  :foreground "#66CC99")
 	("Chore"       :foreground "#6699CC")
 	("Domestic"    :foreground "#6666CC")
@@ -301,12 +303,6 @@
   (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
     (insert "" (format-time-string fmt (current-time)))))
 
-(defun reload-ical-export ()
-  "Export org files as an iCal format file"
-  (interactive)
-  (when (string= major-mode 'org-mode)
-      (org-export-icalendar-combine-agenda-files)))
-
 ;;; すべてのチェックボックスの cookies を更新する
 (defun do-org-update-statistics-cookies ()
   (interactive)
@@ -317,11 +313,12 @@
 (run-at-time "00:00" nil 'set-alarms-from-file alarm-table)
 
 ;; Keybindings for org-mode
-(define-key org-mode-map (kbd "C-c 1") 'reload-ical-export)
+(define-key org-mode-map (kbd "C-c 1")
+  'org-export-icalendar-combine-agenda-files)
 (define-key org-mode-map (kbd "C-c 2") 'do-org-update-statistics-cookies)
 (define-key org-mode-map (kbd "C-c m") 'org-mobile-sync)
 (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
-(define-key org-mode-map (kbd "<S-f5>") 'widen)
+(define-key org-mode-map (kbd "S-<f5>") 'widen)
 
 ;; 起動時にモバイルで環境で編集したファイルを読み込む
 (message "%s" "MobileOrg sync ... [pull]")
@@ -329,6 +326,25 @@
 
 ;; Rich calendar
 (autoload 'cfw:open-org-calendar  "calfw-org" "Rich calendar for org-mode" t)
+
+;; Org-tree-slide
+;; see http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
+(when (require 'org-tree-slide nil t)
+  ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
+  (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
+  (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+  (define-key org-tree-slide-mode-map (kbd "<f9>")
+    'org-tree-slide-move-previous-tree)
+  (define-key org-tree-slide-mode-map (kbd "<f10>")
+    'org-tree-slide-move-next-tree)
+  (define-key org-tree-slide-mode-map (kbd "<f11>")
+    'org-tree-slide-content)
+  ;; reset the default setting
+  (define-key org-tree-slide-mode-map (kbd "<left>")  'backward-char)
+  (define-key org-tree-slide-mode-map (kbd "<right>") 'forward-char)
+  (setq org-tree-slide-skip-outline-level 4)
+  (org-tree-slide-narrowing-control-profile)
+  (setq org-tree-slide-skip-done nil))
 
 (provide 'takaxp-org-mode)
 

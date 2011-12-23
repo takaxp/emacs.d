@@ -1,15 +1,25 @@
 ;;;; Utility functions
-;;;;                                       Last Update: 2011-11-17@17:27
+;;;;                                       Last Update: 2011-11-23@23:47
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-utility.el ] --")
 
 (run-with-idle-timer 60 t 'sleep-after-reload)
-;; She will be mad if you do nothing within 5 min.
+
+(defvar kyoko-mad-mode t)
+(defun kyoko-mad-mode-toggle ()
+  (interactive)
+  (setq kyoko-mad-mode (not kyoko-mad-mode))
+  (cond (kyoko-mad-mode
+	 (message "Kyoko mad mode: ON"))
+	(t
+	 (message "Kyoko mad mode: OFF"))))
+;; She will be mad if you do nothing within 10 min.
 (run-with-idle-timer 600 t
 		     '(lambda () 
-			(shell-command-to-string
-			 "say -v Kyoko おいおまえ，遊んでないで，仕事しろ")))
+			(when kyoko-mad-mode
+			  (shell-command-to-string
+			   "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
 
 ;; Start Emacs with scratch buffer even though it call session.el/desktop.el
 (add-hook 'emacs-startup-hook '(lambda () (switch-to-buffer "*scratch*")))
@@ -125,6 +135,18 @@
 	(forward-word 1)
 	(setq count (1+ count)))
       (message "buffer contains %d words." count))))
+
+;; http://d.hatena.ne.jp/rubikitch/20111120/elispbook
+(defvar my-file-ring nil)
+(defun my-make-file-ring (files)
+  (setq my-file-ring (copy-sequence files))
+  (setf (cdr (last my-file-ring)) my-file-ring))
+(my-make-file-ring '("~/Dropbox/org/next.org" "~/Dropbox/org/buffer.org"))
+(defun my-open-file-ring ()
+  (interactive)
+  (find-file (car my-file-ring))
+  (setq my-file-ring (cdr my-file-ring)))
+
 
 ;;; Test function for AppleScript
 ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
@@ -299,7 +321,7 @@ content column from the table. The line ID number is 2 will be ignored."
 	 (save-excursion
 	   (save-restriction
 	     (message "%s" "reloading...")
-	     (reload-ical-export) ;; require org-mode.el
+	     (reload-ical-export)
 	     (message "%s" "MobileOrg sync ... [push]")
 	     (org-mobile-push)
 	     ;; Not good for e2wm when the cursor is left side (meybe)
@@ -308,6 +330,12 @@ content column from the table. The line ID number is 2 will be ignored."
 	     (sit-for 0.5)
 	     (message "%s" ""))))))
   
+(defun reload-ical-export ()
+  "Export org files as an iCal format file"
+  (interactive)
+  (when (string= major-mode 'org-mode)
+    (org-export-icalendar-combine-agenda-files)))
+
 (provide 'takaxp-utility)
 
 ;;;

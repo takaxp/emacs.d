@@ -1,5 +1,5 @@
 ;;;; Basic configuration for Emacs
-;;;;                                       Last Update: 2011-11-19@01:17
+;;;;                                       Last Update: 2011-12-23@19:37
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html (GREAT!)
 
@@ -7,9 +7,6 @@
 
 ;;; Enable narrowing
 (put 'narrow-to-region 'disabled nil)
-
-;;; Enable debugger
-;(toggle-debug-on-error)
 
 ;;; Language and encoding
 (set-language-environment "Japanese")
@@ -84,7 +81,14 @@
 ;;; [mode] Info
 (when (require 'info nil t)
   (add-to-list 'Info-additional-directory-list
-	       (expand-file-name "~/devel/git/org-ja/work/")))
+	       (expand-file-name "~/devel/mygit/org-ja/work/")))
+
+(defun org-info-ja (&optional node)
+  "(Japanese) Read documentation for Org-mode in the info system.
+With optional NODE, go directly to that node."
+  (interactive)
+  (info (format "(org-ja)%s" (or node ""))))
+
 
 ;;; [mode] org
 ;; see takaxp-org-mode.el
@@ -144,7 +148,7 @@
 ;; Auto save
 ;; Cite: http://0xcc.net/misc/auto-save/
 (when (require 'auto-save-buffers nil t)
-  (run-with-idle-timer 0.5 t 'auto-save-buffers))
+  (run-with-idle-timer 1.0 t 'auto-save-buffers))
 
 ;; Backup with generation files by backup-dir.el
 ;; Cite: http://www.emacswiki.org/emacs/BackupDirectory
@@ -309,6 +313,40 @@
 ;; Count words (Toggle this mode: M-+)
 ;; http://taiyaki.org/elisp/word-count/src/word-count.el
 (autoload 'word-count-mode "word-count" "Minor mode to count words." t nil)
+
+(when (require 'gist nil t)
+;;  (setq github-user "hoge")
+  )
+
+(when (require 'doxymacs nil t)
+  (setq doxymacs-doxygen-style "JavaDoc")
+  (define-key doxymacs-mode-map (kbd "C-c C-s") 'ff-find-other-file)
+  (add-hook 'c-mode-common-hook 'doxymacs-mode)
+  (add-hook 'font-lock-mode-hook
+	    '(lambda () (interactive)
+	       (when (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
+		 (doxymacs-font-lock)))))
+
+;; i-search with selected region
+;; http://dev.ariel-networks.com/articles/emacs/part5/
+(defadvice isearch-mode
+  (around isearch-mode-default-string
+	  (forward &optional regexp op-fun recursive-edit word-p) activate)
+  (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
+      (progn
+        (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
+        (deactivate-mark)
+        ad-do-it
+        (if (not forward)
+            (isearch-repeat-backward)
+          (goto-char (mark))
+          (isearch-repeat-forward)))
+    ad-do-it))
+
+
+;; The world clock 
+;; see http://pastelwill.jp/wiki/doku.php?id=emacs
+(require 'wclock nil t)
 
 (provide 'takaxp-init)
 

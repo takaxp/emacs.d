@@ -1,5 +1,5 @@
 ;;;; Configuration for Mac
-;;;;                                       Last Update: 2011-11-17@17:24
+;;;;                                       Last Update: 2011-11-30@11:14
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (message "* --[ Loading an init file, takaxp-mac.el ] --")
@@ -38,6 +38,7 @@
   (setq ac-auto-show-menu 0.5)
   ;; ツールチップを表示しない
   (setq ac-use-quick-help nil)
+  (setq ac-quick-help-delay 0.5)
   ;; C-n/C-p でメニューをたどる
   (setq ac-use-menu-map t)
   ;; 次の2つは，デフォルトで設定されている

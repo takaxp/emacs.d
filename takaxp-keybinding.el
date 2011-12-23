@@ -1,5 +1,5 @@
 ;;;; Global keybindings
-;;;;                                      Last Update: 2011-11-13@15:08
+;;;;                                      Last Update: 2011-12-17@23:31
 ;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;; Cite: http://www.gnu.org/software/emacs/manual/html_node/emacs/Key-Bindings.html#Key-Bindings
 ;;; Cite: http://www.uranus.dti.ne.jp/~shiro-/soft/xyzzy/keybind.html
@@ -32,6 +32,8 @@
 (global-set-key (kbd "<f1>") 'move-frame-to-edge-top)
 ;; [point-undo.el] Move the cursor to the previous position
 (global-set-key (kbd "S-<f1>") 'move-frame-to-edge-bottom)
+;; Cycle buffers user specified
+(global-set-key (kbd "<f12>") 'my-open-file-ring)
 
 ;;; C-<key>
 (global-set-key (kbd "C-0") 'insert-formatted-current-date)
