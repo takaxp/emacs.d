@@ -1716,41 +1716,20 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
     ))
  
  ((eq window-system 'x)
-  (set-face-attribute 'default nil
-;;;		      :family "Monaco" :height 120)
-		      :family "Inconsolata" :height 120)
-;;;		      :family "VL Gothic" :height 110)
-;  (set-frame-font "VL Gothic-12")
-;  (set-fontset-font (frame-parameter nil 'font)
-;		    'japanese-jisx0208
-;		    (font-spec :family "MigMix 1M" :size 12))
-  ;; (set-fontset-font (frame-parameter nil 'font)
-  ;;  		    'japanese-jisx0208
-  ;;  		    '("MigMix 2M-10" . "unicode-bmp"))
-  ;; (set-fontset-font (frame-parameter nil 'font)
-  ;;  		    'katakana-jisx0201
-  ;;  		    '("MigMix 2M-10" . "unicode-bmp"))
-  ;; (set-fontset-font (frame-parameter nil 'font)
-  ;;  		    'japanese-jisx0212
-  ;;  		    '("MigMix 2M-10" . "unicode-bmp"))
-  (set-fontset-font (frame-parameter nil 'font)
-  		    'japanese-jisx0208
-  		    '("IPAゴシック" . "iso10646-1"))
-  (set-fontset-font (frame-parameter nil 'font)
-  		    'katakana-jisx0201
-  		    '("IPAゴシック" . "iso10646-1"))
-  (set-fontset-font (frame-parameter nil 'font)
-  		    'japanese-jisx0212
-  		    '("IPAゴシック" . "iso10646-1"))
-  (set-fontset-font (frame-parameter nil 'font)
-  		    'mule-unicode-0100-24ff
-  		    '("Inconsolata" . "iso10646-1"))
-  (setq face-font-rescale-alist '(("*MigMix*" . 1.0)      ; 1.2
-				  ("*IPA*" . 1.0)
-				  ("*IPAex*" . 1.0)
-				  ("*Inconsolata*" . 1.0) ; 0.9
-				  ("-cdac$" . 1.0)))      ; 1.3
-
+  (let
+      ((x-font-size 14))
+  (set-fontset-font nil 'ascii
+  		    (font-spec :family "Inconsolata" :size x-font-size))
+  (set-fontset-font nil 'japanese-jisx0208
+  		    (font-spec :family "MigMix 1M" :size x-font-size :height 100))
+  (set-fontset-font nil 'katakana-jisx0201
+  		    (font-spec :family "MigMix 1M" :size x-font-size :height 100))
+  (set-fontset-font nil 'japanese-jisx0212
+  		    (font-spec :family "MigMix 1M" :size x-font-size :height 100))
+  (set-fontset-font nil 'mule-unicode-0100-24ff
+  		    (font-spec :family "MigMix 1M" :size x-font-size :height 100)))
+  (setq face-font-rescale-alist '(("*MigMix*" . 2.0)
+				  ("*Inconsolata*" . 1.0))) ; 0.9
   (set-default 'line-spacing 0))
 
  (window-system
