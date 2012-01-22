@@ -919,63 +919,65 @@
 (blink-cursor-mode -1)
 
 (cond
- ;; CocoaEmacs
- ((eq window-system 'ns)
-  (when (or (= emacs-major-version 23) (= emacs-major-version 24))
-    (let
-        ((japanese-font-spec '("Hiragino Maru Gothic Pro" . "iso10646-1")))
-      (set-fontset-font 'nil 'japanese-jisx0208 japanese-font-spec)
-      (set-fontset-font 'nil 'katakana-jisx0201 japanese-font-spec)
-      (set-fontset-font 'nil 'japanese-jisx0212 japanese-font-spec)
-      (set-fontset-font 'nil 'mule-unicode-0100-24ff japanese-font-spec)
-      (set-face-attribute 'default nil :family "monaco" :height 120))
-    ;; Fix ratio provided by set-face-attribute for fonts display
-    (setq face-font-rescale-alist '(("^-apple-hiragino.*" . 1.2) ; 1.2
-                                    (".*osaka-bold.*" . 1.0)     ; 1.2
-                                    (".*osaka-medium.*" . 1.0)   ; 1.0
-                                    (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-                                    (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-                                    (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-                                    ("-cdac$" . 1.0)))           ; 1.3
-    ;; Space between lines
-    (set-default 'line-spacing 2)
-    ;; Anti aliasing with Quartz 2D
-    (setq mac-allow-anti-aliasing t)
-    ))
-
- ((eq window-system 'w32)
-  (let*
-      ((font-size 14)
-       (font-height 100)
-       (ascii-font "Inconsolata")
-       (japanese-font "メイリオ")
-       (japanese-font-spec
-        (font-spec :family japanese-font :size font-size :height font-height)))
-    (set-fontset-font
-     nil 'ascii (font-spec :family ascii-font :size font-size))
-    (set-fontset-font nil 'japanese-jisx0208 japanese-font-spec)
-    (set-fontset-font nil 'katakana-jisx0201 japanese-font-spec)
-    (set-fontset-font nil 'japanese-jisx0212 japanese-font-spec)
-    (set-fontset-font nil 'mule-unicode-0100-24ff japanese-font-spec))
-  (setq face-font-rescale-alist '(("*Inconsolata*" . 1.0))) ; 0.9
-  (set-default 'line-spacing 0))
-
- (window-system ; for SuSE Linux 12.1
-  (let*
-      ((font-size 14)
-       (font-height 100)
-       (ascii-font "Inconsolata")
-       (japanese-font "MigMix 1M")
-       (japanese-font-spec
-        (font-spec :family japanese-font :size font-size :height font-height)))
-    (set-fontset-font nil 'ascii (font-spec :family ascii-font :size font-size))
-    (set-fontset-font nil 'japanese-jisx0208 japanese-font-spec)
-    (set-fontset-font nil 'katakana-jisx0201 japanese-font-spec)
-    (set-fontset-font nil 'japanese-jisx0212 japanese-font-spec)
-    (set-fontset-font nil 'mule-unicode-0100-24ff japanese-font-spec))
-  (setq face-font-rescale-alist '(("*MigMix*" . 2.0)
-                                  ("*Inconsolata*" . 1.0))) ; 0.9
-  (set-default 'line-spacing 0)))
+   ;; CocoaEmacs
+   ((eq window-system 'ns)
+    (when (or (= emacs-major-version 23) (= emacs-major-version 24))
+      (let
+          ((japanese-font-spec '("Hiragino Maru Gothic Pro" . "iso10646-1")))
+        (set-fontset-font 'nil 'japanese-jisx0208 japanese-font-spec)
+        (set-fontset-font 'nil 'katakana-jisx0201 japanese-font-spec)
+        (set-fontset-font 'nil 'japanese-jisx0212 japanese-font-spec)
+        (set-fontset-font 'nil 'mule-unicode-0100-24ff japanese-font-spec)
+        (set-face-attribute 'default nil :family "monaco" :height 120))
+      ;; Fix ratio provided by set-face-attribute for fonts display
+      (setq face-font-rescale-alist '(("^-apple-hiragino.*" . 1.2) ; 1.2
+                                      (".*osaka-bold.*" . 1.0)     ; 1.2
+                                      (".*osaka-medium.*" . 1.0)   ; 1.0
+                                      (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+                                      (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+                                      (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+                                      ("-cdac$" . 1.0)))           ; 1.3
+      ;; Space between lines
+      (set-default 'line-spacing 2)
+      ;; Anti aliasing with Quartz 2D
+      (setq mac-allow-anti-aliasing t)
+      ))
+  
+   ((eq window-system 'w32) ; windows7
+    (let*
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font "Inconsolata")
+         (japanese-font "メイリオ")
+         (japanese-font-spec
+          (font-spec :family japanese-font :size font-size :height font-height)))
+      (set-fontset-font
+       nil 'ascii (font-spec :family ascii-font :size font-size))
+      (set-fontset-font nil 'japanese-jisx0208 japanese-font-spec)
+      (set-fontset-font nil 'katakana-jisx0201 japanese-font-spec)
+      (set-fontset-font nil 'japanese-jisx0212 japanese-font-spec)
+      (set-fontset-font nil 'mule-unicode-0100-24ff japanese-font-spec))
+    (setq face-font-rescale-alist '(("*Inconsolata*" . 1.0))) ; 0.9
+    (set-default 'line-spacing 0))
+  
+   (window-system ; for SuSE Linux 12.1
+    (let*
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font "Inconsolata")
+;         (japanese-font "MigMix 1M")
+;         (japanese-font "Migu 2M")
+         (japanese-font "Meiryo UI")
+         (japanese-font-spec
+          (font-spec :family japanese-font :size font-size :height font-height)))
+      (set-fontset-font nil 'ascii (font-spec :family ascii-font :size font-size))
+      (set-fontset-font nil 'japanese-jisx0208 japanese-font-spec)
+      (set-fontset-font nil 'katakana-jisx0201 japanese-font-spec)
+      (set-fontset-font nil 'japanese-jisx0212 japanese-font-spec)
+      (set-fontset-font nil 'mule-unicode-0100-24ff japanese-font-spec))
+    (setq face-font-rescale-alist '(("*MigMix*" . 2.0)
+                                    ("*Inconsolata*" . 1.0))) ; 0.9
+    (set-default 'line-spacing 0)))
 
 (autoload-if-found 'rainbow-mode "rainbow-mode" nil t)
 

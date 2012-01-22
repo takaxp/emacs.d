@@ -1677,7 +1677,15 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
 (blink-cursor-mode -1)
 #+END_SRC
 
-** フォント
+** フォント設定
+
+表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．
+
+|         | ASCII       | 日本語       |
+| Mac     | Monaco      | ヒラギノ丸ゴ |
+| Windows | Inconsolata | メイリオ     |
+| Linux   | Inconsolata | MigMix       |
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (cond
    ;; CocoaEmacs
@@ -1704,7 +1712,7 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
       (setq mac-allow-anti-aliasing t)
       ))
   
-   ((eq window-system 'w32)
+   ((eq window-system 'w32) ; windows7
     (let*
         ((font-size 14)
          (font-height 100)
@@ -1726,7 +1734,9 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
         ((font-size 14)
          (font-height 100)
          (ascii-font "Inconsolata")
-         (japanese-font "MigMix 1M")
+;         (japanese-font "MigMix 1M")
+;         (japanese-font "Migu 2M")
+         (japanese-font "Meiryo UI")
          (japanese-font-spec
           (font-spec :family japanese-font :size font-size :height font-height)))
       (set-fontset-font nil 'ascii (font-spec :family ascii-font :size font-size))
@@ -1737,8 +1747,22 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
     (setq face-font-rescale-alist '(("*MigMix*" . 2.0)
                                     ("*Inconsolata*" . 1.0))) ; 0.9
     (set-default 'line-spacing 0)))
-  
 #+END_SRC
+
+*** フォントのインストール方法
+
+Linux では次のように処理するだけでよく，意外と簡単．
+
+1. ~/.fonts を作成する
+2. フォントを1.のディレクトリに置く
+3. fc-cache -fv を実行
+4. fc-list でインストールされているかを確認．
+
+なお，Windows では，フォントファイルを右クリックして，インストールを選択するだけでOK．
+
+*** フォントチェック用コード
+
+サンプルの [[http://dl.dropbox.com/u/2440/dokuwiki/font-test.org][orgファイル]] を作って，見た目をチェックしています．バッファ内の桁数チェックや，ASCIIが漢字の半分の幅になっているかのチェックが楽になります．
 
 ** パッチをカラフルに表示する
 
