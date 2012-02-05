@@ -1,8 +1,8 @@
 #+TITLE:	Configurations for GNU Emacs
 #+AUTHOR:	Takaaki Ishikawa
 #+EMAIL:	takaxp@ieee.org
-#+STARTUP: content
-#+STARTUP: nohideblocks
+#+STARTUP:	content
+#+STARTUP:	nohideblocks
 
 一部の関数定義を [[http://pastelwill.jp/wiki/doku.php?id=emacs:utility.el][utility.el]] に分離しました．
 
@@ -286,7 +286,7 @@ Built-in の time-stamp.el を使う．
   (add-hook 'before-save-hook 'time-stamp)
   (eval-after-load "time-stamp"
     '(progn
-       (setq time-stamp-start "Last Update: 2012-01-13@15:40")
+       (setq time-stamp-start "Last Update: ")
        (setq time-stamp-format "%04y-%02m-%02d@%02H:%02M")
        (setq time-stamp-end "$")
        (setq time-stamp-line-limit 10))) ; def=8
@@ -741,7 +741,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found
-         '(anything-other-buffer
+         '(anything-other-buffer anything-complete
            anything-M-x anything-c-moccur-occur-by-moccur)
          "anything-startup" nil t)
     
@@ -1146,7 +1146,7 @@ Hide or show current block of souces
          
          ;; Set checksum program path for windows
          (when (eq window-system 'w32)
-           (setq org-mobile-checksum-binary "~/env/do/cksum.exe"))
+           (setq org-mobile-checksum-binary "~/Dropbox/do/cksum.exe"))
          
          ;; org ファイルの集中管理
          (setq org-directory "~/Dropbox/org/")
@@ -1284,7 +1284,7 @@ http://orgmode.org/worg/org-gtd-etc.html
 (setq org-todo-keyword-faces
       '(("CHECK"  :foreground "#CC00FF")
 	("SLEEP"  :foreground "#3366CC")
-	("WAIT"   :foreground "#008500")
+	("WAIT"   :foreground "#CC9933")
 	("NOTICE" :foreground "#FFFFFF" :background "#FF0000")
 	("FOCUS"  :foreground "#FF0000" :background "#FFCC66")
 	("TIME"   :foreground "#FF9900")))
@@ -1451,14 +1451,15 @@ http://orgmode.org/worg/org-gtd-etc.html
 #+END_SRC
 
 ** [org-refile]
+
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (when (autoload-if-found 'org-mode "org" "Org Mode" t)
+  (when (autoload-if-found 'org-refile "org" "Org Mode" t)
     (eval-after-load "org"
       '(progn
-(setq org-refile-targets
-      (quote (("next.org" :level . 1)
-	      ("sleep.org" :level . 1))))
-)))
+         (setq org-refile-targets
+               (quote (("next.org" :level . 1)
+                       ("sleep.org" :level . 1))))
+         )))
 #+END_SRC
 ** [MobileOrg] iOS との連携
 http://orgmode.org/manual/Setting-up-the-staging-area.html
@@ -1686,67 +1687,79 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
 | Windows | Inconsolata | メイリオ     |
 | Linux   | Inconsolata | MigMix       |
 
+http://d.hatena.ne.jp/setoryohei/20110117/1295336454
+
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (defun my-ja-font-setter (spec)
+    (set-fontset-font nil 'japanese-jisx0208 spec)
+    (set-fontset-font nil 'katakana-jisx0201 spec)
+    (set-fontset-font nil 'japanese-jisx0212 spec)
+    (set-fontset-font nil '(#x0080 . #x024F) spec)
+    (set-fontset-font nil '(#x0370 . #x03FF) spec)
+    (set-fontset-font nil 'mule-unicode-0100-24ff spec))
+  
+  (defun my-ascii-font-setter (spec)
+    (set-fontset-font nil 'ascii spec))      
+  
   (cond
    ;; CocoaEmacs
    ((eq window-system 'ns)
     (when (or (= emacs-major-version 23) (= emacs-major-version 24))
       (let
-          ((japanese-font-spec '("Hiragino Maru Gothic Pro" . "iso10646-1")))
-        (set-fontset-font 'nil 'japanese-jisx0208 japanese-font-spec)
-        (set-fontset-font 'nil 'katakana-jisx0201 japanese-font-spec)
-        (set-fontset-font 'nil 'japanese-jisx0212 japanese-font-spec)
-        (set-fontset-font 'nil 'mule-unicode-0100-24ff japanese-font-spec)
-        (set-face-attribute 'default nil :family "monaco" :height 120))
+          ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
+          ;; 2) Inconsolata, Migu 2M     : font-size=14, 
+          ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
+          ((font-size 12)
+;           (ascii-font "Inconsolata")
+           (ascii-font "Monaco")
+           (ja-font "Migu 2M"))
+        ;; (ja-font "Hiragino Maru Gothic Pro")) 
+        (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+        (my-ja-font-setter (font-spec :family ja-font :size font-size)))
+      
       ;; Fix ratio provided by set-face-attribute for fonts display
-      (setq face-font-rescale-alist '(("^-apple-hiragino.*" . 1.2) ; 1.2
-                                      (".*osaka-bold.*" . 1.0)     ; 1.2
-                                      (".*osaka-medium.*" . 1.0)   ; 1.0
-                                      (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-                                      (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-                                      (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-                                      ("-cdac$" . 1.0)))           ; 1.3
+      (setq face-font-rescale-alist
+            '(("^-apple-hiragino.*" . 1.0) ; 1.2
+              (".*Migu.*" . 1.2)
+              (".*Inconsolata.*" 1.0)
+              (".*osaka-bold.*" . 1.0)     ; 1.2
+              (".*osaka-medium.*" . 1.0)   ; 1.0
+              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+              ("-cdac$" . 1.0)))           ; 1.3
+      
       ;; Space between lines
-      (set-default 'line-spacing 2)
+      (set-default 'line-spacing 1)
       ;; Anti aliasing with Quartz 2D
-      (setq mac-allow-anti-aliasing t)
-      ))
-  
+      (setq mac-allow-anti-aliasing t)))
+   
    ((eq window-system 'w32) ; windows7
-    (let*
+    (let
         ((font-size 14)
          (font-height 100)
          (ascii-font "Inconsolata")
-         (japanese-font "メイリオ")
-         (japanese-font-spec
-          (font-spec :family japanese-font :size font-size :height font-height)))
-      (set-fontset-font
-       nil 'ascii (font-spec :family ascii-font :size font-size))
-      (set-fontset-font nil 'japanese-jisx0208 japanese-font-spec)
-      (set-fontset-font nil 'katakana-jisx0201 japanese-font-spec)
-      (set-fontset-font nil 'japanese-jisx0212 japanese-font-spec)
-      (set-fontset-font nil 'mule-unicode-0100-24ff japanese-font-spec))
-    (setq face-font-rescale-alist '(("*Inconsolata*" . 1.0))) ; 0.9
-    (set-default 'line-spacing 0))
-  
+         ;; (ja-font "Meiryo UI"))
+         (ja-font "メイリオ"))
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
+    (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))) ; 0.9
+    (set-default 'line-spacing 1))
+   
    (window-system ; for SuSE Linux 12.1
-    (let*
+    (let
         ((font-size 14)
          (font-height 100)
          (ascii-font "Inconsolata")
-;         (japanese-font "MigMix 1M")
-;         (japanese-font "Migu 2M")
-         (japanese-font "Meiryo UI")
-         (japanese-font-spec
-          (font-spec :family japanese-font :size font-size :height font-height)))
-      (set-fontset-font nil 'ascii (font-spec :family ascii-font :size font-size))
-      (set-fontset-font nil 'japanese-jisx0208 japanese-font-spec)
-      (set-fontset-font nil 'katakana-jisx0201 japanese-font-spec)
-      (set-fontset-font nil 'japanese-jisx0212 japanese-font-spec)
-      (set-fontset-font nil 'mule-unicode-0100-24ff japanese-font-spec))
-    (setq face-font-rescale-alist '(("*MigMix*" . 2.0)
-                                    ("*Inconsolata*" . 1.0))) ; 0.9
-    (set-default 'line-spacing 0)))
+         ;; (ja-font "MigMix 1M")
+         (ja-font "Migu 1M"))
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
+    (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
+                                    (".*Inconsolata.*" . 1.0))) ; 0.9
+    (set-default 'line-spacing 1)))
 #+END_SRC
 
 *** フォントのインストール方法
@@ -1949,13 +1962,14 @@ popwin:display-buffer を autoload してもうまくいかない．
           (append
            '(("*Completions*" :height 10 :position bottom :noselect t)
              ("CAPTURE-next.org" :height 10 :position bottom :noselect t)
-             ("*Calendar*"    :height 10 :position top)
+             ("*Org-todo*"    :height 10 :position bottom)
+             ("*Calendar*"    :height 10 :position bottom)
              ("*wclock*"      :height 10 :position bottom)
              ("*Org Agenda*"  :height 10 :position bottom)
              ("*Agenda Commands*"  :height 10 :position bottom)
              ("*Org Select*"  :height 10 :position bottom)
              ("*Occur*"       :height 10 :position bottom)
-             ("*sdic*"        :height 10 :position bottom)
+             ("*sdic*"        :height 10 :position top)
              ("*anything*"    :height 10 :position bottom)
              ("*anything M-x*" :height 10 :position bottom)
              ("*anything complete*"    :height 10 :position bottom)

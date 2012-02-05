@@ -35,7 +35,7 @@
            (kill-new
             (shell-command-to-string
              (concat "cat " buffer-file-name "| perl "
-                     (expand-file-name "~/env/scripts/org2dokuwiki.pl"))))
+                     (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
            (message "Copying %s ... done" buffer-file-name)
            (sit-for 1.5)
            (message ""))
@@ -126,7 +126,7 @@ content column from the table. The line ID number is 2 will be ignored."
 (defun takaxp:make-file-ring (files)
   (setq my-file-ring (copy-sequence files))
   (setf (cdr (last my-file-ring)) my-file-ring))
-(takaxp:make-file-ring `("~/devel/mygit/emacs.d/init.org"
+(takaxp:make-file-ring '("~/devel/mygit/emacs.d/init.org"
                                          "~/devel/mygit/emacs.d/utility.org"
                          "~/Dropbox/org/next.org" "~/Dropbox/org/buffer.org"))
 

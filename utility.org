@@ -1,8 +1,8 @@
 #+TITLE:	ユーティリティ関数群
 #+AUTHOR:	Takaaki Ishikawa
 #+EMAIL:	takaxp@ieee.org
-#+STARTUP: content
-#+STARTUP: nohideblocks
+#+STARTUP:	content
+#+STARTUP:	nohideblocks
 
 [[http://pastelwill.jp/wiki/doku.php?id=emacs:init.el][init.el]] に記述していた便利関数を，utility.el として分離している．init.el には，autoload を用いて utility.el を遅延読み込みするように設定している．このようなファイルの分離で60[ms]ほど起動を高速化できる．
 
@@ -57,7 +57,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
              (kill-new
               (shell-command-to-string
                (concat "cat " buffer-file-name "| perl "
-                       (expand-file-name "~/env/scripts/org2dokuwiki.pl"))))
+                       (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
              (message "Copying %s ... done" buffer-file-name)
              (sit-for 1.5)
              (message ""))
