@@ -126,9 +126,10 @@ content column from the table. The line ID number is 2 will be ignored."
 (defun takaxp:make-file-ring (files)
   (setq my-file-ring (copy-sequence files))
   (setf (cdr (last my-file-ring)) my-file-ring))
-(takaxp:make-file-ring '("~/devel/mygit/emacs.d/init.org"
-                                         "~/devel/mygit/emacs.d/utility.org"
-                         "~/Dropbox/org/next.org" "~/Dropbox/org/buffer.org"))
+(takaxp:make-file-ring
+ '("~/devel/mygit/emacs.d/init.org" "~/devel/mygit/emacs.d/utility.org"
+   "~/Dropbox/org/next.org" "~/Dropbox/org/buffer.org"
+   "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
 
 (defun takaxp:open-file-ring ()
   (interactive)
