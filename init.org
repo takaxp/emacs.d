@@ -1367,12 +1367,13 @@ http://orgmode.org/worg/org-gtd-etc.html
          ;; アジェンダ作成対象（指定しないとagendaが生成されない）
          ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
          (setq org-agenda-files
-               '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org"))
-         )))
+               '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org"
+                 "~/Dropbox/org/work.org" "~/Dropbox/org/research.org")))))  
 #+END_SRC
+
 ** [org-capture] 高速にメモを取る
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (when (autoload-if-found 'org-capture "org" "Org Mode" t)
+  (when (autoload-if-found 'org-capture "org-capture" "Org Mode" t)
     (eval-after-load "org"
       '(progn
   

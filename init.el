@@ -713,10 +713,10 @@
        ;; アジェンダ作成対象（指定しないとagendaが生成されない）
        ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
        (setq org-agenda-files
-             '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org"))
-       )))
+             '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org"
+               "~/Dropbox/org/work.org" "~/Dropbox/org/research.org")))))
 
-(when (autoload-if-found 'org-capture "org" "Org Mode" t)
+(when (autoload-if-found 'org-capture "org-capture" "Org Mode" t)
   (eval-after-load "org"
     '(progn
 

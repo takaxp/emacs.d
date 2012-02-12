@@ -188,14 +188,15 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
     (setq my-file-ring (copy-sequence files))
     (setf (cdr (last my-file-ring)) my-file-ring))
   (takaxp:make-file-ring
-   '("~/devel/mygit/emacs.d/init.org" "~/devel/mygit/emacs.d/utility.org"
-     "~/Dropbox/org/next.org" "~/Dropbox/org/buffer.org"
-     "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
+   '("~/Dropbox/org/next.org" "~/Dropbox/org/work.org"
+     "~/Dropbox/org/research.org" "~/devel/mygit/emacs.d/init.org"
+     "~/devel/mygit/emacs.d/utility.org" "~/Dropbox/org/buffer.org"))
   
   (defun takaxp:open-file-ring ()
     (interactive)
     (find-file (car my-file-ring))
     (setq my-file-ring (cdr my-file-ring)))
+  
 #+END_SRC
 
 ** 引数のorgバッファを開く
