@@ -852,12 +852,16 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 
 [[http://julien.danjou.info/software/google-maps.el]]
 
+=M-x gogole-maps= で起動します．
+
 #+BEGIN_SRC  emacs-lisp :tangle yes
 (require 'google-maps nil t)
 (require 'org-location-google-maps nil t)
 #+END_SRC
 
 =+/-= でズーム， =矢印= で移動， =q= で終了します．また， =w= でURLを取得してコピー， =t= で地図の種別を変更できます．
+
+Org-mode を使っている場合には， =C-c M-L= で表示されるプロンプトで検索すると，プロパティにそのキーワードが記録されます．後から =C-c M-l= すれば，いつでも地図を表示できるようになります．
 
 ** [org-google-weather.el] org-agenda に天気を表示する
 
