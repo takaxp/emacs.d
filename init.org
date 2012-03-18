@@ -869,7 +869,8 @@ Org-mode を使っている場合には， =C-c M-L= で表示されるプロン
 
 #+BEGIN_SRC  emacs-lisp :tangle yes
 (require 'google-weather nil t)
-(require 'org-google-weather nil t)
+(when (require 'org-google-weather nil t)
+ '(org-google-weather-use-google-icons t))
 #+END_SRC
 
 * 履歴／ファイル管理

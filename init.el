@@ -384,7 +384,8 @@
 (require 'org-location-google-maps nil t)
 
 (require 'google-weather nil t)
-(require 'org-google-weather nil t)
+(when (require 'org-google-weather nil t)
+ '(org-google-weather-use-google-icons t))
 
 (setq undo-outer-limit nil)
 
