@@ -848,6 +848,26 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
   (autoload 'volume "volume" "Tweak your sound card volume." t)
 #+END_SRC
 
+** [GoogleMaps.el] GoogleMaps を Emacs 内で使う
+
+[[http://julien.danjou.info/software/google-maps.el]]
+
+#+BEGIN_SRC  emacs-lisp :tangle yes
+(require 'google-maps nil t)
+(require 'org-location-google-maps nil t)
+#+END_SRC
+
+=+/-= でズーム， =矢印= で移動， =q= で終了します．また， =w= でURLを取得してコピー， =t= で地図の種別を変更できます．
+
+** [org-google-weather.el] org-agenda に天気を表示する
+
+[[http://julien.danjou.info/software/google-weather.el]]
+
+#+BEGIN_SRC  emacs-lisp :tangle yes
+(require 'google-weather nil t)
+(require 'org-google-weather nil t)
+#+END_SRC
+
 * 履歴／ファイル管理
 ** Undoバッファを無限に取る
 #+BEGIN_SRC emacs-lisp :tangle yes
