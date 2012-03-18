@@ -380,6 +380,12 @@
 
 (autoload-if-found 'org-mode "org-player" nil t)
 
+(require 'google-maps nil t)
+(require 'org-location-google-maps nil t)
+
+(require 'google-weather nil t)
+(require 'org-google-weather nil t)
+
 (setq undo-outer-limit nil)
 
 ;; Backup the buffer whenever the buffer is saved
