@@ -283,6 +283,12 @@
 ;; Show function name in the mode line.
 (which-function-mode t)
 
+(setq show-paren-delay 0)
+(show-paren-mode t)
+;; (setq show-paren-style 'expression) ; カッコ内も強調
+(set-face-background 'show-paren-match-face "#FFCC66") ; オレンジ色にハイライト
+(set-face-underline-p 'show-paren-match-face nil)
+
 (when (and (autoload-if-found 'migemo-init "migemo" nil t)
            (executable-find "cmigemo"))
   (add-hook 'isearch-mode-hook 'migemo-init)

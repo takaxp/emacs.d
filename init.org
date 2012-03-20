@@ -710,6 +710,18 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 (display-time-mode t)
 #+END_SRC
 
+** 対応するカッコをハイライトする
+
+Built-in の paren.el を利用する．拡張版として [[http://www.emacswiki.org/emacs/mic-paren.el][mic-paren.el]] もある．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq show-paren-delay 0)
+(show-paren-mode t)
+;; (setq show-paren-style 'expression) ; カッコ内も強調
+(set-face-background 'show-paren-match-face "#FFCC66") ; オレンジ色にハイライト
+(set-face-underline-p 'show-paren-match-face nil)
+#+END_SRC 
+
 ** [migemo.el] ローマ字入力で日本語を検索する
 
 http://0xcc.net/migemo/#download
