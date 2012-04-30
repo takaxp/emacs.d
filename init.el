@@ -950,7 +950,7 @@
           ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
           ;; 2) Inconsolata, Migu 2M     : font-size=14, 
           ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
-          ((font-size 12)
+          ((font-size 13)
 ;           (ascii-font "Inconsolata")
            (ascii-font "Monaco")
            (ja-font "Migu 2M"))
