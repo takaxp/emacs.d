@@ -286,7 +286,10 @@
 (setq show-paren-delay 0)
 (show-paren-mode t)
 ;; (setq show-paren-style 'expression) ; カッコ内も強調
-(set-face-background 'show-paren-match-face "#FFCC66") ; オレンジ色にハイライト
+;(set-face-background 'show-paren-match-face "#FFCC66") ; オレンジ色にハイライト
+;(set-face-background 'show-paren-match-face "#5DA4ff") ; カーソルより濃い青
+(set-face-background 'show-paren-match-face "#c9befc")
+(set-face-foreground 'show-paren-match-face "#FFFFFF")
 (set-face-underline-p 'show-paren-match-face nil)
 
 (when (and (autoload-if-found 'migemo-init "migemo" nil t)
@@ -866,14 +869,13 @@
        (require 'org-fstree nil t))))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
-    (eval-after-load "org"
-      '(progn
-(setq alarm-table "~/Dropbox/org/today.org")
-(run-at-time "00:00" nil 'set-alarms-from-file alarm-table)
+  (eval-after-load "org"
+    '(progn
+       (setq alarm-table "~/Dropbox/org/today.org")
+       (run-at-time "00:00" nil 'set-alarms-from-file alarm-table))))
 
 ;; Rich calendar
-(autoload 'cfw:open-org-calendar  "calfw-org" "Rich calendar for org-mode" t)
-)))
+(autoload 'cfw:open-org-calendar "calfw-org" "Rich calendar for org-mode" t)
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
     (global-set-key (kbd "C-M-o") '(lambda () (interactive)
@@ -950,7 +952,7 @@
           ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
           ;; 2) Inconsolata, Migu 2M     : font-size=14, 
           ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
-          ((font-size 13)
+          ((font-size 12)
 ;           (ascii-font "Inconsolata")
            (ascii-font "Monaco")
            (ja-font "Migu 2M"))
