@@ -26,7 +26,8 @@
 (set-selection-coding-system 'utf-8-unix)
 (set-buffer-file-coding-system 'utf-8-unix)
 
-(when (and (eq window-system 'ns) (= emacs-major-version 23)) 
+(when (and (eq window-system 'ns)
+           (or (= emacs-major-version 23) (= emacs-major-version 24)))
   (setq default-input-method "MacOSX")
   (mac-add-key-passed-to-system 'shift))
 
@@ -283,14 +284,11 @@
 ;; Show function name in the mode line.
 (which-function-mode t)
 
-(setq show-paren-delay 0)
-(show-paren-mode t)
-;; (setq show-paren-style 'expression) ; カッコ内も強調
-;(set-face-background 'show-paren-match-face "#FFCC66") ; オレンジ色にハイライト
-;(set-face-background 'show-paren-match-face "#5DA4ff") ; カーソルより濃い青
-(set-face-background 'show-paren-match-face "#c9befc")
-(set-face-foreground 'show-paren-match-face "#FFFFFF")
-(set-face-underline-p 'show-paren-match-face nil)
+(when (require 'mic-paren nil t)
+      (paren-activate)
+      (setq paren-sexp-mode nil)
+      (set-face-foreground 'paren-face-match "#FFFFFF")
+      (set-face-background 'paren-face-match "#a634ff"))
 
 (when (and (autoload-if-found 'migemo-init "migemo" nil t)
            (executable-find "cmigemo"))
@@ -630,86 +628,89 @@
 )))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
-    (eval-after-load "org"
-      '(progn
+  (eval-after-load "org"
+    '(progn
 
-;; Font lock を使う
-(global-font-lock-mode 1)
-(add-hook 'org-mode-hook 'turn-on-font-lock)
-;; ウィンドウの端で折り返す（想定と逆の振る舞い．どこかにバグがある）
-(setq org-startup-truncated nil)
-;; サブツリー以下の * を略式表示する
-(setq org-hide-leading-stars t)
-;; Color setting for TODO keywords
-;; Color for priorities
-;; (setq org-priority-faces
-;;       '(("?A" :foreground "#E01B4C" :background "#FFFFFF" :weight bold)
-;;      ("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
-;;      ("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
-;; Color setting for Tags
+       ;; Font lock を使う
+       (global-font-lock-mode 1)
+       (add-hook 'org-mode-hook 'turn-on-font-lock)
+       ;; ウィンドウの端で折り返す（想定と逆の振る舞い．どこかにバグがある）
+       (setq org-startup-truncated nil)
+       ;; サブツリー以下の * を略式表示する
+       (setq org-hide-leading-stars t)
+       ;; Color setting for TODO keywords
+       ;; Color for priorities
+       ;; (setq org-priority-faces
+       ;;       '(("?A" :foreground "#E01B4C" :background "#FFFFFF" :weight bold)
+       ;;      ("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
+       ;;      ("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
+       ;; Color setting for Tags
 
-(setq org-todo-keyword-faces
-      '(("CHECK"  :foreground "#CC00FF")
-        ("SLEEP"  :foreground "#3366CC")
-        ("WAIT"   :foreground "#CC9933")
-        ("NOTICE" :foreground "#FFFFFF" :background "#FF0000")
-        ("FOCUS"  :foreground "#FF0000" :background "#FFCC66")
-        ("TIME"   :foreground "#FF9900")))
+       (setq org-todo-keyword-faces
+             '(("CHECK"   :foreground "#CC00FF")
+               ("SLEEP"   :foreground "#3366CC")
+               ("DRAFT"   :foreground "#CC3333")
+               ("REV1"    :foreground "#3366CC")
+               ("REV2"    :foreground "#FFFFFF" :background "#3366CC")
+               ("NOTICE"  :foreground "#FFFFFF" :background "#FF0000")
+               ("FOCUS"   :foreground "#FF0000" :background "#FFCC66")
+               ("TIME"    :foreground "#FF9900")))
 
-(setq org-tag-faces
-      '(
+       (setq org-tag-faces
+             '(
 ;;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom
-        ("Achievement" :foreground "#66CC66")
-        ("Background"  :foreground "#66CC99")
-        ("Chore"       :foreground "#6699CC")
-        ("Domestic"    :foreground "#6666CC")
-        ("Ongoing"     :foreground "#CC6666") ; for non scheduled / reminder
-        ("Repeat"      :foreground "#CC9999") ; for interval tasks
-        ("Mag"         :foreground "#9966CC")
-        ("buy"         :foreground "#9966CC")
-        ("note"        :foreground "#6633CC")
-        ("Implements"  :foreground "#CC9999" :weight bold)
-        ("Coding"      :foreground "#CC9999")
-        ("Editing"     :foreground "#CC9999" :weight bold)
-        ("Duty"        :foreground "#CC9999" :weight bold)
-        ("Survey"      :foreground "#CC9999" :weight bold)
-        ("Home"        :foreground "#CC9999" :weight bold)
-        ("Open"        :foreground "#CC9999" :weight bold)
-        ("Test"        :foreground "#FF0000" :weight bold)
-        ("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
-        ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
-        ("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
-        ("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
-        ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99");;#5BDF8D
-        ("Log"         :foreground "#008500")))
-)))
+               ("Achievement" :foreground "#66CC66")
+               ("Background"  :foreground "#66CC99")
+               ("Chore"       :foreground "#6699CC")
+               ("Domestic"    :foreground "#6666CC")
+               ("Ongoing"     :foreground "#CC6666") ; for non scheduled / reminder
+               ("Repeat"      :foreground "#CC9999") ; for interval tasks
+               ("Mag"         :foreground "#9966CC")
+               ("buy"         :foreground "#9966CC")
+               ("note"        :foreground "#6633CC")
+               ("Implements"  :foreground "#CC9999" :weight bold)
+               ("Coding"      :foreground "#CC9999")
+               ("Editing"     :foreground "#CC9999" :weight bold)
+               ("Duty"        :foreground "#CC9999" :weight bold)
+               ("Survey"      :foreground "#CC9999" :weight bold)
+               ("Home"        :foreground "#CC9999" :weight bold)
+               ("Open"        :foreground "#CC9999" :weight bold)
+               ("Test"        :foreground "#FF0000" :weight bold)
+               ("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
+               ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
+               ("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
+               ("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
+               ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99");;#5BDF8D
+               ("Log"         :foreground "#008500")))
+       )))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
-    (eval-after-load "org"
-      '(progn
+  (eval-after-load "org"
+    '(progn
 
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "FOCUS(f)" "WAIT(w)" "|" "DONE(d)")
-        (sequence "NOTICE(N)" "SLEEP(s)" "|" "note(n)")
-        (sequence "TIME(T)" "CHECK(c)" "|" "PASS(p)")
-        ))
+       (setq org-todo-keywords
+             '((sequence "TODO(t)" "FOCUS(f)" "WAIT(w)" "|" "DONE(d)")
+               (sequence "DRAFT(D)" "REV1(r)" "REV2(R)" "|" "PUBLISH(p)")
+               (sequence "NOTICE(N)" "SLEEP(s)" "|" "note(n)")
+               (sequence "TIME(T)" "CHECK(C)" "|" "PASS(P)")
+               ))
 
-;; Global counting of TODO items
-(setq org-hierarchical-todo-statistics nil)
-;; Global counting of checked TODO items
-(setq org-hierarchical-checkbox-statistics nil)
+       ;; Global counting of TODO items
+       (setq org-hierarchical-todo-statistics nil)
+       ;; Global counting of checked TODO items
+       (setq org-hierarchical-checkbox-statistics nil)
 
 ;;; block-update-time
-(defun org-dblock-write:block-update-time (params)
-  (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
-    (insert "" (format-time-string fmt (current-time)))))
+       (defun org-dblock-write:block-update-time (params)
+         (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
+           (insert "" (format-time-string fmt (current-time)))))
 
 ;;; すべてのチェックボックスの cookies を更新する
-(defun do-org-update-statistics-cookies ()
-  (interactive)
-  (org-update-statistics-cookies 'all))
+       (defun do-org-update-statistics-cookies ()
+         (interactive)
+         (org-update-statistics-cookies 'all))
 
-)))
+       )))
 
 (when (autoload-if-found 'org-agenda "org" "Org Mode" t)
   (eval-after-load "org"
@@ -749,6 +750,8 @@
        (setq org-capture-templates
              `(("t" "TODO 項目を INBOX に貼り付ける" entry
                 (file+headline nil "INBOX") "** TODO %?\n\t")
+               ("d" "DRAFT 項目を INBOX に貼り付ける" entry
+                (file+headline nil "INBOX") "** DRAFT %?\n\t")
                ("l" "本日のチェックリスト" entry
                 (file+headline ,org-capture-today-file "Today")
                 "** FOCUS 本日のチェックリスト %T\n（起床時間の記録）[[http://www.hayaoki-seikatsu.com/users/takaxp/][早起き日記]] \n（朝食）\n  - [ ] %?\n（昼食）\n（帰宅／夕食）\n----\n（研究速報）\n  - [ ] \n")
@@ -759,8 +762,8 @@
                 "** TODO %? :bug:\n %i\n %a %t")
                ("w" ,(concat "英単語を " org-capture-words-notes-file
                              " に書き込む") entry
-                (file+headline ,org-capture-words-notes-file "WORDS")
-                "** %? :%(get-current-date-tags):\n「」\n  - ")
+                             (file+headline ,org-capture-words-notes-file "WORDS")
+                             "** %? :%(get-current-date-tags):\n「」\n  - ")
                ("g" ,(concat "英語ノートを " org-capture-words-notes-file
                              " に書き込む")
                 entry (file+headline ,org-capture-words-notes-file "GRAMMER")
@@ -869,13 +872,14 @@
        (require 'org-fstree nil t))))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
-  (eval-after-load "org"
-    '(progn
-       (setq alarm-table "~/Dropbox/org/today.org")
-       (run-at-time "00:00" nil 'set-alarms-from-file alarm-table))))
+    (eval-after-load "org"
+      '(progn
+(setq alarm-table "~/Dropbox/org/today.org")
+(run-at-time "00:00" nil 'set-alarms-from-file alarm-table)
 
 ;; Rich calendar
-(autoload 'cfw:open-org-calendar "calfw-org" "Rich calendar for org-mode" t)
+(autoload 'cfw:open-org-calendar  "calfw-org" "Rich calendar for org-mode" t)
+)))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
     (global-set-key (kbd "C-M-o") '(lambda () (interactive)
@@ -929,6 +933,11 @@
   ;; when IME is ON
   (mac-set-input-method-parameter
    "com.google.inputmethod.Japanese.base" 'title "G"))
+
+(when (and (eq window-system 'ns) (= emacs-major-version 24))
+  ;; when IME is ON
+  (mac-set-input-method-parameter
+   "com.google.inputmethod.Japanese.base" 'title "グ"))
 
 ;; Disable cursor blink
 (blink-cursor-mode -1)
@@ -1067,15 +1076,16 @@
        (add-hook 'kill-emacs-hook 'e2wm:stop-management))))
 
 (when (autoload-if-found 
-       '(change-frame-width-single
-         change-frame-width-double
-         frame-ctr-open-height-ring
-         move-frame-with-user-specify move-frame-left move-frame-to-center
-         move-frame-right move-frame-to-edge-top move-frame-to-edge-bottom)
-       "frame-ctr" nil t)
-  (eval-after-load "frame-ctr"
-    '(progn
-       (frame-ctr-make-height-ring '(60 68 20 40)))))
+         '(change-frame-width-single
+           change-frame-width-double
+           frame-ctr-open-height-ring
+           move-frame-with-user-specify move-frame-left move-frame-to-center
+           move-frame-right move-frame-to-edge-top move-frame-to-edge-bottom)
+         "frame-ctr" nil t)
+    (eval-after-load "frame-ctr"
+      '(progn
+         (frame-ctr-make-height-ring '(56 20 40))))) ; for Emacs24
+;         (frame-ctr-make-height-ring '(60 68 20 40))))) ; for Emacs23
 
 ;; Move the frame to somewhere (default: 0,0)
 (global-set-key (kbd "M-0") 'move-frame-with-user-specify)

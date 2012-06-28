@@ -1,4 +1,4 @@
-#+Title:	Configurations for GNU Emacs
+#+TITLE:	Configurations for GNU Emacs
 #+AUTHOR:	Takaaki Ishikawa
 #+EMAIL:	takaxp@ieee.org
 #+STARTUP:	content
@@ -85,7 +85,8 @@ Emacs23用にインラインパッチを適用している場合に使います�
 Lion でも使える自分用にカスタマイズした [[https://gist.github.com/1532344][inline-patch]] を使っています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (when (and (eq window-system 'ns) (= emacs-major-version 23)) 
+  (when (and (eq window-system 'ns)
+             (or (= emacs-major-version 23) (= emacs-major-version 24)))
     (setq default-input-method "MacOSX")
     (mac-add-key-passed-to-system 'shift))
 #+END_SRC
@@ -715,14 +716,24 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 Built-in の paren.el を利用する．拡張版として [[http://www.emacswiki.org/emacs/mic-paren.el][mic-paren.el]] もある．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (when (require 'mic-paren nil t)
+        (paren-activate)
+        (setq paren-sexp-mode nil)
+        (set-face-foreground 'paren-face-match "#FFFFFF")
+        (set-face-background 'paren-face-match "#a634ff"))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no
 (setq show-paren-delay 0)
 (show-paren-mode t)
 ;; (setq show-paren-style 'expression) ; カッコ内も強調
-;(set-face-background 'show-paren-match-face "#FFCC66") ; オレンジ色にハイライト
+;; "#FFCC66" ; オレンジ色にハイライト
+;; 91C3FF
 ;(set-face-background 'show-paren-match-face "#5DA4ff") ; カーソルより濃い青
-(set-face-background 'show-paren-match-face "#c9befc")  ; 紫
+(set-face-background 'show-paren-match-face "#a634ff")
 (set-face-foreground 'show-paren-match-face "#FFFFFF")
 (set-face-underline-p 'show-paren-match-face nil)
+(setq show-paren-style 'parenthesis)
 #+END_SRC 
 
 ** [migemo.el] ローマ字入力で日本語を検索する
@@ -1305,86 +1316,89 @@ http://orgmode.org/worg/org-gtd-etc.html
   (when (autoload-if-found 'org-mode "org" "Org Mode" t)
     (eval-after-load "org"
       '(progn
-
-;; Font lock を使う
-(global-font-lock-mode 1)
-(add-hook 'org-mode-hook 'turn-on-font-lock)
-;; ウィンドウの端で折り返す（想定と逆の振る舞い．どこかにバグがある）
-(setq org-startup-truncated nil)
-;; サブツリー以下の * を略式表示する
-(setq org-hide-leading-stars t)
-;; Color setting for TODO keywords
-;; Color for priorities
-;; (setq org-priority-faces
-;;       '(("?A" :foreground "#E01B4C" :background "#FFFFFF" :weight bold)
-;; 	("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
-;; 	("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
-;; Color setting for Tags
-
-(setq org-todo-keyword-faces
-      '(("CHECK"  :foreground "#CC00FF")
-	("SLEEP"  :foreground "#3366CC")
-	("WAIT"   :foreground "#CC9933")
-	("NOTICE" :foreground "#FFFFFF" :background "#FF0000")
-	("FOCUS"  :foreground "#FF0000" :background "#FFCC66")
-	("TIME"   :foreground "#FF9900")))
-
-(setq org-tag-faces
-      '(
-;;; (:foreground "#0000FF" :bold t)	; default. do NOT put this bottom
-	("Achievement" :foreground "#66CC66")
-	("Background"  :foreground "#66CC99")
-	("Chore"       :foreground "#6699CC")
-	("Domestic"    :foreground "#6666CC")
-	("Ongoing"     :foreground "#CC6666") ; for non scheduled / reminder
-	("Repeat"      :foreground "#CC9999") ; for interval tasks
-	("Mag"         :foreground "#9966CC")
-	("buy"         :foreground "#9966CC")
-	("note"        :foreground "#6633CC")
-	("Implements"  :foreground "#CC9999" :weight bold)
-	("Coding"      :foreground "#CC9999")
-	("Editing"     :foreground "#CC9999" :weight bold)
-	("Duty"        :foreground "#CC9999" :weight bold)
-	("Survey"      :foreground "#CC9999" :weight bold)
-	("Home"        :foreground "#CC9999" :weight bold)
-	("Open"        :foreground "#CC9999" :weight bold)
-	("Test"        :foreground "#FF0000" :weight bold)
-	("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
-	("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
-	("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
-	("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
-	("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99");;#5BDF8D
-	("Log"         :foreground "#008500")))
-)))
+  
+         ;; Font lock を使う
+         (global-font-lock-mode 1)
+         (add-hook 'org-mode-hook 'turn-on-font-lock)
+         ;; ウィンドウの端で折り返す（想定と逆の振る舞い．どこかにバグがある）
+         (setq org-startup-truncated nil)
+         ;; サブツリー以下の * を略式表示する
+         (setq org-hide-leading-stars t)
+         ;; Color setting for TODO keywords
+         ;; Color for priorities
+         ;; (setq org-priority-faces
+         ;;       '(("?A" :foreground "#E01B4C" :background "#FFFFFF" :weight bold)
+         ;;      ("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
+         ;;      ("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
+         ;; Color setting for Tags
+  
+         (setq org-todo-keyword-faces
+               '(("CHECK"   :foreground "#CC00FF")
+                 ("SLEEP"   :foreground "#3366CC")
+                 ("DRAFT"   :foreground "#CC3333")
+                 ("REV1"    :foreground "#3366CC")
+                 ("REV2"    :foreground "#FFFFFF" :background "#3366CC")
+                 ("NOTICE"  :foreground "#FFFFFF" :background "#FF0000")
+                 ("FOCUS"   :foreground "#FF0000" :background "#FFCC66")
+                 ("TIME"    :foreground "#FF9900")))
+  
+         (setq org-tag-faces
+               '(
+  ;;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom
+                 ("Achievement" :foreground "#66CC66")
+                 ("Background"  :foreground "#66CC99")
+                 ("Chore"       :foreground "#6699CC")
+                 ("Domestic"    :foreground "#6666CC")
+                 ("Ongoing"     :foreground "#CC6666") ; for non scheduled / reminder
+                 ("Repeat"      :foreground "#CC9999") ; for interval tasks
+                 ("Mag"         :foreground "#9966CC")
+                 ("buy"         :foreground "#9966CC")
+                 ("note"        :foreground "#6633CC")
+                 ("Implements"  :foreground "#CC9999" :weight bold)
+                 ("Coding"      :foreground "#CC9999")
+                 ("Editing"     :foreground "#CC9999" :weight bold)
+                 ("Duty"        :foreground "#CC9999" :weight bold)
+                 ("Survey"      :foreground "#CC9999" :weight bold)
+                 ("Home"        :foreground "#CC9999" :weight bold)
+                 ("Open"        :foreground "#CC9999" :weight bold)
+                 ("Test"        :foreground "#FF0000" :weight bold)
+                 ("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
+                 ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
+                 ("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
+                 ("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
+                 ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99");;#5BDF8D
+                 ("Log"         :foreground "#008500")))
+         )))
 #+END_SRC
 ** TODOキーワードのカスタマイズ
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found 'org-mode "org" "Org Mode" t)
     (eval-after-load "org"
       '(progn
-
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "FOCUS(f)" "WAIT(w)" "|" "DONE(d)")
-	(sequence "NOTICE(N)" "SLEEP(s)" "|" "note(n)")
-	(sequence "TIME(T)" "CHECK(c)" "|" "PASS(p)")
-	))
-
-;; Global counting of TODO items
-(setq org-hierarchical-todo-statistics nil)
-;; Global counting of checked TODO items
-(setq org-hierarchical-checkbox-statistics nil)
-
-;;; block-update-time
-(defun org-dblock-write:block-update-time (params)
-  (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
-    (insert "" (format-time-string fmt (current-time)))))
-
-;;; すべてのチェックボックスの cookies を更新する
-(defun do-org-update-statistics-cookies ()
-  (interactive)
-  (org-update-statistics-cookies 'all))
-
-)))
+  
+         (setq org-todo-keywords
+               '((sequence "TODO(t)" "FOCUS(f)" "WAIT(w)" "|" "DONE(d)")
+                 (sequence "DRAFT(D)" "REV1(r)" "REV2(R)" "|" "PUBLISH(p)")
+                 (sequence "NOTICE(N)" "SLEEP(s)" "|" "note(n)")
+                 (sequence "TIME(T)" "CHECK(C)" "|" "PASS(P)")
+                 ))
+  
+         ;; Global counting of TODO items
+         (setq org-hierarchical-todo-statistics nil)
+         ;; Global counting of checked TODO items
+         (setq org-hierarchical-checkbox-statistics nil)
+  
+  ;;; block-update-time
+         (defun org-dblock-write:block-update-time (params)
+           (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
+             (insert "" (format-time-string fmt (current-time)))))
+  
+  ;;; すべてのチェックボックスの cookies を更新する
+         (defun do-org-update-statistics-cookies ()
+           (interactive)
+           (org-update-statistics-cookies 'all))
+  
+         )))
 #+END_SRC
 
 ** [org-agenda]
@@ -1430,6 +1444,8 @@ http://orgmode.org/worg/org-gtd-etc.html
          (setq org-capture-templates
                `(("t" "TODO 項目を INBOX に貼り付ける" entry
                   (file+headline nil "INBOX") "** TODO %?\n\t")
+                 ("d" "DRAFT 項目を INBOX に貼り付ける" entry
+                  (file+headline nil "INBOX") "** DRAFT %?\n\t")
                  ("l" "本日のチェックリスト" entry
                   (file+headline ,org-capture-today-file "Today")
                   "** FOCUS 本日のチェックリスト %T\n（起床時間の記録）[[http://www.hayaoki-seikatsu.com/users/takaxp/][早起き日記]] \n（朝食）\n  - [ ] %?\n（昼食）\n（帰宅／夕食）\n----\n（研究速報）\n  - [ ] \n")
@@ -1440,8 +1456,8 @@ http://orgmode.org/worg/org-gtd-etc.html
                   "** TODO %? :bug:\n %i\n %a %t")
                  ("w" ,(concat "英単語を " org-capture-words-notes-file
                                " に書き込む") entry
-                  (file+headline ,org-capture-words-notes-file "WORDS")
-                  "** %? :%(get-current-date-tags):\n「」\n  - ")
+                               (file+headline ,org-capture-words-notes-file "WORDS")
+                               "** %? :%(get-current-date-tags):\n「」\n  - ")
                  ("g" ,(concat "英語ノートを " org-capture-words-notes-file
                                " に書き込む")
                   entry (file+headline ,org-capture-words-notes-file "GRAMMER")
@@ -1574,11 +1590,12 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
   (when (autoload-if-found 'org-mode "org" "Org Mode" t)
     (eval-after-load "org"
       '(progn
-         (setq alarm-table "~/Dropbox/org/today.org")
-         (run-at-time "00:00" nil 'set-alarms-from-file alarm-table))))
-  
-  ;; Rich calendar
-  (autoload 'cfw:open-org-calendar "calfw-org" "Rich calendar for org-mode" t)
+(setq alarm-table "~/Dropbox/org/today.org")
+(run-at-time "00:00" nil 'set-alarms-from-file alarm-table)
+
+;; Rich calendar
+(autoload 'cfw:open-org-calendar  "calfw-org" "Rich calendar for org-mode" t)
+)))
 #+END_SRC
 
 *** キーバインド
@@ -1688,27 +1705,32 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
 
 ** カーソルの色
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; Cursor (see also takaxp-mac.el)
-;(add-to-list 'default-frame-alist '(cursor-type . (hbar . 5)))
-;(add-to-list 'default-frame-alist '(cursor-type . bar))
-
-;(add-hook 'window-configuration-change-hook
-(defun update-cursor-color ()
-  (interactive)
-  (if current-input-method (set-cursor-color "#91C3FF")
-    (set-cursor-color "#AAAAAA")))
-(update-cursor-color)
-(run-with-idle-timer 10 t 'update-cursor-color)
-
-(add-hook 'input-method-activate-hook
-	  (lambda () (set-cursor-color "#91C3FF")))
-(add-hook 'input-method-inactivate-hook
-	  (lambda () (set-cursor-color "#AAAAAA")))
-
-(when (and (eq window-system 'ns) (= emacs-major-version 23))
-  ;; when IME is ON
-  (mac-set-input-method-parameter
-   "com.google.inputmethod.Japanese.base" 'title "G"))
+  ;; Cursor (see also takaxp-mac.el)
+  ;(add-to-list 'default-frame-alist '(cursor-type . (hbar . 5)))
+  ;(add-to-list 'default-frame-alist '(cursor-type . bar))
+  
+  ;(add-hook 'window-configuration-change-hook
+  (defun update-cursor-color ()
+    (interactive)
+    (if current-input-method (set-cursor-color "#91C3FF")
+      (set-cursor-color "#AAAAAA")))
+  (update-cursor-color)
+  (run-with-idle-timer 10 t 'update-cursor-color)
+  
+  (add-hook 'input-method-activate-hook
+            (lambda () (set-cursor-color "#91C3FF")))
+  (add-hook 'input-method-inactivate-hook
+            (lambda () (set-cursor-color "#AAAAAA")))
+  
+  (when (and (eq window-system 'ns) (= emacs-major-version 23))
+    ;; when IME is ON
+    (mac-set-input-method-parameter
+     "com.google.inputmethod.Japanese.base" 'title "G"))
+  
+  (when (and (eq window-system 'ns) (= emacs-major-version 24))
+    ;; when IME is ON
+    (mac-set-input-method-parameter
+     "com.google.inputmethod.Japanese.base" 'title "グ"))
 #+END_SRC
 
 ** カーソルを点滅させない
@@ -1963,7 +1985,8 @@ frame-ctr.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホッ
          "frame-ctr" nil t)
     (eval-after-load "frame-ctr"
       '(progn
-         (frame-ctr-make-height-ring '(60 68 20 40)))))
+         (frame-ctr-make-height-ring '(56 20 40))))) ; for Emacs24
+;         (frame-ctr-make-height-ring '(60 68 20 40))))) ; for Emacs23
 #+END_SRC
 
 *** キーバインド
