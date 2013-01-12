@@ -1,3 +1,5 @@
+(setq frame-title-format "Emacs :: Test mode")
+(setq debug-on-error t)
 (setq make-backup-files nil)
 (set-language-environment "Japanese")
 (set-default-coding-systems 'utf-8-unix)

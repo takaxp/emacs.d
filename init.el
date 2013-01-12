@@ -1,6 +1,5 @@
 
 ;;;; Configurations for Emacs
-;;;;                                       Last Update: 2012-01-10@22:21
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html (GREAT!)
 
@@ -47,6 +46,11 @@
 
 (setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)
+
+(global-auto-revert-mode 1)
+
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
@@ -225,8 +229,8 @@
          (defun yas/org-very-safe-expand ()
            (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
          (setq yas/root-directory
-               '("~/devel/hg/emacs/yas-dict"
-                 "~/devel/hg/emacs/yasnippet/snippets"))
+               '("~/Dropbox/emacs.d/yas-dict"
+                 "~/Dropbox/emacs.d/yasnippet/snippets"))
 ;         (yas/initialize)
          (mapc 'yas/load-directory yas/root-directory))))
 
@@ -254,6 +258,8 @@
   (eval-after-load "cacoo"
     '(progn
        (require 'cacoo-plugins))))
+
+(require 'mode-name-abbrev nil t)
 
 (defvar my-narrow-display " N")
 (setq mode-line-modes
@@ -288,7 +294,8 @@
       (paren-activate)
       (setq paren-sexp-mode nil)
       (set-face-foreground 'paren-face-match "#FFFFFF")
-      (set-face-background 'paren-face-match "#a634ff"))
+      ;; Deep blue: #6666CC, orange: #FFCC66
+      (set-face-background 'paren-face-match "66CC66"))
 
 (when (and (autoload-if-found 'migemo-init "migemo" nil t)
            (executable-find "cmigemo"))
@@ -470,38 +477,81 @@
   (setq auto-mode-alist (cons '("\\.m\\'" . matlab-mode) auto-mode-alist))
   (autoload 'matlab-shell "matlab" "Interactive Matlab mode." t))
 
-(when (autoload-if-found 'ac-config-default "auto-complete-config" nil t)
-      (dolist (hook (list 'perl-mode-hook 'c-mode-common-hook 'org-mode-hook))
-        (add-hook hook 'ac-config-default))
-      (add-hook 'emacs-lisp-mode-hook
-                '(lambda () (unless (equal "*scratch*" (buffer-name))
-                              (ac-config-default))))
-      ;;    (add-hook 'org-mode-hook (lambda () 
-      ;;                                (add-to-list 'ac-source 'ac-source-dictionary)))
-      (eval-after-load "auto-complete-config"
-        '(progn
-           (add-to-list 'ac-dictionary-directories
-                 (concat default-path "ac-dict"))
-           ;; ac-modes にあるメジャーモードで有効にする
-           ;; lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
-           (global-auto-complete-mode t)
-           ;; 追加のメジャーモードを設定
-           (add-to-list 'ac-modes 'org-mode)
-           (add-to-list 'ac-modes 'objc-mode)
-           ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
-           (setq ac-auto-start 4)
-           ;; n秒後にメニューを表示
-           (setq ac-auto-show-menu 0.5)
-           ;; ツールチップを表示しない
-           (setq ac-use-quick-help nil)
-           (setq ac-quick-help-delay 0.5)
-           ;; C-n/C-p でメニューをたどる
-           (setq ac-use-menu-map t)
-           ;; TAB で補完（org-mode でも効くようにする）
-           (define-key ac-completing-map [tab] 'ac-complete)
-           ;; RET での補完を禁止
-           (define-key ac-completing-map "\r" nil))))
-;;(setq ac-candidate-max 10)
+(when (require 'auto-complete-config nil t)
+          (ac-config-default)
+          (defun ac-org-mode-setup ()
+;;            (message " >> ac-org-mode-setup")
+            (setq ac-sources '(
+  ;;                             ac-source-abbrev ; Emacs の略語
+        ;;;                         ac-source-css-property ; heavy
+                               ac-source-dictionary ; 辞書
+                               ac-source-features
+                               ac-source-filename
+                               ac-source-files-in-current-dir
+                               ac-source-functions
+  ;;                             ac-source-gtags
+  ;;                             ac-source-imenu 
+  ;;                             ac-source-semantic
+  ;;                             ac-source-symbols 
+  ;;                             ac-source-variables
+  ;;                             ac-source-yasnippet
+                               )))
+          (add-hook 'org-mode-hook 'ac-org-mode-setup)
+          (defun ac-default-setup ()
+;;            (message " >> ac-default-setup")
+            (setq ac-sources '(ac-source-abbrev
+                               ac-source-dictionary
+                               ac-source-words-in-same-mode-buffers)))
+      ;      (setq ac-sources (append '(ac-source-abbrev
+      ;                                 ac-source-dictionary
+      ;                                 ac-source-words-in-same-mode-buffers)
+      ;                               ac-sources)))
+          (dolist (hook (list 'perl-mode-hook 'objc-mode-hook))
+            (add-hook hook 'ac-default-setup))
+          ;; *scratch* バッファでは無効化
+          (add-hook 'lisp-mode-hook
+                    '(lambda () (unless (equal "*scratch*" (buffer-name))
+                                  (ac-default-setup))))
+          ;; ac-modes にあるメジャーモードで有効にする
+          ;; lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
+          (global-auto-complete-mode t)
+          ;; 追加のメジャーモードを設定
+          (add-to-list 'ac-modes 'objc-mode)
+          (add-to-list 'ac-modes 'org-mode)
+          ;; 辞書
+          (add-to-list 'ac-dictionary-directories (concat default-path "ac-dict"))
+          ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
+          (setq ac-auto-start 4)
+          ;; n秒後にメニューを表示
+          (setq ac-auto-show-menu 1.0)
+          ;; ツールチップの表示
+          (setq ac-use-quick-help t)
+          (setq ac-quick-help-delay 2.0)
+          (setq ac-quick-help-height 10)
+          ;; C-n/C-p でメニューをたどる
+          (setq ac-use-menu-map t)
+          ;; TAB で補完（org-mode でも効くようにする）
+          (define-key ac-completing-map [tab] 'ac-complete)
+          ;; RET での補完を禁止
+          (define-key ac-completing-map "\r" nil)
+          ;; 補完メニューの表示精度を高める
+          (setq popup-use-optimized-column-computation nil))
+          ;;(setq ac-candidate-max 10)
+
+(when (require 'auto-complete-clang nil t)
+          ;; ac-cc-mode-setup のオーバーライド
+          (defun ac-cc-mode-setup ()
+;;            (message " >> Auto-complete-clang")
+            ;;      (setq ac-clang-prefix-header "stdafx.pch")
+;;            (setq ac-auto-start 0)
+            (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
+            (setq ac-clang-flags '("-w" "-ferror-limit" "1"
+                                   "-fcxx-exceptions"))
+            (setq ac-sources '(ac-source-clang
+                               ac-source-yasnippet
+                               ac-source-gtags))
+            )
+          (add-hook 'c-mode-common-hook 'ac-cc-mode-setup))
 
 (when (and (eq window-system 'ns) (= emacs-major-version 23))
   (autoload 'hideshowvis-enable "hideshowvis" "Highlight foldable regions")
@@ -517,72 +567,85 @@
 (global-set-key (kbd "C-)") 'hs-show-block)
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
-  (eval-after-load "org"
-    '(progn
-       
-       (require 'org-install)
-       (require 'org-extension nil t)
-       (require 'org-habit)
-       (require 'org-mobile)
-       
-       (setq auto-mode-alist
-             (cons (cons "\\.org$" 'org-mode) auto-mode-alist))
-       (push '("\\.txt\\'" . org-mode) auto-mode-alist)
-       
-       ;; Set checksum program path for windows
-       (when (eq window-system 'w32)
-         (setq org-mobile-checksum-binary "~/Dropbox/do/cksum.exe"))
-       
-       ;; org ファイルの集中管理
-       (setq org-directory "~/Dropbox/org/")
-       
-       ;; Set default table export format
-       (setq org-table-export-default-format "orgtbl-to-csv")
-       
-       ;; Toggle inline images display at startup
-       (setq org-startup-with-inline-images t)
-       
-       ;; dvipng
-       (setq org-export-with-LaTeX-fragments t)
-       
-       ;; orgバッファ内の全ての動的ブロックを保存直前に変更する
-       (add-hook 'before-save-hook 'org-update-all-dblocks)
-       
-       ;; アーカイブファイルの名称を指定
-       (setq org-archive-location "%s_archive::")
-       
-       ;; タイムスタンプによるログ収集設定
-       (setq org-log-done t) ; t ではなく，'(done), '(state) を指定できる
-       
-       ;; ログをドロアーに入れる
-       (setq org-log-into-drawer t)
-       
-       ;; タイマーの音
-       ;; (lsetq org-clock-sound "");
-)))
+    (eval-after-load "org"
+      '(progn
+         
+;         (require 'org-install)
+         (require 'org-extension nil t)
+         (require 'org-habit)
+         (require 'org-mobile)
+         
+         (setq auto-mode-alist
+               (cons (cons "\\.org$" 'org-mode) auto-mode-alist))
+         (push '("\\.txt\\'" . org-mode) auto-mode-alist)
+         
+         ;; Set checksum program path for windows
+         (when (eq window-system 'w32)
+           (setq org-mobile-checksum-binary "~/Dropbox/do/cksum.exe"))
+         
+         ;; org ファイルの集中管理
+         (setq org-directory "~/Dropbox/org/")
+         
+         ;; Set default table export format
+         (setq org-table-export-default-format "orgtbl-to-csv")
+         
+         ;; Toggle inline images display at startup
+         (setq org-startup-with-inline-images t)
+         
+         ;; dvipng
+         (setq org-export-with-LaTeX-fragments t)
+         
+         ;; orgバッファ内の全ての動的ブロックを保存直前に変更する
+         (add-hook 'before-save-hook 'org-update-all-dblocks)
+         
+         ;; アーカイブファイルの名称を指定
+         (setq org-archive-location "%s_archive::")
+         
+         ;; タイムスタンプによるログ収集設定
+         (setq org-log-done t) ; t ではなく，'(done), '(state) を指定できる
+         
+         ;; ログをドロアーに入れる
+         (setq org-log-into-drawer t)
+         
+         ;; タイマーの音
+         ;; (lsetq org-clock-sound "");
+  )))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
   (eval-after-load "org"
     '(progn
-;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
-;; (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
-
-;; iCal の説明文
-         (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
-;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
-         (setq org-icalendar-timezone "Asia/Tokyo")
-;;; エクスポート後に，AppleScript で新しいカレンダーをリロードさせる
-;(add-hook 'org-after-save-iCalendar-file-hook
-;         (lambda ()
-;           (shell-command
-;            "osascript -e 'tell application \"iCal\" to reload calendars'")))
-;; DONE になった TODO はアジェンダから除外する
-         (setq org-icalendar-include-todo t)
-;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
-         (setq org-icalendar-use-scheduled '(event-if-todo))
-;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
-         (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
-)))
+       ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
+       ;; default = ~/org.ics
+       ;; C-c C-e i org-export-icalendar-this-file
+       ;; C-c C-e I org-export-icalendar-all-agenda-files
+       ;; C-c C-e c org-export-icalendar-all-combine-agenda-files
+       ;;       (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
+       
+       ;; iCal の説明文
+       (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
+       ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
+       (setq org-icalendar-timezone "Asia/Tokyo")
+  ;;; エクスポート後に，AppleScript で新しいカレンダーをリロードさせる
+                                        ;(add-hook 'org-after-save-iCalendar-file-hook
+                                        ;         (lambda ()
+                                        ;           (shell-command
+                                        ;            "osascript -e 'tell application \"iCal\" to reload calendars'")))
+       (add-hook 'org-after-save-iCalendar-file-hook
+                 (lambda ()
+                   (let ((result
+                          (shell-command
+                           "scp -o ConnectTimeout=5 ~/Dropbox/org/org-ical.ics orz:~/public_html/ical")))
+                     (if (eq result 0) (message "Uploading ... [DONE]")
+                       (message "Uploading ... [MISS]")))))
+       
+       ;; DONE になった TODO はアジェンダから除外する
+       (setq org-icalendar-include-todo t)
+       ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
+       (setq org-icalendar-use-scheduled '(event-if-todo))
+  ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
+       ;;         (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
+       (setq org-icalendar-use-deadline '(event-if-todo))
+       )))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
   (eval-after-load "org"
@@ -594,6 +657,14 @@
        (defun show-next-org () (show-org-buffer "next.org"))
        (defun show-today-org () (show-org-buffer "today.org"))
 )))
+
+(when (autoload-if-found 'org-mode "org" "Org Mode" t) 
+  (eval-after-load "org"
+    '(progn
+       (add-to-list 'org-structure-template-alist
+                    '("C" "#+BEGIN_COMMENT\n?\n#+END_COMMENT" ""))
+       (add-to-list 'org-structure-template-alist
+                    '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>")))))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
   (eval-after-load "org"
@@ -649,6 +720,7 @@
        (setq org-todo-keyword-faces
              '(("CHECK"   :foreground "#CC00FF")
                ("SLEEP"   :foreground "#3366CC")
+               ("WAIT"    :foreground "#CC00FF")
                ("DRAFT"   :foreground "#CC3333")
                ("REV1"    :foreground "#3366CC")
                ("REV2"    :foreground "#FFFFFF" :background "#3366CC")
@@ -660,6 +732,7 @@
              '(
 ;;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom
                ("Achievement" :foreground "#66CC66")
+               ("Report"      :foreground "#66CC66")
                ("Background"  :foreground "#66CC99")
                ("Chore"       :foreground "#6699CC")
                ("Domestic"    :foreground "#6666CC")
@@ -730,7 +803,8 @@
        ;; アジェンダ作成対象（指定しないとagendaが生成されない）
        ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
        (setq org-agenda-files
-             '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org"
+             '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+               "~/Dropbox/org/today.org"
                "~/Dropbox/org/work.org" "~/Dropbox/org/research.org")))))
 
 (when (autoload-if-found 'org-capture "org-capture" "Org Mode" t)
@@ -745,11 +819,15 @@
        (defvar org-capture-research-file (concat org-directory "research.org"))
        (defvar org-capture-buffer-file (concat org-directory "buffer.org"))
        (defvar org-capture-today-file (concat org-directory "today.org"))
+       (defvar org-capture-ical-file (concat org-directory "org-ical.org"))
 
        ;; see org.pdf:p73
        (setq org-capture-templates
              `(("t" "TODO 項目を INBOX に貼り付ける" entry
                 (file+headline nil "INBOX") "** TODO %?\n\t")
+               ("c" "同期カレンダーにエントリー" entry
+                (file+headline ,org-capture-ical-file "Schedule")
+                "** TODO %?\n\t") 
                ("d" "DRAFT 項目を INBOX に貼り付ける" entry
                 (file+headline nil "INBOX") "** DRAFT %?\n\t")
                ("l" "本日のチェックリスト" entry
@@ -768,12 +846,12 @@
                              " に書き込む")
                 entry (file+headline ,org-capture-words-notes-file "GRAMMER")
                 "** %? :%(get-current-date-tags):\n\n%U")
-               ("c" "時間付きエントリー" entry (file+headline nil "INBOX")
+               ("T" "時間付きエントリー" entry (file+headline nil "INBOX")
                 "** %? %T--\n")
                ("n" "ノートとしてINBOXに貼り付ける" entry
                 (file+headline nil "INBOX")
                 "** %? :note:\n\t%U")
-               ("d" "「ドラッカー365の金言」をノートする" entry
+               ("D" "「ドラッカー365の金言」をノートする" entry
                 (file+headline ,org-capture-notes-file "The Daily Drucker")
                 "** 「%?」\nDrucker) \n  - \n  - \nACTION POINT:\n  - \nQUESTION:\n  - \n")
                ("r" ,(concat "研究ノートを " org-capture-research-file
@@ -813,9 +891,17 @@
   (eval-after-load "org"
     '(progn
        (setq org-refile-targets
-             (quote (("next.org" :level . 1)
+             (quote (("org-ical.org" :level . 1)
+                     ("next.org" :level . 1)
                      ("sleep.org" :level . 1))))
        )))
+
+(when (autoload-if-found 'org-refile "org" "Org Mode" t)
+  (eval-after-load "org"
+    '(progn
+       (setq org-confirm-babel-evaluate nil)
+       (setq org-src-fontify-natively t)
+       (setq org-src-tab-acts-natively t))))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
     (eval-after-load "org"
@@ -847,61 +933,190 @@
 )))
 
 ;; Org-tree-slide
-(when (autoload-if-found 'org-tree-slide-mode "org-tree-slide" nil t)
-  ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
-  (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-  (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
-  (eval-after-load "org-tree-slide"
-    '(progn
-       (define-key org-tree-slide-mode-map (kbd "<f9>")
-         'org-tree-slide-move-previous-tree)
-       (define-key org-tree-slide-mode-map (kbd "<f10>")
-         'org-tree-slide-move-next-tree)
-       (define-key org-tree-slide-mode-map (kbd "<f11>")
-         'org-tree-slide-content)
-       ;; reset the default setting
-       (define-key org-tree-slide-mode-map (kbd "<left>")  'backward-char)
-       (define-key org-tree-slide-mode-map (kbd "<right>") 'forward-char)
-               (org-tree-slide-narrowing-control-profile)
-       (setq org-tree-slide-skip-outline-level 4)
-       (setq org-tree-slide-skip-done nil))))
+  (when (autoload-if-found 'org-tree-slide-mode "org-tree-slide" nil t)
+    ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
+    (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
+    (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+    (eval-after-load "org-tree-slide"
+      '(progn
+         (define-key org-tree-slide-mode-map (kbd "<f9>")
+           'org-tree-slide-move-previous-tree)
+         (define-key org-tree-slide-mode-map (kbd "<f10>")
+           'org-tree-slide-move-next-tree)
+         (define-key org-tree-slide-mode-map (kbd "<f11>")
+           'org-tree-slide-content)
+         ;; reset the default setting
+         (define-key org-tree-slide-mode-map (kbd "<left>")  'backward-char)
+         (define-key org-tree-slide-mode-map (kbd "<right>") 'forward-char)
+         (org-tree-slide-narrowing-control-profile)
+;         (org-tree-slide-presentation-profile)
+         (setq org-tree-slide-skip-outline-level 4)
+         (setq org-tree-slide-skip-done nil))))
 
 (when (autoload-if-found 'org-mode "org" nil t)
   (eval-after-load "org"
     '(progn
        (require 'org-fstree nil t))))
 
-(when (autoload-if-found 'org-mode "org" "Org Mode" t)
-    (eval-after-load "org"
+(when (autoload-if-found 'cfw:open-org-calendar "calfw-org"
+                           "Rich calendar for org-mode" t)
+    (eval-after-load "calfw-org"
       '(progn
-(setq alarm-table "~/Dropbox/org/today.org")
-(run-at-time "00:00" nil 'set-alarms-from-file alarm-table)
+  
+         ;; icalendar との連結
+         (setq cfw:org-icalendars '("~/Dropbox/org/org-ical.org"))
+  
+         ;; org で使う表にフェイスを統一
+         (setq cfw:fchar-junction ?+
+               cfw:fchar-vertical-line ?|
+               cfw:fchar-horizontal-line ?-
+               cfw:fchar-left-junction ?|
+               cfw:fchar-right-junction ?|
+               cfw:fchar-top-junction ?+
+               cfw:fchar-top-left-corner ?|
+               cfw:fchar-top-right-corner ?| ))))
+  
+;         (add-hook 'window-configuration-change-hook 'cfw:resize-calendar)
+         ;; (defun cfw:resize-calendar ()
+         ;;   (interactive)
+         ;;   (when (eq major-mode 'cfw:calendar-mode)
+         ;;     (cfw:refresh-calendar-buffer nil)
+         ;;     (message "Calendar resized.")))
+  
+         ;; (defun open-calfw-agenda-org ()
+         ;;   (interactive)
+         ;;   (cfw:open-org-calendar))
+  
+         ;; (setq org-agenda-custom-commands
+         ;;       '(("w" todo "FOCUS")
+         ;;         ("G" open-calfw-agenda-org "Graphical display in calfw"))))))
 
-;; Rich calendar
-(autoload 'cfw:open-org-calendar  "calfw-org" "Rich calendar for org-mode" t)
-)))
+(when (require 'org-export-generic nil t)
+  (org-set-generic-type
+   "textile"
+   '(:file-suffix ".textile"
+                  :key-binding ?T
+                  :title-format    "Title: %s\n\n"
+                                        ;   :date-format     "Date: %s\n"
+                  :date-export nil
+                  :toc-export      nil
+                  :author-export   nil
+                  :tags-export     nil
+                  :drawers-export  nil
+                  :date-export     t
+                  :timestamps-export  t
+                  :priorities-export  nil
+                  :todo-keywords-export t
+                  :body-line-fixed-format "\t%s\n"
+                                        ;:body-list-prefix "\n"
+                  :body-list-format "* %s"
+                  :body-list-suffix "\n"
+                  :body-bullet-list-prefix ("* " "** " "*** " "**** " "***** ")
+                  :body-number-list-format "# %s"
+                  :body-number-list-suffix "\n"
+                  :header-prefix ("" "" "### " "#### " "##### " "###### ")
+                  :body-section-header-prefix ("h1. " "h2. " "h3. " "h4. " "h5. " "h6. ")
+                  :body-section-header-format "%s"
+                  :body-section-header-suffix ("\n\n")
+                  :body-header-section-numbers nil
+                  :body-header-section-number-format "%s) "
+                  :body-line-format "%s\n"
+                  :body-newline-paragraph "\n"
+                  :bold-format "*%s*"
+                  :italic-format "_%s_"
+                  :underline-format "+%s+"
+                  :strikethrough-format "-%s-"
+                  :verbatim-format "`%s`"
+                  :code-format "@%s@"
+                  :body-line-wrap   75
+                  :blockquote-start "\n<pre>\n"
+                  :blockquote-end "\n</pre>\n"
+))
+
+  (org-set-generic-type
+   "markdown" 
+   '(:file-suffix     ".markdown"
+                      :key-binding     ?M
+                      :title-format    "Title: %s\n"
+                      :date-format     "Date: %s\n"
+                      :toc-export      nil
+                      :author-export   t
+                      :tags-export     nil
+                      :drawers-export  nil
+                      :date-export     t
+                      :timestamps-export  t
+                      :priorities-export  nil
+                      :todo-keywords-export t
+                      :body-line-fixed-format "\t%s\n"
+                                        ;:body-list-prefix "\n"
+                      :body-list-format "- %s"
+                      :body-list-suffix "\n"
+                      :header-prefix ("" "" "### " "#### " "##### " "###### ")
+                      :body-section-header-prefix ("" "" "### " "#### " "##### " "###### ")
+                      :body-section-header-format "%s\n"
+                      :body-section-header-suffix (?= ?- "")
+                      :body-header-section-numbers nil
+                      :body-header-section-number-format "%s) "
+                      :body-line-format "%s\n"
+                      :body-newline-paragraph "\n"
+                      :bold-format "**%s**"
+                      :italic-format "_%s_"
+                      :verbatim-format "`%s`"
+                      :code-format "`%s`"
+                      :body-line-wrap   75
+                      )))
+
+(setq org-export-odt-styles-file
+      (concat (getenv "HOME") "/Dropbox/org/style.odt"))
+(setq org-export-odt-preferred-output-format "pdf")
+(setq org-export-odt-convert-processes
+      '(("LibreOffice"
+         "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
+        ("unoconv" "unoconv -f %f -o %d %i")))
 
 (when (autoload-if-found 'org-mode "org" "Org Mode" t)
-    (global-set-key (kbd "C-M-o") '(lambda () (interactive)
-                                     (show-org-buffer "next.org")))
-    (global-set-key (kbd "C-M-9") '(lambda () (interactive)
-                                     (show-org-buffer "buffer.org")))
-    (global-set-key (kbd "C-M-0") '(lambda () (interactive)
-                                     (show-org-buffer "today.org")))
-    (global-set-key (kbd "C-c l") 'org-store-link)
-    (global-set-key (kbd "C-c a") 'org-agenda)
-    (global-set-key (kbd "C-c r") 'org-capture)
+  (eval-after-load "org"
+    '(progn
+       (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))))
 
-    (eval-after-load "org"
-      '(progn
+(when (autoload-if-found 'org-mode "org" "Org Mode" t)
+  (eval-after-load "org"
+    '(progn
+       (setq alarm-table "~/Dropbox/org/today.org")
+       (run-at-time "00:00" nil 'set-alarms-from-file alarm-table))))
 
-(define-key org-mode-map (kbd "C-c 1")
-  'org-export-icalendar-combine-agenda-files)
-(define-key org-mode-map (kbd "C-c 2") 'do-org-update-statistics-cookies)
-(define-key org-mode-map (kbd "C-c m") 'org-mobile-sync)
-(define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
-(define-key org-mode-map (kbd "S-<f5>") 'widen)
-)))
+(when (autoload-if-found 'org-mode "org" "Org Mode" t)
+  (global-set-key (kbd "C-M-o") '(lambda () (interactive)
+                                   (show-org-buffer "next.org")))
+  (global-set-key (kbd "C-M-c") '(lambda () (interactive)
+                                   (show-org-buffer "org-ical.org")))
+  (global-set-key (kbd "C-M-9") '(lambda () (interactive)
+                                   (show-org-buffer "buffer.org")))
+  (global-set-key (kbd "C-M-0") '(lambda () (interactive)
+                                   (show-org-buffer "today.org")))
+  (global-set-key (kbd "C-c l") 'org-store-link)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c r") 'org-capture)
+
+  (require 'org-icalendar)
+  (defun my-org-export-icalendar ()
+    (interactive)
+    (org-export-icalendar nil "~/Dropbox/org/org-ical.org"))
+  
+  (eval-after-load "org"
+    '(progn
+       
+       ;; (org-transpose-element) が割り当てられているので取り返す．
+       (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
+       
+       ;;(define-key org-mode-map (kbd "C-c 1")
+       ;;  'org-export-icalendar-combine-agenda-files)
+       (define-key org-mode-map (kbd "C-c 1") 'my-org-export-icalendar)
+       (define-key org-mode-map (kbd "C-c 2") 'do-org-update-statistics-cookies)
+       (define-key org-mode-map (kbd "C-c m") 'org-mobile-sync)
+       (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
+       (define-key org-mode-map (kbd "S-<f5>") 'widen)
+       )))
 
 (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
 (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
@@ -961,7 +1176,11 @@
           ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
           ;; 2) Inconsolata, Migu 2M     : font-size=14, 
           ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
+
+;; Fonts
+
           ((font-size 12)
+;          ((font-size 28) ; for mirroring presentation (1440x900)
 ;           (ascii-font "Inconsolata")
            (ascii-font "Monaco")
            (ja-font "Migu 2M"))
@@ -1015,9 +1234,9 @@
 
 (autoload-if-found 'rainbow-mode "rainbow-mode" nil t)
 
-;; To avoid an error setting up the frame width
-(set-frame-width (selected-frame) 81)
-(set-frame-width (selected-frame) 80)
+;; To avoid an error setting up the frame width (only for Emacs23)
+;(set-frame-width (selected-frame) 81)
+;(set-frame-width (selected-frame) 80)
 
 ;; Default window position to show a Emacs frame
 ;; Dynabook UX: top=0, left=0, width=80, height=32
@@ -1031,7 +1250,7 @@
            ;; 837 is the setting for right side for MBP
            (width . 80) ; Width  : character count
            (height . 35); Height : character count
-           (alpha . (100 50))
+           (alpha . (100 75))
            (vertical-scroll-bars . nil)
            ) initial-frame-alist)))
 
@@ -1115,6 +1334,7 @@
         (append
          '(("*Completions*" :height 10 :position bottom :noselect t)
            ("CAPTURE-next.org" :height 10 :position bottom :noselect t)
+           ("CAPTURE-org-ical.org" :height 10 :position bottom :noselect t)
            ("*Org-todo*"    :height 10 :position bottom)
            ("*Calendar*"    :height 10 :position bottom)
            ("*wclock*"      :height 10 :position bottom)
@@ -1131,6 +1351,55 @@
            ;;            ("*cfw-calendar*" :height 40 :position top)
            ("*eshell*"      :height 10 :position bottom))
          popwin:special-display-config)))
+
+(when (autoload-if-found 'pomodoro:start "pomodoro" nil t)
+  (eval-after-load "pomodoro"
+    '(progn
+       
+       ;; 作業時間終了後に開くファイルを指定しない
+       (setq pomodoro:file nil)
+
+       ;; ●だけで表現する（残り時間表示なし）
+       (setq pomodoro:mode-line-time-display nil)
+       
+       ;; 長い休憩に入るまでにポモドーロする回数
+       (setq pomodoro:iteration-for-long-rest 8)
+
+       ;; 作業時間関連
+       (setq pomodoro:work-time 25      ; 作業時間
+             pomodoro:rest-time 5       ; 休憩時間
+             pomodoro:long-rest-time 60 ; 長い休憩時間
+             pomodoro:max-iteration 16) ; ポモドーロする回数
+
+       ;; タイマーの表示をノーマルフェイスにする
+       (set-face-bold-p 'pomodoro:timer-face nil)
+
+       ;; 作業中（赤），休憩中（青），長い休憩中（緑）にする
+       (set-face-foreground 'pomodoro:work-face "#F53838")
+       (set-face-foreground 'pomodoro:rest-face "#3869FA")
+       (set-face-foreground 'pomodoro:long-rest-face "#00B800")
+
+       ;; Mac ユーザ向け．Kyokoさんに指示してもらう
+       (add-hook 'pomodoro:finish-work-hook
+                 (lambda ()
+                   (shell-command-to-string
+                    (concat "say -v Kyoko "
+                            (number-to-string (floor pomodoro:rest-time))
+                            "分間，休憩しろ"))))
+       
+       (add-hook 'pomodoro:finish-rest-hook
+                 (lambda ()
+                   (shell-command-to-string
+                    (concat "say -v Kyoko "
+                            (number-to-string (floor pomodoro:work-time))
+                            "分間，作業しろ"))))
+       
+       (add-hook 'pomodoro:long-rest-hook
+                 (lambda ()
+                   (shell-command-to-string
+                    (concat "say -v Kyoko これから"
+                            (number-to-string (floor pomodoro:long-rest-time))
+                            "分間の休憩です")))))))
 
 (global-set-key (kbd "<f12>") 'takaxp:open-file-ring)
 (global-set-key (kbd "M-4") 'my-window-resizer)

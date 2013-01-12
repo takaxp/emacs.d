@@ -127,9 +127,9 @@ content column from the table. The line ID number is 2 will be ignored."
   (setq my-file-ring (copy-sequence files))
   (setf (cdr (last my-file-ring)) my-file-ring))
 (takaxp:make-file-ring
- '("~/Dropbox/org/next.org" "~/Dropbox/org/work.org"
-   "~/Dropbox/org/research.org" "~/devel/mygit/emacs.d/init.org"
-   "~/devel/mygit/emacs.d/utility.org" "~/Dropbox/org/buffer.org"))
+ '("~/Dropbox/org/buffer.org" "~/Dropbox/org/research.org"
+   "~/Dropbox/org/init.org" "~/Dropbox/org/utility.org"
+   "~/Dropbox/org/work.org" "~/Dropbox/org/next.org"))
 
 (defun takaxp:open-file-ring ()
   (interactive)
@@ -144,6 +144,17 @@ content column from the table. The line ID number is 2 will be ignored."
         (switch-to-buffer buffer)
         (message "%s" file))
     (find-file (concat "~/Dropbox/org/" file))))
+
+(defun insert-org-file-header-template ()
+  (interactive)
+  (when (string= major-mode 'org-mode)
+    (let ((title "#+TITLE:\t\n")
+          (date "#+DATE:\t\tLast Update: \n")
+          (author "#+AUTHOR:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
+          (other "\n"))
+      (save-excursion
+        (goto-char 0)
+        (insert title date author other)))))
 
 (defun get-random-string (length)
   "Get a string contain the length digit number with random selection"

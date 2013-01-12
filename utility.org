@@ -188,9 +188,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
     (setq my-file-ring (copy-sequence files))
     (setf (cdr (last my-file-ring)) my-file-ring))
   (takaxp:make-file-ring
-   '("~/Dropbox/org/next.org" "~/Dropbox/org/work.org"
-     "~/Dropbox/org/research.org" "~/devel/mygit/emacs.d/init.org"
-     "~/devel/mygit/emacs.d/utility.org" "~/Dropbox/org/buffer.org"))
+   '("~/Dropbox/org/buffer.org" "~/Dropbox/org/research.org"
+     "~/Dropbox/org/init.org" "~/Dropbox/org/utility.org"
+     "~/Dropbox/org/work.org" "~/Dropbox/org/next.org"))
   
   (defun takaxp:open-file-ring ()
     (interactive)
@@ -211,6 +211,19 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
       (find-file (concat "~/Dropbox/org/" file))))
 #+END_SRC
 
+** orgバッファにいつものヘッダを追加する
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun insert-org-file-header-template ()
+    (interactive)
+    (when (string= major-mode 'org-mode)
+      (let ((title "#+TITLE:\t\n")
+            (date "#+DATE:\t\tLast Update: \n")
+            (author "#+AUTHOR:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
+            (other "\n"))
+        (save-excursion
+          (goto-char 0)
+          (insert title date author other)))))
+#+END_SRC
 ** ランダムの文字列を取得する  
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun get-random-string (length)

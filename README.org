@@ -3,35 +3,19 @@
 #+EMAIL:	takaxp@ieee.org
 
 * Introduction
-This git repository stores files of configurations for Emacs 23
+This git repository stores configuration files for Emacs 24.
 The author is Takaaki ISHIKAWA <takaxp@ieee.org>
-
-Write the following emacs lisp files in your .emacs
- (see also .emacs of this project)
-
-#+BEGIN_SRC lisp
-(require 'takaxp-init)
-(require 'takaxp-face)
-(when (eq window-system 'ns)
-  (require 'takaxp-mac))
-(require 'takaxp-org-mode)
-(require 'takaxp-utility)
-(require 'takaxp-frame-control)
-(require 'takaxp-private)
-(require 'takaxp-keybinding)
-#+END_SRC
 
 * Structure
 
-#+BEGIN_SRC lisp
-./.emacs                  [ OPEN ] Startup configuration file
-./play-ground.el          [CLOSED] Testing area
-./takaxp-init.el          [ OPEN ] Core configurations for using Emacs
-./takaxp-face.el          [ OPEN ] Font, Face, and frame display settings
-./takaxp-utility.el       [ OPEN ] Defines functions for using Emacs more handy
-./takaxp-org-mode.el      [ OPEN ] Configurations for Org-mode
-./takaxp-mac.el           [ OPEN ] Configurations only for Macintosh
-./takaxp-private.el       [CLOSED] Setting with private variable values
-./takaxp-keybinding.el    [ OPEN ] Global settings of keybindings
-./takaxp-frame-control.el [ OPEN ] Control frame size and position
-#+END_SRC
+| File            | Description                          |
+|-----------------+--------------------------------------|
+| .emacs          | Startup configuration file           |
+| init.org        | Main configuration file              |
+| init.el         | Generated from init.org              |
+| init.odt/pdf    | Documents generated from init.org    |
+| utility.org     | Utility functions                    |
+| utility.el      | Generated from utility.org           |
+| utility.odt/pdf | Documents generated from utility.org |
+| my-debug.el     | Configurations for debugging         |
+

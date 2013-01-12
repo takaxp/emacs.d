@@ -9,10 +9,10 @@
 * init.el のヘッダ
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;;;; Configurations for Emacs
-;;;;                                       Last Update: 2012-01-10@22:21
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html (GREAT!)
 #+END_SRC
+
 ** cl を使う
 http://lisperblog.blogspot.com/2008/12/blog-post_18.html
 
@@ -46,6 +46,18 @@ http://e-arrows.sakura.ne.jp/2010/03/macros-in-emacs-el.html
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq default-path "~/.emacs.d/")
 (setq default-private-path "~/.emacs.d/")
+#+END_SRC
+
+** 警告の抑制
+
+起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， =.emacs= の上の方に書いておくとよいと思います．
+
+[[http://d.hatena.ne.jp/kitokitoki/20100425/p1]]
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(setq byte-compile-warnings
+      '(free-vars unresolved callargs redefine obsolete noruntime
+ 		  cl-functions interactive-only make-local))
 #+END_SRC
 
 * コア設定
@@ -137,6 +149,16 @@ Org でナローイングを使う場合は，特に設定しなくてもよい�
 (setq truncate-partial-width-windows nil)
 #+END_SRC
 
+** バッファが外部から編集された場合に自動で再読み込みする
+#+BEGIN_SRC emacs-lisp :tangle yes
+(global-auto-revert-mode 1)
+#+END_SRC
+
+** 同じバッファ名が開かれた場合に区別する
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+#+END_SRC
 * カーソル移動
 カーソルの移動は，次のポリシーに従っています．デフォルトではC-v/M-v で上下移動になっているが，M-v は windows のペーストに対応するので混乱を招く．
 
@@ -271,6 +293,8 @@ Built-in の cua-base.el（CUA-mode） を使う．
 (cua-mode t)
 (setq cua-enable-cua-keys nil)
 #+END_SRC
+
+矩形選択した後に， =M-n= を押すと，連番をふれる．開始値，増加値を入力してから，hoge%03d.pgm などとすれば，hoge001，hoge002，，，と入力される．これと，org-mode nの表機能（ =C-c |= で選択部分を簡単に表にできる）を組み合わせれば，連番で数値をふったテーブルを容易に作れる．
 
 ** Yank時に装飾を取る
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -424,7 +448,10 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     (add-hook hook (lambda () (flyspell-mode 1))))
   
   (add-hook 'c++-mode-hook
-         (lambda () (flyspell-prog-mode)))
+            (lambda () (flyspell-prog-mode)))
+
+  ;; Auto complete との衝突を回避
+  (ac-flyspell-workaround)
 #+END_SRC
 
 ** [latex-math-preview.el] TeX数式をプレビュー
@@ -448,7 +475,8 @@ http://www.emacswiki.org/emacs/po-mode+.el
 	    auto-mode-alist))
 #+END_SRC
 ** [word-count.el] リージョン内の文字をカウントする
-http://taiyaki.org/elisp/word-count/src/word-count.el
+
+有効な頒布元に変更があった．[[http://www.emacswiki.org/emacs/WordCount][word-count.el]] から新しい頒布元にたどりつける．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (autoload 'word-count-mode "word-count" "Minor mode to count words." t)
@@ -511,8 +539,8 @@ http://pastelwill.jp/wiki/doku.php?id=emacs
          (defun yas/org-very-safe-expand ()
            (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
          (setq yas/root-directory
-	       '("~/devel/hg/emacs/yas-dict"
-	         "~/devel/hg/emacs/yasnippet/snippets"))
+	       '("~/Dropbox/emacs.d/yas-dict"
+	         "~/Dropbox/emacs.d/yasnippet/snippets"))
 ;         (yas/initialize)
          (mapc 'yas/load-directory yas/root-directory))))  
 #+END_SRC
@@ -632,7 +660,19 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
          (require 'cacoo-plugins))))  
 #+END_SRC
 
+** [iedit] バッファ内の同じ文字列を一度に編集する
+
+[[http://emacswiki.org/emacs/iedit.el][iedit.el]] を使うと，バッファ内の同じ文字列を一度に編集することができる．部分重複のない変数名を置き換えるときに有用な場合がある．
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (require 'iedit nil t)
+#+END_SRC
+
 * 表示サポート
+** モードラインのモード名を短くする
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'mode-name-abbrev nil t)
+#+END_SRC
 ** モードラインのNarrowを短くする
 
 標準では「Narrow」と表示されますが，「N」に短縮します．
@@ -713,22 +753,21 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 
 ** 対応するカッコをハイライトする
 
-Built-in の paren.el を利用する．拡張版として [[http://www.emacswiki.org/emacs/mic-paren.el][mic-paren.el]] もある．
+Built-in の paren.el が利用できる．拡張版として [[http://www.emacswiki.org/emacs/mic-paren.el][mic-paren.el]] があり，現在はこれを利用している．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (require 'mic-paren nil t)
         (paren-activate)
         (setq paren-sexp-mode nil)
         (set-face-foreground 'paren-face-match "#FFFFFF")
-        (set-face-background 'paren-face-match "#a634ff"))
+        ;; Deep blue: #6666CC, orange: #FFCC66
+        (set-face-background 'paren-face-match "66CC66"))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (setq show-paren-delay 0)
 (show-paren-mode t)
 ;; (setq show-paren-style 'expression) ; カッコ内も強調
-;; "#FFCC66" ; オレンジ色にハイライト
-;; 91C3FF
 ;(set-face-background 'show-paren-match-face "#5DA4ff") ; カーソルより濃い青
 (set-face-background 'show-paren-match-face "#a634ff")
 (set-face-foreground 'show-paren-match-face "#FFFFFF")
@@ -1118,47 +1157,128 @@ http://doxymacs.sourceforge.net/
 ** [auto-complete.el] 自動補完機能
 http://cx4a.org/software/auto-complete/manual.ja.html
 
-  - 辞書データを使う（=ac-dictionary-directories=）
+  - 辞書データを使う（ =ac-dictionary-directories= ）
   - auto-complete.el, auto-complete-config.el, fuzzy.el, popup.el を使う．
   - [[http://cx4a.org/software/auto-complete/manual.ja.html][日本語マニュアル]]
   - ac-auto-start を 4 にしておけば，3文字までは TAB を yasnippet に渡せる．
 
 Org-mode ユーザにとって =TAB= は非常に重要なコマンド．そこに =auto-complete= と =yasnippet= が =TAB= を奪いに来るので，住み分けが重要になる．=ac-auto-start= を=4=にすると，<s=TAB= によるソースブロックの短縮入力を =yasnippet= で実行できる（この目的だけならば=3=を指定してもいい）．<sys などと4文字入力すると，=auto-complete= が動いて <system> などを補完してくれる．もちろん，見出しで =TAB= を押すときには，ツリーの表示／非表示の切り替えになる．
 
+情報源については，[[http://cx4a.org/software/auto-complete/manual.ja.html#.E6.A8.99.E6.BA.96.E6.83.85.E5.A0.B1.E6.BA.90][オンラインマニュアル]]を参照のこと．
+ 
 #+BEGIN_SRC emacs-lisp :tangle yes
-      (when (autoload-if-found 'ac-config-default "auto-complete-config" nil t)
-        (dolist (hook (list 'perl-mode-hook 'c-mode-common-hook 'org-mode-hook))
-          (add-hook hook 'ac-config-default))
-        (add-hook 'emacs-lisp-mode-hook
-                  '(lambda () (unless (equal "*scratch*" (buffer-name))
-                                (ac-config-default))))
-        ;;    (add-hook 'org-mode-hook (lambda () 
-        ;;                                (add-to-list 'ac-source 'ac-source-dictionary)))
-        (eval-after-load "auto-complete-config"
-          '(progn
-             (add-to-list 'ac-dictionary-directories
-	           (concat default-path "ac-dict"))
-             ;; ac-modes にあるメジャーモードで有効にする
-             ;; lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
-             (global-auto-complete-mode t)
-             ;; 追加のメジャーモードを設定
-             (add-to-list 'ac-modes 'org-mode)
-             (add-to-list 'ac-modes 'objc-mode)
-             ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
-             (setq ac-auto-start 4)
-             ;; n秒後にメニューを表示
-             (setq ac-auto-show-menu 0.5)
-             ;; ツールチップを表示しない
-             (setq ac-use-quick-help nil)
-             (setq ac-quick-help-delay 0.5)
-             ;; C-n/C-p でメニューをたどる
-             (setq ac-use-menu-map t)
-             ;; TAB で補完（org-mode でも効くようにする）
-             (define-key ac-completing-map [tab] 'ac-complete)
-             ;; RET での補完を禁止
-             (define-key ac-completing-map "\r" nil))))
-  ;;(setq ac-candidate-max 10)  
+        (when (require 'auto-complete-config nil t)
+          (ac-config-default)
+          (defun ac-org-mode-setup ()
+;;            (message " >> ac-org-mode-setup")
+            (setq ac-sources '(
+  ;;                             ac-source-abbrev ; Emacs の略語
+        ;;;                         ac-source-css-property ; heavy
+                               ac-source-dictionary ; 辞書
+                               ac-source-features
+                               ac-source-filename
+                               ac-source-files-in-current-dir
+                               ac-source-functions
+  ;;                             ac-source-gtags
+  ;;                             ac-source-imenu 
+  ;;                             ac-source-semantic
+  ;;                             ac-source-symbols 
+  ;;                             ac-source-variables
+  ;;                             ac-source-yasnippet
+                               )))
+          (add-hook 'org-mode-hook 'ac-org-mode-setup)
+          (defun ac-default-setup ()
+;;            (message " >> ac-default-setup")
+            (setq ac-sources '(ac-source-abbrev
+                               ac-source-dictionary
+                               ac-source-words-in-same-mode-buffers)))
+      ;      (setq ac-sources (append '(ac-source-abbrev
+      ;                                 ac-source-dictionary
+      ;                                 ac-source-words-in-same-mode-buffers)
+      ;                               ac-sources)))
+          (dolist (hook (list 'perl-mode-hook 'objc-mode-hook))
+            (add-hook hook 'ac-default-setup))
+          ;; *scratch* バッファでは無効化
+          (add-hook 'lisp-mode-hook
+                    '(lambda () (unless (equal "*scratch*" (buffer-name))
+                                  (ac-default-setup))))
+          ;; ac-modes にあるメジャーモードで有効にする
+          ;; lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
+          (global-auto-complete-mode t)
+          ;; 追加のメジャーモードを設定
+          (add-to-list 'ac-modes 'objc-mode)
+          (add-to-list 'ac-modes 'org-mode)
+          ;; 辞書
+          (add-to-list 'ac-dictionary-directories (concat default-path "ac-dict"))
+          ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
+          (setq ac-auto-start 4)
+          ;; n秒後にメニューを表示
+          (setq ac-auto-show-menu 1.0)
+          ;; ツールチップの表示
+          (setq ac-use-quick-help t)
+          (setq ac-quick-help-delay 2.0)
+          (setq ac-quick-help-height 10)
+          ;; C-n/C-p でメニューをたどる
+          (setq ac-use-menu-map t)
+          ;; TAB で補完（org-mode でも効くようにする）
+          (define-key ac-completing-map [tab] 'ac-complete)
+          ;; RET での補完を禁止
+          (define-key ac-completing-map "\r" nil)
+          ;; 補完メニューの表示精度を高める
+          (setq popup-use-optimized-column-computation nil))
+          ;;(setq ac-candidate-max 10)
 #+END_SRC
+
+** [auto-complete-clang.el] オムニ補完
+
+C++バッファでメソッドを補完対象とする．try-catch を使っている場合， =-fcxx-exceptions= オプションが必要で，これはプリコンパイルヘッダを生成する時も同じだ．この設定では， =~/Dropbox/emacs.d/= 以下に =stdafx.pch= を生成する必要があるため，以下のコマンドを用いてプリコンパイルヘッダを生成する．ヘッダファイルのパスを適切に与えれば，Boostや自作のライブラリも補完対象に設定できる．
+
+現状では，補完直後にデフォルトの引数がすべて書き込まれてしまう．なんかうまいことしたいものだ．
+
+#+BEGIN_SRC sh
+clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -I/opt/local/include -I/opt/local/include/netpbm
+#+END_SRC
+
+以下の設定は，先に =auto-complete.el= に関する設定を読み込んでいることを前提としている．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+        (when (require 'auto-complete-clang nil t)
+          ;; ac-cc-mode-setup のオーバーライド
+          (defun ac-cc-mode-setup ()
+;;            (message " >> Auto-complete-clang")
+            ;;      (setq ac-clang-prefix-header "stdafx.pch")
+;;            (setq ac-auto-start 0)
+            (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
+            (setq ac-clang-flags '("-w" "-ferror-limit" "1"
+                                   "-fcxx-exceptions"))
+            (setq ac-sources '(ac-source-clang
+                               ac-source-yasnippet
+                               ac-source-gtags))
+            )
+          (add-hook 'c-mode-common-hook 'ac-cc-mode-setup))
+#+END_SRC	
+
+次のコードを hoge.cpp として保存し，=v= と =t= について補完できれば， =STL= と =Boost= のプリコンパイルヘッダが有効になっていることを確認できる．
+
+#+BEGIN_SRC cpp
+  #include <iostream>
+  #include <vector>
+  #include <boost/timer.hpp>
+  
+  int main(){
+    std::vector<int> v;
+    v; // ここ
+    boost::timer t;
+    cout << t; // ここ
+    return 1;
+  }
+#+END_SRC
+*** 参考サイト
+  - http://d.hatena.ne.jp/kenbell1988/20120428/1335609313
+  - http://d.hatena.ne.jp/whitypig/20110306/1299416655
+  - http://d.hatena.ne.jp/yano-htn/?of=30
+  - http://www.nomtats.com/2010/11/auto-completeelemacs.html
+  - http://www.plugmasters.com.br/plugfeed/post/73768/awesome-cc-autocompletion-in-emacs
 
 ** [hideshowvis.el] 関数の表示／非表示
 http://www.emacswiki.org/emacs/hideshowvis.el
@@ -1186,7 +1306,7 @@ Hide or show current block of souces
     (eval-after-load "org"
       '(progn
          
-         (require 'org-install)
+;         (require 'org-install)
          (require 'org-extension nil t)
          (require 'org-habit)
          (require 'org-mobile)
@@ -1239,27 +1359,40 @@ Hide or show current block of souces
   (when (autoload-if-found 'org-mode "org" "Org Mode" t)
     (eval-after-load "org"
       '(progn
-  ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
-  ;; (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
-  
-  ;; iCal の説明文
-           (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
-  ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
-           (setq org-icalendar-timezone "Asia/Tokyo")
-  ;;; エクスポート後に，AppleScript で新しいカレンダーをリロードさせる
-  ;(add-hook 'org-after-save-iCalendar-file-hook
-  ;         (lambda ()
-  ;           (shell-command
-  ;            "osascript -e 'tell application \"iCal\" to reload calendars'")))
-  ;; DONE になった TODO はアジェンダから除外する
-           (setq org-icalendar-include-todo t)
-  ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
-           (setq org-icalendar-use-scheduled '(event-if-todo))
-  ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
-           (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
-  )))
-  
+         ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
+         ;; default = ~/org.ics
+         ;; C-c C-e i org-export-icalendar-this-file
+         ;; C-c C-e I org-export-icalendar-all-agenda-files
+         ;; C-c C-e c org-export-icalendar-all-combine-agenda-files
+         ;;       (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
+         
+         ;; iCal の説明文
+         (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
+         ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
+         (setq org-icalendar-timezone "Asia/Tokyo")
+    ;;; エクスポート後に，AppleScript で新しいカレンダーをリロードさせる
+                                          ;(add-hook 'org-after-save-iCalendar-file-hook
+                                          ;         (lambda ()
+                                          ;           (shell-command
+                                          ;            "osascript -e 'tell application \"iCal\" to reload calendars'")))
+         (add-hook 'org-after-save-iCalendar-file-hook
+                   (lambda ()
+                     (let ((result
+                            (shell-command
+                             "scp -o ConnectTimeout=5 ~/Dropbox/org/org-ical.ics orz:~/public_html/ical")))
+                       (if (eq result 0) (message "Uploading ... [DONE]")
+                         (message "Uploading ... [MISS]")))))
+         
+         ;; DONE になった TODO はアジェンダから除外する
+         (setq org-icalendar-include-todo t)
+         ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
+         (setq org-icalendar-use-scheduled '(event-if-todo))
+    ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
+         ;;         (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
+         (setq org-icalendar-use-deadline '(event-if-todo))
+         )))    
 #+END_SRC
+
 ** スピードコマンド
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found 'org-mode "org" "Org Mode" t)
@@ -1272,6 +1405,17 @@ Hide or show current block of souces
          (defun show-next-org () (show-org-buffer "next.org"))
          (defun show-today-org () (show-org-buffer "today.org"))
   )))
+#+END_SRC
+
+** ソースブロックの入力キーをカスタマイズ
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (autoload-if-found 'org-mode "org" "Org Mode" t) 
+    (eval-after-load "org"
+      '(progn
+         (add-to-list 'org-structure-template-alist
+                      '("C" "#+BEGIN_COMMENT\n?\n#+END_COMMENT" ""))
+         (add-to-list 'org-structure-template-alist
+                      '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>")))))
 #+END_SRC
 
 ** Pomodoro
@@ -1335,6 +1479,7 @@ http://orgmode.org/worg/org-gtd-etc.html
          (setq org-todo-keyword-faces
                '(("CHECK"   :foreground "#CC00FF")
                  ("SLEEP"   :foreground "#3366CC")
+                 ("WAIT"    :foreground "#CC00FF")
                  ("DRAFT"   :foreground "#CC3333")
                  ("REV1"    :foreground "#3366CC")
                  ("REV2"    :foreground "#FFFFFF" :background "#3366CC")
@@ -1346,6 +1491,7 @@ http://orgmode.org/worg/org-gtd-etc.html
                '(
   ;;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom
                  ("Achievement" :foreground "#66CC66")
+                 ("Report"      :foreground "#66CC66")
                  ("Background"  :foreground "#66CC99")
                  ("Chore"       :foreground "#6699CC")
                  ("Domestic"    :foreground "#6666CC")
@@ -1421,7 +1567,8 @@ http://orgmode.org/worg/org-gtd-etc.html
          ;; アジェンダ作成対象（指定しないとagendaが生成されない）
          ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
          (setq org-agenda-files
-               '("~/Dropbox/org/next.org" "~/Dropbox/org/today.org"
+               '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+                 "~/Dropbox/org/today.org"
                  "~/Dropbox/org/work.org" "~/Dropbox/org/research.org")))))  
 #+END_SRC
 
@@ -1439,11 +1586,15 @@ http://orgmode.org/worg/org-gtd-etc.html
          (defvar org-capture-research-file (concat org-directory "research.org"))
          (defvar org-capture-buffer-file (concat org-directory "buffer.org"))
          (defvar org-capture-today-file (concat org-directory "today.org"))
+         (defvar org-capture-ical-file (concat org-directory "org-ical.org"))
   
          ;; see org.pdf:p73
          (setq org-capture-templates
                `(("t" "TODO 項目を INBOX に貼り付ける" entry
                   (file+headline nil "INBOX") "** TODO %?\n\t")
+                 ("c" "同期カレンダーにエントリー" entry
+                  (file+headline ,org-capture-ical-file "Schedule")
+                  "** TODO %?\n\t") 
                  ("d" "DRAFT 項目を INBOX に貼り付ける" entry
                   (file+headline nil "INBOX") "** DRAFT %?\n\t")
                  ("l" "本日のチェックリスト" entry
@@ -1462,12 +1613,12 @@ http://orgmode.org/worg/org-gtd-etc.html
                                " に書き込む")
                   entry (file+headline ,org-capture-words-notes-file "GRAMMER")
                   "** %? :%(get-current-date-tags):\n\n%U")
-                 ("c" "時間付きエントリー" entry (file+headline nil "INBOX")
+                 ("T" "時間付きエントリー" entry (file+headline nil "INBOX")
                   "** %? %T--\n")
                  ("n" "ノートとしてINBOXに貼り付ける" entry
                   (file+headline nil "INBOX")
                   "** %? :note:\n\t%U")
-                 ("d" "「ドラッカー365の金言」をノートする" entry
+                 ("D" "「ドラッカー365の金言」をノートする" entry
                   (file+headline ,org-capture-notes-file "The Daily Drucker")
                   "** 「%?」\nDrucker) \n  - \n  - \nACTION POINT:\n  - \nQUESTION:\n  - \n")
                  ("r" ,(concat "研究ノートを " org-capture-research-file
@@ -1514,10 +1665,22 @@ http://orgmode.org/worg/org-gtd-etc.html
     (eval-after-load "org"
       '(progn
          (setq org-refile-targets
-               (quote (("next.org" :level . 1)
+               (quote (("org-ical.org" :level . 1)
+                       ("next.org" :level . 1)
                        ("sleep.org" :level . 1))))
          )))
 #+END_SRC
+** [org-babel]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (autoload-if-found 'org-refile "org" "Org Mode" t)
+    (eval-after-load "org"
+      '(progn
+         (setq org-confirm-babel-evaluate nil)
+         (setq org-src-fontify-natively t)
+         (setq org-src-tab-acts-natively t))))
+#+END_SRC
+
 ** [MobileOrg] iOS との連携
 http://orgmode.org/manual/Setting-up-the-staging-area.html
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1572,7 +1735,8 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
          ;; reset the default setting
          (define-key org-tree-slide-mode-map (kbd "<left>")  'backward-char)
          (define-key org-tree-slide-mode-map (kbd "<right>") 'forward-char)
-		 (org-tree-slide-narrowing-control-profile)
+         (org-tree-slide-narrowing-control-profile)
+;         (org-tree-slide-presentation-profile)
          (setq org-tree-slide-skip-outline-level 4)
          (setq org-tree-slide-skip-done nil))))
 #+END_SRC
@@ -1585,43 +1749,190 @@ http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
          (require 'org-fstree nil t))))
 #+END_SRC
 
+** [calfw-org] calfw に org の予定を表示する
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (when (autoload-if-found 'cfw:open-org-calendar "calfw-org"
+                             "Rich calendar for org-mode" t)
+      (eval-after-load "calfw-org"
+        '(progn
+    
+           ;; icalendar との連結
+           (setq cfw:org-icalendars '("~/Dropbox/org/org-ical.org"))
+    
+           ;; org で使う表にフェイスを統一
+           (setq cfw:fchar-junction ?+
+                 cfw:fchar-vertical-line ?|
+                 cfw:fchar-horizontal-line ?-
+                 cfw:fchar-left-junction ?|
+                 cfw:fchar-right-junction ?|
+                 cfw:fchar-top-junction ?+
+                 cfw:fchar-top-left-corner ?|
+                 cfw:fchar-top-right-corner ?| ))))
+    
+  ;         (add-hook 'window-configuration-change-hook 'cfw:resize-calendar)
+           ;; (defun cfw:resize-calendar ()
+           ;;   (interactive)
+           ;;   (when (eq major-mode 'cfw:calendar-mode)
+           ;;     (cfw:refresh-calendar-buffer nil)
+           ;;     (message "Calendar resized.")))
+    
+           ;; (defun open-calfw-agenda-org ()
+           ;;   (interactive)
+           ;;   (cfw:open-org-calendar))
+    
+           ;; (setq org-agenda-custom-commands
+           ;;       '(("w" todo "FOCUS")
+           ;;         ("G" open-calfw-agenda-org "Graphical display in calfw"))))))
+  
+#+END_SRC
+
+** [org-export-generic] エクスポート機能を拡張する
+
+=org-set-generic-type= を使うことで，エクスポート機能を好みに拡張できる．contrib の中の =org-export-generic.el= が必要なので注意する．
+
+=org-set-generic-type= を =.emacs= に追記した後， =C-c C-e g <key-binding>= とすればよい． =<key-binding>= は =org-set-generic-type= で設定する値である．2つ目は，Markdown へのエクスポーターである．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (require 'org-export-generic nil t)
+    (org-set-generic-type
+     "textile"
+     '(:file-suffix ".textile"
+                    :key-binding ?T
+                    :title-format    "Title: %s\n\n"
+                                          ;   :date-format     "Date: %s\n"
+                    :date-export nil
+                    :toc-export      nil
+                    :author-export   nil
+                    :tags-export     nil
+                    :drawers-export  nil
+                    :date-export     t
+                    :timestamps-export  t
+                    :priorities-export  nil
+                    :todo-keywords-export t
+                    :body-line-fixed-format "\t%s\n"
+                                          ;:body-list-prefix "\n"
+                    :body-list-format "* %s"
+                    :body-list-suffix "\n"
+                    :body-bullet-list-prefix ("* " "** " "*** " "**** " "***** ")
+                    :body-number-list-format "# %s"
+                    :body-number-list-suffix "\n"
+                    :header-prefix ("" "" "### " "#### " "##### " "###### ")
+                    :body-section-header-prefix ("h1. " "h2. " "h3. " "h4. " "h5. " "h6. ")
+                    :body-section-header-format "%s"
+                    :body-section-header-suffix ("\n\n")
+                    :body-header-section-numbers nil
+                    :body-header-section-number-format "%s) "
+                    :body-line-format "%s\n"
+                    :body-newline-paragraph "\n"
+                    :bold-format "*%s*"
+                    :italic-format "_%s_"
+                    :underline-format "+%s+"
+                    :strikethrough-format "-%s-"
+                    :verbatim-format "`%s`"
+                    :code-format "@%s@"
+                    :body-line-wrap   75
+                    :blockquote-start "\n<pre>\n"
+                    :blockquote-end "\n</pre>\n"
+  ))
+  
+    (org-set-generic-type
+     "markdown" 
+     '(:file-suffix     ".markdown"
+                        :key-binding     ?M
+                        :title-format    "Title: %s\n"
+                        :date-format     "Date: %s\n"
+                        :toc-export      nil
+                        :author-export   t
+                        :tags-export     nil
+                        :drawers-export  nil
+                        :date-export     t
+                        :timestamps-export  t
+                        :priorities-export  nil
+                        :todo-keywords-export t
+                        :body-line-fixed-format "\t%s\n"
+                                          ;:body-list-prefix "\n"
+                        :body-list-format "- %s"
+                        :body-list-suffix "\n"
+                        :header-prefix ("" "" "### " "#### " "##### " "###### ")
+                        :body-section-header-prefix ("" "" "### " "#### " "##### " "###### ")
+                        :body-section-header-format "%s\n"
+                        :body-section-header-suffix (?= ?- "")
+                        :body-header-section-numbers nil
+                        :body-header-section-number-format "%s) "
+                        :body-line-format "%s\n"
+                        :body-newline-paragraph "\n"
+                        :bold-format "**%s**"
+                        :italic-format "_%s_"
+                        :verbatim-format "`%s`"
+                        :code-format "`%s`"
+                        :body-line-wrap   75
+                        )))
+#+END_SRC
+
+** [org-odt] ODT形式に出力
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-export-odt-styles-file
+        (concat (getenv "HOME") "/Dropbox/org/style.odt"))
+  (setq org-export-odt-preferred-output-format "pdf")
+  (setq org-export-odt-convert-processes
+        '(("LibreOffice"
+           "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
+          ("unoconv" "unoconv -f %f -o %d %i")))
+#+END_SRC
+
+** README を常に org-mode で開く
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (autoload-if-found 'org-mode "org" "Org Mode" t)
+    (eval-after-load "org"
+      '(progn
+         (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))))
+#+END_SRC
+
 ** その他
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found 'org-mode "org" "Org Mode" t)
     (eval-after-load "org"
       '(progn
-(setq alarm-table "~/Dropbox/org/today.org")
-(run-at-time "00:00" nil 'set-alarms-from-file alarm-table)
-
-;; Rich calendar
-(autoload 'cfw:open-org-calendar  "calfw-org" "Rich calendar for org-mode" t)
-)))
+         (setq alarm-table "~/Dropbox/org/today.org")
+         (run-at-time "00:00" nil 'set-alarms-from-file alarm-table))))
 #+END_SRC
 
 *** キーバインド
 #+BEGIN_SRC emacs-lisp :tangle yes
   
-    (when (autoload-if-found 'org-mode "org" "Org Mode" t)
-      (global-set-key (kbd "C-M-o") '(lambda () (interactive)
-                                       (show-org-buffer "next.org")))
-      (global-set-key (kbd "C-M-9") '(lambda () (interactive)
-                                       (show-org-buffer "buffer.org")))
-      (global-set-key (kbd "C-M-0") '(lambda () (interactive)
-                                       (show-org-buffer "today.org")))
-      (global-set-key (kbd "C-c l") 'org-store-link)
-      (global-set-key (kbd "C-c a") 'org-agenda)
-      (global-set-key (kbd "C-c r") 'org-capture)
+  (when (autoload-if-found 'org-mode "org" "Org Mode" t)
+    (global-set-key (kbd "C-M-o") '(lambda () (interactive)
+                                     (show-org-buffer "next.org")))
+    (global-set-key (kbd "C-M-c") '(lambda () (interactive)
+                                     (show-org-buffer "org-ical.org")))
+    (global-set-key (kbd "C-M-9") '(lambda () (interactive)
+                                     (show-org-buffer "buffer.org")))
+    (global-set-key (kbd "C-M-0") '(lambda () (interactive)
+                                     (show-org-buffer "today.org")))
+    (global-set-key (kbd "C-c l") 'org-store-link)
+    (global-set-key (kbd "C-c a") 'org-agenda)
+    (global-set-key (kbd "C-c r") 'org-capture)
   
-      (eval-after-load "org"
-        '(progn
-  
-  (define-key org-mode-map (kbd "C-c 1")
-    'org-export-icalendar-combine-agenda-files)
-  (define-key org-mode-map (kbd "C-c 2") 'do-org-update-statistics-cookies)
-  (define-key org-mode-map (kbd "C-c m") 'org-mobile-sync)
-  (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
-  (define-key org-mode-map (kbd "S-<f5>") 'widen)
-  )))
+    (require 'org-icalendar)
+    (defun my-org-export-icalendar ()
+      (interactive)
+      (org-export-icalendar nil "~/Dropbox/org/org-ical.org"))
+    
+    (eval-after-load "org"
+      '(progn
+         
+         ;; (org-transpose-element) が割り当てられているので取り返す．
+         (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
+         
+         ;;(define-key org-mode-map (kbd "C-c 1")
+         ;;  'org-export-icalendar-combine-agenda-files)
+         (define-key org-mode-map (kbd "C-c 1") 'my-org-export-icalendar)
+         (define-key org-mode-map (kbd "C-c 2") 'do-org-update-statistics-cookies)
+         (define-key org-mode-map (kbd "C-c m") 'org-mobile-sync)
+         (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
+         (define-key org-mode-map (kbd "S-<f5>") 'widen)
+         )))
   
 #+END_SRC
 ** org-mode の latex エクスポート関数をオーバーライド
@@ -1771,7 +2082,11 @@ http://d.hatena.ne.jp/setoryohei/20110117/1295336454
           ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
           ;; 2) Inconsolata, Migu 2M     : font-size=14, 
           ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
+
+;; Fonts
+
           ((font-size 12)
+;          ((font-size 28) ; for mirroring presentation (1440x900)
 ;           (ascii-font "Inconsolata")
            (ascii-font "Monaco")
            (ja-font "Migu 2M"))
@@ -1870,6 +2185,15 @@ http://d.hatena.ne.jp/syohex/20111228/1325086893
                              :inherit nil))))  
 #+END_SRC
 
+** 背景を黒系色にする
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (custom-set-faces
+   '(default ((t
+               (:background "black" :foreground "#55FF55")
+               ))))
+#+END_SRC
+
 ** [rainbow-mode.el] 配色のリアルタイム確認
 
 M-x rainbow-mode とすると，色指定のコードの背景色を，その指定色にリアルタイム変換してくれる．
@@ -1892,9 +2216,9 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 * フレーム／ウィンドウ制御
 ** 起動時の設定
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; To avoid an error setting up the frame width
-(set-frame-width (selected-frame) 81)
-(set-frame-width (selected-frame) 80)
+;; To avoid an error setting up the frame width (only for Emacs23)
+;(set-frame-width (selected-frame) 81)
+;(set-frame-width (selected-frame) 80)
 
 ;; Default window position to show a Emacs frame
 ;; Dynabook UX: top=0, left=0, width=80, height=32
@@ -1908,7 +2232,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 	   ;; 837 is the setting for right side for MBP
 	   (width . 80) ; Width  : character count
 	   (height . 35); Height : character count
-	   (alpha . (100 50))
+	   (alpha . (100 75))
 	   (vertical-scroll-bars . nil)
 	   ) initial-frame-alist)))
 
@@ -2027,6 +2351,7 @@ popwin:display-buffer を autoload してもうまくいかない．
           (append
            '(("*Completions*" :height 10 :position bottom :noselect t)
              ("CAPTURE-next.org" :height 10 :position bottom :noselect t)
+             ("CAPTURE-org-ical.org" :height 10 :position bottom :noselect t)
              ("*Org-todo*"    :height 10 :position bottom)
              ("*Calendar*"    :height 10 :position bottom)
              ("*wclock*"      :height 10 :position bottom)
@@ -2046,6 +2371,65 @@ popwin:display-buffer を autoload してもうまくいかない．
 #+END_SRC
 
 * ユーティリティ関数
+** [pomodoro.el] ポモドーロの実践
+
+[[https://twitter.com/syohex][@syohex]] さん謹製の [[https://github.com/syohex/emacs-utils/blob/master/pomodoro.el][pomodoro.el]] に少しカスタマイズしたおれおれ [[https://github.com/takaxp/emacs-utils/blob/master/pomodoro.el][pomodoro.el]] を使っています．以下のように設定すると，ポモドーロの残り時間は表示せず，アイコンだけをモードラインに表示できます．残り時間は =M-x pomodoro:mode-line-time-display-toggle= すれば，いつでも表示できます．
+
+=pomodoro:finish-work-hook= ， =pomodoro:finish-rest-hook= ， =pomodoro:long-rest-hook= にそれぞれ結びつけてあるのは，[[http://www.mactechlab.jp/products-report/16673.html][Macのスピーチ機能]]です．この例では，Kyoko さんが指示を出してくれます．
+
+=M-x pomodoro:start= すると，ポモドーロが始まり，8時間後に =pomodoro:stop= が呼ばれてポモドーロが終了します．[[http://www.pomodorotechnique.com/][pomodoro]] は機械的に仕事をしたい人にピッタリです．人によっては [[http://ja.wikipedia.org/wiki/Getting_Things_Done][GTD]] よりも取っ付きやすいと思います．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (autoload-if-found 'pomodoro:start "pomodoro" nil t)
+    (eval-after-load "pomodoro"
+      '(progn
+         
+         ;; 作業時間終了後に開くファイルを指定しない
+         (setq pomodoro:file nil)
+  
+         ;; ●だけで表現する（残り時間表示なし）
+         (setq pomodoro:mode-line-time-display nil)
+         
+         ;; 長い休憩に入るまでにポモドーロする回数
+         (setq pomodoro:iteration-for-long-rest 8)
+  
+         ;; 作業時間関連
+         (setq pomodoro:work-time 25      ; 作業時間
+               pomodoro:rest-time 5       ; 休憩時間
+               pomodoro:long-rest-time 60 ; 長い休憩時間
+               pomodoro:max-iteration 16) ; ポモドーロする回数
+  
+         ;; タイマーの表示をノーマルフェイスにする
+         (set-face-bold-p 'pomodoro:timer-face nil)
+  
+         ;; 作業中（赤），休憩中（青），長い休憩中（緑）にする
+         (set-face-foreground 'pomodoro:work-face "#F53838")
+         (set-face-foreground 'pomodoro:rest-face "#3869FA")
+         (set-face-foreground 'pomodoro:long-rest-face "#00B800")
+
+         ;; Mac ユーザ向け．Kyokoさんに指示してもらう
+         (add-hook 'pomodoro:finish-work-hook
+                   (lambda ()
+                     (shell-command-to-string
+                      (concat "say -v Kyoko "
+                              (number-to-string (floor pomodoro:rest-time))
+                              "分間，休憩しろ"))))
+         
+         (add-hook 'pomodoro:finish-rest-hook
+                   (lambda ()
+                     (shell-command-to-string
+                      (concat "say -v Kyoko "
+                              (number-to-string (floor pomodoro:work-time))
+                              "分間，作業しろ"))))
+         
+         (add-hook 'pomodoro:long-rest-hook
+                   (lambda ()
+                     (shell-command-to-string
+                      (concat "say -v Kyoko これから"
+                              (number-to-string (floor pomodoro:long-rest-time))
+                              "分間の休憩です")))))))
+#+END_SRC
+
 ** [utility.el] 自作してテスト中の便利関数群
 
 関数定義を[[http://pastelwill.jp/wiki/doku.php?id=emacs:utility.el][別ファイル]]に分離して，Emacs起動の高速化を図っています．各関数を autoload の管理下において，必要なときにロードするように設定しています．
