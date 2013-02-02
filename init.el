@@ -713,11 +713,13 @@
            ("CHECK"   :foreground "#FF9900")
            ("ICAL"    :foreground "#33CC66")
            ("WAIT"    :foreground "#33CC66")
-           ("EDIT"    :foreground "#FF0033")
+           ("EDIT"    :foreground "#FF33CC")
+           ("READ"    :foreground "#9933CC")
            ("MAIL"    :foreground "#CC3300")
            ("PLAN"    :foreground "#FF6600")
            ("REV1"    :foreground "#3366FF")
-           ("REV2"    :foreground "#FFFFFF" :background "#3366FF")
+           ("REV2"    :foreground "#3366FF" :background "#99CCFF")
+           ("REV3"    :foreground "#FFFFFF" :background "#3366FF")
            ("STOP"    :foreground "#9999CC")))
 
    ;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom    
@@ -751,10 +753,11 @@
 (eval-after-autoload-if-found
  'org-mode "org" "Org Mode" t nil
  '((setq org-todo-keywords
-         '((sequence "TODO(t)" "FOCUS(f)" "CHECK(C)" "|" "DONE(d)")
-           (sequence "ICAL(c)" "EDIT(e)" "MAIL(m)" "PLAN(p)" "|")
-           (sequence "REV1(r)" "REV2(R)" "WAIT(w)" "STOP(s)" "|")))
-
+         '((sequence "TODO(t)" "FOCUS(f)" "ICAL(c)" "|" "DONE(d)")
+           (sequence "READ(r)" "EDIT(e)" "MAIL(m)" "PLAN(p)" "|")
+           (sequence "CHECK(C)" "WAIT(w)" "STOP(s)" "|")
+           (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|")))
+   
    ;; Global counting of TODO items
    (setq org-hierarchical-todo-statistics nil)
    ;; Global counting of checked TODO items
@@ -1207,6 +1210,52 @@
     (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
                                     (".*Inconsolata.*" . 1.0))) ; 0.9
     (set-default 'line-spacing 1)))
+
+(defvar default-font-size 12)
+(setq target-font-size default-font-size)
+
+(defun increase-font-size ()
+  (interactive)
+  (setq target-font-size (+ target-font-size 1))
+  (set-font-size target-font-size)
+  (message "+1: %s" target-font-size))
+
+(defun decrease-font-size ()
+  (interactive)
+  (setq target-font-size (- target-font-size 1))
+  (set-font-size target-font-size)
+  (message "-1: %s" target-font-size))
+
+(defun reset-font-size ()
+  (interactive)
+  (set-font-size default-font-size)
+  (setq target-font-size default-font-size)
+  (message "0: %s" target-font-size))
+
+(defun set-font-size-input (n)
+  (interactive "nSize: ")
+  (setq target-font-size n)
+  (set-font-size target-font-size)
+  (message "0: %s" target-font-size))
+
+(defun set-font-size (arg)
+  (interactive "p")
+  (let* ((font-size arg)
+        (frame-width 80)
+        (frame-height (if (> arg 15) 20 40))
+        (ja-font-scale 1.2)
+        (ja-font "Migu 2M")
+        (ascii-font "Monaco"))
+    
+    (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+    (my-ja-font-setter (font-spec :family ja-font :size font-size))
+    (setq face-font-rescale-alist
+          `((".*Migu.*" . ,ja-font-scale)))
+    (set-frame-size (selected-frame) frame-width frame-height)))
+
+(global-set-key (kbd "C-x C-=") 'increase-font-size)
+(global-set-key (kbd "C-x C--") 'decrease-font-size)
+(global-set-key (kbd "C-x C-0") 'reset-font-size)
 
 (eval-after-autoload-if-found
  'diff-mode "diff-mode" nil t nil   

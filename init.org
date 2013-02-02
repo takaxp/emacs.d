@@ -6,7 +6,7 @@
 
 * はじめに
   - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]] 本体は，[[https://github.com/takaxp/emacs.d/][github]] に公開しています．
-  - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[http://pastelwill.jp/wiki/doku.php?id=emacs:init.el][wiki]] を生成しています．
+  - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]]，[[http://pastelwill.jp/wiki/doku.php?id=emacs:init.el][wiki]] を生成しています．
   - 一部の関数定義を [[http://pastelwill.jp/wiki/doku.php?id=emacs:utility.el][utility.el]] に分離しています．
 * init.el のヘッダ
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1728,11 +1728,13 @@ http://orgmode.org/worg/org-gtd-etc.html
              ("CHECK"   :foreground "#FF9900")
              ("ICAL"    :foreground "#33CC66")
              ("WAIT"    :foreground "#33CC66")
-             ("EDIT"    :foreground "#FF0033")
+             ("EDIT"    :foreground "#FF33CC")
+             ("READ"    :foreground "#9933CC")
              ("MAIL"    :foreground "#CC3300")
              ("PLAN"    :foreground "#FF6600")
              ("REV1"    :foreground "#3366FF")
-             ("REV2"    :foreground "#FFFFFF" :background "#3366FF")
+             ("REV2"    :foreground "#3366FF" :background "#99CCFF")
+             ("REV3"    :foreground "#FFFFFF" :background "#3366FF")
              ("STOP"    :foreground "#9999CC")))
   
      ;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom    
@@ -1768,28 +1770,29 @@ http://orgmode.org/worg/org-gtd-etc.html
 キーワードには日本語も使えます．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (eval-after-autoload-if-found
-   'org-mode "org" "Org Mode" t nil
-   '((setq org-todo-keywords
-           '((sequence "TODO(t)" "FOCUS(f)" "CHECK(C)" "|" "DONE(d)")
-             (sequence "ICAL(c)" "EDIT(e)" "MAIL(m)" "PLAN(p)" "|")
-             (sequence "REV1(r)" "REV2(R)" "WAIT(w)" "STOP(s)" "|")))
-  
-     ;; Global counting of TODO items
-     (setq org-hierarchical-todo-statistics nil)
-     ;; Global counting of checked TODO items
-     (setq org-hierarchical-checkbox-statistics nil)
-  
-     ;; block-update-time
-     (defun org-dblock-write:block-update-time (params)
-       (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
-         (insert "" (format-time-string fmt (current-time)))))
-  
-     ;; すべてのチェックボックスの cookies を更新する
-     (defun do-org-update-statistics-cookies ()
-       (interactive)
-       (org-update-statistics-cookies 'all))
-     ))
+    (eval-after-autoload-if-found
+     'org-mode "org" "Org Mode" t nil
+     '((setq org-todo-keywords
+             '((sequence "TODO(t)" "FOCUS(f)" "ICAL(c)" "|" "DONE(d)")
+               (sequence "READ(r)" "EDIT(e)" "MAIL(m)" "PLAN(p)" "|")
+               (sequence "CHECK(C)" "WAIT(w)" "STOP(s)" "|")
+               (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|")))
+       
+       ;; Global counting of TODO items
+       (setq org-hierarchical-todo-statistics nil)
+       ;; Global counting of checked TODO items
+       (setq org-hierarchical-checkbox-statistics nil)
+    
+       ;; block-update-time
+       (defun org-dblock-write:block-update-time (params)
+         (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
+           (insert "" (format-time-string fmt (current-time)))))
+    
+       ;; すべてのチェックボックスの cookies を更新する
+       (defun do-org-update-statistics-cookies ()
+         (interactive)
+         (org-update-statistics-cookies 'all))
+       ))
 #+END_SRC
 
 ** [org-agenda]
@@ -2386,6 +2389,64 @@ Linux では次のように処理するだけでよく，意外と簡単．
 
 サンプルの [[http://dl.dropbox.com/u/2440/dokuwiki/font-test.org][orgファイル]] を作って，見た目をチェックしています．バッファ内の桁数チェックや，ASCIIが漢字の半分の幅になっているかのチェックが楽になります．
 
+** フォントサイズを制御する
+
+以下の設定は，標準のフォントサイズが12ptで，日本語フォントに Migu 2M，英字フォントにMonacoを使う場合の設定です．フォントサイズの「増加」「減少」「初期化」「サイズ指定」が可能です．なお，15ptを超える場合はフレームサイズを15に強制補正するようにしています．手元のモニタを基準にしているので，ここはカスタマイズポイントだと思います．（そのうち変数化する予定です）
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defvar default-font-size 12)
+(setq target-font-size default-font-size)
+
+(defun increase-font-size ()
+  (interactive)
+  (setq target-font-size (+ target-font-size 1))
+  (set-font-size target-font-size)
+  (message "+1: %s" target-font-size))
+
+(defun decrease-font-size ()
+  (interactive)
+  (setq target-font-size (- target-font-size 1))
+  (set-font-size target-font-size)
+  (message "-1: %s" target-font-size))
+
+(defun reset-font-size ()
+  (interactive)
+  (set-font-size default-font-size)
+  (setq target-font-size default-font-size)
+  (message "0: %s" target-font-size))
+
+(defun set-font-size-input (n)
+  (interactive "nSize: ")
+  (setq target-font-size n)
+  (set-font-size target-font-size)
+  (message "0: %s" target-font-size))
+
+(defun set-font-size (arg)
+  (interactive "p")
+  (let* ((font-size arg)
+	(frame-width 80)
+	(frame-height (if (> arg 15) 20 40))
+        (ja-font-scale 1.2)
+        (ja-font "Migu 2M")
+        (ascii-font "Monaco"))
+    
+    (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+    (my-ja-font-setter (font-spec :family ja-font :size font-size))
+    (setq face-font-rescale-alist
+          `((".*Migu.*" . ,ja-font-scale)))
+    (set-frame-size (selected-frame) frame-width frame-height)))
+#+END_SRC
+
+*** キーバインド
+
+以下のキーバインドは，face-remap.el が提供する text-scale-adjust のキーバインドを上書きします．text-scale-adjust をそのまま使うと，日本語フォントが制御されないので，オーバーライドしてしまってもOKだと思います．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "C-x C-=") 'increase-font-size)
+  (global-set-key (kbd "C-x C--") 'decrease-font-size)
+  (global-set-key (kbd "C-x C-0") 'reset-font-size)
+#+END_SRC
+
 ** パッチをカラフルに表示する
 
 Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカスタマイズします．
@@ -2439,7 +2500,6 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 
 =0,6,9,C,F= の組み合わせ
 
-#+BEGIN_SRC css
  #000000 #000033 #000066 #000099 #0000CC #0000FF
  #003300 #003333 #003366 #003399 #0033CC #0033FF
  #006600 #006633 #006666 #006699 #0066CC #0066FF
@@ -2481,7 +2541,6 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
  #FF9900 #FF9933 #FF9966 #FF9999 #FF99CC #FF99FF
  #FFCC00 #FFCC33 #FFCC66 #FFCC99 #FFCCCC #FFCCFF
  #FFFF00 #FFFF33 #FFFF66 #FFFF99 #FFFFCC #FFFFFF
-#+END_SRC
 
 * Macintosh専用
 ** [igrep]
