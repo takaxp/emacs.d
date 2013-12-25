@@ -1,4 +1,3 @@
-
 (defun eval-org-buffer ()
   "Load init.org/utility.org and tangle init.el/utility.el."
   (interactive)
@@ -21,11 +20,12 @@
         (t
          (message "Kyoko mad mode: OFF"))))
 ;; She will be mad if you do nothing within 10 min.
-(run-with-idle-timer 600 t
-                     '(lambda () 
-                        (when kyoko-mad-mode
-                          (shell-command-to-string
-                           "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
+(run-with-idle-timer
+ 600 t
+ '(lambda ()
+    (when kyoko-mad-mode
+      (shell-command-to-string
+       "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
 
 (defun org2dokuwiki-cp-kill-ring ()
   "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
@@ -114,7 +114,7 @@ content column from the table. The line ID number is 2 will be ignored."
                           "== REMINDER =="
                           (format "%s:%s %s" hour min action)
                           "Emacs" 'sticky))))))
-  
+
    (defun read-line (file)
      "Make a list from a file, which is divided by LF code"
      (with-temp-buffer
@@ -127,9 +127,9 @@ content column from the table. The line ID number is 2 will be ignored."
   (setq my-file-ring (copy-sequence files))
   (setf (cdr (last my-file-ring)) my-file-ring))
 (takaxp:make-file-ring
- '("~/Dropbox/org/buffer.org" "~/Dropbox/org/research.org"
-   "~/Dropbox/org/init.org" "~/Dropbox/org/utility.org"
-   "~/Dropbox/org/work.org" "~/Dropbox/org/next.org"))
+ '("~/Dropbox/org/next.org" "~/Dropbox/org/work.org"
+   "~/Dropbox/emacs.d/config/init.org" "~/Dropbox/org/buffer.org"
+   "~/Dropbox/emacs.d/config/utility.org" "~/Dropbox/org/research.org"))
 
 (defun takaxp:open-file-ring ()
   (interactive)
@@ -155,6 +155,16 @@ content column from the table. The line ID number is 2 will be ignored."
       (save-excursion
         (goto-char 0)
         (insert title date author other)))))
+
+(defun insert-minutes-template ()
+  (interactive)
+  (when (string= major-mode 'org-mode)
+    (let ((date "日時：\n")
+          (place "場所：\n")
+          (attendance "出席者：\n")
+          (documents "資料：\n\n"))
+      (save-excursion
+        (insert date place attendance documents)))))
 
 (defun get-random-string (length)
   "Get a string contain the length digit number with random selection"
@@ -205,9 +215,14 @@ content column from the table. The line ID number is 2 will be ignored."
 
 (global-set-key (kbd "C-M--") 'add-itemize-head)
 
-(defun insert-formatted-current-date ()
-  (interactive)
-  (insert (format-time-string "%Y-%m-%d")))
+(defun insert-formatted-current-date (arg)
+  "Insert a timestamp at the cursor position. C-u will add [] brackets."
+  (interactive "p")
+  (case arg
+    (4 (if (equal major-mode 'org-mode)
+           (org-time-stamp-inactive)
+         (insert (format-time-string "[%Y-%m-%d]"))))
+    (t (insert (format-time-string "%Y-%m-%d")))))
 (defun insert-formatted-current-time ()
   (interactive)
   (insert (format-time-string "%H:%M")))
@@ -272,12 +287,12 @@ content column from the table. The line ID number is 2 will be ignored."
 
 (run-with-idle-timer 600 t 'reload-ical-export)
 (run-with-idle-timer 1000 t 'org-mobile-push)
-  
+
 (defun reload-ical-export ()
   "Export org files as an iCal format file"
   (interactive)
   (when (string= major-mode 'org-mode)
-    (org-export-icalendar-combine-agenda-files)))
+    (my-ox-icalendar)))
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
