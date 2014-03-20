@@ -1,3 +1,4 @@
+
 ;;;; Configurations for Emacs
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html (GREAT!)
@@ -375,23 +376,23 @@
       (set-face-background 'paren-face-match "66CC66"))
 
 ;; スペース
-(defface my-face-b-1 '((t (:background "gray" :bold t :underline "red"))) nil :group 'font-lock-highlighting-faces)
-;; タブだけの行
-(defface my-face-b-2 '((t (:background "orange" :bold t :underline "red"))) nil :group 'font-lock-highlighting-faces)
-;; 半角スペース
-(defface my-face-b-3 '((t (:background "orange"))) nil :group 'font-lock-highlighting-faces)
-(defvar my-face-b-1 'my-face-b-1)
-(defvar my-face-b-2 'my-face-b-2)
-(defvar my-face-b-3 'my-face-b-3)
-(defadvice font-lock-mode (before my-font-lock-mode ())
-  (font-lock-add-keywords
-   major-mode
-   ;; "[\t]+$" 行末のタブ
-   '(("　" 0 my-face-b-1 append)
-     ("[\t]+$" 0 my-face-b-2 append)
-     ("[ ]+$" 0 my-face-b-3 append))))
-(ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode)
-(ad-activate 'font-lock-mode)
+  (defface my-face-b-1 '((t (:background "gray" :bold t :underline "red"))) nil :group 'font-lock-highlighting-faces)
+  ;; タブだけの行
+  (defface my-face-b-2 '((t (:background "orange" :bold t :underline "red"))) nil :group 'font-lock-highlighting-faces)
+  ;; 半角スペース
+  (defface my-face-b-3 '((t (:background "orange"))) nil :group 'font-lock-highlighting-faces)
+  (defvar my-face-b-1 'my-face-b-1)
+  (defvar my-face-b-2 'my-face-b-2)
+  (defvar my-face-b-3 'my-face-b-3)
+  (defadvice font-lock-mode (before my-font-lock-mode ())
+    (font-lock-add-keywords
+     major-mode
+     ;; "[\t]+$" 行末のタブ
+     '(("　" 0 my-face-b-1 append)
+;;       ("[ ]+$" 0 my-face-b-3 append)
+       ("[\t]+$" 0 my-face-b-2 append))))
+  (ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode)
+  (ad-activate 'font-lock-mode)
 
 (when
     (eval-after-autoload-if-found
@@ -509,7 +510,8 @@
 (eval-after-load "recentf"
   '(progn
      (setq recentf-max-saved-items 2000)
-     (setq recentf-save-file (expand-file-name "~/Dropbox/.recentf"))
+     (setq recentf-save-file
+           (expand-file-name "~/.emacs.d/.recentf"))
      (setq recentf-auto-cleanup 'never) ; default = 'mode
      (run-with-idle-timer 300 t 'recentf-save-list)
      (run-with-idle-timer 600 t 'recentf-cleanup)
@@ -555,10 +557,11 @@
 ;;          "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|^/private\\.*\\|^/var/folders\\.*"))
 
 (when (require 'wakatime-mode nil t)
-  (setq wakatime-api-key "<insert your own api key>")
-  (setq wakatime-cli-path "/Users/taka/Dropbox/emacs.d/bin/wakatime-cli.py")
-  ;; すべてのバッファで訪問時に記録を開始
-  (global-wakatime-mode))
+    (setq wakatime-api-key "<insert your own api key>")
+    (setq wakatime-cli-path "/Users/taka/Dropbox/emacs.d/bin/wakatime-cli.py")
+    ;; すべてのバッファで訪問時に記録を開始
+;    (global-wakatime-mode)
+    )
 
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)
@@ -850,7 +853,7 @@
            ("Implements"  :foreground "#CC9999" :weight bold)
            ("Coding"      :foreground "#CC9999")
            ("Editing"     :foreground "#CC9999" :weight bold)
-           ("Duty"        :foreground "#CC9999" :weight bold)
+           ("work"        :foreground "#CC9999" :weight bold)
            ("Survey"      :foreground "#CC9999" :weight bold)
            ("Home"        :foreground "#CC9999" :weight bold)
            ("Open"        :foreground "#CC9999" :weight bold)
@@ -906,18 +909,35 @@
    ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
    (setq org-agenda-files
          '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
-           "~/Dropbox/org/today.org"
+           "~/Dropbox/org/today.org" "~/Dropbox/org/buffer.org"
            "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
    ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
+   (defvar my-doing-tag "Doing")
    (defun my-sparse-doing-tree ()
      (interactive)
-     (org-tags-view nil "Doing"))
+     (org-tags-view nil my-doing-tag))
+   ;; Doingタグをトグルする
+   (defun my-toggle-doing-tag ()
+     (interactive)
+     (when (eq major-mode 'org-mode)
+       (save-excursion
+         (save-restriction
+           (unless (org-at-heading-p)
+             (outline-previous-heading))
+           (if (string-match
+                (concat ":" my-doing-tag ":") (org-get-tags-string))
+               (org-toggle-tag my-doing-tag 'off)
+             (org-toggle-tag my-doing-tag 'on))
+           (org-reveal)))))
    ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
    (org-defkey org-agenda-mode-map [(tab)]
                '(lambda () (interactive)
                   (org-agenda-goto)
                   (with-current-buffer "*Org Agenda*"
                     (org-agenda-quit))))))
+
+(global-set-key (kbd "<f11>") 'my-toggle-doing-tag)
+(define-key org-mode-map (kbd "C-c <f11>") 'my-sparse-doing-tree)
 
 (eval-after-autoload-if-found
         'org-mode "org" "Org Mode" t nil
@@ -1056,8 +1076,8 @@
            'org-tree-slide-move-previous-tree)
          (define-key org-tree-slide-mode-map (kbd "<f10>")
            'org-tree-slide-move-next-tree)
-         (define-key org-tree-slide-mode-map (kbd "<f11>")
-           'org-tree-slide-content)
+         ;; (define-key org-tree-slide-mode-map (kbd "<f11>")
+         ;;   'org-tree-slide-content)
          ;; reset the default setting
          (define-key org-tree-slide-mode-map (kbd "<left>")  'backward-char)
          (define-key org-tree-slide-mode-map (kbd "<right>") 'forward-char)
@@ -1218,8 +1238,6 @@
          ;;  'org-export-icalendar-combine-agenda-files)
          (define-key org-mode-map (kbd "C-c 1") 'my-ox-icalendar)
          (define-key org-mode-map (kbd "C-c 2") 'do-org-update-statistics-cookies)
-         (define-key org-mode-map (kbd "C-c 3") 'my-sparse-doing-tree)
-  
          (define-key org-mode-map (kbd "C-c m") 'org-mobile-sync)
          (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
          (define-key org-mode-map (kbd "S-<f5>") 'widen)))
@@ -1447,7 +1465,7 @@
            ;; 837 is the setting for right side for MBP
            (width . 80) ; Width  : character count
            (height . 35); Height : character count
-           (alpha . (100 75))
+           (alpha . (100 90))
            (vertical-scroll-bars . nil)
            ) initial-frame-alist)))
 
@@ -1498,7 +1516,10 @@
    move-frame-with-user-specify move-frame-left move-frame-to-center
    move-frame-right move-frame-to-edge-top move-frame-to-edge-bottom)
  "frame-ctr" nil t nil
- '((frame-ctr-make-height-ring '(56 20 40)))) ; for Emacs24
+ '(
+   (if (equal system-name "mba.local")
+       (frame-ctr-make-height-ring '(56 20 40))
+     (frame-ctr-make-height-ring '(56 68 20 40))))) ; for Emacs24
 ;; (frame-ctr-make-height-ring '(60 68 20 40))))) ; for Emacs23
 
 ;; Move the frame to somewhere (default: 0,0)

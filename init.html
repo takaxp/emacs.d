@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>Configurations for GNU Emacs</title>
-<!-- 2013-12-25 Wed 20:58 -->
+<!-- 2014-03-20 Thu 15:26 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Takaaki Ishikawa" />
@@ -55,6 +55,8 @@
   pre.src-sql:before   { content: 'SQL'; }
 
   table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
   td, th { vertical-align:top;  }
   th.right  { text-align: center;  }
   th.left   { text-align: center;   }
@@ -319,7 +321,11 @@ for the JavaScript code in this tag.
 <li><a href="#sec-10-5">10.5. Pomodoro</a></li>
 <li><a href="#sec-10-6">10.6. face 関連</a></li>
 <li><a href="#sec-10-7">10.7. TODOキーワードのカスタマイズ</a></li>
-<li><a href="#sec-10-8">10.8. [org-agenda]</a></li>
+<li><a href="#sec-10-8">10.8. [org-agenda]</a>
+<ul>
+<li><a href="#sec-10-8-1">10.8.1. キーバインド</a></li>
+</ul>
+</li>
 <li><a href="#sec-10-9">10.9. [appt.el] アラーム設定</a></li>
 <li><a href="#sec-10-10">10.10. [org-capture] 高速にメモを取る</a></li>
 <li><a href="#sec-10-11">10.11. [org-refile]</a></li>
@@ -671,6 +677,10 @@ Emacs23用にインラインパッチを適用している場合に使います�
 Lion でも使える自分用にカスタマイズした <a href="https://gist.github.com/1532344">inline-patch</a> を使っています．
 </p>
 
+<p>
+Emacs24用には，Mavericks対応した<a href="https://gist.github.com/takaxp/9658281">パッチ</a>を使っています．
+</p>
+
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;             </span><span style="color: #b22222;">(and (&gt;= emacs-major-version 24) (&lt;= emacs-minor-version 1)))</span>
@@ -792,7 +802,7 @@ Org でナローイングを使う場合は，特に設定しなくてもよい�
 <h3 id="sec-3-9"><span class="section-number-3">3.9</span> バッファが外部から編集された場合に自動で再読み込みする</h3>
 <div class="outline-text-3" id="text-3-9">
 <p>
-<code>auto-save-buffer</code> を使っていれば，バッファは常に保存された状態になるため，revert されてもわかりやすい．
+<code>auto-save-buffers</code> を使っていれば，バッファは常に保存された状態になるため，revert されてもわかりやすい．
 </p>
 
 <div class="org-src-container">
@@ -2267,24 +2277,24 @@ paren.el の場合は以下の設定．
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12473;&#12506;&#12540;&#12473;</span>
-(<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-face-b-1</span> '((t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"gray"</span> <span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"red"</span>))) nil <span style="color: #483d8b;">:group</span> 'font-lock-highlighting-faces)
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12502;&#12384;&#12369;&#12398;&#34892;</span>
-(<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-face-b-2</span> '((t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"orange"</span> <span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"red"</span>))) nil <span style="color: #483d8b;">:group</span> 'font-lock-highlighting-faces)
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21322;&#35282;&#12473;&#12506;&#12540;&#12473;</span>
-(<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-face-b-3</span> '((t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"orange"</span>))) nil <span style="color: #483d8b;">:group</span> 'font-lock-highlighting-faces)
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-face-b-1</span> 'my-face-b-1)
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-face-b-2</span> 'my-face-b-2)
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-face-b-3</span> 'my-face-b-3)
-(<span style="color: #a020f0;">defadvice</span> <span style="color: #0000ff;">font-lock-mode</span> (before my-font-lock-mode ())
-  (font-lock-add-keywords
-   major-mode
-   <span style="color: #b22222;">;; </span><span style="color: #b22222;">"[\t]+$" &#34892;&#26411;&#12398;&#12479;&#12502;</span>
-   '((<span style="color: #8b2252;">"</span><span style="color: #8b2252; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #8b2252;">"</span> 0 my-face-b-1 append)
-         (<span style="color: #8b2252;">"[\t]+$"</span> 0 my-face-b-2 append)
-         (<span style="color: #8b2252;">"[ ]+$"</span> 0 my-face-b-3 append))))
-(ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode)
-(ad-activate 'font-lock-mode)
+<pre class="src src-emacs-lisp">  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12473;&#12506;&#12540;&#12473;</span>
+  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-face-b-1</span> '((t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"gray"</span> <span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"red"</span>))) nil <span style="color: #483d8b;">:group</span> 'font-lock-highlighting-faces)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12502;&#12384;&#12369;&#12398;&#34892;</span>
+  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-face-b-2</span> '((t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"orange"</span> <span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"red"</span>))) nil <span style="color: #483d8b;">:group</span> 'font-lock-highlighting-faces)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21322;&#35282;&#12473;&#12506;&#12540;&#12473;</span>
+  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-face-b-3</span> '((t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"orange"</span>))) nil <span style="color: #483d8b;">:group</span> 'font-lock-highlighting-faces)
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-face-b-1</span> 'my-face-b-1)
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-face-b-2</span> 'my-face-b-2)
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-face-b-3</span> 'my-face-b-3)
+  (<span style="color: #a020f0;">defadvice</span> <span style="color: #0000ff;">font-lock-mode</span> (before my-font-lock-mode ())
+        (font-lock-add-keywords
+         major-mode
+         <span style="color: #b22222;">;; </span><span style="color: #b22222;">"[\t]+$" &#34892;&#26411;&#12398;&#12479;&#12502;</span>
+         '((<span style="color: #8b2252;">"</span><span style="color: #8b2252; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #8b2252;">"</span> 0 my-face-b-1 append)
+<span style="color: #b22222;">;;       </span><span style="color: #b22222;">("[ ]+$" 0 my-face-b-3 append)</span>
+           (<span style="color: #8b2252;">"[\t]+$"</span> 0 my-face-b-2 append))))
+  (ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode)
+  (ad-activate 'font-lock-mode)
 </pre>
 </div>
 </div>
@@ -2715,7 +2725,8 @@ recentf-auto-cleanup を ='mode= にすると起動時にファイルのクリ�
 (<span style="color: #a020f0;">eval-after-load</span> <span style="color: #8b2252;">"recentf"</span>
   '(<span style="color: #a020f0;">progn</span>
          (setq recentf-max-saved-items 2000)
-         (setq recentf-save-file (expand-file-name <span style="color: #8b2252;">"~/Dropbox/.recentf"</span>))
+         (setq recentf-save-file
+                   (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/.recentf"</span>))
          (setq recentf-auto-cleanup 'never) <span style="color: #b22222;">; </span><span style="color: #b22222;">default = 'mode</span>
          (run-with-idle-timer 300 t 'recentf-save-list)
          (run-with-idle-timer 600 t 'recentf-cleanup)
@@ -2780,7 +2791,7 @@ recentf-auto-cleanup を ='mode= にすると起動時にファイルのクリ�
 
 <pre class="src src-emacs-lisp">(make-variable-buffer-local 'backup-inhibited)
 (setq backup-files-store-dir <span style="color: #8b2252;">"~/env/emacs_backup"</span>)
-(<span style="color: #a020f0;">unless</span> (file-directory-p backup-files-store-dir)<span style="background-color: #ffa500;"> </span>
+(<span style="color: #a020f0;">unless</span> (file-directory-p backup-files-store-dir) 
   (message <span style="color: #8b2252;">"!!! %s does not exist. !!!"</span> backup-files-store-dir)
   (sleep-for 1))
 (<span style="color: #a020f0;">when</span> (and (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">backup-dir</span> nil t)
@@ -2928,11 +2939,12 @@ Org-mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">wakatime-mode</span> nil t)
-  (setq wakatime-api-key <span style="color: #8b2252;">"&lt;insert your own api key&gt;"</span>)
-  (setq wakatime-cli-path <span style="color: #8b2252;">"/Users/taka/Dropbox/emacs.d/bin/wakatime-cli.py"</span>)
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12377;&#12409;&#12390;&#12398;&#12496;&#12483;&#12501;&#12449;&#12391;&#35370;&#21839;&#26178;&#12395;&#35352;&#37682;&#12434;&#38283;&#22987;</span>
-  (global-wakatime-mode))
+<pre class="src src-emacs-lisp">  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">wakatime-mode</span> nil t)
+    (setq wakatime-api-key <span style="color: #8b2252;">"&lt;insert your own api key&gt;"</span>)
+    (setq wakatime-cli-path <span style="color: #8b2252;">"/Users/taka/Dropbox/emacs.d/bin/wakatime-cli.py"</span>)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12377;&#12409;&#12390;&#12398;&#12496;&#12483;&#12501;&#12449;&#12391;&#35370;&#21839;&#26178;&#12395;&#35352;&#37682;&#12434;&#38283;&#22987;</span>
+<span style="color: #b22222;">;    </span><span style="color: #b22222;">(global-wakatime-mode)</span>
+    )
 </pre>
 </div>
 </div>
@@ -3053,9 +3065,9 @@ Org-mode ユーザにとって <code>TAB</code> は非常に重要なコマン�
                                                            ac-source-files-in-current-dir
                                                            ac-source-functions
   <span style="color: #b22222;">;;                             </span><span style="color: #b22222;">ac-source-gtags</span>
-  <span style="color: #b22222;">;;                             </span><span style="color: #b22222;">ac-source-imenu</span><span style="color: #b22222; background-color: #ffa500;"> </span>
+  <span style="color: #b22222;">;;                             </span><span style="color: #b22222;">ac-source-imenu </span>
   <span style="color: #b22222;">;;                             </span><span style="color: #b22222;">ac-source-semantic</span>
-  <span style="color: #b22222;">;;                             </span><span style="color: #b22222;">ac-source-symbols</span><span style="color: #b22222; background-color: #ffa500;"> </span>
+  <span style="color: #b22222;">;;                             </span><span style="color: #b22222;">ac-source-symbols </span>
   <span style="color: #b22222;">;;                             </span><span style="color: #b22222;">ac-source-variables</span>
   <span style="color: #b22222;">;;                             </span><span style="color: #b22222;">ac-source-yasnippet</span>
                                                            )))
@@ -3363,7 +3375,7 @@ Hide or show current block of souces
 
 <pre class="src src-emacs-lisp">(eval-after-autoload-if-found
           'org-mode <span style="color: #8b2252;">"org"</span> <span style="color: #8b2252;">"Org Mode"</span> t nil
-          '(<span style="background-color: #ffa500;">  </span>
+          '(  
            (add-to-list 'org-modules 'org-timer)
            (setq org-timer-default-timer 25)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'org-clock-in-hook</span>
@@ -3402,7 +3414,7 @@ Hide or show current block of souces
 
 <pre class="src src-emacs-lisp">(eval-after-autoload-if-found
  'org-mode <span style="color: #8b2252;">"org"</span> <span style="color: #8b2252;">"Org Mode"</span> t nil
- '(<span style="background-color: #ffa500;"> </span>
+ '( 
    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Font lock &#12434;&#20351;&#12358;</span>
    (global-font-lock-mode 1)
    (add-hook 'org-mode-hook 'turn-on-font-lock)
@@ -3418,7 +3430,7 @@ Hide or show current block of souces
    <span style="color: #b22222;">;;    </span><span style="color: #b22222;">("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))</span>
    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Color setting for Tags</span>
 
-   <span style="color: #b22222;">;; </span><span style="color: #b22222;">#CC3333</span><span style="color: #b22222; background-color: #ffa500;">     </span>
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">#CC3333     </span>
 
    (setq org-todo-keyword-faces
                  '((<span style="color: #8b2252;">"FOCUS"</span>   <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF0000"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#FFCC66"</span>)
@@ -3434,14 +3446,14 @@ Hide or show current block of souces
                    (<span style="color: #8b2252;">"REV3"</span>    <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#3366FF"</span>)
                    (<span style="color: #8b2252;">"STOP"</span>    <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#9999CC"</span>)))
 
-   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom</span><span style="color: #b22222; background-color: #ffa500;">    </span>
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom    </span>
    (setq org-tag-faces
                  '((<span style="color: #8b2252;">"Achievement"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#66CC66"</span>)
                    (<span style="color: #8b2252;">"Report"</span>      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#66CC66"</span>)
                    (<span style="color: #8b2252;">"Background"</span>  <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#66CC99"</span>)
                    (<span style="color: #8b2252;">"Chore"</span>       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6699CC"</span>)
                    (<span style="color: #8b2252;">"Domestic"</span>    <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6666CC"</span>)
-                   (<span style="color: #8b2252;">"Doing"</span>       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF0000"</span>)<span style="background-color: #ffa500;">   </span>
+                   (<span style="color: #8b2252;">"Doing"</span>       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF0000"</span>)   
                    (<span style="color: #8b2252;">"Ongoing"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC6666"</span>) <span style="color: #b22222;">; </span><span style="color: #b22222;">for non scheduled/reminder</span>
                    (<span style="color: #8b2252;">"Repeat"</span>      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC9999"</span>) <span style="color: #b22222;">; </span><span style="color: #b22222;">for interval tasks</span>
                    (<span style="color: #8b2252;">"Mag"</span>         <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#9966CC"</span>)
@@ -3452,7 +3464,7 @@ Hide or show current block of souces
                    (<span style="color: #8b2252;">"Implements"</span>  <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC9999"</span> <span style="color: #483d8b;">:weight</span> bold)
                    (<span style="color: #8b2252;">"Coding"</span>      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC9999"</span>)
                    (<span style="color: #8b2252;">"Editing"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC9999"</span> <span style="color: #483d8b;">:weight</span> bold)
-                   (<span style="color: #8b2252;">"Duty"</span>        <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC9999"</span> <span style="color: #483d8b;">:weight</span> bold)
+                   (<span style="color: #8b2252;">"work"</span>        <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC9999"</span> <span style="color: #483d8b;">:weight</span> bold)
                    (<span style="color: #8b2252;">"Survey"</span>      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC9999"</span> <span style="color: #483d8b;">:weight</span> bold)
                    (<span style="color: #8b2252;">"Home"</span>        <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC9999"</span> <span style="color: #483d8b;">:weight</span> bold)
                    (<span style="color: #8b2252;">"Open"</span>        <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC9999"</span> <span style="color: #483d8b;">:weight</span> bold)
@@ -3513,7 +3525,7 @@ Hide or show current block of souces
 
 <pre class="src src-emacs-lisp">(eval-after-autoload-if-found
  'org-agenda <span style="color: #8b2252;">"org"</span> <span style="color: #8b2252;">"Org Mode"</span> t nil
- '(<span style="background-color: #ffa500;">  </span>
+ '(  
    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Set the view span as day in an agenda view, the default is week</span>
    (setq org-agenda-span 'day)
    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#12395;&#35686;&#21578;&#12434;&#34920;&#31034;&#12377;&#12427;&#26399;&#38291;</span>
@@ -3529,12 +3541,26 @@ Hide or show current block of souces
    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12371;&#12434;&#38291;&#36949;&#12358;&#12392;&#65292;MobileOrg, iCal export &#12418;&#12358;&#12414;&#12367;&#12356;&#12363;&#12394;&#12356;</span>
    (setq org-agenda-files
                  '(<span style="color: #8b2252;">"~/Dropbox/org/org-ical.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/next.org"</span>
-                   <span style="color: #8b2252;">"~/Dropbox/org/today.org"</span>
+                   <span style="color: #8b2252;">"~/Dropbox/org/today.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/buffer.org"</span>
                    <span style="color: #8b2252;">"~/Dropbox/org/work.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/research.org"</span>))
    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12479;&#12464;&#12434;&#25345;&#12388;&#12484;&#12522;&#12540;&#12522;&#12473;&#12488;&#12434;&#19968;&#30330;&#31227;&#21205;&#65288;org-tags-view, org-tree-slide&#65289;</span>
+   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-doing-tag</span> <span style="color: #8b2252;">"Doing"</span>)
    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-sparse-doing-tree</span> ()
          (interactive)
-         (org-tags-view nil <span style="color: #8b2252;">"Doing"</span>))
+         (org-tags-view nil my-doing-tag))
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Doing&#12479;&#12464;&#12434;&#12488;&#12464;&#12523;&#12377;&#12427;</span>
+   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-toggle-doing-tag</span> ()
+         (interactive)
+         (<span style="color: #a020f0;">when</span> (eq major-mode 'org-mode)
+           (<span style="color: #a020f0;">save-excursion</span>
+                 (<span style="color: #a020f0;">save-restriction</span>
+                   (<span style="color: #a020f0;">unless</span> (org-at-heading-p)
+                         (outline-previous-heading))
+                   (<span style="color: #a020f0;">if</span> (string-match
+                                (concat <span style="color: #8b2252;">":"</span> my-doing-tag <span style="color: #8b2252;">":"</span>) (org-get-tags-string))
+                           (org-toggle-tag my-doing-tag 'off)
+                         (org-toggle-tag my-doing-tag 'on))
+                   (org-reveal)))))
    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#31227;&#21205;&#30452;&#24460;&#12395;agenda&#12496;&#12483;&#12501;&#12449;&#12434;&#38281;&#12376;&#12427;&#65288;&#12484;&#12522;&#12540;&#12398;&#20869;&#23481;&#12399;SPACE&#12391;&#30906;&#35469;&#21487;&#65289;</span>
    (org-defkey org-agenda-mode-map [(tab)]
                            '(<span style="color: #a020f0;">lambda</span> () (interactive)
@@ -3542,6 +3568,18 @@ Hide or show current block of souces
                                   (<span style="color: #a020f0;">with-current-buffer</span> <span style="color: #8b2252;">"*Org Agenda*"</span>
                                         (org-agenda-quit))))))
 </pre>
+</div>
+</div>
+
+<div id="outline-container-sec-10-8-1" class="outline-4">
+<h4 id="sec-10-8-1"><span class="section-number-4">10.8.1</span> キーバインド</h4>
+<div class="outline-text-4" id="text-10-8-1">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"&lt;f11&gt;"</span>) 'my-toggle-doing-tag)
+(define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c &lt;f11&gt;"</span>) 'my-sparse-doing-tree)
+</pre>
+</div>
 </div>
 </div>
 </div>
@@ -3552,7 +3590,7 @@ Hide or show current block of souces
 
 <pre class="src src-emacs-lisp">  (eval-after-autoload-if-found
                 'org-mode <span style="color: #8b2252;">"org"</span> <span style="color: #8b2252;">"Org Mode"</span> t nil
-                '(<span style="background-color: #ffa500;">  </span>
+                '(  
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12521;&#12540;&#12512;&#34920;&#31034;&#12434;&#26377;&#21177;&#12395;&#12377;&#12427;</span>
 (appt-activate 1)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">window &#12434; &#12501;&#12524;&#12540;&#12512;&#20869;&#12395;&#34920;&#31034;&#12377;&#12427;</span>
@@ -3583,7 +3621,7 @@ Hide or show current block of souces
 
 <pre class="src src-emacs-lisp">(eval-after-autoload-if-found
  'org-capture <span style="color: #8b2252;">"org-capture"</span> <span style="color: #8b2252;">"Org Mode"</span> t nil
- '(<span style="background-color: #ffa500;">  </span>
+ '(  
    <span style="color: #b22222;">;; </span><span style="color: #b22222;">2010-06-13 &#12398;&#24418;&#24335;&#12391;&#12399;&#65292;&#12479;&#12464;&#12392;&#12375;&#12390;&#35469;&#35672;&#12373;&#12428;&#12394;&#12356;</span>
    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">get-current-date-tags</span> () (format-time-string <span style="color: #8b2252;">"%Y%m%d"</span>))
    (setq org-default-notes-file (concat org-directory <span style="color: #8b2252;">"next.org"</span>))
@@ -3600,7 +3638,7 @@ Hide or show current block of souces
                         (file+headline nil <span style="color: #8b2252;">"INBOX"</span>) <span style="color: #8b2252;">"** TODO %?\n\t"</span>)
                    (<span style="color: #8b2252;">"c"</span> <span style="color: #8b2252;">"&#21516;&#26399;&#12459;&#12524;&#12531;&#12480;&#12540;&#12395;&#12456;&#12531;&#12488;&#12522;&#12540;"</span> entry
                         (file+headline ,org-capture-ical-file <span style="color: #8b2252;">"Schedule"</span>)
-                        <span style="color: #8b2252;">"** TODO %?\n\t"</span>)<span style="background-color: #ffa500;"> </span>
+                        <span style="color: #8b2252;">"** TODO %?\n\t"</span>) 
                    (<span style="color: #8b2252;">"d"</span> <span style="color: #8b2252;">"Doing&#12479;&#12464;&#20184;&#12365;&#12398;&#12479;&#12473;&#12463;&#12434;Inbox&#12395;&#25237;&#12370;&#12427;"</span> entry
                         (file+headline nil <span style="color: #8b2252;">"INBOX"</span>)
                         <span style="color: #8b2252;">"** TODO %? :Doing:\n  - \n"</span>)
@@ -3740,6 +3778,10 @@ Hide or show current block of souces
 <a href="http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide">http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide</a>
 </p>
 
+<p>
+Doing タグのトグルに <code>f11</code> を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
+</p>
+
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Org-tree-slide</span>
@@ -3750,8 +3792,8 @@ Hide or show current block of souces
                    'org-tree-slide-move-previous-tree)
                  (define-key org-tree-slide-mode-map (kbd <span style="color: #8b2252;">"&lt;f10&gt;"</span>)
                    'org-tree-slide-move-next-tree)
-                 (define-key org-tree-slide-mode-map (kbd <span style="color: #8b2252;">"&lt;f11&gt;"</span>)
-                   'org-tree-slide-content)
+                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key org-tree-slide-mode-map (kbd "&lt;f11&gt;")</span>
+                 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">'org-tree-slide-content)</span>
                  <span style="color: #b22222;">;; </span><span style="color: #b22222;">reset the default setting</span>
                  (define-key org-tree-slide-mode-map (kbd <span style="color: #8b2252;">"&lt;left&gt;"</span>)  'backward-char)
                  (define-key org-tree-slide-mode-map (kbd <span style="color: #8b2252;">"&lt;right&gt;"</span>) 'forward-char)
@@ -3875,7 +3917,7 @@ Hide or show current block of souces
           ))
 
    (org-set-generic-type
-   <span style="color: #8b2252;">"markdown"</span><span style="background-color: #ffa500;"> </span>
+   <span style="color: #8b2252;">"markdown"</span> 
    '(<span style="color: #483d8b;">:file-suffix</span>
          <span style="color: #8b2252;">".markdown"</span>
          <span style="color: #483d8b;">:key-binding</span>     ?M
@@ -4010,8 +4052,6 @@ Hide or show current block of souces
                  <span style="color: #b22222;">;;  </span><span style="color: #b22222;">'org-export-icalendar-combine-agenda-files)</span>
                  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c 1"</span>) 'my-ox-icalendar)
                  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c 2"</span>) 'do-org-update-statistics-cookies)
-                 (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c 3"</span>) 'my-sparse-doing-tree)
-
                  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c m"</span>) 'org-mobile-sync)
                  (define-key org-mode-map (kbd <span style="color: #8b2252;">"&lt;f5&gt;"</span>) 'org-narrow-to-subtree)
                  (define-key org-mode-map (kbd <span style="color: #8b2252;">"S-&lt;f5&gt;"</span>) 'widen)))
@@ -4237,7 +4277,7 @@ Hide or show current block of souces
         (set-fontset-font nil 'mule-unicode-0100-24ff spec))
 
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ascii-font-setter</span> (spec)
-        (set-fontset-font nil 'ascii spec))<span style="background-color: #ffa500;">      </span>
+        (set-fontset-font nil 'ascii spec))      
 
   (<span style="color: #a020f0;">cond</span>
    <span style="color: #b22222;">;; </span><span style="color: #b22222;">CocoaEmacs</span>
@@ -4245,7 +4285,7 @@ Hide or show current block of souces
         (<span style="color: #a020f0;">when</span> (or (= emacs-major-version 23) (= emacs-major-version 24))
           (<span style="color: #a020f0;">let</span>
                   <span style="color: #b22222;">;; </span><span style="color: #b22222;">1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2</span>
-                  <span style="color: #b22222;">;; </span><span style="color: #b22222;">2) Inconsolata, Migu 2M     : font-size=14,</span><span style="color: #b22222; background-color: #ffa500;"> </span>
+                  <span style="color: #b22222;">;; </span><span style="color: #b22222;">2) Inconsolata, Migu 2M     : font-size=14, </span>
                   <span style="color: #b22222;">;; </span><span style="color: #b22222;">3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0</span>
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fonts</span>
@@ -4255,7 +4295,7 @@ Hide or show current block of souces
 <span style="color: #b22222;">;           </span><span style="color: #b22222;">(ascii-font "Inconsolata")</span>
                    (ascii-font <span style="color: #8b2252;">"Monaco"</span>)
                    (ja-font <span style="color: #8b2252;">"Migu 2M"</span>))
-                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ja-font "Hiragino Maru Gothic Pro"))</span><span style="color: #b22222; background-color: #ffa500;"> </span>
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ja-font "Hiragino Maru Gothic Pro")) </span>
                 (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
                 (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size)))
 
@@ -4456,7 +4496,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(eval-after-autoload-if-found
- 'diff-mode <span style="color: #8b2252;">"diff-mode"</span> nil t nil<span style="background-color: #ffa500;">   </span>
+ 'diff-mode <span style="color: #8b2252;">"diff-mode"</span> nil t nil   
  '((set-face-attribute 'diff-added-face nil
                                            <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"green"</span>
                                            <span style="color: #483d8b;">:weight</span> 'normal)
@@ -4594,7 +4634,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
                    <span style="color: #b22222;">;; </span><span style="color: #b22222;">837 is the setting for right side for MBP</span>
                    (width . 80) <span style="color: #b22222;">; </span><span style="color: #b22222;">Width  : character count</span>
                    (height . 35)<span style="color: #b22222;">; </span><span style="color: #b22222;">Height : character count</span>
-                   (alpha . (100 75))
+                   (alpha . (100 90))
                    (vertical-scroll-bars . nil)
                    ) initial-frame-alist)))
 
@@ -4670,7 +4710,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 </div>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(eval-after-autoload-if-found<span style="background-color: #ffa500;"> </span>
+<pre class="src src-emacs-lisp">(eval-after-autoload-if-found 
  'e2wm:dp-two <span style="color: #8b2252;">"e2wm"</span> nil t nil
  '((setq e2wm:c-two-recipe
                  '(- (<span style="color: #483d8b;">:lower-size</span> 10)
@@ -4717,7 +4757,10 @@ frame-ctr.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホッ
    move-frame-with-user-specify move-frame-left move-frame-to-center
    move-frame-right move-frame-to-edge-top move-frame-to-edge-bottom)
  <span style="color: #8b2252;">"frame-ctr"</span> nil t nil
- '((frame-ctr-make-height-ring '(56 20 40)))) <span style="color: #b22222;">; </span><span style="color: #b22222;">for Emacs24</span>
+ '(
+   (<span style="color: #a020f0;">if</span> (equal system-name <span style="color: #8b2252;">"mba.local"</span>)
+           (frame-ctr-make-height-ring '(56 20 40))
+         (frame-ctr-make-height-ring '(56 68 20 40))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">for Emacs24</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(frame-ctr-make-height-ring '(60 68 20 40))))) ; for Emacs23</span>
 </pre>
 </div>
@@ -4933,7 +4976,7 @@ popwin:display-buffer を autoload してもうまくいかない．
 </div>
 <div id="postamble" class="status">
 <hr class="postamble"><span class="center">
-               <p class="author">Takaaki Ishikawa</p><p class="date">2013-12-25 Wed 20:48</p>
+               <p class="author">Takaaki Ishikawa</p><p class="date">2014-03-20 Thu 15:24</p>
                </span>
 </div>
 </body>
