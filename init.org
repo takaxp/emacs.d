@@ -749,36 +749,36 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 以下の関数を準備します．
 
 #+BEGIN_SRC emacs-lisp :tangle yes :exports yes
+  (defun dictionary ()
+    "dictionary.app"
+    (interactive)
     
-    (defun dictionary ()
-     "dictionary.app"
-     (interactive)
-    
-     (let ((editable (not buffer-read-only))
-           (pt (save-excursion (mouse-set-point last-nonmenu-event)))
-           beg end)
-    
-       (if (and mark-active
-                (<= (region-beginning) pt) (<= pt (region-end)) )
-           (setq beg (region-beginning)
-                 end (region-end))
-         (save-excursion
-           (goto-char pt)
-           (setq end (progn (forward-word) (point)))
-           (setq beg (progn (backward-word) (point)))
-           ))
-    
-       (let ((word (buffer-substring-no-properties beg end))
-             (win (selected-window))
-             (tmpbuf " *dict-process*"))
-         (pop-to-buffer tmpbuf)
-         (erase-buffer)
-         (insert word "\n")
-         (start-process "dict-process" tmpbuf "dict.py" word)
-         (select-window win)
-         )
-     ))
-    
+    (let ((editable (not buffer-read-only))
+          (pt (save-excursion (mouse-set-point last-nonmenu-event)))
+          beg end)
+      
+      (if (and mark-active
+               (<= (region-beginning) pt) (<= pt (region-end)) )
+          (setq beg (region-beginning)
+                end (region-end))
+        (save-excursion
+          (goto-char pt)
+          (setq end (progn (forward-word) (point)))
+          (setq beg (progn (backward-word) (point)))
+          ))
+      
+      (let ((word (buffer-substring-no-properties beg end))
+            ;;            (win (selected-window))
+            (tmpbuf " * dict-process*"))
+        (pop-to-buffer tmpbuf)
+        (erase-buffer)
+        (insert "Query: " word "\n\n")
+        (dict-app-mode)
+        (start-process "dict-process" tmpbuf "dict.py" word)
+        (goto-char 0)
+        ;;        (select-window win)
+        )))
+
 #+END_SRC
 
 これでカーソル以下の単語の情報が別ウィンドウに出ます．チェックし終わったら =C-x 1= (delete-other-windows) で表示を閉じます． =q= で閉じられるようにしたり，ツールチップで表示したりもできるはずです．
@@ -794,13 +794,24 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 
 私の場合は，できあがった辞書を =/Library/Dictionaries/= 以下に置いています．その状態で dictionary.app の設定で辞書の優先順位を変えることで，常にCOBUILD5の情報を引っ張り出せます．
 
+*** マイナーモード化
+
+=q= で閉じたくなったのでマイナーモードを作りました．これまで通り， =C-M-w= でカーソル下の単語を調べてポップアップで表示．カーソルはその新しいバッファに移しておき， =q= で閉じられます．新しいバッファ内で別な単語を =C-M-w= で調べると，同じバッファに結果を再描画します．
+
+マイナーモード化した elisp は，[[https://gist.github.com/takaxp/9786376][gist]]で公開しています．
+
 *** キーバインド
 
 sdic 用の設定と衝突しないように気をつけます．
 
-#+BEGIN_SRC emacs-lisp :tangle yes :exports yes
+#+BEGIN_SRC emacs-lisp :tangle no :exports yes
 ;; カーソルの位置の英単語の意味を調べる
 (global-set-key (kbd "C-M-w") 'dictionary)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes :exports yes
+    (when (require 'dict-app nil t)
+      (global-set-key (kbd "C-M-w") 'dict-app-search))
 #+END_SRC
 
 ** [lookup.el] 辞書
@@ -2025,7 +2036,9 @@ http://orgmode.org/worg/org-gtd-etc.html
              ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
              ("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
              ("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
+             ("INPUT"       :foreground "#FFFFFF" :background "#CC6666")
              ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99")
+             ("CYCLE"       :foreground "#FFFFFF" :background "#6699CC")
              ("Log"         :foreground "#008500")))))
   ;;#5BDF8D
 #+END_SRC
@@ -2061,50 +2074,63 @@ http://orgmode.org/worg/org-gtd-etc.html
 
 ** [org-agenda]
 #+BEGIN_SRC emacs-lisp :tangle yes
-      (eval-after-autoload-if-found
-       'org-agenda "org" "Org Mode" t nil
-       '(  
-         ;; Set the view span as day in an agenda view, the default is week
-         (setq org-agenda-span 'day)
-         ;; アジェンダに警告を表示する期間
-         (setq org-deadline-warning-days 7)
-         ;; アジェンダビューでFOLLOWを設定
-         ;; (setq org-agenda-start-with-follow-mode t)
-         ;; Customized Time Grid
-         (setq org-agenda-time-grid
-               '((daily today require-timed)
-                 "----------------"
-                 (800 1000 1200 1400 1600 1800 2000 2200 2400 2600)))
-         ;; アジェンダ作成対象（指定しないとagendaが生成されない）
-         ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
-         (setq org-agenda-files
-               '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
-                 "~/Dropbox/org/today.org" "~/Dropbox/org/buffer.org"
-                 "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
-         ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
-         (defvar my-doing-tag "Doing")
-         (defun my-sparse-doing-tree ()
-           (interactive)
-           (org-tags-view nil my-doing-tag))
-         ;; Doingタグをトグルする
-         (defun my-toggle-doing-tag ()
-           (interactive)
-           (when (eq major-mode 'org-mode)
-             (save-excursion
-               (save-restriction
-                 (unless (org-at-heading-p)
-                   (outline-previous-heading))
-                 (if (string-match
-                      (concat ":" my-doing-tag ":") (org-get-tags-string))
-                     (org-toggle-tag my-doing-tag 'off)
-                   (org-toggle-tag my-doing-tag 'on))
-                 (org-reveal)))))
-         ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
-         (org-defkey org-agenda-mode-map [(tab)]
-                     '(lambda () (interactive)
-                        (org-agenda-goto)
-                        (with-current-buffer "*Org Agenda*"
-                          (org-agenda-quit))))))
+  (custom-set-faces
+   ;; '(org-agenda-clocking ((t (:background "#300020"))))
+   '(org-agenda-structure ((t (:underline t :foreground "#6873ff"))))
+   '(org-agenda-date-today ((t (:weight bold :foreground "#4a6aff"))))
+   '(org-agenda-date ((t (:weight bold :foreground "#6ac214"))))
+   '(org-agenda-date-weekend ((t (:weight bold :foreground "#ff8d1e"))))
+   '(org-time-grid ((t (:foreground "#0a4796"))))
+   '(org-warning ((t (:foreground "#ff431a"))))
+   '(org-upcoming-deadline ((t (:inherit font-lock-keyword-face))))
+   )
+
+  (eval-after-autoload-if-found
+   'org-agenda "org" "Org Mode" t nil
+   '(;; Set the view span as day in an agenda view, the default is week
+     (setq org-agenda-span 'day)
+     ;; アジェンダに警告を表示する期間
+     (setq org-deadline-warning-days 7)
+     ;; アジェンダビューでFOLLOWを設定
+     ;; (setq org-agenda-start-with-follow-mode t)
+     ;; Customized Time Grid
+     (setq org-agenda-time-grid
+           '((daily today require-timed)
+             "----------------"
+             (800 1000 1200 1400 1600 1800 2000 2200 2400 2600)))
+     (setq org-agenda-current-time-string "< d('- ' ) now!")
+     (setq org-agenda-timegrid-use-ampm t)
+
+     ;; アジェンダ作成対象（指定しないとagendaが生成されない）
+     ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
+     (setq org-agenda-files
+           '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+             "~/Dropbox/org/today.org" "~/Dropbox/org/buffer.org"
+             "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
+     ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
+     (defvar my-doing-tag "Doing")
+     (defun my-sparse-doing-tree ()
+       (interactive)
+       (org-tags-view nil my-doing-tag))
+     ;; Doingタグをトグルする
+     (defun my-toggle-doing-tag ()
+       (interactive)
+       (when (eq major-mode 'org-mode)
+         (save-excursion
+           (save-restriction
+             (unless (org-at-heading-p)
+               (outline-previous-heading))
+             (if (string-match
+                  (concat ":" my-doing-tag ":") (org-get-tags-string))
+                 (org-toggle-tag my-doing-tag 'off)
+               (org-toggle-tag my-doing-tag 'on))
+             (org-reveal)))))
+     ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
+     (org-defkey org-agenda-mode-map [(tab)]
+                 '(lambda () (interactive)
+                    (org-agenda-goto)
+                    (with-current-buffer "*Org Agenda*"
+                      (org-agenda-quit))))))
 #+END_SRC
 
 *** キーバインド
@@ -3060,7 +3086,7 @@ popwin:display-buffer を autoload してもうまくいかない．
     ;; for emacs 24.3
     ;;      (setq special-display-alist 'popwin:special-display-popup-window)
     ;;      (setq display-buffer-alist 'popwin:display-buffer)
-    (push '("*sdic*" :position top) popwin:special-display-config)
+;;    (push '("*sdic*" :position top) popwin:special-display-config)
     (setq popwin:special-display-config
           (append
            '(("CAPTURE-next.org" :height 10 :position bottom :noselect t)
@@ -3072,8 +3098,8 @@ popwin:display-buffer を autoload してもうまくいかない．
              ("*Agenda Commands*"  :height 10 :position bottom)
              ("*Org Select*"  :height 10 :position bottom)
              ("*Occur*"       :height 10 :position bottom)
-             ("*sdic*"        :height 10 :position top)
-             ("*dict-process*" :height 10 :position bottom)
+;;             ("*sdic*"        :height 10 :position top)
+;;             ("dict-app-result"  :height 10 :position bottom :stick t)
              ("*anything*"    :height 10 :position bottom)
              ("*anything M-x*" :height 10 :position bottom)
              ("*anything complete*"    :height 10 :position bottom)

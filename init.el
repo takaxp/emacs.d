@@ -1,4 +1,3 @@
-
 ;;;; Configurations for Emacs
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html (GREAT!)
@@ -250,36 +249,37 @@
          '((sdicf-client "~/Dropbox/Dic/EIJIRO6/WAEI-128.sdic")))))
 
 (defun dictionary ()
- "dictionary.app"
- (interactive)
+  "dictionary.app"
+  (interactive)
+  
+  (let ((editable (not buffer-read-only))
+        (pt (save-excursion (mouse-set-point last-nonmenu-event)))
+        beg end)
+    
+    (if (and mark-active
+             (<= (region-beginning) pt) (<= pt (region-end)) )
+        (setq beg (region-beginning)
+              end (region-end))
+      (save-excursion
+        (goto-char pt)
+        (setq end (progn (forward-word) (point)))
+        (setq beg (progn (backward-word) (point)))
+        ))
+    
+    (let ((word (buffer-substring-no-properties beg end))
+          ;;            (win (selected-window))
+          (tmpbuf " * dict-process*"))
+      (pop-to-buffer tmpbuf)
+      (erase-buffer)
+      (insert "Query: " word "\n\n")
+      (dict-app-mode)
+      (start-process "dict-process" tmpbuf "dict.py" word)
+      (goto-char 0)
+      ;;        (select-window win)
+      )))
 
- (let ((editable (not buffer-read-only))
-       (pt (save-excursion (mouse-set-point last-nonmenu-event)))
-       beg end)
-
-   (if (and mark-active
-            (<= (region-beginning) pt) (<= pt (region-end)) )
-       (setq beg (region-beginning)
-             end (region-end))
-     (save-excursion
-       (goto-char pt)
-       (setq end (progn (forward-word) (point)))
-       (setq beg (progn (backward-word) (point)))
-       ))
-
-   (let ((word (buffer-substring-no-properties beg end))
-         (win (selected-window))
-         (tmpbuf " *dict-process*"))
-     (pop-to-buffer tmpbuf)
-     (erase-buffer)
-     (insert word "\n")
-     (start-process "dict-process" tmpbuf "dict.py" word)
-     (select-window win)
-     )
- ))
-
-;; カーソルの位置の英単語の意味を調べる
-(global-set-key (kbd "C-M-w") 'dictionary)
+(when (require 'dict-app nil t)
+  (global-set-key (kbd "C-M-w") 'dict-app-search))
 
 (global-set-key (kbd "<f6>") 'lookup-word)
 
@@ -863,7 +863,9 @@
            ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
            ("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
            ("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
+           ("INPUT"       :foreground "#FFFFFF" :background "#CC6666")
            ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99")
+           ("CYCLE"       :foreground "#FFFFFF" :background "#6699CC")
            ("Log"         :foreground "#008500")))))
 ;;#5BDF8D
 
@@ -891,10 +893,20 @@
      (org-update-statistics-cookies 'all))
    ))
 
+(custom-set-faces
+ ;; '(org-agenda-clocking ((t (:background "#300020"))))
+ '(org-agenda-structure ((t (:underline t :foreground "#6873ff"))))
+ '(org-agenda-date-today ((t (:weight bold :foreground "#4a6aff"))))
+ '(org-agenda-date ((t (:weight bold :foreground "#6ac214"))))
+ '(org-agenda-date-weekend ((t (:weight bold :foreground "#ff8d1e"))))
+ '(org-time-grid ((t (:foreground "#0a4796"))))
+ '(org-warning ((t (:foreground "#ff431a"))))
+ '(org-upcoming-deadline ((t (:inherit font-lock-keyword-face))))
+ )
+
 (eval-after-autoload-if-found
  'org-agenda "org" "Org Mode" t nil
- '(  
-   ;; Set the view span as day in an agenda view, the default is week
+ '(;; Set the view span as day in an agenda view, the default is week
    (setq org-agenda-span 'day)
    ;; アジェンダに警告を表示する期間
    (setq org-deadline-warning-days 7)
@@ -905,6 +917,9 @@
          '((daily today require-timed)
            "----------------"
            (800 1000 1200 1400 1600 1800 2000 2200 2400 2600)))
+   (setq org-agenda-current-time-string "< d('- ' ) now!")
+   (setq org-agenda-timegrid-use-ampm t)
+
    ;; アジェンダ作成対象（指定しないとagendaが生成されない）
    ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
    (setq org-agenda-files
@@ -1544,35 +1559,35 @@
 (global-set-key (kbd "<f2>") 'frame-ctr-open-height-ring)
 
 (when (require 'popwin nil t)
-  (popwin-mode 1)
-  ;; for emacs 24.1
-  ;;      (setq special-display-function 'popwin:special-display-popup-window)
-  ;;      (setq display-buffer-function 'popwin:display-buffer)
-  ;; for emacs 24.3
-  ;;      (setq special-display-alist 'popwin:special-display-popup-window)
-  ;;      (setq display-buffer-alist 'popwin:display-buffer)
-  (push '("*sdic*" :position top) popwin:special-display-config)
-  (setq popwin:special-display-config
-        (append
-         '(("CAPTURE-next.org" :height 10 :position bottom :noselect t)
-           ("CAPTURE-org-ical.org" :height 10 :position bottom :noselect t)
-           ("*Org-todo*"    :height 10 :position bottom)
-           ("*Calendar*"    :height 10 :position bottom)
-           ("*wclock*"      :height 10 :position bottom)
-           ("*Org Agenda*"  :height 10 :position bottom)
-           ("*Agenda Commands*"  :height 10 :position bottom)
-           ("*Org Select*"  :height 10 :position bottom)
-           ("*Occur*"       :height 10 :position bottom)
-           ("*sdic*"        :height 10 :position top)
-           ("*dict-process*" :height 10 :position bottom)
-           ("*anything*"    :height 10 :position bottom)
-           ("*anything M-x*" :height 10 :position bottom)
-           ("*anything complete*"    :height 10 :position bottom)
-           ("*my-anything*" :height 10 :position bottom)
-           ("*my-anything-buffer*"    :height 10 :position bottom)
-           ;;            ("*cfw-calendar*" :height 40 :position top)
-           ("*eshell*"      :height 10 :position bottom))
-         popwin:special-display-config)))
+    (popwin-mode 1)
+    ;; for emacs 24.1
+    ;;      (setq special-display-function 'popwin:special-display-popup-window)
+    ;;      (setq display-buffer-function 'popwin:display-buffer)
+    ;; for emacs 24.3
+    ;;      (setq special-display-alist 'popwin:special-display-popup-window)
+    ;;      (setq display-buffer-alist 'popwin:display-buffer)
+;;    (push '("*sdic*" :position top) popwin:special-display-config)
+    (setq popwin:special-display-config
+          (append
+           '(("CAPTURE-next.org" :height 10 :position bottom :noselect t)
+             ("CAPTURE-org-ical.org" :height 10 :position bottom :noselect t)
+             ("*Org-todo*"    :height 10 :position bottom)
+             ("*Calendar*"    :height 10 :position bottom)
+             ("*wclock*"      :height 10 :position bottom)
+             ("*Org Agenda*"  :height 10 :position bottom)
+             ("*Agenda Commands*"  :height 10 :position bottom)
+             ("*Org Select*"  :height 10 :position bottom)
+             ("*Occur*"       :height 10 :position bottom)
+;;             ("*sdic*"        :height 10 :position top)
+;;             ("dict-app-result"  :height 10 :position bottom :stick t)
+             ("*anything*"    :height 10 :position bottom)
+             ("*anything M-x*" :height 10 :position bottom)
+             ("*anything complete*"    :height 10 :position bottom)
+             ("*my-anything*" :height 10 :position bottom)
+             ("*my-anything-buffer*"    :height 10 :position bottom)
+             ;;            ("*cfw-calendar*" :height 40 :position top)
+             ("*eshell*"      :height 10 :position bottom))
+           popwin:special-display-config)))
 
 (eval-after-autoload-if-found
    'pomodoro:start "pomodoro" nil t nil

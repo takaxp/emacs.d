@@ -127,10 +127,10 @@ content column from the table. The line ID number is 2 will be ignored."
   (setq my-file-ring (copy-sequence files))
   (setf (cdr (last my-file-ring)) my-file-ring))
 (takaxp:make-file-ring
- '("~/Dropbox/org/next.org" "~/Dropbox/org/work.org"
-   "~/Dropbox/emacs.d/config/init.org" "~/Dropbox/org/buffer.org"
-   "~/Dropbox/emacs.d/config/utility.org" "~/Dropbox/org/research.org"))
-
+ '("~/Dropbox/org/work.org" "~/Dropbox/emacs.d/config/init.org"
+    "~/Dropbox/org/buffer.org" "~/Dropbox/emacs.d/config/utility.org"
+    "~/Dropbox/org/research.org" "~/Dropbox/org/next.org"))
+  
 (defun takaxp:open-file-ring ()
   (interactive)
   (find-file (car my-file-ring))
@@ -151,10 +151,12 @@ content column from the table. The line ID number is 2 will be ignored."
     (let ((title "#+TITLE:\t\n")
           (date "#+DATE:\t\tLast Update: \n")
           (author "#+AUTHOR:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
+          (option "#+OPTIONS:\t\\n:t\n")
           (other "\n"))
+      (goto-char 0)
       (save-excursion
-        (goto-char 0)
-        (insert title date author other)))))
+        (insert title date author option other))
+      (org-end-of-line))))
 
 (defun insert-minutes-template ()
   (interactive)
