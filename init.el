@@ -113,16 +113,24 @@
 (setq yank-excluded-properties t)
 
 (add-hook 'before-save-hook 'time-stamp)
-(eval-after-load "time-stamp"
-  '(progn
-     (setq time-stamp-start "Last Update: ")
-     (setq time-stamp-format "%04y-%02m-%02d@%02H:%02M")
-     (setq time-stamp-end "$")
-     (setq time-stamp-line-limit 10))) ; def=8
+  (eval-after-load "time-stamp"
+    '(progn
+       (setq time-stamp-start "DATE:[ \t]*")
+       (setq time-stamp-format "%04y-%02m-%02d")
+       (setq time-stamp-end "$")
+;;       (setq time-stamp-count 5)
+       (setq time-stamp-line-limit 10))) ; def=8
+
+(when (require 'update-stamp nil t)
+  (add-hook 'before-save-hook 'update-stamp)
+  (setq update-stamp-start "UPDATE:[ \t]*")
+  (setq update-stamp-format "%02H:%02M:%02S")
+  (setq update-stamp-end "$")
+  (setq update-stamp-line-limit 10))
 
 (defadvice isearch-mode
   (around isearch-mode-default-string
-          (forward &optional regexp op-fun recursive-edit word-p) activate)
+    (forward &optional regexp op-fun recursive-edit word-p) activate)
   (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
       (progn
         (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
@@ -191,7 +199,7 @@
 (autoload 'po-mode "po-mode" nil t)
 (setq auto-mode-alist
       (cons '("\\.po[tx]?\\'\\|\\.po\\." . po-mode)
-            auto-mode-alist))
+      auto-mode-alist))
 
 (eval-after-autoload-if-found
  '(word-count-mode) "word-count" "Minor mode to count words." t)
@@ -337,12 +345,12 @@
 (defvar my-narrow-display " N")
 (setq mode-line-modes
       (mapcar (lambda (entry)
-                (if (and (stringp entry)
-                         (string= entry "%n"))
-                    '(:eval (if (and (= 1 (point-min))
-                                 (= (1+ (buffer-size)) (point-max))) ""
-                          my-narrow-display)) entry))
-              mode-line-modes))
+    (if (and (stringp entry)
+       (string= entry "%n"))
+        '(:eval (if (and (= 1 (point-min))
+         (= (1+ (buffer-size)) (point-max))) ""
+        my-narrow-display)) entry))
+        mode-line-modes))
 
 (set-face-attribute 'mode-line nil :overline "#203e6f" :box nil)
 (set-face-foreground 'mode-line "#203e6f")
@@ -771,8 +779,8 @@
 ))
 
 (eval-after-autoload-if-found
-      'org-mode "org" "Org Mode" t nil
-      '(  
+'org-mode "org" "Org Mode" t nil
+'(  
        (add-to-list 'org-modules 'org-timer)
        (setq org-timer-default-timer 25)
 ;; (add-hook 'org-clock-in-hook
@@ -825,7 +833,7 @@
          '(("FOCUS"   :foreground "#FF0000" :background "#FFCC66")
            ("CHECK"   :foreground "#FF9900" :background "#FFF0F0" :underline t)
            ("ICAL"    :foreground "#33CC66")
-           ("WAIT"    :foreground "#33CC66")
+           ("WAIT"    :foreground "#CCCCCC" :background "#666666")
            ("EDIT"    :foreground "#FF33CC")
            ("READ"    :foreground "#9933CC")
            ("MAIL"    :foreground "#CC3300")
@@ -866,6 +874,8 @@
            ("INPUT"       :foreground "#FFFFFF" :background "#CC6666")
            ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99")
            ("CYCLE"       :foreground "#FFFFFF" :background "#6699CC")
+           ("WEEKEND"     :foreground "#FFFFFF" :background "#66BB66")
+           ("weekend"     :foreground "#FFFFFF" :background "#CC6666")
            ("Log"         :foreground "#008500")))))
 ;;#5BDF8D
 
@@ -925,6 +935,7 @@
    (setq org-agenda-files
          '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
            "~/Dropbox/org/today.org" "~/Dropbox/org/buffer.org"
+           "~/Dropbox/org/stock.org"
            "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
    ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
    (defvar my-doing-tag "Doing")
@@ -955,8 +966,8 @@
 (define-key org-mode-map (kbd "C-c <f11>") 'my-sparse-doing-tree)
 
 (eval-after-autoload-if-found
-        'org-mode "org" "Org Mode" t nil
-        '(  
+  'org-mode "org" "Org Mode" t nil
+  '(  
 ;; アラーム表示を有効にする
 (appt-activate 1)
 ;; window を フレーム内に表示する
@@ -973,8 +984,8 @@
 ;; (org-agenda-to-appt t '((headline "TODO")))
 ;; 保存時にアラームを登録
 ;;(add-hook 'org-mode-hook
-;;        (lambda() (add-hook 'before-save-hook
-;;                            'org-agenda-to-appt t '((headline "TODO")))))
+;;    (lambda() (add-hook 'before-save-hook
+;;            'org-agenda-to-appt t '((headline "TODO")))))
 ))
 
 (eval-after-autoload-if-found
@@ -1038,6 +1049,7 @@
  'org-refile "org" "Org Mode" t nil
  '((setq org-refile-targets
          (quote (("org-ical.org" :level . 1)
+                 ("work.org" :level . 1)
                  ("next.org" :level . 1)
                  ("sleep.org" :level . 1))))
        ))
@@ -1222,7 +1234,7 @@
  '(ox-odt) "ox-odt" nil t nil
  '((setq org-odt-styles-file
          (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
-   (setq org-odt-preferred-output-format "pdf")
+   (setq org-odt-preferred-output-format "docx")
    (setq org-odt-convert-processes
          '(("LibreOffice"
             "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
@@ -1413,8 +1425,8 @@
 (defun set-font-size (arg)
   (interactive "p")
   (let* ((font-size arg)
-        (frame-width 80)
-        (frame-height (if (> arg 15) 20 40))
+  (frame-width 80)
+  (frame-height (if (> arg 15) 20 40))
         (ja-font-scale 1.2)
         (ja-font "Migu 2M")
         (ascii-font "Monaco"))
@@ -1531,10 +1543,14 @@
    move-frame-with-user-specify move-frame-left move-frame-to-center
    move-frame-right move-frame-to-edge-top move-frame-to-edge-bottom)
  "frame-ctr" nil t nil
- '(
-   (if (equal system-name "mba.local")
-       (frame-ctr-make-height-ring '(56 20 40))
-     (frame-ctr-make-height-ring '(56 68 20 40))))) ; for Emacs24
+ '((cond ((or (equal system-name "mba.local")
+              (equal system-name "mba"))
+          (frame-ctr-make-height-ring '(56 20 40))) ; MacBook Air 13'
+         ((or (equal system-name "lethe.local")
+              (equal system-name "lethe"))
+          (frame-ctr-make-height-ring '(47 23 40))) ; MacBook Air 11'
+         (t
+          (frame-ctr-make-height-ring '(56 68 20 40)))))) ; for Emacs24
 ;; (frame-ctr-make-height-ring '(60 68 20 40))))) ; for Emacs23
 
 ;; Move the frame to somewhere (default: 0,0)

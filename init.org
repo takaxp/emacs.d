@@ -1,8 +1,8 @@
-#+TITLE:	Configurations for GNU Emacs
-#+AUTHOR:	Takaaki Ishikawa
-#+EMAIL:	takaxp@ieee.org
-#+STARTUP:	content
-#+STARTUP:	nohideblocks
+#+TITLE:  Configurations for GNU Emacs
+#+AUTHOR: Takaaki Ishikawa
+#+EMAIL:  takaxp@ieee.org
+#+STARTUP:  content
+#+STARTUP:  nohideblocks
 
 * はじめに
   - この文章は，[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使って生成しています．
@@ -137,7 +137,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+BEGIN_SRC emacs-lisp :tangle no
 (setq byte-compile-warnings
       '(free-vars unresolved callargs redefine obsolete noruntime
- 		  cl-functions interactive-only make-local))
+      cl-functions interactive-only make-local))
 #+END_SRC
 
 * コア設定
@@ -451,11 +451,30 @@ Built-in の time-stamp.el を使う．
   (add-hook 'before-save-hook 'time-stamp)
   (eval-after-load "time-stamp"
     '(progn
+       (setq time-stamp-start "DATE:[ \t]*")
+       (setq time-stamp-format "%04y-%02m-%02d")
+       (setq time-stamp-end "$")
+;;       (setq time-stamp-count 5)
+       (setq time-stamp-line-limit 10))) ; def=8  
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+  (when (require 'update-stamp nil t)
+    (add-hook 'before-save-hook 'update-stamp)
+    (setq update-stamp-start "UPDATE:[ \t]*")
+    (setq update-stamp-format "%02H:%02M:%02S")
+    (setq update-stamp-end "$")
+    (setq update-stamp-line-limit 10))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports no
+  (add-hook 'before-save-hook 'time-stamp)
+  (eval-after-load "time-stamp"
+    '(progn
        (setq time-stamp-start "Last Update: ")
        (setq time-stamp-format "%04y-%02m-%02d@%02H:%02M")
        (setq time-stamp-end "$")
-       (setq time-stamp-line-limit 10))) ; def=8
-  
+       (setq time-stamp-line-limit 10))) ; def=8  
 #+END_SRC
 
 ** 選択リージョンを使って検索
@@ -467,7 +486,7 @@ http://dev.ariel-networks.com/articles/emacs/part5/
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defadvice isearch-mode
   (around isearch-mode-default-string
-	  (forward &optional regexp op-fun recursive-edit word-p) activate)
+    (forward &optional regexp op-fun recursive-edit word-p) activate)
   (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
       (progn
         (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
@@ -560,7 +579,7 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
        (setq ispell-local-dictionary-alist
              '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
                     ("-d" "en" "--encoding=utf-8") nil utf-8))))))
-#+END_SRC	
+#+END_SRC 
 
 *** キーバインド
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -608,7 +627,7 @@ http://www.emacswiki.org/emacs/po-mode+.el
 (autoload 'po-mode "po-mode" nil t)
 (setq auto-mode-alist
       (cons '("\\.po[tx]?\\'\\|\\.po\\." . po-mode)
-	    auto-mode-alist))
+      auto-mode-alist))
 #+END_SRC
 ** [word-count.el] リージョン内の文字をカウントする
 
@@ -990,12 +1009,12 @@ zencoding でタグ打ちを効率化します．
 (defvar my-narrow-display " N")
 (setq mode-line-modes
       (mapcar (lambda (entry)
-		(if (and (stringp entry)
-			 (string= entry "%n"))
-		    '(:eval (if (and (= 1 (point-min))
-				 (= (1+ (buffer-size)) (point-max))) ""
-			  my-narrow-display)) entry))
-	      mode-line-modes))
+    (if (and (stringp entry)
+       (string= entry "%n"))
+        '(:eval (if (and (= 1 (point-min))
+         (= (1+ (buffer-size)) (point-max))) ""
+        my-narrow-display)) entry))
+        mode-line-modes))
 #+END_SRC
 ** モードラインの色をカスタマイズする
 
@@ -1036,8 +1055,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 
 #+BEGIN_SRC emacs-lisp :tangle no :exports no
 (when (autoload-if-found 'echo-area-bell "echo-area-bell" nil t)
-	(setq visible-bell t)
-	(setq ring-bell-function 'echo-area-bell))
+  (setq visible-bell t)
+  (setq ring-bell-function 'echo-area-bell))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp :tangle yes
 (eval-after-autoload-if-found
@@ -1319,6 +1338,19 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
   (global-set-key (kbd "C-M-r") 'my-anything)
   (global-set-key (kbd "C-M-s") 'my-anything-spotlight)
   (global-set-key (kbd "C-x C-b") 'my-anything-buffer)
+#+END_SRC
+
+** [stripe-buffer.el] テーブルの色をストライプにする
+
+[[https://github.com/sabof/stripe-buffer/blob/master/stripe-buffer.el][stripe-buffer.el]]を使います．重くツリーが多いOrgバッファだと激重になる可能性があります．
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (eval-after-autoload-if-found
+   'org-mode "org" "Org Mode" t nil
+   '(
+  ;         (require 'org-install)
+     (require 'stripe-buffer nil t)
+     (add-hook 'org-mode-hook 'turn-on-stripe-table-mode)))
 #+END_SRC
 
 * メディアサポート
@@ -1781,7 +1813,7 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
                                ac-source-gtags))
             )
           (add-hook 'c-mode-common-hook 'ac-cc-mode-setup))
-#+END_SRC	
+#+END_SRC 
 
 次のコードを hoge.cpp として保存し， =v= と =t= について補完できれば， =STL= と =Boost= のプリコンパイルヘッダが有効になっていることを確認できる．
 
@@ -1940,8 +1972,8 @@ Hide or show current block of souces
 http://orgmode.org/worg/org-gtd-etc.html
 #+BEGIN_SRC emacs-lisp :tangle yes
   (eval-after-autoload-if-found
-	'org-mode "org" "Org Mode" t nil
-	'(  
+  'org-mode "org" "Org Mode" t nil
+  '(  
          (add-to-list 'org-modules 'org-timer)
          (setq org-timer-default-timer 25)
   ;; (add-hook 'org-clock-in-hook
@@ -1998,7 +2030,7 @@ http://orgmode.org/worg/org-gtd-etc.html
            '(("FOCUS"   :foreground "#FF0000" :background "#FFCC66")
              ("CHECK"   :foreground "#FF9900" :background "#FFF0F0" :underline t)
              ("ICAL"    :foreground "#33CC66")
-             ("WAIT"    :foreground "#33CC66")
+             ("WAIT"    :foreground "#CCCCCC" :background "#666666")
              ("EDIT"    :foreground "#FF33CC")
              ("READ"    :foreground "#9933CC")
              ("MAIL"    :foreground "#CC3300")
@@ -2039,9 +2071,12 @@ http://orgmode.org/worg/org-gtd-etc.html
              ("INPUT"       :foreground "#FFFFFF" :background "#CC6666")
              ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99")
              ("CYCLE"       :foreground "#FFFFFF" :background "#6699CC")
+             ("WEEKEND"     :foreground "#FFFFFF" :background "#66BB66")
+             ("weekend"     :foreground "#FFFFFF" :background "#CC6666")
              ("Log"         :foreground "#008500")))))
   ;;#5BDF8D
 #+END_SRC
+
 ** TODOキーワードのカスタマイズ
 
 キーワードには日本語も使えます．
@@ -2106,6 +2141,7 @@ http://orgmode.org/worg/org-gtd-etc.html
      (setq org-agenda-files
            '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
              "~/Dropbox/org/today.org" "~/Dropbox/org/buffer.org"
+             "~/Dropbox/org/stock.org"
              "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
      ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
      (defvar my-doing-tag "Doing")
@@ -2143,8 +2179,8 @@ http://orgmode.org/worg/org-gtd-etc.html
 ** [appt.el] アラーム設定
 #+BEGIN_SRC emacs-lisp :tangle yes
   (eval-after-autoload-if-found
-	'org-mode "org" "Org Mode" t nil
-	'(  
+  'org-mode "org" "Org Mode" t nil
+  '(  
 ;; アラーム表示を有効にする
 (appt-activate 1)
 ;; window を フレーム内に表示する
@@ -2161,8 +2197,8 @@ http://orgmode.org/worg/org-gtd-etc.html
 ;; (org-agenda-to-appt t '((headline "TODO")))
 ;; 保存時にアラームを登録
 ;;(add-hook 'org-mode-hook
-;;	  (lambda() (add-hook 'before-save-hook
-;;			      'org-agenda-to-appt t '((headline "TODO")))))
+;;    (lambda() (add-hook 'before-save-hook
+;;            'org-agenda-to-appt t '((headline "TODO")))))
 ))
 #+END_SRC
 
@@ -2232,6 +2268,7 @@ http://orgmode.org/worg/org-gtd-etc.html
    'org-refile "org" "Org Mode" t nil
    '((setq org-refile-targets
            (quote (("org-ical.org" :level . 1)
+                   ("work.org" :level . 1)
                    ("next.org" :level . 1)
                    ("sleep.org" :level . 1))))
          ))
@@ -2250,7 +2287,7 @@ http://orgmode.org/worg/org-gtd-etc.html
 
 ** [org-babel] ソースブロックの入力キーをカスタマイズ
 
-ソースブロックを入力するときは， <+ =TAB= でテンプレートを高速に入力できます．しかし，利用する言語までは指定できないので，特定の内容について対応するコマンドを割り当てて起きます．以下の例では， <S+ =TAB= で =emacs-lisp= を， <C+ =TAB= でコメントブロックを指定できます．
+ソースブロックを入力するときは， <+ =TAB= でテンプレートを高速に入力できます．しかし，利用する言語までは指定できないので，特定の内容について対応するコマンドを割り当てて起きます．以下の例を設定として追加すると， <S+ =TAB= で =emacs-lisp= を， <C+ =TAB= でコメントブロックを指定できます．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (eval-after-autoload-if-found
@@ -2453,28 +2490,28 @@ Doing タグのトグルに =f11= を割り当てたので，コンテンツモ�
 
 ** [org-odt] ODT形式に出力
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
-  (eval-after-autoload-if-found
-   '(org-odt) "org-odt" nil t nil
-   '((setq org-export-odt-styles-file
-           (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
-     (setq org-export-odt-preferred-output-format "pdf")
-     (setq org-export-odt-convert-processes
-           '(("LibreOffice"
-              "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
-             ("unoconv" "unoconv -f %f -o %d %i")))))
-#+END_SRC
-
 #+BEGIN_SRC emacs-lisp :tangle yes
     (eval-after-autoload-if-found
      '(ox-odt) "ox-odt" nil t nil
      '((setq org-odt-styles-file
              (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
-       (setq org-odt-preferred-output-format "pdf")
+       (setq org-odt-preferred-output-format "docx")
        (setq org-odt-convert-processes
              '(("LibreOffice"
                 "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
                ("unoconv" "unoconv -f %f -o %d %i")))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports no
+  (eval-after-autoload-if-found
+   '(org-odt) "org-odt" nil t nil
+   '((setq org-export-odt-styles-file
+           (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.xml"))
+     (setq org-export-odt-preferred-output-format "docx")
+     (setq org-export-odt-convert-processes
+           '(("LibreOffice"
+              "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
+             ("unoconv" "unoconv -f %f -o %d %i")))))
 #+END_SRC
 
 ** [org-crypt] ツリーを暗号化する
@@ -2790,8 +2827,8 @@ Linux では次のように処理するだけでよく，意外と簡単．
 (defun set-font-size (arg)
   (interactive "p")
   (let* ((font-size arg)
-	(frame-width 80)
-	(frame-height (if (> arg 15) 20 40))
+  (frame-width 80)
+  (frame-height (if (> arg 15) 20 40))
         (ja-font-scale 1.2)
         (ja-font "Migu 2M")
         (ascii-font "Monaco"))
@@ -3040,10 +3077,14 @@ frame-ctr.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホッ
      move-frame-with-user-specify move-frame-left move-frame-to-center
      move-frame-right move-frame-to-edge-top move-frame-to-edge-bottom)
    "frame-ctr" nil t nil
-   '(
-     (if (equal system-name "mba.local")
-         (frame-ctr-make-height-ring '(56 20 40))
-       (frame-ctr-make-height-ring '(56 68 20 40))))) ; for Emacs24
+   '((cond ((or (equal system-name "mba.local")
+                (equal system-name "mba"))
+            (frame-ctr-make-height-ring '(56 20 40))) ; MacBook Air 13'
+           ((or (equal system-name "lethe.local")
+                (equal system-name "lethe"))
+            (frame-ctr-make-height-ring '(47 23 40))) ; MacBook Air 11'
+           (t
+            (frame-ctr-make-height-ring '(56 68 20 40)))))) ; for Emacs24
   ;; (frame-ctr-make-height-ring '(60 68 20 40))))) ; for Emacs23
 #+END_SRC
 
@@ -3108,7 +3149,7 @@ popwin:display-buffer を autoload してもうまくいかない．
              ;;            ("*cfw-calendar*" :height 40 :position top)
              ("*eshell*"      :height 10 :position bottom))
            popwin:special-display-config)))  
-#+END_SRC	
+#+END_SRC 
 
 * ユーティリティ関数
 ** [pomodoro.el] ポモドーロの実践
