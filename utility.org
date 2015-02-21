@@ -11,21 +11,22 @@
 * orgバッファを評価
 
 org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
-
+ 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun eval-org-buffer ()
     "Load init.org/utility.org and tangle init.el/utility.el."
     (interactive)
-    (when (and (eq major-mode 'org-mode)
-               (or (string= (buffer-name) "init.org")
-                   (string= (buffer-name) "utility.org")))
-      (org-babel-tangle)
-      (let ((tangled-file
-             (concat (file-name-sans-extension (buffer-file-name)) ".el")))
-        (when (file-exists-p tangled-file)
-          (load tangled-file)
-          (byte-compile-file tangled-file)))))
-#+END_SRC
+    (if (and (eq major-mode 'org-mode)
+             (or (string= (buffer-name) "init.org")
+                 (string= (buffer-name) "utility.org")))
+        (progn
+          (org-babel-tangle)
+          (let ((tangled-file
+                 (concat (file-name-sans-extension (buffer-file-name)) ".el")))
+            (when (file-exists-p tangled-file)
+              (byte-compile-file tangled-file))))
+      (message "Nothing to do for this buffer.")))
+ #+END_SRC
 
 * ユーティリティ関数
 ** サボっていると Kyoko さんに怒られる
@@ -100,92 +101,102 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
            (concat "open -a " open-current-directory-console-program))))))
 #+END_SRC
 
-** C-x C-c で容易にEmacsを終了させないように質問する
-
-=C-x C-c= をこの関数に割り当てると，任意の質問文で入力を求められる．
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  ;;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
-  ;;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
-  ;; A simple solution is (setq confirm-kill-emacs 'y-or-n-p).
-  (defun confirm-save-buffers-kill-emacs (&optional arg)
-    "Show yes or no when you try to kill Emacs"
-    (interactive "P")
-    (cond (arg (save-buffers-kill-emacs))
-          (t
-           (when (yes-or-no-p "Are you sure to quit Emacs now? ")
-             (save-buffers-kill-emacs)))))
-#+END_SRC
-
-代替方法として，
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq confirm-kill-emacs 'y-or-n-p)  
-#+END_SRC
-がある．
-
-*** キーバインド
-Show yes or no when you try to kill Emacs
-#+BEGIN_SRC emacs-lisp :tangle no
-;(global-set-key (kbd "C-x C-c") 'confirm-save-buffers-kill-emacs)
-#+END_SRC
-
 ** ファイルに含まれるテーブルを使って定時にgrowlのアラートを表示する
+
+# =terminal-notifier= は，現時点で sticky に対応していない．システムレベルでの制御は可能なので，別イメージをビルドし，通知で呼び出すアプリを切り替えれば対応可能と思われる．Banners タイプから Alerts タイプに切り替えるだけ．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun set-alarms-from-file (file)
     "Make alarms from org-mode tables. If you have an org-mode file
-     with tables with the following format:
-  |----+--------+----------------------------------------------------------|
-  | ID |   Time | Content                                                  |
-  |----+--------+----------------------------------------------------------|
-  |  1 |  07:00 | Wakeup                                                   |
-  |  2 |        | Read papers                                              |
-  |  3 |  12:00 | Clean up your desk                                       |
-  When it is 7:00 and 12:00, Growl notify with a message which is specified
-  content column from the table. The line ID number is 2 will be ignored."
-       (let
-           ((lines (read-line file)))
-         (while lines
-           (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-           (setq lines (cdr lines))
-           (message ""))))
-
-     (defun set-alarm-from-line (line)
-       "NOTE: this function need (require 'todochiku)"
-       (when (require 'todochiku nil t)
-         (let
-             ((hour nil)
-              (min nil)
-              (current-hour nil)
-              (current-min nil)
-              (action nil))
-           (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
-             (setq hour (substring line (match-beginning 1) (match-end 1)))
-             (setq min (substring line (match-beginning 2) (match-end 2)))
-             (when (string-match
-                    "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
-               (setq action
-                     (substring line (match-beginning 1) (match-end 1)))))
-           (when (and (and hour min) action)
-             ;;       (message "[%s:%s] => %s" hour min action)
-             (setq current-hour (format-time-string "%H" (current-time)))
-             (setq current-min (format-time-string "%M" (current-time)))
-             (when (> (+ (* (string-to-number hour) 60)
-                         (string-to-number min))
-                      (+ (* (string-to-number current-hour) 60)
-                         (string-to-number current-min)))
-               (run-at-time (format "%s:%s" hour min) nil
-                            'todochiku-message
-                            "== REMINDER =="
-                            (format "%s:%s %s" hour min action)
-                            "Emacs" 'sticky))))))
-
-     (defun read-line (file)
-       "Make a list from a file, which is divided by LF code"
-       (with-temp-buffer
-         (insert-file-contents-literally file)
-         (split-string
-          (buffer-string) "\n" t)))
+           with tables with the following format:
+        |------+-------+--------------------|
+        | Flag |  Time | Content            |
+        |------+-------+--------------------|
+        |      | 07:00 | Wakeup             |
+        |      |       | Read papers        |
+        | X    | 12:00 | Clean up your desk |
+        When it is 7:00 and 12:00, Growl notify with a message which is specified
+        content column from the table. \"Read papers\" will be ignored.
+        \"Clean up your desk\" will be shown by sticky mode"
+    (let
+        ((lines (read-line file)))
+      (cancel-function-timers 'my-desktop-notify) ;; clear existing timers
+      (while lines
+        (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
+        (setq lines (cdr lines))
+        (message ""))))
+  
+  (defun set-alarm-from-line (line)
+    "NOTE: this function need (require 'todochiku)"
+    (require 'cl)
+    (when (require 'todochiku nil t)
+      (let
+          ((hour nil)
+           (min nil)
+           (current-hour nil)
+           (current-min nil)
+           (action nil))
+        (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
+          (setq hour (substring line (match-beginning 1) (match-end 1)))
+          (setq min (substring line (match-beginning 2) (match-end 2)))
+          (when (string-match
+                 "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
+            (setq action
+                  (substring line (match-beginning 1) (match-end 1)))))
+        (when (and (and hour min) action)
+          ;;       (message "[%s:%s] => %s" hour min action)
+          (setq current-hour (format-time-string "%H" (current-time)))
+          (setq current-min (format-time-string "%M" (current-time)))
+          (when (> (+ (* (string-to-number hour) 60)
+                      (string-to-number min))
+                   (+ (* (string-to-number current-hour) 60)
+                      (string-to-number current-min)))
+            (let
+                ((s nil))
+              (when (string-match "^\|\\s-*X\\s-*\|" line)
+                (setq s 'sticky))
+              ;;      (set-notify-growl hour min action s)
+              (set-notify-osx-native hour min action s)
+              ))))))
+  
+  (defun my-desktop-notify (type title hour min action s)
+    (cond
+     ((string= type "growl")
+      (require 'cl)
+      (when (require 'todochiku nil t)
+        (todochiku-message
+         title
+         (format "%s:%s %s" hour min action)
+         "Emacs" s)))
+     ((string= type "osx-native")
+      (shell-command-to-string
+       (concat "terminal-notifier -title \"Emacs\" -message \""
+               (format "%s:%s %s" hour min action) "\"")))
+     (t nil)))
+  
+  (defun set-notify-growl (hour min action s)
+    (run-at-time (format "%s:%s" hour min) nil
+                 'my-desktop-notify
+                 "growl" "== REMINDER ==" hour min action s))
+  
+  (defun set-notify-osx-native (hour min action s)
+    "terminal-notifier is required."
+    (run-at-time (format "%s:%s" hour min) nil
+                 'my-desktop-notify
+                 "osx-native" "Emacs" hour min action nil))
+  
+  (defun read-line (file)
+    "Make a list from a file, which is divided by LF code"
+    (with-temp-buffer
+      (insert-file-contents-literally file)
+      (split-string
+       (buffer-string) "\n" t)))
+  
+  (defun set-alarm-hook ()
+    (when (string-match (file-name-base "today.org") (buffer-name))
+      (message "--- The alarm list has been updated.")
+      (set-alarms-from-file alarm-table)))
+  
 #+END_SRC  
 
 ** 頻繁に利用するファイルをring形式でたどる
@@ -195,17 +206,21 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defvar my-file-ring nil)
   (defun takaxp:make-file-ring (files)
-    (setq my-file-ring (copy-sequence files))
-    (setf (cdr (last my-file-ring)) my-file-ring))
+    (setq my-file-ring (copy-sequence files)))
+  ;;    (setf (cdr (last my-file-ring)) my-file-ring))
   (takaxp:make-file-ring
    '("~/Dropbox/org/work.org" "~/Dropbox/emacs.d/config/init.org"
-      "~/Dropbox/org/buffer.org" "~/Dropbox/emacs.d/config/utility.org"
-      "~/Dropbox/org/research.org" "~/Dropbox/org/next.org"))
-    
+     "~/Dropbox/org/buffer.org" "~/Dropbox/emacs.d/config/utility.org"
+     "~/Dropbox/org/research.org" "~/Dropbox/org/next.org"))
+  
   (defun takaxp:open-file-ring ()
     (interactive)
     (find-file (car my-file-ring))
-    (setq my-file-ring (cdr my-file-ring)))
+    (setq my-file-ring
+          (append (cdr my-file-ring)
+                  (list (car my-file-ring)))))
+  
+  ;;    (setq my-file-ring (cdr my-file-ring)))
 #+END_SRC
 
 ** 引数のorgバッファを開く
@@ -228,13 +243,14 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
     (interactive)
     (when (string= major-mode 'org-mode)
       (let ((title "#+TITLE:\t\n")
-            (date "#+DATE:\t\tLast Update: \n")
+            (date "#+DATE: \t\n")
+            (update "#+UPDATE:\t\n")
             (author "#+AUTHOR:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
             (option "#+OPTIONS:\t\\n:t\n")
             (other "\n"))
         (goto-char 0)
         (save-excursion
-          (insert title date author option other))
+          (insert title date update author option other))
         (org-end-of-line))))
 #+END_SRC
 
@@ -444,6 +460,15 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   ;(setq browse-url-browser-function 'browse-url-chrome)
 #+END_SRC
 
+** ミニバッファに日時を表示
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun my:date ()
+    (interactive)
+    (message "%s" (concat
+                   (format-time-string "%Y-%m-%d") " ("
+                   (format-time-string "%a") ") "
+                   (format-time-string "%H:%M"))))
+#+END_SRC
 ** その他
 
 #+BEGIN_SRC emacs-lisp :tangle yes

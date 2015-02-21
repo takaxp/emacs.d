@@ -1,15 +1,17 @@
+
 (defun eval-org-buffer ()
   "Load init.org/utility.org and tangle init.el/utility.el."
   (interactive)
-  (when (and (eq major-mode 'org-mode)
-             (or (string= (buffer-name) "init.org")
-                 (string= (buffer-name) "utility.org")))
-    (org-babel-tangle)
-    (let ((tangled-file
-           (concat (file-name-sans-extension (buffer-file-name)) ".el")))
-      (when (file-exists-p tangled-file)
-        (load tangled-file)
-        (byte-compile-file tangled-file)))))
+  (if (and (eq major-mode 'org-mode)
+           (or (string= (buffer-name) "init.org")
+               (string= (buffer-name) "utility.org")))
+      (progn
+        (org-babel-tangle)
+        (let ((tangled-file
+               (concat (file-name-sans-extension (buffer-file-name)) ".el")))
+          (when (file-exists-p tangled-file)
+            (byte-compile-file tangled-file))))
+    (message "Nothing to do for this buffer.")))
 
 (defvar kyoko-mad-mode nil)
 (defun kyoko-mad-mode-toggle ()
@@ -65,76 +67,114 @@
         (shell-command-to-string
          (concat "open -a " open-current-directory-console-program))))))
 
-(setq confirm-kill-emacs 'y-or-n-p)
-
 (defun set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file
-   with tables with the following format:
-|----+--------+----------------------------------------------------------|
-| ID |   Time | Content                                                  |
-|----+--------+----------------------------------------------------------|
-|  1 |  07:00 | Wakeup                                                   |
-|  2 |        | Read papers                                              |
-|  3 |  12:00 | Clean up your desk                                       |
-When it is 7:00 and 12:00, Growl notify with a message which is specified
-content column from the table. The line ID number is 2 will be ignored."
-     (let
-         ((lines (read-line file)))
-       (while lines
-         (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-         (setq lines (cdr lines))
-         (message ""))))
+         with tables with the following format:
+      |------+-------+--------------------|
+      | Flag |  Time | Content            |
+      |------+-------+--------------------|
+      |      | 07:00 | Wakeup             |
+      |      |       | Read papers        |
+      | X    | 12:00 | Clean up your desk |
+      When it is 7:00 and 12:00, Growl notify with a message which is specified
+      content column from the table. \"Read papers\" will be ignored.
+      \"Clean up your desk\" will be shown by sticky mode"
+  (let
+      ((lines (read-line file)))
+    (cancel-function-timers 'my-desktop-notify) ;; clear existing timers
+    (while lines
+      (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
+      (setq lines (cdr lines))
+      (message ""))))
 
-   (defun set-alarm-from-line (line)
-     "NOTE: this function need (require 'todochiku)"
-     (when (require 'todochiku nil t)
-       (let
-           ((hour nil)
-            (min nil)
-            (current-hour nil)
-            (current-min nil)
-            (action nil))
-         (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
-           (setq hour (substring line (match-beginning 1) (match-end 1)))
-           (setq min (substring line (match-beginning 2) (match-end 2)))
-           (when (string-match
-                  "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
-             (setq action
-                   (substring line (match-beginning 1) (match-end 1)))))
-         (when (and (and hour min) action)
-           ;;       (message "[%s:%s] => %s" hour min action)
-           (setq current-hour (format-time-string "%H" (current-time)))
-           (setq current-min (format-time-string "%M" (current-time)))
-           (when (> (+ (* (string-to-number hour) 60)
-                       (string-to-number min))
-                    (+ (* (string-to-number current-hour) 60)
-                       (string-to-number current-min)))
-             (run-at-time (format "%s:%s" hour min) nil
-                          'todochiku-message
-                          "== REMINDER =="
-                          (format "%s:%s %s" hour min action)
-                          "Emacs" 'sticky))))))
+(defun set-alarm-from-line (line)
+  "NOTE: this function need (require 'todochiku)"
+  (require 'cl)
+  (when (require 'todochiku nil t)
+    (let
+        ((hour nil)
+         (min nil)
+         (current-hour nil)
+         (current-min nil)
+         (action nil))
+      (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
+        (setq hour (substring line (match-beginning 1) (match-end 1)))
+        (setq min (substring line (match-beginning 2) (match-end 2)))
+        (when (string-match
+               "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
+          (setq action
+                (substring line (match-beginning 1) (match-end 1)))))
+      (when (and (and hour min) action)
+        ;;       (message "[%s:%s] => %s" hour min action)
+        (setq current-hour (format-time-string "%H" (current-time)))
+        (setq current-min (format-time-string "%M" (current-time)))
+        (when (> (+ (* (string-to-number hour) 60)
+                    (string-to-number min))
+                 (+ (* (string-to-number current-hour) 60)
+                    (string-to-number current-min)))
+          (let
+              ((s nil))
+            (when (string-match "^\|\\s-*X\\s-*\|" line)
+              (setq s 'sticky))
+            ;;      (set-notify-growl hour min action s)
+            (set-notify-osx-native hour min action s)
+            ))))))
 
-   (defun read-line (file)
-     "Make a list from a file, which is divided by LF code"
-     (with-temp-buffer
-       (insert-file-contents-literally file)
-       (split-string
-        (buffer-string) "\n" t)))
+(defun my-desktop-notify (type title hour min action s)
+  (cond
+   ((string= type "growl")
+    (require 'cl)
+    (when (require 'todochiku nil t)
+      (todochiku-message
+       title
+       (format "%s:%s %s" hour min action)
+       "Emacs" s)))
+   ((string= type "osx-native")
+    (shell-command-to-string
+     (concat "terminal-notifier -title \"Emacs\" -message \""
+             (format "%s:%s %s" hour min action) "\"")))
+   (t nil)))
+
+(defun set-notify-growl (hour min action s)
+  (run-at-time (format "%s:%s" hour min) nil
+               'my-desktop-notify
+               "growl" "== REMINDER ==" hour min action s))
+
+(defun set-notify-osx-native (hour min action s)
+  "terminal-notifier is required."
+  (run-at-time (format "%s:%s" hour min) nil
+               'my-desktop-notify
+               "osx-native" "Emacs" hour min action nil))
+
+(defun read-line (file)
+  "Make a list from a file, which is divided by LF code"
+  (with-temp-buffer
+    (insert-file-contents-literally file)
+    (split-string
+     (buffer-string) "\n" t)))
+
+(defun set-alarm-hook ()
+  (when (string-match (file-name-base "today.org") (buffer-name))
+    (message "--- The alarm list has been updated.")
+    (set-alarms-from-file alarm-table)))
 
 (defvar my-file-ring nil)
 (defun takaxp:make-file-ring (files)
-  (setq my-file-ring (copy-sequence files))
-  (setf (cdr (last my-file-ring)) my-file-ring))
+  (setq my-file-ring (copy-sequence files)))
+;;    (setf (cdr (last my-file-ring)) my-file-ring))
 (takaxp:make-file-ring
  '("~/Dropbox/org/work.org" "~/Dropbox/emacs.d/config/init.org"
-    "~/Dropbox/org/buffer.org" "~/Dropbox/emacs.d/config/utility.org"
-    "~/Dropbox/org/research.org" "~/Dropbox/org/next.org"))
-  
+   "~/Dropbox/org/buffer.org" "~/Dropbox/emacs.d/config/utility.org"
+   "~/Dropbox/org/research.org" "~/Dropbox/org/next.org"))
+
 (defun takaxp:open-file-ring ()
   (interactive)
   (find-file (car my-file-ring))
-  (setq my-file-ring (cdr my-file-ring)))
+  (setq my-file-ring
+        (append (cdr my-file-ring)
+                (list (car my-file-ring)))))
+
+;;    (setq my-file-ring (cdr my-file-ring)))
 
 (defun show-org-buffer (file)
   "Show an org-file on the current buffer"
@@ -149,13 +189,14 @@ content column from the table. The line ID number is 2 will be ignored."
   (interactive)
   (when (string= major-mode 'org-mode)
     (let ((title "#+TITLE:\t\n")
-          (date "#+DATE:\t\tLast Update: \n")
+          (date "#+DATE: \t\n")
+          (update "#+UPDATE:\t\n")
           (author "#+AUTHOR:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
           (option "#+OPTIONS:\t\\n:t\n")
           (other "\n"))
       (goto-char 0)
       (save-excursion
-        (insert title date author option other))
+        (insert title date update author option other))
       (org-end-of-line))))
 
 (defun insert-minutes-template ()
@@ -310,6 +351,13 @@ content column from the table. The line ID number is 2 will be ignored."
 ;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
 ;(setq browse-url-browser-function 'browse-url-default-windows-browser)
 ;(setq browse-url-browser-function 'browse-url-chrome)
+
+(defun my:date ()
+  (interactive)
+  (message "%s" (concat
+                 (format-time-string "%Y-%m-%d") " ("
+                 (format-time-string "%a") ") "
+                 (format-time-string "%H:%M"))))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 (defun count-words-buffer ()

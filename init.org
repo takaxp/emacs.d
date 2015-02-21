@@ -10,6 +10,7 @@
   - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]]，[[http://pastelwill.jp/wiki/doku.php?id=emacs:init.el][wiki]] を生成しています．
   - 一部の関数定義を [[http://pastelwill.jp/wiki/doku.php?id=emacs:utility.el][utility.el]] に分離しています．
   - コピペだけで動かなかった場合は，ページ最下部のコメント欄にご意見をどうぞ．
+
 * 基本設定
 
 この設定群を利用するために設定です．おそらく記述しておかないと動きません．
@@ -72,9 +73,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+BEGIN_SRC emacs-lisp :tangle no
   (eval-after-autoload-if-found
    '(cycle-buffer cycle-buffer-backward) "cycle-buffer" nil t nil
-   (setq cycle-buffer-allow-visible t)
-   (setq cycle-buffer-show-length 12)
-   (setq cycle-buffer-show-format '(" <(%s)>" . " %s")))
+   '((setq cycle-buffer-allow-visible t)
+     (setq cycle-buffer-show-length 12)
+     (setq cycle-buffer-show-format '(" <(%s)>" . " %s"))))
 #+END_SRC
 
 *** マクロ版
@@ -140,6 +141,48 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
       cl-functions interactive-only make-local))
 #+END_SRC
 
+** 起動時間の計測
+=emacs-init-time= を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えます．元ネタは[[http://d.hatena.ne.jp/sugyan/20120120/1327037494][すぎゃーんメモ]]からです．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-hook 'after-init-hook
+            (lambda ()
+              (message "--- Emacs booting time: %.0f [msec]"
+                       (* 1000
+                          (float-time (time-subtract
+                                       after-init-time
+                                       before-init-time))))))
+#+END_SRC
+
+** C-x C-c で容易にEmacsを終了させないように質問する
+
+=C-x C-c= をこの関数に割り当てると，任意の質問文で入力を求められる．
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
+  ;;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
+  ;; A simple solution is (setq confirm-kill-emacs 'y-or-n-p).
+  (defun confirm-save-buffers-kill-emacs (&optional arg)
+    "Show yes or no when you try to kill Emacs"
+    (interactive "P")
+    (cond (arg (save-buffers-kill-emacs))
+          (t
+           (when (yes-or-no-p "Are you sure to quit Emacs now? ")
+             (save-buffers-kill-emacs)))))
+#+END_SRC
+
+代替方法として，
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq confirm-kill-emacs 'y-or-n-p)  
+#+END_SRC
+がある．
+
+*** キーバインド
+Show yes or no when you try to kill Emacs
+#+BEGIN_SRC emacs-lisp :tangle no
+;(global-set-key (kbd "C-x C-c") 'confirm-save-buffers-kill-emacs)
+#+END_SRC
+
 * コア設定
 
 Emacs を操作して文書編集する上で欠かせない設定です．
@@ -192,11 +235,28 @@ Emacs24用には，Mavericks対応した[[https://gist.github.com/takaxp/9658281
 
 本文中のバッファがあるディレクトリを grep 検索します． =M-x ag= でさくっと検索できます．[[https://github.com/Wilfred/ag.el][ag.el]] もありますが，まだ試していません．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no :exports yes
 (defun ag ()
   (interactive)
   (let ((grep-find-command "ag --nogroup "))
     (call-interactively 'grep-find)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+  (when (eval-after-autoload-if-found
+         '(ag) "ag" nil t nil
+         '((setq ag-highlight-search t)
+           (setq ag-reuse-buffers t) ;; nil=別ウィンドウが開く
+           (setq ag-reuse-window t)  ;; nil=結果を選択時に別ウィンドウに結果を出す
+           (define-key ag-mode-map (kbd "q") 'delete-window)))
+  
+    (defun my:ag ()
+      (interactive)
+      (call-interactively 'ag)
+      (switch-to-buffer-other-frame "*ag search*"))
+    (global-set-key (kbd "C-M-f") 'my:ag))
+  
+  
 #+END_SRC
 
 検索には =The Silver Searcher= を使うので，あらかじめインストールしておく必要があります．MacPorts の場合，the_silver_searcher の名称で頒布されています． =exec-path= に =/opt/local/bin= が含まれていることを確認してください．
@@ -315,13 +375,13 @@ Org でナローイングを使う場合は，特に設定しなくてもよい�
 
 http://marigold.sakura.ne.jp/devel/emacs/scroll/index.html
 
-非ASCII文字を扱っているときに一行づつスクロールしない場合は，scroll-conservatively の値を1では大きい数字にすると直るかもしれません．
+非ASCII文字を扱っているときに一行づつスクロールしない場合は，scroll-conservatively の値を1ではなく大きい数字にすると直るかもしれません．
 
 http://www.emacswiki.org/emacs/SmoothScrolling
 
 scroll-margin を指定すると，カーソルがウィンドウの端から離れた状態でスクロールされます．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle yes :exports yes
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
 (setq scroll-step 1)
@@ -332,17 +392,17 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 
 http://adamspiers.org/computing/elisp/smooth-scrolling.el
 
+#+BEGIN_SRC emacs-lisp :tangle no
+  (when (require 'smooth-scrolling nil t)
+    (setq smooth-scroll-margin 1))
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp :tangle no :exports no
   (when (autoload-if-found
          '(smooth-scrolling) "smooth-scrolling" nil t)
     (eval-after-load "smooth-scrolling"
       '(progn
          (setq smooth-scroll-margin 1))))
-#+END_SRC
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (eval-after-autoload-if-found
-   '(smooth-scrolling) "smooth-scrolling" nil t nil
-   '((setq smooth-scroll-margin 1)))
 #+END_SRC
 
 ** スクロールで表示を重複させる行数
@@ -381,7 +441,7 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
 
 autoload や autoload-if-found で定義すると，使いたい時に履歴が取れていないのでよろしくないです．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
 (require 'point-undo nil t)
 #+END_SRC
 
@@ -416,6 +476,43 @@ Cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
   (global-set-key (kbd "M-[") 'cycle-buffer-backward)
 #+END_SRC
 
+** [bm.el] カーソル位置をブックマークして追う
+
+[[https://github.com/joodland/bm][bm.el]]は，カーソル位置をブックマークしておくためのツールです． =point-undo= と比較して，ユーザが明示的に位置を保存でき，見た目にも使いやすいです．以下の例では， =org-mode= のツリー内にブックマークがある時にも，上手い具合に表示ができるように調整してあります．カーソル移動は，順方向（ =bm-next= ）にだけ使っています．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (eval-after-autoload-if-found
+         '(bm-toggle my:bm-next) "bm" nil t nil
+         '((setq-default bm-buffer-persistence nil)
+           (setq bm-restore-repository-on-load t)
+         
+           (defun my:bm-next ()
+             "bm-next with org-mode"
+             (interactive)
+             (bm-next)
+             (when (and (equal major-mode 'org-mode)
+                        (not (org-before-first-heading-p)))
+               (widen)
+               (org-overview)
+               (org-reveal)
+               (org-cycle-hide-drawers 'all)
+               (org-show-entry)
+               (show-children)
+               (org-show-siblings)))
+
+           (add-hook 'find-file-hook 'bm-buffer-restore)
+           (add-hook 'kill-buffer-hook 'bm-buffer-save)
+           (add-hook 'after-save-hook 'bm-buffer-save)
+           (add-hook 'after-revert-hook 'bm-buffer-restore)
+           (add-hook 'vc-before-checkin-hook 'bm-buffer-save)
+           (add-hook 'kill-emacs-hook '(lambda nil
+                                         (bm-buffer-save-all)
+                                         (bm-repository-save)))))
+
+    (global-set-key (kbd "<f10>") 'bm-toggle)
+    (global-set-key (kbd "<C-f10>") 'my:bm-next))
+#+END_SRC
+
 * 編集サポート
 ** 矩形編集／連番入力
 
@@ -447,17 +544,6 @@ Built-in の time-stamp.el を使う．
 
 バッファの保存時にタイムスタンプを記録する．以下の設定では，バッファの先頭から10行以内に，"Last Update: " があると，"Last Update: 2011-12-31@12:00"のようにタイムスタンプが記録される．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (add-hook 'before-save-hook 'time-stamp)
-  (eval-after-load "time-stamp"
-    '(progn
-       (setq time-stamp-start "DATE:[ \t]*")
-       (setq time-stamp-format "%04y-%02m-%02d")
-       (setq time-stamp-end "$")
-;;       (setq time-stamp-count 5)
-       (setq time-stamp-line-limit 10))) ; def=8  
-#+END_SRC
-
 #+BEGIN_SRC emacs-lisp :tangle yes :exports no
   (when (require 'update-stamp nil t)
     (add-hook 'before-save-hook 'update-stamp)
@@ -467,7 +553,17 @@ Built-in の time-stamp.el を使う．
     (setq update-stamp-line-limit 10))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+  (when (require 'time-stamp nil t)
+    (add-hook 'before-save-hook 'time-stamp)
+    (setq time-stamp-start "DATE:[ \t]*")
+    (setq time-stamp-format "%04y-%02m-%02d")
+    (setq time-stamp-end "$")
+    ;;       (setq time-stamp-count 5)
+    (setq time-stamp-line-limit 10)) ; def=8  
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports yes
   (add-hook 'before-save-hook 'time-stamp)
   (eval-after-load "time-stamp"
     '(progn
@@ -623,11 +719,12 @@ http://www.emacswiki.org/emacs/PoMode
 http://www.emacswiki.org/emacs/po-mode+.el
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-;(autoload 'po-mode "po-mode+" nil nil)
-(autoload 'po-mode "po-mode" nil t)
-(setq auto-mode-alist
-      (cons '("\\.po[tx]?\\'\\|\\.po\\." . po-mode)
-      auto-mode-alist))
+  ;;(autoload 'po-mode "po-mode+" nil nil)
+  ;;(autoload 'po-mode "po-mode" nil t)
+  (when (eval-after-autoload-if-found
+         '(po-mode) "po-mode" nil t nil
+         '())
+    (push '("\\.po[tx]?\\'\\|\\.po\\." . po-mode) auto-mode-alist))
 #+END_SRC
 ** [word-count.el] リージョン内の文字をカウントする
 
@@ -687,32 +784,55 @@ http://pastelwill.jp/wiki/doku.php?id=emacs
 
 [[http://orgmode.org/manual/Conflicts.html][Org-modeとの衝突を避ける]]
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-        (defun yas-org-very-safe-expand ()
-          (let ((yas-fallback-behavior 'return-nil)) (yas-expand)))
-        (when (require 'yasnippet nil t)
-          (setq yas-verbosity 2)
-          (setq yas-snippet-dirs
-                '("~/Dropbox/emacs.d/yas-dict"
-                  "~/devel/git/yasnippet/snippets"))
-          ;;        (yas-global-mode 1)
-          (custom-set-variables '(yas-trigger-key "TAB"))
-;;          (yas-global-mode 1)
-          ) ; ver.8
-        
-        
-        (dolist (hook (list 'perl-mode-hook 'c-mode-common-hook))
-          (add-hook hook 'yas-minor-mode-on))
-        (add-hook 'emacs-lisp-mode-hook
-                  '(lambda () (unless (equal "*scratch*" (buffer-name))
-                                (yas-minor-mode-on))))
-        (add-hook 'org-mode-hook
-                  '(lambda ()
-                     (yas-minor-mode-on)
-                     ;; org-cycle (<TAB>) との衝突を避ける
-                     (setq yas-trigger-symbol [tab])
-                     (add-to-list 'org-tab-first-hook 'yas-org-very-safe-expand)
-                     (define-key yas-keymap [tab] 'yas-next-field)))
+#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+  (eval-after-autoload-if-found
+   '(yas-global-mode yas-minor-mode)
+   "yasnippet" nil t nil
+   '((setq yas-verbosity 2)
+     (setq yas-snippet-dirs
+           (list "~/Dropbox/emacs.d/yas-dict"
+                 'yas-installed-snippets-dir)) ;; for Cask
+     (custom-set-variables '(yas-trigger-key [tab]))
+     (yas-global-mode 1)
+     ))
+  
+  (dolist (hook (list 'perl-mode-hook 'c-mode-common-hook 'org-mode-hook))
+    (add-hook hook 'yas-minor-mode))
+  
+;;  (add-hook 'org-mode-hook
+;;            (let ((original-command (lookup-key org-mode-map [tab])))
+;;              `(lambda ()
+;;                 (setq yas-fallback-behavior
+;;                       '(apply ,original-command))
+;;                 (local-set-key [tab] 'yas-expand))))
+  
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports yes
+  (eval-after-autoload-if-found
+   '(yas-minir-mode yas-expand) "yasnippet" nil t nil
+   '((setq yas-verbosity 2)
+     (setq yas-snippet-dirs
+           (list "~/Dropbox/emacs.d/yas-dict"
+                 'yas-installed-snippets-dir))
+     (custom-set-variables '(yas-trigger-key [tab]))
+     (yas-global-mode 1)))
+  
+  (dolist (hook (list 'perl-mode-hook 'c-mode-common-hook))
+    ;;                       'emacs-lisp-mode-hook))
+    (add-hook hook 'yas-minor-mode))
+  
+  (defun yas-org-very-safe-expand ()
+    (let ((yas-fallback-behavior 'return-nil)) (yas-expand)))
+  
+  (add-hook 'org-mode-hook
+            '(lambda ()
+               (yas-minor-mode)
+               ;; org-cycle (<TAB>) との衝突を避ける
+               (setq yas-trigger-symbol [tab])
+               (add-to-list 'org-tab-first-hook 'yas-org-very-safe-expand)
+               (define-key yas-keymap [tab] 'yas-next-field)))
+  
 #+END_SRC
 
 ** [sdic.el] 英辞郎で英単語を調べる
@@ -792,7 +912,6 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
         (pop-to-buffer tmpbuf)
         (erase-buffer)
         (insert "Query: " word "\n\n")
-        (dict-app-mode)
         (start-process "dict-process" tmpbuf "dict.py" word)
         (goto-char 0)
         ;;        (select-window win)
@@ -821,16 +940,14 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 
 *** キーバインド
 
-sdic 用の設定と衝突しないように気をつけます．
-
-#+BEGIN_SRC emacs-lisp :tangle no :exports yes
-;; カーソルの位置の英単語の意味を調べる
-(global-set-key (kbd "C-M-w") 'dictionary)
-#+END_SRC
+マイナーモード化した dict-app を使う場合は以下のようにします．そうでない場合は， =dictionary= を直接呼ぶことでも動作します．sdic を使っている人は，sdic 用の設定と衝突しないように気をつけます．
 
 #+BEGIN_SRC emacs-lisp :tangle yes :exports yes
-    (when (require 'dict-app nil t)
-      (global-set-key (kbd "C-M-w") 'dict-app-search))
+  (when (eval-after-autoload-if-found
+         '(dict-app-search dictionary) "dict-app" nil t nil
+         '())
+    ;; カーソルの位置の英単語の意味を調べる  
+    (global-set-key (kbd "C-M-w") 'dict-app-search))
 #+END_SRC
 
 ** [lookup.el] 辞書
@@ -942,41 +1059,44 @@ sdic 用の設定と衝突しないように気をつけます．
 HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです．古いHTMLモードを使っている方は，移行時期です．以下の =my-web-indent-fold= では， タブキーを打つたびにタグでくくられた領域を展開／非表示して整形します．Org-mode っぽい動作になりますが，操作の度にバッファに変更が加わったと判断されるので好みが分かれると思います．自動保存を有効にしているとそれほど気になりません．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (eval-after-autoload-if-found
-   '(web-mode) "web-mode" "web-mode" t nil
-   '((defun my-web-indent-fold ()
-       (interactive)
-       (web-mode-fold-or-unfold)
-       (web-mode-buffer-indent)
-       (indent-for-tab-command))
-     (define-key web-mode-map (kbd "<tab>") 'my-web-indent-fold)))
+  (when (eval-after-autoload-if-found
+         '(web-mode) "web-mode" "web-mode" t nil
+         '((defun my-web-indent-fold ()
+             (interactive)
+             (web-mode-fold-or-unfold)
+             (web-mode-buffer-indent)
+             (indent-for-tab-command))
 
-  ;; web-mode で開くファイルの拡張子を指定
-  (setq auto-mode-alist
-        (append '(("\\.phtml\\'" . web-mode)
-                  ("\\.tpl\\.php\\'" . web-mode)
-                  ("\\.jsp\\'" . web-mode)
-                  ("\\.as[cp]x\\'" . web-mode)
-                  ("\\.erb\\'" . web-mode)
-                  ("\\.mustache\\'" . web-mode)
-                  ("\\.djhtml\\'" . web-mode)
-                  ("\\.html?\\'" . web-mode))
-                auto-mode-alist))
-  ;; 色の設定
-  (custom-set-faces
-   ;; custom-set-faces was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   '(web-mode-comment-face ((t (:foreground "#D9333F"))))
-   '(web-mode-css-at-rule-face ((t (:foreground "#FF7F00"))))
-   '(web-mode-css-pseudo-class-face ((t (:foreground "#FF7F00"))))
-   '(web-mode-css-rule-face ((t (:foreground "#A0D8EF"))))
-   '(web-mode-doctype-face ((t (:foreground "#82AE46"))))
-   '(web-mode-html-attr-name-face ((t (:foreground "#C97586"))))
-   '(web-mode-html-attr-value-face ((t (:foreground "#82AE46"))))
-   '(web-mode-html-tag-face ((t (:foreground "##4682ae" :weight bold))))
-   '(web-mode-server-comment-face ((t (:foreground "#D9333F")))))
+           ;; 色の設定
+           (custom-set-faces
+            ;; custom-set-faces was added by Custom.
+            ;; If you edit it by hand, you could mess it up, so be careful.
+            ;; Your init file should contain only one such instance.
+            ;; If there is more than one, they won't work right.
+            '(default ((t (:background "#FFFFFF" :foreground "#202020"))))
+            '(web-mode-comment-face ((t (:foreground "#D9333F"))))
+            '(web-mode-css-at-rule-face ((t (:foreground "#FF7F00"))))
+            '(web-mode-css-pseudo-class-face ((t (:foreground "#FF7F00"))))
+            '(web-mode-css-rule-face ((t (:foreground "#A0D8EF"))))
+            '(web-mode-doctype-face ((t (:foreground "#82AE46"))))
+            '(web-mode-html-attr-name-face ((t (:foreground "#C97586"))))
+            '(web-mode-html-attr-value-face ((t (:foreground "#82AE46"))))
+            '(web-mode-html-tag-face ((t (:foreground "##4682ae" :weight bold))))
+            '(web-mode-server-comment-face ((t (:foreground "#D9333F")))))
+           (define-key web-mode-map (kbd "<tab>") 'my-web-indent-fold)))
+
+    ;; web-mode で開くファイルの拡張子を指定
+    (setq auto-mode-alist
+          (append '(("\\.phtml\\'" . web-mode)
+                    ("\\.tpl\\.php\\'" . web-mode)
+                    ("\\.jsp\\'" . web-mode)
+                    ("\\.as[cp]x\\'" . web-mode)
+                    ("\\.erb\\'" . web-mode)
+                    ("\\.mustache\\'" . web-mode)
+                    ("\\.djhtml\\'" . web-mode)
+                    ("\\.html?\\'" . web-mode))
+                  auto-mode-alist)))
+
 #+END_SRC
 
 ** [zencoding-mode] HTML編集の高速化
@@ -1220,6 +1340,59 @@ http://0xcc.net/migemo/#download
 http://svn.coderepos.org/share/lang/elisp/anything-c-moccur/trunk/anything-c-moccur.el
 http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (eval-after-autoload-if-found
+         '(anything-other-buffer anything-complete anything-M-x
+                                 anything-c-moccur-occur-by-moccur)
+         "anything-startup" nil t nil
+         '((require 'anything-c-moccur nil t)
+           ;;  (setq moccur-split-word t)
+           ;;  (setq anything-c-locate-options `("locate" "-w"))
+  
+           ;; M-x install-elisp-from-emacswiki recentf-ext.el
+           ;; http://www.emacswiki.org/cgi-bin/wiki/download/recentf-ext.el
+           ;;  (autoload-if-found 'recentf-ext "recentf-ext" nil t)
+           (require 'recentf-ext nil t)
+  
+           (when (require 'migemo nil t)
+             (setq moccur-use-migemo t))
+           ;; M-x anything-grep-by-name
+           (setq anything-grep-alist
+                 '(("Org-files" ("egrep -Hin %s *.org" "~/Dropbox/org/"))
+                   (".emacs.d" ("egrep -Hin %s *.el" "~/.emacs.d/"))
+                   ("ChangeLog" ("egrep -Hin %s ChangeLog" "~/"))))))
+    ;; ("Spotlight" ("mdfind %s -onlyin ~/Dropbox/Documents/Library/" ""))))
+  
+    (defun my-anything ()
+      (interactive)
+      (anything-other-buffer
+       '(anything-c-source-recentf
+         anything-c-source-file-name-history
+         anything-c-source-buffers
+         anything-c-source-emacs-commands
+         anything-c-source-locate)
+       " *my-anything*"))
+  
+    (defun my-anything-buffer ()
+      (interactive)
+      (anything-other-buffer
+       '(anything-c-source-buffers)
+       " *my-anthing-buffer*"))
+    
+    (when (eq window-system 'ns)
+      (defun my-anything-spotlight ()
+        "Spotlight search with anything.el"
+        (interactive)
+        (anything-other-buffer
+         '(anything-c-source-mac-spotlight)
+         " *anything-spotlight*")))
+  
+    (setq anything-candidate-number-limit 50) ; 50
+    (setq anything-input-idle-delay 0.1)      ; 0.1
+    (setq anything-idle-delay 0.5)            ; 0.5
+    (setq anything-quick-update nil))        ; nil
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp :tangle no :exports no
   (when (autoload-if-found
          '(anything-other-buffer anything-complete
@@ -1277,55 +1450,6 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
          (setq anything-idle-delay 0.5)            ; 0.5
          (setq anything-quick-update nil))))       ; nil
 #+END_SRC
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (when (eval-after-autoload-if-found
-         '(anything-other-buffer anything-complete anything-M-x anything-c-moccur-occur-by-moccur) "anything-startup" nil t nil
-         '((require 'anything-c-moccur nil t)
-           ;;  (setq moccur-split-word t)
-           ;;  (setq anything-c-locate-options `("locate" "-w"))
-  
-           ;; M-x install-elisp-from-emacswiki recentf-ext.el
-           ;; http://www.emacswiki.org/cgi-bin/wiki/download/recentf-ext.el
-           ;;  (autoload-if-found 'recentf-ext "recentf-ext" nil t)
-           (require 'recentf-ext nil t)
-  
-           (when (require 'migemo nil t)
-             (setq moccur-use-migemo t))
-           ;; M-x anything-grep-by-name
-           (setq anything-grep-alist
-                 '(("Org-files" ("egrep -Hin %s *.org" "~/Dropbox/org/"))
-                   (".emacs.d" ("egrep -Hin %s *.el" "~/.emacs.d/"))
-                   ("ChangeLog" ("egrep -Hin %s ChangeLog" "~/"))))))
-    ;; ("Spotlight" ("mdfind %s -onlyin ~/Dropbox/Documents/Library/" ""))))
-  
-    (defun my-anything ()
-      (interactive)
-      (anything-other-buffer
-       '(anything-c-source-recentf
-         anything-c-source-file-name-history
-         anything-c-source-buffers
-         anything-c-source-emacs-commands
-         anything-c-source-locate)
-       " *my-anything*"))
-    (defun my-anything-buffer ()
-      (interactive)
-      (anything-other-buffer
-       '(anything-c-source-buffers)
-       " *my-anthing-buffer*"))
-    
-    (when (eq window-system 'ns)
-      (defun my-anything-spotlight ()
-        "Spotlight search with anything.el"
-        (interactive)
-        (anything-other-buffer
-         '(anything-c-source-mac-spotlight)
-         " *anything-spotlight*")))
-  
-    (setq anything-candidate-number-limit 50) ; 50
-    (setq anything-input-idle-delay 0.1)      ; 0.1
-    (setq anything-idle-delay 0.5)            ; 0.5
-    (setq anything-quick-update nil))        ; nil
-#+END_SRC
 
 *** キーバインド
 
@@ -1333,11 +1457,13 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Show ibuffer powered by anything
-  (global-set-key (kbd "M-x") 'anything-M-x)
-  (global-set-key (kbd "C-c o") 'anything-c-moccur-occur-by-moccur)
-  (global-set-key (kbd "C-M-r") 'my-anything)
-  (global-set-key (kbd "C-M-s") 'my-anything-spotlight)
-  (global-set-key (kbd "C-x C-b") 'my-anything-buffer)
+;;  (with-eval-after-load "anything-startup"
+    (global-set-key (kbd "M-x") 'anything-M-x)
+    (global-set-key (kbd "C-c o") 'anything-c-moccur-occur-by-moccur)
+    (global-set-key (kbd "C-M-r") 'my-anything)
+    (global-set-key (kbd "C-M-s") 'my-anything-spotlight)
+    (global-set-key (kbd "C-x C-b") 'my-anything-buffer)
+;;)
 #+END_SRC
 
 ** [stripe-buffer.el] テーブルの色をストライプにする
@@ -1379,7 +1505,8 @@ autoload を設定すると， =*.bango-playlist= や =*.bongo-library= から�
          ;; Use mplayer
          (setq bongo-enabled-backends '(mplayer)))))
 #+END_SRC
-#+BEGIN_SRC emacs-lisp :tangle yes
+
+#+BEGIN_SRC emacs-lisp :tangle no
   (when (eval-after-autoload-if-found
          '(bongo) "bongo-mplayer" nil t nil
          '(;; Volume control
@@ -1414,7 +1541,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 
 =M-x gogole-maps= で起動します．
 
-#+BEGIN_SRC  emacs-lisp :tangle yes
+#+BEGIN_SRC  emacs-lisp :tangle no
 (require 'google-maps nil t)
 (require 'org-location-google-maps nil t)
 #+END_SRC
@@ -1427,7 +1554,7 @@ Org-mode を使っている場合には， =C-c M-L= で表示されるプロン
 
 [[http://julien.danjou.info/software/google-weather.el]]
 
-#+BEGIN_SRC  emacs-lisp :tangle yes
+#+BEGIN_SRC  emacs-lisp :tangle no
 (require 'google-weather nil t)
 (when (require 'org-google-weather nil t)
  '(org-google-weather-use-google-icons t))
@@ -1525,8 +1652,14 @@ http://0xcc.net/misc/auto-save/
 起動直後から有効にするので，autolad-if-load で括る必要はない．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(when (require 'auto-save-buffers nil t)
-  (run-with-idle-timer 1.5 t 'auto-save-buffers))
+  (when (require 'auto-save-buffers nil t)
+    (run-with-idle-timer 1.5 t
+                         '(lambda ()
+                            (or (unless (equal major-mode
+                                               'undo-tree-visualizer-mode))
+                                (unless (equal major-mode
+                                               'diff-mode)))
+                            (auto-save-buffers))))
 #+END_SRC
 
 ** [backup-dir.el] バックアップファイルを一箇所に集める
@@ -1652,7 +1785,7 @@ http://www.emacswiki.org/emacs/EmacsSession
 
 利用開始前に，ログ表示サイトでルールをカスタマイズしておくとよい．例えば，拡張子が =.org= なファイルの場合，言語設定を =Text= にする，という具合に．すると，グラフ表示がわかりやすくなる．
 
-#+BEGIN_SRC emacs-lisp :tangle yes :exports yes
+#+BEGIN_SRC emacs-lisp :tangle no :exports yes
   (when (require 'wakatime-mode nil t)
     (setq wakatime-api-key "<insert your own api key>")
     (setq wakatime-cli-path "/Users/taka/Dropbox/emacs.d/bin/wakatime-cli.py")
@@ -1724,66 +1857,67 @@ Org-mode ユーザにとって =TAB= は非常に重要なコマンド．そこ�
 情報源については，[[http://cx4a.org/software/auto-complete/manual.ja.html#.E6.A8.99.E6.BA.96.E6.83.85.E5.A0.B1.E6.BA.90][オンラインマニュアル]]を参照のこと．
  
 #+BEGIN_SRC emacs-lisp :tangle yes
-        (when (require 'auto-complete-config nil t)
-          (ac-config-default)
-          (defun ac-org-mode-setup ()
-;;            (message " >> ac-org-mode-setup")
-            (setq ac-sources '(
-  ;;                             ac-source-abbrev ; Emacs の略語
-        ;;;                         ac-source-css-property ; heavy
-                               ac-source-dictionary ; 辞書
-                               ac-source-features
-                               ac-source-filename
-                               ac-source-files-in-current-dir
-                               ac-source-functions
-  ;;                             ac-source-gtags
-  ;;                             ac-source-imenu 
-  ;;                             ac-source-semantic
-  ;;                             ac-source-symbols 
-  ;;                             ac-source-variables
-  ;;                             ac-source-yasnippet
-                               )))
-          (add-hook 'org-mode-hook 'ac-org-mode-setup)
-          (defun ac-default-setup ()
-;;            (message " >> ac-default-setup")
-            (setq ac-sources '(ac-source-abbrev
-                               ac-source-dictionary
-                               ac-source-words-in-same-mode-buffers)))
-      ;      (setq ac-sources (append '(ac-source-abbrev
-      ;                                 ac-source-dictionary
-      ;                                 ac-source-words-in-same-mode-buffers)
-      ;                               ac-sources)))
-          (dolist (hook (list 'perl-mode-hook 'objc-mode-hook))
-            (add-hook hook 'ac-default-setup))
-          ;; *scratch* バッファでは無効化
-          (add-hook 'lisp-mode-hook
-                    '(lambda () (unless (equal "*scratch*" (buffer-name))
-                                  (ac-default-setup))))
-          ;; ac-modes にあるメジャーモードで有効にする
-          ;; lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
-          (global-auto-complete-mode t)
-          ;; 追加のメジャーモードを設定
-          (add-to-list 'ac-modes 'objc-mode)
-          (add-to-list 'ac-modes 'org-mode)
-          ;; 辞書
-          (add-to-list 'ac-dictionary-directories (concat default-path "ac-dict"))
-          ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
-          (setq ac-auto-start 4)
-          ;; n秒後にメニューを表示
-          (setq ac-auto-show-menu 1.0)
-          ;; ツールチップの表示
-          (setq ac-use-quick-help t)
-          (setq ac-quick-help-delay 2.0)
-          (setq ac-quick-help-height 10)
-          ;; C-n/C-p でメニューをたどる
-          (setq ac-use-menu-map t)
-          ;; TAB で補完（org-mode でも効くようにする）
-          (define-key ac-completing-map [tab] 'ac-complete)
-          ;; RET での補完を禁止
-          (define-key ac-completing-map "\r" nil)
-          ;; 補完メニューの表示精度を高める
-          (setq popup-use-optimized-column-computation nil))
-          ;;(setq ac-candidate-max 10)
+  (when (require 'auto-complete nil t)
+    (require 'auto-complete-config nil t)
+    (ac-config-default)
+    (defun ac-org-mode-setup ()
+      ;;            (message " >> ac-org-mode-setup")
+      (setq ac-sources '(
+                         ;;                             ac-source-abbrev ; Emacs の略語
+          ;;;                         ac-source-css-property ; heavy
+                         ac-source-dictionary ; 辞書
+                         ac-source-features
+                         ac-source-filename
+                         ac-source-files-in-current-dir
+                         ac-source-functions
+                         ;;                             ac-source-gtags
+                         ;;                             ac-source-imenu 
+                         ;;                             ac-source-semantic
+                         ;;                             ac-source-symbols 
+                         ;;                             ac-source-variables
+                         ;;                             ac-source-yasnippet
+                         )))
+    (add-hook 'org-mode-hook 'ac-org-mode-setup)
+    (defun ac-default-setup ()
+      ;;            (message " >> ac-default-setup")
+      (setq ac-sources '(ac-source-abbrev
+                         ac-source-dictionary
+                         ac-source-words-in-same-mode-buffers)))
+                                          ;      (setq ac-sources (append '(ac-source-abbrev
+                                          ;                                 ac-source-dictionary
+                                          ;                                 ac-source-words-in-same-mode-buffers)
+                                          ;                               ac-sources)))
+    (dolist (hook (list 'perl-mode-hook 'objc-mode-hook))
+      (add-hook hook 'ac-default-setup))
+    ;; *scratch* バッファでは無効化
+    (add-hook 'lisp-mode-hook
+              '(lambda () (unless (equal "*scratch*" (buffer-name))
+                            (ac-default-setup))))
+    ;; ac-modes にあるメジャーモードで有効にする
+    ;; lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
+    (global-auto-complete-mode t)
+    ;; 追加のメジャーモードを設定
+    (add-to-list 'ac-modes 'objc-mode)
+    (add-to-list 'ac-modes 'org-mode)
+    ;; 辞書
+    (add-to-list 'ac-dictionary-directories (concat default-path "ac-dict"))
+    ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
+    (setq ac-auto-start 4)
+    ;; n秒後にメニューを表示
+    (setq ac-auto-show-menu 1.0)
+    ;; ツールチップの表示
+    (setq ac-use-quick-help t)
+    (setq ac-quick-help-delay 2.0)
+    (setq ac-quick-help-height 10)
+    ;; C-n/C-p でメニューをたどる
+    (setq ac-use-menu-map t)
+    ;; TAB で補完（org-mode でも効くようにする）
+    (define-key ac-completing-map [tab] 'ac-complete)
+    ;; RET での補完を禁止
+    (define-key ac-completing-map "\r" nil)
+    ;; 補完メニューの表示精度を高める
+    (setq popup-use-optimized-column-computation nil))
+  ;;(setq ac-candidate-max 10)
 #+END_SRC
 
 ** [auto-complete-clang.el] オムニ補完
@@ -1799,20 +1933,21 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
 以下の設定は，先に =auto-complete.el= に関する設定を読み込んでいることを前提としている．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-        (when (require 'auto-complete-clang nil t)
-          ;; ac-cc-mode-setup のオーバーライド
-          (defun ac-cc-mode-setup ()
-;;            (message " >> Auto-complete-clang")
-            ;;      (setq ac-clang-prefix-header "stdafx.pch")
-;;            (setq ac-auto-start 0)
-            (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
-            (setq ac-clang-flags '("-w" "-ferror-limit" "1"
-                                   "-fcxx-exceptions"))
-            (setq ac-sources '(ac-source-clang
-                               ac-source-yasnippet
-                               ac-source-gtags))
-            )
-          (add-hook 'c-mode-common-hook 'ac-cc-mode-setup))
+  (when (require 'auto-complete nil t)
+    (require 'auto-complete-clang nil t)
+    ;; ac-cc-mode-setup のオーバーライド
+    (defun ac-cc-mode-setup ()
+      ;;            (message " >> Auto-complete-clang")
+      ;;      (setq ac-clang-prefix-header "stdafx.pch")
+      ;;            (setq ac-auto-start 0)
+      (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
+      (setq ac-clang-flags '("-w" "-ferror-limit" "1"
+                             "-fcxx-exceptions"))
+      (setq ac-sources '(ac-source-clang
+                         ac-source-yasnippet
+                         ac-source-gtags))
+      )
+    (add-hook 'c-mode-common-hook 'ac-cc-mode-setup))
 #+END_SRC 
 
 次のコードを hoge.cpp として保存し， =v= と =t= について補完できれば， =STL= と =Boost= のプリコンパイルヘッダが有効になっていることを確認できる．
@@ -1888,7 +2023,7 @@ Hide or show current block of souces
      (setq org-export-with-LaTeX-fragments t)
      
      ;; orgバッファ内の全ての動的ブロックを保存直前に変更する
-     (add-hook 'before-save-hook 'org-update-all-dblocks)
+     ;; (add-hook 'before-save-hook 'org-update-all-dblocks)
      
      ;; アーカイブファイルの名称を指定
      (setq org-archive-location "%s_archive::")
@@ -1916,42 +2051,46 @@ Hide or show current block of souces
 #+BEGIN_SRC emacs-lisp :tangle yes
   (eval-after-autoload-if-found
    'org-mode "org" "Org Mode" t nil
-   '(
-     ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
+   '(;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
      ;; default = ~/org.ics
      ;; C-c C-e i org-export-icalendar-this-file
      ;; C-c C-e I org-export-icalendar-all-agenda-files
      ;; C-c C-e c org-export-icalendar-all-combine-agenda-files
      ;; (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
-     
+  
+     (setq org-icalendar-combined-agenda-file "~/Dropbox/org/org-ical.ics")
+  
      ;; iCal の説明文
      (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
      ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
      (setq org-icalendar-timezone "Asia/Tokyo")
-
+     
      ;; DONE になった TODO はアジェンダから除外する
      (setq org-icalendar-include-todo t)
      ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
      (setq org-icalendar-use-scheduled '(event-if-todo))
-    ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
-     ;;         (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
+             ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
+     ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
      (setq org-icalendar-use-deadline '(event-if-todo))
+     
      (when (require 'ox-icalendar nil t)
        (defun my-ox-icalendar ()
          (interactive)
-         (with-current-buffer
-             (find-file-noselect "~/Dropbox/org/org-ical.org")
-           (org-icalendar-export-to-ics)
-     ;;; エクスポート後に，AppleScript で新しいカレンダーをリロードさせる
-     ;;(add-hook 'org-after-save-iCalendar-file-hook
-     ;;         (lambda ()
-     ;;           (shell-command
-     ;;         "osascript -e 'tell application \"iCal\" to reload calendars'")))
-           (let ((result
-                  (shell-command
-                   "scp -o ConnectTimeout=5 ~/Dropbox/org/org-ical.ics orz:~/public_html/ical")))
-             (if (eq result 0) (message "Uploading ... [DONE]")
-               (message "Uploading ... [MISS]"))))))
+         (let ((temp-agenda-files org-agenda-files))
+           (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
+           ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
+           (org-icalendar-combine-agenda-files)
+           (setq org-agenda-files temp-agenda-files)
+           (if (eq 0 (shell-command
+                      (concat "scp -o ConnectTimeout=5 "
+                              org-icalendar-combined-agenda-file
+                              " orz:~/public_html/ical")))
+               (message "Uploading ... [DONE]")
+             (message "Uploading ... [MISS]"))
+           (when (file-exists-p
+                  (expand-file-name org-icalendar-combined-agenda-file))
+             (shell-command-to-string
+              (concat "rm -rf " org-icalendar-combined-agenda-file))))))
      ))
 #+END_SRC
 
@@ -2025,9 +2164,9 @@ http://orgmode.org/worg/org-gtd-etc.html
      ;; Color setting for Tags
   
      ;; #CC3333     
-  
      (setq org-todo-keyword-faces
            '(("FOCUS"   :foreground "#FF0000" :background "#FFCC66")
+             ("OTW"     :foreground "#EE3300" :background "#FFEE99")
              ("CHECK"   :foreground "#FF9900" :background "#FFF0F0" :underline t)
              ("ICAL"    :foreground "#33CC66")
              ("WAIT"    :foreground "#CCCCCC" :background "#666666")
@@ -2055,6 +2194,7 @@ http://orgmode.org/worg/org-gtd-etc.html
              ("pay"         :foreground "#CC6699")
              ("secret"      :foreground "#FF0000")
              ("note"        :foreground "#6633CC")
+             ("print"       :foreground "#6633CC")
              ("Implements"  :foreground "#CC9999" :weight bold)
              ("Coding"      :foreground "#CC9999")
              ("Editing"     :foreground "#CC9999" :weight bold)
@@ -2087,7 +2227,7 @@ http://orgmode.org/worg/org-gtd-etc.html
      '((setq org-todo-keywords
              '((sequence "TODO(t)" "FOCUS(f)" "ICAL(c)" "|" "DONE(d)")
                (sequence "READ(r)" "EDIT(e)" "MAIL(m)" "PLAN(p)" "|")
-               (sequence "CHECK(C)" "WAIT(w)" "STOP(s)" "|")
+               (sequence "CHECK(C)" "OTW(o)" "WAIT(w)" "STOP(s)" "|")
                (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|")))
        
        ;; Global counting of TODO items
@@ -2105,6 +2245,32 @@ http://orgmode.org/worg/org-gtd-etc.html
          (interactive)
          (org-update-statistics-cookies 'all))
        ))
+#+END_SRC
+
+** ImageMagick を使って様々な画像をインライン表示する
+
+システムに OpenJPEG と ImageMagick がインストールされていれば，JPEG 2000 などの画像形式もバッファに表示できます．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (eval-after-autoload-if-found
+   'org-agenda "org" "Org Mode" t nil
+   '((setq org-image-actual-width '(256))
+     (add-to-list 'image-file-name-extensions "jp2")
+     ;; (add-to-list 'image-file-name-extensions "j2c")
+     (add-to-list 'image-file-name-extensions "bmp")
+     (add-to-list 'image-file-name-extensions "psd")))
+#+END_SRC
+
+次の例では，同じ画像を2度インライン表示しようと指定ますが，前者は横幅が128ピクセルで表示され，後者は =org-image-actual-width= で指定した256ピクセルで表示されます．
+
+#+BEGIN_SRC emacs-lisp :tangle no
+#+ATTR_HTML: :width 128
+[[~/Desktop/lena_std.jp2]]
+
+[[~/Desktop/lena_std.jp2]]
+
+#+BEGIN_SRC emacs-lisp
+(org-toggle-inline-images)
 #+END_SRC
 
 ** [org-agenda]
@@ -2173,33 +2339,38 @@ http://orgmode.org/worg/org-gtd-etc.html
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (global-set-key (kbd "<f11>") 'my-toggle-doing-tag)
-(define-key org-mode-map (kbd "C-c <f11>") 'my-sparse-doing-tree)
+(eval-after-autoload-if-found
+   'org-agenda "org" "Org Mode" t nil
+   '((define-key org-mode-map (kbd "C-c <f11>") 'my-sparse-doing-tree)))
 #+END_SRC
 
 ** [appt.el] アラーム設定
 #+BEGIN_SRC emacs-lisp :tangle yes
   (eval-after-autoload-if-found
-  'org-mode "org" "Org Mode" t nil
-  '(  
-;; アラーム表示を有効にする
-(appt-activate 1)
-;; window を フレーム内に表示する
-(setq appt-display-format 'window)
-;; window を継続表示する時間[s]
-(setq appt-display-duration 3)
-;; ビープ音の有無
-(setq appt-audible t)
-;; 何分前から警告表示を開始するか[m]
-(setq appt-message-warning-time 3)
-;; モードラインにアラームを表示する
-(setq appt-display-mode-line t)
-;; org-agenda の内容をアラームに登録する
-;; (org-agenda-to-appt t '((headline "TODO")))
-;; 保存時にアラームを登録
-;;(add-hook 'org-mode-hook
-;;    (lambda() (add-hook 'before-save-hook
-;;            'org-agenda-to-appt t '((headline "TODO")))))
-))
+   'org-mode "org" "Org Mode" t nil
+   '(;; アラーム表示を有効にする
+     (appt-activate 1)
+     ;; window を フレーム内に表示する
+     (setq appt-display-format 'window)
+     ;; window を継続表示する時間[s]
+     (setq appt-display-duration 3)
+     ;; ビープ音の有無
+     (setq appt-audible t)
+     ;; 何分前から警告表示を開始するか[m]
+     (setq appt-message-warning-time 3)
+     ;; モードラインにアラームを表示する
+     (setq appt-display-mode-line t)
+     ;; org-agenda の内容をアラームに登録する
+     ;; (org-agenda-to-appt t '((headline "TODO")))
+     (run-with-idle-timer
+      300 t
+      '(lambda ()
+         (org-agenda-to-appt t '((headline "TODO")))))
+     ;; 保存時にアラームを登録
+     ;; (add-hook 'org-mode-hook
+     ;;           (lambda() (add-hook 'before-save-hook
+     ;;                               'org-agenda-to-appt t '((headline "TODO")))))
+     ))
 #+END_SRC
 
 ** [org-capture] 高速にメモを取る
@@ -2306,28 +2477,28 @@ http://orgmode.org/manual/Setting-up-the-staging-area.html
   (eval-after-autoload-if-found
    'org-mode "org" "Org Mode" t nil
    '(
-  ;(setq org-mobile-files '("~/Dropbox/org/next.org" "1.org" "2.org"))
-  (setq org-mobile-files '("~/Dropbox/org/next.org"))
-  ;(setq org-mobile-force-id-on-agenda-items nil)
-  
-  ;; Set a file to capture data from iOS devices
-  (setq org-mobile-inbox-for-pull (concat org-directory "captured.org"))
-  
-  ; Upload location stored org files (index.org will be created)
-  (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg/")
-  
+     ;;(setq org-mobile-files '("~/Dropbox/org/next.org" "1.org" "2.org"))
+     (setq org-mobile-files '("~/Dropbox/org/next.org"))
+                                          ;(setq org-mobile-force-id-on-agenda-items nil)
+
+     ;; Set a file to capture data from iOS devices
+     (setq org-mobile-inbox-for-pull (concat org-directory "captured.org"))
+
+                                          ; Upload location stored org files (index.org will be created)
+     (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg/")
+
   ;;; Menu to push or pull org files using MobileOrg
-  (defun org-mobile-sync ()
-    (interactive)
-    (let
-        (org-mobile-sync-type
-         (read-from-minibuffer "How do you sync the org files? (pull or push) "))
-      (message "%s" org-mobile-sync-type)
-      (cond
-       ((string= "pull" org-mobile-sync-type)(org-mobile-pull))
-       ((string= "push" org-mobile-sync-type)(org-mobile-push)))))
-  
-  ))
+     (defun org-mobile-sync ()
+       (interactive)
+       (let
+           (org-mobile-sync-type
+            (read-from-minibuffer "How do you sync the org files? (pull or push) "))
+         (message "%s" org-mobile-sync-type)
+         (cond
+          ((string= "pull" org-mobile-sync-type)(org-mobile-pull))
+          ((string= "push" org-mobile-sync-type)(org-mobile-push)))))
+
+     ))
 #+END_SRC
 
 ** [org-tree-slide.el] Org でプレゼンテーション
@@ -2345,13 +2516,8 @@ Doing タグのトグルに =f11= を割り当てたので，コンテンツモ�
              'org-tree-slide-move-previous-tree)
            (define-key org-tree-slide-mode-map (kbd "<f10>")
              'org-tree-slide-move-next-tree)
-           ;; (define-key org-tree-slide-mode-map (kbd "<f11>")
-           ;;   'org-tree-slide-content)
-           ;; reset the default setting
-           (define-key org-tree-slide-mode-map (kbd "<left>")  'backward-char)
-           (define-key org-tree-slide-mode-map (kbd "<right>") 'forward-char)
            (org-tree-slide-narrowing-control-profile)
-           ;;         (org-tree-slide-presentation-profile)
+           (setq org-tree-slide-modeline-display 'outside)
            (setq org-tree-slide-skip-outline-level 5)
            (setq org-tree-slide-skip-done nil)))
     (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
@@ -2491,15 +2657,18 @@ Doing タグのトグルに =f11= を割り当てたので，コンテンツモ�
 ** [org-odt] ODT形式に出力
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-    (eval-after-autoload-if-found
-     '(ox-odt) "ox-odt" nil t nil
-     '((setq org-odt-styles-file
-             (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
-       (setq org-odt-preferred-output-format "docx")
-       (setq org-odt-convert-processes
-             '(("LibreOffice"
-                "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
-               ("unoconv" "unoconv -f %f -o %d %i")))))
+  (eval-after-autoload-if-found
+   '(ox-odt) "ox-odt" nil t nil
+   '(
+     (setq org-odt-styles-file
+           (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.odt"))
+     ;; (setq org-odt-content-template-file
+     ;;       (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
+     (setq org-odt-preferred-output-format "docx")
+     (setq org-odt-convert-processes
+           '(("LibreOffice"
+              "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
+             ("unoconv" "unoconv -f %f -o %d %i")))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no :exports no
@@ -2523,12 +2692,13 @@ Doing タグのトグルに =f11= を割り当てたので，コンテンツモ�
 なお，実戦投入には十分なテストをしてからの方がよいでしょう．org バッファを外部ホストと同期している場合，転送先のホストでも暗号化／復号ができるかを確認するべきです．他方のホストでツリーにドロワーが付くと，復号できなくなったりします．その時は慌てずにプロパティのドロワーを削除すればOKです．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (when (require 'org-crypt nil t)
-    (setq org-crypt-key "<insert your key>")
-    ;; org-encrypt-entries の影響を受けるタグを指定
-    (setq org-tags-exclude-from-inheritance (quote ("secret")))
-    ;; 自動保存の確認を無効に
-    (setq org-crypt-disable-auto-save 'nil))
+  (eval-after-autoload-if-found
+   'org-crypt "org" "Org Mode" t nil
+   '((setq org-crypt-key "<insert your key>")
+     ;; org-encrypt-entries の影響を受けるタグを指定
+     (setq org-tags-exclude-from-inheritance (quote ("secret")))
+     ;; 自動保存の確認を無効に
+     (setq org-crypt-disable-auto-save 'nil)))
 #+END_SRC
 
 ** README を常に org-mode で開く
@@ -2538,11 +2708,21 @@ Doing タグのトグルに =f11= を割り当てたので，コンテンツモ�
   '((push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist)))
 #+END_SRC
 
-** その他
+** Growlnotify と org-mode でアラーム管理
+
+growlnotify と org-mode のバッファを組み合わせてアラームリストを管理しています．アラームをorgバッファに書き込むだけなので，とても楽です．機能としては，特定のorgバッファに，時刻とアラームの内容を表の形式として保存しておくだけで，Emacs が起動している限りにおいて growl がそのアラームを表示してくれます．つまり，アラームリストは org-mode の表で一覧化されているので，管理も楽ですし，見た目もわかりやすいです．
+
+アラームとして解釈される表は，オプション，時刻（HH:MM形式），アラーム内容の3列で構成していればOKです．オプションの列にXを入れておくと，growl がStickyモードで動作するので，アラームを見逃しません．
+
+アラームは複数登録することができます．不要になったアラームを削除するのは，単純に表から当該の行を削除するだけで済みます．実際のところは，バッファが保存される時にアラームリストの変更が自動的にシステムに反映されるので，余計な作業は不要です．
+
+=set-alarms-from-file= は，[[http://pastelwill.jp/wiki/doku.php?id=emacs:utility.el][utility.el]]に記述した関数です．
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (eval-after-autoload-if-found
    'org-mode "org" "Org Mode" t nil
    '((setq alarm-table "~/Dropbox/org/today.org")
+     (add-hook 'after-save-hook 'set-alarm-hook)
      (run-at-time "00:00" nil 'set-alarms-from-file alarm-table)))
 #+END_SRC
 
@@ -2572,6 +2752,32 @@ Doing タグのトグルに =f11= を割り当てたので，コンテンツモ�
       (global-set-key (kbd "C-c l") 'org-store-link)
       (global-set-key (kbd "C-c a") 'org-agenda)
       (global-set-key (kbd "C-c r") 'org-capture))
+#+END_SRC
+** その他
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (defun describe-timer ()
+      "A modified. see http://masutaka.net/chalow/2009-12-05-1.html"
+      (interactive)
+      (let ((tl timer-list) time
+            (timer nil))
+        (pop-to-buffer (get-buffer-create "*timer*"))
+        (erase-buffer)
+        (insert
+         "TIME           FUNCTION\n"
+         "-------------- ----------------------\n")
+        (while tl
+          (setq timer (car tl))
+          (insert
+           (concat
+            (format-time-string "%m/%d %T"
+                                (list (aref timer 1)
+                                      (aref timer 2)
+                                      (aref timer 3)))
+            " "
+            (symbol-name (aref timer 5))
+            "\n"))
+          (setq tl (cdr tl)))))
+  
 #+END_SRC
 ** org-mode の latex エクスポート関数をオーバーライド
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -2643,6 +2849,13 @@ Doing タグのトグルに =f11= を割り当てたので，コンテンツモ�
 (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
 #+END_SRC
 
+** 設定ファイルを見やすくする
+=generic-x= を使えば， =/etc/hosts= や =/etc/apache2.conf= に色を付けられる．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'generic-x nil t)
+#+END_SRC
+
 ** カーソル行に色をつける
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Color of the current line
@@ -2689,9 +2902,12 @@ Doing タグのトグルに =f11= を割り当てたので，コンテンツモ�
 (blink-cursor-mode -1)
 #+END_SRC
 
-** フォント設定
+** カーソル位置のフォントを確認
 
-表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．
+=M-x describe-char= することで，カーソル位置のフォントの情報がポップで表示される．
+
+** フォント設定
+表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．最近は，[[http://mix-mplus-ipa.sourceforge.jp/migu/][Migu 2M]]を気に入って使っています．
 
 |         | ASCII       | 日本語       |
 | Mac     | Monaco      | ヒラギノ丸ゴ |
@@ -2744,8 +2960,6 @@ http://d.hatena.ne.jp/setoryohei/20110117/1295336454
               ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
               ("-cdac$" . 1.0)))           ; 1.3
       
-      ;; Space between lines
-      (set-default 'line-spacing 1)
       ;; Anti aliasing with Quartz 2D
       (setq mac-allow-anti-aliasing t)))
    
@@ -2760,8 +2974,7 @@ http://d.hatena.ne.jp/setoryohei/20110117/1295336454
        (font-spec :family ja-font :size font-size :height font-height))
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
     (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))) ; 0.9
-    (set-default 'line-spacing 1))
-   
+)   
    (window-system ; for SuSE Linux 12.1
     (let
         ((font-size 14)
@@ -2774,7 +2987,7 @@ http://d.hatena.ne.jp/setoryohei/20110117/1295336454
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
     (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
                                     (".*Inconsolata.*" . 1.0))) ; 0.9
-    (set-default 'line-spacing 1)))
+    ))
 #+END_SRC
 
 *** フォントのインストール方法
@@ -2791,53 +3004,122 @@ Linux では次のように処理するだけでよく，意外と簡単．
 *** フォントチェック用コード
 
 サンプルの [[http://dl.dropbox.com/u/2440/dokuwiki/font-test.org][orgファイル]] を作って，見た目をチェックしています．バッファ内の桁数チェックや，ASCIIが漢字の半分の幅になっているかのチェックが楽になります．
+** 行間を制御する
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defvar init-line-spacing 0.2)
+  (defvar min-line-spacing 0.1)
+  (defvar max-line-spacing 0.8)
+
+  (set-default 'line-spacing init-line-spacing)
+  (defun cycle-line-spacing ()
+    (interactive)
+    (if (< line-spacing max-line-spacing)
+      (setq line-spacing (+ line-spacing 0.1))
+      (setq line-spacing min-line-spacing))
+    (message "%.1f" line-spacing))
+
+  (defun reset-line-spacing ()
+    (interactive)
+    (setq line-spacing init-line-spacing)
+    (message "%.1f" line-spacing))
+#+END_SRC
 
 ** フォントサイズを制御する
 
 以下の設定は，標準のフォントサイズが12ptで，日本語フォントに Migu 2M，英字フォントにMonacoを使う場合の設定です．フォントサイズの「増加」「減少」「初期化」「サイズ指定」が可能です．なお，15ptを超える場合はフレームサイズを15に強制補正するようにしています．手元のモニタを基準にしているので，ここはカスタマイズポイントだと思います．（そのうち変数化する予定です）
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-(defvar default-font-size 12)
-(setq target-font-size default-font-size)
+# 変数化したので記述を更新すること．
 
-(defun increase-font-size ()
-  (interactive)
-  (setq target-font-size (+ target-font-size 1))
-  (set-font-size target-font-size)
-  (message "+1: %s" target-font-size))
-
-(defun decrease-font-size ()
-  (interactive)
-  (setq target-font-size (- target-font-size 1))
-  (set-font-size target-font-size)
-  (message "-1: %s" target-font-size))
-
-(defun reset-font-size ()
-  (interactive)
-  (set-font-size default-font-size)
-  (setq target-font-size default-font-size)
-  (message "0: %s" target-font-size))
-
-(defun set-font-size-input (n)
-  (interactive "nSize: ")
-  (setq target-font-size n)
-  (set-font-size target-font-size)
-  (message "0: %s" target-font-size))
-
-(defun set-font-size (arg)
-  (interactive "p")
-  (let* ((font-size arg)
-  (frame-width 80)
-  (frame-height (if (> arg 15) 20 40))
-        (ja-font-scale 1.2)
-        (ja-font "Migu 2M")
-        (ascii-font "Monaco"))
+#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+    (defvar default-font-size 12)
+    (setq target-font-size default-font-size)
     
-    (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-    (my-ja-font-setter (font-spec :family ja-font :size font-size))
-    (setq face-font-rescale-alist
-          `((".*Migu.*" . ,ja-font-scale)))
-    (set-frame-size (selected-frame) frame-width frame-height)))
+    (defun increase-font-size ()
+      (interactive)
+      (setq target-font-size (+ target-font-size 1))
+      (set-font-size target-font-size)
+      (message "+1: %s" target-font-size)
+      (takaxp:make-frame-height-ring))
+    
+    (defun decrease-font-size ()
+      (interactive)
+      (setq target-font-size (- target-font-size 1))
+      (set-font-size target-font-size)
+      (message "-1: %s" target-font-size)
+      (takaxp:make-frame-height-ring))
+    
+    (defun reset-font-size ()
+      (interactive)
+      (set-font-size default-font-size)
+      (setq target-font-size default-font-size)
+      (message "0: %s" target-font-size)
+      (takaxp:make-frame-height-ring))
+    
+    (defun set-font-size-input (n)
+      (interactive "nSize: ")
+      (setq target-font-size n)
+      (set-font-size target-font-size)
+      (message "0: %s" target-font-size)
+      (takaxp:make-frame-height-ring))
+    
+    (defvar takaxp:ascii-font "Monaco")
+    (defun set-font-size (arg)
+      (interactive "p")
+      (let* ((font-size arg)
+             (frame-width 80)
+             (ja-font-scale 1.2)
+             (ja-font "Migu 2M")
+             (ascii-font takaxp:ascii-font))
+        
+        (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+        (my-ja-font-setter (font-spec :family ja-font :size font-size))
+        (setq face-font-rescale-alist
+              `((".*Migu.*" . ,ja-font-scale)))
+        (set-frame-width (selected-frame) frame-width)
+        (reset-frame-height (frame-height))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports yes
+  (defvar default-font-size 12)
+  (setq target-font-size default-font-size)
+  
+  (defun increase-font-size ()
+    (interactive)
+    (setq target-font-size (+ target-font-size 1))
+    (set-font-size target-font-size)
+    (message "+1: %s" target-font-size))
+  
+  (defun decrease-font-size ()
+    (interactive)
+    (setq target-font-size (- target-font-size 1))
+    (set-font-size target-font-size)
+    (message "-1: %s" target-font-size))
+  
+  (defun reset-font-size ()
+    (interactive)
+    (set-font-size default-font-size)
+    (setq target-font-size default-font-size)
+    (message "0: %s" target-font-size))
+  
+  (defun set-font-size-input (n)
+    (interactive "nSize: ")
+    (setq target-font-size n)
+    (set-font-size target-font-size)
+    (message "0: %s" target-font-size))
+  
+  (defun set-font-size (arg)
+    (interactive "p")
+    (let* ((font-size arg)
+           (frame-width 80)
+           (ja-font-scale 1.2)
+           (ja-font "Migu 2M")
+           (ascii-font "Monaco"))
+      
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (my-ja-font-setter (font-spec :family ja-font :size font-size))
+      (setq face-font-rescale-alist
+            `((".*Migu.*" . ,ja-font-scale)))
+      (set-frame-size (selected-frame) frame-width frame-height)))
 #+END_SRC
 
 *** キーバインド
@@ -2848,26 +3130,7 @@ Linux では次のように処理するだけでよく，意外と簡単．
   (global-set-key (kbd "C-x C-=") 'increase-font-size)
   (global-set-key (kbd "C-x C--") 'decrease-font-size)
   (global-set-key (kbd "C-x C-0") 'reset-font-size)
-#+END_SRC
-
-** 行間を制御する
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (defvar init-line-spacing 1)
-  (defvar max-line-spacing 7)
-  (setq line-spacing init-line-spacing)
-    
-  (defun cycle-line-spacing ()
-    (interactive)
-    (if (< line-spacing max-line-spacing)
-      (setq line-spacing (+ line-spacing 3))
-      (reset-line-spacing))
-    (message "%d" line-spacing))
-  
-  (defun reset-line-spacing ()
-    (interactive)
-    (setq line-spacing init-line-spacing)
-    (message "%d" line-spacing))
+  (global-set-key (kbd "C-x C-9") 'fit-frame-to-fullscreen)
 #+END_SRC
 
 ** パッチをカラフルに表示する
@@ -2983,7 +3246,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
              ;; 26 is the setting for Butler's Docklet
              ;; 837 is the setting for right side for MBP
              (width . 80) ; Width  : character count
-             (height . 35); Height : character count
+;;             (height . 30); Height : character count
              (alpha . (100 90))
              (vertical-scroll-bars . nil)
              ) initial-frame-alist)))
@@ -3069,23 +3332,27 @@ frame-ctr.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホッ
 2. http://www.emacswiki.org/emacs/download/frame-fns.el
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (eval-after-load "recentf"
+    '(progn
+       ;; recentf の変数を上書きして起動する
+       (when (require 'frame-ctr nil t)
+         (defun takaxp:make-frame-height-ring ()
+           (interactive)
+           (let ((max-height (max-frame-height)))
+             (frame-ctr-make-height-ring
+              ;; 最大，最小，最大の50%，最大の75% を指定
+              (cons max-height
+                    (sort (list
+                           (min-frame-height)
+                           (/ max-height 2)
+                           (* 3 (/ max-height 4))) '<)))))
+         (takaxp:make-frame-height-ring))))
+  
   (eval-after-autoload-if-found
    '(change-frame-width-single
-     change-frame-width-double
-     reset-frame-height
-     frame-ctr-open-height-ring
-     move-frame-with-user-specify move-frame-left move-frame-to-center
-     move-frame-right move-frame-to-edge-top move-frame-to-edge-bottom)
-   "frame-ctr" nil t nil
-   '((cond ((or (equal system-name "mba.local")
-                (equal system-name "mba"))
-            (frame-ctr-make-height-ring '(56 20 40))) ; MacBook Air 13'
-           ((or (equal system-name "lethe.local")
-                (equal system-name "lethe"))
-            (frame-ctr-make-height-ring '(47 23 40))) ; MacBook Air 11'
-           (t
-            (frame-ctr-make-height-ring '(56 68 20 40)))))) ; for Emacs24
-  ;; (frame-ctr-make-height-ring '(60 68 20 40))))) ; for Emacs23
+     change-frame-width-double)
+   "frame-ctr-e2wm" nil t nil
+   '())
 #+END_SRC
 
 *** キーバインド
@@ -3119,36 +3386,40 @@ https://github.com/m2ym/popwin-el/
 popwin:display-buffer を autoload してもうまくいかない．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (when (require 'popwin nil t)
-    (popwin-mode 1)
-    ;; for emacs 24.1
-    ;;      (setq special-display-function 'popwin:special-display-popup-window)
-    ;;      (setq display-buffer-function 'popwin:display-buffer)
-    ;; for emacs 24.3
-    ;;      (setq special-display-alist 'popwin:special-display-popup-window)
-    ;;      (setq display-buffer-alist 'popwin:display-buffer)
-;;    (push '("*sdic*" :position top) popwin:special-display-config)
-    (setq popwin:special-display-config
-          (append
-           '(("CAPTURE-next.org" :height 10 :position bottom :noselect t)
-             ("CAPTURE-org-ical.org" :height 10 :position bottom :noselect t)
-             ("*Org-todo*"    :height 10 :position bottom)
-             ("*Calendar*"    :height 10 :position bottom)
-             ("*wclock*"      :height 10 :position bottom)
-             ("*Org Agenda*"  :height 10 :position bottom)
-             ("*Agenda Commands*"  :height 10 :position bottom)
-             ("*Org Select*"  :height 10 :position bottom)
-             ("*Occur*"       :height 10 :position bottom)
-;;             ("*sdic*"        :height 10 :position top)
-;;             ("dict-app-result"  :height 10 :position bottom :stick t)
-             ("*anything*"    :height 10 :position bottom)
-             ("*anything M-x*" :height 10 :position bottom)
-             ("*anything complete*"    :height 10 :position bottom)
-             ("*my-anything*" :height 10 :position bottom)
-             ("*my-anything-buffer*"    :height 10 :position bottom)
-             ;;            ("*cfw-calendar*" :height 40 :position top)
-             ("*eshell*"      :height 10 :position bottom))
-           popwin:special-display-config)))  
+    (when (require 'popwin nil t)
+      (popwin-mode 1)
+      ;; for emacs 24.1
+      ;;      (setq special-display-function 'popwin:special-display-popup-window)
+      ;;      (setq display-buffer-function 'popwin:display-buffer)
+      ;; for emacs 24.3
+      ;;      (setq special-display-alist 'popwin:special-display-popup-window)
+      ;;      (setq display-buffer-alist 'popwin:display-buffer)
+  ;;    (push '("*sdic*" :position top) popwin:special-display-config)
+      (setq popwin:special-display-config
+            (append
+             '(("CAPTURE-next.org" :height 10 :position bottom :noselect t)
+               ("CAPTURE-org-ical.org" :height 10 :position bottom :noselect t)
+               ("*Org-todo*"    :height 10 :position bottom)
+               ("*Calendar*"    :height 10 :position bottom)
+               ("*wclock*"      :height 10 :position bottom)
+               ("*Org Agenda*"  :height 10 :position bottom)
+               ("*Agenda Commands*"  :height 10 :position bottom)
+               ("*Org Select*"  :height 10 :position bottom)
+               ("*Occur*"       :height 10 :position bottom)
+  ;;             ("*sdic*"        :height 10 :position top)
+  ;;             ("dict-app-result"  :height 10 :position bottom :stick t)
+               ("*anything*"    :height 10 :position bottom)
+;;               (undo-tree-visualizer-buffer-name :height 10 :position top)
+;;               (undo-tree-diff-buffer-name :height 20 :position bottom)
+               ("*undo-tree*" :height 10 :position top)
+               ("*undo-tree Diff**" :height 20 :position bottom)
+               ("*anything M-x*" :height 10 :position bottom)
+               ("*anything complete*"    :height 10 :position bottom)
+               ("*my-anything*" :height 10 :position bottom)
+               ("*my-anything-buffer*"    :height 10 :position bottom)
+               ;;            ("*cfw-calendar*" :height 40 :position top)
+               ("*eshell*"      :height 10 :position bottom))
+             popwin:special-display-config)))  
 #+END_SRC 
 
 * ユーティリティ関数
@@ -3226,7 +3497,7 @@ popwin:display-buffer を autoload してもうまくいかない．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (eval-after-autoload-if-found
-         '(eval-org-buffer
+         '(eval-org-buffer takaxp:date
            kyoko-mad-mode-toggle org2dokuwiki-cp-kill-ring
            open-current-directory set-alarms-from-file takaxp:open-file-ring
            show-org-buffer get-random-string init-auto-install
@@ -3236,6 +3507,7 @@ popwin:display-buffer を autoload してもうまくいかない．
            browse-url-chrome count-words-buffer do-test-applescript
            my-window-resizer)
          "utility" nil t)
+;;         '((message "Loading utility.el ... [done]")))
 
     (global-set-key (kbd "<f12>") 'takaxp:open-file-ring)
     (global-set-key (kbd "M-4") 'my-window-resizer))
