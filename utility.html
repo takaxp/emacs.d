@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>ユーティリティ関数群</title>
-<!-- 2015-02-21 Sat 10:08 -->
+<!-- 2015-04-26 Sun 15:13 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Takaaki Ishikawa" />
@@ -203,19 +203,19 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">eval-org-buffer</span> ()
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">eval-org-buffer</span> ()
   <span style="color: #8b2252;">"Load init.org/utility.org and tangle init.el/utility.el."</span>
   (interactive)
-  (<span style="color: #a020f0;">if</span> (and (eq major-mode 'org-mode)
-                   (or (string= (buffer-name) <span style="color: #8b2252;">"init.org"</span>)
-                           (string= (buffer-name) <span style="color: #8b2252;">"utility.org"</span>)))
-          (<span style="color: #a020f0;">progn</span>
-                (org-babel-tangle)
-                (<span style="color: #a020f0;">let</span> ((tangled-file
-                           (concat (file-name-sans-extension (buffer-file-name)) <span style="color: #8b2252;">".el"</span>)))
-                  (<span style="color: #a020f0;">when</span> (file-exists-p tangled-file)
-                        (byte-compile-file tangled-file))))
-        (message <span style="color: #8b2252;">"Nothing to do for this buffer."</span>)))
+  *hideshowvis*(<span style="color: #a020f0;">if</span> *hideshowvis*(and (eq major-mode 'org-mode)
+           *hideshowvis*(or (string= (buffer-name) <span style="color: #8b2252;">"init.org"</span>)
+               (string= (buffer-name) <span style="color: #8b2252;">"utility.org"</span>)))
+      *hideshowvis*(<span style="color: #a020f0;">progn</span>
+        (org-babel-tangle)
+        *hideshowvis*(<span style="color: #a020f0;">let</span> *hideshowvis*(*hideshowvis*(tangled-file
+               (concat (file-name-sans-extension (buffer-file-name)) <span style="color: #8b2252;">".el"</span>)))
+          *hideshowvis*(<span style="color: #a020f0;">when</span> (file-exists-p tangled-file)
+            (byte-compile-file tangled-file))))
+    (message <span style="color: #8b2252;">"Nothing to do for this buffer."</span>)))
 </pre>
 </div>
 </div>
@@ -233,20 +233,20 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">kyoko-mad-mode</span> nil)
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">kyoko-mad-mode-toggle</span> ()
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">kyoko-mad-mode-toggle</span> ()
   (interactive)
   (setq kyoko-mad-mode (not kyoko-mad-mode))
-  (<span style="color: #a020f0;">cond</span> (kyoko-mad-mode
-                 (message <span style="color: #8b2252;">"Kyoko mad mode: ON"</span>))
-                (t
-                 (message <span style="color: #8b2252;">"Kyoko mad mode: OFF"</span>))))
+  *hideshowvis*(<span style="color: #a020f0;">cond</span> *hideshowvis*(kyoko-mad-mode
+         (message <span style="color: #8b2252;">"Kyoko mad mode: ON"</span>))
+        *hideshowvis*(t
+         (message <span style="color: #8b2252;">"Kyoko mad mode: OFF"</span>))))
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">She will be mad if you do nothing within 10 min.</span>
-(run-with-idle-timer
+*hideshowvis*(run-with-idle-timer
  600 t
- '(<span style="color: #a020f0;">lambda</span> ()
-        (<span style="color: #a020f0;">when</span> kyoko-mad-mode
-          (shell-command-to-string
-           <span style="color: #8b2252;">"say -v Kyoko &#12362;&#12356;&#12362;&#12414;&#12360;&#65292;&#36938;&#12435;&#12391;&#12394;&#12356;&#12391;&#65292;&#20181;&#20107;&#12375;&#12429;"</span>))))
+ '*hideshowvis*(<span style="color: #a020f0;">lambda</span> ()
+    *hideshowvis*(<span style="color: #a020f0;">when</span> kyoko-mad-mode
+      *hideshowvis*(shell-command-to-string
+       <span style="color: #8b2252;">"say -v Kyoko &#12362;&#12356;&#12362;&#12414;&#12360;&#65292;&#36938;&#12435;&#12391;&#12394;&#12356;&#12391;&#65292;&#20181;&#20107;&#12375;&#12429;"</span>))))
 </pre>
 </div>
 </div>
@@ -260,19 +260,19 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">org2dokuwiki-cp-kill-ring</span> ()
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">org2dokuwiki-cp-kill-ring</span> ()
   <span style="color: #8b2252;">"Convert the current org-file to dokuwiki text, and copy it to kill-ring."</span>
   (interactive)
-  (<span style="color: #a020f0;">when</span> (eq major-mode 'org-mode)
-        (<span style="color: #a020f0;">cond</span> (buffer-file-name
-                   (kill-new
-                        (shell-command-to-string
-                         (concat <span style="color: #8b2252;">"cat "</span> buffer-file-name <span style="color: #8b2252;">"| perl "</span>
-                                         (expand-file-name <span style="color: #8b2252;">"~/Dropbox/scripts/org2dokuwiki.pl"</span>))))
-                   (message <span style="color: #8b2252;">"Copying %s ... done"</span> buffer-file-name)
-                   (sit-for 1.5)
-                   (message <span style="color: #8b2252;">""</span>))
-                  (t (message <span style="color: #8b2252;">"There is NOT such a file."</span>)))))
+  *hideshowvis*(<span style="color: #a020f0;">when</span> (eq major-mode 'org-mode)
+    *hideshowvis*(<span style="color: #a020f0;">cond</span> *hideshowvis*(buffer-file-name
+           *hideshowvis*(kill-new
+            *hideshowvis*(shell-command-to-string
+             *hideshowvis*(concat <span style="color: #8b2252;">"cat "</span> buffer-file-name <span style="color: #8b2252;">"| perl "</span>
+                     (expand-file-name <span style="color: #8b2252;">"~/Dropbox/scripts/org2dokuwiki.pl"</span>))))
+           (message <span style="color: #8b2252;">"Copying %s ... done"</span> buffer-file-name)
+           (sit-for 1.5)
+           (message <span style="color: #8b2252;">""</span>))
+          (t (message <span style="color: #8b2252;">"There is NOT such a file."</span>)))))
 </pre>
 </div>
 </div>
@@ -286,29 +286,29 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">open-current-directory-console-program</span> <span style="color: #8b2252;">"iTerm2.app"</span>
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">open-current-directory-console-program</span> <span style="color: #8b2252;">"iTerm2.app"</span>
   <span style="color: #8b2252;">"Specify a console program"</span>
   <span style="color: #483d8b;">:type</span> 'string
   <span style="color: #483d8b;">:group</span> 'takaxp-mac)
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">open-current-directory</span> ()
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">open-current-directory</span> ()
   <span style="color: #8b2252;">" Open Current Directory for MacOSX</span>
 <span style="color: #8b2252;">  0) Put this function in your .emacs</span>
 <span style="color: #8b2252;">  1) M-x open-current-directory</span>
 <span style="color: #8b2252;">  2) Terminal will open automatically</span>
 <span style="color: #8b2252;">  3) Type M-v to paste and move to a path to the current directory in Emacs"</span>
   (interactive)
-  (<span style="color: #a020f0;">let</span> ((file-path (buffer-file-name (current-buffer))))
-        (<span style="color: #a020f0;">unless</span> (string= file-path nil)
-          (<span style="color: #a020f0;">let</span> ((directory
-                        (substring file-path 0
-                                           (-
-                                                (length file-path)
-                                                (length (buffer-name (current-buffer)))))))
-                (message <span style="color: #8b2252;">"%s"</span> directory)
-                (shell-command-to-string (concat <span style="color: #8b2252;">"echo cd "</span> directory <span style="color: #8b2252;">" |pbcopy"</span>))
-                (shell-command-to-string
-                 (concat <span style="color: #8b2252;">"open -a "</span> open-current-directory-console-program))))))
+  *hideshowvis*(<span style="color: #a020f0;">let</span> ((file-path (buffer-file-name (current-buffer))))
+    *hideshowvis*(<span style="color: #a020f0;">unless</span> (string= file-path nil)
+      *hideshowvis*(<span style="color: #a020f0;">let</span> *hideshowvis*(*hideshowvis*(directory
+            *hideshowvis*(substring file-path 0
+                       *hideshowvis*(-
+                        (length file-path)
+                        (length (buffer-name (current-buffer)))))))
+        (message <span style="color: #8b2252;">"%s"</span> directory)
+        (shell-command-to-string (concat <span style="color: #8b2252;">"echo cd "</span> directory <span style="color: #8b2252;">" |pbcopy"</span>))
+        *hideshowvis*(shell-command-to-string
+         (concat <span style="color: #8b2252;">"open -a "</span> open-current-directory-console-program))))))
 </pre>
 </div>
 </div>
@@ -318,96 +318,107 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="outline-text-3" id="text-2-4">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarms-from-file</span> (file)
-  <span style="color: #8b2252;">"Make alarms from org-mode tables. If you have an org-mode file</span>
-<span style="color: #8b2252;">                 with tables with the following format:</span>
-<span style="color: #8b2252;">          |------+-------+--------------------|</span>
-<span style="color: #8b2252;">          | Flag |  Time | Content            |</span>
-<span style="color: #8b2252;">          |------+-------+--------------------|</span>
-<span style="color: #8b2252;">          |      | 07:00 | Wakeup             |</span>
-<span style="color: #8b2252;">          |      |       | Read papers        |</span>
-<span style="color: #8b2252;">          | X    | 12:00 | Clean up your desk |</span>
-<span style="color: #8b2252;">          When it is 7:00 and 12:00, Growl notify with a message which is specified</span>
-<span style="color: #8b2252;">          content column from the table. \"Read papers\" will be ignored.</span>
-<span style="color: #8b2252;">          \"Clean up your desk\" will be shown by sticky mode"</span>
-  (<span style="color: #a020f0;">let</span>
-          ((lines (read-line file)))
-        (cancel-function-timers 'my-desktop-notify) <span style="color: #b22222;">;; </span><span style="color: #b22222;">clear existing timers</span>
-        (<span style="color: #a020f0;">while</span> lines
-          (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-          (setq lines (cdr lines))
-          (message <span style="color: #8b2252;">""</span>))))
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"todochiku"</span>
+  (setq todochiku-icons-directory <span style="color: #8b2252;">"~/Dropbox/emacs.d/todochiku-icons"</span>)
+  (add-to-list 'todochiku-icons '(emacs . <span style="color: #8b2252;">"emacs.png"</span>))
+  (message <span style="color: #8b2252;">"--- todochiku-icons are ready."</span>))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarm-from-line</span> (line)
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarms-from-file</span> (file)
+  <span style="color: #8b2252;">"Make alarms from org-mode tables. If you have an org-mode file</span>
+<span style="color: #8b2252;">           with tables with the following format:</span>
+<span style="color: #8b2252;">        |------+-------+--------------------|</span>
+<span style="color: #8b2252;">        | Flag |  Time | Content            |</span>
+<span style="color: #8b2252;">        |------+-------+--------------------|</span>
+<span style="color: #8b2252;">        |      | 07:00 | Wakeup             |</span>
+<span style="color: #8b2252;">        |      |       | Read papers        |</span>
+<span style="color: #8b2252;">        | X    | 12:00 | Clean up your desk |</span>
+<span style="color: #8b2252;">        When it is 7:00 and 12:00, Growl notify with a message which is specified</span>
+<span style="color: #8b2252;">        content column from the table. \"Read papers\" will be ignored.</span>
+<span style="color: #8b2252;">        \"Clean up your desk\" will be shown by sticky mode"</span>
+  *hideshowvis*(<span style="color: #a020f0;">let</span>
+      ((lines (read-line file)))
+    (cancel-function-timers 'my:desktop-notify) <span style="color: #b22222;">;; </span><span style="color: #b22222;">clear existing timers</span>
+    *hideshowvis*(<span style="color: #a020f0;">while</span> lines
+      (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
+      (setq lines (cdr lines))
+      (message <span style="color: #8b2252;">""</span>))))
+
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarm-from-line</span> (line)
   <span style="color: #8b2252;">"NOTE: this function need (require 'todochiku)"</span>
   (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">cl</span>)
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">todochiku</span> nil t)
-        (<span style="color: #a020f0;">let</span>
-                ((hour nil)
-                 (min nil)
-                 (current-hour nil)
-                 (current-min nil)
-                 (action nil))
-          (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-2]?[0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">:</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-5][0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">"</span> line)
-                (setq hour (substring line (match-beginning 1) (match-end 1)))
-                (setq min (substring line (match-beginning 2) (match-end 2)))
-                (<span style="color: #a020f0;">when</span> (string-match
-                           <span style="color: #8b2252;">"\|\\s-*</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\|]+[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> ]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">\\s-*\|$"</span> line (match-end 2))
-                  (setq action
-                                (substring line (match-beginning 1) (match-end 1)))))
-          (<span style="color: #a020f0;">when</span> (and (and hour min) action)
-                <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(message "[%s:%s] =&gt; %s" hour min action)</span>
-                (setq current-hour (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time)))
-                (setq current-min (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time)))
-                (<span style="color: #a020f0;">when</span> (&gt; (+ (* (string-to-number hour) 60)
-                                        (string-to-number min))
-                                 (+ (* (string-to-number current-hour) 60)
-                                        (string-to-number current-min)))
-                  (<span style="color: #a020f0;">let</span>
-                          ((s nil))
-                        (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"^\|\\s-*X\\s-*\|"</span> line)
-                          (setq s 'sticky))
-                        <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(set-notify-growl hour min action s)</span>
-                        (set-notify-osx-native hour min action s)
-                        ))))))
+  *hideshowvis*(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">todochiku</span> nil t)
+    *hideshowvis*(<span style="color: #a020f0;">let</span>
+        *hideshowvis*((hour nil)
+         (min nil)
+         (current-hour nil)
+         (current-min nil)
+         (action nil))
+      *hideshowvis*(<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-2]?[0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">:</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-5][0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">"</span> line)
+        (setq hour (substring line (match-beginning 1) (match-end 1)))
+        (setq min (substring line (match-beginning 2) (match-end 2)))
+        *hideshowvis*(<span style="color: #a020f0;">when</span> *hideshowvis*(string-match
+               <span style="color: #8b2252;">"\|\\s-*</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\|]+[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> ]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">\\s-*\|$"</span> line (match-end 2))
+          *hideshowvis*(setq action
+                (substring line (match-beginning 1) (match-end 1)))))
+      *hideshowvis*(<span style="color: #a020f0;">when</span> (and (and hour min) action)
+        <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(message "[%s:%s] =&gt; %s" hour min action)</span>
+        (setq current-hour (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time)))
+        (setq current-min (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time)))
+        *hideshowvis*(<span style="color: #a020f0;">when</span> *hideshowvis*(&gt; *hideshowvis*(+ (* (string-to-number hour) 60)
+                    (string-to-number min))
+                 *hideshowvis*(+ (* (string-to-number current-hour) 60)
+                    (string-to-number current-min)))
+          *hideshowvis*(<span style="color: #a020f0;">let</span>
+              ((s nil))
+            *hideshowvis*(<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"^\|\\s-*X\\s-*\|"</span> line)
+              (setq s 'sticky))
+            <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(set-notify-growl hour min action s)</span>
+            (set-notify-osx-native hour min action s)
+            (set-notify-mail hour min action s)
+            ))))))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-desktop-notify</span> (type title hour min action s)
-  (<span style="color: #a020f0;">cond</span>
-   ((string= type <span style="color: #8b2252;">"growl"</span>)
-        (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">cl</span>)
-        (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">todochiku</span> nil t)
-          (todochiku-message
-           title
-           (format <span style="color: #8b2252;">"%s:%s %s"</span> hour min action)
-           <span style="color: #8b2252;">"Emacs"</span> s)))
-   ((string= type <span style="color: #8b2252;">"osx-native"</span>)
-        (shell-command-to-string
-         (concat <span style="color: #8b2252;">"terminal-notifier -title \"Emacs\" -message \""</span>
-                         (format <span style="color: #8b2252;">"%s:%s %s"</span> hour min action) <span style="color: #8b2252;">"\""</span>)))
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:desktop-notify</span> (type title hour min action s)
+  *hideshowvis*(<span style="color: #a020f0;">cond</span>
+   *hideshowvis*((string= type <span style="color: #8b2252;">"growl"</span>)
+    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">cl</span>)
+    *hideshowvis*(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">todochiku</span> nil t)
+      *hideshowvis*(todochiku-message
+       title
+       (format <span style="color: #8b2252;">"%s:%s %s"</span> hour min action)
+       <span style="color: #8b2252;">"Emacs"</span> s)))
+   *hideshowvis*((string= type <span style="color: #8b2252;">"osx-native"</span>)
+    *hideshowvis*(shell-command-to-string
+     *hideshowvis*(concat <span style="color: #8b2252;">"terminal-notifier -title \"Emacs\" -message \""</span>
+             (format <span style="color: #8b2252;">"%s:%s %s"</span> hour min action) <span style="color: #8b2252;">"\""</span>)))
    (t nil)))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-growl</span> (hour min action s)
-  (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
-                           'my-desktop-notify
-                           <span style="color: #8b2252;">"growl"</span> <span style="color: #8b2252;">"== REMINDER =="</span> hour min action s))
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-mail</span> (hour min action s)
+  *hideshowvis*(run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+               'my:desktop-notify
+               <span style="color: #8b2252;">"mail"</span> <span style="color: #8b2252;">"&#12426;&#12414;&#12356;&#12435;&#12384;"</span> hour min action nil))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-osx-native</span> (hour min action s)
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-growl</span> (hour min action s)
+  *hideshowvis*(run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+               'my:desktop-notify
+               <span style="color: #8b2252;">"growl"</span> <span style="color: #8b2252;">"== REMINDER =="</span> hour min action s))
+
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-osx-native</span> (hour min action s)
   <span style="color: #8b2252;">"terminal-notifier is required."</span>
-  (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
-                           'my-desktop-notify
-                           <span style="color: #8b2252;">"osx-native"</span> <span style="color: #8b2252;">"Emacs"</span> hour min action nil))
+  *hideshowvis*(run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+               'my:desktop-notify
+               <span style="color: #8b2252;">"osx-native"</span> <span style="color: #8b2252;">"Emacs"</span> hour min action nil))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">read-line</span> (file)
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">read-line</span> (file)
   <span style="color: #8b2252;">"Make a list from a file, which is divided by LF code"</span>
-  (<span style="color: #a020f0;">with-temp-buffer</span>
-        (insert-file-contents-literally file)
-        (split-string
-         (buffer-string) <span style="color: #8b2252;">"\n"</span> t)))
+  *hideshowvis*(<span style="color: #a020f0;">with-temp-buffer</span>
+    (insert-file-contents-literally file)
+    *hideshowvis*(split-string
+     (buffer-string) <span style="color: #8b2252;">"\n"</span> t)))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarm-hook</span> ()
-  (<span style="color: #a020f0;">when</span> (string-match (file-name-base <span style="color: #8b2252;">"today.org"</span>) (buffer-name))
-        (message <span style="color: #8b2252;">"--- The alarm list has been updated."</span>)
-        (set-alarms-from-file alarm-table)))
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarm-hook</span> ()
+  *hideshowvis*(<span style="color: #a020f0;">when</span> (string-match (file-name-base <span style="color: #8b2252;">"today.org"</span>) (buffer-name))
+    (message <span style="color: #8b2252;">"--- The alarm list has been updated."</span>)
+    (set-alarms-from-file alarm-table)))
 </pre>
 </div>
 </div>
@@ -422,20 +433,20 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-file-ring</span> nil)
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">takaxp:make-file-ring</span> (files)
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">takaxp:make-file-ring</span> (files)
   (setq my-file-ring (copy-sequence files)))
 <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setf (cdr (last my-file-ring)) my-file-ring))</span>
-(takaxp:make-file-ring
- '(<span style="color: #8b2252;">"~/Dropbox/org/work.org"</span> <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/init.org"</span>
+*hideshowvis*(takaxp:make-file-ring
+ '*hideshowvis*(<span style="color: #8b2252;">"~/Dropbox/org/work.org"</span> <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/init.org"</span>
    <span style="color: #8b2252;">"~/Dropbox/org/buffer.org"</span> <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/utility.org"</span>
    <span style="color: #8b2252;">"~/Dropbox/org/research.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/next.org"</span>))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">takaxp:open-file-ring</span> ()
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">takaxp:open-file-ring</span> ()
   (interactive)
   (find-file (car my-file-ring))
-  (setq my-file-ring
-                (append (cdr my-file-ring)
-                                (list (car my-file-ring)))))
+  *hideshowvis*(setq my-file-ring
+        *hideshowvis*(append (cdr my-file-ring)
+                (list (car my-file-ring)))))
 
 <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setq my-file-ring (cdr my-file-ring)))</span>
 </pre>
@@ -447,14 +458,14 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="outline-text-3" id="text-2-6">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">show-org-buffer</span> (file)
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">show-org-buffer</span> (file)
   <span style="color: #8b2252;">"Show an org-file on the current buffer"</span>
   (interactive)
-  (<span style="color: #a020f0;">if</span> (get-buffer file)
-          (<span style="color: #a020f0;">let</span> ((buffer (get-buffer file)))
-                (switch-to-buffer buffer)
-                (message <span style="color: #8b2252;">"%s"</span> file))
-        (find-file (concat <span style="color: #8b2252;">"~/Dropbox/org/"</span> file))))
+  *hideshowvis*(<span style="color: #a020f0;">if</span> (get-buffer file)
+      *hideshowvis*(<span style="color: #a020f0;">let</span> ((buffer (get-buffer file)))
+        (switch-to-buffer buffer)
+        (message <span style="color: #8b2252;">"%s"</span> file))
+    (find-file (concat <span style="color: #8b2252;">"~/Dropbox/org/"</span> file))))
 </pre>
 </div>
 </div>
@@ -464,19 +475,19 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="outline-text-3" id="text-2-7">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-org-file-header-template</span> ()
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-org-file-header-template</span> ()
   (interactive)
-  (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
-        (<span style="color: #a020f0;">let</span> ((title <span style="color: #8b2252;">"#+TITLE:\t\n"</span>)
-                  (date <span style="color: #8b2252;">"#+DATE: \t\n"</span>)
-                  (update <span style="color: #8b2252;">"#+UPDATE:\t\n"</span>)
-                  (author <span style="color: #8b2252;">"#+AUTHOR:\tTakaaki ISHIKAWA <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a>\n"</span>)
-                  (option <span style="color: #8b2252;">"#+OPTIONS:\t\\n:t\n"</span>)
-                  (other <span style="color: #8b2252;">"\n"</span>))
-          (goto-char 0)
-          (<span style="color: #a020f0;">save-excursion</span>
-                (insert title date update author option other))
-          (org-end-of-line))))
+  *hideshowvis*(<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
+    *hideshowvis*(<span style="color: #a020f0;">let</span> *hideshowvis*((title <span style="color: #8b2252;">"#+TITLE:\t\n"</span>)
+          (date <span style="color: #8b2252;">"#+DATE: \t\n"</span>)
+          (update <span style="color: #8b2252;">"#+UPDATE:\t\n"</span>)
+          (author <span style="color: #8b2252;">"#+AUTHOR:\tTakaaki ISHIKAWA <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a>\n"</span>)
+          (option <span style="color: #8b2252;">"#+OPTIONS:\t\\n:t\n"</span>)
+          (other <span style="color: #8b2252;">"\n"</span>))
+      (goto-char 0)
+      *hideshowvis*(<span style="color: #a020f0;">save-excursion</span>
+        (insert title date update author option other))
+      (org-end-of-line))))
 </pre>
 </div>
 </div>
@@ -486,15 +497,15 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="outline-text-3" id="text-2-8">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-minutes-template</span> ()
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-minutes-template</span> ()
   (interactive)
-  (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
-        (<span style="color: #a020f0;">let</span> ((date <span style="color: #8b2252;">"&#26085;&#26178;&#65306;\n"</span>)
-                  (place <span style="color: #8b2252;">"&#22580;&#25152;&#65306;\n"</span>)
-                  (attendance <span style="color: #8b2252;">"&#20986;&#24109;&#32773;&#65306;\n"</span>)
-                  (documents <span style="color: #8b2252;">"&#36039;&#26009;&#65306;\n\n"</span>))
-          (<span style="color: #a020f0;">save-excursion</span>
-                (insert date place attendance documents)))))
+  *hideshowvis*(<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
+    *hideshowvis*(<span style="color: #a020f0;">let</span> *hideshowvis*((date <span style="color: #8b2252;">"&#26085;&#26178;&#65306;\n"</span>)
+          (place <span style="color: #8b2252;">"&#22580;&#25152;&#65306;\n"</span>)
+          (attendance <span style="color: #8b2252;">"&#20986;&#24109;&#32773;&#65306;\n"</span>)
+          (documents <span style="color: #8b2252;">"&#36039;&#26009;&#65306;\n\n"</span>))
+      *hideshowvis*(<span style="color: #a020f0;">save-excursion</span>
+        (insert date place attendance documents)))))
 </pre>
 </div>
 </div>
@@ -508,22 +519,22 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">get-random-string</span> (length)
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">get-random-string</span> (length)
   <span style="color: #8b2252;">"Get a string contain the length digit number with random selection"</span>
   (interactive)
   (random t)
-  (<span style="color: #a020f0;">cond</span> ((&gt; length 0)
-                 (<span style="color: #a020f0;">let</span>
-                         ((count length)
-                          (string nil)
-                          (tmp nil))
-                   (<span style="color: #a020f0;">while</span> (&lt; 0 count)
-                         (setq count (1- count))
-                         (setq tmp string)
-                         (setq string
-                                   (concat tmp (number-to-string (random 10)))))
-                   (message <span style="color: #8b2252;">"%s"</span> string)))
-                (t <span style="color: #8b2252;">"0"</span>)))
+  *hideshowvis*(<span style="color: #a020f0;">cond</span> *hideshowvis*((&gt; length 0)
+         *hideshowvis*(<span style="color: #a020f0;">let</span>
+             *hideshowvis*((count length)
+              (string nil)
+              (tmp nil))
+           *hideshowvis*(<span style="color: #a020f0;">while</span> (&lt; 0 count)
+             (setq count (1- count))
+             (setq tmp string)
+             *hideshowvis*(setq string
+                   (concat tmp (number-to-string (random 10)))))
+           (message <span style="color: #8b2252;">"%s"</span> string)))
+        (t <span style="color: #8b2252;">"0"</span>)))
 </pre>
 </div>
 </div>
@@ -537,20 +548,20 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">init-auto-install</span> ()
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">init-auto-install</span> ()
   <span style="color: #8b2252;">"Setup auto-install.el.</span>
 <span style="color: #8b2252;">1. Set my-auto-install-batch-list-el-url</span>
 <span style="color: #8b2252;">2. M-x init-auto-install</span>
 <span style="color: #8b2252;">3. M-x auto-install-batch hoge"</span>
   (interactive)
-  (<span style="color: #a020f0;">when</span> (and (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">auto-install</span> nil t)
-                         my-auto-install-batch-list-el-url)
-        (setq auto-install-batch-list-el-url my-auto-install-batch-list-el-url)
-        (setq auto-install-directory default-path)
-        (setq auto-install-wget-command <span style="color: #8b2252;">"/opt/local/bin/wget"</span>)
-        (auto-install-update-emacswiki-package-name t)
-        <span style="color: #b22222;">;; </span><span style="color: #b22222;">compatibility</span>
-        (auto-install-compatibility-setup))) <span style="color: #b22222;">; </span><span style="color: #b22222;">for install-elisp users</span>
+  *hideshowvis*(<span style="color: #a020f0;">when</span> *hideshowvis*(and (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">auto-install</span> nil t)
+             my-auto-install-batch-list-el-url)
+    (setq auto-install-batch-list-el-url my-auto-install-batch-list-el-url)
+    (setq auto-install-directory default-path)
+    (setq auto-install-wget-command <span style="color: #8b2252;">"/opt/local/bin/wget"</span>)
+    (auto-install-update-emacswiki-package-name t)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">compatibility</span>
+    (auto-install-compatibility-setup))) <span style="color: #b22222;">; </span><span style="color: #b22222;">for install-elisp users</span>
 </pre>
 </div>
 </div>
@@ -560,20 +571,20 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="outline-text-3" id="text-2-11">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">add-itemize-head</span> (arg)
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">add-itemize-head</span> (arg)
   <span style="color: #8b2252;">"Insert \"  - \" at the head of line.</span>
 <span style="color: #8b2252;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
 <span style="color: #8b2252;">  original position again. Otherwise, the cursor is moved to the right of the</span>
 <span style="color: #8b2252;">  inserted string. \"  - [ ] \" will be inserted using C-u prefix."</span>
   (interactive <span style="color: #8b2252;">"P"</span>)
-  (<span style="color: #a020f0;">let</span> ((item-string <span style="color: #8b2252;">"  - "</span>))
-        (<span style="color: #a020f0;">when</span> arg
-          (setq item-string <span style="color: #8b2252;">"  - [ ] "</span>))
-        (<span style="color: #a020f0;">cond</span> ((= (point) (line-beginning-position))
-                   (insert item-string))
-                  (t (<span style="color: #a020f0;">save-excursion</span>
-                           (move-beginning-of-line 1)
-                           (insert item-string))))))
+  *hideshowvis*(<span style="color: #a020f0;">let</span> ((item-string <span style="color: #8b2252;">"  - "</span>))
+    *hideshowvis*(<span style="color: #a020f0;">when</span> arg
+      (setq item-string <span style="color: #8b2252;">"  - [ ] "</span>))
+    *hideshowvis*(<span style="color: #a020f0;">cond</span> *hideshowvis*((= (point) (line-beginning-position))
+           (insert item-string))
+          *hideshowvis*(t *hideshowvis*(<span style="color: #a020f0;">save-excursion</span>
+               (move-beginning-of-line 1)
+               (insert item-string))))))
 </pre>
 </div>
 </div>
@@ -602,21 +613,37 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-date</span> (arg)
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-date</span> ()
   <span style="color: #8b2252;">"Insert a timestamp at the cursor position. C-u will add [] brackets."</span>
-  (interactive <span style="color: #8b2252;">"p"</span>)
-  (case arg
-        (4 (<span style="color: #a020f0;">if</span> (equal major-mode 'org-mode)
-                   (org-time-stamp-inactive)
-                 (insert (format-time-string <span style="color: #8b2252;">"[%Y-%m-%d]"</span>))))
-        (t (insert (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>)))))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-time</span> ()
+  (interactive)
+  (insert (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>)))
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-time</span> ()
   (interactive)
   (insert (format-time-string <span style="color: #8b2252;">"%H:%M"</span>)))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-signature</span> ()
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-signature</span> ()
   (interactive)
-  (insert (concat (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>) <span style="color: #8b2252;">"  "</span> user-full-name
-                                  <span style="color: #8b2252;">"  &lt;"</span> user-mail-address <span style="color: #8b2252;">"&gt;"</span>)))
+  *hideshowvis*(insert *hideshowvis*(concat (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>) <span style="color: #8b2252;">"  "</span> user-full-name
+                  <span style="color: #8b2252;">"  &lt;"</span> user-mail-address <span style="color: #8b2252;">"&gt;"</span>)))
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-date</span> (arg)
+  <span style="color: #8b2252;">"Insert a timestamp at the cursor position. C-u will add [] brackets."</span>
+  (interactive <span style="color: #8b2252;">"p"</span>)
+  *hideshowvis*(case arg
+    *hideshowvis*(4 *hideshowvis*(<span style="color: #a020f0;">if</span> (equal major-mode 'org-mode)
+           (org-time-stamp-inactive)
+         (insert (format-time-string <span style="color: #8b2252;">"[%Y-%m-%d]"</span>))))
+    (t (insert (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>)))))
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-time</span> ()
+  (interactive)
+  (insert (format-time-string <span style="color: #8b2252;">"%H:%M"</span>)))
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-signature</span> ()
+  (interactive)
+  *hideshowvis*(insert *hideshowvis*(concat (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>) <span style="color: #8b2252;">"  "</span> user-full-name
+                  <span style="color: #8b2252;">"  &lt;"</span> user-mail-address <span style="color: #8b2252;">"&gt;"</span>)))
 </pre>
 </div>
 </div>
@@ -628,7 +655,6 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 
 <pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-0"</span>) 'insert-formatted-current-date)
 (global-set-key (kbd <span style="color: #8b2252;">"C--"</span>) 'insert-formatted-current-time)
-(global-set-key (kbd <span style="color: #8b2252;">"C-="</span>) 'insert-formatted-signature)
 </pre>
 </div>
 </div>
@@ -643,55 +669,55 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">my-auto-install-batch-list-el-url</span> nil
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">my-auto-install-batch-list-el-url</span> nil
   <span style="color: #8b2252;">"URL of a auto-install-batch-list.el"</span>
   <span style="color: #483d8b;">:type</span> 'string
   <span style="color: #483d8b;">:group</span> 'takaxp-utility)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Publish an xml file to show a Gantt Chart</span>
-(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline-csv-file</span> nil
+*hideshowvis*(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline-csv-file</span> nil
   <span style="color: #8b2252;">"source.csv"</span>
   <span style="color: #483d8b;">:type</span> 'string
   <span style="color: #483d8b;">:group</span> 'takaxp-utility)
 
-(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline-xml-business-file</span> nil
+*hideshowvis*(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline-xml-business-file</span> nil
   <span style="color: #8b2252;">"XML file for business schedule"</span>
   <span style="color: #483d8b;">:type</span> 'string
   <span style="color: #483d8b;">:group</span> 'takaxp-utility)
 
-(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline-xml-private-file</span> nil
+*hideshowvis*(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline-xml-private-file</span> nil
   <span style="color: #8b2252;">"XML file for private schedule"</span>
   <span style="color: #483d8b;">:type</span> 'string
   <span style="color: #483d8b;">:group</span> 'takaxp-utility)
 
-(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline</span> nil
+*hideshowvis*(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline</span> nil
   <span style="color: #8b2252;">"a template index.html"</span>
   <span style="color: #483d8b;">:type</span> 'string
   <span style="color: #483d8b;">:group</span> 'takaxp-utility)
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">export-timeline-business</span> ()
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">export-timeline-business</span> ()
   <span style="color: #8b2252;">"Export schedule table as an XML source to create an web page"</span>
   (interactive)
-  (<span style="color: #a020f0;">when</span> (and default-timeline
-                         (and default-timeline-csv-file
-                                  default-timeline-xml-business-file))
-        (shell-command-to-string (concat <span style="color: #8b2252;">"rm -f "</span> default-timeline-csv-file))
-        (org-table-export default-timeline-csv-file <span style="color: #8b2252;">"orgtbl-to-csv"</span>)
-        (shell-command-to-string (concat <span style="color: #8b2252;">"org2gantt.pl &gt; "</span>
-                                                                         default-timeline-xml-business-file))
-        (shell-command-to-string (concat <span style="color: #8b2252;">"open "</span> default-timeline))))
+  *hideshowvis*(<span style="color: #a020f0;">when</span> *hideshowvis*(and default-timeline
+             *hideshowvis*(and default-timeline-csv-file
+                  default-timeline-xml-business-file))
+    (shell-command-to-string (concat <span style="color: #8b2252;">"rm -f "</span> default-timeline-csv-file))
+    (org-table-export default-timeline-csv-file <span style="color: #8b2252;">"orgtbl-to-csv"</span>)
+    *hideshowvis*(shell-command-to-string *hideshowvis*(concat <span style="color: #8b2252;">"org2gantt.pl &gt; "</span>
+                                     default-timeline-xml-business-file))
+    (shell-command-to-string (concat <span style="color: #8b2252;">"open "</span> default-timeline))))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">export-timeline-private</span> ()
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">export-timeline-private</span> ()
   <span style="color: #8b2252;">"Export schedule table as an XML source to create an web page"</span>
   (interactive)
-  (<span style="color: #a020f0;">when</span> (and default-timeline
-                         (and default-timeline-csv-file
-                                  default-timeline-xml-private-file))
-        (shell-command-to-string (concat <span style="color: #8b2252;">"rm -f "</span> default-timeline-csv-file))
-        (org-table-export default-timeline-csv-file <span style="color: #8b2252;">"orgtbl-to-csv"</span>)
-        (shell-command-to-string (concat <span style="color: #8b2252;">"org2gantt.pl &gt; "</span>
-                                                                         default-timeline-xml-private-file))
-        (shell-command-to-string (concat <span style="color: #8b2252;">"open "</span> default-timeline))))
+  *hideshowvis*(<span style="color: #a020f0;">when</span> *hideshowvis*(and default-timeline
+             *hideshowvis*(and default-timeline-csv-file
+                  default-timeline-xml-private-file))
+    (shell-command-to-string (concat <span style="color: #8b2252;">"rm -f "</span> default-timeline-csv-file))
+    (org-table-export default-timeline-csv-file <span style="color: #8b2252;">"orgtbl-to-csv"</span>)
+    *hideshowvis*(shell-command-to-string *hideshowvis*(concat <span style="color: #8b2252;">"org2gantt.pl &gt; "</span>
+                                     default-timeline-xml-private-file))
+    (shell-command-to-string (concat <span style="color: #8b2252;">"open "</span> default-timeline))))
 </pre>
 </div>
 </div>
@@ -708,11 +734,11 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <pre class="src src-emacs-lisp">(run-with-idle-timer 600 t 'reload-ical-export)
 (run-with-idle-timer 1000 t 'org-mobile-push)
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">reload-ical-export</span> ()
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">reload-ical-export</span> ()
   <span style="color: #8b2252;">"Export org files as an iCal format file"</span>
   (interactive)
-  (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
-        (my-ox-icalendar)))
+  *hideshowvis*(<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
+    (my-ox-icalendar)))
 </pre>
 </div>
 </div>
@@ -724,14 +750,14 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">browse-url-chrome</span> (url <span style="color: #228b22;">&amp;optional</span> new-window)
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">browse-url-chrome</span> (url <span style="color: #228b22;">&amp;optional</span> new-window)
   <span style="color: #8b2252;">"Set default browser to open a URL"</span>
   (interactive (browse-url-interactive-arg <span style="color: #8b2252;">"URL: "</span>))
   (start-process <span style="color: #8b2252;">"google-chrome"</span> nil <span style="color: #8b2252;">"google-chrome"</span> url))
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Open a link with google-chrome for Linux</span>
-(<span style="color: #a020f0;">when</span> (not (eq window-system 'ns))
-  (setq browse-url-browser-function 'browse-url-generic
-                browse-url-generic-program <span style="color: #8b2252;">"google-chrome"</span>)
+*hideshowvis*(<span style="color: #a020f0;">when</span> (not (eq window-system 'ns))
+  *hideshowvis*(setq browse-url-browser-function 'browse-url-generic
+        browse-url-generic-program <span style="color: #8b2252;">"google-chrome"</span>)
 )
 <span style="color: #b22222;">;</span><span style="color: #b22222;">(setq browse-url-browser-function 'browse-url-default-macosx-browser)</span>
 <span style="color: #b22222;">;</span><span style="color: #b22222;">(setq browse-url-browser-function 'browse-url-default-windows-browser)</span>
@@ -745,12 +771,14 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <div class="outline-text-3" id="text-2-16">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:date</span> ()
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">takaxp:date</span> ()
   (interactive)
-  (message <span style="color: #8b2252;">"%s"</span> (concat
-                                 (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>) <span style="color: #8b2252;">" ("</span>
-                                 (format-time-string <span style="color: #8b2252;">"%a"</span>) <span style="color: #8b2252;">") "</span>
-                                 (format-time-string <span style="color: #8b2252;">"%H:%M"</span>))))
+  *hideshowvis*(message <span style="color: #8b2252;">"%s"</span> *hideshowvis*(concat
+                 (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>) <span style="color: #8b2252;">" *hideshowvis*("</span>
+                 (format-time-string <span style="color: #8b2252;">"%a"</span>) <span style="color: #8b2252;">") "</span>
+                 (format-time-string <span style="color: #8b2252;">"%H:%M"</span>))))
+(global-set-key (kbd <span style="color: #8b2252;">"C-c t"</span>) 'takaxp:date)
 </pre>
 </div>
 </div>
@@ -762,25 +790,25 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;; </span><span style="color: #b22222;">Test function from GNU Emacs (O'REILLY, P.328)</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">count-words-buffer</span> ()
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">count-words-buffer</span> ()
   <span style="color: #8b2252;">"Count the number of words in the current buffer"</span>
   (interactive)
-  (<span style="color: #a020f0;">save-excursion</span>
-        (<span style="color: #a020f0;">let</span> ((count 0))
-          (goto-char (point-min))
-          (<span style="color: #a020f0;">while</span> (&lt; (point) (point-max))
-                (forward-word 1)
-                (setq count (1+ count)))
-          (message <span style="color: #8b2252;">"buffer contains %d words."</span> count))))
+  *hideshowvis*(<span style="color: #a020f0;">save-excursion</span>
+    *hideshowvis*(<span style="color: #a020f0;">let</span> ((count 0))
+      (goto-char (point-min))
+      *hideshowvis*(<span style="color: #a020f0;">while</span> (&lt; (point) (point-max))
+        (forward-word 1)
+        (setq count (1+ count)))
+      (message <span style="color: #8b2252;">"buffer contains %d words."</span> count))))
 
 <span style="color: #b22222;">;;; </span><span style="color: #b22222;">Test function for AppleScript</span>
 <span style="color: #b22222;">;;; </span><span style="color: #b22222;">Cite: http://sakito.jp/emacs/emacsobjectivec.html</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">do-test-applescript</span> ()
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">do-test-applescript</span> ()
   (interactive)
-  (do-applescript
-   (format
-        (concat
-         <span style="color: #8b2252;">"display dialog \"Hello world!\" \r"</span>))))
+  *hideshowvis*(do-applescript
+   *hideshowvis*(format
+    *hideshowvis*(concat
+     <span style="color: #8b2252;">"display dialog \"Hello world!\" \r"</span>))))
 </pre>
 </div>
 </div>
@@ -796,9 +824,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Avoid warning (for sense-region)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Warning: 'mapcar' called for effect; use 'mapc' or 'dolist' insted</span>
-(setq byte-compile-warnings
-          '(free-vars unresolved callargs redefine obsolete noruntime
-                                  cl-functions interactive-only make-local))
+*hideshowvis*(setq byte-compile-warnings
+      '*hideshowvis*(free-vars unresolved callargs redefine obsolete noruntime
+      cl-functions interactive-only make-local))
 </pre>
 </div>
 </div>
@@ -817,47 +845,49 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">In my-window-resizer:
-utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</span>' is an obsolete variable (as of
-        Emacs at least 19.34)<span style="color: #b22222;">; </span><span style="color: #b22222;">use `</span><span style="color: #b22222;">last-command-event</span><span style="color: #b22222;">' instead.</span>
+utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</span>' is an obsolete variable *hideshowvis*(as of
+    Emacs at least 19.34)<span style="color: #b22222;">; </span><span style="color: #b22222;">use `</span><span style="color: #b22222;">last-command-event</span><span style="color: #b22222;">' instead.</span>
 </pre>
 </div>
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-window-resizer</span> ()
-  <span style="color: #8b2252;">"Control window size and position."</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+*hideshowvis*(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">takaxp:window-resizer</span> ()
+  <span style="color: #8b2252;">"Control separated window size and position.</span>
+<span style="color: #8b2252;">   Type {j,k,l,m} to adjust windows size."</span>
   (interactive)
-  (<span style="color: #a020f0;">let</span> ((window-obj (selected-window))
-                (current-width (window-width))
-                (current-height (window-height))
-                (dx (<span style="color: #a020f0;">if</span> (= (nth 0 (window-edges)) 0) 1
-                          -1))
-                (dy (<span style="color: #a020f0;">if</span> (= (nth 1 (window-edges)) 0) 1
-                          -1))
-                action c)
-        (<span style="color: #a020f0;">catch</span> '<span style="color: #008b8b;">end-flag</span>
-          (<span style="color: #a020f0;">while</span> t
-                (setq action
-                          (read-key-sequence-vector (format <span style="color: #8b2252;">"size[%dx%d]"</span>
-                                                                                                (window-width)
-                                                                                                (window-height))))
-                (setq c (aref action 0))
-                (<span style="color: #a020f0;">cond</span> ((= c ?l)
-                           (enlarge-window-horizontally dx))
-                          ((= c ?h)
-                           (shrink-window-horizontally dx))
-                          ((= c ?j)
-                           (enlarge-window dy))
-                          ((= c ?k)
-                           (shrink-window dy))
-                          <span style="color: #b22222;">;; </span><span style="color: #b22222;">otherwise</span>
-                          (t
-                           (<span style="color: #a020f0;">let</span> ((last-command-event (aref action 0))
-                                         (command (key-binding action)))
-                                 (<span style="color: #a020f0;">when</span> command
-                                   (call-interactively command)))
-                           (message <span style="color: #8b2252;">"Quit"</span>)
-                           (<span style="color: #a020f0;">throw</span> '<span style="color: #008b8b;">end-flag</span> t)))))))
+  *hideshowvis*(<span style="color: #a020f0;">let</span> *hideshowvis*((window-obj (selected-window))
+        (current-width (window-width))
+        (current-height (window-height))
+        *hideshowvis*(dx *hideshowvis*(<span style="color: #a020f0;">if</span> (= (nth 0 (window-edges)) 0) 1
+              -1))
+        *hideshowvis*(dy *hideshowvis*(<span style="color: #a020f0;">if</span> (= (nth 1 (window-edges)) 0) 1
+              -1))
+        action c)
+    *hideshowvis*(<span style="color: #a020f0;">catch</span> '<span style="color: #008b8b;">end-flag</span>
+      *hideshowvis*(<span style="color: #a020f0;">while</span> t
+        *hideshowvis*(setq action
+              *hideshowvis*(read-key-sequence-vector *hideshowvis*(format <span style="color: #8b2252;">"size[%dx%d]"</span>
+                                                (window-width)
+                                                (window-height))))
+        (setq c (aref action 0))
+        *hideshowvis*(<span style="color: #a020f0;">cond</span> *hideshowvis*((= c ?l)
+               (enlarge-window-horizontally dx))
+              *hideshowvis*((= c ?h)
+               (shrink-window-horizontally dx))
+              *hideshowvis*((= c ?j)
+               (enlarge-window dy))
+              *hideshowvis*((= c ?k)
+               (shrink-window dy))
+              <span style="color: #b22222;">;; </span><span style="color: #b22222;">otherwise</span>
+              *hideshowvis*(t
+               *hideshowvis*(<span style="color: #a020f0;">let</span> *hideshowvis*((last-command-event (aref action 0))
+                     (command (key-binding action)))
+                 *hideshowvis*(<span style="color: #a020f0;">when</span> command
+                   (call-interactively command)))
+               (message <span style="color: #8b2252;">"Quit"</span>)
+               (<span style="color: #a020f0;">throw</span> '<span style="color: #008b8b;">end-flag</span> t)))))))
 </pre>
 </div>
 </div>
@@ -888,7 +918,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 <div class="outline-text-3" id="text-3-5">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">epa-setup</span> nil t)
+<pre class="src src-emacs-lisp">*hideshowvis*(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">epa-setup</span> nil t)
   (epa-file-enable))
 </pre>
 </div>
@@ -900,11 +930,11 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">eblook</span>
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">eblook</span> nil t)
-  (autoload 'edict-search-english <span style="color: #8b2252;">"edic"</span>
-        <span style="color: #8b2252;">"Search for a translation of an English word"</span> t)
-  (autoload 'edict-search-kanji <span style="color: #8b2252;">"edict"</span>
-        <span style="color: #8b2252;">"Search for a translation of a Kanji sequence"</span> t)
+*hideshowvis*(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">eblook</span> nil t)
+  *hideshowvis*(autoload 'edict-search-english <span style="color: #8b2252;">"edic"</span>
+    <span style="color: #8b2252;">"Search for a translation of an English word"</span> t)
+  *hideshowvis*(autoload 'edict-search-kanji <span style="color: #8b2252;">"edict"</span>
+    <span style="color: #8b2252;">"Search for a translation of a Kanji sequence"</span> t)
   (setq *edict-files* '(<span style="color: #8b2252;">"/Users/taka/Dropbox/Dic/LDOCE4"</span>))
   (setq *edict-files* '(<span style="color: #8b2252;">"/Users/taka/Downloads/edict/edict"</span>)))
 </pre>
@@ -954,8 +984,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br  />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2015-02-21 Sat 10:08</p>
-<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.4.1 (<a href="http://orgmode.org">Org</a> mode 8.2.4)</p>
+<p class="date">Created: 2015-04-26 Sun 15:13</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 8.2.4)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

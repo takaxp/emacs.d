@@ -67,21 +67,26 @@
         (shell-command-to-string
          (concat "open -a " open-current-directory-console-program))))))
 
+(with-eval-after-load "todochiku"
+  (setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
+  (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
+  (message "--- todochiku-icons are ready."))
+
 (defun set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file
-         with tables with the following format:
-      |------+-------+--------------------|
-      | Flag |  Time | Content            |
-      |------+-------+--------------------|
-      |      | 07:00 | Wakeup             |
-      |      |       | Read papers        |
-      | X    | 12:00 | Clean up your desk |
-      When it is 7:00 and 12:00, Growl notify with a message which is specified
-      content column from the table. \"Read papers\" will be ignored.
-      \"Clean up your desk\" will be shown by sticky mode"
+           with tables with the following format:
+        |------+-------+--------------------|
+        | Flag |  Time | Content            |
+        |------+-------+--------------------|
+        |      | 07:00 | Wakeup             |
+        |      |       | Read papers        |
+        | X    | 12:00 | Clean up your desk |
+        When it is 7:00 and 12:00, Growl notify with a message which is specified
+        content column from the table. \"Read papers\" will be ignored.
+        \"Clean up your desk\" will be shown by sticky mode"
   (let
       ((lines (read-line file)))
-    (cancel-function-timers 'my-desktop-notify) ;; clear existing timers
+    (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
     (while lines
       (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
       (setq lines (cdr lines))
@@ -118,9 +123,10 @@
               (setq s 'sticky))
             ;;      (set-notify-growl hour min action s)
             (set-notify-osx-native hour min action s)
+            (set-notify-mail hour min action s)
             ))))))
 
-(defun my-desktop-notify (type title hour min action s)
+(defun my:desktop-notify (type title hour min action s)
   (cond
    ((string= type "growl")
     (require 'cl)
@@ -135,15 +141,20 @@
              (format "%s:%s %s" hour min action) "\"")))
    (t nil)))
 
+(defun set-notify-mail (hour min action s)
+  (run-at-time (format "%s:%s" hour min) nil
+               'my:desktop-notify
+               "mail" "りまいんだ" hour min action nil))
+
 (defun set-notify-growl (hour min action s)
   (run-at-time (format "%s:%s" hour min) nil
-               'my-desktop-notify
+               'my:desktop-notify
                "growl" "== REMINDER ==" hour min action s))
 
 (defun set-notify-osx-native (hour min action s)
   "terminal-notifier is required."
   (run-at-time (format "%s:%s" hour min) nil
-               'my-desktop-notify
+               'my:desktop-notify
                "osx-native" "Emacs" hour min action nil))
 
 (defun read-line (file)
@@ -258,14 +269,10 @@
 
 (global-set-key (kbd "C-M--") 'add-itemize-head)
 
-(defun insert-formatted-current-date (arg)
+(defun insert-formatted-current-date ()
   "Insert a timestamp at the cursor position. C-u will add [] brackets."
-  (interactive "p")
-  (case arg
-    (4 (if (equal major-mode 'org-mode)
-           (org-time-stamp-inactive)
-         (insert (format-time-string "[%Y-%m-%d]"))))
-    (t (insert (format-time-string "%Y-%m-%d")))))
+  (interactive)
+  (insert (format-time-string "%Y-%m-%d")))
 (defun insert-formatted-current-time ()
   (interactive)
   (insert (format-time-string "%H:%M")))
@@ -276,7 +283,6 @@
 
 (global-set-key (kbd "C-0") 'insert-formatted-current-date)
 (global-set-key (kbd "C--") 'insert-formatted-current-time)
-(global-set-key (kbd "C-=") 'insert-formatted-signature)
 
 (defcustom my-auto-install-batch-list-el-url nil
   "URL of a auto-install-batch-list.el"
@@ -352,12 +358,14 @@
 ;(setq browse-url-browser-function 'browse-url-default-windows-browser)
 ;(setq browse-url-browser-function 'browse-url-chrome)
 
-(defun my:date ()
+;;;###autoload
+(defun takaxp:date ()
   (interactive)
   (message "%s" (concat
                  (format-time-string "%Y-%m-%d") " ("
                  (format-time-string "%a") ") "
                  (format-time-string "%H:%M"))))
+(global-set-key (kbd "C-c t") 'takaxp:date)
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 (defun count-words-buffer ()
@@ -380,8 +388,10 @@
     (concat
      "display dialog \"Hello world!\" \r"))))
 
-(defun my-window-resizer ()
-  "Control window size and position."
+;;;###autoload
+(defun takaxp:window-resizer ()
+  "Control separated window size and position.
+   Type {j,k,l,m} to adjust windows size."
   (interactive)
   (let ((window-obj (selected-window))
         (current-width (window-width))
