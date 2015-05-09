@@ -67,112 +67,110 @@
         (shell-command-to-string
          (concat "open -a " open-current-directory-console-program))))))
 
-(with-eval-after-load "todochiku"
-  (setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
-  (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
-  (message "--- todochiku-icons are ready."))
+(eval-after-autoload-if-found
+ '(set-alarms-from-file my:desktop-notify) "todochiku" nil t nil
+ '(
+   (setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
+   (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
 
-(defun set-alarms-from-file (file)
-  "Make alarms from org-mode tables. If you have an org-mode file
-           with tables with the following format:
-        |------+-------+--------------------|
-        | Flag |  Time | Content            |
-        |------+-------+--------------------|
-        |      | 07:00 | Wakeup             |
-        |      |       | Read papers        |
-        | X    | 12:00 | Clean up your desk |
-        When it is 7:00 and 12:00, Growl notify with a message which is specified
-        content column from the table. \"Read papers\" will be ignored.
-        \"Clean up your desk\" will be shown by sticky mode"
-  (let
-      ((lines (read-line file)))
-    (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
-    (while lines
-      (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-      (setq lines (cdr lines))
-      (message ""))))
+   (defun set-alarms-from-file (file)
+     "Make alarms from org-mode tables. If you have an org-mode file
+     with tables with the following format:
+      |------+-------+--------------------|
+      | Flag |  Time | Content            |
+      |------+-------+--------------------|
+      |      | 07:00 | Wakeup             |
+      |      |       | Read papers        |
+      | X    | 12:00 | Clean up your desk |
+     When it is 7:00 and 12:00, Growl notify with a message which is specified
+     content column from the table. \"Read papers\" will be ignored.
+     \"Clean up your desk\" will be shown by sticky mode"
+     (let
+         ((lines (read-line file)))
+       (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
+       (while lines
+         (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
+         (setq lines (cdr lines))
+         ;;        (message "")
+         )))
 
-(defun set-alarm-from-line (line)
-  "NOTE: this function need (require 'todochiku)"
-  (require 'cl)
-  (when (require 'todochiku nil t)
-    (let
-        ((hour nil)
-         (min nil)
-         (current-hour nil)
-         (current-min nil)
-         (action nil))
-      (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
-        (setq hour (substring line (match-beginning 1) (match-end 1)))
-        (setq min (substring line (match-beginning 2) (match-end 2)))
-        (when (string-match
-               "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
-          (setq action
-                (substring line (match-beginning 1) (match-end 1)))))
-      (when (and (and hour min) action)
-        ;;       (message "[%s:%s] => %s" hour min action)
-        (setq current-hour (format-time-string "%H" (current-time)))
-        (setq current-min (format-time-string "%M" (current-time)))
-        (when (> (+ (* (string-to-number hour) 60)
-                    (string-to-number min))
-                 (+ (* (string-to-number current-hour) 60)
-                    (string-to-number current-min)))
-          (let
-              ((s nil))
-            (when (string-match "^\|\\s-*X\\s-*\|" line)
-              (setq s 'sticky))
-            ;;      (set-notify-growl hour min action s)
-            (set-notify-osx-native hour min action s)
-            (set-notify-mail hour min action s)
-            ))))))
+   (defun set-alarm-from-line (line)
+     "NOTE: this function need (require 'todochiku)"
+     (require 'cl)
+     (when (require 'todochiku nil t)
+       (let
+           ((hour nil)
+            (min nil)
+            (current-hour nil)
+            (current-min nil)
+            (action nil))
+         (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
+           (setq hour (substring line (match-beginning 1) (match-end 1)))
+           (setq min (substring line (match-beginning 2) (match-end 2)))
+           (when (string-match
+                  "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
+             (setq action
+                   (substring line (match-beginning 1) (match-end 1)))))
+         (when (and (and hour min) action)
+           ;;       (message "[%s:%s] => %s" hour min action)
+           (setq current-hour (format-time-string "%H" (current-time)))
+           (setq current-min (format-time-string "%M" (current-time)))
+           (when (> (+ (* (string-to-number hour) 60)
+                       (string-to-number min))
+                    (+ (* (string-to-number current-hour) 60)
+                       (string-to-number current-min)))
+             (let
+                 ((s nil))
+               (when (string-match "^\|\\s-*X\\s-*\|" line)
+                 (setq s 'sticky))
+               ;;      (set-notify-growl hour min action s)
+               (set-notify-osx-native hour min action s)
+               (set-notify-mail hour min action s)
+               ))))))
 
-(defun my:desktop-notify (type title hour min action s)
-  (cond
-   ((string= type "growl")
-    (require 'cl)
-    (when (require 'todochiku nil t)
-      (todochiku-message
-       title
-       (format "%s:%s %s" hour min action)
-       "Emacs" s)))
-   ((string= type "osx-native")
-    (shell-command-to-string
-     (concat "terminal-notifier -title \"Emacs\" -message \""
-             (format "%s:%s %s" hour min action) "\"")))
-   (t nil)))
+   (defun my:desktop-notify (type title hour min action s)
+     (cond
+      ((string= type "growl")
+       (require 'cl)
+       (when (require 'todochiku nil t)
+         (todochiku-message
+          title
+          (format "%s:%s %s" hour min action)
+          "Emacs" s)))
+      ((string= type "osx-native")
+       (shell-command-to-string
+        (concat "terminal-notifier -title \"Emacs\" -message \""
+                (format "%s:%s %s" hour min action) "\"")))
+      (t nil)))
 
-(defun set-notify-mail (hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "mail" "りまいんだ" hour min action nil))
+   (defun set-notify-mail (hour min action s)
+     (run-at-time (format "%s:%s" hour min) nil
+                  'my:desktop-notify
+                  "mail" "りまいんだ" hour min action nil))
 
-(defun set-notify-growl (hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "growl" "== REMINDER ==" hour min action s))
+   (defun set-notify-growl (hour min action s)
+     (run-at-time (format "%s:%s" hour min) nil
+                  'my:desktop-notify
+                  "growl" "== REMINDER ==" hour min action s))
 
-(defun set-notify-osx-native (hour min action s)
-  "terminal-notifier is required."
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "osx-native" "Emacs" hour min action nil))
+   (defun set-notify-osx-native (hour min action s)
+     "terminal-notifier is required."
+     (run-at-time (format "%s:%s" hour min) nil
+                  'my:desktop-notify
+                  "osx-native" "Emacs" hour min action nil))
 
-(defun read-line (file)
-  "Make a list from a file, which is divided by LF code"
-  (with-temp-buffer
-    (insert-file-contents-literally file)
-    (split-string
-     (buffer-string) "\n" t)))
+   (defun read-line (file)
+     "Make a list from a file, which is divided by LF code"
+     (with-temp-buffer
+       (insert-file-contents-literally file)
+       (split-string
+        (buffer-string) "\n" t)))
+   ))
 
-(defun set-alarm-hook ()
-  (when (string-match (file-name-base "today.org") (buffer-name))
-    (message "--- The alarm list has been updated.")
-    (set-alarms-from-file alarm-table)))
-
-(defvar my-file-ring nil)
+(defvar my:file-ring nil)
 (defun takaxp:make-file-ring (files)
-  (setq my-file-ring (copy-sequence files)))
-;;    (setf (cdr (last my-file-ring)) my-file-ring))
+  (setq my:file-ring (copy-sequence files)))
+;;    (setf (cdr (last my:file-ring)) my:file-ring))
 (takaxp:make-file-ring
  '("~/Dropbox/org/work.org" "~/Dropbox/emacs.d/config/init.org"
    "~/Dropbox/org/buffer.org" "~/Dropbox/emacs.d/config/utility.org"
@@ -180,12 +178,12 @@
 
 (defun takaxp:open-file-ring ()
   (interactive)
-  (find-file (car my-file-ring))
-  (setq my-file-ring
-        (append (cdr my-file-ring)
-                (list (car my-file-ring)))))
+  (find-file (car my:file-ring))
+  (setq my:file-ring
+        (append (cdr my:file-ring)
+                (list (car my:file-ring)))))
 
-;;    (setq my-file-ring (cdr my-file-ring)))
+;;    (setq my:file-ring (cdr my:file-ring)))
 
 (defun show-org-buffer (file)
   "Show an org-file on the current buffer"
@@ -237,21 +235,6 @@
            (message "%s" string)))
         (t "0")))
 
-(defun init-auto-install ()
-  "Setup auto-install.el.
-1. Set my-auto-install-batch-list-el-url
-2. M-x init-auto-install
-3. M-x auto-install-batch hoge"
-  (interactive)
-  (when (and (require 'auto-install nil t)
-             my-auto-install-batch-list-el-url)
-    (setq auto-install-batch-list-el-url my-auto-install-batch-list-el-url)
-    (setq auto-install-directory default-path)
-    (setq auto-install-wget-command "/opt/local/bin/wget")
-    (auto-install-update-emacswiki-package-name t)
-    ;; compatibility
-    (auto-install-compatibility-setup))) ; for install-elisp users
-
 (defun add-itemize-head (arg)
   "Insert \"  - \" at the head of line.
   If the cursor is already at the head of line, it is NOT returned back to the
@@ -284,7 +267,7 @@
 (global-set-key (kbd "C-0") 'insert-formatted-current-date)
 (global-set-key (kbd "C--") 'insert-formatted-current-time)
 
-(defcustom my-auto-install-batch-list-el-url nil
+(defcustom my:auto-install-batch-list-el-url nil
   "URL of a auto-install-batch-list.el"
   :type 'string
   :group 'takaxp-utility)
@@ -334,29 +317,33 @@
                                      default-timeline-xml-private-file))
     (shell-command-to-string (concat "open " default-timeline))))
 
-(run-with-idle-timer 600 t 'reload-ical-export)
-(run-with-idle-timer 1000 t 'org-mobile-push)
+(with-eval-after-load "org"
+  (run-with-idle-timer 600 t 'reload-ical-export)
+  (run-with-idle-timer 1000 t 'org-mobile-push))
 
 (defun reload-ical-export ()
   "Export org files as an iCal format file"
   (interactive)
   (when (string= major-mode 'org-mode)
-    (my-ox-icalendar)))
+    (my:ox-icalendar)))
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
-(defun browse-url-chrome (url &optional new-window)
-  "Set default browser to open a URL"
-  (interactive (browse-url-interactive-arg "URL: "))
-  (start-process "google-chrome" nil "google-chrome" url))
-;; Open a link with google-chrome for Linux
-(when (not (eq window-system 'ns))
-  (setq browse-url-browser-function 'browse-url-generic
-        browse-url-generic-program "google-chrome")
-)
-;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
-;(setq browse-url-browser-function 'browse-url-default-windows-browser)
-;(setq browse-url-browser-function 'browse-url-chrome)
+(eval-after-autoload-if-found
+ '(my:browse-url-chrome) "browse-url" nil t nil
+ '((defun my:browse-url-chrome (url &optional new-window)
+     "Set default browser to open a URL"
+     (interactive (browse-url-interactive-arg "URL: "))
+     (start-process "google-chrome" nil "google-chrome" url))
+   ;; Open a link with google-chrome for Linux
+   (when (not (eq window-system 'ns))
+     (setq browse-url-browser-function 'browse-url-generic
+           browse-url-generic-program "google-chrome")
+     )
+   ))
+                                        ;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
+                                        ;(setq browse-url-browser-function 'browse-url-default-windows-browser)
+                                        ;(setq browse-url-browser-function 'browse-url-chrome)
 
 ;;;###autoload
 (defun takaxp:date ()
@@ -366,6 +353,34 @@
                  (format-time-string "%a") ") "
                  (format-time-string "%H:%M"))))
 (global-set-key (kbd "C-c t") 'takaxp:date)
+
+;; find ~/env/emacs_backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
+(defun recursive-delete-backup-files (count)
+  (if (= count 1)
+      1
+    (recursive-delete-backup-files (1- count)))
+  (delete-backup-files count))
+
+(defun delete-backup-files (&optional day-shift)
+  "Delete backup files created in yesterday.
+  > find ~/env/emacs_backup -type f -name '*YY-MM-DD_*' -print0 | xargs -0"
+  (interactive)
+  (unless day-shift
+    (setq day-shift 1))
+  (let* ((backup-dir "~/env/emacs_backup")
+         (cmd (concat "find " backup-dir "  -type f -name \'*"
+                      (format-time-string 
+                       "%y-%m-%d_"
+                       (time-subtract (current-time)
+                                      (seconds-to-time
+                                       (* day-shift (* 24 3600)))))
+                      "*\' -print0 | while read -r -d \'\' file; "
+                      " do echo -n \" \\\"$file\\\"\"; done | xargs -0"))
+         (files (shell-command-to-string cmd)))
+  ;;;      (message "%s" cmd)
+    (unless (string= files "")
+      (message "%s" files)
+      (shell-command-to-string (concat "rm -r " files)))))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 (defun count-words-buffer ()
@@ -379,14 +394,37 @@
         (setq count (1+ count)))
       (message "buffer contains %d words." count))))
 
-;;; Test function for AppleScript
-;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
+  ;;; Test function for AppleScript
+  ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
 (defun do-test-applescript ()
   (interactive)
   (do-applescript
    (format
     (concat
      "display dialog \"Hello world!\" \r"))))
+
+(defun describe-timer ()
+  "A modified. see http://masutaka.net/chalow/2009-12-05-1.html"
+  (interactive)
+  (let ((tl timer-list) time
+        (timer nil))
+    (pop-to-buffer (get-buffer-create "*timer*"))
+    (erase-buffer)
+    (insert
+     "TIME           FUNCTION\n"
+     "-------------- ----------------------\n")
+    (while tl
+      (setq timer (car tl))
+      (insert
+       (concat
+        (format-time-string "%m/%d %T"
+                            (list (aref timer 1)
+                                  (aref timer 2)
+                                  (aref timer 3)))
+        " "
+        (symbol-name (aref timer 5))
+        "\n"))
+      (setq tl (cdr tl)))))
 
 ;;;###autoload
 (defun takaxp:window-resizer ()

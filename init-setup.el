@@ -28,15 +28,16 @@
        (od "org-8.2")
 ;;       (od "org-mode")
        (l `("~/Dropbox/emacs.d/config" "~/Dropbox/config" ,p ,(concat p "yatex")
-	    ,(concat g od "/lisp") ,(concat g od "/contrib/lisp"))))
+            ,(concat g od "/lisp") ,(concat g od "/contrib/lisp"))))
     (load-path-setter l 'load-path))
   (if (not use-cask-flag)
       (load-path-setter '("~/.emacs.d/.cask/package") 'load-path)
     (when (require 'cask "~/.cask/cask.el" t) (cask-initialize)) ;; 800[ms]
     (when (require 'pallet nil t) (pallet-mode t))) ;; 30[ms]
-  (require 'init nil t)      ;; 600[ms], Creating Cocoa window   ;; 1000[ms]
+
+  (require 'init nil t)      ;; Less than 500[ms], Cocoa: 1000[ms]
   (require 'my-eshell nil t) ;; 0[ms]
-  (require 'private nil t)   ;; 0[ms]
+  (require 'private nil t)   ;; 0[ms] This package depends on init.el
   ))
 
 ;;; config
