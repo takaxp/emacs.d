@@ -133,10 +133,13 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 
 *** 関数版
 
-関数版にリスト =disabled-packages= を追加しました．これは，事前にリストに Lisp ファイル名を入れておくと，一切の設定をスキップするものです．=eval-after-atoload-if-found= を構成する前に次のような変数を設定しておきます．
+関数版にリスト =disabled-packages= を追加しました．これは，事前にリストに Lisp ファイル名を入れておくと，一切の設定をスキップするものです．=eval-after-atoload-if-found= を構成する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いて置けば，パッケージのON/OFFを簡単に制御できます．
 
 #+BEGIN_SRC emacs-lisp :tangle no :exports yes
-(setq disabled-packages '("org" "web-mode" "helm-config"))
+  (setq disabled-packages ;; 追加されていないものは，有効
+        '(("org" . t) ;; 無効
+          ("web-mode" . nil) ;; 有効
+          ("helm-config" . t))) ;; 無効
 #+END_SRC
 
 [[https://gist.github.com/3513287]]
@@ -165,7 +168,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
           t))))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no :exports no
   (defun eval-after-autoload-if-found
       (functions file &optional docstring interactive type after-body)
     "Set up autoload and eval-after-load for FUNCTIONS iff. FILE has found."
