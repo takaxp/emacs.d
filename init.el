@@ -51,15 +51,15 @@
        '(my:ag) "ag" nil t nil
        '((setq ag-highlight-search t)
          (setq ag-reuse-buffers t) ;; nil=別ウィンドウが開く
-         (setq ag-reuse-window t)  ;; nil=結果を選択時に別ウィンドウに結果を出す
+         (setq ag-reuse-window t)  ;; nil=結果を選択時に別ウィンドウに結果:を出す
          ;; q でウィンドウを抜ける
          (define-key ag-mode-map (kbd "q") 'delete-window)
-    
+
          (defun my:ag ()
            (interactive)
            (call-interactively 'ag)
            (switch-to-buffer-other-frame "*ag search*"))))
-  
+
   (global-set-key (kbd "C-M-f") 'my:ag))
 
 (when (eq window-system 'ns)
@@ -100,6 +100,7 @@
   (add-hook 'lisp-mode-hook 'aggressive-indent-mode)
   (add-hook 'perl-mode-hook 'aggressive-indent-mode)
   (add-hook 'c-mode-common-hook 'aggressive-indent-mode)
+  (add-hook 'python-mode-hook 'aggressive-indent-mode)
   (add-hook 'nxml-mode-hook 'aggressive-indent-mode)
   (add-hook 'web-mode-hook 'aggressive-indent-mode))
 
@@ -124,12 +125,6 @@
 
 ;; Scroll window on a page-by-pabe basis with N line overlapping
 (setq next-screen-context-lines 1)
-
-(eval-after-autoload-if-found
- '(smooth-scroll) "smooth-scroll" nil t nil
- '((smooth-scroll-mode t)
-   (setq smooth-scroll/vscroll-step-size 6)
-   (setq smooth-scroll/hscroll-step-size 6)))
 
 (eval-after-autoload-if-found
  '(cycle-buffer cycle-buffer-backward) "cycle-buffer" nil t nil
@@ -169,7 +164,7 @@
                          (org-show-entry)
                          (show-children)
                          (org-show-siblings)))))
-  
+
   (add-hook 'after-init-hook 'bm-repository-load)
   (add-hook 'find-file-hook 'bm-buffer-restore)
   (add-hook 'after-revert-hook 'bm-buffer-restore)
@@ -177,7 +172,7 @@
   (add-hook 'after-save-hook 'bm-buffer-save)
   (add-hook 'vc-before-checkin-hook 'bm-buffer-save)
   (add-hook 'kill-emacs-hook 'bm-save)
-  
+
   (global-set-key (kbd "<f10>") 'my:bm-toggle)
   (global-set-key (kbd "<C-f10>") 'my:bm-next))
 
@@ -216,7 +211,7 @@
          (setq time-stamp-end "$")
          (setq time-stamp-line-limit 10) ; def=8
          ))
-  
+
   (add-hook 'before-save-hook
             '(lambda ()
                (if (boundp 'org-tree-slide-mode)
@@ -286,13 +281,23 @@
 
 (when (eval-after-autoload-if-found
        '(js2-mode) "js2-mode" nil t nil
-       '())
+       '((when (require 'tern nil t)
+           (tern-mode 1))
+         (when (require 'tern-auto-complete nil t)
+           (tern-ac-setup))))
   (push '("\\.js$" . js2-mode) auto-mode-alist))
+
+(when (eval-after-autoload-if-found
+       '(ac-js2-mode) "ac-js2" nil t nil
+       '())
+  (add-hook 'js2-mode-hook 'ac-js2-mode))
 
 (when (eval-after-autoload-if-found
        '(csv-mode) "csv-mode" nil t nil
        '())
   (push '("\\.csv$" . csv-mode) auto-mode-alist))
+
+(eval-after-autoload-if-found '(ascii-on ascii-off) "ascii" nil t nil '())
 
 ;;; Use aspell for spell checking instead of ispell.
 (when (executable-find "aspell")
@@ -360,14 +365,17 @@
          (yas-global-mode 1)
          ))
 
-  (dolist (hook (list 'perl-mode-hook 'c-mode-common-hook 'org-mode-hook))
+  (dolist (hook
+           (list 'perl-mode-hook
+                 'c-mode-common-hook 'js2-mode-hook 'org-mode-hook
+                 'python-mode-hook))
     (add-hook hook 'yas-minor-mode)))
 
 (when (eval-after-autoload-if-found
-       '(dict-app-search) "dict-app" nil t nil
-       '())
-  ;; カーソルの位置の英単語の意味を調べる  
-  (global-set-key (kbd "C-M-w") 'dict-app-search))
+       '(osx-dictionary-search-pointer osx-dictionary-search-input)
+       "osx-dictionary" nil t nil
+       '((setq osx-dictionary-dictionary-choice "英辞郎 第七版")))
+  (global-set-key (kbd "C-M-w") 'osx-dictionary-search-pointer))
 
 (when (eval-after-autoload-if-found
        '(web-mode) "web-mode" "web-mode" t nil
@@ -423,6 +431,9 @@
   (add-hook 'html-mode-hook 'emmet-mode)
   (add-hook 'web-mode-hook 'emmet-mode))
 
+(eval-after-autoload-if-found
+ '(describe-number describe-number-at-point) "describe-number" nil t nil nil)
+
 (when (require 'diminish nil t)
   (with-eval-after-load "isearch" (diminish 'isearch-mode))
   (with-eval-after-load "smooth-scroll" (diminish 'smooth-scroll-mode))
@@ -442,9 +453,12 @@
   )
 
 (add-hook 'c-mode-hook '(lambda () (setq mode-name "C")))
+(add-hook 'js2-mode-hook '(lambda () (setq mode-name "JS")))
 (add-hook 'c++-mode-hook '(lambda () (setq mode-name "C++")))
 (add-hook 'csharp-mode-hook '(lambda () (setq mode-name "C#")))
+(add-hook 'prog-mode-hook '(lambda () (setq mode-name "S")))
 (add-hook 'emacs-lisp-mode-hook '(lambda () (setq mode-name "el")))
+(add-hook 'python-mode-hook '(lambda () (setq mode-name "py")))
 (add-hook 'perl-mode-hook '(lambda () (setq mode-name "pl")))
 (add-hook 'web-mode-hook '(lambda () (setq mode-name "W")))
 (add-hook 'lisp-interaction-mode-hook '(lambda () (setq mode-name "Lisp")))
@@ -458,6 +472,10 @@
                                      (= (1+ (buffer-size)) (point-max))) ""
                               my:narrow-display)) entry))
               mode-line-modes))
+
+(with-eval-after-load "vc-hooks"
+  (setcdr (assq 'vc-mode mode-line-format)
+          '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
 
 (set-face-attribute 'mode-line nil :overline "#203e6f" :box nil)
 (set-face-foreground 'mode-line "#203e6f")
@@ -640,14 +658,15 @@
            "........"
            "........"
            "........")
-         (setq git-gutter-fr:side 'right-fringe)
+         (setq git-gutter-fr:side 'left-fringe)
          (set-face-foreground 'git-gutter-fr:added    "#FF2600")
          (set-face-foreground 'git-gutter-fr:modified "orange")
          (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))
-  
+
   (add-hook 'emacs-lisp-mode-hook 'git-gutter-mode)
   (add-hook 'lisp-mode-hook 'git-gutter-mode)
   (add-hook 'perl-mode-hook 'git-gutter-mode)
+  (add-hook 'python-mode-hook 'git-gutter-mode)
   (add-hook 'c-mode-common-hook 'git-gutter-mode)
   (add-hook 'nxml-mode-hook 'git-gutter-mode)
   (add-hook 'web-mode-hook 'git-gutter-mode))
@@ -794,10 +813,11 @@
              '(flycheck-display-errors-function
                #'flycheck-pos-tip-error-messages)))))
   (add-hook 'c-mode-common-hook 'flycheck-mode)
-  (add-hook 'perl-mode-hook 'flycheck-mode))
+  (add-hook 'perl-mode-hook 'flycheck-mode)
+  (add-hook 'python-mode-hook 'flycheck-mode))
 
 (when (eval-after-autoload-if-found
-         '(auto-complete ac-default-setup ac-org-mode-setup ac-cc-mode-setup)
+         '(ac-default-setup ac-org-mode-setup)
          "auto-complete" nil t nil
          '((require 'auto-complete-config nil t)
            (ac-config-default)
@@ -854,7 +874,7 @@
                                 ac-source-words-in-same-mode-buffers)))
            ))
 
-    (dolist (hook (list 'perl-mode-hook 'objc-mode-hook))
+    (dolist (hook (list 'python-mode-hook 'perl-mode-hook 'objc-mode-hook))
       (add-hook hook 'ac-default-setup))
     ;; *scratch* バッファでは無効化
     (add-hook 'lisp-mode-hook
@@ -876,6 +896,16 @@
                               ac-source-gtags)))
          ))
   (add-hook 'c-mode-common-hook 'ac-cc-mode-setup))
+
+(when (eval-after-autoload-if-found
+       '(quickrun) "quickrun" nil t nil
+       '())
+  (add-hook 'c-mode-common-hook
+            '(lambda () (define-key c++-mode-map (kbd "<f5>") 'quickrun)))
+  (add-hook 'python-mode-hook
+            '(lambda () (define-key python-mode-map (kbd "<f5>") 'quickrun)))
+  (add-hook 'perl-mode-hook
+            '(lambda () (define-key perl-mode-map (kbd "<f5>") 'quickrun))))
 
 (eval-after-autoload-if-found
    'org-mode "org" "Org Mode" t nil
@@ -949,93 +979,103 @@
      ))
 
 (eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '(;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
-   ;; default = ~/org.ics
-   ;; C-c C-e i org-export-icalendar-this-file
-   ;; C-c C-e I org-export-icalendar-all-agenda-files
-   ;; C-c C-e c org-export-icalendar-all-combine-agenda-files
-   ;; (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
-
-   (setq org-icalendar-combined-agenda-file "~/Dropbox/org/org-ical.ics")
-
-   ;; iCal の説明文
-   (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
-   ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
-   (setq org-icalendar-timezone "Asia/Tokyo")
+   'org-mode "org" "Org Mode" t nil
+   '(;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
+     ;; default = ~/org.ics
+     ;; C-c C-e i org-export-icalendar-this-file
+     ;; C-c C-e I org-export-icalendar-all-agenda-files
+     ;; C-c C-e c org-export-icalendar-all-combine-agenda-files
+     ;; (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
    
-   ;; DONE になった TODO はアジェンダから除外する
-   (setq org-icalendar-include-todo t)
-   ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
-   (setq org-icalendar-use-scheduled '(event-if-todo))
-   ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
-   ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
-   (setq org-icalendar-use-deadline '(event-if-todo))
+     (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
    
-   (when (require 'ox-icalendar nil t)
-     (defun my:ox-icalendar ()
-       (interactive)
-       (let ((temp-agenda-files org-agenda-files))
-         (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
-         ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
-         (org-icalendar-combine-agenda-files)
-         (setq org-agenda-files temp-agenda-files)
-         ;; Dropbox/Public のフォルダに公開する
-         (shell-command
-          (concat "cp " org-icalendar-combined-agenda-file " "
-                  org-icalendar-dropbox-agenda-file))
-         (if (eq 0 (shell-command
-                    (concat "scp -o ConnectTimeout=5 "
-                            org-icalendar-combined-agenda-file
-                            " orz:~/public_html/ical")))
-             (message "Uploading... [DONE]")
-           (message "Uploading... [MISS]"))
+     ;; iCal の説明文
+     (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
+     ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
+     (setq org-icalendar-timezone "Asia/Tokyo")
+   
+     ;; DONE になった TODO はアジェンダから除外する
+     (setq org-icalendar-include-todo t)
+     ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
+     (setq org-icalendar-use-scheduled '(event-if-todo))
+         ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
+     ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
+     (setq org-icalendar-use-deadline '(event-if-todo))
+   
+     (when (require 'ox-icalendar nil t)
+       (defun my:ox-icalendar ()
+         (interactive)
+         (let ((temp-agenda-files org-agenda-files))
+           (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
+           ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
+           (org-icalendar-combine-agenda-files)
+           (setq org-agenda-files temp-agenda-files)
+           ;; Dropbox/Public のフォルダに公開する
+;;           (shell-command
+;;            (concat "cp " org-icalendar-combined-agenda-file " "
+;;                    org-icalendar-dropbox-agenda-file))
+           (if (eq 0 (shell-command
+                      (concat "scp -o ConnectTimeout=5 "
+                              org-icalendar-combined-agenda-file " "
+                              org-ical-file-in-orz-server)))
+               (message "Uploading... [DONE]")
+             (message "Uploading... [MISS]"))
+           (my:ox-icalendar-cleanup)
+           ))
+
+       (defun my:ox-icalendar-cleanup ()
+         (interactive)
          (when (file-exists-p
                 (expand-file-name org-icalendar-combined-agenda-file))
            (shell-command-to-string
-            (concat "rm -rf " org-icalendar-combined-agenda-file))))))
-   ))
+            (concat "rm -rf " org-icalendar-combined-agenda-file))))
+       ;;     (add-hook 'focus-out-hook 'my:ox-icalendar-cleanup)
+       )
+     ))
 
 (eval-after-autoload-if-found
  'org-mode "org" "Org Mode" t nil
  '((setq org-use-speed-commands t)
+   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
+   (add-to-list 'org-speed-commands-user '("P" my:proportional-font-toggle))
+   (add-to-list 'org-speed-commands-user 
+                '("$" call-interactively 'org-archive-subtree))
    ;; (setq org-speed-commands-user
    ;;       (quote (("n" . show-next-org)
    ;;               ("t" . show-today-org))))
    ;; (defun show-next-org () (show-org-buffer "next.org"))
    ;; (defun show-today-org () (show-org-buffer "today.org"))
-))
+   ))
 
 (eval-after-autoload-if-found
-'org-mode "org" "Org Mode" t nil
-'(  
-       (add-to-list 'org-modules 'org-timer)
-       (setq org-timer-default-timer 25)
-;; (add-hook 'org-clock-in-hook
-;;        '(lamda ()
-;;                (if (not org-timer-current-timer)
-;;                    (org-timer-set-timer '(16)))))
+ 'org-mode "org" "Org Mode" t nil
+ '((add-to-list 'org-modules 'org-timer)
+   (setq org-timer-default-timer "25")
+   ;; (add-hook 'org-clock-in-hook
+   ;;        '(lamda ()
+   ;;                (if (not org-timer-current-timer)
+   ;;                    (org-timer-set-timer '(16)))))
 
-       (setq growl-pomodoro-default-task-name "doing the task")
-       (setq growl-pomodoro-task-name 'growl-pomodoro-default-task-name)
+   (setq growl-pomodoro-default-task-name "doing the task")
+   (setq growl-pomodoro-task-name 'growl-pomodoro-default-task-name)
 
-       (defun set-growl-pomodoro-task-name ()
-         (interactive "P")
-         (setq growl-pomodoro-task-name
-               (read-from-minibuffer "Task Name: " growl-pomodoro-default-task-name)))
-       (add-hook 'org-timer-set-hook 'set-growl-pomodoro-task-name)
-       
-       (defun growl-pomodoro-timer ()
-         (interactive)
-         (shell-command-to-string
-          (concat "growlnotify -s -a Emacs -t \"++ Pomodoro ++\" -m \""
-                  "The end of " growl-pomodoro-task-name "!\""))
-         (shell-command-to-string
-          ;   (concat "say The end of " growl-pomodoro-task-name)
-          (concat "say -v Kyoko " growl-pomodoro-task-name)
-          ))
-       (add-hook 'org-timer-done-hook 'growl-pomodoro-timer)
-))
+   (defun set-growl-pomodoro-task-name ()
+     (interactive "P")
+     (setq growl-pomodoro-task-name
+           (read-from-minibuffer "Task Name: " growl-pomodoro-default-task-name)))
+   (add-hook 'org-timer-set-hook 'set-growl-pomodoro-task-name)
+
+   (defun growl-pomodoro-timer ()
+     (interactive)
+     (shell-command-to-string
+      (concat "growlnotify -s -a Emacs -t \"++ Pomodoro ++\" -m \""
+              "The end of " growl-pomodoro-task-name "!\""))
+     (shell-command-to-string
+                                        ;   (concat "say The end of " growl-pomodoro-task-name)
+      (concat "say -v Kyoko " growl-pomodoro-task-name)
+      ))
+   (add-hook 'org-timer-done-hook 'growl-pomodoro-timer)
+   ))
 
 (eval-after-autoload-if-found
  'org-mode "org" "Org Mode" t nil
@@ -1054,7 +1094,7 @@
    ;;    ("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
    ;;    ("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
    ;; Color setting for Tags
- 
+
    ;; #CC3333     
    (setq org-todo-keyword-faces
          '(("FOCUS"   :foreground "#FF0000" :background "#FFCC66")
@@ -1071,7 +1111,7 @@
            ("REV2"    :foreground "#3366FF" :background "#99CCFF")
            ("REV3"    :foreground "#FFFFFF" :background "#3366FF")
            ("SLEEP"    :foreground "#9999CC")))
- 
+
    ;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom    
    (setq org-tag-faces
          '(("Achievement" :foreground "#66CC66")
@@ -1088,6 +1128,7 @@
            ("secret"      :foreground "#FF0000")
            ("note"        :foreground "#6633CC")
            ("print"       :foreground "#6633CC")
+           ("Study"       :foreground "#6666CC")
            ("Implements"  :foreground "#CC9999" :weight bold)
            ("Coding"      :foreground "#CC9999")
            ("Editing"     :foreground "#CC9999" :weight bold)
@@ -1116,7 +1157,7 @@
            (sequence "BUG(b)" "READ(r)" "EDIT(e)" "MAIL(m)" "PLAN(p)" "|")
            (sequence "CHECK(C)" "OTW(o)" "WAIT(w)" "SLEEP(s)" "|")
            (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|")))
-   
+
    ;; Global counting of TODO items
    (setq org-hierarchical-todo-statistics nil)
    ;; Global counting of checked TODO items
@@ -1143,7 +1184,13 @@
 
 (eval-after-autoload-if-found
  'org-agenda "org" "Org Mode" t nil
- '(;; Set the view span as day in an agenda view, the default is week
+ '(;; sorting strategy
+   (setq org-agenda-sorting-strategy
+         '((agenda habit-down time-up timestamp-up priority-down category-keep)
+           (todo priority-down category-keep)
+           (tags priority-down category-keep)
+           (search category-keep)))
+   ;; Set the view span as day in an agenda view, the default is week
    (setq org-agenda-span 'day)
    ;; アジェンダに警告を表示する期間
    (setq org-deadline-warning-days 2)
@@ -1156,7 +1203,7 @@
            (800 1000 1200 1400 1600 1800 2000 2200 2400 2600)))
    (setq org-agenda-current-time-string "< d('- ' ) now!")
    (setq org-agenda-timegrid-use-ampm t)
-   
+
    ;; アジェンダ作成対象（指定しないとagendaが生成されない）
    ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
    (setq org-agenda-files
@@ -1164,10 +1211,10 @@
            "~/Dropbox/org/today.org" "~/Dropbox/org/buffer.org"
            "~/Dropbox/org/stock.org"
            "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
-   
+
    (add-hook 'org-finalize-agenda-hook
              '(lambda () (org-agenda-to-appt t '((headline "TODO")))))
-   
+
    ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
    (org-defkey org-agenda-mode-map [(tab)]
                '(lambda () (interactive)
@@ -1215,7 +1262,7 @@
    ;; window を フレーム内に表示する
    (setq appt-display-format 'window)
    ;; window を継続表示する時間[s]
-   (setq appt-display-duration 3)
+   (setq appt-display-duration 8)
    ;; ビープ音の有無
    (setq appt-audible t)
    ;; 何分前から警告表示を開始するか[m]
@@ -1249,7 +1296,7 @@
    (defvar org-capture-buffer-file (concat org-directory "buffer.org"))
    (defvar org-capture-today-file (concat org-directory "today.org"))
    (defvar org-capture-ical-file (concat org-directory "org-ical.org"))
-   
+
    ;; see org.pdf:p73
    (setq org-capture-templates
          `(("t" "TODO 項目を INBOX に貼り付ける" entry
@@ -1298,6 +1345,7 @@
  'org-refile "org" "Org Mode" t nil
  '((setq org-refile-targets
          (quote (("org-ical.org" :level . 1)
+                 ("research.org" :level . 1)
                  ("work.org" :level . 1)
                  ("next.org" :level . 1)
                  ("sleep.org" :level . 1))))
@@ -1325,7 +1373,7 @@
    ;; (require 'ob-perl nil t)
    ;; (require 'ob-sh nil t)
    ;; (require 'ob-python nil t)
- 
+
    ;; 実装済みの言語に好きな名前を紐付ける
    (add-to-list 'org-src-lang-modes '("cs" . csharp))
    (add-to-list 'org-src-lang-modes '("zsh" . sh))))
@@ -1336,31 +1384,6 @@
                 '("C" "#+BEGIN_COMMENT\n?\n#+END_COMMENT" ""))
    (add-to-list 'org-structure-template-alist
                 '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
-
-(eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '(
-   ;;(setq org-mobile-files '("~/Dropbox/org/next.org" "1.org" "2.org"))
-   (setq org-mobile-files '("~/Dropbox/org/next.org"))
-   ;;(setq org-mobile-force-id-on-agenda-items nil)
-
-   ;; Set a file to capture data from iOS devices
-   (setq org-mobile-inbox-for-pull (concat org-directory "captured.org"))
-
-   ;; Upload location stored org files (index.org will be created)
-   (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg/")
-
-;;; Menu to push or pull org files using MobileOrg
-   (defun org-mobile-sync ()
-     (interactive)
-     (let
-         (org-mobile-sync-type
-          (read-from-minibuffer "How do you sync the org files? (pull or push) "))
-       (message "%s" org-mobile-sync-type)
-       (cond
-        ((string= "pull" org-mobile-sync-type) (org-mobile-pull))
-        ((string= "push" org-mobile-sync-type) (org-mobile-push)))))
-   ))
 
 ;; Org-tree-slide
 (when (eval-after-autoload-if-found
@@ -1397,7 +1420,8 @@
    (add-hook 'org-tree-slide-before-narrow-hook
              '(lambda ()
                 (when
-                    (and (equal (buffer-name) "work.org")
+                    (and (or (equal (buffer-name) "work.org")
+                             (equal (buffer-name) "effort.org"))
                          (and (or (eq (org-outline-level) 2)
                                   (eq (org-outline-level) 3))
                               (looking-at (concat "^\\*+ "
@@ -1445,7 +1469,7 @@
        '(
          ;; icalendar との連結
          (setq cfw:org-icalendars '("~/Dropbox/org/org-ical.org"))
-         
+
          ;; org で使う表にフェイスを統一
          (setq cfw:fchar-junction ?+
                cfw:fchar-vertical-line ?|
@@ -1455,27 +1479,27 @@
                cfw:fchar-top-junction ?+
                cfw:fchar-top-left-corner ?|
                cfw:fchar-top-right-corner ?| )
-         
+
          (defun my:org-mark-ring-goto-calfw ()
            (interactive)
            (org-mark-ring-goto))
-         
+
          (defun my:cfw-open-org-calendar ()
            (interactive)
            (change-frame-width-double)
            (cfw:open-org-calendar))
-         
+
          (defun my:cfw-burry-buffer ()
            (interactive)
            (bury-buffer)
            (change-frame-width-single))
-         
+
          (defun cfw:org-goto-date ()
            "Move the cursor to the specified date."
            (interactive)
            (cfw:navi-goto-date
             (cfw:emacs-to-calendar (org-read-date nil 'to-time))))
-         
+
          (define-key cfw:calendar-mode-map (kbd "j") 'cfw:org-goto-date)
          (define-key cfw:org-schedule-map (kbd "q") 'my:cfw-burry-buffer)))
   (global-set-key (kbd "C-c f c") 'my:cfw-open-org-calendar))
@@ -1589,7 +1613,7 @@
            ("unoconv" "unoconv -f %f -o %d %i")))))
 
 (eval-after-autoload-if-found
- 'org-crypt "org" "Org Mode" t nil
+ '(org-crypt org-encrypt-entry org-decrypt-entry) "org-crypt" "Org Mode" t nil
  '((setq org-crypt-key "<insert your key>")
    ;; org-encrypt-entries の影響を受けるタグを指定
    (setq org-tags-exclude-from-inheritance (quote ("secret")))
@@ -1624,9 +1648,7 @@
        '(set-alarms-from-file my:update-alarms-from-file) "utility" nil t nil
        '((set-alarms-from-file "~/Dropbox/org/today.org")
          (defun my:update-alarms-from-file ()
-           (interactive)
-           (when (string-match (file-name-base "today.org") (buffer-name))
-             (message "The alarm list has been updated.")
+           (when (string= "today.org" (buffer-name))
              (set-alarms-from-file "~/Dropbox/org/today.org")))))
   (add-hook 'after-save-hook 'my:update-alarms-from-file))
 
@@ -1634,7 +1656,7 @@
        'org-mode "org" "Org Mode" t nil
        '(;; (org-transpose-element) が割り当てられているので取り返す．
          (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
-         
+
          ;;(define-key org-mode-map (kbd "C-c 1")
          ;;  'org-export-icalendar-combine-agenda-files)
          (define-key org-mode-map (kbd "C-c f 1") 'my:ox-icalendar)
@@ -1678,24 +1700,27 @@
 ;;(add-to-list 'default-frame-alist '(cursor-type . bar))
 ;;(add-hook 'window-configuration-change-hook
 
+(defvar my:cursor-color-ime-on "#91C3FF")
+(defvar my:cursor-color-ime-off "#AAAAAA")
+(set-cursor-color my:cursor-color-ime-on)
+
 (if (and (eq window-system 'ns) (>= emacs-major-version 24))
     ;; when IME is ON
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
        "com.google.inputmethod.Japanese.base" 'title "グ"))
-  
+
   (defun update-cursor-color ()
     (interactive)
-    (if current-input-method (set-cursor-color "#91C3FF")
-      (set-cursor-color "#AAAAAA")))
+    (if current-input-method (set-cursor-color my:cursor-color-ime-off)
+      (set-cursor-color my:cursor-color-ime-on)))
   (update-cursor-color)
   (run-with-idle-timer 10 t 'update-cursor-color))
 
-(set-cursor-color "#91C3FF")
 (add-hook 'input-method-activate-hook
-          (lambda () (set-cursor-color "#91C3FF")))
+          (lambda () (set-cursor-color my:cursor-color-ime-on)))
 (add-hook 'input-method-inactivate-hook
-          (lambda () (set-cursor-color "#AAAAAA")))
+          (lambda () (set-cursor-color my:cursor-color-ime-off)))
 
 ;; Disable cursor blink
 (blink-cursor-mode -1)
@@ -1782,10 +1807,10 @@
    (set-face-attribute 'diff-removed-face nil
                        :background nil :foreground "firebrick1"
                        :weight 'normal)
-   
+
    (set-face-attribute 'diff-file-header-face nil
                        :background nil :weight 'extra-bold)
-   
+
    (set-face-attribute 'diff-hunk-header-face nil
                        :foreground "chocolate4"
                        :background "white" :weight 'extra-bold
@@ -1808,15 +1833,15 @@
          ;; ふわっとエフェクトの追加（ペースト時の色 => カーソル色 => 本来色）
          (defun my:vhl-change-color ()
            (let
-               ((next 0.3)
-                (reset 0.8)
+               ((next 0.2)
+                (reset 0.5)
                 (colors '("#F8D3D7" "#F2DAE1" "#EBE0EB" "#E5E7F5" "#DEEDFF")))
              (dolist (color colors)
                (run-at-time next nil
                             'set-face-attribute
                             'vhl/default-face
                             nil :foreground "#FF3333" :background color)
-               (setq next (+ 0.1 next)))
+               (setq next (+ 0.05 next)))
              (run-at-time reset nil 'vhl/clear-all))
            (set-face-attribute 'vhl/default-face
                                nil :foreground "#FF3333"
@@ -1859,7 +1884,7 @@
            (cursor-height . 16)
            (vertical-scroll-bars . nil)
            ) initial-frame-alist)))
- 
+
  ((eq window-system 'x) ; for Linux
   (setq initial-frame-alist
         (append
@@ -1869,7 +1894,7 @@
            (width . 80)
            (height . 38)
            ) initial-frame-alist)))
- 
+
  (t                     ; for Windows
   (setq initial-frame-alist
         (append
@@ -1901,7 +1926,7 @@
 
    ;; left, prev
    (setq e2wm:c-two-right-default 'left)
- 
+
    ;; To avoid rebooting issue when using desktop.el and recentf.el
    (add-hook 'kill-emacs-hook 'e2wm:stop-management)))
 
@@ -1914,16 +1939,16 @@
        "frame-ctr" nil t nil 
        '((make-frame-height-ring)
          (cond
-          ((eq (x-display-pixel-width) 1920) (setq fullscreen-fontsize 38))
-          ((eq (x-display-pixel-width) 1440) (setq fullscreen-fontsize 28))
-          ((eq (x-display-pixel-width) 1366) (setq fullscreen-fontsize 19))
-          ((eq (x-display-pixel-width) 800) (setq fullscreen-fontsize 14))
+          ((eq (display-pixel-width) 1920) (setq fullscreen-fontsize 38))
+          ((eq (display-pixel-width) 1440) (setq fullscreen-fontsize 28))
+          ((eq (display-pixel-width) 1366) (setq fullscreen-fontsize 19))
+          ((eq (display-pixel-width) 800) (setq fullscreen-fontsize 14))
           (t (setq fullscreen-fontsize 12)))
-         
+
          ;; リングの状態を最新に更新（max-frame-height が変わるため）
          (add-hook 'frame-ctr-after-fullscreen-hook
                    'make-frame-height-ring)))
-  
+
   ;; Move the frame to somewhere (default: 0,0)
   (global-set-key (kbd "M-0") 'move-frame-with-user-specify)
   ;; Move the frame to left side of the current position (require 'frame-cmds)
@@ -1975,6 +2000,7 @@
                   ("CAPTURE-org-ical.org" :height 10 :position bottom :noselect t)
                   ("*Help*"          :height 20 :position bottom)
                   ("dict-app-result" :height 20 :position bottom)
+                  ("*osx-dictionary*" :height 20 :position bottom)
                   ("*wclock*"        :height 10 :position bottom)
                   ("*Org Agenda*"    :height 10 :position bottom)
                   ("*Org Select*"  :height 10 :position bottom)
@@ -1996,10 +2022,10 @@
                      export-timeline-business export-timeline-private 
                      browse-url-chrome count-words-buffer do-test-applescript
                      delete-backup-files recursive-delete-backup-files
-                     describe-timer)
+                     describe-timer my:daylight-theme my:night-theme)
        "utility" nil t)
   ;;         '((message "Loading utility.el ... [done]")))
-  
+
   (global-set-key (kbd "<f12>") 'takaxp:open-file-ring)
   (global-set-key (kbd "C-c t") 'takaxp:date)
   (global-set-key (kbd "C-c f 4") 'takaxp:window-resizer))

@@ -51,98 +51,97 @@
          (concat "open -a " open-current-directory-console-program))))))
 
 (defun set-alarms-from-file (file)
-  "Make alarms from org-mode tables. If you have an org-mode file
-         with tables with the following format:
-          |------+-------+--------------------|
-          | Flag |  Time | Content            |
-          |------+-------+--------------------|
-          |      | 07:00 | Wakeup             |
-          |      |       | Read papers        |
-          | X    | 12:00 | Clean up your desk |
-         When it is 7:00 and 12:00, Growl notify with a message which is specified
-         content column from the table. \"Read papers\" will be ignored.
-         \"Clean up your desk\" will be shown by sticky mode"
-  (let
-      ((lines (read-line file)))
-    (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
-    (while lines
-      (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-      (setq lines (cdr lines))
-      ;;        (message "")
-      )))
+    "Make alarms from org-mode tables. If you have an org-mode file
+             with tables with the following format:
+              |------+-------+--------------------|
+              | Flag |  Time | Content            |
+              |------+-------+--------------------|
+              |      | 07:00 | Wakeup             |
+              |      |       | Read papers        |
+              | X    | 12:00 | Clean up your desk |
+             When it is 7:00 and 12:00, Growl notify with a message which is specified
+             content column from the table. \"Read papers\" will be ignored.
+             \"Clean up your desk\" will be shown by sticky mode"
+    (let
+        ((lines (read-line file)))
+      (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
+      (while lines
+        (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
+        (setq lines (cdr lines)))))
 
-(defun set-alarm-from-line (line)
-  (let
-      ((hour nil)
-       (min nil)
-       (current-hour nil)
-       (current-min nil)
-       (action nil))
-    (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
-      (setq hour (substring line (match-beginning 1) (match-end 1)))
-      (setq min (substring line (match-beginning 2) (match-end 2)))
-      (when (string-match
-             "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
-        (setq action
-              (substring line (match-beginning 1) (match-end 1)))))
-    (when (and (and hour min) action)
-      ;;       (message "[%s:%s] => %s" hour min action)
-      (setq current-hour (format-time-string "%H" (current-time)))
-      (setq current-min (format-time-string "%M" (current-time)))
-      (when (> (+ (* (string-to-number hour) 60)
-                  (string-to-number min))
-               (+ (* (string-to-number current-hour) 60)
-                  (string-to-number current-min)))
-        (let
-            ((s nil))
-          (when (string-match "^\|\\s-*X\\s-*\|" line)
-            (setq s 'sticky))
-          ;;      (set-notify-growl hour min action s)
-          (set-notify-osx-native hour min action s)
-          (set-notify-mail hour min action s)
-          )))))
+  (defun set-alarm-from-line (line)
+    (let
+        ((hour nil)
+         (min nil)
+         (current-hour nil)
+         (current-min nil)
+         (action nil))
+      (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
+        (setq hour (substring line (match-beginning 1) (match-end 1)))
+        (setq min (substring line (match-beginning 2) (match-end 2)))
+        (when (string-match
+               "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
+          (setq action
+                (substring line (match-beginning 1) (match-end 1)))))
+      (when (and (and hour min) action)
+;;        (message "[%s:%s] => %s" hour min action)
+        (setq current-hour (format-time-string "%H" (current-time)))
+        (setq current-min (format-time-string "%M" (current-time)))
+        (when (> (+ (* (string-to-number hour) 60)
+                    (string-to-number min))
+                 (+ (* (string-to-number current-hour) 60)
+                    (string-to-number current-min)))
+          (let
+              ((s nil))
+            (when (string-match "^\|\\s-*X\\s-*\|" line)
+              (setq s 'sticky))
+            ;;      (set-notify-growl hour min action s)
+            (set-notify-osx-native hour min action s)
+;;            (set-notify-mail hour min action s)
+            )))))
 
-(when (eval-after-autoload-if-found
-       '(todochiku-message) "todochiku" nil t nil
-       '((setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
-         (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
-         ))
-  (require 'cl))
+  (when (eval-after-autoload-if-found
+         '(todochiku-message) "todochiku" nil t nil
+         '((setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
+           (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
+           ))
+    (require 'cl))
 
-(defun my:desktop-notify (type title hour min action s)
-  "NOTE: this function need (require 'todochiku)"
-  (cond
-   ;; ((string= type "growl")
-   ;;  (todochiku-message
-   ;;   title (format "%s:%s %s" hour min action) "Emacs" s))
-   ((string= type "osx-native")
-    (shell-command-to-string
-     (concat "terminal-notifier -title \"Emacs\" -message \""
-             (format "%s:%s %s" hour min action) "\"")))
-   (t nil)))
+  (defun my:desktop-notify (type title hour min action s)
+    "NOTE: this function need (require 'todochiku)"
+    (cond
+     ;; ((string= type "growl")
+     ;;  (todochiku-message
+     ;;   title (format "%s:%s %s" hour min action) "Emacs" s))
+     ((string= type "osx-native")
+      (shell-command-to-string
+       (concat "terminal-notifier -title \"Emacs\" -message \""
+               (format "%s:%s %s" hour min action) "\"")))
+     (t nil)))
 
-(defun set-notify-mail (hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "mail" "りまいんだ" hour min action nil))
+  (defun set-notify-mail (hour min action s)
+    (run-at-time (format "%s:%s" hour min) nil
+                 'my:desktop-notify
+                 "mail" "りまいんだ" hour min action nil))
 
-(defun set-notify-growl (hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "growl" "== REMINDER ==" hour min action s))
+  (defun set-notify-growl (hour min action s)
+    (run-at-time (format "%s:%s" hour min) nil
+                 'my:desktop-notify
+                 "growl" "== REMINDER ==" hour min action s))
 
-(defun set-notify-osx-native (hour min action s)
-  "terminal-notifier is required."
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "osx-native" "Emacs" hour min action nil))
+  (defun set-notify-osx-native (hour min action s)
+    "terminal-notifier is required."
+;;    (message "%s:%s %s %s" hour min action s)
+    (run-at-time (format "%s:%s" hour min) nil
+                 'my:desktop-notify
+                 "osx-native" "Emacs" hour min action nil))
 
-(defun read-line (file)
-  "Make a list from a file, which is divided by LF code"
-  (with-temp-buffer
-    (insert-file-contents-literally file)
-    (split-string
-     (buffer-string) "\n" t)))
+  (defun read-line (file)
+    "Make a list from a file, which is divided by LF code"
+    (with-temp-buffer
+      (insert-file-contents-literally file)
+      (split-string
+       (buffer-string) "\n" t)))
 
 (defvar my:file-ring nil)
 (defun takaxp:make-file-ring (files)
@@ -294,15 +293,21 @@
                                      default-timeline-xml-private-file))
     (shell-command-to-string (concat "open " default-timeline))))
 
-(with-eval-after-load "org"
-  (run-with-idle-timer 600 t 'reload-ical-export)
-  (run-with-idle-timer 1000 t 'org-mobile-push))
+(defvar ox-icalendar-activate nil)
+  (with-eval-after-load "org"
+    (run-with-idle-timer 600 t
+                         '(lambda ()
+                            (setq ox-icalendar-activate t)))
+;;    (run-with-idle-timer 1000 t 'org-mobile-push)
+    (add-hook 'focus-out-hook 'reload-ical-export))
 
-(defun reload-ical-export ()
-  "Export org files as an iCal format file"
-  (interactive)
-  (when (string= major-mode 'org-mode)
-    (my:ox-icalendar)))
+  (defun reload-ical-export ()
+    "Export org files as an iCal format file"
+    (interactive)
+    (when (string= major-mode 'org-mode)
+      (when ox-icalendar-activate
+        (setq ox-icalendar-activate nil)
+        (my:ox-icalendar))))
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
@@ -358,6 +363,21 @@
     (unless (string= files "")
       (message "%s" files)
       (shell-command-to-string (concat "rm -r " files)))))
+
+(defun my:daylight-theme ()
+  (interactive)
+  (when (require 'daylight-theme nil t)
+    (setq my:cursor-color-ime-on "#91C3FF")
+    (load-theme 'daylight t)
+    (reset-font-size)))
+
+(defun my:night-theme ()
+  (interactive)
+  (when (require 'night-theme nil t) ;; atom-one-dark-theme
+    ;;    (set-face-background 'hl-line "#484c5c")
+    (setq my:cursor-color-ime-on "#8599ff")
+    (load-theme 'night t)
+    (reset-font-size)))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 (defun count-words-buffer ()

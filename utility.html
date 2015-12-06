@@ -3,12 +3,12 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
+<!-- 2015-12-06 Sun 10:56 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
-<!-- 2015-06-05 Fri 00:01 -->
-<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<meta  name="generator" content="Org-mode" />
-<meta  name="author" content="Takaaki Ishikawa" />
-<meta  name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content="Org-mode" />
+<meta name="author" content="Takaaki Ishikawa" />
 <style type="text/css">
  <!--/*--><![CDATA[/*><!--*/
   .title  { text-align: center;
@@ -72,8 +72,7 @@
   td.org-left   { text-align: left;   }
   td.org-center { text-align: center; }
   dt { font-weight: bold; }
-  .footpara:nth-child(2) { display: inline; }
-  .footpara { display: block; }
+  .footpara { display: inline; }
   .footdef  { margin-bottom: 1em; }
   .figure { padding: 1em; }
   .figure p { text-align: center; }
@@ -150,52 +149,50 @@ for the JavaScript code in this tag.
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#orgheadline1">1. orgバッファを評価</a></li>
-<li><a href="#orgheadline5">2. ユーティリティ関数</a>
+<li><a href="#orgheadline23">2. ユーティリティ関数</a>
 <ul>
 <li><a href="#orgheadline2">2.1. サボっていると Kyoko さんに怒られる</a></li>
 <li><a href="#orgheadline3">2.2. org-buffer を dokuwiki 形式に変換し，kill-ring に格納</a></li>
 <li><a href="#orgheadline4">2.3. コンソールでカレントバッファのあるディレクトリに移動する</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline22">3. ファイルに含まれるテーブルを使って定時にgrowlのアラートを表示する</a>
+<li><a href="#orgheadline5">2.4. ファイルに含まれるテーブルを使って定時にgrowlのアラートを表示する</a></li>
+<li><a href="#orgheadline6">2.5. 頻繁に利用するファイルをring形式でたどる</a></li>
+<li><a href="#orgheadline7">2.6. 引数のorgバッファを開く</a></li>
+<li><a href="#orgheadline8">2.7. orgバッファにいつものヘッダを追加する</a></li>
+<li><a href="#orgheadline9">2.8. 議事録ひな形を書き入れる</a></li>
+<li><a href="#orgheadline10">2.9. ランダムの文字列を取得する</a></li>
+<li><a href="#orgheadline11">2.10. Auto-install をセットアップする</a></li>
+<li><a href="#orgheadline13">2.11. 行頭に"  - "を挿入する</a>
 <ul>
-<li><a href="#orgheadline6">3.1. 頻繁に利用するファイルをring形式でたどる</a></li>
-<li><a href="#orgheadline7">3.2. 引数のorgバッファを開く</a></li>
-<li><a href="#orgheadline8">3.3. orgバッファにいつものヘッダを追加する</a></li>
-<li><a href="#orgheadline9">3.4. 議事録ひな形を書き入れる</a></li>
-<li><a href="#orgheadline10">3.5. ランダムの文字列を取得する</a></li>
-<li><a href="#orgheadline11">3.6. Auto-install をセットアップする</a></li>
-<li><a href="#orgheadline13">3.7. 行頭に"  - "を挿入する</a>
+<li><a href="#orgheadline12">2.11.1. キーバインド</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline15">2.12. 日付などを簡単に挿入する</a>
 <ul>
-<li><a href="#orgheadline12">3.7.1. キーバインド</a></li>
+<li><a href="#orgheadline14">2.12.1. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline15">3.8. 日付などを簡単に挿入する</a>
+<li><a href="#orgheadline16">2.13. XHTMLを利用したガントチャート生成</a></li>
+<li><a href="#orgheadline17">2.14. 定期実行関数</a></li>
+<li><a href="#orgheadline18">2.15. ブラウザの設定</a></li>
+<li><a href="#orgheadline19">2.16. ミニバッファに日時を表示</a></li>
+<li><a href="#orgheadline20">2.17. バックアップファイルの削除</a></li>
+<li><a href="#orgheadline21">2.18. 日中と夜中でテーマを切り替える</a></li>
+<li><a href="#orgheadline22">2.19. その他</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline32">3. 未設定／テスト中</a>
 <ul>
-<li><a href="#orgheadline14">3.8.1. キーバインド</a></li>
+<li><a href="#orgheadline24">3.1. byte-compile の警告を抑制する</a></li>
+<li><a href="#orgheadline25">3.2. [window-resizer.el] 分割したウィンドウサイズを変更する</a></li>
+<li><a href="#orgheadline26">3.3. [idle-requie]</a></li>
+<li><a href="#orgheadline27">3.4. [pdf-preview]</a></li>
+<li><a href="#orgheadline28">3.5. [EasyPG]</a></li>
+<li><a href="#orgheadline29">3.6. [eblook]</a></li>
+<li><a href="#orgheadline30">3.7. [iBuffer]</a></li>
+<li><a href="#orgheadline31">3.8. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline16">3.9. XHTMLを利用したガントチャート生成</a></li>
-<li><a href="#orgheadline17">3.10. 定期実行関数</a></li>
-<li><a href="#orgheadline18">3.11. ブラウザの設定</a></li>
-<li><a href="#orgheadline19">3.12. ミニバッファに日時を表示</a></li>
-<li><a href="#orgheadline20">3.13. バックアップファイルの削除</a></li>
-<li><a href="#orgheadline21">3.14. その他</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline31">4. 未設定／テスト中</a>
-<ul>
-<li><a href="#orgheadline23">4.1. byte-compile の警告を抑制する</a></li>
-<li><a href="#orgheadline24">4.2. [window-resizer.el] 分割したウィンドウサイズを変更する</a></li>
-<li><a href="#orgheadline25">4.3. [idle-requie]</a></li>
-<li><a href="#orgheadline26">4.4. [pdf-preview]</a></li>
-<li><a href="#orgheadline27">4.5. [EasyPG]</a></li>
-<li><a href="#orgheadline28">4.6. [eblook]</a></li>
-<li><a href="#orgheadline29">4.7. [iBuffer]</a></li>
-<li><a href="#orgheadline30">4.8. キーバインド</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline32">5. provide</a></li>
+<li><a href="#orgheadline33">4. provide</a></li>
 </ul>
 </div>
 </div>
@@ -234,8 +231,8 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-orgheadline5" class="outline-2">
-<h2 id="orgheadline5"><span class="section-number-2">2</span> ユーティリティ関数</h2>
+<div id="outline-container-orgheadline23" class="outline-2">
+<h2 id="orgheadline23"><span class="section-number-2">2</span> ユーティリティ関数</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-orgheadline2" class="outline-3">
 <h3 id="orgheadline2"><span class="section-number-3">2.1</span> サボっていると Kyoko さんに怒られる</h3>
@@ -332,112 +329,111 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </p>
 </div>
 </div>
-</div>
-<div id="outline-container-orgheadline22" class="outline-2">
-<h2 id="orgheadline22"><span class="section-number-2">3</span> ファイルに含まれるテーブルを使って定時にgrowlのアラートを表示する</h2>
-<div class="outline-text-2" id="text-3">
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5"><span class="section-number-3">2.4</span> ファイルに含まれるテーブルを使って定時にgrowlのアラートを表示する</h3>
+<div class="outline-text-3" id="text-2-4">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarms-from-file</span> (file)
-  <span style="color: #8b2252;">"Make alarms from org-mode tables. If you have an org-mode file</span>
-<span style="color: #8b2252;">         with tables with the following format:</span>
-<span style="color: #8b2252;">          |------+-------+--------------------|</span>
-<span style="color: #8b2252;">          | Flag |  Time | Content            |</span>
-<span style="color: #8b2252;">          |------+-------+--------------------|</span>
-<span style="color: #8b2252;">          |      | 07:00 | Wakeup             |</span>
-<span style="color: #8b2252;">          |      |       | Read papers        |</span>
-<span style="color: #8b2252;">          | X    | 12:00 | Clean up your desk |</span>
-<span style="color: #8b2252;">         When it is 7:00 and 12:00, Growl notify with a message which is specified</span>
-<span style="color: #8b2252;">         content column from the table. \"Read papers\" will be ignored.</span>
-<span style="color: #8b2252;">         \"Clean up your desk\" will be shown by sticky mode"</span>
-  (<span style="color: #a020f0;">let</span>
-      ((lines (read-line file)))
-    (cancel-function-timers 'my:desktop-notify) <span style="color: #b22222;">;; </span><span style="color: #b22222;">clear existing timers</span>
-    (<span style="color: #a020f0;">while</span> lines
-      (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-      (setq lines (cdr lines))
-      <span style="color: #b22222;">;;        </span><span style="color: #b22222;">(message "")</span>
-      )))
+<pre class="src src-emacs-lisp">  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarms-from-file</span> (file)
+    <span style="color: #8b2252;">"Make alarms from org-mode tables. If you have an org-mode file</span>
+<span style="color: #8b2252;">             with tables with the following format:</span>
+<span style="color: #8b2252;">              |------+-------+--------------------|</span>
+<span style="color: #8b2252;">              | Flag |  Time | Content            |</span>
+<span style="color: #8b2252;">              |------+-------+--------------------|</span>
+<span style="color: #8b2252;">              |      | 07:00 | Wakeup             |</span>
+<span style="color: #8b2252;">              |      |       | Read papers        |</span>
+<span style="color: #8b2252;">              | X    | 12:00 | Clean up your desk |</span>
+<span style="color: #8b2252;">             When it is 7:00 and 12:00, Growl notify with a message which is specified</span>
+<span style="color: #8b2252;">             content column from the table. \"Read papers\" will be ignored.</span>
+<span style="color: #8b2252;">             \"Clean up your desk\" will be shown by sticky mode"</span>
+    (<span style="color: #a020f0;">let</span>
+        ((lines (read-line file)))
+      (cancel-function-timers 'my:desktop-notify) <span style="color: #b22222;">;; </span><span style="color: #b22222;">clear existing timers</span>
+      (<span style="color: #a020f0;">while</span> lines
+        (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
+        (setq lines (cdr lines)))))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarm-from-line</span> (line)
-  (<span style="color: #a020f0;">let</span>
-      ((hour nil)
-       (min nil)
-       (current-hour nil)
-       (current-min nil)
-       (action nil))
-    (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-2]?[0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">:</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-5][0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">"</span> line)
-      (setq hour (substring line (match-beginning 1) (match-end 1)))
-      (setq min (substring line (match-beginning 2) (match-end 2)))
-      (<span style="color: #a020f0;">when</span> (string-match
-             <span style="color: #8b2252;">"\|\\s-*</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\|]+[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> ]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">\\s-*\|$"</span> line (match-end 2))
-        (setq action
-              (substring line (match-beginning 1) (match-end 1)))))
-    (<span style="color: #a020f0;">when</span> (and (and hour min) action)
-      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(message "[%s:%s] =&gt; %s" hour min action)</span>
-      (setq current-hour (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time)))
-      (setq current-min (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time)))
-      (<span style="color: #a020f0;">when</span> (&gt; (+ (* (string-to-number hour) 60)
-                  (string-to-number min))
-               (+ (* (string-to-number current-hour) 60)
-                  (string-to-number current-min)))
-        (<span style="color: #a020f0;">let</span>
-            ((s nil))
-          (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"^\|\\s-*X\\s-*\|"</span> line)
-            (setq s 'sticky))
-          <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(set-notify-growl hour min action s)</span>
-          (set-notify-osx-native hour min action s)
-          (set-notify-mail hour min action s)
-          )))))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarm-from-line</span> (line)
+    (<span style="color: #a020f0;">let</span>
+        ((hour nil)
+         (min nil)
+         (current-hour nil)
+         (current-min nil)
+         (action nil))
+      (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-2]?[0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">:</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-5][0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">"</span> line)
+        (setq hour (substring line (match-beginning 1) (match-end 1)))
+        (setq min (substring line (match-beginning 2) (match-end 2)))
+        (<span style="color: #a020f0;">when</span> (string-match
+               <span style="color: #8b2252;">"\|\\s-*</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\|]+[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> ]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">\\s-*\|$"</span> line (match-end 2))
+          (setq action
+                (substring line (match-beginning 1) (match-end 1)))))
+      (<span style="color: #a020f0;">when</span> (and (and hour min) action)
+<span style="color: #b22222;">;;        </span><span style="color: #b22222;">(message "[%s:%s] =&gt; %s" hour min action)</span>
+        (setq current-hour (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time)))
+        (setq current-min (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time)))
+        (<span style="color: #a020f0;">when</span> (&gt; (+ (* (string-to-number hour) 60)
+                    (string-to-number min))
+                 (+ (* (string-to-number current-hour) 60)
+                    (string-to-number current-min)))
+          (<span style="color: #a020f0;">let</span>
+              ((s nil))
+            (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"^\|\\s-*X\\s-*\|"</span> line)
+              (setq s 'sticky))
+            <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(set-notify-growl hour min action s)</span>
+            (set-notify-osx-native hour min action s)
+<span style="color: #b22222;">;;            </span><span style="color: #b22222;">(set-notify-mail hour min action s)</span>
+            )))))
 
-(<span style="color: #a020f0;">when</span> (eval-after-autoload-if-found
-       '(todochiku-message) <span style="color: #8b2252;">"todochiku"</span> nil t nil
-       '((setq todochiku-icons-directory <span style="color: #8b2252;">"~/Dropbox/emacs.d/todochiku-icons"</span>)
-         (add-to-list 'todochiku-icons '(emacs . <span style="color: #8b2252;">"emacs.png"</span>))
-         ))
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">cl</span>))
+  (<span style="color: #a020f0;">when</span> (eval-after-autoload-if-found
+         '(todochiku-message) <span style="color: #8b2252;">"todochiku"</span> nil t nil
+         '((setq todochiku-icons-directory <span style="color: #8b2252;">"~/Dropbox/emacs.d/todochiku-icons"</span>)
+           (add-to-list 'todochiku-icons '(emacs . <span style="color: #8b2252;">"emacs.png"</span>))
+           ))
+    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">cl</span>))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:desktop-notify</span> (type title hour min action s)
-  <span style="color: #8b2252;">"NOTE: this function need (require 'todochiku)"</span>
-  (<span style="color: #a020f0;">cond</span>
-   <span style="color: #b22222;">;; </span><span style="color: #b22222;">((string= type "growl")</span>
-   <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(todochiku-message</span>
-   <span style="color: #b22222;">;;   </span><span style="color: #b22222;">title (format "%s:%s %s" hour min action) "Emacs" s))</span>
-   ((string= type <span style="color: #8b2252;">"osx-native"</span>)
-    (shell-command-to-string
-     (concat <span style="color: #8b2252;">"terminal-notifier -title \"Emacs\" -message \""</span>
-             (format <span style="color: #8b2252;">"%s:%s %s"</span> hour min action) <span style="color: #8b2252;">"\""</span>)))
-   (t nil)))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:desktop-notify</span> (type title hour min action s)
+    <span style="color: #8b2252;">"NOTE: this function need (require 'todochiku)"</span>
+    (<span style="color: #a020f0;">cond</span>
+     <span style="color: #b22222;">;; </span><span style="color: #b22222;">((string= type "growl")</span>
+     <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(todochiku-message</span>
+     <span style="color: #b22222;">;;   </span><span style="color: #b22222;">title (format "%s:%s %s" hour min action) "Emacs" s))</span>
+     ((string= type <span style="color: #8b2252;">"osx-native"</span>)
+      (shell-command-to-string
+       (concat <span style="color: #8b2252;">"terminal-notifier -title \"Emacs\" -message \""</span>
+               (format <span style="color: #8b2252;">"%s:%s %s"</span> hour min action) <span style="color: #8b2252;">"\""</span>)))
+     (t nil)))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-mail</span> (hour min action s)
-  (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
-               'my:desktop-notify
-               <span style="color: #8b2252;">"mail"</span> <span style="color: #8b2252;">"&#12426;&#12414;&#12356;&#12435;&#12384;"</span> hour min action nil))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-mail</span> (hour min action s)
+    (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+                 'my:desktop-notify
+                 <span style="color: #8b2252;">"mail"</span> <span style="color: #8b2252;">"&#12426;&#12414;&#12356;&#12435;&#12384;"</span> hour min action nil))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-growl</span> (hour min action s)
-  (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
-               'my:desktop-notify
-               <span style="color: #8b2252;">"growl"</span> <span style="color: #8b2252;">"== REMINDER =="</span> hour min action s))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-growl</span> (hour min action s)
+    (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+                 'my:desktop-notify
+                 <span style="color: #8b2252;">"growl"</span> <span style="color: #8b2252;">"== REMINDER =="</span> hour min action s))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-osx-native</span> (hour min action s)
-  <span style="color: #8b2252;">"terminal-notifier is required."</span>
-  (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
-               'my:desktop-notify
-               <span style="color: #8b2252;">"osx-native"</span> <span style="color: #8b2252;">"Emacs"</span> hour min action nil))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-osx-native</span> (hour min action s)
+    <span style="color: #8b2252;">"terminal-notifier is required."</span>
+<span style="color: #b22222;">;;    </span><span style="color: #b22222;">(message "%s:%s %s %s" hour min action s)</span>
+    (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+                 'my:desktop-notify
+                 <span style="color: #8b2252;">"osx-native"</span> <span style="color: #8b2252;">"Emacs"</span> hour min action nil))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">read-line</span> (file)
-  <span style="color: #8b2252;">"Make a list from a file, which is divided by LF code"</span>
-  (<span style="color: #a020f0;">with-temp-buffer</span>
-    (insert-file-contents-literally file)
-    (split-string
-     (buffer-string) <span style="color: #8b2252;">"\n"</span> t)))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">read-line</span> (file)
+    <span style="color: #8b2252;">"Make a list from a file, which is divided by LF code"</span>
+    (<span style="color: #a020f0;">with-temp-buffer</span>
+      (insert-file-contents-literally file)
+      (split-string
+       (buffer-string) <span style="color: #8b2252;">"\n"</span> t)))
 </pre>
+</div>
 </div>
 </div>
 
 <div id="outline-container-orgheadline6" class="outline-3">
-<h3 id="orgheadline6"><span class="section-number-3">3.1</span> 頻繁に利用するファイルをring形式でたどる</h3>
-<div class="outline-text-3" id="text-3-1">
+<h3 id="orgheadline6"><span class="section-number-3">2.5</span> 頻繁に利用するファイルをring形式でたどる</h3>
+<div class="outline-text-3" id="text-2-5">
 <p>
 <a href="http://d.hatena.ne.jp/rubikitch/20111120/elispbook">http://d.hatena.ne.jp/rubikitch/20111120/elispbook</a><br  />
 </p>
@@ -467,8 +463,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline7" class="outline-3">
-<h3 id="orgheadline7"><span class="section-number-3">3.2</span> 引数のorgバッファを開く</h3>
-<div class="outline-text-3" id="text-3-2">
+<h3 id="orgheadline7"><span class="section-number-3">2.6</span> 引数のorgバッファを開く</h3>
+<div class="outline-text-3" id="text-2-6">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">show-org-buffer</span> (file)
@@ -485,8 +481,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline8" class="outline-3">
-<h3 id="orgheadline8"><span class="section-number-3">3.3</span> orgバッファにいつものヘッダを追加する</h3>
-<div class="outline-text-3" id="text-3-3">
+<h3 id="orgheadline8"><span class="section-number-3">2.7</span> orgバッファにいつものヘッダを追加する</h3>
+<div class="outline-text-3" id="text-2-7">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-org-file-header-template</span> ()
@@ -508,8 +504,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline9" class="outline-3">
-<h3 id="orgheadline9"><span class="section-number-3">3.4</span> 議事録ひな形を書き入れる</h3>
-<div class="outline-text-3" id="text-3-4">
+<h3 id="orgheadline9"><span class="section-number-3">2.8</span> 議事録ひな形を書き入れる</h3>
+<div class="outline-text-3" id="text-2-8">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-minutes-template</span> ()
@@ -527,8 +523,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10"><span class="section-number-3">3.5</span> ランダムの文字列を取得する</h3>
-<div class="outline-text-3" id="text-3-5">
+<h3 id="orgheadline10"><span class="section-number-3">2.9</span> ランダムの文字列を取得する</h3>
+<div class="outline-text-3" id="text-2-9">
 <p>
 引数で桁数を渡すと，ランダムな数値の文字列を取得できます．org-mode で適当なタイトルのツリーを生成したい時に使っています．<br  />
 </p>
@@ -557,8 +553,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11"><span class="section-number-3">3.6</span> Auto-install をセットアップする</h3>
-<div class="outline-text-3" id="text-3-6">
+<h3 id="orgheadline11"><span class="section-number-3">2.10</span> Auto-install をセットアップする</h3>
+<div class="outline-text-3" id="text-2-10">
 <p>
 いつも auto-install を使うわけではないので，必要時に <code>init-auto-install</code> を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．<br  />
 </p>
@@ -585,8 +581,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline13" class="outline-3">
-<h3 id="orgheadline13"><span class="section-number-3">3.7</span> 行頭に"  - "を挿入する</h3>
-<div class="outline-text-3" id="text-3-7">
+<h3 id="orgheadline13"><span class="section-number-3">2.11</span> 行頭に"  - "を挿入する</h3>
+<div class="outline-text-3" id="text-2-11">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">add-itemize-head</span> (arg)
@@ -608,8 +604,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline12" class="outline-4">
-<h4 id="orgheadline12"><span class="section-number-4">3.7.1</span> キーバインド</h4>
-<div class="outline-text-4" id="text-3-7-1">
+<h4 id="orgheadline12"><span class="section-number-4">2.11.1</span> キーバインド</h4>
+<div class="outline-text-4" id="text-2-11-1">
 <p>
 <code>C-u C-M--</code> とすれば，[ ] を付加できます．<br  />
 </p>
@@ -624,8 +620,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline15" class="outline-3">
-<h3 id="orgheadline15"><span class="section-number-3">3.8</span> 日付などを簡単に挿入する</h3>
-<div class="outline-text-3" id="text-3-8">
+<h3 id="orgheadline15"><span class="section-number-3">2.12</span> 日付などを簡単に挿入する</h3>
+<div class="outline-text-3" id="text-2-12">
 <p>
 <a href="http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608">http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608</a><br  />
 </p>
@@ -668,8 +664,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline14" class="outline-4">
-<h4 id="orgheadline14"><span class="section-number-4">3.8.1</span> キーバインド</h4>
-<div class="outline-text-4" id="text-3-8-1">
+<h4 id="orgheadline14"><span class="section-number-4">2.12.1</span> キーバインド</h4>
+<div class="outline-text-4" id="text-2-12-1">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-0"</span>) 'insert-formatted-current-date)
@@ -681,8 +677,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline16" class="outline-3">
-<h3 id="orgheadline16"><span class="section-number-3">3.9</span> XHTMLを利用したガントチャート生成</h3>
-<div class="outline-text-3" id="text-3-9">
+<h3 id="orgheadline16"><span class="section-number-3">2.13</span> XHTMLを利用したガントチャート生成</h3>
+<div class="outline-text-3" id="text-2-13">
 <p>
 最近使っていません．<br  />
 </p>
@@ -744,31 +740,37 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 
 <div id="outline-container-orgheadline17" class="outline-3">
-<h3 id="orgheadline17"><span class="section-number-3">3.10</span> 定期実行関数</h3>
-<div class="outline-text-3" id="text-3-10">
+<h3 id="orgheadline17"><span class="section-number-3">2.14</span> 定期実行関数</h3>
+<div class="outline-text-3" id="text-2-14">
 <p>
 orgバッファからカレンダーを生成し，外部サーバに投げます．また，MobileOrgに最新情報を流しています．<br  />
 </p>
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-  (run-with-idle-timer 600 t 'reload-ical-export)
-  (run-with-idle-timer 1000 t 'org-mobile-push))
+<pre class="src src-emacs-lisp">  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">ox-icalendar-activate</span> nil)
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+    (run-with-idle-timer 600 t
+                         '(<span style="color: #a020f0;">lambda</span> ()
+                            (setq ox-icalendar-activate t)))
+<span style="color: #b22222;">;;    </span><span style="color: #b22222;">(run-with-idle-timer 1000 t 'org-mobile-push)</span>
+    (add-hook 'focus-out-hook 'reload-ical-export))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">reload-ical-export</span> ()
-  <span style="color: #8b2252;">"Export org files as an iCal format file"</span>
-  (interactive)
-  (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
-    (my:ox-icalendar)))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">reload-ical-export</span> ()
+    <span style="color: #8b2252;">"Export org files as an iCal format file"</span>
+    (interactive)
+    (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
+      (<span style="color: #a020f0;">when</span> ox-icalendar-activate
+        (setq ox-icalendar-activate nil)
+        (my:ox-icalendar))))
 </pre>
 </div>
 </div>
 </div>
 
 <div id="outline-container-orgheadline18" class="outline-3">
-<h3 id="orgheadline18"><span class="section-number-3">3.11</span> ブラウザの設定</h3>
-<div class="outline-text-3" id="text-3-11">
+<h3 id="orgheadline18"><span class="section-number-3">2.15</span> ブラウザの設定</h3>
+<div class="outline-text-3" id="text-2-15">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome</span>
@@ -794,8 +796,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 
 <div id="outline-container-orgheadline19" class="outline-3">
-<h3 id="orgheadline19"><span class="section-number-3">3.12</span> ミニバッファに日時を表示</h3>
-<div class="outline-text-3" id="text-3-12">
+<h3 id="orgheadline19"><span class="section-number-3">2.16</span> ミニバッファに日時を表示</h3>
+<div class="outline-text-3" id="text-2-16">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
@@ -811,8 +813,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 <div id="outline-container-orgheadline20" class="outline-3">
-<h3 id="orgheadline20"><span class="section-number-3">3.13</span> バックアップファイルの削除</h3>
-<div class="outline-text-3" id="text-3-13">
+<h3 id="orgheadline20"><span class="section-number-3">2.17</span> バックアップファイルの削除</h3>
+<div class="outline-text-3" id="text-2-17">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0</span>
@@ -847,8 +849,32 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 <div id="outline-container-orgheadline21" class="outline-3">
-<h3 id="orgheadline21"><span class="section-number-3">3.14</span> その他</h3>
-<div class="outline-text-3" id="text-3-14">
+<h3 id="orgheadline21"><span class="section-number-3">2.18</span> 日中と夜中でテーマを切り替える</h3>
+<div class="outline-text-3" id="text-2-18">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:daylight-theme</span> ()
+  (interactive)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">daylight-theme</span> nil t)
+    (setq my:cursor-color-ime-on <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #91C3FF;">#91C3FF</span><span style="color: #8b2252;">"</span>)
+    (load-theme 'daylight t)
+    (reset-font-size)))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:night-theme</span> ()
+  (interactive)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">night-theme</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">atom-one-dark-theme</span>
+    <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(set-face-background 'hl-line "</span><span style="color: #ffffff; background-color: #484c5c;">#484c5c</span><span style="color: #b22222;">")</span>
+    (setq my:cursor-color-ime-on <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #8599ff;">#8599ff</span><span style="color: #8b2252;">"</span>)
+    (load-theme 'night t)
+    (reset-font-size)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22"><span class="section-number-3">2.19</span> その他</h3>
+<div class="outline-text-3" id="text-2-19">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">  <span style="color: #b22222;">;;; </span><span style="color: #b22222;">Test function from GNU Emacs (O'REILLY, P.328)</span>
@@ -900,12 +926,12 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-orgheadline31" class="outline-2">
-<h2 id="orgheadline31"><span class="section-number-2">4</span> 未設定／テスト中</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-orgheadline23" class="outline-3">
-<h3 id="orgheadline23"><span class="section-number-3">4.1</span> byte-compile の警告を抑制する</h3>
-<div class="outline-text-3" id="text-4-1">
+<div id="outline-container-orgheadline32" class="outline-2">
+<h2 id="orgheadline32"><span class="section-number-2">3</span> 未設定／テスト中</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgheadline24" class="outline-3">
+<h3 id="orgheadline24"><span class="section-number-3">3.1</span> byte-compile の警告を抑制する</h3>
+<div class="outline-text-3" id="text-3-1">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Avoid warning (for sense-region)</span>
@@ -918,9 +944,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-orgheadline24" class="outline-3">
-<h3 id="orgheadline24"><span class="section-number-3">4.2</span> [window-resizer.el] 分割したウィンドウサイズを変更する</h3>
-<div class="outline-text-3" id="text-4-2">
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25"><span class="section-number-3">3.2</span> [window-resizer.el] 分割したウィンドウサイズを変更する</h3>
+<div class="outline-text-3" id="text-3-2">
 <p>
 <a href="http://d.hatena.ne.jp/khiker/20100119/window_resize">http://d.hatena.ne.jp/khiker/20100119/window_resize</a><br  />
 </p>
@@ -980,9 +1006,9 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-orgheadline25" class="outline-3">
-<h3 id="orgheadline25"><span class="section-number-3">4.3</span> [idle-requie]</h3>
-<div class="outline-text-3" id="text-4-3">
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26"><span class="section-number-3">3.3</span> [idle-requie]</h3>
+<div class="outline-text-3" id="text-3-3">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">idle-require</span>)
@@ -992,9 +1018,9 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-orgheadline26" class="outline-3">
-<h3 id="orgheadline26"><span class="section-number-3">4.4</span> [pdf-preview]</h3>
-<div class="outline-text-3" id="text-4-4">
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27"><span class="section-number-3">3.4</span> [pdf-preview]</h3>
+<div class="outline-text-3" id="text-3-4">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">pdf-preview</span>)
@@ -1003,9 +1029,9 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-orgheadline27" class="outline-3">
-<h3 id="orgheadline27"><span class="section-number-3">4.5</span> [EasyPG]</h3>
-<div class="outline-text-3" id="text-4-5">
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28"><span class="section-number-3">3.5</span> [EasyPG]</h3>
+<div class="outline-text-3" id="text-3-5">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">epa-setup</span> nil t)
@@ -1015,9 +1041,9 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-orgheadline28" class="outline-3">
-<h3 id="orgheadline28"><span class="section-number-3">4.6</span> [eblook]</h3>
-<div class="outline-text-3" id="text-4-6">
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29"><span class="section-number-3">3.6</span> [eblook]</h3>
+<div class="outline-text-3" id="text-3-6">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">eblook</span>
@@ -1033,9 +1059,9 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-orgheadline29" class="outline-3">
-<h3 id="orgheadline29"><span class="section-number-3">4.7</span> [iBuffer]</h3>
-<div class="outline-text-3" id="text-4-7">
+<div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30"><span class="section-number-3">3.7</span> [iBuffer]</h3>
+<div class="outline-text-3" id="text-3-7">
 <p>
 iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br  />
 </p>
@@ -1048,9 +1074,9 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br  />
 </div>
 </div>
 
-<div id="outline-container-orgheadline30" class="outline-3">
-<h3 id="orgheadline30"><span class="section-number-3">4.8</span> キーバインド</h3>
-<div class="outline-text-3" id="text-4-8">
+<div id="outline-container-orgheadline31" class="outline-3">
+<h3 id="orgheadline31"><span class="section-number-3">3.8</span> キーバインド</h3>
+<div class="outline-text-3" id="text-3-8">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Multiple combination</span>
@@ -1065,9 +1091,9 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br  />
 </div>
 </div>
 
-<div id="outline-container-orgheadline32" class="outline-2">
-<h2 id="orgheadline32"><span class="section-number-2">5</span> provide</h2>
-<div class="outline-text-2" id="text-5">
+<div id="outline-container-orgheadline33" class="outline-2">
+<h2 id="orgheadline33"><span class="section-number-2">4</span> provide</h2>
+<div class="outline-text-2" id="text-4">
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">provide</span> '<span style="color: #008b8b;">utility</span>)
@@ -1078,7 +1104,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br  />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2015-06-05 Fri 00:01</p>
+<p class="date">Created: 2015-12-06 Sun 10:56</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
