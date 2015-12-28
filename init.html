@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2015-12-28 Mon 16:54 -->
+<!-- 2015-12-28 Mon 22:06 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -450,7 +450,6 @@ for the JavaScript code in this tag.
 <li><a href="#orgheadline205">14.1. yascroll</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline207">15. provide</a></li>
 </ul>
 </div>
 </div>
@@ -2113,7 +2112,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 <span style="color: #b22222;">;;</span><span style="color: #b22222;">(autoload 'po-mode "po-mode" nil t)</span>
 (<span style="color: #a020f0;">when</span> (eval-after-autoload-if-found
        '(po-mode) <span style="color: #8b2252;">"po-mode"</span>)
-  (push '(<span style="color: #8b2252;">"\\.po[tx]?\\'</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">|</span><span style="color: #8b2252;">\\.po\\$"</span> . po-mode) auto-mode-alist))
+  (push '(<span style="color: #8b2252;">"\\.po[tx]?\\'</span><span style="color: #8b2252;">\\</span><span style="color: #8b2252;">|</span><span style="color: #8b2252;">\\.po\\$"</span> . po-mode) auto-mode-alist))
 </pre>
 </div>
 </div>
@@ -3946,7 +3945,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
  '(desktop-save desktop-clear desktop-load-default desktop-remove)
  <span style="color: #8b2252;">"desktop"</span> nil t nil
  '((desktop-save-mode 1)
-   (setq desktop-files-not-to-save <span style="color: #8b2252;">"</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">^/tmp</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">|</span><span style="color: #8b2252;">^/var</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">|</span><span style="color: #8b2252;">^/ssh:</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">"</span>)))
+   (setq desktop-files-not-to-save <span style="color: #8b2252;">"</span><span style="color: #8b2252;">\\</span><span style="color: #8b2252;">(</span><span style="color: #8b2252;">^/tmp</span><span style="color: #8b2252;">\\</span><span style="color: #8b2252;">|</span><span style="color: #8b2252;">^/var</span><span style="color: #8b2252;">\\</span><span style="color: #8b2252;">|</span><span style="color: #8b2252;">^/ssh:</span><span style="color: #8b2252;">\\</span><span style="color: #8b2252;">)</span><span style="color: #8b2252;">"</span>)))
 </pre>
 </div>
 </div>
@@ -4471,9 +4470,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 
 <div class="org-src-container">
 
-<pre class="src src-cpp"><span style="color: #483d8b;">#include</span> <span style="color: #8b2252;">&lt;iostream&gt;</span>
-<span style="color: #483d8b;">#include</span> <span style="color: #8b2252;">&lt;vector&gt;</span>
-<span style="color: #483d8b;">#include</span> <span style="color: #8b2252;">&lt;boost/timer.hpp&gt;</span>
+<pre class="src src-cpp"><span style="color: #8996A8;">#include</span> <span style="color: #8b2252;">&lt;iostream&gt;</span>
+<span style="color: #8996A8;">#include</span> <span style="color: #8b2252;">&lt;vector&gt;</span>
+<span style="color: #8996A8;">#include</span> <span style="color: #8b2252;">&lt;boost/timer.hpp&gt;</span>
 
 <span style="color: #228b22;">int</span> <span style="color: #0000ff;">main</span>(){
   <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">vector</span>&lt;<span style="color: #228b22;">int</span>&gt; <span style="color: #a0522d;">v</span>;
@@ -5115,7 +5114,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <div class="outline-text-3" id="text-10-12">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-refile"</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   (setq org-refile-targets
         (quote ((<span style="color: #8b2252;">"org-ical.org"</span> <span style="color: #483d8b;">:level</span> . 1)
                 (<span style="color: #8b2252;">"research.org"</span> <span style="color: #483d8b;">:level</span> . 1)
@@ -6774,21 +6773,10 @@ popwin:display-buffer を autoload してもうまくいかない．<br  />
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgheadline207" class="outline-2">
-<h2 id="orgheadline207"><span class="section-number-2">15</span> provide</h2>
-<div class="outline-text-2" id="text-15">
-<div class="org-src-container">
-
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">provide</span> '<span style="color: #008b8b;">init</span>)
-</pre>
-</div>
-</div>
-</div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2015-12-28 Mon 16:54</p>
+<p class="date">Created: 2015-12-28 Mon 22:06</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

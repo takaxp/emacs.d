@@ -1382,7 +1382,7 @@
                 entry (file+headline ,org-capture-buffer-file "Buffers")
                 "** %(get-random-string 16) %U\n\n%?\n\n----"))))))
 
-(with-eval-after-load "org-refile"
+(with-eval-after-load "org"
   (setq org-refile-targets
         (quote (("org-ical.org" :level . 1)
                 ("research.org" :level . 1)

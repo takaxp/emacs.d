@@ -3250,7 +3250,7 @@ http://orgmode.org/worg/org-gtd-etc.html
 ** [org-refile]
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (with-eval-after-load "org-refile"
+  (with-eval-after-load "org"
     (setq org-refile-targets
           (quote (("org-ical.org" :level . 1)
                   ("research.org" :level . 1)
@@ -4520,8 +4520,8 @@ popwin:display-buffer を autoload してもうまくいかない．
     )
 #+END_SRC
 
-* provide
+* COMMENT provide
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-(provide 'init)
+#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+  (provide 'init)
 #+END_SRC
