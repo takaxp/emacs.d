@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2015-12-06 Sun 10:56 -->
+<!-- 2015-12-28 Mon 16:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -154,7 +154,7 @@ for the JavaScript code in this tag.
 <li><a href="#orgheadline2">2.1. サボっていると Kyoko さんに怒られる</a></li>
 <li><a href="#orgheadline3">2.2. org-buffer を dokuwiki 形式に変換し，kill-ring に格納</a></li>
 <li><a href="#orgheadline4">2.3. コンソールでカレントバッファのあるディレクトリに移動する</a></li>
-<li><a href="#orgheadline5">2.4. ファイルに含まれるテーブルを使って定時にgrowlのアラートを表示する</a></li>
+<li><a href="#orgheadline5">2.4. ファイルに含まれるテーブルを使って定時にアラートを表示する</a></li>
 <li><a href="#orgheadline6">2.5. 頻繁に利用するファイルをring形式でたどる</a></li>
 <li><a href="#orgheadline7">2.6. 引数のorgバッファを開く</a></li>
 <li><a href="#orgheadline8">2.7. orgバッファにいつものヘッダを追加する</a></li>
@@ -213,7 +213,8 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">eval-org-buffer</span> ()
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">eval-org-buffer</span> ()
   <span style="color: #8b2252;">"Load init.org/utility.org and tangle init.el/utility.el."</span>
   (interactive)
   (<span style="color: #a020f0;">if</span> (and (eq major-mode 'org-mode)
@@ -304,6 +305,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
   <span style="color: #483d8b;">:type</span> 'string
   <span style="color: #483d8b;">:group</span> 'takaxp-mac)
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">open-current-directory</span> ()
   <span style="color: #8b2252;">" Open Current Directory for MacOSX</span>
 <span style="color: #8b2252;">  0) Put this function in your .emacs</span>
@@ -314,10 +316,10 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
   (<span style="color: #a020f0;">let</span> ((file-path (buffer-file-name (current-buffer))))
     (<span style="color: #a020f0;">unless</span> (string= file-path nil)
       (<span style="color: #a020f0;">let</span> ((directory
-            (substring file-path 0
-                       (-
-                        (length file-path)
-                        (length (buffer-name (current-buffer)))))))
+             (substring file-path 0
+                        (-
+                         (length file-path)
+                         (length (buffer-name (current-buffer)))))))
         (message <span style="color: #8b2252;">"%s"</span> directory)
         (shell-command-to-string (concat <span style="color: #8b2252;">"echo cd "</span> directory <span style="color: #8b2252;">" |pbcopy"</span>))
         (shell-command-to-string
@@ -330,102 +332,104 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 <div id="outline-container-orgheadline5" class="outline-3">
-<h3 id="orgheadline5"><span class="section-number-3">2.4</span> ファイルに含まれるテーブルを使って定時にgrowlのアラートを表示する</h3>
+<h3 id="orgheadline5"><span class="section-number-3">2.4</span> ファイルに含まれるテーブルを使って定時にアラートを表示する</h3>
 <div class="outline-text-3" id="text-2-4">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarms-from-file</span> (file)
-    <span style="color: #8b2252;">"Make alarms from org-mode tables. If you have an org-mode file</span>
-<span style="color: #8b2252;">             with tables with the following format:</span>
-<span style="color: #8b2252;">              |------+-------+--------------------|</span>
-<span style="color: #8b2252;">              | Flag |  Time | Content            |</span>
-<span style="color: #8b2252;">              |------+-------+--------------------|</span>
-<span style="color: #8b2252;">              |      | 07:00 | Wakeup             |</span>
-<span style="color: #8b2252;">              |      |       | Read papers        |</span>
-<span style="color: #8b2252;">              | X    | 12:00 | Clean up your desk |</span>
-<span style="color: #8b2252;">             When it is 7:00 and 12:00, Growl notify with a message which is specified</span>
-<span style="color: #8b2252;">             content column from the table. \"Read papers\" will be ignored.</span>
-<span style="color: #8b2252;">             \"Clean up your desk\" will be shown by sticky mode"</span>
-    (<span style="color: #a020f0;">let</span>
-        ((lines (read-line file)))
-      (cancel-function-timers 'my:desktop-notify) <span style="color: #b22222;">;; </span><span style="color: #b22222;">clear existing timers</span>
-      (<span style="color: #a020f0;">while</span> lines
-        (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-        (setq lines (cdr lines)))))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarms-from-file</span> (file)
+  <span style="color: #8b2252;">"Make alarms from org-mode tables. If you have an org-mode file</span>
+<span style="color: #8b2252;">   with tables with the following format:</span>
+<span style="color: #8b2252;">   |------+-------+--------------------|</span>
+<span style="color: #8b2252;">   | Flag |  Time | Content            |</span>
+<span style="color: #8b2252;">   |------+-------+--------------------|</span>
+<span style="color: #8b2252;">   |      | 07:00 | Wakeup             |</span>
+<span style="color: #8b2252;">   |      |       | Read papers        |</span>
+<span style="color: #8b2252;">   | X    | 12:00 | Clean up your desk |</span>
+<span style="color: #8b2252;">   When it is 7:00 and 12:00, Growl notify with a message which is specified</span>
+<span style="color: #8b2252;">   content column from the table. \"Read papers\" will be ignored.</span>
+<span style="color: #8b2252;">   \"Clean up your desk\" will be shown by sticky mode"</span>
+  (<span style="color: #a020f0;">let</span>
+      ((lines (read-line file)))
+    (cancel-function-timers 'my:desktop-notify) <span style="color: #b22222;">;; </span><span style="color: #b22222;">clear existing timers</span>
+    (<span style="color: #a020f0;">while</span> lines
+      (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
+      (setq lines (cdr lines)))))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarm-from-line</span> (line)
-    (<span style="color: #a020f0;">let</span>
-        ((hour nil)
-         (min nil)
-         (current-hour nil)
-         (current-min nil)
-         (action nil))
-      (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-2]?[0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">:</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-5][0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">"</span> line)
-        (setq hour (substring line (match-beginning 1) (match-end 1)))
-        (setq min (substring line (match-beginning 2) (match-end 2)))
-        (<span style="color: #a020f0;">when</span> (string-match
-               <span style="color: #8b2252;">"\|\\s-*</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\|]+[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> ]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">\\s-*\|$"</span> line (match-end 2))
-          (setq action
-                (substring line (match-beginning 1) (match-end 1)))))
-      (<span style="color: #a020f0;">when</span> (and (and hour min) action)
-<span style="color: #b22222;">;;        </span><span style="color: #b22222;">(message "[%s:%s] =&gt; %s" hour min action)</span>
-        (setq current-hour (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time)))
-        (setq current-min (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time)))
-        (<span style="color: #a020f0;">when</span> (&gt; (+ (* (string-to-number hour) 60)
-                    (string-to-number min))
-                 (+ (* (string-to-number current-hour) 60)
-                    (string-to-number current-min)))
-          (<span style="color: #a020f0;">let</span>
-              ((s nil))
-            (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"^\|\\s-*X\\s-*\|"</span> line)
-              (setq s 'sticky))
-            <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(set-notify-growl hour min action s)</span>
-            (set-notify-osx-native hour min action s)
-<span style="color: #b22222;">;;            </span><span style="color: #b22222;">(set-notify-mail hour min action s)</span>
-            )))))
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarm-from-line</span> (line)
+  (<span style="color: #a020f0;">let</span>
+      ((hour nil)
+       (min nil)
+       (current-hour nil)
+       (current-min nil)
+       (action nil))
+    (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-2]?[0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">:</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[0-5][0-9]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">"</span> line)
+      (setq hour (substring line (match-beginning 1) (match-end 1)))
+      (setq min (substring line (match-beginning 2) (match-end 2)))
+      (<span style="color: #a020f0;">when</span> (string-match
+             <span style="color: #8b2252;">"\|\\s-*</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\|]+[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> ]</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">\\s-*\|$"</span> line (match-end 2))
+        (setq action
+              (substring line (match-beginning 1) (match-end 1)))))
+    (<span style="color: #a020f0;">when</span> (and (and hour min) action)
+      <span style="color: #b22222;">;;        </span><span style="color: #b22222;">(message "[%s:%s] =&gt; %s" hour min action)</span>
+      (setq current-hour (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time)))
+      (setq current-min (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time)))
+      (<span style="color: #a020f0;">when</span> (&gt; (+ (* (string-to-number hour) 60)
+                  (string-to-number min))
+               (+ (* (string-to-number current-hour) 60)
+                  (string-to-number current-min)))
+        (<span style="color: #a020f0;">let</span>
+            ((s nil))
+          (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"^\|\\s-*X\\s-*\|"</span> line)
+            (setq s 'sticky))
+          <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(set-notify-growl hour min action s)</span>
+          (set-notify-osx-native hour min action s)
+          <span style="color: #b22222;">;;            </span><span style="color: #b22222;">(set-notify-mail hour min action s)</span>
+          )))))
 
-  (<span style="color: #a020f0;">when</span> (eval-after-autoload-if-found
-         '(todochiku-message) <span style="color: #8b2252;">"todochiku"</span> nil t nil
-         '((setq todochiku-icons-directory <span style="color: #8b2252;">"~/Dropbox/emacs.d/todochiku-icons"</span>)
-           (add-to-list 'todochiku-icons '(emacs . <span style="color: #8b2252;">"emacs.png"</span>))
-           ))
-    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">cl</span>))
+(<span style="color: #a020f0;">when</span> (eval-after-autoload-if-found
+       '(todochiku-message) <span style="color: #8b2252;">"todochiku"</span> nil t nil
+       '((setq todochiku-icons-directory <span style="color: #8b2252;">"~/Dropbox/emacs.d/todochiku-icons"</span>)
+         (add-to-list 'todochiku-icons '(emacs . <span style="color: #8b2252;">"emacs.png"</span>))
+         ))
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">cl</span>))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:desktop-notify</span> (type title hour min action s)
-    <span style="color: #8b2252;">"NOTE: this function need (require 'todochiku)"</span>
-    (<span style="color: #a020f0;">cond</span>
-     <span style="color: #b22222;">;; </span><span style="color: #b22222;">((string= type "growl")</span>
-     <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(todochiku-message</span>
-     <span style="color: #b22222;">;;   </span><span style="color: #b22222;">title (format "%s:%s %s" hour min action) "Emacs" s))</span>
-     ((string= type <span style="color: #8b2252;">"osx-native"</span>)
-      (shell-command-to-string
-       (concat <span style="color: #8b2252;">"terminal-notifier -title \"Emacs\" -message \""</span>
-               (format <span style="color: #8b2252;">"%s:%s %s"</span> hour min action) <span style="color: #8b2252;">"\""</span>)))
-     (t nil)))
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:desktop-notify</span> (type title hour min action s)
+  (<span style="color: #a020f0;">cond</span>
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">((string= type "growl")</span>
+   <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(todochiku-message</span>
+   <span style="color: #b22222;">;;   </span><span style="color: #b22222;">title (format "%s:%s %s" hour min action) "Emacs" s))</span>
+   ((string= type <span style="color: #8b2252;">"osx-native"</span>)
+    (terminal-notifier-notify
+     title
+     (format <span style="color: #8b2252;">"%s:%s %s"</span> hour min action)))
+   (t nil)))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-mail</span> (hour min action s)
-    (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
-                 'my:desktop-notify
-                 <span style="color: #8b2252;">"mail"</span> <span style="color: #8b2252;">"&#12426;&#12414;&#12356;&#12435;&#12384;"</span> hour min action nil))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-mail</span> (hour min action s)
+  (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+               'my:desktop-notify
+               <span style="color: #8b2252;">"mail"</span> <span style="color: #8b2252;">"&#12426;&#12414;&#12356;&#12435;&#12384;"</span> hour min action nil))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-growl</span> (hour min action s)
-    (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
-                 'my:desktop-notify
-                 <span style="color: #8b2252;">"growl"</span> <span style="color: #8b2252;">"== REMINDER =="</span> hour min action s))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-growl</span> (hour min action s)
+  (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+               'my:desktop-notify
+               <span style="color: #8b2252;">"growl"</span> <span style="color: #8b2252;">"== REMINDER =="</span> hour min action s))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-osx-native</span> (hour min action s)
-    <span style="color: #8b2252;">"terminal-notifier is required."</span>
-<span style="color: #b22222;">;;    </span><span style="color: #b22222;">(message "%s:%s %s %s" hour min action s)</span>
-    (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
-                 'my:desktop-notify
-                 <span style="color: #8b2252;">"osx-native"</span> <span style="color: #8b2252;">"Emacs"</span> hour min action nil))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-osx-native</span> (hour min action s)
+  <span style="color: #8b2252;">"terminal-notifier is required."</span>
+  <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(message "%s:%s %s %s" hour min action s)</span>
+  (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+               'my:desktop-notify
+               <span style="color: #8b2252;">"osx-native"</span> <span style="color: #8b2252;">"Emacs"</span> hour min action nil))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">read-line</span> (file)
-    <span style="color: #8b2252;">"Make a list from a file, which is divided by LF code"</span>
-    (<span style="color: #a020f0;">with-temp-buffer</span>
-      (insert-file-contents-literally file)
-      (split-string
-       (buffer-string) <span style="color: #8b2252;">"\n"</span> t)))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">read-line</span> (file)
+  <span style="color: #8b2252;">"Make a list from a file, which is divided by LF code"</span>
+  (<span style="color: #a020f0;">with-temp-buffer</span>
+    (insert-file-contents-literally file)
+    (split-string
+     (buffer-string) <span style="color: #8b2252;">"\n"</span> t)))
 </pre>
 </div>
 </div>
@@ -441,6 +445,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my:file-ring</span> nil)
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">takaxp:make-file-ring</span> (files)
   (setq my:file-ring (copy-sequence files)))
 <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setf (cdr (last my:file-ring)) my:file-ring))</span>
@@ -449,6 +455,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
    <span style="color: #8b2252;">"~/Dropbox/org/buffer.org"</span> <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/utility.org"</span>
    <span style="color: #8b2252;">"~/Dropbox/org/research.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/next.org"</span>))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">takaxp:open-file-ring</span> ()
   (interactive)
   (find-file (car my:file-ring))
@@ -467,7 +474,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="outline-text-3" id="text-2-6">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">show-org-buffer</span> (file)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">show-org-buffer</span> (file)
   <span style="color: #8b2252;">"Show an org-file on the current buffer"</span>
   (interactive)
   (<span style="color: #a020f0;">if</span> (get-buffer file)
@@ -485,7 +493,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="outline-text-3" id="text-2-7">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-org-file-header-template</span> ()
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-org-file-header-template</span> ()
   (interactive)
   (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
     (<span style="color: #a020f0;">let</span> ((title <span style="color: #8b2252;">"#+TITLE:\t\n"</span>)
@@ -508,7 +517,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="outline-text-3" id="text-2-8">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-minutes-template</span> ()
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-minutes-template</span> ()
   (interactive)
   (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
     (<span style="color: #a020f0;">let</span> ((date <span style="color: #8b2252;">"&#26085;&#26178;&#65306;\n"</span>)
@@ -585,7 +595,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <div class="outline-text-3" id="text-2-11">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">add-itemize-head</span> (arg)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">add-itemize-head</span> (arg)
   <span style="color: #8b2252;">"Insert \"  - \" at the head of line.</span>
 <span style="color: #8b2252;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
 <span style="color: #8b2252;">  original position again. Otherwise, the cursor is moved to the right of the</span>
@@ -748,21 +759,22 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">ox-icalendar-activate</span> nil)
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    (run-with-idle-timer 600 t
-                         '(<span style="color: #a020f0;">lambda</span> ()
-                            (setq ox-icalendar-activate t)))
-<span style="color: #b22222;">;;    </span><span style="color: #b22222;">(run-with-idle-timer 1000 t 'org-mobile-push)</span>
-    (add-hook 'focus-out-hook 'reload-ical-export))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">ox-icalendar-activate</span> nil)
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+  (run-with-idle-timer 600 t
+                       '(<span style="color: #a020f0;">lambda</span> ()
+                          (setq ox-icalendar-activate t)))
+  <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(run-with-idle-timer 1000 t 'org-mobile-push)</span>
+  (add-hook 'focus-out-hook 'reload-ical-export))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">reload-ical-export</span> ()
-    <span style="color: #8b2252;">"Export org files as an iCal format file"</span>
-    (interactive)
-    (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
-      (<span style="color: #a020f0;">when</span> ox-icalendar-activate
-        (setq ox-icalendar-activate nil)
-        (my:ox-icalendar))))
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">reload-ical-export</span> ()
+  <span style="color: #8b2252;">"Export org files as an iCal format file"</span>
+  (interactive)
+  (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
+    (<span style="color: #a020f0;">when</span> ox-icalendar-activate
+      (setq ox-icalendar-activate nil)
+      (my:ox-icalendar))))
 </pre>
 </div>
 </div>
@@ -824,6 +836,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
     (recursive-delete-backup-files (1- count)))
   (delete-backup-files count))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">delete-backup-files</span> (<span style="color: #228b22;">&amp;optional</span> day-shift)
   <span style="color: #8b2252;">"Delete backup files created in yesterday.</span>
 <span style="color: #8b2252;">  &gt; find ~/.emacs.d/backup -type f -name '*YY-MM-DD_*' -print0 | xargs -0"</span>
@@ -853,13 +866,15 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <div class="outline-text-3" id="text-2-18">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:daylight-theme</span> ()
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:daylight-theme</span> ()
   (interactive)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">daylight-theme</span> nil t)
     (setq my:cursor-color-ime-on <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #91C3FF;">#91C3FF</span><span style="color: #8b2252;">"</span>)
     (load-theme 'daylight t)
     (reset-font-size)))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:night-theme</span> ()
   (interactive)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">night-theme</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">atom-one-dark-theme</span>
@@ -877,7 +892,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <div class="outline-text-3" id="text-2-19">
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">  <span style="color: #b22222;">;;; </span><span style="color: #b22222;">Test function from GNU Emacs (O'REILLY, P.328)</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;; </span><span style="color: #b22222;">Test function from GNU Emacs (O'REILLY, P.328)</span>
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">count-words-buffer</span> ()
   <span style="color: #8b2252;">"Count the number of words in the current buffer"</span>
   (interactive)
@@ -898,6 +914,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
     (concat
      <span style="color: #8b2252;">"display dialog \"Hello world!\" \r"</span>))))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #b22222; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">describe-timer</span> ()
   <span style="color: #8b2252;">"A modified. see http://masutaka.net/chalow/2009-12-05-1.html"</span>
   (interactive)
@@ -1104,7 +1121,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br  />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2015-12-06 Sun 10:56</p>
+<p class="date">Created: 2015-12-28 Mon 16:58</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

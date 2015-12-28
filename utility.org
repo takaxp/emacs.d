@@ -13,6 +13,7 @@
 org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
  
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;;;###autoload
   (defun eval-org-buffer ()
     "Load init.org/utility.org and tangle init.el/utility.el."
     (interactive)
@@ -81,6 +82,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
     :type 'string
     :group 'takaxp-mac)
 
+  ;;;###autoload
   (defun open-current-directory ()
     " Open Current Directory for MacOSX
     0) Put this function in your .emacs
@@ -91,114 +93,116 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
     (let ((file-path (buffer-file-name (current-buffer))))
       (unless (string= file-path nil)
         (let ((directory
-              (substring file-path 0
-                         (-
-                          (length file-path)
-                          (length (buffer-name (current-buffer)))))))
+               (substring file-path 0
+                          (-
+                           (length file-path)
+                           (length (buffer-name (current-buffer)))))))
           (message "%s" directory)
           (shell-command-to-string (concat "echo cd " directory " |pbcopy"))
           (shell-command-to-string
            (concat "open -a " open-current-directory-console-program))))))
 #+END_SRC
 *
-** ファイルに含まれるテーブルを使って定時にgrowlのアラートを表示する
+** ファイルに含まれるテーブルを使って定時にアラートを表示する
 
  # =terminal-notifier= は，現時点で sticky に対応していない．システムレベルでの制御は可能なので，別イメージをビルドし，通知で呼び出すアプリを切り替えれば対応可能と思われる．Banners タイプから Alerts タイプに切り替えるだけ．
 
- #+BEGIN_SRC emacs-lisp :tangle yes
-   (defun set-alarms-from-file (file)
-     "Make alarms from org-mode tables. If you have an org-mode file
-              with tables with the following format:
-               |------+-------+--------------------|
-               | Flag |  Time | Content            |
-               |------+-------+--------------------|
-               |      | 07:00 | Wakeup             |
-               |      |       | Read papers        |
-               | X    | 12:00 | Clean up your desk |
-              When it is 7:00 and 12:00, Growl notify with a message which is specified
-              content column from the table. \"Read papers\" will be ignored.
-              \"Clean up your desk\" will be shown by sticky mode"
-     (let
-         ((lines (read-line file)))
-       (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
-       (while lines
-         (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-         (setq lines (cdr lines)))))
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;;;###autoload
+  (defun set-alarms-from-file (file)
+    "Make alarms from org-mode tables. If you have an org-mode file
+     with tables with the following format:
+     |------+-------+--------------------|
+     | Flag |  Time | Content            |
+     |------+-------+--------------------|
+     |      | 07:00 | Wakeup             |
+     |      |       | Read papers        |
+     | X    | 12:00 | Clean up your desk |
+     When it is 7:00 and 12:00, Growl notify with a message which is specified
+     content column from the table. \"Read papers\" will be ignored.
+     \"Clean up your desk\" will be shown by sticky mode"
+    (let
+        ((lines (read-line file)))
+      (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
+      (while lines
+        (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
+        (setq lines (cdr lines)))))
 
-   (defun set-alarm-from-line (line)
-     (let
-         ((hour nil)
-          (min nil)
-          (current-hour nil)
-          (current-min nil)
-          (action nil))
-       (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
-         (setq hour (substring line (match-beginning 1) (match-end 1)))
-         (setq min (substring line (match-beginning 2) (match-end 2)))
-         (when (string-match
-                "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
-           (setq action
-                 (substring line (match-beginning 1) (match-end 1)))))
-       (when (and (and hour min) action)
- ;;        (message "[%s:%s] => %s" hour min action)
-         (setq current-hour (format-time-string "%H" (current-time)))
-         (setq current-min (format-time-string "%M" (current-time)))
-         (when (> (+ (* (string-to-number hour) 60)
-                     (string-to-number min))
-                  (+ (* (string-to-number current-hour) 60)
-                     (string-to-number current-min)))
-           (let
-               ((s nil))
-             (when (string-match "^\|\\s-*X\\s-*\|" line)
-               (setq s 'sticky))
-             ;;      (set-notify-growl hour min action s)
-             (set-notify-osx-native hour min action s)
- ;;            (set-notify-mail hour min action s)
-             )))))
+  ;;;###autoload
+  (defun set-alarm-from-line (line)
+    (let
+        ((hour nil)
+         (min nil)
+         (current-hour nil)
+         (current-min nil)
+         (action nil))
+      (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" line)
+        (setq hour (substring line (match-beginning 1) (match-end 1)))
+        (setq min (substring line (match-beginning 2) (match-end 2)))
+        (when (string-match
+               "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
+          (setq action
+                (substring line (match-beginning 1) (match-end 1)))))
+      (when (and (and hour min) action)
+        ;;        (message "[%s:%s] => %s" hour min action)
+        (setq current-hour (format-time-string "%H" (current-time)))
+        (setq current-min (format-time-string "%M" (current-time)))
+        (when (> (+ (* (string-to-number hour) 60)
+                    (string-to-number min))
+                 (+ (* (string-to-number current-hour) 60)
+                    (string-to-number current-min)))
+          (let
+              ((s nil))
+            (when (string-match "^\|\\s-*X\\s-*\|" line)
+              (setq s 'sticky))
+            ;;      (set-notify-growl hour min action s)
+            (set-notify-osx-native hour min action s)
+            ;;            (set-notify-mail hour min action s)
+            )))))
 
-   (when (eval-after-autoload-if-found
-          '(todochiku-message) "todochiku" nil t nil
-          '((setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
-            (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
-            ))
-     (require 'cl))
+  (when (eval-after-autoload-if-found
+         '(todochiku-message) "todochiku" nil t nil
+         '((setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
+           (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
+           ))
+    (require 'cl))
 
-   (defun my:desktop-notify (type title hour min action s)
-     "NOTE: this function need (require 'todochiku)"
-     (cond
-      ;; ((string= type "growl")
-      ;;  (todochiku-message
-      ;;   title (format "%s:%s %s" hour min action) "Emacs" s))
-      ((string= type "osx-native")
-       (shell-command-to-string
-        (concat "terminal-notifier -title \"Emacs\" -message \""
-                (format "%s:%s %s" hour min action) "\"")))
-      (t nil)))
+  ;;;###autoload
+  (defun my:desktop-notify (type title hour min action s)
+    (cond
+     ;; ((string= type "growl")
+     ;;  (todochiku-message
+     ;;   title (format "%s:%s %s" hour min action) "Emacs" s))
+     ((string= type "osx-native")
+      (terminal-notifier-notify
+       title
+       (format "%s:%s %s" hour min action)))
+     (t nil)))
 
-   (defun set-notify-mail (hour min action s)
-     (run-at-time (format "%s:%s" hour min) nil
-                  'my:desktop-notify
-                  "mail" "りまいんだ" hour min action nil))
+  (defun set-notify-mail (hour min action s)
+    (run-at-time (format "%s:%s" hour min) nil
+                 'my:desktop-notify
+                 "mail" "りまいんだ" hour min action nil))
 
-   (defun set-notify-growl (hour min action s)
-     (run-at-time (format "%s:%s" hour min) nil
-                  'my:desktop-notify
-                  "growl" "== REMINDER ==" hour min action s))
+  (defun set-notify-growl (hour min action s)
+    (run-at-time (format "%s:%s" hour min) nil
+                 'my:desktop-notify
+                 "growl" "== REMINDER ==" hour min action s))
 
-   (defun set-notify-osx-native (hour min action s)
-     "terminal-notifier is required."
- ;;    (message "%s:%s %s %s" hour min action s)
-     (run-at-time (format "%s:%s" hour min) nil
-                  'my:desktop-notify
-                  "osx-native" "Emacs" hour min action nil))
+  (defun set-notify-osx-native (hour min action s)
+    "terminal-notifier is required."
+    ;;    (message "%s:%s %s %s" hour min action s)
+    (run-at-time (format "%s:%s" hour min) nil
+                 'my:desktop-notify
+                 "osx-native" "Emacs" hour min action nil))
 
-   (defun read-line (file)
-     "Make a list from a file, which is divided by LF code"
-     (with-temp-buffer
-       (insert-file-contents-literally file)
-       (split-string
-        (buffer-string) "\n" t)))
- #+END_SRC  
+  (defun read-line (file)
+    "Make a list from a file, which is divided by LF code"
+    (with-temp-buffer
+      (insert-file-contents-literally file)
+      (split-string
+       (buffer-string) "\n" t)))
+#+END_SRC  
 
 ** 頻繁に利用するファイルをring形式でたどる
 
@@ -206,6 +210,8 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defvar my:file-ring nil)
+
+  ;;;###autoload
   (defun takaxp:make-file-ring (files)
     (setq my:file-ring (copy-sequence files)))
   ;;    (setf (cdr (last my:file-ring)) my:file-ring))
@@ -213,20 +219,22 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
    '("~/Dropbox/org/work.org" "~/Dropbox/emacs.d/config/init.org"
      "~/Dropbox/org/buffer.org" "~/Dropbox/emacs.d/config/utility.org"
      "~/Dropbox/org/research.org" "~/Dropbox/org/next.org"))
-  
+
+  ;;;###autoload
   (defun takaxp:open-file-ring ()
     (interactive)
     (find-file (car my:file-ring))
     (setq my:file-ring
           (append (cdr my:file-ring)
                   (list (car my:file-ring)))))
-  
+
   ;;    (setq my:file-ring (cdr my:file-ring)))
 #+END_SRC
 
 ** 引数のorgバッファを開く
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;;;###autoload
   (defun show-org-buffer (file)
     "Show an org-file on the current buffer"
     (interactive)
@@ -240,6 +248,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 ** orgバッファにいつものヘッダを追加する
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;;;###autoload
   (defun insert-org-file-header-template ()
     (interactive)
     (when (string= major-mode 'org-mode)
@@ -258,6 +267,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 ** 議事録ひな形を書き入れる
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;;;###autoload
   (defun insert-minutes-template ()
     (interactive)
     (when (string= major-mode 'org-mode)
@@ -316,6 +326,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 ** 行頭に"  - "を挿入する
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;;;###autoload
   (defun add-itemize-head (arg)
     "Insert \"  - \" at the head of line.
     If the cursor is already at the head of line, it is NOT returned back to the
@@ -450,9 +461,10 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
     (run-with-idle-timer 600 t
                          '(lambda ()
                             (setq ox-icalendar-activate t)))
-;;    (run-with-idle-timer 1000 t 'org-mobile-push)
+    ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
     (add-hook 'focus-out-hook 'reload-ical-export))
 
+  ;;;###autoload
   (defun reload-ical-export ()
     "Export org files as an iCal format file"
     (interactive)
@@ -503,7 +515,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
         1
       (recursive-delete-backup-files (1- count)))
     (delete-backup-files count))
-  
+
+  ;;;###autoload
   (defun delete-backup-files (&optional day-shift)
     "Delete backup files created in yesterday.
     > find ~/.emacs.d/backup -type f -name '*YY-MM-DD_*' -print0 | xargs -0"
@@ -528,6 +541,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 ** 日中と夜中でテーマを切り替える
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;;;###autoload
   (defun my:daylight-theme ()
     (interactive)
     (when (require 'daylight-theme nil t)
@@ -535,6 +549,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
       (load-theme 'daylight t)
       (reset-font-size)))
 
+  ;;;###autoload
   (defun my:night-theme ()
     (interactive)
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
@@ -547,7 +562,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 ** その他
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-    ;;; Test function from GNU Emacs (O'REILLY, P.328)
+  ;;; Test function from GNU Emacs (O'REILLY, P.328)
+  ;;;###autoload
   (defun count-words-buffer ()
     "Count the number of words in the current buffer"
     (interactive)
@@ -558,7 +574,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
           (forward-word 1)
           (setq count (1+ count)))
         (message "buffer contains %d words." count))))
-  
+
     ;;; Test function for AppleScript
     ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
   (defun do-test-applescript ()
@@ -567,7 +583,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
      (format
       (concat
        "display dialog \"Hello world!\" \r"))))
-  
+
+  ;;;###autoload
   (defun describe-timer ()
     "A modified. see http://masutaka.net/chalow/2009-12-05-1.html"
     (interactive)
@@ -590,7 +607,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
           (symbol-name (aref timer 5))
           "\n"))
         (setq tl (cdr tl)))))
-  
+
 #+END_SRC
 
 * 未設定／テスト中

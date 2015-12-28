@@ -11,7 +11,6 @@
         (package nil))
     (when (boundp 'disabled-packages)
       (dolist (package disabled-packages)
-        ;;        (when (and (stringp package) (equal file package))
         (when (and (stringp (car package)) (equal file (car package)))
           (when (cdr package)
             (setq enabled nil)))))
@@ -25,6 +24,18 @@
         (when after-body
           (eval-after-load file `(progn ,@after-body)))
         t))))
+
+(defun library-p (libraries)
+  "Return t when every specified library can be located. "
+  (let ((result t))
+    (mapc (lambda (library)
+            (unless (locate-library library)
+              (message "--- [NOT FOUND] %s" library)
+              (setq result nil)))
+          (if (listp libraries)
+              libraries
+            (list libraries)))
+    result))
 
 (add-hook 'after-init-hook
           (lambda ()
@@ -94,8 +105,8 @@
 ;;              (setq indent-line-function 'insert-tab)))
 
 (when (eval-after-autoload-if-found
-       '(aggressive-indent-mode) "aggressive-indent" nil t nil
-       '())
+       '(aggressive-indent-mode) "aggressive-indent")
+
   (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
   (add-hook 'lisp-mode-hook 'aggressive-indent-mode)
   (add-hook 'perl-mode-hook 'aggressive-indent-mode)
@@ -128,9 +139,9 @@
 
 (eval-after-autoload-if-found
  '(cycle-buffer cycle-buffer-backward) "cycle-buffer" nil t nil
- '((setq cycle-buffer-allow-visible t)
-   (setq cycle-buffer-show-length 12)
-   (setq cycle-buffer-show-format '(" <(%s)>" . " %s"))))
+    '((setq cycle-buffer-allow-visible t)
+      (setq cycle-buffer-show-length 12)
+      (setq cycle-buffer-show-format '(" <(%s)>" . " %s"))))
 
 (global-set-key (kbd "M-]") 'cycle-buffer)
 (global-set-key (kbd "M-[") 'cycle-buffer-backward)
@@ -177,8 +188,8 @@
   (global-set-key (kbd "<C-f10>") 'my:bm-next))
 
 (when (eval-after-autoload-if-found
-       '(centered-cursor-mode) "centered-cursor-mode" nil t nil
-       '())
+       '(centered-cursor-mode) "centered-cursor-mode")
+
   (add-hook 'isearch-mode-hook
             '(lambda () (interactive) (centered-cursor-mode 1)))
   (add-hook 'isearch-mode-end-hook
@@ -240,8 +251,8 @@
 (push '("\\.h$" . c++-mode) auto-mode-alist)
 
 (when (eval-after-autoload-if-found
-       '(csharp-mode) "csharp-mode" "Major mode for editing C# mode." t nil
-       '())
+       '(csharp-mode) "csharp-mode" "Major mode for editing C# mode.")
+
   (push '("\\.cs$" . csharp-mode) auto-mode-alist))
 
 (eval-after-autoload-if-found
@@ -255,8 +266,7 @@
      (info (format "(org-ja)%s" (or node ""))))))
 
 (when (eval-after-autoload-if-found
-       '(R-mode R) "ess-site" "Emacs Speaks Statistics mode" t nil
-       '())
+       '(R-mode R) "ess-site" "Emacs Speaks Statistics mode")
   (push '("\\.[rR]$" . R-mode) auto-mode-alist))
 
 (add-hook 'nxml-mode-hook
@@ -270,34 +280,34 @@
              (setq nxml-attribute-indent 0)))
 
 (when (eval-after-autoload-if-found
-       '(yaml-mode) "yaml-mode" nil t nil
-       '())
+       '(yaml-mode) "yaml-mode")
   (push '("\\.yml$" . yaml-mode) auto-mode-alist))
 
 (when (eval-after-autoload-if-found
-       '(json-mode) "json-mode" nil t nil
-       '())
+       '(json-mode) "json-mode")
   (push '("\\.json$" . json-mode) auto-mode-alist))
 
-(when (eval-after-autoload-if-found
-       '(js2-mode) "js2-mode" nil t nil
-       '((when (require 'tern nil t)
-           (tern-mode 1))
-         (when (require 'tern-auto-complete nil t)
-           (tern-ac-setup))))
+(when (eval-after-autoload-if-found '(js2-mode) "js2-mode")
   (push '("\\.js$" . js2-mode) auto-mode-alist))
 
-(when (eval-after-autoload-if-found
-       '(ac-js2-mode) "ac-js2" nil t nil
-       '())
+(when (eval-after-autoload-if-found '(ac-js2-mode) "ac-js2")
   (add-hook 'js2-mode-hook 'ac-js2-mode))
 
+(if (executable-find "tern")
+    (when (eval-after-autoload-if-found
+           '(tern-mode) "tern" nil t nil
+           '((tern-mode 1)
+             (when (require 'tern-auto-complete nil t)
+               (tern-ac-setup))))
+      (add-hook 'js2-mode-hook 'tern-mode))
+
+  (message "--- tern is NOT installed in this system."))
+
 (when (eval-after-autoload-if-found
-       '(csv-mode) "csv-mode" nil t nil
-       '())
+       '(csv-mode) "csv-mode")
   (push '("\\.csv$" . csv-mode) auto-mode-alist))
 
-(eval-after-autoload-if-found '(ascii-on ascii-off) "ascii" nil t nil '())
+(eval-after-autoload-if-found '(ascii-on ascii-off) "ascii")
 
 ;;; Use aspell for spell checking instead of ispell.
 (when (executable-find "aspell")
@@ -322,7 +332,7 @@
                   ("-d" "en" "--encoding=utf-8") nil utf-8))))))
 
 ;; Spell checking within a specified region
-(global-set-key (kbd "C-c 0") 'ispell-region)
+(global-set-key (kbd "C-c f 5") 'ispell-region)
 
 (when (eval-after-autoload-if-found       
        '(latex-math-preview-expression
@@ -332,13 +342,13 @@
        "latex-math-preview" nil t nil
        '((define-key latex-math-preview-expression-mode-map (kbd "<f7>")
            'latex-math-preview-delete-buffer)))
+
   (global-set-key (kbd "<f7>") 'latex-math-preview-expression))
 
 ;;(autoload 'po-mode "po-mode+" nil nil)
 ;;(autoload 'po-mode "po-mode" nil t)
 (when (eval-after-autoload-if-found
-       '(po-mode) "po-mode" nil t nil
-       '())
+       '(po-mode) "po-mode")
   (push '("\\.po[tx]?\\'\\|\\.po\\$" . po-mode) auto-mode-alist))
 
 (global-set-key (kbd "M-=") 'count-words)
@@ -349,10 +359,9 @@
   (push '("\\.tex$" . yatex-mode) auto-mode-alist)
   ;; Disable auto line break
   (add-hook 'yatex-mode-hook
-            '(lambda ()
-               (setq auto-fill-function nil))))
+            '(lambda () (setq auto-fill-function nil))))
 
-(eval-after-autoload-if-found 'wclock "wclock" nil t)
+(eval-after-autoload-if-found 'wclock "wclock")
 
 (when (eval-after-autoload-if-found
        '(yas-global-mode yas-minor-mode)
@@ -432,7 +441,7 @@
   (add-hook 'web-mode-hook 'emmet-mode))
 
 (eval-after-autoload-if-found
- '(describe-number describe-number-at-point) "describe-number" nil t nil nil)
+ '(describe-number describe-number-at-point) "describe-number")
 
 (when (require 'diminish nil t)
   (with-eval-after-load "isearch" (diminish 'isearch-mode))
@@ -449,6 +458,8 @@
   (with-eval-after-load "yasnippet" (diminish 'yas-minor-mode " y"))
   (with-eval-after-load "doxymacs" (diminish 'doxymacs-mode " d"))
   (with-eval-after-load "rainbow-mode" (diminish 'rainbow-mode))
+  (with-eval-after-load "guide-key" (diminish 'guide-key-mode))
+  (with-eval-after-load "org-autolist" (diminish 'org-autolist-mode))
 ;;;  (with-eval-after-load "helm" (diminish 'helm-mode " H"))
   )
 
@@ -465,13 +476,14 @@
 
 (defvar my:narrow-display " N")
 (setq mode-line-modes
-      (mapcar (lambda (entry)
-                (if (and (stringp entry)
-                         (string= entry "%n"))
-                    '(:eval (if (and (= 1 (point-min))
-                                     (= (1+ (buffer-size)) (point-max))) ""
-                              my:narrow-display)) entry))
-              mode-line-modes))
+      (mapcar
+       (lambda (entry)
+         (if (and (stringp entry)
+                  (string= entry "%n"))
+             '(:eval (if (and (= 1 (point-min))
+                              (= (1+ (buffer-size)) (point-max))) ""
+                       my:narrow-display)) entry))
+       mode-line-modes))
 
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
@@ -484,21 +496,26 @@
 (set-face-foreground 'mode-line-inactive  "#94bbf9")
 (set-face-background 'mode-line-inactive "#d8e6fd")
 
+(setq visible-bell t)
+(setq ring-bell-function 'ignore)
+
 (setq initial-buffer-choice t)
 
-(require 'buffer nil t)
+(when (require 'buffer nil t)
+  (setq initial-scratch-message nil)
+  (setq initial-major-mode 'buffer-mode)
+  (set-face-attribute 'header-line nil :overline nil :underline "#203e6f")
+  (set-face-foreground 'header-line "#203e6f")
+  (set-face-background 'header-line "#d8e6fd")
+
+  (defvar my:header-clock 
+    (setq header-line-format
+          (concat
+           "  Buffers                                                       "
+           (format-time-string "%Y-%m-%d (%a.)")))))
+
 (global-set-key (kbd "C-M-s")
                 '(lambda () (interactive) (switch-to-buffer "*scratch*")))
-(setq initial-scratch-message nil)
-(setq initial-major-mode 'buffer-mode)
-(set-face-attribute 'header-line nil :overline nil :underline "#203e6f")
-(set-face-foreground 'header-line "#203e6f")
-(set-face-background 'header-line "#d8e6fd")
-(defvar my:header-clock 
-  (setq header-line-format
-        (concat
-         "  Buffers                                                       "
-         (format-time-string "%Y-%m-%d (%a.)"))))
 
 ;; Show scroll bar or not
 (set-scroll-bar-mode nil) ; 'right
@@ -527,11 +544,17 @@
   (paren-activate))
 
 ;; スペース
-(defface my:face-b-1 '((t (:background "gray" :bold t :underline "red"))) nil :group 'font-lock-highlighting-faces)
+(defface my:face-b-1
+  '((t (:background "gray" :bold t :underline "red")))
+  nil :group 'font-lock-highlighting-faces)
 ;; タブだけの行
-(defface my:face-b-2 '((t (:background "orange" :bold t :underline "red"))) nil :group 'font-lock-highlighting-faces)
+(defface my:face-b-2
+  '((t (:background "orange" :bold t :underline "red")))
+  nil :group 'font-lock-highlighting-faces)
 ;; 半角スペース
-(defface my:face-b-3 '((t (:background "orange"))) nil :group 'font-lock-highlighting-faces)
+(defface my:face-b-3 '((t (:background "orange")))
+  nil :group 'font-lock-highlighting-faces)
+
 (defvar my:face-b-1 'my:face-b-1)
 (defvar my:face-b-2 'my:face-b-2)
 (defvar my:face-b-3 'my:face-b-3)
@@ -563,67 +586,66 @@
     (add-hook 'isearch-mode-hook 'migemo-init)))
 
 (eval-after-autoload-if-found
-      '(helm-M-x helm-locate helm-recentf helm-buffers-list helm-occur helm-swoop)
-      "helm-config" nil t nil
-      '((helm-mode 1)
-        (when (require 'diminish nil t)
-          (diminish 'helm-mode " H"))
-        (when (require 'helm-swoop nil t)
-          (set-face-attribute
-           'helm-swoop-target-line-face nil :background "#FFEDDC")
-          (set-face-attribute
-           'helm-swoop-target-word-face nil :background "#FF5443"))
-        (when (require 'helm-google nil t)
-          (setq helm-google-tld "co.jp"))
-;;        (require 'recentf-ext nil t)
-        ;; helm-find-files を呼ばせない
-        (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
-        ;; helm-mode-ag を呼ばせない
-        (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
-        ;; helm-mode-org-set-tags を呼ばせない
-        (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . nil))
-        (setq helm-display-source-at-screen-top nil)
+ '(helm-M-x helm-locate helm-recentf helm-buffers-list
+            helm-occur helm-swoop helm-flycheck)
+ "helm-config" nil t nil
+ '((helm-mode 1)
+   (when (require 'diminish nil t)
+     (diminish 'helm-mode " H"))
+   (when (require 'helm-swoop nil t)
+     (set-face-attribute
+      'helm-swoop-target-line-face nil :background "#FFEDDC")
+     (set-face-attribute
+      'helm-swoop-target-word-face nil :background "#FF5443"))
+   (when (require 'helm-google nil t)
+     (setq helm-google-tld "co.jp"))
+   ;;        (require 'recentf-ext nil t)
+   ;; helm-find-files を呼ばせない
+   (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
+   ;; helm-mode-ag を呼ばせない
+   (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
+   ;; helm-mode-org-set-tags を呼ばせない
+   (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . nil))
+   (setq helm-display-source-at-screen-top nil)
             ;;;         (setq helm-display-header-line nil)
-        ;; helm-autoresize-mode を有効にしつつ 30% に固定
-        (helm-autoresize-mode 1)
-        (setq helm-autoresize-max-height 30)
-        (setq helm-autoresize-min-height 30)         
-        (set-face-attribute 'helm-source-header nil
-                            :height 1.0 :family "Verdana" :weight 'normal
-                            :foreground "#666666" :background "#DADADA")
-        (when (eq window-system 'ns)
-          (setq helm-locate-command "mdfind -name %s %s")
-          )
+   ;; helm-autoresize-mode を有効にしつつ 30% に固定
+   (helm-autoresize-mode 1)
+   (setq helm-autoresize-max-height 30)
+   (setq helm-autoresize-min-height 30)         
+   (set-face-attribute 'helm-source-header nil
+                       :height 1.0 :family "Verdana" :weight 'normal
+                       :foreground "#666666" :background "#DADADA")
+   (when (eq window-system 'ns)
+     (setq helm-locate-command "mdfind -name %s %s")
+     )
 
-        ;; この修正が必要
-        (when (require 'helm-migemo nil t)
-          (eval-after-load "helm-migemo"
-            '(defun helm-compile-source--candidates-in-buffer (source)
-               (helm-aif (assoc 'candidates-in-buffer source)
-                   (append source
-                           `((candidates
-                              . ,(or (cdr it)
-                                     (lambda ()
-                                       ;; Do not use `source' because other plugins
-                                       ;; (such as helm-migemo) may change it
-                                       (helm-candidates-in-buffer
-                                        (helm-get-current-source)))))
-                             (volatile) (match identity)))
-                 source))))
-        ))
+   ;; この修正が必要
+   (when (require 'helm-migemo nil t)
+     (defun helm-compile-source--candidates-in-buffer (source)
+       (helm-aif (assoc 'candidates-in-buffer source)
+           (append source
+                   `((candidates
+                      . ,(or (cdr it)
+                             (lambda ()
+                               ;; Do not use `source' because other plugins
+                               ;; (such as helm-migemo) may change it
+                               (helm-candidates-in-buffer
+                                (helm-get-current-source)))))
+                     (volatile) (match identity)))
+         source)))
+   ))
 
 (when (eval-after-autoload-if-found
        '(helm-M-x helm-locate helm-recentf helm-buffers-list
-                  helm-occur helm-swoop)
-       "helm-config" nil t nil
-       '())
+                  helm-occur helm-swoop helm-flycheck)
+       "helm-config")
+
   (global-set-key (kbd "C-c f f") 'helm-locate)
   (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
   (global-set-key (kbd "M-s") 'helm-swoop)
   (global-set-key (kbd "C-M-r") 'helm-recentf)
   (global-set-key (kbd "C-c o") 'helm-occur)
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  )
+  (global-set-key (kbd "M-x") 'helm-M-x))
 
 (when (eval-after-autoload-if-found
        '(git-gutter-mode) "git-gutter-fringe" "Org Mode" t nil
@@ -671,6 +693,33 @@
   (add-hook 'nxml-mode-hook 'git-gutter-mode)
   (add-hook 'web-mode-hook 'git-gutter-mode))
 
+(with-eval-after-load "calendar"
+  (add-hook 'calendar-today-visible-hook 'calendar-mark-today)
+
+  (when (require 'japanese-holidays nil t)
+    (setq calendar-holidays
+          (append japanese-holidays
+                  holiday-local-holidays holiday-other-holidays))
+    (setq mark-holidays-in-calendar t)
+    (setq japanese-holiday-weekend-marker
+          '(holiday nil nil nil nil nil japanese-holiday-saturday))
+    (setq japanese-holiday-weekend '(0 6))
+    (add-hook 'calendar-today-visible-hook 'japanese-holiday-mark-weekend)
+    (add-hook 'calendar-today-invisible-hook 'japanese-holiday-mark-weekend)))
+
+(when (eval-after-autoload-if-found
+       '(guide-key-mode) "guide-key" nil t nil
+       '((setq guide-key/guide-key-sequence '("C-c f"))
+         (setq guide-key/popup-window-position 'bottom)
+         (setq guide-key/idle-delay 0.5)
+         (setq guide-key/highlight-command-regexp
+               '(("my:" . "red")
+                 ("takaxp:" . "blue")))
+         (guide-key-mode 1)))
+
+  (with-eval-after-load "helm" (require 'guide-key nil t))
+  (with-eval-after-load "org" (require 'guide-key nil t)))
+
 (eval-after-autoload-if-found
  '(google-maps) "google-maps" nil t nil
  '((require 'org-location-google-maps nil t)))
@@ -696,6 +745,7 @@
          ;; undo-tree-map にも必要
          (define-key undo-tree-map (kbd "C-x u")
            'my:undo-tree-visualize)))
+
   (global-set-key (kbd "C-x u") 'my:undo-tree-visualize))
 
 ;; *.~
@@ -710,44 +760,46 @@
        '((setq savehist-file "~/Dropbox/emacs.d/.history")))
   (savehist-mode 1))
 
-(setq history-length 1000)
+(setq history-length 2000)
 
 (when (eval-after-autoload-if-found
-            '(rencetf-mode recentf-save-list-without-msg) "recentf" nil t nil
-            '((defun recentf-save-list-without-msg ()
-                (interactive)
-                (let ((message-log-max nil))
-                  (if (require 'shut-up nil t)
-                      (shut-up (recentf-save-list))
-                    (recentf-save-list)))
-                (message ""))
-              (defun recentf-cleanup-without-msg ()
-                (interactive)
-                (let ((message-log-max nil))
-                  (if (require 'shut-up nil t)
-                      (shut-up (recentf-cleanup))
-                    (recentf-cleanup)))
-                  (message ""))
-              (add-hook 'focus-out-hook 'recentf-save-list-without-msg)
-              (add-hook 'focus-out-hook 'recentf-cleanup-without-msg)
+       '(rencetf-mode recentf-save-list-without-msg) "recentf" nil t nil
+       '((defun recentf-save-list-without-msg ()
+           (interactive)
+           (let ((message-log-max nil))
+             (if (require 'shut-up nil t)
+                 (shut-up (recentf-save-list))
+               (recentf-save-list)))
+           (message ""))
+         (defun recentf-cleanup-without-msg ()
+           (interactive)
+           (let ((message-log-max nil))
+             (if (require 'shut-up nil t)
+                 (shut-up (recentf-cleanup))
+               (recentf-cleanup)))
+           (message ""))
+         (add-hook 'focus-out-hook 'recentf-save-list-without-msg)
+         (add-hook 'focus-out-hook 'recentf-cleanup-without-msg)
 
-              (setq recentf-max-saved-items 2000)
-              (setq recentf-save-file
-                    (expand-file-name "~/.emacs.d/recentf"))
-              (setq recentf-auto-cleanup 'never)
-              (setq recentf-exclude
-                    '(".recentf" "^/tmp\\.*" "^/private\\.*" "^/var/folders\\.*" "/TAGS$"))))
-       (add-hook 'after-init-hook 'recentf-mode)
-)
+         (setq recentf-max-saved-items 2000)
+         (setq recentf-save-file
+               (expand-file-name "~/.emacs.d/recentf"))
+         (setq recentf-auto-cleanup 'never)
+         (setq recentf-exclude
+               '(".recentf" "^/tmp\\.*"
+                 "^/private\\.*" "^/var/folders\\.*" "/TAGS$"))))
+
+  (add-hook 'after-init-hook 'recentf-mode))
 
 (when (and (require 'auto-save-buffers nil t)
            (require 'shut-up nil t))
-  (run-with-idle-timer 1.6 t
-                       '(lambda ()
-                          (when (and (not (equal major-mode
-                                                 'undo-tree-visualizer-mode))
-                                     (not (equal major-mode 'diff-mode)))
-                            (shut-up (auto-save-buffers))))))
+  (run-with-idle-timer
+   1.6 t
+   #'(lambda ()
+       (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
+             ((equal major-mode 'diff-mode) nil)
+             ((string-match "Org Src" (buffer-name)) nil)
+             (t (shut-up (auto-save-buffers)))))))
 
 (when (require 'backup-each-save nil t)
   (setq backup-each-save-mirror-location "~/.emacs.d/backup")
@@ -758,11 +810,11 @@
                           (backup-each-save)))))
 
 (when (eval-after-autoload-if-found
-       '(recursive-delete-backup-files delete-backup-files)
-       "utility" nil t nil
-       '())
+       '(recursive-delete-backup-files delete-backup-files) "utility")
+
   ;; backup-each-save が作るファイルのうち条件にあうものを終了時に削除
-  (add-hook 'kill-emacs-hook '(lambda () (recursive-delete-backup-files 7))))
+  (add-hook 'kill-emacs-hook
+            #'(lambda () (recursive-delete-backup-files 7))))
 
 (when (eval-after-autoload-if-found
        'session-initialize "session" nil t nil
@@ -786,7 +838,7 @@
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)
 
-(eval-after-autoload-if-found '(gist) "gist" nil t)
+(eval-after-autoload-if-found '(gist) "gist")
 
 (when (eval-after-autoload-if-found
        'doxymacs-mode "doxymacs" nil t nil
@@ -797,91 +849,93 @@
                                 (eq major-mode 'c++-mode))
                         (doxymacs-font-lock))))
          (define-key doxymacs-mode-map (kbd "C-c C-s") 'ff-find-other-file)))
+
   (add-hook 'c-mode-common-hook 'doxymacs-mode))
 
 (when (and (eq window-system 'ns) (> emacs-major-version 23))
-  (eval-after-autoload-if-found
-   '(matlab-mode matlab-shell) "matlab" "Enter Matlab mode." t nil
-   '())
-  (push '("\\.m$" . matlab-mode) auto-mode-alist))
+  (when (eval-after-autoload-if-found
+         '(matlab-mode matlab-shell) "matlab")
+    (push '("\\.m$" . matlab-mode) auto-mode-alist)))
 
 (when (eval-after-autoload-if-found
-       '(flychek-mode) "flycheck" nil t nil
+       '(flycheck-mode) "flycheck" nil t nil
        '(;;http://qiita.com/senda-akiha/items/cddb02cfdbc0c8c7bc2b
+         (require 'helm-flycheck nil t)
          (when (require 'flycheck-pos-tip nil t)
            '(custom-set-variables
              '(flycheck-display-errors-function
                #'flycheck-pos-tip-error-messages)))))
+
+  (add-hook 'js2-mode-hook 'flycheck-mode)
   (add-hook 'c-mode-common-hook 'flycheck-mode)
   (add-hook 'perl-mode-hook 'flycheck-mode)
   (add-hook 'python-mode-hook 'flycheck-mode))
 
 (when (eval-after-autoload-if-found
-         '(ac-default-setup ac-org-mode-setup)
-         "auto-complete" nil t nil
-         '((require 'auto-complete-config nil t)
-           (ac-config-default)
-           ;; 追加のメジャーモードを設定
-           (add-to-list 'ac-modes 'objc-mode)
-           (add-to-list 'ac-modes 'org-mode)
-           ;; ac-modes にあるメジャーモードで有効にする
-           ;;lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
-           (global-auto-complete-mode t)
-           ;; 辞書
-           (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
-           ;; history
-           (setq ac-comphist-file "~/Dropbox/config/ac-comphist.dat")
-           ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
-           (setq ac-auto-start 4)
-           ;; n秒後にメニューを表示
-           (setq ac-auto-show-menu 1.0)
-           ;; ツールチップの表示
-           (setq ac-use-quick-help t)
-           (setq ac-quick-help-delay 2.0)
-           (setq ac-quick-help-height 10)
-           ;; C-n/C-p でメニューをたどる
-           (setq ac-use-menu-map t)
-           ;; TAB で補完（org-mode でも効くようにする）
-           (define-key ac-completing-map [tab] 'ac-complete)
-           ;; RET での補完を禁止
-           (define-key ac-completing-map "\r" nil)
-           ;; 補完メニューの表示精度を高める
-           (setq popup-use-optimized-column-computation nil)
-           ;;(setq ac-candidate-max 10)
+       '(ac-default-setup ac-org-mode-setup)
+       "auto-complete" nil t nil
+       '((require 'auto-complete-config nil t)
+         (ac-config-default)
+         ;; 追加のメジャーモードを設定
+         (add-to-list 'ac-modes 'objc-mode)
+         (add-to-list 'ac-modes 'org-mode)
+         ;; ac-modes にあるメジャーモードで有効にする
+         ;;lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
+         (global-auto-complete-mode t)
+         ;; 辞書
+         (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
+         ;; history
+         (setq ac-comphist-file "~/Dropbox/config/ac-comphist.dat")
+         ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
+         (setq ac-auto-start 4)
+         ;; n秒後にメニューを表示
+         (setq ac-auto-show-menu 1.0)
+         ;; ツールチップの表示
+         (setq ac-use-quick-help t)
+         (setq ac-quick-help-delay 2.0)
+         (setq ac-quick-help-height 10)
+         ;; C-n/C-p でメニューをたどる
+         (setq ac-use-menu-map t)
+         ;; TAB で補完（org-mode でも効くようにする）
+         (define-key ac-completing-map [tab] 'ac-complete)
+         ;; RET での補完を禁止
+         (define-key ac-completing-map "\r" nil)
+         ;; 補完メニューの表示精度を高める
+         (setq popup-use-optimized-column-computation nil)
+         ;;(setq ac-candidate-max 10)
 
-           (defun ac-org-mode-setup ()
-             ;;            (message " >> ac-org-mode-setup")
-             (setq ac-sources '(
+         (defun ac-org-mode-setup ()
+           ;;            (message " >> ac-org-mode-setup")
+           (setq ac-sources '(
                                    ;;; ac-source-abbrev ; Emacs の略語
                                    ;;; ac-source-css-property ; heavy
-                                ac-source-dictionary ; 辞書
-                                ac-source-features
-                                ac-source-filename
-                                ac-source-files-in-current-dir
-                                ac-source-functions
+                              ac-source-dictionary ; 辞書
+                              ac-source-features
+                              ac-source-filename
+                              ac-source-files-in-current-dir
+                              ac-source-functions
                                    ;;; ac-source-gtags
                                    ;;; ac-source-imenu 
                                    ;;; ac-source-semantic
                                    ;;; ac-source-symbols 
                                    ;;; ac-source-variables
                                    ;;; ac-source-yasnippet
-                                )))
+                              )))
 
-           (defun ac-default-setup ()
-             ;;            (message " >> ac-default-setup")
-             (setq ac-sources '(ac-source-abbrev
-                                ac-source-dictionary
-                                ac-source-words-in-same-mode-buffers)))
-           ))
+         (defun ac-default-setup ()
+           ;;            (message " >> ac-default-setup")
+           (setq ac-sources '(ac-source-abbrev
+                              ac-source-dictionary
+                              ac-source-words-in-same-mode-buffers)))
+         ))
 
-    (dolist (hook (list 'python-mode-hook 'perl-mode-hook 'objc-mode-hook))
-      (add-hook hook 'ac-default-setup))
-    ;; *scratch* バッファでは無効化
-    (add-hook 'lisp-mode-hook
-              '(lambda () (unless (equal "*scratch*" (buffer-name))
-                            (ac-default-setup))))
-    (add-hook 'org-mode-hook 'ac-org-mode-setup)
-)
+  (dolist (hook (list 'python-mode-hook 'perl-mode-hook 'objc-mode-hook))
+    (add-hook hook 'ac-default-setup))
+  ;; *scratch* バッファでは無効化
+  (add-hook 'lisp-mode-hook
+            '(lambda () (unless (equal "*scratch*" (buffer-name))
+                          (ac-default-setup))))
+  (add-hook 'org-mode-hook 'ac-org-mode-setup))
 
 (when (eval-after-autoload-if-found
        '(auto-complete ac-cc-mode-setup) "auto-complete" nil t nil
@@ -893,13 +947,13 @@
                                   "-fcxx-exceptions"))
            (setq ac-sources '(ac-source-clang
                               ac-source-yasnippet
-                              ac-source-gtags)))
-         ))
+                              ac-source-gtags)))))
+
   (add-hook 'c-mode-common-hook 'ac-cc-mode-setup))
 
 (when (eval-after-autoload-if-found
-       '(quickrun) "quickrun" nil t nil
-       '())
+       '(quickrun) "quickrun")
+
   (add-hook 'c-mode-common-hook
             '(lambda () (define-key c++-mode-map (kbd "<f5>") 'quickrun)))
   (add-hook 'python-mode-hook
@@ -907,483 +961,466 @@
   (add-hook 'perl-mode-hook
             '(lambda () (define-key perl-mode-map (kbd "<f5>") 'quickrun))))
 
-(eval-after-autoload-if-found
-   'org-mode "org" "Org Mode" t nil
-   '((require 'org-extension nil t)
-     (require 'org-habit)
-     (require 'org-mobile)
-     
-;;     (when (require 'pomodoro nil t)
-;;       (pomodoro:start nil))
-     
-     (push '("\\.org$" . org-mode) auto-mode-alist)
-     (push '("\\.txt$" . org-mode) auto-mode-alist)
-     
-     ;; C-c & が yasnippet にオーバーライドされているのを張り替える
-     (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
-     
-     ;; Set checksum program path for windows
-     (when (eq window-system 'w32)
-       (setq org-mobile-checksum-binary "~/Dropbox/do/cksum.exe"))
-     
-     ;; org ファイルの集中管理
-     (setq org-directory "~/Dropbox/org/")
-     
-     ;; Set default table export format
-     (setq org-table-export-default-format "orgtbl-to-csv")
-     
-     ;; Toggle inline images display at startup
-     (setq org-startup-with-inline-images t)
-     
-     ;; dvipng
-     (setq org-export-with-LaTeX-fragments t)
-     
-     ;; orgバッファ内の全ての動的ブロックを保存直前に変更する
-     ;; (add-hook 'before-save-hook 'org-update-all-dblocks)
-     
-     ;; アーカイブファイルの名称を指定
-     (setq org-archive-location "%s_archive::")
-     
-     ;; タイムスタンプによるログ収集設定
-     (setq org-log-done t) ; t ではなく，'(done), '(state) を指定できる
-     
-     ;; ログをドロアーに入れる
-     (setq org-log-into-drawer t)
-     
-     ;; アンダースコアをエクスポートしない（_{}で明示的に表現できる）
-     (setq org-export-with-sub-superscripts nil)
-     
-     ;; #+OPTIONS: \n:t と同じ
-     (setq org-export-preserve-breaks t)
-     
-     ;; タイマーの音
-     ;; (lsetq org-clock-sound "");
-     
-     ;; helm を立ち上げる
-     (require 'helm-config nil t)
-     
-     ;; - を優先．親のブリッツ表示を継承させない
-     (setq org-list-demote-modify-bullet
-           '(("+" . "-")
-             ("*" . "-")
-             ("1." . "-")
-             ("1)" . "-")
-             ("A)" . "-")
-             ("B)" . "-")
-             ("a)" . "-")
-             ("b)" . "-")
-             ("A." . "-")
-             ("B." . "-")
-             ("a." . "-")
-             ("b." . "-")))
-     ))
+(when (eval-after-autoload-if-found
+       'org-mode "org" "Org Mode" t nil
+       '((require 'org-extension nil t)
+         (require 'org-habit)
+         (require 'org-mobile)
 
-(eval-after-autoload-if-found
-   'org-mode "org" "Org Mode" t nil
-   '(;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
-     ;; default = ~/org.ics
-     ;; C-c C-e i org-export-icalendar-this-file
-     ;; C-c C-e I org-export-icalendar-all-agenda-files
-     ;; C-c C-e c org-export-icalendar-all-combine-agenda-files
-     ;; (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
-   
-     (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
-   
-     ;; iCal の説明文
-     (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
-     ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
-     (setq org-icalendar-timezone "Asia/Tokyo")
-   
-     ;; DONE になった TODO はアジェンダから除外する
-     (setq org-icalendar-include-todo t)
-     ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
-     (setq org-icalendar-use-scheduled '(event-if-todo))
+         ;;     (when (require 'pomodoro nil t)
+         ;;       (pomodoro:start nil))
+
+         ;; C-c & が yasnippet にオーバーライドされているのを張り替える
+         (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
+
+         ;; Set checksum program path for windows
+         (when (eq window-system 'w32)
+           (setq org-mobile-checksum-binary "~/Dropbox/do/cksum.exe"))
+
+         ;; org ファイルの集中管理
+         (setq org-directory "~/Dropbox/org/")
+
+         ;; Set default table export format
+         (setq org-table-export-default-format "orgtbl-to-csv")
+
+         ;; Toggle inline images display at startup
+         (setq org-startup-with-inline-images t)
+
+         ;; dvipng
+         (setq org-export-with-LaTeX-fragments t)
+
+         ;; orgバッファ内の全ての動的ブロックを保存直前に変更する
+         ;; (add-hook 'before-save-hook 'org-update-all-dblocks)
+
+         ;; アーカイブファイルの名称を指定
+         (setq org-archive-location "%s_archive::")
+
+         ;; タイムスタンプによるログ収集設定
+         (setq org-log-done t) ; t ではなく，'(done), '(state) を指定できる
+
+         ;; ログをドロアーに入れる
+         (setq org-log-into-drawer t)
+
+         ;; アンダースコアをエクスポートしない（_{}で明示的に表現できる）
+         (setq org-export-with-sub-superscripts nil)
+
+         ;; #+OPTIONS: \n:t と同じ
+         (setq org-export-preserve-breaks t)
+
+         ;; タイマーの音
+         ;; (lsetq org-clock-sound "");
+
+         ;; helm を立ち上げる
+         (require 'helm-config nil t)
+
+         ;; - を優先．親のブリッツ表示を継承させない
+         (setq org-list-demote-modify-bullet
+               '(("+" . "-")
+                 ("*" . "-")
+                 ("1." . "-")
+                 ("1)" . "-")
+                 ("A)" . "-")
+                 ("B)" . "-")
+                 ("a)" . "-")
+                 ("b)" . "-")
+                 ("A." . "-")
+                 ("B." . "-")
+                 ("a." . "-")
+                 ("b." . "-")))
+         ))
+
+  (push '("\\.txt$" . org-mode) auto-mode-alist))
+
+(with-eval-after-load "org"
+  ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
+  ;; default = ~/org.ics
+  ;; C-c C-e i org-export-icalendar-this-file
+  ;; C-c C-e I org-export-icalendar-all-agenda-files
+  ;; C-c C-e c org-export-icalendar-all-combine-agenda-files
+  ;; (setq org-combined-agenda-icalendar-file "~/Dropbox/Public/orgAgenda.ics")
+
+  (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
+
+  ;; iCal の説明文
+  (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
+  ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
+  (setq org-icalendar-timezone "Asia/Tokyo")
+
+  ;; DONE になった TODO はアジェンダから除外する
+  (setq org-icalendar-include-todo t)
+  ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
+  (setq org-icalendar-use-scheduled '(event-if-todo))
          ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
-     ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
-     (setq org-icalendar-use-deadline '(event-if-todo))
-   
-     (when (require 'ox-icalendar nil t)
-       (defun my:ox-icalendar ()
-         (interactive)
-         (let ((temp-agenda-files org-agenda-files))
-           (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
-           ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
-           (org-icalendar-combine-agenda-files)
-           (setq org-agenda-files temp-agenda-files)
-           ;; Dropbox/Public のフォルダに公開する
-;;           (shell-command
-;;            (concat "cp " org-icalendar-combined-agenda-file " "
-;;                    org-icalendar-dropbox-agenda-file))
-           (if (eq 0 (shell-command
-                      (concat "scp -o ConnectTimeout=5 "
-                              org-icalendar-combined-agenda-file " "
-                              org-ical-file-in-orz-server)))
-               (message "Uploading... [DONE]")
-             (message "Uploading... [MISS]"))
-           (my:ox-icalendar-cleanup)
-           ))
+  ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
+  (setq org-icalendar-use-deadline '(event-if-todo))
 
-       (defun my:ox-icalendar-cleanup ()
-         (interactive)
-         (when (file-exists-p
-                (expand-file-name org-icalendar-combined-agenda-file))
-           (shell-command-to-string
-            (concat "rm -rf " org-icalendar-combined-agenda-file))))
-       ;;     (add-hook 'focus-out-hook 'my:ox-icalendar-cleanup)
-       )
-     ))
+  (when (require 'ox-icalendar nil t)
+    (defun my:ox-icalendar ()
+      (interactive)
+      (let ((temp-agenda-files org-agenda-files))
+        (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
+        ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
+        (org-icalendar-combine-agenda-files)
+        (setq org-agenda-files temp-agenda-files)
+        ;; Dropbox/Public のフォルダに公開する
+        ;;           (shell-command
+        ;;            (concat "cp " org-icalendar-combined-agenda-file " "
+        ;;                    org-icalendar-dropbox-agenda-file))
+        (if (eq 0 (shell-command
+                   (concat "scp -o ConnectTimeout=5 "
+                           org-icalendar-combined-agenda-file " "
+                           org-ical-file-in-orz-server)))
+            (message "Uploading... [DONE]")
+          (message "Uploading... [MISS]"))
+        (my:ox-icalendar-cleanup)
+        ))
 
-(eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '((setq org-use-speed-commands t)
-   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
-   (add-to-list 'org-speed-commands-user '("P" my:proportional-font-toggle))
-   (add-to-list 'org-speed-commands-user 
-                '("$" call-interactively 'org-archive-subtree))
-   ;; (setq org-speed-commands-user
-   ;;       (quote (("n" . show-next-org)
-   ;;               ("t" . show-today-org))))
-   ;; (defun show-next-org () (show-org-buffer "next.org"))
-   ;; (defun show-today-org () (show-org-buffer "today.org"))
-   ))
+    (defun my:ox-icalendar-cleanup ()
+      (interactive)
+      (when (file-exists-p
+             (expand-file-name org-icalendar-combined-agenda-file))
+        (shell-command-to-string
+         (concat "rm -rf " org-icalendar-combined-agenda-file))))
+    ;;     (add-hook 'focus-out-hook 'my:ox-icalendar-cleanup)
+    ))
 
-(eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '((add-to-list 'org-modules 'org-timer)
-   (setq org-timer-default-timer "25")
-   ;; (add-hook 'org-clock-in-hook
-   ;;        '(lamda ()
-   ;;                (if (not org-timer-current-timer)
-   ;;                    (org-timer-set-timer '(16)))))
+(with-eval-after-load "org"
+  (setq org-use-speed-commands t)
+  (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
+  (add-to-list 'org-speed-commands-user '("P" my:proportional-font-toggle))
+  (add-to-list 'org-speed-commands-user 
+               '("$" call-interactively 'org-archive-subtree)))
 
-   (setq growl-pomodoro-default-task-name "doing the task")
-   (setq growl-pomodoro-task-name 'growl-pomodoro-default-task-name)
+(with-eval-after-load "org"
+  (add-to-list 'org-modules 'org-timer)
+  (setq org-timer-default-timer "25")
+  ;; (add-hook 'org-clock-in-hook
+  ;;        '(lamda ()
+  ;;                (if (not org-timer-current-timer)
+  ;;                    (org-timer-set-timer '(16)))))
 
-   (defun set-growl-pomodoro-task-name ()
-     (interactive "P")
-     (setq growl-pomodoro-task-name
-           (read-from-minibuffer "Task Name: " growl-pomodoro-default-task-name)))
-   (add-hook 'org-timer-set-hook 'set-growl-pomodoro-task-name)
+  (setq growl-pomodoro-default-task-name "doing the task")
+  (setq growl-pomodoro-task-name 'growl-pomodoro-default-task-name)
 
-   (defun growl-pomodoro-timer ()
-     (interactive)
-     (shell-command-to-string
-      (concat "growlnotify -s -a Emacs -t \"++ Pomodoro ++\" -m \""
-              "The end of " growl-pomodoro-task-name "!\""))
-     (shell-command-to-string
+  (defun set-growl-pomodoro-task-name ()
+    (interactive "P")
+    (setq growl-pomodoro-task-name
+          (read-from-minibuffer "Task Name: " growl-pomodoro-default-task-name)))
+  (add-hook 'org-timer-set-hook 'set-growl-pomodoro-task-name)
+
+  (defun growl-pomodoro-timer ()
+    (interactive)
+    (shell-command-to-string
+     (concat "growlnotify -s -a Emacs -t \"++ Pomodoro ++\" -m \""
+             "The end of " growl-pomodoro-task-name "!\""))
+    (shell-command-to-string
                                         ;   (concat "say The end of " growl-pomodoro-task-name)
-      (concat "say -v Kyoko " growl-pomodoro-task-name)
-      ))
-   (add-hook 'org-timer-done-hook 'growl-pomodoro-timer)
-   ))
+     (concat "say -v Kyoko " growl-pomodoro-task-name)
+     ))
+  (add-hook 'org-timer-done-hook 'growl-pomodoro-timer))
 
-(eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '( 
-   ;; Font lock を使う
-   (global-font-lock-mode 1)
-   (add-hook 'org-mode-hook 'turn-on-font-lock)
-   ;; ウィンドウの端で折り返す（想定と逆の振る舞い．どこかにバグがある）
-   (setq org-startup-truncated nil)
-   ;; サブツリー以下の * を略式表示する
-   (setq org-hide-leading-stars t)
-   ;; Color setting for TODO keywords
-   ;; Color for priorities
-   ;; (setq org-priority-faces
-   ;;  '(("?A" :foreground "#E01B4C" :background "#FFFFFF" :weight bold)
-   ;;    ("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
-   ;;    ("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
-   ;; Color setting for Tags
+(with-eval-after-load "org"
+  ;; Font lock を使う
+  (global-font-lock-mode 1)
+  (add-hook 'org-mode-hook 'turn-on-font-lock)
+  ;; ウィンドウの端で折り返す（想定と逆の振る舞い．どこかにバグがある）
+  (setq org-startup-truncated nil)
+  ;; サブツリー以下の * を略式表示する
+  (setq org-hide-leading-stars t)
+  ;; Color setting for TODO keywords
+  ;; Color for priorities
+  ;; (setq org-priority-faces
+  ;;  '(("?A" :foreground "#E01B4C" :background "#FFFFFF" :weight bold)
+  ;;    ("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
+  ;;    ("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
+  ;; Color setting for Tags
 
-   ;; #CC3333     
-   (setq org-todo-keyword-faces
-         '(("FOCUS"   :foreground "#FF0000" :background "#FFCC66")
-           ("BUG"     :foreground "#FF0000" :background "#FFCC66")
-           ("OTW"     :foreground "#EE3300" :background "#FFEE99")
-           ("CHECK"   :foreground "#FF9900" :background "#FFF0F0" :underline t)
-           ("ICAL"    :foreground "#33CC66")
-           ("WAIT"    :foreground "#CCCCCC" :background "#666666")
-           ("EDIT"    :foreground "#FF33CC")
-           ("READ"    :foreground "#9933CC")
-           ("MAIL"    :foreground "#CC3300")
-           ("PLAN"    :foreground "#FF6600")
-           ("REV1"    :foreground "#3366FF")
-           ("REV2"    :foreground "#3366FF" :background "#99CCFF")
-           ("REV3"    :foreground "#FFFFFF" :background "#3366FF")
-           ("SLEEP"    :foreground "#9999CC")))
+  ;; #CC3333     
+  (setq org-todo-keyword-faces
+        '(("FOCUS"   :foreground "#FF0000" :background "#FFCC66")
+          ("BUG"     :foreground "#FF0000" :background "#FFCC66")
+          ("OTW"     :foreground "#EE3300" :background "#FFEE99")
+          ("CHECK"   :foreground "#FF9900" :background "#FFF0F0" :underline t)
+          ("ICAL"    :foreground "#33CC66")
+          ("WAIT"    :foreground "#CCCCCC" :background "#666666")
+          ("EDIT"    :foreground "#FF33CC")
+          ("READ"    :foreground "#9933CC")
+          ("MAIL"    :foreground "#CC3300")
+          ("PLAN"    :foreground "#FF6600")
+          ("REV1"    :foreground "#3366FF")
+          ("REV2"    :foreground "#3366FF" :background "#99CCFF")
+          ("REV3"    :foreground "#FFFFFF" :background "#3366FF")
+          ("SLEEP"    :foreground "#9999CC")))
 
-   ;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom    
-   (setq org-tag-faces
-         '(("Achievement" :foreground "#66CC66")
-           ("Report"      :foreground "#66CC66")
-           ("Background"  :foreground "#66CC99")
-           ("Chore"       :foreground "#6699CC")
-           ("Domestic"    :foreground "#6666CC")
-           ("Doing"       :foreground "#FF0000")   
-           ("Ongoing"     :foreground "#CC6666") ; for non scheduled/reminder
-           ("Repeat"      :foreground "#CC9999") ; for interval tasks
-           ("Mag"         :foreground "#9966CC")
-           ("buy"         :foreground "#9966CC")
-           ("pay"         :foreground "#CC6699")
-           ("secret"      :foreground "#FF0000")
-           ("note"        :foreground "#6633CC")
-           ("print"       :foreground "#6633CC")
-           ("Study"       :foreground "#6666CC")
-           ("Implements"  :foreground "#CC9999" :weight bold)
-           ("Coding"      :foreground "#CC9999")
-           ("Editing"     :foreground "#CC9999" :weight bold)
-           ("work"        :foreground "#CC9999" :weight bold)
-           ("Survey"      :foreground "#CC9999" :weight bold)
-           ("Home"        :foreground "#CC9999" :weight bold)
-           ("Open"        :foreground "#CC9999" :weight bold)
-           ("Blog"        :foreground "#FF33CC" :background "#9966CC")
-           ("Test"        :foreground "#FF0000" :weight bold)
-           ("drill"       :foreground "#66BB66" :underline t)
-           ("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
-           ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
-           ("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
-           ("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
-           ("INPUT"       :foreground "#FFFFFF" :background "#CC6666")
-           ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99")
-           ("CYCLE"       :foreground "#FFFFFF" :background "#6699CC")
-           ("weekend"     :foreground "#FFFFFF" :background "#CC6666")
-           ("Log"         :foreground "#008500")))))
+  ;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom    
+  (setq org-tag-faces
+        '(("Achievement" :foreground "#66CC66")
+          ("Report"      :foreground "#66CC66")
+          ("Background"  :foreground "#66CC99")
+          ("Chore"       :foreground "#6699CC")
+          ("Domestic"    :foreground "#6666CC")
+          ("Doing"       :foreground "#FF0000")   
+          ("Ongoing"     :foreground "#CC6666") ; for non scheduled/reminder
+          ("Repeat"      :foreground "#CC9999") ; for interval tasks
+          ("Mag"         :foreground "#9966CC")
+          ("buy"         :foreground "#9966CC")
+          ("pay"         :foreground "#CC6699")
+          ("secret"      :foreground "#FF0000")
+          ("note"        :foreground "#6633CC")
+          ("print"       :foreground "#6633CC")
+          ("Study"       :foreground "#6666CC")
+          ("Implements"  :foreground "#CC9999" :weight bold)
+          ("Coding"      :foreground "#CC9999")
+          ("Editing"     :foreground "#CC9999" :weight bold)
+          ("work"        :foreground "#CC9999" :weight bold)
+          ("Survey"      :foreground "#CC9999" :weight bold)
+          ("Home"        :foreground "#CC9999" :weight bold)
+          ("Open"        :foreground "#CC9999" :weight bold)
+          ("Blog"        :foreground "#FF33CC" :background "#9966CC")
+          ("Test"        :foreground "#FF0000" :weight bold)
+          ("drill"       :foreground "#66BB66" :underline t)
+          ("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
+          ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
+          ("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
+          ("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
+          ("INPUT"       :foreground "#FFFFFF" :background "#CC6666")
+          ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99")
+          ("CYCLE"       :foreground "#FFFFFF" :background "#6699CC")
+          ("weekend"     :foreground "#FFFFFF" :background "#CC6666")
+          ("Log"         :foreground "#008500"))))
 ;;#5BDF8D
 
-(eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '((setq org-todo-keywords
-         '((sequence "TODO(t)" "FOCUS(f)" "ICAL(c)" "|" "DONE(d)")
-           (sequence "BUG(b)" "READ(r)" "EDIT(e)" "MAIL(m)" "PLAN(p)" "|")
-           (sequence "CHECK(C)" "OTW(o)" "WAIT(w)" "SLEEP(s)" "|")
-           (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|")))
+(with-eval-after-load "org"
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "FOCUS(f)" "ICAL(c)" "|" "DONE(d)")
+          (sequence "BUG(b)" "READ(r)" "EDIT(e)" "MAIL(m)" "PLAN(p)" "|")
+          (sequence "CHECK(C)" "OTW(o)" "WAIT(w)" "SLEEP(s)" "|")
+          (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|")))
 
-   ;; Global counting of TODO items
-   (setq org-hierarchical-todo-statistics nil)
-   ;; Global counting of checked TODO items
-   (setq org-hierarchical-checkbox-statistics nil)
+  ;; Global counting of TODO items
+  (setq org-hierarchical-todo-statistics nil)
+  ;; Global counting of checked TODO items
+  (setq org-hierarchical-checkbox-statistics nil)
 
-   ;; block-update-time
-   (defun org-dblock-write:block-update-time (params)
-     (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
-       (insert "" (format-time-string fmt (current-time)))))
+  ;; block-update-time
+  (defun org-dblock-write:block-update-time (params)
+    (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
+      (insert "" (format-time-string fmt (current-time)))))
 
-   ;; すべてのチェックボックスの cookies を更新する
-   (defun do-org-update-statistics-cookies ()
-     (interactive)
-     (org-update-statistics-cookies 'all))
-   ))
+  ;; すべてのチェックボックスの cookies を更新する
+  (defun do-org-update-statistics-cookies ()
+    (interactive)
+    (org-update-statistics-cookies 'all)))
 
-(eval-after-autoload-if-found
- 'org-agenda "org" "Org Mode" t nil
- '((setq org-image-actual-width '(256))
-   (add-to-list 'image-file-name-extensions "jp2")
-   ;; (add-to-list 'image-file-name-extensions "j2c")
-   (add-to-list 'image-file-name-extensions "bmp")
-   (add-to-list 'image-file-name-extensions "psd")))
+(with-eval-after-load "org"
+  (setq org-image-actual-width '(256))
+  (add-to-list 'image-file-name-extensions "jp2")
+  ;; (add-to-list 'image-file-name-extensions "j2c")
+  (add-to-list 'image-file-name-extensions "bmp")
+  (add-to-list 'image-file-name-extensions "psd"))
 
-(eval-after-autoload-if-found
- 'org-agenda "org" "Org Mode" t nil
- '(;; sorting strategy
-   (setq org-agenda-sorting-strategy
-         '((agenda habit-down time-up timestamp-up priority-down category-keep)
-           (todo priority-down category-keep)
-           (tags priority-down category-keep)
-           (search category-keep)))
-   ;; Set the view span as day in an agenda view, the default is week
-   (setq org-agenda-span 'day)
-   ;; アジェンダに警告を表示する期間
-   (setq org-deadline-warning-days 2)
-   ;; アジェンダビューでFOLLOWを設定
-   ;; (setq org-agenda-start-with-follow-mode t)
-   ;; Customized Time Grid
-   (setq org-agenda-time-grid
-         '((daily today require-timed)
-           "----------------"
-           (800 1000 1200 1400 1600 1800 2000 2200 2400 2600)))
-   (setq org-agenda-current-time-string "< d('- ' ) now!")
-   (setq org-agenda-timegrid-use-ampm t)
+(with-eval-after-load "org-agenda"
+  ;; sorting strategy
+  (setq org-agenda-sorting-strategy
+        '((agenda habit-down time-up timestamp-up priority-down category-keep)
+          (todo priority-down category-keep)
+          (tags priority-down category-keep)
+          (search category-keep)))
+  ;; Set the view span as day in an agenda view, the default is week
+  (setq org-agenda-span 'day)
+  ;; アジェンダに警告を表示する期間
+  (setq org-deadline-warning-days 2)
+  ;; アジェンダビューでFOLLOWを設定
+  ;; (setq org-agenda-start-with-follow-mode t)
+  ;; Customized Time Grid
+  (setq org-agenda-time-grid
+        '((daily today require-timed)
+          "----------------"
+          (800 1000 1200 1400 1600 1800 2000 2200 2400 2600)))
+  (setq org-agenda-current-time-string "< d('- ' ) now!")
+  (setq org-agenda-timegrid-use-ampm t)
 
-   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
-   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
-   (setq org-agenda-files
-         '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
-           "~/Dropbox/org/today.org" "~/Dropbox/org/buffer.org"
-           "~/Dropbox/org/stock.org"
-           "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
+  ;; アジェンダ作成対象（指定しないとagendaが生成されない）
+  ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
+  (setq org-agenda-files
+        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+          "~/Dropbox/org/today.org" "~/Dropbox/org/buffer.org"
+          "~/Dropbox/org/stock.org"
+          "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
 
-   (add-hook 'org-finalize-agenda-hook
-             '(lambda () (org-agenda-to-appt t '((headline "TODO")))))
+  (add-hook 'org-finalize-agenda-hook
+            '(lambda () (org-agenda-to-appt t '((headline "TODO")))))
 
-   ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
-   (org-defkey org-agenda-mode-map [(tab)]
-               '(lambda () (interactive)
-                  (org-agenda-goto)
-                  (with-current-buffer "*Org Agenda*"
-                    (org-agenda-quit))))
+  ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
+  (org-defkey org-agenda-mode-map [(tab)]
+              '(lambda () (interactive)
+                 (org-agenda-goto)
+                 (with-current-buffer "*Org Agenda*"
+                   (org-agenda-quit))))
 
-   ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
-   (defvar my:doing-tag "Doing")
-   (defun my:sparse-doing-tree ()
-     (interactive)
-     (org-tags-view nil my:doing-tag))
-   ;; Doingタグをトグルする
-   (defun my:toggle-doing-tag ()
-     (interactive)
-     (when (eq major-mode 'org-mode)
-       (save-excursion
-         (save-restriction
-           (unless (org-at-heading-p)
-             (outline-previous-heading))
-           (if (string-match
-                (concat ":" my:doing-tag ":") (org-get-tags-string))
-               (org-toggle-tag my:doing-tag 'off)
-             (org-toggle-tag my:doing-tag 'on))
-           (org-reveal)))))
+  ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
+  (defvar my:doing-tag "Doing")
+  (defun my:sparse-doing-tree ()
+    (interactive)
+    (org-tags-view nil my:doing-tag))
+  ;; Doingタグをトグルする
+  (defun my:toggle-doing-tag ()
+    (interactive)
+    (when (eq major-mode 'org-mode)
+      (save-excursion
+        (save-restriction
+          (unless (org-at-heading-p)
+            (outline-previous-heading))
+          (if (string-match
+               (concat ":" my:doing-tag ":") (org-get-tags-string))
+              (org-toggle-tag my:doing-tag 'off)
+            (org-toggle-tag my:doing-tag 'on))
+          (org-reveal)))))
 
-   (custom-set-faces
-    ;; '(org-agenda-clocking ((t (:background "#300020"))))
-    '(org-agenda-structure ((t (:underline t :foreground "#6873ff"))))
-    '(org-agenda-date-today ((t (:weight bold :foreground "#4a6aff"))))
-    '(org-agenda-date ((t (:weight bold :foreground "#6ac214"))))
-    '(org-agenda-date-weekend ((t (:weight bold :foreground "#ff8d1e"))))
-    '(org-time-grid ((t (:foreground "#0a4796"))))
-    '(org-warning ((t (:foreground "#ff431a"))))
-    '(org-upcoming-deadline ((t (:inherit font-lock-keyword-face))))
-    )
+  (custom-set-faces
+   ;; '(org-agenda-clocking ((t (:background "#300020"))))
+   '(org-agenda-structure ((t (:underline t :foreground "#6873ff"))))
+   '(org-agenda-date-today ((t (:weight bold :foreground "#4a6aff"))))
+   '(org-agenda-date ((t (:weight bold :foreground "#6ac214"))))
+   '(org-agenda-date-weekend ((t (:weight bold :foreground "#ff8d1e"))))
+   '(org-time-grid ((t (:foreground "#0a4796"))))
+   '(org-warning ((t (:foreground "#ff431a"))))
+   '(org-upcoming-deadline ((t (:inherit font-lock-keyword-face))))
+   )
 
-   (define-key org-mode-map (kbd "<f11>") 'my:toggle-doing-tag)
-   (define-key org-mode-map (kbd "C-<f11>") 'my:sparse-doing-tree)))
+  (define-key org-mode-map (kbd "<f11>") 'my:toggle-doing-tag)
+  (define-key org-mode-map (kbd "C-<f11>") 'my:sparse-doing-tree))
 
-(eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '(;; アラーム表示を有効にする
-   (appt-activate 1)
-   ;; window を フレーム内に表示する
-   (setq appt-display-format 'window)
-   ;; window を継続表示する時間[s]
-   (setq appt-display-duration 8)
-   ;; ビープ音の有無
-   (setq appt-audible t)
-   ;; 何分前から警告表示を開始するか[m]
-   (setq appt-message-warning-time 3)
-   ;; モードラインにアラームを表示する
-   (setq appt-display-mode-line t)
-   ;; org-agenda の内容をアラームに登録する
-   ;; (add-hook 'org-mode-hook
-   ;;           '(lambda ()
-   ;;              (message "--- agenda to appt")
-   ;;              (org-agenda-to-appt t '((headline "TODO")))))
-   ;; 定期的に更新する
-   (run-with-idle-timer 300 t
-                        '(lambda ()
-                           (org-agenda-to-appt t '((headline "TODO")))))
-   ;; 保存時にアラームを登録
-   ;; (add-hook 'org-mode-hook
-   ;;           (lambda() (add-hook 'before-save-hook
-   ;;                               'org-agenda-to-appt t '((headline "TODO")))))
-   ))
+(with-eval-after-load "org"
+  ;; アラーム表示を有効にする
+  (appt-activate 1)
+  ;; window を フレーム内に表示する
+  (setq appt-display-format 'window)
+  ;; window を継続表示する時間[s]
+  (setq appt-display-duration 5)
+  ;; ビープ音の有無
+  (setq appt-audible nil)
+  ;; 何分前から警告表示を開始するか[m]
+  (setq appt-message-warning-time 30)
+  ;; 警告表示開始から何分ごとにリマインドするか[m]
+  (setq appt-display-interval 5)
+  ;; モードラインにアラームを表示する
+  (setq appt-display-mode-line t)
+  ;; org-agenda の内容をアラームに登録する（重い）
+  ;; (add-hook 'org-mode-hook
+  ;;           '(lambda ()
+  ;;              (org-agenda-to-appt t '((headline "TODO")))))
+  ;; 定期的に更新する
+  (defvar org-agenda-to-appt-activate t)
+  (defun my:org-agenda-to-appt ()
+    (interactive)
+    (org-agenda-to-appt t '((headline "TODO"))))
+  (add-hook 'focus-out-hook
+            #'(lambda ()
+                (when org-agenda-to-appt-activate
+                  (my:org-agenda-to-appt)
+                  (setq org-agenda-to-appt-activate nil))))
+  (run-with-idle-timer
+   10 t #'(lambda ()
+            (setq org-agenda-to-appt-activate t)))
 
-(eval-after-autoload-if-found
- 'org-capture "org-capture" "Org Mode" t nil
- '(  
-   ;; 2010-06-13 の形式では，タグとして認識されない
-   (defun get-current-date-tags () (format-time-string "%Y%m%d"))
-   (setq org-default-notes-file (concat org-directory "next.org"))
-   (defvar org-capture-words-notes-file (concat org-directory "words.org"))
-   (defvar org-capture-notes-file (concat org-directory "note.org"))
-   (defvar org-capture-research-file (concat org-directory "research.org"))
-   (defvar org-capture-buffer-file (concat org-directory "buffer.org"))
-   (defvar org-capture-today-file (concat org-directory "today.org"))
-   (defvar org-capture-ical-file (concat org-directory "org-ical.org"))
+  (define-key org-mode-map (kbd "C-c f 3") 'my:org-agenda-to-appt))
 
-   ;; see org.pdf:p73
-   (setq org-capture-templates
-         `(("t" "TODO 項目を INBOX に貼り付ける" entry
-            (file+headline nil "INBOX") "** TODO %?\n\t")
-           ("c" "同期カレンダーにエントリー" entry
-            (file+headline ,org-capture-ical-file "Schedule")
-            "** TODO %?\n\t") 
-           ("d" "Doingタグ付きのタスクをInboxに投げる" entry
-            (file+headline nil "INBOX")
-            "** TODO %? :Doing:\n  - \n")
-           ("l" "本日のチェックリスト" entry
-            (file+headline ,org-capture-today-file "Today")
-            "** FOCUS 本日のチェックリスト %T\n（起床時間の記録）[[http://www.hayaoki-seikatsu.com/users/takaxp/][早起き日記]] \n（朝食）\n  - [ ] %?\n（昼食）\n（帰宅／夕食）\n----\n（研究速報）\n  - [ ] \n")
-           ("i" "アイディアを書き込む" entry (file+headline nil "INBOX")
-            "** %?\n  - \n\t%U")
-           ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
-            (file+headline nil "INBOX")
-            "** TODO %? :bug:\n %i\n %a %t")
-           ("w" ,(concat "英単語を " org-capture-words-notes-file
-                         " に書き込む") entry
-                         (file+headline ,org-capture-words-notes-file "WORDS")
-                         "** %? :%(get-current-date-tags):\n「」\n  - ")
-           ("g" ,(concat "英語ノートを " org-capture-words-notes-file
-                         " に書き込む")
-            entry (file+headline ,org-capture-words-notes-file "GRAMMER")
-            "** %? :%(get-current-date-tags):\n\n%U")
-           ("T" "時間付きエントリー" entry (file+headline nil "INBOX")
-            "** %? %T--\n")
-           ("n" "ノートとしてINBOXに貼り付ける" entry
-            (file+headline nil "INBOX")
-            "** %? :note:\n\t%U")
-           ("D" "「ドラッカー365の金言」をノートする" entry
-            (file+headline ,org-capture-notes-file "The Daily Drucker")
-            "** 「%?」\nDrucker) \n  - \n  - \nACTION POINT:\n  - \nQUESTION:\n  - \n")
-           ("r" ,(concat "研究ノートを " org-capture-research-file
-                         " に書き込む")
-            entry (file+headline ,org-capture-research-file "Survey")
-            "** %? :note:\n# \n  - \n\t%U")
-           ("`" ,(concat "ノートをバッファ " org-capture-buffer-file
-                         " に書き込む")
-            entry (file+headline ,org-capture-buffer-file "Buffers")
-            "** %(get-random-string 16) %U\n\n%?\n\n----")))
-   ))
+(when
+    (eval-after-autoload-if-found
+     '(org-capture) "org-capture" nil t nil
+     '(;; 2010-06-13 の形式では，タグとして認識されない
+       (defun get-current-date-tags () (format-time-string "%Y%m%d"))
+       (setq org-default-notes-file (concat org-directory "next.org"))
+       (defvar org-capture-words-notes-file (concat org-directory "words.org"))
+       (defvar org-capture-notes-file (concat org-directory "note.org"))
+       (defvar org-capture-research-file (concat org-directory "research.org"))
+       (defvar org-capture-buffer-file (concat org-directory "buffer.org"))
+       (defvar org-capture-today-file (concat org-directory "today.org"))
+       (defvar org-capture-ical-file (concat org-directory "org-ical.org"))
 
-(eval-after-autoload-if-found
- 'org-refile "org" "Org Mode" t nil
- '((setq org-refile-targets
-         (quote (("org-ical.org" :level . 1)
-                 ("research.org" :level . 1)
-                 ("work.org" :level . 1)
-                 ("next.org" :level . 1)
-                 ("sleep.org" :level . 1))))
-       ))
+       ;; see org.pdf:p73
+       (setq org-capture-templates
+             `(("t" "TODO 項目を INBOX に貼り付ける" entry
+                (file+headline nil "INBOX") "** TODO %?\n\t")
+               ("c" "同期カレンダーにエントリー" entry
+                (file+headline ,org-capture-ical-file "Schedule")
+                "** TODO %?\n\t") 
+               ("d" "Doingタグ付きのタスクをInboxに投げる" entry
+                (file+headline nil "INBOX")
+                "** TODO %? :Doing:\n  - \n")
+               ("l" "本日のチェックリスト" entry
+                (file+headline ,org-capture-today-file "Today")
+                "** FOCUS 本日のチェックリスト %T\n（起床時間の記録）[[http://www.hayaoki-seikatsu.com/users/takaxp/][早起き日記]] \n（朝食）\n  - [ ] %?\n（昼食）\n（帰宅／夕食）\n----\n（研究速報）\n  - [ ] \n")
+               ("i" "アイディアを書き込む" entry (file+headline nil "INBOX")
+                "** %?\n  - \n\t%U")
+               ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
+                (file+headline nil "INBOX")
+                "** TODO %? :bug:\n %i\n %a %t")
+               ("w" ,(concat "英単語を " org-capture-words-notes-file
+                             " に書き込む") entry
+                             (file+headline ,org-capture-words-notes-file "WORDS")
+                             "** %? :%(get-current-date-tags):\n「」\n  - ")
+               ("g" ,(concat "英語ノートを " org-capture-words-notes-file
+                             " に書き込む")
+                entry (file+headline ,org-capture-words-notes-file "GRAMMER")
+                "** %? :%(get-current-date-tags):\n\n%U")
+               ("T" "時間付きエントリー" entry (file+headline nil "INBOX")
+                "** %? %T--\n")
+               ("n" "ノートとしてINBOXに貼り付ける" entry
+                (file+headline nil "INBOX")
+                "** %? :note:\n\t%U")
+               ("D" "「ドラッカー365の金言」をノートする" entry
+                (file+headline ,org-capture-notes-file "The Daily Drucker")
+                "** 「%?」\nDrucker) \n  - \n  - \nACTION POINT:\n  - \nQUESTION:\n  - \n")
+               ("r" ,(concat "研究ノートを " org-capture-research-file
+                             " に書き込む")
+                entry (file+headline ,org-capture-research-file "Survey")
+                "** %? :note:\n# \n  - \n\t%U")
+               ("`" ,(concat "ノートをバッファ " org-capture-buffer-file
+                             " に書き込む")
+                entry (file+headline ,org-capture-buffer-file "Buffers")
+                "** %(get-random-string 16) %U\n\n%?\n\n----"))))))
 
-(eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '((setq org-confirm-babel-evaluate nil)
-   (setq org-src-fontify-natively t)
-   (setq org-src-tab-acts-natively t)
-   ;; org-src-window-setup (current-window, other-window, other-frame)
-   (setq org-src-window-setup 'current-window)
-   (require 'ob-http nil t)
-   ;; Add ":results output" after program name
-   (org-babel-do-load-languages
-    'org-babel-load-languages
-    '((dot . t)
-      (C . t)
-      (perl . t)
-      (sh . t)
-      (latex . t)
-      (R . t)
-      (python . t)))
-   ;; (require 'ob-C nil t)
-   ;; (require 'ob-perl nil t)
-   ;; (require 'ob-sh nil t)
-   ;; (require 'ob-python nil t)
+(with-eval-after-load "org-refile"
+  (setq org-refile-targets
+        (quote (("org-ical.org" :level . 1)
+                ("research.org" :level . 1)
+                ("work.org" :level . 1)
+                ("next.org" :level . 1)
+                ("sleep.org" :level . 1)))))
 
-   ;; 実装済みの言語に好きな名前を紐付ける
-   (add-to-list 'org-src-lang-modes '("cs" . csharp))
-   (add-to-list 'org-src-lang-modes '("zsh" . sh))))
+(with-eval-after-load "org"
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  ;; org-src-window-setup (current-window, other-window, other-frame)
+  (setq org-src-window-setup 'current-window)
+  (require 'ob-http nil t)
+  ;; Add ":results output" after program name
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((dot . t)
+     (C . t)
+     (perl . t)
+     (sh . t)
+     (latex . t)
+     (R . t)
+     (python . t)))
+  ;; (require 'ob-C nil t)
+  ;; (require 'ob-perl nil t)
+  ;; (require 'ob-sh nil t)
+  ;; (require 'ob-python nil t)
 
-(eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '((add-to-list 'org-structure-template-alist
-                '("C" "#+BEGIN_COMMENT\n?\n#+END_COMMENT" ""))
-   (add-to-list 'org-structure-template-alist
-                '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
+  ;; 実装済みの言語に好きな名前を紐付ける
+  (add-to-list 'org-src-lang-modes '("cs" . csharp))
+  (add-to-list 'org-src-lang-modes '("zsh" . sh)))
+
+(with-eval-after-load "org"
+  (add-to-list 'org-structure-template-alist
+               '("C" "#+BEGIN_COMMENT\n?\n#+END_COMMENT" ""))
+  (add-to-list 'org-structure-template-alist
+               '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>")))
 
 ;; Org-tree-slide
 (when (eval-after-autoload-if-found
@@ -1397,64 +1434,64 @@
          (setq org-tree-slide-modeline-display 'outside)
          (setq org-tree-slide-skip-outline-level 5)
          (setq org-tree-slide-skip-done nil)))
+
   (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
   (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle))
 
-(eval-after-autoload-if-found
- 'org-tree-slide-mode "org-tree-slide" nil t nil
- '((defun my:org-clock-in ()
-     (setq vc-display-status nil) ;; モードライン節約
-     (org-clock-in))
+(with-eval-after-load "org-tree-slide"
+  (defun my:org-clock-in ()
+    (setq vc-display-status nil) ;; モードライン節約
+    (org-clock-in))
 
-   (defun my:org-clock-out ()
-     (setq vc-display-status t) ;; モードライン節約解除
-     (require 'org-clock nil t)
-     (when (org-clocking-p) (org-clock-out)))
+  (defun my:org-clock-out ()
+    (setq vc-display-status t) ;; モードライン節約解除
+    (require 'org-clock nil t)
+    (when (org-clocking-p) (org-clock-out)))
 
-   (add-hook 'org-tree-slide-before-move-previous-hook
-             'my:org-clock-out)
-   (add-hook 'org-tree-slide-before-move-next-hook
-             'my:org-clock-out)
-   (add-hook 'org-tree-slide-stop-hook 'my:org-clock-out)
+  (add-hook 'org-tree-slide-before-move-previous-hook
+            'my:org-clock-out)
+  (add-hook 'org-tree-slide-before-move-next-hook
+            'my:org-clock-out)
+  (add-hook 'org-tree-slide-stop-hook 'my:org-clock-out)
 
-   (add-hook 'org-tree-slide-before-narrow-hook
-             '(lambda ()
-                (when
-                    (and (or (equal (buffer-name) "work.org")
-                             (equal (buffer-name) "effort.org"))
-                         (and (or (eq (org-outline-level) 2)
-                                  (eq (org-outline-level) 3))
-                              (looking-at (concat "^\\*+ "
-                                                  org-not-done-regexp))))
-                  (my:org-clock-in))))))
+  (add-hook 'org-tree-slide-before-narrow-hook
+            '(lambda ()
+               (when
+                   (and (or (equal (buffer-name) "work.org")
+                            (equal (buffer-name) "effort.org"))
+                        (and (or (eq (org-outline-level) 2)
+                                 (eq (org-outline-level) 3))
+                             (looking-at (concat "^\\*+ "
+                                                 org-not-done-regexp))))
+                 (my:org-clock-in)))))
 
-(eval-after-autoload-if-found
- 'org-tree-slide-mode "org-tree-slide" nil t nil
- '((defcustom use-proportional-font nil
-     "The status of FONT property"
-     :type 'boolean
-     :group 'org-mode)
+(when (eval-after-autoload-if-found
+       '(org-tree-slide) "org-tree-slide" nil t nil
+       '((defcustom use-proportional-font nil
+           "The status of FONT property"
+           :type 'boolean
+           :group 'org-mode)
 
-   (set-face-attribute 'variable-pitch nil
-                       :family "Verdana"
-                       :height 125)
+         (set-face-attribute 'variable-pitch nil
+                             :family "Verdana"
+                             :height 125)
 
-   (defun my:proportional-font-toggle ()
-     (interactive)
-     (setq use-proportional-font (not use-proportional-font))
-     (if use-proportional-font
-         (org-entry-put nil "FONT" "PROPORTIONAL")
-       (org-delete-property "FONT")))
+         (defun my:proportional-font-toggle ()
+           (interactive)
+           (setq use-proportional-font (not use-proportional-font))
+           (if use-proportional-font
+               (org-entry-put nil "FONT" "PROPORTIONAL")
+             (org-delete-property "FONT")))
 
-   (add-hook 'org-tree-slide-before-narrow-hook
-             '(lambda ()
-                (if (equal "PROPORTIONAL"
-                           (org-entry-get-with-inheritance "FONT"))
-                    (buffer-face-set 'variable-pitch)
-                  (buffer-face-mode 0))))
-   (add-hook 'org-tree-slide-stop-hook
-             '(lambda ()
-                (buffer-face-mode 0)))))
+         (add-hook 'org-tree-slide-before-narrow-hook
+                   '(lambda ()
+                      (if (equal "PROPORTIONAL"
+                                 (org-entry-get-with-inheritance "FONT"))
+                          (buffer-face-set 'variable-pitch)
+                        (buffer-face-mode 0))))
+         (add-hook 'org-tree-slide-stop-hook
+                   '(lambda ()
+                      (buffer-face-mode 0))))))
 
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-c f p") 'my:proportional-font-toggle))
@@ -1502,6 +1539,7 @@
 
          (define-key cfw:calendar-mode-map (kbd "j") 'cfw:org-goto-date)
          (define-key cfw:org-schedule-map (kbd "q") 'my:cfw-burry-buffer)))
+
   (global-set-key (kbd "C-c f c") 'my:cfw-open-org-calendar))
 
 ;;         (add-hook 'window-configuration-change-hook 'cfw:resize-calendar)
@@ -1518,85 +1556,6 @@
 ;; (setq org-agenda-custom-commands
 ;;       '(("w" todo "FOCUS")
 ;;         ("G" open-calfw-agenda-org "Graphical display in calfw"))))))
-
-(eval-after-autoload-if-found
- 'org-export-generic "org-mode" nil t nil
- '((org-set-generic-type
-    "textile"
-    '(:file-suffix
-      ".textile"
-      :key-binding ?T
-      :title-format    "Title: %s\n\n"
-      ;;   :date-format     "Date: %s\n"
-      :date-export nil
-      :toc-export      nil
-      :author-export   nil
-      :tags-export     nil
-      :drawers-export  nil
-      :date-export     t
-      :timestamps-export  t
-      :priorities-export  nil
-      :todo-keywords-export t
-      :body-line-fixed-format "\t%s\n"
-                                        ;:body-list-prefix "\n"
-      :body-list-format "* %s"
-      :body-list-suffix "\n"
-      :body-bullet-list-prefix ("* " "** " "*** " "**** " "***** ")
-      :body-number-list-format "# %s"
-      :body-number-list-suffix "\n"
-      :header-prefix ("" "" "### " "#### " "##### " "###### ")
-      :body-section-header-prefix ("h1. " "h2. " "h3. " "h4. " "h5. " "h6. ")
-      :body-section-header-format "%s"
-      :body-section-header-suffix ("\n\n")
-      :body-header-section-numbers nil
-      :body-header-section-number-format "%s) "
-      :body-line-format "%s\n"
-      :body-newline-paragraph "\n"
-      :bold-format "*%s*"
-      :italic-format "_%s_"
-      :underline-format "+%s+"
-      :strikethrough-format "-%s-"
-      :verbatim-format "`%s`"
-      :code-format "@%s@"
-      :body-line-wrap   75
-      :blockquote-start "\n<pre>\n"
-      :blockquote-end "\n</pre>\n"
-      ))
-
-   (org-set-generic-type
-   "markdown" 
-   '(:file-suffix
-     ".markdown"
-     :key-binding     ?M
-     :title-format    "Title: %s\n"
-     :date-format     "Date: %s\n"
-     :toc-export      nil
-     :author-export   t
-     :tags-export     nil
-     :drawers-export  nil
-     :date-export     t
-     :timestamps-export  t
-     :priorities-export  nil
-     :todo-keywords-export t
-     :body-line-fixed-format "\t%s\n"
-     ;;:body-list-prefix "\n"
-     :body-list-format "- %s"
-     :body-list-suffix "\n"
-     :header-prefix ("" "" "### " "#### " "##### " "###### ")
-     :body-section-header-prefix ("" "" "### " "#### " "##### " "###### ")
-     :body-section-header-format "%s\n"
-     :body-section-header-suffix (?= ?- "")
-     :body-header-section-numbers nil
-     :body-header-section-number-format "%s) "
-     :body-line-format "%s\n"
-     :body-newline-paragraph "\n"
-     :bold-format "**%s**"
-     :italic-format "_%s_"
-     :verbatim-format "`%s`"
-     :code-format "`%s`"
-     :body-line-wrap   75
-     ))
-   ))
 
 (eval-after-autoload-if-found
  '(ox-odt) "ox-odt" nil t nil
@@ -1625,31 +1584,73 @@
   (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
   (define-key org-mode-map (kbd "C-c c") 'org-mac-grab-link))
 
-(eval-after-autoload-if-found
- 'org-mode "org" "Org Mode" t nil
- '((setq org-show-notification-handler
-        '(lambda (notification)
-           (my:desktop-notify "osx-native" "org-mode notification"
-                              01 01 notification nil)
-           (message notification)))))
+(with-eval-after-load "org"
+  (defvar terminal-notifier-command
+    (executable-find
+     "terminal-notifier.app/Contents/MacOS/terminal-notifier")
+    "Path to terminal-notifier.
+      Download from https://github.com/julienXX/terminal-notifier/releases")
+
+  (defvar terminal-notifier-sound nil)
+  (with-eval-after-load "org-clock"
+    (when (not org-clock-sound)
+      ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
+      (setq terminal-notifier-sound "Pop"))) 
+
+  (defun terminal-notifier-notify (title message &optional sound)
+    "Show a message with `terminal-notifier-command`."
+    (if (and sound (not (string= sound "")))
+        (start-process "terminal-notifier" "*terminal-notifier*"
+                       terminal-notifier-command
+                       "-title" title "-message" message
+                       "-activate" "org.gnu.Emacs" "-sound" sound) ;; FIXME
+      (start-process "terminal-notifier" "*terminal-notifier*"
+                     terminal-notifier-command
+                     "-title" title "-message" message
+                     "-activate" "org.gnu.Emacs")))
+
+  (defvar use-terminal-notifier t)
+  (defun terminal-notifier-toggle ()
+    (interactive)
+    (setq use-terminal-notifier (not use-terminal-notifier))
+    (my:org-agenda-to-appt)
+    (message "terminal-notifier: %s" use-terminal-notifier))
+  (define-key org-mode-map (kbd "C-c f n") 'terminal-notifier-toggle)
+
+  ;; eval (org-notify "hoge") to test this setting
+  (setq org-show-notification-handler
+        #'(lambda (message)
+            (when use-terminal-notifier
+              (terminal-notifier-notify
+               "Message from org-mode" message terminal-notifier-sound))))
+
+  (defun advice:appt-disp-window (min-to-app new-time appt-msg)
+    "Extension to support org-notify."
+    (let ((time-msg (concat "in " min-to-app " min.")))
+      (when (string= min-to-app "0")
+        (setq time-msg "<= Do Now!!"))
+      (org-notify (concat "\\\"" appt-msg "\" " time-msg))))
+  (advice-add 'appt-disp-window :before #'advice:appt-disp-window))
 
 (when (eval-after-autoload-if-found
        '(org-grep) "org-grep" nil t nil
        '((setq org-grep-extensions nil)
          (add-to-list 'org-grep-directories "~/.emacs.d")
          (add-to-list 'org-grep-directories "~/.emacs.d/.cask/package")))
+
   (global-set-key (kbd "C-M-g") 'org-grep))
 
-(eval-after-autoload-if-found
-'org-mode "org" "Org Mode" t nil
-'((push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist)))
-
 (when (eval-after-autoload-if-found
-       '(set-alarms-from-file my:update-alarms-from-file) "utility" nil t nil
-       '((set-alarms-from-file "~/Dropbox/org/today.org")
-         (defun my:update-alarms-from-file ()
-           (when (string= "today.org" (buffer-name))
-             (set-alarms-from-file "~/Dropbox/org/today.org")))))
+       'org-mode "org")
+  (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))
+
+(with-eval-after-load "utility"
+  (set-alarms-from-file "~/Dropbox/org/today.org")
+  (defun my:update-alarms-from-file ()
+    (when (string= "today.org" (buffer-name))
+      (set-alarms-from-file "~/Dropbox/org/today.org"))))
+
+(when (library-p "utility")
   (add-hook 'after-save-hook 'my:update-alarms-from-file))
 
 (when (eval-after-autoload-if-found
@@ -1684,6 +1685,10 @@
   (global-set-key (kbd "C-c a") 'org-agenda)
   (global-set-key (kbd "C-c r") 'org-capture))
 
+(when (eval-after-autoload-if-found
+       '(org-autolist-mode) "org-autolist" nil t nil nil)
+  (add-hook 'org-mode-hook #'(lambda () (org-autolist-mode))))
+
 (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
 (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
 
@@ -1704,18 +1709,18 @@
 (defvar my:cursor-color-ime-off "#AAAAAA")
 (set-cursor-color my:cursor-color-ime-on)
 
-(if (and (eq window-system 'ns) (>= emacs-major-version 24))
-    ;; when IME is ON
-    (when (fboundp 'mac-set-input-method-parameter)
-      (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title "グ"))
+(when (and (eq window-system 'ns) (>= emacs-major-version 24))
+  ;; when IME is ON
+  (when (fboundp 'mac-set-input-method-parameter)
+    (mac-set-input-method-parameter
+     "com.google.inputmethod.Japanese.base" 'title "グ"))
 
-  (defun update-cursor-color ()
+  (defun my:update-cursor-color ()
     (interactive)
     (if current-input-method (set-cursor-color my:cursor-color-ime-off)
       (set-cursor-color my:cursor-color-ime-on)))
-  (update-cursor-color)
-  (run-with-idle-timer 10 t 'update-cursor-color))
+  ;; (my:update-cursor-color)
+  (run-with-idle-timer 10 t 'my:update-cursor-color))
 
 (add-hook 'input-method-activate-hook
           (lambda () (set-cursor-color my:cursor-color-ime-on)))
@@ -1726,76 +1731,76 @@
 (blink-cursor-mode -1)
 
 (defvar my:font-size 12)
-  (defun my:ja-font-setter (spec)
-    (set-fontset-font nil 'japanese-jisx0208 spec)
-    (set-fontset-font nil 'katakana-jisx0201 spec)
-    (set-fontset-font nil 'japanese-jisx0212 spec)
-    (set-fontset-font nil '(#x0080 . #x024F) spec)
-    (set-fontset-font nil '(#x0370 . #x03FF) spec)
-    (set-fontset-font nil 'mule-unicode-0100-24ff spec))
-  (defun my:ascii-font-setter (spec)
-    (set-fontset-font nil 'ascii spec))      
-  
-  (cond
-   ;; CocoaEmacs
-   ((eq window-system 'ns)
-    (when (or (= emacs-major-version 23) (= emacs-major-version 24))
-      (let
-          ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
-          ;; 2) Inconsolata, Migu 2M     : font-size=14, 
-          ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
+(defun my:ja-font-setter (spec)
+  (set-fontset-font nil 'japanese-jisx0208 spec)
+  (set-fontset-font nil 'katakana-jisx0201 spec)
+  (set-fontset-font nil 'japanese-jisx0212 spec)
+  (set-fontset-font nil '(#x0080 . #x024F) spec)
+  (set-fontset-font nil '(#x0370 . #x03FF) spec)
+  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
+(defun my:ascii-font-setter (spec)
+  (set-fontset-font nil 'ascii spec))      
 
-;; Fonts
+(cond
+ ;; CocoaEmacs
+ ((eq window-system 'ns)
+  (when (>= emacs-major-version 23)
+    (let
+        ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
+        ;; 2) Inconsolata, Migu 2M     : font-size=14, 
+        ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
 
-          ((font-size my:font-size)
-;          ((font-size 28) ; for mirroring presentation (1440x900)
-;           (ascii-font "Inconsolata")
-           (ascii-font "Monaco")
-           (ja-font "Migu 2M"))
-        ;; (ja-font "Hiragino Maru Gothic Pro")) 
-        (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
-        (my:ja-font-setter (font-spec :family ja-font :size font-size)))
-      
-      ;; Fix ratio provided by set-face-attribute for fonts display
-      (setq face-font-rescale-alist
-            '(("^-apple-hiragino.*" . 1.0) ; 1.2
-              (".*Migu.*" . 1.2)
-              (".*Inconsolata.*" 1.0)
-              (".*osaka-bold.*" . 1.0)     ; 1.2
-              (".*osaka-medium.*" . 1.0)   ; 1.0
-              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-              ("-cdac$" . 1.0)))           ; 1.3
-      
-      ;; Anti aliasing with Quartz 2D
-      (setq mac-allow-anti-aliasing t)))
-   
-   ((eq window-system 'w32) ; windows7
-    (let
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font "Inconsolata")
-         ;; (ja-font "Meiryo UI"))
-         (ja-font "メイリオ"))
-      (my:ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
-    (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))) ; 0.9
-)   
-   (window-system ; for SuSE Linux 12.1
-    (let
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font "Inconsolata")
-         ;; (ja-font "MigMix 1M")
-         (ja-font "Migu 1M"))
-      (my:ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
-    (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
-                                    (".*Inconsolata.*" . 1.0))) ; 0.9
-    ))
+        ;; Fonts
+
+        ((font-size my:font-size)
+         ;;          ((font-size 28) ; for mirroring presentation (1440x900)
+         ;;           (ascii-font "Inconsolata")
+         (ascii-font "Monaco")
+         (ja-font "Migu 2M"))
+      ;; (ja-font "Hiragino Maru Gothic Pro")) 
+      (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (my:ja-font-setter (font-spec :family ja-font :size font-size)))
+
+    ;; Fix ratio provided by set-face-attribute for fonts display
+    (setq face-font-rescale-alist
+          '(("^-apple-hiragino.*" . 1.0) ; 1.2
+            (".*Migu.*" . 1.2)
+            (".*Inconsolata.*" 1.0)
+            (".*osaka-bold.*" . 1.0)     ; 1.2
+            (".*osaka-medium.*" . 1.0)   ; 1.0
+            (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+            ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+            ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+            ("-cdac$" . 1.0)))           ; 1.3
+
+    ;; Anti aliasing with Quartz 2D
+    (setq mac-allow-anti-aliasing t)))
+
+ ((eq window-system 'w32) ; windows7
+  (let
+      ((font-size 14)
+       (font-height 100)
+       (ascii-font "Inconsolata")
+       ;; (ja-font "Meiryo UI"))
+       (ja-font "メイリオ"))
+    (my:ja-font-setter
+     (font-spec :family ja-font :size font-size :height font-height))
+    (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
+  (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))) ; 0.9
+  )   
+ (window-system ; for SuSE Linux 12.1
+  (let
+      ((font-size 14)
+       (font-height 100)
+       (ascii-font "Inconsolata")
+       ;; (ja-font "MigMix 1M")
+       (ja-font "Migu 1M"))
+    (my:ja-font-setter
+     (font-spec :family ja-font :size font-size :height font-height))
+    (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
+  (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
+                                  (".*Inconsolata.*" . 1.0))) ; 0.9
+  ))
 
 (set-default 'line-spacing 0.2)
 
@@ -1816,13 +1821,29 @@
                        :background "white" :weight 'extra-bold
                        :inherit nil)))
 
+(defun my:night-time-p (begin end)
+  (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
+         (cm (string-to-number (format-time-string "%M" (current-time))))
+         (ct (+ cm (* 60 ch))))
+    (if (> begin end)
+        (or (<= begin ct) (<= ct end))
+      (and (<= begin ct) (<= ct end)))))
+
+(defvar night-time-in 21)
+(defvar night-time-out 5)
+
+(when (my:night-time-p (* night-time-in 60) (* night-time-out 60))
+  ;;(when (require 'gotham-theme nil t)
+  ;;(load-theme 'gotham t)
+  (when (require 'night-theme nil t)
+    (load-theme 'night t)
+    (setq my:cursor-color-ime-on "#8599ff")))
+
 (when (eval-after-autoload-if-found
-       '(rainbow-mode) "rainbow-mode" nil t nil
-       '())
+       '(rainbow-mode) "rainbow-mode")
   (add-hook 'emmet-mode-hook 'rainbow-mode)
   (add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
-  (add-hook 'org-mode-hook 'rainbow-mode)
-  )
+  (add-hook 'org-mode-hook 'rainbow-mode))
 
 (when (eval-after-autoload-if-found
        '(volatile-highlights-mode) "volatile-highlights" nil t nil
@@ -1879,7 +1900,6 @@
            ;; 26 is the setting for Butler's Docklet
            ;; 837 is the setting for right side for MBP
            (width . 80) ; Width  : character count
-           ;;             (height . 24); Height : character count
            (alpha . (100 90))
            (cursor-height . 16)
            (vertical-scroll-bars . nil)
@@ -1905,8 +1925,8 @@
            (height . 26)
            ) initial-frame-alist))))
 
-  ;; Apply the initial setting to default
-  (setq default-frame-alist initial-frame-alist)
+;; Apply the initial setting to default
+(setq default-frame-alist initial-frame-alist)
 
 (eval-after-autoload-if-found 
  'e2wm:dp-two "e2wm" nil t nil
@@ -1930,13 +1950,15 @@
    ;; To avoid rebooting issue when using desktop.el and recentf.el
    (add-hook 'kill-emacs-hook 'e2wm:stop-management)))
 
+(defvar frame-ctr-autoloads
+  '(move-frame-with-user-specify
+    move-frame-to-center move-frame-to-edge-top move-frame-right
+    move-frame-left move-frame-to-edge-bottom frame-ctr-open-height-ring
+    fit-frame-to-fullscreen set-font-size-input max-frame-height
+    reset-font-size increase-font-size decrease-font-size set-font-size))
+
 (when (eval-after-autoload-if-found
-       '(move-frame-with-user-specify
-         move-frame-to-center move-frame-to-edge-top move-frame-right
-         move-frame-left move-frame-to-edge-bottom frame-ctr-open-height-ring
-         fit-frame-to-fullscreen set-font-size-input max-frame-height
-         reset-font-size increase-font-size decrease-font-size set-font-size)
-       "frame-ctr" nil t nil 
+       frame-ctr-autoloads "frame-ctr" nil t nil 
        '((make-frame-height-ring)
          (cond
           ((eq (display-pixel-width) 1920) (setq fullscreen-fontsize 38))
@@ -1969,11 +1991,11 @@
   (global-set-key (kbd "C-=") 'increase-font-size)
   (global-set-key (kbd "C--") 'decrease-font-size))
 
+;; setting for e2wm
 (when (eval-after-autoload-if-found
        '(change-frame-width-single
          change-frame-width-double change-frame-double-window
-         change-frame-single-window) "frame-ctr-e2wm" nil t nil
-         '())
+         change-frame-single-window) "frame-ctr-e2wm")
 
   ;; Set the frame width single size
   ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
@@ -2011,21 +2033,20 @@
                 popwin:special-display-config))))
   (popwin-mode 1))
 
-(when (eval-after-autoload-if-found
-       '(takaxp:date takaxp:window-resizer eval-org-buffer
-                     kyoko-mad-mode-toggle org2dokuwiki-cp-kill-ring
-                     open-current-directory set-alarms-from-file
-                     takaxp:open-file-ring reload-ical-export
-                     show-org-buffer get-random-string init-auto-install
-                     add-itemize-head insert-formatted-current-date
-                     insert-formatted-current-time insert-formatted-signature
-                     export-timeline-business export-timeline-private 
-                     browse-url-chrome count-words-buffer do-test-applescript
-                     delete-backup-files recursive-delete-backup-files
-                     describe-timer my:daylight-theme my:night-theme)
-       "utility" nil t)
-  ;;         '((message "Loading utility.el ... [done]")))
+(defvar utility-autoloads
+  '(takaxp:date
+    takaxp:window-resizer takaxp:open-file-ring my:update-alarms-from-file
+    my:desktop-notify my:daylight-theme my:night-theme 
+    eval-org-buffer kyoko-mad-mode-toggle
+    org2dokuwiki-cp-kill-ring open-current-directory set-alarms-from-file
+    reload-ical-export show-org-buffer get-random-string init-auto-install
+    add-itemize-head insert-formatted-current-date
+    insert-formatted-current-time insert-formatted-signature
+    export-timeline-business export-timeline-private 
+    browse-url-chrome count-words-buffer do-test-applescript
+    delete-backup-files recursive-delete-backup-files describe-timer))
 
+(when (eval-after-autoload-if-found utility-autoloads "utility")
   (global-set-key (kbd "<f12>") 'takaxp:open-file-ring)
   (global-set-key (kbd "C-c t") 'takaxp:date)
   (global-set-key (kbd "C-c f 4") 'takaxp:window-resizer))

@@ -12,11 +12,16 @@
     (message "--- .emacs loading time: %d [msec]" lag)))
 (defconst my-time-zero (current-time))	                       ;; Clock start
 
-;; Boot in debug mode
-(setq debug nil)                            
-
 ;; List disable packages. '(("helm-config" . t) ("centered-cursor-mode" . nil))
 (defvar disabled-packages nil)
+(defvar debug nil)
+
+;;; config
+(setq debug-on-error nil)                    ;; Show debug error messages
+(setq gc-cons-threshold 134217728)           ;; Expand GC threshold, 67108864
+(setq byte-compile-warnings '(not obsolete)) ;; Suppress warning messages
+(setq ad-redefinition-action 'accept)        ;; advice.el
+(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
 
 ;;; Load-path and exec-path // M-x list-load-path-shadows ;;;;;;;;;;;;;;;;;;;;;
 (defun load-path-setter (path-list target-path)
@@ -26,17 +31,19 @@
 (load-path-setter
  '("/opt/local/bin" "/usr/local/bin" "/Applications/UpTex.app/teTeX/bin"
    "/Applications/LibreOffice.app/Contents/MacOS/" "/Users/taka/.cask/bin"
+   "/Users/taka/devel/git/tern/bin"
    "/Users/taka/Dropbox/emacs.d/bin/tern/bin"
    "/Users/taka/Dropbox/emacs.d/bin") 'exec-path)
 
 ;; load-path
 (cond
  (debug
-  (require 'my-debug nil t))
+  (load-path-setter '("~/Dropbox/config") 'load-path)
+  (require 'my-debug))
  (t
   (let*
       ((p "~/Dropbox/emacs.d/") (g "~/devel/git/")
-;;       (od "org-8.2")
+       ;; (od "org-8.2")
        (od "org-mode")
        (l `("~/Dropbox/emacs.d/config" "~/Dropbox/config" ,p
             ,(concat g od "/lisp") ,(concat g od "/contrib/lisp"))))
@@ -52,20 +59,6 @@
   (require 'private nil t)   ;; 0[ms] This package depends on init.el
   ))
 
-;;; config
-(setq debug-on-error nil)                    ;; Show debug error messages
-(setq gc-cons-threshold 134217728)           ;; Expand GC threshold, 67108864
-(setq byte-compile-warnings '(not obsolete)) ;; Suppress warning messages
-(setq ad-redefinition-action 'accept)        ;; advice.el
-(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (add-hook 'after-init-hook (lambda () (my-time-lag)) t)          ;; Clock end
 
-(defun my:night-time-p (begin end)
-  (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
-         (cm (string-to-number (format-time-string "%M" (current-time))))
-         (ct (+ cm (* 60 ch))))
-    (if (> begin end)
-        (or (<= begin ct) (<= ct end))
-      (and (<= begin ct) (<= ct end)))))
