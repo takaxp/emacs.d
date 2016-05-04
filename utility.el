@@ -52,19 +52,23 @@
         (shell-command-to-string
          (concat "open -a " open-current-directory-console-program))))))
 
-;;;###autoload
+(defun my:update-alarms-from-file ()
+  (when (string= "today.org" (buffer-name))
+    (set-alarms-from-file "~/Dropbox/org/today.org")))
+
+  ;;;###autoload
 (defun set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file
-   with tables with the following format:
-   |------+-------+--------------------|
-   | Flag |  Time | Content            |
-   |------+-------+--------------------|
-   |      | 07:00 | Wakeup             |
-   |      |       | Read papers        |
-   | X    | 12:00 | Clean up your desk |
-   When it is 7:00 and 12:00, Growl notify with a message which is specified
-   content column from the table. \"Read papers\" will be ignored.
-   \"Clean up your desk\" will be shown by sticky mode"
+     with tables with the following format:
+     |------+-------+--------------------|
+     | Flag |  Time | Content            |
+     |------+-------+--------------------|
+     |      | 07:00 | Wakeup             |
+     |      |       | Read papers        |
+     | X    | 12:00 | Clean up your desk |
+     When it is 7:00 and 12:00, Growl notify with a message which is specified
+     content column from the table. \"Read papers\" will be ignored.
+     \"Clean up your desk\" will be shown by sticky mode"
   (let
       ((lines (read-line file)))
     (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
@@ -72,7 +76,7 @@
       (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
       (setq lines (cdr lines)))))
 
-;;;###autoload
+  ;;;###autoload
 (defun set-alarm-from-line (line)
   (let
       ((hour nil)
@@ -111,7 +115,7 @@
          ))
   (require 'cl))
 
-;;;###autoload
+  ;;;###autoload
 (defun my:desktop-notify (type title hour min action s)
   (cond
    ;; ((string= type "growl")
@@ -383,6 +387,8 @@
   (when (require 'daylight-theme nil t)
     (setq my:cursor-color-ime-on "#91C3FF")
     (load-theme 'daylight t)
+    (set-face-foreground 'vertical-border (face-background 'default))
+    (set-face-background 'vertical-border (face-background 'default))
     (reset-font-size)))
 
 ;;;###autoload
@@ -392,6 +398,8 @@
     ;;    (set-face-background 'hl-line "#484c5c")
     (setq my:cursor-color-ime-on "#8599ff")
     (load-theme 'night t)
+    (set-face-foreground 'vertical-border (face-background 'default))
+    (set-face-background 'vertical-border (face-background 'default))
     (reset-font-size)))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)

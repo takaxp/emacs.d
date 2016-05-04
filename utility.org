@@ -102,25 +102,29 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
           (shell-command-to-string
            (concat "open -a " open-current-directory-console-program))))))
 #+END_SRC
-*
+
 ** ファイルに含まれるテーブルを使って定時にアラートを表示する
 
  # =terminal-notifier= は，現時点で sticky に対応していない．システムレベルでの制御は可能なので，別イメージをビルドし，通知で呼び出すアプリを切り替えれば対応可能と思われる．Banners タイプから Alerts タイプに切り替えるだけ．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;;###autoload
+  (defun my:update-alarms-from-file ()
+    (when (string= "today.org" (buffer-name))
+      (set-alarms-from-file "~/Dropbox/org/today.org")))
+
+    ;;;###autoload
   (defun set-alarms-from-file (file)
     "Make alarms from org-mode tables. If you have an org-mode file
-     with tables with the following format:
-     |------+-------+--------------------|
-     | Flag |  Time | Content            |
-     |------+-------+--------------------|
-     |      | 07:00 | Wakeup             |
-     |      |       | Read papers        |
-     | X    | 12:00 | Clean up your desk |
-     When it is 7:00 and 12:00, Growl notify with a message which is specified
-     content column from the table. \"Read papers\" will be ignored.
-     \"Clean up your desk\" will be shown by sticky mode"
+       with tables with the following format:
+       |------+-------+--------------------|
+       | Flag |  Time | Content            |
+       |------+-------+--------------------|
+       |      | 07:00 | Wakeup             |
+       |      |       | Read papers        |
+       | X    | 12:00 | Clean up your desk |
+       When it is 7:00 and 12:00, Growl notify with a message which is specified
+       content column from the table. \"Read papers\" will be ignored.
+       \"Clean up your desk\" will be shown by sticky mode"
     (let
         ((lines (read-line file)))
       (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
@@ -128,7 +132,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
         (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
         (setq lines (cdr lines)))))
 
-  ;;;###autoload
+    ;;;###autoload
   (defun set-alarm-from-line (line)
     (let
         ((hour nil)
@@ -167,7 +171,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
            ))
     (require 'cl))
 
-  ;;;###autoload
+    ;;;###autoload
   (defun my:desktop-notify (type title hour min action s)
     (cond
      ;; ((string= type "growl")
@@ -547,6 +551,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
     (when (require 'daylight-theme nil t)
       (setq my:cursor-color-ime-on "#91C3FF")
       (load-theme 'daylight t)
+      (set-face-foreground 'vertical-border (face-background 'default))
+      (set-face-background 'vertical-border (face-background 'default))
       (reset-font-size)))
 
   ;;;###autoload
@@ -556,6 +562,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
       ;;    (set-face-background 'hl-line "#484c5c")
       (setq my:cursor-color-ime-on "#8599ff")
       (load-theme 'night t)
+      (set-face-foreground 'vertical-border (face-background 'default))
+      (set-face-background 'vertical-border (face-background 'default))
       (reset-font-size)))
 #+END_SRC
 
@@ -708,6 +716,50 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 (defalias 'list-buffers 'ibuffer)
 #+END_SRC
 
+** UUID をファイル名にして所定のディレクトリにコピー／移動
+  - すでに org-attach が存在するので用途が微妙に．．．
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(defvar org-att-global-directory "~/Dropbox/org/attachment/")
+(defun copy-file-with-uuid (input)
+  (interactive "FFile name: ")
+  (if (file-exists-p input)
+      (let* ((id (org-id-uuid))
+             (filename (expand-file-name input))
+             (directory (file-name-directory filename))
+             (extension (file-name-extension filename))
+             (output (concat org-att-global-directory id "." extension)))
+        (copy-file filename output)
+        (message "--- Copied as %s " output)
+        output)
+    (message "--- %s does NOT exist." input)
+    nil))
+
+(defun rename-file-with-uuid (input)
+  (interactive "FFile name: ")
+  (if (file-exists-p input)
+      (let* ((id (org-id-uuid))
+             (filename (expand-file-name input))
+             (directory (file-name-directory filename))
+             (extension (file-name-extension filename))
+             (output (concat directory id "." extension)))
+        (rename-file filename output)
+        (message "--- Renamed as %s " output)
+        output)
+    (message "--- %s does NOT exist." input)
+    nil))
+
+(defun org-link-uuid (input &optional overwrite)
+  (interactive "FFile name: ")
+  (let ((output 
+         (if overwrite 
+             (rename-file-with-uuid input)
+           (copy-file-with-uuid input))))
+    (when output
+      (insert (concat "[[file+sys:" output
+                      "][" (file-name-base input) "]]\n")))))
+#+END_SRC
+
 ** キーバインド
 #+BEGIN_SRC emacs-lisp :tangle no
 ;; Multiple combination
@@ -721,5 +773,5 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 * provide
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(provide 'utility)
+  (provide 'utility)
 #+END_SRC

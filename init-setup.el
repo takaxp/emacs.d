@@ -25,15 +25,21 @@
 
 ;;; Load-path and exec-path // M-x list-load-path-shadows ;;;;;;;;;;;;;;;;;;;;;
 (defun load-path-setter (path-list target-path)
-  (dolist (x path-list) (add-to-list target-path x)))
+  (dolist (x path-list) (add-to-list target-path (file-name-as-directory x))))
+
+;; theme-path
+(load-path-setter
+ '("~/.emacs.d/.cask/package") 'custom-theme-load-path)
 
 ;; exec-path
 (load-path-setter
- '("/opt/local/bin" "/usr/local/bin" "/Applications/UpTex.app/teTeX/bin"
-   "/Applications/LibreOffice.app/Contents/MacOS/" "/Users/taka/.cask/bin"
-   "/Users/taka/devel/git/tern/bin"
-   "/Users/taka/Dropbox/emacs.d/bin/tern/bin"
-   "/Users/taka/Dropbox/emacs.d/bin") 'exec-path)
+ '("/usr/bin" "/usr/local/bin" "/Users/taka/.cask/bin"
+   "/Users/taka/Dropbox/emacs.d/bin" "/Applications/UpTex.app/teTeX/bin"
+   "/Applications/LibreOffice.app/Contents/MacOS/" 
+   "/Users/taka/devel/git/tern/bin") 'exec-path)
+
+;;https://github.com/flycheck/flycheck/issues/438
+(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
 
 ;; load-path
 (cond
@@ -43,7 +49,7 @@
  (t
   (let*
       ((p "~/Dropbox/emacs.d/") (g "~/devel/git/")
-       ;; (od "org-8.2")
+       ;;(od "org-8.2")
        (od "org-mode")
        (l `("~/Dropbox/emacs.d/config" "~/Dropbox/config" ,p
             ,(concat g od "/lisp") ,(concat g od "/contrib/lisp"))))
