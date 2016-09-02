@@ -2,6 +2,27 @@
 ;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html (GREAT!)
 
+(defun my:load-init-time ()
+  "Loading time of user init files including time for `after-init-hook'."
+  (let ((time1 (float-time
+                (time-subtract after-init-time before-load-init-time)))
+        (time2 (float-time
+                (time-subtract (current-time) before-load-init-time))))
+    (message (concat "Loading init files: %.0f [msec], "
+                     "of which %.f [msec] for `after-init-hook'.")
+             (* 1000 time1) (* 1000 (- time2 time1)))))
+(add-hook 'after-init-hook 'my:load-init-time t)
+
+(defun my:emacs-init-time ()
+  (message "Emacs booting time: %.0f [msec] from `emacs-init-time'."
+           (* 1000
+              (float-time (time-subtract
+                           after-init-time
+                           before-init-time)))))
+(add-hook 'after-init-hook 'my:emacs-init-time)
+
+(setq gc-cons-threshold 134217728)
+
 (eval-when-compile (require 'cl-lib))
 
 (defun eval-after-autoload-if-found
@@ -9,12 +30,14 @@
   "Set up autoload and eval-after-load for FUNCTIONS iff. FILE has found."
   (let ((enabled t)
         (package nil))
-    (when (boundp 'disabled-packages)
-      (dolist (package disabled-packages)
+    (when (boundp 'loading-packages)
+      (dolist (package loading-packages)
         (when (and (stringp (car package)) (equal file (car package)))
-          (when (cdr package)
-            (setq enabled nil)))))
-    (when enabled ;; if disabled then return nil
+          (unless (cdr package)
+            (setq enabled nil)
+            (message "--- A setting for `%s' was NOT loaded explicitly"
+                     (car package))))))
+    (when enabled ;; if disabled then return nil.
       (when (locate-library file)
         (mapc (lambda (func)
                 (autoload func file docstring interactive type))
@@ -37,15 +60,30 @@
             (list libraries)))
     result))
 
-(add-hook 'after-init-hook
-          (lambda ()
-            (message "--- Emacs booting time: %.0f [msec]"
-                     (* 1000
-                        (float-time (time-subtract
-                                     after-init-time
-                                     before-init-time))))))
+(defun passed-clock-p (target)
+  (let
+      ((hour nil)
+       (min nil)
+       (current-hour nil)
+       (current-min nil))
+    (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" target)
+      (setq hour (substring target (match-beginning 1) (match-end 1)))
+      (setq min (substring target (match-beginning 2) (match-end 2)))
+      (setq current-hour (format-time-string "%H" (current-time)))
+      (setq current-min (format-time-string "%M" (current-time)))
+      (< (+ (* (string-to-number hour) 60)
+            (string-to-number min))
+         (+ (* (string-to-number current-hour) 60)
+            (string-to-number current-min))))))
+
+(setq byte-compile-warnings '(not obsolete))
+(setq ad-redefinition-action 'accept)
+
+(setq debug-on-error nil)
 
 (setq confirm-kill-emacs 'y-or-n-p)
+
+(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
 
 (prefer-coding-system 'utf-8-unix)
 (set-language-environment "Japanese")
@@ -100,12 +138,9 @@
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
-;; (add-hook 'org-mode-hook
-;;           '(lambda()
-;;              (setq indent-line-function 'insert-tab)))
 
 (when (eval-after-autoload-if-found
-       '(aggressive-indent-mode) "aggressive-indent")
+       '(aggressive-indent-mode) "aggressive-indent" nil t)
 
   (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
   (add-hook 'lisp-mode-hook 'aggressive-indent-mode)
@@ -148,53 +183,64 @@
   (global-set-key (kbd "M-[") 'cycle-buffer-backward))
 
 (when (eval-after-autoload-if-found
-       '(bm-toggle
+       '(my:bm-toggle
          my:bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load) "bm" nil t nil
-         '((setq-default bm-buffer-persistence t) ;; t
-           (setq bm-repository-file "~/Dropbox/emacs.d/.bookmark")
-           ;; autoload との組み合わせでは無意味
-           ;;（after-init-hook を利用せよ）
-           ;; (setq bm-restore-repository-on-load t)
-           (setq bm-persistent-face 'bm-face)
-           (defun my:bm-toggle ()
-             "bm-toggle with updating history"
-             (interactive)
-             (bm-toggle)
-             (bm-save))
+         bm-repository-save bm-repository-load bm-load-and-restore)
+       "bm" nil t nil
+       '((setq-default bm-buffer-persistence t) ;; t
+         (setq bm-cycle-all-buffers t)
+         ;; (setq bm-toggle-buffer-persistence t)
+         (setq bm-repository-file "~/Dropbox/emacs.d/.bookmark")
+         ;; autoload との組み合わせでは無意味
+         ;;（after-init-hook を利用せよ）
+         ;; (setq bm-restore-repository-on-load t)
+         (setq bm-buffer-persistence t)
+         (setq bm-persistent-face 'bm-face)
+         (setq bm-repository-file
+               (expand-file-name "~/Dropbox/emacs.d/.bm-repository"))
+         (bm-repository-load)
 
-           (defun my:bm-next ()
-             "bm-next with org-mode"
-             (interactive)
-             (bm-next)
-             (when (and (equal major-mode 'org-mode)
-                        (not (org-before-first-heading-p)))
-               (widen)
-               (org-overview)
-               (org-reveal)
-               (org-cycle-hide-drawers 'all)
-               (org-show-entry)
-               (show-children)
-               (org-show-siblings)))))
+         (defun my:bm-toggle ()
+           "bm-toggle with updating history"
+           (interactive)
+           (let ((bm (concat
+                      (buffer-name) "::"
+                      (if (and (equal major-mode 'org-mode)
+                               (not (org-before-first-heading-p)))
+                          (nth 4 (org-heading-components))
+                        (format "%s" (line-number-at-pos))))))
+             (if (bm-bookmark-at (point))
+                 (bookmark-delete bm)
+               (bookmark-set bm)))
+           (bm-toggle)
+           (bm-save))
 
-  ;; (add-hook 'after-init-hook 'bm-repository-load)
-  ;; (add-hook 'find-file-hook 'bm-buffer-restore)
-  ;; (add-hook 'after-revert-hook 'bm-buffer-restore)
-  ;; (add-hook 'kill-buffer-hook 'bm-buffer-save)
-  ;; (add-hook 'after-save-hook 'bm-buffer-save)
-  ;; (add-hook 'vc-before-checkin-hook 'bm-buffer-save)
-  ;; (add-hook 'kill-emacs-hook 'bm-save)
+         (defun my:bm-next ()
+           "bm-next with org-mode"
+           (interactive)
+           (bm-next)
+           (when (and (equal major-mode 'org-mode)
+                      (not (org-before-first-heading-p)))
+             (widen)
+             (org-overview)
+             (org-reveal)
+             (org-cycle-hide-drawers 'all)
+             (org-show-entry)
+             (show-children)
+             (org-show-siblings)))))
 
-  (global-set-key (kbd "<f10>") 'my:bm-toggle)
-  (global-set-key (kbd "<C-f10>") 'my:bm-next))
+  ;; ファイルオープン時にブックマークを復帰
+  (add-hook 'find-file-hook 'bm-buffer-restore)
+  (global-set-key (kbd "<f9>") 'my:bm-toggle)
+  (global-set-key (kbd "<C-f9>") 'my:bm-next))
 
 (when (eval-after-autoload-if-found
-       '(centered-cursor-mode) "centered-cursor-mode")
+       '(centered-cursor-mode) "centered-cursor-mode" nil t)
 
   (add-hook 'isearch-mode-hook
-            '(lambda () (interactive) (centered-cursor-mode 1)))
+            '(lambda () (centered-cursor-mode 1)))
   (add-hook 'isearch-mode-end-hook
-            '(lambda () (interactive) (centered-cursor-mode -1))))
+            '(lambda () (centered-cursor-mode -1))))
 
 (setq yank-excluded-properties t)
 
@@ -252,9 +298,12 @@
              (setq left-margin 4)))
 
 (push '("\\.h$" . c++-mode) auto-mode-alist)
+(when (eval-after-autoload-if-found
+       'modern-c++-font-lock-mode "modern-cpp-font-lock" nil t)
+  (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 
 (when (eval-after-autoload-if-found
-       '(csharp-mode) "csharp-mode" "Major mode for editing C# mode.")
+       '(csharp-mode) "csharp-mode" "Major mode for editing C# mode." nil t)
 
   (push '("\\.cs$" . csharp-mode) auto-mode-alist))
 
@@ -269,7 +318,7 @@
      (info (format "(org-ja)%s" (or node ""))))))
 
 (when (eval-after-autoload-if-found
-       '(R-mode R) "ess-site" "Emacs Speaks Statistics mode")
+       '(R-mode R) "ess-site" "Emacs Speaks Statistics mode" nil t)
   (push '("\\.[rR]$" . R-mode) auto-mode-alist))
 
 (add-hook 'nxml-mode-hook
@@ -283,11 +332,11 @@
              (setq nxml-attribute-indent 0)))
 
 (when (eval-after-autoload-if-found
-       '(yaml-mode) "yaml-mode")
+       '(yaml-mode) "yaml-mode" nil t)
   (push '("\\.yml$" . yaml-mode) auto-mode-alist))
 
 (when (eval-after-autoload-if-found
-       '(json-mode) "json-mode")
+       '(json-mode) "json-mode" nil t)
   (push '("\\.json$" . json-mode) auto-mode-alist))
 
 (when (eval-after-autoload-if-found
@@ -296,7 +345,7 @@
 
   (push '("\\.js$" . js2-mode) auto-mode-alist)
   (when (eval-after-autoload-if-found
-         '(ac-js2-mode ac-js2-setup-auto-complete-mode) "ac-js2")
+         '(ac-js2-mode ac-js2-setup-auto-complete-mode) "ac-js2" nil t)
     (add-hook 'js2-mode-hook 'ac-js2-mode)))
 
   (if (executable-find "tern")
@@ -312,10 +361,20 @@
     (message "--- tern is NOT installed in this system."))
 
 (when (eval-after-autoload-if-found
-       '(csv-mode) "csv-mode")
+       '(csv-mode) "csv-mode" nil t)
   (push '("\\.csv$" . csv-mode) auto-mode-alist))
 
-(eval-after-autoload-if-found '(ascii-on ascii-off) "ascii")
+(eval-after-autoload-if-found '(ascii-on ascii-off) "ascii" nil t)
+
+(when (eval-after-autoload-if-found 'es-mode "es-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.es$" . es-mode)))
+
+(when (eval-after-autoload-if-found 'gnuplot-mode "gnuplot-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.plt$" . gnuplot-mode)))
+
+(when (eval-after-autoload-if-found 'markdown-mode "markdown-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.markdown$" . markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode)))
 
 ;;; Use aspell for spell checking instead of ispell.
 (when (executable-find "aspell")
@@ -356,7 +415,7 @@
 ;;(autoload 'po-mode "po-mode+" nil nil)
 ;;(autoload 'po-mode "po-mode" nil t)
 (when (eval-after-autoload-if-found
-       '(po-mode) "po-mode")
+       '(po-mode) "po-mode" nil t)
   (push '("\\.po[tx]?\\'\\|\\.po\\$" . po-mode) auto-mode-alist))
 
 (global-set-key (kbd "M-=") 'count-words)
@@ -369,7 +428,9 @@
   (add-hook 'yatex-mode-hook
             '(lambda () (setq auto-fill-function nil))))
 
-(eval-after-autoload-if-found 'wclock "wclock")
+(eval-after-autoload-if-found
+ '(display-time-world) "time" nil t nil
+ '((define-key display-time-world-mode-map "q" 'delete-window)))
 
 (when (eval-after-autoload-if-found
        '(yas-global-mode yas-minor-mode)
@@ -448,7 +509,7 @@
   (add-hook 'web-mode-hook 'emmet-mode))
 
 (eval-after-autoload-if-found
- '(describe-number describe-number-at-point) "describe-number")
+ '(describe-number describe-number-at-point) "describe-number" nil t)
 
 (if (executable-find "js-beautify")
     (eval-after-autoload-if-found
@@ -521,35 +582,33 @@
 (when (require 'buffer nil t)
   (setq initial-scratch-message nil)
   (setq initial-major-mode 'buffer-mode)
-  (set-face-attribute 'header-line nil :overline nil :underline "#203e6f")
-  (set-face-foreground 'header-line "#203e6f")
-  (set-face-background 'header-line "#d8e6fd")
+  ;;  :underline "#203e6f"
+  (set-face-foreground 'header-line "#333333") ;; "#203e6f")
+  (set-face-background 'header-line "#ffb08c")
+  (set-face-attribute 'header-line nil
+                      :inherit nil
+                      :overline nil
+                      :underline nil)
+  (setq header-line-format
+        (concat
+         "  Buffers                                                    "
+         (format-time-string "W%U: %Y-%m-%d %a.")))
+  )
 
-  (defvar my:header-clock 
-    (setq header-line-format
-          (concat
-           "  Buffers                                                       "
-           (format-time-string "%Y-%m-%d (%a.)")))))
-
-(global-set-key (kbd "C-M-s")
-                '(lambda () (interactive) (switch-to-buffer "*scratch*")))
+  (global-set-key (kbd "C-M-s")
+                  '(lambda () (interactive) (switch-to-buffer "*scratch*")))
 
 ;; Show scroll bar or not
 (set-scroll-bar-mode nil) ; 'right
 
 ;; Disable to show the tool bar.
-(tool-bar-mode 0)
+(tool-bar-mode -1)
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
 
 ;; Show line number in the mode line.
 (line-number-mode t)
-
-;; Show clock in in the mode line
-(setq display-time-format "%H:%M")
-(setq display-time-default-load-average nil)
-(display-time-mode t)
 
 (when (eval-after-autoload-if-found
        '(paren-activate) "mic-paren" nil t nil
@@ -602,135 +661,93 @@
   (when (executable-find "cmigemo")
     (add-hook 'isearch-mode-hook 'migemo-init)))
 
-(eval-after-autoload-if-found
- '(helm-M-x helm-locate helm-recentf helm-buffers-list
-            helm-occur helm-swoop helm-flycheck)
- "helm-config" nil t nil
- '((helm-mode 1)
-   (when (require 'diminish nil t)
-     (diminish 'helm-mode " H"))
-   (when (require 'helm-swoop nil t)
-     ;; カーソルの単語が org の見出し（*の集まり）のとき検索対象にしない．
-     (setq helm-swoop-pre-input-function
-           #'(lambda()
-               (unless (thing-at-point-looking-at "^\\*+")
-                 (thing-at-point 'symbol))))
-     ;; 配色設定
-     (set-face-attribute
-      'helm-swoop-target-line-face nil :background "#FFEDDC")
-     (set-face-attribute
-      'helm-swoop-target-word-face nil :background "#FF5443"))
+(when (eval-after-autoload-if-found
+       '(helm-M-x helm-locate helm-recentf helm-buffers-list
+                  helm-occur helm-swoop helm-flycheck helm-bookmarks)
+       "helm-config" nil t nil
+       '((helm-mode 1)
+         (when (require 'diminish nil t)
+           (diminish 'helm-mode " H"))
+         (when (require 'helm-swoop nil t)
+           ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
+           (setq helm-swoop-pre-input-function
+                 #'(lambda()
+                     (unless (thing-at-point-looking-at "^\\*+")
+                       (thing-at-point 'symbol))))
+           ;; 配色設定
+           (set-face-attribute
+            'helm-swoop-target-line-face nil :background "#FFEDDC")
+           (set-face-attribute
+            'helm-swoop-target-word-face nil :background "#FF5443"))
 
-   (when (require 'helm-files nil t)
-     (define-key helm-find-files-map
-       (kbd "<tab>") 'helm-execute-persistent-action)
-     (define-key helm-read-file-map
-       (kbd "<tab>") 'helm-execute-persistent-action))
+         (when (require 'helm-files nil t)
+           (define-key helm-find-files-map
+             (kbd "<tab>") 'helm-execute-persistent-action)
+           (define-key helm-read-file-map
+             (kbd "<tab>") 'helm-execute-persistent-action))
 
-   (when (require 'helm-google nil t)
-     (setq helm-google-tld "co.jp"))
+         (when (require 'helm-google nil t)
+           (setq helm-google-tld "co.jp"))
 
-   ;;        (require 'recentf-ext nil t)
-   ;; helm-find-files を呼ばせない
-   ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
-   ;; helm-mode-ag を呼ばせない
-   (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
-   ;; helm-mode-org-set-tags を呼ばせない
-   (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . nil))
-   (setq helm-display-source-at-screen-top nil)
+         ;; (require 'recentf-ext nil t)
+         ;; helm-find-files を呼ばせない
+         ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
+         ;; helm-mode-ag を呼ばせない
+         (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
+         ;; helm-mode-org-set-tags を呼ばせない
+         (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . nil))
+         (setq helm-display-source-at-screen-top nil)
             ;;;         (setq helm-display-header-line nil)
-   ;; helm-autoresize-mode を有効にしつつ 30% に固定
-   (helm-autoresize-mode 1)
-   (setq helm-autoresize-max-height 30)
-   (setq helm-autoresize-min-height 30)         
-   (set-face-attribute 'helm-source-header nil
-                       :height 1.0 :family "Verdana" :weight 'normal
-                       :foreground "#666666" :background "#DADADA")
-   (when (eq window-system 'ns)
-     (setq helm-locate-command "mdfind -name %s %s")
-     )
 
-   (require 'helm-css-scss nil t)
-   (require 'helm-emmet nil t)
+         ;; helm-autoresize-mode を有効にしつつ 30% に固定
+         (helm-autoresize-mode 1)
+         (setq helm-autoresize-max-height 30)
+         (setq helm-autoresize-min-height 30)         
+         (set-face-attribute 'helm-source-header nil
+                             :height 1.0 :family "Verdana" :weight 'normal
+                             :foreground "#666666" :background "#DADADA")
+         (when (eq window-system 'ns)
+           (setq helm-locate-command "mdfind -name %s %s")
+           )
 
-   ;; この修正が必要
-   (when (require 'helm-migemo nil t)
-     (defun helm-compile-source--candidates-in-buffer (source)
-       (helm-aif (assoc 'candidates-in-buffer source)
-           (append source
-                   `((candidates
-                      . ,(or (cdr it)
-                             (lambda ()
-                               ;; Do not use `source' because other plugins
-                               ;; (such as helm-migemo) may change it
-                               (helm-candidates-in-buffer
-                                (helm-get-current-source)))))
-                     (volatile) (match identity)))
-         source)))
-   ))
+         (require 'helm-css-scss nil t)
+         (require 'helm-emmet nil t)
+         (require 'helm-bm nil t)
+
+         ;; この修正が必要
+         ;; (when (require 'helm-migemo nil t)
+         ;;   (defun helm-compile-source--candidates-in-buffer (source)
+         ;;     (helm-aif (assoc 'candidates-in-buffer source)
+         ;;         (append source
+         ;;                 `((candidates
+         ;;                    . ,(or (cdr it)
+         ;;                           (lambda ()
+         ;;                             ;; Do not use `source' because other plugins
+         ;;                             ;; (such as helm-migemo) may change it
+         ;;                             (helm-candidates-in-buffer
+         ;;                              (helm-get-current-source)))))
+         ;;                   (volatile) (match identity)))
+         ;;       source)))
+         ))
+
+  (global-set-key (kbd "C-c f b") 'helm-bookmarks))
 
 (when (eval-after-autoload-if-found
        '(helm-M-x helm-locate helm-recentf helm-buffers-list
                   helm-occur helm-swoop helm-flycheck)
-       "helm-config")
+       "helm-config" nil t)
 
-  (global-set-key (kbd "C-c f f") 'helm-locate)
+  (global-set-key (kbd "C-c f l") 'helm-locate)
   (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
-  (global-set-key (kbd "M-s s") 'helm-swoop)
+  (global-set-key (kbd "M-s M-s") 'helm-swoop)
   (global-set-key (kbd "C-M-r") 'helm-recentf)
   (global-set-key (kbd "C-c o") 'helm-occur)
   (global-set-key (kbd "M-x") 'helm-M-x))
 
 (when (eval-after-autoload-if-found
-       'helm-descbinds "helm-descbinds")
+       'helm-descbinds "helm-descbinds" nil t)
 
   (global-set-key (kbd "C-h d") 'helm-descbinds))
-
-(when (eval-after-autoload-if-found
-       '(git-gutter-mode) "git-gutter-fringe" "Org Mode" t nil
-       '((setq git-gutter:lighter "")
-         ;; "!"
-         (fringe-helper-define 'git-gutter-fr:modified nil
-           "...XX..."
-           "...XX..."
-           "...XX..."
-           "...XX..."
-           "...XX..."
-           "........"
-           "...XX..."
-           "...XX...")
-         ;; "+"
-         (fringe-helper-define 'git-gutter-fr:added nil
-           "........"
-           "...XX..."
-           "...XX..."
-           ".XXXXXX."
-           ".XXXXXX."
-           "...XX..."
-           "...XX..."
-           "........")
-         ;; "-"
-         (fringe-helper-define 'git-gutter-fr:deleted nil
-           "........"
-           "........"
-           "........"
-           ".XXXXXX."
-           ".XXXXXX."
-           "........"
-           "........"
-           "........")
-         (setq git-gutter-fr:side 'left-fringe)
-         (set-face-foreground 'git-gutter-fr:added    "#FF2600")
-         (set-face-foreground 'git-gutter-fr:modified "orange")
-         (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))
-
-  (add-hook 'emacs-lisp-mode-hook 'git-gutter-mode)
-  (add-hook 'lisp-mode-hook 'git-gutter-mode)
-  (add-hook 'perl-mode-hook 'git-gutter-mode)
-  (add-hook 'python-mode-hook 'git-gutter-mode)
-  (add-hook 'c-mode-common-hook 'git-gutter-mode)
-  (add-hook 'nxml-mode-hook 'git-gutter-mode)
-  (add-hook 'web-mode-hook 'git-gutter-mode))
 
 (with-eval-after-load "calendar"
   (add-hook 'calendar-today-visible-hook 'calendar-mark-today)
@@ -747,6 +764,7 @@
     (add-hook 'calendar-today-invisible-hook 'japanese-holiday-mark-weekend)))
 
 (with-eval-after-load "calendar"
+  (setq calendar-week-start-day 1)
   (copy-face 'default 'calendar-iso-week-header-face)
   (set-face-attribute 'calendar-iso-week-header-face nil
                       :height 1.0 :foreground "#1010FF"
@@ -809,9 +827,16 @@
          (setq stock-ticeer-display-interval 5)
          (setq stock-ticker-symbols '("^N225" "DOW"))
          (setq stock-ticker-update-interval 300)))
-  
-  (with-eval-after-load "helm-config"
-    (stock-ticker-global-mode 1)))
+
+  (defun my:activate-stock-ticker (&optional duration)
+    "Activate stock-ticker within the given duration."
+    (stock-ticker-global-mode 1)
+    (unless (numberp duration)
+      (setq duration 90))
+    (run-with-timer duration nil
+                    '(lambda () (stock-ticker-global-mode -1))))
+
+  (add-hook 'focus-in-hook 'my:activate-stock-ticker))
 
 (eval-after-autoload-if-found
  '(google-maps) "google-maps" nil t nil
@@ -916,7 +941,7 @@
                           (backup-each-save)))))
 
 (when (eval-after-autoload-if-found
-       '(recursive-delete-backup-files delete-backup-files) "utility")
+       '(recursive-delete-backup-files delete-backup-files) "utility" nil t)
 
   ;; backup-each-save が作るファイルのうち条件にあうものを終了時に削除
   (add-hook 'kill-emacs-hook
@@ -934,8 +959,7 @@
                                          (file-name-history 200)
                                          search-ring regexp-search-ring))
          (setq session-undo-check -1)))
-
-  (add-hook 'after-init-hook 'session-initialize))
+    (add-hook 'after-init-hook 'session-initialize))
 ;; FIXME
 ;;  (setq session-set-file-name-exclude-regexp
 ;;        "^/private/\\.\\*"))
@@ -968,20 +992,20 @@
            (add-hook 'popwin:before-popup-hook
                      #'(lambda () (setq neo-persist-show nil)))
            (add-hook 'popwin:after-popup-hook
-                     #'(lambda () (setq neo-persist-show tl))))
+                     #'(lambda () (setq neo-persist-show t))))
          ))
   (global-set-key (kbd "C-c n") 'neotree-toggle))
 
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)
 
-(eval-after-autoload-if-found '(gist) "gist")
+(eval-after-autoload-if-found 'gist "gist" nil t)
 
 (when (eval-after-autoload-if-found
        'doxymacs-mode "doxymacs" nil t nil
        '((setq doxymacs-doxygen-style "JavaDoc")
          (add-hook 'font-lock-mode-hook
-                   '(lambda () (interactive)
+                   '(lambda ()
                       (when (or (eq major-mode 'c-mode)
                                 (eq major-mode 'c++-mode))
                         (doxymacs-font-lock))))
@@ -991,7 +1015,7 @@
 
 (when (and (eq window-system 'ns) (> emacs-major-version 23))
   (when (eval-after-autoload-if-found
-         '(matlab-mode matlab-shell) "matlab")
+         '(matlab-mode matlab-shell) "matlab" nil t)
     (push '("\\.m$" . matlab-mode) auto-mode-alist)))
 
 (when (eval-after-autoload-if-found
@@ -1094,15 +1118,17 @@
 
   (add-hook 'c-mode-common-hook 'ac-cc-mode-setup))
 
-(when (eval-after-autoload-if-found
-       '(quickrun) "quickrun")
+(when (eval-after-autoload-if-found '(quickrun) "quickrun" nil t)
 
   (add-hook 'c-mode-common-hook
             '(lambda () (define-key c++-mode-map (kbd "<f5>") 'quickrun)))
   (add-hook 'python-mode-hook
             '(lambda () (define-key python-mode-map (kbd "<f5>") 'quickrun)))
   (add-hook 'perl-mode-hook
-            '(lambda () (define-key perl-mode-map (kbd "<f5>") 'quickrun))))
+            '(lambda () (define-key perl-mode-map (kbd "<f5>") 'quickrun)))
+  (add-hook 'gnuplot-mode-hook
+            '(lambda () (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun)))
+  )
 
 (if (executable-find "gtags")
     (when (eval-after-autoload-if-found
@@ -1164,6 +1190,9 @@
 
          ;; タイマーの音
          ;; (lsetq org-clock-sound "");
+
+         ;; org-clock の計測時間をモードラインではなくタイトルに表示する
+         (setq org-clock-clocked-in-display 'frame-title)
 
          ;; helm を立ち上げる
          (require 'helm-config nil t)
@@ -1402,7 +1431,8 @@
   (setq org-agenda-files
         '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
           "~/Dropbox/org/today.org" "~/Dropbox/org/buffer.org"
-          "~/Dropbox/org/stock.org" "~/Dropbox/org/wg1.org"
+          "~/Dropbox/org/stock.org" "~/Dropbox/org/wg1.org" 
+          "~/Dropbox/org/univ.org"
           "~/Dropbox/org/work.org" "~/Dropbox/org/research.org"))
 
   (add-hook 'org-finalize-agenda-hook
@@ -1448,6 +1478,29 @@
   (define-key org-mode-map (kbd "<f11>") 'my:toggle-doing-tag)
   (define-key org-mode-map (kbd "C-<f11>") 'my:sparse-doing-tree))
 
+;; 所定の時刻に強制的にAgendaを表示
+(defvar my:org-agenda-auto-popup-list
+  '("01:00" "11:00" "14:00" "17:00" "20:00" "23:00"))
+(defun my:popup-agenda ()
+  (interactive)
+  (let ((status use-dialog-box))
+    (setq use-dialog-box nil)
+    (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
+      (org-agenda-list))
+    (message "")
+    (setq use-dialog-box status)))
+(defun my:popup-agenda-set-timers ()
+  (interactive)
+  (cancel-function-timers 'my:popup-agenda)
+  (dolist (triger my:org-agenda-auto-popup-list)
+    (unless (passed-clock-p triger)
+      (run-at-time triger nil 'my:popup-agenda))))
+(my:popup-agenda-set-timers)
+
+(with-eval-after-load "org"
+  (when (library-p "orgbox")
+    (require 'orgbox nil t)))
+
 (with-eval-after-load "org"
   ;; アラーム表示を有効にする
   (appt-activate 1)
@@ -1463,23 +1516,12 @@
   (setq appt-display-interval 5)
   ;; モードラインにアラームを表示する
   (setq appt-display-mode-line t)
-  ;; org-agenda の内容をアラームに登録する（重い）
-  ;; (add-hook 'org-mode-hook
-  ;;           '(lambda ()
-  ;;              (org-agenda-to-appt t '((headline "TODO")))))
+  ;; org-agenda の内容をアラームに登録する
   ;; 定期的に更新する
-  (defvar org-agenda-to-appt-activate t)
   (defun my:org-agenda-to-appt ()
     (interactive)
     (org-agenda-to-appt t '((headline "TODO"))))
-  (add-hook 'focus-out-hook
-            #'(lambda ()
-                (when org-agenda-to-appt-activate
-                  (my:org-agenda-to-appt)
-                  (setq org-agenda-to-appt-activate nil))))
-  (run-with-idle-timer
-   10 t #'(lambda ()
-            (setq org-agenda-to-appt-activate t)))
+  (run-with-idle-timer 500 t 'my:org-agenda-to-appt)
 
   (define-key org-mode-map (kbd "C-c f 3") 'my:org-agenda-to-appt))
 
@@ -1501,7 +1543,7 @@
              `(("t" "TODO 項目を INBOX に貼り付ける" entry
                 (file+headline nil "INBOX") "** TODO %?\n\t")
                ("c" "同期カレンダーにエントリー" entry
-                (file+headline ,org-capture-ical-file "Schedule")
+                (file+headline ,org-capture-ical-file "Scheduled")
                 "** TODO %?\n\t") 
                ("d" "Doingタグ付きのタスクをInboxに投げる" entry
                 (file+headline nil "INBOX")
@@ -1542,6 +1584,7 @@
 (with-eval-after-load "org"
   ;; 履歴が生成されるのを抑制．
   ;; [2/3]のような完了数が見出しにある時に転送先候補が重複するため．
+
   (defun advice:org-refile (&optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
     (let ((l (org-outline-level))
@@ -1556,7 +1599,8 @@
           (org-refile-goto-last-stored)
           (org-update-parent-todo-statistics) ;; Update in destination
           (unless (equal b (buffer-name))
-            (switch-to-buffer b)))))
+            (switch-to-buffer b))))
+      )
     (setq org-refile-history nil)
     (org-refile-cache-clear))
   (advice-add 'org-refile :around #'advice:org-refile)
@@ -1564,10 +1608,14 @@
   (setq org-refile-targets
         (quote (("org-ical.org" :level . 1)
                 ("research.org" :level . 1)
+                ("idea.org" :level . 1)
                 ("work.org" :level . 1)
                 ("wg1.org" :level . 1)
+                ("univ.org" :level . 1)
+                ("today.org" :level . 1)
                 ("next.org" :level . 1)
-                ("sleep.org" :level . 1)))))
+                ("sleep.org" :level . 1))))
+  )
 
 (with-eval-after-load "org"
   (setq org-confirm-babel-evaluate nil)
@@ -1576,14 +1624,18 @@
   ;; org-src-window-setup (current-window, other-window, other-frame)
   (setq org-src-window-setup 'current-window)
   (require 'ob-http nil t)
+  (require 'ob-gnuplot nil t)
+  (require 'ox-qmd nil t)
   ;; Add ":results output" after program name
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((dot . t)
      (C . t)
+     (gnuplot . t)
      (perl . t)
-     (sh . t)
+     (shell . t)
      (latex . t)
+     (sqlite . t)
      (R . t)
      (python . t)))
   ;; (require 'ob-C nil t)
@@ -1653,6 +1705,7 @@
 
          (set-face-attribute 'variable-pitch nil
                              :family "Verdana"
+                             ;; :family "Comic Sans MS"
                              :height 125)
 
          (defun my:proportional-font-toggle ()
@@ -1674,6 +1727,11 @@
 
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-c f p") 'my:proportional-font-toggle))
+
+(when (eval-after-autoload-if-found
+       '(org-bullets-mode) "org-bullets" nil t)
+  (add-hook 'org-tree-slide-play-hook #'(lambda () (org-bullets-mode 1)))
+  (add-hook 'org-tree-slide-stop-hook #'(lambda () (org-bullets-mode -1))))
 
 (eval-after-autoload-if-found
  'org-mode "org" nil t nil
@@ -1752,6 +1810,11 @@
             "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
            ("unoconv" "unoconv -f %f -o %d %i")))))
 
+(eval-after-autoload-if-found
+ '(org-twbs-export-to-html org-publish-all) "ox-twbs" nil t nil
+ '(
+   ))
+
 (with-eval-after-load "org"
   (when (require 'org-crypt nil t)
     (setq org-crypt-key "<insert your key>")
@@ -1766,6 +1829,13 @@
   (add-to-list 'org-modules 'org-mac-iCal)
   (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
   (define-key org-mode-map (kbd "C-c c") 'org-mac-grab-link))
+
+(eval-after-autoload-if-found
+ '(org-attach) "org-attach" nil t nil
+ '(;; org-insert-link で添付ファイルへのリンクをペーストできるようにする
+   (setq org-attach-store-link-p t)
+   ;; 自動付与されるタグの名前を変更
+   (setq org-attach-auto-tag "attach")))
 
 (defvar terminal-notifier-command
   (executable-find
@@ -1818,14 +1888,40 @@
 
 (when (eval-after-autoload-if-found
        '(org-grep) "org-grep" nil t nil
-       '((setq org-grep-extensions nil)
+       '(
+         (setq org-grep-extensions '(".org" ".org_archive"))
          (add-to-list 'org-grep-directories "~/.emacs.d")
-         (add-to-list 'org-grep-directories "~/.emacs.d/.cask/package")))
+         (add-to-list 'org-grep-directories "~/.emacs.d/.cask/package")
+
+         ;; "q"押下の挙動を調整
+         (defun org-grep-quit ()
+           (interactive)
+           (delete-window))
+
+         ;; for MacOSX
+         (when (eq window-system 'ns)
+           (defun org-grep-from-org-shell-command (regexp)
+             (if org-grep-directories
+                 (concat "find -E "
+                         (if org-grep-directories
+                             (mapconcat #'identity org-grep-directories " ")
+                           org-directory)
+                         (and org-grep-extensions
+                              (concat " -regex '.*("
+                                      (mapconcat #'regexp-quote org-grep-extensions "|")
+                                      ")$'"))
+                         " -print0 | xargs -0 grep " org-grep-grep-options
+                         " -n -- " (shell-quote-argument regexp))
+               ":")))
+         ))
 
   (global-set-key (kbd "C-M-g") 'org-grep))
 
+(with-eval-after-load "org"
+  (require 'ox-reveal nil t))
+
 (when (eval-after-autoload-if-found
-       'org-mode "org")
+       'org-mode "org" nil t)
   (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))
 
 (with-eval-after-load "utility"
@@ -1866,6 +1962,220 @@
   (global-set-key (kbd "C-c a") 'org-agenda)
   (global-set-key (kbd "C-c r") 'org-capture))
 
+;; To avoid an error setting up the frame width (only for Emacs23)
+                                        ;(set-frame-width (selected-frame) 81)
+                                        ;(set-frame-width (selected-frame) 80)
+;; Default window position to show a Emacs frame
+;; Dynabook UX: top=0, left=0, width=80, height=32
+(cond
+ ((eq window-system 'ns) ; for Macintosh
+  (setq initial-frame-alist
+        (append
+         '((top . 22)  ; Y-pos from (0,0) the height of menu bar is 22pix.
+           (left . 0)  ; X-pos from (0,0) ; 420 is the center for MBP
+           ;; 26 is the setting for Butler's Docklet
+           ;; 837 is the setting for right side for MBP
+           (width . 80) ; Width  : character count
+           (alpha . (100 90))
+           (cursor-height . 16)
+           (vertical-scroll-bars . nil)
+           ) initial-frame-alist)))
+
+ ((eq window-system 'x) ; for Linux
+  (setq initial-frame-alist
+        (append
+         '((vertical-scroll-bars . nil)
+           (top . 0)
+           (left . 0)
+           (width . 80)
+           (height . 38)
+           ) initial-frame-alist)))
+
+ (t                     ; for Windows
+  (setq initial-frame-alist
+        (append
+         '((vertical-scroll-bars . nil)
+           (top . 0)
+           (left . 0)
+           (width . 80)
+           (height . 26)
+           ) initial-frame-alist))))
+
+;; Apply the initial setting to default
+(setq default-frame-alist initial-frame-alist)
+(set-face-foreground 'vertical-border (face-background 'default))
+(set-face-background 'vertical-border (face-background 'default))
+(set-face-background 'fringe (face-background 'default))
+
+;; カーソルの色
+(defvar my:cursor-color-ime-on "#91C3FF")
+(defvar my:cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
+
+(when (fboundp 'mac-set-input-method-parameter)
+  ;;    (message "%s" (mac-get-current-input-source))
+
+  (mac-set-input-method-parameter
+   "com.google.inputmethod.Japanese.base" 'title "あ")
+
+  (setq blink-cursor-blinks 0)
+  (setq blink-cursor-interval 0.3)
+  (setq blink-cursor-delay 10)
+
+  (if (string= (mac-get-current-input-source)
+               "com.google.inputmethod.Japanese.base")
+      (progn
+        (blink-cursor-mode -1)
+        (add-to-list 'default-frame-alist '(cursor-type . box))
+        (set-cursor-color my:cursor-color-ime-on))
+    (progn
+      ;; 入力が blink-cursor-delay の間だけ無い場合に，ブリンクを開始
+      (blink-cursor-mode 1)
+      (add-to-list 'default-frame-alist '(cursor-type . (bar . 2)))
+      (set-cursor-color my:cursor-color-ime-off)))
+
+  ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
+  ;; バッファ切替時に input method を切り替える
+  (when (require 'cl nil t)
+    (add-hook
+     'post-command-hook
+     (lexical-let ((previous-buffer nil))
+       #'(lambda ()
+           (unless (eq (current-buffer) previous-buffer)
+             ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
+             (if (bufferp previous-buffer) (mac-handle-input-method-change))
+             (setq previous-buffer (current-buffer)))))))
+  )
+
+(eval-after-autoload-if-found 
+ '(my:e2wm:dp-two e2wm:dp-two e2wm:start-management) "e2wm" nil t nil
+ '((defun my:e2wm:dp-two ()
+     (interactive)
+     (e2wm:dp-two)
+     (setq e2wm:c-two-recipe
+           '(- (:lower-size 10)
+               (| left right)
+               sub))
+     (setq e2wm:c-two-winfo
+           '((:name left )
+             (:name right )
+             (:name sub :default-hide t)))
+
+     ;; left, prev
+     (setq e2wm:c-two-right-default 'left))
+
+   ;; 高さを画面の最大に矯正
+   (when (require 'frame-ctr nil t)
+     (setq frame-height-tall (max-frame-height))
+     (setq frame-height-small frame-height-tall))
+
+   ;; 幅を画面の最大に矯正
+   (add-hook 'e2wm:pre-start-hook
+             #'(lambda ()
+                 (set-frame-width
+                  (selected-frame)
+                  (/ (- (display-pixel-width) 30) (frame-char-width)))))
+
+   ;; 幅をデフォルト値に戻す
+   (add-hook 'e2wm:post-stop-hook
+             #'(lambda () (set-frame-width (selected-frame) target-frame-width)))
+
+   ;; To avoid rebooting issue when using desktop.el and recentf.el
+   (add-hook 'kill-emacs-hook 'e2wm:stop-management)))
+
+(defvar frame-ctr-autoloads
+  '(move-frame-with-user-specify
+    move-frame-to-center move-frame-to-edge-top move-frame-right
+    move-frame-left move-frame-to-edge-bottom frame-ctr-open-height-ring
+    fit-frame-to-fullscreen set-font-size-input max-frame-height
+    reset-font-size increase-font-size decrease-font-size set-font-size))
+
+(when (eval-after-autoload-if-found
+       frame-ctr-autoloads "frame-ctr" nil t nil 
+       '((make-frame-height-ring)
+         (cond
+          ((eq (display-pixel-width) 1920) (setq fullscreen-fontsize 38))
+          ((eq (display-pixel-width) 1440) (setq fullscreen-fontsize 28))
+          ((eq (display-pixel-width) 1366) (setq fullscreen-fontsize 19))
+          ((eq (display-pixel-width) 800) (setq fullscreen-fontsize 14))
+          (t (setq fullscreen-fontsize 12)))
+
+         ;; リングの状態を最新に更新（max-frame-height が変わるため）
+         (add-hook 'frame-ctr-after-fullscreen-hook
+                   'make-frame-height-ring)
+         (add-hook 'frame-ctr-after-fullscreen-hook
+                   'move-frame-to-edge-top)))
+
+  ;; Move the frame to somewhere (default: 0,0)
+  (global-set-key (kbd "M-0") 'move-frame-with-user-specify)
+  ;; Move the frame to left side of the current position (require 'frame-cmds)
+  (global-set-key (kbd "M-1") '(lambda () (interactive) (move-frame-left 40)))
+  ;; Move the frame to the center of the window display (require 'frame-ctr)
+  (global-set-key (kbd "M-2") 'move-frame-to-center)
+  ;; Move the frame to right side of the current position(require 'frame-cmds)
+  (global-set-key (kbd "M-3") '(lambda () (interactive)(move-frame-right 40)))
+  ;; Move the current frame to the top of the window display
+  (global-set-key (kbd "<f1>") 'move-frame-to-edge-top)
+  ;; Move the current frame to the bottom of the window display
+  (global-set-key (kbd "S-<f1>") 'move-frame-to-edge-bottom)
+  ;; Cycle heights
+  (global-set-key (kbd "<f2>") 'frame-ctr-open-height-ring)
+  ;; Full screen with same frame-width
+  (global-set-key (kbd "C-x C-9") 'fit-frame-to-fullscreen)
+  (global-set-key (kbd "C-x C-0") 'reset-font-size)
+  (global-set-key (kbd "C-=")
+                  '(lambda () (interactive)
+                     (increase-font-size)
+                     (move-frame-to-edge-top)
+                     (frame-ctr-print-status)))
+  (global-set-key (kbd "C--")
+                  '(lambda () (interactive) 
+                     (decrease-font-size)
+                     (move-frame-to-edge-top)
+                     (frame-ctr-print-status))))
+
+;; setting for e2wm
+(when (eval-after-autoload-if-found
+       '(change-frame-width-single
+         change-frame-width-double change-frame-double-window
+         change-frame-single-window) "frame-ctr-e2wm" nil t)
+
+  ;; Set the frame width single size
+  ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
+  (global-set-key (kbd "C-x -") 'change-frame-single-window)
+  ;; Set the frame width double size
+  ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
+  (global-set-key (kbd "C-x =") 'change-frame-double-window)
+  (global-set-key (kbd "C-c f s") 'change-frame-width-single)
+  (global-set-key (kbd "C-c f d") 'change-frame-width-double))
+
+;; for emacs 24.1
+;; (setq special-display-function 'popwin:special-display-popup-window)
+;; (setq display-buffer-function 'popwin:display-buffer)
+;; for emacs 24.3
+;; (setq special-display-alist 'popwin:special-display-popup-window)
+;; (setq display-buffer-alist 'popwin:display-buffer)
+;; (push '("*sdic*" :position top) popwin:special-display-config)
+(when (require 'popwin nil t)
+  (setq popwin:special-display-config
+        (append
+         '(("CAPTURE-next.org" :height 10 :position bottom :noselect t)
+           ("CAPTURE-org-ical.org" :height 10 :position bottom :noselect t)
+           ("*Help*"          :height 20 :position bottom :dedicated t)
+           ("dict-app-result" :height 20 :position bottom)
+           ("*osx-dictionary*" :height 20 :position bottom)
+           ("Calendar"                   :position bottom :dedicated t)
+           ("*wclock*"        :height 10 :position bottom :dedicated t)
+           ("*Org Agenda*"    :height 10 :position bottom)
+           ("*Org Select*"  :height 10 :position bottom)
+           ("*Org Grep*"    :height 20 :position bottom :dedicated t)
+           ("*Occur*"       :height 10 :position bottom)
+           ("*Shell Command Output*" :height 10 :position bottom :dedicated t)
+;;;            (undo-tree-visualizer-buffer-name :height 10 :position top)
+;;;            (undo-tree-diff-buffer-name :height 20 :position bottom)
+           ("*eshell*"      :height 10 :position bottom))
+         popwin:special-display-config))
+  (popwin-mode 1))
+
 (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
 (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
 
@@ -1878,35 +2188,20 @@
 (global-hl-line-mode t)
 (set-face-background 'hl-line "#DEEDFF")
 
-;; Cursor (see also takaxp-mac.el)
-;;(add-to-list 'default-frame-alist '(cursor-type . (hbar . 5)))
-;;(add-to-list 'default-frame-alist '(cursor-type . bar))
-;;(add-hook 'window-configuration-change-hook
-
-(defvar my:cursor-color-ime-on "#91C3FF")
-(defvar my:cursor-color-ime-off "#AAAAAA")
-(set-cursor-color my:cursor-color-ime-on)
-
 (when (and (eq window-system 'ns) (>= emacs-major-version 24))
-  ;; when IME is ON
-  (when (fboundp 'mac-set-input-method-parameter)
-    (mac-set-input-method-parameter
-     "com.google.inputmethod.Japanese.base" 'title "グ"))
-
-  ;; (defun my:update-cursor-color ()
-  ;;   (interactive)
-  ;;   (if current-input-method (set-cursor-color my:cursor-color-ime-off)
-  ;;     (set-cursor-color my:cursor-color-ime-on)))
-  ;; ;; (my:update-cursor-color)
-  ;; (run-with-idle-timer 10 t 'my:update-cursor-color))
 
   (add-hook 'input-method-activate-hook
-            (lambda () (set-cursor-color my:cursor-color-ime-on)))
-  (add-hook 'input-method-inactivate-hook
-            (lambda () (set-cursor-color my:cursor-color-ime-off))))
+            (lambda ()
+              (blink-cursor-mode -1)
+              (setq cursor-type 'box)
+              (set-cursor-color my:cursor-color-ime-on)
+              ))
 
-;; Disable cursor blink
-(blink-cursor-mode -1)
+  (add-hook 'input-method-inactivate-hook
+            (lambda ()
+              (blink-cursor-mode 1)
+              (setq cursor-type '(bar . 2))
+              (set-cursor-color my:cursor-color-ime-off))))
 
 (defvar my:font-size 12)
 (defun my:ja-font-setter (spec)
@@ -2013,13 +2308,14 @@
 (when (my:night-time-p (* night-time-in 60) (* night-time-out 60))
   ;; (when (require 'gotham-theme nil t)
   ;; (load-theme 'gotham t))
+  ;; (when (require 'material-theme nil t)
+  ;;   (load-theme 'material t)
   (when (require 'night-theme nil t)
     (load-theme 'night t)
-    (setq my:cursor-color-ime-on "#8599ff"))
-  )
+    (setq my:cursor-color-ime-on "#8599ff")))
 
 (when (eval-after-autoload-if-found
-       '(rainbow-mode) "rainbow-mode")
+       '(rainbow-mode) "rainbow-mode" nil t)
   (add-hook 'emmet-mode-hook 'rainbow-mode)
   (add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
   (add-hook 'org-mode-hook 'rainbow-mode))
@@ -2064,194 +2360,28 @@
   (add-hook 'emacs-lisp-mode-hook 'volatile-highlights-mode)
   (add-hook 'emmet-mode-hook 'rainbow-mode))
 
-;; To avoid an error setting up the frame width (only for Emacs23)
-                                        ;(set-frame-width (selected-frame) 81)
-                                        ;(set-frame-width (selected-frame) 80)
-
-;; Default window position to show a Emacs frame
-;; Dynabook UX: top=0, left=0, width=80, height=32
-(cond
- ((eq window-system 'ns) ; for Macintosh
-  (setq initial-frame-alist
-        (append
-         '((top . 22)  ; Y-pos from (0,0) the height of menu bar is 22pix.
-           (left . 0)  ; X-pos from (0,0) ; 420 is the center for MBP
-           ;; 26 is the setting for Butler's Docklet
-           ;; 837 is the setting for right side for MBP
-           (width . 80) ; Width  : character count
-           (alpha . (100 90))
-           (cursor-height . 16)
-           (vertical-scroll-bars . nil)
-           ) initial-frame-alist)))
-
- ((eq window-system 'x) ; for Linux
-  (setq initial-frame-alist
-        (append
-         '((vertical-scroll-bars . nil)
-           (top . 0)
-           (left . 0)
-           (width . 80)
-           (height . 38)
-           ) initial-frame-alist)))
-
- (t                     ; for Windows
-  (setq initial-frame-alist
-        (append
-         '((vertical-scroll-bars . nil)
-           (top . 0)
-           (left . 0)
-           (width . 80)
-           (height . 26)
-           ) initial-frame-alist))))
-
-;; Apply the initial setting to default
-(setq default-frame-alist initial-frame-alist)
-(set-face-foreground 'vertical-border (face-background 'default))
-(set-face-background 'vertical-border (face-background 'default))
-(set-face-background 'fringe (face-background 'default))
-
-(eval-after-autoload-if-found 
- '(my:e2wm:dp-two e2wm:dp-two e2wm:start-management) "e2wm" nil t nil
- '((defun my:e2wm:dp-two ()
-     (interactive)
-     (e2wm:dp-two)
-     (setq e2wm:c-two-recipe
-           '(- (:lower-size 10)
-               (| left right)
-               sub))
-     (setq e2wm:c-two-winfo
-           '((:name left )
-             (:name right )
-             (:name sub :default-hide t)))
-
-     ;; left, prev
-     (setq e2wm:c-two-right-default 'left))
-
-   ;; 高さを画面の最大に矯正
-   (when (require 'frame-ctr nil t)
-     (setq frame-height-tall (max-frame-height))
-     (setq frame-height-small frame-height-tall))
-
-   ;; 幅を画面の最大に矯正
-   (add-hook 'e2wm:pre-start-hook
-             #'(lambda ()
-                 (set-frame-width
-                  (selected-frame)
-                  (/ (- (display-pixel-width) 30) (frame-char-width)))))
-
-   ;; 幅をデフォルト値に戻す
-   (add-hook 'e2wm:post-stop-hook
-             #'(lambda () (set-frame-width (selected-frame) target-frame-width)))
-
-   ;; To avoid rebooting issue when using desktop.el and recentf.el
-   (add-hook 'kill-emacs-hook 'e2wm:stop-management)))
-
-(defvar frame-ctr-autoloads
-  '(move-frame-with-user-specify
-    move-frame-to-center move-frame-to-edge-top move-frame-right
-    move-frame-left move-frame-to-edge-bottom frame-ctr-open-height-ring
-    fit-frame-to-fullscreen set-font-size-input max-frame-height
-    reset-font-size increase-font-size decrease-font-size set-font-size))
-
-(when (eval-after-autoload-if-found
-       frame-ctr-autoloads "frame-ctr" nil t nil 
-       '((make-frame-height-ring)
-         (cond
-          ((eq (display-pixel-width) 1920) (setq fullscreen-fontsize 38))
-          ((eq (display-pixel-width) 1440) (setq fullscreen-fontsize 28))
-          ((eq (display-pixel-width) 1366) (setq fullscreen-fontsize 19))
-          ((eq (display-pixel-width) 800) (setq fullscreen-fontsize 14))
-          (t (setq fullscreen-fontsize 12)))
-
-         ;; リングの状態を最新に更新（max-frame-height が変わるため）
-         (add-hook 'frame-ctr-after-fullscreen-hook
-                   'make-frame-height-ring)
-         (add-hook 'frame-ctr-after-fullscreen-hook
-                   'move-frame-to-edge-top)))
-
-  ;; Move the frame to somewhere (default: 0,0)
-  (global-set-key (kbd "M-0") 'move-frame-with-user-specify)
-  ;; Move the frame to left side of the current position (require 'frame-cmds)
-  (global-set-key (kbd "M-1") '(lambda () (interactive) (move-frame-left 40)))
-  ;; Move the frame to the center of the window display (require 'frame-ctr)
-  (global-set-key (kbd "M-2") 'move-frame-to-center)
-  ;; Move the frame to right side of the current position(require 'frame-cmds)
-  (global-set-key (kbd "M-3") '(lambda () (interactive)(move-frame-right 40)))
-  ;; Move the current frame to the top of the window display
-  (global-set-key (kbd "<f1>") 'move-frame-to-edge-top)
-  ;; Move the current frame to the bottom of the window display
-  (global-set-key (kbd "S-<f1>") 'move-frame-to-edge-bottom)
-  ;; Cycle heights
-  (global-set-key (kbd "<f2>") 'frame-ctr-open-height-ring)
-  ;; Full screen with same frame-width
-  (global-set-key (kbd "C-x C-9") 'fit-frame-to-fullscreen)
-  (global-set-key (kbd "C-x C-0") 'reset-font-size)
-  (global-set-key (kbd "C-=")
-                  '(lambda () (interactive)
-                     (increase-font-size)
-                     (move-frame-to-edge-top)
-                     (frame-ctr-print-status)))
-  (global-set-key (kbd "C--")
-                  '(lambda () (interactive) 
-                     (decrease-font-size)
-                     (move-frame-to-edge-top)
-                     (frame-ctr-print-status))))
-
-;; setting for e2wm
-(when (eval-after-autoload-if-found
-       '(change-frame-width-single
-         change-frame-width-double change-frame-double-window
-         change-frame-single-window) "frame-ctr-e2wm")
-
-  ;; Set the frame width single size
-  ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
-  (global-set-key (kbd "C-x -") 'change-frame-single-window)
-  ;; Set the frame width double size
-  ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
-  (global-set-key (kbd "C-x =") 'change-frame-double-window)
-  (global-set-key (kbd "C-c f s") 'change-frame-width-single)
-  (global-set-key (kbd "C-c f d") 'change-frame-width-double))
-
-(when (eval-after-autoload-if-found
-       '(popwin-mode) "popwin" nil t nil
-       '(;; for emacs 24.1
-         ;; (setq special-display-function 'popwin:special-display-popup-window)
-         ;; (setq display-buffer-function 'popwin:display-buffer)
-         ;; for emacs 24.3
-         ;; (setq special-display-alist 'popwin:special-display-popup-window)
-         ;; (setq display-buffer-alist 'popwin:display-buffer)
-         ;; (push '("*sdic*" :position top) popwin:special-display-config)
-
-         (setq popwin:special-display-config
-               (append
-                '(("CAPTURE-next.org" :height 10 :position bottom :noselect t)
-                  ("CAPTURE-org-ical.org" :height 10 :position bottom :noselect t)
-                  ("*Help*"          :height 20 :position bottom)
-                  ("dict-app-result" :height 20 :position bottom)
-                  ("*osx-dictionary*" :height 20 :position bottom)
-                  ("*wclock*"        :height 10 :position bottom)
-                  ("*Org Agenda*"    :height 10 :position bottom)
-                  ("*Org Select*"  :height 10 :position bottom)
-                  ("*Occur*"       :height 10 :position bottom)
-;;;            (undo-tree-visualizer-buffer-name :height 10 :position top)
-;;;            (undo-tree-diff-buffer-name :height 20 :position bottom)
-                  ("*eshell*"      :height 10 :position bottom))
-                popwin:special-display-config))))
-  (popwin-mode 1))
-
 (with-eval-after-load "org"
   (global-set-key (kbd "C-c f t") 'open-current-directory))
 
 (when (eval-after-autoload-if-found
-       '(lingr-login) "lingr" nil t nil
+       '(google-this google-this-word) "google-this" nil t)
+  (defun my:google-this ()
+    (interactive)
+    (google-this (current-word) t))
+  (global-set-key (kbd "C-c f g") 'my:google-this))
+
+(when (eval-after-autoload-if-found
+       '(lingr-login my:lingr-login) "lingr" nil t nil
        '((setq lingr-icon-mode t)
          (setq lingr-icon-fix-size 24)
-         (setq lingr-image-convert-program "/usr/local/bin/convert")))
-  
-  (run-at-time "22:00" nil
-               '(lambda ()
-                  (when (string= "Sat" (format-time-string "%a"))
-                    (lingr-login)))))
+         (setq lingr-image-convert-program "/usr/local/bin/convert")
+         (defun my:lingr-login ()
+           (when (string= "Sat" (format-time-string "%a"))
+             (lingr-login)))
+         ))
+
+  (unless (passed-clock-p "22:00")
+    (run-at-time "22:00" nil 'my:lingr-login)))
 
 (defvar utility-autoloads
   '(takaxp:date
@@ -2266,9 +2396,23 @@
     browse-url-chrome count-words-buffer do-test-applescript
     delete-backup-files recursive-delete-backup-files describe-timer))
 
-(when (eval-after-autoload-if-found utility-autoloads "utility")
+(when (eval-after-autoload-if-found utility-autoloads "utility" nil t)
   (global-set-key (kbd "<f12>") 'takaxp:open-file-ring)
   (global-set-key (kbd "C-c t") 'takaxp:date)
   (global-set-key (kbd "C-c f 4") 'takaxp:window-resizer))
+
+(if (not
+     (and (executable-find "pass")
+          (library-p '("helm-pass" "helm-config"))))
+    (message "--- pass is NOT installed.")
+  (when (eval-after-autoload-if-found 
+         'helm-pass "helm-pass" nil t nil
+         '((require 'helm-config nil t)))
+    (global-set-key (kbd "C-c f p") 'helm-pass)))
+
+(eval-after-autoload-if-found
+ '(multi-term) "multi-term" nil t nil
+ '((setenv "HOSTTYPE" "intel-mac")
+   (my:night-theme)))
 
 (provide 'init)

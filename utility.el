@@ -153,16 +153,17 @@
 
 (defvar my:file-ring nil)
 
-;;;###autoload
+ ;;;###autoload
 (defun takaxp:make-file-ring (files)
   (setq my:file-ring (copy-sequence files)))
 ;;    (setf (cdr (last my:file-ring)) my:file-ring))
 (takaxp:make-file-ring
- '("~/Dropbox/org/work.org" "~/Dropbox/emacs.d/config/init.org"
-   "~/Dropbox/org/buffer.org" "~/Dropbox/emacs.d/config/utility.org"
-   "~/Dropbox/org/research.org" "~/Dropbox/org/next.org"))
+ '("~/Dropbox/org/work.org" "~/Dropbox/org/wg1.org"
+   "~/Dropbox/org/research.org" "~/Dropbox/emacs.d/config/init.org"
+   "~/Dropbox/emacs.d/config/utility.org" "~/Dropbox/org/buffer.org"
+   "~/Dropbox/org/next.org"))
 
-;;;###autoload
+ ;;;###autoload
 (defun takaxp:open-file-ring ()
   (interactive)
   (find-file (car my:file-ring))
@@ -312,18 +313,18 @@
 (with-eval-after-load "org"
   (run-with-idle-timer 600 t
                        '(lambda ()
-                          (setq ox-icalendar-activate t)))
+                          (reload-ical-export)))
   ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
-  (add-hook 'focus-out-hook 'reload-ical-export))
+  ;; FIXME
+  (add-hook 'focus-in-hook '(lambda () (setq ox-icalendar-activate nil)))
+  (add-hook 'focus-out-hook '(lambda () (setq ox-icalendar-activate t))))
 
 ;;;###autoload
 (defun reload-ical-export ()
   "Export org files as an iCal format file"
   (interactive)
-  (when (string= major-mode 'org-mode)
-    (when ox-icalendar-activate
-      (setq ox-icalendar-activate nil)
-      (my:ox-icalendar))))
+  (when (and (string= major-mode 'org-mode) ox-icalendar-activate)
+    (my:ox-icalendar)))
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim

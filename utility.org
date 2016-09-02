@@ -215,16 +215,17 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defvar my:file-ring nil)
 
-  ;;;###autoload
+   ;;;###autoload
   (defun takaxp:make-file-ring (files)
     (setq my:file-ring (copy-sequence files)))
   ;;    (setf (cdr (last my:file-ring)) my:file-ring))
   (takaxp:make-file-ring
-   '("~/Dropbox/org/work.org" "~/Dropbox/emacs.d/config/init.org"
-     "~/Dropbox/org/buffer.org" "~/Dropbox/emacs.d/config/utility.org"
-     "~/Dropbox/org/research.org" "~/Dropbox/org/next.org"))
+   '("~/Dropbox/org/work.org" "~/Dropbox/org/wg1.org"
+     "~/Dropbox/org/research.org" "~/Dropbox/emacs.d/config/init.org"
+     "~/Dropbox/emacs.d/config/utility.org" "~/Dropbox/org/buffer.org"
+     "~/Dropbox/org/next.org"))
 
-  ;;;###autoload
+   ;;;###autoload
   (defun takaxp:open-file-ring ()
     (interactive)
     (find-file (car my:file-ring))
@@ -464,18 +465,18 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   (with-eval-after-load "org"
     (run-with-idle-timer 600 t
                          '(lambda ()
-                            (setq ox-icalendar-activate t)))
+                            (reload-ical-export)))
     ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
-    (add-hook 'focus-out-hook 'reload-ical-export))
+    ;; FIXME
+    (add-hook 'focus-in-hook '(lambda () (setq ox-icalendar-activate nil)))
+    (add-hook 'focus-out-hook '(lambda () (setq ox-icalendar-activate t))))
 
   ;;;###autoload
   (defun reload-ical-export ()
     "Export org files as an iCal format file"
     (interactive)
-    (when (string= major-mode 'org-mode)
-      (when ox-icalendar-activate
-        (setq ox-icalendar-activate nil)
-        (my:ox-icalendar))))
+    (when (and (string= major-mode 'org-mode) ox-icalendar-activate)
+      (my:ox-icalendar)))
 #+END_SRC
 
 ** ブラウザの設定
