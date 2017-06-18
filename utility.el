@@ -1,3 +1,4 @@
+(require 'org nil t)
 ;;;###autoload
 (defun eval-org-buffer ()
   "Load init.org/utility.org and tangle init.el/utility.el."
@@ -53,8 +54,8 @@
          (concat "open -a " open-current-directory-console-program))))))
 
 (defun my:update-alarms-from-file ()
-  (when (string= "today.org" (buffer-name))
-    (set-alarms-from-file "~/Dropbox/org/today.org")))
+  (when (string= "trigger.org" (buffer-name))
+    (set-alarms-from-file "~/Dropbox/org/trigger.org")))
 
   ;;;###autoload
 (defun set-alarms-from-file (file)
@@ -196,7 +197,8 @@
       (goto-char 0)
       (save-excursion
         (insert title date update author option other))
-      (org-end-of-line))))
+      (when (require 'org nil t)
+        (org-end-of-line)))))
 
 ;;;###autoload
 (defun insert-minutes-template ()
@@ -285,17 +287,18 @@
   :type 'string
   :group 'takaxp-utility)
 
-(defun export-timeline-business ()
-  "Export schedule table as an XML source to create an web page"
-  (interactive)
-  (when (and default-timeline
-             (and default-timeline-csv-file
-                  default-timeline-xml-business-file))
-    (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
-    (org-table-export default-timeline-csv-file "orgtbl-to-csv")
-    (shell-command-to-string (concat "org2gantt.pl > "
-                                     default-timeline-xml-business-file))
-    (shell-command-to-string (concat "open " default-timeline))))
+(with-eval-after-load "org"
+  (defun export-timeline-business ()
+    "Export schedule table as an XML source to create an web page"
+    (interactive)
+    (when (and default-timeline
+               (and default-timeline-csv-file
+                    default-timeline-xml-business-file))
+      (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
+      (org-table-export default-timeline-csv-file "orgtbl-to-csv")
+      (shell-command-to-string (concat "org2gantt.pl > "
+                                       default-timeline-xml-business-file))
+      (shell-command-to-string (concat "open " default-timeline)))))
 
 (defun export-timeline-private ()
   "Export schedule table as an XML source to create an web page"
@@ -329,20 +332,19 @@
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
 (eval-after-autoload-if-found
- '(my:browse-url-chrome) "browse-url" nil t nil
- '((defun my:browse-url-chrome (url &optional new-window)
-     "Set default browser to open a URL"
-     (interactive (browse-url-interactive-arg "URL: "))
-     (start-process "google-chrome" nil "google-chrome" url))
-   ;; Open a link with google-chrome for Linux
-   (when (not (eq window-system 'ns))
-     (setq browse-url-browser-function 'browse-url-generic
-           browse-url-generic-program "google-chrome")
-     )
-   ))
-                                        ;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
-                                        ;(setq browse-url-browser-function 'browse-url-default-windows-browser)
-                                        ;(setq browse-url-browser-function 'browse-url-chrome)
+ '(browse-url) "browse-url" nil t nil
+ '((cond
+    ((eq window-system 'ns)
+     (setq browse-url-generic-program 'google-chrome))
+    ((eq window-system 'mac)
+     (setq browse-url-browser-function 'browse-url-generic)          
+     (setq browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"))
+    (t
+     nil))))
+
+;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
+;;(setq browse-url-browser-function 'browse-url-default-windows-browser)
+;;(setq browse-url-browser-function 'browse-url-chrome)
 
 ;;;###autoload
 (defun takaxp:date ()
@@ -404,7 +406,7 @@
     (reset-font-size)))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
-;;;###autoload
+  ;;;###autoload
 (defun count-words-buffer ()
   "Count the number of words in the current buffer"
   (interactive)
@@ -416,8 +418,8 @@
         (setq count (1+ count)))
       (message "buffer contains %d words." count))))
 
-  ;;; Test function for AppleScript
-  ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
+    ;;; Test function for AppleScript
+    ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
 (defun do-test-applescript ()
   (interactive)
   (do-applescript
@@ -425,9 +427,9 @@
     (concat
      "display dialog \"Hello world!\" \r"))))
 
-;;;###autoload
+  ;;;###autoload
 (defun describe-timer ()
-  "A modified. see http://masutaka.net/chalow/2009-12-05-1.html"
+  "see http://masutaka.net/chalow/2009-12-05-1.html"
   (interactive)
   (let ((tl timer-list) time
         (timer nil))
@@ -447,7 +449,8 @@
         " "
         (symbol-name (aref timer 5))
         "\n"))
-      (setq tl (cdr tl)))))
+      (setq tl (cdr tl)))
+    (read-only-mode 1)))
 
 ;;;###autoload
 (defun takaxp:window-resizer ()

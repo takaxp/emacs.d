@@ -12,7 +12,7 @@
 (prefer-coding-system 'utf-8-unix)
 (set-locale-environment "en_US.UTF-8") ; "ja_JP.UTF-8"
 (when (eq window-system 'ns)
-        ;; Paste command by Command+v 
+  ;; Paste command by Command+v 
   (global-set-key (kbd "M-v") 'yank)
   (setq ns-command-modifier (quote meta))
   (set ns-alternate-modifier (quote super))
@@ -92,4 +92,16 @@
 (global-set-key (kbd "M-]") 'cycle-buffer)
 (global-set-key (kbd "M-[") 'cycle-buffer-backward)
 (global-set-key (kbd "M-+") 'word-count-mode)
+(add-hook 'after-init-hook
+          (lambda ()
+            (message
+             "Emacs booting time: %.0f [msec]"
+             (* 1000 (float-time
+                      (time-subtract after-init-time before-init-time))))))
+
+;;(load-path-setter '("~/Dropbox/emacs.d") 'load-path)
+;;(load-path-setter '("~/Dropbox/emacs.d/config") 'load-path)
+;;(load-path-setter '("~/.emacs.d/.cask/package") 'load-path)
+;;(load-path-setter '("~/devel/git/org-8.2/lisp") 'load-path)
+;;(load-path-setter '("~/devel/git/org-8.2/contrib/lisp") 'load-path)        
 (provide 'my-debug)
