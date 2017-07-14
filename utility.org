@@ -11,7 +11,7 @@
 * orgバッファを評価
 
 org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
- 
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'org nil t)
   ;;;###autoload
@@ -19,8 +19,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
     "Load init.org/utility.org and tangle init.el/utility.el."
     (interactive)
     (if (and (eq major-mode 'org-mode)
-             (or (string= (buffer-name) "init.org")
-                 (string= (buffer-name) "utility.org")))
+             (member (buffer-name) '("init.org" "utility.org")))
         (progn
           (org-babel-tangle)
           (let ((tangled-file
@@ -165,14 +164,17 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
             ;;            (set-notify-mail hour min action s)
             )))))
 
-  (when (eval-after-autoload-if-found
-         '(todochiku-message) "todochiku" nil t nil
-         '((setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
-           (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
-           ))
-    (require 'cl))
+  (when (autoload-if-found
+         '(todochiku-message)
+         "todochiku" nil t)
+    (eval-when-compile
+      (require 'todochiku nil t))
+    (with-eval-after-load "todochiku"
+      (setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
+      (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
+      (require 'cl-lib)))
 
-    ;;;###autoload
+  ;;;###autoload
   (defun my:desktop-notify (type title hour min action s)
     (cond
      ;; ((string= type "growl")
@@ -350,14 +352,6 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
                  (insert item-string))))))
 #+END_SRC
 
-*** キーバインド
-
-=C-u C-M--= とすれば，[ ] を付加できます．
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(global-set-key (kbd "C-M--") 'add-itemize-head)
-#+END_SRC
-
 ** 日付などを簡単に挿入する
 
 http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
@@ -487,16 +481,18 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
   ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
-  (eval-after-autoload-if-found
-   '(browse-url) "browse-url" nil t nil
-   '((cond
-      ((eq window-system 'ns)
-       (setq browse-url-generic-program 'google-chrome))
-      ((eq window-system 'mac)
-       (setq browse-url-browser-function 'browse-url-generic)          
-       (setq browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"))
-      (t
-       nil))))
+  (when (autoload-if-found
+         '(browse-url)
+         "browse-url" nil t)
+    (with-eval-after-load "browse-url"
+      (cond
+       ((eq window-system 'ns)
+        (setq browse-url-generic-program 'google-chrome))
+       ((eq window-system 'mac)
+        (setq browse-url-browser-function 'browse-url-generic)
+        (setq browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"))
+       (t
+        nil))))
 
   ;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
   ;;(setq browse-url-browser-function 'browse-url-default-windows-browser)
@@ -532,7 +528,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
       (setq day-shift 1))
     (let* ((backup-dir "~/.emacs.d/backup")
            (cmd (concat "find " backup-dir "  -type f -name \'*"
-                        (format-time-string 
+                        (format-time-string
                          "%y-%m-%d_"
                          (time-subtract (current-time)
                                         (seconds-to-time
@@ -568,6 +564,19 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
       (set-face-foreground 'vertical-border (face-background 'default))
       (set-face-background 'vertical-border (face-background 'default))
       (reset-font-size)))
+#+END_SRC
+
+** chomp
+
+改行コードを削除した文字列を返す．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun chomp (str)
+    "Chomp leading and tailing whitespace from STR."
+    (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'"
+                         str)
+      (setq str (replace-match "" t t str)))
+    str)
 #+END_SRC
 
 ** その他
@@ -754,8 +763,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 (defun org-link-uuid (input &optional overwrite)
   (interactive "FFile name: ")
-  (let ((output 
-         (if overwrite 
+  (let ((output
+         (if overwrite
              (rename-file-with-uuid input)
            (copy-file-with-uuid input))))
     (when output

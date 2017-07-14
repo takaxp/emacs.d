@@ -4,8 +4,7 @@
   "Load init.org/utility.org and tangle init.el/utility.el."
   (interactive)
   (if (and (eq major-mode 'org-mode)
-           (or (string= (buffer-name) "init.org")
-               (string= (buffer-name) "utility.org")))
+           (member (buffer-name) '("init.org" "utility.org")))
       (progn
         (org-babel-tangle)
         (let ((tangled-file
@@ -109,14 +108,17 @@
           ;;            (set-notify-mail hour min action s)
           )))))
 
-(when (eval-after-autoload-if-found
-       '(todochiku-message) "todochiku" nil t nil
-       '((setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
-         (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
-         ))
-  (require 'cl))
+(when (autoload-if-found
+       '(todochiku-message)
+       "todochiku" nil t)
+  (eval-when-compile
+    (require 'todochiku nil t))
+  (with-eval-after-load "todochiku"
+    (setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
+    (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
+    (require 'cl-lib)))
 
-  ;;;###autoload
+;;;###autoload
 (defun my:desktop-notify (type title hour min action s)
   (cond
    ;; ((string= type "growl")
@@ -244,8 +246,6 @@
                (move-beginning-of-line 1)
                (insert item-string))))))
 
-(global-set-key (kbd "C-M--") 'add-itemize-head)
-
 (defun insert-formatted-current-date ()
   "Insert a timestamp at the cursor position. C-u will add [] brackets."
   (interactive)
@@ -331,16 +331,18 @@
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
-(eval-after-autoload-if-found
- '(browse-url) "browse-url" nil t nil
- '((cond
-    ((eq window-system 'ns)
-     (setq browse-url-generic-program 'google-chrome))
-    ((eq window-system 'mac)
-     (setq browse-url-browser-function 'browse-url-generic)          
-     (setq browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"))
-    (t
-     nil))))
+(when (autoload-if-found
+       '(browse-url)
+       "browse-url" nil t)
+  (with-eval-after-load "browse-url"
+    (cond
+     ((eq window-system 'ns)
+      (setq browse-url-generic-program 'google-chrome))
+     ((eq window-system 'mac)
+      (setq browse-url-browser-function 'browse-url-generic)
+      (setq browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"))
+     (t
+      nil))))
 
 ;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
 ;;(setq browse-url-browser-function 'browse-url-default-windows-browser)
@@ -371,7 +373,7 @@
     (setq day-shift 1))
   (let* ((backup-dir "~/.emacs.d/backup")
          (cmd (concat "find " backup-dir "  -type f -name \'*"
-                      (format-time-string 
+                      (format-time-string
                        "%y-%m-%d_"
                        (time-subtract (current-time)
                                       (seconds-to-time
@@ -404,6 +406,13 @@
     (set-face-foreground 'vertical-border (face-background 'default))
     (set-face-background 'vertical-border (face-background 'default))
     (reset-font-size)))
+
+(defun chomp (str)
+  "Chomp leading and tailing whitespace from STR."
+  (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'"
+                       str)
+    (setq str (replace-match "" t t str)))
+  str)
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
   ;;;###autoload

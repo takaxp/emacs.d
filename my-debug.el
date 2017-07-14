@@ -12,7 +12,7 @@
 (prefer-coding-system 'utf-8-unix)
 (set-locale-environment "en_US.UTF-8") ; "ja_JP.UTF-8"
 (when (eq window-system 'ns)
-  ;; Paste command by Command+v 
+  ;; Paste command by Command+v
   (global-set-key (kbd "M-v") 'yank)
   (setq ns-command-modifier (quote meta))
   (set ns-alternate-modifier (quote super))
@@ -103,5 +103,5 @@
 ;;(load-path-setter '("~/Dropbox/emacs.d/config") 'load-path)
 ;;(load-path-setter '("~/.emacs.d/.cask/package") 'load-path)
 ;;(load-path-setter '("~/devel/git/org-8.2/lisp") 'load-path)
-;;(load-path-setter '("~/devel/git/org-8.2/contrib/lisp") 'load-path)        
+;;(load-path-setter '("~/devel/git/org-8.2/contrib/lisp") 'load-path)
 (provide 'my-debug)
