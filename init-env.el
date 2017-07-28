@@ -6,6 +6,10 @@
 (defconst profiler nil)
 (defconst ad-require nil)
 (defconst loading-packages nil)
+;; (setq loading-packages
+;;       '(("helm-config" . nil)
+;;         ("helm" . nil)
+;;         ("org" . nil)))
 (defconst debug nil)
 (setq debug-on-error nil)
 

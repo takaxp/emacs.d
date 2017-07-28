@@ -98,6 +98,25 @@
     (require 'org-mac-link))
 #+END_SRC
 
+** [load-package-p] 設定の読み込みフラグを確認する
+
+=loading-packages= 変数に，設定を無視するパッケージを記述しておくと， =autoload-if-found= 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． =autoload-if-found= は本来の実装ではなく，=loading-packages= を参照するように手を加えています．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun load-package-p (file)
+    (let ((enabled t))
+      (when (boundp 'loading-packages)
+        (dolist (package loading-packages)
+          (let ((name (car package))
+                (flag (cdr package)))
+            (when (and (stringp name)
+                       (equal file name)
+                       (not flag))
+              (setq enabled nil)
+              (message "--- `%s' was NOT loaded explicitly" name)))))
+      enabled))
+#+END_SRC
+
 ** リストで関数を渡せる autoload-if-found を使う
 
   - http://d.hatena.ne.jp/jimo1001/20090921/1253525484
@@ -268,7 +287,6 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
              `((eval-after-load file '(progn ,@after-body))))
          t)))
 #+END_SRC
-
 ** [library-p] load-path にライブラリがあるかを判定
 
 パッケージが load-path に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
@@ -323,23 +341,6 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
     (if window-focus-p t nil))
   (add-hook 'focus-in-hook #'(lambda () (setq window-focus-p t)))
   (add-hook 'focus-out-hook #'(lambda () (setq window-focus-p nil)))
-#+END_SRC
-
-** TODO [load-package-p] 設定の読み込みフラグを確認する
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (defun load-package-p (file)
-    (let ((enabled t))
-      (when (boundp 'loading-packages)
-        (dolist (package loading-packages)
-          (let ((name (car package))
-                (flag (cdr package)))
-            (when (and (stringp name)
-                       (equal file name)
-                       (not flag))
-              (setq enabled nil)
-              (message "--- `%s' was NOT loaded explicitly" name)))))
-      enabled))
 #+END_SRC
 
 ** 警告の抑制
@@ -490,10 +491,11 @@ NSビルド用のインラインパッチを適用している場合に使いま
 
 検索には =The Silver Searcher= を使います．あらかじめインストールしておく必要があります．MacPorts の場合，the_silver_searcher の名称で頒布されています． =exec-path= に =/opt/local/bin= が含まれていることを確認してください．
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SRC sh
 the_silver_searcher @0.18.1 (textproc)
  A code-searching tool similar to ack, but faster.
-#+END_EXAMPLE
+#+END_SRC
+
 
 カスタマイズした関数を =C-M-f= にぶら下げています．helm インタフェースを使う =helm-ag= もあります．
 
@@ -706,7 +708,9 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
   echo "--- Done"
 #+END_SRC
 
-*** TODO [paradox.el] パッケージ選択画面の改善
+*** [paradox.el] パッケージ選択画面の改善
+
+パッケージインストール用のバッファが多機能になります．スターが表示されたり，ミニバッファには様々な情報が表示されるようになります．基本の操作系は同じで，拡張部分は =h= を押すとミニバッファにディスパッチャが表示されます．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found
@@ -886,7 +890,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
     (setq mac-win-apply-org-heading-face t))
 #+END_SRC
 
-** NSビルド用設定
+** NSビルド用設定                                                       :Mac:
 
 インラインパッチの適用が前提の設定です． =S-SPC= で日本語IMEのON/OFFができるようになります．インラインパッチの情報はリンク先にあります．
 
@@ -1582,7 +1586,8 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
                           :foreground "#BA2636" :bold nil
                           :background nil :underline t)
       ;; ispell-complete-word のキーバインドを上書き
-      (when (require 'flyspell-correct-helm nil t)
+      (when (and (require 'helm nil t)
+                 (require 'flyspell-correct-helm nil t))
         (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
       ;; Auto complete との衝突を回避
       (with-eval-after-load "auto-complete"
@@ -2191,6 +2196,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
       (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
       (define-key selected-keymap (kbd "5") #'query-replace-from-region)
       (define-key selected-keymap (kbd "g") #'my:google-this)
+      (define-key selected-keymap (kbd "s") #'osx-lib-say-region)
       (setq selected-org-mode-map (make-sparse-keymap))
       (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
       (define-key selected-keymap (kbd "q") #'keyboard-quit)
@@ -2398,6 +2404,23 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
   ;; Show scroll bar or not
   (when window-system
     (set-scroll-bar-mode -1)) ; 'right
+#+END_SRC
+
+** [yascroll] フリンジにスクロールバーを出す
+
+=yascroll= を使います．
+
+  - http://d.hatena.ne.jp/m2ym/20110401/1301617991
+  - 2015-03-15: smooth-scroll との組み合わせで重いのを確認．
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (with-eval-after-load "helm-config"
+    (when (require 'yascroll nil t)
+      (setq yascroll:delay-to-hide 2)
+      (setq yascroll:disabled-modes '(org-mode))
+      (set-face-foreground 'yascroll:thumb-fringe "#b2cefb")
+      (set-face-background 'yascroll:thumb-fringe "#b2cefb")
+      (global-yascroll-bar-mode 1)))
 #+END_SRC
 
 ** ツールバーを非表示にする
@@ -3139,7 +3162,7 @@ Org-mode を使っている場合には， =C-c M-L= で表示されるプロン
 #+END_SRC
 
 * 履歴／ファイル管理
-** TODO [dired] ファイラのサポートツール
+** [dired] ファイラのサポートツール
 
 =dired.el= をリッチに使うツール群．
 
@@ -3150,7 +3173,11 @@ Org-mode を使っている場合には， =C-c M-L= で表示されるプロン
   (with-eval-after-load "dired"
     (when (require 'gited nil t)
       (define-key dired-mode-map (kbd "C-x C-g") 'gited-list-branches))
-    (require 'dired-narrow nil t)
+    ;; https://github.com/Fuco1/dired-hacks
+
+    (when (require 'dired-narrow nil t)
+      (define-key dired-mode-map (kbd "/") 'dired-narrow))
+
     (require 'dired-du nil t))
 #+END_SRC
 
@@ -3392,27 +3419,32 @@ http://0xcc.net/misc/auto-save/
               #'(lambda () (recursive-delete-backup-files 7))))
 #+END_SRC
 
-** TODO 特定のファイルを Dropbox 以下にバックアップする
+** 特定のファイルを Dropbox 以下にバックアップする
 
-複数端末でEmacsを使うときに，稀に端末に依存した設定ファイルができます．私の場合は， =recentf= がそれに当たります．とは言えバックアップしていないのは不安なので，なんとかします．そのうち引数を複数ファイルに対応できるように拡張します．
+複数の端末でEmacsを使うと，稀に端末の環境に依存した設定ファイルが必要になり，それらは端末間で共有しません．私の場合は， =recentf= がそれに該当します．とは言えバックアップしていないのは不安なので，なんとかします．引数にバックアップ対象のファイルリストを渡せます．
 
 ちょっとダサいのですが，予め =~/Dropbox/backup= の下に， =system-name= で得られる値のディレクトリを作成する必要があります．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defun my:backup (file &optional dropbox)
+  (defun my:backup (files &optional dropbox)
     "Backup a file to `Dropbox/backup' directory. If `dropbox' option is provided then the value is uased as a root directory."
     (interactive "P")
     (let ((system (system-name))
           (rootdir (or dropbox "~/Dropbox")))
       (if (and system
-               (and (stringp rootdir) (stringp file))
-               (file-directory-p (or rootdir (expand-file-name rootdir)))
-               (file-readable-p (or file (expand-file-name file))))
-          (progn
-            (shell-command-to-string
-             (concat "cp -f " file " " rootdir "/backup/" system "/"))
-            (message (format "--- backup done: %s" file)))
-        (message (format "--- backup failure: %s" file)))))
+               (stringp rootdir)
+               (file-directory-p (or rootdir (expand-file-name rootdir))))
+          (mapc
+           (lambda (file)
+             (if (and (stringp file)
+                      (file-readable-p (or file (expand-file-name file))))
+                 (shell-command-to-string
+                  (concat "cp -f " file " " rootdir "/backup/" system "/"))
+               (message (format "--- backup failure: %s" file))))
+           (if (listp files)
+               files
+             (list files)))
+        (message (format "--- backup-dir does not exist: %s" rootdir)))))
 
   (defun my:backup-recentf ()
     (my:backup "~/.emacs.d/recentf"))
@@ -3606,7 +3638,7 @@ http://doxymacs.sourceforge.net/
     (add-hook 'c-mode-common-hook 'doxymacs-mode))
 #+END_SRC
 
-** [matlab.el] Matlab用の設定
+** [matlab.el] Matlab用の設定                                           :Mac:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (and (memq window-system '(mac ns))
@@ -3809,8 +3841,9 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
         (add-hook hook 'hideshowvis-enable))))
 #+END_SRC
 
-** TODO [origami.el] 関数の折りたたみ
+** [origami.el] 関数の折りたたみ
 
+  - =hideshowvis.el= よりも軽い印象なので，現在は =origami.el= を使用中．
   - [[https://github.com/gregsexton/origami.el][gregsexton/origami.el: A folding minor mode for Emacs]]
   - [[https://github.com/zenozeng/yafolding.el][zenozeng/yafolding.el: Yet another folding extension for Emacs]]
   - [[https://github.com/tj64/outline-magic/blob/master/outline-magic.el][outline-magic/outline-magic.el at master · tj64/outline-magic]]
@@ -3906,7 +3939,7 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
       (message "editorconfig is NOT installed.")))
 #+END_SRC
 
-例えば次のようなファイルを共有プロジェクトに保存しておきます． =.editorconfig= として配置します．
+例えば，次のようなファイルを共有プロジェクトに保存しておきます． =.editorconfig= として配置します．
 
 #+BEGIN_SRC conf :tangle no :export yes
   root = true
@@ -3930,9 +3963,6 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
       (require 'org-extension nil t)
       (require 'org-habit nil t)
       (require 'org-mobile nil t)
-
-      ;;     (when (require 'pomodoro nil t)
-      ;;       (pomodoro:start nil))
 
       ;; C-c & が yasnippet にオーバーライドされているのを張り替える
       (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
@@ -4149,6 +4179,7 @@ http://orgmode.org/worg/org-gtd-etc.html
             ("Background"  :foreground "#66CC99")
             ("Chore"       :foreground "#6699CC")
             ("Domestic"    :foreground "#6666CC")
+            ("BeMerged"    :foreground "#6666CC")
             ("Doing"       :foreground "#FF0000")
             ("Review"      :foreground "#6633CC")
             ("Revisit"     :foreground "#6633CC")
@@ -5438,12 +5469,8 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
 ** 起動時の設定
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; To avoid an error setting up the frame width (only for Emacs23)
-  ;; Default window position to show a Emacs frame
-  ;; Dynabook UX: top=0, left=0, width=80, height=32
   (cond
-   (;; for Macintosh
-    (memq window-system '(mac ns))
+   ((memq window-system '(mac ns)) ;; for Macintosh
     (setq initial-frame-alist
           (append
            `((vertical-scroll-bars . nil)
@@ -5453,7 +5480,6 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
              ;; 837 is the setting for right side for MBP
              (width . 80) ; Width  : character count
              (alpha . (100 90))) initial-frame-alist)))
-
    ;; for Linux
    ((eq window-system 'x)
     (setq initial-frame-alist
@@ -5464,7 +5490,6 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
              (width . 80)
              (height . 38)
              ) initial-frame-alist)))
-
    ;; for Windows
    (t (setq initial-frame-alist
             (append
@@ -5508,14 +5533,14 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
           (run-hooks 'my:ime-on-hook))
         (defun my:ime-off ()
           (mac-toggle-input-method nil)
-          (run-hooks 'my:ime-off-hook)))
+          (run-hooks 'my:ime-off-hook))
+        (if (my:ime-active-p) (my:ime-on) (my:ime-off))
 
-      ;; for init setup
-      (if (my:ime-active-p) (my:ime-on) (my:ime-off))
-      (setq-default cursor-type '(bar . 2))
-      (set-cursor-color
-       (if (my:ime-active-p)
-           my:cursor-color-ime-on my:cursor-color-ime-off)))
+        ;; for init setup
+        (setq-default cursor-type '(bar . 2))
+        (set-cursor-color
+         (if (my:ime-active-p)
+             my:cursor-color-ime-on my:cursor-color-ime-off))))
 
     ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
     ;; バッファ切替時に input method を切り替える
@@ -5561,30 +5586,8 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
    (t nil))
 #+END_SRC
 
-** [elscreen.el] Emacs バッファをタブ化
-
-#+BEGIN_SRC emacs-lisp :tangle no
-;;; ElScreen (require apel) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Note: change a string in the elscreen.el from "mac" to "ns"
-;; 2011-10-26: e2wm's perspective (two) mode is more useful for me.
-(load "elscreen" "ElScreen" t)
-#+END_SRC
-
-** TODO [tabbar-ruler] バッファをタブ切り替え可能に
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (when (require 'tabbar-ruler nil t)
-    ;; (when (require 'tabbar-ruler nil t)
-    (setq tabbar-ruler-global-tabbar t) ; If you want tabbar
-    (setq tabbar-ruler-popup-menu t) ; If you want a popup menu.
-    (setq tabbar-ruler-popup-toolbar t) ; If you want a popup toolbar
-    ;;  (setq tabbar-ruler-fancy-tab-separator 'round)
-    ;;  (setq tabbar-ruler-fancy-current-tab-separator 'round)
-    (setq tabbar-ruler-invert-deselected nil)
-    (setq tabbar-ruler-modified-symbol t))
-#+END_SRC
-
 ** [e2wm.el] 二画面表示
+
 1. http://github.com/kiwanami/emacs-window-manager/raw/master/e2wm.el
 2. http://github.com/kiwanami/emacs-window-layout/raw/master/window-layout.el
 
@@ -5719,16 +5722,15 @@ frame-ctr.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホッ
 
 ** [popwin.el] ポップアップウィンドウの制御
 
-https://github.com/m2ym/popwin-el/
-
-popwin:display-buffer を autoload してもうまくいかない．
-
-現在は緩やかに =shackle= に移行中です．
+  - https://github.com/m2ym/popwin-el/
+  - popwin:display-buffer を autoload してもうまくいかない．
+  - 現在は緩やかに =shackle= に移行中です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; for emacs 24.1
   ;; (setq special-display-function 'popwin:special-display-popup-window)
   ;; (setq display-buffer-function 'popwin:display-buffer)
+
   ;; for emacs 24.3
   ;; (setq special-display-alist 'popwin:special-display-popup-window)
   ;; (setq display-buffer-alist 'popwin:display-buffer)
@@ -5740,10 +5742,10 @@ popwin:display-buffer を autoload してもうまくいかない．
       ;; Performed
       (push '("*Help*" :height 20 :position bottom :dedicated t)
             popwin:special-display-config)
-      (push '("*osx-dictionary*" :height 20 :position top)
+      (push '("*osx-dictionary*" :height 20 :position bottom)
             popwin:special-display-config)
-      ;; Checking...
 
+      ;; Checking...
       (push '("CAPTURE-next.org" :height 10 :position bottom :noselect t)
             popwin:special-display-config)
       (push '("CAPTURE-org-ical.org":height 10 :position bottom :noselect t)
@@ -5797,6 +5799,29 @@ popwin:display-buffer を autoload してもうまくいかない．
       (shackle-mode 1)))
 #+END_SRC
 
+** [elscreen.el] Emacs バッファをタブ化
+
+#+BEGIN_SRC emacs-lisp :tangle no
+;;; ElScreen (require apel) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Note: change a string in the elscreen.el from "mac" to "ns"
+;; 2011-10-26: e2wm's perspective (two) mode is more useful for me.
+(load "elscreen" "ElScreen" t)
+#+END_SRC
+
+** [tabbar-ruler] バッファをタブ切り替え可能に
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (when (require 'tabbar-ruler nil t)
+    ;; (when (require 'tabbar-ruler nil t)
+    (setq tabbar-ruler-global-tabbar t) ; If you want tabbar
+    (setq tabbar-ruler-popup-menu t) ; If you want a popup menu.
+    (setq tabbar-ruler-popup-toolbar t) ; If you want a popup toolbar
+    ;;  (setq tabbar-ruler-fancy-tab-separator 'round)
+    ;;  (setq tabbar-ruler-fancy-current-tab-separator 'round)
+    (setq tabbar-ruler-invert-deselected nil)
+    (setq tabbar-ruler-modified-symbol t))
+#+END_SRC
+
 * フォント／配色関連
 ** 正規表現を見やすくする
 
@@ -5805,7 +5830,7 @@ popwin:display-buffer を autoload してもうまくいかない．
   (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
 #+END_SRC
 
-Emacs Lisp での正規表現入力をサポートするツールには， =M-x re-builder= や =rx= マクロがある．
+Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-builder= や =rx= マクロがある．
 
   - [[http://www.emacswiki.org/emacs/ReBuilder][EmacsWiki: Re Builder]]
   - [[http://emacswiki.org/emacs/rx][EmacsWiki: rx]]
@@ -5821,20 +5846,20 @@ Emacs Lisp での正規表現入力をサポートするツールには， =M-x 
 
 ** カーソル行に色をつける
 
+  - ビルトインの =hl-line= を使います．
+  - http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html
+  - http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el
+
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Color of the current line
-  ;; Cite: http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html
-  ;; see also http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el
   (when window-system
     (global-hl-line-mode t)
-    ;; (set-face-background 'hl-line "#DEEDFF")
     (custom-set-faces
      '(hl-line
        ((((background dark)) :background "#484c5c")
         (t (:background "#DEEDFF"))))))
 #+END_SRC
 
-** カーソル色の切り替え
+** カーソル色の切り替え                                                 :Mac:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (and (memq window-system '(mac ns))
@@ -5860,18 +5885,19 @@ Emacs Lisp での正規表現入力をサポートするツールには， =M-x 
 
 ** カーソル位置のフォントを確認
 
-=M-x describe-char= することで，カーソル位置のフォントの情報がポップで表示される．
+=M-x describe-char= すると，カーソル位置のフォントの情報が別バッファに表示されます．
 
 ** フォント設定
 
 表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．最近は，[[http://mix-mplus-ipa.sourceforge.jp/migu/][Migu 2M]]を気に入って使っています．
 
-|         | ASCII       | 日本語       |
-| Mac     | Monaco      | ヒラギノ丸ゴ |
-| Windows | Inconsolata | メイリオ     |
-| Linux   | Inconsolata | MigMix       |
+#+CAPTION: 環境別の使用フォント
+|         | ASCII       | 日本語                    |
+| Mac     | Monaco      | Migu 2M 又は ヒラギノ丸ゴ |
+| Windows | Inconsolata | メイリオ                  |
+| Linux   | Inconsolata | MigMix                    |
 
-http://d.hatena.ne.jp/setoryohei/20110117/1295336454
+  - http://d.hatena.ne.jp/setoryohei/20110117/1295336454
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defconst my:font-size 12)
@@ -5896,8 +5922,7 @@ http://d.hatena.ne.jp/setoryohei/20110117/1295336454
           ;; Fonts
           ((font-size my:font-size)
            ;; ((font-size 28) ; for mirroring presentation (1440x900)
-           ;; (ascii-font "Inconsolata")
-           (ascii-font "Monaco")
+           (ascii-font "Monaco") ;; "Inconsolata"
            (ja-font "Migu 2M")) ;; "Hiragino Maru Gothic Pro"
         (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
         (my:ja-font-setter (font-spec :family ja-font :size font-size)))
@@ -5971,13 +5996,7 @@ Linux では次のように処理するだけでよく，意外と簡単．
 
 Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカスタマイズします．
 
-現在試験中．
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(setq ediff-window-setup-function 'ediff-setup-windows-plain)
-#+END_SRC
-
-http://d.hatena.ne.jp/syohex/20111228/1325086893
+  - http://d.hatena.ne.jp/syohex/20111228/1325086893
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found
@@ -5987,6 +6006,7 @@ http://d.hatena.ne.jp/syohex/20111228/1325086893
       (set-face-attribute 'diff-added-face nil
                           :background nil :foreground "green"
                           :weight 'normal)
+
       (set-face-attribute 'diff-removed-face nil
                           :background nil :foreground "firebrick1"
                           :weight 'normal)
@@ -6098,7 +6118,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 
 ** [volatile-highlights] コピペした領域を強調
 
-コピペ領域をその直後のみハイライトします．
+コピペ直後の数秒に限定して，コピペした領域をハイライトします．さらに，所定の間隔で表示色を変えることで，ハイライト色が徐々に消えていくようなエフェクトにしています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found
@@ -6157,83 +6177,90 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 
 =M-x pomodoro:start= すると，ポモドーロが始まり，8時間後に =pomodoro:stop= が呼ばれてポモドーロが終了します．[[http://www.pomodorotechnique.com/][pomodoro]] は機械的に仕事をしたい人にピッタリです．人によっては [[http://ja.wikipedia.org/wiki/Getting_Things_Done][GTD]] よりも取っ付きやすいと思います．
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (eval-after-autoload-if-found
-   '(pomodoro:start) "pomodoro" nil t nil
-   '(;; 作業時間終了後に開くファイルを指定しない
-     (setq pomodoro:file nil)
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (autoload-if-found
+         '(pomodoro:start)
+         "pomodoro" nil t)
+    (eval-when-compile
+      (require 'pomodoro nil t))
 
-     ;; ●だけで表現する（残り時間表示なし）
-     (setq pomodoro:mode-line-time-display nil)
+    (with-eval-after-load "helm-config"
+      (when (require 'pomodoro nil t)
+        (pomodoro:start nil)))
 
-     ;; ●の置き換え
-     (setq pomodoro:mode-line-work-sign "●")
-     (setq pomodoro:mode-line-rest-sign pomodoro:mode-line-work-sign)
-     (setq pomodoro:mode-line-long-rest-sign pomodoro:mode-line-work-sign)
+    (with-eval-after-load "pomodoro"
+      ;; 作業時間終了後に開くファイルを指定しない
+      (setq pomodoro:file nil)
+      ;; ●だけで表現する（残り時間表示なし）
+      (setq pomodoro:mode-line-time-display nil)
+      ;; ●の置き換え
+      (setq pomodoro:mode-line-work-sign ">>")
+      (setq pomodoro:mode-line-rest-sign ">")
+      (setq pomodoro:mode-line-long-rest-sign "<")
+      (setq pomodoro:mode-line-rest-sign pomodoro:mode-line-work-sign)
+      (setq pomodoro:mode-line-long-rest-sign pomodoro:mode-line-work-sign)
+      ;; 長い休憩に入るまでにポモドーロする回数
+      (setq pomodoro:iteration-for-long-rest 2)
+      ;; 作業時間関連
+      (setq pomodoro:work-time 120     ; 作業時間
+            pomodoro:rest-time 20      ; 休憩時間
+            pomodoro:long-rest-time 60 ; 長い休憩時間
+            pomodoro:max-iteration 16) ; ポモドーロする回数
+      ;; タイマーの表示をノーマルフェイスにする
+      (set-face-bold-p 'pomodoro:timer-face nil)
+      ;; 作業中（赤），休憩中（青），長い休憩中（緑）にする
+      (set-face-foreground 'pomodoro:work-face "#DB4C46") ;; #FF9300
+      (set-face-foreground 'pomodoro:rest-face "#203e6f") ;; #3869FA
+      (set-face-foreground 'pomodoro:long-rest-face "#00B800")
 
-     ;; 長い休憩に入るまでにポモドーロする回数
-     (setq pomodoro:iteration-for-long-rest 2)
+      (defvar my:pomodoro-speak nil)
+      (defun my:pomodoro-speak-toggle ()
+        (interactive)
+        (setq my:pomodoro-speak (not my:pomodoro-speak)))
 
-     ;; 作業時間関連
-     (setq pomodoro:work-time 120     ; 作業時間
-           pomodoro:rest-time 20      ; 休憩時間
-           pomodoro:long-rest-time 60 ; 長い休憩時間
-           pomodoro:max-iteration 16) ; ポモドーロする回数
+      (when (memq window-system '(mac ns))
+        ;; Mac ユーザ向け．Kyokoさんに指示してもらう
+        (defvar pomodoro:with-speak nil)
+        (when pomodoro:with-speak
+          (add-hook 'pomodoro:finish-work-hook
+                    #'(lambda ()
+                        (let ((script
+                               (concat "say -v Kyoko "
+                                       (number-to-string
+                                        (floor pomodoro:rest-time))
+                                       "分間，休憩しろ")))
+                          (if my:pomodoro-speak
+                              (shell-command-to-string script)
+                            (message "%s" script)))))
 
-     ;; タイマーの表示をノーマルフェイスにする
-     (set-face-bold-p 'pomodoro:timer-face nil)
+          (add-hook 'pomodoro:finish-rest-hook
+                    #'(lambda ()
+                        (let ((script
+                               (concat "say -v Kyoko "
+                                       (number-to-string
+                                        (floor pomodoro:work-time))
+                                       "分間，作業しろ")))
+                          (if my:pomodoro-speak
+                              (shell-command-to-string script)
+                            (message "%s" script)))))
 
-     ;; 作業中（赤），休憩中（青），長い休憩中（緑）にする
-     (set-face-foreground 'pomodoro:work-face "#F53838")
-     (set-face-foreground 'pomodoro:rest-face "#3869FA")
-     (set-face-foreground 'pomodoro:long-rest-face "#00B800")
+          (add-hook 'pomodoro:long-rest-hook
+                    #'(lambda ()
+                        (let ((script
+                               (concat "say -v Kyoko これから"
+                                       (number-to-string
+                                        (floor pomodoro:long-rest-time))
+                                       "分間の休憩です")))
+                          (if my:pomodoro-speak
+                              (shell-command-to-string script)
+                            (message "%s" script))))))
 
-     (defvar my:pomodoro-speak nil)
-     (defun my:pomodoro-speak-toggle ()
-       (interactive)
-       (setq my:pomodoro-speak (not my:pomodoro-speak)))
-
-     ;; Mac ユーザ向け．Kyokoさんに指示してもらう
-     (defvar pomodoro:with-speak nil)
-     (when pomodoro:with-speak
-       (add-hook 'pomodoro:finish-work-hook
-                 #'(lambda ()
-                     (let ((script
-                            (concat "say -v Kyoko "
-                                    (number-to-string (floor pomodoro:rest-time))
-                                    "分間，休憩しろ")))
-                       (if my:pomodoro-speak
-                           (shell-command-to-string script)
-                         (message "%s" script)))))
-
-       (add-hook 'pomodoro:finish-rest-hook
-                 #'(lambda ()
-                     (let ((script
-                            (concat "say -v Kyoko "
-                                    (number-to-string (floor pomodoro:work-time))
-                                    "分間，作業しろ")))
-                       (if my:pomodoro-speak
-                           (shell-command-to-string script)
-                         (message "%s" script)))))
-
-       (add-hook 'pomodoro:long-rest-hook
-                 #'(lambda ()
-                     (let ((script
-                            (concat "say -v Kyoko これから"
-                                    (number-to-string
-                                     (floor pomodoro:long-rest-time))
-                                    "分間の休憩です")))
-                       (if my:pomodoro-speak
-                           (shell-command-to-string script)
-                         (message "%s" script))))))
-
-     (defun my:pomodoro-notify ()
-       (interactive)
-       (shell-command-to-string
-        (concat "terminal-notifier -title \"Pomodoro\" -message \""
-                "DONE! This time slot has been finished!\"")))
-     (add-hook 'pomodoro:finish-work-hook 'my:pomodoro-notify)
-     ))
+        (defun my:pomodoro-notify ()
+          (interactive)
+          (shell-command-to-string
+           (concat "terminal-notifier -title \"Pomodoro\" -message \""
+                   "DONE! This time slot has been finished!\"")))
+        (add-hook 'pomodoro:finish-work-hook 'my:pomodoro-notify))))
 #+END_SRC
 
 ** カレントバッファのあるディレクトリをターミナルで表示
@@ -6245,7 +6272,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 
 ** [google-this.el] 単語をグーグル検索
 
-カーソル下の単語を検索して，結果をブラウザで受け取ります． `google-this` を直接呼ぶと検索確認を聞かれるので，すぐに検索するようにカスタマイズします． `M-x google-this-word` を使うのも手ですが，ハイフンで連結された文字列を拾えないので好みがわかれます．
+カーソル下の単語を検索して，結果をブラウザで受け取ります． =google-this= を直接呼ぶと検索確認を聞かれるので，すぐに検索するようにカスタマイズします． =M-x google-this-word= を使うのも手ですが，ハイフンで連結された文字列を拾えないので好みがわかれます．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found
@@ -6264,7 +6291,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 
 ** [lingr.el] チャットルームに参加
 
-init.el読書会が毎週土曜日の22時に開催されているので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルで設定しています．
+init.el読書会が毎週土曜日の22時に開催されています．作業に集中していると，ついつい忘れてしまうので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルに記載しています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found
@@ -6277,6 +6304,7 @@ init.el読書会が毎週土曜日の22時に開催されているので，そ�
       (setq lingr-icon-mode t)
       (setq lingr-icon-fix-size 24)
       (setq lingr-image-convert-program "/usr/local/bin/convert")
+
       (defun my:lingr-login ()
         (when (string= "Sat" (format-time-string "%a"))
           (lingr-login))))
@@ -6284,6 +6312,81 @@ init.el読書会が毎週土曜日の22時に開催されているので，そ�
     (with-eval-after-load "helm-config"
       (unless (passed-clock-p "23:00")
         (run-at-time "23:00" nil 'my:lingr-login))))
+#+END_SRC
+
+** TODO [password-store.el] パスワード管理
+
+  - http://h12.me/article/password-management
+  - http://www.tricksofthetrades.net/2015/07/04/notes-pass-unix-password-manager/
+  - Add no-tty into ~/.gnupg/gpg.conf if an error occured.
+  - システムで =pass= コマンドを使えることが条件
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (if (executable-find "pass")
+      (with-eval-after-load "helm-config"
+        (when (autoload-if-found
+               'helm-pass
+               "helm-pass" nil t)
+          (global-set-key (kbd "C-c f p") 'helm-pass)))
+    (message "--- pass is NOT installed."))
+#+END_SRC
+
+もしくは， =id-manager.el= もパスワード管理に利用できる．こちらは特定のコマンドがシステムにインストールされていなくても動く．
+
+  - The encrypted file is stored as ~/.idm-db.gpg.
+  - http://d.hatena.ne.jp/kiwanami/20110221/1298293727
+
+#+BEGIN_SRC emacs-lisp :tangle no :export yes
+(when (eval-after-autoload-if-found
+       '(id-manager) "id-manager" nil t nil
+       '((setenv "GPG_AGENT_INFO" nil))))
+#+END_SRC
+
+** [multi-term.el] ターミナル
+
+たまに使いたくなるので一応．
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports no
+  (eval-after-autoload-if-found
+   '(multi-term) "multi-term" nil t nil
+   '((setenv "HOSTTYPE" "intel-mac")
+     (my:night-theme)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports yes
+  (eval-after-autoload-if-found '(multi-term) "multi-term" nil t)
+#+END_SRC
+
+** [osx-lib.el] OSX用ユーティリティ                                     :Mac:
+
+  - [[https://github.com/raghavgautam/osx-lib][raghavgautam/osx-lib]]
+  - OSXの機能を呼び出すためのツール集
+  - =osx-lib-say-region= を呼び出せば，選択領域を機械音で発声させられます．
+  - =selected.el= と組み合わせると選択後にシングルキーで実施できるのでさらに便利です．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (autoload-if-found
+         '(osx-lib-say osx-lib-say-region)
+         "osx-lib" nil t)
+    (eval-when-compile
+      (require 'osx-lib nil t))
+    (with-eval-after-load "osx-lib"
+      (setq osx-lib-say-ratio 100)
+      (setq osx-lib-say-voice "Samantha")))
+#+END_SRC
+
+** iterm2 を Emacs から呼び出したい                                     :Mac:
+
+=C-M-i= を iterm2.app の呼び出しに割り当てます．シェルでの作業はどうも =eshell= では満足できないので．なお flyspell を使っていると，遅延呼び出しした後にキーバインドを奪われるので，取り返します．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun cmd-to-open-iterm2 ()
+    (interactive)
+    (shell-command-to-string "open -a iTerm2.app"))
+  (global-set-key (kbd "C-M-i") #'cmd-to-open-iterm2)
+
+  (with-eval-after-load "flyspell"
+    (define-key flyspell-mode-map (kbd "C-M-i") #'cmd-to-open-iterm2))
 #+END_SRC
 
 ** [utility.el] 自作してテスト中の便利関数群
@@ -6314,82 +6417,9 @@ init.el読書会が毎週土曜日の22時に開催されているので，そ�
     (global-set-key (kbd "C-c f 4") 'takaxp:window-resizer))
 #+END_SRC
 
-** TODO [password-store.el] パスワード管理
-  - http://h12.me/article/password-management
-  - http://www.tricksofthetrades.net/2015/07/04/notes-pass-unix-password-manager/
-  - Add no-tty into ~/.gnupg/gpg.conf if an error occured.
-  - システムで =pass= コマンドを使えることが条件
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (with-eval-after-load "helm-config"
-    (if (executable-find "pass")
-        (when (autoload-if-found
-               'helm-pass
-               "helm-pass" nil t)
-          (global-set-key (kbd "C-c f p") 'helm-pass))
-      (message "--- pass is NOT installed.")))
-#+END_SRC
-
-もしくは， =id-manager.el= もパスワード管理に利用できる．こちらは特定のコマンドがシステムにインストールされていなくても動く．
-
-  - The encrypted file is stored as ~/.idm-db.gpg.
-  - http://d.hatena.ne.jp/kiwanami/20110221/1298293727
-
-#+BEGIN_SRC emacs-lisp :tangle no :export yes
-(when (eval-after-autoload-if-found
-       '(id-manager) "id-manager" nil t nil
-       '((setenv "GPG_AGENT_INFO" nil))))
-#+END_SRC
-
-** [multi-term.el] ターミナル
-
-たまに使いたくなるので一応．
-
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
-  (eval-after-autoload-if-found
-   '(multi-term) "multi-term" nil t nil
-   '((setenv "HOSTTYPE" "intel-mac")
-     (my:night-theme)))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle no :exports yes
-  (eval-after-autoload-if-found '(multi-term) "multi-term" nil t)
-#+END_SRC
-
-** TODO [osx-lib.el] OSX用ユーティリティ
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (when (autoload-if-found
-         '(osx-lib-say osx-lib-say-region)
-         "osx-lib" nil t)
-    (eval-when-compile
-      (require 'osx-lib nil t))
-    (with-eval-after-load "osx-lib"
-      (setq osx-lib-say-ratio 100)
-      (setq osx-lib-say-voice "Samantha"))) ;; Alex
-#+END_SRC
-
-* お試し中
-** yascroll
-
-  - http://d.hatena.ne.jp/m2ym/20110401/1301617991
-  - 2015-03-15: smooth-scroll との組み合わせで重いため試用停止中
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (use-package yascroll
-    :disabled t
-    :init
-    (global-yascroll-bar-mode 1)
-    (setq yascroll:delay-to-hide 1)
-    (setq yascroll:disabled-modes '(org))
-    (set-face-foreground 'yascroll:thumb-fringe "#b2cefb")
-    (set-face-background 'yascroll:thumb-fringe "#b2cefb")
-    )
-#+END_SRC
-
 * おわりに
 
-以上が私の init.el とその解説です．
+以上が，私の =init.el= とその説明です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes :exports no
   (provide 'init)

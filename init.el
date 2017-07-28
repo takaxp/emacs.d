@@ -31,6 +31,19 @@
   (require 'org-clock)
   (require 'org-mac-link))
 
+(defun load-package-p (file)
+  (let ((enabled t))
+    (when (boundp 'loading-packages)
+      (dolist (package loading-packages)
+        (let ((name (car package))
+              (flag (cdr package)))
+          (when (and (stringp name)
+                     (equal file name)
+                     (not flag))
+            (setq enabled nil)
+            (message "--- `%s' was NOT loaded explicitly" name)))))
+    enabled))
+
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
   (when (not (listp functions))
@@ -75,19 +88,6 @@
   (if window-focus-p t nil))
 (add-hook 'focus-in-hook #'(lambda () (setq window-focus-p t)))
 (add-hook 'focus-out-hook #'(lambda () (setq window-focus-p nil)))
-
-(defun load-package-p (file)
-  (let ((enabled t))
-    (when (boundp 'loading-packages)
-      (dolist (package loading-packages)
-        (let ((name (car package))
-              (flag (cdr package)))
-          (when (and (stringp name)
-                     (equal file name)
-                     (not flag))
-            (setq enabled nil)
-            (message "--- `%s' was NOT loaded explicitly" name)))))
-    enabled))
 
 (setq byte-compile-warnings '(not obsolete))
 (setq ad-redefinition-action 'accept)
@@ -530,7 +530,8 @@
                         :foreground "#BA2636" :bold nil
                         :background nil :underline t)
     ;; ispell-complete-word のキーバインドを上書き
-    (when (require 'flyspell-correct-helm nil t)
+    (when (and (require 'helm nil t)
+               (require 'flyspell-correct-helm nil t))
       (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
     ;; Auto complete との衝突を回避
     (with-eval-after-load "auto-complete"
@@ -778,6 +779,7 @@
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
     (define-key selected-keymap (kbd "g") #'my:google-this)
+    (define-key selected-keymap (kbd "s") #'osx-lib-say-region)
     (setq selected-org-mode-map (make-sparse-keymap))
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
     (define-key selected-keymap (kbd "q") #'keyboard-quit)
@@ -1114,7 +1116,11 @@
 (with-eval-after-load "dired"
   (when (require 'gited nil t)
     (define-key dired-mode-map (kbd "C-x C-g") 'gited-list-branches))
-  (require 'dired-narrow nil t)
+  ;; https://github.com/Fuco1/dired-hacks
+
+  (when (require 'dired-narrow nil t)
+    (define-key dired-mode-map (kbd "/") 'dired-narrow))
+
   (require 'dired-du nil t))
 
 (setq undo-outer-limit nil)
@@ -1234,20 +1240,25 @@
   (add-hook 'kill-emacs-hook
             #'(lambda () (recursive-delete-backup-files 7))))
 
-(defun my:backup (file &optional dropbox)
+(defun my:backup (files &optional dropbox)
   "Backup a file to `Dropbox/backup' directory. If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
   (let ((system (system-name))
         (rootdir (or dropbox "~/Dropbox")))
     (if (and system
-             (and (stringp rootdir) (stringp file))
-             (file-directory-p (or rootdir (expand-file-name rootdir)))
-             (file-readable-p (or file (expand-file-name file))))
-        (progn
-          (shell-command-to-string
-           (concat "cp -f " file " " rootdir "/backup/" system "/"))
-          (message (format "--- backup done: %s" file)))
-      (message (format "--- backup failure: %s" file)))))
+             (stringp rootdir)
+             (file-directory-p (or rootdir (expand-file-name rootdir))))
+        (mapc
+         (lambda (file)
+           (if (and (stringp file)
+                    (file-readable-p (or file (expand-file-name file))))
+               (shell-command-to-string
+                (concat "cp -f " file " " rootdir "/backup/" system "/"))
+             (message (format "--- backup failure: %s" file))))
+         (if (listp files)
+             files
+           (list files)))
+      (message (format "--- backup-dir does not exist: %s" rootdir)))))
 
 (defun my:backup-recentf ()
   (my:backup "~/.emacs.d/recentf"))
@@ -1532,9 +1543,6 @@
     (require 'org-habit nil t)
     (require 'org-mobile nil t)
 
-    ;;     (when (require 'pomodoro nil t)
-    ;;       (pomodoro:start nil))
-
     ;; C-c & が yasnippet にオーバーライドされているのを張り替える
     (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
 
@@ -1726,6 +1734,7 @@
           ("Background"  :foreground "#66CC99")
           ("Chore"       :foreground "#6699CC")
           ("Domestic"    :foreground "#6666CC")
+          ("BeMerged"    :foreground "#6666CC")
           ("Doing"       :foreground "#FF0000")
           ("Review"      :foreground "#6633CC")
           ("Revisit"     :foreground "#6633CC")
@@ -2567,12 +2576,8 @@
 
 (autoload-if-found '(toc-org-insert-toc) "toc-org" nil t)
 
-;; To avoid an error setting up the frame width (only for Emacs23)
-;; Default window position to show a Emacs frame
-;; Dynabook UX: top=0, left=0, width=80, height=32
 (cond
- (;; for Macintosh
-  (memq window-system '(mac ns))
+ ((memq window-system '(mac ns)) ;; for Macintosh
   (setq initial-frame-alist
         (append
          `((vertical-scroll-bars . nil)
@@ -2582,7 +2587,6 @@
            ;; 837 is the setting for right side for MBP
            (width . 80) ; Width  : character count
            (alpha . (100 90))) initial-frame-alist)))
-
  ;; for Linux
  ((eq window-system 'x)
   (setq initial-frame-alist
@@ -2593,7 +2597,6 @@
            (width . 80)
            (height . 38)
            ) initial-frame-alist)))
-
  ;; for Windows
  (t (setq initial-frame-alist
           (append
@@ -2637,14 +2640,14 @@
         (run-hooks 'my:ime-on-hook))
       (defun my:ime-off ()
         (mac-toggle-input-method nil)
-        (run-hooks 'my:ime-off-hook)))
+        (run-hooks 'my:ime-off-hook))
+      (if (my:ime-active-p) (my:ime-on) (my:ime-off))
 
-    ;; for init setup
-    (if (my:ime-active-p) (my:ime-on) (my:ime-off))
-    (setq-default cursor-type '(bar . 2))
-    (set-cursor-color
-     (if (my:ime-active-p)
-         my:cursor-color-ime-on my:cursor-color-ime-off)))
+      ;; for init setup
+      (setq-default cursor-type '(bar . 2))
+      (set-cursor-color
+       (if (my:ime-active-p)
+           my:cursor-color-ime-on my:cursor-color-ime-off))))
 
   ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
   ;; バッファ切替時に input method を切り替える
@@ -2804,6 +2807,7 @@
 ;; for emacs 24.1
 ;; (setq special-display-function 'popwin:special-display-popup-window)
 ;; (setq display-buffer-function 'popwin:display-buffer)
+
 ;; for emacs 24.3
 ;; (setq special-display-alist 'popwin:special-display-popup-window)
 ;; (setq display-buffer-alist 'popwin:display-buffer)
@@ -2815,10 +2819,10 @@
     ;; Performed
     (push '("*Help*" :height 20 :position bottom :dedicated t)
           popwin:special-display-config)
-    (push '("*osx-dictionary*" :height 20 :position top)
+    (push '("*osx-dictionary*" :height 20 :position bottom)
           popwin:special-display-config)
-    ;; Checking...
 
+    ;; Checking...
     (push '("CAPTURE-next.org" :height 10 :position bottom :noselect t)
           popwin:special-display-config)
     (push '("CAPTURE-org-ical.org":height 10 :position bottom :noselect t)
@@ -2857,12 +2861,8 @@
 (with-eval-after-load "helm-config"
   (require 'generic-x nil t))
 
-;; Color of the current line
-;; Cite: http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html
-;; see also http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el
 (when window-system
   (global-hl-line-mode t)
-  ;; (set-face-background 'hl-line "#DEEDFF")
   (custom-set-faces
    '(hl-line
      ((((background dark)) :background "#484c5c")
@@ -2903,8 +2903,7 @@
         ;; Fonts
         ((font-size my:font-size)
          ;; ((font-size 28) ; for mirroring presentation (1440x900)
-         ;; (ascii-font "Inconsolata")
-         (ascii-font "Monaco")
+         (ascii-font "Monaco") ;; "Inconsolata"
          (ja-font "Migu 2M")) ;; "Hiragino Maru Gothic Pro"
       (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my:ja-font-setter (font-spec :family ja-font :size font-size)))
@@ -2961,6 +2960,7 @@
     (set-face-attribute 'diff-added-face nil
                         :background nil :foreground "green"
                         :weight 'normal)
+
     (set-face-attribute 'diff-removed-face nil
                         :background nil :foreground "firebrick1"
                         :weight 'normal)
@@ -3042,6 +3042,90 @@
   (dolist (hook '(org-mode-hook emacs-lisp-mode-hook emmet-mode-hook))
     (add-hook hook 'volatile-highlights-mode)))
 
+(when (autoload-if-found
+       '(pomodoro:start)
+       "pomodoro" nil t)
+  (eval-when-compile
+    (require 'pomodoro nil t))
+
+  (with-eval-after-load "helm-config"
+    (when (require 'pomodoro nil t)
+      (pomodoro:start nil)))
+
+  (with-eval-after-load "pomodoro"
+    ;; 作業時間終了後に開くファイルを指定しない
+    (setq pomodoro:file nil)
+    ;; ●だけで表現する（残り時間表示なし）
+    (setq pomodoro:mode-line-time-display nil)
+    ;; ●の置き換え
+    (setq pomodoro:mode-line-work-sign ">>")
+    (setq pomodoro:mode-line-rest-sign ">")
+    (setq pomodoro:mode-line-long-rest-sign "<")
+    (setq pomodoro:mode-line-rest-sign pomodoro:mode-line-work-sign)
+    (setq pomodoro:mode-line-long-rest-sign pomodoro:mode-line-work-sign)
+    ;; 長い休憩に入るまでにポモドーロする回数
+    (setq pomodoro:iteration-for-long-rest 2)
+    ;; 作業時間関連
+    (setq pomodoro:work-time 120     ; 作業時間
+          pomodoro:rest-time 20      ; 休憩時間
+          pomodoro:long-rest-time 60 ; 長い休憩時間
+          pomodoro:max-iteration 16) ; ポモドーロする回数
+    ;; タイマーの表示をノーマルフェイスにする
+    (set-face-bold-p 'pomodoro:timer-face nil)
+    ;; 作業中（赤），休憩中（青），長い休憩中（緑）にする
+    (set-face-foreground 'pomodoro:work-face "#DB4C46") ;; #FF9300
+    (set-face-foreground 'pomodoro:rest-face "#203e6f") ;; #3869FA
+    (set-face-foreground 'pomodoro:long-rest-face "#00B800")
+
+    (defvar my:pomodoro-speak nil)
+    (defun my:pomodoro-speak-toggle ()
+      (interactive)
+      (setq my:pomodoro-speak (not my:pomodoro-speak)))
+
+    (when (memq window-system '(mac ns))
+      ;; Mac ユーザ向け．Kyokoさんに指示してもらう
+      (defvar pomodoro:with-speak nil)
+      (when pomodoro:with-speak
+        (add-hook 'pomodoro:finish-work-hook
+                  #'(lambda ()
+                      (let ((script
+                             (concat "say -v Kyoko "
+                                     (number-to-string
+                                      (floor pomodoro:rest-time))
+                                     "分間，休憩しろ")))
+                        (if my:pomodoro-speak
+                            (shell-command-to-string script)
+                          (message "%s" script)))))
+
+        (add-hook 'pomodoro:finish-rest-hook
+                  #'(lambda ()
+                      (let ((script
+                             (concat "say -v Kyoko "
+                                     (number-to-string
+                                      (floor pomodoro:work-time))
+                                     "分間，作業しろ")))
+                        (if my:pomodoro-speak
+                            (shell-command-to-string script)
+                          (message "%s" script)))))
+
+        (add-hook 'pomodoro:long-rest-hook
+                  #'(lambda ()
+                      (let ((script
+                             (concat "say -v Kyoko これから"
+                                     (number-to-string
+                                      (floor pomodoro:long-rest-time))
+                                     "分間の休憩です")))
+                        (if my:pomodoro-speak
+                            (shell-command-to-string script)
+                          (message "%s" script))))))
+
+      (defun my:pomodoro-notify ()
+        (interactive)
+        (shell-command-to-string
+         (concat "terminal-notifier -title \"Pomodoro\" -message \""
+                 "DONE! This time slot has been finished!\"")))
+      (add-hook 'pomodoro:finish-work-hook 'my:pomodoro-notify))))
+
 (with-eval-after-load "helm-config"
   (global-set-key (kbd "C-c f t") 'open-current-directory))
 
@@ -3068,6 +3152,7 @@
     (setq lingr-icon-mode t)
     (setq lingr-icon-fix-size 24)
     (setq lingr-image-convert-program "/usr/local/bin/convert")
+
     (defun my:lingr-login ()
       (when (string= "Sat" (format-time-string "%a"))
         (lingr-login))))
@@ -3075,6 +3160,31 @@
   (with-eval-after-load "helm-config"
     (unless (passed-clock-p "23:00")
       (run-at-time "23:00" nil 'my:lingr-login))))
+
+(if (executable-find "pass")
+    (with-eval-after-load "helm-config"
+      (when (autoload-if-found
+             'helm-pass
+             "helm-pass" nil t)
+        (global-set-key (kbd "C-c f p") 'helm-pass)))
+  (message "--- pass is NOT installed."))
+
+(when (autoload-if-found
+       '(osx-lib-say osx-lib-say-region)
+       "osx-lib" nil t)
+  (eval-when-compile
+    (require 'osx-lib nil t))
+  (with-eval-after-load "osx-lib"
+    (setq osx-lib-say-ratio 100)
+    (setq osx-lib-say-voice "Samantha")))
+
+(defun cmd-to-open-iterm2 ()
+  (interactive)
+  (shell-command-to-string "open -a iTerm2.app"))
+(global-set-key (kbd "C-M-i") #'cmd-to-open-iterm2)
+
+(with-eval-after-load "flyspell"
+  (define-key flyspell-mode-map (kbd "C-M-i") #'cmd-to-open-iterm2))
 
 (defconst utility-autoloads
   '(takaxp:date
@@ -3097,22 +3207,5 @@
   (global-set-key (kbd "<f12>") 'takaxp:open-file-ring)
   (global-set-key (kbd "C-c t") 'takaxp:date)
   (global-set-key (kbd "C-c f 4") 'takaxp:window-resizer))
-
-(with-eval-after-load "helm-config"
-  (if (executable-find "pass")
-      (when (autoload-if-found
-             'helm-pass
-             "helm-pass" nil t)
-        (global-set-key (kbd "C-c f p") 'helm-pass))
-    (message "--- pass is NOT installed.")))
-
-(when (autoload-if-found
-       '(osx-lib-say osx-lib-say-region)
-       "osx-lib" nil t)
-  (eval-when-compile
-    (require 'osx-lib nil t))
-  (with-eval-after-load "osx-lib"
-    (setq osx-lib-say-ratio 100)
-    (setq osx-lib-say-voice "Samantha"))) ;; Alex
 
 (provide 'init)

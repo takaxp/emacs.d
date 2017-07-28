@@ -34,3 +34,28 @@
         (insert title)
         (save-excursion
           (insert "\n" author date description tags draft))))))
+
+;; (defun my:backup (files &optional dropbox)
+;;   "Backup a file to `Dropbox/backup' directory. If `dropbox' option is provided then the value is uased as a root directory."
+;;   (interactive "P")
+;;   (let ((system (system-name))
+;;         (rootdir (or dropbox "~/Dropbox")))
+;;     (if (and system
+;;              (stringp rootdir)
+;;              (file-directory-p (or rootdir (expand-file-name rootdir))))
+
+;;         (mapc (lambda (file)
+;;                 (if (and (stringp file)
+;;                          (file-readable-p (or file (expand-file-name file))))
+;;                     (progn
+;;                       (shell-command-to-string
+;;                        (concat "cp -f " file " " rootdir "/backup/" system "/"))
+;;                       (message (format "--- backup done: %s" file)))
+;;                   (message (format "--- backup failure: %s" file))))
+;;               (if (listp files)
+;;                   files
+;;                 (list files)))
+
+;;       (message (format "--- backup-dir does not exist: %s" rootdir))
+
+;;       )))
