@@ -200,7 +200,6 @@
 (depends-on "pinentry")
 (depends-on "po-mode")
 (depends-on "point-undo")
-(depends-on "pomodoro" :git "https://github.com/syohex/emacs-utils.git" :files ("pomodoro.el"))
 (depends-on "popup")
 (depends-on "popwin")
 (depends-on "powerline")

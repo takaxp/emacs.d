@@ -668,7 +668,8 @@
   (with-eval-after-load "osx-dictionary"
     (setq osx-dictionary-dictionary-choice "英辞郎 第七版"))
 
-  (global-set-key (kbd "C-M-w") 'osx-dictionary-search-pointer))
+  (global-set-key (kbd "C-c f w") #'osx-dictionary-search-input)
+  (global-set-key (kbd "C-M-w") #'osx-dictionary-search-pointer))
 
 (when (autoload-if-found
        '(web-mode)
@@ -3059,23 +3060,35 @@
     (setq pomodoro:mode-line-time-display nil)
     ;; ●の置き換え
     (setq pomodoro:mode-line-work-sign ">>")
-    (setq pomodoro:mode-line-rest-sign ">")
-    (setq pomodoro:mode-line-long-rest-sign "<")
-    (setq pomodoro:mode-line-rest-sign pomodoro:mode-line-work-sign)
-    (setq pomodoro:mode-line-long-rest-sign pomodoro:mode-line-work-sign)
+    (setq pomodoro:mode-line-rest-sign "<>")
+    (setq pomodoro:mode-line-long-rest-sign "休")
     ;; 長い休憩に入るまでにポモドーロする回数
-    (setq pomodoro:iteration-for-long-rest 2)
+    (setq pomodoro:iteration-for-long-rest 4)
     ;; 作業時間関連
-    (setq pomodoro:work-time 120     ; 作業時間
-          pomodoro:rest-time 20      ; 休憩時間
-          pomodoro:long-rest-time 60 ; 長い休憩時間
+    (setq pomodoro:work-time 25     ; 作業時間
+          pomodoro:rest-time 5      ; 休憩時間
+          pomodoro:long-rest-time 30 ; 長い休憩時間
           pomodoro:max-iteration 16) ; ポモドーロする回数
     ;; タイマーの表示をノーマルフェイスにする
     (set-face-bold-p 'pomodoro:timer-face nil)
     ;; 作業中（赤），休憩中（青），長い休憩中（緑）にする
-    (set-face-foreground 'pomodoro:work-face "#DB4C46") ;; #FF9300
-    (set-face-foreground 'pomodoro:rest-face "#203e6f") ;; #3869FA
-    (set-face-foreground 'pomodoro:long-rest-face "#00B800")
+    (custom-set-faces
+     '(pomodoro:work-face
+       ((((background dark)) :foreground "#DB4C46" :bold t)
+        (t (:foreground "#8248c4" :bold t))))
+     '(pomodoro:rest-face
+       ((((background dark)) :foreground "#3869FA" :bold t)
+        (t (:foreground "#203e6f" :bold t))))
+     '(pomodoro:long-rest-face
+       ((((background dark)) :foreground "#00B800" :bold t)
+        (t (:foreground "#00B800" :bold t)))))
+
+    (defun my:pomodoro-status ()
+      (interactive)
+      (message (format "[Pomodoro] Time: %s | Count: %d"
+                       (pomodoro:time-to-string pomodoro:remainder-seconds)
+                       pomodoro:work-count)))
+    (add-hook 'focus-in-hook #'my:pomodoro-status)
 
     (defvar my:pomodoro-speak nil)
     (defun my:pomodoro-speak-toggle ()
