@@ -784,6 +784,11 @@
     (setq selected-org-mode-map (make-sparse-keymap))
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
     (define-key selected-keymap (kbd "q") #'keyboard-quit)
+    (when (require 'help-fns+ nil t)
+      (defun my:describe-selected-keymap ()
+        (interactive)
+        (describe-keymap 'selected-keymap))
+      (define-key selected-keymap (kbd "h") #'my:describe-selected-keymap))
     (selected-global-mode 1)))
 
 (when (require 'diminish nil t)
@@ -1130,7 +1135,7 @@
        '(my:undo-tree-visualize)
        "undo-tree" nil t)
   (eval-when-compile
-    (require 'frame-ctr nil t)
+    (require 'moom nil t)
     (require 'undo-tree nil t))
   (with-eval-after-load "undo-tree"
     (global-undo-tree-mode)
@@ -1144,8 +1149,8 @@
         (set-frame-width (selected-frame)
                          (- (frame-width) 63))
         (setq undo-tree-active nil))
-      (when (< (frame-width) target-frame-width)
-        (set-frame-width (selected-frame) target-frame-width)))
+      (when (< (frame-width) moom--target-frame-width)
+        (set-frame-width (selected-frame) moom--target-frame-width)))
     (defun my:undo-tree-visualize ()
       (interactive)
       (when (and (not undo-tree-active) (not (eq buffer-undo-list t)))
@@ -1298,7 +1303,7 @@
     (require 'neotree nil t))
 
   (with-eval-after-load "neotree"
-    (require 'frame-ctr nil t)
+    (require 'moom nil t)
     (setq neo-show-hidden-files nil)
     (setq neo-persist-show t)
     (setq neo-theme 'arrow)
@@ -1316,8 +1321,8 @@
         (set-frame-width (selected-frame) (- (frame-width) 2))
         (sit-for 0.01)
         (set-frame-width (selected-frame) (- (frame-width) 26)))
-      (when (< (frame-width) target-frame-width)
-        (set-frame-width (selected-frame) target-frame-width)))
+      (when (< (frame-width) moom--target-frame-width)
+        (set-frame-width (selected-frame) moom--target-frame-width)))
     (advice-add 'neotree-hide :before #'advice:neotree-hide)
     (when neo-persist-show
       (add-hook 'popwin:before-popup-hook
@@ -1524,7 +1529,7 @@
 (when (autoload-if-found
        '(0xc-convert 0xc-convert-point)
        "0xc" nil t)
-  (global-set-key (kbd "C-c f h") '0xc-convert-point))
+  (global-set-key (kbd "C-c f h") '0xc-convert))
 
 (with-eval-after-load "helm-config"
   (if (executable-find "editorconfig")
@@ -1540,7 +1545,6 @@
        'org-mode
        "org" "Org Mode" t)
   (with-eval-after-load "org"
-    (require 'org-extension nil t)
     (require 'org-habit nil t)
     (require 'org-mobile nil t)
 
@@ -2245,13 +2249,13 @@
 
     (defun my:cfw-open-org-calendar ()
       (interactive)
-      (change-frame-width-double)
+      (moom-change-frame-width-double)
       (cfw:open-org-calendar))
 
     (defun my:cfw-burry-buffer ()
       (interactive)
       (bury-buffer)
-      (change-frame-width-single))
+      (moom-change-frame-width-single))
 
     (defun cfw:org-goto-date ()
       "Move the cursor to the specified date."
@@ -2693,117 +2697,76 @@
 
  (t nil))
 
-(when (autoload-if-found
-       '(my:e2wm:dp-two e2wm:dp-two e2wm:start-management)
-       "e2wm" nil t)
-  (eval-when-compile
-    (require 'e2wm nil t))
-  (with-eval-after-load "e2wm"
-    (defun my:e2wm:dp-two ()
-      (interactive)
-      (e2wm:dp-two)
-      (setq e2wm:c-two-recipe
-            '(- (:lower-size 10)
-                (| left right)
-                sub))
-      (setq e2wm:c-two-winfo
-            '((:name left )
-              (:name right )
-              (:name sub :default-hide t)))
-
-      ;; left, prev
-      (setq e2wm:c-two-right-default 'left))
-
-    ;; 高さを画面の最大に矯正
-    (when (require 'frame-ctr nil t)
-      (setq frame-height-tall (max-frame-height))
-      (setq frame-height-small frame-height-tall))
-
-    ;; 幅を画面の最大に矯正
-    (add-hook 'e2wm:pre-start-hook
-              #'(lambda ()
-                  (set-frame-width
-                   (selected-frame)
-                   (/ (- (display-pixel-width) 30) (frame-char-width)))))
-
-    ;; 幅をデフォルト値に戻す
-    (add-hook 'e2wm:post-stop-hook
-              #'(lambda () (set-frame-width (selected-frame) target-frame-width)))
-
-    ;; To avoid rebooting issue when using desktop.el and recentf.el
-    (add-hook 'kill-emacs-hook 'e2wm:stop-management)))
-
-(defconst frame-ctr-autoloads
-  '(move-frame-with-user-specify
-    move-frame-to-center move-frame-to-edge-top move-frame-right
-    move-frame-left move-frame-to-edge-bottom frame-ctr-open-height-ring
-    fit-frame-to-fullscreen set-font-size-input max-frame-height
-    reset-font-size increase-font-size decrease-font-size set-font-size))
+(defconst moom-autoloads
+  '(moom-move-frame-with-user-specify
+    moom-change-frame-width-single moom-change-frame-width-double
+    moom-move-frame-to-center moom-move-frame-to-edge-top
+    moom-move-frame-right
+    moom-move-frame-left moom-move-frame-to-edge-bottom
+    moom-open-height-ring moom-fit-frame-to-fullscreen
+    moom-set-font-size-input moom-max-frame-height moom-reset-font-size
+    moom-increase-font-size moom-decrease-font-size moom-set-font-size))
 
 (when (autoload-if-found
-       frame-ctr-autoloads
-       "frame-ctr" nil t)
-  (with-eval-after-load "frame-ctr"
-    (make-frame-height-ring)
+       moom-autoloads
+       "moom" nil t)
+  (with-eval-after-load "moom"
     (cond
-     ((eq (display-pixel-width) 1920) (setq fullscreen-fontsize 38))
-     ((eq (display-pixel-width) 1440) (setq fullscreen-fontsize 28))
-     ((eq (display-pixel-width) 1366) (setq fullscreen-fontsize 19))
-     ((eq (display-pixel-width) 800) (setq fullscreen-fontsize 14))
-     (t (setq fullscreen-fontsize 12)))
+     ((eq (display-pixel-width) 1920) (setq moom-fullscreen-fontsize 38))
+     ((eq (display-pixel-width) 1440) (setq moom-fullscreen-fontsize 28))
+     ((eq (display-pixel-width) 1366) (setq moom-fullscreen-fontsize 19))
+     ((eq (display-pixel-width) 800) (setq moom-fullscreen-fontsize 14))
+     (t (setq moom-fullscreen-fontsize 12)))
 
     ;; リングの状態を最新に更新（max-frame-height が変わるため）
-    (add-hook 'frame-ctr-after-fullscreen-hook
-              'make-frame-height-ring)
-    (add-hook 'frame-ctr-after-fullscreen-hook
-              'move-frame-to-edge-top))
+    (add-hook 'moom-after-fullscreen-hook
+              'moom--make-frame-height-ring)
+    (add-hook 'moom-after-fullscreen-hook
+              'moom-move-frame-to-edge-top))
 
   ;; Move the frame to somewhere (default: 0,0)
-  (global-set-key (kbd "M-0") 'move-frame-with-user-specify)
+  (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
   ;; Move the frame to left side of the current position (require 'frame-cmds)
-  (global-set-key (kbd "M-1") #'(lambda () (interactive) (move-frame-left 40)))
-  ;; Move the frame to the center of the window display (require 'frame-ctr)
-  (global-set-key (kbd "M-2") 'move-frame-to-center)
+  (global-set-key (kbd "M-1") #'(lambda () (interactive) (moom-move-frame-left 40)))
+  ;; Move the frame to the center of the window display (require 'moom)
+  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   ;; Move the frame to right side of the current position(require 'frame-cmds)
-  (global-set-key (kbd "M-3") #'(lambda () (interactive)(move-frame-right 40)))
+  (global-set-key (kbd "M-3") #'(lambda () (interactive)(moom-move-frame-right 40)))
   ;; Move the current frame to the top of the window display
-  (global-set-key (kbd "<f1>") 'move-frame-to-edge-top)
+  (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
   ;; Move the current frame to the bottom of the window display
-  (global-set-key (kbd "S-<f1>") 'move-frame-to-edge-bottom)
+  (global-set-key (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom)
   ;; Cycle heights
-  (global-set-key (kbd "<f2>") 'frame-ctr-open-height-ring)
+  (global-set-key (kbd "<f2>") 'moom-open-height-ring)
   ;; Full screen with same frame-width
-  (global-set-key (kbd "C-x C-9") 'fit-frame-to-fullscreen)
-  (global-set-key (kbd "C-x C-0") 'reset-font-size)
+  (global-set-key (kbd "C-x C-9") 'moom-fit-frame-to-fullscreen)
+  (global-set-key (kbd "C-x C-0") 'moom-reset-font-size)
   (global-set-key (kbd "C-_") 'text-scale-decrease)
   (global-set-key (kbd "C-+") 'text-scale-increase)
+  (global-set-key (kbd "C-c f s") 'moom-change-frame-width-single)
+  (global-set-key (kbd "C-c f d") 'moom-change-frame-width-double)
   (global-set-key (kbd "C-=")
                   #'(lambda () (interactive)
-                      (increase-font-size 1)
-                      (move-frame-to-edge-top)
-                      (frame-ctr-print-status)))
+                      (moom-increase-font-size 1)
+                      (moom-move-frame-to-edge-top)
+                      (moom-print-status)))
   (global-set-key (kbd "C--")
                   #'(lambda () (interactive)
-                      (decrease-font-size 2)
-                      (move-frame-to-edge-top)
-                      (frame-ctr-print-status))))
+                      (moom-decrease-font-size 2)
+                      (moom-move-frame-to-edge-top)
+                      (moom-print-status))))
 
 ;; setting for e2wm
 (when (autoload-if-found
-       '(change-frame-width-single
-         change-frame-width-double
-         change-frame-double-window
+       '(change-frame-double-window
          change-frame-single-window)
        "frame-ctr-e2wm" nil t)
-
   ;; Set the frame width single size
   ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
   (global-set-key (kbd "C-x -") 'change-frame-single-window)
   ;; Set the frame width double size
   ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
-  (global-set-key (kbd "C-x =") 'change-frame-double-window)
-  (global-set-key (kbd "C-c f s") 'change-frame-width-single)
-  (global-set-key (kbd "C-c f d") 'change-frame-width-double))
+  (global-set-key (kbd "C-x =") 'change-frame-double-window))
 
 ;; for emacs 24.1
 ;; (setq special-display-function 'popwin:special-display-popup-window)
@@ -3085,7 +3048,7 @@
 
     (defun my:pomodoro-status ()
       (interactive)
-      (message (format "[Pomodoro] Time: %s | Count: %d"
+      (message (format "[Pomodoro] Remaining: %s | Count: %d"
                        (pomodoro:time-to-string pomodoro:remainder-seconds)
                        pomodoro:work-count)))
     (add-hook 'focus-in-hook #'my:pomodoro-status)

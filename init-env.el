@@ -99,8 +99,9 @@
   (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
             (require 'cask "~/.cask/cask.el" t))
     (setq load-path (cask-load-path (cask-initialize)))
-    (when (require 'pallet nil t)
-      (pallet-mode t))))
+    ;; (when (require 'pallet nil t)
+    ;;   (pallet-mode t))
+    ))
 
 (defun my:reset-load-path ()
   (interactive)

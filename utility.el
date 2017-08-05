@@ -108,15 +108,15 @@
           ;;            (set-notify-mail hour min action s)
           )))))
 
-(when (autoload-if-found
-       '(todochiku-message)
-       "todochiku" nil t)
-  (eval-when-compile
-    (require 'todochiku nil t))
-  (with-eval-after-load "todochiku"
-    (setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
-    (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
-    (require 'cl-lib)))
+;; (when (autoload-if-found
+;;        '(todochiku-message)
+;;        "todochiku" nil t)
+;;   (eval-when-compile
+;;     (require 'todochiku nil t))
+;;   (with-eval-after-load "todochiku"
+;;     (setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
+;;     (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
+;;     (require 'cl-lib)))
 
 ;;;###autoload
 (defun my:desktop-notify (type title hour min action s)
@@ -394,7 +394,7 @@
     (load-theme 'daylight t)
     (set-face-foreground 'vertical-border (face-background 'default))
     (set-face-background 'vertical-border (face-background 'default))
-    (reset-font-size)))
+    (moom-reset-font-size)))
 
 ;;;###autoload
 (defun my:night-theme ()
@@ -405,7 +405,7 @@
     (load-theme 'night t)
     (set-face-foreground 'vertical-border (face-background 'default))
     (set-face-background 'vertical-border (face-background 'default))
-    (reset-font-size)))
+    (moom-reset-font-size)))
 
 (defun chomp (str)
   "Chomp leading and tailing whitespace from STR."
