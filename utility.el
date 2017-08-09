@@ -390,10 +390,11 @@
 (defun my:daylight-theme ()
   (interactive)
   (when (require 'daylight-theme nil t)
-    (setq my:cursor-color-ime-on "#91C3FF")
+    (mapc 'disable-theme custom-enabled-themes)
+    ;; (setq my:cursor-color-ime-on "#91C3FF")
     (load-theme 'daylight t)
-    (set-face-foreground 'vertical-border (face-background 'default))
-    (set-face-background 'vertical-border (face-background 'default))
+    ;; (set-face-foreground 'vertical-border (face-background 'default))
+    ;; (set-face-background 'vertical-border (face-background 'default))
     (moom-reset-font-size)))
 
 ;;;###autoload
@@ -401,10 +402,11 @@
   (interactive)
   (when (require 'night-theme nil t) ;; atom-one-dark-theme
     ;;    (set-face-background 'hl-line "#484c5c")
-    (setq my:cursor-color-ime-on "#8599ff")
+    (mapc 'disable-theme custom-enabled-themes)
+    ;; (setq my:cursor-color-ime-on "#8599ff")
     (load-theme 'night t)
-    (set-face-foreground 'vertical-border (face-background 'default))
-    (set-face-background 'vertical-border (face-background 'default))
+    ;; (set-face-foreground 'vertical-border (face-background 'default))
+    ;; (set-face-background 'vertical-border (face-background 'default))
     (moom-reset-font-size)))
 
 (defun chomp (str)

@@ -1,10 +1,31 @@
 (source gnu)
 (source melpa)
+(source org)
 
 ;; Package install
 (depends-on "cask")
 (depends-on "cask-mode")
 (depends-on "paradox")
+
+;; Org Mode
+(depends-on "org-plus-contrib")
+(depends-on "ox-pandoc")
+(depends-on "ox-qmd")
+(depends-on "ox-gfm")
+(depends-on "ox-twbs")
+(depends-on "ox-reveal")
+(depends-on "ob-http")
+(depends-on "org-review")
+(depends-on "org-tree-slide")
+(depends-on "org-dashboard")
+(depends-on "org-random-todo")
+(depends-on "org-attach-screenshot")
+(depends-on "org-grep")
+(depends-on "org-clock-today")
+(depends-on "org-recent-headings")
+(depends-on "orgbox")
+(depends-on "orgnav")
+(depends-on "toc-org")
 
 ;; Major modes
 (depends-on "python-mode")
@@ -52,25 +73,6 @@
 (depends-on "helm-descbinds")
 (depends-on "helm-flycheck")
 
-;; Org Mode
-(depends-on "ox-pandoc")
-(depends-on "ox-qmd")
-(depends-on "ox-gfm")
-(depends-on "ox-twbs")
-(depends-on "ox-reveal")
-(depends-on "ob-http")
-(depends-on "org-review")
-(depends-on "org-tree-slide")
-(depends-on "org-dashboard")
-(depends-on "org-random-todo")
-(depends-on "org-attach-screenshot")
-(depends-on "org-grep")
-(depends-on "org-clock-today")
-(depends-on "org-recent-headings")
-(depends-on "orgbox")
-(depends-on "orgnav")
-(depends-on "toc-org")
-
 ;; OSX support
 (depends-on "osx-lib")
 (depends-on "osx-trash")
@@ -84,6 +86,7 @@
 (depends-on "auto-complete-clang")
 (depends-on "ac-js2")
 (depends-on "migemo")
+(depends-on "edit-color-stamp")
 
 ;; Visualize
 (depends-on "volatile-highlights")
@@ -98,6 +101,7 @@
 (depends-on "hide-lines")
 (depends-on "undo-tree")
 (depends-on "which-key")
+(depends-on "back-button")
 
 ;; System related
 (depends-on "dired-narrow")
@@ -124,8 +128,12 @@
 (depends-on "bm")
 (depends-on "ag")
 (depends-on "japanese-holidays")
-(depends-on "calfw-org" :git "https://github.com/takaxp/emacs-calfw.git" :files ("calfw-org.el"))
-(depends-on "emacs-utilis" :git "https://github.com/syohex/emacs-utils.git" :files ("pomodoro.el" "eshell-util.el"))
+(depends-on "calfw-org"
+            :git "https://github.com/takaxp/emacs-calfw.git"
+            :files ("calfw-org.el"))
+(depends-on "emacs-utilis"
+            :git "https://github.com/syohex/emacs-utils.git"
+            :files ("pomodoro.el" "eshell-util.el"))
 (depends-on "google-this")
 (depends-on "google-maps")
 

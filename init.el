@@ -324,6 +324,25 @@
   (add-hook 'isearch-mode-end-hook
             #'(lambda () (centered-cursor-mode -1))))
 
+(with-eval-after-load "helm-config"
+  (when (autoload-if-found
+         '(back-button-mode
+           back-button-local-forward back-button-global-forward)
+         "back-button" nil t)
+    (with-eval-after-load "back-button"
+      (setq global-mark-ring-max 64)
+      (setq back-button-local-forward-keystrokes '("<f10>"))
+      (setq back-button-global-forward-keystrokes '("C-<f10>"))
+      (define-key back-button-mode-map
+        (kbd (car back-button-local-forward-keystrokes))
+        'back-button-local-forward)
+      (define-key back-button-mode-map
+        (kbd (car back-button-global-forward-keystrokes))
+        'back-button-global-forward)
+      (setq back-button-mode-lighter nil)
+      (setq back-button-index-timeout 0))
+    (back-button-mode 1)))
+
 (setq yank-excluded-properties t)
 
 ;; #+UPDATE 用
@@ -1209,15 +1228,14 @@
 
 (with-eval-after-load "helm-config"
   (when (require 'auto-save-buffers nil t)
-    (run-with-idle-timer
-     1.6 t
-     #'(lambda ()
-         (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
-               ((equal major-mode 'diff-mode) nil)
-               ((string-match "Org Src" (buffer-name)) nil)
-               (t (if (require 'shut-up nil t)
-                      (shut-up (auto-save-buffers))
-                    (auto-save-buffers))))))))
+    (defun my:auto-save-buffers ()
+      (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
+            ((equal major-mode 'diff-mode) nil)
+            ((string-match "Org Src" (buffer-name)) nil)
+            (t (if (require 'shut-up nil t)
+                   (shut-up (auto-save-buffers))
+                 (auto-save-buffers)))))
+    (run-with-idle-timer 1.6 t #'my:auto-save-buffers)))
 
 (when (autoload-if-found
        '(backup-each-save)
@@ -2722,7 +2740,7 @@
     (add-hook 'moom-after-fullscreen-hook
               'moom--make-frame-height-ring)
     (add-hook 'moom-after-fullscreen-hook
-              'moom-move-frame-to-edge-top))
+              'moom-move-frame-to-center))
 
   ;; Move the frame to somewhere (default: 0,0)
   (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
@@ -3023,8 +3041,8 @@
     (setq pomodoro:mode-line-time-display nil)
     ;; ●の置き換え
     (setq pomodoro:mode-line-work-sign ">>")
-    (setq pomodoro:mode-line-rest-sign "<>")
-    (setq pomodoro:mode-line-long-rest-sign "休")
+    (setq pomodoro:mode-line-rest-sign "<<")
+    (setq pomodoro:mode-line-long-rest-sign "<>")
     ;; 長い休憩に入るまでにポモドーロする回数
     (setq pomodoro:iteration-for-long-rest 4)
     ;; 作業時間関連
@@ -3038,15 +3056,16 @@
     (custom-set-faces
      '(pomodoro:work-face
        ((((background dark)) :foreground "#DB4C46" :bold t)
-        (t (:foreground "#8248c4" :bold t))))
+        (t (:foreground "#9d64c4" :bold t)))) ;;  #8248c4 , #956dc4, #9d64c4
      '(pomodoro:rest-face
        ((((background dark)) :foreground "#3869FA" :bold t)
         (t (:foreground "#203e6f" :bold t))))
      '(pomodoro:long-rest-face
-       ((((background dark)) :foreground "#00B800" :bold t)
-        (t (:foreground "#00B800" :bold t)))))
+       ((((background dark)) :foreground "#008890" :bold t)
+        (t (:foreground "#1c9b08" :bold t))))) ;; 00B800
 
     (defun my:pomodoro-status ()
+      "Show the current `pomodoro' status in minibuffer when focus-in."
       (interactive)
       (message (format "[Pomodoro] Remaining: %s | Count: %d"
                        (pomodoro:time-to-string pomodoro:remainder-seconds)
@@ -3099,8 +3118,140 @@
         (interactive)
         (shell-command-to-string
          (concat "terminal-notifier -title \"Pomodoro\" -message \""
-                 "DONE! This time slot has been finished!\"")))
+                 "DONE! This time slot has been finished!\""
+                 "-activate org.gnu.Emacs -sender org.gnu.Emacs")))
       (add-hook 'pomodoro:finish-work-hook 'my:pomodoro-notify))))
+
+(with-eval-after-load "pomodoro"
+  ;; 追加実装
+  (defvar pomodoro:update-work-sign-interval 0.16) ;; work用表示間隔
+  (defvar pomodoro:update-rest-sign-interval 0.16) ;; rest用表示間隔
+  (defvar pomodoro:update-long-rest-sign-interval 0.32) ;; long-rest用表示間隔
+
+  (setq pomodoro:mode-line-work-sign-list
+        '("|  " "|| " "|||" " ||" "  |" "   "))
+  (setq pomodoro:mode-line-rest-sign-list
+        '("  |" " ||" "|||" "|| " "|  " "   "))
+  (setq pomodoro:mode-line-long-rest-sign-list
+        '("   " " | " "|||" "| |" "   "))
+
+  ;; Example.1
+  ;; (defvar pomodoro:mode-line-work-sign-list
+  ;;   '("▁" "▂" "▃" "▄" "▅" "▆" "▇" "▇" "▆" "▅" "▄" "▃" "▂" "▁" "▁" ))
+  ;; (defvar pomodoro:mode-line-rest-sign-list
+  ;;   pomodoro:mode-line-work-sign-list)
+  ;; (defvar pomodoro:mode-line-long-rest-sign-list
+  ;;   pomodoro:mode-line-work-sign-list)
+
+  ;; Example.2
+  ;; (defvar pomodoro:mode-line-work-sign-list
+  ;;   '(">   " ">>  " ">>> " ">>>>" " >>>" "  >>" "   >" "    "))
+  ;; (defvar pomodoro:mode-line-rest-sign-list
+  ;;   '("   <" "  <<" " <<<" "<<<<" "<<< " "<<  " "<   " "    "))
+  ;; (defvar pomodoro:mode-line-long-rest-sign-list
+  ;;   '("  <>  " " <<>> " "<<<>>>" "<<  >>" "<    >" "      "))
+
+  ;; Example.3
+  ;; (setq pomodoro:mode-line-work-sign-list
+  ;;       '("▂▁  ▁" "▃▂▁  " "▄▃▂▁ " "▅▄▃▂▁" "▆▅▄▃▂" "▇▆▅▄▃" "▇▇▆▅▄" "▆▇▇▆▅"
+  ;;         "▅▆▇▇▆" "▄▅▆▇▇" "▃▄▅▆▇" "▂▃▄▅▆" "▁▂▃▄▅" " ▁▂▃▄" "  ▁▂▃" "▁  ▁▂"))
+
+  ;; Example.4
+  ;; (defvar pomodoro:mode-line-work-sign-list
+  ;;   '("◤◢◤ ^-^; ◢◤◢"
+  ;;     "◤◢◤ ^-^  ◢◤◢"
+  ;;     "◤◢◤ ^-^  ◢◤◢"
+  ;;     "◤◢◤ ^-^  ◢◤◢"
+  ;;     "◤◢◤ ^-^; ◢◤◢"
+  ;;     "◤◢◤ ^-^; ◢◤◢"
+  ;;     "◢◤◢◤ ^-^; ◢◤"
+  ;;     "◤◢◤◢◤ ^-^; ◢"
+  ;;     "◢◤◢◤◢◤ ^-^; "
+  ;;     " ◢◤◢◤◢◤ ^-^;"
+  ;;     "; ◢◤◢◤◢◤ ^-^"
+  ;;     "^; ◢◤◢◤◢◤ ^-"
+  ;;     "-^; ◢◤◢◤◢◤ ^"
+  ;;     "^-^; ◢◤◢◤◢◤ "
+  ;;     " ^-^; ◢◤◢◤◢◤"
+  ;;     "◤ ^-^; ◢◤◢◤◢"
+  ;;     "◢◤ ^-^; ◢◤◢◤"));
+
+  ;; タイマーを記録
+  (defvar pomodoro:update-sign-timer
+    (run-at-time t pomodoro:update-work-sign-interval
+                 'pomodoro:update-work-sign))
+
+  ;; 初期状態を登録
+  (setq pomodoro:mode-line-work-sign (car pomodoro:mode-line-work-sign-list))
+
+  ;; utilities
+  (defun pomodoro:list-rotate (sign-list)
+    (if (listp sign-list)
+        (append (cdr sign-list)
+                (list (car sign-list)))
+      sign-list))
+
+  (defun pomodoro:activate-visual-sign (sign interval)
+    (cancel-timer pomodoro:update-sign-timer)
+    (setq pomodoro:update-sign-timer
+          (run-at-time t interval sign)))
+
+  (defun pomodoro:stop-visualize ()
+    (when (timerp pomodoro:update-sign-timer)
+      (cancel-timer pomodoro:update-sign-timer))
+    (setq pomodoro:mode-line-work-sign nil)
+    (setq pomodoro:mode-line-rest-sign nil)
+    (setq pomodoro:mode-line-long-rest-sign nil))
+
+  (defun advice:pomodoro:stop ()
+    "Extensions to stop pomodoro and timers"
+    (pomodoro:stop-visualize))
+  (advice-add 'pomodoro:stop :after #'advice:pomodoro:stop)
+
+  ;; work
+  (defun pomodoro:update-work-sign ()
+    "Update pomodoro work-sign on modeline."
+    (setq pomodoro:mode-line-work-sign
+          (car pomodoro:mode-line-work-sign-list))
+    (setq pomodoro:mode-line-work-sign-list
+          (pomodoro:list-rotate pomodoro:mode-line-work-sign-list))
+    (force-mode-line-update t))
+
+  (defun pomodoro:activate-visual-work-sign ()
+    (pomodoro:activate-visual-sign
+     'pomodoro:update-work-sign pomodoro:update-work-sign-interval))
+
+  ;; rest
+  (defun pomodoro:update-rest-sign ()
+    "Update pomodoro rest-sign on modeline."
+    (setq pomodoro:mode-line-rest-sign
+          (car pomodoro:mode-line-rest-sign-list))
+    (setq pomodoro:mode-line-rest-sign-list
+          (pomodoro:list-rotate pomodoro:mode-line-rest-sign-list))
+    (force-mode-line-update t))
+
+  (defun pomodoro:activate-visual-rest-sign ()
+    (pomodoro:activate-visual-sign
+     'pomodoro:update-rest-sign pomodoro:update-rest-sign-interval))
+
+  ;; long rest
+  (defun pomodoro:update-long-rest-sign ()
+    "Update pomodoro long-rest-sign on modeline."
+    (setq pomodoro:mode-line-long-rest-sign
+          (car pomodoro:mode-line-long-rest-sign-list))
+    (setq pomodoro:mode-line-long-rest-sign-list
+          (pomodoro:list-rotate pomodoro:mode-line-long-rest-sign-list))
+    (force-mode-line-update t))
+
+  (defun pomodoro:activate-visual-long-rest-sign ()
+    (pomodoro:activate-visual-sign
+     'pomodoro:update-long-rest-sign pomodoro:update-long-rest-sign-interval))
+
+  ;; ステータスが切り替わる時に表示を入れ替える
+  (add-hook 'pomodoro:finish-rest-hook #'pomodoro:activate-visual-work-sign)
+  (add-hook 'pomodoro:finish-work-hook #'pomodoro:activate-visual-rest-sign)
+  (add-hook 'pomodoro:long-rest-hook
+            #'pomodoro:activate-visual-long-rest-sign))
 
 (with-eval-after-load "helm-config"
   (global-set-key (kbd "C-c f t") 'open-current-directory))

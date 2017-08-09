@@ -3,6 +3,7 @@
 #+EMAIL:	takaxp@ieee.org
 #+STARTUP:	content
 #+STARTUP:	nohideblocks
+#+SETUPFILE: theme-readtheorg.setup
 
 [[http://pastelwill.jp/wiki/doku.php?id=emacs:init.el][init.el]] に記述していた便利関数を，utility.el として分離しています．init.el では autoload を用いて utility.el を遅延読み込みするように設定してます．このようなファイルの分離で60[ms]ほど起動を高速化できます．
 
@@ -356,7 +357,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 
 http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 
-#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+#+BEGIN_SRC emacs-lisp :tangle yes :exports none
   (defun insert-formatted-current-date ()
     "Insert a timestamp at the cursor position. C-u will add [] brackets."
     (interactive)
@@ -548,10 +549,11 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   (defun my:daylight-theme ()
     (interactive)
     (when (require 'daylight-theme nil t)
-      (setq my:cursor-color-ime-on "#91C3FF")
+      (mapc 'disable-theme custom-enabled-themes)
+      ;; (setq my:cursor-color-ime-on "#91C3FF")
       (load-theme 'daylight t)
-      (set-face-foreground 'vertical-border (face-background 'default))
-      (set-face-background 'vertical-border (face-background 'default))
+      ;; (set-face-foreground 'vertical-border (face-background 'default))
+      ;; (set-face-background 'vertical-border (face-background 'default))
       (moom-reset-font-size)))
 
   ;;;###autoload
@@ -559,10 +561,11 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
     (interactive)
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
       ;;    (set-face-background 'hl-line "#484c5c")
-      (setq my:cursor-color-ime-on "#8599ff")
+      (mapc 'disable-theme custom-enabled-themes)
+      ;; (setq my:cursor-color-ime-on "#8599ff")
       (load-theme 'night t)
-      (set-face-foreground 'vertical-border (face-background 'default))
-      (set-face-background 'vertical-border (face-background 'default))
+      ;; (set-face-foreground 'vertical-border (face-background 'default))
+      ;; (set-face-background 'vertical-border (face-background 'default))
       (moom-reset-font-size)))
 #+END_SRC
 
@@ -784,6 +787,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 * provide
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+以上です．
+
+#+BEGIN_SRC emacs-lisp :tangle yes :exports none
   (provide 'utility)
 #+END_SRC

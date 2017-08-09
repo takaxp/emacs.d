@@ -1,5 +1,6 @@
 ;; (package-initialize) ;; for Emacs 25                Validated in Emacs 25.2
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
+;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -35,8 +36,22 @@
         (save-excursion
           (insert "\n" author date description tags draft))))))
 
+(when (executable-find "qt_color_picker")
+  (with-eval-after-load "helm-config"
+    (require 'edit-color-stamp nil t))
+  (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
+
 ;; (with-eval-after-load "helm-ag"
 ;;   (when (executable-find "rg")
 ;;     (setq helm-ag-base-command "rg --nocolor --nogroup")))
 
+;; (when (require 'focus nil t))
 
+;; (when (require 'beacon nil t)
+;;   (setq beacon-lighter nil)
+;;   (setq beacon-size 16)
+;;   (setq beacon-blink-duration 0.5)
+;;   (setq beacon-blink-delay 0.5)
+;;   (setq beacon-blink-when-point-moves-vertically 64)
+;;   (setq beacon-color (mac-get-cursor-color))
+;;   (beacon-mode 1))

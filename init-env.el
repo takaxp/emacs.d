@@ -1,3 +1,4 @@
+
 ;; recentf (C-M-r) / helm-swoop (M-s M-s) / isearch (C-s) / bm <f10>, C-<f10>
 ;; helm-locate (C-M-l) / org-grep (C-M-g) / ag (C-M-f) / google-this (C-c f g)
 ;; fullscreen <f11> / double-width (C-c f d)
@@ -5,7 +6,7 @@
 (defconst before-load-init-time (current-time)) ;; see my:load-init-time
 (defconst profiler nil)
 (defconst ad-require nil)
-(defconst loading-packages nil)
+(defconst loading-packages t)
 (setq loading-packages
       '(
         ;; ("paradox" . nil)
@@ -54,7 +55,8 @@
    ,(expand-file-name "devel/git/tern/bin")
    ,(expand-file-name "Dropbox/emacs.d/bin")
    "/Applications/UpTex.app/teTeX/bin"
-   "/Applications/LibreOffice.app/Contents/MacOS/")
+   "/Applications/LibreOffice.app/Contents/MacOS/"
+   "/Applications/qt_color_picker.app/Contents/MacOS/")
  'exec-path)
 
 ;; (3) load-path for { debug | normal } booting
@@ -75,7 +77,8 @@
             ,(concat p "livemirror")
             ,(concat g "git-complete")
             ,(concat g od "/lisp")
-            ,(concat g od "/contrib/lisp"))))
+            ,(concat g od "/contrib/lisp")
+            )))
     (load-path-setter l 'load-path)
     (load-path-setter `(,cask-package-dir) 'load-path)
     (setq init-load-path load-path))

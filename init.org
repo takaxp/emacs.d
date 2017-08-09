@@ -3,6 +3,7 @@
 #+EMAIL:    takaxp@ieee.org
 #+STARTUP:  content
 #+STARTUP:  nohideblocks
+#+SETUPFILE: theme-readtheorg.setup
 
 * はじめに
 
@@ -356,7 +357,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
   (setq ad-redefinition-action 'accept)
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+#+BEGIN_SRC emacs-lisp :tangle yes :exports none
   (setq byte-compile-warnings '(not obsolete))
   (setq ad-redefinition-action 'accept)
 #+END_SRC
@@ -462,7 +463,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．
   (set-buffer-file-coding-system 'utf-8-unix)
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
   (set-clipboard-coding-system 'utf-8) ; included by set-selection-coding-system
   (set-keyboard-coding-system 'utf-8) ; configured by prefer-coding-system
   (set-terminal-coding-system 'utf-8) ; configured by prefer-coding-system
@@ -986,7 +987,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
     (setq smooth-scroll-margin 1))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
   (when (autoload-if-found
          '(smooth-scrolling) "smooth-scrolling" nil t)
     (eval-after-load "smooth-scrolling"
@@ -1015,7 +1016,7 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
    '(scroll-one-up scroll-one-down) "smoothscroll" nil t)
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
   (autoload-if-found
    '(scroll-one-up scroll-one-down) "smoothscroll" nil t)
 #+END_SRC
@@ -1150,6 +1151,33 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
               #'(lambda () (centered-cursor-mode -1))))
 #+END_SRC
 
+** [back-button] マークをたどる
+
+現在のバッファと開いている全てのバッファのマークを辿ることができます．いま注目している位置が，マーク全体でどのあたりに位置するのかをミニバッファに表示してくれます．ツールバーを表示している場合は，マークを付けたり辿る用のボタンが追加されます． =global-mark-ring-max= を設定して，辿れるマークの数を拡張しておきます．
+
+  - [[https://github.com/rolandwalker/back-button][rolandwalker/back-button: Visual navigation through mark rings in Emacs 🔊]]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (with-eval-after-load "helm-config"
+    (when (autoload-if-found
+           '(back-button-mode
+             back-button-local-forward back-button-global-forward)
+           "back-button" nil t)
+      (with-eval-after-load "back-button"
+        (setq global-mark-ring-max 64)
+        (setq back-button-local-forward-keystrokes '("<f10>"))
+        (setq back-button-global-forward-keystrokes '("C-<f10>"))
+        (define-key back-button-mode-map
+          (kbd (car back-button-local-forward-keystrokes))
+          'back-button-local-forward)
+        (define-key back-button-mode-map
+          (kbd (car back-button-global-forward-keystrokes))
+          'back-button-global-forward)
+        (setq back-button-mode-lighter nil)
+        (setq back-button-index-timeout 0))
+      (back-button-mode 1)))
+#+END_SRC
+
 * 編集サポート
 ** 矩形編集／連番入力
 
@@ -1183,7 +1211,7 @@ Built-in の time-stamp.el を使う．
 
 バッファの保存時にタイムスタンプを記録する．以下の設定では，バッファの先頭から10行以内に，"Last Update: " があると，"Last Update: 2011-12-31@12:00"のようにタイムスタンプが記録される．
 
-#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+#+BEGIN_SRC emacs-lisp :tangle yes :exports none
   ;; #+UPDATE 用
   (when (autoload-if-found
          '(update-stamp)
@@ -1795,7 +1823,7 @@ http://www.namazu.org/~tsuchiya/sdic/index.html
 
 Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから使うのは英辞郎に限定．
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
   (when (autoload-if-found
          '(sdic-describe-word sdic-describe-word-at-point)
          "sdic" nil t)
@@ -2005,7 +2033,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 
 画像をリサイズしてバッファに表示する用途にも使える．
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
   (when (autoload-if-found 'toggle-cacoo-minor-mode "cacoo" nil t)
     (global-set-key (kbd "M--") 'toggle-cacoo-minor-mode)
     (eval-after-load "cacoo"
@@ -2215,7 +2243,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 
 以前は自作したパッケージを使っていましたが，不具合も多く，調べると =diminish.el= という素晴らしいパッケージがあったので移行しました．これはマイナーモードの短縮表示なので，メジャーモードは個別にフックで =mode-name= を書き換えて対応します． =use-package.el= を使っていると依存関係から自動的にインストールされます．
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
   (require 'mode-name-abbrev nil t)
 #+END_SRC
 
@@ -2643,7 +2671,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
     (setq anything-quick-update nil))        ; nil
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
   (when (autoload-if-found
          '(anything-other-buffer
            anything-complete
@@ -3092,7 +3120,7 @@ autoload を設定すると， =*.bango-playlist= や =*.bongo-library= から�
 
 以下の設定では，autoload で使いつつ，=M-x init-bongo= でプレイリストを読み込んでいる．これならば，Emacs起動時は軽量で，かつ，プレイリストの訪問で Bongo を開始できる．
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
   ;;  (require 'bongo)
   (when (autoload-if-found 'bongo "bongo-mplayer" nil t)
     (defun init-bongo ()
@@ -3355,15 +3383,14 @@ http://0xcc.net/misc/auto-save/
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "helm-config"
     (when (require 'auto-save-buffers nil t)
-      (run-with-idle-timer
-       1.6 t
-       #'(lambda ()
-           (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
-                 ((equal major-mode 'diff-mode) nil)
-                 ((string-match "Org Src" (buffer-name)) nil)
-                 (t (if (require 'shut-up nil t)
-                        (shut-up (auto-save-buffers))
-                      (auto-save-buffers))))))))
+      (defun my:auto-save-buffers ()
+        (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
+              ((equal major-mode 'diff-mode) nil)
+              ((string-match "Org Src" (buffer-name)) nil)
+              (t (if (require 'shut-up nil t)
+                     (shut-up (auto-save-buffers))
+                   (auto-save-buffers)))))
+      (run-with-idle-timer 1.6 t #'my:auto-save-buffers)))
 #+END_SRC
 
 ** [backup-dir.el] バックアップファイルを一箇所に集める
@@ -5465,7 +5492,7 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
    "org-random-todo" nil t)
 #+END_SRC
 
-** TODO [toc-org] 文字の挿入
+** TODO [toc-org] 目次の挿入
 
   - ツリーに TOC タグを付けて，`toc-org-insert-toc'を実行すればOK
 
@@ -5683,7 +5710,7 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
       (add-hook 'moom-after-fullscreen-hook
                 'moom--make-frame-height-ring)
       (add-hook 'moom-after-fullscreen-hook
-                'moom-move-frame-to-edge-top))
+                'moom-move-frame-to-center))
 
     ;; Move the frame to somewhere (default: 0,0)
     (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
@@ -6205,8 +6232,8 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
       (setq pomodoro:mode-line-time-display nil)
       ;; ●の置き換え
       (setq pomodoro:mode-line-work-sign ">>")
-      (setq pomodoro:mode-line-rest-sign "<>")
-      (setq pomodoro:mode-line-long-rest-sign "休")
+      (setq pomodoro:mode-line-rest-sign "<<")
+      (setq pomodoro:mode-line-long-rest-sign "<>")
       ;; 長い休憩に入るまでにポモドーロする回数
       (setq pomodoro:iteration-for-long-rest 4)
       ;; 作業時間関連
@@ -6220,15 +6247,16 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
       (custom-set-faces
        '(pomodoro:work-face
          ((((background dark)) :foreground "#DB4C46" :bold t)
-          (t (:foreground "#8248c4" :bold t))))
+          (t (:foreground "#9d64c4" :bold t)))) ;;  #8248c4 , #956dc4, #9d64c4
        '(pomodoro:rest-face
          ((((background dark)) :foreground "#3869FA" :bold t)
           (t (:foreground "#203e6f" :bold t))))
        '(pomodoro:long-rest-face
-         ((((background dark)) :foreground "#00B800" :bold t)
-          (t (:foreground "#00B800" :bold t)))))
+         ((((background dark)) :foreground "#008890" :bold t)
+          (t (:foreground "#1c9b08" :bold t))))) ;; 00B800
 
       (defun my:pomodoro-status ()
+        "Show the current `pomodoro' status in minibuffer when focus-in."
         (interactive)
         (message (format "[Pomodoro] Remaining: %s | Count: %d"
                          (pomodoro:time-to-string pomodoro:remainder-seconds)
@@ -6281,8 +6309,148 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
           (interactive)
           (shell-command-to-string
            (concat "terminal-notifier -title \"Pomodoro\" -message \""
-                   "DONE! This time slot has been finished!\"")))
+                   "DONE! This time slot has been finished!\""
+                   "-activate org.gnu.Emacs -sender org.gnu.Emacs")))
         (add-hook 'pomodoro:finish-work-hook 'my:pomodoro-notify))))
+#+END_SRC
+
+** [pomodoro.el] 続・ポモドーロの実践
+
+さらに，モードラインに出すスタータスを表すサインに動きを付けます．ただ頻繁にモードラインを更新して描画するので，環境によっては動作が重くなるかもしれません．
+
+各 interlval の数値を =setq= で後から変更する場合は，その直後に =pomodoro:activate-visual-work-sign= もしくは変更する interval に対応する同様の関数を実行してください．モードラインに変更が反映されます．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (with-eval-after-load "pomodoro"
+    ;; 追加実装
+    (defvar pomodoro:update-work-sign-interval 0.16) ;; work用表示間隔
+    (defvar pomodoro:update-rest-sign-interval 0.16) ;; rest用表示間隔
+    (defvar pomodoro:update-long-rest-sign-interval 0.32) ;; long-rest用表示間隔
+
+    (setq pomodoro:mode-line-work-sign-list
+          '("|  " "|| " "|||" " ||" "  |" "   "))
+    (setq pomodoro:mode-line-rest-sign-list
+          '("  |" " ||" "|||" "|| " "|  " "   "))
+    (setq pomodoro:mode-line-long-rest-sign-list
+          '("   " " | " "|||" "| |" "   "))
+
+    ;; Example.1
+    ;; (defvar pomodoro:mode-line-work-sign-list
+    ;;   '("▁" "▂" "▃" "▄" "▅" "▆" "▇" "▇" "▆" "▅" "▄" "▃" "▂" "▁" "▁" ))
+    ;; (defvar pomodoro:mode-line-rest-sign-list
+    ;;   pomodoro:mode-line-work-sign-list)
+    ;; (defvar pomodoro:mode-line-long-rest-sign-list
+    ;;   pomodoro:mode-line-work-sign-list)
+
+    ;; Example.2
+    ;; (defvar pomodoro:mode-line-work-sign-list
+    ;;   '(">   " ">>  " ">>> " ">>>>" " >>>" "  >>" "   >" "    "))
+    ;; (defvar pomodoro:mode-line-rest-sign-list
+    ;;   '("   <" "  <<" " <<<" "<<<<" "<<< " "<<  " "<   " "    "))
+    ;; (defvar pomodoro:mode-line-long-rest-sign-list
+    ;;   '("  <>  " " <<>> " "<<<>>>" "<<  >>" "<    >" "      "))
+
+    ;; Example.3
+    ;; (setq pomodoro:mode-line-work-sign-list
+    ;;       '("▂▁  ▁" "▃▂▁  " "▄▃▂▁ " "▅▄▃▂▁" "▆▅▄▃▂" "▇▆▅▄▃" "▇▇▆▅▄" "▆▇▇▆▅"
+    ;;         "▅▆▇▇▆" "▄▅▆▇▇" "▃▄▅▆▇" "▂▃▄▅▆" "▁▂▃▄▅" " ▁▂▃▄" "  ▁▂▃" "▁  ▁▂"))
+
+    ;; Example.4
+    ;; (defvar pomodoro:mode-line-work-sign-list
+    ;;   '("◤◢◤ ^-^; ◢◤◢"
+    ;;     "◤◢◤ ^-^  ◢◤◢"
+    ;;     "◤◢◤ ^-^  ◢◤◢"
+    ;;     "◤◢◤ ^-^  ◢◤◢"
+    ;;     "◤◢◤ ^-^; ◢◤◢"
+    ;;     "◤◢◤ ^-^; ◢◤◢"
+    ;;     "◢◤◢◤ ^-^; ◢◤"
+    ;;     "◤◢◤◢◤ ^-^; ◢"
+    ;;     "◢◤◢◤◢◤ ^-^; "
+    ;;     " ◢◤◢◤◢◤ ^-^;"
+    ;;     "; ◢◤◢◤◢◤ ^-^"
+    ;;     "^; ◢◤◢◤◢◤ ^-"
+    ;;     "-^; ◢◤◢◤◢◤ ^"
+    ;;     "^-^; ◢◤◢◤◢◤ "
+    ;;     " ^-^; ◢◤◢◤◢◤"
+    ;;     "◤ ^-^; ◢◤◢◤◢"
+    ;;     "◢◤ ^-^; ◢◤◢◤"));
+
+    ;; タイマーを記録
+    (defvar pomodoro:update-sign-timer
+      (run-at-time t pomodoro:update-work-sign-interval
+                   'pomodoro:update-work-sign))
+
+    ;; 初期状態を登録
+    (setq pomodoro:mode-line-work-sign (car pomodoro:mode-line-work-sign-list))
+
+    ;; utilities
+    (defun pomodoro:list-rotate (sign-list)
+      (if (listp sign-list)
+          (append (cdr sign-list)
+                  (list (car sign-list)))
+        sign-list))
+
+    (defun pomodoro:activate-visual-sign (sign interval)
+      (cancel-timer pomodoro:update-sign-timer)
+      (setq pomodoro:update-sign-timer
+            (run-at-time t interval sign)))
+
+    (defun pomodoro:stop-visualize ()
+      (when (timerp pomodoro:update-sign-timer)
+        (cancel-timer pomodoro:update-sign-timer))
+      (setq pomodoro:mode-line-work-sign nil)
+      (setq pomodoro:mode-line-rest-sign nil)
+      (setq pomodoro:mode-line-long-rest-sign nil))
+
+    (defun advice:pomodoro:stop ()
+      "Extensions to stop pomodoro and timers"
+      (pomodoro:stop-visualize))
+    (advice-add 'pomodoro:stop :after #'advice:pomodoro:stop)
+
+    ;; work
+    (defun pomodoro:update-work-sign ()
+      "Update pomodoro work-sign on modeline."
+      (setq pomodoro:mode-line-work-sign
+            (car pomodoro:mode-line-work-sign-list))
+      (setq pomodoro:mode-line-work-sign-list
+            (pomodoro:list-rotate pomodoro:mode-line-work-sign-list))
+      (force-mode-line-update t))
+
+    (defun pomodoro:activate-visual-work-sign ()
+      (pomodoro:activate-visual-sign
+       'pomodoro:update-work-sign pomodoro:update-work-sign-interval))
+
+    ;; rest
+    (defun pomodoro:update-rest-sign ()
+      "Update pomodoro rest-sign on modeline."
+      (setq pomodoro:mode-line-rest-sign
+            (car pomodoro:mode-line-rest-sign-list))
+      (setq pomodoro:mode-line-rest-sign-list
+            (pomodoro:list-rotate pomodoro:mode-line-rest-sign-list))
+      (force-mode-line-update t))
+
+    (defun pomodoro:activate-visual-rest-sign ()
+      (pomodoro:activate-visual-sign
+       'pomodoro:update-rest-sign pomodoro:update-rest-sign-interval))
+
+    ;; long rest
+    (defun pomodoro:update-long-rest-sign ()
+      "Update pomodoro long-rest-sign on modeline."
+      (setq pomodoro:mode-line-long-rest-sign
+            (car pomodoro:mode-line-long-rest-sign-list))
+      (setq pomodoro:mode-line-long-rest-sign-list
+            (pomodoro:list-rotate pomodoro:mode-line-long-rest-sign-list))
+      (force-mode-line-update t))
+
+    (defun pomodoro:activate-visual-long-rest-sign ()
+      (pomodoro:activate-visual-sign
+       'pomodoro:update-long-rest-sign pomodoro:update-long-rest-sign-interval))
+
+    ;; ステータスが切り替わる時に表示を入れ替える
+    (add-hook 'pomodoro:finish-rest-hook #'pomodoro:activate-visual-work-sign)
+    (add-hook 'pomodoro:finish-work-hook #'pomodoro:activate-visual-rest-sign)
+    (add-hook 'pomodoro:long-rest-hook
+              #'pomodoro:activate-visual-long-rest-sign))
 #+END_SRC
 
 ** カレントバッファのあるディレクトリをターミナルで表示
@@ -6368,7 +6536,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 
 たまに使いたくなるので一応．
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
   (eval-after-autoload-if-found
    '(multi-term) "multi-term" nil t nil
    '((setenv "HOSTTYPE" "intel-mac")
@@ -6413,7 +6581,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 
 ** [utility.el] 自作してテスト中の便利関数群
 
-関数定義を[[http://pastelwill.jp/wiki/doku.php?id=emacs:utility.el][別ファイル]]に分離して，Emacs起動の高速化を図っています．各関数を autoload の管理下において，必要なときにロードするように設定しています．
+関数定義を[[https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el][別ファイル]]に分離して，Emacs起動の高速化を図っています．各関数を autoload の管理下において，必要なときにロードするように設定しています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defconst utility-autoloads
@@ -6443,6 +6611,6 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 
 以上が，私の =init.el= とその説明です．
 
-#+BEGIN_SRC emacs-lisp :tangle yes :exports no
+#+BEGIN_SRC emacs-lisp :tangle yes :exports none
   (provide 'init)
 #+END_SRC
