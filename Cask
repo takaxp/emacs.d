@@ -39,6 +39,7 @@
 (depends-on "po-mode")
 (depends-on "gnuplot-mode")
 (depends-on "ess")
+(depends-on "yatex")
 
 ;; Development
 (depends-on "origami")
