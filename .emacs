@@ -9,10 +9,6 @@
 (with-eval-after-load "org"
   (add-to-list 'org-refile-targets '("money.org" :level . 1)))
 
-;; Testing: git-complete
-;; (when (autoload-if-found '(git-complete) "git-complete" nil t)
-;;   (global-set-key (kbd "C-c f <tab>") 'git-complete))
-
 ;; Let's use easy-hugo!
 (when (and nil (require 'easy-hugo nil t))
   (setq easy-hugo-default-ext ".org")
@@ -36,22 +32,7 @@
         (save-excursion
           (insert "\n" author date description tags draft))))))
 
-(when (executable-find "qt_color_picker")
-  (with-eval-after-load "helm-config"
-    (require 'edit-color-stamp nil t))
-  (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
+;; Testing: git-complete
+;; (when (autoload-if-found '(git-complete) "git-complete" nil t)
+;;   (global-set-key (kbd "C-c f <tab>") 'git-complete))
 
-;; (with-eval-after-load "helm-ag"
-;;   (when (executable-find "rg")
-;;     (setq helm-ag-base-command "rg --nocolor --nogroup")))
-
-;; (when (require 'focus nil t))
-
-;; (when (require 'beacon nil t)
-;;   (setq beacon-lighter nil)
-;;   (setq beacon-size 16)
-;;   (setq beacon-blink-duration 0.5)
-;;   (setq beacon-blink-delay 0.5)
-;;   (setq beacon-blink-when-point-moves-vertically 64)
-;;   (setq beacon-color (mac-get-cursor-color))
-;;   (beacon-mode 1))

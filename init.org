@@ -144,7 +144,18 @@
     (global-set-key (kbd "r") 'f2))
 #+END_SRC
 
-  - http://e-arrows.sakura.ne.jp/2010/03/macros-in-emacs-el.html
+  - http://www.sodan.org/~knagano/emacs/dotemacs.html（オリジナル）
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+  (defun autoload-if-found (functions file &optional docstring interactive type)
+    ""
+    (message
+     (format
+      "--- %f %s"
+      (car (benchmark-run 1
+             (autoload-if-found1 functions file docstring interactive type)))
+      file)))
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun autoload-if-found (functions file &optional docstring interactive type)
@@ -154,8 +165,8 @@
     (and (load-package-p file)
          (locate-library file)
          (progn
-           (dolist (function functions)
-             (autoload function file docstring interactive type))
+           (dolist (f functions)
+             (autoload f file docstring interactive type))
            t)))
 #+END_SRC
 
@@ -456,7 +467,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (prefer-coding-system 'utf-8-unix)
-  (set-language-environment "Japanese")
+  ;; (set-language-environment "Japanese") ;; will take 20-30[ms]
   (set-locale-environment "en_US.UTF-8") ; "ja_JP.UTF-8"
   (set-default-coding-systems 'utf-8-unix)
   (set-selection-coding-system 'utf-8-unix)
@@ -593,6 +604,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 =auto-save-buffers= を使っていれば，バッファは常に保存された状態になるため， revert が即座に反映されます．適宜バックアップツールと組み合わせないと，バッファが自動更新されてしまうので不安かもしれません．
 
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "helm-config"
     (global-auto-revert-mode 1))
@@ -625,7 +638,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found 'cask-mode "cask-mode" nil t)
-    (add-to-list 'auto-mode-alist '("/Cask\\'" . cask-mode)))
+    (push '("/Cask\\'" . cask-mode) auto-mode-alist))
 #+END_SRC
 
 *** Cask のセットアップ
@@ -975,7 +988,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
   ;; Scroll window on a line-by-line basis
   (setq scroll-conservatively 1000)
   (setq scroll-step 1)
-;;  (setq scroll-margin 0) ; default=0
+  ;;  (setq scroll-margin 0) ; default=0
 #+END_SRC
 
 スクロール時のジャンプが気になる場合は次のパッケージを使うとよいです．
@@ -1157,25 +1170,42 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 
   - [[https://github.com/rolandwalker/back-button][rolandwalker/back-button: Visual navigation through mark rings in Emacs 🔊]]
 
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (autoload-if-found
+         '(back-button-mode
+           back-button-local-forward back-button-global-forward)
+         "back-button" nil t)
+    (with-eval-after-load "back-button"
+      (setq global-mark-ring-max 64)
+      (setq back-button-local-forward-keystrokes '("<f10>"))
+      (setq back-button-global-forward-keystrokes '("C-<f10>"))
+      (define-key back-button-mode-map
+        (kbd (car back-button-local-forward-keystrokes))
+        'back-button-local-forward)
+      (define-key back-button-mode-map
+        (kbd (car back-button-global-forward-keystrokes))
+        'back-button-global-forward)
+      (setq back-button-mode-lighter nil)
+      (setq back-button-index-timeout 0)))
+
+  (with-eval-after-load "helm-config"
+    (back-button-mode 1))
+#+END_SRC
+
+** [smart-mark] C-g後に元の場所へカーソルを戻す
+
+すぐわかる例は， =C-x h= で全選択して何もせず， =C-g= する場合です．通常だとバッファの先頭にカーソルが置き去りにされますが， =smart-mark= を使うと，全選択を実行した時の位置に自動的に戻してくれます．
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
+  - [[https://github.com/zhangkaiyulw/smart-mark][zhangkaiyulw/smart-mark: Emacs package to restore point after C-g when mark]]
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "helm-config"
-    (when (autoload-if-found
-           '(back-button-mode
-             back-button-local-forward back-button-global-forward)
-           "back-button" nil t)
-      (with-eval-after-load "back-button"
-        (setq global-mark-ring-max 64)
-        (setq back-button-local-forward-keystrokes '("<f10>"))
-        (setq back-button-global-forward-keystrokes '("C-<f10>"))
-        (define-key back-button-mode-map
-          (kbd (car back-button-local-forward-keystrokes))
-          'back-button-local-forward)
-        (define-key back-button-mode-map
-          (kbd (car back-button-global-forward-keystrokes))
-          'back-button-global-forward)
-        (setq back-button-mode-lighter nil)
-        (setq back-button-index-timeout 0))
-      (back-button-mode 1)))
+    (when (require 'smart-mark nil t)
+      (smart-mark-mode 1)))
 #+END_SRC
 
 * 編集サポート
@@ -2095,16 +2125,14 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
       (define-key web-mode-map (kbd "<tab>") 'my:web-indent-fold))
 
     ;; web-mode で開くファイルの拡張子を指定
-    (setq auto-mode-alist
-          (append '(("\\.phtml\\'" . web-mode)
-                    ("\\.tpl\\.php\\'" . web-mode)
-                    ("\\.jsp\\'" . web-mode)
-                    ("\\.as[cp]x\\'" . web-mode)
-                    ("\\.erb\\'" . web-mode)
-                    ("\\.mustache\\'" . web-mode)
-                    ("\\.djhtml\\'" . web-mode)
-                    ("\\.html?\\'" . web-mode))
-                  auto-mode-alist)))
+    (push '("\\.phtml\\'" . web-mode) auto-mode-alist)
+    (push '("\\.tpl\\.php\\'" . web-mode) auto-mode-alist)
+    (push '("\\.jsp\\'" . web-mode) auto-mode-alist)
+    (push '("\\.as[cp]x\\'" . web-mode) auto-mode-alist)
+    (push '("\\.erb\\'" . web-mode) auto-mode-alist)
+    (push '("\\.mustache\\'" . web-mode) auto-mode-alist)
+    (push '("\\.djhtml\\'" . web-mode) auto-mode-alist)
+    (push '("\\.html?\\'" . web-mode) auto-mode-alist))
 #+END_SRC
 
 ** [emmet-mode] zencoding の後継
@@ -2176,6 +2204,8 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 
 ** [smartparens.el] 対応するカッコの挿入をアシスト
 
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "helm-config"
     (when (require 'smartparens nil t)
@@ -2200,6 +2230,8 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 
   - [[https://github.com/Kungsgeten/selected.el][Kungsgeten/selected.el: Keymap for when region is active]]
   - [[https://www.reddit.com/r/emacs/comments/4fxnss/selectedel_keymap_for_when_region_is_active/][selected.el - Keymap for when region is active : emacs]]
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "helm-config"
@@ -2297,15 +2329,16 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 標準では「Narrow」と表示されますが，「N」に短縮します．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq mode-line-modes
-        (mapcar
-         (lambda (entry)
-           (if (and (stringp entry)
-                    (string= entry "%n"))
-               '(:eval (if (and (= 1 (point-min))
-                                (= (1+ (buffer-size)) (point-max))) ""
-                         " N")) entry))
-         mode-line-modes))
+  (with-eval-after-load "org"
+    (setq mode-line-modes
+          (mapcar
+           (lambda (entry)
+             (if (and (stringp entry)
+                      (string= entry "%n"))
+                 '(:eval (if (and (= 1 (point-min))
+                                  (= (1+ (buffer-size)) (point-max))) ""
+                           " N")) entry))
+           mode-line-modes)))
 #+END_SRC
 
 ** モードラインの節約（VC-mode編）
@@ -2435,7 +2468,7 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 スクロールバーを非表示にするには，nil を指定します．
 右側に表示したい場合は，'right とします．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
   ;; Show scroll bar or not
   (when window-system
     (set-scroll-bar-mode -1)) ; 'right
@@ -2447,6 +2480,8 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 
   - http://d.hatena.ne.jp/m2ym/20110401/1301617991
   - 2015-03-15: smooth-scroll との組み合わせで重いのを確認．
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+BEGIN_SRC emacs-lisp :tangle no
   (with-eval-after-load "helm-config"
@@ -2479,7 +2514,8 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Show line number in the mode line.
-  (line-number-mode t)
+  (with-eval-after-load "helm-config"
+    (line-number-mode 1))
 #+END_SRC
 
 ** カーソル行の関数名をモードラインに表示する
@@ -2493,17 +2529,22 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 
 ** 時刻をモードラインに表示する
 
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
 #+BEGIN_SRC emacs-lisp :tangle yes :exports yes
   ;; Show clock in in the mode line
-  (setq display-time-format "%H%M.%S") ;; %y%m%d.
-  (setq display-time-interval 1)
-  (setq display-time-default-load-average nil)
-  (display-time-mode 1)
+  (with-eval-after-load "helm-config"
+    (setq display-time-format "%H%M.%S") ;; %y%m%d.
+    (setq display-time-interval 1)
+    (setq display-time-default-load-average nil)
+    (display-time-mode 1))
 #+END_SRC
 
 ** 対応するカッコをハイライトする
 
 Built-in の paren.el が利用できる．拡張版として [[http://www.emacswiki.org/emacs/mic-paren.el][mic-paren.el]] があり，現在はこれを利用している． =helm= の起動で有効化しています．
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "helm-config"
@@ -2537,30 +2578,31 @@ paren.el の場合は以下の設定．
 英語で原稿を書く時に全角スペースが入っているを苦労するので，強調表示して編集中でも気づくようにします．また，行末のタブや半角スペースも無駄なので，入り込まないように強調しています．パッケージを使うと too much かなという印象があったので，個別の設定だけを使わせてもらっています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; スペース
-  (defface my:face-b-1
-    '((t (:background "gray" :bold t :underline "red")))
-    nil :group 'font-lock-highlighting-faces)
-  ;; タブだけの行
-  (defface my:face-b-2
-    '((t (:background "orange" :bold t :underline "red")))
-    nil :group 'font-lock-highlighting-faces)
-  ;; 半角スペース
-  (defface my:face-b-3 '((t (:background "orange")))
-    nil :group 'font-lock-highlighting-faces)
+  (with-eval-after-load "helm-config"
+    ;; スペース
+    (defface my:face-b-1
+      '((t (:background "gray" :bold t :underline "red")))
+      nil :group 'font-lock-highlighting-faces)
+    ;; タブだけの行
+    (defface my:face-b-2
+      '((t (:background "orange" :bold t :underline "red")))
+      nil :group 'font-lock-highlighting-faces)
+    ;; 半角スペース
+    (defface my:face-b-3 '((t (:background "orange")))
+      nil :group 'font-lock-highlighting-faces)
 
-  (defvar my:face-b-1 'my:face-b-1)
-  (defvar my:face-b-2 'my:face-b-2)
-  (defvar my:face-b-3 'my:face-b-3)
-  (defadvice font-lock-mode (before my:font-lock-mode ())
-    (font-lock-add-keywords
-     major-mode
-     ;; "[\t]+$" 行末のタブ
-     '(("　" 0 my:face-b-1 append)
-       ("[ ]+$" 0 my:face-b-3 append)
-       ("[\t]+$" 0 my:face-b-2 append))))
-  (ad-enable-advice 'font-lock-mode 'before 'my:font-lock-mode)
-  (ad-activate 'font-lock-mode)
+    (defvar my:face-b-1 'my:face-b-1)
+    (defvar my:face-b-2 'my:face-b-2)
+    (defvar my:face-b-3 'my:face-b-3)
+    (defadvice font-lock-mode (before my:font-lock-mode ())
+      (font-lock-add-keywords
+       major-mode
+       ;; "[\t]+$" 行末のタブ
+       '(("　" 0 my:face-b-1 append)
+         ("[ ]+$" 0 my:face-b-3 append)
+         ("[\t]+$" 0 my:face-b-2 append))))
+    (ad-enable-advice 'font-lock-mode 'before 'my:font-lock-mode)
+    (ad-activate 'font-lock-mode))
 
   ;;show EOF
   ;; (defun set-buffer-end-mark()
@@ -3330,7 +3372,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found
-         '(rencetf-mode recentf-save-list-without-msg)
+         '(rencetf-mode recentf-save-list-without-msg recentf-open-files)
          "recentf" nil t)
     (with-eval-after-load "recentf"
       (defun recentf-save-list-without-msg ()
@@ -3358,7 +3400,8 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
             '(".recentf" "^/tmp\\.*"
               "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
-    (add-hook 'after-init-hook 'recentf-mode))
+    (with-eval-after-load "helm-recentf"
+      (recentf-mode 1)))
 #+END_SRC
 
 ** 深夜にバッファを自動整理する
@@ -3379,6 +3422,8 @@ http://www.emacswiki.org/emacs-zh/CleanBufferList
 http://0xcc.net/misc/auto-save/
 
 同じ機能で比較的新しいパッケージに， =real-auto-save= があります．ただ，私の場合は，以下のようなモードごとの制御がうまくできなかったので移行していません．
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "helm-config"
@@ -3424,6 +3469,8 @@ http://0xcc.net/misc/auto-save/
 
 直近のファイルを常にバックアップします． =backup-dir.el= でも良いですが，バックアップの目的が，バッファ編集中に =emacs= が落ちる時の保険ならば， =backup-each-save= の方が適切な場合があります．以下の例では，すべてのファイルを保存の度に保存しつつ， =emacs= 終了時に7日前までのバックアップファイルをすべて削除するようにしています．
 
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found
          '(backup-each-save)
@@ -3435,10 +3482,9 @@ http://0xcc.net/misc/auto-save/
 
     ;; なぜか (backup-each-save) の直接呼び出しだとだめ
     (with-eval-after-load "helm-config"
-      (require 'backup-each-save nil t))
-
-    ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
-    (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t))
+      (require 'backup-each-save nil t)
+      ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
+      (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t)))
 
     (add-hook 'after-save-hook
               #'(lambda () (unless (equal (buffer-name) "recentf")
@@ -3450,41 +3496,24 @@ http://0xcc.net/misc/auto-save/
 
     ;; backup-each-save が作るファイルのうち条件にあうものを終了時に削除
     (add-hook 'kill-emacs-hook
-              #'(lambda () (recursive-delete-backup-files 7))))
+              #'(lambda ()
+                  (when (fboundp 'recursive-delete-backup-files)
+                    (recursive-delete-backup-files 7)))))
 #+END_SRC
 
 ** 特定のファイルを Dropbox 以下にバックアップする
 
 複数の端末でEmacsを使うと，稀に端末の環境に依存した設定ファイルが必要になり，それらは端末間で共有しません．私の場合は， =recentf= がそれに該当します．とは言えバックアップしていないのは不安なので，なんとかします．引数にバックアップ対象のファイルリストを渡せます．
 
-ちょっとダサいのですが，予め =~/Dropbox/backup= の下に， =system-name= で得られる値のディレクトリを作成する必要があります．
+ちょっとダサいのですが，予め =~/Dropbox/backup= の下に， =system-name= で得られる値のディレクトリを作成する必要があります． =my:backup= は [[./utility.el]] で実装しています．
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defun my:backup (files &optional dropbox)
-    "Backup a file to `Dropbox/backup' directory. If `dropbox' option is provided then the value is uased as a root directory."
-    (interactive "P")
-    (let ((system (system-name))
-          (rootdir (or dropbox "~/Dropbox")))
-      (if (and system
-               (stringp rootdir)
-               (file-directory-p (or rootdir (expand-file-name rootdir))))
-          (mapc
-           (lambda (file)
-             (if (and (stringp file)
-                      (file-readable-p (or file (expand-file-name file))))
-                 (shell-command-to-string
-                  (concat "cp -f " file " " rootdir "/backup/" system "/"))
-               (message (format "--- backup failure: %s" file))))
-           (if (listp files)
-               files
-             (list files)))
-        (message (format "--- backup-dir does not exist: %s" rootdir)))))
-
-  (defun my:backup-recentf ()
-    (my:backup "~/.emacs.d/recentf"))
-
   (with-eval-after-load "helm-config"
-    (run-with-idle-timer 600 t 'my:backup-recentf))
+    (defun my:backup-recentf ()
+      (my:backup "~/.emacs.d/recentf"))
+    (run-with-idle-timer 180 t 'my:backup-recentf))
 #+END_SRC
 
 ** [session.el] 様々な履歴を保存し復元に利用する
@@ -3962,6 +3991,8 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
   - [[http://editorconfig.org/#contributing][EditorConfig]]
   - [[https://github.com/editorconfig/editorconfig-emacs#readme][editorconfig/editorconfig-emacs: EditorConfig plugin for emacs]]
   - [[https://github.com/10sr/editorconfig-charset-extras-el][10sr/editorconfig-charset-extras-el: Extra EditorConfig Charset Support]]
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "helm-config"
@@ -4669,7 +4700,7 @@ http://orgmode.org/manual/Setting-up-the-staging-area.html
 
 ** [org-tree-slide] Org でプレゼンテーション
 
-http://pastelwill.jp/wiki/doku.php?id=emacs:org-tree-slide
+  - https://pxaka.tokyo/wiki/doku.php?id=emacs:org-tree-slide
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; (require 'use-package nil t)
@@ -5320,13 +5351,13 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
 
 アラームは複数登録することができます．不要になったアラームを削除するのは，単純に表から当該の行を削除するだけで済みます．実際のところは，バッファが保存される時にアラームリストの変更が自動的にシステムに反映されるので，余計な作業は不要です．
 
-=set-alarms-from-file= は，[[http://pastelwill.jp/wiki/doku.php?id=emacs:utility.el][utility.el]]に記述した関数です．
+=set-alarms-from-file= は，[[https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el][utility.el]]に記述した関数です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "utility"
     (set-alarms-from-file "~/Dropbox/org/trigger.org"))
 
-  (with-eval-after-load "helm-config"
+  (when (library-p "utility")
     (add-hook 'after-save-hook 'my:update-alarms-from-file))
 #+END_SRC
 
@@ -5547,35 +5578,30 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
   (defconst my:cursor-type-ime-on '(bar . 2))
   (defconst my:cursor-type-ime-off '(bar . 2))
 
-  (setq blink-cursor-blinks 0)
-  (setq blink-cursor-interval 0.3)
-  (setq blink-cursor-delay 16)
-  (blink-cursor-mode 1)
-
   (cond
    ((eq window-system 'ns)
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title "あ")
+       "com.google.inputmethod.Japanese.base" 'title "あ"))
 
-      (when (fboundp 'mac-get-current-input-source)
-        (defun my:ime-active-p ()
-          (not (string-match "\\.Roman$" (mac-get-current-input-source))))
-        (defvar my:ime-on-hook nil)
-        (defvar my:ime-off-hook nil)
-        (defun my:ime-on ()
-          (mac-toggle-input-method t)
-          (run-hooks 'my:ime-on-hook))
-        (defun my:ime-off ()
-          (mac-toggle-input-method nil)
-          (run-hooks 'my:ime-off-hook))
-        (if (my:ime-active-p) (my:ime-on) (my:ime-off))
+    (when (fboundp 'mac-get-current-input-source)
+      (defun my:ime-active-p ()
+        (not (string-match "\\.Roman$" (mac-get-current-input-source))))
+      (defvar my:ime-on-hook nil)
+      (defvar my:ime-off-hook nil)
+      (defun my:ime-on ()
+        (mac-toggle-input-method t)
+        (run-hooks 'my:ime-on-hook))
+      (defun my:ime-off ()
+        (mac-toggle-input-method nil)
+        (run-hooks 'my:ime-off-hook))
+      (if (my:ime-active-p) (my:ime-on) (my:ime-off))
 
-        ;; for init setup
-        (setq-default cursor-type '(bar . 2))
-        (set-cursor-color
-         (if (my:ime-active-p)
-             my:cursor-color-ime-on my:cursor-color-ime-off))))
+      ;; for init setup
+      (setq-default cursor-type '(bar . 2))
+      (set-cursor-color
+       (if (my:ime-active-p)
+           my:cursor-color-ime-on my:cursor-color-ime-off)))
 
     ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
     ;; バッファ切替時に input method を切り替える
@@ -5666,7 +5692,10 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
                     (set-frame-width (selected-frame) moom--target-frame-width)))
 
       ;; To avoid rebooting issue when using desktop.el and recentf.el
-      (add-hook 'kill-emacs-hook 'e2wm:stop-management)))
+      (add-hook 'kill-emacs-hook
+                #'(lambda ()
+                    (when (fboundp 'e2wm:stop-management)
+                      (e2wm:stop-management))))
 #+END_SRC
 
 ** [moom.el] キーボードでフレームの場所を移す
@@ -5710,7 +5739,9 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
       (add-hook 'moom-after-fullscreen-hook
                 'moom--make-frame-height-ring)
       (add-hook 'moom-after-fullscreen-hook
-                'moom-move-frame-to-center))
+                'moom-move-frame-to-center)
+      (add-hook 'moom-reset-font-size-hook
+                'moom-move-frame-with-user-specify))
 
     ;; Move the frame to somewhere (default: 0,0)
     (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
@@ -5762,6 +5793,8 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
   - https://github.com/m2ym/popwin-el/
   - popwin:display-buffer を autoload してもうまくいかない．
   - 現在は緩やかに =shackle= に移行中です．
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; for emacs 24.1
@@ -5876,6 +5909,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 =generic-x= を使うと， =/etc/hosts= や =/etc/apache2.conf= に色を付けられる．
 
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "helm-config"
     (require 'generic-x nil t))
@@ -5889,11 +5924,16 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when window-system
-    (global-hl-line-mode t)
-    (custom-set-faces
-     '(hl-line
-       ((((background dark)) :background "#484c5c")
-        (t (:background "#DEEDFF"))))))
+    (global-hl-line-mode 1))
+#+END_SRC
+
+色の設定は =custom-set-faces= で．
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (custom-set-faces
+   '(hl-line
+     ((((background dark)) :background "#484c5c")
+      (t (:background "#DEEDFF"))))))
 #+END_SRC
 
 ** カーソル色の切り替え                                                 :Mac:
@@ -5916,8 +5956,19 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 ** カーソルを点滅させない
 
 #+BEGIN_SRC emacs-lisp :tangle no :exports yes
-;; Disable cursor blink
-(blink-cursor-mode -1)
+  (blink-cursor-mode -1)
+#+END_SRC
+
+逆にちゃんと設定して点滅させる場合．以下の例では，入力が止まってから16秒後に0.3秒間隔で点滅します．次に入力が始まるまで，点滅が続きます．
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
+#+BEGIN_SRC emacs-lisp :tangle yes :exports yes
+  (with-eval-after-load "helm-config"
+    (setq blink-cursor-blinks 0)
+    (setq blink-cursor-interval 0.3)
+    (setq blink-cursor-delay 16)
+    (blink-cursor-mode -1))
 #+END_SRC
 
 ** カーソル位置のフォントを確認
@@ -6079,14 +6130,14 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
           (or (<= begin ct) (<= ct end))
         (and (<= begin ct) (<= ct end)))))
 
-  (defconst night-time-in 21)
-  (defconst night-time-out 5)
-
-  (if (my:night-time-p (* night-time-in 60) (* night-time-out 60))
-      (when (require 'night-theme nil t)
-        (load-theme 'night t))
-    (when (require 'daylight-theme nil t)
-      (load-theme 'daylight t)))
+  (when window-system
+    (let ((night-time-in 21)
+          (night-time-out 5))
+      (if (my:night-time-p (* night-time-in 60) (* night-time-out 60))
+          (when (require 'night-theme nil t)
+            (load-theme 'night t))
+        (when (require 'daylight-theme nil t)
+          (load-theme 'daylight t)))))
 #+END_SRC
 
 ** [rainbow-mode.el] 配色のリアルタイム確認
@@ -6205,6 +6256,19 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
       (add-hook hook 'volatile-highlights-mode)))
 #+END_SRC
 
+** TODO [edit-color-stamp] Qt経由でカラーピッカーを使う
+
+  - [[https://github.com/sabof/edit-color-stamp][sabof/edit-color-stamp: Edit hex color stamps using a QT, or the internal color picker]]
+
+  - Macintosh でもちゃんと使えます．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (executable-find "qt_color_picker")
+    (with-eval-after-load "helm-config"
+      (require 'edit-color-stamp nil t))
+    (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
+#+END_SRC
+
 * ユーティリティ関数
 ** [pomodoro.el] ポモドーロの実践
 
@@ -6213,6 +6277,8 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 =pomodoro:finish-work-hook= ， =pomodoro:finish-rest-hook= ， =pomodoro:long-rest-hook= にそれぞれ結びつけてあるのは，[[http://www.mactechlab.jp/products-report/16673.html][Macのスピーチ機能]]です．この例では，Kyoko さんが指示を出してくれます．
 
 =M-x pomodoro:start= すると，ポモドーロが始まり，8時間後に =pomodoro:stop= が呼ばれてポモドーロが終了します．[[http://www.pomodorotechnique.com/][pomodoro]] は機械的に仕事をしたい人にピッタリです．人によっては [[http://ja.wikipedia.org/wiki/Getting_Things_Done][GTD]] よりも取っ付きやすいと思います．
+
+=helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (autoload-if-found
@@ -6323,14 +6389,16 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 #+BEGIN_SRC emacs-lisp :tangle yes
   (with-eval-after-load "pomodoro"
     ;; 追加実装
-    (defvar pomodoro:update-work-sign-interval 0.16) ;; work用表示間隔
-    (defvar pomodoro:update-rest-sign-interval 0.16) ;; rest用表示間隔
-    (defvar pomodoro:update-long-rest-sign-interval 0.32) ;; long-rest用表示間隔
+    (defvar pomodoro:update-work-sign-interval 0.21) ;; work用表示間隔
+    (defvar pomodoro:update-rest-sign-interval 0.21) ;; rest用表示間隔
+    (defvar pomodoro:update-long-rest-sign-interval 0.36) ;; long-rest用表示間隔
 
     (setq pomodoro:mode-line-work-sign-list
-          '("|  " "|| " "|||" " ||" "  |" "   "))
+          '("|  " "|| " "|||" " ||" "  |" "   " "   "
+            "  |" " ||" "|||" "|| " "|  " "   " "   "))
     (setq pomodoro:mode-line-rest-sign-list
-          '("  |" " ||" "|||" "|| " "|  " "   "))
+          '(".  " ".. " "..." " .." "  ." "   " "   "
+            "  ." " .." "..." ".. " ".  " "   " "   "))
     (setq pomodoro:mode-line-long-rest-sign-list
           '("   " " | " "|||" "| |" "   "))
 
@@ -6456,8 +6524,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 ** カレントバッファのあるディレクトリをターミナルで表示
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (with-eval-after-load "helm-config"
-    (global-set-key (kbd "C-c f t") 'open-current-directory))
+  (global-set-key (kbd "C-c f t") 'open-current-directory)
 #+END_SRC
 
 ** [google-this.el] 単語をグーグル検索
@@ -6493,13 +6560,13 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
     (with-eval-after-load "lingr"
       (setq lingr-icon-mode t)
       (setq lingr-icon-fix-size 24)
-      (setq lingr-image-convert-program "/usr/local/bin/convert")
-
-      (defun my:lingr-login ()
-        (when (string= "Sat" (format-time-string "%a"))
-          (lingr-login))))
+      (setq lingr-image-convert-program "/usr/local/bin/convert"))
 
     (with-eval-after-load "helm-config"
+      ;; do not use `run-at-time' at booting since diary-lib.el will be loaded. It requires loading cost.
+      (defun my:lingr-login ()
+        (when (string= "Sat" (format-time-string "%a"))
+          (lingr-login)))
       (unless (passed-clock-p "23:00")
         (run-at-time "23:00" nil 'my:lingr-login))))
 #+END_SRC
@@ -6513,11 +6580,10 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (if (executable-find "pass")
-      (with-eval-after-load "helm-config"
-        (when (autoload-if-found
-               'helm-pass
-               "helm-pass" nil t)
-          (global-set-key (kbd "C-c f p") 'helm-pass)))
+      (when (autoload-if-found
+             'helm-pass
+             "helm-pass" nil t)
+        (global-set-key (kbd "C-c f p") 'helm-pass))
     (message "--- pass is NOT installed."))
 #+END_SRC
 
@@ -6569,14 +6635,16 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 
 =C-M-i= を iterm2.app の呼び出しに割り当てます．シェルでの作業はどうも =eshell= では満足できないので．なお flyspell を使っていると，遅延呼び出しした後にキーバインドを奪われるので，取り返します．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (defun cmd-to-open-iterm2 ()
-    (interactive)
-    (shell-command-to-string "open -a iTerm2.app"))
-  (global-set-key (kbd "C-M-i") #'cmd-to-open-iterm2)
+=cmd-to-open-iterm2= の実装は，[[./utility.el]] にあります．
 
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (autoload-if-found
+         '(my:cmd-to-open-iterm2)
+         "utility" nil t)
+    (global-set-key (kbd "C-M-i") #'my:cmd-to-open-iterm2))
+  ;; キーバインドの再設定
   (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-M-i") #'cmd-to-open-iterm2))
+    (define-key flyspell-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2))
 #+END_SRC
 
 ** [utility.el] 自作してテスト中の便利関数群
@@ -6596,7 +6664,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
       export-timeline-business export-timeline-private chomp
       my:browse-url-chrome count-words-buffer do-test-applescript
       delete-backup-files recursive-delete-backup-files describe-timer
-      my:list-packages my:setup-cask))
+      my:list-packages my:setup-cask my:lingr-login my:backup))
 
   (when (autoload-if-found
          utility-autoloads

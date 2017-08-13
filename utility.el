@@ -1,4 +1,5 @@
 (require 'org nil t)
+
 ;;;###autoload
 (defun eval-org-buffer ()
   "Load init.org/utility.org and tangle init.el/utility.el."
@@ -56,7 +57,7 @@
   (when (string= "trigger.org" (buffer-name))
     (set-alarms-from-file "~/Dropbox/org/trigger.org")))
 
-  ;;;###autoload
+;;;###autoload
 (defun set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file
      with tables with the following format:
@@ -76,7 +77,7 @@
       (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
       (setq lines (cdr lines)))))
 
-  ;;;###autoload
+;;;###autoload
 (defun set-alarm-from-line (line)
   (let
       ((hour nil)
@@ -156,7 +157,7 @@
 
 (defvar my:file-ring nil)
 
- ;;;###autoload
+;;;###autoload
 (defun takaxp:make-file-ring (files)
   (setq my:file-ring (copy-sequence files)))
 ;;    (setf (cdr (last my:file-ring)) my:file-ring))
@@ -166,7 +167,7 @@
    "~/Dropbox/emacs.d/config/utility.org" "~/Dropbox/org/buffer.org"
    "~/Dropbox/org/next.org"))
 
- ;;;###autoload
+;;;###autoload
 (defun takaxp:open-file-ring ()
   (interactive)
   (find-file (car my:file-ring))
@@ -391,22 +392,15 @@
   (interactive)
   (when (require 'daylight-theme nil t)
     (mapc 'disable-theme custom-enabled-themes)
-    ;; (setq my:cursor-color-ime-on "#91C3FF")
     (load-theme 'daylight t)
-    ;; (set-face-foreground 'vertical-border (face-background 'default))
-    ;; (set-face-background 'vertical-border (face-background 'default))
     (moom-reset-font-size)))
 
 ;;;###autoload
 (defun my:night-theme ()
   (interactive)
   (when (require 'night-theme nil t) ;; atom-one-dark-theme
-    ;;    (set-face-background 'hl-line "#484c5c")
     (mapc 'disable-theme custom-enabled-themes)
-    ;; (setq my:cursor-color-ime-on "#8599ff")
     (load-theme 'night t)
-    ;; (set-face-foreground 'vertical-border (face-background 'default))
-    ;; (set-face-background 'vertical-border (face-background 'default))
     (moom-reset-font-size)))
 
 (defun chomp (str)
@@ -416,8 +410,37 @@
     (setq str (replace-match "" t t str)))
   str)
 
+;;;###autoload
+(defun my:cmd-to-open-iterm2 ()
+  (interactive)
+  (shell-command-to-string "open -a iTerm2.app"))
+
+(defun my:lingr-login ()
+  (when (string= "Sat" (format-time-string "%a"))
+    (lingr-login)))
+
+(defun my:backup (files &optional dropbox)
+  "Backup a file to `Dropbox/backup' directory. If `dropbox' option is provided then the value is uased as a root directory."
+  (interactive "P")
+  (let ((system (system-name))
+        (rootdir (or dropbox "~/Dropbox")))
+    (if (and system
+             (stringp rootdir)
+             (file-directory-p (or rootdir (expand-file-name rootdir))))
+        (mapc
+         (lambda (file)
+           (if (and (stringp file)
+                    (file-readable-p (or file (expand-file-name file))))
+               (shell-command-to-string
+                (concat "cp -f " file " " rootdir "/backup/" system "/"))
+             (message (format "--- backup failure: %s" file))))
+         (if (listp files)
+             files
+           (list files)))
+      (message (format "--- backup-dir does not exist: %s" rootdir)))))
+
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
-  ;;;###autoload
+;;;###autoload
 (defun count-words-buffer ()
   "Count the number of words in the current buffer"
   (interactive)
@@ -438,7 +461,7 @@
     (concat
      "display dialog \"Hello world!\" \r"))))
 
-  ;;;###autoload
+;;;###autoload
 (defun describe-timer ()
   "see http://masutaka.net/chalow/2009-12-05-1.html"
   (interactive)

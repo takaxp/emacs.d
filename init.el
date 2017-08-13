@@ -51,8 +51,8 @@
   (and (load-package-p file)
        (locate-library file)
        (progn
-         (dolist (function functions)
-           (autoload function file docstring interactive type))
+         (dolist (f functions)
+           (autoload f file docstring interactive type))
          t)))
 
 (defun library-p (libraries)
@@ -101,7 +101,7 @@
 (setq echo-keystrokes 0.5)
 
 (prefer-coding-system 'utf-8-unix)
-(set-language-environment "Japanese")
+;; (set-language-environment "Japanese") ;; will take 20-30[ms]
 (set-locale-environment "en_US.UTF-8") ; "ja_JP.UTF-8"
 (set-default-coding-systems 'utf-8-unix)
 (set-selection-coding-system 'utf-8-unix)
@@ -168,7 +168,7 @@
 (setq mouse-drag-copy-region t)
 
 (when (autoload-if-found 'cask-mode "cask-mode" nil t)
-  (add-to-list 'auto-mode-alist '("/Cask\\'" . cask-mode)))
+  (push '("/Cask\\'" . cask-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(paradox-list-packages my:list-packages my:setup-cask)
@@ -240,8 +240,8 @@
 (global-set-key (kbd "C-M-n") #'(lambda () (interactive) (other-window 1)))
 
 ;; Scroll window on a line-by-line basis
-  (setq scroll-conservatively 1000)
-  (setq scroll-step 1)
+(setq scroll-conservatively 1000)
+(setq scroll-step 1)
 ;;  (setq scroll-margin 0) ; default=0
 
 ;; Scroll window on a page-by-pabe basis with N line overlapping
@@ -324,24 +324,29 @@
   (add-hook 'isearch-mode-end-hook
             #'(lambda () (centered-cursor-mode -1))))
 
+(when (autoload-if-found
+       '(back-button-mode
+         back-button-local-forward back-button-global-forward)
+       "back-button" nil t)
+  (with-eval-after-load "back-button"
+    (setq global-mark-ring-max 64)
+    (setq back-button-local-forward-keystrokes '("<f10>"))
+    (setq back-button-global-forward-keystrokes '("C-<f10>"))
+    (define-key back-button-mode-map
+      (kbd (car back-button-local-forward-keystrokes))
+      'back-button-local-forward)
+    (define-key back-button-mode-map
+      (kbd (car back-button-global-forward-keystrokes))
+      'back-button-global-forward)
+    (setq back-button-mode-lighter nil)
+    (setq back-button-index-timeout 0)))
+
 (with-eval-after-load "helm-config"
-  (when (autoload-if-found
-         '(back-button-mode
-           back-button-local-forward back-button-global-forward)
-         "back-button" nil t)
-    (with-eval-after-load "back-button"
-      (setq global-mark-ring-max 64)
-      (setq back-button-local-forward-keystrokes '("<f10>"))
-      (setq back-button-global-forward-keystrokes '("C-<f10>"))
-      (define-key back-button-mode-map
-        (kbd (car back-button-local-forward-keystrokes))
-        'back-button-local-forward)
-      (define-key back-button-mode-map
-        (kbd (car back-button-global-forward-keystrokes))
-        'back-button-global-forward)
-      (setq back-button-mode-lighter nil)
-      (setq back-button-index-timeout 0))
-    (back-button-mode 1)))
+  (back-button-mode 1))
+
+(with-eval-after-load "helm-config"
+  (when (require 'smart-mark nil t)
+    (smart-mark-mode 1)))
 
 (setq yank-excluded-properties t)
 
@@ -723,16 +728,14 @@
     (define-key web-mode-map (kbd "<tab>") 'my:web-indent-fold))
 
   ;; web-mode で開くファイルの拡張子を指定
-  (setq auto-mode-alist
-        (append '(("\\.phtml\\'" . web-mode)
-                  ("\\.tpl\\.php\\'" . web-mode)
-                  ("\\.jsp\\'" . web-mode)
-                  ("\\.as[cp]x\\'" . web-mode)
-                  ("\\.erb\\'" . web-mode)
-                  ("\\.mustache\\'" . web-mode)
-                  ("\\.djhtml\\'" . web-mode)
-                  ("\\.html?\\'" . web-mode))
-                auto-mode-alist)))
+  (push '("\\.phtml\\'" . web-mode) auto-mode-alist)
+  (push '("\\.tpl\\.php\\'" . web-mode) auto-mode-alist)
+  (push '("\\.jsp\\'" . web-mode) auto-mode-alist)
+  (push '("\\.as[cp]x\\'" . web-mode) auto-mode-alist)
+  (push '("\\.erb\\'" . web-mode) auto-mode-alist)
+  (push '("\\.mustache\\'" . web-mode) auto-mode-alist)
+  (push '("\\.djhtml\\'" . web-mode) auto-mode-alist)
+  (push '("\\.html?\\'" . web-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(emmet-mode)
@@ -849,15 +852,16 @@
 (add-hook 'web-mode-hook #'(lambda () (setq mode-name "W")))
 (add-hook 'lisp-interaction-mode-hook #'(lambda () (setq mode-name "Lisp")))
 
-(setq mode-line-modes
-      (mapcar
-       (lambda (entry)
-         (if (and (stringp entry)
-                  (string= entry "%n"))
-             '(:eval (if (and (= 1 (point-min))
-                              (= (1+ (buffer-size)) (point-max))) ""
-                       " N")) entry))
-       mode-line-modes))
+(with-eval-after-load "org"
+  (setq mode-line-modes
+        (mapcar
+         (lambda (entry)
+           (if (and (stringp entry)
+                    (string= entry "%n"))
+               '(:eval (if (and (= 1 (point-min))
+                                (= (1+ (buffer-size)) (point-max))) ""
+                         " N")) entry))
+         mode-line-modes)))
 
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
@@ -894,10 +898,6 @@
 (global-set-key (kbd "C-M-s") #'(lambda () (interactive)
                                   (switch-to-buffer "*scratch*")))
 
-;; Show scroll bar or not
-(when window-system
-  (set-scroll-bar-mode -1)) ; 'right
-
 ;; Disable to show the tool bar.
 (when window-system
   (tool-bar-mode -1))
@@ -906,13 +906,15 @@
 (setq inhibit-startup-screen t)
 
 ;; Show line number in the mode line.
-(line-number-mode t)
+(with-eval-after-load "helm-config"
+  (line-number-mode 1))
 
 ;; Show clock in in the mode line
-(setq display-time-format "%H%M.%S") ;; %y%m%d.
-(setq display-time-interval 1)
-(setq display-time-default-load-average nil)
-(display-time-mode 1)
+(with-eval-after-load "helm-config"
+  (setq display-time-format "%H%M.%S") ;; %y%m%d.
+  (setq display-time-interval 1)
+  (setq display-time-default-load-average nil)
+  (display-time-mode 1))
 
 (with-eval-after-load "helm-config"
   (when (require 'mic-paren nil t)
@@ -922,30 +924,31 @@
     (set-face-background 'paren-face-match "#66CC66")
     (paren-activate)))
 
-;; スペース
-(defface my:face-b-1
-  '((t (:background "gray" :bold t :underline "red")))
-  nil :group 'font-lock-highlighting-faces)
-;; タブだけの行
-(defface my:face-b-2
-  '((t (:background "orange" :bold t :underline "red")))
-  nil :group 'font-lock-highlighting-faces)
-;; 半角スペース
-(defface my:face-b-3 '((t (:background "orange")))
-  nil :group 'font-lock-highlighting-faces)
+(with-eval-after-load "helm-config"
+  ;; スペース
+  (defface my:face-b-1
+    '((t (:background "gray" :bold t :underline "red")))
+    nil :group 'font-lock-highlighting-faces)
+  ;; タブだけの行
+  (defface my:face-b-2
+    '((t (:background "orange" :bold t :underline "red")))
+    nil :group 'font-lock-highlighting-faces)
+  ;; 半角スペース
+  (defface my:face-b-3 '((t (:background "orange")))
+    nil :group 'font-lock-highlighting-faces)
 
-(defvar my:face-b-1 'my:face-b-1)
-(defvar my:face-b-2 'my:face-b-2)
-(defvar my:face-b-3 'my:face-b-3)
-(defadvice font-lock-mode (before my:font-lock-mode ())
-  (font-lock-add-keywords
-   major-mode
-   ;; "[\t]+$" 行末のタブ
-   '(("　" 0 my:face-b-1 append)
-     ("[ ]+$" 0 my:face-b-3 append)
-     ("[\t]+$" 0 my:face-b-2 append))))
-(ad-enable-advice 'font-lock-mode 'before 'my:font-lock-mode)
-(ad-activate 'font-lock-mode)
+  (defvar my:face-b-1 'my:face-b-1)
+  (defvar my:face-b-2 'my:face-b-2)
+  (defvar my:face-b-3 'my:face-b-3)
+  (defadvice font-lock-mode (before my:font-lock-mode ())
+    (font-lock-add-keywords
+     major-mode
+     ;; "[\t]+$" 行末のタブ
+     '(("　" 0 my:face-b-1 append)
+       ("[ ]+$" 0 my:face-b-3 append)
+       ("[\t]+$" 0 my:face-b-2 append))))
+  (ad-enable-advice 'font-lock-mode 'before 'my:font-lock-mode)
+  (ad-activate 'font-lock-mode))
 
 ;;show EOF
 ;; (defun set-buffer-end-mark()
@@ -1196,7 +1199,7 @@
 (setq history-length 2000)
 
 (when (autoload-if-found
-       '(rencetf-mode recentf-save-list-without-msg)
+       '(rencetf-mode recentf-save-list-without-msg recentf-open-files)
        "recentf" nil t)
   (with-eval-after-load "recentf"
     (defun recentf-save-list-without-msg ()
@@ -1224,7 +1227,8 @@
           '(".recentf" "^/tmp\\.*"
             "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
-  (add-hook 'after-init-hook 'recentf-mode))
+  (with-eval-after-load "helm-recentf"
+    (recentf-mode 1)))
 
 (with-eval-after-load "helm-config"
   (when (require 'auto-save-buffers nil t)
@@ -1247,10 +1251,9 @@
 
   ;; なぜか (backup-each-save) の直接呼び出しだとだめ
   (with-eval-after-load "helm-config"
-    (require 'backup-each-save nil t))
-
-  ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
-  (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t))
+    (require 'backup-each-save nil t)
+    ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
+    (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t)))
 
   (add-hook 'after-save-hook
             #'(lambda () (unless (equal (buffer-name) "recentf")
@@ -1262,33 +1265,14 @@
 
   ;; backup-each-save が作るファイルのうち条件にあうものを終了時に削除
   (add-hook 'kill-emacs-hook
-            #'(lambda () (recursive-delete-backup-files 7))))
-
-(defun my:backup (files &optional dropbox)
-  "Backup a file to `Dropbox/backup' directory. If `dropbox' option is provided then the value is uased as a root directory."
-  (interactive "P")
-  (let ((system (system-name))
-        (rootdir (or dropbox "~/Dropbox")))
-    (if (and system
-             (stringp rootdir)
-             (file-directory-p (or rootdir (expand-file-name rootdir))))
-        (mapc
-         (lambda (file)
-           (if (and (stringp file)
-                    (file-readable-p (or file (expand-file-name file))))
-               (shell-command-to-string
-                (concat "cp -f " file " " rootdir "/backup/" system "/"))
-             (message (format "--- backup failure: %s" file))))
-         (if (listp files)
-             files
-           (list files)))
-      (message (format "--- backup-dir does not exist: %s" rootdir)))))
-
-(defun my:backup-recentf ()
-  (my:backup "~/.emacs.d/recentf"))
+            #'(lambda ()
+                (when (fboundp 'recursive-delete-backup-files)
+                  (recursive-delete-backup-files 7)))))
 
 (with-eval-after-load "helm-config"
-  (run-with-idle-timer 600 t 'my:backup-recentf))
+  (defun my:backup-recentf ()
+    (my:backup "~/.emacs.d/recentf"))
+  (run-with-idle-timer 180 t 'my:backup-recentf))
 
 (when (autoload-if-found
        'session-initialize
@@ -2536,7 +2520,7 @@
 (with-eval-after-load "utility"
   (set-alarms-from-file "~/Dropbox/org/trigger.org"))
 
-(with-eval-after-load "helm-config"
+(when (library-p "utility")
   (add-hook 'after-save-hook 'my:update-alarms-from-file))
 
 (with-eval-after-load "org"
@@ -2642,35 +2626,30 @@
 (defconst my:cursor-type-ime-on '(bar . 2))
 (defconst my:cursor-type-ime-off '(bar . 2))
 
-(setq blink-cursor-blinks 0)
-(setq blink-cursor-interval 0.3)
-(setq blink-cursor-delay 16)
-(blink-cursor-mode 1)
-
 (cond
  ((eq window-system 'ns)
   (when (fboundp 'mac-set-input-method-parameter)
     (mac-set-input-method-parameter
-     "com.google.inputmethod.Japanese.base" 'title "あ")
+     "com.google.inputmethod.Japanese.base" 'title "あ"))
 
-    (when (fboundp 'mac-get-current-input-source)
-      (defun my:ime-active-p ()
-        (not (string-match "\\.Roman$" (mac-get-current-input-source))))
-      (defvar my:ime-on-hook nil)
-      (defvar my:ime-off-hook nil)
-      (defun my:ime-on ()
-        (mac-toggle-input-method t)
-        (run-hooks 'my:ime-on-hook))
-      (defun my:ime-off ()
-        (mac-toggle-input-method nil)
-        (run-hooks 'my:ime-off-hook))
-      (if (my:ime-active-p) (my:ime-on) (my:ime-off))
+  (when (fboundp 'mac-get-current-input-source)
+    (defun my:ime-active-p ()
+      (not (string-match "\\.Roman$" (mac-get-current-input-source))))
+    (defvar my:ime-on-hook nil)
+    (defvar my:ime-off-hook nil)
+    (defun my:ime-on ()
+      (mac-toggle-input-method t)
+      (run-hooks 'my:ime-on-hook))
+    (defun my:ime-off ()
+      (mac-toggle-input-method nil)
+      (run-hooks 'my:ime-off-hook))
+    (if (my:ime-active-p) (my:ime-on) (my:ime-off))
 
-      ;; for init setup
-      (setq-default cursor-type '(bar . 2))
-      (set-cursor-color
-       (if (my:ime-active-p)
-           my:cursor-color-ime-on my:cursor-color-ime-off))))
+    ;; for init setup
+    (setq-default cursor-type '(bar . 2))
+    (set-cursor-color
+     (if (my:ime-active-p)
+         my:cursor-color-ime-on my:cursor-color-ime-off)))
 
   ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
   ;; バッファ切替時に input method を切り替える
@@ -2740,7 +2719,9 @@
     (add-hook 'moom-after-fullscreen-hook
               'moom--make-frame-height-ring)
     (add-hook 'moom-after-fullscreen-hook
-              'moom-move-frame-to-center))
+              'moom-move-frame-to-center)
+    (add-hook 'moom-reset-font-size-hook
+              'moom-move-frame-with-user-specify))
 
   ;; Move the frame to somewhere (default: 0,0)
   (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
@@ -2844,11 +2825,7 @@
   (require 'generic-x nil t))
 
 (when window-system
-  (global-hl-line-mode t)
-  (custom-set-faces
-   '(hl-line
-     ((((background dark)) :background "#484c5c")
-      (t (:background "#DEEDFF"))))))
+  (global-hl-line-mode 1))
 
 (when (and (memq window-system '(mac ns))
            (>= emacs-major-version 24))
@@ -2862,6 +2839,12 @@
             #'(lambda ()
                 (setq cursor-type my:cursor-type-ime-off)
                 (set-cursor-color my:cursor-color-ime-off))))
+
+(with-eval-after-load "helm-config"
+  (setq blink-cursor-blinks 0)
+  (setq blink-cursor-interval 0.3)
+  (setq blink-cursor-delay 16)
+  (blink-cursor-mode -1))
 
 (defconst my:font-size 12)
 (defun my:ja-font-setter (spec)
@@ -2963,14 +2946,14 @@
         (or (<= begin ct) (<= ct end))
       (and (<= begin ct) (<= ct end)))))
 
-(defconst night-time-in 21)
-(defconst night-time-out 5)
-
-(if (my:night-time-p (* night-time-in 60) (* night-time-out 60))
-    (when (require 'night-theme nil t)
-      (load-theme 'night t))
-  (when (require 'daylight-theme nil t)
-    (load-theme 'daylight t)))
+(when window-system
+  (let ((night-time-in 21)
+        (night-time-out 5))
+    (if (my:night-time-p (* night-time-in 60) (* night-time-out 60))
+        (when (require 'night-theme nil t)
+          (load-theme 'night t))
+      (when (require 'daylight-theme nil t)
+        (load-theme 'daylight t)))))
 
 (when (autoload-if-found
        '(rainbow-mode)
@@ -3023,6 +3006,11 @@
 
   (dolist (hook '(org-mode-hook emacs-lisp-mode-hook emmet-mode-hook))
     (add-hook hook 'volatile-highlights-mode)))
+
+(when (executable-find "qt_color_picker")
+  (with-eval-after-load "helm-config"
+    (require 'edit-color-stamp nil t))
+  (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
 
 (when (autoload-if-found
        '(pomodoro:start)
@@ -3124,14 +3112,16 @@
 
 (with-eval-after-load "pomodoro"
   ;; 追加実装
-  (defvar pomodoro:update-work-sign-interval 0.16) ;; work用表示間隔
-  (defvar pomodoro:update-rest-sign-interval 0.16) ;; rest用表示間隔
-  (defvar pomodoro:update-long-rest-sign-interval 0.32) ;; long-rest用表示間隔
+  (defvar pomodoro:update-work-sign-interval 0.21) ;; work用表示間隔
+  (defvar pomodoro:update-rest-sign-interval 0.21) ;; rest用表示間隔
+  (defvar pomodoro:update-long-rest-sign-interval 0.36) ;; long-rest用表示間隔
 
   (setq pomodoro:mode-line-work-sign-list
-        '("|  " "|| " "|||" " ||" "  |" "   "))
+        '("|  " "|| " "|||" " ||" "  |" "   " "   "
+          "  |" " ||" "|||" "|| " "|  " "   " "   "))
   (setq pomodoro:mode-line-rest-sign-list
-        '("  |" " ||" "|||" "|| " "|  " "   "))
+        '(".  " ".. " "..." " .." "  ." "   " "   "
+          "  ." " .." "..." ".. " ".  " "   " "   "))
   (setq pomodoro:mode-line-long-rest-sign-list
         '("   " " | " "|||" "| |" "   "))
 
@@ -3253,8 +3243,7 @@
   (add-hook 'pomodoro:long-rest-hook
             #'pomodoro:activate-visual-long-rest-sign))
 
-(with-eval-after-load "helm-config"
-  (global-set-key (kbd "C-c f t") 'open-current-directory))
+(global-set-key (kbd "C-c f t") 'open-current-directory)
 
 (when (autoload-if-found
        '(my:google-this google-this-word)
@@ -3278,22 +3267,21 @@
   (with-eval-after-load "lingr"
     (setq lingr-icon-mode t)
     (setq lingr-icon-fix-size 24)
-    (setq lingr-image-convert-program "/usr/local/bin/convert")
-
-    (defun my:lingr-login ()
-      (when (string= "Sat" (format-time-string "%a"))
-        (lingr-login))))
+    (setq lingr-image-convert-program "/usr/local/bin/convert"))
 
   (with-eval-after-load "helm-config"
+    ;; do not use `run-at-time' at booting since diary-lib.el will be loaded. It requires loading cost.
+    (defun my:lingr-login ()
+      (when (string= "Sat" (format-time-string "%a"))
+        (lingr-login)))
     (unless (passed-clock-p "23:00")
       (run-at-time "23:00" nil 'my:lingr-login))))
 
 (if (executable-find "pass")
-    (with-eval-after-load "helm-config"
-      (when (autoload-if-found
-             'helm-pass
-             "helm-pass" nil t)
-        (global-set-key (kbd "C-c f p") 'helm-pass)))
+    (when (autoload-if-found
+           'helm-pass
+           "helm-pass" nil t)
+      (global-set-key (kbd "C-c f p") 'helm-pass))
   (message "--- pass is NOT installed."))
 
 (when (autoload-if-found
@@ -3305,13 +3293,13 @@
     (setq osx-lib-say-ratio 100)
     (setq osx-lib-say-voice "Samantha")))
 
-(defun cmd-to-open-iterm2 ()
-  (interactive)
-  (shell-command-to-string "open -a iTerm2.app"))
-(global-set-key (kbd "C-M-i") #'cmd-to-open-iterm2)
-
+(when (autoload-if-found
+       '(my:cmd-to-open-iterm2)
+       "utility" nil t)
+  (global-set-key (kbd "C-M-i") #'my:cmd-to-open-iterm2))
+;; キーバインドの再設定
 (with-eval-after-load "flyspell"
-  (define-key flyspell-mode-map (kbd "C-M-i") #'cmd-to-open-iterm2))
+  (define-key flyspell-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2))
 
 (defconst utility-autoloads
   '(takaxp:date
@@ -3325,7 +3313,7 @@
     export-timeline-business export-timeline-private chomp
     my:browse-url-chrome count-words-buffer do-test-applescript
     delete-backup-files recursive-delete-backup-files describe-timer
-    my:list-packages my:setup-cask))
+    my:list-packages my:setup-cask my:lingr-login my:backup))
 
 (when (autoload-if-found
        utility-autoloads

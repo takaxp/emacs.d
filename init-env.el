@@ -1,40 +1,17 @@
-
 ;; recentf (C-M-r) / helm-swoop (M-s M-s) / isearch (C-s) / bm <f10>, C-<f10>
 ;; helm-locate (C-M-l) / org-grep (C-M-g) / ag (C-M-f) / google-this (C-c f g)
 ;; fullscreen <f11> / double-width (C-c f d)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconst before-load-init-time (current-time)) ;; see my:load-init-time
-(defconst profiler nil)
-(defconst ad-require nil)
-(defconst loading-packages t)
-(setq loading-packages
-      '(
-        ;; ("paradox" . nil)
-        ;; ("helm" . nil)
-        ;; ("org" . nil)
-        ))
-(defconst debug nil)
+(defconst before-load-init-time (current-time)) ;; see my:load-init-time in init
+(defconst my:profiler nil)
+(defconst ad-require t)
+(defconst loading-packages nil)
+;; (setq loading-packages '(("org" . nil)))
+(defconst my:debug nil)
 (setq debug-on-error nil)
 
-(when ad-require
-  (defadvice load (around require-benchmark activate)
-    (let* ((before (current-time))
-           (result ad-do-it)
-           (after  (current-time))
-           (time (+ (* (- (nth 1 after) (nth 1 before)) 1000)
-                    (/ (- (nth 2 after) (nth 2 before)) 1000))))
-      (message "--- %04d [ms]: (loading) %s" time (ad-get-arg 0))))
-  (defadvice require (around require-benchmark activate)
-    "http://memo.sugyan.com/entry/20120105/1325756767"
-    (let* ((before (current-time))
-           (result ad-do-it)
-           (after  (current-time))
-           (time (+ (* (- (nth 1 after) (nth 1 before)) 1000)
-                    (/ (- (nth 2 after) (nth 2 before)) 1000))))
-      (message "--- %04d [ms]: %s" time (ad-get-arg 0)))))
-
-(when profiler (profiler-start 'cpu+mem))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(when my:profiler (profiler-start 'cpu+mem))
 ;; Suppress exporting of custom-set-variables (from 25.1)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 ;; or you can use `exec-path-from-shell'.
@@ -62,7 +39,7 @@
 ;; (3) load-path for { debug | normal } booting
 (defconst init-load-path nil)
 (cond
- (debug
+ (my:debug
   (load-path-setter '("~/Dropbox/config") 'load-path)
   (require 'my-debug))
  (t
@@ -83,11 +60,13 @@
     (load-path-setter `(,cask-package-dir) 'load-path)
     (setq init-load-path load-path))
 
-  (require 'init nil t)         ;; Less than 500[ms], Cocoa: 1000[ms]
-  (require 'my-eshell nil t)    ;; 0[ms]
-  (require 'my-mail nil t)      ;; 0[ms]
+  (when ad-require (require 'init-ad nil t))
+  (require 'init nil t)
+  ;; (require 'init-test nil t)
+  (require 'my-eshell nil t)
+  (require 'my-mail nil t)
   (require 'private nil t)
-  (when profiler (profiler-report)))) ;; 0[ms] This package depends on init.el
+  (when my:profiler (profiler-report))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my:list-packages ()
