@@ -4,7 +4,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defconst before-load-init-time (current-time)) ;; see my:load-init-time in init
 (defconst my:profiler nil)
-(defconst ad-require t)
+(defconst ad-require nil)
 (defconst loading-packages nil)
 ;; (setq loading-packages '(("org" . nil)))
 (defconst my:debug nil)
@@ -43,19 +43,14 @@
   (load-path-setter '("~/Dropbox/config") 'load-path)
   (require 'my-debug))
  (t
-  (let*
-      ((p "~/Dropbox/emacs.d/")
-       (g "~/devel/git/")
-       ;; (od "org-mode")
-       (od "org-9.0")
-       (l `("~/Dropbox/emacs.d/config"
-            "~/Dropbox/config"
-            ,p
-            ,(concat p "livemirror")
-            ,(concat g "git-complete")
-            ,(concat g od "/lisp")
-            ,(concat g od "/contrib/lisp")
-            )))
+  (let* ((p "~/Dropbox/emacs.d/")
+         (g "~/devel/git/")
+         ;; (od "org-mode")
+         (od "org-9.0")
+         (l `("~/Dropbox/emacs.d/config" "~/Dropbox/config" ,p
+              ;; ,(concat p "livemirror") ,(concat g "git-complete")
+              ,(concat g od "/lisp") ,(concat g od "/contrib/lisp"))))
+
     (load-path-setter l 'load-path)
     (load-path-setter `(,cask-package-dir) 'load-path)
     (setq init-load-path load-path))
@@ -69,6 +64,7 @@
   (when my:profiler (profiler-report))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun my:list-packages ()
   (interactive)
   (my:setup-cask)
@@ -80,10 +76,7 @@
   (interactive)
   (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
             (require 'cask "~/.cask/cask.el" t))
-    (setq load-path (cask-load-path (cask-initialize)))
-    ;; (when (require 'pallet nil t)
-    ;;   (pallet-mode t))
-    ))
+    (setq load-path (cask-load-path (cask-initialize)))))
 
 (defun my:reset-load-path ()
   (interactive)
@@ -104,4 +97,3 @@
 ;;              (setq indent-tabs-mode t)
 ;;              (setq tab-width 8)
 ;;              (setq indent-line-function 'lisp-indent-line)))
-

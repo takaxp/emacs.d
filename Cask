@@ -49,6 +49,7 @@
 (depends-on "modern-cpp-font-lock")
 (depends-on "0xc")
 (depends-on "ascii")
+(depends-on "uuid")
 (depends-on "describe-number")
 (depends-on "flycheck")
 (depends-on "flycheck-pos-tip")
@@ -103,6 +104,7 @@
 (depends-on "undo-tree")
 (depends-on "which-key")
 (depends-on "back-button")
+(depends-on "all-the-icons-dired")
 
 ;; System related
 (depends-on "dired-narrow")
@@ -112,7 +114,8 @@
 
 ;; Frame and windows
 (depends-on "popwin")
-(depends-on "moom" :git "https://github.com/takaxp/Moom.git")
+(depends-on "moom" :git "https://github.com/takaxp/moom.git")
+;; :ref "8c6f1cb"
 
 ;; Robustness
 (depends-on "backup-each-save")
@@ -123,6 +126,7 @@
 (depends-on "replace-from-region")
 (depends-on "quickrun")
 (depends-on "latex-math-preview")
+(depends-on "smart-mark")
 
 ;; Applications
 (depends-on "lingr")
@@ -137,6 +141,7 @@
             :files ("pomodoro.el" "eshell-util.el"))
 (depends-on "google-this")
 (depends-on "google-maps")
+(depends-on "japanlaw")
+(depends-on "emacsql-sqlite")
 
-
-;; 2017-08-05 updated.
+;; 2017-08-16 updated.

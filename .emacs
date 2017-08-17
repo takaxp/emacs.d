@@ -32,7 +32,6 @@
         (save-excursion
           (insert "\n" author date description tags draft))))))
 
-;; Testing: git-complete
-;; (when (autoload-if-found '(git-complete) "git-complete" nil t)
-;;   (global-set-key (kbd "C-c f <tab>") 'git-complete))
-
+;; Let's try
+;; - An emacs extension for displaying gcov data on your code
+;;   https://github.com/adamniederer/cov

@@ -1,7 +1,6 @@
 ;; -*- lexical-binding: t -*-
-;;;; Configurations for Emacs
-;;;;                                       Takaaki ISHIKAWA  <takaxp@ieee.org>
-;;;; Cite: http://www.mygooglest.com/fni/dot-emacs.html (GREAT!)
+;; Configurations for Emacs
+;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
 
 (defun my:load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
@@ -46,8 +45,6 @@
 
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
-  (when (not (listp functions))
-    (setq functions (list functions)))
   (and (load-package-p file)
        (locate-library file)
        (progn
@@ -167,7 +164,7 @@
 
 (setq mouse-drag-copy-region t)
 
-(when (autoload-if-found 'cask-mode "cask-mode" nil t)
+(when (autoload-if-found '(cask-mode) "cask-mode" nil t)
   (push '("/Cask\\'" . cask-mode) auto-mode-alist))
 
 (when (autoload-if-found
@@ -188,7 +185,7 @@
 ;;              (setq indent-line-function 'lisp-indent-line)))
 
 (when (autoload-if-found
-       'aggressive-indent-mode
+       '(aggressive-indent-mode)
        "aggressive-indent" nil t)
 
   (dolist
@@ -409,7 +406,7 @@
              (setq left-margin 4)))
 
 (when (autoload-if-found
-       'modern-c++-font-lock-mode
+       '(modern-c++-font-lock-mode)
        "modern-cpp-font-lock" nil t)
   (push '("\\.h$" . c++-mode) auto-mode-alist)
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
@@ -467,17 +464,17 @@
 (autoload-if-found '(ascii-on ascii-off) "ascii" nil t)
 
 (when (autoload-if-found
-       'es-mode
+       '(es-mode)
        "es-mode" nil t)
   (push '("\\.es$" . es-mode) auto-mode-alist))
 
 (when (autoload-if-found
-       'gnuplot-mode
+       '(gnuplot-mode)
        "gnuplot-mode" nil t)
   (push '("\\.plt$" . gnuplot-mode) auto-mode-alist))
 
 (when (autoload-if-found
-       'markdown-mode
+       '(markdown-mode)
        "markdown-mode" nil t)
   (push '("\\.markdown$" . markdown-mode) auto-mode-alist)
   (push '("\\.md$" . markdown-mode) auto-mode-alist))
@@ -755,7 +752,7 @@
 
 (if (executable-find "js-beautify")
     (when (autoload-if-found
-           'js2-mode
+           '(js2-mode)
            "js2-mode" nil t)
       (eval-when-compile
         (require 'js2-mode nil t))
@@ -806,6 +803,7 @@
     (setq selected-org-mode-map (make-sparse-keymap))
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
     (define-key selected-keymap (kbd "q") #'keyboard-quit)
+
     (when (require 'help-fns+ nil t)
       (defun my:describe-selected-keymap ()
         (interactive)
@@ -814,6 +812,11 @@
     (selected-global-mode 1)))
 
 (when (require 'diminish nil t)
+  (with-eval-after-load "yasnippet" (diminish 'yas-minor-mode " y"))
+  (with-eval-after-load "aggressive-indent"
+    (diminish 'aggressive-indent-mode " Ai"))
+  (with-eval-after-load "ggtags" (diminish 'ggtags-mode " GG"))
+  (with-eval-after-load "auto-complete" (diminish 'auto-complete-mode))
   (with-eval-after-load "isearch" (diminish 'isearch-mode))
   (with-eval-after-load "autorevert" (diminish 'auto-revert-mode))
   (with-eval-after-load "smooth-scroll" (diminish 'smooth-scroll-mode))
@@ -822,13 +825,10 @@
     (diminish 'centered-cursor-mode))
   (with-eval-after-load "volatile-highlights"
     (diminish 'volatile-highlights-mode))
-  (with-eval-after-load "aggressive-indent"
-    (diminish 'aggressive-indent-mode " Ai"))
-  (with-eval-after-load "emmet-mode" (diminish 'emmet-mode " e"))
-  (with-eval-after-load "abbrev" (diminish 'abbrev-mode " a"))
-  (with-eval-after-load "yasnippet" (diminish 'yas-minor-mode " y"))
-  (with-eval-after-load "doxymacs" (diminish 'doxymacs-mode " d"))
-  (with-eval-after-load "editorconfig" (diminish 'editorconfig-mode " EC"))
+  (with-eval-after-load "emmet-mode" (diminish 'emmet-mode))
+  (with-eval-after-load "abbrev" (diminish 'abbrev-mode))
+  (with-eval-after-load "doxymacs" (diminish 'doxymacs-mode))
+  (with-eval-after-load "editorconfig" (diminish 'editorconfig-mode))
   (with-eval-after-load "rainbow-mode" (diminish 'rainbow-mode))
   (with-eval-after-load "guide-key" (diminish 'guide-key-mode))
   (with-eval-after-load "highlight-symbol" (diminish 'highlight-symbol-mode))
@@ -1133,13 +1133,22 @@
     (add-hook hook 'highlight-symbol-mode)))
 
 (when (autoload-if-found
+       '(all-the-icons-dired-mode)
+       "all-the-icons-dired" nil t)
+
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+
+(when (autoload-if-found
        '(google-maps)
        "google-maps" nil t)
   (with-eval-after-load "google-maps"
     (require 'org-location-google-maps nil t)))
 
-;; (when (library-p "all-the-icons-dired")
-;;   (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))
+(if (executable-find "w3m")
+    (autoload-if-found
+     '(japanlaw)
+     "japanlaw" nil t)
+  (message "--- w3m is NOT installed."))
 
 (with-eval-after-load "dired"
   (when (require 'gited nil t)
@@ -1227,8 +1236,7 @@
           '(".recentf" "^/tmp\\.*"
             "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
-  (with-eval-after-load "helm-recentf"
-    (recentf-mode 1)))
+  (add-hook 'after-init-hook 'recentf-mode))
 
 (with-eval-after-load "helm-config"
   (when (require 'auto-save-buffers nil t)
@@ -1275,7 +1283,7 @@
   (run-with-idle-timer 180 t 'my:backup-recentf))
 
 (when (autoload-if-found
-       'session-initialize
+       '(session-initialize)
        "session" nil t)
   (eval-when-compile
     (require 'session nil t))
@@ -1310,6 +1318,8 @@
     (setq neo-persist-show t)
     (setq neo-theme 'arrow)
     (setq neo-smart-open t)
+    (when (require 'all-the-icons-dired nil t)
+      (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
     (defun advice:neotree-show ()
       "Extension to support change frame width when opening neotree."
       (unless (neo-global--window-exists-p)
@@ -1343,10 +1353,10 @@
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)
 
-(autoload-if-found 'gist "gist" nil t)
+(autoload-if-found '(gist) "gist" nil t)
 
 (when (autoload-if-found
-       'doxymacs-mode
+       '(doxymacs-mode)
        "doxymacs" nil t)
   (eval-when-compile
     (require 'doxymacs nil t))
@@ -1544,7 +1554,15 @@
     (message "editorconfig is NOT installed.")))
 
 (when (autoload-if-found
-       'org-mode
+       '(uuid-string my:uuid-string)
+       "uuid" nil t)
+  (with-eval-after-load "uuid"
+    (defun my:uuid-string ()
+      (interactive)
+      (insert (uuid-string)))))
+
+(when (autoload-if-found
+       '(org-mode)
        "org" "Org Mode" t)
   (with-eval-after-load "org"
     (require 'org-habit nil t)
@@ -2115,7 +2133,7 @@
 ;;   (setq org-tree-slide-skip-done nil))
 
 (when (autoload-if-found
-       'org-tree-slide-mode
+       '(org-tree-slide-mode)
        "org-tree-slide" nil t)
   (eval-when-compile
     (require 'org-tree-slide nil t))
@@ -2432,15 +2450,12 @@
 (when (executable-find "terminal-notifier")
   (defun terminal-notifier-notify (title message &optional sound)
     "Show a message with `terminal-notifier-command`."
-    (if (and sound (not (string= sound "")))
-        (start-process "terminal-notifier" "*terminal-notifier*"
-                       terminal-notifier-command
-                       "-title" title "-message" message
-                       "-activate" "org.gnu.Emacs" "-sound" sound) ;; FIXME
-      (start-process "terminal-notifier" "*terminal-notifier*"
-                     terminal-notifier-command
-                     "-title" title "-message" message
-                     "-activate" "org.gnu.Emacs"))))
+    (start-process "terminal-notifier" "*terminal-notifier*"
+                   terminal-notifier-command
+                   "-title" title "-message" message
+                   "-activate" "org.gnu.Emacs"
+                   (if (and sound (not (string= sound ""))) "-sound" "")
+                   (if (and sound (not (string= sound ""))) sound ""))))
 
 (with-eval-after-load "org"
   (defvar terminal-notifier-command
@@ -2513,7 +2528,7 @@
   (require 'ox-reveal nil t))
 
 (when (autoload-if-found
-       'org-mode
+       '(org-mode)
        "org" nil t)
   (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))
 
@@ -2551,7 +2566,7 @@
 (global-set-key (kbd "C-c r") 'org-capture)
 
 (when (autoload-if-found
-       'org-dashboard-display
+       '(org-dashboard-display)
        "org-dashboard" nil t)
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-c f y") 'org-dashboard-display)))
@@ -2581,7 +2596,9 @@
  '(org-random-todo org-random-todo-goto-current)
  "org-random-todo" nil t)
 
-(autoload-if-found '(toc-org-insert-toc) "toc-org" nil t)
+(autoload-if-found
+ '(toc-org-insert-toc)
+ "toc-org" nil t)
 
 (cond
  ((memq window-system '(mac ns)) ;; for Macintosh
@@ -2638,32 +2655,40 @@
     (defvar my:ime-on-hook nil)
     (defvar my:ime-off-hook nil)
     (defun my:ime-on ()
+      (interactive)
       (mac-toggle-input-method t)
       (run-hooks 'my:ime-on-hook))
     (defun my:ime-off ()
+      (interactive)
       (mac-toggle-input-method nil)
       (run-hooks 'my:ime-off-hook))
-    (if (my:ime-active-p) (my:ime-on) (my:ime-off))
 
     ;; for init setup
     (setq-default cursor-type '(bar . 2))
-    (set-cursor-color
-     (if (my:ime-active-p)
-         my:cursor-color-ime-on my:cursor-color-ime-off)))
+    (my:ime-off)
+    (setq cursor-type my:cursor-type-ime-off)
+    (set-cursor-color my:cursor-color-ime-off)
 
-  ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-  ;; バッファ切替時に input method を切り替える
-  (with-eval-after-load "helm-config"
-    (when (and (fboundp 'mac-handle-input-method-change)
-               (require 'cl-lib nil t))
-      (add-hook
-       'post-command-hook
-       (lexical-let ((previous-buffer nil))
-         ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
-         #'(lambda ()
-             (unless (eq (current-buffer) previous-buffer)
-               (if (bufferp previous-buffer) (mac-handle-input-method-change))
-               (setq previous-buffer (current-buffer)))))))))
+    ;; (defun advice:find-file (FILENAME &optional WILDCARDS)
+    ;;   "Extension to find-file as before-find-file-hook."
+    ;;   (message "--- advice:findfile")
+    ;;   (apply FILENAME WILDCARDS))
+    ;; (advice-add #'find-file :around #'advice:find-file)
+
+    ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
+    ;; バッファ切替時に input method を切り替える
+    (with-eval-after-load "helm-config"
+      (when (and (fboundp 'mac-handle-input-method-change)
+                 (require 'cl-lib nil t))
+        (add-hook
+         'post-command-hook
+         (lexical-let ((previous-buffer nil))
+           ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
+           #'(lambda ()
+               (unless (eq (current-buffer) previous-buffer)
+                 (if (bufferp previous-buffer)
+                     (mac-handle-input-method-change))
+                 (setq previous-buffer (current-buffer))))))))))
 
  ((eq window-system 'mac) ;; EMP: Emacs Mac Port
   (when (fboundp 'mac-input-source)
@@ -2709,10 +2734,10 @@
        "moom" nil t)
   (with-eval-after-load "moom"
     (cond
-     ((eq (display-pixel-width) 1920) (setq moom-fullscreen-fontsize 38))
-     ((eq (display-pixel-width) 1440) (setq moom-fullscreen-fontsize 28))
-     ((eq (display-pixel-width) 1366) (setq moom-fullscreen-fontsize 19))
-     ((eq (display-pixel-width) 800) (setq moom-fullscreen-fontsize 14))
+     ((>= (display-pixel-width) 1920) (setq moom-fullscreen-fontsize 38))
+     ((>= (display-pixel-width) 1440) (setq moom-fullscreen-fontsize 28))
+     ((>= (display-pixel-width) 1366) (setq moom-fullscreen-fontsize 19))
+     ((>= (display-pixel-width) 800) (setq moom-fullscreen-fontsize 14))
      (t (setq moom-fullscreen-fontsize 12)))
 
     ;; リングの状態を最新に更新（max-frame-height が変わるため）
@@ -2726,11 +2751,12 @@
   ;; Move the frame to somewhere (default: 0,0)
   (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
   ;; Move the frame to left side of the current position (require 'frame-cmds)
-  (global-set-key (kbd "M-1") #'(lambda () (interactive) (moom-move-frame-left 40)))
+  (setq moom-horizontal-shifts '(30 30))
+  (global-set-key (kbd "M-1") 'moom-move-frame-left)
   ;; Move the frame to the center of the window display (require 'moom)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   ;; Move the frame to right side of the current position(require 'frame-cmds)
-  (global-set-key (kbd "M-3") #'(lambda () (interactive)(moom-move-frame-right 40)))
+  (global-set-key (kbd "M-3") 'moom-move-frame-right)
   ;; Move the current frame to the top of the window display
   (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
   ;; Move the current frame to the bottom of the window display
@@ -2919,7 +2945,7 @@
 (set-default 'line-spacing 0.2)
 
 (when (autoload-if-found
-       'diff-mode
+       '(diff-mode)
        "diff-mode" nil t)
   (with-eval-after-load "diff-mode"
     (set-face-attribute 'diff-added-face nil
@@ -3106,8 +3132,8 @@
         (interactive)
         (shell-command-to-string
          (concat "terminal-notifier -title \"Pomodoro\" -message \""
-                 "DONE! This time slot has been finished!\""
-                 "-activate org.gnu.Emacs -sender org.gnu.Emacs")))
+                 "三三 ﾍ(*ﾟ∇ﾟ)ﾉ\""
+                 " -sender org.gnu.Emacs")))
       (add-hook 'pomodoro:finish-work-hook 'my:pomodoro-notify))))
 
 (with-eval-after-load "pomodoro"
@@ -3279,7 +3305,7 @@
 
 (if (executable-find "pass")
     (when (autoload-if-found
-           'helm-pass
+           '(helm-pass)
            "helm-pass" nil t)
       (global-set-key (kbd "C-c f p") 'helm-pass))
   (message "--- pass is NOT installed."))
@@ -3300,6 +3326,8 @@
 ;; キーバインドの再設定
 (with-eval-after-load "flyspell"
   (define-key flyspell-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2))
+(with-eval-after-load "org"
+  (define-key org-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2))
 
 (defconst utility-autoloads
   '(takaxp:date
