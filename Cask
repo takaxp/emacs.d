@@ -39,7 +39,7 @@
 (depends-on "po-mode")
 (depends-on "gnuplot-mode")
 (depends-on "ess")
-(depends-on "yatex")
+(depends-on "yatex" :hg "http://www.yatex.org/hgrepos/yatex")
 
 ;; Development
 (depends-on "origami")
@@ -62,6 +62,7 @@
 (depends-on "gist")
 (depends-on "help-fns+")
 (depends-on "helpful")
+(depends-on "git-commit")
 
 ;; Helm
 (depends-on "helm")
@@ -114,7 +115,9 @@
 
 ;; Frame and windows
 (depends-on "popwin")
-(depends-on "moom" :git "https://github.com/takaxp/moom.git")
+(depends-on "moom" :git "git://github.com/takaxp/moom.git")
+;; https is not available...
+
 ;; :ref "8c6f1cb"
 
 ;; Robustness
