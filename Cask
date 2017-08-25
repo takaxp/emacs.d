@@ -63,6 +63,9 @@
 (depends-on "help-fns+")
 (depends-on "helpful")
 (depends-on "git-commit")
+(depends-on "elisp-lint")
+(depends-on "package-lint")
+
 
 ;; Helm
 (depends-on "helm")
@@ -116,9 +119,7 @@
 ;; Frame and windows
 (depends-on "popwin")
 (depends-on "moom" :git "git://github.com/takaxp/moom.git")
-;; https is not available...
-
-;; :ref "8c6f1cb"
+;; https is not available for this repo...
 
 ;; Robustness
 (depends-on "backup-each-save")
@@ -146,5 +147,6 @@
 (depends-on "google-maps")
 (depends-on "japanlaw")
 (depends-on "emacsql-sqlite")
+(depends-on "w3m")
 
-;; 2017-08-16 updated.
+;; 2017-08-26 updated.
