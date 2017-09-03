@@ -162,10 +162,8 @@
   (setq my:file-ring (copy-sequence files)))
 ;;    (setf (cdr (last my:file-ring)) my:file-ring))
 (takaxp:make-file-ring
- '("~/Dropbox/org/work.org" "~/Dropbox/org/wg1.org"
-   "~/Dropbox/org/research.org" "~/Dropbox/emacs.d/config/init.org"
-   "~/Dropbox/emacs.d/config/utility.org" "~/Dropbox/org/buffer.org"
-   "~/Dropbox/org/next.org"))
+ '("~/Dropbox/org/work.org" "~/Dropbox/org/daily.org" "~/Dropbox/org/wg1.org"
+   "~/Dropbox/org/research.org" "~/Dropbox/emacs.d/config/init.org"))
 
 ;;;###autoload
 (defun takaxp:open-file-ring ()

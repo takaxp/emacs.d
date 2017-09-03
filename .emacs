@@ -5,10 +5,6 @@
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(with-eval-after-load "org-grep" (setq org-grep-extensions '(".org")))
-(with-eval-after-load "org"
-  (add-to-list 'org-refile-targets '("money.org" :level . 1)))
-
 ;; Let's use easy-hugo!
 (when (and nil (require 'easy-hugo nil t))
   (setq easy-hugo-default-ext ".org")
@@ -32,6 +28,28 @@
         (save-excursion
           (insert "\n" author date description tags draft))))))
 
-;; Let's try
-;; - An emacs extension for displaying gcov data on your code
-;;   https://github.com/adamniederer/cov
+
+;; projectile, helm-projectile, org-projectile
+(with-eval-after-load "helm-config"
+  (when (require 'helm-projectile nil t)
+    (projectile-global-mode)
+    (setq projectile-completion-system 'helm))
+  (when (require 'org-projectile nil t))
+  (when (require 'org-projectile-helm nil t)))
+
+
+;; "http://projectile.readthedocs.io/en/latest/"
+;; - [ ] projectile-tags-command, gtags との連携
+(with-eval-after-load "projectile"
+  (when (require 'neotree nil t)
+    (setq projectile-switch-project-action 'neotree-projectile-action)
+    (defun advice:neotree-dir (path)
+      "Extension to change the frame width automatically."
+      (unless (neo-global--window-exists-p)
+        (neotree-show)))
+    (advice-add 'neotree-dir :before #'advice:neotree-dir))
+  (setq projectile-use-git-grep t)
+  (setq projectile-mode-line
+        '(:eval (format " P:%s" (projectile-project-name)))))
+
+;; https://www.emacswiki.org/emacs/eimp.el (emacs de image)

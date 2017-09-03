@@ -89,7 +89,7 @@
 (setq byte-compile-warnings '(not obsolete))
 (setq ad-redefinition-action 'accept)
 
-(setq debug-on-error nil)
+(setq compilation-scroll-output t)
 
 (setq confirm-kill-emacs 'y-or-n-p)
 
@@ -112,8 +112,10 @@
            (autoload-if-found
             '(my:ag ag)
             "ag" nil t))
+
   (eval-when-compile
     (require 'ag nil t))
+
   (with-eval-after-load "ag"
     (setq ag-highlight-search t)
     (setq ag-reuse-buffers t) ;; nil: 別ウィンドウが開く
@@ -164,12 +166,16 @@
 
 (setq mouse-drag-copy-region t)
 
-(when (autoload-if-found '(cask-mode) "cask-mode" nil t)
+(when (autoload-if-found
+       '(cask-mode)
+       "cask-mode" nil t)
+
   (push '("/Cask\\'" . cask-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(paradox-list-packages my:list-packages my:setup-cask)
        "paradox" nil t)
+
   (with-eval-after-load "paradox"
     (when (fboundp 'paradox-enable)
       (paradox-enable))))
@@ -197,6 +203,17 @@
          lisp-mode-hook perl-mode-hook c-mode-common-hook))
     (add-hook hook 'aggressive-indent-mode)))
 
+(when (autoload-if-found
+       '(ws-butler-mode ws-butler-global-mode)
+       "ws-butler" nil t)
+
+  (with-eval-after-load "ws-butler"
+    (push 'org-mode ws-butler-global-exempt-modes)
+    (push 'empty-booting-mode ws-butler-global-exempt-modes))
+
+  (with-eval-after-load "helm-config"
+    (ws-butler-global-mode)))
+
 (setq vc-follow-symlinks t)
 
 (when (eq window-system 'ns)
@@ -208,7 +225,7 @@
                (eq major-mode 'org-mode)
                (or (looking-at org-heading-regexp)
                    (equal (buffer-name) org-agenda-buffer-name)))
-      (mac-toggle-input-method nil)))
+      (my:ime-off)))
 
   (defun ns-ime-toggle ()
     (interactive)
@@ -218,7 +235,9 @@
   ;;  (if (string-match "\\.base$" (mac-get-current-input-source))
   ;;      nil t))))
 
+  (global-set-key (kbd "M-SPC") 'ns-ime-toggle) ;; toggle-input-method
   (global-set-key (kbd "S-SPC") 'ns-ime-toggle) ;; toggle-input-method
+  (define-key isearch-mode-map (kbd "M-SPC") 'ns-ime-toggle)
   (define-key isearch-mode-map (kbd "S-SPC") 'ns-ime-toggle)
 
   (when (fboundp 'mac-toggle-input-method)
@@ -247,8 +266,10 @@
 (when (autoload-if-found
        '(cycle-buffer cycle-buffer-backward)
        "cycle-buffer" nil t)
+
   (eval-when-compile
     (require 'cycle-buffer nil t))
+
   (with-eval-after-load "cycle-buffer"
     (setq cycle-buffer-allow-visible t)
     (setq cycle-buffer-show-length 12)
@@ -262,8 +283,10 @@
          my:bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
          bm-repository-save bm-repository-load bm-load-and-restore)
        "bm" nil t)
+
   (eval-when-compile
     (require 'bm nil t))
+
   (with-eval-after-load "bm"
     (setq-default bm-buffer-persistence t)
     (setq bm-cycle-all-buffers t)
@@ -321,29 +344,13 @@
   (add-hook 'isearch-mode-end-hook
             #'(lambda () (centered-cursor-mode -1))))
 
-(when (autoload-if-found
-       '(back-button-mode
-         back-button-local-forward back-button-global-forward)
-       "back-button" nil t)
-  (with-eval-after-load "back-button"
-    (setq global-mark-ring-max 64)
-    (setq back-button-local-forward-keystrokes '("<f10>"))
-    (setq back-button-global-forward-keystrokes '("C-<f10>"))
-    (define-key back-button-mode-map
-      (kbd (car back-button-local-forward-keystrokes))
-      'back-button-local-forward)
-    (define-key back-button-mode-map
-      (kbd (car back-button-global-forward-keystrokes))
-      'back-button-global-forward)
-    (setq back-button-mode-lighter nil)
-    (setq back-button-index-timeout 0)))
-
-(with-eval-after-load "helm-config"
-  (back-button-mode 1))
-
 (with-eval-after-load "helm-config"
   (when (require 'smart-mark nil t)
     (smart-mark-mode 1)))
+
+(with-eval-after-load "helm-config"
+  (when (require 'syntax-subword nil t)
+    (global-syntax-subword-mode 1)))
 
 (setq yank-excluded-properties t)
 
@@ -351,8 +358,10 @@
 (when (autoload-if-found
        '(update-stamp)
        "update-stamp" nil t)
+
   (eval-when-compile
     (require 'update-stamp nil t))
+
   (with-eval-after-load "update-stamp"
     (setq update-stamp-start "#+UPDATE:[ \t]*")
     (setq update-stamp-format "%:y-%02m-%02dT%02H:%02M:%02S%Z")
@@ -370,8 +379,10 @@
 (when (autoload-if-found
        '(time-stamp)
        "time-stamp" nil t)
+
   (eval-when-compile
     (require 'time-stamp nil t))
+
   (with-eval-after-load "time-stamp"
     (setq time-stamp-start "#+DATE:[ \t]*")
     (setq time-stamp-format "%:y-%02m-%02dT%02H:%02M:%02S%Z")
@@ -408,17 +419,20 @@
 (when (autoload-if-found
        '(modern-c++-font-lock-mode)
        "modern-cpp-font-lock" nil t)
+
   (push '("\\.h$" . c++-mode) auto-mode-alist)
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 
 (when (autoload-if-found
        '(csharp-mode)
        "csharp-mode" "Major mode for editing C# mode." nil t)
+
   (push '("\\.cs$" . csharp-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(info org-info-ja)
        "info" nil t)
+
   (with-eval-after-load "info"
     (add-to-list 'Info-additional-directory-list
                  (expand-file-name "~/devel/mygit/org-ja/work/"))
@@ -432,10 +446,12 @@
 (when (autoload-if-found
        '(R-mode R)
        "ess-site" "Emacs Speaks Statistics mode" nil t)
+
   (push '("\\.[rR]$" . R-mode) auto-mode-alist))
 
 (eval-when-compile
   (require 'nxml-mode nil t))
+
 (add-hook 'nxml-mode-hook
           #'(lambda ()
               (define-key nxml-mode-map "\r" 'newline-and-indent)
@@ -449,39 +465,48 @@
 (when (autoload-if-found
        '(yaml-mode)
        "yaml-mode" nil t)
+
   (push '("\\.yml$" . yaml-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(json-mode)
        "json-mode" nil t)
+
   (push '("\\.json$" . json-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(csv-mode)
        "csv-mode" nil t)
+
   (push '("\\.csv$" . csv-mode) auto-mode-alist))
 
-(autoload-if-found '(ascii-on ascii-off) "ascii" nil t)
+(autoload-if-found
+ '(ascii-on ascii-off)
+ "ascii" nil t)
 
 (when (autoload-if-found
        '(es-mode)
        "es-mode" nil t)
+
   (push '("\\.es$" . es-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(gnuplot-mode)
        "gnuplot-mode" nil t)
+
   (push '("\\.plt$" . gnuplot-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(markdown-mode)
        "markdown-mode" nil t)
+
   (push '("\\.markdown$" . markdown-mode) auto-mode-alist)
   (push '("\\.md$" . markdown-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(ispell-region ispell-complete-word)
        "ispell" nil t)
+
   (with-eval-after-load "ispell"
     (cond
      ((executable-find "aspell")
@@ -536,6 +561,7 @@
 (when (autoload-if-found
        '(flyspell-prog-mode flyspell-mode)
        "flyspell" nil t)
+
   (with-eval-after-load "flyspell"
     ;; C-; をオーバーライド
     (eval-when-compile
@@ -595,8 +621,10 @@
          latex-math-preview-save-image-file
          latex-math-preview-beamer-frame)
        "latex-math-preview" nil t nil)
+
   (eval-when-compile
     (require 'latex-math-preview nil t))
+
   (with-eval-after-load "latex-math-preview"
     (setq latex-math-preview-command-path-alist
           '((latex . "latex")
@@ -612,6 +640,7 @@
 (when (autoload-if-found
        '(po-mode)
        "po-mode" nil t)
+
   (push '("\\.po[tx]?\\'\\|\\.po\\$" . po-mode) auto-mode-alist))
 
 (global-set-key (kbd "M-=") 'count-words)
@@ -634,14 +663,17 @@
 (when (autoload-if-found
        '(display-time-world)
        "time" nil t)
+
   (with-eval-after-load "time"
     (define-key display-time-world-mode-map "q" 'delete-window)))
 
 (when (autoload-if-found
        '(yas-minor-mode yas-global-mode)
        "yasnippet" nil t)
+
   (eval-when-compile
     (require 'yasnippet nil t))
+
   (with-eval-after-load "yasnippet"
     (setq yas-verbosity 2)
     (setq yas-snippet-dirs
@@ -684,8 +716,10 @@
 (when (autoload-if-found
        '(osx-dictionary-search-pointer osx-dictionary-search-input)
        "osx-dictionary" nil t)
+
   (eval-when-compile
     (require 'osx-dictionary nil t))
+
   (with-eval-after-load "osx-dictionary"
     (setq osx-dictionary-dictionary-choice "英辞郎 第七版"))
 
@@ -695,8 +729,10 @@
 (when (autoload-if-found
        '(web-mode)
        "web-mode" "web-mode" t)
+
   (eval-when-compile
     (require 'web-mode nil t))
+
   (with-eval-after-load "web-mode"
     (defun my:web-indent-fold ()
       (interactive)
@@ -737,9 +773,11 @@
 (when (autoload-if-found
        '(emmet-mode)
        "emmet-mode" nil t nil)
+
   (with-eval-after-load "emmet-mode"
     (setq emmet-indentation 2)
     (setq emmet-move-cursor-between-quotes t))
+
   (push '("\\.xml\\'" . nxml-mode) auto-mode-alist)
   (push '("\\.rdf\\'" . nxml-mode) auto-mode-alist)
   (dolist (hook
@@ -748,27 +786,36 @@
     (add-hook hook 'emmet-mode)))
 
 (autoload-if-found
- '(describe-number describe-number-at-point) "describe-number" nil t)
+ '(describe-number describe-number-at-point)
+ "describe-number" nil t)
 
 (if (executable-find "js-beautify")
     (when (autoload-if-found
            '(js2-mode)
            "js2-mode" nil t)
+
       (eval-when-compile
         (require 'js2-mode nil t))
+
       (with-eval-after-load "js2-mode"
         (when (require 'web-beautify nil t)
           (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
           (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))))
+
   (message "--- js-beautify is NOT installed.")
   (message "--- Note: npm -g install js-beautify"))
 
 (with-eval-after-load "helm-config"
   (when (require 'smartparens nil t)
+    (setq-default sp-highlight-pair-overlay nil)
+    (setq-default sp-highlight-wrap-overlay nil)
+    (setq-default sp-highlight-wrap-tag-overlay nil)
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'yatex-mode "$" "$")
+    (sp-local-pair 'emacs-lisp-mode "`" "'")
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
+    (sp-pair "[" nil :actions :rem)
     (smartparens-global-mode)))
 
 (autoload-if-found
@@ -779,8 +826,8 @@
   (when (require 'selected nil t)
     (defvar my:ime-flag nil)
     (declare-function my:ime-active-p "init" nil)
-    (declare-function my:ime-on "init" nil)
-    (declare-function my:ime-off "init" nil)
+    (declare-function my:ime-on "init" (&optional sticky))
+    (declare-function my:ime-off "init" (&optional sticky))
     (when (fboundp 'mac-set-input-method-parameter)
       (add-hook 'activate-mark-hook
                 #'(lambda ()
@@ -812,19 +859,23 @@
     (selected-global-mode 1)))
 
 (when (require 'diminish nil t)
-  (with-eval-after-load "yasnippet" (diminish 'yas-minor-mode " y"))
-  (with-eval-after-load "aggressive-indent"
-    (diminish 'aggressive-indent-mode " Ai"))
   (with-eval-after-load "ggtags" (diminish 'ggtags-mode " GG"))
-  (with-eval-after-load "auto-complete" (diminish 'auto-complete-mode))
-  (with-eval-after-load "isearch" (diminish 'isearch-mode))
-  (with-eval-after-load "autorevert" (diminish 'auto-revert-mode))
-  (with-eval-after-load "smooth-scroll" (diminish 'smooth-scroll-mode))
-  (with-eval-after-load "whitespace" (diminish 'global-whitespace-mode))
+  (with-eval-after-load "orgstruct" (diminish 'orgstruct-mode " OrgS"))
   (with-eval-after-load "centered-cursor-mode"
     (diminish 'centered-cursor-mode))
   (with-eval-after-load "volatile-highlights"
     (diminish 'volatile-highlights-mode))
+  (with-eval-after-load "aggressive-indent"
+    (diminish 'aggressive-indent-mode))
+  (with-eval-after-load "all-the-icons-dired"
+    (diminish 'all-the-icons-dired-mode))
+  (with-eval-after-load "yasnippet" (diminish 'yas-minor-mode))
+  (with-eval-after-load "auto-complete" (diminish 'auto-complete-mode))
+  (with-eval-after-load "ws-butler" (diminish 'ws-butler-mode))
+  (with-eval-after-load "isearch" (diminish 'isearch-mode))
+  (with-eval-after-load "autorevert" (diminish 'auto-revert-mode))
+  (with-eval-after-load "smooth-scroll" (diminish 'smooth-scroll-mode))
+  (with-eval-after-load "whitespace" (diminish 'global-whitespace-mode))
   (with-eval-after-load "emmet-mode" (diminish 'emmet-mode))
   (with-eval-after-load "abbrev" (diminish 'abbrev-mode))
   (with-eval-after-load "doxymacs" (diminish 'doxymacs-mode))
@@ -837,7 +888,7 @@
   (with-eval-after-load "smartparens" (diminish 'smartparens-mode))
   (with-eval-after-load "selected" (diminish 'selected-minor-mode))
   ;; (with-eval-after-load "org-autolist" (diminish 'org-autolist-mode))
-  ;;;  (with-eval-after-load "helm" (diminish 'helm-mode " H"))
+   ;;;  (with-eval-after-load "helm" (diminish 'helm-mode " H"))
   )
 
 ;; メジャーモードの短縮
@@ -878,22 +929,21 @@
 ;;  (setq visible-bell nil) ;; default=nil
   (setq ring-bell-function 'ignore)
 
-(when (require 'buffer nil t)
+(when (require 'empty-booting nil t)
   (setq initial-buffer-choice t)
   (setq initial-scratch-message nil)
-  (setq initial-major-mode 'buffer-mode)
+  (setq initial-major-mode 'empty-booting-mode)
   ;;  :underline "#203e6f"
-  (set-face-foreground 'header-line "#333333") ;; "#203e6f"
-  (set-face-background 'header-line "#ffb08c")
+  (set-face-foreground 'header-line "#FFFFFF") ;; "#203e6f" #333333
+  (set-face-background 'header-line "#7e59b5") ;; #ffb08c
   (set-face-attribute 'header-line nil
                       :inherit nil
                       :overline nil
                       :underline nil)
   (setq header-line-format
         (concat
-         "  Buffers                                                    "
-         (format-time-string "W%U: %Y-%m-%d %a.")))
-  )
+         " GNU Emacs                                                  "
+         (format-time-string "W%U: %Y-%m-%d %a."))))
 
 (global-set-key (kbd "C-M-s") #'(lambda () (interactive)
                                   (switch-to-buffer "*scratch*")))
@@ -966,8 +1016,10 @@
 (when (autoload-if-found
        '(migemo-init)
        "migemo" nil t)
+
   (eval-when-compile
     (require 'migemo nil t))
+
   (with-eval-after-load "migemo"
     (setq completion-ignore-case t) ;; case-independent
     (setq migemo-command "cmigemo")
@@ -989,13 +1041,15 @@
          helm-locate helm-recentf helm-buffers-list helm-descbinds
          helm-occur helm-swoop helm-flycheck helm-bookmarks)
        "helm-config" nil t)
+
   (eval-when-compile
     (require 'helm nil t)
     (require 'helm-config nil t))
+
   (with-eval-after-load "helm-config"
     (helm-mode 1)
     (when (require 'diminish nil t)
-      (diminish 'helm-mode " H"))
+      (diminish 'helm-mode)) ;;  " H"
 
     (when (require 'helm-swoop nil t)
       ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
@@ -1112,11 +1166,12 @@
 (when (autoload-if-found
        '(which-key-mode)
        "which-key" nil t)
+
   (eval-when-compile
     (require 'which-key nil t))
+
   (with-eval-after-load "which-key"
-    (setq which-key-idle-delay 1.0)
-    (which-key-mode 1))
+    (setq which-key-idle-delay 1.0))
 
   (add-hook 'org-mode-hook #'which-key-mode)
   (add-hook 'helm-after-initialize-hook #'which-key-mode))
@@ -1124,8 +1179,10 @@
 (when (autoload-if-found
        '(highlight-symbol-mode highlight-symbol-nav-mode)
        "highlight-symbol" nil t)
+
   (eval-when-compile
     (require 'highlight-symbol nil t))
+
   (with-eval-after-load "highlight-symbol"
     (setq highlight-symbol-idle-delay 0.5))
 
@@ -1141,6 +1198,7 @@
 (when (autoload-if-found
        '(google-maps)
        "google-maps" nil t)
+
   (with-eval-after-load "google-maps"
     (require 'org-location-google-maps nil t)))
 
@@ -1148,7 +1206,21 @@
     (autoload-if-found
      '(japanlaw)
      "japanlaw" nil t)
+
   (message "--- w3m is NOT installed."))
+
+(when (autoload-if-found
+       '(sunshine-forecast sunshine-quick-forecast)
+       "sunshine" nil t)
+
+  (eval-when-compile
+    (require 'sunshine))
+
+  (with-eval-after-load "sunshine"
+    ;; (setq sunshine-location "Tokyo, Japan")
+    ;; (setq sunshine-appid "................................")
+    (setq sunshine-show-icons t)
+    (setq sunshine-units 'metric)))
 
 (with-eval-after-load "dired"
   (when (require 'gited nil t)
@@ -1165,9 +1237,11 @@
 (when (autoload-if-found
        '(my:undo-tree-visualize)
        "undo-tree" nil t)
+
   (eval-when-compile
     (require 'moom nil t)
     (require 'undo-tree nil t))
+
   (with-eval-after-load "undo-tree"
     (global-undo-tree-mode)
     (defvar undo-tree-active nil)
@@ -1210,6 +1284,7 @@
 (when (autoload-if-found
        '(rencetf-mode recentf-save-list-without-msg recentf-open-files)
        "recentf" nil t)
+
   (with-eval-after-load "recentf"
     (defun recentf-save-list-without-msg ()
       (interactive)
@@ -1252,6 +1327,7 @@
 (when (autoload-if-found
        '(backup-each-save)
        "backup-each-save" nil t)
+
   (with-eval-after-load "backup-each-save"
     (setq backup-each-save-mirror-location "~/.emacs.d/backup")
     (setq backup-each-save-time-format "%y-%m-%d_%M:%S")
@@ -1285,8 +1361,10 @@
 (when (autoload-if-found
        '(session-initialize)
        "session" nil t)
+
   (eval-when-compile
     (require 'session nil t))
+
   (with-eval-after-load "session"
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
@@ -1309,32 +1387,48 @@
 (when (autoload-if-found
        '(neotree neotree-toggle)
        "neotree" nil t)
+
   (eval-when-compile
     (require 'neotree nil t))
 
   (with-eval-after-load "neotree"
-    (require 'moom nil t)
-    (setq neo-show-hidden-files nil)
+    (setq neo-show-hidden-files t)
     (setq neo-persist-show t)
     (setq neo-theme 'arrow)
+    ;; (setq neo-window-position 'right)
+    ;; (setq neo-vc-integration '(face char)) ;; Itls heavy at 2017-08-31
     (setq neo-smart-open t)
     (when (require 'all-the-icons-dired nil t)
       (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+    (defvar my:neo-frame-width-single 80)
+    (defvar my:neo-frame-width-double my:neo-frame-width-single)
+    (when (require 'moom nil t)
+      (setq my:neo-frame-width-single moom-frame-width-single)
+      (setq my:neo-frame-width-double moom-frame-width-double))
+    (defvar my:neo-adjusted-window-width (+ 3 neo-window-width))
     (defun advice:neotree-show ()
       "Extension to support change frame width when opening neotree."
       (unless (neo-global--window-exists-p)
-        (set-frame-width (selected-frame) (+ (frame-width) 26))
-        (sit-for 0.01)
-        (set-frame-width (selected-frame) (+ (frame-width) 2))))
+        (set-frame-width (selected-frame)
+                         (+ (frame-width) my:neo-adjusted-window-width))
+        ;; override
+        (when (require 'moom nil t)
+          (setq moom-frame-width-single
+                (+ my:neo-frame-width-single my:neo-adjusted-window-width))
+          (setq moom-frame-width-double
+                (+ my:neo-frame-width-double my:neo-adjusted-window-width)))))
     (advice-add 'neotree-show :before #'advice:neotree-show)
     (defun advice:neotree-hide ()
-      "Extension to support change frame width when hiding neotree."
+      "Extension to support change frame width when closing neotree."
       (when (neo-global--window-exists-p)
-        (set-frame-width (selected-frame) (- (frame-width) 2))
-        (sit-for 0.01)
-        (set-frame-width (selected-frame) (- (frame-width) 26)))
-      (when (< (frame-width) moom--target-frame-width)
-        (set-frame-width (selected-frame) moom--target-frame-width)))
+        (set-frame-width (selected-frame)
+                         (- (frame-width) my:neo-adjusted-window-width))
+        ;; restore
+        (when (require 'moom nil t)
+          (setq moom-frame-width-single my:neo-frame-width-single)
+          (setq moom-frame-width-double my:neo-frame-width-double)))
+      (when (> my:neo-frame-width-single (frame-width))
+        (set-frame-width (selected-frame) my:neo-frame-width-single)))
     (advice-add 'neotree-hide :before #'advice:neotree-hide)
     (when neo-persist-show
       (add-hook 'popwin:before-popup-hook
@@ -1350,6 +1444,29 @@
     (setq delete-by-moving-to-trash t)
     (osx-trash-setup)))
 
+(when (autoload-if-found
+       '(keyfreq-mode keyfreq-autosave-mode keyfreq-show)
+       "keyfreq" nil t)
+
+  (with-eval-after-load "keyfreq"
+    (defun advice:keyfreq-show ()
+      "Extension to make the buffer view-only."
+      (interactive)
+      (if (require 'shut-up nil t)
+          (shut-up (view-buffer keyfreq-buffer))
+      (view-buffer keyfreq-buffer)))
+    (advice-add 'keyfreq-show :after #'advice:keyfreq-show)
+    ;; (define-key keyfreq-mode-map (kbd "q")
+    ;;   #'(lambda () (interactive)
+    ;;       (when (string= (buffer-name) keyfreq-buffer)
+    ;;         (kill-buffer-and-window))))
+    (setq keyfreq-file
+          (expand-file-name "~/Dropbox/emacs.d/.keyfreq"))
+    (keyfreq-autosave-mode 1))
+
+  (with-eval-after-load "helm-config"
+    (keyfreq-mode 1)))
+
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)
 
@@ -1358,8 +1475,10 @@
 (when (autoload-if-found
        '(doxymacs-mode)
        "doxymacs" nil t)
+
   (eval-when-compile
     (require 'doxymacs nil t))
+
   (with-eval-after-load "doxymacs"
     (setq doxymacs-doxygen-style "JavaDoc")
     (add-hook 'font-lock-mode-hook
@@ -1381,6 +1500,7 @@
 (when (autoload-if-found
        '(flycheck-mode)
        "flycheck" nil t)
+
   (with-eval-after-load "flycheck"
     (require 'helm-flycheck nil t)
     (setq flycheck-gcc-language-standard "c++11")
@@ -1401,8 +1521,10 @@
 (when (autoload-if-found
        '(ac-default-setup ac-org-mode-setup)
        "auto-complete" nil t)
+
   (eval-when-compile
     (require 'auto-complete nil t))
+
   (with-eval-after-load "auto-complete"
     (require 'auto-complete-config nil t)
     (ac-config-default)
@@ -1473,8 +1595,10 @@
 (when (autoload-if-found
        '(auto-complete ac-cc-mode-setup)
        "auto-complete" nil t)
+
   (eval-when-compile
     (require 'auto-complete nil t))
+
   (with-eval-after-load "auto-complete"
     (require 'auto-complete-clang nil t)
     ;; ac-cc-mode-setup のオーバーライド
@@ -1491,6 +1615,7 @@
 (when (autoload-if-found
        '(origami-mode origami-toggle-node)
        "origami" nil t)
+
   (eval-when-compile
     (require 'origami nil t))
 
@@ -1524,6 +1649,7 @@
     (when (autoload-if-found
            '(ggtags-mode)
            "ggtags" nil t)
+
       (eval-when-compile
         (require 'ggtags nil t))
 
@@ -1556,17 +1682,28 @@
 (when (autoload-if-found
        '(uuid-string my:uuid-string)
        "uuid" nil t)
+
   (with-eval-after-load "uuid"
     (defun my:uuid-string ()
       (interactive)
       (insert (uuid-string)))))
 
+(autoload-if-found
+ '(package-lint-current-buffer)
+ "package-lint" nil t)
+
+(autoload-if-found
+ '(cov-mode)
+ "cov" nil t)
+
 (when (autoload-if-found
        '(org-mode)
        "org" "Org Mode" t)
+
   (with-eval-after-load "org"
     (require 'org-habit nil t)
     (require 'org-mobile nil t)
+    (add-to-list 'org-modules 'org-id)
 
     ;; C-c & が yasnippet にオーバーライドされているのを張り替える
     (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
@@ -1639,8 +1776,10 @@
 (when (autoload-if-found
        '(my:ox-icalendar my:ox-icalendar-cleanup)
        "ox-icalendar" nil t)
+
   (eval-when-compile
     (require 'ox-icalendar nil t))
+
   (with-eval-after-load "ox-icalendar"
     (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
     ;; iCal の説明文
@@ -1696,13 +1835,14 @@
   ;;                (if (not org-timer-current-timer)
   ;;                    (org-timer-set-timer '(16)))))
 
-  (setq growl-pomodoro-default-task-name "doing the task")
+  (setq growl-pomodoro-default-task-name "The current task is finished.")
   (setq growl-pomodoro-task-name 'growl-pomodoro-default-task-name)
 
   (defun set-growl-pomodoro-task-name ()
     (interactive "P")
     (setq growl-pomodoro-task-name
-          (read-from-minibuffer "Task Name: " growl-pomodoro-default-task-name)))
+          (read-from-minibuffer "Task Name: "
+                                growl-pomodoro-default-task-name)))
   (add-hook 'org-timer-set-hook 'set-growl-pomodoro-task-name)
 
   (defun growl-pomodoro-timer ()
@@ -1711,7 +1851,7 @@
      (concat "growlnotify -s -a Emacs -t \"++ Pomodoro ++\" -m \""
              "The end of " growl-pomodoro-task-name "!\""))
     (shell-command-to-string
-                                        ;   (concat "say The end of " growl-pomodoro-task-name)
+     ;;   (concat "say The end of " growl-pomodoro-task-name)
      (concat "say -v Kyoko " growl-pomodoro-task-name)
      ))
 
@@ -1842,10 +1982,12 @@
   ;; アジェンダビューでFOLLOWを設定
   ;; (setq org-agenda-start-with-follow-mode t)
   ;; Customized Time Grid
-  (setq org-agenda-time-grid
+  (setq org-agenda-time-grid ;; Format is changed from 9.1
         '((daily today require-timed)
+          (0800 1000 1200 1400 1600 1800 2000 2200 2400)
+          "......"
           "----------------"
-          (0800 1000 1200 1400 1600 1800 2000 2200 2400)))
+          ))
   (setq org-agenda-current-time-string "< d('- ' ) now!")
   (setq org-agenda-timegrid-use-ampm t)
 
@@ -1897,49 +2039,49 @@
   (my:popup-agenda-set-timers)
   (run-at-time "24:00" nil 'my:popup-agenda-set-timers)) ;; for next day
 
-(with-eval-after-load "org"
+  (with-eval-after-load "org"
 
-  (define-key org-mode-map (kbd "<f11>") 'my:toggle-doing-tag)
-  (define-key org-mode-map (kbd "C-<f11>") 'my:sparse-doing-tree)
+    (define-key org-mode-map (kbd "<f11>") 'my:toggle-doing-tag)
+    (define-key org-mode-map (kbd "C-<f11>") 'my:sparse-doing-tree)
 
-  ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
-  (defvar my:doing-tag "Doing")
-  (defun my:sparse-doing-tree ()
-    (interactive)
-    (org-tags-view nil my:doing-tag))
-  ;; Doingタグをトグルする
-  (defun my:toggle-doing-tag ()
-    (interactive)
-    (when (eq major-mode 'org-mode)
-      (save-excursion
-        (save-restriction
-          (org-back-to-heading t)
-          ;; before 9
-          ;; (unless (org-at-heading-p)
-          ;;   (outline-previous-heading))
-          (org-toggle-tag my:doing-tag
-                          (if (string-match
-                               (concat ":" my:doing-tag ":")
-                               (org-get-tags-string))
-                              'off 'on))
-          (org-set-tags nil t)))
-      (org-reveal)))
+    ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
+    (defvar my:doing-tag "Doing")
+    (defun my:sparse-doing-tree ()
+      (interactive)
+      (org-tags-view nil my:doing-tag))
+    ;; Doingタグをトグルする
+    (defun my:toggle-doing-tag ()
+      (interactive)
+      (when (eq major-mode 'org-mode)
+        (save-excursion
+          (save-restriction
+            (org-back-to-heading t)
+            ;; before 9
+            ;; (unless (org-at-heading-p)
+            ;;   (outline-previous-heading))
+            (org-toggle-tag my:doing-tag
+                            (if (string-match
+                                 (concat ":" my:doing-tag ":")
+                                 (org-get-tags-string))
+                                'off 'on))
+            (org-set-tags nil t)))
+        (org-reveal)))
 
-  ;; ついでに calendar.app も定期的に強制起動する
-  (defun my:popup-calendar ()
-    (interactive)
-    (if (window-focus-p)
-        (shell-command-to-string "open -a calendar.app")
-      (message "--- input focus is currently OUT.")))
-  (defun my:popup-calendar-set-timers ()
-    (interactive)
-    (cancel-function-timers 'my:popup-calendar)
-    (dolist (triger my:org-agenda-auto-popup-list)
-      (unless (passed-clock-p triger)
-        (run-at-time triger nil 'my:popup-calendar))))
-  (when (memq window-system '(mac ns))
-    (my:popup-calendar-set-timers)
-    (run-at-time "24:00" nil 'my:popup-calendar-set-timers))) ;; for next day
+    ;; ついでに calendar.app も定期的に強制起動する
+    (defun my:popup-calendar ()
+      (interactive)
+      (if (window-focus-p)
+          (shell-command-to-string "open -a calendar.app")
+        (message "--- input focus is currently OUT.")))
+    (defun my:popup-calendar-set-timers ()
+      (interactive)
+      (cancel-function-timers 'my:popup-calendar)
+      (dolist (triger my:org-agenda-auto-popup-list)
+        (unless (passed-clock-p triger)
+          (run-at-time triger nil 'my:popup-calendar))))
+    (when (memq window-system '(mac ns))
+      (my:popup-calendar-set-timers)
+      (run-at-time "24:00" nil 'my:popup-calendar-set-timers))) ;; for next day
 
 (with-eval-after-load "org"
   (require 'orgbox nil t))
@@ -1959,13 +2101,13 @@
   ;; アラーム表示を有効にする
   (appt-activate 1)
   ;; window を フレーム内に表示する
-  (setq appt-display-format 'window)
+  (setq appt-display-format 'echo)
   ;; window を継続表示する時間[s]
   (setq appt-display-duration 5)
   ;; ビープ音の有無
   (setq appt-audible nil)
   ;; 何分前から警告表示を開始するか[m]
-  (setq appt-message-warning-time 30)
+  (setq appt-message-warning-time 20)
   ;; 警告表示開始から何分ごとにリマインドするか[m]
   (setq appt-display-interval 5)
   ;; モードラインにアラームを表示する
@@ -1982,8 +2124,10 @@
 (when (autoload-if-found
        '(org-capture)
        "org-capture" nil t)
+
   (eval-when-compile
     (require 'org-capture nil t))
+
   (with-eval-after-load "org-capture"
     ;; 2010-06-13 の形式では，タグとして認識されない
     (defun get-current-date-tags () (format-time-string "%Y%m%d"))
@@ -2044,7 +2188,7 @@
 
 (with-eval-after-load "org"
   ;; 履歴が生成されるのを抑制．
-  ;; [2/3]のような完了数が見出しにある時に転送先候補が重複するため．
+  ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
 
   (defun advice:org-refile (&optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
@@ -2060,8 +2204,7 @@
           (org-refile-goto-last-stored)
           (org-update-parent-todo-statistics) ;; Update in destination
           (unless (equal b (buffer-name))
-            (switch-to-buffer b))))
-      )
+            (switch-to-buffer b)))))
     (setq org-refile-history nil)
     (org-refile-cache-clear))
   (advice-add 'org-refile :around #'advice:org-refile)
@@ -2075,6 +2218,7 @@
                 ("english.org" :level . 1)
                 ("wg1.org" :level . 1)
                 ("univ.org" :level . 1)
+                ("money.org" :level . 1)
                 ("trigger.org" :level . 1)
                 ("next.org" :level . 1)
                 ("sleep.org" :level . 1))))
@@ -2135,8 +2279,10 @@
 (when (autoload-if-found
        '(org-tree-slide-mode)
        "org-tree-slide" nil t)
+
   (eval-when-compile
     (require 'org-tree-slide nil t))
+
   (with-eval-after-load "org-tree-slide"
     ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
     (define-key org-tree-slide-mode-map (kbd "<f9>")
@@ -2179,8 +2325,10 @@
 (when (autoload-if-found
        '(org-tree-slide-mode my:proportional-font-toggle)
        "org-tree-slide" nil t)
+
   (eval-when-compile
     (require 'org-tree-slide nil t))
+
   (with-eval-after-load "org-tree-slide"
     (defcustom use-proportional-font nil
       "The status of FONT property"
@@ -2215,8 +2363,10 @@
 (when (autoload-if-found
        '(org-tree-slide-mode)
        "org-tree-slide" nil t)
+
   (eval-when-compile
     (require 'org-tree-slide nil t))
+
   (with-eval-after-load "org-tree-slide"
     ;; FIXME 複数のバッファで並行動作させるとおかしくなる．hide-lines の問題？
     (when (and nil (require 'hide-lines nil t))
@@ -2247,8 +2397,10 @@
 (when (autoload-if-found
        '(my:cfw-open-org-calendar cfw:open-org-calendar)
        "calfw-org" "Rich calendar for org-mode" t)
+
   (eval-when-compile
     (require 'calfw-org nil t))
+
   (with-eval-after-load "calfw-org"
     ;; icalendar との連結
     (setq cfw:org-icalendars '("~/Dropbox/org/org-ical.org"))
@@ -2311,6 +2463,7 @@
 (when (autoload-if-found
        '(ox-odt)
        "ox-odt" nil t)
+
   (with-eval-after-load "ox-odt"
     (add-to-list 'org-odt-data-dir
                  (concat (getenv "HOME") "/Dropbox/emacs.d/config/"))
@@ -2408,8 +2561,10 @@
 (when (autoload-if-found
        '(org-attach du-org-attachments)
        "org-attach" nil t)
+
   (eval-when-compile
     (require 'org-attach nil t))
+
   (with-eval-after-load "org-attach"
     ;; org-insert-link で添付ファイルへのリンクをペーストできるようにする
     (setq org-attach-store-link-p t)
@@ -2435,8 +2590,10 @@
 (when (autoload-if-found
        '(org-attach-screenshot my:org-attach-screenshot)
        "org-attach-screenshot" nil t)
+
   (eval-when-compile
     (require 'org-attach-screenshot nil t))
+
   (with-eval-after-load "org-attach-screenshot"
     (when (executable-find "screencapture")
       (setq org-attach-screenshot-command-line "screencapture %f"))
@@ -2494,8 +2651,10 @@
 (when (autoload-if-found
        '(org-grep)
        "org-grep" nil t)
+
   (eval-when-compile
     (require 'org-grep nil t))
+
   (with-eval-after-load "org-grep"
     (setq org-grep-extensions '(".org" ".org_archive"))
     (add-to-list 'org-grep-directories "~/.emacs.d")
@@ -2530,6 +2689,7 @@
 (when (autoload-if-found
        '(org-mode)
        "org" nil t)
+
   (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))
 
 (with-eval-after-load "utility"
@@ -2568,6 +2728,7 @@
 (when (autoload-if-found
        '(org-dashboard-display)
        "org-dashboard" nil t)
+
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-c f y") 'org-dashboard-display)))
 
@@ -2587,6 +2748,7 @@
 (when (autoload-if-found
        '(orgnav-search-root)
        "orgnav" nil t)
+
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-c f n")
       #'(lambda () (interactive)
@@ -2654,20 +2816,45 @@
       (not (string-match "\\.Roman$" (mac-get-current-input-source))))
     (defvar my:ime-on-hook nil)
     (defvar my:ime-off-hook nil)
-    (defun my:ime-on ()
+    (defun my:ime-on (&optional sticky)
       (interactive)
       (mac-toggle-input-method t)
-      (run-hooks 'my:ime-on-hook))
-    (defun my:ime-off ()
+      (setq cursor-type my:cursor-type-ime-on)
+      (set-cursor-color my:cursor-color-ime-on)
+      (run-hooks 'my:ime-on-hook)
+      (when sticky
+        (setq my:ime-flag t)))
+    (defun my:ime-off (&optional sticky)
       (interactive)
       (mac-toggle-input-method nil)
-      (run-hooks 'my:ime-off-hook))
+      (setq cursor-type my:cursor-type-ime-off)
+      (set-cursor-color my:cursor-color-ime-off)
+      (run-hooks 'my:ime-off-hook)
+      (when sticky
+        (setq my:ime-flag nil)))
 
     ;; for init setup
     (setq-default cursor-type '(bar . 2))
-    (my:ime-off)
-    (setq cursor-type my:cursor-type-ime-off)
-    (set-cursor-color my:cursor-color-ime-off)
+    (defun my:apply-cursor-config ()
+      (if (my:ime-active-p)
+          (progn
+            (setq cursor-type my:cursor-type-ime-on)
+            (set-cursor-color my:cursor-color-ime-on))
+        (setq cursor-type my:cursor-type-ime-off)
+        (set-cursor-color my:cursor-color-ime-off)))
+    ;; (my:apply-cursor-config) will be called later in this file.
+
+    ;; Enter minibuffer with IME-off, and resture the latest IME
+    (add-hook 'minibuffer-setup-hook
+              #'(lambda ()
+                  (if (not (my:ime-active-p))
+                      (setq my:ime-flag nil)
+                    (setq my:ime-flag t)
+                    (my:ime-off))))
+    (add-hook 'minibuffer-exit-hook
+              #'(lambda ()
+                  (when my:ime-flag
+                    (my:ime-on))))
 
     ;; (defun advice:find-file (FILENAME &optional WILDCARDS)
     ;;   "Extension to find-file as before-find-file-hook."
@@ -2719,6 +2906,14 @@
 
  (t nil))
 
+(declare-function my:apply-cursor-config "init" nil)
+(defun advice:make-frame ()
+  (my:apply-theme)
+  (when (require 'moom nil t)
+    (moom--set-font-size)))
+(advice-add 'make-frame :after #'advice:make-frame)
+(global-set-key (kbd "M-`") 'other-frame)
+
 (defconst moom-autoloads
   '(moom-move-frame-with-user-specify
     moom-change-frame-width-single moom-change-frame-width-double
@@ -2746,7 +2941,7 @@
     (add-hook 'moom-after-fullscreen-hook
               'moom-move-frame-to-center)
     (add-hook 'moom-reset-font-size-hook
-              'moom-move-frame-with-user-specify))
+              'moom-move-frame-to-center))
 
   ;; Move the frame to somewhere (default: 0,0)
   (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
@@ -2766,6 +2961,11 @@
   ;; Full screen with same frame-width
   (global-set-key (kbd "C-x C-9") 'moom-fit-frame-to-fullscreen)
   (global-set-key (kbd "C-x C-0") 'moom-reset-font-size)
+  (global-set-key (kbd "C-x C-8")
+                  #'(lambda () (interactive)
+                      (moom-set-font-size-input
+                       (+ 5 (/ moom-fullscreen-fontsize 2)))
+                      (moom-move-frame-to-center)))
   (global-set-key (kbd "C-_") 'text-scale-decrease)
   (global-set-key (kbd "C-+") 'text-scale-increase)
   (global-set-key (kbd "C-c f s") 'moom-change-frame-width-single)
@@ -2812,6 +3012,8 @@
           popwin:special-display-config)
 
     ;; Checking...
+    (push '("*frequencies*" :height 20 :position bottom :dedicated t)
+          popwin:special-display-config)
     (push '("CAPTURE-next.org" :height 10 :position bottom :noselect t)
           popwin:special-display-config)
     (push '("CAPTURE-org-ical.org":height 10 :position bottom :noselect t)
@@ -2853,11 +3055,13 @@
 (when window-system
   (global-hl-line-mode 1))
 
-(when (and (memq window-system '(mac ns))
+(when (and (string= system-name "mba.local")
+           (memq window-system '(mac ns))
            (>= emacs-major-version 24))
 
   (add-hook 'input-method-activate-hook
             #'(lambda ()
+                (message "activate-hook")
                 (setq cursor-type my:cursor-type-ime-on)
                 (set-cursor-color my:cursor-color-ime-on)))
 
@@ -2947,6 +3151,7 @@
 (when (autoload-if-found
        '(diff-mode)
        "diff-mode" nil t)
+
   (with-eval-after-load "diff-mode"
     (set-face-attribute 'diff-added-face nil
                         :background nil :foreground "green"
@@ -2972,26 +3177,33 @@
         (or (<= begin ct) (<= ct end))
       (and (<= begin ct) (<= ct end)))))
 
-(when window-system
+(defun my:apply-theme ()
   (let ((night-time-in 21)
         (night-time-out 5))
     (if (my:night-time-p (* night-time-in 60) (* night-time-out 60))
         (when (require 'night-theme nil t)
           (load-theme 'night t))
       (when (require 'daylight-theme nil t)
-        (load-theme 'daylight t)))))
+        (load-theme 'daylight t))))
+  (my:apply-cursor-config))
+
+(when window-system
+  (my:apply-theme))
 
 (when (autoload-if-found
        '(rainbow-mode)
        "rainbow-mode" nil t)
+
   (dolist (hook '(emmet-mode-hook emacs-lisp-mode-hook org-mode-hook))
     (add-hook hook 'rainbow-mode)))
 
 (when (autoload-if-found
        '(volatile-highlights-mode)
        "volatile-highlights" nil t)
+
   (eval-when-compile
     (require 'volatile-highlights nil t))
+
   (with-eval-after-load "volatile-highlights"
     (set-face-attribute
      'vhl/default-face nil :foreground "#FF3333" :background "#FFCDCD")
@@ -3041,6 +3253,7 @@
 (when (autoload-if-found
        '(pomodoro:start)
        "pomodoro" nil t)
+
   (eval-when-compile
     (require 'pomodoro nil t))
 
@@ -3070,7 +3283,7 @@
     (custom-set-faces
      '(pomodoro:work-face
        ((((background dark)) :foreground "#DB4C46" :bold t)
-        (t (:foreground "#9d64c4" :bold t)))) ;;  #8248c4 , #956dc4, #9d64c4
+        (t (:foreground "#000033" :bold t)))) ;; #8248c4 , #956dc4, #9d64c4
      '(pomodoro:rest-face
        ((((background dark)) :foreground "#3869FA" :bold t)
         (t (:foreground "#203e6f" :bold t))))
@@ -3131,9 +3344,10 @@
       (defun my:pomodoro-notify ()
         (interactive)
         (shell-command-to-string
-         (concat "terminal-notifier -title \"Pomodoro\" -message \""
-                 "三三 ﾍ(*ﾟ∇ﾟ)ﾉ\""
-                 " -sender org.gnu.Emacs")))
+         (concat "terminal-notifier -title \"Pomodoro\""
+                 " -message \"三三 ﾍ(*ﾟ∇ﾟ)ﾉ Go #"
+                 (format "%s" (1+ pomodoro:work-count))
+                 "\" -sender org.gnu.Emacs")))
       (add-hook 'pomodoro:finish-work-hook 'my:pomodoro-notify))))
 
 (with-eval-after-load "pomodoro"
@@ -3143,13 +3357,22 @@
   (defvar pomodoro:update-long-rest-sign-interval 0.36) ;; long-rest用表示間隔
 
   (setq pomodoro:mode-line-work-sign-list
-        '("|  " "|| " "|||" " ||" "  |" "   " "   "
-          "  |" " ||" "|||" "|| " "|  " "   " "   "))
+        '(">  " ">> " ">>>" " >>" "  >" "   " "   "))
   (setq pomodoro:mode-line-rest-sign-list
         '(".  " ".. " "..." " .." "  ." "   " "   "
           "  ." " .." "..." ".. " ".  " "   " "   "))
   (setq pomodoro:mode-line-long-rest-sign-list
         '("   " " | " "|||" "| |" "   "))
+
+  ;; Example.0
+  ;; (setq pomodoro:mode-line-work-sign-list
+  ;;       '("|  " "|| " "|||" " ||" "  |" "   " "   "
+  ;;         "  |" " ||" "|||" "|| " "|  " "   " "   "))
+  ;; (setq pomodoro:mode-line-rest-sign-list
+  ;;       '(".  " ".. " "..." " .." "  ." "   " "   "
+  ;;         "  ." " .." "..." ".. " ".  " "   " "   "))
+  ;; (setq pomodoro:mode-line-long-rest-sign-list
+  ;;       '("   " " | " "|||" "| |" "   "))
 
   ;; Example.1
   ;; (defvar pomodoro:mode-line-work-sign-list
@@ -3269,11 +3492,10 @@
   (add-hook 'pomodoro:long-rest-hook
             #'pomodoro:activate-visual-long-rest-sign))
 
-(global-set-key (kbd "C-c f t") 'open-current-directory)
-
 (when (autoload-if-found
        '(my:google-this google-this-word)
        "google-this" nil t)
+
   (eval-when-compile
     (require 'google-this nil t))
 
@@ -3287,6 +3509,7 @@
 (when (autoload-if-found
        '(lingr-login my:lingr-login)
        "lingr" nil t)
+
   (eval-when-compile
     (require 'lingr nil t))
 
@@ -3303,6 +3526,17 @@
     (unless (passed-clock-p "23:00")
       (run-at-time "23:00" nil 'my:lingr-login))))
 
+(when (autoload-if-found
+       '(osx-lib-say osx-lib-say-region)
+       "osx-lib" nil t)
+
+  (eval-when-compile
+    (require 'osx-lib nil t))
+
+  (with-eval-after-load "osx-lib"
+    (setq osx-lib-say-ratio 100)
+    (setq osx-lib-say-voice "Samantha")))
+
 (if (executable-find "pass")
     (when (autoload-if-found
            '(helm-pass)
@@ -3311,23 +3545,17 @@
   (message "--- pass is NOT installed."))
 
 (when (autoload-if-found
-       '(osx-lib-say osx-lib-say-region)
-       "osx-lib" nil t)
-  (eval-when-compile
-    (require 'osx-lib nil t))
-  (with-eval-after-load "osx-lib"
-    (setq osx-lib-say-ratio 100)
-    (setq osx-lib-say-voice "Samantha")))
-
-(when (autoload-if-found
        '(my:cmd-to-open-iterm2)
        "utility" nil t)
+
   (global-set-key (kbd "C-M-i") #'my:cmd-to-open-iterm2))
 ;; キーバインドの再設定
 (with-eval-after-load "flyspell"
   (define-key flyspell-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2))
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2))
+
+(global-set-key (kbd "C-c f t") 'open-current-directory)
 
 (defconst utility-autoloads
   '(takaxp:date

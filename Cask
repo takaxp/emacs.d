@@ -9,6 +9,7 @@
 
 ;; Org Mode
 (depends-on "org-plus-contrib")
+(depends-on "htmlize")
 (depends-on "ox-pandoc")
 (depends-on "ox-qmd")
 (depends-on "ox-gfm")
@@ -65,7 +66,9 @@
 (depends-on "git-commit")
 (depends-on "elisp-lint")
 (depends-on "package-lint")
-
+(depends-on "magit")
+(depends-on "cov")
+(depends-on "helm-projectile")
 
 ;; Helm
 (depends-on "helm")
@@ -86,6 +89,7 @@
 
 ;; Editing suport
 (depends-on "aggressive-indent")
+(depends-on "ws-butler")
 (depends-on "flyspell")
 (depends-on "flyspell-correct-helm")
 (depends-on "auto-complete")
@@ -131,6 +135,7 @@
 (depends-on "quickrun")
 (depends-on "latex-math-preview")
 (depends-on "smart-mark")
+(depends-on "syntax-subword")
 
 ;; Applications
 (depends-on "lingr")
@@ -148,5 +153,9 @@
 (depends-on "japanlaw")
 (depends-on "emacsql-sqlite")
 (depends-on "w3m")
+(depends-on "sunshine")
 
-;; 2017-08-26 updated.
+;; Log
+(depends-on "keyfreq")
+
+;; 2017-08-28 updated.
