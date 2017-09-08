@@ -1272,6 +1272,23 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
       (global-syntax-subword-mode 1)))
 #+END_SRC
 
+** [goto-chg.el] 編集箇所を簡単に辿る
+
+編集結果を保持したまま編集箇所にカーソルを移すことができます．=C-/= の Undo のような操作で，簡単かつ高速にカーソルを移動できます．
+
+  - =helm-config= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(with-eval-after-load "helm-config"
+  (when (require 'goto-chg nil t)
+    (global-set-key (kbd "C-,") 'goto-last-change)
+    (global-set-key (kbd "C-.") 'goto-last-change-reverse)
+
+    (with-eval-after-load "flyspell"
+      (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
+      (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse))))
+#+END_SRC
+
 * 編集サポート
   :PROPERTIES:
   :ID:       9F985F7F-81DD-4A68-A61F-31ECF814DF58
@@ -1590,6 +1607,19 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 
     (push '("\\.markdown$" . markdown-mode) auto-mode-alist)
     (push '("\\.md$" . markdown-mode) auto-mode-alist))
+#+END_SRC
+
+** cmakeモード
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (if (executable-find "cmake")
+      (when (autoload-if-found
+             '(cmake-mode)
+             "cmake-mode" nil t)
+
+        (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
+        (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
+    (message "--- cmake is NOT installed."))
 #+END_SRC
 
 ** スペルチェック
@@ -2392,7 +2422,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (require 'diminish nil t)
-    (with-eval-after-load "ggtags" (diminish 'ggtags-mode " GG"))
+    (with-eval-after-load "ggtags" (diminish 'ggtags-mode " G"))
     (with-eval-after-load "orgstruct" (diminish 'orgstruct-mode " OrgS"))
     (with-eval-after-load "centered-cursor-mode"
       (diminish 'centered-cursor-mode))
@@ -2429,10 +2459,10 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
   (add-hook 'js2-mode-hook #'(lambda () (setq mode-name "JS")))
   (add-hook 'c++-mode-hook #'(lambda () (setq mode-name "C++")))
   (add-hook 'csharp-mode-hook #'(lambda () (setq mode-name "C#")))
-  (add-hook 'prog-mode-hook #'(lambda () (setq mode-name "S")))
-  (add-hook 'emacs-lisp-mode-hook #'(lambda () (setq mode-name "el")))
-  (add-hook 'python-mode-hook #'(lambda () (setq mode-name "py")))
-  (add-hook 'perl-mode-hook #'(lambda () (setq mode-name "pl")))
+  (add-hook 'prog-mode-hook #'(lambda () (setq mode-name "Pr")))
+  (add-hook 'emacs-lisp-mode-hook #'(lambda () (setq mode-name "El")))
+  (add-hook 'python-mode-hook #'(lambda () (setq mode-name "Py")))
+  (add-hook 'perl-mode-hook #'(lambda () (setq mode-name "Pl")))
   (add-hook 'web-mode-hook #'(lambda () (setq mode-name "W")))
   (add-hook 'lisp-interaction-mode-hook #'(lambda () (setq mode-name "Lisp")))
 #+END_SRC
@@ -3098,6 +3128,8 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [guide-key] キーバインドの選択肢をポップアップする
+
+=which-key= に移行しました．
 
 自分用の関数にキーバインドを付けたのはいいけど，覚えられない時に使っています．以下の例では， =helm= もしくは =org= が読み込まれた時についでに有効化し， =C-c f= を押して， 0.5秒経つと，その後ろに続くキーの一覧がポップします．すでに覚えたキーバインドならば，0.5秒以内に打てるでしょうから，ポップ表示無しで通常通りにコマンドが発行します．色分けも効くのでわかりやすいです．
 
@@ -4128,27 +4160,40 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
 
 ** [ggtags.el] タグジャンプ
 
+  - [[http://tasuwo.github.io/blog/2016/03/04/c-c-plus-plus/][EmacsにおけるC,C++の環境を整える - tasuwo blog]]
+
 # brew install global --with-exuberant-ctags --with-pygments
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (if (executable-find "gtags")
-      (when (autoload-if-found
-             '(ggtags-mode)
-             "ggtags" nil t)
+  (if (not (executable-find "gtags"))
+      (message "--- gtags is NOT installed in this system.")
 
-        (eval-when-compile
-          (require 'ggtags nil t))
+    (when (autoload-if-found
+           '(ggtags-mode)
+           "ggtags" nil t)
 
-        (with-eval-after-load "ggtags"
-          (setq ggtags-completing-read-function t)
-          (define-key ggtags-mode-map (kbd "M-]") nil))
+      (eval-when-compile
+        (require 'ggtags nil t)
+        (require 'helm-gtags nil t))
 
-        (dolist (hook (list
-                       'perl-mode-hook 'emacs-lisp-mode-hook 'js2-mode-hook
-                       'python-mode-hook  'c-mode-common-hook))
-          (add-hook hook #'(lambda () (ggtags-mode 1)))))
+      (with-eval-after-load "ggtags"
+        (setq ggtags-completing-read-function t)
+        (define-key ggtags-mode-map (kbd "M-]") nil))
 
-    (message "--- gtags is NOT installed in this system."))
+      (dolist (hook (list 'c-mode-common-hook))
+        (add-hook hook #'(lambda () (ggtags-mode 1)))))
+
+    (when (autoload-if-found
+           '(helm-gtags-mode)
+           "helm-gtags" nil t)
+
+      (eval-when-compile
+        (require 'helm-gtags nil t))
+
+      (with-eval-after-load "helm-gtags"
+        (setq helm-gtags-mode-name ""))
+
+      (add-hook 'c-mode-common-hook 'helm-gtags-mode)))
 #+END_SRC
 
 ** [0xc] N進数変換
@@ -4240,6 +4285,47 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (autoload-if-found
    '(cov-mode)
    "cov" nil t)
+#+END_SRC
+
+** TODO [projectile.el] ディレクトリ単位でファイル群をプロジェクト扱いする
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(projectile-global-mode)
+       "projectile" nil t)
+  (with-eval-after-load "projectile"
+    (defun advice:projectile-visit-project-tags-table ()
+      "Extensions to skip calling `visit-tags-table'."
+      nil)
+    (advice-add 'projectile-visit-project-tags-table :override
+                #'advice:projectile-visit-project-tags-table)
+
+    (setq projectile-tags-command "gtags")
+    (setq projectile-tags-backend 'ggtags)
+    (setq projectile-tags-file-name "GTAGS")
+
+    (setq projectile-use-git-grep t)
+    (setq projectile-mode-line
+          '(:eval (format " P:%s" (projectile-project-name))))
+
+    (when (require 'helm-projectile nil t)
+      (setq projectile-completion-system 'helm))
+
+    (when (require 'neotree nil t)
+      ;; M-x helm-projectile-switch-project (C-c p p)
+      (setq projectile-switch-project-action 'neotree-projectile-action)
+
+      (defun advice:neotree-dir (path)
+        "Extension to change the frame width automatically."
+        (interactive "DDirectory: ")
+        (unless (neo-global--window-exists-p)
+          (neotree-show))
+        (neo-global--open-dir path)
+        (neo-global--select-window))
+      (advice-add 'neotree-dir :override #'advice:neotree-dir)))
+
+  (with-eval-after-load "helm-config"
+    (projectile-global-mode 1)))
 #+END_SRC
 
 * Org Mode
@@ -4726,29 +4812,31 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   - Growl や [[https://github.com/julienXX/terminal-notifier/releases][Terminal Notifier]] と連携していると，Emacsがバックグラウンドにあってもアラームに気づける．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (with-eval-after-load "org"
-    ;; アラーム表示を有効にする
-    (appt-activate 1)
-    ;; window を フレーム内に表示する
-    (setq appt-display-format 'echo)
-    ;; window を継続表示する時間[s]
-    (setq appt-display-duration 5)
-    ;; ビープ音の有無
-    (setq appt-audible nil)
-    ;; 何分前から警告表示を開始するか[m]
-    (setq appt-message-warning-time 20)
-    ;; 警告表示開始から何分ごとにリマインドするか[m]
-    (setq appt-display-interval 5)
-    ;; モードラインにアラームを表示する
-    (setq appt-display-mode-line t)
-    ;; org-agenda の内容をアラームに登録する
-    ;; 定期的に更新する
-    (defun my:org-agenda-to-appt ()
-      (interactive)
-      (org-agenda-to-appt t '((headline "TODO"))))
-    (run-with-idle-timer 500 t 'my:org-agenda-to-appt)
+(with-eval-after-load "org"
+  ;; アラーム表示を有効にする
+  (if (require 'shut-up nil t)
+      (shut-up (appt-activate 1))
+    (appt-activate 1))
+  ;; window を フレーム内に表示する
+  (setq appt-display-format 'echo)
+  ;; window を継続表示する時間[s]
+  (setq appt-display-duration 5)
+  ;; ビープ音の有無
+  (setq appt-audible nil)
+  ;; 何分前から警告表示を開始するか[m]
+  (setq appt-message-warning-time 20)
+  ;; 警告表示開始から何分ごとにリマインドするか[m]
+  (setq appt-display-interval 5)
+  ;; モードラインにアラームを表示する
+  (setq appt-display-mode-line t)
+  ;; org-agenda の内容をアラームに登録する
+  ;; 定期的に更新する
+  (defun my:org-agenda-to-appt ()
+    (interactive)
+    (org-agenda-to-appt t '((headline "TODO"))))
+  (run-with-idle-timer 500 t 'my:org-agenda-to-appt)
 
-    (define-key org-mode-map (kbd "C-c f 3") 'my:org-agenda-to-appt))
+  (define-key org-mode-map (kbd "C-c f 3") 'my:org-agenda-to-appt))
 #+END_SRC
 
 ** [org-capture] 高速にメモを取る
@@ -4867,35 +4955,36 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 ** [org-babel] 基本設定
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (with-eval-after-load "ob-core"
-    (setq org-confirm-babel-evaluate nil)
-    (setq org-src-fontify-natively t)
-    (setq org-src-tab-acts-natively t)
-    ;; org-src-window-setup (current-window, other-window, other-frame)
-    (setq org-src-window-setup 'current-window)
-    (require 'ob-http nil t)
-    (require 'ob-gnuplot nil t)
+(with-eval-after-load "ob-core"
+  (setq org-edit-src-content-indentation 0)
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-src-window-setup 'current-window)
+  ;; org-src-window-setup (current-window, other-window, other-frame)
+  (require 'ob-http nil t)
+  (require 'ob-gnuplot nil t)
 
-    ;; Add ":results output" after program name
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((dot . t)
-       (C . t)
-       (gnuplot . t)
-       (perl . t)
-       (shell . t)
-       (latex . t)
-       (sqlite . t)
-       (R . t)
-       (python . t)))
-    ;; (require 'ob-C nil t)
-    ;; (require 'ob-perl nil t)
-    ;; (require 'ob-sh nil t)
-    ;; (require 'ob-python nil t)
+  ;; Add ":results output" after program name
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((dot . t)
+     (C . t)
+     (gnuplot . t)
+     (perl . t)
+     (shell . t)
+     (latex . t)
+     (sqlite . t)
+     (R . t)
+     (python . t)))
+  ;; (require 'ob-C nil t)
+  ;; (require 'ob-perl nil t)
+  ;; (require 'ob-sh nil t)
+  ;; (require 'ob-python nil t)
 
-    ;; 実装済みの言語に好きな名前を紐付ける
-    (add-to-list 'org-src-lang-modes '("cs" . csharp))
-    (add-to-list 'org-src-lang-modes '("zsh" . sh)))
+  ;; 実装済みの言語に好きな名前を紐付ける
+  (add-to-list 'org-src-lang-modes '("cs" . csharp))
+  (add-to-list 'org-src-lang-modes '("zsh" . sh)))
 #+END_SRC
 
 ** [org-babel] ソースブロックの入力キーをカスタマイズ
@@ -4944,42 +5033,44 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   - https://pxaka.tokyo/wiki/doku.php?id=emacs:org-tree-slide
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; (require 'use-package nil t)
-  ;; (use-package org-tree-slide
-  ;;   :bind (("<f8>" . org-tree-slide-mode)
-  ;;          ("S-<f8>" . org-tree-slide-skip-done-toggle))
-  ;;   :defer t
-  ;;   :init
-  ;;   :config
-  ;;   (define-key org-tree-slide-mode-map (kbd "<f9>")
-  ;;     'org-tree-slide-move-previous-tree)
-  ;;   (define-key org-tree-slide-mode-map (kbd "<f10>")
-  ;;     'org-tree-slide-move-next-tree)
-  ;;   (org-tree-slide-narrowing-control-profile)
-  ;;   (setq org-tree-slide-modeline-display 'outside)
-  ;;   (setq org-tree-slide-skip-outline-level 5)
-  ;;   (setq org-tree-slide-skip-done nil))
+;; (require 'use-package nil t)
+;; (use-package org-tree-slide
+;;   :bind (("<f8>" . org-tree-slide-mode)
+;;          ("S-<f8>" . org-tree-slide-skip-done-toggle))
+;;   :defer t
+;;   :init
+;;   :config
+;;   (define-key org-tree-slide-mode-map (kbd "<f9>")
+;;     'org-tree-slide-move-previous-tree)
+;;   (define-key org-tree-slide-mode-map (kbd "<f10>")
+;;     'org-tree-slide-move-next-tree)
+;;   (org-tree-slide-narrowing-control-profile)
+;;   (setq org-tree-slide-modeline-display 'outside)
+;;   (setq org-tree-slide-skip-outline-level 5)
+;;   (setq org-tree-slide-skip-done nil))
 
-  (when (autoload-if-found
-         '(org-tree-slide-mode)
-         "org-tree-slide" nil t)
+(when (autoload-if-found
+       '(org-tree-slide-mode)
+       "org-tree-slide" nil t)
 
-    (eval-when-compile
-      (require 'org-tree-slide nil t))
+  (eval-when-compile
+    (require 'org-tree-slide nil t))
 
-    (with-eval-after-load "org-tree-slide"
-      ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
-      (define-key org-tree-slide-mode-map (kbd "<f9>")
-        'org-tree-slide-move-previous-tree)
-      (define-key org-tree-slide-mode-map (kbd "<f10>")
-        'org-tree-slide-move-next-tree)
-      (org-tree-slide-narrowing-control-profile)
-      (setq org-tree-slide-modeline-display 'outside)
-      (setq org-tree-slide-skip-outline-level 5)
-      (setq org-tree-slide-skip-done nil))
+  (with-eval-after-load "org-tree-slide"
+    ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
+    (define-key org-tree-slide-mode-map (kbd "<f9>")
+      'org-tree-slide-move-previous-tree)
+    (define-key org-tree-slide-mode-map (kbd "<f10>")
+      'org-tree-slide-move-next-tree)
+    (if (require 'shut-up nil t)
+        (shut-up (org-tree-slide-narrowing-control-profile))
+      (org-tree-slide-narrowing-control-profile))
+    (setq org-tree-slide-modeline-display 'outside)
+    (setq org-tree-slide-skip-outline-level 5)
+    (setq org-tree-slide-skip-done nil))
 
-    (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-    (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle))
+  (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
+  (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle))
 #+END_SRC
 
 Doing タグのトグルに =f11= を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
@@ -5814,149 +5905,152 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
 ** 起動時の設定
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (cond
-   ((memq window-system '(mac ns)) ;; for Macintosh
-    (setq initial-frame-alist
-          (append
-           `((vertical-scroll-bars . nil)
-             (top . 22)  ; Y-pos from (0,0) the height of menu bar is 22pix.
-             (left . 0)  ; X-pos from (0,0) ; 420 is the center for MBP
-             ;; 26 is the setting for Butler's Docklet
-             ;; 837 is the setting for right side for MBP
-             (width . 80) ; Width  : character count
-             (alpha . (100 90))) initial-frame-alist)))
-   ;; for Linux
-   ((eq window-system 'x)
-    (setq initial-frame-alist
+(cond
+ ((memq window-system '(mac ns)) ;; for Macintosh
+  (setq initial-frame-alist
+        (append
+         `((vertical-scroll-bars . nil)
+           (top . 22)  ; Y-pos from (0,0) the height of menu bar is 22pix.
+           (left . 0)  ; X-pos from (0,0) ; 420 is the center for MBP
+           ;; 26 is the setting for Butler's Docklet
+           ;; 837 is the setting for right side for MBP
+           ;; (width . 80) ; Width  : character count
+           ;; (height . 36)
+           (alpha . (100 90))) initial-frame-alist)))
+
+ ;; for Linux
+ ((eq window-system 'x)
+  (setq initial-frame-alist
+        (append
+         '((vertical-scroll-bars . nil)
+           (top . 0)
+           (left . 0)
+           (width . 80)
+           (height . 38)
+           ) initial-frame-alist)))
+
+ ;; for Windows
+ (t (setq initial-frame-alist
           (append
            '((vertical-scroll-bars . nil)
              (top . 0)
              (left . 0)
              (width . 80)
-             (height . 38)
-             ) initial-frame-alist)))
-   ;; for Windows
-   (t (setq initial-frame-alist
-            (append
-             '((vertical-scroll-bars . nil)
-               (top . 0)
-               (left . 0)
-               (width . 80)
-               (height . 26)
-               ) initial-frame-alist))))
+             (height . 26)
+             ) initial-frame-alist))))
 
-  ;; Apply the initial setting to default
-  (setq default-frame-alist initial-frame-alist)
-  (set-face-foreground 'vertical-border (face-background 'default))
-  (set-face-background 'vertical-border (face-background 'default))
-  ;; (set-face-background 'fringe (face-background 'default))
+;; Apply the initial setting to default
+(setq default-frame-alist initial-frame-alist)
+(set-face-foreground 'vertical-border (face-background 'default))
+(set-face-background 'vertical-border (face-background 'default))
+;; (set-face-background 'fringe (face-background 'default))
 
-  ;; カーソルの色
-  (defconst my:cursor-color-ime-on "#FF9300")
-  (defconst my:cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
-  (defconst my:cursor-type-ime-on '(bar . 2))
-  (defconst my:cursor-type-ime-off '(bar . 2))
+;; カーソルの色
+(defconst my:cursor-color-ime-on "#FF9300")
+(defconst my:cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
+(defconst my:cursor-type-ime-on '(bar . 2))
+(defconst my:cursor-type-ime-off '(bar . 2))
 
-  (cond
-   ((eq window-system 'ns)
-    (when (fboundp 'mac-set-input-method-parameter)
-      (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title "あ"))
+(cond
+ ((eq window-system 'ns)
+  (when (fboundp 'mac-set-input-method-parameter)
+    (mac-set-input-method-parameter
+     "com.google.inputmethod.Japanese.base" 'title "あ"))
 
-    (when (fboundp 'mac-get-current-input-source)
-      (defun my:ime-active-p ()
-        (not (string-match "\\.Roman$" (mac-get-current-input-source))))
-      (defvar my:ime-on-hook nil)
-      (defvar my:ime-off-hook nil)
-      (defun my:ime-on (&optional sticky)
-        (interactive)
-        (mac-toggle-input-method t)
-        (setq cursor-type my:cursor-type-ime-on)
-        (set-cursor-color my:cursor-color-ime-on)
-        (run-hooks 'my:ime-on-hook)
-        (when sticky
-          (setq my:ime-flag t)))
-      (defun my:ime-off (&optional sticky)
-        (interactive)
-        (mac-toggle-input-method nil)
-        (setq cursor-type my:cursor-type-ime-off)
-        (set-cursor-color my:cursor-color-ime-off)
-        (run-hooks 'my:ime-off-hook)
-        (when sticky
-          (setq my:ime-flag nil)))
+  (when (fboundp 'mac-get-current-input-source)
+    (defun my:ime-active-p ()
+      (not (string-match "\\.Roman$" (mac-get-current-input-source))))
+    (defvar my:ime-on-hook nil)
+    (defvar my:ime-off-hook nil)
+    (defun my:ime-on (&optional sticky)
+      (interactive)
+      (mac-toggle-input-method t)
+      (setq cursor-type my:cursor-type-ime-on)
+      (set-cursor-color my:cursor-color-ime-on)
+      (run-hooks 'my:ime-on-hook)
+      (when sticky
+        (setq my:ime-flag t)))
+    (defun my:ime-off (&optional sticky)
+      (interactive)
+      (mac-toggle-input-method nil)
+      (setq cursor-type my:cursor-type-ime-off)
+      (set-cursor-color my:cursor-color-ime-off)
+      (run-hooks 'my:ime-off-hook)
+      (when sticky
+        (setq my:ime-flag nil)))
 
-      ;; for init setup
-      (setq-default cursor-type '(bar . 2))
-      (defun my:apply-cursor-config ()
-        (if (my:ime-active-p)
-            (progn
-              (setq cursor-type my:cursor-type-ime-on)
-              (set-cursor-color my:cursor-color-ime-on))
-          (setq cursor-type my:cursor-type-ime-off)
-          (set-cursor-color my:cursor-color-ime-off)))
-      ;; (my:apply-cursor-config) will be called later in this file.
-
-      ;; Enter minibuffer with IME-off, and resture the latest IME
-      (add-hook 'minibuffer-setup-hook
-                #'(lambda ()
-                    (if (not (my:ime-active-p))
-                        (setq my:ime-flag nil)
-                      (setq my:ime-flag t)
-                      (my:ime-off))))
-      (add-hook 'minibuffer-exit-hook
-                #'(lambda ()
-                    (when my:ime-flag
-                      (my:ime-on))))
-
-      ;; (defun advice:find-file (FILENAME &optional WILDCARDS)
-      ;;   "Extension to find-file as before-find-file-hook."
-      ;;   (message "--- advice:findfile")
-      ;;   (apply FILENAME WILDCARDS))
-      ;; (advice-add #'find-file :around #'advice:find-file)
-
-      ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-      ;; バッファ切替時に input method を切り替える
-      (with-eval-after-load "helm-config"
-        (when (and (fboundp 'mac-handle-input-method-change)
-                   (require 'cl-lib nil t))
-          (add-hook
-           'post-command-hook
-           (lexical-let ((previous-buffer nil))
-             ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
-             #'(lambda ()
-                 (unless (eq (current-buffer) previous-buffer)
-                   (if (bufferp previous-buffer)
-                       (mac-handle-input-method-change))
-                   (setq previous-buffer (current-buffer))))))))))
-
-   ((eq window-system 'mac) ;; EMP: Emacs Mac Port
-    (when (fboundp 'mac-input-source)
-      (defun my:mac-keyboard-input-source ()
-        (if (string-match "\\.Roman$" (mac-input-source))
-            (progn
-              (setq cursor-type my:cursor-type-ime-off)
-              (add-to-list 'default-frame-alist
-                           `(cursor-type . ,my:cursor-type-ime-off))
-              (set-cursor-color my:cursor-color-ime-off))
+    ;; for init setup
+    (setq-default cursor-type '(bar . 2))
+    (defun my:apply-cursor-config ()
+      (if (my:ime-active-p)
           (progn
             (setq cursor-type my:cursor-type-ime-on)
+            (set-cursor-color my:cursor-color-ime-on))
+        (setq cursor-type my:cursor-type-ime-off)
+        (set-cursor-color my:cursor-color-ime-off)))
+    ;; (my:apply-cursor-config) will be called later in this file.
+
+    ;; Enter minibuffer with IME-off, and resture the latest IME
+    (add-hook 'minibuffer-setup-hook
+              #'(lambda ()
+                  (if (not (my:ime-active-p))
+                      (setq my:ime-flag nil)
+                    (setq my:ime-flag t)
+                    (my:ime-off))))
+    (add-hook 'minibuffer-exit-hook
+              #'(lambda ()
+                  (when my:ime-flag
+                    (my:ime-on))))
+
+    ;; (defun advice:find-file (FILENAME &optional WILDCARDS)
+    ;;   "Extension to find-file as before-find-file-hook."
+    ;;   (message "--- advice:findfile")
+    ;;   (apply FILENAME WILDCARDS))
+    ;; (advice-add #'find-file :around #'advice:find-file)
+
+    ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
+    ;; バッファ切替時に input method を切り替える
+    (with-eval-after-load "helm-config"
+      (when (and (fboundp 'mac-handle-input-method-change)
+                 (require 'cl-lib nil t))
+        (add-hook
+         'post-command-hook
+         (lexical-let ((previous-buffer nil))
+           ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
+           #'(lambda ()
+               (unless (eq (current-buffer) previous-buffer)
+                 (if (bufferp previous-buffer)
+                     (mac-handle-input-method-change))
+                 (setq previous-buffer (current-buffer))))))))))
+
+ ((eq window-system 'mac) ;; EMP: Emacs Mac Port
+  (when (fboundp 'mac-input-source)
+    (defun my:mac-keyboard-input-source ()
+      (if (string-match "\\.Roman$" (mac-input-source))
+          (progn
+            (setq cursor-type my:cursor-type-ime-off)
             (add-to-list 'default-frame-alist
-                         `(cursor-type . ,my:cursor-type-ime-on))
-            (set-cursor-color my:cursor-color-ime-on))))
+                         `(cursor-type . ,my:cursor-type-ime-off))
+            (set-cursor-color my:cursor-color-ime-off))
+        (progn
+          (setq cursor-type my:cursor-type-ime-on)
+          (add-to-list 'default-frame-alist
+                       `(cursor-type . ,my:cursor-type-ime-on))
+          (set-cursor-color my:cursor-color-ime-on))))
 
-      (when (fboundp 'mac-auto-ascii-mode)
-        ;; (mac-auto-ascii-mode 1)
-        ;; IME ON/OFF でカーソルの種別や色を替える
-        (add-hook 'mac-selected-keyboard-input-source-change-hook
-                  'my:mac-keyboard-input-source)
-        ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
-        ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
-        ;;           'my:mac-keyboard-input-source)
+    (when (fboundp 'mac-auto-ascii-mode)
+      ;; (mac-auto-ascii-mode 1)
+      ;; IME ON/OFF でカーソルの種別や色を替える
+      (add-hook 'mac-selected-keyboard-input-source-change-hook
+                'my:mac-keyboard-input-source)
+      ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
+      ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
+      ;;           'my:mac-keyboard-input-source)
 
-        (declare-function my:mac-keyboard-input-source "init" nil)
-        (my:mac-keyboard-input-source))))
+      (declare-function my:mac-keyboard-input-source "init" nil)
+      (my:mac-keyboard-input-source))))
 
-   (t nil))
+ (t nil))
 #+END_SRC
 
 ** 複数フレーム対応
@@ -5979,49 +6073,52 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
 2. http://github.com/kiwanami/emacs-window-layout/raw/master/window-layout.el
 
 #+BEGIN_SRC emacs-lisp :tangle no
-  (when (autoload-if-found
-         '(my:e2wm:dp-two e2wm:dp-two e2wm:start-management)
-         "e2wm" nil t)
-    (eval-when-compile
-      (require 'e2wm nil t))
-    (with-eval-after-load "e2wm"
-      (defun my:e2wm:dp-two ()
-        (interactive)
-        (e2wm:dp-two)
-        (setq e2wm:c-two-recipe
-              '(- (:lower-size 10)
-                  (| left right)
-                  sub))
-        (setq e2wm:c-two-winfo
-              '((:name left )
-                (:name right )
-                (:name sub :default-hide t)))
+(when (autoload-if-found
+       '(my:e2wm:dp-two e2wm:dp-two e2wm:start-management)
+       "e2wm" nil t)
 
-        ;; left, prev
-        (setq e2wm:c-two-right-default 'left))
+  (eval-when-compile
+    (require 'e2wm nil t))
 
-      ;; 高さを画面の最大に矯正
-      (when (require 'moom nil t)
-        (setq moom-frame-height-tall (moom-max-frame-height))
-        (setq moom-frame-height-small moom-frame-height-tall))
+  (with-eval-after-load "e2wm"
+    (defun my:e2wm:dp-two ()
+      (interactive)
+      (e2wm:dp-two)
+      (setq e2wm:c-two-recipe
+            '(- (:lower-size 10)
+                (| left right)
+                sub))
+      (setq e2wm:c-two-winfo
+            '((:name left )
+              (:name right )
+              (:name sub :default-hide t)))
 
-      ;; 幅を画面の最大に矯正
-      (add-hook 'e2wm:pre-start-hook
-                #'(lambda ()
-                    (set-frame-width
-                     (selected-frame)
-                     (/ (- (display-pixel-width) 30) (frame-char-width)))))
+      ;; left, prev
+      (setq e2wm:c-two-right-default 'left))
 
-      ;; 幅をデフォルト値に戻す
-      (add-hook 'e2wm:post-stop-hook
-                #'(lambda ()
-                    (set-frame-width (selected-frame) moom--target-frame-width)))
+    ;; 高さを画面の最大に矯正
+    (when (require 'moom nil t)
+      (setq moom-frame-height-tall (moom-max-frame-height))
+      (setq moom-frame-height-small moom-frame-height-tall))
 
-      ;; To avoid rebooting issue when using desktop.el and recentf.el
-      (add-hook 'kill-emacs-hook
-                #'(lambda ()
-                    (when (fboundp 'e2wm:stop-management)
-                      (e2wm:stop-management))))
+    ;; 幅を画面の最大に矯正
+    (add-hook 'e2wm:pre-start-hook
+              #'(lambda ()
+                  (set-frame-width
+                   (selected-frame)
+                   (/ (- (display-pixel-width) 30) (frame-char-width)))))
+
+    ;; 幅をデフォルト値に戻す
+    (add-hook 'e2wm:post-stop-hook
+              #'(lambda ()
+                  (set-frame-width (selected-frame)
+                                   moom--target-frame-width)))
+
+    ;; To avoid rebooting issue when using desktop.el and recentf.el
+    (add-hook 'kill-emacs-hook
+              #'(lambda ()
+                  (when (fboundp 'e2wm:stop-management)
+                    (e2wm:stop-management))))))
 #+END_SRC
 
 ** [moom.el] キーボードでフレームの場所を移す
@@ -6050,84 +6147,85 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
 =moom-autuloads= に必要なコマンドを羅列していますが， =melpa= でインストールする場合は関係ありません．パッケージ内で autoload 指定してあります． =with-eval-after-load= の中だけを設定すれば十分です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defconst moom-autoloads
-    '(moom-move-frame-with-user-specify
-      moom-change-frame-width-single moom-change-frame-width-double
-      moom-move-frame-to-center moom-move-frame-to-edge-top
-      moom-move-frame-right
-      moom-move-frame-left moom-move-frame-to-edge-bottom
-      moom-open-height-ring moom-fit-frame-to-fullscreen
-      moom-set-font-size-input moom-max-frame-height moom-reset-font-size
-      moom-increase-font-size moom-decrease-font-size moom-set-font-size))
+(defconst moom-autoloads
+  '(moom-move-frame-with-user-specify
+    moom-change-frame-width-single moom-change-frame-width-double
+    moom-move-frame-to-center moom-move-frame-to-edge-top
+    moom-move-frame-right
+    moom-move-frame-left moom-move-frame-to-edge-bottom
+    moom-open-height-ring moom-fit-frame-to-fullscreen
+    moom-set-font-size-input moom-max-frame-height moom-reset-font-size
+    moom-increase-font-size moom-decrease-font-size moom-set-font-size))
 
-  (when (autoload-if-found
-         moom-autoloads
-         "moom" nil t)
-    (with-eval-after-load "moom"
-      (cond
-       ((>= (display-pixel-width) 1920) (setq moom-fullscreen-fontsize 38))
-       ((>= (display-pixel-width) 1440) (setq moom-fullscreen-fontsize 28))
-       ((>= (display-pixel-width) 1366) (setq moom-fullscreen-fontsize 19))
-       ((>= (display-pixel-width) 800) (setq moom-fullscreen-fontsize 14))
-       (t (setq moom-fullscreen-fontsize 12)))
+(when (autoload-if-found
+       moom-autoloads
+       "moom" nil t)
 
-      ;; リングの状態を最新に更新（max-frame-height が変わるため）
-      (add-hook 'moom-after-fullscreen-hook
-                'moom--make-frame-height-ring)
-      (add-hook 'moom-after-fullscreen-hook
-                'moom-move-frame-to-center)
-      (add-hook 'moom-reset-font-size-hook
-                'moom-move-frame-to-center))
+  (with-eval-after-load "moom"
+    (setq moom-fullscreen-font-size (moom-fullscreen-font-size))
 
-    ;; Move the frame to somewhere (default: 0,0)
-    (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
-    ;; Move the frame to left side of the current position (require 'frame-cmds)
-    (setq moom-horizontal-shifts '(30 30))
-    (global-set-key (kbd "M-1") 'moom-move-frame-left)
-    ;; Move the frame to the center of the window display (require 'moom)
-    (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-    ;; Move the frame to right side of the current position(require 'frame-cmds)
-    (global-set-key (kbd "M-3") 'moom-move-frame-right)
-    ;; Move the current frame to the top of the window display
-    (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
-    ;; Move the current frame to the bottom of the window display
-    (global-set-key (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom)
-    ;; Cycle heights
-    (global-set-key (kbd "<f2>") 'moom-open-height-ring)
-    ;; Full screen with same frame-width
-    (global-set-key (kbd "C-x C-9") 'moom-fit-frame-to-fullscreen)
-    (global-set-key (kbd "C-x C-0") 'moom-reset-font-size)
-    (global-set-key (kbd "C-x C-8")
-                    #'(lambda () (interactive)
-                        (moom-set-font-size-input
-                         (+ 5 (/ moom-fullscreen-fontsize 2)))
-                        (moom-move-frame-to-center)))
-    (global-set-key (kbd "C-_") 'text-scale-decrease)
-    (global-set-key (kbd "C-+") 'text-scale-increase)
-    (global-set-key (kbd "C-c f s") 'moom-change-frame-width-single)
-    (global-set-key (kbd "C-c f d") 'moom-change-frame-width-double)
-    (global-set-key (kbd "C-=")
-                    #'(lambda () (interactive)
-                        (moom-increase-font-size 1)
-                        (moom-move-frame-to-edge-top)
-                        (moom-print-status)))
-    (global-set-key (kbd "C--")
-                    #'(lambda () (interactive)
-                        (moom-decrease-font-size 2)
-                        (moom-move-frame-to-edge-top)
-                        (moom-print-status))))
+    ;; リングの状態を最新に更新（max-frame-height が変わるため）
+    (add-hook 'moom-after-fullscreen-hook #'moom--make-frame-height-ring)
+    (add-hook 'moom-after-fullscreen-hook #'moom-move-frame-to-center)
+    (add-hook 'moom-after-fullscreen-hook #'moom-print-status)
+    (add-hook 'moom-reset-font-size-hook #'moom-move-frame-to-center)
+    (add-hook 'moom-reset-font-size-hook #'moom-print-status))
 
-  ;; setting for e2wm
-  (when (autoload-if-found
-         '(change-frame-double-window
-           change-frame-single-window)
-         "frame-ctr-e2wm" nil t)
-    ;; Set the frame width single size
-    ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
-    (global-set-key (kbd "C-x -") 'change-frame-single-window)
-    ;; Set the frame width double size
-    ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
-    (global-set-key (kbd "C-x =") 'change-frame-double-window))
+  ;; Move the frame to somewhere (default: 0,0)
+  (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
+  ;; Move the frame to left side of the current position (require 'frame-cmds)
+  (setq moom-horizontal-shifts '(30 30))
+  (global-set-key (kbd "M-1") 'moom-move-frame-left)
+  ;; Move the frame to the center of the window display (require 'moom)
+  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
+  ;; Move the frame to right side of the current position(require 'frame-cmds)
+  (global-set-key (kbd "M-3") 'moom-move-frame-right)
+  ;; Move the current frame to the top of the window display
+  (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
+  ;; Move the current frame to the bottom of the window display
+  (global-set-key (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom)
+  ;; Move the current frame to the right edge of the window display
+  (global-set-key (kbd "S-M-0") 'moom-move-frame-to-edge-right)
+  ;; Cycle heights
+  (global-set-key (kbd "<f2>") 'moom-open-height-ring)
+  ;; Full screen with same frame-width
+  (global-set-key (kbd "C-x C-9") 'moom-fit-frame-to-fullscreen)
+  (global-set-key (kbd "C-x C-0") 'moom-reset-font-size)
+  (defun my:mid-font-size ()
+    (interactive)
+    (moom-set-font-size-input
+     (/ (+ moom-init-font-size moom-fullscreen-font-size) 2))
+    (moom-move-frame-to-center)
+    (moom-print-status))
+  (global-set-key (kbd "C-x C-8") 'my:mid-font-size)
+  (global-set-key (kbd "C-_") 'text-scale-decrease)
+  (global-set-key (kbd "C-+") 'text-scale-increase)
+  (global-set-key (kbd "C-c f s") 'moom-change-frame-width-single)
+  (global-set-key (kbd "C-c f d") 'moom-change-frame-width-double)
+  (defun my:increase-font-size ()
+    (interactive)
+    (moom-increase-font-size 1)
+    (moom-move-frame-to-edge-top)
+    (moom-print-status))
+  (global-set-key (kbd "C-=") 'my:increase-font-size)
+  (defun my:decrease-font-size ()
+    (interactive)
+    (moom-decrease-font-size 1)
+    (moom-move-frame-to-edge-top)
+    (moom-print-status))
+  (global-set-key (kbd "C--") 'my:decrease-font-size))
+
+;; setting for e2wm
+(when (autoload-if-found
+       '(change-frame-double-window
+         change-frame-single-window)
+       "frame-ctr-e2wm" nil t)
+  ;; Set the frame width single size
+  ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
+  (global-set-key (kbd "C-x -") 'change-frame-single-window)
+  ;; Set the frame width double size
+  ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
+  (global-set-key (kbd "C-x =") 'change-frame-double-window))
 #+END_SRC
 
 ** [popwin.el] ポップアップウィンドウの制御
@@ -7050,8 +7148,8 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defconst utility-autoloads
-    '(takaxp:date
-      takaxp:window-resizer takaxp:open-file-ring my:update-alarms-from-file
+    '(my:date
+      my:window-resizer my:open-file-ring my:update-alarms-from-file
       my:desktop-notify my:daylight-theme my:night-theme
       eval-org-buffer kyoko-mad-mode-toggle
       org2dokuwiki-cp-kill-ring open-current-directory set-alarms-from-file
@@ -7067,9 +7165,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
          utility-autoloads
          "utility" nil t)
     (global-set-key (kbd "C-M--") 'add-itemize-head)
-    (global-set-key (kbd "<f12>") 'takaxp:open-file-ring)
-    (global-set-key (kbd "C-c t") 'takaxp:date)
-    (global-set-key (kbd "C-c f 4") 'takaxp:window-resizer))
+    (global-set-key (kbd "<f12>") 'my:open-file-ring)
+    (global-set-key (kbd "C-c t") 'my:date)
+    (global-set-key (kbd "C-c f 4") 'my:window-resizer))
 #+END_SRC
 
 * おわりに

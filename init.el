@@ -352,6 +352,15 @@
   (when (require 'syntax-subword nil t)
     (global-syntax-subword-mode 1)))
 
+(with-eval-after-load "helm-config"
+  (when (require 'goto-chg nil t)
+    (global-set-key (kbd "C-,") 'goto-last-change)
+    (global-set-key (kbd "C-.") 'goto-last-change-reverse)
+
+    (with-eval-after-load "flyspell"
+      (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
+      (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse))))
+
 (setq yank-excluded-properties t)
 
 ;; #+UPDATE 用
@@ -502,6 +511,15 @@
 
   (push '("\\.markdown$" . markdown-mode) auto-mode-alist)
   (push '("\\.md$" . markdown-mode) auto-mode-alist))
+
+(if (executable-find "cmake")
+    (when (autoload-if-found
+           '(cmake-mode)
+           "cmake-mode" nil t)
+
+      (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
+      (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
+  (message "--- cmake is NOT installed."))
 
 (when (autoload-if-found
        '(ispell-region ispell-complete-word)
@@ -859,7 +877,7 @@
     (selected-global-mode 1)))
 
 (when (require 'diminish nil t)
-  (with-eval-after-load "ggtags" (diminish 'ggtags-mode " GG"))
+  (with-eval-after-load "ggtags" (diminish 'ggtags-mode " G"))
   (with-eval-after-load "orgstruct" (diminish 'orgstruct-mode " OrgS"))
   (with-eval-after-load "centered-cursor-mode"
     (diminish 'centered-cursor-mode))
@@ -896,10 +914,10 @@
 (add-hook 'js2-mode-hook #'(lambda () (setq mode-name "JS")))
 (add-hook 'c++-mode-hook #'(lambda () (setq mode-name "C++")))
 (add-hook 'csharp-mode-hook #'(lambda () (setq mode-name "C#")))
-(add-hook 'prog-mode-hook #'(lambda () (setq mode-name "S")))
-(add-hook 'emacs-lisp-mode-hook #'(lambda () (setq mode-name "el")))
-(add-hook 'python-mode-hook #'(lambda () (setq mode-name "py")))
-(add-hook 'perl-mode-hook #'(lambda () (setq mode-name "pl")))
+(add-hook 'prog-mode-hook #'(lambda () (setq mode-name "Pr")))
+(add-hook 'emacs-lisp-mode-hook #'(lambda () (setq mode-name "El")))
+(add-hook 'python-mode-hook #'(lambda () (setq mode-name "Py")))
+(add-hook 'perl-mode-hook #'(lambda () (setq mode-name "Pl")))
 (add-hook 'web-mode-hook #'(lambda () (setq mode-name "W")))
 (add-hook 'lisp-interaction-mode-hook #'(lambda () (setq mode-name "Lisp")))
 
@@ -1645,24 +1663,35 @@
   (add-hook 'gnuplot-mode-hook
             #'(lambda () (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun))))
 
-(if (executable-find "gtags")
-    (when (autoload-if-found
-           '(ggtags-mode)
-           "ggtags" nil t)
+(if (not (executable-find "gtags"))
+    (message "--- gtags is NOT installed in this system.")
 
-      (eval-when-compile
-        (require 'ggtags nil t))
+  (when (autoload-if-found
+         '(ggtags-mode)
+         "ggtags" nil t)
 
-      (with-eval-after-load "ggtags"
-        (setq ggtags-completing-read-function t)
-        (define-key ggtags-mode-map (kbd "M-]") nil))
+    (eval-when-compile
+      (require 'ggtags nil t)
+      (require 'helm-gtags nil t))
 
-      (dolist (hook (list
-                     'perl-mode-hook 'emacs-lisp-mode-hook 'js2-mode-hook
-                     'python-mode-hook  'c-mode-common-hook))
-        (add-hook hook #'(lambda () (ggtags-mode 1)))))
+    (with-eval-after-load "ggtags"
+      (setq ggtags-completing-read-function t)
+      (define-key ggtags-mode-map (kbd "M-]") nil))
 
-  (message "--- gtags is NOT installed in this system."))
+    (dolist (hook (list 'c-mode-common-hook))
+      (add-hook hook #'(lambda () (ggtags-mode 1)))))
+
+  (when (autoload-if-found
+         '(helm-gtags-mode)
+         "helm-gtags" nil t)
+
+    (eval-when-compile
+      (require 'helm-gtags nil t))
+
+    (with-eval-after-load "helm-gtags"
+      (setq helm-gtags-mode-name ""))
+
+    (add-hook 'c-mode-common-hook 'helm-gtags-mode)))
 
 (when (autoload-if-found
        '(0xc-convert 0xc-convert-point)
@@ -1695,6 +1724,43 @@
 (autoload-if-found
  '(cov-mode)
  "cov" nil t)
+
+(when (autoload-if-found
+       '(projectile-global-mode)
+       "projectile" nil t)
+  (with-eval-after-load "projectile"
+    (defun advice:projectile-visit-project-tags-table ()
+      "Extensions to skip calling `visit-tags-table'."
+      nil)
+    (advice-add 'projectile-visit-project-tags-table :override
+                #'advice:projectile-visit-project-tags-table)
+
+    (setq projectile-tags-command "gtags")
+    (setq projectile-tags-backend 'ggtags)
+    (setq projectile-tags-file-name "GTAGS")
+
+    (setq projectile-use-git-grep t)
+    (setq projectile-mode-line
+          '(:eval (format " P:%s" (projectile-project-name))))
+
+    (when (require 'helm-projectile nil t)
+      (setq projectile-completion-system 'helm))
+
+    (when (require 'neotree nil t)
+      ;; M-x helm-projectile-switch-project (C-c p p)
+      (setq projectile-switch-project-action 'neotree-projectile-action)
+
+      (defun advice:neotree-dir (path)
+        "Extension to change the frame width automatically."
+        (interactive "DDirectory: ")
+        (unless (neo-global--window-exists-p)
+          (neotree-show))
+        (neo-global--open-dir path)
+        (neo-global--select-window))
+      (advice-add 'neotree-dir :override #'advice:neotree-dir)))
+
+  (with-eval-after-load "helm-config"
+    (projectile-global-mode 1)))
 
 (when (autoload-if-found
        '(org-mode)
@@ -2099,7 +2165,9 @@
 
 (with-eval-after-load "org"
   ;; アラーム表示を有効にする
-  (appt-activate 1)
+  (if (require 'shut-up nil t)
+      (shut-up (appt-activate 1))
+    (appt-activate 1))
   ;; window を フレーム内に表示する
   (setq appt-display-format 'echo)
   ;; window を継続表示する時間[s]
@@ -2225,11 +2293,12 @@
   )
 
 (with-eval-after-load "ob-core"
-  (setq org-confirm-babel-evaluate nil)
+  (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
-  ;; org-src-window-setup (current-window, other-window, other-frame)
+  (setq org-confirm-babel-evaluate nil)
   (setq org-src-window-setup 'current-window)
+  ;; org-src-window-setup (current-window, other-window, other-frame)
   (require 'ob-http nil t)
   (require 'ob-gnuplot nil t)
 
@@ -2289,7 +2358,9 @@
       'org-tree-slide-move-previous-tree)
     (define-key org-tree-slide-mode-map (kbd "<f10>")
       'org-tree-slide-move-next-tree)
-    (org-tree-slide-narrowing-control-profile)
+    (if (require 'shut-up nil t)
+        (shut-up (org-tree-slide-narrowing-control-profile))
+      (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
     (setq org-tree-slide-skip-outline-level 5)
     (setq org-tree-slide-skip-done nil))
@@ -2771,8 +2842,10 @@
            (left . 0)  ; X-pos from (0,0) ; 420 is the center for MBP
            ;; 26 is the setting for Butler's Docklet
            ;; 837 is the setting for right side for MBP
-           (width . 80) ; Width  : character count
+           ;; (width . 80) ; Width  : character count
+           ;; (height . 36)
            (alpha . (100 90))) initial-frame-alist)))
+
  ;; for Linux
  ((eq window-system 'x)
   (setq initial-frame-alist
@@ -2783,6 +2856,7 @@
            (width . 80)
            (height . 38)
            ) initial-frame-alist)))
+
  ;; for Windows
  (t (setq initial-frame-alist
           (append
@@ -2927,21 +3001,16 @@
 (when (autoload-if-found
        moom-autoloads
        "moom" nil t)
+
   (with-eval-after-load "moom"
-    (cond
-     ((>= (display-pixel-width) 1920) (setq moom-fullscreen-fontsize 38))
-     ((>= (display-pixel-width) 1440) (setq moom-fullscreen-fontsize 28))
-     ((>= (display-pixel-width) 1366) (setq moom-fullscreen-fontsize 19))
-     ((>= (display-pixel-width) 800) (setq moom-fullscreen-fontsize 14))
-     (t (setq moom-fullscreen-fontsize 12)))
+    (setq moom-fullscreen-font-size (moom-fullscreen-font-size))
 
     ;; リングの状態を最新に更新（max-frame-height が変わるため）
-    (add-hook 'moom-after-fullscreen-hook
-              'moom--make-frame-height-ring)
-    (add-hook 'moom-after-fullscreen-hook
-              'moom-move-frame-to-center)
-    (add-hook 'moom-reset-font-size-hook
-              'moom-move-frame-to-center))
+    (add-hook 'moom-after-fullscreen-hook #'moom--make-frame-height-ring)
+    (add-hook 'moom-after-fullscreen-hook #'moom-move-frame-to-center)
+    (add-hook 'moom-after-fullscreen-hook #'moom-print-status)
+    (add-hook 'moom-reset-font-size-hook #'moom-move-frame-to-center)
+    (add-hook 'moom-reset-font-size-hook #'moom-print-status))
 
   ;; Move the frame to somewhere (default: 0,0)
   (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
@@ -2956,30 +3025,36 @@
   (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
   ;; Move the current frame to the bottom of the window display
   (global-set-key (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom)
+  ;; Move the current frame to the right edge of the window display
+  (global-set-key (kbd "S-M-0") 'moom-move-frame-to-edge-right)
   ;; Cycle heights
   (global-set-key (kbd "<f2>") 'moom-open-height-ring)
   ;; Full screen with same frame-width
   (global-set-key (kbd "C-x C-9") 'moom-fit-frame-to-fullscreen)
   (global-set-key (kbd "C-x C-0") 'moom-reset-font-size)
-  (global-set-key (kbd "C-x C-8")
-                  #'(lambda () (interactive)
-                      (moom-set-font-size-input
-                       (+ 5 (/ moom-fullscreen-fontsize 2)))
-                      (moom-move-frame-to-center)))
+  (defun my:mid-font-size ()
+    (interactive)
+    (moom-set-font-size-input
+     (/ (+ moom-init-font-size moom-fullscreen-font-size) 2))
+    (moom-move-frame-to-center)
+    (moom-print-status))
+  (global-set-key (kbd "C-x C-8") 'my:mid-font-size)
   (global-set-key (kbd "C-_") 'text-scale-decrease)
   (global-set-key (kbd "C-+") 'text-scale-increase)
   (global-set-key (kbd "C-c f s") 'moom-change-frame-width-single)
   (global-set-key (kbd "C-c f d") 'moom-change-frame-width-double)
-  (global-set-key (kbd "C-=")
-                  #'(lambda () (interactive)
-                      (moom-increase-font-size 1)
-                      (moom-move-frame-to-edge-top)
-                      (moom-print-status)))
-  (global-set-key (kbd "C--")
-                  #'(lambda () (interactive)
-                      (moom-decrease-font-size 2)
-                      (moom-move-frame-to-edge-top)
-                      (moom-print-status))))
+  (defun my:increase-font-size ()
+    (interactive)
+    (moom-increase-font-size 1)
+    (moom-move-frame-to-edge-top)
+    (moom-print-status))
+  (global-set-key (kbd "C-=") 'my:increase-font-size)
+  (defun my:decrease-font-size ()
+    (interactive)
+    (moom-decrease-font-size 1)
+    (moom-move-frame-to-edge-top)
+    (moom-print-status))
+  (global-set-key (kbd "C--") 'my:decrease-font-size))
 
 ;; setting for e2wm
 (when (autoload-if-found
@@ -3558,8 +3633,8 @@
 (global-set-key (kbd "C-c f t") 'open-current-directory)
 
 (defconst utility-autoloads
-  '(takaxp:date
-    takaxp:window-resizer takaxp:open-file-ring my:update-alarms-from-file
+  '(my:date
+    my:window-resizer my:open-file-ring my:update-alarms-from-file
     my:desktop-notify my:daylight-theme my:night-theme
     eval-org-buffer kyoko-mad-mode-toggle
     org2dokuwiki-cp-kill-ring open-current-directory set-alarms-from-file
@@ -3575,8 +3650,8 @@
        utility-autoloads
        "utility" nil t)
   (global-set-key (kbd "C-M--") 'add-itemize-head)
-  (global-set-key (kbd "<f12>") 'takaxp:open-file-ring)
-  (global-set-key (kbd "C-c t") 'takaxp:date)
-  (global-set-key (kbd "C-c f 4") 'takaxp:window-resizer))
+  (global-set-key (kbd "<f12>") 'my:open-file-ring)
+  (global-set-key (kbd "C-c t") 'my:date)
+  (global-set-key (kbd "C-c f 4") 'my:window-resizer))
 
 (provide 'init)

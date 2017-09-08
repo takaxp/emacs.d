@@ -53,6 +53,9 @@
         (shell-command-to-string
          (concat "open -a " open-current-directory-console-program))))))
 
+(eval-when-compile
+  (require 'init nil t))
+
 (defun my:update-alarms-from-file ()
   (when (string= "trigger.org" (buffer-name))
     (set-alarms-from-file "~/Dropbox/org/trigger.org")))
@@ -158,15 +161,15 @@
 (defvar my:file-ring nil)
 
 ;;;###autoload
-(defun takaxp:make-file-ring (files)
+(defun my:make-file-ring (files)
   (setq my:file-ring (copy-sequence files)))
 ;;    (setf (cdr (last my:file-ring)) my:file-ring))
-(takaxp:make-file-ring
+(my:make-file-ring
  '("~/Dropbox/org/work.org" "~/Dropbox/org/daily.org" "~/Dropbox/org/wg1.org"
    "~/Dropbox/org/research.org" "~/Dropbox/emacs.d/config/init.org"))
 
 ;;;###autoload
-(defun takaxp:open-file-ring ()
+(defun my:open-file-ring ()
   (interactive)
   (find-file (car my:file-ring))
   (setq my:file-ring
@@ -348,13 +351,13 @@
 ;;(setq browse-url-browser-function 'browse-url-chrome)
 
 ;;;###autoload
-(defun takaxp:date ()
+(defun my:date ()
   (interactive)
   (message "%s" (concat
                  (format-time-string "%Y-%m-%d") " ("
                  (format-time-string "%a") ") "
                  (format-time-string "%H:%M"))))
-(global-set-key (kbd "C-c t") 'takaxp:date)
+(global-set-key (kbd "C-c t") 'my:date)
 
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
 (defun recursive-delete-backup-files (count)
@@ -485,7 +488,7 @@
     (read-only-mode 1)))
 
 ;;;###autoload
-(defun takaxp:window-resizer ()
+(defun my:window-resizer ()
   "Control separated window size and position.
    Type {j,k,l,m} to adjust windows size."
   (interactive)

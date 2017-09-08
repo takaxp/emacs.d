@@ -45,8 +45,8 @@
  (t
   (let* ((p "~/Dropbox/emacs.d/")
          (g "~/devel/git/")
-         (od "org-mode")
-         ;; (od "org-9.0")
+         ;; (od "org-mode")
+         (od "org-9.0")
          (l `("~/Dropbox/emacs.d/config" "~/Dropbox/config" ,p
               ;; ,(concat p "livemirror") ,(concat g "git-complete")
               ,(concat g od "/lisp") ,(concat g od "/contrib/lisp"))))

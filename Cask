@@ -41,10 +41,10 @@
 (depends-on "gnuplot-mode")
 (depends-on "ess")
 (depends-on "yatex" :hg "http://www.yatex.org/hgrepos/yatex")
+(depends-on "cmake-mode")
 
 ;; Development
 (depends-on "origami")
-(depends-on "ggtags")
 (depends-on "yasnippet")
 (depends-on "editorconfig")
 (depends-on "modern-cpp-font-lock")
@@ -68,19 +68,25 @@
 (depends-on "package-lint")
 (depends-on "magit")
 (depends-on "cov")
-(depends-on "helm-projectile")
+(depends-on "ggtags")
+(depends-on "gxref") ;; emacs 25.1 or later
+;; (depends-on "ac-rtags")
+;; (depends-on "flycheck-rtags")
 
 ;; Helm
 (depends-on "helm")
 (depends-on "helm-ag")
-(depends-on "helm-swoop")
-(depends-on "helm-google")
-(depends-on "helm-css-scss")
-(depends-on "helm-emmet")
-(depends-on "helm-pass")
 (depends-on "helm-bm")
+(depends-on "helm-css-scss")
 (depends-on "helm-descbinds")
+(depends-on "helm-emmet")
 (depends-on "helm-flycheck")
+(depends-on "helm-google")
+(depends-on "helm-gtags")
+(depends-on "helm-pass")
+(depends-on "helm-projectile")
+;; (depends-on "helm-rtags")
+(depends-on "helm-swoop")
 
 ;; OSX support
 (depends-on "osx-lib")
@@ -122,8 +128,7 @@
 
 ;; Frame and windows
 (depends-on "popwin")
-(depends-on "moom" :git "git://github.com/takaxp/moom.git")
-;; https is not available for this repo...
+(depends-on "moom" :git "https://github.com/takaxp/moom.git")
 
 ;; Robustness
 (depends-on "backup-each-save")
@@ -136,6 +141,7 @@
 (depends-on "latex-math-preview")
 (depends-on "smart-mark")
 (depends-on "syntax-subword")
+(depends-on "goto-chg")
 
 ;; Applications
 (depends-on "lingr")
@@ -143,11 +149,11 @@
 (depends-on "ag")
 (depends-on "japanese-holidays")
 (depends-on "calfw-org"
-            :git "https://github.com/takaxp/emacs-calfw.git"
-            :files ("calfw-org.el"))
+           :git "https://github.com/takaxp/emacs-calfw.git"
+           :files ("calfw-org.el"))
 (depends-on "emacs-utilis"
-            :git "https://github.com/syohex/emacs-utils.git"
-            :files ("pomodoro.el" "eshell-util.el"))
+           :git "https://github.com/syohex/emacs-utils.git"
+           :files ("pomodoro.el" "eshell-util.el"))
 (depends-on "google-this")
 (depends-on "google-maps")
 (depends-on "japanlaw")
@@ -158,4 +164,4 @@
 ;; Log
 (depends-on "keyfreq")
 
-;; 2017-08-28 updated.
+;; 2017-09-08 updated.
