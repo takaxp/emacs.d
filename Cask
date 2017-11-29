@@ -6,6 +6,7 @@
 (depends-on "cask")
 (depends-on "cask-mode")
 (depends-on "paradox")
+(depends-on "epm")
 
 ;; Org Mode
 (depends-on "org-plus-contrib")
@@ -27,6 +28,8 @@
 (depends-on "orgbox")
 (depends-on "orgnav")
 (depends-on "toc-org")
+(depends-on "org-web-tools")
+(depends-on "org-bullets")
 
 ;; Major modes
 (depends-on "python-mode")
@@ -40,8 +43,9 @@
 (depends-on "po-mode")
 (depends-on "gnuplot-mode")
 (depends-on "ess")
-(depends-on "yatex" :hg "http://www.yatex.org/hgrepos/yatex")
+(depends-on "yatex")
 (depends-on "cmake-mode")
+(depends-on "php-mode")
 
 ;; Development
 (depends-on "origami")
@@ -70,6 +74,7 @@
 (depends-on "cov")
 (depends-on "ggtags")
 (depends-on "gxref") ;; emacs 25.1 or later
+(depends-on "bug-hunter")
 ;; (depends-on "ac-rtags")
 ;; (depends-on "flycheck-rtags")
 
@@ -103,6 +108,7 @@
 (depends-on "ac-js2")
 (depends-on "migemo")
 (depends-on "edit-color-stamp")
+;; (depends-on "parinfer")
 
 ;; Visualize
 (depends-on "volatile-highlights")
@@ -111,7 +117,8 @@
 (depends-on "smartparens")
 (depends-on "mic-paren")
 (depends-on "shut-up")
-(depends-on "diminish")
+;; (depends-on "diminish")
+(depends-on "delight")
 (depends-on "rainbow-mode")
 (depends-on "centered-cursor-mode")
 (depends-on "hide-lines")
@@ -125,10 +132,14 @@
 (depends-on "dired-du")
 (depends-on "gited")
 (depends-on "neotree")
+(depends-on "network-watch")
+(depends-on "system-packages")
 
 ;; Frame and windows
 (depends-on "popwin")
 (depends-on "moom" :git "https://github.com/takaxp/moom.git")
+(depends-on "spaceline-all-the-icons")
+(depends-on "tabbar")
 
 ;; Robustness
 (depends-on "backup-each-save")
@@ -142,18 +153,15 @@
 (depends-on "smart-mark")
 (depends-on "syntax-subword")
 (depends-on "goto-chg")
+(depends-on "postpone" :git "https://github.com/takaxp/postpone.git")
 
 ;; Applications
 (depends-on "lingr")
 (depends-on "bm")
 (depends-on "ag")
 (depends-on "japanese-holidays")
-(depends-on "calfw-org"
-           :git "https://github.com/takaxp/emacs-calfw.git"
-           :files ("calfw-org.el"))
-(depends-on "emacs-utilis"
-           :git "https://github.com/syohex/emacs-utils.git"
-           :files ("pomodoro.el" "eshell-util.el"))
+(depends-on "calfw-org" :git "https://github.com/takaxp/emacs-calfw.git" :files ("calfw-org.el"))
+(depends-on "emacs-utilis" :git "https://github.com/syohex/emacs-utils.git" :files ("pomodoro.el" "eshell-util.el"))
 (depends-on "google-this")
 (depends-on "google-maps")
 (depends-on "japanlaw")
@@ -163,5 +171,6 @@
 
 ;; Log
 (depends-on "keyfreq")
+;; (depends-on "sauron")
 
-;; 2017-09-08 updated.
+;; 2017-10-03 updated.

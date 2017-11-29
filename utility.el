@@ -165,8 +165,10 @@
   (setq my:file-ring (copy-sequence files)))
 ;;    (setf (cdr (last my:file-ring)) my:file-ring))
 (my:make-file-ring
- '("~/Dropbox/org/work.org" "~/Dropbox/org/daily.org" "~/Dropbox/org/wg1.org"
-   "~/Dropbox/org/research.org" "~/Dropbox/emacs.d/config/init.org"))
+ '("~/Dropbox/org/tr/work.org" "~/Dropbox/org/db/daily.org"
+   "~/Dropbox/org/minutes/wg1.org" "~/Dropbox/org/tr/work.org"
+   "~/Dropbox/org/academic.org" "~/Dropbox/org/org2ja.org"
+   "~/Dropbox/org/db/article.org" "~/Dropbox/emacs.d/config/init.org"))
 
 ;;;###autoload
 (defun my:open-file-ring ()
@@ -234,19 +236,138 @@
 
 ;;;###autoload
 (defun add-itemize-head (arg)
-  "Insert \"  - \" at the head of line.
+  "Insert \" - \" at the head of line.
   If the cursor is already at the head of line, it is NOT returned back to the
   original position again. Otherwise, the cursor is moved to the right of the
-  inserted string. \"  - [ ] \" will be inserted using C-u prefix."
+  inserted string. \" - [ ] \" will be inserted using C-u prefix."
   (interactive "P")
-  (let ((item-string "  - "))
+  (let ((item-string " - "))
     (when arg
-      (setq item-string "  - [ ] "))
+      (setq item-string " - [ ] "))
     (cond ((= (point) (line-beginning-position))
            (insert item-string))
           (t (save-excursion
                (move-beginning-of-line 1)
                (insert item-string))))))
+
+(defconst item-string "" nil)
+
+;;;###autoload
+(defun add-itemize-head-checkbox ()
+  "Insert \" - [ ] \" at the head of line.
+  If the cursor is already at the head of line, it is NOT returned back to the
+  original position again. Otherwise, the cursor is moved to the right of the
+  inserted string."
+  (interactive)
+  (let ((item-string " - [ ] "))
+    (cond ((= (point) (line-beginning-position))
+           (insert item-string))
+          (t (save-excursion
+               (move-beginning-of-line 1)
+               (insert item-string))))))
+
+;;;###autoload
+(defun my:cycle-bullet-at-heading (arg)
+  "Add a bullet of \" - \" if the line is NOT a bullet line."
+  (interactive "P")
+  (save-excursion
+    (beginning-of-line)
+    (let ((bullet "- ")
+          (point-at-eol (point-at-eol)))
+      (cond
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") point-at-eol t)
+        (replace-match (if arg "" (concat "\\1" bullet)) nil nil))
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)" bullet) point-at-eol t)
+        (replace-match (if arg "" (concat "\\1" bullet "[ ] ")) nil nil))
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)") point-at-eol t)
+        (replace-match
+         (concat "\\1 " bullet) nil nil))
+       (t nil)))))
+
+;;;###autoload
+(defun my:org-list-insert-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (len (length bullet)))
+      (goto-char begin)
+      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                  (not (equal (point) end)))
+        (replace-match (concat "\\1 " bullet) nil nil)
+        (setq end (+ end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-delete-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (len (length bullet)))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet) end t)
+        (replace-match "" nil nil)
+        (setq end (- end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-insert-checkbox-into-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (len (length checkbox)))
+      (goto-char begin)
+      (while (re-search-forward (concat "\\(^[ \t]*\\)" bullet) end t)
+        (replace-match (concat "\\1" bullet checkbox) nil nil)
+        (setq end (+ end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-delete-checkbox-from-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let ((bullet "- ")
+          (len (length "[ ] ")))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+        (replace-match (concat "\\1" bullet) nil nil)
+        (setq end (- end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-insert-itms-with-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (blen (length bullet))
+           (clen (length checkbox)))
+      (goto-char begin)
+      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                  (not (equal (point) end)))
+        (replace-match (concat "\\1 " bullet checkbox) nil nil)
+        (setq end (+ end blen clen)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-delete-items-with-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (blen (length bullet))
+           (clen (length checkbox)))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+        (replace-match "" nil nil)
+        (setq end (- end blen clen)))
+      (goto-char begin))))
 
 (defun insert-formatted-current-date ()
   "Insert a timestamp at the cursor position. C-u will add [] brackets."
@@ -439,6 +560,17 @@
              files
            (list files)))
       (message (format "--- backup-dir does not exist: %s" rootdir)))))
+
+(defun mac:delete-files-in-trash-bin ()
+  (interactive)
+  (do-applescript
+   (concat
+    "tell application \"Finder\"\n"
+    "set itemCount to count of items in the trash\n"
+    "if itemCount > 0 then\n"
+    "empty the trash\n"
+    "end if\n"
+    "end tell\n")))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 ;;;###autoload

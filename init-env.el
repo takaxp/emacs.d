@@ -9,6 +9,7 @@
 ;; (setq loading-packages '(("org" . nil)))
 (defconst my:debug nil)
 (setq debug-on-error nil)
+(defvar batch-build nil) ;; see also init-eval.el
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when my:profiler (profiler-start 'cpu+mem))
@@ -33,7 +34,8 @@
    ,(expand-file-name "Dropbox/emacs.d/bin")
    "/Applications/UpTex.app/teTeX/bin"
    "/Applications/LibreOffice.app/Contents/MacOS/"
-   "/Applications/qt_color_picker.app/Contents/MacOS/")
+   "/Applications/qt_color_picker.app/Contents/MacOS/"
+   "/usr/local/opt/imagemagick@6/bin")
  'exec-path)
 
 ;; (3) load-path for { debug | normal } booting
@@ -45,8 +47,8 @@
  (t
   (let* ((p "~/Dropbox/emacs.d/")
          (g "~/devel/git/")
-         ;; (od "org-mode")
-         (od "org-9.0")
+         (od "org-mode")
+         ;; (od "org-9.0")
          (l `("~/Dropbox/emacs.d/config" "~/Dropbox/config" ,p
               ;; ,(concat p "livemirror") ,(concat g "git-complete")
               ,(concat g od "/lisp") ,(concat g od "/contrib/lisp"))))

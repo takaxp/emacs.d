@@ -221,25 +221,27 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
 http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defvar my:file-ring nil)
+(defvar my:file-ring nil)
 
-  ;;;###autoload
-  (defun my:make-file-ring (files)
-    (setq my:file-ring (copy-sequence files)))
-  ;;    (setf (cdr (last my:file-ring)) my:file-ring))
-  (my:make-file-ring
-   '("~/Dropbox/org/work.org" "~/Dropbox/org/daily.org" "~/Dropbox/org/wg1.org"
-     "~/Dropbox/org/research.org" "~/Dropbox/emacs.d/config/init.org"))
+;;;###autoload
+(defun my:make-file-ring (files)
+  (setq my:file-ring (copy-sequence files)))
+;;    (setf (cdr (last my:file-ring)) my:file-ring))
+(my:make-file-ring
+ '("~/Dropbox/org/tr/work.org" "~/Dropbox/org/db/daily.org"
+   "~/Dropbox/org/minutes/wg1.org" "~/Dropbox/org/tr/work.org"
+   "~/Dropbox/org/academic.org" "~/Dropbox/org/org2ja.org"
+   "~/Dropbox/org/db/article.org" "~/Dropbox/emacs.d/config/init.org"))
 
-  ;;;###autoload
-  (defun my:open-file-ring ()
-    (interactive)
-    (find-file (car my:file-ring))
-    (setq my:file-ring
-          (append (cdr my:file-ring)
-                  (list (car my:file-ring)))))
+;;;###autoload
+(defun my:open-file-ring ()
+  (interactive)
+  (find-file (car my:file-ring))
+  (setq my:file-ring
+        (append (cdr my:file-ring)
+                (list (car my:file-ring)))))
 
-  ;;    (setq my:file-ring (cdr my:file-ring)))
+;;    (setq my:file-ring (cdr my:file-ring)))
 #+END_SRC
 
 ** 引数のorgバッファを開く
@@ -335,24 +337,173 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
       (auto-install-compatibility-setup))) ; for install-elisp users
 #+END_SRC
 
-** 行頭に"  - "を挿入する
+** 行頭に" - "を挿入する
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;;###autoload
-  (defun add-itemize-head (arg)
-    "Insert \"  - \" at the head of line.
-    If the cursor is already at the head of line, it is NOT returned back to the
-    original position again. Otherwise, the cursor is moved to the right of the
-    inserted string. \"  - [ ] \" will be inserted using C-u prefix."
-    (interactive "P")
-    (let ((item-string "  - "))
-      (when arg
-        (setq item-string "  - [ ] "))
-      (cond ((= (point) (line-beginning-position))
-             (insert item-string))
-            (t (save-excursion
-                 (move-beginning-of-line 1)
-                 (insert item-string))))))
+;;;###autoload
+(defun add-itemize-head (arg)
+  "Insert \" - \" at the head of line.
+  If the cursor is already at the head of line, it is NOT returned back to the
+  original position again. Otherwise, the cursor is moved to the right of the
+  inserted string. \" - [ ] \" will be inserted using C-u prefix."
+  (interactive "P")
+  (let ((item-string " - "))
+    (when arg
+      (setq item-string " - [ ] "))
+    (cond ((= (point) (line-beginning-position))
+           (insert item-string))
+          (t (save-excursion
+               (move-beginning-of-line 1)
+               (insert item-string))))))
+
+(defconst item-string "" nil)
+
+;;;###autoload
+(defun add-itemize-head-checkbox ()
+  "Insert \" - [ ] \" at the head of line.
+  If the cursor is already at the head of line, it is NOT returned back to the
+  original position again. Otherwise, the cursor is moved to the right of the
+  inserted string."
+  (interactive)
+  (let ((item-string " - [ ] "))
+    (cond ((= (point) (line-beginning-position))
+           (insert item-string))
+          (t (save-excursion
+               (move-beginning-of-line 1)
+               (insert item-string))))))
+#+END_SRC
+
+** TODO " - "と" - [ ] "をサイクルさせる
+
+ - ブリッツ行でないときは，ブリッツ化する．
+ - ブリッツ行の場合は，チェックボックス付きに変更する．
+ - チェックボックス付きブリッツ行の場合は，チェックボックスを取る．
+ - 引数付きで呼び出すと，チェックボックスの有無に依らずブリッツを取る．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;;;###autoload
+(defun my:cycle-bullet-at-heading (arg)
+  "Add a bullet of \" - \" if the line is NOT a bullet line."
+  (interactive "P")
+  (save-excursion
+    (beginning-of-line)
+    (let ((bullet "- ")
+          (point-at-eol (point-at-eol)))
+      (cond
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") point-at-eol t)
+        (replace-match (if arg "" (concat "\\1" bullet)) nil nil))
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)" bullet) point-at-eol t)
+        (replace-match (if arg "" (concat "\\1" bullet "[ ] ")) nil nil))
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)") point-at-eol t)
+        (replace-match
+         (concat "\\1 " bullet) nil nil))
+       (t nil)))))
+#+END_SRC
+
+** TODO リージョン内のブリッツを操作する
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;;;###autoload
+(defun my:org-list-insert-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (len (length bullet)))
+      (goto-char begin)
+      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                  (not (equal (point) end)))
+        (replace-match (concat "\\1 " bullet) nil nil)
+        (setq end (+ end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-delete-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (len (length bullet)))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet) end t)
+        (replace-match "" nil nil)
+        (setq end (- end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-insert-checkbox-into-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (len (length checkbox)))
+      (goto-char begin)
+      (while (re-search-forward (concat "\\(^[ \t]*\\)" bullet) end t)
+        (replace-match (concat "\\1" bullet checkbox) nil nil)
+        (setq end (+ end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-delete-checkbox-from-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let ((bullet "- ")
+          (len (length "[ ] ")))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+        (replace-match (concat "\\1" bullet) nil nil)
+        (setq end (- end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-insert-itms-with-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (blen (length bullet))
+           (clen (length checkbox)))
+      (goto-char begin)
+      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                  (not (equal (point) end)))
+        (replace-match (concat "\\1 " bullet checkbox) nil nil)
+        (setq end (+ end blen clen)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my:org-list-delete-items-with-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (blen (length bullet))
+           (clen (length checkbox)))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+        (replace-match "" nil nil)
+        (setq end (- end blen clen)))
+      (goto-char begin))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; (defun my:insert-bullets (begin end)
+;;   (interactive "r")
+;;   (when mark-active
+;;     (let* ((bullet " - ")
+;;            (len (length bullet)))
+;;       (goto-char begin)
+;;       (while (> end (point))
+;;         (beginning-of-line)
+;;         (when (re-search-forward
+;;                (concat "\\(^[ \t]*\\)") (point-at-eol) t)
+;;           (replace-match (concat "\\1" bullet) nil nil)
+;;           (setq end (+ end len)))
+;;         (forward-line 1))
+;;       (goto-char begin))))
 #+END_SRC
 
 ** 日付などを簡単に挿入する
@@ -623,6 +774,21 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
                files
              (list files)))
         (message (format "--- backup-dir does not exist: %s" rootdir)))))
+#+END_SRC
+
+** ゴミ箱を空にする                                                     :Mac:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun mac:delete-files-in-trash-bin ()
+  (interactive)
+  (do-applescript
+   (concat
+    "tell application \"Finder\"\n"
+    "set itemCount to count of items in the trash\n"
+    "if itemCount > 0 then\n"
+    "empty the trash\n"
+    "end if\n"
+    "end tell\n")))
 #+END_SRC
 
 ** その他

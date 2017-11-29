@@ -11,7 +11,7 @@
     (message (concat "Loading init files: %.0f [msec], "
                      "of which %.f [msec] for `after-init-hook'.")
              (* 1000 time1) (* 1000 (- time2 time1)))))
-(add-hook 'after-init-hook 'my:load-init-time t)
+(add-hook 'after-init-hook #'my:load-init-time t)
 
 (defun my:emacs-init-time ()
   (message "Emacs booting time: %.0f [msec] from `emacs-init-time'."
@@ -19,16 +19,10 @@
               (float-time (time-subtract
                            after-init-time
                            before-init-time)))))
-(add-hook 'after-init-hook 'my:emacs-init-time)
+(add-hook 'after-init-hook #'my:emacs-init-time)
 
 (setq gc-cons-threshold 134217728) ;; 128MB
 (setq garbage-collection-messages t)
-
-(eval-when-compile
-  (require 'cl-lib)
-  (require 'org)
-  (require 'org-clock)
-  (require 'org-mac-link))
 
 (defun load-package-p (file)
   (let ((enabled t))
@@ -91,7 +85,13 @@
 
 (setq compilation-scroll-output t)
 
-(setq confirm-kill-emacs 'y-or-n-p)
+(setq confirm-kill-emacs 'yes-or-no-p)
+
+(defmacro with-suppressed-message (&rest body)
+  "Suppress new messages temporarily in the echo area and the `*Messages*' buffer while BODY is evaluated."
+  (declare (indent 0))
+  (let ((message-log-max nil))
+    `(with-temp-message (or (current-message) "") ,@body)))
 
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
 
@@ -113,13 +113,12 @@
             '(my:ag ag)
             "ag" nil t))
 
-  (eval-when-compile
-    (require 'ag nil t))
-
   (with-eval-after-load "ag"
-    (setq ag-highlight-search t)
-    (setq ag-reuse-buffers t) ;; nil: 別ウィンドウが開く
-    (setq ag-reuse-window nil) ;; nil: 結果を選択時に別ウィンドウに結果を出す
+    (custom-set-variables
+     '(ag-highlight-search t)
+     '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
+     '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
+
     ;; q でウィンドウを抜ける
     ;; (define-key ag-mode-map (kbd "q") 'delete-window)
 
@@ -159,7 +158,7 @@
 (setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (global-auto-revert-mode 1))
 
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
@@ -177,6 +176,8 @@
        "paradox" nil t)
 
   (with-eval-after-load "paradox"
+    (custom-set-variables
+     '(paradox-github-token t))
     (when (fboundp 'paradox-enable)
       (paradox-enable))))
 
@@ -201,25 +202,24 @@
          ;; web-mode-hook
          emacs-lisp-mode-hook
          lisp-mode-hook perl-mode-hook c-mode-common-hook))
-    (add-hook hook 'aggressive-indent-mode)))
+    (add-hook hook #'aggressive-indent-mode)))
 
 (when (autoload-if-found
        '(ws-butler-mode ws-butler-global-mode)
        "ws-butler" nil t)
 
   (with-eval-after-load "ws-butler"
-    (push 'org-mode ws-butler-global-exempt-modes)
-    (push 'empty-booting-mode ws-butler-global-exempt-modes))
+    (custom-set-variables
+     '(ws-butler-global-exempt-modes
+       (append '(org-mode empty-booting-mode)
+               ws-butler-global-exempt-modes))))
 
-  (with-eval-after-load "helm-config"
+  (with-eval-after-load "postpone"
     (ws-butler-global-mode)))
 
 (setq vc-follow-symlinks t)
 
 (when (eq window-system 'ns)
-  (when (boundp 'mac-ime-cursor-type) ;; private patch
-    (setq mac-ime-cursor-type '(bar . 2)))
-
   (defun ns-org-heading-auto-ascii ()
     (when (and window-focus-p
                (eq major-mode 'org-mode)
@@ -231,9 +231,17 @@
     (interactive)
     (when (fboundp 'mac-get-current-input-source)
       (if (my:ime-active-p) (my:ime-off) (my:ime-on))))
-  ;; (mac-toggle-input-method
-  ;;  (if (string-match "\\.base$" (mac-get-current-input-source))
-  ;;      nil t))))
+
+  (when (fboundp 'mac-get-current-input-source)
+    (declare-function ns-ime-auto-correct "init" nil)
+    (defun ns-ime-auto-correct ()
+      (interactive)
+      (if (my:ime-active-p)
+          (unless (mac-toggle-input-method nil)
+            (my:ime-on))
+        (when (mac-toggle-input-method t)
+          (my:ime-off))))
+    (add-hook 'focus-in-hook #'ns-ime-auto-correct))
 
   (global-set-key (kbd "M-SPC") 'ns-ime-toggle) ;; toggle-input-method
   (global-set-key (kbd "S-SPC") 'ns-ime-toggle) ;; toggle-input-method
@@ -267,13 +275,11 @@
        '(cycle-buffer cycle-buffer-backward)
        "cycle-buffer" nil t)
 
-  (eval-when-compile
-    (require 'cycle-buffer nil t))
-
   (with-eval-after-load "cycle-buffer"
-    (setq cycle-buffer-allow-visible t)
-    (setq cycle-buffer-show-length 12)
-    (setq cycle-buffer-show-format '(" <(%s)>" . " %s")))
+    (custom-set-variables
+     '(cycle-buffer-allow-visible t)
+     '(1cycle-buffer-show-length 12)
+     '(cycle-buffer-show-format '(" < %s >" . " %s"))))
 
   (global-set-key (kbd "M-]") 'cycle-buffer)
   (global-set-key (kbd "M-[") 'cycle-buffer-backward))
@@ -283,9 +289,6 @@
          my:bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
          bm-repository-save bm-repository-load bm-load-and-restore)
        "bm" nil t)
-
-  (eval-when-compile
-    (require 'bm nil t))
 
   (with-eval-after-load "bm"
     (setq-default bm-buffer-persistence t)
@@ -331,9 +334,9 @@
         (org-show-siblings))))
 
   ;; ファイルオープン時にブックマークを復帰
-  (add-hook 'find-file-hook 'bm-buffer-restore)
-  (global-set-key (kbd "<f9>") 'my:bm-toggle)
-  (global-set-key (kbd "<C-f9>") 'my:bm-next))
+  (add-hook 'find-file-hook #'bm-buffer-restore)
+  (global-set-key (kbd "<f10>") 'my:bm-toggle)
+  (global-set-key (kbd "<C-f10>") 'my:bm-next))
 
 (when (autoload-if-found
        '(centered-cursor-mode)
@@ -344,15 +347,15 @@
   (add-hook 'isearch-mode-end-hook
             #'(lambda () (centered-cursor-mode -1))))
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (when (require 'smart-mark nil t)
     (smart-mark-mode 1)))
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (when (require 'syntax-subword nil t)
     (global-syntax-subword-mode 1)))
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (when (require 'goto-chg nil t)
     (global-set-key (kbd "C-,") 'goto-last-change)
     (global-set-key (kbd "C-.") 'goto-last-change-reverse)
@@ -363,47 +366,42 @@
 
 (setq yank-excluded-properties t)
 
-;; #+UPDATE 用
-(when (autoload-if-found
-       '(update-stamp)
-       "update-stamp" nil t)
-
-  (eval-when-compile
-    (require 'update-stamp nil t))
-
-  (with-eval-after-load "update-stamp"
-    (setq update-stamp-start "#+UPDATE:[ \t]*")
-    (setq update-stamp-format "%:y-%02m-%02dT%02H:%02M:%02S%Z")
-    (setq update-stamp-end "$")
-    (setq update-stamp-line-limit 10)) ; def=8
-
-  (add-hook 'before-save-hook
-            #'(lambda ()
-                (if (boundp 'org-tree-slide-mode)
-                    (unless org-tree-slide-mode
-                      (update-stamp))
-                  (update-stamp)))))
-
 ;; #+DATE 用
 (when (autoload-if-found
        '(time-stamp)
        "time-stamp" nil t)
 
-  (eval-when-compile
-    (require 'time-stamp nil t))
-
   (with-eval-after-load "time-stamp"
-    (setq time-stamp-start "#+DATE:[ \t]*")
-    (setq time-stamp-format "%:y-%02m-%02dT%02H:%02M:%02S%Z")
+    (setq time-stamp-start "#\\+DATE:[ \t]*")
     (setq time-stamp-end "$")
-    (setq time-stamp-line-limit 10)) ; def=8
+    (setq time-stamp-line-limit 10) ;; def=8
+    (setq time-stamp-format "%04y-%02m-%02d"))
+  (defun my:time-stamp ()
+    (if (boundp 'org-tree-slide-mode)
+        (unless org-tree-slide-mode
+          (time-stamp))
+      (time-stamp)))
 
-  (add-hook 'before-save-hook
-            #'(lambda ()
-                (if (boundp 'org-tree-slide-mode)
-                    (unless org-tree-slide-mode
-                      (time-stamp))
-                  (time-stamp)))))
+  (add-hook 'before-save-hook #'my:time-stamp))
+
+;; #+UPDATE 用
+(when (autoload-if-found
+       '(update-stamp)
+       "update-stamp" nil t)
+
+  (with-eval-after-load "update-stamp"
+    (setq update-stamp-start "#\\+UPDATE:[ \t]*")
+    (setq update-stamp-end "$")
+    (setq update-stamp-line-limit 10) ;; def=8
+    (custom-set-variables
+     '(update-stamp-format "%02H:%02M:%02S")))
+  (defun my:update-stamp ()
+    (if (boundp 'org-tree-slide-mode)
+        (unless org-tree-slide-mode
+          (update-stamp))
+      (update-stamp)))
+
+  (add-hook 'before-save-hook #'my:update-stamp))
 
 (defadvice isearch-mode
     (around isearch-mode-default-string
@@ -457,9 +455,6 @@
        "ess-site" "Emacs Speaks Statistics mode" nil t)
 
   (push '("\\.[rR]$" . R-mode) auto-mode-alist))
-
-(eval-when-compile
-  (require 'nxml-mode nil t))
 
 (add-hook 'nxml-mode-hook
           #'(lambda ()
@@ -582,8 +577,6 @@
 
   (with-eval-after-load "flyspell"
     ;; C-; をオーバーライド
-    (eval-when-compile
-      (require 'flyspell nil t))
     (define-key flyspell-mode-map (kbd "C-;") 'comment-dwim)
     (setq flyspell-duplicate-distance 0)
     (setq flyspell-mode-line-string " F")
@@ -612,8 +605,8 @@
       (when (memq major-mode my:flyspell-target-modes)
         (turn-off-flyspell)))
     ;; [FIXME] nextstep+inline-patch版で flyspell すると，日本語nyuuのようになる場合があるので，それを回避（IME が ONになったら一時的に flyspell を止める）
-    (add-hook 'my:ime-off-hook 'my:flyspell-on)
-    (add-hook 'my:ime-on-hook 'my:flyspell-off))
+    (add-hook 'my:ime-off-hook #'my:flyspell-on)
+    (add-hook 'my:ime-on-hook #'my:flyspell-off))
 
   (defvar major-mode-with-flyspell
     '(text-mode change-log-mode latex-mode yatex-mode
@@ -631,7 +624,7 @@
   ;; コメント行のみを対象にする
   (dolist (hook major-mode-with-flyspell-prog)
     (add-hook (intern (format "%s-hook" hook))
-              'flyspell-prog-mode)))
+              #'flyspell-prog-mode)))
 
 (when (autoload-if-found
        '(latex-math-preview-expression
@@ -639,9 +632,6 @@
          latex-math-preview-save-image-file
          latex-math-preview-beamer-frame)
        "latex-math-preview" nil t nil)
-
-  (eval-when-compile
-    (require 'latex-math-preview nil t))
 
   (with-eval-after-load "latex-math-preview"
     (setq latex-math-preview-command-path-alist
@@ -689,9 +679,6 @@
        '(yas-minor-mode yas-global-mode)
        "yasnippet" nil t)
 
-  (eval-when-compile
-    (require 'yasnippet nil t))
-
   (with-eval-after-load "yasnippet"
     (setq yas-verbosity 2)
     (setq yas-snippet-dirs
@@ -729,17 +716,15 @@
            (list
             'perl-mode-hook 'c-mode-common-hook 'js2-mode-hook 'org-mode-hook
             'python-mode-hook 'emacs-lisp-mode-hook))
-    (add-hook hook 'yas-minor-mode)))
+    (add-hook hook #'yas-minor-mode)))
 
 (when (autoload-if-found
        '(osx-dictionary-search-pointer osx-dictionary-search-input)
        "osx-dictionary" nil t)
 
-  (eval-when-compile
-    (require 'osx-dictionary nil t))
-
   (with-eval-after-load "osx-dictionary"
-    (setq osx-dictionary-dictionary-choice "英辞郎 第七版"))
+    (custom-set-variables
+     '(osx-dictionary-dictionary-choice "英辞郎 第七版")))
 
   (global-set-key (kbd "C-c f w") #'osx-dictionary-search-input)
   (global-set-key (kbd "C-M-w") #'osx-dictionary-search-pointer))
@@ -747,9 +732,6 @@
 (when (autoload-if-found
        '(web-mode)
        "web-mode" "web-mode" t)
-
-  (eval-when-compile
-    (require 'web-mode nil t))
 
   (with-eval-after-load "web-mode"
     (defun my:web-indent-fold ()
@@ -801,7 +783,7 @@
   (dolist (hook
            '(sgml-mode-hook
              nxml-mode-hook css-mode-hook html-mode-hook web-mode-hook))
-    (add-hook hook 'emmet-mode)))
+    (add-hook hook #'emmet-mode)))
 
 (autoload-if-found
  '(describe-number describe-number-at-point)
@@ -812,9 +794,6 @@
            '(js2-mode)
            "js2-mode" nil t)
 
-      (eval-when-compile
-        (require 'js2-mode nil t))
-
       (with-eval-after-load "js2-mode"
         (when (require 'web-beautify nil t)
           (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
@@ -823,7 +802,7 @@
   (message "--- js-beautify is NOT installed.")
   (message "--- Note: npm -g install js-beautify"))
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (when (require 'smartparens nil t)
     (setq-default sp-highlight-pair-overlay nil)
     (setq-default sp-highlight-wrap-overlay nil)
@@ -840,7 +819,7 @@
  '(query-replace-from-region query-replace-regexp-from-region)
  "replace-from-region" nil t)
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (when (require 'selected nil t)
     (defvar my:ime-flag nil)
     (declare-function my:ime-active-p "init" nil)
@@ -876,50 +855,48 @@
       (define-key selected-keymap (kbd "h") #'my:describe-selected-keymap))
     (selected-global-mode 1)))
 
-(when (require 'diminish nil t)
-  (with-eval-after-load "ggtags" (diminish 'ggtags-mode " G"))
-  (with-eval-after-load "orgstruct" (diminish 'orgstruct-mode " OrgS"))
-  (with-eval-after-load "centered-cursor-mode"
-    (diminish 'centered-cursor-mode))
-  (with-eval-after-load "volatile-highlights"
-    (diminish 'volatile-highlights-mode))
-  (with-eval-after-load "aggressive-indent"
-    (diminish 'aggressive-indent-mode))
-  (with-eval-after-load "all-the-icons-dired"
-    (diminish 'all-the-icons-dired-mode))
-  (with-eval-after-load "yasnippet" (diminish 'yas-minor-mode))
-  (with-eval-after-load "auto-complete" (diminish 'auto-complete-mode))
-  (with-eval-after-load "ws-butler" (diminish 'ws-butler-mode))
-  (with-eval-after-load "isearch" (diminish 'isearch-mode))
-  (with-eval-after-load "autorevert" (diminish 'auto-revert-mode))
-  (with-eval-after-load "smooth-scroll" (diminish 'smooth-scroll-mode))
-  (with-eval-after-load "whitespace" (diminish 'global-whitespace-mode))
-  (with-eval-after-load "emmet-mode" (diminish 'emmet-mode))
-  (with-eval-after-load "abbrev" (diminish 'abbrev-mode))
-  (with-eval-after-load "doxymacs" (diminish 'doxymacs-mode))
-  (with-eval-after-load "editorconfig" (diminish 'editorconfig-mode))
-  (with-eval-after-load "rainbow-mode" (diminish 'rainbow-mode))
-  (with-eval-after-load "guide-key" (diminish 'guide-key-mode))
-  (with-eval-after-load "highlight-symbol" (diminish 'highlight-symbol-mode))
-  (with-eval-after-load "which-key" (diminish 'which-key-mode))
-  (with-eval-after-load "fancy-narrow" (diminish 'fancy-narrow-mode))
-  (with-eval-after-load "smartparens" (diminish 'smartparens-mode))
-  (with-eval-after-load "selected" (diminish 'selected-minor-mode))
-  ;; (with-eval-after-load "org-autolist" (diminish 'org-autolist-mode))
-   ;;;  (with-eval-after-load "helm" (diminish 'helm-mode " H"))
-  )
+(with-eval-after-load "postpone"
+  (when (require 'delight nil t)
+    (delight
+     '(;; Major modes
+       (c-mode "C" :major)
+       (c++mode "C++" :major)
+       (js2-mode "JS" :major)
+       (csharp-mode "C#" :major)
+       (prog-mode "Pr" :major)
+       (emacs-lisp-mode "El" :major)
+       (python-mode "Py" :major)
+       (perl-mode "Pl" :major)
+       (web-mode "W" :major)
+       (change-log-mode "ChangeLog" :major)
+       (lisp-interaction-mode "Lisp" :major)
 
-;; メジャーモードの短縮
-(add-hook 'c-mode-hook #'(lambda () (setq mode-name "C")))
-(add-hook 'js2-mode-hook #'(lambda () (setq mode-name "JS")))
-(add-hook 'c++-mode-hook #'(lambda () (setq mode-name "C++")))
-(add-hook 'csharp-mode-hook #'(lambda () (setq mode-name "C#")))
-(add-hook 'prog-mode-hook #'(lambda () (setq mode-name "Pr")))
-(add-hook 'emacs-lisp-mode-hook #'(lambda () (setq mode-name "El")))
-(add-hook 'python-mode-hook #'(lambda () (setq mode-name "Py")))
-(add-hook 'perl-mode-hook #'(lambda () (setq mode-name "Pl")))
-(add-hook 'web-mode-hook #'(lambda () (setq mode-name "W")))
-(add-hook 'lisp-interaction-mode-hook #'(lambda () (setq mode-name "Lisp")))
+       ;; Shorten
+       (ggtags-mode " G" "ggtags")
+       (orgstruct-mode " OrgS" "org")
+
+       ;; No display
+       (centered-cursor-mode nil "centered-cursor-mode")
+       (volatile-highlights-mode nil "volatile-highlights")
+       (aggressive-indent-mode nil "aggressive-indent")
+       (all-the-icons-dired-mode nil "all-the-icons-dired")
+       (yas-minor-mode nil "yasnippet")
+       (auto-complete-mode nil "auto-complete")
+       (ws-butler-mode nil "ws-butler")
+       (isearch-mode nil "isearch")
+       (auto-revert-mode nil "autorevert")
+       (global-whitespace-mode nil "whitespace")
+       (emmet-mode nil "emmet-mode")
+       (helm-mode nil "helm")
+       (abbrev-mode nil "abbrev")
+       (doxymacs-mode nil "doxymacs")
+       (editorconfig-mode nil "editorconfig")
+       (rainbow-mode nil "rainbow-mode")
+       (highlight-symbol-mode nil "highlight-symbol")
+       (which-key-mode nil "which-key")
+       (fancy-narrow-mode nil "fancy-narrow")
+       (smartparens-mode nil "smartparens")
+       (selected-minor-mode nil "selected")))))
 
 (with-eval-after-load "org"
   (setq mode-line-modes
@@ -945,7 +922,7 @@
 (set-face-background 'mode-line-inactive "#d8e6fd")
 
 ;;  (setq visible-bell nil) ;; default=nil
-  (setq ring-bell-function 'ignore)
+(setq ring-bell-function 'ignore)
 
 (when (require 'empty-booting nil t)
   (setq initial-buffer-choice t)
@@ -967,24 +944,24 @@
                                   (switch-to-buffer "*scratch*")))
 
 ;; Disable to show the tool bar.
-(when window-system
+(when (display-graphic-p)
   (tool-bar-mode -1))
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
 
 ;; Show line number in the mode line.
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (line-number-mode 1))
 
 ;; Show clock in in the mode line
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (setq display-time-format "%H%M.%S") ;; %y%m%d.
   (setq display-time-interval 1)
   (setq display-time-default-load-average nil)
   (display-time-mode 1))
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (when (require 'mic-paren nil t)
     (setq paren-sexp-mode nil)
     (set-face-foreground 'paren-face-match "#FFFFFF")
@@ -992,7 +969,7 @@
     (set-face-background 'paren-face-match "#66CC66")
     (paren-activate)))
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   ;; スペース
   (defface my:face-b-1
     '((t (:background "gray" :bold t :underline "red")))
@@ -1031,43 +1008,40 @@
 (setq-default indicate-buffer-boundaries
               '((top . nil) (bottom . right) (down . right)))
 
-(when (autoload-if-found
-       '(migemo-init)
-       "migemo" nil t)
+(if (executable-find "cmigemo")
+    (when (autoload-if-found
+           '(migemo-init)
+           "migemo" nil t)
 
-  (eval-when-compile
-    (require 'migemo nil t))
+      (with-eval-after-load "migemo"
+        (custom-set-variables
+         '(completion-ignore-case t) ;; case-independent
+         '(migemo-command "cmigemo")
+         '(migemo-options '("-q" "--emacs" "-i" "\a"))
+         '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
+         '(migemo-user-dictionary nil)
+         '(migemo-regex-dictionary nil)
+         '(migemo-use-pattern-alist t)
+         '(migemo-use-frequent-pattern-alist t)
+         '(migemo-pattern-alist-length 1024)
+         '(migemo-coding-system 'utf-8-unix)))
 
-  (with-eval-after-load "migemo"
-    (setq completion-ignore-case t) ;; case-independent
-    (setq migemo-command "cmigemo")
-    (setq migemo-options '("-q" "--emacs" "-i" "\a"))
-    (setq migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
-    (setq migemo-user-dictionary nil)
-    (setq migemo-regex-dictionary nil)
-    (setq migemo-use-pattern-alist t)
-    (setq migemo-use-frequent-pattern-alist t)
-    (setq migemo-pattern-alist-length 1024)
-    (setq migemo-coding-system 'utf-8-unix))
-
-  (if (executable-find "cmigemo")
-      (add-hook 'isearch-mode-hook 'migemo-init)
-    (message "--- cmigemo is NOT installed.")))
+      (add-hook 'isearch-mode-hook #'migemo-init))
+  (message "--- cmigemo is NOT installed."))
 
 (when (autoload-if-found
        '(helm-M-x
-         helm-locate helm-recentf helm-buffers-list helm-descbinds
+         helm-locate helm-recentf helm-descbinds
          helm-occur helm-swoop helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
-  (eval-when-compile
-    (require 'helm nil t)
-    (require 'helm-config nil t))
-
   (with-eval-after-load "helm-config"
+    (unless batch-build
+      (recentf-mode 1))
     (helm-mode 1)
-    (when (require 'diminish nil t)
-      (diminish 'helm-mode)) ;;  " H"
+
+    ;; (when (require 'diminish nil t)
+    ;;   (diminish 'helm-mode)) ;; " H"
 
     (when (require 'helm-swoop nil t)
       ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
@@ -1131,17 +1105,27 @@
   ;;                   (volatile) (match identity)))
   ;;       source)))
 
+
   (global-set-key (kbd "M-x") 'helm-M-x)
   (global-set-key (kbd "C-M-r") 'helm-recentf)
   (global-set-key (kbd "C-M-l") 'helm-locate)
   (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
   (global-set-key (kbd "M-s M-s") 'helm-swoop)
   (global-set-key (kbd "C-c o") 'helm-occur)
   (global-set-key (kbd "C-h d") 'helm-descbinds))
 
+
+(when (autoload-if-found
+       '(helm-buffers-list)
+       "helm" nil t)
+
+  (with-eval-after-load "helm"
+    (require 'helm-config nil t))
+
+  (global-set-key (kbd "C-x C-b") 'helm-buffers-list))
+
 (with-eval-after-load "calendar"
-  (add-hook 'calendar-today-visible-hook 'calendar-mark-today)
+  (add-hook 'calendar-today-visible-hook #'calendar-mark-today)
 
   (when (require 'japanese-holidays nil t)
     (setq calendar-holidays
@@ -1151,8 +1135,8 @@
     (setq japanese-holiday-weekend-marker
           '(holiday nil nil nil nil nil japanese-holiday-saturday))
     (setq japanese-holiday-weekend '(0 6))
-    (add-hook 'calendar-today-visible-hook 'japanese-holiday-mark-weekend)
-    (add-hook 'calendar-today-invisible-hook 'japanese-holiday-mark-weekend)))
+    (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
+    (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend)))
 
 (with-eval-after-load "calendar"
   (setq calendar-week-start-day 1)
@@ -1185,11 +1169,9 @@
        '(which-key-mode)
        "which-key" nil t)
 
-  (eval-when-compile
-    (require 'which-key nil t))
-
   (with-eval-after-load "which-key"
-    (setq which-key-idle-delay 1.0))
+    (custom-set-variables
+     '(which-key-idle-delay 1.5)))
 
   (add-hook 'org-mode-hook #'which-key-mode)
   (add-hook 'helm-after-initialize-hook #'which-key-mode))
@@ -1198,20 +1180,18 @@
        '(highlight-symbol-mode highlight-symbol-nav-mode)
        "highlight-symbol" nil t)
 
-  (eval-when-compile
-    (require 'highlight-symbol nil t))
-
   (with-eval-after-load "highlight-symbol"
-    (setq highlight-symbol-idle-delay 0.5))
+    (custom-set-variables
+     '(highlight-symbol-idle-delay 0.5)))
 
   (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook prog-mode-hook))
-    (add-hook hook 'highlight-symbol-mode)))
+    (add-hook hook #'highlight-symbol-mode)))
 
 (when (autoload-if-found
        '(all-the-icons-dired-mode)
        "all-the-icons-dired" nil t)
 
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+  (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))
 
 (when (autoload-if-found
        '(google-maps)
@@ -1231,14 +1211,12 @@
        '(sunshine-forecast sunshine-quick-forecast)
        "sunshine" nil t)
 
-  (eval-when-compile
-    (require 'sunshine))
-
   (with-eval-after-load "sunshine"
     ;; (setq sunshine-location "Tokyo, Japan")
     ;; (setq sunshine-appid "................................")
-    (setq sunshine-show-icons t)
-    (setq sunshine-units 'metric)))
+    (custom-set-variables
+     '(sunshine-show-icons t)
+     '(sunshine-units 'metric))))
 
 (with-eval-after-load "dired"
   (when (require 'gited nil t)
@@ -1255,10 +1233,6 @@
 (when (autoload-if-found
        '(my:undo-tree-visualize)
        "undo-tree" nil t)
-
-  (eval-when-compile
-    (require 'moom nil t)
-    (require 'undo-tree nil t))
 
   (with-eval-after-load "undo-tree"
     (global-undo-tree-mode)
@@ -1318,20 +1292,20 @@
             (shut-up (recentf-cleanup))
           (recentf-cleanup)))
       (message ""))
-    (add-hook 'focus-out-hook 'recentf-save-list-without-msg)
-    (add-hook 'focus-out-hook 'recentf-cleanup-without-msg)
+    (add-hook 'focus-out-hook #'recentf-save-list-without-msg)
+    (add-hook 'focus-out-hook #'recentf-cleanup-without-msg)
 
-    (setq recentf-max-saved-items 2000)
-    (setq recentf-save-file
-          (expand-file-name "~/.emacs.d/recentf"))
-    (setq recentf-auto-cleanup 'never)
-    (setq recentf-exclude
-          '(".recentf" "^/tmp\\.*"
-            "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+    (custom-set-variables
+     '(recentf-max-saved-items 2000)
+     '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
+     '(recentf-auto-cleanup 'never)
+     '(recentf-exclude
+       '(".recentf" "^/tmp\\.*"
+         "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+    ))
+;; (add-hook 'after-init-hook #'recentf-mode))
 
-  (add-hook 'after-init-hook 'recentf-mode))
-
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (when (require 'auto-save-buffers nil t)
     (defun my:auto-save-buffers ()
       (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
@@ -1352,7 +1326,7 @@
     (setq backup-each-save-size-limit 1048576))
 
   ;; なぜか (backup-each-save) の直接呼び出しだとだめ
-  (with-eval-after-load "helm-config"
+  (with-eval-after-load "postpone"
     (require 'backup-each-save nil t)
     ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
     (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t)))
@@ -1371,7 +1345,7 @@
                 (when (fboundp 'recursive-delete-backup-files)
                   (recursive-delete-backup-files 7)))))
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (defun my:backup-recentf ()
     (my:backup "~/.emacs.d/recentf"))
   (run-with-idle-timer 180 t 'my:backup-recentf))
@@ -1379,9 +1353,6 @@
 (when (autoload-if-found
        '(session-initialize)
        "session" nil t)
-
-  (eval-when-compile
-    (require 'session nil t))
 
   (with-eval-after-load "session"
     (add-to-list 'session-globals-exclude 'org-mark-ring)
@@ -1395,7 +1366,7 @@
                                     search-ring regexp-search-ring))
     (setq session-undo-check -1))
 
-  (add-hook 'after-init-hook 'session-initialize))
+  (add-hook 'after-init-hook #'session-initialize))
 
 ;; FIXME
 ;;  (setq session-set-file-name-exclude-regexp
@@ -1406,16 +1377,14 @@
        '(neotree neotree-toggle)
        "neotree" nil t)
 
-  (eval-when-compile
-    (require 'neotree nil t))
-
   (with-eval-after-load "neotree"
-    (setq neo-show-hidden-files t)
-    (setq neo-persist-show t)
-    (setq neo-theme 'arrow)
+    (custom-set-variables
+     '(neo-show-hidden-files t)
+     '(neo-theme 'arrow)
+     '(neo-smart-open t))
+
     ;; (setq neo-window-position 'right)
     ;; (setq neo-vc-integration '(face char)) ;; Itls heavy at 2017-08-31
-    (setq neo-smart-open t)
     (when (require 'all-the-icons-dired nil t)
       (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
     (defvar my:neo-frame-width-single 80)
@@ -1447,14 +1416,9 @@
           (setq moom-frame-width-double my:neo-frame-width-double)))
       (when (> my:neo-frame-width-single (frame-width))
         (set-frame-width (selected-frame) my:neo-frame-width-single)))
-    (advice-add 'neotree-hide :before #'advice:neotree-hide)
-    (when neo-persist-show
-      (add-hook 'popwin:before-popup-hook
-                #'(lambda () (setq neo-persist-show nil)))
-      (add-hook 'popwin:after-popup-hook
-                #'(lambda () (setq neo-persist-show t)))))
+    (advice-add 'neotree-hide :before #'advice:neotree-hide))
 
-  (global-set-key (kbd "C-c n") 'neotree-toggle))
+  (global-set-key (kbd "C-c n") #'neotree-toggle))
 
 (with-eval-after-load "dired"
   (setq dired-use-ls-dired nil)
@@ -1482,7 +1446,7 @@
           (expand-file-name "~/Dropbox/emacs.d/.keyfreq"))
     (keyfreq-autosave-mode 1))
 
-  (with-eval-after-load "helm-config"
+  (with-eval-after-load "postpone"
     (keyfreq-mode 1)))
 
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
@@ -1494,9 +1458,6 @@
        '(doxymacs-mode)
        "doxymacs" nil t)
 
-  (eval-when-compile
-    (require 'doxymacs nil t))
-
   (with-eval-after-load "doxymacs"
     (setq doxymacs-doxygen-style "JavaDoc")
     (add-hook 'font-lock-mode-hook
@@ -1505,7 +1466,7 @@
                     (doxymacs-font-lock))))
     (define-key doxymacs-mode-map (kbd "C-c C-s") 'ff-find-other-file))
 
-  (add-hook 'c-mode-common-hook 'doxymacs-mode))
+  (add-hook 'c-mode-common-hook #'doxymacs-mode))
 
 (when (and (memq window-system '(mac ns))
            (> emacs-major-version 23))
@@ -1514,7 +1475,7 @@
          "matlab" nil t)
     (push '("\\.m$" . matlab-mode) auto-mode-alist)))
 
-;;http://qiita.com/senda-akiha/items/cddb02cfdbc0c8c7bc2b
+;; http://qiita.com/senda-akiha/items/cddb02cfdbc0c8c7bc2b
 (when (autoload-if-found
        '(flycheck-mode)
        "flycheck" nil t)
@@ -1534,14 +1495,11 @@
   (dolist
       (hook
        '(js2-mode-hook c-mode-common-hook perl-mode-hook python-mode-hook))
-    (add-hook hook 'flycheck-mode)))
+    (add-hook hook #'flycheck-mode)))
 
 (when (autoload-if-found
        '(ac-default-setup ac-org-mode-setup)
        "auto-complete" nil t)
-
-  (eval-when-compile
-    (require 'auto-complete nil t))
 
   (with-eval-after-load "auto-complete"
     (require 'auto-complete-config nil t)
@@ -1603,19 +1561,16 @@
   (dolist (hook
            (list 'org-mode-hook 'python-mode-hook
                  'perl-mode-hook 'objc-mode-hook))
-    (add-hook hook 'ac-default-setup))
+    (add-hook hook #'ac-default-setup))
   ;; *scratch* バッファでは無効化
   (add-hook 'lisp-mode-hook
             #'(lambda () (unless (equal "*scratch*" (buffer-name))
                            (ac-default-setup))))
-  (add-hook 'org-mode-hook 'ac-org-mode-setup))
+  (add-hook 'org-mode-hook #'ac-org-mode-setup))
 
 (when (autoload-if-found
        '(auto-complete ac-cc-mode-setup)
        "auto-complete" nil t)
-
-  (eval-when-compile
-    (require 'auto-complete nil t))
 
   (with-eval-after-load "auto-complete"
     (require 'auto-complete-clang nil t)
@@ -1628,14 +1583,11 @@
                          ac-source-yasnippet
                          ac-source-gtags))))
 
-  (add-hook 'c-mode-common-hook 'ac-cc-mode-setup))
+  (add-hook 'c-mode-common-hook #'ac-cc-mode-setup))
 
 (when (autoload-if-found
        '(origami-mode origami-toggle-node)
        "origami" nil t)
-
-  (eval-when-compile
-    (require 'origami nil t))
 
   (with-eval-after-load "origami"
     (define-key origami-mode-map (kbd "C-t") #'origami-toggle-node)
@@ -1648,11 +1600,6 @@
 (when (autoload-if-found
        '(quickrun)
        "quickrun" nil t)
-
-  (eval-when-compile
-    (require 'python-mode nil t)
-    (require 'perl-mode nil t)
-    (require 'gnuplot-mode nil t))
 
   (add-hook 'c-mode-common-hook
             #'(lambda () (define-key c++-mode-map (kbd "<f5>") 'quickrun)))
@@ -1670,10 +1617,6 @@
          '(ggtags-mode)
          "ggtags" nil t)
 
-    (eval-when-compile
-      (require 'ggtags nil t)
-      (require 'helm-gtags nil t))
-
     (with-eval-after-load "ggtags"
       (setq ggtags-completing-read-function t)
       (define-key ggtags-mode-map (kbd "M-]") nil))
@@ -1685,20 +1628,18 @@
          '(helm-gtags-mode)
          "helm-gtags" nil t)
 
-    (eval-when-compile
-      (require 'helm-gtags nil t))
-
     (with-eval-after-load "helm-gtags"
-      (setq helm-gtags-mode-name ""))
+      (custom-set-variables
+       '(helm-gtags-mode-name "")))
 
-    (add-hook 'c-mode-common-hook 'helm-gtags-mode)))
+    (add-hook 'c-mode-common-hook #'helm-gtags-mode)))
 
 (when (autoload-if-found
        '(0xc-convert 0xc-convert-point)
        "0xc" nil t)
   (global-set-key (kbd "C-c f h") '0xc-convert))
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (if (executable-find "editorconfig")
       (when (require 'editorconfig nil t)
         ;; (add-to-list 'editorconfig-exclude-modes 'org-mode)
@@ -1728,6 +1669,7 @@
 (when (autoload-if-found
        '(projectile-global-mode)
        "projectile" nil t)
+
   (with-eval-after-load "projectile"
     (defun advice:projectile-visit-project-tags-table ()
       "Extensions to skip calling `visit-tags-table'."
@@ -1740,8 +1682,27 @@
     (setq projectile-tags-file-name "GTAGS")
 
     (setq projectile-use-git-grep t)
-    (setq projectile-mode-line
-          '(:eval (format " P:%s" (projectile-project-name))))
+    ;; (setq projectile-mode-line
+    ;;       '(:eval (format " P:%s" (projectile-project-name))))
+    (setq projectile-mode-line "")
+
+    (defun my:frame-title-format ()
+      ;; (setq frame-title-format t)
+      ;; (sit-for 0.05) ;; a trick to keep file icon in frame-bar.
+      (setq frame-title-format
+            '(""
+              (:eval
+               (let ((project-name (projectile-project-name)))
+                 (unless (string= "-" project-name)
+                   (format "(%s) - " project-name))))
+              "%b"
+              ;; (:eval (format " - %s" (system-name)))
+              )))
+    (my:frame-title-format)
+
+    (when (require 'moom nil t)
+      (add-hook 'moom-reset-font-size-hook #'my:frame-title-format)
+      (add-hook 'moom-after-fullscreen-hook #'my:frame-title-format))
 
     (when (require 'helm-projectile nil t)
       (setq projectile-completion-system 'helm))
@@ -1759,8 +1720,13 @@
         (neo-global--select-window))
       (advice-add 'neotree-dir :override #'advice:neotree-dir)))
 
-  (with-eval-after-load "helm-config"
+  (with-eval-after-load "postpone"
     (projectile-global-mode 1)))
+
+(when (autoload-if-found
+       '(magit-status)
+       "magit" nil t)
+  (global-set-key (kbd "C-c m") 'magit-status))
 
 (when (autoload-if-found
        '(org-mode)
@@ -1790,8 +1756,11 @@
     ;; dvipng
     (setq org-export-with-LaTeX-fragments t)
 
+    ;; 数式をハイライト
+    (setq org-highlight-latex-and-related '(latex entities))
+
     ;; orgバッファ内の全ての動的ブロックを保存直前に変更する
-    ;; (add-hook 'before-save-hook 'org-update-all-dblocks)
+    ;; (add-hook 'before-save-hook #'org-update-all-dblocks)
 
     ;; アーカイブファイルの名称を指定
     (setq org-archive-location "%s_archive::")
@@ -1843,9 +1812,6 @@
        '(my:ox-icalendar my:ox-icalendar-cleanup)
        "ox-icalendar" nil t)
 
-  (eval-when-compile
-    (require 'ox-icalendar nil t))
-
   (with-eval-after-load "ox-icalendar"
     (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
     ;; iCal の説明文
@@ -1856,7 +1822,7 @@
     (setq org-icalendar-include-todo t)
     ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
     (setq org-icalendar-use-scheduled '(event-if-todo))
-         ;;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
+    ;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
     ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
     (setq org-icalendar-use-deadline '(event-if-todo))
 
@@ -1895,13 +1861,8 @@
 
 (with-eval-after-load "org"
   (add-to-list 'org-modules 'org-timer)
-  (setq org-timer-default-timer "25")
-  ;; (add-hook 'org-clock-in-hook
-  ;;        '(lamda ()
-  ;;                (if (not org-timer-current-timer)
-  ;;                    (org-timer-set-timer '(16)))))
-
-  (setq growl-pomodoro-default-task-name "The current task is finished.")
+  (setq org-timer-default-timer "90")
+  (setq growl-pomodoro-default-task-name "Time is up!")
   (setq growl-pomodoro-task-name 'growl-pomodoro-default-task-name)
 
   (defun set-growl-pomodoro-task-name ()
@@ -1909,7 +1870,7 @@
     (setq growl-pomodoro-task-name
           (read-from-minibuffer "Task Name: "
                                 growl-pomodoro-default-task-name)))
-  (add-hook 'org-timer-set-hook 'set-growl-pomodoro-task-name)
+  (add-hook 'org-timer-set-hook #'set-growl-pomodoro-task-name)
 
   (defun growl-pomodoro-timer ()
     (interactive)
@@ -1918,15 +1879,13 @@
              "The end of " growl-pomodoro-task-name "!\""))
     (shell-command-to-string
      ;;   (concat "say The end of " growl-pomodoro-task-name)
-     (concat "say -v Kyoko " growl-pomodoro-task-name)
-     ))
-
-  (add-hook 'org-timer-done-hook 'growl-pomodoro-timer))
+     (concat "say -v Kyoko " growl-pomodoro-task-name)))
+  (add-hook 'org-timer-done-hook #'growl-pomodoro-timer))
 
 (with-eval-after-load "org"
   ;; Font lock を使う
   (global-font-lock-mode 1)
-  (add-hook 'org-mode-hook 'turn-on-font-lock)
+  (add-hook 'org-mode-hook #'turn-on-font-lock)
   ;; ウィンドウの端で折り返す（想定と逆の振る舞い．どこかにバグがある）
   (setq org-startup-truncated nil)
   ;; サブツリー以下の * を略式表示する
@@ -1961,6 +1920,7 @@
   ;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom
   (setq org-tag-faces
         '(("Achievement" :foreground "#66CC66")
+          ("Bug"         :foreground "#FF0000")
           ("Report"      :foreground "#66CC66")
           ("Background"  :foreground "#66CC99")
           ("Chore"       :foreground "#6699CC")
@@ -2026,7 +1986,7 @@
     (org-update-statistics-cookies 'all)))
 
 (with-eval-after-load "org"
-  (setq org-image-actual-width 256)
+  (setq org-image-actual-width '(256))
   (add-to-list 'image-file-name-extensions "jp2")
   ;; (add-to-list 'image-file-name-extensions "j2c")
   (add-to-list 'image-file-name-extensions "bmp")
@@ -2061,8 +2021,9 @@
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (setq org-agenda-files
         '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
-          "~/Dropbox/org/trigger.org" "~/Dropbox/org/wg1.org"
-          "~/Dropbox/org/work.org" "~/Dropbox/org/academic.org"))
+          "~/Dropbox/org/db/daily.org" "~/Dropbox/org/minutes/wg1.org"
+          "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
+          "~/Dropbox/org/db/trigger.org" "~/Dropbox/org/org2ja.org"))
 
   (add-hook 'org-finalize-agenda-hook
             #'(lambda () (org-agenda-to-appt t '((headline "TODO")))))
@@ -2165,8 +2126,7 @@
 
 (with-eval-after-load "org"
   ;; アラーム表示を有効にする
-  (if (require 'shut-up nil t)
-      (shut-up (appt-activate 1))
+  (unless batch-build
     (appt-activate 1))
   ;; window を フレーム内に表示する
   (setq appt-display-format 'echo)
@@ -2193,20 +2153,17 @@
        '(org-capture)
        "org-capture" nil t)
 
-  (eval-when-compile
-    (require 'org-capture nil t))
-
   (with-eval-after-load "org-capture"
     ;; 2010-06-13 の形式では，タグとして認識されない
     (defun get-current-date-tags () (format-time-string "%Y%m%d"))
     (setq org-default-notes-file (concat org-directory "next.org"))
-    (defvar org-capture-words-notes-file (concat org-directory "words.org"))
-    (defvar org-capture-notes-file (concat org-directory "note.org"))
     (defvar org-capture-academic-file (concat org-directory "academic.org"))
-    (defvar org-capture-buffer-file (concat org-directory "buffer.org"))
-    (defvar org-capture-today-file (concat org-directory "trigger.org"))
     (defvar org-capture-ical-file (concat org-directory "org-ical.org"))
-    (defvar org-capture-article-file (concat org-directory "article.org"))
+    (defvar org-capture-buffer-file (concat org-directory "db/buffer.org"))
+    (defvar org-capture-notes-file (concat org-directory "db/note.org"))
+    (defvar org-capture-english-file (concat org-directory "db/english.org"))
+    (defvar org-capture-diary-file (concat org-directory "log/diary.org"))
+    (defvar org-capture-article-file (concat org-directory "db/article.org"))
 
     ;; see org.pdf:p73
     (setq org-capture-templates
@@ -2222,21 +2179,13 @@
              (file+headline ,org-default-notes-file "INBOX")
              "** TODO %? :Doing:\n  - \n")
             ("l" "本日のチェックリスト" entry
-             (file+headline ,org-capture-today-file "Today")
+             (file+headline ,org-capture-diary-file "Today")
              "** FOCUS 本日のチェックリスト %T\n（起床時間の記録）[[http://www.hayaoki-seikatsu.com/users/takaxp/][早起き日記]] \n（朝食）\n  - [ ] %?\n（昼食）\n（帰宅／夕食）\n----\n（研究速報）\n  - [ ] \n")
             ("i" "アイディアを書き込む" entry (file+headline ,org-default-notes-file "INBOX")
              "** %?\n  - \n\t%U")
             ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
              (file+headline ,org-default-notes-file "INBOX")
              "** TODO %? :bug:\n %i\n %a %t")
-            ("w" ,(concat "英単語を " org-capture-words-notes-file
-                          " に書き込む") entry
-                          (file+headline ,org-capture-words-notes-file "WORDS")
-                          "** %? :%(get-current-date-tags):\n「」\n  - ")
-            ("g" ,(concat "英語ノートを " org-capture-words-notes-file
-                          " に書き込む")
-             entry (file+headline ,org-capture-words-notes-file "GRAMMER")
-             "** %? :%(get-current-date-tags):\n\n%U")
             ("T" "時間付きエントリー" entry (file+headline ,org-default-notes-file "INBOX")
              "** %? %T--\n")
             ("n" "ノートとしてINBOXに貼り付ける" entry
@@ -2252,17 +2201,27 @@
             ("`" ,(concat "ノートをバッファ " org-capture-buffer-file
                           " に書き込む")
              entry (file+headline ,org-capture-buffer-file "Buffers")
-             "** %(get-random-string 16) %U\n\n%?\n\n----")))))
+             "** %(get-random-string 16) %U\n\n%?\n\n----")
+            ("w" ,(concat "英単語を " org-capture-english-file
+                          " に書き込む") entry
+                          (file+headline ,org-capture-english-file "WORDS")
+                          "** %? :%(get-current-date-tags):\n「」\n  - ")
+            ("g" ,(concat "英語ノートを " org-capture-english-file
+                          " に書き込む")
+             entry (file+headline ,org-capture-english-file "GRAMMER")
+             "** %? :%(get-current-date-tags):\n\n%U")
+
+            ))))
 
 (with-eval-after-load "org"
   ;; 履歴が生成されるのを抑制．
   ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
 
-  (defun advice:org-refile (&optional arg default-buffer rfloc msg)
+  (defun advice:org-refile (f &optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
     (let ((l (org-outline-level))
           (b (buffer-name)))
-      (apply arg default-buffer rfloc msg)
+      (apply f arg default-buffer rfloc msg)
       (save-excursion
         (save-restriction
           (if (> l (org-outline-level))
@@ -2277,20 +2236,18 @@
     (org-refile-cache-clear))
   (advice-add 'org-refile :around #'advice:org-refile)
 
-  (setq org-refile-targets
-        (quote (("org-ical.org" :level . 1)
-                ("academic.org" :level . 1)
-                ("maybe.org" :level . 1)
-                ("article.org" :level . 1)
-                ("work.org" :level . 1)
-                ("english.org" :level . 1)
-                ("wg1.org" :level . 1)
-                ("univ.org" :level . 1)
-                ("money.org" :level . 1)
-                ("trigger.org" :level . 1)
-                ("next.org" :level . 1)
-                ("sleep.org" :level . 1))))
-  )
+  ;; リファイル先でサブディレクトリを指定するために一部フルパス化
+  (let ((dir (expand-file-name org-directory)))
+    (setq org-refile-targets
+          `(("next.org" :level . 1)
+            ("org-ical.org" :level . 1)
+            ("academic.org" :level . 1)
+            (,(concat dir "tr/work.org") :level . 1)
+            (,(concat dir "minutes/wg1.org") :level . 1)
+            (,(concat dir "db/article.org") :level . 1)
+            (,(concat dir "db/maybe.org") :level . 1)
+            (,(concat dir "db/english.org") :level . 1)
+            (,(concat dir "db/money.org") :level . 1)))))
 
 (with-eval-after-load "ob-core"
   (setq org-edit-src-content-indentation 0)
@@ -2349,17 +2306,13 @@
        '(org-tree-slide-mode)
        "org-tree-slide" nil t)
 
-  (eval-when-compile
-    (require 'org-tree-slide nil t))
-
   (with-eval-after-load "org-tree-slide"
     ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
     (define-key org-tree-slide-mode-map (kbd "<f9>")
       'org-tree-slide-move-previous-tree)
     (define-key org-tree-slide-mode-map (kbd "<f10>")
       'org-tree-slide-move-next-tree)
-    (if (require 'shut-up nil t)
-        (shut-up (org-tree-slide-narrowing-control-profile))
+    (unless batch-build
       (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
     (setq org-tree-slide-skip-outline-level 5)
@@ -2368,37 +2321,9 @@
   (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
   (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle))
 
-(with-eval-after-load "org-tree-slide"
-  (defun my:org-clock-in ()
-    (setq vc-display-status nil) ;; モードライン節約
-    (org-clock-in))
-
-  (defun my:org-clock-out ()
-    (setq vc-display-status t) ;; モードライン節約解除
-    (require 'org-clock nil t)
-    (when (org-clocking-p) (org-clock-out)))
-
-  (add-hook 'org-tree-slide-before-move-previous-hook
-            'my:org-clock-out)
-  (add-hook 'org-tree-slide-before-move-next-hook
-            'my:org-clock-out)
-  (add-hook 'org-tree-slide-stop-hook 'my:org-clock-out)
-
-  (add-hook 'org-tree-slide-before-narrow-hook
-            #'(lambda ()
-                (when
-                    (and (member (buffer-name) '("work.org" "effort.org"))
-                         (and (memq (org-outline-level) '(2 3))
-                              (looking-at (concat "^\\*+ "
-                                                  org-not-done-regexp))))
-                  (my:org-clock-in)))))
-
 (when (autoload-if-found
        '(org-tree-slide-mode my:proportional-font-toggle)
        "org-tree-slide" nil t)
-
-  (eval-when-compile
-    (require 'org-tree-slide nil t))
 
   (with-eval-after-load "org-tree-slide"
     (defcustom use-proportional-font nil
@@ -2435,9 +2360,6 @@
        '(org-tree-slide-mode)
        "org-tree-slide" nil t)
 
-  (eval-when-compile
-    (require 'org-tree-slide nil t))
-
   (with-eval-after-load "org-tree-slide"
     ;; FIXME 複数のバッファで並行動作させるとおかしくなる．hide-lines の問題？
     (when (and nil (require 'hide-lines nil t))
@@ -2451,8 +2373,8 @@
               '(("emacs-lisp" (:background "cornsilk"))))
         (hide-lines-matching "#\\+BEGIN_SRC")
         (hide-lines-matching "#\\+END_SRC"))
-      (add-hook 'org-tree-slide-play-hook 'my:hide-headers)
-      (add-hook 'org-tree-slide-stop-hook 'my:show-headers)
+      (add-hook 'org-tree-slide-play-hook #'my:hide-headers)
+      (add-hook 'org-tree-slide-stop-hook #'my:show-headers)
 
       ;; (defun advice:org-edit-src-code (&optional code edit-buffer-name)
       (defun advice:org-edit-src-code ()
@@ -2469,22 +2391,19 @@
        '(my:cfw-open-org-calendar cfw:open-org-calendar)
        "calfw-org" "Rich calendar for org-mode" t)
 
-  (eval-when-compile
-    (require 'calfw-org nil t))
-
   (with-eval-after-load "calfw-org"
     ;; icalendar との連結
-    (setq cfw:org-icalendars '("~/Dropbox/org/org-ical.org"))
-
-    ;; org で使う表にフェイスを統一
-    (setq cfw:fchar-junction ?+
-          cfw:fchar-vertical-line ?|
-          cfw:fchar-horizontal-line ?-
-          cfw:fchar-left-junction ?|
-          cfw:fchar-right-junction ?|
-          cfw:fchar-top-junction ?+
-          cfw:fchar-top-left-corner ?|
-          cfw:fchar-top-right-corner ?| )
+    (custom-set-variables
+     '(cfw:org-icalendars '("~/Dropbox/org/org-ical.org"))
+     '(cfw:fchar-junction ?+) ;; org で使う表にフェイスを統一
+     '(cfw:fchar-vertical-line ?|)
+     '(cfw:fchar-horizontal-line ?-)
+     '(cfw:fchar-left-junction ?|)
+     '(cfw:fchar-right-junction ?|)
+     '(cfw:fchar-top-junction ?+)
+     '(cfw:fchar-top-left-corner ?|)
+     '(cfw:fchar-top-right-corner ?|)
+     )
 
     (defun my:org-mark-ring-goto-calfw ()
       (interactive)
@@ -2536,15 +2455,15 @@
        "ox-odt" nil t)
 
   (with-eval-after-load "ox-odt"
-    (add-to-list 'org-odt-data-dir
-                 (concat (getenv "HOME") "/Dropbox/emacs.d/config/"))
+    ;; (add-to-list 'org-odt-data-dir
+    ;;              (concat (getenv "HOME") "/Dropbox/emacs.d/config/"))
     (setq org-odt-styles-file
           (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.odt"))
     ;; (setq org-odt-content-template-file
     ;;       (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
     (setq org-odt-preferred-output-format "pdf") ;; docx
-    ;; ox-odt.el の 自作パッチの変数（DOCSTRINGが記述されていない）
-    (setq org-odt-apply-custom-punctuation t)
+    ;; ;; ox-odt.el の 自作パッチの変数（DOCSTRINGが記述されていない）
+    ;; (setq org-odt-apply-custom-punctuation t)
     (setq org-odt-convert-processes
           '(("LibreOffice"
              "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
@@ -2633,9 +2552,6 @@
        '(org-attach du-org-attachments)
        "org-attach" nil t)
 
-  (eval-when-compile
-    (require 'org-attach nil t))
-
   (with-eval-after-load "org-attach"
     ;; org-insert-link で添付ファイルへのリンクをペーストできるようにする
     (setq org-attach-store-link-p t)
@@ -2661,9 +2577,6 @@
 (when (autoload-if-found
        '(org-attach-screenshot my:org-attach-screenshot)
        "org-attach-screenshot" nil t)
-
-  (eval-when-compile
-    (require 'org-attach-screenshot nil t))
 
   (with-eval-after-load "org-attach-screenshot"
     (when (executable-find "screencapture")
@@ -2691,11 +2604,19 @@
      "terminal-notifier.app/Contents/MacOS/terminal-notifier")
     "Path to terminal-notifier.
    Download from https://github.com/julienXX/terminal-notifier/releases")
+
   (defvar terminal-notifier-sound nil)
   (with-eval-after-load "org-clock"
     (when (not org-clock-sound)
       ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
-      (setq terminal-notifier-sound "Pop")))
+      (setq terminal-notifier-sound "Pop"))
+
+    (defun my:org-clock-out-and-save-when-exit ()
+      "Save buffers and stop clocking when kill emacs."
+      (when (org-clocking-p)
+        (org-clock-out)
+        (save-some-buffers t)))
+    (add-hook 'kill-emacs-hook #'my:org-clock-out-and-save-when-exit))
 
   (defvar use-terminal-notifier t)
   (defun terminal-notifier-toggle ()
@@ -2722,9 +2643,6 @@
 (when (autoload-if-found
        '(org-grep)
        "org-grep" nil t)
-
-  (eval-when-compile
-    (require 'org-grep nil t))
 
   (with-eval-after-load "org-grep"
     (setq org-grep-extensions '(".org" ".org_archive"))
@@ -2764,10 +2682,10 @@
   (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))
 
 (with-eval-after-load "utility"
-  (set-alarms-from-file "~/Dropbox/org/trigger.org"))
-
-(when (library-p "utility")
-  (add-hook 'after-save-hook 'my:update-alarms-from-file))
+  (let ((trigger-file "~/Dropbox/org/db/trigger.org"))
+    (when (file-exists-p trigger-file)
+      (set-alarms-from-file trigger-file)
+      (add-hook 'after-save-hook #'my:update-alarms-from-file))))
 
 (with-eval-after-load "org"
   (defun my:do-org-update-staistics-cookies ()
@@ -2782,12 +2700,11 @@
   (define-key org-mode-map (kbd "C-c f 1") 'my:ox-icalendar)
   (define-key org-mode-map (kbd "C-c f 2")
     'my:do-org-update-staistics-cookies)
-  (define-key org-mode-map (kbd "C-c m") 'org-mobile-sync)
   (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
   (define-key org-mode-map (kbd "S-<f5>") 'widen))
 
 (global-set-key (kbd "S-<f12>")
-                #'(lambda () (interactive) (show-org-buffer "work.org")))
+                #'(lambda () (interactive) (show-org-buffer "tr/work.org")))
 (global-set-key (kbd "C-M-o")
                 #'(lambda () (interactive) (show-org-buffer "next.org")))
 (global-set-key (kbd "C-M-c")
@@ -2804,17 +2721,22 @@
     (define-key org-mode-map (kbd "C-c f y") 'org-dashboard-display)))
 
 (with-eval-after-load "org"
-  (when (and (require 'org-clock-today nil t)
-             (fboundp 'org-clock-today-mode))
-    (add-hook 'org-mode-hook #'(lambda () (org-clock-today-mode 1)))))
+  (when (require 'org-clock-today nil t)
+    ;; (setq org-clock-today-hide-default-org-clock-mode-line t)
+    (org-clock-today-mode 1)))
 
-(with-eval-after-load "org"
-  (when (require 'org-recent-headings nil t)
-    (define-key org-mode-map (kbd "C-c f r") 'org-recent-headings-helm)
-    (setq org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
+(when (autoload-if-found
+       '(org-recent-headings-helm)
+       "org-recent-headings" nil t)
+
+  (with-eval-after-load "org-recent-headings"
+    (custom-set-variables
+     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat"))
     (if (require 'shut-up nil t)
         (shut-up (org-recent-headings-mode 1))
-      (org-recent-headings-mode 1))))
+      (org-recent-headings-mode 1)))
+
+  (global-set-key (kbd "C-c f r") 'org-recent-headings-helm))
 
 (when (autoload-if-found
        '(orgnav-search-root)
@@ -2908,8 +2830,13 @@
         (setq my:ime-flag nil)))
 
     ;; for init setup
-    (setq-default cursor-type '(bar . 2))
+    (setq-default cursor-type my:cursor-type-ime-on)
+
+    (when (boundp 'mac-ime-cursor-type) ;; private patch
+      (setq mac-ime-cursor-type my:cursor-type-ime-on))
+
     (defun my:apply-cursor-config ()
+      (interactive)
       (if (my:ime-active-p)
           (progn
             (setq cursor-type my:cursor-type-ime-on)
@@ -2917,6 +2844,9 @@
         (setq cursor-type my:cursor-type-ime-off)
         (set-cursor-color my:cursor-color-ime-off)))
     ;; (my:apply-cursor-config) will be called later in this file.
+
+    (with-eval-after-load "postpone"
+      (run-with-idle-timer 3 t #'my:apply-cursor-config))
 
     ;; Enter minibuffer with IME-off, and resture the latest IME
     (add-hook 'minibuffer-setup-hook
@@ -2938,7 +2868,7 @@
 
     ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
     ;; バッファ切替時に input method を切り替える
-    (with-eval-after-load "helm-config"
+    (with-eval-after-load "postpone"
       (when (and (fboundp 'mac-handle-input-method-change)
                  (require 'cl-lib nil t))
         (add-hook
@@ -2970,7 +2900,7 @@
       ;; (mac-auto-ascii-mode 1)
       ;; IME ON/OFF でカーソルの種別や色を替える
       (add-hook 'mac-selected-keyboard-input-source-change-hook
-                'my:mac-keyboard-input-source)
+                #'my:mac-keyboard-input-source)
       ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
       ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
       ;;           'my:mac-keyboard-input-source)
@@ -3077,7 +3007,7 @@
 ;; (setq display-buffer-alist 'popwin:display-buffer)
 ;; (push '("*sdic*" :position top) popwin:special-display-config)
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (when (require 'popwin nil t)
     (popwin-mode 1)
     ;; Performed
@@ -3124,10 +3054,10 @@
 (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
 (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (require 'generic-x nil t))
 
-(when window-system
+(when (display-graphic-p)
   (global-hl-line-mode 1))
 
 (when (and (string= system-name "mba.local")
@@ -3145,13 +3075,18 @@
                 (setq cursor-type my:cursor-type-ime-off)
                 (set-cursor-color my:cursor-color-ime-off))))
 
-(with-eval-after-load "helm-config"
+(with-eval-after-load "postpone"
   (setq blink-cursor-blinks 0)
   (setq blink-cursor-interval 0.3)
   (setq blink-cursor-delay 16)
   (blink-cursor-mode -1))
 
+;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
+;; 2) Inconsolata, Migu 2M     : font-size=14,
+;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
 (defconst my:font-size 12)
+(defconst my:ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
+(defconst my:ascii-font "Monaco") ;; "Inconsolata", Monaco
 (defun my:ja-font-setter (spec)
   (set-fontset-font nil 'japanese-jisx0208 spec)
   (set-fontset-font nil 'katakana-jisx0201 spec)
@@ -3161,22 +3096,27 @@
   (set-fontset-font nil 'mule-unicode-0100-24ff spec))
 (defun my:ascii-font-setter (spec)
   (set-fontset-font nil 'ascii spec))
+(defun my:font-config (&optional size ascii ja)
+  "Font config.
+- SIZE: font size for ASCII and Japanese (default: 12)
+- ASCII: ascii font family (default: \"Monaco\")
+- JA: Japanese font family (default: \"Migu 2M\")
+"
+  (when (memq window-system '(mac ns))
+    (let ((font-size (or size 12))
+          (ascii-font (or ascii "Monaco"))
+          (ja-font (or ja "Migu 2M")))
+      (with-eval-after-load "moom"
+        (setq moom-ascii-font ascii-font
+              moom-ja-font ja-font))
+      (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (my:ja-font-setter (font-spec :family ja-font :size font-size)))))
 
 (cond
  ;; CocoaEmacs
  ((memq window-system '(mac ns))
   (when (>= emacs-major-version 23)
-    ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
-    ;; 2) Inconsolata, Migu 2M     : font-size=14,
-    ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
-    (let
-        ;; Fonts
-        ((font-size my:font-size)
-         ;; ((font-size 28) ; for mirroring presentation (1440x900)
-         (ascii-font "Monaco") ;; "Inconsolata"
-         (ja-font "Migu 2M")) ;; "Hiragino Maru Gothic Pro"
-      (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
-      (my:ja-font-setter (font-spec :family ja-font :size font-size)))
+    (my:font-config)
 
     ;; Fix ratio provided by set-face-attribute for fonts display
     (setq face-font-rescale-alist
@@ -3228,18 +3168,18 @@
        "diff-mode" nil t)
 
   (with-eval-after-load "diff-mode"
-    (set-face-attribute 'diff-added-face nil
+    (set-face-attribute 'diff-added nil
                         :background nil :foreground "green"
                         :weight 'normal)
 
-    (set-face-attribute 'diff-removed-face nil
+    (set-face-attribute 'diff-removed nil
                         :background nil :foreground "firebrick1"
                         :weight 'normal)
 
-    (set-face-attribute 'diff-file-header-face nil
+    (set-face-attribute 'diff-file-header nil
                         :background nil :weight 'extra-bold)
 
-    (set-face-attribute 'diff-hunk-header-face nil
+    (set-face-attribute 'diff-hunk-header nil
                         :foreground "chocolate4"
                         :background "white" :weight 'extra-bold
                         :inherit nil)))
@@ -3253,6 +3193,7 @@
       (and (<= begin ct) (<= ct end)))))
 
 (defun my:apply-theme ()
+  (interactive)
   (let ((night-time-in 21)
         (night-time-out 5))
     (if (my:night-time-p (* night-time-in 60) (* night-time-out 60))
@@ -3262,7 +3203,7 @@
         (load-theme 'daylight t))))
   (my:apply-cursor-config))
 
-(when window-system
+(when (display-graphic-p)
   (my:apply-theme))
 
 (when (autoload-if-found
@@ -3270,14 +3211,13 @@
        "rainbow-mode" nil t)
 
   (dolist (hook '(emmet-mode-hook emacs-lisp-mode-hook org-mode-hook))
-    (add-hook hook 'rainbow-mode)))
+    (add-hook hook #'rainbow-mode)))
 
 (when (autoload-if-found
        '(volatile-highlights-mode)
        "volatile-highlights" nil t)
 
-  (eval-when-compile
-    (require 'volatile-highlights nil t))
+  (declare-function my:vhl-change-color "init" nil)
 
   (with-eval-after-load "volatile-highlights"
     (set-face-attribute
@@ -3286,6 +3226,7 @@
 
     ;; ふわっとエフェクトの追加（ペースト時の色 => カーソル色 => 本来色）
     (defun my:vhl-change-color ()
+      (interactive)
       (let
           ((next 0.2)
            (reset 0.5)
@@ -3318,10 +3259,10 @@
       (define-key org-mode-map (kbd "C-y") 'my:org-yank)))
 
   (dolist (hook '(org-mode-hook emacs-lisp-mode-hook emmet-mode-hook))
-    (add-hook hook 'volatile-highlights-mode)))
+    (add-hook hook #'volatile-highlights-mode)))
 
 (when (executable-find "qt_color_picker")
-  (with-eval-after-load "helm-config"
+  (with-eval-after-load "postpone"
     (require 'edit-color-stamp nil t))
   (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
 
@@ -3329,11 +3270,10 @@
        '(pomodoro:start)
        "pomodoro" nil t)
 
-  (eval-when-compile
-    (require 'pomodoro nil t))
-
-  (with-eval-after-load "helm-config"
-    (when (require 'pomodoro nil t)
+  (with-eval-after-load "postpone"
+    (when (and (not batch-build)
+               (not (boundp 'pomodoro:timer)))
+      ;; 重複起動を回避
       (pomodoro:start nil)))
 
   (with-eval-after-load "pomodoro"
@@ -3358,7 +3298,7 @@
     (custom-set-faces
      '(pomodoro:work-face
        ((((background dark)) :foreground "#DB4C46" :bold t)
-        (t (:foreground "#000033" :bold t)))) ;; #8248c4 , #956dc4, #9d64c4
+        (t (:foreground "#A130C4" :bold t)))) ;; #8248c4 , #956dc4, #9d64c4
      '(pomodoro:rest-face
        ((((background dark)) :foreground "#3869FA" :bold t)
         (t (:foreground "#203e6f" :bold t))))
@@ -3369,9 +3309,13 @@
     (defun my:pomodoro-status ()
       "Show the current `pomodoro' status in minibuffer when focus-in."
       (interactive)
-      (message (format "[Pomodoro] Remaining: %s | Count: %d"
-                       (pomodoro:time-to-string pomodoro:remainder-seconds)
-                       pomodoro:work-count)))
+      (when pomodoro:timer
+        (let ((message-log-max nil))
+          (message
+           (format "[%d/%s] %s to go "
+                   pomodoro:work-count
+                   pomodoro:max-iteration
+                   (pomodoro:time-to-string pomodoro:remainder-seconds))))))
     (add-hook 'focus-in-hook #'my:pomodoro-status)
 
     (defvar my:pomodoro-speak nil)
@@ -3427,15 +3371,17 @@
 
 (with-eval-after-load "pomodoro"
   ;; 追加実装
-  (defvar pomodoro:update-work-sign-interval 0.21) ;; work用表示間隔
+  (defvar pomodoro:update-work-sign-interval 0.17) ;; work用表示間隔
   (defvar pomodoro:update-rest-sign-interval 0.21) ;; rest用表示間隔
   (defvar pomodoro:update-long-rest-sign-interval 0.36) ;; long-rest用表示間隔
 
   (setq pomodoro:mode-line-work-sign-list
-        '(">  " ">> " ">>>" " >>" "  >" "   " "   "))
+        '("/  " "// " "///" " //" "  /" "   " "   "))
   (setq pomodoro:mode-line-rest-sign-list
-        '(".  " ".. " "..." " .." "  ." "   " "   "
-          "  ." " .." "..." ".. " ".  " "   " "   "))
+        '(".  " ".. " "..." "..:" ".::" ":::" ":::"
+          "::." ":.." "..." " .." "  ." "   " "   "
+          ",  " ",, " ",,," ",,;" ",;;" ";;;" ";;;"
+          ";;," ";,," ",,," " ,," "  ," "   " "   "))
   (setq pomodoro:mode-line-long-rest-sign-list
         '("   " " | " "|||" "| |" "   "))
 
@@ -3491,9 +3437,7 @@
   ;;     "◢◤ ^-^; ◢◤◢◤"));
 
   ;; タイマーを記録
-  (defvar pomodoro:update-sign-timer
-    (run-at-time t pomodoro:update-work-sign-interval
-                 'pomodoro:update-work-sign))
+  (defvar pomodoro:update-sign-timer nil)
 
   ;; 初期状態を登録
   (setq pomodoro:mode-line-work-sign (car pomodoro:mode-line-work-sign-list))
@@ -3511,16 +3455,27 @@
           (run-at-time t interval sign)))
 
   (defun pomodoro:stop-visualize ()
-    (when (timerp pomodoro:update-sign-timer)
-      (cancel-timer pomodoro:update-sign-timer))
     (setq pomodoro:mode-line-work-sign nil)
     (setq pomodoro:mode-line-rest-sign nil)
     (setq pomodoro:mode-line-long-rest-sign nil))
 
-  (defun advice:pomodoro:stop ()
+  (defun advice:pomodoro:start (f &rest minutes)
     "Extensions to stop pomodoro and timers"
-    (pomodoro:stop-visualize))
-  (advice-add 'pomodoro:stop :after #'advice:pomodoro:stop)
+    (interactive "P")
+    (setq pomodoro:update-sign-timer
+          (run-at-time t pomodoro:update-work-sign-interval
+                       'pomodoro:update-work-sign))
+    (setq pomodoro:mode-line-work-sign (car pomodoro:mode-line-work-sign-list))
+    (apply f minutes))
+  (advice-add 'pomodoro:start :around #'advice:pomodoro:start)
+
+  (defun advice:pomodoro:stop (f &rest do-reset)
+    "Extensions to stop pomodoro and timers"
+    (interactive)
+    (when (timerp pomodoro:update-sign-timer)
+      (cancel-timer pomodoro:update-sign-timer))
+    (apply f do-reset))
+  (advice-add 'pomodoro:stop :around #'advice:pomodoro:stop)
 
   ;; work
   (defun pomodoro:update-work-sign ()
@@ -3571,8 +3526,7 @@
        '(my:google-this google-this-word)
        "google-this" nil t)
 
-  (eval-when-compile
-    (require 'google-this nil t))
+  (declare-function google-this "init" PREFIX NOCONFIRM)
 
   (with-eval-after-load "google-this"
     (defun my:google-this ()
@@ -3585,15 +3539,14 @@
        '(lingr-login my:lingr-login)
        "lingr" nil t)
 
-  (eval-when-compile
-    (require 'lingr nil t))
-
   (with-eval-after-load "lingr"
-    (setq lingr-icon-mode t)
-    (setq lingr-icon-fix-size 24)
-    (setq lingr-image-convert-program "/usr/local/bin/convert"))
+    (custom-set-variables
+     '(lingr-icon-mode t)
+     '(lingr-icon-fix-size 24)
+     '(lingr-image-convert-program  (or (executable-find "convert")
+                                        lingr-image-convert-program))))
 
-  (with-eval-after-load "helm-config"
+  (with-eval-after-load "postpone"
     ;; do not use `run-at-time' at booting since diary-lib.el will be loaded. It requires loading cost.
     (defun my:lingr-login ()
       (when (string= "Sat" (format-time-string "%a"))
@@ -3605,12 +3558,10 @@
        '(osx-lib-say osx-lib-say-region)
        "osx-lib" nil t)
 
-  (eval-when-compile
-    (require 'osx-lib nil t))
-
   (with-eval-after-load "osx-lib"
-    (setq osx-lib-say-ratio 100)
-    (setq osx-lib-say-voice "Samantha")))
+    (custom-set-variables
+     '(osx-lib-say-ratio 100)
+     '(osx-lib-say-voice "Samantha"))))
 
 (if (executable-find "pass")
     (when (autoload-if-found
@@ -3623,23 +3574,31 @@
        '(my:cmd-to-open-iterm2)
        "utility" nil t)
 
-  (global-set-key (kbd "C-M-i") #'my:cmd-to-open-iterm2))
-;; キーバインドの再設定
-(with-eval-after-load "flyspell"
-  (define-key flyspell-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2))
-(with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2))
+  (global-set-key (kbd "C-M-i") #'my:cmd-to-open-iterm2)
+  ;; キーバインドの再設定
+  (with-eval-after-load "flyspell"
+    (define-key flyspell-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2))
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-M-i") #'my:cmd-to-open-iterm2)))
 
 (global-set-key (kbd "C-c f t") 'open-current-directory)
+
+(defun onetime-kicker ()
+  "Load and execute functions just one time."
+  (when (require 'postpone nil t)
+    (postpone-mode 1))
+  (remove-hook 'pre-command-hook #'onetime-kicker))
+(add-hook 'pre-command-hook #'onetime-kicker)
 
 (defconst utility-autoloads
   '(my:date
     my:window-resizer my:open-file-ring my:update-alarms-from-file
     my:desktop-notify my:daylight-theme my:night-theme
-    eval-org-buffer kyoko-mad-mode-toggle
+    eval-org-buffer kyoko-mad-mode-toggle mac:delete-files-in-trash-bin
     org2dokuwiki-cp-kill-ring open-current-directory set-alarms-from-file
     reload-ical-export show-org-buffer get-random-string init-auto-install
-    add-itemize-head insert-formatted-current-date
+    add-itemize-head add-itemize-head-checkbox insert-formatted-current-date
+    my:cycle-bullet-at-heading
     insert-formatted-current-time insert-formatted-signature
     export-timeline-business export-timeline-private chomp
     my:browse-url-chrome count-words-buffer do-test-applescript
@@ -3649,7 +3608,9 @@
 (when (autoload-if-found
        utility-autoloads
        "utility" nil t)
-  (global-set-key (kbd "C-M--") 'add-itemize-head)
+  ;; (global-set-key (kbd "C-M--") 'add-itemize-head)
+  ;; (global-set-key (kbd "C-M-_") 'add-itemize-head-checkbox)
+  (global-set-key (kbd "C-M--") 'my:cycle-bullet-at-heading)
   (global-set-key (kbd "<f12>") 'my:open-file-ring)
   (global-set-key (kbd "C-c t") 'my:date)
   (global-set-key (kbd "C-c f 4") 'my:window-resizer))
