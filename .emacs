@@ -1,29 +1,41 @@
-;; (package-initialize) ;; for Emacs 25                Validated in Emacs 25.2
+;; (package-initialize) ;; for Emacs 25                Validated in Emacs 25.3
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(load "~/Dropbox/emacs.d/config/init-env.el" nil t)
+(load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Playground
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Let's use easy-hugo!
-(when (and nil (require 'easy-hugo nil t))
-  (setq easy-hugo-default-ext ".org")
-  (setq easy-hugo-basedir "~/Dropbox/org/blog/public")
-  (setq easy-hugo-url "https://pxaka.tokyo/blog")
-  ;; (setq easy-hugo-sshdomain "~/.ssh/config")
-  ;; (setq easy-hugo-root "")
+(with-eval-after-load "org"
+  (when (require 'org-edna nil t)
 
-  (defun hugo-org-header-template ()
-    (interactive)
-    (when (string= major-mode 'org-mode)
-      (let ((title "#+TITLE: ")
-            (author "#+AUTHOR: Takaaki Ishikawa\n")
-            (date (format "#+DATE: %s\n"
-                          (format-time-string "%FT%H:%M:%S%:z")))
-            (description "#+DESCRIPTION: \n")
-            (tags "#+TAGS: \n")
-            (draft "#+DRAFT: false\n"))
-        (goto-char 0)
-        (insert title)
-        (save-excursion
-          (insert "\n" author date description tags draft))))))
+    ))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(with-eval-after-load "org"
+  (setq-default org-catch-invisible-edits 'error)
+
+  ;; Settings for the latest Org Mode
+  (add-to-list 'org-structure-template-alist '(?S . "src emacs-lisp"))
+  (define-skeleton org-skeleton-src-block
+    "" nil "#+BEGIN_SRC " _ \n \n "#+END_SRC")
+  (define-skeleton org-skeleton-emacslisp-src-block
+    "" nil "#+BEGIN_SRC emacs-lisp"\n _ \n "#+END_SRC"))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; .emacs ends here
