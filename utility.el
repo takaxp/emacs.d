@@ -291,12 +291,12 @@
 (defun my:org-list-insert-items (begin end)
   (interactive "r")
   (when mark-active
-    (let* ((bullet "- ")
-           (len (length bullet)))
+    (let* ((bullet " - ")
+           (len (string-width bullet)))
       (goto-char begin)
       (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
                   (not (equal (point) end)))
-        (replace-match (concat "\\1 " bullet) nil nil)
+        (replace-match (concat "\\1" bullet) nil nil)
         (setq end (+ end len)))
       (goto-char begin))))
 
@@ -305,7 +305,7 @@
   (interactive "r")
   (when mark-active
     (let* ((bullet "- ")
-           (len (length bullet)))
+           (len (string-width bullet)))
       (goto-char begin)
       (while (re-search-forward
               (concat "\\(^[ \t]*\\)" bullet) end t)
@@ -319,7 +319,7 @@
   (when mark-active
     (let* ((bullet "- ")
            (checkbox "[ ] ")
-           (len (length checkbox)))
+           (len (string-width checkbox)))
       (goto-char begin)
       (while (re-search-forward (concat "\\(^[ \t]*\\)" bullet) end t)
         (replace-match (concat "\\1" bullet checkbox) nil nil)
@@ -331,7 +331,7 @@
   (interactive "r")
   (when mark-active
     (let ((bullet "- ")
-          (len (length "[ ] ")))
+          (len (string-width "[ ] ")))
       (goto-char begin)
       (while (re-search-forward
               (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
@@ -343,14 +343,14 @@
 (defun my:org-list-insert-itms-with-checkbox (begin end)
   (interactive "r")
   (when mark-active
-    (let* ((bullet "- ")
+    (let* ((bullet " - ")
            (checkbox "[ ] ")
-           (blen (length bullet))
-           (clen (length checkbox)))
+           (blen (string-width bullet))
+           (clen (string-width checkbox)))
       (goto-char begin)
       (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
                   (not (equal (point) end)))
-        (replace-match (concat "\\1 " bullet checkbox) nil nil)
+        (replace-match (concat "\\1" bullet checkbox) nil nil)
         (setq end (+ end blen clen)))
       (goto-char begin))))
 
@@ -360,8 +360,8 @@
   (when mark-active
     (let* ((bullet "- ")
            (checkbox "[ ] ")
-           (blen (length bullet))
-           (clen (length checkbox)))
+           (blen (string-width bullet))
+           (clen (string-width checkbox)))
       (goto-char begin)
       (while (re-search-forward
               (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)

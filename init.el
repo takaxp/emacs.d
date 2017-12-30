@@ -108,6 +108,13 @@
   (setq default-input-method "MacOSX")
   (mac-add-key-passed-to-system 'shift))
 
+(when (eq system-type 'gnu/linux)
+  (push "/usr/share/emacs/site-lisp/anthy" load-path)
+  (when (require 'anthy nil t) ;; sudo yum install emacs-anthy-el
+    (load-file "/usr/share/emacs/site-lisp/anthy/leim-list.el") ;; if get error
+    (setq default-input-method 'japanese-anthy))
+  (global-set-key (kbd "<hiragana-katakana>") 'toggle-input-method))
+
 (when (and (executable-find "ag")
            (autoload-if-found
             '(my:ag ag)
@@ -121,12 +128,11 @@
 
     ;; q でウィンドウを抜ける
     ;; (define-key ag-mode-map (kbd "q") 'delete-window)
-
-    ;; 自動的に出力バッファに移動
     (defun my:ag ()
-      (interactive)
-      (call-interactively 'ag)
-      (switch-to-buffer-other-frame "*ag search*")))
+    "自動的に出力バッファに移動"
+    (interactive)
+    (call-interactively 'ag)
+    (switch-to-buffer-other-frame "*ag search*")))
 
   (global-set-key (kbd "C-M-f") 'my:ag)
   (autoload-if-found '(helm-ag) "helm-ag" nil t))
@@ -823,20 +829,24 @@
   (when (require 'selected nil t)
     (defvar my:ime-flag nil)
     (declare-function my:ime-active-p "init" nil)
-    (declare-function my:ime-on "init" (&optional sticky))
-    (declare-function my:ime-off "init" (&optional sticky))
+    (declare-function my:ime-on "init" nil)
+    (declare-function my:ime-off "init" nil)
+    (declare-function my:org-list-insert-items "utility" (begin end))
+    (declare-function my:org-list-insert-checkbox-into-items
+                      "utility" (begin end))
+
     (when (fboundp 'mac-set-input-method-parameter)
       (add-hook 'activate-mark-hook
                 #'(lambda ()
-                    (if (not (my:ime-active-p))
-                        (setq my:ime-flag nil)
-                      (setq my:ime-flag t)
+                    (when (setq my:ime-flag (my:ime-active-p))
                       (my:ime-off))))
       (add-hook 'deactivate-mark-hook
                 #'(lambda ()
                     (when my:ime-flag
                       (my:ime-on)))))
+
     (define-key selected-keymap (kbd ";") #'comment-dwim)
+    (define-key selected-keymap (kbd "e") #'my:eval-region-echo)
     (define-key selected-keymap (kbd "=") #'count-words-region)
     (define-key selected-keymap (kbd "f") #'describe-function)
     (define-key selected-keymap (kbd "v") #'describe-variable)
@@ -844,16 +854,36 @@
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
     (define-key selected-keymap (kbd "g") #'my:google-this)
     (define-key selected-keymap (kbd "s") #'osx-lib-say-region)
+    (define-key selected-keymap (kbd "q") #'selected-off)
+    (define-key selected-keymap (kbd "i") #'my:org-list-insert-items)
+    (define-key selected-keymap (kbd "I")
+      #'my:org-list-insert-checkbox-into-items)
+    (define-key selected-keymap (kbd "x") #'my:hex-to-decimal)
+    (define-key selected-keymap (kbd "X") #'my:decimal-to-hex)
+
+    (defun my:eval-region-echo ()
+      (interactive)
+      (when mark-active
+        (eval-region (region-beginning) (region-end) t)))
     (setq selected-org-mode-map (make-sparse-keymap))
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
-    (define-key selected-keymap (kbd "q") #'keyboard-quit)
 
     (when (require 'help-fns+ nil t)
       (defun my:describe-selected-keymap ()
         (interactive)
         (describe-keymap 'selected-keymap))
-      (define-key selected-keymap (kbd "h") #'my:describe-selected-keymap))
+      (define-key selected-keymap (kbd "H") #'my:describe-selected-keymap))
+
     (selected-global-mode 1)))
+
+(with-eval-after-load "selected"
+  (when (require 'helm-selected nil t)
+    (define-key selected-keymap (kbd "h") 'helm-selected)))
+
+(when (autoload-if-found
+       '(git-complete)
+       "git-complete" nil t)
+  (global-set-key (kbd "C-c f <tab>") 'git-complete))
 
 (with-eval-after-load "postpone"
   (when (require 'delight nil t)
@@ -871,11 +901,12 @@
        (change-log-mode "ChangeLog" :major)
        (lisp-interaction-mode "Lisp" :major)
 
-       ;; Shorten
+       ;; Shorten for minor modes
        (ggtags-mode " G" "ggtags")
        (orgstruct-mode " OrgS" "org")
 
-       ;; No display
+       ;; No display for minor modes
+       (eldoc-mode nil "eldoc")
        (centered-cursor-mode nil "centered-cursor-mode")
        (volatile-highlights-mode nil "volatile-highlights")
        (aggressive-indent-mode nil "aggressive-indent")
@@ -1192,6 +1223,17 @@
        "all-the-icons-dired" nil t)
 
   (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))
+
+(when (autoload-if-found
+       '(turn-on-eldoc-mode)
+       "eldoc" nil t)
+
+  (with-eval-after-load "eldoc"
+    (custom-set-variables
+     '(eldoc-idle-delay 1.5)))
+
+  (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
+    (add-hook hook #'turn-on-eldoc-mode)))
 
 (when (autoload-if-found
        '(google-maps)
@@ -1635,8 +1677,17 @@
     (add-hook 'c-mode-common-hook #'helm-gtags-mode)))
 
 (when (autoload-if-found
-       '(0xc-convert 0xc-convert-point)
+       '(0xc-convert 0xc-convert-point my:decimal-to-hex my:hex-to-decimal)
        "0xc" nil t)
+
+  (with-eval-after-load "0xc"
+    (defun my:decimal-to-hex ()
+      (interactive)
+      (0xc-convert 16 (word-at-point)))
+    (defun my:hex-to-decimal ()
+      (interactive)
+      (0xc-convert 10 (word-at-point))))
+
   (global-set-key (kbd "C-c f h") '0xc-convert))
 
 (with-eval-after-load "postpone"
@@ -1736,6 +1787,7 @@
     (require 'org-habit nil t)
     (require 'org-mobile nil t)
     (add-to-list 'org-modules 'org-id)
+    (add-to-list 'org-modules 'ox-odt)
 
     ;; C-c & が yasnippet にオーバーライドされているのを張り替える
     (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
@@ -1783,8 +1835,14 @@
     ;; org-clock の計測時間をモードラインではなくタイトルに表示する
     (setq org-clock-clocked-in-display 'frame-title)
 
+    ;; 1分未満は記録しない
+    (setq org-clock-out-remove-zero-time-clocks t)
+
     ;; helm を立ち上げる
     (require 'helm-config nil t)
+
+    ;; org-eldoc を読み込む
+    (require 'org-eldoc nil t)
 
     ;; - を優先．親のブリッツ表示を継承させない
     (setq org-list-demote-modify-bullet
@@ -1799,7 +1857,15 @@
             ("A." . "-")
             ("B." . "-")
             ("a." . "-")
-            ("b." . "-"))))
+            ("b." . "-")))
+
+    ;; 完了したタスクの配色を変える
+    ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
+    (font-lock-add-keywords
+     'org-mode
+     `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+        1 'org-headline-done prepend))
+     'append))
 
   (push '("\\.txt$" . org-mode) auto-mode-alist))
 
@@ -1855,9 +1921,16 @@
 (with-eval-after-load "org"
   (setq org-use-speed-commands t)
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
+  (add-to-list 'org-speed-commands-user '("D" my:org-todo-cancel-repeat "DONE"))
   (add-to-list 'org-speed-commands-user '("P" my:proportional-font-toggle))
   (add-to-list 'org-speed-commands-user
-               '("$" call-interactively 'org-archive-subtree)))
+               '("$" call-interactively 'org-archive-subtree))
+
+  (defun my:org-todo-cancel-repeat (&optional ARG)
+    (interactive "P")
+    (when (org-get-repeat)
+      (org-cancel-repeater))
+    (org-todo ARG)))
 
 (with-eval-after-load "org"
   (add-to-list 'org-modules 'org-timer)
@@ -1886,7 +1959,7 @@
   ;; Font lock を使う
   (global-font-lock-mode 1)
   (add-hook 'org-mode-hook #'turn-on-font-lock)
-  ;; ウィンドウの端で折り返す（想定と逆の振る舞い．どこかにバグがある）
+  ;; ウィンドウの端で折り返す
   (setq org-startup-truncated nil)
   ;; サブツリー以下の * を略式表示する
   (setq org-hide-leading-stars t)
@@ -1948,6 +2021,7 @@
           ("Home"        :foreground "#CC9999" :weight bold)
           ("Open"        :foreground "#CC9999" :weight bold)
           ("Blog"        :foreground "#9966CC")
+          ("story"       :foreground "#FF7D7D")
           ("Test"        :foreground "#FF0000" :weight bold)
           ("Attach"      :foreground "#FF0000" :underline t :weight bold)
           ("drill"       :foreground "#66BB66" :underline t)
@@ -2264,6 +2338,7 @@
    'org-babel-load-languages
    '((dot . t)
      (C . t)
+     (ditaa . t)
      (gnuplot . t)
      (perl . t)
      (shell . t)
@@ -2320,6 +2395,40 @@
 
   (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
   (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle))
+
+(with-eval-after-load "org-tree-slide"
+  (defun my:tree-slide-autoclockin-p ()
+    (save-excursion
+      (save-restriction
+        (widen)
+        (goto-char 1)
+        (let ((keyword "TREE_SLIDE:")
+              (value "autoclockin")
+              (result nil))
+          (while
+              (and (re-search-forward (concat "^#\\+" keyword "[ \t]*") nil t)
+                   (re-search-forward value (point-at-eol) t))
+            (setq result t))
+          result))))
+
+  (when (require 'org-clock nil t)
+    (defun my:org-clock-in ()
+      (setq vc-display-status nil) ;; モードライン節約
+      (when (and (my:tree-slide-autoclockin-p)
+                 (looking-at (concat "^\\*+ " org-not-done-regexp))
+                 (memq (org-outline-level) '(1 2 3 4)))
+        (org-clock-in)))
+
+    (defun my:org-clock-out ()
+      (setq vc-display-status t) ;; モードライン節約解除
+      (when (org-clocking-p)
+        (org-clock-out)))
+
+    (add-hook 'org-tree-slide-before-move-next-hook #'my:org-clock-out)
+    (add-hook 'org-tree-slide-before-move-previous-hook #'my:org-clock-out)
+    ;; (add-hook 'org-tree-slide-before-content-view-hook #'my:org-clock-out)
+    (add-hook 'org-tree-slide-mode-stop-hook #'my:org-clock-out)
+    (add-hook 'org-tree-slide-after-narrow-hook #'my:org-clock-in)))
 
 (when (autoload-if-found
        '(org-tree-slide-mode my:proportional-font-toggle)
@@ -2531,11 +2640,11 @@
       "	return (get aLink) & \"::split::\" & (get aName) as string\n"
       "else\n"
       "	return\n"
-      "end if\n"))
+      "end if\n")))
 
-    (add-to-list 'org-mac-link-descriptors
-                 `("P" "apers" org-mac-papers-insert-frontmost-paper-link
-                   ,org-mac-grab-Papers-app-p) t)))
+  (add-to-list 'org-mac-link-descriptors
+               `("P" "apers" org-mac-papers-insert-frontmost-paper-link
+                 ,org-mac-grab-Papers-app-p) t))
 
 (with-eval-after-load "org"
   (when (eq system-type 'darwin)
@@ -2721,8 +2830,37 @@
     (define-key org-mode-map (kbd "C-c f y") 'org-dashboard-display)))
 
 (with-eval-after-load "org"
+  (defun advice:org-clock-sum-today (&optional headline-filter)
+    "Sum the times for each subtree for today."
+    (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
+      (org-clock-sum (car range) (cadr range)
+		                 headline-filter :org-clock-minutes-today)))
+  (advice-add 'org-clock-sum-today :override #'advice:org-clock-sum-today)
+
   (when (require 'org-clock-today nil t)
-    ;; (setq org-clock-today-hide-default-org-clock-mode-line t)
+    (defun advice:org-clock-today-update-mode-line ()
+      "Calculate the total clocked time of today and update the mode line."
+      (setq org-clock-today-string
+            (if (org-clock-is-active)
+                ;; ナローイングの影響を排除し，subtreeに限定しない．
+                (save-excursion
+                  (save-restriction
+                    (with-current-buffer (org-clock-is-active)
+                      (widen)
+                      (let* ((current-sum (org-clock-sum-today))
+                             (open-time-difference (time-subtract
+                                                    (float-time)
+                                                    (float-time org-clock-start-time)))
+                             (open-seconds (time-to-seconds open-time-difference))
+                             (open-minutes (/ open-seconds 60))
+                             (total-minutes (+ current-sum
+                                               open-minutes)))
+                        (concat " " (org-minutes-to-clocksum-string total-minutes))))))
+              ""))
+      (force-mode-line-update))
+    (advice-add 'org-clock-today-update-mode-line
+                :override #'advice:org-clock-today-update-mode-line)
+
     (org-clock-today-mode 1)))
 
 (when (autoload-if-found
@@ -2812,22 +2950,18 @@
       (not (string-match "\\.Roman$" (mac-get-current-input-source))))
     (defvar my:ime-on-hook nil)
     (defvar my:ime-off-hook nil)
-    (defun my:ime-on (&optional sticky)
+    (defun my:ime-on ()
       (interactive)
       (mac-toggle-input-method t)
       (setq cursor-type my:cursor-type-ime-on)
       (set-cursor-color my:cursor-color-ime-on)
-      (run-hooks 'my:ime-on-hook)
-      (when sticky
-        (setq my:ime-flag t)))
-    (defun my:ime-off (&optional sticky)
+      (run-hooks 'my:ime-on-hook))
+    (defun my:ime-off ()
       (interactive)
       (mac-toggle-input-method nil)
       (setq cursor-type my:cursor-type-ime-off)
       (set-cursor-color my:cursor-color-ime-off)
-      (run-hooks 'my:ime-off-hook)
-      (when sticky
-        (setq my:ime-flag nil)))
+      (run-hooks 'my:ime-off-hook))
 
     ;; for init setup
     (setq-default cursor-type my:cursor-type-ime-on)
@@ -3128,8 +3262,7 @@
             (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
             ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
             ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-            ("-cdac$" . 1.0)))           ; 1.3
-    ))
+            ("-cdac$" . 1.0)))))         ; 1.3
 
  ((eq window-system 'ns)
   ;; Anti aliasing with Quartz 2D
@@ -3140,26 +3273,26 @@
   (let ((font-size 14)
         (font-height 100)
         (ascii-font "Inconsolata")
-        ;; (ja-font "Meiryo UI"))
-        (ja-font "メイリオ"))
+        (ja-font "メイリオ")) ;; Meiryo UI
     (my:ja-font-setter
      (font-spec :family ja-font :size font-size :height font-height))
-    (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
-  (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))) ; 0.9
-  )
- (window-system ; for SuSE Linux 12.1
-  (let
-      ((font-size 14)
-       (font-height 100)
-       (ascii-font "Inconsolata")
-       ;; (ja-font "MigMix 1M")
-       (ja-font "Migu 1M"))
-    (my:ja-font-setter
-     (font-spec :family ja-font :size font-size :height font-height))
-    (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
-  (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
-                                  (".*Inconsolata.*" . 1.0))) ; 0.9
-  ))
+    (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
+    (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
+
+ ((eq window-system 'x) ; for SuSE Linux 12.1
+  (with-eval-after-load "postpone"
+    (let
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font "Inconsolata")
+         ;; (ja-font "MigMix 1M")
+         (ja-font "Migu 2M"))
+      (my:ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
+    (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
+                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
+ )
 
 (set-default 'line-spacing 0.2)
 
@@ -3201,7 +3334,8 @@
           (load-theme 'night t))
       (when (require 'daylight-theme nil t)
         (load-theme 'daylight t))))
-  (my:apply-cursor-config))
+  (when (fboundp 'mac-get-current-input-source)
+    (my:apply-cursor-config)))
 
 (when (display-graphic-p)
   (my:apply-theme))
@@ -3583,12 +3717,20 @@
 
 (global-set-key (kbd "C-c f t") 'open-current-directory)
 
-(defun onetime-kicker ()
-  "Load and execute functions just one time."
-  (when (require 'postpone nil t)
-    (postpone-mode 1))
-  (remove-hook 'pre-command-hook #'onetime-kicker))
-(add-hook 'pre-command-hook #'onetime-kicker)
+(autoload 'postpone-kicker "postpone" nil t)
+(if (fboundp 'postpone-kicker)
+    (add-hook 'pre-command-hook #'postpone-kicker)
+  (message "postpone.el is NOT installed."))
+
+(with-eval-after-load "postpone"
+  (when (require 'network-watch nil t)
+    (unless batch-build
+      (network-watch-mode 1))
+    (defun advice:network-watch-update-lighter ()
+      "Return a mode lighter reflecting the current network state."
+      (unless (network-watch-active-p) " ↓NW↓"))
+    (advice-add 'network-watch-update-lighter
+                :override #'advice:network-watch-update-lighter)))
 
 (defconst utility-autoloads
   '(my:date
@@ -3599,6 +3741,11 @@
     reload-ical-export show-org-buffer get-random-string init-auto-install
     add-itemize-head add-itemize-head-checkbox insert-formatted-current-date
     my:cycle-bullet-at-heading
+    my:org-list-insert-items my:org-list-delete-items
+    my:org-list-insert-checkbox-into-items
+    my:org-list-delete-checkbox-from-items
+    my:org-list-insert-itms-with-checkbox
+    my:org-list-delete-items-with-checkbox
     insert-formatted-current-time insert-formatted-signature
     export-timeline-business export-timeline-private chomp
     my:browse-url-chrome count-words-buffer do-test-applescript

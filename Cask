@@ -30,6 +30,7 @@
 (depends-on "toc-org")
 (depends-on "org-web-tools")
 (depends-on "org-bullets")
+(depends-on "org-edna")
 
 ;; Major modes
 (depends-on "python-mode")
@@ -92,6 +93,7 @@
 (depends-on "helm-projectile")
 ;; (depends-on "helm-rtags")
 (depends-on "helm-swoop")
+(depends-on "helm-selected")
 
 ;; OSX support
 (depends-on "osx-lib")
@@ -108,6 +110,7 @@
 (depends-on "ac-js2")
 (depends-on "migemo")
 (depends-on "edit-color-stamp")
+(depends-on "git-complete")
 ;; (depends-on "parinfer")
 
 ;; Visualize

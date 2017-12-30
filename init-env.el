@@ -7,7 +7,7 @@
 (defconst ad-require nil)
 (defconst loading-packages nil)
 ;; (setq loading-packages '(("org" . nil)))
-(defconst my:debug nil)
+(defconst my:boot-mode t) ;; {debug, test, any}
 (setq debug-on-error nil)
 (defvar batch-build nil) ;; see also init-eval.el
 
@@ -38,18 +38,23 @@
    "/usr/local/opt/imagemagick@6/bin")
  'exec-path)
 
-;; (3) load-path for { debug | normal } booting
+;; (3) load-path for { nil | debug | test } booting
 (defconst init-load-path nil)
 (cond
- (my:debug
+ ((equal my:boot-mode 'debug)
   (load-path-setter '("~/Dropbox/config") 'load-path)
   (require 'my-debug))
+ ((equal my:boot-mode 'test)
+  (require 'my-debug)
+  (add-to-list 'load-path "~/devel/git/org-mode/lisp")
+  (add-to-list 'load-path "~/devel/git/org-mode/contrib/lisp")
+  (add-to-list 'load-path "~/.emacs.d/.cask/package/26.0.90"))
  (t
-  (let* ((p "~/Dropbox/emacs.d/")
-         (g "~/devel/git/")
-         (od "org-mode")
+  (let* ((g "~/devel/git/")
+         (od "org-mode") ;; (p "~/Dropbox/emacs.d/")
          ;; (od "org-9.0")
-         (l `("~/Dropbox/emacs.d/config" "~/Dropbox/config" ,p
+         (l `("~/Dropbox/config" "~/.emacs.d/lisp"
+	            ;; "~/Dropbox/emacs.d/config"
               ;; ,(concat p "livemirror") ,(concat g "git-complete")
               ,(concat g od "/lisp") ,(concat g od "/contrib/lisp"))))
 

@@ -1,4 +1,4 @@
-(setq frame-title-format "Emacs :: Test mode")
+(setq frame-title-format "Emacs :: Debug mode")
 (setq debug-on-error t)
 (setq make-backup-files nil)
 (set-language-environment "Japanese")
