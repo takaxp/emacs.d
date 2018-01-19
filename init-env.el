@@ -7,7 +7,7 @@
 (defconst ad-require nil)
 (defconst loading-packages nil)
 ;; (setq loading-packages '(("org" . nil)))
-(defconst my:boot-mode t) ;; {debug, test, any}
+(defconst my:boot-mode 'any) ;; {debug, test, any}
 (setq debug-on-error nil)
 (defvar batch-build nil) ;; see also init-eval.el
 
@@ -45,6 +45,7 @@
   (load-path-setter '("~/Dropbox/config") 'load-path)
   (require 'my-debug))
  ((equal my:boot-mode 'test)
+  (load-path-setter '("~/Dropbox/config") 'load-path)
   (require 'my-debug)
   (add-to-list 'load-path "~/devel/git/org-mode/lisp")
   (add-to-list 'load-path "~/devel/git/org-mode/contrib/lisp")

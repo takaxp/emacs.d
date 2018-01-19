@@ -519,11 +519,21 @@ NSビルド用のインラインパッチを適用している場合に使いま
   (mac-add-key-passed-to-system 'shift))
 
 (when (eq system-type 'gnu/linux)
+  (global-set-key (kbd "<hiragana-katakana>") 'toggle-input-method)
   (push "/usr/share/emacs/site-lisp/anthy" load-path)
-  (when (require 'anthy nil t) ;; sudo yum install emacs-anthy-el
-    (load-file "/usr/share/emacs/site-lisp/anthy/leim-list.el") ;; if get error
-    (setq default-input-method 'japanese-anthy))
-  (global-set-key (kbd "<hiragana-katakana>") 'toggle-input-method))
+  (push "/usr/share/emacs/site-lisp/emacs-mozc" load-path)
+  (set-language-environment "Japanese")
+
+  (if (require 'mozc nil t)
+      (progn
+        (setq default-input-method "japanese-mozc")
+        (custom-set-variables
+         '(mozc-candidate-style 'overlay)))
+
+    (when (require 'anthy nil t) ;; sudo yum install emacs-anthy-el
+      ;; if get error
+      (load-file "/usr/share/emacs/site-lisp/anthy/leim-list.el")
+      (setq default-input-method 'japanese-anthy))))
 #+END_SRC
 
 ** [ag.el] 検索
@@ -1413,9 +1423,12 @@ Built-in の time-stamp.el を使う．
 #+BEGIN_SRC emacs-lisp :tangle yes
 (add-hook 'change-log-mode-hook
           #'(lambda()
-             (orgstruct-mode)
-             (setq tab-width 4)
-             (setq left-margin 4)))
+              (if (require 'orgalist nil t)
+                  (when (boundp 'orgalist-mode)
+                    (orgalist-mode 1))
+                (orgstruct-mode))
+              (setq tab-width 4)
+              (setq left-margin 4)))
 #+END_SRC
 
 ** テキストモード
@@ -2366,8 +2379,8 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
     (define-key selected-keymap (kbd "g") #'my:google-this)
     (define-key selected-keymap (kbd "s") #'osx-lib-say-region)
     (define-key selected-keymap (kbd "q") #'selected-off)
-    (define-key selected-keymap (kbd "i") #'my:org-list-insert-items)
-    (define-key selected-keymap (kbd "I")
+    (define-key selected-keymap (kbd "-") #'my:org-list-insert-items)
+    (define-key selected-keymap (kbd "_")
       #'my:org-list-insert-checkbox-into-items)
     (define-key selected-keymap (kbd "x") #'my:hex-to-decimal)
     (define-key selected-keymap (kbd "X") #'my:decimal-to-hex)
@@ -2389,6 +2402,8 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** [helm-selected.el] selecte.el のアクション候補を絞り込み
+
+ - [[https://qiita.com/takaxp/items/00245794d46c3a5fcaa8][記事]]にしました．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "selected"
@@ -2499,7 +2514,8 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 
        ;; Shorten for minor modes
        (ggtags-mode " G" "ggtags")
-       (orgstruct-mode " OrgS" "org")
+       ;; (orgstruct-mode " OrgS" "org")
+       (orgalist-mode " ol" "orgalist")
 
        ;; No display for minor modes
        (eldoc-mode nil "eldoc")
@@ -2654,7 +2670,7 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
   (setq header-line-format
         (concat
          " GNU Emacs                                                  "
-         (format-time-string "W%U: %Y-%m-%d %a."))))
+         (format-time-string "W%W: %Y-%m-%d %a."))))
 
 (global-set-key (kbd "C-M-s") #'(lambda () (interactive)
                                   (switch-to-buffer "*scratch*")))
@@ -2935,100 +2951,101 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 =M-s= を =helm-swoop= にあてていましたが， =M-s= を入り口にたくさんの検索系コマンドが割り振られているため =M-s M-s= に変えました．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(when (autoload-if-found
-       '(helm-M-x
-         helm-locate helm-recentf helm-descbinds
-         helm-occur helm-swoop helm-flycheck helm-bookmarks)
-       "helm-config" nil t)
+  (when (autoload-if-found
+         '(helm-M-x
+           helm-locate helm-recentf helm-descbinds
+           helm-occur helm-swoop helm-flycheck helm-bookmarks)
+         "helm-config" nil t)
 
-  (with-eval-after-load "helm-config"
-    (unless batch-build
-      (recentf-mode 1))
-    (helm-mode 1)
+    (with-eval-after-load "helm-config"
+      (unless batch-build
+        (recentf-mode 1))
+      (helm-mode 1)
 
-    ;; (when (require 'diminish nil t)
-    ;;   (diminish 'helm-mode)) ;; " H"
+      ;; (when (require 'diminish nil t)
+      ;;   (diminish 'helm-mode)) ;; " H"
 
-    (when (require 'helm-swoop nil t)
-      ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
-      (setq helm-swoop-pre-input-function
-            #'(lambda()
-                (unless (thing-at-point-looking-at "^\\*+")
-                  (thing-at-point 'symbol))))
-      ;; 配色設定
-      (set-face-attribute
-       'helm-swoop-target-line-face nil :background "#FFEDDC")
-      (set-face-attribute
-       'helm-swoop-target-word-face nil :background "#FF5443"))
+      (when (require 'helm-swoop nil t)
+        ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
+        (setq helm-swoop-pre-input-function
+              #'(lambda()
+                  (unless (thing-at-point-looking-at "^\\*+")
+                    (thing-at-point 'symbol))))
+        ;; 配色設定
+        (set-face-attribute
+         'helm-swoop-target-line-face nil :background "#FFEDDC")
+        (set-face-attribute
+         'helm-swoop-target-word-face nil :background "#FF5443"))
 
-    (when (require 'helm-files nil t)
-      (define-key helm-find-files-map
-        (kbd "<tab>") 'helm-execute-persistent-action)
-      (define-key helm-read-file-map
-        (kbd "<tab>") 'helm-execute-persistent-action))
+      (when (require 'helm-files nil t)
+        (define-key helm-find-files-map
+          (kbd "<tab>") 'helm-execute-persistent-action)
+        (define-key helm-read-file-map
+          (kbd "<tab>") 'helm-execute-persistent-action))
 
-    (when (require 'helm-google nil t)
-      (setq helm-google-tld "co.jp"))
+      ;; (when (require 'helm-google nil t)
+      ;;   (setq helm-google-tld "co.jp"))
 
-    ;; (require 'recentf-ext nil t)
-    ;; helm-find-files を呼ばせない
-    ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
-    ;; helm-mode-ag を呼ばせない
-    (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
-    ;; helm-mode-org-set-tags を呼ばせない
-    (add-to-list 'helm-completing-read-handlers-alist
-                 '(org-set-tags . nil))
-    (setq helm-display-source-at-screen-top nil)
-    ;;         (setq helm-display-header-line nil)
+      ;; (require 'recentf-ext nil t)
+      ;; helm-find-files を呼ばせない
+      ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
+      ;; helm-mode-ag を呼ばせない
+      (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
+      ;; helm-mode-org-set-tags を呼ばせない
+      (add-to-list 'helm-completing-read-handlers-alist
+                   '(org-set-tags . nil))
+      (setq helm-display-source-at-screen-top nil)
+      ;;         (setq helm-display-header-line nil)
 
-    ;; helm-autoresize-mode を有効にしつつ 30% に固定
-    (helm-autoresize-mode 1)
-    (setq helm-autoresize-max-height 30)
-    (setq helm-autoresize-min-height 30)
-    (set-face-attribute 'helm-source-header nil
-                        :height 1.0 :family "Verdana" :weight 'normal
-                        :foreground "#666666" :background "#DADADA")
-    (when (memq window-system '(mac ns))
-      (setq helm-locate-command "mdfind -name %s %s"))
+      ;; helm-autoresize-mode を有効にしつつ 30% に固定
+      (helm-autoresize-mode 1)
+      (setq helm-autoresize-max-height 30)
+      (setq helm-autoresize-min-height 30)
+      (set-face-attribute 'helm-source-header nil
+                          :height 1.0 :family "Verdana" :weight 'normal
+                          :foreground "#666666" :background "#DADADA")
+      (when (memq window-system '(mac ns))
+        (setq helm-locate-command "mdfind -name %s %s"))
 
-    (require 'helm-css-scss nil t)
-    (require 'helm-emmet nil t)
-    (require 'helm-bm nil t)
-    (require 'helm-descbinds nil t))
+      (require 'helm-bm nil t)
+      ;; (require 'helm-css-scss nil t)
+      ;; (require 'helm-emmet nil t)
+      ;; (require 'helm-descbinds nil t)
+      )
 
-  ;; この修正が必要
-  ;; (when (require 'helm-migemo nil t)
-  ;;   (defun helm-compile-source--candidates-in-buffer (source)
-  ;;     (helm-aif (assoc 'candidates-in-buffer source)
-  ;;         (append source
-  ;;                 `((candidates
-  ;;                    . ,(or (cdr it)
-  ;;                           (lambda ()
-  ;;                             ;; Do not use `source' because other plugins
-  ;;                             ;; (such as helm-migemo) may change it
-  ;;                             (helm-candidates-in-buffer
-  ;;                              (helm-get-current-source)))))
-  ;;                   (volatile) (match identity)))
-  ;;       source)))
-
-
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-M-r") 'helm-recentf)
-  (global-set-key (kbd "C-M-l") 'helm-locate)
-  (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-  (global-set-key (kbd "M-s M-s") 'helm-swoop)
-  (global-set-key (kbd "C-c o") 'helm-occur)
-  (global-set-key (kbd "C-h d") 'helm-descbinds))
+    ;; この修正が必要
+    ;; (when (require 'helm-migemo nil t)
+    ;;   (defun helm-compile-source--candidates-in-buffer (source)
+    ;;     (helm-aif (assoc 'candidates-in-buffer source)
+    ;;         (append source
+    ;;                 `((candidates
+    ;;                    . ,(or (cdr it)
+    ;;                           (lambda ()
+    ;;                             ;; Do not use `source' because other plugins
+    ;;                             ;; (such as helm-migemo) may change it
+    ;;                             (helm-candidates-in-buffer
+    ;;                              (helm-get-current-source)))))
+    ;;                   (volatile) (match identity)))
+    ;;       source)))
 
 
-(when (autoload-if-found
-       '(helm-buffers-list)
-       "helm" nil t)
+    (global-set-key (kbd "M-x") 'helm-M-x)
+    (global-set-key (kbd "C-M-r") 'helm-recentf)
+    (global-set-key (kbd "C-M-l") 'helm-locate)
+    (global-set-key (kbd "C-c f b") 'helm-bookmarks)
+    (global-set-key (kbd "M-s M-s") 'helm-swoop)
+    (global-set-key (kbd "C-c o") 'helm-occur)
+    (global-set-key (kbd "C-h d") 'helm-descbinds))
 
-  (with-eval-after-load "helm"
-    (require 'helm-config nil t))
 
-  (global-set-key (kbd "C-x C-b") 'helm-buffers-list))
+  (when (autoload-if-found
+         '(helm-buffers-list)
+         "helm" nil t)
+
+    (with-eval-after-load "helm"
+      (require 'helm-config nil t))
+
+    (global-set-key (kbd "C-x C-b") 'helm-buffers-list))
 
 #+END_SRC
 
@@ -4470,6 +4487,16 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
     ;; org-eldoc を読み込む
     (require 'org-eldoc nil t)
 
+    ;; 非表示状態の領域への書き込みを防ぐ
+    ;; "Editing in invisible areas is prohibited, make them visible first"
+    (setq org-catch-invisible-edits 'show-and-error)
+    (defun advice:org-return (f &optional arg)
+      "An extension for checking invisible editing when you hit the enter."
+      (interactive "P")
+      (org-check-before-invisible-edit 'insert)
+      (apply f arg))
+    (advice-add 'org-return :around #'advice:org-return)
+
     ;; - を優先．親のブリッツ表示を継承させない
     (setq org-list-demote-modify-bullet
           '(("+" . "-")
@@ -4748,123 +4775,123 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 ** [org-agenda] タスク／予定管理
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(with-eval-after-load "org-agenda"
-  ;; sorting strategy
-  (setq org-agenda-sorting-strategy
-        '((agenda habit-down time-up timestamp-up priority-down category-keep)
-          (todo priority-down category-keep)
-          (tags priority-down category-keep)
-          (search category-keep)))
-  ;; Set the view span as day in an agenda view, the default is week
-  (setq org-agenda-span 'day)
-  ;; アジェンダに警告を表示する期間
-  (setq org-deadline-warning-days 0)
-  ;; 時間幅が明示的に指定されない場合のデフォルト値（分指定）
-  (setq org-agenda-default-appointment-duration 60)
-  ;; アジェンダビューでFOLLOWを設定
-  ;; (setq org-agenda-start-with-follow-mode t)
-  ;; Customized Time Grid
-  (setq org-agenda-time-grid ;; Format is changed from 9.1
-        '((daily today require-timed)
-          (0800 1000 1200 1400 1600 1800 2000 2200 2400)
-          "......"
-          "----------------"
-          ))
-  (setq org-agenda-current-time-string "< d('- ' ) now!")
-  (setq org-agenda-timegrid-use-ampm t)
+  (with-eval-after-load "org-agenda"
+    ;; sorting strategy
+    (setq org-agenda-sorting-strategy
+          '((agenda habit-down time-up timestamp-up priority-down category-keep)
+            (todo priority-down category-keep)
+            (tags priority-down category-keep)
+            (search category-keep)))
+    ;; Set the view span as day in an agenda view, the default is week
+    (setq org-agenda-span 'day)
+    ;; アジェンダに警告を表示する期間
+    (setq org-deadline-warning-days 0)
+    ;; 時間幅が明示的に指定されない場合のデフォルト値（分指定）
+    (setq org-agenda-default-appointment-duration 60)
+    ;; アジェンダビューでFOLLOWを設定
+    ;; (setq org-agenda-start-with-follow-mode t)
+    ;; Customized Time Grid
+    (setq org-agenda-time-grid ;; Format is changed from 9.1
+          '((daily today require-timed)
+            (0800 1000 1200 1400 1600 1800 2000 2200 2400)
+            "......"
+            "----------------"
+            ))
+    ;; (setq org-agenda-current-time-string "<  d('- ' ｲﾏｺｺ)")
+    (setq org-agenda-timegrid-use-ampm t)
 
-  ;; アジェンダ作成対象（指定しないとagendaが生成されない）
-  ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
-  (setq org-agenda-files
-        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
-          "~/Dropbox/org/db/daily.org" "~/Dropbox/org/minutes/wg1.org"
-          "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
-          "~/Dropbox/org/db/trigger.org" "~/Dropbox/org/org2ja.org"))
+    ;; アジェンダ作成対象（指定しないとagendaが生成されない）
+    ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
+    (setq org-agenda-files
+          '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+            "~/Dropbox/org/db/daily.org" "~/Dropbox/org/minutes/wg1.org"
+            "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
+            "~/Dropbox/org/db/trigger.org" "~/Dropbox/org/org2ja.org"))
 
-  (add-hook 'org-finalize-agenda-hook
-            #'(lambda () (org-agenda-to-appt t '((headline "TODO")))))
+    (add-hook 'org-finalize-agenda-hook
+              #'(lambda () (org-agenda-to-appt t '((headline "TODO")))))
 
-  ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
-  (org-defkey org-agenda-mode-map [(tab)]
-              #'(lambda () (interactive)
-                  (org-agenda-goto)
-                  (with-current-buffer "*Org Agenda*"
-                    (org-agenda-quit))))
+    ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
+    (org-defkey org-agenda-mode-map [(tab)]
+                #'(lambda () (interactive)
+                    (org-agenda-goto)
+                    (with-current-buffer "*Org Agenda*"
+                      (org-agenda-quit))))
 
-  (custom-set-faces
-   ;; '(org-agenda-clocking ((t (:background "#300020"))))
-   '(org-agenda-structure ((t (:underline t :foreground "#6873ff"))))
-   '(org-agenda-date-today ((t (:weight bold :foreground "#4a6aff"))))
-   '(org-agenda-date ((t (:weight bold :foreground "#6ac214"))))
-   '(org-agenda-date-weekend ((t (:weight bold :foreground "#ff8d1e"))))
-   '(org-time-grid ((t (:foreground "#0a4796"))))
-   '(org-warning ((t (:foreground "#ff431a"))))
-   '(org-upcoming-deadline ((t (:inherit font-lock-keyword-face))))
-   )
+    (custom-set-faces
+     ;; '(org-agenda-clocking ((t (:background "#300020"))))
+     '(org-agenda-structure ((t (:underline t :foreground "#6873ff"))))
+     '(org-agenda-date-today ((t (:weight bold :foreground "#4a6aff"))))
+     '(org-agenda-date ((t (:weight bold :foreground "#6ac214"))))
+     '(org-agenda-date-weekend ((t (:weight bold :foreground "#ff8d1e"))))
+     '(org-time-grid ((t (:foreground "#0a4796"))))
+     '(org-warning ((t (:foreground "#ff431a"))))
+     '(org-upcoming-deadline ((t (:inherit font-lock-keyword-face))))
+     )
 
-  ;; 所定の時刻に強制的にAgendaを表示
-  (defvar my:org-agenda-auto-popup-list
-    '("01:00" "11:00" "14:00" "17:00" "20:00" "23:00"))
-  (defun my:popup-agenda ()
-    (interactive)
-    (let ((status use-dialog-box))
-      (setq use-dialog-box nil)
-      (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
-        (org-agenda-list))
-      (message "")
-      (setq use-dialog-box status)))
-  (defun my:popup-agenda-set-timers ()
-    (interactive)
-    (cancel-function-timers 'my:popup-agenda)
-    (dolist (triger my:org-agenda-auto-popup-list)
-      (unless (passed-clock-p triger)
-        (run-at-time triger nil 'my:popup-agenda))))
-  (my:popup-agenda-set-timers)
-  (run-at-time "24:00" nil 'my:popup-agenda-set-timers)) ;; for next day
-
-  (with-eval-after-load "org"
-
-    (define-key org-mode-map (kbd "<f11>") 'my:toggle-doing-tag)
-    (define-key org-mode-map (kbd "C-<f11>") 'my:sparse-doing-tree)
-
-    ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
-    (defvar my:doing-tag "Doing")
-    (defun my:sparse-doing-tree ()
+    ;; 所定の時刻に強制的にAgendaを表示
+    (defvar my:org-agenda-auto-popup-list
+      '("01:00" "11:00" "14:00" "17:00" "20:00" "23:00"))
+    (defun my:popup-agenda ()
       (interactive)
-      (org-tags-view nil my:doing-tag))
-    ;; Doingタグをトグルする
-    (defun my:toggle-doing-tag ()
+      (let ((status use-dialog-box))
+        (setq use-dialog-box nil)
+        (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
+          (org-agenda-list))
+        (message "")
+        (setq use-dialog-box status)))
+    (defun my:popup-agenda-set-timers ()
       (interactive)
-      (when (eq major-mode 'org-mode)
-        (save-excursion
-          (save-restriction
-            (org-back-to-heading t)
-            ;; before 9
-            ;; (unless (org-at-heading-p)
-            ;;   (outline-previous-heading))
-            (org-toggle-tag my:doing-tag
-                            (if (string-match
-                                 (concat ":" my:doing-tag ":")
-                                 (org-get-tags-string))
-                                'off 'on))
-            (org-set-tags nil t)))
-        (org-reveal)))
-
-    ;; ついでに calendar.app も定期的に強制起動する
-    (defun my:popup-calendar ()
-      (interactive)
-      (if (window-focus-p)
-          (shell-command-to-string "open -a calendar.app")
-        (message "--- input focus is currently OUT.")))
-    (defun my:popup-calendar-set-timers ()
-      (interactive)
-      (cancel-function-timers 'my:popup-calendar)
+      (cancel-function-timers 'my:popup-agenda)
       (dolist (triger my:org-agenda-auto-popup-list)
         (unless (passed-clock-p triger)
-          (run-at-time triger nil 'my:popup-calendar))))
-    (when (memq window-system '(mac ns))
-      (my:popup-calendar-set-timers)
-      (run-at-time "24:00" nil 'my:popup-calendar-set-timers))) ;; for next day
+          (run-at-time triger nil 'my:popup-agenda))))
+    (my:popup-agenda-set-timers)
+    (run-at-time "24:00" nil 'my:popup-agenda-set-timers)) ;; for next day
+
+    (with-eval-after-load "org"
+
+      (define-key org-mode-map (kbd "<f11>") 'my:toggle-doing-tag)
+      (define-key org-mode-map (kbd "C-<f11>") 'my:sparse-doing-tree)
+
+      ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
+      (defvar my:doing-tag "Doing")
+      (defun my:sparse-doing-tree ()
+        (interactive)
+        (org-tags-view nil my:doing-tag))
+      ;; Doingタグをトグルする
+      (defun my:toggle-doing-tag ()
+        (interactive)
+        (when (eq major-mode 'org-mode)
+          (save-excursion
+            (save-restriction
+              (org-back-to-heading t)
+              ;; before 9
+              ;; (unless (org-at-heading-p)
+              ;;   (outline-previous-heading))
+              (org-toggle-tag my:doing-tag
+                              (if (string-match
+                                   (concat ":" my:doing-tag ":")
+                                   (org-get-tags-string))
+                                  'off 'on))
+              (org-set-tags nil t)))
+          (org-reveal)))
+
+      ;; ついでに calendar.app も定期的に強制起動する
+      (defun my:popup-calendar ()
+        (interactive)
+        (if (window-focus-p)
+            (shell-command-to-string "open -a calendar.app")
+          (message "--- input focus is currently OUT.")))
+      (defun my:popup-calendar-set-timers ()
+        (interactive)
+        (cancel-function-timers 'my:popup-calendar)
+        (dolist (triger my:org-agenda-auto-popup-list)
+          (unless (passed-clock-p triger)
+            (run-at-time triger nil 'my:popup-calendar))))
+      (when (memq window-system '(mac ns))
+        (my:popup-calendar-set-timers)
+        (run-at-time "24:00" nil 'my:popup-calendar-set-timers))) ;; for next day
 #+END_SRC
 
 ** TODO [orgbox.el] スケジュール追加のわかりやすい入力
@@ -5047,6 +5074,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   ;; org-src-window-setup (current-window, other-window, other-frame)
   (require 'ob-http nil t)
   (require 'ob-gnuplot nil t)
+
+  (unless (executable-find "ditaa")
+    (message "--- ditaa is NOT installed."))
 
   ;; Add ":results output" after program name
   (org-babel-do-load-languages
@@ -6504,10 +6534,10 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
     (t (:background "#DEEDFF"))))))
 #+END_SRC
 
-** カーソル色の切り替え                                                 :Mac:
+** TODO カーソル色の切り替え                                            :Mac:
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-(when (and (string= system-name "mba.local")
+#+BEGIN_SRC emacs-lisp :tangle no
+(when (and (string= (system-name) "mba.local")
            (memq window-system '(mac ns))
            (>= emacs-major-version 24))
 
@@ -6556,6 +6586,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 | Linux   | Inconsolata | MigMix                    |
 
   - http://d.hatena.ne.jp/setoryohei/20110117/1295336454
+  - [[http://users.teilar.gr/~g1951d/][Unicode Fonts for Ancient Scripts 🔊]]
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
@@ -6573,6 +6604,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   (set-fontset-font nil 'mule-unicode-0100-24ff spec))
 (defun my:ascii-font-setter (spec)
   (set-fontset-font nil 'ascii spec))
+(defun my:unicode-font-setter (spec)
+  (set-fontset-font nil 'unicode spec))
 (defun my:font-config (&optional size ascii ja)
   "Font config.
 - SIZE: font size for ASCII and Japanese (default: 12)
@@ -6581,11 +6614,14 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 "
   (when (memq window-system '(mac ns))
     (let ((font-size (or size 12))
+          ;; (unicode-font (or uc "FreeSerif"))
           (ascii-font (or ascii "Monaco"))
           (ja-font (or ja "Migu 2M")))
       (with-eval-after-load "moom"
         (setq moom-ascii-font ascii-font
               moom-ja-font ja-font))
+      ;; (my:unicode-font-setter
+      ;;  (font-spec :family unicode-font :size font-size))
       (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my:ja-font-setter (font-spec :family ja-font :size font-size)))))
 
@@ -6945,6 +6981,10 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
       (interactive)
       (setq my:pomodoro-speak (not my:pomodoro-speak)))
 
+    (defvar my:pomodoro-annimation t)
+    (when (equal (system-name) "mba.local")
+      (setq my:pomodoro-annimation nil))
+
     (when (memq window-system '(mac ns))
       ;; Mac ユーザ向け．Kyokoさんに指示してもらう
       (defvar pomodoro:with-speak nil)
@@ -7070,7 +7110,12 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
   (defvar pomodoro:update-sign-timer nil)
 
   ;; 初期状態を登録
-  (setq pomodoro:mode-line-work-sign (car pomodoro:mode-line-work-sign-list))
+  (if my:pomodoro-annimation
+      (setq pomodoro:mode-line-work-sign
+            (car pomodoro:mode-line-work-sign-list))
+    (setq pomodoro:mode-line-work-sign "")
+    (setq pomodoro:mode-line-rest-sign "")
+    (setq pomodoro:mode-line-long-rest-sign ""))
 
   ;; utilities
   (defun pomodoro:list-rotate (sign-list)
@@ -7095,9 +7140,9 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
     (setq pomodoro:update-sign-timer
           (run-at-time t pomodoro:update-work-sign-interval
                        'pomodoro:update-work-sign))
-    (setq pomodoro:mode-line-work-sign (car pomodoro:mode-line-work-sign-list))
+    (setq pomodoro:mode-line-work-sign
+          (car pomodoro:mode-line-work-sign-list))
     (apply f minutes))
-  (advice-add 'pomodoro:start :around #'advice:pomodoro:start)
 
   (defun advice:pomodoro:stop (f &rest do-reset)
     "Extensions to stop pomodoro and timers"
@@ -7105,7 +7150,10 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
     (when (timerp pomodoro:update-sign-timer)
       (cancel-timer pomodoro:update-sign-timer))
     (apply f do-reset))
-  (advice-add 'pomodoro:stop :around #'advice:pomodoro:stop)
+
+  (when my:pomodoro-annimation
+    (advice-add 'pomodoro:start :around #'advice:pomodoro:start)
+    (advice-add 'pomodoro:stop :around #'advice:pomodoro:stop))
 
   ;; work
   (defun pomodoro:update-work-sign ()
@@ -7147,10 +7195,11 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
      'pomodoro:update-long-rest-sign pomodoro:update-long-rest-sign-interval))
 
   ;; ステータスが切り替わる時に表示を入れ替える
-  (add-hook 'pomodoro:finish-rest-hook #'pomodoro:activate-visual-work-sign)
-  (add-hook 'pomodoro:finish-work-hook #'pomodoro:activate-visual-rest-sign)
-  (add-hook 'pomodoro:long-rest-hook
-            #'pomodoro:activate-visual-long-rest-sign))
+  (when my:pomodoro-annimation
+    (add-hook 'pomodoro:finish-rest-hook #'pomodoro:activate-visual-work-sign)
+    (add-hook 'pomodoro:finish-work-hook #'pomodoro:activate-visual-rest-sign)
+    (add-hook 'pomodoro:long-rest-hook
+              #'pomodoro:activate-visual-long-rest-sign)))
 #+END_SRC
 
 ** [google-this.el] 単語をグーグル検索
@@ -7232,7 +7281,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
   - Add no-tty into ~/.gnupg/gpg.conf if an error occured.
   - システムで =pass= コマンドを使えることが条件
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
 (if (executable-find "pass")
     (when (autoload-if-found
            '(helm-pass)

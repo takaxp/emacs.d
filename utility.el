@@ -460,10 +460,13 @@
   (with-eval-after-load "browse-url"
     (cond
      ((eq window-system 'ns)
-      (setq browse-url-generic-program 'google-chrome))
+      (custom-set-variables
+       '(browse-url-generic-program 'google-chrome)))
      ((eq window-system 'mac)
-      (setq browse-url-browser-function 'browse-url-generic)
-      (setq browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"))
+      (custom-set-variables
+       '(browse-url-browser-function 'browse-url-generic)
+       '(browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+       ))
      (t
       nil))))
 

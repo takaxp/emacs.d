@@ -633,24 +633,27 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 ** ブラウザの設定
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
-  ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
-  (when (autoload-if-found
-         '(browse-url)
-         "browse-url" nil t)
-    (with-eval-after-load "browse-url"
-      (cond
-       ((eq window-system 'ns)
-        (setq browse-url-generic-program 'google-chrome))
-       ((eq window-system 'mac)
-        (setq browse-url-browser-function 'browse-url-generic)
-        (setq browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"))
-       (t
-        nil))))
+;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
+;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
+(when (autoload-if-found
+       '(browse-url)
+       "browse-url" nil t)
+  (with-eval-after-load "browse-url"
+    (cond
+     ((eq window-system 'ns)
+      (custom-set-variables
+       '(browse-url-generic-program 'google-chrome)))
+     ((eq window-system 'mac)
+      (custom-set-variables
+       '(browse-url-browser-function 'browse-url-generic)
+       '(browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+       ))
+     (t
+      nil))))
 
-  ;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
-  ;;(setq browse-url-browser-function 'browse-url-default-windows-browser)
-  ;;(setq browse-url-browser-function 'browse-url-chrome)
+;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
+;;(setq browse-url-browser-function 'browse-url-default-windows-browser)
+;;(setq browse-url-browser-function 'browse-url-chrome)
 #+END_SRC
 
 ** ミニバッファに日時を表示

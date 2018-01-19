@@ -109,11 +109,21 @@
   (mac-add-key-passed-to-system 'shift))
 
 (when (eq system-type 'gnu/linux)
+  (global-set-key (kbd "<hiragana-katakana>") 'toggle-input-method)
   (push "/usr/share/emacs/site-lisp/anthy" load-path)
-  (when (require 'anthy nil t) ;; sudo yum install emacs-anthy-el
-    (load-file "/usr/share/emacs/site-lisp/anthy/leim-list.el") ;; if get error
-    (setq default-input-method 'japanese-anthy))
-  (global-set-key (kbd "<hiragana-katakana>") 'toggle-input-method))
+  (push "/usr/share/emacs/site-lisp/emacs-mozc" load-path)
+  (set-language-environment "Japanese")
+
+  (if (require 'mozc nil t)
+      (progn
+        (setq default-input-method "japanese-mozc")
+        (custom-set-variables
+         '(mozc-candidate-style 'overlay)))
+
+    (when (require 'anthy nil t) ;; sudo yum install emacs-anthy-el
+      ;; if get error
+      (load-file "/usr/share/emacs/site-lisp/anthy/leim-list.el")
+      (setq default-input-method 'japanese-anthy))))
 
 (when (and (executable-find "ag")
            (autoload-if-found
@@ -425,9 +435,12 @@
 
 (add-hook 'change-log-mode-hook
           #'(lambda()
-             (orgstruct-mode)
-             (setq tab-width 4)
-             (setq left-margin 4)))
+              (if (require 'orgalist nil t)
+                  (when (boundp 'orgalist-mode)
+                    (orgalist-mode 1))
+                (orgstruct-mode))
+              (setq tab-width 4)
+              (setq left-margin 4)))
 
 (when (autoload-if-found
        '(modern-c++-font-lock-mode)
@@ -855,8 +868,8 @@
     (define-key selected-keymap (kbd "g") #'my:google-this)
     (define-key selected-keymap (kbd "s") #'osx-lib-say-region)
     (define-key selected-keymap (kbd "q") #'selected-off)
-    (define-key selected-keymap (kbd "i") #'my:org-list-insert-items)
-    (define-key selected-keymap (kbd "I")
+    (define-key selected-keymap (kbd "-") #'my:org-list-insert-items)
+    (define-key selected-keymap (kbd "_")
       #'my:org-list-insert-checkbox-into-items)
     (define-key selected-keymap (kbd "x") #'my:hex-to-decimal)
     (define-key selected-keymap (kbd "X") #'my:decimal-to-hex)
@@ -903,7 +916,8 @@
 
        ;; Shorten for minor modes
        (ggtags-mode " G" "ggtags")
-       (orgstruct-mode " OrgS" "org")
+       ;; (orgstruct-mode " OrgS" "org")
+       (orgalist-mode " ol" "orgalist")
 
        ;; No display for minor modes
        (eldoc-mode nil "eldoc")
@@ -969,7 +983,7 @@
   (setq header-line-format
         (concat
          " GNU Emacs                                                  "
-         (format-time-string "W%U: %Y-%m-%d %a."))))
+         (format-time-string "W%W: %Y-%m-%d %a."))))
 
 (global-set-key (kbd "C-M-s") #'(lambda () (interactive)
                                   (switch-to-buffer "*scratch*")))
@@ -1092,8 +1106,8 @@
       (define-key helm-read-file-map
         (kbd "<tab>") 'helm-execute-persistent-action))
 
-    (when (require 'helm-google nil t)
-      (setq helm-google-tld "co.jp"))
+    ;; (when (require 'helm-google nil t)
+    ;;   (setq helm-google-tld "co.jp"))
 
     ;; (require 'recentf-ext nil t)
     ;; helm-find-files を呼ばせない
@@ -1116,10 +1130,11 @@
     (when (memq window-system '(mac ns))
       (setq helm-locate-command "mdfind -name %s %s"))
 
-    (require 'helm-css-scss nil t)
-    (require 'helm-emmet nil t)
     (require 'helm-bm nil t)
-    (require 'helm-descbinds nil t))
+    ;; (require 'helm-css-scss nil t)
+    ;; (require 'helm-emmet nil t)
+    ;; (require 'helm-descbinds nil t)
+    )
 
   ;; この修正が必要
   ;; (when (require 'helm-migemo nil t)
@@ -1844,6 +1859,16 @@
     ;; org-eldoc を読み込む
     (require 'org-eldoc nil t)
 
+    ;; 非表示状態の領域への書き込みを防ぐ
+    ;; "Editing in invisible areas is prohibited, make them visible first"
+    (setq org-catch-invisible-edits 'show-and-error)
+    (defun advice:org-return (f &optional arg)
+      "An extension for checking invisible editing when you hit the enter."
+      (interactive "P")
+      (org-check-before-invisible-edit 'insert)
+      (apply f arg))
+    (advice-add 'org-return :around #'advice:org-return)
+
     ;; - を優先．親のブリッツ表示を継承させない
     (setq org-list-demote-modify-bullet
           '(("+" . "-")
@@ -2088,7 +2113,7 @@
           "......"
           "----------------"
           ))
-  (setq org-agenda-current-time-string "< d('- ' ) now!")
+  ;; (setq org-agenda-current-time-string "<  d('- ' ｲﾏｺｺ)")
   (setq org-agenda-timegrid-use-ampm t)
 
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
@@ -2332,6 +2357,9 @@
   ;; org-src-window-setup (current-window, other-window, other-frame)
   (require 'ob-http nil t)
   (require 'ob-gnuplot nil t)
+
+  (unless (executable-find "ditaa")
+    (message "--- ditaa is NOT installed."))
 
   ;; Add ":results output" after program name
   (org-babel-do-load-languages
@@ -3194,21 +3222,6 @@
 (when (display-graphic-p)
   (global-hl-line-mode 1))
 
-(when (and (string= system-name "mba.local")
-           (memq window-system '(mac ns))
-           (>= emacs-major-version 24))
-
-  (add-hook 'input-method-activate-hook
-            #'(lambda ()
-                (message "activate-hook")
-                (setq cursor-type my:cursor-type-ime-on)
-                (set-cursor-color my:cursor-color-ime-on)))
-
-  (add-hook 'input-method-inactivate-hook
-            #'(lambda ()
-                (setq cursor-type my:cursor-type-ime-off)
-                (set-cursor-color my:cursor-color-ime-off))))
-
 (with-eval-after-load "postpone"
   (setq blink-cursor-blinks 0)
   (setq blink-cursor-interval 0.3)
@@ -3230,6 +3243,8 @@
   (set-fontset-font nil 'mule-unicode-0100-24ff spec))
 (defun my:ascii-font-setter (spec)
   (set-fontset-font nil 'ascii spec))
+(defun my:unicode-font-setter (spec)
+  (set-fontset-font nil 'unicode spec))
 (defun my:font-config (&optional size ascii ja)
   "Font config.
 - SIZE: font size for ASCII and Japanese (default: 12)
@@ -3238,11 +3253,14 @@
 "
   (when (memq window-system '(mac ns))
     (let ((font-size (or size 12))
+          ;; (unicode-font (or uc "FreeSerif"))
           (ascii-font (or ascii "Monaco"))
           (ja-font (or ja "Migu 2M")))
       (with-eval-after-load "moom"
         (setq moom-ascii-font ascii-font
               moom-ja-font ja-font))
+      ;; (my:unicode-font-setter
+      ;;  (font-spec :family unicode-font :size font-size))
       (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my:ja-font-setter (font-spec :family ja-font :size font-size)))))
 
@@ -3457,6 +3475,10 @@
       (interactive)
       (setq my:pomodoro-speak (not my:pomodoro-speak)))
 
+    (defvar my:pomodoro-annimation t)
+    (when (equal (system-name) "mba.local")
+      (setq my:pomodoro-annimation nil))
+
     (when (memq window-system '(mac ns))
       ;; Mac ユーザ向け．Kyokoさんに指示してもらう
       (defvar pomodoro:with-speak nil)
@@ -3574,7 +3596,12 @@
   (defvar pomodoro:update-sign-timer nil)
 
   ;; 初期状態を登録
-  (setq pomodoro:mode-line-work-sign (car pomodoro:mode-line-work-sign-list))
+  (if my:pomodoro-annimation
+      (setq pomodoro:mode-line-work-sign
+            (car pomodoro:mode-line-work-sign-list))
+    (setq pomodoro:mode-line-work-sign "")
+    (setq pomodoro:mode-line-rest-sign "")
+    (setq pomodoro:mode-line-long-rest-sign ""))
 
   ;; utilities
   (defun pomodoro:list-rotate (sign-list)
@@ -3599,9 +3626,9 @@
     (setq pomodoro:update-sign-timer
           (run-at-time t pomodoro:update-work-sign-interval
                        'pomodoro:update-work-sign))
-    (setq pomodoro:mode-line-work-sign (car pomodoro:mode-line-work-sign-list))
+    (setq pomodoro:mode-line-work-sign
+          (car pomodoro:mode-line-work-sign-list))
     (apply f minutes))
-  (advice-add 'pomodoro:start :around #'advice:pomodoro:start)
 
   (defun advice:pomodoro:stop (f &rest do-reset)
     "Extensions to stop pomodoro and timers"
@@ -3609,7 +3636,10 @@
     (when (timerp pomodoro:update-sign-timer)
       (cancel-timer pomodoro:update-sign-timer))
     (apply f do-reset))
-  (advice-add 'pomodoro:stop :around #'advice:pomodoro:stop)
+
+  (when my:pomodoro-annimation
+    (advice-add 'pomodoro:start :around #'advice:pomodoro:start)
+    (advice-add 'pomodoro:stop :around #'advice:pomodoro:stop))
 
   ;; work
   (defun pomodoro:update-work-sign ()
@@ -3651,10 +3681,11 @@
      'pomodoro:update-long-rest-sign pomodoro:update-long-rest-sign-interval))
 
   ;; ステータスが切り替わる時に表示を入れ替える
-  (add-hook 'pomodoro:finish-rest-hook #'pomodoro:activate-visual-work-sign)
-  (add-hook 'pomodoro:finish-work-hook #'pomodoro:activate-visual-rest-sign)
-  (add-hook 'pomodoro:long-rest-hook
-            #'pomodoro:activate-visual-long-rest-sign))
+  (when my:pomodoro-annimation
+    (add-hook 'pomodoro:finish-rest-hook #'pomodoro:activate-visual-work-sign)
+    (add-hook 'pomodoro:finish-work-hook #'pomodoro:activate-visual-rest-sign)
+    (add-hook 'pomodoro:long-rest-hook
+              #'pomodoro:activate-visual-long-rest-sign)))
 
 (when (autoload-if-found
        '(my:google-this google-this-word)
@@ -3696,13 +3727,6 @@
     (custom-set-variables
      '(osx-lib-say-ratio 100)
      '(osx-lib-say-voice "Samantha"))))
-
-(if (executable-find "pass")
-    (when (autoload-if-found
-           '(helm-pass)
-           "helm-pass" nil t)
-      (global-set-key (kbd "C-c f p") 'helm-pass))
-  (message "--- pass is NOT installed."))
 
 (when (autoload-if-found
        '(my:cmd-to-open-iterm2)

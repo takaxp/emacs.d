@@ -22,6 +22,7 @@
 (require 'org-mac-link nil t)
 (require 'org-tree-slide nil t) ;; mode-map
 (require 'org-recent-headings nil t)
+(require 'orgalist nil t)
 (require 'origami nil t)
 (require 'ox-icalendar nil t) ;; mode-map
 (require 'perl-mode nil t) ;; mode-map
@@ -37,6 +38,7 @@
 (require 'shut-up nil t)
 (require 'time-stamp nil t)
 (require 'update-stamp nil t)
+(require 'emmet-mode nil t)
 
 (provide 'init-eval)
 ;;; init-eval.el ends here

@@ -1,11 +1,21 @@
 (source gnu)
 (source melpa)
 (source org)
+;; (source "mymelpa" "~/devel/git/melpa/packages")
+(source "mymelpa" "https://pxaka.tokyo/melpa/packages/")
+
+;; Private recipes, not in MELPA (private MELPA: https://pxaka.tokyo/melpa)
+(depends-on "postpone")
+(depends-on "moom")
+(depends-on "git-complete")
+(depends-on "emacs-calfw")
+(depends-on "emacs-utils")
 
 ;; Package install
 (depends-on "cask")
 (depends-on "cask-mode")
 (depends-on "paradox")
+(depends-on "epl")
 (depends-on "epm")
 
 ;; Org Mode
@@ -83,17 +93,18 @@
 (depends-on "helm")
 (depends-on "helm-ag")
 (depends-on "helm-bm")
-(depends-on "helm-css-scss")
 (depends-on "helm-descbinds")
-(depends-on "helm-emmet")
 (depends-on "helm-flycheck")
-(depends-on "helm-google")
 (depends-on "helm-gtags")
-(depends-on "helm-pass")
 (depends-on "helm-projectile")
-;; (depends-on "helm-rtags")
 (depends-on "helm-swoop")
 (depends-on "helm-selected")
+(depends-on "helm-pass")
+;; (depends-on "helm-emmet")
+;; (depends-on "helm-css-scss")
+;; (depends-on "helm-google")
+;; (depends-on "helm-rtags")
+;; (depends-on "helm-emms")
 
 ;; OSX support
 (depends-on "osx-lib")
@@ -110,8 +121,8 @@
 (depends-on "ac-js2")
 (depends-on "migemo")
 (depends-on "edit-color-stamp")
-(depends-on "git-complete")
 ;; (depends-on "parinfer")
+(depends-on "tiny")
 
 ;; Visualize
 (depends-on "volatile-highlights")
@@ -120,8 +131,7 @@
 (depends-on "smartparens")
 (depends-on "mic-paren")
 (depends-on "shut-up")
-;; (depends-on "diminish")
-(depends-on "delight")
+(depends-on "delight") ;; or diminish
 (depends-on "rainbow-mode")
 (depends-on "centered-cursor-mode")
 (depends-on "hide-lines")
@@ -139,9 +149,8 @@
 (depends-on "system-packages")
 
 ;; Frame and windows
-(depends-on "popwin")
-(depends-on "moom" :git "https://github.com/takaxp/moom.git")
 (depends-on "spaceline-all-the-icons")
+(depends-on "popwin")
 (depends-on "tabbar")
 
 ;; Robustness
@@ -156,15 +165,12 @@
 (depends-on "smart-mark")
 (depends-on "syntax-subword")
 (depends-on "goto-chg")
-(depends-on "postpone" :git "https://github.com/takaxp/postpone.git")
 
 ;; Applications
 (depends-on "lingr")
 (depends-on "bm")
 (depends-on "ag")
 (depends-on "japanese-holidays")
-(depends-on "calfw-org" :git "https://github.com/takaxp/emacs-calfw.git" :files ("calfw-org.el"))
-(depends-on "emacs-utilis" :git "https://github.com/syohex/emacs-utils.git" :files ("pomodoro.el" "eshell-util.el"))
 (depends-on "google-this")
 (depends-on "google-maps")
 (depends-on "japanlaw")
@@ -176,4 +182,4 @@
 (depends-on "keyfreq")
 ;; (depends-on "sauron")
 
-;; 2017-10-03 updated.
+;; 2018-01-04 updated.
