@@ -9,8 +9,6 @@
 (require 'flyspell nil t)
 (require 'ggtags nil t)
 (require 'gnuplot-mode nil t) ;; mode-map
-;; (require 'helm nil t)
-;; (require 'helm-config nil t)
 (require 'js2-mode nil t)
 (require 'latex-math-preview nil t) ;; mode-map
 (require 'nxml-mode nil t)
@@ -35,10 +33,13 @@
 (require 'undo-tree nil t)
 (require 'web-mode nil t)
 (require 'yasnippet nil t)
-(require 'shut-up nil t)
 (require 'time-stamp nil t)
 (require 'update-stamp nil t)
 (require 'emmet-mode nil t)
+
+(if (require 'shut-up nil t)
+    (shut-up (require 'emms-setup nil t))
+  (require 'emms-setup nil t))
 
 (provide 'init-eval)
 ;;; init-eval.el ends here

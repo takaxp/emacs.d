@@ -1,15 +1,20 @@
 (source gnu)
 (source melpa)
 (source org)
-;; (source "mymelpa" "~/devel/git/melpa/packages")
-(source "mymelpa" "https://pxaka.tokyo/melpa/packages/")
+(source "mymelpa" "~/devel/git/melpa/packages")
+;; (source "mymelpa" "https://pxaka.tokyo/packages/melpa/")
 
 ;; Private recipes, not in MELPA (private MELPA: https://pxaka.tokyo/melpa)
 (depends-on "postpone")
 (depends-on "moom")
-(depends-on "git-complete")
-(depends-on "emacs-calfw")
 (depends-on "emacs-utils")
+;; (depends-on "emacs-calfw")
+(depends-on "ascii")
+(depends-on "backup-each-save")
+(depends-on "help-fns+")
+(depends-on "git-complete")
+(depends-on "frame-fns")
+(depends-on "frame-cmds")
 
 ;; Package install
 (depends-on "cask")
@@ -41,6 +46,8 @@
 (depends-on "org-web-tools")
 (depends-on "org-bullets")
 (depends-on "org-edna")
+(depends-on "calfw-org")
+(depends-on "calfw")
 
 ;; Major modes
 (depends-on "python-mode")
@@ -64,7 +71,6 @@
 (depends-on "editorconfig")
 (depends-on "modern-cpp-font-lock")
 (depends-on "0xc")
-(depends-on "ascii")
 (depends-on "uuid")
 (depends-on "describe-number")
 (depends-on "flycheck")
@@ -76,7 +82,6 @@
 (depends-on "web-mode")
 (depends-on "web-beautify")
 (depends-on "gist")
-(depends-on "help-fns+")
 (depends-on "helpful")
 (depends-on "git-commit")
 (depends-on "elisp-lint")
@@ -100,11 +105,12 @@
 (depends-on "helm-swoop")
 (depends-on "helm-selected")
 (depends-on "helm-pass")
-;; (depends-on "helm-emmet")
+(depends-on "helm-emmet")
+(depends-on "helm-emms")
+
 ;; (depends-on "helm-css-scss")
 ;; (depends-on "helm-google")
 ;; (depends-on "helm-rtags")
-;; (depends-on "helm-emms")
 
 ;; OSX support
 (depends-on "osx-lib")
@@ -149,12 +155,11 @@
 (depends-on "system-packages")
 
 ;; Frame and windows
-(depends-on "spaceline-all-the-icons")
 (depends-on "popwin")
 (depends-on "tabbar")
+(depends-on "spaceline-all-the-icons")
 
 ;; Robustness
-(depends-on "backup-each-save")
 (depends-on "session")
 
 ;; Efficiency
@@ -177,9 +182,17 @@
 (depends-on "emacsql-sqlite")
 (depends-on "w3m")
 (depends-on "sunshine")
+(depends-on "pocket-reader")
+(depends-on "emms-player-mpv")
 
 ;; Log
 (depends-on "keyfreq")
 ;; (depends-on "sauron")
 
 ;; 2018-01-04 updated.
+
+;; Examples
+;; :git "https://.../hoge.git"
+;; :ref "abcdefg"
+;; :branch "master"
+;; files ("*.el" (:exclude "hoge.el"))

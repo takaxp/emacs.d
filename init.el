@@ -539,47 +539,53 @@
        '(ispell-region ispell-complete-word)
        "ispell" nil t)
 
+  ;; 日本語変換時にASCIIに変わってしまうなど希望の動作にならないので，今のところ aspell を優先する．
+
   (with-eval-after-load "ispell"
+    (setq ispell-encoding8-command t)
+    ;; for English and Japanese mixed
+    (add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
+    ;; http://endlessparentheses.com/ispell-and-org-mode.html
+    (add-to-list 'ispell-skip-region-alist '("^#\\+BEGIN_SRC" . "^#\\+END_SRC"))
+    (add-to-list 'ispell-skip-region-alist '("~" "~"))
+    (add-to-list 'ispell-skip-region-alist '("=" "="))
+    (add-to-list 'ispell-skip-region-alist '(org-property-drawer-re))
+
     (cond
+     ((executable-find "hunspell")
+      (setenv "LC_ALL" "en_US")
+      ;; (message "--- hunspell loaded.")
+      (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
+      (if (require 'shut-up nil t)
+          ;; 必要．しかも ispell-program-name 指定の前で．
+          (shut-up (ispell-change-dictionary "en_US" t))
+        (ispell-change-dictionary "en_US" t))
+      (setq-default ispell-program-name (executable-find "hunspell"))
+      (setq ispell-local-dictionary "en_US")
+      (setq ispell-dictionary ispell-local-dictionary)
+      ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
+
+      (setq ispell-local-dictionary-alist
+            '(("ja_JP" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
+               ("-d" "en_US") nil utf-8)
+              ("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
+               ("-d" "en_US") nil utf-8)))
+      (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
+      (setq ispell-personal-dictionary "~/Dropbox/emacs.d/.hunspell.en.dic"))
+
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
       (setq-default ispell-program-name "aspell")
-      ;; for English and Japanese mixed
-      (add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
-      (add-to-list 'ispell-skip-region-alist
-                   '("^#\\+BEGIN_SRC" . "^#\\+END_SRC"))
-      (add-to-list 'ispell-skip-region-alist '("~" "~"))
-      (add-to-list 'ispell-skip-region-alist '("=" "="))
-      (add-to-list 'ispell-skip-region-alist '(org-property-drawer-re))
       (when (eq window-system 'w32)
         (setq-default ispell-program-name
                       "C:/Program Files/Aspell/bin/aspell.exe"))
       (setq ispell-dictionary "english")
       (setq ispell-personal-dictionary "~/Dropbox/emacs.d/.aspell.en.pws")
       ;; This will also avoid an IM-OFF issue for flyspell-mode.
-      (setq ispell-aspell-supports-utf8 t)
-      (setq ispell-encoding8-command t)
+      ;; (setq ispell-aspell-supports-utf8 t) ;; Obsolate
       (setq ispell-local-dictionary-alist
             '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
                    ("-d" "en" "--encoding=utf-8") nil utf-8))))
-
-     ;; flyspell とペアで使う時に incorrect判定が日本語に反応したり，日本語変換時にASCIIに変わってしまうなど希望の動作にならないので，今のところ aspell を優先する．
-     ((executable-find "hunspell")
-      (setenv "LC_ALL" "en_US")
-      ;; (message "--- hunspell loaded.")
-      (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
-      (ispell-change-dictionary "en_US" t) ;; 必要．しかも ispell-program-name 指定の前で．
-      (setq-default ispell-program-name (executable-find "hunspell"))
-      (setq ispell-local-dictionary "en_US")
-      (setq ispell-dictionary ispell-local-dictionary)
-      ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
-      (setq ispell-local-dictionary-alist
-            '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
-               ("-d" "en_US") nil utf-8)
-              ("ja_JP" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
-               ("-d" "en_US") nil utf-8)))
-      (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
-      (setq ispell-personal-dictionary "~/Dropbox/emacs.d/.hunspell.en.dic"))
      (t nil))
     )
 
@@ -613,6 +619,11 @@
     ;; Auto complete との衝突を回避
     (with-eval-after-load "auto-complete"
       (ac-flyspell-workaround))
+    (defun my:flyspell-ignore-nonascii (beg end _info)
+      "incorrect判定をASCIIに限定"
+      (string-match "[^!-~]" (buffer-substring beg end)))
+    (add-hook 'flyspell-incorrect-hook 'my:flyspell-ignore-nonascii)
+
     (defun my:flyspell-on ()
       (cond
        ((memq major-mode major-mode-with-flyspell)
@@ -1249,6 +1260,71 @@
 
   (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
     (add-hook hook #'turn-on-eldoc-mode)))
+
+(when (autoload-if-found
+       '(emms-play-file emms-play-playlist emms-play-directory)
+       "emms" nil t)
+
+  (with-eval-after-load "emms-mode-line"
+    (defun advice:emms-mode-line-playlist-current ()
+      "Display filename in mode-line, not full-path."
+      (format emms-mode-line-format
+              (file-name-nondirectory (emms-track-description
+				                               (emms-playlist-current-selected-track)))))
+    (advice-add 'emms-mode-line-playlist-current :override
+                #'advice:emms-mode-line-playlist-current))
+
+  (with-eval-after-load "emms-mode-line-icon"
+    (defun advice:emms-mode-line-icon-function ()
+      "Replace the default musical note icon with a Unicode character."
+      (concat " "
+              emms-mode-line-icon-before-format
+              "♪"
+              (emms-mode-line-playlist-current)))
+    (advice-add 'emms-mode-line-icon-function :override
+                #'advice:emms-mode-line-icon-function))
+
+  (with-eval-after-load "emms"
+    (when (require 'emms-setup nil t)
+      (emms-standard)
+      (emms-default-players))
+
+    (require 'helm-emms nil t)
+
+    ;; setup an additional player
+    (if (executable-find "mpv")
+        (when (require 'emms-player-mpv nil t)
+          (add-to-list 'emms-player-list 'emms-player-mpv)
+
+          (defvar emms-player-mpv-ontop nil)
+          (defun emms-player-mpv-toggle-ontop ()
+            "Toggle float on top."
+            (interactive)
+            (if emms-player-mpv-ontop
+                (emms-player-mpv-disable-ontop)
+              (emms-player-mpv-enable-ontop)))
+
+          (defun emms-player-mpv-enable-ontop ()
+            "Enable float on top."
+            (let ((cmd (emms-player-mpv--format-command "set ontop yes")))
+              (call-process-shell-command cmd nil nil nil))
+            (setq emms-player-mpv-ontop t))
+
+          (defun emms-player-mpv-disable-ontop ()
+            "Disable float on top."
+            (let ((cmd (emms-player-mpv--format-command "set ontop no")))
+              (call-process-shell-command cmd nil nil nil))
+            (setq emms-player-mpv-ontop nil))
+
+          (global-set-key (kbd "C-c e t") 'emms-player-mpv-toggle-ontop))
+
+      (message "--- mpv is NOT installed."))
+
+    (let ((base "C-c e "))
+      (global-set-key (kbd (concat base "n")) 'emms-next)
+      (global-set-key (kbd (concat base "p")) 'emms-previous)
+      (global-set-key (kbd (concat base "s")) 'emms-stop)
+      (global-set-key (kbd (concat base "SPC")) 'emms-pause))))
 
 (when (autoload-if-found
        '(google-maps)
@@ -2005,8 +2081,6 @@
           ("APPROVED" :foreground "#66CC66")
           ("QUESTION" :foreground "#FF0000")
           ("WAIT"     :foreground "#CCCCCC" :background "#666666")
-          ("EDIT"     :foreground "#FF33CC")
-          ("READ"     :foreground "#9933CC")
           ("MAIL"     :foreground "#CC3300" :background "#FFEE99")
           ("PLAN"     :foreground "#FF6600")
           ("PLAN2"    :foreground "#FFFFFF" :background "#FF6600")
@@ -2025,6 +2099,7 @@
           ("Domestic"    :foreground "#6666CC")
           ("BeMerged"    :foreground "#6666CC")
           ("Doing"       :foreground "#FF0000")
+          ("Draft"       :foreground "#9933CC") ;; Draft(r1,r2,r3)->Review(1,2)
           ("Review"      :foreground "#6633CC")
           ("Revisit"     :foreground "#6633CC")
           ("Redmine"     :foreground "#CC6666")
@@ -2033,6 +2108,7 @@
           ("Mag"         :foreground "#9966CC")
           ("buy"         :foreground "#9966CC")
           ("pay"         :foreground "#CC6699")
+          ("try"         :foreground "#FF3366")
           ("secret"      :foreground "#FF0000")
           ("emacs"       :foreground "#6633CC")
           ("note"        :foreground "#6633CC")
@@ -2064,7 +2140,6 @@
 (with-eval-after-load "org"
   (setq org-todo-keywords
         '((sequence "TODO(t)" "PLAN(p)" "PLAN2(P)" "|" "DONE(d)")
-          (sequence "READ(r)" "EDIT(e)" "|" "DONE(d)")
           (sequence "CHECK(C)" "FOCUS(f)" "ICAL(c)"  "|" "DONE(d)")
           (sequence "WAIT(w)" "SLEEP(s)" "QUESTION(q)" "|" "DONE(d)")
           (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|" "APPROVED(a)")))
@@ -2253,6 +2328,32 @@
        "org-capture" nil t)
 
   (with-eval-after-load "org-capture"
+    ;; キャプチャ時に作成日時をプロパティに入れる
+    ;; Thanks to https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook
+    (defvar my:org-created-property-name "CREATED"
+      "The name of the org-mode property that stores the creation date of the entry")
+    (defun my:org-set-created-property (&optional active NAME)
+      "Set a property on the entry giving the creation time.
+
+By default the property is called CREATED. If given the `NAME'
+argument will be used instead. If the property already exists, it
+will not be modified."
+      (interactive)
+      (let* ((created (or NAME my:org-created-property-name))
+             (fmt (if active "<%s>" "[%s]"))
+             (now  (format fmt (format-time-string "%Y-%m-%d %a %H:%M"))))
+        (unless (org-entry-get (point) created nil)
+          (org-set-property created now))))
+
+    (defun my:org-toggle-block-visibility ()
+      "Testing..."
+      (interactive)
+	    (when (looking-at org-drawer-regexp)
+	      (org-flag-drawer		; toggle block visibility
+	       (not (get-char-property (match-end 0) 'invisible)))))
+
+    (add-hook 'org-capture-before-finalize-hook #'my:org-set-created-property)
+
     ;; 2010-06-13 の形式では，タグとして認識されない
     (defun get-current-date-tags () (format-time-string "%Y%m%d"))
     (setq org-default-notes-file (concat org-directory "next.org"))
