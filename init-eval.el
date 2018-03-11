@@ -36,6 +36,7 @@
 (require 'time-stamp nil t)
 (require 'update-stamp nil t)
 (require 'emmet-mode nil t)
+(require 'gif-screencast nil t)
 
 (if (require 'shut-up nil t)
     (shut-up (require 'emms-setup nil t))

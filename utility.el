@@ -518,7 +518,8 @@
   (when (require 'daylight-theme nil t)
     (mapc 'disable-theme custom-enabled-themes)
     (load-theme 'daylight t)
-    (moom-reset-font-size)))
+    (when (require 'moom nil t)
+      (moom-font-size-reset))))
 
 ;;;###autoload
 (defun my:night-theme ()
@@ -526,7 +527,8 @@
   (when (require 'night-theme nil t) ;; atom-one-dark-theme
     (mapc 'disable-theme custom-enabled-themes)
     (load-theme 'night t)
-    (moom-reset-font-size)))
+    (when (require 'moom nil t)
+      (moom-font-size-reset))))
 
 (defun chomp (str)
   "Chomp leading and tailing whitespace from STR."

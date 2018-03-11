@@ -46,6 +46,7 @@
 (depends-on "org-web-tools")
 (depends-on "org-bullets")
 (depends-on "org-edna")
+(depends-on "org-fancy-priorities")
 (depends-on "calfw-org")
 (depends-on "calfw")
 
@@ -75,6 +76,7 @@
 (depends-on "describe-number")
 (depends-on "flycheck")
 (depends-on "flycheck-pos-tip")
+(depends-on "flycheck-clang-tidy")
 (depends-on "js2-mode")
 (depends-on "js2-refactor")
 (depends-on "tern")
@@ -107,6 +109,7 @@
 (depends-on "helm-pass")
 (depends-on "helm-emmet")
 (depends-on "helm-emms")
+(depends-on "helm-pass")
 
 ;; (depends-on "helm-css-scss")
 ;; (depends-on "helm-google")
@@ -145,6 +148,7 @@
 (depends-on "which-key")
 (depends-on "back-button")
 (depends-on "all-the-icons-dired")
+(depends-on "smooth-scroll")
 
 ;; System related
 (depends-on "dired-narrow")
@@ -184,6 +188,9 @@
 (depends-on "sunshine")
 (depends-on "pocket-reader")
 (depends-on "emms-player-mpv")
+(depends-on "gif-screencast")
+(depends-on "pass")
+(depends-on "keycast")
 
 ;; Log
 (depends-on "keyfreq")

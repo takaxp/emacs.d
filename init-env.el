@@ -60,7 +60,7 @@
     (load-path-setter `(,cask-package-dir) 'load-path)
     (setq init-load-path load-path))
 
-  (when ad-require (require 'init-ad nil t))
+  (when ad-require (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
   (require 'init nil t)
   ;; (require 'init-test nil t)
   (require 'my-eshell nil t)

@@ -248,16 +248,16 @@
     (when (fboundp 'mac-get-current-input-source)
       (if (my:ime-active-p) (my:ime-off) (my:ime-on))))
 
-  (when (fboundp 'mac-get-current-input-source)
-    (declare-function ns-ime-auto-correct "init" nil)
-    (defun ns-ime-auto-correct ()
-      (interactive)
-      (if (my:ime-active-p)
-          (unless (mac-toggle-input-method nil)
-            (my:ime-on))
-        (when (mac-toggle-input-method t)
-          (my:ime-off))))
-    (add-hook 'focus-in-hook #'ns-ime-auto-correct))
+  ;; (when (fboundp 'mac-get-current-input-source)
+  ;;   (declare-function ns-ime-auto-correct "init" nil)
+  ;;   (defun ns-ime-auto-correct ()
+  ;;     (interactive)
+  ;;     (if (my:ime-active-p)
+  ;;         (unless (mac-toggle-input-method nil)
+  ;;           (my:ime-on))
+  ;;       (when (mac-toggle-input-method t)
+  ;;         (my:ime-off))))
+  ;;   (add-hook 'focus-in-hook #'ns-ime-auto-correct))
 
   (global-set-key (kbd "M-SPC") 'ns-ime-toggle) ;; toggle-input-method
   (global-set-key (kbd "S-SPC") 'ns-ime-toggle) ;; toggle-input-method
@@ -286,6 +286,13 @@
 
 ;; Scroll window on a page-by-pabe basis with N line overlapping
 (setq next-screen-context-lines 1)
+
+(with-eval-after-load "postpone"
+  (when (require 'smooth-scroll nil t)
+    (custom-set-variables
+     '(smooth-scroll/vscroll-step-size 6)
+     '(smooth-scroll/hscroll-step-size 6))
+    (smooth-scroll-mode t)))
 
 (when (autoload-if-found
        '(cycle-buffer cycle-buffer-backward)
@@ -872,8 +879,10 @@
     (define-key selected-keymap (kbd ";") #'comment-dwim)
     (define-key selected-keymap (kbd "e") #'my:eval-region-echo)
     (define-key selected-keymap (kbd "=") #'count-words-region)
-    (define-key selected-keymap (kbd "f") #'describe-function)
-    (define-key selected-keymap (kbd "v") #'describe-variable)
+    (define-key selected-keymap (kbd "f")
+      (if (require 'helpful nil t) #'helpful-function #'describe-function))
+    (define-key selected-keymap (kbd "v")
+      (if (require 'helpful nil t) #'helpful-variable #'describe-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
     (define-key selected-keymap (kbd "g") #'my:google-this)
@@ -931,6 +940,8 @@
        (orgalist-mode " ol" "orgalist")
 
        ;; No display for minor modes
+       (org-fancy-priorities-mode nil "org-fancy-priorities")
+       (smooth-scroll-mode nil "smooth-scroll")
        (eldoc-mode nil "eldoc")
        (centered-cursor-mode nil "centered-cursor-mode")
        (volatile-highlights-mode nil "volatile-highlights")
@@ -1261,20 +1272,25 @@
   (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
     (add-hook hook #'turn-on-eldoc-mode)))
 
+(autoload-if-found '(keycast-mode) "keycast" nil t)
+
 (when (autoload-if-found
-       '(emms-play-file emms-play-playlist emms-play-directory)
+       '(emms-play-file
+         emms-play-playlist emms-play-directory my:play-bgm)
        "emms" nil t)
 
   (with-eval-after-load "emms-mode-line"
     (defun advice:emms-mode-line-playlist-current ()
       "Display filename in mode-line, not full-path."
       (format emms-mode-line-format
-              (file-name-nondirectory (emms-track-description
-				                               (emms-playlist-current-selected-track)))))
+              (file-name-nondirectory
+               (emms-track-description
+				        (emms-playlist-current-selected-track)))))
     (advice-add 'emms-mode-line-playlist-current :override
                 #'advice:emms-mode-line-playlist-current))
 
   (with-eval-after-load "emms-mode-line-icon"
+    (setq emms-mode-line-format "%s")
     (defun advice:emms-mode-line-icon-function ()
       "Replace the default musical note icon with a Unicode character."
       (concat " "
@@ -1290,6 +1306,13 @@
       (emms-default-players))
 
     (require 'helm-emms nil t)
+
+    (defun my:play-bgm ()
+      (interactive)
+      (let ((file "~/Dropbox/12-audio/ffximusic104.m4a"))
+        (when (file-exists-p file)
+          (emms-play-file file)
+          (emms-toggle-repeat-track))))
 
     ;; setup an additional player
     (if (executable-find "mpv")
@@ -1324,7 +1347,9 @@
       (global-set-key (kbd (concat base "n")) 'emms-next)
       (global-set-key (kbd (concat base "p")) 'emms-previous)
       (global-set-key (kbd (concat base "s")) 'emms-stop)
-      (global-set-key (kbd (concat base "SPC")) 'emms-pause))))
+      (global-set-key (kbd (concat base "SPC")) 'emms-pause)))
+
+  (global-set-key (kbd "C-c e b") 'my:play-bgm))
 
 (when (autoload-if-found
        '(google-maps)
@@ -1379,8 +1404,8 @@
         (set-frame-width (selected-frame)
                          (- (frame-width) 63))
         (setq undo-tree-active nil))
-      (when (< (frame-width) moom--target-frame-width)
-        (set-frame-width (selected-frame) moom--target-frame-width)))
+      (when (< (frame-width) moom--frame-width)
+        (set-frame-width (selected-frame) moom--frame-width)))
     (defun my:undo-tree-visualize ()
       (interactive)
       (when (and (not undo-tree-active) (not (eq buffer-undo-list t)))
@@ -1560,6 +1585,15 @@
     (osx-trash-setup)))
 
 (when (autoload-if-found
+       '(helpful-function)
+       "helpful" nil t)
+  (with-eval-after-load "helpful"
+    (require 'postpone nil t))
+  (global-set-key (kbd "C-h k") 'helpful-key)
+  (global-set-key (kbd "C-h f") 'helpful-function)
+  (global-set-key (kbd "C-h v") 'helpful-variable))
+
+(when (autoload-if-found
        '(keyfreq-mode keyfreq-autosave-mode keyfreq-show)
        "keyfreq" nil t)
 
@@ -1617,6 +1651,8 @@
     (require 'helm-flycheck nil t)
     (setq flycheck-gcc-language-standard "c++11")
     (setq flycheck-clang-language-standard "c++11")
+    (when (require 'flycheck-clang-tidy nil t)
+      (add-hook 'flycheck-mode-hook #'flycheck-clang-tidy-setup))
     (when (require 'flycheck-pos-tip nil t)
       '(custom-set-variables
         '(flycheck-display-errors-function
@@ -1625,9 +1661,8 @@
   ;; (flycheck-add-next-checker 'javascript-jshint
   ;; 'javascript-gjslint)
 
-  (dolist
-      (hook
-       '(js2-mode-hook c-mode-common-hook perl-mode-hook python-mode-hook))
+  (dolist (hook
+           '(js2-mode-hook c-mode-common-hook perl-mode-hook python-mode-hook))
     (add-hook hook #'flycheck-mode)))
 
 (when (autoload-if-found
@@ -1847,7 +1882,10 @@
       (add-hook 'moom-after-fullscreen-hook #'my:frame-title-format))
 
     (when (require 'helm-projectile nil t)
-      (setq projectile-completion-system 'helm))
+      ;; M-x helm-projectile-find-file (C-c p f)
+      (setq projectile-completion-system 'helm)
+      ;; projectile.el のキーバインドをオーバーライド
+      (helm-projectile-toggle 1))
 
     (when (require 'neotree nil t)
       ;; M-x helm-projectile-switch-project (C-c p p)
@@ -2198,6 +2236,13 @@
           "~/Dropbox/org/db/daily.org" "~/Dropbox/org/minutes/wg1.org"
           "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
           "~/Dropbox/org/db/trigger.org" "~/Dropbox/org/org2ja.org"))
+
+  (when (require 'moom nil t)
+    ;; Expand the frame width temporarily during org-agenda is activated.
+    (add-hook 'org-agenda-mode-hook 'moom-change-frame-width-half-again)
+    (defun advice:org-agenda--quit (&optional _bury)
+      (moom-change-frame-width))
+    (advice-add 'org-agenda--quit :after #'advice:org-agenda--quit))
 
   (add-hook 'org-finalize-agenda-hook
             #'(lambda () (org-agenda-to-appt t '((headline "TODO")))))
@@ -2935,11 +2980,11 @@ will not be modified."
 
   ;;(define-key org-mode-map (kbd "C-c 1")
   ;;  'org-export-icalendar-combine-agenda-files)
+  ;; (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
+  ;; (define-key org-mode-map (kbd "S-<f5>") 'widen)
   (define-key org-mode-map (kbd "C-c f 1") 'my:ox-icalendar)
   (define-key org-mode-map (kbd "C-c f 2")
-    'my:do-org-update-staistics-cookies)
-  (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
-  (define-key org-mode-map (kbd "S-<f5>") 'widen))
+    'my:do-org-update-staistics-cookies))
 
 (global-set-key (kbd "S-<f12>")
                 #'(lambda () (interactive) (show-org-buffer "tr/work.org")))
@@ -3026,14 +3071,14 @@ will not be modified."
  ((memq window-system '(mac ns)) ;; for Macintosh
   (setq initial-frame-alist
         (append
-         `((vertical-scroll-bars . nil)
-           (top . 22)  ; Y-pos from (0,0) the height of menu bar is 22pix.
-           (left . 0)  ; X-pos from (0,0) ; 420 is the center for MBP
-           ;; 26 is the setting for Butler's Docklet
-           ;; 837 is the setting for right side for MBP
-           ;; (width . 80) ; Width  : character count
-           ;; (height . 36)
-           (alpha . (100 90))) initial-frame-alist)))
+         `((top . 22)
+           (left . 0)
+           (alpha . (100 90))
+           (vertical-scroll-bars . nil)
+           (alpha . (100 90))
+           ;; (ns-appearance . nil) ;; 26.0
+           ;; (ns-transparent-titlebar . t) ;; 26.0
+           ) initial-frame-alist)))
 
  ;; for Linux
  ((eq window-system 'x)
@@ -3091,6 +3136,21 @@ will not be modified."
       (setq cursor-type my:cursor-type-ime-off)
       (set-cursor-color my:cursor-color-ime-off)
       (run-hooks 'my:ime-off-hook))
+    (declare-function advice:mac-toggle-input-method "init" nil)
+    (defun advice:mac-toggle-input-method (&optional arg)
+      "Run hooks when IME changes."
+      (interactive)
+      (if arg
+          (progn
+            (setq cursor-type my:cursor-type-ime-on)
+            (set-cursor-color my:cursor-color-ime-on)
+            (run-hooks 'my:ime-on-hook))
+        (progn
+          (setq cursor-type my:cursor-type-ime-off)
+          (set-cursor-color my:cursor-color-ime-off)
+          (run-hooks 'my:ime-off-hook))))
+    (advice-add 'mac-toggle-input-method
+                :before #'advice:mac-toggle-input-method)
 
     ;; for init setup
     (setq-default cursor-type my:cursor-type-ime-on)
@@ -3176,78 +3236,88 @@ will not be modified."
 (declare-function my:apply-cursor-config "init" nil)
 (defun advice:make-frame ()
   (my:apply-theme)
-  (when (require 'moom nil t)
-    (moom--set-font-size)))
+  (when (require 'moom-font nil t)
+    (moom-font-resize)))
 (advice-add 'make-frame :after #'advice:make-frame)
 (global-set-key (kbd "M-`") 'other-frame)
 
 (defconst moom-autoloads
   '(moom-move-frame-with-user-specify
     moom-change-frame-width-single moom-change-frame-width-double
+    moom-change-frame-width-half-again
     moom-move-frame-to-center moom-move-frame-to-edge-top
-    moom-move-frame-right
+    moom-move-frame-right moom-max-frame-height
     moom-move-frame-left moom-move-frame-to-edge-bottom
-    moom-open-height-ring moom-fit-frame-to-fullscreen
-    moom-set-font-size-input moom-max-frame-height moom-reset-font-size
-    moom-increase-font-size moom-decrease-font-size moom-set-font-size))
+    moom-fit-frame-to-fullscreen moom-open-height-ring
+    moom-font-resize moom-font-size-reset
+    moom-font-increase moom-font-decrease))
 
 (when (autoload-if-found
        moom-autoloads
        "moom" nil t)
 
-  (with-eval-after-load "moom"
-    (setq moom-fullscreen-font-size (moom-fullscreen-font-size))
+  (with-eval-after-load "moom-font"
+    (defun my:increase-font-size ()
+      (interactive)
+      (moom-font-increase 1)
+      (moom-move-frame-to-edge-top)
+      (moom-print-status))
+    (defun my:decrease-font-size ()
+      (interactive)
+      (moom-font-decrease 1)
+      (moom-move-frame-to-edge-top)
+      (moom-print-status))
+    (defun my:mid-font-size ()
+      (interactive)
+      (moom-font-resize
+       (/ (+ moom-font-init-size (moom-fullscreen-font-size)) 2))
+      (moom-move-frame-to-center)
+      (moom-print-status))
+    (add-hook 'moom-font-size-reset-hook #'moom-move-frame-to-center)
+    (add-hook 'moom-font-change-size-hook #'moom-print-status)
+    (global-set-key (kbd "C--") 'my:decrease-font-size)
+    (global-set-key (kbd "C-=") 'my:increase-font-size)
+    (global-set-key (kbd "C-x C-0") 'moom-font-size-reset)
+    (global-set-key (kbd "C-x C-8") 'my:mid-font-size))
 
-    ;; リングの状態を最新に更新（max-frame-height が変わるため）
-    (add-hook 'moom-after-fullscreen-hook #'moom--make-frame-height-ring)
+  (with-eval-after-load "moom"
     (add-hook 'moom-after-fullscreen-hook #'moom-move-frame-to-center)
-    (add-hook 'moom-after-fullscreen-hook #'moom-print-status)
-    (add-hook 'moom-reset-font-size-hook #'moom-move-frame-to-center)
-    (add-hook 'moom-reset-font-size-hook #'moom-print-status))
+    (add-hook 'moom-after-fullscreen-hook #'moom-print-status))
 
   ;; Move the frame to somewhere (default: 0,0)
   (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
-  ;; Move the frame to left side of the current position (require 'frame-cmds)
+  ;; Move the frame to left side of the current position
   (setq moom-horizontal-shifts '(30 30))
   (global-set-key (kbd "M-1") 'moom-move-frame-left)
-  ;; Move the frame to the center of the window display (require 'moom)
+  ;; Move the frame to the center of the window display
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-  ;; Move the frame to right side of the current position(require 'frame-cmds)
+  ;; Move the frame to right side of the current position
   (global-set-key (kbd "M-3") 'moom-move-frame-right)
   ;; Move the current frame to the top of the window display
   (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
   ;; Move the current frame to the bottom of the window display
   (global-set-key (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom)
-  ;; Move the current frame to the right edge of the window display
-  (global-set-key (kbd "S-M-0") 'moom-move-frame-to-edge-right)
+  ;; Move the current frame to the left edge of window display
+  (global-set-key (kbd "M-<f1>") 'moom-move-frame-to-edge-left)
+  ;; Move the current frame to the right edge of window display
+  (global-set-key (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
   ;; Cycle heights
   (global-set-key (kbd "<f2>") 'moom-open-height-ring)
   ;; Full screen with same frame-width
-  (global-set-key (kbd "C-x C-9") 'moom-fit-frame-to-fullscreen)
-  (global-set-key (kbd "C-x C-0") 'moom-reset-font-size)
-  (defun my:mid-font-size ()
+  (defvar my:fullscreen-flag nil)
+  (defun my:toggle-fullscreen ()
     (interactive)
-    (moom-set-font-size-input
-     (/ (+ moom-init-font-size moom-fullscreen-font-size) 2))
-    (moom-move-frame-to-center)
-    (moom-print-status))
-  (global-set-key (kbd "C-x C-8") 'my:mid-font-size)
+    (setq my:fullscreen-flag (not my:fullscreen-flag))
+    (if my:fullscreen-flag
+        (moom-fit-frame-to-fullscreen)
+      (moom-font-size-reset)
+      (moom-change-frame-width-single)))
+  (global-set-key (kbd "M-<f2>") 'my:toggle-fullscreen)
   (global-set-key (kbd "C-_") 'text-scale-decrease)
   (global-set-key (kbd "C-+") 'text-scale-increase)
   (global-set-key (kbd "C-c f s") 'moom-change-frame-width-single)
   (global-set-key (kbd "C-c f d") 'moom-change-frame-width-double)
-  (defun my:increase-font-size ()
-    (interactive)
-    (moom-increase-font-size 1)
-    (moom-move-frame-to-edge-top)
-    (moom-print-status))
-  (global-set-key (kbd "C-=") 'my:increase-font-size)
-  (defun my:decrease-font-size ()
-    (interactive)
-    (moom-decrease-font-size 1)
-    (moom-move-frame-to-edge-top)
-    (moom-print-status))
-  (global-set-key (kbd "C--") 'my:decrease-font-size))
+  (global-set-key (kbd "C-c f a") 'moom-change-frame-width-half-again))
 
 ;; setting for e2wm
 (when (autoload-if-found
@@ -3355,11 +3425,8 @@ will not be modified."
   (when (memq window-system '(mac ns))
     (let ((font-size (or size 12))
           ;; (unicode-font (or uc "FreeSerif"))
-          (ascii-font (or ascii "Monaco"))
-          (ja-font (or ja "Migu 2M")))
-      (with-eval-after-load "moom"
-        (setq moom-ascii-font ascii-font
-              moom-ja-font ja-font))
+          (ascii-font (or ascii my:ascii-font))
+          (ja-font (or ja my:ja-font)))
       ;; (my:unicode-font-setter
       ;;  (font-spec :family unicode-font :size font-size))
       (my:ascii-font-setter (font-spec :family ascii-font :size font-size))
@@ -3370,6 +3437,10 @@ will not be modified."
  ((memq window-system '(mac ns))
   (when (>= emacs-major-version 23)
     (my:font-config)
+    (with-eval-after-load "moom-font"
+      (custom-set-variables
+       '(moom-font-ascii my:ascii-font)
+       '(moom-font-ja my:ja-font)))
 
     ;; Fix ratio provided by set-face-attribute for fonts display
     (setq face-font-rescale-alist
@@ -3886,5 +3957,70 @@ will not be modified."
   (global-set-key (kbd "<f12>") 'my:open-file-ring)
   (global-set-key (kbd "C-c t") 'my:date)
   (global-set-key (kbd "C-c f 4") 'my:window-resizer))
+
+(when (autoload-if-found
+       '(gif-screencast)
+       "gif-screencast" nil t)
+
+  (with-eval-after-load "gif-screencast"
+    (setq gif-screencast-want-optimized nil)
+    (setq gif-screencast-args '("-x"))
+    (setq gif-screencast-capture-format "ppm")
+
+    ;; Start... M-x gif-screencast
+    (define-key gif-screencast-mode-map (kbd "<f5>") 'gif-screencast-stop)
+    (define-key gif-screencast-mode-map (kbd "S-<f5>")
+      'gif-screencast-toggle-pause)
+
+    ;; 拡張
+    (defcustom gif-screencast-additional-normal-hooks '()
+      "A list of hooks. These hooks activate `gif-screencast-capture'."
+      :group 'gif-screencast
+      :type '(repeat hook))
+
+    (add-to-list 'gif-screencast-additional-normal-hooks
+                 'window-configuration-change-hook) ;; for which-key.el
+    (add-to-list 'gif-screencast-additional-normal-hooks 'focus-in-hook)
+    (add-to-list 'gif-screencast-additional-normal-hooks 'focus-out-hook)
+    (add-to-list 'gif-screencast-additional-normal-hooks 'minibuffer-setup-hook)
+    (add-to-list 'gif-screencast-additional-normal-hooks 'minibuffer-exit-hook)
+    ;; (add-to-list 'gif-screencast-additional-normal-hooks 'pre-redisplay-functions)
+    ;; pre-redisplay-functions はやばい．
+
+    ;; modification-hooks
+    (defun advice:gif-screencast ()
+      (dolist (hook gif-screencast-additional-normal-hooks)
+        (add-hook hook 'gif-screencast-capture)))
+    (advice-add 'gif-screencast :after #'advice:gif-screencast)
+
+    (defun advice:gif-screencast-stop ()
+      (dolist (hook gif-screencast-additional-normal-hooks)
+        (remove-hook hook 'gif-screencast-capture)))
+    (advice-add 'gif-screencast-stop :after #'advice:gif-screencast-stop)
+
+    (defun advice:gif-screencast-toggle-pause ()
+      (if (memq 'gif-screencast-capture (default-value 'pre-command-hook))
+          (dolist (hook gif-screencast-additional-normal-hooks)
+            (remove-hook hook 'gif-screencast-capture))
+        (dolist (hook gif-screencast-additional-normal-hooks)
+          (add-hook hook 'gif-screencast-capture))))
+    (advice-add 'gif-screencast-toggle-pause
+                :before #'advice:gif-screencast-toggle-pause)
+
+    (defun advice:gif-screencast-opendir ()
+      "Open the output directory when screencast is finished."
+      (if (not (eq system-type 'darwin))
+          (my:gif-screencast-opendir-dired)
+        (shell-command-to-string
+         (concat "open " gif-screencast-screenshot-directory))
+        (shell-command-to-string
+         (concat "open " gif-screencast-output-directory))))
+    (advice-add 'gif-screencast-stop :before #'advice:gif-screencast-opendir)
+
+    (defun my:gif-screencast-opendir-dired ()
+      "Open directories for screenshots and generated GIFs by Dired."
+      (interactive)
+      (dired gif-screencast-output-directory)
+      (dired gif-screencast-screenshot-directory))))
 
 (provide 'init)
