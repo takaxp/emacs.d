@@ -130,6 +130,9 @@
             '(my:ag ag)
             "ag" nil t))
 
+  (global-set-key (kbd "C-M-f") 'my:ag)
+  (autoload-if-found '(helm-ag) "helm-ag" nil t)
+
   (with-eval-after-load "ag"
     (custom-set-variables
      '(ag-highlight-search t)
@@ -139,13 +142,10 @@
     ;; q でウィンドウを抜ける
     ;; (define-key ag-mode-map (kbd "q") 'delete-window)
     (defun my:ag ()
-    "自動的に出力バッファに移動"
-    (interactive)
-    (call-interactively 'ag)
-    (switch-to-buffer-other-frame "*ag search*")))
-
-  (global-set-key (kbd "C-M-f") 'my:ag)
-  (autoload-if-found '(helm-ag) "helm-ag" nil t))
+      "自動的に出力バッファに移動"
+      (interactive)
+      (call-interactively 'ag)
+      (switch-to-buffer-other-frame "*ag search*"))))
 
 (when (memq window-system '(mac ns))
   (global-set-key (kbd "M-v") 'yank)
@@ -878,6 +878,7 @@
 
     (define-key selected-keymap (kbd ";") #'comment-dwim)
     (define-key selected-keymap (kbd "e") #'my:eval-region-echo)
+    ;; (define-key selected-keymap (kbd "E") #'my:eval-region-echo-as-function)
     (define-key selected-keymap (kbd "=") #'count-words-region)
     (define-key selected-keymap (kbd "f")
       (if (require 'helpful nil t) #'helpful-function #'describe-function))
@@ -898,6 +899,13 @@
       (interactive)
       (when mark-active
         (eval-region (region-beginning) (region-end) t)))
+    ;; (defun my:eval-region-echo-as-function ()
+    ;;   (interactive)
+    ;;   (when mark-active
+    ;;     (let ((region (buffer-substring-no-properties
+    ;;                    (region-beginning) (region-end))))
+    ;;       (message "%s" (concat "(" region ")"))
+    ;;       (eval-expression (concat "(" (intern region) ")")))))
     (setq selected-org-mode-map (make-sparse-keymap))
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
 
@@ -1103,8 +1111,6 @@
        "helm-config" nil t)
 
   (with-eval-after-load "helm-config"
-    (unless batch-build
-      (recentf-mode 1))
     (helm-mode 1)
 
     ;; (when (require 'diminish nil t)
@@ -1432,26 +1438,33 @@
 (setq history-length 2000)
 
 (when (autoload-if-found
-       '(rencetf-mode recentf-save-list-without-msg recentf-open-files)
+       '(rencetf-mode
+         my:recentf-save-list-silence
+         my:recentf-cleanup-silence
+         recentf-open-files)
        "recentf" nil t)
 
+  (with-eval-after-load "postpone"
+    (unless batch-build
+      (recentf-mode 1)))
+
   (with-eval-after-load "recentf"
-    (defun recentf-save-list-without-msg ()
+    (defun my:recentf-save-list-silence ()
       (interactive)
       (let ((message-log-max nil))
         (if (require 'shut-up nil t)
             (shut-up (recentf-save-list))
           (recentf-save-list)))
       (message ""))
-    (defun recentf-cleanup-without-msg ()
+    (defun my:recentf-cleanup-silence ()
       (interactive)
       (let ((message-log-max nil))
         (if (require 'shut-up nil t)
             (shut-up (recentf-cleanup))
           (recentf-cleanup)))
       (message ""))
-    (add-hook 'focus-out-hook #'recentf-save-list-without-msg)
-    (add-hook 'focus-out-hook #'recentf-cleanup-without-msg)
+    (add-hook 'focus-out-hook #'my:recentf-save-list-silence)
+    (add-hook 'focus-out-hook #'my:recentf-cleanup-silence)
 
     (custom-set-variables
      '(recentf-max-saved-items 2000)
@@ -1489,19 +1502,17 @@
     ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
     (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t)))
 
-  (add-hook 'after-save-hook
-            #'(lambda () (unless (equal (buffer-name) "recentf")
-                           (backup-each-save)))))
+  (defun my:auto-backup ()
+    (unless (equal (buffer-name) "recentf")
+      (backup-each-save)))
+  (add-hook 'after-save-hook 'my:auto-backup))
 
 (when (autoload-if-found
        '(recursive-delete-backup-files delete-backup-files)
        "utility" nil t)
-
-  ;; backup-each-save が作るファイルのうち条件にあうものを終了時に削除
-  (add-hook 'kill-emacs-hook
-            #'(lambda ()
-                (when (fboundp 'recursive-delete-backup-files)
-                  (recursive-delete-backup-files 7)))))
+  (with-eval-after-load "postpone"
+    (recursive-delete-backup-files 7)))
+;; (add-hook 'kill-emacs-hook #'my:delete-backup-7days))
 
 (with-eval-after-load "postpone"
   (defun my:backup-recentf ()
@@ -1512,6 +1523,8 @@
        '(session-initialize)
        "session" nil t)
 
+  (add-hook 'after-init-hook #'session-initialize)
+
   (with-eval-after-load "session"
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
@@ -1521,10 +1534,13 @@
           session-globals-include '((kill-ring 100)
                                     (session-file-alist 100 t)
                                     (file-name-history 200)
-                                    search-ring regexp-search-ring))
-    (setq session-undo-check -1))
+                                    search-ring
+                                    regexp-search-ring))
+    (setq session-undo-check -1)))
 
-  (add-hook 'after-init-hook #'session-initialize))
+  ;; (with-eval-after-load "postpone"
+  ;;   (unless batch-build
+  ;;     (session-initialize)))
 
 ;; FIXME
 ;;  (setq session-set-file-name-exclude-regexp
@@ -1585,7 +1601,7 @@
     (osx-trash-setup)))
 
 (when (autoload-if-found
-       '(helpful-function)
+       '(helpful-key helpful-function helpful-variable)
        "helpful" nil t)
   (with-eval-after-load "helpful"
     (require 'postpone nil t))
@@ -1912,6 +1928,16 @@
        '(org-mode)
        "org" "Org Mode" t)
 
+  (global-set-key (kbd "C-c l") 'org-store-link)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c r") 'org-capture)
+  (push '("\\.txt$" . org-mode) auto-mode-alist)
+
+  (global-set-key (kbd "C-M-o")
+                  #'(lambda () (interactive) (show-org-buffer "next.org")))
+  (global-set-key (kbd "C-M-c")
+                  #'(lambda () (interactive) (show-org-buffer "org-ical.org")))
+
   (with-eval-after-load "org"
     (require 'org-habit nil t)
     (require 'org-mobile nil t)
@@ -2004,9 +2030,25 @@
      'org-mode
      `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
         1 'org-headline-done prepend))
-     'append))
+     'append)
 
-  (push '("\\.txt$" . org-mode) auto-mode-alist))
+    (defun my:do-org-update-staistics-cookies ()
+      (interactive)
+      (message "Update statistics ...")
+      (do-org-update-statistics-cookies))
+
+    ;; (org-transpose-element) が割り当てられているので取り返す．
+    (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
+    (define-key org-mode-map (kbd "C-c f 2")
+      'my:do-org-update-staistics-cookies))
+
+  (with-eval-after-load "org-clock"
+    (defun my:org-clock-out-and-save-when-exit ()
+      "Save buffers and stop clocking when kill emacs."
+      (when (org-clocking-p)
+        (org-clock-out)
+        (save-some-buffers t)))
+    (add-hook 'kill-emacs-hook #'my:org-clock-out-and-save-when-exit)))
 
 ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
 ;; default = ~/org.ics
@@ -2016,6 +2058,9 @@
 (when (autoload-if-found
        '(my:ox-icalendar my:ox-icalendar-cleanup)
        "ox-icalendar" nil t)
+
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-c f 1") 'my:ox-icalendar))
 
   (with-eval-after-load "ox-icalendar"
     (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
@@ -2060,39 +2105,17 @@
 (with-eval-after-load "org"
   (setq org-use-speed-commands t)
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
-  (add-to-list 'org-speed-commands-user '("D" my:org-todo-cancel-repeat "DONE"))
+  (add-to-list 'org-speed-commands-user '("D" my:org-complete-no-repeat "DONE"))
   (add-to-list 'org-speed-commands-user '("P" my:proportional-font-toggle))
+  (add-to-list 'org-speed-commands-user '("!" my:org-set-created-property))
   (add-to-list 'org-speed-commands-user
                '("$" call-interactively 'org-archive-subtree))
 
-  (defun my:org-todo-cancel-repeat (&optional ARG)
+  (defun my:org-todo-complete-no-repeat (&optional ARG)
     (interactive "P")
     (when (org-get-repeat)
       (org-cancel-repeater))
     (org-todo ARG)))
-
-(with-eval-after-load "org"
-  (add-to-list 'org-modules 'org-timer)
-  (setq org-timer-default-timer "90")
-  (setq growl-pomodoro-default-task-name "Time is up!")
-  (setq growl-pomodoro-task-name 'growl-pomodoro-default-task-name)
-
-  (defun set-growl-pomodoro-task-name ()
-    (interactive "P")
-    (setq growl-pomodoro-task-name
-          (read-from-minibuffer "Task Name: "
-                                growl-pomodoro-default-task-name)))
-  (add-hook 'org-timer-set-hook #'set-growl-pomodoro-task-name)
-
-  (defun growl-pomodoro-timer ()
-    (interactive)
-    (shell-command-to-string
-     (concat "growlnotify -s -a Emacs -t \"++ Pomodoro ++\" -m \""
-             "The end of " growl-pomodoro-task-name "!\""))
-    (shell-command-to-string
-     ;;   (concat "say The end of " growl-pomodoro-task-name)
-     (concat "say -v Kyoko " growl-pomodoro-task-name)))
-  (add-hook 'org-timer-done-hook #'growl-pomodoro-timer))
 
 (with-eval-after-load "org"
   ;; Font lock を使う
@@ -2244,8 +2267,7 @@
       (moom-change-frame-width))
     (advice-add 'org-agenda--quit :after #'advice:org-agenda--quit))
 
-  (add-hook 'org-finalize-agenda-hook
-            #'(lambda () (org-agenda-to-appt t '((headline "TODO")))))
+  (add-hook 'org-finalize-agenda-hook #'my:org-agenda-to-appt)
 
   ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
   (org-defkey org-agenda-mode-map [(tab)]
@@ -2356,9 +2378,7 @@
   ;; 何分前から警告表示を開始するか[m]
   (setq appt-message-warning-time 20)
   ;; 警告表示開始から何分ごとにリマインドするか[m]
-  (setq appt-display-interval 5)
-  ;; モードラインにアラームを表示する
-  (setq appt-display-mode-line t)
+  (setq appt-display-interval 1)
   ;; org-agenda の内容をアラームに登録する
   ;; 定期的に更新する
   (defun my:org-agenda-to-appt ()
@@ -2372,11 +2392,13 @@
        '(org-capture)
        "org-capture" nil t)
 
-  (with-eval-after-load "org-capture"
+  (with-eval-after-load "org"
     ;; キャプチャ時に作成日時をプロパティに入れる
     ;; Thanks to https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook
     (defvar my:org-created-property-name "CREATED"
-      "The name of the org-mode property that stores the creation date of the entry")
+      "The name of the org-mode property.
+
+This user property stores the creation date of the entry")
     (defun my:org-set-created-property (&optional active NAME)
       "Set a property on the entry giving the creation time.
 
@@ -2388,8 +2410,9 @@ will not be modified."
              (fmt (if active "<%s>" "[%s]"))
              (now  (format fmt (format-time-string "%Y-%m-%d %a %H:%M"))))
         (unless (org-entry-get (point) created nil)
-          (org-set-property created now))))
+          (org-set-property created now)))))
 
+  (with-eval-after-load "org-capture"
     (defun my:org-toggle-block-visibility ()
       "Testing..."
       (interactive)
@@ -2729,6 +2752,7 @@ will not be modified."
 ;;         ("G" open-calfw-agenda-org "Graphical display in calfw"))))))
 
 (with-eval-after-load "ox"
+  (setq org-export-default-language "ja")
   (require 'ox-pandoc nil t)
   (require 'ox-qmd nil t) ;; Quita-style
   (require 'ox-gfm nil t)) ;; Github-style
@@ -2858,70 +2882,101 @@ will not be modified."
                                org-attach-directory-absolute)))))))
 
 (when (autoload-if-found
-       '(org-attach-screenshot my:org-attach-screenshot)
+       '(org-attach-screenshot)
        "org-attach-screenshot" nil t)
 
   (with-eval-after-load "org-attach-screenshot"
     (when (executable-find "screencapture")
-      (setq org-attach-screenshot-command-line "screencapture %f"))
+      (setq org-attach-screenshot-command-line "screencapture -w %f"))
     (defun my:org-attach-screenshot ()
       (interactive)
-      (org-attach-screenshot t "")))
-
-  (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c f <f12>") 'my:org-attach-screenshot)))
-
-(when (executable-find "terminal-notifier")
-  (defun terminal-notifier-notify (title message &optional sound)
-    "Show a message with `terminal-notifier-command`."
-    (start-process "terminal-notifier" "*terminal-notifier*"
-                   terminal-notifier-command
-                   "-title" title "-message" message
-                   "-activate" "org.gnu.Emacs"
-                   (if (and sound (not (string= sound ""))) "-sound" "")
-                   (if (and sound (not (string= sound ""))) sound ""))))
+      (org-attach-screenshot t (format-time-string
+                                "screenshot-%Y%m%d-%H%M%S.png")))))
 
 (with-eval-after-load "org"
-  (defvar terminal-notifier-command
-    (executable-find
-     "terminal-notifier.app/Contents/MacOS/terminal-notifier")
-    "Path to terminal-notifier.
-   Download from https://github.com/julienXX/terminal-notifier/releases")
+  (defvar ns-alerter-command
+    (executable-find "/Users/taka/Dropbox/bin/alerter")
+    "Path to alerter command. see https://github.com/vjeantet/alerter")
 
-  (defvar terminal-notifier-sound nil)
-  (with-eval-after-load "org-clock"
-    (when (not org-clock-sound)
-      ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
-      (setq terminal-notifier-sound "Pop"))
+  ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
+  (defvar ns-notification-sound "Pop")
 
-    (defun my:org-clock-out-and-save-when-exit ()
-      "Save buffers and stop clocking when kill emacs."
-      (when (org-clocking-p)
-        (org-clock-out)
-        (save-some-buffers t)))
-    (add-hook 'kill-emacs-hook #'my:org-clock-out-and-save-when-exit))
-
-  (defvar use-terminal-notifier t)
-  (defun terminal-notifier-toggle ()
-    (interactive)
-    (setq use-terminal-notifier (not use-terminal-notifier))
-    (my:org-agenda-to-appt)
-    (message "terminal-notifier: %s" use-terminal-notifier))
+  (defun my:desktop-notification (title message &optional sticky sound timeout)
+    "Show a message by `alerter' command."
+    (start-process
+     "notification" "*notification*"
+     ns-alerter-command
+     "-title" title
+     "-message" message
+     "-sender" "org.gnu.Emacs"
+     "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
+     "-sound" (or sound ns-notification-sound)))
 
   ;; eval (org-notify "hoge") to test this setting
-  (setq org-show-notification-handler
-        #'(lambda (message)
-            (when use-terminal-notifier
-              (terminal-notifier-notify
-               "Message from org-mode" message terminal-notifier-sound))))
+  (defun my:desktop-notification-handler (message)
+    (my:desktop-notification "Message from org-mode" message t))
+  (when ns-alerter-command
+    (setq org-show-notification-handler #'my:desktop-notification-handler))
 
-  (defun advice:appt-disp-window (min-to-app new-time appt-msg)
-    "Extension to support org-notify."
-    (let ((time-msg (concat "in " min-to-app " min.")))
-      (when (and (string= min-to-app "0") new-time) ;; for lexical argument
-        (setq time-msg "<= Do Now!!"))
-      (org-notify (concat "\\\"" appt-msg "\" " time-msg))))
-  (advice-add 'appt-disp-window :before #'advice:appt-disp-window))
+  (with-eval-after-load "appt"
+    ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
+    (declare-function 'advice:appt-display-message "init")
+    (declare-function 'advice:appt-disp-window "init")
+    (defun advice:appt-display-message (string mins)
+      "Display a reminder about an appointment.
+The string STRING describes the appointment, due in integer MINS minutes.
+The arguments may also be lists, where each element relates to a
+separate appointment.  The variable `appt-display-format' controls
+the format of the visible reminder.  If `appt-audible' is non-nil,
+also calls `beep' for an audible reminder."
+      (if appt-audible (beep 1))
+      ;; Backwards compatibility: avoid passing lists to a-d-w-f if not necessary.
+      (and (listp mins)
+           (= (length mins) 1)
+           (setq mins (car mins)
+                 string (car string)))
+      (when (memq appt-display-format '(window echo))
+        (let ((time (format-time-string "%a %b %e "))
+              err)
+          (condition-case err
+              (funcall appt-disp-window-function
+                       (if (listp mins)
+                           (mapcar 'number-to-string mins)
+                         (number-to-string mins))
+                       time string)
+            (wrong-type-argument
+             (if (not (listp mins))
+                 (signal (car err) (cdr err))
+               (message "Argtype error in `appt-disp-window-function' - \
+update it for multiple appts?")
+               ;; Fallback to just displaying the first appt, as we used to.
+               (funcall appt-disp-window-function
+                        (number-to-string (car mins)) time
+                        (car string)))))
+          err))
+      (cond ((eq appt-display-format 'window)
+             ;; TODO use calendar-month-abbrev-array rather than %b?
+             (run-at-time (format "%d sec" appt-display-duration)
+                          nil
+                          appt-delete-window-function))
+            ((eq appt-display-format 'echo)
+             (message "%s" (if (listp string)
+                               (mapconcat 'identity string "\n")
+                             string)))))
+    (advice-add 'appt-display-message :override #'advice:appt-display-message)
+
+    (defun advice:appt-disp-window (min-to-app _new-time appt-msg)
+      "Extension to support appt-disp-window."
+      (if (string= min-to-app "0")
+          (my:desktop-notification "### Expired! ###" appt-msg t "Glass")
+        (my:desktop-notification
+         (concat "in " min-to-app " min.") appt-msg)))
+
+    (cond
+     ((eq appt-display-format 'echo)
+      (setq appt-disp-window-function 'advice:appt-disp-window))
+     ((eq appt-display-format 'window)
+      (advice-add 'appt-disp-window :before #'advice:appt-disp-window)))))
 
 (when (autoload-if-found
        '(org-grep)
@@ -2937,7 +2992,7 @@ will not be modified."
       (interactive)
       (delete-window))
 
-    ;; for MacOSX
+    ;; for macOS
     (when (memq window-system '(mac ns))
       (defun org-grep-from-org-shell-command (regexp)
         (if org-grep-directories
@@ -2964,37 +3019,11 @@ will not be modified."
 
   (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))
 
-(with-eval-after-load "utility"
+(with-eval-after-load "org"
   (let ((trigger-file "~/Dropbox/org/db/trigger.org"))
     (when (file-exists-p trigger-file)
-      (set-alarms-from-file trigger-file)
-      (add-hook 'after-save-hook #'my:update-alarms-from-file))))
-
-(with-eval-after-load "org"
-  (defun my:do-org-update-staistics-cookies ()
-    (interactive)
-    (message "Update statistics ...")
-    (do-org-update-statistics-cookies))
-  ;; (org-transpose-element) が割り当てられているので取り返す．
-  (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
-
-  ;;(define-key org-mode-map (kbd "C-c 1")
-  ;;  'org-export-icalendar-combine-agenda-files)
-  ;; (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
-  ;; (define-key org-mode-map (kbd "S-<f5>") 'widen)
-  (define-key org-mode-map (kbd "C-c f 1") 'my:ox-icalendar)
-  (define-key org-mode-map (kbd "C-c f 2")
-    'my:do-org-update-staistics-cookies))
-
-(global-set-key (kbd "S-<f12>")
-                #'(lambda () (interactive) (show-org-buffer "tr/work.org")))
-(global-set-key (kbd "C-M-o")
-                #'(lambda () (interactive) (show-org-buffer "next.org")))
-(global-set-key (kbd "C-M-c")
-                #'(lambda () (interactive) (show-org-buffer "org-ical.org")))
-(global-set-key (kbd "C-c l") 'org-store-link)
-(global-set-key (kbd "C-c a") 'org-agenda)
-(global-set-key (kbd "C-c r") 'org-capture)
+      (my:set-alarms-from-file "~/Dropbox/org/db/trigger.org") ;; init
+      (add-hook 'after-save-hook #'my:update-alarms-from-file)))) ;; update
 
 (when (autoload-if-found
        '(org-dashboard-display)
@@ -3071,10 +3100,10 @@ will not be modified."
  ((memq window-system '(mac ns)) ;; for Macintosh
   (setq initial-frame-alist
         (append
-         `((top . 22)
+         '((top . 23)
            (left . 0)
-           (alpha . (100 90))
-           (vertical-scroll-bars . nil)
+           ;; (vertical-scroll-bars . nil)
+           ;; (internal-border-width . 0)
            (alpha . (100 90))
            ;; (ns-appearance . nil) ;; 26.0
            ;; (ns-transparent-titlebar . t) ;; 26.0
@@ -3242,15 +3271,9 @@ will not be modified."
 (global-set-key (kbd "M-`") 'other-frame)
 
 (defconst moom-autoloads
-  '(moom-move-frame-with-user-specify
-    moom-change-frame-width-single moom-change-frame-width-double
-    moom-change-frame-width-half-again
-    moom-move-frame-to-center moom-move-frame-to-edge-top
-    moom-move-frame-right moom-max-frame-height
-    moom-move-frame-left moom-move-frame-to-edge-bottom
-    moom-fit-frame-to-fullscreen moom-open-height-ring
-    moom-font-resize moom-font-size-reset
-    moom-font-increase moom-font-decrease))
+  '(moom-open-height-ring
+    my:toggle-fullscreen moom-move-frame-to-center
+    moom-move-frame-with-user-specify))
 
 (when (autoload-if-found
        moom-autoloads
@@ -3270,10 +3293,9 @@ will not be modified."
     (defun my:mid-font-size ()
       (interactive)
       (moom-font-resize
-       (/ (+ moom-font-init-size (moom-fullscreen-font-size)) 2))
+       (floor (/ (+ moom-font-init-size (moom-fullscreen-font-size)) 2)))
       (moom-move-frame-to-center)
       (moom-print-status))
-    (add-hook 'moom-font-size-reset-hook #'moom-move-frame-to-center)
     (add-hook 'moom-font-change-size-hook #'moom-print-status)
     (global-set-key (kbd "C--") 'my:decrease-font-size)
     (global-set-key (kbd "C-=") 'my:increase-font-size)
@@ -3281,13 +3303,13 @@ will not be modified."
     (global-set-key (kbd "C-x C-8") 'my:mid-font-size))
 
   (with-eval-after-load "moom"
+    (setq moom-horizontal-shifts '(20 20))
     (add-hook 'moom-after-fullscreen-hook #'moom-move-frame-to-center)
     (add-hook 'moom-after-fullscreen-hook #'moom-print-status))
 
   ;; Move the frame to somewhere (default: 0,0)
   (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
   ;; Move the frame to left side of the current position
-  (setq moom-horizontal-shifts '(30 30))
   (global-set-key (kbd "M-1") 'moom-move-frame-left)
   ;; Move the frame to the center of the window display
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
@@ -3302,6 +3324,8 @@ will not be modified."
   ;; Move the current frame to the right edge of window display
   (global-set-key (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
   ;; Cycle heights
+  ;; (global-set-key (kbd "<f2>") '(lambda () (interactive)
+  ;;                 (moom-open-height-ring t)))
   (global-set-key (kbd "<f2>") 'moom-open-height-ring)
   ;; Full screen with same frame-width
   (defvar my:fullscreen-flag nil)
@@ -3311,13 +3335,22 @@ will not be modified."
     (if my:fullscreen-flag
         (moom-fit-frame-to-fullscreen)
       (moom-font-size-reset)
-      (moom-change-frame-width-single)))
+      (moom-change-frame-width-single)
+      (moom-move-frame-to-center)))
+  (defun my:moom-fill-top () (interactive) (moom-fill-display 'top))
+  (defun my:moom-fill-bottom () (interactive) (moom-fill-display 'bottom))
+  (defun my:moom-fill-left () (interactive) (moom-fill-display 'left))
+  (defun my:moom-fill-right () (interactive) (moom-fill-display 'right))
   (global-set-key (kbd "M-<f2>") 'my:toggle-fullscreen)
   (global-set-key (kbd "C-_") 'text-scale-decrease)
   (global-set-key (kbd "C-+") 'text-scale-increase)
   (global-set-key (kbd "C-c f s") 'moom-change-frame-width-single)
   (global-set-key (kbd "C-c f d") 'moom-change-frame-width-double)
-  (global-set-key (kbd "C-c f a") 'moom-change-frame-width-half-again))
+  (global-set-key (kbd "C-c f a") 'moom-change-frame-width-half-again)
+  (global-set-key (kbd "C-c f f t") 'my:moom-fill-top)
+  (global-set-key (kbd "C-c f f b") 'my:moom-fill-bottom)
+  (global-set-key (kbd "C-c f f l") 'my:moom-fill-left)
+  (global-set-key (kbd "C-c f f r") 'my:moom-fill-right))
 
 ;; setting for e2wm
 (when (autoload-if-found
@@ -3331,58 +3364,33 @@ will not be modified."
   ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
   (global-set-key (kbd "C-x =") 'change-frame-double-window))
 
-;; for emacs 24.1
-;; (setq special-display-function 'popwin:special-display-popup-window)
-;; (setq display-buffer-function 'popwin:display-buffer)
-
-;; for emacs 24.3
-;; (setq special-display-alist 'popwin:special-display-popup-window)
-;; (setq display-buffer-alist 'popwin:display-buffer)
-;; (push '("*sdic*" :position top) popwin:special-display-config)
+(with-eval-after-load "postpone"
+  (when (require 'shackle nil t)
+    (setq shackle-default-ratio 0.33)
+    (setq shackle-rules
+          '(("*osx-dictionary*" :align above :popup t)
+            ("*Checkdoc Status*" :align above :popup t :noselect t)
+            ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
+            ;; ("^\*Helm.+" :regexp t :align above :size 0.2)
+            ))
+    (shackle-mode 1)))
 
 (with-eval-after-load "postpone"
-  (when (require 'popwin nil t)
-    (popwin-mode 1)
-    ;; Performed
-    (push '("*Help*" :height 20 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("*osx-dictionary*" :height 20 :position bottom)
-          popwin:special-display-config)
-
-    ;; Checking...
-    (push '("*frequencies*" :height 20 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("CAPTURE-next.org" :height 10 :position bottom :noselect t)
-          popwin:special-display-config)
-    (push '("CAPTURE-org-ical.org":height 10 :position bottom :noselect t)
-          popwin:special-display-config)
-    (push '("dict-app-result" :height 20 :position bottom)
-          popwin:special-display-config)
-    (push '("*timer*" :height 20 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("Calendar" :position top :dedicated t)
-          popwin:special-display-config)
-    (push '("*wclock*" :height 10 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("*Org Dashboard*" :position bottom)
-          popwin:special-display-config)
-    (push '("*Org Select*" :height 10 :position bottom)
-          popwin:special-display-config)
-    (push '("*Org Grep*" :height 20 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("*Occur*" :height 10 :position bottom)
-          popwin:special-display-config)
-    (push '("*Shell Command Output*" :height 10 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("*eshell*" :height 10 :position bottom)
-          popwin:special-display-config)
-;;;            (undo-tree-visualizer-buffer-name :height 10 :position top)
-;;;            (undo-tree-diff-buffer-name :height 20 :position bottom)
-
-    ;; Not performed
-    (push '("*Org Agenda*" :height 10 :position top)
-          popwin:special-display-config)
-    ))
+  (when (require 'checkdoc nil t)
+    (defun my:delete-checkdoc-window ()
+      (interactive)
+      (let ((checkdoc-window (get-buffer-window "*Checkdoc Status*")))
+        (when checkdoc-window
+          (delete-window checkdoc-window)))
+      (checkdoc-minor-mode -1))
+    (defun advice:checkdoc ()
+      (interactive)
+      (checkdoc-minor-mode 1)
+      (define-key checkdoc-minor-mode-map (kbd "q")
+        'my:delete-checkdoc-window)
+      (define-key checkdoc-minor-mode-map (kbd "C-g")
+        'my:delete-checkdoc-window))
+    (advice-add 'checkdoc :before #'advice:checkdoc)))
 
 (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
 (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
@@ -3470,19 +3478,17 @@ will not be modified."
     (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
  ((eq window-system 'x) ; for SuSE Linux 12.1
-  (with-eval-after-load "postpone"
-    (let
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font "Inconsolata")
-         ;; (ja-font "MigMix 1M")
-         (ja-font "Migu 2M"))
-      (my:ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
-    (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
-                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
- )
+  (let
+      ((font-size 14)
+       (font-height 100)
+       (ascii-font "Inconsolata")
+       ;; (ja-font "MigMix 1M")
+       (ja-font "Migu 2M"))
+    (my:ja-font-setter
+     (font-spec :family ja-font :size font-size :height font-height))
+    (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
+  (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
+                                  (".*Inconsolata.*" . 1.0))))) ; 0.9
 
 (set-default 'line-spacing 0.2)
 
@@ -3690,11 +3696,10 @@ will not be modified."
 
       (defun my:pomodoro-notify ()
         (interactive)
-        (shell-command-to-string
-         (concat "terminal-notifier -title \"Pomodoro\""
-                 " -message \"三三 ﾍ(*ﾟ∇ﾟ)ﾉ Go #"
-                 (format "%s" (1+ pomodoro:work-count))
-                 "\" -sender org.gnu.Emacs")))
+        (my:desktop-notification
+         "Pomodoro"
+         (concat "三三 ﾍ(*ﾟ∇ﾟ)ﾉ   Go #"
+                 (format "%s" (1+ pomodoro:work-count))) nil "Glass"))
       (add-hook 'pomodoro:finish-work-hook 'my:pomodoro-notify))))
 
 (with-eval-after-load "pomodoro"
@@ -3913,50 +3918,31 @@ will not be modified."
 
 (global-set-key (kbd "C-c f t") 'open-current-directory)
 
-(autoload 'postpone-kicker "postpone" nil t)
-(if (fboundp 'postpone-kicker)
-    (add-hook 'pre-command-hook #'postpone-kicker)
-  (message "postpone.el is NOT installed."))
+(if (not (locate-library "postpone"))
+    (message "postpone.el is NOT installed.")
+  (autoload 'postpone-kicker "postpone" nil t)
+  (defun my:postpone-kicker ()
+    (interactive)
+    (unless (memq this-command ;; specify commands for exclusion
+                  '(self-insert-command
+                    save-buffers-kill-terminal
+                    exit-minibuffer))
+      (message "Starting postpone...done")
+      (postpone-kicker 'my:postpone-kicker)
+      (message "Finishing postpone...done")))
+  (add-hook 'pre-command-hook #'my:postpone-kicker))
 
 (with-eval-after-load "postpone"
   (when (require 'network-watch nil t)
     (unless batch-build
-      (network-watch-mode 1))
+      (if (require 'shut-up nil t)
+          (shut-up (network-watch-mode 1))
+        (network-watch-mode 1)))
     (defun advice:network-watch-update-lighter ()
       "Return a mode lighter reflecting the current network state."
       (unless (network-watch-active-p) " ↓NW↓"))
     (advice-add 'network-watch-update-lighter
                 :override #'advice:network-watch-update-lighter)))
-
-(defconst utility-autoloads
-  '(my:date
-    my:window-resizer my:open-file-ring my:update-alarms-from-file
-    my:desktop-notify my:daylight-theme my:night-theme
-    eval-org-buffer kyoko-mad-mode-toggle mac:delete-files-in-trash-bin
-    org2dokuwiki-cp-kill-ring open-current-directory set-alarms-from-file
-    reload-ical-export show-org-buffer get-random-string init-auto-install
-    add-itemize-head add-itemize-head-checkbox insert-formatted-current-date
-    my:cycle-bullet-at-heading
-    my:org-list-insert-items my:org-list-delete-items
-    my:org-list-insert-checkbox-into-items
-    my:org-list-delete-checkbox-from-items
-    my:org-list-insert-itms-with-checkbox
-    my:org-list-delete-items-with-checkbox
-    insert-formatted-current-time insert-formatted-signature
-    export-timeline-business export-timeline-private chomp
-    my:browse-url-chrome count-words-buffer do-test-applescript
-    delete-backup-files recursive-delete-backup-files describe-timer
-    my:list-packages my:setup-cask my:lingr-login my:backup))
-
-(when (autoload-if-found
-       utility-autoloads
-       "utility" nil t)
-  ;; (global-set-key (kbd "C-M--") 'add-itemize-head)
-  ;; (global-set-key (kbd "C-M-_") 'add-itemize-head-checkbox)
-  (global-set-key (kbd "C-M--") 'my:cycle-bullet-at-heading)
-  (global-set-key (kbd "<f12>") 'my:open-file-ring)
-  (global-set-key (kbd "C-c t") 'my:date)
-  (global-set-key (kbd "C-c f 4") 'my:window-resizer))
 
 (when (autoload-if-found
        '(gif-screencast)
@@ -4022,5 +4008,44 @@ will not be modified."
       (interactive)
       (dired gif-screencast-output-directory)
       (dired gif-screencast-screenshot-directory))))
+
+(when (autoload-if-found
+       '(manage-minor-mode)
+       "manage-minor-mode" nil t)
+
+  (with-eval-after-load "manage-minor-mode"
+    (define-key manage-minor-mode-map (kbd "q")
+      #'(lambda () (interactive)
+          (delete-window (get-buffer-window "*manage-minor-mode*"))))))
+
+(defconst utility-autoloads
+  '(my:date
+    my:window-resizer my:open-file-ring my:update-alarms-from-file
+    my:daylight-theme my:night-theme my:set-alarms-from-file
+    eval-org-buffer kyoko-mad-mode-toggle mac:delete-files-in-trash-bin
+    org2dokuwiki-cp-kill-ring open-current-directory
+    reload-ical-export show-org-buffer get-random-string init-auto-install
+    add-itemize-head add-itemize-head-checkbox insert-formatted-current-date
+    my:cycle-bullet-at-heading
+    my:org-list-insert-items my:org-list-delete-items
+    my:org-list-insert-checkbox-into-items
+    my:org-list-delete-checkbox-from-items
+    my:org-list-insert-itms-with-checkbox
+    my:org-list-delete-items-with-checkbox
+    insert-formatted-current-time insert-formatted-signature
+    export-timeline-business export-timeline-private chomp
+    my:browse-url-chrome count-words-buffer do-test-applescript
+    delete-backup-files recursive-delete-backup-files describe-timer
+    my:list-packages my:setup-cask my:lingr-login my:backup))
+
+(when (autoload-if-found
+       utility-autoloads
+       "utility" nil t)
+  ;; (global-set-key (kbd "C-M--") 'add-itemize-head)
+  ;; (global-set-key (kbd "C-M-_") 'add-itemize-head-checkbox)
+  (global-set-key (kbd "C-M--") 'my:cycle-bullet-at-heading)
+  (global-set-key (kbd "<f12>") 'my:open-file-ring)
+  (global-set-key (kbd "C-c t") 'my:date)
+  (global-set-key (kbd "C-c f 4") 'my:window-resizer))
 
 (provide 'init)

@@ -1,5 +1,6 @@
 (require 'org nil t)
 
+
 ;;;###autoload
 (defun eval-org-buffer ()
   "Load init.org/utility.org and tangle init.el/utility.el."
@@ -56,12 +57,13 @@
 (eval-when-compile
   (require 'init nil t))
 
-(defun my:update-alarms-from-file ()
-  (when (string= "trigger.org" (buffer-name))
-    (set-alarms-from-file "~/Dropbox/org/trigger.org")))
-
 ;;;###autoload
-(defun set-alarms-from-file (file)
+(defun my:update-alarms-from-file ()
+  (interactive)
+  (when (string= "trigger.org" (buffer-name))
+    (my:set-alarms-from-file "~/Dropbox/org/db/trigger.org")))
+
+(defun my:set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file
      with tables with the following format:
      |------+-------+--------------------|
@@ -80,7 +82,6 @@
       (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
       (setq lines (cdr lines)))))
 
-;;;###autoload
 (defun set-alarm-from-line (line)
   (let
       ((hour nil)
@@ -103,53 +104,23 @@
                   (string-to-number min))
                (+ (* (string-to-number current-hour) 60)
                   (string-to-number current-min)))
-        (let
-            ((s nil))
+        (let ((s nil))
           (when (string-match "^\|\\s-*X\\s-*\|" line)
             (setq s 'sticky))
-          ;;      (set-notify-growl hour min action s)
-          (set-notify-osx-native hour min action s)
-          ;;            (set-notify-mail hour min action s)
-          )))))
+          (set-notify-macos hour min action s))))))
 
-;; (when (autoload-if-found
-;;        '(todochiku-message)
-;;        "todochiku" nil t)
-;;   (eval-when-compile
-;;     (require 'todochiku nil t))
-;;   (with-eval-after-load "todochiku"
-;;     (setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
-;;     (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
-;;     (require 'cl-lib)))
+(defun set-notify-macos (hour min action sticky)
+  "`alerter' is required."
+  (run-at-time (format "%s:%s" hour min) nil
+               'my:desktop-notify
+               "macos" "Trigger.org" hour min action sticky))
 
-;;;###autoload
-(defun my:desktop-notify (type title hour min action s)
+(defun my:desktop-notify (type title hour min action sticky)
+  "An interface to `my:desktop-notificaton'."
   (cond
-   ;; ((string= type "growl")
-   ;;  (todochiku-message
-   ;;   title (format "%s:%s %s" hour min action) "Emacs" s))
-   ((string= type "osx-native")
-    (terminal-notifier-notify
-     title
-     (format "%s:%s %s" hour min action)))
-   (t nil)))
-
-(defun set-notify-mail (hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "mail" "りまいんだ" hour min action nil))
-
-(defun set-notify-growl (hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "growl" "== REMINDER ==" hour min action s))
-
-(defun set-notify-osx-native (hour min action s)
-  "terminal-notifier is required."
-  ;;    (message "%s:%s %s %s" hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "osx-native" "Emacs" hour min action nil))
+   ((string= type "macos")
+    (my:desktop-notification
+     title (format "%s:%s %s" hour min action) sticky))))
 
 (defun read-line (file)
   "Make a list from a file, which is divided by LF code"
@@ -465,7 +436,8 @@
      ((eq window-system 'mac)
       (custom-set-variables
        '(browse-url-browser-function 'browse-url-generic)
-       '(browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+       '(browse-url-generic-program
+         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
        ))
      (t
       nil))))
@@ -484,11 +456,11 @@
 (global-set-key (kbd "C-c t") 'my:date)
 
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
-(defun recursive-delete-backup-files (count)
-  (if (= count 1)
+(defun recursive-delete-backup-files (days)
+  (if (= days 1)
       1
-    (recursive-delete-backup-files (1- count)))
-  (delete-backup-files count))
+    (recursive-delete-backup-files (1- days)))
+  (delete-backup-files days))
 
 ;;;###autoload
 (defun delete-backup-files (&optional day-shift)
@@ -547,7 +519,8 @@
     (lingr-login)))
 
 (defun my:backup (files &optional dropbox)
-  "Backup a file to `Dropbox/backup' directory. If `dropbox' option is provided then the value is uased as a root directory."
+  "Backup a file to `Dropbox/backup' directory.
+If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
   (let ((system (system-name))
         (rootdir (or dropbox "~/Dropbox")))
@@ -575,7 +548,8 @@
     "if itemCount > 0 then\n"
     "empty the trash\n"
     "end if\n"
-    "end tell\n")))
+    "end tell\n"))
+  (my:desktop-notification "Emacs" "Empty the trash, done."))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 ;;;###autoload
@@ -590,8 +564,8 @@
         (setq count (1+ count)))
       (message "buffer contains %d words." count))))
 
-    ;;; Test function for AppleScript
-    ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
+;;; Test function for AppleScript
+;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
 (defun do-test-applescript ()
   (interactive)
   (do-applescript

@@ -14,21 +14,22 @@
 org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (require 'org nil t)
+(require 'org nil t)
 
-  ;;;###autoload
-  (defun eval-org-buffer ()
-    "Load init.org/utility.org and tangle init.el/utility.el."
-    (interactive)
-    (if (and (eq major-mode 'org-mode)
-             (member (buffer-name) '("init.org" "utility.org")))
-        (progn
-          (org-babel-tangle)
-          (let ((tangled-file
-                 (concat (file-name-sans-extension (buffer-file-name)) ".el")))
-            (when (file-exists-p tangled-file)
-              (byte-compile-file tangled-file))))
-      (message "Nothing to do for this buffer.")))
+
+;;;###autoload
+(defun eval-org-buffer ()
+  "Load init.org/utility.org and tangle init.el/utility.el."
+  (interactive)
+  (if (and (eq major-mode 'org-mode)
+           (member (buffer-name) '("init.org" "utility.org")))
+      (progn
+        (org-babel-tangle)
+        (let ((tangled-file
+               (concat (file-name-sans-extension (buffer-file-name)) ".el")))
+          (when (file-exists-p tangled-file)
+            (byte-compile-file tangled-file))))
+    (message "Nothing to do for this buffer.")))
 #+END_SRC
 
 * ユーティリティ関数
@@ -37,21 +38,21 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 MacOS 用の関数です．別途，Kyoko さんの音声をインストールしておく必要があります．Mavericks だと，Otoya さんも使えます．
 
 #+BEGIN_SRC emacs-lisp :tangle no
-  (defvar kyoko-mad-mode nil)
-  (defun kyoko-mad-mode-toggle ()
-    (interactive)
-    (setq kyoko-mad-mode (not kyoko-mad-mode))
-    (cond (kyoko-mad-mode
-           (message "Kyoko mad mode: ON"))
-          (t
-           (message "Kyoko mad mode: OFF"))))
-  ;; She will be mad if you do nothing within 10 min.
-  (run-with-idle-timer
-   600 t
-   '(lambda ()
-      (when kyoko-mad-mode
-        (shell-command-to-string
-         "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
+(defvar kyoko-mad-mode nil)
+(defun kyoko-mad-mode-toggle ()
+  (interactive)
+  (setq kyoko-mad-mode (not kyoko-mad-mode))
+  (if kyoko-mad-mode
+      (message "Kyoko mad mode: ON")
+    (message "Kyoko mad mode: OFF")))
+
+;; She will be mad if you do nothing within 10 min.
+(run-with-idle-timer
+ 600 t
+ '(lambda ()
+    (when kyoko-mad-mode
+      (shell-command-to-string
+       "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
 #+END_SRC
 
 ** org-buffer を dokuwiki 形式に変換し，kill-ring に格納
@@ -59,19 +60,19 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
 外部プログラム[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使います．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defun org2dokuwiki-cp-kill-ring ()
-    "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
-    (interactive)
-    (when (eq major-mode 'org-mode)
-      (cond (buffer-file-name
-             (kill-new
-              (shell-command-to-string
-               (concat "cat " buffer-file-name "| perl "
-                       (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
-             (message "Copying %s ... done" buffer-file-name)
-             (sit-for 1.5)
-             (message ""))
-            (t (message "There is NOT such a file.")))))
+(defun org2dokuwiki-cp-kill-ring ()
+  "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
+  (interactive)
+  (when (eq major-mode 'org-mode)
+    (cond (buffer-file-name
+           (kill-new
+            (shell-command-to-string
+             (concat "cat " buffer-file-name "| perl "
+                     (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
+           (message "Copying %s ... done" buffer-file-name)
+           (sit-for 1.5)
+           (message ""))
+          (t (message "There is NOT such a file.")))))
 #+END_SRC
 
 ** コンソールでカレントバッファのあるディレクトリに移動する
@@ -79,46 +80,45 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
 Finder で開きたいだけならば， =M-!= でミニバッファに =open .= と打ち込むだけです．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defcustom open-current-directory-console-program "iTerm2.app"
-    "Specify a console program"
-    :type 'string
-    :group 'takaxp-mac)
+(defcustom open-current-directory-console-program "iTerm2.app"
+  "Specify a console program"
+  :type 'string
+  :group 'takaxp-mac)
 
-  ;;;###autoload
-  (defun open-current-directory ()
-    " Open Current Directory for MacOSX
-    0) Put this function in your .emacs
-    1) M-x open-current-directory
-    2) Terminal will open automatically
-    3) Type M-v to paste and move to a path to the current directory in Emacs"
-    (interactive)
-    (let ((file-path (buffer-file-name (current-buffer))))
-      (unless (string= file-path nil)
-        (let ((directory
-               (substring file-path 0
-                          (-
-                           (length file-path)
-                           (length (buffer-name (current-buffer)))))))
-          (message "%s" directory)
-          (shell-command-to-string (concat "echo cd " directory " |pbcopy"))
-          (shell-command-to-string
-           (concat "open -a " open-current-directory-console-program))))))
+;;;###autoload
+(defun open-current-directory ()
+  " Open Current Directory for MacOSX
+  0) Put this function in your .emacs
+  1) M-x open-current-directory
+  2) Terminal will open automatically
+  3) Type M-v to paste and move to a path to the current directory in Emacs"
+  (interactive)
+  (let ((file-path (buffer-file-name (current-buffer))))
+    (unless (string= file-path nil)
+      (let ((directory
+             (substring file-path 0
+                        (-
+                         (length file-path)
+                         (length (buffer-name (current-buffer)))))))
+        (message "%s" directory)
+        (shell-command-to-string (concat "echo cd " directory " |pbcopy"))
+        (shell-command-to-string
+         (concat "open -a " open-current-directory-console-program))))))
 #+END_SRC
 
 ** ファイルに含まれるテーブルを使って定時にアラートを表示する
-
- # =terminal-notifier= は，現時点で sticky に対応していない．システムレベルでの制御は可能なので，別イメージをビルドし，通知で呼び出すアプリを切り替えれば対応可能と思われる．Banners タイプから Alerts タイプに切り替えるだけ．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (eval-when-compile
   (require 'init nil t))
 
-(defun my:update-alarms-from-file ()
-  (when (string= "trigger.org" (buffer-name))
-    (set-alarms-from-file "~/Dropbox/org/trigger.org")))
-
 ;;;###autoload
-(defun set-alarms-from-file (file)
+(defun my:update-alarms-from-file ()
+  (interactive)
+  (when (string= "trigger.org" (buffer-name))
+    (my:set-alarms-from-file "~/Dropbox/org/db/trigger.org")))
+
+(defun my:set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file
      with tables with the following format:
      |------+-------+--------------------|
@@ -137,7 +137,6 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
       (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
       (setq lines (cdr lines)))))
 
-;;;###autoload
 (defun set-alarm-from-line (line)
   (let
       ((hour nil)
@@ -160,53 +159,23 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
                   (string-to-number min))
                (+ (* (string-to-number current-hour) 60)
                   (string-to-number current-min)))
-        (let
-            ((s nil))
+        (let ((s nil))
           (when (string-match "^\|\\s-*X\\s-*\|" line)
             (setq s 'sticky))
-          ;;      (set-notify-growl hour min action s)
-          (set-notify-osx-native hour min action s)
-          ;;            (set-notify-mail hour min action s)
-          )))))
+          (set-notify-macos hour min action s))))))
 
-;; (when (autoload-if-found
-;;        '(todochiku-message)
-;;        "todochiku" nil t)
-;;   (eval-when-compile
-;;     (require 'todochiku nil t))
-;;   (with-eval-after-load "todochiku"
-;;     (setq todochiku-icons-directory "~/Dropbox/emacs.d/todochiku-icons")
-;;     (add-to-list 'todochiku-icons '(emacs . "emacs.png"))
-;;     (require 'cl-lib)))
+(defun set-notify-macos (hour min action sticky)
+  "`alerter' is required."
+  (run-at-time (format "%s:%s" hour min) nil
+               'my:desktop-notify
+               "macos" "Trigger.org" hour min action sticky))
 
-;;;###autoload
-(defun my:desktop-notify (type title hour min action s)
+(defun my:desktop-notify (type title hour min action sticky)
+  "An interface to `my:desktop-notificaton'."
   (cond
-   ;; ((string= type "growl")
-   ;;  (todochiku-message
-   ;;   title (format "%s:%s %s" hour min action) "Emacs" s))
-   ((string= type "osx-native")
-    (terminal-notifier-notify
-     title
-     (format "%s:%s %s" hour min action)))
-   (t nil)))
-
-(defun set-notify-mail (hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "mail" "りまいんだ" hour min action nil))
-
-(defun set-notify-growl (hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "growl" "== REMINDER ==" hour min action s))
-
-(defun set-notify-osx-native (hour min action s)
-  "terminal-notifier is required."
-  ;;    (message "%s:%s %s %s" hour min action s)
-  (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
-               "osx-native" "Emacs" hour min action nil))
+   ((string= type "macos")
+    (my:desktop-notification
+     title (format "%s:%s %s" hour min action) sticky))))
 
 (defun read-line (file)
   "Make a list from a file, which is divided by LF code"
@@ -247,50 +216,50 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 ** 引数のorgバッファを開く
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;;###autoload
-  (defun show-org-buffer (file)
-    "Show an org-file on the current buffer"
-    (interactive)
-    (if (get-buffer file)
-        (let ((buffer (get-buffer file)))
-          (switch-to-buffer buffer)
-          (message "%s" file))
-      (find-file (concat "~/Dropbox/org/" file))))
+;;;###autoload
+(defun show-org-buffer (file)
+  "Show an org-file on the current buffer"
+  (interactive)
+  (if (get-buffer file)
+      (let ((buffer (get-buffer file)))
+        (switch-to-buffer buffer)
+        (message "%s" file))
+    (find-file (concat "~/Dropbox/org/" file))))
 #+END_SRC
 
 ** orgバッファにいつものヘッダを追加する
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;;###autoload
-  (defun insert-org-file-header-template ()
-    (interactive)
-    (when (string= major-mode 'org-mode)
-      (let ((title "#+TITLE:\t\n")
-            (date "#+DATE: \t\n")
-            (update "#+UPDATE:\t\n")
-            (author "#+AUTHOR:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
-            (option "#+OPTIONS:\t\\n:t\n")
-            (other "\n"))
-        (goto-char 0)
-        (save-excursion
-          (insert title date update author option other))
-        (when (require 'org nil t)
-          (org-end-of-line)))))
+;;;###autoload
+(defun insert-org-file-header-template ()
+  (interactive)
+  (when (string= major-mode 'org-mode)
+    (let ((title "#+TITLE:\t\n")
+          (date "#+DATE: \t\n")
+          (update "#+UPDATE:\t\n")
+          (author "#+AUTHOR:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
+          (option "#+OPTIONS:\t\\n:t\n")
+          (other "\n"))
+      (goto-char 0)
+      (save-excursion
+        (insert title date update author option other))
+      (when (require 'org nil t)
+        (org-end-of-line)))))
 #+END_SRC
 
 ** 議事録ひな形を書き入れる
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;;###autoload
-  (defun insert-minutes-template ()
-    (interactive)
-    (when (string= major-mode 'org-mode)
-      (let ((date "日時：\n")
-            (place "場所：\n")
-            (attendance "出席者：\n")
-            (documents "資料：\n\n"))
-        (save-excursion
-          (insert date place attendance documents)))))
+;;;###autoload
+(defun insert-minutes-template ()
+  (interactive)
+  (when (string= major-mode 'org-mode)
+    (let ((date "日時：\n")
+          (place "場所：\n")
+          (attendance "出席者：\n")
+          (documents "資料：\n\n"))
+      (save-excursion
+        (insert date place attendance documents)))))
 #+END_SRC
 
 ** ランダムの文字列を取得する
@@ -298,22 +267,22 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 引数で桁数を渡すと，ランダムな数値の文字列を取得できます．org-mode で適当なタイトルのツリーを生成したい時に使っています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defun get-random-string (length)
-    "Get a string contain the length digit number with random selection"
-    (interactive)
-    (random t)
-    (cond ((> length 0)
-           (let
-               ((count length)
-                (string nil)
-                (tmp nil))
-             (while (< 0 count)
-               (setq count (1- count))
-               (setq tmp string)
-               (setq string
-                     (concat tmp (number-to-string (random 10)))))
-             (message "%s" string)))
-          (t "0")))
+(defun get-random-string (length)
+  "Get a string contain the length digit number with random selection"
+  (interactive)
+  (random t)
+  (cond ((> length 0)
+         (let
+             ((count length)
+              (string nil)
+              (tmp nil))
+           (while (< 0 count)
+             (setq count (1- count))
+             (setq tmp string)
+             (setq string
+                   (concat tmp (number-to-string (random 10)))))
+           (message "%s" string)))
+        (t "0")))
 #+END_SRC
 
 ** Auto-install をセットアップする
@@ -321,20 +290,20 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 いつも auto-install を使うわけではないので，必要時に =init-auto-install= を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．
 
 #+BEGIN_SRC emacs-lisp :tangle no
-  (defun init-auto-install ()
-    "Setup auto-install.el.
-  1. Set my:auto-install-batch-list-el-url
-  2. M-x init-auto-install
-  3. M-x auto-install-batch hoge"
-    (interactive)
-    (when (and (require 'auto-install nil t)
-               my:auto-install-batch-list-el-url)
-      (setq auto-install-batch-list-el-url my:auto-install-batch-list-el-url)
-      (setq auto-install-directory default-path)
-      (setq auto-install-wget-command "/opt/local/bin/wget")
-      (auto-install-update-emacswiki-package-name t)
-      ;; compatibility
-      (auto-install-compatibility-setup))) ; for install-elisp users
+(defun init-auto-install ()
+  "Setup auto-install.el.
+1. Set my:auto-install-batch-list-el-url
+2. M-x init-auto-install
+3. M-x auto-install-batch hoge"
+  (interactive)
+  (when (and (require 'auto-install nil t)
+             my:auto-install-batch-list-el-url)
+    (setq auto-install-batch-list-el-url my:auto-install-batch-list-el-url)
+    (setq auto-install-directory default-path)
+    (setq auto-install-wget-command "/opt/local/bin/wget")
+    (auto-install-update-emacswiki-package-name t)
+    ;; compatibility
+    (auto-install-compatibility-setup))) ; for install-elisp users
 #+END_SRC
 
 ** 行頭に" - "を挿入する
@@ -554,56 +523,56 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 最近使っていません．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defcustom my:auto-install-batch-list-el-url nil
-    "URL of a auto-install-batch-list.el"
-    :type 'string
-    :group 'takaxp-utility)
+(defcustom my:auto-install-batch-list-el-url nil
+  "URL of a auto-install-batch-list.el"
+  :type 'string
+  :group 'takaxp-utility)
 
-  ;; Publish an xml file to show a Gantt Chart
-  (defcustom default-timeline-csv-file nil
-    "source.csv"
-    :type 'string
-    :group 'takaxp-utility)
+;; Publish an xml file to show a Gantt Chart
+(defcustom default-timeline-csv-file nil
+  "source.csv"
+  :type 'string
+  :group 'takaxp-utility)
 
-  (defcustom default-timeline-xml-business-file nil
-    "XML file for business schedule"
-    :type 'string
-    :group 'takaxp-utility)
+(defcustom default-timeline-xml-business-file nil
+  "XML file for business schedule"
+  :type 'string
+  :group 'takaxp-utility)
 
-  (defcustom default-timeline-xml-private-file nil
-    "XML file for private schedule"
-    :type 'string
-    :group 'takaxp-utility)
+(defcustom default-timeline-xml-private-file nil
+  "XML file for private schedule"
+  :type 'string
+  :group 'takaxp-utility)
 
-  (defcustom default-timeline nil
-    "a template index.html"
-    :type 'string
-    :group 'takaxp-utility)
+(defcustom default-timeline nil
+  "a template index.html"
+  :type 'string
+  :group 'takaxp-utility)
 
-  (with-eval-after-load "org"
-    (defun export-timeline-business ()
-      "Export schedule table as an XML source to create an web page"
-      (interactive)
-      (when (and default-timeline
-                 (and default-timeline-csv-file
-                      default-timeline-xml-business-file))
-        (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
-        (org-table-export default-timeline-csv-file "orgtbl-to-csv")
-        (shell-command-to-string (concat "org2gantt.pl > "
-                                         default-timeline-xml-business-file))
-        (shell-command-to-string (concat "open " default-timeline)))))
-
-  (defun export-timeline-private ()
+(with-eval-after-load "org"
+  (defun export-timeline-business ()
     "Export schedule table as an XML source to create an web page"
     (interactive)
     (when (and default-timeline
                (and default-timeline-csv-file
-                    default-timeline-xml-private-file))
+                    default-timeline-xml-business-file))
       (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
       (org-table-export default-timeline-csv-file "orgtbl-to-csv")
       (shell-command-to-string (concat "org2gantt.pl > "
-                                       default-timeline-xml-private-file))
-      (shell-command-to-string (concat "open " default-timeline))))
+                                       default-timeline-xml-business-file))
+      (shell-command-to-string (concat "open " default-timeline)))))
+
+(defun export-timeline-private ()
+  "Export schedule table as an XML source to create an web page"
+  (interactive)
+  (when (and default-timeline
+             (and default-timeline-csv-file
+                  default-timeline-xml-private-file))
+    (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
+    (org-table-export default-timeline-csv-file "orgtbl-to-csv")
+    (shell-command-to-string (concat "org2gantt.pl > "
+                                     default-timeline-xml-private-file))
+    (shell-command-to-string (concat "open " default-timeline))))
 
 #+END_SRC
 
@@ -612,22 +581,22 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 orgバッファからカレンダーを生成し，外部サーバに投げます．また，MobileOrgに最新情報を流しています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defvar ox-icalendar-activate nil)
-  (with-eval-after-load "org"
-    (run-with-idle-timer 600 t
-                         '(lambda ()
-                            (reload-ical-export)))
-    ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
-    ;; FIXME
-    (add-hook 'focus-in-hook '(lambda () (setq ox-icalendar-activate nil)))
-    (add-hook 'focus-out-hook '(lambda () (setq ox-icalendar-activate t))))
+(defvar ox-icalendar-activate nil)
+(with-eval-after-load "org"
+  (run-with-idle-timer 600 t
+                       '(lambda ()
+                          (reload-ical-export)))
+  ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
+  ;; FIXME
+  (add-hook 'focus-in-hook '(lambda () (setq ox-icalendar-activate nil)))
+  (add-hook 'focus-out-hook '(lambda () (setq ox-icalendar-activate t))))
 
-  ;;;###autoload
-  (defun reload-ical-export ()
-    "Export org files as an iCal format file"
-    (interactive)
-    (when (and (string= major-mode 'org-mode) ox-icalendar-activate)
-      (my:ox-icalendar)))
+;;;###autoload
+(defun reload-ical-export ()
+  "Export org files as an iCal format file"
+  (interactive)
+  (when (and (string= major-mode 'org-mode) ox-icalendar-activate)
+    (my:ox-icalendar)))
 #+END_SRC
 
 ** ブラウザの設定
@@ -646,7 +615,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
      ((eq window-system 'mac)
       (custom-set-variables
        '(browse-url-browser-function 'browse-url-generic)
-       '(browse-url-generic-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+       '(browse-url-generic-program
+         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
        ))
      (t
       nil))))
@@ -659,46 +629,46 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 ** ミニバッファに日時を表示
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;;###autoload
-  (defun my:date ()
-    (interactive)
-    (message "%s" (concat
-                   (format-time-string "%Y-%m-%d") " ("
-                   (format-time-string "%a") ") "
-                   (format-time-string "%H:%M"))))
-  (global-set-key (kbd "C-c t") 'my:date)
+;;;###autoload
+(defun my:date ()
+  (interactive)
+  (message "%s" (concat
+                 (format-time-string "%Y-%m-%d") " ("
+                 (format-time-string "%a") ") "
+                 (format-time-string "%H:%M"))))
+(global-set-key (kbd "C-c t") 'my:date)
 #+END_SRC
 ** バックアップファイルの削除
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
-  (defun recursive-delete-backup-files (count)
-    (if (= count 1)
-        1
-      (recursive-delete-backup-files (1- count)))
-    (delete-backup-files count))
+;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
+(defun recursive-delete-backup-files (days)
+  (if (= days 1)
+      1
+    (recursive-delete-backup-files (1- days)))
+  (delete-backup-files days))
 
-  ;;;###autoload
-  (defun delete-backup-files (&optional day-shift)
-    "Delete backup files created in yesterday.
-    > find ~/.emacs.d/backup -type f -name '*YY-MM-DD_*' -print0 | xargs -0"
-    (interactive)
-    (unless day-shift
-      (setq day-shift 1))
-    (let* ((backup-dir "~/.emacs.d/backup")
-           (cmd (concat "find " backup-dir "  -type f -name \'*"
-                        (format-time-string
-                         "%y-%m-%d_"
-                         (time-subtract (current-time)
-                                        (seconds-to-time
-                                         (* day-shift (* 24 3600)))))
-                        "*\' -print0 | while read -r -d \'\' file; "
-                        " do echo -n \" \\\"$file\\\"\"; done | xargs -0"))
-           (files (shell-command-to-string cmd)))
-    ;;;      (message "%s" cmd)
-      (unless (string= files "")
-        (message "%s" files)
-        (shell-command-to-string (concat "rm -r " files)))))
+;;;###autoload
+(defun delete-backup-files (&optional day-shift)
+  "Delete backup files created in yesterday.
+  > find ~/.emacs.d/backup -type f -name '*YY-MM-DD_*' -print0 | xargs -0"
+  (interactive)
+  (unless day-shift
+    (setq day-shift 1))
+  (let* ((backup-dir "~/.emacs.d/backup")
+         (cmd (concat "find " backup-dir "  -type f -name \'*"
+                      (format-time-string
+                       "%y-%m-%d_"
+                       (time-subtract (current-time)
+                                      (seconds-to-time
+                                       (* day-shift (* 24 3600)))))
+                      "*\' -print0 | while read -r -d \'\' file; "
+                      " do echo -n \" \\\"$file\\\"\"; done | xargs -0"))
+         (files (shell-command-to-string cmd)))
+  ;;;      (message "%s" cmd)
+    (unless (string= files "")
+      (message "%s" files)
+      (shell-command-to-string (concat "rm -r " files)))))
 #+END_SRC
 ** 日中と夜中でテーマを切り替える
 
@@ -727,58 +697,59 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 改行コードを削除した文字列を返す．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defun chomp (str)
-    "Chomp leading and tailing whitespace from STR."
-    (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'"
-                         str)
-      (setq str (replace-match "" t t str)))
-    str)
+(defun chomp (str)
+  "Chomp leading and tailing whitespace from STR."
+  (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'"
+                       str)
+    (setq str (replace-match "" t t str)))
+  str)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-  (defun chomp (str)
-    (replace-regexp-in-string "[\n\r]+$" "" str))
+(defun chomp (str)
+  (replace-regexp-in-string "[\n\r]+$" "" str))
 #+END_SRC
 
 ** iTerm2.app を呼び出す関数
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;;###autoload
-  (defun my:cmd-to-open-iterm2 ()
-    (interactive)
-    (shell-command-to-string "open -a iTerm2.app"))
+;;;###autoload
+(defun my:cmd-to-open-iterm2 ()
+  (interactive)
+  (shell-command-to-string "open -a iTerm2.app"))
 #+END_SRC
 
 ** lingr にログインする
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defun my:lingr-login ()
-    (when (string= "Sat" (format-time-string "%a"))
-      (lingr-login)))
+(defun my:lingr-login ()
+  (when (string= "Sat" (format-time-string "%a"))
+    (lingr-login)))
 #+END_SRC
 
 ** 特定のファイルを Dropbox 以下にバックアップする
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defun my:backup (files &optional dropbox)
-    "Backup a file to `Dropbox/backup' directory. If `dropbox' option is provided then the value is uased as a root directory."
-    (interactive "P")
-    (let ((system (system-name))
-          (rootdir (or dropbox "~/Dropbox")))
-      (if (and system
-               (stringp rootdir)
-               (file-directory-p (or rootdir (expand-file-name rootdir))))
-          (mapc
-           (lambda (file)
-             (if (and (stringp file)
-                      (file-readable-p (or file (expand-file-name file))))
-                 (shell-command-to-string
-                  (concat "cp -f " file " " rootdir "/backup/" system "/"))
-               (message (format "--- backup failure: %s" file))))
-           (if (listp files)
-               files
-             (list files)))
-        (message (format "--- backup-dir does not exist: %s" rootdir)))))
+(defun my:backup (files &optional dropbox)
+  "Backup a file to `Dropbox/backup' directory.
+If `dropbox' option is provided then the value is uased as a root directory."
+  (interactive "P")
+  (let ((system (system-name))
+        (rootdir (or dropbox "~/Dropbox")))
+    (if (and system
+             (stringp rootdir)
+             (file-directory-p (or rootdir (expand-file-name rootdir))))
+        (mapc
+         (lambda (file)
+           (if (and (stringp file)
+                    (file-readable-p (or file (expand-file-name file))))
+               (shell-command-to-string
+                (concat "cp -f " file " " rootdir "/backup/" system "/"))
+             (message (format "--- backup failure: %s" file))))
+         (if (listp files)
+             files
+           (list files)))
+      (message (format "--- backup-dir does not exist: %s" rootdir)))))
 #+END_SRC
 
 ** ゴミ箱を空にする                                                     :Mac:
@@ -793,58 +764,59 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
     "if itemCount > 0 then\n"
     "empty the trash\n"
     "end if\n"
-    "end tell\n")))
+    "end tell\n"))
+  (my:desktop-notification "Emacs" "Empty the trash, done."))
 #+END_SRC
 
 ** その他
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-    ;;; Test function from GNU Emacs (O'REILLY, P.328)
-  ;;;###autoload
-  (defun count-words-buffer ()
-    "Count the number of words in the current buffer"
-    (interactive)
-    (save-excursion
-      (let ((count 0))
-        (goto-char (point-min))
-        (while (< (point) (point-max))
-          (forward-word 1)
-          (setq count (1+ count)))
-        (message "buffer contains %d words." count))))
+;;; Test function from GNU Emacs (O'REILLY, P.328)
+;;;###autoload
+(defun count-words-buffer ()
+  "Count the number of words in the current buffer"
+  (interactive)
+  (save-excursion
+    (let ((count 0))
+      (goto-char (point-min))
+      (while (< (point) (point-max))
+        (forward-word 1)
+        (setq count (1+ count)))
+      (message "buffer contains %d words." count))))
 
-      ;;; Test function for AppleScript
-      ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
-  (defun do-test-applescript ()
-    (interactive)
-    (do-applescript
-     (format
-      (concat
-       "display dialog \"Hello world!\" \r"))))
+;;; Test function for AppleScript
+;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
+(defun do-test-applescript ()
+  (interactive)
+  (do-applescript
+   (format
+    (concat
+     "display dialog \"Hello world!\" \r"))))
 
-  ;;;###autoload
-  (defun describe-timer ()
-    "see http://masutaka.net/chalow/2009-12-05-1.html"
-    (interactive)
-    (let ((tl timer-list) time
-          (timer nil))
-      (pop-to-buffer (get-buffer-create "*timer*"))
-      (erase-buffer)
+;;;###autoload
+(defun describe-timer ()
+  "see http://masutaka.net/chalow/2009-12-05-1.html"
+  (interactive)
+  (let ((tl timer-list) time
+        (timer nil))
+    (pop-to-buffer (get-buffer-create "*timer*"))
+    (erase-buffer)
+    (insert
+     "TIME           FUNCTION\n"
+     "-------------- ----------------------\n")
+    (while tl
+      (setq timer (car tl))
       (insert
-       "TIME           FUNCTION\n"
-       "-------------- ----------------------\n")
-      (while tl
-        (setq timer (car tl))
-        (insert
-         (concat
-          (format-time-string "%m/%d %T"
-                              (list (aref timer 1)
-                                    (aref timer 2)
-                                    (aref timer 3)))
-          " "
-          (symbol-name (aref timer 5))
-          "\n"))
-        (setq tl (cdr tl)))
-      (read-only-mode 1)))
+       (concat
+        (format-time-string "%m/%d %T"
+                            (list (aref timer 1)
+                                  (aref timer 2)
+                                  (aref timer 3)))
+        " "
+        (symbol-name (aref timer 5))
+        "\n"))
+      (setq tl (cdr tl)))
+    (read-only-mode 1)))
 #+END_SRC
 
 * 未設定／テスト中
@@ -871,42 +843,42 @@ utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;;###autoload
-  (defun my:window-resizer ()
-    "Control separated window size and position.
-     Type {j,k,l,m} to adjust windows size."
-    (interactive)
-    (let ((window-obj (selected-window))
-          (current-width (window-width))
-          (current-height (window-height))
-          (dx (if (= (nth 0 (window-edges)) 0) 1
-                -1))
-          (dy (if (= (nth 1 (window-edges)) 0) 1
-                -1))
-          action c)
-      (catch 'end-flag
-        (while t
-          (setq action
-                (read-key-sequence-vector (format "size[%dx%d]"
-                                                  (window-width)
-                                                  (window-height))))
-          (setq c (aref action 0))
-          (cond ((= c ?l)
-                 (enlarge-window-horizontally dx))
-                ((= c ?h)
-                 (shrink-window-horizontally dx))
-                ((= c ?j)
-                 (enlarge-window dy))
-                ((= c ?k)
-                 (shrink-window dy))
-                ;; otherwise
-                (t
-                 (let ((last-command-event (aref action 0))
-                       (command (key-binding action)))
-                   (when command
-                     (call-interactively command)))
-                 (message "Quit")
-                 (throw 'end-flag t)))))))
+;;;###autoload
+(defun my:window-resizer ()
+  "Control separated window size and position.
+   Type {j,k,l,m} to adjust windows size."
+  (interactive)
+  (let ((window-obj (selected-window))
+        (current-width (window-width))
+        (current-height (window-height))
+        (dx (if (= (nth 0 (window-edges)) 0) 1
+              -1))
+        (dy (if (= (nth 1 (window-edges)) 0) 1
+              -1))
+        action c)
+    (catch 'end-flag
+      (while t
+        (setq action
+              (read-key-sequence-vector (format "size[%dx%d]"
+                                                (window-width)
+                                                (window-height))))
+        (setq c (aref action 0))
+        (cond ((= c ?l)
+               (enlarge-window-horizontally dx))
+              ((= c ?h)
+               (shrink-window-horizontally dx))
+              ((= c ?j)
+               (enlarge-window dy))
+              ((= c ?k)
+               (shrink-window dy))
+              ;; otherwise
+              (t
+               (let ((last-command-event (aref action 0))
+                     (command (key-binding action)))
+                 (when command
+                   (call-interactively command)))
+               (message "Quit")
+               (throw 'end-flag t)))))))
 #+END_SRC
 
 ** [idle-requie]

@@ -10,7 +10,6 @@
 (depends-on "emacs-utils")
 ;; (depends-on "emacs-calfw")
 (depends-on "ascii")
-(depends-on "backup-each-save")
 (depends-on "help-fns+")
 (depends-on "git-complete")
 (depends-on "frame-fns")
@@ -149,6 +148,7 @@
 (depends-on "back-button")
 (depends-on "all-the-icons-dired")
 (depends-on "smooth-scroll")
+(depends-on "manage-minor-mode")
 
 ;; System related
 (depends-on "dired-narrow")
@@ -160,11 +160,14 @@
 
 ;; Frame and windows
 (depends-on "popwin")
+(depends-on "shackle")
 (depends-on "tabbar")
 (depends-on "spaceline-all-the-icons")
+(depends-on "exwm")
 
 ;; Robustness
 (depends-on "session")
+(depends-on "backup-each-save")
 
 ;; Efficiency
 (depends-on "selected")
@@ -191,6 +194,7 @@
 (depends-on "gif-screencast")
 (depends-on "pass")
 (depends-on "keycast")
+(depends-on "pcap-mode")
 
 ;; Log
 (depends-on "keyfreq")

@@ -94,6 +94,18 @@
     (my:reset-load-path))
   (advice-add 'paradox-quit-and-close :after #'advice:paradox-quit-and-close))
 
+(defun my:kill-emacs-hook-show ()
+  (add-hook 'after-init-hook
+            '(lambda () (message "1: %s" kill-emacs-hook)) t)
+  (with-eval-after-load "postpone"
+    (message "2: %s" kill-emacs-hook))
+  (defun my:kill-emacs ()
+    (switch-to-buffer "*Messages*")
+    (message "3: %s" kill-emacs-hook)
+    (y-or-n-p "Sure?"))
+  (add-hook 'kill-emacs-hook 'my:kill-emacs))
+;; (my:kill-emacs-hook-show)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; diff を取る前に tabify スペースをタブに変換する．今は全てスペース置換中．
 ;; この設定でファイルを一度編集後に，M-x tabify しないとだめ．

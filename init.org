@@ -33,7 +33,7 @@
 次の関数を =init.el= の最初に記載して，オプション付きで =after-init-hook= に乗っければ，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．これ以降に設定する =emacs-init-time= の派生関数と違い， =after-init-hook= で実行される処理の時間もわかります（ほかの処理も微妙に入るので，あくまで目安です）．
 
 #+BEGIN_SRC emacs-lisp :tangle no :exports yes
-(defconst before-load-init-time (current-time))
+(defconst before-load-init-time (current-time)) ;; moved to init-env.el
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -49,7 +49,7 @@
 (add-hook 'after-init-hook #'my:load-init-time t)
 #+END_SRC
 
-=after-init-hook= の値をチェックして，最後に配置されていることに留意します．以下は， =after-init-hook= の例です．
+=after-init-hook= の値をチェックして， =my:load-init-time= が最後に配置されていることに留意します．以下は， =after-init-hook= の例です．
 
 #+BEGIN_SRC emacs-lisp :tangle no :exports yes
 (session-initialize recentf-mode my:emacs-init-time my:load-init-time)
@@ -575,6 +575,9 @@ the_silver_searcher @0.18.1 (textproc)
             '(my:ag ag)
             "ag" nil t))
 
+  (global-set-key (kbd "C-M-f") 'my:ag)
+  (autoload-if-found '(helm-ag) "helm-ag" nil t)
+
   (with-eval-after-load "ag"
     (custom-set-variables
      '(ag-highlight-search t)
@@ -584,13 +587,10 @@ the_silver_searcher @0.18.1 (textproc)
     ;; q でウィンドウを抜ける
     ;; (define-key ag-mode-map (kbd "q") 'delete-window)
     (defun my:ag ()
-    "自動的に出力バッファに移動"
-    (interactive)
-    (call-interactively 'ag)
-    (switch-to-buffer-other-frame "*ag search*")))
-
-  (global-set-key (kbd "C-M-f") 'my:ag)
-  (autoload-if-found '(helm-ag) "helm-ag" nil t))
+      "自動的に出力バッファに移動"
+      (interactive)
+      (call-interactively 'ag)
+      (switch-to-buffer-other-frame "*ag search*"))))
 #+END_SRC
 
 ** 基本キーバインド
@@ -626,7 +626,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 (put 'narrow-to-region 'disabled nil)
 #+END_SRC
 
-=fancy-narrow= を使うと，通常バッファ上で表示しなくなる領域を目立たないように残すことができます．
+=fancy-narrow= を使うと，通常のナローイングではバッファ上で表示しなくなる領域を目立たないように残すことができます．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (autoload-if-found
@@ -672,7 +672,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 ** [uniquify.el] 同じバッファ名が開かれた場合に区別する
 
-ビルトインの =uniquify= を使います．
+ビルトインの =uniquify= を使います．モードラインの表示が変わります．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
@@ -867,9 +867,9 @@ echo "--- Done"
 (setq vc-follow-symlinks t)
 #+END_SRC
 
-** MBPビルド用設定
+** EMPビルド用設定
 
-NSビルド版で生じた日本語入力時のチラつきを避けるために，MBP版ビルドに(一時期)浮気しました．以下はその時にNSビルドの振る舞いに近づけるためにがんばった設定です．詳細な情報は，リンク先の記事にあります．
+NSビルド版で生じた日本語入力時のチラつきを避けるために，EMP版ビルドに(一時期)浮気しました．以下はその時にNSビルドの振る舞いに近づけるためにがんばった設定です．詳細な情報は，リンク先の記事にあります．
 
   - [[http://qiita.com/takaxp/items/a86ee2aacb27c7c3a902][Emacs 25.1/25.2 を EMP版で快適に使う - Qiita]]
 
@@ -2400,6 +2400,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 
     (define-key selected-keymap (kbd ";") #'comment-dwim)
     (define-key selected-keymap (kbd "e") #'my:eval-region-echo)
+    ;; (define-key selected-keymap (kbd "E") #'my:eval-region-echo-as-function)
     (define-key selected-keymap (kbd "=") #'count-words-region)
     (define-key selected-keymap (kbd "f")
       (if (require 'helpful nil t) #'helpful-function #'describe-function))
@@ -2420,6 +2421,13 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
       (interactive)
       (when mark-active
         (eval-region (region-beginning) (region-end) t)))
+    ;; (defun my:eval-region-echo-as-function ()
+    ;;   (interactive)
+    ;;   (when mark-active
+    ;;     (let ((region (buffer-substring-no-properties
+    ;;                    (region-beginning) (region-end))))
+    ;;       (message "%s" (concat "(" region ")"))
+    ;;       (eval-expression (concat "(" (intern region) ")")))))
     (setq selected-org-mode-map (make-sparse-keymap))
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
 
@@ -2993,101 +3001,99 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 =M-s= を =helm-swoop= にあてていましたが， =M-s= を入り口にたくさんの検索系コマンドが割り振られているため =M-s M-s= に変えました．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (when (autoload-if-found
-         '(helm-M-x
-           helm-locate helm-recentf helm-descbinds
-           helm-occur helm-swoop helm-flycheck helm-bookmarks)
-         "helm-config" nil t)
+(when (autoload-if-found
+       '(helm-M-x
+         helm-locate helm-recentf helm-descbinds
+         helm-occur helm-swoop helm-flycheck helm-bookmarks)
+       "helm-config" nil t)
 
-    (with-eval-after-load "helm-config"
-      (unless batch-build
-        (recentf-mode 1))
-      (helm-mode 1)
+  (with-eval-after-load "helm-config"
+    (helm-mode 1)
 
-      ;; (when (require 'diminish nil t)
-      ;;   (diminish 'helm-mode)) ;; " H"
+    ;; (when (require 'diminish nil t)
+    ;;   (diminish 'helm-mode)) ;; " H"
 
-      (when (require 'helm-swoop nil t)
-        ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
-        (setq helm-swoop-pre-input-function
-              #'(lambda()
-                  (unless (thing-at-point-looking-at "^\\*+")
-                    (thing-at-point 'symbol))))
-        ;; 配色設定
-        (set-face-attribute
-         'helm-swoop-target-line-face nil :background "#FFEDDC")
-        (set-face-attribute
-         'helm-swoop-target-word-face nil :background "#FF5443"))
+    (when (require 'helm-swoop nil t)
+      ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
+      (setq helm-swoop-pre-input-function
+            #'(lambda()
+                (unless (thing-at-point-looking-at "^\\*+")
+                  (thing-at-point 'symbol))))
+      ;; 配色設定
+      (set-face-attribute
+       'helm-swoop-target-line-face nil :background "#FFEDDC")
+      (set-face-attribute
+       'helm-swoop-target-word-face nil :background "#FF5443"))
 
-      (when (require 'helm-files nil t)
-        (define-key helm-find-files-map
-          (kbd "<tab>") 'helm-execute-persistent-action)
-        (define-key helm-read-file-map
-          (kbd "<tab>") 'helm-execute-persistent-action))
+    (when (require 'helm-files nil t)
+      (define-key helm-find-files-map
+        (kbd "<tab>") 'helm-execute-persistent-action)
+      (define-key helm-read-file-map
+        (kbd "<tab>") 'helm-execute-persistent-action))
 
-      ;; (when (require 'helm-google nil t)
-      ;;   (setq helm-google-tld "co.jp"))
+    ;; (when (require 'helm-google nil t)
+    ;;   (setq helm-google-tld "co.jp"))
 
-      ;; (require 'recentf-ext nil t)
-      ;; helm-find-files を呼ばせない
-      ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
-      ;; helm-mode-ag を呼ばせない
-      (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
-      ;; helm-mode-org-set-tags を呼ばせない
-      (add-to-list 'helm-completing-read-handlers-alist
-                   '(org-set-tags . nil))
-      (setq helm-display-source-at-screen-top nil)
-      ;;         (setq helm-display-header-line nil)
+    ;; (require 'recentf-ext nil t)
+    ;; helm-find-files を呼ばせない
+    ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
+    ;; helm-mode-ag を呼ばせない
+    (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
+    ;; helm-mode-org-set-tags を呼ばせない
+    (add-to-list 'helm-completing-read-handlers-alist
+                 '(org-set-tags . nil))
+    (setq helm-display-source-at-screen-top nil)
+    ;;         (setq helm-display-header-line nil)
 
-      ;; helm-autoresize-mode を有効にしつつ 30% に固定
-      (helm-autoresize-mode 1)
-      (setq helm-autoresize-max-height 30)
-      (setq helm-autoresize-min-height 30)
-      (set-face-attribute 'helm-source-header nil
-                          :height 1.0 :family "Verdana" :weight 'normal
-                          :foreground "#666666" :background "#DADADA")
-      (when (memq window-system '(mac ns))
-        (setq helm-locate-command "mdfind -name %s %s"))
+    ;; helm-autoresize-mode を有効にしつつ 30% に固定
+    (helm-autoresize-mode 1)
+    (setq helm-autoresize-max-height 30)
+    (setq helm-autoresize-min-height 30)
+    (set-face-attribute 'helm-source-header nil
+                        :height 1.0 :family "Verdana" :weight 'normal
+                        :foreground "#666666" :background "#DADADA")
+    (when (memq window-system '(mac ns))
+      (setq helm-locate-command "mdfind -name %s %s"))
 
-      (require 'helm-bm nil t)
-      ;; (require 'helm-css-scss nil t)
-      ;; (require 'helm-emmet nil t)
-      ;; (require 'helm-descbinds nil t)
-      )
+    (require 'helm-bm nil t)
+    ;; (require 'helm-css-scss nil t)
+    ;; (require 'helm-emmet nil t)
+    ;; (require 'helm-descbinds nil t)
+    )
 
-    ;; この修正が必要
-    ;; (when (require 'helm-migemo nil t)
-    ;;   (defun helm-compile-source--candidates-in-buffer (source)
-    ;;     (helm-aif (assoc 'candidates-in-buffer source)
-    ;;         (append source
-    ;;                 `((candidates
-    ;;                    . ,(or (cdr it)
-    ;;                           (lambda ()
-    ;;                             ;; Do not use `source' because other plugins
-    ;;                             ;; (such as helm-migemo) may change it
-    ;;                             (helm-candidates-in-buffer
-    ;;                              (helm-get-current-source)))))
-    ;;                   (volatile) (match identity)))
-    ;;       source)))
+  ;; この修正が必要
+  ;; (when (require 'helm-migemo nil t)
+  ;;   (defun helm-compile-source--candidates-in-buffer (source)
+  ;;     (helm-aif (assoc 'candidates-in-buffer source)
+  ;;         (append source
+  ;;                 `((candidates
+  ;;                    . ,(or (cdr it)
+  ;;                           (lambda ()
+  ;;                             ;; Do not use `source' because other plugins
+  ;;                             ;; (such as helm-migemo) may change it
+  ;;                             (helm-candidates-in-buffer
+  ;;                              (helm-get-current-source)))))
+  ;;                   (volatile) (match identity)))
+  ;;       source)))
 
 
-    (global-set-key (kbd "M-x") 'helm-M-x)
-    (global-set-key (kbd "C-M-r") 'helm-recentf)
-    (global-set-key (kbd "C-M-l") 'helm-locate)
-    (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-    (global-set-key (kbd "M-s M-s") 'helm-swoop)
-    (global-set-key (kbd "C-c o") 'helm-occur)
-    (global-set-key (kbd "C-h d") 'helm-descbinds))
+  (global-set-key (kbd "M-x") 'helm-M-x)
+  (global-set-key (kbd "C-M-r") 'helm-recentf)
+  (global-set-key (kbd "C-M-l") 'helm-locate)
+  (global-set-key (kbd "C-c f b") 'helm-bookmarks)
+  (global-set-key (kbd "M-s M-s") 'helm-swoop)
+  (global-set-key (kbd "C-c o") 'helm-occur)
+  (global-set-key (kbd "C-h d") 'helm-descbinds))
 
 
-  (when (autoload-if-found
-         '(helm-buffers-list)
-         "helm" nil t)
+(when (autoload-if-found
+       '(helm-buffers-list)
+       "helm" nil t)
 
-    (with-eval-after-load "helm"
-      (require 'helm-config nil t))
+  (with-eval-after-load "helm"
+    (require 'helm-config nil t))
 
-    (global-set-key (kbd "C-x C-b") 'helm-buffers-list))
+  (global-set-key (kbd "C-x C-b") 'helm-buffers-list))
 
 #+END_SRC
 
@@ -3730,32 +3736,37 @@ http://d.hatena.ne.jp/tomoya/20110217/1297928222
 
 session.el でも履歴管理できるが，anything のソースとして使っているので併用している．
 
-起動直後から有効にするので，autolad-if-load で括る必要はない．
-
 recentf-auto-cleanup を ='mode= などにすると起動時にファイルのクリーニングが行われるてしまうので，='never= で回避し，アイドルタイマーなどで対応する．これだけで50[ms]ほど起動を高速化できる．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
-       '(rencetf-mode recentf-save-list-without-msg recentf-open-files)
+       '(rencetf-mode
+         my:recentf-save-list-silence
+         my:recentf-cleanup-silence
+         recentf-open-files)
        "recentf" nil t)
 
+  (with-eval-after-load "postpone"
+    (unless batch-build
+      (recentf-mode 1)))
+
   (with-eval-after-load "recentf"
-    (defun recentf-save-list-without-msg ()
+    (defun my:recentf-save-list-silence ()
       (interactive)
       (let ((message-log-max nil))
         (if (require 'shut-up nil t)
             (shut-up (recentf-save-list))
           (recentf-save-list)))
       (message ""))
-    (defun recentf-cleanup-without-msg ()
+    (defun my:recentf-cleanup-silence ()
       (interactive)
       (let ((message-log-max nil))
         (if (require 'shut-up nil t)
             (shut-up (recentf-cleanup))
           (recentf-cleanup)))
       (message ""))
-    (add-hook 'focus-out-hook #'recentf-save-list-without-msg)
-    (add-hook 'focus-out-hook #'recentf-cleanup-without-msg)
+    (add-hook 'focus-out-hook #'my:recentf-save-list-silence)
+    (add-hook 'focus-out-hook #'my:recentf-cleanup-silence)
 
     (custom-set-variables
      '(recentf-max-saved-items 2000)
@@ -3831,7 +3842,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 ** [backup-each-save] クラッシュに備える
 
-直近のファイルを常にバックアップします． =backup-dir.el= でも良いですが，バックアップの目的が，バッファ編集中に =emacs= が落ちる時の保険ならば， =backup-each-save= の方が適切な場合があります．以下の例では，すべてのファイルを保存の度に保存しつつ， =emacs= 終了時に7日前までのバックアップファイルをすべて削除するようにしています．
+直近のファイルを常にバックアップします． =backup-dir.el= でも良いですが，バックアップの目的が，バッファ編集中に =emacs= が落ちる時の保険ならば， =backup-each-save= の方が適切な場合があります．以下の例では，すべてのファイルを保存の度に保存し， =emacs= 起動後に postpone モードが有効になる時に7日前までのバックアップファイルをすべて削除するようにしています．
 
 =postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
@@ -3851,19 +3862,17 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
     ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
     (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t)))
 
-  (add-hook 'after-save-hook
-            #'(lambda () (unless (equal (buffer-name) "recentf")
-                           (backup-each-save)))))
+  (defun my:auto-backup ()
+    (unless (equal (buffer-name) "recentf")
+      (backup-each-save)))
+  (add-hook 'after-save-hook 'my:auto-backup))
 
 (when (autoload-if-found
        '(recursive-delete-backup-files delete-backup-files)
        "utility" nil t)
-
-  ;; backup-each-save が作るファイルのうち条件にあうものを終了時に削除
-  (add-hook 'kill-emacs-hook
-            #'(lambda ()
-                (when (fboundp 'recursive-delete-backup-files)
-                  (recursive-delete-backup-files 7)))))
+  (with-eval-after-load "postpone"
+    (recursive-delete-backup-files 7)))
+;; (add-hook 'kill-emacs-hook #'my:delete-backup-7days))
 #+END_SRC
 
 ** 特定のファイルを Dropbox 以下にバックアップする
@@ -3889,8 +3898,8 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   - 保存時のカーソル位置の保持
   - キルリングの保持
   - 変更が加えられたファイル履歴の保持
-
-=M-x session-save-session=
+  - =session-initialize= の呼び出しタイミングに注意．前回終了時の状況を保存しているため，他のパッケージの初期化が終った後に呼び出すと，パッケージが想定している初期化を上書きしてしまい，不安定になる． =after-init-hook= 推奨．
+ - [ ] =M-x session-save-session= 
 
 session-undo-check を指定していると，保存時ではなくバッファを閉じるときの状態を保持する．
 
@@ -3901,6 +3910,8 @@ Org Mode と併用する場合は，my:org-reveal-session-jump の設定が必�
        '(session-initialize)
        "session" nil t)
 
+  (add-hook 'after-init-hook #'session-initialize)
+
   (with-eval-after-load "session"
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
@@ -3910,10 +3921,13 @@ Org Mode と併用する場合は，my:org-reveal-session-jump の設定が必�
           session-globals-include '((kill-ring 100)
                                     (session-file-alist 100 t)
                                     (file-name-history 200)
-                                    search-ring regexp-search-ring))
-    (setq session-undo-check -1))
+                                    search-ring
+                                    regexp-search-ring))
+    (setq session-undo-check -1)))
 
-  (add-hook 'after-init-hook #'session-initialize))
+  ;; (with-eval-after-load "postpone"
+  ;;   (unless batch-build
+  ;;     (session-initialize)))
 
 ;; FIXME
 ;;  (setq session-set-file-name-exclude-regexp
@@ -4040,7 +4054,7 @@ http://www.emacswiki.org/emacs/EmacsSession
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
-       '(helpful-function)
+       '(helpful-key helpful-function helpful-variable)
        "helpful" nil t)
   (with-eval-after-load "helpful"
     (require 'postpone nil t))
@@ -4577,6 +4591,16 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
        '(org-mode)
        "org" "Org Mode" t)
 
+  (global-set-key (kbd "C-c l") 'org-store-link)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c r") 'org-capture)
+  (push '("\\.txt$" . org-mode) auto-mode-alist)
+
+  (global-set-key (kbd "C-M-o")
+                  #'(lambda () (interactive) (show-org-buffer "next.org")))
+  (global-set-key (kbd "C-M-c")
+                  #'(lambda () (interactive) (show-org-buffer "org-ical.org")))
+
   (with-eval-after-load "org"
     (require 'org-habit nil t)
     (require 'org-mobile nil t)
@@ -4669,9 +4693,25 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
      'org-mode
      `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
         1 'org-headline-done prepend))
-     'append))
+     'append)
 
-  (push '("\\.txt$" . org-mode) auto-mode-alist))
+    (defun my:do-org-update-staistics-cookies ()
+      (interactive)
+      (message "Update statistics ...")
+      (do-org-update-statistics-cookies))
+
+    ;; (org-transpose-element) が割り当てられているので取り返す．
+    (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
+    (define-key org-mode-map (kbd "C-c f 2")
+      'my:do-org-update-staistics-cookies))
+
+  (with-eval-after-load "org-clock"
+    (defun my:org-clock-out-and-save-when-exit ()
+      "Save buffers and stop clocking when kill emacs."
+      (when (org-clocking-p)
+        (org-clock-out)
+        (save-some-buffers t)))
+    (add-hook 'kill-emacs-hook #'my:org-clock-out-and-save-when-exit)))
 #+END_SRC
 
 ** contribution を使う
@@ -4691,6 +4731,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 (when (autoload-if-found
        '(my:ox-icalendar my:ox-icalendar-cleanup)
        "ox-icalendar" nil t)
+
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-c f 1") 'my:ox-icalendar))
 
   (with-eval-after-load "ox-icalendar"
     (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
@@ -4739,48 +4782,17 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 (with-eval-after-load "org"
   (setq org-use-speed-commands t)
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
-  (add-to-list 'org-speed-commands-user '("D" my:org-todo-cancel-repeat "DONE"))
+  (add-to-list 'org-speed-commands-user '("D" my:org-complete-no-repeat "DONE"))
   (add-to-list 'org-speed-commands-user '("P" my:proportional-font-toggle))
+  (add-to-list 'org-speed-commands-user '("!" my:org-set-created-property))
   (add-to-list 'org-speed-commands-user
                '("$" call-interactively 'org-archive-subtree))
 
-  (defun my:org-todo-cancel-repeat (&optional ARG)
+  (defun my:org-todo-complete-no-repeat (&optional ARG)
     (interactive "P")
     (when (org-get-repeat)
       (org-cancel-repeater))
     (org-todo ARG)))
-#+END_SRC
-
-** Pomodoro
-
-  - ここにある設定は，伝統的なアプローチです．
-    - [[http://orgmode.org/worg/org-gtd-etc.html]]
-  - 本格的に Org Mode と組み合わせたい場合は，通知を =org-clock-in= と =org-clock-out= に連動させる =org-pomodoro.el= があります．
-    - [[https://github.com/lolownia/org-pomodoro]]
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(with-eval-after-load "org"
-  (add-to-list 'org-modules 'org-timer)
-  (setq org-timer-default-timer "90")
-  (setq growl-pomodoro-default-task-name "Time is up!")
-  (setq growl-pomodoro-task-name 'growl-pomodoro-default-task-name)
-
-  (defun set-growl-pomodoro-task-name ()
-    (interactive "P")
-    (setq growl-pomodoro-task-name
-          (read-from-minibuffer "Task Name: "
-                                growl-pomodoro-default-task-name)))
-  (add-hook 'org-timer-set-hook #'set-growl-pomodoro-task-name)
-
-  (defun growl-pomodoro-timer ()
-    (interactive)
-    (shell-command-to-string
-     (concat "growlnotify -s -a Emacs -t \"++ Pomodoro ++\" -m \""
-             "The end of " growl-pomodoro-task-name "!\""))
-    (shell-command-to-string
-     ;;   (concat "say The end of " growl-pomodoro-task-name)
-     (concat "say -v Kyoko " growl-pomodoro-task-name)))
-  (add-hook 'org-timer-done-hook #'growl-pomodoro-timer))
 #+END_SRC
 
 ** face 関連
@@ -4965,8 +4977,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
       (moom-change-frame-width))
     (advice-add 'org-agenda--quit :after #'advice:org-agenda--quit))
 
-  (add-hook 'org-finalize-agenda-hook
-            #'(lambda () (org-agenda-to-appt t '((headline "TODO")))))
+  (add-hook 'org-finalize-agenda-hook #'my:org-agenda-to-appt)
 
   ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
   (org-defkey org-agenda-mode-map [(tab)]
@@ -5096,9 +5107,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   ;; 何分前から警告表示を開始するか[m]
   (setq appt-message-warning-time 20)
   ;; 警告表示開始から何分ごとにリマインドするか[m]
-  (setq appt-display-interval 5)
-  ;; モードラインにアラームを表示する
-  (setq appt-display-mode-line t)
+  (setq appt-display-interval 1)
   ;; org-agenda の内容をアラームに登録する
   ;; 定期的に更新する
   (defun my:org-agenda-to-appt ()
@@ -5116,11 +5125,13 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
        '(org-capture)
        "org-capture" nil t)
 
-  (with-eval-after-load "org-capture"
+  (with-eval-after-load "org"
     ;; キャプチャ時に作成日時をプロパティに入れる
     ;; Thanks to https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook
     (defvar my:org-created-property-name "CREATED"
-      "The name of the org-mode property that stores the creation date of the entry")
+      "The name of the org-mode property.
+
+This user property stores the creation date of the entry")
     (defun my:org-set-created-property (&optional active NAME)
       "Set a property on the entry giving the creation time.
 
@@ -5132,8 +5143,9 @@ will not be modified."
              (fmt (if active "<%s>" "[%s]"))
              (now  (format fmt (format-time-string "%Y-%m-%d %a %H:%M"))))
         (unless (org-entry-get (point) created nil)
-          (org-set-property created now))))
+          (org-set-property created now)))))
 
+  (with-eval-after-load "org-capture"
     (defun my:org-toggle-block-visibility ()
       "Testing..."
       (interactive)
@@ -5371,8 +5383,6 @@ Doing タグのトグルに =f11= を割り当てたので，コンテンツモ�
 ** [org-tree-slide] クロックインとアウトを自動化する
 
 特定のファイルを編集している時， =org-tree-slide= でフォーカスしたら =org-clock-in= で時間計測を始めて，ナローイングを解く時や次のツリーに移る時に =org-clock-out= で計測を停止するように設定しています．基本的に =org-tree-slide= にあるhookに色々とぶら下げるだけです．
-
-導入等は，[[https://qiita.com/takaxp/items/6b2d1e05e7ce4517274d][記事]]を参照してください．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "org-tree-slide"
@@ -5665,6 +5675,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "ox"
+  (setq org-export-default-language "ja")
   (require 'ox-pandoc nil t)
   (require 'ox-qmd nil t) ;; Quita-style
   (require 'ox-gfm nil t)) ;; Github-style
@@ -5853,91 +5864,130 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
                                org-attach-directory-absolute)))))))
 #+END_SRC
 
-** TODO [org-screenshot] スクリーンショットを貼り付ける
+** REV2 [org-screenshot] スクリーンショットを貼り付ける
+   :PROPERTIES:
+   :ID:       4B8A23F1-81EE-445B-8982-54B5FAB13645
+   :END:
 
   - [[https://github.com/dfeich/org-screenshot][dfeich/org-screenshot: screenshots integrated with emacs org mode attachments]]
+  - macOSの場合， =screencapture= コマンドをキャプチャコマンドとして指定し，オプションに ~-w~ を付ければ，任意のウィンドウを指定してキャプチャし，それを保存，orgバッファに添付できる．
+  - [X] ファイル名が挿入されない（./.pngになる）
+  - [ ] org-attach の git ハンドリングと同期していない
+
+[[file:data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png]]
 
 （How？）
-  - [ ] 所定のウィンドウだけをキャプチャする方法
-  - [ ] Emacs バッファを抜いてキャプチャする方法
-  - [ ] Emacs だけキャプチャする方法
+  - [X] 所定のウィンドウだけをキャプチャする方法
+  - [X] Emacs バッファを抜いてキャプチャする方法
+  - [X] Emacs だけキャプチャする方法
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
-       '(org-attach-screenshot my:org-attach-screenshot)
+       '(org-attach-screenshot)
        "org-attach-screenshot" nil t)
 
   (with-eval-after-load "org-attach-screenshot"
     (when (executable-find "screencapture")
-      (setq org-attach-screenshot-command-line "screencapture %f"))
+      (setq org-attach-screenshot-command-line "screencapture -w %f"))
     (defun my:org-attach-screenshot ()
       (interactive)
-      (org-attach-screenshot t "")))
-
-  (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c f <f12>") 'my:org-attach-screenshot)))
+      (org-attach-screenshot t (format-time-string
+                                "screenshot-%Y%m%d-%H%M%S.png")))))
 #+END_SRC
 
-** [terminal-notifier] イベント通知
+** [alerter] イベント通知
 
-Mac の通知機能を使って，Emacsで発生するイベントをユーザに通知します． =appt-disp-window= をカスタマイズして =org-notify= を呼ぶことで， =org-agenda= のアイテムも通知されます．
+ここでは， =terminal-notifier= ではなく，事実上，後継アプリと言える =alerter= を使う設定です．
 
-=org-show-notification-handler= に =terminal-notifier.app= を呼ぶ関数をぶら下げることで， =org-notify= で簡単に通知機能を使えるようになります．
+Mac の通知機能を使って，Emacsで発生するイベントをユーザに通知します． =org-show-notification-handler= に =terminal-notifier.app= を呼ぶ関数をぶら下げることで， =org-notify= で簡単に通知機能を使えるようになります． =appt-disp-window= をカスタマイズすれば， appt を経由して TODOのアイテムも通知されます．
 
-=terminal-notifier-sound= に =terminal-notifier.app= で指定可能な音声ファイル名を指定すると，通知音を制御できます．
+=ns-notification-sound= に OSで定められたアラーム音を設定できます．音楽を流したい時は， =org-show-notification-handler= の引数で指定すると設定できます．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(when (executable-find "terminal-notifier")
-  (defun terminal-notifier-notify (title message &optional sound)
-    "Show a message with `terminal-notifier-command`."
-    (start-process "terminal-notifier" "*terminal-notifier*"
-                   terminal-notifier-command
-                   "-title" title "-message" message
-                   "-activate" "org.gnu.Emacs"
-                   (if (and sound (not (string= sound ""))) "-sound" "")
-                   (if (and sound (not (string= sound ""))) sound ""))))
-
 (with-eval-after-load "org"
-  (defvar terminal-notifier-command
-    (executable-find
-     "terminal-notifier.app/Contents/MacOS/terminal-notifier")
-    "Path to terminal-notifier.
-   Download from https://github.com/julienXX/terminal-notifier/releases")
+  (defvar ns-alerter-command
+    (executable-find "/Users/taka/Dropbox/bin/alerter")
+    "Path to alerter command. see https://github.com/vjeantet/alerter")
 
-  (defvar terminal-notifier-sound nil)
-  (with-eval-after-load "org-clock"
-    (when (not org-clock-sound)
-      ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
-      (setq terminal-notifier-sound "Pop"))
+  ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
+  (defvar ns-notification-sound "Pop")
 
-    (defun my:org-clock-out-and-save-when-exit ()
-      "Save buffers and stop clocking when kill emacs."
-      (when (org-clocking-p)
-        (org-clock-out)
-        (save-some-buffers t)))
-    (add-hook 'kill-emacs-hook #'my:org-clock-out-and-save-when-exit))
-
-  (defvar use-terminal-notifier t)
-  (defun terminal-notifier-toggle ()
-    (interactive)
-    (setq use-terminal-notifier (not use-terminal-notifier))
-    (my:org-agenda-to-appt)
-    (message "terminal-notifier: %s" use-terminal-notifier))
+  (defun my:desktop-notification (title message &optional sticky sound timeout)
+    "Show a message by `alerter' command."
+    (start-process
+     "notification" "*notification*"
+     ns-alerter-command
+     "-title" title
+     "-message" message
+     "-sender" "org.gnu.Emacs"
+     "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
+     "-sound" (or sound ns-notification-sound)))
 
   ;; eval (org-notify "hoge") to test this setting
-  (setq org-show-notification-handler
-        #'(lambda (message)
-            (when use-terminal-notifier
-              (terminal-notifier-notify
-               "Message from org-mode" message terminal-notifier-sound))))
+  (defun my:desktop-notification-handler (message)
+    (my:desktop-notification "Message from org-mode" message t))
+  (when ns-alerter-command
+    (setq org-show-notification-handler #'my:desktop-notification-handler))
 
-  (defun advice:appt-disp-window (min-to-app new-time appt-msg)
-    "Extension to support org-notify."
-    (let ((time-msg (concat "in " min-to-app " min.")))
-      (when (and (string= min-to-app "0") new-time) ;; for lexical argument
-        (setq time-msg "<= Do Now!!"))
-      (org-notify (concat "\\\"" appt-msg "\" " time-msg))))
-  (advice-add 'appt-disp-window :before #'advice:appt-disp-window))
+  (with-eval-after-load "appt"
+    ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
+    (declare-function 'advice:appt-display-message "init")
+    (declare-function 'advice:appt-disp-window "init")
+    (defun advice:appt-display-message (string mins)
+      "Display a reminder about an appointment.
+The string STRING describes the appointment, due in integer MINS minutes.
+The arguments may also be lists, where each element relates to a
+separate appointment.  The variable `appt-display-format' controls
+the format of the visible reminder.  If `appt-audible' is non-nil,
+also calls `beep' for an audible reminder."
+      (if appt-audible (beep 1))
+      ;; Backwards compatibility: avoid passing lists to a-d-w-f if not necessary.
+      (and (listp mins)
+           (= (length mins) 1)
+           (setq mins (car mins)
+                 string (car string)))
+      (when (memq appt-display-format '(window echo))
+        (let ((time (format-time-string "%a %b %e "))
+              err)
+          (condition-case err
+              (funcall appt-disp-window-function
+                       (if (listp mins)
+                           (mapcar 'number-to-string mins)
+                         (number-to-string mins))
+                       time string)
+            (wrong-type-argument
+             (if (not (listp mins))
+                 (signal (car err) (cdr err))
+               (message "Argtype error in `appt-disp-window-function' - \
+update it for multiple appts?")
+               ;; Fallback to just displaying the first appt, as we used to.
+               (funcall appt-disp-window-function
+                        (number-to-string (car mins)) time
+                        (car string)))))
+          err))
+      (cond ((eq appt-display-format 'window)
+             ;; TODO use calendar-month-abbrev-array rather than %b?
+             (run-at-time (format "%d sec" appt-display-duration)
+                          nil
+                          appt-delete-window-function))
+            ((eq appt-display-format 'echo)
+             (message "%s" (if (listp string)
+                               (mapconcat 'identity string "\n")
+                             string)))))
+    (advice-add 'appt-display-message :override #'advice:appt-display-message)
+
+    (defun advice:appt-disp-window (min-to-app _new-time appt-msg)
+      "Extension to support appt-disp-window."
+      (if (string= min-to-app "0")
+          (my:desktop-notification "### Expired! ###" appt-msg t "Glass")
+        (my:desktop-notification
+         (concat "in " min-to-app " min.") appt-msg)))
+
+    (cond
+     ((eq appt-display-format 'echo)
+      (setq appt-disp-window-function 'advice:appt-disp-window))
+     ((eq appt-display-format 'window)
+      (advice-add 'appt-disp-window :before #'advice:appt-disp-window)))))
 #+END_SRC
 
 *** References
@@ -5963,7 +6013,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
       (interactive)
       (delete-window))
 
-    ;; for MacOSX
+    ;; for macOS
     (when (memq window-system '(mac ns))
       (defun org-grep-from-org-shell-command (regexp)
         (if org-grep-directories
@@ -6001,50 +6051,26 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
   (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))
 #+END_SRC
 
-** Growlnotify と org-mode でアラーム管理
+** org-mode でアラーム管理
 
-（注）Growlnotify の代わりに =terminal-notifier= を使うこともできます．
++（注）Growlnotify の代わりに =terminal-notifier= を使うこともできます．+
 
-growlnotify と org-mode のバッファを組み合わせてアラームリストを管理しています．アラームをorgバッファに書き込むだけなので，とても楽です．機能としては，特定のorgバッファに，時刻とアラームの内容を表の形式として保存しておくだけで，Emacs が起動している限りにおいて growl がそのアラームを表示してくれます．つまり，アラームリストは org-mode の表で一覧化されているので，管理も楽ですし，見た目もわかりやすいです．
+[2018-03-19 Mon]: alerter に統一しました．
 
-アラームとして解釈される表は，オプション，時刻（HH:MM形式），アラーム内容の3列で構成していればOKです．オプションの列にXを入れておくと，growl がStickyモードで動作するので，アラームを見逃しません．
+通知アプリと org-mode のバッファを組み合わせてアラームリストを管理しています．アラームをorgバッファに書き込むだけなので，とても楽です．機能としては，特定のorgバッファに，時刻とアラームの内容を表の形式として保存しておくだけで，Emacs が起動している限りにおいて通知アプリがそのアラームをデスクトップに表示してくれます．つまり，アラームリストは org-mode の表で一覧化されているので，管理も楽ですし，見た目もわかりやすいです．
+
+アラームとして解釈される表は，オプション，時刻（HH:MM形式），アラーム内容の3列で構成していればOKです．オプションの列にXを入れておくと，通知アプリがStickyモードで動作するので，アラームを見逃しません．
 
 アラームは複数登録することができます．不要になったアラームを削除するのは，単純に表から当該の行を削除するだけで済みます．実際のところは，バッファが保存される時にアラームリストの変更が自動的にシステムに反映されるので，余計な作業は不要です．
 
-=set-alarms-from-file= は，[[https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el][utility.el]]に記述した関数です．
+=my:set-alarms-from-file= は，[[https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el][utility.el]]に記述した関数です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(with-eval-after-load "utility"
+(with-eval-after-load "org"
   (let ((trigger-file "~/Dropbox/org/db/trigger.org"))
     (when (file-exists-p trigger-file)
-      (set-alarms-from-file trigger-file)
-      (add-hook 'after-save-hook #'my:update-alarms-from-file))))
-
-(with-eval-after-load "org"
-  (defun my:do-org-update-staistics-cookies ()
-    (interactive)
-    (message "Update statistics ...")
-    (do-org-update-statistics-cookies))
-  ;; (org-transpose-element) が割り当てられているので取り返す．
-  (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
-
-  ;;(define-key org-mode-map (kbd "C-c 1")
-  ;;  'org-export-icalendar-combine-agenda-files)
-  ;; (define-key org-mode-map (kbd "<f5>") 'org-narrow-to-subtree)
-  ;; (define-key org-mode-map (kbd "S-<f5>") 'widen)
-  (define-key org-mode-map (kbd "C-c f 1") 'my:ox-icalendar)
-  (define-key org-mode-map (kbd "C-c f 2")
-    'my:do-org-update-staistics-cookies))
-
-(global-set-key (kbd "S-<f12>")
-                #'(lambda () (interactive) (show-org-buffer "tr/work.org")))
-(global-set-key (kbd "C-M-o")
-                #'(lambda () (interactive) (show-org-buffer "next.org")))
-(global-set-key (kbd "C-M-c")
-                #'(lambda () (interactive) (show-org-buffer "org-ical.org")))
-(global-set-key (kbd "C-c l") 'org-store-link)
-(global-set-key (kbd "C-c a") 'org-agenda)
-(global-set-key (kbd "C-c r") 'org-capture)
+      (my:set-alarms-from-file "~/Dropbox/org/db/trigger.org") ;; init
+      (add-hook 'after-save-hook #'my:update-alarms-from-file)))) ;; update
 #+END_SRC
 
 ** org-mode の latex エクスポート関数をオーバーライド
@@ -6138,7 +6164,7 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
     (define-key org-mode-map (kbd "C-c f y") 'org-dashboard-display)))
 #+END_SRC
 
-** TODO [org-clock-today] 今日の総作業時間をモードラインに表示
+** [org-clock-today] 今日の総作業時間をモードラインに表示
 
   - =CLOCK_MODELINE_TOTAL= を設定するのとは別なアプローチ
   - clock が動いている時だけモードラインに合計値が表示される
@@ -6210,7 +6236,11 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
           (orgnav-search-root 3 'orgnav--goto-action)))))
 #+END_SRC
 
-** TODO [org-random-todo] ランダムにタスクを選ぶ
+** [org-random-todo] ランダムにタスクを選ぶ
+
+ - デフォルトで =org-agenda-files= に登録されたファイルからランダムにタスクを選ぶ
+ - org-random-todo はミニバッファに選択したタスクを表示するだけ．
+ - org-random-todo-goto-current 最後に表示したタスクに移動する．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (autoload-if-found
@@ -6236,10 +6266,10 @@ growlnotify と org-mode のバッファを組み合わせてアラームリス�
  ((memq window-system '(mac ns)) ;; for Macintosh
   (setq initial-frame-alist
         (append
-         `((top . 22)
+         '((top . 23)
            (left . 0)
-           (alpha . (100 90))
-           (vertical-scroll-bars . nil)
+           ;; (vertical-scroll-bars . nil)
+           ;; (internal-border-width . 0)
            (alpha . (100 90))
            ;; (ns-appearance . nil) ;; 26.0
            ;; (ns-transparent-titlebar . t) ;; 26.0
@@ -6486,20 +6516,13 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
   - [[https://www.emacswiki.org/emacs/FrameMove][{Home} Frame Move]]
     - フレーム間のカーソル移動を改善
 
-
-=moom-autuloads= に必要なコマンドを羅列していますが， =melpa= でインストールする場合は関係ありません．パッケージ内で autoload 指定してあります． =with-eval-after-load= の中だけを設定すれば十分です．
+=moom-autuloads= に必要なコマンドを +羅列していますが，+ =melpa= でインストールする場合は関係ありません．パッケージ内で autoload 指定してあります． =with-eval-after-load= の中だけを設定すれば十分です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defconst moom-autoloads
-  '(moom-move-frame-with-user-specify
-    moom-change-frame-width-single moom-change-frame-width-double
-    moom-change-frame-width-half-again
-    moom-move-frame-to-center moom-move-frame-to-edge-top
-    moom-move-frame-right moom-max-frame-height
-    moom-move-frame-left moom-move-frame-to-edge-bottom
-    moom-fit-frame-to-fullscreen moom-open-height-ring
-    moom-font-resize moom-font-size-reset
-    moom-font-increase moom-font-decrease))
+  '(moom-open-height-ring
+    my:toggle-fullscreen moom-move-frame-to-center
+    moom-move-frame-with-user-specify))
 
 (when (autoload-if-found
        moom-autoloads
@@ -6519,10 +6542,9 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
     (defun my:mid-font-size ()
       (interactive)
       (moom-font-resize
-       (/ (+ moom-font-init-size (moom-fullscreen-font-size)) 2))
+       (floor (/ (+ moom-font-init-size (moom-fullscreen-font-size)) 2)))
       (moom-move-frame-to-center)
       (moom-print-status))
-    (add-hook 'moom-font-size-reset-hook #'moom-move-frame-to-center)
     (add-hook 'moom-font-change-size-hook #'moom-print-status)
     (global-set-key (kbd "C--") 'my:decrease-font-size)
     (global-set-key (kbd "C-=") 'my:increase-font-size)
@@ -6530,13 +6552,13 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
     (global-set-key (kbd "C-x C-8") 'my:mid-font-size))
 
   (with-eval-after-load "moom"
+    (setq moom-horizontal-shifts '(20 20))
     (add-hook 'moom-after-fullscreen-hook #'moom-move-frame-to-center)
     (add-hook 'moom-after-fullscreen-hook #'moom-print-status))
 
   ;; Move the frame to somewhere (default: 0,0)
   (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
   ;; Move the frame to left side of the current position
-  (setq moom-horizontal-shifts '(30 30))
   (global-set-key (kbd "M-1") 'moom-move-frame-left)
   ;; Move the frame to the center of the window display
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
@@ -6551,6 +6573,8 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
   ;; Move the current frame to the right edge of window display
   (global-set-key (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
   ;; Cycle heights
+  ;; (global-set-key (kbd "<f2>") '(lambda () (interactive)
+  ;;                 (moom-open-height-ring t)))
   (global-set-key (kbd "<f2>") 'moom-open-height-ring)
   ;; Full screen with same frame-width
   (defvar my:fullscreen-flag nil)
@@ -6560,13 +6584,22 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
     (if my:fullscreen-flag
         (moom-fit-frame-to-fullscreen)
       (moom-font-size-reset)
-      (moom-change-frame-width-single)))
+      (moom-change-frame-width-single)
+      (moom-move-frame-to-center)))
+  (defun my:moom-fill-top () (interactive) (moom-fill-display 'top))
+  (defun my:moom-fill-bottom () (interactive) (moom-fill-display 'bottom))
+  (defun my:moom-fill-left () (interactive) (moom-fill-display 'left))
+  (defun my:moom-fill-right () (interactive) (moom-fill-display 'right))
   (global-set-key (kbd "M-<f2>") 'my:toggle-fullscreen)
   (global-set-key (kbd "C-_") 'text-scale-decrease)
   (global-set-key (kbd "C-+") 'text-scale-increase)
   (global-set-key (kbd "C-c f s") 'moom-change-frame-width-single)
   (global-set-key (kbd "C-c f d") 'moom-change-frame-width-double)
-  (global-set-key (kbd "C-c f a") 'moom-change-frame-width-half-again))
+  (global-set-key (kbd "C-c f a") 'moom-change-frame-width-half-again)
+  (global-set-key (kbd "C-c f f t") 'my:moom-fill-top)
+  (global-set-key (kbd "C-c f f b") 'my:moom-fill-bottom)
+  (global-set-key (kbd "C-c f f l") 'my:moom-fill-left)
+  (global-set-key (kbd "C-c f f r") 'my:moom-fill-right))
 
 ;; setting for e2wm
 (when (autoload-if-found
@@ -6586,10 +6619,11 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
   - https://github.com/m2ym/popwin-el/
   - popwin:display-buffer を autoload してもうまくいかない．
   - 現在は緩やかに =shackle= に移行中です．
+    - ただし， =dedicated= オプションが使えないので，ウィンドウからフォーカスが外れた時に自動的にウィンドウを消すことができません．
 
 =postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
 ;; for emacs 24.1
 ;; (setq special-display-function 'popwin:special-display-popup-window)
 ;; (setq display-buffer-function 'popwin:display-buffer)
@@ -6603,12 +6637,14 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
   (when (require 'popwin nil t)
     (popwin-mode 1)
     ;; Performed
-    (push '("*Help*" :height 20 :position bottom :dedicated t)
+    (push '("*Help*" :height 20 :position top :dedicated t)
           popwin:special-display-config)
-    (push '("*osx-dictionary*" :height 20 :position bottom)
+    (push '("*osx-dictionary*" :height 20 :position top :dedicated t)
           popwin:special-display-config)
 
     ;; Checking...
+    (push '("*Checkdoc Status*" :position top :dedicated t)
+      popwin:special-display-config)
     (push '("*frequencies*" :height 20 :position bottom :dedicated t)
           popwin:special-display-config)
     (push '("CAPTURE-next.org" :height 10 :position bottom :noselect t)
@@ -6646,22 +6682,47 @@ moom.el は，frame-cmds, frame-fns と e2wm.el を利用したアドホック�
 
 ** TODO [shackle.el] ポップアップウィンドウの制御
 
-  - popwin の後発パッケージ
-  - popwin.el にある =dedicated= が使えないので，本当に移行するか検討中．
-  - 以下の設定では，パッケージ読み込みのトリガーを =postpone= にひも付け
+ - popwin の後発パッケージ
+ - popwin.el にある =dedicated= が使えないので，本当に移行するか検討中．
+ - 以下の設定では，パッケージ読み込みのトリガーを =postpone= にひも付け
+ - align がないと，size が効かない？
+ - バッファ名に正規表現を使う時は，regexpが必要．
+ - org関連でディスパッチャとそれを経由するバッファは制御が効かない？
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
   (when (require 'shackle nil t)
+    (setq shackle-default-ratio 0.33)
     (setq shackle-rules
-          '(("*Help*" :align t :select t :popup t :size 0.3)
-            ("*Org Grep*" :align t :select t :popup t :size 0.3)
-            ("*wclock*" :align t :select t :popup t :size 0.3)
-            ("*Shell Command Output*"
-             :align t :select t :popup t :size 0.3)
-            ("*osx-dictionary*"
-             :align t :select t :popup t :size 0.3)))
+          '(("*osx-dictionary*" :align above :popup t)
+            ("*Checkdoc Status*" :align above :popup t :noselect t)
+            ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
+            ;; ("^\*Helm.+" :regexp t :align above :size 0.2)
+            ))
     (shackle-mode 1)))
+#+END_SRC
+
+*** checkdoc.el 用の追加設定
+
+=M-x checkdoc= 実行時に =checkdoc-minor-mode-map= に checkdoc のウィンドウを閉じるキーバインドを設定． =q= または =C-g= を押下すると，マイナーモードが終了し，設定したキーバインドが無効になる．マイナーモードが有効な間は， =q= が占有されてバッファに入力できなくなる．その場合は，必要に応じて =M-x my:delete-checkdoc-window= を実行する．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(with-eval-after-load "postpone"
+  (when (require 'checkdoc nil t)
+    (defun my:delete-checkdoc-window ()
+      (interactive)
+      (let ((checkdoc-window (get-buffer-window "*Checkdoc Status*")))
+        (when checkdoc-window
+          (delete-window checkdoc-window)))
+      (checkdoc-minor-mode -1))
+    (defun advice:checkdoc ()
+      (interactive)
+      (checkdoc-minor-mode 1)
+      (define-key checkdoc-minor-mode-map (kbd "q")
+        'my:delete-checkdoc-window)
+      (define-key checkdoc-minor-mode-map (kbd "C-g")
+        'my:delete-checkdoc-window))
+    (advice-add 'checkdoc :before #'advice:checkdoc)))
 #+END_SRC
 
 ** [elscreen.el] Emacs バッファをタブ化
@@ -6849,19 +6910,17 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
     (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
  ((eq window-system 'x) ; for SuSE Linux 12.1
-  (with-eval-after-load "postpone"
-    (let
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font "Inconsolata")
-         ;; (ja-font "MigMix 1M")
-         (ja-font "Migu 2M"))
-      (my:ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
-    (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
-                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
- )
+  (let
+      ((font-size 14)
+       (font-height 100)
+       (ascii-font "Inconsolata")
+       ;; (ja-font "MigMix 1M")
+       (ja-font "Migu 2M"))
+    (my:ja-font-setter
+     (font-spec :family ja-font :size font-size :height font-height))
+    (my:ascii-font-setter (font-spec :family ascii-font :size font-size)))
+  (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
+                                  (".*Inconsolata.*" . 1.0))))) ; 0.9
 #+END_SRC
 
 *** フォントのインストール方法
@@ -7111,6 +7170,8 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 
 =M-x pomodoro:start= すると，ポモドーロが始まり，8時間後に =pomodoro:stop= が呼ばれてポモドーロが終了します．[[http://www.pomodorotechnique.com/][pomodoro]] は機械的に仕事をしたい人にピッタリです．人によっては [[http://ja.wikipedia.org/wiki/Getting_Things_Done][GTD]] よりも取っ付きやすいと思います．
 
+なお，Org Mode と組み合わせたい場合は，通知を =org-clock-in= と =org-clock-out= に連動させる [[https://github.com/lolownia/org-pomodoro][org-pomodoro.el]] があります．
+
 =postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -7214,11 +7275,10 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 
       (defun my:pomodoro-notify ()
         (interactive)
-        (shell-command-to-string
-         (concat "terminal-notifier -title \"Pomodoro\""
-                 " -message \"三三 ﾍ(*ﾟ∇ﾟ)ﾉ Go #"
-                 (format "%s" (1+ pomodoro:work-count))
-                 "\" -sender org.gnu.Emacs")))
+        (my:desktop-notification
+         "Pomodoro"
+         (concat "三三 ﾍ(*ﾟ∇ﾟ)ﾉ   Go #"
+                 (format "%s" (1+ pomodoro:work-count))) nil "Glass"))
       (add-hook 'pomodoro:finish-work-hook 'my:pomodoro-notify))))
 #+END_SRC
 
@@ -7532,18 +7592,45 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 (global-set-key (kbd "C-c f t") 'open-current-directory)
 #+END_SRC
 
-** [postpone] Emacs起動してから使い始めるタイミングで実行する
+** [postpone.el] Emacs起動してから使い始めるタイミングで実行する
+   :PROPERTIES:
+   :CREATED:  [2018-03-14 Wed 15:03]
+   :END:
 
-=helm-config= に紐付けていた遅延呼び出し関数および設定を，自作の =postpone.el= に紐付けました． =helm-config= に紐付けていた時は， =M-x= を使うと複数の設定が読み込まれましたが，今回の設定では，Emacs起動後に最初のアクション時に読み込まれます．これには =M-x= も含まれます．この =init.el= に記載された遅延読み込みは約660[ms]にも及びます．通常起動では約400[ms]を要している（コンソール起動の場合は，約100[ms]）ので，もし遅延読み込みしなければ，Emacsの起動が1秒を超えてしまうことになります．
+=helm-config= に紐付けていた遅延呼び出し関数および設定を，自作の =postpone.el= に紐付けました． =helm-config= に紐付けていた時は， =M-x= を使う時にだけ複数の設定が読み込まれましたが，今回の設定では，Emacs起動後の最初のアクション時に読み込まれます（一部のコマンドを除く）．これには =M-x= も含まれます．この =init.el= に記載された遅延読み込みは約660[ms]にも及びます．通常起動では約400[ms]を要している（コンソール起動の場合は，約100[ms]）ので，もし遅延読み込みしなければ，Emacsの起動が1秒を超えてしまうことになります．起動後，即座にEmacs終了するシーンでは， =postpone.el= に紐付けた設定が活性化すると無駄になります．それを回避するために， =this-command= の値を確認して，条件に合う場合だけ =postpone.el= が読み込まれる（結果的に紐付いている全ての設定が活性化する）ようにしています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(autoload 'postpone-kicker "postpone" nil t)
-(if (fboundp 'postpone-kicker)
-    (add-hook 'pre-command-hook #'postpone-kicker)
-  (message "postpone.el is NOT installed."))
+(if (not (locate-library "postpone"))
+    (message "postpone.el is NOT installed.")
+  (autoload 'postpone-kicker "postpone" nil t)
+  (defun my:postpone-kicker ()
+    (interactive)
+    (unless (memq this-command ;; specify commands for exclusion
+                  '(self-insert-command
+                    save-buffers-kill-terminal
+                    exit-minibuffer))
+      (message "Starting postpone...done")
+      (postpone-kicker 'my:postpone-kicker)
+      (message "Finishing postpone...done")))
+  (add-hook 'pre-command-hook #'my:postpone-kicker))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+(if (not (autoload-if-found '(postpone-kicker) "postpone" nil t))
+    (message "postpone.el is NOT installed.")
+  (defun my:postpone-kicker ()
+    (interactive)
+    (unless (memq this-command
+                  '(save-buffers-kill-terminal
+                    self-insert-command
+                    exit-minibuffer))
+      ;; (message "%s" this-command)
+      ;; (sit-for 5)
+      (postpone-kicker 'my:postpone-kicker)))
+  (add-hook 'pre-command-hook #'my:postpone-kicker))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
 (defun my:onetime-kicker ()
   "Load and execute functions just one time."
   (when (require 'postpone nil t)
@@ -7560,48 +7647,14 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 (with-eval-after-load "postpone"
   (when (require 'network-watch nil t)
     (unless batch-build
-      (network-watch-mode 1))
+      (if (require 'shut-up nil t)
+          (shut-up (network-watch-mode 1))
+        (network-watch-mode 1)))
     (defun advice:network-watch-update-lighter ()
       "Return a mode lighter reflecting the current network state."
       (unless (network-watch-active-p) " ↓NW↓"))
     (advice-add 'network-watch-update-lighter
                 :override #'advice:network-watch-update-lighter)))
-#+END_SRC
-
-** [utility.el] 自作してテスト中の便利関数群
-
-関数定義を[[https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el][別ファイル]]に分離して，Emacs起動の高速化を図っています．各関数を autoload の管理下において，必要なときにロードするように設定しています．
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(defconst utility-autoloads
-  '(my:date
-    my:window-resizer my:open-file-ring my:update-alarms-from-file
-    my:desktop-notify my:daylight-theme my:night-theme
-    eval-org-buffer kyoko-mad-mode-toggle mac:delete-files-in-trash-bin
-    org2dokuwiki-cp-kill-ring open-current-directory set-alarms-from-file
-    reload-ical-export show-org-buffer get-random-string init-auto-install
-    add-itemize-head add-itemize-head-checkbox insert-formatted-current-date
-    my:cycle-bullet-at-heading
-    my:org-list-insert-items my:org-list-delete-items
-    my:org-list-insert-checkbox-into-items
-    my:org-list-delete-checkbox-from-items
-    my:org-list-insert-itms-with-checkbox
-    my:org-list-delete-items-with-checkbox
-    insert-formatted-current-time insert-formatted-signature
-    export-timeline-business export-timeline-private chomp
-    my:browse-url-chrome count-words-buffer do-test-applescript
-    delete-backup-files recursive-delete-backup-files describe-timer
-    my:list-packages my:setup-cask my:lingr-login my:backup))
-
-(when (autoload-if-found
-       utility-autoloads
-       "utility" nil t)
-  ;; (global-set-key (kbd "C-M--") 'add-itemize-head)
-  ;; (global-set-key (kbd "C-M-_") 'add-itemize-head-checkbox)
-  (global-set-key (kbd "C-M--") 'my:cycle-bullet-at-heading)
-  (global-set-key (kbd "<f12>") 'my:open-file-ring)
-  (global-set-key (kbd "C-c t") 'my:date)
-  (global-set-key (kbd "C-c f 4") 'my:window-resizer))
 #+END_SRC
 
 ** [gif-screencast.el] ユーザアクションのたびにスクショを取る
@@ -7677,6 +7730,57 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
       (interactive)
       (dired gif-screencast-output-directory)
       (dired gif-screencast-screenshot-directory))))
+#+END_SRC
+
+** TODO [manage-minor-mode.el] マイナーモードの視覚的な管理
+
+ - [[http://fukuyama.co/manage-minor-mode][minor-modeを簡単に切り替える manage-minor-mode.el Emacs Lisp - Web学び]]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(manage-minor-mode)
+       "manage-minor-mode" nil t)
+
+  (with-eval-after-load "manage-minor-mode"
+    (define-key manage-minor-mode-map (kbd "q")
+      #'(lambda () (interactive)
+          (delete-window (get-buffer-window "*manage-minor-mode*"))))))
+#+END_SRC
+
+** [utility.el] 自作してテスト中の便利関数群
+
+関数定義を[[https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el][別ファイル]]に分離して，Emacs起動の高速化を図っています．各関数を autoload の管理下において，必要なときにロードするように設定しています．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defconst utility-autoloads
+  '(my:date
+    my:window-resizer my:open-file-ring my:update-alarms-from-file
+    my:daylight-theme my:night-theme my:set-alarms-from-file
+    eval-org-buffer kyoko-mad-mode-toggle mac:delete-files-in-trash-bin
+    org2dokuwiki-cp-kill-ring open-current-directory
+    reload-ical-export show-org-buffer get-random-string init-auto-install
+    add-itemize-head add-itemize-head-checkbox insert-formatted-current-date
+    my:cycle-bullet-at-heading
+    my:org-list-insert-items my:org-list-delete-items
+    my:org-list-insert-checkbox-into-items
+    my:org-list-delete-checkbox-from-items
+    my:org-list-insert-itms-with-checkbox
+    my:org-list-delete-items-with-checkbox
+    insert-formatted-current-time insert-formatted-signature
+    export-timeline-business export-timeline-private chomp
+    my:browse-url-chrome count-words-buffer do-test-applescript
+    delete-backup-files recursive-delete-backup-files describe-timer
+    my:list-packages my:setup-cask my:lingr-login my:backup))
+
+(when (autoload-if-found
+       utility-autoloads
+       "utility" nil t)
+  ;; (global-set-key (kbd "C-M--") 'add-itemize-head)
+  ;; (global-set-key (kbd "C-M-_") 'add-itemize-head-checkbox)
+  (global-set-key (kbd "C-M--") 'my:cycle-bullet-at-heading)
+  (global-set-key (kbd "<f12>") 'my:open-file-ring)
+  (global-set-key (kbd "C-c t") 'my:date)
+  (global-set-key (kbd "C-c f 4") 'my:window-resizer))
 #+END_SRC
 
 * おわりに

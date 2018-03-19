@@ -37,6 +37,8 @@
 (require 'update-stamp nil t)
 (require 'emmet-mode nil t)
 (require 'gif-screencast nil t)
+(require 'manage-minor-mode nil t) ;; mode-map
+(require 'appt) ;; advice
 
 (if (require 'shut-up nil t)
     (shut-up (require 'emms-setup nil t))
