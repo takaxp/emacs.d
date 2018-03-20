@@ -1879,23 +1879,13 @@
     ;;       '(:eval (format " P:%s" (projectile-project-name))))
     (setq projectile-mode-line "")
 
-    (defun my:frame-title-format ()
-      ;; (setq frame-title-format t)
-      ;; (sit-for 0.05) ;; a trick to keep file icon in frame-bar.
-      (setq frame-title-format
-            '(""
-              (:eval
-               (let ((project-name (projectile-project-name)))
-                 (unless (string= "-" project-name)
-                   (format "(%s) - " project-name))))
-              "%b"
-              ;; (:eval (format " - %s" (system-name)))
-              )))
-    (my:frame-title-format)
-
-    (when (require 'moom nil t)
-      (add-hook 'moom-reset-font-size-hook #'my:frame-title-format)
-      (add-hook 'moom-after-fullscreen-hook #'my:frame-title-format))
+    (setq icon-title-format
+          (setq frame-title-format
+                '((:eval
+                   (let ((project-name (projectile-project-name)))
+                     (unless (string= "-" project-name)
+                       (format "(%s) - " project-name))))
+                  "%b")))
 
     (when (require 'helm-projectile nil t)
       ;; M-x helm-projectile-find-file (C-c p f)
@@ -3279,7 +3269,9 @@ update it for multiple appts?")
        moom-autoloads
        "moom" nil t)
 
-  (with-eval-after-load "moom-font"
+  (when (autoload-if-found
+         '(my:increase-font-size my:decrease-font-size my:mid-font-size)
+         "moom-font" nil t)
     (defun my:increase-font-size ()
       (interactive)
       (moom-font-increase 1)
@@ -3334,9 +3326,9 @@ update it for multiple appts?")
     (setq my:fullscreen-flag (not my:fullscreen-flag))
     (if my:fullscreen-flag
         (moom-fit-frame-to-fullscreen)
-      (moom-font-size-reset)
-      (moom-change-frame-width-single)
-      (moom-move-frame-to-center)))
+      (when (fboundp 'moom-font-size-reset)
+        (moom-font-size-reset))
+      (moom-change-frame-width-single)))
   (defun my:moom-fill-top () (interactive) (moom-fill-display 'top))
   (defun my:moom-fill-bottom () (interactive) (moom-fill-display 'bottom))
   (defun my:moom-fill-left () (interactive) (moom-fill-display 'left))
