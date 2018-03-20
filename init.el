@@ -1000,7 +1000,7 @@
 (setq ring-bell-function 'ignore)
 
 (when (require 'empty-booting nil t)
-  (setq initial-buffer-choice t)
+  ;; (setq initial-buffer-choice t) ;; 引数付き起動すると画面分割される
   (setq initial-scratch-message nil)
   (setq initial-major-mode 'empty-booting-mode)
   ;;  :underline "#203e6f"
