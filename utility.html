@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-03-20 Tue 00:45 -->
+<!-- 2018-03-21 Wed 00:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -240,55 +240,55 @@ for the JavaScript code in this tag.
 <h2>&#30446;&#27425;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orga308854">1. orgバッファを評価</a></li>
-<li><a href="#orgf80a27b">2. ユーティリティ関数</a>
+<li><a href="#org2c6dc8d">1. orgバッファを評価</a></li>
+<li><a href="#org4730674">2. ユーティリティ関数</a>
 <ul>
-<li><a href="#orgfc3006c">2.1. サボっていると Kyoko さんに怒られる</a></li>
-<li><a href="#org76517e9">2.2. org-buffer を dokuwiki 形式に変換し，kill-ring に格納</a></li>
-<li><a href="#org395611b">2.3. コンソールでカレントバッファのあるディレクトリに移動する</a></li>
-<li><a href="#org0877b11">2.4. ファイルに含まれるテーブルを使って定時にアラートを表示する</a></li>
-<li><a href="#org27bb3b9">2.5. 頻繁に利用するファイルをring形式でたどる</a></li>
-<li><a href="#orgfbebc87">2.6. 引数のorgバッファを開く</a></li>
-<li><a href="#org161fde7">2.7. orgバッファにいつものヘッダを追加する</a></li>
-<li><a href="#org04e3bd7">2.8. 議事録ひな形を書き入れる</a></li>
-<li><a href="#org2020030">2.9. ランダムの文字列を取得する</a></li>
-<li><a href="#org0d3d8ee">2.10. Auto-install をセットアップする</a></li>
-<li><a href="#org15e4954">2.11. 行頭に" - "を挿入する</a></li>
-<li><a href="#org870ab54">2.12. <span class="todo TODO">TODO</span> " - "と" - [ ] "をサイクルさせる</a></li>
-<li><a href="#org028a37e">2.13. <span class="todo TODO">TODO</span> リージョン内のブリッツを操作する</a></li>
-<li><a href="#org1abab81">2.14. 日付などを簡単に挿入する</a>
+<li><a href="#orgc0f08ee">2.1. サボっていると Kyoko さんに怒られる</a></li>
+<li><a href="#orgbc34177">2.2. org-buffer を dokuwiki 形式に変換し，kill-ring に格納</a></li>
+<li><a href="#org1999b69">2.3. コンソールでカレントバッファのあるディレクトリに移動する</a></li>
+<li><a href="#orge0c2266">2.4. ファイルに含まれるテーブルを使って定時にアラートを表示する</a></li>
+<li><a href="#org6b4cd0d">2.5. 頻繁に利用するファイルをring形式でたどる</a></li>
+<li><a href="#org0cefb7b">2.6. 引数のorgバッファを開く</a></li>
+<li><a href="#orgdbaf013">2.7. orgバッファにいつものヘッダを追加する</a></li>
+<li><a href="#orgfb3e90c">2.8. 議事録ひな形を書き入れる</a></li>
+<li><a href="#org8da6296">2.9. ランダムの文字列を取得する</a></li>
+<li><a href="#org43e0395">2.10. Auto-install をセットアップする</a></li>
+<li><a href="#org9d40201">2.11. 行頭に" - "を挿入する</a></li>
+<li><a href="#org9f707a5">2.12. <span class="todo TODO">TODO</span> " - "と" - [ ] "をサイクルさせる</a></li>
+<li><a href="#org68fcdbd">2.13. <span class="todo TODO">TODO</span> リージョン内のブリッツを操作する</a></li>
+<li><a href="#org340d4ea">2.14. 日付などを簡単に挿入する</a>
 <ul>
-<li><a href="#org8bf013b">2.14.1. キーバインド</a></li>
+<li><a href="#orgfcada01">2.14.1. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#org1141c49">2.15. XHTMLを利用したガントチャート生成</a></li>
-<li><a href="#org0e5f4be">2.16. 定期実行関数</a></li>
-<li><a href="#org57db2c3">2.17. ブラウザの設定</a></li>
-<li><a href="#org3cb5884">2.18. ミニバッファに日時を表示</a></li>
-<li><a href="#orgaf46840">2.19. バックアップファイルの削除</a></li>
-<li><a href="#org23d4633">2.20. 日中と夜中でテーマを切り替える</a></li>
-<li><a href="#org18a127b">2.21. chomp</a></li>
-<li><a href="#orge63c4db">2.22. iTerm2.app を呼び出す関数</a></li>
-<li><a href="#org376640b">2.23. lingr にログインする</a></li>
-<li><a href="#orgcbb4036">2.24. 特定のファイルを Dropbox 以下にバックアップする</a></li>
-<li><a href="#org50abf88">2.25. ゴミ箱を空にする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Mac">Mac</span></span></a></li>
-<li><a href="#org9e79c02">2.26. その他</a></li>
+<li><a href="#orgc1b0995">2.15. XHTMLを利用したガントチャート生成</a></li>
+<li><a href="#org05a3f3c">2.16. 定期実行関数</a></li>
+<li><a href="#org6d92df7">2.17. ブラウザの設定</a></li>
+<li><a href="#org03e0505">2.18. ミニバッファに日時を表示</a></li>
+<li><a href="#org4af53be">2.19. バックアップファイルの削除</a></li>
+<li><a href="#org666d428">2.20. 日中と夜中でテーマを切り替える</a></li>
+<li><a href="#org3892a51">2.21. chomp</a></li>
+<li><a href="#org4e23804">2.22. iTerm2.app を呼び出す関数</a></li>
+<li><a href="#org4bffbfa">2.23. lingr にログインする</a></li>
+<li><a href="#orgdba53cf">2.24. 特定のファイルを Dropbox 以下にバックアップする</a></li>
+<li><a href="#org5f40572">2.25. ゴミ箱を空にする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Mac">Mac</span></span></a></li>
+<li><a href="#org17a5b88">2.26. その他</a></li>
 </ul>
 </li>
-<li><a href="#orgeaa2f77">3. 未設定／テスト中</a>
+<li><a href="#org09d3ac9">3. 未設定／テスト中</a>
 <ul>
-<li><a href="#org4275bff">3.1. byte-compile の警告を抑制する</a></li>
-<li><a href="#org10e65d9">3.2. [window-resizer.el] 分割したウィンドウサイズを変更する</a></li>
-<li><a href="#org3b077d8">3.3. [idle-requie]</a></li>
-<li><a href="#orgeb8cbb4">3.4. [pdf-preview]</a></li>
-<li><a href="#org7c71751">3.5. [EasyPG]</a></li>
-<li><a href="#org2acdd21">3.6. [eblook]</a></li>
-<li><a href="#org7cbe0d4">3.7. [iBuffer]</a></li>
-<li><a href="#orgd22cf97">3.8. UUID をファイル名にして所定のディレクトリにコピー／移動</a></li>
-<li><a href="#org8378bd0">3.9. キーバインド</a></li>
+<li><a href="#org3e8e5b0">3.1. byte-compile の警告を抑制する</a></li>
+<li><a href="#orgb6397a1">3.2. [window-resizer.el] 分割したウィンドウサイズを変更する</a></li>
+<li><a href="#org78eedaf">3.3. [idle-requie]</a></li>
+<li><a href="#orgca79794">3.4. [pdf-preview]</a></li>
+<li><a href="#org484c123">3.5. [EasyPG]</a></li>
+<li><a href="#org762d28b">3.6. [eblook]</a></li>
+<li><a href="#org16e35be">3.7. [iBuffer]</a></li>
+<li><a href="#org039ff90">3.8. UUID をファイル名にして所定のディレクトリにコピー／移動</a></li>
+<li><a href="#org74b69cb">3.9. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#org0d0bc4e">4. provide</a></li>
+<li><a href="#org2c9950b">4. provide</a></li>
 </ul>
 </div>
 </div>
@@ -300,8 +300,8 @@ for the JavaScript code in this tag.
 注意：コピペだけでは動かない可能性があります．<br />
 </p>
 
-<div id="outline-container-orga308854" class="outline-2">
-<h2 id="orga308854"><span class="section-number-2">1</span> orgバッファを評価</h2>
+<div id="outline-container-org2c6dc8d" class="outline-2">
+<h2 id="org2c6dc8d"><span class="section-number-2">1</span> orgバッファを評価</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， <code>init.org</code> と <code>utility.org</code> の2つのバッファでのみ評価されるようになっています．<br />
@@ -329,12 +329,12 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-orgf80a27b" class="outline-2">
-<h2 id="orgf80a27b"><span class="section-number-2">2</span> ユーティリティ関数</h2>
+<div id="outline-container-org4730674" class="outline-2">
+<h2 id="org4730674"><span class="section-number-2">2</span> ユーティリティ関数</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-orgfc3006c" class="outline-3">
-<h3 id="orgfc3006c"><span class="section-number-3">2.1</span> サボっていると Kyoko さんに怒られる</h3>
+<div id="outline-container-orgc0f08ee" class="outline-3">
+<h3 id="orgc0f08ee"><span class="section-number-3">2.1</span> サボっていると Kyoko さんに怒られる</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 MacOS 用の関数です．別途，Kyoko さんの音声をインストールしておく必要があります．Mavericks だと，Otoya さんも使えます．<br />
@@ -361,8 +361,8 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
 </div>
 </div>
 
-<div id="outline-container-org76517e9" class="outline-3">
-<h3 id="org76517e9"><span class="section-number-3">2.2</span> org-buffer を dokuwiki 形式に変換し，kill-ring に格納</h3>
+<div id="outline-container-orgbc34177" class="outline-3">
+<h3 id="orgbc34177"><span class="section-number-3">2.2</span> org-buffer を dokuwiki 形式に変換し，kill-ring に格納</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 外部プログラム<a href="https://gist.github.com/1369417">org2dokuwiki.pl</a>を使います．<br />
@@ -387,8 +387,8 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
 </div>
 </div>
 
-<div id="outline-container-org395611b" class="outline-3">
-<h3 id="org395611b"><span class="section-number-3">2.3</span> コンソールでカレントバッファのあるディレクトリに移動する</h3>
+<div id="outline-container-org1999b69" class="outline-3">
+<h3 id="org1999b69"><span class="section-number-3">2.3</span> コンソールでカレントバッファのあるディレクトリに移動する</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
 Finder で開きたいだけならば， <code>M-!</code> でミニバッファに <code>open .</code> と打ち込むだけです．<br />
@@ -424,8 +424,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org0877b11" class="outline-3">
-<h3 id="org0877b11"><span class="section-number-3">2.4</span> ファイルに含まれるテーブルを使って定時にアラートを表示する</h3>
+<div id="outline-container-orge0c2266" class="outline-3">
+<h3 id="orge0c2266"><span class="section-number-3">2.4</span> ファイルに含まれるテーブルを使って定時にアラートを表示する</h3>
 <div class="outline-text-3" id="text-2-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">eval-when-compile</span>
@@ -507,8 +507,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org27bb3b9" class="outline-3">
-<h3 id="org27bb3b9"><span class="section-number-3">2.5</span> 頻繁に利用するファイルをring形式でたどる</h3>
+<div id="outline-container-org6b4cd0d" class="outline-3">
+<h3 id="org6b4cd0d"><span class="section-number-3">2.5</span> 頻繁に利用するファイルをring形式でたどる</h3>
 <div class="outline-text-3" id="text-2-5">
 <p>
 <a href="http://d.hatena.ne.jp/rubikitch/20111120/elispbook">http://d.hatena.ne.jp/rubikitch/20111120/elispbook</a><br />
@@ -541,8 +541,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-orgfbebc87" class="outline-3">
-<h3 id="orgfbebc87"><span class="section-number-3">2.6</span> 引数のorgバッファを開く</h3>
+<div id="outline-container-org0cefb7b" class="outline-3">
+<h3 id="org0cefb7b"><span class="section-number-3">2.6</span> 引数のorgバッファを開く</h3>
 <div class="outline-text-3" id="text-2-6">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
@@ -559,8 +559,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org161fde7" class="outline-3">
-<h3 id="org161fde7"><span class="section-number-3">2.7</span> orgバッファにいつものヘッダを追加する</h3>
+<div id="outline-container-orgdbaf013" class="outline-3">
+<h3 id="orgdbaf013"><span class="section-number-3">2.7</span> orgバッファにいつものヘッダを追加する</h3>
 <div class="outline-text-3" id="text-2-7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
@@ -583,8 +583,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org04e3bd7" class="outline-3">
-<h3 id="org04e3bd7"><span class="section-number-3">2.8</span> 議事録ひな形を書き入れる</h3>
+<div id="outline-container-orgfb3e90c" class="outline-3">
+<h3 id="orgfb3e90c"><span class="section-number-3">2.8</span> 議事録ひな形を書き入れる</h3>
 <div class="outline-text-3" id="text-2-8">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
@@ -602,8 +602,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org2020030" class="outline-3">
-<h3 id="org2020030"><span class="section-number-3">2.9</span> ランダムの文字列を取得する</h3>
+<div id="outline-container-org8da6296" class="outline-3">
+<h3 id="org8da6296"><span class="section-number-3">2.9</span> ランダムの文字列を取得する</h3>
 <div class="outline-text-3" id="text-2-9">
 <p>
 引数で桁数を渡すと，ランダムな数値の文字列を取得できます．org-mode で適当なタイトルのツリーを生成したい時に使っています．<br />
@@ -631,8 +631,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org0d3d8ee" class="outline-3">
-<h3 id="org0d3d8ee"><span class="section-number-3">2.10</span> Auto-install をセットアップする</h3>
+<div id="outline-container-org43e0395" class="outline-3">
+<h3 id="org43e0395"><span class="section-number-3">2.10</span> Auto-install をセットアップする</h3>
 <div class="outline-text-3" id="text-2-10">
 <p>
 いつも auto-install を使うわけではないので，必要時に <code>init-auto-install</code> を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．<br />
@@ -658,8 +658,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org15e4954" class="outline-3">
-<h3 id="org15e4954"><span class="section-number-3">2.11</span> 行頭に" - "を挿入する</h3>
+<div id="outline-container-org9d40201" class="outline-3">
+<h3 id="org9d40201"><span class="section-number-3">2.11</span> 行頭に" - "を挿入する</h3>
 <div class="outline-text-3" id="text-2-11">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
@@ -698,8 +698,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org870ab54" class="outline-3">
-<h3 id="org870ab54"><span class="section-number-3">2.12</span> <span class="todo TODO">TODO</span> " - "と" - [ ] "をサイクルさせる</h3>
+<div id="outline-container-org9f707a5" class="outline-3">
+<h3 id="org9f707a5"><span class="section-number-3">2.12</span> <span class="todo TODO">TODO</span> " - "と" - [ ] "をサイクルさせる</h3>
 <div class="outline-text-3" id="text-2-12">
 <ul class="org-ul">
 <li>ブリッツ行でないときは，ブリッツ化する．<br /></li>
@@ -734,8 +734,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org028a37e" class="outline-3">
-<h3 id="org028a37e"><span class="section-number-3">2.13</span> <span class="todo TODO">TODO</span> リージョン内のブリッツを操作する</h3>
+<div id="outline-container-org68fcdbd" class="outline-3">
+<h3 id="org68fcdbd"><span class="section-number-3">2.13</span> <span class="todo TODO">TODO</span> リージョン内のブリッツを操作する</h3>
 <div class="outline-text-3" id="text-2-13">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
@@ -824,8 +824,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org1abab81" class="outline-3">
-<h3 id="org1abab81"><span class="section-number-3">2.14</span> 日付などを簡単に挿入する</h3>
+<div id="outline-container-org340d4ea" class="outline-3">
+<h3 id="org340d4ea"><span class="section-number-3">2.14</span> 日付などを簡単に挿入する</h3>
 <div class="outline-text-3" id="text-2-14">
 <p>
 <a href="http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608">http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608</a><br />
@@ -851,8 +851,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org8bf013b" class="outline-4">
-<h4 id="org8bf013b"><span class="section-number-4">2.14.1</span> キーバインド</h4>
+<div id="outline-container-orgfcada01" class="outline-4">
+<h4 id="orgfcada01"><span class="section-number-4">2.14.1</span> キーバインド</h4>
 <div class="outline-text-4" id="text-2-14-1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #98c379;">"C-0"</span>) 'insert-formatted-current-date)
@@ -863,8 +863,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org1141c49" class="outline-3">
-<h3 id="org1141c49"><span class="section-number-3">2.15</span> XHTMLを利用したガントチャート生成</h3>
+<div id="outline-container-orgc1b0995" class="outline-3">
+<h3 id="orgc1b0995"><span class="section-number-3">2.15</span> XHTMLを利用したガントチャート生成</h3>
 <div class="outline-text-3" id="text-2-15">
 <p>
 最近使っていません．<br />
@@ -927,8 +927,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org0e5f4be" class="outline-3">
-<h3 id="org0e5f4be"><span class="section-number-3">2.16</span> 定期実行関数</h3>
+<div id="outline-container-org05a3f3c" class="outline-3">
+<h3 id="org05a3f3c"><span class="section-number-3">2.16</span> 定期実行関数</h3>
 <div class="outline-text-3" id="text-2-16">
 <p>
 orgバッファからカレンダーを生成し，外部サーバに投げます．また，MobileOrgに最新情報を流しています．<br />
@@ -956,8 +956,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org57db2c3" class="outline-3">
-<h3 id="org57db2c3"><span class="section-number-3">2.17</span> ブラウザの設定</h3>
+<div id="outline-container-org6d92df7" class="outline-3">
+<h3 id="org6d92df7"><span class="section-number-3">2.17</span> ブラウザの設定</h3>
 <div class="outline-text-3" id="text-2-17">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome</span>
@@ -987,8 +987,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org3cb5884" class="outline-3">
-<h3 id="org3cb5884"><span class="section-number-3">2.18</span> ミニバッファに日時を表示</h3>
+<div id="outline-container-org03e0505" class="outline-3">
+<h3 id="org03e0505"><span class="section-number-3">2.18</span> ミニバッファに日時を表示</h3>
 <div class="outline-text-3" id="text-2-18">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
@@ -1003,8 +1003,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 </div>
-<div id="outline-container-orgaf46840" class="outline-3">
-<h3 id="orgaf46840"><span class="section-number-3">2.19</span> バックアップファイルの削除</h3>
+<div id="outline-container-org4af53be" class="outline-3">
+<h3 id="org4af53be"><span class="section-number-3">2.19</span> バックアップファイルの削除</h3>
 <div class="outline-text-3" id="text-2-19">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0</span>
@@ -1039,8 +1039,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 </div>
-<div id="outline-container-org23d4633" class="outline-3">
-<h3 id="org23d4633"><span class="section-number-3">2.20</span> 日中と夜中でテーマを切り替える</h3>
+<div id="outline-container-org666d428" class="outline-3">
+<h3 id="org666d428"><span class="section-number-3">2.20</span> 日中と夜中でテーマを切り替える</h3>
 <div class="outline-text-3" id="text-2-20">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
@@ -1065,8 +1065,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org18a127b" class="outline-3">
-<h3 id="org18a127b"><span class="section-number-3">2.21</span> chomp</h3>
+<div id="outline-container-org3892a51" class="outline-3">
+<h3 id="org3892a51"><span class="section-number-3">2.21</span> chomp</h3>
 <div class="outline-text-3" id="text-2-21">
 <p>
 改行コードを削除した文字列を返す．<br />
@@ -1084,8 +1084,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-orge63c4db" class="outline-3">
-<h3 id="orge63c4db"><span class="section-number-3">2.22</span> iTerm2.app を呼び出す関数</h3>
+<div id="outline-container-org4e23804" class="outline-3">
+<h3 id="org4e23804"><span class="section-number-3">2.22</span> iTerm2.app を呼び出す関数</h3>
 <div class="outline-text-3" id="text-2-22">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
@@ -1097,8 +1097,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org376640b" class="outline-3">
-<h3 id="org376640b"><span class="section-number-3">2.23</span> lingr にログインする</h3>
+<div id="outline-container-org4bffbfa" class="outline-3">
+<h3 id="org4bffbfa"><span class="section-number-3">2.23</span> lingr にログインする</h3>
 <div class="outline-text-3" id="text-2-23">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my:lingr-login</span> ()
@@ -1109,8 +1109,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-orgcbb4036" class="outline-3">
-<h3 id="orgcbb4036"><span class="section-number-3">2.24</span> 特定のファイルを Dropbox 以下にバックアップする</h3>
+<div id="outline-container-orgdba53cf" class="outline-3">
+<h3 id="orgdba53cf"><span class="section-number-3">2.24</span> 特定のファイルを Dropbox 以下にバックアップする</h3>
 <div class="outline-text-3" id="text-2-24">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my:backup</span> (files <span style="color: #CFCB90;">&amp;optional</span> dropbox)
@@ -1138,8 +1138,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org50abf88" class="outline-3">
-<h3 id="org50abf88"><span class="section-number-3">2.25</span> ゴミ箱を空にする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Mac">Mac</span></span></h3>
+<div id="outline-container-org5f40572" class="outline-3">
+<h3 id="org5f40572"><span class="section-number-3">2.25</span> ゴミ箱を空にする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Mac">Mac</span></span></h3>
 <div class="outline-text-3" id="text-2-25">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">mac:delete-files-in-trash-bin</span> ()
@@ -1158,8 +1158,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org9e79c02" class="outline-3">
-<h3 id="org9e79c02"><span class="section-number-3">2.26</span> その他</h3>
+<div id="outline-container-org17a5b88" class="outline-3">
+<h3 id="org17a5b88"><span class="section-number-3">2.26</span> その他</h3>
 <div class="outline-text-3" id="text-2-26">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;; </span><span style="color: #5C6370;">Test function from GNU Emacs (O'REILLY, P.328)</span>
@@ -1214,12 +1214,12 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-orgeaa2f77" class="outline-2">
-<h2 id="orgeaa2f77"><span class="section-number-2">3</span> 未設定／テスト中</h2>
+<div id="outline-container-org09d3ac9" class="outline-2">
+<h2 id="org09d3ac9"><span class="section-number-2">3</span> 未設定／テスト中</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-org4275bff" class="outline-3">
-<h3 id="org4275bff"><span class="section-number-3">3.1</span> byte-compile の警告を抑制する</h3>
+<div id="outline-container-org3e8e5b0" class="outline-3">
+<h3 id="org3e8e5b0"><span class="section-number-3">3.1</span> byte-compile の警告を抑制する</h3>
 <div class="outline-text-3" id="text-3-1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Avoid warning (for sense-region)</span>
@@ -1232,8 +1232,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org10e65d9" class="outline-3">
-<h3 id="org10e65d9"><span class="section-number-3">3.2</span> [window-resizer.el] 分割したウィンドウサイズを変更する</h3>
+<div id="outline-container-orgb6397a1" class="outline-3">
+<h3 id="orgb6397a1"><span class="section-number-3">3.2</span> [window-resizer.el] 分割したウィンドウサイズを変更する</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 <a href="http://d.hatena.ne.jp/khiker/20100119/window_resize">http://d.hatena.ne.jp/khiker/20100119/window_resize</a><br />
@@ -1292,8 +1292,8 @@ utility.el:333:23:Warning: `<span style="color: #d19a66;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-org3b077d8" class="outline-3">
-<h3 id="org3b077d8"><span class="section-number-3">3.3</span> [idle-requie]</h3>
+<div id="outline-container-org78eedaf" class="outline-3">
+<h3 id="org78eedaf"><span class="section-number-3">3.3</span> [idle-requie]</h3>
 <div class="outline-text-3" id="text-3-3">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">idle-require</span>)
@@ -1303,8 +1303,8 @@ utility.el:333:23:Warning: `<span style="color: #d19a66;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-orgeb8cbb4" class="outline-3">
-<h3 id="orgeb8cbb4"><span class="section-number-3">3.4</span> [pdf-preview]</h3>
+<div id="outline-container-orgca79794" class="outline-3">
+<h3 id="orgca79794"><span class="section-number-3">3.4</span> [pdf-preview]</h3>
 <div class="outline-text-3" id="text-3-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">pdf-preview</span>)
@@ -1313,8 +1313,8 @@ utility.el:333:23:Warning: `<span style="color: #d19a66;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-org7c71751" class="outline-3">
-<h3 id="org7c71751"><span class="section-number-3">3.5</span> [EasyPG]</h3>
+<div id="outline-container-org484c123" class="outline-3">
+<h3 id="org484c123"><span class="section-number-3">3.5</span> [EasyPG]</h3>
 <div class="outline-text-3" id="text-3-5">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">epa-setup</span> nil t)
@@ -1324,8 +1324,8 @@ utility.el:333:23:Warning: `<span style="color: #d19a66;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-org2acdd21" class="outline-3">
-<h3 id="org2acdd21"><span class="section-number-3">3.6</span> [eblook]</h3>
+<div id="outline-container-org762d28b" class="outline-3">
+<h3 id="org762d28b"><span class="section-number-3">3.6</span> [eblook]</h3>
 <div class="outline-text-3" id="text-3-6">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">eblook</span>
@@ -1341,8 +1341,8 @@ utility.el:333:23:Warning: `<span style="color: #d19a66;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-org7cbe0d4" class="outline-3">
-<h3 id="org7cbe0d4"><span class="section-number-3">3.7</span> [iBuffer]</h3>
+<div id="outline-container-org16e35be" class="outline-3">
+<h3 id="org16e35be"><span class="section-number-3">3.7</span> [iBuffer]</h3>
 <div class="outline-text-3" id="text-3-7">
 <p>
 iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
@@ -1355,8 +1355,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 
-<div id="outline-container-orgd22cf97" class="outline-3">
-<h3 id="orgd22cf97"><span class="section-number-3">3.8</span> UUID をファイル名にして所定のディレクトリにコピー／移動</h3>
+<div id="outline-container-org039ff90" class="outline-3">
+<h3 id="org039ff90"><span class="section-number-3">3.8</span> UUID をファイル名にして所定のディレクトリにコピー／移動</h3>
 <div class="outline-text-3" id="text-3-8">
 <ul class="org-ul">
 <li>すでに org-attach が存在するので用途が微妙に．．．<br /></li>
@@ -1406,8 +1406,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 
-<div id="outline-container-org8378bd0" class="outline-3">
-<h3 id="org8378bd0"><span class="section-number-3">3.9</span> キーバインド</h3>
+<div id="outline-container-org74b69cb" class="outline-3">
+<h3 id="org74b69cb"><span class="section-number-3">3.9</span> キーバインド</h3>
 <div class="outline-text-3" id="text-3-9">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Multiple combination</span>
@@ -1422,8 +1422,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 
-<div id="outline-container-org0d0bc4e" class="outline-2">
-<h2 id="org0d0bc4e"><span class="section-number-2">4</span> provide</h2>
+<div id="outline-container-org2c9950b" class="outline-2">
+<h2 id="org2c9950b"><span class="section-number-2">4</span> provide</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 以上です．<br />
@@ -1433,7 +1433,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Takaaki Ishikawa</p>
-<p class="date">Created: 2018-03-20 Tue 00:45</p>
+<p class="date">Created: 2018-03-21 Wed 00:08</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
