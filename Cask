@@ -48,6 +48,7 @@
 (depends-on "org-fancy-priorities")
 (depends-on "calfw-org")
 (depends-on "calfw")
+(depends-on "org-bookmark-heading")
 
 ;; Major modes
 (depends-on "python-mode")
@@ -189,7 +190,7 @@
 (depends-on "emacsql-sqlite")
 (depends-on "w3m")
 (depends-on "sunshine")
-(depends-on "pocket-reader")
+;; (depends-on "pocket-reader")
 (depends-on "emms-player-mpv")
 (depends-on "gif-screencast")
 (depends-on "pass")

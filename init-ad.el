@@ -4,8 +4,9 @@
          (result ad-do-it)
          (after  (current-time))
          (time (+ (* (- (nth 1 after) (nth 1 before)) 1000)
-                  (/ (- (nth 2 after) (nth 2 before)) 1000))))
-    (message "--- %04d [ms]: (loading) %s" time (ad-get-arg 0))))
+                  (/ (- (nth 2 after) (nth 2 before)) 1000)))
+         (arg (ad-get-arg 0)))
+    (message "--- %04d [ms]: (loading) %s" time arg)))
 
 ;; advice of require function
 (defadvice require (around require-benchmark activate)
@@ -14,8 +15,10 @@
          (result ad-do-it)
          (after  (current-time))
          (time (+ (* (- (nth 1 after) (nth 1 before)) 1000)
-                  (/ (- (nth 2 after) (nth 2 before)) 1000))))
-    (message "--- %04d [ms]: %s" time (ad-get-arg 0))))
+                  (/ (- (nth 2 after) (nth 2 before)) 1000)))
+         (arg (ad-get-arg 0)))
+    (unless (memq arg '(cl-lib macroexp))
+      (message "--- %04d [ms]: %s" time arg))))
 
 (provide 'init-ad)
 

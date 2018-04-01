@@ -1,11 +1,9 @@
-(require 'org nil t)
-
-
 ;;;###autoload
 (defun eval-org-buffer ()
   "Load init.org/utility.org and tangle init.el/utility.el."
   (interactive)
-  (if (and (eq major-mode 'org-mode)
+  (if (and (require 'org nil t)
+           (eq major-mode 'org-mode)
            (member (buffer-name) '("init.org" "utility.org")))
       (progn
         (org-babel-tangle)
@@ -58,12 +56,12 @@
   (require 'init nil t))
 
 ;;;###autoload
-(defun my:update-alarms-from-file ()
+(defun my-update-alarms-from-file ()
   (interactive)
   (when (string= "trigger.org" (buffer-name))
-    (my:set-alarms-from-file "~/Dropbox/org/db/trigger.org")))
+    (my-set-alarms-from-file "~/Dropbox/org/db/trigger.org")))
 
-(defun my:set-alarms-from-file (file)
+(defun my-set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file
      with tables with the following format:
      |------+-------+--------------------|
@@ -77,7 +75,7 @@
      \"Clean up your desk\" will be shown by sticky mode"
   (let
       ((lines (read-line file)))
-    (cancel-function-timers 'my:desktop-notify) ;; clear existing timers
+    (cancel-function-timers 'my-desktop-notify) ;; clear existing timers
     (while lines
       (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
       (setq lines (cdr lines)))))
@@ -112,14 +110,14 @@
 (defun set-notify-macos (hour min action sticky)
   "`alerter' is required."
   (run-at-time (format "%s:%s" hour min) nil
-               'my:desktop-notify
+               'my-desktop-notify
                "macos" "Trigger.org" hour min action sticky))
 
-(defun my:desktop-notify (type title hour min action sticky)
-  "An interface to `my:desktop-notificaton'."
+(defun my-desktop-notify (type title hour min action sticky)
+  "An interface to `my-desktop-notificaton'."
   (cond
    ((string= type "macos")
-    (my:desktop-notification
+    (my-desktop-notification
      title (format "%s:%s %s" hour min action) sticky))))
 
 (defun read-line (file)
@@ -129,27 +127,27 @@
     (split-string
      (buffer-string) "\n" t)))
 
-(defvar my:file-ring nil)
+(defvar my-file-ring nil)
 
 ;;;###autoload
-(defun my:make-file-ring (files)
-  (setq my:file-ring (copy-sequence files)))
-;;    (setf (cdr (last my:file-ring)) my:file-ring))
-(my:make-file-ring
+(defun my-make-file-ring (files)
+  (setq my-file-ring (copy-sequence files)))
+;;    (setf (cdr (last my-file-ring)) my-file-ring))
+(my-make-file-ring
  '("~/Dropbox/org/tr/work.org" "~/Dropbox/org/db/daily.org"
    "~/Dropbox/org/minutes/wg1.org" "~/Dropbox/org/tr/work.org"
    "~/Dropbox/org/academic.org" "~/Dropbox/org/org2ja.org"
    "~/Dropbox/org/db/article.org" "~/Dropbox/emacs.d/config/init.org"))
 
 ;;;###autoload
-(defun my:open-file-ring ()
+(defun my-open-file-ring ()
   (interactive)
-  (find-file (car my:file-ring))
-  (setq my:file-ring
-        (append (cdr my:file-ring)
-                (list (car my:file-ring)))))
+  (find-file (car my-file-ring))
+  (setq my-file-ring
+        (append (cdr my-file-ring)
+                (list (car my-file-ring)))))
 
-;;    (setq my:file-ring (cdr my:file-ring)))
+;;    (setq my-file-ring (cdr my-file-ring)))
 
 ;;;###autoload
 (defun show-org-buffer (file)
@@ -159,7 +157,9 @@
       (let ((buffer (get-buffer file)))
         (switch-to-buffer buffer)
         (message "%s" file))
-    (find-file (concat "~/Dropbox/org/" file))))
+    (find-file (concat "~/Dropbox/org/" file)))
+  (when (fboundp 'my-org-agenda-to-appt)
+    (my-org-agenda-to-appt)))
 
 ;;;###autoload
 (defun insert-org-file-header-template ()
@@ -238,7 +238,7 @@
                (insert item-string))))))
 
 ;;;###autoload
-(defun my:cycle-bullet-at-heading (arg)
+(defun my-cycle-bullet-at-heading (arg)
   "Add a bullet of \" - \" if the line is NOT a bullet line."
   (interactive "P")
   (save-excursion
@@ -259,7 +259,7 @@
        (t nil)))))
 
 ;;;###autoload
-(defun my:org-list-insert-items (begin end)
+(defun my-org-list-insert-items (begin end)
   (interactive "r")
   (when mark-active
     (let* ((bullet " - ")
@@ -272,7 +272,7 @@
       (goto-char begin))))
 
 ;;;###autoload
-(defun my:org-list-delete-items (begin end)
+(defun my-org-list-delete-items (begin end)
   (interactive "r")
   (when mark-active
     (let* ((bullet "- ")
@@ -285,7 +285,7 @@
       (goto-char begin))))
 
 ;;;###autoload
-(defun my:org-list-insert-checkbox-into-items (begin end)
+(defun my-org-list-insert-checkbox-into-items (begin end)
   (interactive "r")
   (when mark-active
     (let* ((bullet "- ")
@@ -298,7 +298,7 @@
       (goto-char begin))))
 
 ;;;###autoload
-(defun my:org-list-delete-checkbox-from-items (begin end)
+(defun my-org-list-delete-checkbox-from-items (begin end)
   (interactive "r")
   (when mark-active
     (let ((bullet "- ")
@@ -311,7 +311,7 @@
       (goto-char begin))))
 
 ;;;###autoload
-(defun my:org-list-insert-itms-with-checkbox (begin end)
+(defun my-org-list-insert-itms-with-checkbox (begin end)
   (interactive "r")
   (when mark-active
     (let* ((bullet " - ")
@@ -326,7 +326,7 @@
       (goto-char begin))))
 
 ;;;###autoload
-(defun my:org-list-delete-items-with-checkbox (begin end)
+(defun my-org-list-delete-items-with-checkbox (begin end)
   (interactive "r")
   (when mark-active
     (let* ((bullet "- ")
@@ -355,7 +355,7 @@
 (global-set-key (kbd "C-0") 'insert-formatted-current-date)
 (global-set-key (kbd "C-9") 'insert-formatted-current-time)
 
-(defcustom my:auto-install-batch-list-el-url nil
+(defcustom my-auto-install-batch-list-el-url nil
   "URL of a auto-install-batch-list.el"
   :type 'string
   :group 'takaxp-utility)
@@ -421,7 +421,7 @@
   "Export org files as an iCal format file"
   (interactive)
   (when (and (string= major-mode 'org-mode) ox-icalendar-activate)
-    (my:ox-icalendar)))
+    (my-ox-icalendar)))
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
@@ -447,13 +447,13 @@
 ;;(setq browse-url-browser-function 'browse-url-chrome)
 
 ;;;###autoload
-(defun my:date ()
+(defun my-date ()
   (interactive)
   (message "%s" (concat
                  (format-time-string "%Y-%m-%d") " ("
                  (format-time-string "%a") ") "
                  (format-time-string "%H:%M"))))
-(global-set-key (kbd "C-c t") 'my:date)
+(global-set-key (kbd "C-c t") 'my-date)
 
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
 (defun recursive-delete-backup-files (days)
@@ -479,27 +479,27 @@
                       "*\' -print0 | while read -r -d \'\' file; "
                       " do echo -n \" \\\"$file\\\"\"; done | xargs -0"))
          (files (shell-command-to-string cmd)))
-  ;;;      (message "%s" cmd)
+    ;; (message "%s" cmd)
     (unless (string= files "")
-      (message "%s" files)
-      (shell-command-to-string (concat "rm -r " files)))))
+      (message "%s" (chomp files))
+      (shell-command-to-string (concat "mv -v " (chomp files) " ~/.Trash")))))
 
 ;;;###autoload
-(defun my:daylight-theme ()
+(defun my-daylight-theme ()
   (interactive)
   (when (require 'daylight-theme nil t)
     (mapc 'disable-theme custom-enabled-themes)
     (load-theme 'daylight t)
-    (when (require 'moom nil t)
+    (when (require 'moom-font nil t)
       (moom-font-size-reset))))
 
 ;;;###autoload
-(defun my:night-theme ()
+(defun my-night-theme ()
   (interactive)
   (when (require 'night-theme nil t) ;; atom-one-dark-theme
     (mapc 'disable-theme custom-enabled-themes)
     (load-theme 'night t)
-    (when (require 'moom nil t)
+    (when (require 'moom-font nil t)
       (moom-font-size-reset))))
 
 (defun chomp (str)
@@ -510,15 +510,15 @@
   str)
 
 ;;;###autoload
-(defun my:cmd-to-open-iterm2 ()
+(defun my-cmd-to-open-iterm2 ()
   (interactive)
   (shell-command-to-string "open -a iTerm2.app"))
 
-(defun my:lingr-login ()
+(defun my-lingr-login ()
   (when (string= "Sat" (format-time-string "%a"))
     (lingr-login)))
 
-(defun my:backup (files &optional dropbox)
+(defun my-backup (files &optional dropbox)
   "Backup a file to `Dropbox/backup' directory.
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
@@ -549,7 +549,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
     "empty the trash\n"
     "end if\n"
     "end tell\n"))
-  (my:desktop-notification "Emacs" "Empty the trash, done."))
+  (my-desktop-notification "Emacs" "Empty the trash, done."))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 ;;;###autoload
@@ -599,7 +599,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
     (read-only-mode 1)))
 
 ;;;###autoload
-(defun my:window-resizer ()
+(defun my-window-resizer ()
   "Control separated window size and position.
    Type {j,k,l,m} to adjust windows size."
   (interactive)

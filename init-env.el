@@ -2,17 +2,17 @@
 ;; helm-locate (C-M-l) / org-grep (C-M-g) / ag (C-M-f) / google-this (C-c f g)
 ;; fullscreen <f11> / double-width (C-c f d)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconst before-load-init-time (current-time)) ;; see my:load-init-time in init
-(defconst my:profiler nil)
+(defconst before-load-init-time (current-time)) ;; see my-load-init-time in init
+(defconst my-profiler nil)
 (defconst ad-require nil)
 (defconst loading-packages nil)
-;; (setq loading-packages '(("org" . nil)))
-(defconst my:boot-mode 'any) ;; {debug, test, any}
-(setq debug-on-error nil)
+;; (setq loading-packages '(("utility" . nil)))
+(defconst my-boot-mode 'any) ;; {debug, test, any}
+(setq debug-on-error t)
 (defvar batch-build nil) ;; see also init-eval.el
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(when my:profiler (profiler-start 'cpu+mem))
+(when my-profiler (profiler-start 'cpu+mem))
 ;; Suppress exporting of custom-set-variables (25.1 or later)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 ;; or you can use `exec-path-from-shell'.
@@ -41,10 +41,10 @@
 ;; (3) load-path for { nil | debug | test } booting
 (defconst init-load-path nil)
 (cond
- ((equal my:boot-mode 'debug)
+ ((equal my-boot-mode 'debug)
   (load-path-setter '("~/Dropbox/config") 'load-path)
   (require 'my-debug))
- ((equal my:boot-mode 'test)
+ ((equal my-boot-mode 'test)
   (load-path-setter '("~/Dropbox/config") 'load-path)
   (require 'my-debug)
   (add-to-list 'load-path "~/devel/git/org-mode/lisp")
@@ -66,24 +66,24 @@
   (require 'my-eshell nil t)
   (require 'my-mail nil t)
   (require 'private nil t)
-  (when my:profiler (profiler-report))))
+  (when my-profiler (profiler-report))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun my:list-packages ()
+(defun my-list-packages ()
   (interactive)
-  (my:setup-cask)
+  (my-setup-cask)
   (if (fboundp 'paradox-list-packages)
       (paradox-list-packages nil)
     (list-packages nil)))
 
-(defun my:setup-cask ()
+(defun my-setup-cask ()
   (interactive)
   (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
             (require 'cask "~/.cask/cask.el" t))
     (setq load-path (cask-load-path (cask-initialize)))))
 
-(defun my:reset-load-path ()
+(defun my-reset-load-path ()
   (interactive)
   (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
   (setq load-path init-load-path)
@@ -91,20 +91,20 @@
 
 (with-eval-after-load "paradox"
   (defun advice:paradox-quit-and-close (kill)
-    (my:reset-load-path))
+    (my-reset-load-path))
   (advice-add 'paradox-quit-and-close :after #'advice:paradox-quit-and-close))
 
-(defun my:kill-emacs-hook-show ()
+(defun my-kill-emacs-hook-show ()
   (add-hook 'after-init-hook
             '(lambda () (message "1: %s" kill-emacs-hook)) t)
   (with-eval-after-load "postpone"
     (message "2: %s" kill-emacs-hook))
-  (defun my:kill-emacs ()
+  (defun my-kill-emacs ()
     (switch-to-buffer "*Messages*")
     (message "3: %s" kill-emacs-hook)
     (y-or-n-p "Sure?"))
-  (add-hook 'kill-emacs-hook 'my:kill-emacs))
-;; (my:kill-emacs-hook-show)
+  (add-hook 'kill-emacs-hook 'my-kill-emacs))
+;; (my-kill-emacs-hook-show)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; diff を取る前に tabify スペースをタブに変換する．今は全てスペース置換中．

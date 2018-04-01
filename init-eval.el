@@ -2,6 +2,7 @@
 
 (setq batch-build t) ;; defined in init-env.el
 
+(require 'postpone nil t) ;; as an entry point
 (require 'calfw-org nil t) ;; mode-map
 (require 'cl-lib nil t)
 (require 'doxymacs nil t)
@@ -25,7 +26,6 @@
 (require 'ox-icalendar nil t) ;; mode-map
 (require 'perl-mode nil t) ;; mode-map
 (require 'pomodoro nil t)
-(require 'postpone nil t) ;; as an entry point
 (require 'python-mode nil t) ;; mode-map
 (require 'session nil t)
 (require 'tern nil t)
@@ -39,6 +39,7 @@
 (require 'gif-screencast nil t)
 (require 'manage-minor-mode nil t) ;; mode-map
 (require 'appt) ;; advice
+(require 'checkdoc) ;; advice
 
 (if (require 'shut-up nil t)
     (shut-up (require 'emms-setup nil t))
