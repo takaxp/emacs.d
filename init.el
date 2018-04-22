@@ -87,8 +87,11 @@
 
 (setq confirm-kill-emacs 'yes-or-no-p)
 
+(defvar shutup-p nil)
 (with-eval-after-load "postpone"
-  (defvar shutup-p (when (require 'shut-up nil t) t)))
+  (unless batch-build
+    (postpone-message "shut-up"))
+  (setq shutup-p (when (require 'shut-up nil t) t)))
 
 ;; メッセージバッファの長さ
 (setq message-log-max 5000)
@@ -181,16 +184,19 @@
 (setq truncate-partial-width-windows nil)
 
 (with-eval-after-load "postpone"
-  (global-auto-revert-mode 1))
+  (unless batch-build
+    (postpone-message "global-auto-revert-mode")
+    (global-auto-revert-mode 1)))
 
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 (setq mouse-drag-copy-region t)
 
-(when (autoload-if-found
-       '(cask-mode)
-       "cask-mode" nil t)
+(with-eval-after-load "postpone"
+  (when (version<= "26.1" emacs-version)
+    (pixel-scroll-mode 1)))
 
+(when (autoload-if-found '(cask-mode) "cask-mode" nil t)
   (push '("/Cask\\'" . cask-mode) auto-mode-alist))
 
 (when (autoload-if-found
@@ -237,7 +243,9 @@
                ws-butler-global-exempt-modes))))
 
   (with-eval-after-load "postpone"
-    (ws-butler-global-mode)))
+    (unless batch-build
+      (postpone-message "ws-butler-global-mode")
+      (ws-butler-global-mode))))
 
 (setq vc-follow-symlinks t)
 
@@ -293,9 +301,7 @@
 ;; Scroll window on a page-by-pabe basis with N line overlapping
 (setq next-screen-context-lines 1)
 
-(when (autoload-if-found
-       '(smooth-scroll-mode)
-       "smooth-scroll" nil t)
+(when (autoload-if-found '(smooth-scroll-mode) "smooth-scroll" nil t)
 
   (defun smooth-scroll-mode-kicker ()
     "Load `smooth-scroll.el' and remove-hook"
@@ -387,11 +393,15 @@
 
 (with-eval-after-load "postpone"
   (when (require 'smart-mark nil t)
-    (smart-mark-mode 1)))
+    (unless batch-build
+      (postpone-message "smart-mark-mode")
+      (smart-mark-mode 1))))
 
 (with-eval-after-load "postpone"
   (when (require 'syntax-subword nil t)
-    (global-syntax-subword-mode 1)))
+    (unless batch-build
+      (postpone-message "global-syntax-subword-mode")
+      (global-syntax-subword-mode 1))))
 
 (when (autoload-if-found
        '(goto-last-change goto-last-change-reverse)
@@ -862,7 +872,9 @@
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
-    (smartparens-global-mode)))
+    (unless batch-build
+      (postpone-message "smartparens")
+      (smartparens-global-mode))))
 
 (autoload-if-found
  '(query-replace-from-region query-replace-regexp-from-region)
@@ -913,6 +925,7 @@
         (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))
     (unless batch-build
+      (postpone-message "selected")
       (selected-global-mode 1))))
 
 (when (autoload-if-found
@@ -923,6 +936,8 @@
 
 (with-eval-after-load "postpone"
   (when (require 'delight nil t)
+    (unless batch-build
+      (postpone-message "delight"))
     (delight
      '(;; Major modes
        (c-mode "C" :major)
@@ -1022,14 +1037,18 @@
 
 ;; Show line number in the mode line.
 (with-eval-after-load "postpone"
-  (line-number-mode 1))
+  (unless batch-build
+    (postpone-message "line-number-mode")
+    (line-number-mode 1)))
 
 ;; Show clock in in the mode line
 (with-eval-after-load "postpone"
   (setq display-time-format "%H%M.%S") ;; %y%m%d.
   (setq display-time-interval 1)
   (setq display-time-default-load-average nil)
-  (display-time-mode 1))
+  (unless batch-build
+    (postpone-message "display-time-mode")
+    (display-time-mode 1)))
 
 (with-eval-after-load "postpone"
   (when (require 'mic-paren nil t)
@@ -1037,7 +1056,9 @@
     (set-face-foreground 'paren-face-match "#FFFFFF")
     ;; Deep blue: #6666CC, orange: #FFCC66
     (set-face-background 'paren-face-match "#66CC66")
-    (paren-activate)))
+    (unless batch-build
+      (postpone-message "mic-paren")
+      (paren-activate))))
 
 (with-eval-after-load "postpone"
   ;; スペース
@@ -1243,7 +1264,9 @@
        "which-key" nil t)
 
   (with-eval-after-load "postpone"
-    (which-key-mode 1))
+    (unless batch-build
+      (postpone-message "which-key")
+      (which-key-mode 1)))
 
   (with-eval-after-load "which-key"
     (custom-set-variables
@@ -1389,7 +1412,24 @@
   (when (require 'dired-narrow nil t)
     (define-key dired-mode-map (kbd "/") 'dired-narrow))
 
-  (require 'dired-du nil t))
+  (require 'dired-du nil t)
+
+  ;; https://github.com/xuchunyang/emacs.d
+  ;; type "!" or "X" in dired
+  (when (eq system-type 'darwin)
+    (setq dired-guess-shell-alist-user
+          (list
+           (list (rx (and "."
+                          (or
+                           ;; Videos
+                           "mp4" "avi" "mkv" "rmvb"
+                           ;; Torrent
+                           "torrent"
+                           ;; PDF
+                           "pdf"
+                           ;; Image
+                           "gif" "png" "jpg" "jpeg")
+                          string-end)) "open")))))
 
 (setq undo-outer-limit nil)
 
@@ -1445,6 +1485,7 @@
 
   (with-eval-after-load "postpone"
     (unless batch-build
+      (postpone-message "recentf-mode")
       (recentf-mode 1)))
 
   (with-eval-after-load "recentf"
@@ -1471,12 +1512,13 @@
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
        '(".recentf" "^/tmp\\.*"
-         "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
-    ))
+         "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))))
 ;; (add-hook 'after-init-hook #'recentf-mode))
 
 (with-eval-after-load "postpone"
   (when (require 'auto-save-buffers nil t)
+    (unless batch-build
+      (postpone-message "auto-save-buffers"))
     (defun my-auto-save-buffers ()
       (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
             ((equal major-mode 'diff-mode) nil)
@@ -1502,7 +1544,10 @@
 
   ;; なぜか (backup-each-save) の直接呼び出しだとだめ
   (with-eval-after-load "postpone"
-    (require 'backup-each-save nil t)
+    (when (require 'backup-each-save nil t)
+      (unless batch-build
+        (postpone-message "backup-each-save")))
+
     ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
     (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t))))
 
@@ -1610,7 +1655,7 @@
   (global-set-key (kbd "C-h v") 'helpful-variable))
 
 (when (autoload-if-found
-       '(keyfreq-mode keyfreq-autosave-mode keyfreq-show)
+       '(keyfreq-mode keyfreq-autosave-mode advice:keyfreq-show)
        "keyfreq" nil t)
 
   (with-eval-after-load "keyfreq"
@@ -1630,7 +1675,9 @@
     (keyfreq-autosave-mode 1))
 
   (with-eval-after-load "postpone"
-    (keyfreq-mode 1)))
+    (unless batch-build
+      (postpone-message "keyfreq-mode")
+      (keyfreq-mode 1))))
 
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)
@@ -1835,11 +1882,13 @@
 (with-eval-after-load "postpone"
   (if (executable-find "editorconfig")
       (when (require 'editorconfig nil t)
-        ;; (add-to-list 'editorconfig-exclude-modes 'org-mode)
-        ;; (when (require 'editorconfig-charset-extras nil t)
-        ;;   (add-hook 'editorconfig-custom-hooks
-        ;;             'editorconfig-charset-extras))
-        (editorconfig-mode 1))
+        (unless batch-build
+          (postpone-message "editorconfig")
+          ;; (add-to-list 'editorconfig-exclude-modes 'org-mode)
+          ;; (when (require 'editorconfig-charset-extras nil t)
+          ;;   (add-hook 'editorconfig-custom-hooks
+          ;;             'editorconfig-charset-extras))
+          (editorconfig-mode 1)))
     (message "editorconfig is NOT installed.")))
 
 (when (autoload-if-found
@@ -1861,7 +1910,21 @@
 
   (with-eval-after-load "postpone"
     (unless batch-build
+      (postpone-message "projectile-global-mode")
       (projectile-global-mode 1)))
+
+  (with-eval-after-load "neotree"
+    ;; M-x helm-projectile-switch-project (C-c p p)
+    (setq projectile-switch-project-action 'neotree-projectile-action)
+
+    (defun advice:neotree-dir (path)
+      "Extension to change the frame width automatically."
+      (interactive "DDirectory: ")
+      (unless (neo-global--window-exists-p)
+        (neotree-show))
+      (neo-global--open-dir path)
+      (neo-global--select-window))
+    (advice-add 'neotree-dir :override #'advice:neotree-dir))
 
   (with-eval-after-load "projectile"
     (defun advice:projectile-visit-project-tags-table ()
@@ -1885,20 +1948,7 @@
                    (let ((project-name (projectile-project-name)))
                      (unless (string= "-" project-name)
                        (format "(%s) - " project-name))))
-                  "%b")))
-
-    (when (require 'neotree nil t)
-      ;; M-x helm-projectile-switch-project (C-c p p)
-      (setq projectile-switch-project-action 'neotree-projectile-action)
-
-      (defun advice:neotree-dir (path)
-        "Extension to change the frame width automatically."
-        (interactive "DDirectory: ")
-        (unless (neo-global--window-exists-p)
-          (neotree-show))
-        (neo-global--open-dir path)
-        (neo-global--select-window))
-      (advice-add 'neotree-dir :override #'advice:neotree-dir))))
+                  "%b")))))
 
 (when (autoload-if-found
        '(magit-status)
@@ -2086,7 +2136,7 @@
 (with-eval-after-load "org"
   (setq org-use-speed-commands t)
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
-  (add-to-list 'org-speed-commands-user '("D" my-org-complete-no-repeat "DONE"))
+  (add-to-list 'org-speed-commands-user '("D" my-org-todo-complete-no-repeat "DONE"))
   (add-to-list 'org-speed-commands-user '("P" my-proportional-font-toggle))
   (add-to-list 'org-speed-commands-user '("!" my-org-set-created-property))
   (add-to-list 'org-speed-commands-user
@@ -2792,7 +2842,7 @@ will not be modified."
 ;;         ("G" open-calfw-agenda-org "Graphical display in calfw"))))))
 
 (with-eval-after-load "ox"
-  (setq org-export-default-language "ja")
+  ;; (setq org-export-default-language "ja")
   (require 'ox-pandoc nil t)
   (require 'ox-qmd nil t) ;; Quita-style
   (require 'ox-gfm nil t)) ;; Github-style
@@ -3088,7 +3138,7 @@ will not be modified."
            (left . 0)
            (alpha . (100 90))
            ;; (vertical-scroll-bars . nil)
-           ;; (internal-border-width . 0)
+           ;; (internal-border-width . 20)
            ;; (ns-appearance . nil) ;; 26.0
            ;; (ns-transparent-titlebar . t) ;; 26.0
            ) initial-frame-alist)))
@@ -3215,20 +3265,21 @@ will not be modified."
     ;;   (apply FILENAME WILDCARDS))
     ;; (advice-add #'find-file :around #'advice:find-file)
 
-    ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-    ;; バッファ切替時に input method を切り替える
-    (with-eval-after-load "postpone"
-      (when (and (fboundp 'mac-handle-input-method-change)
-                 (require 'cl-lib nil t))
-        (add-hook
-         'post-command-hook
-         (lexical-let ((previous-buffer nil))
-           ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
-           #'(lambda ()
-               (unless (eq (current-buffer) previous-buffer)
-                 (if (bufferp previous-buffer)
-                     (mac-handle-input-method-change))
-                 (setq previous-buffer (current-buffer))))))))))
+    ;; ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
+    ;; ;; バッファ切替時に input method を切り替える
+    ;; (with-eval-after-load "postpone"
+    ;;   (when (and (fboundp 'mac-handle-input-method-change)
+    ;;              (require 'cl-lib nil t))
+    ;;     (add-hook
+    ;;      'post-command-hook
+    ;;      (lexical-let ((previous-buffer nil))
+    ;;        ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
+    ;;        #'(lambda ()
+    ;;            (unless (eq (current-buffer) previous-buffer)
+    ;;              (if (bufferp previous-buffer)
+    ;;                  (mac-handle-input-method-change))
+    ;;              (setq previous-buffer (current-buffer))))))))
+    ))
 
  ((eq window-system 'mac) ;; EMP: Emacs Mac Port
   (when (fboundp 'mac-input-source)
@@ -3267,78 +3318,60 @@ will not be modified."
   (advice-add 'make-frame :after #'advice:make-frame)
   (global-set-key (kbd "M-`") 'other-frame))
 
+(defconst moom-autoloads
+  '(moom-cycle-frame-height
+    moom-move-frame-to-edge-top moom-move-frame my-frame-reset
+    moom-fit-frame-to-fullscreen moom-toggle-frame-maximized
+    moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
+    moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
+    moom-change-frame-width moom-change-frame-width-double
+    moom-change-frame-width-single))
+
+(when (autoload-if-found moom-autoloads "moom" nil t)
+  (with-eval-after-load "postpone"
+    (unless batch-build
+      (postpone-message "moom"))
+    (when (and (require 'moom nil t)
+               window-system)
+      (define-key moom-mode-map (kbd "M-0") 'moom-move-frame)
+      (define-key moom-mode-map (kbd "M-1") 'moom-move-frame-left)
+      (define-key moom-mode-map (kbd "M-2") 'moom-move-frame-to-center)
+      (define-key moom-mode-map (kbd "M-3") 'moom-move-frame-right)
+      (define-key moom-mode-map (kbd "<f1>") 'moom-move-frame-to-edge-top)
+      (define-key moom-mode-map (kbd "<f2>") 'moom-cycle-frame-height)
+      (define-key moom-mode-map (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom)
+      (define-key moom-mode-map (kbd "M-<f1>") 'moom-move-frame-to-edge-left)
+      (define-key moom-mode-map (kbd "M-<f2>") 'moom-toggle-frame-maximized)
+      (define-key moom-mode-map (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
+      (define-key moom-mode-map (kbd "C-c C-0") 'moom-reset)
+      (define-key moom-mode-map (kbd "C-c f s") 'moom-change-frame-width-single)
+      (define-key moom-mode-map (kbd "C-c f d") 'moom-change-frame-width-double)
+      (define-key moom-mode-map (kbd "C-c f a")
+        'moom-change-frame-width-half-again)
+      (define-key moom-mode-map (kbd "C-c f f t") 'moom-fill-top)
+      (define-key moom-mode-map (kbd "C-c f f b") 'moom-fill-bottom)
+      (define-key moom-mode-map (kbd "C-c f f l") 'moom-fill-left)
+      (define-key moom-mode-map (kbd "C-c f f r") 'moom-fill-right)
+      (define-key moom-mode-map (kbd "C-c f f 1") 'moom-fill-top-left)
+      (define-key moom-mode-map (kbd "C-c f f 2") 'moom-fill-top-right)
+      (define-key moom-mode-map (kbd "C-c f f 3") 'moom-fill-bottom-left)
+      (define-key moom-mode-map (kbd "C-c f f 4") 'moom-fill-bottom-right)
+      (define-key moom-mode-map (kbd "C-c f f m") 'moom-fill-band)
+      (setq moom-lighter "M")
+      (moom-mode 1))))
+
 (when (autoload-if-found
-       '(my-increase-font-size my-decrease-font-size my-mid-font-size)
+       '(moom-font-increase
+         moom-font-decrease moom-font-size-reset moom-font-resize)
        "moom-font" nil t)
 
-  (global-set-key (kbd "C--") 'my-decrease-font-size)
-  (global-set-key (kbd "C-=") 'my-increase-font-size)
-  (global-set-key (kbd "C-c f f 0") 'my-frame-reset)
-  (global-set-key (kbd "C-c f f m") 'my-mid-font-size)
-
-  (with-eval-after-load "moom-font"
-    (defun my-increase-font-size ()
-      (interactive)
-      (moom-font-increase 1)
-      (moom-move-frame-to-edge-top))
-    (defun my-decrease-font-size ()
-      (interactive)
-      (moom-font-decrease 1)
-      (moom-move-frame-to-edge-top))
-    (defun my-mid-font-size ()
-      (interactive)
-      (moom-font-resize
-       (floor (/ (+ moom-font-init-size (moom-fullscreen-font-size)) 2)))
-      (moom-move-frame-to-center))
-    (defun my-frame-reset ()
-      (interactive)
-      (moom-font-size-reset)
-      (moom-change-frame-width-single))))
-
-(defconst moom-autoloads
-  '(moom-open-height-ring
-    moom-fit-frame-to-fullscreen my-toggle-frame-maximized
-    moom-move-frame-to-center moom-move-frame-with-user-specify))
-
-(when (autoload-if-found
-       moom-autoloads
-       "moom" nil t)
-
-  (global-set-key (kbd "M-0") 'moom-move-frame-with-user-specify)
-  (global-set-key (kbd "M-1") 'moom-move-frame-left)
-  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-  (global-set-key (kbd "M-3") 'moom-move-frame-right)
-  (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
-  (global-set-key (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom)
-  (global-set-key (kbd "M-<f1>") 'moom-move-frame-to-edge-left)
-  (global-set-key (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
-  (global-set-key (kbd "<f2>") 'moom-open-height-ring)
-  (global-set-key (kbd "M-<f2>") 'my-toggle-frame-maximized)
-  (global-set-key (kbd "C-_") 'text-scale-decrease)
-  (global-set-key (kbd "C-+") 'text-scale-increase)
-  (global-set-key (kbd "C-c f s") 'moom-change-frame-width-single)
-  (global-set-key (kbd "C-c f d") 'moom-change-frame-width-double)
-  (global-set-key (kbd "C-c f a") 'moom-change-frame-width-half-again)
-  (global-set-key (kbd "C-c f f t") 'my-moom-fill-top)
-  (global-set-key (kbd "C-c f f b") 'my-moom-fill-bottom)
-  (global-set-key (kbd "C-c f f l") 'my-moom-fill-left)
-  (global-set-key (kbd "C-c f f r") 'my-moom-fill-right)
-
   (with-eval-after-load "moom"
-    (setq moom-verbose nil)
-    (defvar my-fullscreen-flag nil)
-    (add-hook 'moom-before-fullscreen-hook #'moom--save-last-status)
-    (add-hook 'moom-after-fullscreen-hook #'moom-move-frame-to-center)
-    (defun my-toggle-frame-maximized ()
-      (interactive)
-      (setq my-fullscreen-flag (not my-fullscreen-flag))
-      (if my-fullscreen-flag
-          (moom-fit-frame-to-fullscreen)
-        (moom-restore-last-status)))
-    (defun my-moom-fill-top () (interactive) (moom-fill-display 'top))
-    (defun my-moom-fill-bottom () (interactive) (moom-fill-display 'bottom))
-    (defun my-moom-fill-left () (interactive) (moom-fill-display 'left))
-    (defun my-moom-fill-right () (interactive) (moom-fill-display 'right))))
+    (define-key moom-mode-map (kbd "C-_") 'text-scale-decrease)
+    (define-key moom-mode-map (kbd "C-+") 'text-scale-increase)
+    (define-key moom-mode-map (kbd "C--") 'moom-font-decrease)
+    (define-key moom-mode-map (kbd "C-=") 'moom-font-increase)
+    (define-key moom-mode-map (kbd "C-0") 'moom-font-size-reset))
+  (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top))
 
 (with-eval-after-load "postpone"
   (when (require 'shackle nil t)
@@ -3350,6 +3383,7 @@ will not be modified."
             ;; ("^\*Helm.+" :regexp t :align above :size 0.2)
             ))
     (unless batch-build
+      (postpone-message "shackle")
       (shackle-mode 1))))
 
 (with-eval-after-load "checkdoc"
@@ -3373,17 +3407,23 @@ will not be modified."
   (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC"))
 
 (with-eval-after-load "postpone"
-  (require 'generic-x nil t))
+  (unless batch-build
+    (postpone-message "generic-x")
+    (require 'generic-x nil t)))
 
 (with-eval-after-load "postpone"
   (when (display-graphic-p)
-    (global-hl-line-mode 1)))
+    (unless batch-build
+      (postpone-message "global-hl-line-mode")
+      (global-hl-line-mode 1))))
 
 (with-eval-after-load "postpone"
   (setq blink-cursor-blinks 0)
   (setq blink-cursor-interval 0.3)
   (setq blink-cursor-delay 16)
-  (blink-cursor-mode -1))
+  (unless batch-build
+    (postpone-message "blink-cursor-mode")
+    (blink-cursor-mode -1)))
 
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
 ;; 2) Inconsolata, Migu 2M     : font-size=14,
@@ -3742,6 +3782,22 @@ will not be modified."
   ;;     "◤ ^-^; ◢◤◢◤◢"
   ;;     "◢◤ ^-^; ◢◤◢◤"));
 
+  ;; たなこふ氏: https://twitter.com/mattn_jp/status/987203614199263233
+  ;; (setq pomodoro:mode-line-work-sign-list
+  ;;   '("(´･_･`)´･_･`)"
+  ;;     " (´･_･`)_･`)  "
+  ;;     "  (´･_･`)`)   "
+  ;;     "  ((´･_･`)    "
+  ;;     " (´･(´･_･`)  "
+  ;;     " (´･_(´･_･`) "
+  ;;     "(´･_･`)´･_･`)"
+  ;;     " (´･_･`)_･`)  "
+  ;;     "  (´･_･`)`)   "
+  ;;     "  (´･_･`))    "
+  ;;     "   ((´･_･`)   "
+  ;;     "  (´･(´･_･`) "
+  ;;     " (´･_(´･_･`) "));
+
   ;; タイマーを記録
   (defvar pomodoro:update-sign-timer nil)
 
@@ -3922,6 +3978,7 @@ will not be modified."
 
   (with-eval-after-load "postpone"
     (unless batch-build
+      (postpone-message "network-watch-mode")
       (if shutup-p
           (shut-up (network-watch-mode 1))
         (network-watch-mode 1)))))
@@ -3946,6 +4003,8 @@ will not be modified."
       :group 'gif-screencast
       :type '(repeat hook))
 
+    (add-to-list 'gif-screencast-additional-normal-hooks
+                 'window-size-change-functions) ;; for which-key.el, as of 26.1
     (add-to-list 'gif-screencast-additional-normal-hooks
                  'window-configuration-change-hook) ;; for which-key.el
     (add-to-list 'gif-screencast-additional-normal-hooks 'focus-in-hook)

@@ -1,21 +1,20 @@
 (source gnu)
 (source melpa)
 (source org)
-(source "mymelpa" "~/devel/git/melpa/packages")
-;; (source "mymelpa" "https://pxaka.tokyo/packages/melpa/")
+(source "takaxp" "~/devel/git/melpa/packages/")
+;; (source "takaxp" "https://pxaka.tokyo/melpa/packages/")
 
 ;; Private recipes, not in MELPA (private MELPA: https://pxaka.tokyo/melpa)
 (depends-on "postpone")
 (depends-on "moom")
 (depends-on "emacs-utils")
-;; (depends-on "emacs-calfw")
 (depends-on "ascii")
 (depends-on "help-fns+")
 (depends-on "git-complete")
-(depends-on "frame-fns")
-(depends-on "frame-cmds")
+;; (depends-on "frame-cmds")
+;; (depends-on "frame-fns")
 
-;; Package install
+;; ;; Package install
 (depends-on "cask")
 (depends-on "cask-mode")
 (depends-on "paradox")
@@ -96,7 +95,7 @@
 ;; (depends-on "ac-rtags")
 ;; (depends-on "flycheck-rtags")
 
-;; Helm
+;; ;; Helm
 (depends-on "helm")
 (depends-on "helm-ag")
 (depends-on "helm-bm")
@@ -133,7 +132,7 @@
 ;; (depends-on "parinfer")
 (depends-on "tiny")
 
-;; Visualize
+;; ;; Visualize
 (depends-on "volatile-highlights")
 (depends-on "highlight-symbol")
 (depends-on "fancy-narrow")
@@ -151,35 +150,37 @@
 (depends-on "smooth-scroll")
 (depends-on "manage-minor-mode")
 
-;; System related
+;; ;; ;; System related
 (depends-on "dired-narrow")
 (depends-on "dired-du")
 (depends-on "gited")
 (depends-on "neotree")
 (depends-on "network-watch")
-(depends-on "system-packages")
 
-;; Frame and windows
+;; ;; (depends-on "system-packages")
+
+;; ;; ;; Frame and windows
 (depends-on "popwin")
 (depends-on "shackle")
 (depends-on "tabbar")
 (depends-on "spaceline-all-the-icons")
-(depends-on "exwm")
+;; (depends-on "exwm") ;; failed to instal ... Bad Request
 
-;; Robustness
+;; ;; ;; Robustness
 (depends-on "session")
 (depends-on "backup-each-save")
 
-;; Efficiency
+;; ;; ;; Efficiency
 (depends-on "selected")
 (depends-on "replace-from-region")
 (depends-on "quickrun")
 (depends-on "latex-math-preview")
+(depends-on "bratex")
 (depends-on "smart-mark")
 (depends-on "syntax-subword")
 (depends-on "goto-chg")
 
-;; Applications
+;; ;; Applications
 (depends-on "lingr")
 (depends-on "bm")
 (depends-on "ag")
@@ -191,7 +192,7 @@
 (depends-on "w3m")
 (depends-on "sunshine")
 ;; (depends-on "pocket-reader")
-(depends-on "emms-player-mpv")
+(depends-on "emms") ;; includes emms-player-mpv
 (depends-on "gif-screencast")
 (depends-on "pass")
 (depends-on "keycast")

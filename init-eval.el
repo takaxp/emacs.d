@@ -31,13 +31,16 @@
 (require 'tern nil t)
 (require 'tern-auto-complete nil t)
 (require 'undo-tree nil t)
+(require 'neotree nil t)
 (require 'web-mode nil t)
 (require 'yasnippet nil t)
+(require 'time nil t)
 (require 'time-stamp nil t)
 (require 'update-stamp nil t)
 (require 'emmet-mode nil t)
 (require 'gif-screencast nil t)
 (require 'manage-minor-mode nil t) ;; mode-map
+(require 'keyfreq nil t)
 (require 'appt) ;; advice
 (require 'checkdoc) ;; advice
 

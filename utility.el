@@ -352,8 +352,8 @@
   (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
                   "  <" user-mail-address ">")))
 
-(global-set-key (kbd "C-0") 'insert-formatted-current-date)
-(global-set-key (kbd "C-9") 'insert-formatted-current-time)
+(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
+(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
 
 (defcustom my-auto-install-batch-list-el-url nil
   "URL of a auto-install-batch-list.el"
