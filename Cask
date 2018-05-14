@@ -40,6 +40,7 @@
 (depends-on "org-recent-headings")
 (depends-on "orgbox")
 (depends-on "orgnav")
+(depends-on "poporg")
 (depends-on "toc-org")
 (depends-on "org-web-tools")
 (depends-on "org-bullets")

@@ -34,7 +34,7 @@
                      (equal file name)
                      (not flag))
             (setq enabled nil)
-            (message "--- `%s' was NOT loaded explicitly" name)))))
+            (message "--- `%s' was NOT loaded intentionally" name)))))
     enabled))
 
 (defun autoload-if-found (functions file &optional docstring interactive type)
@@ -102,7 +102,8 @@
   (let ((message-log-max nil))
     `(with-temp-message (or (current-message) "") ,@body)))
 
-(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent))
 
 (setq echo-keystrokes 0.5)
 
@@ -139,8 +140,10 @@
             '(my-ag ag)
             "ag" nil t))
 
-  (global-set-key (kbd "C-M-f") 'my-ag)
   (autoload-if-found '(helm-ag) "helm-ag" nil t)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M-f") 'my-ag))
 
   (with-eval-after-load "ag"
     (custom-set-variables
@@ -156,18 +159,19 @@
       (call-interactively 'ag)
       (switch-to-buffer-other-frame "*ag search*"))))
 
-(when (memq window-system '(mac ns))
-  (global-set-key (kbd "M-v") 'yank)
-  (when (boundp 'ns-command-modifier)
-    (setq ns-command-modifier 'meta))
-  (when (boundp 'ns-alternate-modifier)
-    (setq ns-alternate-modifier 'super))
-  (when (boundp 'ns-pop-up-frames)
-    (setq ns-pop-up-frames nil))
-  (global-set-key [ns-drag-file] 'ns-find-file)) ; D&D for Emacs23
+(with-eval-after-load "postpone"
+  (when (memq window-system '(mac ns))
+    (global-set-key (kbd "M-v") 'yank)
+    (when (boundp 'ns-command-modifier)
+      (setq ns-command-modifier 'meta))
+    (when (boundp 'ns-alternate-modifier)
+      (setq ns-alternate-modifier 'super))
+    (when (boundp 'ns-pop-up-frames)
+      (setq ns-pop-up-frames nil))
+    (global-set-key [ns-drag-file] 'ns-find-file)) ; D&D for Emacs23
 
-(global-set-key [delete] 'delete-char)
-(global-set-key [kp-delete] 'delete-char)
+  (global-set-key [delete] 'delete-char)
+  (global-set-key [kp-delete] 'delete-char))
 
 (autoload-if-found
  '(fancy-narrow-to-region
@@ -249,49 +253,52 @@
 
 (setq vc-follow-symlinks t)
 
-(when (eq window-system 'ns)
-  (defun ns-org-heading-auto-ascii ()
-    (when (and window-focus-p
-               (eq major-mode 'org-mode)
-               (or (looking-at org-heading-regexp)
-                   (equal (buffer-name) org-agenda-buffer-name)))
-      (my-ime-off)))
+(with-eval-after-load "postpone"
+  (when (eq window-system 'ns)
+    (defun ns-org-heading-auto-ascii ()
+      (when (and window-focus-p
+                 (eq major-mode 'org-mode)
+                 (or (looking-at org-heading-regexp)
+                     (equal (buffer-name) org-agenda-buffer-name)))
+        (my-ime-off)))
 
-  (defun ns-ime-toggle ()
-    (interactive)
-    (when (fboundp 'mac-get-current-input-source)
-      (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
+    (defun ns-ime-toggle ()
+      (interactive)
+      (when (fboundp 'mac-get-current-input-source)
+        (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
 
-  ;; (when (fboundp 'mac-get-current-input-source)
-  ;;   (declare-function ns-ime-auto-correct "init" nil)
-  ;;   (defun ns-ime-auto-correct ()
-  ;;     (interactive)
-  ;;     (if (my-ime-active-p)
-  ;;         (unless (mac-toggle-input-method nil)
-  ;;           (my-ime-on))
-  ;;       (when (mac-toggle-input-method t)
-  ;;         (my-ime-off))))
-  ;;   (add-hook 'focus-in-hook #'ns-ime-auto-correct))
+    ;; (when (fboundp 'mac-get-current-input-source)
+    ;;   (declare-function ns-ime-auto-correct "init" nil)
+    ;;   (defun ns-ime-auto-correct ()
+    ;;     (interactive)
+    ;;     (if (my-ime-active-p)
+    ;;         (unless (mac-toggle-input-method nil)
+    ;;           (my-ime-on))
+    ;;       (when (mac-toggle-input-method t)
+    ;;         (my-ime-off))))
+    ;;   (add-hook 'focus-in-hook #'ns-ime-auto-correct))
 
-  (global-set-key (kbd "M-SPC") 'ns-ime-toggle) ;; toggle-input-method
-  (global-set-key (kbd "S-SPC") 'ns-ime-toggle) ;; toggle-input-method
-  (define-key isearch-mode-map (kbd "M-SPC") 'ns-ime-toggle)
-  (define-key isearch-mode-map (kbd "S-SPC") 'ns-ime-toggle)
+    (global-set-key (kbd "M-SPC") 'ns-ime-toggle) ;; toggle-input-method
+    (global-set-key (kbd "S-SPC") 'ns-ime-toggle) ;; toggle-input-method
+    (define-key isearch-mode-map (kbd "M-SPC") 'ns-ime-toggle)
+    (define-key isearch-mode-map (kbd "S-SPC") 'ns-ime-toggle)
 
-  (when (fboundp 'mac-toggle-input-method)
-    (run-with-idle-timer 1 t 'ns-org-heading-auto-ascii)))
+    (when (fboundp 'mac-toggle-input-method)
+      (run-with-idle-timer 1 t 'ns-org-heading-auto-ascii))))
 
-(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-(global-set-key (kbd "C-M-b") 'end-of-buffer)
-;; Backward page scrolling instead of M-v
-(global-set-key (kbd "M-p") 'scroll-down)
-;; Frontward page scrolling instead of C-v
-(global-set-key (kbd "M-n") 'scroll-up)
-;; Move cursor to a specific line
-(global-set-key (kbd "C-c g") 'goto-line)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
+  (global-set-key (kbd "C-M-b") 'end-of-buffer)
+  ;; Backward page scrolling instead of M-v
+  (global-set-key (kbd "M-p") 'scroll-down)
+  ;; Frontward page scrolling instead of C-v
+  (global-set-key (kbd "M-n") 'scroll-up)
+  ;; Move cursor to a specific line
+  (global-set-key (kbd "C-c g") 'goto-line))
 
-(global-set-key (kbd "C-M-p") #'(lambda () (interactive) (other-window -1)))
-(global-set-key (kbd "C-M-n") #'(lambda () (interactive) (other-window 1)))
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-M-p") #'(lambda () (interactive) (other-window -1)))
+  (global-set-key (kbd "C-M-n") #'(lambda () (interactive) (other-window 1))))
 
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
@@ -319,8 +326,9 @@
        '(cycle-buffer cycle-buffer-backward)
        "cycle-buffer" nil t)
 
-  (global-set-key (kbd "M-]") 'cycle-buffer)
-  (global-set-key (kbd "M-[") 'cycle-buffer-backward)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "M-]") 'cycle-buffer)
+    (global-set-key (kbd "M-[") 'cycle-buffer-backward))
 
   (with-eval-after-load "cycle-buffer"
     (custom-set-variables
@@ -334,10 +342,11 @@
          bm-repository-save bm-repository-load bm-load-and-restore)
        "bm" nil t)
 
-  ;; ファイルオープン時にブックマークを復帰
-  (add-hook 'find-file-hook #'bm-buffer-restore)
-  (global-set-key (kbd "<f10>") 'my-bm-toggle)
-  (global-set-key (kbd "<C-f10>") 'my-bm-next)
+  (with-eval-after-load "postpone"
+    ;; ファイルオープン時にブックマークを復帰
+    (add-hook 'find-file-hook #'bm-buffer-restore)
+    (global-set-key (kbd "<f10>") 'my-bm-toggle)
+    (global-set-key (kbd "<C-f10>") 'my-bm-next))
 
   (with-eval-after-load "bm"
     (setq-default bm-buffer-persistence t)
@@ -407,8 +416,9 @@
        '(goto-last-change goto-last-change-reverse)
        "goto-chg" nil t)
 
-  (global-set-key (kbd "C-,") 'goto-last-change)
-  (global-set-key (kbd "C-.") 'goto-last-change-reverse)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-,") 'goto-last-change)
+    (global-set-key (kbd "C-.") 'goto-last-change-reverse))
 
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
@@ -571,10 +581,11 @@
        '(ispell-region ispell-complete-word)
        "ispell" nil t)
 
-  ;; Spell checking within a specified region
-  (global-set-key (kbd "C-c f 7") 'ispell-region)
-  ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
-  (global-set-key (kbd "<f7>") 'ispell-word)
+  (with-eval-after-load "postpone"
+    ;; Spell checking within a specified region
+    (global-set-key (kbd "C-c f 7") 'ispell-region)
+    ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
+    (global-set-key (kbd "<f7>") 'ispell-word))
   ;; (if (autoload-if-found '(helm-ispell) "helm-ispell" nil t)
   ;;     #'helm-ispell #'ispell-word)))
 
@@ -692,7 +703,8 @@
          latex-math-preview-beamer-frame)
        "latex-math-preview" nil t nil)
 
-  (global-set-key (kbd "<f6>") 'latex-math-preview-expression)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "<f6>") 'latex-math-preview-expression))
 
   (with-eval-after-load "latex-math-preview"
     (setq latex-math-preview-command-path-alist
@@ -710,7 +722,8 @@
 
   (push '("\\.po[tx]?\\'\\|\\.po\\$" . po-mode) auto-mode-alist))
 
-(global-set-key (kbd "M-=") 'count-words)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "M-=") 'count-words))
 
 (when (autoload-if-found
        '(yatex-mode)
@@ -781,8 +794,9 @@
        '(osx-dictionary-search-pointer osx-dictionary-search-input)
        "osx-dictionary" nil t)
 
-  (global-set-key (kbd "C-c f w") #'osx-dictionary-search-input)
-  (global-set-key (kbd "C-M-w") #'osx-dictionary-search-pointer)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f w") #'osx-dictionary-search-input)
+    (global-set-key (kbd "C-M-w") #'osx-dictionary-search-pointer))
 
   (with-eval-after-load "osx-dictionary"
     (custom-set-variables
@@ -932,7 +946,8 @@
        '(git-complete)
        "git-complete" nil t)
 
-  (global-set-key (kbd "C-c f <tab>") 'git-complete))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f <tab>") 'git-complete)))
 
 (with-eval-after-load "postpone"
   (when (require 'delight nil t)
@@ -1025,8 +1040,9 @@
          " GNU Emacs                                                  "
          (format-time-string "W%W: %Y-%m-%d %a."))))
 
-(global-set-key (kbd "C-M-s") #'(lambda () (interactive)
-                                  (switch-to-buffer "*scratch*")))
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-M-s") #'(lambda () (interactive)
+                                    (switch-to-buffer "*scratch*"))))
 
 ;; Disable to show the tool bar.
 (when (display-graphic-p)
@@ -1124,7 +1140,8 @@
        '(helm-buffers-list)
        "helm" nil t)
 
-  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-x C-b") 'helm-buffers-list))
 
   (with-eval-after-load "helm"
     (require 'helm-config nil t)))
@@ -1135,13 +1152,14 @@
          helm-occur helm-swoop helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-M-r") 'helm-recentf)
-  (global-set-key (kbd "C-M-l") 'helm-locate)
-  (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-  (global-set-key (kbd "M-s M-s") 'helm-swoop)
-  (global-set-key (kbd "C-c o") 'helm-occur)
-  (global-set-key (kbd "C-h d") 'helm-descbinds)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "M-x") 'helm-M-x)
+    (global-set-key (kbd "C-M-r") 'helm-recentf)
+    (global-set-key (kbd "C-M-l") 'helm-locate)
+    (global-set-key (kbd "C-c f b") 'helm-bookmarks)
+    (global-set-key (kbd "M-s M-s") 'helm-swoop)
+    (global-set-key (kbd "C-c o") 'helm-occur)
+    (global-set-key (kbd "C-h d") 'helm-descbinds))
 
   (with-eval-after-load "helm-config"
     (helm-mode 1)
@@ -1232,7 +1250,8 @@
     (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
     (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend)))
 
-(global-set-key (kbd "C-c f c c") 'calendar)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-c f c c") 'calendar))
 
 (with-eval-after-load "calendar"
   (setq calendar-week-start-day 1)
@@ -1308,12 +1327,13 @@
          emms-next emms-previous emms-stop emms-pause)
        "emms" nil t)
 
-  (global-set-key (kbd "C-c e b") 'my-play-bgm)
-  (let ((base "C-c e "))
-    (global-set-key (kbd (concat base "n")) 'emms-next)
-    (global-set-key (kbd (concat base "p")) 'emms-previous)
-    (global-set-key (kbd (concat base "s")) 'emms-stop)
-    (global-set-key (kbd (concat base "SPC")) 'emms-pause))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c e b") 'my-play-bgm)
+    (let ((base "C-c e "))
+      (global-set-key (kbd (concat base "n")) 'emms-next)
+      (global-set-key (kbd (concat base "p")) 'emms-previous)
+      (global-set-key (kbd (concat base "s")) 'emms-stop)
+      (global-set-key (kbd (concat base "SPC")) 'emms-pause)))
 
   (with-eval-after-load "emms-mode-line"
     (defun advice:emms-mode-line-playlist-current ()
@@ -1437,7 +1457,8 @@
        '(my-undo-tree-visualize)
        "undo-tree" nil t)
 
-  (global-set-key (kbd "C-x u") 'my-undo-tree-visualize)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-x u") 'my-undo-tree-visualize))
 
   (with-eval-after-load "undo-tree"
     (global-undo-tree-mode)
@@ -1596,7 +1617,8 @@
        '(neotree neotree-toggle)
        "neotree" nil t)
 
-  (global-set-key (kbd "C-c n") #'neotree-toggle)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c n") #'neotree-toggle))
 
   (with-eval-after-load "neotree"
     (custom-set-variables
@@ -1649,10 +1671,11 @@
        '(helpful-key helpful-function helpful-variable)
        "helpful" nil t)
 
-  (global-set-key (kbd "C-h k") 'helpful-key)
-  (global-set-key (kbd "C-h f") 'helpful-function)
-  (global-set-key (kbd "C-h m") 'helpful-macro)
-  (global-set-key (kbd "C-h v") 'helpful-variable))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-h k") 'helpful-key)
+    (global-set-key (kbd "C-h f") 'helpful-function)
+    (global-set-key (kbd "C-h m") 'helpful-macro)
+    (global-set-key (kbd "C-h v") 'helpful-variable)))
 
 (when (autoload-if-found
        '(keyfreq-mode keyfreq-autosave-mode advice:keyfreq-show)
@@ -1679,8 +1702,9 @@
       (postpone-message "keyfreq-mode")
       (keyfreq-mode 1))))
 
-(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
-(global-set-key (kbd "C-c c") 'compile)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
+  (global-set-key (kbd "C-c c") 'compile))
 
 (autoload-if-found '(gist) "gist" nil t)
 
@@ -1869,7 +1893,8 @@
        '(0xc-convert 0xc-convert-point my-decimal-to-hex my-hex-to-decimal)
        "0xc" nil t)
 
-  (global-set-key (kbd "C-c f h") '0xc-convert)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f h") '0xc-convert))
 
   (with-eval-after-load "0xc"
     (defun my-decimal-to-hex ()
@@ -1954,20 +1979,23 @@
        '(magit-status)
        "magit" nil t)
 
-  (global-set-key (kbd "C-c m") 'magit-status))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c m") 'magit-status)))
 
 (when (autoload-if-found
        '(org-mode)
        "org" "Org Mode" t)
 
-  (global-set-key (kbd "C-c l") 'org-store-link)
-  (global-set-key (kbd "C-c a") 'org-agenda)
-  (global-set-key (kbd "C-c r") 'org-capture)
+  (push '("\\.txt$" . org-mode) auto-mode-alist)
   (global-set-key (kbd "C-M-o")
                   #'(lambda () (interactive) (show-org-buffer "next.org")))
-  (global-set-key (kbd "C-M-c")
-                  #'(lambda () (interactive) (show-org-buffer "org-ical.org")))
-  (push '("\\.txt$" . org-mode) auto-mode-alist)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c l") 'org-store-link)
+    (global-set-key (kbd "C-c a") 'org-agenda)
+    (global-set-key (kbd "C-c r") 'org-capture)
+    (global-set-key (kbd "C-M-c")
+                    #'(lambda () (interactive) (show-org-buffer "org-ical.org"))))
 
   (with-eval-after-load "org"
     (require 'org-habit nil t)
@@ -2401,7 +2429,8 @@
               advice:appt-disp-window)
        "appt" nil t)
 
-  (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt))
 
   (with-eval-after-load "appt"
     ;; window を フレーム内に表示する
@@ -2656,8 +2685,9 @@ will not be modified."
        '(org-tree-slide-mode)
        "org-tree-slide" nil t)
 
-  (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-  (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
+    (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle))
 
   (with-eval-after-load "org-tree-slide"
     ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
@@ -2788,7 +2818,8 @@ will not be modified."
        '(my-cfw-open-org-calendar cfw:open-org-calendar)
        "calfw-org" "Rich calendar for org-mode" t)
 
-  (global-set-key (kbd "C-c f c w") 'my-cfw-open-org-calendar)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f c w") 'my-cfw-open-org-calendar))
 
   (with-eval-after-load "calfw-org"
     ;; icalendar との連結
@@ -3015,7 +3046,8 @@ will not be modified."
        '(org-grep)
        "org-grep" nil t)
 
-  (global-set-key (kbd "C-M-g") 'org-grep)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M-g") 'org-grep))
 
   (with-eval-after-load "org-grep"
     (setq org-grep-extensions '(".org" ".org_archive"))
@@ -3106,7 +3138,8 @@ will not be modified."
        '(org-recent-headings-helm)
        "org-recent-headings" nil t)
 
-  (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f r") 'org-recent-headings-helm))
 
   (with-eval-after-load "org-recent-headings"
     (custom-set-variables
@@ -3173,8 +3206,8 @@ will not be modified."
 ;; カーソルの色
 (defconst my-cursor-color-ime-on "#FF9300")
 (defconst my-cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
-(defconst my-cursor-type-ime-on '(bar . 2))
-(defconst my-cursor-type-ime-off '(bar . 2))
+(defconst my-cursor-type-ime-on '(bar . 2)) ;; '(hbar . 10)
+(defconst my-cursor-type-ime-off '(bar . 2)) ;; '(hbar . 10)
 
 (cond
  ((eq window-system 'ns)
@@ -3267,18 +3300,18 @@ will not be modified."
 
     ;; ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
     ;; ;; バッファ切替時に input method を切り替える
-    ;; (with-eval-after-load "postpone"
-    ;;   (when (and (fboundp 'mac-handle-input-method-change)
-    ;;              (require 'cl-lib nil t))
-    ;;     (add-hook
-    ;;      'post-command-hook
-    ;;      (lexical-let ((previous-buffer nil))
-    ;;        ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
-    ;;        #'(lambda ()
-    ;;            (unless (eq (current-buffer) previous-buffer)
-    ;;              (if (bufferp previous-buffer)
-    ;;                  (mac-handle-input-method-change))
-    ;;              (setq previous-buffer (current-buffer))))))))
+    (with-eval-after-load "postpone"
+      (when (and (fboundp 'mac-handle-input-method-change)
+                 (require 'cl-lib nil t))
+        (add-hook
+         'post-command-hook
+         (lexical-let ((previous-buffer nil))
+           ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
+           #'(lambda ()
+               (unless (eq (current-buffer) previous-buffer)
+                 (if (bufferp previous-buffer)
+                     (mac-handle-input-method-change))
+                 (setq previous-buffer (current-buffer))))))))
     ))
 
  ((eq window-system 'mac) ;; EMP: Emacs Mac Port
@@ -3328,36 +3361,15 @@ will not be modified."
     moom-change-frame-width-single))
 
 (when (autoload-if-found moom-autoloads "moom" nil t)
+  (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
+
   (with-eval-after-load "postpone"
     (unless batch-build
       (postpone-message "moom"))
     (when (and (require 'moom nil t)
                window-system)
-      (define-key moom-mode-map (kbd "M-0") 'moom-move-frame)
-      (define-key moom-mode-map (kbd "M-1") 'moom-move-frame-left)
-      (define-key moom-mode-map (kbd "M-2") 'moom-move-frame-to-center)
-      (define-key moom-mode-map (kbd "M-3") 'moom-move-frame-right)
-      (define-key moom-mode-map (kbd "<f1>") 'moom-move-frame-to-edge-top)
-      (define-key moom-mode-map (kbd "<f2>") 'moom-cycle-frame-height)
-      (define-key moom-mode-map (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom)
-      (define-key moom-mode-map (kbd "M-<f1>") 'moom-move-frame-to-edge-left)
-      (define-key moom-mode-map (kbd "M-<f2>") 'moom-toggle-frame-maximized)
-      (define-key moom-mode-map (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
-      (define-key moom-mode-map (kbd "C-c C-0") 'moom-reset)
-      (define-key moom-mode-map (kbd "C-c f s") 'moom-change-frame-width-single)
-      (define-key moom-mode-map (kbd "C-c f d") 'moom-change-frame-width-double)
-      (define-key moom-mode-map (kbd "C-c f a")
-        'moom-change-frame-width-half-again)
-      (define-key moom-mode-map (kbd "C-c f f t") 'moom-fill-top)
-      (define-key moom-mode-map (kbd "C-c f f b") 'moom-fill-bottom)
-      (define-key moom-mode-map (kbd "C-c f f l") 'moom-fill-left)
-      (define-key moom-mode-map (kbd "C-c f f r") 'moom-fill-right)
-      (define-key moom-mode-map (kbd "C-c f f 1") 'moom-fill-top-left)
-      (define-key moom-mode-map (kbd "C-c f f 2") 'moom-fill-top-right)
-      (define-key moom-mode-map (kbd "C-c f f 3") 'moom-fill-bottom-left)
-      (define-key moom-mode-map (kbd "C-c f f 4") 'moom-fill-bottom-right)
-      (define-key moom-mode-map (kbd "C-c f f m") 'moom-fill-band)
       (setq moom-lighter "M")
+      (moom-recommended-keybindings 'all)
       (moom-mode 1))))
 
 (when (autoload-if-found
@@ -3365,13 +3377,44 @@ will not be modified."
          moom-font-decrease moom-font-size-reset moom-font-resize)
        "moom-font" nil t)
 
-  (with-eval-after-load "moom"
-    (define-key moom-mode-map (kbd "C-_") 'text-scale-decrease)
-    (define-key moom-mode-map (kbd "C-+") 'text-scale-increase)
-    (define-key moom-mode-map (kbd "C--") 'moom-font-decrease)
-    (define-key moom-mode-map (kbd "C-=") 'moom-font-increase)
-    (define-key moom-mode-map (kbd "C-0") 'moom-font-size-reset))
-  (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top))
+  (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
+
+  (with-eval-after-load "moom-font"
+    (setq moom-scaling-gradient (/ (float 50) 30))
+    (setq moom-font-table
+          '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
+            (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
+            (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
+            (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
+            (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
+            (9 5) (8 5) (7 4) (6 4) (5 3)))))
+
+(defvar my-moom--mode-line-format nil)
+(make-variable-buffer-local 'my-moom--mode-line-format)
+(with-eval-after-load "moom"
+  (set-default 'my-moom--mode-line-format mode-line-format)
+  (defun my-moom-toggle-mode-line ()
+    "Toggle mode line."
+    (interactive)
+    (when mode-line-format
+      (setq my-moom--mode-line-format mode-line-format))
+    (if mode-line-format
+        (setq mode-line-format nil)
+      (setq mode-line-format my-moom--mode-line-format)
+      (redraw-display))
+    (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
+  (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
+
+  (defvar my-moom-hide-mode-line t)
+  (defun advice:moom-toggle-frame-maximized ()
+    (when mode-line-format
+      (setq my-moom--mode-line-format mode-line-format))
+    (when my-moom-hide-mode-line
+      (setq mode-line-format
+            (if moom--maximized nil my-moom--mode-line-format))
+      (message ".")))
+  (advice-add 'moom-toggle-frame-maximized
+              :after #'advice:moom-toggle-frame-maximized))
 
 (with-eval-after-load "postpone"
   (when (require 'shackle nil t)
@@ -3429,8 +3472,10 @@ will not be modified."
 ;; 2) Inconsolata, Migu 2M     : font-size=14,
 ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
 (defconst my-font-size 12)
+;; (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
+;; (defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
 (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
-(defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
+(defconst my-ascii-font "Monaco") ;; "Inconsolata", Menlo, "Ricty Diminished"
 (defun my-ja-font-setter (spec)
   (set-fontset-font nil 'japanese-jisx0208 spec)
   (set-fontset-font nil 'katakana-jisx0201 spec)
@@ -3449,7 +3494,7 @@ will not be modified."
 - JA: Japanese font family (default: \"Migu 2M\")
 "
   (when (memq window-system '(mac ns))
-    (let ((font-size (or size 12))
+    (let ((font-size (or size my-font-size))
           ;; (unicode-font (or uc "FreeSerif"))
           (ascii-font (or ascii my-ascii-font))
           (ja-font (or ja my-ja-font)))
@@ -3462,23 +3507,25 @@ will not be modified."
  ;; CocoaEmacs
  ((memq window-system '(mac ns))
   (when (>= emacs-major-version 23)
-    (my-font-config)
-    (with-eval-after-load "moom-font"
-      (custom-set-variables
-       '(moom-font-ascii my-ascii-font)
-       '(moom-font-ja my-ja-font)))
+    ;; (with-eval-after-load "moom-font"
+    ;;   (custom-set-variables
+    ;;    '(moom-font-ascii my-ascii-font)
+    ;;    '(moom-font-ja my-ja-font)))
 
     ;; Fix ratio provided by set-face-attribute for fonts display
     (setq face-font-rescale-alist
           '(("^-apple-hiragino.*" . 1.0) ; 1.2
             (".*Migu.*" . 1.2)
+            (".*Ricty.*" . 1.0)
             (".*Inconsolata.*" 1.0)
             (".*osaka-bold.*" . 1.0)     ; 1.2
             (".*osaka-medium.*" . 1.0)   ; 1.0
             (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
             ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
             ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-            ("-cdac$" . 1.0)))))         ; 1.3
+            ("-cdac$" . 1.0)))) ; 1.3
+    ;; (my-font-config) ;; see `my-apply-theme'
+)
 
  ((eq window-system 'ns)
   ;; Anti aliasing with Quartz 2D
@@ -3531,6 +3578,20 @@ will not be modified."
                         :background "white" :weight 'extra-bold
                         :inherit nil)))
 
+;;;###autoload
+(defun my-daylight-theme ()
+  (interactive)
+  (when (require 'daylight-theme nil t)
+    (mapc 'disable-theme custom-enabled-themes)
+    (load-theme 'daylight t)))
+
+;;;###autoload
+(defun my-night-theme ()
+  (interactive)
+  (when (require 'night-theme nil t) ;; atom-one-dark-theme
+    (mapc 'disable-theme custom-enabled-themes)
+    (load-theme 'night t)))
+
 (defun my-night-time-p (begin end)
   (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
          (cm (string-to-number (format-time-string "%M" (current-time))))
@@ -3544,15 +3605,14 @@ will not be modified."
   (let ((night-time-in 21)
         (night-time-out 5))
     (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
-        (when (require 'night-theme nil t)
-          (load-theme 'night t))
-      (when (require 'daylight-theme nil t)
-        (load-theme 'daylight t))))
+        (my-night-theme)
+      (my-daylight-theme)))
   (when (fboundp 'mac-get-current-input-source)
     (my-apply-cursor-config)))
 
 (when (display-graphic-p)
-  (my-apply-theme))
+  (my-apply-theme) ;; this may override or reset font setting
+  (my-font-config)) ;; apply font setting
 
 (when (autoload-if-found
        '(rainbow-mode)
@@ -3611,7 +3671,9 @@ will not be modified."
            (autoload-if-found
             '(edit-color-stamp)
             "edit-color-stamp" nil t))
-  (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f c p") 'edit-color-stamp)))
 
 (when (autoload-if-found
        '(pomodoro:start)
@@ -3901,7 +3963,8 @@ will not be modified."
        '(my-google-this google-this google-this-word)
        "google-this" nil t)
 
-  (global-set-key (kbd "C-c f g") 'my-google-this)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f g") 'my-google-this))
 
   (with-eval-after-load "google-this"
     (defun my-google-this ()
@@ -3941,14 +4004,16 @@ will not be modified."
 (when (autoload-if-found
        '(my-cmd-to-open-iterm2)
        "utility" nil t)
-  (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2))
   ;; キーバインドの再設定
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2))
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2)))
 
-(global-set-key (kbd "C-c f t") 'open-current-directory)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-c f t") 'open-current-directory))
 
 (if (not (locate-library "postpone"))
     (message "postpone.el is NOT installed.")
@@ -4066,7 +4131,7 @@ will not be modified."
     my-org-list-insert-items
     my-org-list-insert-checkbox-into-items
     ;; M-x
-    my-daylight-theme my-night-theme eval-org-buffer
+    eval-org-buffer
     my-org-list-delete-items
     my-org-list-delete-items-with-checkbox
     my-org-list-insert-itms-with-checkbox
@@ -4085,9 +4150,10 @@ will not be modified."
 (when (autoload-if-found
        utility-autoloads
        "utility" nil t)
-  (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
-  (global-set-key (kbd "<f12>") 'my-open-file-ring)
-  (global-set-key (kbd "C-c t") 'my-date)
-  (global-set-key (kbd "C-c f 4") 'my-window-resizer))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
+    (global-set-key (kbd "<f12>") 'my-open-file-ring)
+    (global-set-key (kbd "C-c t") 'my-date)
+    (global-set-key (kbd "C-c f 4") 'my-window-resizer)))
 
 (provide 'init)

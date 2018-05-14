@@ -671,28 +671,6 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
       (message "%s" (chomp files))
       (shell-command-to-string (concat "mv -v " (chomp files) " ~/.Trash")))))
 #+END_SRC
-** 日中と夜中でテーマを切り替える
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-;;;###autoload
-(defun my-daylight-theme ()
-  (interactive)
-  (when (require 'daylight-theme nil t)
-    (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'daylight t)
-    (when (require 'moom-font nil t)
-      (moom-font-size-reset))))
-
-;;;###autoload
-(defun my-night-theme ()
-  (interactive)
-  (when (require 'night-theme nil t) ;; atom-one-dark-theme
-    (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'night t)
-    (when (require 'moom-font nil t)
-      (moom-font-size-reset))))
-#+END_SRC
-
 ** chomp
 
 改行コードを削除した文字列を返す．

@@ -148,7 +148,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
                      (equal file name)
                      (not flag))
             (setq enabled nil)
-            (message "--- `%s' was NOT loaded explicitly" name)))))
+            (message "--- `%s' was NOT loaded intentionally" name)))))
     enabled))
 #+END_SRC
 
@@ -499,7 +499,8 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 好みの問題ですかね．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent))
 #+END_SRC
 
 ** コマンド入力中に入力過程をミニバッファに反映する
@@ -593,8 +594,10 @@ the_silver_searcher @0.18.1 (textproc)
             '(my-ag ag)
             "ag" nil t))
 
-  (global-set-key (kbd "C-M-f") 'my-ag)
   (autoload-if-found '(helm-ag) "helm-ag" nil t)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M-f") 'my-ag))
 
   (with-eval-after-load "ag"
     (custom-set-variables
@@ -620,18 +623,19 @@ the_silver_searcher @0.18.1 (textproc)
 - 削除
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(when (memq window-system '(mac ns))
-  (global-set-key (kbd "M-v") 'yank)
-  (when (boundp 'ns-command-modifier)
-    (setq ns-command-modifier 'meta))
-  (when (boundp 'ns-alternate-modifier)
-    (setq ns-alternate-modifier 'super))
-  (when (boundp 'ns-pop-up-frames)
-    (setq ns-pop-up-frames nil))
-  (global-set-key [ns-drag-file] 'ns-find-file)) ; D&D for Emacs23
+(with-eval-after-load "postpone"
+  (when (memq window-system '(mac ns))
+    (global-set-key (kbd "M-v") 'yank)
+    (when (boundp 'ns-command-modifier)
+      (setq ns-command-modifier 'meta))
+    (when (boundp 'ns-alternate-modifier)
+      (setq ns-alternate-modifier 'super))
+    (when (boundp 'ns-pop-up-frames)
+      (setq ns-pop-up-frames nil))
+    (global-set-key [ns-drag-file] 'ns-find-file)) ; D&D for Emacs23
 
-(global-set-key [delete] 'delete-char)
-(global-set-key [kp-delete] 'delete-char)
+  (global-set-key [delete] 'delete-char)
+  (global-set-key [kp-delete] 'delete-char))
 #+END_SRC
 
 ** ナローイングするか
@@ -1028,37 +1032,38 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   - [[https://gist.github.com/takaxp/3314a153f6d02d82ef1833638d338ecf][An inline-patch for Emacs-25.2]]
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(when (eq window-system 'ns)
-  (defun ns-org-heading-auto-ascii ()
-    (when (and window-focus-p
-               (eq major-mode 'org-mode)
-               (or (looking-at org-heading-regexp)
-                   (equal (buffer-name) org-agenda-buffer-name)))
-      (my-ime-off)))
+(with-eval-after-load "postpone"
+  (when (eq window-system 'ns)
+    (defun ns-org-heading-auto-ascii ()
+      (when (and window-focus-p
+                 (eq major-mode 'org-mode)
+                 (or (looking-at org-heading-regexp)
+                     (equal (buffer-name) org-agenda-buffer-name)))
+        (my-ime-off)))
 
-  (defun ns-ime-toggle ()
-    (interactive)
-    (when (fboundp 'mac-get-current-input-source)
-      (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
+    (defun ns-ime-toggle ()
+      (interactive)
+      (when (fboundp 'mac-get-current-input-source)
+        (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
 
-  ;; (when (fboundp 'mac-get-current-input-source)
-  ;;   (declare-function ns-ime-auto-correct "init" nil)
-  ;;   (defun ns-ime-auto-correct ()
-  ;;     (interactive)
-  ;;     (if (my-ime-active-p)
-  ;;         (unless (mac-toggle-input-method nil)
-  ;;           (my-ime-on))
-  ;;       (when (mac-toggle-input-method t)
-  ;;         (my-ime-off))))
-  ;;   (add-hook 'focus-in-hook #'ns-ime-auto-correct))
+    ;; (when (fboundp 'mac-get-current-input-source)
+    ;;   (declare-function ns-ime-auto-correct "init" nil)
+    ;;   (defun ns-ime-auto-correct ()
+    ;;     (interactive)
+    ;;     (if (my-ime-active-p)
+    ;;         (unless (mac-toggle-input-method nil)
+    ;;           (my-ime-on))
+    ;;       (when (mac-toggle-input-method t)
+    ;;         (my-ime-off))))
+    ;;   (add-hook 'focus-in-hook #'ns-ime-auto-correct))
 
-  (global-set-key (kbd "M-SPC") 'ns-ime-toggle) ;; toggle-input-method
-  (global-set-key (kbd "S-SPC") 'ns-ime-toggle) ;; toggle-input-method
-  (define-key isearch-mode-map (kbd "M-SPC") 'ns-ime-toggle)
-  (define-key isearch-mode-map (kbd "S-SPC") 'ns-ime-toggle)
+    (global-set-key (kbd "M-SPC") 'ns-ime-toggle) ;; toggle-input-method
+    (global-set-key (kbd "S-SPC") 'ns-ime-toggle) ;; toggle-input-method
+    (define-key isearch-mode-map (kbd "M-SPC") 'ns-ime-toggle)
+    (define-key isearch-mode-map (kbd "S-SPC") 'ns-ime-toggle)
 
-  (when (fboundp 'mac-toggle-input-method)
-    (run-with-idle-timer 1 t 'ns-org-heading-auto-ascii)))
+    (when (fboundp 'mac-toggle-input-method)
+      (run-with-idle-timer 1 t 'ns-org-heading-auto-ascii))))
 #+END_SRC
 
 * カーソル移動
@@ -1076,14 +1081,15 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 先頭に移動，最終行に移動，ページ単位の進む，ページ単位の戻る，行数を指定して移動．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-(global-set-key (kbd "C-M-b") 'end-of-buffer)
-;; Backward page scrolling instead of M-v
-(global-set-key (kbd "M-p") 'scroll-down)
-;; Frontward page scrolling instead of C-v
-(global-set-key (kbd "M-n") 'scroll-up)
-;; Move cursor to a specific line
-(global-set-key (kbd "C-c g") 'goto-line)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
+  (global-set-key (kbd "C-M-b") 'end-of-buffer)
+  ;; Backward page scrolling instead of M-v
+  (global-set-key (kbd "M-p") 'scroll-down)
+  ;; Frontward page scrolling instead of C-v
+  (global-set-key (kbd "M-n") 'scroll-up)
+  ;; Move cursor to a specific line
+  (global-set-key (kbd "C-c g") 'goto-line))
 #+END_SRC
 
 ** バッファ間のカーソル移動
@@ -1091,8 +1097,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 =C-c o= でもいいですが，ワンアクションで移動できるようが楽です．次のように双方向で使えるように設定しています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(global-set-key (kbd "C-M-p") #'(lambda () (interactive) (other-window -1)))
-(global-set-key (kbd "C-M-n") #'(lambda () (interactive) (other-window 1)))
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-M-p") #'(lambda () (interactive) (other-window -1)))
+  (global-set-key (kbd "C-M-n") #'(lambda () (interactive) (other-window 1))))
 #+END_SRC
 
 ** スクロールを制御
@@ -1151,8 +1158,9 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
        '(scroll-one-up scroll-one-down)
        "smoothscroll" nil t)
 
-  (global-set-key (kbd "s-<up>") 'scroll-one-down)
-  (global-set-key (kbd "s-<down>") 'scroll-one-up))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "s-<up>") 'scroll-one-down)
+    (global-set-key (kbd "s-<down>") 'scroll-one-up)))
 #+END_SRC
 
 ** [smooth-scroll.el] 滑らかなスクロール
@@ -1200,8 +1208,9 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
        '(cycle-buffer cycle-buffer-backward)
        "cycle-buffer" nil t)
 
-  (global-set-key (kbd "M-]") 'cycle-buffer)
-  (global-set-key (kbd "M-[") 'cycle-buffer-backward)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "M-]") 'cycle-buffer)
+    (global-set-key (kbd "M-[") 'cycle-buffer-backward))
 
   (with-eval-after-load "cycle-buffer"
     (custom-set-variables
@@ -1223,10 +1232,11 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
          bm-repository-save bm-repository-load bm-load-and-restore)
        "bm" nil t)
 
-  ;; ファイルオープン時にブックマークを復帰
-  (add-hook 'find-file-hook #'bm-buffer-restore)
-  (global-set-key (kbd "<f10>") 'my-bm-toggle)
-  (global-set-key (kbd "<C-f10>") 'my-bm-next)
+  (with-eval-after-load "postpone"
+    ;; ファイルオープン時にブックマークを復帰
+    (add-hook 'find-file-hook #'bm-buffer-restore)
+    (global-set-key (kbd "<f10>") 'my-bm-toggle)
+    (global-set-key (kbd "<C-f10>") 'my-bm-next))
 
   (with-eval-after-load "bm"
     (setq-default bm-buffer-persistence t)
@@ -1361,8 +1371,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
        '(goto-last-change goto-last-change-reverse)
        "goto-chg" nil t)
 
-  (global-set-key (kbd "C-,") 'goto-last-change)
-  (global-set-key (kbd "C-.") 'goto-last-change-reverse)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-,") 'goto-last-change)
+    (global-set-key (kbd "C-.") 'goto-last-change-reverse))
 
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
@@ -1717,10 +1728,11 @@ lang en_US
        '(ispell-region ispell-complete-word)
        "ispell" nil t)
 
-  ;; Spell checking within a specified region
-  (global-set-key (kbd "C-c f 7") 'ispell-region)
-  ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
-  (global-set-key (kbd "<f7>") 'ispell-word)
+  (with-eval-after-load "postpone"
+    ;; Spell checking within a specified region
+    (global-set-key (kbd "C-c f 7") 'ispell-region)
+    ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
+    (global-set-key (kbd "<f7>") 'ispell-word))
   ;; (if (autoload-if-found '(helm-ispell) "helm-ispell" nil t)
   ;;     #'helm-ispell #'ispell-word)))
 
@@ -1888,7 +1900,8 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
          latex-math-preview-beamer-frame)
        "latex-math-preview" nil t nil)
 
-  (global-set-key (kbd "<f6>") 'latex-math-preview-expression)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "<f6>") 'latex-math-preview-expression))
 
   (with-eval-after-load "latex-math-preview"
     (setq latex-math-preview-command-path-alist
@@ -1929,7 +1942,8 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 と思ったら，ビルドインの simple.el に十分な機能なのがあった．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(global-set-key (kbd "M-=") 'count-words)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "M-=") 'count-words))
 #+END_SRC
 
 ** [yatex.el] YaTeXモード
@@ -2074,8 +2088,9 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
        '(osx-dictionary-search-pointer osx-dictionary-search-input)
        "osx-dictionary" nil t)
 
-  (global-set-key (kbd "C-c f w") #'osx-dictionary-search-input)
-  (global-set-key (kbd "C-M-w") #'osx-dictionary-search-pointer)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f w") #'osx-dictionary-search-input)
+    (global-set-key (kbd "C-M-w") #'osx-dictionary-search-pointer))
 
   (with-eval-after-load "osx-dictionary"
     (custom-set-variables
@@ -2484,7 +2499,8 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
        '(git-complete)
        "git-complete" nil t)
 
-  (global-set-key (kbd "C-c f <tab>") 'git-complete))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f <tab>") 'git-complete)))
 #+END_SRC
 
 ** TODO [tiny.el] 連番入力をサポート
@@ -2752,8 +2768,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
          " GNU Emacs                                                  "
          (format-time-string "W%W: %Y-%m-%d %a."))))
 
-(global-set-key (kbd "C-M-s") #'(lambda () (interactive)
-                                  (switch-to-buffer "*scratch*")))
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-M-s") #'(lambda () (interactive)
+                                    (switch-to-buffer "*scratch*"))))
 #+END_SRC
 
 ** バッテリー情報をモードラインに表示する
@@ -3044,7 +3061,8 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
        '(helm-buffers-list)
        "helm" nil t)
 
-  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-x C-b") 'helm-buffers-list))
 
   (with-eval-after-load "helm"
     (require 'helm-config nil t)))
@@ -3055,13 +3073,14 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
          helm-occur helm-swoop helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-M-r") 'helm-recentf)
-  (global-set-key (kbd "C-M-l") 'helm-locate)
-  (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-  (global-set-key (kbd "M-s M-s") 'helm-swoop)
-  (global-set-key (kbd "C-c o") 'helm-occur)
-  (global-set-key (kbd "C-h d") 'helm-descbinds)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "M-x") 'helm-M-x)
+    (global-set-key (kbd "C-M-r") 'helm-recentf)
+    (global-set-key (kbd "C-M-l") 'helm-locate)
+    (global-set-key (kbd "C-c f b") 'helm-bookmarks)
+    (global-set-key (kbd "M-s M-s") 'helm-swoop)
+    (global-set-key (kbd "C-c o") 'helm-occur)
+    (global-set-key (kbd "C-h d") 'helm-descbinds))
 
   (with-eval-after-load "helm-config"
     (helm-mode 1)
@@ -3273,7 +3292,8 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 ビルドインの =calendar.el= にある =calendar-intermonth-text= をカスタマイズすると，カレンダーに週番号を表示させることが可能です．ただ， =calendar.el= に記載されている例だと， =calendar-week-start-day= が =1= 以外の時に計算結果がおかしくなるので，次のように =calendar-absolute-from-gregorian= に渡す値を補正する必要があります．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(global-set-key (kbd "C-c f c c") 'calendar)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-c f c c") 'calendar))
 
 (with-eval-after-load "calendar"
   (setq calendar-week-start-day 1)
@@ -3522,12 +3542,13 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
          emms-next emms-previous emms-stop emms-pause)
        "emms" nil t)
 
-  (global-set-key (kbd "C-c e b") 'my-play-bgm)
-  (let ((base "C-c e "))
-    (global-set-key (kbd (concat base "n")) 'emms-next)
-    (global-set-key (kbd (concat base "p")) 'emms-previous)
-    (global-set-key (kbd (concat base "s")) 'emms-stop)
-    (global-set-key (kbd (concat base "SPC")) 'emms-pause))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c e b") 'my-play-bgm)
+    (let ((base "C-c e "))
+      (global-set-key (kbd (concat base "n")) 'emms-next)
+      (global-set-key (kbd (concat base "p")) 'emms-previous)
+      (global-set-key (kbd (concat base "s")) 'emms-stop)
+      (global-set-key (kbd (concat base "SPC")) 'emms-pause)))
 
   (with-eval-after-load "emms-mode-line"
     (defun advice:emms-mode-line-playlist-current ()
@@ -3706,7 +3727,8 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
        '(my-undo-tree-visualize)
        "undo-tree" nil t)
 
-  (global-set-key (kbd "C-x u") 'my-undo-tree-visualize)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-x u") 'my-undo-tree-visualize))
 
   (with-eval-after-load "undo-tree"
     (global-undo-tree-mode)
@@ -3906,7 +3928,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 ** [backup-each-save] クラッシュに備える
 
-直近のファイルを常にバックアップします． =backup-dir.el= でも良いですが，バックアップの目的が，バッファ編集中に =emacs= が落ちる時の保険ならば， =backup-each-save= の方が適切な場合があります．以下の例では，すべてのファイルを保存の度に保存し， =emacs= 起動後に postpone モードが有効になる時に7日前までのバックアップファイルをすべて削除するようにしています．
+直近のファイルを常にバックアップします． =backup-dir.el= でも良いですが，バックアップの目的が，バッファ編集中に =emacs= が落ちる時の保険ならば， =backup-each-save= の方が適切な場合があります．以下の例では，すべてのファイルを保存の度に保存し， =emacs= 起動後に postpone モードが有効になる時点で7日前までのバックアップファイルをすべて削除するようにしています．
 
 =postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
@@ -4060,7 +4082,8 @@ http://www.emacswiki.org/emacs/EmacsSession
        '(neotree neotree-toggle)
        "neotree" nil t)
 
-  (global-set-key (kbd "C-c n") #'neotree-toggle)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c n") #'neotree-toggle))
 
   (with-eval-after-load "neotree"
     (custom-set-variables
@@ -4125,10 +4148,11 @@ http://www.emacswiki.org/emacs/EmacsSession
        '(helpful-key helpful-function helpful-variable)
        "helpful" nil t)
 
-  (global-set-key (kbd "C-h k") 'helpful-key)
-  (global-set-key (kbd "C-h f") 'helpful-function)
-  (global-set-key (kbd "C-h m") 'helpful-macro)
-  (global-set-key (kbd "C-h v") 'helpful-variable))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-h k") 'helpful-key)
+    (global-set-key (kbd "C-h f") 'helpful-function)
+    (global-set-key (kbd "C-h m") 'helpful-macro)
+    (global-set-key (kbd "C-h v") 'helpful-variable)))
 #+END_SRC
 
 ** [keyfreq.el] コマンドログ
@@ -4166,8 +4190,9 @@ http://www.emacswiki.org/emacs/EmacsSession
 ** 便利キーバインド
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
-(global-set-key (kbd "C-c c") 'compile)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
+  (global-set-key (kbd "C-c c") 'compile))
 #+END_SRC
 
 ** [gist.el] Gist インターフェイス
@@ -4486,7 +4511,8 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
        '(0xc-convert 0xc-convert-point my-decimal-to-hex my-hex-to-decimal)
        "0xc" nil t)
 
-  (global-set-key (kbd "C-c f h") '0xc-convert)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f h") '0xc-convert))
 
   (with-eval-after-load "0xc"
     (defun my-decimal-to-hex ()
@@ -4635,7 +4661,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
        '(magit-status)
        "magit" nil t)
 
-  (global-set-key (kbd "C-c m") 'magit-status))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c m") 'magit-status)))
 #+END_SRC
 
 * Org Mode
@@ -4646,14 +4673,16 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
        '(org-mode)
        "org" "Org Mode" t)
 
-  (global-set-key (kbd "C-c l") 'org-store-link)
-  (global-set-key (kbd "C-c a") 'org-agenda)
-  (global-set-key (kbd "C-c r") 'org-capture)
+  (push '("\\.txt$" . org-mode) auto-mode-alist)
   (global-set-key (kbd "C-M-o")
                   #'(lambda () (interactive) (show-org-buffer "next.org")))
-  (global-set-key (kbd "C-M-c")
-                  #'(lambda () (interactive) (show-org-buffer "org-ical.org")))
-  (push '("\\.txt$" . org-mode) auto-mode-alist)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c l") 'org-store-link)
+    (global-set-key (kbd "C-c a") 'org-agenda)
+    (global-set-key (kbd "C-c r") 'org-capture)
+    (global-set-key (kbd "C-M-c")
+                    #'(lambda () (interactive) (show-org-buffer "org-ical.org"))))
 
   (with-eval-after-load "org"
     (require 'org-habit nil t)
@@ -5153,7 +5182,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
               advice:appt-disp-window)
        "appt" nil t)
 
-  (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt))
 
   (with-eval-after-load "appt"
     ;; window を フレーム内に表示する
@@ -5463,8 +5493,9 @@ will not be modified."
        '(org-tree-slide-mode)
        "org-tree-slide" nil t)
 
-  (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-  (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
+    (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle))
 
   (with-eval-after-load "org-tree-slide"
     ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
@@ -5641,7 +5672,8 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
        '(my-cfw-open-org-calendar cfw:open-org-calendar)
        "calfw-org" "Rich calendar for org-mode" t)
 
-  (global-set-key (kbd "C-c f c w") 'my-cfw-open-org-calendar)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f c w") 'my-cfw-open-org-calendar))
 
   (with-eval-after-load "calfw-org"
     ;; icalendar との連結
@@ -6067,7 +6099,8 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
        '(org-grep)
        "org-grep" nil t)
 
-  (global-set-key (kbd "C-M-g") 'org-grep)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M-g") 'org-grep))
 
   (with-eval-after-load "org-grep"
     (setq org-grep-extensions '(".org" ".org_archive"))
@@ -6280,7 +6313,8 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
        '(org-recent-headings-helm)
        "org-recent-headings" nil t)
 
-  (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f r") 'org-recent-headings-helm))
 
   (with-eval-after-load "org-recent-headings"
     (custom-set-variables
@@ -6370,8 +6404,8 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 ;; カーソルの色
 (defconst my-cursor-color-ime-on "#FF9300")
 (defconst my-cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
-(defconst my-cursor-type-ime-on '(bar . 2))
-(defconst my-cursor-type-ime-off '(bar . 2))
+(defconst my-cursor-type-ime-on '(bar . 2)) ;; '(hbar . 10)
+(defconst my-cursor-type-ime-off '(bar . 2)) ;; '(hbar . 10)
 
 (cond
  ((eq window-system 'ns)
@@ -6464,18 +6498,18 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 
     ;; ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
     ;; ;; バッファ切替時に input method を切り替える
-    ;; (with-eval-after-load "postpone"
-    ;;   (when (and (fboundp 'mac-handle-input-method-change)
-    ;;              (require 'cl-lib nil t))
-    ;;     (add-hook
-    ;;      'post-command-hook
-    ;;      (lexical-let ((previous-buffer nil))
-    ;;        ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
-    ;;        #'(lambda ()
-    ;;            (unless (eq (current-buffer) previous-buffer)
-    ;;              (if (bufferp previous-buffer)
-    ;;                  (mac-handle-input-method-change))
-    ;;              (setq previous-buffer (current-buffer))))))))
+    (with-eval-after-load "postpone"
+      (when (and (fboundp 'mac-handle-input-method-change)
+                 (require 'cl-lib nil t))
+        (add-hook
+         'post-command-hook
+         (lexical-let ((previous-buffer nil))
+           ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
+           #'(lambda ()
+               (unless (eq (current-buffer) previous-buffer)
+                 (if (bufferp previous-buffer)
+                     (mac-handle-input-method-change))
+                 (setq previous-buffer (current-buffer))))))))
     ))
 
  ((eq window-system 'mac) ;; EMP: Emacs Mac Port
@@ -6620,36 +6654,15 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
     moom-change-frame-width-single))
 
 (when (autoload-if-found moom-autoloads "moom" nil t)
+  (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
+
   (with-eval-after-load "postpone"
     (unless batch-build
       (postpone-message "moom"))
     (when (and (require 'moom nil t)
                window-system)
-      (define-key moom-mode-map (kbd "M-0") 'moom-move-frame)
-      (define-key moom-mode-map (kbd "M-1") 'moom-move-frame-left)
-      (define-key moom-mode-map (kbd "M-2") 'moom-move-frame-to-center)
-      (define-key moom-mode-map (kbd "M-3") 'moom-move-frame-right)
-      (define-key moom-mode-map (kbd "<f1>") 'moom-move-frame-to-edge-top)
-      (define-key moom-mode-map (kbd "<f2>") 'moom-cycle-frame-height)
-      (define-key moom-mode-map (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom)
-      (define-key moom-mode-map (kbd "M-<f1>") 'moom-move-frame-to-edge-left)
-      (define-key moom-mode-map (kbd "M-<f2>") 'moom-toggle-frame-maximized)
-      (define-key moom-mode-map (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
-      (define-key moom-mode-map (kbd "C-c C-0") 'moom-reset)
-      (define-key moom-mode-map (kbd "C-c f s") 'moom-change-frame-width-single)
-      (define-key moom-mode-map (kbd "C-c f d") 'moom-change-frame-width-double)
-      (define-key moom-mode-map (kbd "C-c f a")
-        'moom-change-frame-width-half-again)
-      (define-key moom-mode-map (kbd "C-c f f t") 'moom-fill-top)
-      (define-key moom-mode-map (kbd "C-c f f b") 'moom-fill-bottom)
-      (define-key moom-mode-map (kbd "C-c f f l") 'moom-fill-left)
-      (define-key moom-mode-map (kbd "C-c f f r") 'moom-fill-right)
-      (define-key moom-mode-map (kbd "C-c f f 1") 'moom-fill-top-left)
-      (define-key moom-mode-map (kbd "C-c f f 2") 'moom-fill-top-right)
-      (define-key moom-mode-map (kbd "C-c f f 3") 'moom-fill-bottom-left)
-      (define-key moom-mode-map (kbd "C-c f f 4") 'moom-fill-bottom-right)
-      (define-key moom-mode-map (kbd "C-c f f m") 'moom-fill-band)
       (setq moom-lighter "M")
+      (moom-recommended-keybindings 'all)
       (moom-mode 1))))
 
 (when (autoload-if-found
@@ -6657,13 +6670,50 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
          moom-font-decrease moom-font-size-reset moom-font-resize)
        "moom-font" nil t)
 
-  (with-eval-after-load "moom"
-    (define-key moom-mode-map (kbd "C-_") 'text-scale-decrease)
-    (define-key moom-mode-map (kbd "C-+") 'text-scale-increase)
-    (define-key moom-mode-map (kbd "C--") 'moom-font-decrease)
-    (define-key moom-mode-map (kbd "C-=") 'moom-font-increase)
-    (define-key moom-mode-map (kbd "C-0") 'moom-font-size-reset))
-  (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top))
+  (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
+
+  (with-eval-after-load "moom-font"
+    (setq moom-scaling-gradient (/ (float 50) 30))
+    (setq moom-font-table
+          '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
+            (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
+            (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
+            (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
+            (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
+            (9 5) (8 5) (7 4) (6 4) (5 3)))))
+#+END_SRC
+
+*** 最大化時にモードラインを消す
+
+バッファ切替時にモードラインの状態を引き継ぐこともできますが，とりあえず想定外にしています．代わりに，必要ならば =M-x my-moom-toggle-mode-line= で表示可能にしています．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defvar my-moom--mode-line-format nil)
+(make-variable-buffer-local 'my-moom--mode-line-format)
+(with-eval-after-load "moom"
+  (set-default 'my-moom--mode-line-format mode-line-format)
+  (defun my-moom-toggle-mode-line ()
+    "Toggle mode line."
+    (interactive)
+    (when mode-line-format
+      (setq my-moom--mode-line-format mode-line-format))
+    (if mode-line-format
+        (setq mode-line-format nil)
+      (setq mode-line-format my-moom--mode-line-format)
+      (redraw-display))
+    (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
+  (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
+
+  (defvar my-moom-hide-mode-line t)
+  (defun advice:moom-toggle-frame-maximized ()
+    (when mode-line-format
+      (setq my-moom--mode-line-format mode-line-format))
+    (when my-moom-hide-mode-line
+      (setq mode-line-format
+            (if moom--maximized nil my-moom--mode-line-format))
+      (message ".")))
+  (advice-add 'moom-toggle-frame-maximized
+              :after #'advice:moom-toggle-frame-maximized))
 #+END_SRC
 
 ** [popwin.el] ポップアップウィンドウの制御
@@ -6911,8 +6961,10 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 ;; 2) Inconsolata, Migu 2M     : font-size=14,
 ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
 (defconst my-font-size 12)
+;; (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
+;; (defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
 (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
-(defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
+(defconst my-ascii-font "Monaco") ;; "Inconsolata", Menlo, "Ricty Diminished"
 (defun my-ja-font-setter (spec)
   (set-fontset-font nil 'japanese-jisx0208 spec)
   (set-fontset-font nil 'katakana-jisx0201 spec)
@@ -6931,7 +6983,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 - JA: Japanese font family (default: \"Migu 2M\")
 "
   (when (memq window-system '(mac ns))
-    (let ((font-size (or size 12))
+    (let ((font-size (or size my-font-size))
           ;; (unicode-font (or uc "FreeSerif"))
           (ascii-font (or ascii my-ascii-font))
           (ja-font (or ja my-ja-font)))
@@ -6944,23 +6996,25 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
  ;; CocoaEmacs
  ((memq window-system '(mac ns))
   (when (>= emacs-major-version 23)
-    (my-font-config)
-    (with-eval-after-load "moom-font"
-      (custom-set-variables
-       '(moom-font-ascii my-ascii-font)
-       '(moom-font-ja my-ja-font)))
+    ;; (with-eval-after-load "moom-font"
+    ;;   (custom-set-variables
+    ;;    '(moom-font-ascii my-ascii-font)
+    ;;    '(moom-font-ja my-ja-font)))
 
     ;; Fix ratio provided by set-face-attribute for fonts display
     (setq face-font-rescale-alist
           '(("^-apple-hiragino.*" . 1.0) ; 1.2
             (".*Migu.*" . 1.2)
+            (".*Ricty.*" . 1.0)
             (".*Inconsolata.*" 1.0)
             (".*osaka-bold.*" . 1.0)     ; 1.2
             (".*osaka-medium.*" . 1.0)   ; 1.0
             (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
             ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
             ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-            ("-cdac$" . 1.0)))))         ; 1.3
+            ("-cdac$" . 1.0)))) ; 1.3
+    ;; (my-font-config) ;; see `my-apply-theme'
+)
 
  ((eq window-system 'ns)
   ;; Anti aliasing with Quartz 2D
@@ -7050,6 +7104,26 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
              ))))
 #+END_SRC
 
+** 日中と夜中でテーマを切り替える
+
+私は使っていませんが，簡単にテーマを切り替えるためのパッケージ([[https://github.com/valignatev/heaven-and-hell][heaven-and-hell]])も存在します．
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;;;###autoload
+(defun my-daylight-theme ()
+  (interactive)
+  (when (require 'daylight-theme nil t)
+    (mapc 'disable-theme custom-enabled-themes)
+    (load-theme 'daylight t)))
+
+;;;###autoload
+(defun my-night-theme ()
+  (interactive)
+  (when (require 'night-theme nil t) ;; atom-one-dark-theme
+    (mapc 'disable-theme custom-enabled-themes)
+    (load-theme 'night t)))
+#+END_SRC
+
 ** 時間帯を指定して起動時にテーマを切り替える
 
 次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
@@ -7068,15 +7142,14 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (let ((night-time-in 21)
         (night-time-out 5))
     (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
-        (when (require 'night-theme nil t)
-          (load-theme 'night t))
-      (when (require 'daylight-theme nil t)
-        (load-theme 'daylight t))))
+        (my-night-theme)
+      (my-daylight-theme)))
   (when (fboundp 'mac-get-current-input-source)
     (my-apply-cursor-config)))
 
 (when (display-graphic-p)
-  (my-apply-theme))
+  (my-apply-theme) ;; this may override or reset font setting
+  (my-font-config)) ;; apply font setting
 #+END_SRC
 
 ** [rainbow-mode.el] 配色のリアルタイム確認
@@ -7207,7 +7280,9 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
            (autoload-if-found
             '(edit-color-stamp)
             "edit-color-stamp" nil t))
-  (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f c p") 'edit-color-stamp)))
 #+END_SRC
 
 （設定手順）
@@ -7544,7 +7619,8 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
        '(my-google-this google-this google-this-word)
        "google-this" nil t)
 
-  (global-set-key (kbd "C-c f g") 'my-google-this)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f g") 'my-google-this))
 
   (with-eval-after-load "google-this"
     (defun my-google-this ()
@@ -7619,7 +7695,8 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
     (when (autoload-if-found
            '(helm-pass)
            "helm-pass" nil t)
-      (global-set-key (kbd "C-c f p") 'helm-pass))
+      (with-eval-after-load "postpone"
+        (global-set-key (kbd "C-c f p") 'helm-pass)))
   (message "--- pass is NOT installed."))
 #+END_SRC
 
@@ -7660,7 +7737,8 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 (when (autoload-if-found
        '(my-cmd-to-open-iterm2)
        "utility" nil t)
-  (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2))
   ;; キーバインドの再設定
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2))
@@ -7671,7 +7749,8 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 ** カレントバッファのあるディレクトリをターミナルで表示
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(global-set-key (kbd "C-c f t") 'open-current-directory)
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "C-c f t") 'open-current-directory))
 #+END_SRC
 
 ** [postpone.el] Emacs起動してから使い始めるタイミングで実行する
@@ -7826,7 +7905,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
     my-org-list-insert-items
     my-org-list-insert-checkbox-into-items
     ;; M-x
-    my-daylight-theme my-night-theme eval-org-buffer
+    eval-org-buffer
     my-org-list-delete-items
     my-org-list-delete-items-with-checkbox
     my-org-list-insert-itms-with-checkbox
@@ -7845,10 +7924,11 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 (when (autoload-if-found
        utility-autoloads
        "utility" nil t)
-  (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
-  (global-set-key (kbd "<f12>") 'my-open-file-ring)
-  (global-set-key (kbd "C-c t") 'my-date)
-  (global-set-key (kbd "C-c f 4") 'my-window-resizer))
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
+    (global-set-key (kbd "<f12>") 'my-open-file-ring)
+    (global-set-key (kbd "C-c t") 'my-date)
+    (global-set-key (kbd "C-c f 4") 'my-window-resizer)))
 #+END_SRC
 
 * おわりに

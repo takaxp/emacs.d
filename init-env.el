@@ -6,7 +6,8 @@
 (defconst my-profiler nil)
 (defconst ad-require nil)
 (defconst loading-packages nil)
-;; (setq loading-packages '(("utility" . nil)))
+;; (setq loading-packages '(("moom" . nil)
+;;                          ("moom-font" . nil)))
 (defconst my-boot-mode 'any) ;; {debug, test, any}
 (setq debug-on-error nil)
 (defvar batch-build nil) ;; see also init-eval.el

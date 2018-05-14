@@ -484,24 +484,6 @@
       (message "%s" (chomp files))
       (shell-command-to-string (concat "mv -v " (chomp files) " ~/.Trash")))))
 
-;;;###autoload
-(defun my-daylight-theme ()
-  (interactive)
-  (when (require 'daylight-theme nil t)
-    (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'daylight t)
-    (when (require 'moom-font nil t)
-      (moom-font-size-reset))))
-
-;;;###autoload
-(defun my-night-theme ()
-  (interactive)
-  (when (require 'night-theme nil t) ;; atom-one-dark-theme
-    (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'night t)
-    (when (require 'moom-font nil t)
-      (moom-font-size-reset))))
-
 (defun chomp (str)
   "Chomp leading and tailing whitespace from STR."
   (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'"
