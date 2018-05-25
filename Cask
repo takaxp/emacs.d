@@ -6,13 +6,10 @@
 
 ;; Private recipes, not in MELPA (private MELPA: https://pxaka.tokyo/melpa)
 (depends-on "postpone")
-(depends-on "moom")
 (depends-on "emacs-utils")
 (depends-on "ascii")
 (depends-on "help-fns+")
 (depends-on "git-complete")
-;; (depends-on "frame-cmds")
-;; (depends-on "frame-fns")
 
 ;; ;; Package install
 (depends-on "cask")
@@ -150,11 +147,12 @@
 (depends-on "all-the-icons-dired")
 (depends-on "smooth-scroll")
 (depends-on "manage-minor-mode")
+(depends-on "git-gutter-fringe")
 
 ;; ;; ;; System related
 (depends-on "dired-narrow")
 (depends-on "dired-du")
-(depends-on "gited")
+;; (depends-on "gited")
 (depends-on "neotree")
 (depends-on "network-watch")
 
@@ -165,6 +163,7 @@
 (depends-on "shackle")
 (depends-on "tabbar")
 (depends-on "spaceline-all-the-icons")
+(depends-on "moom")
 ;; (depends-on "exwm") ;; failed to instal ... Bad Request
 
 ;; ;; ;; Robustness

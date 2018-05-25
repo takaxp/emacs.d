@@ -1413,7 +1413,7 @@ Built-in の time-stamp.el を使う．
 
 バッファの保存時にタイムスタンプを記録する．以下の設定では，バッファの先頭から10行以内に，"Last Update: " があると，"Last Update: 2011-12-31@12:00"のようにタイムスタンプが記録される．
 
-#+BEGIN_SRC emacs-lisp :tangle yes :exports none
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; #+DATE 用
 (when (autoload-if-found
        '(time-stamp my-time-stamp)
@@ -2510,6 +2510,18 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+BEGIN_SRC emacs-lisp :tangle no
 (when (require 'tiny nil t)
   (tiny-setup-default))
+#+END_SRC
+
+** TODO [bratex] LaTeX 数式のブラケット入力をサポート
+
+ - [[https://github.com/sbrisard/bratex][sbrisard/bratex: Emacs package for manipulation of brackets in LaTeX mode]]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(bratex-config)
+       "bratex" nil t)
+  (with-eval-after-load "postpone"
+    (add-hook 'yatex-mode-hook #'bratex-config)))
 #+END_SRC
 
 * 表示サポート
@@ -3992,7 +4004,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   - キルリングの保持
   - 変更が加えられたファイル履歴の保持
   - =session-initialize= の呼び出しタイミングに注意．前回終了時の状況を保存しているため，他のパッケージの初期化が終った後に呼び出すと，パッケージが想定している初期化を上書きしてしまい，不安定になる． =after-init-hook= 推奨．
- - [ ] =M-x session-save-session= 
+ - [ ] =M-x session-save-session=
 
 session-undo-check を指定していると，保存時ではなくバッファを閉じるときの状態を保持する．
 
@@ -4689,6 +4701,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
     (require 'org-mobile nil t)
     (add-to-list 'org-modules 'org-id)
     (add-to-list 'org-modules 'ox-odt)
+    (when (version< "9.1.4" (org-version))
+      (add-to-list 'org-modules 'org-tempo))
 
     ;; C-c & が yasnippet にオーバーライドされているのを張り替える
     (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
@@ -5450,9 +5464,9 @@ will not be modified."
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "org"
   (add-to-list 'org-structure-template-alist
-               '("C" "#+BEGIN_COMMENT\n?\n#+END_COMMENT" ""))
-  (add-to-list 'org-structure-template-alist
-               '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>")))
+               (if (version< "9.1.4" (org-version))
+                   '(?S . "src emacs-lisp")
+                 '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
 #+END_SRC
 
 ** [MobileOrg] iOS との連携
@@ -6135,7 +6149,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "ox"
-  (require 'ox-reveal nil t))
+  (require 'ox-reveal nil t)
+  (when (version< "9.1.4" (org-version))
+    (setq org-reveal-note-key-char ?n)))
 #+END_SRC
 
 ** README を常に org-mode で開く
@@ -6370,8 +6386,8 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
            (alpha . (100 90))
            ;; (vertical-scroll-bars . nil)
            ;; (internal-border-width . 20)
-           ;; (ns-appearance . nil) ;; 26.0
-           ;; (ns-transparent-titlebar . t) ;; 26.0
+           ;; (ns-appearance . nil) ;; 26.0 {light, dark}
+           (ns-transparent-titlebar . t) ;; 26.0
            ) initial-frame-alist)))
 
  ;; for Linux
@@ -6961,10 +6977,10 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 ;; 2) Inconsolata, Migu 2M     : font-size=14,
 ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
 (defconst my-font-size 12)
-;; (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
-;; (defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
 (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
-(defconst my-ascii-font "Monaco") ;; "Inconsolata", Menlo, "Ricty Diminished"
+(defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
+;; (defconst my-ja-font "Hiragino Maru Gothic Pro") ;; "Hiragino Maru Gothic Pro"
+;; (defconst my-ascii-font "Inconsolata") ;; "Inconsolata", Menlo, "Ricty Diminished"
 (defun my-ja-font-setter (spec)
   (set-fontset-font nil 'japanese-jisx0208 spec)
   (set-fontset-font nil 'katakana-jisx0201 spec)
@@ -6996,17 +7012,13 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
  ;; CocoaEmacs
  ((memq window-system '(mac ns))
   (when (>= emacs-major-version 23)
-    ;; (with-eval-after-load "moom-font"
-    ;;   (custom-set-variables
-    ;;    '(moom-font-ascii my-ascii-font)
-    ;;    '(moom-font-ja my-ja-font)))
 
     ;; Fix ratio provided by set-face-attribute for fonts display
     (setq face-font-rescale-alist
           '(("^-apple-hiragino.*" . 1.0) ; 1.2
             (".*Migu.*" . 1.2)
             (".*Ricty.*" . 1.0)
-            (".*Inconsolata.*" 1.0)
+            (".*Inconsolata.*" . 1.0)
             (".*osaka-bold.*" . 1.0)     ; 1.2
             (".*osaka-medium.*" . 1.0)   ; 1.0
             (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
@@ -7114,14 +7126,16 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (interactive)
   (when (require 'daylight-theme nil t)
     (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'daylight t)))
+    (load-theme 'daylight t)
+    (add-to-list 'default-frame-alist '(ns-appearance . light))))
 
 ;;;###autoload
 (defun my-night-theme ()
   (interactive)
   (when (require 'night-theme nil t) ;; atom-one-dark-theme
     (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'night t)))
+    (load-theme 'night t)
+    (add-to-list 'default-frame-alist '(ns-appearance . dark))))
 #+END_SRC
 
 ** 時間帯を指定して起動時にテーマを切り替える

@@ -8,7 +8,7 @@
 (defconst loading-packages nil)
 ;; (setq loading-packages '(("moom" . nil)
 ;;                          ("moom-font" . nil)))
-(defconst my-boot-mode 'any) ;; {debug, test, any}
+(defconst my-boot-menu 'any) ;; {debug, test, any}
 (setq debug-on-error nil)
 (defvar batch-build nil) ;; see also init-eval.el
 
@@ -42,10 +42,10 @@
 ;; (3) load-path for { nil | debug | test } booting
 (defconst init-load-path nil)
 (cond
- ((equal my-boot-mode 'debug)
+ ((equal my-boot-menu 'debug)
   (load-path-setter '("~/Dropbox/config") 'load-path)
   (require 'my-debug))
- ((equal my-boot-mode 'test)
+ ((equal my-boot-menu 'test)
   (load-path-setter '("~/Dropbox/config") 'load-path)
   (require 'my-debug)
   (add-to-list 'load-path "~/devel/git/org-mode/lisp")

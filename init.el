@@ -426,43 +426,6 @@
 
 (setq yank-excluded-properties t)
 
-;; #+DATE 用
-(when (autoload-if-found
-       '(time-stamp my-time-stamp)
-       "time-stamp" nil t)
-
-  (add-hook 'before-save-hook #'my-time-stamp)
-
-  (with-eval-after-load "time-stamp"
-    (setq time-stamp-start "#\\+DATE:[ \t]*")
-    (setq time-stamp-end "$")
-    (setq time-stamp-line-limit 10) ;; def=8
-    (setq time-stamp-format "%04y-%02m-%02d")
-    (defun my-time-stamp ()
-      (if (boundp 'org-tree-slide-mode)
-          (unless org-tree-slide-mode
-            (time-stamp))
-        (time-stamp)))))
-
-;; #+UPDATE 用
-(when (autoload-if-found
-       '(update-stamp my-update-stamp)
-       "update-stamp" nil t)
-
-  (add-hook 'before-save-hook #'my-update-stamp)
-
-  (with-eval-after-load "update-stamp"
-    (setq update-stamp-start "#\\+UPDATE:[ \t]*")
-    (setq update-stamp-end "$")
-    (setq update-stamp-line-limit 10) ;; def=8
-    (custom-set-variables
-     '(update-stamp-format "%02H:%02M:%02S"))
-    (defun my-update-stamp ()
-      (if (boundp 'org-tree-slide-mode)
-          (unless org-tree-slide-mode
-            (update-stamp))
-        (update-stamp)))))
-
 (defadvice isearch-mode
     (around isearch-mode-default-string
             (forward &optional regexp op-fun recursive-edit word-p) activate)
@@ -948,6 +911,12 @@
 
   (with-eval-after-load "postpone"
     (global-set-key (kbd "C-c f <tab>") 'git-complete)))
+
+(when (autoload-if-found
+       '(bratex-config)
+       "bratex" nil t)
+  (with-eval-after-load "postpone"
+    (add-hook 'yatex-mode-hook #'bratex-config)))
 
 (with-eval-after-load "postpone"
   (when (require 'delight nil t)
@@ -2002,6 +1971,8 @@
     (require 'org-mobile nil t)
     (add-to-list 'org-modules 'org-id)
     (add-to-list 'org-modules 'ox-odt)
+    (when (version< "9.1.4" (org-version))
+      (add-to-list 'org-modules 'org-tempo))
 
     ;; C-c & が yasnippet にオーバーライドされているのを張り替える
     (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
@@ -2677,9 +2648,9 @@ will not be modified."
 
 (with-eval-after-load "org"
   (add-to-list 'org-structure-template-alist
-               '("C" "#+BEGIN_COMMENT\n?\n#+END_COMMENT" ""))
-  (add-to-list 'org-structure-template-alist
-               '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>")))
+               (if (version< "9.1.4" (org-version))
+                   '(?S . "src emacs-lisp")
+                 '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
 
 (when (autoload-if-found
        '(org-tree-slide-mode)
@@ -3076,7 +3047,9 @@ will not be modified."
           ":")))))
 
 (with-eval-after-load "ox"
-  (require 'ox-reveal nil t))
+  (require 'ox-reveal nil t)
+  (when (version< "9.1.4" (org-version))
+    (setq org-reveal-note-key-char ?n)))
 
 (when (autoload-if-found
        '(org-mode)
@@ -3172,8 +3145,8 @@ will not be modified."
            (alpha . (100 90))
            ;; (vertical-scroll-bars . nil)
            ;; (internal-border-width . 20)
-           ;; (ns-appearance . nil) ;; 26.0
-           ;; (ns-transparent-titlebar . t) ;; 26.0
+           ;; (ns-appearance . nil) ;; 26.0 {light, dark}
+           (ns-transparent-titlebar . t) ;; 26.0
            ) initial-frame-alist)))
 
  ;; for Linux
@@ -3472,10 +3445,10 @@ will not be modified."
 ;; 2) Inconsolata, Migu 2M     : font-size=14,
 ;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
 (defconst my-font-size 12)
-;; (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
-;; (defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
 (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
-(defconst my-ascii-font "Monaco") ;; "Inconsolata", Menlo, "Ricty Diminished"
+(defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
+;; (defconst my-ja-font "Hiragino Maru Gothic Pro") ;; "Hiragino Maru Gothic Pro"
+;; (defconst my-ascii-font "Inconsolata") ;; "Inconsolata", Menlo, "Ricty Diminished"
 (defun my-ja-font-setter (spec)
   (set-fontset-font nil 'japanese-jisx0208 spec)
   (set-fontset-font nil 'katakana-jisx0201 spec)
@@ -3507,17 +3480,13 @@ will not be modified."
  ;; CocoaEmacs
  ((memq window-system '(mac ns))
   (when (>= emacs-major-version 23)
-    ;; (with-eval-after-load "moom-font"
-    ;;   (custom-set-variables
-    ;;    '(moom-font-ascii my-ascii-font)
-    ;;    '(moom-font-ja my-ja-font)))
 
     ;; Fix ratio provided by set-face-attribute for fonts display
     (setq face-font-rescale-alist
           '(("^-apple-hiragino.*" . 1.0) ; 1.2
             (".*Migu.*" . 1.2)
             (".*Ricty.*" . 1.0)
-            (".*Inconsolata.*" 1.0)
+            (".*Inconsolata.*" . 1.0)
             (".*osaka-bold.*" . 1.0)     ; 1.2
             (".*osaka-medium.*" . 1.0)   ; 1.0
             (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
@@ -3583,14 +3552,16 @@ will not be modified."
   (interactive)
   (when (require 'daylight-theme nil t)
     (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'daylight t)))
+    (load-theme 'daylight t)
+    (add-to-list 'default-frame-alist '(ns-appearance . light))))
 
 ;;;###autoload
 (defun my-night-theme ()
   (interactive)
   (when (require 'night-theme nil t) ;; atom-one-dark-theme
     (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'night t)))
+    (load-theme 'night t)
+    (add-to-list 'default-frame-alist '(ns-appearance . dark))))
 
 (defun my-night-time-p (begin end)
   (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
