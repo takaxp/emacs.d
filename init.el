@@ -426,6 +426,43 @@
 
 (setq yank-excluded-properties t)
 
+;; #+DATE 用
+(when (autoload-if-found
+       '(time-stamp my-time-stamp)
+       "time-stamp" nil t)
+
+  (add-hook 'before-save-hook #'my-time-stamp)
+
+  (with-eval-after-load "time-stamp"
+    (setq time-stamp-start "#\\+DATE:[ \t]*")
+    (setq time-stamp-end "$")
+    (setq time-stamp-line-limit 10) ;; def=8
+    (setq time-stamp-format "%04y-%02m-%02d")
+    (defun my-time-stamp ()
+      (if (boundp 'org-tree-slide-mode)
+          (unless org-tree-slide-mode
+            (time-stamp))
+        (time-stamp)))))
+
+;; #+UPDATE 用
+(when (autoload-if-found
+       '(update-stamp my-update-stamp)
+       "update-stamp" nil t)
+
+  (add-hook 'before-save-hook #'my-update-stamp)
+
+  (with-eval-after-load "update-stamp"
+    (setq update-stamp-start "#\\+UPDATE:[ \t]*")
+    (setq update-stamp-end "$")
+    (setq update-stamp-line-limit 10) ;; def=8
+    (custom-set-variables
+     '(update-stamp-format "%02H:%02M:%02S"))
+    (defun my-update-stamp ()
+      (if (boundp 'org-tree-slide-mode)
+          (unless org-tree-slide-mode
+            (update-stamp))
+        (update-stamp)))))
+
 (defadvice isearch-mode
     (around isearch-mode-default-string
             (forward &optional regexp op-fun recursive-edit word-p) activate)
@@ -511,6 +548,13 @@
   (push '("\\.csv$" . csv-mode) auto-mode-alist))
 
 (autoload-if-found '(ascii-on ascii-off) "ascii" nil t)
+
+(when (autoload-if-found
+       '(cc-mode)
+       "cc-mode" nil t)
+
+  (push '("\\.pde$" . java-mode) auto-mode-alist) ;; Processing
+  (push '("\\.java$" . java-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(es-mode)
@@ -1291,6 +1335,29 @@
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 
 (when (autoload-if-found
+       '(dimmer-mode dimmer-process-all dimmer-off dimmer-on)
+       "dimmer" nil t)
+
+  (with-eval-after-load "postpone"
+    (unless batch-build
+      (postpone-message "dimmer-mode")
+      (custom-set-variables
+       '(dimmer-exclusion-regexp
+         "^\\*helm\\|^ \\*Minibuf\\|^ \\*Echo\\|^\\*Calendar")
+       '(dimmer-fraction 0.6))
+      (dimmer-mode 1)))
+
+  (with-eval-after-load "dimmer"
+    (defun dimmer-off ()
+      (dimmer-mode -1)
+      (dimmer-process-all))
+    (defun dimmer-on ()
+      (dimmer-mode 1)
+      (dimmer-process-all))
+    (add-hook 'focus-out-hook #'dimmer-off)
+    (add-hook 'focus-in-hook #'dimmer-on)))
+
+(when (autoload-if-found
        '(emms-play-file
          emms-play-playlist emms-play-directory my-play-bgm
          emms-next emms-previous emms-stop emms-pause)
@@ -1344,27 +1411,28 @@
         (when (require 'emms-player-mpv nil t)
           (add-to-list 'emms-player-list 'emms-player-mpv)
 
-          (defvar emms-player-mpv-ontop nil)
-          (defun emms-player-mpv-toggle-ontop ()
-            "Toggle float on top."
-            (interactive)
-            (if emms-player-mpv-ontop
-                (emms-player-mpv-disable-ontop)
-              (emms-player-mpv-enable-ontop)))
+          ;; (defvar emms-player-mpv-ontop nil)
+          ;; (defun emms-player-mpv-toggle-ontop ()
+          ;;   "Toggle float on top."
+          ;;   (interactive)
+          ;;   (if emms-player-mpv-ontop
+          ;;       (emms-player-mpv-disable-ontop)
+          ;;     (emms-player-mpv-enable-ontop)))
 
-          (defun emms-player-mpv-enable-ontop ()
-            "Enable float on top."
-            (let ((cmd (emms-player-mpv--format-command "set ontop yes")))
-              (call-process-shell-command cmd nil nil nil))
-            (setq emms-player-mpv-ontop t))
+          ;; (defun emms-player-mpv-enable-ontop ()
+          ;;   "Enable float on top."
+          ;;   (let ((cmd (emms-player-mpv--format-command "set ontop yes")))
+          ;;     (call-process-shell-command cmd nil nil nil))
+          ;;   (setq emms-player-mpv-ontop t))
 
-          (defun emms-player-mpv-disable-ontop ()
-            "Disable float on top."
-            (let ((cmd (emms-player-mpv--format-command "set ontop no")))
-              (call-process-shell-command cmd nil nil nil))
-            (setq emms-player-mpv-ontop nil))
+          ;; (defun emms-player-mpv-disable-ontop ()
+          ;;   "Disable float on top."
+          ;;   (let ((cmd (emms-player-mpv--format-command "set ontop no")))
+          ;;     (call-process-shell-command cmd nil nil nil))
+          ;;   (setq emms-player-mpv-ontop nil))
 
-          (global-set-key (kbd "C-c e t") 'emms-player-mpv-toggle-ontop))
+          ;; (global-set-key (kbd "C-c e t") 'emms-player-mpv-toggle-ontop)
+          )
 
       (message "--- mpv is NOT installed."))))
 
@@ -1957,14 +2025,16 @@
 
   (push '("\\.txt$" . org-mode) auto-mode-alist)
   (global-set-key (kbd "C-M-o")
-                  #'(lambda () (interactive) (show-org-buffer "next.org")))
+                  #'(lambda () (interactive)
+                      (show-org-buffer "next.org")))
 
   (with-eval-after-load "postpone"
     (global-set-key (kbd "C-c l") 'org-store-link)
     (global-set-key (kbd "C-c a") 'org-agenda)
     (global-set-key (kbd "C-c r") 'org-capture)
     (global-set-key (kbd "C-M-c")
-                    #'(lambda () (interactive) (show-org-buffer "org-ical.org"))))
+                    #'(lambda () (interactive)
+                        (show-org-buffer "org-ical.org"))))
 
   (with-eval-after-load "org"
     (require 'org-habit nil t)
@@ -2280,6 +2350,7 @@
           "----------------"
           ))
   ;; (setq org-agenda-current-time-string "<  d('- ' ｲﾏｺｺ)")
+  (setq org-agenda-current-time-string "< < < < < < < < < < < < < < < < ｲﾏｺｺ")
   (setq org-agenda-timegrid-use-ampm t)
 
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
@@ -2292,7 +2363,10 @@
 
   (with-eval-after-load "moom"
     ;; Expand the frame width temporarily during org-agenda is activated.
-    (add-hook 'org-agenda-mode-hook 'moom-change-frame-width-half-again)
+    (defun my-agenda-frame-width ()
+      (moom-change-frame-width
+       (floor (* 1.2 moom-frame-width-single))))
+    (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
     (defun advice:org-agenda--quit (&optional _bury)
       (moom-change-frame-width))
     (advice-add 'org-agenda--quit :after #'advice:org-agenda--quit))
@@ -3145,8 +3219,8 @@ will not be modified."
            (alpha . (100 90))
            ;; (vertical-scroll-bars . nil)
            ;; (internal-border-width . 20)
-           ;; (ns-appearance . nil) ;; 26.0 {light, dark}
-           (ns-transparent-titlebar . t) ;; 26.0
+           ;; (ns-appearance . nil) ;; 26.1 {light, dark}
+           (ns-transparent-titlebar . t) ;; 26.1
            ) initial-frame-alist)))
 
  ;; for Linux
@@ -3350,6 +3424,7 @@ will not be modified."
          moom-font-decrease moom-font-size-reset moom-font-resize)
        "moom-font" nil t)
 
+  (add-hook 'moom-font-after-resize-hook #'moom-expand-height)
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
 
   (with-eval-after-load "moom-font"
@@ -3364,30 +3439,50 @@ will not be modified."
 
 (defvar my-moom--mode-line-format nil)
 (make-variable-buffer-local 'my-moom--mode-line-format)
-(with-eval-after-load "moom"
-  (set-default 'my-moom--mode-line-format mode-line-format)
-  (defun my-moom-toggle-mode-line ()
-    "Toggle mode line."
-    (interactive)
-    (when mode-line-format
-      (setq my-moom--mode-line-format mode-line-format))
-    (if mode-line-format
-        (setq mode-line-format nil)
-      (setq mode-line-format my-moom--mode-line-format)
-      (redraw-display))
-    (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
-  (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
+(when (autoload-if-found
+       '(my-moom-mode-line-off my-moom-toggle-mode-line)
+       "moom" nil t)
 
-  (defvar my-moom-hide-mode-line t)
-  (defun advice:moom-toggle-frame-maximized ()
-    (when mode-line-format
-      (setq my-moom--mode-line-format mode-line-format))
-    (when my-moom-hide-mode-line
-      (setq mode-line-format
-            (if moom--maximized nil my-moom--mode-line-format))
-      (message ".")))
-  (advice-add 'moom-toggle-frame-maximized
-              :after #'advice:moom-toggle-frame-maximized))
+  (with-eval-after-load "pomodoro"
+    (set-default 'my-moom--mode-line-format mode-line-format)
+    (defun my-moom-mode-line-off ()
+      "Turn off mode line."
+      (setq my-moom--mode-line-format mode-line-format)
+      (pomodoro:visualize-stop)
+      (setq mode-line-format nil))
+    (defun my-moom-toggle-mode-line ()
+      "Toggle mode line."
+      (interactive)
+      (when mode-line-format
+        (setq my-moom--mode-line-format mode-line-format))
+      (if mode-line-format
+          (progn
+            (dimmer-mode 1)
+            (when (fboundp 'pomodoro:visualize-stop)
+              (pomodoro:visualize-stop))
+            (setq mode-line-format nil))
+        (dimmer-mode -1)
+        (when (fboundp 'pomodoro:visualize-start)
+          (pomodoro:visualize-start))
+        (setq mode-line-format my-moom--mode-line-format)
+        (redraw-frame))
+      (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
+    (unless batch-build
+      (my-moom-toggle-mode-line))
+    (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
+    (add-hook 'find-file-hook #'my-moom-mode-line-off))
+
+  (with-eval-after-load "moom"
+    (defvar my-moom-hide-mode-line t)
+    (defun advice:moom-toggle-frame-maximized ()
+      (when mode-line-format
+        (setq my-moom--mode-line-format mode-line-format))
+      (when my-moom-hide-mode-line
+        (setq mode-line-format
+              (if moom--maximized nil my-moom--mode-line-format))
+        (message ".")))
+    (advice-add 'moom-toggle-frame-maximized
+                :after #'advice:moom-toggle-frame-maximized)))
 
 (with-eval-after-load "postpone"
   (when (require 'shackle nil t)
@@ -3553,7 +3648,16 @@ will not be modified."
   (when (require 'daylight-theme nil t)
     (mapc 'disable-theme custom-enabled-themes)
     (load-theme 'daylight t)
-    (add-to-list 'default-frame-alist '(ns-appearance . light))))
+    (setq default-frame-alist
+          (delete (assoc 'ns-appearance default-frame-alist)
+                  default-frame-alist))
+    (setq default-frame-alist
+          (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                  default-frame-alist))
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+    (add-to-list 'default-frame-alist '(ns-appearance . light))
+    ;; (redraw-frame)
+    ))
 
 ;;;###autoload
 (defun my-night-theme ()
@@ -3561,7 +3665,16 @@ will not be modified."
   (when (require 'night-theme nil t) ;; atom-one-dark-theme
     (mapc 'disable-theme custom-enabled-themes)
     (load-theme 'night t)
-    (add-to-list 'default-frame-alist '(ns-appearance . dark))))
+    (setq default-frame-alist
+          (delete (assoc 'ns-appearance default-frame-alist)
+                  default-frame-alist))
+    (setq default-frame-alist
+          (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                  default-frame-alist))
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+    (add-to-list 'default-frame-alist '(ns-appearance . dark))
+    ;; (redraw-frame)
+    ))
 
 (defun my-night-time-p (begin end)
   (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
@@ -3831,15 +3944,14 @@ will not be modified."
   ;;     "  (´･(´･_･`) "
   ;;     " (´･_(´･_･`) "));
 
+  ;; 起動フラグ
+  (defvar my-pomodoro-visualize t)
+
   ;; タイマーを記録
   (defvar pomodoro:update-sign-timer nil)
 
-  (defvar my-pomodoro-annimation t)
-  (when (equal (system-name) "mba.local")
-    (setq my-pomodoro-annimation nil))
-
   ;; 初期状態を登録
-  (if my-pomodoro-annimation
+  (if my-pomodoro-visualize
       (setq pomodoro:mode-line-work-sign
             (car pomodoro:mode-line-work-sign-list))
     (setq pomodoro:mode-line-work-sign "")
@@ -3854,44 +3966,57 @@ will not be modified."
       sign-list))
 
   (defun pomodoro:activate-visual-sign (sign interval)
-    (cancel-timer pomodoro:update-sign-timer)
+    (when (timerp pomodoro:update-sign-timer)
+      (cancel-timer pomodoro:update-sign-timer))
     (setq pomodoro:update-sign-timer
           (run-at-time t interval sign)))
 
-  (defun pomodoro:stop-visualize ()
-    (setq pomodoro:mode-line-work-sign nil)
-    (setq pomodoro:mode-line-rest-sign nil)
-    (setq pomodoro:mode-line-long-rest-sign nil))
+  (defun pomodoro:visualize-start ()
+    (setq my-pomodoro-visualize t)
+    (cond ((eq pomodoro:current-state 'rest)
+           (pomodoro:update-rest-sign)
+           (pomodoro:activate-visual-rest-sign))
+          ((eq pomodoro:current-state 'long-rest)
+           (pomodoro:update-long-rest-sign)
+           (pomodoro:activate-visual-long-rest-sign))
+          (t
+           (pomodoro:update-work-sign)
+           (pomodoro:activate-visual-work-sign))))
+
+  (defun pomodoro:visualize-stop ()
+    (setq my-pomodoro-visualize nil)
+    (setq pomodoro:mode-line-work-sign "")
+    (setq pomodoro:mode-line-rest-sign "")
+    (setq pomodoro:mode-line-long-rest-sign "")
+    (force-mode-line-update t)
+    (when (timerp pomodoro:update-sign-timer)
+      (cancel-timer pomodoro:update-sign-timer)))
 
   (defun advice:pomodoro:start (f &rest minutes)
     "Extensions to stop pomodoro and timers"
     (interactive "P")
-    (setq pomodoro:update-sign-timer
-          (run-at-time t pomodoro:update-work-sign-interval
-                       'pomodoro:update-work-sign))
-    (setq pomodoro:mode-line-work-sign
-          (car pomodoro:mode-line-work-sign-list))
+    (pomodoro:visualize-start)
     (apply f minutes))
 
   (defun advice:pomodoro:stop (f &rest do-reset)
     "Extensions to stop pomodoro and timers"
     (interactive)
-    (when (timerp pomodoro:update-sign-timer)
-      (cancel-timer pomodoro:update-sign-timer))
+    (pomodoro:visualize-stop)
     (apply f do-reset))
 
-  (when my-pomodoro-annimation
+  (when my-pomodoro-visualize
     (advice-add 'pomodoro:start :around #'advice:pomodoro:start)
     (advice-add 'pomodoro:stop :around #'advice:pomodoro:stop))
 
   ;; work
   (defun pomodoro:update-work-sign ()
     "Update pomodoro work-sign on modeline."
-    (setq pomodoro:mode-line-work-sign
-          (car pomodoro:mode-line-work-sign-list))
-    (setq pomodoro:mode-line-work-sign-list
-          (pomodoro:list-rotate pomodoro:mode-line-work-sign-list))
-    (force-mode-line-update t))
+    (when my-pomodoro-visualize
+      (setq pomodoro:mode-line-work-sign
+            (car pomodoro:mode-line-work-sign-list))
+      (setq pomodoro:mode-line-work-sign-list
+            (pomodoro:list-rotate pomodoro:mode-line-work-sign-list))
+      (force-mode-line-update t)))
 
   (defun pomodoro:activate-visual-work-sign ()
     (pomodoro:activate-visual-sign
@@ -3900,11 +4025,12 @@ will not be modified."
   ;; rest
   (defun pomodoro:update-rest-sign ()
     "Update pomodoro rest-sign on modeline."
-    (setq pomodoro:mode-line-rest-sign
-          (car pomodoro:mode-line-rest-sign-list))
-    (setq pomodoro:mode-line-rest-sign-list
-          (pomodoro:list-rotate pomodoro:mode-line-rest-sign-list))
-    (force-mode-line-update t))
+    (when my-pomodoro-visualize
+      (setq pomodoro:mode-line-rest-sign
+            (car pomodoro:mode-line-rest-sign-list))
+      (setq pomodoro:mode-line-rest-sign-list
+            (pomodoro:list-rotate pomodoro:mode-line-rest-sign-list))
+      (force-mode-line-update t)))
 
   (defun pomodoro:activate-visual-rest-sign ()
     (pomodoro:activate-visual-sign
@@ -3913,18 +4039,19 @@ will not be modified."
   ;; long rest
   (defun pomodoro:update-long-rest-sign ()
     "Update pomodoro long-rest-sign on modeline."
-    (setq pomodoro:mode-line-long-rest-sign
-          (car pomodoro:mode-line-long-rest-sign-list))
-    (setq pomodoro:mode-line-long-rest-sign-list
-          (pomodoro:list-rotate pomodoro:mode-line-long-rest-sign-list))
-    (force-mode-line-update t))
+    (when my-pomodoro-visualize
+      (setq pomodoro:mode-line-long-rest-sign
+            (car pomodoro:mode-line-long-rest-sign-list))
+      (setq pomodoro:mode-line-long-rest-sign-list
+            (pomodoro:list-rotate pomodoro:mode-line-long-rest-sign-list))
+      (force-mode-line-update t)))
 
   (defun pomodoro:activate-visual-long-rest-sign ()
     (pomodoro:activate-visual-sign
      'pomodoro:update-long-rest-sign pomodoro:update-long-rest-sign-interval))
 
   ;; ステータスが切り替わる時に表示を入れ替える
-  (when my-pomodoro-annimation
+  (when my-pomodoro-visualize
     (add-hook 'pomodoro:finish-rest-hook #'pomodoro:activate-visual-work-sign)
     (add-hook 'pomodoro:finish-work-hook #'pomodoro:activate-visual-rest-sign)
     (add-hook 'pomodoro:long-rest-hook

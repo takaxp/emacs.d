@@ -1,9 +1,9 @@
-#+TITLE:    Configurations for GNU Emacs
-#+AUTHOR:   Takaaki Ishikawa
-#+EMAIL:    takaxp@ieee.org
-#+STARTUP:  content
-#+STARTUP:  nohideblocks
-#+SETUPFILE: theme-readtheorg.setup
+#+title:    Configurations for GNU Emacs
+#+author:   Takaaki Ishikawa
+#+email:    takaxp@ieee.org
+#+startup:  content
+#+startup:  nohideblocks
+#+setupfile: theme-readtheorg.setup
 
 * はじめに
 
@@ -1413,7 +1413,7 @@ Built-in の time-stamp.el を使う．
 
 バッファの保存時にタイムスタンプを記録する．以下の設定では，バッファの先頭から10行以内に，"Last Update: " があると，"Last Update: 2011-12-31@12:00"のようにタイムスタンプが記録される．
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
+#+BEGIN_SRC emacs-lisp :tangle yes :exports none
 ;; #+DATE 用
 (when (autoload-if-found
        '(time-stamp my-time-stamp)
@@ -1650,6 +1650,18 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (autoload-if-found '(ascii-on ascii-off) "ascii" nil t)
+#+END_SRC
+
+** javaモード
+
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(cc-mode)
+       "cc-mode" nil t)
+
+  (push '("\\.pde$" . java-mode) auto-mode-alist) ;; Processing
+  (push '("\\.java$" . java-mode) auto-mode-alist))
 #+END_SRC
 
 ** esモード
@@ -2415,6 +2427,8 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** [replace-from-region.el] 選択領域を別の文字列に置き換える
+
+ - https://www.emacswiki.org/emacs/replace-from-region.el
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (autoload-if-found
@@ -3497,6 +3511,32 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+BEGIN_SRC emacs-lisp :tangle yes
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 #+END_SRC
+** TODO [dimmer.el] 現在のバッファ以外の輝度を落とす
+
+#+begin_src emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(dimmer-mode dimmer-process-all dimmer-off dimmer-on)
+       "dimmer" nil t)
+
+  (with-eval-after-load "postpone"
+    (unless batch-build
+      (postpone-message "dimmer-mode")
+      (custom-set-variables
+       '(dimmer-exclusion-regexp
+         "^\\*helm\\|^ \\*Minibuf\\|^ \\*Echo\\|^\\*Calendar")
+       '(dimmer-fraction 0.6))
+      (dimmer-mode 1)))
+
+  (with-eval-after-load "dimmer"
+    (defun dimmer-off ()
+      (dimmer-mode -1)
+      (dimmer-process-all))
+    (defun dimmer-on ()
+      (dimmer-mode 1)
+      (dimmer-process-all))
+    (add-hook 'focus-out-hook #'dimmer-off)
+    (add-hook 'focus-in-hook #'dimmer-on)))
+#+end_src
 
 * メディアサポート
 ** [bongo.el] Emacsのバッファで音楽ライブラリを管理する
@@ -3602,27 +3642,28 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
         (when (require 'emms-player-mpv nil t)
           (add-to-list 'emms-player-list 'emms-player-mpv)
 
-          (defvar emms-player-mpv-ontop nil)
-          (defun emms-player-mpv-toggle-ontop ()
-            "Toggle float on top."
-            (interactive)
-            (if emms-player-mpv-ontop
-                (emms-player-mpv-disable-ontop)
-              (emms-player-mpv-enable-ontop)))
+          ;; (defvar emms-player-mpv-ontop nil)
+          ;; (defun emms-player-mpv-toggle-ontop ()
+          ;;   "Toggle float on top."
+          ;;   (interactive)
+          ;;   (if emms-player-mpv-ontop
+          ;;       (emms-player-mpv-disable-ontop)
+          ;;     (emms-player-mpv-enable-ontop)))
 
-          (defun emms-player-mpv-enable-ontop ()
-            "Enable float on top."
-            (let ((cmd (emms-player-mpv--format-command "set ontop yes")))
-              (call-process-shell-command cmd nil nil nil))
-            (setq emms-player-mpv-ontop t))
+          ;; (defun emms-player-mpv-enable-ontop ()
+          ;;   "Enable float on top."
+          ;;   (let ((cmd (emms-player-mpv--format-command "set ontop yes")))
+          ;;     (call-process-shell-command cmd nil nil nil))
+          ;;   (setq emms-player-mpv-ontop t))
 
-          (defun emms-player-mpv-disable-ontop ()
-            "Disable float on top."
-            (let ((cmd (emms-player-mpv--format-command "set ontop no")))
-              (call-process-shell-command cmd nil nil nil))
-            (setq emms-player-mpv-ontop nil))
+          ;; (defun emms-player-mpv-disable-ontop ()
+          ;;   "Disable float on top."
+          ;;   (let ((cmd (emms-player-mpv--format-command "set ontop no")))
+          ;;     (call-process-shell-command cmd nil nil nil))
+          ;;   (setq emms-player-mpv-ontop nil))
 
-          (global-set-key (kbd "C-c e t") 'emms-player-mpv-toggle-ontop))
+          ;; (global-set-key (kbd "C-c e t") 'emms-player-mpv-toggle-ontop)
+          )
 
       (message "--- mpv is NOT installed."))))
 #+END_SRC
@@ -3689,7 +3730,6 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
      '(sunshine-show-icons t)
      '(sunshine-units 'metric))))
 #+END_SRC
-
 * 履歴／ファイル管理
 ** [dired] ファイラのサポートツール
 
@@ -4687,14 +4727,16 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 
   (push '("\\.txt$" . org-mode) auto-mode-alist)
   (global-set-key (kbd "C-M-o")
-                  #'(lambda () (interactive) (show-org-buffer "next.org")))
+                  #'(lambda () (interactive)
+                      (show-org-buffer "next.org")))
 
   (with-eval-after-load "postpone"
     (global-set-key (kbd "C-c l") 'org-store-link)
     (global-set-key (kbd "C-c a") 'org-agenda)
     (global-set-key (kbd "C-c r") 'org-capture)
     (global-set-key (kbd "C-M-c")
-                    #'(lambda () (interactive) (show-org-buffer "org-ical.org"))))
+                    #'(lambda () (interactive)
+                        (show-org-buffer "org-ical.org"))))
 
   (with-eval-after-load "org"
     (require 'org-habit nil t)
@@ -5057,6 +5099,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
           "----------------"
           ))
   ;; (setq org-agenda-current-time-string "<  d('- ' ｲﾏｺｺ)")
+  (setq org-agenda-current-time-string "< < < < < < < < < < < < < < < < ｲﾏｺｺ")
   (setq org-agenda-timegrid-use-ampm t)
 
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
@@ -5069,7 +5112,10 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 
   (with-eval-after-load "moom"
     ;; Expand the frame width temporarily during org-agenda is activated.
-    (add-hook 'org-agenda-mode-hook 'moom-change-frame-width-half-again)
+    (defun my-agenda-frame-width ()
+      (moom-change-frame-width
+       (floor (* 1.2 moom-frame-width-single))))
+    (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
     (defun advice:org-agenda--quit (&optional _bury)
       (moom-change-frame-width))
     (advice-add 'org-agenda--quit :after #'advice:org-agenda--quit))
@@ -6386,8 +6432,8 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
            (alpha . (100 90))
            ;; (vertical-scroll-bars . nil)
            ;; (internal-border-width . 20)
-           ;; (ns-appearance . nil) ;; 26.0 {light, dark}
-           (ns-transparent-titlebar . t) ;; 26.0
+           ;; (ns-appearance . nil) ;; 26.1 {light, dark}
+           (ns-transparent-titlebar . t) ;; 26.1
            ) initial-frame-alist)))
 
  ;; for Linux
@@ -6656,7 +6702,6 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 1. http://www.emacswiki.org/emacs/download/frame-cmds.el
 2. http://www.emacswiki.org/emacs/download/frame-fns.el
 
-
 =moom-autuloads= に必要なコマンドを +羅列していますが，+ =melpa= でインストールする場合は関係ありません．パッケージ内で autoload 指定してあります． =with-eval-after-load= の中だけを設定すれば十分です．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -6686,6 +6731,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
          moom-font-decrease moom-font-size-reset moom-font-resize)
        "moom-font" nil t)
 
+  (add-hook 'moom-font-after-resize-hook #'moom-expand-height)
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
 
   (with-eval-after-load "moom-font"
@@ -6706,30 +6752,50 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defvar my-moom--mode-line-format nil)
 (make-variable-buffer-local 'my-moom--mode-line-format)
-(with-eval-after-load "moom"
-  (set-default 'my-moom--mode-line-format mode-line-format)
-  (defun my-moom-toggle-mode-line ()
-    "Toggle mode line."
-    (interactive)
-    (when mode-line-format
-      (setq my-moom--mode-line-format mode-line-format))
-    (if mode-line-format
-        (setq mode-line-format nil)
-      (setq mode-line-format my-moom--mode-line-format)
-      (redraw-display))
-    (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
-  (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
+(when (autoload-if-found
+       '(my-moom-mode-line-off my-moom-toggle-mode-line)
+       "moom" nil t)
 
-  (defvar my-moom-hide-mode-line t)
-  (defun advice:moom-toggle-frame-maximized ()
-    (when mode-line-format
-      (setq my-moom--mode-line-format mode-line-format))
-    (when my-moom-hide-mode-line
-      (setq mode-line-format
-            (if moom--maximized nil my-moom--mode-line-format))
-      (message ".")))
-  (advice-add 'moom-toggle-frame-maximized
-              :after #'advice:moom-toggle-frame-maximized))
+  (with-eval-after-load "pomodoro"
+    (set-default 'my-moom--mode-line-format mode-line-format)
+    (defun my-moom-mode-line-off ()
+      "Turn off mode line."
+      (setq my-moom--mode-line-format mode-line-format)
+      (pomodoro:visualize-stop)
+      (setq mode-line-format nil))
+    (defun my-moom-toggle-mode-line ()
+      "Toggle mode line."
+      (interactive)
+      (when mode-line-format
+        (setq my-moom--mode-line-format mode-line-format))
+      (if mode-line-format
+          (progn
+            (dimmer-mode 1)
+            (when (fboundp 'pomodoro:visualize-stop)
+              (pomodoro:visualize-stop))
+            (setq mode-line-format nil))
+        (dimmer-mode -1)
+        (when (fboundp 'pomodoro:visualize-start)
+          (pomodoro:visualize-start))
+        (setq mode-line-format my-moom--mode-line-format)
+        (redraw-frame))
+      (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
+    (unless batch-build
+      (my-moom-toggle-mode-line))
+    (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
+    (add-hook 'find-file-hook #'my-moom-mode-line-off))
+
+  (with-eval-after-load "moom"
+    (defvar my-moom-hide-mode-line t)
+    (defun advice:moom-toggle-frame-maximized ()
+      (when mode-line-format
+        (setq my-moom--mode-line-format mode-line-format))
+      (when my-moom-hide-mode-line
+        (setq mode-line-format
+              (if moom--maximized nil my-moom--mode-line-format))
+        (message ".")))
+    (advice-add 'moom-toggle-frame-maximized
+                :after #'advice:moom-toggle-frame-maximized)))
 #+END_SRC
 
 ** [popwin.el] ポップアップウィンドウの制御
@@ -7127,7 +7193,16 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (when (require 'daylight-theme nil t)
     (mapc 'disable-theme custom-enabled-themes)
     (load-theme 'daylight t)
-    (add-to-list 'default-frame-alist '(ns-appearance . light))))
+    (setq default-frame-alist
+          (delete (assoc 'ns-appearance default-frame-alist)
+                  default-frame-alist))
+    (setq default-frame-alist
+          (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                  default-frame-alist))
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+    (add-to-list 'default-frame-alist '(ns-appearance . light))
+    ;; (redraw-frame)
+    ))
 
 ;;;###autoload
 (defun my-night-theme ()
@@ -7135,7 +7210,16 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (when (require 'night-theme nil t) ;; atom-one-dark-theme
     (mapc 'disable-theme custom-enabled-themes)
     (load-theme 'night t)
-    (add-to-list 'default-frame-alist '(ns-appearance . dark))))
+    (setq default-frame-alist
+          (delete (assoc 'ns-appearance default-frame-alist)
+                  default-frame-alist))
+    (setq default-frame-alist
+          (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                  default-frame-alist))
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+    (add-to-list 'default-frame-alist '(ns-appearance . dark))
+    ;; (redraw-frame)
+    ))
 #+END_SRC
 
 ** 時間帯を指定して起動時にテーマを切り替える
@@ -7524,15 +7608,14 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
   ;;     "  (´･(´･_･`) "
   ;;     " (´･_(´･_･`) "));
 
+  ;; 起動フラグ
+  (defvar my-pomodoro-visualize t)
+
   ;; タイマーを記録
   (defvar pomodoro:update-sign-timer nil)
 
-  (defvar my-pomodoro-annimation t)
-  (when (equal (system-name) "mba.local")
-    (setq my-pomodoro-annimation nil))
-
   ;; 初期状態を登録
-  (if my-pomodoro-annimation
+  (if my-pomodoro-visualize
       (setq pomodoro:mode-line-work-sign
             (car pomodoro:mode-line-work-sign-list))
     (setq pomodoro:mode-line-work-sign "")
@@ -7547,44 +7630,57 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
       sign-list))
 
   (defun pomodoro:activate-visual-sign (sign interval)
-    (cancel-timer pomodoro:update-sign-timer)
+    (when (timerp pomodoro:update-sign-timer)
+      (cancel-timer pomodoro:update-sign-timer))
     (setq pomodoro:update-sign-timer
           (run-at-time t interval sign)))
 
-  (defun pomodoro:stop-visualize ()
-    (setq pomodoro:mode-line-work-sign nil)
-    (setq pomodoro:mode-line-rest-sign nil)
-    (setq pomodoro:mode-line-long-rest-sign nil))
+  (defun pomodoro:visualize-start ()
+    (setq my-pomodoro-visualize t)
+    (cond ((eq pomodoro:current-state 'rest)
+           (pomodoro:update-rest-sign)
+           (pomodoro:activate-visual-rest-sign))
+          ((eq pomodoro:current-state 'long-rest)
+           (pomodoro:update-long-rest-sign)
+           (pomodoro:activate-visual-long-rest-sign))
+          (t
+           (pomodoro:update-work-sign)
+           (pomodoro:activate-visual-work-sign))))
+
+  (defun pomodoro:visualize-stop ()
+    (setq my-pomodoro-visualize nil)
+    (setq pomodoro:mode-line-work-sign "")
+    (setq pomodoro:mode-line-rest-sign "")
+    (setq pomodoro:mode-line-long-rest-sign "")
+    (force-mode-line-update t)
+    (when (timerp pomodoro:update-sign-timer)
+      (cancel-timer pomodoro:update-sign-timer)))
 
   (defun advice:pomodoro:start (f &rest minutes)
     "Extensions to stop pomodoro and timers"
     (interactive "P")
-    (setq pomodoro:update-sign-timer
-          (run-at-time t pomodoro:update-work-sign-interval
-                       'pomodoro:update-work-sign))
-    (setq pomodoro:mode-line-work-sign
-          (car pomodoro:mode-line-work-sign-list))
+    (pomodoro:visualize-start)
     (apply f minutes))
 
   (defun advice:pomodoro:stop (f &rest do-reset)
     "Extensions to stop pomodoro and timers"
     (interactive)
-    (when (timerp pomodoro:update-sign-timer)
-      (cancel-timer pomodoro:update-sign-timer))
+    (pomodoro:visualize-stop)
     (apply f do-reset))
 
-  (when my-pomodoro-annimation
+  (when my-pomodoro-visualize
     (advice-add 'pomodoro:start :around #'advice:pomodoro:start)
     (advice-add 'pomodoro:stop :around #'advice:pomodoro:stop))
 
   ;; work
   (defun pomodoro:update-work-sign ()
     "Update pomodoro work-sign on modeline."
-    (setq pomodoro:mode-line-work-sign
-          (car pomodoro:mode-line-work-sign-list))
-    (setq pomodoro:mode-line-work-sign-list
-          (pomodoro:list-rotate pomodoro:mode-line-work-sign-list))
-    (force-mode-line-update t))
+    (when my-pomodoro-visualize
+      (setq pomodoro:mode-line-work-sign
+            (car pomodoro:mode-line-work-sign-list))
+      (setq pomodoro:mode-line-work-sign-list
+            (pomodoro:list-rotate pomodoro:mode-line-work-sign-list))
+      (force-mode-line-update t)))
 
   (defun pomodoro:activate-visual-work-sign ()
     (pomodoro:activate-visual-sign
@@ -7593,11 +7689,12 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
   ;; rest
   (defun pomodoro:update-rest-sign ()
     "Update pomodoro rest-sign on modeline."
-    (setq pomodoro:mode-line-rest-sign
-          (car pomodoro:mode-line-rest-sign-list))
-    (setq pomodoro:mode-line-rest-sign-list
-          (pomodoro:list-rotate pomodoro:mode-line-rest-sign-list))
-    (force-mode-line-update t))
+    (when my-pomodoro-visualize
+      (setq pomodoro:mode-line-rest-sign
+            (car pomodoro:mode-line-rest-sign-list))
+      (setq pomodoro:mode-line-rest-sign-list
+            (pomodoro:list-rotate pomodoro:mode-line-rest-sign-list))
+      (force-mode-line-update t)))
 
   (defun pomodoro:activate-visual-rest-sign ()
     (pomodoro:activate-visual-sign
@@ -7606,18 +7703,19 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
   ;; long rest
   (defun pomodoro:update-long-rest-sign ()
     "Update pomodoro long-rest-sign on modeline."
-    (setq pomodoro:mode-line-long-rest-sign
-          (car pomodoro:mode-line-long-rest-sign-list))
-    (setq pomodoro:mode-line-long-rest-sign-list
-          (pomodoro:list-rotate pomodoro:mode-line-long-rest-sign-list))
-    (force-mode-line-update t))
+    (when my-pomodoro-visualize
+      (setq pomodoro:mode-line-long-rest-sign
+            (car pomodoro:mode-line-long-rest-sign-list))
+      (setq pomodoro:mode-line-long-rest-sign-list
+            (pomodoro:list-rotate pomodoro:mode-line-long-rest-sign-list))
+      (force-mode-line-update t)))
 
   (defun pomodoro:activate-visual-long-rest-sign ()
     (pomodoro:activate-visual-sign
      'pomodoro:update-long-rest-sign pomodoro:update-long-rest-sign-interval))
 
   ;; ステータスが切り替わる時に表示を入れ替える
-  (when my-pomodoro-annimation
+  (when my-pomodoro-visualize
     (add-hook 'pomodoro:finish-rest-hook #'pomodoro:activate-visual-work-sign)
     (add-hook 'pomodoro:finish-work-hook #'pomodoro:activate-visual-rest-sign)
     (add-hook 'pomodoro:long-rest-hook

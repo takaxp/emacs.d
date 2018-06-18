@@ -451,7 +451,8 @@
   (interactive)
   (message "%s" (concat
                  (format-time-string "%Y-%m-%d") " ("
-                 (format-time-string "%a") ") "
+                 (format-time-string "%a.") ") "
+                 (format-time-string "W:%W @")
                  (format-time-string "%H:%M"))))
 (global-set-key (kbd "C-c t") 'my-date)
 
