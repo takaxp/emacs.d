@@ -1,3 +1,5 @@
+;;#+date: 2018-08-30
+
 (source gnu)
 (source melpa)
 (source org)
@@ -11,12 +13,13 @@
 (depends-on "help-fns+")
 (depends-on "git-complete")
 
-;; ;; Package install
+;; Package install
 (depends-on "cask")
 (depends-on "cask-mode")
 (depends-on "paradox")
 (depends-on "epl")
 (depends-on "epm")
+(depends-on "use-package")
 
 ;; Org Mode
 (depends-on "org-plus-contrib")
@@ -26,12 +29,14 @@
 (depends-on "ox-gfm")
 (depends-on "ox-twbs")
 (depends-on "ox-reveal")
+(depends-on "ox-hugo")
 (depends-on "ob-http")
 (depends-on "org-review")
 (depends-on "org-tree-slide")
 (depends-on "org-dashboard")
 (depends-on "org-random-todo")
 (depends-on "org-attach-screenshot")
+(depends-on "org-download")
 (depends-on "org-grep")
 (depends-on "org-clock-today")
 (depends-on "org-recent-headings")
@@ -46,6 +51,7 @@
 (depends-on "calfw-org")
 (depends-on "calfw")
 (depends-on "org-bookmark-heading")
+(depends-on "org-emms")
 
 ;; Major modes
 (depends-on "python-mode")
@@ -90,10 +96,12 @@
 (depends-on "ggtags")
 (depends-on "gxref") ;; emacs 25.1 or later
 (depends-on "bug-hunter")
+(depends-on "clang-format")
+(depends-on "format-all")
 ;; (depends-on "ac-rtags")
 ;; (depends-on "flycheck-rtags")
 
-;; ;; Helm
+;; Helm
 (depends-on "helm")
 (depends-on "helm-ag")
 (depends-on "helm-bm")
@@ -107,6 +115,7 @@
 (depends-on "helm-emmet")
 (depends-on "helm-emms")
 (depends-on "helm-pass")
+(depends-on "helm-dired-history")
 
 ;; (depends-on "helm-css-scss")
 ;; (depends-on "helm-google")
@@ -127,10 +136,10 @@
 (depends-on "ac-js2")
 (depends-on "migemo")
 (depends-on "edit-color-stamp")
-;; (depends-on "parinfer")
 (depends-on "tiny")
+;; (depends-on "parinfer")
 
-;; ;; Visualize
+;; Visualize
 (depends-on "volatile-highlights")
 (depends-on "highlight-symbol")
 (depends-on "fancy-narrow")
@@ -138,6 +147,7 @@
 (depends-on "mic-paren")
 (depends-on "shut-up")
 (depends-on "delight") ;; or diminish
+(depends-on "dimmer")
 (depends-on "rainbow-mode")
 (depends-on "centered-cursor-mode")
 (depends-on "hide-lines")
@@ -148,29 +158,29 @@
 (depends-on "smooth-scroll")
 (depends-on "manage-minor-mode")
 (depends-on "git-gutter-fringe")
+(depends-on "isolate")
 
-;; ;; ;; System related
+;; System related
 (depends-on "dired-narrow")
 (depends-on "dired-du")
-;; (depends-on "gited")
+(depends-on "dired-recent")
 (depends-on "neotree")
 (depends-on "network-watch")
+;; (depends-on "gited")
 
-;; ;; (depends-on "system-packages")
-
-;; ;; ;; Frame and windows
+;; Frame and windows
 (depends-on "popwin")
 (depends-on "shackle")
 (depends-on "tabbar")
-(depends-on "spaceline-all-the-icons")
 (depends-on "moom")
+;; (depends-on "spaceline-all-the-icons")
 ;; (depends-on "exwm") ;; failed to instal ... Bad Request
 
-;; ;; ;; Robustness
+;; Robustness
 (depends-on "session")
 (depends-on "backup-each-save")
 
-;; ;; ;; Efficiency
+;; Efficiency
 (depends-on "selected")
 (depends-on "replace-from-region")
 (depends-on "quickrun")
@@ -180,7 +190,7 @@
 (depends-on "syntax-subword")
 (depends-on "goto-chg")
 
-;; ;; Applications
+;; Applications
 (depends-on "lingr")
 (depends-on "bm")
 (depends-on "ag")
@@ -201,8 +211,6 @@
 ;; Log
 (depends-on "keyfreq")
 ;; (depends-on "sauron")
-
-;; 2018-01-04 updated.
 
 ;; Examples
 ;; :git "https://.../hoge.git"

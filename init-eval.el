@@ -45,8 +45,11 @@
 (require 'checkdoc) ;; advice
 
 (if (require 'shut-up nil t)
-    (shut-up (require 'emms-setup nil t))
-  (require 'emms-setup nil t))
+    (progn
+      (shut-up (require 'emms-setup nil t))
+      (shut-up (require 'yatex nil t)))
+  (require 'emms-setup nil t)
+  (require 'yatex nil t))
 
 (provide 'init-eval)
 ;;; init-eval.el ends here

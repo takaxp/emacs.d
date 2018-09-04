@@ -33,6 +33,7 @@
    ,(expand-file-name ".cask/bin")
    ,(expand-file-name "devel/git/tern/bin")
    ,(expand-file-name "Dropbox/emacs.d/bin")
+   "/usr/local/opt/llvm/bin"
    "/Applications/UpTex.app/teTeX/bin"
    "/Applications/LibreOffice.app/Contents/MacOS/"
    "/Applications/qt_color_picker.app/Contents/MacOS/"

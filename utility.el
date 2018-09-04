@@ -33,7 +33,7 @@
   :group 'takaxp-mac)
 
 ;;;###autoload
-(defun open-current-directory ()
+(defun open-current-directory-in-terminal ()
   " Open Current Directory for MacOSX
   0) Put this function in your .emacs
   1) M-x open-current-directory
@@ -165,11 +165,11 @@
 (defun insert-org-file-header-template ()
   (interactive)
   (when (string= major-mode 'org-mode)
-    (let ((title "#+TITLE:\t\n")
-          (date "#+DATE: \t\n")
-          (update "#+UPDATE:\t\n")
-          (author "#+AUTHOR:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
-          (option "#+OPTIONS:\t\\n:t\n")
+    (let ((title "#+title:\t\n")
+          (date "#+date: \t\n")
+          (update "#+update:\t\n")
+          (author "#+author:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
+          (option "#+options:\t\\n:t\n")
           (other "\n"))
       (goto-char 0)
       (save-excursion

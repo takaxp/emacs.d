@@ -7,10 +7,10 @@
 
 * はじめに
 
-  - この文章は，[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使って生成しています．
-  - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]] 本体は，[[https://github.com/takaxp/emacs.d/][github]] に公開しています．
   - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]]，[[https://pxaka.tokyo/wiki/doku.php?id=emacs:init.el][wiki]] を生成しています．
+    - wiki への出力は，[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使って生成しています．
   - 一部の関数定義を [[https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el][utility.el]] に分離しています．
+  - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]] 本体は，[[https://github.com/takaxp/emacs.d/][github]] に公開しています．
   - コピペだけで動かなかった場合は，ページ最下部のコメント欄にご意見をどうぞ．
     - github.io 以下で閲覧する場合は，コメント欄が表示されません．
 
@@ -1033,7 +1033,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
-  (when (eq window-system 'ns)
+  (when (or (eq window-system 'ns)
+            (fboundp 'mac-get-current-input-source))
     (defun ns-org-heading-auto-ascii ()
       (when (and window-focus-p
                  (eq major-mode 'org-mode)
@@ -1422,16 +1423,21 @@ Built-in の time-stamp.el を使う．
   (add-hook 'before-save-hook #'my-time-stamp)
 
   (with-eval-after-load "time-stamp"
-    (setq time-stamp-start "#\\+DATE:[ \t]*")
+    (setq time-stamp-start "#\\+date:[ \t]*")
     (setq time-stamp-end "$")
     (setq time-stamp-line-limit 10) ;; def=8
-    (setq time-stamp-format "%04y-%02m-%02d")
+    (setq time-stamp-default-format "%04y-%02m-%02d")
     (defun my-time-stamp ()
+      (setq time-stamp-format
+            (if (eq major-mode 'org-mode)
+                "[%04y-%02m-%02d %3a %02H:%02M]" time-stamp-default-format))
       (if (boundp 'org-tree-slide-mode)
           (unless org-tree-slide-mode
             (time-stamp))
         (time-stamp)))))
+#+end_src
 
+#+begin_src emacs-lisp :tangle no :exports yes
 ;; #+UPDATE 用
 (when (autoload-if-found
        '(update-stamp my-update-stamp)
@@ -1440,7 +1446,7 @@ Built-in の time-stamp.el を使う．
   (add-hook 'before-save-hook #'my-update-stamp)
 
   (with-eval-after-load "update-stamp"
-    (setq update-stamp-start "#\\+UPDATE:[ \t]*")
+    (setq update-stamp-start "#\\+update:[ \t]*")
     (setq update-stamp-end "$")
     (setq update-stamp-line-limit 10) ;; def=8
     (custom-set-variables
@@ -1451,7 +1457,6 @@ Built-in の time-stamp.el を使う．
             (update-stamp))
         (update-stamp)))))
 #+END_SRC
-
 
 #+BEGIN_SRC emacs-lisp :tangle no :exports yes
 (add-hook 'before-save-hook #'time-stamp)
@@ -1977,6 +1982,67 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     (modify-coding-system-alist 'file "\\.tex$'" 'utf-8)))
 #+END_SRC
 
+ショートカットの利用を強制するメッセージが出るので，抑制します．
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "yatex"
+  (put 'YaTeX-insert-braces 'begend-guide 2)
+
+  (defun advice:YaTeX-insert-begin-end (env region-mode)
+    "Insert \\begin{mode-name} and \\end{mode-name}.
+This works also for other defined begin/end tokens to define the structure."
+    (setq YaTeX-current-completion-type 'begin)
+    (let*((ccol (current-column)) beg beg2 exchange
+	        (_arg region-mode)		;for old compatibility
+	        (indent-column (+ ccol YaTeX-environment-indent))(_i 1) _func)
+      (if (and region-mode (> (point) (mark)))
+	        (progn (exchange-point-and-mark)
+	               (setq exchange t
+		                   ccol (current-column)
+		                   indent-column (+ ccol YaTeX-environment-indent))))
+      ;;VER2 (insert "\\begin{" env "}" (YaTeX-addin env))
+      (setq beg (point))
+      (YaTeX-insert-struc 'begin env)
+      (setq beg2 (point))
+      (insert "\n")
+      (indent-to indent-column)
+      (save-excursion
+        ;;indent optional argument of \begin{env}, if any
+        (while (> (point-beginning-of-line) beg)
+	        (skip-chars-forward "\\s " (point-end-of-line))
+	        (indent-to indent-column)
+	        (forward-line -1)))
+      (require 'yatexenv)
+      (if region-mode
+	        ;;if region-mode, indent all text in the region
+	        (save-excursion
+	          (if (fboundp (intern-soft (concat "YaTeX-enclose-" env)))
+	              (funcall (intern-soft (concat "YaTeX-enclose-" env))
+		                     (point) (mark))
+	            (while (< (progn (forward-line 1) (point)) (mark))
+	              (if (eolp) nil
+		              (skip-chars-forward " \t\n")
+		              (indent-to indent-column))))))
+      (if region-mode (exchange-point-and-mark))
+      (indent-to ccol)
+      ;;VER2 (insert "\\end{" env "}\n")
+      (YaTeX-insert-struc 'end env)
+      (YaTeX-reindent ccol)
+      (if region-mode
+	        (progn
+	          (insert "\n")
+	          (or exchange (exchange-point-and-mark)))
+        (goto-char beg2)
+        (YaTeX-intelligent-newline nil)
+        (YaTeX-indent-line))
+      (YaTeX-package-auto-usepackage env 'env)
+      (if YaTeX-current-position-register
+	        (point-to-register YaTeX-current-position-register))))
+
+  (advice-add 'YaTeX-insert-begin-end
+              :override #'advice:YaTeX-insert-begin-end))
+#+end_src
+
 ** [auxtex.el] AUCTEXモード
 
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -2426,6 +2492,17 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
       (smartparens-global-mode))))
 #+END_SRC
 
+** TODO [isolate.el] ブラケット等の入力をアシスト
+
+ - [[https://github.com/casouri/isolate][casouri/isolate: Surrounding magics, extensible]]
+
+#+begin_src emacs-lisp :tangle yes
+(autoload-if-found
+ '(isolate-quick-add isolate-long-add isolate-quick-delete
+                     isolate-quick-chnge isolate-long-change)
+ "isolate" nil t)
+#+end_src
+
 ** [replace-from-region.el] 選択領域を別の文字列に置き換える
 
  - https://www.emacswiki.org/emacs/replace-from-region.el
@@ -2783,8 +2860,8 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
   (setq initial-scratch-message nil)
   (setq initial-major-mode 'empty-booting-mode)
   ;;  :underline "#203e6f"
-  (set-face-foreground 'header-line "#FFFFFF") ;; "#203e6f" #333333
-  (set-face-background 'header-line "#7e59b5") ;; #ffb08c
+  (set-face-foreground 'header-line "#FFFFFF") ;; "#203e6f" #333333 "#FFFFFF"
+  (set-face-background 'header-line "#5F7DB7") ;; "#ffb08c" "#7e59b5"
   (set-face-attribute 'header-line nil
                       :inherit nil
                       :overline nil
@@ -2795,8 +2872,15 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
          (format-time-string "W%W: %Y-%m-%d %a."))))
 
 (with-eval-after-load "postpone"
-  (global-set-key (kbd "C-M-s") #'(lambda () (interactive)
-                                    (switch-to-buffer "*scratch*"))))
+  (defun advice:split-window-below (&optional _size)
+    "An extention to switch to \*scratch\* buffer after splitting window."
+    (my-open-scratch))
+  ;; (advice-add 'split-window-below :after #'advice:split-window-below)
+  (defun my-open-scratch ()
+    "Switch the current buffer to \*scratch\* buffer."
+    (interactive)
+    (switch-to-buffer "*scratch*"))
+  (global-set-key (kbd "C-M-s") #'my-open-scratch))
 #+END_SRC
 
 ** バッテリー情報をモードラインに表示する
@@ -3100,6 +3184,14 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
        "helm-config" nil t)
 
   (with-eval-after-load "postpone"
+
+    ;; (defun my-helm-swoop ()
+    ;;   (interactive)
+    ;;   (when (and (fboundp 'dimmer-mode)
+    ;;              (eq dimmer-mode t))
+    ;;     (setq dimmer-mode -1))
+    ;;   (helm-swoop))
+
     (global-set-key (kbd "M-x") 'helm-M-x)
     (global-set-key (kbd "C-M-r") 'helm-recentf)
     (global-set-key (kbd "C-M-l") 'helm-locate)
@@ -3475,7 +3567,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
 =dired= と =neotree= で，ファイルのアイコンを表示します． =all-the-icons= をインストール後に， =M-x all-the-icons-install-fonts= を忘れずに実行する必要があります． =neotree= の設定は別セクションに記載しています．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
 (when (autoload-if-found
        '(all-the-icons-dired-mode)
        "all-the-icons-dired" nil t)
@@ -3523,7 +3615,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
       (postpone-message "dimmer-mode")
       (custom-set-variables
        '(dimmer-exclusion-regexp
-         "^\\*helm\\|^ \\*Minibuf\\|^ \\*Echo\\|^\\*Calendar")
+         "^\\*[Hh]elm\\|^ \\*Minibuf\\|^ \\*Echo\\|^\\*Calendar\\|*Org")
        '(dimmer-fraction 0.6))
       (dimmer-mode 1)))
 
@@ -3763,6 +3855,37 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
                            "gif" "png" "jpg" "jpeg")
                           string-end)) "open")))))
 #+END_SRC
+
+** TODO [dired-x] dired 拡張設定
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "dired"
+  (when (require 'dired-x nil t)
+    (defun my-reveal-in-finder ()
+      "Reveal the current buffer in Finder."
+      (interactive)
+      (shell-command-to-string "open ."))
+    ;; dired-x を読み込んだあとじゃないとだめ
+    (define-key dired-mode-map (kbd "M-f") 'my-reveal-in-finder)
+    (dired-extra-startup)))
+
+(with-eval-after-load "helm-config"
+  (require 'helm-dired-history nil t))
+#+end_src
+
+** TODO [dired-recent] 訪問したディレクトリの履歴を取る
+
+#+begin_src emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(dired-recent-open dired-recent-mode)
+       "dired-recent" nil t)
+
+  (global-set-key (kbd "C-x C-d") 'dired-recent-open)
+
+  (with-eval-after-load "dired-recent"
+    (require 'helm-config nil t)
+    (dired-recent-mode 1)))
+#+end_src
 
 ** Undoバッファを無限に取る
 
@@ -4289,7 +4412,6 @@ http://www.emacswiki.org/emacs/EmacsSession
   - auto-complete より前に hook設定しておくと余計なエラーが出ないようです．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; http://qiita.com/senda-akiha/items/cddb02cfdbc0c8c7bc2b
 (when (autoload-if-found
        '(flycheck-mode)
        "flycheck" nil t)
@@ -4300,20 +4422,21 @@ http://www.emacswiki.org/emacs/EmacsSession
 
   (with-eval-after-load "flycheck"
     (require 'helm-flycheck nil t)
-    (setq flycheck-gcc-language-standard "c++11")
-    (setq flycheck-clang-language-standard "c++11")
-    (when (require 'flycheck-clang-tidy nil t)
-      (add-hook 'flycheck-mode-hook #'flycheck-clang-tidy-setup))
-    (when (require 'flycheck-pos-tip nil t)
-      '(custom-set-variables
-        '(flycheck-display-errors-function
-          #'flycheck-pos-tip-error-messages)))))
+    (setq flycheck-gcc-language-standard "c++14")
+    (setq flycheck-clang-language-standard "c++14")
+    ;; TODO: really needed?
+    ;; (when (require 'flycheck-clang-tidy nil t)
+    ;;   (add-hook 'flycheck-mode-hook #'flycheck-clang-tidy-setup))
+    ;; http://qiita.com/senda-akiha/items/cddb02cfdbc0c8c7bc2b
+    ;; (when (require 'flycheck-pos-tip nil t)
+    ;;   '(custom-set-variables
+    ;;     '(flycheck-display-errors-function
+    ;;       #'flycheck-pos-tip-error-messages)))
+    ))
 
 ;; (flycheck-add-next-checker 'javascript-jshint
 ;; 'javascript-gjslint)
 #+END_SRC
-
-#+RESULTS:
 
 ** [auto-complete.el] 自動補完機能
 
@@ -4410,7 +4533,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 現状では，補完直後にデフォルトの引数がすべて書き込まれてしまう．なんかうまいことしたいものだ．
 
 #+BEGIN_SRC sh
-clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -I/usr/local/include -I/usr/local/include/netpbm
+clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch ~/.emacs.d/stdafx.h -o ~/.emacs.d/stdafx.pch -I/opt/local/include -I/opt/local/include/netpbm -I/Users/taka/devel/icp/lib
 #+END_SRC
 
 以下の設定は，先に =auto-complete.el= に関する設定を読み込んでいることを前提としている．
@@ -4423,15 +4546,16 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
   (add-hook 'c-mode-common-hook #'ac-cc-mode-setup)
 
   (with-eval-after-load "auto-complete"
-    (require 'auto-complete-clang nil t)
-    ;; ac-cc-mode-setup のオーバーライド
-    (defun ac-cc-mode-setup ()
-      (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
-      (setq ac-clang-flags '("-w" "-ferror-limit" "1"
-                             "-fcxx-exceptions"))
-      (setq ac-sources '(ac-source-clang
-                         ac-source-yasnippet
-                         ac-source-gtags)))))
+    (when (require 'auto-complete-clang nil t)
+      (setq ac-clang-executable (executable-find "clang"))
+      ;; ac-cc-mode-setup のオーバーライド
+      (defun ac-cc-mode-setup ()
+        (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
+        (setq ac-clang-flags '("-std=c++14" "-w" "-ferror-limit" "1"
+                               "-fcxx-exceptions"))
+        (setq ac-sources '(ac-source-clang
+                           ac-source-yasnippet
+                           ac-source-gtags))))))
 #+END_SRC 
 
 次のコードを hoge.cpp として保存し， =v= と =t= について補完できれば， =STL= と =Boost= のプリコンパイルヘッダが有効になっていることを確認できる．
@@ -4440,7 +4564,7 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
   #include <iostream>
   #include <vector>
   #include <boost/timer.hpp>
-  
+
   int main(){
     std::vector<int> v;
     v; // ここ
@@ -4488,6 +4612,7 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
   - [[https://github.com/gregsexton/origami.el][gregsexton/origami.el: A folding minor mode for Emacs]]
   - [[https://github.com/zenozeng/yafolding.el][zenozeng/yafolding.el: Yet another folding extension for Emacs]]
   - [[https://github.com/tj64/outline-magic/blob/master/outline-magic.el][outline-magic/outline-magic.el at master · tj64/outline-magic]]
+  - 後発として [[https://github.com/tarsius/bicycle][bicycle.el]] があります．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -4634,6 +4759,12 @@ clang -cc1 -x c++-header -fcxx-exceptions ./stdafx.h -emit-pch -o ./stdafx.pch -
 
   - [[https://ayatakesi.github.io/emacs/24.5/Editing-Binary-Files.html][GNU Emacs Manual(Japanese Translation): Editing Binary Files]]
 
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "hexl"
+  (custom-set-variables
+   '(hexl-bits 8)))
+#+end_src
+
 ** [package-lint.el] MEPLA登録用Lint
 
 MELPAへの登録を目指す emacslisp パッケージの実装で，所定の書式で記述されているかを確認できます．
@@ -4660,13 +4791,14 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
-       '(projectile-global-mode)
+       '(projectile-mode)
        "projectile" nil t)
 
   (with-eval-after-load "postpone"
     (unless batch-build
-      (postpone-message "projectile-global-mode")
-      (projectile-global-mode 1)))
+      (postpone-message "projectile-mode")
+      (setq projectile-keymap-prefix (kbd "C-c p"))
+      (projectile-mode 1)))
 
   (with-eval-after-load "neotree"
     ;; M-x helm-projectile-switch-project (C-c p p)
@@ -4716,6 +4848,17 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (with-eval-after-load "postpone"
     (global-set-key (kbd "C-c m") 'magit-status)))
 #+END_SRC
+
+** TODO [format-all.el] コード整形
+
+ - [[https://melpa.org/#/format-all][format-all - MELPA]]
+
+様々なプログラミング言語に対して，共通のコード整形のトリガー（ =M-x format-all-buffer= ）を提供します．整形するために使うフォーマッタは，原則的に言語ごとに異なる外部ツールを呼び出すので，必要に応じてそれらのツールのインストールが別途必要です．
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "postpone"
+  (require 'format-all nil t))
+#+end_src
 
 * Org Mode
 ** 基本設定
@@ -4775,7 +4918,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
     (setq org-archive-location "%s_archive::")
 
     ;; タイムスタンプによるログ収集設定
-    (setq org-log-done t) ; t ではなく，'(done), '(state) を指定できる
+    (setq org-log-done 'time) ; 'time ではなく，'(done), '(state) を指定できる
 
     ;; ログをドロアーに入れる
     (setq org-log-into-drawer t)
@@ -4800,6 +4943,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 
     ;; org-eldoc を読み込む
     (require 'org-eldoc nil t)
+
+    ;; emms のリンクに対応させる
+    (require 'org-emms nil t)
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -4890,7 +5036,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 
     (defun my-ox-icalendar ()
       (interactive)
-      (let ((temp-agenda-files org-agenda-files))
+      (let ((message-log-max nil)
+            (temp-agenda-files org-agenda-files))
         (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
         ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
         (org-icalendar-combine-agenda-files)
@@ -4922,7 +5069,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (setq org-use-speed-commands t)
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
   (add-to-list 'org-speed-commands-user '("D" my-org-todo-complete-no-repeat "DONE"))
-  (add-to-list 'org-speed-commands-user '("P" my-proportional-font-toggle))
+  ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
+  ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
   (add-to-list 'org-speed-commands-user '("!" my-org-set-created-property))
   (add-to-list 'org-speed-commands-user
                '("$" call-interactively 'org-archive-subtree))
@@ -5027,7 +5175,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 (with-eval-after-load "org"
   (setq org-todo-keywords
         '((sequence "TODO(t)" "PLAN(p)" "PLAN2(P)" "|" "DONE(d)")
-          (sequence "CHECK(C)" "FOCUS(f)" "ICAL(c)"  "|" "DONE(d)")
+          (sequence "FOCUS(f)" "CHECK(C)" "ICAL(c)"  "|" "DONE(d)")
           (sequence "WAIT(w)" "SLEEP(s)" "QUESTION(q)" "|" "DONE(d)")
           (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|" "APPROVED(a)")))
 
@@ -5089,8 +5237,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (setq org-deadline-warning-days 0)
   ;; 時間幅が明示的に指定されない場合のデフォルト値（分指定）
   (setq org-agenda-default-appointment-duration 60)
-  ;; アジェンダビューでFOLLOWを設定
-  ;; (setq org-agenda-start-with-follow-mode t)
+  ;; アジェンダビューでFOLLOWを設定（自動的に別バッファに当該タスクを表示）
+  (setq org-agenda-start-with-follow-mode t)
   ;; Customized Time Grid
   (setq org-agenda-time-grid ;; Format is changed from 9.1
         '((daily today require-timed)
@@ -5105,7 +5253,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (setq org-agenda-files
-        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org" "~/Dropbox/org/db/cooking.org"
           "~/Dropbox/org/db/daily.org" "~/Dropbox/org/minutes/wg1.org"
           "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
           "~/Dropbox/org/db/trigger.org" "~/Dropbox/org/org2ja.org"))
@@ -5160,49 +5308,48 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (my-popup-agenda-set-timers)
   (run-at-time "24:00" nil 'my-popup-agenda-set-timers)) ;; for next day
 
-  (with-eval-after-load "org"
+(with-eval-after-load "org"
 
-    (define-key org-mode-map (kbd "<f11>") 'my-toggle-doing-tag)
-    (define-key org-mode-map (kbd "C-<f11>") 'my-sparse-doing-tree)
+  (define-key org-mode-map (kbd "<f11>") 'my-toggle-doing-tag)
+  (define-key org-mode-map (kbd "C-<f11>") 'my-sparse-doing-tree)
 
-    ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
-    (defvar my-doing-tag "Doing")
-    (defun my-sparse-doing-tree ()
-      (interactive)
-      (org-tags-view nil my-doing-tag))
-    ;; Doingタグをトグルする
-    (defun my-toggle-doing-tag ()
-      (interactive)
-      (when (eq major-mode 'org-mode)
-        (save-excursion
-          (save-restriction
-            (org-back-to-heading t)
-            ;; before 9
-            ;; (unless (org-at-heading-p)
-            ;;   (outline-previous-heading))
-            (org-toggle-tag my-doing-tag
-                            (if (string-match
-                                 (concat ":" my-doing-tag ":")
-                                 (org-get-tags-string))
-                                'off 'on))
-            (org-set-tags nil t)))
-        (org-reveal)))
+  ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
+  (defvar my-doing-tag "Doing")
+  (defun my-sparse-doing-tree ()
+    (interactive)
+    (org-tags-view nil my-doing-tag))
+  ;; Doingタグをトグルする
+  (defun my-toggle-doing-tag ()
+    (interactive)
+    (when (eq major-mode 'org-mode)
+      (save-excursion
+        (save-restriction
+          (org-back-to-heading t)
+          ;; before 9
+          ;; (unless (org-at-heading-p)
+          ;;   (outline-previous-heading))
+          (org-toggle-tag my-doing-tag
+                          (if (string-match
+                               (concat ":" my-doing-tag ":")
+                               (org-get-tags-string))
+                              'off 'on))))
+      (org-reveal)))
 
-    ;; ついでに calendar.app も定期的に強制起動する
-    (defun my-popup-calendar ()
-      (interactive)
-      (if (window-focus-p)
-          (shell-command-to-string "open -a calendar.app")
-        (message "--- input focus is currently OUT.")))
-    (defun my-popup-calendar-set-timers ()
-      (interactive)
-      (cancel-function-timers 'my-popup-calendar)
-      (dolist (triger my-org-agenda-auto-popup-list)
-        (unless (passed-clock-p triger)
-          (run-at-time triger nil 'my-popup-calendar))))
-    (when (memq window-system '(mac ns))
-      (my-popup-calendar-set-timers)
-      (run-at-time "24:00" nil 'my-popup-calendar-set-timers))) ;; for next day
+  ;; ついでに calendar.app も定期的に強制起動する
+  (defun my-popup-calendar ()
+    (interactive)
+    (if (window-focus-p)
+        (shell-command-to-string "open -a calendar.app")
+      (message "--- input focus is currently OUT.")))
+  (defun my-popup-calendar-set-timers ()
+    (interactive)
+    (cancel-function-timers 'my-popup-calendar)
+    (dolist (triger my-org-agenda-auto-popup-list)
+      (unless (passed-clock-p triger)
+        (run-at-time triger nil 'my-popup-calendar))))
+  (when (memq window-system '(mac ns))
+    (my-popup-calendar-set-timers)
+    (run-at-time "24:00" nil 'my-popup-calendar-set-timers))) ;; for next day
 #+END_SRC
 
 ** TODO [orgbox.el] スケジュール追加のわかりやすい入力
@@ -5373,6 +5520,8 @@ will not be modified."
     (defvar org-capture-english-file (concat org-directory "db/english.org"))
     (defvar org-capture-diary-file (concat org-directory "log/diary.org"))
     (defvar org-capture-article-file (concat org-directory "db/article.org"))
+    (defvar org-capture-blog-file
+      (concat org-directory "blog/entries/default.org"))
 
     ;; see org.pdf:p73
     (setq org-capture-templates
@@ -5392,9 +5541,15 @@ will not be modified."
              "** FOCUS 本日のチェックリスト %T\n（起床時間の記録）[[http://www.hayaoki-seikatsu.com/users/takaxp/][早起き日記]] \n（朝食）\n  - [ ] %?\n（昼食）\n（帰宅／夕食）\n----\n（研究速報）\n  - [ ] \n")
             ("i" "アイディアを書き込む" entry (file+headline ,org-default-notes-file "INBOX")
              "** %?\n  - \n\t%U")
-            ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
-             (file+headline ,org-default-notes-file "INBOX")
-             "** TODO %? :bug:\n %i\n %a %t")
+            ("b" "Create new post for imadenale blog" entry
+             (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
+             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:END:\n")
+            ("B" "Create new post for imadenale blog (UUID)" entry
+             (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
+             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:END:\n")
+            ;; ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
+            ;;  (file+headline ,org-default-notes-file "INBOX")
+            ;;  "** TODO %? :bug:\n %i\n %a %t")
             ("T" "時間付きエントリー" entry (file+headline ,org-default-notes-file "INBOX")
              "** %? %T--\n")
             ("n" "ノートとしてINBOXに貼り付ける" entry
@@ -5421,6 +5576,12 @@ will not be modified."
              "** %? :%(get-current-date-tags):\n\n%U")
             ))))
 #+END_SRC
+
+#+RESULTS:
+| t | TODO 項目を INBOX に貼り付ける       | entry | (file+headline ~/Dropbox/org/next.org INBOX)         | ** TODO %?         |
+| a | 記事リストにエントリー               | entry | (file+headline ~/Dropbox/org/db/article.org INBOX)   | ** READ %?         |
+| c | 同期カレンダーにエントリー           | entry | (file+headline ~/Dropbox/org/org-ical.org Scheduled) | ** TODO %?         |
+| d | Doingタグ付きのタスクをInboxに投げる | entry | (file+headline ~/Dropbox/org/next.org INBOX)         | ** TODO %? :Doing: |
 
 ** [org-refile] orgツリーの高速移動
 
@@ -6101,6 +6262,17 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
                                 "screenshot-%Y%m%d-%H%M%S.png")))))
 #+END_SRC
 
+** [org-download] org バッファにD&Dでファイルを保存
+
+=org-attach= とペアで使うのが良いでしょう．
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "org"
+  (when (require 'org-download nil t)
+    (setq org-download-screenshot-method 'screencapture)
+    (setq org-download-method 'attach)))
+#+end_src
+
 ** [alerter] イベント通知
 
 ここでは， =terminal-notifier= ではなく，事実上，後継アプリと言える =alerter= を使う設定です．
@@ -6199,6 +6371,8 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
   (when (version< "9.1.4" (org-version))
     (setq org-reveal-note-key-char ?n)))
 #+END_SRC
+
+それ以外にも [[https://github.com/cybercode/org-slides][ox-s5]]，[[https://github.com/coldnew/org-ioslide][org-ioslide]] があります．
 
 ** README を常に org-mode で開く
 
@@ -6470,7 +6644,8 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 (defconst my-cursor-type-ime-off '(bar . 2)) ;; '(hbar . 10)
 
 (cond
- ((eq window-system 'ns)
+ ((or (eq window-system 'ns)
+      (fboundp 'mac-get-current-input-source))
   (when (fboundp 'mac-set-input-method-parameter)
     (mac-set-input-method-parameter
      "com.google.inputmethod.Japanese.base" 'title "あ"))
@@ -6558,20 +6733,20 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
     ;;   (apply FILENAME WILDCARDS))
     ;; (advice-add #'find-file :around #'advice:find-file)
 
-    ;; ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-    ;; ;; バッファ切替時に input method を切り替える
-    (with-eval-after-load "postpone"
-      (when (and (fboundp 'mac-handle-input-method-change)
-                 (require 'cl-lib nil t))
-        (add-hook
-         'post-command-hook
-         (lexical-let ((previous-buffer nil))
-           ;; (message "Change IM %S -> %S" previous-buffer (current-buffer))
-           #'(lambda ()
-               (unless (eq (current-buffer) previous-buffer)
-                 (if (bufferp previous-buffer)
-                     (mac-handle-input-method-change))
-                 (setq previous-buffer (current-buffer))))))))
+    ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
+    ;; バッファ切替時に input method を切り替える
+    ;; (with-eval-after-load "postpone"
+    ;;   (when (and (fboundp 'mac-handle-input-method-change)
+    ;;              (require 'cl nil t))
+    ;;     (add-hook
+    ;;      'post-command-hook
+    ;;      (lexical-let ((previous-buffer nil))
+    ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
+    ;;        #'(lambda ()
+    ;;            (unless (eq (current-buffer) previous-buffer)
+    ;;              (when (bufferp previous-buffer)
+    ;;                (mac-handle-input-method-change))
+    ;;              (setq previous-buffer (current-buffer))))))))
     ))
 
  ((eq window-system 'mac) ;; EMP: Emacs Mac Port
@@ -6723,6 +6898,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
     (when (and (require 'moom nil t)
                window-system)
       (setq moom-lighter "M")
+      (setq moom-verbose t)
       (moom-recommended-keybindings 'all)
       (moom-mode 1))))
 
@@ -6747,7 +6923,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 
 *** 最大化時にモードラインを消す
 
-バッファ切替時にモードラインの状態を引き継ぐこともできますが，とりあえず想定外にしています．代わりに，必要ならば =M-x my-moom-toggle-mode-line= で表示可能にしています．
+バッファの切替時にモードラインの状態を引き継ぐこともできますが，とりあえず想定外にしています．代わりに，必要ならば =M-x my-moom-toggle-mode-line= で表示可能にしています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defvar my-moom--mode-line-format nil)
@@ -6763,6 +6939,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
       (setq my-moom--mode-line-format mode-line-format)
       (pomodoro:visualize-stop)
       (setq mode-line-format nil))
+
     (defun my-moom-toggle-mode-line ()
       "Toggle mode line."
       (interactive)
@@ -6770,16 +6947,19 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
         (setq my-moom--mode-line-format mode-line-format))
       (if mode-line-format
           (progn
-            (dimmer-mode 1)
+            (when (fboundp 'dimmer-mode)
+              (dimmer-mode 1))
             (when (fboundp 'pomodoro:visualize-stop)
               (pomodoro:visualize-stop))
             (setq mode-line-format nil))
-        (dimmer-mode -1)
+        (when (fboundp 'dimmer-mode)
+          (dimmer-mode -1))
         (when (fboundp 'pomodoro:visualize-start)
           (pomodoro:visualize-start))
         (setq mode-line-format my-moom--mode-line-format)
         (redraw-frame))
       (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
+
     (unless batch-build
       (my-moom-toggle-mode-line))
     (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
@@ -6793,9 +6973,10 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
       (when my-moom-hide-mode-line
         (setq mode-line-format
               (if moom--maximized nil my-moom--mode-line-format))
-        (message ".")))
-    (advice-add 'moom-toggle-frame-maximized
-                :after #'advice:moom-toggle-frame-maximized)))
+        (message " ")))
+    ;; (advice-add 'moom-toggle-frame-maximized
+    ;;             :after #'advice:moom-toggle-frame-maximized)
+    ))
 #+END_SRC
 
 ** [popwin.el] ポップアップウィンドウの制御
@@ -6983,10 +7164,11 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
-  (when (display-graphic-p)
-    (unless batch-build
-      (postpone-message "global-hl-line-mode")
-      (global-hl-line-mode 1))))
+  (if (display-graphic-p)
+      (unless batch-build
+        (postpone-message "global-hl-line-mode"))
+    (setq hl-line-face 'underline))
+  (global-hl-line-mode 1))
 #+END_SRC
 
 色の設定は =custom-set-faces= で．
@@ -6997,6 +7179,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
    ((((background dark)) :background "#484c5c")
     (t (:background "#DEEDFF"))))))
 #+END_SRC
+
+色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．
 
 ** カーソルを点滅させない
 
@@ -7862,7 +8046,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
-  (global-set-key (kbd "C-c f t") 'open-current-directory))
+  (global-set-key (kbd "C-c f t") 'open-current-directory-in-terminal))
 #+END_SRC
 
 ** [postpone.el] Emacs起動してから使い始めるタイミングで実行する
