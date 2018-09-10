@@ -197,8 +197,8 @@
 (setq mouse-drag-copy-region t)
 
 (with-eval-after-load "postpone"
-  (when (version<= "26.1" emacs-version)
-    (pixel-scroll-mode 1)))
+  (when (fboundp 'pixel-scroll-mode)
+    (pixel-scroll-mode 1))) ;; 26.1
 
 (when (autoload-if-found '(cask-mode) "cask-mode" nil t)
   (push '("/Cask\\'" . cask-mode) auto-mode-alist))
@@ -426,6 +426,27 @@
     (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse)))
 
 (setq yank-excluded-properties t)
+
+;; #+DATE 用
+(when (autoload-if-found
+       '(time-stamp my-time-stamp)
+       "time-stamp" nil t)
+
+  (add-hook 'before-save-hook #'my-time-stamp)
+
+  (with-eval-after-load "time-stamp"
+    (setq time-stamp-start "#\\+date:[ \t]*")
+    (setq time-stamp-end "$")
+    (setq time-stamp-line-limit 10) ;; def=8
+    (setq time-stamp-default-format "%04y-%02m-%02d")
+    (defun my-time-stamp ()
+      (setq time-stamp-format
+            (if (eq major-mode 'org-mode)
+                "[%04y-%02m-%02d %3a %02H:%02M]" time-stamp-default-format))
+      (if (boundp 'org-tree-slide-mode)
+          (unless org-tree-slide-mode
+            (time-stamp))
+        (time-stamp)))))
 
 (defadvice isearch-mode
     (around isearch-mode-default-string
@@ -1060,6 +1081,8 @@ This works also for other defined begin/end tokens to define the structure."
 (set-face-foreground 'mode-line-inactive  "#94bbf9")
 (set-face-background 'mode-line-inactive "#d8e6fd")
 
+(setq line-number-display-limit-width 100000)
+
 ;;  (setq visible-bell nil) ;; default=nil
 (setq ring-bell-function 'ignore)
 
@@ -1183,6 +1206,13 @@ This works also for other defined begin/end tokens to define the structure."
   (message "--- cmigemo is NOT installed."))
 
 (when (autoload-if-found
+       '(helm-google)
+       "helm-google" nil t)
+  (with-eval-after-load "helm-google"
+    (custom-set-variables
+     '(helm-google-tld "co.jp"))))
+
+(when (autoload-if-found
        '(helm-buffers-list)
        "helm" nil t)
 
@@ -1238,9 +1268,6 @@ This works also for other defined begin/end tokens to define the structure."
         (kbd "<tab>") 'helm-execute-persistent-action)
       (define-key helm-read-file-map
         (kbd "<tab>") 'helm-execute-persistent-action))
-
-    ;; (when (require 'helm-google nil t)
-    ;;   (setq helm-google-tld "co.jp"))
 
     ;; (require 'recentf-ext nil t)
     ;; helm-find-files を呼ばせない
@@ -2169,7 +2196,8 @@ This works also for other defined begin/end tokens to define the structure."
     (require 'org-eldoc nil t)
 
     ;; emms のリンクに対応させる
-    (require 'org-emms nil t)
+    (unless batch-build
+      (require 'org-emms nil t))
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -2377,7 +2405,7 @@ This works also for other defined begin/end tokens to define the structure."
         '((sequence "TODO(t)" "PLAN(p)" "PLAN2(P)" "|" "DONE(d)")
           (sequence "FOCUS(f)" "CHECK(C)" "ICAL(c)"  "|" "DONE(d)")
           (sequence "WAIT(w)" "SLEEP(s)" "QUESTION(q)" "|" "DONE(d)")
-          (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|" "APPROVED(a)")))
+          (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|" "APPROVED(a@/!)")))
 
   ;; Global counting of TODO items
   (setq org-hierarchical-todo-statistics nil)
@@ -2804,7 +2832,7 @@ will not be modified."
 (with-eval-after-load "org"
   (add-to-list 'org-structure-template-alist
                (if (version< "9.1.4" (org-version))
-                   '(?S . "src emacs-lisp")
+                   '("S" . "src emacs-lisp")
                  '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
 
 (when (autoload-if-found
@@ -3296,6 +3324,14 @@ will not be modified."
 
 (autoload-if-found '(toc-org-insert-toc) "toc-org" nil t)
 
+(with-eval-after-load "ox"
+  (when (require 'ox-hugo nil t)
+    (require 'ox-hugo-auto-export nil t)
+    (setq org-hugo-auto-set-lastmod t)
+    (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
+    ;; never copy files to under /static/ directory
+    (setq org-hugo-external-file-extensions-allowed-for-copying nil)))
+
 (cond
  ((memq window-system '(mac ns)) ;; for Macintosh
   (setq initial-frame-alist
@@ -3361,13 +3397,15 @@ will not be modified."
     (defvar my-ime-off-hook nil)
     (defun my-ime-on ()
       (interactive)
-      (mac-toggle-input-method t)
+      (when (fboundp 'mac-toggle-input-method)
+        (mac-toggle-input-method t))
       (setq cursor-type my-cursor-type-ime-on)
       (set-cursor-color my-cursor-color-ime-on)
       (run-hooks 'my-ime-on-hook))
     (defun my-ime-off ()
       (interactive)
-      (mac-toggle-input-method nil)
+      (when (fboundp 'mac-toggle-input-method)
+        (mac-toggle-input-method nil))
       (setq cursor-type my-cursor-type-ime-off)
       (set-cursor-color my-cursor-color-ime-off)
       (run-hooks 'my-ime-off-hook))
@@ -3488,7 +3526,7 @@ will not be modified."
 (defconst moom-autoloads
   '(moom-cycle-frame-height
     moom-move-frame-to-edge-top moom-move-frame my-frame-reset
-    moom-fit-frame-to-fullscreen moom-toggle-frame-maximized
+    moom-toggle-frame-maximized
     moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
     moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
     moom-change-frame-width moom-change-frame-width-double

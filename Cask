@@ -1,4 +1,4 @@
-;;#+date: 2018-08-30
+;;#+date: 2018-09-07
 
 (source gnu)
 (source melpa)
@@ -116,9 +116,9 @@
 (depends-on "helm-emms")
 (depends-on "helm-pass")
 (depends-on "helm-dired-history")
+(depends-on "helm-google")
 
 ;; (depends-on "helm-css-scss")
-;; (depends-on "helm-google")
 ;; (depends-on "helm-rtags")
 
 ;; OSX support
@@ -205,7 +205,7 @@
 (depends-on "emms") ;; includes emms-player-mpv
 (depends-on "gif-screencast")
 (depends-on "pass")
-(depends-on "keycast")
+;; (depends-on "keycast") ;; require emacs-25.3
 (depends-on "pcap-mode")
 
 ;; Log

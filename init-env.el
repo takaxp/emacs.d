@@ -51,7 +51,7 @@
   (require 'my-debug)
   (add-to-list 'load-path "~/devel/git/org-mode/lisp")
   (add-to-list 'load-path "~/devel/git/org-mode/contrib/lisp")
-  (add-to-list 'load-path "~/.emacs.d/.cask/package/26.0.91"))
+  (add-to-list 'load-path cask-package-dir))
  (t
   (let* ((g "~/devel/git/")
          (od "org-mode")
@@ -84,6 +84,19 @@
   (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
             (require 'cask "~/.cask/cask.el" t))
     (setq load-path (cask-load-path (cask-initialize)))))
+
+(defun my-setup-melpa ()
+  "Setting up for installing packages via built-in package.el.
+Downloaded packages will be stored under ~/.eamcs.d/elpa."
+  (when (require 'package nil t)
+    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                        (not (gnutls-available-p))))
+           (proto (if no-ssl "http" "https")))
+      (add-to-list 'package-archives
+                   (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+      (add-to-list 'package-archives
+                   (cons "takaxp" "~/devel/git/melpa/packages/") t))
+    (package-initialize)))
 
 (defun my-reset-load-path ()
   (interactive)

@@ -714,8 +714,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
-  (when (version<= "26.1" emacs-version)
-    (pixel-scroll-mode 1)))
+  (when (fboundp 'pixel-scroll-mode)
+    (pixel-scroll-mode 1))) ;; 26.1
 #+END_SRC
 
 ** パッケージ管理
@@ -2800,6 +2800,14 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 | active   | b1fbd6     | 206f47     | 206f47   |
 | inactive | 95f9c7     | 95f9c7     | 95f9c7   |
 
+** 行番号の表示制限を拡張する
+
+デフォルトだと200桁までしか把握しないので，いつも表示されるように拡張する．
+
+#+begin_src emacs-lisp :tangle yes
+(setq line-number-display-limit-width 100000)
+#+end_src
+
 ** visible-bell のカスタマイズ
 
 http://www.emacswiki.org/emacs/MilesBader を参考にカスタマイズしていました．現在は後継パッケージ（[[http://www.emacswiki.org/emacs/echo-bell.el][http://www.emacswiki.org/emacs/echo-bell.el]]）があり，MELPAから取れます．
@@ -3060,6 +3068,28 @@ paren.el の場合は以下の設定．
               '((top . nil) (bottom . right) (down . right)))
 #+END_SRC
 
+** 行番号をバッファに表示する
+
+Emacs Version 26.1 からネイティブ実装に切り替わった =display-line-numbers.el= を使います．普段は使わないので，必要に応じてグローバルにトグルできるようにしてあります．
+
+#+begin_src emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(my-toggle-display-line-numbers-mode)
+       "display-line-numbers" nil t)
+
+  (with-eval-after-load "display-line-numbers"
+    (custom-set-variables
+     '(display-line-numbers-width-start t)))
+
+  (defun my-toggle-display-line-numbers-mode ()
+    "Toggle variable `global-display-line-numbers-mode'."
+    (interactive)
+    (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
+        (let ((flag (if global-display-line-numbers-mode -1 1)))
+          (global-display-line-numbers-mode flag))
+      (user-error "The display-line-numbers is supported in 26.1 or later"))))
+#+end_src
+
 ** [migemo.el] ローマ字入力で日本語を検索する
 
 http://0xcc.net/migemo/#download
@@ -3168,6 +3198,13 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
+       '(helm-google)
+       "helm-google" nil t)
+  (with-eval-after-load "helm-google"
+    (custom-set-variables
+     '(helm-google-tld "co.jp"))))
+
+(when (autoload-if-found
        '(helm-buffers-list)
        "helm" nil t)
 
@@ -3223,9 +3260,6 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
         (kbd "<tab>") 'helm-execute-persistent-action)
       (define-key helm-read-file-map
         (kbd "<tab>") 'helm-execute-persistent-action))
-
-    ;; (when (require 'helm-google nil t)
-    ;;   (setq helm-google-tld "co.jp"))
 
     ;; (require 'recentf-ext nil t)
     ;; helm-find-files を呼ばせない
@@ -4945,7 +4979,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
     (require 'org-eldoc nil t)
 
     ;; emms のリンクに対応させる
-    (require 'org-emms nil t)
+    (unless batch-build
+      (require 'org-emms nil t))
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -5177,7 +5212,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
         '((sequence "TODO(t)" "PLAN(p)" "PLAN2(P)" "|" "DONE(d)")
           (sequence "FOCUS(f)" "CHECK(C)" "ICAL(c)"  "|" "DONE(d)")
           (sequence "WAIT(w)" "SLEEP(s)" "QUESTION(q)" "|" "DONE(d)")
-          (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|" "APPROVED(a)")))
+          (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|" "APPROVED(a@/!)")))
 
   ;; Global counting of TODO items
   (setq org-hierarchical-todo-statistics nil)
@@ -5672,7 +5707,7 @@ will not be modified."
 (with-eval-after-load "org"
   (add-to-list 'org-structure-template-alist
                (if (version< "9.1.4" (org-version))
-                   '(?S . "src emacs-lisp")
+                   '("S" . "src emacs-lisp")
                  '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
 #+END_SRC
 
@@ -6593,6 +6628,18 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 (autoload-if-found '(toc-org-insert-toc) "toc-org" nil t)
 #+END_SRC
 
+** [ox-hugo] OrgファイルからHogoの記事をエクスポートする
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "ox"
+  (when (require 'ox-hugo nil t)
+    (require 'ox-hugo-auto-export nil t)
+    (setq org-hugo-auto-set-lastmod t)
+    (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
+    ;; never copy files to under /static/ directory
+    (setq org-hugo-external-file-extensions-allowed-for-copying nil)))
+#+end_src
+
 * フレーム／ウィンドウ制御
 ** 起動時の設定
 
@@ -6662,13 +6709,15 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
     (defvar my-ime-off-hook nil)
     (defun my-ime-on ()
       (interactive)
-      (mac-toggle-input-method t)
+      (when (fboundp 'mac-toggle-input-method)
+        (mac-toggle-input-method t))
       (setq cursor-type my-cursor-type-ime-on)
       (set-cursor-color my-cursor-color-ime-on)
       (run-hooks 'my-ime-on-hook))
     (defun my-ime-off ()
       (interactive)
-      (mac-toggle-input-method nil)
+      (when (fboundp 'mac-toggle-input-method)
+        (mac-toggle-input-method nil))
       (setq cursor-type my-cursor-type-ime-off)
       (set-cursor-color my-cursor-color-ime-off)
       (run-hooks 'my-ime-off-hook))
@@ -6883,7 +6932,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 (defconst moom-autoloads
   '(moom-cycle-frame-height
     moom-move-frame-to-edge-top moom-move-frame my-frame-reset
-    moom-fit-frame-to-fullscreen moom-toggle-frame-maximized
+    moom-toggle-frame-maximized
     moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
     moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
     moom-change-frame-width moom-change-frame-width-double
