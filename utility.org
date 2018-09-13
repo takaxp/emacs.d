@@ -1,9 +1,9 @@
-#+TITLE:	ユーティリティ関数群
-#+AUTHOR:	Takaaki Ishikawa
-#+EMAIL:	takaxp@ieee.org
-#+STARTUP:	content
-#+STARTUP:	nohideblocks
-#+SETUPFILE: theme-readtheorg.setup
+#+title:	ユーティリティ関数群
+#+author:	Takaaki Ishikawa
+#+email:	takaxp@ieee.org
+#+startup:	content
+#+startup:	nohideblocks
+#+setupfile: theme-readtheorg.setup
 
 [[https://pxaka.tokyo/wiki/doku.php?id=emacs:init.el][init.el]] に記述していた便利関数を，utility.el として分離しています．init.el では autoload を用いて utility.el を遅延読み込みするように設定してます．このようなファイルの分離で60[ms]ほど起動を高速化できます．
 
@@ -13,7 +13,7 @@
 
 org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 
 ;;;###autoload
 (defun eval-org-buffer ()
@@ -29,14 +29,14 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
           (when (file-exists-p tangled-file)
             (byte-compile-file tangled-file))))
     (message "Nothing to do for this buffer.")))
-#+END_SRC
+#+end_src
 
 * ユーティリティ関数
 ** サボっていると Kyoko さんに怒られる
 
 MacOS 用の関数です．別途，Kyoko さんの音声をインストールしておく必要があります．Mavericks だと，Otoya さんも使えます．
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (defvar kyoko-mad-mode nil)
 (defun kyoko-mad-mode-toggle ()
   (interactive)
@@ -52,13 +52,13 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
     (when kyoko-mad-mode
       (shell-command-to-string
        "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
-#+END_SRC
+#+end_src
 
 ** org-buffer を dokuwiki 形式に変換し，kill-ring に格納
 
 外部プログラム[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使います．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defun org2dokuwiki-cp-kill-ring ()
   "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
   (interactive)
@@ -72,13 +72,13 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
            (sit-for 1.5)
            (message ""))
           (t (message "There is NOT such a file.")))))
-#+END_SRC
+#+end_src
 
 ** コンソールでカレントバッファのあるディレクトリに移動する
 
 Finder で開きたいだけならば， =M-!= でミニバッファに =open .= と打ち込むだけです．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defcustom open-current-directory-console-program "iTerm2.app"
   "Specify a console program"
   :type 'string
@@ -103,11 +103,11 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
         (shell-command-to-string (concat "echo cd " directory " |pbcopy"))
         (shell-command-to-string
          (concat "open -a " open-current-directory-console-program))))))
-#+END_SRC
+#+end_src
 
 ** ファイルに含まれるテーブルを使って定時にアラートを表示する
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (eval-when-compile
   (require 'init nil t))
 
@@ -182,13 +182,13 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
     (insert-file-contents-literally file)
     (split-string
      (buffer-string) "\n" t)))
-#+END_SRC  
+#+end_src  
 
 ** 頻繁に利用するファイルをring形式でたどる
 
 http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defvar my-file-ring nil)
 
 ;;;###autoload
@@ -210,11 +210,11 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
                 (list (car my-file-ring)))))
 
 ;;    (setq my-file-ring (cdr my-file-ring)))
-#+END_SRC
+#+end_src
 
 ** 引数のorgバッファを開く
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun show-org-buffer (file)
   "Show an org-file on the current buffer"
@@ -226,11 +226,11 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
     (find-file (concat "~/Dropbox/org/" file)))
   (when (fboundp 'my-org-agenda-to-appt)
     (my-org-agenda-to-appt)))
-#+END_SRC
+#+end_src
 
 ** orgバッファにいつものヘッダを追加する
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun insert-org-file-header-template ()
   (interactive)
@@ -246,11 +246,11 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
         (insert title date update author option other))
       (when (require 'org nil t)
         (org-end-of-line)))))
-#+END_SRC
+#+end_src
 
 ** 議事録ひな形を書き入れる
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun insert-minutes-template ()
   (interactive)
@@ -261,13 +261,13 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
           (documents "資料：\n\n"))
       (save-excursion
         (insert date place attendance documents)))))
-#+END_SRC
+#+end_src
 
 ** ランダムの文字列を取得する
 
 引数で桁数を渡すと，ランダムな数値の文字列を取得できます．org-mode で適当なタイトルのツリーを生成したい時に使っています．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defun get-random-string (length)
   "Get a string contain the length digit number with random selection"
   (interactive)
@@ -284,13 +284,13 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
                    (concat tmp (number-to-string (random 10)))))
            (message "%s" string)))
         (t "0")))
-#+END_SRC
+#+end_src
 
 ** Auto-install をセットアップする
 
 いつも auto-install を使うわけではないので，必要時に =init-auto-install= を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (defun init-auto-install ()
   "Setup auto-install.el.
 1. Set my-auto-install-batch-list-el-url
@@ -305,11 +305,11 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
     (auto-install-update-emacswiki-package-name t)
     ;; compatibility
     (auto-install-compatibility-setup))) ; for install-elisp users
-#+END_SRC
+#+end_src
 
 ** 行頭に" - "を挿入する
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun add-itemize-head (arg)
   "Insert \" - \" at the head of line.
@@ -341,7 +341,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
           (t (save-excursion
                (move-beginning-of-line 1)
                (insert item-string))))))
-#+END_SRC
+#+end_src
 
 ** TODO " - "と" - [ ] "をサイクルさせる
 
@@ -350,7 +350,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
  - チェックボックス付きブリッツ行の場合は，チェックボックスを取る．
  - 引数付きで呼び出すと，チェックボックスの有無に依らずブリッツを取る．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun my-cycle-bullet-at-heading (arg)
   "Add a bullet of \" - \" if the line is NOT a bullet line."
@@ -371,11 +371,11 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
         (replace-match
          (concat "\\1 " bullet) nil nil))
        (t nil)))))
-#+END_SRC
+#+end_src
 
 ** TODO リージョン内のブリッツを操作する
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun my-org-list-insert-items (begin end)
   (interactive "r")
@@ -457,9 +457,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
         (replace-match "" nil nil)
         (setq end (- end blen clen)))
       (goto-char begin))))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
+#+begin_src emacs-lisp :tangle no :exports none
 ;; (defun my-insert-bullets (begin end)
 ;;   (interactive "r")
 ;;   (when mark-active
@@ -474,13 +474,13 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 ;;           (setq end (+ end len)))
 ;;         (forward-line 1))
 ;;       (goto-char begin))))
-#+END_SRC
+#+end_src
 
 ** 日付などを簡単に挿入する
 
 http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 
-#+BEGIN_SRC emacs-lisp :tangle yes :exports none
+#+begin_src emacs-lisp :tangle yes :exports none
   (defun insert-formatted-current-date ()
     "Insert a timestamp at the cursor position. C-u will add [] brackets."
     (interactive)
@@ -492,9 +492,9 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
     (interactive)
     (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
                     "  <" user-mail-address ">")))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports yes
   (defun insert-formatted-current-date (arg)
     "Insert a timestamp at the cursor position. C-u will add [] brackets."
     (interactive "p")
@@ -510,20 +510,20 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
     (interactive)
     (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
                     "  <" user-mail-address ">")))
-#+END_SRC
+#+end_src
 
 *** キーバインド
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
 (global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
-#+END_SRC
+#+end_src
 
 ** XHTMLを利用したガントチャート生成
 
 最近使っていません．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defcustom my-auto-install-batch-list-el-url nil
   "URL of a auto-install-batch-list.el"
   :type 'string
@@ -575,13 +575,13 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
                                      default-timeline-xml-private-file))
     (shell-command-to-string (concat "open " default-timeline))))
 
-#+END_SRC
+#+end_src
 
 ** 定期実行関数
 
 orgバッファからカレンダーを生成し，外部サーバに投げます．また，MobileOrgに最新情報を流しています．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
   (run-with-idle-timer 600 t
@@ -598,11 +598,11 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   (interactive)
   (when (and (string= major-mode 'org-mode) ox-icalendar-activate)
     (my-ox-icalendar)))
-#+END_SRC
+#+end_src
 
 ** ブラウザの設定
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
 (when (autoload-if-found
@@ -625,11 +625,11 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 ;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
 ;;(setq browse-url-browser-function 'browse-url-default-windows-browser)
 ;;(setq browse-url-browser-function 'browse-url-chrome)
-#+END_SRC
+#+end_src
 
 ** ミニバッファに日時を表示
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun my-date ()
   (interactive)
@@ -639,10 +639,10 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
                  (format-time-string "W:%W @")
                  (format-time-string "%H:%M"))))
 (global-set-key (kbd "C-c t") 'my-date)
-#+END_SRC
+#+end_src
 ** バックアップファイルの削除
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
 (defun recursive-delete-backup-files (days)
   (if (= days 1)
@@ -671,45 +671,45 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
     (unless (string= files "")
       (message "%s" (chomp files))
       (shell-command-to-string (concat "mv -v " (chomp files) " ~/.Trash")))))
-#+END_SRC
+#+end_src
 ** chomp
 
 改行コードを削除した文字列を返す．
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defun chomp (str)
   "Chomp leading and tailing whitespace from STR."
   (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'"
                        str)
     (setq str (replace-match "" t t str)))
   str)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
+#+begin_src emacs-lisp :tangle no :exports none
 (defun chomp (str)
   (replace-regexp-in-string "[\n\r]+$" "" str))
-#+END_SRC
+#+end_src
 
 ** iTerm2.app を呼び出す関数
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun my-cmd-to-open-iterm2 ()
   (interactive)
   (shell-command-to-string "open -a iTerm2.app"))
-#+END_SRC
+#+end_src
 
 ** lingr にログインする
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defun my-lingr-login ()
   (when (string= "Sat" (format-time-string "%a"))
     (lingr-login)))
-#+END_SRC
+#+end_src
 
 ** 特定のファイルを Dropbox 以下にバックアップする
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defun my-backup (files &optional dropbox)
   "Backup a file to `Dropbox/backup' directory.
 If `dropbox' option is provided then the value is uased as a root directory."
@@ -730,11 +730,11 @@ If `dropbox' option is provided then the value is uased as a root directory."
              files
            (list files)))
       (message (format "--- backup-dir does not exist: %s" rootdir)))))
-#+END_SRC
+#+end_src
 
 ** ゴミ箱を空にする                                                     :Mac:
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 (defun mac:delete-files-in-trash-bin ()
   (interactive)
   (do-applescript
@@ -746,11 +746,11 @@ If `dropbox' option is provided then the value is uased as a root directory."
     "end if\n"
     "end tell\n"))
   (my-desktop-notification "Emacs" "Empty the trash, done."))
-#+END_SRC
+#+end_src
 
 ** その他
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 ;;;###autoload
 (defun count-words-buffer ()
@@ -797,18 +797,18 @@ If `dropbox' option is provided then the value is uased as a root directory."
         "\n"))
       (setq tl (cdr tl)))
     (read-only-mode 1)))
-#+END_SRC
+#+end_src
 
 * 未設定／テスト中
 ** byte-compile の警告を抑制する
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 ;; Avoid warning (for sense-region)
 ;; Warning: 'mapcar' called for effect; use 'mapc' or 'dolist' insted
 (setq byte-compile-warnings
       '(free-vars unresolved callargs redefine obsolete noruntime
 		  cl-functions interactive-only make-local))
-#+END_SRC
+#+end_src
 
 ** [window-resizer.el] 分割したウィンドウサイズを変更する
 
@@ -816,13 +816,13 @@ http://d.hatena.ne.jp/khiker/20100119/window_resize
 
 以下の警告を参考に書き換えた．
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 In my-window-resizer:
 utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
     Emacs at least 19.34); use `last-command-event' instead.
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun my-window-resizer ()
   "Control separated window size and position.
@@ -859,31 +859,31 @@ utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
                    (call-interactively command)))
                (message "Quit")
                (throw 'end-flag t)))))))
-#+END_SRC
+#+end_src
 
 ** [idle-requie]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (require 'idle-require)
 (idle-require-mode 1)
-#+END_SRC
+#+end_src
 
 ** [pdf-preview]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (require 'pdf-preview)
-#+END_SRC
+#+end_src
 
 ** [EasyPG]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   (when (require 'epa-setup nil t)
     (epa-file-enable))
-#+END_SRC
+#+end_src
 
 ** [eblook]
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
   ;; eblook
   (when (require 'eblook nil t)
     (autoload 'edict-search-english "edic"
@@ -892,20 +892,20 @@ utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
       "Search for a translation of a Kanji sequence" t)
     (setq *edict-files* '("/Users/taka/Dropbox/Dic/LDOCE4"))
     (setq *edict-files* '("/Users/taka/Downloads/edict/edict")))
-#+END_SRC
+#+end_src
 
 ** [iBuffer]
 iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (defalias 'list-buffers 'ibuffer)
-#+END_SRC
+#+end_src
 
 ** UUID をファイル名にして所定のディレクトリにコピー／移動
 
   - すでに org-attach が存在するので用途が微妙に．．．
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (defvar org-att-global-directory "~/Dropbox/org/attachment/")
 (defun copy-file-with-uuid (input)
   (interactive "FFile name: ")
@@ -944,23 +944,23 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
     (when output
       (insert (concat "[[file+sys:" output
                       "][" (file-name-base input) "]]\n")))))
-#+END_SRC
+#+end_src
 
 ** キーバインド
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 ;; Multiple combination
 ; Editing with a rectangle region
 (global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
 (global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
 (global-set-key (kbd "C-x r C-w") 'rm-kill-region)
 (global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
-#+END_SRC
+#+end_src
 
 * provide
 
 以上です．
 
-#+BEGIN_SRC emacs-lisp :tangle yes :exports none
+#+begin_src emacs-lisp :tangle yes :exports none
   (provide 'utility)
-#+END_SRC
+#+end_src

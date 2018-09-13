@@ -135,7 +135,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 ** [load-package-p] 設定の読み込みフラグを確認する
 
-=loading-packages= 変数に，設定を無視するパッケージを記述しておくと， =autoload-if-found= 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． =autoload-if-found= は本来の実装ではなく，=loading-packages= を参照するように手を加えています．
+=loading-packages= 変数に，設定を無視するパッケージを記述しておくと， =autoload-if-found= 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． =autoload-if-found= は本来の実装ではなく， =loading-packages= を参照するように手を加えています．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun load-package-p (file)
@@ -156,7 +156,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
   - http://d.hatena.ne.jp/jimo1001/20090921/1253525484
 
-   eval-after-load とのペアでマクロ化したバージョンもあります（次章参照）．ただ，生成されるバイトコードに問題がありそうなので，最近は =autoload-if-found= と =with-eval-after-load= の組み合わせに戻しています．最初に =when= 判定をすることで，パッケージが未インストールの状態に各種設定をスキップするので安全です．
+eval-after-load とのペアでマクロ化したバージョンもあります（次章参照）．ただ，生成されるバイトコードに問題がありそうなので，最近は =autoload-if-found= と =with-eval-after-load= の組み合わせに戻しています．最初に =when= 判定をすることで，パッケージが未インストールの状態に各種設定をスキップするので安全です．
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (when (autoload-if-found
@@ -213,6 +213,8 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
          t)))
 #+END_SRC
 
+この =autoload-if-found= の初出は，[[http://www.sodan.org/~knagano/emacs/dotemacs.html][dot.emacs]] です．
+
 ** [eval-after-autoload-if-found] 複数関数を対象とする遅延読み込み
 
 Twitterでぼやいていたら [[https://twitter.com/cvmat][@cvmat]]さんが降臨して次のマクロを作ってくださいました．感謝感謝．
@@ -237,7 +239,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
     (setq cycle-buffer-show-format '(" [ %s ]" . " %s"))))
 #+END_SRC
 
-これをスッキリさせるために =eval-after-autoload-func= を使います．記述がシンプルになり，行数も桁数もスッキリです．
+これをスッキリさせるために =eval-after-autoload-if-found= を導入します．記述がシンプルになり，行数も桁数もスッキリです．
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (eval-after-autoload-if-found
@@ -277,7 +279,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 
 関数版にリスト =loading-packages= を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． =eval-after-atoload-if-found= を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
 
-ただ問題点として，最後の引数に入れる関数がバイトコンパイル時に展開されないようで，出来上がったバイトコードが高速化に寄与しているのか不明です．簡易的な実験ではだいぶ差があるようで，最近は =autoload-if-found= ， =with-eval-after-load= ， =eval-when-compile= の組み合わせで，設定を書いて，遅延ロードと高速読み込みを実現しています． =loading-packages= は =autoload-if-found= に組み込みました．
+ただ問題点として，最後の引数に入れる関数がバイトコンパイル時に展開されないようで，出来上がったバイトコードが高速化に寄与しているのか不明です．簡易的な実験ではだいぶ差があるようで，最近は =autoload-if-found= ， =with-eval-after-load= ， =eval-when-compile= の組み合わせで設定を書いて，遅延ロードと高速読み込みを実現しています． =loading-packages= は =autoload-if-found= に組み込みました．
 
 #+BEGIN_SRC emacs-lisp :tangle no :exports yes
 (setq loading-packages ;; 追加されていない場合は標準で読み込む
@@ -3220,6 +3222,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
          helm-occur helm-swoop helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
+  (global-set-key (kbd "M-x") 'helm-M-x)
+  (global-set-key (kbd "C-M-r") 'helm-recentf)
+
   (with-eval-after-load "postpone"
 
     ;; (defun my-helm-swoop ()
@@ -3229,8 +3234,6 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
     ;;     (setq dimmer-mode -1))
     ;;   (helm-swoop))
 
-    (global-set-key (kbd "M-x") 'helm-M-x)
-    (global-set-key (kbd "C-M-r") 'helm-recentf)
     (global-set-key (kbd "C-M-l") 'helm-locate)
     (global-set-key (kbd "C-c f b") 'helm-bookmarks)
     (global-set-key (kbd "M-s M-s") 'helm-swoop)
@@ -3941,31 +3944,37 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
   (with-eval-after-load "undo-tree"
     (global-undo-tree-mode)
-    (defvar undo-tree-active nil)
     (setq undo-tree-mode-lighter nil) ;; モードライン領域を節約
+
+    (defvar my-undo-tree-active nil)
+    (defvar my-undo-tree-width 90)
+
+    (defun my-undo-tree-visualize ()
+      (interactive)
+      (if (require 'moom nil t)
+          (moom-change-frame-width-double)
+        (when (and (not my-undo-tree-active)
+                   (not (eq buffer-undo-list t)))
+          (set-frame-width nil (+ (frame-width) my-undo-tree-width))
+          (setq my-undo-tree-active t)))
+      (undo-tree-visualize))
+
+    (define-key undo-tree-map (kbd "C-x u") 'my-undo-tree-visualize)
+
     (defun my-undo-tree-visualizer-quit ()
       (interactive)
       (undo-tree-visualizer-quit)
-      (delete-window)
-      (when undo-tree-active
-        (set-frame-width (selected-frame)
-                         (- (frame-width) 63))
-        (setq undo-tree-active nil))
-      (when (< (frame-width) moom--frame-width)
-        (set-frame-width (selected-frame) moom--frame-width)))
-    (defun my-undo-tree-visualize ()
-      (interactive)
-      (when (and (not undo-tree-active) (not (eq buffer-undo-list t)))
-        (set-frame-width (selected-frame)
-                         (+ (frame-width) 63))
-        (setq undo-tree-active t))
-      (undo-tree-visualize))
+      (if (require 'moom nil t)
+          (moom-change-frame-width-single)
+        (delete-window)
+        (when my-undo-tree-active
+          (set-frame-width nil (- (frame-width) my-undo-tree-width))
+          (setq my-undo-tree-active nil)))
+      (when (< (frame-width) 80)
+        (set-frame-width nil 80)))
 
     (define-key undo-tree-visualizer-mode-map (kbd "q")
-      'my-undo-tree-visualizer-quit)
-    ;; undo-tree-map にも必要
-    (define-key undo-tree-map (kbd "C-x u")
-      'my-undo-tree-visualize)))
+      'my-undo-tree-visualizer-quit)))
 #+END_SRC
 
 ** バッファ保存時にバックアップファイルを生成する
@@ -4298,41 +4307,36 @@ http://www.emacswiki.org/emacs/EmacsSession
     (custom-set-variables
      '(neo-show-hidden-files t)
      '(neo-theme 'arrow)
-     '(neo-smart-open t))
+     '(neo-smart-open t)
+     '(neo-window-position 'right))
+    ;; (setq neo-vc-integration '(face char)) ;; It's heavy at 2017-08-31
 
-    ;; (setq neo-window-position 'right)
-    ;; (setq neo-vc-integration '(face char)) ;; Itls heavy at 2017-08-31
     (when (require 'all-the-icons-dired nil t)
       (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
-    (defvar my-neo-frame-width-single 80)
-    (defvar my-neo-frame-width-double my-neo-frame-width-single)
-    (when (require 'moom nil t)
-      (setq my-neo-frame-width-single moom-frame-width-single)
-      (setq my-neo-frame-width-double moom-frame-width-double))
+
     (defvar my-neo-adjusted-window-width (+ 3 neo-window-width))
     (defun advice:neotree-show ()
       "Extension to support change frame width when opening neotree."
       (unless (neo-global--window-exists-p)
-        (set-frame-width (selected-frame)
-                         (+ (frame-width) my-neo-adjusted-window-width))
-        ;; override
         (when (require 'moom nil t)
           (setq moom-frame-width-single
-                (+ my-neo-frame-width-single my-neo-adjusted-window-width))
+                (+ moom-frame-width-single my-neo-adjusted-window-width))
           (setq moom-frame-width-double
-                (+ my-neo-frame-width-double my-neo-adjusted-window-width)))))
+                (+ moom-frame-width-double my-neo-adjusted-window-width)))
+        (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))))
     (advice-add 'neotree-show :before #'advice:neotree-show)
+
     (defun advice:neotree-hide ()
       "Extension to support change frame width when closing neotree."
       (when (neo-global--window-exists-p)
-        (set-frame-width (selected-frame)
-                         (- (frame-width) my-neo-adjusted-window-width))
-        ;; restore
         (when (require 'moom nil t)
-          (setq moom-frame-width-single my-neo-frame-width-single)
-          (setq moom-frame-width-double my-neo-frame-width-double)))
-      (when (> my-neo-frame-width-single (frame-width))
-        (set-frame-width (selected-frame) my-neo-frame-width-single)))
+          (setq moom-frame-width-single
+                (- moom-frame-width-single my-neo-adjusted-window-width))
+          (setq moom-frame-width-double
+                (- moom-frame-width-double my-neo-adjusted-window-width)))
+        (set-frame-width nil (- (frame-width) my-neo-adjusted-window-width))
+        (when (> 80 (frame-width)) ;; fail safe
+          (set-frame-width nil 80))))
     (advice-add 'neotree-hide :before #'advice:neotree-hide)))
 #+END_SRC
 
@@ -5017,8 +5021,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 
     (defun my-do-org-update-staistics-cookies ()
       (interactive)
-      (message "Update statistics ...")
-      (do-org-update-statistics-cookies))
+      (message "Update statistics...")
+      (do-org-update-statistics-cookies)
+      (message "Update statistics... done"))
 
     ;; (org-transpose-element) が割り当てられているので取り返す．
     (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
@@ -5077,6 +5082,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
         ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
         (org-icalendar-combine-agenda-files)
         (setq org-agenda-files temp-agenda-files)
+        (message "Uploading...")
         ;; Dropbox/Public のフォルダに公開する
         ;;           (shell-command
         ;;            (concat "cp " org-icalendar-combined-agenda-file " "
@@ -5638,13 +5644,24 @@ will not be modified."
               (outline-backward-same-level 1)
             (outline-up-heading 1))
           (org-update-statistics-cookies nil) ;; Update in source
+          (org-sort-entries nil ?O)
           (org-refile-goto-last-stored)
           (org-update-parent-todo-statistics) ;; Update in destination
+          (outline-up-heading 1)
+          (org-sort-entries nil ?O)
           (unless (equal b (buffer-name))
             (switch-to-buffer b)))))
     (setq org-refile-history nil)
     (org-refile-cache-clear))
   (advice-add 'org-refile :around #'advice:org-refile)
+
+  (defun advice:org-sort-entries (&optional _with-case _sorting-type
+                                            _getkey-func _compare-func
+                                            _property _interactive?)
+    (outline-hide-subtree)
+    (org-show-hidden-entry)
+    (org-show-children))
+  (advice-add 'org-sort-entries :after #'advice:org-sort-entries)
 
   ;; リファイル先でサブディレクトリを指定するために一部フルパス化
   (let ((dir (expand-file-name org-directory)))
@@ -6637,7 +6654,45 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
     (setq org-hugo-auto-set-lastmod t)
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
     ;; never copy files to under /static/ directory
-    (setq org-hugo-external-file-extensions-allowed-for-copying nil)))
+    (setq org-hugo-external-file-extensions-allowed-for-copying nil)
+
+    ;; see https://pxaka.tokyo/blog/2018/a-link-to-the-original-org-source-file
+    (defun org-hugo-get-link-to-orgfile (uri alt)
+      "Return a formatted link to the original Org file.
+To insert the formatted into an org buffer for Hugo, use an appropriate
+macro, e.g. {{{srclink}}}.
+
+Note that this mechanism is still under consideration."
+      (let ((line (save-excursion
+                    (save-restriction
+                      (unless (org-at-heading-p)
+                        (org-previous-visible-heading 1))
+                      (line-number-at-pos)))))
+        (concat "[[" uri (file-name-nondirectory (buffer-file-name))
+                "#L" (format "%d" line) "][" alt "]]")))))
+#+end_src
+
+** ソースブロック等の大文字記述を一括で小文字に変える
+
+https://scripter.co/org-keywords-lower-case/ で紹介されている関数を，ログ出力部分だけ加筆して使っています．
+
+#+begin_src emacs-lisp :tangle yes
+(defun my-lower-case-org-keywords ()
+  "Lower case Org keywords and block identifiers."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((case-fold-search nil)
+          (count 0))
+      (while (re-search-forward
+              "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)"
+              nil :noerror)
+        (setq count (1+ count))
+        (let* ((prev (match-string-no-properties 1))
+               (new (downcase prev)))
+          (replace-match new :fixedcase nil nil 1)
+          (message "Updated(%d): %s => %s" count prev new)))
+      (message "Lower-cased %d matches" count))))
 #+end_src
 
 * フレーム／ウィンドウ制御
@@ -7132,6 +7187,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
       (when checkdoc-window
         (delete-window checkdoc-window)))
     (checkdoc-minor-mode -1))
+
   (defun advice:checkdoc ()
     (interactive)
     (checkdoc-minor-mode 1)
@@ -7139,6 +7195,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
       'my-delete-checkdoc-window)
     (define-key checkdoc-minor-mode-map (kbd "C-g")
       'my-delete-checkdoc-window))
+
   (advice-add 'checkdoc :before #'advice:checkdoc))
 #+END_SRC
 

@@ -1,17 +1,17 @@
-;;#+date: 2018-09-07
+;; #+date: 2018-09-13
 
 (source gnu)
 (source melpa)
 (source org)
-(source "takaxp" "~/devel/git/melpa/packages/")
+;; Private recipes, not in MELPA (private MELPA: https://pxaka.tokyo/melpa)
+;; (source "takaxp" "~/devel/git/melpa/packages/")
 ;; (source "takaxp" "https://pxaka.tokyo/melpa/packages/")
 
-;; Private recipes, not in MELPA (private MELPA: https://pxaka.tokyo/melpa)
-(depends-on "postpone")
-(depends-on "emacs-utils")
-(depends-on "ascii")
-(depends-on "help-fns+")
-(depends-on "git-complete")
+(depends-on "postpone" :git "https://github.com/takaxp/postpone.git")
+(depends-on "emacs-utils" :git "https://github.com/syohex/emacs-utils.git")
+(depends-on "ascii" :git "https://github.com/takaxp/ascii.git")
+(depends-on "help-fns+" :git "https://github.com/takaxp/help-fns-plus.git")
+(depends-on "git-complete" :git "https://github.com/zk-phi/git-complete.git")
 
 ;; Package install
 (depends-on "cask")
@@ -116,8 +116,9 @@
 (depends-on "helm-emms")
 (depends-on "helm-pass")
 (depends-on "helm-dired-history")
-(depends-on "helm-google")
 
+;; (depends-on "helm-google")
+;; (depends-on "helm-ghq")
 ;; (depends-on "helm-css-scss")
 ;; (depends-on "helm-rtags")
 
@@ -185,7 +186,7 @@
 (depends-on "replace-from-region")
 (depends-on "quickrun")
 (depends-on "latex-math-preview")
-(depends-on "bratex")
+(depends-on "bratex" :git "https://github.com/sbrisard/bratex.git")
 (depends-on "smart-mark")
 (depends-on "syntax-subword")
 (depends-on "goto-chg")

@@ -1184,6 +1184,22 @@ This works also for other defined begin/end tokens to define the structure."
 (setq-default indicate-buffer-boundaries
               '((top . nil) (bottom . right) (down . right)))
 
+(when (autoload-if-found
+       '(my-toggle-display-line-numbers-mode)
+       "display-line-numbers" nil t)
+
+  (with-eval-after-load "display-line-numbers"
+    (custom-set-variables
+     '(display-line-numbers-width-start t)))
+
+  (defun my-toggle-display-line-numbers-mode ()
+    "Toggle variable `global-display-line-numbers-mode'."
+    (interactive)
+    (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
+        (let ((flag (if global-display-line-numbers-mode -1 1)))
+          (global-display-line-numbers-mode flag))
+      (user-error "The display-line-numbers is supported in 26.1 or later"))))
+
 (if (executable-find "cmigemo")
     (when (autoload-if-found
            '(migemo-init)
@@ -1228,6 +1244,9 @@ This works also for other defined begin/end tokens to define the structure."
          helm-occur helm-swoop helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
+  (global-set-key (kbd "M-x") 'helm-M-x)
+  (global-set-key (kbd "C-M-r") 'helm-recentf)
+
   (with-eval-after-load "postpone"
 
     ;; (defun my-helm-swoop ()
@@ -1237,8 +1256,6 @@ This works also for other defined begin/end tokens to define the structure."
     ;;     (setq dimmer-mode -1))
     ;;   (helm-swoop))
 
-    (global-set-key (kbd "M-x") 'helm-M-x)
-    (global-set-key (kbd "C-M-r") 'helm-recentf)
     (global-set-key (kbd "C-M-l") 'helm-locate)
     (global-set-key (kbd "C-c f b") 'helm-bookmarks)
     (global-set-key (kbd "M-s M-s") 'helm-swoop)
@@ -1584,31 +1601,37 @@ This works also for other defined begin/end tokens to define the structure."
 
   (with-eval-after-load "undo-tree"
     (global-undo-tree-mode)
-    (defvar undo-tree-active nil)
     (setq undo-tree-mode-lighter nil) ;; モードライン領域を節約
+
+    (defvar my-undo-tree-active nil)
+    (defvar my-undo-tree-width 90)
+
+    (defun my-undo-tree-visualize ()
+      (interactive)
+      (if (require 'moom nil t)
+          (moom-change-frame-width-double)
+        (when (and (not my-undo-tree-active)
+                   (not (eq buffer-undo-list t)))
+          (set-frame-width nil (+ (frame-width) my-undo-tree-width))
+          (setq my-undo-tree-active t)))
+      (undo-tree-visualize))
+
+    (define-key undo-tree-map (kbd "C-x u") 'my-undo-tree-visualize)
+
     (defun my-undo-tree-visualizer-quit ()
       (interactive)
       (undo-tree-visualizer-quit)
-      (delete-window)
-      (when undo-tree-active
-        (set-frame-width (selected-frame)
-                         (- (frame-width) 63))
-        (setq undo-tree-active nil))
-      (when (< (frame-width) moom--frame-width)
-        (set-frame-width (selected-frame) moom--frame-width)))
-    (defun my-undo-tree-visualize ()
-      (interactive)
-      (when (and (not undo-tree-active) (not (eq buffer-undo-list t)))
-        (set-frame-width (selected-frame)
-                         (+ (frame-width) 63))
-        (setq undo-tree-active t))
-      (undo-tree-visualize))
+      (if (require 'moom nil t)
+          (moom-change-frame-width-single)
+        (delete-window)
+        (when my-undo-tree-active
+          (set-frame-width nil (- (frame-width) my-undo-tree-width))
+          (setq my-undo-tree-active nil)))
+      (when (< (frame-width) 80)
+        (set-frame-width nil 80)))
 
     (define-key undo-tree-visualizer-mode-map (kbd "q")
-      'my-undo-tree-visualizer-quit)
-    ;; undo-tree-map にも必要
-    (define-key undo-tree-map (kbd "C-x u")
-      'my-undo-tree-visualize)))
+      'my-undo-tree-visualizer-quit)))
 
 ;; *.~
 (setq make-backup-files nil)
@@ -1746,41 +1769,36 @@ This works also for other defined begin/end tokens to define the structure."
     (custom-set-variables
      '(neo-show-hidden-files t)
      '(neo-theme 'arrow)
-     '(neo-smart-open t))
+     '(neo-smart-open t)
+     '(neo-window-position 'right))
+    ;; (setq neo-vc-integration '(face char)) ;; It's heavy at 2017-08-31
 
-    ;; (setq neo-window-position 'right)
-    ;; (setq neo-vc-integration '(face char)) ;; Itls heavy at 2017-08-31
     (when (require 'all-the-icons-dired nil t)
       (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
-    (defvar my-neo-frame-width-single 80)
-    (defvar my-neo-frame-width-double my-neo-frame-width-single)
-    (when (require 'moom nil t)
-      (setq my-neo-frame-width-single moom-frame-width-single)
-      (setq my-neo-frame-width-double moom-frame-width-double))
+
     (defvar my-neo-adjusted-window-width (+ 3 neo-window-width))
     (defun advice:neotree-show ()
       "Extension to support change frame width when opening neotree."
       (unless (neo-global--window-exists-p)
-        (set-frame-width (selected-frame)
-                         (+ (frame-width) my-neo-adjusted-window-width))
-        ;; override
         (when (require 'moom nil t)
           (setq moom-frame-width-single
-                (+ my-neo-frame-width-single my-neo-adjusted-window-width))
+                (+ moom-frame-width-single my-neo-adjusted-window-width))
           (setq moom-frame-width-double
-                (+ my-neo-frame-width-double my-neo-adjusted-window-width)))))
+                (+ moom-frame-width-double my-neo-adjusted-window-width)))
+        (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))))
     (advice-add 'neotree-show :before #'advice:neotree-show)
+
     (defun advice:neotree-hide ()
       "Extension to support change frame width when closing neotree."
       (when (neo-global--window-exists-p)
-        (set-frame-width (selected-frame)
-                         (- (frame-width) my-neo-adjusted-window-width))
-        ;; restore
         (when (require 'moom nil t)
-          (setq moom-frame-width-single my-neo-frame-width-single)
-          (setq moom-frame-width-double my-neo-frame-width-double)))
-      (when (> my-neo-frame-width-single (frame-width))
-        (set-frame-width (selected-frame) my-neo-frame-width-single)))
+          (setq moom-frame-width-single
+                (- moom-frame-width-single my-neo-adjusted-window-width))
+          (setq moom-frame-width-double
+                (- moom-frame-width-double my-neo-adjusted-window-width)))
+        (set-frame-width nil (- (frame-width) my-neo-adjusted-window-width))
+        (when (> 80 (frame-width)) ;; fail safe
+          (set-frame-width nil 80))))
     (advice-add 'neotree-hide :before #'advice:neotree-hide)))
 
 (with-eval-after-load "dired"
@@ -2234,8 +2252,9 @@ This works also for other defined begin/end tokens to define the structure."
 
     (defun my-do-org-update-staistics-cookies ()
       (interactive)
-      (message "Update statistics ...")
-      (do-org-update-statistics-cookies))
+      (message "Update statistics...")
+      (do-org-update-statistics-cookies)
+      (message "Update statistics... done"))
 
     ;; (org-transpose-element) が割り当てられているので取り返す．
     (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
@@ -2284,6 +2303,7 @@ This works also for other defined begin/end tokens to define the structure."
         ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
         (org-icalendar-combine-agenda-files)
         (setq org-agenda-files temp-agenda-files)
+        (message "Uploading...")
         ;; Dropbox/Public のフォルダに公開する
         ;;           (shell-command
         ;;            (concat "cp " org-icalendar-combined-agenda-file " "
@@ -2773,13 +2793,24 @@ will not be modified."
               (outline-backward-same-level 1)
             (outline-up-heading 1))
           (org-update-statistics-cookies nil) ;; Update in source
+          (org-sort-entries nil ?O)
           (org-refile-goto-last-stored)
           (org-update-parent-todo-statistics) ;; Update in destination
+          (outline-up-heading 1)
+          (org-sort-entries nil ?O)
           (unless (equal b (buffer-name))
             (switch-to-buffer b)))))
     (setq org-refile-history nil)
     (org-refile-cache-clear))
   (advice-add 'org-refile :around #'advice:org-refile)
+
+  (defun advice:org-sort-entries (&optional _with-case _sorting-type
+                                            _getkey-func _compare-func
+                                            _property _interactive?)
+    (outline-hide-subtree)
+    (org-show-hidden-entry)
+    (org-show-children))
+  (advice-add 'org-sort-entries :after #'advice:org-sort-entries)
 
   ;; リファイル先でサブディレクトリを指定するために一部フルパス化
   (let ((dir (expand-file-name org-directory)))
@@ -3330,7 +3361,39 @@ will not be modified."
     (setq org-hugo-auto-set-lastmod t)
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
     ;; never copy files to under /static/ directory
-    (setq org-hugo-external-file-extensions-allowed-for-copying nil)))
+    (setq org-hugo-external-file-extensions-allowed-for-copying nil)
+
+    ;; see https://pxaka.tokyo/blog/2018/a-link-to-the-original-org-source-file
+    (defun org-hugo-get-link-to-orgfile (uri alt)
+      "Return a formatted link to the original Org file.
+To insert the formatted into an org buffer for Hugo, use an appropriate
+macro, e.g. {{{srclink}}}.
+
+Note that this mechanism is still under consideration."
+      (let ((line (save-excursion
+                    (save-restriction
+                      (unless (org-at-heading-p)
+                        (org-previous-visible-heading 1))
+                      (line-number-at-pos)))))
+        (concat "[[" uri (file-name-nondirectory (buffer-file-name))
+                "#L" (format "%d" line) "][" alt "]]")))))
+
+(defun my-lower-case-org-keywords ()
+  "Lower case Org keywords and block identifiers."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((case-fold-search nil)
+          (count 0))
+      (while (re-search-forward
+              "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)"
+              nil :noerror)
+        (setq count (1+ count))
+        (let* ((prev (match-string-no-properties 1))
+               (new (downcase prev)))
+          (replace-match new :fixedcase nil nil 1)
+          (message "Updated(%d): %s => %s" count prev new)))
+      (message "Lower-cased %d matches" count))))
 
 (cond
  ((memq window-system '(mac ns)) ;; for Macintosh
@@ -3635,6 +3698,7 @@ will not be modified."
       (when checkdoc-window
         (delete-window checkdoc-window)))
     (checkdoc-minor-mode -1))
+
   (defun advice:checkdoc ()
     (interactive)
     (checkdoc-minor-mode 1)
@@ -3642,6 +3706,7 @@ will not be modified."
       'my-delete-checkdoc-window)
     (define-key checkdoc-minor-mode-map (kbd "C-g")
       'my-delete-checkdoc-window))
+
   (advice-add 'checkdoc :before #'advice:checkdoc))
 
 (with-eval-after-load "postpone"
