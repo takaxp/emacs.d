@@ -776,47 +776,79 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
 #+BEGIN_SRC sh
 #!/bin/sh
 
-# Required setting: alias emacs='/Applications/Emacs.app/Contents/MacOS/Emacs'
-# exec cd ~/.emacs.d && cask upgrade-cask if you upgrade cask itself.
+LOADPATH=$HOME/.emacs.d/lisp
+SOURCEPATH=$HOME/Dropbox/emacs.d
+EVALWCOMPILE="$SOURCEPATH/config/init-eval.el"
 
-CASKPATH=~/.emacs.d/.cask
-#VERSION=24.5.1
-#VERSION=25.0.95.1
-VERSION=25.2
-#VERSION=25.1.90.1
-SUBDIR=package/$VERSION
-BACKUPDIR=~/Dropbox/backup
+while getopts t:hd opt
+do
+case ${opt} in
+t)
+TARGET=${OPTARG};;
+d)
+echo "--- Remove byte compiled files."
+rm -rf $LOADPATH/*.elc
+rm -rf $SOURCEPATH/config/*.elc
+rm -rf ${HOME}/devel/git/org-mode/lisp/*.elc
+exit 1;;
+h)
+echo "TARGET LIST:";
+echo "  actex";
+echo "  org-sync";
+echo "  yatex";
+echo "e.g."
+echo "> $0 -t anything"
+exit 1;;
+\?)
+exit 1;;
+esac
+exit 0
+done
+
+if [ ! -f $HOME/.zsh.local ]; then
+    echo "~/.zsh.local does NOT exist."
+    exit 0
+fi
+
+if [ ! -d $HOME/.emacs.d ]; then
+    echo "~/.emacs.d does NOT exist."
+    exit 0
+fi
+
 EMACS=`which emacs`
 if [ $HOSTTYPE = "intel-mac" ]; then
-EMACS=/Applications/Emacs.app/Contents/MacOS/Emacs
+    TARGETV=head # 25.1, 25.2, 25.3, 26.1, head
+    EMACS="/Users/taka/devel/emacs/bin/$TARGETV/Emacs.app/Contents/MacOS/Emacs"
+    if [ $TARGETV = "head" ]; then
+        EMACS='/Applications/Emacs.app/Contents/MacOS/Emacs'
+    fi
 fi
-# COMMAND="$EMACS -batch -q -l ~/.emacs -f batch-byte-compile";
-if [ -d "$CASKPATH/$SUBDIR" ]; then
-    echo "--- Removing $CASKPATH/$SUBDIR"
-    rm -r "$CASKPATH/$SUBDIR"
-else
-    echo "--- Target dir does NOT exist ($CASKPATH/$SUBDIR)."
-    exit
-fi
-mkdir -p $CASKPATH/$SUBDIR
+# $EMACS -l ~/.emacs --script ~/Dropbox/config/tangle.el
+$EMACS -q --script ~/Dropbox/config/tangle.el
 
-cd ~/.emacs.d
-echo "--- Cask install"
-EMACS="/Applications/Emacs.app/Contents/MacOS/Emacs" cask install
+echo "--- Starting batch-byte-compiles with GNU Emacs ($TARGETV)."
 
-echo "--- Cask update"
-EMACS="/Applications/Emacs.app/Contents/MacOS/Emacs" cask update
+COMMAND="$EMACS -l ~/.emacs -l $EVALWCOMPILE -batch -f batch-byte-compile-if-not-done"
 
-# echo "--- Removing org-mode installed by Cask unexpectedly"
-/bin/rm -rf ~/.emacs.d/.cask/$VERSION/elpa/org-20*
+rm -rf $LOADPATH/*.elc
+rm -rf $SOURCEPATH/config/*.elc
 
-echo "--- Copying elisp files"
-/bin/cp -rf ~/.emacs.d/.cask/$VERSION/elpa/*/* $CASKPATH/$SUBDIR
-/bin/cp -rf ~/.emacs.d/.cask/$VERSION/elpa/*/lisp/* $CASKPATH/$SUBDIR
-cd $CASKPATH/$SUBDIR
-rm -rf ./*~
+cp -rf $SOURCEPATH/*.el $LOADPATH
+cp -rf $SOURCEPATH/config/init.el $LOADPATH
+cp -rf $SOURCEPATH/config/utility.el $LOADPATH
 
-echo "--- Done"
+$COMMAND $LOADPATH/init.el
+$COMMAND $LOADPATH/utility.el
+#$COMMAND $SOURCEPATH/config/init.el $SOURCEPATH/config/utility.el $SOURCEPATH/*.el
+
+# raw
+# /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done
+
+# mv $SOURCEPATH/config/init.elc $HOME/.emacs.d
+# mv $SOURCEPATH/config/utility.elc $HOME/.emacs.d
+# mv $SOURCEPATH/*.elc $HOME/.emacs.d
+
+echo "--- done."
 #+END_SRC
 
 *** [paradox.el] パッケージ選択画面の改善
