@@ -203,17 +203,20 @@ eval-after-load とのペアでマクロ化したバージョンもあります�
 コンパイル時に =Warning: the function ‘google-this’ is not known to be defined.= のようなメッセージが出る時に， =autoload-if-found= の =functions= に当該関数を追加すると，警告されなくなります． =declare-function= を追記せずに済みます．
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+(defvar my-autoload-file-check t)
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
-  (and (load-package-p file)
-       (locate-library file)
-       (progn
-         (dolist (f functions)
-           (autoload f file docstring interactive type))
-         t)))
+  (when (or my-autoload-file-check
+            (and (load-package-p file)
+                 (locate-library file)))
+    (dolist (f functions)
+      (autoload f file docstring interactive type))
+    t))
 #+END_SRC
 
 この =autoload-if-found= の初出は，[[http://www.sodan.org/~knagano/emacs/dotemacs.html][dot.emacs]] です．
+
+=locate-library= は，高速化を求める状況において，意外と高コストなので，それらを評価しないためのフラグ =skip-file-checking= を追加しました．各パッケージの設定は，基本的に =with-eval-after-load= に括られていることを前提にすれば，起動が停止する自体は避けられるので，悪くない選択です．もし変なことになってしまっても， =skip-file-checking= を =nil= にすれば，従来のように，起動時にパッケージの存在を確認できます．
 
 ** [eval-after-autoload-if-found] 複数関数を対象とする遅延読み込み
 
@@ -4308,7 +4311,9 @@ http://www.emacswiki.org/emacs/EmacsSession
      '(neo-show-hidden-files t)
      '(neo-theme 'arrow)
      '(neo-smart-open t)
-     '(neo-window-position 'right))
+     '(neo-window-width 25)
+     '(neo-show-hidden-files nil)
+     '(neo-window-position 'left))
     ;; (setq neo-vc-integration '(face char)) ;; It's heavy at 2017-08-31
 
     (when (require 'all-the-icons-dired nil t)
@@ -5023,7 +5028,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
       (interactive)
       (message "Update statistics...")
       (do-org-update-statistics-cookies)
-      (message "Update statistics... done"))
+      (message "Update statistics...done"))
 
     ;; (org-transpose-element) が割り当てられているので取り返す．
     (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
@@ -5091,8 +5096,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
                    (concat "scp -o ConnectTimeout=5 "
                            org-icalendar-combined-agenda-file " "
                            org-ical-file-in-orz-server)))
-            (message "Uploading... [DONE]")
-          (message "Uploading... [MISS]"))
+            (message "Uploading...[DONE]")
+          (message "Uploading...[MISS]"))
         (my-ox-icalendar-cleanup)))
 
     (defun my-ox-icalendar-cleanup ()
@@ -8172,9 +8177,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
                   '(self-insert-command
                     save-buffers-kill-terminal
                     exit-minibuffer))
-      (message "Starting postpone...done")
+      (message "Loading postponed packages...")
       (postpone-kicker 'my-postpone-kicker)
-      (message "Finishing postpone...done")))
+      (message "Loading postponed packages...done")))
   (add-hook 'pre-command-hook #'my-postpone-kicker))
 #+END_SRC
 

@@ -37,14 +37,15 @@
             (message "--- `%s' was NOT loaded intentionally" name)))))
     enabled))
 
+(defvar my-autoload-file-check t)
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
-  (and (load-package-p file)
-       (locate-library file)
-       (progn
-         (dolist (f functions)
-           (autoload f file docstring interactive type))
-         t)))
+  (when (or my-autoload-file-check
+            (and (load-package-p file)
+                 (locate-library file)))
+    (dolist (f functions)
+      (autoload f file docstring interactive type))
+    t))
 
 (defun library-p (libraries)
   "Return `t' when every specified library can be located. "
@@ -1770,7 +1771,9 @@ This works also for other defined begin/end tokens to define the structure."
      '(neo-show-hidden-files t)
      '(neo-theme 'arrow)
      '(neo-smart-open t)
-     '(neo-window-position 'right))
+     '(neo-window-width 25)
+     '(neo-show-hidden-files nil)
+     '(neo-window-position 'left))
     ;; (setq neo-vc-integration '(face char)) ;; It's heavy at 2017-08-31
 
     (when (require 'all-the-icons-dired nil t)
@@ -2254,7 +2257,7 @@ This works also for other defined begin/end tokens to define the structure."
       (interactive)
       (message "Update statistics...")
       (do-org-update-statistics-cookies)
-      (message "Update statistics... done"))
+      (message "Update statistics...done"))
 
     ;; (org-transpose-element) が割り当てられているので取り返す．
     (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
@@ -2312,8 +2315,8 @@ This works also for other defined begin/end tokens to define the structure."
                    (concat "scp -o ConnectTimeout=5 "
                            org-icalendar-combined-agenda-file " "
                            org-ical-file-in-orz-server)))
-            (message "Uploading... [DONE]")
-          (message "Uploading... [MISS]"))
+            (message "Uploading...[DONE]")
+          (message "Uploading...[MISS]"))
         (my-ox-icalendar-cleanup)))
 
     (defun my-ox-icalendar-cleanup ()
@@ -4319,9 +4322,9 @@ Note that this mechanism is still under consideration."
                   '(self-insert-command
                     save-buffers-kill-terminal
                     exit-minibuffer))
-      (message "Starting postpone...done")
+      (message "Loading postponed packages...")
       (postpone-kicker 'my-postpone-kicker)
-      (message "Finishing postpone...done")))
+      (message "Loading postponed packages...done")))
   (add-hook 'pre-command-hook #'my-postpone-kicker))
 
 (when (autoload-if-found

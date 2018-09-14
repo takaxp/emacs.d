@@ -6,12 +6,12 @@
 (defconst before-load-init-time (current-time)) ;; see my-load-init-time in init
 (defconst my-profiler nil)
 (defconst ad-require nil)
-(defconst loading-packages nil)
-;; (setq loading-packages '(("moom" . nil)
-;;                          ("moom-font" . nil)))
 (defconst my-boot-menu 'any) ;; {debug, test, any}
-(setq debug-on-error nil)
-(defvar batch-build nil) ;; see also init-eval.el
+(defconst loading-packages nil) ;; `my-autoload-file-check' shall be nil.
+;; (setq loading-packages '(("moom" . nil) ("moom-font" . nil)))
+(setq debug-on-error nil
+      my-autoload-file-check t
+      postpone-verbose nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when my-profiler
@@ -46,7 +46,8 @@
  'exec-path)
 
 ;; (3) load-path for { nil | debug | test } booting
-(defconst init-load-path nil)
+(defvar init-load-path nil)
+(defvar batch-build nil) ;; see also init-eval.el
 (cond
  ((equal my-boot-menu 'debug)
   (my-path-setter
