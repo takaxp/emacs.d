@@ -1,6 +1,7 @@
 ;; -*- lexical-binding: t -*-
 ;; Configurations for Emacs
 ;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
+;; see also https://takaxp.github.io/init.html
 
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
