@@ -1234,8 +1234,7 @@ This works also for other defined begin/end tokens to define the structure."
        '(helm-buffers-list)
        "helm" nil t)
 
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-x C-b") 'helm-buffers-list))
+  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
 
   (with-eval-after-load "helm"
     (require 'helm-config nil t)))

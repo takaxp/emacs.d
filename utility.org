@@ -4,12 +4,16 @@
 #+startup:	content
 #+startup:	nohideblocks
 #+setupfile: theme-readtheorg.setup
+#+options: auto-id:t
 
 [[https://pxaka.tokyo/wiki/doku.php?id=emacs:init.el][init.el]] に記述していた便利関数を，utility.el として分離しています．init.el では autoload を用いて utility.el を遅延読み込みするように設定してます．このようなファイルの分離で60[ms]ほど起動を高速化できます．
 
 注意：コピペだけでは動かない可能性があります．
 
 * orgバッファを評価
+  :PROPERTIES:
+  :CUSTOM_ID: orgfd51fa6e
+  :END:
 
 org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
 
@@ -32,7 +36,13 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 #+end_src
 
 * ユーティリティ関数
+  :PROPERTIES:
+  :CUSTOM_ID: org435340e8
+  :END:
 ** サボっていると Kyoko さんに怒られる
+   :PROPERTIES:
+   :CUSTOM_ID: org68ed2087
+   :END:
 
 MacOS 用の関数です．別途，Kyoko さんの音声をインストールしておく必要があります．Mavericks だと，Otoya さんも使えます．
 
@@ -55,6 +65,9 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
 #+end_src
 
 ** org-buffer を dokuwiki 形式に変換し，kill-ring に格納
+   :PROPERTIES:
+   :CUSTOM_ID: org6183f766
+   :END:
 
 外部プログラム[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使います．
 
@@ -75,6 +88,9 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
 #+end_src
 
 ** コンソールでカレントバッファのあるディレクトリに移動する
+   :PROPERTIES:
+   :CUSTOM_ID: orgbf8ddfed
+   :END:
 
 Finder で開きたいだけならば， =M-!= でミニバッファに =open .= と打ち込むだけです．
 
@@ -106,6 +122,9 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
 #+end_src
 
 ** ファイルに含まれるテーブルを使って定時にアラートを表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orgb8c148ec
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 (eval-when-compile
@@ -185,6 +204,9 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
 #+end_src  
 
 ** 頻繁に利用するファイルをring形式でたどる
+   :PROPERTIES:
+   :CUSTOM_ID: org33d4f93d
+   :END:
 
 http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 
@@ -213,6 +235,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** 引数のorgバッファを開く
+   :PROPERTIES:
+   :CUSTOM_ID: org31226d9e
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
@@ -229,6 +254,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** orgバッファにいつものヘッダを追加する
+   :PROPERTIES:
+   :CUSTOM_ID: org6a1e418a
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
@@ -249,6 +277,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** 議事録ひな形を書き入れる
+   :PROPERTIES:
+   :CUSTOM_ID: org8f57b3f8
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
@@ -264,6 +295,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** ランダムの文字列を取得する
+   :PROPERTIES:
+   :CUSTOM_ID: orgdd9630ad
+   :END:
 
 引数で桁数を渡すと，ランダムな数値の文字列を取得できます．org-mode で適当なタイトルのツリーを生成したい時に使っています．
 
@@ -287,6 +321,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** Auto-install をセットアップする
+   :PROPERTIES:
+   :CUSTOM_ID: org481e7f96
+   :END:
 
 いつも auto-install を使うわけではないので，必要時に =init-auto-install= を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．
 
@@ -308,6 +345,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** 行頭に" - "を挿入する
+   :PROPERTIES:
+   :CUSTOM_ID: org3697f6bd
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
@@ -344,6 +384,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** TODO " - "と" - [ ] "をサイクルさせる
+   :PROPERTIES:
+   :CUSTOM_ID: orgc99664d5
+   :END:
 
  - ブリッツ行でないときは，ブリッツ化する．
  - ブリッツ行の場合は，チェックボックス付きに変更する．
@@ -374,6 +417,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** TODO リージョン内のブリッツを操作する
+   :PROPERTIES:
+   :CUSTOM_ID: orga706f503
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
@@ -477,6 +523,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** 日付などを簡単に挿入する
+   :PROPERTIES:
+   :CUSTOM_ID: org81ca01d1
+   :END:
 
 http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 
@@ -513,6 +562,9 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+end_src
 
 *** キーバインド
+    :PROPERTIES:
+    :CUSTOM_ID: org74fab35b
+    :END:
 
 #+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
@@ -520,6 +572,9 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+end_src
 
 ** XHTMLを利用したガントチャート生成
+   :PROPERTIES:
+   :CUSTOM_ID: orgdf529698
+   :END:
 
 最近使っていません．
 
@@ -578,6 +633,9 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+end_src
 
 ** 定期実行関数
+   :PROPERTIES:
+   :CUSTOM_ID: org9aef972b
+   :END:
 
 orgバッファからカレンダーを生成し，外部サーバに投げます．また，MobileOrgに最新情報を流しています．
 
@@ -601,6 +659,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 #+end_src
 
 ** ブラウザの設定
+   :PROPERTIES:
+   :CUSTOM_ID: org175a102f
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
@@ -628,6 +689,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 #+end_src
 
 ** ミニバッファに日時を表示
+   :PROPERTIES:
+   :CUSTOM_ID: org5e548445
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
@@ -641,6 +705,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 (global-set-key (kbd "C-c t") 'my-date)
 #+end_src
 ** バックアップファイルの削除
+   :PROPERTIES:
+   :CUSTOM_ID: orgca3eae6b
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
@@ -673,6 +740,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
       (shell-command-to-string (concat "mv -v " (chomp files) " ~/.Trash")))))
 #+end_src
 ** chomp
+   :PROPERTIES:
+   :CUSTOM_ID: org65219005
+   :END:
 
 改行コードを削除した文字列を返す．
 
@@ -691,6 +761,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 #+end_src
 
 ** iTerm2.app を呼び出す関数
+   :PROPERTIES:
+   :CUSTOM_ID: org62365dfa
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
@@ -700,6 +773,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 #+end_src
 
 ** lingr にログインする
+   :PROPERTIES:
+   :CUSTOM_ID: org2be833d3
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 (defun my-lingr-login ()
@@ -708,6 +784,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 #+end_src
 
 ** 特定のファイルを Dropbox 以下にバックアップする
+   :PROPERTIES:
+   :CUSTOM_ID: org9731a19e
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 (defun my-backup (files &optional dropbox)
@@ -733,6 +812,9 @@ If `dropbox' option is provided then the value is uased as a root directory."
 #+end_src
 
 ** ゴミ箱を空にする                                                     :Mac:
+   :PROPERTIES:
+   :CUSTOM_ID: orgdfad16ba
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 (defun mac:delete-files-in-trash-bin ()
@@ -749,6 +831,9 @@ If `dropbox' option is provided then the value is uased as a root directory."
 #+end_src
 
 ** その他
+   :PROPERTIES:
+   :CUSTOM_ID: orgfd77df9c
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
@@ -800,7 +885,13 @@ If `dropbox' option is provided then the value is uased as a root directory."
 #+end_src
 
 * 未設定／テスト中
+  :PROPERTIES:
+  :CUSTOM_ID: org67dcc87b
+  :END:
 ** byte-compile の警告を抑制する
+   :PROPERTIES:
+   :CUSTOM_ID: orgbdeca93a
+   :END:
 
 #+begin_src emacs-lisp :tangle no
 ;; Avoid warning (for sense-region)
@@ -811,6 +902,9 @@ If `dropbox' option is provided then the value is uased as a root directory."
 #+end_src
 
 ** [window-resizer.el] 分割したウィンドウサイズを変更する
+   :PROPERTIES:
+   :CUSTOM_ID: org32ff042a
+   :END:
 
 http://d.hatena.ne.jp/khiker/20100119/window_resize
 
@@ -862,6 +956,9 @@ utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
 #+end_src
 
 ** [idle-requie]
+   :PROPERTIES:
+   :CUSTOM_ID: org54f46ec1
+   :END:
 
 #+begin_src emacs-lisp :tangle no
 (require 'idle-require)
@@ -869,12 +966,18 @@ utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
 #+end_src
 
 ** [pdf-preview]
+   :PROPERTIES:
+   :CUSTOM_ID: org22e29aa4
+   :END:
 
 #+begin_src emacs-lisp :tangle no
 (require 'pdf-preview)
 #+end_src
 
 ** [EasyPG]
+   :PROPERTIES:
+   :CUSTOM_ID: orge6a31c57
+   :END:
 
 #+begin_src emacs-lisp :tangle no
   (when (require 'epa-setup nil t)
@@ -882,6 +985,9 @@ utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
 #+end_src
 
 ** [eblook]
+   :PROPERTIES:
+   :CUSTOM_ID: org1495619c
+   :END:
 
 #+begin_src emacs-lisp :tangle no
   ;; eblook
@@ -895,6 +1001,9 @@ utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
 #+end_src
 
 ** [iBuffer]
+   :PROPERTIES:
+   :CUSTOM_ID: org13d9d76f
+   :END:
 iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 #+begin_src emacs-lisp :tangle no
@@ -902,6 +1011,9 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 ** UUID をファイル名にして所定のディレクトリにコピー／移動
+   :PROPERTIES:
+   :CUSTOM_ID: org1a1d73ca
+   :END:
 
   - すでに org-attach が存在するので用途が微妙に．．．
 
@@ -947,6 +1059,9 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 ** キーバインド
+   :PROPERTIES:
+   :CUSTOM_ID: orgafde656e
+   :END:
 
 #+begin_src emacs-lisp :tangle no
 ;; Multiple combination
@@ -958,6 +1073,9 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 * provide
+  :PROPERTIES:
+  :CUSTOM_ID: org370c7681
+  :END:
 
 以上です．
 

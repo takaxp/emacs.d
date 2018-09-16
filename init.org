@@ -4,8 +4,12 @@
 #+startup:  content
 #+startup:  nohideblocks
 #+setupfile: theme-readtheorg.setup
+#+options: auto-id:t
 
 * はじめに
+  :PROPERTIES:
+  :CUSTOM_ID: orgda9120c8
+  :END:
 
   - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]]，[[https://pxaka.tokyo/wiki/doku.php?id=emacs:init.el][wiki]] を生成しています．
     - wiki への出力は，[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使って生成しています．
@@ -15,10 +19,16 @@
     - github.io 以下で閲覧する場合は，コメント欄が表示されません．
 
 * 基本設定
+  :PROPERTIES:
+  :CUSTOM_ID: org2a411a2e
+  :END:
 
 この設定群を利用するために設定です．一部の関数は記述しておかないと動かない可能性があります．
 
 ** init.el のヘッダ
+   :PROPERTIES:
+   :CUSTOM_ID: org2db575a1
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; -*- lexical-binding: t -*-
@@ -30,6 +40,9 @@
   - .emacs のカスタマイズを本格化し始めた頃に[[http://www.mygooglest.com/fni/dot-emacs.html][参照した情報]]
 
 ** init ファイルの読み込み時間計測
+   :PROPERTIES:
+   :CUSTOM_ID: org3c4d5a7a
+   :END:
 
 次の関数を =init.el= の最初に記載して，オプション付きで =after-init-hook= に乗っければ，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．これ以降に設定する =emacs-init-time= の派生関数と違い， =after-init-hook= で実行される処理の時間もわかります（ほかの処理も微妙に入るので，あくまで目安です）．
 
@@ -57,6 +70,9 @@
 #+END_SRC
 
 *** Emacs 起動時の呼び出し順
+    :PROPERTIES:
+    :CUSTOM_ID: org715ba410
+    :END:
 
 1. Set before-init-time = (current-time) and Set after-init-time = nil
 2. Initializes the window
@@ -78,6 +94,9 @@
 see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Summary.html][Startup Summary - GNU Emacs Lisp Reference Manual]]
 
 ** 起動時間の計測
+   :PROPERTIES:
+   :CUSTOM_ID: orga09727ae
+   :END:
 
 =M-x emacs-init-time= を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えます．元ネタは[[http://d.hatena.ne.jp/sugyan/20120120/1327037494][すぎゃーんメモ]]からです．感謝．
 
@@ -92,6 +111,9 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+END_SRC
 
 ** GCサイズの最適化
+   :PROPERTIES:
+   :CUSTOM_ID: org4c3e9f59
+   :END:
 
 起動時に発生するガベージコレクトを防きます．起動後に使用しているメモリサイズを超えていれば良さ気． =garbage-collection-messages= を設定しておくと，ガベージコレクトが生じる時にメッセージが出るようになります．
 
@@ -101,6 +123,9 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+END_SRC
 
 ** [exec-path-from-shell] PATH設定をシェルから継承する
+   :PROPERTIES:
+   :CUSTOM_ID: orgb59612b6
+   :END:
 
 外部プログラムのサポートを得て動くパッケージは，設定の過程でプログラムが見つからないと怒られることがしばしばあります． =exec-path-from-shell= は，シェルに設定した =PATH= の情報を継承して =exec-path= や =PATH= を設定してくれます．私は起動時に環境を切り替えることがあるので使ってませんが，使われている方は多いようです．
 
@@ -111,6 +136,9 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+END_SRC
 
 ** cl を使う
+   :PROPERTIES:
+   :CUSTOM_ID: orgc7901a57
+   :END:
 
   - http://lisperblog.blogspot.com/2008/12/blog-post_18.html
 
@@ -130,11 +158,17 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+END_SRC
 
 *** COMMENT 最適化ノート
+    :PROPERTIES:
+    :CUSTOM_ID: orgd8e260b1
+    :END:
 
 コンパイルしても関数が展開されなかったソースブロック約80個を置き換えた結果，800msから500msまで改善した．この時，バイトコンパイルしたファイルサイズは，80KBで不変だった．setq が展開されるようにしたが，起動時間の高速化にはほぼ寄与しなかった．GUI構築に300msが使われるのは変わらなかった．lambdaは，# を付けないと，バイトコンパイルで内容が正しく展開されない．なお，リアルタイムのウィルススキャンが有効な場合，それだけで300msは取られる...
 つまり，色々と弄ったけど実際は改良されていない？
 
 ** [load-package-p] 設定の読み込みフラグを確認する
+   :PROPERTIES:
+   :CUSTOM_ID: org660ba5e8
+   :END:
 
 =loading-packages= 変数に，設定を無視するパッケージを記述しておくと， =autoload-if-found= 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． =autoload-if-found= は本来の実装ではなく， =loading-packages= を参照するように手を加えています．
 
@@ -154,6 +188,9 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+END_SRC
 
 ** リストで関数を渡す autoload-if-found を使う
+   :PROPERTIES:
+   :CUSTOM_ID: orgc0921cdc
+   :END:
 
   - http://d.hatena.ne.jp/jimo1001/20090921/1253525484
 
@@ -220,6 +257,9 @@ eval-after-load とのペアでマクロ化したバージョンもあります�
 =locate-library= は，高速化を求める状況において，意外と高コストなので，それらを評価しないためのフラグ =skip-file-checking= を追加しました．各パッケージの設定は，基本的に =with-eval-after-load= に括られていることを前提にすれば，起動が停止する自体は避けられるので，悪くない選択です．もし変なことになってしまっても， =skip-file-checking= を =nil= にすれば，従来のように，起動時にパッケージの存在を確認できます．
 
 ** [eval-after-autoload-if-found] 複数関数を対象とする遅延読み込み
+   :PROPERTIES:
+   :CUSTOM_ID: org0b7d9710
+   :END:
 
 Twitterでぼやいていたら [[https://twitter.com/cvmat][@cvmat]]さんが降臨して次のマクロを作ってくださいました．感謝感謝．
 
@@ -280,6 +320,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 なお，第四引数 =(functions file docstring interactive)= まで指定すれば， =M-x= の呼び出し候補に functions で指定した関数が補完表示されます．
 
 *** 関数版
+    :PROPERTIES:
+    :CUSTOM_ID: org42722212
+    :END:
 
 関数版にリスト =loading-packages= を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． =eval-after-atoload-if-found= を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
 
@@ -325,6 +368,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 *** マクロ版
+    :PROPERTIES:
+    :CUSTOM_ID: org1498f6ce
+    :END:
 
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
 
@@ -351,6 +397,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** [library-p] load-path にライブラリがあるかを判定
+   :PROPERTIES:
+   :CUSTOM_ID: org30c47759
+   :END:
 
 パッケージが load-path に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
 
@@ -373,6 +422,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** [passed-clock-p] 指定時刻が本日の未来の時刻かを判定
+   :PROPERTIES:
+   :CUSTOM_ID: org124f13e2
+   :END:
 
 今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． =run-at-time= が想定通りに動かず，起動時に対象の関数が走ってしまうので，この判定が =nil= の時だけタイマー登録します． =target= を HH:MM の書式で与えます．現在時刻を与えた場合は，過ぎ去っていないので =nil= を返します．
 
@@ -395,6 +447,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** [input-focus-p] フォーカス判定
+   :PROPERTIES:
+   :CUSTOM_ID: orgcea06248
+   :END:
 
 フォーカスが当たっているのかを判定するための関数です．
 
@@ -407,6 +462,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** 警告の抑制
+   :PROPERTIES:
+   :CUSTOM_ID: org8b967ce1
+   :END:
 
 起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， =.emacs= の上の方に書いておくとよいと思います．
 
@@ -425,6 +483,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** エラー表示の抑制
+   :PROPERTIES:
+   :CUSTOM_ID: org0ea7dbaf
+   :END:
 
 普段使いでは要らないので抑制します．
 
@@ -433,6 +494,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** compilation buffer でのデータ表示で自動するスクロールする
+   :PROPERTIES:
+   :CUSTOM_ID: org1b2d3cc0
+   :END:
 
 =nil= のままだと，出力が続いてもスクロールされないので，自動的にスクロールされるように設定．
 
@@ -441,6 +505,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** C-x C-c で容易にEmacsを終了させないように質問する
+   :PROPERTIES:
+   :CUSTOM_ID: org68d1750d
+   :END:
 
 =y-or-n-p= もしくは =yes-or-no-p= を指定するだけです．
 
@@ -465,6 +532,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** [shut-up.el] Messages 出力を封じる（制御する）
+   :PROPERTIES:
+   :CUSTOM_ID: orgfca510d8
+   :END:
 
 =shut-up.el= というマクロがあり，現在はそちらを使っています．非常に強力です．
 
@@ -501,6 +571,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** エンターキーの挙動
+   :PROPERTIES:
+   :CUSTOM_ID: org6f2cf1cd
+   :END:
 
 好みの問題ですかね．
 
@@ -510,6 +583,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 ** コマンド入力中に入力過程をミニバッファに反映する
+   :PROPERTIES:
+   :CUSTOM_ID: orgf6a240ab
+   :END:
 
 標準値は =1= です．例えば， =C-c f r= で発動する関数があるとき， =C-c= を入力するとその直後にはミニバッファに何も表示されませんが， =echo-keystrokes= だけ経過すると， =C-c= が表示されます． =0= に設定すると，いくら経過しても何も表示しません．
 
@@ -518,10 +594,16 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+END_SRC
 
 * コア設定
+  :PROPERTIES:
+  :CUSTOM_ID: org8e58f563
+  :END:
 
 Emacs を操作して文書編集する上で欠かせない設定です．
 
 ** 言語／文字コード
+   :PROPERTIES:
+   :CUSTOM_ID: org218fe598
+   :END:
 
 徹底的にUTF-8に合わせます．
 
@@ -552,6 +634,9 @@ Emacs を操作して文書編集する上で欠かせない設定です．
 #+END_SRC
 
 ** 日本語入力
+   :PROPERTIES:
+   :CUSTOM_ID: org08c6f620
+   :END:
 
 NSビルド用のインラインパッチを適用している場合に使います．Lion でも使える自分用にカスタマイズした [[https://gist.github.com/1532344][inline-patch]] を使っています．
 
@@ -583,6 +668,9 @@ NSビルド用のインラインパッチを適用している場合に使いま
 #+END_SRC
 
 ** [ag.el] 検索
+   :PROPERTIES:
+   :CUSTOM_ID: orgfd3c67b9
+   :END:
 
 検索には =The Silver Searcher= を使います．あらかじめインストールしておく必要があります．MacPorts の場合，the_silver_searcher の名称で頒布されています． =exec-path= に =/opt/local/bin= が含まれていることを確認してください．
 
@@ -621,6 +709,9 @@ the_silver_searcher @0.18.1 (textproc)
 #+END_SRC
 
 ** 基本キーバインド
+   :PROPERTIES:
+   :CUSTOM_ID: org532e1f02
+   :END:
 
 次の機能にキーバインドを設定する．
 
@@ -645,6 +736,9 @@ the_silver_searcher @0.18.1 (textproc)
 #+END_SRC
 
 ** ナローイングするか
+   :PROPERTIES:
+   :CUSTOM_ID: org62c41327
+   :END:
 
 ナローイングを有効にします．ナローイングを知らないユーザが「データが消えた！」と勘違いしないように，デフォルトでは無効になっています．
 
@@ -667,6 +761,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+END_SRC
 
 ** バッファの終わりでのnewlineを禁止する
+   :PROPERTIES:
+   :CUSTOM_ID: org162dbe4a
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 ;; Avoid adding a new line at the end of buffer
@@ -674,6 +771,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+END_SRC
 
 ** 常に最終行に一行追加する
+   :PROPERTIES:
+   :CUSTOM_ID: orgff941e69
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Limit the final word to a line break code (automatically correct)
@@ -681,6 +781,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+END_SRC
 
 ** 長い文章を右端で常に折り返す
+   :PROPERTIES:
+   :CUSTOM_ID: org7a9614cc
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq truncate-lines nil)
@@ -688,6 +791,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+END_SRC
 
 ** バッファが外部から編集された場合に自動で再読み込みする
+   :PROPERTIES:
+   :CUSTOM_ID: orgc2257142
+   :END:
 
 =auto-save-buffers= を使っていれば，バッファは常に保存された状態になるため， revert が即座に反映されます．適宜バックアップツールと組み合わせないと，バッファが自動更新されてしまうので不安かもしれません．
 
@@ -701,6 +807,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+END_SRC
 
 ** [uniquify.el] 同じバッファ名が開かれた場合に区別する
+   :PROPERTIES:
+   :CUSTOM_ID: org723e2b73
+   :END:
 
 ビルトインの =uniquify= を使います．モードラインの表示が変わります．
 
@@ -709,6 +818,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+END_SRC
 
 ** マウスで選択した領域を自動コピー
+   :PROPERTIES:
+   :CUSTOM_ID: org8dd417a4
+   :END:
 
 マウスで選択すると，勝手にペーストボードにデータが流れます．
 
@@ -717,6 +829,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+END_SRC
 
 ** マウススクロールをピクセル単位にする
+   :PROPERTIES:
+   :CUSTOM_ID: org4ea9e5f1
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
@@ -725,12 +840,18 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+END_SRC
 
 ** パッケージ管理
+   :PROPERTIES:
+   :CUSTOM_ID: orgd7b8f4e2
+   :END:
 
 [[https://github.com/cask/cask][Cask]]+Palletの環境を採用しました．それまでは，特定のディレクトリに必要な elisp をダウンロードしておいたり，git から取り寄せて，それらをload-pathに設定するスクリプトを準備するなど，個人的なルールで運用してきましたが，希望の機能をCaskが提供しているので，Emacs24.4になるタイミングで移行しました．
 
 ただし，頒布元が危ういようなファイルはやはり個人で管理しておきたいので，Caskで管理する対象は，MEPLA経由で入手可能なメンテナンスが行き届いたパッケージに限定しています．また，普通の使い方（casl.elを読み込んで初期化）をしていると，起動時に少し時間を要するので，所定のディレクトリにCaskで取り寄せたすべてのファイルをコピーして，そのディレクトリだけをload-pathで指定するという使い方もしています．今のところ大きな問題は生じていません．
 
 *** [cask-mode.el] モード設定
+    :PROPERTIES:
+    :CUSTOM_ID: orgf6f05dc9
+    :END:
 
   - [[https://github.com/Wilfred/cask-mode][Wilfred/cask-mode: Major mode for editing Cask files]]
 
@@ -740,6 +861,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+END_SRC
 
 *** Cask のセットアップ
+    :PROPERTIES:
+    :CUSTOM_ID: org02669d67
+    :END:
 
  以下は自分用のメモです．
 
@@ -751,6 +875,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
  6. cask install
 
 *** load-path を一箇所にして起動を高速化
+    :PROPERTIES:
+    :CUSTOM_ID: orgec66ea31
+    :END:
 
 Caskを使うと，個々のパッケージが独立にload-pathに設定されます．これにより依存関係がスッキリするわけですが，数が増えると起動時間が遅くなります．重いです．自分の例では，800[ms]のオーバーヘッドでした．これを避けるには，load-pathを一箇所に集約することが効きます．オーバーヘッドは約100[ms]まで削減できました．場合によっては依存関係に問題が生じる可能性がありますが，今のところは問題になっていません．
 
@@ -853,6 +980,9 @@ echo "--- done."
 #+END_SRC
 
 *** [paradox.el] パッケージ選択画面の改善
+    :PROPERTIES:
+    :CUSTOM_ID: orgda4ef167
+    :END:
 
 パッケージインストール用のバッファが多機能になります．スターが表示されたり，ミニバッファには様々な情報が表示されるようになります．基本の操作系は同じで，拡張部分は =h= を押すとミニバッファにディスパッチャが表示されます．
 
@@ -869,6 +999,9 @@ echo "--- done."
 #+END_SRC
 
 ** インデント
+   :PROPERTIES:
+   :CUSTOM_ID: org03555a6a
+   :END:
 
 オープンソース等で他の人のコードを修正する場合は，以下のような設定は良くないかもしれません．例えば差分を取ると見た目は変わらないのに，タブとスペースの違いから差分ありと判定されてしまい，意図しない編集履歴が残ることがあります．ただこの問題は，修正対象のファイルが限定されているならば， =M-x tabify= や =M-x untabify= で回避できそうです．
 
@@ -887,6 +1020,9 @@ echo "--- done."
 #+END_SRC
 
 ** [aggressive-indent] 即時バッファ整形
+   :PROPERTIES:
+   :CUSTOM_ID: orgb5cd55a9
+   :END:
 
 特定のメジャーモードで，とにかく整形しまくります． =python-mode= では意図しないインデントになったりします． =web-mode= だと異常に重かったりします．
 
@@ -906,6 +1042,9 @@ echo "--- done."
 #+END_SRC
 
 ** [ws-butler.el] 不要なスペースを自動除去
+   :PROPERTIES:
+   :CUSTOM_ID: org982c69d7
+   :END:
 
 行末のスペース等が不要に残るのを回避できます．バッファ保存時の自動処理です．
 
@@ -929,6 +1068,9 @@ echo "--- done."
 #+END_SRC
 
 ** ファイルリンクを辿る時に確認のメッセージを出さない
+   :PROPERTIES:
+   :CUSTOM_ID: orgfc7cc004
+   :END:
 
 そのまま辿ってファイルオープンします．
 
@@ -937,6 +1079,9 @@ echo "--- done."
 #+END_SRC
 
 ** EMPビルド用設定
+   :PROPERTIES:
+   :CUSTOM_ID: org53a63301
+   :END:
 
 NSビルド版で生じた日本語入力時のチラつきを避けるために，EMP版ビルドに(一時期)浮気しました．以下はその時にNSビルドの振る舞いに近づけるためにがんばった設定です．詳細な情報は，リンク先の記事にあります．
 
@@ -1063,6 +1208,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 #+END_SRC
 
 ** NSビルド用設定                                                       :Mac:
+   :PROPERTIES:
+   :CUSTOM_ID: orge44eded5
+   :END:
 
 インラインパッチの適用が前提の設定です． =M-SPC/S-SPC= で日本語IMEのON/OFFができるようになります．インラインパッチの情報はリンク先にあります．
 
@@ -1106,6 +1254,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 #+END_SRC
 
 * カーソル移動
+  :PROPERTIES:
+  :CUSTOM_ID: org35f3bbc9
+  :END:
 
 カーソルの移動は，次のポリシーに従っています．デフォルトでは =C-v/M-v= で上下移動になっていますが， =M-v= は windows のペーストに対応するので混乱を招くので使っていません．ページスクロールは標準の =cua-base.el= に記載されています．
 
@@ -1116,6 +1267,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   | バッファ先頭・末尾       | C-M-t/C-M-b |
 
 ** バッファ内のカーソル移動
+   :PROPERTIES:
+   :CUSTOM_ID: org2a46a2bd
+   :END:
 
 先頭に移動，最終行に移動，ページ単位の進む，ページ単位の戻る，行数を指定して移動．
 
@@ -1132,6 +1286,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 #+END_SRC
 
 ** バッファ間のカーソル移動
+   :PROPERTIES:
+   :CUSTOM_ID: org3bebf489
+   :END:
 
 =C-c o= でもいいですが，ワンアクションで移動できるようが楽です．次のように双方向で使えるように設定しています．
 
@@ -1142,6 +1299,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 #+END_SRC
 
 ** スクロールを制御
+   :PROPERTIES:
+   :CUSTOM_ID: orgb8c57f30
+   :END:
 
 一行づつスクロールさせます．デフォルトではバッファの端でスクロールすると，半画面移動します．また，上下の端にカーソルがどのくらい近づいたらスクロールとみなすかも指定できます．
 
@@ -1177,6 +1337,9 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 #+END_SRC
 
 ** スクロールで表示を重複させる行数
+   :PROPERTIES:
+   :CUSTOM_ID: org5f40f030
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Scroll window on a page-by-pabe basis with N line overlapping
@@ -1184,6 +1347,9 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 #+END_SRC
 
 ** [SmoothScroll.el] カーソル固定でスクロールする
+   :PROPERTIES:
+   :CUSTOM_ID: org1af5f062
+   :END:
 
 https://raw.github.com/takaxp/EmacsScripts/master/SmoothScroll.el
 https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
@@ -1203,6 +1369,9 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
 #+END_SRC
 
 ** [smooth-scroll.el] 滑らかなスクロール
+   :PROPERTIES:
+   :CUSTOM_ID: orgc62cc9bf
+   :END:
 
 良い感じです．スススっとスクロールします．最初にスクロールする時にパッケージを読み込みます．
 
@@ -1223,6 +1392,9 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
 #+END_SRC
 
 ** [point-undo.el] カーソル位置を簡単にたどる
+   :PROPERTIES:
+   :CUSTOM_ID: org42db9464
+   :END:
 
 autoload や autoload-if-found で定義すると，使いたい時に履歴が取れていないのでよろしくないです．起動時に有効化します． bm.el で明示的にマーカーを残して履歴をたどる方が気に入っているので，最近は point-undo を使っていません．シングルキーを割り当てておくと使いやすいです．
 
@@ -1235,6 +1407,9 @@ autoload や autoload-if-found で定義すると，使いたい時に履歴が�
 #+END_SRC
 
 ** [cycle-buffer.el] カレントバッファの表示切り替え
+   :PROPERTIES:
+   :CUSTOM_ID: org27e3241e
+   :END:
 
 http://www.emacswiki.org/emacs/download/cycle-buffer.el
 
@@ -1259,6 +1434,9 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 #+END_SRC
 
 ** [bm.el] カーソル位置をブックマークして追う
+   :PROPERTIES:
+   :CUSTOM_ID: orgd5942d14
+   :END:
 
 [[https://github.com/joodland/bm][bm.el]]は，カーソル位置をブックマークしておくためのツールです． =point-undo= と比較して，ユーザが明示的に位置を保存でき，見た目にも使いやすいです．以下の例では， =org-mode= のツリー内にブックマークがある時にも，上手い具合に表示ができるように調整してあります．カーソル移動は，順方向（ =bm-next= ）にだけ使っています．
 
@@ -1322,6 +1500,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+END_SRC
 
 ** [centered-cursor-mode.el] カーソル位置をバッファ中央に固定
+   :PROPERTIES:
+   :CUSTOM_ID: orgfa2bad61
+   :END:
 
 =isearch-mode= の時だけ有効にしています．
 
@@ -1337,6 +1518,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+END_SRC
 
 ** [back-button] マークをたどる
+   :PROPERTIES:
+   :CUSTOM_ID: orgd906e864
+   :END:
 
 現在のバッファと開いている全てのバッファのマークを辿ることができます．いま注目している位置が，マーク全体でどのあたりに位置するのかをミニバッファに表示してくれます．ツールバーを表示している場合は，マークを付けたり辿る用のボタンが追加されます． =global-mark-ring-max= を設定して，辿れるマークの数を拡張しておきます．
 
@@ -1372,6 +1556,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+END_SRC
 
 ** [smart-mark] C-g後に元の場所へカーソルを戻す
+   :PROPERTIES:
+   :CUSTOM_ID: orgadf36a14
+   :END:
 
 すぐわかる例は， =C-x h= で全選択して何もせず， =C-g= する場合です．通常だとバッファの先頭にカーソルが置き去りにされますが， =smart-mark= を使うと，全選択を実行した時の位置に自動的に戻してくれます．
 
@@ -1388,6 +1575,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+END_SRC
 
 ** [syntax-subword.el] M-f で移動する位置をより密にする
+   :PROPERTIES:
+   :CUSTOM_ID: orgf75f443a
+   :END:
 
   - https://bitbucket.org/jpkotta/syntax-subword
 
@@ -1400,6 +1590,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+END_SRC
 
 ** [goto-chg.el] 編集箇所を簡単に辿る
+   :PROPERTIES:
+   :CUSTOM_ID: org8435eae2
+   :END:
 
 編集結果を保持したまま編集箇所にカーソルを移すことができます．=C-/= の Undo のような操作で，簡単かつ高速にカーソルを移動できます．
 
@@ -1420,7 +1613,13 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+END_SRC
 
 * 編集サポート
+  :PROPERTIES:
+  :CUSTOM_ID: org36bb3b1a
+  :END:
 ** 矩形編集／連番入力
+   :PROPERTIES:
+   :CUSTOM_ID: orgf6cb5849
+   :END:
 
 Built-in の cua-base.el（CUA-mode）を使う．矩形選択は，領域選択後 =cua-toggle-rectangle-mark= でもできるが， 24.4 からは， =C-x SPC= を押下すると矩形モードに入り直感的に矩形選択ができるようになっています．
 
@@ -1441,12 +1640,18 @@ Built-in の cua-base.el（CUA-mode）を使う．矩形選択は，領域選択
 | 矩形を空白に変換する | C-x r c |
 
 ** Yank時に装飾を取る
+   :PROPERTIES:
+   :CUSTOM_ID: org4c4fe29c
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq yank-excluded-properties t)
 #+END_SRC
 
 ** ファイル保存時に時間を記録する
+   :PROPERTIES:
+   :CUSTOM_ID: org9dba91d0
+   :END:
 
 Built-in の time-stamp.el を使う．
 
@@ -1506,6 +1711,9 @@ Built-in の time-stamp.el を使う．
 #+END_SRC
 
 ** 選択リージョンを使って検索
+   :PROPERTIES:
+   :CUSTOM_ID: orge62264fe
+   :END:
 
 検索語をミニバッファに入力するのが面倒なので，リージョンをそのまま検索語として利用します．
 
@@ -1528,6 +1736,9 @@ Built-in の time-stamp.el を使う．
 #+END_SRC
 
 ** ChangeLog モード
+   :PROPERTIES:
+   :CUSTOM_ID: org7cb03523
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 ;; see private.el
@@ -1547,6 +1758,9 @@ Built-in の time-stamp.el を使う．
 #+END_SRC
 
 ** テキストモード
+   :PROPERTIES:
+   :CUSTOM_ID: org1bd5d8ee
+   :END:
 
 http://d.hatena.ne.jp/NeoCat/20080211
 
@@ -1563,6 +1777,9 @@ http://d.hatena.ne.jp/NeoCat/20080211
 #+END_SRC
 
 ** C/C++モード
+   :PROPERTIES:
+   :CUSTOM_ID: org92da42b4
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -1574,6 +1791,9 @@ http://d.hatena.ne.jp/NeoCat/20080211
 #+END_SRC
 
 ** C#モード
+   :PROPERTIES:
+   :CUSTOM_ID: orga6184922
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -1584,6 +1804,9 @@ http://d.hatena.ne.jp/NeoCat/20080211
 #+END_SRC
 
 ** Infoモード
+   :PROPERTIES:
+   :CUSTOM_ID: org743f2508
+   :END:
 
 Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github.com/org-mode-doc-ja/org-ja][翻訳プロジェクト]]で頒布しています．
 
@@ -1604,6 +1827,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** Rモード
+   :PROPERTIES:
+   :CUSTOM_ID: orgd2a57328
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -1614,6 +1840,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** nXMLモード
+   :PROPERTIES:
+   :CUSTOM_ID: org8c99f06c
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (add-hook 'nxml-mode-hook
@@ -1628,6 +1857,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** yamlモード
+   :PROPERTIES:
+   :CUSTOM_ID: orgbfa6c13b
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -1638,6 +1870,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** jsonモード
+   :PROPERTIES:
+   :CUSTOM_ID: org34a54f82
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -1648,6 +1883,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** javascriptモード
+   :PROPERTIES:
+   :CUSTOM_ID: orgc35f66fb
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (when (autoload-if-found
@@ -1678,6 +1916,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** csvモード
+   :PROPERTIES:
+   :CUSTOM_ID: orga7d86e03
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -1688,6 +1929,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** asciiモード
+   :PROPERTIES:
+   :CUSTOM_ID: orgba009928
+   :END:
 
 カーソル下の文字のアスキーコードを別ウィンドウでリアルタイムに確認できます．
 
@@ -1696,6 +1940,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** javaモード
+   :PROPERTIES:
+   :CUSTOM_ID: orgc5b5891d
+   :END:
 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1708,6 +1955,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** esモード
+   :PROPERTIES:
+   :CUSTOM_ID: orgf0c39e0f
+   :END:
 
   - https://github.com/dakrone/es-mode
 
@@ -1722,6 +1972,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** gnuplotモード
+   :PROPERTIES:
+   :CUSTOM_ID: org2a14728f
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -1732,6 +1985,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** markdown-mode
+   :PROPERTIES:
+   :CUSTOM_ID: orga6fc6cf7
+   :END:
 
   - [[http://jblevins.org/projects/markdown-mode/]]
 
@@ -1745,6 +2001,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** cmakeモード
+   :PROPERTIES:
+   :CUSTOM_ID: org29328dcd
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (if (executable-find "cmake")
@@ -1758,6 +2017,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+END_SRC
 
 ** スペルチェック
+   :PROPERTIES:
+   :CUSTOM_ID: orge727dabc
+   :END:
 
 Built-in の ispell を使う．チェックエンジンは，aspell を利用する．
 
@@ -1873,6 +2135,9 @@ lang en_US
 #+END_SRC
 
 ** リアルタイムスペルチェック
+   :PROPERTIES:
+   :CUSTOM_ID: orgdd65fc08
+   :END:
 
 Built-in の [[http://www.emacswiki.org/emacs/FlySpell][flyspell.el]] を使います．flyspell は内部で =ispell= を読み込んでいるので，辞書機能自体はそちらの設定が使われます．
 
@@ -1941,6 +2206,9 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 #+END_SRC
 
 ** [latex-math-preview.el] TeX数式をプレビュー
+   :PROPERTIES:
+   :CUSTOM_ID: orgab4f9bf0
+   :END:
 
   - http://www.emacswiki.org/emacs/latex-math-preview.el
   - http://transitive.info/software/latex-math-preview/
@@ -1968,6 +2236,9 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 #+END_SRC
 
 ** [po-mode.el] 翻訳ファイルの編集
+   :PROPERTIES:
+   :CUSTOM_ID: orge1eeb2a1
+   :END:
 
   - http://www.emacswiki.org/emacs/PoMode
   - http://www.emacswiki.org/emacs/po-mode+.el
@@ -1983,6 +2254,9 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 #+END_SRC
 
 ** [word-count.el] リージョン内の文字をカウントする
+   :PROPERTIES:
+   :CUSTOM_ID: org9317ee6f
+   :END:
 
 有効な頒布元に変更があった．[[http://www.emacswiki.org/emacs/WordCount][word-count.el]] から新しい頒布元にたどりつける．
 
@@ -2002,6 +2276,9 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 #+END_SRC
 
 ** [yatex.el] YaTeXモード
+   :PROPERTIES:
+   :CUSTOM_ID: org770fb4ec
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -2082,6 +2359,9 @@ This works also for other defined begin/end tokens to define the structure."
 #+end_src
 
 ** [auxtex.el] AUCTEXモード
+   :PROPERTIES:
+   :CUSTOM_ID: org9b92b6f8
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (when (autoload-if-found
@@ -2097,6 +2377,9 @@ This works also for other defined begin/end tokens to define the structure."
 #+END_SRC
 
 ** [display-time-world-mode] 世界時計
+   :PROPERTIES:
+   :CUSTOM_ID: org863cfc2a
+   :END:
 
 世界の時刻を確認するために wclock.el がありました（参考：https://pxaka.tokyo/wiki/doku.php?id=emacs）が，現在はビルトインの =time.el= に =display-time-world-mode= として吸収されているようです． =display-time-world-buffer-name= に wclock が設定されているところが名残と思われます．
 
@@ -2110,6 +2393,9 @@ This works also for other defined begin/end tokens to define the structure."
 #+END_SRC
 
 ** [yasnippet.el] Emacs用のテンプレートシステム
+   :PROPERTIES:
+   :CUSTOM_ID: org2e5c6e4f
+   :END:
 
   - [[https://github.com/capitaomorte/yasnippet]]
   - http://yasnippet-doc-jp.googlecode.com/svn/trunk/doc-jp/index.html
@@ -2169,6 +2455,9 @@ This works also for other defined begin/end tokens to define the structure."
 #+END_SRC
 
 ** [sdic.el] 英辞郎で英単語を調べる
+   :PROPERTIES:
+   :CUSTOM_ID: org7e84aa55
+   :END:
 
 http://www.namazu.org/~tsuchiya/sdic/index.html
 
@@ -2196,6 +2485,9 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 #+END_SRC
 
 ** [osx-dictionary.el] MacOSのdictionary.appで辞書をひく
+   :PROPERTIES:
+   :CUSTOM_ID: orgbea14b16
+   :END:
 
 =osx-dictionary= なるパッケージが存在します．さくさくと高速に動作します．
 
@@ -2220,6 +2512,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 私の場合は，できあがった辞書を =/Library/Dictionaries/= 以下に置いています．その状態で dictionary.app の設定で辞書の優先順位を変えることで，常にCOBUILD5の情報を引っ張り出せます．もしくは， =osx-dictionary-dictionary-choice= で辞書名を指定します．
 
 *** MacOSのdictionary.appでCOBUILD5の辞書をひく（旧）
+    :PROPERTIES:
+    :CUSTOM_ID: org52c2a77d
+    :END:
 
  OS標準の辞書アプリ（dictionary.app）を経由して，バッファにCOBUILD5のデータを流し込むことができます．
 
@@ -2272,12 +2567,18 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
  私の場合は，できあがった辞書を =/Library/Dictionaries/= 以下に置いています．その状態で dictionary.app の設定で辞書の優先順位を変えることで，常にCOBUILD5の情報を引っ張り出せます．
 
 **** マイナーモード化
+     :PROPERTIES:
+     :CUSTOM_ID: org34b20ea7
+     :END:
 
      =q= で閉じたくなったのでマイナーモードを作りました．これまで通り， =C-M-w= でカーソル下の単語を調べてポップアップで表示．カーソルはその新しいバッファに移しておき， =q= で閉じられます．新しいバッファ内で別な単語を =C-M-w= で調べると，同じバッファに結果を再描画します．
 
      マイナーモード化した elisp は，[[https://gist.github.com/takaxp/9786376][gist]]で公開しています．
 
 **** キーバインド
+     :PROPERTIES:
+     :CUSTOM_ID: org34f10f81
+     :END:
 
      マイナーモード化した dict-app を使う場合は以下のようにします．sdic を使っている人は，sdic 用の設定と衝突しないように気をつけます．
 
@@ -2291,6 +2592,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
  #+END_SRC
 
 ** [lookup.el] 辞書
+   :PROPERTIES:
+   :CUSTOM_ID: orgf18160de
+   :END:
 
 最近使っていません．
 
@@ -2366,6 +2670,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+END_SRC
 
 ** [cacoo] Cacoo で描く
+   :PROPERTIES:
+   :CUSTOM_ID: org903987d3
+   :END:
 
 画像をリサイズしてバッファに表示する用途にも使える．
 
@@ -2381,6 +2688,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+END_SRC
 
 ** [iedit] バッファ内の同じ文字列を一度に編集する
+   :PROPERTIES:
+   :CUSTOM_ID: orgb3d87116
+   :END:
 
 [[http://emacswiki.org/emacs/iedit.el][iedit.el]] を使うと，バッファ内の同じ文字列を一度に編集することができる．部分重複のない変数名を置き換えるときに有用な場合がある．
 
@@ -2389,6 +2699,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+END_SRC
 
 ** [web-mode] HTML編集
+   :PROPERTIES:
+   :CUSTOM_ID: orgfdeec1c5
+   :END:
 
 HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです．古いHTMLモードを使っている方は，移行時期です．以下の =my-web-indent-fold= では， タブキーを打つたびにタグでくくられた領域を展開／非表示して整形します．Org-mode っぽい動作になりますが，操作の度にバッファに変更が加わったと判断されるので好みが分かれると思います．自動保存を有効にしているとそれほど気になりません．
 
@@ -2436,6 +2749,9 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
 #+END_SRC
 
 ** [emmet-mode] zencoding の後継
+   :PROPERTIES:
+   :CUSTOM_ID: org98d5c1aa
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -2455,6 +2771,9 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
 #+END_SRC
 
 ** [zencoding-mode] HTML編集の高速化（旧）
+   :PROPERTIES:
+   :CUSTOM_ID: org56cbbb36
+   :END:
 
 zencoding でタグ打ちを効率化します．今は emmet-mode を使います．
 
@@ -2475,6 +2794,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** [describe-number] 16進数などを確認
+   :PROPERTIES:
+   :CUSTOM_ID: orgca044d69
+   :END:
 
 =describe-number.el= を使うと，16進数表示や文字コードを確認できます．
 
@@ -2485,6 +2807,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** [web-beautify.el] ソースコード整形
+   :PROPERTIES:
+   :CUSTOM_ID: orgc885e502
+   :END:
 
 ソースコードを読みやすい表示に整形します．バッファの自動時に自動で整形を実施するには， =after-save-hook= を使えばOKですね．
 
@@ -2508,6 +2833,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** [smartparens.el] 対応するカッコの挿入をアシスト
+   :PROPERTIES:
+   :CUSTOM_ID: orgc3ce60f5
+   :END:
 
   - http://smartparens.readthedocs.io/
 
@@ -2531,6 +2859,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** TODO [isolate.el] ブラケット等の入力をアシスト
+   :PROPERTIES:
+   :CUSTOM_ID: orge18cb840
+   :END:
 
  - [[https://github.com/casouri/isolate][casouri/isolate: Surrounding magics, extensible]]
 
@@ -2542,6 +2873,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+end_src
 
 ** [replace-from-region.el] 選択領域を別の文字列に置き換える
+   :PROPERTIES:
+   :CUSTOM_ID: org69748b72
+   :END:
 
  - https://www.emacswiki.org/emacs/replace-from-region.el
 
@@ -2552,6 +2886,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** [selected.el] リージョン選択時のアクションを制御                   :Doing:
+   :PROPERTIES:
+   :CUSTOM_ID: orgbc8501cf
+   :END:
 
 選択した後に右クリック的な感じでリージョンに対するアクションを制御できます．選択領域に対するスピードコマンドですね．普通にシングルキーを割り当てると，日本語IMEが有効な時に上手くいかないので， =activate-mark-hook= と =deactivate-mark-hook= に細工しています．
 
@@ -2611,6 +2948,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** [helm-selected.el] selecte.el のアクション候補を絞り込み
+   :PROPERTIES:
+   :CUSTOM_ID: org98897862
+   :END:
 
  - [[https://qiita.com/takaxp/items/00245794d46c3a5fcaa8][記事]]にしました．
 
@@ -2620,6 +2960,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** TODO [git-complete.el] GIT grep を使う補完エンジン
+   :PROPERTIES:
+   :CUSTOM_ID: orgc6f37d6d
+   :END:
 
   - [[https://github.com/zk-phi/git-complete][zk-phi/git-complete: {Emacs} Yet another completion engine powered by "git grep"]]
 
@@ -2633,6 +2976,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** TODO [tiny.el] 連番入力をサポート
+   :PROPERTIES:
+   :CUSTOM_ID: orgab8a7bee
+   :END:
 
  - [[https://github.com/abo-abo/tiny][abo-abo/tiny: Quickly generate linear ranges in Emacs]]
 
@@ -2642,6 +2988,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** TODO [bratex] LaTeX 数式のブラケット入力をサポート
+   :PROPERTIES:
+   :CUSTOM_ID: org12a087af
+   :END:
 
  - [[https://github.com/sbrisard/bratex][sbrisard/bratex: Emacs package for manipulation of brackets in LaTeX mode]]
 
@@ -2654,7 +3003,13 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 * 表示サポート
+  :PROPERTIES:
+  :CUSTOM_ID: org94c7bd73
+  :END:
 ** モードラインのモード名を短くする
+   :PROPERTIES:
+   :CUSTOM_ID: org83eaaf3a
+   :END:
 
 以前は自作したパッケージを使っていましたが，不具合も多く，調べると =diminish.el= という素晴らしいパッケージがあったので移行しました．これはマイナーモードの短縮表示なので，メジャーモードは個別にフックで =mode-name= を書き換えて対応します． =use-package.el= を使っていると依存関係から自動的にインストールされます．
 
@@ -2720,6 +3075,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** 続・モードラインのモード名を短縮する
+   :PROPERTIES:
+   :CUSTOM_ID: org0e59b85f
+   :END:
 
   - [[https://elpa.gnu.org/packages/delight.html][GNU ELPA - delight]]
     - ELPAに登録されている，diminish.el 代替パッケージ
@@ -2780,6 +3138,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** モードラインのNarrowを短くする
+   :PROPERTIES:
+   :CUSTOM_ID: org3368625d
+   :END:
 
 標準では「Narrow」と表示されますが，「N」に短縮します．
 
@@ -2797,6 +3158,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** モードラインの節約（VC-mode編）
+   :PROPERTIES:
+   :CUSTOM_ID: org5fd3a668
+   :END:
 
 定形で表示されている =Git= を消します．
 
@@ -2807,6 +3171,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 ** モードラインの色をカスタマイズする
+   :PROPERTIES:
+   :CUSTOM_ID: orgb577af83
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (set-face-attribute 'mode-line nil :overline "#203e6f" :box nil)
@@ -2819,6 +3186,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+END_SRC
 
 *** 色セット例
+    :PROPERTIES:
+    :CUSTOM_ID: org21b30e75
+    :END:
 
   - 青／白
 
@@ -2839,6 +3209,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 | inactive | 95f9c7     | 95f9c7     | 95f9c7   |
 
 ** 行番号の表示制限を拡張する
+   :PROPERTIES:
+   :CUSTOM_ID: org19cbc9b3
+   :END:
 
 デフォルトだと200桁までしか把握しないので，いつも表示されるように拡張する．
 
@@ -2847,6 +3220,9 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+end_src
 
 ** visible-bell のカスタマイズ
+   :PROPERTIES:
+   :CUSTOM_ID: org328bb797
+   :END:
 
 http://www.emacswiki.org/emacs/MilesBader を参考にカスタマイズしていました．現在は後継パッケージ（[[http://www.emacswiki.org/emacs/echo-bell.el][http://www.emacswiki.org/emacs/echo-bell.el]]）があり，MELPAから取れます．
 
@@ -2880,6 +3256,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** 常に *scratch* を表示して起動する
+   :PROPERTIES:
+   :CUSTOM_ID: org91a9f893
+   :END:
 
 =session.el= や =desktop.el= を使っていても，いつも =*scratch*= バッファを表示する．そうじゃないと安心できない人向け．
 
@@ -2930,6 +3309,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** バッテリー情報をモードラインに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orgc00267d7
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 ;; Show battery information on the mode line.
@@ -2937,6 +3319,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** スクロールバーを非表示にする
+   :PROPERTIES:
+   :CUSTOM_ID: orgdf6d1ea2
+   :END:
 
 スクロールバーを非表示にするには，nil を指定します．
 右側に表示したい場合は，'right とします．
@@ -2949,6 +3334,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** [yascroll] フリンジにスクロールバーを出す
+   :PROPERTIES:
+   :CUSTOM_ID: org7270262d
+   :END:
 
 =yascroll= を使います．
 
@@ -2970,6 +3358,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** ツールバーを非表示にする
+   :PROPERTIES:
+   :CUSTOM_ID: orgdd0a9c41
+   :END:
 
 ツールバーは使わないので非表示にします．
 
@@ -2980,6 +3371,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** 起動時のスプラッシュ画面を表示しない
+   :PROPERTIES:
+   :CUSTOM_ID: orgd432e8ff
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Disable to show the splash window at startup
@@ -2987,6 +3381,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** カーソル行の行数をモードラインに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: org8d729190
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Show line number in the mode line.
@@ -2997,6 +3394,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** カーソル行の関数名をモードラインに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orge456e19c
+   :END:
 
   - emacs24.3 で重く感じるので外している．
 
@@ -3006,6 +3406,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** 時刻をモードラインに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: org5117762c
+   :END:
 
 =postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
@@ -3021,6 +3424,9 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+END_SRC
 
 ** 対応するカッコをハイライトする
+   :PROPERTIES:
+   :CUSTOM_ID: orga734802e
+   :END:
 
 Built-in の paren.el が利用できる．拡張版として [[http://www.emacswiki.org/emacs/mic-paren.el][mic-paren.el]] があり，現在はこれを利用している．
 
@@ -3052,6 +3458,9 @@ paren.el の場合は以下の設定．
 #+END_SRC 
 
 ** 全角スペースと行末タブ／半角スペースを強調表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orgd1e62da7
+   :END:
 
   - [[http://ubulog.blogspot.jp/2007/09/emacs_09.html]]
   - [[https://beiznotes.org/200906031244034052-2/][emacsでタブとEOFと全角空白の表示を。]]
@@ -3098,6 +3507,9 @@ paren.el の場合は以下の設定．
 #+END_SRC
 
 ** バッファの終わりをフリンジで明示
+   :PROPERTIES:
+   :CUSTOM_ID: orgc93741fa
+   :END:
 
 以下の設定では，ウィンドウ以下にバッファが続いているかを表す矢印と，続いていないことを示すカギカッコをフリンジに表示します．
 
@@ -3107,6 +3519,9 @@ paren.el の場合は以下の設定．
 #+END_SRC
 
 ** 行番号をバッファに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orga76ec530
+   :END:
 
 Emacs Version 26.1 からネイティブ実装に切り替わった =display-line-numbers.el= を使います．普段は使わないので，必要に応じてグローバルにトグルできるようにしてあります．
 
@@ -3129,6 +3544,9 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 #+end_src
 
 ** [migemo.el] ローマ字入力で日本語を検索する
+   :PROPERTIES:
+   :CUSTOM_ID: org74bad2de
+   :END:
 
 http://0xcc.net/migemo/#download
 
@@ -3160,6 +3578,9 @@ http://0xcc.net/migemo/#download
 #+RESULTS:
 
 ** [anything.el] 何でも絞り込みインターフェイス（旧）
+   :PROPERTIES:
+   :CUSTOM_ID: orgdf971702
+   :END:
 
   - helm に移行しました．
 
@@ -3231,6 +3652,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [helm.el] 続・何でも絞り込みインターフェイス
+   :PROPERTIES:
+   :CUSTOM_ID: org56d8bf9d
+   :END:
 
 =M-s= を =helm-swoop= にあてていましたが， =M-s= を入り口にたくさんの検索系コマンドが割り振られているため =M-s M-s= に変えました．
 
@@ -3246,8 +3670,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
        '(helm-buffers-list)
        "helm" nil t)
 
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-x C-b") 'helm-buffers-list))
+  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
 
   (with-eval-after-load "helm"
     (require 'helm-config nil t)))
@@ -3350,6 +3773,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [stripe-buffer.el] テーブルの色をストライプにする
+   :PROPERTIES:
+   :CUSTOM_ID: org5cc37356
+   :END:
 
 [[https://github.com/sabof/stripe-buffer/blob/master/stripe-buffer.el][stripe-buffer.el]]を使います．重くツリーが多いOrgバッファだと激重になる可能性があります．
 
@@ -3362,6 +3788,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [rainbow-delimiters] 対応するカッコに色を付ける
+   :PROPERTIES:
+   :CUSTOM_ID: org5eaeb687
+   :END:
 
 複数のカッコが重なる言語では，カッコの対応関係がひと目で理解し難い場合があります． =rainbow-delimiters= を使うと，対応するカッコを七色に色付けして見やすくできます．デフォルトだと色がパステル調で薄いので，パラメータを追加して調整します．
 
@@ -3385,6 +3814,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [git-gutter-fringe] 編集差分をフレーム端で視覚化
+   :PROPERTIES:
+   :CUSTOM_ID: org6332fe92
+   :END:
 
 編集差分の視覚化は元々 git-gutter が提供している機能です．有効にするとフレームの幅が若干広がってしまうので，気になる人は git-gutter-fringe を使えばよいです．
 
@@ -3438,6 +3870,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [zlc.el] find-file バッファを zsh ライクにする
+   :PROPERTIES:
+   :CUSTOM_ID: org0ed58559
+   :END:
 
 ファイル選択を zsh ライクに変更できます．
 
@@ -3459,6 +3894,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [japanese-holidays] カレンダーをカラフルにする
+   :PROPERTIES:
+   :CUSTOM_ID: orgd6308db6
+   :END:
 
 ビルドインの =holidays= と， =japanese-holidays= を使います．土日祝日に色を着けます．土曜日と日曜祝日で異なる配色にできます．
 
@@ -3479,6 +3917,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [calendar.el] カレンダーで週番号を表示する
+   :PROPERTIES:
+   :CUSTOM_ID: org12f72886
+   :END:
 
 ビルドインの =calendar.el= にある =calendar-intermonth-text= をカスタマイズすると，カレンダーに週番号を表示させることが可能です．ただ， =calendar.el= に記載されている例だと， =calendar-week-start-day= が =1= 以外の時に計算結果がおかしくなるので，次のように =calendar-absolute-from-gregorian= に渡す値を補正する必要があります．
 
@@ -3513,6 +3954,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [guide-key] キーバインドの選択肢をポップアップする
+   :PROPERTIES:
+   :CUSTOM_ID: org62c6f085
+   :END:
 
 =which-key= に移行しました．
 
@@ -3541,6 +3985,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [which-key] キーバインドの選択肢をポップアップする
+   :PROPERTIES:
+   :CUSTOM_ID: orgc45b24d4
+   :END:
 
 =guide-key.el= の後発． =guide-key.el= の改良でもあり，ディスパッチャが見やすく，直感的でとても使いやすい．
 
@@ -3562,6 +4009,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [stock-ticker] 株価をモードラインに表示
+   :PROPERTIES:
+   :CUSTOM_ID: org6e56a94f
+   :END:
 
 日経平均やダウ平均の状況をモードラインに表示します．表示が長くなる傾向があるので， =stock-ticker--parse= を再定義して，銘柄（3桁のみ）と変動率だけを表示しています．
 
@@ -3608,6 +4058,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [mode-icons] 使用中のモード表示をアイコンで代替
+   :PROPERTIES:
+   :CUSTOM_ID: org205dbe20
+   :END:
 
 しばらく使ってみたが，統一感が失われるので使用停止中．
 
@@ -3620,6 +4073,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [highlight-symbol] 同じ名前のシンボルをハイライトする
+   :PROPERTIES:
+   :CUSTOM_ID: org467accb9
+   :END:
 
 一定時間が過ぎると，カーソル下のワードをバッファ内で検索し，ハイライトしてくれる．殺風景なバッファに動きが出て良い．また， =highlight-symbol-nav-mode= を使うと，シンボル間を =M-n/M-p= で移動できるので，毎度検索しなくてよい．
 
@@ -3637,6 +4093,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [all-the-icons-dired] フォントを使ったアイコンを表示
+   :PROPERTIES:
+   :CUSTOM_ID: orgd92b50db
+   :END:
 
 =dired= と =neotree= で，ファイルのアイコンを表示します． =all-the-icons= をインストール後に， =M-x all-the-icons-install-fonts= を忘れずに実行する必要があります． =neotree= の設定は別セクションに記載しています．
 
@@ -3649,6 +4108,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+END_SRC
 
 ** [eldoc.el] コンテクストに応じてヘルプを表示
+   :PROPERTIES:
+   :CUSTOM_ID: org402f1293
+   :END:
 
 =postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
@@ -3668,6 +4130,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 ** [keycast.el] 入力しているキーとコマンドをモードラインに表示
    :PROPERTIES:
    :CREATED:  [2018-03-08 Thu 23:16]
+   :CUSTOM_ID: org7cab354d
    :END:
 
  - 入力した文字や発行したコマンドキーをモードラインに表示．コマンドの名前もリアルタイムに表示される．
@@ -3677,6 +4140,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 #+END_SRC
 ** TODO [dimmer.el] 現在のバッファ以外の輝度を落とす
+   :PROPERTIES:
+   :CUSTOM_ID: org8ba0784e
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -3704,7 +4170,13 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 #+end_src
 
 * メディアサポート
+  :PROPERTIES:
+  :CUSTOM_ID: org9ff300b4
+  :END:
 ** [bongo.el] Emacsのバッファで音楽ライブラリを管理する
+   :PROPERTIES:
+   :CUSTOM_ID: org474263ad
+   :END:
 
 [[https://pxaka.tokyo/wiki/doku.php?id=emacs][iTunes の代わりに Emacs を使う]]
 
@@ -3748,6 +4220,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 ** [emms.el] メディアプレーヤー
    :PROPERTIES:
    :CREATED:  [2018-02-19 Mon 18:19]
+   :CUSTOM_ID: orgcf4022fd
    :END:
 
 =mpv= を使い，emacs からメディアファイルを再生します．Bongo.elよりも使いやすい印象．
@@ -3834,6 +4307,9 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 #+END_SRC
 
 ** [GoogleMaps.el] GoogleMaps を Emacs 内で使う
+   :PROPERTIES:
+   :CUSTOM_ID: orgca126930
+   :END:
 
 [[http://julien.danjou.info/software/google-maps.el]]
 
@@ -3853,6 +4329,9 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 Org-mode を使っている場合には， =C-c M-L= で表示されるプロンプトで検索すると，プロパティにそのキーワードが記録されます．後から =C-c M-l= すれば，いつでも地図を表示できるようになります．
 
 ** [org-google-weather.el] org-agenda に天気を表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orgb77ecd7a
+   :END:
 
 残念ながら Google API が変更になり動かなくなったそうです．
 
@@ -3864,6 +4343,9 @@ Org-mode を使っている場合には， =C-c M-L= で表示されるプロン
   '(org-google-weather-use-google-icons t))
 #+END_SRC
 ** [japanlaw.el] Emacs 電子六法
+   :PROPERTIES:
+   :CUSTOM_ID: org41faa552
+   :END:
 
 Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供システム]]」に登録された法令データを閲覧します． =w3m= が必要です．
 
@@ -3880,6 +4362,9 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
 #+END_SRC
 
 ** [sunshine.el] 天気を知る
+   :PROPERTIES:
+   :CUSTOM_ID: org8e8f85ec
+   :END:
 
   - https://openweathermap.org/ にアカウントを作り，APIを呼び出すための専用IDを発行する必要があります．取得した idを， =sunshine-appid= に格納し， =sunshine-location= で対象地域を設定すれば， =M-x sunshine-forecast= で天気が表示されます． =M-x sunshine-quick-format= を使うと，結果がミニバッファに表示されます．
 
@@ -3896,7 +4381,13 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
      '(sunshine-units 'metric))))
 #+END_SRC
 * 履歴／ファイル管理
+  :PROPERTIES:
+  :CUSTOM_ID: orgd5aed515
+  :END:
 ** [dired] ファイラのサポートツール
+   :PROPERTIES:
+   :CUSTOM_ID: orge2f78ad3
+   :END:
 
 =dired.el= をリッチに使うツール群．
 
@@ -3930,6 +4421,9 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
 #+END_SRC
 
 ** TODO [dired-x] dired 拡張設定
+   :PROPERTIES:
+   :CUSTOM_ID: orgdb3dab1b
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "dired"
@@ -3947,6 +4441,9 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
 #+end_src
 
 ** TODO [dired-recent] 訪問したディレクトリの履歴を取る
+   :PROPERTIES:
+   :CUSTOM_ID: org7c53511f
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -3961,12 +4458,18 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
 #+end_src
 
 ** Undoバッファを無限に取る
+   :PROPERTIES:
+   :CUSTOM_ID: org9736b2f0
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (setq undo-outer-limit nil)
 #+END_SRC
 
 ** [undo-tree] 編集履歴をわかりやすくたどる
+   :PROPERTIES:
+   :CUSTOM_ID: org82bd942f
+   :END:
 
 Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= に対して，フレームサイズの変更を紐付けています．また， =auto-save-buffers= が org-files をどんどん保存して記録してしまうので，ツリーを選んでいる時に auto-save-buffers が発動するのを別途抑制しています．加えて， =org-tree-slide= でナローイングしていると，タイムスタンプが記録される時に履歴が辿れなくなるので， =org-tree-slide= が有効の時は，タイムスタンプを押させないように別途制限を加えています．
 
@@ -4014,6 +4517,9 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 #+END_SRC
 
 ** バッファ保存時にバックアップファイルを生成する
+   :PROPERTIES:
+   :CUSTOM_ID: org8b2fe680
+   :END:
 
 バッファが保存されるとき，必ずバックアップを生成する．
 
@@ -4024,6 +4530,9 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 #+END_SRC
 
 ** バッファ保存時にバックアップを生成させない
+   :PROPERTIES:
+   :CUSTOM_ID: org300e8f70
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; *.~
@@ -4035,6 +4544,9 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 #+END_SRC
 
 ** ミニバッファの履歴を保存しリストアする
+   :PROPERTIES:
+   :CUSTOM_ID: orgdba35c9f
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (when (require 'savehist nil t)
@@ -4044,6 +4556,9 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 #+END_SRC
 
 ** 履歴サイズを大きくする
+   :PROPERTIES:
+   :CUSTOM_ID: org0f46c991
+   :END:
 
 =t= で無限大に指定する．
 
@@ -4052,6 +4567,9 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 #+END_SRC
 
 ** Emacs終了時に開いていたバッファを起動時に復元する
+   :PROPERTIES:
+   :CUSTOM_ID: orgead91174
+   :END:
 
 Built-in の [[http://www.emacswiki.org/emacs/DeskTop][desktop.el]] を使う．
 
@@ -4067,6 +4585,9 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 #+END_SRC
 
 ** 最近開いたファイルリストを保持
+   :PROPERTIES:
+   :CUSTOM_ID: orgf2cd8961
+   :END:
 
 Built-in の [[http://www.emacswiki.org/emacs/RecentFiles][recentf.el]] を使う．
 
@@ -4118,6 +4639,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+END_SRC
 
 ** 深夜にバッファを自動整理する
+   :PROPERTIES:
+   :CUSTOM_ID: org63e50e2c
+   :END:
 
   - http://www.emacswiki.org/emacs-zh/CleanBufferList
 
@@ -4131,6 +4655,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+END_SRC
 
 ** [auto-save-buffers.el] 一定間隔でバッファを保存する
+   :PROPERTIES:
+   :CUSTOM_ID: orgb8c01946
+   :END:
 
   - http://0xcc.net/misc/auto-save/
 
@@ -4154,6 +4681,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+END_SRC
 
 ** [backup-dir.el] バックアップファイルを一箇所に集める
+   :PROPERTIES:
+   :CUSTOM_ID: orgc470d5a3
+   :END:
 
 =backup-each-save= を使うようになりました．
 
@@ -4181,6 +4711,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+END_SRC
 
 ** [backup-each-save] クラッシュに備える
+   :PROPERTIES:
+   :CUSTOM_ID: org9b0e7066
+   :END:
 
 直近のファイルを常にバックアップします． =backup-dir.el= でも良いですが，バックアップの目的が，バッファ編集中に =emacs= が落ちる時の保険ならば， =backup-each-save= の方が適切な場合があります．以下の例では，すべてのファイルを保存の度に保存し， =emacs= 起動後に postpone モードが有効になる時点で7日前までのバックアップファイルをすべて削除するようにしています．
 
@@ -4220,6 +4753,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+END_SRC
 
 ** 特定のファイルを Dropbox 以下にバックアップする
+   :PROPERTIES:
+   :CUSTOM_ID: org89e64435
+   :END:
 
 複数の端末でEmacsを使うと，稀に端末の環境に依存した設定ファイルが必要になり，それらは端末間で共有しません．私の場合は， =recentf= がそれに該当します．とは言えバックアップしていないのは不安なので，なんとかします．引数にバックアップ対象のファイルリストを渡せます．
 
@@ -4238,6 +4774,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+END_SRC
 
 ** [session.el] 様々な履歴を保存し復元に利用する
+   :PROPERTIES:
+   :CUSTOM_ID: orgab837e6a
+   :END:
 
 [[http://emacs-session.sourceforge.net/]]
 
@@ -4313,6 +4852,9 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 ** [wakatime-mode.el] WakaTime を利用して作業記録する
+   :PROPERTIES:
+   :CUSTOM_ID: orgc47c1e75
+   :END:
 
 1. [[https://www.wakati.me/]]（API発行とログGUI表示）
 2. [[https://github.com/wakatime/wakatime]]（ログ記録用スクリプト）
@@ -4330,6 +4872,9 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 ** [neotree.el] ディレクトリ情報をツリー表示
+   :PROPERTIES:
+   :CUSTOM_ID: org92404bbd
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -4379,6 +4924,9 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 ** [osx-trash] system-move-file-to-trash を有効にする
+   :PROPERTIES:
+   :CUSTOM_ID: orga3cbefa8
+   :END:
 
 [[https://github.com/lunaryorn/osx-trash.el][osx-trash]] は，OSXで =system-move-file-to-trash= を使えるようにする．単独で使うのはあまり考えられないので，読み込みを =dired= に紐付けます．
 
@@ -4391,6 +4939,9 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 ** [helpful.el] リッチなヘルプページ
+   :PROPERTIES:
+   :CUSTOM_ID: orgf2d47943
+   :END:
 
 ヘルプの内容を見やすく構造化して表示してくれます．関数や変数のヘルプだけでなく，キーやマクロなども見やすく表示してくれます．
 
@@ -4407,6 +4958,9 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 ** [keyfreq.el] コマンドログ
+   :PROPERTIES:
+   :CUSTOM_ID: org0d952d68
+   :END:
 
 発行しているコマンドの使用頻度を記録し確認できます．デフォルトで， =~/.emacs.keyfreq= に情報が記録されます．
 
@@ -4438,7 +4992,13 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 * 開発サポート
+  :PROPERTIES:
+  :CUSTOM_ID: orgf1b8fa63
+  :END:
 ** 便利キーバインド
+   :PROPERTIES:
+   :CUSTOM_ID: org9f988c12
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
@@ -4447,12 +5007,18 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 ** [gist.el] Gist インターフェイス
+   :PROPERTIES:
+   :CUSTOM_ID: orgac7d1689
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (autoload-if-found '(gist) "gist" nil t)
 #+END_SRC
 
 ** [doxymacs.el] Doxygen のコメントを簡単に入力する
+   :PROPERTIES:
+   :CUSTOM_ID: org7baba8dd
+   :END:
 
   - http://doxymacs.sourceforge.net/
 
@@ -4473,6 +5039,9 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 ** [matlab.el] Matlab用の設定                                           :Mac:
+   :PROPERTIES:
+   :CUSTOM_ID: org0e27778c
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (and (memq window-system '(mac ns))
@@ -4484,6 +5053,9 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 ** [flycheck.el] 構文エラー表示
+   :PROPERTIES:
+   :CUSTOM_ID: org966da7c1
+   :END:
 
   - auto-complete より前に hook設定しておくと余計なエラーが出ないようです．
 
@@ -4515,6 +5087,9 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+END_SRC
 
 ** [auto-complete.el] 自動補完機能
+   :PROPERTIES:
+   :CUSTOM_ID: org09687b9c
+   :END:
 
 http://cx4a.org/software/auto-complete/manual.ja.html
 
@@ -4603,6 +5178,9 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
 #+END_SRC
 
 ** [auto-complete-clang.el] オムニ補完
+   :PROPERTIES:
+   :CUSTOM_ID: org291c6055
+   :END:
 
 C++バッファでメソッドを補完対象とする．try-catch を使っている場合， =-fcxx-exceptions= オプションが必要で，これはプリコンパイルヘッダを生成する時も同じだ．ここ示す設定では， =~/.emacs.d/= 以下に =stdafx.pch= を生成する必要があり，以下のコマンドを用いてプリコンパイルヘッダを生成する．ヘッダファイルのパスを適切に与えれば，Boostや自作のライブラリも補完対象に設定できる．
 
@@ -4651,6 +5229,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 #+END_SRC
 
 *** References
+    :PROPERTIES:
+    :CUSTOM_ID: org3d08c27d
+    :END:
 
   - http://d.hatena.ne.jp/kenbell1988/20120428/1335609313
   - http://d.hatena.ne.jp/whitypig/20110306/1299416655
@@ -4659,6 +5240,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
   - http://www.plugmasters.com.br/plugfeed/post/73768/awesome-cc-autocompletion-in-emacs
 
 ** [hideshowvis.el] 関数の表示／非表示
+   :PROPERTIES:
+   :CUSTOM_ID: orgcde881ad
+   :END:
 
   - http://www.emacswiki.org/emacs/hideshowvis.el
   - org.el（約2万行）を開くために約2分必要なため，最近は使っていません．
@@ -4683,6 +5267,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 #+END_SRC
 
 ** [origami.el] 関数の折りたたみ
+   :PROPERTIES:
+   :CUSTOM_ID: org2bf4fb77
+   :END:
 
   - =hideshowvis.el= よりも軽い印象なので，現在は =origami.el= を使用中．
   - [[https://github.com/gregsexton/origami.el][gregsexton/origami.el: A folding minor mode for Emacs]]
@@ -4705,6 +5292,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 #+END_SRC
 
 ** [quickrun.el] お手軽ビルド
+   :PROPERTIES:
+   :CUSTOM_ID: orgabd9abb3
+   :END:
 
 カレントバッファで編集中のソースコードをビルド・実行して，別バッファに結果を得ます．
 
@@ -4724,6 +5314,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 #+END_SRC
 
 ** [ggtags.el] タグジャンプ
+   :PROPERTIES:
+   :CUSTOM_ID: org034bbf9f
+   :END:
 
   - [[http://tasuwo.github.io/blog/2016/03/04/c-c-plus-plus/][EmacsにおけるC,C++の環境を整える - tasuwo blog]]
 
@@ -4756,6 +5349,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 #+END_SRC
 
 ** [0xc] N進数変換
+   :PROPERTIES:
+   :CUSTOM_ID: org216e9539
+   :END:
 
   - 実施頻度の高い16進数と10進数の相互変換に重宝します．
 
@@ -4777,6 +5373,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 #+END_SRC
 
 ** TODO [EditorConfig] コードスタイルの強制
+   :PROPERTIES:
+   :CUSTOM_ID: orgaa25b74c
+   :END:
 
   - [[http://editorconfig.org/#contributing][EditorConfig]]
   - [[https://github.com/editorconfig/editorconfig-emacs#readme][editorconfig/editorconfig-emacs: EditorConfig plugin for emacs]]
@@ -4813,6 +5412,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 #+END_SRC
 
 ** [uuid.el] UUID の生成
+   :PROPERTIES:
+   :CUSTOM_ID: org9ffc2142
+   :END:
 
   - [[https://github.com/nicferrier/emacs-uuid][nicferrier/emacs-uuid: The UUID module from the EmacsWiki, initially by someone called James Mastros.]]
 
@@ -4830,6 +5432,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 #+END_SRC
 
 ** [hexl.el] バイナリファイルを開く
+   :PROPERTIES:
+   :CUSTOM_ID: orge830f6b0
+   :END:
 
 ビルトインの =hexl-mode= を使います．
 
@@ -4842,6 +5447,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 #+end_src
 
 ** [package-lint.el] MEPLA登録用Lint
+   :PROPERTIES:
+   :CUSTOM_ID: orga1d9863f
+   :END:
 
 MELPAへの登録を目指す emacslisp パッケージの実装で，所定の書式で記述されているかを確認できます．
 
@@ -4852,6 +5460,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** TODO [cov] カバレッジの状態をフリンジで確認
+   :PROPERTIES:
+   :CUSTOM_ID: orgae4ecac7
+   :END:
 
 =gcov= の結果をフリンジに表示します．
 
@@ -4862,6 +5473,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** TODO [projectile.el] ディレクトリ単位でファイル群をプロジェクト扱いする
+   :PROPERTIES:
+   :CUSTOM_ID: org7d18b489
+   :END:
 
  - プロジェクト内に限定して検索をかける時に重宝する．
 
@@ -4915,6 +5529,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** TODO [magit.el] Gitクライアント
+   :PROPERTIES:
+   :CUSTOM_ID: org7d969237
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -4926,6 +5543,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** TODO [format-all.el] コード整形
+   :PROPERTIES:
+   :CUSTOM_ID: orgbf790f4d
+   :END:
 
  - [[https://melpa.org/#/format-all][format-all - MELPA]]
 
@@ -4937,7 +5557,13 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+end_src
 
 * Org Mode
+  :PROPERTIES:
+  :CUSTOM_ID: org47616d05
+  :END:
 ** 基本設定
+   :PROPERTIES:
+   :CUSTOM_ID: orgf66bb6fe
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -5078,12 +5704,18 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** contribution を使う
+   :PROPERTIES:
+   :CUSTOM_ID: orgebb1fbe4
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (setq load-path (append '("~/devel/git/org-mode/contrib/lisp") load-path))
 #+END_SRC
 
 ** iCal との連携
+   :PROPERTIES:
+   :CUSTOM_ID: org4da0cefd
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
@@ -5142,6 +5774,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** スピードコマンド
+   :PROPERTIES:
+   :CUSTOM_ID: org739cd53d
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "org"
@@ -5162,6 +5797,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** face 関連
+   :PROPERTIES:
+   :CUSTOM_ID: org480c9b8b
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "org"
@@ -5247,6 +5885,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** TODOキーワードのカスタマイズ
+   :PROPERTIES:
+   :CUSTOM_ID: orgdec24da2
+   :END:
 
 キーワードには日本語も使えます．
 
@@ -5275,6 +5916,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** ImageMagick を使って様々な画像をインライン表示する
+   :PROPERTIES:
+   :CUSTOM_ID: org55076fa0
+   :END:
 
 システムに OpenJPEG と ImageMagick がインストールされていれば，JPEG 2000 などの画像形式もバッファに表示できます．
 
@@ -5301,6 +5945,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** [org-agenda] タスク／予定管理
+   :PROPERTIES:
+   :CUSTOM_ID: orgc3302e41
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "org-agenda"
@@ -5432,6 +6079,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** TODO [orgbox.el] スケジュール追加のわかりやすい入力
+   :PROPERTIES:
+   :CUSTOM_ID: org20c40e77
+   :END:
 
 =C-c C-s= をオーバーライドして =orgbox-schedule= を実行する．
 
@@ -5441,6 +6091,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** TODO [org-review.el] レビューフローのサポート
+   :PROPERTIES:
+   :CUSTOM_ID: org4ca4749d
+   :END:
 
   - https://github.com/brabalan/org-review
   - 以下の設定では， =org-agenda= 使用時に =C-c C-r r= で発動
@@ -5459,6 +6112,9 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 #+END_SRC
 
 ** [appt.el] アラーム設定
+   :PROPERTIES:
+   :CUSTOM_ID: org5790e981
+   :END:
 
   - Growl や [[https://github.com/julienXX/terminal-notifier/releases][Terminal Notifier]] と連携していると，Emacsがバックグラウンドにあってもアラームに気づける．
 
@@ -5553,6 +6209,9 @@ update it for multiple appts?")
 #+END_SRC
 
 ** [org-capture] 高速にメモを取る
+   :PROPERTIES:
+   :CUSTOM_ID: org30aecedf
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -5663,6 +6322,9 @@ will not be modified."
 | d | Doingタグ付きのタスクをInboxに投げる | entry | (file+headline ~/Dropbox/org/next.org INBOX)         | ** TODO %? :Doing: |
 
 ** [org-refile] orgツリーの高速移動
+   :PROPERTIES:
+   :CUSTOM_ID: orgf5236175
+   :END:
 
 # BUG サブツリーが一つもない場所に refile すると [0/1] などに更新されない... 
 
@@ -5716,6 +6378,9 @@ will not be modified."
 #+END_SRC
 
 ** [org-babel] 基本設定
+   :PROPERTIES:
+   :CUSTOM_ID: org49ca5eb9
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "ob-core"
@@ -5755,6 +6420,9 @@ will not be modified."
 #+END_SRC
 
 ** [org-babel] ソースブロックの入力キーをカスタマイズ
+   :PROPERTIES:
+   :CUSTOM_ID: orgc0ed68a2
+   :END:
 
 ソースブロックを入力するときは， <+ =TAB= でテンプレートを高速に入力できます．しかし，利用する言語までは指定できないので，特定の内容について対応するコマンドを割り当てて起きます．以下の例を設定として追加すると， <S+ =TAB= で =emacs-lisp= を， <C+ =TAB= でコメントブロックを指定できます．
 
@@ -5767,6 +6435,9 @@ will not be modified."
 #+END_SRC
 
 ** [MobileOrg] iOS との連携
+   :PROPERTIES:
+   :CUSTOM_ID: org39530542
+   :END:
 
   - http://orgmode.org/manual/Setting-up-the-staging-area.html
 
@@ -5796,6 +6467,9 @@ will not be modified."
 #+END_SRC
 
 ** [org-tree-slide] Org Modeでプレゼンテーション
+   :PROPERTIES:
+   :CUSTOM_ID: org89c34f23
+   :END:
 
   - https://pxaka.tokyo/wiki/doku.php?id=emacs:org-tree-slide
 
@@ -5840,6 +6514,9 @@ will not be modified."
 ~Doing~ タグのトグルに =f11= を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
 
 ** [org-tree-slide] クロックインとアウトを自動化する
+   :PROPERTIES:
+   :CUSTOM_ID: org264a37c5
+   :END:
 
 特定のファイルを編集している時， =org-tree-slide= でフォーカスしたら =org-clock-in= で時間計測を始めて，ナローイングを解く時や次のツリーに移る時に =org-clock-out= で計測を停止するように設定しています．基本的に =org-tree-slide= にあるhookに色々とぶら下げるだけです．
 
@@ -5880,6 +6557,9 @@ will not be modified."
 #+END_SRC
 
 ** [org-tree-slide] 特定のツリーをプロポーショナルフォントで表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orga7162e8c
+   :END:
 
 ツリーのプロパティに，プロポーショナルで表示するか否かの制御フラグを加えます．ツリーにフォーカス時にPROPORTIONAL指定がプロパティにあると，そのツリーを動的にプロポーショナルフォントでレンダリングします．変更は下位ツリーの全てに継承しています．
 
@@ -5918,6 +6598,9 @@ will not be modified."
 #+END_SRC
 
 ** [org-tree-slide] ヘッドラインをリッチにする
+   :PROPERTIES:
+   :CUSTOM_ID: orgf5c603e5
+   :END:
 
 =org-tree-slide= が有効な時だけ =org-bullets= を有効にして，ヘッドラインをリッチにします．元ネタは， =org-beautify-theme.el= です．
 
@@ -5931,6 +6614,9 @@ will not be modified."
 #+END_SRC
 
 ** TODO [org-tree-slide] BEGIN_SRCとEND_SRCを消して背景色を変える
+   :PROPERTIES:
+   :CUSTOM_ID: org9cbb15f3
+   :END:
 
 =hide-lines.el= を使うことで，プレゼン時に =BEGIN_SRC= と =ENC_SRC= を非表示にしてすっきりさせます．さらに，ソースブロックの背景色を変えます（以下の例では， =emacs-lisp= を言語で指定している場合に限定）．
 
@@ -5968,6 +6654,9 @@ will not be modified."
 #+END_SRC
 
 ** TODO [org-fstree] ディレクトリ構造を読み取る
+   :PROPERTIES:
+   :CUSTOM_ID: org3ee441c6
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (with-eval-after-load "org"
@@ -5975,6 +6664,9 @@ will not be modified."
 #+END_SRC
 
 ** [calfw-org] calfw に org の予定を表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orgae555619
+   :END:
 
 org-mode の表のようにフェイスを統一しています． =calfw= を起動する時に，自動的にフレームサイズを拡大するような独自関数をぶら下げています．
 
@@ -6040,6 +6732,9 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+END_SRC
 
 ** [org-export-generic] エクスポート機能を拡張する
+   :PROPERTIES:
+   :CUSTOM_ID: orgfb20898b
+   :END:
 
 =org-set-generic-type= を使うことで，エクスポート機能を好みに拡張できる．contrib の中の =org-export-generic.el= が必要なので注意する．
 
@@ -6127,6 +6822,9 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 =org-set-generic-type= を =.emacs= に追記した後， =C-c C-e g <key-binding>= とすればよい． =<key-binding>= は =org-set-generic-type= で設定する値である．2つ目は，Markdown へのエクスポーターである．
 
 ** TODO [ox] 出力形式の拡張
+   :PROPERTIES:
+   :CUSTOM_ID: orgbb452f44
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "ox"
@@ -6137,6 +6835,9 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+END_SRC
 
 ** [org-odt] ODT形式に出力
+   :PROPERTIES:
+   :CUSTOM_ID: org02100a39
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -6160,6 +6861,9 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+END_SRC
 
 ** [ox-twbs] Twitter Bootstrap 互換のHTML出力
+   :PROPERTIES:
+   :CUSTOM_ID: org02d2c3de
+   :END:
 
   - [[https://github.com/marsmining/ox-twbs][marsmining/ox-twbs: Export org-mode docs as HTML compatible with Twitter Bootstrap.]]
 
@@ -6186,6 +6890,9 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+END_SRC
 
 ** [org-crypt] ツリーを暗号化する
+   :PROPERTIES:
+   :CUSTOM_ID: org5a1cb1a1
+   :END:
 
 =M-x org-encrypt-entry= でカーソル位置のツリーを暗号化できます．復号は， =M-x org-decrypt-entry= にて．ただし，バッファのバックアップファイルが生成されていることに気をつけてください．自分の場合は，バックアップファイルは外部ホストに同期されない設定にしてあるので，とりあえず問題なしと考えています．
 
@@ -6206,6 +6913,9 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+END_SRC
 
 ** [org-mac-link] 外部アプリから情報を取る
+   :PROPERTIES:
+   :CUSTOM_ID: org01951291
+   :END:
 
 =org-mac-link= を使うと，外部アプリの表示状態をリンクとして取得して，orgバッファに流し込めます．Mac環境用です．簡単な例ではURLで，取得したリンクを =C-c C-o= で開けばブラウザが起動してリンク先が表示できます．同じ話を，ファインダーで表示しているディレクトリ，メーラーで表示していた特定のメール，PDFビューアで表示していた特定のファイルの特定のページなどで実施できます．対応している外部アプリは，Finder, Mail.app, Outlook, Addressbook, Safari, Firefox, Chrome, そして Skimです．
 
@@ -6221,6 +6931,9 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+END_SRC
 
 ** TODO Parers3.app からリンクを取得する
+   :PROPERTIES:
+   :CUSTOM_ID: org4142d8c3
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "org-mac-link"
@@ -6275,6 +6988,9 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+END_SRC
 
 ** TODO Papers3.app のリンクを開けるようにする
+   :PROPERTIES:
+   :CUSTOM_ID: org47b1ee67
+   :END:
 
 Papers3.app は，各文献に =papers3://= で始まるURIを割り当てています．このリンクを org バッファにペーストし， =org-open-at-point= (C-c C-o) で開けるようにします．
 
@@ -6292,6 +7008,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+END_SRC
 
 ** TODO [org-attach] 外部ファイルを紐付ける
+   :PROPERTIES:
+   :CUSTOM_ID: orgd14388c1
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -6324,6 +7043,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ** REV2 [org-screenshot] スクリーンショットを貼り付ける
    :PROPERTIES:
    :ID:       4B8A23F1-81EE-445B-8982-54B5FAB13645
+   :CUSTOM_ID: org0b29fe80
    :END:
 
   - [[https://github.com/dfeich/org-screenshot][dfeich/org-screenshot: screenshots integrated with emacs org mode attachments]]
@@ -6353,6 +7073,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+END_SRC
 
 ** [org-download] org バッファにD&Dでファイルを保存
+   :PROPERTIES:
+   :CUSTOM_ID: orgb3ae0aea
+   :END:
 
 =org-attach= とペアで使うのが良いでしょう．
 
@@ -6364,6 +7087,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 ** [alerter] イベント通知
+   :PROPERTIES:
+   :CUSTOM_ID: orgdae2d9e7
+   :END:
 
 ここでは， =terminal-notifier= ではなく，事実上，後継アプリと言える =alerter= を使う設定です．
 
@@ -6415,6 +7141,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** [org-grep] org ファイルを grep する
+   :PROPERTIES:
+   :CUSTOM_ID: org97c39f96
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -6452,6 +7181,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** [ox-reveal] ナイスなHTML5プレゼンテーション出力
+   :PROPERTIES:
+   :CUSTOM_ID: org1a7c192b
+   :END:
 
 =C-c C-e R= エクスポータを呼び出せます．続けて =B= を押せば，ブラウザで出力後の見た目を確認できます．ただし別途 [[https://github.com/hakimel/reveal.js][reveal.js]] が使える状態にないとダメです． =org-reveal-root= を設定すれば，clone した reveal.js の場所を指定できます．
 
@@ -6465,6 +7197,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 それ以外にも [[https://github.com/cybercode/org-slides][ox-s5]]，[[https://github.com/coldnew/org-ioslide][org-ioslide]] があります．
 
 ** README を常に org-mode で開く
+   :PROPERTIES:
+   :CUSTOM_ID: org53663ca9
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -6475,6 +7210,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** org-mode でアラーム管理
+   :PROPERTIES:
+   :CUSTOM_ID: orga58b21fc
+   :END:
 
 +（注）Growlnotify の代わりに =terminal-notifier= を使うこともできます．+
 
@@ -6498,6 +7236,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** org-mode の latex エクスポート関数をオーバーライド
+   :PROPERTIES:
+   :CUSTOM_ID: org563f7076
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 ;;; Tex export (org-mode -> tex with beamer class) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -6563,6 +7304,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** [org-autolist] ブリッツの入力を簡単に
+   :PROPERTIES:
+   :CUSTOM_ID: org0f4b6016
+   :END:
 
 ブリッツの入力や削除を Microsoft Word 的にします．
 
@@ -6575,6 +7319,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** [org-dashboard] 進捗をプログレスバーで確認
+   :PROPERTIES:
+   :CUSTOM_ID: org383ff638
+   :END:
 
   - https://github.com/bard/org-dashboard
   - 日本語だとバーの表示位置がずれるので修正．PR反映済み．
@@ -6589,6 +7336,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** [org-clock-today] 今日の総作業時間をモードラインに表示
+   :PROPERTIES:
+   :CUSTOM_ID: orgfa6df2ce
+   :END:
 
   - =CLOCK_MODELINE_TOTAL= を設定するのとは別なアプローチ
   - clock が動いている時だけモードラインに合計値が表示される
@@ -6633,6 +7383,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** TODO [org-recent-headings] 訪問したツリーを記録し簡単に再訪問可能にする
+   :PROPERTIES:
+   :CUSTOM_ID: org1926ab44
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -6651,6 +7404,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** TODO [orgnav] ツリーの検索インタフェース
+   :PROPERTIES:
+   :CUSTOM_ID: orgfcfd3f34
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -6664,6 +7420,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** [org-random-todo] ランダムにタスクを選ぶ
+   :PROPERTIES:
+   :CUSTOM_ID: org56b60c02
+   :END:
 
  - デフォルトで =org-agenda-files= に登録されたファイルからランダムにタスクを選ぶ
  - org-random-todo はミニバッファに選択したタスクを表示するだけ．
@@ -6676,6 +7435,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** TODO [toc-org] 目次の挿入
+   :PROPERTIES:
+   :CUSTOM_ID: org5fce13fa
+   :END:
 
   - ツリーに TOC タグを付けて，`toc-org-insert-toc'を実行すればOK
 
@@ -6684,6 +7446,9 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 #+END_SRC
 
 ** [ox-hugo] OrgファイルからHogoの記事をエクスポートする
+   :PROPERTIES:
+   :CUSTOM_ID: org0cba1e62
+   :END:
 
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "ox"
@@ -6711,6 +7476,9 @@ Note that this mechanism is still under consideration."
 #+end_src
 
 ** ソースブロック等の大文字記述を一括で小文字に変える
+   :PROPERTIES:
+   :CUSTOM_ID: org907cb9db
+   :END:
 
 https://scripter.co/org-keywords-lower-case/ で紹介されている関数を，ログ出力部分だけ加筆して使っています．
 
@@ -6734,7 +7502,13 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+end_src
 
 * フレーム／ウィンドウ制御
+  :PROPERTIES:
+  :CUSTOM_ID: org5fd484a3
+  :END:
 ** 起動時の設定
+   :PROPERTIES:
+   :CUSTOM_ID: orgd05fc75a
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (cond
@@ -6922,6 +7696,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 ** 複数フレーム対応
+   :PROPERTIES:
+   :CUSTOM_ID: orgdffe4e49
+   :END:
 
 フレームを複数使う場合の設定です．
 
@@ -6936,6 +7713,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 ** [e2wm.el] 二画面表示
+   :PROPERTIES:
+   :CUSTOM_ID: org4dd0671c
+   :END:
 
 1. http://github.com/kiwanami/emacs-window-manager/raw/master/e2wm.el
 2. http://github.com/kiwanami/emacs-window-layout/raw/master/window-layout.el
@@ -6998,6 +7778,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 ** [moom.el] キーボードでフレームの場所を移す
+   :PROPERTIES:
+   :CUSTOM_ID: org5f12ba92
+   :END:
 
 (2017-07-30) frame-ctr から moom.el にリネームしました．Moom は，Many Tricks がリリースするソフトウェアで，今後はこのソフトウェアのポーティングを目指します．
 
@@ -7064,6 +7847,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 *** 最大化時にモードラインを消す
+    :PROPERTIES:
+    :CUSTOM_ID: org6e3c20dd
+    :END:
 
 バッファの切替時にモードラインの状態を引き継ぐこともできますが，とりあえず想定外にしています．代わりに，必要ならば =M-x my-moom-toggle-mode-line= で表示可能にしています．
 
@@ -7122,6 +7908,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 ** [popwin.el] ポップアップウィンドウの制御
+   :PROPERTIES:
+   :CUSTOM_ID: org750d9aa5
+   :END:
 
   - https://github.com/m2ym/popwin-el/
   - popwin:display-buffer を autoload してもうまくいかない．
@@ -7190,6 +7979,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC 
 
 ** TODO [shackle.el] ポップアップウィンドウの制御
+   :PROPERTIES:
+   :CUSTOM_ID: orga9be167a
+   :END:
 
  - popwin の後発パッケージ
  - popwin.el にある =dedicated= が使えないので，本当に移行するか検討中．
@@ -7214,6 +8006,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 *** checkdoc.el 用の追加設定
+    :PROPERTIES:
+    :CUSTOM_ID: org32b579df
+    :END:
 
 =M-x checkdoc= 実行時に =checkdoc-minor-mode-map= に checkdoc のウィンドウを閉じるキーバインドを設定． =q= または =C-g= を押下すると，マイナーモードが終了し，設定したキーバインドが無効になる．マイナーモードが有効な間は， =q= が占有されてバッファに入力できなくなる．その場合は，必要に応じて =M-x my-delete-checkdoc-window= を実行する．
 
@@ -7238,6 +8033,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 ** [elscreen.el] Emacs バッファをタブ化
+   :PROPERTIES:
+   :CUSTOM_ID: org6474a498
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 ;;; ElScreen (require apel) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -7247,6 +8045,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 ** [tabbar-ruler] バッファをタブ切り替え可能に
+   :PROPERTIES:
+   :CUSTOM_ID: org0c556404
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (when (require 'tabbar-ruler nil t)
@@ -7261,6 +8062,9 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 ** [winner-undo.el] ウィンドウ構成の履歴を辿る
+   :PROPERTIES:
+   :CUSTOM_ID: org33fd785f
+   :END:
 
   - ビルトインの =winner-undo.el= を使います．
 
@@ -7274,7 +8078,13 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+END_SRC
 
 * フォント／配色関連
+  :PROPERTIES:
+  :CUSTOM_ID: orgf57ce845
+  :END:
 ** 正規表現を見やすくする
+   :PROPERTIES:
+   :CUSTOM_ID: orgbbb079d3
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
@@ -7288,6 +8098,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   - [[http://emacswiki.org/emacs/rx][EmacsWiki: rx]]
 
 ** 設定ファイルを見やすくする
+   :PROPERTIES:
+   :CUSTOM_ID: orgc98c6fff
+   :END:
 
 =generic-x= を使うと， =/etc/hosts= や =/etc/apache2.conf= に色を付けられる．
 
@@ -7299,6 +8112,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 #+END_SRC
 
 ** カーソル行に色をつける
+   :PROPERTIES:
+   :CUSTOM_ID: org7858d806
+   :END:
 
   - ビルトインの =hl-line= を使います．
   - http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html
@@ -7327,6 +8143,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．
 
 ** カーソルを点滅させない
+   :PROPERTIES:
+   :CUSTOM_ID: org29d5304f
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (with-eval-after-load "postpone"
@@ -7350,10 +8169,16 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 #+END_SRC
 
 ** カーソル位置のフォントを確認
+   :PROPERTIES:
+   :CUSTOM_ID: orgf36a8366
+   :END:
 
 =M-x describe-char= すると，カーソル位置のフォントの情報が別バッファに表示されます．
 
 ** フォント設定
+   :PROPERTIES:
+   :CUSTOM_ID: org919a945a
+   :END:
 
 表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．最近は，[[http://mix-mplus-ipa.sourceforge.jp/migu/][Migu 2M]]を気に入って使っています．
 
@@ -7452,6 +8277,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 #+END_SRC
 
 *** フォントのインストール方法
+    :PROPERTIES:
+    :CUSTOM_ID: orgb94aa5b3
+    :END:
 
 Linux では次のように処理するだけでよく，意外と簡単．
 
@@ -7463,16 +8291,25 @@ Linux では次のように処理するだけでよく，意外と簡単．
 なお，Windows では，フォントファイルを右クリックして，インストールを選択するだけでOK．
 
 *** フォントチェック用コード
+    :PROPERTIES:
+    :CUSTOM_ID: org66fa6b98
+    :END:
 
 サンプルの [[http://dl.dropbox.com/u/2440/dokuwiki/font-test.org][orgファイル]] を作って，見た目をチェックしています．バッファ内の桁数チェックや，ASCIIが漢字の半分の幅になっているかのチェックが楽になります．
 
 ** 行間を制御する
+   :PROPERTIES:
+   :CUSTOM_ID: org2bcbc1db
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (set-default 'line-spacing 0.2)
 #+END_SRC
 
 ** パッチをカラフルに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: org372b184d
+   :END:
 
 Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカスタマイズします．
 
@@ -7502,6 +8339,9 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+END_SRC
 
 ** 背景を黒系色にする
+   :PROPERTIES:
+   :CUSTOM_ID: org009dc6e3
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle no
 (custom-set-faces
@@ -7511,6 +8351,9 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+END_SRC
 
 ** 日中と夜中でテーマを切り替える
+   :PROPERTIES:
+   :CUSTOM_ID: org92d26c4b
+   :END:
 
 私は使っていませんが，簡単にテーマを切り替えるためのパッケージ([[https://github.com/valignatev/heaven-and-hell][heaven-and-hell]])も存在します．
 
@@ -7551,6 +8394,9 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+END_SRC
 
 ** 時間帯を指定して起動時にテーマを切り替える
+   :PROPERTIES:
+   :CUSTOM_ID: org7c97dce0
+   :END:
 
 次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
 
@@ -7579,6 +8425,9 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+END_SRC
 
 ** [rainbow-mode.el] 配色のリアルタイム確認
+   :PROPERTIES:
+   :CUSTOM_ID: org9ce2fd45
+   :END:
 
 M-x rainbow-mode とすると，色指定のコードの背景色を，その指定色にリアルタイム変換してくれる．
 
@@ -7594,6 +8443,9 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 #+END_SRC
 
 *** 色一覧
+    :PROPERTIES:
+    :CUSTOM_ID: org19538af3
+    :END:
 
 =0,6,9,C,F= の組み合わせ
 
@@ -7644,6 +8496,9 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 #+END_SRC
 
 ** [volatile-highlights] コピペした領域を強調
+   :PROPERTIES:
+   :CUSTOM_ID: org36a28b28
+   :END:
 
 コピペ直後の数秒に限定して，コピペした領域をハイライトします．さらに，所定の間隔で表示色を変えることで，ハイライト色が徐々に消えていくようなエフェクトにしています．
 
@@ -7696,6 +8551,9 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 #+END_SRC
 
 ** [edit-color-stamp] Qt経由でカラーピッカーを使う
+   :PROPERTIES:
+   :CUSTOM_ID: orgcc116051
+   :END:
 
   - [[https://github.com/sabof/edit-color-stamp][sabof/edit-color-stamp: Edit hex color stamps using a QT, or the internal color picker]]
 
@@ -7730,7 +8588,13 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
   - カラーピッカーで色を選んで「OK」すれば， =#FFFFFF= が更新される．
 
 * ユーティリティ関数
+  :PROPERTIES:
+  :CUSTOM_ID: orgb8e84b9a
+  :END:
 ** [pomodoro.el] ポモドーロの実践
+   :PROPERTIES:
+   :CUSTOM_ID: orgbfb695e1
+   :END:
 
 [[https://twitter.com/syohex][@syohex]] さん謹製の [[https://github.com/syohex/emacs-utils/blob/master/pomodoro.el][pomodoro.el]] に少しカスタマイズしたおれおれ [[https://github.com/takaxp/emacs-utils/blob/master/pomodoro.el][pomodoro.el]] を使っています．以下のように設定すると，ポモドーロの残り時間は表示せず，アイコンだけをモードラインに表示できます．残り時間は =M-x pomodoro:mode-line-time-display-toggle= すれば，いつでも表示できます．
 
@@ -7847,6 +8711,9 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 #+END_SRC
 
 ** [pomodoro.el] 続・ポモドーロの実践
+   :PROPERTIES:
+   :CUSTOM_ID: orgc09c0be3
+   :END:
 
 さらに，モードラインに出すスタータスを表すサインに動きを付けます．ただ頻繁にモードラインを更新して描画するので，環境によっては動作が重くなるかもしれません．
 
@@ -8051,6 +8918,9 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 #+END_SRC
 
 ** [google-this.el] 単語をグーグル検索
+   :PROPERTIES:
+   :CUSTOM_ID: org98f153af
+   :END:
 
 カーソル下の単語を検索して，結果をブラウザで受け取ります． =google-this= を直接呼ぶと検索確認を聞かれるので，すぐに検索するようにカスタマイズします． =M-x google-this-word= を使うのも手ですが，ハイフンで連結された文字列を拾えないので好みがわかれます．
 
@@ -8069,6 +8939,9 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 #+END_SRC
 
 ** [lingr.el] チャットルームに参加
+   :PROPERTIES:
+   :CUSTOM_ID: org71c49002
+   :END:
 
 init.el読書会が毎週土曜日の22時に開催されています．作業に集中していると，ついつい忘れてしまうので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルに記載しています．
 
@@ -8096,6 +8969,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+END_SRC
 
 ** [osx-lib.el] OSX用ユーティリティ                                     :Mac:
+   :PROPERTIES:
+   :CUSTOM_ID: org96f7a2a3
+   :END:
 
   - [[https://github.com/raghavgautam/osx-lib][raghavgautam/osx-lib]]
   - OSXの機能を呼び出すためのツール集
@@ -8124,6 +9000,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 ,#+END_SRC
 #+END_SRC
 ** TODO [password-store.el] パスワード管理
+   :PROPERTIES:
+   :CUSTOM_ID: orgc75ab540
+   :END:
 
   - http://h12.me/article/password-management
   - http://www.tricksofthetrades.net/2015/07/04/notes-pass-unix-password-manager/
@@ -8154,6 +9033,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+END_SRC
 
 ** [multi-term.el] ターミナル
+   :PROPERTIES:
+   :CUSTOM_ID: orgc6fce61d
+   :END:
 
 たまに使いたくなるので一応．
 
@@ -8168,6 +9050,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+END_SRC
 
 ** iterm2 を Emacs から呼び出したい                                     :Mac:
+   :PROPERTIES:
+   :CUSTOM_ID: org72d850dc
+   :END:
 
 =C-M-i= を iterm2.app の呼び出しに割り当てます．シェルでの作業はどうも =eshell= では満足できないので．なお flyspell を使っていると，遅延呼び出しした後にキーバインドを奪われるので，取り返します．
 
@@ -8187,6 +9072,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+END_SRC
 
 ** カレントバッファのあるディレクトリをターミナルで表示
+   :PROPERTIES:
+   :CUSTOM_ID: org32e35e60
+   :END:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
@@ -8196,6 +9084,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 ** [postpone.el] Emacs起動してから使い始めるタイミングで実行する
    :PROPERTIES:
    :CREATED:  [2018-03-14 Wed 15:03]
+   :CUSTOM_ID: orga2859651
    :END:
 
 =helm-config= に紐付けていた遅延呼び出し関数および設定を，自作の =postpone.el= に紐付けました． =helm-config= に紐付けていた時は， =M-x= を使う時にだけ複数の設定が読み込まれましたが，今回の設定では，Emacs起動後の最初のアクション時に読み込まれます（一部のコマンドを除く）．これには =M-x= も含まれます．この =init.el= に記載された遅延読み込みは約660[ms]にも及びます．通常起動では約400[ms]を要している（コンソール起動の場合は，約100[ms]）ので，もし遅延読み込みしなければ，Emacsの起動が1秒を超えてしまうことになります．起動後，即座にEmacs終了するシーンでは， =postpone.el= に紐付けた設定が活性化すると無駄になります．それを回避するために， =this-command= の値を確認して，条件に合う場合だけ =postpone.el= が読み込まれる（結果的に紐付いている全ての設定が活性化する）ようにしています．
@@ -8217,6 +9106,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+END_SRC
 
 ** TODO [network-watch.el] ネットワークインターフェイスの状態を監視
+   :PROPERTIES:
+   :CUSTOM_ID: org1141e95f
+   :END:
 
  - プロキシ内での挙動は不明．
 
@@ -8242,6 +9134,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+END_SRC
 
 ** [gif-screencast.el] ユーザアクションのたびにスクショを取る
+   :PROPERTIES:
+   :CUSTOM_ID: org2906cf09
+   :END:
 
  - [[https://github.com/Ambrevar/emacs-gif-screencast][Ambrevar/emacs-gif-screencast: One-frame-per-action GIF recording for optimal quality/size ratio]]
  - +色々と Linux用に設計・前提とされていて，今のところ Macで使うのはちょっと厳しい．+
@@ -8319,6 +9214,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+END_SRC
 
 ** TODO [manage-minor-mode.el] マイナーモードの視覚的な管理
+   :PROPERTIES:
+   :CUSTOM_ID: org72dab3c6
+   :END:
 
  - [[http://fukuyama.co/manage-minor-mode][minor-modeを簡単に切り替える manage-minor-mode.el Emacs Lisp - Web学び]]
 
@@ -8334,6 +9232,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+END_SRC
 
 ** [utility.el] 自作してテスト中の便利関数群
+   :PROPERTIES:
+   :CUSTOM_ID: orged473d8d
+   :END:
 
 関数定義を[[https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el][別ファイル]]に分離して，Emacs起動の高速化を図っています．各関数を autoload の管理下において，必要なときにロードするように設定しています．
 
@@ -8372,6 +9273,9 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+END_SRC
 
 * おわりに
+  :PROPERTIES:
+  :CUSTOM_ID: org362fb2dc
+  :END:
 
 以上が，私の =init.el= とその説明です．
 

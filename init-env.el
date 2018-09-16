@@ -9,7 +9,7 @@
 (defconst my-boot-menu 'any) ;; {debug, test, any}
 (defconst loading-packages nil) ;; `my-autoload-file-check' shall be nil.
 ;; (setq loading-packages '(("moom" . nil) ("moom-font" . nil)))
-(setq debug-on-error nil
+(setq debug-on-error t
       my-autoload-file-check t
       postpone-verbose nil)
 
