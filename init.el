@@ -3398,6 +3398,55 @@ Note that this mechanism is still under consideration."
           (message "Updated(%d): %s => %s" count prev new)))
       (message "Lower-cased %d matches" count))))
 
+(with-eval-after-load "org"
+  (defun my-get-custom-id ()
+    "Return a part of UUID with an \"org\" prefix.
+e.g. \"org3ca6ef0c\"."
+    (let* ((id (org-id-new "")))
+      (when (org-uuidgen-p id)
+        (downcase (concat "org"  (substring (org-id-new "") 0 8))))))
+
+  (defun my-add-custom-id ()
+    (interactive)
+    (my-org-custom-id-get nil t))
+
+  (defun my-org-custom-id-get (&optional pom create)
+    "Get the CUSTOM_ID property of the entry at point-or-marker POM.
+If POM is nil, refer to the entry at point.  If the entry does
+not have an CUSTOM_ID, the function returns nil.  However, when
+CREATE is non nil, create a CUSTOM_ID if none is present
+already.  In any case, the CUSTOM_ID of the entry is returned.
+
+See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
+    (interactive)
+    (org-with-point-at pom
+      (let ((id (org-entry-get nil "CUSTOM_ID")))
+        (cond
+         ((and id (stringp id) (string-match "\\S-" id))
+          id)
+         (create
+          (setq id (my-get-custom-id))
+          (unless id
+            (error "Invalid ID"))
+          (org-entry-put pom "CUSTOM_ID" id)
+          (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
+          id)))))
+
+  (defun my-org-add-ids-to-headlines-in-file ()
+    "Add CUSTOM_ID properties to all headlines in the current file.
+Which do not already have one.  Only adds ids if the
+`auto-id' option is set to `t' in the file somewhere. ie,
+#+OPTIONS: auto-id:t
+
+See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
+    (interactive)
+    (save-excursion
+      (widen)
+      (goto-char (point-min))
+      (when (re-search-forward "^#\\+OPTIONS:.*auto-id:t" (point-max) t)
+        (org-map-entries
+         (lambda () (my-org-custom-id-get (point) 'create)))))))
+
 (cond
  ((memq window-system '(mac ns)) ;; for Macintosh
   (setq initial-frame-alist

@@ -7501,6 +7501,69 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
       (message "Lower-cased %d matches" count))))
 #+end_src
 
+** [ox-html] HTML見出しへのリンクを固定する
+   :PROPERTIES:
+   :CUSTOM_ID: org32e931e3
+   :END:
+
+標準の設定でHTMLを出力すると，各見出しへのリンクとして =org0123456= のようなIDが振られる．しかしそれらのIDは，HTMLを出力するたびに更新されるため，出力したHTMLの見出しをパーマリンクとして使用できない．これを防ぐためには，プロパティで =CUSTOM_ID= を指定する必要がある．
+
+これを簡単にするための補助関数が公開されている．この[[https://writequit.org/articles/emacs-org-mode-generate-ids.html][元ネタ]]を参考に，少し改良して使用している．なお元ネタでは標準の =org-id-new= を直接利用しているが，以下の実装では， =org= の後ろにUUIDの先頭8桁が続くように，IDの内容に制限をかけている．
+
+=my-org-add-ids-to-headlines-in-file= は，バッファの保存時点，或いは，HTMLエクスポートが走る直前のタイミングで自動実行させるのがスマートだが，当面は手動で運用する．
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "org"
+  (defun my-add-custom-id ()
+    "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
+    (interactive)
+    (my-org-custom-id-get nil t))
+
+  (defun my-get-custom-id ()
+    "Return a part of UUID with an \"org\" prefix.
+e.g. \"org3ca6ef0c\"."
+    (let* ((id (org-id-new "")))
+      (when (org-uuidgen-p id)
+        (downcase (concat "org"  (substring (org-id-new "") 0 8))))))
+
+  (defun my-org-custom-id-get (&optional pom create)
+    "Get the CUSTOM_ID property of the entry at point-or-marker POM.
+If POM is nil, refer to the entry at point.  If the entry does
+not have an CUSTOM_ID, the function returns nil.  However, when
+CREATE is non nil, create a CUSTOM_ID if none is present
+already.  In any case, the CUSTOM_ID of the entry is returned.
+
+See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
+    (interactive)
+    (org-with-point-at pom
+      (let ((id (org-entry-get nil "CUSTOM_ID")))
+        (cond
+         ((and id (stringp id) (string-match "\\S-" id))
+          id)
+         (create
+          (setq id (my-get-custom-id))
+          (unless id
+            (error "Invalid ID"))
+          (org-entry-put pom "CUSTOM_ID" id)
+          (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
+          id)))))
+
+  (defun my-org-add-ids-to-headlines-in-file ()
+    "Add CUSTOM_ID properties to all headlines in the current file.
+Which do not already have one.  Only adds ids if the
+`auto-id' option is set to `t' in the file somewhere. ie,
+,#+OPTIONS: auto-id:t
+
+See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
+    (interactive)
+    (save-excursion
+      (widen)
+      (goto-char (point-min))
+      (when (re-search-forward "^#\\+OPTIONS:.*auto-id:t" (point-max) t)
+        (org-map-entries
+         (lambda () (my-org-custom-id-get (point) 'create)))))))
+#+end_src
+
 * フレーム／ウィンドウ制御
   :PROPERTIES:
   :CUSTOM_ID: org5fd484a3
