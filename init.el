@@ -28,6 +28,9 @@
 (setq gc-cons-threshold 134217728) ;; 128MB
 (setq garbage-collection-messages t)
 
+(setq byte-compile-warnings '(not obsolete))
+(setq ad-redefinition-action 'accept)
+
 (defun my-load-package-p (file)
   (let ((enabled t))
     (when (boundp 'my-loading-packages)
@@ -73,12 +76,19 @@
 (add-hook 'focus-in-hook #'(lambda () (setq window-focus-p t)))
 (add-hook 'focus-out-hook #'(lambda () (setq window-focus-p nil)))
 
-(setq byte-compile-warnings '(not obsolete))
-(setq ad-redefinition-action 'accept)
-
-(setq compilation-scroll-output t)
-
-(setq confirm-kill-emacs 'yes-or-no-p)
+(if (not (locate-library "postpone"))
+    (message "postpone.el is NOT installed.")
+  (autoload 'postpone-kicker "postpone" nil t)
+  (defun my-postpone-kicker ()
+    (interactive)
+    (unless (memq this-command ;; specify commands for exclusion
+                  '(self-insert-command
+                    save-buffers-kill-terminal
+                    exit-minibuffer))
+      (message "Loading postponed packages...")
+      (postpone-kicker 'my-postpone-kicker)
+      (message "Loading postponed packages...done")))
+  (add-hook 'pre-command-hook #'my-postpone-kicker))
 
 (defvar shutup-p nil)
 (with-eval-after-load "postpone"
@@ -94,20 +104,6 @@
   (declare (indent 0))
   (let ((message-log-max nil))
     `(with-temp-message (or (current-message) "") ,@body)))
-
-(if (not (locate-library "postpone"))
-    (message "postpone.el is NOT installed.")
-  (autoload 'postpone-kicker "postpone" nil t)
-  (defun my-postpone-kicker ()
-    (interactive)
-    (unless (memq this-command ;; specify commands for exclusion
-                  '(self-insert-command
-                    save-buffers-kill-terminal
-                    exit-minibuffer))
-      (message "Loading postponed packages...")
-      (postpone-kicker 'my-postpone-kicker)
-      (message "Loading postponed packages...done")))
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
 
 (prefer-coding-system 'utf-8-unix)
 ;; (set-language-environment "Japanese") ;; will take 20-30[ms]
@@ -161,19 +157,18 @@
       (call-interactively 'ag)
       (switch-to-buffer-other-frame "*ag search*"))))
 
-(with-eval-after-load "postpone"
-  (when (memq window-system '(mac ns))
-    (global-set-key (kbd "M-v") 'yank)
-    (when (boundp 'ns-command-modifier)
-      (setq ns-command-modifier 'meta))
-    (when (boundp 'ns-alternate-modifier)
-      (setq ns-alternate-modifier 'super))
-    (when (boundp 'ns-pop-up-frames)
-      (setq ns-pop-up-frames nil))
-    (global-set-key [ns-drag-file] 'ns-find-file)) ; D&D for Emacs23
+(when (memq window-system '(mac ns))
+  (global-set-key (kbd "M-v") 'yank)
+  (when (boundp 'ns-command-modifier)
+    (setq ns-command-modifier 'meta))
+  (when (boundp 'ns-alternate-modifier)
+    (setq ns-alternate-modifier 'super))
+  (when (boundp 'ns-pop-up-frames)
+    (setq ns-pop-up-frames nil))
+  (global-set-key [ns-drag-file] 'ns-find-file)) ; D&D for Emacs23
 
-  (global-set-key [delete] 'delete-char)
-  (global-set-key [kp-delete] 'delete-char))
+(global-set-key [delete] 'delete-char)
+(global-set-key [kp-delete] 'delete-char)
 
 (autoload-if-found
  '(fancy-narrow-to-region
@@ -201,6 +196,10 @@
 (with-eval-after-load "postpone"
   (when (fboundp 'pixel-scroll-mode)
     (pixel-scroll-mode 1))) ;; 26.1
+
+(setq compilation-scroll-output t)
+
+(setq confirm-kill-emacs 'yes-or-no-p)
 
 (when (autoload-if-found '(cask-mode) "cask-mode" nil t)
   (push '("/Cask\\'" . cask-mode) auto-mode-alist))
@@ -1236,9 +1235,10 @@ This works also for other defined begin/end tokens to define the structure."
      '(helm-google-tld "co.jp"))))
 
 (when (autoload-if-found
-       '(helm-buffers-list)
+       '(helm-buffers-list helm-recentf)
        "helm" nil t)
 
+  (global-set-key (kbd "C-M-r") 'helm-recentf)
   (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
 
   (with-eval-after-load "helm"
@@ -1246,12 +1246,11 @@ This works also for other defined begin/end tokens to define the structure."
 
 (when (autoload-if-found
        '(helm-M-x
-         helm-locate helm-recentf helm-descbinds
+         helm-locate helm-descbinds
          helm-occur helm-swoop helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
   (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-M-r") 'helm-recentf)
 
   (with-eval-after-load "postpone"
 

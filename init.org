@@ -650,47 +650,6 @@ NSビルド用のインラインパッチを適用している場合に使いま
       (setq default-input-method 'japanese-anthy))))
 #+end_src
 
-** [ag.el] 検索
-   :PROPERTIES:
-   :CUSTOM_ID: orgfd3c67b9
-   :END:
-
-検索には =The Silver Searcher= を使います．あらかじめインストールしておく必要があります．MacPorts の場合，the_silver_searcher の名称で頒布されています． =exec-path= に =/opt/local/bin= が含まれていることを確認してください．
-
-#+begin_src sh
-the_silver_searcher @0.18.1 (textproc)
- A code-searching tool similar to ack, but faster.
-#+end_src
-
-
-カスタマイズした関数を =C-M-f= にぶら下げています．helm インタフェースを使う =helm-ag= もあります．
-
-#+begin_src emacs-lisp :tangle yes
-(when (and (executable-find "ag")
-           (autoload-if-found
-            '(my-ag ag)
-            "ag" nil t))
-
-  (autoload-if-found '(helm-ag) "helm-ag" nil t)
-
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-M-f") 'my-ag))
-
-  (with-eval-after-load "ag"
-    (custom-set-variables
-     '(ag-highlight-search t)
-     '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
-     '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
-
-    ;; q でウィンドウを抜ける
-    ;; (define-key ag-mode-map (kbd "q") 'delete-window)
-    (defun my-ag ()
-      "自動的に出力バッファに移動"
-      (interactive)
-      (call-interactively 'ag)
-      (switch-to-buffer-other-frame "*ag search*"))))
-#+end_src
-
 ** 基本キーバインド
    :PROPERTIES:
    :CUSTOM_ID: org532e1f02
@@ -703,19 +662,18 @@ the_silver_searcher @0.18.1 (textproc)
 - 削除
 
 #+begin_src emacs-lisp :tangle yes
-(with-eval-after-load "postpone"
-  (when (memq window-system '(mac ns))
-    (global-set-key (kbd "M-v") 'yank)
-    (when (boundp 'ns-command-modifier)
-      (setq ns-command-modifier 'meta))
-    (when (boundp 'ns-alternate-modifier)
-      (setq ns-alternate-modifier 'super))
-    (when (boundp 'ns-pop-up-frames)
-      (setq ns-pop-up-frames nil))
-    (global-set-key [ns-drag-file] 'ns-find-file)) ; D&D for Emacs23
+(when (memq window-system '(mac ns))
+  (global-set-key (kbd "M-v") 'yank)
+  (when (boundp 'ns-command-modifier)
+    (setq ns-command-modifier 'meta))
+  (when (boundp 'ns-alternate-modifier)
+    (setq ns-alternate-modifier 'super))
+  (when (boundp 'ns-pop-up-frames)
+    (setq ns-pop-up-frames nil))
+  (global-set-key [ns-drag-file] 'ns-find-file)) ; D&D for Emacs23
 
-  (global-set-key [delete] 'delete-char)
-  (global-set-key [kp-delete] 'delete-char))
+(global-set-key [delete] 'delete-char)
+(global-set-key [kp-delete] 'delete-char)
 #+end_src
 
 ** ナローイングするか
@@ -787,17 +745,6 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
   (unless my-batch-build
     (postpone-message "global-auto-revert-mode")
     (global-auto-revert-mode 1)))
-#+end_src
-
-** [uniquify.el] 同じバッファ名が開かれた場合に区別する
-   :PROPERTIES:
-   :CUSTOM_ID: org723e2b73
-   :END:
-
-ビルトインの =uniquify= を使います．モードラインの表示が変わります．
-
-#+begin_src emacs-lisp :tangle yes
-(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 #+end_src
 
 ** マウスで選択した領域を自動コピー
@@ -1040,7 +987,7 @@ echo "--- done."
 ;;              (setq indent-line-function 'lisp-indent-line)))
 #+end_src
 
-** [aggressive-indent] 即時バッファ整形
+** [aggressive-indent.el] 即時バッファ整形
    :PROPERTIES:
    :CUSTOM_ID: orgb5cd55a9
    :END:
@@ -1060,6 +1007,17 @@ echo "--- done."
          emacs-lisp-mode-hook
          lisp-mode-hook perl-mode-hook c-mode-common-hook))
     (add-hook hook #'aggressive-indent-mode)))
+#+end_src
+
+** [uniquify.el] 同じバッファ名が開かれた場合に区別する
+   :PROPERTIES:
+   :CUSTOM_ID: org723e2b73
+   :END:
+
+ビルトインの =uniquify= を使います．モードラインの表示が変わります．
+
+#+begin_src emacs-lisp :tangle yes
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 #+end_src
 
 ** [ws-butler.el] 不要なスペースを自動除去
@@ -1086,6 +1044,47 @@ echo "--- done."
     (unless my-batch-build
       (postpone-message "ws-butler-global-mode")
       (ws-butler-global-mode))))
+#+end_src
+
+** [ag.el] 検索
+   :PROPERTIES:
+   :CUSTOM_ID: orgfd3c67b9
+   :END:
+
+検索には =The Silver Searcher= を使います．あらかじめインストールしておく必要があります．MacPorts の場合，the_silver_searcher の名称で頒布されています． =exec-path= に =/opt/local/bin= が含まれていることを確認してください．
+
+#+begin_src sh
+the_silver_searcher @0.18.1 (textproc)
+ A code-searching tool similar to ack, but faster.
+#+end_src
+
+
+カスタマイズした関数を =C-M-f= にぶら下げています．helm インタフェースを使う =helm-ag= もあります．
+
+#+begin_src emacs-lisp :tangle yes
+(when (and (executable-find "ag")
+           (autoload-if-found
+            '(my-ag ag)
+            "ag" nil t))
+
+  (autoload-if-found '(helm-ag) "helm-ag" nil t)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M-f") 'my-ag))
+
+  (with-eval-after-load "ag"
+    (custom-set-variables
+     '(ag-highlight-search t)
+     '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
+     '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
+
+    ;; q でウィンドウを抜ける
+    ;; (define-key ag-mode-map (kbd "q") 'delete-window)
+    (defun my-ag ()
+      "自動的に出力バッファに移動"
+      (interactive)
+      (call-interactively 'ag)
+      (switch-to-buffer-other-frame "*ag search*"))))
 #+end_src
 
 ** ファイルリンクを辿る時に確認のメッセージを出さない
@@ -3710,15 +3709,11 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
     (custom-set-variables
      '(helm-google-tld "co.jp"))))
 
-(when (wutoload-if-found
-       '(helm-recentf)
-       "helm-for-files" nil t)
-  (global-set-key (kbd "C-M-r") 'helm-recentf))
-
 (when (autoload-if-found
-       '(helm-buffers-list)
+       '(helm-buffers-list helm-recentf)
        "helm" nil t)
 
+  (global-set-key (kbd "C-M-r") 'helm-recentf)
   (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
 
   (with-eval-after-load "helm"
