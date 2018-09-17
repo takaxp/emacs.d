@@ -15,6 +15,7 @@
   - 一部の関数定義を [[file:utility.html][utility.el]] に分離しています．
   - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]] 本体は，[[https://github.com/takaxp/emacs.d/][github]] に公開しています．
   - コピペだけで動かなかった場合は，wikiの[[https://pxaka.tokyo/wiki/emacs:init.el][コメント欄]]にご意見をどうぞ．
+  - =obsolete= タグのある設定は，あくまで個人的に不使用になったものです．
 
 * 起動設定
   :PROPERTIES:
@@ -3709,6 +3710,11 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
     (custom-set-variables
      '(helm-google-tld "co.jp"))))
 
+(when (wutoload-if-found
+       '(helm-recentf)
+       "helm-for-files" nil t)
+  (global-set-key (kbd "C-M-r") 'helm-recentf))
+
 (when (autoload-if-found
        '(helm-buffers-list)
        "helm" nil t)
@@ -3720,12 +3726,11 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
 (when (autoload-if-found
        '(helm-M-x
-         helm-locate helm-recentf helm-descbinds
+         helm-locate helm-descbinds
          helm-occur helm-swoop helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
   (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-M-r") 'helm-recentf)
 
   (with-eval-after-load "postpone"
 
@@ -9364,4 +9369,3 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+begin_src emacs-lisp :tangle yes :exports none
 (provide 'init)
 #+end_src
-* コメント欄(DISQUS)
