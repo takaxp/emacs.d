@@ -884,6 +884,31 @@ If `dropbox' option is provided then the value is uased as a root directory."
     (read-only-mode 1)))
 #+end_src
 
+** [library-p] load-path にライブラリがあるかを判定
+   :PROPERTIES:
+   :CUSTOM_ID: org30c47759
+   :END:
+
+パッケージが =load-path= に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
+
+=libraries= には複数のパッケージ名を指定でき，すべてが使える状態の場合のみ =t= が返ります．
+
+="org"= を渡したり， ='("org" "helm")= を渡したりできます．
+
+#+begin_src emacs-lisp :tangle yes
+(defun library-p (libraries)
+  "Return t when every specified library can be located. "
+  (let ((result t))
+    (mapc (lambda (library)
+            (unless (locate-library library)
+              (message "--- NOT FOUND: %s" library)
+              (setq result nil)))
+          (if (listp libraries)
+              libraries
+            (list libraries)))
+    result))
+#+end_src
+
 * 未設定／テスト中
   :PROPERTIES:
   :CUSTOM_ID: org67dcc87b

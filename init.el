@@ -6,29 +6,32 @@
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
   (let ((time1 (float-time
-                (time-subtract after-init-time before-load-init-time)))
+                (time-subtract after-init-time my-before-load-init-time)))
         (time2 (float-time
-                (time-subtract (current-time) before-load-init-time))))
+                (time-subtract (current-time) my-before-load-init-time))))
     (message (concat "Loading init files: %.0f [msec], "
                      "of which %.f [msec] for `after-init-hook'.")
              (* 1000 time1) (* 1000 (- time2 time1)))))
+
 (add-hook 'after-init-hook #'my-load-init-time t)
 
 (defun my-emacs-init-time ()
+  "Emacs booting time in msec."
   (message "Emacs booting time: %.0f [msec] from `emacs-init-time'."
            (* 1000
               (float-time (time-subtract
                            after-init-time
                            before-init-time)))))
+
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
 (setq gc-cons-threshold 134217728) ;; 128MB
 (setq garbage-collection-messages t)
 
-(defun load-package-p (file)
+(defun my-load-package-p (file)
   (let ((enabled t))
-    (when (boundp 'loading-packages)
-      (dolist (package loading-packages)
+    (when (boundp 'my-loading-packages)
+      (dolist (package my-loading-packages)
         (let ((name (car package))
               (flag (cdr package)))
           (when (and (stringp name)
@@ -42,23 +45,11 @@
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
   (when (or my-autoload-file-check
-            (and (load-package-p file)
+            (and (my-load-package-p file)
                  (locate-library file)))
     (dolist (f functions)
       (autoload f file docstring interactive type))
     t))
-
-(defun library-p (libraries)
-  "Return `t' when every specified library can be located. "
-  (let ((result t))
-    (mapc (lambda (library)
-            (unless (locate-library library)
-              (message "--- NOT FOUND: %s" library)
-              (setq result nil)))
-          (if (listp libraries)
-              libraries
-            (list libraries)))
-    result))
 
 (defun passed-clock-p (target)
   (let
@@ -91,7 +82,7 @@
 
 (defvar shutup-p nil)
 (with-eval-after-load "postpone"
-  (unless batch-build
+  (unless my-batch-build
     (postpone-message "shut-up"))
   (setq shutup-p (when (require 'shut-up nil t) t)))
 
@@ -104,10 +95,10 @@
   (let ((message-log-max nil))
     `(with-temp-message (or (current-message) "") ,@body)))
 
+(setq echo-keystrokes 0.5)
+
 (with-eval-after-load "postpone"
   (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent))
-
-(setq echo-keystrokes 0.5)
 
 (prefer-coding-system 'utf-8-unix)
 ;; (set-language-environment "Japanese") ;; will take 20-30[ms]
@@ -190,7 +181,7 @@
 (setq truncate-partial-width-windows nil)
 
 (with-eval-after-load "postpone"
-  (unless batch-build
+  (unless my-batch-build
     (postpone-message "global-auto-revert-mode")
     (global-auto-revert-mode 1)))
 
@@ -249,7 +240,7 @@
                ws-butler-global-exempt-modes))))
 
   (with-eval-after-load "postpone"
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "ws-butler-global-mode")
       (ws-butler-global-mode))))
 
@@ -405,13 +396,13 @@
 
 (with-eval-after-load "postpone"
   (when (require 'smart-mark nil t)
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "smart-mark-mode")
       (smart-mark-mode 1))))
 
 (with-eval-after-load "postpone"
   (when (require 'syntax-subword nil t)
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "global-syntax-subword-mode")
       (global-syntax-subword-mode 1))))
 
@@ -429,7 +420,7 @@
 
 (setq yank-excluded-properties t)
 
-;; #+DATE 用
+;; #+date 用
 (when (autoload-if-found
        '(time-stamp my-time-stamp)
        "time-stamp" nil t)
@@ -838,7 +829,7 @@ This works also for other defined begin/end tokens to define the structure."
 
     ;; 本家できちんと対応されたので，不要になった．
     ;; (define-key yas-minor-mode-map (kbd "<tab>") 'my-yas-expand)
-    (unless batch-build
+    (unless my-batch-build
       (yas-global-mode 1))))
 
 (when (autoload-if-found
@@ -937,7 +928,7 @@ This works also for other defined begin/end tokens to define the structure."
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "smartparens")
       (smartparens-global-mode))))
 
@@ -994,7 +985,7 @@ This works also for other defined begin/end tokens to define the structure."
         (interactive)
         (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "selected")
       (selected-global-mode 1))))
 
@@ -1013,7 +1004,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 (with-eval-after-load "postpone"
   (when (require 'delight nil t)
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "delight"))
     (delight
      '(;; Major modes
@@ -1124,7 +1115,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 ;; Show line number in the mode line.
 (with-eval-after-load "postpone"
-  (unless batch-build
+  (unless my-batch-build
     (postpone-message "line-number-mode")
     (line-number-mode 1)))
 
@@ -1133,7 +1124,7 @@ This works also for other defined begin/end tokens to define the structure."
   (setq display-time-format "%H%M.%S") ;; %y%m%d.
   (setq display-time-interval 1)
   (setq display-time-default-load-average nil)
-  (unless batch-build
+  (unless my-batch-build
     (postpone-message "display-time-mode")
     (display-time-mode 1)))
 
@@ -1143,7 +1134,7 @@ This works also for other defined begin/end tokens to define the structure."
     (set-face-foreground 'paren-face-match "#FFFFFF")
     ;; Deep blue: #6666CC, orange: #FFCC66
     (set-face-background 'paren-face-match "#66CC66")
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "mic-paren")
       (paren-activate))))
 
@@ -1382,7 +1373,7 @@ This works also for other defined begin/end tokens to define the structure."
        "which-key" nil t)
 
   (with-eval-after-load "postpone"
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "which-key")
       (which-key-mode 1)))
 
@@ -1419,7 +1410,7 @@ This works also for other defined begin/end tokens to define the structure."
        "dimmer" nil t)
 
   (with-eval-after-load "postpone"
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "dimmer-mode")
       (custom-set-variables
        '(dimmer-exclusion-regexp
@@ -1651,7 +1642,7 @@ This works also for other defined begin/end tokens to define the structure."
        "recentf" nil t)
 
   (with-eval-after-load "postpone"
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "recentf-mode")
       (recentf-mode 1)))
 
@@ -1684,7 +1675,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 (with-eval-after-load "postpone"
   (when (require 'auto-save-buffers nil t)
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "auto-save-buffers"))
     (defun my-auto-save-buffers ()
       (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
@@ -1712,7 +1703,7 @@ This works also for other defined begin/end tokens to define the structure."
   ;; なぜか (backup-each-save) の直接呼び出しだとだめ
   (with-eval-after-load "postpone"
     (when (require 'backup-each-save nil t)
-      (unless batch-build
+      (unless my-batch-build
         (postpone-message "backup-each-save")))
 
     ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
@@ -1738,7 +1729,7 @@ This works also for other defined begin/end tokens to define the structure."
        '(session-initialize)
        "session" nil t)
 
-  (unless batch-build
+  (unless my-batch-build
     (add-hook 'after-init-hook #'session-initialize))
 
   (with-eval-after-load "session"
@@ -1841,7 +1832,7 @@ This works also for other defined begin/end tokens to define the structure."
     (keyfreq-autosave-mode 1))
 
   (with-eval-after-load "postpone"
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "keyfreq-mode")
       (keyfreq-mode 1))))
 
@@ -2053,7 +2044,7 @@ This works also for other defined begin/end tokens to define the structure."
 (with-eval-after-load "postpone"
   (if (executable-find "editorconfig")
       (when (require 'editorconfig nil t)
-        (unless batch-build
+        (unless my-batch-build
           (postpone-message "editorconfig")
           ;; (add-to-list 'editorconfig-exclude-modes 'org-mode)
           ;; (when (require 'editorconfig-charset-extras nil t)
@@ -2084,7 +2075,7 @@ This works also for other defined begin/end tokens to define the structure."
        "projectile" nil t)
 
   (with-eval-after-load "postpone"
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "projectile-mode")
       (setq projectile-keymap-prefix (kbd "C-c p"))
       (projectile-mode 1)))
@@ -2198,7 +2189,7 @@ This works also for other defined begin/end tokens to define the structure."
     ;; アンダースコアをエクスポートしない（_{}で明示的に表現できる）
     (setq org-export-with-sub-superscripts nil)
 
-    ;; #+OPTIONS: \n:t と同じ
+    ;; #+options: \n:t と同じ
     (setq org-export-preserve-breaks t)
 
     ;; タイマーの音
@@ -2217,7 +2208,7 @@ This works also for other defined begin/end tokens to define the structure."
     (require 'org-eldoc nil t)
 
     ;; emms のリンクに対応させる
-    (unless batch-build
+    (unless my-batch-build
       (require 'org-emms nil t))
 
     ;; 非表示状態の領域への書き込みを防ぐ
@@ -2670,7 +2661,7 @@ update it for multiple appts?")
 
   (with-eval-after-load "org"
     ;; アラーム表示を有効にする
-    (unless batch-build
+    (unless my-batch-build
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init
       (appt-activate 1))
     ;; org-agenda の内容をアラームに登録する
@@ -2867,7 +2858,7 @@ will not be modified."
   (add-to-list 'org-structure-template-alist
                (if (version< "9.1.4" (org-version))
                    '("S" . "src emacs-lisp")
-                 '("S" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
+                 '("S" "#+begin_src emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
 
 (when (autoload-if-found
        '(org-tree-slide-mode)
@@ -2883,7 +2874,7 @@ will not be modified."
       'org-tree-slide-move-previous-tree)
     (define-key org-tree-slide-mode-map (kbd "<f10>")
       'org-tree-slide-move-next-tree)
-    (unless batch-build
+    (unless my-batch-build
       (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
     (setq org-tree-slide-skip-outline-level 5)
@@ -3326,7 +3317,7 @@ will not be modified."
       (force-mode-line-update))
     (advice-add 'org-clock-today-update-mode-line
                 :override #'advice:org-clock-today-update-mode-line)
-    (unless batch-build
+    (unless my-batch-build
       (org-clock-today-mode 1))))
 
 (when (autoload-if-found
@@ -3381,7 +3372,7 @@ Note that this mechanism is still under consideration."
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
                 "#L" (format "%d" line) "][" alt "]]")))))
 
-(defun my-lower-case-org-keywords ()
+(defun my-lowercase-org-keywords ()
   "Lower case Org keywords and block identifiers."
   (interactive)
   (save-excursion
@@ -3399,16 +3390,17 @@ Note that this mechanism is still under consideration."
       (message "Lower-cased %d matches" count))))
 
 (with-eval-after-load "org"
+  (defun my-add-custom-id ()
+    "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
+    (interactive)
+    (my-org-custom-id-get nil t))
+
   (defun my-get-custom-id ()
     "Return a part of UUID with an \"org\" prefix.
 e.g. \"org3ca6ef0c\"."
     (let* ((id (org-id-new "")))
       (when (org-uuidgen-p id)
         (downcase (concat "org"  (substring (org-id-new "") 0 8))))))
-
-  (defun my-add-custom-id ()
-    (interactive)
-    (my-org-custom-id-get nil t))
 
   (defun my-org-custom-id-get (&optional pom create)
     "Get the CUSTOM_ID property of the entry at point-or-marker POM.
@@ -3436,7 +3428,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     "Add CUSTOM_ID properties to all headlines in the current file.
 Which do not already have one.  Only adds ids if the
 `auto-id' option is set to `t' in the file somewhere. ie,
-#+OPTIONS: auto-id:t
+#+options: auto-id:t
 
 See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (interactive)
@@ -3651,7 +3643,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
 
   (with-eval-after-load "postpone"
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "moom"))
     (when (and (require 'moom nil t)
                window-system)
@@ -3712,7 +3704,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (redraw-frame))
       (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
-    (unless batch-build
+    (unless my-batch-build
       (my-moom-toggle-mode-line))
     (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
     (add-hook 'find-file-hook #'my-moom-mode-line-off))
@@ -3739,7 +3731,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
             ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
             ;; ("^\*Helm.+" :regexp t :align above :size 0.2)
             ))
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "shackle")
       (shackle-mode 1))))
 
@@ -3766,13 +3758,13 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC"))
 
 (with-eval-after-load "postpone"
-  (unless batch-build
+  (unless my-batch-build
     (postpone-message "generic-x")
     (require 'generic-x nil t)))
 
 (with-eval-after-load "postpone"
   (if (display-graphic-p)
-      (unless batch-build
+      (unless my-batch-build
         (postpone-message "global-hl-line-mode"))
     (setq hl-line-face 'underline))
   (global-hl-line-mode 1))
@@ -3781,7 +3773,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (setq blink-cursor-blinks 0)
   (setq blink-cursor-interval 0.3)
   (setq blink-cursor-delay 16)
-  (unless batch-build
+  (unless my-batch-build
     (postpone-message "blink-cursor-mode")
     (blink-cursor-mode -1)))
 
@@ -4013,7 +4005,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
        "pomodoro" nil t)
 
   (with-eval-after-load "postpone"
-    (when (and (not batch-build)
+    (when (and (not my-batch-build)
                (not (boundp 'pomodoro:timer)))
       ;; 重複起動を回避
       (pomodoro:start nil)))
@@ -4389,7 +4381,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                 :override #'advice:network-watch-update-lighter))
 
   (with-eval-after-load "postpone"
-    (unless batch-build
+    (unless my-batch-build
       (postpone-message "network-watch-mode")
       (if shutup-p
           (shut-up (network-watch-mode 1))
@@ -4484,7 +4476,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     my-org-list-insert-itms-with-checkbox
     my-org-list-delete-checkbox-from-items
     ;; others
-    kyoko-mad-mode-toggle mac:delete-files-in-trash-bin
+    kyoko-mad-mode-toggle mac:delete-files-in-trash-bin library-p
     org2dokuwiki-cp-kill-ring open-current-directory
     reload-ical-export show-org-buffer get-random-string init-auto-install
     add-itemize-head add-itemize-head-checkbox insert-formatted-current-date

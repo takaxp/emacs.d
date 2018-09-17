@@ -3,33 +3,34 @@
 ;; fullscreen <f11> / double-width (C-c f d)
 ;; helm-projectile: (C-c p f), (C-c p p), (C-c p h)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconst before-load-init-time (current-time)) ;; see my-load-init-time in init
-(defconst my-profiler nil)
-(defconst ad-require nil)
-(defconst my-boot-menu 'any) ;; {debug, test, any}
-(defconst loading-packages nil) ;; `my-autoload-file-check' shall be nil.
-;; (setq loading-packages '(("moom" . nil) ("moom-font" . nil)))
-(setq debug-on-error t
+(defconst my-before-load-init-time (current-time)
+  "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
+(defconst my-ad-require-p nil
+  "If non-nil, override `require' and `load' to show loading times.")
+(defconst my-profiler-p nil
+  "If non-nil, use built-in profiler.el.")
+(defconst my-boot-type 'default
+  "Boot menu selection: {debug, test, default}.")
+(defconst my-loading-packages nil) ;; `my-autoload-file-check' shall be nil.
+;; (setq my-loading-packages '(("moom" . nil) ("moom-font" . nil)))
+(setq debug-on-error nil
       my-autoload-file-check t
-      postpone-verbose nil)
-
+      postpone-verbose nil) ;; see postpone.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(when my-profiler
+(when my-profiler-p
   (profiler-start 'cpu+mem))
 ;; Suppress exporting of custom-set-variables (25.1 or later)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-;; or you can use `exec-path-from-shell'.
-(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-
-;; Utility // M-x list-load-path-shadows ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-path-setter (path-list target-path)
+  "Utility function to set PATH-LIST to TARGET-PATH."
   (dolist (x path-list)
     (add-to-list target-path (file-name-as-directory x))))
 
 ;; (1) theme-path
-(defconst cask-package-dir (format "~/.emacs.d/.cask/package/%s" emacs-version))
+(defconst my-cask-package-dir
+  (format "~/.emacs.d/.cask/package/%s" emacs-version))
 (my-path-setter
- `(,cask-package-dir)
+ `(,my-cask-package-dir)
  'custom-theme-load-path)
 
 ;; (2) exec-path
@@ -44,45 +45,49 @@
    "/Applications/qt_color_picker.app/Contents/MacOS/"
    "/usr/local/opt/imagemagick@6/bin")
  'exec-path)
+(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+;; you may want to use exec-path-from-shell.el.
 
 ;; (3) load-path for { nil | debug | test } booting
-(defvar init-load-path nil)
-(defvar batch-build nil) ;; see also init-eval.el
+;; M-x list-load-path-shadows
+(defvar my-default-load-path nil)
+(defvar my-batch-build nil) ;; see also init-eval.el
 (cond
- ((equal my-boot-menu 'debug)
-  (my-path-setter
-   '("~/Dropbox/config")
-   'load-path)
-  (require 'my-debug))
- ((equal my-boot-menu 'test)
-  (my-path-setter
-   `("~/Dropbox/config"
-     "~/devel/git/org-mode/lisp"
-     "~/devel/git/org-mode/contrib/lisp"
-     ,cask-package-dir)
-   'load-path)
-  (require 'my-debug))
- (t
+ ((equal my-boot-type 'default)
   (let* ((g "~/devel/git/")
          (od "org-mode")
          (l `("~/Dropbox/config"
               "~/.emacs.d/lisp"
               ,(concat g od "/lisp")
               ,(concat g od "/contrib/lisp")
-              ,cask-package-dir)))
+              ,my-cask-package-dir)))
     (my-path-setter l 'load-path)
-    (setq init-load-path load-path))
-  (when ad-require
+    (setq my-default-load-path load-path))
+  (when my-ad-require-p
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
   (require 'init nil t)
   (require 'my-eshell nil t)
   (require 'my-mail nil t)
   (require 'private nil t)
-  (when my-profiler
-    (profiler-report))))
+  (when my-profiler-p
+    (profiler-report)))
+ ((equal my-boot-type 'debug)
+  (my-path-setter
+   '("~/Dropbox/config")
+   'load-path)
+  (require 'my-debug))
+ ((equal my-boot-type 'test)
+  (my-path-setter
+   `("~/Dropbox/config"
+     "~/devel/git/org-mode/lisp"
+     "~/devel/git/org-mode/contrib/lisp"
+     ,my-cask-package-dir)
+   'load-path)
+  (require 'my-debug))
+ (t nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;; Utilities to manage packages
 (defun my-list-packages ()
   "Call \\[paradox-list-packages]' if available instead of \\[list-packages]."
   (interactive)
@@ -97,7 +102,7 @@
             (require 'cask "~/.cask/cask.el" t))
     (setq load-path (cask-load-path (cask-initialize)))))
 
-(defun my-setup-melpa ()
+(defun my-setup-package-el ()
   "Setting up for installing packages via built-in package.el.
 Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (when (require 'package nil t)
@@ -111,9 +116,9 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
     (package-initialize)))
 
 (defun my-reset-load-path ()
-  "Revert `load-path' to `init-load-path'."
+  "Revert `load-path' to `my-default-load-path'."
   (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
-  (setq load-path init-load-path)
+  (setq load-path my-default-load-path)
   (message "--- Reverted to the original `load-path'."))
 
 (with-eval-after-load "paradox"
@@ -122,7 +127,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (advice-add 'paradox-quit-and-close :after #'advice:paradox-quit-and-close))
 
 (defun my-kill-emacs-hook-show ()
-  "Test emacs killing sequence."
+  "Test Emacs killing sequence."
   (add-hook 'after-init-hook
             '(lambda () (message "1: %s" kill-emacs-hook)) t)
   (with-eval-after-load "postpone"
@@ -130,7 +135,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (defun my-kill-emacs ()
     (switch-to-buffer "*Messages*")
     (message "3: %s" kill-emacs-hook)
-    (y-or-n-p "Sure?"))
+    (y-or-n-p "Sure? "))
   (add-hook 'kill-emacs-hook 'my-kill-emacs))
 ;; (my-kill-emacs-hook-show)
 

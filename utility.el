@@ -581,6 +581,18 @@ If `dropbox' option is provided then the value is uased as a root directory."
       (setq tl (cdr tl)))
     (read-only-mode 1)))
 
+(defun library-p (libraries)
+  "Return t when every specified library can be located. "
+  (let ((result t))
+    (mapc (lambda (library)
+            (unless (locate-library library)
+              (message "--- NOT FOUND: %s" library)
+              (setq result nil)))
+          (if (listp libraries)
+              libraries
+            (list libraries)))
+    result))
+
 ;;;###autoload
 (defun my-window-resizer ()
   "Control separated window size and position.

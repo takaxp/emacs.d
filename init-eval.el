@@ -1,6 +1,6 @@
 ;; /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done ~/Dropbox/emacs.d/config/init.el
 
-(setq batch-build t) ;; defined in init-env.el
+(setq my-batch-build t) ;; defined in init-env.el
 
 (require 'postpone nil t) ;; as an entry point
 (require 'calfw-org nil t) ;; mode-map

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-09-17 Mon 03:10 -->
+<!-- 2018-09-18 Tue 00:48 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -266,24 +266,23 @@ for the JavaScript code in this tag.
 <li><a href="#org4c3e9f59">2.4. GCサイズの最適化</a></li>
 <li><a href="#orgb59612b6">2.5. [exec-path-from-shell] PATH設定をシェルから継承する</a></li>
 <li><a href="#orgc7901a57">2.6. cl を使う</a></li>
-<li><a href="#org660ba5e8">2.7. [load-package-p] 設定の読み込みフラグを確認する</a></li>
+<li><a href="#org660ba5e8">2.7. [my-load-package-p] 設定の読み込みフラグを確認する</a></li>
 <li><a href="#orgc0921cdc">2.8. リストで関数を渡す autoload-if-found を使う</a></li>
-<li><a href="#org0b7d9710">2.9. [eval-after-autoload-if-found] 複数関数を対象とする遅延読み込み</a>
+<li><a href="#org124f13e2">2.9. [passed-clock-p] 指定時刻が本日の未来の時刻かを判定</a></li>
+<li><a href="#orgcea06248">2.10. [input-focus-p] フォーカス判定</a></li>
+<li><a href="#org8b967ce1">2.11. 警告の抑制</a></li>
+<li><a href="#org0ea7dbaf">2.12. エラー表示の抑制</a></li>
+<li><a href="#org1b2d3cc0">2.13. compilation buffer でのデータ表示で自動するスクロールする</a></li>
+<li><a href="#org68d1750d">2.14. C-x C-c で容易にEmacsを終了させないように質問する</a></li>
+<li><a href="#orgfca510d8">2.15. [shut-up.el] Messages 出力を封じる（制御する）</a></li>
+<li><a href="#orgf6a240ab">2.16. コマンド入力中に入力過程をミニバッファに反映する</a></li>
+<li><a href="#org6f2cf1cd">2.17. エンターキーの挙動</a></li>
+<li><a href="#org0b7d9710">2.18. [eval-after-autoload-if-found] 複数関数を対象とする遅延読み込み</a>
 <ul>
-<li><a href="#org42722212">2.9.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.9.2. マクロ版</a></li>
+<li><a href="#org42722212">2.18.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.18.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#org30c47759">2.10. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#org124f13e2">2.11. [passed-clock-p] 指定時刻が本日の未来の時刻かを判定</a></li>
-<li><a href="#orgcea06248">2.12. [input-focus-p] フォーカス判定</a></li>
-<li><a href="#org8b967ce1">2.13. 警告の抑制</a></li>
-<li><a href="#org0ea7dbaf">2.14. エラー表示の抑制</a></li>
-<li><a href="#org1b2d3cc0">2.15. compilation buffer でのデータ表示で自動するスクロールする</a></li>
-<li><a href="#org68d1750d">2.16. C-x C-c で容易にEmacsを終了させないように質問する</a></li>
-<li><a href="#orgfca510d8">2.17. [shut-up.el] Messages 出力を封じる（制御する）</a></li>
-<li><a href="#org6f2cf1cd">2.18. エンターキーの挙動</a></li>
-<li><a href="#orgf6a240ab">2.19. コマンド入力中に入力過程をミニバッファに反映する</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -625,13 +624,14 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org268a0b9" class="outline-2">
+<div id="outline-container-org9ad434f" class="outline-2">
 <h2 id="orgda9120c8"><span class="section-number-2">1</span> はじめに</h2>
 <div class="outline-text-2" id="text-orgda9120c8">
 <ul class="org-ul">
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.org">init.org</a> から <a href="https://github.com/takaxp/emacs.d/blob/master/init.el">init.el</a>，<a href="https://github.com/takaxp/emacs.d/raw/master/init.pdf">init.pdf</a>，<a href="https://github.com/takaxp/emacs.d/raw/master/init.odt">init.odt</a>，<a href="https://pxaka.tokyo/wiki/doku.php?id=emacs:init.el">wiki</a> を生成しています．<br />
 <ul class="org-ul">
 <li>wiki への出力は，<a href="https://gist.github.com/1369417">org2dokuwiki.pl</a>を使って生成しています．<br /></li>
+<li>wiki の内容は，出力が滞っていて，古い情報です．そのうち消します．<br /></li>
 </ul></li>
 <li>一部の関数定義を <a href="https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el">utility.el</a> に分離しています．<br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">init.el</a> 本体は，<a href="https://github.com/takaxp/emacs.d/">github</a> に公開しています．<br /></li>
@@ -643,15 +643,44 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org823cb56" class="outline-2">
+<div id="outline-container-orgb7a5b6d" class="outline-2">
 <h2 id="org2a411a2e"><span class="section-number-2">2</span> 基本設定</h2>
 <div class="outline-text-2" id="text-org2a411a2e">
 <p>
 この設定群を利用するために設定です．一部の関数は記述しておかないと動かない可能性があります．<br />
 </p>
+
+<p>
+普通は <code>init.el</code> に様々な設定をEmacsに読ませますが，私は諸事情から次のようにブートシーケンスを制御しています．<br />
+</p>
+
+<ol class="org-ol">
+<li><code>.emacs</code> の読み込み<br /></li>
+<li><code>init-env.el</code> の読み込み<br /></li>
+<li><code>init.el</code> の読み込み<br /></li>
+</ol>
+
+<p>
+<code>.emacs</code> は，基本的に <code>init-env.el</code> を読み込むだけです．ただ，ちょっとしたコードを試したい時は， <code>.emacs</code> に書いてしまいます．気に入ったら， <code>init.el</code> に移します．<br />
+</p>
+
+<p>
+<code>init-env.el</code> には，パスの設定，起動時間計測のためのフラグ群，パッケージ管理用の補助関数を設定しています．そして， <code>init-env.el</code> の最後に <code>init.el</code> を <code>require</code> しています．<br />
+</p>
+
+<p>
+これ以外に，バッチモードでバイトコンパイルするための <code>init-eval.el</code> も使います．このファイルには，バイトコンパイル時だけ必要なパッケージを列挙しています．<br />
+</p>
+
+<ul class="org-ul">
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/.emacs">emacs.d/.emacs at master · takaxp/emacs.d</a><br /></li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/init-env.el">emacs.d/init-env.el at master · takaxp/emacs.d</a><br /></li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/init-eval.el">emacs.d/init-eval.el at master · takaxp/emacs.d</a><br /></li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/init-ad.el">emacs.d/init-ad.el at master · takaxp/emacs.d</a><br /></li>
+</ul>
 </div>
 
-<div id="outline-container-org283953f" class="outline-3">
+<div id="outline-container-orgfc8506d" class="outline-3">
 <h3 id="org2db575a1"><span class="section-number-3">2.1</span> init.el のヘッダ</h3>
 <div class="outline-text-3" id="text-org2db575a1">
 <div class="org-src-container">
@@ -661,22 +690,18 @@ for the JavaScript code in this tag.
 <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">see also https://takaxp.github.io/init.html</span>
 </pre>
 </div>
-
-<ul class="org-ul">
-<li>.emacs のカスタマイズを本格化し始めた頃に<a href="http://www.mygooglest.com/fni/dot-emacs.html">参照した情報</a><br /></li>
-</ul>
 </div>
 </div>
 
-<div id="outline-container-org1005e76" class="outline-3">
+<div id="outline-container-org49f7d7f" class="outline-3">
 <h3 id="org3c4d5a7a"><span class="section-number-3">2.2</span> init ファイルの読み込み時間計測</h3>
 <div class="outline-text-3" id="text-org3c4d5a7a">
 <p>
-次の関数を <code>init.el</code> の最初に記載して，オプション付きで <code>after-init-hook</code> に乗っければ，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．これ以降に設定する <code>emacs-init-time</code> の派生関数と違い， <code>after-init-hook</code> で実行される処理の時間もわかります（ほかの処理も微妙に入るので，あくまで目安です）．<br />
+次の関数を <code>init.el</code> の最初に記載して，オプション付きで <code>after-init-hook</code> に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する <code>emacs-init-time</code> の派生関数とは違い， <code>after-init-hook</code> で実行される処理の時間もわかります．また，ほかの処理も微妙に入るので，あくまで目安です．<br />
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defconst</span> <span style="color: #e5c07b;">before-load-init-time</span> (current-time)) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">moved to init-env.el</span>
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defconst</span> <span style="color: #e5c07b;">my-before-load-init-time</span> (current-time))
 </pre>
 </div>
 
@@ -684,18 +709,19 @@ for the JavaScript code in this tag.
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-load-init-time</span> ()
   <span style="color: #98c379;">"Loading time of user init files including time for `</span><span style="color: #d19a66;">after-init-hook</span><span style="color: #98c379;">'."</span>
   (<span style="color: #c678dd;">let</span> ((time1 (float-time
-                (time-subtract after-init-time before-load-init-time)))
+                (time-subtract after-init-time my-before-load-init-time)))
         (time2 (float-time
-                (time-subtract (current-time) before-load-init-time))))
+                (time-subtract (current-time) my-before-load-init-time))))
     (message (concat <span style="color: #98c379;">"Loading init files: %.0f [msec], "</span>
                      <span style="color: #98c379;">"of which %.f [msec] for `</span><span style="color: #d19a66;">after-init-hook</span><span style="color: #98c379;">'."</span>)
              (* 1000 time1) (* 1000 (- time2 time1)))))
+
 (add-hook 'after-init-hook #'my-load-init-time t)
 </pre>
 </div>
 
 <p>
-<code>after-init-hook</code> の値をチェックして， <code>my-load-init-time</code> が最後に配置されていることに留意します．以下は， <code>after-init-hook</code> の例です．<br />
+<code>after-init-hook</code> の値をチェックして， <code>my-load-init-time</code> が最後に配置されていることに留意します．以下は， <code>after-init-hook</code> の値の例です．<br />
 </p>
 
 <div class="org-src-container">
@@ -704,14 +730,18 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org437fe81" class="outline-4">
+<div id="outline-container-org6631247" class="outline-4">
 <h4 id="org715ba410"><span class="section-number-4">2.2.1</span> Emacs 起動時の呼び出し順</h4>
 <div class="outline-text-4" id="text-org715ba410">
+<p>
+Emacsは，以下の順番で起動します．<br />
+</p>
+
 <ol class="org-ol">
 <li>Set before-init-time = (current-time) and Set after-init-time = nil<br /></li>
 <li>Initializes the window<br /></li>
 <li>Run before-init-hook<br /></li>
-<li>Set before-load-init-time = (current-time) =&gt; 独自変数で計測<br /></li>
+<li>Set my-before-load-init-time = (current-time) =&gt; 独自変数で計測<br /></li>
 <li>Load user's init files<br /></li>
 <li>Set after-init-time = (current-time)<br /></li>
 <li>Run after-init-hook<br /></li>
@@ -731,7 +761,7 @@ for the JavaScript code in this tag.
 </p>
 
 <p>
-一方， <code>before-load-init-time</code> と <code>after-init-time</code> を使って計算する算出する起動時間には，GUI生成とGUI関連elの読み込み，before-init-hook にある関数の実行が含まれていない．<br />
+一方， <code>my-before-load-init-time</code> と <code>after-init-time</code> を使って計算する算出する起動時間には，GUI生成とGUI関連elの読み込み，before-init-hook にある関数の実行が含まれていない．<br />
 </p>
 
 <p>
@@ -741,27 +771,29 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org16f7f2b" class="outline-3">
+<div id="outline-container-org6e23787" class="outline-3">
 <h3 id="orga09727ae"><span class="section-number-3">2.3</span> 起動時間の計測</h3>
 <div class="outline-text-3" id="text-orga09727ae">
 <p>
-<code>M-x emacs-init-time</code> を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えます．元ネタは<a href="http://d.hatena.ne.jp/sugyan/20120120/1327037494">すぎゃーんメモ</a>からです．感謝．<br />
+<code>M-x emacs-init-time</code> を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えて表示を変えます．元ネタは<a href="http://d.hatena.ne.jp/sugyan/20120120/1327037494">すぎゃーんメモ</a>からです．感謝．<br />
 </p>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-emacs-init-time</span> ()
+  <span style="color: #98c379;">"Emacs booting time in msec."</span>
   (message <span style="color: #98c379;">"Emacs booting time: %.0f [msec] from `</span><span style="color: #d19a66;">emacs-init-time</span><span style="color: #98c379;">'."</span>
            (* 1000
               (float-time (time-subtract
                            after-init-time
                            before-init-time)))))
+
 (add-hook 'after-init-hook #'my-emacs-init-time)
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgfd53f7a" class="outline-3">
+<div id="outline-container-org8bd47ea" class="outline-3">
 <h3 id="org4c3e9f59"><span class="section-number-3">2.4</span> GCサイズの最適化</h3>
 <div class="outline-text-3" id="text-org4c3e9f59">
 <p>
@@ -776,11 +808,11 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgfadf734" class="outline-3">
+<div id="outline-container-orgcd1f7cd" class="outline-3">
 <h3 id="orgb59612b6"><span class="section-number-3">2.5</span> [exec-path-from-shell] PATH設定をシェルから継承する</h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <p>
-外部プログラムのサポートを得て動くパッケージは，設定の過程でプログラムが見つからないと怒られることがしばしばあります． <code>exec-path-from-shell</code> は，シェルに設定した <code>PATH</code> の情報を継承して <code>exec-path</code> や <code>PATH</code> を設定してくれます．私は起動時に環境を切り替えることがあるので使ってませんが，使われている方は多いようです．<br />
+外部プログラムのサポートを得て動くパッケージは，設定の過程で「プログラムが見つからない」と怒られることがしばしばあります． <code>exec-path-from-shell</code> は，シェルに設定した <code>PATH</code> の情報を継承して <code>exec-path</code> や <code>PATH</code> を設定してくれます．私は起動時に環境を切り替えることがあるので使ってませんが，使われている方は多いようです．<br />
 </p>
 
 <div class="org-src-container">
@@ -792,7 +824,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org8b3047b" class="outline-3">
+<div id="outline-container-org9f621c2" class="outline-3">
 <h3 id="orgc7901a57"><span class="section-number-3">2.6</span> cl を使う</h3>
 <div class="outline-text-3" id="text-orgc7901a57">
 <ul class="org-ul">
@@ -800,7 +832,17 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </ul>
 
 <p>
-同時にバイトパイル時の警告を回避するために，いくつかのパッケージを <code>eval-when-compile</code> の中に記述します． <code>init.el</code> 全体で対象パッケージが増えたので，別ファイルに括りだしました．バイトコンパイルするときだけ， <code>init-eval.el</code> を読み込みます．<br />
+一般的には次のように記載すればOKです．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">eval-when-compile</span>
+  (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">cl-lib</span> nil t))
+</pre>
+</div>
+
+<p>
+しかし，いくつかのパッケージは，バイトパイル時の警告を回避するために， <code>cl-lib</code> と同様に <code>eval-when-compile</code> の中に記述する必要が出てきます． <code>init.el</code> の成長に伴い，対象パッケージが増えたので，別ファイル(<a href="https://github.com/takaxp/emacs.d/blob/master/init-eval.el">init-eval.el</a>)に括り出しました．バイトコンパイルするときだけ， <code>init-eval.el</code> を読み込みます．<br />
 </p>
 
 <p>
@@ -813,7 +855,11 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <p>
-これなら <code>init.el</code> に <code>eval-when-compile</code> が書いてあっても同じに見えますが，バイトコンパイルしない状態で <code>init.el</code> を読み込むと， <code>eval-when-compile</code> の中身がすべて実行されてしまうので，起動が重くなってしまいます．そうであれば，そもそもバイトコンパイルする時に必要なパッケージ群をロードすれば良いよね，という上記のアプローチに落ち着きました．<br />
+これなら <code>init.el</code> に <code>eval-when-compile</code> を書くのと同じに見えますが，そうしてしまうと，バイトコンパイルしない状態の <code>init.el</code> を読み込むと， <code>eval-when-compile</code> の中身がすべて実行されてしまい，起動が重くなってしまいます．<br />
+</p>
+
+<p>
+そもそも <code>init.org</code> を編集対象にしていて， <code>init.el</code> を手動でバイトコンパイルすることはないので，私のフローには合っています.<br />
 </p>
 
 <div class="org-src-container">
@@ -824,18 +870,22 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgd19e2cf" class="outline-3">
-<h3 id="org660ba5e8"><span class="section-number-3">2.7</span> [load-package-p] 設定の読み込みフラグを確認する</h3>
+<div id="outline-container-org776b708" class="outline-3">
+<h3 id="org660ba5e8"><span class="section-number-3">2.7</span> [my-load-package-p] 設定の読み込みフラグを確認する</h3>
 <div class="outline-text-3" id="text-org660ba5e8">
 <p>
-<code>loading-packages</code> 変数に，設定を無視するパッケージを記述しておくと， <code>autoload-if-found</code> 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． <code>autoload-if-found</code> は本来の実装ではなく， <code>loading-packages</code> を参照するように手を加えています．<br />
+<code>autoload-if-found</code> のサポート関数です．<br />
+</p>
+
+<p>
+<code>my-loading-packages</code> 変数に，設定を無視するパッケージを記述しておくと， <code>autoload-if-found</code> 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． <code>autoload-if-found</code> は本来の実装ではなく， <code>my-loading-packages</code> を参照するように手を加えています．<br />
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">load-package-p</span> (file)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-load-package-p</span> (file)
   (<span style="color: #c678dd;">let</span> ((enabled t))
-    (<span style="color: #c678dd;">when</span> (boundp 'loading-packages)
-      (<span style="color: #c678dd;">dolist</span> (package loading-packages)
+    (<span style="color: #c678dd;">when</span> (boundp 'my-loading-packages)
+      (<span style="color: #c678dd;">dolist</span> (package my-loading-packages)
         (<span style="color: #c678dd;">let</span> ((name (car package))
               (flag (cdr package)))
           (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (stringp name)
@@ -849,55 +899,11 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org026b1a7" class="outline-3">
+<div id="outline-container-orgbee6413" class="outline-3">
 <h3 id="orgc0921cdc"><span class="section-number-3">2.8</span> リストで関数を渡す autoload-if-found を使う</h3>
 <div class="outline-text-3" id="text-orgc0921cdc">
-<ul class="org-ul">
-<li><a href="http://d.hatena.ne.jp/jimo1001/20090921/1253525484">http://d.hatena.ne.jp/jimo1001/20090921/1253525484</a><br /></li>
-</ul>
-
 <p>
-eval-after-load とのペアでマクロ化したバージョンもあります（次章参照）．ただ，生成されるバイトコードに問題がありそうなので，最近は <code>autoload-if-found</code> と <code>with-eval-after-load</code> の組み合わせに戻しています．最初に <code>when</code> 判定をすることで，パッケージが未インストールの状態に各種設定をスキップするので安全です．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">when</span> (autoload-if-found
-       '(f1 f2) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#38306;&#25968;&#12522;&#12473;&#12488;&#65294;&#35201;&#32032;&#12398;&#38306;&#25968;&#12434;&#21628;&#12406;&#26178;&#12395;&#65292;&#12497;&#12483;&#12465;&#12540;&#12472;&#12364;&#35501;&#12415;&#36796;&#12414;&#12428;&#12427;</span>
-       <span style="color: #98c379;">"package-name"</span> nil t) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#31532;4&#24341;&#25968;&#12414;&#12391;&#25351;&#23450;&#12377;&#12427;&#12392;&#65292;M-x &#12391;&#35036;&#23436;&#23550;&#35937;&#12395;&#12394;&#12427;&#65294;</span>
-
-  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(0) &#12496;&#12452;&#12488;&#12467;&#12531;&#12497;&#12452;&#12523;&#26178;&#12395;&#35686;&#21578;&#12364;&#12391;&#12383;&#12425;&#65292;&#23550;&#24540;&#12377;&#12427;&#12497;&#12483;&#12465;&#12540;&#12472;&#12434;&#35352;&#36617;</span>
-  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#29694;&#22312;&#12399;&#65292;&#12496;&#12452;&#12488;&#12467;&#12531;&#12497;&#12452;&#12523;&#26178;&#12384;&#12369;&#65292;&#24517;&#35201;&#12394;&#12497;&#12483;&#12465;&#12540;&#12472;&#12398; require &#12434;&#20840;&#12390;&#35352;&#36617;&#12375;&#12383;</span>
-  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">init-eval.el &#12434;&#35501;&#12415;&#36796;&#12416;&#26041;&#24335;&#12395;&#22793;&#26356;&#65294; eval-when-compile &#12434;&#20351;&#12431;&#12394;&#12356;&#65294;</span>
-  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(eval-when-compile</span>
-  <span style="color: #5C6370;">;;   </span><span style="color: #5C6370;">(require 'package-name nil t))</span>
-
-  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(1) &#12497;&#12483;&#12465;&#12540;&#12472;&#12364;&#23384;&#22312;&#12377;&#12428;&#12400;&#65292; Emacs &#36215;&#21205;&#26178;&#12395;&#35501;&#12415;&#36796;&#12416;&#35373;&#23450;&#32676;</span>
-  (<span style="color: #c678dd;">push</span> '(<span style="color: #98c379;">"\\.hoge$"</span> . package-name-mode) auto-mode-alist)
-  (add-hook 'after-init-hook 'f1)
-  (global-set-key (kbd <span style="color: #98c379;">"r"</span>) 'f2)
-
-  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(2) &#36933;&#24310;&#35501;&#12415;&#36796;&#12415;&#12377;&#12427;&#35373;&#23450;&#32676;</span>
-  (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"package-name"</span>
-    (<span style="color: #c678dd;">setq</span> v1 t)
-    (<span style="color: #c678dd;">setq</span> v2 nil)
-    (define-key package-name-map (kbd <span style="color: #98c379;">"q"</span>) 'f1))
-
-  (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"package-name2"</span>
-    (<span style="color: #c678dd;">setq</span> v3 t)
-    (<span style="color: #c678dd;">setq</span> v4 nil)))
-</pre>
-</div>
-
-<ul class="org-ul">
-<li><a href="http://www.sodan.org/~knagano/emacs/dotemacs.html%EF%BC%88%E3%82%AA%E3%83%AA%E3%82%B8%E3%83%8A%E3%83%AB">http://www.sodan.org/~knagano/emacs/dotemacs.html（オリジナル</a>）<br /></li>
-</ul>
-
-<p>
-次のカスタマイズされた <code>autoload-if-found</code> は引数にリストのみを受け付けます．欠点は，リスト内の全て関数に個別の <code>docstring</code> を設定できないため，ヘルプ画面で何の関数なのかの情報があまり表示されないことです．ただ， <code>require</code> でパッケージを読み込んでしまえば，本来の <code>docstring</code> の内容が正しく反映されるので，すべての情報を確認できるようになります．また， <code>interactive</code> を <code>t</code> にすれば， <code>M-x</code> で当該関数がリストアップされるようになります．したがって， <code>(docstring interactive) = (nil t)</code> をデフォルトで指定すればOKです． <code>type</code> には， <code>macro</code> や <code>keymap</code> を指定して，関数以外の情報をオートロード対象にします．<br />
-</p>
-
-<p>
-コンパイル時に <code>Warning: the function ‘google-this’ is not known to be defined.</code> のようなメッセージが出る時に， <code>autoload-if-found</code> の <code>functions</code> に当該関数を追加すると，警告されなくなります． <code>declare-function</code> を追記せずに済みます．<br />
+<code>with-eval-after-load</code> とのペアでマクロ化したバージョンもあります（次章参照）．ただ，生成されるバイトコードに問題がありそうなので，最近は <code>autoload-if-found</code> と <code>with-eval-after-load</code> の組み合わせに戻しています．最初に <code>when</code> 判定をすることで，パッケージが未インストールの状態に各種設定をスキップするので安全です．<br />
 </p>
 
 <div class="org-src-container">
@@ -905,7 +911,7 @@ eval-after-load とのペアでマクロ化したバージョンもあります�
 (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">autoload-if-found</span> (functions file <span style="color: #CFCB90;">&amp;optional</span> docstring interactive type)
   <span style="color: #98c379;">"set autoload iff. FILE has found."</span>
   (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">or</span> my-autoload-file-check
-            (<span style="color: #c678dd;">and</span> (load-package-p file)
+            (<span style="color: #c678dd;">and</span> (my-load-package-p file)
                  (locate-library file)))
     (<span style="color: #c678dd;">dolist</span> (f functions)
       (autoload f file docstring interactive type))
@@ -918,14 +924,261 @@ eval-after-load とのペアでマクロ化したバージョンもあります�
 </p>
 
 <p>
-<code>locate-library</code> は，高速化を求める状況において，意外と高コストなので，それらを評価しないためのフラグ <code>skip-file-checking</code> を追加しました．各パッケージの設定は，基本的に <code>with-eval-after-load</code> に括られていることを前提にすれば，起動が停止する自体は避けられるので，悪くない選択です．もし変なことになってしまっても， <code>skip-file-checking</code> を <code>nil</code> にすれば，従来のように，起動時にパッケージの存在を確認できます．<br />
+この <code>init.el</code> は，基本的にこの <code>autoload-if-found</code> に依存しています．遅延ロードに基づく高速化において必須の関数ですが，特にこだわらない人は <code>use-package.el</code> に依存するのをオススメします．以下， <code>autoload-if-found</code> を使った設定のテンプレートです．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">when</span> (autoload-if-found
+       '(f1 f2) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#38306;&#25968;&#12522;&#12473;&#12488;&#65294;&#35201;&#32032;&#12398;&#38306;&#25968;&#12434;&#21628;&#12406;&#26178;&#12395;&#65292;&#12497;&#12483;&#12465;&#12540;&#12472;&#12364;&#35501;&#12415;&#36796;&#12414;&#12428;&#12427;</span>
+       <span style="color: #98c379;">"package-name"</span> nil t) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#31532;4&#24341;&#25968;&#12414;&#12391;&#25351;&#23450;&#12377;&#12427;&#12392;&#65292;M-x &#12391;&#35036;&#23436;&#23550;&#35937;&#12395;&#12394;&#12427;&#65294;</span>
+
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(0) &#12496;&#12452;&#12488;&#12467;&#12531;&#12497;&#12452;&#12523;&#26178;&#12395;&#35686;&#21578;&#12364;&#12391;&#12383;&#12425;&#65292;&#23550;&#24540;&#12377;&#12427;&#12497;&#12483;&#12465;&#12540;&#12472;&#12434;&#35352;&#36617;</span>
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#29694;&#22312;&#12399;&#65292;&#12496;&#12452;&#12488;&#12467;&#12531;&#12497;&#12452;&#12523;&#26178;&#12384;&#12369;&#65292;&#24517;&#35201;&#12394;&#12497;&#12483;&#12465;&#12540;&#12472;&#12398; require &#12434;&#20840;&#12390;&#35352;&#36617;&#12375;&#12383;</span>
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">init-eval.el &#12434;&#35501;&#12415;&#36796;&#12416;&#26041;&#24335;&#12395;&#22793;&#26356;&#65294;&#12371;&#12371;&#12391;&#12399; eval-when-compile &#12434;&#20351;&#12431;&#12394;&#12356;&#65294;</span>
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(eval-when-compile</span>
+  <span style="color: #5C6370;">;;   </span><span style="color: #5C6370;">(require 'package-name nil t))</span>
+
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(1) &#12497;&#12483;&#12465;&#12540;&#12472;&#12364;&#23384;&#22312;&#12377;&#12428;&#12400;&#65292; Emacs &#36215;&#21205;&#26178;&#12395;&#35501;&#12415;&#36796;&#12416;&#35373;&#23450;&#32676;</span>
+  (<span style="color: #c678dd;">push</span> '(<span style="color: #98c379;">"\\.hoge$"</span> . package-name-mode) auto-mode-alist)
+  (add-hook 'after-init-hook 'f1)
+  (global-set-key (kbd <span style="color: #98c379;">"r"</span>) 'f2)
+
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(2) &#36933;&#24310;&#35501;&#12415;&#36796;&#12415;&#12377;&#12427;&#35373;&#23450;&#32676;</span>
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">autoload-if-found &#12391;&#36933;&#24310;&#12525;&#12540;&#12489;&#12377;&#12427;&#38306;&#25968;</span>
+  (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"package-name"</span>
+    (<span style="color: #c678dd;">setq</span> v1 t)
+    (<span style="color: #c678dd;">setq</span> v2 nil)
+    (define-key package-name-map (kbd <span style="color: #98c379;">"q"</span>) 'f1))
+
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#38306;&#36899;&#12377;&#12427;&#12497;&#12483;&#12465;&#12540;&#12472;&#12398;&#36933;&#24310;&#12525;&#12540;&#12489;</span>
+  (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"package-name2"</span>
+    (<span style="color: #c678dd;">setq</span> v3 t)
+    (<span style="color: #c678dd;">setq</span> v4 nil))
+
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#36215;&#21205;&#26178;&#12395;&#23455;&#34892;&#12379;&#12378;&#65292;&#26368;&#21021;&#12395;&#20219;&#24847;&#12398;&#30330;&#34892;&#12377;&#12427;&#12467;&#12510;&#12531;&#12489;&#12414;&#12391;&#36933;&#24310;&#12525;&#12540;&#12489;&#12373;&#12379;&#12427;</span>
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">see https://github.com/takaxp/postpone</span>
+  (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
+    (<span style="color: #c678dd;">setq</span> v5 nil)))
+</pre>
+</div>
+
+<p>
+このカスタマイズされた <code>autoload-if-found</code> は引数にリストのみを受け付けます．欠点は，リスト内の全て関数に個別の <code>docstring</code> を設定できないため，ヘルプ画面で何の関数なのかの情報があまり表示されないことです．ただ， <code>require</code> でパッケージを読み込んでしまえば，本来の <code>docstring</code> の内容が正しく反映されるので，すべての情報を確認できるようになります．また， <code>interactive</code> を <code>t</code> にすれば， <code>M-x</code> で当該関数がリストアップされるようになります．したがって， <code>(docstring interactive) = (nil t)</code> をデフォルトで指定すればOKです． <code>type</code> には， <code>macro</code> や <code>keymap</code> を指定して，関数以外の情報をオートロード対象にします．<br />
+</p>
+
+<p>
+コンパイル時に <code>Warning: the function ‘google-this’ is not known to be defined.</code> のようなメッセージが出る時には， <code>autoload-if-found</code> の <code>functions</code> に当該関数を追加すると，警告されなくなります． <code>declare-function</code> を追記せずに済みます．<br />
+</p>
+
+<p>
+<code>locate-library</code> は，高速化を求める状況では，意外と高コストです．なので，それらを評価しないためのフラグ <code>skip-file-checking</code> を追加しました．各パッケージの設定は，基本的に <code>with-eval-after-load</code> に括られていることを前提にすれば，起動が停止する自体は避けられるので，悪くない選択です．もし変なことになってしまっても， <code>skip-file-checking</code> を <code>nil</code> にすれば，従来のようにパッケージの存在を確認し，安全に起動できます．<br />
 </p>
 </div>
 </div>
 
-<div id="outline-container-org5eb2f1e" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.9</span> [eval-after-autoload-if-found] 複数関数を対象とする遅延読み込み</h3>
+<div id="outline-container-org02c9e4b" class="outline-3">
+<h3 id="org124f13e2"><span class="section-number-3">2.9</span> [passed-clock-p] 指定時刻が本日の未来の時刻かを判定</h3>
+<div class="outline-text-3" id="text-org124f13e2">
+<p>
+今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． <code>run-at-time</code> が想定通りに動かず，起動時に対象の関数が走ってしまうので，この判定が <code>nil</code> の時だけタイマー登録します． <code>target</code> を HH:MM の書式で与えます．現在時刻を与えた場合は，過ぎ去っていないので <code>nil</code> を返します．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">passed-clock-p</span> (target)
+  (<span style="color: #c678dd;">let</span>
+      ((hour nil)
+       (min nil)
+       (current-hour nil)
+       (current-min nil))
+    (<span style="color: #c678dd;">when</span> (string-match <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">[0-2]?[0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">[0-5][0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span> target)
+      (<span style="color: #c678dd;">setq</span> hour (substring target (match-beginning 1) (match-end 1)))
+      (<span style="color: #c678dd;">setq</span> min (substring target (match-beginning 2) (match-end 2)))
+      (<span style="color: #c678dd;">setq</span> current-hour (format-time-string <span style="color: #98c379;">"%H"</span> (current-time)))
+      (<span style="color: #c678dd;">setq</span> current-min (format-time-string <span style="color: #98c379;">"%M"</span> (current-time)))
+      (&lt; (+ (* (string-to-number hour) 60)
+            (string-to-number min))
+         (+ (* (string-to-number current-hour) 60)
+            (string-to-number current-min))))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org23c7e94" class="outline-3">
+<h3 id="orgcea06248"><span class="section-number-3">2.10</span> [input-focus-p] フォーカス判定</h3>
+<div class="outline-text-3" id="text-orgcea06248">
+<p>
+フォーカスが当たっているのかを判定するための関数です．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">window-focus-p</span> t)
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">window-focus-p</span> ()
+  (<span style="color: #c678dd;">if</span> window-focus-p t nil))
+(add-hook 'focus-in-hook #'(lambda () (<span style="color: #c678dd;">setq</span> window-focus-p t)))
+(add-hook 'focus-out-hook #'(lambda () (<span style="color: #c678dd;">setq</span> window-focus-p nil)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf92f90e" class="outline-3">
+<h3 id="org8b967ce1"><span class="section-number-3">2.11</span> 警告の抑制</h3>
+<div class="outline-text-3" id="text-org8b967ce1">
+<p>
+起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， <code>.emacs</code> の上の方に書いておくとよいと思います．<br />
+</p>
+
+<ul class="org-ul">
+<li><a href="http://d.hatena.ne.jp/kitokitoki/20100425/p1">http://d.hatena.ne.jp/kitokitoki/20100425/p1</a><br /></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> byte-compile-warnings
+      '(free-vars unresolved callargs redefine obsolete noruntime
+                  cl-functions interactive-only make-local))
+(<span style="color: #c678dd;">setq</span> ad-redefinition-action 'accept)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga9ede15" class="outline-3">
+<h3 id="org0ea7dbaf"><span class="section-number-3">2.12</span> エラー表示の抑制</h3>
+<div class="outline-text-3" id="text-org0ea7dbaf">
+<p>
+普段使いでは要らないので抑制します．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> debug-on-error nil)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge3316ec" class="outline-3">
+<h3 id="org1b2d3cc0"><span class="section-number-3">2.13</span> compilation buffer でのデータ表示で自動するスクロールする</h3>
+<div class="outline-text-3" id="text-org1b2d3cc0">
+<p>
+<code>nil</code> のままだと，出力が続いてもスクロールされないので，自動的にスクロールされるように設定．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> compilation-scroll-output t)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgfd603a5" class="outline-3">
+<h3 id="org68d1750d"><span class="section-number-3">2.14</span> C-x C-c で容易にEmacsを終了させないように質問する</h3>
+<div class="outline-text-3" id="text-org68d1750d">
+<p>
+<code>y-or-n-p</code> もしくは <code>yes-or-no-p</code> を指定するだけです．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> confirm-kill-emacs 'yes-or-no-p)
+</pre>
+</div>
+
+<p>
+以前は， <code>C-x C-c</code> を以下の関数に割り当てて，任意の質問文で入力を求めていました．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;; </span><span style="color: #5C6370;">Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html</span>
+<span style="color: #5C6370;">;;; </span><span style="color: #5C6370;">Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416</span>
+<span style="color: #5C6370;">;; </span><span style="color: #5C6370;">A simple solution is (setq confirm-kill-emacs 'y-or-n-p).</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">confirm-save-buffers-kill-emacs</span> (<span style="color: #CFCB90;">&amp;optional</span> arg)
+  <span style="color: #98c379;">"Show yes or no when you try to kill Emacs"</span>
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"P"</span>)
+  (<span style="color: #c678dd;">cond</span> (arg (save-buffers-kill-emacs))
+        (t
+         (<span style="color: #c678dd;">when</span> (yes-or-no-p <span style="color: #98c379;">"Are you sure to quit Emacs now? "</span>)
+           (save-buffers-kill-emacs)))))
+(global-set-key (kbd <span style="color: #98c379;">"C-x C-c"</span>) 'confirm-save-buffers-kill-emacs)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb4c0c0c" class="outline-3">
+<h3 id="orgfca510d8"><span class="section-number-3">2.15</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
+<div class="outline-text-3" id="text-orgfca510d8">
+<p>
+<code>shut-up.el</code> というマクロがあり，現在はそちらを使っています．非常に強力です．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">shutup-p</span> (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">shut-up</span> nil t) t))
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">hoge</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">if</span> shut-up-p
+      (<span style="color: #c678dd;">shut-up</span> (recentf-save-list))
+    (recentf-save-list)))
+</pre>
+</div>
+
+<p>
+以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．<br />
+</p>
+
+<ul class="org-ul">
+<li><a href="http://qiita.com/itiut@github/items/d917eafd6ab255629346">Emacs - エコーエリアや <b>Messages</b> バッファにメッセージを表示させたくない - Qiita</a><br /></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#12513;&#12483;&#12475;&#12540;&#12472;&#12496;&#12483;&#12501;&#12449;&#12398;&#38263;&#12373;</span>
+(<span style="color: #c678dd;">setq</span> message-log-max 5000)
+
+(<span style="color: #c678dd;">defmacro</span> <span style="color: #61afef;">with-suppressed-message</span> (<span style="color: #CFCB90;">&amp;rest</span> body)
+  <span style="color: #98c379;">"Suppress new messages temporarily in the echo area and the `</span><span style="color: #d19a66;">*Messages*</span><span style="color: #98c379;">' buffer while BODY is evaluated."</span>
+  (<span style="color: #c678dd;">declare</span> (indent 0))
+  (<span style="color: #c678dd;">let</span> ((message-log-max nil))
+    `(<span style="color: #c678dd;">with-temp-message</span> (<span style="color: #c678dd;">or</span> (current-message) <span style="color: #98c379;">""</span>) ,@body)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgeaa3e65" class="outline-3">
+<h3 id="orgf6a240ab"><span class="section-number-3">2.16</span> コマンド入力中に入力過程をミニバッファに反映する</h3>
+<div class="outline-text-3" id="text-orgf6a240ab">
+<p>
+標準値は <code>1</code> です．例えば， <code>C-c f r</code> で発動する関数があるとき， <code>C-c</code> を入力するとその直後にはミニバッファに何も表示されませんが， <code>echo-keystrokes</code> だけ経過すると， <code>C-c</code> が表示されます． <code>0</code> に設定すると，いくら経過しても何も表示しません．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> echo-keystrokes 0.5)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4fe6517" class="outline-3">
+<h3 id="org6f2cf1cd"><span class="section-number-3">2.17</span> エンターキーの挙動</h3>
+<div class="outline-text-3" id="text-org6f2cf1cd">
+<p>
+好みの問題ですかね．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
+  (global-set-key (kbd <span style="color: #98c379;">"RET"</span>) 'electric-newline-and-maybe-indent))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgeb2b9a9" class="outline-3">
+<h3 id="org0b7d9710"><span class="section-number-3">2.18</span> [eval-after-autoload-if-found] 複数関数を対象とする遅延読み込み</h3>
 <div class="outline-text-3" id="text-org0b7d9710">
+<p>
+<b>現在は使っていません．非推奨です．</b><br />
+</p>
+
 <p>
 Twitterでぼやいていたら <a href="https://twitter.com/cvmat">@cvmat</a>さんが降臨して次のマクロを作ってくださいました．感謝感謝．<br />
 </p>
@@ -998,19 +1251,19 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </p>
 </div>
 
-<div id="outline-container-org2527c81" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.9.1</span> 関数版</h4>
+<div id="outline-container-org014a019" class="outline-4">
+<h4 id="org42722212"><span class="section-number-4">2.18.1</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
-関数版にリスト <code>loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．<br />
+関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．<br />
 </p>
 
 <p>
-ただ問題点として，最後の引数に入れる関数がバイトコンパイル時に展開されないようで，出来上がったバイトコードが高速化に寄与しているのか不明です．簡易的な実験ではだいぶ差があるようで，最近は <code>autoload-if-found</code> ， <code>with-eval-after-load</code> ， <code>eval-when-compile</code> の組み合わせで設定を書いて，遅延ロードと高速読み込みを実現しています． <code>loading-packages</code> は <code>autoload-if-found</code> に組み込みました．<br />
+ただ問題点として，最後の引数に入れる関数がバイトコンパイル時に展開されないようで，出来上がったバイトコードが高速化に寄与しているのか不明です．簡易的な実験ではだいぶ差があるようで，最近は <code>autoload-if-found</code> ， <code>with-eval-after-load</code> ， <code>eval-when-compile</code> の組み合わせで設定を書いて，遅延ロードと高速読み込みを実現しています． <code>my-loading-packages</code> は <code>autoload-if-found</code> に組み込みました．<br />
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> loading-packages <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#36861;&#21152;&#12373;&#12428;&#12390;&#12356;&#12394;&#12356;&#22580;&#21512;&#12399;&#27161;&#28310;&#12391;&#35501;&#12415;&#36796;&#12416;</span>
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> my-loading-packages <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#36861;&#21152;&#12373;&#12428;&#12390;&#12356;&#12394;&#12356;&#22580;&#21512;&#12399;&#27161;&#28310;&#12391;&#35501;&#12415;&#36796;&#12416;</span>
       '((<span style="color: #98c379;">"web-mode"</span> . nil) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#35501;&#12415;&#36796;&#12414;&#12394;&#12356;</span>
         (<span style="color: #98c379;">"org"</span> . t))) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#35501;&#12415;&#36796;&#12416;</span>
 </pre>
@@ -1030,8 +1283,8 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
   (<span style="color: #c678dd;">let</span> ((enabled t)
         (package nil))
     (message <span style="color: #98c379;">"--- %s"</span> file)
-    (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (boundp 'loading-packages) loading-packages)
-      (<span style="color: #c678dd;">dolist</span> (package loading-packages)
+    (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (boundp 'my-loading-packages) my-loading-packages)
+      (<span style="color: #c678dd;">dolist</span> (package my-loading-packages)
         (<span style="color: #c678dd;">let</span> ((name (car package))
               (flag (cdr package)))
           (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (stringp name) (equal file name))
@@ -1054,8 +1307,8 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 
-<div id="outline-container-org75523e1" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.9.2</span> マクロ版</h4>
+<div id="outline-container-org714daaa" class="outline-4">
+<h4 id="org1498f6ce"><span class="section-number-4">2.18.2</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．<br />
@@ -1088,237 +1341,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 </div>
-
-<div id="outline-container-org643f99a" class="outline-3">
-<h3 id="org30c47759"><span class="section-number-3">2.10</span> [library-p] load-path にライブラリがあるかを判定</h3>
-<div class="outline-text-3" id="text-org30c47759">
-<p>
-パッケージが load-path に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．<br />
-</p>
-
-<p>
-<code>libraries</code> には複数を指定でき，すべてが使える状態の場合のみ <code>t</code> が返ります．<br />
-</p>
-
-<p>
-<code>"org"</code> を渡したり， <code>'("org" "helm")</code> を渡したりできます．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">library-p</span> (libraries)
-  <span style="color: #98c379;">"Return `t' when every specified library can be located. "</span>
-  (<span style="color: #c678dd;">let</span> ((result t))
-    (mapc (<span style="color: #c678dd;">lambda</span> (library)
-            (<span style="color: #c678dd;">unless</span> (locate-library library)
-              (message <span style="color: #98c379;">"--- NOT FOUND: %s"</span> library)
-              (<span style="color: #c678dd;">setq</span> result nil)))
-          (<span style="color: #c678dd;">if</span> (listp libraries)
-              libraries
-            (list libraries)))
-    result))
-</pre>
-</div>
-</div>
 </div>
 
-<div id="outline-container-orgc473809" class="outline-3">
-<h3 id="org124f13e2"><span class="section-number-3">2.11</span> [passed-clock-p] 指定時刻が本日の未来の時刻かを判定</h3>
-<div class="outline-text-3" id="text-org124f13e2">
-<p>
-今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． <code>run-at-time</code> が想定通りに動かず，起動時に対象の関数が走ってしまうので，この判定が <code>nil</code> の時だけタイマー登録します． <code>target</code> を HH:MM の書式で与えます．現在時刻を与えた場合は，過ぎ去っていないので <code>nil</code> を返します．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">passed-clock-p</span> (target)
-  (<span style="color: #c678dd;">let</span>
-      ((hour nil)
-       (min nil)
-       (current-hour nil)
-       (current-min nil))
-    (<span style="color: #c678dd;">when</span> (string-match <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">[0-2]?[0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">[0-5][0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span> target)
-      (<span style="color: #c678dd;">setq</span> hour (substring target (match-beginning 1) (match-end 1)))
-      (<span style="color: #c678dd;">setq</span> min (substring target (match-beginning 2) (match-end 2)))
-      (<span style="color: #c678dd;">setq</span> current-hour (format-time-string <span style="color: #98c379;">"%H"</span> (current-time)))
-      (<span style="color: #c678dd;">setq</span> current-min (format-time-string <span style="color: #98c379;">"%M"</span> (current-time)))
-      (&lt; (+ (* (string-to-number hour) 60)
-            (string-to-number min))
-         (+ (* (string-to-number current-hour) 60)
-            (string-to-number current-min))))))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org06eb23d" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.12</span> [input-focus-p] フォーカス判定</h3>
-<div class="outline-text-3" id="text-orgcea06248">
-<p>
-フォーカスが当たっているのかを判定するための関数です．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">window-focus-p</span> t)
-(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">window-focus-p</span> ()
-  (<span style="color: #c678dd;">if</span> window-focus-p t nil))
-(add-hook 'focus-in-hook #'(lambda () (<span style="color: #c678dd;">setq</span> window-focus-p t)))
-(add-hook 'focus-out-hook #'(lambda () (<span style="color: #c678dd;">setq</span> window-focus-p nil)))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org4246eee" class="outline-3">
-<h3 id="org8b967ce1"><span class="section-number-3">2.13</span> 警告の抑制</h3>
-<div class="outline-text-3" id="text-org8b967ce1">
-<p>
-起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， <code>.emacs</code> の上の方に書いておくとよいと思います．<br />
-</p>
-
-<ul class="org-ul">
-<li><a href="http://d.hatena.ne.jp/kitokitoki/20100425/p1">http://d.hatena.ne.jp/kitokitoki/20100425/p1</a><br /></li>
-</ul>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> byte-compile-warnings
-      '(free-vars unresolved callargs redefine obsolete noruntime
-                  cl-functions interactive-only make-local))
-(<span style="color: #c678dd;">setq</span> ad-redefinition-action 'accept)
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org005d720" class="outline-3">
-<h3 id="org0ea7dbaf"><span class="section-number-3">2.14</span> エラー表示の抑制</h3>
-<div class="outline-text-3" id="text-org0ea7dbaf">
-<p>
-普段使いでは要らないので抑制します．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> debug-on-error nil)
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org9382ab1" class="outline-3">
-<h3 id="org1b2d3cc0"><span class="section-number-3">2.15</span> compilation buffer でのデータ表示で自動するスクロールする</h3>
-<div class="outline-text-3" id="text-org1b2d3cc0">
-<p>
-<code>nil</code> のままだと，出力が続いてもスクロールされないので，自動的にスクロールされるように設定．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> compilation-scroll-output t)
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orga2071c0" class="outline-3">
-<h3 id="org68d1750d"><span class="section-number-3">2.16</span> C-x C-c で容易にEmacsを終了させないように質問する</h3>
-<div class="outline-text-3" id="text-org68d1750d">
-<p>
-<code>y-or-n-p</code> もしくは <code>yes-or-no-p</code> を指定するだけです．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> confirm-kill-emacs 'yes-or-no-p)
-</pre>
-</div>
-
-<p>
-以前は， <code>C-x C-c</code> を以下の関数に割り当てて，任意の質問文で入力を求めていました．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;; </span><span style="color: #5C6370;">Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html</span>
-<span style="color: #5C6370;">;;; </span><span style="color: #5C6370;">Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416</span>
-<span style="color: #5C6370;">;; </span><span style="color: #5C6370;">A simple solution is (setq confirm-kill-emacs 'y-or-n-p).</span>
-(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">confirm-save-buffers-kill-emacs</span> (<span style="color: #CFCB90;">&amp;optional</span> arg)
-  <span style="color: #98c379;">"Show yes or no when you try to kill Emacs"</span>
-  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"P"</span>)
-  (<span style="color: #c678dd;">cond</span> (arg (save-buffers-kill-emacs))
-        (t
-         (<span style="color: #c678dd;">when</span> (yes-or-no-p <span style="color: #98c379;">"Are you sure to quit Emacs now? "</span>)
-           (save-buffers-kill-emacs)))))
-(global-set-key (kbd <span style="color: #98c379;">"C-x C-c"</span>) 'confirm-save-buffers-kill-emacs)
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orgbdb2283" class="outline-3">
-<h3 id="orgfca510d8"><span class="section-number-3">2.17</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
-<div class="outline-text-3" id="text-orgfca510d8">
-<p>
-<code>shut-up.el</code> というマクロがあり，現在はそちらを使っています．非常に強力です．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">shutup-p</span> (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">shut-up</span> nil t) t))
-(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">hoge</span> ()
-  (<span style="color: #c678dd;">interactive</span>)
-  (<span style="color: #c678dd;">if</span> shut-up-p
-      (<span style="color: #c678dd;">shut-up</span> (recentf-save-list))
-    (recentf-save-list)))
-</pre>
-</div>
-
-<p>
-以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．<br />
-</p>
-
-<ul class="org-ul">
-<li><a href="http://qiita.com/itiut@github/items/d917eafd6ab255629346">Emacs - エコーエリアや <b>Messages</b> バッファにメッセージを表示させたくない - Qiita</a><br /></li>
-</ul>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#12513;&#12483;&#12475;&#12540;&#12472;&#12496;&#12483;&#12501;&#12449;&#12398;&#38263;&#12373;</span>
-(<span style="color: #c678dd;">setq</span> message-log-max 5000)
-
-(<span style="color: #c678dd;">defmacro</span> <span style="color: #61afef;">with-suppressed-message</span> (<span style="color: #CFCB90;">&amp;rest</span> body)
-  <span style="color: #98c379;">"Suppress new messages temporarily in the echo area and the `</span><span style="color: #d19a66;">*Messages*</span><span style="color: #98c379;">' buffer while BODY is evaluated."</span>
-  (<span style="color: #c678dd;">declare</span> (indent 0))
-  (<span style="color: #c678dd;">let</span> ((message-log-max nil))
-    `(<span style="color: #c678dd;">with-temp-message</span> (<span style="color: #c678dd;">or</span> (current-message) <span style="color: #98c379;">""</span>) ,@body)))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org9720954" class="outline-3">
-<h3 id="org6f2cf1cd"><span class="section-number-3">2.18</span> エンターキーの挙動</h3>
-<div class="outline-text-3" id="text-org6f2cf1cd">
-<p>
-好みの問題ですかね．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-  (global-set-key (kbd <span style="color: #98c379;">"RET"</span>) 'electric-newline-and-maybe-indent))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orgf7c2a05" class="outline-3">
-<h3 id="orgf6a240ab"><span class="section-number-3">2.19</span> コマンド入力中に入力過程をミニバッファに反映する</h3>
-<div class="outline-text-3" id="text-orgf6a240ab">
-<p>
-標準値は <code>1</code> です．例えば， <code>C-c f r</code> で発動する関数があるとき， <code>C-c</code> を入力するとその直後にはミニバッファに何も表示されませんが， <code>echo-keystrokes</code> だけ経過すると， <code>C-c</code> が表示されます． <code>0</code> に設定すると，いくら経過しても何も表示しません．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">setq</span> echo-keystrokes 0.5)
-</pre>
-</div>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orga4f637a" class="outline-2">
+<div id="outline-container-org53e2364" class="outline-2">
 <h2 id="org8e58f563"><span class="section-number-2">3</span> コア設定</h2>
 <div class="outline-text-2" id="text-org8e58f563">
 <p>
@@ -1326,7 +1351,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．<br /
 </p>
 </div>
 
-<div id="outline-container-org3999ec5" class="outline-3">
+<div id="outline-container-org10176a1" class="outline-3">
 <h3 id="org218fe598"><span class="section-number-3">3.1</span> 言語／文字コード</h3>
 <div class="outline-text-3" id="text-org218fe598">
 <p>
@@ -1357,7 +1382,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．<br /
 </div>
 </div>
 
-<div id="outline-container-org870069b" class="outline-3">
+<div id="outline-container-org4836975" class="outline-3">
 <h3 id="org08c6f620"><span class="section-number-3">3.2</span> 日本語入力</h3>
 <div class="outline-text-3" id="text-org08c6f620">
 <p>
@@ -1396,7 +1421,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
 </div>
 </div>
 
-<div id="outline-container-orgdfca445" class="outline-3">
+<div id="outline-container-orge4c1e13" class="outline-3">
 <h3 id="orgfd3c67b9"><span class="section-number-3">3.3</span> [ag.el] 検索</h3>
 <div class="outline-text-3" id="text-orgfd3c67b9">
 <p>
@@ -1443,7 +1468,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
 </div>
 </div>
 
-<div id="outline-container-orgaeccd1e" class="outline-3">
+<div id="outline-container-orgf62a284" class="outline-3">
 <h3 id="org532e1f02"><span class="section-number-3">3.4</span> 基本キーバインド</h3>
 <div class="outline-text-3" id="text-org532e1f02">
 <p>
@@ -1475,7 +1500,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
 </div>
 </div>
 
-<div id="outline-container-org9115a3f" class="outline-3">
+<div id="outline-container-org165a639" class="outline-3">
 <h3 id="org62c41327"><span class="section-number-3">3.5</span> ナローイングするか</h3>
 <div class="outline-text-3" id="text-org62c41327">
 <p>
@@ -1508,7 +1533,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org98ecb9a" class="outline-3">
+<div id="outline-container-org694e21c" class="outline-3">
 <h3 id="org162dbe4a"><span class="section-number-3">3.6</span> バッファの終わりでのnewlineを禁止する</h3>
 <div class="outline-text-3" id="text-org162dbe4a">
 <div class="org-src-container">
@@ -1519,7 +1544,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org4cbacdb" class="outline-3">
+<div id="outline-container-org39e1a8a" class="outline-3">
 <h3 id="orgff941e69"><span class="section-number-3">3.7</span> 常に最終行に一行追加する</h3>
 <div class="outline-text-3" id="text-orgff941e69">
 <div class="org-src-container">
@@ -1530,7 +1555,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org5a7a286" class="outline-3">
+<div id="outline-container-org50bd1ca" class="outline-3">
 <h3 id="org7a9614cc"><span class="section-number-3">3.8</span> 長い文章を右端で常に折り返す</h3>
 <div class="outline-text-3" id="text-org7a9614cc">
 <div class="org-src-container">
@@ -1541,7 +1566,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org9d80c74" class="outline-3">
+<div id="outline-container-orgbd98f03" class="outline-3">
 <h3 id="orgc2257142"><span class="section-number-3">3.9</span> バッファが外部から編集された場合に自動で再読み込みする</h3>
 <div class="outline-text-3" id="text-orgc2257142">
 <p>
@@ -1554,7 +1579,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-  (<span style="color: #c678dd;">unless</span> batch-build
+  (<span style="color: #c678dd;">unless</span> my-batch-build
     (postpone-message <span style="color: #98c379;">"global-auto-revert-mode"</span>)
     (global-auto-revert-mode 1)))
 </pre>
@@ -1562,7 +1587,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org958626a" class="outline-3">
+<div id="outline-container-org79b7656" class="outline-3">
 <h3 id="org723e2b73"><span class="section-number-3">3.10</span> [uniquify.el] 同じバッファ名が開かれた場合に区別する</h3>
 <div class="outline-text-3" id="text-org723e2b73">
 <p>
@@ -1576,7 +1601,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-orge4543a8" class="outline-3">
+<div id="outline-container-orgca9d3d8" class="outline-3">
 <h3 id="org8dd417a4"><span class="section-number-3">3.11</span> マウスで選択した領域を自動コピー</h3>
 <div class="outline-text-3" id="text-org8dd417a4">
 <p>
@@ -1590,7 +1615,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org5b3637e" class="outline-3">
+<div id="outline-container-orgfbb1876" class="outline-3">
 <h3 id="org4ea9e5f1"><span class="section-number-3">3.12</span> マウススクロールをピクセル単位にする</h3>
 <div class="outline-text-3" id="text-org4ea9e5f1">
 <div class="org-src-container">
@@ -1602,7 +1627,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org685932e" class="outline-3">
+<div id="outline-container-org97eec32" class="outline-3">
 <h3 id="orgd7b8f4e2"><span class="section-number-3">3.13</span> パッケージ管理</h3>
 <div class="outline-text-3" id="text-orgd7b8f4e2">
 <p>
@@ -1614,7 +1639,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </p>
 </div>
 
-<div id="outline-container-orgbbba8cf" class="outline-4">
+<div id="outline-container-org7b7fff2" class="outline-4">
 <h4 id="orgf6f05dc9"><span class="section-number-4">3.13.1</span> [cask-mode.el] モード設定</h4>
 <div class="outline-text-4" id="text-orgf6f05dc9">
 <ul class="org-ul">
@@ -1629,7 +1654,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-orge55c9f7" class="outline-4">
+<div id="outline-container-orga3b2647" class="outline-4">
 <h4 id="org02669d67"><span class="section-number-4">3.13.2</span> Cask のセットアップ</h4>
 <div class="outline-text-4" id="text-org02669d67">
 <p>
@@ -1647,7 +1672,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org0515cfc" class="outline-4">
+<div id="outline-container-org3c3fb92" class="outline-4">
 <h4 id="orgec66ea31"><span class="section-number-4">3.13.3</span> load-path を一箇所にして起動を高速化</h4>
 <div class="outline-text-4" id="text-orgec66ea31">
 <p>
@@ -1762,7 +1787,7 @@ $<span style="color: #e5c07b;">COMMAND</span> $<span style="color: #e5c07b;">LOA
 </div>
 </div>
 
-<div id="outline-container-org0ebaff0" class="outline-4">
+<div id="outline-container-orgfe2a718" class="outline-4">
 <h4 id="orgda4ef167"><span class="section-number-4">3.13.4</span> [paradox.el] パッケージ選択画面の改善</h4>
 <div class="outline-text-4" id="text-orgda4ef167">
 <p>
@@ -1785,7 +1810,7 @@ $<span style="color: #e5c07b;">COMMAND</span> $<span style="color: #e5c07b;">LOA
 </div>
 </div>
 
-<div id="outline-container-org654dd5f" class="outline-3">
+<div id="outline-container-org07017d1" class="outline-3">
 <h3 id="org03555a6a"><span class="section-number-3">3.14</span> インデント</h3>
 <div class="outline-text-3" id="text-org03555a6a">
 <p>
@@ -1811,7 +1836,7 @@ $<span style="color: #e5c07b;">COMMAND</span> $<span style="color: #e5c07b;">LOA
 </div>
 </div>
 
-<div id="outline-container-org96be87b" class="outline-3">
+<div id="outline-container-org1fc7f82" class="outline-3">
 <h3 id="orgb5cd55a9"><span class="section-number-3">3.15</span> [aggressive-indent] 即時バッファ整形</h3>
 <div class="outline-text-3" id="text-orgb5cd55a9">
 <p>
@@ -1836,7 +1861,7 @@ $<span style="color: #e5c07b;">COMMAND</span> $<span style="color: #e5c07b;">LOA
 </div>
 </div>
 
-<div id="outline-container-org0c652fd" class="outline-3">
+<div id="outline-container-orgd29a7db" class="outline-3">
 <h3 id="org982c69d7"><span class="section-number-3">3.16</span> [ws-butler.el] 不要なスペースを自動除去</h3>
 <div class="outline-text-3" id="text-org982c69d7">
 <p>
@@ -1859,7 +1884,7 @@ $<span style="color: #e5c07b;">COMMAND</span> $<span style="color: #e5c07b;">LOA
                ws-butler-global-exempt-modes))))
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"ws-butler-global-mode"</span>)
       (ws-butler-global-mode))))
 </pre>
@@ -1867,7 +1892,7 @@ $<span style="color: #e5c07b;">COMMAND</span> $<span style="color: #e5c07b;">LOA
 </div>
 </div>
 
-<div id="outline-container-orgb19a7a9" class="outline-3">
+<div id="outline-container-org55147f3" class="outline-3">
 <h3 id="orgfc7cc004"><span class="section-number-3">3.17</span> ファイルリンクを辿る時に確認のメッセージを出さない</h3>
 <div class="outline-text-3" id="text-orgfc7cc004">
 <p>
@@ -1881,7 +1906,7 @@ $<span style="color: #e5c07b;">COMMAND</span> $<span style="color: #e5c07b;">LOA
 </div>
 </div>
 
-<div id="outline-container-orgf2214cb" class="outline-3">
+<div id="outline-container-orgf731d4d" class="outline-3">
 <h3 id="org53a63301"><span class="section-number-3">3.18</span> EMPビルド用設定</h3>
 <div class="outline-text-3" id="text-org53a63301">
 <p>
@@ -2015,7 +2040,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </div>
 </div>
 
-<div id="outline-container-org78d1395" class="outline-3">
+<div id="outline-container-org9fcf2dc" class="outline-3">
 <h3 id="orge44eded5"><span class="section-number-3">3.19</span> NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Mac">Mac</span></span></h3>
 <div class="outline-text-3" id="text-orge44eded5">
 <p>
@@ -2067,7 +2092,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </div>
 </div>
 
-<div id="outline-container-orgf6a660c" class="outline-2">
+<div id="outline-container-org577b235" class="outline-2">
 <h2 id="org35f3bbc9"><span class="section-number-2">4</span> カーソル移動</h2>
 <div class="outline-text-2" id="text-org35f3bbc9">
 <p>
@@ -2111,7 +2136,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </table>
 </div>
 
-<div id="outline-container-org9a62897" class="outline-3">
+<div id="outline-container-org124df1b" class="outline-3">
 <h3 id="org2a46a2bd"><span class="section-number-3">4.1</span> バッファ内のカーソル移動</h3>
 <div class="outline-text-3" id="text-org2a46a2bd">
 <p>
@@ -2133,7 +2158,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </div>
 </div>
 
-<div id="outline-container-org5867516" class="outline-3">
+<div id="outline-container-org7b4d108" class="outline-3">
 <h3 id="org3bebf489"><span class="section-number-3">4.2</span> バッファ間のカーソル移動</h3>
 <div class="outline-text-3" id="text-org3bebf489">
 <p>
@@ -2149,7 +2174,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </div>
 </div>
 
-<div id="outline-container-org00f6659" class="outline-3">
+<div id="outline-container-orga0f9224" class="outline-3">
 <h3 id="orgb8c57f30"><span class="section-number-3">4.3</span> スクロールを制御</h3>
 <div class="outline-text-3" id="text-orgb8c57f30">
 <p>
@@ -2196,7 +2221,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
-<div id="outline-container-org2407652" class="outline-3">
+<div id="outline-container-org7669229" class="outline-3">
 <h3 id="org5f40f030"><span class="section-number-3">4.4</span> スクロールで表示を重複させる行数</h3>
 <div class="outline-text-3" id="text-org5f40f030">
 <div class="org-src-container">
@@ -2207,7 +2232,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
-<div id="outline-container-org0360647" class="outline-3">
+<div id="outline-container-org07658ea" class="outline-3">
 <h3 id="org1af5f062"><span class="section-number-3">4.5</span> [SmoothScroll.el] カーソル固定でスクロールする</h3>
 <div class="outline-text-3" id="text-org1af5f062">
 <p>
@@ -2236,7 +2261,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
-<div id="outline-container-org85e14ee" class="outline-3">
+<div id="outline-container-org8977150" class="outline-3">
 <h3 id="orgc62cc9bf"><span class="section-number-3">4.6</span> [smooth-scroll.el] 滑らかなスクロール</h3>
 <div class="outline-text-3" id="text-orgc62cc9bf">
 <p>
@@ -2262,7 +2287,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
-<div id="outline-container-org6fbf4f8" class="outline-3">
+<div id="outline-container-org7b89c07" class="outline-3">
 <h3 id="org42db9464"><span class="section-number-3">4.7</span> [point-undo.el] カーソル位置を簡単にたどる</h3>
 <div class="outline-text-3" id="text-org42db9464">
 <p>
@@ -2280,7 +2305,7 @@ autoload や autoload-if-found で定義すると，使いたい時に履歴が�
 </div>
 </div>
 
-<div id="outline-container-org1d7b907" class="outline-3">
+<div id="outline-container-orgdb4aaa3" class="outline-3">
 <h3 id="org27e3241e"><span class="section-number-3">4.8</span> [cycle-buffer.el] カレントバッファの表示切り替え</h3>
 <div class="outline-text-3" id="text-org27e3241e">
 <p>
@@ -2314,7 +2339,7 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 </div>
 
-<div id="outline-container-org08e9b69" class="outline-3">
+<div id="outline-container-org172136d" class="outline-3">
 <h3 id="orgd5942d14"><span class="section-number-3">4.9</span> [bm.el] カーソル位置をブックマークして追う</h3>
 <div class="outline-text-3" id="text-orgd5942d14">
 <p>
@@ -2385,7 +2410,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-org0058e02" class="outline-3">
+<div id="outline-container-org67b7a14" class="outline-3">
 <h3 id="orgfa2bad61"><span class="section-number-3">4.10</span> [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</h3>
 <div class="outline-text-3" id="text-orgfa2bad61">
 <p>
@@ -2406,7 +2431,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-org5aecb78" class="outline-3">
+<div id="outline-container-org8d252be" class="outline-3">
 <h3 id="orgd906e864"><span class="section-number-3">4.11</span> [back-button] マークをたどる</h3>
 <div class="outline-text-3" id="text-orgd906e864">
 <p>
@@ -2445,7 +2470,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
     (<span style="color: #c678dd;">setq</span> back-button-index-timeout 0)))
 
 (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-  (<span style="color: #c678dd;">unless</span> batch-build
+  (<span style="color: #c678dd;">unless</span> my-batch-build
     (postpone-message <span style="color: #98c379;">"back-button-mode"</span>)
     (back-button-mode 1)))
 </pre>
@@ -2453,7 +2478,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-org5b02837" class="outline-3">
+<div id="outline-container-org1f12bd1" class="outline-3">
 <h3 id="orgadf36a14"><span class="section-number-3">4.12</span> [smart-mark] C-g後に元の場所へカーソルを戻す</h3>
 <div class="outline-text-3" id="text-orgadf36a14">
 <p>
@@ -2471,7 +2496,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
   (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">smart-mark</span> nil t)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"smart-mark-mode"</span>)
       (smart-mark-mode 1))))
 </pre>
@@ -2479,7 +2504,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-org7450945" class="outline-3">
+<div id="outline-container-orgd558798" class="outline-3">
 <h3 id="orgf75f443a"><span class="section-number-3">4.13</span> [syntax-subword.el] M-f で移動する位置をより密にする</h3>
 <div class="outline-text-3" id="text-orgf75f443a">
 <ul class="org-ul">
@@ -2489,7 +2514,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
   (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">syntax-subword</span> nil t)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"global-syntax-subword-mode"</span>)
       (global-syntax-subword-mode 1))))
 </pre>
@@ -2497,7 +2522,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-org5a0f3f8" class="outline-3">
+<div id="outline-container-orgff00235" class="outline-3">
 <h3 id="org8435eae2"><span class="section-number-3">4.14</span> [goto-chg.el] 編集箇所を簡単に辿る</h3>
 <div class="outline-text-3" id="text-org8435eae2">
 <p>
@@ -2526,11 +2551,11 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-org23c3594" class="outline-2">
+<div id="outline-container-orgd301691" class="outline-2">
 <h2 id="org36bb3b1a"><span class="section-number-2">5</span> 編集サポート</h2>
 <div class="outline-text-2" id="text-org36bb3b1a">
 </div>
-<div id="outline-container-org5409ddf" class="outline-3">
+<div id="outline-container-orgd9adb15" class="outline-3">
 <h3 id="orgf6cb5849"><span class="section-number-3">5.1</span> 矩形編集／連番入力</h3>
 <div class="outline-text-3" id="text-orgf6cb5849">
 <p>
@@ -2590,7 +2615,7 @@ Built-in の cua-base.el（CUA-mode）を使う．矩形選択は，領域選択
 </div>
 </div>
 
-<div id="outline-container-org0b70e6e" class="outline-3">
+<div id="outline-container-org895ba78" class="outline-3">
 <h3 id="org4c4fe29c"><span class="section-number-3">5.2</span> Yank時に装飾を取る</h3>
 <div class="outline-text-3" id="text-org4c4fe29c">
 <div class="org-src-container">
@@ -2600,7 +2625,7 @@ Built-in の cua-base.el（CUA-mode）を使う．矩形選択は，領域選択
 </div>
 </div>
 
-<div id="outline-container-orgca65740" class="outline-3">
+<div id="outline-container-org5c04d20" class="outline-3">
 <h3 id="org9dba91d0"><span class="section-number-3">5.3</span> ファイル保存時に時間を記録する</h3>
 <div class="outline-text-3" id="text-org9dba91d0">
 <p>
@@ -2612,7 +2637,7 @@ Built-in の time-stamp.el を使う．<br />
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">#+UPDATE &#29992;</span>
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">#+update &#29992;</span>
 (<span style="color: #c678dd;">when</span> (autoload-if-found
        '(update-stamp my-update-stamp)
        <span style="color: #98c379;">"update-stamp"</span> nil t)
@@ -2645,7 +2670,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org7252054" class="outline-3">
+<div id="outline-container-orgd983afb" class="outline-3">
 <h3 id="orge62264fe"><span class="section-number-3">5.4</span> 選択リージョンを使って検索</h3>
 <div class="outline-text-3" id="text-orge62264fe">
 <p>
@@ -2675,7 +2700,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-orga791a7d" class="outline-3">
+<div id="outline-container-org5d86591" class="outline-3">
 <h3 id="org7cb03523"><span class="section-number-3">5.5</span> ChangeLog モード</h3>
 <div class="outline-text-3" id="text-org7cb03523">
 <div class="org-src-container">
@@ -2699,7 +2724,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org8636e83" class="outline-3">
+<div id="outline-container-org99be4d0" class="outline-3">
 <h3 id="org1bd5d8ee"><span class="section-number-3">5.6</span> テキストモード</h3>
 <div class="outline-text-3" id="text-org1bd5d8ee">
 <p>
@@ -2723,7 +2748,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org007ef32" class="outline-3">
+<div id="outline-container-org04dc977" class="outline-3">
 <h3 id="org92da42b4"><span class="section-number-3">5.7</span> C/C++モード</h3>
 <div class="outline-text-3" id="text-org92da42b4">
 <div class="org-src-container">
@@ -2738,7 +2763,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org0ef1c0d" class="outline-3">
+<div id="outline-container-orgfc06cfb" class="outline-3">
 <h3 id="orga6184922"><span class="section-number-3">5.8</span> C#モード</h3>
 <div class="outline-text-3" id="text-orga6184922">
 <div class="org-src-container">
@@ -2752,7 +2777,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org5cd299e" class="outline-3">
+<div id="outline-container-org0a551cf" class="outline-3">
 <h3 id="org743f2508"><span class="section-number-3">5.9</span> Infoモード</h3>
 <div class="outline-text-3" id="text-org743f2508">
 <p>
@@ -2778,7 +2803,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org654ad02" class="outline-3">
+<div id="outline-container-orgeeccd81" class="outline-3">
 <h3 id="orgd2a57328"><span class="section-number-3">5.10</span> Rモード</h3>
 <div class="outline-text-3" id="text-orgd2a57328">
 <div class="org-src-container">
@@ -2792,7 +2817,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org7293199" class="outline-3">
+<div id="outline-container-org74941ce" class="outline-3">
 <h3 id="org8c99f06c"><span class="section-number-3">5.11</span> nXMLモード</h3>
 <div class="outline-text-3" id="text-org8c99f06c">
 <div class="org-src-container">
@@ -2810,7 +2835,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org6fe95db" class="outline-3">
+<div id="outline-container-orgd573ae1" class="outline-3">
 <h3 id="orgbfa6c13b"><span class="section-number-3">5.12</span> yamlモード</h3>
 <div class="outline-text-3" id="text-orgbfa6c13b">
 <div class="org-src-container">
@@ -2824,7 +2849,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-orgf7e5bd2" class="outline-3">
+<div id="outline-container-orgb6c1ad7" class="outline-3">
 <h3 id="org34a54f82"><span class="section-number-3">5.13</span> jsonモード</h3>
 <div class="outline-text-3" id="text-org34a54f82">
 <div class="org-src-container">
@@ -2838,7 +2863,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org8e02452" class="outline-3">
+<div id="outline-container-org1469764" class="outline-3">
 <h3 id="orgc35f66fb"><span class="section-number-3">5.14</span> javascriptモード</h3>
 <div class="outline-text-3" id="text-orgc35f66fb">
 <div class="org-src-container">
@@ -2872,7 +2897,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org3df144f" class="outline-3">
+<div id="outline-container-orga3c43ce" class="outline-3">
 <h3 id="orga7d86e03"><span class="section-number-3">5.15</span> csvモード</h3>
 <div class="outline-text-3" id="text-orga7d86e03">
 <div class="org-src-container">
@@ -2886,7 +2911,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org0eb6825" class="outline-3">
+<div id="outline-container-orgaa7fe63" class="outline-3">
 <h3 id="orgba009928"><span class="section-number-3">5.16</span> asciiモード</h3>
 <div class="outline-text-3" id="text-orgba009928">
 <p>
@@ -2900,7 +2925,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org3efbba5" class="outline-3">
+<div id="outline-container-org2ac7cf1" class="outline-3">
 <h3 id="orgc5b5891d"><span class="section-number-3">5.17</span> javaモード</h3>
 <div class="outline-text-3" id="text-orgc5b5891d">
 <div class="org-src-container">
@@ -2915,7 +2940,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-orgab19b61" class="outline-3">
+<div id="outline-container-org7318a44" class="outline-3">
 <h3 id="orgf0c39e0f"><span class="section-number-3">5.18</span> esモード</h3>
 <div class="outline-text-3" id="text-orgf0c39e0f">
 <ul class="org-ul">
@@ -2937,7 +2962,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-orgd4c6660" class="outline-3">
+<div id="outline-container-org2eeb727" class="outline-3">
 <h3 id="org2a14728f"><span class="section-number-3">5.19</span> gnuplotモード</h3>
 <div class="outline-text-3" id="text-org2a14728f">
 <div class="org-src-container">
@@ -2951,7 +2976,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org83a3b9c" class="outline-3">
+<div id="outline-container-orgbaaf110" class="outline-3">
 <h3 id="orga6fc6cf7"><span class="section-number-3">5.20</span> markdown-mode</h3>
 <div class="outline-text-3" id="text-orga6fc6cf7">
 <ul class="org-ul">
@@ -2970,7 +2995,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org9ba512d" class="outline-3">
+<div id="outline-container-orgcaef23c" class="outline-3">
 <h3 id="org29328dcd"><span class="section-number-3">5.21</span> cmakeモード</h3>
 <div class="outline-text-3" id="text-org29328dcd">
 <div class="org-src-container">
@@ -2987,7 +3012,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org02a719b" class="outline-3">
+<div id="outline-container-org8ad3c2f" class="outline-3">
 <h3 id="orge727dabc"><span class="section-number-3">5.22</span> スペルチェック</h3>
 <div class="outline-text-3" id="text-orge727dabc">
 <p>
@@ -3135,7 +3160,7 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
 </div>
 </div>
 
-<div id="outline-container-org904d57a" class="outline-3">
+<div id="outline-container-orgf9e981c" class="outline-3">
 <h3 id="orgdd65fc08"><span class="section-number-3">5.23</span> リアルタイムスペルチェック</h3>
 <div class="outline-text-3" id="text-orgdd65fc08">
 <p>
@@ -3211,7 +3236,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-org32b89b0" class="outline-3">
+<div id="outline-container-org100037f" class="outline-3">
 <h3 id="orgab4f9bf0"><span class="section-number-3">5.24</span> [latex-math-preview.el] TeX数式をプレビュー</h3>
 <div class="outline-text-3" id="text-orgab4f9bf0">
 <ul class="org-ul">
@@ -3246,7 +3271,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-org2ccd71c" class="outline-3">
+<div id="outline-container-org2960dee" class="outline-3">
 <h3 id="orge1eeb2a1"><span class="section-number-3">5.25</span> [po-mode.el] 翻訳ファイルの編集</h3>
 <div class="outline-text-3" id="text-orge1eeb2a1">
 <ul class="org-ul">
@@ -3267,7 +3292,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-orgf99e09e" class="outline-3">
+<div id="outline-container-orgd5eae7b" class="outline-3">
 <h3 id="org9317ee6f"><span class="section-number-3">5.26</span> [word-count.el] リージョン内の文字をカウントする</h3>
 <div class="outline-text-3" id="text-org9317ee6f">
 <p>
@@ -3295,7 +3320,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-orgc25aae1" class="outline-3">
+<div id="outline-container-orgd461895" class="outline-3">
 <h3 id="org770fb4ec"><span class="section-number-3">5.27</span> [yatex.el] YaTeXモード</h3>
 <div class="outline-text-3" id="text-org770fb4ec">
 <div class="org-src-container">
@@ -3382,7 +3407,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-orgda73e3d" class="outline-3">
+<div id="outline-container-org1c23844" class="outline-3">
 <h3 id="org9b92b6f8"><span class="section-number-3">5.28</span> [auxtex.el] AUCTEXモード</h3>
 <div class="outline-text-3" id="text-org9b92b6f8">
 <div class="org-src-container">
@@ -3401,7 +3426,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-orgbc32ff0" class="outline-3">
+<div id="outline-container-org046590a" class="outline-3">
 <h3 id="org863cfc2a"><span class="section-number-3">5.29</span> [display-time-world-mode] 世界時計</h3>
 <div class="outline-text-3" id="text-org863cfc2a">
 <p>
@@ -3420,7 +3445,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-orgbfd6701" class="outline-3">
+<div id="outline-container-org3e7f17b" class="outline-3">
 <h3 id="org2e5c6e4f"><span class="section-number-3">5.30</span> [yasnippet.el] Emacs用のテンプレートシステム</h3>
 <div class="outline-text-3" id="text-org2e5c6e4f">
 <ul class="org-ul">
@@ -3484,14 +3509,14 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#26412;&#23478;&#12391;&#12365;&#12385;&#12435;&#12392;&#23550;&#24540;&#12373;&#12428;&#12383;&#12398;&#12391;&#65292;&#19981;&#35201;&#12395;&#12394;&#12387;&#12383;&#65294;</span>
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(define-key yas-minor-mode-map (kbd "&lt;tab&gt;") 'my-yas-expand)</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (yas-global-mode 1))))
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgcbab73a" class="outline-3">
+<div id="outline-container-org3b054f5" class="outline-3">
 <h3 id="org7e84aa55"><span class="section-number-3">5.31</span> [sdic.el] 英辞郎で英単語を調べる</h3>
 <div class="outline-text-3" id="text-org7e84aa55">
 <p>
@@ -3526,7 +3551,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 </div>
 </div>
 
-<div id="outline-container-orgd5d9d60" class="outline-3">
+<div id="outline-container-orgbbf944c" class="outline-3">
 <h3 id="orgbea14b16"><span class="section-number-3">5.32</span> [osx-dictionary.el] MacOSのdictionary.appで辞書をひく</h3>
 <div class="outline-text-3" id="text-orgbea14b16">
 <p>
@@ -3561,7 +3586,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </p>
 </div>
 
-<div id="outline-container-org5337d3a" class="outline-4">
+<div id="outline-container-org7979e85" class="outline-4">
 <h4 id="org52c2a77d"><span class="section-number-4">5.32.1</span> MacOSのdictionary.appでCOBUILD5の辞書をひく（旧）</h4>
 <div class="outline-text-4" id="text-org52c2a77d">
 <p>
@@ -3668,7 +3693,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orga0ea8cf" class="outline-3">
+<div id="outline-container-org92c4e17" class="outline-3">
 <h3 id="orgf18160de"><span class="section-number-3">5.33</span> [lookup.el] 辞書</h3>
 <div class="outline-text-3" id="text-orgf18160de">
 <p>
@@ -3749,7 +3774,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orgb7841d3" class="outline-3">
+<div id="outline-container-orgd8ed031" class="outline-3">
 <h3 id="org903987d3"><span class="section-number-3">5.34</span> [cacoo] Cacoo で描く</h3>
 <div class="outline-text-3" id="text-org903987d3">
 <p>
@@ -3770,7 +3795,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org8e8f446" class="outline-3">
+<div id="outline-container-orgc250a13" class="outline-3">
 <h3 id="orgb3d87116"><span class="section-number-3">5.35</span> [iedit] バッファ内の同じ文字列を一度に編集する</h3>
 <div class="outline-text-3" id="text-orgb3d87116">
 <p>
@@ -3784,7 +3809,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org412884e" class="outline-3">
+<div id="outline-container-orgb582b55" class="outline-3">
 <h3 id="orgfdeec1c5"><span class="section-number-3">5.36</span> [web-mode] HTML編集</h3>
 <div class="outline-text-3" id="text-orgfdeec1c5">
 <p>
@@ -3837,7 +3862,7 @@ HTML編集をするなら <a href="http://web-mode.org/">web-mode</a> がお勧�
 </div>
 </div>
 
-<div id="outline-container-org7acd9ca" class="outline-3">
+<div id="outline-container-org3724158" class="outline-3">
 <h3 id="org98d5c1aa"><span class="section-number-3">5.37</span> [emmet-mode] zencoding の後継</h3>
 <div class="outline-text-3" id="text-org98d5c1aa">
 <div class="org-src-container">
@@ -3860,7 +3885,7 @@ HTML編集をするなら <a href="http://web-mode.org/">web-mode</a> がお勧�
 </div>
 </div>
 
-<div id="outline-container-org5a71c11" class="outline-3">
+<div id="outline-container-org2a614f8" class="outline-3">
 <h3 id="org56cbbb36"><span class="section-number-3">5.38</span> [zencoding-mode] HTML編集の高速化（旧）</h3>
 <div class="outline-text-3" id="text-org56cbbb36">
 <p>
@@ -3888,7 +3913,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org96b8e88" class="outline-3">
+<div id="outline-container-orga4a9c01" class="outline-3">
 <h3 id="orgca044d69"><span class="section-number-3">5.39</span> [describe-number] 16進数などを確認</h3>
 <div class="outline-text-3" id="text-orgca044d69">
 <p>
@@ -3904,7 +3929,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org05a06ce" class="outline-3">
+<div id="outline-container-org729454f" class="outline-3">
 <h3 id="orgc885e502"><span class="section-number-3">5.40</span> [web-beautify.el] ソースコード整形</h3>
 <div class="outline-text-3" id="text-orgc885e502">
 <p>
@@ -3955,7 +3980,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org44e7a3b" class="outline-3">
+<div id="outline-container-org8aff387" class="outline-3">
 <h3 id="orgc3ce60f5"><span class="section-number-3">5.41</span> [smartparens.el] 対応するカッコの挿入をアシスト</h3>
 <div class="outline-text-3" id="text-orgc3ce60f5">
 <ul class="org-ul">
@@ -3978,7 +4003,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
     (sp-pair <span style="color: #98c379;">"`"</span> nil <span style="color: #56b6c2;">:actions</span> <span style="color: #56b6c2;">:rem</span>)
     (sp-pair <span style="color: #98c379;">"'"</span> nil <span style="color: #56b6c2;">:actions</span> <span style="color: #56b6c2;">:rem</span>)
     (sp-pair <span style="color: #98c379;">"["</span> nil <span style="color: #56b6c2;">:actions</span> <span style="color: #56b6c2;">:rem</span>)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"smartparens"</span>)
       (smartparens-global-mode))))
 </pre>
@@ -3986,7 +4011,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org1413a37" class="outline-3">
+<div id="outline-container-orgc5d8e8c" class="outline-3">
 <h3 id="orge18cb840"><span class="section-number-3">5.42</span> <span class="todo TODO">TODO</span> [isolate.el] ブラケット等の入力をアシスト</h3>
 <div class="outline-text-3" id="text-orge18cb840">
 <ul class="org-ul">
@@ -4003,7 +4028,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-orgebbe99d" class="outline-3">
+<div id="outline-container-org7684d00" class="outline-3">
 <h3 id="org69748b72"><span class="section-number-3">5.43</span> [replace-from-region.el] 選択領域を別の文字列に置き換える</h3>
 <div class="outline-text-3" id="text-org69748b72">
 <ul class="org-ul">
@@ -4019,7 +4044,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-orgf94d8f7" class="outline-3">
+<div id="outline-container-orgcf89af9" class="outline-3">
 <h3 id="orgbc8501cf"><span class="section-number-3">5.44</span> [selected.el] リージョン選択時のアクションを制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Doing">Doing</span></span></h3>
 <div class="outline-text-3" id="text-orgbc8501cf">
 <p>
@@ -4080,7 +4105,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
         (<span style="color: #c678dd;">interactive</span>)
         (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd <span style="color: #98c379;">"H"</span>) #'my-describe-selected-keymap))
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"selected"</span>)
       (selected-global-mode 1))))
 </pre>
@@ -4088,7 +4113,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-orgc116cde" class="outline-3">
+<div id="outline-container-org6e11107" class="outline-3">
 <h3 id="org98897862"><span class="section-number-3">5.45</span> [helm-selected.el] selecte.el のアクション候補を絞り込み</h3>
 <div class="outline-text-3" id="text-org98897862">
 <ul class="org-ul">
@@ -4103,7 +4128,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org950f99a" class="outline-3">
+<div id="outline-container-org143b541" class="outline-3">
 <h3 id="orgc6f37d6d"><span class="section-number-3">5.46</span> <span class="todo TODO">TODO</span> [git-complete.el] GIT grep を使う補完エンジン</h3>
 <div class="outline-text-3" id="text-orgc6f37d6d">
 <ul class="org-ul">
@@ -4122,7 +4147,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org5dbf0c1" class="outline-3">
+<div id="outline-container-org02eee6d" class="outline-3">
 <h3 id="orgab8a7bee"><span class="section-number-3">5.47</span> <span class="todo TODO">TODO</span> [tiny.el] 連番入力をサポート</h3>
 <div class="outline-text-3" id="text-orgab8a7bee">
 <ul class="org-ul">
@@ -4137,7 +4162,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-orga04c5eb" class="outline-3">
+<div id="outline-container-org6650989" class="outline-3">
 <h3 id="org12a087af"><span class="section-number-3">5.48</span> <span class="todo TODO">TODO</span> [bratex] LaTeX 数式のブラケット入力をサポート</h3>
 <div class="outline-text-3" id="text-org12a087af">
 <ul class="org-ul">
@@ -4156,11 +4181,11 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org7dd8fdd" class="outline-2">
+<div id="outline-container-org59adc14" class="outline-2">
 <h2 id="org94c7bd73"><span class="section-number-2">6</span> 表示サポート</h2>
 <div class="outline-text-2" id="text-org94c7bd73">
 </div>
-<div id="outline-container-orgcd9773d" class="outline-3">
+<div id="outline-container-org166556a" class="outline-3">
 <h3 id="org83eaaf3a"><span class="section-number-3">6.1</span> モードラインのモード名を短くする</h3>
 <div class="outline-text-3" id="text-org83eaaf3a">
 <p>
@@ -4182,7 +4207,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
   (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">diminish</span> nil t)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"diminish"</span>))
     (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"ggtags"</span> (diminish 'ggtags-mode <span style="color: #98c379;">" G"</span>))
     (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"org"</span> (diminish 'orgstruct-mode <span style="color: #98c379;">" OrgS"</span>))
@@ -4233,7 +4258,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org58b579b" class="outline-3">
+<div id="outline-container-org931fef2" class="outline-3">
 <h3 id="org0e59b85f"><span class="section-number-3">6.2</span> 続・モードラインのモード名を短縮する</h3>
 <div class="outline-text-3" id="text-org0e59b85f">
 <ul class="org-ul">
@@ -4252,7 +4277,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
   (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">delight</span> nil t)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"delight"</span>))
     (delight
      '(<span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Major modes</span>
@@ -4303,7 +4328,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org6db1415" class="outline-3">
+<div id="outline-container-orgc23e7d6" class="outline-3">
 <h3 id="org3368625d"><span class="section-number-3">6.3</span> モードラインのNarrowを短くする</h3>
 <div class="outline-text-3" id="text-org3368625d">
 <p>
@@ -4326,7 +4351,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org4eaf2e8" class="outline-3">
+<div id="outline-container-orgad3b47d" class="outline-3">
 <h3 id="org5fd3a668"><span class="section-number-3">6.4</span> モードラインの節約（VC-mode編）</h3>
 <div class="outline-text-3" id="text-org5fd3a668">
 <p>
@@ -4342,7 +4367,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org358fef2" class="outline-3">
+<div id="outline-container-orga3b2fd5" class="outline-3">
 <h3 id="orgb577af83"><span class="section-number-3">6.5</span> モードラインの色をカスタマイズする</h3>
 <div class="outline-text-3" id="text-orgb577af83">
 <div class="org-src-container">
@@ -4357,7 +4382,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org2414a28" class="outline-4">
+<div id="outline-container-orgd977577" class="outline-4">
 <h4 id="org21b30e75"><span class="section-number-4">6.5.1</span> 色セット例</h4>
 <div class="outline-text-4" id="text-org21b30e75">
 <ul class="org-ul">
@@ -4483,7 +4508,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-orgfc711ef" class="outline-3">
+<div id="outline-container-org423f34e" class="outline-3">
 <h3 id="org19cbc9b3"><span class="section-number-3">6.6</span> 行番号の表示制限を拡張する</h3>
 <div class="outline-text-3" id="text-org19cbc9b3">
 <p>
@@ -4497,7 +4522,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org185db72" class="outline-3">
+<div id="outline-container-org9c5d368" class="outline-3">
 <h3 id="org328bb797"><span class="section-number-3">6.7</span> visible-bell のカスタマイズ</h3>
 <div class="outline-text-3" id="text-org328bb797">
 <p>
@@ -4543,7 +4568,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-org2f5e019" class="outline-3">
+<div id="outline-container-org1e7c06f" class="outline-3">
 <h3 id="org91a9f893"><span class="section-number-3">6.8</span> 常に <b>scratch</b> を表示して起動する</h3>
 <div class="outline-text-3" id="text-org91a9f893">
 <p>
@@ -4606,7 +4631,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-org4832668" class="outline-3">
+<div id="outline-container-org8a134ae" class="outline-3">
 <h3 id="orgc00267d7"><span class="section-number-3">6.9</span> バッテリー情報をモードラインに表示する</h3>
 <div class="outline-text-3" id="text-orgc00267d7">
 <div class="org-src-container">
@@ -4617,7 +4642,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-org42a5676" class="outline-3">
+<div id="outline-container-orgb578eaa" class="outline-3">
 <h3 id="orgdf6d1ea2"><span class="section-number-3">6.10</span> スクロールバーを非表示にする</h3>
 <div class="outline-text-3" id="text-orgdf6d1ea2">
 <p>
@@ -4635,7 +4660,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-orgd0717a1" class="outline-3">
+<div id="outline-container-org87e3338" class="outline-3">
 <h3 id="org7270262d"><span class="section-number-3">6.11</span> [yascroll] フリンジにスクロールバーを出す</h3>
 <div class="outline-text-3" id="text-org7270262d">
 <p>
@@ -4658,7 +4683,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
     (<span style="color: #c678dd;">setq</span> yascroll:disabled-modes '(org-mode))
     (set-face-foreground 'yascroll:thumb-fringe <span style="color: #98c379;">"</span><span style="color: #000000; background-color: #b2cefb;">#b2cefb</span><span style="color: #98c379;">"</span>)
     (set-face-background 'yascroll:thumb-fringe <span style="color: #98c379;">"</span><span style="color: #000000; background-color: #b2cefb;">#b2cefb</span><span style="color: #98c379;">"</span>)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"yascroll"</span>)
       (global-yascroll-bar-mode 1))))
 </pre>
@@ -4666,7 +4691,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-org48186e1" class="outline-3">
+<div id="outline-container-org4973ef4" class="outline-3">
 <h3 id="orgdd0a9c41"><span class="section-number-3">6.12</span> ツールバーを非表示にする</h3>
 <div class="outline-text-3" id="text-orgdd0a9c41">
 <p>
@@ -4682,7 +4707,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-org0cf3a93" class="outline-3">
+<div id="outline-container-org72ab20c" class="outline-3">
 <h3 id="orgd432e8ff"><span class="section-number-3">6.13</span> 起動時のスプラッシュ画面を表示しない</h3>
 <div class="outline-text-3" id="text-orgd432e8ff">
 <div class="org-src-container">
@@ -4693,13 +4718,13 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-org0b04156" class="outline-3">
+<div id="outline-container-orge862205" class="outline-3">
 <h3 id="org8d729190"><span class="section-number-3">6.14</span> カーソル行の行数をモードラインに表示する</h3>
 <div class="outline-text-3" id="text-org8d729190">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Show line number in the mode line.</span>
 (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-  (<span style="color: #c678dd;">unless</span> batch-build
+  (<span style="color: #c678dd;">unless</span> my-batch-build
     (postpone-message <span style="color: #98c379;">"line-number-mode"</span>)
     (line-number-mode 1)))
 </pre>
@@ -4707,7 +4732,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-org1f0e0fd" class="outline-3">
+<div id="outline-container-orge77ff79" class="outline-3">
 <h3 id="orge456e19c"><span class="section-number-3">6.15</span> カーソル行の関数名をモードラインに表示する</h3>
 <div class="outline-text-3" id="text-orge456e19c">
 <ul class="org-ul">
@@ -4722,7 +4747,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-org7fbda3c" class="outline-3">
+<div id="outline-container-org57d7442" class="outline-3">
 <h3 id="org5117762c"><span class="section-number-3">6.16</span> 時刻をモードラインに表示する</h3>
 <div class="outline-text-3" id="text-org5117762c">
 <p>
@@ -4735,7 +4760,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
   (<span style="color: #c678dd;">setq</span> display-time-format <span style="color: #98c379;">"%H%M.%S"</span>) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">%y%m%d.</span>
   (<span style="color: #c678dd;">setq</span> display-time-interval 1)
   (<span style="color: #c678dd;">setq</span> display-time-default-load-average nil)
-  (<span style="color: #c678dd;">unless</span> batch-build
+  (<span style="color: #c678dd;">unless</span> my-batch-build
     (postpone-message <span style="color: #98c379;">"display-time-mode"</span>)
     (display-time-mode 1)))
 </pre>
@@ -4743,7 +4768,7 @@ see <a href="http://yohshiy.blog.fc2.com/blog-entry-171.html">http://yohshiy.blo
 </div>
 </div>
 
-<div id="outline-container-org4b891bb" class="outline-3">
+<div id="outline-container-orga8180ad" class="outline-3">
 <h3 id="orga734802e"><span class="section-number-3">6.17</span> 対応するカッコをハイライトする</h3>
 <div class="outline-text-3" id="text-orga734802e">
 <p>
@@ -4761,7 +4786,7 @@ Built-in の paren.el が利用できる．拡張版として <a href="http://ww
     (set-face-foreground 'paren-face-match <span style="color: #98c379;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #98c379;">"</span>)
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Deep </span><span style="color: #ffffff; background-color: #0000ff;">blue</span><span style="color: #5C6370;">: </span><span style="color: #ffffff; background-color: #6666CC;">#6666CC</span><span style="color: #5C6370;">, </span><span style="color: #000000; background-color: #ffa500;">orange</span><span style="color: #5C6370;">: </span><span style="color: #000000; background-color: #FFCC66;">#FFCC66</span>
     (set-face-background 'paren-face-match <span style="color: #98c379;">"</span><span style="color: #000000; background-color: #66CC66;">#66CC66</span><span style="color: #98c379;">"</span>)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"mic-paren"</span>)
       (paren-activate))))
 </pre>
@@ -4785,7 +4810,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org7a4ad9a" class="outline-3">
+<div id="outline-container-org9553f91" class="outline-3">
 <h3 id="orgd1e62da7"><span class="section-number-3">6.18</span> 全角スペースと行末タブ／半角スペースを強調表示する</h3>
 <div class="outline-text-3" id="text-orgd1e62da7">
 <ul class="org-ul">
@@ -4839,7 +4864,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orgf9aacd7" class="outline-3">
+<div id="outline-container-org401bdf3" class="outline-3">
 <h3 id="orgc93741fa"><span class="section-number-3">6.19</span> バッファの終わりをフリンジで明示</h3>
 <div class="outline-text-3" id="text-orgc93741fa">
 <p>
@@ -4854,7 +4879,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org12b067b" class="outline-3">
+<div id="outline-container-orgabecc44" class="outline-3">
 <h3 id="orga76ec530"><span class="section-number-3">6.20</span> 行番号をバッファに表示する</h3>
 <div class="outline-text-3" id="text-orga76ec530">
 <p>
@@ -4882,7 +4907,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org8b4e5b8" class="outline-3">
+<div id="outline-container-orge1dc8d1" class="outline-3">
 <h3 id="org74bad2de"><span class="section-number-3">6.21</span> [migemo.el] ローマ字入力で日本語を検索する</h3>
 <div class="outline-text-3" id="text-org74bad2de">
 <p>
@@ -4919,7 +4944,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org97df621" class="outline-3">
+<div id="outline-container-org0882651" class="outline-3">
 <h3 id="orgdf971702"><span class="section-number-3">6.22</span> [anything.el] 何でも絞り込みインターフェイス（旧）</h3>
 <div class="outline-text-3" id="text-orgdf971702">
 <ul class="org-ul">
@@ -4998,7 +5023,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org71d1d98" class="outline-3">
+<div id="outline-container-org927c181" class="outline-3">
 <h3 id="org56d8bf9d"><span class="section-number-3">6.23</span> [helm.el] 続・何でも絞り込みインターフェイス</h3>
 <div class="outline-text-3" id="text-org56d8bf9d">
 <p>
@@ -5122,7 +5147,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-orge3b8ee9" class="outline-3">
+<div id="outline-container-orgcd6d565" class="outline-3">
 <h3 id="org5cc37356"><span class="section-number-3">6.24</span> [stripe-buffer.el] テーブルの色をストライプにする</h3>
 <div class="outline-text-3" id="text-org5cc37356">
 <p>
@@ -5140,7 +5165,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-orgac4fed9" class="outline-3">
+<div id="outline-container-orgc2461b2" class="outline-3">
 <h3 id="org5eaeb687"><span class="section-number-3">6.25</span> [rainbow-delimiters] 対応するカッコに色を付ける</h3>
 <div class="outline-text-3" id="text-org5eaeb687">
 <p>
@@ -5171,7 +5196,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org39e961d" class="outline-3">
+<div id="outline-container-org0e0ba80" class="outline-3">
 <h3 id="org6332fe92"><span class="section-number-3">6.26</span> [git-gutter-fringe] 編集差分をフレーム端で視覚化</h3>
 <div class="outline-text-3" id="text-org6332fe92">
 <p>
@@ -5230,7 +5255,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-orgfb2debe" class="outline-3">
+<div id="outline-container-orgc2c4e99" class="outline-3">
 <h3 id="org0ed58559"><span class="section-number-3">6.27</span> [zlc.el] find-file バッファを zsh ライクにする</h3>
 <div class="outline-text-3" id="text-org0ed58559">
 <p>
@@ -5257,7 +5282,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-orgc0507e2" class="outline-3">
+<div id="outline-container-org5487057" class="outline-3">
 <h3 id="orgd6308db6"><span class="section-number-3">6.28</span> [japanese-holidays] カレンダーをカラフルにする</h3>
 <div class="outline-text-3" id="text-orgd6308db6">
 <p>
@@ -5283,7 +5308,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org9bf4520" class="outline-3">
+<div id="outline-container-org0c883c8" class="outline-3">
 <h3 id="org12f72886"><span class="section-number-3">6.29</span> [calendar.el] カレンダーで週番号を表示する</h3>
 <div class="outline-text-3" id="text-org12f72886">
 <p>
@@ -5323,7 +5348,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-orgcdac173" class="outline-3">
+<div id="outline-container-org520bd55" class="outline-3">
 <h3 id="org62c6f085"><span class="section-number-3">6.30</span> [guide-key] キーバインドの選択肢をポップアップする</h3>
 <div class="outline-text-3" id="text-org62c6f085">
 <p>
@@ -5351,7 +5376,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
     (guide-key-mode 1))
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"guide-key-mode"</span>)
       (guide-key-mode 1))))
 </pre>
@@ -5359,7 +5384,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org5d93665" class="outline-3">
+<div id="outline-container-org5a163cb" class="outline-3">
 <h3 id="orgc45b24d4"><span class="section-number-3">6.31</span> [which-key] キーバインドの選択肢をポップアップする</h3>
 <div class="outline-text-3" id="text-orgc45b24d4">
 <p>
@@ -5376,7 +5401,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
        <span style="color: #98c379;">"which-key"</span> nil t)
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"which-key"</span>)
       (which-key-mode 1)))
 
@@ -5388,7 +5413,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-orgbd484de" class="outline-3">
+<div id="outline-container-org90b58b4" class="outline-3">
 <h3 id="org6e56a94f"><span class="section-number-3">6.32</span> [stock-ticker] 株価をモードラインに表示</h3>
 <div class="outline-text-3" id="text-org6e56a94f">
 <p>
@@ -5444,7 +5469,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org7eda3bc" class="outline-3">
+<div id="outline-container-org520d82f" class="outline-3">
 <h3 id="org205dbe20"><span class="section-number-3">6.33</span> [mode-icons] 使用中のモード表示をアイコンで代替</h3>
 <div class="outline-text-3" id="text-org205dbe20">
 <p>
@@ -5462,7 +5487,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org8421ed5" class="outline-3">
+<div id="outline-container-org0b466f2" class="outline-3">
 <h3 id="org467accb9"><span class="section-number-3">6.34</span> [highlight-symbol] 同じ名前のシンボルをハイライトする</h3>
 <div class="outline-text-3" id="text-org467accb9">
 <p>
@@ -5485,7 +5510,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-orge2bdbe0" class="outline-3">
+<div id="outline-container-org3035a2b" class="outline-3">
 <h3 id="orgd92b50db"><span class="section-number-3">6.35</span> [all-the-icons-dired] フォントを使ったアイコンを表示</h3>
 <div class="outline-text-3" id="text-orgd92b50db">
 <p>
@@ -5503,7 +5528,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org88973f0" class="outline-3">
+<div id="outline-container-org21cd895" class="outline-3">
 <h3 id="org402f1293"><span class="section-number-3">6.36</span> [eldoc.el] コンテクストに応じてヘルプを表示</h3>
 <div class="outline-text-3" id="text-org402f1293">
 <p>
@@ -5526,7 +5551,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org22e0d8f" class="outline-3">
+<div id="outline-container-org0310f6a" class="outline-3">
 <h3 id="org7cab354d"><span class="section-number-3">6.37</span> [keycast.el] 入力しているキーとコマンドをモードラインに表示</h3>
 <div class="outline-text-3" id="text-org7cab354d">
 <ul class="org-ul">
@@ -5540,7 +5565,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 </div>
-<div id="outline-container-org38059c3" class="outline-3">
+<div id="outline-container-org5da5f75" class="outline-3">
 <h3 id="org8ba0784e"><span class="section-number-3">6.38</span> <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</h3>
 <div class="outline-text-3" id="text-org8ba0784e">
 <div class="org-src-container">
@@ -5549,7 +5574,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
        <span style="color: #98c379;">"dimmer"</span> nil t)
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"dimmer-mode"</span>)
       (custom-set-variables
        '(dimmer-exclusion-regexp
@@ -5572,11 +5597,11 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org4827ed9" class="outline-2">
+<div id="outline-container-org33589a6" class="outline-2">
 <h2 id="org9ff300b4"><span class="section-number-2">7</span> メディアサポート</h2>
 <div class="outline-text-2" id="text-org9ff300b4">
 </div>
-<div id="outline-container-org9b11255" class="outline-3">
+<div id="outline-container-orge28d230" class="outline-3">
 <h3 id="org474263ad"><span class="section-number-3">7.1</span> [bongo.el] Emacsのバッファで音楽ライブラリを管理する</h3>
 <div class="outline-text-3" id="text-org474263ad">
 <p>
@@ -5633,7 +5658,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 </div>
 </div>
 
-<div id="outline-container-org01d2cbf" class="outline-3">
+<div id="outline-container-org822db07" class="outline-3">
 <h3 id="orgcf4022fd"><span class="section-number-3">7.2</span> [emms.el] メディアプレーヤー</h3>
 <div class="outline-text-3" id="text-orgcf4022fd">
 <p>
@@ -5724,7 +5749,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 </div>
 </div>
 
-<div id="outline-container-orgc5b4d65" class="outline-3">
+<div id="outline-container-orgd3e0a1f" class="outline-3">
 <h3 id="orgca126930"><span class="section-number-3">7.3</span> [GoogleMaps.el] GoogleMaps を Emacs 内で使う</h3>
 <div class="outline-text-3" id="text-orgca126930">
 <p>
@@ -5755,7 +5780,7 @@ Org-mode を使っている場合には， <code>C-c M-L</code> で表示され�
 </div>
 </div>
 
-<div id="outline-container-orgb6b4c47" class="outline-3">
+<div id="outline-container-orgcad1055" class="outline-3">
 <h3 id="orgb77ecd7a"><span class="section-number-3">7.4</span> [org-google-weather.el] org-agenda に天気を表示する</h3>
 <div class="outline-text-3" id="text-orgb77ecd7a">
 <p>
@@ -5774,7 +5799,7 @@ Org-mode を使っている場合には， <code>C-c M-L</code> で表示され�
 </div>
 </div>
 </div>
-<div id="outline-container-orgc951700" class="outline-3">
+<div id="outline-container-orgebf938a" class="outline-3">
 <h3 id="org41faa552"><span class="section-number-3">7.5</span> [japanlaw.el] Emacs 電子六法</h3>
 <div class="outline-text-3" id="text-org41faa552">
 <p>
@@ -5798,7 +5823,7 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </div>
 </div>
 
-<div id="outline-container-orga40422a" class="outline-3">
+<div id="outline-container-org0e33800" class="outline-3">
 <h3 id="org8e8f85ec"><span class="section-number-3">7.6</span> [sunshine.el] 天気を知る</h3>
 <div class="outline-text-3" id="text-org8e8f85ec">
 <ul class="org-ul">
@@ -5821,11 +5846,11 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </div>
 </div>
 </div>
-<div id="outline-container-org4f29580" class="outline-2">
+<div id="outline-container-orga7dd962" class="outline-2">
 <h2 id="orgd5aed515"><span class="section-number-2">8</span> 履歴／ファイル管理</h2>
 <div class="outline-text-2" id="text-orgd5aed515">
 </div>
-<div id="outline-container-org5be9108" class="outline-3">
+<div id="outline-container-org26e6487" class="outline-3">
 <h3 id="orge2f78ad3"><span class="section-number-3">8.1</span> [dired] ファイラのサポートツール</h3>
 <div class="outline-text-3" id="text-orge2f78ad3">
 <p>
@@ -5864,7 +5889,7 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </div>
 </div>
 
-<div id="outline-container-org64d9d11" class="outline-3">
+<div id="outline-container-org276151a" class="outline-3">
 <h3 id="orgdb3dab1b"><span class="section-number-3">8.2</span> <span class="todo TODO">TODO</span> [dired-x] dired 拡張設定</h3>
 <div class="outline-text-3" id="text-orgdb3dab1b">
 <div class="org-src-container">
@@ -5885,7 +5910,7 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </div>
 </div>
 
-<div id="outline-container-orgccfc232" class="outline-3">
+<div id="outline-container-org3a90b3c" class="outline-3">
 <h3 id="org7c53511f"><span class="section-number-3">8.3</span> <span class="todo TODO">TODO</span> [dired-recent] 訪問したディレクトリの履歴を取る</h3>
 <div class="outline-text-3" id="text-org7c53511f">
 <div class="org-src-container">
@@ -5903,7 +5928,7 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </div>
 </div>
 
-<div id="outline-container-org5ca4a90" class="outline-3">
+<div id="outline-container-org799f578" class="outline-3">
 <h3 id="org9736b2f0"><span class="section-number-3">8.4</span> Undoバッファを無限に取る</h3>
 <div class="outline-text-3" id="text-org9736b2f0">
 <div class="org-src-container">
@@ -5913,7 +5938,7 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </div>
 </div>
 
-<div id="outline-container-org6b0a35a" class="outline-3">
+<div id="outline-container-org3a9dfa4" class="outline-3">
 <h3 id="org82bd942f"><span class="section-number-3">8.5</span> [undo-tree] 編集履歴をわかりやすくたどる</h3>
 <div class="outline-text-3" id="text-org82bd942f">
 <p>
@@ -5966,7 +5991,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 </div>
 
-<div id="outline-container-orged16e20" class="outline-3">
+<div id="outline-container-org97419c1" class="outline-3">
 <h3 id="org8b2fe680"><span class="section-number-3">8.6</span> バッファ保存時にバックアップファイルを生成する</h3>
 <div class="outline-text-3" id="text-org8b2fe680">
 <p>
@@ -5982,7 +6007,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 </div>
 
-<div id="outline-container-org6d014f1" class="outline-3">
+<div id="outline-container-org8a39e18" class="outline-3">
 <h3 id="org300e8f70"><span class="section-number-3">8.7</span> バッファ保存時にバックアップを生成させない</h3>
 <div class="outline-text-3" id="text-org300e8f70">
 <div class="org-src-container">
@@ -5997,7 +6022,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 </div>
 
-<div id="outline-container-org6178d26" class="outline-3">
+<div id="outline-container-orgf730a91" class="outline-3">
 <h3 id="orgdba35c9f"><span class="section-number-3">8.8</span> ミニバッファの履歴を保存しリストアする</h3>
 <div class="outline-text-3" id="text-orgdba35c9f">
 <div class="org-src-container">
@@ -6010,7 +6035,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 </div>
 
-<div id="outline-container-orgde632c7" class="outline-3">
+<div id="outline-container-org6772fbf" class="outline-3">
 <h3 id="org0f46c991"><span class="section-number-3">8.9</span> 履歴サイズを大きくする</h3>
 <div class="outline-text-3" id="text-org0f46c991">
 <p>
@@ -6024,7 +6049,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 </div>
 
-<div id="outline-container-org2573bef" class="outline-3">
+<div id="outline-container-orgdc83b26" class="outline-3">
 <h3 id="orgead91174"><span class="section-number-3">8.10</span> Emacs終了時に開いていたバッファを起動時に復元する</h3>
 <div class="outline-text-3" id="text-orgead91174">
 <p>
@@ -6039,7 +6064,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
   (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">desktop</span> nil t)
     (<span style="color: #c678dd;">setq</span> desktop-files-not-to-save <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^/tmp</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #98c379;">^/var</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #98c379;">^/ssh:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span>)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"desktop"</span>)
       (desktop-save-mode 1))))
 </pre>
@@ -6047,7 +6072,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 </div>
 
-<div id="outline-container-org76ae3d3" class="outline-3">
+<div id="outline-container-org728a603" class="outline-3">
 <h3 id="orgf2cd8961"><span class="section-number-3">8.11</span> 最近開いたファイルリストを保持</h3>
 <div class="outline-text-3" id="text-orgf2cd8961">
 <p>
@@ -6075,7 +6100,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
        <span style="color: #98c379;">"recentf"</span> nil t)
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"recentf-mode"</span>)
       (recentf-mode 1)))
 
@@ -6110,7 +6135,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-orgc5e3190" class="outline-3">
+<div id="outline-container-orgd612f43" class="outline-3">
 <h3 id="org63e50e2c"><span class="section-number-3">8.12</span> 深夜にバッファを自動整理する</h3>
 <div class="outline-text-3" id="text-org63e50e2c">
 <ul class="org-ul">
@@ -6129,7 +6154,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-orga5be061" class="outline-3">
+<div id="outline-container-orgdc02615" class="outline-3">
 <h3 id="orgb8c01946"><span class="section-number-3">8.13</span> [auto-save-buffers.el] 一定間隔でバッファを保存する</h3>
 <div class="outline-text-3" id="text-orgb8c01946">
 <ul class="org-ul">
@@ -6147,7 +6172,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
   (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">auto-save-buffers</span> nil t)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"auto-save-buffers"</span>))
     (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-auto-save-buffers</span> ()
       (<span style="color: #c678dd;">cond</span> ((equal major-mode 'undo-tree-visualizer-mode) nil)
@@ -6162,7 +6187,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-orgfdbbeb0" class="outline-3">
+<div id="outline-container-org226ff07" class="outline-3">
 <h3 id="orgc470d5a3"><span class="section-number-3">8.14</span> [backup-dir.el] バックアップファイルを一箇所に集める</h3>
 <div class="outline-text-3" id="text-orgc470d5a3">
 <p>
@@ -6197,7 +6222,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-org79018a7" class="outline-3">
+<div id="outline-container-org1dc6682" class="outline-3">
 <h3 id="org9b0e7066"><span class="section-number-3">8.15</span> [backup-each-save] クラッシュに備える</h3>
 <div class="outline-text-3" id="text-org9b0e7066">
 <p>
@@ -6226,7 +6251,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
   <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#12394;&#12380;&#12363; (backup-each-save) &#12398;&#30452;&#25509;&#21628;&#12403;&#20986;&#12375;&#12384;&#12392;&#12384;&#12417;</span>
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
     (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">backup-each-save</span> nil t)
-      (<span style="color: #c678dd;">unless</span> batch-build
+      (<span style="color: #c678dd;">unless</span> my-batch-build
         (postpone-message <span style="color: #98c379;">"backup-each-save"</span>)))
 
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">%y-%m-%d_%M:%S &#12391;&#32066;&#12431;&#12427;&#12501;&#12449;&#12452;&#12523;&#12434;&#26412;&#26469;&#12398;&#12513;&#12472;&#12515;&#12540;&#12514;&#12540;&#12489;&#12391;&#38283;&#12367;</span>
@@ -6244,7 +6269,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-org2a3b2b5" class="outline-3">
+<div id="outline-container-org1f7917a" class="outline-3">
 <h3 id="org89e64435"><span class="section-number-3">8.16</span> 特定のファイルを Dropbox 以下にバックアップする</h3>
 <div class="outline-text-3" id="text-org89e64435">
 <p>
@@ -6272,7 +6297,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-org6d6ba7e" class="outline-3">
+<div id="outline-container-org7625b67" class="outline-3">
 <h3 id="orgab837e6a"><span class="section-number-3">8.17</span> [session.el] 様々な履歴を保存し復元に利用する</h3>
 <div class="outline-text-3" id="text-orgab837e6a">
 <p>
@@ -6303,7 +6328,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
        '(session-initialize)
        <span style="color: #98c379;">"session"</span> nil t)
 
-  (<span style="color: #c678dd;">unless</span> batch-build
+  (<span style="color: #c678dd;">unless</span> my-batch-build
     (add-hook 'after-init-hook #'session-initialize))
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"session"</span>
@@ -6366,7 +6391,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-orgdf6bda2" class="outline-3">
+<div id="outline-container-orgef7bdaf" class="outline-3">
 <h3 id="orgc47c1e75"><span class="section-number-3">8.18</span> [wakatime-mode.el] WakaTime を利用して作業記録する</h3>
 <div class="outline-text-3" id="text-orgc47c1e75">
 <ol class="org-ol">
@@ -6391,7 +6416,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org645f0e5" class="outline-3">
+<div id="outline-container-org1b04f8f" class="outline-3">
 <h3 id="org92404bbd"><span class="section-number-3">8.19</span> [neotree.el] ディレクトリ情報をツリー表示</h3>
 <div class="outline-text-3" id="text-org92404bbd">
 <div class="org-src-container">
@@ -6444,7 +6469,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org64671a0" class="outline-3">
+<div id="outline-container-org3a809f3" class="outline-3">
 <h3 id="orga3cbefa8"><span class="section-number-3">8.20</span> [osx-trash] system-move-file-to-trash を有効にする</h3>
 <div class="outline-text-3" id="text-orga3cbefa8">
 <p>
@@ -6462,7 +6487,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-orgf1092ab" class="outline-3">
+<div id="outline-container-org10df787" class="outline-3">
 <h3 id="orgf2d47943"><span class="section-number-3">8.21</span> [helpful.el] リッチなヘルプページ</h3>
 <div class="outline-text-3" id="text-orgf2d47943">
 <p>
@@ -6484,7 +6509,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-orgba1419c" class="outline-3">
+<div id="outline-container-orga271043" class="outline-3">
 <h3 id="org0d952d68"><span class="section-number-3">8.22</span> [keyfreq.el] コマンドログ</h3>
 <div class="outline-text-3" id="text-org0d952d68">
 <p>
@@ -6513,7 +6538,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
     (keyfreq-autosave-mode 1))
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"keyfreq-mode"</span>)
       (keyfreq-mode 1))))
 </pre>
@@ -6522,11 +6547,11 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org749bcd7" class="outline-2">
+<div id="outline-container-orga4c38f7" class="outline-2">
 <h2 id="orgf1b8fa63"><span class="section-number-2">9</span> 開発サポート</h2>
 <div class="outline-text-2" id="text-orgf1b8fa63">
 </div>
-<div id="outline-container-org0d9bd82" class="outline-3">
+<div id="outline-container-org9fa1ad2" class="outline-3">
 <h3 id="org9f988c12"><span class="section-number-3">9.1</span> 便利キーバインド</h3>
 <div class="outline-text-3" id="text-org9f988c12">
 <div class="org-src-container">
@@ -6538,7 +6563,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-orgac1669d" class="outline-3">
+<div id="outline-container-org31c60fd" class="outline-3">
 <h3 id="orgac7d1689"><span class="section-number-3">9.2</span> [gist.el] Gist インターフェイス</h3>
 <div class="outline-text-3" id="text-orgac7d1689">
 <div class="org-src-container">
@@ -6548,7 +6573,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org671bfbd" class="outline-3">
+<div id="outline-container-org6d9cc6d" class="outline-3">
 <h3 id="org7baba8dd"><span class="section-number-3">9.3</span> [doxymacs.el] Doxygen のコメントを簡単に入力する</h3>
 <div class="outline-text-3" id="text-org7baba8dd">
 <ul class="org-ul">
@@ -6574,7 +6599,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org8522b4a" class="outline-3">
+<div id="outline-container-orgb153621" class="outline-3">
 <h3 id="org0e27778c"><span class="section-number-3">9.4</span> [matlab.el] Matlab用の設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Mac">Mac</span></span></h3>
 <div class="outline-text-3" id="text-org0e27778c">
 <div class="org-src-container">
@@ -6589,7 +6614,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org71294ea" class="outline-3">
+<div id="outline-container-org4e1346e" class="outline-3">
 <h3 id="org966da7c1"><span class="section-number-3">9.5</span> [flycheck.el] 構文エラー表示</h3>
 <div class="outline-text-3" id="text-org966da7c1">
 <ul class="org-ul">
@@ -6626,7 +6651,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org409b41e" class="outline-3">
+<div id="outline-container-orgc51a624" class="outline-3">
 <h3 id="org09687b9c"><span class="section-number-3">9.6</span> [auto-complete.el] 自動補完機能</h3>
 <div class="outline-text-3" id="text-org09687b9c">
 <p>
@@ -6728,7 +6753,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
 </div>
 </div>
 
-<div id="outline-container-org6d315c8" class="outline-3">
+<div id="outline-container-orgb6fb965" class="outline-3">
 <h3 id="org291c6055"><span class="section-number-3">9.7</span> [auto-complete-clang.el] オムニ補完</h3>
 <div class="outline-text-3" id="text-org291c6055">
 <p>
@@ -6789,7 +6814,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-orgeabece4" class="outline-4">
+<div id="outline-container-org3ca1da5" class="outline-4">
 <h4 id="org3d08c27d"><span class="section-number-4">9.7.1</span> References</h4>
 <div class="outline-text-4" id="text-org3d08c27d">
 <ul class="org-ul">
@@ -6803,7 +6828,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-org138b4a9" class="outline-3">
+<div id="outline-container-orgcba288f" class="outline-3">
 <h3 id="orgcde881ad"><span class="section-number-3">9.8</span> [hideshowvis.el] 関数の表示／非表示</h3>
 <div class="outline-text-3" id="text-orgcde881ad">
 <ul class="org-ul">
@@ -6833,7 +6858,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-org26361de" class="outline-3">
+<div id="outline-container-org577372d" class="outline-3">
 <h3 id="org2bf4fb77"><span class="section-number-3">9.9</span> [origami.el] 関数の折りたたみ</h3>
 <div class="outline-text-3" id="text-org2bf4fb77">
 <ul class="org-ul">
@@ -6861,7 +6886,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-org603c283" class="outline-3">
+<div id="outline-container-orgab4dc1f" class="outline-3">
 <h3 id="orgabd9abb3"><span class="section-number-3">9.10</span> [quickrun.el] お手軽ビルド</h3>
 <div class="outline-text-3" id="text-orgabd9abb3">
 <p>
@@ -6886,7 +6911,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-orge806a31" class="outline-3">
+<div id="outline-container-orgc222290" class="outline-3">
 <h3 id="org034bbf9f"><span class="section-number-3">9.11</span> [ggtags.el] タグジャンプ</h3>
 <div class="outline-text-3" id="text-org034bbf9f">
 <ul class="org-ul">
@@ -6922,7 +6947,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-orge32e258" class="outline-3">
+<div id="outline-container-org8ec898b" class="outline-3">
 <h3 id="org216e9539"><span class="section-number-3">9.12</span> [0xc] N進数変換</h3>
 <div class="outline-text-3" id="text-org216e9539">
 <ul class="org-ul">
@@ -6949,7 +6974,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-orge81b035" class="outline-3">
+<div id="outline-container-org7f8430c" class="outline-3">
 <h3 id="orgaa25b74c"><span class="section-number-3">9.13</span> <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</h3>
 <div class="outline-text-3" id="text-orgaa25b74c">
 <ul class="org-ul">
@@ -6966,7 +6991,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
   (<span style="color: #c678dd;">if</span> (executable-find <span style="color: #98c379;">"editorconfig"</span>)
       (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">editorconfig</span> nil t)
-        (<span style="color: #c678dd;">unless</span> batch-build
+        (<span style="color: #c678dd;">unless</span> my-batch-build
           (postpone-message <span style="color: #98c379;">"editorconfig"</span>)
           <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(add-to-list 'editorconfig-exclude-modes 'org-mode)</span>
           <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(when (require 'editorconfig-charset-extras nil t)</span>
@@ -6996,7 +7021,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-orgac79f6a" class="outline-3">
+<div id="outline-container-org06025a2" class="outline-3">
 <h3 id="org9ffc2142"><span class="section-number-3">9.14</span> [uuid.el] UUID の生成</h3>
 <div class="outline-text-3" id="text-org9ffc2142">
 <ul class="org-ul">
@@ -7021,7 +7046,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-orga7c43c7" class="outline-3">
+<div id="outline-container-org05f4fe5" class="outline-3">
 <h3 id="orge830f6b0"><span class="section-number-3">9.15</span> [hexl.el] バイナリファイルを開く</h3>
 <div class="outline-text-3" id="text-orge830f6b0">
 <p>
@@ -7041,7 +7066,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-org254ff8c" class="outline-3">
+<div id="outline-container-orgc5aeced" class="outline-3">
 <h3 id="orga1d9863f"><span class="section-number-3">9.16</span> [package-lint.el] MEPLA登録用Lint</h3>
 <div class="outline-text-3" id="text-orga1d9863f">
 <p>
@@ -7059,7 +7084,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orga41c650" class="outline-3">
+<div id="outline-container-orgc412779" class="outline-3">
 <h3 id="orgae4ecac7"><span class="section-number-3">9.17</span> <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</h3>
 <div class="outline-text-3" id="text-orgae4ecac7">
 <p>
@@ -7077,7 +7102,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org38fe8ed" class="outline-3">
+<div id="outline-container-org0c129d1" class="outline-3">
 <h3 id="org7d18b489"><span class="section-number-3">9.18</span> <span class="todo TODO">TODO</span> [projectile.el] ディレクトリ単位でファイル群をプロジェクト扱いする</h3>
 <div class="outline-text-3" id="text-org7d18b489">
 <ul class="org-ul">
@@ -7090,7 +7115,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
        <span style="color: #98c379;">"projectile"</span> nil t)
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"projectile-mode"</span>)
       (<span style="color: #c678dd;">setq</span> projectile-keymap-prefix (kbd <span style="color: #98c379;">"C-c p"</span>))
       (projectile-mode 1)))
@@ -7136,7 +7161,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org58cabad" class="outline-3">
+<div id="outline-container-org62d5c40" class="outline-3">
 <h3 id="org7d969237"><span class="section-number-3">9.19</span> <span class="todo TODO">TODO</span> [magit.el] Gitクライアント</h3>
 <div class="outline-text-3" id="text-org7d969237">
 <div class="org-src-container">
@@ -7151,7 +7176,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org949e4be" class="outline-3">
+<div id="outline-container-orgcfaa5d4" class="outline-3">
 <h3 id="orgbf790f4d"><span class="section-number-3">9.20</span> <span class="todo TODO">TODO</span> [format-all.el] コード整形</h3>
 <div class="outline-text-3" id="text-orgbf790f4d">
 <ul class="org-ul">
@@ -7171,11 +7196,11 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orge754270" class="outline-2">
+<div id="outline-container-org0301517" class="outline-2">
 <h2 id="org47616d05"><span class="section-number-2">10</span> Org Mode</h2>
 <div class="outline-text-2" id="text-org47616d05">
 </div>
-<div id="outline-container-org74800d1" class="outline-3">
+<div id="outline-container-org79ffcb7" class="outline-3">
 <h3 id="orgf66bb6fe"><span class="section-number-3">10.1</span> 基本設定</h3>
 <div class="outline-text-3" id="text-orgf66bb6fe">
 <div class="org-src-container">
@@ -7241,7 +7266,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#12450;&#12531;&#12480;&#12540;&#12473;&#12467;&#12450;&#12434;&#12456;&#12463;&#12473;&#12509;&#12540;&#12488;&#12375;&#12394;&#12356;&#65288;_{}&#12391;&#26126;&#31034;&#30340;&#12395;&#34920;&#29694;&#12391;&#12365;&#12427;&#65289;</span>
     (<span style="color: #c678dd;">setq</span> org-export-with-sub-superscripts nil)
 
-    <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">#+OPTIONS: \n:t &#12392;&#21516;&#12376;</span>
+    <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">#+options: \n:t &#12392;&#21516;&#12376;</span>
     (<span style="color: #c678dd;">setq</span> org-export-preserve-breaks t)
 
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#12479;&#12452;&#12510;&#12540;&#12398;&#38899;</span>
@@ -7260,7 +7285,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
     (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">org-eldoc</span> nil t)
 
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">emms &#12398;&#12522;&#12531;&#12463;&#12395;&#23550;&#24540;&#12373;&#12379;&#12427;</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">org-emms</span> nil t))
 
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#38750;&#34920;&#31034;&#29366;&#24907;&#12398;&#38936;&#22495;&#12408;&#12398;&#26360;&#12365;&#36796;&#12415;&#12434;&#38450;&#12368;</span>
@@ -7319,7 +7344,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org8b45810" class="outline-3">
+<div id="outline-container-org1f3fce9" class="outline-3">
 <h3 id="orgebb1fbe4"><span class="section-number-3">10.2</span> contribution を使う</h3>
 <div class="outline-text-3" id="text-orgebb1fbe4">
 <div class="org-src-container">
@@ -7329,7 +7354,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orgb85ed89" class="outline-3">
+<div id="outline-container-org3b6d8b6" class="outline-3">
 <h3 id="org4da0cefd"><span class="section-number-3">10.3</span> iCal との連携</h3>
 <div class="outline-text-3" id="text-org4da0cefd">
 <div class="org-src-container">
@@ -7391,7 +7416,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org674d8da" class="outline-3">
+<div id="outline-container-org2bedd46" class="outline-3">
 <h3 id="org739cd53d"><span class="section-number-3">10.4</span> スピードコマンド</h3>
 <div class="outline-text-3" id="text-org739cd53d">
 <div class="org-src-container">
@@ -7415,7 +7440,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org956a343" class="outline-3">
+<div id="outline-container-org97d3372" class="outline-3">
 <h3 id="org480c9b8b"><span class="section-number-3">10.5</span> face 関連</h3>
 <div class="outline-text-3" id="text-org480c9b8b">
 <div class="org-src-container">
@@ -7504,7 +7529,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org477a7ac" class="outline-3">
+<div id="outline-container-orge5f4c1b" class="outline-3">
 <h3 id="orgdec24da2"><span class="section-number-3">10.6</span> TODOキーワードのカスタマイズ</h3>
 <div class="outline-text-3" id="text-orgdec24da2">
 <p>
@@ -7538,7 +7563,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orgdaa7390" class="outline-3">
+<div id="outline-container-org8badac4" class="outline-3">
 <h3 id="org55076fa0"><span class="section-number-3">10.7</span> ImageMagick を使って様々な画像をインライン表示する</h3>
 <div class="outline-text-3" id="text-org55076fa0">
 <p>
@@ -7560,7 +7585,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">#+ATTR_HTML: <span style="color: #56b6c2;">:width</span> 128
+<pre class="src src-emacs-lisp">#+attr_html: <span style="color: #56b6c2;">:width</span> 128
 [[~/Desktop/lena_std.jp2]]
 
 [[~/Desktop/lena_std.jp2]]
@@ -7574,7 +7599,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orgec53862" class="outline-3">
+<div id="outline-container-org693603e" class="outline-3">
 <h3 id="orgc3302e41"><span class="section-number-3">10.8</span> [org-agenda] タスク／予定管理</h3>
 <div class="outline-text-3" id="text-orgc3302e41">
 <div class="org-src-container">
@@ -7709,7 +7734,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org5268d76" class="outline-3">
+<div id="outline-container-orgf5895e2" class="outline-3">
 <h3 id="org20c40e77"><span class="section-number-3">10.9</span> <span class="todo TODO">TODO</span> [orgbox.el] スケジュール追加のわかりやすい入力</h3>
 <div class="outline-text-3" id="text-org20c40e77">
 <p>
@@ -7724,7 +7749,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orgd1d3b9f" class="outline-3">
+<div id="outline-container-org3a14626" class="outline-3">
 <h3 id="org4ca4749d"><span class="section-number-3">10.10</span> <span class="todo TODO">TODO</span> [org-review.el] レビューフローのサポート</h3>
 <div class="outline-text-3" id="text-org4ca4749d">
 <ul class="org-ul">
@@ -7748,7 +7773,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org34c6be0" class="outline-3">
+<div id="outline-container-org5ac1d8a" class="outline-3">
 <h3 id="org5790e981"><span class="section-number-3">10.11</span> [appt.el] アラーム設定</h3>
 <div class="outline-text-3" id="text-org5790e981">
 <ul class="org-ul">
@@ -7833,7 +7858,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"org"</span>
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#12450;&#12521;&#12540;&#12512;&#34920;&#31034;&#12434;&#26377;&#21177;&#12395;&#12377;&#12427;</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">init</span>
       (appt-activate 1))
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">org-agenda &#12398;&#20869;&#23481;&#12434;&#12450;&#12521;&#12540;&#12512;&#12395;&#30331;&#37682;&#12377;&#12427;</span>
@@ -7848,7 +7873,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orgbb4c978" class="outline-3">
+<div id="outline-container-orge40ab73" class="outline-3">
 <h3 id="org30aecedf"><span class="section-number-3">10.12</span> [org-capture] 高速にメモを取る</h3>
 <div class="outline-text-3" id="text-org30aecedf">
 <div class="org-src-container">
@@ -7956,7 +7981,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orgddc7bfa" class="outline-3">
+<div id="outline-container-orgf2fc897" class="outline-3">
 <h3 id="orgf5236175"><span class="section-number-3">10.13</span> [org-refile] orgツリーの高速移動</h3>
 <div class="outline-text-3" id="text-orgf5236175">
 <div class="org-src-container">
@@ -8011,7 +8036,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orge7d9d59" class="outline-3">
+<div id="outline-container-org7abc8da" class="outline-3">
 <h3 id="org49ca5eb9"><span class="section-number-3">10.14</span> [org-babel] 基本設定</h3>
 <div class="outline-text-3" id="text-org49ca5eb9">
 <div class="org-src-container">
@@ -8054,7 +8079,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org8f14c63" class="outline-3">
+<div id="outline-container-orged81420" class="outline-3">
 <h3 id="orgc0ed68a2"><span class="section-number-3">10.15</span> [org-babel] ソースブロックの入力キーをカスタマイズ</h3>
 <div class="outline-text-3" id="text-orgc0ed68a2">
 <p>
@@ -8066,13 +8091,13 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (add-to-list 'org-structure-template-alist
                (<span style="color: #c678dd;">if</span> (version&lt; <span style="color: #98c379;">"9.1.4"</span> (org-version))
                    '(<span style="color: #98c379;">"S"</span> . <span style="color: #98c379;">"src emacs-lisp"</span>)
-                 '(<span style="color: #98c379;">"S"</span> <span style="color: #98c379;">"#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"</span> <span style="color: #98c379;">"&lt;src lang=\"emacs-lisp\"&gt;\n\n&lt;/src&gt;"</span>))))
+                 '(<span style="color: #98c379;">"S"</span> <span style="color: #98c379;">"#+begin_src emacs-lisp\n?\n#+END_SRC"</span> <span style="color: #98c379;">"&lt;src lang=\"emacs-lisp\"&gt;\n\n&lt;/src&gt;"</span>))))
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org5333fd1" class="outline-3">
+<div id="outline-container-org30b54b9" class="outline-3">
 <h3 id="org39530542"><span class="section-number-3">10.16</span> [MobileOrg] iOS との連携</h3>
 <div class="outline-text-3" id="text-org39530542">
 <ul class="org-ul">
@@ -8107,7 +8132,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orgef7300a" class="outline-3">
+<div id="outline-container-org2f17d4e" class="outline-3">
 <h3 id="org89c34f23"><span class="section-number-3">10.17</span> [org-tree-slide] Org Modeでプレゼンテーション</h3>
 <div class="outline-text-3" id="text-org89c34f23">
 <ul class="org-ul">
@@ -8129,7 +8154,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
       'org-tree-slide-move-previous-tree)
     (define-key org-tree-slide-mode-map (kbd <span style="color: #98c379;">"&lt;f10&gt;"</span>)
       'org-tree-slide-move-next-tree)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (org-tree-slide-narrowing-control-profile))
     (<span style="color: #c678dd;">setq</span> org-tree-slide-modeline-display 'outside)
     (<span style="color: #c678dd;">setq</span> org-tree-slide-skip-outline-level 5)
@@ -8159,7 +8184,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org212f9f6" class="outline-3">
+<div id="outline-container-org4be9737" class="outline-3">
 <h3 id="org264a37c5"><span class="section-number-3">10.18</span> [org-tree-slide] クロックインとアウトを自動化する</h3>
 <div class="outline-text-3" id="text-org264a37c5">
 <p>
@@ -8205,7 +8230,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org2a24249" class="outline-3">
+<div id="outline-container-org9e51c70" class="outline-3">
 <h3 id="orga7162e8c"><span class="section-number-3">10.19</span> [org-tree-slide] 特定のツリーをプロポーショナルフォントで表示する</h3>
 <div class="outline-text-3" id="text-orga7162e8c">
 <p>
@@ -8249,7 +8274,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-orgdaed011" class="outline-3">
+<div id="outline-container-orgb41f330" class="outline-3">
 <h3 id="orgf5c603e5"><span class="section-number-3">10.20</span> [org-tree-slide] ヘッドラインをリッチにする</h3>
 <div class="outline-text-3" id="text-orgf5c603e5">
 <p>
@@ -8268,7 +8293,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org567e013" class="outline-3">
+<div id="outline-container-org619f10d" class="outline-3">
 <h3 id="org9cbb15f3"><span class="section-number-3">10.21</span> <span class="todo TODO">TODO</span> [org-tree-slide] BEGIN_SRCとEND_SRCを消して背景色を変える</h3>
 <div class="outline-text-3" id="text-org9cbb15f3">
 <p>
@@ -8311,7 +8336,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org22dc212" class="outline-3">
+<div id="outline-container-orgc8e66aa" class="outline-3">
 <h3 id="org3ee441c6"><span class="section-number-3">10.22</span> <span class="todo TODO">TODO</span> [org-fstree] ディレクトリ構造を読み取る</h3>
 <div class="outline-text-3" id="text-org3ee441c6">
 <div class="org-src-container">
@@ -8322,7 +8347,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org15c9ab9" class="outline-3">
+<div id="outline-container-org0aa49a0" class="outline-3">
 <h3 id="orgae555619"><span class="section-number-3">10.23</span> [calfw-org] calfw に org の予定を表示する</h3>
 <div class="outline-text-3" id="text-orgae555619">
 <p>
@@ -8393,7 +8418,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org172585c" class="outline-3">
+<div id="outline-container-orgc9db49c" class="outline-3">
 <h3 id="orgfb20898b"><span class="section-number-3">10.24</span> [org-export-generic] エクスポート機能を拡張する</h3>
 <div class="outline-text-3" id="text-orgfb20898b">
 <p>
@@ -8490,7 +8515,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org38f4bf3" class="outline-3">
+<div id="outline-container-org29913f2" class="outline-3">
 <h3 id="orgbb452f44"><span class="section-number-3">10.25</span> <span class="todo TODO">TODO</span> [ox] 出力形式の拡張</h3>
 <div class="outline-text-3" id="text-orgbb452f44">
 <div class="org-src-container">
@@ -8504,7 +8529,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org9e31154" class="outline-3">
+<div id="outline-container-org77d76b1" class="outline-3">
 <h3 id="org02100a39"><span class="section-number-3">10.26</span> [org-odt] ODT形式に出力</h3>
 <div class="outline-text-3" id="text-org02100a39">
 <div class="org-src-container">
@@ -8531,7 +8556,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org120280c" class="outline-3">
+<div id="outline-container-org191f0a7" class="outline-3">
 <h3 id="org02d2c3de"><span class="section-number-3">10.27</span> [ox-twbs] Twitter Bootstrap 互換のHTML出力</h3>
 <div class="outline-text-3" id="text-org02d2c3de">
 <ul class="org-ul">
@@ -8545,7 +8570,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <p>
-次のようなファイルを準備して org ファイルのヘッダで指定（ <code>#+SETUPFILE: theme-readtheorg.setup</code> ）するだけで， <a href="https://takaxp.github.io/">https://takaxp.github.io/</a> のような HTML 出力もできます．<br />
+次のようなファイルを準備して org ファイルのヘッダで指定（ <code>#+setupfile: theme-readtheorg.setup</code> ）するだけで， <a href="https://takaxp.github.io/">https://takaxp.github.io/</a> のような HTML 出力もできます．<br />
 </p>
 
 <ul class="org-ul">
@@ -8553,21 +8578,21 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org64d5f82"><span style="color: #5C6370;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org0f10ea6"><span style="color: #5C6370;"># -*- mode: org; -*-</span>
 
-<span style="color: #5C6370;">#+HTML_HEAD: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
-<span style="color: #5C6370;">#+HTML_HEAD: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
+<span style="color: #5C6370;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
+<span style="color: #5C6370;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
-<span style="color: #5C6370;">#+HTML_HEAD: &lt;script src="<a href="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js">https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js</a>"&gt;&lt;/script&gt;</span>
-<span style="color: #5C6370;">#+HTML_HEAD: &lt;script src="<a href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js">https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js</a>"&gt;&lt;/script&gt;</span>
-<span style="color: #5C6370;">#+HTML_HEAD: &lt;script type="text/javascript" src="<a href="https://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.min.js">https://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.min.js</a>"&gt;&lt;/script&gt;</span>
-<span style="color: #5C6370;">#+HTML_HEAD: &lt;script type="text/javascript" src="<a href="https://www.pirilampo.org/styles/readtheorg/js/readtheorg.js">https://www.pirilampo.org/styles/readtheorg/js/readtheorg.js</a>"&gt;&lt;/script&gt;</span>
+<span style="color: #5C6370;">#+html_head: &lt;script src="<a href="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js">https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js</a>"&gt;&lt;/script&gt;</span>
+<span style="color: #5C6370;">#+html_head: &lt;script src="<a href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js">https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js</a>"&gt;&lt;/script&gt;</span>
+<span style="color: #5C6370;">#+html_head: &lt;script type="text/javascript" src="<a href="https://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.min.js">https://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.min.js</a>"&gt;&lt;/script&gt;</span>
+<span style="color: #5C6370;">#+html_head: &lt;script type="text/javascript" src="<a href="https://www.pirilampo.org/styles/readtheorg/js/readtheorg.js">https://www.pirilampo.org/styles/readtheorg/js/readtheorg.js</a>"&gt;&lt;/script&gt;</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgbc781e9" class="outline-3">
+<div id="outline-container-orgbea4fc2" class="outline-3">
 <h3 id="org5a1cb1a1"><span class="section-number-3">10.28</span> [org-crypt] ツリーを暗号化する</h3>
 <div class="outline-text-3" id="text-org5a1cb1a1">
 <p>
@@ -8597,7 +8622,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org269694c" class="outline-3">
+<div id="outline-container-orgffa8c28" class="outline-3">
 <h3 id="org01951291"><span class="section-number-3">10.29</span> [org-mac-link] 外部アプリから情報を取る</h3>
 <div class="outline-text-3" id="text-org01951291">
 <p>
@@ -8620,7 +8645,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-orgf8ee578" class="outline-3">
+<div id="outline-container-orgb5d7e32" class="outline-3">
 <h3 id="org4142d8c3"><span class="section-number-3">10.30</span> <span class="todo TODO">TODO</span> Parers3.app からリンクを取得する</h3>
 <div class="outline-text-3" id="text-org4142d8c3">
 <div class="org-src-container">
@@ -8678,7 +8703,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org0c83a73" class="outline-3">
+<div id="outline-container-orgd7a7918" class="outline-3">
 <h3 id="org47b1ee67"><span class="section-number-3">10.31</span> <span class="todo TODO">TODO</span> Papers3.app のリンクを開けるようにする</h3>
 <div class="outline-text-3" id="text-org47b1ee67">
 <p>
@@ -8701,7 +8726,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orgc8defab" class="outline-3">
+<div id="outline-container-orgdf680e0" class="outline-3">
 <h3 id="orgd14388c1"><span class="section-number-3">10.32</span> <span class="todo TODO">TODO</span> [org-attach] 外部ファイルを紐付ける</h3>
 <div class="outline-text-3" id="text-orgd14388c1">
 <div class="org-src-container">
@@ -8735,7 +8760,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orgfecccc8" class="outline-3">
+<div id="outline-container-org3642586" class="outline-3">
 <h3 id="org0b29fe80"><span class="section-number-3">10.33</span> <span class="todo REV2">REV2</span> [org-screenshot] スクリーンショットを貼り付ける</h3>
 <div class="outline-text-3" id="text-org0b29fe80">
 <ul class="org-ul">
@@ -8777,7 +8802,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org0bf145c" class="outline-3">
+<div id="outline-container-orgb9a8e6f" class="outline-3">
 <h3 id="orgb3ae0aea"><span class="section-number-3">10.34</span> [org-download] org バッファにD&amp;Dでファイルを保存</h3>
 <div class="outline-text-3" id="text-orgb3ae0aea">
 <p>
@@ -8794,7 +8819,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orgc87beae" class="outline-3">
+<div id="outline-container-org3b11a40" class="outline-3">
 <h3 id="orgdae2d9e7"><span class="section-number-3">10.35</span> [alerter] イベント通知</h3>
 <div class="outline-text-3" id="text-orgdae2d9e7">
 <p>
@@ -8929,7 +8954,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org6d48134" class="outline-3">
+<div id="outline-container-orgcf702da" class="outline-3">
 <h3 id="org97c39f96"><span class="section-number-3">10.36</span> [org-grep] org ファイルを grep する</h3>
 <div class="outline-text-3" id="text-org97c39f96">
 <div class="org-src-container">
@@ -8970,7 +8995,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org4e09106" class="outline-3">
+<div id="outline-container-org57cf6b2" class="outline-3">
 <h3 id="org1a7c192b"><span class="section-number-3">10.37</span> [ox-reveal] ナイスなHTML5プレゼンテーション出力</h3>
 <div class="outline-text-3" id="text-org1a7c192b">
 <p>
@@ -8991,7 +9016,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-orgbca23b0" class="outline-3">
+<div id="outline-container-org6cbe7b0" class="outline-3">
 <h3 id="org53663ca9"><span class="section-number-3">10.38</span> README を常に org-mode で開く</h3>
 <div class="outline-text-3" id="text-org53663ca9">
 <div class="org-src-container">
@@ -9005,7 +9030,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-orgc06ca14" class="outline-3">
+<div id="outline-container-org6ebaaf6" class="outline-3">
 <h3 id="orga58b21fc"><span class="section-number-3">10.39</span> org-mode でアラーム管理</h3>
 <div class="outline-text-3" id="text-orga58b21fc">
 <p>
@@ -9044,7 +9069,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org67ef544" class="outline-3">
+<div id="outline-container-org8bf0c97" class="outline-3">
 <h3 id="org563f7076"><span class="section-number-3">10.40</span> org-mode の latex エクスポート関数をオーバーライド</h3>
 <div class="outline-text-3" id="text-org563f7076">
 <div class="org-src-container">
@@ -9113,7 +9138,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org6685597" class="outline-3">
+<div id="outline-container-orgdd82a9f" class="outline-3">
 <h3 id="org0f4b6016"><span class="section-number-3">10.41</span> [org-autolist] ブリッツの入力を簡単に</h3>
 <div class="outline-text-3" id="text-org0f4b6016">
 <p>
@@ -9131,7 +9156,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org3a2dc95" class="outline-3">
+<div id="outline-container-org99e5538" class="outline-3">
 <h3 id="org383ff638"><span class="section-number-3">10.42</span> [org-dashboard] 進捗をプログレスバーで確認</h3>
 <div class="outline-text-3" id="text-org383ff638">
 <ul class="org-ul">
@@ -9151,7 +9176,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-orgb1fbf08" class="outline-3">
+<div id="outline-container-orgaa66af9" class="outline-3">
 <h3 id="orgfa6df2ce"><span class="section-number-3">10.43</span> [org-clock-today] 今日の総作業時間をモードラインに表示</h3>
 <div class="outline-text-3" id="text-orgfa6df2ce">
 <ul class="org-ul">
@@ -9194,14 +9219,14 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
       (force-mode-line-update))
     (advice-add 'org-clock-today-update-mode-line
                 <span style="color: #56b6c2;">:override</span> #'advice:org-clock-today-update-mode-line)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (org-clock-today-mode 1))))
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org1b02f63" class="outline-3">
+<div id="outline-container-org521750c" class="outline-3">
 <h3 id="org1926ab44"><span class="section-number-3">10.44</span> <span class="todo TODO">TODO</span> [org-recent-headings] 訪問したツリーを記録し簡単に再訪問可能にする</h3>
 <div class="outline-text-3" id="text-org1926ab44">
 <div class="org-src-container">
@@ -9223,7 +9248,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org081517f" class="outline-3">
+<div id="outline-container-org1f6cd7f" class="outline-3">
 <h3 id="orgfcfd3f34"><span class="section-number-3">10.45</span> <span class="todo TODO">TODO</span> [orgnav] ツリーの検索インタフェース</h3>
 <div class="outline-text-3" id="text-orgfcfd3f34">
 <div class="org-src-container">
@@ -9240,7 +9265,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org4aa5714" class="outline-3">
+<div id="outline-container-org31b51e2" class="outline-3">
 <h3 id="org56b60c02"><span class="section-number-3">10.46</span> [org-random-todo] ランダムにタスクを選ぶ</h3>
 <div class="outline-text-3" id="text-org56b60c02">
 <ul class="org-ul">
@@ -9258,7 +9283,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org6b59852" class="outline-3">
+<div id="outline-container-orgf560fc1" class="outline-3">
 <h3 id="org5fce13fa"><span class="section-number-3">10.47</span> <span class="todo TODO">TODO</span> [toc-org] 目次の挿入</h3>
 <div class="outline-text-3" id="text-org5fce13fa">
 <ul class="org-ul">
@@ -9272,7 +9297,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org5fda44f" class="outline-3">
+<div id="outline-container-org94163c4" class="outline-3">
 <h3 id="org0cba1e62"><span class="section-number-3">10.48</span> [ox-hugo] OrgファイルからHogoの記事をエクスポートする</h3>
 <div class="outline-text-3" id="text-org0cba1e62">
 <div class="org-src-container">
@@ -9303,7 +9328,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org5acbee1" class="outline-3">
+<div id="outline-container-org6a4850a" class="outline-3">
 <h3 id="org907cb9db"><span class="section-number-3">10.49</span> ソースブロック等の大文字記述を一括で小文字に変える</h3>
 <div class="outline-text-3" id="text-org907cb9db">
 <p>
@@ -9311,7 +9336,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-lower-case-org-keywords</span> ()
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-lowercase-org-keywords</span> ()
   <span style="color: #98c379;">"Lower case Org keywords and block identifiers."</span>
   (<span style="color: #c678dd;">interactive</span>)
   (<span style="color: #c678dd;">save-excursion</span>
@@ -9332,7 +9357,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org1f60f7d" class="outline-3">
+<div id="outline-container-orgfef85ca" class="outline-3">
 <h3 id="org32e931e3"><span class="section-number-3">10.50</span> [ox-html] HTML見出しへのリンクを固定する</h3>
 <div class="outline-text-3" id="text-org32e931e3">
 <p>
@@ -9387,7 +9412,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
     <span style="color: #98c379;">"Add CUSTOM_ID properties to all headlines in the current file.</span>
 <span style="color: #98c379;">Which do not already have one.  Only adds ids if the</span>
 <span style="color: #98c379;">`</span><span style="color: #d19a66;">auto-id</span><span style="color: #98c379;">' option is set to `t' in the file somewhere. ie,</span>
-<span style="color: #98c379;">#+OPTIONS: auto-id:t</span>
+<span style="color: #98c379;">#+options: auto-id:t</span>
 
 <span style="color: #98c379;">See https://writequit.org/articles/emacs-org-mode-generate-ids.html"</span>
     (<span style="color: #c678dd;">interactive</span>)
@@ -9403,11 +9428,11 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-orgc09c33b" class="outline-2">
+<div id="outline-container-org3f34bde" class="outline-2">
 <h2 id="org5fd484a3"><span class="section-number-2">11</span> フレーム／ウィンドウ制御</h2>
 <div class="outline-text-2" id="text-org5fd484a3">
 </div>
-<div id="outline-container-orge5de6b7" class="outline-3">
+<div id="outline-container-org1845284" class="outline-3">
 <h3 id="orgd05fc75a"><span class="section-number-3">11.1</span> 起動時の設定</h3>
 <div class="outline-text-3" id="text-orgd05fc75a">
 <div class="org-src-container">
@@ -9598,7 +9623,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org1e0e329" class="outline-3">
+<div id="outline-container-orgacd1497" class="outline-3">
 <h3 id="orgdffe4e49"><span class="section-number-3">11.2</span> 複数フレーム対応</h3>
 <div class="outline-text-3" id="text-orgdffe4e49">
 <p>
@@ -9618,7 +9643,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org9826991" class="outline-3">
+<div id="outline-container-org5d57462" class="outline-3">
 <h3 id="org4dd0671c"><span class="section-number-3">11.3</span> [e2wm.el] 二画面表示</h3>
 <div class="outline-text-3" id="text-org4dd0671c">
 <ol class="org-ol">
@@ -9686,7 +9711,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org001c497" class="outline-3">
+<div id="outline-container-org959f498" class="outline-3">
 <h3 id="org5f12ba92"><span class="section-number-3">11.4</span> [moom.el] キーボードでフレームの場所を移す</h3>
 <div class="outline-text-3" id="text-org5f12ba92">
 <p>
@@ -9743,7 +9768,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
   (global-set-key (kbd <span style="color: #98c379;">"&lt;f2&gt;"</span>) 'moom-cycle-frame-height)
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"moom"</span>))
     (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">moom</span> nil t)
                window-system)
@@ -9773,7 +9798,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org019f419" class="outline-4">
+<div id="outline-container-orgcdf131e" class="outline-4">
 <h4 id="org6e3c20dd"><span class="section-number-4">11.4.1</span> 最大化時にモードラインを消す</h4>
 <div class="outline-text-4" id="text-org6e3c20dd">
 <p>
@@ -9815,7 +9840,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
         (redraw-frame))
       (message <span style="color: #98c379;">"%s"</span> (<span style="color: #c678dd;">if</span> mode-line-format <span style="color: #98c379;">"( &#9593; &#9697;&#9593;)&#65346; ON !"</span> <span style="color: #98c379;">"( &#9593; ^&#9593;)&#65360; OFF!"</span>)))
 
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (my-moom-toggle-mode-line))
     (define-key moom-mode-map (kbd <span style="color: #98c379;">"&lt;f5&gt;"</span>) 'my-moom-toggle-mode-line)
     (add-hook 'find-file-hook #'my-moom-mode-line-off))
@@ -9838,7 +9863,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org9b9911a" class="outline-3">
+<div id="outline-container-org23b7df5" class="outline-3">
 <h3 id="org750d9aa5"><span class="section-number-3">11.5</span> [popwin.el] ポップアップウィンドウの制御</h3>
 <div class="outline-text-3" id="text-org750d9aa5">
 <ul class="org-ul">
@@ -9866,7 +9891,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 
 (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
   (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">popwin</span> nil t)
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"popwin-mode"</span>)
       (popwin-mode 1))
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Performed</span>
@@ -9916,7 +9941,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-orgdcae24b" class="outline-3">
+<div id="outline-container-org5bdc61e" class="outline-3">
 <h3 id="orga9be167a"><span class="section-number-3">11.6</span> <span class="todo TODO">TODO</span> [shackle.el] ポップアップウィンドウの制御</h3>
 <div class="outline-text-3" id="text-orga9be167a">
 <ul class="org-ul">
@@ -9938,14 +9963,14 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
             <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">("*Help*" :align t :select 'above :popup t :size 0.3)</span>
             <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">("^\*Helm.+" :regexp t :align above :size 0.2)</span>
             ))
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"shackle"</span>)
       (shackle-mode 1))))
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org9fb91d6" class="outline-4">
+<div id="outline-container-org7acf4c7" class="outline-4">
 <h4 id="org32b579df"><span class="section-number-4">11.6.1</span> checkdoc.el 用の追加設定</h4>
 <div class="outline-text-4" id="text-org32b579df">
 <p>
@@ -9976,7 +10001,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org12d776b" class="outline-3">
+<div id="outline-container-orgcf37298" class="outline-3">
 <h3 id="org6474a498"><span class="section-number-3">11.7</span> [elscreen.el] Emacs バッファをタブ化</h3>
 <div class="outline-text-3" id="text-org6474a498">
 <div class="org-src-container">
@@ -9989,7 +10014,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-orge532dcb" class="outline-3">
+<div id="outline-container-org1620e94" class="outline-3">
 <h3 id="org0c556404"><span class="section-number-3">11.8</span> [tabbar-ruler] バッファをタブ切り替え可能に</h3>
 <div class="outline-text-3" id="text-org0c556404">
 <div class="org-src-container">
@@ -10007,7 +10032,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-org97b90c6" class="outline-3">
+<div id="outline-container-org91457a6" class="outline-3">
 <h3 id="org33fd785f"><span class="section-number-3">11.9</span> [winner-undo.el] ウィンドウ構成の履歴を辿る</h3>
 <div class="outline-text-3" id="text-org33fd785f">
 <ul class="org-ul">
@@ -10020,7 +10045,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-  (<span style="color: #c678dd;">unless</span> batch-build
+  (<span style="color: #c678dd;">unless</span> my-batch-build
     (postpone-message <span style="color: #98c379;">"winner-mode"</span>)
     (winner-mode 1)))
 </pre>
@@ -10029,11 +10054,11 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
 </div>
 </div>
 
-<div id="outline-container-orgff58e9b" class="outline-2">
+<div id="outline-container-orgeac3705" class="outline-2">
 <h2 id="orgf57ce845"><span class="section-number-2">12</span> フォント／配色関連</h2>
 <div class="outline-text-2" id="text-orgf57ce845">
 </div>
-<div id="outline-container-org5d1d1ac" class="outline-3">
+<div id="outline-container-orgfb14555" class="outline-3">
 <h3 id="orgbbb079d3"><span class="section-number-3">12.1</span> 正規表現を見やすくする</h3>
 <div class="outline-text-3" id="text-orgbbb079d3">
 <div class="org-src-container">
@@ -10054,7 +10079,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-orgb5db02d" class="outline-3">
+<div id="outline-container-org7d3dd54" class="outline-3">
 <h3 id="orgc98c6fff"><span class="section-number-3">12.2</span> 設定ファイルを見やすくする</h3>
 <div class="outline-text-3" id="text-orgc98c6fff">
 <p>
@@ -10063,7 +10088,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-  (<span style="color: #c678dd;">unless</span> batch-build
+  (<span style="color: #c678dd;">unless</span> my-batch-build
     (postpone-message <span style="color: #98c379;">"generic-x"</span>)
     (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">generic-x</span> nil t)))
 </pre>
@@ -10071,7 +10096,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-org2529674" class="outline-3">
+<div id="outline-container-orgdb4c8c1" class="outline-3">
 <h3 id="org7858d806"><span class="section-number-3">12.3</span> カーソル行に色をつける</h3>
 <div class="outline-text-3" id="text-org7858d806">
 <ul class="org-ul">
@@ -10087,7 +10112,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
   (<span style="color: #c678dd;">if</span> (display-graphic-p)
-      (<span style="color: #c678dd;">unless</span> batch-build
+      (<span style="color: #c678dd;">unless</span> my-batch-build
         (postpone-message <span style="color: #98c379;">"global-hl-line-mode"</span>))
     (<span style="color: #c678dd;">setq</span> hl-line-face 'underline))
   (global-hl-line-mode 1))
@@ -10112,12 +10137,12 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-orge8ab439" class="outline-3">
+<div id="outline-container-org43195a0" class="outline-3">
 <h3 id="org29d5304f"><span class="section-number-3">12.4</span> カーソルを点滅させない</h3>
 <div class="outline-text-3" id="text-org29d5304f">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-  (<span style="color: #c678dd;">unless</span> batch-build
+  (<span style="color: #c678dd;">unless</span> my-batch-build
     (postpone-message <span style="color: #98c379;">"blink-cursor-mode"</span>)
     (blink-cursor-mode -1)))
 </pre>
@@ -10136,7 +10161,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
   (<span style="color: #c678dd;">setq</span> blink-cursor-blinks 0)
   (<span style="color: #c678dd;">setq</span> blink-cursor-interval 0.3)
   (<span style="color: #c678dd;">setq</span> blink-cursor-delay 16)
-  (<span style="color: #c678dd;">unless</span> batch-build
+  (<span style="color: #c678dd;">unless</span> my-batch-build
     (postpone-message <span style="color: #98c379;">"blink-cursor-mode"</span>)
     (blink-cursor-mode -1)))
 </pre>
@@ -10144,7 +10169,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-org0a23b86" class="outline-3">
+<div id="outline-container-org61914f6" class="outline-3">
 <h3 id="orgf36a8366"><span class="section-number-3">12.5</span> カーソル位置のフォントを確認</h3>
 <div class="outline-text-3" id="text-orgf36a8366">
 <p>
@@ -10153,7 +10178,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-orgf8c9831" class="outline-3">
+<div id="outline-container-org3073699" class="outline-3">
 <h3 id="org919a945a"><span class="section-number-3">12.6</span> フォント設定</h3>
 <div class="outline-text-3" id="text-org919a945a">
 <p>
@@ -10289,7 +10314,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-org4fb3a7c" class="outline-4">
+<div id="outline-container-org73cae21" class="outline-4">
 <h4 id="orgb94aa5b3"><span class="section-number-4">12.6.1</span> フォントのインストール方法</h4>
 <div class="outline-text-4" id="text-orgb94aa5b3">
 <p>
@@ -10309,7 +10334,7 @@ Linux では次のように処理するだけでよく，意外と簡単．<br /
 </div>
 </div>
 
-<div id="outline-container-org387ed85" class="outline-4">
+<div id="outline-container-org202bd67" class="outline-4">
 <h4 id="org66fa6b98"><span class="section-number-4">12.6.2</span> フォントチェック用コード</h4>
 <div class="outline-text-4" id="text-org66fa6b98">
 <p>
@@ -10319,7 +10344,7 @@ Linux では次のように処理するだけでよく，意外と簡単．<br /
 </div>
 </div>
 
-<div id="outline-container-org6997f4a" class="outline-3">
+<div id="outline-container-org7136f99" class="outline-3">
 <h3 id="org2bcbc1db"><span class="section-number-3">12.7</span> 行間を制御する</h3>
 <div class="outline-text-3" id="text-org2bcbc1db">
 <div class="org-src-container">
@@ -10329,7 +10354,7 @@ Linux では次のように処理するだけでよく，意外と簡単．<br /
 </div>
 </div>
 
-<div id="outline-container-orgeedf549" class="outline-3">
+<div id="outline-container-orged67da4" class="outline-3">
 <h3 id="org372b184d"><span class="section-number-3">12.8</span> パッチをカラフルに表示する</h3>
 <div class="outline-text-3" id="text-org372b184d">
 <p>
@@ -10366,7 +10391,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org676585b" class="outline-3">
+<div id="outline-container-org01c885a" class="outline-3">
 <h3 id="org009dc6e3"><span class="section-number-3">12.9</span> 背景を黒系色にする</h3>
 <div class="outline-text-3" id="text-org009dc6e3">
 <div class="org-src-container">
@@ -10379,7 +10404,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org69f4746" class="outline-3">
+<div id="outline-container-org25365d5" class="outline-3">
 <h3 id="org92d26c4b"><span class="section-number-3">12.10</span> 日中と夜中でテーマを切り替える</h3>
 <div class="outline-text-3" id="text-org92d26c4b">
 <p>
@@ -10425,7 +10450,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org83e77cd" class="outline-3">
+<div id="outline-container-org8b31639" class="outline-3">
 <h3 id="org7c97dce0"><span class="section-number-3">12.11</span> 時間帯を指定して起動時にテーマを切り替える</h3>
 <div class="outline-text-3" id="text-org7c97dce0">
 <p>
@@ -10459,7 +10484,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org693410c" class="outline-3">
+<div id="outline-container-orgc4114b9" class="outline-3">
 <h3 id="org9ce2fd45"><span class="section-number-3">12.12</span> [rainbow-mode.el] 配色のリアルタイム確認</h3>
 <div class="outline-text-3" id="text-org9ce2fd45">
 <p>
@@ -10481,7 +10506,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 </div>
 </div>
 
-<div id="outline-container-org0ffcaf2" class="outline-4">
+<div id="outline-container-org7b41a73" class="outline-4">
 <h4 id="org19538af3"><span class="section-number-4">12.12.1</span> 色一覧</h4>
 <div class="outline-text-4" id="text-org19538af3">
 <p>
@@ -10538,7 +10563,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 </div>
 </div>
 
-<div id="outline-container-org37242a0" class="outline-3">
+<div id="outline-container-org5cba9b0" class="outline-3">
 <h3 id="org36a28b28"><span class="section-number-3">12.13</span> [volatile-highlights] コピペした領域を強調</h3>
 <div class="outline-text-3" id="text-org36a28b28">
 <p>
@@ -10596,7 +10621,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 </div>
 </div>
 
-<div id="outline-container-org3939668" class="outline-3">
+<div id="outline-container-org1c84476" class="outline-3">
 <h3 id="orgcc116051"><span class="section-number-3">12.14</span> [edit-color-stamp] Qt経由でカラーピッカーを使う</h3>
 <div class="outline-text-3" id="text-orgcc116051">
 <ul class="org-ul">
@@ -10647,11 +10672,11 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 </div>
 </div>
 
-<div id="outline-container-org4bf6b1e" class="outline-2">
+<div id="outline-container-org0c1ae9f" class="outline-2">
 <h2 id="orgb8e84b9a"><span class="section-number-2">13</span> ユーティリティ関数</h2>
 <div class="outline-text-2" id="text-orgb8e84b9a">
 </div>
-<div id="outline-container-orgab067db" class="outline-3">
+<div id="outline-container-org44d37b8" class="outline-3">
 <h3 id="orgbfb695e1"><span class="section-number-3">13.1</span> [pomodoro.el] ポモドーロの実践</h3>
 <div class="outline-text-3" id="text-orgbfb695e1">
 <p>
@@ -10680,7 +10705,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
        <span style="color: #98c379;">"pomodoro"</span> nil t)
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (not batch-build)
+    (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (not my-batch-build)
                (not (boundp 'pomodoro:timer)))
       <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#37325;&#35079;&#36215;&#21205;&#12434;&#22238;&#36991;</span>
       (pomodoro:start nil)))
@@ -10781,7 +10806,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 </div>
 </div>
 
-<div id="outline-container-org315ab52" class="outline-3">
+<div id="outline-container-orgd1a9ef7" class="outline-3">
 <h3 id="orgc09c0be3"><span class="section-number-3">13.2</span> [pomodoro.el] 続・ポモドーロの実践</h3>
 <div class="outline-text-3" id="text-orgc09c0be3">
 <p>
@@ -10993,7 +11018,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 </div>
 </div>
 
-<div id="outline-container-org0019ff5" class="outline-3">
+<div id="outline-container-orge81b985" class="outline-3">
 <h3 id="org98f153af"><span class="section-number-3">13.3</span> [google-this.el] 単語をグーグル検索</h3>
 <div class="outline-text-3" id="text-org98f153af">
 <p>
@@ -11017,7 +11042,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
 </div>
 </div>
 
-<div id="outline-container-org9236f6e" class="outline-3">
+<div id="outline-container-orgcaff581" class="outline-3">
 <h3 id="org71c49002"><span class="section-number-3">13.4</span> [lingr.el] チャットルームに参加</h3>
 <div class="outline-text-3" id="text-org71c49002">
 <p>
@@ -11050,7 +11075,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-orgf8205e9" class="outline-3">
+<div id="outline-container-orga1f61bd" class="outline-3">
 <h3 id="org96f7a2a3"><span class="section-number-3">13.5</span> [osx-lib.el] OSX用ユーティリティ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Mac">Mac</span></span></h3>
 <div class="outline-text-3" id="text-org96f7a2a3">
 <ul class="org-ul">
@@ -11077,17 +11102,17 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-org"><span style="color: #5C6370;">#+BEGIN_SRC emacs-lisp :results silent</span>
+<pre class="src src-org"><span style="color: #5C6370;">#+begin_src emacs-lisp :results silent</span>
 <span style="color: #7f7f7f;">(</span><span style="color: #c678dd;">setq</span><span style="color: #7f7f7f;"> osx-lib-say-voice </span><span style="color: #98c379;">"Kyoko"</span><span style="color: #7f7f7f;">) </span><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Samantha</span>
 <span style="color: #7f7f7f;">(</span><span style="color: #c678dd;">setq</span><span style="color: #7f7f7f;"> osx-lib-say-rate 90) </span><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">min 90 for Samantha</span>
 <span style="color: #7f7f7f;">(</span><span style="color: #c678dd;">setq</span><span style="color: #7f7f7f;"> yourscript </span><span style="color: #98c379;">"&#12363;&#12360;&#12427;&#12398;&#12358;&#12383;&#12364;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;&#12288;&#12288;&#12288;</span><span style="color: #98c379;">&#12365;&#12371;&#12360;&#12390;&#12367;&#12427;&#12424;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;&#12288;</span><span style="color: #98c379;">&#12463;&#12449;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #98c379;">&#12463;&#12449;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #98c379;">&#12463;&#12449;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #98c379;">&#12463;&#12449;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #98c379;">&#12465;&#12465;&#12465;&#12465;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #98c379;">&#12465;&#12465;&#12465;&#12465;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #98c379;">&#12463;&#12449;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #98c379;">&#12463;&#12449;</span><span style="color: #98c379; background-color: #bebebe; font-weight: bold; text-decoration: underline;">&#12288;</span><span style="color: #98c379;">&#12463;&#12449;"</span><span style="color: #7f7f7f;">)</span>
 <span style="color: #7f7f7f;">(osx-lib-say yourscript)</span>
-<span style="color: #5C6370;">#+END_SRC</span>
+<span style="color: #5C6370;">#+end_src</span>
 </pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org2fbc7d9" class="outline-3">
+<div id="outline-container-orgb2f312c" class="outline-3">
 <h3 id="orgc75ab540"><span class="section-number-3">13.6</span> <span class="todo TODO">TODO</span> [password-store.el] パスワード管理</h3>
 <div class="outline-text-3" id="text-orgc75ab540">
 <ul class="org-ul">
@@ -11128,7 +11153,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-org131cd8b" class="outline-3">
+<div id="outline-container-org27e9d39" class="outline-3">
 <h3 id="orgc6fce61d"><span class="section-number-3">13.7</span> [multi-term.el] ターミナル</h3>
 <div class="outline-text-3" id="text-orgc6fce61d">
 <p>
@@ -11148,7 +11173,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-org8c443ba" class="outline-3">
+<div id="outline-container-orgd4a3854" class="outline-3">
 <h3 id="org72d850dc"><span class="section-number-3">13.8</span> iterm2 を Emacs から呼び出したい&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Mac">Mac</span></span></h3>
 <div class="outline-text-3" id="text-org72d850dc">
 <p>
@@ -11175,7 +11200,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-orgb36874a" class="outline-3">
+<div id="outline-container-org79f3804" class="outline-3">
 <h3 id="org32e35e60"><span class="section-number-3">13.9</span> カレントバッファのあるディレクトリをターミナルで表示</h3>
 <div class="outline-text-3" id="text-org32e35e60">
 <div class="org-src-container">
@@ -11186,7 +11211,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-org85e62c8" class="outline-3">
+<div id="outline-container-orgb3c8736" class="outline-3">
 <h3 id="orga2859651"><span class="section-number-3">13.10</span> [postpone.el] Emacs起動してから使い始めるタイミングで実行する</h3>
 <div class="outline-text-3" id="text-orga2859651">
 <p>
@@ -11212,7 +11237,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-org21392b4" class="outline-3">
+<div id="outline-container-org3868cc9" class="outline-3">
 <h3 id="org1141e95f"><span class="section-number-3">13.11</span> <span class="todo TODO">TODO</span> [network-watch.el] ネットワークインターフェイスの状態を監視</h3>
 <div class="outline-text-3" id="text-org1141e95f">
 <ul class="org-ul">
@@ -11233,7 +11258,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
                 <span style="color: #56b6c2;">:override</span> #'advice:network-watch-update-lighter))
 
   (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
-    (<span style="color: #c678dd;">unless</span> batch-build
+    (<span style="color: #c678dd;">unless</span> my-batch-build
       (postpone-message <span style="color: #98c379;">"network-watch-mode"</span>)
       (<span style="color: #c678dd;">if</span> shutup-p
           (<span style="color: #c678dd;">shut-up</span> (network-watch-mode 1))
@@ -11243,7 +11268,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-org0b94bae" class="outline-3">
+<div id="outline-container-orgbed5b0f" class="outline-3">
 <h3 id="org2906cf09"><span class="section-number-3">13.12</span> [gif-screencast.el] ユーザアクションのたびにスクショを取る</h3>
 <div class="outline-text-3" id="text-org2906cf09">
 <ul class="org-ul">
@@ -11330,7 +11355,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-orgd2d683f" class="outline-3">
+<div id="outline-container-org789d3bd" class="outline-3">
 <h3 id="org72dab3c6"><span class="section-number-3">13.13</span> <span class="todo TODO">TODO</span> [manage-minor-mode.el] マイナーモードの視覚的な管理</h3>
 <div class="outline-text-3" id="text-org72dab3c6">
 <ul class="org-ul">
@@ -11351,7 +11376,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-org898f0a2" class="outline-3">
+<div id="outline-container-org6fa96a6" class="outline-3">
 <h3 id="orged473d8d"><span class="section-number-3">13.14</span> [utility.el] 自作してテスト中の便利関数群</h3>
 <div class="outline-text-3" id="text-orged473d8d">
 <p>
@@ -11372,7 +11397,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
     my-org-list-insert-itms-with-checkbox
     my-org-list-delete-checkbox-from-items
     <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">others</span>
-    kyoko-mad-mode-toggle mac:delete-files-in-trash-bin
+    kyoko-mad-mode-toggle mac:delete-files-in-trash-bin library-p
     org2dokuwiki-cp-kill-ring open-current-directory
     reload-ical-export show-org-buffer get-random-string init-auto-install
     add-itemize-head add-itemize-head-checkbox insert-formatted-current-date
@@ -11396,7 +11421,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-orga88f795" class="outline-2">
+<div id="outline-container-org94d8b13" class="outline-2">
 <h2 id="org362fb2dc"><span class="section-number-2">14</span> おわりに</h2>
 <div class="outline-text-2" id="text-org362fb2dc">
 <p>
@@ -11407,7 +11432,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2018-09-17 Mon 03:10</p>
+<p class="date">Created: 2018-09-18 Tue 00:48</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
