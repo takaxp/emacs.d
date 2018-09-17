@@ -95,10 +95,19 @@
   (let ((message-log-max nil))
     `(with-temp-message (or (current-message) "") ,@body)))
 
-(setq echo-keystrokes 0.5)
-
-(with-eval-after-load "postpone"
-  (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent))
+(if (not (locate-library "postpone"))
+    (message "postpone.el is NOT installed.")
+  (autoload 'postpone-kicker "postpone" nil t)
+  (defun my-postpone-kicker ()
+    (interactive)
+    (unless (memq this-command ;; specify commands for exclusion
+                  '(self-insert-command
+                    save-buffers-kill-terminal
+                    exit-minibuffer))
+      (message "Loading postponed packages...")
+      (postpone-kicker 'my-postpone-kicker)
+      (message "Loading postponed packages...done")))
+  (add-hook 'pre-command-hook #'my-postpone-kicker))
 
 (prefer-coding-system 'utf-8-unix)
 ;; (set-language-environment "Japanese") ;; will take 20-30[ms]
@@ -417,6 +426,9 @@
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
     (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse)))
+
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent))
 
 (setq yank-excluded-properties t)
 
@@ -1001,6 +1013,8 @@ This works also for other defined begin/end tokens to define the structure."
        "bratex" nil t)
   (with-eval-after-load "postpone"
     (add-hook 'yatex-mode-hook #'bratex-config)))
+
+(setq echo-keystrokes 0.5)
 
 (with-eval-after-load "postpone"
   (when (require 'delight nil t)
@@ -4353,20 +4367,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 (with-eval-after-load "postpone"
   (global-set-key (kbd "C-c f t") 'open-current-directory-in-terminal))
-
-(if (not (locate-library "postpone"))
-    (message "postpone.el is NOT installed.")
-  (autoload 'postpone-kicker "postpone" nil t)
-  (defun my-postpone-kicker ()
-    (interactive)
-    (unless (memq this-command ;; specify commands for exclusion
-                  '(self-insert-command
-                    save-buffers-kill-terminal
-                    exit-minibuffer))
-      (message "Loading postponed packages...")
-      (postpone-kicker 'my-postpone-kicker)
-      (message "Loading postponed packages...done")))
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
 
 (when (autoload-if-found
        '(network-watch-mode

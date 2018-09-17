@@ -19,12 +19,12 @@
   - コピペだけで動かなかった場合は，ページ最下部のコメント欄にご意見をどうぞ．
     - github.io 以下で閲覧する場合は，コメント欄が表示されません．
 
-* 基本設定
+* 起動設定
   :PROPERTIES:
   :CUSTOM_ID: org2a411a2e
   :END:
 
-この設定群を利用するために設定です．一部の関数は記述しておかないと動かない可能性があります．
+基本的な設定群です．一部の関数は記述しておかないと動かない可能性があります．
 
 普通は =init.el= に様々な設定をEmacsに読ませますが，私は諸事情から次のようにブートシーケンスを制御しています．
 
@@ -55,7 +55,7 @@
 ;; see also https://takaxp.github.io/init.html
 #+end_src
 
-** init ファイルの読み込み時間計測
+** initファイルの読み込み時間計測
    :PROPERTIES:
    :CUSTOM_ID: org3c4d5a7a
    :END:
@@ -143,20 +143,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 (setq garbage-collection-messages t)
 #+end_src
 
-** [exec-path-from-shell] PATH設定をシェルから継承する
-   :PROPERTIES:
-   :CUSTOM_ID: orgb59612b6
-   :END:
-
-外部プログラムのサポートを得て動くパッケージは，設定の過程で「プログラムが見つからない」と怒られることがしばしばあります． =exec-path-from-shell= は，シェルに設定した =PATH= の情報を継承して =exec-path= や =PATH= を設定してくれます．私は起動時に環境を切り替えることがあるので使ってませんが，使われている方は多いようです．
-
-#+begin_src emacs-lisp :tangle no
-(when (and (require 'exec-path-from-shell nil t)
-           (memq window-system '(mac ns)))
-  (exec-path-from-shell-initialize))
-#+end_src
-
-** cl を使う
+** clを使う
    :PROPERTIES:
    :CUSTOM_ID: orgc7901a57
    :END:
@@ -195,6 +182,38 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 コンパイルしても関数が展開されなかったソースブロック約80個を置き換えた結果，800msから500msまで改善した．この時，バイトコンパイルしたファイルサイズは，80KBで不変だった．setq が展開されるようにしたが，起動時間の高速化にはほぼ寄与しなかった．GUI構築に300msが使われるのは変わらなかった．lambdaは，# を付けないと，バイトコンパイルで内容が正しく展開されない．なお，リアルタイムのウィルススキャンが有効な場合，それだけで300msは取られる...
 つまり，色々と弄ったけど実際は改良されていない？
 
+** 警告の抑制
+   :PROPERTIES:
+   :CUSTOM_ID: org8b967ce1
+   :END:
+
+起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， =.emacs= の上の方に書いておくとよいと思います．
+
+  - [[http://d.hatena.ne.jp/kitokitoki/20100425/p1]]
+
+#+begin_src emacs-lisp :tangle no
+(setq byte-compile-warnings
+      '(free-vars unresolved callargs redefine obsolete noruntime
+                  cl-functions interactive-only make-local))
+(setq ad-redefinition-action 'accept)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes :exports none
+(setq byte-compile-warnings '(not obsolete))
+(setq ad-redefinition-action 'accept)
+#+end_src
+
+** エラー表示の抑制
+   :PROPERTIES:
+   :CUSTOM_ID: org0ea7dbaf
+   :END:
+
+普段使いでは要らないので抑制します．
+
+#+begin_src emacs-lisp :tangle no
+(setq debug-on-error nil)
+#+end_src
+
 ** [my-load-package-p] 設定の読み込みフラグを確認する
    :PROPERTIES:
    :CUSTOM_ID: org660ba5e8
@@ -219,12 +238,14 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
     enabled))
 #+end_src
 
-** リストで関数を渡す autoload-if-found を使う
+** [autoload-if-found] 関数をリストで渡すautoload設定
    :PROPERTIES:
    :CUSTOM_ID: orgc0921cdc
    :END:
 
-=with-eval-after-load= とのペアでマクロ化したバージョンもあります（次章参照）．ただ，生成されるバイトコードに問題がありそうなので，最近は =autoload-if-found= と =with-eval-after-load= の組み合わせに戻しています．最初に =when= 判定をすることで，パッケージが未インストールの状態に各種設定をスキップするので安全です．
+この =autoload-if-found= の初出は，[[http://www.sodan.org/~knagano/emacs/dotemacs.html][dot.emacs]] です．
+
+=autoload-if-found= と =with-eval-after-load= の組み合わせが基本です．最初に =when= 判定をすることで，パッケージが未インストールの状態に各種設定をスキップするので安全です．
 
 #+begin_src emacs-lisp :tangle yes
 (defvar my-autoload-file-check t)
@@ -237,8 +258,6 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
       (autoload f file docstring interactive type))
     t))
 #+end_src
-
-この =autoload-if-found= の初出は，[[http://www.sodan.org/~knagano/emacs/dotemacs.html][dot.emacs]] です．
 
 この =init.el= は，基本的にこの =autoload-if-found= に依存しています．遅延ロードに基づく高速化において必須の関数ですが，特にこだわらない人は =use-package.el= に依存するのをオススメします．以下， =autoload-if-found= を使った設定のテンプレートです．
 
@@ -298,7 +317,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
    :CUSTOM_ID: org124f13e2
    :END:
 
-今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． =run-at-time= が想定通りに動かず，起動時に対象の関数が走ってしまうので，この判定が =nil= の時だけタイマー登録します． =target= を HH:MM の書式で与えます．現在時刻を与えた場合は，過ぎ去っていないので =nil= を返します．
+今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． =run-at-time= が想定通りに動かず，起動時に対象の関数が走ってしまうので，この判定が =nil= の時だけタイマー登録します． =target= を ~HH:MM~ の書式で与えます．現在時刻を与えた場合は，過ぎ去っていないので =nil= を返します．
 
 #+begin_src emacs-lisp :tangle yes
 (defun passed-clock-p (target)
@@ -333,74 +352,30 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 (add-hook 'focus-out-hook #'(lambda () (setq window-focus-p nil)))
 #+end_src
 
-** 警告の抑制
+** [postpone.el] Emacs起動してから使い始めるタイミングで実行する
    :PROPERTIES:
-   :CUSTOM_ID: org8b967ce1
+   :CREATED:  [2018-03-14 Wed 15:03]
+   :CUSTOM_ID: orga2859651
    :END:
 
-起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， =.emacs= の上の方に書いておくとよいと思います．
+ - [[https://github.com/takaxp/postpone][takaxp/postpone: Call functions just one time at your first action in Emacs]]
 
-  - [[http://d.hatena.ne.jp/kitokitoki/20100425/p1]]
-
-#+begin_src emacs-lisp :tangle no
-(setq byte-compile-warnings
-      '(free-vars unresolved callargs redefine obsolete noruntime
-                  cl-functions interactive-only make-local))
-(setq ad-redefinition-action 'accept)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes :exports none
-(setq byte-compile-warnings '(not obsolete))
-(setq ad-redefinition-action 'accept)
-#+end_src
-
-** エラー表示の抑制
-   :PROPERTIES:
-   :CUSTOM_ID: org0ea7dbaf
-   :END:
-
-普段使いでは要らないので抑制します．
-
-#+begin_src emacs-lisp :tangle no
-(setq debug-on-error nil)
-#+end_src
-
-** compilation buffer でのデータ表示で自動するスクロールする
-   :PROPERTIES:
-   :CUSTOM_ID: org1b2d3cc0
-   :END:
-
-=nil= のままだと，出力が続いてもスクロールされないので，自動的にスクロールされるように設定．
+=helm-config= に紐付けていた遅延呼び出し関数および設定を，自作の =postpone.el= に紐付けました． =helm-config= に紐付けていた時は， =M-x= を使う時にだけ複数の設定が読み込まれましたが，今回の設定では，Emacs起動後の最初のアクション時に読み込まれます（一部のコマンドを除く）．これには =M-x= も含まれます．この =init.el= に記載された遅延読み込みは約660[ms]にも及びます．通常起動では約400[ms]を要している（コンソール起動の場合は，約100[ms]）ので，もし遅延読み込みしなければ，Emacsの起動が1秒を超えてしまうことになります．起動後，即座にEmacs終了するシーンでは， =postpone.el= に紐付けた設定が活性化すると無駄になります．それを回避するために， =this-command= の値を確認して，条件に合う場合だけ =postpone.el= が読み込まれる（結果的に紐付いている全ての設定が活性化する）ようにしています．
 
 #+begin_src emacs-lisp :tangle yes
-(setq compilation-scroll-output t)
-#+end_src
-
-** C-x C-c で容易にEmacsを終了させないように質問する
-   :PROPERTIES:
-   :CUSTOM_ID: org68d1750d
-   :END:
-
-=y-or-n-p= もしくは =yes-or-no-p= を指定するだけです．
-
-#+begin_src emacs-lisp :tangle yes
-(setq confirm-kill-emacs 'yes-or-no-p)
-#+end_src
-
-以前は， =C-x C-c= を以下の関数に割り当てて，任意の質問文で入力を求めていました．
-
-#+begin_src emacs-lisp :tangle no
-;;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
-;;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
-;; A simple solution is (setq confirm-kill-emacs 'y-or-n-p).
-(defun confirm-save-buffers-kill-emacs (&optional arg)
-  "Show yes or no when you try to kill Emacs"
-  (interactive "P")
-  (cond (arg (save-buffers-kill-emacs))
-        (t
-         (when (yes-or-no-p "Are you sure to quit Emacs now? ")
-           (save-buffers-kill-emacs)))))
-(global-set-key (kbd "C-x C-c") 'confirm-save-buffers-kill-emacs)
+(if (not (locate-library "postpone"))
+    (message "postpone.el is NOT installed.")
+  (autoload 'postpone-kicker "postpone" nil t)
+  (defun my-postpone-kicker ()
+    (interactive)
+    (unless (memq this-command ;; specify commands for exclusion
+                  '(self-insert-command
+                    save-buffers-kill-terminal
+                    exit-minibuffer))
+      (message "Loading postponed packages...")
+      (postpone-kicker 'my-postpone-kicker)
+      (message "Loading postponed packages...done")))
+  (add-hook 'pre-command-hook #'my-postpone-kicker))
 #+end_src
 
 ** [shut-up.el] Messages 出力を封じる（制御する）
@@ -409,6 +384,8 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
    :END:
 
 =shut-up.el= というマクロがあり，現在はそちらを使っています．非常に強力です．
+
+ - [[https://github.com/cask/shut-up][cask/shut-up: Emacs, shut up would you!]]
 
 #+begin_src emacs-lisp :tangle no
 (defvar shutup-p (when (require 'shut-up nil t) t))
@@ -442,35 +419,29 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
     `(with-temp-message (or (current-message) "") ,@body)))
 #+end_src
 
-** コマンド入力中に入力過程をミニバッファに反映する
+** [exec-path-from-shell.el] PATH設定をシェルから継承する
    :PROPERTIES:
-   :CUSTOM_ID: orgf6a240ab
+   :CUSTOM_ID: orgb59612b6
    :END:
 
-標準値は =1= です．例えば， =C-c f r= で発動する関数があるとき， =C-c= を入力するとその直後にはミニバッファに何も表示されませんが， =echo-keystrokes= だけ経過すると， =C-c= が表示されます． =0= に設定すると，いくら経過しても何も表示しません．
+ - [[https://github.com/purcell/exec-path-from-shell][purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell]]
 
-#+begin_src emacs-lisp :tangle yes
-(setq echo-keystrokes 0.5)
+外部プログラムのサポートを得て動くパッケージは，設定の過程で「プログラムが見つからない」と怒られることがしばしばあります． =exec-path-from-shell= は，シェルに設定した =PATH= の情報を継承して =exec-path= や =PATH= を設定してくれます．私は起動時に環境を切り替えることがあるので使ってませんが，使われている方は多いようです．
+
+#+begin_src emacs-lisp :tangle no
+(when (and (require 'exec-path-from-shell nil t)
+           (memq window-system '(mac ns)))
+  (exec-path-from-shell-initialize))
 #+end_src
 
-** エンターキーの挙動
-   :PROPERTIES:
-   :CUSTOM_ID: org6f2cf1cd
-   :END:
-
-好みの問題ですかね．
-
-#+begin_src emacs-lisp :tangle yes
-(with-eval-after-load "postpone"
-  (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent))
-#+end_src
-
-** [eval-after-autoload-if-found] 複数関数を対象とする遅延読み込み
+** [eval-after-autoload-if-found] 遅延読み込み                     :obsolete:
    :PROPERTIES:
    :CUSTOM_ID: org0b7d9710
    :END:
 
 *現在は使っていません．非推奨です．*
+
+=with-eval-after-load= とのペアでマクロ化したバージョンです．ただ，生成されるバイトコードに問題がありそうなので，最近は使っています．長らくお世話になっております．になりましたが，現在は， =autoload-if-found= と =with-eval-after-load= の組み合わせを使っています．
 
 Twitterでぼやいていたら [[https://twitter.com/cvmat][@cvmat]]さんが降臨して次のマクロを作ってくださいました．感謝感謝．
 
@@ -851,6 +822,44 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 (with-eval-after-load "postpone"
   (when (fboundp 'pixel-scroll-mode)
     (pixel-scroll-mode 1))) ;; 26.1
+#+end_src
+
+** compilation buffer でのデータ表示で自動するスクロールする
+   :PROPERTIES:
+   :CUSTOM_ID: org1b2d3cc0
+   :END:
+
+=nil= のままだと，出力が続いてもスクロールされないので，自動的にスクロールされるように設定．
+
+#+begin_src emacs-lisp :tangle yes
+(setq compilation-scroll-output t)
+#+end_src
+
+** C-x C-c で容易にEmacsを終了させないように質問する
+   :PROPERTIES:
+   :CUSTOM_ID: org68d1750d
+   :END:
+
+=y-or-n-p= もしくは =yes-or-no-p= を指定するだけです．
+
+#+begin_src emacs-lisp :tangle yes
+(setq confirm-kill-emacs 'yes-or-no-p)
+#+end_src
+
+以前は， =C-x C-c= を以下の関数に割り当てて，任意の質問文で入力を求めていました．
+
+#+begin_src emacs-lisp :tangle no
+;;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
+;;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
+;; A simple solution is (setq confirm-kill-emacs 'y-or-n-p).
+(defun confirm-save-buffers-kill-emacs (&optional arg)
+  "Show yes or no when you try to kill Emacs"
+  (interactive "P")
+  (cond (arg (save-buffers-kill-emacs))
+        (t
+         (when (yes-or-no-p "Are you sure to quit Emacs now? ")
+           (save-buffers-kill-emacs)))))
+(global-set-key (kbd "C-x C-c") 'confirm-save-buffers-kill-emacs)
 #+end_src
 
 ** パッケージ管理
@@ -1630,6 +1639,18 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   :PROPERTIES:
   :CUSTOM_ID: org36bb3b1a
   :END:
+** エンターキーの挙動
+   :PROPERTIES:
+   :CUSTOM_ID: org6f2cf1cd
+   :END:
+
+好みの問題ですかね．
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "postpone"
+  (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent))
+#+end_src
+
 ** 矩形編集／連番入力
    :PROPERTIES:
    :CUSTOM_ID: orgf6cb5849
@@ -3020,6 +3041,17 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
   :PROPERTIES:
   :CUSTOM_ID: org94c7bd73
   :END:
+** コマンド入力中に入力過程をミニバッファに反映する
+   :PROPERTIES:
+   :CUSTOM_ID: orgf6a240ab
+   :END:
+
+標準値は =1= です．例えば， =C-c f r= で発動する関数があるとき， =C-c= を入力するとその直後にはミニバッファに何も表示されませんが， =echo-keystrokes= だけ経過すると， =C-c= が表示されます． =0= に設定すると，いくら経過しても何も表示しません．
+
+#+begin_src emacs-lisp :tangle yes
+(setq echo-keystrokes 0.5)
+#+end_src
+
 ** モードラインのモード名を短くする
    :PROPERTIES:
    :CUSTOM_ID: org83eaaf3a
@@ -9156,30 +9188,6 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
   (global-set-key (kbd "C-c f t") 'open-current-directory-in-terminal))
-#+end_src
-
-** [postpone.el] Emacs起動してから使い始めるタイミングで実行する
-   :PROPERTIES:
-   :CREATED:  [2018-03-14 Wed 15:03]
-   :CUSTOM_ID: orga2859651
-   :END:
-
-=helm-config= に紐付けていた遅延呼び出し関数および設定を，自作の =postpone.el= に紐付けました． =helm-config= に紐付けていた時は， =M-x= を使う時にだけ複数の設定が読み込まれましたが，今回の設定では，Emacs起動後の最初のアクション時に読み込まれます（一部のコマンドを除く）．これには =M-x= も含まれます．この =init.el= に記載された遅延読み込みは約660[ms]にも及びます．通常起動では約400[ms]を要している（コンソール起動の場合は，約100[ms]）ので，もし遅延読み込みしなければ，Emacsの起動が1秒を超えてしまうことになります．起動後，即座にEmacs終了するシーンでは， =postpone.el= に紐付けた設定が活性化すると無駄になります．それを回避するために， =this-command= の値を確認して，条件に合う場合だけ =postpone.el= が読み込まれる（結果的に紐付いている全ての設定が活性化する）ようにしています．
-
-#+begin_src emacs-lisp :tangle yes
-(if (not (locate-library "postpone"))
-    (message "postpone.el is NOT installed.")
-  (autoload 'postpone-kicker "postpone" nil t)
-  (defun my-postpone-kicker ()
-    (interactive)
-    (unless (memq this-command ;; specify commands for exclusion
-                  '(self-insert-command
-                    save-buffers-kill-terminal
-                    exit-minibuffer))
-      (message "Loading postponed packages...")
-      (postpone-kicker 'my-postpone-kicker)
-      (message "Loading postponed packages...done")))
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
 #+end_src
 
 ** TODO [network-watch.el] ネットワークインターフェイスの状態を監視
