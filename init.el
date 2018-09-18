@@ -44,10 +44,10 @@
             (message "--- `%s' was NOT loaded intentionally" name)))))
     enabled))
 
-(defvar my-autoload-file-check t)
+(defvar my-skip-autoload-file-check t)
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
-  (when (or my-autoload-file-check
+  (when (or my-skip-autoload-file-check
             (and (my-load-package-p file)
                  (locate-library file)))
     (dolist (f functions)
@@ -55,11 +55,10 @@
     t))
 
 (defun passed-clock-p (target)
-  (let
-      ((hour nil)
-       (min nil)
-       (current-hour nil)
-       (current-min nil))
+  (let ((hour nil)
+        (min nil)
+        (current-hour nil)
+        (current-min nil))
     (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" target)
       (setq hour (substring target (match-beginning 1) (match-end 1)))
       (setq min (substring target (match-beginning 2) (match-end 2)))
@@ -71,10 +70,11 @@
             (string-to-number current-min))))))
 
 (defvar window-focus-p t)
-(defun window-focus-p ()
-  (if window-focus-p t nil))
-(add-hook 'focus-in-hook #'(lambda () (setq window-focus-p t)))
-(add-hook 'focus-out-hook #'(lambda () (setq window-focus-p nil)))
+(with-eval-after-load "postpone"
+  (defun window-focus-p ()
+    (if window-focus-p t nil))
+  (add-hook 'focus-in-hook #'(lambda () (setq window-focus-p t)))
+  (add-hook 'focus-out-hook #'(lambda () (setq window-focus-p nil))))
 
 (if (not (locate-library "postpone"))
     (message "postpone.el is NOT installed.")
@@ -95,15 +95,7 @@
   (unless my-batch-build
     (postpone-message "shut-up"))
   (setq shutup-p (when (require 'shut-up nil t) t)))
-
-;; メッセージバッファの長さ
-(setq message-log-max 5000)
-
-(defmacro with-suppressed-message (&rest body)
-  "Suppress new messages temporarily in the echo area and the `*Messages*' buffer while BODY is evaluated."
-  (declare (indent 0))
-  (let ((message-log-max nil))
-    `(with-temp-message (or (current-message) "") ,@body)))
+(setq message-log-max 5000) ;; メッセージバッファの長さ
 
 (prefer-coding-system 'utf-8-unix)
 ;; (set-language-environment "Japanese") ;; will take 20-30[ms]
@@ -133,40 +125,15 @@
       (load-file "/usr/share/emacs/site-lisp/anthy/leim-list.el")
       (setq default-input-method 'japanese-anthy))))
 
-(when (and (executable-find "ag")
-           (autoload-if-found
-            '(my-ag ag)
-            "ag" nil t))
-
-  (autoload-if-found '(helm-ag) "helm-ag" nil t)
-
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-M-f") 'my-ag))
-
-  (with-eval-after-load "ag"
-    (custom-set-variables
-     '(ag-highlight-search t)
-     '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
-     '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
-
-    ;; q でウィンドウを抜ける
-    ;; (define-key ag-mode-map (kbd "q") 'delete-window)
-    (defun my-ag ()
-      "自動的に出力バッファに移動"
-      (interactive)
-      (call-interactively 'ag)
-      (switch-to-buffer-other-frame "*ag search*"))))
-
 (when (memq window-system '(mac ns))
-  (global-set-key (kbd "M-v") 'yank)
   (when (boundp 'ns-command-modifier)
     (setq ns-command-modifier 'meta))
   (when (boundp 'ns-alternate-modifier)
     (setq ns-alternate-modifier 'super))
   (when (boundp 'ns-pop-up-frames)
     (setq ns-pop-up-frames nil))
-  (global-set-key [ns-drag-file] 'ns-find-file)) ; D&D for Emacs23
-
+  (global-set-key (kbd "M-v") 'yank)
+  (global-set-key [ns-drag-file] 'ns-find-file))
 (global-set-key [delete] 'delete-char)
 (global-set-key [kp-delete] 'delete-char)
 
@@ -188,8 +155,6 @@
   (unless my-batch-build
     (postpone-message "global-auto-revert-mode")
     (global-auto-revert-mode 1)))
-
-(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 (setq mouse-drag-copy-region t)
 
@@ -237,6 +202,8 @@
          lisp-mode-hook perl-mode-hook c-mode-common-hook))
     (add-hook hook #'aggressive-indent-mode)))
 
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+
 (when (autoload-if-found
        '(ws-butler-mode ws-butler-global-mode)
        "ws-butler" nil t)
@@ -251,6 +218,30 @@
     (unless my-batch-build
       (postpone-message "ws-butler-global-mode")
       (ws-butler-global-mode))))
+
+(when (and (executable-find "ag")
+           (autoload-if-found
+            '(my-ag ag)
+            "ag" nil t))
+
+  (autoload-if-found '(helm-ag) "helm-ag" nil t)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-M-f") 'my-ag))
+
+  (with-eval-after-load "ag"
+    (custom-set-variables
+     '(ag-highlight-search t)
+     '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
+     '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
+
+    ;; q でウィンドウを抜ける
+    ;; (define-key ag-mode-map (kbd "q") 'delete-window)
+    (defun my-ag ()
+      "自動的に出力バッファに移動"
+      (interactive)
+      (call-interactively 'ag)
+      (switch-to-buffer-other-frame "*ag search*"))))
 
 (setq vc-follow-symlinks t)
 
@@ -302,22 +293,28 @@
   (global-set-key (kbd "C-M-p") #'(lambda () (interactive) (other-window -1)))
   (global-set-key (kbd "C-M-n") #'(lambda () (interactive) (other-window 1))))
 
-;; Scroll window on a line-by-line basis
-(setq scroll-conservatively 1000)
-(setq scroll-step 1)
+(with-eval-after-load "postpone"
+  ;; Scroll window on a line-by-line basis
+  (setq scroll-conservatively 1000)
+  (setq scroll-step 1))
 ;;  (setq scroll-margin 0) ; default=0
 
 ;; Scroll window on a page-by-pabe basis with N line overlapping
 (setq next-screen-context-lines 1)
 
-(when (autoload-if-found '(smooth-scroll-mode) "smooth-scroll" nil t)
+(when (autoload-if-found
+       '(smooth-scroll-mode)
+       "smooth-scroll" nil t)
 
-  (defun smooth-scroll-mode-kicker ()
-    "Load `smooth-scroll.el' and remove-hook"
-    (when (memq this-command '(scroll-up scroll-down scroll-up-command))
-      (smooth-scroll-mode t)
-      (remove-hook 'pre-command-hook #'smooth-scroll-mode-kicker)))
-  (add-hook 'pre-command-hook #'smooth-scroll-mode-kicker)
+  ;; (defun smooth-scroll-mode-kicker ()
+  ;;   "Load `smooth-scroll.el' and remove-hook"
+  ;;   (when (memq this-command '(scroll-up scroll-down scroll-up-command))
+  ;;     (smooth-scroll-mode t)
+  ;;     (remove-hook 'pre-command-hook #'smooth-scroll-mode-kicker)))
+  ;; (add-hook 'pre-command-hook #'smooth-scroll-mode-kicker)
+
+  (with-eval-after-load "postpone"
+    (smooth-scroll-mode t))
 
   (with-eval-after-load "smooth-scroll"
     (custom-set-variables
@@ -436,7 +433,8 @@
        '(time-stamp my-time-stamp)
        "time-stamp" nil t)
 
-  (add-hook 'before-save-hook #'my-time-stamp)
+  (with-eval-after-load "postpone"
+    (add-hook 'before-save-hook #'my-time-stamp))
 
   (with-eval-after-load "time-stamp"
     (setq time-stamp-start "#\\+date:[ \t]*")
@@ -452,19 +450,20 @@
             (time-stamp))
         (time-stamp)))))
 
-(defadvice isearch-mode
-    (around isearch-mode-default-string
-            (forward &optional regexp op-fun recursive-edit word-p) activate)
-  (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
-      (progn
-        (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
-        (deactivate-mark)
-        ad-do-it
-        (if (not forward)
-            (isearch-repeat-backward)
-          (goto-char (mark))
-          (isearch-repeat-forward)))
-    ad-do-it))
+(with-eval-after-load "postpone"
+  (defadvice isearch-mode
+      (around isearch-mode-default-string
+              (forward &optional regexp op-fun recursive-edit word-p) activate)
+    (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
+        (progn
+          (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
+          (deactivate-mark)
+          ad-do-it
+          (if (not forward)
+              (isearch-repeat-backward)
+            (goto-char (mark))
+            (isearch-repeat-forward)))
+      ad-do-it)))
 
 (add-hook 'change-log-mode-hook
           #'(lambda()
@@ -478,9 +477,8 @@
 (when (autoload-if-found
        '(modern-c++-font-lock-mode)
        "modern-cpp-font-lock" nil t)
-
-  (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode)
-  (push '("\\.h$" . c++-mode) auto-mode-alist))
+  (push '("\\.h$" . c++-mode) auto-mode-alist)
+  (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 
 (when (autoload-if-found
        '(csharp-mode)
@@ -636,23 +634,25 @@
        '(flyspell-prog-mode flyspell-mode)
        "flyspell" nil t)
 
-  (defvar major-mode-with-flyspell
-    '(text-mode change-log-mode latex-mode yatex-mode
-                git-commit-mode org-mode))
-  (defvar major-mode-with-flyspell-prog
-    '(c-mode-common emacs-lisp-mode perl-mode python-mode))
-  (defvar my-flyspell-target-modes
-    (append major-mode-with-flyspell
-            major-mode-with-flyspell-prog))
+  (with-eval-after-load "postpone"
 
-  ;; バッファ内の全てをチェック対象にするモードの hook に flyspell 起動を登録
-  (dolist (hook major-mode-with-flyspell)
-    (add-hook (intern (format "%s-hook" hook))
-              #'(lambda () (flyspell-mode 1))))
-  ;; コメント行のみを対象にする
-  (dolist (hook major-mode-with-flyspell-prog)
-    (add-hook (intern (format "%s-hook" hook))
-              #'flyspell-prog-mode))
+    (defvar major-mode-with-flyspell
+      '(text-mode change-log-mode latex-mode yatex-mode
+                  git-commit-mode org-mode))
+    (defvar major-mode-with-flyspell-prog
+      '(c-mode-common emacs-lisp-mode perl-mode python-mode))
+    (defvar my-flyspell-target-modes
+      (append major-mode-with-flyspell
+              major-mode-with-flyspell-prog))
+
+    ;; バッファ内の全てをチェック対象にするモードの hook に flyspell 起動を登録
+    (dolist (hook major-mode-with-flyspell)
+      (add-hook (intern (format "%s-hook" hook))
+                #'(lambda () (flyspell-mode 1))))
+    ;; コメント行のみを対象にする
+    (dolist (hook major-mode-with-flyspell-prog)
+      (add-hook (intern (format "%s-hook" hook))
+                #'flyspell-prog-mode)))
 
   (with-eval-after-load "flyspell"
     ;; C-; をオーバーライド
@@ -944,8 +944,9 @@ This works also for other defined begin/end tokens to define the structure."
       (smartparens-global-mode))))
 
 (autoload-if-found
- '(isolate-quick-add isolate-long-add isolate-quick-delete
-                     isolate-quick-chnge isolate-long-change)
+ '(isolate-quick-add
+   isolate-long-add isolate-quick-delete
+   isolate-quick-chnge isolate-long-change)
  "isolate" nil t)
 
 (autoload-if-found
@@ -1010,6 +1011,7 @@ This works also for other defined begin/end tokens to define the structure."
 (when (autoload-if-found
        '(bratex-config)
        "bratex" nil t)
+
   (with-eval-after-load "postpone"
     (add-hook 'yatex-mode-hook #'bratex-config)))
 
@@ -1196,15 +1198,15 @@ This works also for other defined begin/end tokens to define the structure."
 
   (with-eval-after-load "display-line-numbers"
     (custom-set-variables
-     '(display-line-numbers-width-start t)))
+     '(display-line-numbers-width-start t))
 
-  (defun my-toggle-display-line-numbers-mode ()
-    "Toggle variable `global-display-line-numbers-mode'."
-    (interactive)
-    (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
-        (let ((flag (if global-display-line-numbers-mode -1 1)))
-          (global-display-line-numbers-mode flag))
-      (user-error "The display-line-numbers is supported in 26.1 or later"))))
+    (defun my-toggle-display-line-numbers-mode ()
+      "Toggle variable `global-display-line-numbers-mode'."
+      (interactive)
+      (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
+          (let ((flag (if global-display-line-numbers-mode -1 1)))
+            (global-display-line-numbers-mode flag))
+        (user-error "The display-line-numbers is NOT supported")))))
 
 (if (executable-find "cmigemo")
     (when (autoload-if-found
@@ -1230,6 +1232,7 @@ This works also for other defined begin/end tokens to define the structure."
 (when (autoload-if-found
        '(helm-google)
        "helm-google" nil t)
+
   (with-eval-after-load "helm-google"
     (custom-set-variables
      '(helm-google-tld "co.jp"))))
@@ -1589,7 +1592,8 @@ This works also for other defined begin/end tokens to define the structure."
        '(dired-recent-open dired-recent-mode)
        "dired-recent" nil t)
 
-  (global-set-key (kbd "C-x C-d") 'dired-recent-open)
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-x C-d") 'dired-recent-open))
 
   (with-eval-after-load "dired-recent"
     (require 'helm-config nil t)
@@ -1731,12 +1735,12 @@ This works also for other defined begin/end tokens to define the structure."
 ;; (add-hook 'kill-emacs-hook #'my-delete-backup-7days))
 
 (when (autoload-if-found
-       '(my-backup-recentf my-backup)
+       '(my-backup)
        "utility" nil t)
-
-  (defun my-backup-recentf ()
-    (my-backup "~/.emacs.d/recentf"))
-  (run-with-idle-timer 180 t 'my-backup-recentf))
+  (with-eval-after-load "postpone"
+    (defun my-backup-recentf ()
+      (my-backup "~/.emacs.d/recentf"))
+    (run-with-idle-timer 180 t 'my-backup-recentf)))
 
 (when (autoload-if-found
        '(session-initialize)
@@ -2033,11 +2037,11 @@ This works also for other defined begin/end tokens to define the structure."
          '(helm-gtags-mode)
          "helm-gtags" nil t)
 
+    (add-hook 'c-mode-common-hook #'helm-gtags-mode)
+
     (with-eval-after-load "helm-gtags"
       (custom-set-variables
-       '(helm-gtags-mode-name "")))
-
-    (add-hook 'c-mode-common-hook #'helm-gtags-mode)))
+       '(helm-gtags-mode-name "")))))
 
 (when (autoload-if-found
        '(0xc-convert 0xc-convert-point my-decimal-to-hex my-hex-to-decimal)
@@ -2333,7 +2337,8 @@ This works also for other defined begin/end tokens to define the structure."
 (with-eval-after-load "org"
   (setq org-use-speed-commands t)
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
-  (add-to-list 'org-speed-commands-user '("D" my-org-todo-complete-no-repeat "DONE"))
+  (add-to-list 'org-speed-commands-user
+               '("D" my-org-todo-complete-no-repeat "DONE"))
   ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
   ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
   (add-to-list 'org-speed-commands-user '("!" my-org-set-created-property))
@@ -3385,22 +3390,23 @@ Note that this mechanism is still under consideration."
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
                 "#L" (format "%d" line) "][" alt "]]")))))
 
-(defun my-lowercase-org-keywords ()
-  "Lower case Org keywords and block identifiers."
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (let ((case-fold-search nil)
-          (count 0))
-      (while (re-search-forward
-              "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)"
-              nil :noerror)
-        (setq count (1+ count))
-        (let* ((prev (match-string-no-properties 1))
-               (new (downcase prev)))
-          (replace-match new :fixedcase nil nil 1)
-          (message "Updated(%d): %s => %s" count prev new)))
-      (message "Lower-cased %d matches" count))))
+(with-eval-after-load "org"
+  (defun my-lowercase-org-keywords ()
+    "Lower case Org keywords and block identifiers."
+    (interactive)
+    (save-excursion
+      (goto-char (point-min))
+      (let ((case-fold-search nil)
+            (count 0))
+        (while (re-search-forward
+                "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)"
+                nil :noerror)
+          (setq count (1+ count))
+          (let* ((prev (match-string-no-properties 1))
+                 (new (downcase prev)))
+            (replace-match new :fixedcase nil nil 1)
+            (message "Updated(%d): %s => %s" count prev new)))
+        (message "Lower-cased %d matches" count)))))
 
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
@@ -3462,8 +3468,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
            ;; (vertical-scroll-bars . nil)
            ;; (internal-border-width . 20)
            ;; (ns-appearance . nil) ;; 26.1 {light, dark}
-           (ns-transparent-titlebar . t) ;; 26.1
-           ) initial-frame-alist)))
+           (ns-transparent-titlebar . t)) ;; 26.1
+         initial-frame-alist)))
 
  ;; for Linux
  ((eq window-system 'x)
@@ -3473,8 +3479,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
            (top . 0)
            (left . 0)
            (width . 80)
-           (height . 38)
-           ) initial-frame-alist)))
+           (height . 38))
+         initial-frame-alist)))
 
  ;; for Windows
  (t (setq initial-frame-alist
@@ -3483,8 +3489,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
              (top . 0)
              (left . 0)
              (width . 80)
-             (height . 26)
-             ) initial-frame-alist))))
+             (height . 26))
+           initial-frame-alist))))
 
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)
@@ -3652,7 +3658,10 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     moom-change-frame-width moom-change-frame-width-double
     moom-change-frame-width-single))
 
-(when (autoload-if-found moom-autoloads "moom" nil t)
+(when (autoload-if-found
+       moom-autoloads
+       "moom" nil t)
+
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
 
   (with-eval-after-load "postpone"
@@ -4356,11 +4365,13 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (when (autoload-if-found
        '(my-cmd-to-open-iterm2)
        "utility" nil t)
+
   (with-eval-after-load "postpone"
     (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2))
-  ;; キーバインドの再設定
+
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2))
+
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2)))
 
@@ -4372,19 +4383,19 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
          network-watch-active-p advice:network-watch-update-lighter)
        "network-watch" nil t)
 
-  (with-eval-after-load "network-watch"
-    (defun advice:network-watch-update-lighter ()
-      "Return a mode lighter reflecting the current network state."
-      (unless (network-watch-active-p) " ↓NW↓"))
-    (advice-add 'network-watch-update-lighter
-                :override #'advice:network-watch-update-lighter))
-
   (with-eval-after-load "postpone"
     (unless my-batch-build
       (postpone-message "network-watch-mode")
       (if shutup-p
           (shut-up (network-watch-mode 1))
-        (network-watch-mode 1)))))
+        (network-watch-mode 1))))
+
+  (with-eval-after-load "network-watch"
+    (defun advice:network-watch-update-lighter ()
+      "Return a mode lighter reflecting the current network state."
+      (unless (network-watch-active-p) " ↓NW↓"))
+    (advice-add 'network-watch-update-lighter
+                :override #'advice:network-watch-update-lighter)))
 
 (when (autoload-if-found
        '(gif-screencast)

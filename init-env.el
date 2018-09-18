@@ -14,7 +14,7 @@
 (defconst my-loading-packages nil) ;; `my-autoload-file-check' shall be nil.
 ;; (setq my-loading-packages '(("moom" . nil) ("moom-font" . nil)))
 (setq debug-on-error nil
-      my-autoload-file-check t
+      my-skip-autoload-file-check t
       postpone-verbose nil) ;; see postpone.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when my-profiler-p
