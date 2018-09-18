@@ -389,7 +389,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+begin_src emacs-lisp :tangle yes
 (defvar shutup-p nil)
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "shut-up"))
   (setq shutup-p (when (require 'shut-up nil t) t)))
 (setq message-log-max 5000) ;; メッセージバッファの長さ
@@ -736,7 +736,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "global-auto-revert-mode")
     (global-auto-revert-mode 1)))
 #+end_src
@@ -788,8 +788,6 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 以前は， =C-x C-c= を以下の関数に割り当てて，任意の質問文で入力を求めていました．
 
 #+begin_src emacs-lisp :tangle no
-;;; Cite: http://flex.ee.uec.ac.jp/texi/emacs-jp/emacs-jp_12.html
-;;; Cite: http://d.hatena.ne.jp/Ubuntu/20090417/1239934416
 ;; A simple solution is (setq confirm-kill-emacs 'y-or-n-p).
 (defun confirm-save-buffers-kill-emacs (&optional arg)
   "Show yes or no when you try to kill Emacs"
@@ -1035,7 +1033,7 @@ echo "--- done."
                ws-butler-global-exempt-modes))))
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "ws-butler-global-mode")
       (ws-butler-global-mode))))
 #+end_src
@@ -1570,7 +1568,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     (setq back-button-index-timeout 0)))
 
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "back-button-mode")
     (back-button-mode 1)))
 #+end_src
@@ -1589,7 +1587,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
   (when (require 'smart-mark nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "smart-mark-mode")
       (smart-mark-mode 1))))
 #+end_src
@@ -1604,7 +1602,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
   (when (require 'syntax-subword nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "global-syntax-subword-mode")
       (global-syntax-subword-mode 1))))
 #+end_src
@@ -2485,7 +2483,7 @@ This works also for other defined begin/end tokens to define the structure."
 
     ;; 本家できちんと対応されたので，不要になった．
     ;; (define-key yas-minor-mode-map (kbd "<tab>") 'my-yas-expand)
-    (unless my-batch-build
+    (unless noninteractive
       (yas-global-mode 1))))
 #+end_src
 
@@ -2888,7 +2886,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "smartparens")
       (smartparens-global-mode))))
 #+end_src
@@ -2978,7 +2976,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
         (interactive)
         (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "selected")
       (selected-global-mode 1))))
 #+end_src
@@ -3074,7 +3072,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load "postpone"
   (when (require 'diminish nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "diminish"))
     (with-eval-after-load "ggtags" (diminish 'ggtags-mode " G"))
     (with-eval-after-load "org" (diminish 'orgstruct-mode " OrgS"))
@@ -3137,7 +3135,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
   (when (require 'delight nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "delight"))
     (delight
      '(;; Major modes
@@ -3400,7 +3398,7 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
     (setq yascroll:disabled-modes '(org-mode))
     (set-face-foreground 'yascroll:thumb-fringe "#b2cefb")
     (set-face-background 'yascroll:thumb-fringe "#b2cefb")
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "yascroll")
       (global-yascroll-bar-mode 1))))
 #+end_src
@@ -3436,7 +3434,7 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
 #+begin_src emacs-lisp :tangle yes
 ;; Show line number in the mode line.
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "line-number-mode")
     (line-number-mode 1)))
 #+end_src
@@ -3466,7 +3464,7 @@ see http://yohshiy.blog.fc2.com/blog-entry-171.html
   (setq display-time-format "%H%M.%S") ;; %y%m%d.
   (setq display-time-interval 1)
   (setq display-time-default-load-average nil)
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "display-time-mode")
     (display-time-mode 1)))
 #+end_src
@@ -3487,7 +3485,7 @@ Built-in の paren.el が利用できる．拡張版として [[http://www.emacs
     (set-face-foreground 'paren-face-match "#FFFFFF")
     ;; Deep blue: #6666CC, orange: #FFCC66
     (set-face-background 'paren-face-match "#66CC66")
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "mic-paren")
       (paren-activate))))
 #+end_src
@@ -4028,7 +4026,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
     (guide-key-mode 1))
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "guide-key-mode")
       (guide-key-mode 1))))
 #+end_src
@@ -4048,7 +4046,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
        "which-key" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "which-key")
       (which-key-mode 1)))
 
@@ -4199,7 +4197,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
        "dimmer" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "dimmer-mode")
       (custom-set-variables
        '(dimmer-exclusion-regexp
@@ -4629,7 +4627,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 (with-eval-after-load "postpone"
   (when (require 'desktop nil t)
     (setq desktop-files-not-to-save "\\(^/tmp\\|^/var\\|^/ssh:\\)")
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "desktop")
       (desktop-save-mode 1))))
 #+end_src
@@ -4656,7 +4654,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
        "recentf" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "recentf-mode")
       (recentf-mode 1)))
 
@@ -4718,7 +4716,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
   (when (require 'auto-save-buffers nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "auto-save-buffers"))
     (defun my-auto-save-buffers ()
       (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
@@ -4787,7 +4785,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   ;; なぜか (backup-each-save) の直接呼び出しだとだめ
   (with-eval-after-load "postpone"
     (when (require 'backup-each-save nil t)
-      (unless my-batch-build
+      (unless noninteractive
         (postpone-message "backup-each-save")))
 
     ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
@@ -4846,7 +4844,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
        '(session-initialize)
        "session" nil t)
 
-  (unless my-batch-build
+  (unless noninteractive
     (add-hook 'after-init-hook #'session-initialize))
 
   (with-eval-after-load "session"
@@ -5036,7 +5034,7 @@ http://www.emacswiki.org/emacs/EmacsSession
     (keyfreq-autosave-mode 1))
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "keyfreq-mode")
       (keyfreq-mode 1))))
 #+end_src
@@ -5437,7 +5435,7 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 (with-eval-after-load "postpone"
   (if (executable-find "editorconfig")
       (when (require 'editorconfig nil t)
-        (unless my-batch-build
+        (unless noninteractive
           (postpone-message "editorconfig")
           ;; (add-to-list 'editorconfig-exclude-modes 'org-mode)
           ;; (when (require 'editorconfig-charset-extras nil t)
@@ -5535,7 +5533,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
        "projectile" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "projectile-mode")
       (setq projectile-keymap-prefix (kbd "C-c p"))
       (projectile-mode 1)))
@@ -5697,7 +5695,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
     (require 'org-eldoc nil t)
 
     ;; emms のリンクに対応させる
-    (unless my-batch-build
+    (unless noninteractive
       (require 'org-emms nil t))
 
     ;; 非表示状態の領域への書き込みを防ぐ
@@ -6247,7 +6245,7 @@ update it for multiple appts?")
 
   (with-eval-after-load "org"
     ;; アラーム表示を有効にする
-    (unless my-batch-build
+    (unless noninteractive
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init
       (appt-activate 1))
     ;; org-agenda の内容をアラームに登録する
@@ -6539,7 +6537,7 @@ will not be modified."
       'org-tree-slide-move-previous-tree)
     (define-key org-tree-slide-mode-map (kbd "<f10>")
       'org-tree-slide-move-next-tree)
-    (unless my-batch-build
+    (unless noninteractive
       (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
     (setq org-tree-slide-skip-outline-level 5)
@@ -7429,7 +7427,7 @@ Mac の通知機能を使って，Emacsで発生するイベントをユーザ�
       (force-mode-line-update))
     (advice-add 'org-clock-today-update-mode-line
                 :override #'advice:org-clock-today-update-mode-line)
-    (unless my-batch-build
+    (unless noninteractive
       (org-clock-today-mode 1))))
 #+end_src
 
@@ -7936,7 +7934,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "moom"))
     (when (and (require 'moom nil t)
                window-system)
@@ -8006,7 +8004,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (redraw-frame))
       (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
-    (unless my-batch-build
+    (unless noninteractive
       (my-moom-toggle-mode-line))
     (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
     (add-hook 'find-file-hook #'my-moom-mode-line-off))
@@ -8049,7 +8047,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 (with-eval-after-load "postpone"
   (when (require 'popwin nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "popwin-mode")
       (popwin-mode 1))
     ;; Performed
@@ -8118,7 +8116,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
             ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
             ;; ("^\*Helm.+" :regexp t :align above :size 0.2)
             ))
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "shackle")
       (shackle-mode 1))))
 #+end_src
@@ -8190,7 +8188,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 #+begin_src emacs-lisp
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "winner-mode")
     (winner-mode 1)))
 #+end_src
@@ -8224,7 +8222,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "generic-x")
     (require 'generic-x nil t)))
 #+end_src
@@ -8243,7 +8241,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
   (if (display-graphic-p)
-      (unless my-batch-build
+      (unless noninteractive
         (postpone-message "global-hl-line-mode"))
     (setq hl-line-face 'underline))
   (global-hl-line-mode 1))
@@ -8267,7 +8265,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "blink-cursor-mode")
     (blink-cursor-mode -1)))
 #+end_src
@@ -8281,7 +8279,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   (setq blink-cursor-blinks 0)
   (setq blink-cursor-interval 0.3)
   (setq blink-cursor-delay 16)
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "blink-cursor-mode")
     (blink-cursor-mode -1)))
 #+end_src
@@ -8730,7 +8728,7 @@ M-x rainbow-mode とすると，色指定のコードの背景色を，その指
        "pomodoro" nil t)
 
   (with-eval-after-load "postpone"
-    (when (and (not my-batch-build)
+    (when (and (not noninteractive)
                (not (boundp 'pomodoro:timer)))
       ;; 重複起動を回避
       (pomodoro:start nil)))
@@ -9215,7 +9213,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
        "network-watch" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "network-watch-mode")
       (if shutup-p
           (shut-up (network-watch-mode 1))

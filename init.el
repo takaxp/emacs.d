@@ -92,7 +92,7 @@
 
 (defvar shutup-p nil)
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "shut-up"))
   (setq shutup-p (when (require 'shut-up nil t) t)))
 (setq message-log-max 5000) ;; メッセージバッファの長さ
@@ -152,7 +152,7 @@
 (setq truncate-partial-width-windows nil)
 
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "global-auto-revert-mode")
     (global-auto-revert-mode 1)))
 
@@ -215,7 +215,7 @@
                ws-butler-global-exempt-modes))))
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "ws-butler-global-mode")
       (ws-butler-global-mode))))
 
@@ -401,13 +401,13 @@
 
 (with-eval-after-load "postpone"
   (when (require 'smart-mark nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "smart-mark-mode")
       (smart-mark-mode 1))))
 
 (with-eval-after-load "postpone"
   (when (require 'syntax-subword nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "global-syntax-subword-mode")
       (global-syntax-subword-mode 1))))
 
@@ -840,7 +840,7 @@ This works also for other defined begin/end tokens to define the structure."
 
     ;; 本家できちんと対応されたので，不要になった．
     ;; (define-key yas-minor-mode-map (kbd "<tab>") 'my-yas-expand)
-    (unless my-batch-build
+    (unless noninteractive
       (yas-global-mode 1))))
 
 (when (autoload-if-found
@@ -939,7 +939,7 @@ This works also for other defined begin/end tokens to define the structure."
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "smartparens")
       (smartparens-global-mode))))
 
@@ -997,7 +997,7 @@ This works also for other defined begin/end tokens to define the structure."
         (interactive)
         (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "selected")
       (selected-global-mode 1))))
 
@@ -1019,7 +1019,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 (with-eval-after-load "postpone"
   (when (require 'delight nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "delight"))
     (delight
      '(;; Major modes
@@ -1130,7 +1130,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 ;; Show line number in the mode line.
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "line-number-mode")
     (line-number-mode 1)))
 
@@ -1139,7 +1139,7 @@ This works also for other defined begin/end tokens to define the structure."
   (setq display-time-format "%H%M.%S") ;; %y%m%d.
   (setq display-time-interval 1)
   (setq display-time-default-load-average nil)
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "display-time-mode")
     (display-time-mode 1)))
 
@@ -1149,7 +1149,7 @@ This works also for other defined begin/end tokens to define the structure."
     (set-face-foreground 'paren-face-match "#FFFFFF")
     ;; Deep blue: #6666CC, orange: #FFCC66
     (set-face-background 'paren-face-match "#66CC66")
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "mic-paren")
       (paren-activate))))
 
@@ -1389,7 +1389,7 @@ This works also for other defined begin/end tokens to define the structure."
        "which-key" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "which-key")
       (which-key-mode 1)))
 
@@ -1426,7 +1426,7 @@ This works also for other defined begin/end tokens to define the structure."
        "dimmer" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "dimmer-mode")
       (custom-set-variables
        '(dimmer-exclusion-regexp
@@ -1659,7 +1659,7 @@ This works also for other defined begin/end tokens to define the structure."
        "recentf" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "recentf-mode")
       (recentf-mode 1)))
 
@@ -1692,7 +1692,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 (with-eval-after-load "postpone"
   (when (require 'auto-save-buffers nil t)
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "auto-save-buffers"))
     (defun my-auto-save-buffers ()
       (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
@@ -1720,7 +1720,7 @@ This works also for other defined begin/end tokens to define the structure."
   ;; なぜか (backup-each-save) の直接呼び出しだとだめ
   (with-eval-after-load "postpone"
     (when (require 'backup-each-save nil t)
-      (unless my-batch-build
+      (unless noninteractive
         (postpone-message "backup-each-save")))
 
     ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
@@ -1746,7 +1746,7 @@ This works also for other defined begin/end tokens to define the structure."
        '(session-initialize)
        "session" nil t)
 
-  (unless my-batch-build
+  (unless noninteractive
     (add-hook 'after-init-hook #'session-initialize))
 
   (with-eval-after-load "session"
@@ -1849,7 +1849,7 @@ This works also for other defined begin/end tokens to define the structure."
     (keyfreq-autosave-mode 1))
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "keyfreq-mode")
       (keyfreq-mode 1))))
 
@@ -2061,7 +2061,7 @@ This works also for other defined begin/end tokens to define the structure."
 (with-eval-after-load "postpone"
   (if (executable-find "editorconfig")
       (when (require 'editorconfig nil t)
-        (unless my-batch-build
+        (unless noninteractive
           (postpone-message "editorconfig")
           ;; (add-to-list 'editorconfig-exclude-modes 'org-mode)
           ;; (when (require 'editorconfig-charset-extras nil t)
@@ -2092,7 +2092,7 @@ This works also for other defined begin/end tokens to define the structure."
        "projectile" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "projectile-mode")
       (setq projectile-keymap-prefix (kbd "C-c p"))
       (projectile-mode 1)))
@@ -2225,7 +2225,7 @@ This works also for other defined begin/end tokens to define the structure."
     (require 'org-eldoc nil t)
 
     ;; emms のリンクに対応させる
-    (unless my-batch-build
+    (unless noninteractive
       (require 'org-emms nil t))
 
     ;; 非表示状態の領域への書き込みを防ぐ
@@ -2679,7 +2679,7 @@ update it for multiple appts?")
 
   (with-eval-after-load "org"
     ;; アラーム表示を有効にする
-    (unless my-batch-build
+    (unless noninteractive
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init
       (appt-activate 1))
     ;; org-agenda の内容をアラームに登録する
@@ -2892,7 +2892,7 @@ will not be modified."
       'org-tree-slide-move-previous-tree)
     (define-key org-tree-slide-mode-map (kbd "<f10>")
       'org-tree-slide-move-next-tree)
-    (unless my-batch-build
+    (unless noninteractive
       (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
     (setq org-tree-slide-skip-outline-level 5)
@@ -3335,7 +3335,7 @@ will not be modified."
       (force-mode-line-update))
     (advice-add 'org-clock-today-update-mode-line
                 :override #'advice:org-clock-today-update-mode-line)
-    (unless my-batch-build
+    (unless noninteractive
       (org-clock-today-mode 1))))
 
 (when (autoload-if-found
@@ -3665,7 +3665,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "moom"))
     (when (and (require 'moom nil t)
                window-system)
@@ -3726,7 +3726,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (redraw-frame))
       (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
-    (unless my-batch-build
+    (unless noninteractive
       (my-moom-toggle-mode-line))
     (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
     (add-hook 'find-file-hook #'my-moom-mode-line-off))
@@ -3753,7 +3753,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
             ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
             ;; ("^\*Helm.+" :regexp t :align above :size 0.2)
             ))
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "shackle")
       (shackle-mode 1))))
 
@@ -3780,13 +3780,13 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC"))
 
 (with-eval-after-load "postpone"
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "generic-x")
     (require 'generic-x nil t)))
 
 (with-eval-after-load "postpone"
   (if (display-graphic-p)
-      (unless my-batch-build
+      (unless noninteractive
         (postpone-message "global-hl-line-mode"))
     (setq hl-line-face 'underline))
   (global-hl-line-mode 1))
@@ -3795,7 +3795,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (setq blink-cursor-blinks 0)
   (setq blink-cursor-interval 0.3)
   (setq blink-cursor-delay 16)
-  (unless my-batch-build
+  (unless noninteractive
     (postpone-message "blink-cursor-mode")
     (blink-cursor-mode -1)))
 
@@ -4027,7 +4027,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
        "pomodoro" nil t)
 
   (with-eval-after-load "postpone"
-    (when (and (not my-batch-build)
+    (when (and (not noninteractive)
                (not (boundp 'pomodoro:timer)))
       ;; 重複起動を回避
       (pomodoro:start nil)))
@@ -4384,7 +4384,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
        "network-watch" nil t)
 
   (with-eval-after-load "postpone"
-    (unless my-batch-build
+    (unless noninteractive
       (postpone-message "network-watch-mode")
       (if shutup-p
           (shut-up (network-watch-mode 1))

@@ -17,7 +17,8 @@
          (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
                   (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
          (arg (ad-get-arg 0)))
-    (unless (memq arg '(cl-lib macroexp))
+    (unless (or (memq arg '(cl-lib macroexp))
+                (> 0.1 time))
       (message "--- %04d [ms]: %s" time arg))))
 
 (provide 'init-ad)

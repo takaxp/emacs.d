@@ -51,7 +51,6 @@
 ;; (3) load-path for { nil | debug | test } booting
 ;; M-x list-load-path-shadows
 (defvar my-default-load-path nil)
-(defvar my-batch-build nil) ;; see also init-eval.el
 (cond
  ((equal my-boot-type 'default)
   (let* ((g "~/devel/git/")
@@ -66,6 +65,8 @@
   (when my-ad-require-p
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
   (require 'init nil t)
+  ;; (require 'init-eval nil t)
+  ;; (require 'utility nil t)
   (require 'my-eshell nil t)
   (require 'my-mail nil t)
   (require 'private nil t)
