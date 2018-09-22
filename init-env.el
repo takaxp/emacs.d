@@ -13,9 +13,10 @@
   "Boot menu selection: {debug, test, default}.")
 (defconst my-loading-packages nil) ;; `my-autoload-file-check' shall be nil.
 ;; (setq my-loading-packages '(("moom" . nil) ("moom-font" . nil)))
-(setq debug-on-error nil
+(setq postpone-verbose nil
       my-skip-autoload-file-check t
-      postpone-verbose nil) ;; see postpone.el
+      debug-on-error nil) ;; see postpone.el
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when my-profiler-p
   (profiler-start 'cpu+mem))
@@ -50,7 +51,6 @@
 
 ;; (3) load-path for { nil | debug | test } booting
 ;; M-x list-load-path-shadows
-(defvar my-default-load-path nil)
 (cond
  ((equal my-boot-type 'default)
   (let* ((g "~/devel/git/")
@@ -60,8 +60,7 @@
               ,(concat g od "/lisp")
               ,(concat g od "/contrib/lisp")
               ,my-cask-package-dir)))
-    (my-path-setter l 'load-path)
-    (setq my-default-load-path load-path))
+    (my-path-setter l 'load-path))
   (when my-ad-require-p
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
   (require 'init nil t)
@@ -87,59 +86,7 @@
   (require 'my-debug))
  (t nil))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Utilities to manage packages
-(defun my-list-packages ()
-  "Call \\[paradox-list-packages]' if available instead of \\[list-packages]."
-  (interactive)
-  (my-setup-cask)
-  (if (fboundp 'paradox-list-packages)
-      (paradox-list-packages nil)
-    (list-packages nil)))
-
-(defun my-setup-cask ()
-  "Override `load-path' to use cask."
-  (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
-            (require 'cask "~/.cask/cask.el" t))
-    (setq load-path (cask-load-path (cask-initialize)))))
-
-(defun my-setup-package-el ()
-  "Setting up for installing packages via built-in package.el.
-Downloaded packages will be stored under ~/.eamcs.d/elpa."
-  (when (require 'package nil t)
-    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                        (not (gnutls-available-p))))
-           (proto (if no-ssl "http" "https")))
-      (add-to-list 'package-archives
-                   (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-      (add-to-list 'package-archives
-                   (cons "takaxp" "~/devel/git/melpa/packages/") t))
-    (package-initialize)))
-
-(defun my-reset-load-path ()
-  "Revert `load-path' to `my-default-load-path'."
-  (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
-  (setq load-path my-default-load-path)
-  (message "--- Reverted to the original `load-path'."))
-
-(with-eval-after-load "paradox"
-  (defun advice:paradox-quit-and-close (kill)
-    (my-reset-load-path))
-  (advice-add 'paradox-quit-and-close :after #'advice:paradox-quit-and-close))
-
-(defun my-kill-emacs-hook-show ()
-  "Test Emacs killing sequence."
-  (add-hook 'after-init-hook
-            '(lambda () (message "1: %s" kill-emacs-hook)) t)
-  (with-eval-after-load "postpone"
-    (message "2: %s" kill-emacs-hook))
-  (defun my-kill-emacs ()
-    (switch-to-buffer "*Messages*")
-    (message "3: %s" kill-emacs-hook)
-    (y-or-n-p "Sure? "))
-  (add-hook 'kill-emacs-hook 'my-kill-emacs))
 ;; (my-kill-emacs-hook-show)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; diff を取る前に tabify スペースをタブに変換する．今は全てスペース置換中．
 ;; この設定でファイルを一度編集後に，M-x tabify しないとだめ．

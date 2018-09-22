@@ -41,6 +41,7 @@
 (require 'emmet-mode nil t)
 (require 'gif-screencast nil t)
 (require 'keyfreq nil t)
+(require 'cask nil t)
 
 (if (require 'shut-up nil t)
     (progn

@@ -409,12 +409,12 @@
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
   (run-with-idle-timer 600 t
-                       '(lambda ()
-                          (reload-ical-export)))
+                       (lambda ()
+                         (reload-ical-export)))
   ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
   ;; FIXME
-  (add-hook 'focus-in-hook '(lambda () (setq ox-icalendar-activate nil)))
-  (add-hook 'focus-out-hook '(lambda () (setq ox-icalendar-activate t))))
+  (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
+  (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t))))
 
 ;;;###autoload
 (defun reload-ical-export ()
@@ -580,6 +580,18 @@ If `dropbox' option is provided then the value is uased as a root directory."
         "\n"))
       (setq tl (cdr tl)))
     (read-only-mode 1)))
+
+(defun my-kill-emacs ()
+    (switch-to-buffer "*Messages*")
+    (message "3: %s" kill-emacs-hook)
+    (y-or-n-p "Sure? "))
+(defun my-kill-emacs-hook-show ()
+  "Test Emacs killing sequence."
+  (add-hook 'after-init-hook
+            (lambda () (message "1: %s" kill-emacs-hook)) t)
+  (with-eval-after-load "postpone"
+    (message "2: %s" kill-emacs-hook))
+  (add-hook 'kill-emacs-hook #'my-kill-emacs))
 
 (defun library-p (libraries)
   "Return t when every specified library can be located. "

@@ -17,13 +17,26 @@
 
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
-  (message "Emacs booting time: %.0f [msec] from `emacs-init-time'."
+  (message "Emacs booting time: %.0f [msec] = `emacs-init-time'."
            (* 1000
               (float-time (time-subtract
                            after-init-time
                            before-init-time)))))
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
+
+(defun ad:emacs-init-time ()
+  "Return a string giving the duration of the Emacs initialization."
+  (interactive)
+  (let ((str
+	       (format "%.3f seconds"
+		             (float-time
+		              (time-subtract after-init-time before-init-time)))))
+    (if (called-interactively-p 'interactive)
+        (message "%s" str)
+      str)))
+
+(advice-add 'emacs-init-time :override #'ad:emacs-init-time)
 
 (setq gc-cons-threshold 134217728) ;; 128MB
 (setq garbage-collection-messages t)
@@ -54,27 +67,25 @@
       (autoload f file docstring interactive type))
     t))
 
-(defun passed-clock-p (target)
-  (let ((hour nil)
-        (min nil)
-        (current-hour nil)
-        (current-min nil))
-    (when (string-match "\\([0-2]?[0-9]\\):\\([0-5][0-9]\\)" target)
-      (setq hour (substring target (match-beginning 1) (match-end 1)))
-      (setq min (substring target (match-beginning 2) (match-end 2)))
-      (setq current-hour (format-time-string "%H" (current-time)))
-      (setq current-min (format-time-string "%M" (current-time)))
-      (< (+ (* (string-to-number hour) 60)
-            (string-to-number min))
-         (+ (* (string-to-number current-hour) 60)
-            (string-to-number current-min))))))
+(defun future-time-p (time)
+  "Return non-nil if provided TIME formed of \"10:00\" is the future time."
+  (not (time-less-p
+        (apply 'encode-time
+               (let ((t1 (decode-time))
+                     (t2 (parse-time-string time)))
+                 (setf (nth 0 t1) (nth 0 t2))
+                 (setf (nth 1 t1) (nth 1 t2))
+                 (setf (nth 2 t1) (nth 2 t2))
+                 t1))
+        (current-time))))
+;; (future-time-p "10:00")
 
 (defvar window-focus-p t)
 (with-eval-after-load "postpone"
   (defun window-focus-p ()
     (if window-focus-p t nil))
-  (add-hook 'focus-in-hook #'(lambda () (setq window-focus-p t)))
-  (add-hook 'focus-out-hook #'(lambda () (setq window-focus-p nil))))
+  (add-hook 'focus-in-hook (lambda () (setq window-focus-p t)))
+  (add-hook 'focus-out-hook (lambda () (setq window-focus-p nil))))
 
 (if (not (locate-library "postpone"))
     (message "postpone.el is NOT installed.")
@@ -85,9 +96,12 @@
                   '(self-insert-command
                     save-buffers-kill-terminal
                     exit-minibuffer))
-      (message "Loading postponed packages...")
-      (postpone-kicker 'my-postpone-kicker)
-      (message "Loading postponed packages...done")))
+      (message "Activating postponed packages...")
+      (let ((t1 (current-time)))
+        (postpone-kicker 'my-postpone-kicker)
+        (setq postpone-init-time (float-time
+                                  (time-subtract (current-time) t1))))
+      (message "Activating postponed packages...done")))
   (add-hook 'pre-command-hook #'my-postpone-kicker))
 
 (defvar shutup-p nil)
@@ -148,19 +162,11 @@
 ;; Limit the final word to a line break code (automatically correct)
 (setq require-final-newline t)
 
-(setq truncate-lines nil)
-(setq truncate-partial-width-windows nil)
-
 (with-eval-after-load "postpone"
-  (unless noninteractive
-    (postpone-message "global-auto-revert-mode")
-    (global-auto-revert-mode 1)))
+  (setq truncate-lines nil)
+  (setq truncate-partial-width-windows nil))
 
 (setq mouse-drag-copy-region t)
-
-(with-eval-after-load "postpone"
-  (when (fboundp 'pixel-scroll-mode)
-    (pixel-scroll-mode 1))) ;; 26.1
 
 (setq compilation-scroll-output t)
 
@@ -173,7 +179,35 @@
        '(paradox-list-packages my-list-packages my-setup-cask)
        "paradox" nil t)
 
+  (defvar my-default-load-path nil)
+  (defun my-list-packages ()
+    "Call \\[paradox-list-packages]' if available instead of \\[list-packages]."
+    (interactive)
+    (setq my-default-load-path load-path)
+    (my-setup-cask)
+    (if (fboundp 'paradox-list-packages)
+        (paradox-list-packages nil)
+      (list-packages nil)))
+
+  (defun my-reset-load-path ()
+    "Revert `load-path' to `my-default-load-path'."
+    (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
+    (setq load-path my-default-load-path)
+    (message "--- Reverted to the original `load-path'."))
+
+  (declare-function advice:paradox-quit-and-close "init" (kill))
+
   (with-eval-after-load "paradox"
+    (defun my-setup-cask ()
+      "Override `load-path' to use cask."
+      (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
+                (require 'cask "~/.cask/cask.el" t))
+        (setq load-path (cask-load-path (cask-initialize)))))
+
+    (defun advice:paradox-quit-and-close (_kill)
+      (my-reset-load-path))
+    (advice-add 'paradox-quit-and-close :after #'advice:paradox-quit-and-close)
+
     (custom-set-variables
      '(paradox-github-token t))
     (when (fboundp 'paradox-enable)
@@ -184,22 +218,33 @@
 (setq indent-line-function 'insert-tab)
 
 ;; (add-hook 'emacs-lisp-mode-hook
-;;           '(lambda ()
+;;           (lambda ()
 ;;              (setq indent-tabs-mode t)
 ;;              (setq tab-width 8)
 ;;              (setq indent-line-function 'lisp-indent-line)))
+
+(setq vc-follow-symlinks t)
+
+(with-eval-after-load "postpone"
+  (unless noninteractive
+    (postpone-message "global-auto-revert-mode")
+    (global-auto-revert-mode 1)))
+
+(with-eval-after-load "postpone"
+  (when (fboundp 'pixel-scroll-mode)
+    (pixel-scroll-mode 1))) ;; 26.1
 
 (when (autoload-if-found
        '(aggressive-indent-mode)
        "aggressive-indent" nil t)
 
-  (dolist
-      (hook
-       '(;; python-mode-hook
-         ;; nxml-mode-hook
-         ;; web-mode-hook
-         emacs-lisp-mode-hook
-         lisp-mode-hook perl-mode-hook c-mode-common-hook))
+  (dolist (hook
+           '(;; python-mode-hook
+             ;; nxml-mode-hook
+             ;; web-mode-hook
+             emacs-lisp-mode-hook
+             lisp-mode-hook perl-mode-hook c-mode-common-hook))
+
     (add-hook hook #'aggressive-indent-mode)))
 
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
@@ -238,46 +283,40 @@
     ;; q でウィンドウを抜ける
     ;; (define-key ag-mode-map (kbd "q") 'delete-window)
     (defun my-ag ()
-      "自動的に出力バッファに移動"
+      "Switch to search result."
       (interactive)
       (call-interactively 'ag)
       (switch-to-buffer-other-frame "*ag search*"))))
 
-(setq vc-follow-symlinks t)
-
+(global-set-key (kbd "M-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
+(global-set-key (kbd "S-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
+(declare-function my-ns-org-heading-auto-ascii "init" nil)
+(declare-function my-ns-ime-restore "init" nil)
 (with-eval-after-load "postpone"
-  (when (or (eq window-system 'ns)
-            (fboundp 'mac-get-current-input-source))
-    (defun ns-org-heading-auto-ascii ()
+  (when (and (eq window-system 'ns)
+             (fboundp 'mac-get-current-input-source))
+
+    (defun my-ns-ime-toggle ()
+      "Toggle IME."
+      (interactive)
+      (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
+
+    (define-key isearch-mode-map (kbd "M-SPC") 'my-ns-ime-toggle)
+    (define-key isearch-mode-map (kbd "S-SPC") 'my-ns-ime-toggle)
+
+    (defun my-ns-org-heading-auto-ascii ()
+      "IME off, when the cursor on org headings."
       (when (and window-focus-p
                  (eq major-mode 'org-mode)
                  (or (looking-at org-heading-regexp)
                      (equal (buffer-name) org-agenda-buffer-name)))
         (my-ime-off)))
+    (run-with-idle-timer 1 t #'my-ns-org-heading-auto-ascii)
 
-    (defun ns-ime-toggle ()
-      (interactive)
-      (when (fboundp 'mac-get-current-input-source)
-        (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
-
-    ;; (when (fboundp 'mac-get-current-input-source)
-    ;;   (declare-function ns-ime-auto-correct "init" nil)
-    ;;   (defun ns-ime-auto-correct ()
-    ;;     (interactive)
-    ;;     (if (my-ime-active-p)
-    ;;         (unless (mac-toggle-input-method nil)
-    ;;           (my-ime-on))
-    ;;       (when (mac-toggle-input-method t)
-    ;;         (my-ime-off))))
-    ;;   (add-hook 'focus-in-hook #'ns-ime-auto-correct))
-
-    (global-set-key (kbd "M-SPC") 'ns-ime-toggle) ;; toggle-input-method
-    (global-set-key (kbd "S-SPC") 'ns-ime-toggle) ;; toggle-input-method
-    (define-key isearch-mode-map (kbd "M-SPC") 'ns-ime-toggle)
-    (define-key isearch-mode-map (kbd "S-SPC") 'ns-ime-toggle)
-
-    (when (fboundp 'mac-toggle-input-method)
-      (run-with-idle-timer 1 t 'ns-org-heading-auto-ascii))))
+    (defun my-ns-ime-restore ()
+      "Restore the last IME status."
+      (if my-ime-last (my-ime-on) (my-ime-off)))
+    (add-hook 'focus-in-hook #'my-ns-ime-restore)))
 
 (with-eval-after-load "postpone"
   (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
@@ -290,8 +329,8 @@
   (global-set-key (kbd "C-c g") 'goto-line))
 
 (with-eval-after-load "postpone"
-  (global-set-key (kbd "C-M-p") #'(lambda () (interactive) (other-window -1)))
-  (global-set-key (kbd "C-M-n") #'(lambda () (interactive) (other-window 1))))
+  (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
+  (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1))))
 
 (with-eval-after-load "postpone"
   ;; Scroll window on a line-by-line basis
@@ -305,13 +344,6 @@
 (when (autoload-if-found
        '(smooth-scroll-mode)
        "smooth-scroll" nil t)
-
-  ;; (defun smooth-scroll-mode-kicker ()
-  ;;   "Load `smooth-scroll.el' and remove-hook"
-  ;;   (when (memq this-command '(scroll-up scroll-down scroll-up-command))
-  ;;     (smooth-scroll-mode t)
-  ;;     (remove-hook 'pre-command-hook #'smooth-scroll-mode-kicker)))
-  ;; (add-hook 'pre-command-hook #'smooth-scroll-mode-kicker)
 
   (with-eval-after-load "postpone"
     (smooth-scroll-mode t))
@@ -394,10 +426,11 @@
        '(centered-cursor-mode)
        "centered-cursor-mode" nil t)
 
-  (add-hook 'isearch-mode-hook
-            #'(lambda () (centered-cursor-mode 1)))
-  (add-hook 'isearch-mode-end-hook
-            #'(lambda () (centered-cursor-mode -1))))
+  (with-eval-after-load "postpone"
+    (add-hook 'isearch-mode-hook
+              (lambda () (centered-cursor-mode 1)))
+    (add-hook 'isearch-mode-end-hook
+              (lambda () (centered-cursor-mode -1)))))
 
 (with-eval-after-load "postpone"
   (when (require 'smart-mark nil t)
@@ -466,7 +499,7 @@
       ad-do-it)))
 
 (add-hook 'change-log-mode-hook
-          #'(lambda()
+          (lambda()
               (if (require 'orgalist nil t)
                   (when (boundp 'orgalist-mode)
                     (orgalist-mode 1))
@@ -507,7 +540,7 @@
   (push '("\\.[rR]$" . R-mode) auto-mode-alist))
 
 (add-hook 'nxml-mode-hook
-          #'(lambda ()
+          (lambda ()
               (define-key nxml-mode-map "\r" 'newline-and-indent)
               (auto-fill-mode -1)
               (setq indent-tabs-mode t)
@@ -648,7 +681,7 @@
     ;; バッファ内の全てをチェック対象にするモードの hook に flyspell 起動を登録
     (dolist (hook major-mode-with-flyspell)
       (add-hook (intern (format "%s-hook" hook))
-                #'(lambda () (flyspell-mode 1))))
+                (lambda () (flyspell-mode 1))))
     ;; コメント行のみを対象にする
     (dolist (hook major-mode-with-flyspell-prog)
       (add-hook (intern (format "%s-hook" hook))
@@ -676,7 +709,7 @@
     (defun my-flyspell-ignore-nonascii (beg end _info)
       "incorrect判定をASCIIに限定"
       (string-match "[^!-~]" (buffer-substring beg end)))
-    (add-hook 'flyspell-incorrect-hook 'my-flyspell-ignore-nonascii)
+    (add-hook 'flyspell-incorrect-hook #'my-flyspell-ignore-nonascii)
 
     (defun my-flyspell-on ()
       (cond
@@ -728,7 +761,7 @@
   (push '("\\.tex$" . yatex-mode) auto-mode-alist)
   ;; Disable auto line break
   (add-hook 'yatex-mode-hook
-            #'(lambda ()
+            (lambda ()
                 (setq auto-fill-function nil)))
 
   (with-eval-after-load "yatex"
@@ -739,7 +772,7 @@
 (with-eval-after-load "yatex"
   (put 'YaTeX-insert-braces 'begend-guide 2)
 
-  (defun advice:YaTeX-insert-begin-end (env region-mode)
+  (defun ad:YaTeX-insert-begin-end (env region-mode)
     "Insert \\begin{mode-name} and \\end{mode-name}.
 This works also for other defined begin/end tokens to define the structure."
     (setq YaTeX-current-completion-type 'begin)
@@ -791,7 +824,7 @@ This works also for other defined begin/end tokens to define the structure."
 	        (point-to-register YaTeX-current-position-register))))
 
   (advice-add 'YaTeX-insert-begin-end
-              :override #'advice:YaTeX-insert-begin-end))
+              :override #'ad:YaTeX-insert-begin-end))
 
 (when (autoload-if-found
        '(display-time-world)
@@ -1111,10 +1144,10 @@ This works also for other defined begin/end tokens to define the structure."
          (format-time-string "W%W: %Y-%m-%d %a."))))
 
 (with-eval-after-load "postpone"
-  (defun advice:split-window-below (&optional _size)
+  (defun ad:split-window-below (&optional _size)
     "An extention to switch to \*scratch\* buffer after splitting window."
     (my-open-scratch))
-  ;; (advice-add 'split-window-below :after #'advice:split-window-below)
+  ;; (advice-add 'split-window-below :after #'ad:split-window-below)
   (defun my-open-scratch ()
     "Switch the current buffer to \*scratch\* buffer."
     (interactive)
@@ -1187,7 +1220,7 @@ This works also for other defined begin/end tokens to define the structure."
 ;;                  '((lambda (overlay after beg end &optional len)
 ;;                      (when after
 ;;                        (move-overlay overlay (point-max) (point-max))))))))
-;; (add-hook 'find-file-hooks 'set-buffer-end-mark)
+;; (add-hook 'find-file-hooks #'set-buffer-end-mark)
 
 (setq-default indicate-buffer-boundaries
               '((top . nil) (bottom . right) (down . right)))
@@ -1279,7 +1312,7 @@ This works also for other defined begin/end tokens to define the structure."
     (when (require 'helm-swoop nil t)
       ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
       (setq helm-swoop-pre-input-function
-            #'(lambda()
+            (lambda()
                 (unless (thing-at-point-looking-at "^\\*+")
                   (thing-at-point 'symbol))))
       ;; 配色設定
@@ -1459,25 +1492,25 @@ This works also for other defined begin/end tokens to define the structure."
       (global-set-key (kbd (concat base "SPC")) 'emms-pause)))
 
   (with-eval-after-load "emms-mode-line"
-    (defun advice:emms-mode-line-playlist-current ()
+    (defun ad:emms-mode-line-playlist-current ()
       "Display filename in mode-line, not full-path."
       (format emms-mode-line-format
               (file-name-nondirectory
                (emms-track-description
 				        (emms-playlist-current-selected-track)))))
     (advice-add 'emms-mode-line-playlist-current :override
-                #'advice:emms-mode-line-playlist-current))
+                #'ad:emms-mode-line-playlist-current))
 
   (with-eval-after-load "emms-mode-line-icon"
     (setq emms-mode-line-format "%s")
-    (defun advice:emms-mode-line-icon-function ()
+    (defun ad:emms-mode-line-icon-function ()
       "Replace the default musical note icon with a Unicode character."
       (concat " "
               emms-mode-line-icon-before-format
               "♪"
               (emms-mode-line-playlist-current)))
     (advice-add 'emms-mode-line-icon-function :override
-                #'advice:emms-mode-line-icon-function))
+                #'ad:emms-mode-line-icon-function))
 
   (with-eval-after-load "emms"
     (when (require 'emms-setup nil t)
@@ -1707,7 +1740,7 @@ This works also for other defined begin/end tokens to define the structure."
        '(backup-each-save my-auto-backup)
        "backup-each-save" nil t)
 
-  (add-hook 'after-save-hook 'my-auto-backup)
+  (add-hook 'after-save-hook #'my-auto-backup)
 
   (with-eval-after-load "backup-each-save"
     (defun my-auto-backup ()
@@ -1788,7 +1821,7 @@ This works also for other defined begin/end tokens to define the structure."
       (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 
     (defvar my-neo-adjusted-window-width (+ 3 neo-window-width))
-    (defun advice:neotree-show ()
+    (defun ad:neotree-show ()
       "Extension to support change frame width when opening neotree."
       (unless (neo-global--window-exists-p)
         (when (require 'moom nil t)
@@ -1797,9 +1830,9 @@ This works also for other defined begin/end tokens to define the structure."
           (setq moom-frame-width-double
                 (+ moom-frame-width-double my-neo-adjusted-window-width)))
         (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))))
-    (advice-add 'neotree-show :before #'advice:neotree-show)
+    (advice-add 'neotree-show :before #'ad:neotree-show)
 
-    (defun advice:neotree-hide ()
+    (defun ad:neotree-hide ()
       "Extension to support change frame width when closing neotree."
       (when (neo-global--window-exists-p)
         (when (require 'moom nil t)
@@ -1810,7 +1843,7 @@ This works also for other defined begin/end tokens to define the structure."
         (set-frame-width nil (- (frame-width) my-neo-adjusted-window-width))
         (when (> 80 (frame-width)) ;; fail safe
           (set-frame-width nil 80))))
-    (advice-add 'neotree-hide :before #'advice:neotree-hide)))
+    (advice-add 'neotree-hide :before #'ad:neotree-hide)))
 
 (with-eval-after-load "dired"
   (setq dired-use-ls-dired nil)
@@ -1829,19 +1862,19 @@ This works also for other defined begin/end tokens to define the structure."
     (global-set-key (kbd "C-h v") 'helpful-variable)))
 
 (when (autoload-if-found
-       '(keyfreq-mode keyfreq-autosave-mode advice:keyfreq-show)
+       '(keyfreq-mode keyfreq-autosave-mode ad:keyfreq-show)
        "keyfreq" nil t)
 
   (with-eval-after-load "keyfreq"
-    (defun advice:keyfreq-show ()
+    (defun ad:keyfreq-show ()
       "Extension to make the buffer view-only."
       (interactive)
       (if shutup-p
           (shut-up (view-buffer keyfreq-buffer))
         (view-buffer keyfreq-buffer)))
-    (advice-add 'keyfreq-show :after #'advice:keyfreq-show)
+    (advice-add 'keyfreq-show :after #'ad:keyfreq-show)
     ;; (define-key keyfreq-mode-map (kbd "q")
-    ;;   #'(lambda () (interactive)
+    ;;   (lambda () (interactive)
     ;;       (when (string= (buffer-name) keyfreq-buffer)
     ;;         (kill-buffer-and-window))))
     (setq keyfreq-file
@@ -1868,7 +1901,7 @@ This works also for other defined begin/end tokens to define the structure."
   (with-eval-after-load "doxymacs"
     (setq doxymacs-doxygen-style "JavaDoc")
     (add-hook 'font-lock-mode-hook
-              #'(lambda ()
+              (lambda ()
                   (when (memq major-mode '(c-mode c++-mode))
                     (doxymacs-font-lock))))
     (define-key doxymacs-mode-map (kbd "C-c C-s") 'ff-find-other-file)))
@@ -1915,7 +1948,7 @@ This works also for other defined begin/end tokens to define the structure."
     (add-hook hook #'ac-default-setup))
   ;; *scratch* バッファでは無効化
   (add-hook 'lisp-mode-hook
-            #'(lambda () (unless (equal "*scratch*" (buffer-name))
+            (lambda () (unless (equal "*scratch*" (buffer-name))
                            (ac-default-setup))))
   (add-hook 'org-mode-hook #'ac-org-mode-setup)
 
@@ -2011,13 +2044,13 @@ This works also for other defined begin/end tokens to define the structure."
        "quickrun" nil t)
 
   (add-hook 'c-mode-common-hook
-            #'(lambda () (define-key c++-mode-map (kbd "<f5>") 'quickrun)))
+            (lambda () (define-key c++-mode-map (kbd "<f5>") 'quickrun)))
   (add-hook 'python-mode-hook
-            #'(lambda () (define-key python-mode-map (kbd "<f5>") 'quickrun)))
+            (lambda () (define-key python-mode-map (kbd "<f5>") 'quickrun)))
   (add-hook 'perl-mode-hook
-            #'(lambda () (define-key perl-mode-map (kbd "<f5>") 'quickrun)))
+            (lambda () (define-key perl-mode-map (kbd "<f5>") 'quickrun)))
   (add-hook 'gnuplot-mode-hook
-            #'(lambda () (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun))))
+            (lambda () (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun))))
 
 (if (not (executable-find "gtags"))
     (message "--- gtags is NOT installed in this system.")
@@ -2031,7 +2064,7 @@ This works also for other defined begin/end tokens to define the structure."
       (define-key ggtags-mode-map (kbd "M-]") nil))
 
     (dolist (hook (list 'c-mode-common-hook))
-      (add-hook hook #'(lambda () (ggtags-mode 1)))))
+      (add-hook hook (lambda () (ggtags-mode 1)))))
 
   (when (autoload-if-found
          '(helm-gtags-mode)
@@ -2066,7 +2099,7 @@ This works also for other defined begin/end tokens to define the structure."
           ;; (add-to-list 'editorconfig-exclude-modes 'org-mode)
           ;; (when (require 'editorconfig-charset-extras nil t)
           ;;   (add-hook 'editorconfig-custom-hooks
-          ;;             'editorconfig-charset-extras))
+          ;;             #'editorconfig-charset-extras))
           (editorconfig-mode 1)))
     (message "editorconfig is NOT installed.")))
 
@@ -2101,21 +2134,21 @@ This works also for other defined begin/end tokens to define the structure."
     ;; M-x helm-projectile-switch-project (C-c p p)
     (setq projectile-switch-project-action 'neotree-projectile-action)
 
-    (defun advice:neotree-dir (path)
+    (defun ad:neotree-dir (path)
       "Extension to change the frame width automatically."
       (interactive "DDirectory: ")
       (unless (neo-global--window-exists-p)
         (neotree-show))
       (neo-global--open-dir path)
       (neo-global--select-window))
-    (advice-add 'neotree-dir :override #'advice:neotree-dir))
+    (advice-add 'neotree-dir :override #'ad:neotree-dir))
 
   (with-eval-after-load "projectile"
-    (defun advice:projectile-visit-project-tags-table ()
+    (defun ad:projectile-visit-project-tags-table ()
       "Extensions to skip calling `visit-tags-table'."
       nil)
     (advice-add 'projectile-visit-project-tags-table :override
-                #'advice:projectile-visit-project-tags-table)
+                #'ad:projectile-visit-project-tags-table)
 
     (setq projectile-tags-command "gtags")
     (setq projectile-tags-backend 'ggtags)
@@ -2150,7 +2183,7 @@ This works also for other defined begin/end tokens to define the structure."
 
   (push '("\\.txt$" . org-mode) auto-mode-alist)
   (global-set-key (kbd "C-M-o")
-                  #'(lambda () (interactive)
+                  (lambda () (interactive)
                       (show-org-buffer "next.org")))
 
   (with-eval-after-load "postpone"
@@ -2158,7 +2191,7 @@ This works also for other defined begin/end tokens to define the structure."
     (global-set-key (kbd "C-c a") 'org-agenda)
     (global-set-key (kbd "C-c r") 'org-capture)
     (global-set-key (kbd "C-M-c")
-                    #'(lambda () (interactive)
+                    (lambda () (interactive)
                         (show-org-buffer "org-ical.org"))))
 
   (with-eval-after-load "org"
@@ -2231,12 +2264,12 @@ This works also for other defined begin/end tokens to define the structure."
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
     (setq org-catch-invisible-edits 'show-and-error)
-    (defun advice:org-return (f &optional arg)
+    (defun ad:org-return (f &optional arg)
       "An extension for checking invisible editing when you hit the enter."
       (interactive "P")
       (org-check-before-invisible-edit 'insert)
       (apply f arg))
-    (advice-add 'org-return :around #'advice:org-return)
+    (advice-add 'org-return :around #'ad:org-return)
 
     ;; - を優先．親のブリッツ表示を継承させない
     (setq org-list-demote-modify-bullet
@@ -2501,15 +2534,15 @@ This works also for other defined begin/end tokens to define the structure."
       (moom-change-frame-width
        (floor (* 1.2 moom-frame-width-single))))
     (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
-    (defun advice:org-agenda--quit (&optional _bury)
+    (defun ad:org-agenda--quit (&optional _bury)
       (moom-change-frame-width))
-    (advice-add 'org-agenda--quit :after #'advice:org-agenda--quit))
+    (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit))
 
   (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt)
 
   ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
   (org-defkey org-agenda-mode-map [(tab)]
-              #'(lambda () (interactive)
+              (lambda () (interactive)
                   (org-agenda-goto)
                   (with-current-buffer "*Org Agenda*"
                     (org-agenda-quit))))
@@ -2540,7 +2573,7 @@ This works also for other defined begin/end tokens to define the structure."
     (interactive)
     (cancel-function-timers 'my-popup-agenda)
     (dolist (triger my-org-agenda-auto-popup-list)
-      (unless (passed-clock-p triger)
+      (when (future-time-p triger)
         (run-at-time triger nil 'my-popup-agenda))))
   (my-popup-agenda-set-timers)
   (run-at-time "24:00" nil 'my-popup-agenda-set-timers)) ;; for next day
@@ -2582,7 +2615,7 @@ This works also for other defined begin/end tokens to define the structure."
     (interactive)
     (cancel-function-timers 'my-popup-calendar)
     (dolist (triger my-org-agenda-auto-popup-list)
-      (unless (passed-clock-p triger)
+      (when (future-time-p triger)
         (run-at-time triger nil 'my-popup-calendar))))
   (when (memq window-system '(mac ns))
     (my-popup-calendar-set-timers)
@@ -2603,8 +2636,8 @@ This works also for other defined begin/end tokens to define the structure."
                 'org-review-insert-last-review)))
 
 (when (autoload-if-found
-       '(appt my-org-agenda-to-appt advice:appt-display-message
-              advice:appt-disp-window)
+       '(appt my-org-agenda-to-appt ad:appt-display-message
+              ad:appt-disp-window)
        "appt" nil t)
 
   (with-eval-after-load "postpone"
@@ -2623,7 +2656,7 @@ This works also for other defined begin/end tokens to define the structure."
     (setq appt-display-interval 1)
 
     ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
-    (defun advice:appt-display-message (string mins)
+    (defun ad:appt-display-message (string mins)
       "Display a reminder about an appointment.
 The string STRING describes the appointment, due in integer MINS minutes.
 The arguments may also be lists, where each element relates to a
@@ -2664,8 +2697,8 @@ update it for multiple appts?")
              (message "%s" (if (listp string)
                                (mapconcat 'identity string "\n")
                              string)))))
-    (advice-add 'appt-display-message :override #'advice:appt-display-message)
-    (defun advice:appt-disp-window (min-to-app _new-time appt-msg)
+    (advice-add 'appt-display-message :override #'ad:appt-display-message)
+    (defun ad:appt-disp-window (min-to-app _new-time appt-msg)
       "Extension to support appt-disp-window."
       (if (string= min-to-app "0")
           (my-desktop-notification "### Expired! ###" appt-msg t "Glass")
@@ -2673,9 +2706,9 @@ update it for multiple appts?")
          (concat "in " min-to-app " min.") appt-msg nil "Tink")))
     (cond
      ((eq appt-display-format 'echo)
-      (setq appt-disp-window-function 'advice:appt-disp-window))
+      (setq appt-disp-window-function 'ad:appt-disp-window))
      ((eq appt-display-format 'window)
-      (advice-add 'appt-disp-window :before #'advice:appt-disp-window))))
+      (advice-add 'appt-disp-window :before #'ad:appt-disp-window))))
 
   (with-eval-after-load "org"
     ;; アラーム表示を有効にする
@@ -2794,7 +2827,7 @@ will not be modified."
   ;; 履歴が生成されるのを抑制．
   ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
 
-  (defun advice:org-refile (f &optional arg default-buffer rfloc msg)
+  (defun ad:org-refile (f &optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
     (let ((l (org-outline-level))
           (b (buffer-name)))
@@ -2814,15 +2847,15 @@ will not be modified."
             (switch-to-buffer b)))))
     (setq org-refile-history nil)
     (org-refile-cache-clear))
-  (advice-add 'org-refile :around #'advice:org-refile)
+  (advice-add 'org-refile :around #'ad:org-refile)
 
-  (defun advice:org-sort-entries (&optional _with-case _sorting-type
+  (defun ad:org-sort-entries (&optional _with-case _sorting-type
                                             _getkey-func _compare-func
                                             _property _interactive?)
     (outline-hide-subtree)
     (org-show-hidden-entry)
     (org-show-children))
-  (advice-add 'org-sort-entries :after #'advice:org-sort-entries)
+  (advice-add 'org-sort-entries :after #'ad:org-sort-entries)
 
   ;; リファイル先でサブディレクトリを指定するために一部フルパス化
   (let ((dir (expand-file-name org-directory)))
@@ -2971,13 +3004,13 @@ will not be modified."
         (org-delete-property "FONT")))
 
     (add-hook 'org-tree-slide-before-narrow-hook
-              #'(lambda ()
+              (lambda ()
                   (if (equal "PROPORTIONAL"
                              (org-entry-get-with-inheritance "FONT"))
                       (buffer-face-set 'variable-pitch)
                     (buffer-face-mode 0))))
     (add-hook 'org-tree-slide-stop-hook
-              #'(lambda ()
+              (lambda ()
                   (buffer-face-mode 0)))))
 
 (when (autoload-if-found
@@ -3000,16 +3033,16 @@ will not be modified."
       (add-hook 'org-tree-slide-play-hook #'my-hide-headers)
       (add-hook 'org-tree-slide-stop-hook #'my-show-headers)
 
-      ;; (defun advice:org-edit-src-code (&optional code edit-buffer-name)
-      (defun advice:org-edit-src-code ()
+      ;; (defun ad:org-edit-src-code (&optional code edit-buffer-name)
+      (defun ad:org-edit-src-code ()
         (interactive)
         (my-show-headers))
-      (advice-add 'org-edit-src-code :before #'advice:org-edit-src-code)
+      (advice-add 'org-edit-src-code :before #'ad:org-edit-src-code)
       ;; Block 外で呼ばれると，my-show-headers が呼ばれてしまう
-      (defun advice:org-edit-src-exit ()
+      (defun ad:org-edit-src-exit ()
         (interactive)
         (my-hide-headers))
-      (advice-add 'org-edit-src-exit :after #'advice:org-edit-src-exit))))
+      (advice-add 'org-edit-src-exit :after #'ad:org-edit-src-exit))))
 
 (when (autoload-if-found
        '(my-cfw-open-org-calendar cfw:open-org-calendar)
@@ -3054,7 +3087,7 @@ will not be modified."
     (define-key cfw:calendar-mode-map (kbd "j") 'cfw:org-goto-date)
     (define-key cfw:org-schedule-map (kbd "q") 'my-cfw-burry-buffer)))
 
-;;         (add-hook 'window-configuration-change-hook 'cfw:resize-calendar)
+;;         (add-hook 'window-configuration-change-hook #'cfw:resize-calendar)
 ;; (defun cfw:resize-calendar ()
 ;;   (interactive)
 ;;   (when (eq major-mode 'cfw:calendar-mode)
@@ -3303,15 +3336,15 @@ will not be modified."
     (define-key org-mode-map (kbd "C-c f y") 'org-dashboard-display)))
 
 (with-eval-after-load "org"
-  (defun advice:org-clock-sum-today (&optional headline-filter)
+  (defun ad:org-clock-sum-today (&optional headline-filter)
     "Sum the times for each subtree for today."
     (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
       (org-clock-sum (car range) (cadr range)
 		                 headline-filter :org-clock-minutes-today)))
-  (advice-add 'org-clock-sum-today :override #'advice:org-clock-sum-today)
+  (advice-add 'org-clock-sum-today :override #'ad:org-clock-sum-today)
 
   (when (require 'org-clock-today nil t)
-    (defun advice:org-clock-today-update-mode-line ()
+    (defun ad:org-clock-today-update-mode-line ()
       "Calculate the total clocked time of today and update the mode line."
       (setq org-clock-today-string
             (if (org-clock-is-active)
@@ -3334,7 +3367,7 @@ will not be modified."
               ""))
       (force-mode-line-update))
     (advice-add 'org-clock-today-update-mode-line
-                :override #'advice:org-clock-today-update-mode-line)
+                :override #'ad:org-clock-today-update-mode-line)
     (unless noninteractive
       (org-clock-today-mode 1))))
 
@@ -3358,7 +3391,7 @@ will not be modified."
 
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-c f n")
-      #'(lambda () (interactive)
+      (lambda () (interactive)
           (orgnav-search-root 3 'orgnav--goto-action)))))
 
 (autoload-if-found
@@ -3512,13 +3545,14 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
      "com.google.inputmethod.Japanese.base" 'title "あ"))
 
   (when (fboundp 'mac-get-current-input-source)
-    (declare-function advice:mac-toggle-input-method "init" nil)
+    (declare-function ad:mac-toggle-input-method "init" nil)
     (declare-function my-apply-cursor-config "init" nil)
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)
     (declare-function my-ime-active-p "init" nil)
     (defun my-ime-active-p ()
       (not (string-match "\\.Roman$" (mac-get-current-input-source))))
+    (defvar my-ime-last (my-ime-active-p))
     (defvar my-ime-on-hook nil)
     (defvar my-ime-off-hook nil)
     (defun my-ime-on ()
@@ -3527,6 +3561,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (mac-toggle-input-method t))
       (setq cursor-type my-cursor-type-ime-on)
       (set-cursor-color my-cursor-color-ime-on)
+      (setq my-ime-last t)
       (run-hooks 'my-ime-on-hook))
     (defun my-ime-off ()
       (interactive)
@@ -3534,17 +3569,18 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (mac-toggle-input-method nil))
       (setq cursor-type my-cursor-type-ime-off)
       (set-cursor-color my-cursor-color-ime-off)
+      (setq my-ime-last nil)
       (run-hooks 'my-ime-off-hook))
     (defvar my-ime-flag nil)
     (add-hook 'activate-mark-hook
-              #'(lambda ()
+              (lambda ()
                   (when (setq my-ime-flag (my-ime-active-p))
                     (my-ime-off))))
     (add-hook 'deactivate-mark-hook
-              #'(lambda ()
+              (lambda ()
                   (when my-ime-flag
                     (my-ime-on))))
-    (defun advice:mac-toggle-input-method (&optional arg)
+    (defun ad:mac-toggle-input-method (&optional arg)
       "Run hooks when IME changes."
       (interactive)
       (if arg
@@ -3557,7 +3593,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
           (set-cursor-color my-cursor-color-ime-off)
           (run-hooks 'my-ime-off-hook))))
     (advice-add 'mac-toggle-input-method
-                :before #'advice:mac-toggle-input-method)
+                :before #'ad:mac-toggle-input-method)
 
     ;; for init setup
     (setq-default cursor-type my-cursor-type-ime-on)
@@ -3580,21 +3616,21 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
     ;; Enter minibuffer with IME-off, and resture the latest IME
     (add-hook 'minibuffer-setup-hook
-              #'(lambda ()
+              (lambda ()
                   (if (not (my-ime-active-p))
                       (setq my-ime-flag nil)
                     (setq my-ime-flag t)
                     (my-ime-off))))
     (add-hook 'minibuffer-exit-hook
-              #'(lambda ()
+              (lambda ()
                   (when my-ime-flag
                     (my-ime-on))))
 
-    ;; (defun advice:find-file (FILENAME &optional WILDCARDS)
+    ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
     ;;   "Extension to find-file as before-find-file-hook."
-    ;;   (message "--- advice:findfile")
+    ;;   (message "--- ad:findfile")
     ;;   (apply FILENAME WILDCARDS))
-    ;; (advice-add #'find-file :around #'advice:find-file)
+    ;; (advice-add #'find-file :around #'ad:find-file)
 
     ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
     ;; バッファ切替時に input method を切り替える
@@ -3605,7 +3641,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     ;;      'post-command-hook
     ;;      (lexical-let ((previous-buffer nil))
     ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
-    ;;        #'(lambda ()
+    ;;        (lambda ()
     ;;            (unless (eq (current-buffer) previous-buffer)
     ;;              (when (bufferp previous-buffer)
     ;;                (mac-handle-input-method-change))
@@ -3634,20 +3670,12 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                 #'my-mac-keyboard-input-source)
       ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
       ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
-      ;;           'my-mac-keyboard-input-source)
+      ;;           #'my-mac-keyboard-input-source)
 
       (declare-function my-mac-keyboard-input-source "init" nil)
       (my-mac-keyboard-input-source))))
 
  (t nil))
-
-(with-eval-after-load "postpone"
-  (defun advice:make-frame ()
-    (my-apply-theme)
-    (when (require 'moom-font nil t)
-      (moom-font-resize)))
-  (advice-add 'make-frame :after #'advice:make-frame)
-  (global-set-key (kbd "M-`") 'other-frame))
 
 (defconst moom-autoloads
   '(moom-cycle-frame-height
@@ -3671,7 +3699,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                window-system)
       (setq moom-lighter "M")
       (setq moom-verbose t)
-      (moom-recommended-keybindings 'all)
+      (let ((moom-verbose nil))
+        (moom-recommended-keybindings 'all))
       (moom-mode 1))))
 
 (when (autoload-if-found
@@ -3727,13 +3756,14 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
     (unless noninteractive
-      (my-moom-toggle-mode-line))
+      (if shutup-p
+          (shut-up (my-moom-toggle-mode-line))))
     (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
     (add-hook 'find-file-hook #'my-moom-mode-line-off))
 
   (with-eval-after-load "moom"
     (defvar my-moom-hide-mode-line t)
-    (defun advice:moom-toggle-frame-maximized ()
+    (defun ad:moom-toggle-frame-maximized ()
       (when mode-line-format
         (setq my-moom--mode-line-format mode-line-format))
       (when my-moom-hide-mode-line
@@ -3741,7 +3771,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
               (if moom--maximized nil my-moom--mode-line-format))
         (message " ")))
     ;; (advice-add 'moom-toggle-frame-maximized
-    ;;             :after #'advice:moom-toggle-frame-maximized)
+    ;;             :after #'ad:moom-toggle-frame-maximized)
     ))
 
 (with-eval-after-load "postpone"
@@ -3765,7 +3795,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (delete-window checkdoc-window)))
     (checkdoc-minor-mode -1))
 
-  (defun advice:checkdoc ()
+  (defun ad:checkdoc ()
     (interactive)
     (checkdoc-minor-mode 1)
     (define-key checkdoc-minor-mode-map (kbd "q")
@@ -3773,7 +3803,16 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (define-key checkdoc-minor-mode-map (kbd "C-g")
       'my-delete-checkdoc-window))
 
-  (advice-add 'checkdoc :before #'advice:checkdoc))
+  (advice-add 'checkdoc :before #'ad:checkdoc))
+
+(declare-function my-apply-theme "init" nil)
+(with-eval-after-load "postpone"
+  (defun ad:make-frame ()
+    (my-apply-theme)
+    (when (require 'moom-font nil t)
+      (moom-font-resize)))
+  (advice-add 'make-frame :after #'ad:make-frame)
+  (global-set-key (kbd "M-`") 'other-frame))
 
 (with-eval-after-load "postpone"
   (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
@@ -3939,25 +3978,26 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     ;; (redraw-frame)
     ))
 
-(defun my-night-time-p (begin end)
-  (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
-         (cm (string-to-number (format-time-string "%M" (current-time))))
-         (ct (+ cm (* 60 ch))))
-    (if (> begin end)
-        (or (<= begin ct) (<= ct end))
-      (and (<= begin ct) (<= ct end)))))
-
-(defun my-apply-theme ()
-  (interactive)
-  (let ((night-time-in 21)
-        (night-time-out 5))
-    (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
-        (my-night-theme)
-      (my-daylight-theme)))
-  (when (fboundp 'mac-get-current-input-source)
-    (my-apply-cursor-config)))
-
 (when (display-graphic-p)
+  (declare-function my-night-time-p "init" (begin end))
+  (defun my-night-time-p (begin end)
+    (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
+           (cm (string-to-number (format-time-string "%M" (current-time))))
+           (ct (+ cm (* 60 ch))))
+      (if (> begin end)
+          (or (<= begin ct) (<= ct end))
+        (and (<= begin ct) (<= ct end)))))
+
+  (defun my-apply-theme ()
+    (interactive)
+    (let ((night-time-in 21)
+          (night-time-out 5))
+      (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
+          (my-night-theme)
+        (my-daylight-theme)))
+    (when (fboundp 'mac-get-current-input-source)
+      (my-apply-cursor-config)))
+
   (my-apply-theme) ;; this may override or reset font setting
   (my-font-config)) ;; apply font setting
 
@@ -4084,45 +4124,45 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (defvar pomodoro:with-speak nil)
       (when pomodoro:with-speak
         (add-hook 'pomodoro:finish-work-hook
-                  #'(lambda ()
-                      (let ((script
-                             (concat "say -v Kyoko "
-                                     (number-to-string
-                                      (floor pomodoro:rest-time))
-                                     "分間，休憩しろ")))
-                        (if my-pomodoro-speak
-                            (shell-command-to-string script)
-                          (message "%s" script)))))
+                  (lambda ()
+                    (let ((script
+                           (concat "say -v Kyoko "
+                                   (number-to-string
+                                    (floor pomodoro:rest-time))
+                                   "分間，休憩しろ")))
+                      (if my-pomodoro-speak
+                          (shell-command-to-string script)
+                        (message "%s" script)))))
 
         (add-hook 'pomodoro:finish-rest-hook
-                  #'(lambda ()
-                      (let ((script
-                             (concat "say -v Kyoko "
-                                     (number-to-string
-                                      (floor pomodoro:work-time))
-                                     "分間，作業しろ")))
-                        (if my-pomodoro-speak
-                            (shell-command-to-string script)
-                          (message "%s" script)))))
+                  (lambda ()
+                    (let ((script
+                           (concat "say -v Kyoko "
+                                   (number-to-string
+                                    (floor pomodoro:work-time))
+                                   "分間，作業しろ")))
+                      (if my-pomodoro-speak
+                          (shell-command-to-string script)
+                        (message "%s" script)))))
 
         (add-hook 'pomodoro:long-rest-hook
-                  #'(lambda ()
-                      (let ((script
-                             (concat "say -v Kyoko これから"
-                                     (number-to-string
-                                      (floor pomodoro:long-rest-time))
-                                     "分間の休憩です")))
-                        (if my-pomodoro-speak
-                            (shell-command-to-string script)
-                          (message "%s" script))))))
+                  (lambda ()
+                    (let ((script
+                           (concat "say -v Kyoko これから"
+                                   (number-to-string
+                                    (floor pomodoro:long-rest-time))
+                                   "分間の休憩です")))
+                      (if my-pomodoro-speak
+                          (shell-command-to-string script)
+                        (message "%s" script))))))
 
+      (declare-function my-pomodoro-notify "init" nil)
       (defun my-pomodoro-notify ()
-        (interactive)
         (my-desktop-notification
          "Pomodoro"
          (concat "三三 ﾍ(*ﾟ∇ﾟ)ﾉ   Go #"
                  (format "%s" (1+ pomodoro:work-count))) nil "Glass"))
-      (add-hook 'pomodoro:finish-work-hook 'my-pomodoro-notify))))
+      (add-hook 'pomodoro:finish-work-hook #'my-pomodoro-notify))))
 
 (with-eval-after-load "pomodoro"
   ;; 追加実装
@@ -4255,21 +4295,21 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (when (timerp pomodoro:update-sign-timer)
       (cancel-timer pomodoro:update-sign-timer)))
 
-  (defun advice:pomodoro:start (f &rest minutes)
+  (defun ad:pomodoro:start (f &rest minutes)
     "Extensions to stop pomodoro and timers"
     (interactive "P")
     (pomodoro:visualize-start)
     (apply f minutes))
 
-  (defun advice:pomodoro:stop (f &rest do-reset)
+  (defun ad:pomodoro:stop (f &rest do-reset)
     "Extensions to stop pomodoro and timers"
     (interactive)
     (pomodoro:visualize-stop)
     (apply f do-reset))
 
   (when my-pomodoro-visualize
-    (advice-add 'pomodoro:start :around #'advice:pomodoro:start)
-    (advice-add 'pomodoro:stop :around #'advice:pomodoro:stop))
+    (advice-add 'pomodoro:start :around #'ad:pomodoro:start)
+    (advice-add 'pomodoro:stop :around #'ad:pomodoro:stop))
 
   ;; work
   (defun pomodoro:update-work-sign ()
@@ -4348,7 +4388,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
        "utility" nil t)
 
   (with-eval-after-load "postpone"
-    (unless (passed-clock-p "23:00")
+    (when (future-time-p "23:00")
       ;; do not use `run-at-time' at booting since diary-lib.el
       ;; will be loaded. It requires loading cost.
       (run-at-time "23:00" nil 'my-lingr-login))))
@@ -4380,7 +4420,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 (when (autoload-if-found
        '(network-watch-mode
-         network-watch-active-p advice:network-watch-update-lighter)
+         network-watch-active-p ad:network-watch-update-lighter)
        "network-watch" nil t)
 
   (with-eval-after-load "postpone"
@@ -4391,11 +4431,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (network-watch-mode 1))))
 
   (with-eval-after-load "network-watch"
-    (defun advice:network-watch-update-lighter ()
+    (defun ad:network-watch-update-lighter ()
       "Return a mode lighter reflecting the current network state."
       (unless (network-watch-active-p) " ↓NW↓"))
     (advice-add 'network-watch-update-lighter
-                :override #'advice:network-watch-update-lighter)))
+                :override #'ad:network-watch-update-lighter)))
 
 (when (autoload-if-found
        '(gif-screencast)
@@ -4429,26 +4469,26 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     ;; pre-redisplay-functions はやばい．
 
     ;; modification-hooks
-    (defun advice:gif-screencast ()
+    (defun ad:gif-screencast ()
       (dolist (hook gif-screencast-additional-normal-hooks)
-        (add-hook hook 'gif-screencast-capture)))
-    (advice-add 'gif-screencast :after #'advice:gif-screencast)
+        (add-hook hook #'gif-screencast-capture)))
+    (advice-add 'gif-screencast :after #'ad:gif-screencast)
 
-    (defun advice:gif-screencast-stop ()
+    (defun ad:gif-screencast-stop ()
       (dolist (hook gif-screencast-additional-normal-hooks)
         (remove-hook hook 'gif-screencast-capture)))
-    (advice-add 'gif-screencast-stop :after #'advice:gif-screencast-stop)
+    (advice-add 'gif-screencast-stop :after #'ad:gif-screencast-stop)
 
-    (defun advice:gif-screencast-toggle-pause ()
+    (defun ad:gif-screencast-toggle-pause ()
       (if (memq 'gif-screencast-capture (default-value 'pre-command-hook))
           (dolist (hook gif-screencast-additional-normal-hooks)
             (remove-hook hook 'gif-screencast-capture))
         (dolist (hook gif-screencast-additional-normal-hooks)
-          (add-hook hook 'gif-screencast-capture))))
+          (add-hook hook #'gif-screencast-capture))))
     (advice-add 'gif-screencast-toggle-pause
-                :before #'advice:gif-screencast-toggle-pause)
+                :before #'ad:gif-screencast-toggle-pause)
 
-    (defun advice:gif-screencast-opendir ()
+    (defun ad:gif-screencast-opendir ()
       "Open the output directory when screencast is finished."
       (if (not (eq system-type 'darwin))
           (my-gif-screencast-opendir-dired)
@@ -4456,7 +4496,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
          (concat "open " gif-screencast-screenshot-directory))
         (shell-command-to-string
          (concat "open " gif-screencast-output-directory))))
-    (advice-add 'gif-screencast-stop :before #'advice:gif-screencast-opendir)
+    (advice-add 'gif-screencast-stop :before #'ad:gif-screencast-opendir)
 
     (defun my-gif-screencast-opendir-dired ()
       "Open directories for screenshots and generated GIFs by Dired."
@@ -4470,7 +4510,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (with-eval-after-load "manage-minor-mode"
     (define-key manage-minor-mode-map (kbd "q")
-      #'(lambda () (interactive)
+      (lambda () (interactive)
           (delete-window (get-buffer-window "*manage-minor-mode*"))))))
 
 (defconst utility-autoloads
@@ -4494,7 +4534,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     export-timeline-business export-timeline-private chomp
     count-words-buffer do-test-applescript
     delete-backup-files recursive-delete-backup-files describe-timer
-    my-browse-url-chrome my-list-packages my-setup-cask))
+    my-browse-url-chrome my-setup-package-el my-kill-emacs-hook-show))
 
 (when (autoload-if-found
        utility-autoloads

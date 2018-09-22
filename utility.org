@@ -58,7 +58,7 @@ MacOS 用の関数です．別途，Kyoko さんの音声をインストール�
 ;; She will be mad if you do nothing within 10 min.
 (run-with-idle-timer
  600 t
- '(lambda ()
+ (lambda ()
     (when kyoko-mad-mode
       (shell-command-to-string
        "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
@@ -643,12 +643,12 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
   (run-with-idle-timer 600 t
-                       '(lambda ()
-                          (reload-ical-export)))
+                       (lambda ()
+                         (reload-ical-export)))
   ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
   ;; FIXME
-  (add-hook 'focus-in-hook '(lambda () (setq ox-icalendar-activate nil)))
-  (add-hook 'focus-out-hook '(lambda () (setq ox-icalendar-activate t))))
+  (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
+  (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t))))
 
 ;;;###autoload
 (defun reload-ical-export ()
@@ -884,6 +884,22 @@ If `dropbox' option is provided then the value is uased as a root directory."
     (read-only-mode 1)))
 #+end_src
 
+** 終了シーケンスのデバッグ用関数
+
+#+begin_src emacs-lisp :tangle yes
+(defun my-kill-emacs ()
+    (switch-to-buffer "*Messages*")
+    (message "3: %s" kill-emacs-hook)
+    (y-or-n-p "Sure? "))
+(defun my-kill-emacs-hook-show ()
+  "Test Emacs killing sequence."
+  (add-hook 'after-init-hook
+            (lambda () (message "1: %s" kill-emacs-hook)) t)
+  (with-eval-after-load "postpone"
+    (message "2: %s" kill-emacs-hook))
+  (add-hook 'kill-emacs-hook #'my-kill-emacs))
+#+end_src
+
 ** [library-p] load-path にライブラリがあるかを判定
    :PROPERTIES:
    :CUSTOM_ID: org30c47759
@@ -907,6 +923,23 @@ If `dropbox' option is provided then the value is uased as a root directory."
               libraries
             (list libraries)))
     result))
+#+end_src
+
+** [package.el] MELPA利用設定
+
+#+begin_src :tangle yes
+(defun my-setup-package-el ()
+  "Setting up for installing packages via built-in package.el.
+Downloaded packages will be stored under ~/.eamcs.d/elpa."
+  (when (require 'package nil t)
+    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                        (not (gnutls-available-p))))
+           (proto (if no-ssl "http" "https")))
+      (add-to-list 'package-archives
+                   (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+      (add-to-list 'package-archives
+                   (cons "takaxp" "~/devel/git/melpa/packages/") t))
+    (package-initialize)))
 #+end_src
 
 * 未設定／テスト中
