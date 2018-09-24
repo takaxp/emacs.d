@@ -10,81 +10,44 @@
 
 注意：コピペだけでは動かない可能性があります．
 
-* orgバッファを評価
-  :PROPERTIES:
-  :CUSTOM_ID: orgfd51fa6e
-  :END:
-
-org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
-
-#+begin_src emacs-lisp :tangle yes
-
-;;;###autoload
-(defun eval-org-buffer ()
-  "Load init.org/utility.org and tangle init.el/utility.el."
-  (interactive)
-  (if (and (require 'org nil t)
-           (eq major-mode 'org-mode)
-           (member (buffer-name) '("init.org" "utility.org")))
-      (progn
-        (org-babel-tangle)
-        (let ((tangled-file
-               (concat (file-name-sans-extension (buffer-file-name)) ".el")))
-          (when (file-exists-p tangled-file)
-            (byte-compile-file tangled-file))))
-    (message "Nothing to do for this buffer.")))
-#+end_src
-
 * ユーティリティ関数
   :PROPERTIES:
   :CUSTOM_ID: org435340e8
   :END:
+** iTerm2.app を呼び出す関数
+   :PROPERTIES:
+   :CUSTOM_ID: org62365dfa
+   :END:
+
+#+begin_src emacs-lisp :tangle yes
+;;;###autoload
+(defun my-cmd-to-open-iterm2 ()
+  (interactive)
+  (shell-command-to-string "open -a iTerm2.app"))
+#+end_src
+
 ** サボっていると Kyoko さんに怒られる
    :PROPERTIES:
    :CUSTOM_ID: org68ed2087
    :END:
 
-MacOS 用の関数です．別途，Kyoko さんの音声をインストールしておく必要があります．Mavericks だと，Otoya さんも使えます．
+macOS 用の関数です．別途，Kyoko さんの音声をインストールしておく必要があります．Mavericks だと，Otoya さんも使えます．
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
 (defvar kyoko-mad-mode nil)
 (defun kyoko-mad-mode-toggle ()
   (interactive)
   (setq kyoko-mad-mode (not kyoko-mad-mode))
-  (if kyoko-mad-mode
-      (message "Kyoko mad mode: ON")
-    (message "Kyoko mad mode: OFF")))
+  (message (concat "Kyoko mad mode: "
+                   (if kyoko-mad-mode "ON" "OFF"))))
 
 ;; She will be mad if you do nothing within 10 min.
 (run-with-idle-timer
  600 t
  (lambda ()
-    (when kyoko-mad-mode
-      (shell-command-to-string
-       "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
-#+end_src
-
-** org-buffer を dokuwiki 形式に変換し，kill-ring に格納
-   :PROPERTIES:
-   :CUSTOM_ID: org6183f766
-   :END:
-
-外部プログラム[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使います．
-
-#+begin_src emacs-lisp :tangle yes
-(defun org2dokuwiki-cp-kill-ring ()
-  "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
-  (interactive)
-  (when (eq major-mode 'org-mode)
-    (cond (buffer-file-name
-           (kill-new
-            (shell-command-to-string
-             (concat "cat " buffer-file-name "| perl "
-                     (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
-           (message "Copying %s ... done" buffer-file-name)
-           (sit-for 1.5)
-           (message ""))
-          (t (message "There is NOT such a file.")))))
+   (when kyoko-mad-mode
+     (shell-command-to-string
+      "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
 #+end_src
 
 ** コンソールでカレントバッファのあるディレクトリに移動する
@@ -101,7 +64,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
   :group 'takaxp-mac)
 
 ;;;###autoload
-(defun open-current-directory-in-terminal ()
+(defun my-open-current-directory-in-terminal ()
   " Open Current Directory for MacOSX
   0) Put this function in your .emacs
   1) M-x open-current-directory
@@ -241,7 +204,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
-(defun show-org-buffer (file)
+(defun my-show-org-buffer (file)
   "Show an org-file on the current buffer"
   (interactive)
   (if (get-buffer file)
@@ -302,7 +265,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 引数で桁数を渡すと，ランダムな数値の文字列を取得できます．org-mode で適当なタイトルのツリーを生成したい時に使っています．
 
 #+begin_src emacs-lisp :tangle yes
-(defun get-random-string (length)
+(defun my-get-random-string (length)
   "Get a string contain the length digit number with random selection"
   (interactive)
   (random t)
@@ -318,30 +281,6 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
                    (concat tmp (number-to-string (random 10)))))
            (message "%s" string)))
         (t "0")))
-#+end_src
-
-** Auto-install をセットアップする
-   :PROPERTIES:
-   :CUSTOM_ID: org481e7f96
-   :END:
-
-いつも auto-install を使うわけではないので，必要時に =init-auto-install= を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．
-
-#+begin_src emacs-lisp :tangle no
-(defun init-auto-install ()
-  "Setup auto-install.el.
-1. Set my-auto-install-batch-list-el-url
-2. M-x init-auto-install
-3. M-x auto-install-batch hoge"
-  (interactive)
-  (when (and (require 'auto-install nil t)
-             my-auto-install-batch-list-el-url)
-    (setq auto-install-batch-list-el-url my-auto-install-batch-list-el-url)
-    (setq auto-install-directory default-path)
-    (setq auto-install-wget-command "/opt/local/bin/wget")
-    (auto-install-update-emacswiki-package-name t)
-    ;; compatibility
-    (auto-install-compatibility-setup))) ; for install-elisp users
 #+end_src
 
 ** 行頭に" - "を挿入する
@@ -383,145 +322,6 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
                (insert item-string))))))
 #+end_src
 
-** TODO " - "と" - [ ] "をサイクルさせる
-   :PROPERTIES:
-   :CUSTOM_ID: orgc99664d5
-   :END:
-
- - ブリッツ行でないときは，ブリッツ化する．
- - ブリッツ行の場合は，チェックボックス付きに変更する．
- - チェックボックス付きブリッツ行の場合は，チェックボックスを取る．
- - 引数付きで呼び出すと，チェックボックスの有無に依らずブリッツを取る．
-
-#+begin_src emacs-lisp :tangle yes
-;;;###autoload
-(defun my-cycle-bullet-at-heading (arg)
-  "Add a bullet of \" - \" if the line is NOT a bullet line."
-  (interactive "P")
-  (save-excursion
-    (beginning-of-line)
-    (let ((bullet "- ")
-          (point-at-eol (point-at-eol)))
-      (cond
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") point-at-eol t)
-        (replace-match (if arg "" (concat "\\1" bullet)) nil nil))
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)" bullet) point-at-eol t)
-        (replace-match (if arg "" (concat "\\1" bullet "[ ] ")) nil nil))
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)") point-at-eol t)
-        (replace-match
-         (concat "\\1 " bullet) nil nil))
-       (t nil)))))
-#+end_src
-
-** TODO リージョン内のブリッツを操作する
-   :PROPERTIES:
-   :CUSTOM_ID: orga706f503
-   :END:
-
-#+begin_src emacs-lisp :tangle yes
-;;;###autoload
-(defun my-org-list-insert-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet " - ")
-           (len (string-width bullet)))
-      (goto-char begin)
-      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
-                  (not (equal (point) end)))
-        (replace-match (concat "\\1" bullet) nil nil)
-        (setq end (+ end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet "- ")
-           (len (string-width bullet)))
-      (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet) end t)
-        (replace-match "" nil nil)
-        (setq end (- end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-insert-checkbox-into-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet "- ")
-           (checkbox "[ ] ")
-           (len (string-width checkbox)))
-      (goto-char begin)
-      (while (re-search-forward (concat "\\(^[ \t]*\\)" bullet) end t)
-        (replace-match (concat "\\1" bullet checkbox) nil nil)
-        (setq end (+ end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-checkbox-from-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let ((bullet "- ")
-          (len (string-width "[ ] ")))
-      (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
-        (replace-match (concat "\\1" bullet) nil nil)
-        (setq end (- end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-insert-itms-with-checkbox (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet " - ")
-           (checkbox "[ ] ")
-           (blen (string-width bullet))
-           (clen (string-width checkbox)))
-      (goto-char begin)
-      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
-                  (not (equal (point) end)))
-        (replace-match (concat "\\1" bullet checkbox) nil nil)
-        (setq end (+ end blen clen)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-items-with-checkbox (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet "- ")
-           (checkbox "[ ] ")
-           (blen (string-width bullet))
-           (clen (string-width checkbox)))
-      (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
-        (replace-match "" nil nil)
-        (setq end (- end blen clen)))
-      (goto-char begin))))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :exports none
-;; (defun my-insert-bullets (begin end)
-;;   (interactive "r")
-;;   (when mark-active
-;;     (let* ((bullet " - ")
-;;            (len (length bullet)))
-;;       (goto-char begin)
-;;       (while (> end (point))
-;;         (beginning-of-line)
-;;         (when (re-search-forward
-;;                (concat "\\(^[ \t]*\\)") (point-at-eol) t)
-;;           (replace-match (concat "\\1" bullet) nil nil)
-;;           (setq end (+ end len)))
-;;         (forward-line 1))
-;;       (goto-char begin))))
-#+end_src
-
 ** 日付などを簡単に挿入する
    :PROPERTIES:
    :CUSTOM_ID: org81ca01d1
@@ -534,9 +334,11 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
     "Insert a timestamp at the cursor position. C-u will add [] brackets."
     (interactive)
     (insert (format-time-string "%Y-%m-%d")))
+
   (defun insert-formatted-current-time ()
     (interactive)
     (insert (format-time-string "%H:%M")))
+
   (defun insert-formatted-signature ()
     (interactive)
     (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
@@ -552,9 +354,11 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
              (org-time-stamp-inactive)
            (insert (format-time-string "[%Y-%m-%d]"))))
       (t (insert (format-time-string "%Y-%m-%d")))))
+
   (defun insert-formatted-current-time ()
     (interactive)
     (insert (format-time-string "%H:%M")))
+
   (defun insert-formatted-signature ()
     (interactive)
     (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
@@ -569,67 +373,6 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
 (global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
-#+end_src
-
-** XHTMLを利用したガントチャート生成
-   :PROPERTIES:
-   :CUSTOM_ID: orgdf529698
-   :END:
-
-最近使っていません．
-
-#+begin_src emacs-lisp :tangle yes
-(defcustom my-auto-install-batch-list-el-url nil
-  "URL of a auto-install-batch-list.el"
-  :type 'string
-  :group 'takaxp-utility)
-
-;; Publish an xml file to show a Gantt Chart
-(defcustom default-timeline-csv-file nil
-  "source.csv"
-  :type 'string
-  :group 'takaxp-utility)
-
-(defcustom default-timeline-xml-business-file nil
-  "XML file for business schedule"
-  :type 'string
-  :group 'takaxp-utility)
-
-(defcustom default-timeline-xml-private-file nil
-  "XML file for private schedule"
-  :type 'string
-  :group 'takaxp-utility)
-
-(defcustom default-timeline nil
-  "a template index.html"
-  :type 'string
-  :group 'takaxp-utility)
-
-(with-eval-after-load "org"
-  (defun export-timeline-business ()
-    "Export schedule table as an XML source to create an web page"
-    (interactive)
-    (when (and default-timeline
-               (and default-timeline-csv-file
-                    default-timeline-xml-business-file))
-      (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
-      (org-table-export default-timeline-csv-file "orgtbl-to-csv")
-      (shell-command-to-string (concat "org2gantt.pl > "
-                                       default-timeline-xml-business-file))
-      (shell-command-to-string (concat "open " default-timeline)))))
-
-(defun export-timeline-private ()
-  "Export schedule table as an XML source to create an web page"
-  (interactive)
-  (when (and default-timeline
-             (and default-timeline-csv-file
-                  default-timeline-xml-private-file))
-    (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
-    (org-table-export default-timeline-csv-file "orgtbl-to-csv")
-    (shell-command-to-string (concat "org2gantt.pl > "
-                                     default-timeline-xml-private-file))
-    (shell-command-to-string (concat "open " default-timeline))))
-
 #+end_src
 
 ** 定期実行関数
@@ -760,18 +503,6 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   (replace-regexp-in-string "[\n\r]+$" "" str))
 #+end_src
 
-** iTerm2.app を呼び出す関数
-   :PROPERTIES:
-   :CUSTOM_ID: org62365dfa
-   :END:
-
-#+begin_src emacs-lisp :tangle yes
-;;;###autoload
-(defun my-cmd-to-open-iterm2 ()
-  (interactive)
-  (shell-command-to-string "open -a iTerm2.app"))
-#+end_src
-
 ** lingr にログインする
    :PROPERTIES:
    :CUSTOM_ID: org2be833d3
@@ -808,10 +539,10 @@ If `dropbox' option is provided then the value is uased as a root directory."
          (if (listp files)
              files
            (list files)))
-      (message (format "--- backup-dir does not exist: %s" rootdir)))))
+      (user-error (format "--- backup-dir does not exist: %s" rootdir)))))
 #+end_src
 
-** ゴミ箱を空にする                                                     :Mac:
+** ゴミ箱を空にする                                                   :macOS:
    :PROPERTIES:
    :CUSTOM_ID: orgdfad16ba
    :END:
@@ -828,6 +559,227 @@ If `dropbox' option is provided then the value is uased as a root directory."
     "end if\n"
     "end tell\n"))
   (my-desktop-notification "Emacs" "Empty the trash, done."))
+#+end_src
+
+** 終了シーケンスのデバッグ用関数
+
+#+begin_src emacs-lisp :tangle yes
+(defun my-kill-emacs ()
+    (switch-to-buffer "*Messages*")
+    (message "3: %s" kill-emacs-hook)
+    (y-or-n-p "Sure? "))
+(defun my-kill-emacs-hook-show ()
+  "Test Emacs killing sequence."
+  (add-hook 'after-init-hook
+            (lambda () (message "1: %s" kill-emacs-hook)) t)
+  (with-eval-after-load "postpone"
+    (message "2: %s" kill-emacs-hook))
+  (add-hook 'kill-emacs-hook #'my-kill-emacs))
+#+end_src
+
+** [library-p] load-path にライブラリがあるかを判定
+   :PROPERTIES:
+   :CUSTOM_ID: org30c47759
+   :END:
+
+パッケージが =load-path= に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
+
+=libraries= には複数のパッケージ名を指定でき，すべてが使える状態の場合のみ =t= が返ります．
+
+="org"= を渡したり， ='("org" "helm")= を渡したりできます．
+
+#+begin_src emacs-lisp :tangle yes
+(defun library-p (libraries)
+  "Return t when every specified library can be located. "
+  (let ((result t))
+    (mapc (lambda (library)
+            (unless (locate-library library)
+              (message "--- NOT FOUND: %s" library)
+              (setq result nil)))
+          (if (listp libraries)
+              libraries
+            (list libraries)))
+    result))
+#+end_src
+
+** [package.el] MELPA利用設定
+
+#+begin_src emacs-lisp :tangle yes
+(defun my-setup-package-el ()
+  "Setting up for installing packages via built-in package.el.
+Downloaded packages will be stored under ~/.eamcs.d/elpa."
+  (when (require 'package nil t)
+    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                        (not (gnutls-available-p))))
+           (proto (if no-ssl "http" "https")))
+      (add-to-list 'package-archives
+                   (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+      (add-to-list 'package-archives
+                   (cons "takaxp" "~/devel/git/melpa/packages/") t))
+    (package-initialize)))
+#+end_src
+
+** orgバッファを評価
+  :PROPERTIES:
+  :CUSTOM_ID: orgfd51fa6e
+  :END:
+
+org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
+
+#+begin_src emacs-lisp :tangle yes
+;;;###autoload
+(defun my-eval-org-buffer ()
+  "Load init.org/utility.org and tangle init.el/utility.el."
+  (interactive)
+  (if (and (require 'org nil t)
+           (eq major-mode 'org-mode)
+           (member (buffer-name) '("init.org" "utility.org")))
+      (progn
+        (org-babel-tangle)
+        (let ((tangled-file
+               (concat (file-name-sans-extension (buffer-file-name)) ".el")))
+          (when (file-exists-p tangled-file)
+            (byte-compile-file tangled-file))))
+    (message "Nothing to do for this buffer.")))
+#+end_src
+
+** TODO リージョン内のブリッツを操作する
+   :PROPERTIES:
+   :CUSTOM_ID: orga706f503
+   :END:
+
+#+begin_src emacs-lisp :tangle yes
+;;;###autoload
+(defun my-org-list-insert-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet " - ")
+           (len (string-width bullet)))
+      (goto-char begin)
+      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                  (not (equal (point) end)))
+        (replace-match (concat "\\1" bullet) nil nil)
+        (setq end (+ end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-delete-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (len (string-width bullet)))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet) end t)
+        (replace-match "" nil nil)
+        (setq end (- end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-insert-checkbox-into-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (len (string-width checkbox)))
+      (goto-char begin)
+      (while (re-search-forward (concat "\\(^[ \t]*\\)" bullet) end t)
+        (replace-match (concat "\\1" bullet checkbox) nil nil)
+        (setq end (+ end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-delete-checkbox-from-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let ((bullet "- ")
+          (len (string-width "[ ] ")))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+        (replace-match (concat "\\1" bullet) nil nil)
+        (setq end (- end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-insert-itms-with-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet " - ")
+           (checkbox "[ ] ")
+           (blen (string-width bullet))
+           (clen (string-width checkbox)))
+      (goto-char begin)
+      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                  (not (equal (point) end)))
+        (replace-match (concat "\\1" bullet checkbox) nil nil)
+        (setq end (+ end blen clen)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-delete-items-with-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (blen (string-width bullet))
+           (clen (string-width checkbox)))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+        (replace-match "" nil nil)
+        (setq end (- end blen clen)))
+      (goto-char begin))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :exports none
+;; (defun my-insert-bullets (begin end)
+;;   (interactive "r")
+;;   (when mark-active
+;;     (let* ((bullet " - ")
+;;            (len (length bullet)))
+;;       (goto-char begin)
+;;       (while (> end (point))
+;;         (beginning-of-line)
+;;         (when (re-search-forward
+;;                (concat "\\(^[ \t]*\\)") (point-at-eol) t)
+;;           (replace-match (concat "\\1" bullet) nil nil)
+;;           (setq end (+ end len)))
+;;         (forward-line 1))
+;;       (goto-char begin))))
+#+end_src
+
+** TODO " - "と" - [ ] "をサイクルさせる
+   :PROPERTIES:
+   :CUSTOM_ID: orgc99664d5
+   :END:
+
+ - ブリッツ行でないときは，ブリッツ化する．
+ - ブリッツ行の場合は，チェックボックス付きに変更する．
+ - チェックボックス付きブリッツ行の場合は，チェックボックスを取る．
+ - 引数付きで呼び出すと，チェックボックスの有無に依らずブリッツを取る．
+
+#+begin_src emacs-lisp :tangle yes
+;;;###autoload
+(defun my-cycle-bullet-at-heading (arg)
+  "Add a bullet of \" - \" if the line is NOT a bullet line."
+  (interactive "P")
+  (save-excursion
+    (beginning-of-line)
+    (let ((bullet "- ")
+          (point-at-eol (point-at-eol)))
+      (cond
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") point-at-eol t)
+        (replace-match (if arg "" (concat "\\1" bullet)) nil nil))
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)" bullet) point-at-eol t)
+        (replace-match (if arg "" (concat "\\1" bullet "[ ] ")) nil nil))
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)") point-at-eol t)
+        (replace-match
+         (concat "\\1 " bullet) nil nil))
+       (t nil)))))
 #+end_src
 
 ** その他
@@ -884,68 +836,166 @@ If `dropbox' option is provided then the value is uased as a root directory."
     (read-only-mode 1)))
 #+end_src
 
-** 終了シーケンスのデバッグ用関数
-
-#+begin_src emacs-lisp :tangle yes
-(defun my-kill-emacs ()
-    (switch-to-buffer "*Messages*")
-    (message "3: %s" kill-emacs-hook)
-    (y-or-n-p "Sure? "))
-(defun my-kill-emacs-hook-show ()
-  "Test Emacs killing sequence."
-  (add-hook 'after-init-hook
-            (lambda () (message "1: %s" kill-emacs-hook)) t)
-  (with-eval-after-load "postpone"
-    (message "2: %s" kill-emacs-hook))
-  (add-hook 'kill-emacs-hook #'my-kill-emacs))
-#+end_src
-
-** [library-p] load-path にライブラリがあるかを判定
+** XHTMLを利用したガントチャート生成                               :obsolete:
    :PROPERTIES:
-   :CUSTOM_ID: org30c47759
+   :CUSTOM_ID: orgdf529698
    :END:
 
-パッケージが =load-path= に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
+最近使っていません．
 
-=libraries= には複数のパッケージ名を指定でき，すべてが使える状態の場合のみ =t= が返ります．
+#+begin_src emacs-lisp :tangle no
+(defcustom my-auto-install-batch-list-el-url nil
+  "URL of a auto-install-batch-list.el"
+  :type 'string
+  :group 'takaxp-utility)
 
-="org"= を渡したり， ='("org" "helm")= を渡したりできます．
+;; Publish an xml file to show a Gantt Chart
+(defcustom default-timeline-csv-file nil
+  "source.csv"
+  :type 'string
+  :group 'takaxp-utility)
 
-#+begin_src emacs-lisp :tangle yes
-(defun library-p (libraries)
-  "Return t when every specified library can be located. "
-  (let ((result t))
-    (mapc (lambda (library)
-            (unless (locate-library library)
-              (message "--- NOT FOUND: %s" library)
-              (setq result nil)))
-          (if (listp libraries)
-              libraries
-            (list libraries)))
-    result))
+(defcustom default-timeline-xml-business-file nil
+  "XML file for business schedule"
+  :type 'string
+  :group 'takaxp-utility)
+
+(defcustom default-timeline-xml-private-file nil
+  "XML file for private schedule"
+  :type 'string
+  :group 'takaxp-utility)
+
+(defcustom default-timeline nil
+  "a template index.html"
+  :type 'string
+  :group 'takaxp-utility)
+
+(with-eval-after-load "org"
+  (defun export-timeline-business ()
+    "Export schedule table as an XML source to create an web page"
+    (interactive)
+    (when (and default-timeline
+               (and default-timeline-csv-file
+                    default-timeline-xml-business-file))
+      (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
+      (org-table-export default-timeline-csv-file "orgtbl-to-csv")
+      (shell-command-to-string (concat "org2gantt.pl > "
+                                       default-timeline-xml-business-file))
+      (shell-command-to-string (concat "open " default-timeline)))))
+
+(defun export-timeline-private ()
+  "Export schedule table as an XML source to create an web page"
+  (interactive)
+  (when (and default-timeline
+             (and default-timeline-csv-file
+                  default-timeline-xml-private-file))
+    (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
+    (org-table-export default-timeline-csv-file "orgtbl-to-csv")
+    (shell-command-to-string (concat "org2gantt.pl > "
+                                     default-timeline-xml-private-file))
+    (shell-command-to-string (concat "open " default-timeline))))
+
 #+end_src
 
-** [package.el] MELPA利用設定
+** Auto-install をセットアップする                                 :obsolete:
+   :PROPERTIES:
+   :CUSTOM_ID: org481e7f96
+   :END:
 
-#+begin_src :tangle yes
-(defun my-setup-package-el ()
-  "Setting up for installing packages via built-in package.el.
-Downloaded packages will be stored under ~/.eamcs.d/elpa."
-  (when (require 'package nil t)
-    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                        (not (gnutls-available-p))))
-           (proto (if no-ssl "http" "https")))
-      (add-to-list 'package-archives
-                   (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-      (add-to-list 'package-archives
-                   (cons "takaxp" "~/devel/git/melpa/packages/") t))
-    (package-initialize)))
+いつも auto-install を使うわけではないので，必要時に =init-auto-install= を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．
+
+#+begin_src emacs-lisp :tangle no
+(defun init-auto-install ()
+  "Setup auto-install.el.
+1. Set my-auto-install-batch-list-el-url
+2. M-x init-auto-install
+3. M-x auto-install-batch hoge"
+  (interactive)
+  (when (and (require 'auto-install nil t)
+             my-auto-install-batch-list-el-url)
+    (setq auto-install-batch-list-el-url my-auto-install-batch-list-el-url)
+    (setq auto-install-directory default-path)
+    (setq auto-install-wget-command "/opt/local/bin/wget")
+    (auto-install-update-emacswiki-package-name t)
+    ;; compatibility
+    (auto-install-compatibility-setup))) ; for install-elisp users
+#+end_src
+
+** org-buffer を dokuwiki 形式に変換し，kill-ring に格納           :obsolete:
+   :PROPERTIES:
+   :CUSTOM_ID: org6183f766
+   :END:
+
+外部プログラム[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使います．
+
+#+begin_src emacs-lisp :tangle yes
+(defun org2dokuwiki-cp-kill-ring ()
+  "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
+  (interactive)
+  (when (eq major-mode 'org-mode)
+    (cond (buffer-file-name
+           (kill-new
+            (shell-command-to-string
+             (concat "cat " buffer-file-name "| perl "
+                     (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
+           (message "Copying %s ... done" buffer-file-name)
+           (sit-for 1.5)
+           (message ""))
+          (t (message "There is NOT such a file.")))))
 #+end_src
 
 * 未設定／テスト中
   :PROPERTIES:
   :CUSTOM_ID: org67dcc87b
   :END:
+** UUID をファイル名にして所定のディレクトリにコピー／移動
+   :PROPERTIES:
+   :CUSTOM_ID: org1a1d73ca
+   :END:
+
+  - すでに org-attach が存在するので用途が微妙に．．．
+
+#+begin_src emacs-lisp :tangle no
+(defvar org-att-global-directory "~/Dropbox/org/attachment/")
+(defun copy-file-with-uuid (input)
+  (interactive "FFile name: ")
+  (if (file-exists-p input)
+      (let* ((id (org-id-uuid))
+             (filename (expand-file-name input))
+             (directory (file-name-directory filename))
+             (extension (file-name-extension filename))
+             (output (concat org-att-global-directory id "." extension)))
+        (copy-file filename output)
+        (message "--- Copied as %s " output)
+        output)
+    (message "--- %s does NOT exist." input)
+    nil))
+
+(defun rename-file-with-uuid (input)
+  (interactive "FFile name: ")
+  (if (file-exists-p input)
+      (let* ((id (org-id-uuid))
+             (filename (expand-file-name input))
+             (directory (file-name-directory filename))
+             (extension (file-name-extension filename))
+             (output (concat directory id "." extension)))
+        (rename-file filename output)
+        (message "--- Renamed as %s " output)
+        output)
+    (message "--- %s does NOT exist." input)
+    nil))
+
+(defun org-link-uuid (input &optional overwrite)
+  (interactive "FFile name: ")
+  (let ((output
+         (if overwrite
+             (rename-file-with-uuid input)
+           (copy-file-with-uuid input))))
+    (when output
+      (insert (concat "[[file+sys:" output
+                      "][" (file-name-base input) "]]\n")))))
+#+end_src
+
 ** byte-compile の警告を抑制する
    :PROPERTIES:
    :CUSTOM_ID: orgbdeca93a
@@ -1066,54 +1116,6 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 #+begin_src emacs-lisp :tangle no
 (defalias 'list-buffers 'ibuffer)
-#+end_src
-
-** UUID をファイル名にして所定のディレクトリにコピー／移動
-   :PROPERTIES:
-   :CUSTOM_ID: org1a1d73ca
-   :END:
-
-  - すでに org-attach が存在するので用途が微妙に．．．
-
-#+begin_src emacs-lisp :tangle no
-(defvar org-att-global-directory "~/Dropbox/org/attachment/")
-(defun copy-file-with-uuid (input)
-  (interactive "FFile name: ")
-  (if (file-exists-p input)
-      (let* ((id (org-id-uuid))
-             (filename (expand-file-name input))
-             (directory (file-name-directory filename))
-             (extension (file-name-extension filename))
-             (output (concat org-att-global-directory id "." extension)))
-        (copy-file filename output)
-        (message "--- Copied as %s " output)
-        output)
-    (message "--- %s does NOT exist." input)
-    nil))
-
-(defun rename-file-with-uuid (input)
-  (interactive "FFile name: ")
-  (if (file-exists-p input)
-      (let* ((id (org-id-uuid))
-             (filename (expand-file-name input))
-             (directory (file-name-directory filename))
-             (extension (file-name-extension filename))
-             (output (concat directory id "." extension)))
-        (rename-file filename output)
-        (message "--- Renamed as %s " output)
-        output)
-    (message "--- %s does NOT exist." input)
-    nil))
-
-(defun org-link-uuid (input &optional overwrite)
-  (interactive "FFile name: ")
-  (let ((output
-         (if overwrite
-             (rename-file-with-uuid input)
-           (copy-file-with-uuid input))))
-    (when output
-      (insert (concat "[[file+sys:" output
-                      "][" (file-name-base input) "]]\n")))))
 #+end_src
 
 ** キーバインド

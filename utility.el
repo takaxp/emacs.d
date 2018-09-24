@@ -1,31 +1,22 @@
 ;;;###autoload
-(defun eval-org-buffer ()
-  "Load init.org/utility.org and tangle init.el/utility.el."
+(defun my-cmd-to-open-iterm2 ()
   (interactive)
-  (if (and (require 'org nil t)
-           (eq major-mode 'org-mode)
-           (member (buffer-name) '("init.org" "utility.org")))
-      (progn
-        (org-babel-tangle)
-        (let ((tangled-file
-               (concat (file-name-sans-extension (buffer-file-name)) ".el")))
-          (when (file-exists-p tangled-file)
-            (byte-compile-file tangled-file))))
-    (message "Nothing to do for this buffer.")))
+  (shell-command-to-string "open -a iTerm2.app"))
 
-(defun org2dokuwiki-cp-kill-ring ()
-  "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
+(defvar kyoko-mad-mode nil)
+(defun kyoko-mad-mode-toggle ()
   (interactive)
-  (when (eq major-mode 'org-mode)
-    (cond (buffer-file-name
-           (kill-new
-            (shell-command-to-string
-             (concat "cat " buffer-file-name "| perl "
-                     (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
-           (message "Copying %s ... done" buffer-file-name)
-           (sit-for 1.5)
-           (message ""))
-          (t (message "There is NOT such a file.")))))
+  (setq kyoko-mad-mode (not kyoko-mad-mode))
+  (message (concat "Kyoko mad mode: "
+                   (if kyoko-mad-mode "ON" "OFF"))))
+
+;; She will be mad if you do nothing within 10 min.
+(run-with-idle-timer
+ 600 t
+ (lambda ()
+   (when kyoko-mad-mode
+     (shell-command-to-string
+      "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
 
 (defcustom open-current-directory-console-program "iTerm2.app"
   "Specify a console program"
@@ -33,7 +24,7 @@
   :group 'takaxp-mac)
 
 ;;;###autoload
-(defun open-current-directory-in-terminal ()
+(defun my-open-current-directory-in-terminal ()
   " Open Current Directory for MacOSX
   0) Put this function in your .emacs
   1) M-x open-current-directory
@@ -150,7 +141,7 @@
 ;;    (setq my-file-ring (cdr my-file-ring)))
 
 ;;;###autoload
-(defun show-org-buffer (file)
+(defun my-show-org-buffer (file)
   "Show an org-file on the current buffer"
   (interactive)
   (if (get-buffer file)
@@ -188,7 +179,7 @@
       (save-excursion
         (insert date place attendance documents)))))
 
-(defun get-random-string (length)
+(defun my-get-random-string (length)
   "Get a string contain the length digit number with random selection"
   (interactive)
   (random t)
@@ -237,116 +228,15 @@
                (move-beginning-of-line 1)
                (insert item-string))))))
 
-;;;###autoload
-(defun my-cycle-bullet-at-heading (arg)
-  "Add a bullet of \" - \" if the line is NOT a bullet line."
-  (interactive "P")
-  (save-excursion
-    (beginning-of-line)
-    (let ((bullet "- ")
-          (point-at-eol (point-at-eol)))
-      (cond
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") point-at-eol t)
-        (replace-match (if arg "" (concat "\\1" bullet)) nil nil))
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)" bullet) point-at-eol t)
-        (replace-match (if arg "" (concat "\\1" bullet "[ ] ")) nil nil))
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)") point-at-eol t)
-        (replace-match
-         (concat "\\1 " bullet) nil nil))
-       (t nil)))))
-
-;;;###autoload
-(defun my-org-list-insert-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet " - ")
-           (len (string-width bullet)))
-      (goto-char begin)
-      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
-                  (not (equal (point) end)))
-        (replace-match (concat "\\1" bullet) nil nil)
-        (setq end (+ end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet "- ")
-           (len (string-width bullet)))
-      (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet) end t)
-        (replace-match "" nil nil)
-        (setq end (- end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-insert-checkbox-into-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet "- ")
-           (checkbox "[ ] ")
-           (len (string-width checkbox)))
-      (goto-char begin)
-      (while (re-search-forward (concat "\\(^[ \t]*\\)" bullet) end t)
-        (replace-match (concat "\\1" bullet checkbox) nil nil)
-        (setq end (+ end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-checkbox-from-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let ((bullet "- ")
-          (len (string-width "[ ] ")))
-      (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
-        (replace-match (concat "\\1" bullet) nil nil)
-        (setq end (- end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-insert-itms-with-checkbox (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet " - ")
-           (checkbox "[ ] ")
-           (blen (string-width bullet))
-           (clen (string-width checkbox)))
-      (goto-char begin)
-      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
-                  (not (equal (point) end)))
-        (replace-match (concat "\\1" bullet checkbox) nil nil)
-        (setq end (+ end blen clen)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-items-with-checkbox (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet "- ")
-           (checkbox "[ ] ")
-           (blen (string-width bullet))
-           (clen (string-width checkbox)))
-      (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
-        (replace-match "" nil nil)
-        (setq end (- end blen clen)))
-      (goto-char begin))))
-
 (defun insert-formatted-current-date ()
   "Insert a timestamp at the cursor position. C-u will add [] brackets."
   (interactive)
   (insert (format-time-string "%Y-%m-%d")))
+
 (defun insert-formatted-current-time ()
   (interactive)
   (insert (format-time-string "%H:%M")))
+
 (defun insert-formatted-signature ()
   (interactive)
   (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
@@ -354,57 +244,6 @@
 
 (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
 (global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
-
-(defcustom my-auto-install-batch-list-el-url nil
-  "URL of a auto-install-batch-list.el"
-  :type 'string
-  :group 'takaxp-utility)
-
-;; Publish an xml file to show a Gantt Chart
-(defcustom default-timeline-csv-file nil
-  "source.csv"
-  :type 'string
-  :group 'takaxp-utility)
-
-(defcustom default-timeline-xml-business-file nil
-  "XML file for business schedule"
-  :type 'string
-  :group 'takaxp-utility)
-
-(defcustom default-timeline-xml-private-file nil
-  "XML file for private schedule"
-  :type 'string
-  :group 'takaxp-utility)
-
-(defcustom default-timeline nil
-  "a template index.html"
-  :type 'string
-  :group 'takaxp-utility)
-
-(with-eval-after-load "org"
-  (defun export-timeline-business ()
-    "Export schedule table as an XML source to create an web page"
-    (interactive)
-    (when (and default-timeline
-               (and default-timeline-csv-file
-                    default-timeline-xml-business-file))
-      (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
-      (org-table-export default-timeline-csv-file "orgtbl-to-csv")
-      (shell-command-to-string (concat "org2gantt.pl > "
-                                       default-timeline-xml-business-file))
-      (shell-command-to-string (concat "open " default-timeline)))))
-
-(defun export-timeline-private ()
-  "Export schedule table as an XML source to create an web page"
-  (interactive)
-  (when (and default-timeline
-             (and default-timeline-csv-file
-                  default-timeline-xml-private-file))
-    (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
-    (org-table-export default-timeline-csv-file "orgtbl-to-csv")
-    (shell-command-to-string (concat "org2gantt.pl > "
-                                     default-timeline-xml-private-file))
-    (shell-command-to-string (concat "open " default-timeline))))
 
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
@@ -492,11 +331,6 @@
     (setq str (replace-match "" t t str)))
   str)
 
-;;;###autoload
-(defun my-cmd-to-open-iterm2 ()
-  (interactive)
-  (shell-command-to-string "open -a iTerm2.app"))
-
 (defun my-lingr-login ()
   (when (string= "Sat" (format-time-string "%a"))
     (lingr-login)))
@@ -520,7 +354,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
          (if (listp files)
              files
            (list files)))
-      (message (format "--- backup-dir does not exist: %s" rootdir)))))
+      (user-error (format "--- backup-dir does not exist: %s" rootdir)))))
 
 (defun mac:delete-files-in-trash-bin ()
   (interactive)
@@ -533,6 +367,161 @@ If `dropbox' option is provided then the value is uased as a root directory."
     "end if\n"
     "end tell\n"))
   (my-desktop-notification "Emacs" "Empty the trash, done."))
+
+(defun my-kill-emacs ()
+    (switch-to-buffer "*Messages*")
+    (message "3: %s" kill-emacs-hook)
+    (y-or-n-p "Sure? "))
+(defun my-kill-emacs-hook-show ()
+  "Test Emacs killing sequence."
+  (add-hook 'after-init-hook
+            (lambda () (message "1: %s" kill-emacs-hook)) t)
+  (with-eval-after-load "postpone"
+    (message "2: %s" kill-emacs-hook))
+  (add-hook 'kill-emacs-hook #'my-kill-emacs))
+
+(defun library-p (libraries)
+  "Return t when every specified library can be located. "
+  (let ((result t))
+    (mapc (lambda (library)
+            (unless (locate-library library)
+              (message "--- NOT FOUND: %s" library)
+              (setq result nil)))
+          (if (listp libraries)
+              libraries
+            (list libraries)))
+    result))
+
+(defun my-setup-package-el ()
+  "Setting up for installing packages via built-in package.el.
+Downloaded packages will be stored under ~/.eamcs.d/elpa."
+  (when (require 'package nil t)
+    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                        (not (gnutls-available-p))))
+           (proto (if no-ssl "http" "https")))
+      (add-to-list 'package-archives
+                   (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+      (add-to-list 'package-archives
+                   (cons "takaxp" "~/devel/git/melpa/packages/") t))
+    (package-initialize)))
+
+;;;###autoload
+(defun my-eval-org-buffer ()
+  "Load init.org/utility.org and tangle init.el/utility.el."
+  (interactive)
+  (if (and (require 'org nil t)
+           (eq major-mode 'org-mode)
+           (member (buffer-name) '("init.org" "utility.org")))
+      (progn
+        (org-babel-tangle)
+        (let ((tangled-file
+               (concat (file-name-sans-extension (buffer-file-name)) ".el")))
+          (when (file-exists-p tangled-file)
+            (byte-compile-file tangled-file))))
+    (message "Nothing to do for this buffer.")))
+
+;;;###autoload
+(defun my-org-list-insert-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet " - ")
+           (len (string-width bullet)))
+      (goto-char begin)
+      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                  (not (equal (point) end)))
+        (replace-match (concat "\\1" bullet) nil nil)
+        (setq end (+ end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-delete-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (len (string-width bullet)))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet) end t)
+        (replace-match "" nil nil)
+        (setq end (- end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-insert-checkbox-into-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (len (string-width checkbox)))
+      (goto-char begin)
+      (while (re-search-forward (concat "\\(^[ \t]*\\)" bullet) end t)
+        (replace-match (concat "\\1" bullet checkbox) nil nil)
+        (setq end (+ end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-delete-checkbox-from-items (begin end)
+  (interactive "r")
+  (when mark-active
+    (let ((bullet "- ")
+          (len (string-width "[ ] ")))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+        (replace-match (concat "\\1" bullet) nil nil)
+        (setq end (- end len)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-insert-itms-with-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet " - ")
+           (checkbox "[ ] ")
+           (blen (string-width bullet))
+           (clen (string-width checkbox)))
+      (goto-char begin)
+      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                  (not (equal (point) end)))
+        (replace-match (concat "\\1" bullet checkbox) nil nil)
+        (setq end (+ end blen clen)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-org-list-delete-items-with-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (let* ((bullet "- ")
+           (checkbox "[ ] ")
+           (blen (string-width bullet))
+           (clen (string-width checkbox)))
+      (goto-char begin)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+        (replace-match "" nil nil)
+        (setq end (- end blen clen)))
+      (goto-char begin))))
+
+;;;###autoload
+(defun my-cycle-bullet-at-heading (arg)
+  "Add a bullet of \" - \" if the line is NOT a bullet line."
+  (interactive "P")
+  (save-excursion
+    (beginning-of-line)
+    (let ((bullet "- ")
+          (point-at-eol (point-at-eol)))
+      (cond
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") point-at-eol t)
+        (replace-match (if arg "" (concat "\\1" bullet)) nil nil))
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)" bullet) point-at-eol t)
+        (replace-match (if arg "" (concat "\\1" bullet "[ ] ")) nil nil))
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)") point-at-eol t)
+        (replace-match
+         (concat "\\1 " bullet) nil nil))
+       (t nil)))))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 ;;;###autoload
@@ -581,29 +570,19 @@ If `dropbox' option is provided then the value is uased as a root directory."
       (setq tl (cdr tl)))
     (read-only-mode 1)))
 
-(defun my-kill-emacs ()
-    (switch-to-buffer "*Messages*")
-    (message "3: %s" kill-emacs-hook)
-    (y-or-n-p "Sure? "))
-(defun my-kill-emacs-hook-show ()
-  "Test Emacs killing sequence."
-  (add-hook 'after-init-hook
-            (lambda () (message "1: %s" kill-emacs-hook)) t)
-  (with-eval-after-load "postpone"
-    (message "2: %s" kill-emacs-hook))
-  (add-hook 'kill-emacs-hook #'my-kill-emacs))
-
-(defun library-p (libraries)
-  "Return t when every specified library can be located. "
-  (let ((result t))
-    (mapc (lambda (library)
-            (unless (locate-library library)
-              (message "--- NOT FOUND: %s" library)
-              (setq result nil)))
-          (if (listp libraries)
-              libraries
-            (list libraries)))
-    result))
+(defun org2dokuwiki-cp-kill-ring ()
+  "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
+  (interactive)
+  (when (eq major-mode 'org-mode)
+    (cond (buffer-file-name
+           (kill-new
+            (shell-command-to-string
+             (concat "cat " buffer-file-name "| perl "
+                     (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
+           (message "Copying %s ... done" buffer-file-name)
+           (sit-for 1.5)
+           (message ""))
+          (t (message "There is NOT such a file.")))))
 
 ;;;###autoload
 (defun my-window-resizer ()

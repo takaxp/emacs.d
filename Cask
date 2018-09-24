@@ -1,4 +1,4 @@
-;; #+date: 2018-09-13
+;; #+date: 2018-09-23
 
 (source gnu)
 (source melpa)
@@ -206,7 +206,7 @@
 (depends-on "emms") ;; includes emms-player-mpv
 (depends-on "gif-screencast")
 (depends-on "pass")
-;; (depends-on "keycast") ;; require emacs-25.3
+(depends-on "keycast") ;; require emacs-25.3
 (depends-on "pcap-mode")
 
 ;; Log
