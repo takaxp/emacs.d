@@ -3695,8 +3695,8 @@ http://0xcc.net/migemo/#download
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
-       '(git-gutter-mode fringe-helper-define)
-       "git-gutter-fringe" nil t)
+       '(git-gutter-mode)
+       "git-gutter" nil t)
 
   (dolist (hook
            '(emacs-lisp-mode-hook
@@ -3706,43 +3706,43 @@ http://0xcc.net/migemo/#download
 
   (with-eval-after-load "git-gutter"
     (custom-set-variables
-     '(git-gutter:lighter "")
-     '(git-gutter-fr:side 'left-fringe)))
+     '(git-gutter:lighter "")))
 
-  (with-eval-after-load "git-gutter-fringe"
+   (when (require 'git-gutter-fringe nil t)
     (custom-set-variables
      '(git-gutter-fr:side 'left-fringe))
 
+    ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
     ;; "!"
     (fringe-helper-define 'git-gutter-fr:modified nil
-      "...XX..."
-      "...XX..."
-      "...XX..."
-      "...XX..."
-      "...XX..."
-      "........"
-      "...XX..."
-      "...XX...")
+                          "...XX..."
+                          "...XX..."
+                          "...XX..."
+                          "...XX..."
+                          "...XX..."
+                          "........"
+                          "...XX..."
+                          "...XX...")
     ;; "+"
     (fringe-helper-define 'git-gutter-fr:added nil
-      "........"
-      "...XX..."
-      "...XX..."
-      ".XXXXXX."
-      ".XXXXXX."
-      "...XX..."
-      "...XX..."
-      "........")
+                          "........"
+                          "...XX..."
+                          "...XX..."
+                          ".XXXXXX."
+                          ".XXXXXX."
+                          "...XX..."
+                          "...XX..."
+                          "........")
     ;; "-"
     (fringe-helper-define 'git-gutter-fr:deleted nil
-      "........"
-      "........"
-      "........"
-      ".XXXXXX."
-      ".XXXXXX."
-      "........"
-      "........"
-      "........")
+                          "........"
+                          "........"
+                          "........"
+                          ".XXXXXX."
+                          ".XXXXXX."
+                          "........"
+                          "........"
+                          "........")
     (set-face-foreground 'git-gutter-fr:added    "#FF2600")
     (set-face-foreground 'git-gutter-fr:modified "orange")
     (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))

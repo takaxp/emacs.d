@@ -43,6 +43,7 @@
 (require 'keyfreq nil t)
 (require 'winner nil t)
 (require 'cask nil t)
+(require 'fringe-helper nil t)
 
 (if (require 'shut-up nil t)
     (progn

@@ -1350,8 +1350,8 @@ This works also for other defined begin/end tokens to define the structure."
     (require 'helm-bm nil t)))
 
 (when (autoload-if-found
-       '(git-gutter-mode fringe-helper-define)
-       "git-gutter-fringe" nil t)
+       '(git-gutter-mode)
+       "git-gutter" nil t)
 
   (dolist (hook
            '(emacs-lisp-mode-hook
@@ -1361,43 +1361,43 @@ This works also for other defined begin/end tokens to define the structure."
 
   (with-eval-after-load "git-gutter"
     (custom-set-variables
-     '(git-gutter:lighter "")
-     '(git-gutter-fr:side 'left-fringe)))
+     '(git-gutter:lighter "")))
 
-  (with-eval-after-load "git-gutter-fringe"
+   (when (require 'git-gutter-fringe nil t)
     (custom-set-variables
      '(git-gutter-fr:side 'left-fringe))
 
+    ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
     ;; "!"
     (fringe-helper-define 'git-gutter-fr:modified nil
-      "...XX..."
-      "...XX..."
-      "...XX..."
-      "...XX..."
-      "...XX..."
-      "........"
-      "...XX..."
-      "...XX...")
+                          "...XX..."
+                          "...XX..."
+                          "...XX..."
+                          "...XX..."
+                          "...XX..."
+                          "........"
+                          "...XX..."
+                          "...XX...")
     ;; "+"
     (fringe-helper-define 'git-gutter-fr:added nil
-      "........"
-      "...XX..."
-      "...XX..."
-      ".XXXXXX."
-      ".XXXXXX."
-      "...XX..."
-      "...XX..."
-      "........")
+                          "........"
+                          "...XX..."
+                          "...XX..."
+                          ".XXXXXX."
+                          ".XXXXXX."
+                          "...XX..."
+                          "...XX..."
+                          "........")
     ;; "-"
     (fringe-helper-define 'git-gutter-fr:deleted nil
-      "........"
-      "........"
-      "........"
-      ".XXXXXX."
-      ".XXXXXX."
-      "........"
-      "........"
-      "........")
+                          "........"
+                          "........"
+                          "........"
+                          ".XXXXXX."
+                          ".XXXXXX."
+                          "........"
+                          "........"
+                          "........")
     (set-face-foreground 'git-gutter-fr:added    "#FF2600")
     (set-face-foreground 'git-gutter-fr:modified "orange")
     (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))
@@ -3856,6 +3856,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (postpone-message "winner-mode")
     (when (require 'winner nil t)
       (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
+      (define-key winner-mode-map (kbd "C-(") 'winner-undo)
+      (define-key winner-mode-map (kbd "C-)") 'winner-redo)
       (winner-mode 1))))
 
 (with-eval-after-load "postpone"

@@ -15,7 +15,7 @@
 ;; (setq my-loading-packages '(("moom" . nil) ("moom-font" . nil)))
 (setq postpone-verbose nil
       my-skip-autoload-file-check t
-      debug-on-error nil) ;; see postpone.el
+      debug-on-error t) ;; see postpone.el
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when my-profiler-p
