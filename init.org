@@ -8086,12 +8086,12 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     ))
 #+end_src
 
-** [winner-undo.el] ウィンドウ構成の履歴を辿る
+** [winner.el] ウィンドウ構成の履歴を辿る
    :PROPERTIES:
    :CUSTOM_ID: org33fd785f
    :END:
 
-  - ビルトインの =winner-undo.el= を使います．
+  - ビルトインの =winner.el= を使います．
 
 ウィンドウ分割状況と各ウィンドウで表示していたバッファの履歴を辿ることができます． =winner-undo= で直前の状態に戻せます．例えば，誤って =C-x 0= で分割ウィンドウを閉じた時にも，即座に元の状態に戻すことが可能です．
 
@@ -8101,6 +8101,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (postpone-message "winner-mode")
     (when (require 'winner nil t)
       (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
+      (define-key winner-mode-map (kbd "C-(") 'winner-undo)
+      (define-key winner-mode-map (kbd "C-)") 'winner-redo)
       (winner-mode 1))))
 #+end_src
 
