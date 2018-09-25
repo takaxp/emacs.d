@@ -14,8 +14,9 @@
 (defconst my-loading-packages nil) ;; `my-autoload-file-check' shall be nil.
 ;; (setq my-loading-packages '(("moom" . nil) ("moom-font" . nil)))
 (setq postpone-verbose nil
+      my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-autoload-file-check t
-      debug-on-error t) ;; see postpone.el
+      debug-on-error nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when my-profiler-p
@@ -63,8 +64,8 @@
     (my-path-setter l 'load-path))
   (when my-ad-require-p
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
-  (require 'init nil t)
   ;; (require 'init-eval nil t)
+  (require 'init nil t)
   ;; (require 'utility nil t)
   (require 'my-eshell nil t)
   (require 'my-mail nil t)

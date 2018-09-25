@@ -3706,46 +3706,46 @@ http://0xcc.net/migemo/#download
 
   (with-eval-after-load "git-gutter"
     (custom-set-variables
-     '(git-gutter:lighter "")))
+     '(git-gutter:lighter ""))
 
-   (when (require 'git-gutter-fringe nil t)
-    (custom-set-variables
-     '(git-gutter-fr:side 'left-fringe))
+    (when (require 'git-gutter-fringe nil t)
+      (custom-set-variables
+       '(git-gutter-fr:side 'left-fringe))
 
-    ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
-    ;; "!"
-    (fringe-helper-define 'git-gutter-fr:modified nil
-                          "...XX..."
-                          "...XX..."
-                          "...XX..."
-                          "...XX..."
-                          "...XX..."
-                          "........"
-                          "...XX..."
-                          "...XX...")
-    ;; "+"
-    (fringe-helper-define 'git-gutter-fr:added nil
-                          "........"
-                          "...XX..."
-                          "...XX..."
-                          ".XXXXXX."
-                          ".XXXXXX."
-                          "...XX..."
-                          "...XX..."
-                          "........")
-    ;; "-"
-    (fringe-helper-define 'git-gutter-fr:deleted nil
-                          "........"
-                          "........"
-                          "........"
-                          ".XXXXXX."
-                          ".XXXXXX."
-                          "........"
-                          "........"
-                          "........")
-    (set-face-foreground 'git-gutter-fr:added    "#FF2600")
-    (set-face-foreground 'git-gutter-fr:modified "orange")
-    (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))
+      ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
+      ;; "!"
+      (fringe-helper-define 'git-gutter-fr:modified nil
+        "...XX..."
+        "...XX..."
+        "...XX..."
+        "...XX..."
+        "...XX..."
+        "........"
+        "...XX..."
+        "...XX...")
+      ;; "+"
+      (fringe-helper-define 'git-gutter-fr:added nil
+        "........"
+        "...XX..."
+        "...XX..."
+        ".XXXXXX."
+        ".XXXXXX."
+        "...XX..."
+        "...XX..."
+        "........")
+      ;; "-"
+      (fringe-helper-define 'git-gutter-fr:deleted nil
+        "........"
+        "........"
+        "........"
+        ".XXXXXX."
+        ".XXXXXX."
+        "........"
+        "........"
+        "........")
+      (set-face-foreground 'git-gutter-fr:added    "#FF2600")
+      (set-face-foreground 'git-gutter-fr:modified "orange")
+      (set-face-foreground 'git-gutter-fr:deleted  "medium sea green"))))
 #+end_src
 
 ** [japanese-holidays] カレンダーをカラフルにする
@@ -6272,7 +6272,7 @@ will not be modified."
     (defvar org-capture-diary-file (concat org-directory "log/diary.org"))
     (defvar org-capture-article-file (concat org-directory "db/article.org"))
     (defvar org-capture-blog-file
-      (concat org-directory "blog/entries/default.org"))
+      (concat org-directory "blog/entries/imadenale.org"))
 
     ;; see org.pdf:p73
     (setq org-capture-templates
@@ -8652,7 +8652,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle yes
 (when (display-graphic-p)
   (declare-function my-night-time-p "init" (begin end))
-
   (defun my-night-time-p (begin end)
     (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
            (cm (string-to-number (format-time-string "%M" (current-time))))
@@ -8661,18 +8660,24 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
           (or (<= begin ct) (<= ct end))
         (and (<= begin ct) (<= ct end)))))
 
+  (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
   (defun my-apply-theme ()
     (interactive)
-    (let ((night-time-in 21)
-          (night-time-out 5))
-      (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
-          (my-night-theme)
-        (my-daylight-theme)))
+    (cond ((eq my-frame-appearance 'dark)
+           (my-night-theme))
+          ((eq my-frame-appearance 'light)
+           (my-daylight-theme))
+          (t
+           (let ((night-time-in 21)
+                 (night-time-out 5))
+             (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
+                 (my-night-theme)
+               (my-daylight-theme)))))
     (when (fboundp 'mac-get-current-input-source)
-      (my-apply-cursor-config)))
+      (my-apply-cursor-config))
+    (my-font-config)) ;; apply font setting
 
-  (my-apply-theme) ;; this may override or reset font setting
-  (my-font-config)) ;; apply font setting
+  (my-apply-theme)) ;; this may override or reset font setting
 #+end_src
 
 ** [rainbow-mode.el] 配色のリアルタイム確認
