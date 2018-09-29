@@ -288,10 +288,12 @@
       (call-interactively 'ag)
       (switch-to-buffer-other-frame "*ag search*"))))
 
-(global-set-key (kbd "M-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
-(global-set-key (kbd "S-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
-(declare-function my-ns-org-heading-auto-ascii "init" nil)
-(declare-function my-ns-ime-restore "init" nil)
+(when (eq window-system 'ns)
+  (global-set-key (kbd "M-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
+  (global-set-key (kbd "S-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
+  (declare-function my-ns-org-heading-auto-ascii "init" nil)
+  (declare-function my-ns-ime-restore "init" nil))
+
 (with-eval-after-load "postpone"
   (when (and (eq window-system 'ns)
              (fboundp 'mac-get-current-input-source))
@@ -317,6 +319,137 @@
       "Restore the last IME status."
       (if my-ime-last (my-ime-on) (my-ime-off)))
     (add-hook 'focus-in-hook #'my-ns-ime-restore)))
+
+(when (eq window-system 'mac)
+  (global-set-key (kbd "M-SPC") 'mac-win-ime-toggle)
+  (global-set-key (kbd "S-SPC") 'mac-win-ime-toggle)
+  (declare-function mac-win-save-last-ime-status "init" nil)
+  (declare-function ad:mac-auto-ascii-setup-input-source "init" nil)
+  (declare-function mac-win-restore-ime "init" nil)
+  (declare-function mac-win-restore-ime-target-commands "init" nil))
+
+(with-eval-after-load "postpone"
+  (when (eq window-system 'mac)
+    (mac-auto-ascii-mode 1)
+
+    (defvar mac-win-last-ime-status 'off) ;; {'off|'on}
+    (defun mac-win-save-last-ime-status ()
+      (setq mac-win-last-ime-status
+            (if (string-match "\\.\\(Roman\\|US\\)$" (mac-input-source))
+                'off 'on)))
+    (mac-win-save-last-ime-status) ;; 初期化
+
+    (defun mac-win-restore-ime ()
+      (when (and mac-auto-ascii-mode
+                 (eq mac-win-last-ime-status 'on))
+        (mac-select-input-source
+         "com.google.inputmethod.Japanese.base")))
+
+    (defun ad:mac-auto-ascii-setup-input-source (&optional _prompt)
+      "Extension to store IME status"
+      (mac-win-save-last-ime-status))
+    (advice-add 'mac-auto-ascii-setup-input-source :before
+                #'ad:mac-auto-ascii-setup-input-source)
+
+    (defvar mac-win-target-commands
+      '(find-file save-buffer other-window delete-window split-window))
+
+    (defun mac-win-restore-ime-target-commands ()
+      (when (and mac-auto-ascii-mode
+                 (eq mac-win-last-ime-status 'on))
+        (mapc (lambda (command)
+                (when (string-match
+                       (format "^%s" command) (format "%s" this-command))
+                  (mac-select-input-source
+                   "com.google.inputmethod.Japanese.base")))
+              mac-win-target-commands)))
+    (add-hook 'pre-command-hook #'mac-win-restore-ime-target-commands)
+
+    ;; バッファリストを見るとき
+    (add-to-list 'mac-win-target-commands 'helm-buffers-list)
+    ;; ChangeLogに行くとき
+    (add-to-list 'mac-win-target-commands 'add-change-log-entry-other-window)
+    ;; 個人用の関数を使うとき
+    ;; (add-to-list 'mac-win-target-commands 'my-)
+    ;; 自分で作ったパッケージ群の関数を使うとき
+    (add-to-list 'mac-win-target-commands 'change-frame)
+    ;; org-mode で締め切りを設定するとき．
+    (add-to-list 'mac-win-target-commands 'org-deadline)
+    ;; org-mode で締め切りを設定するとき．
+    ;; (add-to-list 'mac-win-target-commands 'org-capture)
+    ;; query-replace で変換するとき
+    (add-to-list 'mac-win-target-commands 'query-replace)
+
+    ;; ミニバッファ利用後にIMEを戻す
+    ;; M-x でのコマンド選択でIMEを戻せる．
+    ;; これ移動先で q が効かないことがある
+    (add-hook 'minibuffer-setup-hook #'mac-win-save-last-ime-status)
+    (add-hook 'minibuffer-exit-hook #'mac-win-restore-ime)
+
+    ;; タイトルバーの振る舞いを NS版に合わせる．
+    (setq frame-title-format (format (if (buffer-file-name) "%%f" "%%b")))
+
+    ;; なおテーマを切り替えたら，face の設定をリロードしないと期待通りにならない
+    (when (require 'hl-line nil t)
+      (custom-set-faces
+       ;; 変換前入力時の文字列用 face
+       `(mac-ts-converted-text
+         ((((background dark)) :underline "orange"
+           :background ,(face-attribute 'hl-line :background))
+          (t (:underline "orange"
+                         :background
+                         ,(face-attribute 'hl-line :background)))))
+       ;; 変換対象の文字列用 face
+       `(mac-ts-selected-converted-text
+         ((((background dark)) :underline "orange"
+           :background ,(face-attribute 'hl-line :background))
+          (t (:underline "orange"
+                         :background
+                         ,(face-attribute 'hl-line :background)))))))
+
+    (when (fboundp 'mac-input-source)
+      (run-with-idle-timer 3 t 'my-mac-keyboard-input-source))
+
+
+    ;; あまりよいアプローチでは無い気がするけど，org-heading 上とagendaでは
+    ;; 1秒アイドルすると，自動的に IME を OFF にする
+    (defun my-mac-win-org-heading-auto-ascii ()
+      (when (and (eq major-mode 'org-mode)
+                 (or (looking-at org-heading-regexp)
+                     (equal (buffer-name) org-agenda-buffer-name)))
+        (setq mac-win-last-ime-status 'off)
+        (mac-auto-ascii-select-input-source)))
+    (when (fboundp 'mac-auto-ascii-select-input-source)
+      (run-with-idle-timer 1 t 'my-mac-win-org-heading-auto-ascii))
+
+    ;; EMP版Emacsの野良ビルド用独自設定群
+    ;; IME toggleを Emacs内で有効にする
+    (defun mac-win-ime-toggle ()
+      (interactive)
+      (when (fboundp 'mac-input-source)
+        (mac-select-input-source
+         (concat "com.google.inputmethod.Japanese"
+                 (if (string-match "\\.base$" (mac-input-source))
+                     ".Roman" ".base")))))
+
+    ;; isearch 中にIMEを切り替えると，[I-Search] の表示が消える．
+    ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-ime-toggle)
+    (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-ime-toggle)
+
+    (when (boundp 'mac-win-ime-cursor-type)
+      (setq mac-win-ime-cursor-type my-cursor-type-ime-on))
+    ;; minibuffer では↑の背景色を無効にする
+    (when (fboundp 'mac-min--minibuffer-setup)
+      (add-hook 'minibuffer-setup-hook #'mac-min--minibuffer-setup))
+    ;; echo-area でも背景色を無効にする
+    (when (boundp 'mac-win-default-background-echo-area)
+      (setq mac-win-default-background-echo-area t));; *-textのbackgroundを無視
+    ;; デバッグ用
+    (when (boundp 'mac-win-debug-log)
+      (setq mac-win-debug-log nil))
+    ;; Testing...
+    (when (boundp 'mac-win-apply-org-heading-face)
+      (setq mac-win-apply-org-heading-face t))))
 
 (with-eval-after-load "postpone"
   (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
@@ -1143,6 +1276,11 @@ This works also for other defined begin/end tokens to define the structure."
     (switch-to-buffer "*scratch*"))
   (global-set-key (kbd "C-M-s") #'my-open-scratch))
 
+;; Show scroll bar or not
+(when (and (display-graphic-p)
+           (eq window-system 'mac))
+  (set-scroll-bar-mode nil)) ; 'right
+
 ;; Disable to show the tool bar.
 (when (display-graphic-p)
   (tool-bar-mode -1))
@@ -1812,13 +1950,20 @@ This works also for other defined begin/end tokens to define the structure."
     (unless noninteractive
       (postpone-message "auto-save-buffers"))
 
+    (defun my-ox-hugo-auto-saving-p ()
+      (when (equal major-mode 'org-mode)
+        (or (and (boundp 'org-capture-mode) ;; when activating org-capture
+                 org-capture-mode)
+            (and (fboundp 'org-entry-get)
+                 (equal "" (org-entry-get (point) "EXPORT_FILE_NAME"))))))
+
     (defun my-auto-save-buffers ()
       (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
             ((equal major-mode 'diff-mode) nil)
             ((string-match "Org Src" (buffer-name)) nil)
-            (t (if shutup-p
-                   (shut-up (auto-save-buffers))
-                 (auto-save-buffers)))))
+            ((my-ox-hugo-auto-saving-p) nil)
+            (t
+             (auto-save-buffers))))
 
     (run-with-idle-timer 1.6 t #'my-auto-save-buffers)))
 
@@ -2942,7 +3087,8 @@ update it for multiple appts?")
       (interactive)
       (org-agenda-to-appt t '((headline "TODO"))))
     (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
-    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)))
+    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
+))
 
 (with-eval-after-load "org"
   ;; 履歴が生成されるのを抑制．
@@ -3308,9 +3454,12 @@ update it for multiple appts?")
  '(org-random-todo org-random-todo-goto-current)
  "org-random-todo" nil t)
 
+(with-eval-after-load "org"
+  ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
+  (require 'ox-hugo-auto-export nil t))
+
 (with-eval-after-load "ox"
   (when (require 'ox-hugo nil t)
-    (require 'ox-hugo-auto-export nil t)
     (setq org-hugo-auto-set-lastmod t)
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
     ;; never copy files to under /static/ directory
@@ -3363,6 +3512,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
           (unless id
             (error "Invalid ID"))
           (org-entry-put pom "CUSTOM_ID" id)
+          (message "--- assigned %s" id)
           (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
           id)))))
 
@@ -3598,6 +3748,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (defconst my-cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
 (defconst my-cursor-type-ime-on '(bar . 2)) ;; '(hbar . 10)
 (defconst my-cursor-type-ime-off '(bar . 2)) ;; '(hbar . 10)
+(defvar my-ime-last nil)
 
 (cond
  ((or (eq window-system 'ns)
@@ -3616,7 +3767,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (defun my-ime-active-p ()
       (not (string-match "\\.Roman$" (mac-get-current-input-source))))
 
-    (defvar my-ime-last (my-ime-active-p))
+    (setq my-ime-last (my-ime-active-p))
     (defvar my-ime-on-hook nil)
     (defvar my-ime-off-hook nil)
 
@@ -3798,58 +3949,67 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
             (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
             (9 5) (8 5) (7 4) (6 4) (5 3)))))
 
-(defvar my-moom--mode-line-format nil)
-(make-variable-buffer-local 'my-moom--mode-line-format)
-(when (autoload-if-found
-       '(my-moom-mode-line-off my-moom-toggle-mode-line)
-       "moom" nil t)
+(with-eval-after-load "moom"
+  (defvar my-moom-hide-mode-line t)
+  (defun ad:moom-toggle-frame-maximized ()
+    (when mode-line-format
+      (setq my-mode-line-format mode-line-format))
+    (when my-moom-hide-mode-line
+      (setq mode-line-format
+            (if moom--maximized nil my-mode-line-format))
+      (message " ")))
+  (advice-add 'moom-toggle-frame-maximized
+              :after #'ad:moom-toggle-frame-maximized))
 
-  (with-eval-after-load "pomodoro"
-    (set-default 'my-moom--mode-line-format mode-line-format)
-    (defun my-moom-mode-line-off ()
-      "Turn off mode line."
-      (setq my-moom--mode-line-format mode-line-format)
-      (pomodoro:visualize-stop)
-      (setq mode-line-format nil))
+;; (make-variable-buffer-local 'my-mode-line-format)
+(defvar-local my-mode-line-format nil)
+(with-eval-after-load "pomodoro"
+  (set-default 'my-mode-line-format mode-line-format)
+  (defvar my-mode-line-sticky t)
+  (defun my-mode-line-toggle-sticky ()
+    (interactive)
+    (setq my-mode-line-sticky (not my-mode-line-sticky))
+    (if my-mode-line-sticky
+        (my-mode-line-on)
+      (my-mode-line-off)))
 
-    (defun my-moom-toggle-mode-line ()
-      "Toggle mode line."
-      (interactive)
-      (when mode-line-format
-        (setq my-moom--mode-line-format mode-line-format))
-      (if mode-line-format
-          (progn
-            (when (fboundp 'dimmer-mode)
-              (dimmer-mode 1))
-            (when (fboundp 'pomodoro:visualize-stop)
-              (pomodoro:visualize-stop))
-            (setq mode-line-format nil))
-        (when (fboundp 'dimmer-mode)
-          (dimmer-mode -1))
-        (when (fboundp 'pomodoro:visualize-start)
-          (pomodoro:visualize-start))
-        (setq mode-line-format my-moom--mode-line-format)
-        (redraw-frame))
-      (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
+  (defun my-mode-line-off ()
+    "Turn off mode line."
+    (when (fboundp 'dimmer-mode)
+      (dimmer-mode 1))
+    (when (fboundp 'pomodoro:visualize-stop)
+      (pomodoro:visualize-stop))
+    (when mode-line-format
+      (setq my-mode-line-format mode-line-format))
+    (setq mode-line-format nil))
 
-    (unless noninteractive
-      (if shutup-p
-          (shut-up (my-moom-toggle-mode-line))))
-    (define-key moom-mode-map (kbd "<f5>") 'my-moom-toggle-mode-line)
-    (add-hook 'find-file-hook #'my-moom-mode-line-off))
+  (defun my-mode-line-on ()
+    "Turn on mode line."
+    (when (fboundp 'dimmer-mode)
+      (dimmer-mode -1))
+    (when (fboundp 'pomodoro:visualize-start)
+      (pomodoro:visualize-start))
+    (unless my-mode-line-format
+      (error "Invalid value: %s" my-mode-line-format))
+    (setq mode-line-format my-mode-line-format)
+    (redraw-frame))
 
-  (with-eval-after-load "moom"
-    (defvar my-moom-hide-mode-line t)
-    (defun ad:moom-toggle-frame-maximized ()
-      (when mode-line-format
-        (setq my-moom--mode-line-format mode-line-format))
-      (when my-moom-hide-mode-line
-        (setq mode-line-format
-              (if moom--maximized nil my-moom--mode-line-format))
-        (message " ")))
-    ;; (advice-add 'moom-toggle-frame-maximized
-    ;;             :after #'ad:moom-toggle-frame-maximized)
-    ))
+  (defun my-toggle-mode-line ()
+    "Toggle mode line."
+    (interactive)
+    (if mode-line-format
+        (my-mode-line-off)
+      (my-mode-line-on))
+    (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
+
+  (unless noninteractive
+    (if shutup-p
+        (shut-up (my-toggle-mode-line))
+      (my-toggle-mode-line)))
+  (define-key moom-mode-map (kbd "<f5>") 'my-toggle-mode-line)
+  (add-hook 'find-file-hook
+            (lambda () (unless my-mode-line-sticky
+                         (my-mode-line-off)))))
 
 (with-eval-after-load "postpone"
   (unless noninteractive
@@ -4063,8 +4223,15 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (and (<= begin ct) (<= ct end)))))
 
   (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
-  (defun my-apply-theme ()
-    (interactive)
+  (defun my-apply-theme (&optional type)
+    (interactive "MType (light or dark): ")
+    (setq my-frame-appearance
+          (cond ((equal "light" type)
+                 'light)
+                ((equal "dark" type)
+                 'dark)
+                (t
+                 my-frame-appearance)))
     (cond ((eq my-frame-appearance 'dark)
            (my-night-theme))
           ((eq my-frame-appearance 'light)

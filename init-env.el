@@ -14,6 +14,7 @@
 (defconst my-loading-packages nil) ;; `my-autoload-file-check' shall be nil.
 ;; (setq my-loading-packages '(("moom" . nil) ("moom-font" . nil)))
 (setq postpone-verbose nil
+      my-mode-line-sticky nil
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-autoload-file-check t
       debug-on-error nil)

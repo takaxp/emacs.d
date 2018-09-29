@@ -1,4 +1,4 @@
-;; #+date: 2018-09-23
+;; #+date: 2018-09-26
 
 (source gnu)
 (source melpa)
@@ -98,6 +98,7 @@
 (depends-on "bug-hunter")
 (depends-on "clang-format")
 (depends-on "format-all")
+(depends-on "emr")
 ;; (depends-on "ac-rtags")
 ;; (depends-on "flycheck-rtags")
 
