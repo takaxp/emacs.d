@@ -1224,7 +1224,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
   - [[http://qiita.com/takaxp/items/a86ee2aacb27c7c3a902][Emacs 25.1/25.2 を EMP版で快適に使う - Qiita]]
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (when (eq window-system 'mac)
   (global-set-key (kbd "M-SPC") 'mac-win-ime-toggle)
   (global-set-key (kbd "S-SPC") 'mac-win-ime-toggle)
@@ -6750,6 +6750,29 @@ update it for multiple appts?")
                  '("S" "#+begin_src emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
 #+end_src
 
+** [org-babel] ソースブロックの配色
+   :PROPERTIES:
+   :CUSTOM_ID: org556eb376
+   :END:
+
+=org-src-block-faces=, =org-block-begin-line=, =org-block-end-line= をカスタマイズして，配色を変えます．
+
+#+begin_src emacs-lisp :tangle no
+(setq org-src-block-faces
+      '(("emacs-lisp" (:background "cornsilk"))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(custom-set-faces
+ '(org-block-begin-line
+   ((((background dark))
+     (:foreground "#669966" :weight bold)) ;; :background "#444444"
+    (t (:inherit org-meta-line :weight bold))) ;; :background "#EFEFEF"
+   (org-block-end-line
+    ((((background dark)) (:inherit org-block-begin-line))
+     (t (:inherit org-block-begin-line))))))
+#+end_src
+
 ** [org-tree-slide] Org Modeでプレゼンテーション
    :PROPERTIES:
    :CUSTOM_ID: org89c34f23
@@ -8089,14 +8112,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "moom"
-  (defvar my-moom-hide-mode-line t)
   (defun ad:moom-toggle-frame-maximized ()
     (when mode-line-format
-      (setq my-mode-line-format mode-line-format))
-    (when my-moom-hide-mode-line
-      (setq mode-line-format
-            (if moom--maximized nil my-mode-line-format))
-      (message " ")))
+      (my-mode-line-off)))
   (advice-add 'moom-toggle-frame-maximized
               :after #'ad:moom-toggle-frame-maximized))
 

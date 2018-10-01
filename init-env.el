@@ -15,7 +15,7 @@
 ;; (setq my-loading-packages '(("moom" . nil) ("moom-font" . nil)))
 (setq postpone-verbose nil
       my-mode-line-sticky nil
-      my-frame-appearance nil ;; {nil, 'dark, 'light}
+      my-frame-appearance 'light ;; {nil, 'dark, 'light}
       my-skip-autoload-file-check t
       debug-on-error nil)
 
@@ -32,6 +32,8 @@
 ;; (1) theme-path
 (defconst my-cask-package-dir
   (format "~/.emacs.d/.cask/package/%s" emacs-version))
+(unless (file-directory-p my-cask-package-dir)
+  (user-error "%s does NOT exist" my-cask-package-dir))
 (my-path-setter
  `(,my-cask-package-dir)
  'custom-theme-load-path)
