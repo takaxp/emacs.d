@@ -2371,6 +2371,29 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
   (define-key display-time-world-mode-map "q" 'delete-window))
 #+end_src
 
+** 読書モード
+   :PROPERTIES:
+   :CUSTOM_ID: org66e1952c
+   :END:
+
+=view-mode= と =origami.el= を使い，読書モードにします．書き込みが禁止されるので，安心して読めることに加え， =origami.el= の FOLD機能を使い，関数を簡略表示して Org Modeのように，注目するものだけ読むことが可能です． =M-x view-mode= で起動します．
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "view"
+  (define-key view-mode-map (kbd "n") 'next-line)
+  (define-key view-mode-map (kbd "p") 'previous-line)
+  (define-key view-mode-map (kbd "f") 'forward-char)
+  (define-key view-mode-map (kbd "b") 'backward-char)
+  (when (require 'origami nil t)
+    (define-key view-mode-map (kbd "<tab>") 'origami-toggle-node)
+    (define-key view-mode-map (kbd "S-<tab>") 'origami-toggle-all-nodes))
+
+  (defun ad:view--enable () (my-mode-line-on))
+  (defun ad:view--disable () (my-mode-line-off))
+  (advice-add 'view--enable :before #'ad:view--enable)
+  (advice-add 'view--disable :before #'ad:view--disable))
+#+end_src
+
 ** [latex-math-preview.el] TeX数式をプレビュー                          :tex:
    :PROPERTIES:
    :CUSTOM_ID: orgab4f9bf0

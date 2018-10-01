@@ -9,6 +9,7 @@
 (require 'perl-mode nil t) ;; mode-map
 (require 'python-mode nil t) ;; mode-map
 (require 'manage-minor-mode nil t) ;; mode-map
+(require 'view nil t) ;; map
 (require 'org-grep nil t) ;; defvar
 (require 'appt) ;; advice
 (require 'checkdoc) ;; advice

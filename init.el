@@ -792,6 +792,20 @@
 (with-eval-after-load "time"
   (define-key display-time-world-mode-map "q" 'delete-window))
 
+(with-eval-after-load "view"
+  (define-key view-mode-map (kbd "n") 'next-line)
+  (define-key view-mode-map (kbd "p") 'previous-line)
+  (define-key view-mode-map (kbd "f") 'forward-char)
+  (define-key view-mode-map (kbd "b") 'backward-char)
+  (when (require 'origami nil t)
+    (define-key view-mode-map (kbd "<tab>") 'origami-toggle-node)
+    (define-key view-mode-map (kbd "S-<tab>") 'origami-toggle-all-nodes))
+
+  (defun ad:view--enable () (my-mode-line-on))
+  (defun ad:view--disable () (my-mode-line-off))
+  (advice-add 'view--enable :before #'ad:view--enable)
+  (advice-add 'view--disable :before #'ad:view--disable))
+
 (when (autoload-if-found
        '(latex-math-preview-expression
          latex-math-preview-insert-symbol
