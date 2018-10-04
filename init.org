@@ -5393,7 +5393,8 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
       ;; ac-cc-mode-setup のオーバーライド
       (defun ac-cc-mode-setup ()
         (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
-        (setq ac-clang-flags '("-std=c++14" "-w" "-ferror-limit" "1"
+        (setq ac-clang-flags '("-x" "c++-header"
+                               "-std=c++11" "-w" "-ferror-limit" "1"
                                "-fcxx-exceptions"))
         (setq ac-sources '(ac-source-clang
                            ac-source-yasnippet
@@ -5730,6 +5731,16 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (when (require 'emr nil t)
     (define-key prog-mode-map (kbd "M-RET") 'emr-show-refactor-menu)
     (emr-initialize)))
+#+end_src
+
+** TODO [rmsbolt.el] アセンブリをバッファにリアルタイム表示
+   :PROPERTIES:
+   :CUSTOM_ID: org4e23f079
+   :END:
+ - https://gitlab.com/jgkamat/rmsbolt
+
+#+begin_src emacs-lisp :tangle yes
+(autoload-if-found '(rmsbolt-mode) "rmsbolt" nil t)
 #+end_src
 
 ** DONE [hideshowvis.el] 関数の表示／非表示                        :obsolete:

@@ -1,4 +1,4 @@
-;; #+date: 2018-10-01
+;; #+date: 2018-10-04
 
 (source gnu)
 (source melpa)
@@ -7,10 +7,10 @@
 ;; (source "takaxp" "~/devel/git/melpa/packages/")
 ;; (source "takaxp" "https://pxaka.tokyo/melpa/packages/")
 
-(depends-on "postpone" :git "https://github.com/takaxp/postpone.git")
-(depends-on "emacs-utils" :git "https://github.com/syohex/emacs-utils.git")
-(depends-on "ascii" :git "https://github.com/takaxp/ascii.git")
-(depends-on "help-fns+" :git "https://github.com/takaxp/help-fns-plus.git")
+(depends-on "postpone"     :git "https://github.com/takaxp/postpone.git")
+(depends-on "ascii"        :git "https://github.com/takaxp/ascii.git")
+(depends-on "help-fns+"    :git "https://github.com/takaxp/help-fns-plus.git")
+(depends-on "emacs-utils"  :git "https://github.com/syohex/emacs-utils.git")
 (depends-on "git-complete" :git "https://github.com/zk-phi/git-complete.git")
 
 ;; Package install
@@ -99,6 +99,7 @@
 (depends-on "clang-format")
 (depends-on "format-all")
 (depends-on "emr")
+(depends-on "rmsbolt")
 ;; (depends-on "ac-rtags")
 ;; (depends-on "flycheck-rtags")
 
@@ -215,7 +216,7 @@
 ;; (depends-on "sauron")
 
 ;; Examples
-;; :git "https://.../hoge.git"
-;; :ref "abcdefg"
-;; :branch "master"
-;; files ("*.el" (:exclude "hoge.el"))
+;;  :git "https://.../hoge.git"
+;;  :ref "abcdefg"
+;;  :branch "master"
+;;  files ("*.el" (:exclude "hoge.el"))

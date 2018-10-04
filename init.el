@@ -2092,7 +2092,8 @@ This works also for other defined begin/end tokens to define the structure."
       ;; ac-cc-mode-setup のオーバーライド
       (defun ac-cc-mode-setup ()
         (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
-        (setq ac-clang-flags '("-std=c++14" "-w" "-ferror-limit" "1"
+        (setq ac-clang-flags '("-x" "c++-header"
+                               "-std=c++11" "-w" "-ferror-limit" "1"
                                "-fcxx-exceptions"))
         (setq ac-sources '(ac-source-clang
                            ac-source-yasnippet
@@ -2249,6 +2250,8 @@ This works also for other defined begin/end tokens to define the structure."
 
 (with-eval-after-load "postpone"
   (require 'format-all nil t))
+
+(autoload-if-found '(rmsbolt-mode) "rmsbolt" nil t)
 
 (when (autoload-if-found
        '(org-mode)
