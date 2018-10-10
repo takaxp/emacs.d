@@ -44,6 +44,8 @@
 (setq byte-compile-warnings '(not obsolete))
 (setq ad-redefinition-action 'accept)
 
+(setq save-silently t) ;; No need shut-up.el for saving files.
+
 (defun my-load-package-p (file)
   (let ((enabled t))
     (when (boundp 'my-loading-packages)
@@ -606,6 +608,11 @@
       (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
       (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
   (message "--- cmake is NOT installed."))
+
+(when (autoload-if-found
+       '(logview-mode)
+       "logview" nil t)
+  (push '("\\.log$" . logview-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(web-mode)
@@ -1654,7 +1661,6 @@ This works also for other defined begin/end tokens to define the structure."
       (recentf-mode 1)))
 
   (with-eval-after-load "recentf"
-
     (custom-set-variables
      '(recentf-max-saved-items 2000)
      '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
@@ -2090,11 +2096,15 @@ This works also for other defined begin/end tokens to define the structure."
     (when (require 'auto-complete-clang nil t)
       (setq ac-clang-executable (executable-find "clang"))
       ;; ac-cc-mode-setup のオーバーライド
+      ;; "-w" "-ferror-limit" "1"
       (defun ac-cc-mode-setup ()
+        (setq ac-clang-auto-save t)
         (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
-        (setq ac-clang-flags '("-x" "c++-header"
-                               "-std=c++11" "-w" "-ferror-limit" "1"
-                               "-fcxx-exceptions"))
+        (setq ac-clang-flags '("-x" "c++-header" "-fcxx-exceptions"
+                               "-std=c++14" "-stdlib=libc++"
+                               "-I/opt/local/include"
+                               "-I/opt/local/include/netpbm"
+                               "-I/Users/taka/devel/icp/lib"))
         (setq ac-sources '(ac-source-clang
                            ac-source-yasnippet
                            ac-source-gtags))))))
@@ -2132,10 +2142,10 @@ This works also for other defined begin/end tokens to define the structure."
          "ggtags" nil t)
 
     (with-eval-after-load "ggtags"
-      (setq ggtags-completing-read-function t)
+      ;; (setq ggtags-completing-read-function t) ;; nil for helm
       (define-key ggtags-mode-map (kbd "M-]") nil))
 
-    (dolist (hook (list 'c-mode-common-hook))
+    (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
       (add-hook hook (lambda () (ggtags-mode 1)))))
 
   (when (autoload-if-found
@@ -2143,6 +2153,7 @@ This works also for other defined begin/end tokens to define the structure."
          "helm-gtags" nil t)
 
     (add-hook 'c-mode-common-hook #'helm-gtags-mode)
+    (add-hook 'python-mode-hook #'helm-gtags-mode)
 
     (with-eval-after-load "helm-gtags"
       (custom-set-variables
@@ -2660,8 +2671,9 @@ will not be modified."
       (interactive)
       (let* ((created (or NAME my-org-created-property-name))
              (fmt (if active "<%s>" "[%s]"))
-             (now  (format fmt (format-time-string "%Y-%m-%d %a %H:%M"))))
-        (unless (org-entry-get (point) created nil)
+             (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
+             (field (org-entry-get (point) created nil)))
+        (unless (or field (equal "" field))
           (org-set-property created now)))))
 
   (with-eval-after-load "org-capture"
@@ -2707,10 +2719,10 @@ will not be modified."
              "** %?\n  - \n\t%U")
             ("b" "Create new post for imadenale blog" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:END:\n")
+             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:END:\n")
             ("B" "Create new post for imadenale blog (UUID)" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:END:\n")
+             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:END:\n")
             ;; ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
             ;;  (file+headline ,org-default-notes-file "INBOX")
             ;;  "** TODO %? :bug:\n %i\n %a %t")
@@ -3355,7 +3367,7 @@ update it for multiple appts?")
 
 (with-eval-after-load "ox"
   (when (require 'ox-hugo nil t)
-    (setq org-hugo-auto-set-lastmod t)
+    (setq org-hugo-auto-set-lastmod nil) ;; see my-hugo-export-md
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
     ;; never copy files to under /static/ directory
     (setq org-hugo-external-file-extensions-allowed-for-copying nil)
@@ -3373,7 +3385,13 @@ Note that this mechanism is still under consideration."
                         (org-previous-visible-heading 1))
                       (line-number-at-pos)))))
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
-                "#L" (format "%d" line) "][" alt "]]")))))
+                "#L" (format "%d" line) "][" alt "]]")))
+
+    (defun my-ox-hugo-add-lastmod ()
+      "Add `lastmod' property with the current time."
+      (interactive)
+      (org-set-property "EXPORT_HUGO_LASTMOD"
+                        (format-time-string "[%Y-%m-%d %a %H:%M]")))))
 
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
@@ -3551,7 +3569,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                                org-attach-directory-absolute)))))))
 
 (when (autoload-if-found
-       '(org-recent-headings-helm)
+       '(org-recent-headings-helm org-recent-headings-mode)
        "org-recent-headings" nil t)
 
   (with-eval-after-load "postpone"
@@ -3957,6 +3975,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (postpone-message "global-hl-line-mode"))
     (setq hl-line-face 'underline))
   (global-hl-line-mode 1))
+
+(custom-set-faces
+ '(hl-line
+   ((((background dark)) :background "#484c5c")
+    (t (:background "#DEEDFF")))))
 
 (with-eval-after-load "postpone"
   (setq blink-cursor-blinks 0)

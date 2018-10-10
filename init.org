@@ -236,7 +236,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 ビルトインの =file.el= にある変数を使うと，バッファ保存時に表示されるメッセージが減り "Saving file ..." がメッセージバッファに記録されなくなります．バッファ保存時以外で，メッセージ出力を抑制したい場合は， =shut-up.el= が便利です．
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (setq save-silently t) ;; No need shut-up.el for saving files.
 #+end_src
 
@@ -1143,7 +1143,7 @@ the_silver_searcher @0.18.1 (textproc)
 #+end_src
 
 
-カスタマイズした関数を =C-M-f= にぶら下げています．helm インタフェースを使う =helm-ag= もあります．
+カスタマイズした関数を =C-M-f= にぶら下げています．helm インタフェースを使う =helm-ag= もあります． =C-M-f= は，本来，S式の移動(=forward-sexp=)に使われています．
 
 #+begin_src emacs-lisp :tangle yes
 (when (and (executable-find "ag")
@@ -1369,6 +1369,10 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   | ウィンドウ移動           | C-M-n/C-M-p |
   | バッファ切り替え         | M-]/M-[     |
   | バッファ先頭・末尾       | C-M-t/C-M-b |
+  | 編集点の移動             | C-,/C-.     |
+  | タグジャンプ             | M-,/M-.     |
+
+なお， =C-M-b=, =C-M-n=, =C-M-p=, はそれぞれ，本来S式の移動(=backward-sexp=, =forward-list=, =backward-list=)に割り振られています．また， =C-M-t= は，本来，2つのS式の入れ替え(=transpose-sexps=)に割り振られています．
 
 ** バッファ内のカーソル移動
    :PROPERTIES:
@@ -2100,6 +2104,22 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   (message "--- cmake is NOT installed."))
 #+end_src
 
+** logviewモード
+   :PROPERTIES:
+   :CUSTOM_ID: org41da658e
+   :END:
+
+ - [[https://github.com/doublep/logview][doublep/logview: Emacs mode for viewing log files.]]
+
+ログファイルが見やすくなり， ~n/p~ で移動可能になります．
+
+#+begin_src emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(logview-mode)
+       "logview" nil t)
+  (push '("\\.log$" . logview-mode) auto-mode-alist))
+#+end_src
+
 ** Web/HTMLモード                                                       :web:
    :PROPERTIES:
    :CUSTOM_ID: orgfdeec1c5
@@ -2603,7 +2623,7 @@ This works also for other defined begin/end tokens to define the structure."
    :CUSTOM_ID: orgbea14b16
    :END:
 
-=osx-dictionary= なるパッケージが存在します．さくさくと高速に動作します．
+=osx-dictionary= なるパッケージが存在します．さくさくと高速に動作します．なお， =C-M-w= は，本来，削除文字の連結(=append-next-kill=)にアサインされています．
 
 #+begin_src emacs-lisp :tangle yes :exports yes
 (when (autoload-if-found
@@ -3326,6 +3346,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 
   - [[http://qiita.com/takaxp/items/12c01bff4c687b3f242b][高速起動用ミニマム*scratch*バッファ - Qiita]]
 
+なお， =C-M-s= をスクラッチバッファを表示するために使用していますが，本来は，正規表現での検索(=isearch-forward-regexp=)に割り振られています．
+
 #+begin_src emacs-lisp :tangle yes
 (when (require 'empty-booting nil t)
   ;; (setq initial-buffer-choice t) ;; 引数付き起動すると画面分割される
@@ -3610,7 +3632,7 @@ http://0xcc.net/migemo/#download
    :CUSTOM_ID: org56d8bf9d
    :END:
 
-=M-s= を =helm-swoop= にあてていましたが， =M-s= を入り口にたくさんの検索系コマンドが割り振られているため =M-s M-s= に変えました．
+=M-s= を =helm-swoop= にあてていましたが， =M-s= を入り口にたくさんの検索系コマンドが割り振られているため =M-s M-s= に変えました．なお， =C-M-r= は本来，正規表現での逆検索(=isearch-backward-regexp=)に割り振らています．また， =C-M-l= は本来， =reposition-window= に割り当てられています．
 
 以下の設定では， =helm= に関連するモジュールも多数含まれます． =helm= がキックされるタイミングで有効化させます．
 
@@ -4590,7 +4612,6 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
       (recentf-mode 1)))
 
   (with-eval-after-load "recentf"
-
     (custom-set-variables
      '(recentf-max-saved-items 2000)
      '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
@@ -5375,10 +5396,10 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 現状では，補完直後にデフォルトの引数がすべて書き込まれてしまう．なんかうまいことしたいものだ．
 
 #+begin_src sh
-clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch ~/.emacs.d/stdafx.h -o ~/.emacs.d/stdafx.pch -I/opt/local/include -I/opt/local/include/netpbm -I/Users/taka/devel/icp/lib
+clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/.emacs.d/stdafx.h -o ~/.emacs.d/stdafx.pch -I/opt/local/include -I/opt/local/include/netpbm -I/Users/taka/devel/icp/lib
 #+end_src
 
-以下の設定は，先に =auto-complete.el= に関する設定を読み込んでいることを前提としている．
+以下の設定は，先に =auto-complete.el= に関する設定を読み込んでいることを前提としている． =ac-clang-flags= の値は， ~stdafx.pch~ の作成で使用したパラメータと合わせないとエラーが生じる可能性があります．
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -5391,11 +5412,15 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
     (when (require 'auto-complete-clang nil t)
       (setq ac-clang-executable (executable-find "clang"))
       ;; ac-cc-mode-setup のオーバーライド
+      ;; "-w" "-ferror-limit" "1"
       (defun ac-cc-mode-setup ()
+        (setq ac-clang-auto-save t)
         (setq ac-clang-prefix-header "~/.emacs.d/stdafx.pch")
-        (setq ac-clang-flags '("-x" "c++-header"
-                               "-std=c++11" "-w" "-ferror-limit" "1"
-                               "-fcxx-exceptions"))
+        (setq ac-clang-flags '("-x" "c++-header" "-fcxx-exceptions"
+                               "-std=c++14" "-stdlib=libc++"
+                               "-I/opt/local/include"
+                               "-I/opt/local/include/netpbm"
+                               "-I/Users/taka/devel/icp/lib"))
         (setq ac-sources '(ac-source-clang
                            ac-source-yasnippet
                            ac-source-gtags))))))
@@ -5403,7 +5428,7 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
 
 次のコードを hoge.cpp として保存し， =v= と =t= について補完できれば， =STL= と =Boost= のプリコンパイルヘッダが有効になっていることを確認できる．
 
-#+begin_src cpp
+#+begin_src cpp :tangle no
   #include <iostream>
   #include <vector>
   #include <boost/timer.hpp>
@@ -5415,6 +5440,13 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
     cout << t; // ここ
     return 1;
   }
+#+end_src
+
+#+begin_src sh :tangle no :exports none
+# (1)
+clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/.emacs.d/stdafx.h -o ~/.emacs.d/stdafx.pch -I/opt/local/include -I/opt/local/include/netpbm -I/Users/taka/devel/icp/lib
+# (2)
+/usr/local/opt/llvm/bin/clang -cc1 -fsyntax-only -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -I/opt/local/include -I/opt/local/include/netpbm -I/Users/taka/devel/icp/lib -include-pch /Users/taka/.emacs.d/stdafx.pch -code-completion-at /Users/taka/Desktop/hoge.cpp:16:5 /Users/taka/Desktop/hoge.cpp
 #+end_src
 
 *** References
@@ -5493,10 +5525,10 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
          "ggtags" nil t)
 
     (with-eval-after-load "ggtags"
-      (setq ggtags-completing-read-function t)
+      ;; (setq ggtags-completing-read-function t) ;; nil for helm
       (define-key ggtags-mode-map (kbd "M-]") nil))
 
-    (dolist (hook (list 'c-mode-common-hook))
+    (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
       (add-hook hook (lambda () (ggtags-mode 1)))))
 
   (when (autoload-if-found
@@ -5504,6 +5536,7 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++14 -stdlib=libstdc++ -emit-pch
          "helm-gtags" nil t)
 
     (add-hook 'c-mode-common-hook #'helm-gtags-mode)
+    (add-hook 'python-mode-hook #'helm-gtags-mode)
 
     (with-eval-after-load "helm-gtags"
       (custom-set-variables
@@ -5743,6 +5776,11 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 (autoload-if-found '(rmsbolt-mode) "rmsbolt" nil t)
 #+end_src
 
+** TODO [semantic-refactor.el] リファクタリングツール
+   :PROPERTIES:
+   :CUSTOM_ID: org9547f772
+   :END:
+ - [[https://github.com/tuhdo/semantic-refactor][tuhdo/semantic-refactor: Semantic Refactor is a refactoring tool based on Semantic parser framework]]
 ** DONE [hideshowvis.el] 関数の表示／非表示                        :obsolete:
    CLOSED: [2018-09-24 Mon 11:23]
    :PROPERTIES:
@@ -5781,6 +5819,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
    :END:
 
 Org Mode は巨大なパッケージなので，設定項目が必然的に増えます．一度に全部を設定しようとせず，必須機能と見た目の設定から入り，興味があり使いたい機能の設定へと徐々に拡張するのが近道です．
+
+=C-M-o= は，本来， =split-line= にアサインされています．
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -6327,8 +6367,9 @@ will not be modified."
       (interactive)
       (let* ((created (or NAME my-org-created-property-name))
              (fmt (if active "<%s>" "[%s]"))
-             (now  (format fmt (format-time-string "%Y-%m-%d %a %H:%M"))))
-        (unless (org-entry-get (point) created nil)
+             (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
+             (field (org-entry-get (point) created nil)))
+        (unless (or field (equal "" field))
           (org-set-property created now)))))
 
   (with-eval-after-load "org-capture"
@@ -6374,10 +6415,10 @@ will not be modified."
              "** %?\n  - \n\t%U")
             ("b" "Create new post for imadenale blog" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:END:\n")
+             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:END:\n")
             ("B" "Create new post for imadenale blog (UUID)" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:END:\n")
+             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:END:\n")
             ;; ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
             ;;  (file+headline ,org-default-notes-file "INBOX")
             ;;  "** TODO %? :bug:\n %i\n %a %t")
@@ -7270,7 +7311,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 
 (with-eval-after-load "ox"
   (when (require 'ox-hugo nil t)
-    (setq org-hugo-auto-set-lastmod t)
+    (setq org-hugo-auto-set-lastmod nil) ;; see my-hugo-export-md
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
     ;; never copy files to under /static/ directory
     (setq org-hugo-external-file-extensions-allowed-for-copying nil)
@@ -7288,7 +7329,13 @@ Note that this mechanism is still under consideration."
                         (org-previous-visible-heading 1))
                       (line-number-at-pos)))))
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
-                "#L" (format "%d" line) "][" alt "]]")))))
+                "#L" (format "%d" line) "][" alt "]]")))
+
+    (defun my-ox-hugo-add-lastmod ()
+      "Add `lastmod' property with the current time."
+      (interactive)
+      (org-set-property "EXPORT_HUGO_LASTMOD"
+                        (format-time-string "[%Y-%m-%d %a %H:%M]")))))
 #+end_src
 
 ** [ox-html] HTML見出しへのリンクを固定する
@@ -7535,7 +7582,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
-       '(org-recent-headings-helm)
+       '(org-recent-headings-helm org-recent-headings-mode)
        "org-recent-headings" nil t)
 
   (with-eval-after-load "postpone"
@@ -8510,11 +8557,11 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 色の設定は =custom-set-faces= で．
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
 (custom-set-faces
  '(hl-line
    ((((background dark)) :background "#484c5c")
-    (t (:background "#DEEDFF"))))))
+    (t (:background "#DEEDFF")))))
 #+end_src
 
 色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．
@@ -9404,6 +9451,8 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 
 =cmd-to-open-iterm2= の実装は，[[./utility.el]] にあります．
 
+なお， =C-M-i= は本来， =backward-button= に割り当てられています．
+
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
        '(my-cmd-to-open-iterm2)
@@ -9515,6 +9564,8 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
    :END:
 
 関数定義を[[https://pxaka.tokyo/wiki/doku.php?id=emacs:utility.el][別ファイル]]に分離して，Emacs起動の高速化を図っています．各関数を autoload の管理下において，必要なときにロードするように設定しています．
+
+なお， =C-M--= は本来， =negative-argument= に割り振られています．
 
 #+begin_src emacs-lisp :tangle yes
 (defconst utility-autoloads

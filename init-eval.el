@@ -25,7 +25,6 @@
 (require 'org-attach-screenshot nil t)
 (require 'org-capture nil t)
 (require 'org-mac-link nil t)
-(require 'org-recent-headings nil t)
 (require 'orgalist nil t)
 (require 'origami nil t)
 (require 'pomodoro nil t)
@@ -45,6 +44,7 @@
 (require 'winner nil t)
 (require 'cask nil t)
 (require 'fringe-helper nil t) ;; for git-gutter-fringe
+(require 'recentf nil t) ;; for org-recent-headings
 
 (if (require 'shut-up nil t)
     (progn
@@ -52,6 +52,7 @@
       (shut-up (require 'yatex nil t)))
   (require 'emms-setup nil t)
   (require 'yatex nil t))
+
 
 (provide 'init-eval)
 ;;; init-eval.el ends here

@@ -90,9 +90,6 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
    :END:
 
 #+begin_src emacs-lisp :tangle yes
-(eval-when-compile
-  (require 'init nil t))
-
 ;;;###autoload
 (defun my-update-alarms-from-file ()
   (interactive)
@@ -228,13 +225,12 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
   (when (string= major-mode 'org-mode)
     (let ((title "#+title:\t\n")
           (date "#+date: \t\n")
-          (update "#+update:\t\n")
           (author "#+author:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
           (option "#+options:\t\\n:t\n")
           (other "\n"))
       (goto-char 0)
       (save-excursion
-        (insert title date update author option other))
+        (insert title date author option other))
       (when (require 'org nil t)
         (org-end-of-line)))))
 #+end_src

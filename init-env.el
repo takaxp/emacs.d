@@ -15,7 +15,7 @@
 ;; (setq my-loading-packages '(("moom" . nil) ("moom-font" . nil)))
 (setq postpone-verbose nil
       my-mode-line-sticky nil
-      my-frame-appearance 'light ;; {nil, 'dark, 'light}
+      my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-autoload-file-check t
       debug-on-error nil)
 

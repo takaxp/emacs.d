@@ -1,4 +1,4 @@
-;; #+date: 2018-10-04
+;; #+date: 2018-10-10
 
 (source gnu)
 (source melpa)
@@ -102,6 +102,8 @@
 (depends-on "rmsbolt")
 ;; (depends-on "ac-rtags")
 ;; (depends-on "flycheck-rtags")
+(depends-on "ediff-side-by-side" :git "https://github.com/tarao/ediff-side-by-side-el.git")
+(depends-on "diffview")
 
 ;; Helm
 (depends-on "helm")
@@ -162,6 +164,7 @@
 (depends-on "manage-minor-mode")
 (depends-on "git-gutter-fringe")
 (depends-on "isolate")
+(depends-on "logview")
 
 ;; System related
 (depends-on "dired-narrow")

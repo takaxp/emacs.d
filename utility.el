@@ -43,9 +43,6 @@
         (shell-command-to-string
          (concat "open -a " open-current-directory-console-program))))))
 
-(eval-when-compile
-  (require 'init nil t))
-
 ;;;###autoload
 (defun my-update-alarms-from-file ()
   (interactive)
@@ -158,13 +155,12 @@
   (when (string= major-mode 'org-mode)
     (let ((title "#+title:\t\n")
           (date "#+date: \t\n")
-          (update "#+update:\t\n")
           (author "#+author:\tTakaaki ISHIKAWA <takaxp@ieee.org>\n")
           (option "#+options:\t\\n:t\n")
           (other "\n"))
       (goto-char 0)
       (save-excursion
-        (insert title date update author option other))
+        (insert title date author option other))
       (when (require 'org nil t)
         (org-end-of-line)))))
 
