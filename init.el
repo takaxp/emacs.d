@@ -374,28 +374,27 @@
 (when (autoload-if-found
        '(my-bm-toggle
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load bm-load-and-restore)
+         bm-repository-save bm-repository-load bm-load-and-restore bm--save)
        "bm" nil t)
 
   (with-eval-after-load "postpone"
     ;; ファイルオープン時にブックマークを復帰
     (add-hook 'find-file-hook #'bm-buffer-restore)
+    (setq bm-restore-repository-on-load t)
     (global-set-key (kbd "<f10>") 'my-bm-toggle)
     (global-set-key (kbd "<C-f10>") 'my-bm-next))
 
   (with-eval-after-load "bm"
+    (require 'helm-bm nil t)
     (setq-default bm-buffer-persistence t)
     (setq bm-cycle-all-buffers t)
     ;; (setq bm-toggle-buffer-persistence t)
     (setq bm-repository-file "~/Dropbox/emacs.d/.bookmark")
-    ;; autoload との組み合わせでは無意味
-    ;;（after-init-hook を利用せよ）
-    ;; (setq bm-restore-repository-on-load t)
     (setq bm-buffer-persistence t)
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
           (expand-file-name "~/Dropbox/emacs.d/.bm-repository"))
-    (bm-repository-load)
+    ;; (bm-repository-load)
 
     (defun my-bm-toggle ()
       "bm-toggle with updating history"
@@ -410,7 +409,7 @@
             (bookmark-delete bm)
           (bookmark-set bm)))
       (bm-toggle)
-      (bm-save))
+      (bm--save))
 
     (defun my-bm-next ()
       "bm-next with org-mode"
@@ -1375,7 +1374,7 @@ This works also for other defined begin/end tokens to define the structure."
       ;; projectile.el のキーバインドをオーバーライド
       (helm-projectile-toggle 1))
 
-    (require 'helm-bm nil t)))
+    ))
 
 (when (autoload-if-found
        '(git-gutter-mode)
@@ -3809,10 +3808,10 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
  (t nil))
 
-(declare-function my-apply-theme "init" nil)
+(declare-function my-theme "init" nil)
 (with-eval-after-load "postpone"
   (defun ad:make-frame ()
-    (my-apply-theme)
+    (my-theme)
     (when (require 'moom-font nil t)
       (moom-font-resize)))
   (advice-add 'make-frame :after #'ad:make-frame)
@@ -4105,8 +4104,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                   default-frame-alist))
     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
     (add-to-list 'default-frame-alist '(ns-appearance . light))
-    ;; (redraw-frame)
-    ))
+    (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                   (ns-appearance . light)))))
 
 ;;;###autoload
 (defun my-night-theme ()
@@ -4122,8 +4121,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                   default-frame-alist))
     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
     (add-to-list 'default-frame-alist '(ns-appearance . dark))
-    ;; (redraw-frame)
-    ))
+    (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                   (ns-appearance . dark)))))
 
 (when (display-graphic-p)
   (declare-function my-night-time-p "init" (begin end))
@@ -4136,7 +4135,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (and (<= begin ct) (<= ct end)))))
 
   (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
-  (defun my-apply-theme (&optional type)
+  (defun my-theme (&optional type)
     (interactive "MType (light or dark): ")
     (setq my-frame-appearance
           (cond ((equal "light" type)
@@ -4155,11 +4154,14 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
              (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
                  (my-night-theme)
                (my-daylight-theme)))))
+    ;; remove unintentional colored frame border
+    (select-frame-set-input-focus (selected-frame))
     (when (fboundp 'mac-get-current-input-source)
       (my-apply-cursor-config))
     (my-font-config)) ;; apply font setting
 
-  (my-apply-theme)) ;; this may override or reset font setting
+  ;; init. This may override or reset font setting
+  (my-theme))
 
 (when (autoload-if-found
        '(rainbow-mode)

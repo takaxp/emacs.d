@@ -48,11 +48,12 @@
 
 (if (require 'shut-up nil t)
     (progn
-      (shut-up (require 'emms-setup nil t))
-      (shut-up (require 'yatex nil t)))
+      (shut-up (require 'emms-setup nil t)
+               (require 'yatex nil t)
+               (require 'bm nil t)))
   (require 'emms-setup nil t)
-  (require 'yatex nil t))
-
+  (require 'yatex nil t)
+  (shut-up (require 'bm nil t)))
 
 (provide 'init-eval)
 ;;; init-eval.el ends here

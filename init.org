@@ -1509,28 +1509,27 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 (when (autoload-if-found
        '(my-bm-toggle
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load bm-load-and-restore)
+         bm-repository-save bm-repository-load bm-load-and-restore bm--save)
        "bm" nil t)
 
   (with-eval-after-load "postpone"
     ;; ファイルオープン時にブックマークを復帰
     (add-hook 'find-file-hook #'bm-buffer-restore)
+    (setq bm-restore-repository-on-load t)
     (global-set-key (kbd "<f10>") 'my-bm-toggle)
     (global-set-key (kbd "<C-f10>") 'my-bm-next))
 
   (with-eval-after-load "bm"
+    (require 'helm-bm nil t)
     (setq-default bm-buffer-persistence t)
     (setq bm-cycle-all-buffers t)
     ;; (setq bm-toggle-buffer-persistence t)
     (setq bm-repository-file "~/Dropbox/emacs.d/.bookmark")
-    ;; autoload との組み合わせでは無意味
-    ;;（after-init-hook を利用せよ）
-    ;; (setq bm-restore-repository-on-load t)
     (setq bm-buffer-persistence t)
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
           (expand-file-name "~/Dropbox/emacs.d/.bm-repository"))
-    (bm-repository-load)
+    ;; (bm-repository-load)
 
     (defun my-bm-toggle ()
       "bm-toggle with updating history"
@@ -1545,7 +1544,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
             (bookmark-delete bm)
           (bookmark-set bm)))
       (bm-toggle)
-      (bm-save))
+      (bm--save))
 
     (defun my-bm-next ()
       "bm-next with org-mode"
@@ -3738,7 +3737,7 @@ http://0xcc.net/migemo/#download
       ;; projectile.el のキーバインドをオーバーライド
       (helm-projectile-toggle 1))
 
-    (require 'helm-bm nil t)))
+    ))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports :none
@@ -8097,10 +8096,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 フレームを複数使う場合の設定です．
 
 #+begin_src emacs-lisp :tangle yes
-(declare-function my-apply-theme "init" nil)
+(declare-function my-theme "init" nil)
 (with-eval-after-load "postpone"
   (defun ad:make-frame ()
-    (my-apply-theme)
+    (my-theme)
     (when (require 'moom-font nil t)
       (moom-font-resize)))
   (advice-add 'make-frame :after #'ad:make-frame)
@@ -8768,7 +8767,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
    :CUSTOM_ID: org92d26c4b
    :END:
 
-私は使っていませんが，簡単にテーマを切り替えるためのパッケージ([[https://github.com/valignatev/heaven-and-hell][heaven-and-hell]])も存在します．
+私は使っていませんが，簡単にテーマを切り替えるためのパッケージ([[https://github.com/valignatev/heaven-and-hell][heaven-and-hell]])も存在します．また， [[https://github.com/purcell/ns-auto-titlebar][ns-auto-titlebar.el]] を使うことでも同様の効果が得られます．
 
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
@@ -8785,8 +8784,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
                   default-frame-alist))
     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
     (add-to-list 'default-frame-alist '(ns-appearance . light))
-    ;; (redraw-frame)
-    ))
+    (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                   (ns-appearance . light)))))
 
 ;;;###autoload
 (defun my-night-theme ()
@@ -8802,8 +8801,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
                   default-frame-alist))
     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
     (add-to-list 'default-frame-alist '(ns-appearance . dark))
-    ;; (redraw-frame)
-    ))
+    (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                   (ns-appearance . dark)))))
 #+end_src
 
 ** 時間帯を指定して起動時にテーマを切り替える
@@ -8825,7 +8824,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
         (and (<= begin ct) (<= ct end)))))
 
   (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
-  (defun my-apply-theme (&optional type)
+  (defun my-theme (&optional type)
     (interactive "MType (light or dark): ")
     (setq my-frame-appearance
           (cond ((equal "light" type)
@@ -8844,11 +8843,14 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
              (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
                  (my-night-theme)
                (my-daylight-theme)))))
+    ;; remove unintentional colored frame border
+    (select-frame-set-input-focus (selected-frame))
     (when (fboundp 'mac-get-current-input-source)
       (my-apply-cursor-config))
     (my-font-config)) ;; apply font setting
 
-  (my-apply-theme)) ;; this may override or reset font setting
+  ;; init. This may override or reset font setting
+  (my-theme))
 #+end_src
 
 ** [rainbow-mode.el] 配色のリアルタイム確認
