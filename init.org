@@ -13,7 +13,7 @@
 
   - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]] を生成しています．
   - 一部の関数定義を [[file:utility.html][utility.el]] に分離しています．
-  - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]] 本体は，[[https://github.com/takaxp/emacs.d/][github]] に公開しています．
+  - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]] 本体は，[[https://github.com/takaxp/emacs.d/][GitHub]] に公開しています．
   - コピペだけで動かなかった場合は，wikiの[[https://pxaka.tokyo/wiki/emacs:init.el][コメント欄]]にご意見をどうぞ．
   - =obsolete= タグのある設定は，あくまで個人的に不使用になったものです．
 
@@ -3421,6 +3421,18 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
   (tool-bar-mode -1))
 #+end_src
 
+** メニューバーを非表示にする
+   :PROPERTIES:
+   :CUSTOM_ID: org52e500e2
+   :END:
+
+特にターミナルでは不要です．
+
+#+begin_src emacs-lisp :tangle yes
+(unless (display-graphic-p)
+  (menu-bar-mode -1))
+#+end_src
+
 ** 起動時のスプラッシュ画面を表示しない
    :PROPERTIES:
    :CUSTOM_ID: orgd432e8ff
@@ -4030,27 +4042,54 @@ http://0xcc.net/migemo/#download
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
-       '(dimmer-mode dimmer-process-all dimmer-off dimmer-on)
+       '(dimmer-mode dimmer-process-all dimmer-off dimmer-on
+                     my-dimmer-toggle dimmer-permanent-off
+                     ad:dimmer-org-agenda--quit)
        "dimmer" nil t)
 
   (with-eval-after-load "postpone"
+    (defvar my-dimmer-mode nil)
     (unless noninteractive
       (postpone-message "dimmer-mode")
       (custom-set-variables
        '(dimmer-exclusion-regexp
          "^\\*[Hh]elm\\|^ \\*Minibuf\\|^ \\*Echo\\|^\\*Calendar\\|*Org")
        '(dimmer-fraction 0.6))
-      (dimmer-mode 1)))
+      (setq my-dimmer-mode (dimmer-mode 1))))
 
   (with-eval-after-load "dimmer"
+    (defun my-dimmer-toggle ()
+      (interactive)
+      (if (setq my-dimmer-mode (not my-dimmer-mode))
+          (dimmer-on) (dimmer-off)))
+
+    (defun dimmer-permanent-off ()
+      (setq my-dimmer-mode nil)
+      (dimmer-off))
+
     (defun dimmer-off ()
-      (dimmer-mode -1)
-      (dimmer-process-all))
+      (dimmer-process-all)
+      (dimmer-mode -1))
+
     (defun dimmer-on ()
-      (dimmer-mode 1)
-      (dimmer-process-all))
+      (when my-dimmer-mode
+        (dimmer-mode 1)
+        (dimmer-process-all)))
+
     (add-hook 'focus-out-hook #'dimmer-off)
-    (add-hook 'focus-in-hook #'dimmer-on)))
+    (add-hook 'focus-in-hook #'dimmer-on)
+
+    ;; for org-agenda
+    (add-hook 'org-agenda-mode-hook #'dimmer-permanent-off)
+    (defun ad:dimmer-org-agenda--quit (&optional _bury)
+      (when (fboundp 'dimmer-on)
+        (setq my-dimmer-mode t)
+        (dimmer-on)))
+    (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
+
+    ;; for helm and helm-swoop
+    (add-hook 'minibuffer-setup-hook #'dimmer-off)
+    (add-hook 'minibuffer-exit-hook #'dimmer-on)))
 #+end_src
 
 ** DONE バッテリー情報をモードラインに表示する                     :obsolete:
@@ -4995,29 +5034,34 @@ http://www.emacswiki.org/emacs/EmacsSession
     (when (require 'all-the-icons-dired nil t)
       (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 
+    (defvar my-neo-activated nil) ;; fail save
     (defvar my-neo-adjusted-window-width (+ 3 neo-window-width))
     (defun ad:neotree-show ()
       "Extension to support change frame width when opening neotree."
       (unless (neo-global--window-exists-p)
-        (when (require 'moom nil t)
+        (when (and (require 'moom nil t)
+                   (not my-neo-activated))
           (setq moom-frame-width-single
                 (+ moom-frame-width-single my-neo-adjusted-window-width))
           (setq moom-frame-width-double
                 (+ moom-frame-width-double my-neo-adjusted-window-width)))
-        (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))))
+        (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))
+        (setq my-neo-activated t)))
     (advice-add 'neotree-show :before #'ad:neotree-show)
 
     (defun ad:neotree-hide ()
       "Extension to support change frame width when closing neotree."
       (when (neo-global--window-exists-p)
-        (when (require 'moom nil t)
+        (when (and (require 'moom nil t)
+                   my-neo-activated)
           (setq moom-frame-width-single
                 (- moom-frame-width-single my-neo-adjusted-window-width))
           (setq moom-frame-width-double
                 (- moom-frame-width-double my-neo-adjusted-window-width)))
         (set-frame-width nil (- (frame-width) my-neo-adjusted-window-width))
         (when (> 80 (frame-width)) ;; fail safe
-          (set-frame-width nil 80))))
+          (set-frame-width nil 80))
+        (setq my-neo-activated nil)))
     (advice-add 'neotree-hide :before #'ad:neotree-hide)))
 #+end_src
 
@@ -5644,7 +5688,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
         (neotree-show))
       (neo-global--open-dir path)
       (neo-global--select-window))
-    (advice-add 'neotree-dir :override #'ad:neotree-dir))
+    ;; (advice-add 'neotree-dir :override #'ad:neotree-dir) ;; FIXME
+    )
 
   (with-eval-after-load "projectile"
     (defun ad:projectile-visit-project-tags-table ()
@@ -5852,6 +5897,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
     (add-to-list 'org-modules 'org-id)
     (add-to-list 'org-modules 'ox-odt)
+    (add-to-list 'org-modules 'ox-org)
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
 
@@ -6117,8 +6163,8 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           ("Report"      :foreground "#66CC66")
           ("Background"  :foreground "#66CC99")
           ("Chore"       :foreground "#6699CC")
-          ("Domestic"    :foreground "#6666CC")
-          ("BeMerged"    :foreground "#6666CC")
+          ("read"        :foreground "#6666CC")
+          ("book"        :foreground "#6666CC")
           ("Doing"       :foreground "#FF0000")
           ("Draft"       :foreground "#9933CC") ;; Draft(r1,r2,r3)->Review(1,2)
           ("Review"      :foreground "#6633CC")
@@ -6497,13 +6543,18 @@ will not be modified."
   (setq org-agenda-timegrid-use-ampm t)
 
   (with-eval-after-load "moom"
+    (defvar my-org-tags-column org-tags-column)
     ;; Expand the frame width temporarily during org-agenda is activated.
     (defun my-agenda-frame-width ()
-      (moom-change-frame-width
-       (floor (* 1.2 moom-frame-width-single))))
+      (let ((width (floor (* 1.2 moom-frame-width-single))))
+        (setq org-tags-column (- org-tags-column (- width 80)))
+        ;; (org-align-tags t)
+        (moom-change-frame-width width)))
     (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
 
     (defun ad:org-agenda--quit (&optional _bury)
+      (setq org-tags-column my-org-tags-column)
+      ;; (org-align-tags t)
       (moom-change-frame-width))
     (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit))
 
@@ -6738,11 +6789,11 @@ update it for multiple appts?")
 
   (defun ad:org-refile (f &optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
-    (let ((l (org-outline-level))
-          (b (buffer-name)))
-      (apply f arg default-buffer rfloc msg)
-      (save-excursion
-        (save-restriction
+    (save-excursion
+      (save-restriction
+        (let ((l (org-outline-level))
+              (b (buffer-name)))
+          (apply f arg default-buffer rfloc msg)
           (if (> l (org-outline-level))
               (outline-backward-same-level 1)
             (outline-up-heading 1))
@@ -6753,9 +6804,9 @@ update it for multiple appts?")
           (outline-up-heading 1)
           (org-sort-entries nil ?O)
           (unless (equal b (buffer-name))
-            (switch-to-buffer b)))))
-    (setq org-refile-history nil)
-    (org-refile-cache-clear))
+            (switch-to-buffer b)))
+        (setq org-refile-history nil)
+        (org-refile-cache-clear))))
   (advice-add 'org-refile :around #'ad:org-refile)
 
   (defun ad:org-sort-entries (&optional _with-case _sorting-type
@@ -6909,6 +6960,11 @@ update it for multiple appts?")
       (when (and (my-tree-slide-autoclockin-p)
                  (looking-at (concat "^\\*+ " org-not-done-regexp))
                  (memq (org-outline-level) '(1 2 3 4)))
+        (save-excursion
+          (save-restriction
+            (forward-line)
+            (when (org-at-heading-p)
+              (newline)))) ;; FIXME: remove empty line if clock will not be recorded.
         (org-clock-in)))
 
     (defun my-org-clock-out ()
@@ -7461,7 +7517,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   ;; (setq org-export-default-language "ja")
   (require 'ox-pandoc nil t)
   (require 'ox-qmd nil t) ;; Quita-style
-  (require 'ox-gfm nil t)) ;; Github-style
+  (require 'ox-gfm nil t)) ;; GitHub-style
 #+end_src
 
 ** TODO Parers3.app からリンクを取得する
@@ -8202,18 +8258,18 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (defvar-local my-mode-line-format nil)
 (with-eval-after-load "pomodoro"
   (set-default 'my-mode-line-format mode-line-format)
-  (defvar my-mode-line-sticky t)
-  (defun my-mode-line-toggle-sticky ()
+  (defvar my-mode-line-global-flag t)
+  (defun my-mode-line-global-toggle ()
     (interactive)
-    (setq my-mode-line-sticky (not my-mode-line-sticky))
-    (if my-mode-line-sticky
+    (setq my-mode-line-global-flag (not my-mode-line-global-flag))
+    (if my-mode-line-global-flag
         (my-mode-line-on)
       (my-mode-line-off)))
 
   (defun my-mode-line-off ()
     "Turn off mode line."
-    (when (fboundp 'dimmer-mode)
-      (dimmer-mode 1))
+    (when (fboundp 'dimmer-on)
+      (dimmer-on))
     (when (fboundp 'pomodoro:visualize-stop)
       (pomodoro:visualize-stop))
     (when mode-line-format
@@ -8222,8 +8278,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
   (defun my-mode-line-on ()
     "Turn on mode line."
-    (when (fboundp 'dimmer-mode)
-      (dimmer-mode -1))
+    (when (fboundp 'dimmer-off)
+      (dimmer-off))
     (when (fboundp 'pomodoro:visualize-start)
       (pomodoro:visualize-start))
     (unless my-mode-line-format
@@ -8245,7 +8301,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
       (my-toggle-mode-line)))
   (define-key moom-mode-map (kbd "<f5>") 'my-toggle-mode-line)
   (add-hook 'find-file-hook
-            (lambda () (unless my-mode-line-sticky
+            (lambda () (unless my-mode-line-global-flag
                          (my-mode-line-off)))))
 #+end_src
 
@@ -8769,6 +8825,13 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 私は使っていませんが，簡単にテーマを切り替えるためのパッケージ([[https://github.com/valignatev/heaven-and-hell][heaven-and-hell]])も存在します．また， [[https://github.com/purcell/ns-auto-titlebar][ns-auto-titlebar.el]] を使うことでも同様の効果が得られます．
 
+色々なテーマを試してた後に，その状態をダンプするには次のツールが役立ちます．
+ - https://gist.github.com/condotti/2035942
+
+私が使っているテーマはこちら．
+1. [[https://gist.github.com/takaxp/f8763df6de734e3aac6834eb6118c0e9][my theme for light]]
+2. [[https://gist.github.com/takaxp/5a500d953d15d6d2155b120e886dcd52][my theme for dark]]
+
 #+begin_src emacs-lisp :tangle yes
 ;;;###autoload
 (defun my-daylight-theme ()
@@ -8850,7 +8913,9 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (my-font-config)) ;; apply font setting
 
   ;; init. This may override or reset font setting
-  (my-theme))
+  (my-theme)
+  (run-at-time "21:00" 86400 'my-theme)
+  (run-at-time "05:00" 86400 'my-theme))
 #+end_src
 
 ** [rainbow-mode.el] 配色のリアルタイム確認

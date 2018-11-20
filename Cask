@@ -1,4 +1,4 @@
-;; #+date: 2018-10-10
+;; #+date: 2018-11-19
 
 (source gnu)
 (source melpa)
@@ -213,6 +213,8 @@
 (depends-on "pass")
 (depends-on "keycast") ;; require emacs-25.3
 (depends-on "pcap-mode")
+(depends-on "pdf-tools")
+(depends-on "minesweeper")
 
 ;; Log
 (depends-on "keyfreq")

@@ -1174,6 +1174,9 @@ This works also for other defined begin/end tokens to define the structure."
 (when (display-graphic-p)
   (tool-bar-mode -1))
 
+(unless (display-graphic-p)
+  (menu-bar-mode -1))
+
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
 
@@ -1517,27 +1520,54 @@ This works also for other defined begin/end tokens to define the structure."
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 
 (when (autoload-if-found
-       '(dimmer-mode dimmer-process-all dimmer-off dimmer-on)
+       '(dimmer-mode dimmer-process-all dimmer-off dimmer-on
+                     my-dimmer-toggle dimmer-permanent-off
+                     ad:dimmer-org-agenda--quit)
        "dimmer" nil t)
 
   (with-eval-after-load "postpone"
+    (defvar my-dimmer-mode nil)
     (unless noninteractive
       (postpone-message "dimmer-mode")
       (custom-set-variables
        '(dimmer-exclusion-regexp
          "^\\*[Hh]elm\\|^ \\*Minibuf\\|^ \\*Echo\\|^\\*Calendar\\|*Org")
        '(dimmer-fraction 0.6))
-      (dimmer-mode 1)))
+      (setq my-dimmer-mode (dimmer-mode 1))))
 
   (with-eval-after-load "dimmer"
+    (defun my-dimmer-toggle ()
+      (interactive)
+      (if (setq my-dimmer-mode (not my-dimmer-mode))
+          (dimmer-on) (dimmer-off)))
+
+    (defun dimmer-permanent-off ()
+      (setq my-dimmer-mode nil)
+      (dimmer-off))
+
     (defun dimmer-off ()
-      (dimmer-mode -1)
-      (dimmer-process-all))
+      (dimmer-process-all)
+      (dimmer-mode -1))
+
     (defun dimmer-on ()
-      (dimmer-mode 1)
-      (dimmer-process-all))
+      (when my-dimmer-mode
+        (dimmer-mode 1)
+        (dimmer-process-all)))
+
     (add-hook 'focus-out-hook #'dimmer-off)
-    (add-hook 'focus-in-hook #'dimmer-on)))
+    (add-hook 'focus-in-hook #'dimmer-on)
+
+    ;; for org-agenda
+    (add-hook 'org-agenda-mode-hook #'dimmer-permanent-off)
+    (defun ad:dimmer-org-agenda--quit (&optional _bury)
+      (when (fboundp 'dimmer-on)
+        (setq my-dimmer-mode t)
+        (dimmer-on)))
+    (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
+
+    ;; for helm and helm-swoop
+    (add-hook 'minibuffer-setup-hook #'dimmer-off)
+    (add-hook 'minibuffer-exit-hook #'dimmer-on)))
 
 (when (autoload-if-found
        '(emms-play-file
@@ -1900,29 +1930,34 @@ This works also for other defined begin/end tokens to define the structure."
     (when (require 'all-the-icons-dired nil t)
       (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 
+    (defvar my-neo-activated nil) ;; fail save
     (defvar my-neo-adjusted-window-width (+ 3 neo-window-width))
     (defun ad:neotree-show ()
       "Extension to support change frame width when opening neotree."
       (unless (neo-global--window-exists-p)
-        (when (require 'moom nil t)
+        (when (and (require 'moom nil t)
+                   (not my-neo-activated))
           (setq moom-frame-width-single
                 (+ moom-frame-width-single my-neo-adjusted-window-width))
           (setq moom-frame-width-double
                 (+ moom-frame-width-double my-neo-adjusted-window-width)))
-        (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))))
+        (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))
+        (setq my-neo-activated t)))
     (advice-add 'neotree-show :before #'ad:neotree-show)
 
     (defun ad:neotree-hide ()
       "Extension to support change frame width when closing neotree."
       (when (neo-global--window-exists-p)
-        (when (require 'moom nil t)
+        (when (and (require 'moom nil t)
+                   my-neo-activated)
           (setq moom-frame-width-single
                 (- moom-frame-width-single my-neo-adjusted-window-width))
           (setq moom-frame-width-double
                 (- moom-frame-width-double my-neo-adjusted-window-width)))
         (set-frame-width nil (- (frame-width) my-neo-adjusted-window-width))
         (when (> 80 (frame-width)) ;; fail safe
-          (set-frame-width nil 80))))
+          (set-frame-width nil 80))
+        (setq my-neo-activated nil)))
     (advice-add 'neotree-hide :before #'ad:neotree-hide)))
 
 (when (autoload-if-found
@@ -2209,7 +2244,8 @@ This works also for other defined begin/end tokens to define the structure."
         (neotree-show))
       (neo-global--open-dir path)
       (neo-global--select-window))
-    (advice-add 'neotree-dir :override #'ad:neotree-dir))
+    ;; (advice-add 'neotree-dir :override #'ad:neotree-dir) ;; FIXME
+    )
 
   (with-eval-after-load "projectile"
     (defun ad:projectile-visit-project-tags-table ()
@@ -2293,6 +2329,7 @@ This works also for other defined begin/end tokens to define the structure."
 
     (add-to-list 'org-modules 'org-id)
     (add-to-list 'org-modules 'ox-odt)
+    (add-to-list 'org-modules 'ox-org)
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
 
@@ -2524,8 +2561,8 @@ This works also for other defined begin/end tokens to define the structure."
           ("Report"      :foreground "#66CC66")
           ("Background"  :foreground "#66CC99")
           ("Chore"       :foreground "#6699CC")
-          ("Domestic"    :foreground "#6666CC")
-          ("BeMerged"    :foreground "#6666CC")
+          ("read"        :foreground "#6666CC")
+          ("book"        :foreground "#6666CC")
           ("Doing"       :foreground "#FF0000")
           ("Draft"       :foreground "#9933CC") ;; Draft(r1,r2,r3)->Review(1,2)
           ("Review"      :foreground "#6633CC")
@@ -2792,13 +2829,18 @@ will not be modified."
   (setq org-agenda-timegrid-use-ampm t)
 
   (with-eval-after-load "moom"
+    (defvar my-org-tags-column org-tags-column)
     ;; Expand the frame width temporarily during org-agenda is activated.
     (defun my-agenda-frame-width ()
-      (moom-change-frame-width
-       (floor (* 1.2 moom-frame-width-single))))
+      (let ((width (floor (* 1.2 moom-frame-width-single))))
+        (setq org-tags-column (- org-tags-column (- width 80)))
+        ;; (org-align-tags t)
+        (moom-change-frame-width width)))
     (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
 
     (defun ad:org-agenda--quit (&optional _bury)
+      (setq org-tags-column my-org-tags-column)
+      ;; (org-align-tags t)
       (moom-change-frame-width))
     (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit))
 
@@ -3006,11 +3048,11 @@ update it for multiple appts?")
 
   (defun ad:org-refile (f &optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
-    (let ((l (org-outline-level))
-          (b (buffer-name)))
-      (apply f arg default-buffer rfloc msg)
-      (save-excursion
-        (save-restriction
+    (save-excursion
+      (save-restriction
+        (let ((l (org-outline-level))
+              (b (buffer-name)))
+          (apply f arg default-buffer rfloc msg)
           (if (> l (org-outline-level))
               (outline-backward-same-level 1)
             (outline-up-heading 1))
@@ -3021,9 +3063,9 @@ update it for multiple appts?")
           (outline-up-heading 1)
           (org-sort-entries nil ?O)
           (unless (equal b (buffer-name))
-            (switch-to-buffer b)))))
-    (setq org-refile-history nil)
-    (org-refile-cache-clear))
+            (switch-to-buffer b)))
+        (setq org-refile-history nil)
+        (org-refile-cache-clear))))
   (advice-add 'org-refile :around #'ad:org-refile)
 
   (defun ad:org-sort-entries (&optional _with-case _sorting-type
@@ -3125,6 +3167,11 @@ update it for multiple appts?")
       (when (and (my-tree-slide-autoclockin-p)
                  (looking-at (concat "^\\*+ " org-not-done-regexp))
                  (memq (org-outline-level) '(1 2 3 4)))
+        (save-excursion
+          (save-restriction
+            (forward-line)
+            (when (org-at-heading-p)
+              (newline)))) ;; FIXME: remove empty line if clock will not be recorded.
         (org-clock-in)))
 
     (defun my-org-clock-out ()
@@ -3478,7 +3525,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   ;; (setq org-export-default-language "ja")
   (require 'ox-pandoc nil t)
   (require 'ox-qmd nil t) ;; Quita-style
-  (require 'ox-gfm nil t)) ;; Github-style
+  (require 'ox-gfm nil t)) ;; GitHub-style
 
 (with-eval-after-load "org-mac-link"
   (defcustom org-mac-grab-Papers-app-p t
@@ -3872,18 +3919,18 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (defvar-local my-mode-line-format nil)
 (with-eval-after-load "pomodoro"
   (set-default 'my-mode-line-format mode-line-format)
-  (defvar my-mode-line-sticky t)
-  (defun my-mode-line-toggle-sticky ()
+  (defvar my-mode-line-global-flag t)
+  (defun my-mode-line-global-toggle ()
     (interactive)
-    (setq my-mode-line-sticky (not my-mode-line-sticky))
-    (if my-mode-line-sticky
+    (setq my-mode-line-global-flag (not my-mode-line-global-flag))
+    (if my-mode-line-global-flag
         (my-mode-line-on)
       (my-mode-line-off)))
 
   (defun my-mode-line-off ()
     "Turn off mode line."
-    (when (fboundp 'dimmer-mode)
-      (dimmer-mode 1))
+    (when (fboundp 'dimmer-on)
+      (dimmer-on))
     (when (fboundp 'pomodoro:visualize-stop)
       (pomodoro:visualize-stop))
     (when mode-line-format
@@ -3892,8 +3939,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (defun my-mode-line-on ()
     "Turn on mode line."
-    (when (fboundp 'dimmer-mode)
-      (dimmer-mode -1))
+    (when (fboundp 'dimmer-off)
+      (dimmer-off))
     (when (fboundp 'pomodoro:visualize-start)
       (pomodoro:visualize-start))
     (unless my-mode-line-format
@@ -3915,7 +3962,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (my-toggle-mode-line)))
   (define-key moom-mode-map (kbd "<f5>") 'my-toggle-mode-line)
   (add-hook 'find-file-hook
-            (lambda () (unless my-mode-line-sticky
+            (lambda () (unless my-mode-line-global-flag
                          (my-mode-line-off)))))
 
 (with-eval-after-load "postpone"
@@ -4161,7 +4208,9 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (my-font-config)) ;; apply font setting
 
   ;; init. This may override or reset font setting
-  (my-theme))
+  (my-theme)
+  (run-at-time "21:00" 86400 'my-theme)
+  (run-at-time "05:00" 86400 'my-theme))
 
 (when (autoload-if-found
        '(rainbow-mode)
