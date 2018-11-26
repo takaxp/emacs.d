@@ -3361,7 +3361,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
                       :underline nil)
   (setq header-line-format
         (concat
-         " GNU Emacs                                                  "
+         "                                                            "
          (format-time-string "W%W: %Y-%m-%d %a."))))
 
 (with-eval-after-load "postpone"
@@ -6191,7 +6191,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           ("Blog"        :foreground "#9966CC")
           ("story"       :foreground "#FF7D7D")
           ("Test"        :foreground "#FF0000" :weight bold)
-          ("Attach"      :foreground "#FF0000" :underline t :weight bold)
+          ("attach"      :foreground "#FF0000")
           ("drill"       :foreground "#66BB66" :underline t)
           ("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
           ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
@@ -6926,7 +6926,13 @@ update it for multiple appts?")
       (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
     (setq org-tree-slide-skip-outline-level 5)
-    (setq org-tree-slide-skip-done nil)))
+    (setq org-tree-slide-skip-done nil))
+
+  (defun my-reload-header-face ()
+    (face-spec-set 'org-tree-slide-header-overlay-face
+                   `((t (:bold t :foreground ,(face-foreground 'default)
+                               :background ,(face-background 'default))))))
+  (add-hook 'org-tree-slide-play-hook #'my-reload-header-face))
 #+end_src
 
 ~Doing~ タグのトグルに =f11= を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
@@ -8248,7 +8254,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "moom"
+  (define-key moom-mode-map (kbd "<f5>") 'my-toggle-mode-line)
   (defun ad:moom-toggle-frame-maximized ()
+    (when (eq major-mode 'org-mode)
+      (org-redisplay-inline-images))
     (when mode-line-format
       (my-mode-line-off)))
   (advice-add 'moom-toggle-frame-maximized
@@ -8299,7 +8308,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (if shutup-p
         (shut-up (my-toggle-mode-line))
       (my-toggle-mode-line)))
-  (define-key moom-mode-map (kbd "<f5>") 'my-toggle-mode-line)
   (add-hook 'find-file-hook
             (lambda () (unless my-mode-line-global-flag
                          (my-mode-line-off)))))
@@ -8715,9 +8723,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
             (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
             ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
             ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-            ("-cdac$" . 1.0)))) ; 1.3
-    ;; (my-font-config) ;; see `my-apply-theme'
-)
+            ("-cdac$" . 1.0))))) ; 1.3
+ ;; (my-font-config) ;; see `my-theme'
 
  ((eq window-system 'ns)
   ;; Anti aliasing with Quartz 2D
@@ -8889,6 +8896,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
   (defun my-theme (&optional type)
     (interactive "MType (light or dark): ")
+    (my-font-config)
     (setq my-frame-appearance
           (cond ((equal "light" type)
                  'light)
@@ -8909,13 +8917,13 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
     (when (fboundp 'mac-get-current-input-source)
-      (my-apply-cursor-config))
-    (my-font-config)) ;; apply font setting
+      (my-apply-cursor-config))) ;; apply font setting
 
   ;; init. This may override or reset font setting
-  (my-theme)
-  (run-at-time "21:00" 86400 'my-theme)
-  (run-at-time "05:00" 86400 'my-theme))
+  (my-theme))
+;; (with-eval-after-load "postpone"
+;;   (run-at-time "21:00" 86400 'my-theme)
+;;   (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
 #+end_src
 
 ** [rainbow-mode.el] 配色のリアルタイム確認

@@ -1150,7 +1150,7 @@ This works also for other defined begin/end tokens to define the structure."
                       :underline nil)
   (setq header-line-format
         (concat
-         " GNU Emacs                                                  "
+         "                                                            "
          (format-time-string "W%W: %Y-%m-%d %a."))))
 
 (with-eval-after-load "postpone"
@@ -2589,7 +2589,7 @@ This works also for other defined begin/end tokens to define the structure."
           ("Blog"        :foreground "#9966CC")
           ("story"       :foreground "#FF7D7D")
           ("Test"        :foreground "#FF0000" :weight bold)
-          ("Attach"      :foreground "#FF0000" :underline t :weight bold)
+          ("attach"      :foreground "#FF0000")
           ("drill"       :foreground "#66BB66" :underline t)
           ("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
           ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
@@ -3144,7 +3144,13 @@ update it for multiple appts?")
       (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
     (setq org-tree-slide-skip-outline-level 5)
-    (setq org-tree-slide-skip-done nil)))
+    (setq org-tree-slide-skip-done nil))
+
+  (defun my-reload-header-face ()
+    (face-spec-set 'org-tree-slide-header-overlay-face
+                   `((t (:bold t :foreground ,(face-foreground 'default)
+                               :background ,(face-background 'default))))))
+  (add-hook 'org-tree-slide-play-hook #'my-reload-header-face))
 
 (with-eval-after-load "org-tree-slide"
   (defun my-tree-slide-autoclockin-p ()
@@ -3909,7 +3915,10 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
             (9 5) (8 5) (7 4) (6 4) (5 3)))))
 
 (with-eval-after-load "moom"
+  (define-key moom-mode-map (kbd "<f5>") 'my-toggle-mode-line)
   (defun ad:moom-toggle-frame-maximized ()
+    (when (eq major-mode 'org-mode)
+      (org-redisplay-inline-images))
     (when mode-line-format
       (my-mode-line-off)))
   (advice-add 'moom-toggle-frame-maximized
@@ -3960,7 +3969,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (if shutup-p
         (shut-up (my-toggle-mode-line))
       (my-toggle-mode-line)))
-  (define-key moom-mode-map (kbd "<f5>") 'my-toggle-mode-line)
   (add-hook 'find-file-hook
             (lambda () (unless my-mode-line-global-flag
                          (my-mode-line-off)))))
@@ -4086,9 +4094,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
             (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
             ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
             ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-            ("-cdac$" . 1.0)))) ; 1.3
-    ;; (my-font-config) ;; see `my-apply-theme'
-)
+            ("-cdac$" . 1.0))))) ; 1.3
+ ;; (my-font-config) ;; see `my-theme'
 
  ((eq window-system 'ns)
   ;; Anti aliasing with Quartz 2D
@@ -4184,6 +4191,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
   (defun my-theme (&optional type)
     (interactive "MType (light or dark): ")
+    (my-font-config)
     (setq my-frame-appearance
           (cond ((equal "light" type)
                  'light)
@@ -4204,13 +4212,13 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
     (when (fboundp 'mac-get-current-input-source)
-      (my-apply-cursor-config))
-    (my-font-config)) ;; apply font setting
+      (my-apply-cursor-config))) ;; apply font setting
 
   ;; init. This may override or reset font setting
-  (my-theme)
-  (run-at-time "21:00" 86400 'my-theme)
-  (run-at-time "05:00" 86400 'my-theme))
+  (my-theme))
+;; (with-eval-after-load "postpone"
+;;   (run-at-time "21:00" 86400 'my-theme)
+;;   (run-at-time "05:00" 86400 'my-theme)) ;; FIXME Make the frame blink!
 
 (when (autoload-if-found
        '(rainbow-mode)

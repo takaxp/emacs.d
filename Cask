@@ -1,4 +1,4 @@
-;; #+date: 2018-11-19
+;; #+date: 2018-11-26
 
 (source gnu)
 (source melpa)
@@ -215,6 +215,7 @@
 (depends-on "pcap-mode")
 (depends-on "pdf-tools")
 (depends-on "minesweeper")
+(depends-on "web-server")
 
 ;; Log
 (depends-on "keyfreq")

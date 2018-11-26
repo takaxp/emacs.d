@@ -11,11 +11,30 @@
   "If non-nil, use built-in profiler.el.")
 (defconst my-boot-type 'default
   "Boot menu selection: {debug, test, default}.")
-(defconst my-loading-packages nil) ;; `my-autoload-file-check' shall be nil.
-;; (setq my-loading-packages '(("moom" . nil) ("moom-font" . nil)))
+(defconst my-loading-packages nil) ;;`my-skip-autoload-file-check' shall be nil.
+;; (setq my-loading-packages
+;;       '(("moom" . nil)
+;;         ("moom-font" . nil)
+;;         ("shut-up" . nil)
+;;         ("smart-mark" . nil)
+;;         ("subword" . nil)
+;;         ("syntax-subword" . nil)
+;;         ("smartparens" . nil)
+;;         ("selected" . nil)
+;;         ("help-fns" . nil)
+;;         ("help-fns+" . nil)
+;;         ("delight" . nil)
+;;         ("mic-paren" . nil)
+;;         ("backup-each-save" . nil)
+;;         ("auto-save-buffers" . nil)
+;;         ("editorconfig" . nil)
+;;         ("winner" . nil)
+;;         ("shackle" . nil)
+;;         ("pomodoro" . nil)
+;;         ))
 (setq postpone-verbose nil
       my-mode-line-global-flag nil
-      my-frame-appearance nil ;; {nil, 'dark, 'light}
+      my-frame-appearance 'nil ;; {nil, 'dark, 'light}
       my-skip-autoload-file-check t
       debug-on-error nil)
 
