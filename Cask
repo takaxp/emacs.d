@@ -1,4 +1,4 @@
-;; #+date: 2018-11-26
+;; #+date: 2018-12-01
 
 (source gnu)
 (source melpa)
@@ -6,6 +6,9 @@
 ;; Private recipes, not in MELPA (private MELPA: https://pxaka.tokyo/melpa)
 ;; (source "takaxp" "~/devel/git/melpa/packages/")
 ;; (source "takaxp" "https://pxaka.tokyo/melpa/packages/")
+;; (source "stable" "https://stable.melpa.org/packages/")
+;; (source "mirror" "https://www.mirrorservice.org/sites/melpa.org/packages/")
+;; (source "mstable" "https://www.mirrorservice.org/sites/stable.melpa.org/packages/")
 
 (depends-on "postpone"     :git "https://github.com/takaxp/postpone.git")
 (depends-on "ascii"        :git "https://github.com/takaxp/ascii.git")

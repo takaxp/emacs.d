@@ -158,7 +158,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 (setq garbage-collection-messages t)
 #+end_src
 
-** clを使う
+** Common Lisp を使う
    :PROPERTIES:
    :CUSTOM_ID: orgc7901a57
    :END:
@@ -412,19 +412,19 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+begin_src emacs-lisp :tangle yes
 (if (not (locate-library "postpone"))
     (message "postpone.el is NOT installed.")
-  (autoload 'postpone-kicker "postpone" nil t)
-  (defun my-postpone-kicker ()
-    (interactive)
-    (unless (memq this-command ;; specify commands for exclusion
-                  '(self-insert-command
-                    save-buffers-kill-terminal
-                    exit-minibuffer))
-      (message "Activating postponed packages...")
-      (let ((t1 (current-time)))
-        (postpone-kicker 'my-postpone-kicker)
-        (setq postpone-init-time (float-time
-                                  (time-subtract (current-time) t1))))
-      (message "Activating postponed packages...done")))
+    (autoload 'postpone-kicker "postpone" nil t)
+    (defun my-postpone-kicker ()
+      (interactive)
+      (unless (memq this-command ;; specify commands for exclusion
+                    '(self-insert-command
+                      save-buffers-kill-terminal
+                      exit-minibuffer))
+        (message "Activating postponed packages...")
+        (let ((t1 (current-time)))
+          (postpone-kicker 'my-postpone-kicker)
+          (setq postpone-init-time (float-time
+                                    (time-subtract (current-time) t1))))
+        (message "Activating postponed packages...done")))
   (add-hook 'pre-command-hook #'my-postpone-kicker))
 #+end_src
 
@@ -1509,7 +1509,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 (when (autoload-if-found
        '(my-bm-toggle
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load bm-load-and-restore bm--save)
+         bm-repository-save bm-repository-load bm-load-and-restore)
        "bm" nil t)
 
   (with-eval-after-load "postpone"
@@ -1544,7 +1544,8 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
             (bookmark-delete bm)
           (bookmark-set bm)))
       (bm-toggle)
-      (bm--save))
+      (bm-buffer-save-all)
+      (bm-repository-save))
 
     (defun my-bm-next ()
       "bm-next with org-mode"
@@ -3361,7 +3362,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
                       :underline nil)
   (setq header-line-format
         (concat
-         "                                                            "
+         " No day is a good day.                                       "
          (format-time-string "W%W: %Y-%m-%d %a."))))
 
 (with-eval-after-load "postpone"
@@ -3473,14 +3474,23 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
    :CUSTOM_ID: orga76ec530
    :END:
 
-Emacs Version 26.1 からネイティブ実装に切り替わった =display-line-numbers.el= を使います．普段は使わないので，必要に応じてグローバルにトグルできるようにしてあります．
+Emacs Version 26.1 からネイティブ実装に切り替わった =display-line-numbers.el= を使います．普段は使わないので，必要に応じてグローバルにトグルできるようにしてあります．現在行の番号について =face= を変更したい場合は， =line-number-current-line= をカスタマイズすればOKです．
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
        '(my-toggle-display-line-numbers-mode)
        "display-line-numbers" nil t)
 
+  (with-eval-after-load "hl-line"
+    (custom-set-faces
+     `(line-number-current-line
+       ((t (:bold t :background ,(face-attribute 'hl-line :background)))))))
+
   (with-eval-after-load "display-line-numbers"
+    (custom-set-faces
+     '(line-number-current-line
+       ((t (:bold t)))))
+
     (custom-set-variables
      '(display-line-numbers-width-start t))
 
@@ -5718,6 +5728,22 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
                   "%b")))))
 #+end_src
 
+** [magit.el] Gitクライアント
+   :PROPERTIES:
+   :CUSTOM_ID: org7d969237
+   :END:
+
+Emacs の中で Git リポジトリを操作できます．
+
+#+begin_src emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(magit-status)
+       "magit" nil t)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c m") 'magit-status)))
+#+end_src
+
 ** TODO [EditorConfig] コードスタイルの強制
    :PROPERTIES:
    :CUSTOM_ID: orgaa25b74c
@@ -5768,20 +5794,6 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 
 #+begin_src emacs-lisp :tangle yes
 (autoload-if-found '(cov-mode) "cov" nil t)
-#+end_src
-
-** TODO [magit.el] Gitクライアント
-   :PROPERTIES:
-   :CUSTOM_ID: org7d969237
-   :END:
-
-#+begin_src emacs-lisp :tangle yes
-(when (autoload-if-found
-       '(magit-status)
-       "magit" nil t)
-
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c m") 'magit-status)))
 #+end_src
 
 ** TODO [format-all.el] コード整形
@@ -8629,7 +8641,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．
 
-** カーソルを点滅させない
+** カーソルの点滅を制御
    :PROPERTIES:
    :CUSTOM_ID: org29d5304f
    :END:
@@ -8896,7 +8908,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
   (defun my-theme (&optional type)
     (interactive "MType (light or dark): ")
-    (my-font-config)
     (setq my-frame-appearance
           (cond ((equal "light" type)
                  'light)
@@ -8914,6 +8925,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
              (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
                  (my-night-theme)
                (my-daylight-theme)))))
+    (my-font-config)
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
     (when (fboundp 'mac-get-current-input-source)

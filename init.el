@@ -91,19 +91,19 @@
 
 (if (not (locate-library "postpone"))
     (message "postpone.el is NOT installed.")
-  (autoload 'postpone-kicker "postpone" nil t)
-  (defun my-postpone-kicker ()
-    (interactive)
-    (unless (memq this-command ;; specify commands for exclusion
-                  '(self-insert-command
-                    save-buffers-kill-terminal
-                    exit-minibuffer))
-      (message "Activating postponed packages...")
-      (let ((t1 (current-time)))
-        (postpone-kicker 'my-postpone-kicker)
-        (setq postpone-init-time (float-time
-                                  (time-subtract (current-time) t1))))
-      (message "Activating postponed packages...done")))
+    (autoload 'postpone-kicker "postpone" nil t)
+    (defun my-postpone-kicker ()
+      (interactive)
+      (unless (memq this-command ;; specify commands for exclusion
+                    '(self-insert-command
+                      save-buffers-kill-terminal
+                      exit-minibuffer))
+        (message "Activating postponed packages...")
+        (let ((t1 (current-time)))
+          (postpone-kicker 'my-postpone-kicker)
+          (setq postpone-init-time (float-time
+                                    (time-subtract (current-time) t1))))
+        (message "Activating postponed packages...done")))
   (add-hook 'pre-command-hook #'my-postpone-kicker))
 
 (defvar shutup-p nil)
@@ -374,7 +374,7 @@
 (when (autoload-if-found
        '(my-bm-toggle
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load bm-load-and-restore bm--save)
+         bm-repository-save bm-repository-load bm-load-and-restore)
        "bm" nil t)
 
   (with-eval-after-load "postpone"
@@ -409,7 +409,8 @@
             (bookmark-delete bm)
           (bookmark-set bm)))
       (bm-toggle)
-      (bm--save))
+      (bm-buffer-save-all)
+      (bm-repository-save))
 
     (defun my-bm-next ()
       "bm-next with org-mode"
@@ -1150,7 +1151,7 @@ This works also for other defined begin/end tokens to define the structure."
                       :underline nil)
   (setq header-line-format
         (concat
-         "                                                            "
+         " No day is a good day.                                       "
          (format-time-string "W%W: %Y-%m-%d %a."))))
 
 (with-eval-after-load "postpone"
@@ -1190,7 +1191,16 @@ This works also for other defined begin/end tokens to define the structure."
        '(my-toggle-display-line-numbers-mode)
        "display-line-numbers" nil t)
 
+  (with-eval-after-load "hl-line"
+    (custom-set-faces
+     `(line-number-current-line
+       ((t (:bold t :background ,(face-attribute 'hl-line :background)))))))
+
   (with-eval-after-load "display-line-numbers"
+    (custom-set-faces
+     '(line-number-current-line
+       ((t (:bold t)))))
+
     (custom-set-variables
      '(display-line-numbers-width-start t))
 
@@ -2273,6 +2283,13 @@ This works also for other defined begin/end tokens to define the structure."
                        (format "(%s) - " project-name))))
                   "%b")))))
 
+(when (autoload-if-found
+       '(magit-status)
+       "magit" nil t)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c m") 'magit-status)))
+
 (with-eval-after-load "postpone"
   (if (executable-find "editorconfig")
       (when (require 'editorconfig nil t)
@@ -2286,13 +2303,6 @@ This works also for other defined begin/end tokens to define the structure."
     (message "editorconfig is NOT installed.")))
 
 (autoload-if-found '(cov-mode) "cov" nil t)
-
-(when (autoload-if-found
-       '(magit-status)
-       "magit" nil t)
-
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c m") 'magit-status)))
 
 (with-eval-after-load "postpone"
   (require 'format-all nil t))
@@ -4191,7 +4201,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
   (defun my-theme (&optional type)
     (interactive "MType (light or dark): ")
-    (my-font-config)
     (setq my-frame-appearance
           (cond ((equal "light" type)
                  'light)
@@ -4209,6 +4218,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
              (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
                  (my-night-theme)
                (my-daylight-theme)))))
+    (my-font-config)
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
     (when (fboundp 'mac-get-current-input-source)
@@ -4218,7 +4228,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (my-theme))
 ;; (with-eval-after-load "postpone"
 ;;   (run-at-time "21:00" 86400 'my-theme)
-;;   (run-at-time "05:00" 86400 'my-theme)) ;; FIXME Make the frame blink!
+;;   (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
 
 (when (autoload-if-found
        '(rainbow-mode)

@@ -1,18 +1,27 @@
 ;; /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done ~/Dropbox/emacs.d/config/init.el
 
-(require 'postpone nil t) ;; as an entry point
-(require 'calfw-org nil t) ;; mode-map
-(require 'gnuplot-mode nil t) ;; mode-map
-(require 'latex-math-preview nil t) ;; mode-map
-(require 'org-tree-slide nil t) ;; mode-map
-(require 'ox-icalendar nil t) ;; mode-map
-(require 'perl-mode nil t) ;; mode-map
-(require 'python-mode nil t) ;; mode-map
-(require 'manage-minor-mode nil t) ;; mode-map
-(require 'view nil t) ;; map
-(require 'org-grep nil t) ;; defvar
-(require 'appt) ;; advice
-(require 'checkdoc) ;; advice
+;; as an entry point
+(require 'postpone nil t)
+
+;; mode-map
+(require 'calfw-org nil t)
+(require 'gnuplot-mode nil t)
+(require 'latex-math-preview nil t)
+(require 'org-tree-slide nil t)
+(require 'ox-icalendar nil t)
+(require 'perl-mode nil t)
+(require 'python-mode nil t)
+(require 'manage-minor-mode nil t)
+(require 'view nil t)
+
+;; def var
+(require 'org-grep nil t)
+
+;; advice
+(require 'appt)
+(require 'checkdoc)
+
+
 (require 'cl-lib nil t)
 (require 'doxymacs nil t)
 (require 'editorconfig nil t)
@@ -45,6 +54,7 @@
 (require 'cask nil t)
 (require 'fringe-helper nil t) ;; for git-gutter-fringe
 (require 'recentf nil t) ;; for org-recent-headings
+
 
 (if (require 'shut-up nil t)
     (progn

@@ -13,29 +13,29 @@
   "Boot menu selection: {debug, test, default}.")
 (defconst my-loading-packages nil) ;;`my-skip-autoload-file-check' shall be nil.
 ;; (setq my-loading-packages
-;;       '(("moom" . nil)
-;;         ("moom-font" . nil)
-;;         ("shut-up" . nil)
-;;         ("smart-mark" . nil)
-;;         ("subword" . nil)
-;;         ("syntax-subword" . nil)
-;;         ("smartparens" . nil)
-;;         ("selected" . nil)
-;;         ("help-fns" . nil)
-;;         ("help-fns+" . nil)
-;;         ("delight" . nil)
-;;         ("mic-paren" . nil)
-;;         ("backup-each-save" . nil)
-;;         ("auto-save-buffers" . nil)
-;;         ("editorconfig" . nil)
-;;         ("winner" . nil)
-;;         ("shackle" . nil)
-;;         ("pomodoro" . nil)
-;;         ))
+;;       ;;       '(("moom" . nil)
+;;       ;;         ("moom-font" . nil)
+;;       ;;         ("shut-up" . nil)
+;;       ;;         ("smart-mark" . nil)
+;;       ;;         ("subword" . nil)
+;;       ;;         ("syntax-subword" . nil)
+;;       ;;         ("smartparens" . nil)
+;;       ;;         ("selected" . nil)
+;;       ;;         ("help-fns" . nil)
+;;       ;;         ("help-fns+" . nil)
+;;       ;;         ("delight" . nil)
+;;       ;;         ("mic-paren" . nil)
+;;       ;;         ("backup-each-save" . nil)
+;;       ;;         ("auto-save-buffers" . nil)
+;;       ;;         ("editorconfig" . nil)
+;;       ;;         ("winner" . nil)
+;;       ;;         ("shackle" . nil)
+;;       ;;         ("pomodoro" . nil)
+;;       )
 (setq postpone-verbose nil
       my-mode-line-global-flag nil
       my-frame-appearance 'nil ;; {nil, 'dark, 'light}
-      my-skip-autoload-file-check t
+      my-skip-autoload-file-check my-loading-packages
       debug-on-error nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -54,7 +54,7 @@
 (unless (file-directory-p my-cask-package-dir)
   (user-error "%s does NOT exist" my-cask-package-dir))
 (my-path-setter
- `(,my-cask-package-dir)
+ `(,my-cask-package-dir "~/.emacs.d/lisp")
  'custom-theme-load-path)
 
 ;; (2) exec-path
@@ -65,6 +65,7 @@
    ,(expand-file-name "Dropbox/emacs.d/bin")
    "/usr/local/opt/llvm/bin"
    "/Applications/UpTex.app/teTeX/bin"
+   "/Applications/UpTeX.app/Contents/Resources/TEX/texbin"
    "/Applications/LibreOffice.app/Contents/MacOS/"
    "/Applications/qt_color_picker.app/Contents/MacOS/"
    "/usr/local/opt/imagemagick@6/bin")
