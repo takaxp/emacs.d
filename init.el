@@ -15,6 +15,17 @@
 
 (add-hook 'after-init-hook #'my-load-init-time t)
 
+(defvar my-tick-previous-time my-before-load-init-time)
+(defun my-tick-init-time (msg)
+  "Tick boot sequence."
+  (when nil
+    (let ((ctime (current-time)))
+      (message "--- %5.2f[ms] %s"
+               (* 1000 (float-time
+                        (time-subtract ctime my-tick-previous-time)))
+               msg)
+      (setq my-tick-previous-time ctime))))
+
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (message "Emacs booting time: %.0f [msec] = `emacs-init-time'."
@@ -25,18 +36,19 @@
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
-(defun ad:emacs-init-time ()
-  "Return a string giving the duration of the Emacs initialization."
-  (interactive)
-  (let ((str
-	       (format "%.3f seconds"
-		             (float-time
-		              (time-subtract after-init-time before-init-time)))))
-    (if (called-interactively-p 'interactive)
-        (message "%s" str)
-      str)))
+(with-eval-after-load "postpone"
+  (defun ad:emacs-init-time ()
+    "Return a string giving the duration of the Emacs initialization."
+    (interactive)
+    (let ((str
+           (format "%.3f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))))
+      (if (called-interactively-p 'interactive)
+          (message "%s" str)
+        str)))
 
-(advice-add 'emacs-init-time :override #'ad:emacs-init-time)
+  (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
 
 (setq gc-cons-threshold 134217728) ;; 128MB
 (setq garbage-collection-messages t)
@@ -69,17 +81,35 @@
       (autoload f file docstring interactive type))
     t))
 
-(defun future-time-p (time)
-  "Return non-nil if provided TIME formed of \"10:00\" is the future time."
-  (not (time-less-p
-        (apply 'encode-time
-               (let ((t1 (decode-time))
-                     (t2 (parse-time-string time)))
-                 (setf (nth 0 t1) 0)
-                 (setf (nth 1 t1) (nth 1 t2))
-                 (setf (nth 2 t1) (nth 2 t2))
-                 t1))
-        (current-time))))
+(if (not (locate-library "postpone"))
+    (message "postpone.el is NOT installed.")
+  (autoload 'postpone-kicker "postpone" nil t)
+  (defun my-postpone-kicker ()
+    (interactive)
+    (unless (memq this-command ;; specify commands for exclusion
+                  '(self-insert-command
+                    save-buffers-kill-terminal
+                    exit-minibuffer))
+      (message "Activating postponed packages...")
+      (let ((t1 (current-time)))
+        (postpone-kicker 'my-postpone-kicker)
+        (setq postpone-init-time (float-time
+                                  (time-subtract (current-time) t1))))
+      (message "Activating postponed packages...done")))
+  (add-hook 'pre-command-hook #'my-postpone-kicker))
+
+(with-eval-after-load "postpone"
+  (defun future-time-p (time)
+    "Return non-nil if provided TIME formed of \"10:00\" is the future time."
+    (not (time-less-p
+          (apply 'encode-time
+                 (let ((t1 (decode-time))
+                       (t2 (parse-time-string time)))
+                   (setf (nth 0 t1) 0)
+                   (setf (nth 1 t1) (nth 1 t2))
+                   (setf (nth 2 t1) (nth 2 t2))
+                   t1))
+          (current-time)))))
 ;; (when (future-time-p "10:00") (run-at-time...))
 
 (defvar window-focus-p t)
@@ -89,29 +119,14 @@
   (add-hook 'focus-in-hook (lambda () (setq window-focus-p t)))
   (add-hook 'focus-out-hook (lambda () (setq window-focus-p nil))))
 
-(if (not (locate-library "postpone"))
-    (message "postpone.el is NOT installed.")
-    (autoload 'postpone-kicker "postpone" nil t)
-    (defun my-postpone-kicker ()
-      (interactive)
-      (unless (memq this-command ;; specify commands for exclusion
-                    '(self-insert-command
-                      save-buffers-kill-terminal
-                      exit-minibuffer))
-        (message "Activating postponed packages...")
-        (let ((t1 (current-time)))
-          (postpone-kicker 'my-postpone-kicker)
-          (setq postpone-init-time (float-time
-                                    (time-subtract (current-time) t1))))
-        (message "Activating postponed packages...done")))
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
-
 (defvar shutup-p nil)
 (with-eval-after-load "postpone"
   (unless noninteractive
     (postpone-message "shut-up"))
   (setq shutup-p (when (require 'shut-up nil t) t)))
 (setq message-log-max 5000) ;; メッセージバッファの長さ
+
+(my-tick-init-time "startup")
 
 (prefer-coding-system 'utf-8-unix)
 ;; (set-language-environment "Japanese") ;; will take 20-30[ms]
@@ -172,7 +187,8 @@
 
 (setq compilation-scroll-output t)
 
-(setq confirm-kill-emacs 'yes-or-no-p)
+(with-eval-after-load "postpone"
+  (setq confirm-kill-emacs 'yes-or-no-p))
 
 (when (autoload-if-found '(cask-mode) "cask-mode" nil t)
   (push '("/Cask\\'" . cask-mode) auto-mode-alist))
@@ -181,23 +197,24 @@
        '(paradox-list-packages my-list-packages my-setup-cask)
        "paradox" nil t)
 
-  (defvar my-default-load-path nil)
-  (defun my-list-packages ()
-    "Call \\[paradox-list-packages]' if available instead of \\[list-packages]."
-    (interactive)
-    (setq my-default-load-path load-path)
-    (my-setup-cask)
-    (if (fboundp 'paradox-list-packages)
-        (paradox-list-packages nil)
-      (list-packages nil)))
+  (with-eval-after-load "postpone"
+    (defvar my-default-load-path nil)
+    (defun my-list-packages ()
+      "Call \\[paradox-list-packages]' if available instead of \\[list-packages]."
+      (interactive)
+      (setq my-default-load-path load-path)
+      (my-setup-cask)
+      (if (fboundp 'paradox-list-packages)
+          (paradox-list-packages nil)
+        (list-packages nil)))
 
-  (defun my-reset-load-path ()
-    "Revert `load-path' to `my-default-load-path'."
-    (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
-    (setq load-path my-default-load-path)
-    (message "--- Reverted to the original `load-path'."))
+    (defun my-reset-load-path ()
+      "Revert `load-path' to `my-default-load-path'."
+      (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
+      (setq load-path my-default-load-path)
+      (message "--- Reverted to the original `load-path'."))
 
-  (declare-function advice:paradox-quit-and-close "init" (kill))
+    (declare-function advice:paradox-quit-and-close "init" (kill)))
 
   (with-eval-after-load "paradox"
     (defun my-setup-cask ()
@@ -321,6 +338,8 @@
       "Restore the last IME status."
       (if my-ime-last (my-ime-on) (my-ime-off)))
     (add-hook 'focus-in-hook #'my-ns-ime-restore)))
+
+(my-tick-init-time "core")
 
 (with-eval-after-load "postpone"
   (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
@@ -460,6 +479,8 @@
     (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
     (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse)))
 
+(my-tick-init-time "point")
+
 (with-eval-after-load "postpone"
   (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent))
 
@@ -503,14 +524,15 @@
             (isearch-repeat-forward)))
       ad-do-it)))
 
-(add-hook 'change-log-mode-hook
-          (lambda()
+(with-eval-after-load "postpone"
+  (add-hook 'change-log-mode-hook
+            (lambda()
               (if (require 'orgalist nil t)
                   (when (boundp 'orgalist-mode)
                     (orgalist-mode 1))
                 (orgstruct-mode))
               (setq tab-width 4)
-              (setq left-margin 4)))
+              (setq left-margin 4))))
 
 (when (autoload-if-found
        '(modern-c++-font-lock-mode)
@@ -544,15 +566,16 @@
 
   (push '("\\.[rR]$" . R-mode) auto-mode-alist))
 
-(add-hook 'nxml-mode-hook
-          (lambda ()
+(with-eval-after-load "postpone"
+  (add-hook 'nxml-mode-hook
+            (lambda ()
               (define-key nxml-mode-map "\r" 'newline-and-indent)
               (auto-fill-mode -1)
               (setq indent-tabs-mode t)
               (setq nxml-slash-auto-complete-flag t)
               (setq tab-width 1)
               (setq nxml-child-indent 1)
-              (setq nxml-attribute-indent 0)))
+              (setq nxml-attribute-indent 0))))
 
 (when (autoload-if-found
        '(yaml-mode)
@@ -600,14 +623,15 @@
   (push '("\\.markdown$" . markdown-mode) auto-mode-alist)
   (push '("\\.md$" . markdown-mode) auto-mode-alist))
 
-(if (executable-find "cmake")
-    (when (autoload-if-found
-           '(cmake-mode)
-           "cmake-mode" nil t)
+(with-eval-after-load "postpone"
+  (if (executable-find "cmake")
+      (when (autoload-if-found
+             '(cmake-mode)
+             "cmake-mode" nil t)
 
-      (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
-      (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
-  (message "--- cmake is NOT installed."))
+        (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
+        (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
+    (message "--- cmake is NOT installed.")))
 
 (when (autoload-if-found
        '(logview-mode)
@@ -744,6 +768,7 @@
     (dolist (hook major-mode-with-flyspell)
       (add-hook (intern (format "%s-hook" hook))
                 (lambda () (flyspell-mode 1))))
+
     ;; コメント行のみをチェック対象にする
     (dolist (hook major-mode-with-flyspell-prog)
       (add-hook (intern (format "%s-hook" hook))
@@ -953,18 +978,19 @@ This works also for other defined begin/end tokens to define the structure."
     (setq emmet-indentation 2)
     (setq emmet-move-cursor-between-quotes t)))
 
-(if (executable-find "js-beautify")
-    (when (autoload-if-found
-           '(js2-mode)
-           "js2-mode" nil t)
+(with-eval-after-load "postpone"
+  (if (executable-find "js-beautify")
+      (when (autoload-if-found
+             '(js2-mode)
+             "js2-mode" nil t)
 
-      (with-eval-after-load "js2-mode"
-        (when (require 'web-beautify nil t)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))))
+        (with-eval-after-load "js2-mode"
+          (when (require 'web-beautify nil t)
+            (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
+            (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))))
 
-  (message "--- js-beautify is NOT installed.")
-  (message "--- Note: npm -g install js-beautify"))
+    (message "--- js-beautify is NOT installed.")
+    (message "--- Note: npm -g install js-beautify")))
 
 (with-eval-after-load "postpone"
   (when (require 'smartparens nil t)
@@ -1056,6 +1082,8 @@ This works also for other defined begin/end tokens to define the structure."
 
   (with-eval-after-load "postpone"
     (add-hook 'yatex-mode-hook #'bratex-config)))
+
+(my-tick-init-time "editing")
 
 (setq echo-keystrokes 0.5)
 
@@ -1579,6 +1607,8 @@ This works also for other defined begin/end tokens to define the structure."
     (add-hook 'minibuffer-setup-hook #'dimmer-off)
     (add-hook 'minibuffer-exit-hook #'dimmer-on)))
 
+(my-tick-init-time "presentation")
+
 (when (autoload-if-found
        '(emms-play-file
          emms-play-playlist emms-play-directory my-play-bgm
@@ -1619,6 +1649,8 @@ This works also for other defined begin/end tokens to define the structure."
       (emms-standard)
       (emms-default-players))
 
+    (unless noninteractive
+      (require 'org-emms nil t)) ;; emms のリンクに対応させる
     (require 'helm-emms nil t)
 
     (defun my-play-bgm ()
@@ -1665,12 +1697,13 @@ This works also for other defined begin/end tokens to define the structure."
   (with-eval-after-load "google-maps"
     (require 'org-location-google-maps nil t)))
 
-(if (executable-find "w3m")
-    (autoload-if-found
-     '(japanlaw)
-     "japanlaw" nil t)
+(with-eval-after-load "postpone"
+  (if (executable-find "w3m")
+      (autoload-if-found
+       '(japanlaw)
+       "japanlaw" nil t)
 
-  (message "--- w3m is NOT installed."))
+    (message "--- w3m is NOT installed.")))
 
 (when (autoload-if-found
        '(sunshine-forecast sunshine-quick-forecast)
@@ -1682,6 +1715,8 @@ This works also for other defined begin/end tokens to define the structure."
     (custom-set-variables
      '(sunshine-show-icons t)
      '(sunshine-units 'metric))))
+
+(my-tick-init-time "media")
 
 (setq history-length 2000)
 
@@ -2005,6 +2040,8 @@ This works also for other defined begin/end tokens to define the structure."
           (expand-file-name "~/Dropbox/emacs.d/.keyfreq"))
     (keyfreq-autosave-mode 1)))
 
+(my-tick-init-time "history")
+
 (with-eval-after-load "postpone"
   (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
   (global-set-key (kbd "C-c c") 'compile))
@@ -2079,6 +2116,9 @@ This works also for other defined begin/end tokens to define the structure."
     ;; 追加のメジャーモードを設定
     (add-to-list 'ac-modes 'objc-mode)
     (add-to-list 'ac-modes 'org-mode)
+    (add-to-list 'ac-modes 'latex-mode)
+    (require 'ac-math nil t)
+
     ;; ac-modes にあるメジャーモードで有効にする
     ;;lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
     (global-auto-complete-mode t)
@@ -2131,6 +2171,18 @@ This works also for other defined begin/end tokens to define the structure."
                          )))))
 
 (when (autoload-if-found
+       '(origami-mode origami-toggle-node)
+       "origami" nil t)
+
+  (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook yatex-mode-hook))
+    (add-hook hook #'origami-mode))
+
+  (with-eval-after-load "origami"
+    (define-key origami-mode-map (kbd "C-t") #'origami-toggle-node)
+    (define-key origami-mode-map (kbd "C-u C-t")
+      #'origami-toggle-all-nodes)))
+
+(when (autoload-if-found
        '(auto-complete ac-cc-mode-setup)
        "auto-complete" nil t)
 
@@ -2152,18 +2204,6 @@ This works also for other defined begin/end tokens to define the structure."
         (setq ac-sources '(ac-source-clang
                            ac-source-yasnippet
                            ac-source-gtags))))))
-
-(when (autoload-if-found
-       '(origami-mode origami-toggle-node)
-       "origami" nil t)
-
-  (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook yatex-mode-hook))
-    (add-hook hook #'origami-mode))
-
-  (with-eval-after-load "origami"
-    (define-key origami-mode-map (kbd "C-t") #'origami-toggle-node)
-    (define-key origami-mode-map (kbd "C-u C-t")
-      #'origami-toggle-all-nodes)))
 
 (when (autoload-if-found
        '(quickrun)
@@ -2287,8 +2327,13 @@ This works also for other defined begin/end tokens to define the structure."
        '(magit-status)
        "magit" nil t)
 
+  (global-set-key (kbd "C-c m") 'magit-status)
+
   (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c m") 'magit-status)))
+    (require 'helm-config nil t) ;; プロジェクト一覧に helm を適用する
+    (setq magit-repository-directories
+          '(("~/devel/git" . 1)
+            ("~/devel/mygit" . 1)))))
 
 (with-eval-after-load "postpone"
   (if (executable-find "editorconfig")
@@ -2308,6 +2353,8 @@ This works also for other defined begin/end tokens to define the structure."
   (require 'format-all nil t))
 
 (autoload-if-found '(rmsbolt-mode) "rmsbolt" nil t)
+
+(my-tick-init-time "development")
 
 (when (autoload-if-found
        '(org-mode)
@@ -2329,19 +2376,25 @@ This works also for other defined begin/end tokens to define the structure."
     (global-set-key (kbd "C-c l") 'org-store-link)
     (global-set-key (kbd "C-c a") 'org-agenda))
 
+  (with-eval-after-load "ox"
+    (add-to-list 'org-modules 'ox-odt)
+    (add-to-list 'org-modules 'ox-org))
+
   (with-eval-after-load "org"
+
     ;; 関連モジュールの読み込み
-    (require 'org-habit nil t)
+    (add-to-list 'org-modules 'org-habit)
     (require 'org-mobile nil t)
     (require 'org-eldoc nil t) ;; org-eldoc を読み込む
-    (unless noninteractive
-      (require 'org-emms nil t)) ;; emms のリンクに対応させる
 
+    ;; モジュールの追加
     (add-to-list 'org-modules 'org-id)
-    (add-to-list 'org-modules 'ox-odt)
-    (add-to-list 'org-modules 'ox-org)
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
+
+    ;; 不必要なモジュールの読み込みを停止する
+    (setq org-modules (delete 'org-gnus org-modules))
+    ;; (setq org-modules (delete 'org-bibtex org-modules))
 
     ;; org ファイルの集中管理
     (setq org-directory "~/Dropbox/org/")
@@ -2388,9 +2441,6 @@ This works also for other defined begin/end tokens to define the structure."
 
     ;; 1分未満は記録しない
     (setq org-clock-out-remove-zero-time-clocks t)
-
-    ;; helm を立ち上げる
-    (require 'helm-config nil t)
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -2588,7 +2638,7 @@ This works also for other defined begin/end tokens to define the structure."
           ("emacs"       :foreground "#6633CC")
           ("note"        :foreground "#6633CC")
           ("print"       :foreground "#6633CC")
-          ("Study"       :foreground "#6666CC")
+          ("study"       :foreground "#6666CC")
           ("Implements"  :foreground "#CC9999" :weight bold)
           ("Coding"      :foreground "#CC9999")
           ("Editing"     :foreground "#CC9999" :weight bold)
@@ -2892,7 +2942,28 @@ will not be modified."
       (when (future-time-p triger)
         (run-at-time triger nil 'my-popup-agenda))))
   (my-popup-agenda-set-timers)
-  (run-at-time "24:00" nil 'my-popup-agenda-set-timers)) ;; for next day
+  (run-at-time "24:00" nil 'my-popup-agenda-set-timers)
+
+;; ついでに calendar.app も定期的に強制起動する
+  (defun my-popup-calendar ()
+    (interactive)
+    (if (and (eq system-type 'darwin)
+             (window-focus-p))
+        (shell-command-to-string "open -a calendar.app")
+      (message "--- input focus is currently OUT.")))
+
+  (defun my-popup-calendar-set-timers ()
+    (interactive)
+    (cancel-function-timers 'my-popup-calendar)
+    (dolist (triger my-org-agenda-auto-popup-list)
+      (when (future-time-p triger)
+        (run-at-time triger nil 'my-popup-calendar))))
+
+  (when (memq window-system '(mac ns))
+    (my-popup-calendar-set-timers)
+    (run-at-time "24:00" nil 'my-popup-calendar-set-timers))
+
+) ;; for next day
 
 ;; Doing 管理
 (with-eval-after-load "org"
@@ -2920,26 +2991,7 @@ will not be modified."
                                (concat ":" my-doing-tag ":")
                                (org-get-tags-string))
                               'off 'on))))
-      (org-reveal)))
-
-  ;; ついでに calendar.app も定期的に強制起動する
-  (defun my-popup-calendar ()
-    (interactive)
-    (if (and (eq system-type 'darwin)
-             (window-focus-p))
-        (shell-command-to-string "open -a calendar.app")
-      (message "--- input focus is currently OUT.")))
-
-  (defun my-popup-calendar-set-timers ()
-    (interactive)
-    (cancel-function-timers 'my-popup-calendar)
-    (dolist (triger my-org-agenda-auto-popup-list)
-      (when (future-time-p triger)
-        (run-at-time triger nil 'my-popup-calendar))))
-
-  (when (memq window-system '(mac ns))
-    (my-popup-calendar-set-timers)
-    (run-at-time "24:00" nil 'my-popup-calendar-set-timers))) ;; for next day
+      (org-reveal))))
 
 (with-eval-after-load "org"
   (require 'orgbox nil t))
@@ -3067,11 +3119,11 @@ update it for multiple appts?")
               (outline-backward-same-level 1)
             (outline-up-heading 1))
           (org-update-statistics-cookies nil) ;; Update in source
-          (org-sort-entries nil ?O)
+          ;; (org-sort-entries nil ?O)
           (org-refile-goto-last-stored)
           (org-update-parent-todo-statistics) ;; Update in destination
           (outline-up-heading 1)
-          (org-sort-entries nil ?O)
+          (org-sort-entries nil ?o)
           (unless (equal b (buffer-name))
             (switch-to-buffer b)))
         (setq org-refile-history nil)
@@ -3100,22 +3152,19 @@ update it for multiple appts?")
     (message "--- ditaa is NOT installed."))
 
   ;; Add ":results output" after program name
+
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((dot . t)
+   '((emacs-lisp . t)
+     (dot . t)
      (C . t)
      (ditaa . t)
-     (gnuplot . t)
      (perl . t)
      (shell . t)
      (latex . t)
      (sqlite . t)
      (R . t)
      (python . t)))
-  ;; (require 'ob-C nil t)
-  ;; (require 'ob-perl nil t)
-  ;; (require 'ob-sh nil t)
-  ;; (require 'ob-python nil t)
 
   ;; 実装済みの言語に好きな名前を紐付ける
   (add-to-list 'org-src-lang-modes '("cs" . csharp))
@@ -3127,14 +3176,15 @@ update it for multiple appts?")
                    '("S" . "src emacs-lisp")
                  '("S" "#+begin_src emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
 
-(custom-set-faces
- '(org-block-begin-line
-   ((((background dark))
-     (:foreground "#669966" :weight bold)) ;; :background "#444444"
-    (t (:inherit org-meta-line :weight bold))) ;; :background "#EFEFEF"
-   (org-block-end-line
-    ((((background dark)) (:inherit org-block-begin-line))
-     (t (:inherit org-block-begin-line))))))
+(with-eval-after-load "org"
+  (custom-set-faces
+   '(org-block-begin-line
+     ((((background dark))
+       (:foreground "#669966" :weight bold)) ;; :background "#444444"
+      (t (:inherit org-meta-line :weight bold))) ;; :background "#EFEFEF"
+     (org-block-end-line
+      ((((background dark)) (:inherit org-block-begin-line))
+       (t (:inherit org-block-begin-line)))))))
 
 (when (autoload-if-found
        '(org-tree-slide-mode)
@@ -3506,6 +3556,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (org-map-entries
          (lambda () (my-org-custom-id-get (point) 'create)))))))
 
+(with-eval-after-load "ob-core"
+  (when (require 'ob-async nil t)
+    (custom-set-variables
+     '(ob-async-no-async-languages-alist '("ipython")))))
+
 (when (autoload-if-found
        '(org-tree-slide-mode)
        "org-tree-slide" nil t)
@@ -3601,7 +3656,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
      "papers3"
      :follow (lambda (path)
                (let ((cmd (concat "open papers3:" path)))
-                 (shell-command-to-string cmd)
+                 (shell-command-to-string (shell-quote-argument cmd))
                  (message "%s" cmd))))))
 
 (when (autoload-if-found
@@ -3678,6 +3733,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (org-attach-screenshot t (format-time-string
                                 "screenshot-%Y%m%d-%H%M%S.png")))))
 
+(my-tick-init-time "Org Mode")
+
 (cond
  ((memq window-system '(mac ns)) ;; for Macintosh
   (setq initial-frame-alist
@@ -3714,8 +3771,9 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)
-(set-face-foreground 'vertical-border (face-background 'default))
-(set-face-background 'vertical-border (face-background 'default))
+(with-eval-after-load "postpone"
+  (set-face-foreground 'vertical-border (face-background 'default))
+  (set-face-background 'vertical-border (face-background 'default)))
 ;; (set-face-background 'fringe (face-background 'default))
 
 ;; カーソルの色
@@ -3725,151 +3783,152 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (defconst my-cursor-type-ime-off '(bar . 2)) ;; '(hbar . 10)
 (defvar my-ime-last nil)
 
-(cond
- ((or (eq window-system 'ns)
-      (fboundp 'mac-get-current-input-source))
-  (when (fboundp 'mac-set-input-method-parameter)
-    (mac-set-input-method-parameter
-     "com.google.inputmethod.Japanese.base" 'title "あ"))
+(with-eval-after-load "postpone"
+  (cond
+   ((or (eq window-system 'ns)
+        (fboundp 'mac-get-current-input-source))
+    (when (fboundp 'mac-set-input-method-parameter)
+      (mac-set-input-method-parameter
+       "com.google.inputmethod.Japanese.base" 'title "あ"))
 
-  (when (fboundp 'mac-get-current-input-source)
-    (declare-function ad:mac-toggle-input-method "init" nil)
-    (declare-function my-apply-cursor-config "init" nil)
-    (declare-function my-ime-on "init" nil)
-    (declare-function my-ime-off "init" nil)
-    (declare-function my-ime-active-p "init" nil)
+    (when (fboundp 'mac-get-current-input-source)
+      (declare-function ad:mac-toggle-input-method "init" nil)
+      (declare-function my-apply-cursor-config "init" nil)
+      (declare-function my-ime-on "init" nil)
+      (declare-function my-ime-off "init" nil)
+      (declare-function my-ime-active-p "init" nil)
 
-    (defun my-ime-active-p ()
-      (not (string-match "\\.Roman$" (mac-get-current-input-source))))
+      (defun my-ime-active-p ()
+        (not (string-match "\\.Roman$" (mac-get-current-input-source))))
 
-    (setq my-ime-last (my-ime-active-p))
-    (defvar my-ime-on-hook nil)
-    (defvar my-ime-off-hook nil)
+      (setq my-ime-last (my-ime-active-p))
+      (defvar my-ime-on-hook nil)
+      (defvar my-ime-off-hook nil)
 
-    (defun my-ime-on ()
-      (interactive)
-      (when (fboundp 'mac-toggle-input-method)
-        (mac-toggle-input-method t))
-      (setq cursor-type my-cursor-type-ime-on)
-      (set-cursor-color my-cursor-color-ime-on)
-      (setq my-ime-last t)
-      (run-hooks 'my-ime-on-hook))
+      (defun my-ime-on ()
+        (interactive)
+        (when (fboundp 'mac-toggle-input-method)
+          (mac-toggle-input-method t))
+        (setq cursor-type my-cursor-type-ime-on)
+        (set-cursor-color my-cursor-color-ime-on)
+        (setq my-ime-last t)
+        (run-hooks 'my-ime-on-hook))
 
-    (defun my-ime-off ()
-      (interactive)
-      (when (fboundp 'mac-toggle-input-method)
-        (mac-toggle-input-method nil))
-      (setq cursor-type my-cursor-type-ime-off)
-      (set-cursor-color my-cursor-color-ime-off)
-      (setq my-ime-last nil)
-      (run-hooks 'my-ime-off-hook))
+      (defun my-ime-off ()
+        (interactive)
+        (when (fboundp 'mac-toggle-input-method)
+          (mac-toggle-input-method nil))
+        (setq cursor-type my-cursor-type-ime-off)
+        (set-cursor-color my-cursor-color-ime-off)
+        (setq my-ime-last nil)
+        (run-hooks 'my-ime-off-hook))
 
-    (defvar my-ime-flag nil)
-    (add-hook 'activate-mark-hook
-              (lambda ()
+      (defvar my-ime-flag nil)
+      (add-hook 'activate-mark-hook
+                (lambda ()
                   (when (setq my-ime-flag (my-ime-active-p))
                     (my-ime-off))))
-    (add-hook 'deactivate-mark-hook
-              (lambda ()
+      (add-hook 'deactivate-mark-hook
+                (lambda ()
                   (when my-ime-flag
                     (my-ime-on))))
 
-    (defun ad:mac-toggle-input-method (&optional arg)
-      "Run hooks when IME changes."
-      (interactive)
-      (if arg
+      (defun ad:mac-toggle-input-method (&optional arg)
+        "Run hooks when IME changes."
+        (interactive)
+        (if arg
+            (progn
+              (setq cursor-type my-cursor-type-ime-on)
+              (set-cursor-color my-cursor-color-ime-on)
+              (run-hooks 'my-ime-on-hook))
           (progn
-            (setq cursor-type my-cursor-type-ime-on)
-            (set-cursor-color my-cursor-color-ime-on)
-            (run-hooks 'my-ime-on-hook))
-        (progn
+            (setq cursor-type my-cursor-type-ime-off)
+            (set-cursor-color my-cursor-color-ime-off)
+            (run-hooks 'my-ime-off-hook))))
+      (advice-add 'mac-toggle-input-method
+                  :before #'ad:mac-toggle-input-method)
+
+      ;; for init setup
+      (setq-default cursor-type my-cursor-type-ime-on)
+
+      (when (boundp 'mac-ime-cursor-type) ;; private patch
+        (setq mac-ime-cursor-type my-cursor-type-ime-on))
+
+      (defun my-apply-cursor-config ()
+        (interactive)
+        (if (my-ime-active-p)
+            (progn
+              (setq cursor-type my-cursor-type-ime-on)
+              (set-cursor-color my-cursor-color-ime-on))
           (setq cursor-type my-cursor-type-ime-off)
-          (set-cursor-color my-cursor-color-ime-off)
-          (run-hooks 'my-ime-off-hook))))
-    (advice-add 'mac-toggle-input-method
-                :before #'ad:mac-toggle-input-method)
+          (set-cursor-color my-cursor-color-ime-off)))
+      ;; (my-apply-cursor-config) will be called later in this file.
 
-    ;; for init setup
-    (setq-default cursor-type my-cursor-type-ime-on)
+      (with-eval-after-load "postpone"
+        (run-with-idle-timer 3 t #'my-apply-cursor-config))
 
-    (when (boundp 'mac-ime-cursor-type) ;; private patch
-      (setq mac-ime-cursor-type my-cursor-type-ime-on))
-
-    (defun my-apply-cursor-config ()
-      (interactive)
-      (if (my-ime-active-p)
-          (progn
-            (setq cursor-type my-cursor-type-ime-on)
-            (set-cursor-color my-cursor-color-ime-on))
-        (setq cursor-type my-cursor-type-ime-off)
-        (set-cursor-color my-cursor-color-ime-off)))
-    ;; (my-apply-cursor-config) will be called later in this file.
-
-    (with-eval-after-load "postpone"
-      (run-with-idle-timer 3 t #'my-apply-cursor-config))
-
-    ;; Enter minibuffer with IME-off, and resture the latest IME
-    (add-hook 'minibuffer-setup-hook
-              (lambda ()
+      ;; Enter minibuffer with IME-off, and resture the latest IME
+      (add-hook 'minibuffer-setup-hook
+                (lambda ()
                   (if (not (my-ime-active-p))
                       (setq my-ime-flag nil)
                     (setq my-ime-flag t)
                     (my-ime-off))))
-    (add-hook 'minibuffer-exit-hook
-              (lambda ()
+      (add-hook 'minibuffer-exit-hook
+                (lambda ()
                   (when my-ime-flag
                     (my-ime-on))))
 
-    ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
-    ;;   "Extension to find-file as before-find-file-hook."
-    ;;   (message "--- ad:findfile")
-    ;;   (apply FILENAME WILDCARDS))
-    ;; (advice-add #'find-file :around #'ad:find-file)
+      ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
+      ;;   "Extension to find-file as before-find-file-hook."
+      ;;   (message "--- ad:findfile")
+      ;;   (apply FILENAME WILDCARDS))
+      ;; (advice-add #'find-file :around #'ad:find-file)
 
-    ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-    ;; バッファ切替時に input method を切り替える
-    ;; (with-eval-after-load "postpone"
-    ;;   (when (and (fboundp 'mac-handle-input-method-change)
-    ;;              (require 'cl nil t))
-    ;;     (add-hook
-    ;;      'post-command-hook
-    ;;      (lexical-let ((previous-buffer nil))
-    ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
-    ;;        (lambda ()
-    ;;            (unless (eq (current-buffer) previous-buffer)
-    ;;              (when (bufferp previous-buffer)
-    ;;                (mac-handle-input-method-change))
-    ;;              (setq previous-buffer (current-buffer))))))))
-    ))
+      ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
+      ;; バッファ切替時に input method を切り替える
+      ;; (with-eval-after-load "postpone"
+      ;;   (when (and (fboundp 'mac-handle-input-method-change)
+      ;;              (require 'cl nil t))
+      ;;     (add-hook
+      ;;      'post-command-hook
+      ;;      (lexical-let ((previous-buffer nil))
+      ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
+      ;;        (lambda ()
+      ;;            (unless (eq (current-buffer) previous-buffer)
+      ;;              (when (bufferp previous-buffer)
+      ;;                (mac-handle-input-method-change))
+      ;;              (setq previous-buffer (current-buffer))))))))
+      ))
 
- ((eq window-system 'mac) ;; EMP: Emacs Mac Port
-  (when (fboundp 'mac-input-source)
-    (defun my-mac-keyboard-input-source ()
-      (if (string-match "\\.Roman$" (mac-input-source))
+   ((eq window-system 'mac) ;; EMP: Emacs Mac Port
+    (when (fboundp 'mac-input-source)
+      (defun my-mac-keyboard-input-source ()
+        (if (string-match "\\.Roman$" (mac-input-source))
+            (progn
+              (setq cursor-type my-cursor-type-ime-off)
+              (add-to-list 'default-frame-alist
+                           `(cursor-type . ,my-cursor-type-ime-off))
+              (set-cursor-color my-cursor-color-ime-off))
           (progn
-            (setq cursor-type my-cursor-type-ime-off)
+            (setq cursor-type my-cursor-type-ime-on)
             (add-to-list 'default-frame-alist
-                         `(cursor-type . ,my-cursor-type-ime-off))
-            (set-cursor-color my-cursor-color-ime-off))
-        (progn
-          (setq cursor-type my-cursor-type-ime-on)
-          (add-to-list 'default-frame-alist
-                       `(cursor-type . ,my-cursor-type-ime-on))
-          (set-cursor-color my-cursor-color-ime-on))))
+                         `(cursor-type . ,my-cursor-type-ime-on))
+            (set-cursor-color my-cursor-color-ime-on))))
 
-    (when (fboundp 'mac-auto-ascii-mode)
-      ;; (mac-auto-ascii-mode 1)
-      ;; IME ON/OFF でカーソルの種別や色を替える
-      (add-hook 'mac-selected-keyboard-input-source-change-hook
-                #'my-mac-keyboard-input-source)
-      ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
-      ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
-      ;;           #'my-mac-keyboard-input-source)
+      (when (fboundp 'mac-auto-ascii-mode)
+        ;; (mac-auto-ascii-mode 1)
+        ;; IME ON/OFF でカーソルの種別や色を替える
+        (add-hook 'mac-selected-keyboard-input-source-change-hook
+                  #'my-mac-keyboard-input-source)
+        ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
+        ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
+        ;;           #'my-mac-keyboard-input-source)
 
-      (declare-function my-mac-keyboard-input-source "init" nil)
-      (my-mac-keyboard-input-source))))
+        (declare-function my-mac-keyboard-input-source "init" nil)
+        (my-mac-keyboard-input-source))))
 
- (t nil))
+   (t nil)))
 
 (declare-function my-theme "init" nil)
 (with-eval-after-load "postpone"
@@ -3897,9 +3956,10 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (with-eval-after-load "postpone"
     (unless noninteractive
+      (my-font-config) ;; this could increase `postpone-init-time'.
       (postpone-message "moom"))
-    (when (and (require 'moom nil t)
-               window-system)
+    (when (and window-system
+               (require 'moom nil t))
       (setq moom-lighter "M")
       (setq moom-verbose t)
       (let ((moom-verbose nil))
@@ -4024,6 +4084,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (advice-add 'checkdoc :before #'ad:checkdoc))
 
+(my-tick-init-time "frame and window")
+
 (with-eval-after-load "postpone"
   (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
   (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC"))
@@ -4040,10 +4102,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (setq hl-line-face 'underline))
   (global-hl-line-mode 1))
 
-(custom-set-faces
- '(hl-line
-   ((((background dark)) :background "#484c5c")
-    (t (:background "#DEEDFF")))))
+(with-eval-after-load "postpone"
+  (custom-set-faces
+   '(hl-line
+     ((((background dark)) :background "#484c5c")
+      (t (:background "#DEEDFF"))))))
 
 (with-eval-after-load "postpone"
   (setq blink-cursor-blinks 0)
@@ -4154,39 +4217,40 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                       :background "white" :weight 'extra-bold
                       :inherit nil))
 
-;;;###autoload
-(defun my-daylight-theme ()
-  (interactive)
-  (when (require 'daylight-theme nil t)
-    (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'daylight t)
-    (setq default-frame-alist
-          (delete (assoc 'ns-appearance default-frame-alist)
-                  default-frame-alist))
-    (setq default-frame-alist
-          (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                  default-frame-alist))
-    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-    (add-to-list 'default-frame-alist '(ns-appearance . light))
-    (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                   (ns-appearance . light)))))
+(declare-function my-daylight-theme "init" nil)
+(declare-function my-night-theme "init" nil)
+(when (display-graphic-p)
+  (defun my-daylight-theme ()
+    (interactive)
+    (when (require 'daylight-theme nil t)
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'daylight t)
+      (setq default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (setq default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . light))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . light)))))
 
-;;;###autoload
-(defun my-night-theme ()
-  (interactive)
-  (when (require 'night-theme nil t) ;; atom-one-dark-theme
-    (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'night t)
-    (setq default-frame-alist
-          (delete (assoc 'ns-appearance default-frame-alist)
-                  default-frame-alist))
-    (setq default-frame-alist
-          (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                  default-frame-alist))
-    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-    (add-to-list 'default-frame-alist '(ns-appearance . dark))
-    (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                   (ns-appearance . dark)))))
+  (defun my-night-theme ()
+    (interactive)
+    (when (require 'night-theme nil t) ;; atom-one-dark-theme
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'night t)
+      (setq default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (setq default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . dark))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . dark))))))
 
 (when (display-graphic-p)
   (declare-function my-night-time-p "init" (begin end))
@@ -4218,14 +4282,17 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
              (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
                  (my-night-theme)
                (my-daylight-theme)))))
-    (my-font-config)
-    ;; remove unintentional colored frame border
-    (select-frame-set-input-focus (selected-frame))
-    (when (fboundp 'mac-get-current-input-source)
-      (my-apply-cursor-config))) ;; apply font setting
+    (unless noninteractive
+      (my-font-config)
+      ;; remove unintentional colored frame border
+      (select-frame-set-input-focus (selected-frame))
+      (when (fboundp 'mac-get-current-input-source)
+        (my-apply-cursor-config)))) ;; apply font setting
 
   ;; init. This may override or reset font setting
-  (my-theme))
+  (with-eval-after-load "postpone"
+    (my-theme)))
+
 ;; (with-eval-after-load "postpone"
 ;;   (run-at-time "21:00" 86400 'my-theme)
 ;;   (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
@@ -4289,6 +4356,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (org-yank)
         (when window-system
           (my-vhl-change-color))))))
+
+(my-tick-init-time "font")
 
 (when (autoload-if-found
        '(pomodoro:start)
@@ -4627,7 +4696,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (with-eval-after-load "multi-term"
     (setenv "HOSTTYPE" "intel-mac")
-    (my-night-theme)))
+    (when (display-graphic-p)
+      (my-night-theme))))
 
 (when (autoload-if-found
        '(osx-lib-say osx-lib-say-region)
@@ -4781,4 +4851,5 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (advice-add 'network-watch-update-lighter
                 :override #'ad:network-watch-update-lighter)))
 
+(my-tick-init-time "utility")
 (provide 'init)

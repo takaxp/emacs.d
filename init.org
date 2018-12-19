@@ -76,6 +76,17 @@
              (* 1000 time1) (* 1000 (- time2 time1)))))
 
 (add-hook 'after-init-hook #'my-load-init-time t)
+
+(defvar my-tick-previous-time my-before-load-init-time)
+(defun my-tick-init-time (msg)
+  "Tick boot sequence."
+  (when nil
+    (let ((ctime (current-time)))
+      (message "--- %5.2f[ms] %s"
+               (* 1000 (float-time
+                        (time-subtract ctime my-tick-previous-time)))
+               msg)
+      (setq my-tick-previous-time ctime))))
 #+end_src
 
 =after-init-hook= の値をチェックして， =my-load-init-time= が最後に配置されていることに留意します．以下は， =after-init-hook= の値の例です．
@@ -132,18 +143,19 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 ついでに， =%.1f= で出力されるいつもの =emacs-init-time= をハック．
 
 #+begin_src emacs-lisp :tangle yes
-(defun ad:emacs-init-time ()
-  "Return a string giving the duration of the Emacs initialization."
-  (interactive)
-  (let ((str
-	       (format "%.3f seconds"
-		             (float-time
-		              (time-subtract after-init-time before-init-time)))))
-    (if (called-interactively-p 'interactive)
-        (message "%s" str)
-      str)))
+(with-eval-after-load "postpone"
+  (defun ad:emacs-init-time ()
+    "Return a string giving the duration of the Emacs initialization."
+    (interactive)
+    (let ((str
+           (format "%.3f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))))
+      (if (called-interactively-p 'interactive)
+          (message "%s" str)
+        str)))
 
-(advice-add 'emacs-init-time :override #'ad:emacs-init-time)
+  (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
 #+end_src
 
 ** GCサイズの最適化
@@ -339,6 +351,37 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 =locate-library= は，高速化を求める状況では，意外と高コストです．なので，それらを評価しないためのフラグ =skip-file-checking= を追加しました．各パッケージの設定は，基本的に =with-eval-after-load= に括られていることを前提にすれば，起動が停止する自体は避けられるので，悪くない選択です．もし変なことになってしまっても， =skip-file-checking= を =nil= にすれば，従来のようにパッケージの存在を確認し，安全に起動できます．
 
+** [postpone.el] Emacs起動してから使い始めるタイミングで実行する
+   :PROPERTIES:
+   :CREATED:  [2018-03-14 Wed 15:03]
+   :CUSTOM_ID: orga2859651
+   :END:
+
+ - [[https://github.com/takaxp/postpone][takaxp/postpone: Call functions just one time at your first action in Emacs]]
+
+=helm-config= に紐付けていた遅延呼び出し関数および設定を，自作の =postpone.el= に紐付けました． =helm-config= に紐付けていた時は， =M-x= を初めて使う時に複数の設定が読み込まれましたが，今回の設定では，Emacs起動後の最初のアクション時に読み込まれます（一部のコマンドを除く）．これには =M-x= も含まれます．この =init.el= に記載された遅延読み込みは約660[ms]にも及びます．通常起動では約400[ms]を要している（コンソール起動の場合は，約100[ms]）ので，もし遅延読み込みしなければ，Emacsの起動が1秒を超えてしまうことになります．
+
+起動後，即座にEmacs終了するシーンでは， =postpone.el= に紐付けた設定が活性化すると無駄になります．それを回避するために， =this-command= の値を確認して，条件に合う場合だけ =postpone.el= が読み込まれる（結果的に紐付いている全ての設定が活性化する）ようにしています．
+
+#+begin_src emacs-lisp :tangle yes
+(if (not (locate-library "postpone"))
+    (message "postpone.el is NOT installed.")
+  (autoload 'postpone-kicker "postpone" nil t)
+  (defun my-postpone-kicker ()
+    (interactive)
+    (unless (memq this-command ;; specify commands for exclusion
+                  '(self-insert-command
+                    save-buffers-kill-terminal
+                    exit-minibuffer))
+      (message "Activating postponed packages...")
+      (let ((t1 (current-time)))
+        (postpone-kicker 'my-postpone-kicker)
+        (setq postpone-init-time (float-time
+                                  (time-subtract (current-time) t1))))
+      (message "Activating postponed packages...done")))
+  (add-hook 'pre-command-hook #'my-postpone-kicker))
+#+end_src
+
 ** [future-time-p] 指定時刻が本日の未来の時刻かを判定
    :PROPERTIES:
    :CUSTOM_ID: org124f13e2
@@ -348,17 +391,18 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． =run-at-time= が想定通りに動かず，起動時に =run-at-time= に登録した関数が走ってしまうので，この判定が =non-nil= の時だけタイマー登録します． =time= を ~HH:MM~ の書式で与えます．指定時刻と現在時刻が同じ場合は，過去とみなします．
 
 #+begin_src emacs-lisp :tangle yes
-(defun future-time-p (time)
-  "Return non-nil if provided TIME formed of \"10:00\" is the future time."
-  (not (time-less-p
-        (apply 'encode-time
-               (let ((t1 (decode-time))
-                     (t2 (parse-time-string time)))
-                 (setf (nth 0 t1) 0)
-                 (setf (nth 1 t1) (nth 1 t2))
-                 (setf (nth 2 t1) (nth 2 t2))
-                 t1))
-        (current-time))))
+(with-eval-after-load "postpone"
+  (defun future-time-p (time)
+    "Return non-nil if provided TIME formed of \"10:00\" is the future time."
+    (not (time-less-p
+          (apply 'encode-time
+                 (let ((t1 (decode-time))
+                       (t2 (parse-time-string time)))
+                   (setf (nth 0 t1) 0)
+                   (setf (nth 1 t1) (nth 1 t2))
+                   (setf (nth 2 t1) (nth 2 t2))
+                   t1))
+          (current-time)))))
 ;; (when (future-time-p "10:00") (run-at-time...))
 #+end_src
 
@@ -395,37 +439,6 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
     (if window-focus-p t nil))
   (add-hook 'focus-in-hook (lambda () (setq window-focus-p t)))
   (add-hook 'focus-out-hook (lambda () (setq window-focus-p nil))))
-#+end_src
-
-** [postpone.el] Emacs起動してから使い始めるタイミングで実行する
-   :PROPERTIES:
-   :CREATED:  [2018-03-14 Wed 15:03]
-   :CUSTOM_ID: orga2859651
-   :END:
-
- - [[https://github.com/takaxp/postpone][takaxp/postpone: Call functions just one time at your first action in Emacs]]
-
-=helm-config= に紐付けていた遅延呼び出し関数および設定を，自作の =postpone.el= に紐付けました． =helm-config= に紐付けていた時は， =M-x= を初めて使う時に複数の設定が読み込まれましたが，今回の設定では，Emacs起動後の最初のアクション時に読み込まれます（一部のコマンドを除く）．これには =M-x= も含まれます．この =init.el= に記載された遅延読み込みは約660[ms]にも及びます．通常起動では約400[ms]を要している（コンソール起動の場合は，約100[ms]）ので，もし遅延読み込みしなければ，Emacsの起動が1秒を超えてしまうことになります．
-
-起動後，即座にEmacs終了するシーンでは， =postpone.el= に紐付けた設定が活性化すると無駄になります．それを回避するために， =this-command= の値を確認して，条件に合う場合だけ =postpone.el= が読み込まれる（結果的に紐付いている全ての設定が活性化する）ようにしています．
-
-#+begin_src emacs-lisp :tangle yes
-(if (not (locate-library "postpone"))
-    (message "postpone.el is NOT installed.")
-    (autoload 'postpone-kicker "postpone" nil t)
-    (defun my-postpone-kicker ()
-      (interactive)
-      (unless (memq this-command ;; specify commands for exclusion
-                    '(self-insert-command
-                      save-buffers-kill-terminal
-                      exit-minibuffer))
-        (message "Activating postponed packages...")
-        (let ((t1 (current-time)))
-          (postpone-kicker 'my-postpone-kicker)
-          (setq postpone-init-time (float-time
-                                    (time-subtract (current-time) t1))))
-        (message "Activating postponed packages...done")))
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
 #+end_src
 
 ** [shut-up.el] Messages 出力を封じる（制御する）
@@ -626,6 +639,9 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
   :PROPERTIES:
   :CUSTOM_ID: org8e58f563
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "startup")
+#+end_src
 
 Emacs を操作して文書編集する上で欠かせない設定です．
 
@@ -807,7 +823,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 =y-or-n-p= もしくは =yes-or-no-p= を指定するだけです．
 
 #+begin_src emacs-lisp :tangle yes
-(setq confirm-kill-emacs 'yes-or-no-p)
+(with-eval-after-load "postpone"
+  (setq confirm-kill-emacs 'yes-or-no-p))
 #+end_src
 
 以前は， =C-x C-c= を以下の関数に割り当てて，任意の質問文で入力を求めていました．
@@ -977,23 +994,24 @@ echo "--- done."
        '(paradox-list-packages my-list-packages my-setup-cask)
        "paradox" nil t)
 
-  (defvar my-default-load-path nil)
-  (defun my-list-packages ()
-    "Call \\[paradox-list-packages]' if available instead of \\[list-packages]."
-    (interactive)
-    (setq my-default-load-path load-path)
-    (my-setup-cask)
-    (if (fboundp 'paradox-list-packages)
-        (paradox-list-packages nil)
-      (list-packages nil)))
+  (with-eval-after-load "postpone"
+    (defvar my-default-load-path nil)
+    (defun my-list-packages ()
+      "Call \\[paradox-list-packages]' if available instead of \\[list-packages]."
+      (interactive)
+      (setq my-default-load-path load-path)
+      (my-setup-cask)
+      (if (fboundp 'paradox-list-packages)
+          (paradox-list-packages nil)
+        (list-packages nil)))
 
-  (defun my-reset-load-path ()
-    "Revert `load-path' to `my-default-load-path'."
-    (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
-    (setq load-path my-default-load-path)
-    (message "--- Reverted to the original `load-path'."))
+    (defun my-reset-load-path ()
+      "Revert `load-path' to `my-default-load-path'."
+      (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
+      (setq load-path my-default-load-path)
+      (message "--- Reverted to the original `load-path'."))
 
-  (declare-function advice:paradox-quit-and-close "init" (kill))
+    (declare-function advice:paradox-quit-and-close "init" (kill)))
 
   (with-eval-after-load "paradox"
     (defun my-setup-cask ()
@@ -1361,6 +1379,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   :PROPERTIES:
   :CUSTOM_ID: org35f3bbc9
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "core")
+#+end_src
 
 カーソルの移動は，次のポリシーに従っています．デフォルトでは =C-v/M-v= で上下移動になっていますが， =M-v= は windows のペーストに対応するので混乱を招くので使っていません．
 
@@ -1669,12 +1690,12 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
       (kbd (car back-button-global-forward-keystrokes))
       'back-button-global-forward)
     (setq back-button-mode-lighter nil)
-    (setq back-button-index-timeout 0)))
+    (setq back-button-index-timeout 0))
 
-(with-eval-after-load "postpone"
-  (unless noninteractive
-    (postpone-message "back-button-mode")
-    (back-button-mode 1)))
+  (with-eval-after-load "postpone"
+    (unless noninteractive
+      (postpone-message "back-button-mode")
+      (back-button-mode 1))))
 #+end_src
 
 ** DONE [point-undo.el] カーソル位置を簡単にたどる                 :obsolete:
@@ -1720,6 +1741,9 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
   :PROPERTIES:
   :CUSTOM_ID: org36bb3b1a
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "point")
+#+end_src
 ** エンターキーの挙動
    :PROPERTIES:
    :CUSTOM_ID: org6f2cf1cd
@@ -1836,14 +1860,15 @@ Built-in の time-stamp.el を使う．
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(add-hook 'change-log-mode-hook
-          (lambda()
+(with-eval-after-load "postpone"
+  (add-hook 'change-log-mode-hook
+            (lambda()
               (if (require 'orgalist nil t)
                   (when (boundp 'orgalist-mode)
                     (orgalist-mode 1))
                 (orgstruct-mode))
               (setq tab-width 4)
-              (setq left-margin 4)))
+              (setq left-margin 4))))
 #+end_src
 
 ** テキストモード
@@ -1933,15 +1958,16 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
    :END:
 
 #+begin_src emacs-lisp :tangle yes
-(add-hook 'nxml-mode-hook
-          (lambda ()
+(with-eval-after-load "postpone"
+  (add-hook 'nxml-mode-hook
+            (lambda ()
               (define-key nxml-mode-map "\r" 'newline-and-indent)
               (auto-fill-mode -1)
               (setq indent-tabs-mode t)
               (setq nxml-slash-auto-complete-flag t)
               (setq tab-width 1)
               (setq nxml-child-indent 1)
-              (setq nxml-attribute-indent 0)))
+              (setq nxml-attribute-indent 0))))
 #+end_src
 
 ** yamlモード
@@ -2094,14 +2120,15 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
    :END:
 
 #+begin_src emacs-lisp :tangle yes
-(if (executable-find "cmake")
-    (when (autoload-if-found
-           '(cmake-mode)
-           "cmake-mode" nil t)
+(with-eval-after-load "postpone"
+  (if (executable-find "cmake")
+      (when (autoload-if-found
+             '(cmake-mode)
+             "cmake-mode" nil t)
 
-      (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
-      (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
-  (message "--- cmake is NOT installed."))
+        (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
+        (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
+    (message "--- cmake is NOT installed.")))
 #+end_src
 
 ** logviewモード
@@ -2305,6 +2332,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     (dolist (hook major-mode-with-flyspell)
       (add-hook (intern (format "%s-hook" hook))
                 (lambda () (flyspell-mode 1))))
+
     ;; コメント行のみをチェック対象にする
     (dolist (hook major-mode-with-flyspell-prog)
       (add-hook (intern (format "%s-hook" hook))
@@ -2692,18 +2720,19 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 | CSS        | M-x web-beautify-css  |
 
 #+begin_src emacs-lisp :tangle yes
-(if (executable-find "js-beautify")
-    (when (autoload-if-found
-           '(js2-mode)
-           "js2-mode" nil t)
+(with-eval-after-load "postpone"
+  (if (executable-find "js-beautify")
+      (when (autoload-if-found
+             '(js2-mode)
+             "js2-mode" nil t)
 
-      (with-eval-after-load "js2-mode"
-        (when (require 'web-beautify nil t)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))))
+        (with-eval-after-load "js2-mode"
+          (when (require 'web-beautify nil t)
+            (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
+            (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))))
 
-  (message "--- js-beautify is NOT installed.")
-  (message "--- Note: npm -g install js-beautify"))
+    (message "--- js-beautify is NOT installed.")
+    (message "--- Note: npm -g install js-beautify")))
 #+end_src
 
 ** [smartparens.el] 対応するカッコの挿入をアシスト
@@ -3143,6 +3172,9 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
   :PROPERTIES:
   :CUSTOM_ID: org94c7bd73
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "editing")
+#+end_src
 ** キーコマンド入力中に入力過程をミニバッファに反映する
    :PROPERTIES:
    :CUSTOM_ID: orgf6a240ab
@@ -4147,6 +4179,7 @@ http://0xcc.net/migemo/#download
 (when (autoload-if-found
        '(my-activate-stock-ticker stock-ticker-global-mode)
        "stock-ticker" nil t)
+
   (with-eval-after-load "stock-ticker"
     (defun stock-ticker--parse (data)
       "Parse financial DATA into list of display strings."
@@ -4402,6 +4435,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
   :PROPERTIES:
   :CUSTOM_ID: org9ff300b4
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "presentation")
+#+end_src
 ** [emms.el] メディアプレーヤー
    :PROPERTIES:
    :CREATED:  [2018-02-19 Mon 18:19]
@@ -4451,6 +4487,8 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
       (emms-standard)
       (emms-default-players))
 
+    (unless noninteractive
+      (require 'org-emms nil t)) ;; emms のリンクに対応させる
     (require 'helm-emms nil t)
 
     (defun my-play-bgm ()
@@ -4526,12 +4564,13 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
   - [[https://github.com/mhayashi1120/japanlaw.el][mhayashi1120/japanlaw.el: Emacs 電子六法]]
 
 #+begin_src emacs-lisp :tangle yes
-(if (executable-find "w3m")
-    (autoload-if-found
-     '(japanlaw)
-     "japanlaw" nil t)
+(with-eval-after-load "postpone"
+  (if (executable-find "w3m")
+      (autoload-if-found
+       '(japanlaw)
+       "japanlaw" nil t)
 
-  (message "--- w3m is NOT installed."))
+    (message "--- w3m is NOT installed.")))
 #+end_src
 
 ** [sunshine.el] 天気を知る
@@ -4615,6 +4654,9 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
   :PROPERTIES:
   :CUSTOM_ID: orgd5aed515
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "media")
+#+end_src
 ** 履歴サイズを大きくする
    :PROPERTIES:
    :CUSTOM_ID: org0f46c991
@@ -5249,6 +5291,9 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
   :PROPERTIES:
   :CUSTOM_ID: orgf1b8fa63
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "history")
+#+end_src
 ** 便利キーバインド
    :PROPERTIES:
    :CUSTOM_ID: org9f988c12
@@ -5387,6 +5432,9 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     ;; 追加のメジャーモードを設定
     (add-to-list 'ac-modes 'objc-mode)
     (add-to-list 'ac-modes 'org-mode)
+    (add-to-list 'ac-modes 'latex-mode)
+    (require 'ac-math nil t)
+
     ;; ac-modes にあるメジャーモードで有効にする
     ;;lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
     (global-auto-complete-mode t)
@@ -5437,6 +5485,31 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
                          ac-source-abbrev
                          ac-source-dictionary
                          )))))
+#+end_src
+
+** [origami.el] 関数の折りたたみ
+   :PROPERTIES:
+   :CUSTOM_ID: org2bf4fb77
+   :END:
+
+  - =hideshowvis.el= よりも軽い印象なので，現在は =origami.el= を使用中．
+  - [[https://github.com/gregsexton/origami.el][gregsexton/origami.el: A folding minor mode for Emacs]]
+  - [[https://github.com/zenozeng/yafolding.el][zenozeng/yafolding.el: Yet another folding extension for Emacs]]
+  - [[https://github.com/tj64/outline-magic/blob/master/outline-magic.el][outline-magic/outline-magic.el at master · tj64/outline-magic]]
+  - 後発として [[https://github.com/tarsius/bicycle][bicycle.el]] があります．
+
+#+begin_src emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(origami-mode origami-toggle-node)
+       "origami" nil t)
+
+  (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook yatex-mode-hook))
+    (add-hook hook #'origami-mode))
+
+  (with-eval-after-load "origami"
+    (define-key origami-mode-map (kbd "C-t") #'origami-toggle-node)
+    (define-key origami-mode-map (kbd "C-u C-t")
+      #'origami-toggle-all-nodes)))
 #+end_src
 
 ** [auto-complete-clang.el] オムニ補完
@@ -5512,31 +5585,6 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/
   - http://d.hatena.ne.jp/yano-htn/?of=30
   - http://www.nomtats.com/2010/11/auto-completeelemacs.html
   - http://www.plugmasters.com.br/plugfeed/post/73768/awesome-cc-autocompletion-in-emacs
-
-** [origami.el] 関数の折りたたみ
-   :PROPERTIES:
-   :CUSTOM_ID: org2bf4fb77
-   :END:
-
-  - =hideshowvis.el= よりも軽い印象なので，現在は =origami.el= を使用中．
-  - [[https://github.com/gregsexton/origami.el][gregsexton/origami.el: A folding minor mode for Emacs]]
-  - [[https://github.com/zenozeng/yafolding.el][zenozeng/yafolding.el: Yet another folding extension for Emacs]]
-  - [[https://github.com/tj64/outline-magic/blob/master/outline-magic.el][outline-magic/outline-magic.el at master · tj64/outline-magic]]
-  - 後発として [[https://github.com/tarsius/bicycle][bicycle.el]] があります．
-
-#+begin_src emacs-lisp :tangle yes
-(when (autoload-if-found
-       '(origami-mode origami-toggle-node)
-       "origami" nil t)
-
-  (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook yatex-mode-hook))
-    (add-hook hook #'origami-mode))
-
-  (with-eval-after-load "origami"
-    (define-key origami-mode-map (kbd "C-t") #'origami-toggle-node)
-    (define-key origami-mode-map (kbd "C-u C-t")
-      #'origami-toggle-all-nodes)))
-#+end_src
 
 ** [quickrun.el] お手軽ビルド
    :PROPERTIES:
@@ -5733,15 +5781,20 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
    :CUSTOM_ID: org7d969237
    :END:
 
-Emacs の中で Git リポジトリを操作できます．
+Emacs の中で Git リポジトリを操作できます． =magit-repository-directories= を設定しておけば，管理しているリポジトリの一覧を表示できます． =helm= と連携していれば，絞り込みも簡単です．さらに， =M-x magit-list-repositories= を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
        '(magit-status)
        "magit" nil t)
 
+  (global-set-key (kbd "C-c m") 'magit-status)
+
   (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c m") 'magit-status)))
+    (require 'helm-config nil t) ;; プロジェクト一覧に helm を適用する
+    (setq magit-repository-directories
+          '(("~/devel/git" . 1)
+            ("~/devel/mygit" . 1)))))
 #+end_src
 
 ** TODO [EditorConfig] コードスタイルの強制
@@ -5869,6 +5922,10 @@ Emacs の中で Git リポジトリを操作できます．
   :PROPERTIES:
   :CUSTOM_ID: org47616d05
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "development")
+#+end_src
+
 ** 基本設定
    :PROPERTIES:
    :CUSTOM_ID: orgf66bb6fe
@@ -5899,19 +5956,25 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (global-set-key (kbd "C-c l") 'org-store-link)
     (global-set-key (kbd "C-c a") 'org-agenda))
 
+  (with-eval-after-load "ox"
+    (add-to-list 'org-modules 'ox-odt)
+    (add-to-list 'org-modules 'ox-org))
+
   (with-eval-after-load "org"
+
     ;; 関連モジュールの読み込み
-    (require 'org-habit nil t)
+    (add-to-list 'org-modules 'org-habit)
     (require 'org-mobile nil t)
     (require 'org-eldoc nil t) ;; org-eldoc を読み込む
-    (unless noninteractive
-      (require 'org-emms nil t)) ;; emms のリンクに対応させる
 
+    ;; モジュールの追加
     (add-to-list 'org-modules 'org-id)
-    (add-to-list 'org-modules 'ox-odt)
-    (add-to-list 'org-modules 'ox-org)
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
+
+    ;; 不必要なモジュールの読み込みを停止する
+    (setq org-modules (delete 'org-gnus org-modules))
+    ;; (setq org-modules (delete 'org-bibtex org-modules))
 
     ;; org ファイルの集中管理
     (setq org-directory "~/Dropbox/org/")
@@ -5958,9 +6021,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
     ;; 1分未満は記録しない
     (setq org-clock-out-remove-zero-time-clocks t)
-
-    ;; helm を立ち上げる
-    (require 'helm-config nil t)
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -6101,7 +6161,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
    :PROPERTIES:
    :CUSTOM_ID: org739cd53d
    :END:
-
 慣れてくると Org Mode の通常キーバインドでは満足できなくなります．コンテクストに応じて適切なキーバインドを設定するのが Emacs の醍醐味ですから，そういう欲求が出てきたらスピーコマンドの出番です．シングルキーで各ツリーのステータスを変更したり，任意のコマンドを呼び出せます．
 
 #+begin_src emacs-lisp :tangle yes
@@ -6192,7 +6251,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           ("emacs"       :foreground "#6633CC")
           ("note"        :foreground "#6633CC")
           ("print"       :foreground "#6633CC")
-          ("Study"       :foreground "#6666CC")
+          ("study"       :foreground "#6666CC")
           ("Implements"  :foreground "#CC9999" :weight bold)
           ("Coding"      :foreground "#CC9999")
           ("Editing"     :foreground "#CC9999" :weight bold)
@@ -6511,8 +6570,6 @@ will not be modified."
    :CUSTOM_ID: orgc3302e41
    :END:
 
-入門者にとって =org-agenda= は簡単ではないので，無理に使わなくて良いと思います．Org Modeの動作に十分慣れたら戻ってくる程度で十分です．
-
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "org-agenda"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
@@ -6608,7 +6665,28 @@ will not be modified."
       (when (future-time-p triger)
         (run-at-time triger nil 'my-popup-agenda))))
   (my-popup-agenda-set-timers)
-  (run-at-time "24:00" nil 'my-popup-agenda-set-timers)) ;; for next day
+  (run-at-time "24:00" nil 'my-popup-agenda-set-timers)
+
+;; ついでに calendar.app も定期的に強制起動する
+  (defun my-popup-calendar ()
+    (interactive)
+    (if (and (eq system-type 'darwin)
+             (window-focus-p))
+        (shell-command-to-string "open -a calendar.app")
+      (message "--- input focus is currently OUT.")))
+
+  (defun my-popup-calendar-set-timers ()
+    (interactive)
+    (cancel-function-timers 'my-popup-calendar)
+    (dolist (triger my-org-agenda-auto-popup-list)
+      (when (future-time-p triger)
+        (run-at-time triger nil 'my-popup-calendar))))
+
+  (when (memq window-system '(mac ns))
+    (my-popup-calendar-set-timers)
+    (run-at-time "24:00" nil 'my-popup-calendar-set-timers))
+
+) ;; for next day
 
 ;; Doing 管理
 (with-eval-after-load "org"
@@ -6636,27 +6714,10 @@ will not be modified."
                                (concat ":" my-doing-tag ":")
                                (org-get-tags-string))
                               'off 'on))))
-      (org-reveal)))
-
-  ;; ついでに calendar.app も定期的に強制起動する
-  (defun my-popup-calendar ()
-    (interactive)
-    (if (and (eq system-type 'darwin)
-             (window-focus-p))
-        (shell-command-to-string "open -a calendar.app")
-      (message "--- input focus is currently OUT.")))
-
-  (defun my-popup-calendar-set-timers ()
-    (interactive)
-    (cancel-function-timers 'my-popup-calendar)
-    (dolist (triger my-org-agenda-auto-popup-list)
-      (when (future-time-p triger)
-        (run-at-time triger nil 'my-popup-calendar))))
-
-  (when (memq window-system '(mac ns))
-    (my-popup-calendar-set-timers)
-    (run-at-time "24:00" nil 'my-popup-calendar-set-timers))) ;; for next day
+      (org-reveal))))
 #+end_src
+
+入門者にとって =org-agenda= は簡単ではないので，無理に使わなくて良いと思います．Org Modeの動作に十分慣れたら戻ってくる程度で十分です．
 
 ** [orgbox.el] スケジュール追加のわかりやすい入力
    :PROPERTIES:
@@ -6810,11 +6871,11 @@ update it for multiple appts?")
               (outline-backward-same-level 1)
             (outline-up-heading 1))
           (org-update-statistics-cookies nil) ;; Update in source
-          (org-sort-entries nil ?O)
+          ;; (org-sort-entries nil ?O)
           (org-refile-goto-last-stored)
           (org-update-parent-todo-statistics) ;; Update in destination
           (outline-up-heading 1)
-          (org-sort-entries nil ?O)
+          (org-sort-entries nil ?o)
           (unless (equal b (buffer-name))
             (switch-to-buffer b)))
         (setq org-refile-history nil)
@@ -6850,22 +6911,19 @@ update it for multiple appts?")
     (message "--- ditaa is NOT installed."))
 
   ;; Add ":results output" after program name
+
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((dot . t)
+   '((emacs-lisp . t)
+     (dot . t)
      (C . t)
      (ditaa . t)
-     (gnuplot . t)
      (perl . t)
      (shell . t)
      (latex . t)
      (sqlite . t)
      (R . t)
      (python . t)))
-  ;; (require 'ob-C nil t)
-  ;; (require 'ob-perl nil t)
-  ;; (require 'ob-sh nil t)
-  ;; (require 'ob-python nil t)
 
   ;; 実装済みの言語に好きな名前を紐付ける
   (add-to-list 'org-src-lang-modes '("cs" . csharp))
@@ -6900,14 +6958,15 @@ update it for multiple appts?")
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(custom-set-faces
- '(org-block-begin-line
-   ((((background dark))
-     (:foreground "#669966" :weight bold)) ;; :background "#444444"
-    (t (:inherit org-meta-line :weight bold))) ;; :background "#EFEFEF"
-   (org-block-end-line
-    ((((background dark)) (:inherit org-block-begin-line))
-     (t (:inherit org-block-begin-line))))))
+(with-eval-after-load "org"
+  (custom-set-faces
+   '(org-block-begin-line
+     ((((background dark))
+       (:foreground "#669966" :weight bold)) ;; :background "#444444"
+      (t (:inherit org-meta-line :weight bold))) ;; :background "#EFEFEF"
+     (org-block-end-line
+      ((((background dark)) (:inherit org-block-begin-line))
+       (t (:inherit org-block-begin-line)))))))
 #+end_src
 
 ** [org-tree-slide] Org Modeでプレゼンテーション
@@ -7475,6 +7534,20 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
          (lambda () (my-org-custom-id-get (point) 'create)))))))
 #+end_src
 
+** TODO [ob-async] ソースブロックの非同期実行
+   :PROPERTIES:
+   :CUSTOM_ID: org992326f6
+   :END:
+
+ソースブロックを非同期に実行します．各ソースブロックで ~:async~ を指定するだけで，非同期になります． ただし， =ob-python= はすでに ~:async~ を予約しているので， =ob-async= のオプションと衝突しないように，処理対象から除外しておきます．
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "ob-core"
+  (when (require 'ob-async nil t)
+    (custom-set-variables
+     '(ob-async-no-async-languages-alist '("ipython")))))
+#+end_src
+
 ** TODO [org-tree-slide] BEGIN_SRCとEND_SRCを消して背景色を変える
    :PROPERTIES:
    :CUSTOM_ID: org9cbb15f3
@@ -7611,7 +7684,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
      "papers3"
      :follow (lambda (path)
                (let ((cmd (concat "open papers3:" path)))
-                 (shell-command-to-string cmd)
+                 (shell-command-to-string (shell-quote-argument cmd))
                  (message "%s" cmd))))))
 #+end_src
 
@@ -7962,6 +8035,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   :PROPERTIES:
   :CUSTOM_ID: org5fd484a3
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "Org Mode")
+#+end_src
 ** 起動時の設定
    :PROPERTIES:
    :CUSTOM_ID: orgd05fc75a
@@ -8004,8 +8080,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)
-(set-face-foreground 'vertical-border (face-background 'default))
-(set-face-background 'vertical-border (face-background 'default))
+(with-eval-after-load "postpone"
+  (set-face-foreground 'vertical-border (face-background 'default))
+  (set-face-background 'vertical-border (face-background 'default)))
 ;; (set-face-background 'fringe (face-background 'default))
 
 ;; カーソルの色
@@ -8015,151 +8092,152 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (defconst my-cursor-type-ime-off '(bar . 2)) ;; '(hbar . 10)
 (defvar my-ime-last nil)
 
-(cond
- ((or (eq window-system 'ns)
-      (fboundp 'mac-get-current-input-source))
-  (when (fboundp 'mac-set-input-method-parameter)
-    (mac-set-input-method-parameter
-     "com.google.inputmethod.Japanese.base" 'title "あ"))
+(with-eval-after-load "postpone"
+  (cond
+   ((or (eq window-system 'ns)
+        (fboundp 'mac-get-current-input-source))
+    (when (fboundp 'mac-set-input-method-parameter)
+      (mac-set-input-method-parameter
+       "com.google.inputmethod.Japanese.base" 'title "あ"))
 
-  (when (fboundp 'mac-get-current-input-source)
-    (declare-function ad:mac-toggle-input-method "init" nil)
-    (declare-function my-apply-cursor-config "init" nil)
-    (declare-function my-ime-on "init" nil)
-    (declare-function my-ime-off "init" nil)
-    (declare-function my-ime-active-p "init" nil)
+    (when (fboundp 'mac-get-current-input-source)
+      (declare-function ad:mac-toggle-input-method "init" nil)
+      (declare-function my-apply-cursor-config "init" nil)
+      (declare-function my-ime-on "init" nil)
+      (declare-function my-ime-off "init" nil)
+      (declare-function my-ime-active-p "init" nil)
 
-    (defun my-ime-active-p ()
-      (not (string-match "\\.Roman$" (mac-get-current-input-source))))
+      (defun my-ime-active-p ()
+        (not (string-match "\\.Roman$" (mac-get-current-input-source))))
 
-    (setq my-ime-last (my-ime-active-p))
-    (defvar my-ime-on-hook nil)
-    (defvar my-ime-off-hook nil)
+      (setq my-ime-last (my-ime-active-p))
+      (defvar my-ime-on-hook nil)
+      (defvar my-ime-off-hook nil)
 
-    (defun my-ime-on ()
-      (interactive)
-      (when (fboundp 'mac-toggle-input-method)
-        (mac-toggle-input-method t))
-      (setq cursor-type my-cursor-type-ime-on)
-      (set-cursor-color my-cursor-color-ime-on)
-      (setq my-ime-last t)
-      (run-hooks 'my-ime-on-hook))
+      (defun my-ime-on ()
+        (interactive)
+        (when (fboundp 'mac-toggle-input-method)
+          (mac-toggle-input-method t))
+        (setq cursor-type my-cursor-type-ime-on)
+        (set-cursor-color my-cursor-color-ime-on)
+        (setq my-ime-last t)
+        (run-hooks 'my-ime-on-hook))
 
-    (defun my-ime-off ()
-      (interactive)
-      (when (fboundp 'mac-toggle-input-method)
-        (mac-toggle-input-method nil))
-      (setq cursor-type my-cursor-type-ime-off)
-      (set-cursor-color my-cursor-color-ime-off)
-      (setq my-ime-last nil)
-      (run-hooks 'my-ime-off-hook))
+      (defun my-ime-off ()
+        (interactive)
+        (when (fboundp 'mac-toggle-input-method)
+          (mac-toggle-input-method nil))
+        (setq cursor-type my-cursor-type-ime-off)
+        (set-cursor-color my-cursor-color-ime-off)
+        (setq my-ime-last nil)
+        (run-hooks 'my-ime-off-hook))
 
-    (defvar my-ime-flag nil)
-    (add-hook 'activate-mark-hook
-              (lambda ()
+      (defvar my-ime-flag nil)
+      (add-hook 'activate-mark-hook
+                (lambda ()
                   (when (setq my-ime-flag (my-ime-active-p))
                     (my-ime-off))))
-    (add-hook 'deactivate-mark-hook
-              (lambda ()
+      (add-hook 'deactivate-mark-hook
+                (lambda ()
                   (when my-ime-flag
                     (my-ime-on))))
 
-    (defun ad:mac-toggle-input-method (&optional arg)
-      "Run hooks when IME changes."
-      (interactive)
-      (if arg
+      (defun ad:mac-toggle-input-method (&optional arg)
+        "Run hooks when IME changes."
+        (interactive)
+        (if arg
+            (progn
+              (setq cursor-type my-cursor-type-ime-on)
+              (set-cursor-color my-cursor-color-ime-on)
+              (run-hooks 'my-ime-on-hook))
           (progn
-            (setq cursor-type my-cursor-type-ime-on)
-            (set-cursor-color my-cursor-color-ime-on)
-            (run-hooks 'my-ime-on-hook))
-        (progn
+            (setq cursor-type my-cursor-type-ime-off)
+            (set-cursor-color my-cursor-color-ime-off)
+            (run-hooks 'my-ime-off-hook))))
+      (advice-add 'mac-toggle-input-method
+                  :before #'ad:mac-toggle-input-method)
+
+      ;; for init setup
+      (setq-default cursor-type my-cursor-type-ime-on)
+
+      (when (boundp 'mac-ime-cursor-type) ;; private patch
+        (setq mac-ime-cursor-type my-cursor-type-ime-on))
+
+      (defun my-apply-cursor-config ()
+        (interactive)
+        (if (my-ime-active-p)
+            (progn
+              (setq cursor-type my-cursor-type-ime-on)
+              (set-cursor-color my-cursor-color-ime-on))
           (setq cursor-type my-cursor-type-ime-off)
-          (set-cursor-color my-cursor-color-ime-off)
-          (run-hooks 'my-ime-off-hook))))
-    (advice-add 'mac-toggle-input-method
-                :before #'ad:mac-toggle-input-method)
+          (set-cursor-color my-cursor-color-ime-off)))
+      ;; (my-apply-cursor-config) will be called later in this file.
 
-    ;; for init setup
-    (setq-default cursor-type my-cursor-type-ime-on)
+      (with-eval-after-load "postpone"
+        (run-with-idle-timer 3 t #'my-apply-cursor-config))
 
-    (when (boundp 'mac-ime-cursor-type) ;; private patch
-      (setq mac-ime-cursor-type my-cursor-type-ime-on))
-
-    (defun my-apply-cursor-config ()
-      (interactive)
-      (if (my-ime-active-p)
-          (progn
-            (setq cursor-type my-cursor-type-ime-on)
-            (set-cursor-color my-cursor-color-ime-on))
-        (setq cursor-type my-cursor-type-ime-off)
-        (set-cursor-color my-cursor-color-ime-off)))
-    ;; (my-apply-cursor-config) will be called later in this file.
-
-    (with-eval-after-load "postpone"
-      (run-with-idle-timer 3 t #'my-apply-cursor-config))
-
-    ;; Enter minibuffer with IME-off, and resture the latest IME
-    (add-hook 'minibuffer-setup-hook
-              (lambda ()
+      ;; Enter minibuffer with IME-off, and resture the latest IME
+      (add-hook 'minibuffer-setup-hook
+                (lambda ()
                   (if (not (my-ime-active-p))
                       (setq my-ime-flag nil)
                     (setq my-ime-flag t)
                     (my-ime-off))))
-    (add-hook 'minibuffer-exit-hook
-              (lambda ()
+      (add-hook 'minibuffer-exit-hook
+                (lambda ()
                   (when my-ime-flag
                     (my-ime-on))))
 
-    ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
-    ;;   "Extension to find-file as before-find-file-hook."
-    ;;   (message "--- ad:findfile")
-    ;;   (apply FILENAME WILDCARDS))
-    ;; (advice-add #'find-file :around #'ad:find-file)
+      ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
+      ;;   "Extension to find-file as before-find-file-hook."
+      ;;   (message "--- ad:findfile")
+      ;;   (apply FILENAME WILDCARDS))
+      ;; (advice-add #'find-file :around #'ad:find-file)
 
-    ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-    ;; バッファ切替時に input method を切り替える
-    ;; (with-eval-after-load "postpone"
-    ;;   (when (and (fboundp 'mac-handle-input-method-change)
-    ;;              (require 'cl nil t))
-    ;;     (add-hook
-    ;;      'post-command-hook
-    ;;      (lexical-let ((previous-buffer nil))
-    ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
-    ;;        (lambda ()
-    ;;            (unless (eq (current-buffer) previous-buffer)
-    ;;              (when (bufferp previous-buffer)
-    ;;                (mac-handle-input-method-change))
-    ;;              (setq previous-buffer (current-buffer))))))))
-    ))
+      ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
+      ;; バッファ切替時に input method を切り替える
+      ;; (with-eval-after-load "postpone"
+      ;;   (when (and (fboundp 'mac-handle-input-method-change)
+      ;;              (require 'cl nil t))
+      ;;     (add-hook
+      ;;      'post-command-hook
+      ;;      (lexical-let ((previous-buffer nil))
+      ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
+      ;;        (lambda ()
+      ;;            (unless (eq (current-buffer) previous-buffer)
+      ;;              (when (bufferp previous-buffer)
+      ;;                (mac-handle-input-method-change))
+      ;;              (setq previous-buffer (current-buffer))))))))
+      ))
 
- ((eq window-system 'mac) ;; EMP: Emacs Mac Port
-  (when (fboundp 'mac-input-source)
-    (defun my-mac-keyboard-input-source ()
-      (if (string-match "\\.Roman$" (mac-input-source))
+   ((eq window-system 'mac) ;; EMP: Emacs Mac Port
+    (when (fboundp 'mac-input-source)
+      (defun my-mac-keyboard-input-source ()
+        (if (string-match "\\.Roman$" (mac-input-source))
+            (progn
+              (setq cursor-type my-cursor-type-ime-off)
+              (add-to-list 'default-frame-alist
+                           `(cursor-type . ,my-cursor-type-ime-off))
+              (set-cursor-color my-cursor-color-ime-off))
           (progn
-            (setq cursor-type my-cursor-type-ime-off)
+            (setq cursor-type my-cursor-type-ime-on)
             (add-to-list 'default-frame-alist
-                         `(cursor-type . ,my-cursor-type-ime-off))
-            (set-cursor-color my-cursor-color-ime-off))
-        (progn
-          (setq cursor-type my-cursor-type-ime-on)
-          (add-to-list 'default-frame-alist
-                       `(cursor-type . ,my-cursor-type-ime-on))
-          (set-cursor-color my-cursor-color-ime-on))))
+                         `(cursor-type . ,my-cursor-type-ime-on))
+            (set-cursor-color my-cursor-color-ime-on))))
 
-    (when (fboundp 'mac-auto-ascii-mode)
-      ;; (mac-auto-ascii-mode 1)
-      ;; IME ON/OFF でカーソルの種別や色を替える
-      (add-hook 'mac-selected-keyboard-input-source-change-hook
-                #'my-mac-keyboard-input-source)
-      ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
-      ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
-      ;;           #'my-mac-keyboard-input-source)
+      (when (fboundp 'mac-auto-ascii-mode)
+        ;; (mac-auto-ascii-mode 1)
+        ;; IME ON/OFF でカーソルの種別や色を替える
+        (add-hook 'mac-selected-keyboard-input-source-change-hook
+                  #'my-mac-keyboard-input-source)
+        ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
+        ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
+        ;;           #'my-mac-keyboard-input-source)
 
-      (declare-function my-mac-keyboard-input-source "init" nil)
-      (my-mac-keyboard-input-source))))
+        (declare-function my-mac-keyboard-input-source "init" nil)
+        (my-mac-keyboard-input-source))))
 
- (t nil))
+   (t nil)))
 #+end_src
 
 ** 複数フレーム対応
@@ -8225,9 +8303,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
   (with-eval-after-load "postpone"
     (unless noninteractive
+      (my-font-config) ;; this could increase `postpone-init-time'.
       (postpone-message "moom"))
-    (when (and (require 'moom nil t)
-               window-system)
+    (when (and window-system
+               (require 'moom nil t))
       (setq moom-lighter "M")
       (setq moom-verbose t)
       (let ((moom-verbose nil))
@@ -8578,6 +8657,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   :PROPERTIES:
   :CUSTOM_ID: orgf57ce845
   :END:
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "frame and window")
+#+end_src
 ** 正規表現を見やすくする
    :PROPERTIES:
    :CUSTOM_ID: orgbbb079d3
@@ -8633,10 +8715,11 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 色の設定は =custom-set-faces= で．
 
 #+begin_src emacs-lisp :tangle yes
-(custom-set-faces
- '(hl-line
-   ((((background dark)) :background "#484c5c")
-    (t (:background "#DEEDFF")))))
+(with-eval-after-load "postpone"
+  (custom-set-faces
+   '(hl-line
+     ((((background dark)) :background "#484c5c")
+      (t (:background "#DEEDFF"))))))
 #+end_src
 
 色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．
@@ -8852,39 +8935,40 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 2. [[https://gist.github.com/takaxp/5a500d953d15d6d2155b120e886dcd52][my theme for dark]]
 
 #+begin_src emacs-lisp :tangle yes
-;;;###autoload
-(defun my-daylight-theme ()
-  (interactive)
-  (when (require 'daylight-theme nil t)
-    (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'daylight t)
-    (setq default-frame-alist
-          (delete (assoc 'ns-appearance default-frame-alist)
-                  default-frame-alist))
-    (setq default-frame-alist
-          (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                  default-frame-alist))
-    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-    (add-to-list 'default-frame-alist '(ns-appearance . light))
-    (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                   (ns-appearance . light)))))
+(declare-function my-daylight-theme "init" nil)
+(declare-function my-night-theme "init" nil)
+(when (display-graphic-p)
+  (defun my-daylight-theme ()
+    (interactive)
+    (when (require 'daylight-theme nil t)
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'daylight t)
+      (setq default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (setq default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . light))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . light)))))
 
-;;;###autoload
-(defun my-night-theme ()
-  (interactive)
-  (when (require 'night-theme nil t) ;; atom-one-dark-theme
-    (mapc 'disable-theme custom-enabled-themes)
-    (load-theme 'night t)
-    (setq default-frame-alist
-          (delete (assoc 'ns-appearance default-frame-alist)
-                  default-frame-alist))
-    (setq default-frame-alist
-          (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                  default-frame-alist))
-    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-    (add-to-list 'default-frame-alist '(ns-appearance . dark))
-    (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                   (ns-appearance . dark)))))
+  (defun my-night-theme ()
+    (interactive)
+    (when (require 'night-theme nil t) ;; atom-one-dark-theme
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'night t)
+      (setq default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (setq default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . dark))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . dark))))))
 #+end_src
 
 ** 時間帯を指定して起動時にテーマを切り替える
@@ -8925,14 +9009,17 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
              (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
                  (my-night-theme)
                (my-daylight-theme)))))
-    (my-font-config)
-    ;; remove unintentional colored frame border
-    (select-frame-set-input-focus (selected-frame))
-    (when (fboundp 'mac-get-current-input-source)
-      (my-apply-cursor-config))) ;; apply font setting
+    (unless noninteractive
+      (my-font-config)
+      ;; remove unintentional colored frame border
+      (select-frame-set-input-focus (selected-frame))
+      (when (fboundp 'mac-get-current-input-source)
+        (my-apply-cursor-config)))) ;; apply font setting
 
   ;; init. This may override or reset font setting
-  (my-theme))
+  (with-eval-after-load "postpone"
+    (my-theme)))
+
 ;; (with-eval-after-load "postpone"
 ;;   (run-at-time "21:00" 86400 'my-theme)
 ;;   (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
@@ -9104,6 +9191,11 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   :PROPERTIES:
   :CUSTOM_ID: orgb8e84b9a
   :END:
+
+#+begin_src emacs-lisp :tangle yes
+(my-tick-init-time "font")
+#+end_src
+
 ** [pomodoro.el] ポモドーロの実践
    :PROPERTIES:
    :CUSTOM_ID: orgbfb695e1
@@ -9495,7 +9587,8 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 
   (with-eval-after-load "multi-term"
     (setenv "HOSTTYPE" "intel-mac")
-    (my-night-theme)))
+    (when (display-graphic-p)
+      (my-night-theme))))
 #+end_src
 
 ** [osx-lib.el] OSX用ユーティリティ                                   :macOS:
@@ -9779,5 +9872,6 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
 以上が，私の =init.el= とその説明です．
 
 #+begin_src emacs-lisp :tangle yes :exports none
+(my-tick-init-time "utility")
 (provide 'init)
 #+end_src

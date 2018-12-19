@@ -22,12 +22,19 @@
 (require 'checkdoc)
 
 
+(require 'moom nil t) ;; could be removed
+(require 'cask nil t)
 (require 'cl-lib nil t)
 (require 'doxymacs nil t)
 (require 'editorconfig nil t)
+(require 'emmet-mode nil t)
 (require 'flyspell nil t)
+(require 'fringe-helper nil t) ;; for git-gutter-fringe
 (require 'ggtags nil t)
+(require 'gif-screencast nil t)
 (require 'js2-mode nil t)
+(require 'keyfreq nil t)
+(require 'neotree nil t)
 (require 'nxml-mode nil t)
 (require 'org nil t)
 (require 'org-attach nil t)
@@ -37,23 +44,17 @@
 (require 'orgalist nil t)
 (require 'origami nil t)
 (require 'pomodoro nil t)
+(require 'recentf nil t) ;; for org-recent-headings
 (require 'session nil t)
 (require 'tern nil t)
 (require 'tern-auto-complete nil t)
-(require 'undo-tree nil t)
-(require 'neotree nil t)
-(require 'web-mode nil t)
-(require 'yasnippet nil t)
 (require 'time nil t)
 (require 'time-stamp nil t)
+(require 'undo-tree nil t)
 (require 'update-stamp nil t)
-(require 'emmet-mode nil t)
-(require 'gif-screencast nil t)
-(require 'keyfreq nil t)
+(require 'web-mode nil t)
 (require 'winner nil t)
-(require 'cask nil t)
-(require 'fringe-helper nil t) ;; for git-gutter-fringe
-(require 'recentf nil t) ;; for org-recent-headings
+(require 'yasnippet nil t)
 
 
 (if (require 'shut-up nil t)

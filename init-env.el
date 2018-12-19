@@ -10,32 +10,14 @@
 (defconst my-profiler-p nil
   "If non-nil, use built-in profiler.el.")
 (defconst my-boot-type 'default
-  "Boot menu selection: {debug, test, default}.")
+  "Boot menu selection: {debug, test, default, spacemacs}.")
 (defconst my-loading-packages nil) ;;`my-skip-autoload-file-check' shall be nil.
 ;; (setq my-loading-packages
-;;       ;;       '(("moom" . nil)
-;;       ;;         ("moom-font" . nil)
-;;       ;;         ("shut-up" . nil)
-;;       ;;         ("smart-mark" . nil)
-;;       ;;         ("subword" . nil)
-;;       ;;         ("syntax-subword" . nil)
-;;       ;;         ("smartparens" . nil)
-;;       ;;         ("selected" . nil)
-;;       ;;         ("help-fns" . nil)
-;;       ;;         ("help-fns+" . nil)
-;;       ;;         ("delight" . nil)
-;;       ;;         ("mic-paren" . nil)
-;;       ;;         ("backup-each-save" . nil)
-;;       ;;         ("auto-save-buffers" . nil)
-;;       ;;         ("editorconfig" . nil)
-;;       ;;         ("winner" . nil)
-;;       ;;         ("shackle" . nil)
-;;       ;;         ("pomodoro" . nil)
-;;       )
+;;       '(("org-tree-slide" . nil)))
 (setq postpone-verbose nil
       my-mode-line-global-flag nil
-      my-frame-appearance 'nil ;; {nil, 'dark, 'light}
-      my-skip-autoload-file-check my-loading-packages
+      my-frame-appearance 'light ;; {nil, 'dark, 'light}
+      my-skip-autoload-file-check (not my-loading-packages)
       debug-on-error nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -76,7 +58,7 @@
 ;; (3) load-path for { nil | debug | test } booting
 ;; M-x list-load-path-shadows
 (cond
- ((equal my-boot-type 'default)
+ ((eq my-boot-type 'default)
   (let* ((g "~/devel/git/")
          (od "org-mode")
          (l `("~/Dropbox/config"
@@ -87,6 +69,7 @@
     (my-path-setter l 'load-path))
   (when my-ad-require-p
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
+  ;; (load "~/Dropbox/emacs.d/config/init-chart.el" nil t)
   ;; (require 'init-eval nil t)
   (require 'init nil t)
   ;; (require 'utility nil t)
@@ -95,12 +78,12 @@
   (require 'private nil t)
   (when my-profiler-p
     (profiler-report)))
- ((equal my-boot-type 'debug)
+ ((eq my-boot-type 'debug)
   (my-path-setter
    '("~/Dropbox/config")
    'load-path)
   (require 'my-debug))
- ((equal my-boot-type 'test)
+ ((eq my-boot-type 'test)
   (my-path-setter
    `("~/Dropbox/config"
      "~/devel/git/org-mode/lisp"
@@ -108,6 +91,11 @@
      ,my-cask-package-dir)
    'load-path)
   (require 'my-debug))
+ ((eq my-boot-type 'spacemacs) ;; FIXME
+  (my-path-setter
+   '("~/.spacemacs.d")
+   'load-path)
+  (load "~/.spacemacs.d/init.el" nil t))
  (t nil))
 
 ;; (my-kill-emacs-hook-show)

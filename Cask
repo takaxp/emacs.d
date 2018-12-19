@@ -1,4 +1,4 @@
-;; #+date: 2018-12-01
+;; #+date: 2018-12-18
 
 (source gnu)
 (source melpa)
@@ -33,7 +33,9 @@
 (depends-on "ox-twbs")
 (depends-on "ox-reveal")
 (depends-on "ox-hugo")
+(depends-on "ox-ipynb" :git "https://github.com/jkitchin/ox-ipynb.git")
 (depends-on "ob-http")
+(depends-on "ob-async")
 (depends-on "org-review")
 (depends-on "org-tree-slide")
 (depends-on "org-dashboard")
@@ -198,6 +200,9 @@
 (depends-on "smart-mark")
 (depends-on "syntax-subword")
 (depends-on "goto-chg")
+(depends-on "esup")
+(depends-on "initchart" :git "https://github.com/yuttie/initchart.git")
+(depends-on "fzf")
 
 ;; Applications
 (depends-on "lingr")
