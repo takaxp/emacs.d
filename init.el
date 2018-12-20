@@ -283,35 +283,36 @@
       (postpone-message "ws-butler-global-mode")
       (ws-butler-global-mode))))
 
-(when (and (executable-find "ag")
-           (autoload-if-found
-            '(my-ag ag)
-            "ag" nil t))
+(with-eval-after-load "postpone"
+  (when (and (executable-find "ag")
+             (autoload-if-found
+              '(my-ag ag)
+              "ag" nil t))
 
-  (autoload-if-found '(helm-ag) "helm-ag" nil t)
+    (autoload-if-found '(helm-ag) "helm-ag" nil t)
 
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-M-f") 'my-ag))
+    (global-set-key (kbd "C-M-f") 'my-ag)
 
-  (with-eval-after-load "ag"
-    (custom-set-variables
-     '(ag-highlight-search t)
-     '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
-     '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
+    (with-eval-after-load "ag"
+      (custom-set-variables
+       '(ag-highlight-search t)
+       '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
+       '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
 
-    ;; q でウィンドウを抜ける
-    ;; (define-key ag-mode-map (kbd "q") 'delete-window)
-    (defun my-ag ()
-      "Switch to search result."
-      (interactive)
-      (call-interactively 'ag)
-      (switch-to-buffer-other-frame "*ag search*"))))
+      ;; q でウィンドウを抜ける
+      ;; (define-key ag-mode-map (kbd "q") 'delete-window)
+      (defun my-ag ()
+        "Switch to search result."
+        (interactive)
+        (call-interactively 'ag)
+        (switch-to-buffer-other-frame "*ag search*")))))
 
 (when (eq window-system 'ns)
   (global-set-key (kbd "M-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
   (global-set-key (kbd "S-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
   (declare-function my-ns-org-heading-auto-ascii "init" nil)
-  (declare-function my-ns-ime-restore "init" nil))
+  (declare-function my-ns-ime-restore "init" nil)
+  (declare-function my-ime-active-p "init" nil))
 
 (with-eval-after-load "postpone"
   (when (and (eq window-system 'ns)
@@ -1298,26 +1299,27 @@ This works also for other defined begin/end tokens to define the structure."
 (setq-default indicate-buffer-boundaries
               '((top . nil) (bottom . right) (down . right)))
 
-(if (executable-find "cmigemo")
-    (when (autoload-if-found
-           '(migemo-init)
-           "migemo" nil t)
+(with-eval-after-load "postpone"
+  (if (executable-find "cmigemo")
+      (when (autoload-if-found
+             '(migemo-init)
+             "migemo" nil t)
 
-      (add-hook 'isearch-mode-hook #'migemo-init)
+        (add-hook 'isearch-mode-hook #'migemo-init)
 
-      (with-eval-after-load "migemo"
-        (custom-set-variables
-         '(completion-ignore-case t) ;; case-independent
-         '(migemo-command "cmigemo")
-         '(migemo-options '("-q" "--emacs" "-i" "\a"))
-         '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
-         '(migemo-user-dictionary nil)
-         '(migemo-regex-dictionary nil)
-         '(migemo-use-pattern-alist t)
-         '(migemo-use-frequent-pattern-alist t)
-         '(migemo-pattern-alist-length 1024)
-         '(migemo-coding-system 'utf-8-unix))))
-  (message "--- cmigemo is NOT installed."))
+        (with-eval-after-load "migemo"
+          (custom-set-variables
+           '(completion-ignore-case t) ;; case-independent
+           '(migemo-command "cmigemo")
+           '(migemo-options '("-q" "--emacs" "-i" "\a"))
+           '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
+           '(migemo-user-dictionary nil)
+           '(migemo-regex-dictionary nil)
+           '(migemo-use-pattern-alist t)
+           '(migemo-use-frequent-pattern-alist t)
+           '(migemo-pattern-alist-length 1024)
+           '(migemo-coding-system 'utf-8-unix))))
+    (message "--- cmigemo is NOT installed.")))
 
 (when (autoload-if-found
        '(helm-google)
@@ -1328,21 +1330,14 @@ This works also for other defined begin/end tokens to define the structure."
      '(helm-google-tld "co.jp"))))
 
 (when (autoload-if-found
-       '(helm-buffers-list helm-recentf)
-       "helm" nil t)
-
-  (global-set-key (kbd "C-M-r") 'helm-recentf)
-  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
-
-  (with-eval-after-load "helm"
-    (require 'helm-config nil t)))
-
-(when (autoload-if-found
        '(helm-M-x
+         helm-buffers-list helm-recentf
          helm-locate helm-descbinds
          helm-occur helm-swoop helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
+  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
+  (global-set-key (kbd "C-M-r") 'helm-recentf)
   (global-set-key (kbd "M-x") 'helm-M-x)
 
   (with-eval-after-load "postpone"
@@ -1370,8 +1365,8 @@ This works also for other defined begin/end tokens to define the structure."
       ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
       (setq helm-swoop-pre-input-function
             (lambda()
-                (unless (thing-at-point-looking-at "^\\*+")
-                  (thing-at-point 'symbol))))
+              (unless (thing-at-point-looking-at "^\\*+")
+                (thing-at-point 'symbol))))
       ;; 配色設定
       (set-face-attribute
        'helm-swoop-target-line-face nil :background "#FFEDDC")
@@ -2218,30 +2213,31 @@ This works also for other defined begin/end tokens to define the structure."
   (add-hook 'gnuplot-mode-hook
             (lambda () (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun))))
 
-(if (not (executable-find "gtags"))
-    (message "--- gtags is NOT installed in this system.")
+(with-eval-after-load "postpone"
+  (if (not (executable-find "gtags"))
+      (message "--- gtags is NOT installed in this system.")
 
-  (when (autoload-if-found
-         '(ggtags-mode)
-         "ggtags" nil t)
+    (when (autoload-if-found
+           '(ggtags-mode)
+           "ggtags" nil t)
 
-    (with-eval-after-load "ggtags"
-      ;; (setq ggtags-completing-read-function t) ;; nil for helm
-      (define-key ggtags-mode-map (kbd "M-]") nil))
+      (with-eval-after-load "ggtags"
+        ;; (setq ggtags-completing-read-function t) ;; nil for helm
+        (define-key ggtags-mode-map (kbd "M-]") nil))
 
-    (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
-      (add-hook hook (lambda () (ggtags-mode 1)))))
+      (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
+        (add-hook hook (lambda () (ggtags-mode 1)))))
 
-  (when (autoload-if-found
-         '(helm-gtags-mode)
-         "helm-gtags" nil t)
+    (when (autoload-if-found
+           '(helm-gtags-mode)
+           "helm-gtags" nil t)
 
-    (add-hook 'c-mode-common-hook #'helm-gtags-mode)
-    (add-hook 'python-mode-hook #'helm-gtags-mode)
+      (add-hook 'c-mode-common-hook #'helm-gtags-mode)
+      (add-hook 'python-mode-hook #'helm-gtags-mode)
 
-    (with-eval-after-load "helm-gtags"
-      (custom-set-variables
-       '(helm-gtags-mode-name "")))))
+      (with-eval-after-load "helm-gtags"
+        (custom-set-variables
+         '(helm-gtags-mode-name ""))))))
 
 (when (autoload-if-found
        '(0xc-convert 0xc-convert-point my-decimal-to-hex my-hex-to-decimal)
@@ -3783,9 +3779,26 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (defconst my-cursor-type-ime-off '(bar . 2)) ;; '(hbar . 10)
 (defvar my-ime-last nil)
 
+(when (and (eq window-system 'ns)
+           (fboundp 'mac-get-current-input-source))
+      (declare-function my-apply-cursor-config "init" nil)
+      (defun my-ime-active-p ()
+        (not (string-match "\\.Roman$" (mac-get-current-input-source))))
+      (defun my-apply-cursor-config ()
+        (interactive)
+        (if (my-ime-active-p)
+            (progn
+              (setq cursor-type my-cursor-type-ime-on)
+              (set-cursor-color my-cursor-color-ime-on))
+          (setq cursor-type my-cursor-type-ime-off)
+          (set-cursor-color my-cursor-color-ime-off)))
+      (my-apply-cursor-config)
+      (with-eval-after-load "postpone"
+        (run-with-idle-timer 3 t #'my-apply-cursor-config)))
+
 (with-eval-after-load "postpone"
   (cond
-   ((or (eq window-system 'ns)
+   ((and (eq window-system 'ns)
         (fboundp 'mac-get-current-input-source))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
@@ -3797,9 +3810,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (declare-function my-ime-on "init" nil)
       (declare-function my-ime-off "init" nil)
       (declare-function my-ime-active-p "init" nil)
-
-      (defun my-ime-active-p ()
-        (not (string-match "\\.Roman$" (mac-get-current-input-source))))
 
       (setq my-ime-last (my-ime-active-p))
       (defvar my-ime-on-hook nil)
@@ -3853,19 +3863,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
       (when (boundp 'mac-ime-cursor-type) ;; private patch
         (setq mac-ime-cursor-type my-cursor-type-ime-on))
-
-      (defun my-apply-cursor-config ()
-        (interactive)
-        (if (my-ime-active-p)
-            (progn
-              (setq cursor-type my-cursor-type-ime-on)
-              (set-cursor-color my-cursor-color-ime-on))
-          (setq cursor-type my-cursor-type-ime-off)
-          (set-cursor-color my-cursor-color-ime-off)))
-      ;; (my-apply-cursor-config) will be called later in this file.
-
-      (with-eval-after-load "postpone"
-        (run-with-idle-timer 3 t #'my-apply-cursor-config))
 
       ;; Enter minibuffer with IME-off, and resture the latest IME
       (add-hook 'minibuffer-setup-hook
@@ -4304,12 +4301,12 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (dolist (hook '(emmet-mode-hook emacs-lisp-mode-hook org-mode-hook))
     (add-hook hook #'rainbow-mode)))
 
-(when (and (executable-find "qt_color_picker")
-           (autoload-if-found
-            '(edit-color-stamp)
-            "edit-color-stamp" nil t))
+(with-eval-after-load "postpone"
+  (when (and (executable-find "qt_color_picker")
+             (autoload-if-found
+              '(edit-color-stamp)
+              "edit-color-stamp" nil t))
 
-  (with-eval-after-load "postpone"
     (global-set-key (kbd "C-c f c p") 'edit-color-stamp)))
 
 (when (autoload-if-found
