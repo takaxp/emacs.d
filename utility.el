@@ -4,6 +4,7 @@
   (shell-command-to-string "open -a iTerm2.app"))
 
 (defvar kyoko-mad-mode nil)
+;;;###autoload
 (defun kyoko-mad-mode-toggle ()
   (interactive)
   (setq kyoko-mad-mode (not kyoko-mad-mode))
@@ -175,6 +176,7 @@
       (save-excursion
         (insert date place attendance documents)))))
 
+;;;###autoload
 (defun my-get-random-string (length)
   "Get a string contain the length digit number with random selection"
   (interactive)
@@ -224,15 +226,18 @@
                (move-beginning-of-line 1)
                (insert item-string))))))
 
+;;;###autoload
 (defun insert-formatted-current-date ()
   "Insert a timestamp at the cursor position. C-u will add [] brackets."
   (interactive)
   (insert (format-time-string "%Y-%m-%d")))
 
+;;;###autoload
 (defun insert-formatted-current-time ()
   (interactive)
   (insert (format-time-string "%H:%M")))
 
+;;;###autoload
 (defun insert-formatted-signature ()
   (interactive)
   (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
@@ -289,9 +294,10 @@
                  (format-time-string "%a.") ") "
                  (format-time-string "W:%W @")
                  (format-time-string "%H:%M"))))
-(global-set-key (kbd "C-c t") 'my-date)
 
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
+
+;;;###autoload
 (defun recursive-delete-backup-files (days)
   (if (= days 1)
       1
@@ -320,6 +326,7 @@
       (message "%s" (chomp files))
       (shell-command-to-string (concat "mv -v " (chomp files) " ~/.Trash")))))
 
+;;;###autoload
 (defun chomp (str)
   "Chomp leading and tailing whitespace from STR."
   (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'"
@@ -352,6 +359,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
            (list files)))
       (user-error (format "--- backup-dir does not exist: %s" rootdir)))))
 
+;;;###autoload
 (defun mac:delete-files-in-trash-bin ()
   (interactive)
   (do-applescript
@@ -364,10 +372,13 @@ If `dropbox' option is provided then the value is uased as a root directory."
     "end tell\n"))
   (my-desktop-notification "Emacs" "Empty the trash, done."))
 
+;;;###autoload
 (defun my-kill-emacs ()
     (switch-to-buffer "*Messages*")
     (message "3: %s" kill-emacs-hook)
     (y-or-n-p "Sure? "))
+
+;;;###autoload
 (defun my-kill-emacs-hook-show ()
   "Test Emacs killing sequence."
   (add-hook 'after-init-hook
@@ -376,6 +387,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
     (message "2: %s" kill-emacs-hook))
   (add-hook 'kill-emacs-hook #'my-kill-emacs))
 
+;;;###autoload
 (defun library-p (libraries)
   "Return t when every specified library can be located. "
   (let ((result t))
@@ -388,6 +400,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
             (list libraries)))
     result))
 
+;;;###autoload
 (defun my-setup-package-el ()
   "Setting up for installing packages via built-in package.el.
 Downloaded packages will be stored under ~/.eamcs.d/elpa."
@@ -534,6 +547,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 
 ;;; Test function for AppleScript
 ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
+;;;###autoload
 (defun do-test-applescript ()
   (interactive)
   (do-applescript
@@ -566,6 +580,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (setq tl (cdr tl)))
     (read-only-mode 1)))
 
+;;;###autoload
 (defun org2dokuwiki-cp-kill-ring ()
   "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
   (interactive)

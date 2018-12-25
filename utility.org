@@ -35,6 +35,7 @@ macOS 用の関数です．別途，Kyoko さんの音声をインストール�
 
 #+begin_src emacs-lisp :tangle yes
 (defvar kyoko-mad-mode nil)
+;;;###autoload
 (defun kyoko-mad-mode-toggle ()
   (interactive)
   (setq kyoko-mad-mode (not kyoko-mad-mode))
@@ -261,6 +262,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 引数で桁数を渡すと，ランダムな数値の文字列を取得できます．org-mode で適当なタイトルのツリーを生成したい時に使っています．
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun my-get-random-string (length)
   "Get a string contain the length digit number with random selection"
   (interactive)
@@ -326,19 +328,22 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 
 #+begin_src emacs-lisp :tangle yes :exports none
-  (defun insert-formatted-current-date ()
-    "Insert a timestamp at the cursor position. C-u will add [] brackets."
-    (interactive)
-    (insert (format-time-string "%Y-%m-%d")))
+;;;###autoload
+(defun insert-formatted-current-date ()
+  "Insert a timestamp at the cursor position. C-u will add [] brackets."
+  (interactive)
+  (insert (format-time-string "%Y-%m-%d")))
 
-  (defun insert-formatted-current-time ()
-    (interactive)
-    (insert (format-time-string "%H:%M")))
+;;;###autoload
+(defun insert-formatted-current-time ()
+  (interactive)
+  (insert (format-time-string "%H:%M")))
 
-  (defun insert-formatted-signature ()
-    (interactive)
-    (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
-                    "  <" user-mail-address ">")))
+;;;###autoload
+(defun insert-formatted-signature ()
+  (interactive)
+  (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
+                  "  <" user-mail-address ">")))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports yes
@@ -441,7 +446,6 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
                  (format-time-string "%a.") ") "
                  (format-time-string "W:%W @")
                  (format-time-string "%H:%M"))))
-(global-set-key (kbd "C-c t") 'my-date)
 #+end_src
 ** バックアップファイルの削除
    :PROPERTIES:
@@ -450,6 +454,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 
 #+begin_src emacs-lisp :tangle yes
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
+
+;;;###autoload
 (defun recursive-delete-backup-files (days)
   (if (= days 1)
       1
@@ -486,6 +492,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 改行コードを削除した文字列を返す．
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun chomp (str)
   "Chomp leading and tailing whitespace from STR."
   (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'"
@@ -544,6 +551,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
    :END:
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun mac:delete-files-in-trash-bin ()
   (interactive)
   (do-applescript
@@ -560,10 +568,13 @@ If `dropbox' option is provided then the value is uased as a root directory."
 ** 終了シーケンスのデバッグ用関数
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun my-kill-emacs ()
     (switch-to-buffer "*Messages*")
     (message "3: %s" kill-emacs-hook)
     (y-or-n-p "Sure? "))
+
+;;;###autoload
 (defun my-kill-emacs-hook-show ()
   "Test Emacs killing sequence."
   (add-hook 'after-init-hook
@@ -585,6 +596,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
 ="org"= を渡したり， ='("org" "helm")= を渡したりできます．
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun library-p (libraries)
   "Return t when every specified library can be located. "
   (let ((result t))
@@ -601,6 +613,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
 ** [package.el] MELPA利用設定
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun my-setup-package-el ()
   "Setting up for installing packages via built-in package.el.
 Downloaded packages will be stored under ~/.eamcs.d/elpa."
@@ -799,6 +812,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 ;;; Test function for AppleScript
 ;;; Cite: http://sakito.jp/emacs/emacsobjectivec.html
+;;;###autoload
 (defun do-test-applescript ()
   (interactive)
   (do-applescript
@@ -866,18 +880,17 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   :type 'string
   :group 'takaxp-utility)
 
-(with-eval-after-load "org"
-  (defun export-timeline-business ()
-    "Export schedule table as an XML source to create an web page"
-    (interactive)
-    (when (and default-timeline
-               (and default-timeline-csv-file
-                    default-timeline-xml-business-file))
-      (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
-      (org-table-export default-timeline-csv-file "orgtbl-to-csv")
-      (shell-command-to-string (concat "org2gantt.pl > "
-                                       default-timeline-xml-business-file))
-      (shell-command-to-string (concat "open " default-timeline)))))
+(defun export-timeline-business ()
+  "Export schedule table as an XML source to create an web page"
+  (interactive)
+  (when (and default-timeline
+             (and default-timeline-csv-file
+                  default-timeline-xml-business-file))
+    (shell-command-to-string (concat "rm -f " default-timeline-csv-file))
+    (org-table-export default-timeline-csv-file "orgtbl-to-csv")
+    (shell-command-to-string (concat "org2gantt.pl > "
+                                     default-timeline-xml-business-file))
+    (shell-command-to-string (concat "open " default-timeline))))
 
 (defun export-timeline-private ()
   "Export schedule table as an XML source to create an web page"
@@ -925,6 +938,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 外部プログラム[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使います．
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun org2dokuwiki-cp-kill-ring ()
   "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
   (interactive)

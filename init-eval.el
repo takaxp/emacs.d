@@ -2,6 +2,8 @@
 
 ;; as an entry point
 (require 'postpone nil t)
+(require 'init-org nil t)
+(require 'utility nil t)
 
 ;; mode-map
 (require 'calfw-org nil t)
@@ -21,7 +23,7 @@
 (require 'appt)
 (require 'checkdoc)
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (require 'moom nil t) ;; could be removed
 (require 'cask nil t)
 (require 'cl-lib nil t)

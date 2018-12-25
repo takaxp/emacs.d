@@ -9,6 +9,8 @@
   "If non-nil, override `require' and `load' to show loading times.")
 (defconst my-profiler-p nil
   "If non-nil, use built-in profiler.el.")
+(defconst my-loading-profile-p nil
+  "If non-nil, show tick while booting.  Do not use `my-profiler-p' with this.")
 (defconst my-boot-type 'default
   "Boot menu selection: {debug, test, default, spacemacs}.")
 (defconst my-loading-packages nil) ;;`my-skip-autoload-file-check' shall be nil.
@@ -16,7 +18,7 @@
 ;;       '(("org-tree-slide" . nil)))
 (setq postpone-verbose nil
       my-mode-line-global-flag nil
-      my-frame-appearance 'light ;; {nil, 'dark, 'light}
+      my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-autoload-file-check (not my-loading-packages)
       debug-on-error nil)
 
@@ -72,7 +74,9 @@
   ;; (load "~/Dropbox/emacs.d/config/init-chart.el" nil t)
   ;; (require 'init-eval nil t)
   (require 'init nil t)
-  ;; (require 'utility nil t)
+  ;; (require 'init-org nil t)
+  (require 'utility-autoloads nil t) ;; 2[ms]
+  ;; (require 'utility nil t) ;; 5[ms]
   (require 'my-eshell nil t)
   (require 'my-mail nil t)
   (require 'private nil t)

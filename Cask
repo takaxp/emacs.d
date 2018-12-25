@@ -1,4 +1,4 @@
-;; #+date: 2018-12-18
+;; #+date: 2018-12-25
 
 (source gnu)
 (source melpa)
@@ -10,11 +10,15 @@
 ;; (source "mirror" "https://www.mirrorservice.org/sites/melpa.org/packages/")
 ;; (source "mstable" "https://www.mirrorservice.org/sites/stable.melpa.org/packages/")
 
+;; Fundamental
 (depends-on "postpone"     :git "https://github.com/takaxp/postpone.git")
 (depends-on "ascii"        :git "https://github.com/takaxp/ascii.git")
 (depends-on "help-fns+"    :git "https://github.com/takaxp/help-fns-plus.git")
 (depends-on "emacs-utils"  :git "https://github.com/syohex/emacs-utils.git")
 (depends-on "git-complete" :git "https://github.com/zk-phi/git-complete.git")
+
+;; Testing
+(depends-on "htprofile"    :git "https://github.com/takaxp/htprofile.git")
 
 ;; Package install
 (depends-on "cask")
@@ -57,6 +61,7 @@
 (depends-on "calfw")
 (depends-on "org-bookmark-heading")
 (depends-on "org-emms")
+(depends-on "easy-hugo")
 
 ;; Major modes
 (depends-on "python-mode")
