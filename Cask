@@ -189,6 +189,7 @@
 (depends-on "shackle")
 (depends-on "tabbar")
 (depends-on "moom")
+(depends-on "doom-modeline")
 ;; (depends-on "spaceline-all-the-icons")
 ;; (depends-on "exwm") ;; failed to instal ... Bad Request
 

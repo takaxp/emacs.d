@@ -6473,7 +6473,7 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 
 macOS の通知機能を使って，Emacsで発生するイベントをユーザに通知します． =org-show-notification-handler= に =terminal-notifier.app= を呼ぶ関数をぶら下げることで， =org-notify= で簡単に通知機能を使えるようになります． =appt-disp-window= をカスタマイズすれば， appt を経由して TODOのアイテムも通知されます．
 
-=ns-notification-sound= に OSで定められたアラーム音を設定できます．音楽を流したい時は， =org-show-notification-handler= の引数で指定すると設定できます．
+独自に追加した =ns-default-notification-sound= に OSで定められたアラーム音を設定できます．音楽を流したい時は， =org-show-notification-handler= の引数で指定すると設定できます．
 
 
 |             | sticky | sound     | Function                        |
@@ -8133,6 +8133,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (require 'init-org nil t))
 
 (with-eval-after-load "org"
+  (require 'postpone nil t)
   (require 'init-org nil t))
 #+end_src
 
@@ -8826,7 +8827,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   (defun my-ime-on-hline ()
     (custom-set-faces
      '(hl-line
-       ((((background dark)) :background "#5c5848")
+       ((((background dark)) :background "#483c4c")
         (t (:background "#fff0de"))))))
 
   (add-hook 'my-ime-off-hook #'my-ime-off-hline)

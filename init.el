@@ -2415,6 +2415,7 @@ This works also for other defined begin/end tokens to define the structure."
   (require 'init-org nil t))
 
 (with-eval-after-load "org"
+  (require 'postpone nil t)
   (require 'init-org nil t))
 
 (cond
@@ -2797,7 +2798,7 @@ This works also for other defined begin/end tokens to define the structure."
   (defun my-ime-on-hline ()
     (custom-set-faces
      '(hl-line
-       ((((background dark)) :background "#5c5848")
+       ((((background dark)) :background "#483c4c")
         (t (:background "#fff0de"))))))
 
   (add-hook 'my-ime-off-hook #'my-ime-off-hline)

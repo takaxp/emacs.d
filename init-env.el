@@ -73,10 +73,10 @@
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
   ;; (load "~/Dropbox/emacs.d/config/init-chart.el" nil t)
   ;; (require 'init-eval nil t)
+  ;; (require 'utility nil t) ;; 5[ms]
+  (require 'utility-autoloads nil t) ;; 2[ms]
   (require 'init nil t)
   ;; (require 'init-org nil t)
-  (require 'utility-autoloads nil t) ;; 2[ms]
-  ;; (require 'utility nil t) ;; 5[ms]
   (require 'my-eshell nil t)
   (require 'my-mail nil t)
   (require 'private nil t)
@@ -101,6 +101,13 @@
    'load-path)
   (load "~/.spacemacs.d/init.el" nil t))
  (t nil))
+
+;; Hide package.el, could be removed
+(when (> 27 emacs-major-version)
+  (defun ad:package--ensure-init-file ()
+    (setq package--init-file-ensured t))
+  (advice-add 'package--ensure-init-file :override
+              #'ad:package--ensure-init-file))
 
 ;; (my-kill-emacs-hook-show)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
