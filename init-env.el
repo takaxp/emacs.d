@@ -33,17 +33,21 @@
   "Utility function to set PATH-LIST to TARGET-PATH."
   (dolist (x path-list)
     (add-to-list target-path (file-name-as-directory x))))
+(defvar my-package-dir nil)
 (defvar my-cask-package-dir
   (format "~/.emacs.d/.cask/package/%s" emacs-version))
+(defvar my-elget-package-dir
+  (concat "~/.emacs.d/" my-use-el-get "/packages"))
+
 ;; for El-get
+(setq my-package-dir my-cask-package-dir)
 (when my-use-el-get
-  (setq my-cask-package-dir
-        (concat "~/.emacs.d/" my-use-el-get "/packages")))
-(unless (file-directory-p my-cask-package-dir)
-  (user-error "%s does NOT exist" my-cask-package-dir))
+  (setq my-package-dir my-elget-package-dir))
+(unless (file-directory-p my-package-dir)
+  (user-error "%s does NOT exist" my-package-dir))
 
 ;; (1) theme-path
-(my-path-setter `(,my-cask-package-dir
+(my-path-setter `(,my-package-dir
                   "~/.emacs.d/lisp")
                 'custom-theme-load-path)
 
@@ -73,7 +77,7 @@
               "~/.emacs.d/lisp"
               ,(concat g od "/lisp")
               ,(concat g od "/contrib/lisp")
-              ,my-cask-package-dir)))
+              ,my-package-dir)))
     (my-path-setter l 'load-path))
 
   (when my-ad-require-p
@@ -99,7 +103,7 @@
    `("~/Dropbox/config"
      "~/devel/git/org-mode/lisp"
      "~/devel/git/org-mode/contrib/lisp"
-     ,my-cask-package-dir)
+     ,my-package-dir)
    'load-path)
   (require 'my-debug))
  ((eq my-boot-type 'spacemacs) ;; FIXME

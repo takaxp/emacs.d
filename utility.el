@@ -69,8 +69,7 @@
     (cancel-function-timers 'my-desktop-notify) ;; clear existing timers
     (while lines
       (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-      (setq lines (cdr lines)))
-    (message "Timers updated.")))
+      (setq lines (cdr lines)))))
 
 (defun set-alarm-from-line (line)
   (let
@@ -83,7 +82,7 @@
       (setq hour (substring line (match-beginning 1) (match-end 1)))
       (setq min (substring line (match-beginning 2) (match-end 2)))
       (when (string-match
-             "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|$" line (match-end 2))
+             "\|\\s-*\\([^\|]+[^ ]\\)\\s-*\|" line (match-end 2))
         (setq action
               (substring line (match-beginning 1) (match-end 1)))))
     (when (and (and hour min) action)
