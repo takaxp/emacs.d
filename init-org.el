@@ -387,9 +387,9 @@
 
 (unless noninteractive
   (with-eval-after-load "org"
-    (let ((trigger-file "~/Dropbox/org/db/trigger.org"))
-      (when (file-exists-p trigger-file)
-        (my-set-alarms-from-file "~/Dropbox/org/db/trigger.org") ;; init
+    (let ((file "~/Dropbox/org/db/daily.org"))
+      (when (file-exists-p file)
+        (my-set-alarms-from-file file) ;; init
         (add-hook 'after-save-hook #'my-update-alarms-from-file))))) ;; update
 
 (when (autoload-if-found
@@ -496,10 +496,11 @@ will not be modified."
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (setq org-agenda-files
-        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org" "~/Dropbox/org/db/cooking.org"
-          "~/Dropbox/org/db/daily.org" "~/Dropbox/org/minutes/wg1.org"
+        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+          "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
+          "~/Dropbox/org/db/daily.org" "~/Dropbox/org/db/trigger.org"
           "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
-          "~/Dropbox/org/db/trigger.org" "~/Dropbox/org/org2ja.org"))
+          "~/Dropbox/org/org2ja.org"))
 
   ;; sorting strategy
   (setq org-agenda-sorting-strategy
@@ -540,13 +541,14 @@ will not be modified."
         (setq org-tags-column (- org-tags-column (- width 80)))
         ;; (org-align-tags t)
         (moom-change-frame-width width)))
-    (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
+    ;; (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
 
     (defun ad:org-agenda--quit (&optional _bury)
       (setq org-tags-column my-org-tags-column)
       ;; (org-align-tags t)
       (moom-change-frame-width))
-    (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit))
+    ;; (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit)
+    )
 
   (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt)
 
@@ -588,7 +590,7 @@ will not be modified."
   (my-popup-agenda-set-timers)
   (run-at-time "24:00" nil 'my-popup-agenda-set-timers)
 
-;; ついでに calendar.app も定期的に強制起動する
+  ;; ついでに calendar.app も定期的に強制起動する
   (defun my-popup-calendar ()
     (interactive)
     (if (and (eq system-type 'darwin)
@@ -607,7 +609,7 @@ will not be modified."
     (my-popup-calendar-set-timers)
     (run-at-time "24:00" nil 'my-popup-calendar-set-timers))
 
-) ;; for next day
+  ) ;; for next day
 
 ;; Doing 管理
 (with-eval-after-load "org"
@@ -721,19 +723,37 @@ update it for multiple appts?")
       (advice-add 'appt-disp-window :before #'ad:appt-disp-window))))
 
   (with-eval-after-load "org"
-    ;; アラーム表示を有効にする
+    ;; アジェンダを開いたらアラームリストを更新して有効化する
     (unless noninteractive
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init
       (appt-activate 1))
-
+    ;; 重複実行の抑制用フラグ
+    (defvar my-org-agenda-to-appt-ready t)
     ;; org-agenda の内容をアラームに登録する
-    ;; 定期的に更新する
     (defun my-org-agenda-to-appt ()
+      "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
-      (org-agenda-to-appt t '((headline "TODO"))))
+      (if (not (require 'async nil t))
+          (org-agenda-to-appt t '((headline "TODO")))
+        (when my-org-agenda-to-appt-ready
+          (setq my-org-agenda-to-appt-ready nil)
+          (async-start
+           `(lambda ()
+              (setq org-agenda-files ',org-agenda-files)
+              (org-agenda-to-appt t '((headline "TODO")))
+              appt-time-msg-list)
+           (lambda (result)
+             (setq appt-time-msg-list result)
+             (let ((cnt (length appt-time-msg-list)))
+               (if (eq cnt 0)
+                   (message "No event to add")
+                 (message "Added %d event%s for today"
+                          cnt (if (> cnt 1) "s" ""))))
+             (setq my-org-agenda-to-appt-ready t))))))
+    ;; 定期的に更新する
     (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
-    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
-))
+    ;; キャプチャ直後に更新
+    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)))
 
 (with-eval-after-load "org"
   ;; 履歴が生成されるのを抑制．
@@ -742,9 +762,9 @@ update it for multiple appts?")
   ;; リファイル先でサブディレクトリを指定するために一部フルパス化
   (let ((dir (expand-file-name org-directory)))
     (setq org-refile-targets
-          `(("next.org" :level . 1)
-            ("org-ical.org" :level . 1)
-            ("academic.org" :level . 1)
+          `((,(concat dir "next.org") :level . 1)
+            (,(concat dir "org-ical.org") :level . 1)
+            (,(concat dir "academic.org") :level . 1)
             (,(concat dir "tr/work.org") :level . 1)
             (,(concat dir "minutes/wg1.org") :level . 1)
             (,(concat dir "db/article.org") :level . 1)
@@ -892,7 +912,7 @@ update it for multiple appts?")
     (add-hook 'org-tree-slide-before-move-next-hook #'my-org-clock-out)
     (add-hook 'org-tree-slide-before-move-previous-hook #'my-org-clock-out)
     ;; (add-hook 'org-tree-slide-before-content-view-hook #'my-org-clock-out)
-    (add-hook 'org-tree-slide-mode-stop-hook #'my-org-clock-out)
+    (add-hook 'org-tree-slide-stop-hook #'my-org-clock-out)
     (add-hook 'org-tree-slide-after-narrow-hook #'my-org-clock-in)))
 
 (when (autoload-if-found
@@ -1065,8 +1085,8 @@ update it for multiple appts?")
           ":")))))
 
 (with-eval-after-load "ox"
-  (require 'ox-reveal nil t)
-  (when (version< "9.1.4" (org-version))
+  (when (and (require 'ox-reveal nil t)
+             (version< "9.1.4" (org-version)))
     (setq org-reveal-note-key-char ?n)))
 
 (when (autoload-if-found
@@ -1117,9 +1137,11 @@ update it for multiple appts?")
  '(org-random-todo org-random-todo-goto-current)
  "org-random-todo" nil t)
 
-(with-eval-after-load "org"
-  ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
-  (require 'ox-hugo-auto-export nil t))
+;; No need for latest ox-hugo
+;; see https://ox-hugo.scripter.co/doc/deprecation-notices/#org-hugo-auto-export-feature-now-a-minor-mode
+;; (with-eval-after-load "org"
+;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
+;;   (require 'ox-hugo-auto-export nil t))
 
 (with-eval-after-load "ox"
   (when (require 'ox-hugo nil t)

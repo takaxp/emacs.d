@@ -3,21 +3,22 @@
   (interactive)
   (shell-command-to-string "open -a iTerm2.app"))
 
-(defvar kyoko-mad-mode nil)
+(defvar my-kyoko-mad-mode nil)
 ;;;###autoload
-(defun kyoko-mad-mode-toggle ()
+(defun my-kyoko-mad-mode-toggle ()
   (interactive)
-  (setq kyoko-mad-mode (not kyoko-mad-mode))
+  (setq my-kyoko-mad-mode (not my-kyoko-mad-mode))
   (message (concat "Kyoko mad mode: "
-                   (if kyoko-mad-mode "ON" "OFF"))))
+                   (if my-kyoko-mad-mode "ON" "OFF"))))
+;;;###autoload
+(defun my-kyoko-mad ()
+  (interactive)
+  (when my-kyoko-mad-mode
+    (shell-command-to-string
+     "say -v Kyoko おいおまえ，遊んでないで，仕事しろ")))
 
 ;; She will be mad if you do nothing within 10 min.
-(run-with-idle-timer
- 600 t
- (lambda ()
-   (when kyoko-mad-mode
-     (shell-command-to-string
-      "say -v Kyoko おいおまえ，遊んでないで，仕事しろ"))))
+(run-with-idle-timer 600 t 'my-kyoko-mad)
 
 (defcustom open-current-directory-console-program "iTerm2.app"
   "Specify a console program"
@@ -47,8 +48,9 @@
 ;;;###autoload
 (defun my-update-alarms-from-file ()
   (interactive)
-  (when (string= "trigger.org" (buffer-name))
-    (my-set-alarms-from-file "~/Dropbox/org/db/trigger.org")))
+  (let ((bname (buffer-name)))
+    (when (string= bname "daily.org")
+      (my-set-alarms-from-file (concat "~/Dropbox/org/db/" bname)))))
 
 (defun my-set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file
@@ -67,7 +69,8 @@
     (cancel-function-timers 'my-desktop-notify) ;; clear existing timers
     (while lines
       (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-      (setq lines (cdr lines)))))
+      (setq lines (cdr lines)))
+    (message "Timers updated.")))
 
 (defun set-alarm-from-line (line)
   (let
@@ -100,7 +103,7 @@
   "`alerter' is required."
   (run-at-time (format "%s:%s" hour min) nil
                'my-desktop-notify
-               "macos" "Trigger.org" hour min action sticky))
+               "macos" "Org Mode" hour min action sticky))
 
 (defun my-desktop-notify (type title hour min action sticky)
   "An interface to `my-desktop-notificaton'."
@@ -140,7 +143,7 @@
 
 ;;;###autoload
 (defun my-show-org-buffer (file)
-  "Show an org-file on the current buffer"
+  "Show an org-file on the current buffer."
   (interactive)
   (if (get-buffer file)
       (let ((buffer (get-buffer file)))
@@ -248,16 +251,14 @@
 
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
-  (run-with-idle-timer 600 t
-                       (lambda ()
-                         (reload-ical-export)))
+  (run-with-idle-timer 600 t 'my-reload-ical-export)
   ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
   ;; FIXME
   (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
   (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t))))
 
 ;;;###autoload
-(defun reload-ical-export ()
+(defun my-reload-ical-export ()
   "Export org files as an iCal format file"
   (interactive)
   (when (and (string= major-mode 'org-mode) ox-icalendar-activate)
@@ -404,7 +405,8 @@ If `dropbox' option is provided then the value is uased as a root directory."
 (defun my-setup-package-el ()
   "Setting up for installing packages via built-in package.el.
 Downloaded packages will be stored under ~/.eamcs.d/elpa."
-  (when (require 'package nil t)
+  (when (and (require 'package nil t)
+             (boundp 'package-archives))
     (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                         (not (gnutls-available-p))))
            (proto (if no-ssl "http" "https")))

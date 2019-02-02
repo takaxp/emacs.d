@@ -200,7 +200,7 @@
   (with-eval-after-load "postpone"
     (defvar my-default-load-path nil)
     (defun my-list-packages ()
-      "Call \\[paradox-list-packages]' if available instead of \\[list-packages]."
+      "Call paradox-list-packages if available instead of list-packages."
       (interactive)
       (setq my-default-load-path load-path)
       (my-setup-cask)
@@ -857,6 +857,12 @@
 (with-eval-after-load "time"
   (define-key display-time-world-mode-map "q" 'delete-window))
 
+;; Add following setting in .init.el
+(setq zoneinfo-style-world-list
+      '(("Europe/Lisbon" "Lisbon")
+        ("Asia/Tokyo" "Tokyo")))
+;; Then, M-x display-time-world
+
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "n") 'next-line)
   (define-key view-mode-map (kbd "p") 'previous-line)
@@ -1327,26 +1333,43 @@ This works also for other defined begin/end tokens to define the structure."
               '((top . nil) (bottom . right) (down . right)))
 
 (with-eval-after-load "postpone"
-  (if (executable-find "cmigemo")
-      (when (autoload-if-found
-             '(migemo-init)
-             "migemo" nil t)
+  ;; 改行文字の文字列表現
+  (set 'eol-mnemonic-dos "(CRLF)")
+  (set 'eol-mnemonic-unix "(LF)")
+  (set 'eol-mnemonic-mac "(CR)")
+  (set 'eol-mnemonic-undecided "(?)")
 
-        (add-hook 'isearch-mode-hook #'migemo-init)
+  ;; 文字エンコーディングの文字列表現
+  (defun my-coding-system-name-mnemonic (coding-system)
+    (let* ((base (coding-system-base coding-system))
+           (name (symbol-name base)))
+      (cond ((string-prefix-p "utf-8" name) "U8")
+            ((string-prefix-p "utf-16" name) "U16")
+            ((string-prefix-p "utf-7" name) "U7")
+            ((string-prefix-p "japanese-shift-jis" name) "SJIS")
+            ((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
+            ((string-match "japanese-iso-8bit" name) "EUC")
+            (t "???")
+            )))
 
-        (with-eval-after-load "migemo"
-          (custom-set-variables
-           '(completion-ignore-case t) ;; case-independent
-           '(migemo-command "cmigemo")
-           '(migemo-options '("-q" "--emacs" "-i" "\a"))
-           '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
-           '(migemo-user-dictionary nil)
-           '(migemo-regex-dictionary nil)
-           '(migemo-use-pattern-alist t)
-           '(migemo-use-frequent-pattern-alist t)
-           '(migemo-pattern-alist-length 1024)
-           '(migemo-coding-system 'utf-8-unix))))
-    (message "--- cmigemo is NOT installed.")))
+  (defun my-coding-system-bom-mnemonic (coding-system)
+    (let ((name (symbol-name coding-system)))
+      (cond ((string-match "be-with-signature" name) "[BE]")
+            ((string-match "le-with-signature" name) "[LE]")
+            ((string-match "-with-signature" name) "[BOM]")
+            (t ""))))
+
+  (defun my-buffer-coding-system-mnemonic ()
+    "Return a mnemonic for `buffer-file-coding-system'."
+    (let* ((code buffer-file-coding-system)
+           (name (my-coding-system-name-mnemonic code))
+           (bom (my-coding-system-bom-mnemonic code)))
+      (format "%s%s" name bom)))
+
+  ;; `mode-line-mule-info' の文字エンコーディングの文字列表現を差し替える
+  (setq-default mode-line-mule-info
+                (cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
+                               "%z" mode-line-mule-info :test 'equal)))
 
 (when (autoload-if-found
        '(helm-google)
@@ -1628,45 +1651,6 @@ This works also for other defined begin/end tokens to define the structure."
     ;; for helm and helm-swoop
     (add-hook 'minibuffer-setup-hook #'dimmer-off)
     (add-hook 'minibuffer-exit-hook #'dimmer-on)))
-
-(with-eval-after-load "postpone"
-  ;; 改行文字の文字列表現
-  (set 'eol-mnemonic-dos "(CRLF)")
-  (set 'eol-mnemonic-unix "(LF)")
-  (set 'eol-mnemonic-mac "(CR)")
-  (set 'eol-mnemonic-undecided "(?)")
-
-  ;; 文字エンコーディングの文字列表現
-  (defun my-coding-system-name-mnemonic (coding-system)
-    (let* ((base (coding-system-base coding-system))
-           (name (symbol-name base)))
-      (cond ((string-prefix-p "utf-8" name) "U8")
-            ((string-prefix-p "utf-16" name) "U16")
-            ((string-prefix-p "utf-7" name) "U7")
-            ((string-prefix-p "japanese-shift-jis" name) "SJIS")
-            ((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
-            ((string-match "japanese-iso-8bit" name) "EUC")
-            (t "???")
-            )))
-
-  (defun my-coding-system-bom-mnemonic (coding-system)
-    (let ((name (symbol-name coding-system)))
-      (cond ((string-match "be-with-signature" name) "[BE]")
-            ((string-match "le-with-signature" name) "[LE]")
-            ((string-match "-with-signature" name) "[BOM]")
-            (t ""))))
-
-  (defun my-buffer-coding-system-mnemonic ()
-    "Return a mnemonic for `buffer-file-coding-system'."
-    (let* ((code buffer-file-coding-system)
-           (name (my-coding-system-name-mnemonic code))
-           (bom (my-coding-system-bom-mnemonic code)))
-      (format "%s%s" name bom)))
-
-  ;; `mode-line-mule-info' の文字エンコーディングの文字列表現を差し替える
-  (setq-default mode-line-mule-info
-                (cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
-                               "%z" mode-line-mule-info :test 'equal)))
 
 (my-tick-init-time "presentation")
 
@@ -2463,8 +2447,8 @@ This works also for other defined begin/end tokens to define the structure."
 ;; カーソルの色
 (defconst my-cursor-color-ime-on "#FF9300")
 (defconst my-cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
-(defconst my-cursor-type-ime-on '(bar . 2)) ;; '(hbar . 10)
-(defconst my-cursor-type-ime-off '(bar . 2)) ;; '(hbar . 10)
+(defconst my-cursor-type-ime-on '(bar . 2))
+(defconst my-cursor-type-ime-off '(bar . 2))
 (defvar my-ime-last nil)
 
 (when (and (eq window-system 'ns)
@@ -2536,6 +2520,7 @@ This works also for other defined begin/end tokens to define the structure."
       (if arg
           (progn
             (setq cursor-type my-cursor-type-ime-on)
+
             (set-cursor-color my-cursor-color-ime-on)
             (run-hooks 'my-ime-on-hook))
         (progn
@@ -2618,12 +2603,31 @@ This works also for other defined begin/end tokens to define the structure."
 
 (declare-function my-theme "init" nil)
 (with-eval-after-load "postpone"
-  (defun ad:make-frame ()
-    (my-theme)
+  (defun ad:make-frame (&optional _parameters)
+    (when (display-graphic-p)
+      (my-theme))
     (when (require 'moom-font nil t)
       (moom-font-resize)))
   (advice-add 'make-frame :after #'ad:make-frame)
   (global-set-key (kbd "M-`") 'other-frame))
+
+(with-eval-after-load "moom"
+  (when (require 'olivetti nil t)
+    (setq olivetti-lighter nil)
+    (setq-default olivetti-body-width 80)
+    (defun ad:turn-on-olivetti-mode ()
+      "Disable `visual-line-mode'."
+      (unless moom--maximized
+        (olivetti-mode -1))
+      (visual-line-mode -1))
+    (advice-add 'turn-on-olivetti-mode :after #'ad:turn-on-olivetti-mode)
+    (add-hook 'find-file-hook #'turn-on-olivetti-mode)
+    (defun ad:olivetti:moom-toggle-frame-maximized ()
+      (if moom--maximized
+          (turn-on-olivetti-mode)
+        (olivetti-mode -1)))
+    (advice-add 'moom-toggle-frame-maximized :after
+                #'ad:olivetti:moom-toggle-frame-maximized)))
 
 (defconst moom-autoloads
   '(moom-cycle-frame-height
@@ -2727,7 +2731,8 @@ This works also for other defined begin/end tokens to define the structure."
       (my-toggle-mode-line)))
   (add-hook 'find-file-hook
             (lambda () (unless my-mode-line-global-flag
-                         (my-mode-line-off)))))
+                         (my-mode-line-off)))
+            t)) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
 
 (with-eval-after-load "postpone"
   (unless noninteractive
@@ -2789,6 +2794,18 @@ This works also for other defined begin/end tokens to define the structure."
   (global-hl-line-mode 1))
 
 (with-eval-after-load "postpone"
+  (defvar my-hl-active-period 3
+    "Disable `hl-line' after this period")
+
+  (defun my-hl-line-disable ()
+    "Disable `hl-line'."
+    (global-hl-line-mode -1))
+
+  (defun my-hl-line-enable ()
+    "Enable `hl-line'."
+    (unless global-hl-line-mode
+      (global-hl-line-mode 1)))
+
   (defun my-ime-off-hline ()
     (custom-set-faces
      '(hl-line
@@ -2798,27 +2815,15 @@ This works also for other defined begin/end tokens to define the structure."
   (defun my-ime-on-hline ()
     (custom-set-faces
      '(hl-line
-       ((((background dark)) :background "#483c4c")
+       ((((background dark)) :background "#594d5d")
         (t (:background "#fff0de"))))))
-
-  (add-hook 'my-ime-off-hook #'my-ime-off-hline)
-  (add-hook 'my-ime-on-hook #'my-ime-on-hline)
-
-
-  (defvar my-hl-active-period 3
-    "Disable `hl-line' after this period")
-  (defun my-hl-line-disable ()
-    "Disable `hl-line'."
-    (global-hl-line-mode -1))
-  (defun my-hl-line-enable ()
-    "Enable `hl-line'."
-    (unless global-hl-line-mode
-      (global-hl-line-mode 1)))
 
   (add-hook 'move-cursor-hook #'my-hl-line-enable)
   (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
   (add-hook 'focus-in-hook #'my-hl-line-enable)
   (add-hook 'focus-out-hook #'my-hl-line-disable)
+  (add-hook 'my-ime-on-hook #'my-ime-on-hline)
+  (add-hook 'my-ime-off-hook #'my-ime-off-hline)
   (add-hook 'my-ime-on-hook #'my-hl-line-enable)
   (add-hook 'my-ime-off-hook #'my-hl-line-enable))
 
@@ -2939,6 +2944,7 @@ This works also for other defined begin/end tokens to define the structure."
     (when (require 'daylight-theme nil t)
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'daylight t)
+      (setq my-cursor-color-ime-on "#FF9300")
       (setq default-frame-alist
             (delete (assoc 'ns-appearance default-frame-alist)
                     default-frame-alist))
@@ -2955,6 +2961,7 @@ This works also for other defined begin/end tokens to define the structure."
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'night t)
+      (setq my-cursor-color-ime-on "RosyBrown") ;; #cebcfe
       (setq default-frame-alist
             (delete (assoc 'ns-appearance default-frame-alist)
                     default-frame-alist))
@@ -2968,6 +2975,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 (when (display-graphic-p)
   (declare-function my-night-time-p "init" (begin end))
+  (declare-function my-apply-cursor-config "init" nil)
   (defun my-night-time-p (begin end)
     (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
            (cm (string-to-number (format-time-string "%M" (current-time))))
@@ -3316,7 +3324,8 @@ This works also for other defined begin/end tokens to define the structure."
     "Extensions to stop pomodoro and timers"
     (interactive)
     (pomodoro:visualize-stop)
-    (apply f do-reset))
+    (when (timerp pomodoro:timer)
+      (apply f do-reset)))
 
   (when my-pomodoro-visualize
     (advice-add 'pomodoro:start :around #'ad:pomodoro:start)

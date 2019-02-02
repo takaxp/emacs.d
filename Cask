@@ -1,4 +1,4 @@
-;; #+date: 2018-12-25
+;; #+date: 2019-01-31
 
 (source gnu)
 (source melpa)
@@ -19,14 +19,15 @@
 
 ;; Testing
 (depends-on "htprofile"    :git "https://github.com/takaxp/htprofile.git")
+(depends-on "yequake"      :git "https://github.com/alphapapa/yequake.git")
 
 ;; Package install
 (depends-on "cask")
 (depends-on "cask-mode")
 (depends-on "paradox")
-(depends-on "epl")
-(depends-on "epm")
 (depends-on "use-package")
+;; (depends-on "epl")
+;; (depends-on "epm")
 
 ;; Org Mode
 (depends-on "org-plus-contrib")
@@ -62,6 +63,7 @@
 (depends-on "org-bookmark-heading")
 (depends-on "org-emms")
 (depends-on "easy-hugo")
+(depends-on "org-projectile")
 
 ;; Major modes
 (depends-on "python-mode")
@@ -152,6 +154,7 @@
 (depends-on "migemo")
 (depends-on "edit-color-stamp")
 (depends-on "tiny")
+(depends-on "olivetti")
 ;; (depends-on "parinfer")
 
 ;; Visualize
@@ -183,6 +186,7 @@
 (depends-on "neotree")
 (depends-on "network-watch")
 ;; (depends-on "gited")
+(depends-on "find-file-in-project")
 
 ;; Frame and windows
 (depends-on "popwin")
@@ -190,6 +194,7 @@
 (depends-on "tabbar")
 (depends-on "moom")
 (depends-on "doom-modeline")
+(depends-on "frame-tabs")
 ;; (depends-on "spaceline-all-the-icons")
 ;; (depends-on "exwm") ;; failed to instal ... Bad Request
 
@@ -208,28 +213,24 @@
 (depends-on "goto-chg")
 (depends-on "esup")
 (depends-on "initchart" :git "https://github.com/yuttie/initchart.git")
-(depends-on "fzf")
+
 
 ;; Applications
 (depends-on "lingr")
 (depends-on "bm")
 (depends-on "ag")
-(depends-on "japanese-holidays")
 (depends-on "google-this")
-(depends-on "google-maps")
-(depends-on "japanlaw")
+(depends-on "japanese-holidays")
 (depends-on "emacsql-sqlite")
 (depends-on "w3m")
 (depends-on "sunshine")
-;; (depends-on "pocket-reader")
-(depends-on "emms") ;; includes emms-player-mpv
-(depends-on "gif-screencast")
+(depends-on "emms")
 (depends-on "pass")
-(depends-on "keycast") ;; require emacs-25.3
-(depends-on "pcap-mode")
+(depends-on "gif-screencast")
+(depends-on "keycast")
 (depends-on "pdf-tools")
-(depends-on "minesweeper")
-(depends-on "web-server")
+;; (depends-on "japanlaw")
+;; (depends-on "google-maps")
 
 ;; Log
 (depends-on "keyfreq")

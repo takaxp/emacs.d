@@ -1006,7 +1006,7 @@ echo "--- done."
   (with-eval-after-load "postpone"
     (defvar my-default-load-path nil)
     (defun my-list-packages ()
-      "Call \\[paradox-list-packages]' if available instead of \\[list-packages]."
+      "Call paradox-list-packages if available instead of list-packages."
       (interactive)
       (setq my-default-load-path load-path)
       (my-setup-cask)
@@ -2470,6 +2470,14 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
   (define-key display-time-world-mode-map "q" 'delete-window))
 #+end_src
 
+#+begin_src emacs-lisp :tangle yes :exports none
+;; Add following setting in .init.el
+(setq zoneinfo-style-world-list
+      '(("Europe/Lisbon" "Lisbon")
+        ("Asia/Tokyo" "Tokyo")))
+;; Then, M-x display-time-world
+#+end_src
+
 ** 読書モード
    :PROPERTIES:
    :CUSTOM_ID: org66e1952c
@@ -3694,6 +3702,56 @@ paren.el の場合は以下の設定．
               '((top . nil) (bottom . right) (down . right)))
 #+end_src
 
+** 文字エンコードの表示を明確化
+   :PROPERTIES:
+   :CUSTOM_ID: orgec7835e0
+   :END:
+
+デフォルトの表示は略されすぎていてわかりにくいので，表示内容を具体化します．
+
+ - [[https://qiita.com/kai2nenobu/items/ddf94c0e5a36919bc6db][モードラインの文字エンコーディング表示をわかりやすくする - Qiita]]
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "postpone"
+  ;; 改行文字の文字列表現
+  (set 'eol-mnemonic-dos "(CRLF)")
+  (set 'eol-mnemonic-unix "(LF)")
+  (set 'eol-mnemonic-mac "(CR)")
+  (set 'eol-mnemonic-undecided "(?)")
+
+  ;; 文字エンコーディングの文字列表現
+  (defun my-coding-system-name-mnemonic (coding-system)
+    (let* ((base (coding-system-base coding-system))
+           (name (symbol-name base)))
+      (cond ((string-prefix-p "utf-8" name) "U8")
+            ((string-prefix-p "utf-16" name) "U16")
+            ((string-prefix-p "utf-7" name) "U7")
+            ((string-prefix-p "japanese-shift-jis" name) "SJIS")
+            ((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
+            ((string-match "japanese-iso-8bit" name) "EUC")
+            (t "???")
+            )))
+
+  (defun my-coding-system-bom-mnemonic (coding-system)
+    (let ((name (symbol-name coding-system)))
+      (cond ((string-match "be-with-signature" name) "[BE]")
+            ((string-match "le-with-signature" name) "[LE]")
+            ((string-match "-with-signature" name) "[BOM]")
+            (t ""))))
+
+  (defun my-buffer-coding-system-mnemonic ()
+    "Return a mnemonic for `buffer-file-coding-system'."
+    (let* ((code buffer-file-coding-system)
+           (name (my-coding-system-name-mnemonic code))
+           (bom (my-coding-system-bom-mnemonic code)))
+      (format "%s%s" name bom)))
+
+  ;; `mode-line-mule-info' の文字エンコーディングの文字列表現を差し替える
+  (setq-default mode-line-mule-info
+                (cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
+                               "%z" mode-line-mule-info :test 'equal)))
+#+end_src
+
 ** [migemo.el] ローマ字入力で日本語を検索する
    :PROPERTIES:
    :CUSTOM_ID: org74bad2de
@@ -3703,7 +3761,7 @@ http://0xcc.net/migemo/#download
 
 以下は，[[http://www.kaoriya.net/software/cmigemo][cmigemo]] を使う設定です．正直なところ，それほどメリットを感じていません．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (with-eval-after-load "postpone"
   (if (executable-find "cmigemo")
       (when (autoload-if-found
@@ -4172,56 +4230,6 @@ http://0xcc.net/migemo/#download
     ;; for helm and helm-swoop
     (add-hook 'minibuffer-setup-hook #'dimmer-off)
     (add-hook 'minibuffer-exit-hook #'dimmer-on)))
-#+end_src
-
-** TODO 文字エンコードの表示を明確化
-   :PROPERTIES:
-   :CUSTOM_ID: orgec7835e0
-   :END:
-
-デフォルトの表示は略されすぎていてわかりにくいので，表示内容を具体化します．
-
- - [[https://qiita.com/kai2nenobu/items/ddf94c0e5a36919bc6db][モードラインの文字エンコーディング表示をわかりやすくする - Qiita]]
-
-#+begin_src emacs-lisp :tangle yes
-(with-eval-after-load "postpone"
-  ;; 改行文字の文字列表現
-  (set 'eol-mnemonic-dos "(CRLF)")
-  (set 'eol-mnemonic-unix "(LF)")
-  (set 'eol-mnemonic-mac "(CR)")
-  (set 'eol-mnemonic-undecided "(?)")
-
-  ;; 文字エンコーディングの文字列表現
-  (defun my-coding-system-name-mnemonic (coding-system)
-    (let* ((base (coding-system-base coding-system))
-           (name (symbol-name base)))
-      (cond ((string-prefix-p "utf-8" name) "U8")
-            ((string-prefix-p "utf-16" name) "U16")
-            ((string-prefix-p "utf-7" name) "U7")
-            ((string-prefix-p "japanese-shift-jis" name) "SJIS")
-            ((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
-            ((string-match "japanese-iso-8bit" name) "EUC")
-            (t "???")
-            )))
-
-  (defun my-coding-system-bom-mnemonic (coding-system)
-    (let ((name (symbol-name coding-system)))
-      (cond ((string-match "be-with-signature" name) "[BE]")
-            ((string-match "le-with-signature" name) "[LE]")
-            ((string-match "-with-signature" name) "[BOM]")
-            (t ""))))
-
-  (defun my-buffer-coding-system-mnemonic ()
-    "Return a mnemonic for `buffer-file-coding-system'."
-    (let* ((code buffer-file-coding-system)
-           (name (my-coding-system-name-mnemonic code))
-           (bom (my-coding-system-bom-mnemonic code)))
-      (format "%s%s" name bom)))
-
-  ;; `mode-line-mule-info' の文字エンコーディングの文字列表現を差し替える
-  (setq-default mode-line-mule-info
-                (cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
-                               "%z" mode-line-mule-info :test 'equal)))
 #+end_src
 
 ** DONE バッテリー情報をモードラインに表示する                     :obsolete:
@@ -6480,14 +6488,14 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 |-------------+--------+-----------+---------------------------------|
 | pomodoro    | nil    | Glass     | my-pomodoro-notify              |
 | org-notify  | t      | default   | my-desktop-notification-handler |
-| trigger.org | select | default   | my-desktop-notify               |
+| daily.org   | select | default   | my-desktop-notify               |
 | appt        | select | Glass/Pop | ad:appt-disp-window             |
 
 |             | Note                     |
 |-------------+--------------------------|
 | pomodoro    | pomodoro loop            |
 | org-notify  | orgからの通知            |
-| trigger.org | Alarms on a table        |
+| daily.org   | Alarms on a table        |
 | appt        | TODO items with deadline |
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -6538,9 +6546,9 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 #+begin_src emacs-lisp :tangle init-org.el
 (unless noninteractive
   (with-eval-after-load "org"
-    (let ((trigger-file "~/Dropbox/org/db/trigger.org"))
-      (when (file-exists-p trigger-file)
-        (my-set-alarms-from-file "~/Dropbox/org/db/trigger.org") ;; init
+    (let ((file "~/Dropbox/org/db/daily.org"))
+      (when (file-exists-p file)
+        (my-set-alarms-from-file file) ;; init
         (add-hook 'after-save-hook #'my-update-alarms-from-file))))) ;; update
 #+end_src
 
@@ -6663,10 +6671,11 @@ will not be modified."
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (setq org-agenda-files
-        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org" "~/Dropbox/org/db/cooking.org"
-          "~/Dropbox/org/db/daily.org" "~/Dropbox/org/minutes/wg1.org"
+        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+          "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
+          "~/Dropbox/org/db/daily.org" "~/Dropbox/org/db/trigger.org"
           "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
-          "~/Dropbox/org/db/trigger.org" "~/Dropbox/org/org2ja.org"))
+          "~/Dropbox/org/org2ja.org"))
 
   ;; sorting strategy
   (setq org-agenda-sorting-strategy
@@ -6707,13 +6716,14 @@ will not be modified."
         (setq org-tags-column (- org-tags-column (- width 80)))
         ;; (org-align-tags t)
         (moom-change-frame-width width)))
-    (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
+    ;; (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
 
     (defun ad:org-agenda--quit (&optional _bury)
       (setq org-tags-column my-org-tags-column)
       ;; (org-align-tags t)
       (moom-change-frame-width))
-    (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit))
+    ;; (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit)
+    )
 
   (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt)
 
@@ -6755,7 +6765,7 @@ will not be modified."
   (my-popup-agenda-set-timers)
   (run-at-time "24:00" nil 'my-popup-agenda-set-timers)
 
-;; ついでに calendar.app も定期的に強制起動する
+  ;; ついでに calendar.app も定期的に強制起動する
   (defun my-popup-calendar ()
     (interactive)
     (if (and (eq system-type 'darwin)
@@ -6774,7 +6784,7 @@ will not be modified."
     (my-popup-calendar-set-timers)
     (run-at-time "24:00" nil 'my-popup-calendar-set-timers))
 
-) ;; for next day
+  ) ;; for next day
 
 ;; Doing 管理
 (with-eval-after-load "org"
@@ -6908,19 +6918,37 @@ update it for multiple appts?")
       (advice-add 'appt-disp-window :before #'ad:appt-disp-window))))
 
   (with-eval-after-load "org"
-    ;; アラーム表示を有効にする
+    ;; アジェンダを開いたらアラームリストを更新して有効化する
     (unless noninteractive
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init
       (appt-activate 1))
-
+    ;; 重複実行の抑制用フラグ
+    (defvar my-org-agenda-to-appt-ready t)
     ;; org-agenda の内容をアラームに登録する
-    ;; 定期的に更新する
     (defun my-org-agenda-to-appt ()
+      "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
-      (org-agenda-to-appt t '((headline "TODO"))))
+      (if (not (require 'async nil t))
+          (org-agenda-to-appt t '((headline "TODO")))
+        (when my-org-agenda-to-appt-ready
+          (setq my-org-agenda-to-appt-ready nil)
+          (async-start
+           `(lambda ()
+              (setq org-agenda-files ',org-agenda-files)
+              (org-agenda-to-appt t '((headline "TODO")))
+              appt-time-msg-list)
+           (lambda (result)
+             (setq appt-time-msg-list result)
+             (let ((cnt (length appt-time-msg-list)))
+               (if (eq cnt 0)
+                   (message "No event to add")
+                 (message "Added %d event%s for today"
+                          cnt (if (> cnt 1) "s" ""))))
+             (setq my-org-agenda-to-appt-ready t))))))
+    ;; 定期的に更新する
     (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
-    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
-))
+    ;; キャプチャ直後に更新
+    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)))
 #+end_src
 
 ** [org-refile] orgツリーの高速移動
@@ -6938,9 +6966,9 @@ update it for multiple appts?")
   ;; リファイル先でサブディレクトリを指定するために一部フルパス化
   (let ((dir (expand-file-name org-directory)))
     (setq org-refile-targets
-          `(("next.org" :level . 1)
-            ("org-ical.org" :level . 1)
-            ("academic.org" :level . 1)
+          `((,(concat dir "next.org") :level . 1)
+            (,(concat dir "org-ical.org") :level . 1)
+            (,(concat dir "academic.org") :level . 1)
             (,(concat dir "tr/work.org") :level . 1)
             (,(concat dir "minutes/wg1.org") :level . 1)
             (,(concat dir "db/article.org") :level . 1)
@@ -7140,7 +7168,7 @@ update it for multiple appts?")
     (add-hook 'org-tree-slide-before-move-next-hook #'my-org-clock-out)
     (add-hook 'org-tree-slide-before-move-previous-hook #'my-org-clock-out)
     ;; (add-hook 'org-tree-slide-before-content-view-hook #'my-org-clock-out)
-    (add-hook 'org-tree-slide-mode-stop-hook #'my-org-clock-out)
+    (add-hook 'org-tree-slide-stop-hook #'my-org-clock-out)
     (add-hook 'org-tree-slide-after-narrow-hook #'my-org-clock-in)))
 #+end_src
 
@@ -7430,8 +7458,8 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "ox"
-  (require 'ox-reveal nil t)
-  (when (version< "9.1.4" (org-version))
+  (when (and (require 'ox-reveal nil t)
+             (version< "9.1.4" (org-version)))
     (setq org-reveal-note-key-char ?n)))
 #+end_src
 
@@ -7525,9 +7553,11 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
  - Org Mode でブログを書いて， [[https://gohugo.io/][Hugo]]で静的サイトに出力します．
 
 #+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org"
-  ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
-  (require 'ox-hugo-auto-export nil t))
+;; No need for latest ox-hugo
+;; see https://ox-hugo.scripter.co/doc/deprecation-notices/#org-hugo-auto-export-feature-now-a-minor-mode
+;; (with-eval-after-load "org"
+;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
+;;   (require 'ox-hugo-auto-export nil t))
 
 (with-eval-after-load "ox"
   (when (require 'ox-hugo nil t)
@@ -8188,8 +8218,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ;; カーソルの色
 (defconst my-cursor-color-ime-on "#FF9300")
 (defconst my-cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
-(defconst my-cursor-type-ime-on '(bar . 2)) ;; '(hbar . 10)
-(defconst my-cursor-type-ime-off '(bar . 2)) ;; '(hbar . 10)
+(defconst my-cursor-type-ime-on '(bar . 2))
+(defconst my-cursor-type-ime-off '(bar . 2))
 (defvar my-ime-last nil)
 
 (when (and (eq window-system 'ns)
@@ -8261,6 +8291,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
       (if arg
           (progn
             (setq cursor-type my-cursor-type-ime-on)
+
             (set-cursor-color my-cursor-color-ime-on)
             (run-hooks 'my-ime-on-hook))
         (progn
@@ -8352,12 +8383,42 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+begin_src emacs-lisp :tangle yes
 (declare-function my-theme "init" nil)
 (with-eval-after-load "postpone"
-  (defun ad:make-frame ()
-    (my-theme)
+  (defun ad:make-frame (&optional _parameters)
+    (when (display-graphic-p)
+      (my-theme))
     (when (require 'moom-font nil t)
       (moom-font-resize)))
   (advice-add 'make-frame :after #'ad:make-frame)
   (global-set-key (kbd "M-`") 'other-frame))
+#+end_src
+
+** [olivetti.el] ウィンドウを中央寄せで配置
+   :PROPERTIES:
+   :CUSTOM_ID: org7a20b311
+   :END:
+
+ - [[https://github.com/rnkn/olivetti][rnkn/olivetti: Emacs minor mode for a nice writing environment]]
+
+=moom.el= を使ってフレームを最大化したり，画面の半分に配置すると，80桁で表示する領域とウィンドウが占める領域の幅が一致しない場合があります．通常は，フレーム内で左寄せに配置されますが， =olivetti= を使うと，中央寄せにできます．
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "moom"
+  (when (require 'olivetti nil t)
+    (setq olivetti-lighter nil)
+    (setq-default olivetti-body-width 80)
+    (defun ad:turn-on-olivetti-mode ()
+      "Disable `visual-line-mode'."
+      (unless moom--maximized
+        (olivetti-mode -1))
+      (visual-line-mode -1))
+    (advice-add 'turn-on-olivetti-mode :after #'ad:turn-on-olivetti-mode)
+    (add-hook 'find-file-hook #'turn-on-olivetti-mode)
+    (defun ad:olivetti:moom-toggle-frame-maximized ()
+      (if moom--maximized
+          (turn-on-olivetti-mode)
+        (olivetti-mode -1)))
+    (advice-add 'moom-toggle-frame-maximized :after
+                #'ad:olivetti:moom-toggle-frame-maximized)))
 #+end_src
 
 ** [moom.el] キーボードでフレームの場所を移す
@@ -8434,7 +8495,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
             (9 5) (8 5) (7 4) (6 4) (5 3)))))
 #+end_src
 
-*** TODO 最大化時にモードラインを消す
+*** 最大化時にモードラインを消す
     :PROPERTIES:
     :CUSTOM_ID: org6e3c20dd
     :END:
@@ -8503,7 +8564,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
       (my-toggle-mode-line)))
   (add-hook 'find-file-hook
             (lambda () (unless my-mode-line-global-flag
-                         (my-mode-line-off)))))
+                         (my-mode-line-off)))
+            t)) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
 #+end_src
 
 ** [winner.el] ウィンドウ構成の履歴を辿る
@@ -8818,6 +8880,18 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
+  (defvar my-hl-active-period 3
+    "Disable `hl-line' after this period")
+
+  (defun my-hl-line-disable ()
+    "Disable `hl-line'."
+    (global-hl-line-mode -1))
+
+  (defun my-hl-line-enable ()
+    "Enable `hl-line'."
+    (unless global-hl-line-mode
+      (global-hl-line-mode 1)))
+
   (defun my-ime-off-hline ()
     (custom-set-faces
      '(hl-line
@@ -8827,27 +8901,15 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   (defun my-ime-on-hline ()
     (custom-set-faces
      '(hl-line
-       ((((background dark)) :background "#483c4c")
+       ((((background dark)) :background "#594d5d")
         (t (:background "#fff0de"))))))
-
-  (add-hook 'my-ime-off-hook #'my-ime-off-hline)
-  (add-hook 'my-ime-on-hook #'my-ime-on-hline)
-
-
-  (defvar my-hl-active-period 3
-    "Disable `hl-line' after this period")
-  (defun my-hl-line-disable ()
-    "Disable `hl-line'."
-    (global-hl-line-mode -1))
-  (defun my-hl-line-enable ()
-    "Enable `hl-line'."
-    (unless global-hl-line-mode
-      (global-hl-line-mode 1)))
 
   (add-hook 'move-cursor-hook #'my-hl-line-enable)
   (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
   (add-hook 'focus-in-hook #'my-hl-line-enable)
   (add-hook 'focus-out-hook #'my-hl-line-disable)
+  (add-hook 'my-ime-on-hook #'my-ime-on-hline)
+  (add-hook 'my-ime-off-hook #'my-ime-off-hline)
   (add-hook 'my-ime-on-hook #'my-hl-line-enable)
   (add-hook 'my-ime-off-hook #'my-hl-line-enable))
 #+end_src
@@ -9073,6 +9135,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (when (require 'daylight-theme nil t)
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'daylight t)
+      (setq my-cursor-color-ime-on "#FF9300")
       (setq default-frame-alist
             (delete (assoc 'ns-appearance default-frame-alist)
                     default-frame-alist))
@@ -9089,6 +9152,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'night t)
+      (setq my-cursor-color-ime-on "RosyBrown") ;; #cebcfe
       (setq default-frame-alist
             (delete (assoc 'ns-appearance default-frame-alist)
                     default-frame-alist))
@@ -9111,6 +9175,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle yes
 (when (display-graphic-p)
   (declare-function my-night-time-p "init" (begin end))
+  (declare-function my-apply-cursor-config "init" nil)
   (defun my-night-time-p (begin end)
     (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
            (cm (string-to-number (format-time-string "%M" (current-time))))
@@ -9596,7 +9661,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     "Extensions to stop pomodoro and timers"
     (interactive)
     (pomodoro:visualize-stop)
-    (apply f do-reset))
+    (when (timerp pomodoro:timer)
+      (apply f do-reset)))
 
   (when my-pomodoro-visualize
     (advice-add 'pomodoro:start :around #'ad:pomodoro:start)
@@ -9678,7 +9744,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
    :CUSTOM_ID: org71c49002
    :END:
 
-init.el読書会が毎週土曜日の22時に開催されています．作業に集中していると，ついつい忘れてしまうので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルに記載しています．
+init.el読書会が毎週土曜日の23時に開催されています．作業に集中していると，ついつい忘れてしまうので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルに記載しています．
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -9786,7 +9852,7 @@ init.el読書会が毎週土曜日の22時に開催されています．作業�
    :END:
 
  - [[https://github.com/Ambrevar/emacs-gif-screencast][Ambrevar/emacs-gif-screencast: One-frame-per-action GIF recording for optimal quality/size ratio]]
- - +色々と Linux用に設計・前提とされていて，今のところ Macで使うのはちょっと厳しい．+
+ - +色々と Linux用に設計・前提とされていて，今のところ Mac で使うのはちょっと厳しい．+
    - macOS用に追加実装しました．[[https://github.com/Ambrevar/emacs-gif-screencast/commit/0ab5f3db2ca0679698a297003cb286e727d12c10#diff-825716ca58bd0ebef62b7ed711446577][本家にマージ]]されています．
    - スクショ専門ツールもあります．こちらは =import= コマンドを利用します．
      - [[https://github.com/tarsius/frameshot][tarsius/frameshot: Take screenshots of a frame]]

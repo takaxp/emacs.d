@@ -16,6 +16,8 @@
 (defconst my-loading-packages nil) ;;`my-skip-autoload-file-check' shall be nil.
 ;; (setq my-loading-packages
 ;;       '(("org-tree-slide" . nil)))
+(defvar my-use-el-get "26.1.91" ;; nil ;; "26.1.91"
+  "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
       my-mode-line-global-flag nil
       my-frame-appearance nil ;; {nil, 'dark, 'light}
@@ -31,15 +33,19 @@
   "Utility function to set PATH-LIST to TARGET-PATH."
   (dolist (x path-list)
     (add-to-list target-path (file-name-as-directory x))))
-
-;; (1) theme-path
-(defconst my-cask-package-dir
+(defvar my-cask-package-dir
   (format "~/.emacs.d/.cask/package/%s" emacs-version))
+;; for El-get
+(when my-use-el-get
+  (setq my-cask-package-dir
+        (concat "~/.emacs.d/" my-use-el-get "/packages")))
 (unless (file-directory-p my-cask-package-dir)
   (user-error "%s does NOT exist" my-cask-package-dir))
-(my-path-setter
- `(,my-cask-package-dir "~/.emacs.d/lisp")
- 'custom-theme-load-path)
+
+;; (1) theme-path
+(my-path-setter `(,my-cask-package-dir
+                  "~/.emacs.d/lisp")
+                'custom-theme-load-path)
 
 ;; (2) exec-path
 (my-path-setter
@@ -69,6 +75,7 @@
               ,(concat g od "/contrib/lisp")
               ,my-cask-package-dir)))
     (my-path-setter l 'load-path))
+
   (when my-ad-require-p
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
   ;; (load "~/Dropbox/emacs.d/config/init-chart.el" nil t)

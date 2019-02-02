@@ -66,7 +66,7 @@
                (require 'bm nil t)))
   (require 'emms-setup nil t)
   (require 'yatex nil t)
-  (shut-up (require 'bm nil t)))
+  (require 'bm nil t))
 
 (provide 'init-eval)
 ;;; init-eval.el ends here
