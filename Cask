@@ -1,4 +1,4 @@
-;; #+date: 2019-01-31
+;; #+date: 2019-02-04
 
 (source gnu)
 (source melpa)
@@ -172,6 +172,7 @@
 (depends-on "undo-tree")
 (depends-on "which-key")
 (depends-on "back-button")
+(depends-on "font-lock-plus")
 (depends-on "all-the-icons-dired")
 (depends-on "smooth-scroll")
 (depends-on "manage-minor-mode")

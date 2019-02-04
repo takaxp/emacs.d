@@ -1587,6 +1587,11 @@ This works also for other defined begin/end tokens to define the structure."
        '(all-the-icons-dired-mode)
        "all-the-icons-dired" nil t)
 
+  (with-eval-after-load "all-the-icons-dired"
+    (unless noninteractive
+      (unless (require 'font-lock+ nil t)
+        (user-error "font-lock+ is NOT installed for all-the-icons."))))
+
   (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))
 
 (when (autoload-if-found
@@ -2010,6 +2015,7 @@ This works also for other defined begin/end tokens to define the structure."
      '(neo-window-position 'left))
     ;; (setq neo-vc-integration '(face char)) ;; It's heavy at 2017-08-31
 
+    ;; アイコン表示
     (when (require 'all-the-icons-dired nil t)
       (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 

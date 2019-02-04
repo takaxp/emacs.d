@@ -4084,10 +4084,17 @@ http://0xcc.net/migemo/#download
 
 =dired= で，ファイルのアイコンを表示します． =all-the-icons= をインストール後に， =M-x all-the-icons-install-fonts= を忘れずに実行する必要があります． =neotree= の設定は別セクションに記載しています．
 
+=M-x all-the-icons-install-fonts= をしてもうまくアイコンが表示されない場合は， =~/Library/Fonts/= 以下にある =all-the-icons.ttf= のサイズを確認してください．もしゼロバイトならインストールに失敗しています．その場合は，パッケージの =all-the-icons/fonts= 以下にあるフォントを直接インストールすればOKです．
+
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
        '(all-the-icons-dired-mode)
        "all-the-icons-dired" nil t)
+
+  (with-eval-after-load "all-the-icons-dired"
+    (unless noninteractive
+      (unless (require 'font-lock+ nil t)
+        (user-error "font-lock+ is NOT installed for all-the-icons."))))
 
   (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))
 #+end_src
@@ -5174,6 +5181,7 @@ http://www.emacswiki.org/emacs/EmacsSession
      '(neo-window-position 'left))
     ;; (setq neo-vc-integration '(face char)) ;; It's heavy at 2017-08-31
 
+    ;; アイコン表示
     (when (require 'all-the-icons-dired nil t)
       (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 

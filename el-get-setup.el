@@ -161,7 +161,7 @@
                :type git
                :url "https://gitlab.com/jabranham/helm-pass.git")
 (el-get-bundle "smihica/emmet-mode")
-(el-get-bundle "yasuyk/helm-emmet")
+(el-get-bundle "yasuyk/helm-emmet" :depends (emmet-mode))
 (el-get-bundle "emacs-helm/helm-emms")
 (el-get-bundle "jixiuf/helm-dired-history")
 
@@ -205,7 +205,9 @@
 (el-get-bundle "undo-tree")
 (el-get-bundle "back-button")
 (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
-(el-get-bundle "domtronn/all-the-icons.el" :name all-the-icons)
+(el-get-bundle "takaxp/all-the-icons.el"
+               :name all-the-icons
+               :depends (font-lock+))
 (el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
 (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)
 (el-get-bundle "manage-minor-mode")
