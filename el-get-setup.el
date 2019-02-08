@@ -48,19 +48,22 @@
 (el-get-bundle "syohex/emacs-utils")
 (el-get-bundle "zk-phi/git-complete")
 (el-get-bundle "org-mode"
-  :type git
-  :url "https://code.orgmode.org/bzg/org-mode.git")
+               :type git
+               :url "https://code.orgmode.org/bzg/org-mode.git")
 
 ;; Testing
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "takaxp/htprofile")
 (el-get-bundle "alphapapa/yequake")
 
 
 ;; Package management
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "use-package")
 
 
 ;; Org Mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "hniksic/emacs-htmlize")
 (el-get-bundle "ox-pandoc")
 (el-get-bundle "org-tree-slide")
@@ -97,6 +100,7 @@
 (el-get-bundle "IvanMalison/org-projectile")
 
 ;; Major modes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "python-mode")
 (el-get-bundle "csharp-mode")
 (el-get-bundle "yaml-mode")
@@ -114,6 +118,7 @@
 
 
 ;; Development
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "gregsexton/origami.el" :name origami)
 (el-get-bundle "yasnippet")
 (el-get-bundle "editorconfig")
@@ -149,6 +154,7 @@
 
 
 ;; Helm modules
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "helm-ag")
 (el-get-bundle "yasuyk/helm-bm")
 (el-get-bundle "emacs-helm/helm-descbinds")
@@ -172,12 +178,14 @@
 
 
 ;; OSX support
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "raghavgautam/osx-lib")
 (el-get-bundle "lunaryorn/osx-trash.el" :name osx-trash) ;; Archived in GitHub
 (el-get-bundle "xuchunyang/osx-dictionary.el" :name osx-dictionary)
 
 
 ;; Editing suport
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "aggressive-indent")
 (el-get-bundle "ws-butler")
 (el-get-bundle "d12frosted/flyspell-correct")
@@ -192,6 +200,7 @@
 
 
 ;; Visualize
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "volatile-highlights")
 (el-get-bundle "highlight-symbol")
 (el-get-bundle "fancy-narrow")
@@ -218,9 +227,12 @@
 (el-get-bundle "which-key")
 (el-get-bundle "bm")
 (el-get-bundle "emacsmirror/rainbow-mode")
+;; (el-get-bundle "TheBB/spaceline")
+(el-get-bundle "seagle0128/doom-modeline")
 
 
 ;; System related
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "Fuco1/dired-hacks")
 (el-get-bundle "calancha/dired-du")
 (el-get-bundle "Vifon/dired-recent.el" :name dired-recent)
@@ -230,6 +242,7 @@
 
 
 ;; Frame and windows
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "popwin")
 (el-get-bundle "shackle")
 (el-get-bundle "tabbar")
@@ -240,17 +253,19 @@
 
 
 ;; Robustness
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "session")
 (el-get-bundle "conornash/backup-each-save")
 
 
 ;; Efficiency
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "Kungsgeten/selected.el" :name selected)
 (el-get-bundle "rubikitch/replace-from-region")
 (el-get-bundle "quickrun")
 (el-get-bundle "latex-math-preview"
-  :type git
-  :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
+               :type git
+               :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
 (el-get-bundle "sbrisard/bratex")
 (el-get-bundle "zhangkaiyulw/smart-mark")
 (el-get-bundle "emacsmirror/syntax-subword")
@@ -260,6 +275,7 @@
 
 
 ;; Applications
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "lugecy/lingr-el")
 (el-get-bundle "ag")
 (el-get-bundle "google-this")
@@ -282,6 +298,7 @@
 
 
 ;; Log
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "dacap/keyfreq")
 ;; (el-get-bundle "sauron")
 

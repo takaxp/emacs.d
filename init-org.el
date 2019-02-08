@@ -708,7 +708,7 @@ update it for multiple appts?")
              (message "%s" (if (listp string)
                                (mapconcat 'identity string "\n")
                              string)))))
-    (advice-add 'appt-display-message :override #'ad:appt-display-message)
+    ;; (advice-add 'appt-display-message :override #'ad:appt-display-message)
 
     (defun ad:appt-disp-window (min-to-app _new-time appt-msg)
       "Extension to support appt-disp-window."

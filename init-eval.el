@@ -57,7 +57,7 @@
 (require 'web-mode nil t)
 (require 'winner nil t)
 (require 'yasnippet nil t)
-
+(require 'doom-modeline nil t)
 
 (if (require 'shut-up nil t)
     (progn

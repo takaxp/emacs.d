@@ -2480,7 +2480,7 @@ This works also for other defined begin/end tokens to define the structure."
          (fboundp 'mac-get-current-input-source))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title "あ"))
+       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
 
     (declare-function ad:mac-toggle-input-method "init" nil)
     (declare-function my-apply-cursor-config "init" nil)
@@ -2526,7 +2526,6 @@ This works also for other defined begin/end tokens to define the structure."
       (if arg
           (progn
             (setq cursor-type my-cursor-type-ime-on)
-
             (set-cursor-color my-cursor-color-ime-on)
             (run-hooks 'my-ime-on-hook))
         (progn
@@ -2685,7 +2684,8 @@ This works also for other defined begin/end tokens to define the structure."
   (defun ad:moom-toggle-frame-maximized ()
     (when (eq major-mode 'org-mode)
       (org-redisplay-inline-images))
-    (when mode-line-format
+    (when (and mode-line-format
+               (not my-modeline-toggle-global))
       (my-mode-line-off)))
   (advice-add 'moom-toggle-frame-maximized
               :after #'ad:moom-toggle-frame-maximized))
@@ -2694,11 +2694,11 @@ This works also for other defined begin/end tokens to define the structure."
 (defvar-local my-mode-line-format nil)
 (with-eval-after-load "pomodoro"
   (set-default 'my-mode-line-format mode-line-format)
-  (defvar my-mode-line-global-flag t)
-  (defun my-mode-line-global-toggle ()
+  (defvar my-modeline-toggle-global t)
+  (defun my-modeline-toggle-global-toggle ()
     (interactive)
-    (setq my-mode-line-global-flag (not my-mode-line-global-flag))
-    (if my-mode-line-global-flag
+    (setq my-modeline-toggle-global (not my-modeline-toggle-global))
+    (if my-modeline-toggle-global
         (my-mode-line-on)
       (my-mode-line-off)))
 
@@ -2736,7 +2736,7 @@ This works also for other defined begin/end tokens to define the structure."
         (shut-up (my-toggle-mode-line))
       (my-toggle-mode-line)))
   (add-hook 'find-file-hook
-            (lambda () (unless my-mode-line-global-flag
+            (lambda () (unless my-modeline-toggle-global
                          (my-mode-line-off)))
             t)) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
 
@@ -2780,6 +2780,37 @@ This works also for other defined begin/end tokens to define the structure."
       'my-delete-checkdoc-window))
 
   (advice-add 'checkdoc :before #'ad:checkdoc))
+
+(with-eval-after-load "moom"
+  (when (and (equal my-modeline-toggle-global 'doom)
+             (require 'doom-modeline nil t))
+    (defun ad:doom-modeline-buffer-file-state-icon
+        (icon &optional text face height voffset)
+      "Displays an ICON with FACE, HEIGHT and VOFFSET.
+TEXT is the alternative if it is not applicable.
+Uses `all-the-icons-material' to fetch the icon."
+      (if doom-modeline-icon
+          (when icon
+            (doom-modeline-icon-material
+             icon
+             :face (if (doom-modeline--active) face)
+             :height (or height 0.85) ;; 1.1
+             :v-adjust (or voffset -0.225))) ;; -0.225
+        (when text
+          (propertize text 'face face))))
+    (custom-set-variables
+     '(doom-modeline-buffer-file-name-style 'truncate-except-project)
+     '(doom-modeline-bar-width 1)
+     '(doom-modeline-height (let ((font (face-font 'mode-line)))
+                              (if (and font (fboundp 'font-info))
+                                  (floor (* 0.8 ;; 1.0
+                                            (* 2 (aref (font-info font) 2))))
+                                10)))
+     '(doom-modeline-minor-modes nil))
+    (advice-add 'doom-modeline-buffer-file-state-icon :override
+                #'ad:doom-modeline-buffer-file-state-icon)
+    (size-indication-mode 1)
+    (doom-modeline-mode 1)))
 
 (my-tick-init-time "frame and window")
 

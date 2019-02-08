@@ -19,7 +19,7 @@
 (defvar my-use-el-get "26.1.91" ;; nil ;; "26.1.91"
   "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
-      my-mode-line-global-flag nil
+      my-modeline-toggle-global nil ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-autoload-file-check (not my-loading-packages)
       debug-on-error nil)
