@@ -2782,8 +2782,19 @@ This works also for other defined begin/end tokens to define the structure."
   (advice-add 'checkdoc :before #'ad:checkdoc))
 
 (with-eval-after-load "moom"
-  (when (and (equal my-modeline-toggle-global 'doom)
+  (when (and (not noninteractive)
+             (eq my-modeline-toggle-global 'doom)
              (require 'doom-modeline nil t))
+    (custom-set-variables
+     '(doom-modeline-buffer-file-name-style 'truncate-except-project)
+     '(doom-modeline-bar-width 1)
+     '(doom-modeline-height (let ((font (face-font 'mode-line)))
+                              (if (and font (fboundp 'font-info))
+                                  (floor (* 0.8 ;; 1.0
+                                            (* 2 (aref (font-info font) 2))))
+                                10)))
+     '(doom-modeline-minor-modes nil))
+    (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
     (defun ad:doom-modeline-buffer-file-state-icon
         (icon &optional text face height voffset)
       "Displays an ICON with FACE, HEIGHT and VOFFSET.
@@ -2798,15 +2809,6 @@ Uses `all-the-icons-material' to fetch the icon."
              :v-adjust (or voffset -0.225))) ;; -0.225
         (when text
           (propertize text 'face face))))
-    (custom-set-variables
-     '(doom-modeline-buffer-file-name-style 'truncate-except-project)
-     '(doom-modeline-bar-width 1)
-     '(doom-modeline-height (let ((font (face-font 'mode-line)))
-                              (if (and font (fboundp 'font-info))
-                                  (floor (* 0.8 ;; 1.0
-                                            (* 2 (aref (font-info font) 2))))
-                                10)))
-     '(doom-modeline-minor-modes nil))
     (advice-add 'doom-modeline-buffer-file-state-icon :override
                 #'ad:doom-modeline-buffer-file-state-icon)
     (size-indication-mode 1)
