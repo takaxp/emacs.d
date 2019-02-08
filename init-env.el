@@ -4,7 +4,7 @@
 ;; helm-projectile: (C-c p f), (C-c p p), (C-c p h)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defconst my-before-load-init-time (current-time)
-  "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
+  "starting point to calculate Emacs booting time.  see `my-load-init-time'.")
 (defconst my-ad-require-p nil
   "If non-nil, override `require' and `load' to show loading times.")
 (defconst my-profiler-p nil
@@ -19,7 +19,7 @@
 (defvar my-use-el-get "26.1.91" ;; nil ;; "26.1.91"
   "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
-      my-modeline-toggle-global nil ;; {nil, t, 'doom}
+      my-toggle-modeline-global nil ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-autoload-file-check (not my-loading-packages)
       debug-on-error nil)

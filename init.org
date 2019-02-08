@@ -657,7 +657,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．
 
 =save-buffer-coding-system= を設定すると， =buffer-file-coding-system= の値を無視して，指定した =save-buffer-coding-system= の値でバッファを保存する．つまり， =buffer-file-coding-system= に統一するなら設定不要．
 
-=set-default-coding-systems= か =prefer-coding-system= を設定すると，同時に =file-name-coding-system=，=set-terminal-coding-system=，=set-keyboard-coding-system= も同時に設定される． =prefer-coding-system= は，文字コード自動判定の最上位判定項目を設定する．
+=set-default-coding-systems= か =prefer-coding-system= を設定すると，同時に =file-name-coding-system=，=set-terminal-coding-system=，=set-keyboard-coding-system= も設定される． =prefer-coding-system= は，文字コード自動判定の最上位判定項目を設定する．
 
 =set-buffer-file-coding-system= は，Xとのデータやりとりを設定する．
 
@@ -1210,8 +1210,8 @@ the_silver_searcher @0.18.1 (textproc)
 
 #+begin_src emacs-lisp :tangle yes
 (when (eq window-system 'ns)
-  (global-set-key (kbd "M-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
-  (global-set-key (kbd "S-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
+  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
+  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
   (declare-function my-ns-org-heading-auto-ascii "init" nil)
   (declare-function my-ns-ime-restore "init" nil)
   (declare-function my-ime-active-p "init" nil))
@@ -1220,13 +1220,13 @@ the_silver_searcher @0.18.1 (textproc)
   (when (and (eq window-system 'ns)
              (fboundp 'mac-get-current-input-source))
 
-    (defun my-ns-ime-toggle ()
+    (defun my-toggle-ime-ns ()
       "Toggle IME."
       (interactive)
       (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-    (define-key isearch-mode-map (kbd "M-SPC") 'my-ns-ime-toggle)
-    (define-key isearch-mode-map (kbd "S-SPC") 'my-ns-ime-toggle)
+    (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+    (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
 
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
@@ -1254,8 +1254,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 #+begin_src emacs-lisp :tangle no
 (when (eq window-system 'mac)
-  (global-set-key (kbd "M-SPC") 'mac-win-ime-toggle)
-  (global-set-key (kbd "S-SPC") 'mac-win-ime-toggle)
+  (global-set-key (kbd "M-SPC") 'mac-win-toggle-ime)
+  (global-set-key (kbd "S-SPC") 'mac-win-toggle-ime)
   (declare-function mac-win-save-last-ime-status "init" nil)
   (declare-function ad:mac-auto-ascii-setup-input-source "init" nil)
   (declare-function mac-win-restore-ime "init" nil)
@@ -1357,7 +1357,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
     ;; EMP版Emacsの野良ビルド用独自設定群
     ;; IME toggleを Emacs内で有効にする
-    (defun mac-win-ime-toggle ()
+    (defun mac-win-toggle-ime ()
       (interactive)
       (when (fboundp 'mac-input-source)
         (mac-select-input-source
@@ -1366,8 +1366,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
                      ".Roman" ".base")))))
 
     ;; isearch 中にIMEを切り替えると，[I-Search] の表示が消える．
-    ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-ime-toggle)
-    (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-ime-toggle)
+    ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
+    (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
 
     (when (boundp 'mac-win-ime-cursor-type)
       (setq mac-win-ime-cursor-type my-cursor-type-ime-on))
@@ -1579,7 +1579,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
-       '(my-bm-toggle
+       '(my-toggle-bm
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
          bm-repository-save bm-repository-load bm-load-and-restore)
        "bm" nil t)
@@ -1588,7 +1588,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     ;; ファイルオープン時にブックマークを復帰
     (add-hook 'find-file-hook #'bm-buffer-restore)
     (setq bm-restore-repository-on-load t)
-    (global-set-key (kbd "<f10>") 'my-bm-toggle)
+    (global-set-key (kbd "<f10>") 'my-toggle-bm)
     (global-set-key (kbd "<C-f10>") 'my-bm-next))
 
   (with-eval-after-load "bm"
@@ -1603,7 +1603,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
           (expand-file-name "~/Dropbox/emacs.d/.bm-repository"))
     ;; (bm-repository-load)
 
-    (defun my-bm-toggle ()
+    (defun my-toggle-bm ()
       "bm-toggle with updating history"
       (interactive)
       (let ((bm (concat
@@ -4190,7 +4190,7 @@ http://0xcc.net/migemo/#download
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
        '(dimmer-mode dimmer-process-all dimmer-off dimmer-on
-                     my-dimmer-toggle dimmer-permanent-off
+                     my-toggle-dimmer dimmer-permanent-off
                      ad:dimmer-org-agenda--quit)
        "dimmer" nil t)
 
@@ -4205,7 +4205,7 @@ http://0xcc.net/migemo/#download
       (setq my-dimmer-mode (dimmer-mode 1))))
 
   (with-eval-after-load "dimmer"
-    (defun my-dimmer-toggle ()
+    (defun my-toggle-dimmer ()
       (interactive)
       (if (setq my-dimmer-mode (not my-dimmer-mode))
           (dimmer-on) (dimmer-off)))
@@ -6272,6 +6272,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (setq org-use-speed-commands t)
 
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
+  (add-to-list 'org-speed-commands-user '("S" call-interactively 'widen))
   (add-to-list 'org-speed-commands-user
                '("D" my-org-todo-complete-no-repeat "DONE"))
   ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
@@ -6593,7 +6594,7 @@ will not be modified."
           (org-set-property created now)))))
 
   (with-eval-after-load "org-capture"
-    (defun my-org-toggle-block-visibility ()
+    (defun my-toggle-org-block-visibility ()
       "Testing..."
       (interactive)
 	    (when (looking-at org-drawer-regexp)
@@ -7189,7 +7190,7 @@ update it for multiple appts?")
 
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found
-       '(org-tree-slide-mode my-proportional-font-toggle)
+       '(org-tree-slide-mode my-toggle-proportional-font)
        "org-tree-slide" nil t)
 
   (with-eval-after-load "org-tree-slide"
@@ -7203,7 +7204,7 @@ update it for multiple appts?")
                         ;; :family "Comic Sans MS"
                         :height 125)
 
-    (defun my-proportional-font-toggle ()
+    (defun my-toggle-proportional-font ()
       (interactive)
       (setq use-proportional-font (not use-proportional-font))
       (if use-proportional-font
@@ -8520,7 +8521,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (when (eq major-mode 'org-mode)
       (org-redisplay-inline-images))
     (when (and mode-line-format
-               (not my-modeline-toggle-global))
+               (not my-toggle-modeline-global))
       (my-mode-line-off)))
   (advice-add 'moom-toggle-frame-maximized
               :after #'ad:moom-toggle-frame-maximized))
@@ -8529,11 +8530,11 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (defvar-local my-mode-line-format nil)
 (with-eval-after-load "pomodoro"
   (set-default 'my-mode-line-format mode-line-format)
-  (defvar my-modeline-toggle-global t)
-  (defun my-modeline-toggle-global-toggle ()
+  (defvar my-toggle-modeline-global t)
+  (defun my-toggle-modeline-global ()
     (interactive)
-    (setq my-modeline-toggle-global (not my-modeline-toggle-global))
-    (if my-modeline-toggle-global
+    (setq my-toggle-modeline-global (not my-toggle-modeline-global))
+    (if my-toggle-modeline-global
         (my-mode-line-on)
       (my-mode-line-off)))
 
@@ -8571,7 +8572,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
         (shut-up (my-toggle-mode-line))
       (my-toggle-mode-line)))
   (add-hook 'find-file-hook
-            (lambda () (unless my-modeline-toggle-global
+            (lambda () (unless my-toggle-modeline-global
                          (my-mode-line-off)))
             t)) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
 #+end_src
@@ -8662,7 +8663,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "moom"
   (when (and (not noninteractive)
-             (eq my-modeline-toggle-global 'doom)
+             (eq my-toggle-modeline-global 'doom)
              (require 'doom-modeline nil t))
     (custom-set-variables
      '(doom-modeline-buffer-file-name-style 'truncate-except-project)
@@ -9510,7 +9511,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (add-hook 'focus-in-hook #'my-pomodoro-status)
 
     (defvar my-pomodoro-speak nil)
-    (defun my-pomodoro-speak-toggle ()
+    (defun my-toggle-pomodoro-speak ()
       (interactive)
       (setq my-pomodoro-speak (not my-pomodoro-speak)))
 

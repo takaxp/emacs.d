@@ -208,6 +208,7 @@
   (setq org-use-speed-commands t)
 
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
+  (add-to-list 'org-speed-commands-user '("S" call-interactively 'widen))
   (add-to-list 'org-speed-commands-user
                '("D" my-org-todo-complete-no-repeat "DONE"))
   ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
@@ -417,7 +418,7 @@ will not be modified."
           (org-set-property created now)))))
 
   (with-eval-after-load "org-capture"
-    (defun my-org-toggle-block-visibility ()
+    (defun my-toggle-org-block-visibility ()
       "Testing..."
       (interactive)
 	    (when (looking-at org-drawer-regexp)
@@ -916,7 +917,7 @@ update it for multiple appts?")
     (add-hook 'org-tree-slide-after-narrow-hook #'my-org-clock-in)))
 
 (when (autoload-if-found
-       '(org-tree-slide-mode my-proportional-font-toggle)
+       '(org-tree-slide-mode my-toggle-proportional-font)
        "org-tree-slide" nil t)
 
   (with-eval-after-load "org-tree-slide"
@@ -930,7 +931,7 @@ update it for multiple appts?")
                         ;; :family "Comic Sans MS"
                         :height 125)
 
-    (defun my-proportional-font-toggle ()
+    (defun my-toggle-proportional-font ()
       (interactive)
       (setq use-proportional-font (not use-proportional-font))
       (if use-proportional-font

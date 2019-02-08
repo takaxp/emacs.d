@@ -1,4 +1,4 @@
-;; #+date: 2019-02-05
+;; #+date: 2019-02-08
 
 (source gnu)
 (source melpa)
@@ -156,6 +156,7 @@
 (depends-on "tiny")
 (depends-on "olivetti")
 ;; (depends-on "parinfer")
+(depends-on "hydra")
 
 ;; Visualize
 (depends-on "volatile-highlights")

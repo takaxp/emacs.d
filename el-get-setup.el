@@ -196,6 +196,7 @@
 (el-get-bundle "sabof/edit-color-stamp")
 (el-get-bundle "tiny")
 (el-get-bundle "rnkn/olivetti")
+(el-get-bundle "abo-abo/hydra")
 ;; (el-get-bundle "parinfer")
 
 

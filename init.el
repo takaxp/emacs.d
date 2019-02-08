@@ -308,8 +308,8 @@
         (switch-to-buffer-other-frame "*ag search*")))))
 
 (when (eq window-system 'ns)
-  (global-set-key (kbd "M-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
-  (global-set-key (kbd "S-SPC") 'my-ns-ime-toggle) ;; toggle-input-method
+  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
+  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
   (declare-function my-ns-org-heading-auto-ascii "init" nil)
   (declare-function my-ns-ime-restore "init" nil)
   (declare-function my-ime-active-p "init" nil))
@@ -318,13 +318,13 @@
   (when (and (eq window-system 'ns)
              (fboundp 'mac-get-current-input-source))
 
-    (defun my-ns-ime-toggle ()
+    (defun my-toggle-ime-ns ()
       "Toggle IME."
       (interactive)
       (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-    (define-key isearch-mode-map (kbd "M-SPC") 'my-ns-ime-toggle)
-    (define-key isearch-mode-map (kbd "S-SPC") 'my-ns-ime-toggle)
+    (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+    (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
 
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
@@ -424,7 +424,7 @@
      '(cycle-buffer-show-format '(" < %s >" . " %s")))))
 
 (when (autoload-if-found
-       '(my-bm-toggle
+       '(my-toggle-bm
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
          bm-repository-save bm-repository-load bm-load-and-restore)
        "bm" nil t)
@@ -433,7 +433,7 @@
     ;; ファイルオープン時にブックマークを復帰
     (add-hook 'find-file-hook #'bm-buffer-restore)
     (setq bm-restore-repository-on-load t)
-    (global-set-key (kbd "<f10>") 'my-bm-toggle)
+    (global-set-key (kbd "<f10>") 'my-toggle-bm)
     (global-set-key (kbd "<C-f10>") 'my-bm-next))
 
   (with-eval-after-load "bm"
@@ -448,7 +448,7 @@
           (expand-file-name "~/Dropbox/emacs.d/.bm-repository"))
     ;; (bm-repository-load)
 
-    (defun my-bm-toggle ()
+    (defun my-toggle-bm ()
       "bm-toggle with updating history"
       (interactive)
       (let ((bm (concat
@@ -1609,7 +1609,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 (when (autoload-if-found
        '(dimmer-mode dimmer-process-all dimmer-off dimmer-on
-                     my-dimmer-toggle dimmer-permanent-off
+                     my-toggle-dimmer dimmer-permanent-off
                      ad:dimmer-org-agenda--quit)
        "dimmer" nil t)
 
@@ -1624,7 +1624,7 @@ This works also for other defined begin/end tokens to define the structure."
       (setq my-dimmer-mode (dimmer-mode 1))))
 
   (with-eval-after-load "dimmer"
-    (defun my-dimmer-toggle ()
+    (defun my-toggle-dimmer ()
       (interactive)
       (if (setq my-dimmer-mode (not my-dimmer-mode))
           (dimmer-on) (dimmer-off)))
@@ -2685,7 +2685,7 @@ This works also for other defined begin/end tokens to define the structure."
     (when (eq major-mode 'org-mode)
       (org-redisplay-inline-images))
     (when (and mode-line-format
-               (not my-modeline-toggle-global))
+               (not my-toggle-modeline-global))
       (my-mode-line-off)))
   (advice-add 'moom-toggle-frame-maximized
               :after #'ad:moom-toggle-frame-maximized))
@@ -2694,11 +2694,11 @@ This works also for other defined begin/end tokens to define the structure."
 (defvar-local my-mode-line-format nil)
 (with-eval-after-load "pomodoro"
   (set-default 'my-mode-line-format mode-line-format)
-  (defvar my-modeline-toggle-global t)
-  (defun my-modeline-toggle-global-toggle ()
+  (defvar my-toggle-modeline-global t)
+  (defun my-toggle-modeline-global ()
     (interactive)
-    (setq my-modeline-toggle-global (not my-modeline-toggle-global))
-    (if my-modeline-toggle-global
+    (setq my-toggle-modeline-global (not my-toggle-modeline-global))
+    (if my-toggle-modeline-global
         (my-mode-line-on)
       (my-mode-line-off)))
 
@@ -2736,7 +2736,7 @@ This works also for other defined begin/end tokens to define the structure."
         (shut-up (my-toggle-mode-line))
       (my-toggle-mode-line)))
   (add-hook 'find-file-hook
-            (lambda () (unless my-modeline-toggle-global
+            (lambda () (unless my-toggle-modeline-global
                          (my-mode-line-off)))
             t)) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
 
@@ -2783,7 +2783,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 (with-eval-after-load "moom"
   (when (and (not noninteractive)
-             (eq my-modeline-toggle-global 'doom)
+             (eq my-toggle-modeline-global 'doom)
              (require 'doom-modeline nil t))
     (custom-set-variables
      '(doom-modeline-buffer-file-name-style 'truncate-except-project)
@@ -3173,7 +3173,7 @@ Uses `all-the-icons-material' to fetch the icon."
     (add-hook 'focus-in-hook #'my-pomodoro-status)
 
     (defvar my-pomodoro-speak nil)
-    (defun my-pomodoro-speak-toggle ()
+    (defun my-toggle-pomodoro-speak ()
       (interactive)
       (setq my-pomodoro-speak (not my-pomodoro-speak)))
 
