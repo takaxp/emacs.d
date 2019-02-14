@@ -289,10 +289,13 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 =autoload-if-found= と =with-eval-after-load= の組み合わせが基本です．最初に =when= 判定をすることで，パッケージが未インストールの状態に各種設定をスキップするので安全です．
 
 #+begin_src emacs-lisp :tangle yes
-(defvar my-skip-autoload-file-check t)
+(defvar my-skip-check-autoload-file t)
+(when (and (boundp 'my-loading-packages)
+           my-loading-packages)
+  (setq my-skip-check-autoload-file nil))
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
-  (when (or my-skip-autoload-file-check
+  (when (or my-skip-check-autoload-file
             (and (my-load-package-p file)
                  (locate-library file)))
     (dolist (f functions)
@@ -1096,6 +1099,18 @@ echo "--- done."
 (with-eval-after-load "postpone"
   (when (fboundp 'pixel-scroll-mode)
     (pixel-scroll-mode 1))) ;; 26.1
+#+end_src
+
+** デフォルトディレクトリ
+   :PROPERTIES:
+   :CUSTOM_ID: org6a9f8b88
+   :END:
+
+Version 27 から =C-x C-f= のデフォルトが変わったようなので， =~/= に矯正する．
+
+#+begin_src emacs-lisp :tangle yes
+(when (version< "27" emacs-version)
+  (setq default-directory "~/"))
 #+end_src
 
 ** [aggressive-indent.el] 即時バッファ整形
@@ -2862,12 +2877,12 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (define-key selected-keymap (kbd "e") #'my-eval-region-echo)
     ;; (define-key selected-keymap (kbd "E") #'my-eval-region-echo-as-function)
     (define-key selected-keymap (kbd "=") #'count-words-region)
+    (define-key selected-keymap (kbd "f") #'describe-function)
+    (define-key selected-keymap (kbd "v") #'describe-variable)
     (when (require 'helpful nil t)
-      (define-key selected-keymap (kbd "m") #'helpful-macro))
-    (define-key selected-keymap (kbd "f")
-      (if (fboundp 'helpful-function) #'helpful-function #'describe-function))
-    (define-key selected-keymap (kbd "v")
-      (if (fboundp 'helpful-variable) #'helpful-variable #'describe-variable))
+      (define-key selected-keymap (kbd "m") #'helpful-macro)
+      (define-key selected-keymap (kbd "f") #'helpful-function)
+      (define-key selected-keymap (kbd "v") #'helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
     (define-key selected-keymap (kbd "g") #'my-google-this)
@@ -4200,7 +4215,7 @@ http://0xcc.net/migemo/#download
       (postpone-message "dimmer-mode")
       (custom-set-variables
        '(dimmer-exclusion-regexp
-         "^\\*[Hh]elm\\|^ \\*Minibuf\\|^ \\*Echo\\|^\\*Calendar\\|*Org")
+         "^\\*[Hh]elm\\|^ \\*Minibuf\\|^ \\*Neo\\|^ \\*Echo\\|^\\*Calendar\\|*Org\\|^ \\*LV*")
        '(dimmer-fraction 0.6))
       (setq my-dimmer-mode (dimmer-mode 1))))
 
@@ -4237,6 +4252,88 @@ http://0xcc.net/migemo/#download
     ;; for helm and helm-swoop
     (add-hook 'minibuffer-setup-hook #'dimmer-off)
     (add-hook 'minibuffer-exit-hook #'dimmer-on)))
+#+end_src
+
+** TODO [hydra.el] コマンドディスパッチャを構築する
+   :PROPERTIES:
+   :CUSTOM_ID: org1e701627
+   :END:
+
+ - [[https://www.wisdomandwonder.com/article/10763/emacsorg-mode-hydra-to-insert-timestamps][(Emacs+Org-Mode) Hydra To Insert Timestamps | Wisdom and Wonder]]
+
+#+begin_src emacs-lisp :tangle yes
+(when (autoload-if-found
+       '(help/hydra/timestamp/body)
+       "hydra" nil t)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c t") #'help/hydra/timestamp/body))
+
+  (with-eval-after-load "hydra"
+    (require 'org nil t)
+    (custom-set-faces
+     '(hydra-face-blue
+       ((((background light))
+         :foreground "orange red" :bold t)
+        (((background dark))
+         :foreground "orange" :bold t))))
+
+    (defhydra help/hydra/timestamp (:color blue :hint nil)
+      "
+   === Timestamp ===                                                    :_q_uit:
+0.  2018-05-07 (_i_so 8601) / 24:04 (_n_ow) / 01 (_w_eek)
+_1_.  2018-05-07T21:24:03+05:00 (ISO 8601 including _t_imezone)
+_2_.  <2018-05-07 Mon 21:24>    (Org Mode: _r_ight now)
+_3_.  <2018-05-07 Mon>          (Org Mode: by _s_elect)
+"
+      ("q" nil)
+      ("i" help/insert-datestamp)
+      ("n" help/insert-currenttime)
+      ("w" help/insert-week)
+      ("t" help/insert-timestamp)
+      ("r" help/org-time-stamp-with-seconds-now)
+      ("s" org-time-stamp)
+      ("0" help/show-my-date)
+      ("1" help/insert-timestamp)
+      ("2" help/org-time-stamp-with-seconds-now)
+      ("3" org-time-stamp))
+    (defun help/show-my-date ()
+      "Produces and show date and time in preferred format."
+      (interactive)
+      (message (format-time-string "%Y-%m-%d (%a.) W:%W @%H:%M"))
+      (hydra-keyboard-quit))
+    (defun help/insert-currenttime ()
+      "Produces and inserts the current time."
+      (interactive)
+      (insert (format-time-string "%H:%M")))
+    (defun help/insert-week ()
+      "Produces and inserts the week number."
+      (interactive)
+      (insert (format-time-string "%W")))
+    (defun help/insert-datestamp ()
+      "Produces and inserts a partial ISO 8601 format timestamp."
+      (interactive)
+      (insert (format-time-string "%F")))
+    (defun help/insert-timestamp ()
+      "Inserts a full ISO 8601 format timestamp."
+      (interactive)
+      (insert (help/get-timestamp)))
+    (defun help/org-time-stamp-with-seconds-now ()
+      (interactive)
+      (let ((current-prefix-arg '(16)))
+        (call-interactively 'org-time-stamp)))
+    (defun help/get-timestamp ()
+      "Produces a full ISO 8601 format timestamp."
+      (interactive)
+      (let* ((timestamp-without-timezone (format-time-string "%Y-%m-%dT%T"))
+             (timezone-name-in-numeric-form (format-time-string "%z"))
+             (timezone-utf-offset
+              (concat (substring timezone-name-in-numeric-form 0 3)
+                      ":"
+                      (substring timezone-name-in-numeric-form 3 5)))
+             (timestamp (concat timestamp-without-timezone
+                                timezone-utf-offset)))
+        timestamp))))
 #+end_src
 
 ** DONE バッテリー情報をモードラインに表示する                     :obsolete:
@@ -7132,6 +7229,19 @@ update it for multiple appts?")
 #+end_src
 
 ~Doing~ タグのトグルに =f11= を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
+*** doom-modeline との共存
+    :PROPERTIES:
+    :CUSTOM_ID: org2e94f804
+    :END:
+
+=doom-modeline= では =widen= を =advice= で拡張していますが， =org-tree-slide= から抜ける時に期待された効果が得られず， =narrowing= 状態を表すアイコンがモードロインに残ってしまいます．そこで =org-tree-slide-stop-hook= で明示的に処理します．
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "org-tree-slide"
+  (when (require 'doom-modeline nil t)
+    (add-hook 'org-tree-slide-stop-hook
+              #'doom-modeline-update-buffer-file-state-icon)))
+#+end_src
 
 ** [org-tree-slide] クロックインとアウトを自動化する
    :PROPERTIES:
@@ -7158,7 +7268,9 @@ update it for multiple appts?")
 
   (when (require 'org-clock nil t)
     (defun my-org-clock-in ()
-      (setq vc-display-status nil) ;; モードライン節約
+      (unless (and (boundp 'doom-modeline-mode)
+                   doom-modeline-mode)
+        (setq vc-display-status nil)) ;; モードライン節約
       (when (and (my-tree-slide-autoclockin-p)
                  (looking-at (concat "^\\*+ " org-not-done-regexp))
                  (memq (org-outline-level) '(1 2 3 4)))
@@ -8254,7 +8366,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
          (fboundp 'mac-get-current-input-source))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
+       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
 
     (declare-function ad:mac-toggle-input-method "init" nil)
     (declare-function my-apply-cursor-config "init" nil)
@@ -8673,7 +8785,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
                                   (floor (* 0.8 ;; 1.0
                                             (* 2 (aref (font-info font) 2))))
                                 10)))
-     '(doom-modeline-minor-modes nil))
+     '(doom-modeline-minor-modes t))
     (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
     (defun ad:doom-modeline-buffer-file-state-icon
         (icon &optional text face height voffset)
@@ -8684,7 +8796,7 @@ Uses `all-the-icons-material' to fetch the icon."
           (when icon
             (doom-modeline-icon-material
              icon
-             :face (if (doom-modeline--active) face)
+             :face face
              :height (or height 0.85) ;; 1.1
              :v-adjust (or voffset -0.225))) ;; -0.225
         (when text
@@ -9990,7 +10102,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 (with-eval-after-load "postpone"
   (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
   (global-set-key (kbd "<f12>") 'my-open-file-ring)
-  (global-set-key (kbd "C-c t") 'my-date)
+;;  (global-set-key (kbd "C-c t") 'my-date)
   (global-set-key (kbd "C-c f 4") 'my-window-resizer))
 #+end_src
 
@@ -10012,6 +10124,15 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
     (define-key manage-minor-mode-map (kbd "q")
       (lambda () (interactive)
           (delete-window (get-buffer-window "*manage-minor-mode*"))))))
+#+end_src
+
+** TODO [gitter.el] Gitter にログイン
+   :PROPERTIES:
+   :CUSTOM_ID: org409d5d63
+   :END:
+
+#+begin_src emacs-lisp :tangle yes
+(autoload-if-found '(gitter) "gitter"  nil t)
 #+end_src
 
 ** TODO [password-store.el] パスワード管理

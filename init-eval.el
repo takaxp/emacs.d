@@ -58,6 +58,7 @@
 (require 'winner nil t)
 (require 'yasnippet nil t)
 (require 'doom-modeline nil t)
+(require 'hydra nil t)
 
 (if (require 'shut-up nil t)
     (progn

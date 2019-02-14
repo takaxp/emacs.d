@@ -878,6 +878,11 @@ update it for multiple appts?")
   (add-hook 'org-tree-slide-play-hook #'my-reload-header-face))
 
 (with-eval-after-load "org-tree-slide"
+  (when (require 'doom-modeline nil t)
+    (add-hook 'org-tree-slide-stop-hook
+              #'doom-modeline-update-buffer-file-state-icon)))
+
+(with-eval-after-load "org-tree-slide"
   (defun my-tree-slide-autoclockin-p ()
     (save-excursion
       (save-restriction
@@ -894,7 +899,9 @@ update it for multiple appts?")
 
   (when (require 'org-clock nil t)
     (defun my-org-clock-in ()
-      (setq vc-display-status nil) ;; モードライン節約
+      (unless (and (boundp 'doom-modeline-mode)
+                   doom-modeline-mode)
+        (setq vc-display-status nil)) ;; モードライン節約
       (when (and (my-tree-slide-autoclockin-p)
                  (looking-at (concat "^\\*+ " org-not-done-regexp))
                  (memq (org-outline-level) '(1 2 3 4)))

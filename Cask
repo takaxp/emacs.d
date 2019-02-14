@@ -1,4 +1,4 @@
-;; #+date: 2019-02-08
+;; #+date: 2019-02-13
 
 (source gnu)
 (source melpa)
@@ -30,7 +30,7 @@
 ;; (depends-on "epm")
 
 ;; Org Mode
-(depends-on "org-plus-contrib")
+;; (depends-on "org-plus-contrib")
 (depends-on "htmlize")
 (depends-on "ox-pandoc")
 (depends-on "ox-qmd")
@@ -74,7 +74,7 @@
 (depends-on "csv-mode")
 (depends-on "es-mode")
 (depends-on "markdown-mode")
-(depends-on "po-mode")
+;; (depends-on "po-mode")
 (depends-on "gnuplot-mode")
 (depends-on "ess")
 (depends-on "yatex")
@@ -173,7 +173,7 @@
 (depends-on "undo-tree")
 (depends-on "which-key")
 (depends-on "back-button")
-(depends-on "font-lock-plus")
+(depends-on "font-lock+" :git "https://github.com/emacsmirror/font-lock-plus.git")
 (depends-on "all-the-icons-dired")
 (depends-on "smooth-scroll")
 (depends-on "manage-minor-mode")
@@ -221,6 +221,7 @@
 
 ;; Applications
 (depends-on "lingr")
+(depends-on "gitter")
 (depends-on "bm")
 (depends-on "ag")
 (depends-on "google-this")

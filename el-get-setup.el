@@ -216,8 +216,8 @@
 (el-get-bundle "back-button")
 (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
 (el-get-bundle "takaxp/all-the-icons.el"
-               :name all-the-icons
-               :depends (font-lock+))
+               :name all-the-icons)
+;; :depends (font-lock+))
 (el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
 (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)
 (el-get-bundle "manage-minor-mode")
@@ -278,6 +278,7 @@
 ;; Applications
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "lugecy/lingr-el")
+(el-get-bundle "xuchunyang/gitter.el")
 (el-get-bundle "ag")
 (el-get-bundle "google-this")
 (el-get-bundle "japanese-holidays")

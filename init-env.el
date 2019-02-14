@@ -1,10 +1,7 @@
-;; recentf (C-M-r) / helm-swoop (M-s M-s) / isearch (C-s) / bm <f10>, C-<f10>
-;; helm-locate (C-M-l) / org-grep (C-M-g) / ag (C-M-f) / google-this (C-c f g)
-;; fullscreen <f11> / double-width (C-c f d)
-;; helm-projectile: (C-c p f), (C-c p p), (C-c p h)
+;; helm-swoop(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defconst my-before-load-init-time (current-time)
-  "starting point to calculate Emacs booting time.  see `my-load-init-time'.")
+  "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
 (defconst my-ad-require-p nil
   "If non-nil, override `require' and `load' to show loading times.")
 (defconst my-profiler-p nil
@@ -13,15 +10,13 @@
   "If non-nil, show tick while booting.  Do not use `my-profiler-p' with this.")
 (defconst my-boot-type 'default
   "Boot menu selection: {debug, test, default, spacemacs}.")
-(defconst my-loading-packages nil) ;;`my-skip-autoload-file-check' shall be nil.
-;; (setq my-loading-packages
-;;       '(("org-tree-slide" . nil)))
-(defvar my-use-el-get "26.1.91" ;; nil ;; "26.1.91"
+(defconst my-loading-packages nil)
+(defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
-      my-toggle-modeline-global nil ;; 'doom ;; {nil, t, 'doom}
+      my-toggle-modeline-global 'doom ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
-      my-skip-autoload-file-check (not my-loading-packages)
+      my-skip-check-autoload-file t
       debug-on-error nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -37,9 +32,10 @@
 (defvar my-cask-package-dir
   (format "~/.emacs.d/.cask/package/%s" emacs-version))
 (defvar my-elget-package-dir
-  (concat "~/.emacs.d/" my-use-el-get "/packages"))
+  (concat "~/.emacs.d/"
+          (if my-use-el-get my-use-el-get emacs-version) "/packages"))
 
-;; for El-get
+;; Build and check `my-package-dir'
 (setq my-package-dir my-cask-package-dir)
 (when my-use-el-get
   (setq my-package-dir my-elget-package-dir))
@@ -47,9 +43,8 @@
   (user-error "%s does NOT exist" my-package-dir))
 
 ;; (1) theme-path
-(my-path-setter `(,my-package-dir
-                  "~/.emacs.d/lisp")
-                'custom-theme-load-path)
+(my-path-setter
+ `(,my-package-dir "~/.emacs.d/lisp") 'custom-theme-load-path)
 
 ;; (2) exec-path
 (my-path-setter

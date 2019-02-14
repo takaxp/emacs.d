@@ -71,10 +71,13 @@
             (message "--- `%s' was NOT loaded intentionally" name)))))
     enabled))
 
-(defvar my-skip-autoload-file-check t)
+(defvar my-skip-check-autoload-file t)
+(when (and (boundp 'my-loading-packages)
+           my-loading-packages)
+  (setq my-skip-check-autoload-file nil))
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
-  (when (or my-skip-autoload-file-check
+  (when (or my-skip-check-autoload-file
             (and (my-load-package-p file)
                  (locate-library file)))
     (dolist (f functions)
@@ -252,6 +255,9 @@
 (with-eval-after-load "postpone"
   (when (fboundp 'pixel-scroll-mode)
     (pixel-scroll-mode 1))) ;; 26.1
+
+(when (version< "27" emacs-version)
+  (setq default-directory "~/"))
 
 (when (autoload-if-found
        '(aggressive-indent-mode)
@@ -1060,12 +1066,12 @@ This works also for other defined begin/end tokens to define the structure."
     (define-key selected-keymap (kbd "e") #'my-eval-region-echo)
     ;; (define-key selected-keymap (kbd "E") #'my-eval-region-echo-as-function)
     (define-key selected-keymap (kbd "=") #'count-words-region)
+    (define-key selected-keymap (kbd "f") #'describe-function)
+    (define-key selected-keymap (kbd "v") #'describe-variable)
     (when (require 'helpful nil t)
-      (define-key selected-keymap (kbd "m") #'helpful-macro))
-    (define-key selected-keymap (kbd "f")
-      (if (fboundp 'helpful-function) #'helpful-function #'describe-function))
-    (define-key selected-keymap (kbd "v")
-      (if (fboundp 'helpful-variable) #'helpful-variable #'describe-variable))
+      (define-key selected-keymap (kbd "m") #'helpful-macro)
+      (define-key selected-keymap (kbd "f") #'helpful-function)
+      (define-key selected-keymap (kbd "v") #'helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
     (define-key selected-keymap (kbd "g") #'my-google-this)
@@ -1619,7 +1625,7 @@ This works also for other defined begin/end tokens to define the structure."
       (postpone-message "dimmer-mode")
       (custom-set-variables
        '(dimmer-exclusion-regexp
-         "^\\*[Hh]elm\\|^ \\*Minibuf\\|^ \\*Echo\\|^\\*Calendar\\|*Org")
+         "^\\*[Hh]elm\\|^ \\*Minibuf\\|^ \\*Neo\\|^ \\*Echo\\|^\\*Calendar\\|*Org\\|^ \\*LV*")
        '(dimmer-fraction 0.6))
       (setq my-dimmer-mode (dimmer-mode 1))))
 
@@ -1656,6 +1662,78 @@ This works also for other defined begin/end tokens to define the structure."
     ;; for helm and helm-swoop
     (add-hook 'minibuffer-setup-hook #'dimmer-off)
     (add-hook 'minibuffer-exit-hook #'dimmer-on)))
+
+(when (autoload-if-found
+       '(help/hydra/timestamp/body)
+       "hydra" nil t)
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c t") #'help/hydra/timestamp/body))
+
+  (with-eval-after-load "hydra"
+    (require 'org nil t)
+    (custom-set-faces
+     '(hydra-face-blue
+       ((((background light))
+         :foreground "orange red" :bold t)
+        (((background dark))
+         :foreground "orange" :bold t))))
+
+    (defhydra help/hydra/timestamp (:color blue :hint nil)
+      "
+   2018-05-07 (_i_so 8601) / 24:04 (_n_ow) / 01 (_w_eek)
+_1_  2018-05-07T21:24:03+05:00 (ISO 8601 including _t_imezone)
+_2_  <2018-05-07 Mon 21:24> (Org Mode: _r_ight now)
+_3_  <2018-05-07 Mon> (Org Mode: by _s_elect)
+"
+      ("q" nil)
+      ("i" help/insert-datestamp)
+      ("n" help/insert-currenttime)
+      ("w" help/insert-week)
+      ("t" help/insert-timestamp)
+      ("r" help/org-time-stamp-with-seconds-now)
+      ("s" org-time-stamp)
+      ("0" help/show-my-date)
+      ("1" help/insert-timestamp)
+      ("2" help/org-time-stamp-with-seconds-now)
+      ("3" org-time-stamp))
+    (defun help/show-my-date ()
+      "Produces and show date and time in preferred format."
+      (interactive)
+      (message (format-time-string "%Y-%m-%d (%a.) W:%W @%H:%M"))
+      (hydra-keyboard-quit))
+    (defun help/insert-currenttime ()
+      "Produces and inserts the current time."
+      (interactive)
+      (insert (format-time-string "%H:%M")))
+    (defun help/insert-week ()
+      "Produces and inserts the week number."
+      (interactive)
+      (insert (format-time-string "%W")))
+    (defun help/insert-datestamp ()
+      "Produces and inserts a partial ISO 8601 format timestamp."
+      (interactive)
+      (insert (format-time-string "%F")))
+    (defun help/insert-timestamp ()
+      "Inserts a full ISO 8601 format timestamp."
+      (interactive)
+      (insert (help/get-timestamp)))
+    (defun help/org-time-stamp-with-seconds-now ()
+      (interactive)
+      (let ((current-prefix-arg '(16)))
+        (call-interactively 'org-time-stamp)))
+    (defun help/get-timestamp ()
+      "Produces a full ISO 8601 format timestamp."
+      (interactive)
+      (let* ((timestamp-without-timezone (format-time-string "%Y-%m-%dT%T"))
+             (timezone-name-in-numeric-form (format-time-string "%z"))
+             (timezone-utf-offset
+              (concat (substring timezone-name-in-numeric-form 0 3)
+                      ":"
+                      (substring timezone-name-in-numeric-form 3 5)))
+             (timestamp (concat timestamp-without-timezone
+                                timezone-utf-offset)))
+        timestamp))))
 
 (my-tick-init-time "presentation")
 
@@ -2480,7 +2558,7 @@ This works also for other defined begin/end tokens to define the structure."
          (fboundp 'mac-get-current-input-source))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
+       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
 
     (declare-function ad:mac-toggle-input-method "init" nil)
     (declare-function my-apply-cursor-config "init" nil)
@@ -2793,7 +2871,7 @@ This works also for other defined begin/end tokens to define the structure."
                                   (floor (* 0.8 ;; 1.0
                                             (* 2 (aref (font-info font) 2))))
                                 10)))
-     '(doom-modeline-minor-modes nil))
+     '(doom-modeline-minor-modes t))
     (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
     (defun ad:doom-modeline-buffer-file-state-icon
         (icon &optional text face height voffset)
@@ -2804,7 +2882,7 @@ Uses `all-the-icons-material' to fetch the icon."
           (when icon
             (doom-modeline-icon-material
              icon
-             :face (if (doom-modeline--active) face)
+             :face face
              :height (or height 0.85) ;; 1.1
              :v-adjust (or voffset -0.225))) ;; -0.225
         (when text
@@ -3548,7 +3626,7 @@ Uses `all-the-icons-material' to fetch the icon."
 (with-eval-after-load "postpone"
   (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
   (global-set-key (kbd "<f12>") 'my-open-file-ring)
-  (global-set-key (kbd "C-c t") 'my-date)
+;;  (global-set-key (kbd "C-c t") 'my-date)
   (global-set-key (kbd "C-c f 4") 'my-window-resizer))
 
 (when (autoload-if-found
@@ -3559,6 +3637,8 @@ Uses `all-the-icons-material' to fetch the icon."
     (define-key manage-minor-mode-map (kbd "q")
       (lambda () (interactive)
           (delete-window (get-buffer-window "*manage-minor-mode*"))))))
+
+(autoload-if-found '(gitter) "gitter"  nil t)
 
 (when (autoload-if-found
        '(network-watch-mode
