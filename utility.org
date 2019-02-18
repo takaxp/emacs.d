@@ -14,6 +14,11 @@
   :PROPERTIES:
   :CUSTOM_ID: org435340e8
   :END:
+#+begin_src emacs-lisp :tangle yes :exports none
+;; -*- lexical-binding: t -*-
+;;
+#+end_src
+
 ** iTerm2.app を呼び出す関数
    :PROPERTIES:
    :CUSTOM_ID: org62365dfa
@@ -754,7 +759,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 (defun describe-timer ()
   "see http://masutaka.net/chalow/2009-12-05-1.html"
   (interactive)
-  (let ((tl timer-list) time
+  (let ((tl timer-list)
         (timer nil))
     (pop-to-buffer (get-buffer-create "*timer*"))
     (erase-buffer)
@@ -1045,9 +1050,10 @@ utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
   "Control separated window size and position.
    Type {j,k,l,m} to adjust windows size."
   (interactive)
-  (let ((window-obj (selected-window))
-        (current-width (window-width))
-        (current-height (window-height))
+  (let (
+;;        (window-obj (selected-window))
+;;        (current-width (window-width))
+;;        (current-height (window-height))
         (dx (if (= (nth 0 (window-edges)) 0) 1
               -1))
         (dy (if (= (nth 1 (window-edges)) 0) 1

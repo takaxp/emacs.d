@@ -652,6 +652,9 @@ will not be modified."
     (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt))
 
   (with-eval-after-load "appt"
+    ;; モードラインに残り時間を表示しない
+    (setq appt-display-mode-line nil)
+
     ;; window を フレーム内に表示する
     (setq appt-display-format 'echo)
 
@@ -709,7 +712,7 @@ update it for multiple appts?")
              (message "%s" (if (listp string)
                                (mapconcat 'identity string "\n")
                              string)))))
-    ;; (advice-add 'appt-display-message :override #'ad:appt-display-message)
+    (advice-add 'appt-display-message :override #'ad:appt-display-message)
 
     (defun ad:appt-disp-window (min-to-app _new-time appt-msg)
       "Extension to support appt-disp-window."
@@ -1145,13 +1148,13 @@ update it for multiple appts?")
  '(org-random-todo org-random-todo-goto-current)
  "org-random-todo" nil t)
 
-;; No need for latest ox-hugo
 ;; see https://ox-hugo.scripter.co/doc/deprecation-notices/#org-hugo-auto-export-feature-now-a-minor-mode
 ;; (with-eval-after-load "org"
+;; No need for latest ox-hugo
 ;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
 ;;   (require 'ox-hugo-auto-export nil t))
 
-(with-eval-after-load "ox"
+(with-eval-after-load "org"
   (when (require 'ox-hugo nil t)
     (setq org-hugo-auto-set-lastmod nil) ;; see my-hugo-export-md
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
@@ -1173,11 +1176,21 @@ Note that this mechanism is still under consideration."
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
                 "#L" (format "%d" line) "][" alt "]]")))
 
-    (defun my-ox-hugo-add-lastmod ()
+    (defun my-add-ox-hugo-lastmod ()
       "Add `lastmod' property with the current time."
       (interactive)
       (org-set-property "EXPORT_HUGO_LASTMOD"
-                        (format-time-string "[%Y-%m-%d %a %H:%M]")))))
+                        (format-time-string "[%Y-%m-%d %a %H:%M]")))
+
+    (defun ad:ox-hugo:org-todo (&optional ARG)
+      "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
+      (when (and (equal (buffer-name) "imadenale.org")
+                 (or (eq ARG 'done)
+                     (equal ARG "DONE")))
+        (org-hugo-export-wim-to-md)
+        (message "[ox-hugo] \"%s\" has been exported."
+                 (nth 4 (org-heading-components)))))
+    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
 
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
@@ -1215,7 +1228,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
           (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
           id)))))
 
-  (defun my-org-add-ids-to-headlines-in-file ()
+  ;;;###autoload
+  (defun my-add-org-ids-to-headlines-in-file ()
     "Add CUSTOM_ID properties to all headlines in the current file.
 Which do not already have one.  Only adds ids if the
 `auto-id' option is set to `t' in the file somewhere. ie,

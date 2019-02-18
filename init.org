@@ -4260,6 +4260,9 @@ http://0xcc.net/migemo/#download
    :END:
 
  - [[https://www.wisdomandwonder.com/article/10763/emacsorg-mode-hydra-to-insert-timestamps][(Emacs+Org-Mode) Hydra To Insert Timestamps | Wisdom and Wonder]]
+ - [[https://oremacs.com/2016/04/04/hydra-doc-syntax/][Extended syntax for hydra docstrings · (or emacs]]
+
+ディスパッチャ内の =docstring= には， =?x?= の形式で評価値を反映できる．
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -4278,21 +4281,22 @@ http://0xcc.net/migemo/#download
         (((background dark))
          :foreground "orange" :bold t))))
 
-    (defhydra help/hydra/timestamp (:color blue :hint nil)
+    (defhydra help/hydra/timestamp (:color blue :hint none)
       "
    === Timestamp ===                                                    :_q_uit:
-0.  2018-05-07 (_i_so 8601) / 24:04 (_n_ow) / 01 (_w_eek)
-_1_.  2018-05-07T21:24:03+05:00 (ISO 8601 including _t_imezone)
-_2_.  <2018-05-07 Mon 21:24>    (Org Mode: _r_ight now)
+0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)
+_1_.  ?t? (ISO 8601 including _t_imezone)
+_2_.  ?r?    (Org Mode: _r_ight now)
 _3_.  <2018-05-07 Mon>          (Org Mode: by _s_elect)
 "
       ("q" nil)
-      ("i" help/insert-datestamp)
-      ("n" help/insert-currenttime)
-      ("w" help/insert-week)
-      ("t" help/insert-timestamp)
-      ("r" help/org-time-stamp-with-seconds-now)
-      ("s" org-time-stamp)
+      ("i" help/insert-datestamp (format-time-string "%F"))
+      ("n" help/insert-currenttime (format-time-string "%H:%M"))
+      ("w" help/insert-week (format-time-string "%W"))
+      ("t" help/insert-timestamp (help/get-timestamp))
+      ("r" help/org-time-stamp-with-seconds-now
+       (format-time-string "<%F %a %H:%M>"))
+      ("s" org-time-stamp (format-time-string "<%F %a>"))
       ("0" help/show-my-date)
       ("1" help/insert-timestamp)
       ("2" help/org-time-stamp-with-seconds-now)
@@ -5160,15 +5164,15 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
       (postpone-message "auto-save-buffers"))
 
     (defun my-ox-hugo-auto-saving-p ()
-      (when (equal major-mode 'org-mode)
+      (when (eq major-mode 'org-mode)
         (or (and (boundp 'org-capture-mode) ;; when activating org-capture
                  org-capture-mode)
             (and (fboundp 'org-entry-get)
                  (equal "" (org-entry-get (point) "EXPORT_FILE_NAME"))))))
 
     (defun my-auto-save-buffers ()
-      (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
-            ((equal major-mode 'diff-mode) nil)
+      (cond ((eq major-mode 'undo-tree-visualizer-mode) nil)
+            ((eq major-mode 'diff-mode) nil)
             ((string-match "Org Src" (buffer-name)) nil)
             ((my-ox-hugo-auto-saving-p) nil)
             (t
@@ -6952,6 +6956,9 @@ will not be modified."
     (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt))
 
   (with-eval-after-load "appt"
+    ;; モードラインに残り時間を表示しない
+    (setq appt-display-mode-line nil)
+
     ;; window を フレーム内に表示する
     (setq appt-display-format 'echo)
 
@@ -7009,7 +7016,7 @@ update it for multiple appts?")
              (message "%s" (if (listp string)
                                (mapconcat 'identity string "\n")
                              string)))))
-    ;; (advice-add 'appt-display-message :override #'ad:appt-display-message)
+    (advice-add 'appt-display-message :override #'ad:appt-display-message)
 
     (defun ad:appt-disp-window (min-to-app _new-time appt-msg)
       "Extension to support appt-disp-window."
@@ -7674,13 +7681,13 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
  - Org Mode でブログを書いて， [[https://gohugo.io/][Hugo]]で静的サイトに出力します．
 
 #+begin_src emacs-lisp :tangle init-org.el
-;; No need for latest ox-hugo
 ;; see https://ox-hugo.scripter.co/doc/deprecation-notices/#org-hugo-auto-export-feature-now-a-minor-mode
 ;; (with-eval-after-load "org"
+;; No need for latest ox-hugo
 ;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
 ;;   (require 'ox-hugo-auto-export nil t))
 
-(with-eval-after-load "ox"
+(with-eval-after-load "org"
   (when (require 'ox-hugo nil t)
     (setq org-hugo-auto-set-lastmod nil) ;; see my-hugo-export-md
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
@@ -7702,11 +7709,21 @@ Note that this mechanism is still under consideration."
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
                 "#L" (format "%d" line) "][" alt "]]")))
 
-    (defun my-ox-hugo-add-lastmod ()
+    (defun my-add-ox-hugo-lastmod ()
       "Add `lastmod' property with the current time."
       (interactive)
       (org-set-property "EXPORT_HUGO_LASTMOD"
-                        (format-time-string "[%Y-%m-%d %a %H:%M]")))))
+                        (format-time-string "[%Y-%m-%d %a %H:%M]")))
+
+    (defun ad:ox-hugo:org-todo (&optional ARG)
+      "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
+      (when (and (equal (buffer-name) "imadenale.org")
+                 (or (eq ARG 'done)
+                     (equal ARG "DONE")))
+        (org-hugo-export-wim-to-md)
+        (message "[ox-hugo] \"%s\" has been exported."
+                 (nth 4 (org-heading-components)))))
+    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
 #+end_src
 
 ** [ox-html] HTML見出しへのリンクを固定する
@@ -7718,7 +7735,7 @@ Note that this mechanism is still under consideration."
 
 これを簡単にするための補助関数が公開されている．この[[https://writequit.org/articles/emacs-org-mode-generate-ids.html][元ネタ]]を参考に，少し改良して使用している．なお元ネタでは標準の =org-id-new= を直接利用しているが，以下の実装では， =org= の後ろにUUIDの先頭8桁が続くように，IDの内容に制限をかけている．
 
-=my-org-add-ids-to-headlines-in-file= は，バッファの保存時点，或いは，HTMLエクスポートが走る直前のタイミングで自動実行させるのがスマートだが，当面は手動で運用する．
+=my-add-org-ids-to-headlines-in-file= は，バッファの保存時点，或いは，HTMLエクスポートが走る直前のタイミングで自動実行させるのがスマートだが，当面は手動で運用する．
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
@@ -7757,7 +7774,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
           (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
           id)))))
 
-  (defun my-org-add-ids-to-headlines-in-file ()
+  ;;;###autoload
+  (defun my-add-org-ids-to-headlines-in-file ()
     "Add CUSTOM_ID properties to all headlines in the current file.
 Which do not already have one.  Only adds ids if the
 `auto-id' option is set to `t' in the file somewhere. ie,
@@ -8366,7 +8384,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
          (fboundp 'mac-get-current-input-source))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
+       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
 
     (declare-function ad:mac-toggle-input-method "init" nil)
     (declare-function my-apply-cursor-config "init" nil)

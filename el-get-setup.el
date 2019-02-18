@@ -15,7 +15,7 @@
 
 (unless (require 'el-get nil 'noerror)
   (with-current-buffer
-      ;; el-get-silent-update が使えるカスタマイズパッケージを使う．
+      ;; `el-get-silent-update' が使えるカスタマイズパッケージを使う．
       (url-retrieve-synchronously
        "https://raw.githubusercontent.com/takaxp/el-get/master/el-get-install.el")
     ;; オリジナルはこっち
@@ -217,7 +217,6 @@
 (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
 (el-get-bundle "takaxp/all-the-icons.el"
                :name all-the-icons)
-;; :depends (font-lock+))
 (el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
 (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)
 (el-get-bundle "manage-minor-mode")
@@ -287,12 +286,12 @@
 (el-get-bundle "NicolasPetton/pass")
 (el-get-bundle "pdf-tools")
 (el-get-bundle "gif-screencast"
-  :type git
-  :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
+               :type git
+               :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
 (el-get-bundle "emms"
-  :type git
-  :url "https://git.savannah.gnu.org/git/emms.git"
-  :load-path ("./lisp"))
+               :type git
+               :url "https://git.savannah.gnu.org/git/emms.git"
+               :load-path ("./lisp"))
 (el-get-bundle "tarsius/keycast")
 (el-get-bundle "jamiguet/network-watch")
 ;; (el-get-bundle "japanlaw")

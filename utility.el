@@ -1,3 +1,6 @@
+;; -*- lexical-binding: t -*-
+;;
+
 ;;;###autoload
 (defun my-cmd-to-open-iterm2 ()
   (interactive)
@@ -228,26 +231,6 @@
                (move-beginning-of-line 1)
                (insert item-string))))))
 
-;;;###autoload
-(defun insert-formatted-current-date ()
-  "Insert a timestamp at the cursor position. C-u will add [] brackets."
-  (interactive)
-  (insert (format-time-string "%Y-%m-%d")))
-
-;;;###autoload
-(defun insert-formatted-current-time ()
-  (interactive)
-  (insert (format-time-string "%H:%M")))
-
-;;;###autoload
-(defun insert-formatted-signature ()
-  (interactive)
-  (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
-                  "  <" user-mail-address ">")))
-
-(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
-(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
-
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
   (run-with-idle-timer 600 t 'my-reload-ical-export)
@@ -285,15 +268,6 @@
 ;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
 ;;(setq browse-url-browser-function 'browse-url-default-windows-browser)
 ;;(setq browse-url-browser-function 'browse-url-chrome)
-
-;;;###autoload
-(defun my-date ()
-  (interactive)
-  (message "%s" (concat
-                 (format-time-string "%Y-%m-%d") " ("
-                 (format-time-string "%a.") ") "
-                 (format-time-string "W:%W @")
-                 (format-time-string "%H:%M"))))
 
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
 
@@ -560,7 +534,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun describe-timer ()
   "see http://masutaka.net/chalow/2009-12-05-1.html"
   (interactive)
-  (let ((tl timer-list) time
+  (let ((tl timer-list)
         (timer nil))
     (pop-to-buffer (get-buffer-create "*timer*"))
     (erase-buffer)
@@ -596,14 +570,18 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
            (message ""))
           (t (message "There is NOT such a file.")))))
 
+(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
+(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
+
 ;;;###autoload
 (defun my-window-resizer ()
   "Control separated window size and position.
    Type {j,k,l,m} to adjust windows size."
   (interactive)
-  (let ((window-obj (selected-window))
-        (current-width (window-width))
-        (current-height (window-height))
+  (let (
+;;        (window-obj (selected-window))
+;;        (current-width (window-width))
+;;        (current-height (window-height))
         (dx (if (= (nth 0 (window-edges)) 0) 1
               -1))
         (dy (if (= (nth 1 (window-edges)) 0) 1

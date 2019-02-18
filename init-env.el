@@ -1,5 +1,3 @@
-;; helm-swoop(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defconst my-before-load-init-time (current-time)
   "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
 (defconst my-ad-require-p nil
@@ -14,11 +12,13 @@
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
-      my-toggle-modeline-global 'doom ;; 'doom ;; {nil, t, 'doom}
+      my-toggle-modeline-global 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
       debug-on-error nil)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; helm-swoop(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when my-profiler-p
   (profiler-start 'cpu+mem))
@@ -28,19 +28,18 @@
   "Utility function to set PATH-LIST to TARGET-PATH."
   (dolist (x path-list)
     (add-to-list target-path (file-name-as-directory x))))
-(defvar my-package-dir nil)
 (defvar my-cask-package-dir
   (format "~/.emacs.d/.cask/package/%s" emacs-version))
 (defvar my-elget-package-dir
-  (concat "~/.emacs.d/"
-          (if my-use-el-get my-use-el-get emacs-version) "/packages"))
+  (format "~/.emacs.d/%s/packages"
+          (if my-use-el-get my-use-el-get emacs-version)))
 
 ;; Build and check `my-package-dir'
-(setq my-package-dir my-cask-package-dir)
+(defvar my-package-dir my-cask-package-dir)
 (when my-use-el-get
   (setq my-package-dir my-elget-package-dir))
 (unless (file-directory-p my-package-dir)
-  (user-error "%s does NOT exist" my-package-dir))
+  (user-error "%s does NOT exist. Run setup script first." my-package-dir))
 
 ;; (1) theme-path
 (my-path-setter

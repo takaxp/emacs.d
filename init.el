@@ -1679,20 +1679,22 @@ This works also for other defined begin/end tokens to define the structure."
         (((background dark))
          :foreground "orange" :bold t))))
 
-    (defhydra help/hydra/timestamp (:color blue :hint nil)
+    (defhydra help/hydra/timestamp (:color blue :hint none)
       "
-   2018-05-07 (_i_so 8601) / 24:04 (_n_ow) / 01 (_w_eek)
-_1_  2018-05-07T21:24:03+05:00 (ISO 8601 including _t_imezone)
-_2_  <2018-05-07 Mon 21:24> (Org Mode: _r_ight now)
-_3_  <2018-05-07 Mon> (Org Mode: by _s_elect)
+   === Timestamp ===                                                    :_q_uit:
+0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)
+_1_.  ?t? (ISO 8601 including _t_imezone)
+_2_.  ?r?    (Org Mode: _r_ight now)
+_3_.  <2018-05-07 Mon>          (Org Mode: by _s_elect)
 "
       ("q" nil)
-      ("i" help/insert-datestamp)
-      ("n" help/insert-currenttime)
-      ("w" help/insert-week)
-      ("t" help/insert-timestamp)
-      ("r" help/org-time-stamp-with-seconds-now)
-      ("s" org-time-stamp)
+      ("i" help/insert-datestamp (format-time-string "%F"))
+      ("n" help/insert-currenttime (format-time-string "%H:%M"))
+      ("w" help/insert-week (format-time-string "%W"))
+      ("t" help/insert-timestamp (help/get-timestamp))
+      ("r" help/org-time-stamp-with-seconds-now
+       (format-time-string "<%F %a %H:%M>"))
+      ("s" org-time-stamp (format-time-string "<%F %a>"))
       ("0" help/show-my-date)
       ("1" help/insert-timestamp)
       ("2" help/org-time-stamp-with-seconds-now)
@@ -2035,15 +2037,15 @@ _3_  <2018-05-07 Mon> (Org Mode: by _s_elect)
       (postpone-message "auto-save-buffers"))
 
     (defun my-ox-hugo-auto-saving-p ()
-      (when (equal major-mode 'org-mode)
+      (when (eq major-mode 'org-mode)
         (or (and (boundp 'org-capture-mode) ;; when activating org-capture
                  org-capture-mode)
             (and (fboundp 'org-entry-get)
                  (equal "" (org-entry-get (point) "EXPORT_FILE_NAME"))))))
 
     (defun my-auto-save-buffers ()
-      (cond ((equal major-mode 'undo-tree-visualizer-mode) nil)
-            ((equal major-mode 'diff-mode) nil)
+      (cond ((eq major-mode 'undo-tree-visualizer-mode) nil)
+            ((eq major-mode 'diff-mode) nil)
             ((string-match "Org Src" (buffer-name)) nil)
             ((my-ox-hugo-auto-saving-p) nil)
             (t
@@ -2558,7 +2560,7 @@ _3_  <2018-05-07 Mon> (Org Mode: by _s_elect)
          (fboundp 'mac-get-current-input-source))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
+       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
 
     (declare-function ad:mac-toggle-input-method "init" nil)
     (declare-function my-apply-cursor-config "init" nil)
