@@ -2408,7 +2408,8 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     ;; C-; をオーバーライド
     (define-key flyspell-mode-map (kbd "C-;") 'comment-dwim)
     (setq flyspell-duplicate-distance 0)
-    (setq flyspell-mode-line-string " F")
+    ;; (setq flyspell-mode-line-string " F")
+    (setq flyspell-mode-line-string "")
     ;; (setq flyspell-large-region 200)
     (set-face-attribute 'flyspell-duplicate nil
                         :foreground "#EA5506" :bold t
@@ -3255,69 +3256,6 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 (setq echo-keystrokes 0.5)
 #+end_src
 
-** [delight.el] モードラインのモード名を短縮する
-   :PROPERTIES:
-   :CUSTOM_ID: org0e59b85f
-   :END:
-
-  - [[https://elpa.gnu.org/packages/delight.html][GNU ELPA - delight]]
-
-以前は =diminish.el= を使用していましたが，ELPA配布のパッケージに移行しました．メジャーモードの短縮表示もマイナーモードの場合と同様に設定できます．この点で，設定がスッキリしました．
-
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
-#+begin_src emacs-lisp :tangle yes
-(with-eval-after-load "postpone"
-  (when (require 'delight nil t)
-    (unless noninteractive
-      (postpone-message "delight"))
-    (delight
-     '(;; Major modes
-       (c-mode "C" :major)
-       (c++mode "C++" :major)
-       (js2-mode "JS" :major)
-       (csharp-mode "C#" :major)
-       (prog-mode "Pr" :major)
-       (emacs-lisp-mode "El" :major)
-       (python-mode "Py" :major)
-       (perl-mode "Pl" :major)
-       (web-mode "W" :major)
-       (change-log-mode "ChangeLog" :major)
-       (lisp-interaction-mode "Lisp" :major)
-
-       ;; Shorten for minor modes
-       (ggtags-mode " G" "ggtags")
-       ;; (orgstruct-mode " OrgS" "org")
-       (orgalist-mode " ol" "orgalist")
-
-       ;; No display for minor modes
-       (org-fancy-priorities-mode nil "org-fancy-priorities")
-       (smooth-scroll-mode nil "smooth-scroll")
-       (eldoc-mode nil "eldoc")
-       (centered-cursor-mode nil "centered-cursor-mode")
-       (volatile-highlights-mode nil "volatile-highlights")
-       (aggressive-indent-mode nil "aggressive-indent")
-       (all-the-icons-dired-mode nil "all-the-icons-dired")
-       (yas-minor-mode nil "yasnippet")
-       (auto-complete-mode nil "auto-complete")
-       (ws-butler-mode nil "ws-butler")
-       (isearch-mode nil "isearch")
-       (auto-revert-mode nil "autorevert")
-       (global-whitespace-mode nil "whitespace")
-       (emmet-mode nil "emmet-mode")
-       (helm-mode nil "helm-mode")
-       (abbrev-mode nil "abbrev")
-       (doxymacs-mode nil "doxymacs")
-       (editorconfig-mode nil "editorconfig")
-       (rainbow-mode nil "rainbow-mode")
-       (highlight-symbol-mode nil "highlight-symbol")
-       (which-key-mode nil "which-key")
-       (fancy-narrow-mode nil "fancy-narrow")
-       (smartparens-mode nil "smartparens")
-       (projectile-mode nil "projectile")
-       (selected-minor-mode nil "selected")))))
-#+end_src
-
 ** モードラインのNarrowを短くする
    :PROPERTIES:
    :CUSTOM_ID: org3368625d
@@ -3767,6 +3705,69 @@ paren.el の場合は以下の設定．
                                "%z" mode-line-mule-info :test 'equal)))
 #+end_src
 
+** [delight.el] モードラインのモード名を短縮する
+   :PROPERTIES:
+   :CUSTOM_ID: org0e59b85f
+   :END:
+
+  - [[https://elpa.gnu.org/packages/delight.html][GNU ELPA - delight]]
+
+以前は =diminish.el= を使用していましたが，ELPA配布のパッケージに移行しました．メジャーモードの短縮表示もマイナーモードの場合と同様に設定できます．この点で，設定がスッキリしました．
+
+=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "postpone"
+  (when (require 'delight nil t)
+    (unless noninteractive
+      (postpone-message "delight"))
+    (delight
+     '(;; Major modes
+       (c-mode "C" :major)
+       (c++mode "C++" :major)
+       (js2-mode "JS" :major)
+       (csharp-mode "C#" :major)
+       (prog-mode "Pr" :major)
+       (emacs-lisp-mode "El" :major)
+       (python-mode "Py" :major)
+       (perl-mode "Pl" :major)
+       (web-mode "W" :major)
+       (change-log-mode "ChangeLog" :major)
+       (lisp-interaction-mode "Lisp" :major)
+
+       ;; Shorten for minor modes
+       (ggtags-mode " G" "ggtags")
+       ;; (orgstruct-mode " OrgS" "org")
+       (orgalist-mode " ol" "orgalist")
+
+       ;; No display for minor modes
+       (org-fancy-priorities-mode nil "org-fancy-priorities")
+       (smooth-scroll-mode nil "smooth-scroll")
+       (eldoc-mode nil "eldoc")
+       (centered-cursor-mode nil "centered-cursor-mode")
+       (volatile-highlights-mode nil "volatile-highlights")
+       (aggressive-indent-mode nil "aggressive-indent")
+       (all-the-icons-dired-mode nil "all-the-icons-dired")
+       (yas-minor-mode nil "yasnippet")
+       (auto-complete-mode nil "auto-complete")
+       (ws-butler-mode nil "ws-butler")
+       (isearch-mode nil "isearch")
+       (auto-revert-mode nil "autorevert")
+       (global-whitespace-mode nil "whitespace")
+       (emmet-mode nil "emmet-mode")
+       (helm-mode nil "helm-mode")
+       (abbrev-mode nil "abbrev")
+       (doxymacs-mode nil "doxymacs")
+       (editorconfig-mode nil "editorconfig")
+       (rainbow-mode nil "rainbow-mode")
+       (highlight-symbol-mode nil "highlight-symbol")
+       (which-key-mode nil "which-key")
+       (fancy-narrow-mode nil "fancy-narrow")
+       (smartparens-mode nil "smartparens")
+       (projectile-mode nil "projectile")
+       (selected-minor-mode nil "selected")))))
+#+end_src
+
 ** [migemo.el] ローマ字入力で日本語を検索する
    :PROPERTIES:
    :CUSTOM_ID: org74bad2de
@@ -4131,7 +4132,7 @@ http://0xcc.net/migemo/#download
 
   (with-eval-after-load "eldoc"
     (custom-set-variables
-     '(eldoc-idle-delay 1.))))
+     '(eldoc-idle-delay 1.0))))
 #+end_src
 
 ** [keycast.el] 入力しているキーとコマンドをモードラインに表示
@@ -6178,7 +6179,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (add-to-list 'org-modules 'org-tempo))
 
     ;; 不必要なモジュールの読み込みを停止する
-    (setq org-modules (delete 'org-gnus org-modules))
+    (delq 'org-gnus org-modules)
     ;; (setq org-modules (delete 'org-bibtex org-modules))
 
     ;; org ファイルの集中管理
@@ -6378,6 +6379,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                '("D" my-org-todo-complete-no-repeat "DONE"))
   ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
   ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
+  (add-to-list 'org-speed-commands-user '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands-user '("!" my-org-set-created-property))
   (add-to-list 'org-speed-commands-user
                '("$" call-interactively 'org-archive-subtree))
@@ -6387,7 +6389,19 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (interactive "P")
     (when (org-get-repeat)
       (org-cancel-repeater))
-    (org-todo ARG)))
+    (org-todo ARG))
+
+  ;; 締切を今日にする =FIXME=
+  (defun my-org-deadline-today ()
+    (when (org-entry-is-todo-p)
+      (let ((date (org-entry-get (point) "DEADLINE"))
+            (today (format-time-string "%F")))
+        (org-deadline 'deadline
+                      (if date
+                          (format "<%s%s"
+                                  today
+                                  (substring date 11 (string-width date)))
+                        (format "<%s>" today)))))))
 #+end_src
 
 ** face 関連
@@ -6894,7 +6908,11 @@ will not be modified."
     (my-popup-calendar-set-timers)
     (run-at-time "24:00" nil 'my-popup-calendar-set-timers))
 
-  ) ;; for next day
+  ;; org-agenda でも "d" 押下で "DONE" にする
+  (defun my-org-agenda-done ()
+    (interactive)
+    (org-agenda-todo "DONE"))
+  (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done))
 
 ;; Doing 管理
 (with-eval-after-load "org"
@@ -6969,7 +6987,7 @@ will not be modified."
     (setq appt-audible nil)
 
     ;; 何分前から警告表示を開始するか[m]
-    (setq appt-message-warning-time 20)
+    (setq appt-message-warning-time 10)
 
     ;; 警告表示開始から何分ごとにリマインドするか[m]
     (setq appt-display-interval 1)
@@ -7494,13 +7512,11 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
   (when (require 'org-crypt nil t)
-    (setq org-crypt-key "<insert your key>")
+    (setq org-crypt-key "") ;; <insert your key>
     ;; org-encrypt-entries の影響を受けるタグを指定
     (setq org-tags-exclude-from-inheritance (quote ("secret")))
     ;; 自動保存の確認を無効に
-    (setq org-crypt-disable-auto-save 'nil)
-    (define-key org-mode-map (kbd "C-c f c e") 'org-encrypt-entry)
-    (define-key org-mode-map (kbd "C-c f c d") 'org-decrypt-entry)))
+    (setq org-crypt-disable-auto-save 'nil)))
 #+end_src
 
 ** [org-mac-link] 外部アプリから情報を取る
@@ -9061,7 +9077,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "postpone"
-  (defvar my-hl-active-period 3
+  (defvar my-hl-active-period 120
     "Disable `hl-line' after this period")
 
   (defun my-hl-line-disable ()
@@ -10211,7 +10227,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
   (with-eval-after-load "network-watch"
     (defun ad:network-watch-update-lighter ()
       "Return a mode lighter reflecting the current network state."
-      (unless (network-watch-active-p) " ↓NW↓"))
+      (unless (network-watch-active-p) " NW↓"))
     (advice-add 'network-watch-update-lighter
                 :override #'ad:network-watch-update-lighter)))
 #+end_src

@@ -81,10 +81,11 @@
   ;; (require 'utility nil t) ;; 5[ms]
   (require 'utility-autoloads nil t) ;; 2[ms]
   (require 'init nil t)
-  ;; (require 'init-org nil t)
-  (require 'my-eshell nil t)
-  (require 'my-mail nil t)
-  (require 'private nil t)
+  (with-eval-after-load "postpone"
+    ;; (require 'init-org nil t)
+    (require 'private nil t)
+    (require 'my-eshell nil t)
+    (require 'my-mail nil t))
   (when my-profiler-p
     (profiler-report)))
  ((eq my-boot-type 'debug)

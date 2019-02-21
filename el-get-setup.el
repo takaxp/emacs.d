@@ -23,6 +23,8 @@
     (goto-char (point-max))
     (eval-print-last-sexp)))
 
+(add-to-list 'el-get-recipe-path "~/.emacs.d/recipes")
+
 (setq el-get-git-shallow-clone t) ;; "--depth 1"
 (setq el-get-verbose nil) ;; just for sure
 (setq el-get-silent-update t) ;; 出力されるメッセージの抑制
@@ -47,9 +49,9 @@
 (el-get-bundle "takaxp/help-fns-plus")
 (el-get-bundle "syohex/emacs-utils")
 (el-get-bundle "zk-phi/git-complete")
-(el-get-bundle "org-mode"
-               :type git
-               :url "https://code.orgmode.org/bzg/org-mode.git")
+;; (el-get-bundle "org-mode"
+;;                :type git
+;;                :url "https://code.orgmode.org/bzg/org-mode.git")
 
 ;; Testing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -86,22 +88,25 @@
 (el-get-bundle "mallt/org-clock-today-mode")
 (el-get-bundle "alphapapa/org-recent-headings")
 (el-get-bundle "facetframer/orgnav")
-(el-get-bundle "snosov1/toc-org")
+(el-get-bundle "toc-org") ;; using a private recipe to exclude org
 (el-get-bundle "harrybournis/org-fancy-priorities")
 (el-get-bundle "kiwanami/emacs-calfw")
 (el-get-bundle "alphapapa/org-bookmark-heading")
 (el-get-bundle "org-emms"
-  :type git
-  :url "https://gitlab.com/jagrg/org-emms.git")
-(el-get-bundle "masasam/emacs-easy-hugo")
+               :type git
+               :url "https://gitlab.com/jagrg/org-emms.git")
+(el-get-bundle "takaxp/emacs-easy-hugo") ;; using a private repo not to download images
 (el-get-bundle "jkitchin/ox-ipynb")
-(el-get-bundle "org-bullets") ;; Requires Org
+(el-get-bundle "org-bullets")
 (el-get-bundle "takaxp/org-reveal" :name ox-reveal :branch "org9.2")
 (el-get-bundle "IvanMalison/org-projectile")
 
 ;; Major modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(el-get-bundle "python-mode")
+;; download zip since python-mode git repository is extremely huge
+(el-get-bundle "python-mode"
+               :type http-zip
+               :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
 (el-get-bundle "csharp-mode")
 (el-get-bundle "yaml-mode")
 (el-get-bundle "json-mode")
@@ -138,7 +143,8 @@
 (el-get-bundle "Wilfred/helpful") ;; Requires elisp-refs
 (el-get-bundle "gonewest818/elisp-lint")
 (el-get-bundle "purcell/package-lint")
-(el-get-bundle "magit")
+(el-get-bundle "magit/transient")
+(el-get-bundle "magit") ;; require transient
 (el-get-bundle "AdamNiederer/cov")
 (el-get-bundle "ggtags")
 (el-get-bundle "dedi/gxref") ;; emacs 25.1 or later
@@ -209,7 +215,7 @@
 (el-get-bundle "emacsattic/mic-paren")
 (el-get-bundle "cask/shut-up")
 (el-get-bundle "emacsmirror/delight") ;; or diminish
-(el-get-bundle "gonewest818/dimmer.el" :name dimmer)
+(el-get-bundle "takaxp/dimmer.el" :name dimmer) ;; using a private repo not to download images
 (el-get-bundle "emacsmirror/centered-cursor-mode")
 (el-get-bundle "hide-lines")
 (el-get-bundle "undo-tree")

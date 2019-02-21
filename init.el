@@ -817,7 +817,8 @@
     ;; C-; をオーバーライド
     (define-key flyspell-mode-map (kbd "C-;") 'comment-dwim)
     (setq flyspell-duplicate-distance 0)
-    (setq flyspell-mode-line-string " F")
+    ;; (setq flyspell-mode-line-string " F")
+    (setq flyspell-mode-line-string "")
     ;; (setq flyspell-large-region 200)
     (set-face-attribute 'flyspell-duplicate nil
                         :foreground "#EA5506" :bold t
@@ -1127,56 +1128,6 @@ This works also for other defined begin/end tokens to define the structure."
 
 (setq echo-keystrokes 0.5)
 
-(with-eval-after-load "postpone"
-  (when (require 'delight nil t)
-    (unless noninteractive
-      (postpone-message "delight"))
-    (delight
-     '(;; Major modes
-       (c-mode "C" :major)
-       (c++mode "C++" :major)
-       (js2-mode "JS" :major)
-       (csharp-mode "C#" :major)
-       (prog-mode "Pr" :major)
-       (emacs-lisp-mode "El" :major)
-       (python-mode "Py" :major)
-       (perl-mode "Pl" :major)
-       (web-mode "W" :major)
-       (change-log-mode "ChangeLog" :major)
-       (lisp-interaction-mode "Lisp" :major)
-
-       ;; Shorten for minor modes
-       (ggtags-mode " G" "ggtags")
-       ;; (orgstruct-mode " OrgS" "org")
-       (orgalist-mode " ol" "orgalist")
-
-       ;; No display for minor modes
-       (org-fancy-priorities-mode nil "org-fancy-priorities")
-       (smooth-scroll-mode nil "smooth-scroll")
-       (eldoc-mode nil "eldoc")
-       (centered-cursor-mode nil "centered-cursor-mode")
-       (volatile-highlights-mode nil "volatile-highlights")
-       (aggressive-indent-mode nil "aggressive-indent")
-       (all-the-icons-dired-mode nil "all-the-icons-dired")
-       (yas-minor-mode nil "yasnippet")
-       (auto-complete-mode nil "auto-complete")
-       (ws-butler-mode nil "ws-butler")
-       (isearch-mode nil "isearch")
-       (auto-revert-mode nil "autorevert")
-       (global-whitespace-mode nil "whitespace")
-       (emmet-mode nil "emmet-mode")
-       (helm-mode nil "helm-mode")
-       (abbrev-mode nil "abbrev")
-       (doxymacs-mode nil "doxymacs")
-       (editorconfig-mode nil "editorconfig")
-       (rainbow-mode nil "rainbow-mode")
-       (highlight-symbol-mode nil "highlight-symbol")
-       (which-key-mode nil "which-key")
-       (fancy-narrow-mode nil "fancy-narrow")
-       (smartparens-mode nil "smartparens")
-       (projectile-mode nil "projectile")
-       (selected-minor-mode nil "selected")))))
-
 (with-eval-after-load "org"
   (setq mode-line-modes
         (mapcar
@@ -1376,6 +1327,56 @@ This works also for other defined begin/end tokens to define the structure."
   (setq-default mode-line-mule-info
                 (cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
                                "%z" mode-line-mule-info :test 'equal)))
+
+(with-eval-after-load "postpone"
+  (when (require 'delight nil t)
+    (unless noninteractive
+      (postpone-message "delight"))
+    (delight
+     '(;; Major modes
+       (c-mode "C" :major)
+       (c++mode "C++" :major)
+       (js2-mode "JS" :major)
+       (csharp-mode "C#" :major)
+       (prog-mode "Pr" :major)
+       (emacs-lisp-mode "El" :major)
+       (python-mode "Py" :major)
+       (perl-mode "Pl" :major)
+       (web-mode "W" :major)
+       (change-log-mode "ChangeLog" :major)
+       (lisp-interaction-mode "Lisp" :major)
+
+       ;; Shorten for minor modes
+       (ggtags-mode " G" "ggtags")
+       ;; (orgstruct-mode " OrgS" "org")
+       (orgalist-mode " ol" "orgalist")
+
+       ;; No display for minor modes
+       (org-fancy-priorities-mode nil "org-fancy-priorities")
+       (smooth-scroll-mode nil "smooth-scroll")
+       (eldoc-mode nil "eldoc")
+       (centered-cursor-mode nil "centered-cursor-mode")
+       (volatile-highlights-mode nil "volatile-highlights")
+       (aggressive-indent-mode nil "aggressive-indent")
+       (all-the-icons-dired-mode nil "all-the-icons-dired")
+       (yas-minor-mode nil "yasnippet")
+       (auto-complete-mode nil "auto-complete")
+       (ws-butler-mode nil "ws-butler")
+       (isearch-mode nil "isearch")
+       (auto-revert-mode nil "autorevert")
+       (global-whitespace-mode nil "whitespace")
+       (emmet-mode nil "emmet-mode")
+       (helm-mode nil "helm-mode")
+       (abbrev-mode nil "abbrev")
+       (doxymacs-mode nil "doxymacs")
+       (editorconfig-mode nil "editorconfig")
+       (rainbow-mode nil "rainbow-mode")
+       (highlight-symbol-mode nil "highlight-symbol")
+       (which-key-mode nil "which-key")
+       (fancy-narrow-mode nil "fancy-narrow")
+       (smartparens-mode nil "smartparens")
+       (projectile-mode nil "projectile")
+       (selected-minor-mode nil "selected")))))
 
 (when (autoload-if-found
        '(helm-google)
@@ -1609,7 +1610,7 @@ This works also for other defined begin/end tokens to define the structure."
 
   (with-eval-after-load "eldoc"
     (custom-set-variables
-     '(eldoc-idle-delay 1.))))
+     '(eldoc-idle-delay 1.0))))
 
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 
@@ -2913,7 +2914,7 @@ Uses `all-the-icons-material' to fetch the icon."
   (global-hl-line-mode 1))
 
 (with-eval-after-load "postpone"
-  (defvar my-hl-active-period 3
+  (defvar my-hl-active-period 120
     "Disable `hl-line' after this period")
 
   (defun my-hl-line-disable ()
@@ -3657,7 +3658,7 @@ Uses `all-the-icons-material' to fetch the icon."
   (with-eval-after-load "network-watch"
     (defun ad:network-watch-update-lighter ()
       "Return a mode lighter reflecting the current network state."
-      (unless (network-watch-active-p) " ↓NW↓"))
+      (unless (network-watch-active-p) " NW↓"))
     (advice-add 'network-watch-update-lighter
                 :override #'ad:network-watch-update-lighter)))
 

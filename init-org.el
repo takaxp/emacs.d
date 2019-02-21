@@ -37,7 +37,7 @@
       (add-to-list 'org-modules 'org-tempo))
 
     ;; 不必要なモジュールの読み込みを停止する
-    (setq org-modules (delete 'org-gnus org-modules))
+    (delq 'org-gnus org-modules)
     ;; (setq org-modules (delete 'org-bibtex org-modules))
 
     ;; org ファイルの集中管理
@@ -213,6 +213,7 @@
                '("D" my-org-todo-complete-no-repeat "DONE"))
   ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
   ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
+  (add-to-list 'org-speed-commands-user '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands-user '("!" my-org-set-created-property))
   (add-to-list 'org-speed-commands-user
                '("$" call-interactively 'org-archive-subtree))
@@ -222,7 +223,19 @@
     (interactive "P")
     (when (org-get-repeat)
       (org-cancel-repeater))
-    (org-todo ARG)))
+    (org-todo ARG))
+
+  ;; 締切を今日にする =FIXME=
+  (defun my-org-deadline-today ()
+    (when (org-entry-is-todo-p)
+      (let ((date (org-entry-get (point) "DEADLINE"))
+            (today (format-time-string "%F")))
+        (org-deadline 'deadline
+                      (if date
+                          (format "<%s%s"
+                                  today
+                                  (substring date 11 (string-width date)))
+                        (format "<%s>" today)))))))
 
 (with-eval-after-load "org"
   ;; Font lock を使う
@@ -610,7 +623,11 @@ will not be modified."
     (my-popup-calendar-set-timers)
     (run-at-time "24:00" nil 'my-popup-calendar-set-timers))
 
-  ) ;; for next day
+  ;; org-agenda でも "d" 押下で "DONE" にする
+  (defun my-org-agenda-done ()
+    (interactive)
+    (org-agenda-todo "DONE"))
+  (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done))
 
 ;; Doing 管理
 (with-eval-after-load "org"
@@ -665,7 +682,7 @@ will not be modified."
     (setq appt-audible nil)
 
     ;; 何分前から警告表示を開始するか[m]
-    (setq appt-message-warning-time 20)
+    (setq appt-message-warning-time 10)
 
     ;; 警告表示開始から何分ごとにリマインドするか[m]
     (setq appt-display-interval 1)
@@ -1040,13 +1057,11 @@ update it for multiple appts?")
 
 (with-eval-after-load "org"
   (when (require 'org-crypt nil t)
-    (setq org-crypt-key "<insert your key>")
+    (setq org-crypt-key "") ;; <insert your key>
     ;; org-encrypt-entries の影響を受けるタグを指定
     (setq org-tags-exclude-from-inheritance (quote ("secret")))
     ;; 自動保存の確認を無効に
-    (setq org-crypt-disable-auto-save 'nil)
-    (define-key org-mode-map (kbd "C-c f c e") 'org-encrypt-entry)
-    (define-key org-mode-map (kbd "C-c f c d") 'org-decrypt-entry)))
+    (setq org-crypt-disable-auto-save 'nil)))
 
 (with-eval-after-load "org"
   ;; (add-to-list 'org-modules 'org-mac-iCal)
