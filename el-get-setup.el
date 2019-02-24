@@ -100,6 +100,7 @@
 (el-get-bundle "org-bullets")
 (el-get-bundle "takaxp/org-reveal" :name ox-reveal :branch "org9.2")
 (el-get-bundle "IvanMalison/org-projectile")
+(el-get-bundle "org-trello")
 
 ;; Major modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

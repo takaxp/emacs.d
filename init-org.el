@@ -626,7 +626,8 @@ will not be modified."
   ;; org-agenda でも "d" 押下で "DONE" にする
   (defun my-org-agenda-done ()
     (interactive)
-    (org-agenda-todo "DONE"))
+    (org-agenda-todo "DONE")
+    (my-org-agenda-to-appt)) ;; call with async
   (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done))
 
 ;; Doing 管理
@@ -1200,12 +1201,18 @@ Note that this mechanism is still under consideration."
     (defun ad:ox-hugo:org-todo (&optional ARG)
       "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
       (when (and (equal (buffer-name) "imadenale.org")
+                 (org-entry-is-todo-p)
                  (or (eq ARG 'done)
                      (equal ARG "DONE")))
         (org-hugo-export-wim-to-md)
         (message "[ox-hugo] \"%s\" has been exported."
-                 (nth 4 (org-heading-components)))))
-    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
+                 (nth 4 (org-heading-components)))
+        (let ((command "~/Dropbox/scripts/push-hugo.sh"))
+          (if (require 'async nil t)
+              (async-start
+               `(lambda () (shell-command-to-string ',command)))
+            (shell-command-to-string command)))))
+    (advice-add 'org-todo :before #'ad:ox-hugo:org-todo)))
 
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
@@ -1347,20 +1354,22 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       "	return\n"
       "end if\n")))
 
-  (add-to-list 'org-mac-link-descriptors
-               `("P" "apers" org-mac-papers-insert-frontmost-paper-link
-                 ,org-mac-grab-Papers-app-p) t))
+  (when (boundp 'org-mac-link-descriptors)
+    (add-to-list 'org-mac-link-descriptors
+                 `("P" "apers" org-mac-papers-insert-frontmost-paper-link
+                   ,org-mac-grab-Papers-app-p) t)))
 
 (with-eval-after-load "org"
   (when (eq system-type 'darwin)
     ;; Open `papers3://' link by C-c C-o.
     ;; (org-add-link-type will be obsoleted from Org 9.
-    (org-link-set-parameters
-     "papers3"
-     :follow (lambda (path)
-               (let ((cmd (concat "open papers3:" path)))
-                 (shell-command-to-string (shell-quote-argument cmd))
-                 (message "%s" cmd))))))
+    (when (fboundp 'org-link-set-parameters)
+      (org-link-set-parameters
+       "papers3"
+       :follow (lambda (path)
+                 (let ((cmd (concat "open papers3:" path)))
+                   (shell-command-to-string (shell-quote-argument cmd))
+                   (message "%s" cmd)))))))
 
 (when (autoload-if-found
        '(org-attach du-org-attachments)

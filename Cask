@@ -1,4 +1,4 @@
-;; #+date: 2019-02-13
+;; #+date: 2019-02-22
 
 (source gnu)
 (source melpa)
@@ -64,6 +64,7 @@
 (depends-on "org-emms")
 (depends-on "easy-hugo")
 (depends-on "org-projectile")
+(depends-on "org-trello")
 
 ;; Major modes
 (depends-on "python-mode")

@@ -12,7 +12,7 @@
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
-      my-toggle-modeline-global 'doom ;; {nil, t, 'doom}
+      my-toggle-modeline-global nil ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
       debug-on-error nil)
@@ -50,7 +50,8 @@
  `("/usr/bin" "/usr/local/bin"
    ,(expand-file-name ".cask/bin")
    ,(expand-file-name "devel/git/tern/bin")
-   ,(expand-file-name "Dropbox/emacs.d/bin")
+   "~/Dropbox/emacs.d/bin"
+   "~/Dropbox/scripts"
    "/usr/local/opt/llvm/bin"
    "/Applications/UpTex.app/teTeX/bin"
    "/Applications/UpTeX.app/Contents/Resources/TEX/texbin"
