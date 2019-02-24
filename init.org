@@ -7735,7 +7735,6 @@ Note that this mechanism is still under consideration."
     (defun ad:ox-hugo:org-todo (&optional ARG)
       "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
       (when (and (equal (buffer-name) "imadenale.org")
-                 (org-entry-is-todo-p)
                  (message "checking... %s" ARG)
                  ;; FIXME C-c C-t d に反応しない．speed command はOK．
                  (or (eq ARG 'done)
@@ -7748,7 +7747,7 @@ Note that this mechanism is still under consideration."
               (async-start
                `(lambda () (shell-command-to-string ',command)))
             (shell-command-to-string command)))))
-    (advice-add 'org-todo :before #'ad:ox-hugo:org-todo)))
+    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
 #+end_src
 
 ** [ox-html] HTML見出しへのリンクを固定する

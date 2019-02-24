@@ -635,7 +635,7 @@ will not be modified."
   (define-key org-mode-map (kbd "<f11>") 'my-toggle-doing-tag)
   (define-key org-mode-map (kbd "C-<f11>") 'my-sparse-doing-tree)
 
-  ;; 特定タグを持つツリーリストを一発移動（org-tags-view, org-tree-slide）
+  ;; 特定タグを持つツリーリストに一発移動（org-tags-view, org-tree-slide）
   (defvar my-doing-tag "Doing")
   (defun my-sparse-doing-tree ()
     (interactive)
@@ -1201,7 +1201,8 @@ Note that this mechanism is still under consideration."
     (defun ad:ox-hugo:org-todo (&optional ARG)
       "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
       (when (and (equal (buffer-name) "imadenale.org")
-                 (org-entry-is-todo-p)
+                 (message "checking... %s" ARG)
+                 ;; FIXME C-c C-t d に反応しない．speed command はOK．
                  (or (eq ARG 'done)
                      (equal ARG "DONE")))
         (org-hugo-export-wim-to-md)
@@ -1212,7 +1213,7 @@ Note that this mechanism is still under consideration."
               (async-start
                `(lambda () (shell-command-to-string ',command)))
             (shell-command-to-string command)))))
-    (advice-add 'org-todo :before #'ad:ox-hugo:org-todo)))
+    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
 
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
