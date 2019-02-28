@@ -2,8 +2,8 @@
 
 ;; as an entry point
 (require 'postpone nil t)
-(require 'init-org nil t)
 (require 'utility nil t)
+(require 'init-org nil t)
 
 ;; mode-map
 (require 'calfw-org nil t)
@@ -31,10 +31,15 @@
 (require 'editorconfig nil t)
 (require 'emmet-mode nil t)
 (require 'flyspell nil t)
+(require 'flycheck nil t)
+(require 'auto-complete nil t)
 (require 'fringe-helper nil t) ;; for git-gutter-fringe
 (require 'ggtags nil t)
+(require 'gnuplot nil t)
 (require 'gif-screencast nil t)
 (require 'js2-mode nil t)
+(require 'paradox nil t)
+(require 'cask nil t)
 (require 'keyfreq nil t)
 (require 'neotree nil t)
 (require 'nxml-mode nil t)

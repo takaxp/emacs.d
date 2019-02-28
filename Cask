@@ -1,4 +1,4 @@
-;; #+date: 2019-02-22
+;; #+date: 2019-02-26
 
 (source gnu)
 (source melpa)
@@ -183,6 +183,7 @@
 (depends-on "logview")
 ;; (depends-on "spaceline")
 (depends-on "doom-modeline")
+(depends-on "disk-usage")
 
 ;; System related
 (depends-on "dired-narrow")

@@ -236,7 +236,9 @@
 (el-get-bundle "emacsmirror/rainbow-mode")
 ;; (el-get-bundle "TheBB/spaceline")
 (el-get-bundle "seagle0128/doom-modeline")
-
+(el-get-bundle "disk-usage"
+               :type git
+               :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
 
 ;; System related
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

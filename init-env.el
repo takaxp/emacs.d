@@ -84,7 +84,8 @@
   (require 'init nil t)
   (with-eval-after-load "postpone"
     ;; (require 'init-org nil t)
-    (require 'private nil t)
+    (unless noninteractive
+      (require 'private "private.el.gpg" t))
     (require 'my-eshell nil t)
     (require 'my-mail nil t))
   (when my-profiler-p

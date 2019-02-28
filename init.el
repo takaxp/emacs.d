@@ -228,7 +228,8 @@
 
     (defun advice:paradox-quit-and-close (_kill)
       (my-reset-load-path))
-    (advice-add 'paradox-quit-and-close :after #'advice:paradox-quit-and-close)
+    (advice-add 'paradox-quit-and-close :after
+                #'advice:paradox-quit-and-close)
 
     (custom-set-variables
      '(paradox-github-token t))

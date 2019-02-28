@@ -154,6 +154,8 @@
     (define-key org-mode-map (kbd "C-c f 1") 'my-ox-icalendar))
 
   (with-eval-after-load "ox-icalendar"
+     (defvar org-ical-file-in-orz-server nil) ;; see private.el
+
     ;; 生成するカレンダーファイルを指定
     ;; 以下の設定では，このファイルを一時ファイルとして使う（削除する）
     (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
@@ -1201,7 +1203,6 @@ Note that this mechanism is still under consideration."
     (defun ad:ox-hugo:org-todo (&optional ARG)
       "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
       (when (and (equal (buffer-name) "imadenale.org")
-                 (message "checking... %s" ARG)
                  ;; FIXME C-c C-t d に反応しない．speed command はOK．
                  (or (eq ARG 'done)
                      (equal ARG "DONE")))
@@ -1422,17 +1423,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
           (orgnav-search-root 3 'orgnav--goto-action)))))
 
 (autoload-if-found '(toc-org-insert-toc) "toc-org" nil t)
-
-(with-eval-after-load "org-agenda"
-  (when (require 'org-review nil t)
-    (add-to-list 'org-agenda-custom-commands
-                 '("r" "Review projects" tags-todo "-CANCELLED/"
-                   ((org-agenda-overriding-header "Reviews Scheduled")
-                    (org-agenda-skip-function 'org-review-agenda-skip)
-                    (org-agenda-cmp-user-defined 'org-review-compare)
-                    (org-agenda-sorting-strategy '(user-defined-down)))))
-    (org-defkey org-agenda-mode-map "\C-c\C-r"
-                'org-review-insert-last-review)))
 
 (when (autoload-if-found
        '(org-attach-screenshot)

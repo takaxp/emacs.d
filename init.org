@@ -5,6 +5,7 @@
 #+startup:  nohideblocks
 #+options:  auto-id:t
 #+setupfile: theme-readtheorg.setup
+#+html_head: <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
 * はじめに
   :PROPERTIES:
@@ -1034,7 +1035,8 @@ echo "--- done."
 
     (defun advice:paradox-quit-and-close (_kill)
       (my-reset-load-path))
-    (advice-add 'paradox-quit-and-close :after #'advice:paradox-quit-and-close)
+    (advice-add 'paradox-quit-and-close :after
+                #'advice:paradox-quit-and-close)
 
     (custom-set-variables
      '(paradox-github-token t))
@@ -6132,7 +6134,7 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
 ;; -*- lexical-binding: t -*-
 #+end_src
 
-** 基本設定
+** 基本設定                                                           :Doing:
    :PROPERTIES:
    :CUSTOM_ID: orgf66bb6fe
    :END:
@@ -6312,6 +6314,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (define-key org-mode-map (kbd "C-c f 1") 'my-ox-icalendar))
 
   (with-eval-after-load "ox-icalendar"
+     (defvar org-ical-file-in-orz-server nil) ;; see private.el
+
     ;; 生成するカレンダーファイルを指定
     ;; 以下の設定では，このファイルを一時ファイルとして使う（削除する）
     (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
@@ -7735,7 +7739,6 @@ Note that this mechanism is still under consideration."
     (defun ad:ox-hugo:org-todo (&optional ARG)
       "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
       (when (and (equal (buffer-name) "imadenale.org")
-                 (message "checking... %s" ARG)
                  ;; FIXME C-c C-t d に反応しない．speed command はOK．
                  (or (eq ARG 'done)
                      (equal ARG "DONE")))
@@ -8060,15 +8063,16 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   - https://github.com/brabalan/org-review
   - 以下の設定では， =org-agenda= 使用時に =C-c C-r r= で発動
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle no
+# init-org.el
 (with-eval-after-load "org-agenda"
   (when (require 'org-review nil t)
     (add-to-list 'org-agenda-custom-commands
-                 '("r" "Review projects" tags-todo "-CANCELLED/"
-                   ((org-agenda-overriding-header "Reviews Scheduled")
-                    (org-agenda-skip-function 'org-review-agenda-skip)
-                    (org-agenda-cmp-user-defined 'org-review-compare)
-                    (org-agenda-sorting-strategy '(user-defined-down)))))
+                 '(("r" "Review projects" tags-todo "-CANCELLED/"
+                    ((org-agenda-overriding-header "Reviews Scheduled")
+                     (org-agenda-skip-function 'org-review-agenda-skip)
+                     (org-agenda-cmp-user-defined 'org-review-compare)
+                     (org-agenda-sorting-strategy '(user-defined-down))))))
     (org-defkey org-agenda-mode-map "\C-c\C-r"
                 'org-review-insert-last-review)))
 #+end_src
