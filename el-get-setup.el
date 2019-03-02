@@ -303,6 +303,7 @@
                :load-path ("./lisp"))
 (el-get-bundle "tarsius/keycast")
 (el-get-bundle "jamiguet/network-watch")
+(el-get-bundle "w3")
 ;; (el-get-bundle "japanlaw")
 ;; (el-get-bundle "google-maps")
 

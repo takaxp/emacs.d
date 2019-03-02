@@ -9,10 +9,10 @@
 (defconst my-boot-type 'default
   "Boot menu selection: {debug, test, default, spacemacs}.")
 (defconst my-loading-packages nil)
-(defvar my-use-el-get emacs-version ;; nil
+(defvar my-use-el-get nil ;; emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
-      my-toggle-modeline-global nil ;; 'doom ;; {nil, t, 'doom}
+      my-toggle-modeline-global nil;;'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
       debug-on-error nil)

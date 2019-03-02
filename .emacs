@@ -5,7 +5,31 @@
 ;; (load "~/Dropbox/emacs.d/config/el-get-setup.el" nil t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (when (require 'disk-usage nil t))
+(with-eval-after-load "postpone"
+  (defface my-face-f0a4 '((t (:foreground "orange")))
+    nil :group 'font-lock-highlighting-faces)
+  (defface my-face-f088 '((t (:foreground "red")))
+    nil :group 'font-lock-highlighting-faces)
+  (defface my-face-f087 '((t (:foreground "Seagreen3")))
+    nil :group 'font-lock-highlighting-faces)
+  (defvar my-face-f0a4 'my-face-f0a4)
+  (defvar my-face-f088 'my-face-f088)
+  (defvar my-face-f087 'my-face-f087)
+  (defadvice font-lock-mode (before my-font-lock-mode1 ())
+    (font-lock-add-keywords
+     major-mode
+     ;; "[\t]+$" 行末のタブ
+     '(("" 0 my-face-f0a4 append)
+       ("" 0 my-face-f088 append)
+       ("" 0 my-face-f087 append))))
+  (ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode1)
+  (ad-activate 'font-lock-mode))
+
+
+(when (autoload-if-found '(disk-usage) "disk-usage" nil t)
+  (with-eval-after-load "disk-usage"
+    (when (eq system-type 'darwin)
+      (setq disk-usage-du-command "du"))))
 
 (with-eval-after-load "postpone"
   (defvar org-trello-current-prefix-keybinding nil) ;; To avoid an error
@@ -27,10 +51,10 @@
 
 ;; FIXME 同期するとカード記述の情報が繰り返しインデントされてしまう．
 (with-eval-after-load "org-trello"
-  (defun my-push-trello-card () (org-trello-sync-card))
-  (defun my-pull-trello-card () (org-trello-sync-card t))
-  (defun my-push-trello () (org-trello-sync-buffer))
-  (defun my-pull-trello () (org-trello-sync-buffer t)))
+  (defun my-push-trello-card () (interactive) (org-trello-sync-card))
+  (defun my-pull-trello-card () (interactive) (org-trello-sync-card t))
+  (defun my-push-trello () (interactive) (org-trello-sync-buffer))
+  (defun my-pull-trello () (interactive) (org-trello-sync-buffer t)))
 
 ;; To decrypt old sub trees
 ;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)

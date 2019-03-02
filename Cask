@@ -1,4 +1,4 @@
-;; #+date: 2019-02-26
+;; #+date: 2019-03-02
 
 (source gnu)
 (source melpa)
@@ -236,6 +236,7 @@
 (depends-on "gif-screencast")
 (depends-on "keycast")
 (depends-on "pdf-tools")
+(depends-on "w3")
 ;; (depends-on "japanlaw")
 ;; (depends-on "google-maps")
 

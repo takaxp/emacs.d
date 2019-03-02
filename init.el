@@ -347,6 +347,137 @@
       (if my-ime-last (my-ime-on) (my-ime-off)))
     (add-hook 'focus-in-hook #'my-ns-ime-restore)))
 
+(when (eq window-system 'mac)
+  (global-set-key (kbd "M-SPC") 'mac-win-toggle-ime)
+  (global-set-key (kbd "S-SPC") 'mac-win-toggle-ime)
+  (declare-function mac-win-save-last-ime-status "init" nil)
+  (declare-function ad:mac-auto-ascii-setup-input-source "init" nil)
+  (declare-function mac-win-restore-ime "init" nil)
+  (declare-function mac-win-restore-ime-target-commands "init" nil))
+
+(with-eval-after-load "postpone"
+  (when (eq window-system 'mac)
+    (mac-auto-ascii-mode 1)
+
+    (defvar mac-win-last-ime-status 'off) ;; {'off|'on}
+    (defun mac-win-save-last-ime-status ()
+      (setq mac-win-last-ime-status
+            (if (string-match "\\.\\(Roman\\|US\\)$" (mac-input-source))
+                'off 'on)))
+    (mac-win-save-last-ime-status) ;; 初期化
+
+    (defun mac-win-restore-ime ()
+      (when (and mac-auto-ascii-mode
+                 (eq mac-win-last-ime-status 'on))
+        (mac-select-input-source
+         "com.google.inputmethod.Japanese.base")))
+
+    (defun ad:mac-auto-ascii-setup-input-source (&optional _prompt)
+      "Extension to store IME status"
+      (mac-win-save-last-ime-status))
+    (advice-add 'mac-auto-ascii-setup-input-source :before
+                #'ad:mac-auto-ascii-setup-input-source)
+
+    (defvar mac-win-target-commands
+      '(find-file save-buffer other-window delete-window split-window))
+
+    (defun mac-win-restore-ime-target-commands ()
+      (when (and mac-auto-ascii-mode
+                 (eq mac-win-last-ime-status 'on))
+        (mapc (lambda (command)
+                (when (string-match
+                       (format "^%s" command) (format "%s" this-command))
+                  (mac-select-input-source
+                   "com.google.inputmethod.Japanese.base")))
+              mac-win-target-commands)))
+    (add-hook 'pre-command-hook #'mac-win-restore-ime-target-commands)
+
+    ;; バッファリストを見るとき
+    (add-to-list 'mac-win-target-commands 'helm-buffers-list)
+    ;; ChangeLogに行くとき
+    (add-to-list 'mac-win-target-commands 'add-change-log-entry-other-window)
+    ;; 個人用の関数を使うとき
+    ;; (add-to-list 'mac-win-target-commands 'my-)
+    ;; 自分で作ったパッケージ群の関数を使うとき
+    (add-to-list 'mac-win-target-commands 'change-frame)
+    ;; org-mode で締め切りを設定するとき．
+    (add-to-list 'mac-win-target-commands 'org-deadline)
+    ;; org-mode で締め切りを設定するとき．
+    ;; (add-to-list 'mac-win-target-commands 'org-capture)
+    ;; query-replace で変換するとき
+    (add-to-list 'mac-win-target-commands 'query-replace)
+
+    ;; ミニバッファ利用後にIMEを戻す
+    ;; M-x でのコマンド選択でIMEを戻せる．
+    ;; これ移動先で q が効かないことがある
+    (add-hook 'minibuffer-setup-hook #'mac-win-save-last-ime-status)
+    (add-hook 'minibuffer-exit-hook #'mac-win-restore-ime)
+
+    ;; タイトルバーの振る舞いを NS版に合わせる．
+    (setq frame-title-format (format (if (buffer-file-name) "%%f" "%%b")))
+
+    ;; なおテーマを切り替えたら，face の設定をリロードしないと期待通りにならない
+    (when (require 'hl-line nil t)
+      (custom-set-faces
+       ;; 変換前入力時の文字列用 face
+       `(mac-ts-converted-text
+         ((((background dark)) :underline "orange"
+           :background ,(face-attribute 'hl-line :background))
+          (t (:underline "orange"
+                         :background
+                         ,(face-attribute 'hl-line :background)))))
+       ;; 変換対象の文字列用 face
+       `(mac-ts-selected-converted-text
+         ((((background dark)) :underline "orange"
+           :background ,(face-attribute 'hl-line :background))
+          (t (:underline "orange"
+                         :background
+                         ,(face-attribute 'hl-line :background)))))))
+
+    (when (fboundp 'mac-input-source)
+      (run-with-idle-timer 3 t 'my-mac-keyboard-input-source))
+
+
+    ;; あまりよいアプローチでは無い気がするけど，org-heading 上とagendaでは
+    ;; 1秒アイドルすると，自動的に IME を OFF にする
+    (defun my-mac-win-org-heading-auto-ascii ()
+      (when (and (eq major-mode 'org-mode)
+                 (or (looking-at org-heading-regexp)
+                     (equal (buffer-name) org-agenda-buffer-name)))
+        (setq mac-win-last-ime-status 'off)
+        (mac-auto-ascii-select-input-source)))
+    (when (fboundp 'mac-auto-ascii-select-input-source)
+      (run-with-idle-timer 1 t 'my-mac-win-org-heading-auto-ascii))
+
+    ;; EMP版Emacsの野良ビルド用独自設定群
+    ;; IME toggleを Emacs内で有効にする
+    (defun mac-win-toggle-ime ()
+      (interactive)
+      (when (fboundp 'mac-input-source)
+        (mac-select-input-source
+         (concat "com.google.inputmethod.Japanese"
+                 (if (string-match "\\.base$" (mac-input-source))
+                     ".Roman" ".base")))))
+
+    ;; isearch 中にIMEを切り替えると，[I-Search] の表示が消える．
+    ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
+    (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
+
+    (when (boundp 'mac-win-ime-cursor-type)
+      (setq mac-win-ime-cursor-type my-cursor-type-ime-on))
+    ;; minibuffer では↑の背景色を無効にする
+    (when (fboundp 'mac-min--minibuffer-setup)
+      (add-hook 'minibuffer-setup-hook #'mac-min--minibuffer-setup))
+    ;; echo-area でも背景色を無効にする
+    (when (boundp 'mac-win-default-background-echo-area)
+      (setq mac-win-default-background-echo-area t));; *-textのbackgroundを無視
+    ;; デバッグ用
+    (when (boundp 'mac-win-debug-log)
+      (setq mac-win-debug-log nil))
+    ;; Testing...
+    (when (boundp 'mac-win-apply-org-heading-face)
+      (setq mac-win-apply-org-heading-face t))))
+
 (my-tick-init-time "core")
 
 (with-eval-after-load "postpone"
@@ -1065,8 +1196,8 @@ This works also for other defined begin/end tokens to define the structure."
 (with-eval-after-load "postpone"
   (when (require 'selected nil t)
     (define-key selected-keymap (kbd ";") #'comment-dwim)
-    (define-key selected-keymap (kbd "e") #'my-eval-region-echo)
-    ;; (define-key selected-keymap (kbd "E") #'my-eval-region-echo-as-function)
+    (define-key selected-keymap (kbd "e") #'my-eval-region)
+    ;; (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
     (define-key selected-keymap (kbd "=") #'count-words-region)
     (define-key selected-keymap (kbd "f") #'describe-function)
     (define-key selected-keymap (kbd "v") #'describe-variable)
@@ -1081,7 +1212,7 @@ This works also for other defined begin/end tokens to define the structure."
     (define-key selected-keymap (kbd "q") #'selected-off)
     (define-key selected-keymap (kbd "x") #'my-hex-to-decimal)
     (define-key selected-keymap (kbd "X") #'my-decimal-to-hex)
-    (defun my-eval-region-echo ()
+    (defun my-eval-region ()
       (interactive)
       (when mark-active
         (eval-region (region-beginning) (region-end) t)))
@@ -1133,11 +1264,8 @@ This works also for other defined begin/end tokens to define the structure."
   (setq mode-line-modes
         (mapcar
          (lambda (entry)
-           (if (and (stringp entry)
-                    (string= entry "%n"))
-               '(:eval (if (and (= 1 (point-min))
-                                (= (1+ (buffer-size)) (point-max))) ""
-                         " N"))
+           (if (equal entry "%n")
+               '(:eval (if (buffer-narrowed-p) " N" ""))
              entry))
          mode-line-modes)))
 
@@ -1684,7 +1812,7 @@ This works also for other defined begin/end tokens to define the structure."
     (defhydra help/hydra/timestamp (:color blue :hint none)
       "
    === Timestamp ===                                                    :_q_uit:
-0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)
+0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)    ?a? (week and day)
 _1_.  ?t? (ISO 8601 including _t_imezone)
 _2_.  ?r?    (Org Mode: _r_ight now)
 _3_.  ?s?          (Org Mode: by _s_elect)
@@ -1693,6 +1821,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)
       ("i" help/insert-datestamp (format-time-string "%F"))
       ("n" help/insert-currenttime (format-time-string "%H:%M"))
       ("w" help/insert-week (format-time-string "%W"))
+      ("a" help/insert-month-and-day (format-time-string "%m%d"))
       ("t" help/insert-timestamp (help/get-timestamp))
       ("r" help/org-time-stamp-with-seconds-now
        (format-time-string "<%F %a %H:%M>"))
@@ -1714,6 +1843,10 @@ _3_.  ?s?          (Org Mode: by _s_elect)
       "Produces and inserts the week number."
       (interactive)
       (insert (format-time-string "%W")))
+    (defun help/insert-month-and-day ()
+      "Inserts a month and day pair in 4-degits."
+      (interactive)
+      (insert (format-time-string "%m%d")))
     (defun help/insert-datestamp ()
       "Produces and inserts a partial ISO 8601 format timestamp."
       (interactive)

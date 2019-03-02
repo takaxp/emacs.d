@@ -1269,7 +1269,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
   - [[http://qiita.com/takaxp/items/a86ee2aacb27c7c3a902][Emacs 25.1/25.2 を EMP版で快適に使う - Qiita]]
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
 (when (eq window-system 'mac)
   (global-set-key (kbd "M-SPC") 'mac-win-toggle-ime)
   (global-set-key (kbd "S-SPC") 'mac-win-toggle-ime)
@@ -2877,8 +2877,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 (with-eval-after-load "postpone"
   (when (require 'selected nil t)
     (define-key selected-keymap (kbd ";") #'comment-dwim)
-    (define-key selected-keymap (kbd "e") #'my-eval-region-echo)
-    ;; (define-key selected-keymap (kbd "E") #'my-eval-region-echo-as-function)
+    (define-key selected-keymap (kbd "e") #'my-eval-region)
+    ;; (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
     (define-key selected-keymap (kbd "=") #'count-words-region)
     (define-key selected-keymap (kbd "f") #'describe-function)
     (define-key selected-keymap (kbd "v") #'describe-variable)
@@ -2893,7 +2893,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (define-key selected-keymap (kbd "q") #'selected-off)
     (define-key selected-keymap (kbd "x") #'my-hex-to-decimal)
     (define-key selected-keymap (kbd "X") #'my-decimal-to-hex)
-    (defun my-eval-region-echo ()
+    (defun my-eval-region ()
       (interactive)
       (when mark-active
         (eval-region (region-beginning) (region-end) t)))
@@ -3266,6 +3266,17 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 標準では「Narrow」と表示されますが，「N」に短縮します．
 
 #+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "org"
+  (setq mode-line-modes
+        (mapcar
+         (lambda (entry)
+           (if (equal entry "%n")
+               '(:eval (if (buffer-narrowed-p) " N" ""))
+             entry))
+         mode-line-modes)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :export none
 (with-eval-after-load "org"
   (setq mode-line-modes
         (mapcar
@@ -4287,7 +4298,7 @@ http://0xcc.net/migemo/#download
     (defhydra help/hydra/timestamp (:color blue :hint none)
       "
    === Timestamp ===                                                    :_q_uit:
-0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)
+0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)    ?a? (week and day)
 _1_.  ?t? (ISO 8601 including _t_imezone)
 _2_.  ?r?    (Org Mode: _r_ight now)
 _3_.  ?s?          (Org Mode: by _s_elect)
@@ -4296,6 +4307,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)
       ("i" help/insert-datestamp (format-time-string "%F"))
       ("n" help/insert-currenttime (format-time-string "%H:%M"))
       ("w" help/insert-week (format-time-string "%W"))
+      ("a" help/insert-month-and-day (format-time-string "%m%d"))
       ("t" help/insert-timestamp (help/get-timestamp))
       ("r" help/org-time-stamp-with-seconds-now
        (format-time-string "<%F %a %H:%M>"))
@@ -4317,6 +4329,10 @@ _3_.  ?s?          (Org Mode: by _s_elect)
       "Produces and inserts the week number."
       (interactive)
       (insert (format-time-string "%W")))
+    (defun help/insert-month-and-day ()
+      "Inserts a month and day pair in 4-degits."
+      (interactive)
+      (insert (format-time-string "%m%d")))
     (defun help/insert-datestamp ()
       "Produces and inserts a partial ISO 8601 format timestamp."
       (interactive)
@@ -7259,6 +7275,7 @@ update it for multiple appts?")
 #+end_src
 
 ~Doing~ タグのトグルに =f11= を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
+
 *** doom-modeline との共存
     :PROPERTIES:
     :CUSTOM_ID: org2e94f804
