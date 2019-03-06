@@ -156,8 +156,9 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
                'my-desktop-notify
                "macos" "Org Mode" hour min action sticky))
 
+(declare-function my-desktop-notification "init-org")
 (defun my-desktop-notify (type title hour min action sticky)
-  "An interface to `my-desktop-notificaton'."
+  "An interface to `my-desktop-notification'."
   (cond
    ((string= type "macos")
     (my-desktop-notification
@@ -227,6 +228,8 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
    :END:
 
 #+begin_src emacs-lisp :tangle yes
+(declare-function org-end-of-line "org")
+
 ;;;###autoload
 (defun insert-org-file-header-template ()
   (interactive)
@@ -310,8 +313,6 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
                (move-beginning-of-line 1)
                (insert item-string))))))
 
-(defconst item-string "" nil)
-
 ;;;###autoload
 (defun add-itemize-head-checkbox ()
   "Insert \" - [ ] \" at the head of line.
@@ -343,6 +344,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
   (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t))))
 
+(declare-function my-ox-icalendar "ox-html")
 ;;;###autoload
 (defun my-reload-ical-export ()
   "Export org files as an iCal format file"
@@ -438,17 +440,6 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 #+begin_src emacs-lisp :tangle no :exports none
 (defun chomp (str)
   (replace-regexp-in-string "[\n\r]+$" "" str))
-#+end_src
-
-** lingr にログインする
-   :PROPERTIES:
-   :CUSTOM_ID: org2be833d3
-   :END:
-
-#+begin_src emacs-lisp :tangle yes
-(defun my-lingr-login ()
-  (when (string= "Sat" (format-time-string "%a"))
-    (lingr-login)))
 #+end_src
 
 ** 特定のファイルを Dropbox 以下にバックアップする
@@ -571,6 +562,8 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
 
 #+begin_src emacs-lisp :tangle yes
+(declare-function org-babel-tangle "org-babel")
+
 ;;;###autoload
 (defun my-eval-org-buffer ()
   "Load init.org/utility.org and tangle init.el/utility.el."

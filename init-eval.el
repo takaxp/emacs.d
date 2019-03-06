@@ -2,8 +2,9 @@
 
 ;; as an entry point
 (require 'postpone nil t)
-(require 'utility nil t)
+(require 'late-init nil t)
 (require 'init-org nil t)
+(require 'utility nil t)
 
 ;; mode-map
 (require 'calfw-org nil t)
@@ -53,6 +54,8 @@
 (require 'pomodoro nil t)
 (require 'recentf nil t) ;; for org-recent-headings
 (require 'session nil t)
+(require 'selected nil t)
+(require 'smartparens nil t)
 (require 'tern nil t)
 (require 'tern-auto-complete nil t)
 (require 'time nil t)
@@ -64,6 +67,13 @@
 (require 'yasnippet nil t)
 (require 'doom-modeline nil t)
 (require 'hydra nil t)
+(require 'helm nil t)
+(require 'helm-swoop nil t)
+(require 'helm-find nil t)
+(require 'helm-mode nil t)
+(require 'projectile nil t)
+(require 'helm-projectile nil t)
+(require 'backup-each-save nil t)
 
 (if (require 'shut-up nil t)
     (progn

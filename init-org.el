@@ -1,5 +1,14 @@
 ;; -*- lexical-binding: t -*-
 
+(with-eval-after-load "org"
+  (setq mode-line-modes
+        (mapcar
+         (lambda (entry)
+           (if (equal entry "%n")
+               '(:eval (if (buffer-narrowed-p) " N" ""))
+             entry))
+         mode-line-modes)))
+
 (when (autoload-if-found
        '(org-mode)
        "org" "Org Mode" t)
@@ -404,7 +413,8 @@
 (unless noninteractive
   (with-eval-after-load "org"
     (let ((file "~/Dropbox/org/db/daily.org"))
-      (when (file-exists-p file)
+      (when (and (file-exists-p file)
+                 (require 'utility nil t))
         (my-set-alarms-from-file file) ;; init
         (add-hook 'after-save-hook #'my-update-alarms-from-file))))) ;; update
 

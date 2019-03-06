@@ -1,4 +1,4 @@
-;; #+date: 2019-03-02
+;; #+date: 2019-03-05
 
 (source gnu)
 (source melpa)
@@ -65,6 +65,7 @@
 (depends-on "easy-hugo")
 (depends-on "org-projectile")
 (depends-on "org-trello")
+(depends-on "org-recur")
 
 ;; Major modes
 (depends-on "python-mode")
@@ -236,7 +237,7 @@
 (depends-on "gif-screencast")
 (depends-on "keycast")
 (depends-on "pdf-tools")
-(depends-on "w3")
+;; (depends-on "w3")
 ;; (depends-on "japanlaw")
 ;; (depends-on "google-maps")
 

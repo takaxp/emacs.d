@@ -37,6 +37,9 @@
 (advice-add 'el-get-post-update-notification :override
             #'ad:el-get-post-update-notification)
 
+;; el-get remove を使う場合は，ここまでを評価する．
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; Fundamental packages
 ;; (el-get-bundle "loop")
 ;; (el-get-bundle "s")
@@ -303,7 +306,7 @@
                :load-path ("./lisp"))
 (el-get-bundle "tarsius/keycast")
 (el-get-bundle "jamiguet/network-watch")
-(el-get-bundle "w3")
+;; (el-get-bundle "w3")
 ;; (el-get-bundle "japanlaw")
 ;; (el-get-bundle "google-maps")
 

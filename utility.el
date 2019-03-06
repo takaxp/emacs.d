@@ -107,8 +107,9 @@
                'my-desktop-notify
                "macos" "Org Mode" hour min action sticky))
 
+(declare-function my-desktop-notification "init-org")
 (defun my-desktop-notify (type title hour min action sticky)
-  "An interface to `my-desktop-notificaton'."
+  "An interface to `my-desktop-notification'."
   (cond
    ((string= type "macos")
     (my-desktop-notification
@@ -154,6 +155,8 @@
     (find-file (concat "~/Dropbox/org/" file)))
   (when (fboundp 'my-org-agenda-to-appt)
     (my-org-agenda-to-appt)))
+
+(declare-function org-end-of-line "org")
 
 ;;;###autoload
 (defun insert-org-file-header-template ()
@@ -215,8 +218,6 @@
                (move-beginning-of-line 1)
                (insert item-string))))))
 
-(defconst item-string "" nil)
-
 ;;;###autoload
 (defun add-itemize-head-checkbox ()
   "Insert \" - [ ] \" at the head of line.
@@ -239,6 +240,7 @@
   (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
   (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t))))
 
+(declare-function my-ox-icalendar "ox-html")
 ;;;###autoload
 (defun my-reload-ical-export ()
   "Export org files as an iCal format file"
@@ -307,10 +309,6 @@
                        str)
     (setq str (replace-match "" t t str)))
   str)
-
-(defun my-lingr-login ()
-  (when (string= "Sat" (format-time-string "%a"))
-    (lingr-login)))
 
 (defun my-backup (files &optional dropbox)
   "Backup a file to `Dropbox/backup' directory.
@@ -388,6 +386,8 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (add-to-list 'package-archives
                    (cons "takaxp" "~/devel/git/melpa/packages/") t))
     (package-initialize)))
+
+(declare-function org-babel-tangle "org-babel")
 
 ;;;###autoload
 (defun my-eval-org-buffer ()

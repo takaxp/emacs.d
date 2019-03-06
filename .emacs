@@ -4,8 +4,15 @@
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 ;; (load "~/Dropbox/emacs.d/config/el-get-setup.el" nil t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(with-eval-after-load "org"
+  (require 'org-recur nil t))
 
+;; https://github.com/akirak/org-reverse-datetree
+;; https://github.com/mtekman/terminal-toggle.el
+
+;; Fontawesome 拡張
 (with-eval-after-load "postpone"
+  ;; 以下を関数化して，任意の文字コードに対応させる．
   (defface my-face-f0a4 '((t (:foreground "orange")))
     nil :group 'font-lock-highlighting-faces)
   (defface my-face-f088 '((t (:foreground "red")))
@@ -25,12 +32,13 @@
   (ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode1)
   (ad-activate 'font-lock-mode))
 
-
+;; disk-usage.el
 (when (autoload-if-found '(disk-usage) "disk-usage" nil t)
   (with-eval-after-load "disk-usage"
     (when (eq system-type 'darwin)
       (setq disk-usage-du-command "du"))))
 
+;; org-trello
 (with-eval-after-load "postpone"
   (defvar org-trello-current-prefix-keybinding nil) ;; To avoid an error
   ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
