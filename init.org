@@ -5164,12 +5164,8 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
 同じ機能で比較的新しいパッケージに， =real-auto-save= があります．ただ，私の場合は，以下のようなモードごとの制御がうまくできなかったので移行していません．
 
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'auto-save-buffers nil t)
-  (unless noninteractive
-    (postpone-message "auto-save-buffers"))
 
   (defun my-ox-hugo-auto-saving-p ()
     (when (eq major-mode 'org-mode)
@@ -7738,8 +7734,8 @@ Note that this mechanism is still under consideration."
                  (nth 4 (org-heading-components)))
         (let ((command "~/Dropbox/scripts/push-hugo.sh"))
           (if (require 'async nil t)
-              `(async-start
-                (lambda () (shell-command-to-string ',command)))
+              (async-start
+               `(lambda () (shell-command-to-string ',command)))
             (shell-command-to-string command)))))
     (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
 #+end_src
