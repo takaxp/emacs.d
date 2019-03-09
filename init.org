@@ -184,7 +184,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 起動時に発生するガベージコレクトを防きます．起動後に使用しているメモリサイズを超えていれば良さ気． =garbage-collection-messages= を設定しておくと，ガベージコレクトが生じる時にメッセージが出るようになります．
 
 #+begin_src emacs-lisp :tangle yes
-(setq gc-cons-threshold 134217728) ;; 128MB
+(setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
 (setq garbage-collection-messages t)
 #+end_src
 
@@ -308,8 +308,11 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 (when (and (boundp 'my-loading-packages)
            my-loading-packages)
   (setq my-skip-check-autoload-file nil))
+
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
+  (when (boundp 'my-required-libraries)
+    (add-to-list 'my-required-libraries file))
   (when (or my-skip-check-autoload-file
             (and (my-load-package-p file)
                  (locate-library file)))
@@ -460,6 +463,32 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
     (if window-focus-p t nil))
   (add-hook 'focus-in-hook (lambda () (setq window-focus-p t)))
   (add-hook 'focus-out-hook (lambda () (setq window-focus-p nil))))
+#+end_src
+
+** [library-p] load-path にライブラリがあるかを判定
+   :PROPERTIES:
+   :CUSTOM_ID: org30c47759
+   :END:
+
+パッケージが =load-path= に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
+
+=libraries= には複数のパッケージ名を指定でき，すべてが使える状態の場合のみ =t= が返ります．
+
+="org"= を渡したり， ='("org" "helm")= を渡したりできます．
+
+#+begin_src emacs-lisp :tangle yes
+;;;###autoload
+(defun library-p (libraries)
+  "Return t when every specified library can be located. "
+  (let ((result t))
+    (mapc (lambda (library)
+            (unless (locate-library library)
+              (message "--- NOT FOUND: %s" library)
+              (setq result nil)))
+          (if (listp libraries)
+              libraries
+            (list libraries)))
+    result))
 #+end_src
 
 ** [shut-up.el] Messages 出力を封じる（制御する）
@@ -3834,6 +3863,26 @@ http://0xcc.net/migemo/#download
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
+       '(helm-swoop)
+       "helm-swoop" nil t)
+
+  (with-eval-after-load "postpone"
+        (global-set-key (kbd "M-s M-s") 'helm-swoop))
+
+  (with-eval-after-load "helm-swoop"
+    (require 'helm-config nil t)
+    ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
+    (setq helm-swoop-pre-input-function
+          (lambda()
+            (unless (thing-at-point-looking-at "^\\*+")
+              (thing-at-point 'symbol))))
+    ;; 配色設定
+    (set-face-attribute
+     'helm-swoop-target-line-face nil :background "#FFEDDC")
+    (set-face-attribute
+     'helm-swoop-target-word-face nil :background "#FF5443")))
+
+(when (autoload-if-found
        '(helm-M-x
          helm-buffers-list helm-recentf
          helm-locate helm-descbinds
@@ -3846,72 +3895,52 @@ http://0xcc.net/migemo/#download
 
   (with-eval-after-load "postpone"
 
-    ;; (defun my-helm-swoop ()
-    ;;   (interactive)
-    ;;   (when (and (fboundp 'dimmer-mode)
-    ;;              (eq dimmer-mode t))
-    ;;     (setq dimmer-mode -1))
-    ;;   (helm-swoop))
-
     (global-set-key (kbd "C-M-l") 'helm-locate)
     (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-    (global-set-key (kbd "M-s M-s") 'helm-swoop)
     (global-set-key (kbd "C-c o") 'helm-occur)
     (global-set-key (kbd "C-h d") 'helm-descbinds))
 
-
-  (with-eval-after-load "helm-config"
-    (when (require 'helm-swoop nil t)
-      ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
-      (setq helm-swoop-pre-input-function
-            (lambda()
-              (unless (thing-at-point-looking-at "^\\*+")
-                (thing-at-point 'symbol))))
-      ;; 配色設定
-      (set-face-attribute
-       'helm-swoop-target-line-face nil :background "#FFEDDC")
-      (set-face-attribute
-       'helm-swoop-target-word-face nil :background "#FF5443"))
-
-    (when (require 'helm-files nil t)
-      (define-key helm-find-files-map
-        (kbd "<tab>") 'helm-execute-persistent-action)
-      (define-key helm-read-file-map
-        (kbd "<tab>") 'helm-execute-persistent-action))
-
+  (with-eval-after-load "projectile"
     (when (require 'helm-projectile nil t)
       ;; M-x helm-projectile-find-file (C-c p f)
       (setq projectile-completion-system 'helm)
       ;; projectile.el のキーバインドをオーバーライド
-      (helm-projectile-toggle 1))
+      (helm-projectile-toggle 1)))
+
+  (with-eval-after-load "helm-config"
+    ;; (when (require 'helm-files nil t)
+    ;;   (define-key helm-find-files-map
+    ;;     (kbd "<tab>") 'helm-execute-persistent-action)
+    ;;   (define-key helm-read-file-map
+    ;;     (kbd "<tab>") 'helm-execute-persistent-action))
+
+    (when (memq window-system '(mac ns))
+      (setq helm-locate-command "mdfind -name %s %s"))
 
     ;; (require 'helm-css-scss nil t)
     ;; (require 'helm-emmet nil t)
     ;; (require 'helm-descbinds nil t)
 
-    (setq helm-display-source-at-screen-top nil)
-    ;;         (setq helm-display-header-line nil)
-    ;; helm-autoresize-mode を有効にしつつ 30% に固定
-    (helm-autoresize-mode 1)
-    (setq helm-autoresize-max-height 30)
-    (setq helm-autoresize-min-height 30)
-    (set-face-attribute 'helm-source-header nil
-                        :height 1.0 :family "Verdana" :weight 'normal
-                        :foreground "#666666" :background "#DADADA")
-
-    (when (memq window-system '(mac ns))
-      (setq helm-locate-command "mdfind -name %s %s"))
-
     ;; Configure helm-completing-read-handlers-alist after `(helm-mode 1)'
-    (helm-mode 1)
+    (when (require 'helm nil t)
+      (helm-mode 1))
 
     ;; helm-find-files を呼ばせない
     ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
     ;; helm-mode-ag を呼ばせない
     (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
     ;; helm-mode-org-set-tags を呼ばせない
-    (add-to-list 'helm-completing-read-handlers-alist
-                 '(org-set-tags . nil))))
+    (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . nil))
+
+    (setq helm-display-source-at-screen-top nil)
+    ;;         (setq helm-display-header-line nil)
+    ;; helm-autoresize-mode を有効にしつつ 30% に固定
+    (setq helm-autoresize-max-height 30)
+    (setq helm-autoresize-min-height 30)
+    (set-face-attribute 'helm-source-header nil
+                        :height 1.0 :family "Verdana" :weight 'normal
+                        :foreground "#666666" :background "#DADADA")
+    (helm-autoresize-mode 1)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports none
@@ -4282,7 +4311,7 @@ http://0xcc.net/migemo/#download
     (defhydra help/hydra/timestamp (:color blue :hint none)
       "
    === Timestamp ===                                                     _q_uit
-0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)    ?a? (week and day)
+0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)    ?a? (week-d_a_y)
 _1_.  ?t? (ISO 8601 including _t_imezone)
 _2_.  ?r?    (Org Mode: _r_ight now)
 _3_.  ?s?          (Org Mode: by _s_elect)
@@ -4929,7 +4958,8 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
     (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
 
   (unless noninteractive
-    (recentf-mode 1)))
+    (let ((message-log-max nil))
+      (recentf-mode 1))))
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 #+end_src
@@ -4983,14 +5013,6 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
   ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
   (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t))
-
-  (unless noninteractive
-    (if (not (require 'async nil t))
-        (recursive-delete-backup-files 7)
-      (async-start
-       '(lambda ()
-          ;; FIXME: could require utility.el
-          (recursive-delete-backup-files 7)))))
 
   (with-eval-after-load "backup-each-save"
     (defun my-auto-backup ()
@@ -7044,8 +7066,8 @@ update it for multiple appts?")
              (setq appt-time-msg-list result)
              (let ((cnt (length appt-time-msg-list)))
                (if (eq cnt 0)
-                   (message "No event to add")
-                 (message "Added %d event%s for today"
+                   (message "No event to add (async)")
+                 (message "Added %d event%s for today (async)"
                           cnt (if (> cnt 1) "s" ""))))
              (setq my-org-agenda-to-appt-ready t))))))
     ;; 定期的に更新する
@@ -7236,7 +7258,8 @@ update it for multiple appts?")
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org-tree-slide"
-  (when (require 'doom-modeline nil t)
+  (when (and (eq my-toggle-modeline-global 'doom)
+             (require 'doom-modeline nil t))
     (add-hook 'org-tree-slide-stop-hook
               #'doom-modeline-update-buffer-file-state-icon)))
 #+end_src
@@ -7715,8 +7738,8 @@ Note that this mechanism is still under consideration."
                  (nth 4 (org-heading-components)))
         (let ((command "~/Dropbox/scripts/push-hugo.sh"))
           (if (require 'async nil t)
-              (async-start
-               `(lambda () (shell-command-to-string ',command)))
+              `(async-start
+                (lambda () (shell-command-to-string ',command)))
             (shell-command-to-string command)))))
     (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
 #+end_src
@@ -8341,8 +8364,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ;; カーソルの色
 (defconst my-cursor-color-ime-on "#FF9300")
 (defconst my-cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
-(defconst my-cursor-type-ime-on '(bar . 3))
-(defconst my-cursor-type-ime-off '(bar . 3))
+(defconst my-cursor-type-ime-on '(bar . 2))
+(defconst my-cursor-type-ime-off '(bar . 2))
 (defvar my-ime-last nil)
 
 (when (and (eq window-system 'ns)
@@ -8586,6 +8609,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
        "moom" nil t)
 
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
+  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
+  (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 
   (with-eval-after-load "moom"
     (setq moom-lighter "M")
@@ -8677,13 +8702,11 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (my-mode-line-on))
   (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
-(unless noninteractive
-  (if shutup-p
-      (shut-up (my-toggle-mode-line))
-    (my-toggle-mode-line)))
 (add-hook 'find-file-hook
           (lambda () (unless my-toggle-modeline-global
-                       (my-mode-line-off)))
+                       (if shutup-p
+                           (shut-up (my-mode-line-off))
+                         (my-mode-line-off))))
           t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
 #+end_src
 

@@ -14,7 +14,7 @@
   :PROPERTIES:
   :CUSTOM_ID: org435340e8
   :END:
-#+begin_src emacs-lisp :tangle yes :exports none
+#+begin_src emacs-lisp :tangle utility.el :exports none
 ;; -*- lexical-binding: t -*-
 ;;
 #+end_src
@@ -24,7 +24,7 @@
    :CUSTOM_ID: org62365dfa
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-cmd-to-open-iterm2 ()
   (interactive)
@@ -38,7 +38,7 @@
 
 macOS 用の関数です．別途，Kyoko さんの音声をインストールしておく必要があります．Mavericks だと，Otoya さんも使えます．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 (defvar my-kyoko-mad-mode nil)
 ;;;###autoload
 (defun my-kyoko-mad-mode-toggle ()
@@ -64,7 +64,7 @@ macOS 用の関数です．別途，Kyoko さんの音声をインストール�
 
 Finder で開きたいだけならば， =M-!= でミニバッファに =open .= と打ち込むだけです．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 (defcustom open-current-directory-console-program "iTerm2.app"
   "Specify a console program"
   :type 'string
@@ -96,7 +96,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
    :CUSTOM_ID: orgb8c148ec
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-update-alarms-from-file ()
   (interactive)
@@ -179,7 +179,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
 
 http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 (defvar my-file-ring nil)
 
 ;;;###autoload
@@ -208,7 +208,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
    :CUSTOM_ID: org31226d9e
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-show-org-buffer (file)
   "Show an org-file on the current buffer."
@@ -227,7 +227,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
    :CUSTOM_ID: org6a1e418a
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 (declare-function org-end-of-line "org")
 
 ;;;###autoload
@@ -251,7 +251,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
    :CUSTOM_ID: org8f57b3f8
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun insert-minutes-template ()
   (interactive)
@@ -271,7 +271,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 
 引数で桁数を渡すと，ランダムな数値の文字列を取得できます．org-mode で適当なタイトルのツリーを生成したい時に使っています．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-get-random-string (length)
   "Get a string contain the length digit number with random selection"
@@ -296,7 +296,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
    :CUSTOM_ID: org3697f6bd
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun add-itemize-head (arg)
   "Insert \" - \" at the head of line.
@@ -335,7 +335,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 
 orgバッファからカレンダーを生成し，外部サーバに投げます．また，MobileOrgに最新情報を流しています．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
   (run-with-idle-timer 600 t 'my-reload-ical-export)
@@ -358,7 +358,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
    :CUSTOM_ID: org175a102f
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
 (when (autoload-if-found
@@ -388,7 +388,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
    :CUSTOM_ID: orgca3eae6b
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0
 
 ;;;###autoload
@@ -427,7 +427,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 
 改行コードを削除した文字列を返す．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun chomp (str)
   "Chomp leading and tailing whitespace from STR."
@@ -447,7 +447,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
    :CUSTOM_ID: org9731a19e
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 (defun my-backup (files &optional dropbox)
   "Backup a file to `Dropbox/backup' directory.
 If `dropbox' option is provided then the value is uased as a root directory."
@@ -475,7 +475,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
    :CUSTOM_ID: orgdfad16ba
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun mac:delete-files-in-trash-bin ()
   (interactive)
@@ -492,7 +492,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
 
 ** 終了シーケンスのデバッグ用関数
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-kill-emacs ()
     (switch-to-buffer "*Messages*")
@@ -509,35 +509,9 @@ If `dropbox' option is provided then the value is uased as a root directory."
   (add-hook 'kill-emacs-hook #'my-kill-emacs))
 #+end_src
 
-** [library-p] load-path にライブラリがあるかを判定
-   :PROPERTIES:
-   :CUSTOM_ID: org30c47759
-   :END:
-
-パッケージが =load-path= に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
-
-=libraries= には複数のパッケージ名を指定でき，すべてが使える状態の場合のみ =t= が返ります．
-
-="org"= を渡したり， ='("org" "helm")= を渡したりできます．
-
-#+begin_src emacs-lisp :tangle yes
-;;;###autoload
-(defun library-p (libraries)
-  "Return t when every specified library can be located. "
-  (let ((result t))
-    (mapc (lambda (library)
-            (unless (locate-library library)
-              (message "--- NOT FOUND: %s" library)
-              (setq result nil)))
-          (if (listp libraries)
-              libraries
-            (list libraries)))
-    result))
-#+end_src
-
 ** [package.el] MELPA利用設定
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-setup-package-el ()
   "Setting up for installing packages via built-in package.el.
@@ -561,7 +535,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 
 org-buffer を評価して Emacs の設定ファイルを生成／読み込みまでを自動化します．この設定では， =init.org= と =utility.org= の2つのバッファでのみ評価されるようになっています．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 (declare-function org-babel-tangle "org-babel")
 
 ;;;###autoload
@@ -585,7 +559,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
    :CUSTOM_ID: orga706f503
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-org-list-insert-items (begin end)
   (interactive "r")
@@ -696,7 +670,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
  - チェックボックス付きブリッツ行の場合は，チェックボックスを取る．
  - 引数付きで呼び出すと，チェックボックスの有無に依らずブリッツを取る．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-cycle-bullet-at-heading (arg)
   "Add a bullet of \" - \" if the line is NOT a bullet line."
@@ -724,7 +698,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
    :CUSTOM_ID: orgfd77df9c
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 ;;;###autoload
 (defun count-words-buffer ()
@@ -865,7 +839,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 外部プログラム[[https://gist.github.com/1369417][org2dokuwiki.pl]]を使います．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun org2dokuwiki-cp-kill-ring ()
   "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
@@ -952,7 +926,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
     :CUSTOM_ID: org74fab35b
     :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
 (global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
 #+end_src
@@ -1037,7 +1011,7 @@ utility.el:333:23:Warning: `last-command-char' is an obsolete variable (as of
     Emacs at least 19.34); use `last-command-event' instead.
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-window-resizer ()
   "Control separated window size and position.
@@ -1146,13 +1120,13 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 (global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
 #+end_src
 
-* provide
+* おわりに
   :PROPERTIES:
   :CUSTOM_ID: org370c7681
   :END:
 
 以上です．
 
-#+begin_src emacs-lisp :tangle yes :exports none
-  (provide 'utility)
+#+begin_src emacs-lisp :tangle utility.el :exports none
+(provide 'utility)
 #+end_src

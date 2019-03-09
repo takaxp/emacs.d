@@ -1,5 +1,8 @@
 ;; /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done ~/Dropbox/emacs.d/config/init.el
 
+(setq gc-cons-threshold (* 256 1024 1024))
+(setq garbage-collection-messages t)
+
 ;; as an entry point
 (require 'postpone nil t)
 (require 'late-init nil t)
@@ -67,12 +70,8 @@
 (require 'yasnippet nil t)
 (require 'doom-modeline nil t)
 (require 'hydra nil t)
-(require 'helm nil t)
 (require 'helm-swoop nil t)
-(require 'helm-find nil t)
-(require 'helm-mode nil t)
 (require 'projectile nil t)
-(require 'helm-projectile nil t)
 (require 'backup-each-save nil t)
 
 (if (require 'shut-up nil t)

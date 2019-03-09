@@ -1141,7 +1141,7 @@ This works also for other defined begin/end tokens to define the structure."
     (defhydra help/hydra/timestamp (:color blue :hint none)
       "
    === Timestamp ===                                                     _q_uit
-0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)    ?a? (week and day)
+0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)    ?a? (week-d_a_y)
 _1_.  ?t? (ISO 8601 including _t_imezone)
 _2_.  ?r?    (Org Mode: _r_ight now)
 _3_.  ?s?          (Org Mode: by _s_elect)
@@ -1341,7 +1341,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)
     (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
 
   (unless noninteractive
-    (recentf-mode 1)))
+    (let ((message-log-max nil))
+      (recentf-mode 1))))
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 
@@ -1359,14 +1360,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 
   ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
   (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t))
-
-  (unless noninteractive
-    (if (not (require 'async nil t))
-        (recursive-delete-backup-files 7)
-      (async-start
-       '(lambda ()
-          ;; FIXME: could require utility.el
-          (recursive-delete-backup-files 7)))))
 
   (with-eval-after-load "backup-each-save"
     (defun my-auto-backup ()
@@ -1945,13 +1938,11 @@ _3_.  ?s?          (Org Mode: by _s_elect)
     (my-mode-line-on))
   (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
-(unless noninteractive
-  (if shutup-p
-      (shut-up (my-toggle-mode-line))
-    (my-toggle-mode-line)))
 (add-hook 'find-file-hook
           (lambda () (unless my-toggle-modeline-global
-                       (my-mode-line-off)))
+                       (if shutup-p
+                           (shut-up (my-mode-line-off))
+                         (my-mode-line-off))))
           t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
 
 (unless noninteractive

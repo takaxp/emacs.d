@@ -7,9 +7,6 @@
 (with-eval-after-load "org"
   (require 'org-recur nil t))
 
-;; https://github.com/akirak/org-reverse-datetree
-;; https://github.com/mtekman/terminal-toggle.el
-
 ;; Fontawesome 拡張
 (with-eval-after-load "postpone"
   ;; 以下を関数化して，任意の文字コードに対応させる．
@@ -25,7 +22,6 @@
   (defadvice font-lock-mode (before my-font-lock-mode1 ())
     (font-lock-add-keywords
      major-mode
-     ;; "[\t]+$" 行末のタブ
      '(("" 0 my-face-f0a4 append)
        ("" 0 my-face-f088 append)
        ("" 0 my-face-f087 append))))

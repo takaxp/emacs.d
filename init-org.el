@@ -780,8 +780,8 @@ update it for multiple appts?")
              (setq appt-time-msg-list result)
              (let ((cnt (length appt-time-msg-list)))
                (if (eq cnt 0)
-                   (message "No event to add")
-                 (message "Added %d event%s for today"
+                   (message "No event to add (async)")
+                 (message "Added %d event%s for today (async)"
                           cnt (if (> cnt 1) "s" ""))))
              (setq my-org-agenda-to-appt-ready t))))))
     ;; 定期的に更新する
@@ -911,7 +911,8 @@ update it for multiple appts?")
   (add-hook 'org-tree-slide-play-hook #'my-reload-header-face))
 
 (with-eval-after-load "org-tree-slide"
-  (when (require 'doom-modeline nil t)
+  (when (and (eq my-toggle-modeline-global 'doom)
+             (require 'doom-modeline nil t))
     (add-hook 'org-tree-slide-stop-hook
               #'doom-modeline-update-buffer-file-state-icon)))
 
@@ -1221,8 +1222,8 @@ Note that this mechanism is still under consideration."
                  (nth 4 (org-heading-components)))
         (let ((command "~/Dropbox/scripts/push-hugo.sh"))
           (if (require 'async nil t)
-              (async-start
-               `(lambda () (shell-command-to-string ',command)))
+              `(async-start
+                (lambda () (shell-command-to-string ',command)))
             (shell-command-to-string command)))))
     (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
 

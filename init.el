@@ -44,7 +44,7 @@
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
-(setq gc-cons-threshold 134217728) ;; 128MB
+(setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
 (setq garbage-collection-messages t)
 
 (setq byte-compile-warnings '(not obsolete))
@@ -69,8 +69,11 @@
 (when (and (boundp 'my-loading-packages)
            my-loading-packages)
   (setq my-skip-check-autoload-file nil))
+
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
+  (when (boundp 'my-required-libraries)
+    (add-to-list 'my-required-libraries file))
   (when (or my-skip-check-autoload-file
             (and (my-load-package-p file)
                  (locate-library file)))
@@ -102,6 +105,19 @@
     (if window-focus-p t nil))
   (add-hook 'focus-in-hook (lambda () (setq window-focus-p t)))
   (add-hook 'focus-out-hook (lambda () (setq window-focus-p nil))))
+
+;;;###autoload
+(defun library-p (libraries)
+  "Return t when every specified library can be located. "
+  (let ((result t))
+    (mapc (lambda (library)
+            (unless (locate-library library)
+              (message "--- NOT FOUND: %s" library)
+              (setq result nil)))
+          (if (listp libraries)
+              libraries
+            (list libraries)))
+    result))
 
 (defvar shutup-p nil)
 (with-eval-after-load "postpone"
@@ -558,6 +574,26 @@
               '((top . nil) (bottom . right) (down . right)))
 
 (when (autoload-if-found
+       '(helm-swoop)
+       "helm-swoop" nil t)
+
+  (with-eval-after-load "postpone"
+        (global-set-key (kbd "M-s M-s") 'helm-swoop))
+
+  (with-eval-after-load "helm-swoop"
+    (require 'helm-config nil t)
+    ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
+    (setq helm-swoop-pre-input-function
+          (lambda()
+            (unless (thing-at-point-looking-at "^\\*+")
+              (thing-at-point 'symbol))))
+    ;; 配色設定
+    (set-face-attribute
+     'helm-swoop-target-line-face nil :background "#FFEDDC")
+    (set-face-attribute
+     'helm-swoop-target-word-face nil :background "#FF5443")))
+
+(when (autoload-if-found
        '(helm-M-x
          helm-buffers-list helm-recentf
          helm-locate helm-descbinds
@@ -570,72 +606,52 @@
 
   (with-eval-after-load "postpone"
 
-    ;; (defun my-helm-swoop ()
-    ;;   (interactive)
-    ;;   (when (and (fboundp 'dimmer-mode)
-    ;;              (eq dimmer-mode t))
-    ;;     (setq dimmer-mode -1))
-    ;;   (helm-swoop))
-
     (global-set-key (kbd "C-M-l") 'helm-locate)
     (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-    (global-set-key (kbd "M-s M-s") 'helm-swoop)
     (global-set-key (kbd "C-c o") 'helm-occur)
     (global-set-key (kbd "C-h d") 'helm-descbinds))
 
-
-  (with-eval-after-load "helm-config"
-    (when (require 'helm-swoop nil t)
-      ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
-      (setq helm-swoop-pre-input-function
-            (lambda()
-              (unless (thing-at-point-looking-at "^\\*+")
-                (thing-at-point 'symbol))))
-      ;; 配色設定
-      (set-face-attribute
-       'helm-swoop-target-line-face nil :background "#FFEDDC")
-      (set-face-attribute
-       'helm-swoop-target-word-face nil :background "#FF5443"))
-
-    (when (require 'helm-files nil t)
-      (define-key helm-find-files-map
-        (kbd "<tab>") 'helm-execute-persistent-action)
-      (define-key helm-read-file-map
-        (kbd "<tab>") 'helm-execute-persistent-action))
-
+  (with-eval-after-load "projectile"
     (when (require 'helm-projectile nil t)
       ;; M-x helm-projectile-find-file (C-c p f)
       (setq projectile-completion-system 'helm)
       ;; projectile.el のキーバインドをオーバーライド
-      (helm-projectile-toggle 1))
+      (helm-projectile-toggle 1)))
+
+  (with-eval-after-load "helm-config"
+    ;; (when (require 'helm-files nil t)
+    ;;   (define-key helm-find-files-map
+    ;;     (kbd "<tab>") 'helm-execute-persistent-action)
+    ;;   (define-key helm-read-file-map
+    ;;     (kbd "<tab>") 'helm-execute-persistent-action))
+
+    (when (memq window-system '(mac ns))
+      (setq helm-locate-command "mdfind -name %s %s"))
 
     ;; (require 'helm-css-scss nil t)
     ;; (require 'helm-emmet nil t)
     ;; (require 'helm-descbinds nil t)
 
-    (setq helm-display-source-at-screen-top nil)
-    ;;         (setq helm-display-header-line nil)
-    ;; helm-autoresize-mode を有効にしつつ 30% に固定
-    (helm-autoresize-mode 1)
-    (setq helm-autoresize-max-height 30)
-    (setq helm-autoresize-min-height 30)
-    (set-face-attribute 'helm-source-header nil
-                        :height 1.0 :family "Verdana" :weight 'normal
-                        :foreground "#666666" :background "#DADADA")
-
-    (when (memq window-system '(mac ns))
-      (setq helm-locate-command "mdfind -name %s %s"))
-
     ;; Configure helm-completing-read-handlers-alist after `(helm-mode 1)'
-    (helm-mode 1)
+    (when (require 'helm nil t)
+      (helm-mode 1))
 
     ;; helm-find-files を呼ばせない
     ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
     ;; helm-mode-ag を呼ばせない
     (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
     ;; helm-mode-org-set-tags を呼ばせない
-    (add-to-list 'helm-completing-read-handlers-alist
-                 '(org-set-tags . nil))))
+    (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . nil))
+
+    (setq helm-display-source-at-screen-top nil)
+    ;;         (setq helm-display-header-line nil)
+    ;; helm-autoresize-mode を有効にしつつ 30% に固定
+    (setq helm-autoresize-max-height 30)
+    (setq helm-autoresize-min-height 30)
+    (set-face-attribute 'helm-source-header nil
+                        :height 1.0 :family "Verdana" :weight 'normal
+                        :foreground "#666666" :background "#DADADA")
+    (helm-autoresize-mode 1)))
 
 (my-tick-init-time "presentation")
 
@@ -726,8 +742,8 @@
 ;; カーソルの色
 (defconst my-cursor-color-ime-on "#FF9300")
 (defconst my-cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
-(defconst my-cursor-type-ime-on '(bar . 3))
-(defconst my-cursor-type-ime-off '(bar . 3))
+(defconst my-cursor-type-ime-on '(bar . 2))
+(defconst my-cursor-type-ime-off '(bar . 2))
 (defvar my-ime-last nil)
 
 (when (and (eq window-system 'ns)
@@ -904,6 +920,8 @@
        "moom" nil t)
 
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
+  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
+  (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 
   (with-eval-after-load "moom"
     (setq moom-lighter "M")

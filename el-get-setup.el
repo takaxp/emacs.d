@@ -28,7 +28,9 @@
 (setq el-get-git-shallow-clone t) ;; "--depth 1"
 (setq el-get-verbose nil) ;; just for sure
 (setq el-get-silent-update t) ;; 出力されるメッセージの抑制
-;; (setq gc-cons-threshold (* 134217728 15))
+
+(setq gc-cons-threshold (* 512 1024 1024)) ;; 512MB
+(setq garbage-collection-messages t)
 
 ;; 出力されるメッセージの整形
 (defun ad:el-get-post-update-notification (package)

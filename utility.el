@@ -360,19 +360,6 @@ If `dropbox' option is provided then the value is uased as a root directory."
   (add-hook 'kill-emacs-hook #'my-kill-emacs))
 
 ;;;###autoload
-(defun library-p (libraries)
-  "Return t when every specified library can be located. "
-  (let ((result t))
-    (mapc (lambda (library)
-            (unless (locate-library library)
-              (message "--- NOT FOUND: %s" library)
-              (setq result nil)))
-          (if (listp libraries)
-              libraries
-            (list libraries)))
-    result))
-
-;;;###autoload
 (defun my-setup-package-el ()
   "Setting up for installing packages via built-in package.el.
 Downloaded packages will be stored under ~/.eamcs.d/elpa."

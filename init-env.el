@@ -9,10 +9,10 @@
 (defconst my-boot-type 'default
   "Boot menu selection: {debug, test, default, spacemacs}.")
 (defconst my-loading-packages nil)
-(defvar my-use-el-get nil;;emacs-version ;; nil
+(defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
-      my-toggle-modeline-global nil ;; 'doom ;; {nil, t, 'doom}
+      my-toggle-modeline-global nil ;;'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
       debug-on-error nil)
@@ -64,6 +64,7 @@
 
 ;; (3) load-path for { nil | debug | test } booting
 ;; M-x list-load-path-shadows
+(defvar my-required-libraries nil)
 (cond
  ((eq my-boot-type 'default)
   (let* ((g "~/devel/git/")
@@ -83,13 +84,13 @@
   (require 'utility-autoloads nil t) ;; 2[ms]
   (require 'init nil t)
   (with-eval-after-load "postpone"
-    ;; (require 'init-org nil t)
     (unless noninteractive
+      (require 'init-async nil t)
       (if shutup-p
           (shut-up (require 'private "private.el.gpg" t))
-        (require 'private "private.el.gpg" t)))
-    (require 'my-eshell nil t)
-    (require 'my-mail nil t))
+        (require 'private "private.el.gpg" t))
+      (require 'my-eshell nil t)
+      (require 'my-mail nil t)))
   (when my-profiler-p
     (profiler-report)))
  ((eq my-boot-type 'debug)
@@ -112,6 +113,7 @@
   (load "~/.spacemacs.d/init.el" nil t))
  (t nil))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hide package.el, could be removed
 (when (> 27 emacs-major-version)
   (defun ad:package--ensure-init-file ()
