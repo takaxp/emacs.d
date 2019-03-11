@@ -56,19 +56,20 @@ This function could create many sub processes."
   (interactive)
   (my-async-locate-libraries my-required-libraries (or defer 0)))
 
-(if (not (require 'async nil t))
-    (recursive-delete-backup-files 7)
-  (async-start ;; do not call this from byte compiled code directory
-   (lambda ()
-     (sleep-for 5)
-     (message "Deleting old backup files...")
-     (when (load "/Users/taka/.emacs" t) ;; FIXME
-       (recursive-delete-backup-files 7)
-       t))
-   (lambda (result)
-     (if result
-         (message "Deleting old backup files...done (async)")
-       (error "[async] Failed to delete backup files.")))))
+(when window-system
+  (if (not (require 'async nil t))
+      (recursive-delete-backup-files 7)
+    (async-start ;; do not call this from byte compiled code directory
+     (lambda ()
+       (sleep-for 5)
+       (message "Deleting old backup files...")
+       (when (load "/Users/taka/.emacs" t) ;; FIXME
+         (recursive-delete-backup-files 7)
+         t))
+     (lambda (result)
+       (if result
+           (message "Deleting old backup files...done (async)")
+         (error "[async] Failed to delete backup files."))))))
 
 (provide 'init-async)
 ;;; init-async.el ends here

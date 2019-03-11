@@ -12,7 +12,7 @@
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
-      my-toggle-modeline-global nil ;;'doom ;; {nil, t, 'doom}
+      my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
       debug-on-error nil)
@@ -85,7 +85,8 @@
   (unless noninteractive
     (with-eval-after-load "postpone"
       (load "~/Dropbox/emacs.d/config/init-async.el" nil t)
-      (when my-skip-check-autoload-file
+      (when (and my-skip-check-autoload-file
+                 window-system)
         (my-find-missing-packages 10))
       (if shutup-p
           (shut-up (require 'private "private.el.gpg" t))

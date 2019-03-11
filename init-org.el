@@ -156,14 +156,14 @@
 ;; C-c C-e I org-export-icalendar-all-agenda-files
 ;; C-c C-e c org-export-icalendar-all-combine-agenda-files
 (when (autoload-if-found
-       '(my-ox-icalendar my-ox-icalendar-cleanup)
+       '(my-ox-icalendar my-async-ox-icalendar my-ox-icalendar-cleanup)
        "ox-icalendar" nil t)
 
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c f 1") 'my-ox-icalendar))
+    (define-key org-mode-map (kbd "C-c f 1") 'my-ox-upload-icalendar))
 
   (with-eval-after-load "ox-icalendar"
-     (defvar org-ical-file-in-orz-server nil) ;; see private.el
+    (defvar org-ical-file-in-orz-server nil) ;; see private.el
 
     ;; 生成するカレンダーファイルを指定
     ;; 以下の設定では，このファイルを一時ファイルとして使う（削除する）
@@ -178,26 +178,26 @@
     ;; DONE になった TODO はアジェンダから除外する
     (setq org-icalendar-include-todo t)
 
-    ;; （通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない）
+    ;; 通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない
     (setq org-icalendar-use-scheduled '(event-if-todo))
 
     ;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
     ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
     (setq org-icalendar-use-deadline '(event-if-todo))
 
-    (defun my-ox-icalendar ()
+    (defun my-ox-upload-icalendar ()
       (interactive)
+      (if (require 'async nil t)
+          (my-async-ox-icalendar)
+        (my-ox-icalendar)))
+
+    (defun my-ox-icalendar ()
       (let ((message-log-max nil)
             (temp-agenda-files org-agenda-files))
         (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
         ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
         (org-icalendar-combine-agenda-files)
         (setq org-agenda-files temp-agenda-files)
-        ;; Dropbox/Public のフォルダに公開する
-        ;;           (shell-command
-        ;;            (concat "cp " org-icalendar-combined-agenda-file " "
-        ;;                    org-icalendar-dropbox-agenda-file))
-
         ;; 自サーバにアップロード
         (message "Uploading...")
         (if (eq 0 (shell-command
@@ -207,6 +207,24 @@
             (message "Uploading...done")
           (message "Uploading...miss!"))
         (my-ox-icalendar-cleanup)))
+
+    (defun my-async-ox-icalendar ()
+      (message "Uploading...")
+      (async-start
+       `(lambda ()
+          (load "/Users/taka/.emacs" nil t)
+          (load "/Users/taka/.emacs.d/lisp/init-org.el" nil t)
+          (require 'org nil t)
+          (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
+          (org-icalendar-combine-agenda-files)
+          (shell-command
+           (concat "scp -o ConnectTimeout=5 "
+                   ',org-icalendar-combined-agenda-file " "
+                   ',org-ical-file-in-orz-server)))
+       (lambda (result)
+         (message (format "Uploading...%s"
+                          (if (eq result 0) "done" "miss!")))
+         (my-ox-icalendar-cleanup))))
 
     (defun my-ox-icalendar-cleanup ()
       (interactive)
@@ -1447,5 +1465,4 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (org-attach-screenshot t (format-time-string
                                 "screenshot-%Y%m%d-%H%M%S.png")))))
 
-;; (my-tick-init-time "Org Mode")
 (provide 'init-org)

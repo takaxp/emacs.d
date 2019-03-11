@@ -240,13 +240,13 @@
   (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
   (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t))))
 
-(declare-function my-ox-icalendar "ox-html")
+(declare-function my-ox-upload-icalendar "init-org")
 ;;;###autoload
 (defun my-reload-ical-export ()
   "Export org files as an iCal format file"
   (interactive)
   (when (and (string= major-mode 'org-mode) ox-icalendar-activate)
-    (my-ox-icalendar)))
+    (my-ox-upload-icalendar)))
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
 ;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim

@@ -2571,5 +2571,4 @@ Uses `all-the-icons-material' to fetch the icon."
 
 (autoload-if-found '(gitter) "gitter"  nil t)
 
-;; (my-tick-init-time "Org Mode")
 (provide 'late-init)

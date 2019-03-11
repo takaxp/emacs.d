@@ -25,7 +25,7 @@
 
 (defvar my-tick-previous-time my-before-load-init-time)
 (defun my-tick-init-time (msg)
-  "Tick boot sequence."
+  "Tick boot sequence at loading MSG."
   (when my-loading-profile-p
     (let ((ctime (current-time)))
       (message "---- %5.2f[ms] %s"
