@@ -12,12 +12,12 @@
   :CUSTOM_ID: orgda9120c8
   :END:
 
-  - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://takaxp.github.io/init.html][init.html]], [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]] を生成しています．
+  - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://takaxp.github.io/init.html][init.html]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]] を生成しています．
   - 一部の関数定義を [[https://github.com/takaxp/emacs.d/blob/master/utility.el][utility.el]] に分離しています．
   - Org Modeに関する設定は， [[https://github.com/takaxp/emacs.d/blob/master/init-org.el][init-org.el]] に分離しています．
-  - [[https://github.com/takaxp/postpone][postpone.el]] で遅延読み込みするパッケージは，[[https://github.com/takaxp/emacs.d/blob/master/late-init.el][late-init.el]] に分離しています．
+  - [[https://github.com/takaxp/postpone][postpone.el]] で遅延読み込みするパッケージを，[[https://github.com/takaxp/emacs.d/blob/master/late-init.el][late-init.el]] に分離しています．
   - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]] 本体は，[[https://github.com/takaxp/emacs.d/][GitHub]] に公開しています．
-  - コピペだけで動かなかった場合は，気軽に[[https://twitter.com/takaxp][@takaxp]] までご意見をどうぞ．
+  - コピペだけで動かなかった場合は，気軽に [[https://twitter.com/takaxp][@takaxp]] までご意見をどうぞ．
   - =obsolete= タグのある設定は，あくまで個人的に不使用になったものです．
 
 * 起動設定
@@ -32,17 +32,24 @@
 1. =.emacs= の読み込み
 2. =init-env.el= の読み込み
 3. =init.el= の読み込み
+4. =init-async.el= の読み込み
+5. =late-init.el= の読み込み
 
 =.emacs= は，基本的に =init-env.el= を読み込むだけです．ただ，ちょっとしたコードを試したい時は， =.emacs= に書いてしまいます．気に入ったら， =init.el= に移します．
 
-Org Mode の設定がかなり肥大化したため， =init-org.el= として分離して，遅延読み込み対象にしています．設定ファイルの分離は， =.el= ファイルを ~tangle~ する時に自動的に実行されるように設定しています．
+Org Mode の設定がかなり肥大化したため， =init-org.el= として分離して，遅延読み込みの対象にしています．設定ファイルの分離は， =.el= ファイルを ~tangle~ する時に自動的に実行されるように設定しています． =postpone.el= で遅延読み込みさせる設定を， =late-init.el= に分離しています．
 
 =init-env.el= には，パスの設定，起動時間計測のためのフラグ群，パッケージ管理用の補助関数を設定しています．そして， =init-env.el= の最後に =init.el= を =require= しています．
+
+=init-async.el= は，起動時に非同期で実行する関数を格納していますが，バイトコンパイルすると動作が怪しいので， =init.el= に格納せず分離しています． =async.el= 依存です．
 
 これ以外に，バッチモードでバイトコンパイルするための =init-eval.el= も使います．このファイルには，バイトコンパイル時だけ必要なパッケージを列挙しています．
 
  - [[https://github.com/takaxp/emacs.d/blob/master/.emacs][emacs.d/.emacs at master · takaxp/emacs.d]]
  - [[https://github.com/takaxp/emacs.d/blob/master/init-env.el][emacs.d/init-env.el at master · takaxp/emacs.d]]
+ - [[https://github.com/takaxp/emacs.d/blob/master/init.el][emacs.d/init.el at master · takaxp/emacs.d]]
+ - [[https://github.com/takaxp/emacs.d/blob/master/late-init.el][emacs.d/late-init.el at master · takaxp/emacs.d]]
+ - [[https://github.com/takaxp/emacs.d/blob/master/init-async.el][emacs.d/init-async.el at master · takaxp/emacs.d]]
  - [[https://github.com/takaxp/emacs.d/blob/master/init-eval.el][emacs.d/init-eval.el at master · takaxp/emacs.d]]
  - [[https://github.com/takaxp/emacs.d/blob/master/init-ad.el][emacs.d/init-ad.el at master · takaxp/emacs.d]]
 
@@ -6114,9 +6121,6 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
   :PROPERTIES:
   :CUSTOM_ID: org47616d05
   :END:
-#+begin_src emacs-lisp :tangle yes :exports none
-(my-tick-init-time "development")
-#+end_src
 
 ** 基本設定                                                           :Doing:
    :PROPERTIES:
@@ -7732,7 +7736,7 @@ Note that this mechanism is still under consideration."
         (org-hugo-export-wim-to-md)
         (message "[ox-hugo] \"%s\" has been exported."
                  (nth 4 (org-heading-components)))
-        (let ((command "~/Dropbox/scripts/push-hugo.sh"))
+        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
           (if (require 'async nil t)
               (async-start
                `(lambda () (shell-command-to-string ',command)))
@@ -8309,6 +8313,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   :PROPERTIES:
   :CUSTOM_ID: org5fd484a3
   :END:
+#+begin_src emacs-lisp :tangle yes :exports none
+(my-tick-init-time "development")
+#+end_src
 ** 起動時の設定
    :PROPERTIES:
    :CUSTOM_ID: orgd05fc75a
@@ -10226,11 +10233,9 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
-;; (my-tick-init-time "Org Mode")
 (provide 'init-org)
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el :exports none
-;; (my-tick-init-time "Org Mode")
 (provide 'late-init)
 #+end_src

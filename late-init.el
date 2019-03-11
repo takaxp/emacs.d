@@ -1462,8 +1462,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)
       'my-undo-tree-visualizer-quit)))
 
 (when (require 'auto-save-buffers nil t)
-  (unless noninteractive
-    (postpone-message "auto-save-buffers"))
 
   (defun my-ox-hugo-auto-saving-p ()
     (when (eq major-mode 'org-mode)

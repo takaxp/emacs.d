@@ -1220,10 +1220,10 @@ Note that this mechanism is still under consideration."
         (org-hugo-export-wim-to-md)
         (message "[ox-hugo] \"%s\" has been exported."
                  (nth 4 (org-heading-components)))
-        (let ((command "~/Dropbox/scripts/push-hugo.sh"))
+        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
           (if (require 'async nil t)
-              `(async-start
-                (lambda () (shell-command-to-string ',command)))
+              (async-start
+               `(lambda () (shell-command-to-string ',command)))
             (shell-command-to-string command)))))
     (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
 

@@ -64,7 +64,7 @@
 
 ;; (3) load-path for { nil | debug | test } booting
 ;; M-x list-load-path-shadows
-(defvar my-required-libraries nil)
+(defvar my-required-libraries nil) ;; will be used in `init' and `init-async'.
 (cond
  ((eq my-boot-type 'default)
   (let* ((g "~/devel/git/")
@@ -79,13 +79,14 @@
   (when my-ad-require-p
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
   ;; (load "~/Dropbox/emacs.d/config/init-chart.el" nil t)
-  ;; (require 'init-eval nil t)
   ;; (require 'utility nil t) ;; 5[ms]
   (require 'utility-autoloads nil t) ;; 2[ms]
   (require 'init nil t)
-  (with-eval-after-load "postpone"
-    (unless noninteractive
-      (require 'init-async nil t)
+  (unless noninteractive
+    (with-eval-after-load "postpone"
+      (load "~/Dropbox/emacs.d/config/init-async.el" nil t)
+      (when my-skip-check-autoload-file
+        (my-find-missing-packages 10))
       (if shutup-p
           (shut-up (require 'private "private.el.gpg" t))
         (require 'private "private.el.gpg" t))

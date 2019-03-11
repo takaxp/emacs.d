@@ -7,6 +7,10 @@
 (with-eval-after-load "org"
   (require 'org-recur nil t))
 
+;; テクニック
+;; 1. 1回だけ呼ぶ
+;; 2. 非同期で処理させる
+
 ;; Fontawesome 拡張
 (with-eval-after-load "postpone"
   ;; 以下を関数化して，任意の文字コードに対応させる．
