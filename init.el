@@ -597,7 +597,7 @@
        '(helm-M-x
          helm-buffers-list helm-recentf
          helm-locate helm-descbinds
-         helm-occur helm-swoop helm-flycheck helm-bookmarks)
+         helm-occur helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
   (global-set-key (kbd "C-x C-b") 'helm-buffers-list)

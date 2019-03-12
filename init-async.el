@@ -44,7 +44,6 @@ This function could create many sub processes."
          (when result
            (let ((count 0))
              (dolist (r result)
-               (sleep-for 0.1)
                (setq count (1+ count))
                (message ">> %s (missing)" r))
              (message (concat (format "%s package" count)

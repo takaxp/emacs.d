@@ -234,7 +234,7 @@
 
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
-  (run-with-idle-timer 600 t 'my-reload-ical-export)
+  (run-with-idle-timer 180 t 'my-reload-ical-export)
   ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
   ;; FIXME
   (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
@@ -245,7 +245,8 @@
 (defun my-reload-ical-export ()
   "Export org files as an iCal format file"
   (interactive)
-  (when (and (string= major-mode 'org-mode) ox-icalendar-activate)
+  (when (and (string= major-mode 'org-mode)
+             ox-icalendar-activate)
     (my-ox-upload-icalendar)))
 
 ;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome

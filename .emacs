@@ -5,6 +5,7 @@
 ;; (load "~/Dropbox/emacs.d/config/el-get-setup.el" nil t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (with-eval-after-load "org"
+  (set-locale-environment "ja_JP.UTF-8") ; "ja_JP.UTF-8"
   (require 'org-recur nil t))
 
 ;; テクニック

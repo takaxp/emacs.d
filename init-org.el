@@ -193,20 +193,18 @@
 
     (defun my-ox-icalendar ()
       (let ((message-log-max nil)
-            (temp-agenda-files org-agenda-files))
-        (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
+            (org-agenda-files '("~/Dropbox/org/org-ical.org")))
         ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
-        (org-icalendar-combine-agenda-files)
-        (setq org-agenda-files temp-agenda-files)
-        ;; 自サーバにアップロード
-        (message "Uploading...")
-        (if (eq 0 (shell-command
-                   (concat "scp -o ConnectTimeout=5 "
-                           org-icalendar-combined-agenda-file " "
-                           org-ical-file-in-orz-server)))
-            (message "Uploading...done")
-          (message "Uploading...miss!"))
-        (my-ox-icalendar-cleanup)))
+        (org-icalendar-combine-agenda-files))
+      ;; 自サーバにアップロード
+      (message "Uploading...")
+      (if (eq 0 (shell-command
+                 (concat "scp -o ConnectTimeout=5 "
+                         org-icalendar-combined-agenda-file " "
+                         org-ical-file-in-orz-server)))
+          (message "Uploading...done")
+        (message "Uploading...miss!"))
+      (my-ox-icalendar-cleanup))
 
     (defun my-async-ox-icalendar ()
       (message "Uploading...")

@@ -3893,7 +3893,7 @@ http://0xcc.net/migemo/#download
        '(helm-M-x
          helm-buffers-list helm-recentf
          helm-locate helm-descbinds
-         helm-occur helm-swoop helm-flycheck helm-bookmarks)
+         helm-occur helm-flycheck helm-bookmarks)
        "helm-config" nil t)
 
   (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
@@ -6349,19 +6349,20 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (message "Uploading...")
       (async-start
        `(lambda ()
-          (load "/Users/taka/.emacs" nil t)
-          (load "/Users/taka/.emacs.d/lisp/init-org.el" nil t)
-          (require 'org nil t)
-          (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
-          (org-icalendar-combine-agenda-files)
-          (shell-command
-           (concat "scp -o ConnectTimeout=5 "
-                   ',org-icalendar-combined-agenda-file " "
-                   ',org-ical-file-in-orz-server)))
+          (when (and (load "/Users/taka/.emacs" nil t)
+                     (load "/Users/taka/.emacs.d/lisp/init-org.el" nil t)
+                     (require 'org nil t))
+            (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
+            (org-icalendar-combine-agenda-files)
+            (let ((result (shell-command
+                           (concat "scp -o ConnectTimeout=5 "
+                                   ',org-icalendar-combined-agenda-file " "
+                                   ',org-ical-file-in-orz-server))))
+              (my-ox-icalendar-cleanup)
+              result)))
        (lambda (result)
-         (message (format "Uploading...%s"
-                          (if (eq result 0) "done" "miss!")))
-         (my-ox-icalendar-cleanup))))
+         (message (format "Uploading...%s (async)"
+                          (if (eq result 0) "done" "miss!"))))))
 
     (defun my-ox-icalendar-cleanup ()
       (interactive)
