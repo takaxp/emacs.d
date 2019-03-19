@@ -1,4 +1,4 @@
-;; #+date: 2019-03-05
+;; #+date: 2019-03-13
 
 (source gnu)
 (source melpa)
@@ -65,7 +65,7 @@
 (depends-on "easy-hugo")
 (depends-on "org-projectile")
 (depends-on "org-trello")
-(depends-on "org-recur")
+;; (depends-on "org-recur") ;; could be uninstalled.
 
 ;; Major modes
 (depends-on "python-mode")

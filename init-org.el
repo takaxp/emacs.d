@@ -207,22 +207,23 @@
       (my-ox-icalendar-cleanup))
 
     (defun my-async-ox-icalendar ()
-      (message "Uploading...")
+      (message "[async] Uploading...")
       (async-start
        `(lambda ()
-          (load "/Users/taka/.emacs" nil t)
-          (load "/Users/taka/.emacs.d/lisp/init-org.el" nil t)
-          (require 'org nil t)
-          (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
-          (org-icalendar-combine-agenda-files)
-          (shell-command
-           (concat "scp -o ConnectTimeout=5 "
-                   ',org-icalendar-combined-agenda-file " "
-                   ',org-ical-file-in-orz-server)))
+          (when (and (load "/Users/taka/.emacs" nil t)
+                     (load "/Users/taka/.emacs.d/lisp/init-org.el" nil t)
+                     (require 'org nil t))
+            (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
+            (org-icalendar-combine-agenda-files)
+            (let ((result (shell-command
+                           (concat "scp -o ConnectTimeout=5 "
+                                   ',org-icalendar-combined-agenda-file " "
+                                   ',org-ical-file-in-orz-server))))
+              (my-ox-icalendar-cleanup)
+              result)))
        (lambda (result)
-         (message (format "Uploading...%s"
-                          (if (eq result 0) "done" "miss!")))
-         (my-ox-icalendar-cleanup))))
+         (message (format "[async] Uploading...%s"
+                          (if (eq result 0) "done" "miss!"))))))
 
     (defun my-ox-icalendar-cleanup ()
       (interactive)
@@ -796,8 +797,8 @@ update it for multiple appts?")
              (setq appt-time-msg-list result)
              (let ((cnt (length appt-time-msg-list)))
                (if (eq cnt 0)
-                   (message "No event to add (async)")
-                 (message "Added %d event%s for today (async)"
+                   (message "[async] No event to add")
+                 (message "[async] Added %d event%s for today"
                           cnt (if (> cnt 1) "s" ""))))
              (setq my-org-agenda-to-appt-ready t))))))
     ;; 定期的に更新する

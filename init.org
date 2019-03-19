@@ -402,7 +402,11 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
     (interactive)
     (unless (memq this-command ;; specify commands for exclusion
                   '(self-insert-command
+                    newline
+                    delete-backward-char
+                    save-buffer
                     save-buffers-kill-terminal
+                    electric-newline-and-maybe-indent
                     exit-minibuffer))
       (message "Activating postponed packages...")
       (let ((t1 (current-time)))
@@ -1856,7 +1860,7 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
 
 好みの問題ですかね．標準では =C-j= が当てられています．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
 #+end_src
 
@@ -2516,7 +2520,9 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
   (define-key display-time-world-mode-map "q" 'delete-window))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el :exports none
+=tz= の値は，システム内部 =/usr/share/zoneinfo= を見るか，[[https://en.wikipedia.org/wiki/List_of_tz_database_time_zones][公開情報]]から確認できます．
+
+#+begin_src emacs-lisp :tangle no :exports none
 ;; Add following setting in .init.el
 (setq zoneinfo-style-world-list
       '(("Europe/Lisbon" "Lisbon")
@@ -3347,11 +3353,11 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 #+begin_src emacs-lisp :tangle yes
 (set-face-attribute 'mode-line nil :overline "#203e6f" :box nil)
 (set-face-foreground 'mode-line "#203e6f")
-(set-face-background 'mode-line "#b2cefb")
+(set-face-background 'mode-line "#b2c8fb")
 
 (set-face-attribute 'mode-line-inactive nil :overline "#94bbf9" :box nil)
 (set-face-foreground 'mode-line-inactive  "#94bbf9")
-(set-face-background 'mode-line-inactive "#d8e6fd")
+(set-face-background 'mode-line-inactive "#d8e3fd")
 #+end_src
 
 *** 色セット例
@@ -5378,6 +5384,24 @@ http://www.emacswiki.org/emacs/EmacsSession
     (keyfreq-mode 1)))
 #+end_src
 
+** [disk-usage.el] ディスク利用率を調べる
+   :PROPERTIES:
+   :CUSTOM_ID: orged77c483
+   :END:
+
+=ncdu= コマンドのように，システムのディスク利用率を調べてバッファに一覧表示します．ただ，非同期に対応していないので，普通にシェルで =ncdu= コマンドを使う方が良い気がします．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(disk-usage)
+       "disk-usage" nil t)
+
+  (with-eval-after-load "disk-usage"
+    (when (eq system-type 'darwin)
+      (custom-set-variables
+       '(disk-usage-du-command "du")))))
+#+end_src
+
 ** DONE [wakatime-mode.el] WakaTime を利用して作業記録する         :obsolete:
    CLOSED: [2018-09-23 Sun 22:30]
    :PROPERTIES:
@@ -6346,7 +6370,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (my-ox-icalendar-cleanup))
 
     (defun my-async-ox-icalendar ()
-      (message "Uploading...")
+      (message "[async] Uploading...")
       (async-start
        `(lambda ()
           (when (and (load "/Users/taka/.emacs" nil t)
@@ -6361,7 +6385,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
               (my-ox-icalendar-cleanup)
               result)))
        (lambda (result)
-         (message (format "Uploading...%s (async)"
+         (message (format "[async] Uploading...%s"
                           (if (eq result 0) "done" "miss!"))))))
 
     (defun my-ox-icalendar-cleanup ()
@@ -7083,8 +7107,8 @@ update it for multiple appts?")
              (setq appt-time-msg-list result)
              (let ((cnt (length appt-time-msg-list)))
                (if (eq cnt 0)
-                   (message "No event to add (async)")
-                 (message "Added %d event%s for today (async)"
+                   (message "[async] No event to add")
+                 (message "[async] Added %d event%s for today"
                           cnt (if (> cnt 1) "s" ""))))
              (setq my-org-agenda-to-appt-ready t))))))
     ;; 定期的に更新する
@@ -7510,6 +7534,8 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+html_head: <script type="text/javascript" src="https://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.min.js"></script>
 #+html_head: <script type="text/javascript" src="https://www.pirilampo.org/styles/readtheorg/js/readtheorg.js"></script>
 #+end_src
+
+また， =(org-html-htmlize-generate-css)= を使うとCSSを生成できます．
 
 ** [org-crypt] ツリーを暗号化する
    :PROPERTIES:

@@ -88,7 +88,11 @@
     (interactive)
     (unless (memq this-command ;; specify commands for exclusion
                   '(self-insert-command
+                    newline
+                    delete-backward-char
+                    save-buffer
                     save-buffers-kill-terminal
+                    electric-newline-and-maybe-indent
                     exit-minibuffer))
       (message "Activating postponed packages...")
       (let ((t1 (current-time)))
@@ -358,6 +362,8 @@
 
 (my-tick-init-time "point")
 
+(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+
 (when (autoload-if-found
        '(modern-c++-font-lock-mode)
        "modern-cpp-font-lock" nil t)
@@ -514,11 +520,11 @@
 
 (set-face-attribute 'mode-line nil :overline "#203e6f" :box nil)
 (set-face-foreground 'mode-line "#203e6f")
-(set-face-background 'mode-line "#b2cefb")
+(set-face-background 'mode-line "#b2c8fb")
 
 (set-face-attribute 'mode-line-inactive nil :overline "#94bbf9" :box nil)
 (set-face-foreground 'mode-line-inactive  "#94bbf9")
-(set-face-background 'mode-line-inactive "#d8e6fd")
+(set-face-background 'mode-line-inactive "#d8e3fd")
 
 (setq line-number-display-limit-width 100000)
 

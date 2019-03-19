@@ -306,8 +306,6 @@
     (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
     (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse)))
 
-(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
-
 (setq yank-excluded-properties t)
 
 (when (autoload-if-found
@@ -523,12 +521,6 @@
 
 (with-eval-after-load "time"
   (define-key display-time-world-mode-map "q" 'delete-window))
-
-;; Add following setting in .init.el
-(setq zoneinfo-style-world-list
-      '(("Europe/Lisbon" "Lisbon")
-        ("Asia/Tokyo" "Tokyo")))
-;; Then, M-x display-time-world
 
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "n") 'next-line)
@@ -1561,6 +1553,15 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 
   (unless noninteractive
     (keyfreq-mode 1)))
+
+(when (autoload-if-found
+       '(disk-usage)
+       "disk-usage" nil t)
+
+  (with-eval-after-load "disk-usage"
+    (when (eq system-type 'darwin)
+      (custom-set-variables
+       '(disk-usage-du-command "du")))))
 
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)

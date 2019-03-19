@@ -46,7 +46,7 @@ This function could create many sub processes."
              (dolist (r result)
                (setq count (1+ count))
                (message ">> %s (missing)" r))
-             (message (concat (format "%s package" count)
+             (message (concat (format "[async] %s package" count)
                               (if (> count 1) "s are" " is")
                               " NOT installed."))))))
     (error "missing async.el")))
@@ -61,13 +61,13 @@ This function could create many sub processes."
     (async-start ;; do not call this from byte compiled code directory
      (lambda ()
        (sleep-for 5)
-       (message "Deleting old backup files...")
+       (message "[async] Deleting old backup files...")
        (when (load "/Users/taka/.emacs" t) ;; FIXME
          (recursive-delete-backup-files 7)
          t))
      (lambda (result)
        (if result
-           (message "Deleting old backup files...done (async)")
+           (message "[async] Deleting old backup files...done")
          (error "[async] Failed to delete backup files."))))))
 
 (provide 'init-async)
