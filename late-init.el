@@ -211,18 +211,13 @@
      '(smooth-scroll/hscroll-step-size 6)))
   (smooth-scroll-mode t))
 
-(when (autoload-if-found
-       '(cycle-buffer cycle-buffer-backward)
-       "cycle-buffer" nil t)
+(when (display-graphic-p)
+  (global-set-key (kbd "M-]") 'bs-cycle-next)
+  (global-set-key (kbd "M-[") 'bs-cycle-previous))
 
-  (global-set-key (kbd "M-]") 'cycle-buffer)
-  (global-set-key (kbd "M-[") 'cycle-buffer-backward)
-
-  (with-eval-after-load "cycle-buffer"
-    (custom-set-variables
-     '(cycle-buffer-allow-visible t)
-     '(1cycle-buffer-show-length 12)
-     '(cycle-buffer-show-format '(" < %s >" . " %s")))))
+(with-eval-after-load "bs"
+  (custom-set-variables
+   '(bs-cycle-configuration-name "files-and-scratch")))
 
 (when (autoload-if-found
        '(my-toggle-bm

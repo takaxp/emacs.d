@@ -1,4 +1,4 @@
-;; #+date: 2019-03-13
+;; #+date: 2019-03-21
 
 (source gnu)
 (source melpa)
@@ -20,6 +20,7 @@
 ;; Testing
 (depends-on "htprofile"    :git "https://github.com/takaxp/htprofile.git")
 (depends-on "yequake"      :git "https://github.com/alphapapa/yequake.git")
+(depends-on "expand-region")
 
 ;; Package install
 (depends-on "cask")

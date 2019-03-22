@@ -901,7 +901,6 @@
 
    (t nil)))
 
-(declare-function my-theme "init" nil)
 ;;(declare-function my-font-config "init" nil)
 (with-eval-after-load "postpone"
   (defun ad:make-frame (&optional _parameters)
@@ -1043,7 +1042,15 @@
 
 (declare-function my-daylight-theme "init" nil)
 (declare-function my-night-theme "init" nil)
-(when (display-graphic-p)
+(declare-function my-terminal-theme "init" nil)
+(if (not (display-graphic-p))
+    (defun my-terminal-theme ()
+      (interactive)
+      (when (require 'terminal-theme nil t)
+        (mapc 'disable-theme custom-enabled-themes)
+        (load-theme 'terminal t)
+        (setq my-cursor-color-ime-on "#FF9300")))
+
   (defun my-daylight-theme ()
     (interactive)
     (when (require 'daylight-theme nil t)
@@ -1078,48 +1085,49 @@
       (modify-frame-parameters nil '((ns-transparent-titlebar . t)
                                      (ns-appearance . dark))))))
 
-(when (display-graphic-p)
-  (declare-function my-night-time-p "init" (begin end))
-  (declare-function my-apply-cursor-config "init" nil)
-  (declare-function my-font-config "init" nil)
-  (defun my-night-time-p (begin end)
-    (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
-           (cm (string-to-number (format-time-string "%M" (current-time))))
-           (ct (+ cm (* 60 ch))))
-      (if (> begin end)
-          (or (<= begin ct) (<= ct end))
-        (and (<= begin ct) (<= ct end)))))
+(declare-function my-apply-cursor-config "init" nil)
+(declare-function my-font-config "init" nil)
+(defun my-night-time-p (begin end)
+  (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
+         (cm (string-to-number (format-time-string "%M" (current-time))))
+         (ct (+ cm (* 60 ch))))
+    (if (> begin end)
+        (or (<= begin ct) (<= ct end))
+      (and (<= begin ct) (<= ct end)))))
 
-  (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
-  (defun my-theme (&optional type)
-    (interactive "MType (light or dark): ")
-    (setq my-frame-appearance
-          (cond ((equal "light" type)
-                 'light)
-                ((equal "dark" type)
-                 'dark)
-                (t
-                 my-frame-appearance)))
-    (cond ((eq my-frame-appearance 'dark)
-           (my-night-theme))
-          ((eq my-frame-appearance 'light)
-           (my-daylight-theme))
-          (t
-           (let ((night-time-in 21)
-                 (night-time-out 5))
-             (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
-                 (my-night-theme)
-               (my-daylight-theme)))))
-    (unless noninteractive
-      (my-font-config)
-      ;; remove unintentional colored frame border
-      (select-frame-set-input-focus (selected-frame))
-      (when (fboundp 'mac-get-current-input-source)
-        (my-apply-cursor-config)))) ;; apply font setting
+(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
+(defun my-theme (&optional type)
+  (interactive "MType (light or dark): ")
+  (setq my-frame-appearance
+        (cond ((equal "light" type) 'light)
+              ((equal "dark" type) 'dark)
+              (t
+               my-frame-appearance)))
+  (if (display-graphic-p)
+      (cond ((eq my-frame-appearance 'dark)
+             (my-night-theme))
+            ((eq my-frame-appearance 'light)
+             (my-daylight-theme))
+            (t
+             (let ((night-time-in 21)
+                   (night-time-out 5))
+               (if (my-night-time-p
+                    (* night-time-in 60) (* night-time-out 60))
+                   (my-night-theme)
+                 (my-daylight-theme)))))
+    (my-terminal-theme))
 
-  ;; init. This may override or reset font setting
-  (with-eval-after-load "postpone"
-    (my-theme)))
+  (unless noninteractive
+    (my-font-config)
+    ;; remove unintentional colored frame border
+    (select-frame-set-input-focus (selected-frame))
+    (when (and (display-graphic-p)
+               (fboundp 'mac-get-current-input-source))
+      (my-apply-cursor-config)))) ;; apply font setting
+
+;; init. This may override or reset font setting
+(with-eval-after-load "postpone"
+  (my-theme))
 
 ;; (with-eval-after-load "postpone"
 ;;   (run-at-time "21:00" 86400 'my-theme)

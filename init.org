@@ -1608,7 +1608,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
   (smooth-scroll-mode t))
 #+end_src
 
-** [cycle-buffer.el] カレントバッファの表示切り替え
+** [cycle-buffer.el] カレントバッファの表示切り替え                :obsolete:
    :PROPERTIES:
    :CUSTOM_ID: org27e3241e
    :END:
@@ -1619,19 +1619,30 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 
 なおビルトインに同様の機能を提供する =bs.el= があり， =bs-cycle-next= あるいは =bs-cycle-previous= でバッファを切り替えられます．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(cycle-buffer cycle-buffer-backward)
        "cycle-buffer" nil t)
 
-  (global-set-key (kbd "M-]") 'cycle-buffer)
-  (global-set-key (kbd "M-[") 'cycle-buffer-backward)
+  (when (display-graphic-p)
+    (global-set-key (kbd "M-]") 'cycle-buffer)
+    (global-set-key (kbd "M-[") 'cycle-buffer-backward))
 
   (with-eval-after-load "cycle-buffer"
     (custom-set-variables
      '(cycle-buffer-allow-visible t)
-     '(1cycle-buffer-show-length 12)
+     '(cycle-buffer-show-length 12)
      '(cycle-buffer-show-format '(" < %s >" . " %s")))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (display-graphic-p)
+  (global-set-key (kbd "M-]") 'bs-cycle-next)
+  (global-set-key (kbd "M-[") 'bs-cycle-previous))
+
+(with-eval-after-load "bs"
+  (custom-set-variables
+   '(bs-cycle-configuration-name "files-and-scratch")))
 #+end_src
 
 ** [bm.el] カーソル位置をブックマークして追う
@@ -8572,7 +8583,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 フレームを複数使う場合の設定です．
 
 #+begin_src emacs-lisp :tangle yes
-(declare-function my-theme "init" nil)
 ;;(declare-function my-font-config "init" nil)
 (with-eval-after-load "postpone"
   (defun ad:make-frame (&optional _parameters)
@@ -9348,7 +9358,15 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle yes
 (declare-function my-daylight-theme "init" nil)
 (declare-function my-night-theme "init" nil)
-(when (display-graphic-p)
+(declare-function my-terminal-theme "init" nil)
+(if (not (display-graphic-p))
+    (defun my-terminal-theme ()
+      (interactive)
+      (when (require 'terminal-theme nil t)
+        (mapc 'disable-theme custom-enabled-themes)
+        (load-theme 'terminal t)
+        (setq my-cursor-color-ime-on "#FF9300")))
+
   (defun my-daylight-theme ()
     (interactive)
     (when (require 'daylight-theme nil t)
@@ -9392,48 +9410,49 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
 
 #+begin_src emacs-lisp :tangle yes
-(when (display-graphic-p)
-  (declare-function my-night-time-p "init" (begin end))
-  (declare-function my-apply-cursor-config "init" nil)
-  (declare-function my-font-config "init" nil)
-  (defun my-night-time-p (begin end)
-    (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
-           (cm (string-to-number (format-time-string "%M" (current-time))))
-           (ct (+ cm (* 60 ch))))
-      (if (> begin end)
-          (or (<= begin ct) (<= ct end))
-        (and (<= begin ct) (<= ct end)))))
+(declare-function my-apply-cursor-config "init" nil)
+(declare-function my-font-config "init" nil)
+(defun my-night-time-p (begin end)
+  (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
+         (cm (string-to-number (format-time-string "%M" (current-time))))
+         (ct (+ cm (* 60 ch))))
+    (if (> begin end)
+        (or (<= begin ct) (<= ct end))
+      (and (<= begin ct) (<= ct end)))))
 
-  (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
-  (defun my-theme (&optional type)
-    (interactive "MType (light or dark): ")
-    (setq my-frame-appearance
-          (cond ((equal "light" type)
-                 'light)
-                ((equal "dark" type)
-                 'dark)
-                (t
-                 my-frame-appearance)))
-    (cond ((eq my-frame-appearance 'dark)
-           (my-night-theme))
-          ((eq my-frame-appearance 'light)
-           (my-daylight-theme))
-          (t
-           (let ((night-time-in 21)
-                 (night-time-out 5))
-             (if (my-night-time-p (* night-time-in 60) (* night-time-out 60))
-                 (my-night-theme)
-               (my-daylight-theme)))))
-    (unless noninteractive
-      (my-font-config)
-      ;; remove unintentional colored frame border
-      (select-frame-set-input-focus (selected-frame))
-      (when (fboundp 'mac-get-current-input-source)
-        (my-apply-cursor-config)))) ;; apply font setting
+(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
+(defun my-theme (&optional type)
+  (interactive "MType (light or dark): ")
+  (setq my-frame-appearance
+        (cond ((equal "light" type) 'light)
+              ((equal "dark" type) 'dark)
+              (t
+               my-frame-appearance)))
+  (if (display-graphic-p)
+      (cond ((eq my-frame-appearance 'dark)
+             (my-night-theme))
+            ((eq my-frame-appearance 'light)
+             (my-daylight-theme))
+            (t
+             (let ((night-time-in 21)
+                   (night-time-out 5))
+               (if (my-night-time-p
+                    (* night-time-in 60) (* night-time-out 60))
+                   (my-night-theme)
+                 (my-daylight-theme)))))
+    (my-terminal-theme))
 
-  ;; init. This may override or reset font setting
-  (with-eval-after-load "postpone"
-    (my-theme)))
+  (unless noninteractive
+    (my-font-config)
+    ;; remove unintentional colored frame border
+    (select-frame-set-input-focus (selected-frame))
+    (when (and (display-graphic-p)
+               (fboundp 'mac-get-current-input-source))
+      (my-apply-cursor-config)))) ;; apply font setting
+
+;; init. This may override or reset font setting
+(with-eval-after-load "postpone"
+  (my-theme))
 
 ;; (with-eval-after-load "postpone"
 ;;   (run-at-time "21:00" 86400 'my-theme)
@@ -9463,7 +9482,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     :CUSTOM_ID: org19538af3
     :END:
 
-=0,6,9,C,F= の組み合わせ
+=0,3,6,9,C,F= の組み合わせ
 
 #+begin_src html
 

@@ -211,7 +211,7 @@
 (el-get-bundle "rnkn/olivetti")
 (el-get-bundle "abo-abo/hydra")
 ;; (el-get-bundle "parinfer")
-
+(el-get-bundle "magnars/expand-region.el" :name expand-region)
 
 ;; Visualize
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
