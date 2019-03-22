@@ -1608,32 +1608,14 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
   (smooth-scroll-mode t))
 #+end_src
 
-** [cycle-buffer.el] カレントバッファの表示切り替え                :obsolete:
+** [bs.el] 続・カレントバッファの表示切り替え
    :PROPERTIES:
-   :CUSTOM_ID: org27e3241e
+   :CUSTOM_ID: org768c06a0
    :END:
 
-http://www.emacswiki.org/emacs/download/cycle-buffer.el
+古くから =cycle-buffer= がありますが，基本機能だけで満足するようになったので，ビルトインの =bs.el= に移行しました． =bs-cycle-next= あるいは =bs-cycle-previous= でバッファを切り替えられます．
 
-cycle-buffer を使うと，バッファの履歴をスライドショーのようにたどれます．ミニバッファに前後の履歴が表示されるので，何回キーを押せばいいかの目安になります．それを超える場合には，おとなしくバッファリストを使います．直近数件のバッファをたどるのに便利です． =cycle-buffer= は古めですが，個人的には気に入っています．
-
-なおビルトインに同様の機能を提供する =bs.el= があり， =bs-cycle-next= あるいは =bs-cycle-previous= でバッファを切り替えられます．
-
-#+begin_src emacs-lisp :tangle no
-(when (autoload-if-found
-       '(cycle-buffer cycle-buffer-backward)
-       "cycle-buffer" nil t)
-
-  (when (display-graphic-p)
-    (global-set-key (kbd "M-]") 'cycle-buffer)
-    (global-set-key (kbd "M-[") 'cycle-buffer-backward))
-
-  (with-eval-after-load "cycle-buffer"
-    (custom-set-variables
-     '(cycle-buffer-allow-visible t)
-     '(cycle-buffer-show-length 12)
-     '(cycle-buffer-show-format '(" < %s >" . " %s")))))
-#+end_src
+切り替えるときにミニバッファにバッファ名が列挙されますが，できればセパレータを表示したいところです．FontAwesome を使えば，だいぶ見やすくなるかも．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (display-graphic-p)
@@ -1778,6 +1760,32 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
     (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse)))
+#+end_src
+
+** DONE [cycle-buffer.el] カレントバッファの表示切り替え           :obsolete:
+   CLOSED: [2019-03-22 Fri 15:39]
+   :PROPERTIES:
+   :CUSTOM_ID: org27e3241e
+   :END:
+
+http://www.emacswiki.org/emacs/download/cycle-buffer.el
+
+cycle-buffer を使うと，バッファの履歴をスライドショーのようにたどれます．ミニバッファに前後の履歴が表示されるので，何回キーを押せばいいかの目安になります．それを超える場合には，おとなしくバッファリストを使います．直近数件のバッファをたどるのに便利です． =cycle-buffer= は古めですが，個人的には気に入っています．
+
+#+begin_src emacs-lisp :tangle no
+(when (autoload-if-found
+       '(cycle-buffer cycle-buffer-backward)
+       "cycle-buffer" nil t)
+
+  (when (display-graphic-p)
+    (global-set-key (kbd "M-]") 'cycle-buffer)
+    (global-set-key (kbd "M-[") 'cycle-buffer-backward))
+
+  (with-eval-after-load "cycle-buffer"
+    (custom-set-variables
+     '(cycle-buffer-allow-visible t)
+     '(cycle-buffer-show-length 12)
+     '(cycle-buffer-show-format '(" < %s >" . " %s")))))
 #+end_src
 
 ** DONE [back-button] マークをたどる                               :obsolete:
