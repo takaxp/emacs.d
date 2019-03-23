@@ -682,8 +682,8 @@
     (add-hook 'after-init-hook #'session-initialize))
 
   (with-eval-after-load "session"
-    (setq session-set-file-name-exclude-regexp
-          "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
+    (custom-set-variables
+     '(session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG"))
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
     (setq session-save-file
