@@ -186,7 +186,7 @@
 (when (version< "27" emacs-version)
   (setq default-directory "~/"))
 
-(when (eq window-system 'ns)
+(when (memq window-system '(ns nil))
   (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
   (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
   (declare-function my-ns-org-heading-auto-ascii "init" nil)
@@ -194,7 +194,7 @@
   (declare-function my-ime-active-p "init" nil))
 
 (with-eval-after-load "postpone"
-  (when (and (eq window-system 'ns)
+  (when (and (memq window-system '(ns nil))
              (fboundp 'mac-get-current-input-source))
 
     (defun my-toggle-ime-ns ()
@@ -682,6 +682,8 @@
     (add-hook 'after-init-hook #'session-initialize))
 
   (with-eval-after-load "session"
+    (setq session-set-file-name-exclude-regexp
+          "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
     (setq session-save-file
@@ -752,7 +754,7 @@
 (defconst my-cursor-type-ime-off '(bar . 2))
 (defvar my-ime-last nil)
 
-(when (and (eq window-system 'ns)
+(when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
   (declare-function my-apply-cursor-config "init" nil)
   (defun my-ime-active-p ()
@@ -771,7 +773,7 @@
 
 (with-eval-after-load "postpone"
   (cond
-   ((and (eq window-system 'ns)
+   ((and (memq window-system '(ns nil))
          (fboundp 'mac-get-current-input-source))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter

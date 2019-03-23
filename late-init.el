@@ -41,7 +41,7 @@
 
 (setq compilation-scroll-output t)
 
-(setq confirm-kill-emacs 'yes-or-no-p)
+(setq confirm-kill-emacs 'y-or-n-p)
 
 (when (autoload-if-found '(cask-mode) "cask-mode" nil t)
   (push '("/Cask\\'" . cask-mode) auto-mode-alist))
@@ -1896,6 +1896,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 (defvar-local my-mode-line-format nil)
 (set-default 'my-mode-line-format mode-line-format)
 (defvar my-toggle-modeline-global t)
+(unless (display-graphic-p)
+  (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
 (defun my-toggle-modeline-global ()
   (interactive)
   (setq my-toggle-modeline-global (not my-toggle-modeline-global))
@@ -2015,11 +2017,6 @@ Uses `all-the-icons-material' to fetch the icon."
 
 (unless noninteractive
   (require 'generic-x nil t))
-
-(if (display-graphic-p)
-    (unless noninteractive
-      (postpone-message "global-hl-line-mode"))
-  (setq hl-line-face 'underline))
 
 (unless noninteractive
   (global-hl-line-mode 1))

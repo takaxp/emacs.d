@@ -881,7 +881,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 =y-or-n-p= もしくは =yes-or-no-p= を指定するだけです．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(setq confirm-kill-emacs 'yes-or-no-p)
+(setq confirm-kill-emacs 'y-or-n-p)
 #+end_src
 
 以前は， =C-x C-c= を以下の関数に割り当てて，任意の質問文で入力を求めていました．
@@ -1274,7 +1274,7 @@ the_silver_searcher @0.18.1 (textproc)
   - [[https://gist.github.com/takaxp/3314a153f6d02d82ef1833638d338ecf][An inline-patch for Emacs-25.2]]
 
 #+begin_src emacs-lisp :tangle yes
-(when (eq window-system 'ns)
+(when (memq window-system '(ns nil))
   (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
   (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
   (declare-function my-ns-org-heading-auto-ascii "init" nil)
@@ -1282,7 +1282,7 @@ the_silver_searcher @0.18.1 (textproc)
   (declare-function my-ime-active-p "init" nil))
 
 (with-eval-after-load "postpone"
-  (when (and (eq window-system 'ns)
+  (when (and (memq window-system '(ns nil))
              (fboundp 'mac-get-current-input-source))
 
     (defun my-toggle-ime-ns ()
@@ -5217,7 +5217,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
   (run-with-idle-timer 1.6 t #'my-auto-save-buffers))
 #+end_src
 
-** [session.el] 様々な履歴を保存し復元に利用する
+** TODO [session.el] 様々な履歴を保存し復元に利用する
    :PROPERTIES:
    :CUSTOM_ID: orgab837e6a
    :END:
@@ -5244,6 +5244,8 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
     (add-hook 'after-init-hook #'session-initialize))
 
   (with-eval-after-load "session"
+    (setq session-set-file-name-exclude-regexp
+          "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
     (setq session-save-file
@@ -8433,7 +8435,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (defconst my-cursor-type-ime-off '(bar . 2))
 (defvar my-ime-last nil)
 
-(when (and (eq window-system 'ns)
+(when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
   (declare-function my-apply-cursor-config "init" nil)
   (defun my-ime-active-p ()
@@ -8452,7 +8454,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 (with-eval-after-load "postpone"
   (cond
-   ((and (eq window-system 'ns)
+   ((and (memq window-system '(ns nil))
          (fboundp 'mac-get-current-input-source))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
@@ -8730,6 +8732,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (defvar-local my-mode-line-format nil)
 (set-default 'my-mode-line-format mode-line-format)
 (defvar my-toggle-modeline-global t)
+(unless (display-graphic-p)
+  (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
 (defun my-toggle-modeline-global ()
   (interactive)
   (setq my-toggle-modeline-global (not my-toggle-modeline-global))
@@ -9106,11 +9110,6 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   - http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el
 
 #+begin_src emacs-lisp :tangle late-init.el
-(if (display-graphic-p)
-    (unless noninteractive
-      (postpone-message "global-hl-line-mode"))
-  (setq hl-line-face 'underline))
-
 (unless noninteractive
   (global-hl-line-mode 1))
 #+end_src
