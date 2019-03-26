@@ -5,6 +5,34 @@
 ;; (load "~/Dropbox/emacs.d/config/el-get-setup.el" nil t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun my:iterm-app ()
+  "Open iterm.app with current dir."
+  (interactive)
+  (let ((dir default-directory))
+    (shell-command (concat "open -a iTerm2.app " dir))))
+
+;; Testing
+(with-eval-after-load "postpone"
+  (when (require 'company nil t)
+    (define-key company-active-map (kbd "C-n") 'company-select-next)
+    (define-key company-active-map (kbd "C-p") 'company-select-previous)
+    (define-key company-search-map (kbd "C-n") 'company-select-next)
+    (define-key company-search-map (kbd "C-p") 'company-select-previous)
+    (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
+
+    ;; To complete file path, move `company-files' to the fist item of the list
+    (delq 'company-files company-backends)
+    (add-to-list 'company-backends 'company-files)
+
+    ;; 補完候補に番号を表示
+    (setq company-show-numbers t)
+
+    (global-company-mode))
+
+  (when (require 'company-quickhelp nil t)
+    (company-quickhelp-mode)))
+
+
 ;; Fontawesome 拡張
 (with-eval-after-load "postpone"
   ;; 以下を関数化して，任意の文字コードに対応させる．

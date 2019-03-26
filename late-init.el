@@ -885,7 +885,7 @@ This works also for other defined begin/end tokens to define the structure."
      ;; (orgstruct-mode " OrgS" "org")
      (orgalist-mode " ol" "orgalist")
 
-     ;; No display for minor modes
+     ;; Stop to display for minor modes
      (org-fancy-priorities-mode nil "org-fancy-priorities")
      (smooth-scroll-mode nil "smooth-scroll")
      (eldoc-mode nil "eldoc")
@@ -895,6 +895,7 @@ This works also for other defined begin/end tokens to define the structure."
      (all-the-icons-dired-mode nil "all-the-icons-dired")
      (yas-minor-mode nil "yasnippet")
      (auto-complete-mode nil "auto-complete")
+     (company-mode nil "company")
      (ws-butler-mode nil "ws-butler")
      (isearch-mode nil "isearch")
      (auto-revert-mode nil "autorevert")
@@ -1275,13 +1276,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)
   (with-eval-after-load "google-maps"
     (require 'org-location-google-maps nil t)))
 
-(if (executable-find "w3m")
-    (autoload-if-found
-     '(japanlaw)
-     "japanlaw" nil t)
-
-  (message "--- w3m is NOT installed."))
-
 (when (autoload-if-found
        '(sunshine-forecast sunshine-quick-forecast)
        "sunshine" nil t)
@@ -1608,81 +1602,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 
 ;; (flycheck-add-next-checker 'javascript-jshint
 ;; 'javascript-gjslint)
-
-(when (autoload-if-found
-       '(ac-default-setup ac-org-mode-setup)
-       "auto-complete" nil t)
-
-  (dolist (hook
-           (list 'org-mode-hook 'python-mode-hook
-                 'perl-mode-hook 'objc-mode-hook))
-    (add-hook hook #'ac-default-setup))
-
-  ;; *scratch* バッファでは無効化
-  (add-hook 'lisp-mode-hook
-            (lambda () (unless (equal "*scratch*" (buffer-name))
-                         (ac-default-setup))))
-  (add-hook 'org-mode-hook #'ac-org-mode-setup)
-
-  (with-eval-after-load "auto-complete"
-    (require 'auto-complete-config nil t)
-    (ac-config-default)
-    ;; 追加のメジャーモードを設定
-    (add-to-list 'ac-modes 'objc-mode)
-    (add-to-list 'ac-modes 'org-mode)
-    (add-to-list 'ac-modes 'latex-mode)
-    (require 'ac-math nil t)
-
-    ;; ac-modes にあるメジャーモードで有効にする
-    ;;lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
-    (global-auto-complete-mode t)
-    ;; 辞書
-    (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
-    ;; history
-    (setq ac-comphist-file "~/Dropbox/config/ac-comphist.dat")
-    ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
-    (setq ac-auto-start 4)
-    ;; n秒後にメニューを表示
-    (setq ac-auto-show-menu 2.0)
-    ;; ツールチップの表示
-    (setq ac-use-quick-help t)
-    (setq ac-quick-help-delay 2.0)
-    (setq ac-quick-help-height 10)
-    ;; C-n/C-p でメニューをたどる
-    (setq ac-use-menu-map t)
-    ;; TAB で補完（org-mode でも効くようにする）
-    (define-key ac-completing-map [tab] 'ac-complete)
-    ;; RET での補完を禁止
-    (define-key ac-completing-map "\r" nil)
-    ;; 補完メニューの表示精度を高める
-    (setq popup-use-optimized-column-computation nil)
-    ;;(setq ac-candidate-max 10)
-
-    (defun ac-org-mode-setup ()
-      ;;            (message " >> ac-org-mode-setup")
-      (setq ac-sources '(
-                         ac-source-abbrev ; Emacs の略語
-                         ;; ac-source-css-property ; heavy
-                         ac-source-dictionary ; 辞書
-                         ac-source-features
-                         ac-source-filename
-                         ac-source-files-in-current-dir
-                         ac-source-functions
-                         ;; ac-source-gtags
-                         ;; ac-source-imenu
-                         ;; ac-source-semantic
-                         ac-source-symbols
-                         ac-source-variables
-                         ;; ac-source-yasnippet
-                         )))
-
-    (defun ac-default-setup ()
-      ;;            (message " >> ac-default-setup")
-      ;; ac-source-words-in-same-mode-buffers
-      (setq ac-sources '(ac-source-filename
-                         ac-source-abbrev
-                         ac-source-dictionary
-                         )))))
 
 (when (autoload-if-found
        '(origami-mode origami-toggle-node)

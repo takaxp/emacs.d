@@ -3808,7 +3808,7 @@ paren.el の場合は以下の設定．
      ;; (orgstruct-mode " OrgS" "org")
      (orgalist-mode " ol" "orgalist")
 
-     ;; No display for minor modes
+     ;; Stop to display for minor modes
      (org-fancy-priorities-mode nil "org-fancy-priorities")
      (smooth-scroll-mode nil "smooth-scroll")
      (eldoc-mode nil "eldoc")
@@ -3818,6 +3818,7 @@ paren.el の場合は以下の設定．
      (all-the-icons-dired-mode nil "all-the-icons-dired")
      (yas-minor-mode nil "yasnippet")
      (auto-complete-mode nil "auto-complete")
+     (company-mode nil "company")
      (ws-butler-mode nil "ws-butler")
      (isearch-mode nil "isearch")
      (auto-revert-mode nil "autorevert")
@@ -4830,7 +4831,7 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
   - [[http://www.ne.jp/asahi/alpha/kazu/laws.html][Emacs 電子六法]]
   - [[https://github.com/mhayashi1120/japanlaw.el][mhayashi1120/japanlaw.el: Emacs 電子六法]]
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (if (executable-find "w3m")
     (autoload-if-found
      '(japanlaw)
@@ -5245,8 +5246,8 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
       (add-hook 'after-init-hook #'session-initialize)))
 
   (with-eval-after-load "session"
-    ;; (custom-set-variables
-    ;;  '(session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|COMMIT_EDITMSG"))
+    (custom-set-variables
+     '(session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|COMMIT_EDITMSG")) ;; FIXME: not activated
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
     (setq session-save-file
@@ -5662,7 +5663,7 @@ Org-mode ユーザにとって =TAB= は非常に重要なコマンド．そこ�
 
 auto-complete が正しく効いているかは，バッファ内で適当にパスを打ち込んで，補完候補が表示されるかで判定判定できると思います（ =/home= を入力とか）
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(ac-default-setup ac-org-mode-setup)
        "auto-complete" nil t)
@@ -10054,7 +10055,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 (osx-lib-say yourscript)
 ,#+end_src
 #+end_src
-** iterm2 を Emacs から呼び出したい                                   :macOS:
+** iTerm2 を Emacs から呼び出したい                                   :macOS:
    :PROPERTIES:
    :CUSTOM_ID: org72d850dc
    :END:

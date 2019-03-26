@@ -9,6 +9,9 @@
 ;; - init.el に (load "el-get-setup.el" nil t) でOK．
 
 ;; "./emacs.d/<emacs-version>/el-get" をインストール先にする．
+;;
+;; ----8<---------------------------------------------------->8----
+;;
 (setq el-get-dir
       (expand-file-name "el-get" (locate-user-emacs-file emacs-version)))
 (add-to-list 'load-path (concat el-get-dir "/el-get"))
@@ -38,9 +41,10 @@
   (el-get-notify "el-get update" (format "%s" package)))
 (advice-add 'el-get-post-update-notification :override
             #'ad:el-get-post-update-notification)
-
+;;
+;; ----8<---------------------------------------------------->8----
+;;
 ;; el-get remove を使う場合は，ここまでを評価する．
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Fundamental packages
 ;; (el-get-bundle "loop")
@@ -204,6 +208,8 @@
 (el-get-bundle "d12frosted/flyspell-correct")
 (el-get-bundle "auto-complete")
 (el-get-bundle "auto-complete-clang")
+(el-get-bundle "company-mode/company-mode")
+(el-get-bundle "expez/company-quickhelp")
 (el-get-bundle "ac-js2")
 (el-get-bundle "migemo")
 (el-get-bundle "sabof/edit-color-stamp")

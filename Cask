@@ -1,4 +1,4 @@
-;; #+date: 2019-03-21
+;; #+date: 2019-03-25
 
 (source gnu)
 (source melpa)
@@ -153,7 +153,9 @@
 (depends-on "flyspell-correct-helm")
 (depends-on "auto-complete")
 (depends-on "auto-complete-clang")
-(depends-on "ac-js2")
+(depends-on "company")
+(depends-on "company-quickhelp")
+y(depends-on "ac-js2")
 (depends-on "migemo")
 (depends-on "edit-color-stamp")
 (depends-on "tiny")
