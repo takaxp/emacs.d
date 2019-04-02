@@ -44,6 +44,13 @@
     (add-to-list 'org-modules 'org-id)
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
+    (when (require 'bookmark nil t)
+      ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
+      (add-to-list 'org-modules 'ol-bookmark)
+      ;; 変更直後に保存
+      (setq bookmark-save-flag 1)
+      ;; `bookmark-default-file' の読み込み
+      (bookmark-maybe-load-default-file))
 
     ;; 不必要なモジュールの読み込みを停止する
     (delq 'org-gnus org-modules)
@@ -214,16 +221,21 @@
                      (load "/Users/taka/.emacs.d/lisp/init-org.el" nil t)
                      (require 'org nil t))
             (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
-            (org-icalendar-combine-agenda-files)
-            (let ((result (shell-command
-                           (concat "scp -o ConnectTimeout=5 "
-                                   ',org-icalendar-combined-agenda-file " "
-                                   ',org-ical-file-in-orz-server))))
-              (my-ox-icalendar-cleanup)
-              result)))
+            (if (file-exists-p
+                 (expand-file-name org-icalendar-combined-agenda-file))
+                1
+              (let ((ical (org-icalendar-combine-agenda-files))
+                    (result (shell-command
+                             (concat "scp -o ConnectTimeout=5 "
+                                     ',org-icalendar-combined-agenda-file " "
+                                     ',org-ical-file-in-orz-server))))
+                (my-ox-icalendar-cleanup)
+                result))))
        (lambda (result)
          (message (format "[async] Uploading...%s"
-                          (if (eq result 0) "done" "miss!"))))))
+                          (cond ((eq result 0) "done")
+                                ((eq result 1) "skipped")
+                                (t "miss!")))))))
 
     (defun my-ox-icalendar-cleanup ()
       (interactive)
@@ -485,7 +497,7 @@ will not be modified."
     ;; see org.pdf:p73
     (setq org-capture-templates
           `(("t" "TODO 項目を INBOX に貼り付ける" entry
-             (file+headline ,org-default-notes-file "INBOX") "** TODO %?\n\t")
+             (file+headline ,org-default-notes-file "INBOX") "** TODO %?\n")
             ("a" "記事リストにエントリー" entry
              (file+headline ,org-capture-article-file "INBOX")
              "** READ %?\n\t")
@@ -863,7 +875,8 @@ update it for multiple appts?")
   (require 'ob-http nil t)
   (require 'ob-gnuplot nil t)
 
-  (unless (executable-find "ditaa")
+  (when (and (not noninteractive)
+             (not (executable-find "ditaa")))
     (message "--- ditaa is NOT installed."))
 
   ;; Add ":results output" after program name
@@ -1295,6 +1308,20 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (when (re-search-forward "^#\\+OPTIONS:.*auto-id:t" (point-max) t)
         (org-map-entries
          (lambda () (my-org-custom-id-get (point) 'create)))))))
+
+(when (autoload-if-found
+       '(orglink-mode global-orglink-mode)
+       "orglink" nil t)
+
+  (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook))
+    (add-hook hook #'orglink-mode))
+
+  (with-eval-after-load "orglink"
+    (delq 'angle orglink-activate-links)
+    (define-key orglink-mouse-map (kbd "C-c C-o") 'org-open-at-point-global)
+    (define-key orglink-mouse-map (kbd "C-c C-l") 'org-insert-link)))
+;; (add-to-list 'orglink-activate-in-modes 'c++-mode)
+;; (add-to-list 'orglink-activate-in-modes 'c-mode)
 
 (with-eval-after-load "ob-core"
   (when (require 'ob-async nil t)

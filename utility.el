@@ -2,9 +2,11 @@
 ;;
 
 ;;;###autoload
-(defun my-cmd-to-open-iterm2 ()
-  (interactive)
-  (shell-command-to-string "open -a iTerm2.app"))
+(defun my-cmd-to-open-iterm2 (&optional arg)
+  (interactive "P")
+  (shell-command-to-string
+   (concat "open -a iTerm2.app "
+           (when arg default-directory))))
 
 (defvar my-kyoko-mad-mode nil)
 ;;;###autoload

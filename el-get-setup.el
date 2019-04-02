@@ -11,7 +11,6 @@
 ;; "./emacs.d/<emacs-version>/el-get" をインストール先にする．
 ;;
 ;; ----8<---------------------------------------------------->8----
-;;
 (setq el-get-dir
       (expand-file-name "el-get" (locate-user-emacs-file emacs-version)))
 (add-to-list 'load-path (concat el-get-dir "/el-get"))
@@ -35,16 +34,23 @@
 (setq gc-cons-threshold (* 512 1024 1024)) ;; 512MB
 (setq garbage-collection-messages t)
 
+(defun my-reset-elget-links ()
+  (interactive)
+  (when (shell-command-to-string "~/Dropbox/emacs.d/bin/update-elget.sh -r")
+    (message "[el-get] Link updated.")))
+
+(defun ad:el-get-bundle (package &rest form)
+  (my-reset-elget-links))
+
 ;; 出力されるメッセージの整形
 (defun ad:el-get-post-update-notification (package)
   "Notify the PACKAGE has been updated in customized form."
   (el-get-notify "el-get update" (format "%s" package)))
 (advice-add 'el-get-post-update-notification :override
             #'ad:el-get-post-update-notification)
-;;
 ;; ----8<---------------------------------------------------->8----
-;;
 ;; el-get remove を使う場合は，ここまでを評価する．
+;; (advice-add 'el-get-bundle :after #'ad:el-get-bundle) ;; if you wish
 
 ;; Fundamental packages
 ;; (el-get-bundle "loop")
@@ -96,6 +102,7 @@
 (el-get-bundle "dfeich/org-screenshot")
 (el-get-bundle "mallt/org-clock-today-mode")
 (el-get-bundle "alphapapa/org-recent-headings")
+(el-get-bundle "alphapapa/org-bookmark-heading")
 (el-get-bundle "facetframer/orgnav")
 (el-get-bundle "toc-org") ;; using a private recipe to exclude org
 (el-get-bundle "harrybournis/org-fancy-priorities")
@@ -111,6 +118,7 @@
 (el-get-bundle "IvanMalison/org-projectile")
 (el-get-bundle "org-trello")
 (el-get-bundle "emacsmirror/orgalist")
+(el-get-bundle "tarsius/orglink")
 
 ;; Major modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -169,6 +177,12 @@
 ;; (el-get-bundle "tern") ;; require npm
 ;; (el-get-bundle "tern-auto-complete")
 
+;; LSP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(el-get-bundle "emacs-lsp/lsp-mode")
+(el-get-bundle "emacs-lsp/dap-mode")
+(el-get-bundle "emacs-lsp/lsp-ui")
 
 ;; Helm modules
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -244,6 +258,7 @@
 (el-get-bundle "casouri/isolate")
 (el-get-bundle "doublep/logview")
 (el-get-bundle "which-key")
+(el-get-bundle "yanghaoxie/which-key-posframe" :depends (posframe))
 (el-get-bundle "bm")
 (el-get-bundle "emacsmirror/rainbow-mode")
 ;; (el-get-bundle "TheBB/spaceline")

@@ -88,9 +88,11 @@
       (when (and my-skip-check-autoload-file
                  window-system)
         (my-find-missing-packages 10))
-      (if shutup-p
-          (shut-up (require 'private "private.el.gpg" t))
-        (require 'private "private.el.gpg" t))
+      (unless (ignore-errors
+                (if shutup-p
+                    (shut-up (require 'private "private.el.gpg" t))
+                  (require 'private "private.el.gpg" t)))
+        (message "--- GPG decryption error."))
       (require 'my-eshell nil t)
       (require 'my-mail nil t)))
   (when my-profiler-p

@@ -521,7 +521,9 @@
 (set-face-attribute 'mode-line nil :overline "#203e6f" :box nil)
 (set-face-foreground 'mode-line "#203e6f")
 (set-face-background 'mode-line "#b2c8fb")
-
+(unless (display-graphic-p)
+  (set-face-foreground 'mode-line "#96CBFE")
+  (set-face-background 'mode-line "#21252B"))
 (set-face-attribute 'mode-line-inactive nil :overline "#94bbf9" :box nil)
 (set-face-foreground 'mode-line-inactive  "#94bbf9")
 (set-face-background 'mode-line-inactive "#d8e3fd")

@@ -1,4 +1,4 @@
-;; #+date: 2019-03-25
+;; #+date: 2019-04-02
 
 (source gnu)
 (source melpa)
@@ -51,6 +51,9 @@
 (depends-on "org-grep")
 (depends-on "org-clock-today")
 (depends-on "org-recent-headings")
+(depends-on "org-bookmark-heading")
+(depends-on "orglink")
+(depends-on "orgalist" :git "https://github.com/emacsmirror/orgalist.git")
 (depends-on "orgbox")
 (depends-on "orgnav")
 (depends-on "poporg")
@@ -119,6 +122,9 @@
 ;; (depends-on "flycheck-rtags")
 (depends-on "ediff-side-by-side" :git "https://github.com/tarao/ediff-side-by-side-el.git")
 (depends-on "diffview")
+(depends-on "lsp-mode")
+(depends-on "lsp-ui")
+(depends-on "dap-ui")
 
 ;; Helm
 (depends-on "helm")

@@ -128,27 +128,29 @@
   (unless noninteractive
     (ws-butler-global-mode)))
 
-(when (and (executable-find "ag")
-           (autoload-if-found
-            '(my-ag ag)
-            "ag" nil t))
+(if (executable-find "ag")
+    (when (autoload-if-found
+           '(my-ag ag)
+           "ag" nil t)
 
-  (autoload-if-found '(helm-ag) "helm-ag" nil t)
-  (global-set-key (kbd "C-M-f") 'my-ag)
+      (autoload-if-found '(helm-ag) "helm-ag" nil t)
+      (global-set-key (kbd "C-M-f") 'my-ag)
 
-  (with-eval-after-load "ag"
-    (custom-set-variables
-     '(ag-highlight-search t)
-     '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
-     '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
+      (with-eval-after-load "ag"
+        (custom-set-variables
+         '(ag-highlight-search t)
+         '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
+         '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
 
-    ;; q でウィンドウを抜ける
-    ;; (define-key ag-mode-map (kbd "q") 'delete-window)
-    (defun my-ag ()
-      "Switch to search result."
-      (interactive)
-      (call-interactively 'ag)
-      (switch-to-buffer-other-frame "*ag search*"))))
+        ;; q でウィンドウを抜ける
+        ;; (define-key ag-mode-map (kbd "q") 'delete-window)
+        (defun my-ag ()
+          "Switch to search result."
+          (interactive)
+          (call-interactively 'ag)
+          (switch-to-buffer-other-frame "*ag search*"))))
+  (unless noninteractive
+    (message "--- ag is NOT installed in this system.")))
 
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
@@ -339,14 +341,15 @@
           (isearch-repeat-forward)))
     ad-do-it))
 
+(defun my-orgalist-activate ()
+  (when (require 'orgalist nil t)
+    (orgalist-mode 1))) ;; originally orgstruct-mode
+
 (add-hook 'change-log-mode-hook
-          (lambda()
-            (if (require 'orgalist nil t)
-                (when (boundp 'orgalist-mode)
-                  (orgalist-mode 1))
-              (orgstruct-mode))
-            (setq tab-width 4)
-            (setq left-margin 4)))
+          #'(lambda()
+              (my-orgalist-activate)
+              (setq tab-width 4)
+              (setq left-margin 4)))
 
 (when (autoload-if-found
        '(info org-info-ja)
@@ -409,20 +412,21 @@
       (setenv "LC_ALL" "en_US")
       ;; (message "--- hunspell loaded.")
       (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
-      (if shutup-p
-          ;; 必要．しかも ispell-program-name 指定の前で．
-          (shut-up (ispell-change-dictionary "en_US" t))
-        (ispell-change-dictionary "en_US" t))
-      (setq-default ispell-program-name (executable-find "hunspell"))
-      (setq ispell-local-dictionary "en_US")
-      (setq ispell-dictionary ispell-local-dictionary)
-      ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
-
       (setq ispell-local-dictionary-alist
             '(("ja_JP" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
                ("-d" "en_US") nil utf-8)
               ("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
                ("-d" "en_US") nil utf-8)))
+      (setq ispell-local-dictionary "en_US")
+      (setq ispell-dictionary ispell-local-dictionary)
+      (if shutup-p
+          ;; 必要．しかも ispell-program-name 指定の前で．
+          ;; ただし，ispell-local-dictionary-alist の後で．
+          (shut-up (ispell-change-dictionary "en_US" t))
+        (ispell-change-dictionary "en_US" t))
+      (setq-default ispell-program-name (executable-find "hunspell"))
+      ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
+
       (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
       (setq ispell-personal-dictionary "~/Dropbox/emacs.d/.hunspell.en.dic"))
 
@@ -912,6 +916,27 @@ This works also for other defined begin/end tokens to define the structure."
      (smartparens-mode nil "smartparens")
      (projectile-mode nil "projectile")
      (selected-minor-mode nil "selected"))))
+
+(if (executable-find "cmigemo")
+    (when (autoload-if-found
+           '(migemo-init)
+           "migemo" nil t)
+
+      (add-hook 'isearch-mode-hook #'migemo-init)
+
+      (with-eval-after-load "migemo"
+        (custom-set-variables
+         '(completion-ignore-case t) ;; case-independent
+         '(migemo-command "cmigemo")
+         '(migemo-options '("-q" "--emacs" "-i" "\a"))
+         '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
+         '(migemo-user-dictionary nil)
+         '(migemo-regex-dictionary nil)
+         '(migemo-use-pattern-alist t)
+         '(migemo-use-frequent-pattern-alist t)
+         '(migemo-pattern-alist-length 1024)
+         '(migemo-coding-system 'utf-8-unix))))
+  (message "--- cmigemo is NOT installed."))
 
 (when (autoload-if-found
        '(helm-google)
@@ -1652,7 +1677,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)
             (lambda () (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun))))
 
 (if (not (executable-find "gtags"))
-    (message "--- gtags is NOT installed in this system.")
+    (message "--- global is NOT installed in this system.")
 
   (when (autoload-if-found
          '(ggtags-mode)
@@ -1774,7 +1799,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)
         ;;   (add-hook 'editorconfig-custom-hooks
         ;;             #'editorconfig-charset-extras))
         (editorconfig-mode 1)))
-  (message "editorconfig is NOT installed."))
+  (message "--- editorconfig is NOT installed."))
 
 (autoload-if-found '(cov-mode) "cov" nil t)
 
@@ -1800,8 +1825,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)
     (advice-add 'moom-toggle-frame-maximized :after
                 #'ad:olivetti:moom-toggle-frame-maximized)))
 
+(global-set-key (kbd "<f5>") 'my-toggle-mode-line)
 (with-eval-after-load "moom"
-  (define-key moom-mode-map (kbd "<f5>") 'my-toggle-mode-line)
   (defun ad:moom-toggle-frame-maximized ()
     (when (eq major-mode 'org-mode)
       (org-redisplay-inline-images))
