@@ -7,6 +7,8 @@
 ;; https://github.com/alphapapa/outshine
 ;; file:~/Dropbox/org/next.org::*Usage
 
+;; (require 'helm-bookmark nil t)
+;; (when (require 'org-bookmark-heading nil t))
 (with-eval-after-load "org"
   (defun my-insert-org-link-last-captured ()
     (interactive)
@@ -16,9 +18,6 @@
       (sleep-for 1)
       (switch-to-buffer cb))
     (org-insert-link)))
-;; (require 'helm-bookmark nil t)
-;; (when (require 'org-bookmark-heading nil t)
-;;   )
 
 (with-eval-after-load "org-capture"
   ;; ブックマーク入りのノートをキャプチャするテンプレートを追加

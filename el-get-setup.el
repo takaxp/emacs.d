@@ -119,6 +119,7 @@
 (el-get-bundle "org-trello")
 (el-get-bundle "emacsmirror/orgalist")
 (el-get-bundle "tarsius/orglink")
+(el-get-bundle "Fuco1/org-pretty-table")
 
 ;; Major modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

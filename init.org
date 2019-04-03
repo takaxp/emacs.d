@@ -1618,9 +1618,8 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 切り替えるときにミニバッファにバッファ名が列挙されますが，できればセパレータを表示したいところです．FontAwesome を使えば，だいぶ見やすくなるかも．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (display-graphic-p)
-  (global-set-key (kbd "M-]") 'bs-cycle-next)
-  (global-set-key (kbd "M-[") 'bs-cycle-previous))
+(global-set-key (kbd "M-]") 'bs-cycle-next)
+(global-set-key (kbd "M-[") 'bs-cycle-previous)
 
 (with-eval-after-load "bs"
   (custom-set-variables
@@ -1777,9 +1776,8 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
        '(cycle-buffer cycle-buffer-backward)
        "cycle-buffer" nil t)
 
-  (when (display-graphic-p)
-    (global-set-key (kbd "M-]") 'cycle-buffer)
-    (global-set-key (kbd "M-[") 'cycle-buffer-backward))
+  (global-set-key (kbd "M-]") 'cycle-buffer)
+  (global-set-key (kbd "M-[") 'cycle-buffer-backward)
 
   (with-eval-after-load "cycle-buffer"
     (custom-set-variables
@@ -1897,7 +1895,7 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
    :CUSTOM_ID: orgf6cb5849
    :END:
 
-24.4 からは， =rectangle-mark-mode= が使えるようになり， =C-x SPC= を押下すると矩形モードに入り直感的に矩形選択ができるようになっています．
+24.4 からは， =rectangle-mark-mode= が使えるようになり， =C-x SPC= を押下すると矩形モードに入り直感的に矩形選択ができる．
 
 標準の rect.el に以下の機能が実装されている．
 
@@ -6814,7 +6812,9 @@ will not be modified."
              "** TODO %?\n\t")
             ("d" "Doingタグ付きのタスクをInboxに投げる" entry
              (file+headline ,org-default-notes-file "INBOX")
-             "** TODO %? :Doing:\n  - \n")
+             "** TODO %? :Doing:\n  - \n"
+             :clock-in t
+             :clock-keep t)
             ("l" "本日のチェックリスト" entry
              (file+headline ,org-capture-diary-file "Today")
              "** FOCUS 本日のチェックリスト %T\n（起床時間の記録）[[http://www.hayaoki-seikatsu.com/users/takaxp/][早起き日記]] \n（朝食）\n  - [ ] %?\n（昼食）\n（帰宅／夕食）\n----\n（研究速報）\n  - [ ] \n")
@@ -6856,7 +6856,7 @@ will not be modified."
             ))))
 #+end_src
 
-** [org-agenda] タスク／予定管理
+** TODO [org-agenda] タスク／予定管理                                 :Doing:
    :PROPERTIES:
    :CUSTOM_ID: orgc3302e41
    :END:
@@ -6986,7 +6986,7 @@ will not be modified."
     (my-org-agenda-to-appt)) ;; call with async
   (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done))
 
-;; Doing 管理
+;; Doing 管理（org-clock-in/org-clock-out を紐づけ）
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "<f11>") 'my-toggle-doing-tag)
   (define-key org-mode-map (kbd "C-<f11>") 'my-sparse-doing-tree)
@@ -6997,7 +6997,12 @@ will not be modified."
     (interactive)
     (org-tags-view nil my-doing-tag))
 
-  ;; Doingタグをトグルする
+  (defun my-doing-p ()
+    (string-match
+     (concat ":" my-doing-tag ":")
+     (org-get-tags-string)))
+
+  ;; Doingタグをトグルする（clock-in/-out を自動化）
   (defun my-toggle-doing-tag ()
     (interactive)
     (when (eq major-mode 'org-mode)
@@ -7007,12 +7012,23 @@ will not be modified."
           ;; before 9
           ;; (unless (org-at-heading-p)
           ;;   (outline-previous-heading))
-          (org-toggle-tag my-doing-tag
-                          (if (string-match
-                               (concat ":" my-doing-tag ":")
-                               (org-get-tags-string))
-                              'off 'on))))
-      (org-reveal))))
+          (if (my-doing-p)
+              (progn
+                (when (org-clocking-p)
+                  (org-clock-out))
+                (org-toggle-tag my-doing-tag 'off))
+            (progn
+              (unless (looking-at
+                       (concat "^\\*+ " org-not-done-regexp))
+                (org-todo "TODO")) ;; already done, reboot the task.
+              (org-clock-in)
+              (org-toggle-tag my-doing-tag 'on)))))
+      (org-reveal)))
+
+  (defun my-remove-doing-tag ()
+    (when (my-doing-p)
+      (org-toggle-tag my-doing-tag 'off)))
+  (add-hook 'org-clock-out-hook #'my-remove-doing-tag))
 #+end_src
 
 入門者にとって =org-agenda= は簡単ではないので，無理に使わなくて良いと思います．Org Modeの動作に十分慣れたら戻ってくる程度で十分です．
@@ -7893,17 +7909,26 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 ** [orglink.el] Orgファイル以外でリンクを使う
    :PROPERTIES:
    :CUSTOM_ID: org5cc51a8d
+   :CREATED:  [2019-04-02 Tue 17:27]
    :END:
 
 指定したモードのバッファで， =org mode= と同じリンク機能を使えるようにします．
 
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found
-       '(orglink-mode global-orglink-mode)
+       '(orglink-mode global-orglink-mode my-orglink-mode-activate)
        "orglink" nil t)
 
+  (defun my-orglink-mode-activate ()
+    (orglink-mode 1)
+    (setq orglink-mode-lighter "")
+    ;; バッファローカルに色つけを消す
+    (face-remap-add-relative 'org-link
+                             :underline nil
+                             :inherit font-lock-comment-delimiter-face))
+
   (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook))
-    (add-hook hook #'orglink-mode))
+    (add-hook hook #'my-orglink-mode-activate))
 
   (with-eval-after-load "orglink"
     (delq 'angle orglink-activate-links)

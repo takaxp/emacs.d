@@ -506,7 +506,9 @@ will not be modified."
              "** TODO %?\n\t")
             ("d" "Doingタグ付きのタスクをInboxに投げる" entry
              (file+headline ,org-default-notes-file "INBOX")
-             "** TODO %? :Doing:\n  - \n")
+             "** TODO %? :Doing:\n  - \n"
+             :clock-in t
+             :clock-keep t)
             ("l" "本日のチェックリスト" entry
              (file+headline ,org-capture-diary-file "Today")
              "** FOCUS 本日のチェックリスト %T\n（起床時間の記録）[[http://www.hayaoki-seikatsu.com/users/takaxp/][早起き日記]] \n（朝食）\n  - [ ] %?\n（昼食）\n（帰宅／夕食）\n----\n（研究速報）\n  - [ ] \n")
@@ -682,7 +684,12 @@ will not be modified."
     (interactive)
     (org-tags-view nil my-doing-tag))
 
-  ;; Doingタグをトグルする
+  (defun my-doing-p ()
+    (string-match
+     (concat ":" my-doing-tag ":")
+     (org-get-tags-string)))
+
+  ;; Doingタグをトグルする（clock-in/-out を自動化）
   (defun my-toggle-doing-tag ()
     (interactive)
     (when (eq major-mode 'org-mode)
@@ -692,12 +699,32 @@ will not be modified."
           ;; before 9
           ;; (unless (org-at-heading-p)
           ;;   (outline-previous-heading))
-          (org-toggle-tag my-doing-tag
-                          (if (string-match
-                               (concat ":" my-doing-tag ":")
-                               (org-get-tags-string))
-                              'off 'on))))
-      (org-reveal))))
+          (if (my-doing-p)
+              (progn
+                (when (org-clocking-p)
+                  (org-clock-out))
+                (org-toggle-tag my-doing-tag 'off))
+            (progn
+              (unless (looking-at
+                       (concat "^\\*+ " org-not-done-regexp))
+                (org-todo "TODO"))
+              (org-clock-in)
+              (org-toggle-tag my-doing-tag 'on)))))
+      (org-reveal)))
+
+  (defun my-remove-doing-tag ()
+    (when (my-doing-p)
+      (org-toggle-tag my-doing-tag 'off)))
+
+  (add-hook 'org-clock-out-hook
+           #'my-remove-doing-tag)
+
+  ;; (defun ad:doing:org-todo (&optional _arg)
+  ;;   (when (and (my-doing-p)
+  ;;              (org-clocking-p))
+  ;;     (org-toggle-tag my-doing-tag 'off)))
+  ;; (advice-add 'org-todo :before #'ad:doing:org-todo)
+  )
 
 (with-eval-after-load "org"
   (require 'orgbox nil t))
@@ -1310,18 +1337,29 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
          (lambda () (my-org-custom-id-get (point) 'create)))))))
 
 (when (autoload-if-found
-       '(orglink-mode global-orglink-mode)
+       '(orglink-mode global-orglink-mode my-orglink-mode-activate)
        "orglink" nil t)
 
+  (defun my-orglink-mode-activate ()
+    (orglink-mode 1)
+    (setq orglink-mode-lighter "")
+    ;; バッファローカルに色つけを消す
+    (face-remap-add-relative 'org-link
+                             :underline nil
+                             :inherit font-lock-comment-delimiter-face))
+
   (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook))
-    (add-hook hook #'orglink-mode))
+    (add-hook hook #'my-orglink-mode-activate))
 
   (with-eval-after-load "orglink"
     (delq 'angle orglink-activate-links)
     (define-key orglink-mouse-map (kbd "C-c C-o") 'org-open-at-point-global)
     (define-key orglink-mouse-map (kbd "C-c C-l") 'org-insert-link)))
+
 ;; (add-to-list 'orglink-activate-in-modes 'c++-mode)
 ;; (add-to-list 'orglink-activate-in-modes 'c-mode)
+;; (when (require 'orglink nil t)
+;;   (global-orglink-mode))
 
 (with-eval-after-load "ob-core"
   (when (require 'ob-async nil t)

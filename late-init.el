@@ -213,9 +213,8 @@
      '(smooth-scroll/hscroll-step-size 6)))
   (smooth-scroll-mode t))
 
-(when (display-graphic-p)
-  (global-set-key (kbd "M-]") 'bs-cycle-next)
-  (global-set-key (kbd "M-[") 'bs-cycle-previous))
+(global-set-key (kbd "M-]") 'bs-cycle-next)
+(global-set-key (kbd "M-[") 'bs-cycle-previous)
 
 (with-eval-after-load "bs"
   (custom-set-variables

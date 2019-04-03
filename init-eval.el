@@ -73,6 +73,7 @@
 (require 'helm-swoop nil t)
 (require 'projectile nil t)
 (require 'backup-each-save nil t)
+(require 'orglink nil t)
 
 (if (require 'shut-up nil t)
     (progn
