@@ -6169,7 +6169,7 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
   :PROPERTIES:
   :CUSTOM_ID: org47616d05
   :END:
-** 基本設定                                                           :Doing:
+** 基本設定
    :PROPERTIES:
    :CUSTOM_ID: orgf66bb6fe
    :END:
@@ -6203,8 +6203,19 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (add-to-list 'org-modules 'ox-odt)
     (add-to-list 'org-modules 'ox-org))
 
-  (with-eval-after-load "org"
+  (with-eval-after-load "org-tempo"
+    ;; 空行のときインデントさせない（Thanks to @conao3）
+    (when (require 'cl nil t)
+      (defun ad:org-tempo-complete-tag (f &rest arg)
+        (if (save-excursion
+              (beginning-of-line)
+              (looking-at "<"))
+            (flet ((indent-according-to-mode () #'ignore))
+              (apply f arg))
+          (apply f arg)))
+      (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
 
+  (with-eval-after-load "org"
     ;; 関連モジュールの読み込み
     (add-to-list 'org-modules 'org-habit)
     (require 'org-mobile nil t)
@@ -6217,8 +6228,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (when (require 'bookmark nil t)
       ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
       (add-to-list 'org-modules 'ol-bookmark)
-      ;; 変更直後に保存
-      (setq bookmark-save-flag 1)
+      (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
       ;; `bookmark-default-file' の読み込み
       (bookmark-maybe-load-default-file))
 
@@ -6271,6 +6281,14 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
     ;; 1分未満は記録しない
     (setq org-clock-out-remove-zero-time-clocks t)
+
+    ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
+    (defun my-promote-todo-revision (state)
+      (cond ((member state '("TODO")) "REV1")
+            ((member state '("REV1")) "REV2")
+            ((member state '("REV2")) "REV3")
+            (t state)))
+    (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -6859,6 +6877,7 @@ will not be modified."
 ** TODO [org-agenda] タスク／予定管理                                 :Doing:
    :PROPERTIES:
    :CUSTOM_ID: orgc3302e41
+   :ID:       6F2FC4AF-064B-46DA-9F48-6097A81004B7
    :END:
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -6986,16 +7005,47 @@ will not be modified."
     (my-org-agenda-to-appt)) ;; call with async
   (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done))
 
+(with-eval-after-load "org-clock"
+  ;; org heading を意図通りに bookmark するためのパッケージを読み込む
+  ;; 無くても良いが，並び替えや refile で bookmark が壊れる．
+  (unless (require 'org-bookmark-heading nil t)
+    (message "--- org-bookmark-heading is NOT installed."))
+
+  (defun ad:org-clock-goto (f &optional select)
+    "Go to the current task if the clock is working.
+  After restart Emacs, try to restore the task from `bookmark'."
+    (let ((bm (bookmark-get-bookmark my-org-clock-bookmark 'noerror)))
+      (cond ((and (require 'org-bookmark-heading nil t) ;; most reliable
+                  bm)
+             (bookmark-jump my-org-clock-bookmark)) ;; call org-bookmark-jump
+            (org-clock-history
+             (apply f select))
+            (bm
+             (bookmark-jump my-org-clock-bookmark) ;; use normal bookmark
+             (org-back-to-heading t))
+            (t (message "No clock is found to be shown")))))
+  (advice-add 'org-clock-goto :around #'ad:org-clock-goto))
+
 ;; Doing 管理（org-clock-in/org-clock-out を紐づけ）
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "<f11>") 'my-toggle-doing-tag)
-  (define-key org-mode-map (kbd "C-<f11>") 'my-sparse-doing-tree)
+  (define-key org-mode-map (kbd "M-<f11>") 'my-sparse-doing-tree)
+  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
 
-  ;; 特定タグを持つツリーリストに一発移動（org-tags-view, org-tree-slide）
+  ;; 特定タグを持つツリーリストに一発移動（org-tags-view）
   (defvar my-doing-tag "Doing")
   (defun my-sparse-doing-tree ()
     (interactive)
     (org-tags-view nil my-doing-tag))
+
+  ;; 最後にチェックインしたタスク用のブックマークを準備
+  (defvar my-org-clock-bookmark "org-clock-last-clock-in")
+  (defun my-org-clock-bookmark-set ()
+    (save-excursion
+      (save-restriction
+        (org-back-to-heading t)
+        (bookmark-set my-org-clock-bookmark))))
+  (add-hook 'org-clock-in-hook #'my-org-clock-bookmark-set)
 
   (defun my-doing-p ()
     (string-match
@@ -7018,8 +7068,7 @@ will not be modified."
                   (org-clock-out))
                 (org-toggle-tag my-doing-tag 'off))
             (progn
-              (unless (looking-at
-                       (concat "^\\*+ " org-not-done-regexp))
+              (when (org-entry-is-done-p)
                 (org-todo "TODO")) ;; already done, reboot the task.
               (org-clock-in)
               (org-toggle-tag my-doing-tag 'on)))))
@@ -7939,6 +7988,45 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 ;; (add-to-list 'orglink-activate-in-modes 'c-mode)
 ;; (when (require 'orglink nil t)
 ;;   (global-orglink-mode))
+#+end_src
+
+** [org-trello.el] Trello と双方向同期する
+   :PROPERTIES:
+   :CUSTOM_ID: org8480b85f
+   :CREATED:  [2019-04-04 Thu 03:12]
+   :END:
+
+[[https://trello.com/][Trello]] と特定の org バッファを同期します．コンフリクトを避けるために，明示的に =pull= と =push= をする関数を定義して使います．非常に強力で，外出時に簡易的にモバイル端末でタスクを追加したり，ブラウザでグラフィカルにタスクを追加できます．
+
+落ち着いてEmacsを使う状況になたら， =pull= してバッファに反映します． =DONE= になったタスクや，別な org バッファで管理したいはタスクは， =org-refile= で移してしまえば良いです．そして，整理ができたら， =push= して，次のモバイル環境での編集に備えます．
+
+#+begin_src emacs-lisp :tangle late-init.el
+;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
+;; 2. M-x org-trello-install-key-and-token
+;; ~/.emacs.d/.trello/<account>.el が作られる
+;; 3. M-x org-trello-install-board-metadata
+;; Trello 側の情報を基にして current-buffer にプロパティブロックが挿入される
+;; 4. C-u M-x org-trello-sync-buffer で pull
+;; 5. M-x org-trello-sync-buffer で push
+(when (autoload-if-found
+       '(my-push-trello my-pull-trello my-activate-org-trello)
+       "org-trello" nil t)
+
+  (defvar org-trello-current-prefix-keybinding nil) ;; To avoid an error
+  (add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
+  (defun my-activate-org-trello ()
+    (let ((filename (buffer-file-name (current-buffer))))
+      (when (and filename
+                 (string= "trello" (file-name-extension filename))
+                 (require 'org-trello nil t))
+        (org-trello-mode))))
+  (add-hook 'org-mode-hook #'my-activate-org-trello)
+
+  (with-eval-after-load "org-trello"
+    (defun my-push-trello-card () (interactive) (org-trello-sync-card))
+    (defun my-pull-trello-card () (interactive) (org-trello-sync-card t))
+    (defun my-push-trello () (interactive) (org-trello-sync-buffer))
+    (defun my-pull-trello () (interactive) (org-trello-sync-buffer t))))
 #+end_src
 
 ** TODO [ob-async] ソースブロックの非同期実行

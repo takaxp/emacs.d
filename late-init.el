@@ -1806,6 +1806,33 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 
 (autoload-if-found '(rmsbolt-mode) "rmsbolt" nil t)
 
+;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
+;; 2. M-x org-trello-install-key-and-token
+;; ~/.emacs.d/.trello/<account>.el が作られる
+;; 3. M-x org-trello-install-board-metadata
+;; Trello 側の情報を基にして current-buffer にプロパティブロックが挿入される
+;; 4. C-u M-x org-trello-sync-buffer で pull
+;; 5. M-x org-trello-sync-buffer で push
+(when (autoload-if-found
+       '(my-push-trello my-pull-trello my-activate-org-trello)
+       "org-trello" nil t)
+
+  (defvar org-trello-current-prefix-keybinding nil) ;; To avoid an error
+  (add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
+  (defun my-activate-org-trello ()
+    (let ((filename (buffer-file-name (current-buffer))))
+      (when (and filename
+                 (string= "trello" (file-name-extension filename))
+                 (require 'org-trello nil t))
+        (org-trello-mode))))
+  (add-hook 'org-mode-hook #'my-activate-org-trello)
+
+  (with-eval-after-load "org-trello"
+    (defun my-push-trello-card () (interactive) (org-trello-sync-card))
+    (defun my-pull-trello-card () (interactive) (org-trello-sync-card t))
+    (defun my-push-trello () (interactive) (org-trello-sync-buffer))
+    (defun my-pull-trello () (interactive) (org-trello-sync-buffer t))))
+
 (with-eval-after-load "moom"
   (when (require 'olivetti nil t)
     (setq olivetti-lighter nil)

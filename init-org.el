@@ -33,8 +33,19 @@
     (add-to-list 'org-modules 'ox-odt)
     (add-to-list 'org-modules 'ox-org))
 
-  (with-eval-after-load "org"
+  (with-eval-after-load "org-tempo"
+    ;; 空行のときインデントさせない Thanks to @conao3
+    (when (require 'cl nil t)
+      (defun ad:org-tempo-complete-tag (f &rest arg)
+        (if (save-excursion
+              (beginning-of-line)
+              (looking-at "<"))
+            (flet ((indent-according-to-mode () #'ignore))
+              (apply f arg))
+          (apply f arg))))
+    (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 
+  (with-eval-after-load "org"
     ;; 関連モジュールの読み込み
     (add-to-list 'org-modules 'org-habit)
     (require 'org-mobile nil t)
@@ -47,8 +58,7 @@
     (when (require 'bookmark nil t)
       ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
       (add-to-list 'org-modules 'ol-bookmark)
-      ;; 変更直後に保存
-      (setq bookmark-save-flag 1)
+      (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
       ;; `bookmark-default-file' の読み込み
       (bookmark-maybe-load-default-file))
 
@@ -101,6 +111,14 @@
 
     ;; 1分未満は記録しない
     (setq org-clock-out-remove-zero-time-clocks t)
+
+    ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
+    (defun my-promote-todo-revision (state)
+      (cond ((member state '("TODO")) "REV1")
+            ((member state '("REV1")) "REV2")
+            ((member state '("REV2")) "REV3")
+            (t state)))
+    (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -673,16 +691,47 @@ will not be modified."
     (my-org-agenda-to-appt)) ;; call with async
   (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done))
 
-;; Doing 管理
+(with-eval-after-load "org-clock"
+  ;; org heading を意図通りに bookmark するためのパッケージを読み込む
+  ;; 無くても良いが，並び替えや refile で bookmark が壊れる．
+  (unless (require 'org-bookmark-heading nil t)
+    (message "--- org-bookmark-heading is NOT installed."))
+
+  (defun ad:org-clock-goto (f &optional select)
+    "Go to the current task if the clock is working.
+  After restart Emacs, try to restore the task from `bookmark'."
+    (let ((bm (bookmark-get-bookmark my-org-clock-bookmark 'noerror)))
+      (cond ((and (require 'org-bookmark-heading nil t) ;; most reliable
+                  bm)
+             (bookmark-jump my-org-clock-bookmark)) ;; call org-bookmark-jump
+            (org-clock-history
+             (apply f select))
+            (bm
+             (bookmark-jump my-org-clock-bookmark) ;; use normal bookmark
+             (org-back-to-heading t))
+            (t (message "No clock is found to be shown")))))
+  (advice-add 'org-clock-goto :around #'ad:org-clock-goto))
+
+;; Doing 管理（org-clock-in/org-clock-out を紐づけ）
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "<f11>") 'my-toggle-doing-tag)
-  (define-key org-mode-map (kbd "C-<f11>") 'my-sparse-doing-tree)
+  (define-key org-mode-map (kbd "M-<f11>") 'my-sparse-doing-tree)
+  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
 
-  ;; 特定タグを持つツリーリストに一発移動（org-tags-view, org-tree-slide）
+  ;; 特定タグを持つツリーリストに一発移動（org-tags-view）
   (defvar my-doing-tag "Doing")
   (defun my-sparse-doing-tree ()
     (interactive)
     (org-tags-view nil my-doing-tag))
+
+  ;; 最後にチェックインしたタスク用のブックマークを準備
+  (defvar my-org-clock-bookmark "org-clock-last-clock-in")
+  (defun my-org-clock-bookmark-set ()
+    (save-excursion
+      (save-restriction
+        (org-back-to-heading t)
+        (bookmark-set my-org-clock-bookmark))))
+  (add-hook 'org-clock-in-hook #'my-org-clock-bookmark-set)
 
   (defun my-doing-p ()
     (string-match
@@ -705,9 +754,8 @@ will not be modified."
                   (org-clock-out))
                 (org-toggle-tag my-doing-tag 'off))
             (progn
-              (unless (looking-at
-                       (concat "^\\*+ " org-not-done-regexp))
-                (org-todo "TODO"))
+              (when (org-entry-is-done-p)
+                (org-todo "TODO")) ;; already done, reboot the task.
               (org-clock-in)
               (org-toggle-tag my-doing-tag 'on)))))
       (org-reveal)))
@@ -715,16 +763,7 @@ will not be modified."
   (defun my-remove-doing-tag ()
     (when (my-doing-p)
       (org-toggle-tag my-doing-tag 'off)))
-
-  (add-hook 'org-clock-out-hook
-           #'my-remove-doing-tag)
-
-  ;; (defun ad:doing:org-todo (&optional _arg)
-  ;;   (when (and (my-doing-p)
-  ;;              (org-clocking-p))
-  ;;     (org-toggle-tag my-doing-tag 'off)))
-  ;; (advice-add 'org-todo :before #'ad:doing:org-todo)
-  )
+  (add-hook 'org-clock-out-hook #'my-remove-doing-tag))
 
 (with-eval-after-load "org"
   (require 'orgbox nil t))
