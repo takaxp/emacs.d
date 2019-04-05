@@ -7,24 +7,45 @@
 ;; https://github.com/alphapapa/outshine
 ;; file:~/Dropbox/org/next.org::*Usage
 
-;; (require 'helm-bookmark nil t)
-;; (when (require 'org-bookmark-heading nil t))
-(with-eval-after-load "org"
-  (defun my-insert-org-link-last-captured ()
-    (interactive)
-    (let ((cb (current-buffer)))
-      (org-capture-goto-last-stored)
-      (org-store-link nil)
-      (sleep-for 1)
-      (switch-to-buffer cb))
-    (org-insert-link)))
+;; Trying LSP
+(when (autoload-if-found
+       '(lsp-mode)
+       "lsp" nil t)
+  ;; https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
+
+  (add-hook 'c-mode-common-hook #'lsp)
+  (add-hook 'python-mode-hook #'lsp)
+  (add-hook 'lsp-mode-hook #'lsp-ui-mode)
+
+  (with-eval-after-load "lsp"
+    (setq lsp-prefer-flymake nil)
+    (setq lsp-clients-clangd-args '("-j=4" "-background-index" "-log=error")))
+
+  (with-eval-after-load "lsp-ui"
+    (setq lsp-ui-doc-enable t
+          lsp-ui-doc-use-childframe t
+          lsp-ui-doc-position 'top
+          lsp-ui-doc-include-signature t
+          lsp-ui-sideline-enable nil
+          lsp-ui-flycheck-enable t
+          lsp-ui-flycheck-list-position 'right
+          lsp-ui-flycheck-live-reporting t
+          lsp-ui-peek-enable t
+          lsp-ui-peek-list-width 60
+          lsp-ui-peek-peek-height 25)))
+
 
 (with-eval-after-load "org-capture"
   ;; ブックマーク入りのノートをキャプチャするテンプレートを追加
   (setq org-capture-templates
         `(("u" "subtree with a bookmark" entry
-           (file+headline "~/Desktop/hoge1.org" "INBOX")
-           "** TODO %(message \"%s\" my-captured-bookmark-last)\n%?\n%(my-get-org-bookmark)")))
+           (file+headline "~/Desktop/hoge.org" "INBOX")
+           "** TODO %(message \"%s\" my-captured-bookmark-last)\n%?\n%(my-get-org-bookmark)")
+          ("U" "subtree with a bookmark" entry
+           (file+headline "~/Desktop/hoge.org" "INBOX")
+           "** TODO %(message \"%s\" my-captured-bookmark-last)\n%?\n%(my-get-org-bookmark)" :prepend t)
+          ("m" "MEMO" entry (file+olp+datetree "~/Desktop/hoge.org" "Memo") "***** %U\n(m)%?" :prepend t)
+          ("M" "MEMO" entry (file+olp+datetree "~/Desktop/hoge.org" "Memo") "***** %U\n(M)%?" :prepend nil)))
 
   ;; キャプチャ直前に記録するブックマークの名前を記録
   (defvar my-captured-bookmark-last nil)
@@ -170,7 +191,7 @@ a number of clock tables."
         (end-of-line 0))))
   (advice-add 'org-clocktable-steps :override #'ad:org-clocktable-steps))
 
-;; Testing
+;; Testing company-mode
 (with-eval-after-load "postpone"
   (when (require 'company nil t)
     (define-key company-active-map (kbd "C-n") 'company-select-next)
@@ -178,19 +199,14 @@ a number of clock tables."
     (define-key company-search-map (kbd "C-n") 'company-select-next)
     (define-key company-search-map (kbd "C-p") 'company-select-previous)
     (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
-
     ;; To complete file path, move `company-files' to the fist item of the list
     (delq 'company-files company-backends)
     (add-to-list 'company-backends 'company-files)
-
     ;; 補完候補に番号を表示
     (setq company-show-numbers t)
-
     (global-company-mode))
-
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode)))
-
 
 ;; Fontawesome 拡張
 (with-eval-after-load "postpone"
@@ -213,31 +229,11 @@ a number of clock tables."
   (ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode1)
   (ad-activate 'font-lock-mode))
 
-;; org-trello
-(with-eval-after-load "postpone"
-  (defvar org-trello-current-prefix-keybinding nil) ;; To avoid an error
-  ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
-  ;; 2. M-x org-trello-install-key-and-token
-  ;; ~/.emacs.d/.trello/<account>.el が作られる
-  ;; 3. M-x org-trello-install-board-metadata
-  ;; Trello 側の情報を基にして current-buffer にプロパティブロックが挿入される
-  ;; 4. C-u M-x org-trello-sync-buffer で pull
-  ;; 5. M-x org-trello-sync-buffer で push
-  (add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
-  (defun my-activate-org-trello ()
-    (let ((filename (buffer-file-name (current-buffer))))
-      (when (and filename
-                 (string= "trello" (file-name-extension filename))
-                 (require 'org-trello nil t))
-        (org-trello-mode))))
-  (add-hook 'org-mode-hook #'my-activate-org-trello))
-
-;; FIXME 同期するとカード記述の情報が繰り返しインデントされてしまう．
-(with-eval-after-load "org-trello"
-  (defun my-push-trello-card () (interactive) (org-trello-sync-card))
-  (defun my-pull-trello-card () (interactive) (org-trello-sync-card t))
-  (defun my-push-trello () (interactive) (org-trello-sync-buffer))
-  (defun my-pull-trello () (interactive) (org-trello-sync-buffer t)))
+;; (when (require 'hi-lock nil t)
+;;   (highlight-phrase "")
+;;   (highlight-phrase "")
+;;   (highlight-phrase "")
+;;   (global-hi-lock-mode))
 
 ;; To decrypt old sub trees
 ;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)
