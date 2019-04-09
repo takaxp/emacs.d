@@ -233,6 +233,8 @@
 (el-get-bundle "abo-abo/hydra")
 ;; (el-get-bundle "parinfer")
 (el-get-bundle "magnars/expand-region.el" :name expand-region)
+(el-get-bundle "mattiase/xr")
+(el-get-bundle "mattiase/relint")
 
 ;; Visualize
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -263,7 +265,10 @@
 (el-get-bundle "bm")
 (el-get-bundle "emacsmirror/rainbow-mode")
 ;; (el-get-bundle "TheBB/spaceline")
-(el-get-bundle "seagle0128/doom-modeline")
+(el-get-bundle "shrink-path"
+               :type git
+               :url "https://gitlab.com/bennya/shrink-path.el.git")
+ (el-get-bundle "seagle0128/doom-modeline")
 (el-get-bundle "disk-usage"
                :type git
                :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")

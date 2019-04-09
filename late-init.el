@@ -1790,6 +1790,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)
             '(("~/devel/git" . 1)
               ("~/devel/mygit" . 1))))))
 
+(autoload-if-found '(relint-current-buffer) "relint" nil t)
+
 (if (executable-find "editorconfig")
     (when (require 'editorconfig nil t)
       (unless noninteractive
@@ -1805,6 +1807,28 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 (require 'format-all nil t)
 
 (autoload-if-found '(rmsbolt-mode) "rmsbolt" nil t)
+
+(defun my-company-activate ()
+  (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
+  (remove-hook 'org-mode-hook #'my-company-activate)
+  (require 'company nil t))
+(add-hook 'emacs-lisp-mode-hook #'my-company-activate)
+(add-hook 'org-mode-hook #'my-company-activate)
+
+(with-eval-after-load "company"
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+  (define-key company-active-map (kbd "C-p") 'company-select-previous)
+  (define-key company-search-map (kbd "C-n") 'company-select-next)
+  (define-key company-search-map (kbd "C-p") 'company-select-previous)
+  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
+  ;; To complete file path, move `company-files' to the fist item of the list
+  (delq 'company-files company-backends)
+  (add-to-list 'company-backends 'company-files)
+  ;; 補完候補に番号を表示
+  (setq company-show-numbers t)
+  (global-company-mode)
+  (when (require 'company-quickhelp nil t)
+    (company-quickhelp-mode)))
 
 ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
 ;; 2. M-x org-trello-install-key-and-token

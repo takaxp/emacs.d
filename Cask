@@ -1,4 +1,4 @@
-;; #+date: 2019-04-02
+;; #+date: 2019-04-07
 
 (source gnu)
 (source melpa)
@@ -161,13 +161,14 @@
 (depends-on "auto-complete-clang")
 (depends-on "company")
 (depends-on "company-quickhelp")
-y(depends-on "ac-js2")
+(depends-on "ac-js2")
 (depends-on "migemo")
 (depends-on "edit-color-stamp")
 (depends-on "tiny")
 (depends-on "olivetti")
 ;; (depends-on "parinfer")
 (depends-on "hydra")
+;; (depends-on "relint") ;; not registered.
 
 ;; Visualize
 (depends-on "volatile-highlights")

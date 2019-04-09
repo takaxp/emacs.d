@@ -75,6 +75,7 @@
 (require 'backup-each-save nil t)
 (require 'orglink nil t)
 (require 'org-trello nil t)
+(require 'company nil t)
 
 (if (require 'shut-up nil t)
     (progn

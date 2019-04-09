@@ -5646,101 +5646,6 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 ;; 'javascript-gjslint)
 #+end_src
 
-** [auto-complete.el] 自動補完機能
-   :PROPERTIES:
-   :CUSTOM_ID: org09687b9c
-   :END:
-
-http://cx4a.org/software/auto-complete/manual.ja.html
-
-  - 辞書データを使う（ =ac-dictionary-directories= ）
-  - auto-complete.el, auto-complete-config.el, fuzzy.el, popup.el を使う．
-  - [[http://cx4a.org/software/auto-complete/manual.ja.html][日本語マニュアル]]
-  - ac-auto-start を 4 にしておけば，3文字までは TAB を yasnippet に渡せる．
-
-Org-mode ユーザにとって =TAB= は非常に重要なコマンド．そこに =auto-complete= と =yasnippet= が =TAB= を奪いに来るので，住み分けが重要になる．=ac-auto-start= を=4=にすると，<s=TAB= によるソースブロックの短縮入力を =yasnippet= で実行できる（この目的だけならば=3=を指定してもいい）．<sys などと4文字入力すると，=auto-complete= が動いて <system> などを補完してくれる．もちろん，見出しで =TAB= を押すときには，ツリーの表示／非表示の切り替えになる．
-
-情報源については，[[http://cx4a.org/software/auto-complete/manual.ja.html#.E6.A8.99.E6.BA.96.E6.83.85.E5.A0.B1.E6.BA.90][オンラインマニュアル]]を参照のこと．
-
-auto-complete が正しく効いているかは，バッファ内で適当にパスを打ち込んで，補完候補が表示されるかで判定判定できると思います（ =/home= を入力とか）
-
-#+begin_src emacs-lisp :tangle no
-(when (autoload-if-found
-       '(ac-default-setup ac-org-mode-setup)
-       "auto-complete" nil t)
-
-  (dolist (hook
-           (list 'org-mode-hook 'python-mode-hook
-                 'perl-mode-hook 'objc-mode-hook))
-    (add-hook hook #'ac-default-setup))
-
-  ;; *scratch* バッファでは無効化
-  (add-hook 'lisp-mode-hook
-            (lambda () (unless (equal "*scratch*" (buffer-name))
-                         (ac-default-setup))))
-  (add-hook 'org-mode-hook #'ac-org-mode-setup)
-
-  (with-eval-after-load "auto-complete"
-    (require 'auto-complete-config nil t)
-    (ac-config-default)
-    ;; 追加のメジャーモードを設定
-    (add-to-list 'ac-modes 'objc-mode)
-    (add-to-list 'ac-modes 'org-mode)
-    (add-to-list 'ac-modes 'latex-mode)
-    (require 'ac-math nil t)
-
-    ;; ac-modes にあるメジャーモードで有効にする
-    ;;lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
-    (global-auto-complete-mode t)
-    ;; 辞書
-    (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
-    ;; history
-    (setq ac-comphist-file "~/Dropbox/config/ac-comphist.dat")
-    ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
-    (setq ac-auto-start 4)
-    ;; n秒後にメニューを表示
-    (setq ac-auto-show-menu 2.0)
-    ;; ツールチップの表示
-    (setq ac-use-quick-help t)
-    (setq ac-quick-help-delay 2.0)
-    (setq ac-quick-help-height 10)
-    ;; C-n/C-p でメニューをたどる
-    (setq ac-use-menu-map t)
-    ;; TAB で補完（org-mode でも効くようにする）
-    (define-key ac-completing-map [tab] 'ac-complete)
-    ;; RET での補完を禁止
-    (define-key ac-completing-map "\r" nil)
-    ;; 補完メニューの表示精度を高める
-    (setq popup-use-optimized-column-computation nil)
-    ;;(setq ac-candidate-max 10)
-
-    (defun ac-org-mode-setup ()
-      ;;            (message " >> ac-org-mode-setup")
-      (setq ac-sources '(
-                         ac-source-abbrev ; Emacs の略語
-                         ;; ac-source-css-property ; heavy
-                         ac-source-dictionary ; 辞書
-                         ac-source-features
-                         ac-source-filename
-                         ac-source-files-in-current-dir
-                         ac-source-functions
-                         ;; ac-source-gtags
-                         ;; ac-source-imenu
-                         ;; ac-source-semantic
-                         ac-source-symbols
-                         ac-source-variables
-                         ;; ac-source-yasnippet
-                         )))
-
-    (defun ac-default-setup ()
-      ;;            (message " >> ac-default-setup")
-      ;; ac-source-words-in-same-mode-buffers
-      (setq ac-sources '(ac-source-filename
-                         ac-source-abbrev
-                         ac-source-dictionary
-                         )))))
-#+end_src
-
 ** [origami.el] 関数の折りたたみ
    :PROPERTIES:
    :CUSTOM_ID: org2bf4fb77
@@ -6049,6 +5954,19 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
               ("~/devel/mygit" . 1))))))
 #+end_src
 
+** [relint.el] elispの正規表現用のlinter
+   :PROPERTIES:
+   :CUSTOM_ID: org1c672519
+   :CREATED:  [2019-04-08 Mon 19:04]
+   :END:
+正規表現をチェックしてくれます．
+
+ - [[https://github.com/mattiase/relint][mattiase/relint: Elisp regexp lint tool]]
+
+#+begin_src emacs-lisp :tangle late-init.el
+(autoload-if-found '(relint-current-buffer) "relint" nil t)
+#+end_src
+
 ** TODO [EditorConfig] コードスタイルの強制
    :PROPERTIES:
    :CUSTOM_ID: orgaa25b74c
@@ -6137,6 +6055,129 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
    :CUSTOM_ID: org9547f772
    :END:
  - [[https://github.com/tuhdo/semantic-refactor][tuhdo/semantic-refactor: Semantic Refactor is a refactoring tool based on Semantic parser framework]]
+** TODO [company.el] 続・自動補完機能
+
+=auto-complete.el= がメンテナンスモードに入ったので =company= に移行しました．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(defun my-company-activate ()
+  (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
+  (remove-hook 'org-mode-hook #'my-company-activate)
+  (require 'company nil t))
+(add-hook 'emacs-lisp-mode-hook #'my-company-activate)
+(add-hook 'org-mode-hook #'my-company-activate)
+
+(with-eval-after-load "company"
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+  (define-key company-active-map (kbd "C-p") 'company-select-previous)
+  (define-key company-search-map (kbd "C-n") 'company-select-next)
+  (define-key company-search-map (kbd "C-p") 'company-select-previous)
+  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
+  ;; To complete file path, move `company-files' to the fist item of the list
+  (delq 'company-files company-backends)
+  (add-to-list 'company-backends 'company-files)
+  ;; 補完候補に番号を表示
+  (setq company-show-numbers t)
+  (global-company-mode)
+  (when (require 'company-quickhelp nil t)
+    (company-quickhelp-mode)))
+#+end_src
+
+** DONE [auto-complete.el] 自動補完機能                            :obsolete:
+   CLOSED: [2019-04-09 Tue 00:51]
+   :PROPERTIES:
+   :CUSTOM_ID: org09687b9c
+   :END:
+
+http://cx4a.org/software/auto-complete/manual.ja.html
+
+  - 辞書データを使う（ =ac-dictionary-directories= ）
+  - auto-complete.el, auto-complete-config.el, fuzzy.el, popup.el を使う．
+  - [[http://cx4a.org/software/auto-complete/manual.ja.html][日本語マニュアル]]
+  - ac-auto-start を 4 にしておけば，3文字までは TAB を yasnippet に渡せる．
+
+Org-mode ユーザにとって =TAB= は非常に重要なコマンド．そこに =auto-complete= と =yasnippet= が =TAB= を奪いに来るので，住み分けが重要になる．=ac-auto-start= を=4=にすると，<s=TAB= によるソースブロックの短縮入力を =yasnippet= で実行できる（この目的だけならば=3=を指定してもいい）．<sys などと4文字入力すると，=auto-complete= が動いて <system> などを補完してくれる．もちろん，見出しで =TAB= を押すときには，ツリーの表示／非表示の切り替えになる．
+
+情報源については，[[http://cx4a.org/software/auto-complete/manual.ja.html#.E6.A8.99.E6.BA.96.E6.83.85.E5.A0.B1.E6.BA.90][オンラインマニュアル]]を参照のこと．
+
+auto-complete が正しく効いているかは，バッファ内で適当にパスを打ち込んで，補完候補が表示されるかで判定判定できると思います（ =/home= を入力とか）
+
+#+begin_src emacs-lisp :tangle no
+(when (autoload-if-found
+       '(ac-default-setup ac-org-mode-setup)
+       "auto-complete" nil t)
+
+  (dolist (hook
+           (list 'org-mode-hook 'python-mode-hook
+                 'perl-mode-hook 'objc-mode-hook))
+    (add-hook hook #'ac-default-setup))
+
+  ;; *scratch* バッファでは無効化
+  (add-hook 'lisp-mode-hook
+            (lambda () (unless (equal "*scratch*" (buffer-name))
+                         (ac-default-setup))))
+  (add-hook 'org-mode-hook #'ac-org-mode-setup)
+
+  (with-eval-after-load "auto-complete"
+    (require 'auto-complete-config nil t)
+    (ac-config-default)
+    ;; 追加のメジャーモードを設定
+    (add-to-list 'ac-modes 'objc-mode)
+    (add-to-list 'ac-modes 'org-mode)
+    (add-to-list 'ac-modes 'latex-mode)
+    (require 'ac-math nil t)
+
+    ;; ac-modes にあるメジャーモードで有効にする
+    ;;lisp, c, c++, java, perl, cperl, python, makefile, sh, fortran, f90
+    (global-auto-complete-mode t)
+    ;; 辞書
+    (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
+    ;; history
+    (setq ac-comphist-file "~/Dropbox/config/ac-comphist.dat")
+    ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
+    (setq ac-auto-start 4)
+    ;; n秒後にメニューを表示
+    (setq ac-auto-show-menu 2.0)
+    ;; ツールチップの表示
+    (setq ac-use-quick-help t)
+    (setq ac-quick-help-delay 2.0)
+    (setq ac-quick-help-height 10)
+    ;; C-n/C-p でメニューをたどる
+    (setq ac-use-menu-map t)
+    ;; TAB で補完（org-mode でも効くようにする）
+    (define-key ac-completing-map [tab] 'ac-complete)
+    ;; RET での補完を禁止
+    (define-key ac-completing-map "\r" nil)
+    ;; 補完メニューの表示精度を高める
+    (setq popup-use-optimized-column-computation nil)
+    ;;(setq ac-candidate-max 10)
+
+    (defun ac-org-mode-setup ()
+      ;;            (message " >> ac-org-mode-setup")
+      (setq ac-sources '(
+                         ac-source-abbrev ; Emacs の略語
+                         ;; ac-source-css-property ; heavy
+                         ac-source-dictionary ; 辞書
+                         ac-source-features
+                         ac-source-filename
+                         ac-source-files-in-current-dir
+                         ac-source-functions
+                         ;; ac-source-gtags
+                         ;; ac-source-imenu
+                         ;; ac-source-semantic
+                         ac-source-symbols
+                         ac-source-variables
+                         ;; ac-source-yasnippet
+                         )))
+
+    (defun ac-default-setup ()
+      ;;            (message " >> ac-default-setup")
+      ;; ac-source-words-in-same-mode-buffers
+      (setq ac-sources '(ac-source-filename
+                         ac-source-abbrev
+                         ac-source-dictionary
+                         )))))
+#+end_src
 ** DONE [hideshowvis.el] 関数の表示／非表示                        :obsolete:
    CLOSED: [2018-09-24 Mon 11:23]
    :PROPERTIES:

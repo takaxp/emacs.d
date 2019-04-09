@@ -3,16 +3,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 ;; (load "~/Dropbox/emacs.d/config/el-get-setup.el" nil t)
+;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
+;; ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
+;; git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; https://github.com/alphapapa/outshine
-;; file:~/Dropbox/org/next.org::*Usage
 
 ;; Trying LSP
-(when (autoload-if-found
-       '(lsp-mode)
-       "lsp" nil t)
-  ;; https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
+;; https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
 
+(when (autoload-if-found '(lsp) "lsp-mode" nil t)
   (add-hook 'c-mode-common-hook #'lsp)
   (add-hook 'python-mode-hook #'lsp)
   (add-hook 'lsp-mode-hook #'lsp-ui-mode)
@@ -33,7 +32,6 @@
           lsp-ui-peek-enable t
           lsp-ui-peek-list-width 60
           lsp-ui-peek-peek-height 25)))
-
 
 (with-eval-after-load "org-capture"
   ;; ブックマーク入りのノートをキャプチャするテンプレートを追加
@@ -190,23 +188,6 @@ a number of clock tables."
           (setq start next))
         (end-of-line 0))))
   (advice-add 'org-clocktable-steps :override #'ad:org-clocktable-steps))
-
-;; Testing company-mode
-(with-eval-after-load "postpone"
-  (when (require 'company nil t)
-    (define-key company-active-map (kbd "C-n") 'company-select-next)
-    (define-key company-active-map (kbd "C-p") 'company-select-previous)
-    (define-key company-search-map (kbd "C-n") 'company-select-next)
-    (define-key company-search-map (kbd "C-p") 'company-select-previous)
-    (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
-    ;; To complete file path, move `company-files' to the fist item of the list
-    (delq 'company-files company-backends)
-    (add-to-list 'company-backends 'company-files)
-    ;; 補完候補に番号を表示
-    (setq company-show-numbers t)
-    (global-company-mode))
-  (when (require 'company-quickhelp nil t)
-    (company-quickhelp-mode)))
 
 ;; Fontawesome 拡張
 (with-eval-after-load "postpone"

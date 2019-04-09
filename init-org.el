@@ -34,7 +34,7 @@
     (add-to-list 'org-modules 'ox-org))
 
   (with-eval-after-load "org-tempo"
-    ;; 空行のときインデントさせない Thanks to @conao3
+    ;; 空行のときインデントさせない（Thanks to @conao3）
     (when (require 'cl nil t)
       (defun ad:org-tempo-complete-tag (f &rest arg)
         (if (save-excursion
@@ -42,8 +42,8 @@
               (looking-at "<"))
             (flet ((indent-according-to-mode () #'ignore))
               (apply f arg))
-          (apply f arg))))
-    (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+          (apply f arg)))
+      (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
 
   (with-eval-after-load "org"
     ;; 関連モジュールの読み込み
