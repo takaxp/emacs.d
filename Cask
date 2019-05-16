@@ -1,4 +1,4 @@
-;; #+date: 2019-04-07
+;; #+date: 2019-04-24
 
 (source gnu)
 (source melpa)
@@ -169,6 +169,7 @@
 ;; (depends-on "parinfer")
 (depends-on "hydra")
 ;; (depends-on "relint") ;; not registered.
+(depends-on "reformatter.el")
 
 ;; Visualize
 (depends-on "volatile-highlights")
@@ -195,6 +196,8 @@
 ;; (depends-on "spaceline")
 (depends-on "doom-modeline")
 (depends-on "disk-usage")
+(depends-on "company-box")
+
 
 ;; System related
 (depends-on "dired-narrow")
@@ -253,6 +256,7 @@
 
 ;; Log
 (depends-on "keyfreq")
+(depends-on "uptimes")
 ;; (depends-on "sauron")
 
 ;; Examples

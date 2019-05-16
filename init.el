@@ -200,14 +200,15 @@
     (defun my-toggle-ime-ns ()
       "Toggle IME."
       (interactive)
-      (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
+      (when (window-focus-p)
+        (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
 
     (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
     (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
 
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
-      (when (and window-focus-p
+      (when (and (window-focus-p)
                  (eq major-mode 'org-mode)
                  (or (looking-at org-heading-regexp)
                      (equal (buffer-name) org-agenda-buffer-name)))
@@ -368,6 +369,7 @@
        '(modern-c++-font-lock-mode)
        "modern-cpp-font-lock" nil t)
   (push '("\\.h$" . c++-mode) auto-mode-alist)
+  (add-hook 'c-mode-hook #'modern-c++-font-lock-mode)
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 
 (when (autoload-if-found
@@ -518,15 +520,22 @@
   (setcdr (assq 'vc-mode mode-line-format)
           '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
 
-(set-face-attribute 'mode-line nil :overline "#203e6f" :box nil)
-(set-face-foreground 'mode-line "#203e6f")
-(set-face-background 'mode-line "#b2c8fb")
+;; mode-line
+(set-face-attribute 'mode-line nil
+                    :foreground "#FFFFFF"
+                    :background "#b7655f"
+;;                    :overline "#9d5446"
+                    :box nil)
+;; mode-line-inactive
+(set-face-attribute 'mode-line-inactive nil
+                    :foreground "#94bbf9"
+                    :background "#d8e3fd"
+                    :overline "#94bbf9"
+                    :box nil)
+;; Terminal
 (unless (display-graphic-p)
   (set-face-foreground 'mode-line "#96CBFE")
   (set-face-background 'mode-line "#21252B"))
-(set-face-attribute 'mode-line-inactive nil :overline "#94bbf9" :box nil)
-(set-face-foreground 'mode-line-inactive  "#94bbf9")
-(set-face-background 'mode-line-inactive "#d8e3fd")
 
 (setq line-number-display-limit-width 100000)
 
@@ -1057,7 +1066,6 @@
         (setq my-cursor-color-ime-on "#FF9300")))
 
   (defun my-daylight-theme ()
-    (interactive)
     (when (require 'daylight-theme nil t)
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'daylight t)
@@ -1074,7 +1082,6 @@
                                      (ns-appearance . light)))))
 
   (defun my-night-theme ()
-    (interactive)
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'night t)
@@ -1151,6 +1158,18 @@
 
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2)))
+
+(when (autoload-if-found
+       '(counsel-osx-app)
+       "counsel-osx-app" nil t)
+
+  (global-set-key (kbd "C-M-2") 'counsel-osx-app)
+
+  (with-eval-after-load "counsel-osx-app"
+    (custom-set-variables
+     '(counsel-osx-app-location
+       '("/Applications" "/Applications/Utilities"
+         "/Applications/Microsoft Remote Desktop.localized")))))
 
 (when (autoload-if-found
        '(lingr-login)

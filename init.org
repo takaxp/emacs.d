@@ -460,7 +460,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
             (string-to-number current-min))))))
 #+end_src
 
-** [input-focus-p] フォーカス判定
+** [window-focus-p] フォーカス判定
    :PROPERTIES:
    :CUSTOM_ID: orgcea06248
    :END:
@@ -606,7 +606,8 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
          ))
   ;; グローバルはこちら
   (global-set-key (kbd "M-]") 'cycle-buffer)
-  (global-set-key (kbd "M-[") 'cycle-buffer-backward)
+  (when (display-graphic-p)
+    (global-set-key (kbd "M-[") 'cycle-buffer-backward))
   ;; パッケージに紐付いたフックはこちらへ
   ;; (add-hook 'xxx-hook #'hogehoge)
   ;;
@@ -1288,14 +1289,15 @@ the_silver_searcher @0.18.1 (textproc)
     (defun my-toggle-ime-ns ()
       "Toggle IME."
       (interactive)
-      (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
+      (when (window-focus-p)
+        (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
 
     (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
     (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
 
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
-      (when (and window-focus-p
+      (when (and (window-focus-p)
                  (eq major-mode 'org-mode)
                  (or (looking-at org-heading-regexp)
                      (equal (buffer-name) org-agenda-buffer-name)))
@@ -1619,7 +1621,8 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 
 #+begin_src emacs-lisp :tangle late-init.el
 (global-set-key (kbd "M-]") 'bs-cycle-next)
-(global-set-key (kbd "M-[") 'bs-cycle-previous)
+(when (display-graphic-p)
+  (global-set-key (kbd "M-[") 'bs-cycle-previous))
 
 (with-eval-after-load "bs"
   (custom-set-variables
@@ -2023,6 +2026,7 @@ http://d.hatena.ne.jp/NeoCat/20080211
        '(modern-c++-font-lock-mode)
        "modern-cpp-font-lock" nil t)
   (push '("\\.h$" . c++-mode) auto-mode-alist)
+  (add-hook 'c-mode-hook #'modern-c++-font-lock-mode)
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 #+end_src
 
@@ -2473,9 +2477,9 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
                         :background nil :underline t)
 
     ;; ispell-complete-word のキーバインドを上書き
-    (when (and (require 'helm nil t)
-               (require 'flyspell-correct-helm nil t))
-      (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
+    ;; (when (and (require 'helm nil t)
+    ;;            (require 'flyspell-correct-helm nil t))
+    ;;   (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
 
     ;; Auto complete との衝突を回避
     (with-eval-after-load "auto-complete"
@@ -2944,7 +2948,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (define-key selected-keymap (kbd "f") #'describe-function)
     (define-key selected-keymap (kbd "v") #'describe-variable)
     (when (require 'helpful nil t)
+      (define-key selected-keymap (kbd "@") #'helpful-at-point)
       (define-key selected-keymap (kbd "m") #'helpful-macro)
+      (define-key selected-keymap (kbd "o") #'helpful-symbol)
       (define-key selected-keymap (kbd "f") #'helpful-function)
       (define-key selected-keymap (kbd "v") #'helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
@@ -3370,15 +3376,22 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 配色は定期的に変えています．
 
 #+begin_src emacs-lisp :tangle yes
-(set-face-attribute 'mode-line nil :overline "#203e6f" :box nil)
-(set-face-foreground 'mode-line "#203e6f")
-(set-face-background 'mode-line "#b2c8fb")
+;; mode-line
+(set-face-attribute 'mode-line nil
+                    :foreground "#FFFFFF"
+                    :background "#b7655f"
+;;                    :overline "#9d5446"
+                    :box nil)
+;; mode-line-inactive
+(set-face-attribute 'mode-line-inactive nil
+                    :foreground "#94bbf9"
+                    :background "#d8e3fd"
+                    :overline "#94bbf9"
+                    :box nil)
+;; Terminal
 (unless (display-graphic-p)
   (set-face-foreground 'mode-line "#96CBFE")
   (set-face-background 'mode-line "#21252B"))
-(set-face-attribute 'mode-line-inactive nil :overline "#94bbf9" :box nil)
-(set-face-foreground 'mode-line-inactive  "#94bbf9")
-(set-face-background 'mode-line-inactive "#d8e3fd")
 #+end_src
 
 *** 色セット例
@@ -3387,19 +3400,16 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
     :END:
 
   - 青／白
-
 |          | background | foreground | overline |
 | active   | 558BE2     | FFFFFF     | 566f99   |
 | inactive | 94bbf9     | EFEFEF     | a4bfea   |
 
   - 青
-
 |          | background | foreground | overline |
 | active   | b2cefb     | 203e6f     | 203e6f   |
 | inactive | 94bbf9     | 94bbf9     | 94bbf9   |
 
   - 緑
-
 |          | background | foreground | overline |
 | active   | b1fbd6     | 206f47     | 206f47   |
 | inactive | 95f9c7     | 95f9c7     | 95f9c7   |
@@ -3793,8 +3803,8 @@ paren.el の場合は以下の設定．
 (when (require 'delight nil t)
   (delight
    '(;; Major modes
-     (c-mode "C" :major)
-     (c++mode "C++" :major)
+;;     (c-mode "C" :major)
+;;     (c++mode "C++" :major)
      (js2-mode "JS" :major)
      (csharp-mode "C#" :major)
      (prog-mode "Pr" :major)
@@ -5072,23 +5082,28 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "dired"
+  ;; Use build-in `wdired-mode'.
+  ;; (define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)
+
+  ;; http://elpa.gnu.org/packages/gited.html
   (when (require 'gited nil t)
     (define-key dired-mode-map (kbd "C-x C-g") 'gited-list-branches))
-  ;; https://github.com/Fuco1/dired-hacks
 
+  ;; https://github.com/Fuco1/dired-hacks
   (when (require 'dired-narrow nil t)
     (define-key dired-mode-map (kbd "/") 'dired-narrow))
   (require 'dired-du nil t)
-  (when (require 'helm-config nil t)
-    (require 'helm-dired-history nil t))
+  ;; (when (require 'helm-config nil t)
+  ;;   (require 'helm-dired-history nil t))
+  (require 'ivy-dired-history nil t)
   (when (require 'dired-x nil t)
-    (defun my-reveal-in-finder ()
-      "Reveal the current buffer in Finder."
-      (interactive)
-      (shell-command-to-string "open ."))
-    ;; dired-x を読み込んだあとじゃないとだめ
-    (define-key dired-mode-map (kbd "M-f") 'my-reveal-in-finder)
     (dired-extra-startup))
+  (defun my-reveal-in-finder ()
+    "Reveal the current buffer in Finder."
+    (interactive)
+    (shell-command-to-string "open ."))
+  ;; dired-x を読み込んだあとじゃないとだめ
+  (define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
 
   ;; https://github.com/xuchunyang/emacs.d
   ;; type "!" or "X" in dired
@@ -5219,7 +5234,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
   (run-with-idle-timer 1.6 t #'my-auto-save-buffers))
 #+end_src
 
-** TODO [session.el] 様々な履歴を保存し復元に利用する
+** [session.el] 様々な履歴を保存し復元に利用する
    :PROPERTIES:
    :CUSTOM_ID: orgab837e6a
    :END:
@@ -5367,12 +5382,14 @@ http://www.emacswiki.org/emacs/EmacsSession
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(helpful-key helpful-function helpful-variable)
+       '(helpful-key helpful-function helpful-variable helpful-at-point
+                     helpful-symbol)
        "helpful" nil t)
 
   (global-set-key (kbd "C-h k") 'helpful-key)
+  (global-set-key (kbd "C-h @") 'helpful-at-point)
+  (global-set-key (kbd "C-h o") 'helpful-symbol)
   (global-set-key (kbd "C-h f") 'helpful-function)
-  (global-set-key (kbd "C-h m") 'helpful-macro)
   (global-set-key (kbd "C-h v") 'helpful-variable))
 #+end_src
 
@@ -5424,6 +5441,40 @@ http://www.emacswiki.org/emacs/EmacsSession
     (when (eq system-type 'darwin)
       (custom-set-variables
        '(disk-usage-du-command "du")))))
+#+end_src
+
+** [uptimes.el] Emacsの起動時間を記録する
+   :PROPERTIES:
+   :CUSTOM_ID: orgdd1e03ec
+   :CREATED:  [2019-04-17 Wed 13:49]
+   :END:
+
+[[https://github.com/davep/uptimes.el][davep/uptimes.el: Uptime tracking system for emacs.]] を使うと，過去数回の起動・稼働・終了履歴がわかります．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(require 'uptimes nil t)
+#+end_src
+
+=M-x uptimes= すると，以下のような履歴が表示されます．
+
+#+begin_src text
+Last 10 uptimes
+
+Boot                Endtime             Uptime       This emacs
+=================== =================== ============ ==========
+2019-04-17 12:28:14 2019-04-17 12:29:37   0.00:01:23 <--
+2019-04-17 12:28:18 2019-04-17 12:28:25   0.00:00:06
+2019-04-17 11:47:13 2019-04-17 12:10:39   0.00:23:26
+2019-04-17 11:13:13 2019-04-17 11:21:05   0.00:07:51
+
+Top 10 uptimes
+
+Boot                Endtime             Uptime       This emacs
+=================== =================== ============ ==========
+2019-04-17 11:47:13 2019-04-17 12:10:39   0.00:23:26
+2019-04-17 11:13:13 2019-04-17 11:21:05   0.00:07:51
+2019-04-17 12:28:14 2019-04-17 12:29:37   0.00:01:23 <--
+2019-04-17 12:28:18 2019-04-17 12:28:25   0.00:00:06
 #+end_src
 
 ** DONE [wakatime-mode.el] WakaTime を利用して作業記録する         :obsolete:
@@ -6056,6 +6107,9 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
    :END:
  - [[https://github.com/tuhdo/semantic-refactor][tuhdo/semantic-refactor: Semantic Refactor is a refactoring tool based on Semantic parser framework]]
 ** TODO [company.el] 続・自動補完機能
+   :PROPERTIES:
+   :CUSTOM_ID: orgea32afad
+   :END:
 
 =auto-complete.el= がメンテナンスモードに入ったので =company= に移行しました．
 
@@ -6915,10 +6969,9 @@ will not be modified."
             ))))
 #+end_src
 
-** TODO [org-agenda] タスク／予定管理                                 :Doing:
+** [org-agenda] タスク／予定管理
    :PROPERTIES:
    :CUSTOM_ID: orgc3302e41
-   :ID:       6F2FC4AF-064B-46DA-9F48-6097A81004B7
    :END:
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -7331,6 +7384,7 @@ update it for multiple appts?")
   ;; org-src-window-setup (current-window, other-window, other-frame)
   (require 'ob-http nil t)
   (require 'ob-gnuplot nil t)
+  (require 'ob-octave nil t)
 
   (when (and (not noninteractive)
              (not (executable-find "ditaa")))
@@ -9572,7 +9626,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
         (setq my-cursor-color-ime-on "#FF9300")))
 
   (defun my-daylight-theme ()
-    (interactive)
     (when (require 'daylight-theme nil t)
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'daylight t)
@@ -9589,7 +9642,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
                                      (ns-appearance . light)))))
 
   (defun my-night-theme ()
-    (interactive)
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'night t)
@@ -10219,7 +10271,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
     (setenv "HOSTTYPE" "intel-mac")))
 #+end_src
 
-** [osx-lib.el] OSX用ユーティリティ                                   :macOS:
+** [osx-lib.el] macOS用ユーティリティ                                 :macOS:
    :PROPERTIES:
    :CUSTOM_ID: org96f7a2a3
    :END:
@@ -10273,6 +10325,27 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2)))
+#+end_src
+
+** [counsel-osx-app.el] macOSのアプリケーションを呼び出す             :macOS:
+   :PROPERTIES:
+   :CUSTOM_ID: org4d91e973
+   :END:
+
+Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel= の絞り込みを使います．
+
+#+begin_src emacs-lisp :tangle init.el
+(when (autoload-if-found
+       '(counsel-osx-app)
+       "counsel-osx-app" nil t)
+
+  (global-set-key (kbd "C-M-2") 'counsel-osx-app)
+
+  (with-eval-after-load "counsel-osx-app"
+    (custom-set-variables
+     '(counsel-osx-app-location
+       '("/Applications" "/Applications/Utilities"
+         "/Applications/Microsoft Remote Desktop.localized")))))
 #+end_src
 
 ** カレントバッファのあるディレクトリをターミナルで表示

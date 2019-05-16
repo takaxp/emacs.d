@@ -20,10 +20,10 @@
       ;; `el-get-silent-update' が使えるカスタマイズパッケージを使う．
       (url-retrieve-synchronously
        "https://raw.githubusercontent.com/takaxp/el-get/master/el-get-install.el")
-    ;; オリジナルはこっち
-    ;; "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el"
-    (goto-char (point-max))
-    (eval-print-last-sexp)))
+       ;; オリジナルはこっち
+       ;; "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el"
+       (goto-char (point-max))
+       (eval-print-last-sexp)))
 
 (add-to-list 'el-get-recipe-path "~/.emacs.d/recipes")
 
@@ -101,7 +101,9 @@
 (el-get-bundle "unhammer/org-random-todo")
 (el-get-bundle "dfeich/org-screenshot")
 (el-get-bundle "mallt/org-clock-today-mode")
-(el-get-bundle "alphapapa/org-recent-headings")
+(el-get-bundle "alphapapa/a.el" :name a)
+(el-get-bundle "alphapapa/frecency.el" :name frecency) ;; requires a.el
+(el-get-bundle "alphapapa/org-recent-headings") ;; requires frecency.el
 (el-get-bundle "alphapapa/org-bookmark-heading")
 (el-get-bundle "facetframer/orgnav")
 (el-get-bundle "toc-org") ;; using a private recipe to exclude org
@@ -133,13 +135,14 @@
 (el-get-bundle "emacsmirror/csv-mode")
 (el-get-bundle "es-mode")
 (el-get-bundle "markdown-mode")
-(el-get-bundle "po-mode")
+;; (el-get-bundle "po-mode")
 (el-get-bundle "gnuplot-mode")
 (el-get-bundle "emacsmirror/ess")
 (el-get-bundle "emacsmirror/yatex")
 (el-get-bundle "cmake-mode")
 (el-get-bundle "php-mode")
 (el-get-bundle "bruceravel/gnuplot-mode")
+;; (el-get-bundle "abo-abo/matlab-mode")
 
 
 ;; Development
@@ -147,7 +150,7 @@
 (el-get-bundle "gregsexton/origami.el" :name origami)
 (el-get-bundle "yasnippet")
 (el-get-bundle "editorconfig")
-(el-get-bundle "modern-cpp-font-lock")
+(el-get-bundle "ludwigpacifici/modern-cpp-font-lock")
 (el-get-bundle "AdamNiederer/0xc")
 (el-get-bundle "uuid")
 (el-get-bundle "netromdk/describe-number")
@@ -202,6 +205,7 @@
 (el-get-bundle "yasuyk/helm-emmet" :depends (emmet-mode))
 (el-get-bundle "emacs-helm/helm-emms")
 (el-get-bundle "jixiuf/helm-dired-history")
+(el-get-bundle "jixiuf/ivy-dired-history")
 
 ;; (el-get-bundle "helm-google")
 ;; (el-get-bundle "helm-ghq")
@@ -216,7 +220,7 @@
 (el-get-bundle "xuchunyang/osx-dictionary.el" :name osx-dictionary)
 
 
-;; Editing suport
+;; Editing support
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "aggressive-indent")
 (el-get-bundle "ws-butler")
@@ -235,6 +239,8 @@
 (el-get-bundle "magnars/expand-region.el" :name expand-region)
 (el-get-bundle "mattiase/xr")
 (el-get-bundle "mattiase/relint")
+(el-get-bundle "purcell/reformatter.el" :name reformatter)
+
 
 ;; Visualize
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -268,10 +274,11 @@
 (el-get-bundle "shrink-path"
                :type git
                :url "https://gitlab.com/bennya/shrink-path.el.git")
- (el-get-bundle "seagle0128/doom-modeline")
+(el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))
 (el-get-bundle "disk-usage"
                :type git
                :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
+(el-get-bundle "sebastiencs/company-box")
 
 ;; System related
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -290,8 +297,10 @@
 (el-get-bundle "tabbar")
 (el-get-bundle "takaxp/moom")
 (el-get-bundle "emacsmirror/frame-tabs")
+(el-get-bundle "tumashu/ivy-posframe" :depends (swiper))
 ;; (el-get-bundle "spaceline-all-the-icons")
 ;; (el-get-bundle "exwm") ;; failed to instal ... Bad Request
+(el-get-bundle "abo-abo/smex")
 
 
 ;; Robustness
@@ -313,6 +322,9 @@
 (el-get-bundle "emacsmirror/syntax-subword")
 (el-get-bundle "goto-chg")
 (el-get-bundle "yuttie/initchart")
+(progn ;; frog-menu
+  (el-get-bundle "clemera/frog-menu")
+  (el-get-bundle "waymondo/frog-jump-buffer" :depends (avy)))
 ;; (el-get-bundle "esup")
 
 
@@ -339,11 +351,12 @@
 ;; (el-get-bundle "w3")
 ;; (el-get-bundle "japanlaw")
 ;; (el-get-bundle "google-maps")
-
+(el-get-bundle "d12frosted/counsel-osx-app")
 
 ;; Log
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (el-get-bundle "dacap/keyfreq")
+(el-get-bundle "davep/uptimes.el" :name "uptimes")
 ;; (el-get-bundle "sauron")
 
 (el-get 'sync)

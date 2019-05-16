@@ -214,7 +214,8 @@
   (smooth-scroll-mode t))
 
 (global-set-key (kbd "M-]") 'bs-cycle-next)
-(global-set-key (kbd "M-[") 'bs-cycle-previous)
+(when (display-graphic-p)
+  (global-set-key (kbd "M-[") 'bs-cycle-previous))
 
 (with-eval-after-load "bs"
   (custom-set-variables
@@ -485,9 +486,9 @@
                         :background nil :underline t)
 
     ;; ispell-complete-word のキーバインドを上書き
-    (when (and (require 'helm nil t)
-               (require 'flyspell-correct-helm nil t))
-      (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
+    ;; (when (and (require 'helm nil t)
+    ;;            (require 'flyspell-correct-helm nil t))
+    ;;   (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
 
     ;; Auto complete との衝突を回避
     (with-eval-after-load "auto-complete"
@@ -701,7 +702,9 @@ This works also for other defined begin/end tokens to define the structure."
     (define-key selected-keymap (kbd "f") #'describe-function)
     (define-key selected-keymap (kbd "v") #'describe-variable)
     (when (require 'helpful nil t)
+      (define-key selected-keymap (kbd "@") #'helpful-at-point)
       (define-key selected-keymap (kbd "m") #'helpful-macro)
+      (define-key selected-keymap (kbd "o") #'helpful-symbol)
       (define-key selected-keymap (kbd "f") #'helpful-function)
       (define-key selected-keymap (kbd "v") #'helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
@@ -871,8 +874,8 @@ This works also for other defined begin/end tokens to define the structure."
 (when (require 'delight nil t)
   (delight
    '(;; Major modes
-     (c-mode "C" :major)
-     (c++mode "C++" :major)
+;;     (c-mode "C" :major)
+;;     (c++mode "C++" :major)
      (js2-mode "JS" :major)
      (csharp-mode "C#" :major)
      (prog-mode "Pr" :major)
@@ -1375,23 +1378,28 @@ _3_.  ?s?          (Org Mode: by _s_elect)
     (setq backup-each-save-size-limit 1048576)))
 
 (with-eval-after-load "dired"
+  ;; Use build-in `wdired-mode'.
+  ;; (define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)
+
+  ;; http://elpa.gnu.org/packages/gited.html
   (when (require 'gited nil t)
     (define-key dired-mode-map (kbd "C-x C-g") 'gited-list-branches))
-  ;; https://github.com/Fuco1/dired-hacks
 
+  ;; https://github.com/Fuco1/dired-hacks
   (when (require 'dired-narrow nil t)
     (define-key dired-mode-map (kbd "/") 'dired-narrow))
   (require 'dired-du nil t)
-  (when (require 'helm-config nil t)
-    (require 'helm-dired-history nil t))
+  ;; (when (require 'helm-config nil t)
+  ;;   (require 'helm-dired-history nil t))
+  (require 'ivy-dired-history nil t)
   (when (require 'dired-x nil t)
-    (defun my-reveal-in-finder ()
-      "Reveal the current buffer in Finder."
-      (interactive)
-      (shell-command-to-string "open ."))
-    ;; dired-x を読み込んだあとじゃないとだめ
-    (define-key dired-mode-map (kbd "M-f") 'my-reveal-in-finder)
     (dired-extra-startup))
+  (defun my-reveal-in-finder ()
+    "Reveal the current buffer in Finder."
+    (interactive)
+    (shell-command-to-string "open ."))
+  ;; dired-x を読み込んだあとじゃないとだめ
+  (define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
 
   ;; https://github.com/xuchunyang/emacs.d
   ;; type "!" or "X" in dired
@@ -1536,12 +1544,14 @@ _3_.  ?s?          (Org Mode: by _s_elect)
     (advice-add 'neotree-hide :before #'ad:neotree-hide)))
 
 (when (autoload-if-found
-       '(helpful-key helpful-function helpful-variable)
+       '(helpful-key helpful-function helpful-variable helpful-at-point
+                     helpful-symbol)
        "helpful" nil t)
 
   (global-set-key (kbd "C-h k") 'helpful-key)
+  (global-set-key (kbd "C-h @") 'helpful-at-point)
+  (global-set-key (kbd "C-h o") 'helpful-symbol)
   (global-set-key (kbd "C-h f") 'helpful-function)
-  (global-set-key (kbd "C-h m") 'helpful-macro)
   (global-set-key (kbd "C-h v") 'helpful-variable))
 
 (when (autoload-if-found
@@ -1575,6 +1585,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)
     (when (eq system-type 'darwin)
       (custom-set-variables
        '(disk-usage-du-command "du")))))
+
+(require 'uptimes nil t)
 
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)

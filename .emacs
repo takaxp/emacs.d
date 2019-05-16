@@ -8,10 +8,222 @@
 ;; git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; (add-hook 'minibuffer-setup-hook
+;;           (lambda ()
+;;             (make-local-variable 'face-remapping-alist)
+;;             (add-to-list 'face-remapping-alist
+;;                          '(default
+;;                             (:background "#FCFCFC")))))
+
+;; dired に反映されるのは確認できたが，completion では確認できず．
+;; Possible completions
+(setq completion-ignored-extensions
+      (append completion-ignored-extensions
+              '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+
+(defface helm-separator
+  '((((background dark)) :foreground "red")
+    (((background light)) :foreground "#ffbfb5"))
+  "Face for multiline source separator."
+  :group 'helm-faces)
+
+(with-eval-after-load "postpone"
+  (when (and (require 'ivy nil t)
+             (require 'counsel nil t))
+
+    (require 'counsel-osx-app nil t)
+
+    ;; シンボリックリンクの場合，配色を変える
+
+    ;; M-x counsel-M-x で，C-u なるプレフィックス変数を渡せない（helm-M-x はできる）？
+
+    ;; Disable counsel-find-file
+    ;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
+    ;; completion-in-region-function も一時的にデフォに戻さないと，TAB補完時に
+    ;; ivy が有効化されてしまう．
+    (defun my-disable-counsel-find-file (&rest args)
+      "Disable `counsel-find-file' and use the original `find-file' with ARGS."
+      (let ((completing-read-function #'completing-read-default)
+            (completion-in-region-function #'completion--in-region))
+        (apply #'read-file-name-default args)))
+    (setq read-file-name-function #'my-disable-counsel-find-file)
+    ;;  (setq counsel-find-file-ignore-regexp (regexp-opt '("./" "../")))
+
+    ;; 絞り込み過程の単語のハイライト配色
+    (defface my-ivy-arrow-visible
+      '((((class color) (background light))
+         :foreground "orange") ;;  :background "#FFF6F6"
+        (((class color) (background dark)) :foreground "#EE6363"))
+      "Face used by Ivy for highlighting the arrow.")
+    ;; FIXME
+    (defface my-ivy-arrow-invisible
+      '((((class color) (background light)) :foreground "#FFFFFF")
+        (((class color) (background dark)) :foreground "#31343F"))
+      "Face used by Ivy for highlighting the invisible arrow.")
+    (custom-set-faces
+     '(ivy-current-match
+       ((((class color) (background light))
+         :background "#FFF3F3" :distant-foreground "black")
+        (((class color) (background dark))
+         :background "#4F5353" :distant-foreground "#b03333")))
+     '(ivy-minibuffer-match-face-1
+       ((((class color) (background light)) :foreground "#d3d3d3")
+        (((class color) (background dark)) :foreground "#555555")))
+     '(ivy-minibuffer-match-face-2
+       ((((class color) (background light)) :foreground "#b00000" :underline t)
+        (((class color) (background dark)) :foreground "#b03333" :underline t)))
+     '(ivy-minibuffer-match-face-3
+       ((((class color) (background light)) :foreground "#bbbbff")
+        (((class color) (background dark)) :foreground "#7777ff")))
+     '(ivy-minibuffer-match-face-4
+       ((((class color) (background light)) :foreground "#ffbbff")
+        (((class color) (background dark)) :foreground "#8a498a"))))
+
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-M-r") 'counsel-recentf)
+    (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+    ;;    (global-set-key (kbd "C-M-l") 'counsel-locate) ;; or counsel-fzf?
+
+    ;; M-x `find-library' が大量の =./= を表示する問題を回避
+    ;; `find-library' ではなく `counsel-find-library' を直接呼べばOK．
+    ;; find-library から interactive を取ってしまう
+    ;; これなら，たとえcounsel-find-library が呼んでいたとしても M-x には出ない
+    ;; a. (make-obsolete 'find-library 'counsel-find-library)
+    ;; b. (put 'find-library 'disabled t)
+    (when (require 'find-func nil t)
+      (defun find-library (library)
+        "Override the original `find-library' to hide in command list."
+        (prog1
+            (switch-to-buffer (find-file-noselect (find-library-name library)))
+          (run-hooks 'find-function-after-hook))))
+
+    ;; swiper vs. helm-swoop は，swoop のが軽いな．
+
+    ;; m-x counsel-fzf がいい感じ．
+    ;; M-x counsel-colors-* もいい感じ
+
+    ;; helm-dired-history vs. ivy-dired-history
+
+    ;; M-x counsel-ag は，helm-ag の方がよい．ag の戻りはそのまま解釈したい．
+    ;; my-ag を使っていた．これ，org-agenda みたいにカーソル当てると速攻プレビューにできない？ counsel-ag のカスタマイズで実現できそう．
+
+    ;; org-tags-view のサポートもしてくれる．
+    ;; counsel-selected.el を作ろう．
+
+    ;; 選択対象を "" にする（かなり重くなる？）
+    (setq ivy-format-function #'ivy-format-function-arrow)
+    (defun ad:ivy-format-function-arrow (cands)
+      "Transform CANDS into a string for minibuffer."
+      (ivy--format-function-generic
+       (lambda (str)
+         (concat (ivy--add-face " " 'my-ivy-arrow-visible)
+                 (ivy--add-face str 'ivy-current-match)))
+       (lambda (str)
+         (concat (ivy--add-face " " 'my-ivy-arrow-invisible) str))
+       ;; (lambda (str)
+       ;;   (concat "  " str))
+       cands
+       "\n"))
+    ;; （かなり重くなる）
+    (advice-add 'ivy-format-function-arrow
+                :override #'ad:ivy-format-function-arrow)
+
+    ;; helm-M-x と同じ振る舞いにする設定（3点）;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; コマンド使用履歴を使って counsel-M-x の候補を表示する（4点目）
+    ;; 激重の様子．
+    ;; extended-command-history
+    (when (require 'smex nil t)
+      (setq smex-history-length 35)
+      (setq smex-completion-method 'ivy))
+
+    ;; exclude `counsel-M-x'
+    (setq ivy-initial-inputs-alist
+          '((org-refile . "^")
+            (org-agenda-refile . "^")
+            (org-capture-refile . "^")
+            (counsel-describe-function . "^")
+            (counsel-describe-variable . "^")
+            (counsel-org-capture . "^")
+            (Man-completion-table . "^")
+            (woman . "^")))
+    ;; ignore-order
+    (add-to-list 'ivy-re-builders-alist '(t . ivy--regex-ignore-order))
+    ;; sort
+    ;; https://github.com/abo-abo/swiper/issues/1294
+    (defun ivy--sort-by-len (name candidates)
+      "Sort CANDIDATES based on similarity of their length with NAME."
+      (let ((name-len (length name))
+            (candidates-count (length candidates)))
+        (if (< 500 candidates-count)
+            candidates
+          (seq-sort-by #'length
+                       (lambda (a b)
+                         (< (abs (- name-len a))
+                            (abs (- name-len b))))
+                       candidates))))
+    ;; 全体に適用すると，counsel-recentf が壊れる．
+    ;; counsel-M-x を狙い撃ちで設定する．
+    ;; (setf (alist-get 't ivy-sort-matches-functions-alist)
+    ;;       #'ivy--sort-by-len)
+    (add-to-list 'ivy-sort-matches-functions-alist
+                 '(counsel-M-x . ivy--sort-by-len) t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (setq ivy-use-virtual-buffers t)
+    (setq enable-recursive-minibuffers t)
+    (ivy-mode 1)
+
+    ;; https://github.com/d12frosted/flyspell-correct/issues/10
+    ;; =M-o= 押下しないと，save option が出てこない．つまり，<F7> M-o s となる．
+    ;; <F7><F7> の夢，敗れる．
+    (when (require 'flyspell-correct-ivy nil t)
+      (defun flyspell-correct-ivy-inline-actions (candidates word)
+        "Run `ivy-read' for the given CANDIDATES given by flyspell for the WORD.
+Return a selected word to use as a replacement or a tuple
+of (command, word) to be used by flyspell-do-correct."
+        (let* (result
+               (action (lambda (x) (setq result x))))
+          (ivy-read (format "Suggestions for \"%s\" in dictionary \"%s\": "
+                            word (or ispell-local-dictionary
+                                     ispell-dictionary
+                                     "Default"))
+                    (append
+                     (mapcar (lambda (x) (cons x x)) candidates)
+                     (list (cons (format "Save \"%s\"" word) (cons 'save word))
+                           (cons (format "Accept (session) \"%s\"" word) (cons 'session word))
+                           (cons (format "Accept (buffer) \"%s\"" word) (cons 'buffer word))))
+                    :action action)
+          result))
+
+      (setq flyspell-correct-interface 'flyspell-correct-ivy-inline-actions)
+      (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
+
+    ))
+
+
+;; (with-eval-after-load "company"
+;;   (when (and (require 'all-the-icons nil t)
+;;              (require 'company-box nil t))
+;;     (add-hook 'company-mode-hook 'company-box-mode)))
+
+;; (when (require 'ivy-posframe nil t)
+;;   (setq ivy-display-function #'ivy-posframe-display)
+;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-frame-center)
+;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-window-center)
+;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-frame-bottom-left)
+;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-window-bottom-left)
+;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-point)
+;;   (ivy-posframe-enable))
+
+(with-eval-after-load "postpone" (require 'frog-jump-buffer nil t))
+(with-eval-after-load "moom" (setq moom-frame-width-single 80))
+
 ;; Trying LSP
 ;; https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
+(when (and (fboundp 'lsp)
+           (autoload-if-found '(lsp) "lsp-mode" nil t))
 
-(when (autoload-if-found '(lsp) "lsp-mode" nil t)
   (add-hook 'c-mode-common-hook #'lsp)
   (add-hook 'python-mode-hook #'lsp)
   (add-hook 'lsp-mode-hook #'lsp-ui-mode)
@@ -42,7 +254,9 @@
           ("U" "subtree with a bookmark" entry
            (file+headline "~/Desktop/hoge.org" "INBOX")
            "** TODO %(message \"%s\" my-captured-bookmark-last)\n%?\n%(my-get-org-bookmark)" :prepend t)
-          ("m" "MEMO" entry (file+olp+datetree "~/Desktop/hoge.org" "Memo") "***** %U\n(m)%?" :prepend t)
+          ("p" "Memos")
+          ("p1" "T1 MEMO" entry (file+olp+datetree "~/Desktop/hoge.org" "Memo") "***** %U\n(p1)%?" :prepend t)
+          ("p2" "T2 MEMO" entry (file+olp+datetree "~/Desktop/hoge.org" "Memo") "***** %U\n(p2)%?" :prepend t)
           ("M" "MEMO" entry (file+olp+datetree "~/Desktop/hoge.org" "Memo") "***** %U\n(M)%?" :prepend nil)))
 
   ;; キャプチャ直前に記録するブックマークの名前を記録
@@ -215,6 +429,50 @@ a number of clock tables."
 ;;   (highlight-phrase "")
 ;;   (highlight-phrase "")
 ;;   (global-hi-lock-mode))
+
+(progn ;; facecheck-mode
+  (defvar facecheck-mode-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map [mouse-1] 'facecheck-at-point)
+      map)
+    "")
+
+  ;;;###autoload
+  (defun facecheck-at-point ()
+    (interactive)
+    (describe-face (face-at-point)))
+
+  (defvar facecheck--global-hl-line-mode nil)
+  (defvar facecheck--mouse-highlight nil)
+  (defvar facecheck--mouse-1-click-follows-link nil)
+
+  (defun facecheck--setup ()
+    "Init function."
+    (setq facecheck--mouse-highlight mouse-highlight
+          facecheck--mouse-1-click-follows-link mouse-1-click-follows-link)
+    (setq mouse-highlight nil
+          mouse-1-click-follows-link nil)
+    (when (setq facecheck--global-hl-line-mode global-hl-line-mode)
+      (global-hl-line-mode -1)))
+
+  (defun facecheck--abort ()
+    "Abort."
+    (setq mouse-highlight facecheck--mouse-highlight
+          mouse-1-click-follows-link facecheck--mouse-1-click-follows-link)
+    (when facecheck--global-hl-line-mode
+      (global-hl-line-mode 1)))
+
+  (define-minor-mode facecheck-mode
+    ""
+    :init-value nil
+    :keymap facecheck-mode-map
+    :global t
+    :require 'facecheck
+    :group 'facecheck
+    (when window-system
+      (if facecheck-mode
+          (facecheck--setup)
+        (facecheck--abort)))))
 
 ;; To decrypt old sub trees
 ;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)

@@ -940,6 +940,7 @@ update it for multiple appts?")
   ;; org-src-window-setup (current-window, other-window, other-frame)
   (require 'ob-http nil t)
   (require 'ob-gnuplot nil t)
+  (require 'ob-octave nil t)
 
   (when (and (not noninteractive)
              (not (executable-find "ditaa")))
