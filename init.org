@@ -1632,6 +1632,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 ** [bm.el] カーソル位置をブックマークして追う
    :PROPERTIES:
    :CUSTOM_ID: orgd5942d14
+   :ID:       09CE0F96-A9F3-4478-BAD9-D9342CF2705A
    :END:
 
 [[https://github.com/joodland/bm][bm.el]]は，カーソル位置をブックマークしておくためのツールです． =point-undo= と比較して，ユーザが明示的に位置を保存でき，見た目にも使いやすいです．以下の例では， =org-mode= のツリー内にブックマークがある時にも，上手い具合に表示ができるように調整してあります．カーソル移動は，順方向（ =bm-next= ）にだけ使っています．
@@ -1642,16 +1643,18 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 (when (autoload-if-found
        '(my-toggle-bm
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load bm-load-and-restore)
+         bm-repository-save bm-repository-load)
        "bm" nil t)
 
   ;; ファイルオープン時にブックマークを復帰
   (global-set-key (kbd "<f10>") 'my-toggle-bm)
   (global-set-key (kbd "<C-f10>") 'my-bm-next)
+  (global-set-key (kbd "<S-f10>") 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   (with-eval-after-load "bm"
-    (require 'helm-bm nil t)
+    ;; (require 'helm-bm nil t)
+    (setq bm-annotation-width 30)
     (setq-default bm-buffer-persistence t)
     (setq bm-restore-repository-on-load t)
     (setq bm-cycle-all-buffers t)
@@ -1661,7 +1664,17 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
           (expand-file-name "~/Dropbox/emacs.d/.bm-repository"))
-    ;; (bm-repository-load)
+
+    (unless noninteractive
+      (bm-repository-load)
+      (add-hook 'kill-buffer-hook 'bm-buffer-save)
+      (add-hook 'after-save-hook 'bm-buffer-save)
+      (add-hook 'after-revert-hook 'bm-buffer-restore)
+      (add-hook 'kill-emacs-hook #'my-bm-save-all))
+
+    (defun my-bm-save-all ()
+      (bm-buffer-save-all)
+      (bm-repository-save))
 
     (defun my-toggle-bm ()
       "bm-toggle with updating history"
@@ -3824,6 +3837,7 @@ paren.el の場合は以下の設定．
      (org-fancy-priorities-mode nil "org-fancy-priorities")
      (smooth-scroll-mode nil "smooth-scroll")
      (eldoc-mode nil "eldoc")
+     (ivy-mode nil "ivy")
      (centered-cursor-mode nil "centered-cursor-mode")
      (volatile-highlights-mode nil "volatile-highlights")
      (aggressive-indent-mode nil "aggressive-indent")
@@ -7166,6 +7180,7 @@ will not be modified."
                 (org-todo "TODO")) ;; already done, reboot the task.
               (org-clock-in)
               (org-toggle-tag my-doing-tag 'on)))))
+      (org-cycle-hide-drawers 'children)
       (org-reveal)))
 
   (defun my-remove-doing-tag ()
@@ -7316,6 +7331,7 @@ update it for multiple appts?")
 ** [org-refile] orgツリーの高速移動
    :PROPERTIES:
    :CUSTOM_ID: orgf5236175
+   :ID:       340640E3-5CB2-469B-A6B3-26BE36768C5F
    :END:
 
 # BUG サブツリーが一つもない場所に refile すると [0/1] などに更新されない... 
@@ -7365,7 +7381,8 @@ update it for multiple appts?")
                                         _property _interactive?)
     (outline-hide-subtree)
     (org-show-hidden-entry)
-    (org-show-children))
+    (org-show-children)
+    (org-cycle-hide-drawers 'children))
   (advice-add 'org-sort-entries :after #'ad:org-sort-entries))
 #+end_src
 
@@ -10339,7 +10356,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
        '(counsel-osx-app)
        "counsel-osx-app" nil t)
 
-  (global-set-key (kbd "C-M-2") 'counsel-osx-app)
+  (global-set-key (kbd "C-M-1") 'counsel-osx-app)
 
   (with-eval-after-load "counsel-osx-app"
     (custom-set-variables

@@ -8,36 +8,60 @@
 ;; git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (add-hook 'minibuffer-setup-hook
-;;           (lambda ()
-;;             (make-local-variable 'face-remapping-alist)
-;;             (add-to-list 'face-remapping-alist
-;;                          '(default
-;;                             (:background "#FCFCFC")))))
-
 ;; dired に反映されるのは確認できたが，completion では確認できず．
 ;; Possible completions
 (setq completion-ignored-extensions
       (append completion-ignored-extensions
               '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
 
-(defface helm-separator
-  '((((background dark)) :foreground "red")
-    (((background light)) :foreground "#ffbfb5"))
-  "Face for multiline source separator."
-  :group 'helm-faces)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (with-eval-after-load "postpone"
   (when (and (require 'ivy nil t)
              (require 'counsel nil t))
 
-    (require 'counsel-osx-app nil t)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-M-r") 'counsel-recentf)
+    (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+    ;;    (global-set-key (kbd "C-M-l") 'counsel-locate) ;; or counsel-fzf?
 
-    ;; シンボリックリンクの場合，配色を変える
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; for bm.el
+    ;; https://www.reddit.com/r/emacs/comments/700xck/ivy_with_bmel_bookmark_manager/
+    (defun bm-counsel-get-list (bookmark-overlays)
+      (-map (lambda (bm)
+              (with-current-buffer (overlay-buffer bm)
+                (let* ((line (replace-regexp-in-string
+                              "\n$" ""
+                              (buffer-substring (overlay-start bm)
+                                                (overlay-end bm))))
+                       ;; line numbers start on 1
+                       (line-num
+                        (+ 1 (count-lines (point-min) (overlay-start bm))))
+                       (name (format "%s:%d - %s" (buffer-name) line-num line)))
+                  `(,name . ,bm))))
+            bookmark-overlays))
+    (defun bm-counsel-find-bookmark ()
+      (interactive)
+      (let* ((bm-list (bm-counsel-get-list (bm-overlays-lifo-order t)))
+             (bm-hash-table (make-hash-table :test 'equal))
+             (search-list (-map (lambda (bm) (car bm)) bm-list)))
+        (-each bm-list (lambda (bm)
+                         (puthash (car bm) (cdr bm) bm-hash-table)
+                         ))
+        (ivy-read "Find bookmark: "
+                  search-list
+                  :require-match t
+                  :keymap counsel-describe-map
+                  :action (lambda (chosen)
+                            (let ((bookmark (gethash chosen bm-hash-table)))
+                              (switch-to-buffer (overlay-buffer bookmark))
+                              (bm-goto bookmark)
+                              ))
+                  :sort t)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ;; M-x counsel-M-x で，C-u なるプレフィックス変数を渡せない（helm-M-x はできる）？
-
-    ;; Disable counsel-find-file
+    ;; disable counsel-find-file
     ;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
     ;; completion-in-region-function も一時的にデフォに戻さないと，TAB補完時に
     ;; ivy が有効化されてしまう．
@@ -47,7 +71,6 @@
             (completion-in-region-function #'completion--in-region))
         (apply #'read-file-name-default args)))
     (setq read-file-name-function #'my-disable-counsel-find-file)
-    ;;  (setq counsel-find-file-ignore-regexp (regexp-opt '("./" "../")))
 
     ;; 絞り込み過程の単語のハイライト配色
     (defface my-ivy-arrow-visible
@@ -79,11 +102,6 @@
        ((((class color) (background light)) :foreground "#ffbbff")
         (((class color) (background dark)) :foreground "#8a498a"))))
 
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-M-r") 'counsel-recentf)
-    (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
-    ;;    (global-set-key (kbd "C-M-l") 'counsel-locate) ;; or counsel-fzf?
-
     ;; M-x `find-library' が大量の =./= を表示する問題を回避
     ;; `find-library' ではなく `counsel-find-library' を直接呼べばOK．
     ;; find-library から interactive を取ってしまう
@@ -97,20 +115,7 @@
             (switch-to-buffer (find-file-noselect (find-library-name library)))
           (run-hooks 'find-function-after-hook))))
 
-    ;; swiper vs. helm-swoop は，swoop のが軽いな．
-
-    ;; m-x counsel-fzf がいい感じ．
-    ;; M-x counsel-colors-* もいい感じ
-
-    ;; helm-dired-history vs. ivy-dired-history
-
-    ;; M-x counsel-ag は，helm-ag の方がよい．ag の戻りはそのまま解釈したい．
-    ;; my-ag を使っていた．これ，org-agenda みたいにカーソル当てると速攻プレビューにできない？ counsel-ag のカスタマイズで実現できそう．
-
-    ;; org-tags-view のサポートもしてくれる．
-    ;; counsel-selected.el を作ろう．
-
-    ;; 選択対象を "" にする（かなり重くなる？）
+    ;; 選択対象を "" にする（かなり重くなる？） ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     (setq ivy-format-function #'ivy-format-function-arrow)
     (defun ad:ivy-format-function-arrow (cands)
       "Transform CANDS into a string for minibuffer."
@@ -138,7 +143,8 @@
 
     ;; exclude `counsel-M-x'
     (setq ivy-initial-inputs-alist
-          '((org-refile . "^")
+          '(
+            ;; (org-refile . "^")
             (org-agenda-refile . "^")
             (org-capture-refile . "^")
             (counsel-describe-function . "^")
@@ -170,10 +176,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    (setq ivy-use-virtual-buffers t)
-    (setq enable-recursive-minibuffers t)
-    (ivy-mode 1)
-
     ;; https://github.com/d12frosted/flyspell-correct/issues/10
     ;; =M-o= 押下しないと，save option が出てこない．つまり，<F7> M-o s となる．
     ;; <F7><F7> の夢，敗れる．
@@ -197,10 +199,14 @@ of (command, word) to be used by flyspell-do-correct."
           result))
 
       (setq flyspell-correct-interface 'flyspell-correct-ivy-inline-actions)
-      (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
+      (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic)))
 
-    ))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  (ivy-mode 1))
 
 ;; (with-eval-after-load "company"
 ;;   (when (and (require 'all-the-icons nil t)
@@ -217,7 +223,6 @@ of (command, word) to be used by flyspell-do-correct."
 ;;   (ivy-posframe-enable))
 
 (with-eval-after-load "postpone" (require 'frog-jump-buffer nil t))
-(with-eval-after-load "moom" (setq moom-frame-width-single 80))
 
 ;; Trying LSP
 ;; https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
@@ -403,6 +408,7 @@ a number of clock tables."
         (end-of-line 0))))
   (advice-add 'org-clocktable-steps :override #'ad:org-clocktable-steps))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fontawesome 拡張
 (with-eval-after-load "postpone"
   ;; 以下を関数化して，任意の文字コードに対応させる．

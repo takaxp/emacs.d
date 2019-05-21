@@ -326,6 +326,7 @@
   (el-get-bundle "clemera/frog-menu")
   (el-get-bundle "waymondo/frog-jump-buffer" :depends (avy)))
 ;; (el-get-bundle "esup")
+(el-get-bundle "rolandwalker/ignoramus") ;; Ignore backups, build files, et al.
 
 
 ;; Applications

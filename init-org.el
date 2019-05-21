@@ -758,6 +758,7 @@ will not be modified."
                 (org-todo "TODO")) ;; already done, reboot the task.
               (org-clock-in)
               (org-toggle-tag my-doing-tag 'on)))))
+      (org-cycle-hide-drawers 'children)
       (org-reveal)))
 
   (defun my-remove-doing-tag ()
@@ -928,7 +929,8 @@ update it for multiple appts?")
                                         _property _interactive?)
     (outline-hide-subtree)
     (org-show-hidden-entry)
-    (org-show-children))
+    (org-show-children)
+    (org-cycle-hide-drawers 'children))
   (advice-add 'org-sort-entries :after #'ad:org-sort-entries))
 
 (with-eval-after-load "ob-core"

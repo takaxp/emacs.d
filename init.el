@@ -1163,7 +1163,7 @@
        '(counsel-osx-app)
        "counsel-osx-app" nil t)
 
-  (global-set-key (kbd "C-M-2") 'counsel-osx-app)
+  (global-set-key (kbd "C-M-1") 'counsel-osx-app)
 
   (with-eval-after-load "counsel-osx-app"
     (custom-set-variables

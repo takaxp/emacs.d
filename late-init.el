@@ -224,16 +224,18 @@
 (when (autoload-if-found
        '(my-toggle-bm
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load bm-load-and-restore)
+         bm-repository-save bm-repository-load)
        "bm" nil t)
 
   ;; ファイルオープン時にブックマークを復帰
   (global-set-key (kbd "<f10>") 'my-toggle-bm)
   (global-set-key (kbd "<C-f10>") 'my-bm-next)
+  (global-set-key (kbd "<S-f10>") 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   (with-eval-after-load "bm"
-    (require 'helm-bm nil t)
+    ;; (require 'helm-bm nil t)
+    (setq bm-annotation-width 30)
     (setq-default bm-buffer-persistence t)
     (setq bm-restore-repository-on-load t)
     (setq bm-cycle-all-buffers t)
@@ -243,7 +245,17 @@
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
           (expand-file-name "~/Dropbox/emacs.d/.bm-repository"))
-    ;; (bm-repository-load)
+
+    (unless noninteractive
+      (bm-repository-load)
+      (add-hook 'kill-buffer-hook 'bm-buffer-save)
+      (add-hook 'after-save-hook 'bm-buffer-save)
+      (add-hook 'after-revert-hook 'bm-buffer-restore)
+      (add-hook 'kill-emacs-hook #'my-bm-save-all))
+
+    (defun my-bm-save-all ()
+      (bm-buffer-save-all)
+      (bm-repository-save))
 
     (defun my-toggle-bm ()
       "bm-toggle with updating history"
@@ -895,6 +907,7 @@ This works also for other defined begin/end tokens to define the structure."
      (org-fancy-priorities-mode nil "org-fancy-priorities")
      (smooth-scroll-mode nil "smooth-scroll")
      (eldoc-mode nil "eldoc")
+     (ivy-mode nil "ivy")
      (centered-cursor-mode nil "centered-cursor-mode")
      (volatile-highlights-mode nil "volatile-highlights")
      (aggressive-indent-mode nil "aggressive-indent")
