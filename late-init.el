@@ -235,12 +235,11 @@
 
   (with-eval-after-load "bm"
     ;; (require 'helm-bm nil t)
-    (setq bm-annotation-width 30)
+    ;; (setq bm-annotation-width 30)
     (setq-default bm-buffer-persistence t)
     (setq bm-restore-repository-on-load t)
     (setq bm-cycle-all-buffers t)
     ;; (setq bm-toggle-buffer-persistence t)
-    (setq bm-repository-file "~/Dropbox/emacs.d/.bookmark")
     (setq bm-buffer-persistence t)
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
@@ -732,13 +731,17 @@ This works also for other defined begin/end tokens to define the structure."
       (when mark-active
         (eval-region (region-beginning) (region-end) t)))
     (setq selected-org-mode-map (make-sparse-keymap))
+
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
     (define-key selected-keymap (kbd "-") #'my-org-list-insert-items)
     (define-key selected-keymap (kbd "_")
       #'my-org-list-insert-checkbox-into-items)
 
-    (when (require 'helm-selected nil t)
-      (define-key selected-keymap (kbd "h") 'helm-selected))
+    ;; (when (require 'helm-selected nil t)
+    ;;   (define-key selected-keymap (kbd "h") 'helm-selected))
+
+    (when (require 'counsel-selected nil t)
+      (define-key selected-keymap (kbd "h") 'counsel-selected))
 
     (when (require 'help-fns+ nil t)
       (defun my-describe-selected-keymap ()
@@ -1404,7 +1407,11 @@ _3_.  ?s?          (Org Mode: by _s_elect)
   (require 'dired-du nil t)
   ;; (when (require 'helm-config nil t)
   ;;   (require 'helm-dired-history nil t))
-  (require 'ivy-dired-history nil t)
+  (when (require 'ivy-dired-history nil t)
+    ;; ivy-dired-history-variable は，session.el で明示的に管理中．
+    ;; check session-globals-include
+    (define-key dired-mode-map "," 'dired))
+
   (when (require 'dired-x nil t)
     (dired-extra-startup))
   (defun my-reveal-in-finder ()
@@ -1565,7 +1572,10 @@ _3_.  ?s?          (Org Mode: by _s_elect)
   (global-set-key (kbd "C-h @") 'helpful-at-point)
   (global-set-key (kbd "C-h o") 'helpful-symbol)
   (global-set-key (kbd "C-h f") 'helpful-function)
-  (global-set-key (kbd "C-h v") 'helpful-variable))
+  (global-set-key (kbd "C-h v") 'helpful-variable)
+
+  (with-eval-after-load "helpful"
+    (define-key helpful-mode-map (kbd "@") #'helpful-at-point)))
 
 (when (autoload-if-found
        '(keyfreq-mode keyfreq-autosave-mode ad:keyfreq-show)
@@ -2582,5 +2592,11 @@ Uses `all-the-icons-material' to fetch the icon."
           (delete-window (get-buffer-window "*manage-minor-mode*"))))))
 
 (autoload-if-found '(gitter) "gitter"  nil t)
+
+(if (not (executable-find "pass"))
+    (message "--- pass is NOT installed.")
+  (global-set-key (kbd "C-c f p") 'helm-pass)
+  (autoload-if-found '(helm-pass) "helm-pass" nil t)
+  (autoload-if-found '(ivy-pass) "ivy-pass" nil t))
 
 (provide 'late-init)

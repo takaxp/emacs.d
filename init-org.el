@@ -1390,7 +1390,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                              :underline nil
                              :inherit font-lock-comment-delimiter-face))
 
-  (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook))
+  (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook yatex-mode))
     (add-hook hook #'my-orglink-mode-activate))
 
   (with-eval-after-load "orglink"

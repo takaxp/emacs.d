@@ -704,6 +704,7 @@
           session-globals-include '((kill-ring 100)
                                     (session-file-alist 100 t)
                                     (file-name-history 200)
+                                    ivy-dired-history-variable
                                     search-ring
                                     regexp-search-ring))
     (setq session-undo-check -1)))
@@ -1111,8 +1112,8 @@
 (defun my-theme (&optional type)
   (interactive "MType (light or dark): ")
   (setq my-frame-appearance
-        (cond ((equal "light" type) 'light)
-              ((equal "dark" type) 'dark)
+        (cond ((member type '("light" "l")) 'light)
+              ((member type '("dark" "d")) 'dark)
               (t
                my-frame-appearance)))
   (if (display-graphic-p)

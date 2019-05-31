@@ -8,15 +8,115 @@
 ;; git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; (when (require 'ivy-rich nil t) ;; Heavy
+;;   (setq ivy-rich-path-style 'abbrev)
+;;   (ivy-rich-mode 1))
+
+(with-eval-after-load "postpone"
+  ;; hl-todo: https://github.com/tarsius/hl-todo
+  (when (require 'hl-todo nil t)
+    (global-hl-todo-mode)))
+
+;; C-M-left + C-M-SPC 相当の操作（変数名を書いてからそれを選択）
+;; ペーストした場合は，C-x C-x だけで選択できる．
+(defun my-mark-sexp ()
+  (interactive)
+  (backward-sexp)
+  (mark-sexp)
+  (exchange-point-and-mark))
+(global-set-key (kbd "C-M-,") #'my-mark-sexp) ;; FIXME (C-u C-M-SPC)
+
+;; 水平方向の自動スクロールを制御
+(setq hscroll-margin 40)
+
+;; helm/ivy の共存が難しい．byte-compile しているとなおさら．
+;; ~/.emacs.d/org-recent-headings.dat は端末間で共有しないほうがいいかも．
+;; 履歴の掃除が必要かもしれない．対象の org ファイルが永続的なら生じない問題．
+(when (autoload-if-found
+       '(org-recent-headings-ivy org-recent-headings-mode)
+       "org-recent-headings" nil t)
+
+  ;; Originally located in org-recent-headings.el.
+  (with-eval-after-load "ivy"
+    (defun org-recent-headings-ivy ()
+      "Choose from recent Org headings with Ivy."
+      (interactive)
+      (org-recent-headings :completing-read-fn #'ivy-completing-read)))
+
+  ;; for Ivy interface
+  (with-eval-after-load "org-recent-headings"
+    ;;    (setq helm-source-org-recent-headings nil)
+    (setq org-recent-headings-show-entry-function 'org-recent-headings--show-entry-direct)
+    (setq org-recent-headings-advise-functions
+          '(org-agenda-goto
+            org-agenda-show
+            org-agenda-show-mouse
+            org-show-entry
+            org-reveal
+            org-refile
+            org-tree-to-indirect-buffer
+            org-bookmark-jump))
+    (custom-set-variables
+     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")))
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f r") 'org-recent-headings-ivy)
+    (defun ad:org-recent-headings-activate ()
+      (interactive)
+      (when (and (require 'dash-functional nil t)
+                 (require 'org-recent-headings nil t))
+        (org-recent-headings-mode)
+        (advice-remove 'org-recent-headings-ivy
+                       #'ad:org-recent-headings-activate)))
+    (advice-add 'org-recent-headings-ivy :before
+                #'ad:org-recent-headings-activate)))
+
+(with-eval-after-load "projectile"
+  (when (require 'counsel-projectile nil t)
+    (setq projectile-completion-system 'ivy)
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    (counsel-projectile-mode 1)))
+
+(with-eval-after-load "org"
+  (defun my-org-hide-drawers ()
+    "Hide all drawers in an org tree."
+    (save-excursion
+      (beginning-of-line)
+      (unless (looking-at-p org-drawer-regexp)
+        (org-cycle-hide-drawers 'children))))
+  (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+  ;; (remove-hook 'org-tab-first-hook 'my-org-hide-drawers)
+  )
+
+(with-eval-after-load "bm"
+  (defun ad:bm-show-mode ()
+    "Enable truncate mode when showing bm list."
+    (toggle-truncate-lines 1))
+  (advice-add 'bm-show-mode :after #'ad:bm-show-mode))
+
+(setq scroll-preserve-screen-position t) ;; スクロール時にスクリーン内で固定
+
 ;; dired に反映されるのは確認できたが，completion では確認できず．
 ;; Possible completions
 (setq completion-ignored-extensions
       (append completion-ignored-extensions
               '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (with-eval-after-load "postpone"
+  (when (require 'swiper nil t)
+    ;; こういうの exclude list を実装したい．"^\\*+" に限らず判定したいね．
+    (defun ad:swiper-thing-at-point ()
+      "`swiper' with `ivy-thing-at-point'."
+      (interactive)
+      (let ((thing (if (thing-at-point-looking-at "^\\*+")
+                       nil
+                     (ivy-thing-at-point))))
+        (when (use-region-p)
+          (deactivate-mark))
+        (swiper thing)))
+    (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)
+    (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point))
+
   (when (and (require 'ivy nil t)
              (require 'counsel nil t))
 
@@ -24,6 +124,24 @@
     (global-set-key (kbd "C-M-r") 'counsel-recentf)
     (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
     ;;    (global-set-key (kbd "C-M-l") 'counsel-locate) ;; or counsel-fzf?
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; counsel-recentf のリストを "~/" から始める．
+    (defun my-counsel-recentf ()
+      "Find a file on `recentf-list'."
+      (interactive)
+      (require 'recentf)
+      (recentf-mode)
+      (ivy-read "Recentf: "
+                (progn
+                  (mapcar #'substring-no-properties recentf-list) ;; remove?
+                  (mapcar #'abbreviate-file-name recentf-list)) ;; starting "~/"
+                :action (lambda (f)
+                          (with-ivy-window
+                            (find-file f)))
+                :require-match t
+                :caller 'counsel-recentf))
+    (advice-add 'counsel-recentf :override #'my-counsel-recentf)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; for bm.el
@@ -117,21 +235,22 @@
 
     ;; 選択対象を "" にする（かなり重くなる？） ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     (setq ivy-format-function #'ivy-format-function-arrow)
-    (defun ad:ivy-format-function-arrow (cands)
-      "Transform CANDS into a string for minibuffer."
-      (ivy--format-function-generic
-       (lambda (str)
-         (concat (ivy--add-face " " 'my-ivy-arrow-visible)
-                 (ivy--add-face str 'ivy-current-match)))
-       (lambda (str)
-         (concat (ivy--add-face " " 'my-ivy-arrow-invisible) str))
-       ;; (lambda (str)
-       ;;   (concat "  " str))
-       cands
-       "\n"))
-    ;; （かなり重くなる）
-    (advice-add 'ivy-format-function-arrow
-                :override #'ad:ivy-format-function-arrow)
+    (when window-system
+      (defun ad:ivy-format-function-arrow (cands)
+        "Transform CANDS into a string for minibuffer."
+        (ivy--format-function-generic
+         (lambda (str)
+           (concat (ivy--add-face " " 'my-ivy-arrow-visible)
+                   (ivy--add-face str 'ivy-current-match)))
+         (lambda (str)
+           (concat (ivy--add-face " " 'my-ivy-arrow-invisible) str))
+         ;; (lambda (str)
+         ;;   (concat "  " str))
+         cands
+         "\n"))
+      ;; （かなり重くなる）
+      (advice-add 'ivy-format-function-arrow
+                  :override #'ad:ivy-format-function-arrow))
 
     ;; helm-M-x と同じ振る舞いにする設定（3点）;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; コマンド使用履歴を使って counsel-M-x の候補を表示する（4点目）
@@ -410,25 +529,26 @@ a number of clock tables."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fontawesome 拡張
-(with-eval-after-load "postpone"
-  ;; 以下を関数化して，任意の文字コードに対応させる．
-  (defface my-face-f0a4 '((t (:foreground "orange")))
-    nil :group 'font-lock-highlighting-faces)
-  (defface my-face-f088 '((t (:foreground "red")))
-    nil :group 'font-lock-highlighting-faces)
-  (defface my-face-f087 '((t (:foreground "Seagreen3")))
-    nil :group 'font-lock-highlighting-faces)
-  (defvar my-face-f0a4 'my-face-f0a4)
-  (defvar my-face-f088 'my-face-f088)
-  (defvar my-face-f087 'my-face-f087)
-  (defadvice font-lock-mode (before my-font-lock-mode1 ())
-    (font-lock-add-keywords
-     major-mode
-     '(("" 0 my-face-f0a4 append)
-       ("" 0 my-face-f088 append)
-       ("" 0 my-face-f087 append))))
-  (ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode1)
-  (ad-activate 'font-lock-mode))
+(when window-system
+  (with-eval-after-load "postpone"
+    ;; 以下を関数化して，任意の文字コードに対応させる．
+    (defface my-face-f0a4 '((t (:foreground "orange")))
+      nil :group 'font-lock-highlighting-faces)
+    (defface my-face-f088 '((t (:foreground "red")))
+      nil :group 'font-lock-highlighting-faces)
+    (defface my-face-f087 '((t (:foreground "Seagreen3")))
+      nil :group 'font-lock-highlighting-faces)
+    (defvar my-face-f0a4 'my-face-f0a4)
+    (defvar my-face-f088 'my-face-f088)
+    (defvar my-face-f087 'my-face-f087)
+    (defadvice font-lock-mode (before my-font-lock-mode1 ())
+      (font-lock-add-keywords
+       major-mode
+       '(("" 0 my-face-f0a4 append)
+         ("" 0 my-face-f088 append)
+         ("" 0 my-face-f087 append))))
+    (ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode1)
+    (ad-activate 'font-lock-mode)))
 
 ;; (when (require 'hi-lock nil t)
 ;;   (highlight-phrase "")

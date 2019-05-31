@@ -109,7 +109,6 @@
 (el-get-bundle "toc-org") ;; using a private recipe to exclude org
 (el-get-bundle "harrybournis/org-fancy-priorities")
 (el-get-bundle "kiwanami/emacs-calfw")
-(el-get-bundle "alphapapa/org-bookmark-heading")
 (el-get-bundle "org-emms"
                :type git
                :url "https://gitlab.com/jagrg/org-emms.git")
@@ -205,13 +204,21 @@
 (el-get-bundle "yasuyk/helm-emmet" :depends (emmet-mode))
 (el-get-bundle "emacs-helm/helm-emms")
 (el-get-bundle "jixiuf/helm-dired-history")
-(el-get-bundle "jixiuf/ivy-dired-history")
 
 ;; (el-get-bundle "helm-google")
 ;; (el-get-bundle "helm-ghq")
 ;; (el-get-bundle "helm-css-scss")
 ;; (el-get-bundle "helm-rtags")
 
+
+;; Ivy/counsel modules
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(el-get-bundle "jixiuf/ivy-dired-history")
+(el-get-bundle "ericdanan/counsel-projectile")
+(el-get-bundle "syohex/emacs-counsel-gtags")
+;; (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
+(el-get-bundle "Yevgnen/ivy-rich")
+(el-get-bundle "takaxp/counsel-selected")
 
 ;; OSX support
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -279,6 +286,7 @@
                :type git
                :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
 (el-get-bundle "sebastiencs/company-box")
+(el-get-bundle "tarsius/hl-todo")
 
 ;; System related
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
