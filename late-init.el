@@ -149,6 +149,7 @@
           (interactive)
           (call-interactively 'ag)
           (switch-to-buffer-other-frame "*ag search*"))))
+
   (unless noninteractive
     (message "--- ag is NOT installed in this system.")))
 
@@ -167,6 +168,7 @@
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
 (setq scroll-step 1)
+(setq scroll-preserve-screen-position t) ;; スクロール時にスクリーン内で固定
 ;;  (setq scroll-margin 0) ; default=0
 
 ;; Scroll window on a page-by-page basis with N line overlapping
@@ -251,6 +253,11 @@
       (add-hook 'after-save-hook 'bm-buffer-save)
       (add-hook 'after-revert-hook 'bm-buffer-restore)
       (add-hook 'kill-emacs-hook #'my-bm-save-all))
+
+    (defun ad:bm-show-mode ()
+      "Enable truncate mode when showing bm list."
+      (toggle-truncate-lines 1))
+    (advice-add 'bm-show-mode :after #'ad:bm-show-mode)
 
     (defun my-bm-save-all ()
       (bm-buffer-save-all)
@@ -2106,6 +2113,9 @@ Uses `all-the-icons-material' to fetch the icon."
                       :foreground "chocolate4"
                       :background "white" :weight 'extra-bold
                       :inherit nil))
+
+(when (require 'hl-todo nil t)
+  (global-hl-todo-mode))
 
 (when (autoload-if-found
        '(rainbow-mode)

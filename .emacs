@@ -8,36 +8,35 @@
 ;; git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (when (require 'ivy-rich nil t) ;; Heavy
-;;   (setq ivy-rich-path-style 'abbrev)
-;;   (ivy-rich-mode 1))
-
-(with-eval-after-load "postpone"
-  ;; hl-todo: https://github.com/tarsius/hl-todo
-  (when (require 'hl-todo nil t)
-    (global-hl-todo-mode)))
-
-;; C-M-left + C-M-SPC 相当の操作（変数名を書いてからそれを選択）
-;; ペーストした場合は，C-x C-x だけで選択できる．
-(defun my-mark-sexp ()
-  (interactive)
-  (backward-sexp)
-  (mark-sexp)
-  (exchange-point-and-mark))
-(global-set-key (kbd "C-M-,") #'my-mark-sexp) ;; FIXME (C-u C-M-SPC)
-
 ;; 水平方向の自動スクロールを制御
 (setq hscroll-margin 40)
 
-;; helm/ivy の共存が難しい．byte-compile しているとなおさら．
+;; dired に反映されるのは確認できたが，completion では確認できず．
+;; Possible completions
+(setq completion-ignored-extensions
+      (append completion-ignored-extensions
+              '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ivy-rich
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (when (require 'ivy-rich nil t) ;; Heavy?
+;;   (ivy-rich-mode 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Ivy/Counsel
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; org-recent-headings
+;; org-recent-headings は helm/ivy の共存が難しい．
+;; byte-compile しているとなおさら．
 ;; ~/.emacs.d/org-recent-headings.dat は端末間で共有しないほうがいいかも．
 ;; 履歴の掃除が必要かもしれない．対象の org ファイルが永続的なら生じない問題．
 (when (autoload-if-found
        '(org-recent-headings-ivy org-recent-headings-mode)
        "org-recent-headings" nil t)
 
-  ;; Originally located in org-recent-headings.el.
   (with-eval-after-load "ivy"
+    ;; Originally located in org-recent-headings.el.
     (defun org-recent-headings-ivy ()
       "Choose from recent Org headings with Ivy."
       (interactive)
@@ -46,7 +45,8 @@
   ;; for Ivy interface
   (with-eval-after-load "org-recent-headings"
     ;;    (setq helm-source-org-recent-headings nil)
-    (setq org-recent-headings-show-entry-function 'org-recent-headings--show-entry-direct)
+    (setq org-recent-headings-show-entry-function
+          'org-recent-headings--show-entry-direct)
     (setq org-recent-headings-advise-functions
           '(org-agenda-goto
             org-agenda-show
@@ -63,7 +63,7 @@
     (global-set-key (kbd "C-c f r") 'org-recent-headings-ivy)
     (defun ad:org-recent-headings-activate ()
       (interactive)
-      (when (and (require 'dash-functional nil t)
+      (when (and (require 'dash-functional nil t) ;; FIXME
                  (require 'org-recent-headings nil t))
         (org-recent-headings-mode)
         (advice-remove 'org-recent-headings-ivy
@@ -71,38 +71,41 @@
     (advice-add 'org-recent-headings-ivy :before
                 #'ad:org-recent-headings-activate)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; counsel-projectile
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (with-eval-after-load "projectile"
   (when (require 'counsel-projectile nil t)
+    ;; M-o z で fzf を呼び出せる．
+    ;; https://twitter.com/takaxp/status/1134481340458360832
+    (defun counsel-projectile-action-fzf (_project)
+      "Search the current directory with fzf."
+      (counsel-fzf))
+    ;; あれ，これなんで動いてるの？関数に add-to-list できるの？
+    ;; 以下の2つの関数は，動的に生成される defcustom で規定される．すごい．
+    (add-to-list 'counsel-projectile-switch-project-action
+                 '("z" counsel-projectile-action-fzf
+                   "search project with fzf") t)
+    (add-to-list 'counsel-projectile-find-file-action
+                 '("z" counsel-projectile-action-fzf
+                   "search project with fzf") t)
     (setq projectile-completion-system 'ivy)
     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
     (counsel-projectile-mode 1)))
 
-(with-eval-after-load "org"
-  (defun my-org-hide-drawers ()
-    "Hide all drawers in an org tree."
-    (save-excursion
-      (beginning-of-line)
-      (unless (looking-at-p org-drawer-regexp)
-        (org-cycle-hide-drawers 'children))))
-  (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
-  ;; (remove-hook 'org-tab-first-hook 'my-org-hide-drawers)
-  )
-
-(with-eval-after-load "bm"
-  (defun ad:bm-show-mode ()
-    "Enable truncate mode when showing bm list."
-    (toggle-truncate-lines 1))
-  (advice-add 'bm-show-mode :after #'ad:bm-show-mode))
-
-(setq scroll-preserve-screen-position t) ;; スクロール時にスクリーン内で固定
-
-;; dired に反映されるのは確認できたが，completion では確認できず．
-;; Possible completions
-(setq completion-ignored-extensions
-      (append completion-ignored-extensions
-              '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Swiper
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(when (autoload-if-found '(counsel-M-x counsel-recentf) "counsel" nil t)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-M-z") 'counsel-fzf)
+  (global-set-key (kbd "C-M-r") 'counsel-recentf)
+  (global-set-key (kbd "C-h b") 'counsel-descbinds)
+  ;; counsel-ibuffer の表示項目のカスタマイズは？ ivy-switch-buffer と同じ？
+  (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)) ;; ivy-switch-buffer?
 
 (with-eval-after-load "postpone"
+  (global-set-key (kbd "C-M-f") 'counsel-ag)
   (when (require 'swiper nil t)
     ;; こういうの exclude list を実装したい．"^\\*+" に限らず判定したいね．
     (defun ad:swiper-thing-at-point ()
@@ -120,11 +123,11 @@
   (when (and (require 'ivy nil t)
              (require 'counsel nil t))
 
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-M-r") 'counsel-recentf)
-    (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+    (global-set-key (kbd "M-y") 'counsel-yank-pop)
     ;;    (global-set-key (kbd "C-M-l") 'counsel-locate) ;; or counsel-fzf?
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; counsel-recentf
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; counsel-recentf のリストを "~/" から始める．
     (defun my-counsel-recentf ()
@@ -144,8 +147,9 @@
     (advice-add 'counsel-recentf :override #'my-counsel-recentf)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; for bm.el
-    ;; https://www.reddit.com/r/emacs/comments/700xck/ivy_with_bmel_bookmark_manager/
+;;; for bm.el
+;;; https://www.reddit.com/r/emacs/comments/700xck/ivy_with_bmel_bookmark_manager/
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     (defun bm-counsel-get-list (bookmark-overlays)
       (-map (lambda (bm)
               (with-current-buffer (overlay-buffer bm)
@@ -159,6 +163,7 @@
                        (name (format "%s:%d - %s" (buffer-name) line-num line)))
                   `(,name . ,bm))))
             bookmark-overlays))
+
     (defun bm-counsel-find-bookmark ()
       (interactive)
       (let* ((bm-list (bm-counsel-get-list (bm-overlays-lifo-order t)))
@@ -177,10 +182,11 @@
                               (bm-goto bookmark)
                               ))
                   :sort t)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ;; disable counsel-find-file
-    ;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; disable counsel-find-file
+;;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; completion-in-region-function も一時的にデフォに戻さないと，TAB補完時に
     ;; ivy が有効化されてしまう．
     (defun my-disable-counsel-find-file (&rest args)
@@ -190,7 +196,9 @@
         (apply #'read-file-name-default args)))
     (setq read-file-name-function #'my-disable-counsel-find-file)
 
-    ;; 絞り込み過程の単語のハイライト配色
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 絞り込み過程の単語のハイライト配色
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     (defface my-ivy-arrow-visible
       '((((class color) (background light))
          :foreground "orange") ;;  :background "#FFF6F6"
@@ -220,8 +228,11 @@
        ((((class color) (background light)) :foreground "#ffbbff")
         (((class color) (background dark)) :foreground "#8a498a"))))
 
-    ;; M-x `find-library' が大量の =./= を表示する問題を回避
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; M-x `find-library' が大量の =./= を表示する問題を回避
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; `find-library' ではなく `counsel-find-library' を直接呼べばOK．
+    ;; M-x のリストに出したくないので，advice はダメ．
     ;; find-library から interactive を取ってしまう
     ;; これなら，たとえcounsel-find-library が呼んでいたとしても M-x には出ない
     ;; a. (make-obsolete 'find-library 'counsel-find-library)
@@ -233,34 +244,42 @@
             (switch-to-buffer (find-file-noselect (find-library-name library)))
           (run-hooks 'find-function-after-hook))))
 
-    ;; 選択対象を "" にする（かなり重くなる？） ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 選択対象を "" にする（かなり重くなる？）
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     (setq ivy-format-function #'ivy-format-function-arrow)
     (when window-system
       (defun ad:ivy-format-function-arrow (cands)
         "Transform CANDS into a string for minibuffer."
         (ivy--format-function-generic
+         ;; (lambda (str)
+         ;;   (concat (format "%s" (ivy--add-face "\t" 'my-ivy-arrow-visible))
+         ;;           (ivy--add-face str 'ivy-current-match)))
+         ;; (lambda (str)
+         ;;   (concat (format "%-4s" " ")
+         ;;           str))
          (lambda (str)
            (concat (ivy--add-face " " 'my-ivy-arrow-visible)
                    (ivy--add-face str 'ivy-current-match)))
          (lambda (str)
-           (concat (ivy--add-face " " 'my-ivy-arrow-invisible) str))
-         ;; (lambda (str)
-         ;;   (concat "  " str))
+           (concat (ivy--add-face " " 'my-ivy-arrow-invisible)
+                   str))
          cands
          "\n"))
-      ;; （かなり重くなる）
       (advice-add 'ivy-format-function-arrow
                   :override #'ad:ivy-format-function-arrow))
 
-    ;; helm-M-x と同じ振る舞いにする設定（3点）;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; helm-M-x と同じ振る舞いにする設定（4点）
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; コマンド使用履歴を使って counsel-M-x の候補を表示する（4点目）
-    ;; 激重の様子．
-    ;; extended-command-history
+    ;; 激重の様子？
+    ;; 1. extended-command-history
     (when (require 'smex nil t)
       (setq smex-history-length 35)
       (setq smex-completion-method 'ivy))
 
-    ;; exclude `counsel-M-x'
+    ;; 2. exclude `counsel-M-x'
     (setq ivy-initial-inputs-alist
           '(
             ;; (org-refile . "^")
@@ -271,9 +290,11 @@
             (counsel-org-capture . "^")
             (Man-completion-table . "^")
             (woman . "^")))
-    ;; ignore-order
+
+    ;; 3. ignore-order
     (add-to-list 'ivy-re-builders-alist '(t . ivy--regex-ignore-order))
-    ;; sort
+
+    ;; 4. sort
     ;; https://github.com/abo-abo/swiper/issues/1294
     (defun ivy--sort-by-len (name candidates)
       "Sort CANDIDATES based on similarity of their length with NAME."
@@ -294,8 +315,9 @@
                  '(counsel-M-x . ivy--sort-by-len) t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    ;; https://github.com/d12frosted/flyspell-correct/issues/10
+;;; flyspell-correct-ivy
+;;; https://github.com/d12frosted/flyspell-correct/issues/10
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; =M-o= 押下しないと，save option が出てこない．つまり，<F7> M-o s となる．
     ;; <F7><F7> の夢，敗れる．
     (when (require 'flyspell-correct-ivy nil t)
@@ -318,20 +340,41 @@ of (command, word) to be used by flyspell-do-correct."
           result))
 
       (setq flyspell-correct-interface 'flyspell-correct-ivy-inline-actions)
-      (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic)))
+      (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
 
+    ;; `ivy-switch-buffer' のリストに recent files と bookmark を含める．
+    ;; C-x b のことであり，C-x C-b ではない．
+    (setq ivy-use-virtual-buffers t)
+
+    ;; ミニバッファでコマンド発行を認める (t)
+    (setq enable-recursive-minibuffers nil) ;
+    (minibuffer-depth-indicate-mode 1) ;; 何回層入ったかプロンプトに表示．
+
+    ;; https://github.com/abo-abo/swiper/blob/596461e1ff09431eb417877a9870e53c452e1b62/doc/Changelog.org
+    ;; https://github.com/abo-abo/swiper/issues/924
+    ;; https://github.com/abo-abo/swiper/issues/309
+    (ivy-mode 1)
+
+    ;; (counsel-mode 1) ;; 無くても大きな問題ないかも．
+    ;; (global-set-key (kbd "C-h b") 'counsel-descbinds)
+    ;; (counsel-mode 1) があれば，'counsel-descbinds の set-key は不要．
+    ;; 逆に(counsel-mode 1) があれば， find-file の張替えが必要．
+    ;; (counsel-mode 1) を書かずに，(kbd "C-h b")を設定するのでも良い．
+    ;; (global-set-key (kbd "C-x C-f") 'find-file) ;; reconfigure
+    ;; (counsel-mode 1) 使うと，counsel-find-file を取り返せないので，
+    ;; 有効にしない方がいい．
+    ;; うまいことすれば，(counsel-mode 1) しつつ，counsel-find-file を無効化できるかも．
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-  (setq ivy-use-virtual-buffers t)
-  (setq enable-recursive-minibuffers t)
-  (ivy-mode 1))
-
+;; Company-box
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (with-eval-after-load "company"
 ;;   (when (and (require 'all-the-icons nil t)
 ;;              (require 'company-box nil t))
 ;;     (add-hook 'company-mode-hook 'company-box-mode)))
-
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (when (require 'ivy-posframe nil t)
 ;;   (setq ivy-display-function #'ivy-posframe-display)
 ;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-frame-center)
@@ -341,7 +384,8 @@ of (command, word) to be used by flyspell-do-correct."
 ;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-point)
 ;;   (ivy-posframe-enable))
 
-(with-eval-after-load "postpone" (require 'frog-jump-buffer nil t))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (with-eval-after-load "postpone" (require 'frog-jump-buffer nil t))
 
 ;; Trying LSP
 ;; https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
@@ -368,164 +412,6 @@ of (command, word) to be used by flyspell-do-correct."
           lsp-ui-peek-enable t
           lsp-ui-peek-list-width 60
           lsp-ui-peek-peek-height 25)))
-
-(with-eval-after-load "org-capture"
-  ;; ブックマーク入りのノートをキャプチャするテンプレートを追加
-  (setq org-capture-templates
-        `(("u" "subtree with a bookmark" entry
-           (file+headline "~/Desktop/hoge.org" "INBOX")
-           "** TODO %(message \"%s\" my-captured-bookmark-last)\n%?\n%(my-get-org-bookmark)")
-          ("U" "subtree with a bookmark" entry
-           (file+headline "~/Desktop/hoge.org" "INBOX")
-           "** TODO %(message \"%s\" my-captured-bookmark-last)\n%?\n%(my-get-org-bookmark)" :prepend t)
-          ("p" "Memos")
-          ("p1" "T1 MEMO" entry (file+olp+datetree "~/Desktop/hoge.org" "Memo") "***** %U\n(p1)%?" :prepend t)
-          ("p2" "T2 MEMO" entry (file+olp+datetree "~/Desktop/hoge.org" "Memo") "***** %U\n(p2)%?" :prepend t)
-          ("M" "MEMO" entry (file+olp+datetree "~/Desktop/hoge.org" "Memo") "***** %U\n(M)%?" :prepend nil)))
-
-  ;; キャプチャ直前に記録するブックマークの名前を記録
-  (defvar my-captured-bookmark-last nil)
-  (defun my-org-capture-bookmark-set ()
-    "Bookmark the location when capture is activated."
-    (let ((name (format "%s::%s"
-                        (bookmark-buffer-file-name)
-                        (buffer-substring-no-properties
-                         (point-at-bol) (point-at-eol)))))
-      (bookmark-set (setq my-captured-bookmark-last name))))
-  (defun my-get-org-bookmark ()
-    "Format a link compliant with `ol-bookmark'."
-    (if my-captured-bookmark-last
-        (format "  [[bookmark:%s][jump to source]]" my-captured-bookmark-last)
-      (warn "Nothing is stored in `my-captured-bookmark-last'")))
-  (defun ad:org-capture (&optional goto keys)
-    (my-org-capture-bookmark-set))
-  (advice-add 'org-capture :before #'ad:org-capture)
-  (defun ad:org-capture-kill ()
-    (when my-captured-bookmark-last
-      (bookmark-delete my-captured-bookmark-last)))
-  (advice-add 'org-capture-kill :before #'ad:org-capture-kill))
-
-(with-eval-after-load "org-clock"
-  (setq org-clocktable-defaults
-        (list
-         :maxlevel 2
-         :lang (or (bound-and-true-p org-export-default-language) "en")
-         :scope 'file
-         :block nil
-         :wstart 1
-         :mstart 1
-         :tstart nil
-         :tend nil
-         :step nil
-         :stepskip0 nil
-         :fileskip0 nil
-         :tags nil
-         :match nil
-         :emphasize nil
-         :link nil
-         :narrow '40!
-         :indent t
-         :formula nil
-         :timestamp nil
-         :level nil
-         :tcolumns nil
-         :formatter nil
-         :reverse nil))
-
-  (defun ad:org-clocktable-steps (params)
-    "Create one or more clock tables, according to PARAMS.
-Step through the range specifications in plist PARAMS to make
-a number of clock tables."
-    (let* ((ignore-empty-tables (plist-get params :stepskip0))
-           (step (plist-get params :step))
-           (step-header
-            (pcase step
-              (`day "Daily report: ")
-              (`week "Weekly report starting on: ")
-              (`month "Monthly report starting on: ")
-              (`year "Annual report starting on: ")
-              (_ (user-error "Unknown `:step' specification: %S" step))))
-           (week-start (or (plist-get params :wstart) 1))
-           (month-start (or (plist-get params :mstart) 1))
-           (range
-            (pcase (plist-get params :block)
-              (`nil nil)
-              (range
-               (org-clock-special-range range nil t week-start month-start))))
-           ;; For both START and END, any number is an absolute day
-           ;; number from Agenda.  Otherwise, consider value to be an Org
-           ;; timestamp string.  The `:block' property has precedence
-           ;; over `:tstart' and `:tend'.
-           (start
-            (pcase (if range (car range) (plist-get params :tstart))
-              ((and (pred numberp) n)
-               (pcase-let ((`(,m ,d ,y) (calendar-gregorian-from-absolute n)))
-                 (apply #'encode-time (list 0 0 org-extend-today-until d m y))))
-              (timestamp
-               (seconds-to-time
-                (org-matcher-time (or timestamp
-                                      ;; The year Org was born.
-                                      "<2003-01-01 Thu 00:00>"))))))
-           (end
-            (pcase (if range (nth 1 range) (plist-get params :tend))
-              ((and (pred numberp) n)
-               (pcase-let ((`(,m ,d ,y) (calendar-gregorian-from-absolute n)))
-                 (apply #'encode-time (list 0 0 org-extend-today-until d m y))))
-              (timestamp (seconds-to-time (org-matcher-time timestamp)))))
-           (reverse-point (when (plist-get params :reverse) (point))))
-      (while (time-less-p start end)
-        (unless (bolp) (insert "\n"))
-        (when reverse-point
-          (goto-char (1- reverse-point))
-          (insert "\n"))
-        ;; Insert header before each clock table.
-        (insert "\n"
-                step-header
-                (format-time-string (org-time-stamp-format nil t) start)
-                "\n")
-        ;; Compute NEXT, which is the end of the current clock table,
-        ;; according to step.
-        (let* ((next
-                (apply #'encode-time
-                       (pcase-let
-                           ((`(,_ ,_ ,_ ,d ,m ,y ,dow . ,_) (decode-time start)))
-                         (pcase step
-                           (`day (list 0 0 org-extend-today-until (1+ d) m y))
-                           (`week
-                            (let ((offset (if (= dow week-start) 7
-                                            (mod (- week-start dow) 7))))
-                              (list 0 0 org-extend-today-until (+ d offset) m y)))
-                           (`month (list 0 0 0 month-start (1+ m) y))
-                           (`year (list 0 0 org-extend-today-until 1 1 (1+ y)))))))
-               (table-begin (or reverse-point (line-beginning-position 0)))
-               (table-end 0)
-               (step-time
-                ;; Write clock table between START and NEXT.
-                (org-dblock-write:clocktable
-                 (org-combine-plists
-                  params (list :header ""
-                               :step nil
-                               :block nil
-                               :tstart (format-time-string
-                                        (org-time-stamp-format t t)
-                                        start)
-                               :tend (format-time-string
-                                      (org-time-stamp-format t t)
-                                      ;; Never include clocks past END.
-                                      (if (time-less-p end next) end next)))))))
-          (when reverse-point
-            (unless (ignore-errors (let ((case-fold-search t)) (re-search-forward step-header)))
-              (let ((case-fold-search t)) (re-search-forward "^[ \t]*#\\+END:")))
-            (end-of-line 0)
-            (setq table-end (point)))
-          (let ((case-fold-search t)) (re-search-forward "^[ \t]*#\\+END:"))
-          ;; Remove the table if it is empty and `:stepskip0' is
-          ;; non-nil.
-          (when (and ignore-empty-tables (equal step-time 0))
-            (delete-region (if reverse-point table-end (line-beginning-position)) table-begin))
-          (setq start next))
-        (end-of-line 0))))
-  (advice-add 'org-clocktable-steps :override #'ad:org-clocktable-steps))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fontawesome 拡張
@@ -556,52 +442,12 @@ a number of clock tables."
 ;;   (highlight-phrase "")
 ;;   (global-hi-lock-mode))
 
-(progn ;; facecheck-mode
-  (defvar facecheck-mode-map
-    (let ((map (make-sparse-keymap)))
-      (define-key map [mouse-1] 'facecheck-at-point)
-      map)
-    "")
-
-  ;;;###autoload
-  (defun facecheck-at-point ()
-    (interactive)
-    (describe-face (face-at-point)))
-
-  (defvar facecheck--global-hl-line-mode nil)
-  (defvar facecheck--mouse-highlight nil)
-  (defvar facecheck--mouse-1-click-follows-link nil)
-
-  (defun facecheck--setup ()
-    "Init function."
-    (setq facecheck--mouse-highlight mouse-highlight
-          facecheck--mouse-1-click-follows-link mouse-1-click-follows-link)
-    (setq mouse-highlight nil
-          mouse-1-click-follows-link nil)
-    (when (setq facecheck--global-hl-line-mode global-hl-line-mode)
-      (global-hl-line-mode -1)))
-
-  (defun facecheck--abort ()
-    "Abort."
-    (setq mouse-highlight facecheck--mouse-highlight
-          mouse-1-click-follows-link facecheck--mouse-1-click-follows-link)
-    (when facecheck--global-hl-line-mode
-      (global-hl-line-mode 1)))
-
-  (define-minor-mode facecheck-mode
-    ""
-    :init-value nil
-    :keymap facecheck-mode-map
-    :global t
-    :require 'facecheck
-    :group 'facecheck
-    (when window-system
-      (if facecheck-mode
-          (facecheck--setup)
-        (facecheck--abort)))))
-
 ;; To decrypt old sub trees
 ;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)
+
+(when (autoload-if-found '(facecheck-at-point) "facecheck" nil t)
+  (with-eval-after-load "facecheck"
+    (facecheck-mode 1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; .emacs ends here

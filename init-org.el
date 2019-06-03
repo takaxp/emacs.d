@@ -153,6 +153,16 @@
         1 'org-headline-done prepend))
      'append)
 
+    ;; プロパティ等をに自動的閉じる．
+    (defun my-org-hide-drawers ()
+      "Hide all drawers in an org tree."
+      (save-excursion
+        (beginning-of-line)
+        (unless (looking-at-p org-drawer-regexp)
+          (org-cycle-hide-drawers 'children))))
+    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+
+
     (defun my-do-org-update-staistics-cookies ()
       (interactive)
       (message "Update statistics...")

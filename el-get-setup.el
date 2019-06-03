@@ -177,6 +177,7 @@
 (el-get-bundle "emacsmirror/rmsbolt")
 (el-get-bundle "diffview")
 (el-get-bundle "projectile")
+(el-get-bundle "takaxp/facecheck")
 ;; (el-get-bundle "tern") ;; require npm
 ;; (el-get-bundle "tern-auto-complete")
 
@@ -217,6 +218,7 @@
 (el-get-bundle "ericdanan/counsel-projectile")
 (el-get-bundle "syohex/emacs-counsel-gtags")
 ;; (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
+(el-get-bundle "abo-abo/swiper")
 (el-get-bundle "Yevgnen/ivy-rich")
 (el-get-bundle "takaxp/counsel-selected")
 
@@ -305,7 +307,7 @@
 (el-get-bundle "tabbar")
 (el-get-bundle "takaxp/moom")
 (el-get-bundle "emacsmirror/frame-tabs")
-(el-get-bundle "tumashu/ivy-posframe" :depends (swiper))
+(el-get-bundle "tumashu/ivy-posframe") ;; require swiper
 ;; (el-get-bundle "spaceline-all-the-icons")
 ;; (el-get-bundle "exwm") ;; failed to instal ... Bad Request
 (el-get-bundle "abo-abo/smex")

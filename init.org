@@ -1260,6 +1260,7 @@ the_silver_searcher @0.18.1 (textproc)
           (interactive)
           (call-interactively 'ag)
           (switch-to-buffer-other-frame "*ag search*"))))
+
   (unless noninteractive
     (message "--- ag is NOT installed in this system.")))
 #+end_src
@@ -1510,6 +1511,24 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 #+end_src
 
+** 対応するカッコを選択（逆方向）
+   :PROPERTIES:
+   :CUSTOM_ID: orgc4c0ed9a
+   :END:
+
+ - =C-M-SPC= (mark-sexp) は，カーソル位置から順方向に選択．
+ - =C-M-U= (backward-up-list) は，一つ外のカッコの先頭にポイントを移す．
+ - =C-M-9= (my-mark-sexp) は，カーソル位置から逆方向に選択．
+
+#+begin_src emacs-lisp :tangle init.el
+(defun my-mark-sexp (&optional arg)
+  "Move backward across one balanced expression and select it."
+  (interactive)
+  (mark-sexp (or arg -1)))
+(global-set-key (kbd "C-M-0") #'mark-sexp) ;; C-M-SPC
+(global-set-key (kbd "C-M-9") #'my-mark-sexp)
+#+end_src
+
 ** スクロールを制御
    :PROPERTIES:
    :CUSTOM_ID: orgb8c57f30
@@ -1529,6 +1548,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
 (setq scroll-step 1)
+(setq scroll-preserve-screen-position t) ;; スクロール時にスクリーン内で固定
 ;;  (setq scroll-margin 0) ; default=0
 #+end_src
 
@@ -1670,6 +1690,11 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
       (add-hook 'after-save-hook 'bm-buffer-save)
       (add-hook 'after-revert-hook 'bm-buffer-restore)
       (add-hook 'kill-emacs-hook #'my-bm-save-all))
+
+    (defun ad:bm-show-mode ()
+      "Enable truncate mode when showing bm list."
+      (toggle-truncate-lines 1))
+    (advice-add 'bm-show-mode :after #'ad:bm-show-mode)
 
     (defun my-bm-save-all ()
       (bm-buffer-save-all)
@@ -6458,6 +6483,16 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         1 'org-headline-done prepend))
      'append)
 
+    ;; プロパティ等をに自動的閉じる．
+    (defun my-org-hide-drawers ()
+      "Hide all drawers in an org tree."
+      (save-excursion
+        (beginning-of-line)
+        (unless (looking-at-p org-drawer-regexp)
+          (org-cycle-hide-drawers 'children))))
+    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+
+
     (defun my-do-org-update-staistics-cookies ()
       (interactive)
       (message "Update statistics...")
@@ -8753,7 +8788,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
          (fboundp 'mac-get-current-input-source))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title "")) ;; 
+       "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
 
     (declare-function ad:mac-toggle-input-method "init" nil)
     (declare-function my-apply-cursor-config "init" nil)
@@ -9757,6 +9792,18 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ;; (with-eval-after-load "postpone"
 ;;   (run-at-time "21:00" 86400 'my-theme)
 ;;   (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
+#+end_src
+
+** [hl-todo.el] 特定キーワードの配色を変える
+   :PROPERTIES:
+   :CUSTOM_ID: org6d79c76a
+   :END:
+
+ - [[https://github.com/tarsius/hl-todo][hl-todo]] を導入すれば簡単にできます．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (require 'hl-todo nil t)
+  (global-hl-todo-mode))
 #+end_src
 
 ** [rainbow-mode.el] 配色のリアルタイム確認
