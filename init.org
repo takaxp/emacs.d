@@ -874,6 +874,17 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 (setq compilation-scroll-output t)
 #+end_src
 
+** 水平方向の自動スクロール調整
+   :PROPERTIES:
+   :CUSTOM_ID: orgb26cd017
+   :END:
+
+ - 違和感なく水平方向にスクロールさせる．
+
+#+begin_src emacs-lisp :late-init.el
+(setq hscroll-margin 40)
+#+end_src
+
 ** C-x C-c で容易にEmacsを終了させないように質問する
    :PROPERTIES:
    :CUSTOM_ID: org68d1750d
@@ -3881,6 +3892,7 @@ paren.el の場合は以下の設定．
      (smooth-scroll-mode nil "smooth-scroll")
      (eldoc-mode nil "eldoc")
      (ivy-mode nil "ivy")
+     (counsel-mode nil "counsel")
      (centered-cursor-mode nil "centered-cursor-mode")
      (volatile-highlights-mode nil "volatile-highlights")
      (aggressive-indent-mode nil "aggressive-indent")
@@ -4233,15 +4245,53 @@ http://0xcc.net/migemo/#download
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(all-the-icons-dired-mode)
+       '(all-the-icons-dired-mode ad:all-the-icons-dired--display)
        "all-the-icons-dired" nil t)
 
   (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)
 
+  (with-eval-after-load "all-the-icons"
+    (setq all-the-icons-scale-factor 1.0)
+    (add-to-list 'all-the-icons-dir-icon-alist
+                 '("google[ _-]drive" all-the-icons-alltheicon "google-drive"
+                   :height 1.0 :v-adjust -0.1)))
+
   (with-eval-after-load "all-the-icons-dired"
     (unless noninteractive
       (unless (require 'font-lock+ nil t)
-        (user-error "font-lock+ is NOT installed for all-the-icons.")))))
+        (user-error "font-lock+ is NOT installed for all-the-icons."))
+
+      (defun ad:all-the-icons-dired--display ()
+        "Display the icons of files in a dired buffer."
+        (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)
+          (setq-local all-the-icons-dired-displayed t)
+          (let ((inhibit-read-only t)
+                (remote-p (and (fboundp 'tramp-tramp-file-p)
+                               (tramp-tramp-file-p default-directory))))
+            (save-excursion
+              (goto-char (point-min))
+              (setq tab-width 1)
+              (while (not (eobp))
+                (when (dired-move-to-filename nil)
+                  (let ((file (dired-get-filename 'verbatim t)))
+                    (unless (member file '("." ".."))
+                      (let ((filename (dired-get-filename nil t)))
+                        (if (file-directory-p filename)
+                            (let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))
+                                   (icon (cond
+                                          (remote-p
+                                           (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                                          ((file-symlink-p filename)
+                                           (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                                          ((all-the-icons-dir-is-submodule filename)
+                                           (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                                          ((file-exists-p (format "%s/.git" filename))
+                                           (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                                          (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))
+                              (insert (concat icon "\t")))
+                          (insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9
+                (forward-line 1))))))
+      (advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display))))
 #+end_src
 
 ** [eldoc.el] コンテクストに応じてヘルプを表示
@@ -5139,6 +5189,10 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "dired"
+  (setq completion-ignored-extensions
+        (append completion-ignored-extensions
+                '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+
   ;; Use build-in `wdired-mode'.
   ;; (define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)
 
@@ -5456,6 +5510,22 @@ http://www.emacswiki.org/emacs/EmacsSession
 
   (with-eval-after-load "helpful"
     (define-key helpful-mode-map (kbd "@") #'helpful-at-point)))
+#+end_src
+
+** [facecheck.el] クリックしてfaceをチェック
+   :PROPERTIES:
+   :CUSTOM_ID: orgc08799d2
+   :CREATED:  [2019-06-04 Tue 00:49]
+   :END:
+
+マウスクリックでface情報を表示する．マイナーモードを有効にして使います．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(facecheck-at-point facecheck-mode)
+       "facecheck" nil t)
+  (with-eval-after-load "facecheck"
+    (facecheck-mode 1)))
 #+end_src
 
 ** [keyfreq.el] コマンドログ
@@ -6606,10 +6676,11 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                 (my-ox-icalendar-cleanup)
                 result))))
        (lambda (result)
-         (message (format "[async] Uploading...%s"
-                          (cond ((eq result 0) "done")
-                                ((eq result 1) "skipped")
-                                (t "miss!")))))))
+         (unless (active-minibuffer-window)
+           (message (format "[async] Uploading...%s"
+                            (cond ((eq result 0) "done")
+                                  ((eq result 1) "skipped")
+                                  (t "miss!"))))))))
 
     (defun my-ox-icalendar-cleanup ()
       (interactive)
@@ -6963,15 +7034,19 @@ will not be modified."
              (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
              (field (org-entry-get (point) created nil)))
         (unless (or field (equal "" field))
-          (org-set-property created now)))))
+          (org-set-property created now)
+          (org-cycle-hide-drawers 'children))))
+    (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
+      (my-org-set-created-property))
+    (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"
     (defun my-toggle-org-block-visibility ()
       "Testing..."
       (interactive)
-	    (when (looking-at org-drawer-regexp)
-	      (org-flag-drawer		; toggle block visibility
-	       (not (get-char-property (match-end 0) 'invisible)))))
+      (when (looking-at org-drawer-regexp)
+        (org-flag-drawer		; toggle block visibility
+         (not (get-char-property (match-end 0) 'invisible)))))
 
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
@@ -7377,11 +7452,12 @@ update it for multiple appts?")
               appt-time-msg-list)
            (lambda (result)
              (setq appt-time-msg-list result)
-             (let ((cnt (length appt-time-msg-list)))
-               (if (eq cnt 0)
-                   (message "[async] No event to add")
-                 (message "[async] Added %d event%s for today"
-                          cnt (if (> cnt 1) "s" ""))))
+             (unless (active-minibuffer-window)
+               (let ((cnt (length appt-time-msg-list)))
+                 (if (eq cnt 0)
+                     (message "[async] No event to add")
+                   (message "[async] Added %d event%s for today"
+                            cnt (if (> cnt 1) "s" "")))))
              (setq my-org-agenda-to-appt-ready t))))))
     ;; 定期的に更新する
     (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
@@ -9803,6 +9879,10 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'hl-todo nil t)
+  (when window-system
+    (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
+    (add-to-list 'hl-todo-keyword-faces '("" . "red"))
+    (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
   (global-hl-todo-mode))
 #+end_src
 

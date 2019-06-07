@@ -8,20 +8,105 @@
 ;; git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; 水平方向の自動スクロールを制御
-(setq hscroll-margin 40)
+;; https://github.com/akirak/ivy-omni-org
+;; https://github.com/Kungsgeten/ivy-todo
+;; https://github.com/mkcms/ivy-yasnippet
+;; https://github.com/squiter/ivy-youtube
 
-;; dired に反映されるのは確認できたが，completion では確認できず．
-;; Possible completions
-(setq completion-ignored-extensions
-      (append completion-ignored-extensions
-              '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+(with-eval-after-load "ivy"
+  (require 'counsel-world-clock nil t)) ;; M-x counsel-world-clock
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ivy-rich
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (when (require 'ivy-rich nil t) ;; Heavy?
-;;   (ivy-rich-mode 1))
+(with-eval-after-load "ivy"
+  ;; heade-line-format は効かない様子．
+  (defvar ivy-prompt-headerline t) ;; ime-on/-off に合わせて変えてもOK．
+  (defun my-toggle-ivy-prompt-headerline ()
+    "Toggle showing a header line before the ivy prompt."
+    (interactive)
+    (setq ivy-prompt-headerline (not ivy-prompt-headerline)))
+  (defun ivy-prompt-headerline ()
+    "Return a header line for the ivy prompt."
+    (when ivy-prompt-headerline
+      (if window-system
+          (format "%s\n " (make-string (frame-width) ?\x2D)) ;; "----"
+        (format "%s\n" (make-string (1- (frame-width)) ?\x2F))))) ;; "////"
+  (defun ad:ivy--insert-prompt ()
+    "Update the prompt according to `ivy--prompt'."
+    (when (setq ivy--prompt (ivy-prompt))
+      (unless (memq this-command '(ivy-done ivy-alt-done ivy-partial-or-done
+                                            counsel-find-symbol))
+        (setq ivy--prompt-extra ""))
+      (let (head tail)
+        (if (string-match "\\(.*?\\)\\(:? ?\\)\\'" ivy--prompt)
+            (progn
+              (setq head (match-string 1 ivy--prompt))
+              (setq tail (match-string 2 ivy--prompt)))
+          (setq head ivy--prompt)
+          (setq tail ""))
+        (let ((inhibit-read-only t)
+              (std-props '(front-sticky t rear-nonsticky t field t read-only t))
+              (n-str
+               (concat
+                (if (and (bound-and-true-p minibuffer-depth-indicate-mode)
+                         (> (minibuffer-depth) 1))
+                    (format "[%d] " (minibuffer-depth))
+                  "")
+                (concat
+                 (if (string-match "%d.*%d" ivy-count-format)
+                     (format head
+                             (1+ ivy--index)
+                             (or (and (ivy-state-dynamic-collection ivy-last)
+                                      ivy--full-length)
+                                 ivy--length))
+                   (format head
+                           (or (and (ivy-state-dynamic-collection ivy-last)
+                                    ivy--full-length)
+                               ivy--length)))
+                 ivy--prompt-extra
+                 tail)))
+              (d-str (if ivy--directory
+                         (abbreviate-file-name ivy--directory)
+                       "")))
+          (save-excursion
+            (goto-char (point-min))
+            (delete-region (point-min) (minibuffer-prompt-end))
+            (let ((len-n (length n-str))
+                  (len-d (length d-str))
+                  (ww (window-width)))
+              (setq n-str
+                    (cond ((> (+ len-n len-d) ww)
+                           (concat n-str "\n" d-str "\n"))
+                          ((> (+ len-n len-d (length ivy-text)) ww)
+                           (concat n-str d-str "\n"))
+                          (t
+                           (concat n-str d-str)))))
+            (when ivy-prompt-headerline
+              (setq n-str (concat (ivy-prompt-headerline) n-str)))
+            (when ivy-add-newline-after-prompt
+              (setq n-str (concat n-str "\n")))
+            (let ((regex (format "\\([^\n]\\{%d\\}\\)[^\n]" (window-width))))
+              (while (string-match regex n-str)
+                (setq n-str (replace-match
+                             (concat (match-string 1 n-str) "\n")
+                             nil t n-str 1))))
+            (set-text-properties 0 (length n-str)
+                                 `(face minibuffer-prompt ,@std-props)
+                                 n-str)
+            (setq n-str (funcall ivy-set-prompt-text-properties-function
+                                 n-str std-props))
+            (insert n-str))
+          ;; Mark prompt as selected if the user moves there or it is the only
+          ;; option left.  Since the user input stays put, we have to manually
+          ;; remove the face as well.
+          (when ivy--use-selectable-prompt
+            (if (or (= ivy--index -1)
+                    (= ivy--length 0))
+                (ivy-add-face-text-property
+                 (minibuffer-prompt-end) (line-end-position) 'ivy-prompt-match)
+              (remove-list-of-text-properties
+               (minibuffer-prompt-end) (line-end-position) '(face))))
+          ;; get out of the prompt area
+          (constrain-to-field nil (point-max))))))
+  (advice-add 'ivy--insert-prompt :override #'ad:ivy--insert-prompt))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ivy/Counsel
@@ -97,10 +182,9 @@
 ;; Swiper
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when (autoload-if-found '(counsel-M-x counsel-recentf) "counsel" nil t)
-  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "M-x")   'counsel-M-x)
   (global-set-key (kbd "C-M-z") 'counsel-fzf)
   (global-set-key (kbd "C-M-r") 'counsel-recentf)
-  (global-set-key (kbd "C-h b") 'counsel-descbinds)
   ;; counsel-ibuffer の表示項目のカスタマイズは？ ivy-switch-buffer と同じ？
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)) ;; ivy-switch-buffer?
 
@@ -130,27 +214,28 @@
 ;;; counsel-recentf
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; counsel-recentf のリストを "~/" から始める．
-    (defun my-counsel-recentf ()
+    (defun ad:counsel-recentf ()
       "Find a file on `recentf-list'."
       (interactive)
       (require 'recentf)
       (recentf-mode)
       (ivy-read "Recentf: "
                 (progn
-                  (mapcar #'substring-no-properties recentf-list) ;; remove?
+                  (mapcar #'substring-no-properties recentf-list) ;; no need?
                   (mapcar #'abbreviate-file-name recentf-list)) ;; starting "~/"
                 :action (lambda (f)
                           (with-ivy-window
                             (find-file f)))
                 :require-match t
                 :caller 'counsel-recentf))
-    (advice-add 'counsel-recentf :override #'my-counsel-recentf)
+    (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; for bm.el
 ;;; https://www.reddit.com/r/emacs/comments/700xck/ivy_with_bmel_bookmark_manager/
+;;; bm-bookmarks の代替で使いたいが，annotation が表示されていない．
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    (defun bm-counsel-get-list (bookmark-overlays)
+    (defun counsel-bm-get-list (bookmark-overlays)
       (-map (lambda (bm)
               (with-current-buffer (overlay-buffer bm)
                 (let* ((line (replace-regexp-in-string
@@ -164,9 +249,9 @@
                   `(,name . ,bm))))
             bookmark-overlays))
 
-    (defun bm-counsel-find-bookmark ()
+    (defun counsel-bm-show-all ()
       (interactive)
-      (let* ((bm-list (bm-counsel-get-list (bm-overlays-lifo-order t)))
+      (let* ((bm-list (counsel-bm-get-list (bm-overlays-lifo-order t)))
              (bm-hash-table (make-hash-table :test 'equal))
              (search-list (-map (lambda (bm) (car bm)) bm-list)))
         (-each bm-list (lambda (bm)
@@ -182,6 +267,7 @@
                               (bm-goto bookmark)
                               ))
                   :sort t)))
+    (global-set-key (kbd "<S-f10>") 'counsel-bm-show-all)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; disable counsel-find-file
@@ -195,6 +281,13 @@
             (completion-in-region-function #'completion--in-region))
         (apply #'read-file-name-default args)))
     (setq read-file-name-function #'my-disable-counsel-find-file)
+    ;; (counsel-mode 1) を設定しても counsel-find-file が呼ばれないようにする．
+    (define-key counsel-mode-map [remap find-file]  nil)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; org-capture
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    (define-key counsel-mode-map [remap org-capture]  'counsel-org-capture)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 絞り込み過程の単語のハイライト配色
@@ -209,6 +302,7 @@
       '((((class color) (background light)) :foreground "#FFFFFF")
         (((class color) (background dark)) :foreground "#31343F"))
       "Face used by Ivy for highlighting the invisible arrow.")
+
     (custom-set-faces
      '(ivy-current-match
        ((((class color) (background light))
@@ -245,29 +339,39 @@
           (run-hooks 'find-function-after-hook))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 選択対象を "" にする（かなり重くなる？）
+;;; 選択対象を "" にする
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    (setq ivy-format-function #'ivy-format-function-arrow)
-    (when window-system
-      (defun ad:ivy-format-function-arrow (cands)
-        "Transform CANDS into a string for minibuffer."
-        (ivy--format-function-generic
-         ;; (lambda (str)
-         ;;   (concat (format "%s" (ivy--add-face "\t" 'my-ivy-arrow-visible))
-         ;;           (ivy--add-face str 'ivy-current-match)))
-         ;; (lambda (str)
-         ;;   (concat (format "%-4s" " ")
-         ;;           str))
-         (lambda (str)
-           (concat (ivy--add-face " " 'my-ivy-arrow-visible)
-                   (ivy--add-face str 'ivy-current-match)))
-         (lambda (str)
-           (concat (ivy--add-face " " 'my-ivy-arrow-invisible)
-                   str))
-         cands
-         "\n"))
-      (advice-add 'ivy-format-function-arrow
-                  :override #'ad:ivy-format-function-arrow))
+    ;; https://github.com/abo-abo/swiper/commit/7feb14f476e108dc10fe5380ee7c33de3b5fe3f1 の変更で，(setq ivy-format-function #'ivy-format-function-arrow) は無意味に．      (advice-add 'ivy-format-function-default :override #'ad:ivy-format-function-arrow)
+
+    (if window-system
+        (when (require 'all-the-icons nil t)
+          (defun my-ivy-format-function-arrow (cands)
+            "Transform CANDS into a string for minibuffer."
+            (ivy--format-function-generic
+             ;; (lambda (str)
+             ;;   (concat (format "%s" (ivy--add-face "\t" 'my-ivy-arrow-visible))
+             ;;           (ivy--add-face str 'ivy-current-match)))
+             ;; (lambda (str) (concat (format "%-4s" " ") str))
+             ;;---
+             ;; (lambda (str)
+             ;;   (concat (ivy--add-face " " 'my-ivy-arrow-visible)
+             ;;           (ivy--add-face str 'ivy-current-match)))
+             ;; (lambda (str)
+             ;;   (concat (ivy--add-face " " 'my-ivy-arrow-invisible)
+             ;;           str))
+             ;;---
+             (lambda (str)
+               (concat (all-the-icons-faicon
+                        "hand-o-right" :v-adjust -0.2 :face 'my-ivy-arrow-visible)
+                       " " (ivy--add-face str 'ivy-current-match)))
+             (lambda (str)
+               (concat (all-the-icons-faicon
+                        "hand-o-right" :face 'my-ivy-arrow-invisible) " " str))
+             cands
+             "\n"))
+          (setq ivy-format-functions-alist
+                '((t . my-ivy-format-function-arrow))))
+      (setq ivy-format-functions-alist '((t . ivy-format-function-arrow))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; helm-M-x と同じ振る舞いにする設定（4点）
@@ -281,13 +385,12 @@
 
     ;; 2. exclude `counsel-M-x'
     (setq ivy-initial-inputs-alist
-          '(
-            ;; (org-refile . "^")
+          '(;; (org-refile . "^")
             (org-agenda-refile . "^")
             (org-capture-refile . "^")
             (counsel-describe-function . "^")
             (counsel-describe-variable . "^")
-            (counsel-org-capture . "^")
+            ;; (counsel-org-capture . "^")
             (Man-completion-table . "^")
             (woman . "^")))
 
@@ -347,24 +450,20 @@ of (command, word) to be used by flyspell-do-correct."
     (setq ivy-use-virtual-buffers t)
 
     ;; ミニバッファでコマンド発行を認める (t)
-    (setq enable-recursive-minibuffers nil) ;
-    (minibuffer-depth-indicate-mode 1) ;; 何回層入ったかプロンプトに表示．
+    (when (setq enable-recursive-minibuffers t)
+      (minibuffer-depth-indicate-mode 1)) ;; 何回層入ったかプロンプトに表示．
 
     ;; https://github.com/abo-abo/swiper/blob/596461e1ff09431eb417877a9870e53c452e1b62/doc/Changelog.org
     ;; https://github.com/abo-abo/swiper/issues/924
     ;; https://github.com/abo-abo/swiper/issues/309
     (ivy-mode 1)
+    (counsel-mode 1)))
 
-    ;; (counsel-mode 1) ;; 無くても大きな問題ないかも．
-    ;; (global-set-key (kbd "C-h b") 'counsel-descbinds)
-    ;; (counsel-mode 1) があれば，'counsel-descbinds の set-key は不要．
-    ;; 逆に(counsel-mode 1) があれば， find-file の張替えが必要．
-    ;; (counsel-mode 1) を書かずに，(kbd "C-h b")を設定するのでも良い．
-    ;; (global-set-key (kbd "C-x C-f") 'find-file) ;; reconfigure
-    ;; (counsel-mode 1) 使うと，counsel-find-file を取り返せないので，
-    ;; 有効にしない方がいい．
-    ;; うまいことすれば，(counsel-mode 1) しつつ，counsel-find-file を無効化できるかも．
-    ))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ivy-rich（ivy導入後のお楽しみ）
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (when (require 'ivy-rich nil t) ;; Heavy?
+;;   (ivy-rich-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Company-box
@@ -375,14 +474,24 @@ of (command, word) to be used by flyspell-do-correct."
 ;;     (add-hook 'company-mode-hook 'company-box-mode)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (when (require 'ivy-posframe nil t)
-;;   (setq ivy-display-function #'ivy-posframe-display)
-;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-frame-center)
-;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-window-center)
-;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-frame-bottom-left)
-;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-window-bottom-left)
-;;   ;; (setq ivy-display-function #'ivy-posframe-display-at-point)
-;;   (ivy-posframe-enable))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ivy-posframe
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(when (autoload-if-found
+       '(ivy-posframe-mode my-toggle-ivy-posframe)
+       "ivy-posframe" nil t)
+
+  (defun my-toggle-ivy-posframe ()
+    "Toggle `ivy-posframe'."
+    (interactive)
+    (ivy-posframe-mode (if ivy-posframe-mode -1 1)))
+
+  (with-eval-after-load "ivy-posframe"
+    (setq ivy-posframe-display-functions-alist
+          '((counsel-M-x . ivy-posframe-display-at-point)
+            (t           . ivy-posframe-display)))
+    (ivy-posframe-mode 1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (with-eval-after-load "postpone" (require 'frog-jump-buffer nil t))
@@ -414,40 +523,8 @@ of (command, word) to be used by flyspell-do-correct."
           lsp-ui-peek-peek-height 25)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Fontawesome 拡張
-(when window-system
-  (with-eval-after-load "postpone"
-    ;; 以下を関数化して，任意の文字コードに対応させる．
-    (defface my-face-f0a4 '((t (:foreground "orange")))
-      nil :group 'font-lock-highlighting-faces)
-    (defface my-face-f088 '((t (:foreground "red")))
-      nil :group 'font-lock-highlighting-faces)
-    (defface my-face-f087 '((t (:foreground "Seagreen3")))
-      nil :group 'font-lock-highlighting-faces)
-    (defvar my-face-f0a4 'my-face-f0a4)
-    (defvar my-face-f088 'my-face-f088)
-    (defvar my-face-f087 'my-face-f087)
-    (defadvice font-lock-mode (before my-font-lock-mode1 ())
-      (font-lock-add-keywords
-       major-mode
-       '(("" 0 my-face-f0a4 append)
-         ("" 0 my-face-f088 append)
-         ("" 0 my-face-f087 append))))
-    (ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode1)
-    (ad-activate 'font-lock-mode)))
-
-;; (when (require 'hi-lock nil t)
-;;   (highlight-phrase "")
-;;   (highlight-phrase "")
-;;   (highlight-phrase "")
-;;   (global-hi-lock-mode))
-
 ;; To decrypt old sub trees
 ;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)
-
-(when (autoload-if-found '(facecheck-at-point) "facecheck" nil t)
-  (with-eval-after-load "facecheck"
-    (facecheck-mode 1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; .emacs ends here

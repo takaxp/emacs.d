@@ -918,6 +918,7 @@ This works also for other defined begin/end tokens to define the structure."
      (smooth-scroll-mode nil "smooth-scroll")
      (eldoc-mode nil "eldoc")
      (ivy-mode nil "ivy")
+     (counsel-mode nil "counsel")
      (centered-cursor-mode nil "centered-cursor-mode")
      (volatile-highlights-mode nil "volatile-highlights")
      (aggressive-indent-mode nil "aggressive-indent")
@@ -1088,15 +1089,53 @@ This works also for other defined begin/end tokens to define the structure."
      '(highlight-symbol-idle-delay 0.5))))
 
 (when (autoload-if-found
-       '(all-the-icons-dired-mode)
+       '(all-the-icons-dired-mode ad:all-the-icons-dired--display)
        "all-the-icons-dired" nil t)
 
   (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)
 
+  (with-eval-after-load "all-the-icons"
+    (setq all-the-icons-scale-factor 1.0)
+    (add-to-list 'all-the-icons-dir-icon-alist
+                 '("google[ _-]drive" all-the-icons-alltheicon "google-drive"
+                   :height 1.0 :v-adjust -0.1)))
+
   (with-eval-after-load "all-the-icons-dired"
     (unless noninteractive
       (unless (require 'font-lock+ nil t)
-        (user-error "font-lock+ is NOT installed for all-the-icons.")))))
+        (user-error "font-lock+ is NOT installed for all-the-icons."))
+
+      (defun ad:all-the-icons-dired--display ()
+        "Display the icons of files in a dired buffer."
+        (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)
+          (setq-local all-the-icons-dired-displayed t)
+          (let ((inhibit-read-only t)
+                (remote-p (and (fboundp 'tramp-tramp-file-p)
+                               (tramp-tramp-file-p default-directory))))
+            (save-excursion
+              (goto-char (point-min))
+              (setq tab-width 1)
+              (while (not (eobp))
+                (when (dired-move-to-filename nil)
+                  (let ((file (dired-get-filename 'verbatim t)))
+                    (unless (member file '("." ".."))
+                      (let ((filename (dired-get-filename nil t)))
+                        (if (file-directory-p filename)
+                            (let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))
+                                   (icon (cond
+                                          (remote-p
+                                           (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                                          ((file-symlink-p filename)
+                                           (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                                          ((all-the-icons-dir-is-submodule filename)
+                                           (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                                          ((file-exists-p (format "%s/.git" filename))
+                                           (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                                          (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))
+                              (insert (concat icon "\t")))
+                          (insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9
+                (forward-line 1))))))
+      (advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display))))
 
 (when (autoload-if-found
        '(turn-on-eldoc-mode)
@@ -1401,6 +1440,10 @@ _3_.  ?s?          (Org Mode: by _s_elect)
     (setq backup-each-save-size-limit 1048576)))
 
 (with-eval-after-load "dired"
+  (setq completion-ignored-extensions
+        (append completion-ignored-extensions
+                '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+
   ;; Use build-in `wdired-mode'.
   ;; (define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)
 
@@ -1583,6 +1626,12 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 
   (with-eval-after-load "helpful"
     (define-key helpful-mode-map (kbd "@") #'helpful-at-point)))
+
+(when (autoload-if-found
+       '(facecheck-at-point facecheck-mode)
+       "facecheck" nil t)
+  (with-eval-after-load "facecheck"
+    (facecheck-mode 1)))
 
 (when (autoload-if-found
        '(keyfreq-mode keyfreq-autosave-mode ad:keyfreq-show)
@@ -2115,6 +2164,10 @@ Uses `all-the-icons-material' to fetch the icon."
                       :inherit nil))
 
 (when (require 'hl-todo nil t)
+  (when window-system
+    (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
+    (add-to-list 'hl-todo-keyword-faces '("" . "red"))
+    (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
   (global-hl-todo-mode))
 
 (when (autoload-if-found

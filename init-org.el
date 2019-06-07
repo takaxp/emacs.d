@@ -260,10 +260,11 @@
                 (my-ox-icalendar-cleanup)
                 result))))
        (lambda (result)
-         (message (format "[async] Uploading...%s"
-                          (cond ((eq result 0) "done")
-                                ((eq result 1) "skipped")
-                                (t "miss!")))))))
+         (unless (active-minibuffer-window)
+           (message (format "[async] Uploading...%s"
+                            (cond ((eq result 0) "done")
+                                  ((eq result 1) "skipped")
+                                  (t "miss!"))))))))
 
     (defun my-ox-icalendar-cleanup ()
       (interactive)
@@ -497,15 +498,19 @@ will not be modified."
              (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
              (field (org-entry-get (point) created nil)))
         (unless (or field (equal "" field))
-          (org-set-property created now)))))
+          (org-set-property created now)
+          (org-cycle-hide-drawers 'children))))
+    (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
+      (my-org-set-created-property))
+    (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"
     (defun my-toggle-org-block-visibility ()
       "Testing..."
       (interactive)
-	    (when (looking-at org-drawer-regexp)
-	      (org-flag-drawer		; toggle block visibility
-	       (not (get-char-property (match-end 0) 'invisible)))))
+      (when (looking-at org-drawer-regexp)
+        (org-flag-drawer		; toggle block visibility
+         (not (get-char-property (match-end 0) 'invisible)))))
 
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
@@ -884,11 +889,12 @@ update it for multiple appts?")
               appt-time-msg-list)
            (lambda (result)
              (setq appt-time-msg-list result)
-             (let ((cnt (length appt-time-msg-list)))
-               (if (eq cnt 0)
-                   (message "[async] No event to add")
-                 (message "[async] Added %d event%s for today"
-                          cnt (if (> cnt 1) "s" ""))))
+             (unless (active-minibuffer-window)
+               (let ((cnt (length appt-time-msg-list)))
+                 (if (eq cnt 0)
+                     (message "[async] No event to add")
+                   (message "[async] Added %d event%s for today"
+                            cnt (if (> cnt 1) "s" "")))))
              (setq my-org-agenda-to-appt-ready t))))))
     ;; 定期的に更新する
     (run-with-idle-timer 500 t 'my-org-agenda-to-appt)

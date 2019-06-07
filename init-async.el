@@ -41,7 +41,8 @@ This function could create many sub processes."
                     (list ',libraries)))
             alist))
        (lambda (result)
-         (when result
+         (when (and result
+                    (not (active-minibuffer-window)))
            (let ((count 0))
              (dolist (r result)
                (setq count (1+ count))
@@ -67,7 +68,8 @@ This function could create many sub processes."
          t))
      (lambda (result)
        (if result
-           (message "[async] Deleting old backup files...done")
+           (unless (active-minibuffer-window)
+             (message "[async] Deleting old backup files...done"))
          (error "[async] Failed to delete backup files."))))))
 
 (provide 'init-async)

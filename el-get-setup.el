@@ -11,43 +11,44 @@
 ;; "./emacs.d/<emacs-version>/el-get" をインストール先にする．
 ;;
 ;; ----8<---------------------------------------------------->8----
-(setq el-get-dir
-      (expand-file-name "el-get" (locate-user-emacs-file emacs-version)))
-(add-to-list 'load-path (concat el-get-dir "/el-get"))
+(progn
+  (setq el-get-dir
+        (expand-file-name "el-get" (locate-user-emacs-file emacs-version)))
+  (add-to-list 'load-path (concat el-get-dir "/el-get"))
 
-(unless (require 'el-get nil 'noerror)
-  (with-current-buffer
-      ;; `el-get-silent-update' が使えるカスタマイズパッケージを使う．
-      (url-retrieve-synchronously
-       "https://raw.githubusercontent.com/takaxp/el-get/master/el-get-install.el")
-       ;; オリジナルはこっち
-       ;; "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el"
-       (goto-char (point-max))
-       (eval-print-last-sexp)))
+  (unless (require 'el-get nil 'noerror)
+    (with-current-buffer
+        ;; `el-get-silent-update' が使えるカスタマイズパッケージを使う．
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/takaxp/el-get/master/el-get-install.el")
+      ;; オリジナルはこっち
+      ;; "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el"
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
 
-(add-to-list 'el-get-recipe-path "~/.emacs.d/recipes")
+  (add-to-list 'el-get-recipe-path "~/.emacs.d/recipes")
 
-(setq el-get-git-shallow-clone t) ;; "--depth 1"
-(setq el-get-verbose nil) ;; just for sure
-(setq el-get-silent-update t) ;; 出力されるメッセージの抑制
+  (setq el-get-git-shallow-clone t) ;; "--depth 1"
+  (setq el-get-verbose nil) ;; just for sure
+  (setq el-get-silent-update t) ;; 出力されるメッセージの抑制
 
-(setq gc-cons-threshold (* 512 1024 1024)) ;; 512MB
-(setq garbage-collection-messages t)
+  (setq gc-cons-threshold (* 512 1024 1024)) ;; 512MB
+  (setq garbage-collection-messages t)
 
-(defun my-reset-elget-links ()
-  (interactive)
-  (when (shell-command-to-string "~/Dropbox/emacs.d/bin/update-elget.sh -r")
-    (message "[el-get] Link updated.")))
+  (defun my-reset-elget-links ()
+    (interactive)
+    (when (shell-command-to-string "~/Dropbox/emacs.d/bin/update-elget.sh -r")
+      (message "[el-get] Link updated.")))
 
-(defun ad:el-get-bundle (package &rest form)
-  (my-reset-elget-links))
+  (defun ad:el-get-bundle (package &rest form)
+    (my-reset-elget-links))
 
-;; 出力されるメッセージの整形
-(defun ad:el-get-post-update-notification (package)
-  "Notify the PACKAGE has been updated in customized form."
-  (el-get-notify "el-get update" (format "%s" package)))
-(advice-add 'el-get-post-update-notification :override
-            #'ad:el-get-post-update-notification)
+  ;; 出力されるメッセージの整形
+  (defun ad:el-get-post-update-notification (package)
+    "Notify the PACKAGE has been updated in customized form."
+    (el-get-notify "el-get update" (format "%s" package)))
+  (advice-add 'el-get-post-update-notification :override
+              #'ad:el-get-post-update-notification))
 ;; ----8<---------------------------------------------------->8----
 ;; el-get remove を使う場合は，ここまでを評価する．
 ;; (advice-add 'el-get-bundle :after #'ad:el-get-bundle) ;; if you wish
@@ -221,6 +222,7 @@
 (el-get-bundle "abo-abo/swiper")
 (el-get-bundle "Yevgnen/ivy-rich")
 (el-get-bundle "takaxp/counsel-selected")
+(el-get-bundle "kchenphy/counsel-world-clock")
 
 ;; OSX support
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -288,6 +290,7 @@
                :type git
                :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
 (el-get-bundle "sebastiencs/company-box")
+;; (el-get-bundle "casouri/eldoc-box")
 (el-get-bundle "tarsius/hl-todo")
 
 ;; System related
