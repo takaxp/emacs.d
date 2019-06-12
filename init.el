@@ -763,7 +763,7 @@
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)
 (with-eval-after-load "postpone"
-  (set-face-foreground 'vertical-border (face-background 'default))
+  (set-face-foreground 'vertical-border (face-foreground 'default))
   (set-face-background 'vertical-border (face-background 'default)))
 (set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 
@@ -1065,6 +1065,8 @@
 (declare-function my-daylight-theme "init" nil)
 (declare-function my-night-theme "init" nil)
 (declare-function my-terminal-theme "init" nil)
+(defvar my-light-theme-hook nil)
+(defvar my-dark-theme-hook nil)
 (if (not (display-graphic-p))
     (defun my-terminal-theme ()
       (interactive)
@@ -1087,7 +1089,8 @@
       (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
       (add-to-list 'default-frame-alist '(ns-appearance . light))
       (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . light)))))
+                                     (ns-appearance . light)))
+      (run-hooks 'my-light-theme-hook)))
 
   (defun my-night-theme ()
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
@@ -1103,7 +1106,8 @@
       (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
       (add-to-list 'default-frame-alist '(ns-appearance . dark))
       (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . dark))))))
+                                     (ns-appearance . dark)))
+      (run-hooks 'my-dark-theme-hook))))
 
 (declare-function my-apply-cursor-config "init" nil)
 (declare-function my-font-config "init" nil)

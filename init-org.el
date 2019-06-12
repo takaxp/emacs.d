@@ -294,7 +294,7 @@
       (org-cancel-repeater))
     (org-todo ARG))
 
-  ;; 締切を今日にする =FIXME=
+  ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
   (defun my-org-deadline-today ()
     (when (org-entry-is-todo-p)
       (let ((date (org-entry-get (point) "DEADLINE"))
@@ -781,6 +781,24 @@ will not be modified."
       (org-toggle-tag my-doing-tag 'off)))
   (add-hook 'org-clock-out-hook #'my-remove-doing-tag))
 
+;; M-x calendar の動作に近づける．なお today への移動は，"C-." で可能．
+(with-eval-after-load "org-keys"
+  (org-defkey org-read-date-minibuffer-local-map (kbd "C-n")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(calendar-forward-week 1))))
+  (org-defkey org-read-date-minibuffer-local-map (kbd "C-p")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(calendar-backward-week 1))))
+  (org-defkey org-read-date-minibuffer-local-map (kbd "C-b")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(calendar-backward-day 1))))
+  (org-defkey org-read-date-minibuffer-local-map (kbd "C-f")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(calendar-forward-day 1))))
+  (org-defkey org-read-date-minibuffer-local-map (kbd "q")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
+
 (with-eval-after-load "org"
   (require 'orgbox nil t))
 
@@ -879,7 +897,8 @@ update it for multiple appts?")
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (not (require 'async nil t))
-          (org-agenda-to-appt t '((headline "TODO")))
+          (unless (active-minibuffer-window)
+            (org-agenda-to-appt t '((headline "TODO"))))
         (when my-org-agenda-to-appt-ready
           (setq my-org-agenda-to-appt-ready nil)
           (async-start
@@ -1559,7 +1578,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (with-eval-after-load "org-recent-headings"
     (custom-set-variables
-     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat"))
+     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
+     '(org-recent-headings-use-ids 'when-available))
     (if shutup-p
         (shut-up (org-recent-headings-mode 1))
       (org-recent-headings-mode 1))))

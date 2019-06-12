@@ -7,28 +7,112 @@
 ;; ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
 ;; git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;                                                              TODO/DONE/FIXME
 ;; https://github.com/akirak/ivy-omni-org
 ;; https://github.com/Kungsgeten/ivy-todo
 ;; https://github.com/mkcms/ivy-yasnippet
 ;; https://github.com/squiter/ivy-youtube
 
+(with-eval-after-load "postpone" (my-mode-line-off))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DONE org-tag でタグを空にする．C-c C-c した後，タグを消して，C-M-j で良い．
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; counsel-world-clock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (with-eval-after-load "ivy"
   (require 'counsel-world-clock nil t)) ;; M-x counsel-world-clock
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Ivy/Counsel
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 計測上，helm よりも重いかもしれない，ivy/swiper/counsel をしっかり遅延ロードさせるように設定したい
+;; org-recent-headings
+;; org-recent-headings は helm/ivy の共存が難しい．
+;; byte-compile しているとなおさら．
+;; ~/.emacs.d/org-recent-headings.dat は端末間で共有しないほうがいいかも．
+;; 履歴の掃除が必要かもしれない．対象の org ファイルが永続的なら生じない問題．
+;; `org-recent-headings' 内のrealが生成されていないことがわかった．
+(with-eval-after-load "org-recent-headings"
+  ;; DONE 記録するレベルを限定する．level=2だけとか．
+  ;; org-recent-headings--store-heading のハックが必要．
+  ;; (defun org-recent-headings--store-heading (&rest ignore)
+  ;;   "Add current heading to `org-recent-headings' list."
+  ;;         (org-with-wide-buffer
+  ;;          (unless (org-before-first-heading-p)
+  ;;            (when (< 1 (org-current-level))
+  )
+
+(when (autoload-if-found
+       '(org-recent-headings-ivy org-recent-headings-mode)
+       "org-recent-headings" nil t)
+
+  (with-eval-after-load "ivy"
+    ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
+    ;; うので， recent-headings.dat に記録された順が反映されない．
+    (add-to-list 'ivy-sort-functions-alist '(org-recent-headings-ivy . nil))
+
+    ;; Originally located in org-recent-headings.el.
+    (defun org-recent-headings-ivy ()
+      "Choose from recent Org headings with Ivy."
+      (interactive)
+      (org-recent-headings :completing-read-fn #'ivy-completing-read)))
+
+  ;; for Ivy interface
+  (with-eval-after-load "org-recent-headings"
+    (custom-set-variables
+     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
+     '(org-recent-headings-show-entry-function
+       'org-recent-headings--show-entry-direct)
+     '(org-recent-headings-advise-functions
+       '(org-agenda-goto
+         org-agenda-show
+         org-agenda-show-mouse
+         org-show-entry
+         org-reveal
+         org-refile
+         org-tree-to-indirect-buffer
+         org-bookmark-jump))))
+
+  (with-eval-after-load "postpone"
+    (global-set-key (kbd "C-c f r") 'org-recent-headings-ivy)
+    (defun ad:org-recent-headings-activate ()
+      (interactive)
+      (when (and (require 'dash-functional nil t) ;; FIXME
+                 (require 'org-recent-headings nil t))
+        (org-recent-headings-mode)
+        (advice-remove 'org-recent-headings-ivy
+                       #'ad:org-recent-headings-activate)))
+    (advice-add 'org-recent-headings-ivy :before
+                #'ad:org-recent-headings-activate)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; eldoc with ivy
+(with-eval-after-load "eldoc"
+  ;; ミニバッファの使用中には eldoc を表示させない．
+  (defun ad:eldoc-message (f &optional string)
+    (unless (active-minibuffer-window)
+      (funcall f string)))
+  (advice-add 'eldoc-message :around #'ad:eldoc-message))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; header-line-format for ivy prompt
 (with-eval-after-load "ivy"
-  ;; heade-line-format は効かない様子．
+  ;; header-line-format は効かない様子．
   (defvar ivy-prompt-headerline t) ;; ime-on/-off に合わせて変えてもOK．
   (defun my-toggle-ivy-prompt-headerline ()
     "Toggle showing a header line before the ivy prompt."
     (interactive)
     (setq ivy-prompt-headerline (not ivy-prompt-headerline)))
+
   (defun ivy-prompt-headerline ()
     "Return a header line for the ivy prompt."
     (when ivy-prompt-headerline
       (if window-system
-          (format "%s\n " (make-string (frame-width) ?\x2D)) ;; "----"
+          (format "%s\n%s " (make-string (frame-width) ?\x5F) ;; "__", ?\x2D
+                  (all-the-icons-faicon "sort-amount-asc")) ;; ""
         (format "%s\n" (make-string (1- (frame-width)) ?\x2F))))) ;; "////"
+
   (defun ad:ivy--insert-prompt ()
     "Update the prompt according to `ivy--prompt'."
     (when (setq ivy--prompt (ivy-prompt))
@@ -79,8 +163,10 @@
                            (concat n-str d-str "\n"))
                           (t
                            (concat n-str d-str)))))
+            ;; ADDED
             (when ivy-prompt-headerline
               (setq n-str (concat (ivy-prompt-headerline) n-str)))
+            ;;
             (when ivy-add-newline-after-prompt
               (setq n-str (concat n-str "\n")))
             (let ((regex (format "\\([^\n]\\{%d\\}\\)[^\n]" (window-width))))
@@ -109,54 +195,6 @@
   (advice-add 'ivy--insert-prompt :override #'ad:ivy--insert-prompt))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Ivy/Counsel
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; org-recent-headings
-;; org-recent-headings は helm/ivy の共存が難しい．
-;; byte-compile しているとなおさら．
-;; ~/.emacs.d/org-recent-headings.dat は端末間で共有しないほうがいいかも．
-;; 履歴の掃除が必要かもしれない．対象の org ファイルが永続的なら生じない問題．
-(when (autoload-if-found
-       '(org-recent-headings-ivy org-recent-headings-mode)
-       "org-recent-headings" nil t)
-
-  (with-eval-after-load "ivy"
-    ;; Originally located in org-recent-headings.el.
-    (defun org-recent-headings-ivy ()
-      "Choose from recent Org headings with Ivy."
-      (interactive)
-      (org-recent-headings :completing-read-fn #'ivy-completing-read)))
-
-  ;; for Ivy interface
-  (with-eval-after-load "org-recent-headings"
-    ;;    (setq helm-source-org-recent-headings nil)
-    (setq org-recent-headings-show-entry-function
-          'org-recent-headings--show-entry-direct)
-    (setq org-recent-headings-advise-functions
-          '(org-agenda-goto
-            org-agenda-show
-            org-agenda-show-mouse
-            org-show-entry
-            org-reveal
-            org-refile
-            org-tree-to-indirect-buffer
-            org-bookmark-jump))
-    (custom-set-variables
-     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")))
-
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c f r") 'org-recent-headings-ivy)
-    (defun ad:org-recent-headings-activate ()
-      (interactive)
-      (when (and (require 'dash-functional nil t) ;; FIXME
-                 (require 'org-recent-headings nil t))
-        (org-recent-headings-mode)
-        (advice-remove 'org-recent-headings-ivy
-                       #'ad:org-recent-headings-activate)))
-    (advice-add 'org-recent-headings-ivy :before
-                #'ad:org-recent-headings-activate)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; counsel-projectile
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (with-eval-after-load "projectile"
@@ -165,7 +203,7 @@
     ;; https://twitter.com/takaxp/status/1134481340458360832
     (defun counsel-projectile-action-fzf (_project)
       "Search the current directory with fzf."
-      (counsel-fzf))
+      (counsel-fzf nil default-directory))
     ;; あれ，これなんで動いてるの？関数に add-to-list できるの？
     ;; 以下の2つの関数は，動的に生成される defcustom で規定される．すごい．
     (add-to-list 'counsel-projectile-switch-project-action
@@ -181,7 +219,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Swiper
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(when (autoload-if-found '(counsel-M-x counsel-recentf) "counsel" nil t)
+(when (autoload-if-found
+       '(counsel-M-x counsel-recentf counsel-fzf)
+       "counsel" nil t)
   (global-set-key (kbd "M-x")   'counsel-M-x)
   (global-set-key (kbd "C-M-z") 'counsel-fzf)
   (global-set-key (kbd "C-M-r") 'counsel-recentf)
@@ -189,7 +229,25 @@
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)) ;; ivy-switch-buffer?
 
 (with-eval-after-load "postpone"
+  ;; 選択範囲をすぐに ag 検索対象にしたい．Swiperのように
   (global-set-key (kbd "C-M-f") 'counsel-ag)
+
+  ;; "C-u C-M-f" でディレクトリ指定したい
+  (defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
+    (apply f (or initial-input (ivy-thing-at-point))
+           (or initial-directory default-directory)
+           extra-ag-args ag-prompt caller))
+  (advice-add 'counsel-ag :around #'ad:counsel-ag)
+
+  (defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
+    (apply f (or initial-input
+                 (when (use-region-p)
+                   (buffer-substring-no-properties
+                    (region-beginning) (region-end))))
+           (or initial-directory default-directory)
+           fzf-prompt))
+  (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
+
   (when (require 'swiper nil t)
     ;; こういうの exclude list を実装したい．"^\\*+" に限らず判定したいね．
     (defun ad:swiper-thing-at-point ()
@@ -213,6 +271,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; counsel-recentf
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; (setq counsel-find-file-ignore-regexp
+    ;;       (regexp-opt '("~/.emacs.d/bookmarks")))
+    ;; recentf-exlude をカスタマイズする方が良い．
+    ;; :matcher #'counsel--find-file-matcher
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
     ;; counsel-recentf のリストを "~/" から始める．
     (defun ad:counsel-recentf ()
       "Find a file on `recentf-list'."
@@ -362,7 +426,8 @@
              ;;---
              (lambda (str)
                (concat (all-the-icons-faicon
-                        "hand-o-right" :v-adjust -0.2 :face 'my-ivy-arrow-visible)
+                        "hand-o-right"
+                        :v-adjust -0.2 :face 'my-ivy-arrow-visible)
                        " " (ivy--add-face str 'ivy-current-match)))
              (lambda (str)
                (concat (all-the-icons-faicon
@@ -377,13 +442,13 @@
 ;;; helm-M-x と同じ振る舞いにする設定（4点）
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; コマンド使用履歴を使って counsel-M-x の候補を表示する（4点目）
-    ;; 激重の様子？
+    ;; 激重の様子？ helm-M-x で培った履歴はそのままでは使えないっぽい．
     ;; 1. extended-command-history
     (when (require 'smex nil t)
       (setq smex-history-length 35)
       (setq smex-completion-method 'ivy))
 
-    ;; 2. exclude `counsel-M-x'
+    ;; 2. exclude `counsel-M-x' to not to show "^" after the ivy prompt
     (setq ivy-initial-inputs-alist
           '(;; (org-refile . "^")
             (org-agenda-refile . "^")
@@ -452,6 +517,7 @@ of (command, word) to be used by flyspell-do-correct."
     ;; ミニバッファでコマンド発行を認める (t)
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1)) ;; 何回層入ったかプロンプトに表示．
+    (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 
     ;; https://github.com/abo-abo/swiper/blob/596461e1ff09431eb417877a9870e53c452e1b62/doc/Changelog.org
     ;; https://github.com/abo-abo/swiper/issues/924
@@ -488,6 +554,18 @@ of (command, word) to be used by flyspell-do-correct."
     (ivy-posframe-mode (if ivy-posframe-mode -1 1)))
 
   (with-eval-after-load "ivy-posframe"
+    (setq ivy-posframe-border-width 10)
+    (custom-set-faces
+     '(ivy-posframe
+       ((((class color) (background light))
+         :foreground "#000000" :background "#FFF3F3" :distant-foreground "black")
+        (((class color) (background dark))
+         :foreground "#000000" :background "#4F5353" :distant-foreground "#b03333")))
+     '(ivy-posframe-border
+       ((((class color) (background light))
+         :foreground "#000000" :background "#FFF3F3" :distant-foreground "black")
+        (((class color) (background dark))
+         :foreground "#000000" :background "#4F5353" :distant-foreground "#b03333"))))
     (setq ivy-posframe-display-functions-alist
           '((counsel-M-x . ivy-posframe-display-at-point)
             (t           . ivy-posframe-display)))

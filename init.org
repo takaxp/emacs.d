@@ -5087,7 +5087,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
      '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
-       '(".recentf" "^/tmp\\.*"
+       '(".recentf" "bookmarks" "^/tmp\\.*"
          "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     (defun my-recentf-save-list-silence ()
@@ -6718,7 +6718,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (org-cancel-repeater))
     (org-todo ARG))
 
-  ;; 締切を今日にする =FIXME=
+  ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
   (defun my-org-deadline-today ()
     (when (org-entry-is-todo-p)
       (let ((date (org-entry-get (point) "DEADLINE"))
@@ -7323,6 +7323,25 @@ will not be modified."
     (when (my-doing-p)
       (org-toggle-tag my-doing-tag 'off)))
   (add-hook 'org-clock-out-hook #'my-remove-doing-tag))
+
+;; M-x calendar の動作に近づける．なお today への移動は，"C-." で可能．
+(with-eval-after-load "org-keys"
+  (org-defkey org-read-date-minibuffer-local-map (kbd "C-n")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(calendar-forward-week 1))))
+  (org-defkey org-read-date-minibuffer-local-map (kbd "C-p")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(calendar-backward-week 1))))
+  (org-defkey org-read-date-minibuffer-local-map (kbd "C-b")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(calendar-backward-day 1))))
+  (org-defkey org-read-date-minibuffer-local-map (kbd "C-f")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(calendar-forward-day 1))))
+  (org-defkey org-read-date-minibuffer-local-map (kbd "q")
+              (lambda () (interactive)
+                (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
+
 #+end_src
 
 入門者にとって =org-agenda= は簡単ではないので，無理に使わなくて良いと思います．Org Modeの動作に十分慣れたら戻ってくる程度で十分です．
@@ -7442,7 +7461,8 @@ update it for multiple appts?")
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (not (require 'async nil t))
-          (org-agenda-to-appt t '((headline "TODO")))
+          (unless (active-minibuffer-window)
+            (org-agenda-to-appt t '((headline "TODO"))))
         (when my-org-agenda-to-appt-ready
           (setq my-org-agenda-to-appt-ready nil)
           (async-start
@@ -8483,7 +8503,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
   (with-eval-after-load "org-recent-headings"
     (custom-set-variables
-     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat"))
+     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
+     '(org-recent-headings-use-ids 'when-available))
     (if shutup-p
         (shut-up (org-recent-headings-mode 1))
       (org-recent-headings-mode 1))))
@@ -8830,7 +8851,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)
 (with-eval-after-load "postpone"
-  (set-face-foreground 'vertical-border (face-background 'default))
+  (set-face-foreground 'vertical-border (face-foreground 'default))
   (set-face-background 'vertical-border (face-background 'default)))
 (set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 
@@ -9772,6 +9793,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 (declare-function my-daylight-theme "init" nil)
 (declare-function my-night-theme "init" nil)
 (declare-function my-terminal-theme "init" nil)
+(defvar my-light-theme-hook nil)
+(defvar my-dark-theme-hook nil)
 (if (not (display-graphic-p))
     (defun my-terminal-theme ()
       (interactive)
@@ -9794,7 +9817,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
       (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
       (add-to-list 'default-frame-alist '(ns-appearance . light))
       (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . light)))))
+                                     (ns-appearance . light)))
+      (run-hooks 'my-light-theme-hook)))
 
   (defun my-night-theme ()
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
@@ -9810,7 +9834,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
       (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
       (add-to-list 'default-frame-alist '(ns-appearance . dark))
       (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . dark))))))
+                                     (ns-appearance . dark)))
+      (run-hooks 'my-dark-theme-hook))))
 #+end_src
 
 ** 時間帯を指定して起動時にテーマを切り替える
@@ -9883,6 +9908,53 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
     (add-to-list 'hl-todo-keyword-faces '("" . "red"))
     (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
+
+  (defun my-hl-todo-reload ()
+    (global-hl-todo-mode -1)
+    (global-hl-todo-mode))
+
+  (defun my-hl-todo-light-theme ()
+    (setq hl-todo-keyword-faces
+          '(("HOLD" . "#d0bf8f")
+            ("TODO" . "#FF0000")
+            ("NEXT" . "#dca3a3")
+            ("THEM" . "#dc8cc3")
+            ("PROG" . "#7cb8bb")
+            ("OKAY" . "#7cb8bb")
+            ("DONT" . "#5f7f5f")
+            ("FAIL" . "#8c5353")
+            ("DONE" . "SeaGreen")
+            ("NOTE"   . "#d0bf8f")
+            ("KLUDGE" . "#d0bf8f")
+            ("HACK"   . "#d0bf8f")
+            ("TEMP"   . "#d0bf8f")
+            ("FIXME"  . "##3030FF")
+            ("XXX+"   . "#cc9393")
+            ("\\?\\?\\?+" . "#cc9393")))
+    (my-hl-todo-reload))
+  (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+
+  (defun my-hl-todo-dark-theme ()
+    (setq hl-todo-keyword-faces
+          '(("HOLD" . "#d0bf8f")
+            ("TODO" . "#cc9393")
+            ("NEXT" . "#dca3a3")
+            ("THEM" . "#dc8cc3")
+            ("PROG" . "#7cb8bb")
+            ("OKAY" . "#7cb8bb")
+            ("DONT" . "#5f7f5f")
+            ("FAIL" . "#8c5353")
+            ("DONE" . "#afd8af")
+            ("NOTE"   . "#d0bf8f")
+            ("KLUDGE" . "#d0bf8f")
+            ("HACK"   . "#d0bf8f")
+            ("TEMP"   . "#d0bf8f")
+            ("FIXME"  . "DodgerBlue1")
+            ("XXX+"   . "#cc9393")
+            ("\\?\\?\\?+" . "#cc9393")))
+    (my-hl-todo-reload))
+  (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)
+
   (global-hl-todo-mode))
 #+end_src
 

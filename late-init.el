@@ -1389,7 +1389,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)
      '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
-       '(".recentf" "^/tmp\\.*"
+       '(".recentf" "bookmarks" "^/tmp\\.*"
          "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     (defun my-recentf-save-list-silence ()
@@ -2168,6 +2168,53 @@ Uses `all-the-icons-material' to fetch the icon."
     (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
     (add-to-list 'hl-todo-keyword-faces '("" . "red"))
     (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
+
+  (defun my-hl-todo-reload ()
+    (global-hl-todo-mode -1)
+    (global-hl-todo-mode))
+
+  (defun my-hl-todo-light-theme ()
+    (setq hl-todo-keyword-faces
+          '(("HOLD" . "#d0bf8f")
+            ("TODO" . "#FF0000")
+            ("NEXT" . "#dca3a3")
+            ("THEM" . "#dc8cc3")
+            ("PROG" . "#7cb8bb")
+            ("OKAY" . "#7cb8bb")
+            ("DONT" . "#5f7f5f")
+            ("FAIL" . "#8c5353")
+            ("DONE" . "SeaGreen")
+            ("NOTE"   . "#d0bf8f")
+            ("KLUDGE" . "#d0bf8f")
+            ("HACK"   . "#d0bf8f")
+            ("TEMP"   . "#d0bf8f")
+            ("FIXME"  . "##3030FF")
+            ("XXX+"   . "#cc9393")
+            ("\\?\\?\\?+" . "#cc9393")))
+    (my-hl-todo-reload))
+  (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+
+  (defun my-hl-todo-dark-theme ()
+    (setq hl-todo-keyword-faces
+          '(("HOLD" . "#d0bf8f")
+            ("TODO" . "#cc9393")
+            ("NEXT" . "#dca3a3")
+            ("THEM" . "#dc8cc3")
+            ("PROG" . "#7cb8bb")
+            ("OKAY" . "#7cb8bb")
+            ("DONT" . "#5f7f5f")
+            ("FAIL" . "#8c5353")
+            ("DONE" . "#afd8af")
+            ("NOTE"   . "#d0bf8f")
+            ("KLUDGE" . "#d0bf8f")
+            ("HACK"   . "#d0bf8f")
+            ("TEMP"   . "#d0bf8f")
+            ("FIXME"  . "DodgerBlue1")
+            ("XXX+"   . "#cc9393")
+            ("\\?\\?\\?+" . "#cc9393")))
+    (my-hl-todo-reload))
+  (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)
+
   (global-hl-todo-mode))
 
 (when (autoload-if-found
