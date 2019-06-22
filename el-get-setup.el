@@ -221,6 +221,7 @@
 ;; (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
 (el-get-bundle "abo-abo/swiper")
 (el-get-bundle "Yevgnen/ivy-rich")
+(el-get-bundle "asok/all-the-icons-ivy")
 (el-get-bundle "takaxp/counsel-selected")
 (el-get-bundle "kchenphy/counsel-world-clock")
 
@@ -248,6 +249,7 @@
 (el-get-bundle "abo-abo/hydra")
 ;; (el-get-bundle "parinfer")
 (el-get-bundle "magnars/expand-region.el" :name expand-region)
+(el-get-bundle "magnars/multiple-cursors.el" :name multiple-cursors)
 (el-get-bundle "mattiase/xr")
 (el-get-bundle "mattiase/relint")
 (el-get-bundle "purcell/reformatter.el" :name reformatter)

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-06-12 Wed 13:20 -->
+<!-- 2019-06-22 Sat 10:37 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -338,10 +338,11 @@ for the JavaScript code in this tag.
 <li><a href="#orgadf36a14">4.11. [smart-mark] C-g後に元の場所へカーソルを戻す</a></li>
 <li><a href="#orgf75f443a">4.12. [syntax-subword.el] M-f で移動する位置をより密にする</a></li>
 <li><a href="#org8435eae2">4.13. [goto-chg.el] 編集箇所を簡単に辿る</a></li>
-<li><a href="#org27e3241e">4.14. <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#orgd906e864">4.15. <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org42db9464">4.16. <span class="done DONE">DONE</span> [point-undo.el] カーソル位置を簡単にたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org1af5f062">4.17. <span class="done DONE">DONE</span> [SmoothScroll.el] カーソル固定でスクロールする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org59c93f5">4.14. [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</a></li>
+<li><a href="#org27e3241e">4.15. <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#orgd906e864">4.16. <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org42db9464">4.17. <span class="done DONE">DONE</span> [point-undo.el] カーソル位置を簡単にたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org1af5f062">4.18. <span class="done DONE">DONE</span> [SmoothScroll.el] カーソル固定でスクロールする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org36bb3b1a">5. 編集サポート</a>
@@ -376,32 +377,33 @@ for the JavaScript code in this tag.
 <li><a href="#org9317ee6f">5.28. リージョン内の文字をカウントする</a></li>
 <li><a href="#org863cfc2a">5.29. 世界時計を使う</a></li>
 <li><a href="#org66e1952c">5.30. 読書モード</a></li>
-<li><a href="#orgab4f9bf0">5.31. [latex-math-preview.el] TeX数式をプレビュー&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></a></li>
-<li><a href="#org770fb4ec">5.32. [yatex.el] YaTeXでTex編集&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></a></li>
-<li><a href="#org9b92b6f8">5.33. [auxtex.el] AUCTEXでTex編集&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></a></li>
-<li><a href="#org2e5c6e4f">5.34. [yasnippet.el] Emacs用のテンプレートシステム</a></li>
-<li><a href="#orgbea14b16">5.35. [osx-dictionary.el] macOSのdictionary.appで辞書をひく</a></li>
-<li><a href="#orgca044d69">5.36. [describe-number.el] 16進数などを確認</a></li>
-<li><a href="#org98d5c1aa">5.37. [emmet-mode.el] zencoding の後継&#xa0;&#xa0;&#xa0;<span class="tag"><span class="web">web</span></span></a></li>
-<li><a href="#orgc885e502">5.38. [web-beautify.el] ソースコード整形&#xa0;&#xa0;&#xa0;<span class="tag"><span class="web">web</span></span></a></li>
-<li><a href="#orgc3ce60f5">5.39. [smartparens.el] 対応するカッコの挿入をアシスト</a></li>
-<li><a href="#org69748b72">5.40. [replace-from-region.el] 選択領域を別の文字列に置き換える</a></li>
-<li><a href="#orgbc8501cf">5.41. [selected.el] リージョン選択時のアクションを制御</a></li>
-<li><a href="#org98897862">5.42. [helm-selected.el] selecte.el のアクション候補を絞り込み</a></li>
-<li><a href="#orgeafa82dd">5.43. [counsel-selected.el] 続・selected.el のアクション候補絞り込み</a></li>
-<li><a href="#orge18cb840">5.44. <span class="todo TODO">TODO</span> [isolate.el] ブラケット等の入力をアシスト</a></li>
-<li><a href="#orgc6f37d6d">5.45. <span class="todo TODO">TODO</span> [git-complete.el] GIT grep を使う補完エンジン</a></li>
-<li><a href="#orgab8a7bee">5.46. <span class="todo TODO">TODO</span> [tiny.el] 連番入力をサポート</a></li>
-<li><a href="#org12a087af">5.47. <span class="todo TODO">TODO</span> [bratex.el] LaTeX 数式のブラケット入力をサポート</a></li>
-<li><a href="#orgb3d87116">5.48. <span class="done DONE">DONE</span> [iedit.el] バッファ内の同じ文字列を一度に編集する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#orgf18160de">5.49. <span class="done DONE">DONE</span> [lookup.el] 辞書&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org903987d3">5.50. <span class="done DONE">DONE</span> [cacoo] Cacoo で描く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org56cbbb36">5.51. <span class="done DONE">DONE</span> [zencoding-mode] HTML編集の高速化&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org7e84aa55">5.52. <span class="done DONE">DONE</span> [sdic.el] 英辞郎で英単語を調べる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org52c2a77d">5.53. <span class="done DONE">DONE</span> [dictionary.app] macOSのdictionary.appでCOBUILD5をひく&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
+<li><a href="#org3295faa">5.31. <span class="todo TODO">TODO</span> [multiple-cursors.el] 指定箇所を同時編集</a></li>
+<li><a href="#orgab4f9bf0">5.32. [latex-math-preview.el] TeX数式をプレビュー&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></a></li>
+<li><a href="#org770fb4ec">5.33. [yatex.el] YaTeXでTex編集&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></a></li>
+<li><a href="#org9b92b6f8">5.34. [auxtex.el] AUCTEXでTex編集&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></a></li>
+<li><a href="#org2e5c6e4f">5.35. [yasnippet.el] Emacs用のテンプレートシステム</a></li>
+<li><a href="#orgbea14b16">5.36. [osx-dictionary.el] macOSのdictionary.appで辞書をひく</a></li>
+<li><a href="#orgca044d69">5.37. [describe-number.el] 16進数などを確認</a></li>
+<li><a href="#org98d5c1aa">5.38. [emmet-mode.el] zencoding の後継&#xa0;&#xa0;&#xa0;<span class="tag"><span class="web">web</span></span></a></li>
+<li><a href="#orgc885e502">5.39. [web-beautify.el] ソースコード整形&#xa0;&#xa0;&#xa0;<span class="tag"><span class="web">web</span></span></a></li>
+<li><a href="#orgc3ce60f5">5.40. [smartparens.el] 対応するカッコの挿入をアシスト</a></li>
+<li><a href="#org69748b72">5.41. [replace-from-region.el] 選択領域を別の文字列に置き換える</a></li>
+<li><a href="#orgbc8501cf">5.42. [selected.el] リージョン選択時のアクションを制御</a></li>
+<li><a href="#org98897862">5.43. [helm-selected.el] selecte.el のアクション候補を絞り込み</a></li>
+<li><a href="#orgeafa82dd">5.44. [counsel-selected.el] 続・selected.el のアクション候補絞り込み</a></li>
+<li><a href="#orge18cb840">5.45. <span class="todo TODO">TODO</span> [isolate.el] ブラケット等の入力をアシスト</a></li>
+<li><a href="#orgc6f37d6d">5.46. <span class="todo TODO">TODO</span> [git-complete.el] GIT grep を使う補完エンジン</a></li>
+<li><a href="#orgab8a7bee">5.47. <span class="todo TODO">TODO</span> [tiny.el] 連番入力をサポート</a></li>
+<li><a href="#org12a087af">5.48. <span class="todo TODO">TODO</span> [bratex.el] LaTeX 数式のブラケット入力をサポート</a></li>
+<li><a href="#orgb3d87116">5.49. <span class="done DONE">DONE</span> [iedit.el] バッファ内の同じ文字列を一度に編集する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#orgf18160de">5.50. <span class="done DONE">DONE</span> [lookup.el] 辞書&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org903987d3">5.51. <span class="done DONE">DONE</span> [cacoo] Cacoo で描く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org56cbbb36">5.52. <span class="done DONE">DONE</span> [zencoding-mode] HTML編集の高速化&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org7e84aa55">5.53. <span class="done DONE">DONE</span> [sdic.el] 英辞郎で英単語を調べる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org52c2a77d">5.54. <span class="done DONE">DONE</span> [dictionary.app] macOSのdictionary.appでCOBUILD5をひく&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
 <ul>
-<li><a href="#org34b20ea7">5.53.1. マイナーモード化</a></li>
-<li><a href="#org34f10f81">5.53.2. キーバインド</a></li>
+<li><a href="#org34b20ea7">5.54.1. マイナーモード化</a></li>
+<li><a href="#org34f10f81">5.54.2. キーバインド</a></li>
 </ul>
 </li>
 </ul>
@@ -666,7 +668,7 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org5bcbdcc" class="outline-2">
+<div id="outline-container-orga8a3d13" class="outline-2">
 <h2 id="orgda9120c8"><span class="section-number-2">1</span> はじめに</h2>
 <div class="outline-text-2" id="text-orgda9120c8">
 <ul class="org-ul">
@@ -681,7 +683,7 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org52478f0" class="outline-2">
+<div id="outline-container-orgf3981c0" class="outline-2">
 <h2 id="org2a411a2e"><span class="section-number-2">2</span> 起動設定</h2>
 <div class="outline-text-2" id="text-org2a411a2e">
 <p>
@@ -731,7 +733,7 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 </ul>
 </div>
 
-<div id="outline-container-org17b0f1d" class="outline-3">
+<div id="outline-container-org98e4f73" class="outline-3">
 <h3 id="org2db575a1"><span class="section-number-3">2.1</span> init.el のヘッダ</h3>
 <div class="outline-text-3" id="text-org2db575a1">
 <div class="org-src-container">
@@ -744,7 +746,7 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 </div>
 </div>
 
-<div id="outline-container-org197a7f8" class="outline-3">
+<div id="outline-container-org0e13fb0" class="outline-3">
 <h3 id="org3c4d5a7a"><span class="section-number-3">2.2</span> initファイルの読み込み時間計測</h3>
 <div class="outline-text-3" id="text-org3c4d5a7a">
 <p>
@@ -792,7 +794,7 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 </div>
 </div>
 
-<div id="outline-container-org201f424" class="outline-4">
+<div id="outline-container-org77e5f95" class="outline-4">
 <h4 id="org715ba410"><span class="section-number-4">2.2.1</span> Emacs 起動時の呼び出し順</h4>
 <div class="outline-text-4" id="text-org715ba410">
 <p>
@@ -833,7 +835,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgb9a138a" class="outline-3">
+<div id="outline-container-org11bd806" class="outline-3">
 <h3 id="orga09727ae"><span class="section-number-3">2.3</span> 起動時間の計測</h3>
 <div class="outline-text-3" id="text-orga09727ae">
 <p>
@@ -875,7 +877,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org4cf9ad9" class="outline-3">
+<div id="outline-container-orgee4a964" class="outline-3">
 <h3 id="org4c3e9f59"><span class="section-number-3">2.4</span> GCサイズの最適化</h3>
 <div class="outline-text-3" id="text-org4c3e9f59">
 <p>
@@ -890,7 +892,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgc2ef8e5" class="outline-3">
+<div id="outline-container-orgc4e4b72" class="outline-3">
 <h3 id="orgc7901a57"><span class="section-number-3">2.5</span> Common Lisp を使う</h3>
 <div class="outline-text-3" id="text-orgc7901a57">
 <ul class="org-ul">
@@ -936,7 +938,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgc764593" class="outline-3">
+<div id="outline-container-org40f2e64" class="outline-3">
 <h3 id="org8b967ce1"><span class="section-number-3">2.6</span> 警告の抑制</h3>
 <div class="outline-text-3" id="text-org8b967ce1">
 <p>
@@ -957,7 +959,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org1746343" class="outline-3">
+<div id="outline-container-org043e3d3" class="outline-3">
 <h3 id="org0ea7dbaf"><span class="section-number-3">2.7</span> エラー表示の抑制</h3>
 <div class="outline-text-3" id="text-org0ea7dbaf">
 <p>
@@ -971,7 +973,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org502139e" class="outline-3">
+<div id="outline-container-org91829e6" class="outline-3">
 <h3 id="org8d718626"><span class="section-number-3">2.8</span> バッファの保存を静かにする</h3>
 <div class="outline-text-3" id="text-org8d718626">
 <p>
@@ -985,7 +987,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org086fcab" class="outline-3">
+<div id="outline-container-orgcfc27d6" class="outline-3">
 <h3 id="org660ba5e8"><span class="section-number-3">2.9</span> [my-load-package-p] 設定の読み込みフラグを確認する</h3>
 <div class="outline-text-3" id="text-org660ba5e8">
 <p>
@@ -1014,7 +1016,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org1d1b970" class="outline-3">
+<div id="outline-container-org15f20d8" class="outline-3">
 <h3 id="orgc0921cdc"><span class="section-number-3">2.10</span> [autoload-if-found] 関数をリストで渡すautoload設定</h3>
 <div class="outline-text-3" id="text-orgc0921cdc">
 <p>
@@ -1098,7 +1100,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org9644ae0" class="outline-3">
+<div id="outline-container-org15fc722" class="outline-3">
 <h3 id="orga2859651"><span class="section-number-3">2.11</span> [postpone.el] Emacs起動してから使い始めるタイミングで実行する</h3>
 <div class="outline-text-3" id="text-orga2859651">
 <ul class="org-ul">
@@ -1140,7 +1142,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgfaca4ae" class="outline-3">
+<div id="outline-container-orge4aaf27" class="outline-3">
 <h3 id="org124f13e2"><span class="section-number-3">2.12</span> [future-time-p] 指定時刻が本日の未来の時刻かを判定</h3>
 <div class="outline-text-3" id="text-org124f13e2">
 <p>
@@ -1187,7 +1189,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgf64b40a" class="outline-3">
+<div id="outline-container-orga2d4a0f" class="outline-3">
 <h3 id="orgcea06248"><span class="section-number-3">2.13</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
@@ -1206,7 +1208,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgc2bf90d" class="outline-3">
+<div id="outline-container-org025e71e" class="outline-3">
 <h3 id="org30c47759"><span class="section-number-3">2.14</span> [library-p] load-path にライブラリがあるかを判定</h3>
 <div class="outline-text-3" id="text-org30c47759">
 <p>
@@ -1239,7 +1241,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org8ff9e8b" class="outline-3">
+<div id="outline-container-orgfdc88b9" class="outline-3">
 <h3 id="orgfca510d8"><span class="section-number-3">2.15</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
 <div class="outline-text-3" id="text-orgfca510d8">
 <p>
@@ -1259,7 +1261,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgabdb586" class="outline-4">
+<div id="outline-container-orge1384c0" class="outline-4">
 <h4 id="orgb6593164"><span class="section-number-4">2.15.1</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h4>
 <div class="outline-text-4" id="text-orgb6593164">
 <p>
@@ -1282,7 +1284,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgfe11acb" class="outline-3">
+<div id="outline-container-orge5575c5" class="outline-3">
 <h3 id="orgb59612b6"><span class="section-number-3">2.16</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
@@ -1302,7 +1304,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org3b488cc" class="outline-3">
+<div id="outline-container-orga557e2b" class="outline-3">
 <h3 id="org0b7d9710"><span class="section-number-3">2.17</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
@@ -1386,7 +1388,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </p>
 </div>
 
-<div id="outline-container-org4f3ab21" class="outline-4">
+<div id="outline-container-org7067776" class="outline-4">
 <h4 id="org42722212"><span class="section-number-4">2.17.1</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
@@ -1442,7 +1444,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 
-<div id="outline-container-orgdcbe817" class="outline-4">
+<div id="outline-container-orgc31a3f2" class="outline-4">
 <h4 id="org1498f6ce"><span class="section-number-4">2.17.2</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
@@ -1478,7 +1480,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 
-<div id="outline-container-orgc866484" class="outline-2">
+<div id="outline-container-org49392b5" class="outline-2">
 <h2 id="org8e58f563"><span class="section-number-2">3</span> コア設定</h2>
 <div class="outline-text-2" id="text-org8e58f563">
 <p>
@@ -1486,7 +1488,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．<br /
 </p>
 </div>
 
-<div id="outline-container-org391a3df" class="outline-3">
+<div id="outline-container-org2a4162e" class="outline-3">
 <h3 id="org218fe598"><span class="section-number-3">3.1</span> 言語／文字コード</h3>
 <div class="outline-text-3" id="text-org218fe598">
 <p>
@@ -1517,7 +1519,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．<br /
 </div>
 </div>
 
-<div id="outline-container-org21cffeb" class="outline-3">
+<div id="outline-container-org9a49198" class="outline-3">
 <h3 id="org08c6f620"><span class="section-number-3">3.2</span> 日本語入力</h3>
 <div class="outline-text-3" id="text-org08c6f620">
 <p>
@@ -1556,7 +1558,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
 </div>
 </div>
 
-<div id="outline-container-org7d7e69d" class="outline-3">
+<div id="outline-container-org4235bfc" class="outline-3">
 <h3 id="org532e1f02"><span class="section-number-3">3.3</span> 基本キーバインド</h3>
 <div class="outline-text-3" id="text-org532e1f02">
 <p>
@@ -1586,7 +1588,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
 </div>
 </div>
 
-<div id="outline-container-org716134d" class="outline-3">
+<div id="outline-container-org800fd06" class="outline-3">
 <h3 id="org62c41327"><span class="section-number-3">3.4</span> ナローイングするか</h3>
 <div class="outline-text-3" id="text-org62c41327">
 <p>
@@ -1619,7 +1621,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-orgd59d38f" class="outline-3">
+<div id="outline-container-orgf73696c" class="outline-3">
 <h3 id="org162dbe4a"><span class="section-number-3">3.5</span> バッファの終わりでのnewlineを禁止する</h3>
 <div class="outline-text-3" id="text-org162dbe4a">
 <div class="org-src-container">
@@ -1630,7 +1632,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org17372e2" class="outline-3">
+<div id="outline-container-org0de1b5f" class="outline-3">
 <h3 id="orgff941e69"><span class="section-number-3">3.6</span> 常に最終行に一行追加する</h3>
 <div class="outline-text-3" id="text-orgff941e69">
 <div class="org-src-container">
@@ -1641,7 +1643,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org7ac172e" class="outline-3">
+<div id="outline-container-org749330c" class="outline-3">
 <h3 id="org7a9614cc"><span class="section-number-3">3.7</span> 長い文章を右端で常に折り返す</h3>
 <div class="outline-text-3" id="text-org7a9614cc">
 <div class="org-src-container">
@@ -1652,7 +1654,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org4870ec7" class="outline-3">
+<div id="outline-container-org5da486c" class="outline-3">
 <h3 id="org8dd417a4"><span class="section-number-3">3.8</span> マウスで選択した領域を自動コピー</h3>
 <div class="outline-text-3" id="text-org8dd417a4">
 <p>
@@ -1666,7 +1668,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-orgeb262f9" class="outline-3">
+<div id="outline-container-org577ac58" class="outline-3">
 <h3 id="org1b2d3cc0"><span class="section-number-3">3.9</span> compilation buffer でのデータ表示で自動するスクロールする</h3>
 <div class="outline-text-3" id="text-org1b2d3cc0">
 <p>
@@ -1680,7 +1682,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org69f80f5" class="outline-3">
+<div id="outline-container-org603e61f" class="outline-3">
 <h3 id="orgb26cd017"><span class="section-number-3">3.10</span> 水平方向の自動スクロール調整</h3>
 <div class="outline-text-3" id="text-orgb26cd017">
 <ul class="org-ul">
@@ -1694,7 +1696,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org1a5c422" class="outline-3">
+<div id="outline-container-org87b19e6" class="outline-3">
 <h3 id="org68d1750d"><span class="section-number-3">3.11</span> C-x C-c で容易にEmacsを終了させないように質問する</h3>
 <div class="outline-text-3" id="text-org68d1750d">
 <p>
@@ -1726,7 +1728,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org768944e" class="outline-3">
+<div id="outline-container-orgf183bb7" class="outline-3">
 <h3 id="orgd7b8f4e2"><span class="section-number-3">3.12</span> パッケージ管理</h3>
 <div class="outline-text-3" id="text-orgd7b8f4e2">
 <p>
@@ -1738,7 +1740,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </p>
 </div>
 
-<div id="outline-container-org484348a" class="outline-4">
+<div id="outline-container-org68a854d" class="outline-4">
 <h4 id="orgf6f05dc9"><span class="section-number-4">3.12.1</span> [cask-mode.el] モード設定</h4>
 <div class="outline-text-4" id="text-orgf6f05dc9">
 <ul class="org-ul">
@@ -1753,7 +1755,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-orgb31de23" class="outline-4">
+<div id="outline-container-orgf8b0d9b" class="outline-4">
 <h4 id="org02669d67"><span class="section-number-4">3.12.2</span> Cask のセットアップ</h4>
 <div class="outline-text-4" id="text-org02669d67">
 <p>
@@ -1771,7 +1773,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org68d21fe" class="outline-4">
+<div id="outline-container-org0063761" class="outline-4">
 <h4 id="orgec66ea31"><span class="section-number-4">3.12.3</span> load-path を一箇所にして起動を高速化</h4>
 <div class="outline-text-4" id="text-orgec66ea31">
 <p>
@@ -1892,7 +1894,7 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
 </div>
 </div>
 
-<div id="outline-container-org33d64bc" class="outline-4">
+<div id="outline-container-org2a786da" class="outline-4">
 <h4 id="orgda4ef167"><span class="section-number-4">3.12.4</span> [paradox.el] パッケージ選択画面の改善</h4>
 <div class="outline-text-4" id="text-orgda4ef167">
 <p>
@@ -1951,7 +1953,7 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
 </div>
 </div>
 
-<div id="outline-container-org16f50b8" class="outline-3">
+<div id="outline-container-orge969034" class="outline-3">
 <h3 id="org03555a6a"><span class="section-number-3">3.13</span> インデント</h3>
 <div class="outline-text-3" id="text-org03555a6a">
 <p>
@@ -1977,7 +1979,7 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
 </div>
 </div>
 
-<div id="outline-container-org11e989f" class="outline-3">
+<div id="outline-container-org42c9641" class="outline-3">
 <h3 id="orgfc7cc004"><span class="section-number-3">3.14</span> ファイルリンクを辿る時に確認のメッセージを出さない</h3>
 <div class="outline-text-3" id="text-orgfc7cc004">
 <p>
@@ -1991,7 +1993,7 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
 </div>
 </div>
 
-<div id="outline-container-org24e6c3d" class="outline-3">
+<div id="outline-container-org0af1053" class="outline-3">
 <h3 id="orgc2257142"><span class="section-number-3">3.15</span> バッファが外部から編集された場合に自動で再読み込みする</h3>
 <div class="outline-text-3" id="text-orgc2257142">
 <p>
@@ -2006,7 +2008,7 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
 </div>
 </div>
 
-<div id="outline-container-orgc642372" class="outline-3">
+<div id="outline-container-org4ad66a3" class="outline-3">
 <h3 id="org4ea9e5f1"><span class="section-number-3">3.16</span> マウススクロールをピクセル単位にする</h3>
 <div class="outline-text-3" id="text-org4ea9e5f1">
 <div class="org-src-container">
@@ -2017,7 +2019,7 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
 </div>
 </div>
 
-<div id="outline-container-org9862ce7" class="outline-3">
+<div id="outline-container-org72f01a2" class="outline-3">
 <h3 id="org6a9f8b88"><span class="section-number-3">3.17</span> デフォルトディレクトリ</h3>
 <div class="outline-text-3" id="text-org6a9f8b88">
 <p>
@@ -2032,7 +2034,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-org76b2d68" class="outline-3">
+<div id="outline-container-org6cb0b0b" class="outline-3">
 <h3 id="orgb5cd55a9"><span class="section-number-3">3.18</span> [aggressive-indent.el] 即時バッファ整形</h3>
 <div class="outline-text-3" id="text-orgb5cd55a9">
 <p>
@@ -2057,7 +2059,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-org5e6bebd" class="outline-3">
+<div id="outline-container-orgf3c160b" class="outline-3">
 <h3 id="org723e2b73"><span class="section-number-3">3.19</span> [uniquify.el] 同じバッファ名が開かれた場合に区別する</h3>
 <div class="outline-text-3" id="text-org723e2b73">
 <p>
@@ -2071,7 +2073,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-orgf9340e0" class="outline-3">
+<div id="outline-container-org18a4f93" class="outline-3">
 <h3 id="org982c69d7"><span class="section-number-3">3.20</span> [ws-butler.el] 不要なスペースを自動除去</h3>
 <div class="outline-text-3" id="text-org982c69d7">
 <p>
@@ -2097,7 +2099,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-orgedd8563" class="outline-3">
+<div id="outline-container-orgcea372e" class="outline-3">
 <h3 id="orgfd3c67b9"><span class="section-number-3">3.21</span> [ag.el] 検索</h3>
 <div class="outline-text-3" id="text-orgfd3c67b9">
 <p>
@@ -2145,7 +2147,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-orge5ba5fb" class="outline-3">
+<div id="outline-container-org514c601" class="outline-3">
 <h3 id="orge44eded5"><span class="section-number-3">3.22</span> NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-orge44eded5">
 <p>
@@ -2196,7 +2198,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-orgd21ef97" class="outline-3">
+<div id="outline-container-org7ddfa08" class="outline-3">
 <h3 id="org53a63301"><span class="section-number-3">3.23</span> EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-org53a63301">
 <p>
@@ -2352,7 +2354,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </div>
 </div>
 
-<div id="outline-container-org07b0906" class="outline-2">
+<div id="outline-container-org0136f23" class="outline-2">
 <h2 id="org35f3bbc9"><span class="section-number-2">4</span> カーソル移動</h2>
 <div class="outline-text-2" id="text-org35f3bbc9">
 <p>
@@ -2410,7 +2412,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </p>
 </div>
 
-<div id="outline-container-org49faef7" class="outline-3">
+<div id="outline-container-org6392e2a" class="outline-3">
 <h3 id="org2a46a2bd"><span class="section-number-3">4.1</span> バッファ内のカーソル移動</h3>
 <div class="outline-text-3" id="text-org2a46a2bd">
 <p>
@@ -2431,7 +2433,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </div>
 </div>
 
-<div id="outline-container-org630f61c" class="outline-3">
+<div id="outline-container-orgbf2a9cc" class="outline-3">
 <h3 id="org3bebf489"><span class="section-number-3">4.2</span> バッファ間のカーソル移動</h3>
 <div class="outline-text-3" id="text-org3bebf489">
 <p>
@@ -2446,28 +2448,56 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </div>
 </div>
 
-<div id="outline-container-org4b78480" class="outline-3">
+<div id="outline-container-org6732c36" class="outline-3">
 <h3 id="orgc4c0ed9a"><span class="section-number-3">4.3</span> 対応するカッコを選択（逆方向）</h3>
 <div class="outline-text-3" id="text-orgc4c0ed9a">
 <ul class="org-ul">
 <li><code>C-M-SPC</code> (mark-sexp) は，カーソル位置から順方向に選択．<br /></li>
 <li><code>C-M-U</code> (backward-up-list) は，一つ外のカッコの先頭にポイントを移す．<br /></li>
-<li><code>C-M-9</code> (my-mark-sexp) は，カーソル位置から逆方向に選択．<br /></li>
 </ul>
+
+<p>
+<del>- <code>C-M-9</code> (my-mark-sexp) は，カーソル位置から逆方向に選択．</del> 以前は <code>my-mark-sexp</code> を定義して使っていましたが， <code>mark-sexp</code> を advice する方法に変えました．カーソルが行末だったり，後ろが空白文字の場合にのみ， <code>mark-sexp</code> に <code>-1</code> がわたるようにしました．<br />
+</p>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mark-sexp</span> (<span style="color: #228b22;">&amp;optional</span> arg)</code>
 <code>  <span style="color: #8b2252;">"Move backward across one balanced expression and select it."</span></code>
 <code>  (<span style="color: #a020f0;">interactive</span>)</code>
 <code>  (mark-sexp (<span style="color: #a020f0;">or</span> arg -1)))</code>
-<code>(global-set-key (kbd <span style="color: #8b2252;">"C-M-0"</span>) #'mark-sexp) <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-M-SPC</span></code>
 <code>(global-set-key (kbd <span style="color: #8b2252;">"C-M-9"</span>) #'my-mark-sexp)</code>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:mark-sexp</span> (f <span style="color: #228b22;">&amp;optional</span> arg allow-extend)</code>
+<code>  <span style="color: #8b2252;">"Set mark ARG sexps from point.</span></code>
+<code><span style="color: #8b2252;">When the cursor is at the end of line or before a whitespace, set ARG -1."</span></code>
+<code>  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P\np"</span>)</code>
+<code>  (funcall f (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (not (bolp))</code>
+<code>                      (not (eq (preceding-char) ?\ ))</code>
+<code>                      (<span style="color: #a020f0;">or</span> (eolp)</code>
+<code>                          (eq (following-char) ?\ )</code>
+<code>                          (memq (preceding-char) '(?\) ?\&gt; ?\] ?\}))))</code>
+<code>                 -1 arg)</code>
+<code>           allow-extend))</code>
+<code>(advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:mark-sexp)</code>
+<code></code>
+<code>(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region</span> nil t)</code>
+<code>  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:er:mark-sexp</span> (f <span style="color: #228b22;">&amp;optional</span> arg allow-extend)</code>
+<code>    <span style="color: #8b2252;">"If the cursor is on a symbol, expand the region along the symbol."</span></code>
+<code>    (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P\np"</span>)</code>
+<code>    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (not (use-region-p))</code>
+<code>             (symbol-at-point))</code>
+<code>        (er/mark-symbol)</code>
+<code>      (funcall f arg allow-extend)))</code>
+<code>  (advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:er:mark-sexp))</code>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org8d18eaa" class="outline-3">
+<div id="outline-container-orgf241b6b" class="outline-3">
 <h3 id="orgb8c57f30"><span class="section-number-3">4.4</span> スクロールを制御</h3>
 <div class="outline-text-3" id="text-orgb8c57f30">
 <p>
@@ -2515,7 +2545,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
-<div id="outline-container-org2e48c6a" class="outline-3">
+<div id="outline-container-orga1dbc04" class="outline-3">
 <h3 id="org5f40f030"><span class="section-number-3">4.5</span> スクロールで表示を重複させる行数</h3>
 <div class="outline-text-3" id="text-org5f40f030">
 <div class="org-src-container">
@@ -2526,7 +2556,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
-<div id="outline-container-org1b09e0d" class="outline-3">
+<div id="outline-container-orgb7d6728" class="outline-3">
 <h3 id="org7ea97f70"><span class="section-number-3">4.6</span> カーソル移動に反応するフック</h3>
 <div class="outline-text-3" id="text-org7ea97f70">
 <p>
@@ -2569,7 +2599,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
-<div id="outline-container-org8f84ae4" class="outline-3">
+<div id="outline-container-orgad6aa69" class="outline-3">
 <h3 id="orgc62cc9bf"><span class="section-number-3">4.7</span> [smooth-scroll.el] 滑らかなスクロール</h3>
 <div class="outline-text-3" id="text-orgc62cc9bf">
 <p>
@@ -2591,7 +2621,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
-<div id="outline-container-org10b7f95" class="outline-3">
+<div id="outline-container-orgc7e2dc2" class="outline-3">
 <h3 id="org768c06a0"><span class="section-number-3">4.8</span> [bs.el] 続・カレントバッファの表示切り替え</h3>
 <div class="outline-text-3" id="text-org768c06a0">
 <p>
@@ -2615,7 +2645,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
-<div id="outline-container-org879d2ca" class="outline-3">
+<div id="outline-container-org1fa80ec" class="outline-3">
 <h3 id="orgd5942d14"><span class="section-number-3">4.9</span> [bm.el] カーソル位置をブックマークして追う</h3>
 <div class="outline-text-3" id="text-orgd5942d14">
 <p>
@@ -2701,7 +2731,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-orgb18b5c1" class="outline-3">
+<div id="outline-container-org9d9fa3a" class="outline-3">
 <h3 id="orgfa2bad61"><span class="section-number-3">4.10</span> [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</h3>
 <div class="outline-text-3" id="text-orgfa2bad61">
 <p>
@@ -2722,15 +2752,11 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-orgf58d385" class="outline-3">
+<div id="outline-container-org2e2ab19" class="outline-3">
 <h3 id="orgadf36a14"><span class="section-number-3">4.11</span> [smart-mark] C-g後に元の場所へカーソルを戻す</h3>
 <div class="outline-text-3" id="text-orgadf36a14">
 <p>
 すぐわかる例は， <code>C-x h</code> で全選択して何もせず， <code>C-g</code> する場合です．通常だとバッファの先頭にカーソルが置き去りにされますが， <code>smart-mark</code> を使うと，全選択を実行した時の位置に自動的に戻してくれます．<br />
-</p>
-
-<p>
-<code>postpone</code> の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．<br />
 </p>
 
 <ul class="org-ul">
@@ -2739,6 +2765,25 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">smart-mark</span> nil t)</code>
+<code>  (<span style="color: #a020f0;">progn</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-M-SPC SPC SPC ... C-g &#12398;&#22580;&#21512;&#12395;&#27491;&#12375;&#12367;&#12459;&#12540;&#12477;&#12523;&#12392;&#20803;&#12395;&#25147;&#12377;&#65294;</span></code>
+<code>    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:smart-mark-set-restore-before-mark</span> (<span style="color: #228b22;">&amp;rest</span> _arg)</code>
+<code>      (<span style="color: #a020f0;">unless</span> (memq this-command</code>
+<code>                    '(er/expand-region er/mark-symbol er/contract-region))</code>
+<code>        (<span style="color: #a020f0;">setq</span> smart-mark-point-before-mark (point))))</code>
+<code>    (advice-add 'smart-mark-set-restore-before-mark <span style="color: #483d8b;">:override</span></code>
+<code>                #'ad:smart-mark-set-restore-before-mark)</code>
+<code>    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region-core</span> nil t)</code>
+<code>      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:er:keyboard-quit ()</span></code>
+<code>      <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (memq last-command '(er/expand-region er/contract-region))</span></code>
+<code>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(when smart-mark-point-before-mark</span></code>
+<code>      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(goto-char smart-mark-point-before-mark))))</span></code>
+<code>      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)</span></code>
+<code>      (<span style="color: #a020f0;">defadvice</span> <span style="color: #0000ff;">keyboard-quit</span> (before collapse-region activate)</code>
+<code>        (<span style="color: #a020f0;">when</span> (memq last-command '(er/expand-region er/contract-region))</code>
+<code>          (er/contract-region 0)</code>
+<code>          (<span style="color: #a020f0;">when</span> smart-mark-point-before-mark</code>
+<code>            (goto-char smart-mark-point-before-mark))))))</code>
+<code></code>
 <code>  (<span style="color: #a020f0;">unless</span> noninteractive</code>
 <code>    (smart-mark-mode 1)))</code>
 </pre>
@@ -2746,7 +2791,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-orgcedf4a8" class="outline-3">
+<div id="outline-container-org8ff6865" class="outline-3">
 <h3 id="orgf75f443a"><span class="section-number-3">4.12</span> [syntax-subword.el] M-f で移動する位置をより密にする</h3>
 <div class="outline-text-3" id="text-orgf75f443a">
 <ul class="org-ul">
@@ -2762,16 +2807,12 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-org08c746d" class="outline-3">
+<div id="outline-container-org6cea548" class="outline-3">
 <h3 id="org8435eae2"><span class="section-number-3">4.13</span> [goto-chg.el] 編集箇所を簡単に辿る</h3>
 <div class="outline-text-3" id="text-org8435eae2">
 <p>
 編集結果を保持したまま編集箇所にカーソルを移すことができます． <code>C-/</code> の Undo のような操作で，簡単かつ高速にカーソルを移動できます．<br />
 </p>
-
-<ul class="org-ul">
-<li><code>postpone</code> の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．<br /></li>
-</ul>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">when</span> (autoload-if-found</code>
@@ -2789,8 +2830,32 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-org33ff9ec" class="outline-3">
-<h3 id="org27e3241e"><span class="section-number-3">4.14</span> <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-org59c93f5" class="outline-3">
+<h3 id="org59c93f5"><span class="section-number-3">4.14</span> [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</h3>
+<div class="outline-text-3" id="text-4-14">
+<ul class="org-ul">
+<li><a href="https://github.com/magnars/expand-region.el">magnars/expand-region.el: Emacs extension to increase selected region by semantic units.</a><br /></li>
+</ul>
+
+<p>
+<code>er/expand-region</code> を呼ぶと，カーソル位置を起点として前後に選択範囲を広げてくれます．2回以上呼ぶと，読んだ回数だけ賢く選択範囲が広がりますが，2回目は設定したキーバインドの最後の一文字を連打すればOKです．その場合，選択範囲を狭める時は <code>-</code> を押し， <code>0</code> を押せばリセットされます．<br />
+</p>
+
+<p>
+自分は <code>selected.el</code> とペアで使うように設定していて， <code>C-SPC</code> か <code>C-M-SPC</code> から <code>SPC</code> を押すことで <code>er/expand-region</code> が呼ばれるように設定しています．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"selected"</span></code>
+<code>  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region</span> nil t)</code>
+<code>    (define-key selected-keymap (kbd <span style="color: #8b2252;">"SPC"</span>) #'er/expand-region)))</code>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf9f79e6" class="outline-3">
+<h3 id="org27e3241e"><span class="section-number-3">4.15</span> <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org27e3241e">
 <p>
 <a href="http://www.emacswiki.org/emacs/download/cycle-buffer.el">http://www.emacswiki.org/emacs/download/cycle-buffer.el</a><br />
@@ -2818,8 +2883,8 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 </div>
 
-<div id="outline-container-org4fd62d5" class="outline-3">
-<h3 id="orgd906e864"><span class="section-number-3">4.15</span> <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-org62587c2" class="outline-3">
+<h3 id="orgd906e864"><span class="section-number-3">4.16</span> <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgd906e864">
 <p>
 現在のバッファと開いている全てのバッファのマークを辿ることができます．いま注目している位置が，マーク全体でどのあたりに位置するのかをミニバッファに表示してくれます．ツールバーを表示している場合は，マークを付けたり辿る用のボタンが追加されます． <code>global-mark-ring-max</code> を設定して，辿れるマークの数を拡張しておきます．<br />
@@ -2864,8 +2929,8 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 </div>
 
-<div id="outline-container-org0614b7e" class="outline-3">
-<h3 id="org42db9464"><span class="section-number-3">4.16</span> <span class="done DONE">DONE</span> [point-undo.el] カーソル位置を簡単にたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-orga9d86bd" class="outline-3">
+<h3 id="org42db9464"><span class="section-number-3">4.17</span> <span class="done DONE">DONE</span> [point-undo.el] カーソル位置を簡単にたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org42db9464">
 <p>
 <code>autoload</code> や <code>autoload-if-found</code> で定義すると，使いたい時に履歴が取れていないのでよろしくないです．起動時に有効化します． bm.el で明示的にマーカーを残して履歴をたどる方が気に入っているので，最近は point-undo を使っていません．シングルキーを割り当てておくと使いやすいです．<br />
@@ -2882,8 +2947,8 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 </div>
 
-<div id="outline-container-org0fa4112" class="outline-3">
-<h3 id="org1af5f062"><span class="section-number-3">4.17</span> <span class="done DONE">DONE</span> [SmoothScroll.el] カーソル固定でスクロールする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-orgf2b436a" class="outline-3">
+<h3 id="org1af5f062"><span class="section-number-3">4.18</span> <span class="done DONE">DONE</span> [SmoothScroll.el] カーソル固定でスクロールする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org1af5f062">
 <p>
 <a href="https://raw.github.com/takaxp/EmacsScripts/master/SmoothScroll.el">https://raw.github.com/takaxp/EmacsScripts/master/SmoothScroll.el</a><br />
@@ -2912,11 +2977,11 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 </div>
 
-<div id="outline-container-org1f8adf7" class="outline-2">
+<div id="outline-container-org3158efe" class="outline-2">
 <h2 id="org36bb3b1a"><span class="section-number-2">5</span> 編集サポート</h2>
 <div class="outline-text-2" id="text-org36bb3b1a">
 </div>
-<div id="outline-container-org3682d34" class="outline-3">
+<div id="outline-container-orgcb22215" class="outline-3">
 <h3 id="org6f2cf1cd"><span class="section-number-3">5.1</span> エンターキーの挙動</h3>
 <div class="outline-text-3" id="text-org6f2cf1cd">
 <p>
@@ -2930,7 +2995,7 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 </div>
 
-<div id="outline-container-org8fa18ab" class="outline-3">
+<div id="outline-container-org5c7e3d3" class="outline-3">
 <h3 id="org4c4fe29c"><span class="section-number-3">5.2</span> Yank時に装飾を取る</h3>
 <div class="outline-text-3" id="text-org4c4fe29c">
 <div class="org-src-container">
@@ -2940,7 +3005,7 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 </div>
 
-<div id="outline-container-org1ca7fd9" class="outline-3">
+<div id="outline-container-orgdef8712" class="outline-3">
 <h3 id="orgf6cb5849"><span class="section-number-3">5.3</span> 矩形編集／連番入力</h3>
 <div class="outline-text-3" id="text-orgf6cb5849">
 <p>
@@ -3000,7 +3065,7 @@ Built-in の cua-base.el（CUA-mode）を使うと，矩形選択は，領域選
 </div>
 </div>
 
-<div id="outline-container-org9eb195e" class="outline-3">
+<div id="outline-container-org259029e" class="outline-3">
 <h3 id="org9dba91d0"><span class="section-number-3">5.4</span> ファイル保存時に時間を記録する</h3>
 <div class="outline-text-3" id="text-org9dba91d0">
 <p>
@@ -3038,7 +3103,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-orgf3cc16e" class="outline-3">
+<div id="outline-container-org7ca5aae" class="outline-3">
 <h3 id="orge62264fe"><span class="section-number-3">5.5</span> 選択リージョンを使って検索</h3>
 <div class="outline-text-3" id="text-orge62264fe">
 <p>
@@ -3068,7 +3133,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org9193421" class="outline-3">
+<div id="outline-container-org238d79f" class="outline-3">
 <h3 id="org7cb03523"><span class="section-number-3">5.6</span> ChangeLog モード</h3>
 <div class="outline-text-3" id="text-org7cb03523">
 <div class="org-src-container">
@@ -3093,7 +3158,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org74cabe1" class="outline-3">
+<div id="outline-container-org7960ecb" class="outline-3">
 <h3 id="org1bd5d8ee"><span class="section-number-3">5.7</span> テキストモード</h3>
 <div class="outline-text-3" id="text-org1bd5d8ee">
 <p>
@@ -3117,7 +3182,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org43034e4" class="outline-3">
+<div id="outline-container-orgd73e3c0" class="outline-3">
 <h3 id="org92da42b4"><span class="section-number-3">5.8</span> C/C++モード</h3>
 <div class="outline-text-3" id="text-org92da42b4">
 <div class="org-src-container">
@@ -3132,7 +3197,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org1844784" class="outline-3">
+<div id="outline-container-orgb46f5ee" class="outline-3">
 <h3 id="orga6184922"><span class="section-number-3">5.9</span> C#モード</h3>
 <div class="outline-text-3" id="text-orga6184922">
 <div class="org-src-container">
@@ -3146,7 +3211,7 @@ Built-in の time-stamp.el を使う．<br />
 </div>
 </div>
 
-<div id="outline-container-org6088c05" class="outline-3">
+<div id="outline-container-org4f37584" class="outline-3">
 <h3 id="org743f2508"><span class="section-number-3">5.10</span> Infoモード</h3>
 <div class="outline-text-3" id="text-org743f2508">
 <p>
@@ -3172,7 +3237,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org937ff64" class="outline-3">
+<div id="outline-container-org7321069" class="outline-3">
 <h3 id="orgd2a57328"><span class="section-number-3">5.11</span> Rモード</h3>
 <div class="outline-text-3" id="text-orgd2a57328">
 <div class="org-src-container">
@@ -3186,7 +3251,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org88cdf48" class="outline-3">
+<div id="outline-container-org2ec3f0c" class="outline-3">
 <h3 id="org8c99f06c"><span class="section-number-3">5.12</span> nXMLモード</h3>
 <div class="outline-text-3" id="text-org8c99f06c">
 <div class="org-src-container">
@@ -3204,7 +3269,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-orgcc06b4f" class="outline-3">
+<div id="outline-container-orgf74bef7" class="outline-3">
 <h3 id="orgbfa6c13b"><span class="section-number-3">5.13</span> yamlモード</h3>
 <div class="outline-text-3" id="text-orgbfa6c13b">
 <div class="org-src-container">
@@ -3218,7 +3283,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-orge2b8632" class="outline-3">
+<div id="outline-container-org0edb5e6" class="outline-3">
 <h3 id="org34a54f82"><span class="section-number-3">5.14</span> jsonモード</h3>
 <div class="outline-text-3" id="text-org34a54f82">
 <div class="org-src-container">
@@ -3232,7 +3297,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-orgadb00e8" class="outline-3">
+<div id="outline-container-org328de4e" class="outline-3">
 <h3 id="orgc35f66fb"><span class="section-number-3">5.15</span> javascriptモード</h3>
 <div class="outline-text-3" id="text-orgc35f66fb">
 <div class="org-src-container">
@@ -3266,7 +3331,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org643baf4" class="outline-3">
+<div id="outline-container-orge6a735c" class="outline-3">
 <h3 id="orga7d86e03"><span class="section-number-3">5.16</span> csvモード</h3>
 <div class="outline-text-3" id="text-orga7d86e03">
 <div class="org-src-container">
@@ -3280,7 +3345,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-orgef76647" class="outline-3">
+<div id="outline-container-org616ce3c" class="outline-3">
 <h3 id="orgba009928"><span class="section-number-3">5.17</span> asciiモード</h3>
 <div class="outline-text-3" id="text-orgba009928">
 <p>
@@ -3294,7 +3359,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org03866e9" class="outline-3">
+<div id="outline-container-org0d1e348" class="outline-3">
 <h3 id="orgc5b5891d"><span class="section-number-3">5.18</span> javaモード</h3>
 <div class="outline-text-3" id="text-orgc5b5891d">
 <div class="org-src-container">
@@ -3309,7 +3374,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org54ee2f8" class="outline-3">
+<div id="outline-container-orge6d37d3" class="outline-3">
 <h3 id="orgf0c39e0f"><span class="section-number-3">5.19</span> esモード</h3>
 <div class="outline-text-3" id="text-orgf0c39e0f">
 <ul class="org-ul">
@@ -3331,7 +3396,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org991ccfe" class="outline-3">
+<div id="outline-container-orgb612280" class="outline-3">
 <h3 id="org2a14728f"><span class="section-number-3">5.20</span> gnuplotモード</h3>
 <div class="outline-text-3" id="text-org2a14728f">
 <div class="org-src-container">
@@ -3345,7 +3410,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org1cc63b0" class="outline-3">
+<div id="outline-container-org7e8e59b" class="outline-3">
 <h3 id="orga6fc6cf7"><span class="section-number-3">5.21</span> markdown-modeモード</h3>
 <div class="outline-text-3" id="text-orga6fc6cf7">
 <ul class="org-ul">
@@ -3364,7 +3429,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-orge649115" class="outline-3">
+<div id="outline-container-org0befd3b" class="outline-3">
 <h3 id="org29328dcd"><span class="section-number-3">5.22</span> cmakeモード</h3>
 <div class="outline-text-3" id="text-org29328dcd">
 <div class="org-src-container">
@@ -3381,7 +3446,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org2bad0fb" class="outline-3">
+<div id="outline-container-orgc12d7e1" class="outline-3">
 <h3 id="org41da658e"><span class="section-number-3">5.23</span> logviewモード</h3>
 <div class="outline-text-3" id="text-org41da658e">
 <ul class="org-ul">
@@ -3402,7 +3467,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </div>
 </div>
 
-<div id="outline-container-org794c7b2" class="outline-3">
+<div id="outline-container-org0df6062" class="outline-3">
 <h3 id="orgfdeec1c5"><span class="section-number-3">5.24</span> Web/HTMLモード&#xa0;&#xa0;&#xa0;<span class="tag"><span class="web">web</span></span></h3>
 <div class="outline-text-3" id="text-orgfdeec1c5">
 <p>
@@ -3456,7 +3521,7 @@ HTML編集をするなら <a href="http://web-mode.org/">web-mode</a> がお勧�
 </div>
 </div>
 
-<div id="outline-container-org2e0b3ef" class="outline-3">
+<div id="outline-container-org2d504de" class="outline-3">
 <h3 id="orge1eeb2a1"><span class="section-number-3">5.25</span> POモード</h3>
 <div class="outline-text-3" id="text-orge1eeb2a1">
 <ul class="org-ul">
@@ -3477,7 +3542,7 @@ HTML編集をするなら <a href="http://web-mode.org/">web-mode</a> がお勧�
 </div>
 </div>
 
-<div id="outline-container-orgd1a8d5d" class="outline-3">
+<div id="outline-container-org109afcf" class="outline-3">
 <h3 id="orge727dabc"><span class="section-number-3">5.26</span> スペルチェック</h3>
 <div class="outline-text-3" id="text-orge727dabc">
 <p>
@@ -3594,7 +3659,7 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
 </div>
 </div>
 
-<div id="outline-container-orgdbb64d4" class="outline-3">
+<div id="outline-container-orgcb8e10d" class="outline-3">
 <h3 id="orgdd65fc08"><span class="section-number-3">5.27</span> リアルタイムスペルチェック</h3>
 <div class="outline-text-3" id="text-orgdd65fc08">
 <p>
@@ -3678,7 +3743,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-org8788e17" class="outline-3">
+<div id="outline-container-org55da3c2" class="outline-3">
 <h3 id="org9317ee6f"><span class="section-number-3">5.28</span> リージョン内の文字をカウントする</h3>
 <div class="outline-text-3" id="text-org9317ee6f">
 <p>
@@ -3705,7 +3770,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-org462d88c" class="outline-3">
+<div id="outline-container-org22a4334" class="outline-3">
 <h3 id="org863cfc2a"><span class="section-number-3">5.29</span> 世界時計を使う</h3>
 <div class="outline-text-3" id="text-org863cfc2a">
 <p>
@@ -3728,7 +3793,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-org1a05110" class="outline-3">
+<div id="outline-container-org3541e4e" class="outline-3">
 <h3 id="org66e1952c"><span class="section-number-3">5.30</span> 読書モード</h3>
 <div class="outline-text-3" id="text-org66e1952c">
 <p>
@@ -3754,8 +3819,51 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-orgf93939a" class="outline-3">
-<h3 id="orgab4f9bf0"><span class="section-number-3">5.31</span> [latex-math-preview.el] TeX数式をプレビュー&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></h3>
+<div id="outline-container-org3295faa" class="outline-3">
+<h3 id="org3295faa"><span class="section-number-3">5.31</span> <span class="todo TODO">TODO</span> [multiple-cursors.el] 指定箇所を同時編集</h3>
+<div class="outline-text-3" id="text-5-31">
+<ul class="org-ul">
+<li><a href="http://emacsrocks.com/e08.html">http://emacsrocks.com/e08.html</a><br /></li>
+<li><a href="https://github.com/magnars/multiple-cursors.el">magnars/multiple-cursors.el: Multiple cursors for emacs.</a><br /></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(global-set-key (kbd <span style="color: #8b2252;">"C-c h m"</span>) #'hydra-multiple-cursors/body)</code>
+<code>(autoload-if-found '(mc/num-cursors mc/edit-lines) <span style="color: #8b2252;">"multiple-cursors"</span> nil t)</code>
+<code>(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)</code>
+<code>  <span style="color: #b22222;">;; </span><span style="color: #b22222;">see </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="https://github.com/abo-abo/hydra/wiki/multiple-cursors">https://github.com/abo-abo/hydra/wiki/multiple-cursors</a></span></code>
+<code>  (<span style="color: #a020f0;">defhydra</span> hydra-multiple-cursors (<span style="color: #483d8b;">:hint</span> nil)</code>
+<code>    <span style="color: #8b2252;">"</span></code>
+<code><span style="color: #8b2252;">==================================================================</span></code>
+<code><span style="color: #8b2252;"> Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (&gt; (mc/num-cursors) 1) \"s\" \"\")</span></code>
+<code><span style="color: #8b2252;">------------------------------------------------------------------</span></code>
+<code><span style="color: #8b2252;"> [_p_]   Next     [_n_]   Next     [_l_] Edit lines  [_0_] Insert numbers</span></code>
+<code><span style="color: #8b2252;"> [_P_]   Skip     [_N_]   Skip     [_a_] Mark all    [_A_] Insert letters</span></code>
+<code><span style="color: #8b2252;"> [_M-p_] Unmark   [_M-n_] Unmark   [_s_] Search</span></code>
+<code><span style="color: #8b2252;"> [Click] Cursor at point       [_q_] Quit"</span></code>
+<code>    (<span style="color: #8b2252;">"l"</span> mc/edit-lines) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">:exit t</span></code>
+<code>    (<span style="color: #8b2252;">"a"</span> mc/mark-all-like-this) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">:exit t</span></code>
+<code>    (<span style="color: #8b2252;">"n"</span> mc/mark-next-like-this)</code>
+<code>    (<span style="color: #8b2252;">"N"</span> mc/skip-to-next-like-this)</code>
+<code>    (<span style="color: #8b2252;">"M-n"</span> mc/unmark-next-like-this)</code>
+<code>    (<span style="color: #8b2252;">"p"</span> mc/mark-previous-like-this)</code>
+<code>    (<span style="color: #8b2252;">"P"</span> mc/skip-to-previous-like-this)</code>
+<code>    (<span style="color: #8b2252;">"M-p"</span> mc/unmark-previous-like-this)</code>
+<code>    (<span style="color: #8b2252;">"s"</span> mc/mark-all-in-region-regexp) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">:exit t</span></code>
+<code>    (<span style="color: #8b2252;">"0"</span> mc/insert-numbers) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">:exit t</span></code>
+<code>    (<span style="color: #8b2252;">"A"</span> mc/insert-letters) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">:exit t</span></code>
+<code>    (<span style="color: #8b2252;">"&lt;mouse-1&gt;"</span> mc/add-cursor-on-click)</code>
+<code>    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Help with click recognition in this hydra</span></code>
+<code>    (<span style="color: #8b2252;">"&lt;down-mouse-1&gt;"</span> ignore)</code>
+<code>    (<span style="color: #8b2252;">"&lt;drag-mouse-1&gt;"</span> ignore)</code>
+<code>    (<span style="color: #8b2252;">"q"</span> nil)))</code>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8eb28bd" class="outline-3">
+<h3 id="orgab4f9bf0"><span class="section-number-3">5.32</span> [latex-math-preview.el] TeX数式をプレビュー&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></h3>
 <div class="outline-text-3" id="text-orgab4f9bf0">
 <ul class="org-ul">
 <li><a href="https://gitlab.com/latex-math-preview/latex-math-preview/tree/775887a89447dd19541b121161cc02e9799d0d3a">Files · 775887a89447dd19541b121161cc02e9799d0d3a · latex-math-preview / Latex Math Preview · GitLab</a><br /></li>
@@ -3789,8 +3897,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-orgb51accb" class="outline-3">
-<h3 id="org770fb4ec"><span class="section-number-3">5.32</span> [yatex.el] YaTeXでTex編集&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></h3>
+<div id="outline-container-org25ad41f" class="outline-3">
+<h3 id="org770fb4ec"><span class="section-number-3">5.33</span> [yatex.el] YaTeXでTex編集&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></h3>
 <div class="outline-text-3" id="text-org770fb4ec">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">when</span> (autoload-if-found</code>
@@ -3877,8 +3985,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-orgc78a7a1" class="outline-3">
-<h3 id="org9b92b6f8"><span class="section-number-3">5.33</span> [auxtex.el] AUCTEXでTex編集&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></h3>
+<div id="outline-container-org6b124c2" class="outline-3">
+<h3 id="org9b92b6f8"><span class="section-number-3">5.34</span> [auxtex.el] AUCTEXでTex編集&#xa0;&#xa0;&#xa0;<span class="tag"><span class="tex">tex</span></span></h3>
 <div class="outline-text-3" id="text-org9b92b6f8">
 <p>
 実践未投入です．<br />
@@ -3902,8 +4010,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-org7bd80b5" class="outline-3">
-<h3 id="org2e5c6e4f"><span class="section-number-3">5.34</span> [yasnippet.el] Emacs用のテンプレートシステム</h3>
+<div id="outline-container-org961ecb0" class="outline-3">
+<h3 id="org2e5c6e4f"><span class="section-number-3">5.35</span> [yasnippet.el] Emacs用のテンプレートシステム</h3>
 <div class="outline-text-3" id="text-org2e5c6e4f">
 <p>
 実は余り使いこなせていません&#x2026;<br />
@@ -3983,8 +4091,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </div>
 </div>
 
-<div id="outline-container-org32aa1fb" class="outline-3">
-<h3 id="orgbea14b16"><span class="section-number-3">5.35</span> [osx-dictionary.el] macOSのdictionary.appで辞書をひく</h3>
+<div id="outline-container-orge4bab04" class="outline-3">
+<h3 id="orgbea14b16"><span class="section-number-3">5.36</span> [osx-dictionary.el] macOSのdictionary.appで辞書をひく</h3>
 <div class="outline-text-3" id="text-orgbea14b16">
 <p>
 <code>osx-dictionary</code> なるパッケージが存在します．さくさくと高速に動作します．なお， <code>C-M-w</code> は，本来，削除文字の連結(<code>append-next-kill</code>)にアサインされています．<br />
@@ -4018,8 +4126,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org413ffb4" class="outline-3">
-<h3 id="orgca044d69"><span class="section-number-3">5.36</span> [describe-number.el] 16進数などを確認</h3>
+<div id="outline-container-orgdeeb4b3" class="outline-3">
+<h3 id="orgca044d69"><span class="section-number-3">5.37</span> [describe-number.el] 16進数などを確認</h3>
 <div class="outline-text-3" id="text-orgca044d69">
 <p>
 <code>describe-number.el</code> を使うと，16進数表示や文字コードを確認できます．<br />
@@ -4034,8 +4142,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-orgcecc503" class="outline-3">
-<h3 id="org98d5c1aa"><span class="section-number-3">5.37</span> [emmet-mode.el] zencoding の後継&#xa0;&#xa0;&#xa0;<span class="tag"><span class="web">web</span></span></h3>
+<div id="outline-container-org46d8fe4" class="outline-3">
+<h3 id="org98d5c1aa"><span class="section-number-3">5.38</span> [emmet-mode.el] zencoding の後継&#xa0;&#xa0;&#xa0;<span class="tag"><span class="web">web</span></span></h3>
 <div class="outline-text-3" id="text-org98d5c1aa">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">when</span> (autoload-if-found</code>
@@ -4057,8 +4165,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org05e3c17" class="outline-3">
-<h3 id="orgc885e502"><span class="section-number-3">5.38</span> [web-beautify.el] ソースコード整形&#xa0;&#xa0;&#xa0;<span class="tag"><span class="web">web</span></span></h3>
+<div id="outline-container-orga7e32f1" class="outline-3">
+<h3 id="orgc885e502"><span class="section-number-3">5.39</span> [web-beautify.el] ソースコード整形&#xa0;&#xa0;&#xa0;<span class="tag"><span class="web">web</span></span></h3>
 <div class="outline-text-3" id="text-orgc885e502">
 <p>
 ソースコードを読みやすい表示に整形します．バッファの自動時に自動で整形を実施するには， <code>after-save-hook</code> を使えばOKですね．<br />
@@ -4108,8 +4216,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-orgdad64e6" class="outline-3">
-<h3 id="orgc3ce60f5"><span class="section-number-3">5.39</span> [smartparens.el] 対応するカッコの挿入をアシスト</h3>
+<div id="outline-container-orga4e7d55" class="outline-3">
+<h3 id="orgc3ce60f5"><span class="section-number-3">5.40</span> [smartparens.el] 対応するカッコの挿入をアシスト</h3>
 <div class="outline-text-3" id="text-orgc3ce60f5">
 <ul class="org-ul">
 <li><a href="http://smartparens.readthedocs.io/">http://smartparens.readthedocs.io/</a><br /></li>
@@ -4145,8 +4253,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org9ffbfdd" class="outline-3">
-<h3 id="org69748b72"><span class="section-number-3">5.40</span> [replace-from-region.el] 選択領域を別の文字列に置き換える</h3>
+<div id="outline-container-org88170a4" class="outline-3">
+<h3 id="org69748b72"><span class="section-number-3">5.41</span> [replace-from-region.el] 選択領域を別の文字列に置き換える</h3>
 <div class="outline-text-3" id="text-org69748b72">
 <p>
 通常の <code>query-replace</code> は，変更前と変更後の文字列を両方入力しますが， <code>query-replace-from-region</code> は，変更前の文字列を選択領域から自動抽出し，さらに同じ単語を変更後の文字列の候補として事前入力してくれます．したがって，文字列選択， <code>query-replace-from-region</code> 呼び出し，文字列を一部変更，実行，というフローになり簡略化されます．さらに， <code>selected.el</code> を使うことで，文字列選択後の <code>query-replace-from-region</code> 呼び出しは，シングルキーの押下で実現できます（私の場合は <code>5</code> の押下）．<br />
@@ -4173,8 +4281,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org7bd1fa4" class="outline-3">
-<h3 id="orgbc8501cf"><span class="section-number-3">5.41</span> [selected.el] リージョン選択時のアクションを制御</h3>
+<div id="outline-container-org722f94c" class="outline-3">
+<h3 id="orgbc8501cf"><span class="section-number-3">5.42</span> [selected.el] リージョン選択時のアクションを制御</h3>
 <div class="outline-text-3" id="text-orgbc8501cf">
 <p>
 選択した後に右クリック的な感じでリージョンに対するアクションを制御できます．選択領域に対するスピードコマンドですね．普通にシングルキーを割り当てると，日本語IMEが有効な時に上手くいかないので， <code>activate-mark-hook</code> と <code>deactivate-mark-hook</code> に細工しています．<br />
@@ -4219,7 +4327,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 <code></code>
 <code>    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-eval-region</span> ()</code>
 <code>      (<span style="color: #a020f0;">interactive</span>)</code>
-<code>      (<span style="color: #a020f0;">when</span> mark-active</code>
+<code>      (<span style="color: #a020f0;">when</span> (use-region-p)</code>
 <code>        (eval-region (region-beginning) (region-end) t)))</code>
 <code>    (<span style="color: #a020f0;">setq</span> selected-org-mode-map (make-sparse-keymap))</code>
 <code></code>
@@ -4227,6 +4335,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 <code>    (define-key selected-keymap (kbd <span style="color: #8b2252;">"-"</span>) #'my-org-list-insert-items)</code>
 <code>    (define-key selected-keymap (kbd <span style="color: #8b2252;">"_"</span>)</code>
 <code>      #'my-org-list-insert-checkbox-into-items)</code>
+<code></code>
+<code>    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region</span> nil t)</code>
+<code>      (define-key selected-keymap (kbd <span style="color: #8b2252;">"SPC"</span>) #'er/expand-region))</code>
 <code></code>
 <code>    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (require 'helm-selected nil t)</span></code>
 <code>    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(define-key selected-keymap (kbd "h") 'helm-selected))</span></code>
@@ -4244,8 +4355,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org94412c0" class="outline-3">
-<h3 id="org98897862"><span class="section-number-3">5.42</span> [helm-selected.el] selecte.el のアクション候補を絞り込み</h3>
+<div id="outline-container-orga1dde9a" class="outline-3">
+<h3 id="org98897862"><span class="section-number-3">5.43</span> [helm-selected.el] selecte.el のアクション候補を絞り込み</h3>
 <div class="outline-text-3" id="text-org98897862">
 <ul class="org-ul">
 <li><a href="https://qiita.com/takaxp/items/00245794d46c3a5fcaa8">記事</a>にしました．<br /></li>
@@ -4260,8 +4371,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-orgb643998" class="outline-3">
-<h3 id="orgeafa82dd"><span class="section-number-3">5.43</span> [counsel-selected.el] 続・selected.el のアクション候補絞り込み</h3>
+<div id="outline-container-orgded2818" class="outline-3">
+<h3 id="orgeafa82dd"><span class="section-number-3">5.44</span> [counsel-selected.el] 続・selected.el のアクション候補絞り込み</h3>
 <div class="outline-text-3" id="text-orgeafa82dd">
 <p>
 <code>Ivy/counsel</code> でも絞り込めるように拡張を作りました．<br />
@@ -4280,8 +4391,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org68a1947" class="outline-3">
-<h3 id="orge18cb840"><span class="section-number-3">5.44</span> <span class="todo TODO">TODO</span> [isolate.el] ブラケット等の入力をアシスト</h3>
+<div id="outline-container-orgd12611c" class="outline-3">
+<h3 id="orge18cb840"><span class="section-number-3">5.45</span> <span class="todo TODO">TODO</span> [isolate.el] ブラケット等の入力をアシスト</h3>
 <div class="outline-text-3" id="text-orge18cb840">
 <ul class="org-ul">
 <li><a href="https://github.com/casouri/isolate">casouri/isolate: Surrounding magics, extensible</a><br /></li>
@@ -4298,8 +4409,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-orgf9e90bf" class="outline-3">
-<h3 id="orgc6f37d6d"><span class="section-number-3">5.45</span> <span class="todo TODO">TODO</span> [git-complete.el] GIT grep を使う補完エンジン</h3>
+<div id="outline-container-orgb760ae4" class="outline-3">
+<h3 id="orgc6f37d6d"><span class="section-number-3">5.46</span> <span class="todo TODO">TODO</span> [git-complete.el] GIT grep を使う補完エンジン</h3>
 <div class="outline-text-3" id="text-orgc6f37d6d">
 <ul class="org-ul">
 <li><a href="https://github.com/zk-phi/git-complete">zk-phi/git-complete: {Emacs} Yet another completion engine powered by "git grep"</a><br /></li>
@@ -4316,8 +4427,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-orgdcfed0f" class="outline-3">
-<h3 id="orgab8a7bee"><span class="section-number-3">5.46</span> <span class="todo TODO">TODO</span> [tiny.el] 連番入力をサポート</h3>
+<div id="outline-container-org3af1fd9" class="outline-3">
+<h3 id="orgab8a7bee"><span class="section-number-3">5.47</span> <span class="todo TODO">TODO</span> [tiny.el] 連番入力をサポート</h3>
 <div class="outline-text-3" id="text-orgab8a7bee">
 <ul class="org-ul">
 <li><a href="https://github.com/abo-abo/tiny">abo-abo/tiny: Quickly generate linear ranges in Emacs</a><br /></li>
@@ -4331,8 +4442,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-orga0b0c11" class="outline-3">
-<h3 id="org12a087af"><span class="section-number-3">5.47</span> <span class="todo TODO">TODO</span> [bratex.el] LaTeX 数式のブラケット入力をサポート</h3>
+<div id="outline-container-org9f2b806" class="outline-3">
+<h3 id="org12a087af"><span class="section-number-3">5.48</span> <span class="todo TODO">TODO</span> [bratex.el] LaTeX 数式のブラケット入力をサポート</h3>
 <div class="outline-text-3" id="text-org12a087af">
 <ul class="org-ul">
 <li><a href="https://github.com/sbrisard/bratex">sbrisard/bratex: Emacs package for manipulation of brackets in LaTeX mode</a><br /></li>
@@ -4349,8 +4460,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org16cb03f" class="outline-3">
-<h3 id="orgb3d87116"><span class="section-number-3">5.48</span> <span class="done DONE">DONE</span> [iedit.el] バッファ内の同じ文字列を一度に編集する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-orgc749ae8" class="outline-3">
+<h3 id="orgb3d87116"><span class="section-number-3">5.49</span> <span class="done DONE">DONE</span> [iedit.el] バッファ内の同じ文字列を一度に編集する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgb3d87116">
 <p>
 <code>replace-from-region.el</code> を <code>selected.el</code> で呼び出すので満足しています．表示色の点では， <code>highlight-symbol.el</code> があるので，今からどれが編集されるのかもわかりやすいです．<br />
@@ -4367,8 +4478,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org220e16e" class="outline-3">
-<h3 id="orgf18160de"><span class="section-number-3">5.49</span> <span class="done DONE">DONE</span> [lookup.el] 辞書&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-org3a7a4ff" class="outline-3">
+<h3 id="orgf18160de"><span class="section-number-3">5.50</span> <span class="done DONE">DONE</span> [lookup.el] 辞書&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgf18160de">
 <p>
 最近使っていません．<br />
@@ -4448,8 +4559,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org2e88fa7" class="outline-3">
-<h3 id="org903987d3"><span class="section-number-3">5.50</span> <span class="done DONE">DONE</span> [cacoo] Cacoo で描く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-org7fc6f0f" class="outline-3">
+<h3 id="org903987d3"><span class="section-number-3">5.51</span> <span class="done DONE">DONE</span> [cacoo] Cacoo で描く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org903987d3">
 <p>
 画像をリサイズしてバッファに表示する用途にも使える．<br />
@@ -4469,8 +4580,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </div>
 </div>
 
-<div id="outline-container-org7850427" class="outline-3">
-<h3 id="org56cbbb36"><span class="section-number-3">5.51</span> <span class="done DONE">DONE</span> [zencoding-mode] HTML編集の高速化&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-orge9e1770" class="outline-3">
+<h3 id="org56cbbb36"><span class="section-number-3">5.52</span> <span class="done DONE">DONE</span> [zencoding-mode] HTML編集の高速化&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org56cbbb36">
 <p>
 zencoding でタグ打ちを効率化します．今は emmet-mode を使います．<br />
@@ -4497,8 +4608,8 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 </div>
 </div>
 
-<div id="outline-container-org059c423" class="outline-3">
-<h3 id="org7e84aa55"><span class="section-number-3">5.52</span> <span class="done DONE">DONE</span> [sdic.el] 英辞郎で英単語を調べる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-orgf7c91fc" class="outline-3">
+<h3 id="org7e84aa55"><span class="section-number-3">5.53</span> <span class="done DONE">DONE</span> [sdic.el] 英辞郎で英単語を調べる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org7e84aa55">
 <ul class="org-ul">
 <li>osx-directory.el に移行しました．<br /></li>
@@ -4536,8 +4647,8 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 </div>
 </div>
 
-<div id="outline-container-org74b7bbf" class="outline-3">
-<h3 id="org52c2a77d"><span class="section-number-3">5.53</span> <span class="done DONE">DONE</span> [dictionary.app] macOSのdictionary.appでCOBUILD5をひく&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<div id="outline-container-org60e5a91" class="outline-3">
+<h3 id="org52c2a77d"><span class="section-number-3">5.54</span> <span class="done DONE">DONE</span> [dictionary.app] macOSのdictionary.appでCOBUILD5をひく&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org52c2a77d">
 <p>
 OS標準の辞書アプリ（dictionary.app）を経由して，バッファにCOBUILD5のデータを流し込むことができます．<br />
@@ -4609,8 +4720,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </p>
 </div>
 
-<div id="outline-container-org9a2d7d6" class="outline-4">
-<h4 id="org34b20ea7"><span class="section-number-4">5.53.1</span> マイナーモード化</h4>
+<div id="outline-container-org7b885d9" class="outline-4">
+<h4 id="org34b20ea7"><span class="section-number-4">5.54.1</span> マイナーモード化</h4>
 <div class="outline-text-4" id="text-org34b20ea7">
 <p>
 <code>q</code> で閉じたくなったのでマイナーモードを作りました．これまで通り， <code>C-M-w</code> でカーソル下の単語を調べてポップアップで表示．カーソルはその新しいバッファに移しておき， <code>q</code> で閉じられます．新しいバッファ内で別な単語を <code>C-M-w</code> で調べると，同じバッファに結果を再描画します．<br />
@@ -4622,8 +4733,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org0dc52d4" class="outline-4">
-<h4 id="org34f10f81"><span class="section-number-4">5.53.2</span> キーバインド</h4>
+<div id="outline-container-org2e2d6db" class="outline-4">
+<h4 id="org34f10f81"><span class="section-number-4">5.54.2</span> キーバインド</h4>
 <div class="outline-text-4" id="text-org34f10f81">
 <p>
 マイナーモード化した dict-app を使う場合は以下のようにします．sdic を使っている人は，sdic 用の設定と衝突しないように気をつけます．<br />
@@ -4643,11 +4754,11 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org5e9c163" class="outline-2">
+<div id="outline-container-org7306727" class="outline-2">
 <h2 id="org94c7bd73"><span class="section-number-2">6</span> 表示サポート</h2>
 <div class="outline-text-2" id="text-org94c7bd73">
 </div>
-<div id="outline-container-orgf72eec6" class="outline-3">
+<div id="outline-container-org4a6b905" class="outline-3">
 <h3 id="orgf6a240ab"><span class="section-number-3">6.1</span> キーコマンド入力中に入力過程をミニバッファに反映する</h3>
 <div class="outline-text-3" id="text-orgf6a240ab">
 <p>
@@ -4661,7 +4772,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org8fc81c6" class="outline-3">
+<div id="outline-container-org311eea8" class="outline-3">
 <h3 id="org3368625d"><span class="section-number-3">6.2</span> モードラインのNarrowを短くする</h3>
 <div class="outline-text-3" id="text-org3368625d">
 <p>
@@ -4697,7 +4808,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orga4bc06b" class="outline-3">
+<div id="outline-container-org379c643" class="outline-3">
 <h3 id="org5fd3a668"><span class="section-number-3">6.3</span> モードラインの節約（VC-mode編）</h3>
 <div class="outline-text-3" id="text-org5fd3a668">
 <p>
@@ -4713,7 +4824,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org4508255" class="outline-3">
+<div id="outline-container-org83c793f" class="outline-3">
 <h3 id="orgb577af83"><span class="section-number-3">6.4</span> モードラインの色をカスタマイズする</h3>
 <div class="outline-text-3" id="text-orgb577af83">
 <p>
@@ -4741,7 +4852,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org03879b4" class="outline-4">
+<div id="outline-container-org39cf731" class="outline-4">
 <h4 id="org21b30e75"><span class="section-number-4">6.4.1</span> 色セット例</h4>
 <div class="outline-text-4" id="text-org21b30e75">
 <ul class="org-ul">
@@ -4864,7 +4975,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org3ec576e" class="outline-3">
+<div id="outline-container-orgc9b5fde" class="outline-3">
 <h3 id="org19cbc9b3"><span class="section-number-3">6.5</span> 行番号の表示制限を拡張する</h3>
 <div class="outline-text-3" id="text-org19cbc9b3">
 <p>
@@ -4878,7 +4989,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org0bba560" class="outline-3">
+<div id="outline-container-org1186e9a" class="outline-3">
 <h3 id="org328bb797"><span class="section-number-3">6.6</span> visible-bell のカスタマイズ</h3>
 <div class="outline-text-3" id="text-org328bb797">
 <p>
@@ -4923,7 +5034,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-orgc250bd0" class="outline-3">
+<div id="outline-container-org0003410" class="outline-3">
 <h3 id="org91a9f893"><span class="section-number-3">6.7</span> 常に <b>scratch</b> を表示して起動する</h3>
 <div class="outline-text-3" id="text-org91a9f893">
 <p>
@@ -4991,7 +5102,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-orgee071bc" class="outline-3">
+<div id="outline-container-org7e37594" class="outline-3">
 <h3 id="orgdf6d1ea2"><span class="section-number-3">6.8</span> スクロールバーを非表示にする</h3>
 <div class="outline-text-3" id="text-orgdf6d1ea2">
 <p>
@@ -5010,7 +5121,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-orgea4833d" class="outline-3">
+<div id="outline-container-org9fcba47" class="outline-3">
 <h3 id="orgdd0a9c41"><span class="section-number-3">6.9</span> ツールバーを非表示にする</h3>
 <div class="outline-text-3" id="text-orgdd0a9c41">
 <p>
@@ -5026,7 +5137,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org4cad226" class="outline-3">
+<div id="outline-container-orgdf3f2db" class="outline-3">
 <h3 id="org52e500e2"><span class="section-number-3">6.10</span> メニューバーを非表示にする</h3>
 <div class="outline-text-3" id="text-org52e500e2">
 <p>
@@ -5041,7 +5152,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org0da7ce4" class="outline-3">
+<div id="outline-container-orgeacd639" class="outline-3">
 <h3 id="orgd432e8ff"><span class="section-number-3">6.11</span> 起動時のスプラッシュ画面を表示しない</h3>
 <div class="outline-text-3" id="text-orgd432e8ff">
 <div class="org-src-container">
@@ -5052,7 +5163,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org24a290e" class="outline-3">
+<div id="outline-container-org47fab54" class="outline-3">
 <h3 id="org4a736379"><span class="section-number-3">6.12</span> default.el を探索させない</h3>
 <div class="outline-text-3" id="text-org4a736379">
 <div class="org-src-container">
@@ -5062,7 +5173,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org60d5c6c" class="outline-3">
+<div id="outline-container-org7ccd43c" class="outline-3">
 <h3 id="org8d729190"><span class="section-number-3">6.13</span> カーソル行の行数をモードラインに表示する</h3>
 <div class="outline-text-3" id="text-org8d729190">
 <div class="org-src-container">
@@ -5074,7 +5185,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org8e6f771" class="outline-3">
+<div id="outline-container-org930fb0e" class="outline-3">
 <h3 id="orge456e19c"><span class="section-number-3">6.14</span> カーソル行の関数名をモードラインに表示する</h3>
 <div class="outline-text-3" id="text-orge456e19c">
 <ul class="org-ul">
@@ -5089,7 +5200,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-orgc1fd5e9" class="outline-3">
+<div id="outline-container-orgd00a57a" class="outline-3">
 <h3 id="orga76ec530"><span class="section-number-3">6.15</span> 行番号をバッファに表示する</h3>
 <div class="outline-text-3" id="text-orga76ec530">
 <p>
@@ -5126,7 +5237,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-orgca025b3" class="outline-3">
+<div id="outline-container-org5701493" class="outline-3">
 <h3 id="org5117762c"><span class="section-number-3">6.16</span> 時刻をモードラインに表示する</h3>
 <div class="outline-text-3" id="text-org5117762c">
 <p>
@@ -5145,7 +5256,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 </div>
 </div>
 
-<div id="outline-container-org0345365" class="outline-3">
+<div id="outline-container-org5c1b12b" class="outline-3">
 <h3 id="orga734802e"><span class="section-number-3">6.17</span> 対応するカッコをハイライトする</h3>
 <div class="outline-text-3" id="text-orga734802e">
 <p>
@@ -5185,7 +5296,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org0a3fc21" class="outline-3">
+<div id="outline-container-org2703391" class="outline-3">
 <h3 id="orgd1e62da7"><span class="section-number-3">6.18</span> 全角スペースと行末タブ／半角スペースを強調表示する</h3>
 <div class="outline-text-3" id="text-orgd1e62da7">
 <ul class="org-ul">
@@ -5238,7 +5349,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org781f4a8" class="outline-3">
+<div id="outline-container-org4fe9e72" class="outline-3">
 <h3 id="orgc93741fa"><span class="section-number-3">6.19</span> バッファの終わりをフリンジで明示</h3>
 <div class="outline-text-3" id="text-orgc93741fa">
 <p>
@@ -5253,7 +5364,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orgdf34d1c" class="outline-3">
+<div id="outline-container-org2abe170" class="outline-3">
 <h3 id="orgec7835e0"><span class="section-number-3">6.20</span> 文字エンコードの表示を明確化</h3>
 <div class="outline-text-3" id="text-orgec7835e0">
 <p>
@@ -5307,7 +5418,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org209f4b5" class="outline-3">
+<div id="outline-container-orgcea8467" class="outline-3">
 <h3 id="org0e59b85f"><span class="section-number-3">6.21</span> [delight.el] モードラインのモード名を短縮する</h3>
 <div class="outline-text-3" id="text-org0e59b85f">
 <ul class="org-ul">
@@ -5373,7 +5484,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orge2d2a2f" class="outline-3">
+<div id="outline-container-org0d0b02d" class="outline-3">
 <h3 id="org74bad2de"><span class="section-number-3">6.22</span> [migemo.el] ローマ字入力で日本語を検索する</h3>
 <div class="outline-text-3" id="text-org74bad2de">
 <p>
@@ -5410,7 +5521,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orgdaee10f" class="outline-3">
+<div id="outline-container-orgf526b2c" class="outline-3">
 <h3 id="org56d8bf9d"><span class="section-number-3">6.23</span> [helm.el] 続・何でも絞り込みインターフェイス</h3>
 <div class="outline-text-3" id="text-org56d8bf9d">
 <p>
@@ -5524,7 +5635,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org869ef19" class="outline-3">
+<div id="outline-container-orga937346" class="outline-3">
 <h3 id="org6332fe92"><span class="section-number-3">6.24</span> [git-gutter-fringe] 編集差分をフレーム端で視覚化</h3>
 <div class="outline-text-3" id="text-org6332fe92">
 <p>
@@ -5589,7 +5700,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org45807d8" class="outline-3">
+<div id="outline-container-org4690a81" class="outline-3">
 <h3 id="orgd6308db6"><span class="section-number-3">6.25</span> [japanese-holidays] カレンダーをカラフルにする</h3>
 <div class="outline-text-3" id="text-orgd6308db6">
 <p>
@@ -5617,7 +5728,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orga3fb74e" class="outline-3">
+<div id="outline-container-orgbd66e5f" class="outline-3">
 <h3 id="org12f72886"><span class="section-number-3">6.26</span> [calendar.el] カレンダーで週番号を表示する</h3>
 <div class="outline-text-3" id="text-org12f72886">
 <p>
@@ -5654,7 +5765,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org91b385f" class="outline-3">
+<div id="outline-container-org15abba0" class="outline-3">
 <h3 id="orgc45b24d4"><span class="section-number-3">6.27</span> [which-key] キーバインドの選択肢をポップアップする</h3>
 <div class="outline-text-3" id="text-orgc45b24d4">
 <p>
@@ -5677,7 +5788,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org440927c" class="outline-3">
+<div id="outline-container-org320cdcc" class="outline-3">
 <h3 id="org467accb9"><span class="section-number-3">6.28</span> [highlight-symbol] 同じ名前のシンボルをハイライトする</h3>
 <div class="outline-text-3" id="text-org467accb9">
 <p>
@@ -5700,7 +5811,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org8521048" class="outline-3">
+<div id="outline-container-org7853fe1" class="outline-3">
 <h3 id="orgd92b50db"><span class="section-number-3">6.29</span> [all-the-icons-dired] フォントを使ったアイコンを表示</h3>
 <div class="outline-text-3" id="text-orgd92b50db">
 <p>
@@ -5765,7 +5876,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orgefaac70" class="outline-3">
+<div id="outline-container-org9edb223" class="outline-3">
 <h3 id="org402f1293"><span class="section-number-3">6.30</span> [eldoc.el] コンテクストに応じてヘルプを表示</h3>
 <div class="outline-text-3" id="text-org402f1293">
 <p>
@@ -5788,7 +5899,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orgddc5d58" class="outline-3">
+<div id="outline-container-org12b9cc2" class="outline-3">
 <h3 id="org7cab354d"><span class="section-number-3">6.31</span> [keycast.el] 入力しているキーとコマンドをモードラインに表示</h3>
 <div class="outline-text-3" id="text-org7cab354d">
 <ul class="org-ul">
@@ -5803,7 +5914,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org9630f51" class="outline-3">
+<div id="outline-container-orge959654" class="outline-3">
 <h3 id="org5eaeb687"><span class="section-number-3">6.32</span> <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</h3>
 <div class="outline-text-3" id="text-org5eaeb687">
 <p>
@@ -5834,7 +5945,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org1227d14" class="outline-3">
+<div id="outline-container-org264c54f" class="outline-3">
 <h3 id="org7270262d"><span class="section-number-3">6.33</span> <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</h3>
 <div class="outline-text-3" id="text-org7270262d">
 <p>
@@ -5864,7 +5975,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orgd345d56" class="outline-3">
+<div id="outline-container-orgc640b7e" class="outline-3">
 <h3 id="org8ba0784e"><span class="section-number-3">6.34</span> <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</h3>
 <div class="outline-text-3" id="text-org8ba0784e">
 <div class="org-src-container">
@@ -5922,7 +6033,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org43e73c1" class="outline-3">
+<div id="outline-container-org748c831" class="outline-3">
 <h3 id="org1e701627"><span class="section-number-3">6.35</span> <span class="todo TODO">TODO</span> [hydra.el] コマンドディスパッチャを構築する</h3>
 <div class="outline-text-3" id="text-org1e701627">
 <ul class="org-ul">
@@ -5939,7 +6050,7 @@ paren.el の場合は以下の設定．<br />
 <code>       '(help/hydra/timestamp/body)</code>
 <code>       <span style="color: #8b2252;">"hydra"</span> nil t)</code>
 <code></code>
-<code>  (global-set-key (kbd <span style="color: #8b2252;">"C-c t"</span>) #'help/hydra/timestamp/body)</code>
+<code>  (global-set-key (kbd <span style="color: #8b2252;">"C-c h t"</span>) #'help/hydra/timestamp/body)</code>
 <code></code>
 <code>  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hydra"</span></code>
 <code>    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span> nil t)</code>
@@ -5950,7 +6061,7 @@ paren.el の場合は以下の設定．<br />
 <code>        (((background dark))</code>
 <code>         <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #ffa500;">orange</span><span style="color: #8b2252;">"</span> <span style="color: #483d8b;">:bold</span> t))))</code>
 <code></code>
-<code>    (defhydra help/hydra/timestamp (<span style="color: #483d8b;">:color</span> <span style="color: #ffffff; background-color: #0000ff;">blue</span> <span style="color: #483d8b;">:hint</span> none)</code>
+<code>    (<span style="color: #a020f0;">defhydra</span> help/hydra/timestamp (<span style="color: #483d8b;">:color</span> <span style="color: #ffffff; background-color: #0000ff;">blue</span> <span style="color: #483d8b;">:hint</span> none)</code>
 <code>      <span style="color: #8b2252;">"</span></code>
 <code><span style="color: #8b2252;">   === Timestamp ===                                                     _q_uit</span></code>
 <code><span style="color: #8b2252;">0. <i class="far fa-hand-point-right"></i> ?i? (_i_so 8601)   <i class="far fa-hand-point-right"></i> ?n? (_n_ow)   <i class="far fa-hand-point-right"></i> ?w? (_w_eek)   <i class="far fa-hand-point-right"></i> ?a? (week-d_a_y)</span></code>
@@ -6017,7 +6128,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org48c3c92" class="outline-3">
+<div id="outline-container-org2190591" class="outline-3">
 <h3 id="orgc00267d7"><span class="section-number-3">6.36</span> <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgc00267d7">
 <div class="org-src-container">
@@ -6028,7 +6139,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orge991d4b" class="outline-3">
+<div id="outline-container-org2f0ad2b" class="outline-3">
 <h3 id="org205dbe20"><span class="section-number-3">6.37</span> <span class="done DONE">DONE</span> [mode-icons] 使用中のモード表示をアイコンで代替&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org205dbe20">
 <p>
@@ -6046,7 +6157,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org46ae177" class="outline-3">
+<div id="outline-container-orgd9df444" class="outline-3">
 <h3 id="org6e56a94f"><span class="section-number-3">6.38</span> <span class="done DONE">DONE</span> [stock-ticker] 株価をモードラインに表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org6e56a94f">
 <p>
@@ -6107,7 +6218,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org54af73e" class="outline-3">
+<div id="outline-container-org3db56ca" class="outline-3">
 <h3 id="org0ed58559"><span class="section-number-3">6.39</span> <span class="done DONE">DONE</span> [zlc.el] find-file バッファを zsh ライクにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org0ed58559">
 <p>
@@ -6135,7 +6246,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orgb636a8f" class="outline-3">
+<div id="outline-container-org03ba108" class="outline-3">
 <h3 id="org5cc37356"><span class="section-number-3">6.40</span> <span class="done DONE">DONE</span> [stripe-buffer.el] テーブルの色をストライプにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org5cc37356">
 <p>
@@ -6153,7 +6264,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org8462fe8" class="outline-3">
+<div id="outline-container-org228e1f9" class="outline-3">
 <h3 id="org62c6f085"><span class="section-number-3">6.41</span> <span class="done DONE">DONE</span> [guide-key] キーバインドの選択肢をポップアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org62c6f085">
 <p>
@@ -6188,7 +6299,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orgd4069df" class="outline-3">
+<div id="outline-container-org9fc0c7e" class="outline-3">
 <h3 id="orgdf971702"><span class="section-number-3">6.42</span> <span class="done DONE">DONE</span> [anything.el] 何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgdf971702">
 <ul class="org-ul">
@@ -6267,7 +6378,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org04fcae2" class="outline-3">
+<div id="outline-container-org0930edf" class="outline-3">
 <h3 id="org83eaaf3a"><span class="section-number-3">6.43</span> <span class="done DONE">DONE</span> [diminish.el] モードラインのモード名を短くする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org83eaaf3a">
 <p>
@@ -6339,11 +6450,11 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-org214d26f" class="outline-2">
+<div id="outline-container-orgae1d630" class="outline-2">
 <h2 id="org9ff300b4"><span class="section-number-2">7</span> メディアサポート</h2>
 <div class="outline-text-2" id="text-org9ff300b4">
 </div>
-<div id="outline-container-org77ca8ae" class="outline-3">
+<div id="outline-container-org6f63a49" class="outline-3">
 <h3 id="orgcf4022fd"><span class="section-number-3">7.1</span> [emms.el] メディアプレーヤー</h3>
 <div class="outline-text-3" id="text-orgcf4022fd">
 <p>
@@ -6435,7 +6546,7 @@ paren.el の場合は以下の設定．<br />
 </div>
 </div>
 
-<div id="outline-container-orgf941534" class="outline-3">
+<div id="outline-container-org2f3144e" class="outline-3">
 <h3 id="orgca126930"><span class="section-number-3">7.2</span> [GoogleMaps.el] GoogleMaps を Emacs 内で使う</h3>
 <div class="outline-text-3" id="text-orgca126930">
 <ul class="org-ul">
@@ -6470,7 +6581,7 @@ Org-mode を使っている場合には， <code>C-c M-L</code> で表示され�
 </div>
 </div>
 
-<div id="outline-container-org62a579f" class="outline-3">
+<div id="outline-container-org5e97bf3" class="outline-3">
 <h3 id="org41faa552"><span class="section-number-3">7.3</span> [japanlaw.el] Emacs 電子六法</h3>
 <div class="outline-text-3" id="text-org41faa552">
 <p>
@@ -6494,7 +6605,7 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </div>
 </div>
 
-<div id="outline-container-org38860f3" class="outline-3">
+<div id="outline-container-org345a137" class="outline-3">
 <h3 id="org8e8f85ec"><span class="section-number-3">7.4</span> [sunshine.el] 天気を知る</h3>
 <div class="outline-text-3" id="text-org8e8f85ec">
 <ul class="org-ul">
@@ -6516,7 +6627,7 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </div>
 </div>
 </div>
-<div id="outline-container-org3b1fa90" class="outline-3">
+<div id="outline-container-org9ae6bae" class="outline-3">
 <h3 id="orgb77ecd7a"><span class="section-number-3">7.5</span> [org-google-weather.el] org-agenda に天気を表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgb77ecd7a">
 <p>
@@ -6535,7 +6646,7 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </div>
 </div>
 </div>
-<div id="outline-container-orgd653764" class="outline-3">
+<div id="outline-container-orgbf7d761" class="outline-3">
 <h3 id="org474263ad"><span class="section-number-3">7.6</span> [bongo.el] Emacsのバッファで音楽ライブラリを管理する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org474263ad">
 <p>
@@ -6593,11 +6704,11 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 </div>
 </div>
 
-<div id="outline-container-orgc1429c3" class="outline-2">
+<div id="outline-container-orgd7c01be" class="outline-2">
 <h2 id="orgd5aed515"><span class="section-number-2">8</span> 履歴／ファイル管理</h2>
 <div class="outline-text-2" id="text-orgd5aed515">
 </div>
-<div id="outline-container-org88e95e1" class="outline-3">
+<div id="outline-container-org1a37fb5" class="outline-3">
 <h3 id="org0f46c991"><span class="section-number-3">8.1</span> 履歴サイズを大きくする</h3>
 <div class="outline-text-3" id="text-org0f46c991">
 <p>
@@ -6611,7 +6722,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 </div>
 </div>
 
-<div id="outline-container-org8d063ed" class="outline-3">
+<div id="outline-container-org2953674" class="outline-3">
 <h3 id="org9736b2f0"><span class="section-number-3">8.2</span> Undoバッファを無限に取る</h3>
 <div class="outline-text-3" id="text-org9736b2f0">
 <div class="org-src-container">
@@ -6621,7 +6732,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 </div>
 </div>
 
-<div id="outline-container-org2a1e476" class="outline-3">
+<div id="outline-container-org0535d5e" class="outline-3">
 <h3 id="orgf2cd8961"><span class="section-number-3">8.3</span> 最近開いたファイルリストを保持</h3>
 <div class="outline-text-3" id="text-orgf2cd8961">
 <p>
@@ -6663,11 +6774,12 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <code></code>
 <code>    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-recentf-cleanup-silence</span> ()</code>
 <code>      (<span style="color: #a020f0;">interactive</span>)</code>
-<code>      (<span style="color: #a020f0;">let</span> ((message-log-max nil))</code>
-<code>        (<span style="color: #a020f0;">if</span> shutup-p</code>
-<code>            (<span style="color: #a020f0;">shut-up</span> (recentf-cleanup))</code>
-<code>          (recentf-cleanup)))</code>
-<code>      (message <span style="color: #8b2252;">""</span>))</code>
+<code>      (<span style="color: #a020f0;">when</span> (file-exists-p <span style="color: #8b2252;">"/Volumes/orzHDn"</span>)</code>
+<code>        (<span style="color: #a020f0;">let</span> ((message-log-max nil))</code>
+<code>          (<span style="color: #a020f0;">if</span> shutup-p</code>
+<code>              (<span style="color: #a020f0;">shut-up</span> (recentf-cleanup))</code>
+<code>            (recentf-cleanup)))</code>
+<code>        (message <span style="color: #8b2252;">""</span>)))</code>
 <code>    (add-hook 'focus-out-hook #'my-recentf-save-list-silence)</code>
 <code>    (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))</code>
 <code></code>
@@ -6681,7 +6793,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-org91095e0" class="outline-3">
+<div id="outline-container-org5cb904d" class="outline-3">
 <h3 id="org300e8f70"><span class="section-number-3">8.4</span> バッファ保存時にバックアップを生成させない&#xa0;&#xa0;&#xa0;<span class="tag"><span class="backup">backup</span></span></h3>
 <div class="outline-text-3" id="text-org300e8f70">
 <div class="org-src-container">
@@ -6696,7 +6808,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-orge1d79a6" class="outline-3">
+<div id="outline-container-orga39ad61" class="outline-3">
 <h3 id="org89e64435"><span class="section-number-3">8.5</span> 特定のファイルを Dropbox 以下にバックアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="backup">backup</span></span></h3>
 <div class="outline-text-3" id="text-org89e64435">
 <p>
@@ -6722,7 +6834,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-org6aaca2a" class="outline-3">
+<div id="outline-container-orga523d85" class="outline-3">
 <h3 id="org9b0e7066"><span class="section-number-3">8.6</span> [backup-each-save.el] クラッシュに備える&#xa0;&#xa0;&#xa0;<span class="tag"><span class="backup">backup</span></span></h3>
 <div class="outline-text-3" id="text-org9b0e7066">
 <p>
@@ -6751,7 +6863,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-org19e7264" class="outline-3">
+<div id="outline-container-org2e0b8be" class="outline-3">
 <h3 id="orge2f78ad3"><span class="section-number-3">8.7</span> [dired] ファイラのサポートツール&#xa0;&#xa0;&#xa0;<span class="tag"><span class="dired">dired</span></span></h3>
 <div class="outline-text-3" id="text-orge2f78ad3">
 <p>
@@ -6820,7 +6932,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-org4740765" class="outline-3">
+<div id="outline-container-orga114b4f" class="outline-3">
 <h3 id="org7c53511f"><span class="section-number-3">8.8</span> [dired-recent.el] 訪問したディレクトリの履歴を取る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="dired">dired</span></span></h3>
 <div class="outline-text-3" id="text-org7c53511f">
 <div class="org-src-container">
@@ -6838,7 +6950,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-orgad2daa5" class="outline-3">
+<div id="outline-container-org0f7dff0" class="outline-3">
 <h3 id="orga3cbefa8"><span class="section-number-3">8.9</span> [osx-trash] system-move-file-to-trash を有効にする</h3>
 <div class="outline-text-3" id="text-orga3cbefa8">
 <p>
@@ -6856,7 +6968,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-org4cf6b3e" class="outline-3">
+<div id="outline-container-org86dd1b9" class="outline-3">
 <h3 id="org82bd942f"><span class="section-number-3">8.10</span> [undo-tree] 編集履歴をわかりやすくたどる</h3>
 <div class="outline-text-3" id="text-org82bd942f">
 <p>
@@ -6908,7 +7020,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 </div>
 
-<div id="outline-container-org568913a" class="outline-3">
+<div id="outline-container-org3759319" class="outline-3">
 <h3 id="orgb8c01946"><span class="section-number-3">8.11</span> [auto-save-buffers.el] 一定間隔でバッファを保存する</h3>
 <div class="outline-text-3" id="text-orgb8c01946">
 <ul class="org-ul">
@@ -6943,7 +7055,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 </div>
 
-<div id="outline-container-org839bd92" class="outline-3">
+<div id="outline-container-org607d866" class="outline-3">
 <h3 id="orgab837e6a"><span class="section-number-3">8.12</span> [session.el] 様々な履歴を保存し復元に利用する</h3>
 <div class="outline-text-3" id="text-orgab837e6a">
 <p>
@@ -7042,7 +7154,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org8df5917" class="outline-3">
+<div id="outline-container-orgcf39bbe" class="outline-3">
 <h3 id="org92404bbd"><span class="section-number-3">8.13</span> [neotree.el] ディレクトリ情報をツリー表示</h3>
 <div class="outline-text-3" id="text-org92404bbd">
 <div class="org-src-container">
@@ -7100,7 +7212,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org9371696" class="outline-3">
+<div id="outline-container-orgcd1d889" class="outline-3">
 <h3 id="orgf2d47943"><span class="section-number-3">8.14</span> [helpful.el] リッチなヘルプページ</h3>
 <div class="outline-text-3" id="text-orgf2d47943">
 <p>
@@ -7126,7 +7238,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-orgf0e4893" class="outline-3">
+<div id="outline-container-orge207b5f" class="outline-3">
 <h3 id="orgc08799d2"><span class="section-number-3">8.15</span> [facecheck.el] クリックしてfaceをチェック</h3>
 <div class="outline-text-3" id="text-orgc08799d2">
 <p>
@@ -7144,7 +7256,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org2b197ec" class="outline-3">
+<div id="outline-container-org6f524ef" class="outline-3">
 <h3 id="org0d952d68"><span class="section-number-3">8.16</span> [keyfreq.el] コマンドログ</h3>
 <div class="outline-text-3" id="text-org0d952d68">
 <p>
@@ -7179,7 +7291,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org14f43a9" class="outline-3">
+<div id="outline-container-org3e1378f" class="outline-3">
 <h3 id="orged77c483"><span class="section-number-3">8.17</span> [disk-usage.el] ディスク利用率を調べる</h3>
 <div class="outline-text-3" id="text-orged77c483">
 <p>
@@ -7200,7 +7312,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-orga3751c4" class="outline-3">
+<div id="outline-container-org21671ab" class="outline-3">
 <h3 id="orgdd1e03ec"><span class="section-number-3">8.18</span> [uptimes.el] Emacsの起動時間を記録する</h3>
 <div class="outline-text-3" id="text-orgdd1e03ec">
 <p>
@@ -7239,7 +7351,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org12f96d0" class="outline-3">
+<div id="outline-container-org517f22f" class="outline-3">
 <h3 id="orgc47c1e75"><span class="section-number-3">8.19</span> <span class="done DONE">DONE</span> [wakatime-mode.el] WakaTime を利用して作業記録する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgc47c1e75">
 <ol class="org-ol">
@@ -7264,7 +7376,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org826ec4a" class="outline-3">
+<div id="outline-container-org06ba401" class="outline-3">
 <h3 id="orgc470d5a3"><span class="section-number-3">8.20</span> <span class="done DONE">DONE</span> [backup-dir.el] バックアップファイルを一箇所に集める&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgc470d5a3">
 <p>
@@ -7299,7 +7411,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org0de1db4" class="outline-3">
+<div id="outline-container-org7d6508e" class="outline-3">
 <h3 id="org8b2fe680"><span class="section-number-3">8.21</span> <span class="done DONE">DONE</span> バッファ保存時にバックアップファイルを生成する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org8b2fe680">
 <p>
@@ -7315,7 +7427,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org0804c6b" class="outline-3">
+<div id="outline-container-org198ab6f" class="outline-3">
 <h3 id="orgdba35c9f"><span class="section-number-3">8.22</span> <span class="done DONE">DONE</span> ミニバッファの履歴を保存しリストアする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgdba35c9f">
 <div class="org-src-container">
@@ -7328,7 +7440,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
 </div>
 </div>
 
-<div id="outline-container-org5f9164e" class="outline-3">
+<div id="outline-container-orgc8646ce" class="outline-3">
 <h3 id="orgead91174"><span class="section-number-3">8.23</span> <span class="done DONE">DONE</span> Emacs終了時に開いていたバッファを起動時に復元する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgead91174">
 <p>
@@ -7351,7 +7463,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 </div>
 
-<div id="outline-container-orgeb56242" class="outline-3">
+<div id="outline-container-org126ad9a" class="outline-3">
 <h3 id="org63e50e2c"><span class="section-number-3">8.24</span> <span class="done DONE">DONE</span> 深夜にバッファを自動整理する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org63e50e2c">
 <p>
@@ -7375,11 +7487,11 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 </div>
 
-<div id="outline-container-org4f06ef8" class="outline-2">
+<div id="outline-container-org420c56a" class="outline-2">
 <h2 id="orgf1b8fa63"><span class="section-number-2">9</span> 開発サポート</h2>
 <div class="outline-text-2" id="text-orgf1b8fa63">
 </div>
-<div id="outline-container-orgfc2b62e" class="outline-3">
+<div id="outline-container-org21d4a7f" class="outline-3">
 <h3 id="org9f988c12"><span class="section-number-3">9.1</span> 便利キーバインド</h3>
 <div class="outline-text-3" id="text-org9f988c12">
 <p>
@@ -7394,7 +7506,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 </div>
 
-<div id="outline-container-org5033c0b" class="outline-3">
+<div id="outline-container-org5b44918" class="outline-3">
 <h3 id="orgac7d1689"><span class="section-number-3">9.2</span> [gist.el] Gist インターフェイス</h3>
 <div class="outline-text-3" id="text-orgac7d1689">
 <ul class="org-ul">
@@ -7412,7 +7524,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 </div>
 
-<div id="outline-container-org24b6965" class="outline-3">
+<div id="outline-container-orgfc983b4" class="outline-3">
 <h3 id="org7baba8dd"><span class="section-number-3">9.3</span> [doxymacs.el] Doxygen のコメントを簡単に入力する</h3>
 <div class="outline-text-3" id="text-org7baba8dd">
 <ul class="org-ul">
@@ -7438,7 +7550,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 </div>
 
-<div id="outline-container-orgec426c8" class="outline-3">
+<div id="outline-container-org36193d8" class="outline-3">
 <h3 id="org0e27778c"><span class="section-number-3">9.4</span> [matlab.el] Matlab用の設定</h3>
 <div class="outline-text-3" id="text-org0e27778c">
 <div class="org-src-container">
@@ -7453,7 +7565,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 </div>
 
-<div id="outline-container-org905b95f" class="outline-3">
+<div id="outline-container-org7d36555" class="outline-3">
 <h3 id="org966da7c1"><span class="section-number-3">9.5</span> [flycheck.el] 構文エラー表示</h3>
 <div class="outline-text-3" id="text-org966da7c1">
 <ul class="org-ul">
@@ -7490,7 +7602,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 </div>
 
-<div id="outline-container-org22ec227" class="outline-3">
+<div id="outline-container-orgb5bcbf5" class="outline-3">
 <h3 id="org2bf4fb77"><span class="section-number-3">9.6</span> [origami.el] 関数の折りたたみ</h3>
 <div class="outline-text-3" id="text-org2bf4fb77">
 <ul class="org-ul">
@@ -7518,7 +7630,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 </div>
 
-<div id="outline-container-orgebc0551" class="outline-3">
+<div id="outline-container-org9cac5b5" class="outline-3">
 <h3 id="org291c6055"><span class="section-number-3">9.7</span> [auto-complete-clang.el] オムニ補完</h3>
 <div class="outline-text-3" id="text-org291c6055">
 <p>
@@ -7584,7 +7696,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-org1d5e70b" class="outline-4">
+<div id="outline-container-org8aad095" class="outline-4">
 <h4 id="org3d08c27d"><span class="section-number-4">9.7.1</span> References</h4>
 <div class="outline-text-4" id="text-org3d08c27d">
 <ul class="org-ul">
@@ -7598,7 +7710,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-orge0b20e0" class="outline-3">
+<div id="outline-container-org2ed314e" class="outline-3">
 <h3 id="orgabd9abb3"><span class="section-number-3">9.8</span> [quickrun.el] お手軽ビルド</h3>
 <div class="outline-text-3" id="text-orgabd9abb3">
 <p>
@@ -7623,7 +7735,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-orgbf57135" class="outline-3">
+<div id="outline-container-org88ac901" class="outline-3">
 <h3 id="org034bbf9f"><span class="section-number-3">9.9</span> [ggtags.el] タグジャンプ</h3>
 <div class="outline-text-3" id="text-org034bbf9f">
 <ul class="org-ul">
@@ -7660,7 +7772,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-org2fea236" class="outline-3">
+<div id="outline-container-org2c6ae5c" class="outline-3">
 <h3 id="org216e9539"><span class="section-number-3">9.10</span> [0xc.el] N進数変換</h3>
 <div class="outline-text-3" id="text-org216e9539">
 <ul class="org-ul">
@@ -7686,7 +7798,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-org4ef02f4" class="outline-3">
+<div id="outline-container-org03b2f4d" class="outline-3">
 <h3 id="orge830f6b0"><span class="section-number-3">9.11</span> [hexl.el] バイナリファイルを開く</h3>
 <div class="outline-text-3" id="text-orge830f6b0">
 <p>
@@ -7706,7 +7818,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-orgfaacf61" class="outline-3">
+<div id="outline-container-org0485386" class="outline-3">
 <h3 id="org9ffc2142"><span class="section-number-3">9.12</span> [uuid.el] UUID の生成</h3>
 <div class="outline-text-3" id="text-org9ffc2142">
 <ul class="org-ul">
@@ -7731,7 +7843,7 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 </div>
 </div>
 
-<div id="outline-container-org16370dd" class="outline-3">
+<div id="outline-container-orga7df930" class="outline-3">
 <h3 id="orga1d9863f"><span class="section-number-3">9.13</span> [package-lint.el] MEPLA登録用Lint</h3>
 <div class="outline-text-3" id="text-orga1d9863f">
 <p>
@@ -7749,7 +7861,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org9bbecec" class="outline-3">
+<div id="outline-container-orgfb6026f" class="outline-3">
 <h3 id="org7d18b489"><span class="section-number-3">9.14</span> [projectile.el] ディレクトリ単位でファイル群をプロジェクト扱いする</h3>
 <div class="outline-text-3" id="text-org7d18b489">
 <ul class="org-ul">
@@ -7810,7 +7922,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org386a87a" class="outline-3">
+<div id="outline-container-org9f5cac9" class="outline-3">
 <h3 id="org7d969237"><span class="section-number-3">9.15</span> [magit.el] Gitクライアント</h3>
 <div class="outline-text-3" id="text-org7d969237">
 <p>
@@ -7835,7 +7947,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 
-<div id="outline-container-orgc123260" class="outline-3">
+<div id="outline-container-org8b0b72a" class="outline-3">
 <h3 id="org1c672519"><span class="section-number-3">9.16</span> [relint.el] elispの正規表現用のlinter</h3>
 <div class="outline-text-3" id="text-org1c672519">
 <p>
@@ -7853,7 +7965,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 
-<div id="outline-container-orgb2cb628" class="outline-3">
+<div id="outline-container-orgdcc1b0c" class="outline-3">
 <h3 id="orgaa25b74c"><span class="section-number-3">9.17</span> <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</h3>
 <div class="outline-text-3" id="text-orgaa25b74c">
 <ul class="org-ul">
@@ -7894,7 +8006,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 
-<div id="outline-container-org45e697a" class="outline-3">
+<div id="outline-container-org4371ceb" class="outline-3">
 <h3 id="orgae4ecac7"><span class="section-number-3">9.18</span> <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</h3>
 <div class="outline-text-3" id="text-orgae4ecac7">
 <p>
@@ -7912,7 +8024,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 
-<div id="outline-container-orgfb2bda4" class="outline-3">
+<div id="outline-container-orgc9f82ce" class="outline-3">
 <h3 id="orgbf790f4d"><span class="section-number-3">9.19</span> <span class="todo TODO">TODO</span> [format-all.el] コード整形</h3>
 <div class="outline-text-3" id="text-orgbf790f4d">
 <ul class="org-ul">
@@ -7930,7 +8042,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 
-<div id="outline-container-orgfe7e676" class="outline-3">
+<div id="outline-container-org8cab8c9" class="outline-3">
 <h3 id="orgac7d24d7"><span class="section-number-3">9.20</span> <span class="todo TODO">TODO</span> [emr.el] リファクタリング</h3>
 <div class="outline-text-3" id="text-orgac7d24d7">
 <div class="org-src-container">
@@ -7943,7 +8055,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 
-<div id="outline-container-org5afc6b9" class="outline-3">
+<div id="outline-container-orgbccd08f" class="outline-3">
 <h3 id="org4e23f079"><span class="section-number-3">9.21</span> <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</h3>
 <div class="outline-text-3" id="text-org4e23f079">
 <ul class="org-ul">
@@ -7957,7 +8069,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 
-<div id="outline-container-org48afa56" class="outline-3">
+<div id="outline-container-org368545a" class="outline-3">
 <h3 id="org9547f772"><span class="section-number-3">9.22</span> <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</h3>
 <div class="outline-text-3" id="text-org9547f772">
 <ul class="org-ul">
@@ -7965,7 +8077,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </ul>
 </div>
 </div>
-<div id="outline-container-org1e49ca5" class="outline-3">
+<div id="outline-container-org4f79bcd" class="outline-3">
 <h3 id="orgea32afad"><span class="section-number-3">9.23</span> <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</h3>
 <div class="outline-text-3" id="text-orgea32afad">
 <p>
@@ -7999,7 +8111,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 
-<div id="outline-container-org95ccc88" class="outline-3">
+<div id="outline-container-org762993d" class="outline-3">
 <h3 id="org09687b9c"><span class="section-number-3">9.24</span> <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org09687b9c">
 <p>
@@ -8104,7 +8216,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
 </div>
 </div>
 </div>
-<div id="outline-container-org8a625c9" class="outline-3">
+<div id="outline-container-org0e5464d" class="outline-3">
 <h3 id="orgcde881ad"><span class="section-number-3">9.25</span> <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgcde881ad">
 <ul class="org-ul">
@@ -8135,11 +8247,11 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
 </div>
 </div>
 
-<div id="outline-container-org4d22ee3" class="outline-2">
+<div id="outline-container-org7fd4dfa" class="outline-2">
 <h2 id="org47616d05"><span class="section-number-2">10</span> Org Mode</h2>
 <div class="outline-text-2" id="text-org47616d05">
 </div>
-<div id="outline-container-orgf671329" class="outline-3">
+<div id="outline-container-org098974d" class="outline-3">
 <h3 id="orgf66bb6fe"><span class="section-number-3">10.1</span> 基本設定</h3>
 <div class="outline-text-3" id="text-orgf66bb6fe">
 <p>
@@ -8331,7 +8443,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 </div>
 </div>
 
-<div id="outline-container-orgaf63b2c" class="outline-3">
+<div id="outline-container-org0bc6ff1" class="outline-3">
 <h3 id="orgebb1fbe4"><span class="section-number-3">10.2</span> contribution を使う</h3>
 <div class="outline-text-3" id="text-orgebb1fbe4">
 <div class="org-src-container">
@@ -8341,7 +8453,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 </div>
 </div>
 
-<div id="outline-container-org1327916" class="outline-3">
+<div id="outline-container-org78681c2" class="outline-3">
 <h3 id="org4da0cefd"><span class="section-number-3">10.3</span> iCal との連携</h3>
 <div class="outline-text-3" id="text-org4da0cefd">
 <div class="org-src-container">
@@ -8437,7 +8549,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 </div>
 </div>
 
-<div id="outline-container-org3d30ad6" class="outline-3">
+<div id="outline-container-orgf73f280" class="outline-3">
 <h3 id="org739cd53d"><span class="section-number-3">10.4</span> スピードコマンド</h3>
 <div class="outline-text-3" id="text-org739cd53d">
 <p>
@@ -8482,7 +8594,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 </div>
 </div>
 
-<div id="outline-container-orgcffd58a" class="outline-3">
+<div id="outline-container-orgb20fe5a" class="outline-3">
 <h3 id="org480c9b8b"><span class="section-number-3">10.5</span> face 関連</h3>
 <div class="outline-text-3" id="text-org480c9b8b">
 <p>
@@ -8576,7 +8688,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 </div>
 </div>
 
-<div id="outline-container-orgbfb65b7" class="outline-3">
+<div id="outline-container-org200a675" class="outline-3">
 <h3 id="orgdec24da2"><span class="section-number-3">10.6</span> TODOキーワードのカスタマイズ</h3>
 <div class="outline-text-3" id="text-orgdec24da2">
 <p>
@@ -8611,7 +8723,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 </div>
 </div>
 
-<div id="outline-container-orge645ddf" class="outline-3">
+<div id="outline-container-org354ac4e" class="outline-3">
 <h3 id="org55076fa0"><span class="section-number-3">10.7</span> ImageMagick を使って様々な画像をインライン表示する</h3>
 <div class="outline-text-3" id="text-org55076fa0">
 <p>
@@ -8647,7 +8759,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 </div>
 </div>
 
-<div id="outline-container-orge32bfc9" class="outline-3">
+<div id="outline-container-org6fd2385" class="outline-3">
 <h3 id="org53663ca9"><span class="section-number-3">10.8</span> README を常に org-mode で開く</h3>
 <div class="outline-text-3" id="text-org53663ca9">
 <div class="org-src-container">
@@ -8661,7 +8773,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 </div>
 </div>
 
-<div id="outline-container-orgea4c991" class="outline-3">
+<div id="outline-container-orgb2fcd37" class="outline-3">
 <h3 id="org907cb9db"><span class="section-number-3">10.9</span> ソースブロック等の大文字記述を一括で小文字に変える</h3>
 <div class="outline-text-3" id="text-org907cb9db">
 <p>
@@ -8691,7 +8803,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 </div>
 </div>
 
-<div id="outline-container-org733c324" class="outline-3">
+<div id="outline-container-org916cb28" class="outline-3">
 <h3 id="orgdae2d9e7"><span class="section-number-3">10.10</span> イベント通知</h3>
 <div class="outline-text-3" id="text-orgdae2d9e7">
 <p>
@@ -8826,7 +8938,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 </div>
 </div>
 
-<div id="outline-container-org4da77bb" class="outline-3">
+<div id="outline-container-org894424f" class="outline-3">
 <h3 id="orga58b21fc"><span class="section-number-3">10.11</span> org-mode でアラーム管理</h3>
 <div class="outline-text-3" id="text-orga58b21fc">
 <p>
@@ -8866,7 +8978,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 </div>
 </div>
 
-<div id="outline-container-org6d8f7b4" class="outline-3">
+<div id="outline-container-orge622230" class="outline-3">
 <h3 id="org30aecedf"><span class="section-number-3">10.12</span> [org-capture] 高速にメモを取る</h3>
 <div class="outline-text-3" id="text-org30aecedf">
 <p>
@@ -8984,7 +9096,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-org8b80757" class="outline-3">
+<div id="outline-container-orgbd0c99c" class="outline-3">
 <h3 id="orgc3302e41"><span class="section-number-3">10.13</span> [org-agenda] タスク／予定管理</h3>
 <div class="outline-text-3" id="text-orgc3302e41">
 <div class="org-src-container">
@@ -9214,7 +9326,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-org0072ddf" class="outline-3">
+<div id="outline-container-org305ce28" class="outline-3">
 <h3 id="org20c40e77"><span class="section-number-3">10.14</span> [orgbox.el] スケジュール追加のわかりやすい入力</h3>
 <div class="outline-text-3" id="text-org20c40e77">
 <p>
@@ -9229,7 +9341,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-orged468a7" class="outline-3">
+<div id="outline-container-org67e8ce1" class="outline-3">
 <h3 id="org5790e981"><span class="section-number-3">10.15</span> [appt.el] アラーム設定</h3>
 <div class="outline-text-3" id="text-org5790e981">
 <ul class="org-ul">
@@ -9359,7 +9471,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-org647f440" class="outline-3">
+<div id="outline-container-org3b8acd6" class="outline-3">
 <h3 id="orgf5236175"><span class="section-number-3">10.16</span> [org-refile] orgツリーの高速移動</h3>
 <div class="outline-text-3" id="text-orgf5236175">
 <div class="org-src-container">
@@ -9415,7 +9527,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-orgb2286c8" class="outline-3">
+<div id="outline-container-org7139fc1" class="outline-3">
 <h3 id="org49ca5eb9"><span class="section-number-3">10.17</span> [org-babel] Orgバッファでソースコードを扱う</h3>
 <div class="outline-text-3" id="text-org49ca5eb9">
 <div class="org-src-container">
@@ -9457,7 +9569,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-org7ff6bf1" class="outline-3">
+<div id="outline-container-org017f016" class="outline-3">
 <h3 id="orgc0ed68a2"><span class="section-number-3">10.18</span> [org-babel] ソースブロックの入力キーをカスタマイズ</h3>
 <div class="outline-text-3" id="text-orgc0ed68a2">
 <p>
@@ -9475,7 +9587,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-org090baa0" class="outline-3">
+<div id="outline-container-org8af91d7" class="outline-3">
 <h3 id="org556eb376"><span class="section-number-3">10.19</span> [org-babel] ソースブロックの配色</h3>
 <div class="outline-text-3" id="text-org556eb376">
 <p>
@@ -9503,7 +9615,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-orgc75cf34" class="outline-3">
+<div id="outline-container-orgf0bc62b" class="outline-3">
 <h3 id="org89c34f23"><span class="section-number-3">10.20</span> [org-tree-slide] Org Modeでプレゼンテーション</h3>
 <div class="outline-text-3" id="text-org89c34f23">
 <p>
@@ -9548,7 +9660,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </p>
 </div>
 
-<div id="outline-container-orgcd13e84" class="outline-4">
+<div id="outline-container-org0625362" class="outline-4">
 <h4 id="org2e94f804"><span class="section-number-4">10.20.1</span> doom-modeline との共存</h4>
 <div class="outline-text-4" id="text-org2e94f804">
 <p>
@@ -9567,7 +9679,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-orgef178e4" class="outline-3">
+<div id="outline-container-org24d7b9b" class="outline-3">
 <h3 id="org264a37c5"><span class="section-number-3">10.21</span> [org-tree-slide] クロックインとアウトを自動化する</h3>
 <div class="outline-text-3" id="text-org264a37c5">
 <p>
@@ -9620,7 +9732,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-org0728e41" class="outline-3">
+<div id="outline-container-org833840a" class="outline-3">
 <h3 id="orga7162e8c"><span class="section-number-3">10.22</span> [org-tree-slide] 特定のツリーをプロポーショナルフォントで表示する</h3>
 <div class="outline-text-3" id="text-orga7162e8c">
 <p>
@@ -9664,7 +9776,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-org1b4cb82" class="outline-3">
+<div id="outline-container-orge27333b" class="outline-3">
 <h3 id="orgf5c603e5"><span class="section-number-3">10.23</span> [org-tree-slide] ヘッドラインをリッチにする</h3>
 <div class="outline-text-3" id="text-orgf5c603e5">
 <p>
@@ -9683,7 +9795,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 </div>
 
-<div id="outline-container-org7ce2f9c" class="outline-3">
+<div id="outline-container-org9973814" class="outline-3">
 <h3 id="orgae555619"><span class="section-number-3">10.24</span> [calfw-org.el] calfw に org の予定を表示する</h3>
 <div class="outline-text-3" id="text-orgae555619">
 <p>
@@ -9754,7 +9866,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org1e2b0b0" class="outline-3">
+<div id="outline-container-orgd2c4bdf" class="outline-3">
 <h3 id="org02100a39"><span class="section-number-3">10.25</span> [org-odt] ODT形式に出力</h3>
 <div class="outline-text-3" id="text-org02100a39">
 <div class="org-src-container">
@@ -9781,7 +9893,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org0a30c49" class="outline-3">
+<div id="outline-container-orge9ee744" class="outline-3">
 <h3 id="org02d2c3de"><span class="section-number-3">10.26</span> [ox-twbs] Twitter Bootstrap 互換のHTML出力</h3>
 <div class="outline-text-3" id="text-org02d2c3de">
 <ul class="org-ul">
@@ -9803,7 +9915,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org4de45af"><code><span style="color: #b22222;"># -*- mode: org; -*-</span></code>
+<pre class="src src-org" id="org7fd3132"><code><span style="color: #b22222;"># -*- mode: org; -*-</span></code>
 <code></code>
 <code><span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span></code>
 <code><span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span></code>
@@ -9821,7 +9933,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-orgc5aa5be" class="outline-3">
+<div id="outline-container-org1fd5729" class="outline-3">
 <h3 id="org5a1cb1a1"><span class="section-number-3">10.27</span> [org-crypt] ツリーを暗号化する</h3>
 <div class="outline-text-3" id="text-org5a1cb1a1">
 <p>
@@ -9849,7 +9961,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org253f662" class="outline-3">
+<div id="outline-container-org3d4675c" class="outline-3">
 <h3 id="org01951291"><span class="section-number-3">10.28</span> [org-mac-link] 外部アプリから情報を取る</h3>
 <div class="outline-text-3" id="text-org01951291">
 <p>
@@ -9872,7 +9984,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org34d3879" class="outline-3">
+<div id="outline-container-org1e36c29" class="outline-3">
 <h3 id="orgb3ae0aea"><span class="section-number-3">10.29</span> [org-download] org バッファにD&amp;Dでファイルを保存</h3>
 <div class="outline-text-3" id="text-orgb3ae0aea">
 <p>
@@ -9889,7 +10001,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-orge36a641" class="outline-3">
+<div id="outline-container-orgf06d2e7" class="outline-3">
 <h3 id="org97c39f96"><span class="section-number-3">10.30</span> [org-grep] org ファイルを grep する</h3>
 <div class="outline-text-3" id="text-org97c39f96">
 <div class="org-src-container">
@@ -9932,7 +10044,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org07da914" class="outline-3">
+<div id="outline-container-orgc12c6f0" class="outline-3">
 <h3 id="org1a7c192b"><span class="section-number-3">10.31</span> [ox-reveal] ナイスなHTML5プレゼンテーション出力</h3>
 <div class="outline-text-3" id="text-org1a7c192b">
 <p>
@@ -9953,7 +10065,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org2fa4fcf" class="outline-3">
+<div id="outline-container-orgd41b15f" class="outline-3">
 <h3 id="org383ff638"><span class="section-number-3">10.32</span> [org-dashboard] 進捗をプログレスバーで確認</h3>
 <div class="outline-text-3" id="text-org383ff638">
 <ul class="org-ul">
@@ -9973,7 +10085,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-orga06a576" class="outline-3">
+<div id="outline-container-orgc9acfc1" class="outline-3">
 <h3 id="orgfa6df2ce"><span class="section-number-3">10.33</span> [org-clock-today] 今日の総作業時間をモードラインに表示</h3>
 <div class="outline-text-3" id="text-orgfa6df2ce">
 <ul class="org-ul">
@@ -10024,7 +10136,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-orga4492c6" class="outline-3">
+<div id="outline-container-org04868dc" class="outline-3">
 <h3 id="org56b60c02"><span class="section-number-3">10.34</span> [org-random-todo] ランダムにタスクを選ぶ</h3>
 <div class="outline-text-3" id="text-org56b60c02">
 <ul class="org-ul">
@@ -10042,7 +10154,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org6ad38f6" class="outline-3">
+<div id="outline-container-orgb85bef6" class="outline-3">
 <h3 id="org0cba1e62"><span class="section-number-3">10.35</span> [ox-hugo] OrgファイルからHogoの記事をエクスポートする</h3>
 <div class="outline-text-3" id="text-org0cba1e62">
 <ul class="org-ul">
@@ -10104,7 +10216,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org303b729" class="outline-3">
+<div id="outline-container-org891efdc" class="outline-3">
 <h3 id="org32e931e3"><span class="section-number-3">10.36</span> [ox-html] HTML見出しへのリンクを固定する</h3>
 <div class="outline-text-3" id="text-org32e931e3">
 <p>
@@ -10176,7 +10288,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org969aeda" class="outline-3">
+<div id="outline-container-org21ec91f" class="outline-3">
 <h3 id="org5cc51a8d"><span class="section-number-3">10.37</span> [orglink.el] Orgファイル以外でリンクを使う</h3>
 <div class="outline-text-3" id="text-org5cc51a8d">
 <p>
@@ -10213,7 +10325,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-orgceda789" class="outline-3">
+<div id="outline-container-org0d97bb8" class="outline-3">
 <h3 id="org8480b85f"><span class="section-number-3">10.38</span> [org-trello.el] Trello と双方向同期する</h3>
 <div class="outline-text-3" id="text-org8480b85f">
 <p>
@@ -10256,7 +10368,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org76d1bc8" class="outline-3">
+<div id="outline-container-orgf5c8abe" class="outline-3">
 <h3 id="org992326f6"><span class="section-number-3">10.39</span> <span class="todo TODO">TODO</span> [ob-async] ソースブロックの非同期実行</h3>
 <div class="outline-text-3" id="text-org992326f6">
 <p>
@@ -10273,7 +10385,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org1aeb42e" class="outline-3">
+<div id="outline-container-org9fbf9f2" class="outline-3">
 <h3 id="org9cbb15f3"><span class="section-number-3">10.40</span> <span class="todo TODO">TODO</span> [org-tree-slide] BEGIN_SRCとEND_SRCを消して背景色を変える</h3>
 <div class="outline-text-3" id="text-org9cbb15f3">
 <p>
@@ -10316,7 +10428,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org440fe2c" class="outline-3">
+<div id="outline-container-org00525a1" class="outline-3">
 <h3 id="org3ee441c6"><span class="section-number-3">10.41</span> <span class="todo TODO">TODO</span> [org-fstree] ディレクトリ構造を読み取る</h3>
 <div class="outline-text-3" id="text-org3ee441c6">
 <div class="org-src-container">
@@ -10327,7 +10439,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org0818950" class="outline-3">
+<div id="outline-container-orgb2ba4e6" class="outline-3">
 <h3 id="orgbb452f44"><span class="section-number-3">10.42</span> <span class="todo TODO">TODO</span> [ox] 出力形式の拡張</h3>
 <div class="outline-text-3" id="text-orgbb452f44">
 <div class="org-src-container">
@@ -10341,7 +10453,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org2efd03c" class="outline-3">
+<div id="outline-container-orgabf6241" class="outline-3">
 <h3 id="org4142d8c3"><span class="section-number-3">10.43</span> <span class="todo TODO">TODO</span> Parers3.app からリンクを取得する</h3>
 <div class="outline-text-3" id="text-org4142d8c3">
 <div class="org-src-container">
@@ -10400,7 +10512,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 </div>
 
-<div id="outline-container-org319ddf4" class="outline-3">
+<div id="outline-container-org8615730" class="outline-3">
 <h3 id="org47b1ee67"><span class="section-number-3">10.44</span> <span class="todo TODO">TODO</span> Papers3.app のリンクを開けるようにする</h3>
 <div class="outline-text-3" id="text-org47b1ee67">
 <p>
@@ -10424,7 +10536,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org2b860b3" class="outline-3">
+<div id="outline-container-org664d74b" class="outline-3">
 <h3 id="orgd14388c1"><span class="section-number-3">10.45</span> <span class="todo TODO">TODO</span> [org-attach] 外部ファイルを紐付ける</h3>
 <div class="outline-text-3" id="text-orgd14388c1">
 <div class="org-src-container">
@@ -10458,7 +10570,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org7c82be6" class="outline-3">
+<div id="outline-container-orgdbb5c5f" class="outline-3">
 <h3 id="org1926ab44"><span class="section-number-3">10.46</span> <span class="todo TODO">TODO</span> [org-recent-headings] 訪問したツリーを記録し簡単に再訪問可能にする</h3>
 <div class="outline-text-3" id="text-org1926ab44">
 <div class="org-src-container">
@@ -10481,7 +10593,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orga0abe63" class="outline-3">
+<div id="outline-container-orge1ba1df" class="outline-3">
 <h3 id="orgfcfd3f34"><span class="section-number-3">10.47</span> <span class="todo TODO">TODO</span> [orgnav] ツリーの検索インタフェース</h3>
 <div class="outline-text-3" id="text-orgfcfd3f34">
 <div class="org-src-container">
@@ -10498,7 +10610,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orged267fd" class="outline-3">
+<div id="outline-container-orgd22d0a8" class="outline-3">
 <h3 id="org5fce13fa"><span class="section-number-3">10.48</span> <span class="todo TODO">TODO</span> [toc-org] 目次の挿入</h3>
 <div class="outline-text-3" id="text-org5fce13fa">
 <ul class="org-ul">
@@ -10512,7 +10624,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org485a2f0" class="outline-3">
+<div id="outline-container-org15bdf0e" class="outline-3">
 <h3 id="org4ca4749d"><span class="section-number-3">10.49</span> <span class="todo TODO">TODO</span> [org-review.el] レビューフローのサポート</h3>
 <div class="outline-text-3" id="text-org4ca4749d">
 <ul class="org-ul">
@@ -10537,7 +10649,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orgbc89921" class="outline-3">
+<div id="outline-container-orge792527" class="outline-3">
 <h3 id="org0b29fe80"><span class="section-number-3">10.50</span> <span class="todo REV2">REV2</span> [org-screenshot] スクリーンショットを貼り付ける</h3>
 <div class="outline-text-3" id="text-org0b29fe80">
 <ul class="org-ul">
@@ -10579,7 +10691,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org4081013" class="outline-3">
+<div id="outline-container-org4997a8b" class="outline-3">
 <h3 id="org0f4b6016"><span class="section-number-3">10.51</span> <span class="done DONE">DONE</span> [org-autolist] ブリッツの入力を簡単に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org0f4b6016">
 <p>
@@ -10597,7 +10709,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org2cb0ca4" class="outline-3">
+<div id="outline-container-orge632631" class="outline-3">
 <h3 id="org39530542"><span class="section-number-3">10.52</span> <span class="done DONE">DONE</span> [MobileOrg] iOS との連携&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org39530542">
 <ul class="org-ul">
@@ -10632,7 +10744,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orgdd509fc" class="outline-3">
+<div id="outline-container-orgb11c8ce" class="outline-3">
 <h3 id="orgfb20898b"><span class="section-number-3">10.53</span> <span class="done DONE">DONE</span> [org-export-generic] エクスポート機能を拡張する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgfb20898b">
 <p>
@@ -10729,7 +10841,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org103e724" class="outline-3">
+<div id="outline-container-org933d5b4" class="outline-3">
 <h3 id="org563f7076"><span class="section-number-3">10.54</span> <span class="done DONE">DONE</span> org-mode の latex エクスポート関数をオーバーライド&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org563f7076">
 <div class="org-src-container">
@@ -10799,11 +10911,11 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org73a4c3b" class="outline-2">
+<div id="outline-container-org64c4975" class="outline-2">
 <h2 id="org5fd484a3"><span class="section-number-2">11</span> フレーム／ウィンドウ制御</h2>
 <div class="outline-text-2" id="text-org5fd484a3">
 </div>
-<div id="outline-container-orgbcf5360" class="outline-3">
+<div id="outline-container-org1af8c95" class="outline-3">
 <h3 id="orgd05fc75a"><span class="section-number-3">11.1</span> 起動時の設定</h3>
 <div class="outline-text-3" id="text-orgd05fc75a">
 <div class="org-src-container">
@@ -11009,7 +11121,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orge916949" class="outline-3">
+<div id="outline-container-org8ed04fe" class="outline-3">
 <h3 id="orgdffe4e49"><span class="section-number-3">11.2</span> 複数フレーム対応</h3>
 <div class="outline-text-3" id="text-orgdffe4e49">
 <p>
@@ -11031,7 +11143,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org8ab2af4" class="outline-3">
+<div id="outline-container-org1e06d27" class="outline-3">
 <h3 id="org7a20b311"><span class="section-number-3">11.3</span> [olivetti.el] ウィンドウを中央寄せで配置</h3>
 <div class="outline-text-3" id="text-org7a20b311">
 <ul class="org-ul">
@@ -11065,7 +11177,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org3bee0a9" class="outline-3">
+<div id="outline-container-org4772cac" class="outline-3">
 <h3 id="org5f12ba92"><span class="section-number-3">11.4</span> [moom.el] キーボードでフレームの場所を移す</h3>
 <div class="outline-text-3" id="text-org5f12ba92">
 <p>
@@ -11155,7 +11267,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org887bd60" class="outline-4">
+<div id="outline-container-org27d0976" class="outline-4">
 <h4 id="org6e3c20dd"><span class="section-number-4">11.4.1</span> 最大化時にモードラインを消す</h4>
 <div class="outline-text-4" id="text-org6e3c20dd">
 <p>
@@ -11230,13 +11342,16 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <code>                           (<span style="color: #a020f0;">shut-up</span> (my-mode-line-off))</code>
 <code>                         (my-mode-line-off))))</code>
 <code>          t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#20182;&#12398;&#35373;&#23450;&#65288;olivetti.el&#12394;&#12393;&#65289;&#12392;&#12406;&#12388;&#12363;&#12427;&#12398;&#12391;&#26368;&#24460;&#12395;&#36861;&#21152;</span></code>
+<code></code>
+<code><span style="color: #b22222;">;; </span><span style="color: #b22222;">init</span></code>
+<code>(my-mode-line-off)</code>
 </pre>
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgcddac1d" class="outline-3">
+<div id="outline-container-org561b56a" class="outline-3">
 <h3 id="org33fd785f"><span class="section-number-3">11.5</span> [winner.el] ウィンドウ構成の履歴を辿る</h3>
 <div class="outline-text-3" id="text-org33fd785f">
 <ul class="org-ul">
@@ -11260,7 +11375,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orgeb30c95" class="outline-3">
+<div id="outline-container-orgc401bf1" class="outline-3">
 <h3 id="orga9be167a"><span class="section-number-3">11.6</span> <span class="todo TODO">TODO</span> [shackle.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Ongoing">Ongoing</span></span></h3>
 <div class="outline-text-3" id="text-orga9be167a">
 <ul class="org-ul">
@@ -11291,7 +11406,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orgd2ad5d2" class="outline-4">
+<div id="outline-container-org9b3cf09" class="outline-4">
 <h4 id="org32b579df"><span class="section-number-4">11.6.1</span> checkdoc.el 用の追加設定</h4>
 <div class="outline-text-4" id="text-org32b579df">
 <p>
@@ -11322,7 +11437,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orge6cebda" class="outline-3">
+<div id="outline-container-orgd629ebf" class="outline-3">
 <h3 id="orgdca5e7c2"><span class="section-number-3">11.7</span> <span class="todo TODO">TODO</span> [doom-modeline.el] モードラインをリッチにする</h3>
 <div class="outline-text-3" id="text-orgdca5e7c2">
 <ul class="org-ul">
@@ -11367,7 +11482,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orge476952" class="outline-3">
+<div id="outline-container-org4599014" class="outline-3">
 <h3 id="org4dd0671c"><span class="section-number-3">11.8</span> [e2wm.el] 二画面表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org4dd0671c">
 <p>
@@ -11439,7 +11554,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orge455928" class="outline-3">
+<div id="outline-container-org26d5128" class="outline-3">
 <h3 id="org0c556404"><span class="section-number-3">11.9</span> [tabbar-ruler] バッファをタブ切り替え可能に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org0c556404">
 <ul class="org-ul">
@@ -11461,7 +11576,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-org55e6f01" class="outline-3">
+<div id="outline-container-org2bc3b2d" class="outline-3">
 <h3 id="org6474a498"><span class="section-number-3">11.10</span> [elscreen.el] Emacs バッファをタブ化&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org6474a498">
 <ul class="org-ul">
@@ -11478,7 +11593,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orgea6e55a" class="outline-3">
+<div id="outline-container-org93dd419" class="outline-3">
 <h3 id="org750d9aa5"><span class="section-number-3">11.11</span> [popwin.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org750d9aa5">
 <ul class="org-ul">
@@ -11559,11 +11674,11 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
-<div id="outline-container-orgc77d3e4" class="outline-2">
+<div id="outline-container-org1d59e74" class="outline-2">
 <h2 id="orgf57ce845"><span class="section-number-2">12</span> フォント／配色関連</h2>
 <div class="outline-text-2" id="text-orgf57ce845">
 </div>
-<div id="outline-container-org9d76850" class="outline-3">
+<div id="outline-container-org3365714" class="outline-3">
 <h3 id="orgbbb079d3"><span class="section-number-3">12.1</span> 正規表現を見やすくする</h3>
 <div class="outline-text-3" id="text-orgbbb079d3">
 <p>
@@ -11587,7 +11702,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-org85f9db9" class="outline-3">
+<div id="outline-container-orgfae1ab1" class="outline-3">
 <h3 id="orgc98c6fff"><span class="section-number-3">12.2</span> 設定ファイルを見やすくする</h3>
 <div class="outline-text-3" id="text-orgc98c6fff">
 <p>
@@ -11602,7 +11717,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-orgba90a38" class="outline-3">
+<div id="outline-container-org7a89720" class="outline-3">
 <h3 id="org7858d806"><span class="section-number-3">12.3</span> カーソル行に色をつける</h3>
 <div class="outline-text-3" id="text-org7858d806">
 <ul class="org-ul">
@@ -11663,7 +11778,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-orgdf90dc1" class="outline-3">
+<div id="outline-container-orgb157418" class="outline-3">
 <h3 id="org29d5304f"><span class="section-number-3">12.4</span> カーソルの点滅を制御</h3>
 <div class="outline-text-3" id="text-org29d5304f">
 <p>
@@ -11686,7 +11801,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-org2cc841c" class="outline-3">
+<div id="outline-container-org8978c8e" class="outline-3">
 <h3 id="orgf36a8366"><span class="section-number-3">12.5</span> カーソル位置のフォントを確認</h3>
 <div class="outline-text-3" id="text-orgf36a8366">
 <p>
@@ -11695,7 +11810,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-orgb9958c3" class="outline-3">
+<div id="outline-container-orgb99f083" class="outline-3">
 <h3 id="org919a945a"><span class="section-number-3">12.6</span> フォント設定</h3>
 <div class="outline-text-3" id="text-org919a945a">
 <p>
@@ -11830,7 +11945,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </div>
 </div>
 
-<div id="outline-container-org860bed4" class="outline-4">
+<div id="outline-container-org60965df" class="outline-4">
 <h4 id="orgb94aa5b3"><span class="section-number-4">12.6.1</span> フォントのインストール方法</h4>
 <div class="outline-text-4" id="text-orgb94aa5b3">
 <p>
@@ -11850,7 +11965,7 @@ Linux では次のように処理するだけでよく，意外と簡単．<br /
 </div>
 </div>
 
-<div id="outline-container-orgcf21db1" class="outline-4">
+<div id="outline-container-org329297f" class="outline-4">
 <h4 id="org66fa6b98"><span class="section-number-4">12.6.2</span> フォントチェック用コード</h4>
 <div class="outline-text-4" id="text-org66fa6b98">
 <p>
@@ -11860,7 +11975,7 @@ Linux では次のように処理するだけでよく，意外と簡単．<br /
 </div>
 </div>
 
-<div id="outline-container-orgf1159cc" class="outline-3">
+<div id="outline-container-org2fe2c26" class="outline-3">
 <h3 id="org2bcbc1db"><span class="section-number-3">12.7</span> 行間を制御する</h3>
 <div class="outline-text-3" id="text-org2bcbc1db">
 <div class="org-src-container">
@@ -11870,7 +11985,7 @@ Linux では次のように処理するだけでよく，意外と簡単．<br /
 </div>
 </div>
 
-<div id="outline-container-orgc70c5c0" class="outline-3">
+<div id="outline-container-org6dafbed" class="outline-3">
 <h3 id="org372b184d"><span class="section-number-3">12.8</span> パッチをカラフルに表示する</h3>
 <div class="outline-text-3" id="text-org372b184d">
 <p>
@@ -11903,7 +12018,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-orgac1d1f8" class="outline-3">
+<div id="outline-container-org4410599" class="outline-3">
 <h3 id="org009dc6e3"><span class="section-number-3">12.9</span> 背景を黒系色にする</h3>
 <div class="outline-text-3" id="text-org009dc6e3">
 <div class="org-src-container">
@@ -11916,7 +12031,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org1b38439" class="outline-3">
+<div id="outline-container-org5bee66f" class="outline-3">
 <h3 id="org92d26c4b"><span class="section-number-3">12.10</span> 日中と夜中でテーマを切り替える</h3>
 <div class="outline-text-3" id="text-org92d26c4b">
 <p>
@@ -11990,7 +12105,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-orgd536132" class="outline-3">
+<div id="outline-container-orgef0a14c" class="outline-3">
 <h3 id="org7c97dce0"><span class="section-number-3">12.11</span> 時間帯を指定して起動時にテーマを切り替える</h3>
 <div class="outline-text-3" id="text-org7c97dce0">
 <p>
@@ -12050,7 +12165,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-orga930a44" class="outline-3">
+<div id="outline-container-orgbcfcef8" class="outline-3">
 <h3 id="org6d79c76a"><span class="section-number-3">12.12</span> [hl-todo.el] 特定キーワードの配色を変える</h3>
 <div class="outline-text-3" id="text-org6d79c76a">
 <ul class="org-ul">
@@ -12116,7 +12231,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org135808b" class="outline-3">
+<div id="outline-container-org1ac6dc1" class="outline-3">
 <h3 id="org9ce2fd45"><span class="section-number-3">12.13</span> [rainbow-mode.el] 配色のリアルタイム確認</h3>
 <div class="outline-text-3" id="text-org9ce2fd45">
 <p>
@@ -12138,7 +12253,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org134f913" class="outline-4">
+<div id="outline-container-orgfd7475b" class="outline-4">
 <h4 id="org19538af3"><span class="section-number-4">12.13.1</span> 色一覧</h4>
 <div class="outline-text-4" id="text-org19538af3">
 <p>
@@ -12195,7 +12310,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org436983e" class="outline-3">
+<div id="outline-container-org44a13f7" class="outline-3">
 <h3 id="orgcc116051"><span class="section-number-3">12.14</span> [edit-color-stamp] Qt経由でカラーピッカーを使う</h3>
 <div class="outline-text-3" id="text-orgcc116051">
 <ul class="org-ul">
@@ -12244,7 +12359,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-orgf217d53" class="outline-3">
+<div id="outline-container-org63635dc" class="outline-3">
 <h3 id="org36a28b28"><span class="section-number-3">12.15</span> <span class="todo TODO">TODO</span> [volatile-highlights] コピペした領域を強調</h3>
 <div class="outline-text-3" id="text-org36a28b28">
 <p>
@@ -12302,12 +12417,12 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-orgdc9ecb1" class="outline-2">
+<div id="outline-container-orgb9e0da5" class="outline-2">
 <h2 id="orgb8e84b9a"><span class="section-number-2">13</span> ユーティリティ関数</h2>
 <div class="outline-text-2" id="text-orgb8e84b9a">
 </div>
 
-<div id="outline-container-orga45debb" class="outline-3">
+<div id="outline-container-orgf19b054" class="outline-3">
 <h3 id="orgbfb695e1"><span class="section-number-3">13.1</span> [pomodoro.el] ポモドーロの実践</h3>
 <div class="outline-text-3" id="text-orgbfb695e1">
 <p>
@@ -12433,7 +12548,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org410e176" class="outline-3">
+<div id="outline-container-org26283b5" class="outline-3">
 <h3 id="orgc09c0be3"><span class="section-number-3">13.2</span> [pomodoro.el] 続・ポモドーロの実践</h3>
 <div class="outline-text-3" id="text-orgc09c0be3">
 <p>
@@ -12646,7 +12761,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-orgc0d7e5a" class="outline-3">
+<div id="outline-container-orgfddaefd" class="outline-3">
 <h3 id="org98f153af"><span class="section-number-3">13.3</span> [google-this.el] 単語をグーグル検索</h3>
 <div class="outline-text-3" id="text-org98f153af">
 <p>
@@ -12669,7 +12784,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
-<div id="outline-container-org358f43a" class="outline-3">
+<div id="outline-container-org67e0df8" class="outline-3">
 <h3 id="org71c49002"><span class="section-number-3">13.4</span> [lingr.el] チャットルームに自動参加</h3>
 <div class="outline-text-3" id="text-org71c49002">
 <p>
@@ -12697,7 +12812,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-orge26b826" class="outline-3">
+<div id="outline-container-org581983d" class="outline-3">
 <h3 id="orgc6fce61d"><span class="section-number-3">13.5</span> [multi-term.el] ターミナル</h3>
 <div class="outline-text-3" id="text-orgc6fce61d">
 <p>
@@ -12716,7 +12831,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-org0946027" class="outline-3">
+<div id="outline-container-org59a3414" class="outline-3">
 <h3 id="org96f7a2a3"><span class="section-number-3">13.6</span> [osx-lib.el] macOS用ユーティリティ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-org96f7a2a3">
 <ul class="org-ul">
@@ -12753,7 +12868,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 </div>
 </div>
-<div id="outline-container-org302a345" class="outline-3">
+<div id="outline-container-orgee56eee" class="outline-3">
 <h3 id="org72d850dc"><span class="section-number-3">13.7</span> iTerm2 を Emacs から呼び出したい&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-org72d850dc">
 <p>
@@ -12785,7 +12900,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 </div>
 
-<div id="outline-container-org7c06dbd" class="outline-3">
+<div id="outline-container-orgad8c58b" class="outline-3">
 <h3 id="org4d91e973"><span class="section-number-3">13.8</span> [counsel-osx-app.el] macOSのアプリケーションを呼び出す&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-org4d91e973">
 <p>
@@ -12809,7 +12924,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
-<div id="outline-container-org3f37a59" class="outline-3">
+<div id="outline-container-org6d50e3b" class="outline-3">
 <h3 id="org32e35e60"><span class="section-number-3">13.9</span> カレントバッファのあるディレクトリをターミナルで表示</h3>
 <div class="outline-text-3" id="text-org32e35e60">
 <div class="org-src-container">
@@ -12819,7 +12934,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
-<div id="outline-container-org3fa8497" class="outline-3">
+<div id="outline-container-orgf9c561f" class="outline-3">
 <h3 id="org2906cf09"><span class="section-number-3">13.10</span> [gif-screencast.el] ユーザアクションのたびにスクショを取る</h3>
 <div class="outline-text-3" id="text-org2906cf09">
 <ul class="org-ul">
@@ -12906,7 +13021,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
-<div id="outline-container-org4054f96" class="outline-3">
+<div id="outline-container-org7e3720d" class="outline-3">
 <h3 id="orged473d8d"><span class="section-number-3">13.11</span> [utility.el] 自作してテスト中の便利関数群</h3>
 <div class="outline-text-3" id="text-orged473d8d">
 <p>
@@ -12927,7 +13042,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
-<div id="outline-container-org5e1ce18" class="outline-3">
+<div id="outline-container-org8dc26be" class="outline-3">
 <h3 id="org72dab3c6"><span class="section-number-3">13.12</span> [manage-minor-mode.el] マイナーモードの視覚的な管理</h3>
 <div class="outline-text-3" id="text-org72dab3c6">
 <p>
@@ -12952,7 +13067,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
-<div id="outline-container-orgb8e4fc0" class="outline-3">
+<div id="outline-container-orgb559970" class="outline-3">
 <h3 id="org2be833d3"><span class="section-number-3">13.13</span> [lingr.el] lingr にログインする</h3>
 <div class="outline-text-3" id="text-org2be833d3">
 <div class="org-src-container">
@@ -12969,7 +13084,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
-<div id="outline-container-org7ed4f6c" class="outline-3">
+<div id="outline-container-org0b3bf4a" class="outline-3">
 <h3 id="org409d5d63"><span class="section-number-3">13.14</span> <span class="todo TODO">TODO</span> [gitter.el] Gitter にログイン</h3>
 <div class="outline-text-3" id="text-org409d5d63">
 <div class="org-src-container">
@@ -12979,7 +13094,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
-<div id="outline-container-org455685c" class="outline-3">
+<div id="outline-container-org05091f9" class="outline-3">
 <h3 id="orgc75ab540"><span class="section-number-3">13.15</span> <span class="todo TODO">TODO</span> [password-store.el] パスワード管理</h3>
 <div class="outline-text-3" id="text-orgc75ab540">
 <ul class="org-ul">
@@ -13020,7 +13135,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
-<div id="outline-container-org0025328" class="outline-3">
+<div id="outline-container-org85e8592" class="outline-3">
 <h3 id="org1141e95f"><span class="section-number-3">13.16</span> <span class="todo TODO">TODO</span> [network-watch.el] ネットワークインターフェイスの状態を監視</h3>
 <div class="outline-text-3" id="text-org1141e95f">
 <ul class="org-ul">
@@ -13050,7 +13165,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
-<div id="outline-container-org87cc3a2" class="outline-2">
+<div id="outline-container-org8175cb2" class="outline-2">
 <h2 id="org362fb2dc"><span class="section-number-2">14</span> おわりに</h2>
 <div class="outline-text-2" id="text-org362fb2dc">
 <p>
@@ -13061,7 +13176,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-06-12 Wed 13:20</p>
+<p class="date">Created: 2019-06-22 Sat 10:37</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

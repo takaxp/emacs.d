@@ -165,6 +165,29 @@
 (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 
+(defun ad:mark-sexp (f &optional arg allow-extend)
+  "Set mark ARG sexps from point.
+When the cursor is at the end of line or before a whitespace, set ARG -1."
+  (interactive "P\np")
+  (funcall f (if (and (not (bolp))
+                      (not (eq (preceding-char) ?\ ))
+                      (or (eolp)
+                          (eq (following-char) ?\ )
+                          (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
+                 -1 arg)
+           allow-extend))
+(advice-add 'mark-sexp :around #'ad:mark-sexp)
+
+(when (require 'expand-region nil t)
+  (defun ad:er:mark-sexp (f &optional arg allow-extend)
+    "If the cursor is on a symbol, expand the region along the symbol."
+    (interactive "P\np")
+    (if (and (not (use-region-p))
+             (symbol-at-point))
+        (er/mark-symbol)
+      (funcall f arg allow-extend)))
+  (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
+
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
 (setq scroll-step 1)
@@ -303,6 +326,25 @@
             (lambda () (centered-cursor-mode -1))))
 
 (when (require 'smart-mark nil t)
+  (progn ;; C-M-SPC SPC SPC ... C-g の場合に正しくカーソルと元に戻す．
+    (defun ad:smart-mark-set-restore-before-mark (&rest _arg)
+      (unless (memq this-command
+                    '(er/expand-region er/mark-symbol er/contract-region))
+        (setq smart-mark-point-before-mark (point))))
+    (advice-add 'smart-mark-set-restore-before-mark :override
+                #'ad:smart-mark-set-restore-before-mark)
+    (when (require 'expand-region-core nil t)
+      ;; (defun ad:er:keyboard-quit ()
+      ;;   (when (memq last-command '(er/expand-region er/contract-region))
+      ;;     (when smart-mark-point-before-mark
+      ;;       (goto-char smart-mark-point-before-mark))))
+      ;; (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)
+      (defadvice keyboard-quit (before collapse-region activate)
+        (when (memq last-command '(er/expand-region er/contract-region))
+          (er/contract-region 0)
+          (when smart-mark-point-before-mark
+            (goto-char smart-mark-point-before-mark))))))
+
   (unless noninteractive
     (smart-mark-mode 1)))
 
@@ -553,6 +595,36 @@
   (advice-add 'view--enable :before #'ad:view--enable)
   (advice-add 'view--disable :before #'ad:view--disable))
 
+(global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
+(autoload-if-found '(mc/num-cursors mc/edit-lines) "multiple-cursors" nil t)
+(when (require 'hydra nil t)
+  ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
+  (defhydra hydra-multiple-cursors (:hint nil)
+    "
+==================================================================
+ Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
+------------------------------------------------------------------
+ [_p_]   Next     [_n_]   Next     [_l_] Edit lines  [_0_] Insert numbers
+ [_P_]   Skip     [_N_]   Skip     [_a_] Mark all    [_A_] Insert letters
+ [_M-p_] Unmark   [_M-n_] Unmark   [_s_] Search
+ [Click] Cursor at point       [_q_] Quit"
+    ("l" mc/edit-lines) ;;  :exit t
+    ("a" mc/mark-all-like-this) ;;  :exit t
+    ("n" mc/mark-next-like-this)
+    ("N" mc/skip-to-next-like-this)
+    ("M-n" mc/unmark-next-like-this)
+    ("p" mc/mark-previous-like-this)
+    ("P" mc/skip-to-previous-like-this)
+    ("M-p" mc/unmark-previous-like-this)
+    ("s" mc/mark-all-in-region-regexp) ;;  :exit t
+    ("0" mc/insert-numbers) ;;  :exit t
+    ("A" mc/insert-letters) ;;  :exit t
+    ("<mouse-1>" mc/add-cursor-on-click)
+    ;; Help with click recognition in this hydra
+    ("<down-mouse-1>" ignore)
+    ("<drag-mouse-1>" ignore)
+    ("q" nil)))
+
 (when (autoload-if-found
        '(latex-math-preview-expression
          latex-math-preview-insert-symbol
@@ -735,7 +807,7 @@ This works also for other defined begin/end tokens to define the structure."
 
     (defun my-eval-region ()
       (interactive)
-      (when mark-active
+      (when (use-region-p)
         (eval-region (region-beginning) (region-end) t)))
     (setq selected-org-mode-map (make-sparse-keymap))
 
@@ -743,6 +815,9 @@ This works also for other defined begin/end tokens to define the structure."
     (define-key selected-keymap (kbd "-") #'my-org-list-insert-items)
     (define-key selected-keymap (kbd "_")
       #'my-org-list-insert-checkbox-into-items)
+
+    (when (require 'expand-region nil t)
+      (define-key selected-keymap (kbd "SPC") #'er/expand-region))
 
     ;; (when (require 'helm-selected nil t)
     ;;   (define-key selected-keymap (kbd "h") 'helm-selected))
@@ -1204,7 +1279,7 @@ This works also for other defined begin/end tokens to define the structure."
        '(help/hydra/timestamp/body)
        "hydra" nil t)
 
-  (global-set-key (kbd "C-c t") #'help/hydra/timestamp/body)
+  (global-set-key (kbd "C-c h t") #'help/hydra/timestamp/body)
 
   (with-eval-after-load "hydra"
     (require 'org nil t)
@@ -1402,11 +1477,12 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 
     (defun my-recentf-cleanup-silence ()
       (interactive)
-      (let ((message-log-max nil))
-        (if shutup-p
-            (shut-up (recentf-cleanup))
-          (recentf-cleanup)))
-      (message ""))
+      (when (file-exists-p "/Volumes/orzHDn")
+        (let ((message-log-max nil))
+          (if shutup-p
+              (shut-up (recentf-cleanup))
+            (recentf-cleanup)))
+        (message "")))
     (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
     (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
 
@@ -2025,6 +2101,9 @@ _3_.  ?s?          (Org Mode: by _s_elect)
                            (shut-up (my-mode-line-off))
                          (my-mode-line-off))))
           t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
+
+;; init
+(my-mode-line-off)
 
 (unless noninteractive
   (postpone-message "winner-mode")

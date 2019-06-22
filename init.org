@@ -1529,15 +1529,40 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
  - =C-M-SPC= (mark-sexp) は，カーソル位置から順方向に選択．
  - =C-M-U= (backward-up-list) は，一つ外のカッコの先頭にポイントを移す．
- - =C-M-9= (my-mark-sexp) は，カーソル位置から逆方向に選択．
 
-#+begin_src emacs-lisp :tangle init.el
++- =C-M-9= (my-mark-sexp) は，カーソル位置から逆方向に選択．+ 以前は =my-mark-sexp= を定義して使っていましたが， =mark-sexp= を advice する方法に変えました．カーソルが行末だったり，後ろが空白文字の場合にのみ， =mark-sexp= に =-1= がわたるようにしました．
+
+#+begin_src emacs-lisp :tangle no
 (defun my-mark-sexp (&optional arg)
   "Move backward across one balanced expression and select it."
   (interactive)
   (mark-sexp (or arg -1)))
-(global-set-key (kbd "C-M-0") #'mark-sexp) ;; C-M-SPC
 (global-set-key (kbd "C-M-9") #'my-mark-sexp)
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(defun ad:mark-sexp (f &optional arg allow-extend)
+  "Set mark ARG sexps from point.
+When the cursor is at the end of line or before a whitespace, set ARG -1."
+  (interactive "P\np")
+  (funcall f (if (and (not (bolp))
+                      (not (eq (preceding-char) ?\ ))
+                      (or (eolp)
+                          (eq (following-char) ?\ )
+                          (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
+                 -1 arg)
+           allow-extend))
+(advice-add 'mark-sexp :around #'ad:mark-sexp)
+
+(when (require 'expand-region nil t)
+  (defun ad:er:mark-sexp (f &optional arg allow-extend)
+    "If the cursor is on a symbol, expand the region along the symbol."
+    (interactive "P\np")
+    (if (and (not (use-region-p))
+             (symbol-at-point))
+        (er/mark-symbol)
+      (funcall f arg allow-extend)))
+  (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 #+end_src
 
 ** スクロールを制御
@@ -1767,12 +1792,29 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 
 すぐわかる例は， =C-x h= で全選択して何もせず， =C-g= する場合です．通常だとバッファの先頭にカーソルが置き去りにされますが， =smart-mark= を使うと，全選択を実行した時の位置に自動的に戻してくれます．
 
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
   - [[https://github.com/zhangkaiyulw/smart-mark][zhangkaiyulw/smart-mark: Emacs package to restore point after C-g when mark]]
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'smart-mark nil t)
+  (progn ;; C-M-SPC SPC SPC ... C-g の場合に正しくカーソルと元に戻す．
+    (defun ad:smart-mark-set-restore-before-mark (&rest _arg)
+      (unless (memq this-command
+                    '(er/expand-region er/mark-symbol er/contract-region))
+        (setq smart-mark-point-before-mark (point))))
+    (advice-add 'smart-mark-set-restore-before-mark :override
+                #'ad:smart-mark-set-restore-before-mark)
+    (when (require 'expand-region-core nil t)
+      ;; (defun ad:er:keyboard-quit ()
+      ;;   (when (memq last-command '(er/expand-region er/contract-region))
+      ;;     (when smart-mark-point-before-mark
+      ;;       (goto-char smart-mark-point-before-mark))))
+      ;; (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)
+      (defadvice keyboard-quit (before collapse-region activate)
+        (when (memq last-command '(er/expand-region er/contract-region))
+          (er/contract-region 0)
+          (when smart-mark-point-before-mark
+            (goto-char smart-mark-point-before-mark))))))
+
   (unless noninteractive
     (smart-mark-mode 1)))
 #+end_src
@@ -1797,8 +1839,6 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 
 編集結果を保持したまま編集箇所にカーソルを移すことができます． =C-/= の Undo のような操作で，簡単かつ高速にカーソルを移動できます．
 
-  - =postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(goto-last-change goto-last-change-reverse)
@@ -1810,6 +1850,20 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
     (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse)))
+#+end_src
+
+** [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる
+
+ - [[https://github.com/magnars/expand-region.el][magnars/expand-region.el: Emacs extension to increase selected region by semantic units.]]
+
+=er/expand-region= を呼ぶと，カーソル位置を起点として前後に選択範囲を広げてくれます．2回以上呼ぶと，読んだ回数だけ賢く選択範囲が広がりますが，2回目は設定したキーバインドの最後の一文字を連打すればOKです．その場合，選択範囲を狭める時は =-= を押し， =0= を押せばリセットされます．
+
+自分は =selected.el= とペアで使うように設定していて， =C-SPC= か =C-M-SPC= から =SPC= を押すことで =er/expand-region= が呼ばれるように設定しています．
+
+#+begin_src emacs-lisp :tangle no
+(with-eval-after-load "selected"
+  (when (require 'expand-region nil t)
+    (define-key selected-keymap (kbd "SPC") #'er/expand-region)))
 #+end_src
 
 ** DONE [cycle-buffer.el] カレントバッファの表示切り替え           :obsolete:
@@ -2624,6 +2678,46 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
   (advice-add 'view--disable :before #'ad:view--disable))
 #+end_src
 
+** TODO [multiple-cursors.el] 指定箇所を同時編集
+   :PROPERTIES:
+   :CREATED:  [2019-06-19 Wed 00:49]
+   :END:
+
+ - http://emacsrocks.com/e08.html
+ - [[https://github.com/magnars/multiple-cursors.el][magnars/multiple-cursors.el: Multiple cursors for emacs.]]
+
+#+begin_src emacs-lisp :tangle late-init.el
+(global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
+(autoload-if-found '(mc/num-cursors mc/edit-lines) "multiple-cursors" nil t)
+(when (require 'hydra nil t)
+  ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
+  (defhydra hydra-multiple-cursors (:hint nil)
+    "
+==================================================================
+ Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
+------------------------------------------------------------------
+ [_p_]   Next     [_n_]   Next     [_l_] Edit lines  [_0_] Insert numbers
+ [_P_]   Skip     [_N_]   Skip     [_a_] Mark all    [_A_] Insert letters
+ [_M-p_] Unmark   [_M-n_] Unmark   [_s_] Search
+ [Click] Cursor at point       [_q_] Quit"
+    ("l" mc/edit-lines) ;;  :exit t
+    ("a" mc/mark-all-like-this) ;;  :exit t
+    ("n" mc/mark-next-like-this)
+    ("N" mc/skip-to-next-like-this)
+    ("M-n" mc/unmark-next-like-this)
+    ("p" mc/mark-previous-like-this)
+    ("P" mc/skip-to-previous-like-this)
+    ("M-p" mc/unmark-previous-like-this)
+    ("s" mc/mark-all-in-region-regexp) ;;  :exit t
+    ("0" mc/insert-numbers) ;;  :exit t
+    ("A" mc/insert-letters) ;;  :exit t
+    ("<mouse-1>" mc/add-cursor-on-click)
+    ;; Help with click recognition in this hydra
+    ("<down-mouse-1>" ignore)
+    ("<drag-mouse-1>" ignore)
+    ("q" nil)))
+#+end_src
+
 ** [latex-math-preview.el] TeX数式をプレビュー                          :tex:
    :PROPERTIES:
    :CUSTOM_ID: orgab4f9bf0
@@ -3011,7 +3105,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 
     (defun my-eval-region ()
       (interactive)
-      (when mark-active
+      (when (use-region-p)
         (eval-region (region-beginning) (region-end) t)))
     (setq selected-org-mode-map (make-sparse-keymap))
 
@@ -3019,6 +3113,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (define-key selected-keymap (kbd "-") #'my-org-list-insert-items)
     (define-key selected-keymap (kbd "_")
       #'my-org-list-insert-checkbox-into-items)
+
+    (when (require 'expand-region nil t)
+      (define-key selected-keymap (kbd "SPC") #'er/expand-region))
 
     ;; (when (require 'helm-selected nil t)
     ;;   (define-key selected-keymap (kbd "h") 'helm-selected))
@@ -4448,7 +4545,7 @@ http://0xcc.net/migemo/#download
        '(help/hydra/timestamp/body)
        "hydra" nil t)
 
-  (global-set-key (kbd "C-c t") #'help/hydra/timestamp/body)
+  (global-set-key (kbd "C-c h t") #'help/hydra/timestamp/body)
 
   (with-eval-after-load "hydra"
     (require 'org nil t)
@@ -5100,11 +5197,12 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
     (defun my-recentf-cleanup-silence ()
       (interactive)
-      (let ((message-log-max nil))
-        (if shutup-p
-            (shut-up (recentf-cleanup))
-          (recentf-cleanup)))
-      (message ""))
+      (when (file-exists-p "/Volumes/orzHDn")
+        (let ((message-log-max nil))
+          (if shutup-p
+              (shut-up (recentf-cleanup))
+            (recentf-cleanup)))
+        (message "")))
     (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
     (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
 
@@ -9203,6 +9301,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
                            (shut-up (my-mode-line-off))
                          (my-mode-line-off))))
           t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
+
+;; init
+(my-mode-line-off)
 #+end_src
 
 ** [winner.el] ウィンドウ構成の履歴を辿る

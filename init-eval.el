@@ -76,6 +76,8 @@
 (require 'orglink nil t)
 (require 'org-trello nil t)
 (require 'company nil t)
+(require 'multiple-cursors nil t)
+(require 'org-tempo nil t)
 
 (if (require 'shut-up nil t)
     (progn

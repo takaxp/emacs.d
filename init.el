@@ -361,13 +361,6 @@
 
 (my-tick-init-time "core")
 
-(defun my-mark-sexp (&optional arg)
-  "Move backward across one balanced expression and select it."
-  (interactive)
-  (mark-sexp (or arg -1)))
-(global-set-key (kbd "C-M-0") #'mark-sexp) ;; C-M-SPC
-(global-set-key (kbd "C-M-9") #'my-mark-sexp)
-
 (my-tick-init-time "point")
 
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
