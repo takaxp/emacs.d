@@ -215,6 +215,9 @@
         (my-ime-off)))
     (run-with-idle-timer 1 t #'my-ns-org-heading-auto-ascii)
 
+    ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
+    (add-hook 'move-cursor-after-hook #'my-ns-org-heading-auto-ascii)
+
     (defun my-ns-ime-restore ()
       "Restore the last IME status."
       (if my-ime-last (my-ime-on) (my-ime-off)))
@@ -830,20 +833,21 @@
                 (when my-ime-flag
                   (my-ime-on))))
 
-    (defun ad:mac-toggle-input-method (&optional arg)
-      "Run hooks when IME changes."
-      (interactive)
-      (if arg
-          (progn
-            (setq cursor-type my-cursor-type-ime-on)
-            (set-cursor-color my-cursor-color-ime-on)
-            (run-hooks 'my-ime-on-hook))
-        (progn
-          (setq cursor-type my-cursor-type-ime-off)
-          (set-cursor-color my-cursor-color-ime-off)
-          (run-hooks 'my-ime-off-hook))))
-    (advice-add 'mac-toggle-input-method
-                :before #'ad:mac-toggle-input-method)
+    ;; mac-toggle-input-method は，Emacs が非アクティブでも反応する
+    ;; (defun ad:mac-toggle-input-method (&optional arg)
+    ;;   "Run hooks when IME changes."
+    ;;   (interactive)
+    ;;   (if arg
+    ;;       (progn
+    ;;         (setq cursor-type my-cursor-type-ime-on)
+    ;;         (set-cursor-color my-cursor-color-ime-on)
+    ;;         (run-hooks 'my-ime-on-hook))
+    ;;     (progn
+    ;;       (setq cursor-type my-cursor-type-ime-off)
+    ;;       (set-cursor-color my-cursor-color-ime-off)
+    ;;       (run-hooks 'my-ime-off-hook))))
+    ;; (advice-add 'mac-toggle-input-method
+    ;;             :before #'ad:mac-toggle-input-method)
 
     ;; for init setup
     (setq-default cursor-type my-cursor-type-ime-on)

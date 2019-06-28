@@ -197,36 +197,74 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; Scroll window on a page-by-page basis with N line overlapping
 (setq next-screen-context-lines 1)
 
-(defcustom move-cursor-hook nil
-  "Hook runs when you move the cursor."
+(defcustom move-cursor-before-hook nil
+  "Hook runs before moving the cursor."
   :type 'hook
   :group 'convenience)
 
-(defun ad:cur:next-line (&optional _arg _try-vscroll)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:previous-line (&optional _arg _try-vscroll)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:forward-char (&optional _N)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:backward-char (&optional _N)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:syntax-subword-forward (&optional _N)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:syntax-subword-backward (&optional _N)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:move-beginning-of-line (_ARG)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:move-end-of-line (_ARG)
-  (run-hooks 'move-cursor-hook))
+(defcustom move-cursor-after-hook nil
+  "Hook runs after moving the cursor."
+  :type 'hook
+  :group 'convenience)
 
-(advice-add 'next-line :before #'ad:cur:next-line)
-(advice-add 'previous-line :before #'ad:cur:previous-line)
-(advice-add 'forward-char :before #'ad:cur:forward-char)
-(advice-add 'backward-char :before #'ad:cur:backward-char)
-(advice-add 'syntax-subword-forward :before #'ad:cur:syntax-subword-forward)
-(advice-add 'syntax-subword-backward :before #'ad:cur:syntax-subword-backward)
-(advice-add 'move-beginning-of-line :before #'ad:cur:move-beginning-of-line)
-(advice-add 'move-end-of-line :before #'ad:cur:move-end-of-line)
+;; (defun ad:cur:next-line (&optional _arg _try-vscroll)
+;;   (run-hooks 'move-cursor-before-hook))
+;; (defun ad:cur:previous-line (&optional _arg _try-vscroll)
+;;   (run-hooks 'move-cursor-before-hook))
+;; (defun ad:cur:forward-char (&optional _N)
+;;   (run-hooks 'move-cursor-before-hook))
+;; (defun ad:cur:backward-char (&optional _N)
+;;   (run-hooks 'move-cursor-before-hook))
+;; (defun ad:cur:syntax-subword-forward (&optional _N)
+;;   (run-hooks 'move-cursor-before-hook))
+;; (defun ad:cur:syntax-subword-backward (&optional _N)
+;;   (run-hooks 'move-cursor-before-hook))
+;; (defun ad:cur:move-beginning-of-line (_ARG)
+;;   (run-hooks 'move-cursor-before-hook))
+;; (defun ad:cur:move-end-of-line (_ARG)
+;;   (run-hooks 'move-cursor-before-hook))
+
+(defun ad:cur:next-line (f &optional arg try-vscroll)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f arg try-vscroll)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:previous-line (f &optional arg try-vscroll)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f arg try-vscroll)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:forward-char (f &optional N)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f N)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:backward-char (f &optional N)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f N)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:syntax-subword-forward (f &optional N)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f N)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:syntax-subword-backward (f &optional N)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f N)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:move-beginning-of-line (f ARG)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f ARG)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:move-end-of-line (f ARG)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f ARG)
+  (run-hooks 'move-cursor-after-hook))
+
+(advice-add 'next-line :around #'ad:cur:next-line)
+(advice-add 'previous-line :around #'ad:cur:previous-line)
+(advice-add 'forward-char :around #'ad:cur:forward-char)
+(advice-add 'backward-char :around #'ad:cur:backward-char)
+(advice-add 'syntax-subword-forward :around #'ad:cur:syntax-subword-forward)
+(advice-add 'syntax-subword-backward :around #'ad:cur:syntax-subword-backward)
+(advice-add 'move-beginning-of-line :around #'ad:cur:move-beginning-of-line)
+(advice-add 'move-end-of-line :around #'ad:cur:move-end-of-line)
 
 (when (autoload-if-found
        '(smooth-scroll-mode)
@@ -1562,7 +1600,63 @@ _3_.  ?s?          (Org Mode: by _s_elect)
                            "pdf"
                            ;; Image
                            "gif" "png" "jpg" "jpeg")
-                          string-end)) "open")))))
+                          string-end)) "open"))))
+
+  (when (require 'hydra nil t)
+    (define-key dired-mode-map "h" 'hydra-dired/body)
+    ;; https://github.com/abo-abo/hydra/wiki/Dired
+
+    (defhydra hydra-dired (:hint nil :color pink)
+      "
+_+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
+_C_opy             View _O_ther     _U_nmark all       _)_ omit-mode                         C-x C-q : edit
+_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
+_R_ename           _M_ chmod        _t_oggle           _g_ revert buf                        C-c ESC : abort
+_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort
+_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra
+                   ^ ^              ^ ^                ^ ^                _?_ summary
+                   _A_ find regexp
+_Z_ compress       _Q_ repl regexp
+
+T - tag prefix
+"
+      ;; ("\\" dired-do-ispell)
+      ("(" dired-hide-details-mode)
+      (")" dired-omit-mode)
+      ("+" dired-create-directory)
+      ;; ("=" diredp-ediff)         ;; smart diff
+      ("?" dired-summary)
+      ;; ("$" diredp-hide-subdir-nomove)
+      ("A" dired-do-find-regexp)
+      ("C" dired-do-copy)        ;; Copy all marked files
+      ("D" dired-do-delete)
+      ("E" dired-mark-extension)
+      ;; ("e" dired-ediff-files)
+      ("F" dired-do-find-marked-files)
+      ("G" dired-do-chgrp)
+      ("g" revert-buffer)        ;; read all directories again (refresh)
+      ("i" dired-maybe-insert-subdir)
+      ("l" dired-do-redisplay)   ;; relist the marked or singel directory
+      ("M" dired-do-chmod)
+      ("m" dired-mark)
+      ("O" dired-display-file)
+      ("o" dired-find-file-other-window)
+      ("Q" dired-do-find-regexp-and-replace)
+      ("R" dired-do-rename)
+      ;; ("r" dired-do-rsynch)
+      ("S" dired-do-symlink)
+      ("s" dired-sort-toggle-or-edit)
+      ("t" dired-toggle-marks)
+      ("U" dired-unmark-all-marks)
+      ("u" dired-unmark)
+      ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
+      ("w" dired-kill-subdir)
+      ("Y" dired-do-relsymlink)
+      ;; ("z" diredp-compress-this-file)
+      ("Z" dired-do-compress)
+      ("q" nil)
+      ("." nil :color blue))
+    ))
 
 (when (autoload-if-found
        '(dired-recent-open dired-recent-mode)
@@ -2209,7 +2303,7 @@ Uses `all-the-icons-material' to fetch the icon."
      ((((background dark)) :background "#594d5d")
       (t (:background "#fff0de"))))))
 
-(add-hook 'move-cursor-hook #'my-hl-line-enable)
+(add-hook 'move-cursor-before-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)

@@ -1316,6 +1316,9 @@ the_silver_searcher @0.18.1 (textproc)
         (my-ime-off)))
     (run-with-idle-timer 1 t #'my-ns-org-heading-auto-ascii)
 
+    ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
+    (add-hook 'move-cursor-after-hook #'my-ns-org-heading-auto-ascii)
+
     (defun my-ns-ime-restore ()
       "Restore the last IME status."
       (if my-ime-last (my-ime-on) (my-ime-off)))
@@ -1610,41 +1613,71 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 ** カーソル移動に反応するフック
    :PROPERTIES:
    :CUSTOM_ID: org7ea97f70
+   :ID:       1C5AA77D-14DB-4748-95F9-5880AFCED31A
    :END:
 
-カーソルを移動するインタラクティブ関数に反応する =move-cursor-hook= を作ります．
+カーソルを移動するインタラクティブ関数に反応する =move-cursor-before-hook= と =move-cursor-after-hook= を作ります．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(defcustom move-cursor-hook nil
-  "Hook runs when you move the cursor."
+(defcustom move-cursor-before-hook nil
+  "Hook runs before moving the cursor."
   :type 'hook
   :group 'convenience)
 
-(defun ad:cur:next-line (&optional _arg _try-vscroll)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:previous-line (&optional _arg _try-vscroll)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:forward-char (&optional _N)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:backward-char (&optional _N)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:syntax-subword-forward (&optional _N)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:syntax-subword-backward (&optional _N)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:move-beginning-of-line (_ARG)
-  (run-hooks 'move-cursor-hook))
-(defun ad:cur:move-end-of-line (_ARG)
-  (run-hooks 'move-cursor-hook))
+(defcustom move-cursor-after-hook nil
+  "Hook runs after moving the cursor."
+  :type 'hook
+  :group 'convenience)
 
-(advice-add 'next-line :before #'ad:cur:next-line)
-(advice-add 'previous-line :before #'ad:cur:previous-line)
-(advice-add 'forward-char :before #'ad:cur:forward-char)
-(advice-add 'backward-char :before #'ad:cur:backward-char)
-(advice-add 'syntax-subword-forward :before #'ad:cur:syntax-subword-forward)
-(advice-add 'syntax-subword-backward :before #'ad:cur:syntax-subword-backward)
-(advice-add 'move-beginning-of-line :before #'ad:cur:move-beginning-of-line)
-(advice-add 'move-end-of-line :before #'ad:cur:move-end-of-line)
+(defun ad:cur:next-line (f &optional arg try-vscroll)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f arg try-vscroll)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:previous-line (f &optional arg try-vscroll)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f arg try-vscroll)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:forward-char (f &optional N)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f N)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:backward-char (f &optional N)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f N)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:syntax-subword-forward (f &optional N)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f N)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:syntax-subword-backward (f &optional N)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f N)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:move-beginning-of-line (f ARG)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f ARG)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:move-end-of-line (f ARG)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f ARG)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:beginning-of-buffer (f &optional ARG)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f ARG)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:beginning-of-buffer (f &optional ARG)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f ARG)
+  (run-hooks 'move-cursor-after-hook))
+
+(advice-add 'next-line :around #'ad:cur:next-line)
+(advice-add 'previous-line :around #'ad:cur:previous-line)
+(advice-add 'forward-char :around #'ad:cur:forward-char)
+(advice-add 'backward-char :around #'ad:cur:backward-char)
+(advice-add 'syntax-subword-forward :around #'ad:cur:syntax-subword-forward)
+(advice-add 'syntax-subword-backward :around #'ad:cur:syntax-subword-backward)
+(advice-add 'move-beginning-of-line :around #'ad:cur:move-beginning-of-line)
+(advice-add 'move-end-of-line :around #'ad:cur:move-end-of-line)
 #+end_src
 
 ** [smooth-scroll.el] 滑らかなスクロール
@@ -5333,7 +5366,63 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
                            "pdf"
                            ;; Image
                            "gif" "png" "jpg" "jpeg")
-                          string-end)) "open")))))
+                          string-end)) "open"))))
+
+  (when (require 'hydra nil t)
+    (define-key dired-mode-map "h" 'hydra-dired/body)
+    ;; https://github.com/abo-abo/hydra/wiki/Dired
+
+    (defhydra hydra-dired (:hint nil :color pink)
+      "
+_+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
+_C_opy             View _O_ther     _U_nmark all       _)_ omit-mode                         C-x C-q : edit
+_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
+_R_ename           _M_ chmod        _t_oggle           _g_ revert buf                        C-c ESC : abort
+_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort
+_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra
+                   ^ ^              ^ ^                ^ ^                _?_ summary
+                   _A_ find regexp
+_Z_ compress       _Q_ repl regexp
+
+T - tag prefix
+"
+      ;; ("\\" dired-do-ispell)
+      ("(" dired-hide-details-mode)
+      (")" dired-omit-mode)
+      ("+" dired-create-directory)
+      ;; ("=" diredp-ediff)         ;; smart diff
+      ("?" dired-summary)
+      ;; ("$" diredp-hide-subdir-nomove)
+      ("A" dired-do-find-regexp)
+      ("C" dired-do-copy)        ;; Copy all marked files
+      ("D" dired-do-delete)
+      ("E" dired-mark-extension)
+      ;; ("e" dired-ediff-files)
+      ("F" dired-do-find-marked-files)
+      ("G" dired-do-chgrp)
+      ("g" revert-buffer)        ;; read all directories again (refresh)
+      ("i" dired-maybe-insert-subdir)
+      ("l" dired-do-redisplay)   ;; relist the marked or singel directory
+      ("M" dired-do-chmod)
+      ("m" dired-mark)
+      ("O" dired-display-file)
+      ("o" dired-find-file-other-window)
+      ("Q" dired-do-find-regexp-and-replace)
+      ("R" dired-do-rename)
+      ;; ("r" dired-do-rsynch)
+      ("S" dired-do-symlink)
+      ("s" dired-sort-toggle-or-edit)
+      ("t" dired-toggle-marks)
+      ("U" dired-unmark-all-marks)
+      ("u" dired-unmark)
+      ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
+      ("w" dired-kill-subdir)
+      ("Y" dired-do-relsymlink)
+      ;; ("z" diredp-compress-this-file)
+      ("Z" dired-do-compress)
+      ("q" nil)
+      ("." nil :color blue))
+    ))
 #+end_src
 
 ** [dired-recent.el] 訪問したディレクトリの履歴を取る                 :dired:
@@ -9023,20 +9112,21 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
                 (when my-ime-flag
                   (my-ime-on))))
 
-    (defun ad:mac-toggle-input-method (&optional arg)
-      "Run hooks when IME changes."
-      (interactive)
-      (if arg
-          (progn
-            (setq cursor-type my-cursor-type-ime-on)
-            (set-cursor-color my-cursor-color-ime-on)
-            (run-hooks 'my-ime-on-hook))
-        (progn
-          (setq cursor-type my-cursor-type-ime-off)
-          (set-cursor-color my-cursor-color-ime-off)
-          (run-hooks 'my-ime-off-hook))))
-    (advice-add 'mac-toggle-input-method
-                :before #'ad:mac-toggle-input-method)
+    ;; mac-toggle-input-method は，Emacs が非アクティブでも反応する
+    ;; (defun ad:mac-toggle-input-method (&optional arg)
+    ;;   "Run hooks when IME changes."
+    ;;   (interactive)
+    ;;   (if arg
+    ;;       (progn
+    ;;         (setq cursor-type my-cursor-type-ime-on)
+    ;;         (set-cursor-color my-cursor-color-ime-on)
+    ;;         (run-hooks 'my-ime-on-hook))
+    ;;     (progn
+    ;;       (setq cursor-type my-cursor-type-ime-off)
+    ;;       (set-cursor-color my-cursor-color-ime-off)
+    ;;       (run-hooks 'my-ime-off-hook))))
+    ;; (advice-add 'mac-toggle-input-method
+    ;;             :before #'ad:mac-toggle-input-method)
 
     ;; for init setup
     (setq-default cursor-type my-cursor-type-ime-on)
@@ -9669,7 +9759,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
      ((((background dark)) :background "#594d5d")
       (t (:background "#fff0de"))))))
 
-(add-hook 'move-cursor-hook #'my-hl-line-enable)
+(add-hook 'move-cursor-before-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)
