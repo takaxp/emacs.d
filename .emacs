@@ -2,7 +2,7 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
-(load "~/Dropbox/emacs.d/config/init-ivy.el" nil t) ;; will be deleted
+(load "~/Dropbox/emacs.d/config/init-ivy.el" nil t) ;; will be merged
 ;; (load "~/Dropbox/emacs.d/config/el-get-setup.el" nil t)
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;; ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
@@ -18,23 +18,13 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ivy-posframe
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(when (autoload-if-found
-       '(ivy-posframe-mode my-toggle-ivy-posframe)
-       "ivy-posframe" nil t)
 
-  (defun my-toggle-ivy-posframe ()
-    "Toggle `ivy-posframe'."
-    (interactive)
-    (ivy-posframe-mode (if ivy-posframe-mode -1 1)))
 
-  (with-eval-after-load "ivy-posframe"
-    (setq ivy-posframe-display-functions-alist
-          '((counsel-M-x . ivy-posframe-display-at-point)
-            (t           . ivy-posframe-display)))
-    (ivy-posframe-mode 1)))
+
+
+
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -73,14 +63,17 @@
           lsp-ui-peek-list-width 60
           lsp-ui-peek-peek-height 25)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
 ;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (defun ad:message (f FORMAT-STRING &rest ARGS)
-;;   (let ((str (concat (make-string (frame-width) ?\x5F) "\n" FORMAT-STRING)))
-;;     (apply f str ARGS)))
-;; (advice-add 'message :around #'ad:message)
-
+(with-eval-after-load "postpone"
+  (defun ad:message (f FORMAT-STRING &rest ARGS)
+    (let ((str (concat (make-string (frame-width) ?\x5F) "\n" FORMAT-STRING)))
+      (apply f str ARGS)))
+  ;; (advice-add 'message :around #'ad:message)
+  ;; (advice-remove 'message #'ad:message)
+  )
 ;; .emacs ends here

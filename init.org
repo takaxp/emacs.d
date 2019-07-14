@@ -1246,10 +1246,11 @@ the_silver_searcher @0.18.1 (textproc)
  A code-searching tool similar to ack, but faster.
 #+end_src
 
+カスタマイズした関数を =C-M-f= にぶら下げています．helm インタフェースを使う =helm-ag= や ivy インターフェイスを使う =counsel-ag= もあります． =C-M-f= は，本来，S式の移動(=forward-sexp=)に使われています．
 
-カスタマイズした関数を =C-M-f= にぶら下げています．helm インタフェースを使う =helm-ag= もあります． =C-M-f= は，本来，S式の移動(=forward-sexp=)に使われています．
+最近は， =counsel-ag= に移行しました．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (if (executable-find "ag")
     (when (autoload-if-found
            '(my-ag ag)
@@ -1312,7 +1313,8 @@ the_silver_searcher @0.18.1 (textproc)
       (when (and (window-focus-p)
                  (eq major-mode 'org-mode)
                  (or (looking-at org-heading-regexp)
-                     (equal (buffer-name) org-agenda-buffer-name)))
+                     (equal (buffer-name) org-agenda-buffer-name))
+                 (my-ime-active-p))
         (my-ime-off)))
     (run-with-idle-timer 1 t #'my-ns-org-heading-auto-ascii)
 
@@ -1387,7 +1389,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
     (add-hook 'pre-command-hook #'mac-win-restore-ime-target-commands)
 
     ;; バッファリストを見るとき
-    (add-to-list 'mac-win-target-commands 'helm-buffers-list)
+    (add-to-list 'mac-win-target-commands 'counsel-ibuffer)
     ;; ChangeLogに行くとき
     (add-to-list 'mac-win-target-commands 'add-change-log-entry-other-window)
     ;; 個人用の関数を使うとき
@@ -1665,7 +1667,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
   (run-hooks 'move-cursor-before-hook)
   (funcall f ARG)
   (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:beginning-of-buffer (f &optional ARG)
+(defun ad:cur:end-of-buffer (f &optional ARG)
   (run-hooks 'move-cursor-before-hook)
   (funcall f ARG)
   (run-hooks 'move-cursor-after-hook))
@@ -1678,6 +1680,8 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 (advice-add 'syntax-subword-backward :around #'ad:cur:syntax-subword-backward)
 (advice-add 'move-beginning-of-line :around #'ad:cur:move-beginning-of-line)
 (advice-add 'move-end-of-line :around #'ad:cur:move-end-of-line)
+(advice-add 'beginning-of-buffer :around #'ad:cur:beginning-of-buffer)
+(advice-add 'end-of-buffer :around #'ad:cur:end-of-buffer)
 #+end_src
 
 ** [smooth-scroll.el] 滑らかなスクロール
@@ -1742,7 +1746,6 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   (with-eval-after-load "bm"
-    ;; (require 'helm-bm nil t)
     ;; (setq bm-annotation-width 30)
     (setq-default bm-buffer-persistence t)
     (setq bm-restore-repository-on-load t)
@@ -2509,8 +2512,6 @@ lang en_US
   (global-set-key (kbd "C-c f 7") 'ispell-region)
   ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
   (global-set-key (kbd "<f7>") 'ispell-word)
-  ;; (if (autoload-if-found '(helm-ispell) "helm-ispell" nil t)
-  ;;     #'helm-ispell #'ispell-word)))
 
   (with-eval-after-load "ispell"
     (setq ispell-encoding8-command t)
@@ -2612,9 +2613,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
                         :background nil :underline t)
 
     ;; ispell-complete-word のキーバインドを上書き
-    ;; (when (and (require 'helm nil t)
-    ;;            (require 'flyspell-correct-helm nil t))
-    ;;   (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
+    (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic)
 
     ;; Auto complete との衝突を回避
     (with-eval-after-load "auto-complete"
@@ -3150,9 +3149,6 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
 
-    ;; (when (require 'helm-selected nil t)
-    ;;   (define-key selected-keymap (kbd "h") 'helm-selected))
-
     (when (require 'counsel-selected nil t)
       (define-key selected-keymap (kbd "h") 'counsel-selected))
 
@@ -3169,6 +3165,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
    :END:
 
  - [[https://qiita.com/takaxp/items/00245794d46c3a5fcaa8][記事]]にしました．
+ - [[https://github.com/takaxp/counsel-selected][counsel-selected]] に移行しました．
 
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load "selected"
@@ -3181,7 +3178,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
    :CUSTOM_ID: orgeafa82dd
    :END:
 
-=Ivy/counsel= でも絞り込めるように拡張を作りました．
+=ivy= でも絞り込めるように拡張を作りました．
 
  - https://github.com/takaxp/counsel-selected
 
@@ -4035,7 +4032,6 @@ paren.el の場合は以下の設定．
      (auto-revert-mode nil "autorevert")
      (global-whitespace-mode nil "whitespace")
      (emmet-mode nil "emmet-mode")
-     (helm-mode nil "helm-mode")
      (abbrev-mode nil "abbrev")
      (doxymacs-mode nil "doxymacs")
      (editorconfig-mode nil "editorconfig")
@@ -4085,6 +4081,8 @@ http://0xcc.net/migemo/#download
    :CUSTOM_ID: org56d8bf9d
    :END:
 
+ivyに移行しました．
+
 =M-s= を =helm-swoop= にあてていましたが， =M-s= を入り口にたくさんの検索系コマンドが割り振られているため =M-s M-s= に変えました．なお， =C-M-r= は本来，正規表現での逆検索(=isearch-backward-regexp=)に割り振らています．また， =C-M-l= は本来， =reposition-window= に割り当てられています．
 
 以下の設定では， =helm= に関連するモジュールも多数含まれます． =helm= がキックされるタイミングで有効化させます．
@@ -4094,7 +4092,7 @@ http://0xcc.net/migemo/#download
  - helm-projectile
  - helm-bm
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(helm-google)
        "helm-google" nil t)
@@ -4104,7 +4102,7 @@ http://0xcc.net/migemo/#download
      '(helm-google-tld "co.jp"))))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(helm-swoop)
        "helm-swoop" nil t)
@@ -4373,6 +4371,8 @@ http://0xcc.net/migemo/#download
 
 =M-x all-the-icons-install-fonts= をしてもうまくアイコンが表示されない場合は， =~/Library/Fonts/= 以下にある =all-the-icons.ttf= のサイズを確認してください．もしゼロバイトならインストールに失敗しています．その場合は，パッケージの =all-the-icons/fonts= 以下にあるフォントを直接インストールすればOKです．
 
+=font-lock-mode= が無効の場合に，意図しないアイコンが表示されることがあります．
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(all-the-icons-dired-mode ad:all-the-icons-dired--display)
@@ -4555,7 +4555,7 @@ http://0xcc.net/migemo/#download
         (dimmer-on)))
     (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
 
-    ;; for helm and helm-swoop
+    ;; for swiper/helm-swoop
     (add-hook 'minibuffer-setup-hook #'dimmer-off)
     (add-hook 'minibuffer-exit-hook #'dimmer-on))
 
@@ -4652,6 +4652,9 @@ _3_.  ?s?          (Org Mode: by _s_elect)
                                 timezone-utf-offset)))
         timestamp))))
 #+end_src
+
+#+RESULTS:
+: help/get-timestamp
 
 ** DONE バッテリー情報をモードラインに表示する                     :obsolete:
    CLOSED: [2018-09-23 Sun 17:07]
@@ -5005,7 +5008,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
     (unless noninteractive
       (require 'org-emms nil t)) ;; emms のリンクに対応させる
-    (require 'helm-emms nil t)
+    ;; (require 'helm-emms nil t)
 
     (defun my-play-bgm ()
       (interactive)
@@ -5316,7 +5319,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
  - dired-x
  - dired-narrow
  - dired-du
- - helm-dired-history
+ - helm-dired-history or ivy-dired-history
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "dired"
@@ -5335,8 +5338,6 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   (when (require 'dired-narrow nil t)
     (define-key dired-mode-map (kbd "/") 'dired-narrow))
   (require 'dired-du nil t)
-  ;; (when (require 'helm-config nil t)
-  ;;   (require 'helm-dired-history nil t))
   (when (require 'ivy-dired-history nil t)
     ;; ivy-dired-history-variable は，session.el で明示的に管理中．
     ;; check session-globals-include
@@ -5368,17 +5369,19 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
                            "gif" "png" "jpg" "jpeg")
                           string-end)) "open"))))
 
-  (when (require 'hydra nil t)
+  (when (and (require 'hydra nil t)
+             (require 'dired-recent nil t))
     (define-key dired-mode-map "h" 'hydra-dired/body)
-    ;; https://github.com/abo-abo/hydra/wiki/Dired
+    (define-key dired-mode-map "r" 'dired-recent-open)
 
+    ;; https://github.com/abo-abo/hydra/wiki/Dired
     (defhydra hydra-dired (:hint nil :color pink)
       "
 _+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
 _C_opy             View _O_ther     _U_nmark all       _)_ omit-mode                         C-x C-q : edit
 _D_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
 _R_ename           _M_ chmod        _t_oggle           _g_ revert buf                        C-c ESC : abort
-_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort
+_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             _r_ dired-recent-open
 _S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra
                    ^ ^              ^ ^                ^ ^                _?_ summary
                    _A_ find regexp
@@ -5409,6 +5412,7 @@ T - tag prefix
       ("o" dired-find-file-other-window)
       ("Q" dired-do-find-regexp-and-replace)
       ("R" dired-do-rename)
+      ("r" dired-recent-open)
       ;; ("r" dired-do-rsynch)
       ("S" dired-do-symlink)
       ("s" dired-sort-toggle-or-edit)
@@ -5438,7 +5442,7 @@ T - tag prefix
   (global-set-key (kbd "C-x C-d") 'dired-recent-open)
 
   (with-eval-after-load "dired-recent"
-    (require 'helm-config nil t)
+    ;; (require 'helm-config nil t)
     (dired-recent-mode 1)))
 #+end_src
 
@@ -6002,7 +6006,6 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
     (add-hook hook #'flycheck-mode))
 
   (with-eval-after-load "flycheck"
-    (require 'helm-flycheck nil t)
     (setq flycheck-gcc-language-standard "c++14")
     (setq flycheck-clang-language-standard "c++14")
     ;; TODO: really needed?
@@ -6149,7 +6152,7 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/
 
 # brew install global --with-exuberant-ctags --with-pygments
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (if (not (executable-find "gtags"))
     (message "--- global is NOT installed in this system.")
 
@@ -6310,7 +6313,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
    :CUSTOM_ID: org7d969237
    :END:
 
-Emacs の中で Git リポジトリを操作できます． =magit-repository-directories= を設定しておけば，管理しているリポジトリの一覧を表示できます． =helm= と連携していれば，絞り込みも簡単です．さらに， =M-x magit-list-repositories= を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．
+Emacs の中で Git リポジトリを操作できます． =magit-repository-directories= を設定しておけば，管理しているリポジトリの一覧を表示できます． =helm= や =ivy= と連携していれば，絞り込みも簡単です．さらに， =M-x magit-list-repositories= を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
@@ -6320,7 +6323,8 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
   (global-set-key (kbd "C-c m") 'magit-status)
 
   (with-eval-after-load "magit"
-    (require 'helm-config nil t) ;; プロジェクト一覧に helm を適用する
+    (when (boundp 'magit-completing-read-function)
+      (setq magit-completing-read-function 'ivy-completing-read))
     (when (boundp 'magit-repository-directories)
       (setq magit-repository-directories
             '(("~/devel/git" . 1)
@@ -7189,6 +7193,33 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
                  (require 'utility nil t))
         (my-set-alarms-from-file file) ;; init
         (add-hook 'after-save-hook #'my-update-alarms-from-file))))) ;; update
+#+end_src
+
+** カウントダウンタイマー
+
+=M-x my-org-countdown-timer= で呼び出します．ちょっと時間を測りたい時に使っています．
+
+#+begin_src emacs-lisp :tangle init-org.el
+(defun my-org-countdown-timer-notify ()
+  (when mode-line-format
+    (my-mode-line-off))
+  (when ns-alerter-command
+    (setq org-show-notification-handler #'my-desktop-notification-handler))
+  (remove-hook 'org-timer-done-hook #'my-org-countdown-timer-notify)
+  (remove-hook 'org-timer-stop-hook #'my-org-countdown-timer-notify)
+  (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
+
+(defun my-org-countdown-timer ()
+  (interactive)
+  (unless mode-line-format
+    (my-mode-line-on))
+  (when (eq org-show-notification-handler #'my-desktop-notification-handler)
+    (setq org-show-notification-handler nil))
+  (with-temp-buffer
+    (org-mode)
+    (add-hook 'org-timer-done-hook #'my-org-countdown-timer-notify)
+    (add-hook 'org-timer-stop-hook #'my-org-countdown-timer-notify)
+    (org-timer-set-timer)))
 #+end_src
 
 ** [org-capture] 高速にメモを取る
@@ -8680,7 +8711,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    :ID:       ADCDC581-CC22-48B0-A1EB-606021AD39E2
    :END:
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(org-recent-headings-helm org-recent-headings-mode)
        "org-recent-headings" nil t)
@@ -9436,7 +9467,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
           ("*wclock*" :align above :popup t :select t)
           ("*Checkdoc Status*" :align above :popup t :noselect t)
           ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
-          ;; ("^\*Helm.+" :regexp t :align above :size 0.2)
           ))
   (unless noninteractive
     (shackle-mode 1)))
@@ -10946,8 +10976,9 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 #+begin_src emacs-lisp :tangle late-init.el
 (if (not (executable-find "pass"))
     (message "--- pass is NOT installed.")
-  (global-set-key (kbd "C-c f p") 'helm-pass)
-  (autoload-if-found '(helm-pass) "helm-pass" nil t)
+  ;; (global-set-key (kbd "C-c f p") 'helm-pass)
+  ;; (autoload-if-found '(helm-pass) "helm-pass" nil t)
+  (global-set-key (kbd "C-c f p") 'ivy-pass)
   (autoload-if-found '(ivy-pass) "ivy-pass" nil t))
 #+end_src
 

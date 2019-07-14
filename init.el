@@ -211,7 +211,8 @@
       (when (and (window-focus-p)
                  (eq major-mode 'org-mode)
                  (or (looking-at org-heading-regexp)
-                     (equal (buffer-name) org-agenda-buffer-name)))
+                     (equal (buffer-name) org-agenda-buffer-name))
+                 (my-ime-active-p))
         (my-ime-off)))
     (run-with-idle-timer 1 t #'my-ns-org-heading-auto-ascii)
 
@@ -275,7 +276,7 @@
     (add-hook 'pre-command-hook #'mac-win-restore-ime-target-commands)
 
     ;; バッファリストを見るとき
-    (add-to-list 'mac-win-target-commands 'helm-buffers-list)
+    (add-to-list 'mac-win-target-commands 'counsel-ibuffer)
     ;; ChangeLogに行くとき
     (add-to-list 'mac-win-target-commands 'add-change-log-entry-other-window)
     ;; 個人用の関数を使うとき
@@ -592,86 +593,6 @@
 
 (setq-default indicate-buffer-boundaries
               '((top . nil) (bottom . right) (down . right)))
-
-(when (autoload-if-found
-       '(helm-swoop)
-       "helm-swoop" nil t)
-
-  (with-eval-after-load "postpone"
-        (global-set-key (kbd "M-s M-s") 'helm-swoop))
-
-  (with-eval-after-load "helm-swoop"
-    (require 'helm-config nil t)
-    ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
-    (setq helm-swoop-pre-input-function
-          (lambda()
-            (unless (thing-at-point-looking-at "^\\*+")
-              (thing-at-point 'symbol))))
-    ;; 配色設定
-    (set-face-attribute
-     'helm-swoop-target-line-face nil :background "#FFEDDC")
-    (set-face-attribute
-     'helm-swoop-target-word-face nil :background "#FF5443")))
-
-(when (autoload-if-found
-       '(helm-M-x
-         helm-buffers-list helm-recentf
-         helm-locate helm-descbinds
-         helm-occur helm-flycheck helm-bookmarks)
-       "helm-config" nil t)
-
-  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
-  (global-set-key (kbd "C-M-r") 'helm-recentf)
-  (global-set-key (kbd "M-x") 'helm-M-x)
-
-  (with-eval-after-load "postpone"
-
-    (global-set-key (kbd "C-M-l") 'helm-locate)
-    (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-    (global-set-key (kbd "C-c o") 'helm-occur)
-    (global-set-key (kbd "C-h d") 'helm-descbinds))
-
-  (with-eval-after-load "projectile"
-    (when (require 'helm-projectile nil t)
-      ;; M-x helm-projectile-find-file (C-c p f)
-      (setq projectile-completion-system 'helm)
-      ;; projectile.el のキーバインドをオーバーライド
-      (helm-projectile-toggle 1)))
-
-  (with-eval-after-load "helm-config"
-    ;; (when (require 'helm-files nil t)
-    ;;   (define-key helm-find-files-map
-    ;;     (kbd "<tab>") 'helm-execute-persistent-action)
-    ;;   (define-key helm-read-file-map
-    ;;     (kbd "<tab>") 'helm-execute-persistent-action))
-
-    (when (memq window-system '(mac ns))
-      (setq helm-locate-command "mdfind -name %s %s"))
-
-    ;; (require 'helm-css-scss nil t)
-    ;; (require 'helm-emmet nil t)
-    ;; (require 'helm-descbinds nil t)
-
-    ;; Configure helm-completing-read-handlers-alist after `(helm-mode 1)'
-    (when (require 'helm nil t)
-      (helm-mode 1))
-
-    ;; helm-find-files を呼ばせない
-    ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
-    ;; helm-mode-ag を呼ばせない
-    (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
-    ;; helm-mode-org-set-tags を呼ばせない
-    (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . nil))
-
-    (setq helm-display-source-at-screen-top nil)
-    ;;         (setq helm-display-header-line nil)
-    ;; helm-autoresize-mode を有効にしつつ 30% に固定
-    (setq helm-autoresize-max-height 30)
-    (setq helm-autoresize-min-height 30)
-    (set-face-attribute 'helm-source-header nil
-                        :height 1.0 :family "Verdana" :weight 'normal
-                        :foreground "#666666" :background "#DADADA")
-    (helm-autoresize-mode 1)))
 
 (my-tick-init-time "presentation")
 

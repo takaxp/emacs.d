@@ -128,31 +128,6 @@
   (unless noninteractive
     (ws-butler-global-mode)))
 
-(if (executable-find "ag")
-    (when (autoload-if-found
-           '(my-ag ag)
-           "ag" nil t)
-
-      (autoload-if-found '(helm-ag) "helm-ag" nil t)
-      (global-set-key (kbd "C-M-f") 'my-ag)
-
-      (with-eval-after-load "ag"
-        (custom-set-variables
-         '(ag-highlight-search t)
-         '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
-         '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
-
-        ;; q でウィンドウを抜ける
-        ;; (define-key ag-mode-map (kbd "q") 'delete-window)
-        (defun my-ag ()
-          "Switch to search result."
-          (interactive)
-          (call-interactively 'ag)
-          (switch-to-buffer-other-frame "*ag search*"))))
-
-  (unless noninteractive
-    (message "--- ag is NOT installed in this system.")))
-
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
 ;; Backward page scrolling instead of M-v
@@ -207,23 +182,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   :type 'hook
   :group 'convenience)
 
-;; (defun ad:cur:next-line (&optional _arg _try-vscroll)
-;;   (run-hooks 'move-cursor-before-hook))
-;; (defun ad:cur:previous-line (&optional _arg _try-vscroll)
-;;   (run-hooks 'move-cursor-before-hook))
-;; (defun ad:cur:forward-char (&optional _N)
-;;   (run-hooks 'move-cursor-before-hook))
-;; (defun ad:cur:backward-char (&optional _N)
-;;   (run-hooks 'move-cursor-before-hook))
-;; (defun ad:cur:syntax-subword-forward (&optional _N)
-;;   (run-hooks 'move-cursor-before-hook))
-;; (defun ad:cur:syntax-subword-backward (&optional _N)
-;;   (run-hooks 'move-cursor-before-hook))
-;; (defun ad:cur:move-beginning-of-line (_ARG)
-;;   (run-hooks 'move-cursor-before-hook))
-;; (defun ad:cur:move-end-of-line (_ARG)
-;;   (run-hooks 'move-cursor-before-hook))
-
 (defun ad:cur:next-line (f &optional arg try-vscroll)
   (run-hooks 'move-cursor-before-hook)
   (funcall f arg try-vscroll)
@@ -256,6 +214,14 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (run-hooks 'move-cursor-before-hook)
   (funcall f ARG)
   (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:beginning-of-buffer (f &optional ARG)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f ARG)
+  (run-hooks 'move-cursor-after-hook))
+(defun ad:cur:end-of-buffer (f &optional ARG)
+  (run-hooks 'move-cursor-before-hook)
+  (funcall f ARG)
+  (run-hooks 'move-cursor-after-hook))
 
 (advice-add 'next-line :around #'ad:cur:next-line)
 (advice-add 'previous-line :around #'ad:cur:previous-line)
@@ -265,6 +231,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (advice-add 'syntax-subword-backward :around #'ad:cur:syntax-subword-backward)
 (advice-add 'move-beginning-of-line :around #'ad:cur:move-beginning-of-line)
 (advice-add 'move-end-of-line :around #'ad:cur:move-end-of-line)
+(advice-add 'beginning-of-buffer :around #'ad:cur:beginning-of-buffer)
+(advice-add 'end-of-buffer :around #'ad:cur:end-of-buffer)
 
 (when (autoload-if-found
        '(smooth-scroll-mode)
@@ -297,7 +265,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   (with-eval-after-load "bm"
-    ;; (require 'helm-bm nil t)
     ;; (setq bm-annotation-width 30)
     (setq-default bm-buffer-persistence t)
     (setq bm-restore-repository-on-load t)
@@ -492,8 +459,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (global-set-key (kbd "C-c f 7") 'ispell-region)
   ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
   (global-set-key (kbd "<f7>") 'ispell-word)
-  ;; (if (autoload-if-found '(helm-ispell) "helm-ispell" nil t)
-  ;;     #'helm-ispell #'ispell-word)))
 
   (with-eval-after-load "ispell"
     (setq ispell-encoding8-command t)
@@ -584,9 +549,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                         :background nil :underline t)
 
     ;; ispell-complete-word のキーバインドを上書き
-    ;; (when (and (require 'helm nil t)
-    ;;            (require 'flyspell-correct-helm nil t))
-    ;;   (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic))
+    (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic)
 
     ;; Auto complete との衝突を回避
     (with-eval-after-load "auto-complete"
@@ -857,9 +820,6 @@ This works also for other defined begin/end tokens to define the structure."
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
 
-    ;; (when (require 'helm-selected nil t)
-    ;;   (define-key selected-keymap (kbd "h") 'helm-selected))
-
     (when (require 'counsel-selected nil t)
       (define-key selected-keymap (kbd "h") 'counsel-selected))
 
@@ -1044,7 +1004,6 @@ This works also for other defined begin/end tokens to define the structure."
      (auto-revert-mode nil "autorevert")
      (global-whitespace-mode nil "whitespace")
      (emmet-mode nil "emmet-mode")
-     (helm-mode nil "helm-mode")
      (abbrev-mode nil "abbrev")
      (doxymacs-mode nil "doxymacs")
      (editorconfig-mode nil "editorconfig")
@@ -1076,14 +1035,6 @@ This works also for other defined begin/end tokens to define the structure."
          '(migemo-pattern-alist-length 1024)
          '(migemo-coding-system 'utf-8-unix))))
   (message "--- cmigemo is NOT installed."))
-
-(when (autoload-if-found
-       '(helm-google)
-       "helm-google" nil t)
-
-  (with-eval-after-load "helm-google"
-    (custom-set-variables
-     '(helm-google-tld "co.jp"))))
 
 (when (autoload-if-found
        '(git-gutter-mode)
@@ -1306,7 +1257,7 @@ This works also for other defined begin/end tokens to define the structure."
         (dimmer-on)))
     (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
 
-    ;; for helm and helm-swoop
+    ;; for swiper/helm-swoop
     (add-hook 'minibuffer-setup-hook #'dimmer-off)
     (add-hook 'minibuffer-exit-hook #'dimmer-on))
 
@@ -1432,7 +1383,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 
     (unless noninteractive
       (require 'org-emms nil t)) ;; emms のリンクに対応させる
-    (require 'helm-emms nil t)
+    ;; (require 'helm-emms nil t)
 
     (defun my-play-bgm ()
       (interactive)
@@ -1569,8 +1520,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)
   (when (require 'dired-narrow nil t)
     (define-key dired-mode-map (kbd "/") 'dired-narrow))
   (require 'dired-du nil t)
-  ;; (when (require 'helm-config nil t)
-  ;;   (require 'helm-dired-history nil t))
   (when (require 'ivy-dired-history nil t)
     ;; ivy-dired-history-variable は，session.el で明示的に管理中．
     ;; check session-globals-include
@@ -1602,17 +1551,19 @@ _3_.  ?s?          (Org Mode: by _s_elect)
                            "gif" "png" "jpg" "jpeg")
                           string-end)) "open"))))
 
-  (when (require 'hydra nil t)
+  (when (and (require 'hydra nil t)
+             (require 'dired-recent nil t))
     (define-key dired-mode-map "h" 'hydra-dired/body)
-    ;; https://github.com/abo-abo/hydra/wiki/Dired
+    (define-key dired-mode-map "r" 'dired-recent-open)
 
+    ;; https://github.com/abo-abo/hydra/wiki/Dired
     (defhydra hydra-dired (:hint nil :color pink)
       "
 _+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
 _C_opy             View _O_ther     _U_nmark all       _)_ omit-mode                         C-x C-q : edit
 _D_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
 _R_ename           _M_ chmod        _t_oggle           _g_ revert buf                        C-c ESC : abort
-_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort
+_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             _r_ dired-recent-open
 _S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra
                    ^ ^              ^ ^                ^ ^                _?_ summary
                    _A_ find regexp
@@ -1643,6 +1594,7 @@ T - tag prefix
       ("o" dired-find-file-other-window)
       ("Q" dired-do-find-regexp-and-replace)
       ("R" dired-do-rename)
+      ("r" dired-recent-open)
       ;; ("r" dired-do-rsynch)
       ("S" dired-do-symlink)
       ("s" dired-sort-toggle-or-edit)
@@ -1665,7 +1617,7 @@ T - tag prefix
   (global-set-key (kbd "C-x C-d") 'dired-recent-open)
 
   (with-eval-after-load "dired-recent"
-    (require 'helm-config nil t)
+    ;; (require 'helm-config nil t)
     (dired-recent-mode 1)))
 
 (with-eval-after-load "dired"
@@ -1872,7 +1824,6 @@ T - tag prefix
     (add-hook hook #'flycheck-mode))
 
   (with-eval-after-load "flycheck"
-    (require 'helm-flycheck nil t)
     (setq flycheck-gcc-language-standard "c++14")
     (setq flycheck-clang-language-standard "c++14")
     ;; TODO: really needed?
@@ -1935,31 +1886,6 @@ T - tag prefix
             (lambda () (define-key perl-mode-map (kbd "<f5>") 'quickrun)))
   (add-hook 'gnuplot-mode-hook
             (lambda () (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun))))
-
-(if (not (executable-find "gtags"))
-    (message "--- global is NOT installed in this system.")
-
-  (when (autoload-if-found
-         '(ggtags-mode)
-         "ggtags" nil t)
-
-    (with-eval-after-load "ggtags"
-      ;; (setq ggtags-completing-read-function t) ;; nil for helm
-      (define-key ggtags-mode-map (kbd "M-]") nil))
-
-    (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
-      (add-hook hook (lambda () (ggtags-mode 1)))))
-
-  (when (autoload-if-found
-         '(helm-gtags-mode)
-         "helm-gtags" nil t)
-
-    (add-hook 'c-mode-common-hook #'helm-gtags-mode)
-    (add-hook 'python-mode-hook #'helm-gtags-mode)
-
-    (with-eval-after-load "helm-gtags"
-      (custom-set-variables
-       '(helm-gtags-mode-name "")))))
 
 (when (autoload-if-found
        '(0xc-convert 0xc-convert-point my-decimal-to-hex my-hex-to-decimal)
@@ -2045,7 +1971,8 @@ T - tag prefix
   (global-set-key (kbd "C-c m") 'magit-status)
 
   (with-eval-after-load "magit"
-    (require 'helm-config nil t) ;; プロジェクト一覧に helm を適用する
+    (when (boundp 'magit-completing-read-function)
+      (setq magit-completing-read-function 'ivy-completing-read))
     (when (boundp 'magit-repository-directories)
       (setq magit-repository-directories
             '(("~/devel/git" . 1)
@@ -2214,7 +2141,6 @@ T - tag prefix
           ("*wclock*" :align above :popup t :select t)
           ("*Checkdoc Status*" :align above :popup t :noselect t)
           ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
-          ;; ("^\*Helm.+" :regexp t :align above :size 0.2)
           ))
   (unless noninteractive
     (shackle-mode 1)))
@@ -2878,8 +2804,9 @@ Uses `all-the-icons-material' to fetch the icon."
 
 (if (not (executable-find "pass"))
     (message "--- pass is NOT installed.")
-  (global-set-key (kbd "C-c f p") 'helm-pass)
-  (autoload-if-found '(helm-pass) "helm-pass" nil t)
+  ;; (global-set-key (kbd "C-c f p") 'helm-pass)
+  ;; (autoload-if-found '(helm-pass) "helm-pass" nil t)
+  (global-set-key (kbd "C-c f p") 'ivy-pass)
   (autoload-if-found '(ivy-pass) "ivy-pass" nil t))
 
 (provide 'late-init)

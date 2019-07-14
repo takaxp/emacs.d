@@ -476,6 +476,27 @@
         (my-set-alarms-from-file file) ;; init
         (add-hook 'after-save-hook #'my-update-alarms-from-file))))) ;; update
 
+(defun my-org-countdown-timer-notify ()
+  (when mode-line-format
+    (my-mode-line-off))
+  (when ns-alerter-command
+    (setq org-show-notification-handler #'my-desktop-notification-handler))
+  (remove-hook 'org-timer-done-hook #'my-org-countdown-timer-notify)
+  (remove-hook 'org-timer-stop-hook #'my-org-countdown-timer-notify)
+  (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
+
+(defun my-org-countdown-timer ()
+  (interactive)
+  (unless mode-line-format
+    (my-mode-line-on))
+  (when (eq org-show-notification-handler #'my-desktop-notification-handler)
+    (setq org-show-notification-handler nil))
+  (with-temp-buffer
+    (org-mode)
+    (add-hook 'org-timer-done-hook #'my-org-countdown-timer-notify)
+    (add-hook 'org-timer-stop-hook #'my-org-countdown-timer-notify)
+    (org-timer-set-timer)))
+
 (when (autoload-if-found
        '(org-capture)
        "org-capture" nil t)
@@ -1568,21 +1589,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                (chomp (shell-command-to-string
                        (concat "/usr/bin/du -sh "
                                org-attach-directory-absolute)))))))
-
-(when (autoload-if-found
-       '(org-recent-headings-helm org-recent-headings-mode)
-       "org-recent-headings" nil t)
-
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c f r") 'org-recent-headings-helm))
-
-  (with-eval-after-load "org-recent-headings"
-    (custom-set-variables
-     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
-     '(org-recent-headings-use-ids 'when-available))
-    (if shutup-p
-        (shut-up (org-recent-headings-mode 1))
-      (org-recent-headings-mode 1))))
 
 (when (autoload-if-found
        '(orgnav-search-root)

@@ -48,10 +48,12 @@
     "Notify the PACKAGE has been updated in customized form."
     (el-get-notify "el-get update" (format "%s" package)))
   (advice-add 'el-get-post-update-notification :override
-              #'ad:el-get-post-update-notification))
+              #'ad:el-get-post-update-notification)
+  )
 ;; ----8<---------------------------------------------------->8----
+;; if you wish
 ;; el-get remove を使う場合は，ここまでを評価する．
-;; (advice-add 'el-get-bundle :after #'ad:el-get-bundle) ;; if you wish
+;;  (advice-add 'el-get-bundle :after #'ad:el-get-bundle)
 
 ;; Fundamental packages
 ;; (el-get-bundle "loop")
@@ -59,7 +61,7 @@
 ;; (el-get-bundle "dash")
 ;; (el-get-bundle "ht")
 
-(el-get-bundle "helm");; for M-x
+;; (el-get-bundle "helm");; for M-x
 (el-get-bundle "takaxp/postpone")
 (el-get-bundle "takaxp/ascii")
 (el-get-bundle "takaxp/help-fns-plus")
@@ -111,8 +113,8 @@
 (el-get-bundle "harrybournis/org-fancy-priorities")
 (el-get-bundle "kiwanami/emacs-calfw")
 (el-get-bundle "org-emms"
-               :type git
-               :url "https://gitlab.com/jagrg/org-emms.git")
+  :type git
+  :url "https://gitlab.com/jagrg/org-emms.git")
 (el-get-bundle "takaxp/emacs-easy-hugo") ;; using a private repo not to download images
 (el-get-bundle "jkitchin/ox-ipynb")
 (el-get-bundle "org-bullets")
@@ -127,8 +129,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; download zip since python-mode git repository is extremely huge
 (el-get-bundle "python-mode"
-               :type http-zip
-               :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
+  :type http-zip
+  :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
 (el-get-bundle "csharp-mode")
 (el-get-bundle "yaml-mode")
 (el-get-bundle "json-mode")
@@ -179,6 +181,7 @@
 (el-get-bundle "diffview")
 (el-get-bundle "projectile")
 (el-get-bundle "takaxp/facecheck")
+(el-get-bundle "twlz0ne/elpl")
 ;; (el-get-bundle "tern") ;; require npm
 ;; (el-get-bundle "tern-auto-complete")
 
@@ -191,21 +194,21 @@
 
 ;; Helm modules
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(el-get-bundle "helm-ag")
-(el-get-bundle "yasuyk/helm-bm")
-(el-get-bundle "emacs-helm/helm-descbinds")
-(el-get-bundle "yasuyk/Helm-flycheck")
-(el-get-bundle "helm-gtags")
-(el-get-bundle "helm-projectile")
-(el-get-bundle "helm-swoop")
-(el-get-bundle "takaxp/helm-selected")
-(el-get-bundle "helm-pass"
-               :type git
-               :url "https://gitlab.com/jabranham/helm-pass.git")
-(el-get-bundle "smihica/emmet-mode")
-(el-get-bundle "yasuyk/helm-emmet" :depends (emmet-mode))
-(el-get-bundle "emacs-helm/helm-emms")
-(el-get-bundle "jixiuf/helm-dired-history")
+;; (el-get-bundle "helm-ag")
+;; (el-get-bundle "yasuyk/helm-bm")
+;; (el-get-bundle "emacs-helm/helm-descbinds")
+;; (el-get-bundle "yasuyk/Helm-flycheck")
+;; (el-get-bundle "helm-gtags")
+;; (el-get-bundle "helm-projectile")
+;; (el-get-bundle "helm-swoop")
+;; (el-get-bundle "takaxp/helm-selected")
+;; (el-get-bundle "helm-pass"
+;;   :type git
+;;   :url "https://gitlab.com/jabranham/helm-pass.git")
+;; (el-get-bundle "smihica/emmet-mode")
+;; (el-get-bundle "yasuyk/helm-emmet" :depends (emmet-mode))
+;; (el-get-bundle "emacs-helm/helm-emms")
+;; (el-get-bundle "jixiuf/helm-dired-history")
 
 ;; (el-get-bundle "helm-google")
 ;; (el-get-bundle "helm-ghq")
@@ -218,12 +221,16 @@
 (el-get-bundle "jixiuf/ivy-dired-history")
 (el-get-bundle "ericdanan/counsel-projectile")
 (el-get-bundle "syohex/emacs-counsel-gtags")
-;; (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
+(el-get-bundle "password-store"
+  :type http
+  :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
+(el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
 (el-get-bundle "abo-abo/swiper")
 (el-get-bundle "Yevgnen/ivy-rich")
 (el-get-bundle "asok/all-the-icons-ivy")
 (el-get-bundle "takaxp/counsel-selected")
 (el-get-bundle "kchenphy/counsel-world-clock")
+(el-get-bundle "raxod502/prescient.el" :name prescient)
 
 ;; OSX support
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -271,7 +278,7 @@
 (el-get-bundle "back-button")
 (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
 (el-get-bundle "takaxp/all-the-icons.el"
-               :name all-the-icons)
+  :name all-the-icons)
 (el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
 (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)
 (el-get-bundle "manage-minor-mode")
@@ -285,12 +292,12 @@
 (el-get-bundle "emacsmirror/rainbow-mode")
 ;; (el-get-bundle "TheBB/spaceline")
 (el-get-bundle "shrink-path"
-               :type git
-               :url "https://gitlab.com/bennya/shrink-path.el.git")
+  :type git
+  :url "https://gitlab.com/bennya/shrink-path.el.git")
 (el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))
 (el-get-bundle "disk-usage"
-               :type git
-               :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
+  :type git
+  :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
 (el-get-bundle "sebastiencs/company-box")
 ;; (el-get-bundle "casouri/eldoc-box")
 (el-get-bundle "tarsius/hl-todo")
@@ -330,8 +337,8 @@
 (el-get-bundle "rubikitch/replace-from-region")
 (el-get-bundle "quickrun")
 (el-get-bundle "latex-math-preview"
-               :type git
-               :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
+  :type git
+  :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
 (el-get-bundle "sbrisard/bratex")
 (el-get-bundle "zhangkaiyulw/smart-mark")
 (el-get-bundle "emacsmirror/syntax-subword")
@@ -356,12 +363,12 @@
 (el-get-bundle "NicolasPetton/pass")
 (el-get-bundle "pdf-tools")
 (el-get-bundle "gif-screencast"
-               :type git
-               :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
+  :type git
+  :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
 (el-get-bundle "emms"
-               :type git
-               :url "https://git.savannah.gnu.org/git/emms.git"
-               :load-path ("./lisp"))
+  :type git
+  :url "https://git.savannah.gnu.org/git/emms.git"
+  :load-path ("./lisp"))
 (el-get-bundle "tarsius/keycast")
 (el-get-bundle "jamiguet/network-watch")
 ;; (el-get-bundle "w3")
