@@ -3114,19 +3114,36 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (remove-hook 'activate-mark-hook #'my-activate-selected))
   (add-hook 'activate-mark-hook #'my-activate-selected)
 
+  (defun my-helpful ()
+    (interactive)
+    (let ((thing (symbol-at-point)))
+      (cond ((functionp thing)
+             (helpful-function thing))
+            ((helpful--variable-p thing)
+             (helpful-variable thing))
+            ((macrop thing)
+             (helpful-macro thing))
+            ((symbolp thing)
+             (helpful-symbol thing))
+            (t
+             (call-interactively 'helpful-function)))))
+
+  (defun my-helpful-variable ()
+    (interactive)
+    (let ((thing (symbol-at-point)))
+      (if (helpful--variable-p thing)
+          (helpful-variable thing)
+        (call-interactively 'helpful-variable))))
+
   (with-eval-after-load "selected"
     (define-key selected-keymap (kbd ";") #'comment-dwim)
     (define-key selected-keymap (kbd "e") #'my-eval-region)
-    ;; (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
+    (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
     (define-key selected-keymap (kbd "=") #'count-words-region)
-    (define-key selected-keymap (kbd "f") #'describe-function)
-    (define-key selected-keymap (kbd "v") #'describe-variable)
     (when (require 'helpful nil t)
-      (define-key selected-keymap (kbd "@") #'helpful-at-point)
-      (define-key selected-keymap (kbd "m") #'helpful-macro)
-      (define-key selected-keymap (kbd "o") #'helpful-symbol)
-      (define-key selected-keymap (kbd "f") #'helpful-function)
-      (define-key selected-keymap (kbd "v") #'helpful-variable))
+      (define-key selected-keymap (kbd "h") #'my-helpful)
+      (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
+      (define-key selected-keymap (kbd "v") #'my-helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
     (define-key selected-keymap (kbd "g") #'my-google-this)
@@ -3139,6 +3156,13 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       (interactive)
       (when (use-region-p)
         (eval-region (region-beginning) (region-end) t)))
+    (defun my-eval-region-as-function ()
+      (interactive)
+      (when (use-region-p)
+        (let ((region (intern (buffer-substring-no-properties
+                               (region-beginning) (region-end)))))
+          (when (functionp region)
+            (funcall region)))))
     (setq selected-org-mode-map (make-sparse-keymap))
 
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
@@ -3150,7 +3174,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
 
     (when (require 'counsel-selected nil t)
-      (define-key selected-keymap (kbd "h") 'counsel-selected))
+      (define-key selected-keymap (kbd "l") 'counsel-selected))
 
     (when (require 'help-fns+ nil t)
       (defun my-describe-selected-keymap ()
@@ -3185,7 +3209,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load "selected"
   (when (autoload-if-found '(counsel-selected) "counsel-selected" nil t)
-    (define-key selected-keymap (kbd "h") 'counsel-selected)))
+    (define-key selected-keymap (kbd "l") 'counsel-selected)))
 #+end_src
 
 ** TODO [isolate.el] ブラケット等の入力をアシスト
@@ -4552,7 +4576,8 @@ ivyに移行しました．
     (defun ad:dimmer-org-agenda--quit (&optional _bury)
       (when (fboundp 'dimmer-on)
         (setq my-dimmer-mode t)
-        (dimmer-on)))
+        (dimmer-on)
+        (redraw-frame)))
     (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
 
     ;; for swiper/helm-swoop
@@ -5556,7 +5581,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
 session-undo-check を指定していると，保存時ではなくバッファを閉じるときの状態を保持する．
 
-Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必須．
+Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必須．
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
@@ -5581,6 +5606,7 @@ Org Mode と併用する場合は，my-org-reveal-session-jump の設定が必�
                                     ivy-dired-history-variable
                                     search-ring
                                     regexp-search-ring))
+    (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     (setq session-undo-check -1)))
 
 ;; FIXME
@@ -6317,12 +6343,21 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(magit-status)
+       '(magit-status ad:magit-mode-bury-buffer)
        "magit" nil t)
 
   (global-set-key (kbd "C-c m") 'magit-status)
 
   (with-eval-after-load "magit"
+    (when (fboundp 'dimmer-off)
+      (add-hook 'magit-status-mode-hook 'dimmer-off))
+    (when (fboundp 'magit-mode-bury-buffer)
+      (defun ad:magit-mode-bury-buffer (&optional _bury)
+        (when (fboundp 'dimmer-on)
+          (setq my-dimmer-mode t)
+          (dimmer-on)
+          (redraw-frame)))
+      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
     (when (boundp 'magit-completing-read-function)
       (setq magit-completing-read-function 'ivy-completing-read))
     (when (boundp 'magit-repository-directories)
@@ -9310,7 +9345,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (defconst moom-autoloads
   '(moom-cycle-frame-height
     moom-move-frame-to-edge-top moom-move-frame my-frame-reset
-    moom-toggle-frame-maximized
+    moom-toggle-frame-maximized moom-move-frame-to-edge-right
     moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
     moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
     moom-change-frame-width moom-change-frame-width-double

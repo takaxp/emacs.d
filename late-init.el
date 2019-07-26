@@ -785,19 +785,36 @@ This works also for other defined begin/end tokens to define the structure."
     (remove-hook 'activate-mark-hook #'my-activate-selected))
   (add-hook 'activate-mark-hook #'my-activate-selected)
 
+  (defun my-helpful ()
+    (interactive)
+    (let ((thing (symbol-at-point)))
+      (cond ((functionp thing)
+             (helpful-function thing))
+            ((helpful--variable-p thing)
+             (helpful-variable thing))
+            ((macrop thing)
+             (helpful-macro thing))
+            ((symbolp thing)
+             (helpful-symbol thing))
+            (t
+             (call-interactively 'helpful-function)))))
+
+  (defun my-helpful-variable ()
+    (interactive)
+    (let ((thing (symbol-at-point)))
+      (if (helpful--variable-p thing)
+          (helpful-variable thing)
+        (call-interactively 'helpful-variable))))
+
   (with-eval-after-load "selected"
     (define-key selected-keymap (kbd ";") #'comment-dwim)
     (define-key selected-keymap (kbd "e") #'my-eval-region)
     ;; (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
     (define-key selected-keymap (kbd "=") #'count-words-region)
-    (define-key selected-keymap (kbd "f") #'describe-function)
-    (define-key selected-keymap (kbd "v") #'describe-variable)
     (when (require 'helpful nil t)
-      (define-key selected-keymap (kbd "@") #'helpful-at-point)
-      (define-key selected-keymap (kbd "m") #'helpful-macro)
-      (define-key selected-keymap (kbd "o") #'helpful-symbol)
-      (define-key selected-keymap (kbd "f") #'helpful-function)
-      (define-key selected-keymap (kbd "v") #'helpful-variable))
+      (define-key selected-keymap (kbd "h") #'my-helpful)
+      (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
+      (define-key selected-keymap (kbd "v") #'my-helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
     (define-key selected-keymap (kbd "g") #'my-google-this)
@@ -809,7 +826,11 @@ This works also for other defined begin/end tokens to define the structure."
     (defun my-eval-region ()
       (interactive)
       (when (use-region-p)
-        (eval-region (region-beginning) (region-end) t)))
+        (let ((region (intern (buffer-substring-no-properties
+                               (region-beginning) (region-end)))))
+          (if (functionp region)
+              (funcall region)
+            (eval-region (region-beginning) (region-end) t)))))
     (setq selected-org-mode-map (make-sparse-keymap))
 
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
@@ -821,7 +842,7 @@ This works also for other defined begin/end tokens to define the structure."
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
 
     (when (require 'counsel-selected nil t)
-      (define-key selected-keymap (kbd "h") 'counsel-selected))
+      (define-key selected-keymap (kbd "l") 'counsel-selected))
 
     (when (require 'help-fns+ nil t)
       (defun my-describe-selected-keymap ()
@@ -1254,7 +1275,8 @@ This works also for other defined begin/end tokens to define the structure."
     (defun ad:dimmer-org-agenda--quit (&optional _bury)
       (when (fboundp 'dimmer-on)
         (setq my-dimmer-mode t)
-        (dimmer-on)))
+        (dimmer-on)
+        (redraw-frame)))
     (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
 
     ;; for swiper/helm-swoop
@@ -1965,12 +1987,21 @@ T - tag prefix
     (projectile-mode 1)))
 
 (when (autoload-if-found
-       '(magit-status)
+       '(magit-status ad:magit-mode-bury-buffer)
        "magit" nil t)
 
   (global-set-key (kbd "C-c m") 'magit-status)
 
   (with-eval-after-load "magit"
+    (when (fboundp 'dimmer-off)
+      (add-hook 'magit-status-mode-hook 'dimmer-off))
+    (when (fboundp 'magit-mode-bury-buffer)
+      (defun ad:magit-mode-bury-buffer (&optional _bury)
+        (when (fboundp 'dimmer-on)
+          (setq my-dimmer-mode t)
+          (dimmer-on)
+          (redraw-frame)))
+      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
     (when (boundp 'magit-completing-read-function)
       (setq magit-completing-read-function 'ivy-completing-read))
     (when (boundp 'magit-repository-directories)

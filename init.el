@@ -631,6 +631,7 @@
                                     ivy-dired-history-variable
                                     search-ring
                                     regexp-search-ring))
+    (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     (setq session-undo-check -1)))
 
 ;; FIXME
@@ -854,7 +855,7 @@
 (defconst moom-autoloads
   '(moom-cycle-frame-height
     moom-move-frame-to-edge-top moom-move-frame my-frame-reset
-    moom-toggle-frame-maximized
+    moom-toggle-frame-maximized moom-move-frame-to-edge-right
     moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
     moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
     moom-change-frame-width moom-change-frame-width-double

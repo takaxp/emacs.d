@@ -3,7 +3,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 (load "~/Dropbox/emacs.d/config/init-ivy.el" nil t) ;; will be merged
-;; (load "~/Dropbox/emacs.d/config/el-get-setup.el" nil t)
+(with-eval-after-load "postpone"
+  (load "~/Dropbox/emacs.d/config/el-get-setup.el" nil t))
+
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;; ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
 ;; git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
@@ -13,11 +15,6 @@
 ;; https://github.com/Kungsgeten/ivy-todo
 ;; https://github.com/mkcms/ivy-yasnippet
 ;; https://github.com/squiter/ivy-youtube
-
-
-
-
-
 
 
 
