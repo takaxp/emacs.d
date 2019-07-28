@@ -47,9 +47,6 @@
 (setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
 (setq garbage-collection-messages t)
 
-(setq byte-compile-warnings '(not obsolete))
-(setq ad-redefinition-action 'accept)
-
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
 (defun my-load-package-p (file)
@@ -640,6 +637,29 @@
 ;;          "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|^/private\\.*\\|^/var/folders\\.*"))
 
 (my-tick-init-time "history")
+
+(if (not (executable-find "gtags"))
+    (message "--- global is NOT installed in this system.")
+
+  (when (autoload-if-found
+         '(ggtags-mode)
+         "ggtags" nil t)
+
+    (with-eval-after-load "ggtags"
+      ;; (setq ggtags-completing-read-function t) ;; nil for helm
+      (define-key ggtags-mode-map (kbd "M-]") nil))
+
+    (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
+      (add-hook hook (lambda () (ggtags-mode 1)))))
+
+  (when (autoload-if-found
+         '(counsel-gtags-mode)
+         "counsel-gtags" nil t)
+    (dolist (hook '(c-mode-hook c++-mode-hook))
+      (add-hook hook 'counsel-gtags-mode))
+    (with-eval-after-load "counsel-gtags"
+      (custom-set-variables
+       '(counsel-gtags-update-interval-second 10)))))
 
 (my-tick-init-time "development")
 

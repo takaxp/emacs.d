@@ -1,14 +1,5 @@
 ;; -*- lexical-binding: t -*-
 
-(with-eval-after-load "org"
-  (setq mode-line-modes
-        (mapcar
-         (lambda (entry)
-           (if (equal entry "%n")
-               '(:eval (if (buffer-narrowed-p) " N" ""))
-             entry))
-         mode-line-modes)))
-
 (when (autoload-if-found
        '(org-mode)
        "org" "Org Mode" t)
@@ -1296,7 +1287,7 @@ update it for multiple appts?")
     "Sum the times for each subtree for today."
     (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
       (org-clock-sum (car range) (cadr range)
-		                 headline-filter :org-clock-minutes-today)))
+                     headline-filter :org-clock-minutes-today)))
   (advice-add 'org-clock-sum-today :override #'ad:org-clock-sum-today)
 
   (when (require 'org-clock-today nil t)

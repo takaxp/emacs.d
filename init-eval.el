@@ -78,6 +78,8 @@
 (require 'company nil t)
 (require 'multiple-cursors nil t)
 (require 'org-tempo nil t)
+(require 'all-the-icons-ivy nil t)
+(require 'counsel nil t)
 
 (if (require 'shut-up nil t)
     (progn

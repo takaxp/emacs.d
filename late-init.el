@@ -551,6 +551,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     ;; ispell-complete-word のキーバインドを上書き
     (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic)
 
+    ;; ivy を用いる
+    (when (require 'flyspell-correct-ivy nil t)
+      (setq flyspell-correct-interface #'flyspell-correct-ivy))
+
     ;; Auto complete との衝突を回避
     (with-eval-after-load "auto-complete"
       (ac-flyspell-workaround))
@@ -578,9 +582,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (add-hook 'my-ime-on-hook #'my-flyspell-off)))
 
 (global-set-key (kbd "M-=") 'count-words)
-
-(with-eval-after-load "time"
-  (define-key display-time-world-mode-map "q" 'delete-window))
 
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "n") 'next-line)
@@ -651,13 +652,13 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 This works also for other defined begin/end tokens to define the structure."
     (setq YaTeX-current-completion-type 'begin)
     (let*((ccol (current-column)) beg beg2 exchange
-	        (_arg region-mode)		;for old compatibility
-	        (indent-column (+ ccol YaTeX-environment-indent))(_i 1) _func)
+          (_arg region-mode)		;for old compatibility
+          (indent-column (+ ccol YaTeX-environment-indent))(_i 1) _func)
       (if (and region-mode (> (point) (mark)))
-	        (progn (exchange-point-and-mark)
-	               (setq exchange t
-		                   ccol (current-column)
-		                   indent-column (+ ccol YaTeX-environment-indent))))
+          (progn (exchange-point-and-mark)
+                 (setq exchange t
+                       ccol (current-column)
+                       indent-column (+ ccol YaTeX-environment-indent))))
       ;;VER2 (insert "\\begin{" env "}" (YaTeX-addin env))
       (setq beg (point))
       (YaTeX-insert-struc 'begin env)
@@ -667,35 +668,35 @@ This works also for other defined begin/end tokens to define the structure."
       (save-excursion
         ;;indent optional argument of \begin{env}, if any
         (while (> (point-beginning-of-line) beg)
-	        (skip-chars-forward "\\s " (point-end-of-line))
-	        (indent-to indent-column)
-	        (forward-line -1)))
+          (skip-chars-forward "\\s " (point-end-of-line))
+          (indent-to indent-column)
+          (forward-line -1)))
       (require 'yatexenv)
       (if region-mode
-	        ;;if region-mode, indent all text in the region
-	        (save-excursion
-	          (if (fboundp (intern-soft (concat "YaTeX-enclose-" env)))
-	              (funcall (intern-soft (concat "YaTeX-enclose-" env))
-		                     (point) (mark))
-	            (while (< (progn (forward-line 1) (point)) (mark))
-	              (if (eolp) nil
-		              (skip-chars-forward " \t\n")
-		              (indent-to indent-column))))))
+          ;;if region-mode, indent all text in the region
+          (save-excursion
+            (if (fboundp (intern-soft (concat "YaTeX-enclose-" env)))
+                (funcall (intern-soft (concat "YaTeX-enclose-" env))
+                         (point) (mark))
+              (while (< (progn (forward-line 1) (point)) (mark))
+                (if (eolp) nil
+                  (skip-chars-forward " \t\n")
+                  (indent-to indent-column))))))
       (if region-mode (exchange-point-and-mark))
       (indent-to ccol)
       ;;VER2 (insert "\\end{" env "}\n")
       (YaTeX-insert-struc 'end env)
       (YaTeX-reindent ccol)
       (if region-mode
-	        (progn
-	          (insert "\n")
-	          (or exchange (exchange-point-and-mark)))
+          (progn
+            (insert "\n")
+            (or exchange (exchange-point-and-mark)))
         (goto-char beg2)
         (YaTeX-intelligent-newline nil)
         (YaTeX-indent-line))
       (YaTeX-package-auto-usepackage env 'env)
       (if YaTeX-current-position-register
-	        (point-to-register YaTeX-current-position-register))))
+          (point-to-register YaTeX-current-position-register))))
 
   (advice-add 'YaTeX-insert-begin-end
               :override #'ad:YaTeX-insert-begin-end))
@@ -809,8 +810,8 @@ This works also for other defined begin/end tokens to define the structure."
   (with-eval-after-load "selected"
     (define-key selected-keymap (kbd ";") #'comment-dwim)
     (define-key selected-keymap (kbd "e") #'my-eval-region)
-    ;; (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
-    (define-key selected-keymap (kbd "=") #'count-words-region)
+    (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
+    ;; (define-key selected-keymap (kbd "=") #'count-words-region)
     (when (require 'helpful nil t)
       (define-key selected-keymap (kbd "h") #'my-helpful)
       (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
@@ -826,11 +827,19 @@ This works also for other defined begin/end tokens to define the structure."
     (defun my-eval-region ()
       (interactive)
       (when (use-region-p)
+        (unless (ignore-errors (eval-region (region-beginning) (region-end) t))
+          (let ((region (intern (buffer-substring-no-properties
+                                 (region-beginning) (region-end)))))
+            (when (functionp region)
+              (call-interactively region))))))
+
+    (defun my-eval-region-as-function ()
+      (interactive)
+      (when (use-region-p)
         (let ((region (intern (buffer-substring-no-properties
                                (region-beginning) (region-end)))))
-          (if (functionp region)
-              (funcall region)
-            (eval-region (region-beginning) (region-end) t)))))
+          (when (functionp region)
+            (funcall region)))))
     (setq selected-org-mode-map (make-sparse-keymap))
 
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
@@ -911,6 +920,15 @@ This works also for other defined begin/end tokens to define the structure."
   (set-face-foreground 'paren-face-match "#FFFFFF")
   ;; Deep blue: #6666CC, orange: #FFCC66
   (set-face-background 'paren-face-match "#66CC66")
+
+  ;; for ivy-mode
+  (defun ad:mic-paren-highlight (f)
+    (if (active-minibuffer-window)
+        (let ((paren-display-message 'never))
+          (funcall f))
+      (funcall f)))
+  (advice-add 'mic-paren-highlight :around #'ad:mic-paren-highlight)
+
   (unless noninteractive
     (paren-activate)))
 
@@ -1230,6 +1248,12 @@ This works also for other defined begin/end tokens to define the structure."
     (add-hook hook #'turn-on-eldoc-mode))
 
   (with-eval-after-load "eldoc"
+    ;; for ivy-mode
+    (defun ad:eldoc-message (f &optional string)
+      (unless (active-minibuffer-window)
+        (funcall f string)))
+    (advice-add 'eldoc-message :around #'ad:eldoc-message)
+
     (custom-set-variables
      '(eldoc-idle-delay 1.0))))
 
@@ -1383,7 +1407,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)
       (format emms-mode-line-format
               (file-name-nondirectory
                (emms-track-description
-				        (emms-playlist-current-selected-track)))))
+                (emms-playlist-current-selected-track)))))
     (advice-add 'emms-mode-line-playlist-current :override
                 #'ad:emms-mode-line-playlist-current))
 
@@ -1475,7 +1499,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)
      '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
-       '(".recentf" "bookmarks" "^/tmp\\.*"
+       '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
          "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     (defun my-recentf-save-list-silence ()
@@ -2003,6 +2027,7 @@ T - tag prefix
           (redraw-frame)))
       (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
     (when (boundp 'magit-completing-read-function)
+      ;; ivy を使う
       (setq magit-completing-read-function 'ivy-completing-read))
     (when (boundp 'magit-repository-directories)
       (setq magit-repository-directories

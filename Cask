@@ -1,4 +1,4 @@
-;; #+date: 2019-04-24
+;; #+date: 2019-07-29
 
 (source gnu)
 (source melpa)
@@ -146,6 +146,21 @@
 ;; (depends-on "helm-ghq")
 ;; (depends-on "helm-css-scss")
 ;; (depends-on "helm-rtags")
+
+;; Ivy
+(depends-on "counsel")
+(depends-on "swiper")
+(depends-on "ivy-dired-history")
+(depends-on "counsel-projectile")
+(depends-on "emacs-counsel-gtags")
+(depends-on "ivy-pass")
+(depends-on "ivy-rich")
+(depends-on "all-the-icons-ivy")
+(depends-on "counsel-selected")
+(depends-on "counsel-world-clock")
+(depends-on "prescient.el")
+(depends-on "avy-migemo")
+(depends-on "flyspell-correct-ivy")
 
 ;; OSX support
 (depends-on "osx-lib")

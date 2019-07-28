@@ -226,14 +226,6 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
   (require 'init-eval nil t))
 #+end_src
 
-*** COMMENT 最適化ノート
-    :PROPERTIES:
-    :CUSTOM_ID: orgd8e260b1
-    :END:
-
-コンパイルしても関数が展開されなかったソースブロック約80個を置き換えた結果，800msから500msまで改善した．この時，バイトコンパイルしたファイルサイズは，80KBで不変だった．setq が展開されるようにしたが，起動時間の高速化にはほぼ寄与しなかった．GUI構築に300msが使われるのは変わらなかった．lambdaは，# を付けないと，バイトコンパイルで内容が正しく展開されない．なお，リアルタイムのウィルススキャンが有効な場合，それだけで300msは取られる...
-つまり，色々と弄ったけど実際は改良されていない？
-
 ** 警告の抑制
    :PROPERTIES:
    :CUSTOM_ID: org8b967ce1
@@ -247,11 +239,6 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 (setq byte-compile-warnings
       '(free-vars unresolved callargs redefine obsolete noruntime
                   cl-functions interactive-only make-local))
-(setq ad-redefinition-action 'accept)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes :exports none
-(setq byte-compile-warnings '(not obsolete))
 (setq ad-redefinition-action 'accept)
 #+end_src
 
@@ -363,17 +350,6 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
   ;; see https://github.com/takaxp/postpone
   (with-eval-after-load "postpone"
     (setq v5 nil)))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :exports none
-(defun autoload-if-found (functions file &optional docstring interactive type)
-  ""
-  (message
-   (format
-    "--- %f %s"
-    (car (benchmark-run 1
-           (autoload-if-found1 functions file docstring interactive type)))
-    file)))
 #+end_src
 
 このカスタマイズされた =autoload-if-found= は引数にリストのみを受け付けます．欠点は，リスト内の全て関数に個別の =docstring= を設定できないため，ヘルプ画面で何の関数なのかの情報があまり表示されないことです．ただ， =require= でパッケージを読み込んでしまえば，本来の =docstring= の内容が正しく反映されるので，すべての情報を確認できるようになります．また， =interactive= を =t= にすれば， =M-x= で当該関数がリストアップされるようになります．したがって， =(docstring interactive) = (nil t)= をデフォルトで指定すればOKです． =type= には， =macro= や =keymap= を指定して，関数以外の情報をオートロード対象にします．
@@ -1598,8 +1574,8 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
   - http://adamspiers.org/computing/elisp/smooth-scrolling.el
 
 #+begin_src emacs-lisp :tangle no
-  (when (require 'smooth-scrolling nil t)
-    (setq smooth-scroll-margin 1))
+(when (require 'smooth-scrolling nil t)
+  (setq smooth-scroll-margin 1))
 #+end_src
 
 ** スクロールで表示を重複させる行数
@@ -1889,6 +1865,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+end_src
 
 ** [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる
+   :PROPERTIES:
+   :CUSTOM_ID: org3901456e
+   :END:
 
  - [[https://github.com/magnars/expand-region.el][magnars/expand-region.el: Emacs extension to increase selected region by semantic units.]]
 
@@ -2322,7 +2301,6 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
    :CUSTOM_ID: orgc5b5891d
    :END:
 
-
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
        '(cc-mode)
@@ -2615,6 +2593,10 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     ;; ispell-complete-word のキーバインドを上書き
     (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic)
 
+    ;; ivy を用いる
+    (when (require 'flyspell-correct-ivy nil t)
+      (setq flyspell-correct-interface #'flyspell-correct-ivy))
+
     ;; Auto complete との衝突を回避
     (with-eval-after-load "auto-complete"
       (ac-flyspell-workaround))
@@ -2655,7 +2637,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
 以前は，[[http://www.emacswiki.org/emacs/WordCount][word-count.el]] を使用していた．
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (when (autoload-if-found
        '(word-count-mode)
        "word-count" "Minor mode to count words." t)
@@ -2672,19 +2654,20 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
 世界の時刻を確認するために wclock.el がありました（参考：[[https://pxaka.tokyo/wiki/doku.php?id=emacs]]）が，現在はビルトインの =time.el= に =display-time-world-mode= として吸収されているようです． =display-time-world-buffer-name= に wclock が設定されているところが名残と思われます．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (with-eval-after-load "time"
   (define-key display-time-world-mode-map "q" 'delete-window))
 #+end_src
 
 =tz= の値は，システム内部 =/usr/share/zoneinfo= を見るか，[[https://en.wikipedia.org/wiki/List_of_tz_database_time_zones][公開情報]]から確認できます．
 
-#+begin_src emacs-lisp :tangle no :exports none
-;; Add following setting in .init.el
-(setq zoneinfo-style-world-list
-      '(("Europe/Lisbon" "Lisbon")
-        ("Asia/Tokyo" "Tokyo")))
-;; Then, M-x display-time-world
+** [counsel-world-clock.el] ivy でタイムゾーンの情報を選択する
+   :PROPERTIES:
+   :CUSTOM_ID: orgee372b48
+   :END:
+
+#+begin_src emacs-lisp
+(autoload-if-found '(counsel-world-clock) "counsel-world-clock" nil t)
 #+end_src
 
 ** 読書モード
@@ -2713,6 +2696,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 ** TODO [multiple-cursors.el] 指定箇所を同時編集
    :PROPERTIES:
    :CREATED:  [2019-06-19 Wed 00:49]
+   :CUSTOM_ID: org9e3510c2
    :END:
 
  - http://emacsrocks.com/e08.html
@@ -2814,13 +2798,13 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 This works also for other defined begin/end tokens to define the structure."
     (setq YaTeX-current-completion-type 'begin)
     (let*((ccol (current-column)) beg beg2 exchange
-	        (_arg region-mode)		;for old compatibility
-	        (indent-column (+ ccol YaTeX-environment-indent))(_i 1) _func)
+          (_arg region-mode)		;for old compatibility
+          (indent-column (+ ccol YaTeX-environment-indent))(_i 1) _func)
       (if (and region-mode (> (point) (mark)))
-	        (progn (exchange-point-and-mark)
-	               (setq exchange t
-		                   ccol (current-column)
-		                   indent-column (+ ccol YaTeX-environment-indent))))
+          (progn (exchange-point-and-mark)
+                 (setq exchange t
+                       ccol (current-column)
+                       indent-column (+ ccol YaTeX-environment-indent))))
       ;;VER2 (insert "\\begin{" env "}" (YaTeX-addin env))
       (setq beg (point))
       (YaTeX-insert-struc 'begin env)
@@ -2830,35 +2814,35 @@ This works also for other defined begin/end tokens to define the structure."
       (save-excursion
         ;;indent optional argument of \begin{env}, if any
         (while (> (point-beginning-of-line) beg)
-	        (skip-chars-forward "\\s " (point-end-of-line))
-	        (indent-to indent-column)
-	        (forward-line -1)))
+          (skip-chars-forward "\\s " (point-end-of-line))
+          (indent-to indent-column)
+          (forward-line -1)))
       (require 'yatexenv)
       (if region-mode
-	        ;;if region-mode, indent all text in the region
-	        (save-excursion
-	          (if (fboundp (intern-soft (concat "YaTeX-enclose-" env)))
-	              (funcall (intern-soft (concat "YaTeX-enclose-" env))
-		                     (point) (mark))
-	            (while (< (progn (forward-line 1) (point)) (mark))
-	              (if (eolp) nil
-		              (skip-chars-forward " \t\n")
-		              (indent-to indent-column))))))
+          ;;if region-mode, indent all text in the region
+          (save-excursion
+            (if (fboundp (intern-soft (concat "YaTeX-enclose-" env)))
+                (funcall (intern-soft (concat "YaTeX-enclose-" env))
+                         (point) (mark))
+              (while (< (progn (forward-line 1) (point)) (mark))
+                (if (eolp) nil
+                  (skip-chars-forward " \t\n")
+                  (indent-to indent-column))))))
       (if region-mode (exchange-point-and-mark))
       (indent-to ccol)
       ;;VER2 (insert "\\end{" env "}\n")
       (YaTeX-insert-struc 'end env)
       (YaTeX-reindent ccol)
       (if region-mode
-	        (progn
-	          (insert "\n")
-	          (or exchange (exchange-point-and-mark)))
+          (progn
+            (insert "\n")
+            (or exchange (exchange-point-and-mark)))
         (goto-char beg2)
         (YaTeX-intelligent-newline nil)
         (YaTeX-indent-line))
       (YaTeX-package-auto-usepackage env 'env)
       (if YaTeX-current-position-register
-	        (point-to-register YaTeX-current-position-register))))
+          (point-to-register YaTeX-current-position-register))))
 
   (advice-add 'YaTeX-insert-begin-end
               :override #'ad:YaTeX-insert-begin-end))
@@ -3139,7 +3123,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (define-key selected-keymap (kbd ";") #'comment-dwim)
     (define-key selected-keymap (kbd "e") #'my-eval-region)
     (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
-    (define-key selected-keymap (kbd "=") #'count-words-region)
+    ;; (define-key selected-keymap (kbd "=") #'count-words-region)
     (when (require 'helpful nil t)
       (define-key selected-keymap (kbd "h") #'my-helpful)
       (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
@@ -3155,7 +3139,12 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (defun my-eval-region ()
       (interactive)
       (when (use-region-p)
-        (eval-region (region-beginning) (region-end) t)))
+        (unless (ignore-errors (eval-region (region-beginning) (region-end) t))
+          (let ((region (intern (buffer-substring-no-properties
+                                 (region-beginning) (region-end)))))
+            (when (functionp region)
+              (call-interactively region))))))
+
     (defun my-eval-region-as-function ()
       (interactive)
       (when (use-region-p)
@@ -3548,7 +3537,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 ;; -*- lexical-binding: t -*-
 #+end_src
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle no :export none
 (with-eval-after-load "org"
   (setq mode-line-modes
         (mapcar
@@ -3559,7 +3548,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
          mode-line-modes)))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no :export none
+#+begin_src emacs-lisp
 (with-eval-after-load "org"
   (setq mode-line-modes
         (mapcar
@@ -3874,14 +3863,21 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 
 Built-in の paren.el が利用できる．拡張版として [[http://www.emacswiki.org/emacs/mic-paren.el][mic-paren.el]] があり，現在はこれを利用している．
 
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'mic-paren nil t)
   (setq paren-sexp-mode nil)
   (set-face-foreground 'paren-face-match "#FFFFFF")
   ;; Deep blue: #6666CC, orange: #FFCC66
   (set-face-background 'paren-face-match "#66CC66")
+
+  ;; for ivy-mode
+  (defun ad:mic-paren-highlight (f)
+    (if (active-minibuffer-window)
+        (let ((paren-display-message 'never))
+          (funcall f))
+      (funcall f)))
+  (advice-add 'mic-paren-highlight :around #'ad:mic-paren-highlight)
+
   (unless noninteractive
     (paren-activate)))
 #+end_src
@@ -3897,7 +3893,7 @@ paren.el の場合は以下の設定．
 (set-face-foreground 'show-paren-match-face "#FFFFFF")
 (set-face-underline-p 'show-paren-match-face nil)
 (setq show-paren-style 'parenthesis)
-#+end_src 
+#+end_src
 
 ** 全角スペースと行末タブ／半角スペースを強調表示する
    :PROPERTIES:
@@ -4208,21 +4204,35 @@ ivyに移行しました．
     (helm-autoresize-mode 1)))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no :exports none
-;; この修正が必要
-;; (when (require 'helm-migemo nil t)
-;;   (defun helm-compile-source--candidates-in-buffer (source)
-;;     (helm-aif (assoc 'candidates-in-buffer source)
-;;         (append source
-;;                 `((candidates
-;;                    . ,(or (cdr it)
-;;                           (lambda ()
-;;                             ;; Do not use `source' because other plugins
-;;                             ;; (such as helm-migemo) may change it
-;;                             (helm-candidates-in-buffer
-;;                              (helm-get-current-source)))))
-;;                   (volatile) (match identity)))
-;;       source)))
+** TODO [ivy.el] 続々・何でも絞り込みインターフェイス
+   :PROPERTIES:
+   :CUSTOM_ID: orgfa7d126f
+   :END:
+
+** TODO [swiper.el] 文字列探索とプレビューを同時に行う
+   :PROPERTIES:
+   :CUSTOM_ID: orgf0e91c5a
+   :END:
+
+#+begin_src emacs-lisp
+(when (autoload-if-found
+       '(swiper-thing-at-point swiper-all-thing-at-point)
+       "swiper" nil t)
+
+  (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
+  (global-set-key (kbd "M-s M-a") 'swiper-all-thing-at-point)
+
+  (with-eval-after-load "swiper"
+    (defun ad:swiper-thing-at-point ()
+      "`swiper' with `ivy-thing-at-point'."
+      (interactive)
+      (let ((thing (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
+                       nil
+                     (ivy-thing-at-point))))
+        (when (use-region-p)
+          (deactivate-mark))
+        (swiper thing)))
+    (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
 #+end_src
 
 ** [git-gutter-fringe] 編集差分をフレーム端で視覚化
@@ -4464,6 +4474,12 @@ ivyに移行しました．
     (add-hook hook #'turn-on-eldoc-mode))
 
   (with-eval-after-load "eldoc"
+    ;; for ivy-mode
+    (defun ad:eldoc-message (f &optional string)
+      (unless (active-minibuffer-window)
+        (funcall f string)))
+    (advice-add 'eldoc-message :around #'ad:eldoc-message)
+
     (custom-set-variables
      '(eldoc-idle-delay 1.0))))
 #+end_src
@@ -4479,6 +4495,23 @@ ivyに移行しました．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(keycast-mode) "keycast" nil t)
+#+end_src
+
+** TODO [all-the-icons-ivy] ivy インターフェイスでアイコンを表示する
+   :PROPERTIES:
+   :CUSTOM_ID: org3d431f2e
+   :END:
+
+ - https://github.com/asok/all-the-icons-ivy
+
+#+begin_src emacs-lisp
+(when window-system
+  (with-eval-after-load "ivy"
+    (when (require 'all-the-icons-ivy nil t)
+      (dolist (command '(counsel-projectile-switch-project
+                         counsel-ibuffer))
+        (add-to-list 'all-the-icons-ivy-buffer-commands command))
+      (all-the-icons-ivy-setup))))
 #+end_src
 
 ** TODO [rainbow-delimiters.el] 対応するカッコに色を付ける
@@ -4516,8 +4549,6 @@ ivyに移行しました．
 
   - http://d.hatena.ne.jp/m2ym/20110401/1301617991
   - 2015-03-15: smooth-scroll との組み合わせで重いのを確認．
-
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load "postpone"
@@ -4677,9 +4708,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)
                                 timezone-utf-offset)))
         timestamp))))
 #+end_src
-
-#+RESULTS:
-: help/get-timestamp
 
 ** DONE バッテリー情報をモードラインに表示する                     :obsolete:
    CLOSED: [2018-09-23 Sun 17:07]
@@ -4917,10 +4945,6 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
 以前は自作したパッケージを使っていましたが，不具合も多く，調べると =diminish.el= という素晴らしいパッケージがあったので移行しました．これはマイナーモードの短縮表示なので，メジャーモードは個別にフックで =mode-name= を書き換えて対応します． =use-package.el= を使っていると依存関係から自動的にインストールされます．
 
-#+begin_src emacs-lisp :tangle no :exports none
-(require 'mode-name-abbrev nil t)
-#+end_src
-
 =diminish.el= を使えば，短縮名に書き換えることも，存在自体を消してしまうこともできます．helm だけ行儀が悪いので，後段での設定時に diminish を呼ぶようにしています．代替パッケージに，[[https://github.com/Malabarba/rich-minority][rich-minority-mode]]があります．
 
 メジャーモードの短縮表示は =diminish= に頼らず，単純に各モードの =hook= で対処します．
@@ -5011,7 +5035,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
       (format emms-mode-line-format
               (file-name-nondirectory
                (emms-track-description
-				        (emms-playlist-current-selected-track)))))
+                (emms-playlist-current-selected-track)))))
     (advice-add 'emms-mode-line-playlist-current :override
                 #'ad:emms-mode-line-playlist-current))
 
@@ -5144,7 +5168,7 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
 
 [[http://julien.danjou.info/software/google-weather.el]]
 
-#+begin_src  emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no
 (require 'google-weather nil t)
 (when (require 'org-google-weather nil t)
   '(org-google-weather-use-google-icons t))
@@ -5245,7 +5269,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
      '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
-       '(".recentf" "bookmarks" "^/tmp\\.*"
+       '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
          "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     (defun my-recentf-save-list-silence ()
@@ -6111,29 +6135,22 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/
         (setq ac-sources '(ac-source-clang
                            ac-source-yasnippet
                            ac-source-gtags))))))
-#+end_src 
+#+end_src
 
 次のコードを hoge.cpp として保存し， =v= と =t= について補完できれば， =STL= と =Boost= のプリコンパイルヘッダが有効になっていることを確認できる．
 
-#+begin_src cpp :tangle no
-  #include <iostream>
-  #include <vector>
-  #include <boost/timer.hpp>
+#+begin_src cpp
+#include <iostream>
+#include <vector>
+#include <boost/timer.hpp>
 
-  int main(){
-    std::vector<int> v;
-    v; // ここ
-    boost::timer t;
-    cout << t; // ここ
-    return 1;
-  }
-#+end_src
-
-#+begin_src sh :tangle no :exports none
-# (1)
-clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/.emacs.d/stdafx.h -o ~/.emacs.d/stdafx.pch -I/opt/local/include -I/opt/local/include/netpbm -I/Users/taka/devel/icp/lib
-# (2)
-/usr/local/opt/llvm/bin/clang -cc1 -fsyntax-only -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -I/opt/local/include -I/opt/local/include/netpbm -I/Users/taka/devel/icp/lib -include-pch /Users/taka/.emacs.d/stdafx.pch -code-completion-at /Users/taka/Desktop/hoge.cpp:16:5 /Users/taka/Desktop/hoge.cpp
+int main(){
+  std::vector<int> v;
+  v; // ここ
+  boost::timer t;
+  cout << t; // ここ
+  return 1;
+}
 #+end_src
 
 *** References
@@ -6178,7 +6195,7 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/
 
 # brew install global --with-exuberant-ctags --with-pygments
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
 (if (not (executable-find "gtags"))
     (message "--- global is NOT installed in this system.")
 
@@ -6194,6 +6211,17 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/
       (add-hook hook (lambda () (ggtags-mode 1)))))
 
   (when (autoload-if-found
+         '(counsel-gtags-mode)
+         "counsel-gtags" nil t)
+    (dolist (hook '(c-mode-hook c++-mode-hook))
+      (add-hook hook 'counsel-gtags-mode))
+    (with-eval-after-load "counsel-gtags"
+      (custom-set-variables
+       '(counsel-gtags-update-interval-second 10)))))
+#+end_src
+
+#+begin_src emacs-lisp
+(when (autoload-if-found
          '(helm-gtags-mode)
          "helm-gtags" nil t)
 
@@ -6202,7 +6230,7 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/
 
     (with-eval-after-load "helm-gtags"
       (custom-set-variables
-       '(helm-gtags-mode-name "")))))
+       '(helm-gtags-mode-name ""))))
 #+end_src
 
 ** [0xc.el] N進数変換
@@ -6359,6 +6387,7 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
           (redraw-frame)))
       (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
     (when (boundp 'magit-completing-read-function)
+      ;; ivy を使う
       (setq magit-completing-read-function 'ivy-completing-read))
     (when (boundp 'magit-repository-directories)
       (setq magit-repository-directories
@@ -6402,16 +6431,16 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
 
 例えば，次のようなファイルを共有プロジェクトに保存しておきます． =.editorconfig= として配置します．
 
-#+begin_src conf :tangle no :export yes
-  root = true
+#+begin_src conf
+root = true
 
-  [*]
-  charset = utf-8
-  end_of_line = lf
-  insert_final_newline = true
-  indent_style = space
-  indent_size = 2
-  trim_trailing_whitespace = true
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
 #+end_src
 
 ** TODO [cov] カバレッジの状態をフリンジで確認
@@ -7099,7 +7128,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 次の例では，同じ画像を2度インライン表示しようと指定ますが，前者は横幅が128ピクセルで表示され，後者は =org-image-actual-width= で指定した256ピクセルで表示されます．
 
 #+begin_src emacs-lisp :tangle no
-#+attr_html: :width 128
+,#+attr_html: :width 128
 [[~/Desktop/lena_std.jp2]]
 
 [[~/Desktop/lena_std.jp2]]
@@ -7231,6 +7260,9 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 #+end_src
 
 ** カウントダウンタイマー
+   :PROPERTIES:
+   :CUSTOM_ID: org49e5d185
+   :END:
 
 =M-x my-org-countdown-timer= で呼び出します．ちょっと時間を測りたい時に使っています．
 
@@ -7594,7 +7626,6 @@ will not be modified."
   (org-defkey org-read-date-minibuffer-local-map (kbd "q")
               (lambda () (interactive)
                 (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
-
 #+end_src
 
 入門者にとって =org-agenda= は簡単ではないので，無理に使わなくて良いと思います．Org Modeの動作に十分慣れたら戻ってくる程度で十分です．
@@ -8151,13 +8182,13 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+begin_src org :tangle no
 # -*- mode: org; -*-
 
-#+html_head: <link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
-#+html_head: <link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
+,#+html_head: <link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
+,#+html_head: <link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
 
-#+html_head: <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-#+html_head: <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-#+html_head: <script type="text/javascript" src="https://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.min.js"></script>
-#+html_head: <script type="text/javascript" src="https://www.pirilampo.org/styles/readtheorg/js/readtheorg.js"></script>
+,#+html_head: <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+,#+html_head: <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+,#+html_head: <script type="text/javascript" src="https://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+,#+html_head: <script type="text/javascript" src="https://www.pirilampo.org/styles/readtheorg/js/readtheorg.js"></script>
 #+end_src
 
 また， =(org-html-htmlize-generate-css)= を使うとCSSを生成できます．
@@ -8305,7 +8336,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
     "Sum the times for each subtree for today."
     (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
       (org-clock-sum (car range) (cadr range)
-		                 headline-filter :org-clock-minutes-today)))
+                     headline-filter :org-clock-minutes-today)))
   (advice-add 'org-clock-sum-today :override #'ad:org-clock-sum-today)
 
   (when (require 'org-clock-today nil t)
@@ -9745,7 +9776,7 @@ Uses `all-the-icons-material' to fetch the icon."
 
   (unless noninteractive
     (popwin-mode 1)))
-#+end_src 
+#+end_src
 
 * フォント／配色関連
   :PROPERTIES:
@@ -10241,47 +10272,47 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 #+begin_src html
 
- #000000 #000033 #000066 #000099 #0000CC #0000FF
- #003300 #003333 #003366 #003399 #0033CC #0033FF
- #006600 #006633 #006666 #006699 #0066CC #0066FF
- #009900 #009933 #009966 #009999 #0099CC #0099FF
- #00CC00 #00CC33 #00CC66 #00CC99 #00CCCC #00CCFF
- #00FF00 #00FF33 #00FF66 #00FF99 #00FFCC #00FFFF
+#000000 #000033 #000066 #000099 #0000CC #0000FF
+#003300 #003333 #003366 #003399 #0033CC #0033FF
+#006600 #006633 #006666 #006699 #0066CC #0066FF
+#009900 #009933 #009966 #009999 #0099CC #0099FF
+#00CC00 #00CC33 #00CC66 #00CC99 #00CCCC #00CCFF
+#00FF00 #00FF33 #00FF66 #00FF99 #00FFCC #00FFFF
 
- #330000 #330033 #330066 #330099 #3300CC #3300FF
- #333300 #333333 #333366 #333399 #3333CC #3333FF
- #336600 #336633 #336666 #336699 #3366CC #3366FF
- #339900 #339933 #339966 #339999 #3399CC #3399FF
- #33CC00 #33CC33 #33CC66 #33CC99 #33CCCC #33CCFF
- #33FF00 #33FF33 #33FF66 #33FF99 #33FFCC #33FFFF
+#330000 #330033 #330066 #330099 #3300CC #3300FF
+#333300 #333333 #333366 #333399 #3333CC #3333FF
+#336600 #336633 #336666 #336699 #3366CC #3366FF
+#339900 #339933 #339966 #339999 #3399CC #3399FF
+#33CC00 #33CC33 #33CC66 #33CC99 #33CCCC #33CCFF
+#33FF00 #33FF33 #33FF66 #33FF99 #33FFCC #33FFFF
 
- #660000 #660033 #660066 #660099 #6600CC #6600FF
- #663300 #663333 #663366 #663399 #6633CC #6633FF
- #666600 #666633 #666666 #666699 #6666CC #6666FF
- #669900 #669933 #669966 #669999 #6699CC #6699FF
- #66CC00 #66CC33 #66CC66 #66CC99 #66CCCC #66CCFF
- #66FF00 #66FF33 #66FF66 #66FF99 #66FFCC #66FFFF
+#660000 #660033 #660066 #660099 #6600CC #6600FF
+#663300 #663333 #663366 #663399 #6633CC #6633FF
+#666600 #666633 #666666 #666699 #6666CC #6666FF
+#669900 #669933 #669966 #669999 #6699CC #6699FF
+#66CC00 #66CC33 #66CC66 #66CC99 #66CCCC #66CCFF
+#66FF00 #66FF33 #66FF66 #66FF99 #66FFCC #66FFFF
 
- #990000 #990033 #990066 #990099 #9900CC #9900FF
- #993300 #993333 #993366 #993399 #9933CC #9933FF
- #996600 #996633 #996666 #996699 #9966CC #9966FF
- #999900 #999933 #999966 #999999 #9999CC #9999FF
- #99CC00 #99CC33 #99CC66 #99CC99 #99CCCC #99CCFF
- #99FF00 #99FF33 #99FF66 #99FF99 #99FFCC #99FFFF
+#990000 #990033 #990066 #990099 #9900CC #9900FF
+#993300 #993333 #993366 #993399 #9933CC #9933FF
+#996600 #996633 #996666 #996699 #9966CC #9966FF
+#999900 #999933 #999966 #999999 #9999CC #9999FF
+#99CC00 #99CC33 #99CC66 #99CC99 #99CCCC #99CCFF
+#99FF00 #99FF33 #99FF66 #99FF99 #99FFCC #99FFFF
 
- #CC0000 #CC0033 #CC0066 #CC0099 #CC00CC #CC00FF
- #CC3300 #CC3333 #CC3366 #CC3399 #CC33CC #CC33FF
- #CC6600 #CC6633 #CC6666 #CC6699 #CC66CC #CC66FF
- #CC9900 #CC9933 #CC9966 #CC9999 #CC99CC #CC99FF
- #CCCC00 #CCCC33 #CCCC66 #CCCC99 #CCCCCC #CCCCFF
- #CCFF00 #CCFF33 #CCFF66 #CCFF99 #CCFFCC #CCFFFF
+#CC0000 #CC0033 #CC0066 #CC0099 #CC00CC #CC00FF
+#CC3300 #CC3333 #CC3366 #CC3399 #CC33CC #CC33FF
+#CC6600 #CC6633 #CC6666 #CC6699 #CC66CC #CC66FF
+#CC9900 #CC9933 #CC9966 #CC9999 #CC99CC #CC99FF
+#CCCC00 #CCCC33 #CCCC66 #CCCC99 #CCCCCC #CCCCFF
+#CCFF00 #CCFF33 #CCFF66 #CCFF99 #CCFFCC #CCFFFF
 
- #FF0000 #FF0033 #FF0066 #FF0099 #FF00CC #FF00FF
- #FF3300 #FF3333 #FF3366 #FF3399 #FF33CC #FF33FF
- #FF6600 #FF6633 #FF6666 #FF6699 #FF66CC #FF66FF
- #FF9900 #FF9933 #FF9966 #FF9999 #FF99CC #FF99FF
- #FFCC00 #FFCC33 #FFCC66 #FFCC99 #FFCCCC #FFCCFF
- #FFFF00 #FFFF33 #FFFF66 #FFFF99 #FFFFCC #FFFFFF
+#FF0000 #FF0033 #FF0066 #FF0099 #FF00CC #FF00FF
+#FF3300 #FF3333 #FF3366 #FF3399 #FF33CC #FF33FF
+#FF6600 #FF6633 #FF6666 #FF6699 #FF66CC #FF66FF
+#FF9900 #FF9933 #FF9966 #FF9999 #FF99CC #FF99FF
+#FFCC00 #FFCC33 #FFCC66 #FFCC99 #FFCCCC #FFCCFF
+#FFFF00 #FFFF33 #FFFF66 #FFFF99 #FFFFCC #FFFFFF
 
 #+end_src
 
@@ -10309,13 +10340,13 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   - さらに， =qt_color_picker= ディレクトリに移動
   - =qt_color_picker.pro= を編集して， "QT +=" に "widgets" を追加して保存する．
     #+begin_src conf
-      QT += core gui widgets
+    QT += core gui widgets
     #+end_src
   - =qmake qt_color_picker.pro && make= を実行
   - 出来上がった =qt_color_picker.app= を =/Applications/= にコピー（移動）
   - =exec-path= にパスを通す
-    #+begin_src emacs-lisp :tangle no
-      (add-to-list 'exec-path "/Applications/qt_color_picker.app/Contents/MacOS/")
+    #+begin_src emacs-lisp
+    (add-to-list 'exec-path "/Applications/qt_color_picker.app/Contents/MacOS/")
     #+end_src
   - =(executable-find "qt_color_picker")= でプログラムを呼べることを確認
   - =#FFFFFF= などの色の上で =M-x edit-color-stamp= を実行する
