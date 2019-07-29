@@ -15,10 +15,10 @@
       my-toggle-modeline-global nil ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
-      debug-on-error t)
+      debug-on-error nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; helm-swoop(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
+;; swiper(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when my-profiler-p
   (profiler-start 'cpu+mem))
@@ -129,8 +129,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; diff を取る前に tabify スペースをタブに変換する．今は全てスペース置換中．
 ;; この設定でファイルを一度編集後に，M-x tabify しないとだめ．
-;; (add-hook 'emacs-lisp-mode-hook
-;;           '(lambda ()
-;;              (setq indent-tabs-mode t)
-;;              (setq tab-width 8)
-;;              (setq indent-line-function 'lisp-indent-line)))
+(when nil
+  (add-hook 'emacs-lisp-mode-hook
+            '(lambda ()
+               (setq indent-tabs-mode t)
+               (setq tab-width 8)
+               (setq indent-line-function 'lisp-indent-line)
+               )))

@@ -597,36 +597,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (advice-add 'view--enable :before #'ad:view--enable)
   (advice-add 'view--disable :before #'ad:view--disable))
 
-(global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
-(autoload-if-found '(mc/num-cursors mc/edit-lines) "multiple-cursors" nil t)
-(when (require 'hydra nil t)
-  ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
-  (defhydra hydra-multiple-cursors (:hint nil)
-    "
-==================================================================
- Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
-------------------------------------------------------------------
- [_p_]   Next     [_n_]   Next     [_l_] Edit lines  [_0_] Insert numbers
- [_P_]   Skip     [_N_]   Skip     [_a_] Mark all    [_A_] Insert letters
- [_M-p_] Unmark   [_M-n_] Unmark   [_s_] Search
- [Click] Cursor at point       [_q_] Quit"
-    ("l" mc/edit-lines) ;;  :exit t
-    ("a" mc/mark-all-like-this) ;;  :exit t
-    ("n" mc/mark-next-like-this)
-    ("N" mc/skip-to-next-like-this)
-    ("M-n" mc/unmark-next-like-this)
-    ("p" mc/mark-previous-like-this)
-    ("P" mc/skip-to-previous-like-this)
-    ("M-p" mc/unmark-previous-like-this)
-    ("s" mc/mark-all-in-region-regexp) ;;  :exit t
-    ("0" mc/insert-numbers) ;;  :exit t
-    ("A" mc/insert-letters) ;;  :exit t
-    ("<mouse-1>" mc/add-cursor-on-click)
-    ;; Help with click recognition in this hydra
-    ("<down-mouse-1>" ignore)
-    ("<drag-mouse-1>" ignore)
-    ("q" nil)))
-
 (when (autoload-if-found
        '(latex-math-preview-expression
          latex-math-preview-insert-symbol
@@ -858,6 +828,37 @@ This works also for other defined begin/end tokens to define the structure."
         (interactive)
         (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))))
+
+(global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
+(autoload-if-found '(mc/num-cursors mc/edit-lines) "multiple-cursors" nil t)
+(with-eval-after-load "multiple-cursors"
+  (when (require 'hydra nil t)
+    ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
+    (defhydra hydra-multiple-cursors (:hint nil)
+      "
+==================================================================
+ Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
+------------------------------------------------------------------
+ [_p_]   Next     [_n_]   Next     [_l_] Edit lines  [_0_] Insert numbers
+ [_P_]   Skip     [_N_]   Skip     [_a_] Mark all    [_A_] Insert letters
+ [_M-p_] Unmark   [_M-n_] Unmark   [_s_] Search
+ [Click] Cursor at point       [_q_] Quit"
+      ("l" mc/edit-lines) ;;  :exit t
+      ("a" mc/mark-all-like-this) ;;  :exit t
+      ("n" mc/mark-next-like-this)
+      ("N" mc/skip-to-next-like-this)
+      ("M-n" mc/unmark-next-like-this)
+      ("p" mc/mark-previous-like-this)
+      ("P" mc/skip-to-previous-like-this)
+      ("M-p" mc/unmark-previous-like-this)
+      ("s" mc/mark-all-in-region-regexp) ;;  :exit t
+      ("0" mc/insert-numbers) ;;  :exit t
+      ("A" mc/insert-letters) ;;  :exit t
+      ("<mouse-1>" mc/add-cursor-on-click)
+      ;; Help with click recognition in this hydra
+      ("<down-mouse-1>" ignore)
+      ("<drag-mouse-1>" ignore)
+      ("q" nil))))
 
 (autoload-if-found
  '(isolate-quick-add
@@ -1258,6 +1259,33 @@ This works also for other defined begin/end tokens to define the structure."
      '(eldoc-idle-delay 1.0))))
 
 (autoload-if-found '(keycast-mode) "keycast" nil t)
+
+(when (autoload-if-found
+       '(swiper-thing-at-point swiper-all-thing-at-point)
+       "swiper" nil t)
+
+  (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
+  (global-set-key (kbd "M-s M-a") 'swiper-all-thing-at-point)
+
+  (with-eval-after-load "swiper"
+    (defun ad:swiper-thing-at-point ()
+      "`swiper' with `ivy-thing-at-point'."
+      (interactive)
+      (let ((thing (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
+                       nil
+                     (ivy-thing-at-point))))
+        (when (use-region-p)
+          (deactivate-mark))
+        (swiper thing)))
+    (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
+
+(when window-system
+  (with-eval-after-load "ivy"
+    (when (require 'all-the-icons-ivy nil t)
+      (dolist (command '(counsel-projectile-switch-project
+                         counsel-ibuffer))
+        (add-to-list 'all-the-icons-ivy-buffer-commands command))
+      (all-the-icons-ivy-setup))))
 
 (when (autoload-if-found
        '(dimmer-mode dimmer-process-all dimmer-off dimmer-on

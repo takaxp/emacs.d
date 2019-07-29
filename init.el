@@ -47,6 +47,12 @@
 (setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
 (setq garbage-collection-messages t)
 
+(setq byte-compile-warnings
+      '(not free-vars unresolved callargs redefine obsolete noruntime
+            cl-functions interactive-only make-local))
+;; (setq byte-compile-warnings '(not obsolete))
+(setq ad-redefinition-action 'accept)
+
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
 (defun my-load-package-p (file)
