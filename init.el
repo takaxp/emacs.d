@@ -189,44 +189,6 @@
 (when (version< "27" emacs-version)
   (setq default-directory "~/"))
 
-(when (memq window-system '(ns nil))
-  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
-  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
-  (declare-function my-ns-org-heading-auto-ascii "init" nil)
-  (declare-function my-ns-ime-restore "init" nil)
-  (declare-function my-ime-active-p "init" nil))
-
-(with-eval-after-load "postpone"
-  (when (and (memq window-system '(ns nil))
-             (fboundp 'mac-get-current-input-source))
-
-    (defun my-toggle-ime-ns ()
-      "Toggle IME."
-      (interactive)
-      (when (window-focus-p)
-        (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
-
-    (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-    (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
-
-    (defun my-ns-org-heading-auto-ascii ()
-      "IME off, when the cursor on org headings."
-      (when (and (window-focus-p)
-                 (eq major-mode 'org-mode)
-                 (or (looking-at org-heading-regexp)
-                     (equal (buffer-name) org-agenda-buffer-name))
-                 (my-ime-active-p))
-        (my-ime-off)))
-    (run-with-idle-timer 1 t #'my-ns-org-heading-auto-ascii)
-
-    ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-    (add-hook 'move-cursor-after-hook #'my-ns-org-heading-auto-ascii)
-
-    (defun my-ns-ime-restore ()
-      "Restore the last IME status."
-      (if my-ime-last (my-ime-on) (my-ime-off)))
-    (add-hook 'focus-in-hook #'my-ns-ime-restore)))
-
 (when (eq window-system 'mac)
   (global-set-key (kbd "M-SPC") 'mac-win-toggle-ime)
   (global-set-key (kbd "S-SPC") 'mac-win-toggle-ime)
@@ -235,136 +197,135 @@
   (declare-function mac-win-restore-ime "init" nil)
   (declare-function mac-win-restore-ime-target-commands "init" nil))
 
-(with-eval-after-load "postpone"
-  (when (and (eq window-system 'mac)
-             (fboundp 'mac-select-input-source)
-             (fboundp 'mac-auto-ascii-select-input-source)
-             (fboundp 'mac-auto-ascii-setup-input-source)
-             (fboundp 'mac-input-source)
-             (fboundp 'mac-auto-ascii-mode))
+(when (and (eq window-system 'mac)
+           (fboundp 'mac-select-input-source)
+           (fboundp 'mac-auto-ascii-select-input-source)
+           (fboundp 'mac-auto-ascii-setup-input-source)
+           (fboundp 'mac-input-source)
+           (fboundp 'mac-auto-ascii-mode))
 
-    (defvar mac-win-last-ime-status 'off) ;; {'off|'on}
-    (defun mac-win-save-last-ime-status ()
-      (setq mac-win-last-ime-status
-            (if (string-match "\\.\\(Roman\\|US\\)$" (mac-input-source))
-                'off 'on)))
-    (mac-win-save-last-ime-status) ;; 初期化
+  (defvar mac-win-last-ime-status 'off) ;; {'off|'on}
+  (defun mac-win-save-last-ime-status ()
+    (setq mac-win-last-ime-status
+          (if (string-match "\\.\\(Roman\\|US\\)$" (mac-input-source))
+              'off 'on)))
+  (mac-win-save-last-ime-status) ;; 初期化
 
-    (defun mac-win-restore-ime ()
-      (when (and (boundp 'mac-auto-ascii-mode)
-                 mac-auto-ascii-mode
-                 (eq mac-win-last-ime-status 'on))
-        (mac-select-input-source
-         "com.google.inputmethod.Japanese.base")))
+  (defun mac-win-restore-ime ()
+    (when (and (boundp 'mac-auto-ascii-mode)
+               mac-auto-ascii-mode
+               (eq mac-win-last-ime-status 'on))
+      (mac-select-input-source
+       "com.google.inputmethod.Japanese.base")))
 
-    (defun ad:mac-auto-ascii-setup-input-source (&optional _prompt)
-      "Extension to store IME status"
-      (mac-win-save-last-ime-status))
-    (advice-add 'mac-auto-ascii-setup-input-source :before
-                #'ad:mac-auto-ascii-setup-input-source)
+  (defun ad:mac-auto-ascii-setup-input-source (&optional _prompt)
+    "Extension to store IME status"
+    (mac-win-save-last-ime-status))
+  (advice-add 'mac-auto-ascii-setup-input-source :before
+              #'ad:mac-auto-ascii-setup-input-source)
 
-    (defvar mac-win-target-commands
-      '(find-file save-buffer other-window delete-window split-window))
+  (defvar mac-win-target-commands
+    '(find-file save-buffer other-window delete-window split-window))
 
-    (defun mac-win-restore-ime-target-commands ()
-      (when (and (boundp 'mac-auto-ascii-mode)
-                 mac-auto-ascii-mode
-                 (eq mac-win-last-ime-status 'on))
-        (mapc (lambda (command)
-                (when (string-match
-                       (format "^%s" command) (format "%s" this-command))
-                  (mac-select-input-source
-                   "com.google.inputmethod.Japanese.base")))
-              mac-win-target-commands)))
-    (add-hook 'pre-command-hook #'mac-win-restore-ime-target-commands)
+  (defun mac-win-restore-ime-target-commands ()
+    (when (and (boundp 'mac-auto-ascii-mode)
+               mac-auto-ascii-mode
+               (eq mac-win-last-ime-status 'on))
+      (mapc (lambda (command)
+              (when (string-match
+                     (format "^%s" command) (format "%s" this-command))
+                (mac-select-input-source
+                 "com.google.inputmethod.Japanese.base")))
+            mac-win-target-commands)))
+  (add-hook 'pre-command-hook #'mac-win-restore-ime-target-commands)
 
-    ;; バッファリストを見るとき
-    (add-to-list 'mac-win-target-commands 'counsel-ibuffer)
-    ;; ChangeLogに行くとき
-    (add-to-list 'mac-win-target-commands 'add-change-log-entry-other-window)
-    ;; 個人用の関数を使うとき
-    ;; (add-to-list 'mac-win-target-commands 'my-)
-    ;; 自分で作ったパッケージ群の関数を使うとき
-    (add-to-list 'mac-win-target-commands 'change-frame)
-    ;; org-mode で締め切りを設定するとき．
-    (add-to-list 'mac-win-target-commands 'org-deadline)
-    ;; org-mode で締め切りを設定するとき．
-    ;; (add-to-list 'mac-win-target-commands 'org-capture)
-    ;; query-replace で変換するとき
-    (add-to-list 'mac-win-target-commands 'query-replace)
+  ;; バッファリストを見るとき
+  (add-to-list 'mac-win-target-commands 'counsel-ibuffer)
+  ;; ChangeLogに行くとき
+  (add-to-list 'mac-win-target-commands 'add-change-log-entry-other-window)
+  ;; 個人用の関数を使うとき
+  ;; (add-to-list 'mac-win-target-commands 'my-)
+  ;; 自分で作ったパッケージ群の関数を使うとき
+  (add-to-list 'mac-win-target-commands 'change-frame)
+  ;; org-mode で締め切りを設定するとき．
+  (add-to-list 'mac-win-target-commands 'org-deadline)
+  ;; org-mode で締め切りを設定するとき．
+  ;; (add-to-list 'mac-win-target-commands 'org-capture)
+  ;; query-replace で変換するとき
+  (add-to-list 'mac-win-target-commands 'query-replace)
 
-    ;; ミニバッファ利用後にIMEを戻す
-    ;; M-x でのコマンド選択でIMEを戻せる．
-    ;; これ移動先で q が効かないことがある
-    (add-hook 'minibuffer-setup-hook #'mac-win-save-last-ime-status)
-    (add-hook 'minibuffer-exit-hook #'mac-win-restore-ime)
+  ;; ミニバッファ利用後にIMEを戻す
+  ;; M-x でのコマンド選択でIMEを戻せる．
+  ;; これ移動先で q が効かないことがある
+  (add-hook 'minibuffer-setup-hook #'mac-win-save-last-ime-status)
+  (add-hook 'minibuffer-exit-hook #'mac-win-restore-ime)
 
-    ;; タイトルバーの振る舞いを NS版に合わせる．
-    (setq frame-title-format (format (if (buffer-file-name) "%%f" "%%b")))
+  ;; タイトルバーの振る舞いを NS版に合わせる．
+  (setq frame-title-format (format (if (buffer-file-name) "%%f" "%%b")))
 
-    ;; なおテーマを切り替えたら，face の設定をリロードしないと期待通りにならない
-    (when (require 'hl-line nil t)
-      (custom-set-faces
-       ;; 変換前入力時の文字列用 face
-       `(mac-ts-converted-text
-         ((((background dark)) :underline "orange"
-           :background ,(face-attribute 'hl-line :background))
-          (t (:underline "orange"
-                         :background
-                         ,(face-attribute 'hl-line :background)))))
-       ;; 変換対象の文字列用 face
-       `(mac-ts-selected-converted-text
-         ((((background dark)) :underline "orange"
-           :background ,(face-attribute 'hl-line :background))
-          (t (:underline "orange"
-                         :background
-                         ,(face-attribute 'hl-line :background)))))))
+  ;; なおテーマを切り替えたら，face の設定をリロードしないと期待通りにならない
+  (when (require 'hl-line nil t)
+    (custom-set-faces
+     ;; 変換前入力時の文字列用 face
+     `(mac-ts-converted-text
+       ((((background dark)) :underline "orange"
+         :background ,(face-attribute 'hl-line :background))
+        (t (:underline "orange"
+                       :background
+                       ,(face-attribute 'hl-line :background)))))
+     ;; 変換対象の文字列用 face
+     `(mac-ts-selected-converted-text
+       ((((background dark)) :underline "orange"
+         :background ,(face-attribute 'hl-line :background))
+        (t (:underline "orange"
+                       :background
+                       ,(face-attribute 'hl-line :background)))))))
 
+  (when (fboundp 'mac-input-source)
+    (run-with-idle-timer 3 t 'my-mac-keyboard-input-source))
+
+
+  ;; あまりよいアプローチでは無い気がするけど，org-heading 上とagendaでは
+  ;; 1秒アイドルすると，自動的に IME を OFF にする
+  (defun my-mac-win-org-heading-auto-ascii ()
+    (when (and (eq major-mode 'org-mode)
+               (or (looking-at org-heading-regexp)
+                   (equal (buffer-name) org-agenda-buffer-name)))
+      (setq mac-win-last-ime-status 'off)
+      (mac-auto-ascii-select-input-source)))
+  (when (fboundp 'mac-auto-ascii-select-input-source)
+    (run-with-idle-timer 1 t 'my-mac-win-org-heading-auto-ascii))
+
+  ;; EMP版Emacsの野良ビルド用独自設定群
+  ;; IME toggleを Emacs内で有効にする
+  (defun mac-win-toggle-ime ()
+    (interactive)
     (when (fboundp 'mac-input-source)
-      (run-with-idle-timer 3 t 'my-mac-keyboard-input-source))
+      (mac-select-input-source
+       (concat "com.google.inputmethod.Japanese"
+               (if (string-match "\\.base$" (mac-input-source))
+                   ".Roman" ".base")))))
 
+  ;; isearch 中にIMEを切り替えると，[I-Search] の表示が消える．
+  ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
+  (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
 
-    ;; あまりよいアプローチでは無い気がするけど，org-heading 上とagendaでは
-    ;; 1秒アイドルすると，自動的に IME を OFF にする
-    (defun my-mac-win-org-heading-auto-ascii ()
-      (when (and (eq major-mode 'org-mode)
-                 (or (looking-at org-heading-regexp)
-                     (equal (buffer-name) org-agenda-buffer-name)))
-        (setq mac-win-last-ime-status 'off)
-        (mac-auto-ascii-select-input-source)))
-    (when (fboundp 'mac-auto-ascii-select-input-source)
-      (run-with-idle-timer 1 t 'my-mac-win-org-heading-auto-ascii))
+  (when (boundp 'mac-win-ime-cursor-type)
+    (setq mac-win-ime-cursor-type my-cursor-type-ime-on))
+  ;; minibuffer では↑の背景色を無効にする
+  (when (fboundp 'mac-min--minibuffer-setup)
+    (add-hook 'minibuffer-setup-hook #'mac-min--minibuffer-setup))
+  ;; echo-area でも背景色を無効にする
+  (when (boundp 'mac-win-default-background-echo-area)
+    (setq mac-win-default-background-echo-area t));; *-textのbackgroundを無視
+  ;; デバッグ用
+  (when (boundp 'mac-win-debug-log)
+    (setq mac-win-debug-log nil))
+  ;; Testing...
+  (when (boundp 'mac-win-apply-org-heading-face)
+    (setq mac-win-apply-org-heading-face t))
 
-    ;; EMP版Emacsの野良ビルド用独自設定群
-    ;; IME toggleを Emacs内で有効にする
-    (defun mac-win-toggle-ime ()
-      (interactive)
-      (when (fboundp 'mac-input-source)
-        (mac-select-input-source
-         (concat "com.google.inputmethod.Japanese"
-                 (if (string-match "\\.base$" (mac-input-source))
-                     ".Roman" ".base")))))
-
-    ;; isearch 中にIMEを切り替えると，[I-Search] の表示が消える．
-    ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
-    (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
-
-    (when (boundp 'mac-win-ime-cursor-type)
-      (setq mac-win-ime-cursor-type my-cursor-type-ime-on))
-    ;; minibuffer では↑の背景色を無効にする
-    (when (fboundp 'mac-min--minibuffer-setup)
-      (add-hook 'minibuffer-setup-hook #'mac-min--minibuffer-setup))
-    ;; echo-area でも背景色を無効にする
-    (when (boundp 'mac-win-default-background-echo-area)
-      (setq mac-win-default-background-echo-area t));; *-textのbackgroundを無視
-    ;; デバッグ用
-    (when (boundp 'mac-win-debug-log)
-      (setq mac-win-debug-log nil))
-    ;; Testing...
-    (when (boundp 'mac-win-apply-org-heading-face)
-      (setq mac-win-apply-org-heading-face t))
-
-    (mac-auto-ascii-mode 1)))
+  (mac-auto-ascii-mode 1))
 
 (my-tick-init-time "core")
 
@@ -563,19 +524,7 @@
   (setq header-line-format
         (concat
          " No day is a good day.                                       "
-         (format-time-string "W%W: %Y-%m-%d %a."))))
-
-(with-eval-after-load "postpone"
-  (defun ad:split-window-below (&optional _size)
-    "An extention to switch to \*scratch\* buffer after splitting window."
-    (my-open-scratch))
-  ;; (advice-add 'split-window-below :after #'ad:split-window-below)
-
-  (defun my-open-scratch ()
-    "Switch the current buffer to \*scratch\* buffer."
-    (interactive)
-    (switch-to-buffer "*scratch*"))
-  (global-set-key (kbd "C-M-s") #'my-open-scratch))
+         (format-time-string "     %Y-%m-%d %a."))))
 
 ;; Show scroll bar or not
 (when (and (display-graphic-p)
@@ -867,16 +816,6 @@
         (my-mac-keyboard-input-source))))
 
    (t nil)))
-
-;;(declare-function my-font-config "init" nil)
-(with-eval-after-load "postpone"
-  (defun ad:make-frame (&optional _parameters)
-    (when (display-graphic-p)
-      (my-theme))
-    (when (require 'moom-font nil t)
-      (moom-font-resize)))
-  (advice-add 'make-frame :after #'ad:make-frame)
-  (global-set-key (kbd "M-`") 'other-frame))
 
 (defconst moom-autoloads
   '(moom-cycle-frame-height

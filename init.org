@@ -169,18 +169,19 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(defun ad:emacs-init-time ()
-  "Return a string giving the duration of the Emacs initialization."
-  (interactive)
-  (let ((str
-         (format "%.3f seconds"
-                 (float-time
-                  (time-subtract after-init-time before-init-time)))))
-    (if (called-interactively-p 'interactive)
-        (message "%s" str)
-      str)))
+(with-eval-after-load "time"
+  (defun ad:emacs-init-time ()
+    "Return a string giving the duration of the Emacs initialization."
+    (interactive)
+    (let ((str
+           (format "%.3f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))))
+      (if (called-interactively-p 'interactive)
+          (message "%s" str)
+        str)))
 
-(advice-add 'emacs-init-time :override #'ad:emacs-init-time)
+  (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
 #+end_src
 
 ** GCサイズの最適化
@@ -858,7 +859,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
  - 違和感なく水平方向にスクロールさせる．
 
-#+begin_src emacs-lisp :late-init.el
+#+begin_src emacs-lisp :tangle late-init.el
 (setq hscroll-margin 40)
 #+end_src
 
@@ -1158,6 +1159,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 ** [aggressive-indent.el] 即時バッファ整形
    :PROPERTIES:
    :CUSTOM_ID: orgb5cd55a9
+   :ID:       D55A0659-18AF-4C23-9476-2746EBDF7223
    :END:
 
 特定のメジャーモードで，とにかく整形しまくります． =python-mode= では意図しないインデントになったりします． =web-mode= だと異常に重かったりします．
@@ -1211,49 +1213,6 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
     (ws-butler-global-mode)))
 #+end_src
 
-** [ag.el] 検索
-   :PROPERTIES:
-   :CUSTOM_ID: orgfd3c67b9
-   :END:
-
-検索には =The Silver Searcher= を使います．あらかじめインストールしておく必要があります．MacPorts の場合，the_silver_searcher の名称で頒布されています． =exec-path= に =/opt/local/bin= が含まれていることを確認してください．
-
-#+begin_src sh
-the_silver_searcher @0.18.1 (textproc)
- A code-searching tool similar to ack, but faster.
-#+end_src
-
-カスタマイズした関数を =C-M-f= にぶら下げています．helm インタフェースを使う =helm-ag= や ivy インターフェイスを使う =counsel-ag= もあります． =C-M-f= は，本来，S式の移動(=forward-sexp=)に使われています．
-
-最近は， =counsel-ag= に移行しました．
-
-#+begin_src emacs-lisp :tangle no
-(if (executable-find "ag")
-    (when (autoload-if-found
-           '(my-ag ag)
-           "ag" nil t)
-
-      (autoload-if-found '(helm-ag) "helm-ag" nil t)
-      (global-set-key (kbd "C-M-f") 'my-ag)
-
-      (with-eval-after-load "ag"
-        (custom-set-variables
-         '(ag-highlight-search t)
-         '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
-         '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
-
-        ;; q でウィンドウを抜ける
-        ;; (define-key ag-mode-map (kbd "q") 'delete-window)
-        (defun my-ag ()
-          "Switch to search result."
-          (interactive)
-          (call-interactively 'ag)
-          (switch-to-buffer-other-frame "*ag search*"))))
-
-  (unless noninteractive
-    (message "--- ag is NOT installed in this system.")))
-#+end_src
-
 ** NSビルド用設定                                                     :macOS:
    :PROPERTIES:
    :CUSTOM_ID: orge44eded5
@@ -1264,7 +1223,7 @@ the_silver_searcher @0.18.1 (textproc)
   - [[http://qiita.com/takaxp/items/e07bb286d80fa9dd8e05][emacs-25.2 をインラインパッチをあてて使う（OSX） - Qiita]]
   - [[https://gist.github.com/takaxp/3314a153f6d02d82ef1833638d338ecf][An inline-patch for Emacs-25.2]]
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle late-init.el
 (when (memq window-system '(ns nil))
   (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
   (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
@@ -1272,36 +1231,37 @@ the_silver_searcher @0.18.1 (textproc)
   (declare-function my-ns-ime-restore "init" nil)
   (declare-function my-ime-active-p "init" nil))
 
-(with-eval-after-load "postpone"
-  (when (and (memq window-system '(ns nil))
-             (fboundp 'mac-get-current-input-source))
+(when (and (memq window-system '(ns nil))
+           (fboundp 'mac-get-current-input-source))
 
-    (defun my-toggle-ime-ns ()
-      "Toggle IME."
-      (interactive)
-      (when (window-focus-p)
-        (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
+  (defun my-toggle-ime-ns ()
+    "Toggle IME."
+    (interactive)
+    (when (window-focus-p)
+      (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
 
-    (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-    (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
 
-    (defun my-ns-org-heading-auto-ascii ()
-      "IME off, when the cursor on org headings."
-      (when (and (window-focus-p)
-                 (eq major-mode 'org-mode)
-                 (or (looking-at org-heading-regexp)
-                     (equal (buffer-name) org-agenda-buffer-name))
-                 (my-ime-active-p))
-        (my-ime-off)))
-    (run-with-idle-timer 1 t #'my-ns-org-heading-auto-ascii)
+  (defun my-ns-org-heading-auto-ascii ()
+    "IME off, when the cursor on org headings."
+    (when (and (window-focus-p)
+               (eq major-mode 'org-mode)
+               (or (looking-at org-heading-regexp)
+                   (equal (buffer-name) org-agenda-buffer-name))
+               (my-ime-active-p))
+      (my-ime-off)))
 
-    ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-    (add-hook 'move-cursor-after-hook #'my-ns-org-heading-auto-ascii)
+  ;; カーソル移動で heading に留まった時にIMEをOFFにする
+  (run-with-idle-timer 0.8 t #'my-ns-org-heading-auto-ascii)
 
-    (defun my-ns-ime-restore ()
-      "Restore the last IME status."
-      (if my-ime-last (my-ime-on) (my-ime-off)))
-    (add-hook 'focus-in-hook #'my-ns-ime-restore)))
+  ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
+  ;; (add-hook 'move-cursor-after-hook #'my-ns-org-heading-auto-ascii)
+
+  (defun my-ns-ime-restore ()
+    "Restore the last IME status."
+    (if my-ime-last (my-ime-on) (my-ime-off)))
+  (add-hook 'focus-in-hook #'my-ns-ime-restore))
 #+end_src
 
 ** EMPビルド用設定                                                    :macOS:
@@ -1322,136 +1282,135 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   (declare-function mac-win-restore-ime "init" nil)
   (declare-function mac-win-restore-ime-target-commands "init" nil))
 
-(with-eval-after-load "postpone"
-  (when (and (eq window-system 'mac)
-             (fboundp 'mac-select-input-source)
-             (fboundp 'mac-auto-ascii-select-input-source)
-             (fboundp 'mac-auto-ascii-setup-input-source)
-             (fboundp 'mac-input-source)
-             (fboundp 'mac-auto-ascii-mode))
+(when (and (eq window-system 'mac)
+           (fboundp 'mac-select-input-source)
+           (fboundp 'mac-auto-ascii-select-input-source)
+           (fboundp 'mac-auto-ascii-setup-input-source)
+           (fboundp 'mac-input-source)
+           (fboundp 'mac-auto-ascii-mode))
 
-    (defvar mac-win-last-ime-status 'off) ;; {'off|'on}
-    (defun mac-win-save-last-ime-status ()
-      (setq mac-win-last-ime-status
-            (if (string-match "\\.\\(Roman\\|US\\)$" (mac-input-source))
-                'off 'on)))
-    (mac-win-save-last-ime-status) ;; 初期化
+  (defvar mac-win-last-ime-status 'off) ;; {'off|'on}
+  (defun mac-win-save-last-ime-status ()
+    (setq mac-win-last-ime-status
+          (if (string-match "\\.\\(Roman\\|US\\)$" (mac-input-source))
+              'off 'on)))
+  (mac-win-save-last-ime-status) ;; 初期化
 
-    (defun mac-win-restore-ime ()
-      (when (and (boundp 'mac-auto-ascii-mode)
-                 mac-auto-ascii-mode
-                 (eq mac-win-last-ime-status 'on))
-        (mac-select-input-source
-         "com.google.inputmethod.Japanese.base")))
+  (defun mac-win-restore-ime ()
+    (when (and (boundp 'mac-auto-ascii-mode)
+               mac-auto-ascii-mode
+               (eq mac-win-last-ime-status 'on))
+      (mac-select-input-source
+       "com.google.inputmethod.Japanese.base")))
 
-    (defun ad:mac-auto-ascii-setup-input-source (&optional _prompt)
-      "Extension to store IME status"
-      (mac-win-save-last-ime-status))
-    (advice-add 'mac-auto-ascii-setup-input-source :before
-                #'ad:mac-auto-ascii-setup-input-source)
+  (defun ad:mac-auto-ascii-setup-input-source (&optional _prompt)
+    "Extension to store IME status"
+    (mac-win-save-last-ime-status))
+  (advice-add 'mac-auto-ascii-setup-input-source :before
+              #'ad:mac-auto-ascii-setup-input-source)
 
-    (defvar mac-win-target-commands
-      '(find-file save-buffer other-window delete-window split-window))
+  (defvar mac-win-target-commands
+    '(find-file save-buffer other-window delete-window split-window))
 
-    (defun mac-win-restore-ime-target-commands ()
-      (when (and (boundp 'mac-auto-ascii-mode)
-                 mac-auto-ascii-mode
-                 (eq mac-win-last-ime-status 'on))
-        (mapc (lambda (command)
-                (when (string-match
-                       (format "^%s" command) (format "%s" this-command))
-                  (mac-select-input-source
-                   "com.google.inputmethod.Japanese.base")))
-              mac-win-target-commands)))
-    (add-hook 'pre-command-hook #'mac-win-restore-ime-target-commands)
+  (defun mac-win-restore-ime-target-commands ()
+    (when (and (boundp 'mac-auto-ascii-mode)
+               mac-auto-ascii-mode
+               (eq mac-win-last-ime-status 'on))
+      (mapc (lambda (command)
+              (when (string-match
+                     (format "^%s" command) (format "%s" this-command))
+                (mac-select-input-source
+                 "com.google.inputmethod.Japanese.base")))
+            mac-win-target-commands)))
+  (add-hook 'pre-command-hook #'mac-win-restore-ime-target-commands)
 
-    ;; バッファリストを見るとき
-    (add-to-list 'mac-win-target-commands 'counsel-ibuffer)
-    ;; ChangeLogに行くとき
-    (add-to-list 'mac-win-target-commands 'add-change-log-entry-other-window)
-    ;; 個人用の関数を使うとき
-    ;; (add-to-list 'mac-win-target-commands 'my-)
-    ;; 自分で作ったパッケージ群の関数を使うとき
-    (add-to-list 'mac-win-target-commands 'change-frame)
-    ;; org-mode で締め切りを設定するとき．
-    (add-to-list 'mac-win-target-commands 'org-deadline)
-    ;; org-mode で締め切りを設定するとき．
-    ;; (add-to-list 'mac-win-target-commands 'org-capture)
-    ;; query-replace で変換するとき
-    (add-to-list 'mac-win-target-commands 'query-replace)
+  ;; バッファリストを見るとき
+  (add-to-list 'mac-win-target-commands 'counsel-ibuffer)
+  ;; ChangeLogに行くとき
+  (add-to-list 'mac-win-target-commands 'add-change-log-entry-other-window)
+  ;; 個人用の関数を使うとき
+  ;; (add-to-list 'mac-win-target-commands 'my-)
+  ;; 自分で作ったパッケージ群の関数を使うとき
+  (add-to-list 'mac-win-target-commands 'change-frame)
+  ;; org-mode で締め切りを設定するとき．
+  (add-to-list 'mac-win-target-commands 'org-deadline)
+  ;; org-mode で締め切りを設定するとき．
+  ;; (add-to-list 'mac-win-target-commands 'org-capture)
+  ;; query-replace で変換するとき
+  (add-to-list 'mac-win-target-commands 'query-replace)
 
-    ;; ミニバッファ利用後にIMEを戻す
-    ;; M-x でのコマンド選択でIMEを戻せる．
-    ;; これ移動先で q が効かないことがある
-    (add-hook 'minibuffer-setup-hook #'mac-win-save-last-ime-status)
-    (add-hook 'minibuffer-exit-hook #'mac-win-restore-ime)
+  ;; ミニバッファ利用後にIMEを戻す
+  ;; M-x でのコマンド選択でIMEを戻せる．
+  ;; これ移動先で q が効かないことがある
+  (add-hook 'minibuffer-setup-hook #'mac-win-save-last-ime-status)
+  (add-hook 'minibuffer-exit-hook #'mac-win-restore-ime)
 
-    ;; タイトルバーの振る舞いを NS版に合わせる．
-    (setq frame-title-format (format (if (buffer-file-name) "%%f" "%%b")))
+  ;; タイトルバーの振る舞いを NS版に合わせる．
+  (setq frame-title-format (format (if (buffer-file-name) "%%f" "%%b")))
 
-    ;; なおテーマを切り替えたら，face の設定をリロードしないと期待通りにならない
-    (when (require 'hl-line nil t)
-      (custom-set-faces
-       ;; 変換前入力時の文字列用 face
-       `(mac-ts-converted-text
-         ((((background dark)) :underline "orange"
-           :background ,(face-attribute 'hl-line :background))
-          (t (:underline "orange"
-                         :background
-                         ,(face-attribute 'hl-line :background)))))
-       ;; 変換対象の文字列用 face
-       `(mac-ts-selected-converted-text
-         ((((background dark)) :underline "orange"
-           :background ,(face-attribute 'hl-line :background))
-          (t (:underline "orange"
-                         :background
-                         ,(face-attribute 'hl-line :background)))))))
+  ;; なおテーマを切り替えたら，face の設定をリロードしないと期待通りにならない
+  (when (require 'hl-line nil t)
+    (custom-set-faces
+     ;; 変換前入力時の文字列用 face
+     `(mac-ts-converted-text
+       ((((background dark)) :underline "orange"
+         :background ,(face-attribute 'hl-line :background))
+        (t (:underline "orange"
+                       :background
+                       ,(face-attribute 'hl-line :background)))))
+     ;; 変換対象の文字列用 face
+     `(mac-ts-selected-converted-text
+       ((((background dark)) :underline "orange"
+         :background ,(face-attribute 'hl-line :background))
+        (t (:underline "orange"
+                       :background
+                       ,(face-attribute 'hl-line :background)))))))
 
+  (when (fboundp 'mac-input-source)
+    (run-with-idle-timer 3 t 'my-mac-keyboard-input-source))
+
+
+  ;; あまりよいアプローチでは無い気がするけど，org-heading 上とagendaでは
+  ;; 1秒アイドルすると，自動的に IME を OFF にする
+  (defun my-mac-win-org-heading-auto-ascii ()
+    (when (and (eq major-mode 'org-mode)
+               (or (looking-at org-heading-regexp)
+                   (equal (buffer-name) org-agenda-buffer-name)))
+      (setq mac-win-last-ime-status 'off)
+      (mac-auto-ascii-select-input-source)))
+  (when (fboundp 'mac-auto-ascii-select-input-source)
+    (run-with-idle-timer 1 t 'my-mac-win-org-heading-auto-ascii))
+
+  ;; EMP版Emacsの野良ビルド用独自設定群
+  ;; IME toggleを Emacs内で有効にする
+  (defun mac-win-toggle-ime ()
+    (interactive)
     (when (fboundp 'mac-input-source)
-      (run-with-idle-timer 3 t 'my-mac-keyboard-input-source))
+      (mac-select-input-source
+       (concat "com.google.inputmethod.Japanese"
+               (if (string-match "\\.base$" (mac-input-source))
+                   ".Roman" ".base")))))
 
+  ;; isearch 中にIMEを切り替えると，[I-Search] の表示が消える．
+  ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
+  (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
 
-    ;; あまりよいアプローチでは無い気がするけど，org-heading 上とagendaでは
-    ;; 1秒アイドルすると，自動的に IME を OFF にする
-    (defun my-mac-win-org-heading-auto-ascii ()
-      (when (and (eq major-mode 'org-mode)
-                 (or (looking-at org-heading-regexp)
-                     (equal (buffer-name) org-agenda-buffer-name)))
-        (setq mac-win-last-ime-status 'off)
-        (mac-auto-ascii-select-input-source)))
-    (when (fboundp 'mac-auto-ascii-select-input-source)
-      (run-with-idle-timer 1 t 'my-mac-win-org-heading-auto-ascii))
+  (when (boundp 'mac-win-ime-cursor-type)
+    (setq mac-win-ime-cursor-type my-cursor-type-ime-on))
+  ;; minibuffer では↑の背景色を無効にする
+  (when (fboundp 'mac-min--minibuffer-setup)
+    (add-hook 'minibuffer-setup-hook #'mac-min--minibuffer-setup))
+  ;; echo-area でも背景色を無効にする
+  (when (boundp 'mac-win-default-background-echo-area)
+    (setq mac-win-default-background-echo-area t));; *-textのbackgroundを無視
+  ;; デバッグ用
+  (when (boundp 'mac-win-debug-log)
+    (setq mac-win-debug-log nil))
+  ;; Testing...
+  (when (boundp 'mac-win-apply-org-heading-face)
+    (setq mac-win-apply-org-heading-face t))
 
-    ;; EMP版Emacsの野良ビルド用独自設定群
-    ;; IME toggleを Emacs内で有効にする
-    (defun mac-win-toggle-ime ()
-      (interactive)
-      (when (fboundp 'mac-input-source)
-        (mac-select-input-source
-         (concat "com.google.inputmethod.Japanese"
-                 (if (string-match "\\.base$" (mac-input-source))
-                     ".Roman" ".base")))))
-
-    ;; isearch 中にIMEを切り替えると，[I-Search] の表示が消える．
-    ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
-    (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
-
-    (when (boundp 'mac-win-ime-cursor-type)
-      (setq mac-win-ime-cursor-type my-cursor-type-ime-on))
-    ;; minibuffer では↑の背景色を無効にする
-    (when (fboundp 'mac-min--minibuffer-setup)
-      (add-hook 'minibuffer-setup-hook #'mac-min--minibuffer-setup))
-    ;; echo-area でも背景色を無効にする
-    (when (boundp 'mac-win-default-background-echo-area)
-      (setq mac-win-default-background-echo-area t));; *-textのbackgroundを無視
-    ;; デバッグ用
-    (when (boundp 'mac-win-debug-log)
-      (setq mac-win-debug-log nil))
-    ;; Testing...
-    (when (boundp 'mac-win-apply-org-heading-face)
-      (setq mac-win-apply-org-heading-face t))
-
-    (mac-auto-ascii-mode 1)))
+  (mac-auto-ascii-mode 1))
 #+end_src
 
 * カーソル移動
@@ -1713,7 +1672,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 (when (autoload-if-found
        '(my-toggle-bm
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load)
+         bm-repository-save bm-repository-load counsel-bm)
        "bm" nil t)
 
   ;; ファイルオープン時にブックマークを復帰
@@ -1721,6 +1680,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (global-set-key (kbd "<C-f10>") 'my-bm-next)
   (global-set-key (kbd "<S-f10>") 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
+
+  (with-eval-after-load "ivy"
+    (global-set-key (kbd "<S-f10>") 'counsel-bm))
 
   (with-eval-after-load "bm"
     ;; (setq bm-annotation-width 30)
@@ -1777,7 +1739,41 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
         (org-cycle-hide-drawers 'all)
         (org-show-entry)
         (show-children)
-        (org-show-siblings)))))
+        (org-show-siblings)))
+
+    (when (require 'ivy nil t)
+      (defun counsel-bm-get-list (bookmark-overlays)
+        (-map (lambda (bm)
+                (with-current-buffer (overlay-buffer bm)
+                  (let* ((line (replace-regexp-in-string
+                                "\n$" ""
+                                (buffer-substring (overlay-start bm)
+                                                  (overlay-end bm))))
+                         ;; line numbers start on 1
+                         (line-num
+                          (+ 1 (count-lines (point-min) (overlay-start bm))))
+                         (name (format "%s:%d - %s" (buffer-name) line-num line)))
+                    `(,name . ,bm))))
+              bookmark-overlays))
+
+      (defun counsel-bm ()
+        (interactive)
+        (let* ((bm-list (counsel-bm-get-list (bm-overlays-lifo-order t)))
+               (bm-hash-table (make-hash-table :test 'equal))
+               (search-list (-map (lambda (bm) (car bm)) bm-list)))
+          (-each bm-list (lambda (bm)
+                           (puthash (car bm) (cdr bm) bm-hash-table)
+                           ))
+          (ivy-read "Find bookmark(bm.el): "
+                    search-list
+                    :require-match t
+                    :keymap counsel-describe-map
+                    :action (lambda (chosen)
+                              (let ((bookmark (gethash chosen bm-hash-table)))
+                                (switch-to-buffer (overlay-buffer bookmark))
+                                (bm-goto bookmark)
+                                ))
+                    :sort t))))))
 #+end_src
 
 ** [centered-cursor-mode.el] カーソル位置をバッファ中央に固定
@@ -2667,7 +2663,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
    :CUSTOM_ID: orgee372b48
    :END:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(counsel-world-clock) "counsel-world-clock" nil t)
 #+end_src
 
@@ -3049,7 +3045,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(selected-global-mode)
+       '(selected-global-mode my-helpful)
        "selected" nil t)
 
   (defun my-activate-selected ()
@@ -3057,27 +3053,6 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (selected--on) ;; must call expclitly here
     (remove-hook 'activate-mark-hook #'my-activate-selected))
   (add-hook 'activate-mark-hook #'my-activate-selected)
-
-  (defun my-helpful ()
-    (interactive)
-    (let ((thing (symbol-at-point)))
-      (cond ((functionp thing)
-             (helpful-function thing))
-            ((helpful--variable-p thing)
-             (helpful-variable thing))
-            ((macrop thing)
-             (helpful-macro thing))
-            ((symbolp thing)
-             (helpful-symbol thing))
-            (t
-             (call-interactively 'helpful-function)))))
-
-  (defun my-helpful-variable ()
-    (interactive)
-    (let ((thing (symbol-at-point)))
-      (if (helpful--variable-p thing)
-          (helpful-variable thing)
-        (call-interactively 'helpful-variable))))
 
   (with-eval-after-load "selected"
     (define-key selected-keymap (kbd ";") #'comment-dwim)
@@ -3095,6 +3070,27 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (define-key selected-keymap (kbd "q") #'selected-off)
     (define-key selected-keymap (kbd "x") #'my-hex-to-decimal)
     (define-key selected-keymap (kbd "X") #'my-decimal-to-hex)
+
+    (defun my-helpful ()
+      (interactive)
+      (let ((thing (symbol-at-point)))
+        (cond ((functionp thing)
+               (helpful-function thing))
+              ((helpful--variable-p thing)
+               (helpful-variable thing))
+              ((macrop thing)
+               (helpful-macro thing))
+              ((symbolp thing)
+               (helpful-symbol thing))
+              (t
+               (call-interactively 'helpful-function)))))
+
+    (defun my-helpful-variable ()
+      (interactive)
+      (let ((thing (symbol-at-point)))
+        (if (helpful--variable-p thing)
+            (helpful-variable thing)
+          (call-interactively 'helpful-variable))))
 
     (defun my-eval-region ()
       (interactive)
@@ -3171,13 +3167,19 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
  - [[https://github.com/magnars/multiple-cursors.el][magnars/multiple-cursors.el: Multiple cursors for emacs.]]
 
 #+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
-(autoload-if-found '(mc/num-cursors mc/edit-lines) "multiple-cursors" nil t)
-(with-eval-after-load "multiple-cursors"
-  (when (require 'hydra nil t)
-    ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
-    (defhydra hydra-multiple-cursors (:hint nil)
-      "
+(when (autoload-if-found
+       '(mc/num-cursors
+         mc/edit-lines
+         hydra-multiple-cursors/body)
+       "multiple-cursors" nil t)
+
+  (global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
+
+  (with-eval-after-load "multiple-cursors"
+    (when (require 'hydra nil t)
+      ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
+      (defhydra hydra-multiple-cursors (:hint nil)
+        "
 ==================================================================
  Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
 ------------------------------------------------------------------
@@ -3185,22 +3187,22 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
  [_P_]   Skip     [_N_]   Skip     [_a_] Mark all    [_A_] Insert letters
  [_M-p_] Unmark   [_M-n_] Unmark   [_s_] Search
  [Click] Cursor at point       [_q_] Quit"
-      ("l" mc/edit-lines) ;;  :exit t
-      ("a" mc/mark-all-like-this) ;;  :exit t
-      ("n" mc/mark-next-like-this)
-      ("N" mc/skip-to-next-like-this)
-      ("M-n" mc/unmark-next-like-this)
-      ("p" mc/mark-previous-like-this)
-      ("P" mc/skip-to-previous-like-this)
-      ("M-p" mc/unmark-previous-like-this)
-      ("s" mc/mark-all-in-region-regexp) ;;  :exit t
-      ("0" mc/insert-numbers) ;;  :exit t
-      ("A" mc/insert-letters) ;;  :exit t
-      ("<mouse-1>" mc/add-cursor-on-click)
-      ;; Help with click recognition in this hydra
-      ("<down-mouse-1>" ignore)
-      ("<drag-mouse-1>" ignore)
-      ("q" nil))))
+        ("l" mc/edit-lines) ;;  :exit t
+        ("a" mc/mark-all-like-this) ;;  :exit t
+        ("n" mc/mark-next-like-this)
+        ("N" mc/skip-to-next-like-this)
+        ("M-n" mc/unmark-next-like-this)
+        ("p" mc/mark-previous-like-this)
+        ("P" mc/skip-to-previous-like-this)
+        ("M-p" mc/unmark-previous-like-this)
+        ("s" mc/mark-all-in-region-regexp) ;;  :exit t
+        ("0" mc/insert-numbers) ;;  :exit t
+        ("A" mc/insert-letters) ;;  :exit t
+        ("<mouse-1>" mc/add-cursor-on-click)
+        ;; Help with click recognition in this hydra
+        ("<down-mouse-1>" ignore)
+        ("<drag-mouse-1>" ignore)
+        ("q" nil)))))
 #+end_src
 
 ** TODO [isolate.el] ブラケット等の入力をアシスト
@@ -3550,7 +3552,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
          mode-line-modes)))
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no :export none
 (with-eval-after-load "org"
   (setq mode-line-modes
         (mapcar
@@ -3695,19 +3697,20 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
   (setq header-line-format
         (concat
          " No day is a good day.                                       "
-         (format-time-string "W%W: %Y-%m-%d %a."))))
+         (format-time-string "     %Y-%m-%d %a."))))
+#+end_src
 
-(with-eval-after-load "postpone"
-  (defun ad:split-window-below (&optional _size)
-    "An extention to switch to \*scratch\* buffer after splitting window."
-    (my-open-scratch))
-  ;; (advice-add 'split-window-below :after #'ad:split-window-below)
+#+begin_src emacs-lisp :tangle late-init.el
+(defun ad:split-window-below (&optional _size)
+  "An extention to switch to \*scratch\* buffer after splitting window."
+  (my-open-scratch))
+;; (advice-add 'split-window-below :after #'ad:split-window-below)
 
-  (defun my-open-scratch ()
-    "Switch the current buffer to \*scratch\* buffer."
-    (interactive)
-    (switch-to-buffer "*scratch*"))
-  (global-set-key (kbd "C-M-s") #'my-open-scratch))
+(defun my-open-scratch ()
+  "Switch the current buffer to \*scratch\* buffer."
+  (interactive)
+  (switch-to-buffer "*scratch*"))
+(global-set-key (kbd "C-M-s") #'my-open-scratch)
 #+end_src
 
 =session.el= や =desktop.el= を使っていても，いつも =*scratch*= バッファを表示する．そうじゃないと安心できない人向け．
@@ -4016,11 +4019,16 @@ paren.el の場合は以下の設定．
 以前は =diminish.el= を使用していましたが，ELPA配布のパッケージに移行しました．メジャーモードの短縮表示もマイナーモードの場合と同様に設定できます．この点で，設定がスッキリしました．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (require 'delight nil t)
+(defun my-delight-activate ()
+  (require 'delight nil t)
+  (remove-hook 'find-file-hook #'my-delight-activate))
+(add-hook 'find-file-hook #'my-delight-activate)
+
+(with-eval-after-load "delight"
   (delight
    '(;; Major modes
-;;     (c-mode "C" :major)
-;;     (c++mode "C++" :major)
+     ;;     (c-mode "C" :major)
+     ;;     (c++mode "C++" :major)
      (js2-mode "JS" :major)
      (csharp-mode "C#" :major)
      (prog-mode "Pr" :major)
@@ -4324,7 +4332,23 @@ ivyに移行しました．
                     (calendar-absolute-from-gregorian
                      (list month
                            (- day (1- calendar-week-start-day)) year)))))
-          'font-lock-face 'calendar-iso-week-face)))
+          'font-lock-face 'calendar-iso-week-face))
+
+  (defun my-get-week-number ()
+    "Return the current week number."
+    (format "%02d"
+            (car
+             (calendar-iso-from-absolute
+              (calendar-absolute-from-gregorian
+               (list (string-to-number (format-time-string "%m"))
+                     (- (string-to-number (format-time-string "%d"))
+                        (1- calendar-week-start-day))
+                     (string-to-number (format-time-string "%y"))))))))
+  (setq header-line-format
+        (concat
+         " No day is a good day.                                       "
+         (format "W%s: " (my-get-week-number))
+         (format-time-string "%Y-%m-%d %a."))))
 #+end_src
 
 ** [which-key] キーバインドの選択肢をポップアップする
@@ -4367,7 +4391,18 @@ ivyに移行しました．
      '(highlight-symbol-idle-delay 0.5))))
 #+end_src
 
-** [all-the-icons-dired] フォントを使ったアイコンを表示
+** [all-the-icons.el] フォントでアイコン表示
+   :PROPERTIES:
+   :CUSTOM_ID: org962224ff
+   :END:
+
+~all-the-icons.el~ を使うと，バッファ内やモードライン，ミニバッファでアイコンを表示できるようになります．
+
+[[https://github.com/domtronn/all-the-icons.el][domtronn/all-the-icons.el: A utility package to collect various Icon Fonts and propertize them within Emacs.]]
+
+パッケージを使えるようにした後， =M-x all-the-icons-install-fonts= すると自動的にフォントがインストールされます．続いて =fc-cache -f -v= を発行すればフォントが使えるようになります．
+
+** [all-the-icons-dired] dired でアイコンを表示
    :PROPERTIES:
    :CUSTOM_ID: orgd92b50db
    :END:
@@ -4468,10 +4503,133 @@ ivyに移行しました．
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 #+end_src
 
-** TODO [ivy.el] 続々・何でも絞り込みインターフェイス
+** [ivy.el] 続々・何でも絞り込みインターフェイス
    :PROPERTIES:
    :CUSTOM_ID: orgfa7d126f
    :END:
+
+~helm~ から ~ivy~ に乗り換えました．移行話は Qiita で（長編）記事にしました．
+
+ - https://qiita.com/takaxp/items/2fde2c119e419713342b
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(ivy-dispatching-done-hydra)
+       "ivy-hydra" nil t)
+
+  (with-eval-after-load "ivy-hydra"
+    (defun ad:ivy-dispatching-done-hydra (f)
+      (when (> ivy--length 0)
+        (funcall f)))
+    (advice-add 'ivy-dispatching-done-hydra
+                :around #'ad:ivy-dispatching-done-hydra)))
+
+(when (autoload-if-found
+       '(counsel-ibuffer counsel-M-x counsel-yank-pop)
+       "counsel" nil t)
+
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "M-y") 'counsel-yank-pop)
+  (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+
+  (with-eval-after-load "ivy"
+
+    ;; M-o を ivy-dispatching-done-hydra に割り当てる．
+    (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
+    ;; ivy-dispatching-done を使う．
+    ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done)
+
+    (setq ivy-use-virtual-buffers t)
+    (when (setq enable-recursive-minibuffers t)
+      (minibuffer-depth-indicate-mode 1))
+    (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+
+    ;; counsel-M-x, see also prescient.el section
+    (setq ivy-initial-inputs-alist
+          '((org-agenda-refile . "^")
+            (org-capture-refile . "^")
+            (counsel-describe-function . "^")
+            (counsel-describe-variable . "^")
+            (Man-completion-table . "^")
+            (woman . "^")))
+
+    (ivy-mode 1))
+
+  (with-eval-after-load "counsel"
+
+    (when (require 'smex nil t)
+      (setq smex-history-length 35)
+      (setq smex-completion-method 'ivy))
+
+    ;;  https://github.com/abo-abo/swiper/issues/1294
+    (defun ivy--sort-by-len (name candidates)
+      "Sort CANDIDATES based on similarity of their length with NAME."
+      (let ((name-len (length name))
+            (candidates-count (length candidates)))
+        (if (< 500 candidates-count)
+            candidates
+          (seq-sort-by #'length
+                       (lambda (a b)
+                         (< (abs (- name-len a))
+                            (abs (- name-len b))))
+                       candidates))))
+    (setf (alist-get 'counsel-M-x ivy-sort-matches-functions-alist)
+          #'ivy--sort-by-len)
+
+    ;; Disable counsel-find-file
+    ;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
+    (defun my-disable-counsel-find-file (&rest args)
+      "Disable `counsel-find-file' and use the original `find-file' with ARGS."
+      (let ((completing-read-function #'completing-read-default)
+            (completion-in-region-function #'completion--in-region))
+        (apply #'read-file-name-default args)))
+    (setq read-file-name-function #'my-disable-counsel-find-file)
+    (define-key counsel-mode-map [remap find-file]  nil)
+
+    ;; オリジナルを非インタラクティブ化
+    (when (require 'find-func nil t)
+      (defun find-library (library)
+        "Override the original `find-library' to hide in command list."
+        (prog1
+            (switch-to-buffer (find-file-noselect (find-library-name library)))
+          (run-hooks 'find-function-after-hook))))
+
+    ;; Common actions for counsel-ag, counsel-fzf, and counsel-recentf
+    (defun my-counsel-fzf-in-default-dir (_arg)
+      "Search the current directory with fzf."
+      (counsel-fzf ivy-text default-directory))
+    (defun my-counsel-fzf-in-dir (_arg)
+      "Search again with new root directory."
+      (counsel-fzf ivy-text
+                   (read-directory-name
+                    (concat (car (split-string counsel-fzf-cmd))
+                            " in directory: "))))
+    (defun my-counsel-ag-in-dir (_arg)
+      "Search again with new root directory."
+      (let ((current-prefix-arg '(4)))
+        (counsel-ag ivy-text nil ""))) ;; also disable extra-ag-args
+    ))
+#+end_src
+
+** [ivy.el] プロンプトをカスタマイズ
+   :PROPERTIES:
+   :CUSTOM_ID: org9c962eaf
+   :END:
+
+=ivy-pre-prompt-function= に文字列を返す任意の関数を与えると，プロンプトの前を修飾できます．好みの情報を出力しましょう．
+
+#+begin_src emacs-lisp :tangle late-init.el
+;; プロンプトをカスタマイズ（モードライン非表示派向け）
+(with-eval-after-load "ivy"
+  (defun my-pre-prompt-function ()
+    (if window-system
+        (format "%s\n%s "
+                (make-string (frame-width) ?\x5F) ;; "__"
+                (all-the-icons-faicon "sort-amount-asc")) ;; ""
+      (format "%s\n" (make-string (1- (frame-width)) ?\x2D))))
+  (setq ivy-pre-prompt-function #'my-pre-prompt-function))
+#+end_src
+
 ** TODO [swiper.el] 文字列探索とプレビューを同時に行う
    :PROPERTIES:
    :CUSTOM_ID: orgf0e91c5a
@@ -4707,6 +4865,38 @@ _3_.  ?s?          (Org Mode: by _s_elect)
              (timestamp (concat timestamp-without-timezone
                                 timezone-utf-offset)))
         timestamp))))
+#+end_src
+
+** [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）
+   :PROPERTIES:
+   :CUSTOM_ID: org29951da5
+   :END:
+
+コマンド履歴を保存．コマンドのイニシャル入力を可能にする．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "prescient"
+  (setq prescient-aggressive-file-save t) ;; Merged!
+  (setq prescient-save-file
+        (expand-file-name "~/.emacs.d/prescient-save.el"))
+  (prescient-persist-mode 1))
+
+(with-eval-after-load "ivy"
+  (when (and (require 'prescient nil t)
+             (require 'ivy-prescient nil t))
+    (setq ivy-prescient-retain-classic-highlighting t)
+    (dolist (command '(counsel-world-clock ;; Merged!
+                       counsel-app))
+      (add-to-list 'ivy-prescient-sort-commands command))
+    (ivy-prescient-mode 1)
+    (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
+          #'ivy-prescient-re-builder)
+    (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
+
+(with-eval-after-load "company"
+  (when (and (require 'prescient nil t)
+             (require 'company-prescient nil t))
+    (company-prescient-mode 1)))
 #+end_src
 
 ** DONE バッテリー情報をモードラインに表示する                     :obsolete:
@@ -5293,7 +5483,32 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
   (unless noninteractive
     (let ((message-log-max nil))
-      (recentf-mode 1))))
+      (recentf-mode 1)))
+
+  (when (autoload-if-found '(counsel-recentf) "counsel" nil t)
+    (global-set-key (kbd "C-M-r") 'counsel-recentf))
+
+  (with-eval-after-load "counsel"
+    (defun ad:counsel-recentf ()
+      "Find a file on `recentf-list'."
+      (interactive)
+      (require 'recentf)
+      (recentf-mode)
+      (ivy-read "Recentf: "
+                (progn
+                  (mapc #'substring-no-properties recentf-list) ;; no need?
+                  (mapc #'abbreviate-file-name recentf-list)) ;; ~/
+                :action (lambda (f)
+                          (with-ivy-window
+                            (find-file f)))
+                :require-match t
+                :caller 'counsel-recentf))
+    (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
+    (ivy-add-actions
+     'counsel-recentf
+     '(("g" my-counsel-ag-in-dir "switch to ag")
+       ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
+       ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)")))))
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 #+end_src
@@ -5426,17 +5641,14 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
     ;; https://github.com/abo-abo/hydra/wiki/Dired
     (defhydra hydra-dired (:hint nil :color pink)
       "
-_+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
-_C_opy             View _O_ther     _U_nmark all       _)_ omit-mode                         C-x C-q : edit
-_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
-_R_ename           _M_ chmod        _t_oggle           _g_ revert buf                        C-c ESC : abort
-_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             _r_ dired-recent-open
-_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra
-                   ^ ^              ^ ^                ^ ^                _?_ summary
-                   _A_ find regexp
-_Z_ compress       _Q_ repl regexp
-
-T - tag prefix
+_+_ mkdir        _v_iew        _m_ark            _(_ details       _i_nsert-subdir
+_C_opy           View _O_ther  _U_nmark all      _)_ omit-mode
+_D_elete         _o_pen other  _u_nmark          _l_ redisplay     _w_ kill-subdir
+_R_ename         _M_ chmod     _t_oggle          _g_ revert buf
+_Y_ rel symlink  _G_ chgrp     _E_xtension mark  _s_ort            _r_ dired-recent-open
+_S_ymlink        ^ ^           _F_ind marked     _._ toggle hydra  _?_ summary
+_A_ find regexp  _Z_ compress  T - tag prefix
+_Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 "
       ;; ("\\" dired-do-ispell)
       ("(" dired-hide-details-mode)
@@ -5853,6 +6065,95 @@ Boot                Endtime             Uptime       This emacs
 2019-04-17 12:28:18 2019-04-17 12:28:25   0.00:00:06
 #+end_src
 
+** [ag.el] 検索
+   :PROPERTIES:
+   :CUSTOM_ID: orgfd3c67b9
+   :END:
+
+検索には =The Silver Searcher= を使います．あらかじめインストールしておく必要があります．MacPorts の場合，the_silver_searcher の名称で頒布されています． =exec-path= に =/opt/local/bin= が含まれていることを確認してください．
+
+#+begin_src sh
+the_silver_searcher @0.18.1 (textproc)
+ A code-searching tool similar to ack, but faster.
+#+end_src
+
+カスタマイズした関数を =C-M-f= にぶら下げています．helm インタフェースを使う =helm-ag= や ivy インターフェイスを使う =counsel-ag= もあります． =C-M-f= は，本来，S式の移動(=forward-sexp=)に使われています．
+
+最近は， =counsel-ag= に移行しました．
+
+#+begin_src emacs-lisp :tangle no
+(if (executable-find "ag")
+    (when (autoload-if-found
+           '(my-ag ag)
+           "ag" nil t)
+
+      (autoload-if-found '(helm-ag) "helm-ag" nil t)
+      (global-set-key (kbd "C-M-f") 'my-ag)
+
+      (with-eval-after-load "ag"
+        (custom-set-variables
+         '(ag-highlight-search t)
+         '(ag-reuse-buffers t)		;; nil: 別ウィンドウが開く
+         '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
+
+        ;; q でウィンドウを抜ける
+        ;; (define-key ag-mode-map (kbd "q") 'delete-window)
+        (defun my-ag ()
+          "Switch to search result."
+          (interactive)
+          (call-interactively 'ag)
+          (switch-to-buffer-other-frame "*ag search*"))))
+
+  (unless noninteractive
+    (message "--- ag is NOT installed in this system.")))
+#+end_src
+** [counsel-ag.el] 高速全文検索
+   :PROPERTIES:
+   :CUSTOM_ID: org29c7b6b7
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found '(counsel-ag) "counsel" nil t)
+  (global-set-key (kbd "C-M-f") 'counsel-ag))
+
+(with-eval-after-load "counsel"
+  (defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
+    (apply f (or initial-input (ivy-thing-at-point))
+           (unless current-prefix-arg
+             (or initial-directory default-directory))
+           extra-ag-args ag-prompt caller))
+  (advice-add 'counsel-ag :around #'ad:counsel-ag)
+
+  (ivy-add-actions
+   'counsel-ag
+   '(("r" my-counsel-ag-in-dir "search in directory"))))
+#+end_src
+
+** [counsel-fzf.el] 高速ファイル検索
+   :PROPERTIES:
+   :CUSTOM_ID: org24fd7b68
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(counsel-fzf)
+       "counsel" nil t)
+
+  (global-set-key (kbd "C-M-z") 'counsel-fzf)
+
+  (with-eval-after-load "counsel"
+    (defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
+      (apply f (or initial-input
+                   (ivy-thing-at-point))
+             (or initial-directory default-directory)
+             fzf-prompt))
+    (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
+
+    (ivy-add-actions
+     'counsel-fzf
+     '(("r" my-counsel-fzf-in-dir "search in directory")))))
+#+end_src
+
 ** DONE [wakatime-mode.el] WakaTime を利用して作業記録する         :obsolete:
    CLOSED: [2018-09-23 Sun 22:30]
    :PROPERTIES:
@@ -6066,6 +6367,33 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
     ;;   '(custom-set-variables
     ;;     '(flycheck-display-errors-function
     ;;       #'flycheck-pos-tip-error-messages)))
+
+    (defvar counsel-flycheck-history nil
+      "History for `counsel-flycheck'")
+
+    (defun counsel-flycheck ()
+      (interactive)
+      (if (not (bound-and-true-p flycheck-mode))
+          (message "Flycheck mode is not available or enabled")
+        (ivy-read "Error: "
+                  (let ((source-buffer (current-buffer)))
+                    (with-current-buffer
+                        (or (get-buffer flycheck-error-list-buffer)
+                            (progn
+                              (with-current-buffer
+                                  (get-buffer-create flycheck-error-list-buffer)
+                                (flycheck-error-list-mode)
+                                (current-buffer))))
+                      (flycheck-error-list-set-source source-buffer)
+                      (flycheck-error-list-reset-filter)
+                      (revert-buffer t t t)
+                      (split-string (buffer-string) "\n" t " *")))
+                  :action (lambda (s &rest _)
+                            (-when-let* ( (error (get-text-property 0 'tabulated-list-id s))
+                                          (pos (flycheck-error-pos error)) )
+                              (goto-char (flycheck-error-pos error))))
+                  :history 'counsel-flycheck-history
+                  :caller 'counsel-flycheck)))
     ))
 
 ;; (flycheck-add-next-checker 'javascript-jshint
@@ -6355,11 +6683,30 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
                    (let ((project-name (projectile-project-name)))
                      (unless (string= "-" project-name)
                        (format "(%s) - " project-name))))
-                  "%b"))))
+                  "%b")))
+
+    ;; counsel-projectile
+    (when (require 'counsel-projectile nil t)
+      (add-to-list 'counsel-projectile-switch-project-action
+                   '("z" my-counsel-fzf-in-default-dir
+                     "switch to fzf") t)
+      (add-to-list 'counsel-projectile-find-file-action
+                   '("z" my-counsel-fzf-in-default-dir
+                     "switch to fzf") t)
+
+      (setq projectile-completion-system 'ivy)
+      (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
+      (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
+      (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+      (counsel-projectile-mode 1)))
 
   (unless noninteractive
-    (setq projectile-keymap-prefix (kbd "C-c p"))
-    (projectile-mode 1)))
+    (defun my-projectile-activate ()
+      (interactive)
+      (setq projectile-keymap-prefix (kbd "C-c p"))
+      (projectile-mode 1)
+      (remove-hook 'find-file-hook #'my-projectile-activate))
+    (add-hook 'find-file-hook #'my-projectile-activate)))
 #+end_src
 
 ** [magit.el] Gitクライアント
@@ -6466,7 +6813,7 @@ trim_trailing_whitespace = true
 様々なプログラミング言語に対して，共通のコード整形のトリガー（ =M-x format-all-buffer= ）を提供します．整形するために使うフォーマッタは，原則的に言語ごとに異なる外部ツールを呼び出すので，必要に応じてそれらのツールを別途インストールします．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(require 'format-all nil t)
+(autoload-if-found '(format-all-mode) "format-all" nil t)
 #+end_src
 
 ** TODO [emr.el] リファクタリング
@@ -7264,19 +7611,19 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
    :CUSTOM_ID: org49e5d185
    :END:
 
-=M-x my-org-countdown-timer= で呼び出します．ちょっと時間を測りたい時に使っています．
+=M-x my-countdown-timer= で呼び出します．ちょっと時間を測りたい時に使っています．
 
 #+begin_src emacs-lisp :tangle init-org.el
-(defun my-org-countdown-timer-notify ()
+(defun my-countdown-timer-notify ()
   (when mode-line-format
     (my-mode-line-off))
   (when ns-alerter-command
     (setq org-show-notification-handler #'my-desktop-notification-handler))
-  (remove-hook 'org-timer-done-hook #'my-org-countdown-timer-notify)
-  (remove-hook 'org-timer-stop-hook #'my-org-countdown-timer-notify)
+  (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+  (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
   (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
 
-(defun my-org-countdown-timer ()
+(defun my-countdown-timer ()
   (interactive)
   (unless mode-line-format
     (my-mode-line-on))
@@ -7284,8 +7631,8 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
     (setq org-show-notification-handler nil))
   (with-temp-buffer
     (org-mode)
-    (add-hook 'org-timer-done-hook #'my-org-countdown-timer-notify)
-    (add-hook 'org-timer-stop-hook #'my-org-countdown-timer-notify)
+    (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+    (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
     (org-timer-set-timer)))
 #+end_src
 
@@ -8567,13 +8914,15 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (defvar org-trello-current-prefix-keybinding nil) ;; To avoid an error
   (add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
-  (defun my-activate-org-trello ()
-    (let ((filename (buffer-file-name (current-buffer))))
-      (when (and filename
-                 (string= "trello" (file-name-extension filename))
-                 (require 'org-trello nil t))
-        (org-trello-mode))))
-  (add-hook 'org-mode-hook #'my-activate-org-trello)
+
+  (with-eval-after-load "org"
+    (defun my-activate-org-trello ()
+      (let ((filename (buffer-file-name (current-buffer))))
+        (when (and filename
+                   (string= "trello" (file-name-extension filename))
+                   (require 'org-trello nil t))
+          (org-trello-mode))))
+    (add-hook 'org-mode-hook #'my-activate-org-trello))
 
   (with-eval-after-load "org-trello"
     (defun my-push-trello-card () (interactive) (org-trello-sync-card))
@@ -8777,21 +9126,40 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    :ID:       ADCDC581-CC22-48B0-A1EB-606021AD39E2
    :END:
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(org-recent-headings-helm org-recent-headings-mode)
+       '(org-recent-headings-ivy org-recent-headings-mode)
        "org-recent-headings" nil t)
 
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c f r") 'org-recent-headings-helm))
+  ;; (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
+  (global-set-key (kbd "C-c f r") 'org-recent-headings-ivy)
 
   (with-eval-after-load "org-recent-headings"
-    (custom-set-variables
-     '(org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
-     '(org-recent-headings-use-ids 'when-available))
-    (if shutup-p
-        (shut-up (org-recent-headings-mode 1))
-      (org-recent-headings-mode 1))))
+    ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
+    (setf (alist-get 'org-recent-headings-ivy ivy-sort-functions-alist) nil)
+
+    (defun ad:org-recent-headings-activate ()
+      (interactive)
+      (when (require 'org-recent-headings nil t)
+        (org-recent-headings-mode 1)
+        (advice-remove 'org-recent-headings-ivy
+                       #'ad:org-recent-headings-activate)))
+    (advice-add 'org-recent-headings-ivy :before
+                #'ad:org-recent-headings-activate)
+
+    (setq org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
+    ;; (setq org-recent-headings-use-ids 'when-available)
+    (setq org-recent-headings-show-entry-function
+          'org-recent-headings--show-entry-direct) ;; 直接移動する
+    (setq org-recent-headings-advise-functions
+          '(org-agenda-goto
+            org-agenda-show
+            org-agenda-show-mouse
+            org-show-entry
+            org-reveal
+            org-refile
+            org-tree-to-indirect-buffer
+            org-bookmark-jump))))
 #+end_src
 
 ** TODO [orgnav] ツリーの検索インタフェース
@@ -9304,16 +9672,16 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 フレームを複数使う場合の設定です．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle late-init.el
 ;;(declare-function my-font-config "init" nil)
-(with-eval-after-load "postpone"
+(global-set-key (kbd "M-`") 'other-frame)
+(with-eval-after-load "frame"
   (defun ad:make-frame (&optional _parameters)
     (when (display-graphic-p)
       (my-theme))
     (when (require 'moom-font nil t)
       (moom-font-resize)))
-  (advice-add 'make-frame :after #'ad:make-frame)
-  (global-set-key (kbd "M-`") 'other-frame))
+  (advice-add 'make-frame :after #'ad:make-frame))
 #+end_src
 
 ** [olivetti.el] ウィンドウを中央寄せで配置
@@ -10190,59 +10558,68 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
  - [[https://github.com/tarsius/hl-todo][hl-todo]] を導入すれば簡単にできます．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (require 'hl-todo nil t)
-  (when window-system
-    (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
-    (add-to-list 'hl-todo-keyword-faces '("" . "red"))
-    (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
+(when (autoload-if-found
+       '(global-hl-todo-mode)
+       "hl-todo" nil t)
 
-  (defun my-hl-todo-reload ()
-    (global-hl-todo-mode -1)
-    (global-hl-todo-mode))
+  (defun my-hl-todo-activate ()
+    (global-hl-todo-mode)
+    (remove-hook 'find-file-hook #'my-hl-todo-activate))
+  (add-hook 'find-file-hook #'my-hl-todo-activate)
 
-  (defun my-hl-todo-light-theme ()
-    (setq hl-todo-keyword-faces
-          '(("HOLD" . "#d0bf8f")
-            ("TODO" . "#FF0000")
-            ("NEXT" . "#dca3a3")
-            ("THEM" . "#dc8cc3")
-            ("PROG" . "#7cb8bb")
-            ("OKAY" . "#7cb8bb")
-            ("DONT" . "#5f7f5f")
-            ("FAIL" . "#8c5353")
-            ("DONE" . "SeaGreen")
-            ("NOTE"   . "#d0bf8f")
-            ("KLUDGE" . "#d0bf8f")
-            ("HACK"   . "#d0bf8f")
-            ("TEMP"   . "#d0bf8f")
-            ("FIXME"  . "##3030FF")
-            ("XXX+"   . "#cc9393")
-            ("\\?\\?\\?+" . "#cc9393")))
-    (my-hl-todo-reload))
-  (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+  (with-eval-after-load "hl-todo"
+    (when window-system
+      (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
+      (add-to-list 'hl-todo-keyword-faces '("" . "red"))
+      (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
 
-  (defun my-hl-todo-dark-theme ()
-    (setq hl-todo-keyword-faces
-          '(("HOLD" . "#d0bf8f")
-            ("TODO" . "#cc9393")
-            ("NEXT" . "#dca3a3")
-            ("THEM" . "#dc8cc3")
-            ("PROG" . "#7cb8bb")
-            ("OKAY" . "#7cb8bb")
-            ("DONT" . "#5f7f5f")
-            ("FAIL" . "#8c5353")
-            ("DONE" . "#afd8af")
-            ("NOTE"   . "#d0bf8f")
-            ("KLUDGE" . "#d0bf8f")
-            ("HACK"   . "#d0bf8f")
-            ("TEMP"   . "#d0bf8f")
-            ("FIXME"  . "DodgerBlue1")
-            ("XXX+"   . "#cc9393")
-            ("\\?\\?\\?+" . "#cc9393")))
-    (my-hl-todo-reload))
-  (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)
+    (defun my-hl-todo-reload ()
+      (global-hl-todo-mode -1)
+      (global-hl-todo-mode))
 
-  (global-hl-todo-mode))
+    (defun my-hl-todo-light-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#FF0000")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "SeaGreen")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "##3030FF")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")))
+      (my-hl-todo-reload))
+
+    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+
+    (defun my-hl-todo-dark-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#cc9393")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "#afd8af")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "DodgerBlue1")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")))
+      (my-hl-todo-reload))
+
+    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
 #+end_src
 
 ** [rainbow-mode.el] 配色のリアルタイム確認
@@ -10351,6 +10728,70 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   - =(executable-find "qt_color_picker")= でプログラムを呼べることを確認
   - =#FFFFFF= などの色の上で =M-x edit-color-stamp= を実行する
   - カラーピッカーで色を選んで「OK」すれば， =#FFFFFF= が更新される．
+
+** [ivy.el] インターフェイスの配色
+   :PROPERTIES:
+   :CUSTOM_ID: orge836aa4d
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "ivy"
+  (custom-set-faces
+   '(ivy-current-match
+     ((((class color) (background light))
+       :background "#FFF3F3" :distant-foreground "#000000")
+      (((class color) (background dark))
+       :background "#404040" :distant-foreground "#abb2bf")))
+   '(ivy-minibuffer-match-face-1
+     ((((class color) (background light)) :foreground "#666666")
+      (((class color) (background dark)) :foreground "#999999")))
+   '(ivy-minibuffer-match-face-2
+     ((((class color) (background light)) :foreground "#c03333" :underline t)
+      (((class color) (background dark)) :foreground "#e04444" :underline t)))
+   '(ivy-minibuffer-match-face-3
+     ((((class color) (background light)) :foreground "#8585ff" :underline t)
+      (((class color) (background dark)) :foreground "#7777ff" :underline t)))
+   '(ivy-minibuffer-match-face-4
+     ((((class color) (background light)) :foreground "#439943" :underline t)
+      (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
+#+end_src
+
+** [ivy.el] 選択行をアイコンで強調
+   :PROPERTIES:
+   :CUSTOM_ID: org4b927009
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "ivy"
+;;; 選択対象を "" にする (requires all-the-icons.el)
+  (defface my-ivy-arrow-visible
+    '((((class color) (background light)) :foreground "orange")
+      (((class color) (background dark)) :foreground "#EE6363"))
+    "Face used by Ivy for highlighting the arrow.")
+  (defface my-ivy-arrow-invisible
+    '((((class color) (background light)) :foreground "#FFFFFF")
+      (((class color) (background dark)) :foreground "#31343F"))
+    "Face used by Ivy for highlighting the invisible arrow.")
+
+  (if window-system
+      (when (require 'all-the-icons nil t)
+        (defun my-ivy-format-function-arrow (cands)
+          "Transform CANDS into a string for minibuffer."
+          (ivy--format-function-generic
+           (lambda (str)
+             (concat (all-the-icons-faicon
+                      "hand-o-right"
+                      :v-adjust -0.2 :face 'my-ivy-arrow-visible)
+                     " " (ivy--add-face str 'ivy-current-match)))
+           (lambda (str)
+             (concat (all-the-icons-faicon
+                      "hand-o-right" :face 'my-ivy-arrow-invisible) " " str))
+           cands
+           "\n"))
+        (setq ivy-format-functions-alist
+              '((t . my-ivy-format-function-arrow))))
+    (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
+#+end_src
 
 ** TODO [volatile-highlights] コピペした領域を強調
    :PROPERTIES:
@@ -11017,6 +11458,53 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     (defun my-lingr-login ()
       (when (string= "Sat" (format-time-string "%a"))
         (lingr-login)))))
+#+end_src
+
+** 検索語を変えずに counsel-fzf に接続する
+   :PROPERTIES:
+   :CUSTOM_ID: org2adaf11c
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "counsel"
+;;; auto fzf, 0件ヒットの時，1回だけ[y/n]で counsel-fzf に繋ぐか問う
+  (defcustom my-nocand-then-fzf-commands '(counsel-recentf
+                                           counsel-projectile-find-file
+                                           counsel-projectile-switch-project)
+    "List of commands for applying extension no candidates then `counsel-fzf'."
+    :group 'ivy
+    :type '(list symbol))
+
+  (defcustom my-nocand-then-fzf-idle-time 0.8
+    "Idle time for showing prompt."
+    :group 'ivy
+    :type 'float) ;; N[s] 無応答の時[y/n]を出す．
+
+  (defvar my--nocand-then-fzf t)
+  (defun my-nocand-then-fzf-reset ()
+    (setq my--nocand-then-fzf t))
+  (defun my-nocand-then-fzf (prompt)
+    (when (= ivy--length 0)
+      (if (eq (read-char prompt) ?y) ;; y-or-n-p is not applicable
+          (ivy-exit-with-action
+           (lambda (_x)
+             (counsel-fzf ivy-text default-directory)))
+        (setq my--nocand-then-fzf nil))))
+  (defun ad:fzf:ivy--insert-prompt ()
+    (when (and my--nocand-then-fzf
+               (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)
+               (= ivy--length 0))
+      (let* ((std-props
+              '(front-sticky t rear-nonsticky t field t read-only t))
+             (prompt (concat (my-pre-prompt-function)
+                             "Switch to Counsel-fzf? [y/n] ")))
+        (set-text-properties 0 (length prompt)
+                             `(face minibuffer-prompt ,@std-props) prompt)
+        (run-with-idle-timer my-nocand-then-fzf-idle-time
+                             nil #'my-nocand-then-fzf prompt))))
+  (advice-add 'ivy--insert-prompt :before #'ad:fzf:ivy--insert-prompt)
+  (add-hook 'minibuffer-setup-hook #'my-nocand-then-fzf-reset)
+  (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
 #+end_src
 
 ** TODO [gitter.el] Gitter にログイン

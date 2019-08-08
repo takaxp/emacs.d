@@ -94,6 +94,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     (el-get-bundle "use-package")
 
+    ;; priority
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
 
     ;; Org Mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -212,28 +215,29 @@
 
     ;; Helm modules
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    (el-get-bundle "helm");; for M-x
-    (el-get-bundle "helm-ag")
-    (el-get-bundle "yasuyk/helm-bm")
-    (el-get-bundle "emacs-helm/helm-descbinds")
-    ;;  (el-get-bundle "yasuyk/helm-flycheck" :depends (helm flycheck dash))
-    (el-get-bundle "helm-gtags")
-    (el-get-bundle "helm-projectile")
-    (el-get-bundle "helm-swoop")
-    (el-get-bundle "takaxp/helm-selected")
-    (el-get-bundle "helm-pass"
-                   :type git
-                   :url "https://gitlab.com/jabranham/helm-pass.git")
-    (el-get-bundle "smihica/emmet-mode")
-    (el-get-bundle "yasuyk/helm-emmet" :depends (emmet-mode))
-    (el-get-bundle "emacs-helm/helm-emms")
-    (el-get-bundle "jixiuf/helm-dired-history")
+    (when t
+      (el-get-bundle "helm");; for M-x
+      (el-get-bundle "helm-ag")
+      (el-get-bundle "yasuyk/helm-bm")
+      (el-get-bundle "emacs-helm/helm-descbinds")
+      ;;  (el-get-bundle "yasuyk/helm-flycheck" :depends (helm flycheck dash))
+      (el-get-bundle "helm-gtags")
+      (el-get-bundle "helm-projectile")
+      (el-get-bundle "helm-swoop")
+      (el-get-bundle "takaxp/helm-selected")
+      (el-get-bundle "helm-pass"
+                     :type git
+                     :url "https://gitlab.com/jabranham/helm-pass.git")
+      (el-get-bundle "smihica/emmet-mode")
+      (el-get-bundle "yasuyk/helm-emmet" :depends (emmet-mode))
+      (el-get-bundle "emacs-helm/helm-emms")
+      (el-get-bundle "jixiuf/helm-dired-history")
 
-    ;; (el-get-bundle "helm-google")
-    ;; (el-get-bundle "helm-ghq")
-    ;; (el-get-bundle "helm-css-scss")
-    ;; (el-get-bundle "helm-rtags")
-
+      ;; (el-get-bundle "helm-google")
+      ;; (el-get-bundle "helm-ghq")
+      ;; (el-get-bundle "helm-css-scss")
+      ;; (el-get-bundle "helm-rtags")
+      )
 
     ;; ivy modules
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -245,6 +249,7 @@
                    :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
     (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
     (el-get-bundle "abo-abo/swiper")
+    ;; (el-get-bundle "takaxp/swiper" :branch "mytest")
     (el-get-bundle "Yevgnen/ivy-rich")
     (el-get-bundle "asok/all-the-icons-ivy")
     (el-get-bundle "takaxp/counsel-selected")
@@ -296,7 +301,6 @@
     (el-get-bundle "hide-lines")
     (el-get-bundle "undo-tree")
     (el-get-bundle "back-button")
-    (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
     (el-get-bundle "takaxp/all-the-icons.el" :name all-the-icons)
     (el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
     (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)

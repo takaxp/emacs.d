@@ -1,17 +1,18 @@
 ;; -*- lexical-binding: t -*-
 
-(defun ad:emacs-init-time ()
-  "Return a string giving the duration of the Emacs initialization."
-  (interactive)
-  (let ((str
-         (format "%.3f seconds"
-                 (float-time
-                  (time-subtract after-init-time before-init-time)))))
-    (if (called-interactively-p 'interactive)
-        (message "%s" str)
-      str)))
+(with-eval-after-load "time"
+  (defun ad:emacs-init-time ()
+    "Return a string giving the duration of the Emacs initialization."
+    (interactive)
+    (let ((str
+           (format "%.3f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))))
+      (if (called-interactively-p 'interactive)
+          (message "%s" str)
+        str)))
 
-(advice-add 'emacs-init-time :override #'ad:emacs-init-time)
+  (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
 
 (defun future-time-p (time)
   "Return non-nil if provided TIME formed of \"10:00\" is the future time."
@@ -40,6 +41,8 @@
 (setq mouse-drag-copy-region t)
 
 (setq compilation-scroll-output t)
+
+(setq hscroll-margin 40)
 
 (setq confirm-kill-emacs 'y-or-n-p)
 
@@ -127,6 +130,45 @@
 
   (unless noninteractive
     (ws-butler-global-mode)))
+
+(when (memq window-system '(ns nil))
+  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
+  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
+  (declare-function my-ns-org-heading-auto-ascii "init" nil)
+  (declare-function my-ns-ime-restore "init" nil)
+  (declare-function my-ime-active-p "init" nil))
+
+(when (and (memq window-system '(ns nil))
+           (fboundp 'mac-get-current-input-source))
+
+  (defun my-toggle-ime-ns ()
+    "Toggle IME."
+    (interactive)
+    (when (window-focus-p)
+      (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
+
+  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+
+  (defun my-ns-org-heading-auto-ascii ()
+    "IME off, when the cursor on org headings."
+    (when (and (window-focus-p)
+               (eq major-mode 'org-mode)
+               (or (looking-at org-heading-regexp)
+                   (equal (buffer-name) org-agenda-buffer-name))
+               (my-ime-active-p))
+      (my-ime-off)))
+
+  ;; カーソル移動で heading に留まった時にIMEをOFFにする
+  (run-with-idle-timer 0.8 t #'my-ns-org-heading-auto-ascii)
+
+  ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
+  ;; (add-hook 'move-cursor-after-hook #'my-ns-org-heading-auto-ascii)
+
+  (defun my-ns-ime-restore ()
+    "Restore the last IME status."
+    (if my-ime-last (my-ime-on) (my-ime-off)))
+  (add-hook 'focus-in-hook #'my-ns-ime-restore))
 
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
@@ -255,7 +297,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (when (autoload-if-found
        '(my-toggle-bm
          my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load)
+         bm-repository-save bm-repository-load counsel-bm)
        "bm" nil t)
 
   ;; ファイルオープン時にブックマークを復帰
@@ -263,6 +305,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (global-set-key (kbd "<C-f10>") 'my-bm-next)
   (global-set-key (kbd "<S-f10>") 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
+
+  (with-eval-after-load "ivy"
+    (global-set-key (kbd "<S-f10>") 'counsel-bm))
 
   (with-eval-after-load "bm"
     ;; (setq bm-annotation-width 30)
@@ -319,7 +364,41 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
         (org-cycle-hide-drawers 'all)
         (org-show-entry)
         (show-children)
-        (org-show-siblings)))))
+        (org-show-siblings)))
+
+    (when (require 'ivy nil t)
+      (defun counsel-bm-get-list (bookmark-overlays)
+        (-map (lambda (bm)
+                (with-current-buffer (overlay-buffer bm)
+                  (let* ((line (replace-regexp-in-string
+                                "\n$" ""
+                                (buffer-substring (overlay-start bm)
+                                                  (overlay-end bm))))
+                         ;; line numbers start on 1
+                         (line-num
+                          (+ 1 (count-lines (point-min) (overlay-start bm))))
+                         (name (format "%s:%d - %s" (buffer-name) line-num line)))
+                    `(,name . ,bm))))
+              bookmark-overlays))
+
+      (defun counsel-bm ()
+        (interactive)
+        (let* ((bm-list (counsel-bm-get-list (bm-overlays-lifo-order t)))
+               (bm-hash-table (make-hash-table :test 'equal))
+               (search-list (-map (lambda (bm) (car bm)) bm-list)))
+          (-each bm-list (lambda (bm)
+                           (puthash (car bm) (cdr bm) bm-hash-table)
+                           ))
+          (ivy-read "Find bookmark(bm.el): "
+                    search-list
+                    :require-match t
+                    :keymap counsel-describe-map
+                    :action (lambda (chosen)
+                              (let ((bookmark (gethash chosen bm-hash-table)))
+                                (switch-to-buffer (overlay-buffer bookmark))
+                                (bm-goto bookmark)
+                                ))
+                    :sort t))))))
 
 (when (autoload-if-found
        '(centered-cursor-mode)
@@ -583,6 +662,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (global-set-key (kbd "M-=") 'count-words)
 
+(autoload-if-found '(counsel-world-clock) "counsel-world-clock" nil t)
+
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "n") 'next-line)
   (define-key view-mode-map (kbd "p") 'previous-line)
@@ -747,7 +828,7 @@ This works also for other defined begin/end tokens to define the structure."
  "replace-from-region" nil t)
 
 (when (autoload-if-found
-       '(selected-global-mode)
+       '(selected-global-mode my-helpful)
        "selected" nil t)
 
   (defun my-activate-selected ()
@@ -755,27 +836,6 @@ This works also for other defined begin/end tokens to define the structure."
     (selected--on) ;; must call expclitly here
     (remove-hook 'activate-mark-hook #'my-activate-selected))
   (add-hook 'activate-mark-hook #'my-activate-selected)
-
-  (defun my-helpful ()
-    (interactive)
-    (let ((thing (symbol-at-point)))
-      (cond ((functionp thing)
-             (helpful-function thing))
-            ((helpful--variable-p thing)
-             (helpful-variable thing))
-            ((macrop thing)
-             (helpful-macro thing))
-            ((symbolp thing)
-             (helpful-symbol thing))
-            (t
-             (call-interactively 'helpful-function)))))
-
-  (defun my-helpful-variable ()
-    (interactive)
-    (let ((thing (symbol-at-point)))
-      (if (helpful--variable-p thing)
-          (helpful-variable thing)
-        (call-interactively 'helpful-variable))))
 
   (with-eval-after-load "selected"
     (define-key selected-keymap (kbd ";") #'comment-dwim)
@@ -793,6 +853,27 @@ This works also for other defined begin/end tokens to define the structure."
     (define-key selected-keymap (kbd "q") #'selected-off)
     (define-key selected-keymap (kbd "x") #'my-hex-to-decimal)
     (define-key selected-keymap (kbd "X") #'my-decimal-to-hex)
+
+    (defun my-helpful ()
+      (interactive)
+      (let ((thing (symbol-at-point)))
+        (cond ((functionp thing)
+               (helpful-function thing))
+              ((helpful--variable-p thing)
+               (helpful-variable thing))
+              ((macrop thing)
+               (helpful-macro thing))
+              ((symbolp thing)
+               (helpful-symbol thing))
+              (t
+               (call-interactively 'helpful-function)))))
+
+    (defun my-helpful-variable ()
+      (interactive)
+      (let ((thing (symbol-at-point)))
+        (if (helpful--variable-p thing)
+            (helpful-variable thing)
+          (call-interactively 'helpful-variable))))
 
     (defun my-eval-region ()
       (interactive)
@@ -829,13 +910,19 @@ This works also for other defined begin/end tokens to define the structure."
         (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))))
 
-(global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
-(autoload-if-found '(mc/num-cursors mc/edit-lines) "multiple-cursors" nil t)
-(with-eval-after-load "multiple-cursors"
-  (when (require 'hydra nil t)
-    ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
-    (defhydra hydra-multiple-cursors (:hint nil)
-      "
+(when (autoload-if-found
+       '(mc/num-cursors
+         mc/edit-lines
+         hydra-multiple-cursors/body)
+       "multiple-cursors" nil t)
+
+  (global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
+
+  (with-eval-after-load "multiple-cursors"
+    (when (require 'hydra nil t)
+      ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
+      (defhydra hydra-multiple-cursors (:hint nil)
+        "
 ==================================================================
  Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
 ------------------------------------------------------------------
@@ -843,22 +930,22 @@ This works also for other defined begin/end tokens to define the structure."
  [_P_]   Skip     [_N_]   Skip     [_a_] Mark all    [_A_] Insert letters
  [_M-p_] Unmark   [_M-n_] Unmark   [_s_] Search
  [Click] Cursor at point       [_q_] Quit"
-      ("l" mc/edit-lines) ;;  :exit t
-      ("a" mc/mark-all-like-this) ;;  :exit t
-      ("n" mc/mark-next-like-this)
-      ("N" mc/skip-to-next-like-this)
-      ("M-n" mc/unmark-next-like-this)
-      ("p" mc/mark-previous-like-this)
-      ("P" mc/skip-to-previous-like-this)
-      ("M-p" mc/unmark-previous-like-this)
-      ("s" mc/mark-all-in-region-regexp) ;;  :exit t
-      ("0" mc/insert-numbers) ;;  :exit t
-      ("A" mc/insert-letters) ;;  :exit t
-      ("<mouse-1>" mc/add-cursor-on-click)
-      ;; Help with click recognition in this hydra
-      ("<down-mouse-1>" ignore)
-      ("<drag-mouse-1>" ignore)
-      ("q" nil))))
+        ("l" mc/edit-lines) ;;  :exit t
+        ("a" mc/mark-all-like-this) ;;  :exit t
+        ("n" mc/mark-next-like-this)
+        ("N" mc/skip-to-next-like-this)
+        ("M-n" mc/unmark-next-like-this)
+        ("p" mc/mark-previous-like-this)
+        ("P" mc/skip-to-previous-like-this)
+        ("M-p" mc/unmark-previous-like-this)
+        ("s" mc/mark-all-in-region-regexp) ;;  :exit t
+        ("0" mc/insert-numbers) ;;  :exit t
+        ("A" mc/insert-letters) ;;  :exit t
+        ("<mouse-1>" mc/add-cursor-on-click)
+        ;; Help with click recognition in this hydra
+        ("<down-mouse-1>" ignore)
+        ("<drag-mouse-1>" ignore)
+        ("q" nil)))))
 
 (autoload-if-found
  '(isolate-quick-add
@@ -879,6 +966,17 @@ This works also for other defined begin/end tokens to define the structure."
   (add-hook 'yatex-mode-hook #'bratex-config))
 
 (setq echo-keystrokes 0.5)
+
+(defun ad:split-window-below (&optional _size)
+  "An extention to switch to \*scratch\* buffer after splitting window."
+  (my-open-scratch))
+;; (advice-add 'split-window-below :after #'ad:split-window-below)
+
+(defun my-open-scratch ()
+  "Switch the current buffer to \*scratch\* buffer."
+  (interactive)
+  (switch-to-buffer "*scratch*"))
+(global-set-key (kbd "C-M-s") #'my-open-scratch)
 
 ;; Show line number in the mode line.
 (unless noninteractive
@@ -1006,11 +1104,16 @@ This works also for other defined begin/end tokens to define the structure."
               (cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
                              "%z" mode-line-mule-info :test 'equal))
 
-(when (require 'delight nil t)
+(defun my-delight-activate ()
+  (require 'delight nil t)
+  (remove-hook 'find-file-hook #'my-delight-activate))
+(add-hook 'find-file-hook #'my-delight-activate)
+
+(with-eval-after-load "delight"
   (delight
    '(;; Major modes
-;;     (c-mode "C" :major)
-;;     (c++mode "C++" :major)
+     ;;     (c-mode "C" :major)
+     ;;     (c++mode "C++" :major)
      (js2-mode "JS" :major)
      (csharp-mode "C#" :major)
      (prog-mode "Pr" :major)
@@ -1168,7 +1271,23 @@ This works also for other defined begin/end tokens to define the structure."
                     (calendar-absolute-from-gregorian
                      (list month
                            (- day (1- calendar-week-start-day)) year)))))
-          'font-lock-face 'calendar-iso-week-face)))
+          'font-lock-face 'calendar-iso-week-face))
+
+  (defun my-get-week-number ()
+    "Return the current week number."
+    (format "%02d"
+            (car
+             (calendar-iso-from-absolute
+              (calendar-absolute-from-gregorian
+               (list (string-to-number (format-time-string "%m"))
+                     (- (string-to-number (format-time-string "%d"))
+                        (1- calendar-week-start-day))
+                     (string-to-number (format-time-string "%y"))))))))
+  (setq header-line-format
+        (concat
+         " No day is a good day.                                       "
+         (format "W%s: " (my-get-week-number))
+         (format-time-string "%Y-%m-%d %a."))))
 
 (when (autoload-if-found
        '(which-key-mode)
@@ -1259,6 +1378,113 @@ This works also for other defined begin/end tokens to define the structure."
      '(eldoc-idle-delay 1.0))))
 
 (autoload-if-found '(keycast-mode) "keycast" nil t)
+
+(when (autoload-if-found
+       '(ivy-dispatching-done-hydra)
+       "ivy-hydra" nil t)
+
+  (with-eval-after-load "ivy-hydra"
+    (defun ad:ivy-dispatching-done-hydra (f)
+      (when (> ivy--length 0)
+        (funcall f)))
+    (advice-add 'ivy-dispatching-done-hydra
+                :around #'ad:ivy-dispatching-done-hydra)))
+
+(when (autoload-if-found
+       '(counsel-ibuffer counsel-M-x counsel-yank-pop)
+       "counsel" nil t)
+
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "M-y") 'counsel-yank-pop)
+  (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+
+  (with-eval-after-load "ivy"
+
+    ;; M-o を ivy-dispatching-done-hydra に割り当てる．
+    (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
+    ;; ivy-dispatching-done を使う．
+    ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done)
+
+    (setq ivy-use-virtual-buffers t)
+    (when (setq enable-recursive-minibuffers t)
+      (minibuffer-depth-indicate-mode 1))
+    (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+
+    ;; counsel-M-x, see also prescient.el section
+    (setq ivy-initial-inputs-alist
+          '((org-agenda-refile . "^")
+            (org-capture-refile . "^")
+            (counsel-describe-function . "^")
+            (counsel-describe-variable . "^")
+            (Man-completion-table . "^")
+            (woman . "^")))
+
+    (ivy-mode 1))
+
+  (with-eval-after-load "counsel"
+
+    (when (require 'smex nil t)
+      (setq smex-history-length 35)
+      (setq smex-completion-method 'ivy))
+
+    ;;  https://github.com/abo-abo/swiper/issues/1294
+    (defun ivy--sort-by-len (name candidates)
+      "Sort CANDIDATES based on similarity of their length with NAME."
+      (let ((name-len (length name))
+            (candidates-count (length candidates)))
+        (if (< 500 candidates-count)
+            candidates
+          (seq-sort-by #'length
+                       (lambda (a b)
+                         (< (abs (- name-len a))
+                            (abs (- name-len b))))
+                       candidates))))
+    (setf (alist-get 'counsel-M-x ivy-sort-matches-functions-alist)
+          #'ivy--sort-by-len)
+
+    ;; Disable counsel-find-file
+    ;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
+    (defun my-disable-counsel-find-file (&rest args)
+      "Disable `counsel-find-file' and use the original `find-file' with ARGS."
+      (let ((completing-read-function #'completing-read-default)
+            (completion-in-region-function #'completion--in-region))
+        (apply #'read-file-name-default args)))
+    (setq read-file-name-function #'my-disable-counsel-find-file)
+    (define-key counsel-mode-map [remap find-file]  nil)
+
+    ;; オリジナルを非インタラクティブ化
+    (when (require 'find-func nil t)
+      (defun find-library (library)
+        "Override the original `find-library' to hide in command list."
+        (prog1
+            (switch-to-buffer (find-file-noselect (find-library-name library)))
+          (run-hooks 'find-function-after-hook))))
+
+    ;; Common actions for counsel-ag, counsel-fzf, and counsel-recentf
+    (defun my-counsel-fzf-in-default-dir (_arg)
+      "Search the current directory with fzf."
+      (counsel-fzf ivy-text default-directory))
+    (defun my-counsel-fzf-in-dir (_arg)
+      "Search again with new root directory."
+      (counsel-fzf ivy-text
+                   (read-directory-name
+                    (concat (car (split-string counsel-fzf-cmd))
+                            " in directory: "))))
+    (defun my-counsel-ag-in-dir (_arg)
+      "Search again with new root directory."
+      (let ((current-prefix-arg '(4)))
+        (counsel-ag ivy-text nil ""))) ;; also disable extra-ag-args
+    ))
+
+;; プロンプトをカスタマイズ（モードライン非表示派向け）
+(with-eval-after-load "ivy"
+  (defun my-pre-prompt-function ()
+    (if window-system
+        (format "%s\n%s "
+                (make-string (frame-width) ?\x5F) ;; "__"
+                (all-the-icons-faicon "sort-amount-asc")) ;; ""
+      (format "%s\n" (make-string (1- (frame-width)) ?\x2D))))
+  (setq ivy-pre-prompt-function #'my-pre-prompt-function))
 
 (when (autoload-if-found
        '(swiper-thing-at-point swiper-all-thing-at-point)
@@ -1416,6 +1642,29 @@ _3_.  ?s?          (Org Mode: by _s_elect)
                                 timezone-utf-offset)))
         timestamp))))
 
+(with-eval-after-load "prescient"
+  (setq prescient-aggressive-file-save t) ;; Merged!
+  (setq prescient-save-file
+        (expand-file-name "~/.emacs.d/prescient-save.el"))
+  (prescient-persist-mode 1))
+
+(with-eval-after-load "ivy"
+  (when (and (require 'prescient nil t)
+             (require 'ivy-prescient nil t))
+    (setq ivy-prescient-retain-classic-highlighting t)
+    (dolist (command '(counsel-world-clock ;; Merged!
+                       counsel-app))
+      (add-to-list 'ivy-prescient-sort-commands command))
+    (ivy-prescient-mode 1)
+    (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
+          #'ivy-prescient-re-builder)
+    (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
+
+(with-eval-after-load "company"
+  (when (and (require 'prescient nil t)
+             (require 'company-prescient nil t))
+    (company-prescient-mode 1)))
+
 (when (autoload-if-found
        '(emms-play-file
          emms-play-playlist emms-play-directory my-play-bgm
@@ -1551,7 +1800,32 @@ _3_.  ?s?          (Org Mode: by _s_elect)
 
   (unless noninteractive
     (let ((message-log-max nil))
-      (recentf-mode 1))))
+      (recentf-mode 1)))
+
+  (when (autoload-if-found '(counsel-recentf) "counsel" nil t)
+    (global-set-key (kbd "C-M-r") 'counsel-recentf))
+
+  (with-eval-after-load "counsel"
+    (defun ad:counsel-recentf ()
+      "Find a file on `recentf-list'."
+      (interactive)
+      (require 'recentf)
+      (recentf-mode)
+      (ivy-read "Recentf: "
+                (progn
+                  (mapc #'substring-no-properties recentf-list) ;; no need?
+                  (mapc #'abbreviate-file-name recentf-list)) ;; ~/
+                :action (lambda (f)
+                          (with-ivy-window
+                            (find-file f)))
+                :require-match t
+                :caller 'counsel-recentf))
+    (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
+    (ivy-add-actions
+     'counsel-recentf
+     '(("g" my-counsel-ag-in-dir "switch to ag")
+       ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
+       ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)")))))
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 
@@ -1633,17 +1907,14 @@ _3_.  ?s?          (Org Mode: by _s_elect)
     ;; https://github.com/abo-abo/hydra/wiki/Dired
     (defhydra hydra-dired (:hint nil :color pink)
       "
-_+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
-_C_opy             View _O_ther     _U_nmark all       _)_ omit-mode                         C-x C-q : edit
-_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
-_R_ename           _M_ chmod        _t_oggle           _g_ revert buf                        C-c ESC : abort
-_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             _r_ dired-recent-open
-_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra
-                   ^ ^              ^ ^                ^ ^                _?_ summary
-                   _A_ find regexp
-_Z_ compress       _Q_ repl regexp
-
-T - tag prefix
+_+_ mkdir        _v_iew        _m_ark            _(_ details       _i_nsert-subdir
+_C_opy           View _O_ther  _U_nmark all      _)_ omit-mode
+_D_elete         _o_pen other  _u_nmark          _l_ redisplay     _w_ kill-subdir
+_R_ename         _M_ chmod     _t_oggle          _g_ revert buf
+_Y_ rel symlink  _G_ chgrp     _E_xtension mark  _s_ort            _r_ dired-recent-open
+_S_ymlink        ^ ^           _F_ind marked     _._ toggle hydra  _?_ summary
+_A_ find regexp  _Z_ compress  T - tag prefix
+_Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 "
       ;; ("\\" dired-do-ispell)
       ("(" dired-hide-details-mode)
@@ -1863,6 +2134,39 @@ T - tag prefix
 
 (require 'uptimes nil t)
 
+(when (autoload-if-found '(counsel-ag) "counsel" nil t)
+  (global-set-key (kbd "C-M-f") 'counsel-ag))
+
+(with-eval-after-load "counsel"
+  (defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
+    (apply f (or initial-input (ivy-thing-at-point))
+           (unless current-prefix-arg
+             (or initial-directory default-directory))
+           extra-ag-args ag-prompt caller))
+  (advice-add 'counsel-ag :around #'ad:counsel-ag)
+
+  (ivy-add-actions
+   'counsel-ag
+   '(("r" my-counsel-ag-in-dir "search in directory"))))
+
+(when (autoload-if-found
+       '(counsel-fzf)
+       "counsel" nil t)
+
+  (global-set-key (kbd "C-M-z") 'counsel-fzf)
+
+  (with-eval-after-load "counsel"
+    (defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
+      (apply f (or initial-input
+                   (ivy-thing-at-point))
+             (or initial-directory default-directory)
+             fzf-prompt))
+    (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
+
+    (ivy-add-actions
+     'counsel-fzf
+     '(("r" my-counsel-fzf-in-dir "search in directory")))))
+
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)
 
@@ -1908,6 +2212,33 @@ T - tag prefix
     ;;   '(custom-set-variables
     ;;     '(flycheck-display-errors-function
     ;;       #'flycheck-pos-tip-error-messages)))
+
+    (defvar counsel-flycheck-history nil
+      "History for `counsel-flycheck'")
+
+    (defun counsel-flycheck ()
+      (interactive)
+      (if (not (bound-and-true-p flycheck-mode))
+          (message "Flycheck mode is not available or enabled")
+        (ivy-read "Error: "
+                  (let ((source-buffer (current-buffer)))
+                    (with-current-buffer
+                        (or (get-buffer flycheck-error-list-buffer)
+                            (progn
+                              (with-current-buffer
+                                  (get-buffer-create flycheck-error-list-buffer)
+                                (flycheck-error-list-mode)
+                                (current-buffer))))
+                      (flycheck-error-list-set-source source-buffer)
+                      (flycheck-error-list-reset-filter)
+                      (revert-buffer t t t)
+                      (split-string (buffer-string) "\n" t " *")))
+                  :action (lambda (s &rest _)
+                            (-when-let* ( (error (get-text-property 0 'tabulated-list-id s))
+                                          (pos (flycheck-error-pos error)) )
+                              (goto-char (flycheck-error-pos error))))
+                  :history 'counsel-flycheck-history
+                  :caller 'counsel-flycheck)))
     ))
 
 ;; (flycheck-add-next-checker 'javascript-jshint
@@ -2032,11 +2363,30 @@ T - tag prefix
                    (let ((project-name (projectile-project-name)))
                      (unless (string= "-" project-name)
                        (format "(%s) - " project-name))))
-                  "%b"))))
+                  "%b")))
+
+    ;; counsel-projectile
+    (when (require 'counsel-projectile nil t)
+      (add-to-list 'counsel-projectile-switch-project-action
+                   '("z" my-counsel-fzf-in-default-dir
+                     "switch to fzf") t)
+      (add-to-list 'counsel-projectile-find-file-action
+                   '("z" my-counsel-fzf-in-default-dir
+                     "switch to fzf") t)
+
+      (setq projectile-completion-system 'ivy)
+      (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
+      (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
+      (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+      (counsel-projectile-mode 1)))
 
   (unless noninteractive
-    (setq projectile-keymap-prefix (kbd "C-c p"))
-    (projectile-mode 1)))
+    (defun my-projectile-activate ()
+      (interactive)
+      (setq projectile-keymap-prefix (kbd "C-c p"))
+      (projectile-mode 1)
+      (remove-hook 'find-file-hook #'my-projectile-activate))
+    (add-hook 'find-file-hook #'my-projectile-activate)))
 
 (when (autoload-if-found
        '(magit-status ad:magit-mode-bury-buffer)
@@ -2076,7 +2426,7 @@ T - tag prefix
 
 (autoload-if-found '(cov-mode) "cov" nil t)
 
-(require 'format-all nil t)
+(autoload-if-found '(format-all-mode) "format-all" nil t)
 
 (autoload-if-found '(rmsbolt-mode) "rmsbolt" nil t)
 
@@ -2115,19 +2465,65 @@ T - tag prefix
 
   (defvar org-trello-current-prefix-keybinding nil) ;; To avoid an error
   (add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
-  (defun my-activate-org-trello ()
-    (let ((filename (buffer-file-name (current-buffer))))
-      (when (and filename
-                 (string= "trello" (file-name-extension filename))
-                 (require 'org-trello nil t))
-        (org-trello-mode))))
-  (add-hook 'org-mode-hook #'my-activate-org-trello)
+
+  (with-eval-after-load "org"
+    (defun my-activate-org-trello ()
+      (let ((filename (buffer-file-name (current-buffer))))
+        (when (and filename
+                   (string= "trello" (file-name-extension filename))
+                   (require 'org-trello nil t))
+          (org-trello-mode))))
+    (add-hook 'org-mode-hook #'my-activate-org-trello))
 
   (with-eval-after-load "org-trello"
     (defun my-push-trello-card () (interactive) (org-trello-sync-card))
     (defun my-pull-trello-card () (interactive) (org-trello-sync-card t))
     (defun my-push-trello () (interactive) (org-trello-sync-buffer))
     (defun my-pull-trello () (interactive) (org-trello-sync-buffer t))))
+
+(when (autoload-if-found
+       '(org-recent-headings-ivy org-recent-headings-mode)
+       "org-recent-headings" nil t)
+
+  ;; (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
+  (global-set-key (kbd "C-c f r") 'org-recent-headings-ivy)
+
+  (with-eval-after-load "org-recent-headings"
+    ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
+    (setf (alist-get 'org-recent-headings-ivy ivy-sort-functions-alist) nil)
+
+    (defun ad:org-recent-headings-activate ()
+      (interactive)
+      (when (require 'org-recent-headings nil t)
+        (org-recent-headings-mode 1)
+        (advice-remove 'org-recent-headings-ivy
+                       #'ad:org-recent-headings-activate)))
+    (advice-add 'org-recent-headings-ivy :before
+                #'ad:org-recent-headings-activate)
+
+    (setq org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
+    ;; (setq org-recent-headings-use-ids 'when-available)
+    (setq org-recent-headings-show-entry-function
+          'org-recent-headings--show-entry-direct) ;; 直接移動する
+    (setq org-recent-headings-advise-functions
+          '(org-agenda-goto
+            org-agenda-show
+            org-agenda-show-mouse
+            org-show-entry
+            org-reveal
+            org-refile
+            org-tree-to-indirect-buffer
+            org-bookmark-jump))))
+
+;;(declare-function my-font-config "init" nil)
+(global-set-key (kbd "M-`") 'other-frame)
+(with-eval-after-load "frame"
+  (defun ad:make-frame (&optional _parameters)
+    (when (display-graphic-p)
+      (my-theme))
+    (when (require 'moom-font nil t)
+      (moom-font-resize)))
+  (advice-add 'make-frame :after #'ad:make-frame))
 
 (with-eval-after-load "moom"
   (when (require 'olivetti nil t)
@@ -2346,59 +2742,68 @@ Uses `all-the-icons-material' to fetch the icon."
                       :background "white" :weight 'extra-bold
                       :inherit nil))
 
-(when (require 'hl-todo nil t)
-  (when window-system
-    (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
-    (add-to-list 'hl-todo-keyword-faces '("" . "red"))
-    (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
+(when (autoload-if-found
+       '(global-hl-todo-mode)
+       "hl-todo" nil t)
 
-  (defun my-hl-todo-reload ()
-    (global-hl-todo-mode -1)
-    (global-hl-todo-mode))
+  (defun my-hl-todo-activate ()
+    (global-hl-todo-mode)
+    (remove-hook 'find-file-hook #'my-hl-todo-activate))
+  (add-hook 'find-file-hook #'my-hl-todo-activate)
 
-  (defun my-hl-todo-light-theme ()
-    (setq hl-todo-keyword-faces
-          '(("HOLD" . "#d0bf8f")
-            ("TODO" . "#FF0000")
-            ("NEXT" . "#dca3a3")
-            ("THEM" . "#dc8cc3")
-            ("PROG" . "#7cb8bb")
-            ("OKAY" . "#7cb8bb")
-            ("DONT" . "#5f7f5f")
-            ("FAIL" . "#8c5353")
-            ("DONE" . "SeaGreen")
-            ("NOTE"   . "#d0bf8f")
-            ("KLUDGE" . "#d0bf8f")
-            ("HACK"   . "#d0bf8f")
-            ("TEMP"   . "#d0bf8f")
-            ("FIXME"  . "##3030FF")
-            ("XXX+"   . "#cc9393")
-            ("\\?\\?\\?+" . "#cc9393")))
-    (my-hl-todo-reload))
-  (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+  (with-eval-after-load "hl-todo"
+    (when window-system
+      (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
+      (add-to-list 'hl-todo-keyword-faces '("" . "red"))
+      (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
 
-  (defun my-hl-todo-dark-theme ()
-    (setq hl-todo-keyword-faces
-          '(("HOLD" . "#d0bf8f")
-            ("TODO" . "#cc9393")
-            ("NEXT" . "#dca3a3")
-            ("THEM" . "#dc8cc3")
-            ("PROG" . "#7cb8bb")
-            ("OKAY" . "#7cb8bb")
-            ("DONT" . "#5f7f5f")
-            ("FAIL" . "#8c5353")
-            ("DONE" . "#afd8af")
-            ("NOTE"   . "#d0bf8f")
-            ("KLUDGE" . "#d0bf8f")
-            ("HACK"   . "#d0bf8f")
-            ("TEMP"   . "#d0bf8f")
-            ("FIXME"  . "DodgerBlue1")
-            ("XXX+"   . "#cc9393")
-            ("\\?\\?\\?+" . "#cc9393")))
-    (my-hl-todo-reload))
-  (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)
+    (defun my-hl-todo-reload ()
+      (global-hl-todo-mode -1)
+      (global-hl-todo-mode))
 
-  (global-hl-todo-mode))
+    (defun my-hl-todo-light-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#FF0000")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "SeaGreen")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "##3030FF")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")))
+      (my-hl-todo-reload))
+
+    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+
+    (defun my-hl-todo-dark-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#cc9393")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "#afd8af")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "DodgerBlue1")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")))
+      (my-hl-todo-reload))
+
+    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
 
 (when (autoload-if-found
        '(rainbow-mode)
@@ -2413,6 +2818,56 @@ Uses `all-the-icons-material' to fetch the icon."
             "edit-color-stamp" nil t))
 
   (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
+
+(with-eval-after-load "ivy"
+  (custom-set-faces
+   '(ivy-current-match
+     ((((class color) (background light))
+       :background "#FFF3F3" :distant-foreground "#000000")
+      (((class color) (background dark))
+       :background "#404040" :distant-foreground "#abb2bf")))
+   '(ivy-minibuffer-match-face-1
+     ((((class color) (background light)) :foreground "#666666")
+      (((class color) (background dark)) :foreground "#999999")))
+   '(ivy-minibuffer-match-face-2
+     ((((class color) (background light)) :foreground "#c03333" :underline t)
+      (((class color) (background dark)) :foreground "#e04444" :underline t)))
+   '(ivy-minibuffer-match-face-3
+     ((((class color) (background light)) :foreground "#8585ff" :underline t)
+      (((class color) (background dark)) :foreground "#7777ff" :underline t)))
+   '(ivy-minibuffer-match-face-4
+     ((((class color) (background light)) :foreground "#439943" :underline t)
+      (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
+
+(with-eval-after-load "ivy"
+;;; 選択対象を "" にする (requires all-the-icons.el)
+  (defface my-ivy-arrow-visible
+    '((((class color) (background light)) :foreground "orange")
+      (((class color) (background dark)) :foreground "#EE6363"))
+    "Face used by Ivy for highlighting the arrow.")
+  (defface my-ivy-arrow-invisible
+    '((((class color) (background light)) :foreground "#FFFFFF")
+      (((class color) (background dark)) :foreground "#31343F"))
+    "Face used by Ivy for highlighting the invisible arrow.")
+
+  (if window-system
+      (when (require 'all-the-icons nil t)
+        (defun my-ivy-format-function-arrow (cands)
+          "Transform CANDS into a string for minibuffer."
+          (ivy--format-function-generic
+           (lambda (str)
+             (concat (all-the-icons-faicon
+                      "hand-o-right"
+                      :v-adjust -0.2 :face 'my-ivy-arrow-visible)
+                     " " (ivy--add-face str 'ivy-current-match)))
+           (lambda (str)
+             (concat (all-the-icons-faicon
+                      "hand-o-right" :face 'my-ivy-arrow-invisible) " " str))
+           cands
+           "\n"))
+        (setq ivy-format-functions-alist
+              '((t . my-ivy-format-function-arrow))))
+    (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
 
 (when (autoload-if-found
        '(volatile-highlights-mode my-vhl-change-color)
@@ -2883,6 +3338,46 @@ Uses `all-the-icons-material' to fetch the icon."
     (define-key manage-minor-mode-map (kbd "q")
       (lambda () (interactive)
           (delete-window (get-buffer-window "*manage-minor-mode*"))))))
+
+(with-eval-after-load "counsel"
+;;; auto fzf, 0件ヒットの時，1回だけ[y/n]で counsel-fzf に繋ぐか問う
+  (defcustom my-nocand-then-fzf-commands '(counsel-recentf
+                                           counsel-projectile-find-file
+                                           counsel-projectile-switch-project)
+    "List of commands for applying extension no candidates then `counsel-fzf'."
+    :group 'ivy
+    :type '(list symbol))
+
+  (defcustom my-nocand-then-fzf-idle-time 0.8
+    "Idle time for showing prompt."
+    :group 'ivy
+    :type 'float) ;; N[s] 無応答の時[y/n]を出す．
+
+  (defvar my--nocand-then-fzf t)
+  (defun my-nocand-then-fzf-reset ()
+    (setq my--nocand-then-fzf t))
+  (defun my-nocand-then-fzf (prompt)
+    (when (= ivy--length 0)
+      (if (eq (read-char prompt) ?y) ;; y-or-n-p is not applicable
+          (ivy-exit-with-action
+           (lambda (_x)
+             (counsel-fzf ivy-text default-directory)))
+        (setq my--nocand-then-fzf nil))))
+  (defun ad:fzf:ivy--insert-prompt ()
+    (when (and my--nocand-then-fzf
+               (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)
+               (= ivy--length 0))
+      (let* ((std-props
+              '(front-sticky t rear-nonsticky t field t read-only t))
+             (prompt (concat (my-pre-prompt-function)
+                             "Switch to Counsel-fzf? [y/n] ")))
+        (set-text-properties 0 (length prompt)
+                             `(face minibuffer-prompt ,@std-props) prompt)
+        (run-with-idle-timer my-nocand-then-fzf-idle-time
+                             nil #'my-nocand-then-fzf prompt))))
+  (advice-add 'ivy--insert-prompt :before #'ad:fzf:ivy--insert-prompt)
+  (add-hook 'minibuffer-setup-hook #'my-nocand-then-fzf-reset)
+  (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
 
 (autoload-if-found '(gitter) "gitter"  nil t)
 

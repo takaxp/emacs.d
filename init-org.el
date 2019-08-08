@@ -467,16 +467,16 @@
         (my-set-alarms-from-file file) ;; init
         (add-hook 'after-save-hook #'my-update-alarms-from-file))))) ;; update
 
-(defun my-org-countdown-timer-notify ()
+(defun my-countdown-timer-notify ()
   (when mode-line-format
     (my-mode-line-off))
   (when ns-alerter-command
     (setq org-show-notification-handler #'my-desktop-notification-handler))
-  (remove-hook 'org-timer-done-hook #'my-org-countdown-timer-notify)
-  (remove-hook 'org-timer-stop-hook #'my-org-countdown-timer-notify)
+  (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+  (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
   (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
 
-(defun my-org-countdown-timer ()
+(defun my-countdown-timer ()
   (interactive)
   (unless mode-line-format
     (my-mode-line-on))
@@ -484,8 +484,8 @@
     (setq org-show-notification-handler nil))
   (with-temp-buffer
     (org-mode)
-    (add-hook 'org-timer-done-hook #'my-org-countdown-timer-notify)
-    (add-hook 'org-timer-stop-hook #'my-org-countdown-timer-notify)
+    (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+    (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
     (org-timer-set-timer)))
 
 (when (autoload-if-found

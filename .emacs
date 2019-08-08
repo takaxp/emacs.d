@@ -13,18 +13,13 @@
 ;; https://github.com/Kungsgeten/ivy-todo
 ;; https://github.com/mkcms/ivy-yasnippet
 ;; https://github.com/squiter/ivy-youtube
+;; https://github.com/hrs/engine-mode
 
 
 
-;; Export OK :99aa99426d042a5c2e9d3b6bcdc18a1b57e4acbe
-
-
-
-
-
-
-
-
+;; (setq ivy-fixed-height-minibuffer 20)
+;; (setq ivy-heght 12)
+;; (setq max-mini-window-height 100.0)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Company-box

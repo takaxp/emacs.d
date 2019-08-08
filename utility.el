@@ -5,7 +5,7 @@
 (defun my-cmd-to-open-iterm2 (&optional arg)
   (interactive "P")
   (shell-command-to-string
-   (concat "open -a iTerm2.app "
+   (concat "open -a iTerm.app "
            (when arg default-directory))))
 
 (defvar my-kyoko-mad-mode nil)
@@ -496,6 +496,31 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
         (replace-match
          (concat "\\1 " bullet) nil nil))
        (t nil)))))
+
+(defvar my-garbage-collect-height max-mini-window-height)
+(defun my-garbage-collect-activate ()
+  (setq max-mini-window-height 16)
+  (add-hook 'pre-command-hook #'my-garbage-collect-deactivate))
+(defun my-garbage-collect-deactivate ()
+  (setq max-mini-window-height my-garbage-collect-height)
+  (remove-hook 'pre-command-hook #'my-garbage-collect-deactivate))
+(defun my-garbage-collect ()
+  "Run `garbage-collect' and print stats about memory usage."
+  (interactive)
+  (my-garbage-collect-activate)
+  (message
+   (concat
+    (format "\n%-12s\t%-6s + %-6s = %s\n" "type" "used" "free" "total")
+    (make-string (frame-width) ?-)
+    (cl-loop
+     for (type size used free) in (garbage-collect)
+     for used1 = (* used size)
+     for free1 = (* (or free 0) size)
+     for total = (file-size-human-readable (+ used1 free1))
+     for used2 = (file-size-human-readable used1)
+     for free2 = (file-size-human-readable free1)
+     concat
+     (format "\n%-12s\t%-6s + %-6s = %s" type used2 free2 total)))))
 
 ;;; Test function from GNU Emacs (O'REILLY, P.328)
 ;;;###autoload
