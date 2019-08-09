@@ -1,8 +1,6 @@
 ;;;###autoload
 (defun my-elget-bundles ()
   (when noninteractive
-    ;; setup
-    (advice-remove 'el-get-bundle #'ad:el-get-bundle)
 
     ;; Fundamental packages
     ;; (el-get-bundle "loop")
@@ -321,8 +319,6 @@
     (el-get-bundle "davep/uptimes.el" :name "uptimes")
     ;; (el-get-bundle "sauron")
 
-    ;; finalize
-    (advice-add 'el-get-bundle :after #'ad:el-get-bundle)
     (el-get 'sync)))
 
 ;;;###autoload
@@ -363,16 +359,10 @@
             :override #'ad:el-get-post-update-notification)
 
 ;;;###autoload
-(defun my-reset-elget-links () ;; FIXME
+(defun my-reset-elget-links ()
   (interactive)
-  (when (shell-command-to-string "~/Dropbox/emacs.d/bin/update-elget.sh -r")
+  (when (shell-command-to-string "export HOSTTYPE=\"intel-mac\" && ~/Dropbox/emacs.d/bin/update-elget.sh -r")
     (message "[el-get] Link updated.")))
-
-(defun ad:el-get-bundle (package &rest form)
-  (my-reset-elget-links))
-
-(unless noninteractive
-  (advice-add 'el-get-bundle :after #'ad:el-get-bundle))
 
 (defun my-elget-update ()
   "Update function for batch-mode."
