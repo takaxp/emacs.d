@@ -195,14 +195,14 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
            allow-extend))
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
 
-(when (require 'expand-region nil t)
-  (defun ad:er:mark-sexp (f &optional arg allow-extend)
-    "If the cursor is on a symbol, expand the region along the symbol."
-    (interactive "P\np")
-    (if (and (not (use-region-p))
-             (symbol-at-point))
-        (er/mark-symbol)
-      (funcall f arg allow-extend)))
+(with-eval-after-load "expand-region"
+    (defun ad:er:mark-sexp (f &optional arg allow-extend)
+      "If the cursor is on a symbol, expand the region along the symbol."
+      (interactive "P\np")
+      (if (and (not (use-region-p))
+               (symbol-at-point))
+          (er/mark-symbol)
+        (funcall f arg allow-extend)))
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 
 ;; Scroll window on a line-by-line basis
@@ -657,8 +657,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
         (turn-off-flyspell)))
 
     ;; [FIXME] nextstep+inline-patch版で flyspell すると，日本語nyuuのようになる場合があるので，それを回避（IME が ONになったら一時的に flyspell を止める）
-    (add-hook 'my-ime-off-hook #'my-flyspell-on)
-    (add-hook 'my-ime-on-hook #'my-flyspell-off)))
+    (add-hook 'input-method-activate-hook #'my-flyspell-off)
+    (add-hook 'input-method-deactivate-hook #'my-flyspell-on)))
 
 (global-set-key (kbd "M-=") 'count-words)
 
@@ -2713,10 +2713,10 @@ Uses `all-the-icons-material' to fetch the icon."
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)
-(add-hook 'my-ime-on-hook #'my-ime-on-hline)
-(add-hook 'my-ime-off-hook #'my-ime-off-hline)
-(add-hook 'my-ime-on-hook #'my-hl-line-enable)
-(add-hook 'my-ime-off-hook #'my-hl-line-enable)
+(add-hook 'input-method-activate-hook #'my-ime-on-hline)
+(add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
+(add-hook 'input-method-activate-hook #'my-hl-line-enable)
+(add-hook 'input-method-deactivate-hook #'my-hl-line-enable)
 
 (setq blink-cursor-blinks 0)
 (setq blink-cursor-interval 0.2)
@@ -2743,21 +2743,19 @@ Uses `all-the-icons-material' to fetch the icon."
                       :inherit nil))
 
 (when (autoload-if-found
-       '(global-hl-todo-mode)
+       '(global-hl-todo-mode my-hl-todo-activate)
        "hl-todo" nil t)
 
-  (defun my-hl-todo-activate ()
-    (global-hl-todo-mode)
-    (remove-hook 'find-file-hook #'my-hl-todo-activate))
-  (add-hook 'find-file-hook #'my-hl-todo-activate)
+  ;; (defun my-hl-todo-activate ()
+  ;;   (global-hl-todo-mode)
+  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
+  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
+
+  (global-hl-todo-mode) ;; FIXME
 
   (with-eval-after-load "hl-todo"
-    (when window-system
-      (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
-      (add-to-list 'hl-todo-keyword-faces '("" . "red"))
-      (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
-
     (defun my-hl-todo-reload ()
+      (interactive)
       (global-hl-todo-mode -1)
       (global-hl-todo-mode))
 
@@ -2778,9 +2776,11 @@ Uses `all-the-icons-material' to fetch the icon."
               ("TEMP"   . "#d0bf8f")
               ("FIXME"  . "##3030FF")
               ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")))
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
       (my-hl-todo-reload))
-
     (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
 
     (defun my-hl-todo-dark-theme ()
@@ -2800,9 +2800,11 @@ Uses `all-the-icons-material' to fetch the icon."
               ("TEMP"   . "#d0bf8f")
               ("FIXME"  . "DodgerBlue1")
               ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")))
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
       (my-hl-todo-reload))
-
     (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
 
 (when (autoload-if-found

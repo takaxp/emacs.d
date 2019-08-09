@@ -1495,14 +1495,14 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
            allow-extend))
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
 
-(when (require 'expand-region nil t)
-  (defun ad:er:mark-sexp (f &optional arg allow-extend)
-    "If the cursor is on a symbol, expand the region along the symbol."
-    (interactive "P\np")
-    (if (and (not (use-region-p))
-             (symbol-at-point))
-        (er/mark-symbol)
-      (funcall f arg allow-extend)))
+(with-eval-after-load "expand-region"
+    (defun ad:er:mark-sexp (f &optional arg allow-extend)
+      "If the cursor is on a symbol, expand the region along the symbol."
+      (interactive "P\np")
+      (if (and (not (use-region-p))
+               (symbol-at-point))
+          (er/mark-symbol)
+        (funcall f arg allow-extend)))
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 #+end_src
 
@@ -2617,8 +2617,8 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
         (turn-off-flyspell)))
 
     ;; [FIXME] nextstep+inline-patch版で flyspell すると，日本語nyuuのようになる場合があるので，それを回避（IME が ONになったら一時的に flyspell を止める）
-    (add-hook 'my-ime-off-hook #'my-flyspell-on)
-    (add-hook 'my-ime-on-hook #'my-flyspell-off)))
+    (add-hook 'input-method-activate-hook #'my-flyspell-off)
+    (add-hook 'input-method-deactivate-hook #'my-flyspell-on)))
 #+end_src
 
 ** リージョン内の文字をカウントする
@@ -9546,8 +9546,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (declare-function my-ime-active-p "init" nil)
 
     (setq my-ime-last (my-ime-active-p))
-    (defvar my-ime-on-hook nil)
-    (defvar my-ime-off-hook nil)
 
     (defun my-ime-on ()
       (interactive)
@@ -9555,8 +9553,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
         (mac-toggle-input-method t))
       (setq cursor-type my-cursor-type-ime-on)
       (set-cursor-color my-cursor-color-ime-on)
-      (setq my-ime-last t)
-      (run-hooks 'my-ime-on-hook))
+      (setq my-ime-last t))
 
     (defun my-ime-off ()
       (interactive)
@@ -9564,8 +9561,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
         (mac-toggle-input-method nil))
       (setq cursor-type my-cursor-type-ime-off)
       (set-cursor-color my-cursor-color-ime-off)
-      (setq my-ime-last nil)
-      (run-hooks 'my-ime-off-hook))
+      (setq my-ime-last nil))
 
     (defvar my-ime-flag nil)
     (add-hook 'activate-mark-hook
@@ -9585,11 +9581,11 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     ;;       (progn
     ;;         (setq cursor-type my-cursor-type-ime-on)
     ;;         (set-cursor-color my-cursor-color-ime-on)
-    ;;         (run-hooks 'my-ime-on-hook))
+    ;;         )
     ;;     (progn
     ;;       (setq cursor-type my-cursor-type-ime-off)
     ;;       (set-cursor-color my-cursor-color-ime-off)
-    ;;       (run-hooks 'my-ime-off-hook))))
+    ;;       )))
     ;; (advice-add 'mac-toggle-input-method
     ;;             :before #'ad:mac-toggle-input-method)
 
@@ -10227,10 +10223,10 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)
-(add-hook 'my-ime-on-hook #'my-ime-on-hline)
-(add-hook 'my-ime-off-hook #'my-ime-off-hline)
-(add-hook 'my-ime-on-hook #'my-hl-line-enable)
-(add-hook 'my-ime-off-hook #'my-hl-line-enable)
+(add-hook 'input-method-activate-hook #'my-ime-on-hline)
+(add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
+(add-hook 'input-method-activate-hook #'my-hl-line-enable)
+(add-hook 'input-method-deactivate-hook #'my-hl-line-enable)
 #+end_src
 
 色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．
@@ -10559,21 +10555,19 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(global-hl-todo-mode)
+       '(global-hl-todo-mode my-hl-todo-activate)
        "hl-todo" nil t)
 
-  (defun my-hl-todo-activate ()
-    (global-hl-todo-mode)
-    (remove-hook 'find-file-hook #'my-hl-todo-activate))
-  (add-hook 'find-file-hook #'my-hl-todo-activate)
+  ;; (defun my-hl-todo-activate ()
+  ;;   (global-hl-todo-mode)
+  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
+  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
+
+  (global-hl-todo-mode) ;; FIXME
 
   (with-eval-after-load "hl-todo"
-    (when window-system
-      (add-to-list 'hl-todo-keyword-faces '("" . "orange"))
-      (add-to-list 'hl-todo-keyword-faces '("" . "red"))
-      (add-to-list 'hl-todo-keyword-faces '("" . "Seagreen3")))
-
     (defun my-hl-todo-reload ()
+      (interactive)
       (global-hl-todo-mode -1)
       (global-hl-todo-mode))
 
@@ -10594,9 +10588,11 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
               ("TEMP"   . "#d0bf8f")
               ("FIXME"  . "##3030FF")
               ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")))
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
       (my-hl-todo-reload))
-
     (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
 
     (defun my-hl-todo-dark-theme ()
@@ -10616,9 +10612,11 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
               ("TEMP"   . "#d0bf8f")
               ("FIXME"  . "DodgerBlue1")
               ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")))
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
       (my-hl-todo-reload))
-
     (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
 #+end_src
 

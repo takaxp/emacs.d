@@ -699,8 +699,6 @@
     (declare-function my-ime-active-p "init" nil)
 
     (setq my-ime-last (my-ime-active-p))
-    (defvar my-ime-on-hook nil)
-    (defvar my-ime-off-hook nil)
 
     (defun my-ime-on ()
       (interactive)
@@ -708,8 +706,7 @@
         (mac-toggle-input-method t))
       (setq cursor-type my-cursor-type-ime-on)
       (set-cursor-color my-cursor-color-ime-on)
-      (setq my-ime-last t)
-      (run-hooks 'my-ime-on-hook))
+      (setq my-ime-last t))
 
     (defun my-ime-off ()
       (interactive)
@@ -717,8 +714,7 @@
         (mac-toggle-input-method nil))
       (setq cursor-type my-cursor-type-ime-off)
       (set-cursor-color my-cursor-color-ime-off)
-      (setq my-ime-last nil)
-      (run-hooks 'my-ime-off-hook))
+      (setq my-ime-last nil))
 
     (defvar my-ime-flag nil)
     (add-hook 'activate-mark-hook
@@ -738,11 +734,11 @@
     ;;       (progn
     ;;         (setq cursor-type my-cursor-type-ime-on)
     ;;         (set-cursor-color my-cursor-color-ime-on)
-    ;;         (run-hooks 'my-ime-on-hook))
+    ;;         )
     ;;     (progn
     ;;       (setq cursor-type my-cursor-type-ime-off)
     ;;       (set-cursor-color my-cursor-color-ime-off)
-    ;;       (run-hooks 'my-ime-off-hook))))
+    ;;       )))
     ;; (advice-add 'mac-toggle-input-method
     ;;             :before #'ad:mac-toggle-input-method)
 
