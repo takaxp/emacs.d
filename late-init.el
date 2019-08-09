@@ -95,6 +95,10 @@
       (when (fboundp 'paradox-enable)
         (paradox-enable)))))
 
+(autoload-if-found
+ '(el-get-install el-get-remove el-get-version el-get-bundle)
+ "elget-config" nil t)
+
 (setq vc-follow-symlinks t)
 
 (unless noninteractive

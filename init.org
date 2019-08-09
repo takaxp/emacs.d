@@ -1090,6 +1090,16 @@ echo "--- done."
         (paradox-enable)))))
 #+end_src
 
+*** TODO el-get
+
+密かに =el-get= に移行．コマンドラインからの効率よく管理も可能．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(autoload-if-found
+ '(el-get-install el-get-remove el-get-version el-get-bundle)
+ "elget-config" nil t)
+#+end_src
+
 ** インデント
    :PROPERTIES:
    :CUSTOM_ID: org03555a6a

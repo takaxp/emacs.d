@@ -3,10 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 (load "~/Dropbox/emacs.d/config/init-ivy.el" nil t) ;; will be merged
-(defun my-load-elget ()
-  (interactive)
-  ;; (require 'elget-config "~/Dropbox/emacs.d/config/elget-config.el")
-  (require 'elget-config nil t))
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;   ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
 ;;   git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
