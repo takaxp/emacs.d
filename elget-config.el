@@ -178,6 +178,8 @@
     (el-get-bundle "kchenphy/counsel-world-clock")
     (el-get-bundle "raxod502/prescient.el" :name prescient)
     (el-get-bundle "momomo5717/avy-migemo")
+    (el-get-bundle "mkcms/ivy-yasnippet") ;; require ~/.emacs.d/recipes/ivy.rcp
+    (el-get-bundle "akirak/ivy-omni-org")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; OSX support ;;;
     (el-get-bundle "raghavgautam/osx-lib")
@@ -208,7 +210,6 @@
 
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Visualize ;;;
-
     (el-get-bundle "volatile-highlights")
     (el-get-bundle "highlight-symbol")
     (el-get-bundle "fancy-narrow")
@@ -329,7 +330,7 @@
   (add-to-list 'load-path (concat el-get-dir "/el-get"))
   (add-to-list 'load-path (concat el-get-dir "/postpone"))
   (unless (file-directory-p el-get-dir)
-    (user-error (format "Before use this, be sure %s exists" el-get-dir)))
+    (user-error (format "!! Before use this, be sure %s exists !!" el-get-dir)))
 
   (unless (require 'el-get nil 'noerror)
     (with-current-buffer

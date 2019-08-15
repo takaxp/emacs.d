@@ -1665,7 +1665,8 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 
 (with-eval-after-load "bs"
   (custom-set-variables
-   '(bs-cycle-configuration-name "files-and-scratch")))
+   '(bs-cycle-configuration-name "files-and-scratch")
+   '(bs-max-window-height 1)))
 #+end_src
 
 ** [bm.el] カーソル位置をブックマークして追う
@@ -2901,6 +2902,18 @@ This works also for other defined begin/end tokens to define the structure."
            (org-cycle))
           (t (yas-expand field))))
   (define-key yas-minor-mode-map (kbd "<tab>") 'my-yas-expand))
+#+end_src
+
+*** [ivy-yasnippet.el] yasnippet.el の ivy インターフェイス
+    :PROPERTIES:
+    :CUSTOM_ID: org8166015d
+    :END:
+
+~M-x ivy-yasnippet~ でスニペットを絞り込めます．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "yasnippet"
+  (require 'ivy-yasnippet nil t))
 #+end_src
 
 ** [osx-dictionary.el] macOSのdictionary.appで辞書をひく
@@ -5505,9 +5518,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
       (require 'recentf)
       (recentf-mode)
       (ivy-read "Recentf: "
-                (progn
-                  (mapc #'substring-no-properties recentf-list) ;; no need?
-                  (mapc #'abbreviate-file-name recentf-list)) ;; ~/
+                (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
+                                     (substring-no-properties x)))
+                        recentf-list)
                 :action (lambda (f)
                           (with-ivy-window
                             (find-file f)))
@@ -6154,7 +6167,9 @@ the_silver_searcher @0.18.1 (textproc)
   (with-eval-after-load "counsel"
     (defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
       (apply f (or initial-input
-                   (ivy-thing-at-point))
+                   (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
+                       nil
+                     (ivy-thing-at-point)))
              (or initial-directory default-directory)
              fzf-prompt))
     (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
@@ -9485,6 +9500,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
            (alpha . (100 90))
            ;; (vertical-scroll-bars . nil)
            ;; (internal-border-width . 20)
+           ;; (outer-border-width . 20)
            ;; (ns-appearance . nil) ;; 26.1 {light, dark}
            (ns-transparent-titlebar . t)) ;; 26.1
          initial-frame-alist)))
@@ -9754,7 +9770,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
     moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
     moom-change-frame-width moom-change-frame-width-double
-    moom-change-frame-width-single))
+    moom-change-frame-width-single moom-change-frame-width-half-again))
 
 (when (autoload-if-found
        moom-autoloads
@@ -11341,7 +11357,9 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
    :CUSTOM_ID: org2906cf09
    :END:
 
- - [[https://github.com/Ambrevar/emacs-gif-screencast][Ambrevar/emacs-gif-screencast: One-frame-per-action GIF recording for optimal quality/size ratio]]
+ - [[https://gitlab.com/ambrevar/emacs-gif-screencast][Ambrevar / emacs-gif-screencast · GitLab]]
+   - GitLab に移転しました．
+   - [[https://github.com/Ambrevar/emacs-gif-screencast][Ambrevar/emacs-gif-screencast: One-frame-per-action GIF recording for optimal quality/size ratio]]
  - +色々と Linux用に設計・前提とされていて，今のところ Mac で使うのはちょっと厳しい．+
    - macOS用に追加実装しました．[[https://github.com/Ambrevar/emacs-gif-screencast/commit/0ab5f3db2ca0679698a297003cb286e727d12c10#diff-825716ca58bd0ebef62b7ed711446577][本家にマージ]]されています．
    - スクショ専門ツールもあります．こちらは =import= コマンドを利用します．

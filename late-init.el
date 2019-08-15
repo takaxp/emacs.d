@@ -296,7 +296,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (with-eval-after-load "bs"
   (custom-set-variables
-   '(bs-cycle-configuration-name "files-and-scratch")))
+   '(bs-cycle-configuration-name "files-and-scratch")
+   '(bs-max-window-height 1)))
 
 (when (autoload-if-found
        '(my-toggle-bm
@@ -773,6 +774,9 @@ This works also for other defined begin/end tokens to define the structure."
                 'yas-installed-snippets-dir)) ;; for Cask
     (unless noninteractive
       (yas-global-mode 1))))
+
+(with-eval-after-load "yasnippet"
+  (require 'ivy-yasnippet nil t))
 
 (when (autoload-if-found
        '(osx-dictionary-search-pointer osx-dictionary-search-input)
@@ -1816,9 +1820,9 @@ _3_.  ?s?          (Org Mode: by _s_elect)
       (require 'recentf)
       (recentf-mode)
       (ivy-read "Recentf: "
-                (progn
-                  (mapc #'substring-no-properties recentf-list) ;; no need?
-                  (mapc #'abbreviate-file-name recentf-list)) ;; ~/
+                (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
+                                     (substring-no-properties x)))
+                        recentf-list)
                 :action (lambda (f)
                           (with-ivy-window
                             (find-file f)))
@@ -2162,7 +2166,9 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
   (with-eval-after-load "counsel"
     (defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
       (apply f (or initial-input
-                   (ivy-thing-at-point))
+                   (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
+                       nil
+                     (ivy-thing-at-point)))
              (or initial-directory default-directory)
              fzf-prompt))
     (advice-add 'counsel-fzf :around #'ad:counsel-fzf)

@@ -628,6 +628,7 @@
            (alpha . (100 90))
            ;; (vertical-scroll-bars . nil)
            ;; (internal-border-width . 20)
+           ;; (outer-border-width . 20)
            ;; (ns-appearance . nil) ;; 26.1 {light, dark}
            (ns-transparent-titlebar . t)) ;; 26.1
          initial-frame-alist)))
@@ -820,7 +821,7 @@
     moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
     moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
     moom-change-frame-width moom-change-frame-width-double
-    moom-change-frame-width-single))
+    moom-change-frame-width-single moom-change-frame-width-half-again))
 
 (when (autoload-if-found
        moom-autoloads
