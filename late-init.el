@@ -297,7 +297,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (with-eval-after-load "bs"
   (custom-set-variables
    '(bs-cycle-configuration-name "files-and-scratch")
-   '(bs-max-window-height 1)))
+   '(bs-max-window-height 10)))
 
 (when (autoload-if-found
        '(my-toggle-bm

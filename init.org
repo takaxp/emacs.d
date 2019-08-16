@@ -1666,7 +1666,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 (with-eval-after-load "bs"
   (custom-set-variables
    '(bs-cycle-configuration-name "files-and-scratch")
-   '(bs-max-window-height 1)))
+   '(bs-max-window-height 10)))
 #+end_src
 
 ** [bm.el] カーソル位置をブックマークして追う
@@ -7058,7 +7058,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   (with-eval-after-load "ox"
     (add-to-list 'org-modules 'ox-odt)
-    (add-to-list 'org-modules 'ox-org))
+    (add-to-list 'org-modules 'ox-org)
+    (add-to-list 'org-modules 'ox-json))
 
   (with-eval-after-load "org-tempo"
     ;; 空行のときインデントさせない（Thanks to @conao3）

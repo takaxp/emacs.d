@@ -22,7 +22,8 @@
 
   (with-eval-after-load "ox"
     (add-to-list 'org-modules 'ox-odt)
-    (add-to-list 'org-modules 'ox-org))
+    (add-to-list 'org-modules 'ox-org)
+    (add-to-list 'org-modules 'ox-json))
 
   (with-eval-after-load "org-tempo"
     ;; 空行のときインデントさせない（Thanks to @conao3）

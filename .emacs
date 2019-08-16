@@ -20,27 +20,34 @@
 ;; (set-frame-parameter (selected-frame) 'internal-border-width 10)
 ;; (set-face-background 'internal-border "#FF00FF")
 
-(custom-set-faces
- '(internal-border
-   ((((background dark)) :background "#FF0000")
-    (t (:background "#FF0000")))))
 
 
-;; (with-eval-after-load "frame"
-;;   (advice-remove 'make-frame #'ad:make-frame))
+(with-eval-after-load "posframe"
 
-;; (setq my-string "hoge.
-;; hoge.")
+  (custom-set-faces
+   '(internal-border
+     ((((background dark)) :background "#FF0000")
+      (t (:background "#FF0000")))))
 
-;; (when (and (require 'posframe nil t)
-;;            (posframe-workable-p))
-;;   (posframe-show
-;;    "test"
-;;    :string my-string
-;;    :background-color "black"
-;;    :foreground-color "green"
-;;    :internal-border-width 10
-;;    :internal-border-color "red"))
+
+  (with-eval-after-load "frame"
+    (advice-remove 'make-frame #'ad:make-frame))
+
+  (setq my-string "hoge.
+hoge.")
+
+  (when (and nil
+             (require 'posframe nil t)
+             (posframe-workable-p))
+    (posframe-show
+     "test"
+     :string my-string
+     :background-color "black"
+     :foreground-color "green"
+     :internal-border-width 1
+     :internal-border-color "red"))
+  )
+
 
 ;; ivy-posframe
 (when (and nil
@@ -88,9 +95,8 @@
 
   (modify-frame-parameters (selected-frame) '((border-width . 20)))
 
-  (insert (format "%s" (frame-parameters)))
+  (insert (format "%s" (frame-parameters))))
 
-  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Company-box
