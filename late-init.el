@@ -589,8 +589,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (setq ispell-local-dictionary-alist
             '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
                    ("-d" "en" "--encoding=utf-8") nil utf-8)))
-      (setq ispell-personal-dictionary "~/Dropbox/emacs.d/.aspell.en.pws")
-      )
+      (setq ispell-personal-dictionary
+            "~/Dropbox/emacs.d/config/aspell.en.pws"))
 
      (t
       nil))))
@@ -921,15 +921,15 @@ This works also for other defined begin/end tokens to define the structure."
 (when (autoload-if-found
        '(mc/num-cursors
          mc/edit-lines
-         hydra-multiple-cursors/body)
+         hydra-multi-cursors/body)
        "multiple-cursors" nil t)
 
-  (global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
+  (global-set-key (kbd "C-c h m") #'hydra-multi-cursors/body)
 
   (with-eval-after-load "multiple-cursors"
     (when (require 'hydra nil t)
       ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
-      (defhydra hydra-multiple-cursors (:hint nil)
+      (defhydra hydra-multi-cursors (:hint nil)
         "
 ==================================================================
  Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
@@ -1405,6 +1405,7 @@ This works also for other defined begin/end tokens to define the structure."
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (global-set-key (kbd "M-y") 'counsel-yank-pop)
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+  (global-set-key (kbd "C-c i r") 'ivy-resume)
 
   (with-eval-after-load "ivy"
 
@@ -1573,10 +1574,10 @@ This works also for other defined begin/end tokens to define the structure."
     (setq my-dimmer-mode (dimmer-mode 1))))
 
 (when (autoload-if-found
-       '(help/hydra/timestamp/body)
+       '(hydra-timestamp/body)
        "hydra" nil t)
 
-  (global-set-key (kbd "C-c h t") #'help/hydra/timestamp/body)
+  (global-set-key (kbd "C-c h t") #'hydra-timestamp/body)
 
   (with-eval-after-load "hydra"
     (require 'org nil t)
@@ -1587,13 +1588,13 @@ This works also for other defined begin/end tokens to define the structure."
         (((background dark))
          :foreground "orange" :bold t))))
 
-    (defhydra help/hydra/timestamp (:color blue :hint none)
+    (defhydra hydra-timestamp (:color blue :hint none)
       "
-   === Timestamp ===                                                     _q_uit
+   === Timestamp ===
 0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)    ?a? (week-d_a_y)
 _1_.  ?t? (ISO 8601 including _t_imezone)
 _2_.  ?r?    (Org Mode: _r_ight now)
-_3_.  ?s?          (Org Mode: by _s_elect)
+_3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 "
       ("q" nil)
       ("i" help/insert-datestamp (format-time-string "%F"))

@@ -1,5 +1,10 @@
+;; 1. Do not rely on the pre-defined recipes. Specify Git repository directly.
+;; 2. Use emacsmirror not to install packages under ~/.emacs.d/elpa.
+;; 3. Write private recipes in ~/.emacs.d/recipes if needed.
+
 ;;;###autoload
 (defun my-elget-bundles ()
+  "List of packages."
   (when noninteractive
 
     ;; Fundamental packages
@@ -69,6 +74,7 @@
     (el-get-bundle "tarsius/orglink")
     (el-get-bundle "Fuco1/org-pretty-table")
     (el-get-bundle "jlumpe/ox-json")
+    (el-get-bundle "takaxp/org-onit")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Major modes ;;;
     ;; download zip since python-mode git repository is extremely huge
@@ -89,7 +95,6 @@
     (el-get-bundle "php-mode")
     (el-get-bundle "bruceravel/gnuplot-mode")
     ;; (el-get-bundle "abo-abo/matlab-mode")
-
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Development ;;;
     (el-get-bundle "gregsexton/origami.el" :name origami)
@@ -115,7 +120,7 @@
                    :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
     (el-get-bundle "magit/transient")
     (el-get-bundle "takaxp/magit" ;; require transient and libegit2
-                   :branch "stable"
+                   :branch "stable" ;; require Tags in the target commit
                    :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "docs" "install")
                             ("touch" "lisp/magit-autoloads.el")))
     (el-get-bundle "AdamNiederer/cov")
@@ -132,6 +137,7 @@
     (el-get-bundle "twlz0ne/elpl")
     ;; (el-get-bundle "tern") ;; require npm
     ;; (el-get-bundle "tern-auto-complete")
+    (el-get-bundle "mhayashi1120/Emacs-wgrep")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; LSP ;;;
     (el-get-bundle "emacs-lsp/lsp-mode")
@@ -181,6 +187,7 @@
     (el-get-bundle "momomo5717/avy-migemo")
     (el-get-bundle "mkcms/ivy-yasnippet") ;; require ~/.emacs.d/recipes/ivy.rcp
     (el-get-bundle "akirak/ivy-omni-org")
+    (el-get-bundle "abo-abo/smex")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; OSX support ;;;
     (el-get-bundle "raghavgautam/osx-lib")
@@ -246,6 +253,8 @@
     (el-get-bundle "sebastiencs/company-box")
     ;; (el-get-bundle "casouri/eldoc-box")
     (el-get-bundle "tarsius/hl-todo")
+    (el-get-bundle "kiennq/emacs-mini-modeline")
+    ;; (el-get-bundle "emacsmirror/minibuffer-line")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; System related ;;;
     (el-get-bundle "Fuco1/dired-hacks")
@@ -260,12 +269,13 @@
     (el-get-bundle "popwin")
     (el-get-bundle "shackle")
     (el-get-bundle "tabbar")
+
     (el-get-bundle "takaxp/moom")
     (el-get-bundle "emacsmirror/frame-tabs")
     (el-get-bundle "tumashu/ivy-posframe") ;; require swiper
     ;; (el-get-bundle "spaceline-all-the-icons")
     ;; (el-get-bundle "exwm") ;; failed to instal ... Bad Request
-    (el-get-bundle "abo-abo/smex")
+    (el-get-bundle "ajgrf/edwin")
 
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Robustness ;;;
@@ -326,6 +336,7 @@
 ;;;###autoload
 (defun my-elget-setup ()
   (interactive)
+  ;; Install all packages to this directory
   (setq el-get-dir
         (expand-file-name "el-get" (locate-user-emacs-file emacs-version)))
   (add-to-list 'load-path (concat el-get-dir "/el-get"))

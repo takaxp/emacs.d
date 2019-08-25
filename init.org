@@ -2544,8 +2544,8 @@ lang en_US
       (setq ispell-local-dictionary-alist
             '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
                    ("-d" "en" "--encoding=utf-8") nil utf-8)))
-      (setq ispell-personal-dictionary "~/Dropbox/emacs.d/.aspell.en.pws")
-      )
+      (setq ispell-personal-dictionary
+            "~/Dropbox/emacs.d/config/aspell.en.pws"))
 
      (t
       nil))))
@@ -3193,15 +3193,15 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 (when (autoload-if-found
        '(mc/num-cursors
          mc/edit-lines
-         hydra-multiple-cursors/body)
+         hydra-multi-cursors/body)
        "multiple-cursors" nil t)
 
-  (global-set-key (kbd "C-c h m") #'hydra-multiple-cursors/body)
+  (global-set-key (kbd "C-c h m") #'hydra-multi-cursors/body)
 
   (with-eval-after-load "multiple-cursors"
     (when (require 'hydra nil t)
       ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
-      (defhydra hydra-multiple-cursors (:hint nil)
+      (defhydra hydra-multi-cursors (:hint nil)
         "
 ==================================================================
  Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
@@ -4554,6 +4554,7 @@ ivyに移行しました．
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (global-set-key (kbd "M-y") 'counsel-yank-pop)
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+  (global-set-key (kbd "C-c i r") 'ivy-resume)
 
   (with-eval-after-load "ivy"
 
@@ -4812,10 +4813,10 @@ ivyに移行しました．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(help/hydra/timestamp/body)
+       '(hydra-timestamp/body)
        "hydra" nil t)
 
-  (global-set-key (kbd "C-c h t") #'help/hydra/timestamp/body)
+  (global-set-key (kbd "C-c h t") #'hydra-timestamp/body)
 
   (with-eval-after-load "hydra"
     (require 'org nil t)
@@ -4826,13 +4827,13 @@ ivyに移行しました．
         (((background dark))
          :foreground "orange" :bold t))))
 
-    (defhydra help/hydra/timestamp (:color blue :hint none)
+    (defhydra hydra-timestamp (:color blue :hint none)
       "
-   === Timestamp ===                                                     _q_uit
+   === Timestamp ===
 0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)    ?a? (week-d_a_y)
 _1_.  ?t? (ISO 8601 including _t_imezone)
 _2_.  ?r?    (Org Mode: _r_ight now)
-_3_.  ?s?          (Org Mode: by _s_elect)
+_3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 "
       ("q" nil)
       ("i" help/insert-datestamp (format-time-string "%F"))
@@ -5226,7 +5227,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
    :CUSTOM_ID: orgcf4022fd
    :END:
 
-=mpv= を使い，emacs からメディアファイルを再生します．Bongo.elよりも使いやすい印象．
+=mpv= を使い，emacs からメディアファイルを再生します． ~bongo.el~ よりも使いやすい印象．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
@@ -7100,7 +7101,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     ;; アーカイブファイルの名称を指定
     (setq org-archive-location "%s_archive::")
 
-    ;; タイムスタンプによるログ収集設定
+    ;; タイムスタンプによるログ収集設定 DONE 時に CLOSED: を記入．
     (setq org-log-done 'time) ; 'time 以外に，'(done), '(state) を指定できる
 
     ;; ログをドロアーに入れる
@@ -7146,7 +7147,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
             ((member state '("REV1")) "REV2")
             ((member state '("REV2")) "REV3")
             (t state)))
-    (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
+    ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -7181,7 +7182,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         1 'org-headline-done prepend))
      'append)
 
-    ;; プロパティ等をに自動的閉じる．
+    ;; プロパティ等を自動的閉じる．
     (defun my-org-hide-drawers ()
       "Hide all drawers in an org tree."
       (save-excursion
@@ -7190,6 +7191,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
           (org-cycle-hide-drawers 'children))))
     (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
+    ;; CSV指定でテーブルを出力する．
+    (defun my-org-table-export ()
+      (interactive)
+      (org-table-export nil "orgtbl-to-csv"))
 
     (defun my-do-org-update-staistics-cookies ()
       (interactive)
@@ -7211,7 +7216,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (when (org-clocking-p)
         (org-clock-out)
         (save-some-buffers t)))
-    (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)))
+    ;; implemented in `org-onit.el'.
+    ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
+    ))
 #+end_src
 
 ** contribution を使う
@@ -7409,6 +7416,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           ("Report"      :foreground "#66CC66")
           ("Background"  :foreground "#66CC99")
           ("Chore"       :foreground "#6699CC")
+          ("project"     :foreground "#6666CC")
           ("read"        :foreground "#6666CC")
           ("book"        :foreground "#6666CC")
           ("Doing"       :foreground "#FF0000")
@@ -7417,6 +7425,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           ("Revisit"     :foreground "#6633CC")
           ("Redmine"     :foreground "#CC6666")
           ("Ongoing"     :foreground "#CC6666") ; for non scheduled/reminder
+          ("Template"    :foreground "#66CC66")
           ("Repeat"      :foreground "#CC9999") ; for interval tasks
           ("Mag"         :foreground "#9966CC")
           ("buy"         :foreground "#9966CC")
@@ -7780,6 +7789,7 @@ will not be modified."
 ** [org-agenda] タスク／予定管理
    :PROPERTIES:
    :CUSTOM_ID: orgc3302e41
+   :ID:       F3A7E879-867A-4389-8DAC-620F13B43590
    :END:
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -7905,82 +7915,10 @@ will not be modified."
     (interactive)
     (org-agenda-todo "DONE")
     (my-org-agenda-to-appt)) ;; call with async
-  (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done))
+  (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done)
 
-(with-eval-after-load "org-clock"
-  ;; org heading を意図通りに bookmark するためのパッケージを読み込む
-  ;; 無くても良いが，並び替えや refile で bookmark が壊れる．
-  (unless (require 'org-bookmark-heading nil t)
-    (message "--- org-bookmark-heading is NOT installed."))
-
-  (defun ad:org-clock-goto (f &optional select)
-    "Go to the current task if the clock is working.
-  After restart Emacs, try to restore the task from `bookmark'."
-    (let ((bm (bookmark-get-bookmark my-org-clock-bookmark 'noerror)))
-      (cond ((and (require 'org-bookmark-heading nil t) ;; most reliable
-                  bm)
-             (bookmark-jump my-org-clock-bookmark)) ;; call org-bookmark-jump
-            (org-clock-history
-             (apply f select))
-            (bm
-             (bookmark-jump my-org-clock-bookmark) ;; use normal bookmark
-             (org-back-to-heading t))
-            (t (message "No clock is found to be shown")))))
-  (advice-add 'org-clock-goto :around #'ad:org-clock-goto))
-
-;; Doing 管理（org-clock-in/org-clock-out を紐づけ）
-(with-eval-after-load "org"
-  (define-key org-mode-map (kbd "<f11>") 'my-toggle-doing-tag)
-  (define-key org-mode-map (kbd "M-<f11>") 'my-sparse-doing-tree)
-  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
-
-  ;; 特定タグを持つツリーリストに一発移動（org-tags-view）
-  (defvar my-doing-tag "Doing")
-  (defun my-sparse-doing-tree ()
-    (interactive)
-    (org-tags-view nil my-doing-tag))
-
-  ;; 最後にチェックインしたタスク用のブックマークを準備
-  (defvar my-org-clock-bookmark "org-clock-last-clock-in")
-  (defun my-org-clock-bookmark-set ()
-    (save-excursion
-      (save-restriction
-        (org-back-to-heading t)
-        (bookmark-set my-org-clock-bookmark))))
-  (add-hook 'org-clock-in-hook #'my-org-clock-bookmark-set)
-
-  (defun my-doing-p ()
-    (string-match
-     (concat ":" my-doing-tag ":")
-     (org-get-tags-string)))
-
-  ;; Doingタグをトグルする（clock-in/-out を自動化）
-  (defun my-toggle-doing-tag ()
-    (interactive)
-    (when (eq major-mode 'org-mode)
-      (save-excursion
-        (save-restriction
-          (org-back-to-heading t)
-          ;; before 9
-          ;; (unless (org-at-heading-p)
-          ;;   (outline-previous-heading))
-          (if (my-doing-p)
-              (progn
-                (when (org-clocking-p)
-                  (org-clock-out))
-                (org-toggle-tag my-doing-tag 'off))
-            (progn
-              (when (org-entry-is-done-p)
-                (org-todo "TODO")) ;; already done, reboot the task.
-              (org-clock-in)
-              (org-toggle-tag my-doing-tag 'on)))))
-      (org-cycle-hide-drawers 'children)
-      (org-reveal)))
-
-  (defun my-remove-doing-tag ()
-    (when (my-doing-p)
-      (org-toggle-tag my-doing-tag 'off)))
-  (add-hook 'org-clock-out-hook #'my-remove-doing-tag))
+  ;; org-agenda の表示高さを 50% に固定する
+  (setq org-agenda-window-frame-fractions '(0.5 . 0.5)))
 
 ;; M-x calendar の動作に近づける．なお today への移動は，"C-." で可能．
 (with-eval-after-load "org-keys"
@@ -8002,6 +7940,42 @@ will not be modified."
 #+end_src
 
 入門者にとって =org-agenda= は簡単ではないので，無理に使わなくて良いと思います．Org Modeの動作に十分慣れたら戻ってくる程度で十分です．
+
+** [org-onit.el] org-clock-in の自動化
+   :PROPERTIES:
+   :CUSTOM_ID: org735f32e3
+   :END:
+
+~org-onit.el~ を導入すると，タグを付けるタイミングで自動的に =org-clock-in= します．タグを取れば =org-clock-out= が実行されるようになります．
+
+ - https://github.com/takaxp/org-onit
+
+#+begin_src emacs-lisp :tangle init-org.el
+(when (autoload-if-found
+       '(org-onit-toggle-doing
+         org-onit-toggle-auto org-clock-goto my-sparse-doing-tree)
+       "org-onit" nil t)
+
+  (unless (require 'org-bookmark-heading nil t)
+    (user-error "--- org-bookmark-heading is NOT installed"))
+
+  (defun my-sparse-doing-tree ()
+    (interactive)
+    (org-tags-view nil org-onit-tag))
+
+  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
+  (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
+  (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
+  (define-key org-mode-map (kbd "S-<f11>") 'my-sparse-doing-tree)
+
+  (with-eval-after-load "org-clock"
+    (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
+    (setq org-clock-frame-title-format
+          '((:eval (format "%s|%s| %s"
+                           (if org-onit--auto-clocking "Auto " "")
+                           (org-onit-get-sign)
+                           org-mode-line-string))))))
+#+end_src
 
 ** [orgbox.el] スケジュール追加のわかりやすい入力
    :PROPERTIES:
@@ -8341,7 +8315,7 @@ update it for multiple appts?")
 
 特定のファイルを編集している時， =org-tree-slide= でフォーカスしたら =org-clock-in= で時間計測を始めて，ナローイングを解く時や次のツリーに移る時に =org-clock-out= で計測を停止するように設定しています．基本的に =org-tree-slide= にあるhookに色々とぶら下げるだけです．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp no
 (with-eval-after-load "org-tree-slide"
   (defun my-tree-slide-autoclockin-p ()
     (save-excursion
@@ -9498,7 +9472,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
         (append
          '((top . 23)
            (left . 0)
-           (alpha . (100 90))
+           ;; (alpha . (100 90))
            ;; (vertical-scroll-bars . nil)
            ;; (internal-border-width . 20)
            ;; (outer-border-width . 20)

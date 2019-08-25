@@ -64,7 +64,7 @@
     ;; アーカイブファイルの名称を指定
     (setq org-archive-location "%s_archive::")
 
-    ;; タイムスタンプによるログ収集設定
+    ;; タイムスタンプによるログ収集設定 DONE 時に CLOSED: を記入．
     (setq org-log-done 'time) ; 'time 以外に，'(done), '(state) を指定できる
 
     ;; ログをドロアーに入れる
@@ -110,7 +110,7 @@
             ((member state '("REV1")) "REV2")
             ((member state '("REV2")) "REV3")
             (t state)))
-    (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
+    ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -145,7 +145,7 @@
         1 'org-headline-done prepend))
      'append)
 
-    ;; プロパティ等をに自動的閉じる．
+    ;; プロパティ等を自動的閉じる．
     (defun my-org-hide-drawers ()
       "Hide all drawers in an org tree."
       (save-excursion
@@ -154,6 +154,10 @@
           (org-cycle-hide-drawers 'children))))
     (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
+    ;; CSV指定でテーブルを出力する．
+    (defun my-org-table-export ()
+      (interactive)
+      (org-table-export nil "orgtbl-to-csv"))
 
     (defun my-do-org-update-staistics-cookies ()
       (interactive)
@@ -175,7 +179,9 @@
       (when (org-clocking-p)
         (org-clock-out)
         (save-some-buffers t)))
-    (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)))
+    ;; implemented in `org-onit.el'.
+    ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
+    ))
 
 ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
 ;; default = ~/org.ics
@@ -340,6 +346,7 @@
           ("Report"      :foreground "#66CC66")
           ("Background"  :foreground "#66CC99")
           ("Chore"       :foreground "#6699CC")
+          ("project"     :foreground "#6666CC")
           ("read"        :foreground "#6666CC")
           ("book"        :foreground "#6666CC")
           ("Doing"       :foreground "#FF0000")
@@ -348,6 +355,7 @@
           ("Revisit"     :foreground "#6633CC")
           ("Redmine"     :foreground "#CC6666")
           ("Ongoing"     :foreground "#CC6666") ; for non scheduled/reminder
+          ("Template"    :foreground "#66CC66")
           ("Repeat"      :foreground "#CC9999") ; for interval tasks
           ("Mag"         :foreground "#9966CC")
           ("buy"         :foreground "#9966CC")
@@ -717,82 +725,10 @@ will not be modified."
     (interactive)
     (org-agenda-todo "DONE")
     (my-org-agenda-to-appt)) ;; call with async
-  (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done))
+  (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done)
 
-(with-eval-after-load "org-clock"
-  ;; org heading を意図通りに bookmark するためのパッケージを読み込む
-  ;; 無くても良いが，並び替えや refile で bookmark が壊れる．
-  (unless (require 'org-bookmark-heading nil t)
-    (message "--- org-bookmark-heading is NOT installed."))
-
-  (defun ad:org-clock-goto (f &optional select)
-    "Go to the current task if the clock is working.
-  After restart Emacs, try to restore the task from `bookmark'."
-    (let ((bm (bookmark-get-bookmark my-org-clock-bookmark 'noerror)))
-      (cond ((and (require 'org-bookmark-heading nil t) ;; most reliable
-                  bm)
-             (bookmark-jump my-org-clock-bookmark)) ;; call org-bookmark-jump
-            (org-clock-history
-             (apply f select))
-            (bm
-             (bookmark-jump my-org-clock-bookmark) ;; use normal bookmark
-             (org-back-to-heading t))
-            (t (message "No clock is found to be shown")))))
-  (advice-add 'org-clock-goto :around #'ad:org-clock-goto))
-
-;; Doing 管理（org-clock-in/org-clock-out を紐づけ）
-(with-eval-after-load "org"
-  (define-key org-mode-map (kbd "<f11>") 'my-toggle-doing-tag)
-  (define-key org-mode-map (kbd "M-<f11>") 'my-sparse-doing-tree)
-  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
-
-  ;; 特定タグを持つツリーリストに一発移動（org-tags-view）
-  (defvar my-doing-tag "Doing")
-  (defun my-sparse-doing-tree ()
-    (interactive)
-    (org-tags-view nil my-doing-tag))
-
-  ;; 最後にチェックインしたタスク用のブックマークを準備
-  (defvar my-org-clock-bookmark "org-clock-last-clock-in")
-  (defun my-org-clock-bookmark-set ()
-    (save-excursion
-      (save-restriction
-        (org-back-to-heading t)
-        (bookmark-set my-org-clock-bookmark))))
-  (add-hook 'org-clock-in-hook #'my-org-clock-bookmark-set)
-
-  (defun my-doing-p ()
-    (string-match
-     (concat ":" my-doing-tag ":")
-     (org-get-tags-string)))
-
-  ;; Doingタグをトグルする（clock-in/-out を自動化）
-  (defun my-toggle-doing-tag ()
-    (interactive)
-    (when (eq major-mode 'org-mode)
-      (save-excursion
-        (save-restriction
-          (org-back-to-heading t)
-          ;; before 9
-          ;; (unless (org-at-heading-p)
-          ;;   (outline-previous-heading))
-          (if (my-doing-p)
-              (progn
-                (when (org-clocking-p)
-                  (org-clock-out))
-                (org-toggle-tag my-doing-tag 'off))
-            (progn
-              (when (org-entry-is-done-p)
-                (org-todo "TODO")) ;; already done, reboot the task.
-              (org-clock-in)
-              (org-toggle-tag my-doing-tag 'on)))))
-      (org-cycle-hide-drawers 'children)
-      (org-reveal)))
-
-  (defun my-remove-doing-tag ()
-    (when (my-doing-p)
-      (org-toggle-tag my-doing-tag 'off)))
-  (add-hook 'org-clock-out-hook #'my-remove-doing-tag))
+  ;; org-agenda の表示高さを 50% に固定する
+  (setq org-agenda-window-frame-fractions '(0.5 . 0.5)))
 
 ;; M-x calendar の動作に近づける．なお today への移動は，"C-." で可能．
 (with-eval-after-load "org-keys"
@@ -811,6 +747,31 @@ will not be modified."
   (org-defkey org-read-date-minibuffer-local-map (kbd "q")
               (lambda () (interactive)
                 (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
+
+(when (autoload-if-found
+       '(org-onit-toggle-doing
+         org-onit-toggle-auto org-clock-goto my-sparse-doing-tree)
+       "org-onit" nil t)
+
+  (unless (require 'org-bookmark-heading nil t)
+    (message "--- org-bookmark-heading is NOT installed."))
+
+  (defun my-sparse-doing-tree ()
+    (interactive)
+    (org-tags-view nil org-onit-tag))
+
+  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
+  (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
+  (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
+  (define-key org-mode-map (kbd "S-<f11>") 'my-sparse-doing-tree)
+
+  (with-eval-after-load "org-clock"
+    (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
+    (setq org-clock-frame-title-format
+          '((:eval (format "%s|%s| %s"
+                           (if org-onit--auto-clocking "Auto " "")
+                           (org-onit-get-sign)
+                           org-mode-line-string))))))
 
 (with-eval-after-load "org"
   (require 'orgbox nil t))
@@ -1062,47 +1023,6 @@ update it for multiple appts?")
              (require 'doom-modeline nil t))
     (add-hook 'org-tree-slide-stop-hook
               #'doom-modeline-update-buffer-file-state-icon)))
-
-(with-eval-after-load "org-tree-slide"
-  (defun my-tree-slide-autoclockin-p ()
-    (save-excursion
-      (save-restriction
-        (widen)
-        (goto-char 1)
-        (let ((keyword "TREE_SLIDE:")
-              (value "autoclockin")
-              (result nil))
-          (while
-              (and (re-search-forward (concat "^#\\+" keyword "[ \t]*") nil t)
-                   (re-search-forward value (point-at-eol) t))
-            (setq result t))
-          result))))
-
-  (when (require 'org-clock nil t)
-    (defun my-org-clock-in ()
-      (unless (and (boundp 'doom-modeline-mode)
-                   doom-modeline-mode)
-        (setq vc-display-status nil)) ;; モードライン節約
-      (when (and (my-tree-slide-autoclockin-p)
-                 (looking-at (concat "^\\*+ " org-not-done-regexp))
-                 (memq (org-outline-level) '(1 2 3 4)))
-        (save-excursion
-          (save-restriction
-            (forward-line)
-            (when (org-at-heading-p)
-              (newline)))) ;; FIXME: remove empty line if clock will not be recorded.
-        (org-clock-in)))
-
-    (defun my-org-clock-out ()
-      (setq vc-display-status t) ;; モードライン節約解除
-      (when (org-clocking-p)
-        (org-clock-out)))
-
-    (add-hook 'org-tree-slide-before-move-next-hook #'my-org-clock-out)
-    (add-hook 'org-tree-slide-before-move-previous-hook #'my-org-clock-out)
-    ;; (add-hook 'org-tree-slide-before-content-view-hook #'my-org-clock-out)
-    (add-hook 'org-tree-slide-stop-hook #'my-org-clock-out)
-    (add-hook 'org-tree-slide-after-narrow-hook #'my-org-clock-in)))
 
 (when (autoload-if-found
        '(org-tree-slide-mode my-toggle-proportional-font)

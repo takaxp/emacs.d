@@ -516,6 +516,16 @@ If `dropbox' option is provided then the value is uased as a root directory."
   (add-hook 'kill-emacs-hook #'my-kill-emacs))
 #+end_src
 
+** modeline の高さを得る
+
+ピクセル単位で取得できる．
+
+ - [[https://stackoverflow.com/questions/9613026/how-to-get-the-height-of-the-emacs-mode-line][fonts - How to get the height of the emacs mode line? - Stack Overflow]]
+#+begin_src emacs-lisp
+(- (elt (window-pixel-edges) 3)
+   (elt (window-inside-pixel-edges) 3))
+#+end_src
+
 ** [package.el] MELPA利用設定
 
 #+begin_src emacs-lisp :tangle utility.el

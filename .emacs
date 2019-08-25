@@ -2,14 +2,14 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
+(with-eval-after-load "org"
+  (load "~/devel/git/org-onit/org-onit.el" nil t)
+  (load "~/Dropbox/emacs.d/config/init-doing.el" nil t))
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;   ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
 ;;   git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-;; https://github.com/Kungsgeten/ivy-todo
-;; https://github.com/squiter/ivy-youtube
-;; https://github.com/hrs/engine-mode
 
 (with-eval-after-load "ivy"
   (when (require 'ivy-omni-org nil t)
@@ -19,16 +19,15 @@
 
 ;; (set-frame-parameter (selected-frame) 'internal-border-width 10)
 ;; (set-face-background 'internal-border "#FF00FF")
-
-
+;; Could be useful.
+;; (when (require 'mini-modeline nil t)
+;;   (mini-modeline-mode 1))
 
 (with-eval-after-load "posframe"
-
   (custom-set-faces
    '(internal-border
      ((((background dark)) :background "#FF0000")
       (t (:background "#FF0000")))))
-
 
   (with-eval-after-load "frame"
     (advice-remove 'make-frame #'ad:make-frame))
