@@ -11,9 +11,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-(with-eval-after-load "ivy"
-  (when (require 'ivy-omni-org nil t)
-    (setq ivy-omni-org-file-sources '(org-agenda-files))))
+(with-eval-after-load "org-onit"
+  ;; Testing...
+  (defun my-org-reveal ()
+    (org-reveal)
+    (org-show-entry)
+    (show-children))
+  (add-hook 'org-onit-after-jump-hook #'my-org-reveal))
+
+
+;; (with-eval-after-load "ivy"
+;;   (when (require 'ivy-omni-org nil t)
+;;     (setq ivy-omni-org-file-sources '(org-agenda-files))))
 
 ;; posframe
 
@@ -145,4 +154,5 @@ hoge.")
   ;; (advice-add 'message :around #'ad:message)
   ;; (advice-remove 'message #'ad:message)
   )
+
 ;; .emacs ends here

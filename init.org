@@ -5609,62 +5609,80 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
  - dired-du
  - helm-dired-history or ivy-dired-history
 
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "dired"
-  (setq completion-ignored-extensions
-        (append completion-ignored-extensions
-                '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+#+begin_src emacs-lisp :tangle yes
+(defun ad:find-file-noselect (_filename &optional _nowarn _rawfile _wildcards)
+  (unless (require 'init-dired nil t)
+    (user-error "init-dired.el doesn't exist"))
+  (advice-remove 'find-file-noselect #'ad:find-file-noselect)
+  (advice-remove 'dired #'ad:dired-activate))
 
-  ;; Use build-in `wdired-mode'.
-  ;; (define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)
+(defun ad:dired-activate (_dirname &optional _switches)
+  (unless (require 'init-dired nil t)
+    (user-error "init-dired.el doesn't exist"))
+  (advice-remove 'find-file-noselect #'ad:find-file-noselect)
+  (advice-remove 'dired #'ad:dired-activate))
 
-  ;; http://elpa.gnu.org/packages/gited.html
-  (when (require 'gited nil t)
-    (define-key dired-mode-map (kbd "C-x C-g") 'gited-list-branches))
+(advice-add 'find-file-noselect :before #'ad:find-file-noselect)
+(advice-add 'dired :before #'ad:dired-activate)
+#+end_src
 
-  ;; https://github.com/Fuco1/dired-hacks
-  (when (require 'dired-narrow nil t)
-    (define-key dired-mode-map (kbd "/") 'dired-narrow))
-  (require 'dired-du nil t)
-  (when (require 'ivy-dired-history nil t)
-    ;; ivy-dired-history-variable は，session.el で明示的に管理中．
-    ;; check session-globals-include
-    (define-key dired-mode-map "," 'dired))
+明示的に ~dired~ を呼ばなくても， ~ibuffer~ が ~dired~ を読み込むことがわかったので， ~dired~ に関係する以下の設定は， ~init-dired.el~ に分離しました．下記の設定は， =M-x dired= と =M-x find-file-noselect= を実行したタイミングで1回だけ読み込まれません．
 
-  (when (require 'dired-x nil t)
-    (dired-extra-startup))
-  (defun my-reveal-in-finder ()
-    "Reveal the current buffer in Finder."
-    (interactive)
-    (shell-command-to-string "open ."))
-  ;; dired-x を読み込んだあとじゃないとだめ
-  (define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
+#+begin_src emacs-lisp :tangle init-dired.el
+(setq completion-ignored-extensions
+      (append completion-ignored-extensions
+              '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
 
-  ;; https://github.com/xuchunyang/emacs.d
-  ;; type "!" or "X" in dired
-  (when (eq system-type 'darwin)
-    (setq dired-guess-shell-alist-user
-          (list
-           (list (rx (and "."
-                          (or
-                           ;; Videos
-                           "mp4" "avi" "mkv" "rmvb"
-                           ;; Torrent
-                           "torrent"
-                           ;; PDF
-                           "pdf"
-                           ;; Image
-                           "gif" "png" "jpg" "jpeg")
-                          string-end)) "open"))))
+;; Use build-in `wdired-mode'.
+;; (define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)
 
-  (when (and (require 'hydra nil t)
-             (require 'dired-recent nil t))
-    (define-key dired-mode-map "h" 'hydra-dired/body)
-    (define-key dired-mode-map "r" 'dired-recent-open)
+;; http://elpa.gnu.org/packages/gited.html
+(when (require 'gited nil t)
+  (define-key dired-mode-map (kbd "C-x C-g") 'gited-list-branches))
 
-    ;; https://github.com/abo-abo/hydra/wiki/Dired
-    (defhydra hydra-dired (:hint nil :color pink)
-      "
+;; https://github.com/Fuco1/dired-hacks
+(when (require 'dired-narrow nil t)
+  (define-key dired-mode-map (kbd "/") 'dired-narrow))
+(require 'dired-du nil t)
+(when (require 'ivy-dired-history nil t)
+  ;; ivy-dired-history-variable は，session.el で明示的に管理中．
+  ;; check session-globals-include
+  (define-key dired-mode-map "," 'dired))
+
+(when (require 'dired-x nil t)
+  (dired-extra-startup))
+(defun my-reveal-in-finder ()
+  "Reveal the current buffer in Finder."
+  (interactive)
+  (shell-command-to-string "open ."))
+;; dired-x を読み込んだあとじゃないとだめ
+(define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
+
+;; https://github.com/xuchunyang/emacs.d
+;; type "!" or "X" in dired
+(when (eq system-type 'darwin)
+  (setq dired-guess-shell-alist-user
+        (list
+         (list (rx (and "."
+                        (or
+                         ;; Videos
+                         "mp4" "avi" "mkv" "rmvb"
+                         ;; Torrent
+                         "torrent"
+                         ;; PDF
+                         "pdf"
+                         ;; Image
+                         "gif" "png" "jpg" "jpeg")
+                        string-end)) "open"))))
+
+(when (and (require 'hydra nil t)
+           (require 'dired-recent nil t))
+  (define-key dired-mode-map "h" 'hydra-dired/body)
+  (define-key dired-mode-map "r" 'dired-recent-open)
+
+  ;; https://github.com/abo-abo/hydra/wiki/Dired
+  (defhydra hydra-dired (:hint nil :color pink)
+    "
 _+_ mkdir        _v_iew        _m_ark            _(_ details       _i_nsert-subdir
 _C_opy           View _O_ther  _U_nmark all      _)_ omit-mode
 _D_elete         _o_pen other  _u_nmark          _l_ redisplay     _w_ kill-subdir
@@ -5674,44 +5692,44 @@ _S_ymlink        ^ ^           _F_ind marked     _._ toggle hydra  _?_ summary
 _A_ find regexp  _Z_ compress  T - tag prefix
 _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 "
-      ;; ("\\" dired-do-ispell)
-      ("(" dired-hide-details-mode)
-      (")" dired-omit-mode)
-      ("+" dired-create-directory)
-      ;; ("=" diredp-ediff)         ;; smart diff
-      ("?" dired-summary)
-      ;; ("$" diredp-hide-subdir-nomove)
-      ("A" dired-do-find-regexp)
-      ("C" dired-do-copy)        ;; Copy all marked files
-      ("D" dired-do-delete)
-      ("E" dired-mark-extension)
-      ;; ("e" dired-ediff-files)
-      ("F" dired-do-find-marked-files)
-      ("G" dired-do-chgrp)
-      ("g" revert-buffer)        ;; read all directories again (refresh)
-      ("i" dired-maybe-insert-subdir)
-      ("l" dired-do-redisplay)   ;; relist the marked or singel directory
-      ("M" dired-do-chmod)
-      ("m" dired-mark)
-      ("O" dired-display-file)
-      ("o" dired-find-file-other-window)
-      ("Q" dired-do-find-regexp-and-replace)
-      ("R" dired-do-rename)
-      ("r" dired-recent-open)
-      ;; ("r" dired-do-rsynch)
-      ("S" dired-do-symlink)
-      ("s" dired-sort-toggle-or-edit)
-      ("t" dired-toggle-marks)
-      ("U" dired-unmark-all-marks)
-      ("u" dired-unmark)
-      ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
-      ("w" dired-kill-subdir)
-      ("Y" dired-do-relsymlink)
-      ;; ("z" diredp-compress-this-file)
-      ("Z" dired-do-compress)
-      ("q" nil)
-      ("." nil :color blue))
-    ))
+    ;; ("\\" dired-do-ispell)
+    ("(" dired-hide-details-mode)
+    (")" dired-omit-mode)
+    ("+" dired-create-directory)
+    ;; ("=" diredp-ediff)         ;; smart diff
+    ("?" dired-summary)
+    ;; ("$" diredp-hide-subdir-nomove)
+    ("A" dired-do-find-regexp)
+    ("C" dired-do-copy)        ;; Copy all marked files
+    ("D" dired-do-delete)
+    ("E" dired-mark-extension)
+    ;; ("e" dired-ediff-files)
+    ("F" dired-do-find-marked-files)
+    ("G" dired-do-chgrp)
+    ("g" revert-buffer)        ;; read all directories again (refresh)
+    ("i" dired-maybe-insert-subdir)
+    ("l" dired-do-redisplay)   ;; relist the marked or singel directory
+    ("M" dired-do-chmod)
+    ("m" dired-mark)
+    ("O" dired-display-file)
+    ("o" dired-find-file-other-window)
+    ("Q" dired-do-find-regexp-and-replace)
+    ("R" dired-do-rename)
+    ("r" dired-recent-open)
+    ;; ("r" dired-do-rsynch)
+    ("S" dired-do-symlink)
+    ("s" dired-sort-toggle-or-edit)
+    ("t" dired-toggle-marks)
+    ("U" dired-unmark-all-marks)
+    ("u" dired-unmark)
+    ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
+    ("w" dired-kill-subdir)
+    ("Y" dired-do-relsymlink)
+    ;; ("z" diredp-compress-this-file)
+    ("Z" dired-do-compress)
+    ("q" nil)
+    ("." nil :color blue))
+  )
 #+end_src
 
 ** [dired-recent.el] 訪問したディレクトリの履歴を取る                 :dired:
@@ -5828,6 +5846,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 ** [session.el] 様々な履歴を保存し復元に利用する
    :PROPERTIES:
    :CUSTOM_ID: orgab837e6a
+   :ID:       730ED08A-DECE-418C-87D7-310D5A5BBE3D
    :END:
 
 [[http://emacs-session.sourceforge.net/]]
@@ -7211,6 +7230,14 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
 
   (with-eval-after-load "org-clock"
+    ;; 再起動後に clock を復帰させる（終了中の期間も計上されてしまう）
+    (org-clock-persistence-insinuate)
+    ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
+    (setq org-clock-persist 'history) ;; {nil, t, 'clock, 'history}
+    (setq org-clock-in-resume t)
+    (setq org-clock-persist-query-resume nil)
+
+    ;; 終了時に clock を止める．
     (defun my-org-clock-out-and-save-when-exit ()
       "Save buffers and stop clocking when kill emacs."
       (when (org-clocking-p)
@@ -7341,6 +7368,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                '("D" my-org-todo-complete-no-repeat "DONE"))
   ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
   ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
+  (add-to-list 'org-speed-commands-user '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands-user '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands-user '("!" my-org-set-created-property))
   (add-to-list 'org-speed-commands-user
@@ -7352,6 +7380,21 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (when (org-get-repeat)
       (org-cancel-repeater))
     (org-todo ARG))
+
+  ;; Hugo の記事を書き出し&アップロード
+  (defun my-hugo-export-upload ()
+    "Export subtree for Hugo and upload the engty."
+    (when (equal (buffer-name) "imadenale.org")
+      (if (not (org-entry-is-done-p))
+          (message "The state of the entry is not \"DONE\" yet.")
+        (org-hugo-export-wim-to-md)
+        (message "[ox-hugo] \"%s\" has been exported."
+                 (nth 4 (org-heading-components)))
+        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
+          (if (require 'async nil t)
+              (async-start
+               `(lambda () (shell-command-to-string ',command)))
+            (shell-command-to-string command))))))
 
   ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
   (defun my-org-deadline-today ()
@@ -7956,17 +7999,18 @@ will not be modified."
          org-onit-toggle-auto org-clock-goto my-sparse-doing-tree)
        "org-onit" nil t)
 
-  (unless (require 'org-bookmark-heading nil t)
-    (user-error "--- org-bookmark-heading is NOT installed"))
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
+    (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
+    (define-key org-mode-map (kbd "S-<f11>") 'org-onit-goto-anchor)
+    (unless (require 'org-bookmark-heading nil t)
+      (message "--- org-bookmark-heading.el is NOT installed."))
 
-  (defun my-sparse-doing-tree ()
-    (interactive)
-    (org-tags-view nil org-onit-tag))
+    (defun my-sparse-doing-tree ()
+      (interactive)
+      (org-tags-view nil org-onit-tag)))
 
   (global-set-key (kbd "C-<f11>") 'org-clock-goto)
-  (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
-  (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
-  (define-key org-mode-map (kbd "S-<f11>") 'my-sparse-doing-tree)
 
   (with-eval-after-load "org-clock"
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
@@ -8787,7 +8831,8 @@ Note that this mechanism is still under consideration."
               (async-start
                `(lambda () (shell-command-to-string ',command)))
             (shell-command-to-string command)))))
-    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
+;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
+    ))
 #+end_src
 
 ** [ox-html] HTML見出しへのリンクを固定する
@@ -11591,6 +11636,10 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 (provide 'init-org)
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-dired.el :exports none
+(provide 'init-dired)
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el :exports none

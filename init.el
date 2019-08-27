@@ -561,6 +561,21 @@
 ;; auto-save-list
 (setq auto-save-list-file-prefix nil)
 
+(defun ad:find-file-noselect (_filename &optional _nowarn _rawfile _wildcards)
+  (unless (require 'init-dired nil t)
+    (user-error "init-dired.el doesn't exist"))
+  (advice-remove 'find-file-noselect #'ad:find-file-noselect)
+  (advice-remove 'dired #'ad:dired-activate))
+
+(defun ad:dired-activate (_dirname &optional _switches)
+  (unless (require 'init-dired nil t)
+    (user-error "init-dired.el doesn't exist"))
+  (advice-remove 'find-file-noselect #'ad:find-file-noselect)
+  (advice-remove 'dired #'ad:dired-activate))
+
+(advice-add 'find-file-noselect :before #'ad:find-file-noselect)
+(advice-add 'dired :before #'ad:dired-activate)
+
 (when (autoload-if-found
        '(session-initialize)
        "session" nil t)

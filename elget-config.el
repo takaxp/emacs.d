@@ -74,7 +74,7 @@
     (el-get-bundle "tarsius/orglink")
     (el-get-bundle "Fuco1/org-pretty-table")
     (el-get-bundle "jlumpe/ox-json")
-    (el-get-bundle "takaxp/org-onit")
+    ;; (el-get-bundle "takaxp/org-onit")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Major modes ;;;
     ;; download zip since python-mode git repository is extremely huge

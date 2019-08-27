@@ -280,6 +280,7 @@
                '("D" my-org-todo-complete-no-repeat "DONE"))
   ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
   ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
+  (add-to-list 'org-speed-commands-user '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands-user '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands-user '("!" my-org-set-created-property))
   (add-to-list 'org-speed-commands-user
@@ -291,6 +292,21 @@
     (when (org-get-repeat)
       (org-cancel-repeater))
     (org-todo ARG))
+
+  ;; Hugo の記事を書き出し&アップロード
+  (defun my-hugo-export-upload ()
+    "Export subtree for Hugo and upload the engty."
+    (when (equal (buffer-name) "imadenale.org")
+      (if (not (org-entry-is-done-p))
+          (message "The state of the entry is not \"DONE\" yet.")
+        (org-hugo-export-wim-to-md)
+        (message "[ox-hugo] \"%s\" has been exported."
+                 (nth 4 (org-heading-components)))
+        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
+          (if (require 'async nil t)
+              (async-start
+               `(lambda () (shell-command-to-string ',command)))
+            (shell-command-to-string command))))))
 
   ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
   (defun my-org-deadline-today ()
@@ -753,17 +769,18 @@ will not be modified."
          org-onit-toggle-auto org-clock-goto my-sparse-doing-tree)
        "org-onit" nil t)
 
-  (unless (require 'org-bookmark-heading nil t)
-    (message "--- org-bookmark-heading is NOT installed."))
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
+    (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
+    (define-key org-mode-map (kbd "S-<f11>") 'org-onit-goto-anchor)
+    (unless (require 'org-bookmark-heading nil t)
+      (message "--- org-bookmark-heading.el is NOT installed."))
 
-  (defun my-sparse-doing-tree ()
-    (interactive)
-    (org-tags-view nil org-onit-tag))
+    (defun my-sparse-doing-tree ()
+      (interactive)
+      (org-tags-view nil org-onit-tag)))
 
   (global-set-key (kbd "C-<f11>") 'org-clock-goto)
-  (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
-  (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
-  (define-key org-mode-map (kbd "S-<f11>") 'my-sparse-doing-tree)
 
   (with-eval-after-load "org-clock"
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
@@ -1292,7 +1309,8 @@ Note that this mechanism is still under consideration."
               (async-start
                `(lambda () (shell-command-to-string ',command)))
             (shell-command-to-string command)))))
-    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)))
+;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
+    ))
 
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
