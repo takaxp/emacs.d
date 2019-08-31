@@ -491,14 +491,14 @@
 ;; mode-line
 (set-face-attribute 'mode-line nil
                     :foreground "#FFFFFF"
-                    :background "#b7655f"
-;;                    :overline "#9d5446"
+                    :background "#a46398"
+                    ;; :overline "#9d5446"
                     :box nil)
 ;; mode-line-inactive
 (set-face-attribute 'mode-line-inactive nil
-                    :foreground "#94bbf9"
-                    :background "#d8e3fd"
-                    :overline "#94bbf9"
+                    :foreground "#FFFFFF"
+                    :background "#c8a1b7"
+                    ;; :overline "#FFFFFF"
                     :box nil)
 ;; Terminal
 (unless (display-graphic-p)
@@ -516,7 +516,7 @@
   (setq initial-major-mode 'empty-booting-mode)
   ;;  :underline "#203e6f"
   (set-face-foreground 'header-line "#FFFFFF") ;; "#203e6f" #333333 "#FFFFFF"
-  (set-face-background 'header-line "#5F7DB7") ;; "#ffb08c" "#7e59b5"
+  (set-face-background 'header-line "#a46398") ;; "#ffb08c" "#7e59b5" ##5F7DB7
   (set-face-attribute 'header-line nil
                       :inherit nil
                       :overline nil
@@ -829,6 +829,7 @@
 
    (t nil)))
 
+(declare-function my-font-config "init" nil)
 (defconst moom-autoloads
   '(moom-cycle-frame-height
     moom-move-frame-to-edge-top moom-move-frame my-frame-reset
@@ -847,10 +848,9 @@
   (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 
   (with-eval-after-load "moom"
+    (moom-recommended-keybindings 'all)
     (setq moom-lighter "M")
     (setq moom-verbose t)
-    (let ((moom-verbose nil))
-      (moom-recommended-keybindings 'all))
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 

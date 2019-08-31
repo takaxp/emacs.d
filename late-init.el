@@ -2423,7 +2423,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
             org-tree-to-indirect-buffer
             org-bookmark-jump))))
 
-;;(declare-function my-font-config "init" nil)
+;; (declare-function my-font-config "init" nil)
 (global-set-key (kbd "M-`") 'other-frame)
 (with-eval-after-load "frame"
   (defun ad:make-frame (&optional _parameters)

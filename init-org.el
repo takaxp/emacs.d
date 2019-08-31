@@ -174,6 +174,14 @@
     (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
 
   (with-eval-after-load "org-clock"
+    ;; 再起動後に clock を復帰させる（終了中の期間も計上されてしまう）
+    (org-clock-persistence-insinuate)
+    ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
+    (setq org-clock-persist 'history) ;; {nil, t, 'clock, 'history}
+    (setq org-clock-in-resume t)
+    (setq org-clock-persist-query-resume nil)
+
+    ;; 終了時に clock を止める．
     (defun my-org-clock-out-and-save-when-exit ()
       "Save buffers and stop clocking when kill emacs."
       (when (org-clocking-p)
@@ -769,6 +777,8 @@ will not be modified."
          org-onit-toggle-auto org-clock-goto my-sparse-doing-tree)
        "org-onit" nil t)
 
+  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
+
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
     (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
@@ -780,13 +790,23 @@ will not be modified."
       (interactive)
       (org-tags-view nil org-onit-tag)))
 
-  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
+  (with-eval-after-load "org-onit"
+    ;; (setq org-onit-use-unfold-as-doing t)
+    )
 
   (with-eval-after-load "org-clock"
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
     (setq org-clock-frame-title-format
-          '((:eval (format "%s|%s| %s"
-                           (if org-onit--auto-clocking "Auto " "")
+          '((:eval (format "%s%s |%s|%s"
+                           (if (and (require 'org-clock-today nil t)
+                                    org-clock-today-mode)
+                               (if org-clock-today-count-subtree
+                                   (format "%s / %s"
+                                           org-clock-today--subtree-time
+                                           org-clock-today--buffer-time)
+                                 (format "%s" org-clock-today--buffer-time))
+                             "")
+                           (if org-onit--auto-clocking " Auto " "")
                            (org-onit-get-sign)
                            org-mode-line-string))))))
 
@@ -1220,7 +1240,19 @@ update it for multiple appts?")
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-c f y") 'org-dashboard-display)))
 
-(with-eval-after-load "org"
+(with-eval-after-load "org-clock-today"
+  (defun my-print-working-clocks ()
+    (interactive)
+    (let ((clocked-item (org-duration-from-minutes
+                         (org-clock-get-clocked-time))))
+      (if org-clock-today-mode
+          (message "Today Subtree %s Total %s | Past %s"
+                   org-clock-today--buffer-time
+                   org-clock-today--subtree-time
+                   clocked-item)
+        (message "Past %s" clocked-item)))))
+
+(with-eval-after-load "org-clock"
   (defun ad:org-clock-sum-today (&optional headline-filter)
     "Sum the times for each subtree for today."
     (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
@@ -1228,33 +1260,10 @@ update it for multiple appts?")
                      headline-filter :org-clock-minutes-today)))
   (advice-add 'org-clock-sum-today :override #'ad:org-clock-sum-today)
 
+  ;; using folked package
   (when (require 'org-clock-today nil t)
-    (defun ad:org-clock-today-update-mode-line ()
-      "Calculate the total clocked time of today and update the mode line."
-      (setq org-clock-today-string
-            (if (org-clock-is-active)
-                ;; ナローイングの影響を排除し，subtreeに限定しない．
-                (save-excursion
-                  (save-restriction
-                    (with-current-buffer (org-clock-is-active)
-                      (widen)
-                      (let* ((current-sum (org-clock-sum-today))
-                             (open-time-difference (time-subtract
-                                                    (float-time)
-                                                    (float-time
-                                                     org-clock-start-time)))
-                             (open-seconds (time-to-seconds open-time-difference))
-                             (open-minutes (/ open-seconds 60))
-                             (total-minutes (+ current-sum
-                                               open-minutes)))
-                        (concat " " (org-minutes-to-clocksum-string
-                                     total-minutes))))))
-              ""))
-      (force-mode-line-update))
-    (advice-add 'org-clock-today-update-mode-line
-                :override #'ad:org-clock-today-update-mode-line)
-
     (unless noninteractive
+      (setq org-clock-today-count-subtree t)
       (org-clock-today-mode 1))))
 
 (autoload-if-found

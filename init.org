@@ -3,7 +3,7 @@
 #+email:    takaxp@ieee.org
 #+startup:  content
 #+startup:  nohideblocks
-#+options:  auto-id:t
+#+options:  auto-id:t num:t
 #+setupfile: theme-readtheorg.setup
 #+html_head: <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
@@ -3184,6 +3184,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
    :PROPERTIES:
    :CREATED:  [2019-06-19 Wed 00:49]
    :CUSTOM_ID: org9e3510c2
+   :ID:       E23734EB-0BF4-42EF-A99A-35FE319616DF
    :END:
 
  - http://emacsrocks.com/e08.html
@@ -3605,6 +3606,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 ** モードラインの色をカスタマイズする
    :PROPERTIES:
    :CUSTOM_ID: orgb577af83
+   :ID:       07740C36-1DFA-4B19-BCC4-D09A833B9392
    :END:
 
 配色は定期的に変えています．
@@ -3613,14 +3615,14 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 ;; mode-line
 (set-face-attribute 'mode-line nil
                     :foreground "#FFFFFF"
-                    :background "#b7655f"
-;;                    :overline "#9d5446"
+                    :background "#a46398"
+                    ;; :overline "#9d5446"
                     :box nil)
 ;; mode-line-inactive
 (set-face-attribute 'mode-line-inactive nil
-                    :foreground "#94bbf9"
-                    :background "#d8e3fd"
-                    :overline "#94bbf9"
+                    :foreground "#FFFFFF"
+                    :background "#c8a1b7"
+                    ;; :overline "#FFFFFF"
                     :box nil)
 ;; Terminal
 (unless (display-graphic-p)
@@ -3712,7 +3714,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
   (setq initial-major-mode 'empty-booting-mode)
   ;;  :underline "#203e6f"
   (set-face-foreground 'header-line "#FFFFFF") ;; "#203e6f" #333333 "#FFFFFF"
-  (set-face-background 'header-line "#5F7DB7") ;; "#ffb08c" "#7e59b5"
+  (set-face-background 'header-line "#a46398") ;; "#ffb08c" "#7e59b5" ##5F7DB7
   (set-face-attribute 'header-line nil
                       :inherit nil
                       :overline nil
@@ -4760,7 +4762,7 @@ ivyに移行しました．
   (with-eval-after-load "dimmer"
     (custom-set-variables
      '(dimmer-exclusion-regexp
-       "^\\*[Hh]elm\\|^ \\*Minibuf\\|^ \\*Neo\\|^ \\*Echo\\|^\\*Calendar\\|*Org\\|^ \\*LV*")
+       "^\\*[Hh]elm\\|^ \\*Minibuf\\|^\\*scratch\\|^ \\*Neo\\|^ \\*Echo\\|^\\*Calendar\\|*Org\\|^ \\*LV*")
      '(dimmer-fraction 0.6))
 
     (defun my-toggle-dimmer ()
@@ -7987,6 +7989,7 @@ will not be modified."
 ** [org-onit.el] org-clock-in の自動化
    :PROPERTIES:
    :CUSTOM_ID: org735f32e3
+   :ID:       9A3369DB-8CE4-4D39-93B4-63A32494E114
    :END:
 
 ~org-onit.el~ を導入すると，タグを付けるタイミングで自動的に =org-clock-in= します．タグを取れば =org-clock-out= が実行されるようになります．
@@ -7999,6 +8002,8 @@ will not be modified."
          org-onit-toggle-auto org-clock-goto my-sparse-doing-tree)
        "org-onit" nil t)
 
+  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
+
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
     (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
@@ -8010,13 +8015,23 @@ will not be modified."
       (interactive)
       (org-tags-view nil org-onit-tag)))
 
-  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
+  (with-eval-after-load "org-onit"
+    ;; (setq org-onit-use-unfold-as-doing t)
+    )
 
   (with-eval-after-load "org-clock"
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
     (setq org-clock-frame-title-format
-          '((:eval (format "%s|%s| %s"
-                           (if org-onit--auto-clocking "Auto " "")
+          '((:eval (format "%s%s |%s|%s"
+                           (if (and (require 'org-clock-today nil t)
+                                    org-clock-today-mode)
+                               (if org-clock-today-count-subtree
+                                   (format "%s / %s"
+                                           org-clock-today--subtree-time
+                                           org-clock-today--buffer-time)
+                                 (format "%s" org-clock-today--buffer-time))
+                             "")
+                           (if org-onit--auto-clocking " Auto " "")
                            (org-onit-get-sign)
                            org-mode-line-string))))))
 #+end_src
@@ -8715,6 +8730,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 ** [org-clock-today] 今日の総作業時間をモードラインに表示
    :PROPERTIES:
    :CUSTOM_ID: orgfa6df2ce
+   :ID:       3F4577B4-84B4-4F51-95F5-925F132401F5
    :END:
 
   - =CLOCK_MODELINE_TOTAL= を設定するのとは別なアプローチ
@@ -8722,7 +8738,19 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
   - [[https://github.com/mallt/org-clock-today-mode][mallt/org-clock-today-mode: Emacs minor mode to show the total clocked time of the current day in the mode line]]
 
 #+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org"
+(with-eval-after-load "org-clock-today"
+  (defun my-print-working-clocks ()
+    (interactive)
+    (let ((clocked-item (org-duration-from-minutes
+                         (org-clock-get-clocked-time))))
+      (if org-clock-today-mode
+          (message "Today Subtree %s Total %s | Past %s"
+                   org-clock-today--buffer-time
+                   org-clock-today--subtree-time
+                   clocked-item)
+        (message "Past %s" clocked-item)))))
+
+(with-eval-after-load "org-clock"
   (defun ad:org-clock-sum-today (&optional headline-filter)
     "Sum the times for each subtree for today."
     (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
@@ -8730,33 +8758,10 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
                      headline-filter :org-clock-minutes-today)))
   (advice-add 'org-clock-sum-today :override #'ad:org-clock-sum-today)
 
+  ;; using folked package
   (when (require 'org-clock-today nil t)
-    (defun ad:org-clock-today-update-mode-line ()
-      "Calculate the total clocked time of today and update the mode line."
-      (setq org-clock-today-string
-            (if (org-clock-is-active)
-                ;; ナローイングの影響を排除し，subtreeに限定しない．
-                (save-excursion
-                  (save-restriction
-                    (with-current-buffer (org-clock-is-active)
-                      (widen)
-                      (let* ((current-sum (org-clock-sum-today))
-                             (open-time-difference (time-subtract
-                                                    (float-time)
-                                                    (float-time
-                                                     org-clock-start-time)))
-                             (open-seconds (time-to-seconds open-time-difference))
-                             (open-minutes (/ open-seconds 60))
-                             (total-minutes (+ current-sum
-                                               open-minutes)))
-                        (concat " " (org-minutes-to-clocksum-string
-                                     total-minutes))))))
-              ""))
-      (force-mode-line-update))
-    (advice-add 'org-clock-today-update-mode-line
-                :override #'ad:org-clock-today-update-mode-line)
-
     (unless noninteractive
+      (setq org-clock-today-count-subtree t)
       (org-clock-today-mode 1))))
 #+end_src
 
@@ -9715,7 +9720,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 フレームを複数使う場合の設定です．
 
 #+begin_src emacs-lisp :tangle late-init.el
-;;(declare-function my-font-config "init" nil)
+;; (declare-function my-font-config "init" nil)
 (global-set-key (kbd "M-`") 'other-frame)
 (with-eval-after-load "frame"
   (defun ad:make-frame (&optional _parameters)
@@ -9783,6 +9788,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 =moom-autuloads= に必要なコマンドを +羅列していますが，+ =melpa= でインストールする場合は関係ありません．パッケージ内で autoload 指定してあります． =with-eval-after-load= の中だけを設定すれば十分です．
 
 #+begin_src emacs-lisp :tangle yes
+(declare-function my-font-config "init" nil)
 (defconst moom-autoloads
   '(moom-cycle-frame-height
     moom-move-frame-to-edge-top moom-move-frame my-frame-reset
@@ -9801,10 +9807,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 
   (with-eval-after-load "moom"
+    (moom-recommended-keybindings 'all)
     (setq moom-lighter "M")
     (setq moom-verbose t)
-    (let ((moom-verbose nil))
-      (moom-recommended-keybindings 'all))
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 

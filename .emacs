@@ -3,22 +3,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 (with-eval-after-load "org"
-  (load "~/devel/git/org-onit/org-onit.el" nil t)
   (load "~/Dropbox/emacs.d/config/init-doing.el" nil t))
+
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;   ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
 ;;   git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-
-(with-eval-after-load "org-onit"
-  ;; Testing...
-  (defun my-org-reveal ()
-    (org-reveal)
-    (org-show-entry)
-    (show-children))
-  (add-hook 'org-onit-after-jump-hook #'my-org-reveal))
-
 
 ;; (with-eval-after-load "ivy"
 ;;   (when (require 'ivy-omni-org nil t)
