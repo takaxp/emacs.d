@@ -1533,7 +1533,7 @@ This works also for other defined begin/end tokens to define the structure."
   (with-eval-after-load "dimmer"
     (custom-set-variables
      '(dimmer-exclusion-regexp
-       "^\\*[Hh]elm\\|^ \\*Minibuf\\|^ \\*Neo\\|^ \\*Echo\\|^\\*Calendar\\|*Org\\|^ \\*LV*")
+       "^\\*[Hh]elm\\|^ \\*Minibuf\\|^\\*scratch\\|^ \\*Neo\\|^ \\*Echo\\|^\\*Calendar\\|*Org\\|^ \\*LV*")
      '(dimmer-fraction 0.6))
 
     (defun my-toggle-dimmer ()
@@ -1916,6 +1916,18 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
     (define-key undo-tree-visualizer-mode-map (kbd "q")
       'my-undo-tree-visualizer-quit)))
+
+(when (autoload-if-found
+       '(undo-propose)
+       "undo-propose" nil t)
+
+  (global-set-key (kbd "C-M-/") 'undo-propose)
+
+  (with-eval-after-load "undo-propose"
+    (defun my-org-overview ()
+      (when (fboundp 'org-overview)
+        (org-overview)))
+    (add-hook 'undo-propose-mode-hook #'my-org-overview)))
 
 (when (require 'auto-save-buffers nil t)
 

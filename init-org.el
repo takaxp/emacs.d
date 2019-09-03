@@ -112,6 +112,12 @@
             (t state)))
     ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
+    ;; undo 時に reveal して表示を改善する
+    (defun ad:org:undo (&optional _ARG)
+      (when (eq major-mode 'org-mode)
+        (org-reveal)))
+    (advice-add 'undo :after #'ad:org:undo)
+
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
     (setq org-catch-invisible-edits 'show-and-error)
@@ -310,7 +316,15 @@
         (org-hugo-export-wim-to-md)
         (message "[ox-hugo] \"%s\" has been exported."
                  (nth 4 (org-heading-components)))
-        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
+        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
+              (filename (org-entry-get (point) "EXPORT_FILE_NAME")))
+          (when filename
+            (save-excursion
+              (save-restriction
+                (outline-up-heading 1)
+                (setq filename
+                      (concat (nth 4 (org-heading-components)) "/" filename))
+                (setq command (concat command " -e" (downcase filename))))))
           (if (require 'async nil t)
               (async-start
                `(lambda () (shell-command-to-string ',command)))
@@ -790,9 +804,8 @@ will not be modified."
       (interactive)
       (org-tags-view nil org-onit-tag)))
 
-  (with-eval-after-load "org-onit"
-    ;; (setq org-onit-use-unfold-as-doing t)
-    )
+  ;; (with-eval-after-load "org-onit"
+  ;;   (setq org-onit-use-unfold-as-doing t))
 
   (with-eval-after-load "org-clock"
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
@@ -808,7 +821,8 @@ will not be modified."
                              "")
                            (if org-onit--auto-clocking " Auto " "")
                            (org-onit-get-sign)
-                           org-mode-line-string))))))
+                           org-mode-line-string))
+            " - %b"))))
 
 (with-eval-after-load "org"
   (require 'orgbox nil t))

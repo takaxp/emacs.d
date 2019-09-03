@@ -12,13 +12,13 @@
   :CUSTOM_ID: orgda9120c8
   :END:
 
-  - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://takaxp.github.io/init.html][init.html]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]] を生成しています．
-  - 一部の関数定義を [[https://github.com/takaxp/emacs.d/blob/master/utility.el][utility.el]] に分離しています．
-  - Org Modeに関する設定は， [[https://github.com/takaxp/emacs.d/blob/master/init-org.el][init-org.el]] に分離しています．
-  - [[https://github.com/takaxp/postpone][postpone.el]] で遅延読み込みするパッケージを，[[https://github.com/takaxp/emacs.d/blob/master/late-init.el][late-init.el]] に分離しています．
-  - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]] 本体は，[[https://github.com/takaxp/emacs.d/][GitHub]] に公開しています．
-  - コピペだけで動かなかった場合は，気軽に [[https://twitter.com/takaxp][@takaxp]] までご意見をどうぞ．
-  - =obsolete= タグのある設定は，あくまで個人的に不使用になったものです．
+- [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://takaxp.github.io/init.html][init.html]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]] を生成しています．
+- 一部の関数定義を [[https://github.com/takaxp/emacs.d/blob/master/utility.el][utility.el]] に分離しています．
+- Org Modeに関する設定は， [[https://github.com/takaxp/emacs.d/blob/master/init-org.el][init-org.el]] に分離しています．
+- [[https://github.com/takaxp/postpone][postpone.el]] で遅延読み込みするパッケージを，[[https://github.com/takaxp/emacs.d/blob/master/late-init.el][late-init.el]] に分離しています．
+- [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]] 本体は，[[https://github.com/takaxp/emacs.d/][GitHub]] に公開しています．
+- コピペだけで動かなかった場合は，気軽に [[https://twitter.com/takaxp][@takaxp]] までご意見をどうぞ．
+- =obsolete= タグのある設定は，あくまで個人的に不使用になったものです．
 
 * 起動設定
   :PROPERTIES:
@@ -45,13 +45,13 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 
 これ以外に，バッチモードでバイトコンパイルするための =init-eval.el= も使います．このファイルには，バイトコンパイル時だけ必要なパッケージを列挙しています．
 
- - [[https://github.com/takaxp/emacs.d/blob/master/.emacs][emacs.d/.emacs at master · takaxp/emacs.d]]
- - [[https://github.com/takaxp/emacs.d/blob/master/init-env.el][emacs.d/init-env.el at master · takaxp/emacs.d]]
- - [[https://github.com/takaxp/emacs.d/blob/master/init.el][emacs.d/init.el at master · takaxp/emacs.d]]
- - [[https://github.com/takaxp/emacs.d/blob/master/late-init.el][emacs.d/late-init.el at master · takaxp/emacs.d]]
- - [[https://github.com/takaxp/emacs.d/blob/master/init-async.el][emacs.d/init-async.el at master · takaxp/emacs.d]]
- - [[https://github.com/takaxp/emacs.d/blob/master/init-eval.el][emacs.d/init-eval.el at master · takaxp/emacs.d]]
- - [[https://github.com/takaxp/emacs.d/blob/master/init-ad.el][emacs.d/init-ad.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/.emacs][emacs.d/.emacs at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/init-env.el][emacs.d/init-env.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/init.el][emacs.d/init.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/late-init.el][emacs.d/late-init.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/init-async.el][emacs.d/init-async.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/init-eval.el][emacs.d/init-eval.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/init-ad.el][emacs.d/init-ad.el at master · takaxp/emacs.d]]
 
 ** init.el のヘッダ
    :PROPERTIES:
@@ -201,7 +201,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
    :CUSTOM_ID: orgc7901a57
    :END:
 
-  - http://lisperblog.blogspot.com/2008/12/blog-post_18.html
+- http://lisperblog.blogspot.com/2008/12/blog-post_18.html
 
 一般的には次のように記載すればOKです．
 
@@ -234,7 +234,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， =.emacs= の上の方に書いておくとよいと思います．
 
-  - [[http://d.hatena.ne.jp/kitokitoki/20100425/p1]]
+- [[http://d.hatena.ne.jp/kitokitoki/20100425/p1]]
 
 #+begin_src emacs-lisp :tangle yes
 (setq byte-compile-warnings
@@ -5815,6 +5815,31 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
       'my-undo-tree-visualizer-quit)))
 #+end_src
 
+** [undo-propose] undo を編集不可モードで辿る
+   :PROPERTIES:
+   :CUSTOM_ID: org694ee426
+   :END:
+
+ - [[https://github.com/jackkamm/undo-propose-el][jackkamm/undo-propose-el: Navigate the emacs undo history by staging undo's in a temporary buffer]]
+
+=undo= する時にバッファに変更が加わると面倒なことになります．そこで =org-capture= なキーバインドで動作する =undo-propose= を使います．
+
+=undo-propose= でモードに入ったら， =C-/= で =undo= して，確定するなら =C-c C-c= ，キャンセルするなら =C-c C-k= します．オリジナルのバッファを直接変更せず，一時的なバッファで =undo= してから反映させるのでより安全です．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(undo-propose)
+       "undo-propose" nil t)
+
+  (global-set-key (kbd "C-M-/") 'undo-propose)
+
+  (with-eval-after-load "undo-propose"
+    (defun my-org-overview ()
+      (when (fboundp 'org-overview)
+        (org-overview)))
+    (add-hook 'undo-propose-mode-hook #'my-org-overview)))
+#+end_src
+
 ** [auto-save-buffers.el] 一定間隔でバッファを保存する
    :PROPERTIES:
    :CUSTOM_ID: orgb8c01946
@@ -7170,6 +7195,12 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
             (t state)))
     ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
+    ;; undo 時に reveal して表示を改善する
+    (defun ad:org:undo (&optional _ARG)
+      (when (eq major-mode 'org-mode)
+        (org-reveal)))
+    (advice-add 'undo :after #'ad:org:undo)
+
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
     (setq org-catch-invisible-edits 'show-and-error)
@@ -7357,6 +7388,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 ** スピードコマンド
    :PROPERTIES:
    :CUSTOM_ID: org739cd53d
+   :ID:       418AFA81-82B1-485C-98BB-83E6A3EF0F8A
    :END:
 慣れてくると Org Mode の通常キーバインドでは満足できなくなります．コンテクストに応じて適切なキーバインドを設定するのが Emacs の醍醐味ですから，そういう欲求が出てきたらスピーコマンドの出番です．シングルキーで各ツリーのステータスを変更したり，任意のコマンドを呼び出せます．
 
@@ -7392,7 +7424,15 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (org-hugo-export-wim-to-md)
         (message "[ox-hugo] \"%s\" has been exported."
                  (nth 4 (org-heading-components)))
-        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
+        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
+              (filename (org-entry-get (point) "EXPORT_FILE_NAME")))
+          (when filename
+            (save-excursion
+              (save-restriction
+                (outline-up-heading 1)
+                (setq filename
+                      (concat (nth 4 (org-heading-components)) "/" filename))
+                (setq command (concat command " -e" (downcase filename))))))
           (if (require 'async nil t)
               (async-start
                `(lambda () (shell-command-to-string ',command)))
@@ -8015,9 +8055,8 @@ will not be modified."
       (interactive)
       (org-tags-view nil org-onit-tag)))
 
-  (with-eval-after-load "org-onit"
-    ;; (setq org-onit-use-unfold-as-doing t)
-    )
+  ;; (with-eval-after-load "org-onit"
+  ;;   (setq org-onit-use-unfold-as-doing t))
 
   (with-eval-after-load "org-clock"
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
@@ -8033,7 +8072,8 @@ will not be modified."
                              "")
                            (if org-onit--auto-clocking " Auto " "")
                            (org-onit-get-sign)
-                           org-mode-line-string))))))
+                           org-mode-line-string))
+            " - %b"))))
 #+end_src
 
 ** [orgbox.el] スケジュール追加のわかりやすい入力

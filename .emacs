@@ -11,6 +11,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+
 ;; (with-eval-after-load "ivy"
 ;;   (when (require 'ivy-omni-org nil t)
 ;;     (setq ivy-omni-org-file-sources '(org-agenda-files))))
