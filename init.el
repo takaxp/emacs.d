@@ -69,8 +69,7 @@
     enabled))
 
 (defvar my-skip-check-autoload-file t)
-(when (and (boundp 'my-loading-packages)
-           my-loading-packages)
+(when (bound-and-true-p my-loading-packages)
   (setq my-skip-check-autoload-file nil))
 
 (defun autoload-if-found (functions file &optional docstring interactive type)
@@ -212,8 +211,7 @@
   (mac-win-save-last-ime-status) ;; 初期化
 
   (defun mac-win-restore-ime ()
-    (when (and (boundp 'mac-auto-ascii-mode)
-               mac-auto-ascii-mode
+    (when (and (bound-and-true-p mac-auto-ascii-mode)
                (eq mac-win-last-ime-status 'on))
       (mac-select-input-source
        "com.google.inputmethod.Japanese.base")))
@@ -228,8 +226,7 @@
     '(find-file save-buffer other-window delete-window split-window))
 
   (defun mac-win-restore-ime-target-commands ()
-    (when (and (boundp 'mac-auto-ascii-mode)
-               mac-auto-ascii-mode
+    (when (and (bound-and-true-p mac-auto-ascii-mode)
                (eq mac-win-last-ime-status 'on))
       (mapc (lambda (command)
               (when (string-match

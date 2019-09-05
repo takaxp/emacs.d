@@ -75,6 +75,7 @@
     (el-get-bundle "Fuco1/org-pretty-table")
     (el-get-bundle "jlumpe/ox-json")
     (el-get-bundle "takaxp/org-onit")
+    (el-get-bundle "Fuco1/org-clock-budget")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Major modes ;;;
     ;; download zip since python-mode git repository is extremely huge
@@ -257,7 +258,8 @@
     (el-get-bundle "tarsius/hl-todo")
     (el-get-bundle "kiennq/emacs-mini-modeline")
     ;; (el-get-bundle "emacsmirror/minibuffer-line")
-    (el-get-bundle "jackkamm/undo-propose-el" :name undo-propose)
+    ;; (el-get-bundle "jackkamm/undo-propose-el" :name undo-propose)
+    (el-get-bundle "takaxp/undo-propose-el" :name undo-propose)
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; System related ;;;
     (el-get-bundle "Fuco1/dired-hacks")
@@ -303,6 +305,7 @@
       (el-get-bundle "waymondo/frog-jump-buffer" :depends (avy)))
     ;; (el-get-bundle "esup")
     (el-get-bundle "rolandwalker/ignoramus") ;; Ignore backups, build files, et al.
+    (el-get-bundle "takaxp/ah")
 
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Applications ;;;

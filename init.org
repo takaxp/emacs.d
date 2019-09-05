@@ -301,8 +301,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 #+begin_src emacs-lisp :tangle yes
 (defvar my-skip-check-autoload-file t)
-(when (and (boundp 'my-loading-packages)
-           my-loading-packages)
+(when (bound-and-true-p my-loading-packages)
   (setq my-skip-check-autoload-file nil))
 
 (defun autoload-if-found (functions file &optional docstring interactive type)
@@ -623,7 +622,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
   (let ((enabled t)
         (package nil))
     (message "--- %s" file)
-    (when (and (boundp 'my-loading-packages) my-loading-packages)
+    (when (bound-and-true-p my-loading-packages)
       (dolist (package my-loading-packages)
         (let ((name (car package))
               (flag (cdr package)))
@@ -1266,7 +1265,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
   (run-with-idle-timer 0.8 t #'my-ns-org-heading-auto-ascii)
 
   ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-  ;; (add-hook 'move-cursor-after-hook #'my-ns-org-heading-auto-ascii)
+  ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
   (defun my-ns-ime-restore ()
     "Restore the last IME status."
@@ -1307,8 +1306,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   (mac-win-save-last-ime-status) ;; 初期化
 
   (defun mac-win-restore-ime ()
-    (when (and (boundp 'mac-auto-ascii-mode)
-               mac-auto-ascii-mode
+    (when (and (bound-and-true-p mac-auto-ascii-mode)
                (eq mac-win-last-ime-status 'on))
       (mac-select-input-source
        "com.google.inputmethod.Japanese.base")))
@@ -1323,8 +1321,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
     '(find-file save-buffer other-window delete-window split-window))
 
   (defun mac-win-restore-ime-target-commands ()
-    (when (and (boundp 'mac-auto-ascii-mode)
-               mac-auto-ascii-mode
+    (when (and (bound-and-true-p mac-auto-ascii-mode)
                (eq mac-win-last-ime-status 'on))
       (mapc (lambda (command)
               (when (string-match
@@ -1558,76 +1555,17 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 (setq next-screen-context-lines 1)
 #+end_src
 
-** カーソル移動に反応するフック
+** [ah.el] カーソル移動に反応するフック
    :PROPERTIES:
    :CUSTOM_ID: org7ea97f70
    :ID:       1C5AA77D-14DB-4748-95F9-5880AFCED31A
    :END:
 
-カーソルを移動するインタラクティブ関数に反応する =move-cursor-before-hook= と =move-cursor-after-hook= を作ります．
+カーソルを移動するインタラクティブ関数に反応する =ah-before-move-cursor-hook= と =ah-after-move-cursor-hook= を使います． [[https://github.com/takaxp/ah][ah.el]] に関数定義を切り出しました．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(defcustom move-cursor-before-hook nil
-  "Hook runs before moving the cursor."
-  :type 'hook
-  :group 'convenience)
-
-(defcustom move-cursor-after-hook nil
-  "Hook runs after moving the cursor."
-  :type 'hook
-  :group 'convenience)
-
-(defun ad:cur:next-line (f &optional arg try-vscroll)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f arg try-vscroll)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:previous-line (f &optional arg try-vscroll)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f arg try-vscroll)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:forward-char (f &optional N)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f N)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:backward-char (f &optional N)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f N)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:syntax-subword-forward (f &optional N)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f N)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:syntax-subword-backward (f &optional N)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f N)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:move-beginning-of-line (f ARG)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f ARG)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:move-end-of-line (f ARG)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f ARG)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:beginning-of-buffer (f &optional ARG)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f ARG)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:end-of-buffer (f &optional ARG)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f ARG)
-  (run-hooks 'move-cursor-after-hook))
-
-(advice-add 'next-line :around #'ad:cur:next-line)
-(advice-add 'previous-line :around #'ad:cur:previous-line)
-(advice-add 'forward-char :around #'ad:cur:forward-char)
-(advice-add 'backward-char :around #'ad:cur:backward-char)
-(advice-add 'syntax-subword-forward :around #'ad:cur:syntax-subword-forward)
-(advice-add 'syntax-subword-backward :around #'ad:cur:syntax-subword-backward)
-(advice-add 'move-beginning-of-line :around #'ad:cur:move-beginning-of-line)
-(advice-add 'move-end-of-line :around #'ad:cur:move-end-of-line)
-(advice-add 'beginning-of-buffer :around #'ad:cur:beginning-of-buffer)
-(advice-add 'end-of-buffer :around #'ad:cur:end-of-buffer)
+(when (require 'eh nil t)
+  (ah-mode 1))
 #+end_src
 
 ** [smooth-scroll.el] 滑らかなスクロール
@@ -5781,7 +5719,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
   (global-set-key (kbd "C-x u") 'my-undo-tree-visualize)
 
   (with-eval-after-load "undo-tree"
-    (global-undo-tree-mode)
+    ;; (global-undo-tree-mode)
     (setq undo-tree-mode-lighter nil) ;; モードライン領域を節約
 
     (defvar my-undo-tree-active nil)
@@ -5789,6 +5727,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
     (defun my-undo-tree-visualize ()
       (interactive)
+      (undo-tree-mode 1)
       (if (require 'moom nil t)
           (moom-change-frame-width-double)
         (when (and (not my-undo-tree-active)
@@ -5809,35 +5748,75 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
           (set-frame-width nil (- (frame-width) my-undo-tree-width))
           (setq my-undo-tree-active nil)))
       (when (< (frame-width) 80)
-        (set-frame-width nil 80)))
+        (set-frame-width nil 80))
+      (undo-tree-mode -1))
 
     (define-key undo-tree-visualizer-mode-map (kbd "q")
-      'my-undo-tree-visualizer-quit)))
+      'my-undo-tree-visualizer-quit))
+
+  (advice-add 'undo-tree-undo-1 :after #'my-org-reveal-and-focus)
+  (advice-add 'undo-tree-redo-1 :after #'my-org-reveal-and-focus))
 #+end_src
 
 ** [undo-propose] undo を編集不可モードで辿る
    :PROPERTIES:
    :CUSTOM_ID: org694ee426
+   :ID:       BC3E384B-80DF-4524-BB0B-6141A25067F5
    :END:
 
  - [[https://github.com/jackkamm/undo-propose-el][jackkamm/undo-propose-el: Navigate the emacs undo history by staging undo's in a temporary buffer]]
 
-=undo= する時にバッファに変更が加わると面倒なことになります．そこで =org-capture= なキーバインドで動作する =undo-propose= を使います．
+=undo= する時に，バッファに意図しない変更が加わると面倒なことになります．そこで =org-capture= なキーバインドで動作する =undo-propose= を使います．
 
 =undo-propose= でモードに入ったら， =C-/= で =undo= して，確定するなら =C-c C-c= ，キャンセルするなら =C-c C-k= します．オリジナルのバッファを直接変更せず，一時的なバッファで =undo= してから反映させるのでより安全です．
+
+次の設定では，標準の =undo= をオーバーライドするように =undo-propose= を使います．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(undo-propose)
        "undo-propose" nil t)
 
-  (global-set-key (kbd "C-M-/") 'undo-propose)
+  (global-set-key (kbd "C-/") 'undo-propose)
+
+  ;; located here intended for `undo-tree'
+  (defun my-org-reveal-and-focus (&optional _arg)
+    "Reveal a heading and focus on the content."
+    (when (eq major-mode 'org-mode)
+      (org-overview)
+      (unless (org-before-first-heading-p)
+        (org-reveal)
+        (org-cycle-hide-drawers 'all)
+        (org-show-entry)
+        (show-children)
+        (org-show-siblings))))
+  (advice-add 'undo :after #'my-org-reveal-and-focus)
 
   (with-eval-after-load "undo-propose"
-    (defun my-org-overview ()
-      (when (fboundp 'org-overview)
-        (org-overview)))
-    (add-hook 'undo-propose-mode-hook #'my-org-overview)))
+
+    (define-key undo-propose-mode-map (kbd "/") 'undo)
+    (define-key undo-propose-mode-map (kbd "C-/") 'undo-propose)
+    (define-key undo-propose-mode-map (kbd "q") 'undo-propose-cancel)
+    (define-key undo-propose-mode-map (kbd "C-<return>") 'undo-propose-commit)
+
+    (defun my-undo-propose-and-undo (f)
+      "Undo even when `undo-propose' is initiated."
+      (let ((status (bound-and-true-p undo-propose-mode)))
+        (funcall f)
+        (unless status
+          (undo))))
+
+    (defun my-undo-propose-auto-commit-on ()
+      (add-hook 'ah-after-move-cursor-hook 'undo-propose-commit))
+    (advice-add 'undo-propose :after #'my-undo-propose-auto-commit-on)
+
+    (defun my-undo-propose-auto-commit-off ()
+      (remove-hook 'ah-after-move-cursor-hook 'undo-propose-commit))
+    (advice-add 'undo-propose-commit :after #'my-undo-propose-auto-commit-off)
+
+    (advice-add 'undo-propose-commit :after #'my-org-reveal-and-focus)
+    (advice-add 'undo-squash-commit :after #'my-org-reveal-and-focus)
+    (advice-add 'undo-propose :around #'my-undo-propose-and-undo)))
 #+end_src
 
 ** [auto-save-buffers.el] 一定間隔でバッファを保存する
@@ -5854,8 +5833,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
   (defun my-ox-hugo-auto-saving-p ()
     (when (eq major-mode 'org-mode)
-      (or (and (boundp 'org-capture-mode) ;; when activating org-capture
-               org-capture-mode)
+      (or (bound-and-true-p org-capture-mode) ;; when activating org-capture
           (and (fboundp 'org-entry-get)
                (equal "" (org-entry-get (point) "EXPORT_FILE_NAME"))))))
 
@@ -7196,10 +7174,16 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
     ;; undo 時に reveal して表示を改善する
-    (defun ad:org:undo (&optional _ARG)
-      (when (eq major-mode 'org-mode)
-        (org-reveal)))
-    (advice-add 'undo :after #'ad:org:undo)
+    ;; (defun ad:org:undo (&optional _ARG)
+    ;;   (when (and (eq major-mode 'org-mode)
+    ;;              (not (org-before-first-heading-p)))
+    ;;     (org-overview)
+    ;;     (org-reveal)
+    ;;     (org-cycle-hide-drawers 'all)
+    ;;     (org-show-entry)
+    ;;     (show-children)
+    ;;     (org-show-siblings)))
+    ;; (advice-add 'undo :after #'ad:org:undo)
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -8432,8 +8416,7 @@ update it for multiple appts?")
 
   (when (require 'org-clock nil t)
     (defun my-org-clock-in ()
-      (unless (and (boundp 'doom-modeline-mode)
-                   doom-modeline-mode)
+      (unless (bound-and-true-p doom-modeline-mode)
         (setq vc-display-status nil)) ;; モードライン節約
       (when (and (my-tree-slide-autoclockin-p)
                  (looking-at (concat "^\\*+ " org-not-done-regexp))
@@ -9198,8 +9181,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (defvar org-attach-directory-absolute
       (concat (getenv "HOME")
               "/Dropbox/org/"
-              (if (boundp 'org-attach-directory)
-                  "data/")))
+              (when (boundp 'org-attach-directory)
+                "data/")))
 
     (defun du-org-attachments ()
       "Show directory size for org-attachments."
@@ -10310,7 +10293,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
      ((((background dark)) :background "#594d5d")
       (t (:background "#fff0de"))))))
 
-(add-hook 'move-cursor-before-hook #'my-hl-line-enable)
+(add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)

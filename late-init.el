@@ -167,7 +167,7 @@
   (run-with-idle-timer 0.8 t #'my-ns-org-heading-auto-ascii)
 
   ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-  ;; (add-hook 'move-cursor-after-hook #'my-ns-org-heading-auto-ascii)
+  ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
   (defun my-ns-ime-restore ()
     "Restore the last IME status."
@@ -218,67 +218,70 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; Scroll window on a page-by-page basis with N line overlapping
 (setq next-screen-context-lines 1)
 
-(defcustom move-cursor-before-hook nil
-  "Hook runs before moving the cursor."
-  :type 'hook
-  :group 'convenience)
+(when (require 'eh nil t)
+  (ah-mode 1))
 
-(defcustom move-cursor-after-hook nil
-  "Hook runs after moving the cursor."
-  :type 'hook
-  :group 'convenience)
+;; (defcustom ah-before-move-cursor-hook nil
+;;   "Hook runs before moving the cursor."
+;;   :type 'hook
+;;   :group 'convenience)
 
-(defun ad:cur:next-line (f &optional arg try-vscroll)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f arg try-vscroll)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:previous-line (f &optional arg try-vscroll)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f arg try-vscroll)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:forward-char (f &optional N)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f N)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:backward-char (f &optional N)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f N)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:syntax-subword-forward (f &optional N)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f N)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:syntax-subword-backward (f &optional N)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f N)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:move-beginning-of-line (f ARG)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f ARG)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:move-end-of-line (f ARG)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f ARG)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:beginning-of-buffer (f &optional ARG)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f ARG)
-  (run-hooks 'move-cursor-after-hook))
-(defun ad:cur:end-of-buffer (f &optional ARG)
-  (run-hooks 'move-cursor-before-hook)
-  (funcall f ARG)
-  (run-hooks 'move-cursor-after-hook))
+;; (defcustom ah-after-move-cursor-hook nil
+;;   "Hook runs after moving the cursor."
+;;   :type 'hook
+;;   :group 'convenience)
 
-(advice-add 'next-line :around #'ad:cur:next-line)
-(advice-add 'previous-line :around #'ad:cur:previous-line)
-(advice-add 'forward-char :around #'ad:cur:forward-char)
-(advice-add 'backward-char :around #'ad:cur:backward-char)
-(advice-add 'syntax-subword-forward :around #'ad:cur:syntax-subword-forward)
-(advice-add 'syntax-subword-backward :around #'ad:cur:syntax-subword-backward)
-(advice-add 'move-beginning-of-line :around #'ad:cur:move-beginning-of-line)
-(advice-add 'move-end-of-line :around #'ad:cur:move-end-of-line)
-(advice-add 'beginning-of-buffer :around #'ad:cur:beginning-of-buffer)
-(advice-add 'end-of-buffer :around #'ad:cur:end-of-buffer)
+;; (defun ad:cur:next-line (f &optional arg try-vscroll)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f arg try-vscroll)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+;; (defun ad:cur:previous-line (f &optional arg try-vscroll)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f arg try-vscroll)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+;; (defun ad:cur:forward-char (f &optional N)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f N)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+;; (defun ad:cur:backward-char (f &optional N)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f N)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+;; (defun ad:cur:syntax-subword-forward (f &optional N)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f N)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+;; (defun ad:cur:syntax-subword-backward (f &optional N)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f N)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+;; (defun ad:cur:move-beginning-of-line (f ARG)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f ARG)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+;; (defun ad:cur:move-end-of-line (f ARG)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f ARG)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+;; (defun ad:cur:beginning-of-buffer (f &optional ARG)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f ARG)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+;; (defun ad:cur:end-of-buffer (f &optional ARG)
+;;   (run-hooks 'ah-before-move-cursor-hook)
+;;   (funcall f ARG)
+;;   (run-hooks 'ah-after-move-cursor-hook))
+
+;; (advice-add 'next-line :around #'ad:cur:next-line)
+;; (advice-add 'previous-line :around #'ad:cur:previous-line)
+;; (advice-add 'forward-char :around #'ad:cur:forward-char)
+;; (advice-add 'backward-char :around #'ad:cur:backward-char)
+;; (advice-add 'syntax-subword-forward :around #'ad:cur:syntax-subword-forward)
+;; (advice-add 'syntax-subword-backward :around #'ad:cur:syntax-subword-backward)
+;; (advice-add 'move-beginning-of-line :around #'ad:cur:move-beginning-of-line)
+;; (advice-add 'move-end-of-line :around #'ad:cur:move-end-of-line)
+;; (advice-add 'beginning-of-buffer :around #'ad:cur:beginning-of-buffer)
+;; (advice-add 'end-of-buffer :around #'ad:cur:end-of-buffer)
 
 (when (autoload-if-found
        '(smooth-scroll-mode)
@@ -1884,7 +1887,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
   (global-set-key (kbd "C-x u") 'my-undo-tree-visualize)
 
   (with-eval-after-load "undo-tree"
-    (global-undo-tree-mode)
+    ;; (global-undo-tree-mode)
     (setq undo-tree-mode-lighter nil) ;; モードライン領域を節約
 
     (defvar my-undo-tree-active nil)
@@ -1892,6 +1895,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
     (defun my-undo-tree-visualize ()
       (interactive)
+      (undo-tree-mode 1)
       (if (require 'moom nil t)
           (moom-change-frame-width-double)
         (when (and (not my-undo-tree-active)
@@ -1912,29 +1916,65 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
           (set-frame-width nil (- (frame-width) my-undo-tree-width))
           (setq my-undo-tree-active nil)))
       (when (< (frame-width) 80)
-        (set-frame-width nil 80)))
+        (set-frame-width nil 80))
+      (undo-tree-mode -1))
 
     (define-key undo-tree-visualizer-mode-map (kbd "q")
-      'my-undo-tree-visualizer-quit)))
+      'my-undo-tree-visualizer-quit))
+
+  (advice-add 'undo-tree-undo-1 :after #'my-org-reveal-and-focus)
+  (advice-add 'undo-tree-redo-1 :after #'my-org-reveal-and-focus))
 
 (when (autoload-if-found
        '(undo-propose)
        "undo-propose" nil t)
 
-  (global-set-key (kbd "C-M-/") 'undo-propose)
+  (global-set-key (kbd "C-/") 'undo-propose)
+
+  ;; located here intended for `undo-tree'
+  (defun my-org-reveal-and-focus (&optional _arg)
+    "Reveal a heading and focus on the content."
+    (when (eq major-mode 'org-mode)
+      (org-overview)
+      (unless (org-before-first-heading-p)
+        (org-reveal)
+        (org-cycle-hide-drawers 'all)
+        (org-show-entry)
+        (show-children)
+        (org-show-siblings))))
+  (advice-add 'undo :after #'my-org-reveal-and-focus)
 
   (with-eval-after-load "undo-propose"
-    (defun my-org-overview ()
-      (when (fboundp 'org-overview)
-        (org-overview)))
-    (add-hook 'undo-propose-mode-hook #'my-org-overview)))
+
+    (define-key undo-propose-mode-map (kbd "/") 'undo)
+    (define-key undo-propose-mode-map (kbd "C-/") 'undo-propose)
+    (define-key undo-propose-mode-map (kbd "q") 'undo-propose-cancel)
+    (define-key undo-propose-mode-map (kbd "C-<return>") 'undo-propose-commit)
+
+    (defun my-undo-propose-and-undo (f)
+      "Undo even when `undo-propose' is initiated."
+      (let ((status (bound-and-true-p undo-propose-mode)))
+        (funcall f)
+        (unless status
+          (undo))))
+
+    (defun my-undo-propose-auto-commit-on ()
+      (add-hook 'ah-after-move-cursor-hook 'undo-propose-commit))
+    (advice-add 'undo-propose :after #'my-undo-propose-auto-commit-on)
+
+    (defun my-undo-propose-auto-commit-off ()
+      (remove-hook 'ah-after-move-cursor-hook 'undo-propose-commit))
+    (advice-add 'undo-propose-commit :after #'my-undo-propose-auto-commit-off)
+
+    (advice-add 'undo-propose-commit :after #'my-org-reveal-and-focus)
+    (advice-add 'undo-squash-commit :after #'my-org-reveal-and-focus)
+    (advice-add 'undo-propose :around #'my-undo-propose-and-undo)))
 
 (when (require 'auto-save-buffers nil t)
 
   (defun my-ox-hugo-auto-saving-p ()
     (when (eq major-mode 'org-mode)
-      (or (and (boundp 'org-capture-mode) ;; when activating org-capture
-               org-capture-mode)
+      (or (bound-and-true-p org-capture-mode) ;; when activating org-capture
           (and (fboundp 'org-entry-get)
                (equal "" (org-entry-get (point) "EXPORT_FILE_NAME"))))))
 
@@ -2629,7 +2669,7 @@ Uses `all-the-icons-material' to fetch the icon."
      ((((background dark)) :background "#594d5d")
       (t (:background "#fff0de"))))))
 
-(add-hook 'move-cursor-before-hook #'my-hl-line-enable)
+(add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)

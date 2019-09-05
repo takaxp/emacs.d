@@ -4,19 +4,20 @@
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 (with-eval-after-load "org"
   (load "~/Dropbox/emacs.d/config/init-doing.el" nil t))
-
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;   ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
 ;;   git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+;; (message "undo-propose: C-c C-c to commit, C-c C-s to squash commit, C-c C-k to cancel, C-c C-d to diff")
 
-;; (with-eval-after-load "ivy"
-;;   (when (require 'ivy-omni-org nil t)
-;;     (setq ivy-omni-org-file-sources '(org-agenda-files))))
 
-;; posframe
+
+
+
+
+;; posframe - testing
 
 ;; (set-frame-parameter (selected-frame) 'internal-border-width 10)
 ;; (set-face-background 'internal-border "#FF00FF")

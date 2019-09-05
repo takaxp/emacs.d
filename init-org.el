@@ -113,10 +113,16 @@
     ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
     ;; undo 時に reveal して表示を改善する
-    (defun ad:org:undo (&optional _ARG)
-      (when (eq major-mode 'org-mode)
-        (org-reveal)))
-    (advice-add 'undo :after #'ad:org:undo)
+    ;; (defun ad:org:undo (&optional _ARG)
+    ;;   (when (and (eq major-mode 'org-mode)
+    ;;              (not (org-before-first-heading-p)))
+    ;;     (org-overview)
+    ;;     (org-reveal)
+    ;;     (org-cycle-hide-drawers 'all)
+    ;;     (org-show-entry)
+    ;;     (show-children)
+    ;;     (org-show-siblings)))
+    ;; (advice-add 'undo :after #'ad:org:undo)
 
     ;; 非表示状態の領域への書き込みを防ぐ
     ;; "Editing in invisible areas is prohibited, make them visible first"
@@ -1532,8 +1538,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (defvar org-attach-directory-absolute
       (concat (getenv "HOME")
               "/Dropbox/org/"
-              (if (boundp 'org-attach-directory)
-                  "data/")))
+              (when (boundp 'org-attach-directory)
+                "data/")))
 
     (defun du-org-attachments ()
       "Show directory size for org-attachments."
