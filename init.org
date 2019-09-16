@@ -1090,8 +1090,11 @@ echo "--- done."
 #+end_src
 
 *** TODO el-get
+    :PROPERTIES:
+    :CUSTOM_ID: org6c5717fc
+    :END:
 
-密かに =el-get= に移行．コマンドラインからの効率よく管理も可能．
+密かに =el-get= に移行．コマンドラインからも効率よく管理可能．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found
@@ -1564,7 +1567,8 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 カーソルを移動するインタラクティブ関数に反応する =ah-before-move-cursor-hook= と =ah-after-move-cursor-hook= を使います． [[https://github.com/takaxp/ah][ah.el]] に関数定義を切り出しました．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (require 'eh nil t)
+(when (require 'ah nil t)
+  (setq ah-lighter "")
   (ah-mode 1))
 #+end_src
 
@@ -2401,6 +2405,17 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
        "po-mode" nil t)
 
   (push '("\\.po[tx]?\\'\\|\\.po\\$" . po-mode) auto-mode-alist))
+#+end_src
+
+** Goモード
+   :PROPERTIES:
+   :CUSTOM_ID: org58f62c66
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(go-mode) "go-mode" nil t)
+  (push '("\\.go\\'" . go-mode) auto-mode-alist))
 #+end_src
 
 ** スペルチェック
@@ -4453,6 +4468,20 @@ ivyに移行しました．
      '(eldoc-idle-delay 1.0))))
 #+end_src
 
+** [go-eldoc.el] Go用の eldoc
+   :PROPERTIES:
+   :CUSTOM_ID: org138fda77
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(if (executable-find "gocode")
+    (when (autoload-if-found
+           '(go-mode)
+           "go-eldoc" nil t)
+      (add-hook 'go-mode-hook #'go-eldoc-setup))
+  (message "--- gocode is NOT installed."))
+#+end_src
+
 ** [keycast.el] 入力しているキーとコマンドをモードラインに表示
    :PROPERTIES:
    :CREATED:  [2018-03-08 Thu 23:16]
@@ -5500,11 +5529,10 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 事前に =~/Dropbox/backup= の下に， =system-name= で得られる値のディレクトリを作成する必要があります． =my-backup= は [[./utility.el]] で実装しています．
 
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "recentf"
   (defun my-backup-recentf ()
+    (interactive)
     (when (require 'utility nil t)
       (my-backup recentf-save-file))) ;; "~/.emacs.d/recentf"
   (run-with-idle-timer 180 t 'my-backup-recentf))
@@ -5779,7 +5807,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
   (global-set-key (kbd "C-/") 'undo-propose)
 
-  ;; located here intended for `undo-tree'
+  ;; located here intended to share this command with `undo-tree'
   (defun my-org-reveal-and-focus (&optional _arg)
     "Reveal a heading and focus on the content."
     (when (eq major-mode 'org-mode)
@@ -5792,31 +5820,58 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
         (org-show-siblings))))
   (advice-add 'undo :after #'my-org-reveal-and-focus)
 
+  (eval-when-compile
+    (require 'undo-propose nil t)) ;; for `undo-propose-wrap'
+
   (with-eval-after-load "undo-propose"
 
+    (setq undo-propose-immediate-undo t)
+    (undo-propose-wrap redo)
+
     (define-key undo-propose-mode-map (kbd "/") 'undo)
-    (define-key undo-propose-mode-map (kbd "C-/") 'undo-propose)
     (define-key undo-propose-mode-map (kbd "q") 'undo-propose-cancel)
-    (define-key undo-propose-mode-map (kbd "C-<return>") 'undo-propose-commit)
-
-    (defun my-undo-propose-and-undo (f)
-      "Undo even when `undo-propose' is initiated."
-      (let ((status (bound-and-true-p undo-propose-mode)))
-        (funcall f)
-        (unless status
-          (undo))))
-
-    (defun my-undo-propose-auto-commit-on ()
-      (add-hook 'ah-after-move-cursor-hook 'undo-propose-commit))
-    (advice-add 'undo-propose :after #'my-undo-propose-auto-commit-on)
-
-    (defun my-undo-propose-auto-commit-off ()
-      (remove-hook 'ah-after-move-cursor-hook 'undo-propose-commit))
-    (advice-add 'undo-propose-commit :after #'my-undo-propose-auto-commit-off)
-
     (advice-add 'undo-propose-commit :after #'my-org-reveal-and-focus)
-    (advice-add 'undo-squash-commit :after #'my-org-reveal-and-focus)
-    (advice-add 'undo-propose :around #'my-undo-propose-and-undo)))
+    (advice-add 'undo-propose-squash-commit :after #'my-org-reveal-and-focus)
+
+    ;; Moving coursor in `undo-propose-mode' will also commit changes.
+    (defun my-undo-propose-commit ()
+      (when undo-propose-mode
+        (undo-propose-commit)))
+
+    (defun my-undo-propose-autocommit-on ()
+      (add-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
+    (advice-add 'undo-propose :after #'my-undo-propose-autocommit-on)
+
+    (defun my-undo-propose-autocommit-off ()
+      (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
+    (add-hook 'undo-propose-done-hook #'my-undo-propose-autocommit-off)
+
+    ;; SPC and RET in `undo-propose-mode' will commit changes.
+    ;; Additionally, the commands will be executed.
+    (define-key undo-propose-mode-map (kbd "SPC") 'undo-propose-commit)
+    (define-key undo-propose-mode-map (kbd "RET") 'undo-propose-commit)
+    (defun my-undo-propose-key-through ()
+      "Through SPC and RET."
+      (let ((command (this-command-keys)))
+        (cond ((equal (kbd "SPC") command)
+               (insert " "))
+              ((equal (kbd "RET") command)
+               (electric-newline-and-maybe-indent)))))
+    (advice-add 'undo-propose-commit :after #'my-undo-propose-key-through)
+
+    (defvar my-undo-propose-modeline '("#FF5d5d" "#FFFFFF"))
+    (defun my-undo-propose-mode-line ()
+      (custom-set-faces
+       `(mode-line ((t (:background
+                        ,(nth 0 my-undo-propose-modeline)
+                        :foreground
+                        ,(nth 1 my-undo-propose-modeline)))))))
+
+    (defun my-undo-propose-mode-line-restore ()
+      (custom-set-faces '(mode-line ((t nil)))))
+
+    (add-hook 'undo-propose-mode-hook #'my-undo-propose-mode-line)
+    (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
 #+end_src
 
 ** [auto-save-buffers.el] 一定間隔でバッファを保存する
@@ -6165,8 +6220,11 @@ the_silver_searcher @0.18.1 (textproc)
   (global-set-key (kbd "C-M-f") 'counsel-ag))
 
 (with-eval-after-load "counsel"
+  (require 'thingatpt nil t)
   (defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
-    (apply f (or initial-input (ivy-thing-at-point))
+    (apply f (or initial-input
+                 (and (not (thing-at-point-looking-at "^\\*+"))
+                      (ivy-thing-at-point)))
            (unless current-prefix-arg
              (or initial-directory default-directory))
            extra-ag-args ag-prompt caller))
@@ -6403,7 +6461,11 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
        "flycheck" nil t)
 
   (dolist (hook
-           '(js2-mode-hook c-mode-common-hook perl-mode-hook python-mode-hook))
+           '(go-mode-hook
+             js2-mode-hook
+             c-mode-common-hook
+             perl-mode-hook
+             python-mode-hook))
     (add-hook hook #'flycheck-mode))
 
   (with-eval-after-load "flycheck"
@@ -6554,14 +6616,16 @@ int main(){
        '(quickrun)
        "quickrun" nil t)
 
-  (add-hook 'c-mode-common-hook
-            (lambda () (define-key c++-mode-map (kbd "<f5>") 'quickrun)))
-  (add-hook 'python-mode-hook
-            (lambda () (define-key python-mode-map (kbd "<f5>") 'quickrun)))
-  (add-hook 'perl-mode-hook
-            (lambda () (define-key perl-mode-map (kbd "<f5>") 'quickrun)))
-  (add-hook 'gnuplot-mode-hook
-            (lambda () (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun))))
+  (with-eval-after-load "go-mode"
+    (define-key go-mode-map (kbd "<f5>") 'quickrun))
+  (with-eval-after-load "c++-mode"
+    (define-key c++-mode-map (kbd "<f5>") 'quickrun))
+  (with-eval-after-load "python-mode"
+    (define-key python-mode-map (kbd "<f5>") 'quickrun))
+  (with-eval-after-load "perl-mode"
+    (define-key perl-mode-map (kbd "<f5>") 'quickrun))
+  (with-eval-after-load "gnuplot-mode"
+    (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun)))
 #+end_src
 
 ** [ggtags.el] タグジャンプ
@@ -8043,6 +8107,18 @@ will not be modified."
   ;;   (setq org-onit-use-unfold-as-doing t))
 
   (with-eval-after-load "org-clock"
+
+    (defun my-onit-reveal ()
+      (widen)
+      (org-overview)
+      (org-reveal)
+      (org-cycle-hide-drawers 'all)
+      (org-show-entry)
+      (show-children)
+      (org-show-siblings))
+
+    (add-hook 'org-onit-after-jump-hook #'my-onit-reveal)
+
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
     (setq org-clock-frame-title-format
           '((:eval (format "%s%s |%s|%s"
@@ -8050,9 +8126,9 @@ will not be modified."
                                     org-clock-today-mode)
                                (if org-clock-today-count-subtree
                                    (format "%s / %s"
-                                           org-clock-today--subtree-time
-                                           org-clock-today--buffer-time)
-                                 (format "%s" org-clock-today--buffer-time))
+                                           org-clock-today-subtree-time
+                                           org-clock-today-buffer-time)
+                                 (format "%s" org-clock-today-buffer-time))
                              "")
                            (if org-onit--auto-clocking " Auto " "")
                            (org-onit-get-sign)
@@ -8273,6 +8349,7 @@ update it for multiple appts?")
   (require 'ob-http nil t)
   (require 'ob-gnuplot nil t)
   (require 'ob-octave nil t)
+  (require 'ob-go nil t)
 
   (when (and (not noninteractive)
              (not (executable-find "ditaa")))
@@ -8404,7 +8481,7 @@ update it for multiple appts?")
     (save-excursion
       (save-restriction
         (widen)
-        (goto-char 1)
+        (goto-char (point-min))
         (let ((keyword "TREE_SLIDE:")
               (value "autoclockin")
               (result nil))
@@ -8923,9 +9000,42 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (save-excursion
       (widen)
       (goto-char (point-min))
-      (when (re-search-forward "^#\\+OPTIONS:.*auto-id:t" (point-max) t)
+      (when (re-search-forward "^#\\+options:.*auto-id:t" (point-max) t)
         (org-map-entries
-         (lambda () (my-org-custom-id-get (point) 'create)))))))
+         (lambda () (my-org-custom-id-get (point) 'create))))))
+
+  (defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$")
+  (defun my-convert-md-link-to-html ()
+    (interactive)
+    (goto-char (point-min))
+    (while (re-search-forward md-link-format nil :noerror)
+      (let* ((prev (match-string-no-properties 0))
+             (alt (match-string-no-properties 1))
+             (src (match-string-no-properties 2))
+             (new (concat "<p><img src=\"" src "\" alt=\"" alt "\" /></p>")))
+        (replace-match new)
+        (message "====\ninput:\t%s\noutput:\t%s" prev new)))
+    (message "--- done.")))
+#+end_src
+
+** [org-id.el] プロパティに ID を入れる
+   :PROPERTIES:
+   :CUSTOM_ID: orga114da46
+   :END:
+
+=org.el= に付属している =org-id.el= を使うと，各 heading のプロパティにユニークな id を付与できます．また， =org-clock-in= で工数計測を開始すると，自動的に付与されます．しかし， heading を不用意にコピペすると，id が重複するので，それらを削除するユーティリティを準備しました．
+
+#+begin_src emacs-lisp :tangle init-org.el
+(defun my-delete-all-id-in-file ()
+  (interactive)
+  (goto-char 1)
+  (while (not (eq (point) (point-max)))
+    (org-next-visible-heading 1)
+    (let ((id (org-entry-get (point) "ID")))
+      (when id
+        (message "ID: %s" id)
+        (org-delete-property "ID"))))
+  (message "--- done."))
 #+end_src
 
 ** [orglink.el] Orgファイル以外でリンクを使う
@@ -9867,7 +9977,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
  - [[https://emacs-doctor.com/emacs-hide-mode-line.html][Emacs mode for hiding the mode-line]]
 
 #+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "<f5>") 'my-toggle-mode-line)
+(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
 (with-eval-after-load "moom"
   (defun ad:moom-toggle-frame-maximized ()
     (when (eq major-mode 'org-mode)
@@ -10148,6 +10258,7 @@ Uses `all-the-icons-material' to fetch the icon."
 ** [popwin.el] ポップアップウィンドウの制御                        :obsolete:
    :PROPERTIES:
    :CUSTOM_ID: org750d9aa5
+   :ID:       89A14C81-3E35-4216-AADD-2E3471C10F9E
    :END:
 
   - 現在は緩やかに =shackle= に移行中です．
@@ -11493,7 +11604,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 
 #+begin_src emacs-lisp :tangle late-init.el
 (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
-(global-set-key (kbd "<f12>") 'my-open-file-ring)
+;; (global-set-key (kbd "<f12>") 'my-open-file-ring)
 ;;  (global-set-key (kbd "C-c t") 'my-date)
 (global-set-key (kbd "C-c f 4") 'my-window-resizer)
 #+end_src

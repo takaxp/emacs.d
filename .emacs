@@ -10,12 +10,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-;; (message "undo-propose: C-c C-c to commit, C-c C-s to squash commit, C-c C-k to cancel, C-c C-d to diff")
-
-
-
-
-
+(with-eval-after-load "org-onit"
+  (setq org-onit-toggle-options '(:wakeup nil :nostate nil)))
 
 ;; posframe - testing
 
@@ -85,7 +81,7 @@ hoge.")
 
   (set-frame-parameter (selected-frame) 'outer-border-width '30)
   (frame-parameter (selected-frame) 'outer-border-width)
-
+  p
   (frame-parameter (selected-frame) 'frame-width)
 
   (set-frame-parameter (selected-frame) 'border-color "#FF0000")

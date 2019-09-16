@@ -50,6 +50,7 @@
  `("/usr/bin" "/usr/local/bin"
    ,(expand-file-name ".cask/bin")
    ,(expand-file-name "devel/git/tern/bin")
+   "~/.go/bin"
    "~/Dropbox/emacs.d/bin"
    "~/Dropbox/scripts"
    "/usr/local/opt/llvm/bin"
@@ -60,6 +61,7 @@
    "/usr/local/opt/imagemagick@6/bin")
  'exec-path)
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+(setenv "GOPATH" (concat (getenv "HOME") "/.go"))
 ;; you may want to use exec-path-from-shell.el.
 
 ;; (3) load-path for { nil | debug | test } booting

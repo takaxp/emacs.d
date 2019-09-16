@@ -814,6 +814,18 @@ will not be modified."
   ;;   (setq org-onit-use-unfold-as-doing t))
 
   (with-eval-after-load "org-clock"
+
+    (defun my-onit-reveal ()
+      (widen)
+      (org-overview)
+      (org-reveal)
+      (org-cycle-hide-drawers 'all)
+      (org-show-entry)
+      (show-children)
+      (org-show-siblings))
+
+    (add-hook 'org-onit-after-jump-hook #'my-onit-reveal)
+
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
     (setq org-clock-frame-title-format
           '((:eval (format "%s%s |%s|%s"
@@ -821,9 +833,9 @@ will not be modified."
                                     org-clock-today-mode)
                                (if org-clock-today-count-subtree
                                    (format "%s / %s"
-                                           org-clock-today--subtree-time
-                                           org-clock-today--buffer-time)
-                                 (format "%s" org-clock-today--buffer-time))
+                                           org-clock-today-subtree-time
+                                           org-clock-today-buffer-time)
+                                 (format "%s" org-clock-today-buffer-time))
                              "")
                            (if org-onit--auto-clocking " Auto " "")
                            (org-onit-get-sign)
@@ -1009,6 +1021,7 @@ update it for multiple appts?")
   (require 'ob-http nil t)
   (require 'ob-gnuplot nil t)
   (require 'ob-octave nil t)
+  (require 'ob-go nil t)
 
   (when (and (not noninteractive)
              (not (executable-find "ditaa")))
@@ -1389,9 +1402,33 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (save-excursion
       (widen)
       (goto-char (point-min))
-      (when (re-search-forward "^#\\+OPTIONS:.*auto-id:t" (point-max) t)
+      (when (re-search-forward "^#\\+options:.*auto-id:t" (point-max) t)
         (org-map-entries
-         (lambda () (my-org-custom-id-get (point) 'create)))))))
+         (lambda () (my-org-custom-id-get (point) 'create))))))
+
+  (defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$")
+  (defun my-convert-md-link-to-html ()
+    (interactive)
+    (goto-char (point-min))
+    (while (re-search-forward md-link-format nil :noerror)
+      (let* ((prev (match-string-no-properties 0))
+             (alt (match-string-no-properties 1))
+             (src (match-string-no-properties 2))
+             (new (concat "<p><img src=\"" src "\" alt=\"" alt "\" /></p>")))
+        (replace-match new)
+        (message "====\ninput:\t%s\noutput:\t%s" prev new)))
+    (message "--- done.")))
+
+(defun my-delete-all-id-in-file ()
+  (interactive)
+  (goto-char 1)
+  (while (not (eq (point) (point-max)))
+    (org-next-visible-heading 1)
+    (let ((id (org-entry-get (point) "ID")))
+      (when id
+        (message "ID: %s" id)
+        (org-delete-property "ID"))))
+  (message "--- done."))
 
 (when (autoload-if-found
        '(orglink-mode global-orglink-mode my-orglink-mode-activate)

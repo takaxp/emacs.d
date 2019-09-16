@@ -218,70 +218,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; Scroll window on a page-by-page basis with N line overlapping
 (setq next-screen-context-lines 1)
 
-(when (require 'eh nil t)
+(when (require 'ah nil t)
+  (setq ah-lighter "")
   (ah-mode 1))
-
-;; (defcustom ah-before-move-cursor-hook nil
-;;   "Hook runs before moving the cursor."
-;;   :type 'hook
-;;   :group 'convenience)
-
-;; (defcustom ah-after-move-cursor-hook nil
-;;   "Hook runs after moving the cursor."
-;;   :type 'hook
-;;   :group 'convenience)
-
-;; (defun ad:cur:next-line (f &optional arg try-vscroll)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f arg try-vscroll)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-;; (defun ad:cur:previous-line (f &optional arg try-vscroll)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f arg try-vscroll)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-;; (defun ad:cur:forward-char (f &optional N)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f N)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-;; (defun ad:cur:backward-char (f &optional N)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f N)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-;; (defun ad:cur:syntax-subword-forward (f &optional N)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f N)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-;; (defun ad:cur:syntax-subword-backward (f &optional N)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f N)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-;; (defun ad:cur:move-beginning-of-line (f ARG)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f ARG)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-;; (defun ad:cur:move-end-of-line (f ARG)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f ARG)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-;; (defun ad:cur:beginning-of-buffer (f &optional ARG)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f ARG)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-;; (defun ad:cur:end-of-buffer (f &optional ARG)
-;;   (run-hooks 'ah-before-move-cursor-hook)
-;;   (funcall f ARG)
-;;   (run-hooks 'ah-after-move-cursor-hook))
-
-;; (advice-add 'next-line :around #'ad:cur:next-line)
-;; (advice-add 'previous-line :around #'ad:cur:previous-line)
-;; (advice-add 'forward-char :around #'ad:cur:forward-char)
-;; (advice-add 'backward-char :around #'ad:cur:backward-char)
-;; (advice-add 'syntax-subword-forward :around #'ad:cur:syntax-subword-forward)
-;; (advice-add 'syntax-subword-backward :around #'ad:cur:syntax-subword-backward)
-;; (advice-add 'move-beginning-of-line :around #'ad:cur:move-beginning-of-line)
-;; (advice-add 'move-end-of-line :around #'ad:cur:move-end-of-line)
-;; (advice-add 'beginning-of-buffer :around #'ad:cur:beginning-of-buffer)
-;; (advice-add 'end-of-buffer :around #'ad:cur:end-of-buffer)
 
 (when (autoload-if-found
        '(smooth-scroll-mode)
@@ -537,6 +476,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
       (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
   (message "--- cmake is NOT installed."))
+
+(when (autoload-if-found
+       '(go-mode) "go-mode" nil t)
+  (push '("\\.go\\'" . go-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(ispell-region ispell-complete-word)
@@ -1388,6 +1331,13 @@ This works also for other defined begin/end tokens to define the structure."
     (custom-set-variables
      '(eldoc-idle-delay 1.0))))
 
+(if (executable-find "gocode")
+    (when (autoload-if-found
+           '(go-mode)
+           "go-eldoc" nil t)
+      (add-hook 'go-mode-hook #'go-eldoc-setup))
+  (message "--- gocode is NOT installed."))
+
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 
 (when (autoload-if-found
@@ -1843,6 +1793,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
 (with-eval-after-load "recentf"
   (defun my-backup-recentf ()
+    (interactive)
     (when (require 'utility nil t)
       (my-backup recentf-save-file))) ;; "~/.emacs.d/recentf"
   (run-with-idle-timer 180 t 'my-backup-recentf))
@@ -1931,7 +1882,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
   (global-set-key (kbd "C-/") 'undo-propose)
 
-  ;; located here intended for `undo-tree'
+  ;; located here intended to share this command with `undo-tree'
   (defun my-org-reveal-and-focus (&optional _arg)
     "Reveal a heading and focus on the content."
     (when (eq major-mode 'org-mode)
@@ -1944,31 +1895,58 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
         (org-show-siblings))))
   (advice-add 'undo :after #'my-org-reveal-and-focus)
 
+  (eval-when-compile
+    (require 'undo-propose nil t)) ;; for `undo-propose-wrap'
+
   (with-eval-after-load "undo-propose"
 
+    (setq undo-propose-immediate-undo t)
+    (undo-propose-wrap redo)
+
     (define-key undo-propose-mode-map (kbd "/") 'undo)
-    (define-key undo-propose-mode-map (kbd "C-/") 'undo-propose)
     (define-key undo-propose-mode-map (kbd "q") 'undo-propose-cancel)
-    (define-key undo-propose-mode-map (kbd "C-<return>") 'undo-propose-commit)
-
-    (defun my-undo-propose-and-undo (f)
-      "Undo even when `undo-propose' is initiated."
-      (let ((status (bound-and-true-p undo-propose-mode)))
-        (funcall f)
-        (unless status
-          (undo))))
-
-    (defun my-undo-propose-auto-commit-on ()
-      (add-hook 'ah-after-move-cursor-hook 'undo-propose-commit))
-    (advice-add 'undo-propose :after #'my-undo-propose-auto-commit-on)
-
-    (defun my-undo-propose-auto-commit-off ()
-      (remove-hook 'ah-after-move-cursor-hook 'undo-propose-commit))
-    (advice-add 'undo-propose-commit :after #'my-undo-propose-auto-commit-off)
-
     (advice-add 'undo-propose-commit :after #'my-org-reveal-and-focus)
-    (advice-add 'undo-squash-commit :after #'my-org-reveal-and-focus)
-    (advice-add 'undo-propose :around #'my-undo-propose-and-undo)))
+    (advice-add 'undo-propose-squash-commit :after #'my-org-reveal-and-focus)
+
+    ;; Moving coursor in `undo-propose-mode' will also commit changes.
+    (defun my-undo-propose-commit ()
+      (when undo-propose-mode
+        (undo-propose-commit)))
+
+    (defun my-undo-propose-autocommit-on ()
+      (add-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
+    (advice-add 'undo-propose :after #'my-undo-propose-autocommit-on)
+
+    (defun my-undo-propose-autocommit-off ()
+      (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
+    (add-hook 'undo-propose-done-hook #'my-undo-propose-autocommit-off)
+
+    ;; SPC and RET in `undo-propose-mode' will commit changes.
+    ;; Additionally, the commands will be executed.
+    (define-key undo-propose-mode-map (kbd "SPC") 'undo-propose-commit)
+    (define-key undo-propose-mode-map (kbd "RET") 'undo-propose-commit)
+    (defun my-undo-propose-key-through ()
+      "Through SPC and RET."
+      (let ((command (this-command-keys)))
+        (cond ((equal (kbd "SPC") command)
+               (insert " "))
+              ((equal (kbd "RET") command)
+               (electric-newline-and-maybe-indent)))))
+    (advice-add 'undo-propose-commit :after #'my-undo-propose-key-through)
+
+    (defvar my-undo-propose-modeline '("#FF5d5d" "#FFFFFF"))
+    (defun my-undo-propose-mode-line ()
+      (custom-set-faces
+       `(mode-line ((t (:background
+                        ,(nth 0 my-undo-propose-modeline)
+                        :foreground
+                        ,(nth 1 my-undo-propose-modeline)))))))
+
+    (defun my-undo-propose-mode-line-restore ()
+      (custom-set-faces '(mode-line ((t nil)))))
+
+    (add-hook 'undo-propose-mode-hook #'my-undo-propose-mode-line)
+    (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
 
 (when (require 'auto-save-buffers nil t)
 
@@ -2096,8 +2074,11 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
   (global-set-key (kbd "C-M-f") 'counsel-ag))
 
 (with-eval-after-load "counsel"
+  (require 'thingatpt nil t)
   (defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
-    (apply f (or initial-input (ivy-thing-at-point))
+    (apply f (or initial-input
+                 (and (not (thing-at-point-looking-at "^\\*+"))
+                      (ivy-thing-at-point)))
            (unless current-prefix-arg
              (or initial-directory default-directory))
            extra-ag-args ag-prompt caller))
@@ -2158,7 +2139,11 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
        "flycheck" nil t)
 
   (dolist (hook
-           '(js2-mode-hook c-mode-common-hook perl-mode-hook python-mode-hook))
+           '(go-mode-hook
+             js2-mode-hook
+             c-mode-common-hook
+             perl-mode-hook
+             python-mode-hook))
     (add-hook hook #'flycheck-mode))
 
   (with-eval-after-load "flycheck"
@@ -2243,14 +2228,16 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
        '(quickrun)
        "quickrun" nil t)
 
-  (add-hook 'c-mode-common-hook
-            (lambda () (define-key c++-mode-map (kbd "<f5>") 'quickrun)))
-  (add-hook 'python-mode-hook
-            (lambda () (define-key python-mode-map (kbd "<f5>") 'quickrun)))
-  (add-hook 'perl-mode-hook
-            (lambda () (define-key perl-mode-map (kbd "<f5>") 'quickrun)))
-  (add-hook 'gnuplot-mode-hook
-            (lambda () (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun))))
+  (with-eval-after-load "go-mode"
+    (define-key go-mode-map (kbd "<f5>") 'quickrun))
+  (with-eval-after-load "c++-mode"
+    (define-key c++-mode-map (kbd "<f5>") 'quickrun))
+  (with-eval-after-load "python-mode"
+    (define-key python-mode-map (kbd "<f5>") 'quickrun))
+  (with-eval-after-load "perl-mode"
+    (define-key perl-mode-map (kbd "<f5>") 'quickrun))
+  (with-eval-after-load "gnuplot-mode"
+    (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun)))
 
 (when (autoload-if-found
        '(0xc-convert 0xc-convert-point my-decimal-to-hex my-hex-to-decimal)
@@ -2503,7 +2490,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
     (advice-add 'moom-toggle-frame-maximized :after
                 #'ad:olivetti:moom-toggle-frame-maximized)))
 
-(global-set-key (kbd "<f5>") 'my-toggle-mode-line)
+(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
 (with-eval-after-load "moom"
   (defun ad:moom-toggle-frame-maximized ()
     (when (eq major-mode 'org-mode)
@@ -3288,7 +3275,7 @@ Uses `all-the-icons-material' to fetch the icon."
       (dired gif-screencast-screenshot-directory))))
 
 (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
-(global-set-key (kbd "<f12>") 'my-open-file-ring)
+;; (global-set-key (kbd "<f12>") 'my-open-file-ring)
 ;;  (global-set-key (kbd "C-c t") 'my-date)
 (global-set-key (kbd "C-c f 4") 'my-window-resizer)
 

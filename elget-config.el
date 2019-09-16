@@ -48,11 +48,12 @@
     (el-get-bundle "kaushalmodi/ox-hugo")
     (el-get-bundle "zweifisch/ob-http")
     (el-get-bundle "astahlman/ob-async")
+    (el-get-bundle "pope/ob-go")
     (el-get-bundle "brabalan/org-review")
     (el-get-bundle "alphapapa/org-dashboard")
     (el-get-bundle "unhammer/org-random-todo")
     (el-get-bundle "dfeich/org-screenshot")
-    (el-get-bundle "takaxp/org-clock-today-mode")
+    (el-get-bundle "mallt/org-clock-today-mode")
     (el-get-bundle "alphapapa/a.el" :name a)
     (el-get-bundle "alphapapa/frecency.el" :name frecency) ;; requires a.el
     (el-get-bundle "alphapapa/org-recent-headings") ;; requires frecency.el
@@ -96,6 +97,7 @@
     (el-get-bundle "php-mode")
     (el-get-bundle "bruceravel/gnuplot-mode")
     ;; (el-get-bundle "abo-abo/matlab-mode")
+    (el-get-bundle "dominikh/go-mode.el" :name go-mode)
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Development ;;;
     (el-get-bundle "gregsexton/origami.el" :name origami)
@@ -141,6 +143,7 @@
     ;; (el-get-bundle "tern") ;; require npm
     ;; (el-get-bundle "tern-auto-complete")
     (el-get-bundle "mhayashi1120/Emacs-wgrep")
+    (el-get-bundle "syohex/emacs-go-eldoc" :name go-eldoc)
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; LSP ;;;
     (el-get-bundle "emacs-lsp/lsp-mode")
@@ -259,7 +262,10 @@
     (el-get-bundle "kiennq/emacs-mini-modeline")
     ;; (el-get-bundle "emacsmirror/minibuffer-line")
     ;; (el-get-bundle "jackkamm/undo-propose-el" :name undo-propose)
-    (el-get-bundle "takaxp/undo-propose-el" :name undo-propose)
+    (el-get-bundle "takaxp/undo-propose-el"
+                   :name undo-propose
+                   :branch "private-patch") ;; "messages"
+    (el-get-bundle "dakra/statusbar.el" :name "statusbar")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; System related ;;;
     (el-get-bundle "Fuco1/dired-hacks")
