@@ -10,6 +10,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+(defun ad:weal:message (_file &rest _body)
+  "My Docstring."
+  (message "--- with-eval-after-load"))
+(advice-add #'with-eval-after-load :after #'ad:weal:message)
+(advice-add 'with-eval-after-load :after #'ad:weal:message)
+
+(advice-remove #'with-eval-after-load #'ad:weal:message)
+(advice-remove 'with-eval-after-load #'ad:weal:message)
+
+
 (with-eval-after-load "org-onit"
   (setq org-onit-toggle-options '(:wakeup nil :nostate nil)))
 

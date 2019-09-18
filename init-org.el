@@ -816,7 +816,7 @@ will not be modified."
   (with-eval-after-load "org-clock"
 
     (defun my-onit-reveal ()
-      (widen)
+      ;; (widen)
       (org-overview)
       (org-reveal)
       (org-cycle-hide-drawers 'all)

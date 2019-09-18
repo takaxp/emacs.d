@@ -3037,7 +3037,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     ;; (define-key selected-keymap (kbd "=") #'count-words-region)
     (when (require 'helpful nil t)
       (define-key selected-keymap (kbd "h") #'my-helpful)
-      (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
+      ;; (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
       (define-key selected-keymap (kbd "v") #'my-helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
@@ -8109,7 +8109,7 @@ will not be modified."
   (with-eval-after-load "org-clock"
 
     (defun my-onit-reveal ()
-      (widen)
+      ;; (widen)
       (org-overview)
       (org-reveal)
       (org-cycle-hide-drawers 'all)
@@ -9017,6 +9017,9 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (message "====\ninput:\t%s\noutput:\t%s" prev new)))
     (message "--- done.")))
 #+end_src
+
+#+RESULTS:
+: my-convert-md-link-to-html
 
 ** [org-id.el] プロパティに ID を入れる
    :PROPERTIES:

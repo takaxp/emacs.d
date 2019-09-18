@@ -798,7 +798,7 @@ This works also for other defined begin/end tokens to define the structure."
     ;; (define-key selected-keymap (kbd "=") #'count-words-region)
     (when (require 'helpful nil t)
       (define-key selected-keymap (kbd "h") #'my-helpful)
-      (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
+      ;; (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
       (define-key selected-keymap (kbd "v") #'my-helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
