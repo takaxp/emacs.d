@@ -578,8 +578,7 @@
        "session" nil t)
 
   (unless noninteractive
-    (when (display-graphic-p)
-      (add-hook 'after-init-hook #'session-initialize)))
+    (add-hook 'after-init-hook #'session-initialize))
 
   (with-eval-after-load "session"
     (custom-set-variables
@@ -656,6 +655,9 @@
            (height . 38))
          initial-frame-alist)))
 
+ ((eq window-system nil)
+  nil)
+
  ;; for Windows
  (t (setq initial-frame-alist
           (append
@@ -687,12 +689,14 @@
     (not (string-match "\\.Roman$" (mac-get-current-input-source))))
   (defun my-apply-cursor-config ()
     (interactive)
-    (if (my-ime-active-p)
-        (progn
-          (setq cursor-type my-cursor-type-ime-on)
-          (set-cursor-color my-cursor-color-ime-on))
-      (setq cursor-type my-cursor-type-ime-off)
-      (set-cursor-color my-cursor-color-ime-off)))
+    (when (and (display-graphic-p)
+               (fboundp 'mac-get-current-input-source))
+      (if (my-ime-active-p)
+          (progn
+            (setq cursor-type my-cursor-type-ime-on)
+            (set-cursor-color my-cursor-color-ime-on))
+        (setq cursor-type my-cursor-type-ime-off)
+        (set-cursor-color my-cursor-color-ime-off))))
   (my-apply-cursor-config)
   (with-eval-after-load "postpone"
     (run-with-idle-timer 3 t #'my-apply-cursor-config)))
@@ -1038,9 +1042,7 @@
     (my-font-config)
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
-    (when (and (display-graphic-p)
-               (fboundp 'mac-get-current-input-source))
-      (my-apply-cursor-config)))) ;; apply font setting
+    (my-apply-cursor-config))) ;; apply font setting
 
 ;; init. This may override or reset font setting
 (with-eval-after-load "postpone"

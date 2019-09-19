@@ -81,15 +81,16 @@
   (when my-ad-require-p
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
   ;; (load "~/Dropbox/emacs.d/config/init-chart.el" nil t)
-  ;; (require 'utility nil t) ;; 5[ms]
-  (require 'utility-autoloads nil t) ;; 2[ms]
   (require 'init nil t)
+  (require 'utility-autoloads nil t) ;; 2[ms]
+  ;; (require 'utility nil t) ;; 5[ms]
   (unless noninteractive
     (with-eval-after-load "postpone"
-      (load "~/Dropbox/emacs.d/config/init-async.el" nil t)
-      (when (and my-skip-check-autoload-file
-                 window-system)
-        (my-find-missing-packages 10))
+      (when (and window-system
+                 (require 'init-async nil t))
+        (my-delete-old-backup 5)
+        (when my-skip-check-autoload-file
+          (my-find-missing-packages 10)))
       (unless (ignore-errors
                 (if shutup-p
                     (shut-up (require 'private "private.el.gpg" t))

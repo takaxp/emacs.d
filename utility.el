@@ -32,7 +32,7 @@
 
 ;;;###autoload
 (defun my-open-current-directory-in-terminal ()
-  " Open Current Directory for MacOSX
+  " Open Current Directory for macOS
   0) Put this function in your .emacs
   1) M-x open-current-directory
   2) Terminal will open automatically

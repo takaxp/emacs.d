@@ -5928,8 +5928,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
        "session" nil t)
 
   (unless noninteractive
-    (when (display-graphic-p)
-      (add-hook 'after-init-hook #'session-initialize)))
+    (add-hook 'after-init-hook #'session-initialize))
 
   (with-eval-after-load "session"
     (custom-set-variables
@@ -7466,7 +7465,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; Hugo の記事を書き出し&アップロード
   (defun my-hugo-export-upload ()
     "Export subtree for Hugo and upload the engty."
-    (when (equal (buffer-name) "imadenale.org")
+    (when (member (buffer-name) '("imadenale.org" "archive.org"))
       (if (not (org-entry-is-done-p))
           (message "The state of the entry is not \"DONE\" yet.")
         (org-hugo-export-wim-to-md)
@@ -9677,6 +9676,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
            (height . 38))
          initial-frame-alist)))
 
+ ((eq window-system nil)
+  nil)
+
  ;; for Windows
  (t (setq initial-frame-alist
           (append
@@ -9708,12 +9710,14 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (not (string-match "\\.Roman$" (mac-get-current-input-source))))
   (defun my-apply-cursor-config ()
     (interactive)
-    (if (my-ime-active-p)
-        (progn
-          (setq cursor-type my-cursor-type-ime-on)
-          (set-cursor-color my-cursor-color-ime-on))
-      (setq cursor-type my-cursor-type-ime-off)
-      (set-cursor-color my-cursor-color-ime-off)))
+    (when (and (display-graphic-p)
+               (fboundp 'mac-get-current-input-source))
+      (if (my-ime-active-p)
+          (progn
+            (setq cursor-type my-cursor-type-ime-on)
+            (set-cursor-color my-cursor-color-ime-on))
+        (setq cursor-type my-cursor-type-ime-off)
+        (set-cursor-color my-cursor-color-ime-off))))
   (my-apply-cursor-config)
   (with-eval-after-load "postpone"
     (run-with-idle-timer 3 t #'my-apply-cursor-config)))
@@ -10721,9 +10725,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (my-font-config)
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
-    (when (and (display-graphic-p)
-               (fboundp 'mac-get-current-input-source))
-      (my-apply-cursor-config)))) ;; apply font setting
+    (my-apply-cursor-config))) ;; apply font setting
 
 ;; init. This may override or reset font setting
 (with-eval-after-load "postpone"

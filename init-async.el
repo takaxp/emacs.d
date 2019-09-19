@@ -56,16 +56,16 @@ This function could create many sub processes."
   (interactive)
   (my-async-locate-libraries my-required-libraries (or defer 0)))
 
-(when window-system
-  (if (not (require 'async nil t))
+(defun my-delete-old-backup (&optional defer)
+  (if (not (require 'async nil t)) ;; 5[ms]
       (recursive-delete-backup-files 7)
     (async-start ;; do not call this from byte compiled code directory
-     (lambda ()
-       (sleep-for 5)
-       (message "[async] Deleting old backup files...")
-       (when (load "/Users/taka/.emacs" t) ;; FIXME
-         (recursive-delete-backup-files 7)
-         t))
+     `(lambda ()
+        (sleep-for (or ',defer 5))
+        (message "[async] Deleting old backup files...")
+        (when (load "/Users/taka/.emacs" t) ;; FIXME
+          (recursive-delete-backup-files 7)
+          t))
      (lambda (result)
        (if result
            (unless (active-minibuffer-window)
@@ -73,4 +73,8 @@ This function could create many sub processes."
          (error "[async] Failed to delete backup files."))))))
 
 (provide 'init-async)
+;; Local Variables:
+;; no-byte-compile: t
+;; coding: utf-8
+;; End:
 ;;; init-async.el ends here
