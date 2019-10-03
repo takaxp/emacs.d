@@ -8154,7 +8154,8 @@ will not be modified."
       (org-tags-view nil org-onit-tag)))
 
   (with-eval-after-load "org-onit"
-    (add-to-list 'org-plist-dict '("OPTIONS_ONIT" org-onit-basic-options))
+    (when (require 'org-plist nil t)
+      (add-to-list 'org-plist-dict '("OPTIONS_ONIT" org-onit-basic-options)))
     (custom-set-variables
      '(org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil))))
   ;; (with-eval-after-load "org-onit"

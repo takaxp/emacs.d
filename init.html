@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-10-03 Thu 14:46 -->
+<!-- 2019-10-03 Thu 14:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -10155,7 +10155,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
       (org-tags-view nil org-onit-tag)))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-onit"</span>
-    (add-to-list 'org-plist-dict '(<span style="color: #8b2252;">"OPTIONS_ONIT"</span> org-onit-basic-options))
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-plist</span> nil t)
+      (add-to-list 'org-plist-dict '(<span style="color: #8b2252;">"OPTIONS_ONIT"</span> org-onit-basic-options)))
     (custom-set-variables
      '(org-onit-toggle-options '(<span style="color: #483d8b;">:wakeup</span> nil <span style="color: #483d8b;">:nostate</span> doing <span style="color: #483d8b;">:unfold</span> nil))))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "org-onit"</span>
@@ -10801,7 +10802,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org8c47123"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org5a9c37a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14241,7 +14242,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-10-03 Thu 14:46</p>
+<p class="date">Created: 2019-10-03 Thu 14:58</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
