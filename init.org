@@ -1741,15 +1741,17 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
        '(centered-cursor-mode)
        "centered-cursor-mode" nil t)
 
-  (add-hook 'isearch-mode-hook
-            (lambda () (centered-cursor-mode 1)))
-  (add-hook 'isearch-mode-end-hook
-            (lambda () (centered-cursor-mode -1))))
+  ;; isearch の時はOFFにする
+  (defun my-centered-cursor-activate () (centered-cursor-mode 1))
+  (defun my-centered-cursor-deactivate () (centered-cursor-mode -1))
+  (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
+  (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate))
 #+end_src
 
 ** [smart-mark] C-g後に元の場所へカーソルを戻す
    :PROPERTIES:
    :CUSTOM_ID: orgadf36a14
+   :ID:       CF775542-EDA4-475A-B586-D40B62FB32E9
    :END:
 
 すぐわかる例は， =C-x h= で全選択して何もせず， =C-g= する場合です．通常だとバッファの先頭にカーソルが置き去りにされますが， =smart-mark= を使うと，全選択を実行した時の位置に自動的に戻してくれます．
@@ -1867,8 +1869,6 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 ただ =C-x <SPC>= が潰れるので要注意です．矩形選択で用いる =rectangle-mark-mode= に当てられているキーバインドです．
 
   - [[https://github.com/rolandwalker/back-button][rolandwalker/back-button: Visual navigation through mark rings in Emacs 🔊]]
-
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
@@ -2361,7 +2361,7 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
   (push '("\\.html?\\'" . web-mode) auto-mode-alist)
 
   (with-eval-after-load "web-mode"
-    (define-key web-mode-map (kbd "<tab>") 'my-web-indent-fold)
+    (define-key web-mode-map (kbd "S-<tab>") 'my-web-indent-fold)
 
     (defun my-web-indent-fold ()
       (interactive)
@@ -3828,8 +3828,6 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
    :CUSTOM_ID: org5117762c
    :END:
 
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
 #+begin_src emacs-lisp :tangle late-init.el :exports yes
 ;; Show clock in in the mode line
 (setq display-time-format "%H%M.%S") ;; %y%m%d.
@@ -4446,8 +4444,6 @@ ivyに移行しました．
    :PROPERTIES:
    :CUSTOM_ID: org402f1293
    :END:
-
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
@@ -5132,8 +5128,6 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
 メジャーモードの短縮表示は =diminish= に頼らず，単純に各モードの =hook= で対処します．
 
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load "postpone"
   (when (require 'diminish nil t)
@@ -5403,6 +5397,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 * 履歴／ファイル管理
   :PROPERTIES:
   :CUSTOM_ID: orgd5aed515
+  :ID:       5A3E0805-61A5-4CFC-9B73-A76DB860E640
   :END:
 #+begin_src emacs-lisp :tangle yes :exports none
 (my-tick-init-time "media")
@@ -5504,6 +5499,21 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
        ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)")))))
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
+#+end_src
+
+** C-g した場所をブックマークする
+   :PROPERTIES:
+   :CUSTOM_ID: org9f20061e
+   :CREATED:  [2019-10-03 Thu 14:24]
+   :END:
+
+=C-g= でカーソルが飛んだ時，ブックマークから戻れます．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(defvar my-cg-bookmark "c-g-point-last")
+(defun my-cg-bookmark () (bookmark-set my-cg-bookmark))
+(advice-add 'keyboard-quit :before #'my-cg-bookmark)
+(advice-add 'isearch-abort :before #'my-cg-bookmark)
 #+end_src
 
 ** バッファ保存時にバックアップを生成させない                        :backup:
@@ -5805,7 +5815,13 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
        '(undo-propose)
        "undo-propose" nil t)
 
-  (global-set-key (kbd "C-/") 'undo-propose)
+  (defun my-undo-propose ()
+    (interactive)
+    (if (buffer-narrowed-p)
+        (undo)
+      (undo-propose)))
+
+  (global-set-key (kbd "C-/") 'my-undo-propose)
 
   ;; located here intended to share this command with `undo-tree'
   (defun my-org-reveal-and-focus (&optional _arg)
@@ -5824,8 +5840,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
     (require 'undo-propose nil t)) ;; for `undo-propose-wrap'
 
   (with-eval-after-load "undo-propose"
-
-    (setq undo-propose-immediate-undo t)
+    (add-hook 'undo-propose-entry-hook #'undo) ;; immediate undo
     (undo-propose-wrap redo)
 
     (define-key undo-propose-mode-map (kbd "/") 'undo)
@@ -5870,7 +5885,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
     (defun my-undo-propose-mode-line-restore ()
       (custom-set-faces '(mode-line ((t nil)))))
 
-    (add-hook 'undo-propose-mode-hook #'my-undo-propose-mode-line)
+    (add-hook 'undo-propose-entry-hook #'my-undo-propose-mode-line)
     (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
 #+end_src
 
@@ -7117,6 +7132,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
 ** 基本設定
    :PROPERTIES:
    :CUSTOM_ID: orgf66bb6fe
+   :ID:       3B731ADC-9C9A-4AF9-B742-983104983EB1
    :END:
 
 Org Mode は巨大なパッケージなので，設定項目が必然的に増えます．一度に全部を設定しようとせず，必須機能と見た目の設定から入り，興味があり使いたい機能の設定へと徐々に拡張するのが近道です．
@@ -7126,7 +7142,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found
        '(org-mode)
-       "org" "Org Mode" t)
+       "org" nil t)
 
   ;; テキストファイルを Org Mode で開きます．
   (push '("\\.txt$" . org-mode) auto-mode-alist)
@@ -7144,34 +7160,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (global-set-key (kbd "C-c l") 'org-store-link)
     (global-set-key (kbd "C-c a") 'org-agenda))
 
-  (with-eval-after-load "ox"
-    (add-to-list 'org-modules 'ox-odt)
-    (add-to-list 'org-modules 'ox-org)
-    (add-to-list 'org-modules 'ox-json))
-
-  (with-eval-after-load "org-tempo"
-    ;; 空行のときインデントさせない（Thanks to @conao3）
-    (when (require 'cl nil t)
-      (defun ad:org-tempo-complete-tag (f &rest arg)
-        (if (save-excursion
-              (beginning-of-line)
-              (looking-at "<"))
-            (flet ((indent-according-to-mode () #'ignore))
-              (apply f arg))
-          (apply f arg)))
-      (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
-
   (with-eval-after-load "org"
     ;; 関連モジュールの読み込み
-    (add-to-list 'org-modules 'org-habit)
     (require 'org-mobile nil t)
     (require 'org-eldoc nil t) ;; org-eldoc を読み込む
 
     ;; モジュールの追加
+    (add-to-list 'org-modules 'org-habit)
     (add-to-list 'org-modules 'org-id)
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
-    (when (require 'bookmark nil t)
+    (when (require 'ol-bookmark nil t)
       ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
       (add-to-list 'org-modules 'ol-bookmark)
       (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
@@ -7227,6 +7226,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
     ;; 1分未満は記録しない
     (setq org-clock-out-remove-zero-time-clocks t)
+
+    ;; 再起動後に clock を復帰させる（clock-out で抜けない限り終了中の期間も計上されてしまう）
+    ;; check also org-clock-persist in org-clock.el
+    (org-clock-persistence-insinuate)
 
     ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
     (defun my-promote-todo-revision (state)
@@ -7309,9 +7312,24 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     ;; (org-transpose-element) が割り当てられているので取り返す．
     (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
 
+  (with-eval-after-load "ox"
+    (add-to-list 'org-modules 'ox-odt)
+    (add-to-list 'org-modules 'ox-org)
+    (add-to-list 'org-modules 'ox-json))
+
+  (with-eval-after-load "org-tempo"
+    ;; 空行のときインデントさせない（Thanks to @conao3）
+    (when (require 'cl nil t)
+      (defun ad:org-tempo-complete-tag (f &rest arg)
+        (if (save-excursion
+              (beginning-of-line)
+              (looking-at "<"))
+            (flet ((indent-according-to-mode () #'ignore))
+              (apply f arg))
+          (apply f arg)))
+      (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
+
   (with-eval-after-load "org-clock"
-    ;; 再起動後に clock を復帰させる（終了中の期間も計上されてしまう）
-    (org-clock-persistence-insinuate)
     ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
     (setq org-clock-persist 'history) ;; {nil, t, 'clock, 'history}
     (setq org-clock-in-resume t)
@@ -7781,26 +7799,56 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 =M-x my-countdown-timer= で呼び出します．ちょっと時間を測りたい時に使っています．
 
 #+begin_src emacs-lisp :tangle init-org.el
-(defun my-countdown-timer-notify ()
-  (when mode-line-format
-    (my-mode-line-off))
-  (when ns-alerter-command
-    (setq org-show-notification-handler #'my-desktop-notification-handler))
-  (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
-  (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
-  (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
+(with-eval-after-load "org"
+  (defun my-countdown-timer-notify ()
+    (when mode-line-format
+      (my-mode-line-off))
+    (when ns-alerter-command
+      (setq org-show-notification-handler #'my-desktop-notification-handler))
+    (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+    (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
+    (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
 
-(defun my-countdown-timer ()
-  (interactive)
-  (unless mode-line-format
-    (my-mode-line-on))
-  (when (eq org-show-notification-handler #'my-desktop-notification-handler)
-    (setq org-show-notification-handler nil))
-  (with-temp-buffer
-    (org-mode)
-    (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
-    (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
-    (org-timer-set-timer)))
+  (defun my-countdown-timer ()
+    (interactive)
+    (unless mode-line-format
+      (my-mode-line-on))
+    (when (eq org-show-notification-handler #'my-desktop-notification-handler)
+      (setq org-show-notification-handler nil))
+    (with-temp-buffer
+      (org-mode)
+      (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+      (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
+      (org-timer-set-timer))))
+#+end_src
+
+** リンクをエコーエリアに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orga3d0c218
+   :CREATED:  [2019-10-01 Thu 14:25]
+   :END:
+
+=eldoc= の機能を使うと簡単にできます．
+
+ - [[https://pxaka.tokyo/blog/2019/a7ef3cd5-df52-2004-db2b-03d36ef48555/][リンクの内容をeldocで表示 - imadenale]]
+
+#+begin_src emacs-lisp :tangle init-org.el
+(when (autoload-if-found
+       '(org-mode my-load-echo-org-link)
+       "org" nil t)
+
+  (add-hook 'org-mode-hook #'my-load-echo-org-link)
+
+  (with-eval-after-load "org"
+    (defun my-echo-org-link ()
+      (when (org-in-regexp org-link-bracket-re 1)
+        (let ((link "Link:")
+              (msg (org-link-unescape (match-string-no-properties 1))))
+          (put-text-property 0 (length link) 'face 'minibuffer-prompt link)
+          (eldoc-message (format "%s %s" link msg)))))
+
+    (defun my-load-echo-org-link ()
+      (setq-local eldoc-documentation-function #'my-echo-org-link))))
 #+end_src
 
 ** [org-capture] 高速にメモを取る
@@ -7884,10 +7932,10 @@ will not be modified."
              "** %?\n  - \n\t%U")
             ("b" "Create new post for imadenale blog" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:END:\n")
+             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:EXPORT_HUGO_IMAGES: \n:END:\n")
             ("B" "Create new post for imadenale blog (UUID)" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:END:\n")
+             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:EXPORT_HUGO_IMAGES: \n:END:\n")
             ;; ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
             ;;  (file+headline ,org-default-notes-file "INBOX")
             ;;  "** TODO %? :bug:\n %i\n %a %t")
@@ -8086,12 +8134,15 @@ will not be modified."
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found
        '(org-onit-toggle-doing
-         org-onit-toggle-auto org-clock-goto my-sparse-doing-tree)
+         org-onit-toggle-auto org-clock-goto my-sparse-doing-tree
+         org-clock-goto org-onit-clock-in-when-unfold
+         org-onit-update-options)
        "org-onit" nil t)
 
   (global-set-key (kbd "C-<f11>") 'org-clock-goto)
 
   (with-eval-after-load "org"
+    (add-hook 'org-cycle-hook #'org-onit-clock-in-when-unfold)
     (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
     (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
     (define-key org-mode-map (kbd "S-<f11>") 'org-onit-goto-anchor)
@@ -8102,11 +8153,16 @@ will not be modified."
       (interactive)
       (org-tags-view nil org-onit-tag)))
 
+  (with-eval-after-load "org-onit"
+    (add-to-list 'org-plist-dict '("OPTIONS_ONIT" org-onit-basic-options))
+    (custom-set-variables
+     '(org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil))))
   ;; (with-eval-after-load "org-onit"
-  ;;   (setq org-onit-use-unfold-as-doing t))
+  ;;   (setq-default org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil)))
+  ;; (with-eval-after-load "org-onit"
+  ;;   (setq org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil)))
 
   (with-eval-after-load "org-clock"
-
     (defun my-onit-reveal ()
       ;; (widen)
       (org-overview)
@@ -8115,8 +8171,13 @@ will not be modified."
       (org-show-entry)
       (show-children)
       (org-show-siblings))
-
     (add-hook 'org-onit-after-jump-hook #'my-onit-reveal)
+
+    (defun my-clear-undo-list ()
+      (when (and (fboundp 'org-clocking-p)
+                 (org-clocking-p))
+        (setq buffer-undo-list nil)))
+    (add-hook 'org-clock-in-hook #'my-clear-undo-list) ;; for testing...
 
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
     (setq org-clock-frame-title-format
@@ -8451,6 +8512,15 @@ update it for multiple appts?")
 #+end_src
 
 ~Doing~ タグのトグルに =f11= を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
+
+#+begin_src emacs-lisp
+,#+begin_src emacs-lisp :results none
+(with-eval-after-load "org-tree-slide"
+  (org-tree-slide-presentation-profile))
+,#+end_src
+#+end_src
+
+これをプレゼンのヘッダに置いておけば，プロファイルの切り替えに便利です．
 
 *** doom-modeline との共存
     :PROPERTIES:
@@ -9028,16 +9098,17 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 =org.el= に付属している =org-id.el= を使うと，各 heading のプロパティにユニークな id を付与できます．また， =org-clock-in= で工数計測を開始すると，自動的に付与されます．しかし， heading を不用意にコピペすると，id が重複するので，それらを削除するユーティリティを準備しました．
 
 #+begin_src emacs-lisp :tangle init-org.el
-(defun my-delete-all-id-in-file ()
-  (interactive)
-  (goto-char 1)
-  (while (not (eq (point) (point-max)))
-    (org-next-visible-heading 1)
-    (let ((id (org-entry-get (point) "ID")))
-      (when id
-        (message "ID: %s" id)
-        (org-delete-property "ID"))))
-  (message "--- done."))
+(with-eval-after-load "org"
+  (defun my-delete-all-id-in-file ()
+    (interactive)
+    (goto-char 1)
+    (while (not (eq (point) (point-max)))
+      (org-next-visible-heading 1)
+      (let ((id (org-entry-get (point) "ID")))
+        (when id
+          (message "ID: %s" id)
+          (org-delete-property "ID"))))
+    (message "--- done.")))
 #+end_src
 
 ** [orglink.el] Orgファイル以外でリンクを使う
@@ -11396,7 +11467,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 init.el読書会が毎週土曜日の23時に開催されています．作業に集中していると，ついつい忘れてしまうので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルに記載しています．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+# late-init.el
 (when (autoload-if-found
        '(lingr-login my-lingr-login)
        "lingr" nil t)

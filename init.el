@@ -413,7 +413,7 @@
   (push '("\\.html?\\'" . web-mode) auto-mode-alist)
 
   (with-eval-after-load "web-mode"
-    (define-key web-mode-map (kbd "<tab>") 'my-web-indent-fold)
+    (define-key web-mode-map (kbd "S-<tab>") 'my-web-indent-fold)
 
     (defun my-web-indent-fold ()
       (interactive)

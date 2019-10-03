@@ -28,6 +28,7 @@
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Package management ;;;
     (el-get-bundle "use-package")
+    (el-get-bundle "conao3/leaf.el" :name leaf)
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; priority ;;;
     (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
@@ -57,7 +58,7 @@
     (el-get-bundle "alphapapa/a.el" :name a)
     (el-get-bundle "alphapapa/frecency.el" :name frecency) ;; requires a.el
     (el-get-bundle "alphapapa/org-recent-headings") ;; requires frecency.el
-    (el-get-bundle "alphapapa/org-bookmark-heading")
+    (el-get-bundle "takaxp/org-bookmark-heading")
     (el-get-bundle "facetframer/orgnav")
     (el-get-bundle "toc-org") ;; using a private recipe to exclude org
     (el-get-bundle "harrybournis/org-fancy-priorities")
@@ -77,6 +78,7 @@
     (el-get-bundle "jlumpe/ox-json")
     (el-get-bundle "takaxp/org-onit")
     (el-get-bundle "Fuco1/org-clock-budget")
+    (el-get-bundle "takaxp/org-plist")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Major modes ;;;
     ;; download zip since python-mode git repository is extremely huge
@@ -261,11 +263,16 @@
     (el-get-bundle "tarsius/hl-todo")
     (el-get-bundle "kiennq/emacs-mini-modeline")
     ;; (el-get-bundle "emacsmirror/minibuffer-line")
-    ;; (el-get-bundle "jackkamm/undo-propose-el" :name undo-propose)
-    (el-get-bundle "takaxp/undo-propose-el"
+    (el-get-bundle "jackkamm/undo-propose-el"
                    :name undo-propose
-                   :branch "private-patch") ;; "messages"
+                   :branch "org-clock-integrations")
+    ;; (el-get-bundle "takaxp/undo-propose-el"
+    ;;                :name undo-propose
+    ;;                :branch "private-patch") ;; "messages"
     (el-get-bundle "dakra/statusbar.el" :name "statusbar")
+    (el-get-bundle "zk-phi/gitmole")
+    (el-get-bundle "kawabata/rot47")
+
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; System related ;;;
     (el-get-bundle "Fuco1/dired-hacks")

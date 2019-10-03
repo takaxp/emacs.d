@@ -351,10 +351,11 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
        '(centered-cursor-mode)
        "centered-cursor-mode" nil t)
 
-  (add-hook 'isearch-mode-hook
-            (lambda () (centered-cursor-mode 1)))
-  (add-hook 'isearch-mode-end-hook
-            (lambda () (centered-cursor-mode -1))))
+  ;; isearch の時はOFFにする
+  (defun my-centered-cursor-activate () (centered-cursor-mode 1))
+  (defun my-centered-cursor-deactivate () (centered-cursor-mode -1))
+  (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
+  (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate))
 
 (when (require 'smart-mark nil t)
   (progn ;; C-M-SPC SPC SPC ... C-g の場合に正しくカーソルと元に戻す．
@@ -1791,6 +1792,11 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 
+(defvar my-cg-bookmark "c-g-point-last")
+(defun my-cg-bookmark () (bookmark-set my-cg-bookmark))
+(advice-add 'keyboard-quit :before #'my-cg-bookmark)
+(advice-add 'isearch-abort :before #'my-cg-bookmark)
+
 (with-eval-after-load "recentf"
   (defun my-backup-recentf ()
     (interactive)
@@ -1880,7 +1886,13 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
        '(undo-propose)
        "undo-propose" nil t)
 
-  (global-set-key (kbd "C-/") 'undo-propose)
+  (defun my-undo-propose ()
+    (interactive)
+    (if (buffer-narrowed-p)
+        (undo)
+      (undo-propose)))
+
+  (global-set-key (kbd "C-/") 'my-undo-propose)
 
   ;; located here intended to share this command with `undo-tree'
   (defun my-org-reveal-and-focus (&optional _arg)
@@ -1899,8 +1911,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
     (require 'undo-propose nil t)) ;; for `undo-propose-wrap'
 
   (with-eval-after-load "undo-propose"
-
-    (setq undo-propose-immediate-undo t)
+    (add-hook 'undo-propose-entry-hook #'undo) ;; immediate undo
     (undo-propose-wrap redo)
 
     (define-key undo-propose-mode-map (kbd "/") 'undo)
@@ -1945,7 +1956,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
     (defun my-undo-propose-mode-line-restore ()
       (custom-set-faces '(mode-line ((t nil)))))
 
-    (add-hook 'undo-propose-mode-hook #'my-undo-propose-mode-line)
+    (add-hook 'undo-propose-entry-hook #'my-undo-propose-mode-line)
     (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
 
 (when (require 'auto-save-buffers nil t)
@@ -3172,22 +3183,6 @@ Uses `all-the-icons-material' to fetch the icon."
     (defun my-google-this ()
       (interactive)
       (google-this (current-word) t))))
-
-(when (autoload-if-found
-       '(lingr-login my-lingr-login)
-       "lingr" nil t)
-
-  (with-eval-after-load "lingr"
-    (custom-set-variables
-     '(lingr-icon-mode t)
-     '(lingr-icon-fix-size 24)
-     '(lingr-image-convert-program  (or (executable-find "convert")
-                                        lingr-image-convert-program))))
-
-  (when (future-time-p "23:00")
-    ;; do not use `run-at-time' at booting since diary-lib.el
-    ;; will be loaded. It requires loading cost.
-    (run-at-time "23:00" nil 'my-lingr-login)))
 
 (when (autoload-if-found
        '(multi-term)

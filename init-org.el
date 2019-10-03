@@ -2,7 +2,7 @@
 
 (when (autoload-if-found
        '(org-mode)
-       "org" "Org Mode" t)
+       "org" nil t)
 
   ;; テキストファイルを Org Mode で開きます．
   (push '("\\.txt$" . org-mode) auto-mode-alist)
@@ -20,34 +20,17 @@
     (global-set-key (kbd "C-c l") 'org-store-link)
     (global-set-key (kbd "C-c a") 'org-agenda))
 
-  (with-eval-after-load "ox"
-    (add-to-list 'org-modules 'ox-odt)
-    (add-to-list 'org-modules 'ox-org)
-    (add-to-list 'org-modules 'ox-json))
-
-  (with-eval-after-load "org-tempo"
-    ;; 空行のときインデントさせない（Thanks to @conao3）
-    (when (require 'cl nil t)
-      (defun ad:org-tempo-complete-tag (f &rest arg)
-        (if (save-excursion
-              (beginning-of-line)
-              (looking-at "<"))
-            (flet ((indent-according-to-mode () #'ignore))
-              (apply f arg))
-          (apply f arg)))
-      (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
-
   (with-eval-after-load "org"
     ;; 関連モジュールの読み込み
-    (add-to-list 'org-modules 'org-habit)
     (require 'org-mobile nil t)
     (require 'org-eldoc nil t) ;; org-eldoc を読み込む
 
     ;; モジュールの追加
+    (add-to-list 'org-modules 'org-habit)
     (add-to-list 'org-modules 'org-id)
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
-    (when (require 'bookmark nil t)
+    (when (require 'ol-bookmark nil t)
       ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
       (add-to-list 'org-modules 'ol-bookmark)
       (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
@@ -103,6 +86,10 @@
 
     ;; 1分未満は記録しない
     (setq org-clock-out-remove-zero-time-clocks t)
+
+    ;; 再起動後に clock を復帰させる（clock-out で抜けない限り終了中の期間も計上されてしまう）
+    ;; check also org-clock-persist in org-clock.el
+    (org-clock-persistence-insinuate)
 
     ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
     (defun my-promote-todo-revision (state)
@@ -185,9 +172,24 @@
     ;; (org-transpose-element) が割り当てられているので取り返す．
     (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
 
+  (with-eval-after-load "ox"
+    (add-to-list 'org-modules 'ox-odt)
+    (add-to-list 'org-modules 'ox-org)
+    (add-to-list 'org-modules 'ox-json))
+
+  (with-eval-after-load "org-tempo"
+    ;; 空行のときインデントさせない（Thanks to @conao3）
+    (when (require 'cl nil t)
+      (defun ad:org-tempo-complete-tag (f &rest arg)
+        (if (save-excursion
+              (beginning-of-line)
+              (looking-at "<"))
+            (flet ((indent-according-to-mode () #'ignore))
+              (apply f arg))
+          (apply f arg)))
+      (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
+
   (with-eval-after-load "org-clock"
-    ;; 再起動後に clock を復帰させる（終了中の期間も計上されてしまう）
-    (org-clock-persistence-insinuate)
     ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
     (setq org-clock-persist 'history) ;; {nil, t, 'clock, 'history}
     (setq org-clock-in-resume t)
@@ -316,7 +318,7 @@
   ;; Hugo の記事を書き出し&アップロード
   (defun my-hugo-export-upload ()
     "Export subtree for Hugo and upload the engty."
-    (when (equal (buffer-name) "imadenale.org")
+    (when (member (buffer-name) '("imadenale.org" "archive.org"))
       (if (not (org-entry-is-done-p))
           (message "The state of the entry is not \"DONE\" yet.")
         (org-hugo-export-wim-to-md)
@@ -520,26 +522,44 @@
         (my-set-alarms-from-file file) ;; init
         (add-hook 'after-save-hook #'my-update-alarms-from-file))))) ;; update
 
-(defun my-countdown-timer-notify ()
-  (when mode-line-format
-    (my-mode-line-off))
-  (when ns-alerter-command
-    (setq org-show-notification-handler #'my-desktop-notification-handler))
-  (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
-  (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
-  (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
+(with-eval-after-load "org"
+  (defun my-countdown-timer-notify ()
+    (when mode-line-format
+      (my-mode-line-off))
+    (when ns-alerter-command
+      (setq org-show-notification-handler #'my-desktop-notification-handler))
+    (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+    (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
+    (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
 
-(defun my-countdown-timer ()
-  (interactive)
-  (unless mode-line-format
-    (my-mode-line-on))
-  (when (eq org-show-notification-handler #'my-desktop-notification-handler)
-    (setq org-show-notification-handler nil))
-  (with-temp-buffer
-    (org-mode)
-    (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
-    (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
-    (org-timer-set-timer)))
+  (defun my-countdown-timer ()
+    (interactive)
+    (unless mode-line-format
+      (my-mode-line-on))
+    (when (eq org-show-notification-handler #'my-desktop-notification-handler)
+      (setq org-show-notification-handler nil))
+    (with-temp-buffer
+      (org-mode)
+      (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+      (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
+      (org-timer-set-timer))))
+
+(when (autoload-if-found
+       '(org-mode my-load-echo-org-link)
+       "org" nil t)
+
+  (add-hook 'org-mode-hook #'my-load-echo-org-link)
+
+  (with-eval-after-load "org"
+    (defun my-echo-org-link ()
+      (when (org-in-regexp org-link-bracket-re 1)
+        (let ((link "Link:")
+              (msg (org-link-unescape (match-string-no-properties 1))))
+          (put-text-property 0 (length link) 'face 'minibuffer-prompt link)
+          (eldoc-message (format "%s %s" link msg)))))
+
+    (defun my-load-echo-org-link ()
+      (setq-local eldoc-documentation-function #'my-echo-org-link))))
 
 (when (autoload-if-found
        '(org-capture)
@@ -614,10 +634,10 @@ will not be modified."
              "** %?\n  - \n\t%U")
             ("b" "Create new post for imadenale blog" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:END:\n")
+             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:EXPORT_HUGO_IMAGES: \n:END:\n")
             ("B" "Create new post for imadenale blog (UUID)" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:END:\n")
+             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:EXPORT_HUGO_IMAGES: \n:END:\n")
             ;; ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
             ;;  (file+headline ,org-default-notes-file "INBOX")
             ;;  "** TODO %? :bug:\n %i\n %a %t")
@@ -794,12 +814,15 @@ will not be modified."
 
 (when (autoload-if-found
        '(org-onit-toggle-doing
-         org-onit-toggle-auto org-clock-goto my-sparse-doing-tree)
+         org-onit-toggle-auto org-clock-goto my-sparse-doing-tree
+         org-clock-goto org-onit-clock-in-when-unfold
+         org-onit-update-options)
        "org-onit" nil t)
 
   (global-set-key (kbd "C-<f11>") 'org-clock-goto)
 
   (with-eval-after-load "org"
+    (add-hook 'org-cycle-hook #'org-onit-clock-in-when-unfold)
     (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
     (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
     (define-key org-mode-map (kbd "S-<f11>") 'org-onit-goto-anchor)
@@ -810,11 +833,16 @@ will not be modified."
       (interactive)
       (org-tags-view nil org-onit-tag)))
 
+  (with-eval-after-load "org-onit"
+    (add-to-list 'org-plist-dict '("OPTIONS_ONIT" org-onit-basic-options))
+    (custom-set-variables
+     '(org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil))))
   ;; (with-eval-after-load "org-onit"
-  ;;   (setq org-onit-use-unfold-as-doing t))
+  ;;   (setq-default org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil)))
+  ;; (with-eval-after-load "org-onit"
+  ;;   (setq org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil)))
 
   (with-eval-after-load "org-clock"
-
     (defun my-onit-reveal ()
       ;; (widen)
       (org-overview)
@@ -823,8 +851,13 @@ will not be modified."
       (org-show-entry)
       (show-children)
       (org-show-siblings))
-
     (add-hook 'org-onit-after-jump-hook #'my-onit-reveal)
+
+    (defun my-clear-undo-list ()
+      (when (and (fboundp 'org-clocking-p)
+                 (org-clocking-p))
+        (setq buffer-undo-list nil)))
+    (add-hook 'org-clock-in-hook #'my-clear-undo-list) ;; for testing...
 
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
     (setq org-clock-frame-title-format
@@ -1419,16 +1452,17 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (message "====\ninput:\t%s\noutput:\t%s" prev new)))
     (message "--- done.")))
 
-(defun my-delete-all-id-in-file ()
-  (interactive)
-  (goto-char 1)
-  (while (not (eq (point) (point-max)))
-    (org-next-visible-heading 1)
-    (let ((id (org-entry-get (point) "ID")))
-      (when id
-        (message "ID: %s" id)
-        (org-delete-property "ID"))))
-  (message "--- done."))
+(with-eval-after-load "org"
+  (defun my-delete-all-id-in-file ()
+    (interactive)
+    (goto-char 1)
+    (while (not (eq (point) (point-max)))
+      (org-next-visible-heading 1)
+      (let ((id (org-entry-get (point) "ID")))
+        (when id
+          (message "ID: %s" id)
+          (org-delete-property "ID"))))
+    (message "--- done.")))
 
 (when (autoload-if-found
        '(orglink-mode global-orglink-mode my-orglink-mode-activate)

@@ -2,16 +2,21 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
-(with-eval-after-load "org"
-  (load "~/Dropbox/emacs.d/config/init-doing.el" nil t))
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;   ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
 ;;   git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-(with-eval-after-load "org-onit"
-  (setq org-onit-toggle-options '(:wakeup nil :nostate nil)))
+
+
+
+
+
+
+
+
+
 
 
 

@@ -81,6 +81,8 @@
   (when my-ad-require-p
     (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
   ;; (load "~/Dropbox/emacs.d/config/init-chart.el" nil t)
+  ;; (require 'use-package nil t) ;; 24[ms]
+  ;; (require 'leaf nil t) ;; 2[ms]
   (require 'init nil t)
   (require 'utility-autoloads nil t) ;; 2[ms]
   ;; (require 'utility nil t) ;; 5[ms]
