@@ -5505,15 +5505,16 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
    :PROPERTIES:
    :CUSTOM_ID: org9f20061e
    :CREATED:  [2019-10-03 Thu 14:24]
+   :ID:       C1A76A0A-0845-4283-BB16-1C42BD427AF0
    :END:
 
-=C-g= でカーソルが飛んだ時，ブックマークから戻れます．
+=C-g= でカーソルが飛んだ時，元の場所へブックマークから戻れます．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark () (bookmark-set my-cg-bookmark))
-(advice-add 'keyboard-quit :before #'my-cg-bookmark)
-(advice-add 'isearch-abort :before #'my-cg-bookmark)
+(when (require 'ah nil t)
+  (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 #+end_src
 
 ** バッファ保存時にバックアップを生成させない                        :backup:
@@ -9975,6 +9976,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ** [moom.el] キーボードでフレームの場所を移す
    :PROPERTIES:
    :CUSTOM_ID: org5f12ba92
+   :ID:       52845E4B-AFDB-43CC-B06E-67E9377BC7FA
    :END:
 
 (2017-07-30) frame-ctr から moom.el にリネームしました．Moom は，Many Tricks がリリースするソフトウェアで，今後はこのソフトウェアのポーティングを目指します．
@@ -10019,6 +10021,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 
   (with-eval-after-load "moom"
+    (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
+    (add-hook 'moom-delete-window-hook #'dimmer-on)
+
     (moom-recommended-keybindings 'all)
     (setq moom-lighter "M")
     (setq moom-verbose t)

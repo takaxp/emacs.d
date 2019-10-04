@@ -8,7 +8,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-
+;; Trying... but...
+;; (when (require 'dumb-jump nil t)
+;;   (dumb-jump-mode))
 
 
 

@@ -146,6 +146,7 @@
     ;; (el-get-bundle "tern-auto-complete")
     (el-get-bundle "mhayashi1120/Emacs-wgrep")
     (el-get-bundle "syohex/emacs-go-eldoc" :name go-eldoc)
+    (el-get-bundle "jacktasia/dumb-jump")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; LSP ;;;
     (el-get-bundle "emacs-lsp/lsp-mode")

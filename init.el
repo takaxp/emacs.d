@@ -849,6 +849,9 @@
   (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 
   (with-eval-after-load "moom"
+    (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
+    (add-hook 'moom-delete-window-hook #'dimmer-on)
+
     (moom-recommended-keybindings 'all)
     (setq moom-lighter "M")
     (setq moom-verbose t)

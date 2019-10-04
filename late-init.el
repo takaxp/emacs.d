@@ -1794,8 +1794,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark () (bookmark-set my-cg-bookmark))
-(advice-add 'keyboard-quit :before #'my-cg-bookmark)
-(advice-add 'isearch-abort :before #'my-cg-bookmark)
+(when (require 'ah nil t)
+  (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 
 (with-eval-after-load "recentf"
   (defun my-backup-recentf ()
