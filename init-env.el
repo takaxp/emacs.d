@@ -15,7 +15,7 @@
       my-toggle-modeline-global nil ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
-      debug-on-error t)
+      debug-on-error nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; swiper(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
@@ -85,8 +85,8 @@
   ;; (require 'leaf nil t) ;; 2[ms]
   (require 'init nil t)
   (require 'utility-autoloads nil t) ;; 2[ms]
-  ;; (require 'utility nil t) ;; 5[ms]
   (unless noninteractive
+    ;; (require 'utility nil t) ;; 5[ms]
     (with-eval-after-load "postpone"
       (when (and window-system
                  (require 'init-async nil t))

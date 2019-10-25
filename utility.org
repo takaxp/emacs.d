@@ -1,4 +1,4 @@
-#+title:	ユーティリティ関数群
+z#+title:	ユーティリティ関数群
 #+author:	Takaaki Ishikawa
 #+email:	takaxp@ieee.org
 #+startup:	content
@@ -393,6 +393,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 ** バックアップファイルの削除
    :PROPERTIES:
    :CUSTOM_ID: orgca3eae6b
+   :ID:       5239A0B1-407A-4715-A070-70FE47E96A49
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -423,9 +424,11 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
                       " do echo -n \" \\\"$file\\\"\"; done | xargs -0"))
          (files (shell-command-to-string cmd)))
     ;; (message "%s" cmd)
-    (unless (string= files "")
+    (unless (string= (chomp files) "")
       (message "%s" (chomp files))
-      (shell-command-to-string (concat "mv -v " (chomp files) " ~/.Trash")))))
+      (let ((trash (if (eq system-type 'darwin)
+                       " ~/.Trash" "~/.local/share/Trash")))
+        (shell-command-to-string (concat "mv -v " (chomp files) trash))))))
 #+end_src
 ** chomp
    :PROPERTIES:

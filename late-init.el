@@ -14,18 +14,9 @@
 
   (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
 
-(defun future-time-p (time)
-  "Return non-nil if provided TIME formed of \"10:00\" is the future time."
-  (not (time-less-p
-        (apply 'encode-time
-               (let ((t1 (decode-time))
-                     (t2 (parse-time-string time)))
-                 (setf (nth 0 t1) 0)
-                 (setf (nth 1 t1) (nth 1 t2))
-                 (setf (nth 2 t1) (nth 2 t2))
-                 t1))
-        (current-time))))
-;; (when (future-time-p "10:00") (run-at-time...))
+(setq message-log-max 5000) ;; メッセージバッファの長さ
+(defvar shutup-p nil)
+(setq shutup-p (when (require 'shut-up nil t) t))
 
 (autoload-if-found
  '(fancy-narrow-to-region
@@ -104,8 +95,9 @@
 (unless noninteractive
   (global-auto-revert-mode 1))
 
-(when (fboundp 'pixel-scroll-mode)
-  (pixel-scroll-mode 1)) ;; 26.1
+(unless noninteractive
+  (when (fboundp 'pixel-scroll-mode)
+    (pixel-scroll-mode 1))) ;; 26.1
 
 (when (autoload-if-found
        '(aggressive-indent-mode)
@@ -220,7 +212,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (when (require 'ah nil t)
   (setq ah-lighter "")
-  (ah-mode 1))
+  (unless noninteractive
+    (ah-mode 1)))
 
 (when (autoload-if-found
        '(smooth-scroll-mode)
@@ -1342,15 +1335,17 @@ This works also for other defined begin/end tokens to define the structure."
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 
 (when (autoload-if-found
-       '(ivy-dispatching-done-hydra)
+       '(ivy-hydra-read-action)
        "ivy-hydra" nil t)
 
-  (with-eval-after-load "ivy-hydra"
-    (defun ad:ivy-dispatching-done-hydra (f)
-      (when (> ivy--length 0)
-        (funcall f)))
-    (advice-add 'ivy-dispatching-done-hydra
-                :around #'ad:ivy-dispatching-done-hydra)))
+  ;; ivy-dispatching-done-hydra was depreciated in ivy 0.13
+  ;; (with-eval-after-load "ivy-hydra"
+  ;;   (defun ad:ivy-dispatching-done-hydra (f)
+  ;;     (when (> ivy--length 0)
+  ;;       (funcall f)))
+  ;;   (advice-add 'ivy-dispatching-done-hydra
+  ;;               :around #'ad:ivy-dispatching-done-hydra))
+  )
 
 (when (autoload-if-found
        '(counsel-ibuffer counsel-M-x counsel-yank-pop)
@@ -1364,15 +1359,19 @@ This works also for other defined begin/end tokens to define the structure."
   (with-eval-after-load "ivy"
 
     ;; M-o を ivy-dispatching-done-hydra に割り当てる．
-    (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
+    ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
     ;; ivy-dispatching-done を使う．
     ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done)
+    (setq ivy-read-action-function #'ivy-hydra-read-action)
 
     (setq ivy-use-virtual-buffers t)
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 
+    (ivy-mode 1))
+
+  (with-eval-after-load "counsel"
     ;; counsel-M-x, see also prescient.el section
     (setq ivy-initial-inputs-alist
           '((org-agenda-refile . "^")
@@ -1381,10 +1380,6 @@ This works also for other defined begin/end tokens to define the structure."
             (counsel-describe-variable . "^")
             (Man-completion-table . "^")
             (woman . "^")))
-
-    (ivy-mode 1))
-
-  (with-eval-after-load "counsel"
 
     (when (require 'smex nil t)
       (setq smex-history-length 35)
@@ -1535,6 +1530,7 @@ This works also for other defined begin/end tokens to define the structure."
 
   (with-eval-after-load "hydra"
     (require 'org nil t)
+    (require 'hydra nil t)
     (custom-set-faces
      '(hydra-face-blue
        ((((background light))
@@ -1793,7 +1789,9 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 ;; (add-hook 'after-init-hook #'recentf-mode))
 
 (defvar my-cg-bookmark "c-g-point-last")
-(defun my-cg-bookmark () (bookmark-set my-cg-bookmark))
+(defun my-cg-bookmark ()
+  (when buffer-file-name
+    (bookmark-set my-cg-bookmark)))
 (when (require 'ah nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 
@@ -2172,6 +2170,11 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
     (defvar counsel-flycheck-history nil
       "History for `counsel-flycheck'")
 
+    (defun counsel-flycheck-action (obj &rest _)
+      (-when-let* ((error (get-text-property 0 'tabulated-list-id obj))
+                   (pos (flycheck-error-pos error)) )
+        (goto-char (flycheck-error-pos error))))
+
     (defun counsel-flycheck ()
       (interactive)
       (if (not (bound-and-true-p flycheck-mode))
@@ -2189,10 +2192,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
                       (flycheck-error-list-reset-filter)
                       (revert-buffer t t t)
                       (split-string (buffer-string) "\n" t " *")))
-                  :action (lambda (s &rest _)
-                            (-when-let* ( (error (get-text-property 0 'tabulated-list-id s))
-                                          (pos (flycheck-error-pos error)) )
-                              (goto-char (flycheck-error-pos error))))
+                  :action 'counsel-flycheck-action ;; (lambda (s &rest _))
                   :history 'counsel-flycheck-history
                   :caller 'counsel-flycheck)))
     ))

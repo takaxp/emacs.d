@@ -63,7 +63,7 @@ This function could create many sub processes."
      `(lambda ()
         (sleep-for (or ',defer 5))
         (message "[async] Deleting old backup files...")
-        (when (load "/Users/taka/.emacs" t) ;; FIXME
+        (when (load (concat (getenv "HOME") "/.emacs") t)
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)

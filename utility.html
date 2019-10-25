@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-09-18 Wed 18:37 -->
+<!-- 2019-10-25 Fri 22:26 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ユーティリティ関数群</title>
+<title>&lrm;</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Takaaki Ishikawa" />
 <style type="text/css">
@@ -248,7 +248,6 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="content">
-<h1 class="title">ユーティリティ関数群</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
@@ -308,6 +307,9 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <p>
+z#+title:	ユーティリティ関数群<br />
+</p>
+<p>
 <a href="init.html">init.el</a> に記述していた便利関数を，utility.el として分離しています．init.el では autoload を用いて utility.el を遅延読み込みするように設定してます．このようなファイルの分離で60[ms]ほど起動を高速化できます．<br />
 </p>
 
@@ -323,12 +325,12 @@ for the JavaScript code in this tag.
 <h3 id="org62365dfa"><span class="section-number-3">1.1</span> iTerm2.app を呼び出す関数</h3>
 <div class="outline-text-3" id="text-org62365dfa">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cmd-to-open-iterm2</span> (<span style="color: #228b22;">&amp;optional</span> arg)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-cmd-to-open-iterm2</span> (<span style="color: #CFCB90;">&amp;optional</span> arg)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"P"</span>)
   (shell-command-to-string
-   (concat <span style="color: #8b2252;">"open -a iTerm.app "</span>
-           (<span style="color: #a020f0;">when</span> arg default-directory))))
+   (concat <span style="color: #98c379;">"open -a iTerm.app "</span>
+           (<span style="color: #c678dd;">when</span> arg default-directory))))
 </pre>
 </div>
 </div>
@@ -342,21 +344,21 @@ macOS 用の関数です．別途，Kyoko さんの音声をインストール�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-kyoko-mad-mode</span> nil)
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-kyoko-mad-mode-toggle</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">setq</span> my-kyoko-mad-mode (not my-kyoko-mad-mode))
-  (message (concat <span style="color: #8b2252;">"Kyoko mad mode: "</span>
-                   (<span style="color: #a020f0;">if</span> my-kyoko-mad-mode <span style="color: #8b2252;">"ON"</span> <span style="color: #8b2252;">"OFF"</span>))))
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-kyoko-mad</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> my-kyoko-mad-mode
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">my-kyoko-mad-mode</span> nil)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-kyoko-mad-mode-toggle</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">setq</span> my-kyoko-mad-mode (not my-kyoko-mad-mode))
+  (message (concat <span style="color: #98c379;">"Kyoko mad mode: "</span>
+                   (<span style="color: #c678dd;">if</span> my-kyoko-mad-mode <span style="color: #98c379;">"ON"</span> <span style="color: #98c379;">"OFF"</span>))))
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-kyoko-mad</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">when</span> my-kyoko-mad-mode
     (shell-command-to-string
-     <span style="color: #8b2252;">"say -v Kyoko &#12362;&#12356;&#12362;&#12414;&#12360;&#65292;&#36938;&#12435;&#12391;&#12394;&#12356;&#12391;&#65292;&#20181;&#20107;&#12375;&#12429;"</span>)))
+     <span style="color: #98c379;">"say -v Kyoko &#12362;&#12356;&#12362;&#12414;&#12360;&#65292;&#36938;&#12435;&#12391;&#12394;&#12356;&#12391;&#65292;&#20181;&#20107;&#12375;&#12429;"</span>)))
 
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">She will be mad if you do nothing within 10 min.</span>
+<span style="color: #5C6370;">;; </span><span style="color: #5C6370;">She will be mad if you do nothing within 10 min.</span>
 (run-with-idle-timer 600 t 'my-kyoko-mad)
 </pre>
 </div>
@@ -371,30 +373,30 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">open-current-directory-console-program</span> <span style="color: #8b2252;">"iTerm2.app"</span>
-  <span style="color: #8b2252;">"Specify a console program"</span>
-  <span style="color: #483d8b;">:type</span> 'string
-  <span style="color: #483d8b;">:group</span> 'takaxp-mac)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defcustom</span> <span style="color: #e5c07b;">open-current-directory-console-program</span> <span style="color: #98c379;">"iTerm2.app"</span>
+  <span style="color: #98c379;">"Specify a console program"</span>
+  <span style="color: #56b6c2;">:type</span> 'string
+  <span style="color: #56b6c2;">:group</span> 'takaxp-mac)
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-open-current-directory-in-terminal</span> ()
-  <span style="color: #8b2252;">" Open Current Directory for MacOSX</span>
-<span style="color: #8b2252;">  0) Put this function in your .emacs</span>
-<span style="color: #8b2252;">  1) M-x open-current-directory</span>
-<span style="color: #8b2252;">  2) Terminal will open automatically</span>
-<span style="color: #8b2252;">  3) Type M-v to paste and move to a path to the current directory in Emacs"</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">let</span> ((file-path (buffer-file-name (current-buffer))))
-    (<span style="color: #a020f0;">unless</span> (string= file-path nil)
-      (<span style="color: #a020f0;">let</span> ((directory
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-open-current-directory-in-terminal</span> ()
+  <span style="color: #98c379;">" Open Current Directory for macOS</span>
+<span style="color: #98c379;">  0) Put this function in your .emacs</span>
+<span style="color: #98c379;">  1) M-x open-current-directory</span>
+<span style="color: #98c379;">  2) Terminal will open automatically</span>
+<span style="color: #98c379;">  3) Type M-v to paste and move to a path to the current directory in Emacs"</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">let</span> ((file-path (buffer-file-name (current-buffer))))
+    (<span style="color: #c678dd;">unless</span> (string= file-path nil)
+      (<span style="color: #c678dd;">let</span> ((directory
              (substring file-path 0
                         (-
                          (length file-path)
                          (length (buffer-name (current-buffer)))))))
-        (message <span style="color: #8b2252;">"%s"</span> directory)
-        (shell-command-to-string (concat <span style="color: #8b2252;">"echo cd "</span> directory <span style="color: #8b2252;">" |pbcopy"</span>))
+        (message <span style="color: #98c379;">"%s"</span> directory)
+        (shell-command-to-string (concat <span style="color: #98c379;">"echo cd "</span> directory <span style="color: #98c379;">" |pbcopy"</span>))
         (shell-command-to-string
-         (concat <span style="color: #8b2252;">"open -a "</span> open-current-directory-console-program))))))
+         (concat <span style="color: #98c379;">"open -a "</span> open-current-directory-console-program))))))
 </pre>
 </div>
 </div>
@@ -404,79 +406,79 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <h3 id="orgb8c148ec"><span class="section-number-3">1.4</span> ファイルに含まれるテーブルを使って定時にアラートを表示する</h3>
 <div class="outline-text-3" id="text-orgb8c148ec">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-update-alarms-from-file</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">let</span> ((bname (buffer-name)))
-    (<span style="color: #a020f0;">when</span> (string= bname <span style="color: #8b2252;">"daily.org"</span>)
-      (my-set-alarms-from-file (concat <span style="color: #8b2252;">"~/Dropbox/org/db/"</span> bname)))))
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-update-alarms-from-file</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">let</span> ((bname (buffer-name)))
+    (<span style="color: #c678dd;">when</span> (string= bname <span style="color: #98c379;">"daily.org"</span>)
+      (my-set-alarms-from-file (concat <span style="color: #98c379;">"~/Dropbox/org/db/"</span> bname)))))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-set-alarms-from-file</span> (file)
-  <span style="color: #8b2252;">"Make alarms from org-mode tables. If you have an org-mode file</span>
-<span style="color: #8b2252;">     with tables with the following format:</span>
-<span style="color: #8b2252;">     |------+-------+--------------------|</span>
-<span style="color: #8b2252;">     | Flag |  Time | Content            |</span>
-<span style="color: #8b2252;">     |------+-------+--------------------|</span>
-<span style="color: #8b2252;">     |      | 07:00 | Wakeup             |</span>
-<span style="color: #8b2252;">     |      |       | Read papers        |</span>
-<span style="color: #8b2252;">     | X    | 12:00 | Clean up your desk |</span>
-<span style="color: #8b2252;">     When it is 7:00 and 12:00, Growl notify with a message which is specified</span>
-<span style="color: #8b2252;">     content column from the table. \"Read papers\" will be ignored.</span>
-<span style="color: #8b2252;">     \"Clean up your desk\" will be shown by sticky mode"</span>
-  (<span style="color: #a020f0;">let</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-set-alarms-from-file</span> (file)
+  <span style="color: #98c379;">"Make alarms from org-mode tables. If you have an org-mode file</span>
+<span style="color: #98c379;">     with tables with the following format:</span>
+<span style="color: #98c379;">     |------+-------+--------------------|</span>
+<span style="color: #98c379;">     | Flag |  Time | Content            |</span>
+<span style="color: #98c379;">     |------+-------+--------------------|</span>
+<span style="color: #98c379;">     |      | 07:00 | Wakeup             |</span>
+<span style="color: #98c379;">     |      |       | Read papers        |</span>
+<span style="color: #98c379;">     | X    | 12:00 | Clean up your desk |</span>
+<span style="color: #98c379;">     When it is 7:00 and 12:00, Growl notify with a message which is specified</span>
+<span style="color: #98c379;">     content column from the table. \"Read papers\" will be ignored.</span>
+<span style="color: #98c379;">     \"Clean up your desk\" will be shown by sticky mode"</span>
+  (<span style="color: #c678dd;">let</span>
       ((lines (read-line file)))
-    (cancel-function-timers 'my-desktop-notify) <span style="color: #b22222;">;; </span><span style="color: #b22222;">clear existing timers</span>
-    (<span style="color: #a020f0;">while</span> lines
+    (cancel-function-timers 'my-desktop-notify) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">clear existing timers</span>
+    (<span style="color: #c678dd;">while</span> lines
       (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
-      (<span style="color: #a020f0;">setq</span> lines (cdr lines)))))
+      (<span style="color: #c678dd;">setq</span> lines (cdr lines)))))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-alarm-from-line</span> (line)
-  (<span style="color: #a020f0;">let</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">set-alarm-from-line</span> (line)
+  (<span style="color: #c678dd;">let</span>
       ((hour nil)
        (min nil)
        (current-hour nil)
        (current-min nil)
        (action nil))
-    (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-2]?[0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-5][0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> line)
-      (<span style="color: #a020f0;">setq</span> hour (substring line (match-beginning 1) (match-end 1)))
-      (<span style="color: #a020f0;">setq</span> min (substring line (match-beginning 2) (match-end 2)))
-      (<span style="color: #a020f0;">when</span> (string-match
-             <span style="color: #8b2252;">"</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">|\\s-*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">|]+[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> ]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">\\s-*</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">|"</span> line (match-end 2))
-        (<span style="color: #a020f0;">setq</span> action
+    (<span style="color: #c678dd;">when</span> (string-match <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">[0-2]?[0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">[0-5][0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span> line)
+      (<span style="color: #c678dd;">setq</span> hour (substring line (match-beginning 1) (match-end 1)))
+      (<span style="color: #c678dd;">setq</span> min (substring line (match-beginning 2) (match-end 2)))
+      (<span style="color: #c678dd;">when</span> (string-match
+             <span style="color: #98c379;">"</span><span style="color: #ff982d; font-weight: bold;">\</span><span style="color: #98c379;">|\\s-*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">[</span><span style="color: #98c379;">^</span><span style="color: #ff982d; font-weight: bold;">\</span><span style="color: #98c379;">|]+[</span><span style="color: #98c379;">^</span><span style="color: #98c379;"> ]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">\\s-*</span><span style="color: #ff982d; font-weight: bold;">\</span><span style="color: #98c379;">|"</span> line (match-end 2))
+        (<span style="color: #c678dd;">setq</span> action
               (substring line (match-beginning 1) (match-end 1)))))
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">and</span> hour min) action)
-      <span style="color: #b22222;">;;        </span><span style="color: #b22222;">(message "[%s:%s] =&gt; %s" hour min action)</span>
-      (<span style="color: #a020f0;">setq</span> current-hour (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time)))
-      (<span style="color: #a020f0;">setq</span> current-min (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time)))
-      (<span style="color: #a020f0;">when</span> (&gt; (+ (* (string-to-number hour) 60)
+    (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (<span style="color: #c678dd;">and</span> hour min) action)
+      <span style="color: #5C6370;">;;        </span><span style="color: #5C6370;">(message "[%s:%s] =&gt; %s" hour min action)</span>
+      (<span style="color: #c678dd;">setq</span> current-hour (format-time-string <span style="color: #98c379;">"%H"</span> (current-time)))
+      (<span style="color: #c678dd;">setq</span> current-min (format-time-string <span style="color: #98c379;">"%M"</span> (current-time)))
+      (<span style="color: #c678dd;">when</span> (&gt; (+ (* (string-to-number hour) 60)
                   (string-to-number min))
                (+ (* (string-to-number current-hour) 60)
                   (string-to-number current-min)))
-        (<span style="color: #a020f0;">let</span> ((s nil))
-          (<span style="color: #a020f0;">when</span> (string-match <span style="color: #8b2252;">"^</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">|\\s-*X\\s-*</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">|"</span> line)
-            (<span style="color: #a020f0;">setq</span> s 'sticky))
+        (<span style="color: #c678dd;">let</span> ((s nil))
+          (<span style="color: #c678dd;">when</span> (string-match <span style="color: #98c379;">"^</span><span style="color: #ff982d; font-weight: bold;">\</span><span style="color: #98c379;">|\\s-*X\\s-*</span><span style="color: #ff982d; font-weight: bold;">\</span><span style="color: #98c379;">|"</span> line)
+            (<span style="color: #c678dd;">setq</span> s 'sticky))
           (set-notify-macos hour min action s))))))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">set-notify-macos</span> (hour min action sticky)
-  <span style="color: #8b2252;">"`</span><span style="color: #008b8b;">alerter</span><span style="color: #8b2252;">' is required."</span>
-  (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">set-notify-macos</span> (hour min action sticky)
+  <span style="color: #98c379;">"`</span><span style="color: #d19a66;">alerter</span><span style="color: #98c379;">' is required."</span>
+  (run-at-time (format <span style="color: #98c379;">"%s:%s"</span> hour min) nil
                'my-desktop-notify
-               <span style="color: #8b2252;">"macos"</span> <span style="color: #8b2252;">"Org Mode"</span> hour min action sticky))
+               <span style="color: #98c379;">"macos"</span> <span style="color: #98c379;">"Org Mode"</span> hour min action sticky))
 
-(<span style="color: #a020f0;">declare-function</span> my-desktop-notification <span style="color: #8b2252;">"init-org"</span>)
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-desktop-notify</span> (type title hour min action sticky)
-  <span style="color: #8b2252;">"An interface to `</span><span style="color: #008b8b;">my-desktop-notification</span><span style="color: #8b2252;">'."</span>
-  (<span style="color: #a020f0;">cond</span>
-   ((string= type <span style="color: #8b2252;">"macos"</span>)
+(<span style="color: #c678dd;">declare-function</span> my-desktop-notification <span style="color: #98c379;">"init-org"</span>)
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-desktop-notify</span> (type title hour min action sticky)
+  <span style="color: #98c379;">"An interface to `</span><span style="color: #d19a66;">my-desktop-notification</span><span style="color: #98c379;">'."</span>
+  (<span style="color: #c678dd;">cond</span>
+   ((string= type <span style="color: #98c379;">"macos"</span>)
     (my-desktop-notification
-     title (format <span style="color: #8b2252;">"%s:%s %s"</span> hour min action) sticky))))
+     title (format <span style="color: #98c379;">"%s:%s %s"</span> hour min action) sticky))))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">read-line</span> (file)
-  <span style="color: #8b2252;">"Make a list from a file, which is divided by LF code"</span>
-  (<span style="color: #a020f0;">with-temp-buffer</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">read-line</span> (file)
+  <span style="color: #98c379;">"Make a list from a file, which is divided by LF code"</span>
+  (<span style="color: #c678dd;">with-temp-buffer</span>
     (insert-file-contents-literally file)
     (split-string
-     (buffer-string) <span style="color: #8b2252;">"\n"</span> t)))
+     (buffer-string) <span style="color: #98c379;">"\n"</span> t)))
 </pre>
 </div>
 </div>
@@ -494,27 +496,27 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-file-ring</span> nil)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">my-file-ring</span> nil)
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-make-file-ring</span> (files)
-  (<span style="color: #a020f0;">setq</span> my-file-ring (copy-sequence files)))
-<span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setf (cdr (last my-file-ring)) my-file-ring))</span>
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-make-file-ring</span> (files)
+  (<span style="color: #c678dd;">setq</span> my-file-ring (copy-sequence files)))
+<span style="color: #5C6370;">;;    </span><span style="color: #5C6370;">(setf (cdr (last my-file-ring)) my-file-ring))</span>
 (my-make-file-ring
- '(<span style="color: #8b2252;">"~/Dropbox/org/tr/work.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/db/daily.org"</span>
-   <span style="color: #8b2252;">"~/Dropbox/org/minutes/wg1.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/tr/work.org"</span>
-   <span style="color: #8b2252;">"~/Dropbox/org/academic.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/org2ja.org"</span>
-   <span style="color: #8b2252;">"~/Dropbox/org/db/article.org"</span> <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/init.org"</span>))
+ '(<span style="color: #98c379;">"~/Dropbox/org/tr/work.org"</span> <span style="color: #98c379;">"~/Dropbox/org/db/daily.org"</span>
+   <span style="color: #98c379;">"~/Dropbox/org/minutes/wg1.org"</span> <span style="color: #98c379;">"~/Dropbox/org/tr/work.org"</span>
+   <span style="color: #98c379;">"~/Dropbox/org/academic.org"</span> <span style="color: #98c379;">"~/Dropbox/org/org2ja.org"</span>
+   <span style="color: #98c379;">"~/Dropbox/org/db/article.org"</span> <span style="color: #98c379;">"~/Dropbox/emacs.d/config/init.org"</span>))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-open-file-ring</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-open-file-ring</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
   (find-file (car my-file-ring))
-  (<span style="color: #a020f0;">setq</span> my-file-ring
+  (<span style="color: #c678dd;">setq</span> my-file-ring
         (append (cdr my-file-ring)
                 (list (car my-file-ring)))))
 
-<span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setq my-file-ring (cdr my-file-ring)))</span>
+<span style="color: #5C6370;">;;    </span><span style="color: #5C6370;">(setq my-file-ring (cdr my-file-ring)))</span>
 </pre>
 </div>
 </div>
@@ -524,16 +526,16 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <h3 id="org31226d9e"><span class="section-number-3">1.6</span> 引数のorgバッファを開く</h3>
 <div class="outline-text-3" id="text-org31226d9e">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-show-org-buffer</span> (file)
-  <span style="color: #8b2252;">"Show an org-file on the current buffer."</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (get-buffer file)
-      (<span style="color: #a020f0;">let</span> ((buffer (get-buffer file)))
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-show-org-buffer</span> (file)
+  <span style="color: #98c379;">"Show an org-file on the current buffer."</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">if</span> (get-buffer file)
+      (<span style="color: #c678dd;">let</span> ((buffer (get-buffer file)))
         (switch-to-buffer buffer)
-        (message <span style="color: #8b2252;">"%s"</span> file))
-    (find-file (concat <span style="color: #8b2252;">"~/Dropbox/org/"</span> file)))
-  (<span style="color: #a020f0;">when</span> (fboundp 'my-org-agenda-to-appt)
+        (message <span style="color: #98c379;">"%s"</span> file))
+    (find-file (concat <span style="color: #98c379;">"~/Dropbox/org/"</span> file)))
+  (<span style="color: #c678dd;">when</span> (fboundp 'my-org-agenda-to-appt)
     (my-org-agenda-to-appt)))
 </pre>
 </div>
@@ -544,21 +546,21 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <h3 id="org6a1e418a"><span class="section-number-3">1.7</span> orgバッファにいつものヘッダを追加する</h3>
 <div class="outline-text-3" id="text-org6a1e418a">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">declare-function</span> org-end-of-line <span style="color: #8b2252;">"org"</span>)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">declare-function</span> org-end-of-line <span style="color: #98c379;">"org"</span>)
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-org-file-header-template</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
-    (<span style="color: #a020f0;">let</span> ((title <span style="color: #8b2252;">"#+title:\t\n"</span>)
-          (date <span style="color: #8b2252;">"#+date: \t\n"</span>)
-          (author <span style="color: #8b2252;">"#+author:\tTakaaki ISHIKAWA <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a>\n"</span>)
-          (option <span style="color: #8b2252;">"#+options:\t\\n:t\n"</span>)
-          (other <span style="color: #8b2252;">"\n"</span>))
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">insert-org-file-header-template</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">when</span> (string= major-mode 'org-mode)
+    (<span style="color: #c678dd;">let</span> ((title <span style="color: #98c379;">"#+title:\t\n"</span>)
+          (date <span style="color: #98c379;">"#+date: \t\n"</span>)
+          (author <span style="color: #98c379;">"#+author:\tTakaaki ISHIKAWA <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a>\n"</span>)
+          (option <span style="color: #98c379;">"#+options:\t\\n:t\n"</span>)
+          (other <span style="color: #98c379;">"\n"</span>))
       (goto-char 0)
-      (<span style="color: #a020f0;">save-excursion</span>
+      (<span style="color: #c678dd;">save-excursion</span>
         (insert title date author option other))
-      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span> nil t)
+      (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">org</span> nil t)
         (org-end-of-line)))))
 </pre>
 </div>
@@ -569,15 +571,15 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <h3 id="org8f57b3f8"><span class="section-number-3">1.8</span> 議事録ひな形を書き入れる</h3>
 <div class="outline-text-3" id="text-org8f57b3f8">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-minutes-template</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> (string= major-mode 'org-mode)
-    (<span style="color: #a020f0;">let</span> ((date <span style="color: #8b2252;">"&#26085;&#26178;&#65306;\n"</span>)
-          (place <span style="color: #8b2252;">"&#22580;&#25152;&#65306;\n"</span>)
-          (attendance <span style="color: #8b2252;">"&#20986;&#24109;&#32773;&#65306;\n"</span>)
-          (documents <span style="color: #8b2252;">"&#36039;&#26009;&#65306;\n\n"</span>))
-      (<span style="color: #a020f0;">save-excursion</span>
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">insert-minutes-template</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">when</span> (string= major-mode 'org-mode)
+    (<span style="color: #c678dd;">let</span> ((date <span style="color: #98c379;">"&#26085;&#26178;&#65306;\n"</span>)
+          (place <span style="color: #98c379;">"&#22580;&#25152;&#65306;\n"</span>)
+          (attendance <span style="color: #98c379;">"&#20986;&#24109;&#32773;&#65306;\n"</span>)
+          (documents <span style="color: #98c379;">"&#36039;&#26009;&#65306;\n\n"</span>))
+      (<span style="color: #c678dd;">save-excursion</span>
         (insert date place attendance documents)))))
 </pre>
 </div>
@@ -592,23 +594,23 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-get-random-string</span> (length)
-  <span style="color: #8b2252;">"Get a string contain the length digit number with random selection"</span>
-  (<span style="color: #a020f0;">interactive</span>)
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-get-random-string</span> (length)
+  <span style="color: #98c379;">"Get a string contain the length digit number with random selection"</span>
+  (<span style="color: #c678dd;">interactive</span>)
   (random t)
-  (<span style="color: #a020f0;">cond</span> ((&gt; length 0)
-         (<span style="color: #a020f0;">let</span>
+  (<span style="color: #c678dd;">cond</span> ((&gt; length 0)
+         (<span style="color: #c678dd;">let</span>
              ((count length)
               (string nil)
               (tmp nil))
-           (<span style="color: #a020f0;">while</span> (&lt; 0 count)
-             (<span style="color: #a020f0;">setq</span> count (1- count))
-             (<span style="color: #a020f0;">setq</span> tmp string)
-             (<span style="color: #a020f0;">setq</span> string
+           (<span style="color: #c678dd;">while</span> (&lt; 0 count)
+             (<span style="color: #c678dd;">setq</span> count (1- count))
+             (<span style="color: #c678dd;">setq</span> tmp string)
+             (<span style="color: #c678dd;">setq</span> string
                    (concat tmp (number-to-string (random 10)))))
-           (message <span style="color: #8b2252;">"%s"</span> string)))
-        (t <span style="color: #8b2252;">"0"</span>)))
+           (message <span style="color: #98c379;">"%s"</span> string)))
+        (t <span style="color: #98c379;">"0"</span>)))
 </pre>
 </div>
 </div>
@@ -618,33 +620,33 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 <h3 id="org3697f6bd"><span class="section-number-3">1.10</span> 行頭に" - "を挿入する</h3>
 <div class="outline-text-3" id="text-org3697f6bd">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">add-itemize-head</span> (arg)
-  <span style="color: #8b2252;">"Insert \" - \" at the head of line.</span>
-<span style="color: #8b2252;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
-<span style="color: #8b2252;">  original position again. Otherwise, the cursor is moved to the right of the</span>
-<span style="color: #8b2252;">  inserted string. \" - [ ] \" will be inserted using C-u prefix."</span>
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
-  (<span style="color: #a020f0;">let</span> ((item-string <span style="color: #8b2252;">" - "</span>))
-    (<span style="color: #a020f0;">when</span> arg
-      (<span style="color: #a020f0;">setq</span> item-string <span style="color: #8b2252;">" - [ ] "</span>))
-    (<span style="color: #a020f0;">cond</span> ((= (point) (line-beginning-position))
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">add-itemize-head</span> (arg)
+  <span style="color: #98c379;">"Insert \" - \" at the head of line.</span>
+<span style="color: #98c379;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
+<span style="color: #98c379;">  original position again. Otherwise, the cursor is moved to the right of the</span>
+<span style="color: #98c379;">  inserted string. \" - [ ] \" will be inserted using C-u prefix."</span>
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"P"</span>)
+  (<span style="color: #c678dd;">let</span> ((item-string <span style="color: #98c379;">" - "</span>))
+    (<span style="color: #c678dd;">when</span> arg
+      (<span style="color: #c678dd;">setq</span> item-string <span style="color: #98c379;">" - [ ] "</span>))
+    (<span style="color: #c678dd;">cond</span> ((= (point) (line-beginning-position))
            (insert item-string))
-          (t (<span style="color: #a020f0;">save-excursion</span>
+          (t (<span style="color: #c678dd;">save-excursion</span>
                (move-beginning-of-line 1)
                (insert item-string))))))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">add-itemize-head-checkbox</span> ()
-  <span style="color: #8b2252;">"Insert \" - [ ] \" at the head of line.</span>
-<span style="color: #8b2252;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
-<span style="color: #8b2252;">  original position again. Otherwise, the cursor is moved to the right of the</span>
-<span style="color: #8b2252;">  inserted string."</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">let</span> ((item-string <span style="color: #8b2252;">" - [ ] "</span>))
-    (<span style="color: #a020f0;">cond</span> ((= (point) (line-beginning-position))
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">add-itemize-head-checkbox</span> ()
+  <span style="color: #98c379;">"Insert \" - [ ] \" at the head of line.</span>
+<span style="color: #98c379;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
+<span style="color: #98c379;">  original position again. Otherwise, the cursor is moved to the right of the</span>
+<span style="color: #98c379;">  inserted string."</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">let</span> ((item-string <span style="color: #98c379;">" - [ ] "</span>))
+    (<span style="color: #c678dd;">cond</span> ((= (point) (line-beginning-position))
            (insert item-string))
-          (t (<span style="color: #a020f0;">save-excursion</span>
+          (t (<span style="color: #c678dd;">save-excursion</span>
                (move-beginning-of-line 1)
                (insert item-string))))))
 </pre>
@@ -660,20 +662,20 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">ox-icalendar-activate</span> nil)
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">ox-icalendar-activate</span> nil)
+(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"org"</span>
   (run-with-idle-timer 180 t 'my-reload-ical-export)
-  <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(run-with-idle-timer 1000 t 'org-mobile-push)</span>
-  <span style="color: #b22222;">;; </span><span style="color: ##3030FF;">FIXME</span>
-  (add-hook 'focus-in-hook (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">setq</span> ox-icalendar-activate nil)))
-  (add-hook 'focus-out-hook (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">setq</span> ox-icalendar-activate t))))
+  <span style="color: #5C6370;">;;    </span><span style="color: #5C6370;">(run-with-idle-timer 1000 t 'org-mobile-push)</span>
+  <span style="color: #5C6370;">;; </span><span style="color: #1e90ff;">FIXME</span>
+  (add-hook 'focus-in-hook (<span style="color: #c678dd;">lambda</span> () (<span style="color: #c678dd;">setq</span> ox-icalendar-activate nil)))
+  (add-hook 'focus-out-hook (<span style="color: #c678dd;">lambda</span> () (<span style="color: #c678dd;">setq</span> ox-icalendar-activate t))))
 
-(<span style="color: #a020f0;">declare-function</span> my-ox-upload-icalendar <span style="color: #8b2252;">"init-org"</span>)
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-reload-ical-export</span> ()
-  <span style="color: #8b2252;">"Export org files as an iCal format file"</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (string= major-mode 'org-mode)
+(<span style="color: #c678dd;">declare-function</span> my-ox-upload-icalendar <span style="color: #98c379;">"init-org"</span>)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-reload-ical-export</span> ()
+  <span style="color: #98c379;">"Export org files as an iCal format file"</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (string= major-mode 'org-mode)
              ox-icalendar-activate)
     (my-ox-upload-icalendar)))
 </pre>
@@ -685,13 +687,13 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <h3 id="org175a102f"><span class="section-number-3">1.12</span> ブラウザの設定</h3>
 <div class="outline-text-3" id="text-org175a102f">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome">http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome</a></span>
-<span style="color: #b22222;">;; </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s=&quot;skim">http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim</a></span>
-(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome">http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome</a></span>
+<span style="color: #5C6370;">;; </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s=&quot;skim">http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim</a></span>
+(<span style="color: #c678dd;">when</span> (autoload-if-found
        '(browse-url)
-       <span style="color: #8b2252;">"browse-url"</span> nil t)
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"browse-url"</span>
-    (<span style="color: #a020f0;">cond</span>
+       <span style="color: #98c379;">"browse-url"</span> nil t)
+  (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"browse-url"</span>
+    (<span style="color: #c678dd;">cond</span>
      ((eq window-system 'ns)
       (custom-set-variables
        '(browse-url-generic-program 'google-chrome)))
@@ -699,14 +701,14 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
       (custom-set-variables
        '(browse-url-browser-function 'browse-url-generic)
        '(browse-url-generic-program
-         <span style="color: #8b2252;">"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"</span>)
+         <span style="color: #98c379;">"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"</span>)
        ))
      (t
       nil))))
 
-<span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq browse-url-browser-function 'browse-url-default-macosx-browser)</span>
-<span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq browse-url-browser-function 'browse-url-default-windows-browser)</span>
-<span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq browse-url-browser-function 'browse-url-chrome)</span>
+<span style="color: #5C6370;">;;</span><span style="color: #5C6370;">(setq browse-url-browser-function 'browse-url-default-macosx-browser)</span>
+<span style="color: #5C6370;">;;</span><span style="color: #5C6370;">(setq browse-url-browser-function 'browse-url-default-windows-browser)</span>
+<span style="color: #5C6370;">;;</span><span style="color: #5C6370;">(setq browse-url-browser-function 'browse-url-chrome)</span>
 </pre>
 </div>
 </div>
@@ -716,36 +718,38 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <h3 id="orgca3eae6b"><span class="section-number-3">1.13</span> バックアップファイルの削除</h3>
 <div class="outline-text-3" id="text-orgca3eae6b">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0</span>
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0</span>
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">recursive-delete-backup-files</span> (days)
-  (<span style="color: #a020f0;">if</span> (= days 1)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">recursive-delete-backup-files</span> (days)
+  (<span style="color: #c678dd;">if</span> (= days 1)
       1
     (recursive-delete-backup-files (1- days)))
   (delete-backup-files days))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">delete-backup-files</span> (<span style="color: #228b22;">&amp;optional</span> day-shift)
-  <span style="color: #8b2252;">"Delete backup files created in yesterday.</span>
-<span style="color: #8b2252;">  &gt; find ~/.emacs.d/backup -type f -name '*YY-MM-DD_*' -print0 | xargs -0"</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">unless</span> day-shift
-    (<span style="color: #a020f0;">setq</span> day-shift 1))
-  (<span style="color: #a020f0;">let*</span> ((backup-dir <span style="color: #8b2252;">"~/.emacs.d/backup"</span>)
-         (cmd (concat <span style="color: #8b2252;">"find "</span> backup-dir <span style="color: #8b2252;">"  -type f -name </span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'*"</span>
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">delete-backup-files</span> (<span style="color: #CFCB90;">&amp;optional</span> day-shift)
+  <span style="color: #98c379;">"Delete backup files created in yesterday.</span>
+<span style="color: #98c379;">  &gt; find ~/.emacs.d/backup -type f -name '*YY-MM-DD_*' -print0 | xargs -0"</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">unless</span> day-shift
+    (<span style="color: #c678dd;">setq</span> day-shift 1))
+  (<span style="color: #c678dd;">let*</span> ((backup-dir <span style="color: #98c379;">"~/.emacs.d/backup"</span>)
+         (cmd (concat <span style="color: #98c379;">"find "</span> backup-dir <span style="color: #98c379;">"  -type f -name </span><span style="color: #ff982d; font-weight: bold;">\</span><span style="color: #98c379;">'*"</span>
                       (format-time-string
-                       <span style="color: #8b2252;">"%y-%m-%d_"</span>
+                       <span style="color: #98c379;">"%y-%m-%d_"</span>
                        (time-subtract (current-time)
                                       (seconds-to-time
                                        (* day-shift (* 24 3600)))))
-                      <span style="color: #8b2252;">"*</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">' -print0 | while read -r -d </span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">' file; "</span>
-                      <span style="color: #8b2252;">" do echo -n \" \\\"$file\\\"\"; done | xargs -0"</span>))
+                      <span style="color: #98c379;">"*</span><span style="color: #ff982d; font-weight: bold;">\</span><span style="color: #98c379;">' -print0 | while read -r -d </span><span style="color: #ff982d; font-weight: bold;">\</span><span style="color: #98c379;">'</span><span style="color: #ff982d; font-weight: bold;">\</span><span style="color: #98c379;">' file; "</span>
+                      <span style="color: #98c379;">" do echo -n \" \\\"$file\\\"\"; done | xargs -0"</span>))
          (files (shell-command-to-string cmd)))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "%s" cmd)</span>
-    (<span style="color: #a020f0;">unless</span> (string= files <span style="color: #8b2252;">""</span>)
-      (message <span style="color: #8b2252;">"%s"</span> (chomp files))
-      (shell-command-to-string (concat <span style="color: #8b2252;">"mv -v "</span> (chomp files) <span style="color: #8b2252;">" ~/.Trash"</span>)))))
+    <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(message "%s" cmd)</span>
+    (<span style="color: #c678dd;">unless</span> (string= (chomp files) <span style="color: #98c379;">""</span>)
+      (message <span style="color: #98c379;">"%s"</span> (chomp files))
+      (<span style="color: #c678dd;">let</span> ((trash (<span style="color: #c678dd;">if</span> (eq system-type 'darwin)
+                       <span style="color: #98c379;">" ~/.Trash"</span> <span style="color: #98c379;">"~/.local/share/Trash"</span>)))
+        (shell-command-to-string (concat <span style="color: #98c379;">"mv -v "</span> (chomp files) trash))))))
 </pre>
 </div>
 </div>
@@ -758,12 +762,12 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">chomp</span> (str)
-  <span style="color: #8b2252;">"Chomp leading and tailing whitespace from STR."</span>
-  (<span style="color: #a020f0;">while</span> (string-match <span style="color: #8b2252;">"\\`</span><span style="color: #008b8b;">\n+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #008b8b;">^\\s-+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #008b8b;">\\s-+$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #008b8b;">\n+\\</span><span style="color: #8b2252;">'"</span>
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">chomp</span> (str)
+  <span style="color: #98c379;">"Chomp leading and tailing whitespace from STR."</span>
+  (<span style="color: #c678dd;">while</span> (string-match <span style="color: #98c379;">"\\`</span><span style="color: #d19a66;">\n+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #d19a66;">^\\s-+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #d19a66;">\\s-+$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #d19a66;">\n+\\</span><span style="color: #98c379;">'"</span>
                        str)
-    (<span style="color: #a020f0;">setq</span> str (replace-match <span style="color: #8b2252;">""</span> t t str)))
+    (<span style="color: #c678dd;">setq</span> str (replace-match <span style="color: #98c379;">""</span> t t str)))
   str)
 </pre>
 </div>
@@ -774,26 +778,26 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <h3 id="org9731a19e"><span class="section-number-3">1.15</span> 特定のファイルを Dropbox 以下にバックアップする</h3>
 <div class="outline-text-3" id="text-org9731a19e">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-backup</span> (files <span style="color: #228b22;">&amp;optional</span> dropbox)
-  <span style="color: #8b2252;">"Backup a file to `</span><span style="color: #008b8b;">Dropbox/backup</span><span style="color: #8b2252;">' directory.</span>
-<span style="color: #8b2252;">If `</span><span style="color: #008b8b;">dropbox</span><span style="color: #8b2252;">' option is provided then the value is uased as a root directory."</span>
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
-  (<span style="color: #a020f0;">let</span> ((system (system-name))
-        (rootdir (<span style="color: #a020f0;">or</span> dropbox <span style="color: #8b2252;">"~/Dropbox"</span>)))
-    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> system
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-backup</span> (files <span style="color: #CFCB90;">&amp;optional</span> dropbox)
+  <span style="color: #98c379;">"Backup a file to `</span><span style="color: #d19a66;">Dropbox/backup</span><span style="color: #98c379;">' directory.</span>
+<span style="color: #98c379;">If `</span><span style="color: #d19a66;">dropbox</span><span style="color: #98c379;">' option is provided then the value is uased as a root directory."</span>
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"P"</span>)
+  (<span style="color: #c678dd;">let</span> ((system (system-name))
+        (rootdir (<span style="color: #c678dd;">or</span> dropbox <span style="color: #98c379;">"~/Dropbox"</span>)))
+    (<span style="color: #c678dd;">if</span> (<span style="color: #c678dd;">and</span> system
              (stringp rootdir)
-             (file-directory-p (<span style="color: #a020f0;">or</span> rootdir (expand-file-name rootdir))))
+             (file-directory-p (<span style="color: #c678dd;">or</span> rootdir (expand-file-name rootdir))))
         (mapc
-         (<span style="color: #a020f0;">lambda</span> (file)
-           (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (stringp file)
-                    (file-readable-p (<span style="color: #a020f0;">or</span> file (expand-file-name file))))
+         (<span style="color: #c678dd;">lambda</span> (file)
+           (<span style="color: #c678dd;">if</span> (<span style="color: #c678dd;">and</span> (stringp file)
+                    (file-readable-p (<span style="color: #c678dd;">or</span> file (expand-file-name file))))
                (shell-command-to-string
-                (concat <span style="color: #8b2252;">"cp -f "</span> file <span style="color: #8b2252;">" "</span> rootdir <span style="color: #8b2252;">"/backup/"</span> system <span style="color: #8b2252;">"/"</span>))
-             (message (format <span style="color: #8b2252;">"--- backup failure: %s"</span> file))))
-         (<span style="color: #a020f0;">if</span> (listp files)
+                (concat <span style="color: #98c379;">"cp -f "</span> file <span style="color: #98c379;">" "</span> rootdir <span style="color: #98c379;">"/backup/"</span> system <span style="color: #98c379;">"/"</span>))
+             (message (format <span style="color: #98c379;">"--- backup failure: %s"</span> file))))
+         (<span style="color: #c678dd;">if</span> (listp files)
              files
            (list files)))
-      (<span style="color: #ff0000; font-weight: bold;">user-error</span> (format <span style="color: #8b2252;">"--- backup-dir does not exist: %s"</span> rootdir)))))
+      (<span style="color: #ff982d; font-weight: bold;">user-error</span> (format <span style="color: #98c379;">"--- backup-dir does not exist: %s"</span> rootdir)))))
 </pre>
 </div>
 </div>
@@ -803,18 +807,18 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <h3 id="orgdfad16ba"><span class="section-number-3">1.16</span> ゴミ箱を空にする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-orgdfad16ba">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">mac:delete-files-in-trash-bin</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">mac:delete-files-in-trash-bin</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
   (do-applescript
    (concat
-    <span style="color: #8b2252;">"tell application \"Finder\"\n"</span>
-    <span style="color: #8b2252;">"set itemCount to count of items in the trash\n"</span>
-    <span style="color: #8b2252;">"if itemCount &gt; 0 then\n"</span>
-    <span style="color: #8b2252;">"empty the trash\n"</span>
-    <span style="color: #8b2252;">"end if\n"</span>
-    <span style="color: #8b2252;">"end tell\n"</span>))
-  (my-desktop-notification <span style="color: #8b2252;">"Emacs"</span> <span style="color: #8b2252;">"Empty the trash, done."</span>))
+    <span style="color: #98c379;">"tell application \"Finder\"\n"</span>
+    <span style="color: #98c379;">"set itemCount to count of items in the trash\n"</span>
+    <span style="color: #98c379;">"if itemCount &gt; 0 then\n"</span>
+    <span style="color: #98c379;">"empty the trash\n"</span>
+    <span style="color: #98c379;">"end if\n"</span>
+    <span style="color: #98c379;">"end tell\n"</span>))
+  (my-desktop-notification <span style="color: #98c379;">"Emacs"</span> <span style="color: #98c379;">"Empty the trash, done."</span>))
 </pre>
 </div>
 </div>
@@ -824,19 +828,19 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <h3 id="org4842582b"><span class="section-number-3">1.17</span> 終了シーケンスのデバッグ用関数</h3>
 <div class="outline-text-3" id="text-org4842582b">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-kill-emacs</span> ()
-    (switch-to-buffer <span style="color: #8b2252;">"*Messages*"</span>)
-    (message <span style="color: #8b2252;">"3: %s"</span> kill-emacs-hook)
-    (y-or-n-p <span style="color: #8b2252;">"Sure? "</span>))
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-kill-emacs</span> ()
+    (switch-to-buffer <span style="color: #98c379;">"*Messages*"</span>)
+    (message <span style="color: #98c379;">"3: %s"</span> kill-emacs-hook)
+    (y-or-n-p <span style="color: #98c379;">"Sure? "</span>))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-kill-emacs-hook-show</span> ()
-  <span style="color: #8b2252;">"Test Emacs killing sequence."</span>
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-kill-emacs-hook-show</span> ()
+  <span style="color: #98c379;">"Test Emacs killing sequence."</span>
   (add-hook 'after-init-hook
-            (<span style="color: #a020f0;">lambda</span> () (message <span style="color: #8b2252;">"1: %s"</span> kill-emacs-hook)) t)
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
-    (message <span style="color: #8b2252;">"2: %s"</span> kill-emacs-hook))
+            (<span style="color: #c678dd;">lambda</span> () (message <span style="color: #98c379;">"1: %s"</span> kill-emacs-hook)) t)
+  (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"postpone"</span>
+    (message <span style="color: #98c379;">"2: %s"</span> kill-emacs-hook))
   (add-hook 'kill-emacs-hook #'my-kill-emacs))
 </pre>
 </div>
@@ -865,19 +869,19 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <h3 id="org4043fe35"><span class="section-number-3">1.19</span> [package.el] MELPA利用設定</h3>
 <div class="outline-text-3" id="text-org4043fe35">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-setup-package-el</span> ()
-  <span style="color: #8b2252;">"Setting up for installing packages via built-in package.el.</span>
-<span style="color: #8b2252;">Downloaded packages will be stored under ~/.eamcs.d/elpa."</span>
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">package</span> nil t)
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-setup-package-el</span> ()
+  <span style="color: #98c379;">"Setting up for installing packages via built-in package.el.</span>
+<span style="color: #98c379;">Downloaded packages will be stored under ~/.eamcs.d/elpa."</span>
+  (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">package</span> nil t)
              (boundp 'package-archives))
-    (<span style="color: #a020f0;">let*</span> ((no-ssl (<span style="color: #a020f0;">and</span> (memq system-type '(windows-nt ms-dos))
+    (<span style="color: #c678dd;">let*</span> ((no-ssl (<span style="color: #c678dd;">and</span> (memq system-type '(windows-nt ms-dos))
                         (not (gnutls-available-p))))
-           (proto (<span style="color: #a020f0;">if</span> no-ssl <span style="color: #8b2252;">"http"</span> <span style="color: #8b2252;">"https"</span>)))
+           (proto (<span style="color: #c678dd;">if</span> no-ssl <span style="color: #98c379;">"http"</span> <span style="color: #98c379;">"https"</span>)))
       (add-to-list 'package-archives
-                   (cons <span style="color: #8b2252;">"melpa"</span> (concat proto <span style="color: #8b2252;">"://melpa.org/packages/"</span>)) t)
+                   (cons <span style="color: #98c379;">"melpa"</span> (concat proto <span style="color: #98c379;">"://melpa.org/packages/"</span>)) t)
       (add-to-list 'package-archives
-                   (cons <span style="color: #8b2252;">"takaxp"</span> <span style="color: #8b2252;">"~/devel/git/melpa/packages/"</span>) t))
+                   (cons <span style="color: #98c379;">"takaxp"</span> <span style="color: #98c379;">"~/devel/git/melpa/packages/"</span>) t))
     (package-initialize)))
 </pre>
 </div>
@@ -892,22 +896,22 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">declare-function</span> org-babel-tangle <span style="color: #8b2252;">"org-babel"</span>)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">declare-function</span> org-babel-tangle <span style="color: #98c379;">"org-babel"</span>)
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-eval-org-buffer</span> ()
-  <span style="color: #8b2252;">"Load init.org/utility.org and tangle init.el/utility.el."</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span> nil t)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-eval-org-buffer</span> ()
+  <span style="color: #98c379;">"Load init.org/utility.org and tangle init.el/utility.el."</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">if</span> (<span style="color: #c678dd;">and</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">org</span> nil t)
            (eq major-mode 'org-mode)
-           (member (buffer-name) '(<span style="color: #8b2252;">"init.org"</span> <span style="color: #8b2252;">"utility.org"</span>)))
-      (<span style="color: #a020f0;">progn</span>
+           (member (buffer-name) '(<span style="color: #98c379;">"init.org"</span> <span style="color: #98c379;">"utility.org"</span>)))
+      (<span style="color: #c678dd;">progn</span>
         (org-babel-tangle)
-        (<span style="color: #a020f0;">let</span> ((tangled-file
-               (concat (file-name-sans-extension (buffer-file-name)) <span style="color: #8b2252;">".el"</span>)))
-          (<span style="color: #a020f0;">when</span> (file-exists-p tangled-file)
+        (<span style="color: #c678dd;">let</span> ((tangled-file
+               (concat (file-name-sans-extension (buffer-file-name)) <span style="color: #98c379;">".el"</span>)))
+          (<span style="color: #c678dd;">when</span> (file-exists-p tangled-file)
             (byte-compile-file tangled-file))))
-    (message <span style="color: #8b2252;">"Nothing to do for this buffer."</span>)))
+    (message <span style="color: #98c379;">"Nothing to do for this buffer."</span>)))
 </pre>
 </div>
 </div>
@@ -917,86 +921,86 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h3 id="orga706f503"><span class="section-number-3">1.21</span> <span class="todo TODO">TODO</span> リージョン内のブリッツを操作する</h3>
 <div class="outline-text-3" id="text-orga706f503">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-insert-items</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">" - "</span>)
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-org-list-insert-items</span> (begin end)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"r"</span>)
+  (<span style="color: #c678dd;">when</span> mark-active
+    (<span style="color: #c678dd;">let*</span> ((bullet <span style="color: #98c379;">" - "</span>)
            (len (string-width bullet)))
       (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) end t)
+      (<span style="color: #c678dd;">while</span> (<span style="color: #c678dd;">and</span> (re-search-forward (concat <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span>) end t)
                   (not (equal (point) end)))
-        (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet) nil nil)
-        (<span style="color: #a020f0;">setq</span> end (+ end len)))
+        (replace-match (concat <span style="color: #98c379;">"\\1"</span> bullet) nil nil)
+        (<span style="color: #c678dd;">setq</span> end (+ end len)))
       (goto-char begin))))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-delete-items</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">"- "</span>)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-org-list-delete-items</span> (begin end)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"r"</span>)
+  (<span style="color: #c678dd;">when</span> mark-active
+    (<span style="color: #c678dd;">let*</span> ((bullet <span style="color: #98c379;">"- "</span>)
            (len (string-width bullet)))
       (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (re-search-forward
-              (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> bullet) end t)
-        (replace-match <span style="color: #8b2252;">""</span> nil nil)
-        (<span style="color: #a020f0;">setq</span> end (- end len)))
+      (<span style="color: #c678dd;">while</span> (re-search-forward
+              (concat <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span> bullet) end t)
+        (replace-match <span style="color: #98c379;">""</span> nil nil)
+        (<span style="color: #c678dd;">setq</span> end (- end len)))
       (goto-char begin))))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-insert-checkbox-into-items</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">"- "</span>)
-           (checkbox <span style="color: #8b2252;">"[ ] "</span>)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-org-list-insert-checkbox-into-items</span> (begin end)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"r"</span>)
+  (<span style="color: #c678dd;">when</span> mark-active
+    (<span style="color: #c678dd;">let*</span> ((bullet <span style="color: #98c379;">"- "</span>)
+           (checkbox <span style="color: #98c379;">"[ ] "</span>)
            (len (string-width checkbox)))
       (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> bullet) end t)
-        (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet checkbox) nil nil)
-        (<span style="color: #a020f0;">setq</span> end (+ end len)))
+      (<span style="color: #c678dd;">while</span> (re-search-forward (concat <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span> bullet) end t)
+        (replace-match (concat <span style="color: #98c379;">"\\1"</span> bullet checkbox) nil nil)
+        (<span style="color: #c678dd;">setq</span> end (+ end len)))
       (goto-char begin))))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-delete-checkbox-from-items</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let</span> ((bullet <span style="color: #8b2252;">"- "</span>)
-          (len (string-width <span style="color: #8b2252;">"[ ] "</span>)))
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-org-list-delete-checkbox-from-items</span> (begin end)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"r"</span>)
+  (<span style="color: #c678dd;">when</span> mark-active
+    (<span style="color: #c678dd;">let</span> ((bullet <span style="color: #98c379;">"- "</span>)
+          (len (string-width <span style="color: #98c379;">"[ ] "</span>)))
       (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (re-search-forward
-              (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> bullet <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>) end t)
-        (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet) nil nil)
-        (<span style="color: #a020f0;">setq</span> end (- end len)))
+      (<span style="color: #c678dd;">while</span> (re-search-forward
+              (concat <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span> bullet <span style="color: #98c379;">"\\[</span><span style="color: #d19a66;">.\\</span><span style="color: #98c379;">][ \t]+"</span>) end t)
+        (replace-match (concat <span style="color: #98c379;">"\\1"</span> bullet) nil nil)
+        (<span style="color: #c678dd;">setq</span> end (- end len)))
       (goto-char begin))))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-insert-itms-with-checkbox</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">" - "</span>)
-           (checkbox <span style="color: #8b2252;">"[ ] "</span>)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-org-list-insert-itms-with-checkbox</span> (begin end)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"r"</span>)
+  (<span style="color: #c678dd;">when</span> mark-active
+    (<span style="color: #c678dd;">let*</span> ((bullet <span style="color: #98c379;">" - "</span>)
+           (checkbox <span style="color: #98c379;">"[ ] "</span>)
            (blen (string-width bullet))
            (clen (string-width checkbox)))
       (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) end t)
+      (<span style="color: #c678dd;">while</span> (<span style="color: #c678dd;">and</span> (re-search-forward (concat <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span>) end t)
                   (not (equal (point) end)))
-        (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet checkbox) nil nil)
-        (<span style="color: #a020f0;">setq</span> end (+ end blen clen)))
+        (replace-match (concat <span style="color: #98c379;">"\\1"</span> bullet checkbox) nil nil)
+        (<span style="color: #c678dd;">setq</span> end (+ end blen clen)))
       (goto-char begin))))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-delete-items-with-checkbox</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">"- "</span>)
-           (checkbox <span style="color: #8b2252;">"[ ] "</span>)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-org-list-delete-items-with-checkbox</span> (begin end)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"r"</span>)
+  (<span style="color: #c678dd;">when</span> mark-active
+    (<span style="color: #c678dd;">let*</span> ((bullet <span style="color: #98c379;">"- "</span>)
+           (checkbox <span style="color: #98c379;">"[ ] "</span>)
            (blen (string-width bullet))
            (clen (string-width checkbox)))
       (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (re-search-forward
-              (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> bullet <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>) end t)
-        (replace-match <span style="color: #8b2252;">""</span> nil nil)
-        (<span style="color: #a020f0;">setq</span> end (- end blen clen)))
+      (<span style="color: #c678dd;">while</span> (re-search-forward
+              (concat <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span> bullet <span style="color: #98c379;">"\\[</span><span style="color: #d19a66;">.\\</span><span style="color: #98c379;">][ \t]+"</span>) end t)
+        (replace-match <span style="color: #98c379;">""</span> nil nil)
+        (<span style="color: #c678dd;">setq</span> end (- end blen clen)))
       (goto-char begin))))
 </pre>
 </div>
@@ -1014,25 +1018,25 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cycle-bullet-at-heading</span> (arg)
-  <span style="color: #8b2252;">"Add a bullet of \" - \" if the line is NOT a bullet line."</span>
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
-  (<span style="color: #a020f0;">save-excursion</span>
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-cycle-bullet-at-heading</span> (arg)
+  <span style="color: #98c379;">"Add a bullet of \" - \" if the line is NOT a bullet line."</span>
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"P"</span>)
+  (<span style="color: #c678dd;">save-excursion</span>
     (beginning-of-line)
-    (<span style="color: #a020f0;">let</span> ((bullet <span style="color: #8b2252;">"- "</span>)
+    (<span style="color: #c678dd;">let</span> ((bullet <span style="color: #98c379;">"- "</span>)
           (point-at-eol (point-at-eol)))
-      (<span style="color: #a020f0;">cond</span>
+      (<span style="color: #c678dd;">cond</span>
        ((re-search-forward
-         (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> bullet <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>) point-at-eol t)
-        (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> (concat <span style="color: #8b2252;">"\\1"</span> bullet)) nil nil))
+         (concat <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span> bullet <span style="color: #98c379;">"\\[</span><span style="color: #d19a66;">.\\</span><span style="color: #98c379;">][ \t]+"</span>) point-at-eol t)
+        (replace-match (<span style="color: #c678dd;">if</span> arg <span style="color: #98c379;">""</span> (concat <span style="color: #98c379;">"\\1"</span> bullet)) nil nil))
        ((re-search-forward
-         (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> bullet) point-at-eol t)
-        (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> (concat <span style="color: #8b2252;">"\\1"</span> bullet <span style="color: #8b2252;">"[ ] "</span>)) nil nil))
+         (concat <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span> bullet) point-at-eol t)
+        (replace-match (<span style="color: #c678dd;">if</span> arg <span style="color: #98c379;">""</span> (concat <span style="color: #98c379;">"\\1"</span> bullet <span style="color: #98c379;">"[ ] "</span>)) nil nil))
        ((re-search-forward
-         (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) point-at-eol t)
+         (concat <span style="color: #98c379;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span>) point-at-eol t)
         (replace-match
-         (concat <span style="color: #8b2252;">"\\1 "</span> bullet) nil nil))
+         (concat <span style="color: #98c379;">"\\1 "</span> bullet) nil nil))
        (t nil)))))
 </pre>
 </div>
@@ -1047,30 +1051,30 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-garbage-collect-height</span> max-mini-window-height)
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-garbage-collect-activate</span> ()
-  (<span style="color: #a020f0;">setq</span> max-mini-window-height 16)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">my-garbage-collect-height</span> max-mini-window-height)
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-garbage-collect-activate</span> ()
+  (<span style="color: #c678dd;">setq</span> max-mini-window-height 16)
   (add-hook 'pre-command-hook #'my-garbage-collect-deactivate))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-garbage-collect-deactivate</span> ()
-  (<span style="color: #a020f0;">setq</span> max-mini-window-height my-garbage-collect-height)
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-garbage-collect-deactivate</span> ()
+  (<span style="color: #c678dd;">setq</span> max-mini-window-height my-garbage-collect-height)
   (remove-hook 'pre-command-hook #'my-garbage-collect-deactivate))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-garbage-collect</span> ()
-  <span style="color: #8b2252;">"Run `</span><span style="color: #008b8b;">garbage-collect</span><span style="color: #8b2252;">' and print stats about memory usage."</span>
-  (<span style="color: #a020f0;">interactive</span>)
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-garbage-collect</span> ()
+  <span style="color: #98c379;">"Run `</span><span style="color: #d19a66;">garbage-collect</span><span style="color: #98c379;">' and print stats about memory usage."</span>
+  (<span style="color: #c678dd;">interactive</span>)
   (my-garbage-collect-activate)
   (message
    (concat
-    (format <span style="color: #8b2252;">"\n%-12s\t%-6s + %-6s = %s\n"</span> <span style="color: #8b2252;">"type"</span> <span style="color: #8b2252;">"used"</span> <span style="color: #8b2252;">"free"</span> <span style="color: #8b2252;">"total"</span>)
+    (format <span style="color: #98c379;">"\n%-12s\t%-6s + %-6s = %s\n"</span> <span style="color: #98c379;">"type"</span> <span style="color: #98c379;">"used"</span> <span style="color: #98c379;">"free"</span> <span style="color: #98c379;">"total"</span>)
     (make-string (frame-width) ?-)
-    (<span style="color: #a020f0;">cl-loop</span>
+    (<span style="color: #c678dd;">cl-loop</span>
      for (type size used free) in (garbage-collect)
      for used1 = (* used size)
-     for free1 = (* (<span style="color: #a020f0;">or</span> free 0) size)
+     for free1 = (* (<span style="color: #c678dd;">or</span> free 0) size)
      for total = (file-size-human-readable (+ used1 free1))
      for used2 = (file-size-human-readable used1)
      for free2 = (file-size-human-readable free1)
      concat
-     (format <span style="color: #8b2252;">"\n%-12s\t%-6s + %-6s = %s"</span> type used2 free2 total)))))
+     (format <span style="color: #98c379;">"\n%-12s\t%-6s + %-6s = %s"</span> type used2 free2 total)))))
 </pre>
 </div>
 </div>
@@ -1080,52 +1084,52 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h3 id="orgfd77df9c"><span class="section-number-3">1.24</span> その他</h3>
 <div class="outline-text-3" id="text-orgfd77df9c">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;; </span><span style="color: #b22222;">Test function from GNU Emacs (O'REILLY, P.328)</span>
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">count-words-buffer</span> ()
-  <span style="color: #8b2252;">"Count the number of words in the current buffer"</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">save-excursion</span>
-    (<span style="color: #a020f0;">let</span> ((count 0))
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;; </span><span style="color: #5C6370;">Test function from GNU Emacs (O'REILLY, P.328)</span>
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">count-words-buffer</span> ()
+  <span style="color: #98c379;">"Count the number of words in the current buffer"</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">save-excursion</span>
+    (<span style="color: #c678dd;">let</span> ((count 0))
       (goto-char (point-min))
-      (<span style="color: #a020f0;">while</span> (&lt; (point) (point-max))
+      (<span style="color: #c678dd;">while</span> (&lt; (point) (point-max))
         (forward-word 1)
-        (<span style="color: #a020f0;">setq</span> count (1+ count)))
-      (message <span style="color: #8b2252;">"buffer contains %d words."</span> count))))
+        (<span style="color: #c678dd;">setq</span> count (1+ count)))
+      (message <span style="color: #98c379;">"buffer contains %d words."</span> count))))
 
-<span style="color: #b22222;">;;; </span><span style="color: #b22222;">Test function for AppleScript</span>
-<span style="color: #b22222;">;;; </span><span style="color: #b22222;">Cite: </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://sakito.jp/emacs/emacsobjectivec.html">http://sakito.jp/emacs/emacsobjectivec.html</a></span>
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">do-test-applescript</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
+<span style="color: #5C6370;">;;; </span><span style="color: #5C6370;">Test function for AppleScript</span>
+<span style="color: #5C6370;">;;; </span><span style="color: #5C6370;">Cite: </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://sakito.jp/emacs/emacsobjectivec.html">http://sakito.jp/emacs/emacsobjectivec.html</a></span>
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">do-test-applescript</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
   (do-applescript
    (format
     (concat
-     <span style="color: #8b2252;">"display dialog \"Hello world!\" \r"</span>))))
+     <span style="color: #98c379;">"display dialog \"Hello world!\" \r"</span>))))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">describe-timer</span> ()
-  <span style="color: #8b2252;">"see </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://masutaka.net/chalow/2009-12-05-1.html">http://masutaka.net/chalow/2009-12-05-1.html</a></span><span style="color: #8b2252;">"</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">let</span> ((tl timer-list)
+<span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">describe-timer</span> ()
+  <span style="color: #98c379;">"see </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://masutaka.net/chalow/2009-12-05-1.html">http://masutaka.net/chalow/2009-12-05-1.html</a></span><span style="color: #98c379;">"</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">let</span> ((tl timer-list)
         (timer nil))
-    (pop-to-buffer (get-buffer-create <span style="color: #8b2252;">"*timer*"</span>))
+    (pop-to-buffer (get-buffer-create <span style="color: #98c379;">"*timer*"</span>))
     (erase-buffer)
     (insert
-     <span style="color: #8b2252;">"TIME           FUNCTION\n"</span>
-     <span style="color: #8b2252;">"-------------- ----------------------\n"</span>)
-    (<span style="color: #a020f0;">while</span> tl
-      (<span style="color: #a020f0;">setq</span> timer (car tl))
+     <span style="color: #98c379;">"TIME           FUNCTION\n"</span>
+     <span style="color: #98c379;">"-------------- ----------------------\n"</span>)
+    (<span style="color: #c678dd;">while</span> tl
+      (<span style="color: #c678dd;">setq</span> timer (car tl))
       (insert
        (concat
-        (format-time-string <span style="color: #8b2252;">"%m/%d %T"</span>
+        (format-time-string <span style="color: #98c379;">"%m/%d %T"</span>
                             (list (aref timer 1)
                                   (aref timer 2)
                                   (aref timer 3)))
-        <span style="color: #8b2252;">" "</span>
+        <span style="color: #98c379;">" "</span>
         (symbol-name (aref timer 5))
-        <span style="color: #8b2252;">"\n"</span>))
-      (<span style="color: #a020f0;">setq</span> tl (cdr tl)))
+        <span style="color: #98c379;">"\n"</span>))
+      (<span style="color: #c678dd;">setq</span> tl (cdr tl)))
     (read-only-mode 1)))
 </pre>
 </div>
@@ -1140,55 +1144,55 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">my-auto-install-batch-list-el-url</span> nil
-  <span style="color: #8b2252;">"URL of a auto-install-batch-list.el"</span>
-  <span style="color: #483d8b;">:type</span> 'string
-  <span style="color: #483d8b;">:group</span> 'takaxp-utility)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defcustom</span> <span style="color: #e5c07b;">my-auto-install-batch-list-el-url</span> nil
+  <span style="color: #98c379;">"URL of a auto-install-batch-list.el"</span>
+  <span style="color: #56b6c2;">:type</span> 'string
+  <span style="color: #56b6c2;">:group</span> 'takaxp-utility)
 
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">Publish an xml file to show a Gantt Chart</span>
-(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline-csv-file</span> nil
-  <span style="color: #8b2252;">"source.csv"</span>
-  <span style="color: #483d8b;">:type</span> 'string
-  <span style="color: #483d8b;">:group</span> 'takaxp-utility)
+<span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Publish an xml file to show a Gantt Chart</span>
+(<span style="color: #c678dd;">defcustom</span> <span style="color: #e5c07b;">default-timeline-csv-file</span> nil
+  <span style="color: #98c379;">"source.csv"</span>
+  <span style="color: #56b6c2;">:type</span> 'string
+  <span style="color: #56b6c2;">:group</span> 'takaxp-utility)
 
-(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline-xml-business-file</span> nil
-  <span style="color: #8b2252;">"XML file for business schedule"</span>
-  <span style="color: #483d8b;">:type</span> 'string
-  <span style="color: #483d8b;">:group</span> 'takaxp-utility)
+(<span style="color: #c678dd;">defcustom</span> <span style="color: #e5c07b;">default-timeline-xml-business-file</span> nil
+  <span style="color: #98c379;">"XML file for business schedule"</span>
+  <span style="color: #56b6c2;">:type</span> 'string
+  <span style="color: #56b6c2;">:group</span> 'takaxp-utility)
 
-(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline-xml-private-file</span> nil
-  <span style="color: #8b2252;">"XML file for private schedule"</span>
-  <span style="color: #483d8b;">:type</span> 'string
-  <span style="color: #483d8b;">:group</span> 'takaxp-utility)
+(<span style="color: #c678dd;">defcustom</span> <span style="color: #e5c07b;">default-timeline-xml-private-file</span> nil
+  <span style="color: #98c379;">"XML file for private schedule"</span>
+  <span style="color: #56b6c2;">:type</span> 'string
+  <span style="color: #56b6c2;">:group</span> 'takaxp-utility)
 
-(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">default-timeline</span> nil
-  <span style="color: #8b2252;">"a template index.html"</span>
-  <span style="color: #483d8b;">:type</span> 'string
-  <span style="color: #483d8b;">:group</span> 'takaxp-utility)
+(<span style="color: #c678dd;">defcustom</span> <span style="color: #e5c07b;">default-timeline</span> nil
+  <span style="color: #98c379;">"a template index.html"</span>
+  <span style="color: #56b6c2;">:type</span> 'string
+  <span style="color: #56b6c2;">:group</span> 'takaxp-utility)
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">export-timeline-business</span> ()
-  <span style="color: #8b2252;">"Export schedule table as an XML source to create an web page"</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> default-timeline
-             (<span style="color: #a020f0;">and</span> default-timeline-csv-file
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">export-timeline-business</span> ()
+  <span style="color: #98c379;">"Export schedule table as an XML source to create an web page"</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> default-timeline
+             (<span style="color: #c678dd;">and</span> default-timeline-csv-file
                   default-timeline-xml-business-file))
-    (shell-command-to-string (concat <span style="color: #8b2252;">"rm -f "</span> default-timeline-csv-file))
-    (org-table-export default-timeline-csv-file <span style="color: #8b2252;">"orgtbl-to-csv"</span>)
-    (shell-command-to-string (concat <span style="color: #8b2252;">"org2gantt.pl &gt; "</span>
+    (shell-command-to-string (concat <span style="color: #98c379;">"rm -f "</span> default-timeline-csv-file))
+    (org-table-export default-timeline-csv-file <span style="color: #98c379;">"orgtbl-to-csv"</span>)
+    (shell-command-to-string (concat <span style="color: #98c379;">"org2gantt.pl &gt; "</span>
                                      default-timeline-xml-business-file))
-    (shell-command-to-string (concat <span style="color: #8b2252;">"open "</span> default-timeline))))
+    (shell-command-to-string (concat <span style="color: #98c379;">"open "</span> default-timeline))))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">export-timeline-private</span> ()
-  <span style="color: #8b2252;">"Export schedule table as an XML source to create an web page"</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> default-timeline
-             (<span style="color: #a020f0;">and</span> default-timeline-csv-file
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">export-timeline-private</span> ()
+  <span style="color: #98c379;">"Export schedule table as an XML source to create an web page"</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> default-timeline
+             (<span style="color: #c678dd;">and</span> default-timeline-csv-file
                   default-timeline-xml-private-file))
-    (shell-command-to-string (concat <span style="color: #8b2252;">"rm -f "</span> default-timeline-csv-file))
-    (org-table-export default-timeline-csv-file <span style="color: #8b2252;">"orgtbl-to-csv"</span>)
-    (shell-command-to-string (concat <span style="color: #8b2252;">"org2gantt.pl &gt; "</span>
+    (shell-command-to-string (concat <span style="color: #98c379;">"rm -f "</span> default-timeline-csv-file))
+    (org-table-export default-timeline-csv-file <span style="color: #98c379;">"orgtbl-to-csv"</span>)
+    (shell-command-to-string (concat <span style="color: #98c379;">"org2gantt.pl &gt; "</span>
                                      default-timeline-xml-private-file))
-    (shell-command-to-string (concat <span style="color: #8b2252;">"open "</span> default-timeline))))
+    (shell-command-to-string (concat <span style="color: #98c379;">"open "</span> default-timeline))))
 
 </pre>
 </div>
@@ -1203,20 +1207,20 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">init-auto-install</span> ()
-  <span style="color: #8b2252;">"Setup auto-install.el.</span>
-<span style="color: #8b2252;">1. Set my-auto-install-batch-list-el-url</span>
-<span style="color: #8b2252;">2. M-x init-auto-install</span>
-<span style="color: #8b2252;">3. M-x auto-install-batch hoge"</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">auto-install</span> nil t)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">init-auto-install</span> ()
+  <span style="color: #98c379;">"Setup auto-install.el.</span>
+<span style="color: #98c379;">1. Set my-auto-install-batch-list-el-url</span>
+<span style="color: #98c379;">2. M-x init-auto-install</span>
+<span style="color: #98c379;">3. M-x auto-install-batch hoge"</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">auto-install</span> nil t)
              my-auto-install-batch-list-el-url)
-    (<span style="color: #a020f0;">setq</span> auto-install-batch-list-el-url my-auto-install-batch-list-el-url)
-    (<span style="color: #a020f0;">setq</span> auto-install-directory default-path)
-    (<span style="color: #a020f0;">setq</span> auto-install-wget-command <span style="color: #8b2252;">"/opt/local/bin/wget"</span>)
+    (<span style="color: #c678dd;">setq</span> auto-install-batch-list-el-url my-auto-install-batch-list-el-url)
+    (<span style="color: #c678dd;">setq</span> auto-install-directory default-path)
+    (<span style="color: #c678dd;">setq</span> auto-install-wget-command <span style="color: #98c379;">"/opt/local/bin/wget"</span>)
     (auto-install-update-emacswiki-package-name t)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">compatibility</span>
-    (auto-install-compatibility-setup))) <span style="color: #b22222;">; </span><span style="color: #b22222;">for install-elisp users</span>
+    <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">compatibility</span>
+    (auto-install-compatibility-setup))) <span style="color: #5C6370;">; </span><span style="color: #5C6370;">for install-elisp users</span>
 </pre>
 </div>
 </div>
@@ -1230,20 +1234,20 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">org2dokuwiki-cp-kill-ring</span> ()
-  <span style="color: #8b2252;">"Convert the current org-file to dokuwiki text, and copy it to kill-ring."</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> (eq major-mode 'org-mode)
-    (<span style="color: #a020f0;">cond</span> (buffer-file-name
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">org2dokuwiki-cp-kill-ring</span> ()
+  <span style="color: #98c379;">"Convert the current org-file to dokuwiki text, and copy it to kill-ring."</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">when</span> (eq major-mode 'org-mode)
+    (<span style="color: #c678dd;">cond</span> (buffer-file-name
            (kill-new
             (shell-command-to-string
-             (concat <span style="color: #8b2252;">"cat "</span> buffer-file-name <span style="color: #8b2252;">"| perl "</span>
-                     (expand-file-name <span style="color: #8b2252;">"~/Dropbox/scripts/org2dokuwiki.pl"</span>))))
-           (message <span style="color: #8b2252;">"Copying %s ... done"</span> buffer-file-name)
+             (concat <span style="color: #98c379;">"cat "</span> buffer-file-name <span style="color: #98c379;">"| perl "</span>
+                     (expand-file-name <span style="color: #98c379;">"~/Dropbox/scripts/org2dokuwiki.pl"</span>))))
+           (message <span style="color: #98c379;">"Copying %s ... done"</span> buffer-file-name)
            (sit-for 1.5)
-           (message <span style="color: #8b2252;">""</span>))
-          (t (message <span style="color: #8b2252;">"There is NOT such a file."</span>)))))
+           (message <span style="color: #98c379;">""</span>))
+          (t (message <span style="color: #98c379;">"There is NOT such a file."</span>)))))
 </pre>
 </div>
 </div>
@@ -1257,14 +1261,14 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-date</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (message <span style="color: #8b2252;">"%s"</span> (concat
-                 (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>) <span style="color: #8b2252;">" ("</span>
-                 (format-time-string <span style="color: #8b2252;">"%a."</span>) <span style="color: #8b2252;">") "</span>
-                 (format-time-string <span style="color: #8b2252;">"W:%W @"</span>)
-                 (format-time-string <span style="color: #8b2252;">"%H:%M"</span>))))
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-date</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
+  (message <span style="color: #98c379;">"%s"</span> (concat
+                 (format-time-string <span style="color: #98c379;">"%Y-%m-%d"</span>) <span style="color: #98c379;">" ("</span>
+                 (format-time-string <span style="color: #98c379;">"%a."</span>) <span style="color: #98c379;">") "</span>
+                 (format-time-string <span style="color: #98c379;">"W:%W @"</span>)
+                 (format-time-string <span style="color: #98c379;">"%H:%M"</span>))))
 </pre>
 </div>
 </div>
@@ -1281,23 +1285,23 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-date</span> (arg)
-  <span style="color: #8b2252;">"Insert a timestamp at the cursor position. C-u will add [] brackets."</span>
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"p"</span>)
-  (<span style="color: #a020f0;">case</span> arg
-    (4 (<span style="color: #a020f0;">if</span> (equal major-mode 'org-mode)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">insert-formatted-current-date</span> (arg)
+  <span style="color: #98c379;">"Insert a timestamp at the cursor position. C-u will add [] brackets."</span>
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"p"</span>)
+  (<span style="color: #c678dd;">case</span> arg
+    (4 (<span style="color: #c678dd;">if</span> (equal major-mode 'org-mode)
            (org-time-stamp-inactive)
-         (insert (format-time-string <span style="color: #8b2252;">"[%Y-%m-%d]"</span>))))
-    (t (insert (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>)))))
+         (insert (format-time-string <span style="color: #98c379;">"[%Y-%m-%d]"</span>))))
+    (t (insert (format-time-string <span style="color: #98c379;">"%Y-%m-%d"</span>)))))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-time</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (insert (format-time-string <span style="color: #8b2252;">"%H:%M"</span>)))
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">insert-formatted-current-time</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
+  (insert (format-time-string <span style="color: #98c379;">"%H:%M"</span>)))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-signature</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (insert (concat (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>) <span style="color: #8b2252;">"  "</span> user-full-name
-                  <span style="color: #8b2252;">"  &lt;"</span> user-mail-address <span style="color: #8b2252;">"&gt;"</span>)))
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">insert-formatted-signature</span> ()
+  (<span style="color: #c678dd;">interactive</span>)
+  (insert (concat (format-time-string <span style="color: #98c379;">"%Y-%m-%d"</span>) <span style="color: #98c379;">"  "</span> user-full-name
+                  <span style="color: #98c379;">"  &lt;"</span> user-mail-address <span style="color: #98c379;">"&gt;"</span>)))
 </pre>
 </div>
 </div>
@@ -1306,8 +1310,8 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h4 id="org74fab35b"><span class="section-number-4">1.29.1</span> キーバインド</h4>
 <div class="outline-text-4" id="text-org74fab35b">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c 0"</span>) 'insert-formatted-current-date)
-(global-set-key (kbd <span style="color: #8b2252;">"C-c 9"</span>) 'insert-formatted-current-time)
+<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #98c379;">"C-c 0"</span>) 'insert-formatted-current-date)
+(global-set-key (kbd <span style="color: #98c379;">"C-c 9"</span>) 'insert-formatted-current-time)
 </pre>
 </div>
 </div>
@@ -1327,44 +1331,44 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">org-att-global-directory</span> <span style="color: #8b2252;">"~/Dropbox/org/attachment/"</span>)
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">copy-file-with-uuid</span> (input)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"FFile name: "</span>)
-  (<span style="color: #a020f0;">if</span> (file-exists-p input)
-      (<span style="color: #a020f0;">let*</span> ((id (org-id-uuid))
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">org-att-global-directory</span> <span style="color: #98c379;">"~/Dropbox/org/attachment/"</span>)
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">copy-file-with-uuid</span> (input)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"FFile name: "</span>)
+  (<span style="color: #c678dd;">if</span> (file-exists-p input)
+      (<span style="color: #c678dd;">let*</span> ((id (org-id-uuid))
              (filename (expand-file-name input))
              (directory (file-name-directory filename))
              (extension (file-name-extension filename))
-             (output (concat org-att-global-directory id <span style="color: #8b2252;">"."</span> extension)))
+             (output (concat org-att-global-directory id <span style="color: #98c379;">"."</span> extension)))
         (copy-file filename output)
-        (message <span style="color: #8b2252;">"--- Copied as %s "</span> output)
+        (message <span style="color: #98c379;">"--- Copied as %s "</span> output)
         output)
-    (message <span style="color: #8b2252;">"--- %s does NOT exist."</span> input)
+    (message <span style="color: #98c379;">"--- %s does NOT exist."</span> input)
     nil))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">rename-file-with-uuid</span> (input)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"FFile name: "</span>)
-  (<span style="color: #a020f0;">if</span> (file-exists-p input)
-      (<span style="color: #a020f0;">let*</span> ((id (org-id-uuid))
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">rename-file-with-uuid</span> (input)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"FFile name: "</span>)
+  (<span style="color: #c678dd;">if</span> (file-exists-p input)
+      (<span style="color: #c678dd;">let*</span> ((id (org-id-uuid))
              (filename (expand-file-name input))
              (directory (file-name-directory filename))
              (extension (file-name-extension filename))
-             (output (concat directory id <span style="color: #8b2252;">"."</span> extension)))
+             (output (concat directory id <span style="color: #98c379;">"."</span> extension)))
         (rename-file filename output)
-        (message <span style="color: #8b2252;">"--- Renamed as %s "</span> output)
+        (message <span style="color: #98c379;">"--- Renamed as %s "</span> output)
         output)
-    (message <span style="color: #8b2252;">"--- %s does NOT exist."</span> input)
+    (message <span style="color: #98c379;">"--- %s does NOT exist."</span> input)
     nil))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">org-link-uuid</span> (input <span style="color: #228b22;">&amp;optional</span> overwrite)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"FFile name: "</span>)
-  (<span style="color: #a020f0;">let</span> ((output
-         (<span style="color: #a020f0;">if</span> overwrite
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">org-link-uuid</span> (input <span style="color: #CFCB90;">&amp;optional</span> overwrite)
+  (<span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"FFile name: "</span>)
+  (<span style="color: #c678dd;">let</span> ((output
+         (<span style="color: #c678dd;">if</span> overwrite
              (rename-file-with-uuid input)
            (copy-file-with-uuid input))))
-    (<span style="color: #a020f0;">when</span> output
-      (insert (concat <span style="color: #8b2252;">"[[file+sys:"</span> output
-                      <span style="color: #8b2252;">"]["</span> (file-name-base input) <span style="color: #8b2252;">"]]\n"</span>)))))
+    (<span style="color: #c678dd;">when</span> output
+      (insert (concat <span style="color: #98c379;">"[[file+sys:"</span> output
+                      <span style="color: #98c379;">"]["</span> (file-name-base input) <span style="color: #98c379;">"]]\n"</span>)))))
 </pre>
 </div>
 </div>
@@ -1374,9 +1378,9 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h3 id="orgbdeca93a"><span class="section-number-3">2.2</span> byte-compile の警告を抑制する</h3>
 <div class="outline-text-3" id="text-orgbdeca93a">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Avoid warning (for sense-region)</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">Warning: 'mapcar' called for effect; use 'mapc' or 'dolist' insted</span>
-(<span style="color: #a020f0;">setq</span> byte-compile-warnings
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Avoid warning (for sense-region)</span>
+<span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Warning: 'mapcar' called for effect; use 'mapc' or 'dolist' insted</span>
+(<span style="color: #c678dd;">setq</span> byte-compile-warnings
       '(free-vars unresolved callargs redefine obsolete noruntime
       cl-functions interactive-only make-local))
 </pre>
@@ -1397,34 +1401,34 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">In my-window-resizer:
-utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</span>' is an obsolete variable (as of
-    Emacs at least 19.34)<span style="color: #b22222;">; </span><span style="color: #b22222;">use `</span><span style="color: #008b8b;">last-command-event</span><span style="color: #b22222;">' instead.</span>
+utility.el:333:23:Warning: `<span style="color: #d19a66;">last-command-char</span>' is an obsolete variable (as of
+    Emacs at least 19.34)<span style="color: #5C6370;">; </span><span style="color: #5C6370;">use `</span><span style="color: #d19a66;">last-command-event</span><span style="color: #5C6370;">' instead.</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-window-resizer</span> ()
-  <span style="color: #8b2252;">"Control separated window size and position.</span>
-<span style="color: #8b2252;">   Type {j,k,l,m} to adjust windows size."</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">let</span> (
-<span style="color: #b22222;">;;        </span><span style="color: #b22222;">(window-obj (selected-window))</span>
-<span style="color: #b22222;">;;        </span><span style="color: #b22222;">(current-width (window-width))</span>
-<span style="color: #b22222;">;;        </span><span style="color: #b22222;">(current-height (window-height))</span>
-        (dx (<span style="color: #a020f0;">if</span> (= (nth 0 (window-edges)) 0) 1
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;;;</span><span style="color: #5C6370;">###</span><span style="color: #ff982d; font-weight: bold;">autoload</span>
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-window-resizer</span> ()
+  <span style="color: #98c379;">"Control separated window size and position.</span>
+<span style="color: #98c379;">   Type {j,k,l,m} to adjust windows size."</span>
+  (<span style="color: #c678dd;">interactive</span>)
+  (<span style="color: #c678dd;">let</span> (
+<span style="color: #5C6370;">;;        </span><span style="color: #5C6370;">(window-obj (selected-window))</span>
+<span style="color: #5C6370;">;;        </span><span style="color: #5C6370;">(current-width (window-width))</span>
+<span style="color: #5C6370;">;;        </span><span style="color: #5C6370;">(current-height (window-height))</span>
+        (dx (<span style="color: #c678dd;">if</span> (= (nth 0 (window-edges)) 0) 1
               -1))
-        (dy (<span style="color: #a020f0;">if</span> (= (nth 1 (window-edges)) 0) 1
+        (dy (<span style="color: #c678dd;">if</span> (= (nth 1 (window-edges)) 0) 1
               -1))
         action c)
-    (<span style="color: #a020f0;">catch</span> '<span style="color: #008b8b;">end-flag</span>
-      (<span style="color: #a020f0;">while</span> t
-        (<span style="color: #a020f0;">setq</span> action
-              (read-key-sequence-vector (format <span style="color: #8b2252;">"size[%dx%d]"</span>
+    (<span style="color: #c678dd;">catch</span> '<span style="color: #d19a66;">end-flag</span>
+      (<span style="color: #c678dd;">while</span> t
+        (<span style="color: #c678dd;">setq</span> action
+              (read-key-sequence-vector (format <span style="color: #98c379;">"size[%dx%d]"</span>
                                                 (window-width)
                                                 (window-height))))
-        (<span style="color: #a020f0;">setq</span> c (aref action 0))
-        (<span style="color: #a020f0;">cond</span> ((= c ?l)
+        (<span style="color: #c678dd;">setq</span> c (aref action 0))
+        (<span style="color: #c678dd;">cond</span> ((= c ?l)
                (enlarge-window-horizontally dx))
               ((= c ?h)
                (shrink-window-horizontally dx))
@@ -1432,14 +1436,14 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
                (enlarge-window dy))
               ((= c ?k)
                (shrink-window dy))
-              <span style="color: #b22222;">;; </span><span style="color: #b22222;">otherwise</span>
+              <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">otherwise</span>
               (t
-               (<span style="color: #a020f0;">let</span> ((last-command-event (aref action 0))
+               (<span style="color: #c678dd;">let</span> ((last-command-event (aref action 0))
                      (command (key-binding action)))
-                 (<span style="color: #a020f0;">when</span> command
+                 (<span style="color: #c678dd;">when</span> command
                    (call-interactively command)))
-               (message <span style="color: #8b2252;">"Quit"</span>)
-               (<span style="color: #a020f0;">throw</span> '<span style="color: #008b8b;">end-flag</span> t)))))))
+               (message <span style="color: #98c379;">"Quit"</span>)
+               (<span style="color: #c678dd;">throw</span> '<span style="color: #d19a66;">end-flag</span> t)))))))
 </pre>
 </div>
 </div>
@@ -1449,7 +1453,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 <h3 id="org54f46ec1"><span class="section-number-3">2.4</span> [idle-requie]</h3>
 <div class="outline-text-3" id="text-org54f46ec1">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">idle-require</span>)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">idle-require</span>)
 (idle-require-mode 1)
 </pre>
 </div>
@@ -1460,7 +1464,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 <h3 id="org22e29aa4"><span class="section-number-3">2.5</span> [pdf-preview]</h3>
 <div class="outline-text-3" id="text-org22e29aa4">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">pdf-preview</span>)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">pdf-preview</span>)
 </pre>
 </div>
 </div>
@@ -1470,7 +1474,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 <h3 id="orge6a31c57"><span class="section-number-3">2.6</span> [EasyPG]</h3>
 <div class="outline-text-3" id="text-orge6a31c57">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">epa-setup</span> nil t)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">epa-setup</span> nil t)
   (epa-file-enable))
 </pre>
 </div>
@@ -1481,14 +1485,14 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 <h3 id="org1495619c"><span class="section-number-3">2.7</span> [eblook]</h3>
 <div class="outline-text-3" id="text-org1495619c">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">eblook</span>
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">eblook</span> nil t)
-  (autoload 'edict-search-english <span style="color: #8b2252;">"edic"</span>
-    <span style="color: #8b2252;">"Search for a translation of an English word"</span> t)
-  (autoload 'edict-search-kanji <span style="color: #8b2252;">"edict"</span>
-    <span style="color: #8b2252;">"Search for a translation of a Kanji sequence"</span> t)
-  (<span style="color: #a020f0;">setq</span> *edict-files* '(<span style="color: #8b2252;">"/Users/taka/Dropbox/Dic/LDOCE4"</span>))
-  (<span style="color: #a020f0;">setq</span> *edict-files* '(<span style="color: #8b2252;">"/Users/taka/Downloads/edict/edict"</span>)))
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">eblook</span>
+(<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">eblook</span> nil t)
+  (autoload 'edict-search-english <span style="color: #98c379;">"edic"</span>
+    <span style="color: #98c379;">"Search for a translation of an English word"</span> t)
+  (autoload 'edict-search-kanji <span style="color: #98c379;">"edict"</span>
+    <span style="color: #98c379;">"Search for a translation of a Kanji sequence"</span> t)
+  (<span style="color: #c678dd;">setq</span> *edict-files* '(<span style="color: #98c379;">"/Users/taka/Dropbox/Dic/LDOCE4"</span>))
+  (<span style="color: #c678dd;">setq</span> *edict-files* '(<span style="color: #98c379;">"/Users/taka/Downloads/edict/edict"</span>)))
 </pre>
 </div>
 </div>
@@ -1502,7 +1506,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">list-buffers</span> 'ibuffer)
+<pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defalias</span> '<span style="color: #61afef;">list-buffers</span> 'ibuffer)
 </pre>
 </div>
 </div>
@@ -1512,12 +1516,12 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 <h3 id="orgafde656e"><span class="section-number-3">2.9</span> キーバインド</h3>
 <div class="outline-text-3" id="text-orgafde656e">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Multiple combination</span>
-<span style="color: #b22222;">; </span><span style="color: #b22222;">Editing with a rectangle region</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-x r C-SPC"</span>) 'rm-set-mark)
-(global-set-key (kbd <span style="color: #8b2252;">"C-x r C-x"</span>) 'rm-exchange-point-and-mark)
-(global-set-key (kbd <span style="color: #8b2252;">"C-x r C-w"</span>) 'rm-kill-region)
-(global-set-key (kbd <span style="color: #8b2252;">"C-x r M-w"</span>) 'rm-kill-ring-save)
+<pre class="src src-emacs-lisp"><span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Multiple combination</span>
+<span style="color: #5C6370;">; </span><span style="color: #5C6370;">Editing with a rectangle region</span>
+(global-set-key (kbd <span style="color: #98c379;">"C-x r C-SPC"</span>) 'rm-set-mark)
+(global-set-key (kbd <span style="color: #98c379;">"C-x r C-x"</span>) 'rm-exchange-point-and-mark)
+(global-set-key (kbd <span style="color: #98c379;">"C-x r C-w"</span>) 'rm-kill-region)
+(global-set-key (kbd <span style="color: #98c379;">"C-x r M-w"</span>) 'rm-kill-ring-save)
 </pre>
 </div>
 </div>
@@ -1535,7 +1539,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-09-18 Wed 18:37</p>
+<p class="date">Created: 2019-10-25 Fri 22:26</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -3,7 +3,13 @@
 (setq gc-cons-threshold (* 256 1024 1024))
 (setq garbage-collection-messages t)
 
-(require 'org nil t)
+;; for init-dired.el and late-init.el
+(require 'hydra nil t)
+
+;; for late-init.el
+(require 'mic-paren)
+(require 'dash nil t) ;; for counsel-flycheck-action
+(require 'shut-up nil t)
 (require 'fringe-helper nil t)
 
 (when nil

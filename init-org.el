@@ -177,17 +177,17 @@
     (add-to-list 'org-modules 'ox-org)
     (add-to-list 'org-modules 'ox-json))
 
-  (with-eval-after-load "org-tempo"
-    ;; 空行のときインデントさせない（Thanks to @conao3）
-    (when (require 'cl nil t)
-      (defun ad:org-tempo-complete-tag (f &rest arg)
-        (if (save-excursion
-              (beginning-of-line)
-              (looking-at "<"))
-            (flet ((indent-according-to-mode () #'ignore))
-              (apply f arg))
-          (apply f arg)))
-      (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
+  ;; (with-eval-after-load "org-tempo"
+  ;;   ;; 空行のときインデントさせない（Thanks to @conao3）
+  ;;   (when (require 'cl nil t)
+  ;;     (defun ad:org-tempo-complete-tag (f &rest arg)
+  ;;       (if (save-excursion
+  ;;             (beginning-of-line)
+  ;;             (looking-at "<"))
+  ;;           (flet ((indent-according-to-mode () #'ignore))
+  ;;             (apply f arg))
+  ;;         (apply f arg)))
+  ;;     (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
 
   (with-eval-after-load "org-clock"
     ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
@@ -322,21 +322,28 @@
       (if (not (org-entry-is-done-p))
           (message "The state of the entry is not \"DONE\" yet.")
         (org-hugo-export-wim-to-md)
-        (message "[ox-hugo] \"%s\" has been exported."
-                 (nth 4 (org-heading-components)))
         (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
-              (filename (org-entry-get (point) "EXPORT_FILE_NAME")))
+              (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
+              (exported (format "[ox-hugo] \"%s\" has been exported."
+                                (nth 4 (org-heading-components)))))
           (when filename
             (save-excursion
               (save-restriction
                 (outline-up-heading 1)
                 (setq filename
                       (concat (nth 4 (org-heading-components)) "/" filename))
-                (setq command (concat command " -e" (downcase filename))))))
-          (if (require 'async nil t)
-              (async-start
-               `(lambda () (shell-command-to-string ',command)))
-            (shell-command-to-string command))))))
+                (setq command (concat command " -e" (downcase filename)))))
+            (if (require 'async nil t)
+                (progn
+                  (message "%s\n[async] Uploading..." exported)
+                  (async-start
+                   `(lambda () (shell-command-to-string ',command))
+                   `(lambda (result)
+                      (message "%s\n[async] Uploading...%s"
+                               ',exported (when result "done") ))))
+              (message "%s\nUploading..." exported)
+              (shell-command-to-string command)
+              (message "%s\nUploading...done" exported)))))))
 
   ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
   (defun my-org-deadline-today ()

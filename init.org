@@ -56,6 +56,7 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 ** init.el のヘッダ
    :PROPERTIES:
    :CUSTOM_ID: org2db575a1
+   :ID:       27B3BE38-1E7D-42B6-966A-189F6551BC1C
    :END:
 
 #+begin_src emacs-lisp :tangle yes
@@ -70,9 +71,10 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
   (require 'late-init nil t)
   (require 'init-org nil t)) ;; loading all with-eval-after-load for Org
 
-(with-eval-after-load "org"
-  (require 'postpone nil t)
-  (require 'init-org nil t))
+(unless noninteractive
+  (with-eval-after-load "org"
+    (require 'postpone nil t)
+    (require 'init-org nil t)))
 #+end_src
 
 ** initファイルの読み込み時間計測
@@ -187,6 +189,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 ** GCサイズの最適化
    :PROPERTIES:
    :CUSTOM_ID: org4c3e9f59
+   :ID:       8463AEF0-63CF-4088-83A6-C6DC8B67A209
    :END:
 
 起動時に発生するガベージコレクトを防きます．起動後に使用しているメモリサイズを超えていれば良さ気． =garbage-collection-messages= を設定しておくと，ガベージコレクトが生じる時にメッセージが出るようになります．
@@ -218,7 +221,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done ~/Dropbox/emacs.d/config/init.el
 #+end_src
 
-これなら =init.el= に =eval-when-compile= を書くのと同じに見えますが，そうしてしまうと，バイトコンパイルしない状態の =init.el= を読み込むと， =eval-when-compile= の中身がすべて実行されてしまい，起動が重くなってしまいます．
+これなら =init.el= に =eval-when-compile= を書くのと同じに見えますが，そうしてしまうと，バイトコンパイルしない状態の =init.el= を読み込む場合に， =eval-when-compile= の中身がすべて実行されてしまい，起動が重くなってしまいます．
 
 そもそも =init.org= を編集対象にしていて， =init.el= を手動でバイトコンパイルすることはないので，私のフローには合っています.
 
@@ -258,6 +261,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 ** バッファの保存を静かにする
    :PROPERTIES:
    :CUSTOM_ID: org8d718626
+   :ID:       84B99D6E-0F89-418C-AF32-94383DFF8BB0
    :END:
 
 ビルトインの =file.el= にある変数を使うと，バッファ保存時に表示されるメッセージが減り "Saving file ..." がメッセージバッファに記録されなくなります．バッファ保存時以外で，メッセージ出力を抑制したい場合は， =shut-up.el= が便利です．
@@ -403,7 +407,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． =run-at-time= が想定通りに動かず，起動時に =run-at-time= に登録した関数が走ってしまうので，この判定が =non-nil= の時だけタイマー登録します． =time= を ~HH:MM~ の書式で与えます．指定時刻と現在時刻が同じ場合は，過去とみなします．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle yes
 (defun future-time-p (time)
   "Return non-nil if provided TIME formed of \"10:00\" is the future time."
   (not (time-less-p
@@ -482,17 +486,17 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 ** [shut-up.el] Messages 出力を封じる（制御する）
    :PROPERTIES:
    :CUSTOM_ID: orgfca510d8
+   :ID:       C1B4615C-E675-4763-943A-29CE63031911
    :END:
 
 =shut-up.el= というマクロがあり，現在はそちらを使っています．非常に強力です．
 
  - [[https://github.com/cask/shut-up][cask/shut-up: Emacs, shut up would you!]]
 
-#+begin_src emacs-lisp :tangle yes
-(defvar shutup-p nil)
-(with-eval-after-load "postpone"
-  (setq shutup-p (when (require 'shut-up nil t) t)))
+#+begin_src emacs-lisp :tangle late-init.el
 (setq message-log-max 5000) ;; メッセージバッファの長さ
+(defvar shutup-p nil)
+(setq shutup-p (when (require 'shut-up nil t) t))
 #+end_src
 
 *** with-suppressed-message                                        :notinuse:
@@ -685,6 +689,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．
 ** 言語／文字コード
    :PROPERTIES:
    :CUSTOM_ID: org218fe598
+   :ID:       C229A84D-76F2-47D9-9CA0-58E32AA4893F
    :END:
 
 徹底的にUTF-8に合わせます．
@@ -1152,8 +1157,9 @@ echo "--- done."
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (fboundp 'pixel-scroll-mode)
-  (pixel-scroll-mode 1)) ;; 26.1
+(unless noninteractive
+  (when (fboundp 'pixel-scroll-mode)
+    (pixel-scroll-mode 1))) ;; 26.1
 #+end_src
 
 ** デフォルトディレクトリ
@@ -1420,7 +1426,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   (when (boundp 'mac-win-apply-org-heading-face)
     (setq mac-win-apply-org-heading-face t))
 
-  (mac-auto-ascii-mode 1))
+  (unless noninteractive
+    (mac-auto-ascii-mode 1)))
 #+end_src
 
 * カーソル移動
@@ -1569,7 +1576,8 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'ah nil t)
   (setq ah-lighter "")
-  (ah-mode 1))
+  (unless noninteractive
+    (ah-mode 1)))
 #+end_src
 
 ** [smooth-scroll.el] 滑らかなスクロール
@@ -1786,6 +1794,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 ** [syntax-subword.el] M-f で移動する位置をより密にする
    :PROPERTIES:
    :CUSTOM_ID: orgf75f443a
+   :ID:       DB6C1841-0CF4-4FF4-A4F7-93D414FAA6DC
    :END:
 
   - https://bitbucket.org/jpkotta/syntax-subword
@@ -3792,6 +3801,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 ** 行番号をバッファに表示する
    :PROPERTIES:
    :CUSTOM_ID: orga76ec530
+   :ID:       1B7BBAA6-717E-409C-AFFB-64E45A6301A2
    :END:
 
 Emacs Version 26.1 からネイティブ実装に切り替わった =display-line-numbers.el= を使います．普段は使わないので，必要に応じてグローバルにトグルできるようにしてあります．現在行の番号について =face= を変更したい場合は， =line-number-current-line= をカスタマイズすればOKです．
@@ -3840,6 +3850,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 ** 対応するカッコをハイライトする
    :PROPERTIES:
    :CUSTOM_ID: orga734802e
+   :ID:       8940C8A1-51E4-4A44-8A88-76AFAD1DA36A
    :END:
 
 Built-in の paren.el が利用できる．拡張版として [[http://www.emacswiki.org/emacs/mic-paren.el][mic-paren.el]] があり，現在はこれを利用している．
@@ -3927,18 +3938,20 @@ paren.el の場合は以下の設定．
 ** バッファの終わりをフリンジで明示
    :PROPERTIES:
    :CUSTOM_ID: orgc93741fa
+   :ID:       05992E10-9233-452C-A129-002189420F99
    :END:
 
 以下の設定では，ウィンドウ以下にバッファが続いているかを表す矢印と，続いていないことを示すカギカッコをフリンジに表示します．
 
 #+begin_src emacs-lisp :tangle yes
 (setq-default indicate-buffer-boundaries
-              '((top . nil) (bottom . right) (down . right)))
+              '((top . nil) (bottom . right) (down . left)))
 #+end_src
 
 ** 文字エンコードの表示を明確化
    :PROPERTIES:
    :CUSTOM_ID: orgec7835e0
+   :ID:       4E842955-A61A-49B4-A37F-A9E89022C827
    :END:
 
 デフォルトの表示は略されすぎていてわかりにくいので，表示内容を具体化します．
@@ -4494,6 +4507,7 @@ ivyに移行しました．
 ** [ivy.el] 続々・何でも絞り込みインターフェイス
    :PROPERTIES:
    :CUSTOM_ID: orgfa7d126f
+   :ID:       02012E72-FBF3-4FDF-8B3C-08C40F1F6140
    :END:
 
 ~helm~ から ~ivy~ に乗り換えました．移行話は Qiita で（長編）記事にしました．
@@ -4502,15 +4516,17 @@ ivyに移行しました．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(ivy-dispatching-done-hydra)
+       '(ivy-hydra-read-action)
        "ivy-hydra" nil t)
 
-  (with-eval-after-load "ivy-hydra"
-    (defun ad:ivy-dispatching-done-hydra (f)
-      (when (> ivy--length 0)
-        (funcall f)))
-    (advice-add 'ivy-dispatching-done-hydra
-                :around #'ad:ivy-dispatching-done-hydra)))
+  ;; ivy-dispatching-done-hydra was depreciated in ivy 0.13
+  ;; (with-eval-after-load "ivy-hydra"
+  ;;   (defun ad:ivy-dispatching-done-hydra (f)
+  ;;     (when (> ivy--length 0)
+  ;;       (funcall f)))
+  ;;   (advice-add 'ivy-dispatching-done-hydra
+  ;;               :around #'ad:ivy-dispatching-done-hydra))
+  )
 
 (when (autoload-if-found
        '(counsel-ibuffer counsel-M-x counsel-yank-pop)
@@ -4524,15 +4540,19 @@ ivyに移行しました．
   (with-eval-after-load "ivy"
 
     ;; M-o を ivy-dispatching-done-hydra に割り当てる．
-    (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
+    ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
     ;; ivy-dispatching-done を使う．
     ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done)
+    (setq ivy-read-action-function #'ivy-hydra-read-action)
 
     (setq ivy-use-virtual-buffers t)
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
 
+    (ivy-mode 1))
+
+  (with-eval-after-load "counsel"
     ;; counsel-M-x, see also prescient.el section
     (setq ivy-initial-inputs-alist
           '((org-agenda-refile . "^")
@@ -4541,10 +4561,6 @@ ivyに移行しました．
             (counsel-describe-variable . "^")
             (Man-completion-table . "^")
             (woman . "^")))
-
-    (ivy-mode 1))
-
-  (with-eval-after-load "counsel"
 
     (when (require 'smex nil t)
       (setq smex-history-length 35)
@@ -4690,6 +4706,7 @@ ivyに移行しました．
 ** TODO [yascroll.el] フリンジにスクロールバーを出す
    :PROPERTIES:
    :CUSTOM_ID: org7270262d
+   :ID:       D45326CE-B305-48C6-84F0-0F7BF65F9A38
    :END:
 
 =yascroll= を使います．
@@ -4785,6 +4802,7 @@ ivyに移行しました．
 
   (with-eval-after-load "hydra"
     (require 'org nil t)
+    (require 'hydra nil t)
     (custom-set-faces
      '(hydra-face-blue
        ((((background light))
@@ -5425,6 +5443,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 ** 最近開いたファイルリストを保持
    :PROPERTIES:
    :CUSTOM_ID: orgf2cd8961
+   :ID:       11929DC8-1129-413D-A87E-5E5DE4E66332
    :END:
 
 Built-in の [[http://www.emacswiki.org/emacs/RecentFiles][recentf.el]] を使う．
@@ -5510,9 +5529,13 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 =C-g= でカーソルが飛んだ時，元の場所へブックマークから戻れます．
 
+ - [[https://pxaka.tokyo/blog/2019/7f6518aa-bab0-91a4-53b3-ba3b8f02a481/][C-g した場所をブックマークする - imadenale]]
+
 #+begin_src emacs-lisp :tangle late-init.el
 (defvar my-cg-bookmark "c-g-point-last")
-(defun my-cg-bookmark () (bookmark-set my-cg-bookmark))
+(defun my-cg-bookmark ()
+  (when buffer-file-name
+    (bookmark-set my-cg-bookmark)))
 (when (require 'ah nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 #+end_src
@@ -6466,6 +6489,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 ** [flycheck.el] 構文エラー表示
    :PROPERTIES:
    :CUSTOM_ID: org966da7c1
+   :ID:       0A7A8647-9796-4C64-8E47-0414C2C07A7A
    :END:
 
   - auto-complete より前に hook設定しておくと余計なエラーが出ないようです．
@@ -6498,6 +6522,11 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
     (defvar counsel-flycheck-history nil
       "History for `counsel-flycheck'")
 
+    (defun counsel-flycheck-action (obj &rest _)
+      (-when-let* ((error (get-text-property 0 'tabulated-list-id obj))
+                   (pos (flycheck-error-pos error)) )
+        (goto-char (flycheck-error-pos error))))
+
     (defun counsel-flycheck ()
       (interactive)
       (if (not (bound-and-true-p flycheck-mode))
@@ -6515,10 +6544,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
                       (flycheck-error-list-reset-filter)
                       (revert-buffer t t t)
                       (split-string (buffer-string) "\n" t " *")))
-                  :action (lambda (s &rest _)
-                            (-when-let* ( (error (get-text-property 0 'tabulated-list-id s))
-                                          (pos (flycheck-error-pos error)) )
-                              (goto-char (flycheck-error-pos error))))
+                  :action 'counsel-flycheck-action ;; (lambda (s &rest _))
                   :history 'counsel-flycheck-history
                   :caller 'counsel-flycheck)))
     ))
@@ -6530,6 +6556,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 ** [origami.el] 関数の折りたたみ
    :PROPERTIES:
    :CUSTOM_ID: org2bf4fb77
+   :ID:       CFFB7347-95F2-4B68-87AE-1311BFB614C2
    :END:
 
   - =hideshowvis.el= よりも軽い印象なので，現在は =origami.el= を使用中．
@@ -6887,6 +6914,7 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
 ** TODO [EditorConfig] コードスタイルの強制
    :PROPERTIES:
    :CUSTOM_ID: orgaa25b74c
+   :ID:       6835652E-FAC1-49B6-9D15-791AB574CF62
    :END:
 
   - [[http://editorconfig.org/#contributing][EditorConfig]]
@@ -7318,17 +7346,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (add-to-list 'org-modules 'ox-org)
     (add-to-list 'org-modules 'ox-json))
 
-  (with-eval-after-load "org-tempo"
-    ;; 空行のときインデントさせない（Thanks to @conao3）
-    (when (require 'cl nil t)
-      (defun ad:org-tempo-complete-tag (f &rest arg)
-        (if (save-excursion
-              (beginning-of-line)
-              (looking-at "<"))
-            (flet ((indent-according-to-mode () #'ignore))
-              (apply f arg))
-          (apply f arg)))
-      (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
+  ;; (with-eval-after-load "org-tempo"
+  ;;   ;; 空行のときインデントさせない（Thanks to @conao3）
+  ;;   (when (require 'cl nil t)
+  ;;     (defun ad:org-tempo-complete-tag (f &rest arg)
+  ;;       (if (save-excursion
+  ;;             (beginning-of-line)
+  ;;             (looking-at "<"))
+  ;;           (flet ((indent-according-to-mode () #'ignore))
+  ;;             (apply f arg))
+  ;;         (apply f arg)))
+  ;;     (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
 
   (with-eval-after-load "org-clock"
     ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
@@ -7359,6 +7387,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 ** iCal との連携
    :PROPERTIES:
    :CUSTOM_ID: org4da0cefd
+   :ID:       0CA19632-E3F9-4152-B883-C0992E306D0D
    :END:
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -7488,21 +7517,28 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (if (not (org-entry-is-done-p))
           (message "The state of the entry is not \"DONE\" yet.")
         (org-hugo-export-wim-to-md)
-        (message "[ox-hugo] \"%s\" has been exported."
-                 (nth 4 (org-heading-components)))
         (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
-              (filename (org-entry-get (point) "EXPORT_FILE_NAME")))
+              (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
+              (exported (format "[ox-hugo] \"%s\" has been exported."
+                                (nth 4 (org-heading-components)))))
           (when filename
             (save-excursion
               (save-restriction
                 (outline-up-heading 1)
                 (setq filename
                       (concat (nth 4 (org-heading-components)) "/" filename))
-                (setq command (concat command " -e" (downcase filename))))))
-          (if (require 'async nil t)
-              (async-start
-               `(lambda () (shell-command-to-string ',command)))
-            (shell-command-to-string command))))))
+                (setq command (concat command " -e" (downcase filename)))))
+            (if (require 'async nil t)
+                (progn
+                  (message "%s\n[async] Uploading..." exported)
+                  (async-start
+                   `(lambda () (shell-command-to-string ',command))
+                   `(lambda (result)
+                      (message "%s\n[async] Uploading...%s"
+                               ',exported (when result "done") ))))
+              (message "%s\nUploading..." exported)
+              (shell-command-to-string command)
+              (message "%s\nUploading...done" exported)))))))
 
   ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
   (defun my-org-deadline-today ()
@@ -7827,6 +7863,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
    :PROPERTIES:
    :CUSTOM_ID: orga3d0c218
    :CREATED:  [2019-10-01 Thu 14:25]
+   :ID:       1EC54815-CC7C-4D67-9C1C-31D677502262
    :END:
 
 =eldoc= の機能を使うと簡単にできます．
@@ -9014,6 +9051,7 @@ Note that this mechanism is still under consideration."
 ** [ox-html] HTML見出しへのリンクを固定する
    :PROPERTIES:
    :CUSTOM_ID: org32e931e3
+   :ID:       8D7BE7EE-3B7C-46C9-90D9-AE5508A68482
    :END:
 
 標準の設定でHTMLを出力すると，各見出しへのリンクとして =org0123456= のようなIDが振られる．しかしそれらのIDは，HTMLを出力するたびに更新されるため，出力したHTMLの見出しをパーマリンクとして使用できない．これを防ぐためには，プロパティで =CUSTOM_ID= を指定する必要がある．
@@ -9088,9 +9126,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (message "====\ninput:\t%s\noutput:\t%s" prev new)))
     (message "--- done.")))
 #+end_src
-
-#+RESULTS:
-: my-convert-md-link-to-html
 
 ** [org-id.el] プロパティに ID を入れる
    :PROPERTIES:
@@ -9720,6 +9755,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ** 起動時の設定
    :PROPERTIES:
    :CUSTOM_ID: orgd05fc75a
+   :ID:       4A60D259-5D38-4D7B-97B8-0FBFA7219F7C
    :END:
 
 #+begin_src emacs-lisp :tangle yes
@@ -9776,22 +9812,28 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (defconst my-cursor-type-ime-off '(bar . 2))
 (defvar my-ime-last nil)
 
+(defun my-ime-active-p () (if current-input-method t nil))
+(defun my-ime-on-cursor ()
+  (interactive)
+  (setq cursor-type my-cursor-type-ime-on)
+  (set-cursor-color my-cursor-color-ime-on))
+(defun my-ime-off-cursor ()
+  (interactive)
+  (setq cursor-type my-cursor-type-ime-off)
+  (set-cursor-color my-cursor-color-ime-off))
+(add-hook 'input-method-activate-hook #'my-ime-on-cursor)
+(add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
+
+(defun my-apply-cursor-config ()
+  (interactive)
+  (when (display-graphic-p)
+    (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+(my-apply-cursor-config)
+
 (when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
-  (declare-function my-apply-cursor-config "init" nil)
-  (defun my-ime-active-p ()
-    (not (string-match "\\.Roman$" (mac-get-current-input-source))))
-  (defun my-apply-cursor-config ()
-    (interactive)
-    (when (and (display-graphic-p)
-               (fboundp 'mac-get-current-input-source))
-      (if (my-ime-active-p)
-          (progn
-            (setq cursor-type my-cursor-type-ime-on)
-            (set-cursor-color my-cursor-color-ime-on))
-        (setq cursor-type my-cursor-type-ime-off)
-        (set-cursor-color my-cursor-color-ime-off))))
-  (my-apply-cursor-config)
+  ;; (defun my-ime-active-p ()
+  ;;   (not (string-match "\\.Roman$" (mac-get-current-input-source))))
   (with-eval-after-load "postpone"
     (run-with-idle-timer 3 t #'my-apply-cursor-config)))
 
@@ -9804,7 +9846,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
        "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
 
     (declare-function ad:mac-toggle-input-method "init" nil)
-    (declare-function my-apply-cursor-config "init" nil)
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)
     (declare-function my-ime-active-p "init" nil)
@@ -9918,7 +9959,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
         ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
         ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
         ;;           #'my-mac-keyboard-input-source)
-
         (declare-function my-mac-keyboard-input-source "init" nil)
         (my-mac-keyboard-input-source))))
 
@@ -9928,6 +9968,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ** 複数フレーム対応
    :PROPERTIES:
    :CUSTOM_ID: orgdffe4e49
+   :ID:       6D9194F2-4A2A-4CF5-B463-32B6C9E2F493
    :END:
 
 フレームを複数使う場合の設定です．
@@ -10450,6 +10491,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 ** カーソル行に色をつける
    :PROPERTIES:
    :CUSTOM_ID: org7858d806
+   :ID:       904FA1EC-3F16-47AA-A2A6-932F5EC84752
    :END:
 
   - ビルトインの =hl-line= を使います．
@@ -10649,10 +10691,11 @@ Linux では次のように処理するだけでよく，意外と簡単．
 ** 行間を制御する
    :PROPERTIES:
    :CUSTOM_ID: org2bcbc1db
+   :ID:       C89F3F6A-C379-4214-9398-948359F6E9B7
    :END:
 
 #+begin_src emacs-lisp :tangle yes
-(set-default 'line-spacing 0.2)
+(set-default 'line-spacing 0.3)
 #+end_src
 
 ** パッチをカラフルに表示する
@@ -10761,12 +10804,12 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ** 時間帯を指定して起動時にテーマを切り替える
    :PROPERTIES:
    :CUSTOM_ID: org7c97dce0
+   :ID:       CC366389-DA7F-4E55-B8BA-21D327FA64C5
    :END:
 
 次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
 
 #+begin_src emacs-lisp :tangle yes
-(declare-function my-apply-cursor-config "init" nil)
 (declare-function my-font-config "init" nil)
 (defun my-night-time-p (begin end)
   (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
@@ -11469,6 +11512,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ** [lingr.el] チャットルームに自動参加
    :PROPERTIES:
    :CUSTOM_ID: org71c49002
+   :ID:       CF4695C9-5A8E-4295-ACD5-24B43A83C841
    :END:
 
 init.el読書会が毎週土曜日の23時に開催されています．作業に集中していると，ついつい忘れてしまうので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルに記載しています．

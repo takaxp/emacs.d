@@ -264,12 +264,7 @@
     (el-get-bundle "tarsius/hl-todo")
     (el-get-bundle "kiennq/emacs-mini-modeline")
     ;; (el-get-bundle "emacsmirror/minibuffer-line")
-    (el-get-bundle "jackkamm/undo-propose-el"
-                   :name undo-propose
-                   :branch "org-clock-integrations")
-    ;; (el-get-bundle "takaxp/undo-propose-el"
-    ;;                :name undo-propose
-    ;;                :branch "private-patch") ;; "messages"
+    (el-get-bundle "jackkamm/undo-propose-el" :name undo-propose)
     (el-get-bundle "dakra/statusbar.el" :name "statusbar")
     (el-get-bundle "zk-phi/gitmole")
     (el-get-bundle "kawabata/rot47")

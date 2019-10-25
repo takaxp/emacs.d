@@ -7,9 +7,10 @@
   (require 'late-init nil t)
   (require 'init-org nil t)) ;; loading all with-eval-after-load for Org
 
-(with-eval-after-load "org"
-  (require 'postpone nil t)
-  (require 'init-org nil t))
+(unless noninteractive
+  (with-eval-after-load "org"
+    (require 'postpone nil t)
+    (require 'init-org nil t)))
 
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
@@ -105,6 +106,19 @@
                postpone-init-time)))
   (add-hook 'pre-command-hook #'my-postpone-kicker))
 
+(defun future-time-p (time)
+  "Return non-nil if provided TIME formed of \"10:00\" is the future time."
+  (not (time-less-p
+        (apply 'encode-time
+               (let ((t1 (decode-time))
+                     (t2 (parse-time-string time)))
+                 (setf (nth 0 t1) 0)
+                 (setf (nth 1 t1) (nth 1 t2))
+                 (setf (nth 2 t1) (nth 2 t2))
+                 t1))
+        (current-time))))
+;; (when (future-time-p "10:00") (run-at-time...))
+
 (defvar window-focus-p t)
 (with-eval-after-load "postpone"
   (defun window-focus-p ()
@@ -124,11 +138,6 @@
               libraries
             (list libraries)))
     result))
-
-(defvar shutup-p nil)
-(with-eval-after-load "postpone"
-  (setq shutup-p (when (require 'shut-up nil t) t)))
-(setq message-log-max 5000) ;; メッセージバッファの長さ
 
 (my-tick-init-time "startup")
 
@@ -322,7 +331,8 @@
   (when (boundp 'mac-win-apply-org-heading-face)
     (setq mac-win-apply-org-heading-face t))
 
-  (mac-auto-ascii-mode 1))
+  (unless noninteractive
+    (mac-auto-ascii-mode 1)))
 
 (my-tick-init-time "core")
 
@@ -541,7 +551,7 @@
 (setq inhibit-default-init t)
 
 (setq-default indicate-buffer-boundaries
-              '((top . nil) (bottom . right) (down . right)))
+              '((top . nil) (bottom . right) (down . left)))
 
 (my-tick-init-time "presentation")
 
@@ -682,22 +692,27 @@
 (defconst my-cursor-type-ime-off '(bar . 2))
 (defvar my-ime-last nil)
 
+(defun my-ime-active-p () (if current-input-method t nil))
+(defun my-ime-on-cursor ()
+  (interactive)
+  (setq cursor-type my-cursor-type-ime-on)
+  (set-cursor-color my-cursor-color-ime-on))
+(defun my-ime-off-cursor ()
+  (interactive)
+  (setq cursor-type my-cursor-type-ime-off)
+  (set-cursor-color my-cursor-color-ime-off))
+(defun my-apply-cursor-config ()
+  (interactive)
+  (when (display-graphic-p)
+    (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+(my-apply-cursor-config)
+(add-hook 'input-method-activate-hook #'my-ime-on-cursor)
+(add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
+
 (when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
-  (declare-function my-apply-cursor-config "init" nil)
-  (defun my-ime-active-p ()
-    (not (string-match "\\.Roman$" (mac-get-current-input-source))))
-  (defun my-apply-cursor-config ()
-    (interactive)
-    (when (and (display-graphic-p)
-               (fboundp 'mac-get-current-input-source))
-      (if (my-ime-active-p)
-          (progn
-            (setq cursor-type my-cursor-type-ime-on)
-            (set-cursor-color my-cursor-color-ime-on))
-        (setq cursor-type my-cursor-type-ime-off)
-        (set-cursor-color my-cursor-color-ime-off))))
-  (my-apply-cursor-config)
+  ;; (defun my-ime-active-p ()
+  ;;   (not (string-match "\\.Roman$" (mac-get-current-input-source))))
   (with-eval-after-load "postpone"
     (run-with-idle-timer 3 t #'my-apply-cursor-config)))
 
@@ -710,7 +725,6 @@
        "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
 
     (declare-function ad:mac-toggle-input-method "init" nil)
-    (declare-function my-apply-cursor-config "init" nil)
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)
     (declare-function my-ime-active-p "init" nil)
@@ -824,7 +838,6 @@
         ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
         ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
         ;;           #'my-mac-keyboard-input-source)
-
         (declare-function my-mac-keyboard-input-source "init" nil)
         (my-mac-keyboard-input-source))))
 
@@ -960,7 +973,7 @@
   (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
                                   (".*Inconsolata.*" . 1.0))))) ; 0.9
 
-(set-default 'line-spacing 0.2)
+(set-default 'line-spacing 0.3)
 
 (declare-function my-daylight-theme "init" nil)
 (declare-function my-night-theme "init" nil)
@@ -1009,7 +1022,6 @@
                                      (ns-appearance . dark)))
       (run-hooks 'my-dark-theme-hook))))
 
-(declare-function my-apply-cursor-config "init" nil)
 (declare-function my-font-config "init" nil)
 (defun my-night-time-p (begin end)
   (let* ((ch (string-to-number (format-time-string "%H" (current-time))))

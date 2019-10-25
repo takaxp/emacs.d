@@ -301,9 +301,11 @@
                       " do echo -n \" \\\"$file\\\"\"; done | xargs -0"))
          (files (shell-command-to-string cmd)))
     ;; (message "%s" cmd)
-    (unless (string= files "")
+    (unless (string= (chomp files) "")
       (message "%s" (chomp files))
-      (shell-command-to-string (concat "mv -v " (chomp files) " ~/.Trash")))))
+      (let ((trash (if (eq system-type 'darwin)
+                       " ~/.Trash" "~/.local/share/Trash")))
+        (shell-command-to-string (concat "mv -v " (chomp files) trash))))))
 
 ;;;###autoload
 (defun chomp (str)
