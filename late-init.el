@@ -140,8 +140,7 @@
   (defun my-toggle-ime-ns ()
     "Toggle IME."
     (interactive)
-    (when (window-focus-p)
-      (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
+    (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
   (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
   (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
@@ -162,7 +161,7 @@
   ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
   (defun my-ns-ime-restore ()
-    "Restore the last IME status."
+    "Restore the last IME status changed in Emacs."
     (if my-ime-last (my-ime-on) (my-ime-off)))
   (add-hook 'focus-in-hook #'my-ns-ime-restore))
 
@@ -2473,16 +2472,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
             org-tree-to-indirect-buffer
             org-bookmark-jump))))
 
-;; (declare-function my-font-config "init" nil)
-(global-set-key (kbd "M-`") 'other-frame)
-(with-eval-after-load "frame"
-  (defun ad:make-frame (&optional _parameters)
-    (when (display-graphic-p)
-      (my-theme))
-    (when (require 'moom-font nil t)
-      (moom-font-resize)))
-  (advice-add 'make-frame :after #'ad:make-frame))
-
 (with-eval-after-load "moom"
   (when (require 'olivetti nil t)
     (setq olivetti-lighter nil)
@@ -2667,14 +2656,17 @@ Uses `all-the-icons-material' to fetch the icon."
      ((((background dark)) :background "#594d5d")
       (t (:background "#fff0de"))))))
 
+;; init
+(if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+
 (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)
-(add-hook 'input-method-activate-hook #'my-ime-on-hline)
-(add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
 (add-hook 'input-method-activate-hook #'my-hl-line-enable)
 (add-hook 'input-method-deactivate-hook #'my-hl-line-enable)
+(add-hook 'input-method-activate-hook #'my-ime-on-hline)
+(add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
 
 (setq blink-cursor-blinks 0)
 (setq blink-cursor-interval 0.2)

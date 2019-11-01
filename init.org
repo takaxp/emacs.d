@@ -10,6 +10,7 @@
 * はじめに
   :PROPERTIES:
   :CUSTOM_ID: orgda9120c8
+  :ID:       57829CF6-F9FB-4BFD-90C9-30548752DC36
   :END:
 
 - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://takaxp.github.io/init.html][init.html]]，[[https://github.com/takaxp/emacs.d/raw/master/init.pdf][init.pdf]]，[[https://github.com/takaxp/emacs.d/raw/master/init.odt][init.odt]] を生成しています．
@@ -23,6 +24,7 @@
 * 起動設定
   :PROPERTIES:
   :CUSTOM_ID: org2a411a2e
+  :ID:       B0B78070-30CB-4BE7-B2DB-B04446D1C3B3
   :END:
 
 基本的な設定群です．一部の関数は記述しておかないと動かない可能性があります．
@@ -723,6 +725,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．
 ** 日本語入力
    :PROPERTIES:
    :CUSTOM_ID: org08c6f620
+   :ID:       EACEA59F-BDDB-4019-A5AB-E3B2074A726B
    :END:
 
 NSビルド用のインラインパッチを適用している場合に使います．Lion でも使える自分用にカスタマイズした [[https://gist.github.com/1532344][inline-patch]] を使っています．
@@ -1234,6 +1237,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 ** NSビルド用設定                                                     :macOS:
    :PROPERTIES:
    :CUSTOM_ID: orge44eded5
+   :ID:       D73F7ECC-CFE7-4897-8A65-545C22F54279
    :END:
 
 インラインパッチの適用が前提の設定です． =M-SPC/S-SPC= で日本語IMEのON/OFFができるようになります．インラインパッチの情報はリンク先にあります．
@@ -1255,8 +1259,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
   (defun my-toggle-ime-ns ()
     "Toggle IME."
     (interactive)
-    (when (window-focus-p)
-      (if (my-ime-active-p) (my-ime-off) (my-ime-on))))
+    (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
   (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
   (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
@@ -1277,7 +1280,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
   ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
   (defun my-ns-ime-restore ()
-    "Restore the last IME status."
+    "Restore the last IME status changed in Emacs."
     (if my-ime-last (my-ime-on) (my-ime-off)))
   (add-hook 'focus-in-hook #'my-ns-ime-restore))
 #+end_src
@@ -1411,8 +1414,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
   (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
 
-  (when (boundp 'mac-win-ime-cursor-type)
-    (setq mac-win-ime-cursor-type my-cursor-type-ime-on))
+  (when (boundp 'mac-win-ime-cursor-type) ;; Need update
+    (setq mac-win-ime-cursor-type (plist-get my-cur-type-ime :on)))
   ;; minibuffer では↑の背景色を無効にする
   (when (fboundp 'mac-min--minibuffer-setup)
     (add-hook 'minibuffer-setup-hook #'mac-min--minibuffer-setup))
@@ -9806,21 +9809,22 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 
 ;; カーソルの色
-(defconst my-cursor-color-ime-on "#FF9300")
-(defconst my-cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
-(defconst my-cursor-type-ime-on '(bar . 2))
-(defconst my-cursor-type-ime-off '(bar . 2))
+(defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
+(defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2)))
 (defvar my-ime-last nil)
 
-(defun my-ime-active-p () (if current-input-method t nil))
+(defun my-ime-active-p ()
+  (if (fboundp 'mac-get-current-input-source)
+      (not (string-match "\\.Roman$" (mac-get-current-input-source)))
+    (if current-input-method t nil)))
 (defun my-ime-on-cursor ()
   (interactive)
-  (setq cursor-type my-cursor-type-ime-on)
-  (set-cursor-color my-cursor-color-ime-on))
+  (setq cursor-type (plist-get my-cur-type-ime :on))
+  (set-cursor-color (plist-get my-cur-color-ime :on)))
 (defun my-ime-off-cursor ()
   (interactive)
-  (setq cursor-type my-cursor-type-ime-off)
-  (set-cursor-color my-cursor-color-ime-off))
+  (setq cursor-type (plist-get my-cur-type-ime :off))
+  (set-cursor-color (plist-get my-cur-color-ime :off)))
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
@@ -9828,89 +9832,67 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (interactive)
   (when (display-graphic-p)
     (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+
+;; (unless (and (memq window-system '(ns mac))
+;;              noninteractive)
+;;   ;; ensure IME off when starting Emacs except macOS
+;;   (toggle-input-method)
+;;   (toggle-input-method nil nil))
+
+;; for init setup
+(setq-default cursor-type (plist-get my-cur-type-ime :on))
 (my-apply-cursor-config)
 
-(when (and (memq window-system '(ns nil))
-           (fboundp 'mac-get-current-input-source))
-  ;; (defun my-ime-active-p ()
-  ;;   (not (string-match "\\.Roman$" (mac-get-current-input-source))))
+;; could be deleted
+(when (memq window-system '(ns x))
   (with-eval-after-load "postpone"
     (run-with-idle-timer 3 t #'my-apply-cursor-config)))
 
 (with-eval-after-load "postpone"
   (cond
-   ((and (memq window-system '(ns nil))
-         (fboundp 'mac-get-current-input-source))
+   ((memq window-system '(ns x))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
        "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
 
-    (declare-function ad:mac-toggle-input-method "init" nil)
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)
     (declare-function my-ime-active-p "init" nil)
 
-    (setq my-ime-last (my-ime-active-p))
+    ;; for private patch
+    (when (boundp 'mac-ime-cursor-type)
+      (setq mac-ime-cursor-type (plist-get my-cur-type-ime :on)))
 
+    (setq my-ime-last (my-ime-active-p))
     (defun my-ime-on ()
       (interactive)
-      (when (fboundp 'mac-toggle-input-method)
-        (mac-toggle-input-method t))
-      (setq cursor-type my-cursor-type-ime-on)
-      (set-cursor-color my-cursor-color-ime-on)
+      (if (fboundp 'mac-toggle-input-method)
+          (progn
+            (mac-toggle-input-method t)
+            (run-hooks 'input-method-activate-hook))
+        (activate-input-method default-input-method))
       (setq my-ime-last t))
-
     (defun my-ime-off ()
       (interactive)
-      (when (fboundp 'mac-toggle-input-method)
-        (mac-toggle-input-method nil))
-      (setq cursor-type my-cursor-type-ime-off)
-      (set-cursor-color my-cursor-color-ime-off)
+      (if (fboundp 'mac-toggle-input-method)
+          (progn
+            (mac-toggle-input-method nil)
+            (run-hooks 'input-method-deactivate-hook))
+        (deactivate-input-method))
       (setq my-ime-last nil))
 
-    (defvar my-ime-flag nil)
-    (add-hook 'activate-mark-hook
-              (lambda ()
-                (when (setq my-ime-flag (my-ime-active-p))
-                  (my-ime-off))))
-    (add-hook 'deactivate-mark-hook
-              (lambda ()
-                (when my-ime-flag
-                  (my-ime-on))))
+    (defvar my-ime-before-action nil)
+    (defun my-ime-on-sticky ()
+      (when my-ime-before-action
+        (my-ime-on)))
+    (defun my-ime-off-sticky ()
+      (when (setq my-ime-before-action (my-ime-active-p))
+        (my-ime-off)))
 
-    ;; mac-toggle-input-method は，Emacs が非アクティブでも反応する
-    ;; (defun ad:mac-toggle-input-method (&optional arg)
-    ;;   "Run hooks when IME changes."
-    ;;   (interactive)
-    ;;   (if arg
-    ;;       (progn
-    ;;         (setq cursor-type my-cursor-type-ime-on)
-    ;;         (set-cursor-color my-cursor-color-ime-on)
-    ;;         )
-    ;;     (progn
-    ;;       (setq cursor-type my-cursor-type-ime-off)
-    ;;       (set-cursor-color my-cursor-color-ime-off)
-    ;;       )))
-    ;; (advice-add 'mac-toggle-input-method
-    ;;             :before #'ad:mac-toggle-input-method)
-
-    ;; for init setup
-    (setq-default cursor-type my-cursor-type-ime-on)
-
-    (when (boundp 'mac-ime-cursor-type) ;; private patch
-      (setq mac-ime-cursor-type my-cursor-type-ime-on))
-
-    ;; Enter minibuffer with IME-off, and resture the latest IME
-    (add-hook 'minibuffer-setup-hook
-              (lambda ()
-                (if (not (my-ime-active-p))
-                    (setq my-ime-flag nil)
-                  (setq my-ime-flag t)
-                  (my-ime-off))))
-    (add-hook 'minibuffer-exit-hook
-              (lambda ()
-                (when my-ime-flag
-                  (my-ime-on))))
+    (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+    (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+    (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
+    (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky)
 
     ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
     ;;   "Extension to find-file as before-find-file-hook."
@@ -9938,18 +9920,18 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    ;; EMP: Emacs Mac Port
    ((eq window-system 'mac)
     (when (fboundp 'mac-input-source)
-      (defun my-mac-keyboard-input-source ()
+      (defun my-mac-keyboard-input-source () ;; Need update
         (if (string-match "\\.Roman$" (mac-input-source))
             (progn
-              (setq cursor-type my-cursor-type-ime-off)
+              (setq cursor-type (plist-get my-cur-type-ime :off))
               (add-to-list 'default-frame-alist
-                           `(cursor-type . ,my-cursor-type-ime-off))
-              (set-cursor-color my-cursor-color-ime-off))
+                           `(cursor-type . ,(plist-get my-cur-type-ime :off)))
+              (set-cursor-color (plist-get my-cur-color-ime :off)))
           (progn
-            (setq cursor-type my-cursor-type-ime-on)
+            (setq cursor-type (plist-get my-cur-type-ime :on))
             (add-to-list 'default-frame-alist
-                         `(cursor-type . ,my-cursor-type-ime-on))
-            (set-cursor-color my-cursor-color-ime-on))))
+                         `(cursor-type . ,(plist-get my-cur-type-ime :on)))
+            (set-cursor-color (plist-get my-cur-color-ime :on)))))
 
       (when (fboundp 'mac-auto-ascii-mode)
         ;; (mac-auto-ascii-mode 1)
@@ -9965,7 +9947,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    (t nil)))
 #+end_src
 
-** 複数フレーム対応
+** COMMENT 複数フレーム対応
    :PROPERTIES:
    :CUSTOM_ID: orgdffe4e49
    :ID:       6D9194F2-4A2A-4CF5-B463-32B6C9E2F493
@@ -9979,9 +9961,14 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (with-eval-after-load "frame"
   (defun ad:make-frame (&optional _parameters)
     (when (display-graphic-p)
-      (my-theme))
-    (when (require 'moom-font nil t)
-      (moom-font-resize)))
+      (my-theme)
+      (my-apply-cursor-config)
+      (setq-default cursor-type
+                    (if (my-ime-active-p)
+                        (plist-get my-cur-type-ime :on)
+                      (plist-get my-cur-type-ime :off)))
+      (when (require 'moom-font nil t)
+        (moom-font-resize))))
   (advice-add 'make-frame :after #'ad:make-frame))
 #+end_src
 
@@ -10530,14 +10517,17 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
      ((((background dark)) :background "#594d5d")
       (t (:background "#fff0de"))))))
 
+;; init
+(if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+
 (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)
-(add-hook 'input-method-activate-hook #'my-ime-on-hline)
-(add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
 (add-hook 'input-method-activate-hook #'my-hl-line-enable)
 (add-hook 'input-method-deactivate-hook #'my-hl-line-enable)
+(add-hook 'input-method-activate-hook #'my-ime-on-hline)
+(add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
 #+end_src
 
 色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．
@@ -10741,6 +10731,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ** 日中と夜中でテーマを切り替える
    :PROPERTIES:
    :CUSTOM_ID: org92d26c4b
+   :ID:       0E02A972-3E0E-43C3-B712-561F4EC174A6
    :END:
 
 私は使っていませんが，簡単にテーマを切り替えるためのパッケージ([[https://github.com/valignatev/heaven-and-hell][heaven-and-hell]])も存在します．また， [[https://github.com/purcell/ns-auto-titlebar][ns-auto-titlebar.el]] を使うことでも同様の効果が得られます．
@@ -10764,13 +10755,13 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
       (when (require 'terminal-theme nil t)
         (mapc 'disable-theme custom-enabled-themes)
         (load-theme 'terminal t)
-        (setq my-cursor-color-ime-on "#FF9300")))
+        (plist-put my-cur-color-ime :on "#FF9300")))
 
   (defun my-daylight-theme ()
     (when (require 'daylight-theme nil t)
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'daylight t)
-      (setq my-cursor-color-ime-on "#FF9300")
+      (plist-put my-cur-color-ime :on "#FF9300")
       (setq default-frame-alist
             (delete (assoc 'ns-appearance default-frame-alist)
                     default-frame-alist))
@@ -10787,7 +10778,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'night t)
-      (setq my-cursor-color-ime-on "RosyBrown") ;; #cebcfe
+      (plist-put my-cur-color-ime :on "RosyBrown") ;; #cebcfe
       (setq default-frame-alist
             (delete (assoc 'ns-appearance default-frame-alist)
                     default-frame-alist))
@@ -10819,7 +10810,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
         (or (<= begin ct) (<= ct end))
       (and (<= begin ct) (<= ct end)))))
 
-(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
+(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light} see init-env.el
 (defun my-theme (&optional type)
   (interactive "MType (light or dark): ")
   (setq my-frame-appearance
@@ -10842,10 +10833,10 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (my-terminal-theme))
 
   (unless noninteractive
-    (my-font-config)
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
-    (my-apply-cursor-config))) ;; apply font setting
+    (my-font-config)
+    (my-apply-cursor-config)))
 
 ;; init. This may override or reset font setting
 (with-eval-after-load "postpone"

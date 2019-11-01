@@ -316,8 +316,8 @@
   ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
   (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
 
-  (when (boundp 'mac-win-ime-cursor-type)
-    (setq mac-win-ime-cursor-type my-cursor-type-ime-on))
+  (when (boundp 'mac-win-ime-cursor-type) ;; Need update
+    (setq mac-win-ime-cursor-type (plist-get my-cur-type-ime :on)))
   ;; minibuffer では↑の背景色を無効にする
   (when (fboundp 'mac-min--minibuffer-setup)
     (add-hook 'minibuffer-setup-hook #'mac-min--minibuffer-setup))
@@ -686,110 +686,89 @@
 (set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 
 ;; カーソルの色
-(defconst my-cursor-color-ime-on "#FF9300")
-(defconst my-cursor-color-ime-off "#91C3FF") ;; #FF9300, #999999, #749CCC
-(defconst my-cursor-type-ime-on '(bar . 2))
-(defconst my-cursor-type-ime-off '(bar . 2))
+(defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
+(defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2)))
 (defvar my-ime-last nil)
 
-(defun my-ime-active-p () (if current-input-method t nil))
+(defun my-ime-active-p ()
+  (if (fboundp 'mac-get-current-input-source)
+      (not (string-match "\\.Roman$" (mac-get-current-input-source)))
+    (if current-input-method t nil)))
 (defun my-ime-on-cursor ()
   (interactive)
-  (setq cursor-type my-cursor-type-ime-on)
-  (set-cursor-color my-cursor-color-ime-on))
+  (setq cursor-type (plist-get my-cur-type-ime :on))
+  (set-cursor-color (plist-get my-cur-color-ime :on)))
 (defun my-ime-off-cursor ()
   (interactive)
-  (setq cursor-type my-cursor-type-ime-off)
-  (set-cursor-color my-cursor-color-ime-off))
+  (setq cursor-type (plist-get my-cur-type-ime :off))
+  (set-cursor-color (plist-get my-cur-color-ime :off)))
+(add-hook 'input-method-activate-hook #'my-ime-on-cursor)
+(add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
+
 (defun my-apply-cursor-config ()
   (interactive)
   (when (display-graphic-p)
     (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
-(my-apply-cursor-config)
-(add-hook 'input-method-activate-hook #'my-ime-on-cursor)
-(add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-(when (and (memq window-system '(ns nil))
-           (fboundp 'mac-get-current-input-source))
-  ;; (defun my-ime-active-p ()
-  ;;   (not (string-match "\\.Roman$" (mac-get-current-input-source))))
+(unless (memq window-system '(ns mac))
+  ;; ensure IME off when starting Emacs except macOS
+  (toggle-input-method)
+  (toggle-input-method nil nil))
+
+;; for init setup
+(setq-default cursor-type (plist-get my-cur-type-ime :on))
+(my-apply-cursor-config)
+
+;; could be deleted
+(when (memq window-system '(ns x))
   (with-eval-after-load "postpone"
     (run-with-idle-timer 3 t #'my-apply-cursor-config)))
 
 (with-eval-after-load "postpone"
   (cond
-   ((and (memq window-system '(ns nil))
-         (fboundp 'mac-get-current-input-source))
+   ((memq window-system '(ns x))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
        "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
 
-    (declare-function ad:mac-toggle-input-method "init" nil)
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)
     (declare-function my-ime-active-p "init" nil)
 
-    (setq my-ime-last (my-ime-active-p))
+    ;; for private patch
+    (when (boundp 'mac-ime-cursor-type)
+      (setq mac-ime-cursor-type (plist-get my-cur-type-ime :on)))
 
+    (setq my-ime-last (my-ime-active-p))
     (defun my-ime-on ()
       (interactive)
-      (when (fboundp 'mac-toggle-input-method)
-        (mac-toggle-input-method t))
-      (setq cursor-type my-cursor-type-ime-on)
-      (set-cursor-color my-cursor-color-ime-on)
+      (if (fboundp 'mac-toggle-input-method)
+          (progn
+            (mac-toggle-input-method t)
+            (run-hooks 'input-method-activate-hook))
+        (activate-input-method default-input-method))
       (setq my-ime-last t))
-
     (defun my-ime-off ()
       (interactive)
-      (when (fboundp 'mac-toggle-input-method)
-        (mac-toggle-input-method nil))
-      (setq cursor-type my-cursor-type-ime-off)
-      (set-cursor-color my-cursor-color-ime-off)
+      (if (fboundp 'mac-toggle-input-method)
+          (progn
+            (mac-toggle-input-method nil)
+            (run-hooks 'input-method-deactivate-hook))
+        (deactivate-input-method))
       (setq my-ime-last nil))
 
-    (defvar my-ime-flag nil)
-    (add-hook 'activate-mark-hook
-              (lambda ()
-                (when (setq my-ime-flag (my-ime-active-p))
-                  (my-ime-off))))
-    (add-hook 'deactivate-mark-hook
-              (lambda ()
-                (when my-ime-flag
-                  (my-ime-on))))
+    (defvar my-ime-before-action nil)
+    (defun my-ime-on-sticky ()
+      (when my-ime-before-action
+        (my-ime-on)))
+    (defun my-ime-off-sticky ()
+      (when (setq my-ime-before-action (my-ime-active-p))
+        (my-ime-off)))
 
-    ;; mac-toggle-input-method は，Emacs が非アクティブでも反応する
-    ;; (defun ad:mac-toggle-input-method (&optional arg)
-    ;;   "Run hooks when IME changes."
-    ;;   (interactive)
-    ;;   (if arg
-    ;;       (progn
-    ;;         (setq cursor-type my-cursor-type-ime-on)
-    ;;         (set-cursor-color my-cursor-color-ime-on)
-    ;;         )
-    ;;     (progn
-    ;;       (setq cursor-type my-cursor-type-ime-off)
-    ;;       (set-cursor-color my-cursor-color-ime-off)
-    ;;       )))
-    ;; (advice-add 'mac-toggle-input-method
-    ;;             :before #'ad:mac-toggle-input-method)
-
-    ;; for init setup
-    (setq-default cursor-type my-cursor-type-ime-on)
-
-    (when (boundp 'mac-ime-cursor-type) ;; private patch
-      (setq mac-ime-cursor-type my-cursor-type-ime-on))
-
-    ;; Enter minibuffer with IME-off, and resture the latest IME
-    (add-hook 'minibuffer-setup-hook
-              (lambda ()
-                (if (not (my-ime-active-p))
-                    (setq my-ime-flag nil)
-                  (setq my-ime-flag t)
-                  (my-ime-off))))
-    (add-hook 'minibuffer-exit-hook
-              (lambda ()
-                (when my-ime-flag
-                  (my-ime-on))))
+    (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+    (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+    (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
+    (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky)
 
     ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
     ;;   "Extension to find-file as before-find-file-hook."
@@ -817,18 +796,18 @@
    ;; EMP: Emacs Mac Port
    ((eq window-system 'mac)
     (when (fboundp 'mac-input-source)
-      (defun my-mac-keyboard-input-source ()
+      (defun my-mac-keyboard-input-source () ;; Need update
         (if (string-match "\\.Roman$" (mac-input-source))
             (progn
-              (setq cursor-type my-cursor-type-ime-off)
+              (setq cursor-type (plist-get my-cur-type-ime :off))
               (add-to-list 'default-frame-alist
-                           `(cursor-type . ,my-cursor-type-ime-off))
-              (set-cursor-color my-cursor-color-ime-off))
+                           `(cursor-type . ,(plist-get my-cur-type-ime :off)))
+              (set-cursor-color (plist-get my-cur-color-ime :off)))
           (progn
-            (setq cursor-type my-cursor-type-ime-on)
+            (setq cursor-type (plist-get my-cur-type-ime :on))
             (add-to-list 'default-frame-alist
-                         `(cursor-type . ,my-cursor-type-ime-on))
-            (set-cursor-color my-cursor-color-ime-on))))
+                         `(cursor-type . ,(plist-get my-cur-type-ime :on)))
+            (set-cursor-color (plist-get my-cur-color-ime :on)))))
 
       (when (fboundp 'mac-auto-ascii-mode)
         ;; (mac-auto-ascii-mode 1)
@@ -986,13 +965,13 @@
       (when (require 'terminal-theme nil t)
         (mapc 'disable-theme custom-enabled-themes)
         (load-theme 'terminal t)
-        (setq my-cursor-color-ime-on "#FF9300")))
+        (plist-put my-cur-color-ime :on "#FF9300")))
 
   (defun my-daylight-theme ()
     (when (require 'daylight-theme nil t)
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'daylight t)
-      (setq my-cursor-color-ime-on "#FF9300")
+      (plist-put my-cur-color-ime :on "#FF9300")
       (setq default-frame-alist
             (delete (assoc 'ns-appearance default-frame-alist)
                     default-frame-alist))
@@ -1009,7 +988,7 @@
     (when (require 'night-theme nil t) ;; atom-one-dark-theme
       (mapc 'disable-theme custom-enabled-themes)
       (load-theme 'night t)
-      (setq my-cursor-color-ime-on "RosyBrown") ;; #cebcfe
+      (plist-put my-cur-color-ime :on "RosyBrown") ;; #cebcfe
       (setq default-frame-alist
             (delete (assoc 'ns-appearance default-frame-alist)
                     default-frame-alist))
@@ -1031,7 +1010,7 @@
         (or (<= begin ct) (<= ct end))
       (and (<= begin ct) (<= ct end)))))
 
-(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
+(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light} see init-env.el
 (defun my-theme (&optional type)
   (interactive "MType (light or dark): ")
   (setq my-frame-appearance
@@ -1054,10 +1033,10 @@
     (my-terminal-theme))
 
   (unless noninteractive
-    (my-font-config)
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
-    (my-apply-cursor-config))) ;; apply font setting
+    (my-font-config)
+    (my-apply-cursor-config)))
 
 ;; init. This may override or reset font setting
 (with-eval-after-load "postpone"
