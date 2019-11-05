@@ -12,7 +12,7 @@
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
 (setq postpone-verbose nil
-      my-toggle-modeline-global nil ;; 'doom ;; {nil, t, 'doom}
+      my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
       debug-on-error nil)
@@ -83,8 +83,12 @@
   ;; (load "~/Dropbox/emacs.d/config/init-chart.el" nil t)
   ;; (require 'use-package nil t) ;; 24[ms]
   ;; (require 'leaf nil t) ;; 2[ms]
+  ;; (when (require 'benchmark-init nil t)
+  ;;   (add-hook 'after-init-hook #'benchmark-init/deactivate))
+
   (require 'init nil t)
   (require 'utility-autoloads nil t) ;; 2[ms]
+  
   (unless noninteractive
     ;; (require 'utility nil t) ;; 5[ms]
     (with-eval-after-load "postpone"

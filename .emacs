@@ -16,6 +16,13 @@
 
 
 
+
+
+
+;; see init-env.el
+;; (when (require 'benchmark-init-modes nil t)
+;;   (benchmark-init/show-durations-tabulated))
+
 ;; posframe - testing
 
 ;; (set-frame-parameter (selected-frame) 'internal-border-width 10)
@@ -148,3 +155,4 @@ hoge.")
   )
 
 ;; .emacs ends here
+(put 'narrow-to-region 'disabled nil)

@@ -344,6 +344,7 @@
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Log ;;;
     (el-get-bundle "dacap/keyfreq")
     (el-get-bundle "davep/uptimes.el" :name "uptimes")
+    (el-get-bundle "dholm/benchmark-init-el")
     ;; (el-get-bundle "sauron")
 
     (el-get 'sync)))

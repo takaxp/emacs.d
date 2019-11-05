@@ -82,6 +82,7 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 ** initファイルの読み込み時間計測
    :PROPERTIES:
    :CUSTOM_ID: org3c4d5a7a
+   :ID:       9C495AD3-0D38-406B-ACAE-D4A613BE9E7E
    :END:
 
 次の関数を =init.el= の最初に記載して，オプション付きで =after-init-hook= に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する =emacs-init-time= の派生関数とは違い， =after-init-hook= で実行される処理の時間もわかります．また，ほかの処理も微妙に入るので，あくまで目安です．
@@ -504,6 +505,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 *** with-suppressed-message                                        :notinuse:
     :PROPERTIES:
     :CUSTOM_ID: orgb6593164
+    :ID:       46A3C575-A29C-4289-AF1B-F1BF58071D97
     :END:
 
 以下はそれ以前のアプローチ． =recentf-save-list= を =find-file-hook= にぶら下げていますが，そのままだと =org-agenda= の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． =message-log-max= で制御できるのがすごい．
@@ -3522,6 +3524,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 ** モードラインのNarrowを短くする
    :PROPERTIES:
    :CUSTOM_ID: org3368625d
+   :ID:       FB252972-149C-4A79-8D10-459DA717F9F7
    :END:
 
 標準では「Narrow」と表示されますが，「N」に短縮します．
@@ -3530,15 +3533,29 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 ;; -*- lexical-binding: t -*-
 #+end_src
 
-#+begin_src emacs-lisp :tangle no :export none
-(with-eval-after-load "org"
-  (setq mode-line-modes
-        (mapcar
-         (lambda (entry)
-           (if (equal entry "%n")
-               '(:eval (if (buffer-narrowed-p) " N" ""))
-             entry))
-         mode-line-modes)))
+#+begin_src emacs-lisp :tangle yes
+(defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
+(defun ad:org-toggle-narrow-to-subtree ()
+  (interactive)
+  (if (buffer-narrowed-p)
+      (custom-set-faces
+       `(mode-line ((t (:background
+                        ,(nth 0 my-narrow-modeline)
+                        :foreground
+                        ,(nth 1 my-narrow-modeline))))))
+    (custom-set-faces '(mode-line ((t nil)))))
+  (message "%s" (if (buffer-narrowed-p) "narrow" "widen")))
+
+(advice-add 'org-toggle-narrow-to-subtree
+            :after #'ad:org-toggle-narrow-to-subtree)
+
+(setq mode-line-modes
+      (mapcar
+       (lambda (entry)
+         (if (equal entry "%n")
+             '(:eval (if (buffer-narrowed-p) " N" ""))
+           entry))
+       mode-line-modes))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :export none
@@ -4004,6 +4021,7 @@ paren.el の場合は以下の設定．
 ** [delight.el] モードラインのモード名を短縮する
    :PROPERTIES:
    :CUSTOM_ID: org0e59b85f
+   :ID:       105C5CC0-49CD-4230-9FD6-46C0BD8FF47B
    :END:
 
   - [[https://elpa.gnu.org/packages/delight.html][GNU ELPA - delight]]
@@ -4483,7 +4501,12 @@ ivyに移行しました．
 ** [go-eldoc.el] Go用の eldoc
    :PROPERTIES:
    :CUSTOM_ID: org138fda77
+   :ID:       170025F0-864B-4496-B5F0-4509872E1412
    :END:
+
+#+begin_src go
+go get -v github.com/mdempsky/gocode
+#+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (if (executable-find "gocode")
@@ -4622,6 +4645,7 @@ ivyに移行しました．
 ** [ivy.el] プロンプトをカスタマイズ
    :PROPERTIES:
    :CUSTOM_ID: org9c962eaf
+   :ID:       6BE9B89B-3278-41FB-AE33-D089B0DFC5F9
    :END:
 
 =ivy-pre-prompt-function= に文字列を返す任意の関数を与えると，プロンプトの前を修飾できます．好みの情報を出力しましょう．
@@ -4631,8 +4655,9 @@ ivyに移行しました．
 (with-eval-after-load "ivy"
   (defun my-pre-prompt-function ()
     (if window-system
-        (format "%s\n%s "
-                (make-string (frame-width) ?\x5F) ;; "__"
+        (format "%s%s "
+                (if my-toggle-modeline-global "" ;; FIXME
+                  (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
                 (all-the-icons-faicon "sort-amount-asc")) ;; ""
       (format "%s\n" (make-string (1- (frame-width)) ?\x2D))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
@@ -7495,7 +7520,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (setq org-use-speed-commands t)
 
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
-  (add-to-list 'org-speed-commands-user '("S" call-interactively 'widen))
+  ;; (add-to-list 'org-speed-commands-user '("S" call-interactively 'widen))
   (add-to-list 'org-speed-commands-user
                '("D" my-org-todo-complete-no-repeat "DONE"))
   ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
@@ -10080,6 +10105,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 *** 最大化時にモードラインを消す
     :PROPERTIES:
     :CUSTOM_ID: org6e3c20dd
+    :ID:       3ABEF934-A608-4F58-9370-D2A940DC9CB1
     :END:
 
 バッファの切替時にモードラインの状態を引き継ぐこともできますが，とりあえず想定外にしています．代わりに，必要ならば =M-x my-moom-toggle-mode-line= で表示可能にしています．
@@ -11602,6 +11628,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 ** [counsel-osx-app.el] macOSのアプリケーションを呼び出す             :macOS:
    :PROPERTIES:
    :CUSTOM_ID: org4d91e973
+   :ID:       9757BC14-CBD3-4AB1-8E42-FDD698EACE9F
    :END:
 
 Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel= の絞り込みを使います．
@@ -11617,6 +11644,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     (custom-set-variables
      '(counsel-osx-app-location
        '("/Applications" "/Applications/Utilities"
+         "/System/Applications"
          "/Applications/Microsoft Remote Desktop.localized")))))
 #+end_src
 

@@ -297,7 +297,7 @@
   (setq org-use-speed-commands t)
 
   (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
-  (add-to-list 'org-speed-commands-user '("S" call-interactively 'widen))
+  ;; (add-to-list 'org-speed-commands-user '("S" call-interactively 'widen))
   (add-to-list 'org-speed-commands-user
                '("D" my-org-todo-complete-no-repeat "DONE"))
   ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))

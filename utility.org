@@ -22,6 +22,7 @@ z#+title:	ユーティリティ関数群
 ** iTerm2.app を呼び出す関数
    :PROPERTIES:
    :CUSTOM_ID: org62365dfa
+   :ID:       5BB7329A-E965-4632-A1F1-84524A25C1D1
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -29,7 +30,7 @@ z#+title:	ユーティリティ関数群
 (defun my-cmd-to-open-iterm2 (&optional arg)
   (interactive "P")
   (shell-command-to-string
-   (concat "open -a iTerm.app "
+   (concat "open -a iTerm2.app "
            (when arg default-directory))))
 #+end_src
 

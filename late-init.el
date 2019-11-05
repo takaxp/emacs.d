@@ -1437,8 +1437,9 @@ This works also for other defined begin/end tokens to define the structure."
 (with-eval-after-load "ivy"
   (defun my-pre-prompt-function ()
     (if window-system
-        (format "%s\n%s "
-                (make-string (frame-width) ?\x5F) ;; "__"
+        (format "%s%s "
+                (if my-toggle-modeline-global "" ;; FIXME
+                  (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
                 (all-the-icons-faicon "sort-amount-asc")) ;; ""
       (format "%s\n" (make-string (1- (frame-width)) ?\x2D))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))

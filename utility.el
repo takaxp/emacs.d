@@ -5,7 +5,7 @@
 (defun my-cmd-to-open-iterm2 (&optional arg)
   (interactive "P")
   (shell-command-to-string
-   (concat "open -a iTerm.app "
+   (concat "open -a iTerm2.app "
            (when arg default-directory))))
 
 (defvar my-kyoko-mad-mode nil)

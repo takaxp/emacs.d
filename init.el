@@ -491,6 +491,31 @@
 
 (my-tick-init-time "editing")
 
+(defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
+(defun ad:org-toggle-narrow-to-subtree ()
+  (interactive)
+  (if (buffer-narrowed-p)
+      (progn
+        (message "narrow")
+        (custom-set-faces
+         `(mode-line ((t (:background
+                          ,(nth 0 my-narrow-modeline)
+                          :foreground
+                          ,(nth 1 my-narrow-modeline)))))))
+    (message "widen")
+    (custom-set-faces '(mode-line ((t nil))))))
+
+(advice-add 'org-toggle-narrow-to-subtree
+            :after #'ad:org-toggle-narrow-to-subtree)
+
+(setq mode-line-modes
+      (mapcar
+       (lambda (entry)
+         (if (equal entry "%n")
+             '(:eval (if (buffer-narrowed-p) " N" ""))
+           entry))
+       mode-line-modes))
+
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
           '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
@@ -710,10 +735,11 @@
   (when (display-graphic-p)
     (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
 
-(unless (memq window-system '(ns mac))
-  ;; ensure IME off when starting Emacs except macOS
-  (toggle-input-method)
-  (toggle-input-method nil nil))
+;; (unless (and (memq window-system '(ns mac))
+;;              noninteractive)
+;;   ;; ensure IME off when starting Emacs except macOS
+;;   (toggle-input-method)
+;;   (toggle-input-method nil nil))
 
 ;; for init setup
 (setq-default cursor-type (plist-get my-cur-type-ime :on))
