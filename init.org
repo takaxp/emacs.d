@@ -3534,6 +3534,15 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
+(setq mode-line-modes
+      (mapcar
+       (lambda (entry)
+         (if (equal entry "%n")
+             '(:eval (if (buffer-narrowed-p) " N" ""))
+           entry))
+       mode-line-modes))
+
+;; モードラインの色をトグル
 (defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
 (defun ad:org-toggle-narrow-to-subtree ()
   (interactive)
@@ -3548,17 +3557,9 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 
 (advice-add 'org-toggle-narrow-to-subtree
             :after #'ad:org-toggle-narrow-to-subtree)
-
-(setq mode-line-modes
-      (mapcar
-       (lambda (entry)
-         (if (equal entry "%n")
-             '(:eval (if (buffer-narrowed-p) " N" ""))
-           entry))
-       mode-line-modes))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no :export none
+#+begin_src emacs-lisp :tangle no :exports none
 (with-eval-after-load "org"
   (setq mode-line-modes
         (mapcar
@@ -3635,6 +3636,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 ** 行番号の表示制限を拡張する
    :PROPERTIES:
    :CUSTOM_ID: org19cbc9b3
+   :ID:       6A4DAAB4-5B9C-4ABC-AE75-3F73809B634E
    :END:
 
 デフォルトだと200桁までしか把握しないので，いつも表示されるように拡張します．
@@ -7917,6 +7919,30 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
       (setq-local eldoc-documentation-function #'my-echo-org-link))))
 #+end_src
 
+** モードラインの色をナローイングで変える
+   :PROPERTIES:
+   :CUSTOM_ID: org581a32ab
+   :END:
+
+=org-mode= かつ =narrowing= 中に，モードラインの色を変えて視覚的にわかりやすくします．
+
+#+begin_src emacs-lisp :tangle init-org.el
+;; モードラインの色をトグル
+(defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
+(defun ad:org-toggle-narrow-to-subtree ()
+  (interactive)
+  (if (buffer-narrowed-p)
+      (custom-set-faces
+       `(mode-line ((t (:background
+                        ,(nth 0 my-narrow-modeline)
+                        :foreground
+                        ,(nth 1 my-narrow-modeline))))))
+    (custom-set-faces '(mode-line ((t nil)))))
+  (message "%s" (if (buffer-narrowed-p) "narrow" "widen")))
+
+(advice-add 'org-toggle-narrow-to-subtree
+            :after #'ad:org-toggle-narrow-to-subtree)
+#+end_src
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf

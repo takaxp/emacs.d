@@ -568,6 +568,22 @@
     (defun my-load-echo-org-link ()
       (setq-local eldoc-documentation-function #'my-echo-org-link))))
 
+;; モードラインの色をトグル
+(defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
+(defun ad:org-toggle-narrow-to-subtree ()
+  (interactive)
+  (if (buffer-narrowed-p)
+      (custom-set-faces
+       `(mode-line ((t (:background
+                        ,(nth 0 my-narrow-modeline)
+                        :foreground
+                        ,(nth 1 my-narrow-modeline))))))
+    (custom-set-faces '(mode-line ((t nil)))))
+  (message "%s" (if (buffer-narrowed-p) "narrow" "widen")))
+
+(advice-add 'org-toggle-narrow-to-subtree
+            :after #'ad:org-toggle-narrow-to-subtree)
+
 (when (autoload-if-found
        '(org-capture)
        "org-capture" nil t)

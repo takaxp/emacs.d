@@ -491,23 +491,6 @@
 
 (my-tick-init-time "editing")
 
-(defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
-(defun ad:org-toggle-narrow-to-subtree ()
-  (interactive)
-  (if (buffer-narrowed-p)
-      (progn
-        (message "narrow")
-        (custom-set-faces
-         `(mode-line ((t (:background
-                          ,(nth 0 my-narrow-modeline)
-                          :foreground
-                          ,(nth 1 my-narrow-modeline)))))))
-    (message "widen")
-    (custom-set-faces '(mode-line ((t nil))))))
-
-(advice-add 'org-toggle-narrow-to-subtree
-            :after #'ad:org-toggle-narrow-to-subtree)
-
 (setq mode-line-modes
       (mapcar
        (lambda (entry)
@@ -515,6 +498,22 @@
              '(:eval (if (buffer-narrowed-p) " N" ""))
            entry))
        mode-line-modes))
+
+;; モードラインの色をトグル
+(defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
+(defun ad:org-toggle-narrow-to-subtree ()
+  (interactive)
+  (if (buffer-narrowed-p)
+      (custom-set-faces
+       `(mode-line ((t (:background
+                        ,(nth 0 my-narrow-modeline)
+                        :foreground
+                        ,(nth 1 my-narrow-modeline))))))
+    (custom-set-faces '(mode-line ((t nil)))))
+  (message "%s" (if (buffer-narrowed-p) "narrow" "widen")))
+
+(advice-add 'org-toggle-narrow-to-subtree
+            :after #'ad:org-toggle-narrow-to-subtree)
 
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
@@ -1096,6 +1095,7 @@
     (custom-set-variables
      '(counsel-osx-app-location
        '("/Applications" "/Applications/Utilities"
+         "/System/Applications"
          "/Applications/Microsoft Remote Desktop.localized")))))
 
 (when (autoload-if-found

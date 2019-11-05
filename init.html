@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-11-05 Tue 08:20 -->
+<!-- 2019-11-05 Tue 08:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -563,55 +563,56 @@ for the JavaScript code in this tag.
 <li><a href="#orga58b21fc">10.11. org-mode でアラーム管理</a></li>
 <li><a href="#org49e5d185">10.12. カウントダウンタイマー</a></li>
 <li><a href="#orga3d0c218">10.13. リンクをエコーエリアに表示する</a></li>
-<li><a href="#org30aecedf">10.14. [org-capture] 高速にメモを取る</a></li>
-<li><a href="#orgc3302e41">10.15. [org-agenda] タスク／予定管理</a></li>
-<li><a href="#org735f32e3">10.16. [org-onit.el] org-clock-in の自動化</a></li>
-<li><a href="#org20c40e77">10.17. [orgbox.el] スケジュール追加のわかりやすい入力</a></li>
-<li><a href="#org5790e981">10.18. [appt.el] アラーム設定</a></li>
-<li><a href="#orgf5236175">10.19. [org-refile] orgツリーの高速移動</a></li>
-<li><a href="#org49ca5eb9">10.20. [org-babel] Orgバッファでソースコードを扱う</a></li>
-<li><a href="#orgc0ed68a2">10.21. [org-babel] ソースブロックの入力キーをカスタマイズ</a></li>
-<li><a href="#org556eb376">10.22. [org-babel] ソースブロックの配色</a></li>
-<li><a href="#org89c34f23">10.23. [org-tree-slide] Org Modeでプレゼンテーション</a>
+<li><a href="#org581a32ab">10.14. モードラインの色をナローイングで変える</a></li>
+<li><a href="#org30aecedf">10.15. [org-capture] 高速にメモを取る</a></li>
+<li><a href="#orgc3302e41">10.16. [org-agenda] タスク／予定管理</a></li>
+<li><a href="#org735f32e3">10.17. [org-onit.el] org-clock-in の自動化</a></li>
+<li><a href="#org20c40e77">10.18. [orgbox.el] スケジュール追加のわかりやすい入力</a></li>
+<li><a href="#org5790e981">10.19. [appt.el] アラーム設定</a></li>
+<li><a href="#orgf5236175">10.20. [org-refile] orgツリーの高速移動</a></li>
+<li><a href="#org49ca5eb9">10.21. [org-babel] Orgバッファでソースコードを扱う</a></li>
+<li><a href="#orgc0ed68a2">10.22. [org-babel] ソースブロックの入力キーをカスタマイズ</a></li>
+<li><a href="#org556eb376">10.23. [org-babel] ソースブロックの配色</a></li>
+<li><a href="#org89c34f23">10.24. [org-tree-slide] Org Modeでプレゼンテーション</a>
 <ul>
-<li><a href="#org2e94f804">10.23.1. doom-modeline との共存</a></li>
+<li><a href="#org2e94f804">10.24.1. doom-modeline との共存</a></li>
 </ul>
 </li>
-<li><a href="#org264a37c5">10.24. [org-tree-slide] クロックインとアウトを自動化する</a></li>
-<li><a href="#orga7162e8c">10.25. [org-tree-slide] 特定のツリーをプロポーショナルフォントで表示する</a></li>
-<li><a href="#orgf5c603e5">10.26. [org-tree-slide] ヘッドラインをリッチにする</a></li>
-<li><a href="#orgae555619">10.27. [calfw-org.el] calfw に org の予定を表示する</a></li>
-<li><a href="#org02100a39">10.28. [org-odt] ODT形式に出力</a></li>
-<li><a href="#org02d2c3de">10.29. [ox-twbs] Twitter Bootstrap 互換のHTML出力</a></li>
-<li><a href="#org5a1cb1a1">10.30. [org-crypt] ツリーを暗号化する</a></li>
-<li><a href="#org01951291">10.31. [org-mac-link] 外部アプリから情報を取る</a></li>
-<li><a href="#orgb3ae0aea">10.32. [org-download] org バッファにD&amp;Dでファイルを保存</a></li>
-<li><a href="#org97c39f96">10.33. [org-grep] org ファイルを grep する</a></li>
-<li><a href="#org1a7c192b">10.34. [ox-reveal] ナイスなHTML5プレゼンテーション出力</a></li>
-<li><a href="#org383ff638">10.35. [org-dashboard] 進捗をプログレスバーで確認</a></li>
-<li><a href="#orgfa6df2ce">10.36. [org-clock-today] 今日の総作業時間をモードラインに表示</a></li>
-<li><a href="#org56b60c02">10.37. [org-random-todo] ランダムにタスクを選ぶ</a></li>
-<li><a href="#org0cba1e62">10.38. [ox-hugo] OrgファイルからHogoの記事をエクスポートする</a></li>
-<li><a href="#org32e931e3">10.39. [ox-html] HTML見出しへのリンクを固定する</a></li>
-<li><a href="#orga114da46">10.40. [org-id.el] プロパティに ID を入れる</a></li>
-<li><a href="#org5cc51a8d">10.41. [orglink.el] Orgファイル以外でリンクを使う</a></li>
-<li><a href="#org8480b85f">10.42. [org-trello.el] Trello と双方向同期する</a></li>
-<li><a href="#org992326f6">10.43. <span class="todo TODO">TODO</span> [ob-async] ソースブロックの非同期実行</a></li>
-<li><a href="#org9cbb15f3">10.44. <span class="todo TODO">TODO</span> [org-tree-slide] BEGIN_SRCとEND_SRCを消して背景色を変える</a></li>
-<li><a href="#org3ee441c6">10.45. <span class="todo TODO">TODO</span> [org-fstree] ディレクトリ構造を読み取る</a></li>
-<li><a href="#orgbb452f44">10.46. <span class="todo TODO">TODO</span> [ox] 出力形式の拡張</a></li>
-<li><a href="#org4142d8c3">10.47. <span class="todo TODO">TODO</span> Parers3.app からリンクを取得する</a></li>
-<li><a href="#org47b1ee67">10.48. <span class="todo TODO">TODO</span> Papers3.app のリンクを開けるようにする</a></li>
-<li><a href="#orgd14388c1">10.49. <span class="todo TODO">TODO</span> [org-attach] 外部ファイルを紐付ける</a></li>
-<li><a href="#org1926ab44">10.50. <span class="todo TODO">TODO</span> [org-recent-headings] 訪問したツリーを記録し簡単に再訪問可能にする</a></li>
-<li><a href="#orgfcfd3f34">10.51. <span class="todo TODO">TODO</span> [orgnav] ツリーの検索インタフェース</a></li>
-<li><a href="#org5fce13fa">10.52. <span class="todo TODO">TODO</span> [toc-org] 目次の挿入</a></li>
-<li><a href="#org4ca4749d">10.53. <span class="todo TODO">TODO</span> [org-review.el] レビューフローのサポート</a></li>
-<li><a href="#org0b29fe80">10.54. <span class="todo REV2">REV2</span> [org-screenshot] スクリーンショットを貼り付ける</a></li>
-<li><a href="#org0f4b6016">10.55. <span class="done DONE">DONE</span> [org-autolist] ブリッツの入力を簡単に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org39530542">10.56. <span class="done DONE">DONE</span> [MobileOrg] iOS との連携&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgfb20898b">10.57. <span class="done DONE">DONE</span> [org-export-generic] エクスポート機能を拡張する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org563f7076">10.58. <span class="done DONE">DONE</span> org-mode の latex エクスポート関数をオーバーライド&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org264a37c5">10.25. [org-tree-slide] クロックインとアウトを自動化する</a></li>
+<li><a href="#orga7162e8c">10.26. [org-tree-slide] 特定のツリーをプロポーショナルフォントで表示する</a></li>
+<li><a href="#orgf5c603e5">10.27. [org-tree-slide] ヘッドラインをリッチにする</a></li>
+<li><a href="#orgae555619">10.28. [calfw-org.el] calfw に org の予定を表示する</a></li>
+<li><a href="#org02100a39">10.29. [org-odt] ODT形式に出力</a></li>
+<li><a href="#org02d2c3de">10.30. [ox-twbs] Twitter Bootstrap 互換のHTML出力</a></li>
+<li><a href="#org5a1cb1a1">10.31. [org-crypt] ツリーを暗号化する</a></li>
+<li><a href="#org01951291">10.32. [org-mac-link] 外部アプリから情報を取る</a></li>
+<li><a href="#orgb3ae0aea">10.33. [org-download] org バッファにD&amp;Dでファイルを保存</a></li>
+<li><a href="#org97c39f96">10.34. [org-grep] org ファイルを grep する</a></li>
+<li><a href="#org1a7c192b">10.35. [ox-reveal] ナイスなHTML5プレゼンテーション出力</a></li>
+<li><a href="#org383ff638">10.36. [org-dashboard] 進捗をプログレスバーで確認</a></li>
+<li><a href="#orgfa6df2ce">10.37. [org-clock-today] 今日の総作業時間をモードラインに表示</a></li>
+<li><a href="#org56b60c02">10.38. [org-random-todo] ランダムにタスクを選ぶ</a></li>
+<li><a href="#org0cba1e62">10.39. [ox-hugo] OrgファイルからHogoの記事をエクスポートする</a></li>
+<li><a href="#org32e931e3">10.40. [ox-html] HTML見出しへのリンクを固定する</a></li>
+<li><a href="#orga114da46">10.41. [org-id.el] プロパティに ID を入れる</a></li>
+<li><a href="#org5cc51a8d">10.42. [orglink.el] Orgファイル以外でリンクを使う</a></li>
+<li><a href="#org8480b85f">10.43. [org-trello.el] Trello と双方向同期する</a></li>
+<li><a href="#org992326f6">10.44. <span class="todo TODO">TODO</span> [ob-async] ソースブロックの非同期実行</a></li>
+<li><a href="#org9cbb15f3">10.45. <span class="todo TODO">TODO</span> [org-tree-slide] BEGIN_SRCとEND_SRCを消して背景色を変える</a></li>
+<li><a href="#org3ee441c6">10.46. <span class="todo TODO">TODO</span> [org-fstree] ディレクトリ構造を読み取る</a></li>
+<li><a href="#orgbb452f44">10.47. <span class="todo TODO">TODO</span> [ox] 出力形式の拡張</a></li>
+<li><a href="#org4142d8c3">10.48. <span class="todo TODO">TODO</span> Parers3.app からリンクを取得する</a></li>
+<li><a href="#org47b1ee67">10.49. <span class="todo TODO">TODO</span> Papers3.app のリンクを開けるようにする</a></li>
+<li><a href="#orgd14388c1">10.50. <span class="todo TODO">TODO</span> [org-attach] 外部ファイルを紐付ける</a></li>
+<li><a href="#org1926ab44">10.51. <span class="todo TODO">TODO</span> [org-recent-headings] 訪問したツリーを記録し簡単に再訪問可能にする</a></li>
+<li><a href="#orgfcfd3f34">10.52. <span class="todo TODO">TODO</span> [orgnav] ツリーの検索インタフェース</a></li>
+<li><a href="#org5fce13fa">10.53. <span class="todo TODO">TODO</span> [toc-org] 目次の挿入</a></li>
+<li><a href="#org4ca4749d">10.54. <span class="todo TODO">TODO</span> [org-review.el] レビューフローのサポート</a></li>
+<li><a href="#org0b29fe80">10.55. <span class="todo REV2">REV2</span> [org-screenshot] スクリーンショットを貼り付ける</a></li>
+<li><a href="#org0f4b6016">10.56. <span class="done DONE">DONE</span> [org-autolist] ブリッツの入力を簡単に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org39530542">10.57. <span class="done DONE">DONE</span> [MobileOrg] iOS との連携&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgfb20898b">10.58. <span class="done DONE">DONE</span> [org-export-generic] エクスポート機能を拡張する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org563f7076">10.59. <span class="done DONE">DONE</span> org-mode の latex エクスポート関数をオーバーライド&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org5fd484a3">11. フレーム／ウィンドウ制御</a>
@@ -4854,7 +4855,16 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #5d5dFF;">#5d5dFF</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #8b2252;">"</span>))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> mode-line-modes
+      (mapcar
+       (<span style="color: #a020f0;">lambda</span> (entry)
+         (<span style="color: #a020f0;">if</span> (equal entry <span style="color: #8b2252;">"%n"</span>)
+             '(<span style="color: #483d8b;">:eval</span> (<span style="color: #a020f0;">if</span> (buffer-narrowed-p) <span style="color: #8b2252;">" N"</span> <span style="color: #8b2252;">""</span>))
+           entry))
+       mode-line-modes))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12398;&#33394;&#12434;&#12488;&#12464;&#12523;</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #5d5dFF;">#5d5dFF</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #8b2252;">"</span>))
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-toggle-narrow-to-subtree</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">if</span> (buffer-narrowed-p)
@@ -4868,29 +4878,6 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 
 (advice-add 'org-toggle-narrow-to-subtree
             <span style="color: #483d8b;">:after</span> #'ad:org-toggle-narrow-to-subtree)
-
-(<span style="color: #a020f0;">setq</span> mode-line-modes
-      (mapcar
-       (<span style="color: #a020f0;">lambda</span> (entry)
-         (<span style="color: #a020f0;">if</span> (equal entry <span style="color: #8b2252;">"%n"</span>)
-             '(<span style="color: #483d8b;">:eval</span> (<span style="color: #a020f0;">if</span> (buffer-narrowed-p) <span style="color: #8b2252;">" N"</span> <span style="color: #8b2252;">""</span>))
-           entry))
-       mode-line-modes))
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-  (<span style="color: #a020f0;">setq</span> mode-line-modes
-        (mapcar
-         (<span style="color: #a020f0;">lambda</span> (entry)
-           (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (stringp entry)
-                    (string= entry <span style="color: #8b2252;">"%n"</span>))
-               '(<span style="color: #483d8b;">:eval</span> (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (= 1 (point-min))
-                                (= (1+ (buffer-size)) (point-max))) <span style="color: #8b2252;">""</span>
-                         <span style="color: #8b2252;">" N"</span>))
-             entry))
-         mode-line-modes)))
 </pre>
 </div>
 </div>
@@ -9884,8 +9871,35 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 </div>
 </div>
 
+<div id="outline-container-org581a32ab" class="outline-3">
+<h3 id="org581a32ab"><span class="section-number-3">10.14</span> モードラインの色をナローイングで変える</h3>
+<div class="outline-text-3" id="text-org581a32ab">
+<p>
+<code>org-mode</code> かつ <code>narrowing</code> 中に，モードラインの色を変えて視覚的にわかりやすくします．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12398;&#33394;&#12434;&#12488;&#12464;&#12523;</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #5d5dFF;">#5d5dFF</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #8b2252;">"</span>))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-toggle-narrow-to-subtree</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">if</span> (buffer-narrowed-p)
+      (custom-set-faces
+       `(mode-line ((t (<span style="color: #483d8b;">:background</span>
+                        ,(nth 0 my-narrow-modeline)
+                        <span style="color: #483d8b;">:foreground</span>
+                        ,(nth 1 my-narrow-modeline))))))
+    (custom-set-faces '(mode-line ((t nil)))))
+  (message <span style="color: #8b2252;">"%s"</span> (<span style="color: #a020f0;">if</span> (buffer-narrowed-p) <span style="color: #8b2252;">"narrow"</span> <span style="color: #8b2252;">"widen"</span>)))
+
+(advice-add 'org-toggle-narrow-to-subtree
+            <span style="color: #483d8b;">:after</span> #'ad:org-toggle-narrow-to-subtree)
+</pre>
+</div>
+</div>
+</div>
 <div id="outline-container-org30aecedf" class="outline-3">
-<h3 id="org30aecedf"><span class="section-number-3">10.14</span> [org-capture] 高速にメモを取る</h3>
+<h3 id="org30aecedf"><span class="section-number-3">10.15</span> [org-capture] 高速にメモを取る</h3>
 <div class="outline-text-3" id="text-org30aecedf">
 <p>
 Emacs を起動している限り，いつでもどこでもメモを記録できます．<br />
@@ -10003,7 +10017,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-orgc3302e41" class="outline-3">
-<h3 id="orgc3302e41"><span class="section-number-3">10.15</span> [org-agenda] タスク／予定管理</h3>
+<h3 id="orgc3302e41"><span class="section-number-3">10.16</span> [org-agenda] タスク／予定管理</h3>
 <div class="outline-text-3" id="text-orgc3302e41">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
@@ -10160,7 +10174,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-org735f32e3" class="outline-3">
-<h3 id="org735f32e3"><span class="section-number-3">10.16</span> [org-onit.el] org-clock-in の自動化</h3>
+<h3 id="org735f32e3"><span class="section-number-3">10.17</span> [org-onit.el] org-clock-in の自動化</h3>
 <div class="outline-text-3" id="text-org735f32e3">
 <p>
 <code>org-onit.el</code> を導入すると，タグを付けるタイミングで自動的に <code>org-clock-in</code> します．タグを取れば <code>org-clock-out</code> が実行されるようになります．<br />
@@ -10240,7 +10254,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-org20c40e77" class="outline-3">
-<h3 id="org20c40e77"><span class="section-number-3">10.17</span> [orgbox.el] スケジュール追加のわかりやすい入力</h3>
+<h3 id="org20c40e77"><span class="section-number-3">10.18</span> [orgbox.el] スケジュール追加のわかりやすい入力</h3>
 <div class="outline-text-3" id="text-org20c40e77">
 <p>
 <code>C-c C-s</code> をオーバーライドして <code>orgbox-schedule</code> を実行する．<br />
@@ -10255,7 +10269,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-org5790e981" class="outline-3">
-<h3 id="org5790e981"><span class="section-number-3">10.18</span> [appt.el] アラーム設定</h3>
+<h3 id="org5790e981"><span class="section-number-3">10.19</span> [appt.el] アラーム設定</h3>
 <div class="outline-text-3" id="text-org5790e981">
 <ul class="org-ul">
 <li>Growl や <a href="https://github.com/julienXX/terminal-notifier/releases">Terminal Notifier</a> と連携していると，Emacsがバックグラウンドにあってもアラームに気づける．<br /></li>
@@ -10385,7 +10399,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-orgf5236175" class="outline-3">
-<h3 id="orgf5236175"><span class="section-number-3">10.19</span> [org-refile] orgツリーの高速移動</h3>
+<h3 id="orgf5236175"><span class="section-number-3">10.20</span> [org-refile] orgツリーの高速移動</h3>
 <div class="outline-text-3" id="text-orgf5236175">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
@@ -10441,7 +10455,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-org49ca5eb9" class="outline-3">
-<h3 id="org49ca5eb9"><span class="section-number-3">10.20</span> [org-babel] Orgバッファでソースコードを扱う</h3>
+<h3 id="org49ca5eb9"><span class="section-number-3">10.21</span> [org-babel] Orgバッファでソースコードを扱う</h3>
 <div class="outline-text-3" id="text-org49ca5eb9">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ob-core"</span>
@@ -10484,7 +10498,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-orgc0ed68a2" class="outline-3">
-<h3 id="orgc0ed68a2"><span class="section-number-3">10.21</span> [org-babel] ソースブロックの入力キーをカスタマイズ</h3>
+<h3 id="orgc0ed68a2"><span class="section-number-3">10.22</span> [org-babel] ソースブロックの入力キーをカスタマイズ</h3>
 <div class="outline-text-3" id="text-orgc0ed68a2">
 <p>
 ソースブロックを入力するときは， &lt;+ <code>TAB</code> でテンプレートを高速に入力できます．しかし，利用する言語までは指定できないので，特定の内容について対応するコマンドを割り当てて起きます．以下の例を設定として追加すると， &lt;S+ <code>TAB</code> で <code>emacs-lisp</code> を， &lt;C+ <code>TAB</code> でコメントブロックを指定できます．<br />
@@ -10502,7 +10516,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-org556eb376" class="outline-3">
-<h3 id="org556eb376"><span class="section-number-3">10.22</span> [org-babel] ソースブロックの配色</h3>
+<h3 id="org556eb376"><span class="section-number-3">10.23</span> [org-babel] ソースブロックの配色</h3>
 <div class="outline-text-3" id="text-org556eb376">
 <p>
 <code>org-src-block-faces</code>, <code>org-block-begin-line</code>, <code>org-block-end-line</code> をカスタマイズして，配色を変えます．<br />
@@ -10530,7 +10544,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-org89c34f23" class="outline-3">
-<h3 id="org89c34f23"><span class="section-number-3">10.23</span> [org-tree-slide] Org Modeでプレゼンテーション</h3>
+<h3 id="org89c34f23"><span class="section-number-3">10.24</span> [org-tree-slide] Org Modeでプレゼンテーション</h3>
 <div class="outline-text-3" id="text-org89c34f23">
 <p>
 パワーポイントはもう使わなくてよいのです．<br />
@@ -10587,7 +10601,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-org2e94f804" class="outline-4">
-<h4 id="org2e94f804"><span class="section-number-4">10.23.1</span> doom-modeline との共存</h4>
+<h4 id="org2e94f804"><span class="section-number-4">10.24.1</span> doom-modeline との共存</h4>
 <div class="outline-text-4" id="text-org2e94f804">
 <p>
 <code>doom-modeline</code> では <code>widen</code> を <code>advice</code> で拡張していますが， <code>org-tree-slide</code> から抜ける時に期待された効果が得られず， <code>narrowing</code> 状態を表すアイコンがモードロインに残ってしまいます．そこで <code>org-tree-slide-stop-hook</code> で明示的に処理します．<br />
@@ -10606,7 +10620,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-org264a37c5" class="outline-3">
-<h3 id="org264a37c5"><span class="section-number-3">10.24</span> [org-tree-slide] クロックインとアウトを自動化する</h3>
+<h3 id="org264a37c5"><span class="section-number-3">10.25</span> [org-tree-slide] クロックインとアウトを自動化する</h3>
 <div class="outline-text-3" id="text-org264a37c5">
 <p>
 特定のファイルを編集している時， <code>org-tree-slide</code> でフォーカスしたら <code>org-clock-in</code> で時間計測を始めて，ナローイングを解く時や次のツリーに移る時に <code>org-clock-out</code> で計測を停止するように設定しています．基本的に <code>org-tree-slide</code> にあるhookに色々とぶら下げるだけです．<br />
@@ -10658,7 +10672,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-orga7162e8c" class="outline-3">
-<h3 id="orga7162e8c"><span class="section-number-3">10.25</span> [org-tree-slide] 特定のツリーをプロポーショナルフォントで表示する</h3>
+<h3 id="orga7162e8c"><span class="section-number-3">10.26</span> [org-tree-slide] 特定のツリーをプロポーショナルフォントで表示する</h3>
 <div class="outline-text-3" id="text-orga7162e8c">
 <p>
 ツリーのプロパティに，プロポーショナルで表示するか否かの制御フラグを加えます．ツリーにフォーカス時に <code>PROPORTIONAL</code> 指定がプロパティにあると，そのツリーを動的にプロポーショナルフォントでレンダリングします．変更は下位ツリーの全てに継承しています．<br />
@@ -10702,7 +10716,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-orgf5c603e5" class="outline-3">
-<h3 id="orgf5c603e5"><span class="section-number-3">10.26</span> [org-tree-slide] ヘッドラインをリッチにする</h3>
+<h3 id="orgf5c603e5"><span class="section-number-3">10.27</span> [org-tree-slide] ヘッドラインをリッチにする</h3>
 <div class="outline-text-3" id="text-orgf5c603e5">
 <p>
 <code>org-tree-slide</code> が有効な時だけ <code>org-bullets</code> を有効にして，ヘッドラインをリッチにします．元ネタは， <code>org-beautify-theme.el</code> です．<br />
@@ -10721,7 +10735,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div id="outline-container-orgae555619" class="outline-3">
-<h3 id="orgae555619"><span class="section-number-3">10.27</span> [calfw-org.el] calfw に org の予定を表示する</h3>
+<h3 id="orgae555619"><span class="section-number-3">10.28</span> [calfw-org.el] calfw に org の予定を表示する</h3>
 <div class="outline-text-3" id="text-orgae555619">
 <p>
 org-mode の表のようにフェイスを統一しています． <code>calfw</code> を起動する時に，自動的にフレームサイズを拡大するような独自関数をぶら下げています．<br />
@@ -10792,7 +10806,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org02100a39" class="outline-3">
-<h3 id="org02100a39"><span class="section-number-3">10.28</span> [org-odt] ODT形式に出力</h3>
+<h3 id="org02100a39"><span class="section-number-3">10.29</span> [org-odt] ODT形式に出力</h3>
 <div class="outline-text-3" id="text-org02100a39">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
@@ -10819,7 +10833,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org02d2c3de" class="outline-3">
-<h3 id="org02d2c3de"><span class="section-number-3">10.29</span> [ox-twbs] Twitter Bootstrap 互換のHTML出力</h3>
+<h3 id="org02d2c3de"><span class="section-number-3">10.30</span> [ox-twbs] Twitter Bootstrap 互換のHTML出力</h3>
 <div class="outline-text-3" id="text-org02d2c3de">
 <ul class="org-ul">
 <li><a href="https://github.com/marsmining/ox-twbs">marsmining/ox-twbs: Export org-mode docs as HTML compatible with Twitter Bootstrap.</a><br /></li>
@@ -10840,7 +10854,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgcf85e02"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgcad3662"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -10859,7 +10873,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org5a1cb1a1" class="outline-3">
-<h3 id="org5a1cb1a1"><span class="section-number-3">10.30</span> [org-crypt] ツリーを暗号化する</h3>
+<h3 id="org5a1cb1a1"><span class="section-number-3">10.31</span> [org-crypt] ツリーを暗号化する</h3>
 <div class="outline-text-3" id="text-org5a1cb1a1">
 <p>
 <code>M-x org-encrypt-entry</code> でカーソル位置のツリーを暗号化できます．復号は， <code>M-x org-decrypt-entry</code> にて．ただし，バッファのバックアップファイルが生成されていることに気をつけてください．自分の場合は，バックアップファイルは外部ホストに同期されない設定にしてあるので，とりあえず問題なしと考えています．<br />
@@ -10887,7 +10901,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org01951291" class="outline-3">
-<h3 id="org01951291"><span class="section-number-3">10.31</span> [org-mac-link] 外部アプリから情報を取る</h3>
+<h3 id="org01951291"><span class="section-number-3">10.32</span> [org-mac-link] 外部アプリから情報を取る</h3>
 <div class="outline-text-3" id="text-org01951291">
 <p>
 <code>org-mac-link</code> を使うと，外部アプリの表示状態をリンクとして取得して，orgバッファに流し込めます．Mac環境用です．簡単な例ではURLで，取得したリンクを <code>C-c C-o</code> で開けばブラウザが起動してリンク先が表示できます．同じ話を，ファインダーで表示しているディレクトリ，メーラーで表示していた特定のメール，PDFビューアで表示していた特定のファイルの特定のページなどで実施できます．対応している外部アプリは，Finder, Mail.app, Outlook, Addressbook, Safari, Firefox, Chrome, そして Skimです．<br />
@@ -10910,7 +10924,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-orgb3ae0aea" class="outline-3">
-<h3 id="orgb3ae0aea"><span class="section-number-3">10.32</span> [org-download] org バッファにD&amp;Dでファイルを保存</h3>
+<h3 id="orgb3ae0aea"><span class="section-number-3">10.33</span> [org-download] org バッファにD&amp;Dでファイルを保存</h3>
 <div class="outline-text-3" id="text-orgb3ae0aea">
 <p>
 <code>org-attach</code> とペアで使うのが良いでしょう．<br />
@@ -10927,7 +10941,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org97c39f96" class="outline-3">
-<h3 id="org97c39f96"><span class="section-number-3">10.33</span> [org-grep] org ファイルを grep する</h3>
+<h3 id="org97c39f96"><span class="section-number-3">10.34</span> [org-grep] org ファイルを grep する</h3>
 <div class="outline-text-3" id="text-org97c39f96">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
@@ -10970,7 +10984,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org1a7c192b" class="outline-3">
-<h3 id="org1a7c192b"><span class="section-number-3">10.34</span> [ox-reveal] ナイスなHTML5プレゼンテーション出力</h3>
+<h3 id="org1a7c192b"><span class="section-number-3">10.35</span> [ox-reveal] ナイスなHTML5プレゼンテーション出力</h3>
 <div class="outline-text-3" id="text-org1a7c192b">
 <p>
 <code>C-c C-e R</code> エクスポータを呼び出せます．続けて <code>B</code> を押せば，ブラウザで出力後の見た目を確認できます．ただし別途 <a href="https://github.com/hakimel/reveal.js">reveal.js</a> が使える状態にないとダメです． <code>org-reveal-root</code> を設定すれば，clone した reveal.js の場所を指定できます．<br />
@@ -10991,7 +11005,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org383ff638" class="outline-3">
-<h3 id="org383ff638"><span class="section-number-3">10.35</span> [org-dashboard] 進捗をプログレスバーで確認</h3>
+<h3 id="org383ff638"><span class="section-number-3">10.36</span> [org-dashboard] 進捗をプログレスバーで確認</h3>
 <div class="outline-text-3" id="text-org383ff638">
 <ul class="org-ul">
 <li><a href="https://github.com/bard/org-dashboard">https://github.com/bard/org-dashboard</a><br /></li>
@@ -11011,7 +11025,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-orgfa6df2ce" class="outline-3">
-<h3 id="orgfa6df2ce"><span class="section-number-3">10.36</span> [org-clock-today] 今日の総作業時間をモードラインに表示</h3>
+<h3 id="orgfa6df2ce"><span class="section-number-3">10.37</span> [org-clock-today] 今日の総作業時間をモードラインに表示</h3>
 <div class="outline-text-3" id="text-orgfa6df2ce">
 <ul class="org-ul">
 <li><code>CLOCK_MODELINE_TOTAL</code> を設定するのとは別なアプローチ<br /></li>
@@ -11051,7 +11065,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org56b60c02" class="outline-3">
-<h3 id="org56b60c02"><span class="section-number-3">10.37</span> [org-random-todo] ランダムにタスクを選ぶ</h3>
+<h3 id="org56b60c02"><span class="section-number-3">10.38</span> [org-random-todo] ランダムにタスクを選ぶ</h3>
 <div class="outline-text-3" id="text-org56b60c02">
 <ul class="org-ul">
 <li>デフォルトで <code>org-agenda-files</code> に登録されたファイルからランダムにタスクを選ぶ<br /></li>
@@ -11069,7 +11083,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org0cba1e62" class="outline-3">
-<h3 id="org0cba1e62"><span class="section-number-3">10.38</span> [ox-hugo] OrgファイルからHogoの記事をエクスポートする</h3>
+<h3 id="org0cba1e62"><span class="section-number-3">10.39</span> [ox-hugo] OrgファイルからHogoの記事をエクスポートする</h3>
 <div class="outline-text-3" id="text-org0cba1e62">
 <ul class="org-ul">
 <li>Org Mode でブログを書いて， <a href="https://gohugo.io/">Hugo</a>で静的サイトに出力します．<br /></li>
@@ -11132,7 +11146,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org32e931e3" class="outline-3">
-<h3 id="org32e931e3"><span class="section-number-3">10.39</span> [ox-html] HTML見出しへのリンクを固定する</h3>
+<h3 id="org32e931e3"><span class="section-number-3">10.40</span> [ox-html] HTML見出しへのリンクを固定する</h3>
 <div class="outline-text-3" id="text-org32e931e3">
 <p>
 標準の設定でHTMLを出力すると，各見出しへのリンクとして <code>org0123456</code> のようなIDが振られる．しかしそれらのIDは，HTMLを出力するたびに更新されるため，出力したHTMLの見出しをパーマリンクとして使用できない．これを防ぐためには，プロパティで <code>CUSTOM_ID</code> を指定する必要がある．<br />
@@ -11217,7 +11231,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-orga114da46" class="outline-3">
-<h3 id="orga114da46"><span class="section-number-3">10.40</span> [org-id.el] プロパティに ID を入れる</h3>
+<h3 id="orga114da46"><span class="section-number-3">10.41</span> [org-id.el] プロパティに ID を入れる</h3>
 <div class="outline-text-3" id="text-orga114da46">
 <p>
 <code>org.el</code> に付属している <code>org-id.el</code> を使うと，各 heading のプロパティにユニークな id を付与できます．また， <code>org-clock-in</code> で工数計測を開始すると，自動的に付与されます．しかし， heading を不用意にコピペすると，id が重複するので，それらを削除するユーティリティを準備しました．<br />
@@ -11241,7 +11255,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org5cc51a8d" class="outline-3">
-<h3 id="org5cc51a8d"><span class="section-number-3">10.41</span> [orglink.el] Orgファイル以外でリンクを使う</h3>
+<h3 id="org5cc51a8d"><span class="section-number-3">10.42</span> [orglink.el] Orgファイル以外でリンクを使う</h3>
 <div class="outline-text-3" id="text-org5cc51a8d">
 <p>
 指定したモードのバッファで， <code>org mode</code> と同じリンク機能を使えるようにします．<br />
@@ -11278,7 +11292,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org8480b85f" class="outline-3">
-<h3 id="org8480b85f"><span class="section-number-3">10.42</span> [org-trello.el] Trello と双方向同期する</h3>
+<h3 id="org8480b85f"><span class="section-number-3">10.43</span> [org-trello.el] Trello と双方向同期する</h3>
 <div class="outline-text-3" id="text-org8480b85f">
 <p>
 <a href="https://trello.com/">Trello</a> と特定の org バッファを同期します．コンフリクトを避けるために，明示的に <code>pull</code> と <code>push</code> をする関数を定義して使います．非常に強力で，外出時に簡易的にモバイル端末でタスクを追加したり，ブラウザでグラフィカルにタスクを追加できます．<br />
@@ -11323,7 +11337,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org992326f6" class="outline-3">
-<h3 id="org992326f6"><span class="section-number-3">10.43</span> <span class="todo TODO">TODO</span> [ob-async] ソースブロックの非同期実行</h3>
+<h3 id="org992326f6"><span class="section-number-3">10.44</span> <span class="todo TODO">TODO</span> [ob-async] ソースブロックの非同期実行</h3>
 <div class="outline-text-3" id="text-org992326f6">
 <p>
 ソースブロックを非同期に実行します．各ソースブロックで <code>:async</code> を指定するだけで，非同期になります． ただし， <code>ob-python</code> はすでに <code>:async</code> を予約しているので， <code>ob-async</code> のオプションと衝突しないように，処理対象から除外しておきます．<br />
@@ -11340,7 +11354,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org9cbb15f3" class="outline-3">
-<h3 id="org9cbb15f3"><span class="section-number-3">10.44</span> <span class="todo TODO">TODO</span> [org-tree-slide] BEGIN_SRCとEND_SRCを消して背景色を変える</h3>
+<h3 id="org9cbb15f3"><span class="section-number-3">10.45</span> <span class="todo TODO">TODO</span> [org-tree-slide] BEGIN_SRCとEND_SRCを消して背景色を変える</h3>
 <div class="outline-text-3" id="text-org9cbb15f3">
 <p>
 <code>hide-lines.el</code> を使うことで，プレゼン時に <code>BEGIN_SRC</code> と <code>ENC_SRC</code> を非表示にしてすっきりさせます．さらに，ソースブロックの背景色を変えます（以下の例では， <code>emacs-lisp</code> を言語で指定している場合に限定）．<br />
@@ -11383,7 +11397,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org3ee441c6" class="outline-3">
-<h3 id="org3ee441c6"><span class="section-number-3">10.45</span> <span class="todo TODO">TODO</span> [org-fstree] ディレクトリ構造を読み取る</h3>
+<h3 id="org3ee441c6"><span class="section-number-3">10.46</span> <span class="todo TODO">TODO</span> [org-fstree] ディレクトリ構造を読み取る</h3>
 <div class="outline-text-3" id="text-org3ee441c6">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
@@ -11394,7 +11408,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-orgbb452f44" class="outline-3">
-<h3 id="orgbb452f44"><span class="section-number-3">10.46</span> <span class="todo TODO">TODO</span> [ox] 出力形式の拡張</h3>
+<h3 id="orgbb452f44"><span class="section-number-3">10.47</span> <span class="todo TODO">TODO</span> [ox] 出力形式の拡張</h3>
 <div class="outline-text-3" id="text-orgbb452f44">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ox"</span>
@@ -11408,7 +11422,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org4142d8c3" class="outline-3">
-<h3 id="org4142d8c3"><span class="section-number-3">10.47</span> <span class="todo TODO">TODO</span> Parers3.app からリンクを取得する</h3>
+<h3 id="org4142d8c3"><span class="section-number-3">10.48</span> <span class="todo TODO">TODO</span> Parers3.app からリンクを取得する</h3>
 <div class="outline-text-3" id="text-org4142d8c3">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-mac-link"</span>
@@ -11467,7 +11481,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </div>
 
 <div id="outline-container-org47b1ee67" class="outline-3">
-<h3 id="org47b1ee67"><span class="section-number-3">10.48</span> <span class="todo TODO">TODO</span> Papers3.app のリンクを開けるようにする</h3>
+<h3 id="org47b1ee67"><span class="section-number-3">10.49</span> <span class="todo TODO">TODO</span> Papers3.app のリンクを開けるようにする</h3>
 <div class="outline-text-3" id="text-org47b1ee67">
 <p>
 Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り当てています．このリンクを org バッファにペーストし， <code>org-open-at-point</code> (C-c C-o) で開けるようにします．<br />
@@ -11491,7 +11505,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-orgd14388c1" class="outline-3">
-<h3 id="orgd14388c1"><span class="section-number-3">10.49</span> <span class="todo TODO">TODO</span> [org-attach] 外部ファイルを紐付ける</h3>
+<h3 id="orgd14388c1"><span class="section-number-3">10.50</span> <span class="todo TODO">TODO</span> [org-attach] 外部ファイルを紐付ける</h3>
 <div class="outline-text-3" id="text-orgd14388c1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
@@ -11525,7 +11539,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org1926ab44" class="outline-3">
-<h3 id="org1926ab44"><span class="section-number-3">10.50</span> <span class="todo TODO">TODO</span> [org-recent-headings] 訪問したツリーを記録し簡単に再訪問可能にする</h3>
+<h3 id="org1926ab44"><span class="section-number-3">10.51</span> <span class="todo TODO">TODO</span> [org-recent-headings] 訪問したツリーを記録し簡単に再訪問可能にする</h3>
 <div class="outline-text-3" id="text-org1926ab44">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
@@ -11567,7 +11581,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-orgfcfd3f34" class="outline-3">
-<h3 id="orgfcfd3f34"><span class="section-number-3">10.51</span> <span class="todo TODO">TODO</span> [orgnav] ツリーの検索インタフェース</h3>
+<h3 id="orgfcfd3f34"><span class="section-number-3">10.52</span> <span class="todo TODO">TODO</span> [orgnav] ツリーの検索インタフェース</h3>
 <div class="outline-text-3" id="text-orgfcfd3f34">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
@@ -11584,7 +11598,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org5fce13fa" class="outline-3">
-<h3 id="org5fce13fa"><span class="section-number-3">10.52</span> <span class="todo TODO">TODO</span> [toc-org] 目次の挿入</h3>
+<h3 id="org5fce13fa"><span class="section-number-3">10.53</span> <span class="todo TODO">TODO</span> [toc-org] 目次の挿入</h3>
 <div class="outline-text-3" id="text-org5fce13fa">
 <ul class="org-ul">
 <li>ツリーに TOC タグを付けて，`toc-org-insert-toc'を実行すればOK<br /></li>
@@ -11598,7 +11612,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org4ca4749d" class="outline-3">
-<h3 id="org4ca4749d"><span class="section-number-3">10.53</span> <span class="todo TODO">TODO</span> [org-review.el] レビューフローのサポート</h3>
+<h3 id="org4ca4749d"><span class="section-number-3">10.54</span> <span class="todo TODO">TODO</span> [org-review.el] レビューフローのサポート</h3>
 <div class="outline-text-3" id="text-org4ca4749d">
 <ul class="org-ul">
 <li><a href="https://github.com/brabalan/org-review">https://github.com/brabalan/org-review</a><br /></li>
@@ -11623,7 +11637,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org0b29fe80" class="outline-3">
-<h3 id="org0b29fe80"><span class="section-number-3">10.54</span> <span class="todo REV2">REV2</span> [org-screenshot] スクリーンショットを貼り付ける</h3>
+<h3 id="org0b29fe80"><span class="section-number-3">10.55</span> <span class="todo REV2">REV2</span> [org-screenshot] スクリーンショットを貼り付ける</h3>
 <div class="outline-text-3" id="text-org0b29fe80">
 <ul class="org-ul">
 <li><a href="https://github.com/dfeich/org-screenshot">dfeich/org-screenshot: screenshots integrated with emacs org mode attachments</a><br /></li>
@@ -11665,7 +11679,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org0f4b6016" class="outline-3">
-<h3 id="org0f4b6016"><span class="section-number-3">10.55</span> <span class="done DONE">DONE</span> [org-autolist] ブリッツの入力を簡単に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0f4b6016"><span class="section-number-3">10.56</span> <span class="done DONE">DONE</span> [org-autolist] ブリッツの入力を簡単に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0f4b6016">
 <p>
 ブリッツの入力や削除を Microsoft Word 的にします．意外と馴染まなかったので不使用です．<br />
@@ -11683,7 +11697,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org39530542" class="outline-3">
-<h3 id="org39530542"><span class="section-number-3">10.56</span> <span class="done DONE">DONE</span> [MobileOrg] iOS との連携&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org39530542"><span class="section-number-3">10.57</span> <span class="done DONE">DONE</span> [MobileOrg] iOS との連携&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org39530542">
 <ul class="org-ul">
 <li><a href="http://orgmode.org/manual/Setting-up-the-staging-area.html">http://orgmode.org/manual/Setting-up-the-staging-area.html</a><br /></li>
@@ -11718,7 +11732,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-orgfb20898b" class="outline-3">
-<h3 id="orgfb20898b"><span class="section-number-3">10.57</span> <span class="done DONE">DONE</span> [org-export-generic] エクスポート機能を拡張する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgfb20898b"><span class="section-number-3">10.58</span> <span class="done DONE">DONE</span> [org-export-generic] エクスポート機能を拡張する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgfb20898b">
 <p>
 <code>org-set-generic-type</code> を使うことで，エクスポート機能を好みに拡張できる．contrib の中の <code>org-export-generic.el</code> が必要なので注意する．<br />
@@ -11815,7 +11829,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org563f7076" class="outline-3">
-<h3 id="org563f7076"><span class="section-number-3">10.58</span> <span class="done DONE">DONE</span> org-mode の latex エクスポート関数をオーバーライド&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org563f7076"><span class="section-number-3">10.59</span> <span class="done DONE">DONE</span> org-mode の latex エクスポート関数をオーバーライド&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org563f7076">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;; </span><span style="color: #b22222;">Tex export (org-mode -&gt; tex with beamer class) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
@@ -14247,7 +14261,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-11-05 Tue 08:20</p>
+<p class="date">Created: 2019-11-05 Tue 08:29</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
