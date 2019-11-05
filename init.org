@@ -3541,22 +3541,6 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
              '(:eval (if (buffer-narrowed-p) " N" ""))
            entry))
        mode-line-modes))
-
-;; モードラインの色をトグル
-(defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
-(defun ad:org-toggle-narrow-to-subtree ()
-  (interactive)
-  (if (buffer-narrowed-p)
-      (custom-set-faces
-       `(mode-line ((t (:background
-                        ,(nth 0 my-narrow-modeline)
-                        :foreground
-                        ,(nth 1 my-narrow-modeline))))))
-    (custom-set-faces '(mode-line ((t nil)))))
-  (message "%s" (if (buffer-narrowed-p) "narrow" "widen")))
-
-(advice-add 'org-toggle-narrow-to-subtree
-            :after #'ad:org-toggle-narrow-to-subtree)
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports none
@@ -7946,6 +7930,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf
+   :ID:       4BA2A734-849E-4C2C-8A6E-625F5AD4C090
    :END:
 
 Emacs を起動している限り，いつでもどこでもメモを記録できます．

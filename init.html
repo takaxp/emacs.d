@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-11-05 Tue 08:29 -->
+<!-- 2019-11-05 Tue 08:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4862,22 +4862,6 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
              '(<span style="color: #483d8b;">:eval</span> (<span style="color: #a020f0;">if</span> (buffer-narrowed-p) <span style="color: #8b2252;">" N"</span> <span style="color: #8b2252;">""</span>))
            entry))
        mode-line-modes))
-
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12398;&#33394;&#12434;&#12488;&#12464;&#12523;</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #5d5dFF;">#5d5dFF</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #8b2252;">"</span>))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-toggle-narrow-to-subtree</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (buffer-narrowed-p)
-      (custom-set-faces
-       `(mode-line ((t (<span style="color: #483d8b;">:background</span>
-                        ,(nth 0 my-narrow-modeline)
-                        <span style="color: #483d8b;">:foreground</span>
-                        ,(nth 1 my-narrow-modeline))))))
-    (custom-set-faces '(mode-line ((t nil)))))
-  (message <span style="color: #8b2252;">"%s"</span> (<span style="color: #a020f0;">if</span> (buffer-narrowed-p) <span style="color: #8b2252;">"narrow"</span> <span style="color: #8b2252;">"widen"</span>)))
-
-(advice-add 'org-toggle-narrow-to-subtree
-            <span style="color: #483d8b;">:after</span> #'ad:org-toggle-narrow-to-subtree)
 </pre>
 </div>
 </div>
@@ -10854,7 +10838,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgcad3662"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3cb33a0"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14261,7 +14245,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-11-05 Tue 08:29</p>
+<p class="date">Created: 2019-11-05 Tue 08:32</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
