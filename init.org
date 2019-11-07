@@ -2912,6 +2912,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 ** [describe-number.el] 16進数などを確認
    :PROPERTIES:
    :CUSTOM_ID: orgca044d69
+   :ID:       D78CEF89-489D-48B5-9EB2-CC473E10CF52
    :END:
 
 =describe-number.el= を使うと，16進数表示や文字コードを確認できます．
@@ -3527,18 +3528,41 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
    :ID:       FB252972-149C-4A79-8D10-459DA717F9F7
    :END:
 
-標準では「Narrow」と表示されますが，「N」に短縮します．
+標準では「Narrow」と表示されますが，「N」に短縮します． =all-the-icons= を使って，画像に置き換えることも可能です．
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 ;; -*- lexical-binding: t -*-
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
+(defvar my-narrow-modeline '("#426EBB" "#FFFFFF"))
+(defvar my-last-selected-window nil)
+(defun my:update-last-selected-window ()
+  (setq my-last-selected-window (frame-selected-window)))
+(add-hook 'post-command-hook #'my:update-last-selected-window)
+(defun my:modeline-narrow ()
+  (custom-set-faces
+   `(mode-line ((t (:background
+                    ,(nth 0 my-narrow-modeline)
+                    :foreground
+                    ,(nth 1 my-narrow-modeline)))))))
+
+(defun my:modeline-widen ()
+  (custom-set-faces '(mode-line ((t nil)))))
+
 (setq mode-line-modes
       (mapcar
        (lambda (entry)
          (if (equal entry "%n")
-             '(:eval (if (buffer-narrowed-p) " N" ""))
+             '(:eval (let ((narrowed (buffer-narrowed-p)))
+                       (when (eq my-last-selected-window
+                                 (frame-selected-window))
+                         (if narrowed (my:modeline-narrow) (my:modeline-widen)))
+                       (if narrowed
+                           (concat
+                            " " (all-the-icons-octicon "fold" :v-adjust 0.0))
+                         "")
+                       ))
            entry))
        mode-line-modes))
 #+end_src
@@ -5855,7 +5879,8 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
   (defun my-undo-propose ()
     (interactive)
-    (if (buffer-narrowed-p)
+    (if (or (buffer-narrowed-p)
+            (eq major-mode 'org-mode))
         (undo)
       (undo-propose)))
 
@@ -7906,27 +7931,23 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 ** モードラインの色をナローイングで変える
    :PROPERTIES:
    :CUSTOM_ID: org581a32ab
+   :ID:       7E9DDA0D-7617-4E9F-B2D5-725B2DFC5FF2
    :END:
 
 =org-mode= かつ =narrowing= 中に，モードラインの色を変えて視覚的にわかりやすくします．
 
 #+begin_src emacs-lisp :tangle init-org.el
-;; モードラインの色をトグル
-(defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
 (defun ad:org-toggle-narrow-to-subtree ()
   (interactive)
   (if (buffer-narrowed-p)
-      (custom-set-faces
-       `(mode-line ((t (:background
-                        ,(nth 0 my-narrow-modeline)
-                        :foreground
-                        ,(nth 1 my-narrow-modeline))))))
-    (custom-set-faces '(mode-line ((t nil)))))
+      (my:modeline-widen)
+    (my:modeline-narrow))
   (message "%s" (if (buffer-narrowed-p) "narrow" "widen")))
 
-(advice-add 'org-toggle-narrow-to-subtree
-            :after #'ad:org-toggle-narrow-to-subtree)
+;; (advice-add 'org-toggle-narrow-to-subtree
+;;             :after #'ad:org-toggle-narrow-to-subtree)
 #+end_src
+
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf

@@ -1886,7 +1886,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
   (defun my-undo-propose ()
     (interactive)
-    (if (buffer-narrowed-p)
+    (if (or (buffer-narrowed-p)
+            (eq major-mode 'org-mode))
         (undo)
       (undo-propose)))
 

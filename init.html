@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-11-05 Tue 08:32 -->
+<!-- 2019-11-06 Wed 23:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4851,15 +4851,38 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 <h3 id="org3368625d"><span class="section-number-3">6.2</span> モードラインのNarrowを短くする</h3>
 <div class="outline-text-3" id="text-org3368625d">
 <p>
-標準では「Narrow」と表示されますが，「N」に短縮します．<br />
+標準では「Narrow」と表示されますが，「N」に短縮します． <code>all-the-icons</code> を使って，画像に置き換えることも可能です．<br />
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> mode-line-modes
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #426EBB;">#426EBB</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #8b2252;">"</span>))
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-last-selected-window</span> nil)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:update-last-selected-window</span> ()
+  (<span style="color: #a020f0;">setq</span> my-last-selected-window (frame-selected-window)))
+(add-hook 'post-command-hook #'my:update-last-selected-window)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:modeline-narrow</span> ()
+  (custom-set-faces
+   `(mode-line ((t (<span style="color: #483d8b;">:background</span>
+                    ,(nth 0 my-narrow-modeline)
+                    <span style="color: #483d8b;">:foreground</span>
+                    ,(nth 1 my-narrow-modeline)))))))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:modeline-widen</span> ()
+  (custom-set-faces '(mode-line ((t nil)))))
+
+(<span style="color: #a020f0;">setq</span> mode-line-modes
       (mapcar
        (<span style="color: #a020f0;">lambda</span> (entry)
          (<span style="color: #a020f0;">if</span> (equal entry <span style="color: #8b2252;">"%n"</span>)
-             '(<span style="color: #483d8b;">:eval</span> (<span style="color: #a020f0;">if</span> (buffer-narrowed-p) <span style="color: #8b2252;">" N"</span> <span style="color: #8b2252;">""</span>))
+             '(<span style="color: #483d8b;">:eval</span> (<span style="color: #a020f0;">let</span> ((narrowed (buffer-narrowed-p)))
+                       (<span style="color: #a020f0;">when</span> (eq my-last-selected-window
+                                 (frame-selected-window))
+                         (<span style="color: #a020f0;">if</span> narrowed (my:modeline-narrow) (my:modeline-widen)))
+                       (<span style="color: #a020f0;">if</span> narrowed
+                           (concat
+                            <span style="color: #8b2252;">" "</span> (all-the-icons-octicon <span style="color: #8b2252;">"fold"</span> <span style="color: #483d8b;">:v-adjust</span> 0.0))
+                         <span style="color: #8b2252;">""</span>)
+                       ))
            entry))
        mode-line-modes))
 </pre>
@@ -7514,7 +7537,8 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose</span> ()
     (<span style="color: #a020f0;">interactive</span>)
-    (<span style="color: #a020f0;">if</span> (buffer-narrowed-p)
+    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (buffer-narrowed-p)
+            (eq major-mode 'org-mode))
         (undo)
       (undo-propose)))
 
@@ -9863,25 +9887,20 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12398;&#33394;&#12434;&#12488;&#12464;&#12523;</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #5d5dFF;">#5d5dFF</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #8b2252;">"</span>))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-toggle-narrow-to-subtree</span> ()
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-toggle-narrow-to-subtree</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">if</span> (buffer-narrowed-p)
-      (custom-set-faces
-       `(mode-line ((t (<span style="color: #483d8b;">:background</span>
-                        ,(nth 0 my-narrow-modeline)
-                        <span style="color: #483d8b;">:foreground</span>
-                        ,(nth 1 my-narrow-modeline))))))
-    (custom-set-faces '(mode-line ((t nil)))))
+      (my:modeline-widen)
+    (my:modeline-narrow))
   (message <span style="color: #8b2252;">"%s"</span> (<span style="color: #a020f0;">if</span> (buffer-narrowed-p) <span style="color: #8b2252;">"narrow"</span> <span style="color: #8b2252;">"widen"</span>)))
 
-(advice-add 'org-toggle-narrow-to-subtree
-            <span style="color: #483d8b;">:after</span> #'ad:org-toggle-narrow-to-subtree)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'org-toggle-narrow-to-subtree</span>
+<span style="color: #b22222;">;;             </span><span style="color: #b22222;">:after #'ad:org-toggle-narrow-to-subtree)</span>
 </pre>
 </div>
 </div>
 </div>
+
 <div id="outline-container-org30aecedf" class="outline-3">
 <h3 id="org30aecedf"><span class="section-number-3">10.15</span> [org-capture] 高速にメモを取る</h3>
 <div class="outline-text-3" id="text-org30aecedf">
@@ -10838,7 +10857,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org3cb33a0"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org79b26b7"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14245,7 +14264,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-11-05 Tue 08:32</p>
+<p class="date">Created: 2019-11-06 Wed 23:57</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

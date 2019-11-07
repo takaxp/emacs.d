@@ -491,29 +491,37 @@
 
 (my-tick-init-time "editing")
 
+;; モードラインの色をトグル
+(defvar my-narrow-modeline '("#426EBB" "#FFFFFF"))
+(defvar my-last-selected-window nil)
+(defun my:update-last-selected-window ()
+  (setq my-last-selected-window (frame-selected-window)))
+(add-hook 'post-command-hook #'my:update-last-selected-window)
+(defun my:modeline-narrow ()
+  (custom-set-faces
+   `(mode-line ((t (:background
+                    ,(nth 0 my-narrow-modeline)
+                    :foreground
+                    ,(nth 1 my-narrow-modeline)))))))
+
+(defun my:modeline-widen ()
+  (custom-set-faces '(mode-line ((t nil)))))
+
 (setq mode-line-modes
       (mapcar
        (lambda (entry)
          (if (equal entry "%n")
-             '(:eval (if (buffer-narrowed-p) " N" ""))
+             '(:eval (let ((narrowed (buffer-narrowed-p)))
+                       (when (eq my-last-selected-window
+                                 (frame-selected-window))
+                         (if narrowed (my:modeline-narrow) (my:modeline-widen)))
+                       (if narrowed
+                           (concat
+                            " " (all-the-icons-octicon "fold" :v-adjust 0.0))
+                         "")
+                       ))
            entry))
        mode-line-modes))
-
-;; モードラインの色をトグル
-(defvar my-narrow-modeline '("#5d5dFF" "#FFFFFF"))
-(defun ad:org-toggle-narrow-to-subtree ()
-  (interactive)
-  (if (buffer-narrowed-p)
-      (custom-set-faces
-       `(mode-line ((t (:background
-                        ,(nth 0 my-narrow-modeline)
-                        :foreground
-                        ,(nth 1 my-narrow-modeline))))))
-    (custom-set-faces '(mode-line ((t nil)))))
-  (message "%s" (if (buffer-narrowed-p) "narrow" "widen")))
-
-(advice-add 'org-toggle-narrow-to-subtree
-            :after #'ad:org-toggle-narrow-to-subtree)
 
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
