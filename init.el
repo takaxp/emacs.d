@@ -491,38 +491,6 @@
 
 (my-tick-init-time "editing")
 
-;; モードラインの色をトグル
-(defvar my-narrow-modeline '("#426EBB" "#FFFFFF"))
-(defvar my-last-selected-window nil)
-(defun my:update-last-selected-window ()
-  (setq my-last-selected-window (frame-selected-window)))
-(add-hook 'post-command-hook #'my:update-last-selected-window)
-(defun my:modeline-narrow ()
-  (custom-set-faces
-   `(mode-line ((t (:background
-                    ,(nth 0 my-narrow-modeline)
-                    :foreground
-                    ,(nth 1 my-narrow-modeline)))))))
-
-(defun my:modeline-widen ()
-  (custom-set-faces '(mode-line ((t nil)))))
-
-(setq mode-line-modes
-      (mapcar
-       (lambda (entry)
-         (if (equal entry "%n")
-             '(:eval (let ((narrowed (buffer-narrowed-p)))
-                       (when (eq my-last-selected-window
-                                 (frame-selected-window))
-                         (if narrowed (my:modeline-narrow) (my:modeline-widen)))
-                       (if narrowed
-                           (concat
-                            " " (all-the-icons-octicon "fold" :v-adjust 0.0))
-                         "")
-                       ))
-           entry))
-       mode-line-modes))
-
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
           '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
@@ -985,7 +953,13 @@
   (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
                                   (".*Inconsolata.*" . 1.0))))) ; 0.9
 
-(set-default 'line-spacing 0.3)
+;; set-default で global 指定すると，ミニバッファの message で制御不能になる
+;; (set-default 'line-spacing 0.3)
+(defun my-linespacing ()
+  (unless (minibufferp)
+    (setq-local line-spacing 0.3)))
+(add-hook 'buffer-list-update-hook #'my-linespacing)
+(add-hook 'org-src-mode-hook #'my-linespacing)
 
 (declare-function my-daylight-theme "init" nil)
 (declare-function my-night-theme "init" nil)

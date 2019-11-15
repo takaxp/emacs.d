@@ -1290,6 +1290,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 ** EMPビルド用設定                                                    :macOS:
    :PROPERTIES:
    :CUSTOM_ID: org53a63301
+   :ID:       0BD226D5-3693-4808-B8D2-4FC2DC4C0593
    :END:
 
 NSビルド版で生じた日本語入力時のチラつきを避けるために，EMP版ビルドに(一時期)浮気しました．以下はその時にNSビルドの振る舞いに近づけるためにがんばった設定です．詳細な情報は，リンク先の記事にあります．
@@ -1476,6 +1477,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 ** バッファ間のカーソル移動
    :PROPERTIES:
    :CUSTOM_ID: org3bebf489
+   :ID:       C1188BA4-BF53-4937-AD05-0A76C3C2F5B0
    :END:
 
 =C-c o= でもいいですが，ワンアクションで移動できるようが楽です．次のように双方向で使えるように設定しています．
@@ -3522,7 +3524,69 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 (setq echo-keystrokes 0.5)
 #+end_src
 
-** モードラインのNarrowを短くする
+** TODO モードラインの色をナローイングで変える
+   :PROPERTIES:
+   :CUSTOM_ID: org581a32ab
+   :ID:       7E9DDA0D-7617-4E9F-B2D5-725B2DFC5FF2
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(defvar my-narrow-modeline '("#426EBB" "#FFFFFF"))
+(defvar my-last-selected-window nil)
+
+(defun my-update-last-selected-window ()
+  (setq my-last-selected-window (frame-selected-window)))
+(add-hook 'post-command-hook #'my-update-last-selected-window)
+
+(defun my-modeline-face (narrowing)
+  "Update modeline color.
+If NARROWING is nil, then change the color to indicating `widen'.
+Otherwise, indicating `narrowing'."
+  (if narrowing
+      (custom-set-faces
+       `(mode-line ((t (:background
+                        ,(nth 0 my-narrow-modeline)
+                        :foreground
+                        ,(nth 1 my-narrow-modeline))))))
+    (custom-set-faces '(mode-line ((t nil))))))
+
+;; mode-line-modes でこの関数をevalする．
+(defun my-update-modeline-color ()
+  (when (and (eq major-mode 'org-mode) ;; FIXME 最適化
+             (eq my-last-selected-window (frame-selected-window)))
+    (my-modeline-face (buffer-narrowed-p))))
+
+(with-eval-after-load "org"
+  (defun ad-org-toggle-narrow-to-subtree ()
+    (interactive)
+    (let ((narrowed (buffer-narrowed-p)))
+      (my-modeline-face narrowed) ;; FIXME
+      (message "%s" (if narrowed "narrow" "widen"))))
+  (advice-add 'org-toggle-narrow-to-subtree
+              :after #'ad-org-toggle-narrow-to-subtree))
+#+end_src
+
+*** COMMENT 分析
+    :PROPERTIES:
+    :ID:       F617841A-EC41-4C6C-8188-25CC499E85B4
+    :CUSTOM_ID: orgc287b70d
+    :END:
+
+#+begin_src emacs-lisp
+(benchmark-run 2000 (custom-set-faces '(mode-line ((t nil)))))
+#+end_src
+
+#+RESULTS:
+| 0.114245 | 0 | 0.0 |
+
+#+begin_src emacs-lisp
+(benchmark-run 2000 (message "done"))
+#+end_src
+
+#+RESULTS:
+| 0.052341 | 0 | 0.0 |
+
+** TODO モードラインのNarrowを短くする
    :PROPERTIES:
    :CUSTOM_ID: org3368625d
    :ID:       FB252972-149C-4A79-8D10-459DA717F9F7
@@ -3534,51 +3598,20 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 ;; -*- lexical-binding: t -*-
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
-(defvar my-narrow-modeline '("#426EBB" "#FFFFFF"))
-(defvar my-last-selected-window nil)
-(defun my:update-last-selected-window ()
-  (setq my-last-selected-window (frame-selected-window)))
-(add-hook 'post-command-hook #'my:update-last-selected-window)
-(defun my:modeline-narrow ()
-  (custom-set-faces
-   `(mode-line ((t (:background
-                    ,(nth 0 my-narrow-modeline)
-                    :foreground
-                    ,(nth 1 my-narrow-modeline)))))))
-
-(defun my:modeline-widen ()
-  (custom-set-faces '(mode-line ((t nil)))))
-
+#+begin_src emacs-lisp :tangle late-init.el
 (setq mode-line-modes
       (mapcar
        (lambda (entry)
          (if (equal entry "%n")
-             '(:eval (let ((narrowed (buffer-narrowed-p)))
-                       (when (eq my-last-selected-window
-                                 (frame-selected-window))
-                         (if narrowed (my:modeline-narrow) (my:modeline-widen)))
-                       (if narrowed
-                           (concat
-                            " " (all-the-icons-octicon "fold" :v-adjust 0.0))
+             '(:eval (progn
+                       (my-update-modeline-color) ;; 色の変更
+                       (if (buffer-narrowed-p)
+                           (concat " "
+                                   (all-the-icons-octicon "fold" :v-adjust 0.0))
                          "")
                        ))
            entry))
        mode-line-modes))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :exports none
-(with-eval-after-load "org"
-  (setq mode-line-modes
-        (mapcar
-         (lambda (entry)
-           (if (and (stringp entry)
-                    (string= entry "%n"))
-               '(:eval (if (and (= 1 (point-min))
-                                (= (1+ (buffer-size)) (point-max))) ""
-                         " N"))
-             entry))
-         mode-line-modes)))
 #+end_src
 
 ** モードラインの節約（VC-mode編）
@@ -3691,6 +3724,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 ** 常に *scratch* を表示して起動する
    :PROPERTIES:
    :CUSTOM_ID: org91a9f893
+   :ID:       4C2FF412-AC4B-4770-A1E0-4E5B38F4FD6A
    :END:
 
 最近は，起動用にメジャーモードを書いて対応しています．詳しくはリンク先にて．
@@ -3892,7 +3926,7 @@ Built-in の paren.el が利用できる．拡張版として [[http://www.emacs
   ;; Deep blue: #6666CC, orange: #FFCC66
   (set-face-background 'paren-face-match "#66CC66")
 
-  ;; for ivy-mode
+  ;; for ivy-mode, "Matches" と表示される関数との衝突をさける
   (defun ad:mic-paren-highlight (f)
     (if (active-minibuffer-window)
         (let ((paren-display-message 'never))
@@ -4581,10 +4615,11 @@ go get -v github.com/mdempsky/gocode
     ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done)
     (setq ivy-read-action-function #'ivy-hydra-read-action)
 
-    (setq ivy-use-virtual-buffers t)
+    (setq ivy-use-virtual-buffers nil)
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+    ;; (setq ivy-wrap t)
 
     (ivy-mode 1))
 
@@ -4601,6 +4636,17 @@ go get -v github.com/mdempsky/gocode
     (when (require 'smex nil t)
       (setq smex-history-length 35)
       (setq smex-completion-method 'ivy))
+
+    (unless (fboundp 'seq-sort-by) ;; emacs25
+      (defun seq-sort-by (function pred sequence)
+        "Sort SEQUENCE using PRED as a comparison function.
+Elements of SEQUENCE are transformed by FUNCTION before being
+sorted.  FUNCTION must be a function of one argument."
+        (seq-sort (lambda (a b)
+                    (funcall pred
+                             (funcall function a)
+                             (funcall function b)))
+                  sequence)))
 
     ;;  https://github.com/abo-abo/swiper/issues/1294
     (defun ivy--sort-by-len (name candidates)
@@ -6364,6 +6410,7 @@ the_silver_searcher @0.18.1 (textproc)
    CLOSED: [2018-09-23 Sun 22:30]
    :PROPERTIES:
    :CUSTOM_ID: orgc470d5a3
+   :ID:       734D2229-75FF-4342-AE78-1331C0D3004E
    :END:
 
 =backup-each-save= を使うようになりました．
@@ -7385,17 +7432,30 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (add-to-list 'org-modules 'ox-org)
     (add-to-list 'org-modules 'ox-json))
 
-  ;; (with-eval-after-load "org-tempo"
-  ;;   ;; 空行のときインデントさせない（Thanks to @conao3）
-  ;;   (when (require 'cl nil t)
-  ;;     (defun ad:org-tempo-complete-tag (f &rest arg)
-  ;;       (if (save-excursion
-  ;;             (beginning-of-line)
-  ;;             (looking-at "<"))
-  ;;           (flet ((indent-according-to-mode () #'ignore))
-  ;;             (apply f arg))
-  ;;         (apply f arg)))
-  ;;     (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
+  (with-eval-after-load "org-tempo"
+    ;; 空行のとき "<" をインデントさせない
+    (defun ad:org-tempo-complete-tag (f &rest arg)
+      (if (save-excursion
+            (beginning-of-line)
+            (looking-at "<"))
+          (progn
+            (advice-add 'indent-according-to-mode :override #'ignore)
+            (apply f arg)
+            (advice-remove 'indent-according-to-mode #'ignore))
+        (apply f arg)))
+    (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+  ;; (Thanks to @conao3)
+  ;; but when using `flet', byte-compile will warn a malformed function
+  ;; and using `cl-flet' will not provide us the expected result...
+  ;; (when (require 'cl-lib nil t)
+  ;;   (defun ad:org-tempo-complete-tag (f &rest arg)
+  ;;     (if (save-excursion
+  ;;           (beginning-of-line)
+  ;;           (looking-at "<"))
+  ;;         (cl-flet ((indent-according-to-mode () #'ignore))
+  ;;           (apply f arg))
+  ;;       (apply f arg)))
+  ;;   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 
   (with-eval-after-load "org-clock"
     ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
@@ -7490,8 +7550,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (message "[async] Uploading...")
       (async-start
        `(lambda ()
-          (when (and (load "/Users/taka/.emacs" nil t)
-                     (load "/Users/taka/.emacs.d/lisp/init-org.el" nil t)
+          (when (and (load "~/.emacs" nil t)
+                     (load "~/.emacs.d/lisp/init-org.el" nil t)
                      (require 'org nil t))
             (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
             (if (file-exists-p
@@ -7926,26 +7986,6 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
     (defun my-load-echo-org-link ()
       (setq-local eldoc-documentation-function #'my-echo-org-link))))
-#+end_src
-
-** モードラインの色をナローイングで変える
-   :PROPERTIES:
-   :CUSTOM_ID: org581a32ab
-   :ID:       7E9DDA0D-7617-4E9F-B2D5-725B2DFC5FF2
-   :END:
-
-=org-mode= かつ =narrowing= 中に，モードラインの色を変えて視覚的にわかりやすくします．
-
-#+begin_src emacs-lisp :tangle init-org.el
-(defun ad:org-toggle-narrow-to-subtree ()
-  (interactive)
-  (if (buffer-narrowed-p)
-      (my:modeline-widen)
-    (my:modeline-narrow))
-  (message "%s" (if (buffer-narrowed-p) "narrow" "widen")))
-
-;; (advice-add 'org-toggle-narrow-to-subtree
-;;             :after #'ad:org-toggle-narrow-to-subtree)
 #+end_src
 
 ** [org-capture] 高速にメモを取る
@@ -9351,12 +9391,15 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 ** TODO [ox] 出力形式の拡張
    :PROPERTIES:
    :CUSTOM_ID: orgbb452f44
+   :ID:       21200BFD-326F-4CD3-A5E4-CE26F87E2869
    :END:
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "ox"
   ;; (setq org-export-default-language "ja")
-  (require 'ox-pandoc nil t)
+  (if (eq system-type 'darwin)
+      (require 'ox-pandoc nil t)
+    (message "--- pandoc is NOT configured for Windows or Linux."))
   (require 'ox-qmd nil t) ;; Quita-style
   (require 'ox-gfm nil t)) ;; GitHub-style
 #+end_src
@@ -10743,7 +10786,30 @@ Linux では次のように処理するだけでよく，意外と簡単．
    :END:
 
 #+begin_src emacs-lisp :tangle yes
-(set-default 'line-spacing 0.3)
+;; set-default で global 指定すると，ミニバッファの message で制御不能になる
+;; propertize で拡大できるが，global の値以下に縮小できなくなる．
+;; (set-default 'line-spacing 0.3)
+(defun my-linespacing ()
+  (unless (minibufferp)
+    (setq-local line-spacing 0.3)))
+(add-hook 'buffer-list-update-hook #'my-linespacing)
+(add-hook 'org-src-mode-hook #'my-linespacing)
+#+end_src
+
+*** COMMENT 分析
+    :PROPERTIES:
+    :ID:       BFA5012E-FEBB-4C02-A29E-C9487C4C0F64
+    :CUSTOM_ID: orgfc334cfa
+    :END:
+#+begin_src emacs-lisp
+;;(add-hook 'post-command-hook #'my-check-current-buffer)
+;;(add-hook 'post-command-hook #'my-linespacing)
+;; (add-hook 'find-file-hook #'my-linespacing)
+;; - org source (C-c '), buffer-list-update-hook will not support this.
+;; - help function
+;; - visit file through ivy interface
+;; - visit file through find file
+;; - multiple C-x, buffer-list-update-hook will break this so need exclude minibuffer
 #+end_src
 
 ** パッチをカラフルに表示する
@@ -11942,6 +12008,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 * おわりに
   :PROPERTIES:
   :CUSTOM_ID: org362fb2dc
+  :ID:       790BEFC2-3606-498E-AC0D-775D1709430D
   :END:
 
 以上が，私の =init.el= とその説明です．

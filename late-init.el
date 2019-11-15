@@ -914,6 +914,54 @@ This works also for other defined begin/end tokens to define the structure."
 
 (setq echo-keystrokes 0.5)
 
+(defvar my-narrow-modeline '("#426EBB" "#FFFFFF"))
+(defvar my-last-selected-window nil)
+
+(defun my-update-last-selected-window ()
+  (setq my-last-selected-window (frame-selected-window)))
+(add-hook 'post-command-hook #'my-update-last-selected-window)
+
+(defun my-modeline-face (narrowing)
+  "Update modeline color.
+If NARROWING is nil, then change the color to indicating `widen'.
+Otherwise, indicating `narrowing'."
+  (if narrowing
+      (custom-set-faces
+       `(mode-line ((t (:background
+                        ,(nth 0 my-narrow-modeline)
+                        :foreground
+                        ,(nth 1 my-narrow-modeline))))))
+    (custom-set-faces '(mode-line ((t nil))))))
+
+;; mode-line-modes でこの関数をevalする．
+(defun my-update-modeline-color ()
+  (when (and (eq major-mode 'org-mode) ;; FIXME 最適化
+             (eq my-last-selected-window (frame-selected-window)))
+    (my-modeline-face (buffer-narrowed-p))))
+
+(with-eval-after-load "org"
+  (defun ad-org-toggle-narrow-to-subtree ()
+    (interactive)
+    (let ((narrowed (buffer-narrowed-p)))
+      (my-modeline-face narrowed) ;; FIXME
+      (message "%s" (if narrowed "narrow" "widen"))))
+  (advice-add 'org-toggle-narrow-to-subtree
+              :after #'ad-org-toggle-narrow-to-subtree))
+
+(setq mode-line-modes
+      (mapcar
+       (lambda (entry)
+         (if (equal entry "%n")
+             '(:eval (progn
+                       (my-update-modeline-color) ;; 色の変更
+                       (if (buffer-narrowed-p)
+                           (concat " "
+                                   (all-the-icons-octicon "fold" :v-adjust 0.0))
+                         "")
+                       ))
+           entry))
+       mode-line-modes))
+
 (defun ad:split-window-below (&optional _size)
   "An extention to switch to \*scratch\* buffer after splitting window."
   (my-open-scratch))
@@ -967,7 +1015,7 @@ This works also for other defined begin/end tokens to define the structure."
   ;; Deep blue: #6666CC, orange: #FFCC66
   (set-face-background 'paren-face-match "#66CC66")
 
-  ;; for ivy-mode
+  ;; for ivy-mode, "Matches" と表示される関数との衝突をさける
   (defun ad:mic-paren-highlight (f)
     (if (active-minibuffer-window)
         (let ((paren-display-message 'never))
@@ -1363,10 +1411,11 @@ This works also for other defined begin/end tokens to define the structure."
     ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done)
     (setq ivy-read-action-function #'ivy-hydra-read-action)
 
-    (setq ivy-use-virtual-buffers t)
+    (setq ivy-use-virtual-buffers nil)
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+    ;; (setq ivy-wrap t)
 
     (ivy-mode 1))
 
@@ -1383,6 +1432,17 @@ This works also for other defined begin/end tokens to define the structure."
     (when (require 'smex nil t)
       (setq smex-history-length 35)
       (setq smex-completion-method 'ivy))
+
+    (unless (fboundp 'seq-sort-by) ;; emacs25
+      (defun seq-sort-by (function pred sequence)
+        "Sort SEQUENCE using PRED as a comparison function.
+Elements of SEQUENCE are transformed by FUNCTION before being
+sorted.  FUNCTION must be a function of one argument."
+        (seq-sort (lambda (a b)
+                    (funcall pred
+                             (funcall function a)
+                             (funcall function b)))
+                  sequence)))
 
     ;;  https://github.com/abo-abo/swiper/issues/1294
     (defun ivy--sort-by-len (name candidates)

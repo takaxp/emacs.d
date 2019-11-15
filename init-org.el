@@ -177,17 +177,30 @@
     (add-to-list 'org-modules 'ox-org)
     (add-to-list 'org-modules 'ox-json))
 
-  ;; (with-eval-after-load "org-tempo"
-  ;;   ;; 空行のときインデントさせない（Thanks to @conao3）
-  ;;   (when (require 'cl nil t)
-  ;;     (defun ad:org-tempo-complete-tag (f &rest arg)
-  ;;       (if (save-excursion
-  ;;             (beginning-of-line)
-  ;;             (looking-at "<"))
-  ;;           (flet ((indent-according-to-mode () #'ignore))
-  ;;             (apply f arg))
-  ;;         (apply f arg)))
-  ;;     (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)))
+  (with-eval-after-load "org-tempo"
+    ;; 空行のとき "<" をインデントさせない
+    (defun ad:org-tempo-complete-tag (f &rest arg)
+      (if (save-excursion
+            (beginning-of-line)
+            (looking-at "<"))
+          (progn
+            (advice-add 'indent-according-to-mode :override #'ignore)
+            (apply f arg)
+            (advice-remove 'indent-according-to-mode #'ignore))
+        (apply f arg)))
+    (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+  ;; (Thanks to @conao3)
+  ;; but when using `flet', byte-compile will warn a malformed function
+  ;; and using `cl-flet' will not provide us the expected result...
+  ;; (when (require 'cl-lib nil t)
+  ;;   (defun ad:org-tempo-complete-tag (f &rest arg)
+  ;;     (if (save-excursion
+  ;;           (beginning-of-line)
+  ;;           (looking-at "<"))
+  ;;         (cl-flet ((indent-according-to-mode () #'ignore))
+  ;;           (apply f arg))
+  ;;       (apply f arg)))
+  ;;   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 
   (with-eval-after-load "org-clock"
     ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
@@ -265,8 +278,8 @@
       (message "[async] Uploading...")
       (async-start
        `(lambda ()
-          (when (and (load "/Users/taka/.emacs" nil t)
-                     (load "/Users/taka/.emacs.d/lisp/init-org.el" nil t)
+          (when (and (load "~/.emacs" nil t)
+                     (load "~/.emacs.d/lisp/init-org.el" nil t)
                      (require 'org nil t))
             (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
             (if (file-exists-p
@@ -567,16 +580,6 @@
 
     (defun my-load-echo-org-link ()
       (setq-local eldoc-documentation-function #'my-echo-org-link))))
-
-(defun ad:org-toggle-narrow-to-subtree ()
-  (interactive)
-  (if (buffer-narrowed-p)
-      (my:modeline-widen)
-    (my:modeline-narrow))
-  (message "%s" (if (buffer-narrowed-p) "narrow" "widen")))
-
-;; (advice-add 'org-toggle-narrow-to-subtree
-;;             :after #'ad:org-toggle-narrow-to-subtree)
 
 (when (autoload-if-found
        '(org-capture)
@@ -1545,7 +1548,9 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 (with-eval-after-load "ox"
   ;; (setq org-export-default-language "ja")
-  (require 'ox-pandoc nil t)
+  (if (eq system-type 'darwin)
+      (require 'ox-pandoc nil t)
+    (message "--- pandoc is NOT configured for Windows or Linux."))
   (require 'ox-qmd nil t) ;; Quita-style
   (require 'ox-gfm nil t)) ;; GitHub-style
 
