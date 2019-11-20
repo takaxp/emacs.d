@@ -846,6 +846,7 @@
     (add-hook 'moom-delete-window-hook #'dimmer-on)
 
     (moom-recommended-keybindings 'all)
+    (setq moom-command-with-centering nil)
     (setq moom-lighter "M")
     (setq moom-verbose t)
     (moom-mode 1)
@@ -954,12 +955,14 @@
                                   (".*Inconsolata.*" . 1.0))))) ; 0.9
 
 ;; set-default で global 指定すると，ミニバッファの message で制御不能になる
+;; propertize で拡大できるが，global の値以下に縮小できなくなる．
 ;; (set-default 'line-spacing 0.3)
 (defun my-linespacing ()
   (unless (minibufferp)
     (setq-local line-spacing 0.3)))
 (add-hook 'buffer-list-update-hook #'my-linespacing)
 (add-hook 'org-src-mode-hook #'my-linespacing)
+(add-hook 'debugger-mode-hook #'my-linespacing)
 
 (declare-function my-daylight-theme "init" nil)
 (declare-function my-night-theme "init" nil)

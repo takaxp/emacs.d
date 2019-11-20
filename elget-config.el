@@ -268,6 +268,7 @@
     (el-get-bundle "dakra/statusbar.el" :name "statusbar")
     (el-get-bundle "zk-phi/gitmole")
     (el-get-bundle "kawabata/rot47")
+    (el-get-bundle "takaxp/bsv")
 
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; System related ;;;

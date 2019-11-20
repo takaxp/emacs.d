@@ -914,9 +914,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
             (shell-command-to-string
              (concat "cat " buffer-file-name "| perl "
                      (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
-           (message "Copying %s ... done" buffer-file-name)
-           (sit-for 1.5)
-           (message ""))
+           (minibuffer-message "Copying %s ... done" buffer-file-name))
           (t (message "There is NOT such a file.")))))
 #+end_src
 

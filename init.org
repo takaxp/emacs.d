@@ -1490,6 +1490,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 ** 対応するカッコを選択（逆方向）
    :PROPERTIES:
    :CUSTOM_ID: orgc4c0ed9a
+   :ID:       4DF3509C-9B32-453D-AEFE-9A7C9365A8FC
    :END:
 
  - =C-M-SPC= (mark-sexp) は，カーソル位置から順方向に選択．
@@ -1615,6 +1616,10 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 
 切り替えるときにミニバッファにバッファ名が列挙されますが，できればセパレータを表示したいところです．FontAwesome を使えば，だいぶ見やすくなるかも．
 
+=bs.el= が表示するバッファリストが横長で見にくいので，縦表示する拡張パッケージを作りました．表示中のリストには番号を割り当てられていて，番号に対応するキーを押すとそのバッファに移動できます． =bs.el= のコマンドを ~advice~ しているだけなので，それを解けばオリジナルの =bs.el= の振る舞いに戻ります．そのための関数(=M-x bsv-disable-advices=)も準備しておきました．
+
+ - https://github.com/takaxp/bsv
+
 #+begin_src emacs-lisp :tangle late-init.el
 (global-set-key (kbd "M-]") 'bs-cycle-next)
 (when (display-graphic-p)
@@ -1623,7 +1628,12 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 (with-eval-after-load "bs"
   (custom-set-variables
    '(bs-cycle-configuration-name "files-and-scratch")
-   '(bs-max-window-height 10)))
+   '(bs-max-window-height 10))
+
+   ;; リストを縦表示する
+  (when (require 'bsv nil t)
+    (setq bsv-message-timeout 3)
+    (setq bsv-max-height 5)))
 #+end_src
 
 ** [bm.el] カーソル位置をブックマークして追う
@@ -1747,6 +1757,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 ** [centered-cursor-mode.el] カーソル位置をバッファ中央に固定
    :PROPERTIES:
    :CUSTOM_ID: orgfa2bad61
+   :ID:       E149895C-4FA9-43B3-B772-3ED5ABC268F5
    :END:
 
 =isearch-mode= の時だけ有効にしています．
@@ -3561,12 +3572,12 @@ Otherwise, indicating `narrowing'."
     (interactive)
     (let ((narrowed (buffer-narrowed-p)))
       (my-modeline-face narrowed) ;; FIXME
-      (message "%s" (if narrowed "narrow" "widen"))))
+      (minibuffer-message "%s" (if narrowed "narrow" "widen"))))
   (advice-add 'org-toggle-narrow-to-subtree
               :after #'ad-org-toggle-narrow-to-subtree))
 #+end_src
 
-*** COMMENT 分析
+*** COMMENT 分析1
     :PROPERTIES:
     :ID:       F617841A-EC41-4C6C-8188-25CC499E85B4
     :CUSTOM_ID: orgc287b70d
@@ -3586,6 +3597,38 @@ Otherwise, indicating `narrowing'."
 #+RESULTS:
 | 0.052341 | 0 | 0.0 |
 
+*** COMMENT 分析2
+    :PROPERTIES:
+    :CUSTOM_ID: org431ed114
+    :END:
+
+#+begin_src emacs-lisp
+(with-eval-after-load "postpone"
+  ;; メッセージバッファの表示位置を強制的に最新に固定する
+  ;; https://stackoverflow.com/questions/4682033/in-emacs-can-i-set-up-the-messages-buffer-so-that-it-tails
+  ;; (defun message-buffer-goto-end-of-buffer (&rest args)
+  ;;   (let* ((win (get-buffer-window "*Messages*"))
+  ;;          (buf (and win (window-buffer win))))
+  ;;     (and win (not (equal (current-buffer) buf))
+  ;;          (set-window-point
+  ;;           win (with-current-buffer buf (point-max))))))
+  ;; (advice-add 'message :after 'message-buffer-goto-end-of-buffer)
+  )
+#+end_src
+
+#+begin_src emacs-lisp
+(with-eval-after-load "postpone"
+  ;; NOT SURE
+  (defun my-update-modeline-narrow-or-not ()
+    (unless (minibufferp)
+      (my-modeline-face (buffer-narrowed-p))))
+  ;; 条件に合うバッファを表示するときに常に色をチェックする．
+  ;; mode-line 変数を毎回叩くよりも，呼び出し回数は減少するはず．
+  (add-hook 'post-command-hook #'my-update-modeline-narrow-or-not)
+  ;; 起動時にすでに narrowing されているバッファで正しく色を変える．
+  (add-hook 'buffer-list-update-hook #'my-update-modeline-narrow-or-not))
+#+end_src
+
 ** TODO モードラインのNarrowを短くする
    :PROPERTIES:
    :CUSTOM_ID: org3368625d
@@ -3604,7 +3647,7 @@ Otherwise, indicating `narrowing'."
        (lambda (entry)
          (if (equal entry "%n")
              '(:eval (progn
-                       (my-update-modeline-color) ;; 色の変更
+                      (my-update-modeline-color) ;; 色の変更
                        (if (buffer-narrowed-p)
                            (concat " "
                                    (all-the-icons-octicon "fold" :v-adjust 0.0))
@@ -5618,7 +5661,8 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+begin_src emacs-lisp :tangle late-init.el
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark ()
-  (when buffer-file-name
+  (when (and buffer-file-name
+             isearch-mode)
     (bookmark-set my-cg-bookmark)))
 (when (require 'ah nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
@@ -6171,6 +6215,7 @@ http://www.emacswiki.org/emacs/EmacsSession
 ** [helpful.el] リッチなヘルプページ
    :PROPERTIES:
    :CUSTOM_ID: orgf2d47943
+   :ID:       9F5B333C-A279-4CD6-9F19-AB64C5374479
    :END:
 
 ヘルプの内容を見やすく構造化して表示してくれます．関数や変数のヘルプだけでなく，キーやマクロなども見やすく表示してくれます．
@@ -7102,6 +7147,79 @@ trim_trailing_whitespace = true
 (add-hook 'org-mode-hook #'my-company-activate)
 
 (with-eval-after-load "company"
+  ;; http://xenodium.com/emacs-org-block-company-completion/
+  ;; (require 'map)
+  ;; (require 'org)
+  ;; (require 'seq)
+  (defvar company-org-block-bol-p t "If t, detect completion when at
+begining of line, otherwise detect completion anywhere.")
+
+  (defvar company-org--regexp "<\\([^ ]*\\)")
+
+  (defun company-org-block (command &optional arg &rest ignored)
+    "Complete org babel languages into source blocks."
+    (interactive (list 'interactive))
+    (cl-case command
+      (interactive (company-begin-backend 'company-org-block))
+      (prefix (when (derived-mode-p 'org-mode)
+                (company-org-block--grab-symbol-cons)))
+      (candidates (company-org-block--candidates arg))
+      (post-completion
+       (company-org-block--expand arg))))
+
+  (defun company-org-block--candidates (prefix)
+    "Return a list of org babel languages matching PREFIX."
+    (seq-filter (lambda (language)
+                  (string-prefix-p prefix language))
+                ;; Flatten `org-babel-load-languages' and
+                ;; `org-structure-template-alist', join, and sort.
+                (seq-sort
+                 #'string-lessp
+                 (append
+                  (mapcar #'prin1-to-string
+                          (map-keys org-babel-load-languages))
+                  (map-values org-structure-template-alist)))))
+
+  (defun company-org-block--template-p (template)
+    (seq-contains (map-values org-structure-template-alist)
+                  template))
+
+  (defun company-org-block--expand (insertion)
+    "Replace INSERTION with actual source block."
+    (delete-region (point) (- (point) (1+ ;; Include "<" in length.
+                                       (length insertion))))
+    (if (company-org-block--template-p insertion)
+        (company-org-block--wrap-point insertion
+                                       ;; May be multiple words.
+                                       ;; Take the first one.
+                                       (nth 0 (split-string insertion)))
+      (company-org-block--wrap-point (format "src %s" insertion)
+                                     "src")))
+
+  (defun company-org-block--wrap-point (begin end)
+    "Wrap point with block using BEGIN and END.  For example:
+,#+begin_BEGIN
+  |
+,#+end_END"
+    (insert (format "#+begin_%s\n" begin))
+    (insert (make-string org-edit-src-content-indentation ?\s))
+    ;; Saving excursion restores point to location inside code block.
+    (save-excursion
+      (insert (format "\n#+end_%s" end))))
+
+  (defun company-org-block--grab-symbol-cons ()
+    "Return cons with symbol and t whenever prefix of < is found.
+For example: \"<e\" -> (\"e\" . t)"
+    (when (looking-back (if company-org-block-bol-p
+                            (concat "^" company-org--regexp)
+                          company-org--regexp)
+                        (line-beginning-position))
+      (cons (match-string-no-properties 1) t)))
+
+  (add-to-list 'company-backends 'company-org-block))
+
+
+(with-eval-after-load "company"
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
   (define-key company-search-map (kbd "C-n") 'company-select-next)
@@ -7109,7 +7227,10 @@ trim_trailing_whitespace = true
   (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   ;; To complete file path, move `company-files' to the fist item of the list
   (delq 'company-files company-backends)
+
+
   (add-to-list 'company-backends 'company-files)
+
   ;; 補完候補に番号を表示
   (setq company-show-numbers t)
   (global-company-mode)
@@ -7278,7 +7399,13 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (with-eval-after-load "org"
     ;; 関連モジュールの読み込み
     (require 'org-mobile nil t)
-    (require 'org-eldoc nil t) ;; org-eldoc を読み込む
+    (when (require 'org-eldoc nil t)
+      (defun my-org-eldoc-load ()
+        "Set up org-eldoc documentation function."
+        (interactive)
+        (add-function :before-until (local 'eldoc-documentation-function)
+                      #'org-eldoc-documentation-function))
+      (advice-add 'org-eldoc-load :override #'my-org-eldoc-load))
 
     ;; モジュールの追加
     (add-to-list 'org-modules 'org-habit)
@@ -7456,6 +7583,26 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;;           (apply f arg))
   ;;       (apply f arg)))
   ;;   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+
+  (with-eval-after-load "org-tempo"
+    (defun my-org-tempo-add-block (entry)
+      "Add block entry from `org-structure-template-alist'."
+      (let* ((key (format "<%s" (car entry)))
+             (name (cdr entry))
+             (special nil)) ;; FIXED
+        (tempo-define-template
+         (format "org-%s" (replace-regexp-in-string " " "-" name))
+         `(,(format "#+begin_%s%s" name (if special " " ""))
+           ,(when special 'p) '> n '> ,(unless special 'p) n
+           ,(format "#+end_%s" (car (split-string name " ")))
+           >)
+         key
+         (format "Insert a %s block" name)
+         'org-tempo-tags)))
+    ;; 更新
+    (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
+    ;; 反映
+    (org-tempo-add-templates))
 
   (with-eval-after-load "org-clock"
     ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
@@ -7985,7 +8132,10 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
           (eldoc-message (format "%s %s" link msg)))))
 
     (defun my-load-echo-org-link ()
-      (setq-local eldoc-documentation-function #'my-echo-org-link))))
+      (add-function :before-until (local 'eldoc-documentation-function)
+                    #'my-echo-org-link)
+      ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
+      )))
 #+end_src
 
 ** [org-capture] 高速にメモを取る
@@ -8022,7 +8172,8 @@ will not be modified."
           (org-set-property created now)
           (org-cycle-hide-drawers 'children))))
     (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
-      (my-org-set-created-property))
+      (unless (org-at-item-checkbox-p)
+        (my-org-set-created-property)))
     (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"
@@ -8535,6 +8686,7 @@ update it for multiple appts?")
 ** [org-babel] Orgバッファでソースコードを扱う
    :PROPERTIES:
    :CUSTOM_ID: org49ca5eb9
+   :ID:       544679A8-BD80-4239-8734-46762A93B580
    :END:
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -8577,6 +8729,7 @@ update it for multiple appts?")
 ** [org-babel] ソースブロックの入力キーをカスタマイズ
    :PROPERTIES:
    :CUSTOM_ID: orgc0ed68a2
+   :ID:       1CF7B7AE-5878-485E-9124-C8A4128BA573
    :END:
 
 ソースブロックを入力するときは， <+ =TAB= でテンプレートを高速に入力できます．しかし，利用する言語までは指定できないので，特定の内容について対応するコマンドを割り当てて起きます．以下の例を設定として追加すると， <S+ =TAB= で =emacs-lisp= を， <C+ =TAB= でコメントブロックを指定できます．
@@ -10153,6 +10306,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (add-hook 'moom-delete-window-hook #'dimmer-on)
 
     (moom-recommended-keybindings 'all)
+    (setq moom-command-with-centering nil)
     (setq moom-lighter "M")
     (setq moom-verbose t)
     (moom-mode 1)
@@ -10794,6 +10948,7 @@ Linux では次のように処理するだけでよく，意外と簡単．
     (setq-local line-spacing 0.3)))
 (add-hook 'buffer-list-update-hook #'my-linespacing)
 (add-hook 'org-src-mode-hook #'my-linespacing)
+(add-hook 'debugger-mode-hook #'my-linespacing)
 #+end_src
 
 *** COMMENT 分析

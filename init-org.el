@@ -23,7 +23,13 @@
   (with-eval-after-load "org"
     ;; 関連モジュールの読み込み
     (require 'org-mobile nil t)
-    (require 'org-eldoc nil t) ;; org-eldoc を読み込む
+    (when (require 'org-eldoc nil t)
+      (defun my-org-eldoc-load ()
+        "Set up org-eldoc documentation function."
+        (interactive)
+        (add-function :before-until (local 'eldoc-documentation-function)
+                      #'org-eldoc-documentation-function))
+      (advice-add 'org-eldoc-load :override #'my-org-eldoc-load))
 
     ;; モジュールの追加
     (add-to-list 'org-modules 'org-habit)
@@ -201,6 +207,26 @@
   ;;           (apply f arg))
   ;;       (apply f arg)))
   ;;   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+
+  (with-eval-after-load "org-tempo"
+    (defun my-org-tempo-add-block (entry)
+      "Add block entry from `org-structure-template-alist'."
+      (let* ((key (format "<%s" (car entry)))
+             (name (cdr entry))
+             (special nil)) ;; FIXED
+        (tempo-define-template
+         (format "org-%s" (replace-regexp-in-string " " "-" name))
+         `(,(format "#+begin_%s%s" name (if special " " ""))
+           ,(when special 'p) '> n '> ,(unless special 'p) n
+           ,(format "#+end_%s" (car (split-string name " ")))
+           >)
+         key
+         (format "Insert a %s block" name)
+         'org-tempo-tags)))
+    ;; 更新
+    (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
+    ;; 反映
+    (org-tempo-add-templates))
 
   (with-eval-after-load "org-clock"
     ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
@@ -579,7 +605,10 @@
           (eldoc-message (format "%s %s" link msg)))))
 
     (defun my-load-echo-org-link ()
-      (setq-local eldoc-documentation-function #'my-echo-org-link))))
+      (add-function :before-until (local 'eldoc-documentation-function)
+                    #'my-echo-org-link)
+      ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
+      )))
 
 (when (autoload-if-found
        '(org-capture)
@@ -606,7 +635,8 @@ will not be modified."
           (org-set-property created now)
           (org-cycle-hide-drawers 'children))))
     (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
-      (my-org-set-created-property))
+      (unless (org-at-item-checkbox-p)
+        (my-org-set-created-property)))
     (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"

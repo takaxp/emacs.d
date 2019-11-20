@@ -231,7 +231,12 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (with-eval-after-load "bs"
   (custom-set-variables
    '(bs-cycle-configuration-name "files-and-scratch")
-   '(bs-max-window-height 10)))
+   '(bs-max-window-height 10))
+
+   ;; リストを縦表示する
+  (when (require 'bsv nil t)
+    (setq bsv-message-timeout 3)
+    (setq bsv-max-height 5)))
 
 (when (autoload-if-found
        '(my-toggle-bm
@@ -944,7 +949,7 @@ Otherwise, indicating `narrowing'."
     (interactive)
     (let ((narrowed (buffer-narrowed-p)))
       (my-modeline-face narrowed) ;; FIXME
-      (message "%s" (if narrowed "narrow" "widen"))))
+      (minibuffer-message "%s" (if narrowed "narrow" "widen"))))
   (advice-add 'org-toggle-narrow-to-subtree
               :after #'ad-org-toggle-narrow-to-subtree))
 
@@ -953,7 +958,7 @@ Otherwise, indicating `narrowing'."
        (lambda (entry)
          (if (equal entry "%n")
              '(:eval (progn
-                       (my-update-modeline-color) ;; 色の変更
+                      (my-update-modeline-color) ;; 色の変更
                        (if (buffer-narrowed-p)
                            (concat " "
                                    (all-the-icons-octicon "fold" :v-adjust 0.0))
@@ -1850,7 +1855,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark ()
-  (when buffer-file-name
+  (when (and buffer-file-name
+             isearch-mode)
     (bookmark-set my-cg-bookmark)))
 (when (require 'ah nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
@@ -2457,6 +2463,79 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 (add-hook 'org-mode-hook #'my-company-activate)
 
 (with-eval-after-load "company"
+  ;; http://xenodium.com/emacs-org-block-company-completion/
+  ;; (require 'map)
+  ;; (require 'org)
+  ;; (require 'seq)
+  (defvar company-org-block-bol-p t "If t, detect completion when at
+begining of line, otherwise detect completion anywhere.")
+
+  (defvar company-org--regexp "<\\([^ ]*\\)")
+
+  (defun company-org-block (command &optional arg &rest ignored)
+    "Complete org babel languages into source blocks."
+    (interactive (list 'interactive))
+    (cl-case command
+      (interactive (company-begin-backend 'company-org-block))
+      (prefix (when (derived-mode-p 'org-mode)
+                (company-org-block--grab-symbol-cons)))
+      (candidates (company-org-block--candidates arg))
+      (post-completion
+       (company-org-block--expand arg))))
+
+  (defun company-org-block--candidates (prefix)
+    "Return a list of org babel languages matching PREFIX."
+    (seq-filter (lambda (language)
+                  (string-prefix-p prefix language))
+                ;; Flatten `org-babel-load-languages' and
+                ;; `org-structure-template-alist', join, and sort.
+                (seq-sort
+                 #'string-lessp
+                 (append
+                  (mapcar #'prin1-to-string
+                          (map-keys org-babel-load-languages))
+                  (map-values org-structure-template-alist)))))
+
+  (defun company-org-block--template-p (template)
+    (seq-contains (map-values org-structure-template-alist)
+                  template))
+
+  (defun company-org-block--expand (insertion)
+    "Replace INSERTION with actual source block."
+    (delete-region (point) (- (point) (1+ ;; Include "<" in length.
+                                       (length insertion))))
+    (if (company-org-block--template-p insertion)
+        (company-org-block--wrap-point insertion
+                                       ;; May be multiple words.
+                                       ;; Take the first one.
+                                       (nth 0 (split-string insertion)))
+      (company-org-block--wrap-point (format "src %s" insertion)
+                                     "src")))
+
+  (defun company-org-block--wrap-point (begin end)
+    "Wrap point with block using BEGIN and END.  For example:
+#+begin_BEGIN
+  |
+#+end_END"
+    (insert (format "#+begin_%s\n" begin))
+    (insert (make-string org-edit-src-content-indentation ?\s))
+    ;; Saving excursion restores point to location inside code block.
+    (save-excursion
+      (insert (format "\n#+end_%s" end))))
+
+  (defun company-org-block--grab-symbol-cons ()
+    "Return cons with symbol and t whenever prefix of < is found.
+For example: \"<e\" -> (\"e\" . t)"
+    (when (looking-back (if company-org-block-bol-p
+                            (concat "^" company-org--regexp)
+                          company-org--regexp)
+                        (line-beginning-position))
+      (cons (match-string-no-properties 1) t)))
+
+  (add-to-list 'company-backends 'company-org-block))
+
+
+(with-eval-after-load "company"
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
   (define-key company-search-map (kbd "C-n") 'company-select-next)
@@ -2464,7 +2543,10 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
   (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   ;; To complete file path, move `company-files' to the fist item of the list
   (delq 'company-files company-backends)
+
+
   (add-to-list 'company-backends 'company-files)
+
   ;; 補完候補に番号を表示
   (setq company-show-numbers t)
   (global-company-mode)
