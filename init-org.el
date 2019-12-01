@@ -189,10 +189,8 @@
       (if (save-excursion
             (beginning-of-line)
             (looking-at "<"))
-          (progn
-            (advice-add 'indent-according-to-mode :override #'ignore)
-            (apply f arg)
-            (advice-remove 'indent-according-to-mode #'ignore))
+          (let ((indent-line-function 'ignore))
+            (apply f arg))
         (apply f arg)))
     (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
   ;; (Thanks to @conao3)
