@@ -582,9 +582,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
             (shell-command-to-string
              (concat "cat " buffer-file-name "| perl "
                      (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
-           (message "Copying %s ... done" buffer-file-name)
-           (sit-for 1.5)
-           (message ""))
+           (minibuffer-message "Copying %s ... done" buffer-file-name))
           (t (message "There is NOT such a file.")))))
 
 (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)

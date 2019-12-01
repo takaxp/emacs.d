@@ -3,20 +3,26 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
-;;   ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
-;;   git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
+;;  1. ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
+;;  2. git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+(with-eval-after-load "postpone"
+  (add-to-list 'auto-mode-alist '("/Users/taka/devel/emacs-head/" . view-mode)))
 
-
-
-
-
-
-
-
-
+(when nil
+  (mac-get-current-input-source) ;; 現在のIMEを取得
+  (mac-input-method-update "com.apple.inputmethod.Kotoeri.Japanese")
+  (mac-set-input-method-parameter
+   "com.google.inputmethod.Japanese.base" 'title " ")
+  (mac-toggle-input-method t)
+  (mac-toggle-input-method nil)
+  "com.apple.inputmethod.Kotoeri.Roman"
+  "com.apple.inputmethod.Kotoeri.Japanese"
+  "com.google.inputmethod.Japanese.Roman"
+  "com.google.inputmethod.Japanese.base"
+  )
 
 
 

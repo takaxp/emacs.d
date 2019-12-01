@@ -235,7 +235,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
    ;; リストを縦表示する
   (when (require 'bsv nil t)
-    (setq bsv-message-timeout 3)
     (setq bsv-max-height 5)))
 
 (when (autoload-if-found
@@ -474,6 +473,11 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
       (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
   (message "--- cmake is NOT installed."))
+
+(when (autoload-if-found
+       '(view-mode)
+       "view" nil t)
+  (push '("\\.el.gz$" . view-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(go-mode) "go-mode" nil t)
@@ -2789,16 +2793,12 @@ Uses `all-the-icons-material' to fetch the icon."
     (global-hl-line-mode 1)))
 
 (defun my-ime-off-hline ()
-  (custom-set-faces
-   '(hl-line
-     ((((background dark)) :background "#484c5c")
-      (t (:background "#DEEDFF"))))))
+  (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+    (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF"))))
 
 (defun my-ime-on-hline ()
-  (custom-set-faces
-   '(hl-line
-     ((((background dark)) :background "#594d5d")
-      (t (:background "#fff0de"))))))
+  (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+    (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
 
 ;; init
 (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))

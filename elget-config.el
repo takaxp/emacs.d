@@ -279,7 +279,6 @@
     (el-get-bundle "find-file-in-project")
     ;; (el-get-bundle "gited")
 
-
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Frame and windows ;;;
     (el-get-bundle "popwin")
     (el-get-bundle "shackle")

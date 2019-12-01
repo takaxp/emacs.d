@@ -1632,7 +1632,6 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 
    ;; リストを縦表示する
   (when (require 'bsv nil t)
-    (setq bsv-message-timeout 3)
     (setq bsv-max-height 5)))
 #+end_src
 
@@ -2363,6 +2362,19 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
        '(logview-mode)
        "logview" nil t)
   (push '("\\.log$" . logview-mode) auto-mode-alist))
+#+end_src
+
+** viewモード
+   :PROPERTIES:
+   :CUSTOM_ID: org6b6c1c11
+   :END:
+gzされた elisp ソースを見るときに， =view-mode= を使います．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(view-mode)
+       "view" nil t)
+  (push '("\\.el.gz$" . view-mode) auto-mode-alist))
 #+end_src
 
 ** Web/HTMLモード                                                       :web:
@@ -10761,16 +10773,12 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
     (global-hl-line-mode 1)))
 
 (defun my-ime-off-hline ()
-  (custom-set-faces
-   '(hl-line
-     ((((background dark)) :background "#484c5c")
-      (t (:background "#DEEDFF"))))))
+  (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+    (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF"))))
 
 (defun my-ime-on-hline ()
-  (custom-set-faces
-   '(hl-line
-     ((((background dark)) :background "#594d5d")
-      (t (:background "#fff0de"))))))
+  (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+    (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
 
 ;; init
 (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
