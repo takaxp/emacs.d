@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-12-01 Sun 23:13 -->
+<!-- 2019-12-02 Mon 00:21 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -8932,78 +8932,77 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 (add-hook 'emacs-lisp-mode-hook #'my-company-activate)
 (add-hook 'org-mode-hook #'my-company-activate)
 
-(<span style="color: #c678dd;">when</span> nil
-  (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"company"</span>
-    <span style="color: #5C6370;">;; </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://xenodium.com/emacs-org-block-company-completion/">http://xenodium.com/emacs-org-block-company-completion/</a></span>
-    <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(require 'map)</span>
-    <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(require 'org)</span>
-    <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(require 'seq)</span>
-    (<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">company-org-block-bol-p</span> t <span style="color: #98c379;">"If t, detect completion when at</span>
+(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"company"</span>
+  <span style="color: #5C6370;">;; </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="http://xenodium.com/emacs-org-block-company-completion/">http://xenodium.com/emacs-org-block-company-completion/</a></span>
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(require 'map)</span>
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(require 'org)</span>
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(require 'seq)</span>
+  (<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">company-org-block-bol-p</span> t <span style="color: #98c379;">"If t, detect completion when at</span>
 <span style="color: #98c379;">begining of line, otherwise detect completion anywhere."</span>)
 
-    (<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">company-org--regexp</span> <span style="color: #98c379;">"&lt;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">[</span><span style="color: #98c379;">^</span><span style="color: #98c379;"> ]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span>)
+  (<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">company-org--regexp</span> <span style="color: #98c379;">"&lt;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #98c379;">[</span><span style="color: #98c379;">^</span><span style="color: #98c379;"> ]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #98c379;">"</span>)
 
-    (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block</span> (command <span style="color: #CFCB90;">&amp;optional</span> arg <span style="color: #CFCB90;">&amp;rest</span> ignored)
-      <span style="color: #98c379;">"Complete org babel languages into source blocks."</span>
-      (<span style="color: #c678dd;">interactive</span> (list 'interactive))
-      (<span style="color: #c678dd;">cl-case</span> command
-        (<span style="color: #c678dd;">interactive</span> (company-begin-backend 'company-org-block))
-        (prefix (<span style="color: #c678dd;">when</span> (derived-mode-p 'org-mode)
-                  (company-org-block--grab-symbol-cons)))
-        (candidates (company-org-block--candidates arg))
-        (post-completion
-         (company-org-block--expand arg))))
+  (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block</span> (command <span style="color: #CFCB90;">&amp;optional</span> arg <span style="color: #CFCB90;">&amp;rest</span> ignored)
+    <span style="color: #98c379;">"Complete org babel languages into source blocks."</span>
+    (<span style="color: #c678dd;">interactive</span> (list 'interactive))
+    (<span style="color: #c678dd;">cl-case</span> command
+      (<span style="color: #c678dd;">interactive</span> (company-begin-backend 'company-org-block))
+      (prefix (<span style="color: #c678dd;">when</span> (derived-mode-p 'org-mode)
+                (company-org-block--grab-symbol-cons)))
+      (candidates (company-org-block--candidates arg))
+      (post-completion
+       (company-org-block--expand arg))))
 
-    (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--candidates</span> (prefix)
-      <span style="color: #98c379;">"Return a list of org babel languages matching PREFIX."</span>
-      (seq-filter (<span style="color: #c678dd;">lambda</span> (language)
-                    (string-prefix-p prefix language))
-                  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Flatten `</span><span style="color: #d19a66;">org-babel-load-languages</span><span style="color: #5C6370;">' and</span>
-                  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">`</span><span style="color: #d19a66;">org-structure-template-alist</span><span style="color: #5C6370;">', join, and sort.</span>
-                  (seq-sort
-                   #'string-lessp
-                   (append
-                    (mapcar #'prin1-to-string
-                            (map-keys org-babel-load-languages))
-                    (map-values org-structure-template-alist)))))
+  (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--candidates</span> (prefix)
+    <span style="color: #98c379;">"Return a list of org babel languages matching PREFIX."</span>
+    (seq-filter (<span style="color: #c678dd;">lambda</span> (language)
+                  (string-prefix-p prefix language))
+                <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Flatten `</span><span style="color: #d19a66;">org-babel-load-languages</span><span style="color: #5C6370;">' and</span>
+                <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">`</span><span style="color: #d19a66;">org-structure-template-alist</span><span style="color: #5C6370;">', join, and sort.</span>
+                (seq-sort
+                 #'string-lessp
+                 (append
+                  (mapcar #'prin1-to-string
+                          (map-keys org-babel-load-languages))
+                  (map-values org-structure-template-alist)))))
 
-    (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--template-p</span> (template)
-      (seq-contains (map-values org-structure-template-alist)
-                    template))
+  (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--template-p</span> (template)
+    (seq-contains (map-values org-structure-template-alist)
+                  template))
 
-    (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--expand</span> (insertion)
-      <span style="color: #98c379;">"Replace INSERTION with actual source block."</span>
-      (delete-region (point) (- (point) (1+ <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Include "&lt;" in length.</span>
-                                         (length insertion))))
-      (<span style="color: #c678dd;">if</span> (company-org-block--template-p insertion)
-          (company-org-block--wrap-point insertion
-                                         <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">May be multiple words.</span>
-                                         <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Take the first one.</span>
-                                         (nth 0 (split-string insertion)))
-        (company-org-block--wrap-point (format <span style="color: #98c379;">"src %s"</span> insertion)
-                                       <span style="color: #98c379;">"src"</span>)))
+  (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--expand</span> (insertion)
+    <span style="color: #98c379;">"Replace INSERTION with actual source block."</span>
+    (delete-region (point) (- (point) (1+ <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Include "&lt;" in length.</span>
+                                       (length insertion))))
+    (<span style="color: #c678dd;">if</span> (company-org-block--template-p insertion)
+        (company-org-block--wrap-point insertion
+                                       <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">May be multiple words.</span>
+                                       <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Take the first one.</span>
+                                       (nth 0 (split-string insertion)))
+      (company-org-block--wrap-point (format <span style="color: #98c379;">"src %s"</span> insertion)
+                                     <span style="color: #98c379;">"src"</span>)))
 
-    (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--wrap-point</span> (begin end)
-      <span style="color: #98c379;">"Wrap point with block using BEGIN and END.  For example:</span>
+  (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--wrap-point</span> (begin end)
+    <span style="color: #98c379;">"Wrap point with block using BEGIN and END.  For example:</span>
 <span style="color: #98c379;">#+begin_BEGIN</span>
 <span style="color: #98c379;">  |</span>
 <span style="color: #98c379;">#+end_END"</span>
-      (insert (format <span style="color: #98c379;">"#+begin_%s\n"</span> begin))
-      (insert (make-string org-edit-src-content-indentation ?\s))
-      <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Saving excursion restores point to location inside code block.</span>
-      (<span style="color: #c678dd;">save-excursion</span>
-        (insert (format <span style="color: #98c379;">"\n#+end_%s"</span> end))))
+    (insert (format <span style="color: #98c379;">"#+begin_%s\n"</span> begin))
+    (insert (make-string org-edit-src-content-indentation ?\s))
+    <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">Saving excursion restores point to location inside code block.</span>
+    (<span style="color: #c678dd;">save-excursion</span>
+      (insert (format <span style="color: #98c379;">"\n#+end_%s"</span> end))))
 
-    (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--grab-symbol-cons</span> ()
-      <span style="color: #98c379;">"Return cons with symbol and t whenever prefix of &lt; is found.</span>
+  (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">company-org-block--grab-symbol-cons</span> ()
+    <span style="color: #98c379;">"Return cons with symbol and t whenever prefix of &lt; is found.</span>
 <span style="color: #98c379;">For example: \"&lt;e\" -&gt; (\"e\" . t)"</span>
-      (<span style="color: #c678dd;">when</span> (looking-back (<span style="color: #c678dd;">if</span> company-org-block-bol-p
-                              (concat <span style="color: #98c379;">"^"</span> company-org--regexp)
-                            company-org--regexp)
-                          (line-beginning-position))
-        (cons (match-string-no-properties 1) t)))
+    (<span style="color: #c678dd;">when</span> (looking-back (<span style="color: #c678dd;">if</span> company-org-block-bol-p
+                            (concat <span style="color: #98c379;">"^"</span> company-org--regexp)
+                          company-org--regexp)
+                        (line-beginning-position))
+      (cons (match-string-no-properties 1) t)))
 
-    (add-to-list 'company-backends 'company-org-block)))
+  (add-to-list 'company-backends 'company-org-block))
 
 (<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"company"</span>
   (define-key company-active-map (kbd <span style="color: #98c379;">"C-n"</span>) 'company-select-next)
@@ -11020,7 +11019,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org6567584"><span style="color: #5C6370;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgbd871f9"><span style="color: #5C6370;"># -*- mode: org; -*-</span>
 
 <span style="color: #5C6370;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #5C6370;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14434,7 +14433,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-12-01 Sun 23:13</p>
+<p class="date">Created: 2019-12-02 Mon 00:21</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

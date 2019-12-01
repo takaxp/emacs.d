@@ -12,7 +12,6 @@
 ;;   (add-to-list 'auto-mode-alist
 ;;                '("/Users/taka/devel/emacs-head/" . view-mode)))
 
-(advice-remove 'org-tempo-complete-tag #'ad:org-tempo-complete-tag)
 
 
 
