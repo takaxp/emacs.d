@@ -542,14 +542,16 @@
 
   (defun my-desktop-notification (title message &optional sticky sound timeout)
     "Show a message by `alerter' command."
-    (start-process
-     "notification" "*notification*"
-     ns-alerter-command
-     "-title" title
-     "-message" message
-     "-sender" "org.gnu.Emacs"
-     "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
-     "-sound" (or sound ns-default-notification-sound)))
+    (if ns-alerter-command
+        (start-process
+         "notification" "*notification*"
+         ns-alerter-command
+         "-title" title
+         "-message" message
+         "-sender" "org.gnu.Emacs"
+         "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
+         "-sound" (or sound ns-default-notification-sound))
+      (message "--- %s is not available." ns-alerter-command)))
 
   ;; eval (org-notify "hoge") to test this setting
   (defun my-desktop-notification-handler (message)

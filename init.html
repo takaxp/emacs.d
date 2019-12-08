@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-12-02 Mon 00:21 -->
+<!-- 2019-12-08 Sun 23:42 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4882,38 +4882,36 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 <div class="outline-text-3" id="text-org581a32ab">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">my-narrow-modeline</span> '(<span style="color: #98c379;">"</span><span style="color: #ffffff; background-color: #426EBB;">#426EBB</span><span style="color: #98c379;">"</span> <span style="color: #98c379;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #98c379;">"</span>))
-(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">my-last-selected-window</span> nil)
-
-(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-update-last-selected-window</span> ()
-  (<span style="color: #c678dd;">setq</span> my-last-selected-window (frame-selected-window)))
-(add-hook 'post-command-hook #'my-update-last-selected-window)
-
-(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-modeline-face</span> (narrowing)
-  <span style="color: #98c379;">"Update modeline color.</span>
-<span style="color: #98c379;">If NARROWING is nil, then change the color to indicating `</span><span style="color: #d19a66;">widen</span><span style="color: #98c379;">'.</span>
-<span style="color: #98c379;">Otherwise, indicating `</span><span style="color: #d19a66;">narrowing</span><span style="color: #98c379;">'."</span>
-  (<span style="color: #c678dd;">if</span> narrowing
-      (custom-set-faces
-       `(mode-line ((t (<span style="color: #56b6c2;">:background</span>
-                        ,(nth 0 my-narrow-modeline)
-                        <span style="color: #56b6c2;">:foreground</span>
-                        ,(nth 1 my-narrow-modeline))))))
-    (custom-set-faces '(mode-line ((t nil))))))
-
-<span style="color: #5C6370;">;; </span><span style="color: #5C6370;">mode-line-modes &#12391;&#12371;&#12398;&#38306;&#25968;&#12434;eval&#12377;&#12427;&#65294;</span>
-(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-update-modeline-color</span> ()
-  (<span style="color: #c678dd;">when</span> (<span style="color: #c678dd;">and</span> (eq major-mode 'org-mode) <span style="color: #5C6370;">;; </span><span style="color: #1e90ff;">FIXME</span><span style="color: #5C6370;"> &#26368;&#36969;&#21270;</span>
-             (eq my-last-selected-window (frame-selected-window)))
+(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">my-selected-window-last</span> nil)
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-update-modeline-face</span> ()
+  (<span style="color: #c678dd;">setq</span> my-selected-window-last (frame-selected-window))
+  <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">(message "--- %s" my-selected-window-last)</span>
+  (<span style="color: #c678dd;">unless</span> (minibufferp)
     (my-modeline-face (buffer-narrowed-p))))
+(add-hook 'buffer-list-update-hook #'my-update-modeline-face)
 
-(<span style="color: #c678dd;">with-eval-after-load</span> <span style="color: #98c379;">"org"</span>
-  (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">ad-org-toggle-narrow-to-subtree</span> ()
-    (<span style="color: #c678dd;">interactive</span>)
-    (<span style="color: #c678dd;">let</span> ((narrowed (buffer-narrowed-p)))
-      (my-modeline-face narrowed) <span style="color: #5C6370;">;; </span><span style="color: #1e90ff;">FIXME</span>
-      (minibuffer-message <span style="color: #98c379;">"%s"</span> (<span style="color: #c678dd;">if</span> narrowed <span style="color: #98c379;">"narrow"</span> <span style="color: #98c379;">"widen"</span>))))
-  (advice-add 'org-toggle-narrow-to-subtree
-              <span style="color: #56b6c2;">:after</span> #'ad-org-toggle-narrow-to-subtree))
+(<span style="color: #c678dd;">defvar</span> <span style="color: #e5c07b;">my-buffer-narrowed-last</span> nil)
+(make-local-variable 'my-buffer-narrowed-last)
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-modeline-face</span> (buffer-narrowed)
+  <span style="color: #98c379;">"Update modeline color.</span>
+<span style="color: #98c379;">If BUFFER-NARROWED is nil, then change the color to indicating `</span><span style="color: #d19a66;">widen</span><span style="color: #98c379;">'.</span>
+<span style="color: #98c379;">Otherwise, indicating narrowing."</span>
+  (<span style="color: #c678dd;">unless</span> (eq my-buffer-narrowed-last
+              buffer-narrowed) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">block unnecessary request</span>
+    (<span style="color: #c678dd;">setq</span> my-buffer-narrowed-last buffer-narrowed)
+    (<span style="color: #c678dd;">if</span> buffer-narrowed
+        (custom-set-faces
+         `(mode-line ((t (<span style="color: #56b6c2;">:background</span>
+                          ,(nth 0 my-narrow-modeline)
+                          <span style="color: #56b6c2;">:foreground</span>
+                          ,(nth 1 my-narrow-modeline))))))
+      (custom-set-faces '(mode-line ((t nil)))))))
+
+(<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-update-modeline-color</span> ()
+  <span style="color: #98c379;">"Update modeline face of the current selected window.</span>
+<span style="color: #98c379;">Call this function at updating `</span><span style="color: #d19a66;">mode-line-mode</span><span style="color: #98c379;">'."</span>
+  (<span style="color: #c678dd;">when</span> (eq my-selected-window-last (frame-selected-window))
+    (my-modeline-face (buffer-narrowed-p))))
 </pre>
 </div>
 </div>
@@ -4932,7 +4930,10 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
        (<span style="color: #c678dd;">lambda</span> (entry)
          (<span style="color: #c678dd;">if</span> (equal entry <span style="color: #98c379;">"%n"</span>)
              '(<span style="color: #56b6c2;">:eval</span> (<span style="color: #c678dd;">progn</span>
-                      (my-update-modeline-color) <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#33394;&#12398;&#22793;&#26356;</span>
+                       <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">org &#12364; widen &#12434;&#20081;&#30330;&#12377;&#12427;&#12398;&#12391;&#12371;&#12385;&#12425;&#12434;&#12488;&#12522;&#12460;&#12540;&#12395;&#12377;&#12427;&#65294;</span>
+                       <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">&#33394;&#12398;&#22793;&#26356;</span>
+                       (my-update-modeline-color)
+                       <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">"Narrow" &#12434; "N" &#12395;&#30701;&#32302;&#34920;&#31034;</span>
                        (<span style="color: #c678dd;">if</span> (buffer-narrowed-p)
                            (concat <span style="color: #98c379;">" "</span>
                                    (all-the-icons-octicon <span style="color: #98c379;">"fold"</span> <span style="color: #56b6c2;">:v-adjust</span> 0.0))
@@ -9932,14 +9933,16 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
   (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-desktop-notification</span> (title message <span style="color: #CFCB90;">&amp;optional</span> sticky sound timeout)
     <span style="color: #98c379;">"Show a message by `</span><span style="color: #d19a66;">alerter</span><span style="color: #98c379;">' command."</span>
-    (start-process
-     <span style="color: #98c379;">"notification"</span> <span style="color: #98c379;">"*notification*"</span>
-     ns-alerter-command
-     <span style="color: #98c379;">"-title"</span> title
-     <span style="color: #98c379;">"-message"</span> message
-     <span style="color: #98c379;">"-sender"</span> <span style="color: #98c379;">"org.gnu.Emacs"</span>
-     <span style="color: #98c379;">"-timeout"</span> (format <span style="color: #98c379;">"%s"</span> (<span style="color: #c678dd;">if</span> sticky 0 (<span style="color: #c678dd;">or</span> timeout 7)))
-     <span style="color: #98c379;">"-sound"</span> (<span style="color: #c678dd;">or</span> sound ns-default-notification-sound)))
+    (<span style="color: #c678dd;">if</span> ns-alerter-command
+        (start-process
+         <span style="color: #98c379;">"notification"</span> <span style="color: #98c379;">"*notification*"</span>
+         ns-alerter-command
+         <span style="color: #98c379;">"-title"</span> title
+         <span style="color: #98c379;">"-message"</span> message
+         <span style="color: #98c379;">"-sender"</span> <span style="color: #98c379;">"org.gnu.Emacs"</span>
+         <span style="color: #98c379;">"-timeout"</span> (format <span style="color: #98c379;">"%s"</span> (<span style="color: #c678dd;">if</span> sticky 0 (<span style="color: #c678dd;">or</span> timeout 7)))
+         <span style="color: #98c379;">"-sound"</span> (<span style="color: #c678dd;">or</span> sound ns-default-notification-sound))
+      (message <span style="color: #98c379;">"--- %s is not available."</span> ns-alerter-command)))
 
   <span style="color: #5C6370;">;; </span><span style="color: #5C6370;">eval (org-notify "hoge") to test this setting</span>
   (<span style="color: #c678dd;">defun</span> <span style="color: #61afef;">my-desktop-notification-handler</span> (message)
@@ -11019,7 +11022,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgbd871f9"><span style="color: #5C6370;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org7bc1c14"><span style="color: #5C6370;"># -*- mode: org; -*-</span>
 
 <span style="color: #5C6370;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #5C6370;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14433,7 +14436,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-12-02 Mon 00:21</p>
+<p class="date">Created: 2019-12-08 Sun 23:42</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

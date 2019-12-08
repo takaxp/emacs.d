@@ -924,45 +924,46 @@ This works also for other defined begin/end tokens to define the structure."
 (setq echo-keystrokes 0.5)
 
 (defvar my-narrow-modeline '("#426EBB" "#FFFFFF"))
-(defvar my-last-selected-window nil)
-
-(defun my-update-last-selected-window ()
-  (setq my-last-selected-window (frame-selected-window)))
-(add-hook 'post-command-hook #'my-update-last-selected-window)
-
-(defun my-modeline-face (narrowing)
-  "Update modeline color.
-If NARROWING is nil, then change the color to indicating `widen'.
-Otherwise, indicating `narrowing'."
-  (if narrowing
-      (custom-set-faces
-       `(mode-line ((t (:background
-                        ,(nth 0 my-narrow-modeline)
-                        :foreground
-                        ,(nth 1 my-narrow-modeline))))))
-    (custom-set-faces '(mode-line ((t nil))))))
-
-;; mode-line-modes でこの関数をevalする．
-(defun my-update-modeline-color ()
-  (when (and (eq major-mode 'org-mode) ;; FIXME 最適化
-             (eq my-last-selected-window (frame-selected-window)))
+(defvar my-selected-window-last nil)
+(defun my-update-modeline-face ()
+  (setq my-selected-window-last (frame-selected-window))
+  ;; (message "--- %s" my-selected-window-last)
+  (unless (minibufferp)
     (my-modeline-face (buffer-narrowed-p))))
+(add-hook 'buffer-list-update-hook #'my-update-modeline-face)
 
-(with-eval-after-load "org"
-  (defun ad-org-toggle-narrow-to-subtree ()
-    (interactive)
-    (let ((narrowed (buffer-narrowed-p)))
-      (my-modeline-face narrowed) ;; FIXME
-      (minibuffer-message "%s" (if narrowed "narrow" "widen"))))
-  (advice-add 'org-toggle-narrow-to-subtree
-              :after #'ad-org-toggle-narrow-to-subtree))
+(defvar my-buffer-narrowed-last nil)
+(make-local-variable 'my-buffer-narrowed-last)
+(defun my-modeline-face (buffer-narrowed)
+  "Update modeline color.
+If BUFFER-NARROWED is nil, then change the color to indicating `widen'.
+Otherwise, indicating narrowing."
+  (unless (eq my-buffer-narrowed-last
+              buffer-narrowed) ;; block unnecessary request
+    (setq my-buffer-narrowed-last buffer-narrowed)
+    (if buffer-narrowed
+        (custom-set-faces
+         `(mode-line ((t (:background
+                          ,(nth 0 my-narrow-modeline)
+                          :foreground
+                          ,(nth 1 my-narrow-modeline))))))
+      (custom-set-faces '(mode-line ((t nil)))))))
+
+(defun my-update-modeline-color ()
+  "Update modeline face of the current selected window.
+Call this function at updating `mode-line-mode'."
+  (when (eq my-selected-window-last (frame-selected-window))
+    (my-modeline-face (buffer-narrowed-p))))
 
 (setq mode-line-modes
       (mapcar
        (lambda (entry)
          (if (equal entry "%n")
              '(:eval (progn
-                      (my-update-modeline-color) ;; 色の変更
+                       ;; org が widen を乱発するのでこちらをトリガーにする．
+                       ;; 色の変更
+                       (my-update-modeline-color)
+                       ;; "Narrow" を "N" に短縮表示
                        (if (buffer-narrowed-p)
                            (concat " "
                                    (all-the-icons-octicon "fold" :v-adjust 0.0))

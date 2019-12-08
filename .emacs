@@ -11,6 +11,85 @@
 ;; (with-eval-after-load "postpone"
 ;;   (add-to-list 'auto-mode-alist
 ;;                '("/Users/taka/devel/emacs-head/" . view-mode)))
+;; (with-eval-after-load "org"
+;;   (setq my-update-modeline-color nil))
+
+;; (setq org-export-dispatch-use-expert-ui nil)
+
+(with-eval-after-load "postpone"
+  (setq ns-alerter-command nil))
+
+(with-eval-after-load "ox"
+  (defvar my-org-export-before-hook nil)
+  (add-hook 'my-org-export-before-hook #'split-window-horizontally)
+
+  (defvar my-org-export-after-hook nil)
+  (add-hook 'my-org-export-after-hook #'delete-window)
+
+  (defun my-org-export--post-processing ()
+    (when (eq this-command 'org-export-dispatch)
+      (run-hooks 'my-org-export-after-hook))
+    (remove-hook 'post-command-hook #'my-org-export--post-processing))
+
+  (defun my-org-export-dispatch (f ARG)
+    (cond (org-export-dispatch-use-expert-ui
+           (apply f ARG))
+          ((> (frame-width) 160)
+           (when my-org-export-after-hook
+             (add-hook 'post-command-hook #'my-org-export--post-processing))
+           (run-hooks 'my-org-export-before-hook)
+           (apply f ARG))
+          (t
+           (apply f ARG))))
+  (advice-add 'org-export-dispatch :around #'my-org-export-dispatch))
+
+
+
+
+
+
+
+(when nil
+  (with-eval-after-load "ox"
+    (defvar org-export-after-hook nil)
+    (add-hook 'org-export-after-hook #'moom-delete-windows)
+
+    (defvar org-export-before-hook nil)
+    (add-hook 'org-export-before-hook #'moom-split-window)
+
+    (defun org-export--post-processing ()
+      (when (eq this-command 'org-export-dispatch)
+        (run-hooks 'org-export-after-hook))
+      (remove-hook 'post-command-hook #'org-export--post-processing))
+
+    (defun my-org-export-dispatch-done ()
+      (when (eq this-command 'org-export-dispatch)
+        (delete-window))
+      (remove-hook 'post-command-hook #'my-org-export-dispatch-done))
+
+    (defun my-org-export-dispatch (f ARG)
+      (interactive "P")
+      (cond
+       (org-export-dispatch-use-expert-ui
+        (apply f ARG))
+       ((eq (frame-width) 80)
+        (if (require 'moom nil t)
+            (let ((moom-verbose nil))
+              (when org-export-after-hook
+                (add-hook 'post-command-hook #'org-export--post-processing))
+              (run-hooks 'org-export-before-hook)
+              (apply f ARG))
+          (apply f ARG)))
+       ((> (frame-width) 160)
+        (add-hook 'post-command-hook #'my-org-export-dispatch-done)
+        (split-window-right)
+        (apply f ARG))
+       (t
+        (apply f ARG))))
+    (advice-add 'org-export-dispatch :around #'my-org-export-dispatch)))
+
+
+
 
 
 
@@ -91,7 +170,6 @@ hoge.")
 
   (set-frame-parameter (selected-frame) 'outer-border-width '30)
   (frame-parameter (selected-frame) 'outer-border-width)
-  p
   (frame-parameter (selected-frame) 'frame-width)
 
   (set-frame-parameter (selected-frame) 'border-color "#FF0000")
