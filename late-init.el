@@ -1515,6 +1515,35 @@ sorted.  FUNCTION must be a function of one argument."
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
 
 (when (autoload-if-found
+       '(imenu-list)
+       "imenu-list" nil t)
+
+  (with-eval-after-load "imenu-list"
+    (setq imenu-list-size 40)
+    (setq imenu-list-position 'left)
+
+    (defun my-truncate-lines-activate ()
+      "Truncate lines on `imenu-list' buffer."
+      (toggle-truncate-lines 1))
+    (add-hook 'imenu-list-major-mode-hook #'my-truncate-lines-activate)
+
+    (defun my-imenu-list-update ()
+      "Expand frame width by `moom-change-frame-width'."
+      (when (and (memq imenu-list-position '(right left))
+                 (not (get-buffer-window imenu-list-buffer-name t)))
+        (moom-change-frame-width (+ (frame-width) imenu-list-size))))
+
+    (defun my-imenu-list-quit-window ()
+      "Shrink frame width by `moom-change-frame-width'."
+      (when (and (memq imenu-list-position '(right left))
+                 (not (get-buffer-window imenu-list-buffer-name t)))
+        (moom-change-frame-width (- (frame-width) imenu-list-size))))
+
+    (when (require 'moom nil t)
+      (add-hook 'imenu-list-update-hook #'my-imenu-list-update)
+      (advice-add 'imenu-list-quit-window :after #'my-imenu-list-quit-window))))
+
+(when (autoload-if-found
        '(swiper-thing-at-point swiper-all-thing-at-point)
        "swiper" nil t)
 

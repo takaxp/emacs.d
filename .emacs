@@ -14,79 +14,34 @@
 ;; (with-eval-after-load "org"
 ;;   (setq my-update-modeline-color nil))
 
-;; (setq org-export-dispatch-use-expert-ui nil)
-
 (with-eval-after-load "postpone"
   (setq ns-alerter-command nil))
 
-(with-eval-after-load "ox"
-  (defvar my-org-export-before-hook nil)
-  (add-hook 'my-org-export-before-hook #'split-window-horizontally)
-
-  (defvar my-org-export-after-hook nil)
-  (add-hook 'my-org-export-after-hook #'delete-window)
-
-  (defun my-org-export--post-processing ()
-    (when (eq this-command 'org-export-dispatch)
-      (run-hooks 'my-org-export-after-hook))
-    (remove-hook 'post-command-hook #'my-org-export--post-processing))
-
-  (defun my-org-export-dispatch (f ARG)
-    (cond (org-export-dispatch-use-expert-ui
-           (apply f ARG))
-          ((> (frame-width) 160)
-           (when my-org-export-after-hook
-             (add-hook 'post-command-hook #'my-org-export--post-processing))
-           (run-hooks 'my-org-export-before-hook)
-           (apply f ARG))
-          (t
-           (apply f ARG))))
-  (advice-add 'org-export-dispatch :around #'my-org-export-dispatch))
-
-
-
-
-
-
-
 (when nil
-  (with-eval-after-load "ox"
-    (defvar org-export-after-hook nil)
-    (add-hook 'org-export-after-hook #'moom-delete-windows)
+  (with-eval-after-load "imenu-list"
+    (when (require 'imenu-list nil t)
+      (setq imenu-list-size 40)
+      (setq imenu-list-position 'left)
 
-    (defvar org-export-before-hook nil)
-    (add-hook 'org-export-before-hook #'moom-split-window)
+      (defun my-truncate-lines-activate ()
+        (toggle-truncate-lines 1))
+      (add-hook 'imenu-list-major-mode-hook #'my-truncate-lines-activate)
 
-    (defun org-export--post-processing ()
-      (when (eq this-command 'org-export-dispatch)
-        (run-hooks 'org-export-after-hook))
-      (remove-hook 'post-command-hook #'org-export--post-processing))
+      (defun my-imenu-list-update ()
+        (when (and (memq imenu-list-position '(right left))
+                   (not (get-buffer-window imenu-list-buffer-name t)))
+          (moom-change-frame-width (+ (frame-width) imenu-list-size))))
+      (add-hook 'imenu-list-update-hook #'my-imenu-list-update)
 
-    (defun my-org-export-dispatch-done ()
-      (when (eq this-command 'org-export-dispatch)
-        (delete-window))
-      (remove-hook 'post-command-hook #'my-org-export-dispatch-done))
+      (defun my-imenu-list-quit-window ()
+        (when (and (memq imenu-list-position '(right left))
+                   (not (get-buffer-window imenu-list-buffer-name t)))
+          (moom-change-frame-width (- (frame-width) imenu-list-size))))
+      (advice-add 'imenu-list-quit-window :after #'my-imenu-list-quit-window)
 
-    (defun my-org-export-dispatch (f ARG)
-      (interactive "P")
-      (cond
-       (org-export-dispatch-use-expert-ui
-        (apply f ARG))
-       ((eq (frame-width) 80)
-        (if (require 'moom nil t)
-            (let ((moom-verbose nil))
-              (when org-export-after-hook
-                (add-hook 'post-command-hook #'org-export--post-processing))
-              (run-hooks 'org-export-before-hook)
-              (apply f ARG))
-          (apply f ARG)))
-       ((> (frame-width) 160)
-        (add-hook 'post-command-hook #'my-org-export-dispatch-done)
-        (split-window-right)
-        (apply f ARG))
-       (t
-        (apply f ARG))))
-    (advice-add 'org-export-dispatch :around #'my-org-export-dispatch)))
+      )
+    ) ;; due to broken of alerter command
+  )
 
 
 
@@ -96,6 +51,23 @@
 
 
 
+
+
+
+
+
+
+
+;; (with-eval-after-load "org-num"
+;;   (defun my-org-num-format (numbering)
+;;     (concat (mapconcat #'number-to-string numbering ".") " "))
+;;   (setq org-num-face
+;;         (funcall #'(lambda ()
+;;                      (when )
+;;                      '((t (:bold t :background "#DEEDFF"))))))
+;;   ;; line-number-current-line ((t (:bold t :background "#DEEDFF")))
+;;   (funcall #'(lambda () '((t (:bold t :background "#DEEDFF")))))
+;;   )
 
 
 
@@ -237,4 +209,4 @@ hoge.")
   )
 
 ;; .emacs ends here
-(put 'narrow-to-region 'disabled nil)
+;; (put 'narrow-to-region 'disabled nil)

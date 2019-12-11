@@ -4785,6 +4785,48 @@ sorted.  FUNCTION must be a function of one argument."
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
 #+end_src
 
+** [imenu-list.el] サイドバー的にファイル内容の目次要素を表示
+   :PROPERTIES:
+   :CUSTOM_ID: org45b3667a
+   :END:
+
+ - [[https://github.com/takaxp/imenu-list][takaxp/imenu-list: Emacs plugin to show the current buffer's imenu entries in a seperate buffer]]
+
+オリジナルのコードに対して次の修正を加えています．
+ 1. トップレベルのツリーで ENT する時，カーソルが imenu-list 側に残さない
+ 2. 最初の試行で imenu-list のバッファを生成できない時に以後のフローを正しく動かす
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(imenu-list)
+       "imenu-list" nil t)
+
+  (with-eval-after-load "imenu-list"
+    (setq imenu-list-size 40)
+    (setq imenu-list-position 'left)
+
+    (defun my-truncate-lines-activate ()
+      "Truncate lines on `imenu-list' buffer."
+      (toggle-truncate-lines 1))
+    (add-hook 'imenu-list-major-mode-hook #'my-truncate-lines-activate)
+
+    (defun my-imenu-list-update ()
+      "Expand frame width by `moom-change-frame-width'."
+      (when (and (memq imenu-list-position '(right left))
+                 (not (get-buffer-window imenu-list-buffer-name t)))
+        (moom-change-frame-width (+ (frame-width) imenu-list-size))))
+
+    (defun my-imenu-list-quit-window ()
+      "Shrink frame width by `moom-change-frame-width'."
+      (when (and (memq imenu-list-position '(right left))
+                 (not (get-buffer-window imenu-list-buffer-name t)))
+        (moom-change-frame-width (- (frame-width) imenu-list-size))))
+
+    (when (require 'moom nil t)
+      (add-hook 'imenu-list-update-hook #'my-imenu-list-update)
+      (advice-add 'imenu-list-quit-window :after #'my-imenu-list-quit-window))))
+#+end_src
+
 ** TODO [swiper.el] 文字列探索とプレビューを同時に行う
    :PROPERTIES:
    :CUSTOM_ID: orgf0e91c5a
@@ -8016,6 +8058,7 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 ** イベント通知
    :PROPERTIES:
    :CUSTOM_ID: orgdae2d9e7
+   :ID:       6CC37CF8-6EA2-4270-BD67-866A2AF45C4E
    :END:
 
 ここでは， =terminal-notifier= ではなく，事実上，後継アプリと言える =alerter= を使う設定です．
@@ -8059,7 +8102,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
          "-sender" "org.gnu.Emacs"
          "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
          "-sound" (or sound ns-default-notification-sound))
-      (message "--- %s is not available." ns-alerter-command)))
+      (message "--- ns-alerter-command is %s." ns-alerter-command)))
 
   ;; eval (org-notify "hoge") to test this setting
   (defun my-desktop-notification-handler (message)
@@ -9499,6 +9542,54 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (defun my-pull-trello () (interactive) (org-trello-sync-buffer t))))
 #+end_src
 
+** [ox.el] ディスパッチャを水平方向の分割画面に表示
+   :PROPERTIES:
+   :CUSTOM_ID: orge01f4572
+   :END:
+
+ - [[https://qiita.com/takaxp/items/017ccc4655877b827551][orgエクスポータのディスパッチャを水平分割画面に表示する - Qiita]]
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "ox"
+  (defvar my-org-export-before-hook nil)
+  (defvar my-org-export-after-hook nil)
+
+  (defun my-org-export--post-processing ()
+    (when (eq this-command 'org-export-dispatch)
+      (let ((moom-verbose nil))
+        (run-hooks 'my-org-export-after-hook)
+        moom-verbose) ;; to avoid a warning on lexical variable
+      (remove-hook 'my-org-export-before-hook 'moom-split-window)
+      (remove-hook 'my-org-export-before-hook 'split-window-horizontally)
+      (remove-hook 'my-org-export-after-hook 'moom-delete-windows)
+      (remove-hook 'my-org-export-after-hook 'delete-window))
+    (when this-command
+      (remove-hook 'post-command-hook #'my-org-export--post-processing)))
+
+  (defun my-org-export-dispatch (f ARG)
+    (cond
+     (org-export-dispatch-use-expert-ui
+      nil)
+     ((eq (frame-width) 80)
+      (when (require 'moom nil t)
+        (add-hook 'my-org-export-before-hook 'moom-split-window)
+        (add-hook 'my-org-export-after-hook 'moom-delete-windows)))
+     ((> (frame-width) 160)
+      (add-hook 'my-org-export-before-hook 'split-window-horizontally)
+      (add-hook 'my-org-export-after-hook 'delete-window)))
+    (when my-org-export-after-hook
+      (add-hook 'post-command-hook #'my-org-export--post-processing))
+    (run-hooks 'my-org-export-before-hook)
+    (apply f ARG))
+  (advice-add 'org-export-dispatch :around #'my-org-export-dispatch)
+
+  (defun my-org-export-insert-default-template (f &optional backend subtreep)
+    (let ((this-command nil))
+      (apply f backend subtreep)))
+  (advice-add 'org-export-insert-default-template :around
+              #'my-org-export-insert-default-template))
+#+end_src
+
 ** TODO [ob-async] ソースブロックの非同期実行
    :PROPERTIES:
    :CUSTOM_ID: org992326f6
@@ -9563,7 +9654,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (require 'org-fstree nil t))
 #+end_src
 
-** TODO [ox] 出力形式の拡張
+** TODO [ox.el] 出力形式の拡張
    :PROPERTIES:
    :CUSTOM_ID: orgbb452f44
    :ID:       21200BFD-326F-4CD3-A5E4-CE26F87E2869

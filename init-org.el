@@ -551,7 +551,7 @@
          "-sender" "org.gnu.Emacs"
          "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
          "-sound" (or sound ns-default-notification-sound))
-      (message "--- %s is not available." ns-alerter-command)))
+      (message "--- ns-alerter-command is %s." ns-alerter-command)))
 
   ;; eval (org-notify "hoge") to test this setting
   (defun my-desktop-notification-handler (message)
@@ -1539,6 +1539,45 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 ;; (add-to-list 'orglink-activate-in-modes 'c-mode)
 ;; (when (require 'orglink nil t)
 ;;   (global-orglink-mode))
+
+(with-eval-after-load "ox"
+  (defvar my-org-export-before-hook nil)
+  (defvar my-org-export-after-hook nil)
+
+  (defun my-org-export--post-processing ()
+    (when (eq this-command 'org-export-dispatch)
+      (let ((moom-verbose nil))
+        (run-hooks 'my-org-export-after-hook)
+        moom-verbose) ;; to avoid a warning on lexical variable
+      (remove-hook 'my-org-export-before-hook 'moom-split-window)
+      (remove-hook 'my-org-export-before-hook 'split-window-horizontally)
+      (remove-hook 'my-org-export-after-hook 'moom-delete-windows)
+      (remove-hook 'my-org-export-after-hook 'delete-window))
+    (when this-command
+      (remove-hook 'post-command-hook #'my-org-export--post-processing)))
+
+  (defun my-org-export-dispatch (f ARG)
+    (cond
+     (org-export-dispatch-use-expert-ui
+      nil)
+     ((eq (frame-width) 80)
+      (when (require 'moom nil t)
+        (add-hook 'my-org-export-before-hook 'moom-split-window)
+        (add-hook 'my-org-export-after-hook 'moom-delete-windows)))
+     ((> (frame-width) 160)
+      (add-hook 'my-org-export-before-hook 'split-window-horizontally)
+      (add-hook 'my-org-export-after-hook 'delete-window)))
+    (when my-org-export-after-hook
+      (add-hook 'post-command-hook #'my-org-export--post-processing))
+    (run-hooks 'my-org-export-before-hook)
+    (apply f ARG))
+  (advice-add 'org-export-dispatch :around #'my-org-export-dispatch)
+
+  (defun my-org-export-insert-default-template (f &optional backend subtreep)
+    (let ((this-command nil))
+      (apply f backend subtreep)))
+  (advice-add 'org-export-insert-default-template :around
+              #'my-org-export-insert-default-template))
 
 (with-eval-after-load "ob-core"
   (when (require 'ob-async nil t)

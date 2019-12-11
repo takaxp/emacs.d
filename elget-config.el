@@ -269,7 +269,7 @@
     (el-get-bundle "zk-phi/gitmole")
     (el-get-bundle "kawabata/rot47")
     (el-get-bundle "takaxp/bsv")
-
+    (el-get-bundle "takaxp/imenu-list")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; System related ;;;
     (el-get-bundle "Fuco1/dired-hacks")
