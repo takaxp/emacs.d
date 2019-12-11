@@ -8,40 +8,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-;; (with-eval-after-load "postpone"
-;;   (add-to-list 'auto-mode-alist
-;;                '("/Users/taka/devel/emacs-head/" . view-mode)))
-;; (with-eval-after-load "org"
-;;   (setq my-update-modeline-color nil))
-
 (with-eval-after-load "postpone"
-  (setq ns-alerter-command nil))
+  (setq ns-alerter-command nil)) ;; due to broken of alerter command
 
-(when nil
-  (with-eval-after-load "imenu-list"
-    (when (require 'imenu-list nil t)
-      (setq imenu-list-size 40)
-      (setq imenu-list-position 'left)
 
-      (defun my-truncate-lines-activate ()
-        (toggle-truncate-lines 1))
-      (add-hook 'imenu-list-major-mode-hook #'my-truncate-lines-activate)
 
-      (defun my-imenu-list-update ()
-        (when (and (memq imenu-list-position '(right left))
-                   (not (get-buffer-window imenu-list-buffer-name t)))
-          (moom-change-frame-width (+ (frame-width) imenu-list-size))))
-      (add-hook 'imenu-list-update-hook #'my-imenu-list-update)
 
-      (defun my-imenu-list-quit-window ()
-        (when (and (memq imenu-list-position '(right left))
-                   (not (get-buffer-window imenu-list-buffer-name t)))
-          (moom-change-frame-width (- (frame-width) imenu-list-size))))
-      (advice-add 'imenu-list-quit-window :after #'my-imenu-list-quit-window)
 
-      )
-    ) ;; due to broken of alerter command
-  )
+
+
+
+
+
+
 
 
 
