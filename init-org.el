@@ -238,7 +238,7 @@
       (when (org-clocking-p)
         (org-clock-out)
         (save-some-buffers t)))
-    ;; implemented in `org-onit.el'.
+    ;; implemented in `org-onit.el'. No need to hook this.
     ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
     ))
 
@@ -864,6 +864,7 @@ will not be modified."
 
 (when (autoload-if-found
        '(org-onit-toggle-doing
+         org-onit-mode
          org-onit-toggle-auto org-clock-goto my-sparse-doing-tree
          org-clock-goto org-onit-clock-in-when-unfold
          org-onit-update-options)
@@ -887,11 +888,7 @@ will not be modified."
     (when (require 'org-plist nil t)
       (add-to-list 'org-plist-dict '("OPTIONS_ONIT" org-onit-basic-options)))
     (custom-set-variables
-     '(org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil))))
-  ;; (with-eval-after-load "org-onit"
-  ;;   (setq-default org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil)))
-  ;; (with-eval-after-load "org-onit"
-  ;;   (setq org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil)))
+     '(org-onit-basic-options '(:wakeup nil :nostate doing :unfold nil))))
 
   (with-eval-after-load "org-clock"
     (defun my-onit-reveal ()
@@ -1543,6 +1540,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (with-eval-after-load "ox"
   (defvar my-org-export-before-hook nil)
   (defvar my-org-export-after-hook nil)
+  (defvar my-org-export-last-buffer nil)
 
   (defun my-org-export--post-processing ()
     (when (eq this-command 'org-export-dispatch)
@@ -1577,7 +1575,24 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (let ((this-command nil))
       (apply f backend subtreep)))
   (advice-add 'org-export-insert-default-template :around
-              #'my-org-export-insert-default-template))
+              #'my-org-export-insert-default-template)
+
+  (defun my-org-export-to-buffer (_backend
+                                  buffer
+                                  &optional _async _subtreep _visible-only
+                                  _body-only _ext-plist _post-process)
+    (setq my-org-export-last-buffer buffer))
+  (advice-add 'org-export-to-buffer :after #'my-org-export-to-buffer)
+
+  (defun my-copy-exported-buffer ()
+    (interactive)
+    (when my-org-export-last-buffer
+      (with-current-buffer my-org-export-last-buffer
+        (mark-whole-buffer)
+        (kill-ring-save (point-min) (point-max))
+        (message "Copied: %s" my-org-export-last-buffer))
+      (setq my-org-export-last-buffer nil)))
+  (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
 
 (with-eval-after-load "ob-core"
   (when (require 'ob-async nil t)

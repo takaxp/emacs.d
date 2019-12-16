@@ -434,7 +434,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (orgalist-mode 1))) ;; originally orgstruct-mode
 
 (add-hook 'change-log-mode-hook
-          #'(lambda()
+          (lambda ()
               (my-orgalist-activate)
               (setq tab-width 4)
               (setq left-margin 4)))
@@ -474,10 +474,21 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
   (message "--- cmake is NOT installed."))
 
-(when (autoload-if-found
-       '(view-mode)
-       "view" nil t)
-  (push '("\\.el.gz$" . view-mode) auto-mode-alist))
+;; 特定の拡張子・ディレクトリ
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.emacs.d/[^/]+/el-get")
+
+;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
+(defvar my-auto-view-dirs nil)
+(add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
+
+(defun my-auto-view ()
+  (when (and my-auto-view-regexp
+             (string-match my-auto-view-regexp buffer-file-name))
+    (view-mode 1))
+  (dolist (dir my-auto-view-dirs)
+    (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+      (view-mode 1))))
+(add-hook 'find-file-hook #'my-auto-view)
 
 (when (autoload-if-found
        '(go-mode) "go-mode" nil t)
@@ -941,13 +952,15 @@ Otherwise, indicating narrowing."
   (unless (eq my-buffer-narrowed-last
               buffer-narrowed) ;; block unnecessary request
     (setq my-buffer-narrowed-last buffer-narrowed)
-    (if buffer-narrowed
-        (custom-set-faces
-         `(mode-line ((t (:background
-                          ,(nth 0 my-narrow-modeline)
-                          :foreground
-                          ,(nth 1 my-narrow-modeline))))))
-      (custom-set-faces '(mode-line ((t nil)))))))
+    ;; (message "--- %s %s %s" this-command last-command buffer-narrowed)
+    (when (not (memq this-command '(save-buffer))) ;; FIXME
+      (if buffer-narrowed
+          (custom-set-faces
+           `(mode-line ((t (:background
+                            ,(nth 0 my-narrow-modeline)
+                            :foreground
+                            ,(nth 1 my-narrow-modeline))))))
+        (custom-set-faces '(mode-line ((t nil))))))))
 
 (defun my-update-modeline-color ()
   "Update modeline face of the current selected window.

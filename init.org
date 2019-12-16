@@ -2084,7 +2084,7 @@ Built-in の time-stamp.el を使う．
     (orgalist-mode 1))) ;; originally orgstruct-mode
 
 (add-hook 'change-log-mode-hook
-          #'(lambda()
+          (lambda ()
               (my-orgalist-activate)
               (setq tab-width 4)
               (setq left-margin 4)))
@@ -2368,13 +2368,27 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
    :PROPERTIES:
    :CUSTOM_ID: org6b6c1c11
    :END:
-gzされた elisp ソースを見るときに， =view-mode= を使います．
+
+gzされた elisp ソースを見るときに， ~view-mode~ を使います．また下記の設定では， ~my-auto-view-dirs~ に追加したディレクトリのファイルを開くと， ~view-mode~ が常に有効になります．
+
+さらなる細かい制御が必要な場合は，[[https://www.emacswiki.org/emacs/viewer.el][viewer.el]] がおすすめです．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(view-mode)
-       "view" nil t)
-  (push '("\\.el.gz$" . view-mode) auto-mode-alist))
+;; 特定の拡張子・ディレクトリ
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.emacs.d/[^/]+/el-get")
+
+;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
+(defvar my-auto-view-dirs nil)
+(add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
+
+(defun my-auto-view ()
+  (when (and my-auto-view-regexp
+             (string-match my-auto-view-regexp buffer-file-name))
+    (view-mode 1))
+  (dolist (dir my-auto-view-dirs)
+    (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+      (view-mode 1))))
+(add-hook 'find-file-hook #'my-auto-view)
 #+end_src
 
 ** Web/HTMLモード                                                       :web:
@@ -3572,13 +3586,15 @@ Otherwise, indicating narrowing."
   (unless (eq my-buffer-narrowed-last
               buffer-narrowed) ;; block unnecessary request
     (setq my-buffer-narrowed-last buffer-narrowed)
-    (if buffer-narrowed
-        (custom-set-faces
-         `(mode-line ((t (:background
-                          ,(nth 0 my-narrow-modeline)
-                          :foreground
-                          ,(nth 1 my-narrow-modeline))))))
-      (custom-set-faces '(mode-line ((t nil)))))))
+    ;; (message "--- %s %s %s" this-command last-command buffer-narrowed)
+    (when (not (memq this-command '(save-buffer))) ;; FIXME
+      (if buffer-narrowed
+          (custom-set-faces
+           `(mode-line ((t (:background
+                            ,(nth 0 my-narrow-modeline)
+                            :foreground
+                            ,(nth 1 my-narrow-modeline))))))
+        (custom-set-faces '(mode-line ((t nil))))))))
 
 (defun my-update-modeline-color ()
   "Update modeline face of the current selected window.
@@ -7678,7 +7694,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (when (org-clocking-p)
         (org-clock-out)
         (save-some-buffers t)))
-    ;; implemented in `org-onit.el'.
+    ;; implemented in `org-onit.el'. No need to hook this.
     ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
     ))
 #+end_src
@@ -8478,16 +8494,16 @@ will not be modified."
 ** [org-onit.el] org-clock-in の自動化
    :PROPERTIES:
    :CUSTOM_ID: org735f32e3
-   :ID:       9A3369DB-8CE4-4D39-93B4-63A32494E114
    :END:
 
-~org-onit.el~ を導入すると，タグを付けるタイミングで自動的に =org-clock-in= します．タグを取れば =org-clock-out= が実行されるようになります．
+=org-onit.el= を導入すると，タグを付けるタイミングで自動的に =org-clock-in= します．タグを取れば =org-clock-out= が実行されるようになります．
 
  - https://github.com/takaxp/org-onit
 
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found
        '(org-onit-toggle-doing
+         org-onit-mode
          org-onit-toggle-auto org-clock-goto my-sparse-doing-tree
          org-clock-goto org-onit-clock-in-when-unfold
          org-onit-update-options)
@@ -8511,11 +8527,7 @@ will not be modified."
     (when (require 'org-plist nil t)
       (add-to-list 'org-plist-dict '("OPTIONS_ONIT" org-onit-basic-options)))
     (custom-set-variables
-     '(org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil))))
-  ;; (with-eval-after-load "org-onit"
-  ;;   (setq-default org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil)))
-  ;; (with-eval-after-load "org-onit"
-  ;;   (setq org-onit-toggle-options '(:wakeup nil :nostate doing :unfold nil)))
+     '(org-onit-basic-options '(:wakeup nil :nostate doing :unfold nil))))
 
   (with-eval-after-load "org-clock"
     (defun my-onit-reveal ()
@@ -9553,6 +9565,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (with-eval-after-load "ox"
   (defvar my-org-export-before-hook nil)
   (defvar my-org-export-after-hook nil)
+  (defvar my-org-export-last-buffer nil)
 
   (defun my-org-export--post-processing ()
     (when (eq this-command 'org-export-dispatch)
@@ -9587,7 +9600,24 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (let ((this-command nil))
       (apply f backend subtreep)))
   (advice-add 'org-export-insert-default-template :around
-              #'my-org-export-insert-default-template))
+              #'my-org-export-insert-default-template)
+
+  (defun my-org-export-to-buffer (_backend
+                                  buffer
+                                  &optional _async _subtreep _visible-only
+                                  _body-only _ext-plist _post-process)
+    (setq my-org-export-last-buffer buffer))
+  (advice-add 'org-export-to-buffer :after #'my-org-export-to-buffer)
+
+  (defun my-copy-exported-buffer ()
+    (interactive)
+    (when my-org-export-last-buffer
+      (with-current-buffer my-org-export-last-buffer
+        (mark-whole-buffer)
+        (kill-ring-save (point-min) (point-max))
+        (message "Copied: %s" my-org-export-last-buffer))
+      (setq my-org-export-last-buffer nil)))
+  (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
 #+end_src
 
 ** TODO [ob-async] ソースブロックの非同期実行
