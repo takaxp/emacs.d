@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-12-19 Thu 13:05 -->
+<!-- 2019-12-19 Thu 13:52 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -257,34 +257,35 @@ for the JavaScript code in this tag.
 <li><a href="#orgda9120c8">1. はじめに</a></li>
 <li><a href="#org2a411a2e">2. 起動設定</a>
 <ul>
-<li><a href="#org2db575a1">2.1. init.el のヘッダ</a></li>
-<li><a href="#org3c4d5a7a">2.2. initファイルの読み込み時間計測</a>
+<li><a href="#orgdb94bf6d">2.1. Spacemacs</a></li>
+<li><a href="#org2db575a1">2.2. init.el のヘッダ</a></li>
+<li><a href="#org3c4d5a7a">2.3. initファイルの読み込み時間計測</a>
 <ul>
-<li><a href="#org715ba410">2.2.1. Emacs 起動時の呼び出し順</a></li>
+<li><a href="#org715ba410">2.3.1. Emacs 起動時の呼び出し順</a></li>
 </ul>
 </li>
-<li><a href="#orga09727ae">2.3. 起動時間の計測</a></li>
-<li><a href="#org4c3e9f59">2.4. GCサイズの最適化</a></li>
-<li><a href="#orgc7901a57">2.5. Common Lisp を使う</a></li>
-<li><a href="#org8b967ce1">2.6. 警告の抑制</a></li>
-<li><a href="#org0ea7dbaf">2.7. エラー表示の抑制</a></li>
-<li><a href="#org8d718626">2.8. バッファの保存を静かにする</a></li>
-<li><a href="#org660ba5e8">2.9. [my-load-package-p] 設定の読み込みフラグを確認する</a></li>
-<li><a href="#orgc0921cdc">2.10. [autoload-if-found] 関数をリストで渡すautoload設定</a></li>
-<li><a href="#orga2859651">2.11. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
-<li><a href="#org124f13e2">2.12. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
-<li><a href="#orgcea06248">2.13. [window-focus-p] フォーカス判定</a></li>
-<li><a href="#org30c47759">2.14. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#orgfca510d8">2.15. [shut-up.el] Messages 出力を封じる（制御する）</a>
+<li><a href="#orga09727ae">2.4. 起動時間の計測</a></li>
+<li><a href="#org4c3e9f59">2.5. GCサイズの最適化</a></li>
+<li><a href="#orgc7901a57">2.6. Common Lisp を使う</a></li>
+<li><a href="#org8b967ce1">2.7. 警告の抑制</a></li>
+<li><a href="#org0ea7dbaf">2.8. エラー表示の抑制</a></li>
+<li><a href="#org8d718626">2.9. バッファの保存を静かにする</a></li>
+<li><a href="#org660ba5e8">2.10. [my-load-package-p] 設定の読み込みフラグを確認する</a></li>
+<li><a href="#orgc0921cdc">2.11. [autoload-if-found] 関数をリストで渡すautoload設定</a></li>
+<li><a href="#orga2859651">2.12. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
+<li><a href="#org124f13e2">2.13. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
+<li><a href="#orgcea06248">2.14. [window-focus-p] フォーカス判定</a></li>
+<li><a href="#org30c47759">2.15. [library-p] load-path にライブラリがあるかを判定</a></li>
+<li><a href="#orgfca510d8">2.16. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
-<li><a href="#orgb6593164">2.15.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgb6593164">2.16.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
-<li><a href="#orgb59612b6">2.16. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0b7d9710">2.17. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
+<li><a href="#orgb59612b6">2.17. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0b7d9710">2.18. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
 <ul>
-<li><a href="#org42722212">2.17.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.17.2. マクロ版</a></li>
+<li><a href="#org42722212">2.18.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.18.2. マクロ版</a></li>
 </ul>
 </li>
 </ul>
@@ -752,6 +753,7 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 
 <ul class="org-ul">
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/.emacs">emacs.d/.emacs at master · takaxp/emacs.d</a><br /></li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/elget-config.el">emacs.d/elget-config.el at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-env.el">emacs.d/init-env.el at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">emacs.d/init.el at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">emacs.d/late-init.el at master · takaxp/emacs.d</a><br /></li>
@@ -761,8 +763,36 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 </ul>
 </div>
 
+<div id="outline-container-orgdb94bf6d" class="outline-3">
+<h3 id="orgdb94bf6d"><span class="section-number-3">2.1</span> Spacemacs</h3>
+<div class="outline-text-3" id="text-orgdb94bf6d">
+<ul class="org-ul">
+<li><a href="https://www.spacemacs.org/">Spacemacs: Emacs advanced Kit focused on Evil</a><br /></li>
+</ul>
+
+<p>
+たまに使いたくなるので，起動時に読み込む <code>init.el</code> を変えるだけで Spacemacs を読み込めるようにしています．<br />
+</p>
+
+<p>
+（Setup手順）<br />
+</p>
+<ol class="org-ol">
+<li>ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/<br /></li>
+<li>git clone <a href="https://github.com/syl20bnr/spacemacs">https://github.com/syl20bnr/spacemacs</a> ~/.spacemacs.d<br /></li>
+</ol>
+<p>
+Then load the following at startup<br />
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))</span>
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org2db575a1" class="outline-3">
-<h3 id="org2db575a1"><span class="section-number-3">2.1</span> init.el のヘッダ</h3>
+<h3 id="org2db575a1"><span class="section-number-3">2.2</span> init.el のヘッダ</h3>
 <div class="outline-text-3" id="text-org2db575a1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">-*- lexical-binding: t -*-</span>
@@ -775,7 +805,7 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 </div>
 
 <div id="outline-container-org3c4d5a7a" class="outline-3">
-<h3 id="org3c4d5a7a"><span class="section-number-3">2.2</span> initファイルの読み込み時間計測</h3>
+<h3 id="org3c4d5a7a"><span class="section-number-3">2.3</span> initファイルの読み込み時間計測</h3>
 <div class="outline-text-3" id="text-org3c4d5a7a">
 <p>
 次の関数を <code>init.el</code> の最初に記載して，オプション付きで <code>after-init-hook</code> に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する <code>emacs-init-time</code> の派生関数とは違い， <code>after-init-hook</code> で実行される処理の時間もわかります．また，ほかの処理も微妙に入るので，あくまで目安です．<br />
@@ -823,7 +853,7 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 </div>
 
 <div id="outline-container-org715ba410" class="outline-4">
-<h4 id="org715ba410"><span class="section-number-4">2.2.1</span> Emacs 起動時の呼び出し順</h4>
+<h4 id="org715ba410"><span class="section-number-4">2.3.1</span> Emacs 起動時の呼び出し順</h4>
 <div class="outline-text-4" id="text-org715ba410">
 <p>
 Emacsは，以下の順番で起動します．<br />
@@ -864,7 +894,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orga09727ae" class="outline-3">
-<h3 id="orga09727ae"><span class="section-number-3">2.3</span> 起動時間の計測</h3>
+<h3 id="orga09727ae"><span class="section-number-3">2.4</span> 起動時間の計測</h3>
 <div class="outline-text-3" id="text-orga09727ae">
 <p>
 <code>M-x emacs-init-time</code> を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えて表示を変えます．元ネタは<a href="http://d.hatena.ne.jp/sugyan/20120120/1327037494">すぎゃーんメモ</a>からです．感謝．<br />
@@ -907,7 +937,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org4c3e9f59" class="outline-3">
-<h3 id="org4c3e9f59"><span class="section-number-3">2.4</span> GCサイズの最適化</h3>
+<h3 id="org4c3e9f59"><span class="section-number-3">2.5</span> GCサイズの最適化</h3>
 <div class="outline-text-3" id="text-org4c3e9f59">
 <p>
 起動時に発生するガベージコレクトを防きます．起動後に使用しているメモリサイズを超えていれば良さ気． <code>garbage-collection-messages</code> を設定しておくと，ガベージコレクトが生じる時にメッセージが出るようになります．<br />
@@ -922,7 +952,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgc7901a57" class="outline-3">
-<h3 id="orgc7901a57"><span class="section-number-3">2.5</span> Common Lisp を使う</h3>
+<h3 id="orgc7901a57"><span class="section-number-3">2.6</span> Common Lisp を使う</h3>
 <div class="outline-text-3" id="text-orgc7901a57">
 <ul class="org-ul">
 <li><a href="http://lisperblog.blogspot.com/2008/12/blog-post_18.html">http://lisperblog.blogspot.com/2008/12/blog-post_18.html</a><br /></li>
@@ -968,7 +998,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org8b967ce1" class="outline-3">
-<h3 id="org8b967ce1"><span class="section-number-3">2.6</span> 警告の抑制</h3>
+<h3 id="org8b967ce1"><span class="section-number-3">2.7</span> 警告の抑制</h3>
 <div class="outline-text-3" id="text-org8b967ce1">
 <p>
 起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， <code>.emacs</code> の上の方に書いておくとよいと思います．<br />
@@ -990,7 +1020,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org0ea7dbaf" class="outline-3">
-<h3 id="org0ea7dbaf"><span class="section-number-3">2.7</span> エラー表示の抑制</h3>
+<h3 id="org0ea7dbaf"><span class="section-number-3">2.8</span> エラー表示の抑制</h3>
 <div class="outline-text-3" id="text-org0ea7dbaf">
 <p>
 普段使いでは要らないので抑制します．<br />
@@ -1004,7 +1034,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org8d718626" class="outline-3">
-<h3 id="org8d718626"><span class="section-number-3">2.8</span> バッファの保存を静かにする</h3>
+<h3 id="org8d718626"><span class="section-number-3">2.9</span> バッファの保存を静かにする</h3>
 <div class="outline-text-3" id="text-org8d718626">
 <p>
 ビルトインの <code>file.el</code> にある変数を使うと，バッファ保存時に表示されるメッセージが減り "Saving file &#x2026;" がメッセージバッファに記録されなくなります．バッファ保存時以外で，メッセージ出力を抑制したい場合は， <code>shut-up.el</code> が便利です．<br />
@@ -1018,7 +1048,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org660ba5e8" class="outline-3">
-<h3 id="org660ba5e8"><span class="section-number-3">2.9</span> [my-load-package-p] 設定の読み込みフラグを確認する</h3>
+<h3 id="org660ba5e8"><span class="section-number-3">2.10</span> [my-load-package-p] 設定の読み込みフラグを確認する</h3>
 <div class="outline-text-3" id="text-org660ba5e8">
 <p>
 <code>autoload-if-found</code> のサポート関数です．<br />
@@ -1047,7 +1077,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgc0921cdc" class="outline-3">
-<h3 id="orgc0921cdc"><span class="section-number-3">2.10</span> [autoload-if-found] 関数をリストで渡すautoload設定</h3>
+<h3 id="orgc0921cdc"><span class="section-number-3">2.11</span> [autoload-if-found] 関数をリストで渡すautoload設定</h3>
 <div class="outline-text-3" id="text-orgc0921cdc">
 <p>
 この <code>autoload-if-found</code> の初出は，<a href="http://www.sodan.org/~knagano/emacs/dotemacs.html">dot.emacs</a> です．<br />
@@ -1130,7 +1160,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orga2859651" class="outline-3">
-<h3 id="orga2859651"><span class="section-number-3">2.11</span> [postpone.el] Emacs起動してから使い始めるタイミングで実行する</h3>
+<h3 id="orga2859651"><span class="section-number-3">2.12</span> [postpone.el] Emacs起動してから使い始めるタイミングで実行する</h3>
 <div class="outline-text-3" id="text-orga2859651">
 <ul class="org-ul">
 <li><a href="https://github.com/takaxp/postpone">takaxp/postpone: Call functions just one time at your first action in Emacs</a><br /></li>
@@ -1172,7 +1202,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org124f13e2" class="outline-3">
-<h3 id="org124f13e2"><span class="section-number-3">2.12</span> [future-time-p] 指定時刻が本日の未来の時刻かを判定</h3>
+<h3 id="org124f13e2"><span class="section-number-3">2.13</span> [future-time-p] 指定時刻が本日の未来の時刻かを判定</h3>
 <div class="outline-text-3" id="text-org124f13e2">
 <p>
 今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． <code>run-at-time</code> が想定通りに動かず，起動時に <code>run-at-time</code> に登録した関数が走ってしまうので，この判定が <code>non-nil</code> の時だけタイマー登録します． <code>time</code> を <code>HH:MM</code> の書式で与えます．指定時刻と現在時刻が同じ場合は，過去とみなします．<br />
@@ -1219,7 +1249,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.13</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.14</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．<br />
@@ -1238,7 +1268,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org30c47759" class="outline-3">
-<h3 id="org30c47759"><span class="section-number-3">2.14</span> [library-p] load-path にライブラリがあるかを判定</h3>
+<h3 id="org30c47759"><span class="section-number-3">2.15</span> [library-p] load-path にライブラリがあるかを判定</h3>
 <div class="outline-text-3" id="text-org30c47759">
 <p>
 パッケージが <code>load-path</code> に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．<br />
@@ -1271,7 +1301,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgfca510d8" class="outline-3">
-<h3 id="orgfca510d8"><span class="section-number-3">2.15</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
+<h3 id="orgfca510d8"><span class="section-number-3">2.16</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
 <div class="outline-text-3" id="text-orgfca510d8">
 <p>
 <code>shut-up.el</code> というマクロがあり，現在はそちらを使っています．非常に強力です．<br />
@@ -1290,7 +1320,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb6593164" class="outline-4">
-<h4 id="orgb6593164"><span class="section-number-4">2.15.1</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
+<h4 id="orgb6593164"><span class="section-number-4">2.16.1</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
 <div class="outline-text-4" id="text-orgb6593164">
 <p>
 以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．<br />
@@ -1313,7 +1343,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.16</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.17</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a><br /></li>
@@ -1333,7 +1363,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.17</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.18</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b><br />
@@ -1417,7 +1447,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.17.1</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.18.1</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．<br />
@@ -1473,7 +1503,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.17.2</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.18.2</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．<br />
@@ -11093,7 +11123,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org61c4482"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org8f7e97b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14576,7 +14606,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-12-19 Thu 13:05</p>
+<p class="date">Created: 2019-12-19 Thu 13:52</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

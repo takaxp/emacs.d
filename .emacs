@@ -3,8 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
-;;  1. ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
-;;  2. git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 (with-eval-after-load "postpone"

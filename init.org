@@ -48,12 +48,29 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 これ以外に，バッチモードでバイトコンパイルするための =init-eval.el= も使います．このファイルには，バイトコンパイル時だけ必要なパッケージを列挙しています．
 
 - [[https://github.com/takaxp/emacs.d/blob/master/.emacs][emacs.d/.emacs at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/elget-config.el][emacs.d/elget-config.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init-env.el][emacs.d/init-env.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init.el][emacs.d/init.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/late-init.el][emacs.d/late-init.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init-async.el][emacs.d/init-async.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init-eval.el][emacs.d/init-eval.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init-ad.el][emacs.d/init-ad.el at master · takaxp/emacs.d]]
+
+** Spacemacs
+  :PROPERTIES:
+  :CUSTOM_ID: orgdb94bf6d
+  :END:
+ - [[https://www.spacemacs.org/][Spacemacs: Emacs advanced Kit focused on Evil]]
+
+たまに使いたくなるので，起動時に読み込む =init.el= を変えるだけで Spacemacs を読み込めるようにしています．
+
+（Setup手順）
+1. ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
+2. git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
+Then load the following at startup
+#+begin_src emacs-lisp :tangle no
+;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
+#+end_src
 
 ** init.el のヘッダ
    :PROPERTIES:
