@@ -7,31 +7,6 @@
 ;;  2. git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-
-
-
-
-
-
-
-
-
-
-;;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-;;(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-;;(package-initialize)
-;;(load "~/.emacs.d/26.3.50/el-get/package-lint/package-lint.el" nil t)
-
-;;(require 'org)
-;;(load "~/devel/git/org-mode/lisp/org.el" nil t)
-;;(load "~/devel/git/org-mode/lisp/org-version.el" nil t)
-;;(load "~/.emacs.d/26.3.50/el-get/org-onit/org-onit.el" nil t)
-
-
-;;(load "~/devel/git/org-onit/org-onit.el" nil t)
-;;(require 'org-onit)
-;;(require 'package-lint)
-
 (with-eval-after-load "postpone"
   (setq ns-alerter-command nil)) ;; due to broken of alerter command
 
@@ -57,6 +32,33 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+;;(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;;(package-initialize)
+;;(load "~/.emacs.d/26.3.50/el-get/package-lint/package-lint.el" nil t)
+
+;;(require 'org)
+;;(load "~/devel/git/org-mode/lisp/org.el" nil t)
+;;(load "~/devel/git/org-mode/lisp/org-version.el" nil t)
+;;(load "~/.emacs.d/26.3.50/el-get/org-onit/org-onit.el" nil t)
+
+;;(load "~/devel/git/org-onit/org-onit.el" nil t)
+;;(require 'org-onit)
+;;(require 'package-lint)
 
 
 ;; (with-eval-after-load "org-num"

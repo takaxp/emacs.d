@@ -86,9 +86,14 @@
       (when (fboundp 'paradox-enable)
         (paradox-enable)))))
 
-(autoload-if-found
- '(el-get-install el-get-remove el-get-version el-get-bundle)
- "elget-config" nil t)
+(when (autoload-if-found
+       '(my-elget-list
+         my-elget-reset-links el-get-update el-get-cd
+         el-get-install el-get-remove el-get-version el-get-bundle)
+       "elget-config" nil t)
+
+  (with-eval-after-load "elget-config"
+    (my-elget-load-and-sync)))
 
 (setq vc-follow-symlinks t)
 
@@ -1181,7 +1186,8 @@ Call this function at updating `mode-line-mode'."
            '(migemo-init)
            "migemo" nil t)
 
-      (add-hook 'isearch-mode-hook #'migemo-init)
+      (when (locate-library "migemo") ;; overhead but should be checked here
+        (add-hook 'isearch-mode-hook #'migemo-init))
 
       (with-eval-after-load "migemo"
         (custom-set-variables

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-12-16 Mon 19:50 -->
+<!-- 2019-12-19 Thu 13:05 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -308,7 +308,7 @@ for the JavaScript code in this tag.
 <li><a href="#org02669d67">3.12.2. Cask のセットアップ</a></li>
 <li><a href="#orgec66ea31">3.12.3. load-path を一箇所にして起動を高速化</a></li>
 <li><a href="#orgda4ef167">3.12.4. [paradox.el] パッケージ選択画面の改善</a></li>
-<li><a href="#org6c5717fc">3.12.5. <span class="todo TODO">TODO</span> el-get</a></li>
+<li><a href="#org6c5717fc">3.12.5. [el-get.el] パッケージ管理（GUI，CUI）</a></li>
 </ul>
 </li>
 <li><a href="#org03555a6a">3.13. インデント</a></li>
@@ -1981,16 +1981,21 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 </div>
 
 <div id="outline-container-org6c5717fc" class="outline-4">
-<h4 id="org6c5717fc"><span class="section-number-4">3.12.5</span> <span class="todo TODO">TODO</span> el-get</h4>
+<h4 id="org6c5717fc"><span class="section-number-4">3.12.5</span> [el-get.el] パッケージ管理（GUI，CUI）</h4>
 <div class="outline-text-4" id="text-org6c5717fc">
 <p>
 密かに <code>el-get</code> に移行．コマンドラインからも効率よく管理可能．<br />
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(autoload-if-found
- '(el-get-install el-get-remove el-get-version el-get-bundle)
- <span style="color: #8b2252;">"elget-config"</span> nil t)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(my-elget-list
+         my-elget-reset-links el-get-update el-get-cd
+         el-get-install el-get-remove el-get-version el-get-bundle)
+       <span style="color: #8b2252;">"elget-config"</span> nil t)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"elget-config"</span>
+    (my-elget-load-and-sync)))
 </pre>
 </div>
 </div>
@@ -5665,7 +5670,8 @@ paren.el の場合は以下の設定．<br />
            '(migemo-init)
            <span style="color: #8b2252;">"migemo"</span> nil t)
 
-      (add-hook 'isearch-mode-hook #'migemo-init)
+      (<span style="color: #a020f0;">when</span> (locate-library <span style="color: #8b2252;">"migemo"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">overhead but should be checked here</span>
+        (add-hook 'isearch-mode-hook #'migemo-init))
 
       (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"migemo"</span>
         (custom-set-variables
@@ -11087,7 +11093,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org8be2c3e"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org61c4482"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14570,7 +14576,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-12-16 Mon 19:50</p>
+<p class="date">Created: 2019-12-19 Thu 13:05</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

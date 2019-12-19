@@ -1099,7 +1099,7 @@ echo "--- done."
         (paradox-enable)))))
 #+end_src
 
-*** TODO el-get
+*** [el-get.el] パッケージ管理（GUI，CUI）
     :PROPERTIES:
     :CUSTOM_ID: org6c5717fc
     :END:
@@ -1107,9 +1107,14 @@ echo "--- done."
 密かに =el-get= に移行．コマンドラインからも効率よく管理可能．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(autoload-if-found
- '(el-get-install el-get-remove el-get-version el-get-bundle)
- "elget-config" nil t)
+(when (autoload-if-found
+       '(my-elget-list
+         my-elget-reset-links el-get-update el-get-cd
+         el-get-install el-get-remove el-get-version el-get-bundle)
+       "elget-config" nil t)
+
+  (with-eval-after-load "elget-config"
+    (my-elget-load-and-sync)))
 #+end_src
 
 ** インデント
@@ -4225,7 +4230,8 @@ http://0xcc.net/migemo/#download
            '(migemo-init)
            "migemo" nil t)
 
-      (add-hook 'isearch-mode-hook #'migemo-init)
+      (when (locate-library "migemo") ;; overhead but should be checked here
+        (add-hook 'isearch-mode-hook #'migemo-init))
 
       (with-eval-after-load "migemo"
         (custom-set-variables
