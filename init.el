@@ -1,4 +1,4 @@
-;; -*- lexical-binding: t -*-
+;; init.el --- My init.el -*- lexical-binding: t -*-
 ;; Configurations for Emacs
 ;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
@@ -47,12 +47,6 @@
 
 (setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
 (setq garbage-collection-messages t)
-
-(setq byte-compile-warnings
-      '(not free-vars unresolved callargs redefine obsolete noruntime
-            cl-functions interactive-only make-local))
-;; (setq byte-compile-warnings '(not obsolete))
-(setq ad-redefinition-action 'accept)
 
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
@@ -766,8 +760,10 @@
       (when (setq my-ime-before-action (my-ime-active-p))
         (my-ime-off)))
 
+    ;; For selected.el
     (add-hook 'activate-mark-hook #'my-ime-off-sticky)
     (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+    ;; 「M-x あ」対策
     (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
     (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky)
 
@@ -1082,15 +1078,6 @@
        '("/Applications" "/Applications/Utilities"
          "/System/Applications"
          "/Applications/Microsoft Remote Desktop.localized")))))
-
-(when (autoload-if-found
-       '(lingr-login)
-       "lingr" nil t)
-
-  (with-eval-after-load "lingr"
-    (defun my-lingr-login ()
-      (when (string= "Sat" (format-time-string "%a"))
-        (lingr-login)))))
 
 (my-tick-init-time "utility")
 (provide 'init)

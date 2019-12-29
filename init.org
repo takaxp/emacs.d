@@ -79,7 +79,7 @@ Then load the following at startup
    :END:
 
 #+begin_src emacs-lisp :tangle yes
-;; -*- lexical-binding: t -*-
+;; init.el --- My init.el -*- lexical-binding: t -*-
 ;; Configurations for Emacs
 ;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
@@ -187,7 +187,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 ついでに， =%.1f= で出力されるいつもの =emacs-init-time= をハック．
 
 #+begin_src emacs-lisp :tangle late-init.el :exports none
-;; -*- lexical-binding: t -*-
+;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -259,7 +259,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 - [[http://d.hatena.ne.jp/kitokitoki/20100425/p1]]
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (setq byte-compile-warnings
       '(not free-vars unresolved callargs redefine obsolete noruntime
             cl-functions interactive-only make-local))
@@ -1258,6 +1258,41 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
     (ws-butler-global-mode)))
 #+end_src
 
+** [epa.el] GPGを使う
+   :PROPERTIES:
+   :CUSTOM_ID: orge014847e
+   :END:
+
+=w32= の MSYS2 で gpg を使うと，バージョン情報が "2.2.19-unknown" などとなる．その状況で ~epg-find-configuration~ が呼ばれると，内部で生じるエラーが報告されず nil となり， ~epg.el~ が以下を報告する．
+
+#+begin_src sh
+GPG error: "no usable configuration," OpenPGP
+#+end_src
+
+しかし実際には， ~epg-find-configuration~ が ~epg-check-configuration~ のエラーを正しく処理していないのが原因であり，この関数のハックが必要となる．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "epa"
+  (when (eq window-system 'w32)
+    ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
+    (setq epg-gpg-home-directory ".gnupg"))
+
+  (defun my-epg-check-configuration (config &optional minimum-version)
+    "Verify that a sufficient version of GnuPG is installed."
+    (let ((version (alist-get 'version config)))
+      (unless (stringp version)
+        (error "Undetermined version: %S" version))
+      ;; hack for w32
+      (when (eq window-system 'w32)
+        (setq version (or minimum-version
+                          epg-gpg-minimum-version)))
+      ;;
+      (unless (version<= (or minimum-version
+                             epg-gpg-minimum-version)
+                         version)
+        (error "Unsupported version: %s" version))))
+  (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
+#+end_src
 ** NSビルド用設定                                                     :macOS:
    :PROPERTIES:
    :CUSTOM_ID: orge44eded5
@@ -2402,6 +2437,8 @@ gzされた elisp ソースを見るときに， ~view-mode~ を使います．�
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
 (add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
+(when (eq window-system 'w32)
+  (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
 (defun my-auto-view ()
   (when (and my-auto-view-regexp
@@ -2563,9 +2600,9 @@ lang en_US
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
       (setq-default ispell-program-name "aspell")
-      (when (eq window-system 'w32)
-        (setq-default ispell-program-name
-                      "C:/Program Files/Aspell/bin/aspell.exe"))
+      ;; (when (eq window-system 'w32)
+      ;;   (setq-default ispell-program-name
+      ;;                 "C:/Program Files/Aspell/bin/aspell.exe"))
       (setq ispell-dictionary "english")
       ;; This will also avoid an IM-OFF issue for flyspell-mode.
       ;; (setq ispell-aspell-supports-utf8 t) ;; Obsolete
@@ -2574,7 +2611,6 @@ lang en_US
                    ("-d" "en" "--encoding=utf-8") nil utf-8)))
       (setq ispell-personal-dictionary
             "~/Dropbox/emacs.d/config/aspell.en.pws"))
-
      (t
       nil))))
 #+end_src
@@ -3265,7 +3301,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 
  - [[https://github.com/casouri/isolate][casouri/isolate: Surrounding magics, extensible]]
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (autoload-if-found
  '(isolate-quick-add
    isolate-long-add isolate-quick-delete
@@ -3696,7 +3733,7 @@ Call this function at updating `mode-line-mode'."
 標準では「Narrow」と表示されますが，「N」に短縮します． =all-the-icons= を使って，画像に置き換えることも可能です．
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
-;; -*- lexical-binding: t -*-
+;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -4265,114 +4302,6 @@ http://0xcc.net/migemo/#download
   (message "--- cmigemo is NOT installed."))
 #+end_src
 
-** [helm.el] 続・何でも絞り込みインターフェイス
-   :PROPERTIES:
-   :CUSTOM_ID: org56d8bf9d
-   :END:
-
-ivyに移行しました．
-
-=M-s= を =helm-swoop= にあてていましたが， =M-s= を入り口にたくさんの検索系コマンドが割り振られているため =M-s M-s= に変えました．なお， =C-M-r= は本来，正規表現での逆検索(=isearch-backward-regexp=)に割り振らています．また， =C-M-l= は本来， =reposition-window= に割り当てられています．
-
-以下の設定では， =helm= に関連するモジュールも多数含まれます． =helm= がキックされるタイミングで有効化させます．
-
- - helm-google
- - helm-swoop
- - helm-projectile
- - helm-bm
-
-#+begin_src emacs-lisp :tangle no
-(when (autoload-if-found
-       '(helm-google)
-       "helm-google" nil t)
-
-  (with-eval-after-load "helm-google"
-    (custom-set-variables
-     '(helm-google-tld "co.jp"))))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-(when (autoload-if-found
-       '(helm-swoop)
-       "helm-swoop" nil t)
-
-  (with-eval-after-load "postpone"
-        (global-set-key (kbd "M-s M-s") 'helm-swoop))
-
-  (with-eval-after-load "helm-swoop"
-    (require 'helm-config nil t)
-    ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
-    (setq helm-swoop-pre-input-function
-          (lambda()
-            (unless (thing-at-point-looking-at "^\\*+")
-              (thing-at-point 'symbol))))
-    ;; 配色設定
-    (set-face-attribute
-     'helm-swoop-target-line-face nil :background "#FFEDDC")
-    (set-face-attribute
-     'helm-swoop-target-word-face nil :background "#FF5443")))
-
-(when (autoload-if-found
-       '(helm-M-x
-         helm-buffers-list helm-recentf
-         helm-locate helm-descbinds
-         helm-occur helm-flycheck helm-bookmarks)
-       "helm-config" nil t)
-
-  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
-  (global-set-key (kbd "C-M-r") 'helm-recentf)
-  (global-set-key (kbd "M-x") 'helm-M-x)
-
-  (with-eval-after-load "postpone"
-
-    (global-set-key (kbd "C-M-l") 'helm-locate)
-    (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-    (global-set-key (kbd "C-c o") 'helm-occur)
-    (global-set-key (kbd "C-h d") 'helm-descbinds))
-
-  (with-eval-after-load "projectile"
-    (when (require 'helm-projectile nil t)
-      ;; M-x helm-projectile-find-file (C-c p f)
-      (setq projectile-completion-system 'helm)
-      ;; projectile.el のキーバインドをオーバーライド
-      (helm-projectile-toggle 1)))
-
-  (with-eval-after-load "helm-config"
-    ;; (when (require 'helm-files nil t)
-    ;;   (define-key helm-find-files-map
-    ;;     (kbd "<tab>") 'helm-execute-persistent-action)
-    ;;   (define-key helm-read-file-map
-    ;;     (kbd "<tab>") 'helm-execute-persistent-action))
-
-    (when (memq window-system '(mac ns))
-      (setq helm-locate-command "mdfind -name %s %s"))
-
-    ;; (require 'helm-css-scss nil t)
-    ;; (require 'helm-emmet nil t)
-    ;; (require 'helm-descbinds nil t)
-
-    ;; Configure helm-completing-read-handlers-alist after `(helm-mode 1)'
-    (when (require 'helm nil t)
-      (helm-mode 1))
-
-    ;; helm-find-files を呼ばせない
-    ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
-    ;; helm-mode-ag を呼ばせない
-    (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
-    ;; helm-mode-org-set-tags を呼ばせない
-    (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . nil))
-
-    (setq helm-display-source-at-screen-top nil)
-    ;;         (setq helm-display-header-line nil)
-    ;; helm-autoresize-mode を有効にしつつ 30% に固定
-    (setq helm-autoresize-max-height 30)
-    (setq helm-autoresize-min-height 30)
-    (set-face-attribute 'helm-source-header nil
-                        :height 1.0 :family "Verdana" :weight 'normal
-                        :foreground "#666666" :background "#DADADA")
-    (helm-autoresize-mode 1)))
-#+end_src
-
 ** [git-gutter-fringe] 編集差分をフレーム端で視覚化
    :PROPERTIES:
    :CUSTOM_ID: org6332fe92
@@ -4866,6 +4795,38 @@ sorted.  FUNCTION must be a function of one argument."
       (advice-add 'imenu-list-quit-window :after #'my-imenu-list-quit-window))))
 #+end_src
 
+** [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）
+   :PROPERTIES:
+   :CUSTOM_ID: org29951da5
+   :END:
+
+コマンド履歴を保存．コマンドのイニシャル入力を可能にする．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "prescient"
+  (setq prescient-aggressive-file-save t) ;; Merged!
+  (setq prescient-save-file
+        (expand-file-name "~/.emacs.d/prescient-save.el"))
+  (prescient-persist-mode 1))
+
+(with-eval-after-load "ivy"
+  (when (and (require 'prescient nil t)
+             (require 'ivy-prescient nil t))
+    (setq ivy-prescient-retain-classic-highlighting t)
+    (dolist (command '(counsel-world-clock ;; Merged!
+                       counsel-app))
+      (add-to-list 'ivy-prescient-sort-commands command))
+    (ivy-prescient-mode 1)
+    (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
+          #'ivy-prescient-re-builder)
+    (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
+
+(with-eval-after-load "company"
+  (when (and (require 'prescient nil t)
+             (require 'company-prescient nil t))
+    (company-prescient-mode 1)))
+#+end_src
+
 ** TODO [swiper.el] 文字列探索とプレビューを同時に行う
    :PROPERTIES:
    :CUSTOM_ID: orgf0e91c5a
@@ -5105,36 +5066,113 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
         timestamp))))
 #+end_src
 
-** [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）
+** DONE [helm.el] 続・何でも絞り込みインターフェイス               :notinuse:
+   CLOSED: [2019-12-29 Sun 15:56]
    :PROPERTIES:
-   :CUSTOM_ID: org29951da5
+   :CUSTOM_ID: org56d8bf9d
    :END:
 
-コマンド履歴を保存．コマンドのイニシャル入力を可能にする．
+ivyに移行しました．
 
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "prescient"
-  (setq prescient-aggressive-file-save t) ;; Merged!
-  (setq prescient-save-file
-        (expand-file-name "~/.emacs.d/prescient-save.el"))
-  (prescient-persist-mode 1))
+=M-s= を =helm-swoop= にあてていましたが， =M-s= を入り口にたくさんの検索系コマンドが割り振られているため =M-s M-s= に変えました．なお， =C-M-r= は本来，正規表現での逆検索(=isearch-backward-regexp=)に割り振らています．また， =C-M-l= は本来， =reposition-window= に割り当てられています．
 
-(with-eval-after-load "ivy"
-  (when (and (require 'prescient nil t)
-             (require 'ivy-prescient nil t))
-    (setq ivy-prescient-retain-classic-highlighting t)
-    (dolist (command '(counsel-world-clock ;; Merged!
-                       counsel-app))
-      (add-to-list 'ivy-prescient-sort-commands command))
-    (ivy-prescient-mode 1)
-    (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
-          #'ivy-prescient-re-builder)
-    (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
+以下の設定では， =helm= に関連するモジュールも多数含まれます． =helm= がキックされるタイミングで有効化させます．
 
-(with-eval-after-load "company"
-  (when (and (require 'prescient nil t)
-             (require 'company-prescient nil t))
-    (company-prescient-mode 1)))
+ - helm-google
+ - helm-swoop
+ - helm-projectile
+ - helm-bm
+
+#+begin_src emacs-lisp :tangle no
+(when (autoload-if-found
+       '(helm-google)
+       "helm-google" nil t)
+
+  (with-eval-after-load "helm-google"
+    (custom-set-variables
+     '(helm-google-tld "co.jp"))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(when (autoload-if-found
+       '(helm-swoop)
+       "helm-swoop" nil t)
+
+  (with-eval-after-load "postpone"
+        (global-set-key (kbd "M-s M-s") 'helm-swoop))
+
+  (with-eval-after-load "helm-swoop"
+    (require 'helm-config nil t)
+    ;; カーソルの単語が org の見出し（*の集まり）なら検索対象にしない．
+    (setq helm-swoop-pre-input-function
+          (lambda()
+            (unless (thing-at-point-looking-at "^\\*+")
+              (thing-at-point 'symbol))))
+    ;; 配色設定
+    (set-face-attribute
+     'helm-swoop-target-line-face nil :background "#FFEDDC")
+    (set-face-attribute
+     'helm-swoop-target-word-face nil :background "#FF5443")))
+
+(when (autoload-if-found
+       '(helm-M-x
+         helm-buffers-list helm-recentf
+         helm-locate helm-descbinds
+         helm-occur helm-flycheck helm-bookmarks)
+       "helm-config" nil t)
+
+  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
+  (global-set-key (kbd "C-M-r") 'helm-recentf)
+  (global-set-key (kbd "M-x") 'helm-M-x)
+
+  (with-eval-after-load "postpone"
+
+    (global-set-key (kbd "C-M-l") 'helm-locate)
+    (global-set-key (kbd "C-c f b") 'helm-bookmarks)
+    (global-set-key (kbd "C-c o") 'helm-occur)
+    (global-set-key (kbd "C-h d") 'helm-descbinds))
+
+  (with-eval-after-load "projectile"
+    (when (require 'helm-projectile nil t)
+      ;; M-x helm-projectile-find-file (C-c p f)
+      (setq projectile-completion-system 'helm)
+      ;; projectile.el のキーバインドをオーバーライド
+      (helm-projectile-toggle 1)))
+
+  (with-eval-after-load "helm-config"
+    ;; (when (require 'helm-files nil t)
+    ;;   (define-key helm-find-files-map
+    ;;     (kbd "<tab>") 'helm-execute-persistent-action)
+    ;;   (define-key helm-read-file-map
+    ;;     (kbd "<tab>") 'helm-execute-persistent-action))
+
+    (when (memq window-system '(mac ns))
+      (setq helm-locate-command "mdfind -name %s %s"))
+
+    ;; (require 'helm-css-scss nil t)
+    ;; (require 'helm-emmet nil t)
+    ;; (require 'helm-descbinds nil t)
+
+    ;; Configure helm-completing-read-handlers-alist after `(helm-mode 1)'
+    (when (require 'helm nil t)
+      (helm-mode 1))
+
+    ;; helm-find-files を呼ばせない
+    ;; (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
+    ;; helm-mode-ag を呼ばせない
+    (add-to-list 'helm-completing-read-handlers-alist '(ag . nil))
+    ;; helm-mode-org-set-tags を呼ばせない
+    (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . nil))
+
+    (setq helm-display-source-at-screen-top nil)
+    ;;         (setq helm-display-header-line nil)
+    ;; helm-autoresize-mode を有効にしつつ 30% に固定
+    (setq helm-autoresize-max-height 30)
+    (setq helm-autoresize-min-height 30)
+    (set-face-attribute 'helm-source-header nil
+                        :height 1.0 :family "Verdana" :weight 'normal
+                        :foreground "#666666" :background "#DADADA")
+    (helm-autoresize-mode 1)))
 #+end_src
 
 ** DONE バッテリー情報をモードラインに表示する                     :notinuse:
@@ -5818,16 +5856,33 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
   (add-hook 'after-save-hook #'my-auto-backup)
 
-  ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
-  (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t))
+  ;; %y-%m-%d_%M-%S で終わるファイルを本来のメジャーモードで開く
+  (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9-]\\{5\\}$" nil t))
 
   (with-eval-after-load "backup-each-save"
     (defun my-auto-backup ()
       (unless (equal (buffer-name) "recentf")
         (backup-each-save)))
     (setq backup-each-save-mirror-location "~/.emacs.d/backup")
-    (setq backup-each-save-time-format "%y-%m-%d_%M:%S")
-    (setq backup-each-save-size-limit 1048576)))
+    (setq backup-each-save-time-format "%y-%m-%d_%M-%S") ;; do not use ":" for w32
+    (setq backup-each-save-size-limit 1048576))
+
+  (defun my-backup-each-save-compute-location (filename)
+    (let* ((containing-dir (file-name-directory filename))
+           (basename (file-name-nondirectory filename))
+           (backup-container
+            (format "%s/%s"
+                    backup-each-save-mirror-location
+                    ;; "c:" is not allowed
+                    (replace-regexp-in-string ":" "" containing-dir))))
+      (when (not (file-exists-p backup-container))
+        (make-directory backup-container t))
+      (format "%s/%s-%s" backup-container basename
+              (format-time-string backup-each-save-time-format))))
+
+  (when (eq window-system 'w32)
+    (advice-add 'backup-each-save-compute-location :override
+                #'my-backup-each-save-compute-location)))
 #+end_src
 
 ** [dired] ファイラのサポートツール                                   :dired:
@@ -5998,60 +6053,6 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
     (osx-trash-setup)))
 #+end_src
 
-** [undo-tree] 編集履歴をわかりやすくたどる
-   :PROPERTIES:
-   :CUSTOM_ID: org82bd942f
-   :END:
-
-Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= に対して，フレームサイズの変更を紐付けています．また， =auto-save-buffers= が org-files をどんどん保存して記録してしまうので，ツリーを選んでいる時に auto-save-buffers が発動するのを別途抑制しています．加えて， =org-tree-slide= でナローイングしていると，タイムスタンプが記録される時に履歴が辿れなくなるので， =org-tree-slide= が有効の時は，タイムスタンプを押させないように別途制限を加えています．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(my-undo-tree-visualize)
-       "undo-tree" nil t)
-
-  (global-set-key (kbd "C-x u") 'my-undo-tree-visualize)
-
-  (with-eval-after-load "undo-tree"
-    ;; (global-undo-tree-mode)
-    (setq undo-tree-mode-lighter nil) ;; モードライン領域を節約
-
-    (defvar my-undo-tree-active nil)
-    (defvar my-undo-tree-width 90)
-
-    (defun my-undo-tree-visualize ()
-      (interactive)
-      (undo-tree-mode 1)
-      (if (require 'moom nil t)
-          (moom-change-frame-width-double)
-        (when (and (not my-undo-tree-active)
-                   (not (eq buffer-undo-list t)))
-          (set-frame-width nil (+ (frame-width) my-undo-tree-width))
-          (setq my-undo-tree-active t)))
-      (undo-tree-visualize))
-
-    (define-key undo-tree-map (kbd "C-x u") 'my-undo-tree-visualize)
-
-    (defun my-undo-tree-visualizer-quit ()
-      (interactive)
-      (undo-tree-visualizer-quit)
-      (if (require 'moom nil t)
-          (moom-change-frame-width-single)
-        (delete-window)
-        (when my-undo-tree-active
-          (set-frame-width nil (- (frame-width) my-undo-tree-width))
-          (setq my-undo-tree-active nil)))
-      (when (< (frame-width) 80)
-        (set-frame-width nil 80))
-      (undo-tree-mode -1))
-
-    (define-key undo-tree-visualizer-mode-map (kbd "q")
-      'my-undo-tree-visualizer-quit))
-
-  (advice-add 'undo-tree-undo-1 :after #'my-org-reveal-and-focus)
-  (advice-add 'undo-tree-redo-1 :after #'my-org-reveal-and-focus))
-#+end_src
-
 ** [undo-propose] undo を編集不可モードで辿る
    :PROPERTIES:
    :CUSTOM_ID: org694ee426
@@ -6144,6 +6145,22 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
     (add-hook 'undo-propose-entry-hook #'my-undo-propose-mode-line)
     (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
+#+end_src
+
+** [undo-fu.el] シンプルな redo を提供してくる
+   :PROPERTIES:
+   :CUSTOM_ID: org6e71b562
+   :END:
+
+ - [[https://gitlab.com/ideasman42/emacs-undo-fu][Campbell Barton / emacs-undo-fu · GitLab]]
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(undo-fu-only-undo undo-fu-only-redo)
+       "undo-fu" nil t)
+
+  (global-set-key (kbd "C-/") 'undo-fu-only-undo)
+  (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 #+end_src
 
 ** [auto-save-buffers.el] 一定間隔でバッファを保存する
@@ -6532,6 +6549,62 @@ the_silver_searcher @0.18.1 (textproc)
     (ivy-add-actions
      'counsel-fzf
      '(("r" my-counsel-fzf-in-dir "search in directory")))))
+#+end_src
+
+** DONE [undo-tree] 編集履歴をわかりやすくたどる                   :notinuse:
+   CLOSED: [2019-12-29 Sun 15:59]
+   :PROPERTIES:
+   :CUSTOM_ID: org82bd942f
+   :END:
+
+Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= に対して，フレームサイズの変更を紐付けています．また， =auto-save-buffers= が org-files をどんどん保存して記録してしまうので，ツリーを選んでいる時に auto-save-buffers が発動するのを別途抑制しています．加えて， =org-tree-slide= でナローイングしていると，タイムスタンプが記録される時に履歴が辿れなくなるので， =org-tree-slide= が有効の時は，タイムスタンプを押させないように別途制限を加えています．
+
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
+(when (autoload-if-found
+       '(my-undo-tree-visualize)
+       "undo-tree" nil t)
+
+  (global-set-key (kbd "C-x u") 'my-undo-tree-visualize)
+
+  (with-eval-after-load "undo-tree"
+    ;; (global-undo-tree-mode)
+    (setq undo-tree-mode-lighter nil) ;; モードライン領域を節約
+
+    (defvar my-undo-tree-active nil)
+    (defvar my-undo-tree-width 90)
+
+    (defun my-undo-tree-visualize ()
+      (interactive)
+      (undo-tree-mode 1)
+      (if (require 'moom nil t)
+          (moom-change-frame-width-double)
+        (when (and (not my-undo-tree-active)
+                   (not (eq buffer-undo-list t)))
+          (set-frame-width nil (+ (frame-width) my-undo-tree-width))
+          (setq my-undo-tree-active t)))
+      (undo-tree-visualize))
+
+    (define-key undo-tree-map (kbd "C-x u") 'my-undo-tree-visualize)
+
+    (defun my-undo-tree-visualizer-quit ()
+      (interactive)
+      (undo-tree-visualizer-quit)
+      (if (require 'moom nil t)
+          (moom-change-frame-width-single)
+        (delete-window)
+        (when my-undo-tree-active
+          (set-frame-width nil (- (frame-width) my-undo-tree-width))
+          (setq my-undo-tree-active nil)))
+      (when (< (frame-width) 80)
+        (set-frame-width nil 80))
+      (undo-tree-mode -1))
+
+    (define-key undo-tree-visualizer-mode-map (kbd "q")
+      'my-undo-tree-visualizer-quit))
+
+  (advice-add 'undo-tree-undo-1 :after #'my-org-reveal-and-focus)
+  (advice-add 'undo-tree-redo-1 :after #'my-org-reveal-and-focus))
 #+end_src
 
 ** DONE [wakatime-mode.el] WakaTime を利用して作業記録する         :notinuse:
@@ -8932,6 +9005,7 @@ update it for multiple appts?")
 ** [org-tree-slide] クロックインとアウトを自動化する
    :PROPERTIES:
    :CUSTOM_ID: org264a37c5
+   :ID:       D450E5F4-D8D5-4493-A5CB-872906015E77
    :END:
 
 特定のファイルを編集している時， =org-tree-slide= でフォーカスしたら =org-clock-in= で時間計測を始めて，ナローイングを解く時や次のツリーに移る時に =org-clock-out= で計測を停止するように設定しています．基本的に =org-tree-slide= にあるhookに色々とぶら下げるだけです．
@@ -10308,8 +10382,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
       (when (setq my-ime-before-action (my-ime-active-p))
         (my-ime-off)))
 
+    ;; For selected.el
     (add-hook 'activate-mark-hook #'my-ime-off-sticky)
     (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+    ;; 「M-x あ」対策
     (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
     (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky)
 
@@ -10389,35 +10465,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
       (when (require 'moom-font nil t)
         (moom-font-resize))))
   (advice-add 'make-frame :after #'ad:make-frame))
-#+end_src
-
-** [olivetti.el] ウィンドウを中央寄せで配置
-   :PROPERTIES:
-   :CUSTOM_ID: org7a20b311
-   :END:
-
- - [[https://github.com/rnkn/olivetti][rnkn/olivetti: Emacs minor mode for a nice writing environment]]
-
-=moom.el= を使ってフレームを最大化したり，画面の半分に配置すると，80桁で表示する領域とウィンドウが占める領域の幅が一致しない場合があります．通常は，フレーム内で左寄せに配置されますが， =olivetti= を使うと，中央寄せにできます．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "moom"
-  (when (require 'olivetti nil t)
-    (setq olivetti-lighter nil)
-    (setq-default olivetti-body-width 80)
-    (defun ad:turn-on-olivetti-mode ()
-      "Disable `visual-line-mode'."
-      (unless moom--maximized
-        (olivetti-mode -1))
-      (visual-line-mode -1))
-    (advice-add 'turn-on-olivetti-mode :after #'ad:turn-on-olivetti-mode)
-    (add-hook 'find-file-hook #'turn-on-olivetti-mode)
-    (defun ad:olivetti:moom-toggle-frame-maximized ()
-      (if moom--maximized
-          (turn-on-olivetti-mode)
-        (olivetti-mode -1)))
-    (advice-add 'moom-toggle-frame-maximized :after
-                #'ad:olivetti:moom-toggle-frame-maximized)))
 #+end_src
 
 ** [moom.el] キーボードでフレームの場所を移す
@@ -10858,6 +10905,37 @@ Uses `all-the-icons-material' to fetch the icon."
 
   (unless noninteractive
     (popwin-mode 1)))
+#+end_src
+
+** DONE [olivetti.el] ウィンドウを中央寄せで配置                   :notinuse:
+   CLOSED: [2019-12-29 Sun 16:01]
+   :PROPERTIES:
+   :CUSTOM_ID: org7a20b311
+   :END:
+
+ - [[https://github.com/rnkn/olivetti][rnkn/olivetti: Emacs minor mode for a nice writing environment]]
+
+=moom.el= を使ってフレームを最大化したり，画面の半分に配置すると，80桁で表示する領域とウィンドウが占める領域の幅が一致しない場合があります．通常は，フレーム内で左寄せに配置されますが， =olivetti= を使うと，中央寄せにできます．
+
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
+(with-eval-after-load "moom"
+  (when (require 'olivetti nil t)
+    (setq olivetti-lighter nil)
+    (setq-default olivetti-body-width 80)
+    (defun ad:turn-on-olivetti-mode ()
+      "Disable `visual-line-mode'."
+      (unless moom--maximized
+        (olivetti-mode -1))
+      (visual-line-mode -1))
+    (advice-add 'turn-on-olivetti-mode :after #'ad:turn-on-olivetti-mode)
+    (add-hook 'find-file-hook #'turn-on-olivetti-mode)
+    (defun ad:olivetti:moom-toggle-frame-maximized ()
+      (if moom--maximized
+          (turn-on-olivetti-mode)
+        (olivetti-mode -1)))
+    (advice-add 'moom-toggle-frame-maximized :after
+                #'ad:olivetti:moom-toggle-frame-maximized)))
 #+end_src
 
 * フォント／配色関連
@@ -11533,7 +11611,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
 #+end_src
 
-** TODO [volatile-highlights] コピペした領域を強調
+** [volatile-highlights] コピペした領域を強調
    :PROPERTIES:
    :CUSTOM_ID: org36a28b28
    :END:
@@ -11941,33 +12019,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
       (google-this (current-word) t))))
 #+end_src
 
-** [lingr.el] チャットルームに自動参加
-   :PROPERTIES:
-   :CUSTOM_ID: org71c49002
-   :ID:       CF4695C9-5A8E-4295-ACD5-24B43A83C841
-   :END:
-
-init.el読書会が毎週土曜日の23時に開催されています．作業に集中していると，ついつい忘れてしまうので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルに記載しています．
-
-#+begin_src emacs-lisp :tangle no
-# late-init.el
-(when (autoload-if-found
-       '(lingr-login my-lingr-login)
-       "lingr" nil t)
-
-  (with-eval-after-load "lingr"
-    (custom-set-variables
-     '(lingr-icon-mode t)
-     '(lingr-icon-fix-size 24)
-     '(lingr-image-convert-program  (or (executable-find "convert")
-                                        lingr-image-convert-program))))
-
-  (when (future-time-p "23:00")
-    ;; do not use `run-at-time' at booting since diary-lib.el
-    ;; will be loaded. It requires loading cost.
-    (run-at-time "23:00" nil 'my-lingr-login)))
-#+end_src
-
 ** [multi-term.el] ターミナル
    :PROPERTIES:
    :CUSTOM_ID: orgc6fce61d
@@ -12190,22 +12241,6 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
           (delete-window (get-buffer-window "*manage-minor-mode*"))))))
 #+end_src
 
-** [lingr.el] lingr にログインする
-   :PROPERTIES:
-   :CUSTOM_ID: org2be833d3
-   :END:
-
-#+begin_src emacs-lisp :tangle yes
-(when (autoload-if-found
-       '(lingr-login)
-       "lingr" nil t)
-
-  (with-eval-after-load "lingr"
-    (defun my-lingr-login ()
-      (when (string= "Sat" (format-time-string "%a"))
-        (lingr-login)))))
-#+end_src
-
 ** 検索語を変えずに counsel-fzf に接続する
    :PROPERTIES:
    :CUSTOM_ID: org2adaf11c
@@ -12253,12 +12288,14 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
   (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
 #+end_src
 
-** TODO [gitter.el] Gitter にログイン
+** [gitter.el] Gitter にログイン
+   CLOSED: [2019-12-29 Sun 16:04]
    :PROPERTIES:
    :CUSTOM_ID: org409d5d63
    :END:
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (autoload-if-found '(gitter) "gitter"  nil t)
 #+end_src
 
@@ -12320,6 +12357,51 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     (if shutup-p
         (shut-up (network-watch-mode 1))
       (network-watch-mode 1))))
+#+end_src
+
+** DONE [lingr.el] チャットルームに自動参加                        :notinuse:
+   CLOSED: [2019-12-29 Sun 15:35]
+   :PROPERTIES:
+   :CUSTOM_ID: org71c49002
+   :ID:       CF4695C9-5A8E-4295-ACD5-24B43A83C841
+   :END:
+
+init.el読書会が毎週土曜日の23時に開催されています．作業に集中していると，ついつい忘れてしまうので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルに記載しています．
+
+#+begin_src emacs-lisp :tangle no
+# late-init.el
+(when (autoload-if-found
+       '(lingr-login my-lingr-login)
+       "lingr" nil t)
+
+  (with-eval-after-load "lingr"
+    (custom-set-variables
+     '(lingr-icon-mode t)
+     '(lingr-icon-fix-size 24)
+     '(lingr-image-convert-program  (or (executable-find "convert")
+                                        lingr-image-convert-program))))
+
+  (when (future-time-p "23:00")
+    ;; do not use `run-at-time' at booting since diary-lib.el
+    ;; will be loaded. It requires loading cost.
+    (run-at-time "23:00" nil 'my-lingr-login)))
+#+end_src
+
+** DONE [lingr.el] lingr にログインする                            :notinuse:
+   CLOSED: [2019-12-29 Sun 15:34]
+   :PROPERTIES:
+   :CUSTOM_ID: org2be833d3
+   :END:
+
+#+begin_src emacs-lisp :tangle no
+(when (autoload-if-found
+       '(lingr-login)
+       "lingr" nil t)
+
+  (with-eval-after-load "lingr"
+    (defun my-lingr-login ()
+      (when (string= "Sat" (format-time-string "%a"))
+        (lingr-login)))))
 #+end_src
 
 * おわりに

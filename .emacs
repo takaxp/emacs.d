@@ -33,30 +33,49 @@
 
 
 
+;; TODO eldocの確認時に narrowing/widen している可能性がある．
+
+;; これは，async で切り離したプロセス(emacs -Q)内部で動かせばよいのでは？
+;; 結果はバッファで受け取る
+
+(defun my-test-release-build ()
+  (interactive)
+  (unless (require 'async nil t)
+    (user-error "Async is NOT installed"))
+  (async-start
+   (lambda ()
+     (add-to-list 'load-path "~/devel/git/org-mode/lisp")
+     (require 'org)
+     (defvar result `(:org ,(org-version)))
+     (load "~/.emacs.d/26.3.50/el-get/package-lint/package-lint.el" nil t)
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;; Build a new package here for release
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     (byte-compile-file "~/devel/git/org-onit/org-onit.el")
+     ;; (with-current-buffer (get-file-buffer "~/devel/git/org-onit/org-onit.el")
+     ;;   (package-lint-current-buffer))
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;; (load "~/devel/git/org-onit/org-onit.el" nil t)
+     ;; (require 'org-onit)
+     ;; (org-onit-get-sign)
+
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     (switch-to-buffer "*Compile-Log*") ;; FIXME
+     (message "%s"
+              (buffer-substring-no-properties (point-min) (point-max)))
+     ;;     (message "%s" (buffer-list))
+     )
+   (lambda (result)
+     (message "%s" result))))
 
 
-
-
-
-
-
-
-
-
-
-;;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-;;(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-;;(package-initialize)
-;;(load "~/.emacs.d/26.3.50/el-get/package-lint/package-lint.el" nil t)
-
-;;(require 'org)
-;;(load "~/devel/git/org-mode/lisp/org.el" nil t)
-;;(load "~/devel/git/org-mode/lisp/org-version.el" nil t)
-;;(load "~/.emacs.d/26.3.50/el-get/org-onit/org-onit.el" nil t)
-
-;;(load "~/devel/git/org-onit/org-onit.el" nil t)
-;;(require 'org-onit)
-;;(require 'package-lint)
+;; (require 'package)
+;; (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+;; (add-to-list 'package-archives
+;;              '("melpa" . "https://melpa.org/packages/") t)
+;; (package-initialize)
+;;
+;; (require 'package-lint)
 
 
 ;; (with-eval-after-load "org-num"

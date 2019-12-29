@@ -1,4 +1,4 @@
-;; -*- lexical-binding: t -*-
+;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
 
 (with-eval-after-load "time"
   (defun ad:emacs-init-time ()
@@ -131,6 +131,27 @@
 
   (unless noninteractive
     (ws-butler-global-mode)))
+
+(with-eval-after-load "epa"
+  (when (eq window-system 'w32)
+    ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
+    (setq epg-gpg-home-directory ".gnupg"))
+
+  (defun my-epg-check-configuration (config &optional minimum-version)
+    "Verify that a sufficient version of GnuPG is installed."
+    (let ((version (alist-get 'version config)))
+      (unless (stringp version)
+        (error "Undetermined version: %S" version))
+      ;; hack for w32
+      (when (eq window-system 'w32)
+        (setq version (or minimum-version
+                          epg-gpg-minimum-version)))
+      ;;
+      (unless (version<= (or minimum-version
+                             epg-gpg-minimum-version)
+                         version)
+        (error "Unsupported version: %s" version))))
+  (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
 
 (when (memq window-system '(ns nil))
   (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
@@ -485,6 +506,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
 (add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
+(when (eq window-system 'w32)
+  (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
 (defun my-auto-view ()
   (when (and my-auto-view-regexp
@@ -544,9 +567,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
       (setq-default ispell-program-name "aspell")
-      (when (eq window-system 'w32)
-        (setq-default ispell-program-name
-                      "C:/Program Files/Aspell/bin/aspell.exe"))
+      ;; (when (eq window-system 'w32)
+      ;;   (setq-default ispell-program-name
+      ;;                 "C:/Program Files/Aspell/bin/aspell.exe"))
       (setq ispell-dictionary "english")
       ;; This will also avoid an IM-OFF issue for flyspell-mode.
       ;; (setq ispell-aspell-supports-utf8 t) ;; Obsolete
@@ -555,7 +578,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                    ("-d" "en" "--encoding=utf-8") nil utf-8)))
       (setq ispell-personal-dictionary
             "~/Dropbox/emacs.d/config/aspell.en.pws"))
-
      (t
       nil))))
 
@@ -918,12 +940,6 @@ This works also for other defined begin/end tokens to define the structure."
         ("<down-mouse-1>" ignore)
         ("<drag-mouse-1>" ignore)
         ("q" nil)))))
-
-(autoload-if-found
- '(isolate-quick-add
-   isolate-long-add isolate-quick-delete
-   isolate-quick-chnge isolate-long-change)
- "isolate" nil t)
 
 (when (autoload-if-found
        '(git-complete)
@@ -1562,6 +1578,29 @@ sorted.  FUNCTION must be a function of one argument."
       (add-hook 'imenu-list-update-hook #'my-imenu-list-update)
       (advice-add 'imenu-list-quit-window :after #'my-imenu-list-quit-window))))
 
+(with-eval-after-load "prescient"
+  (setq prescient-aggressive-file-save t) ;; Merged!
+  (setq prescient-save-file
+        (expand-file-name "~/.emacs.d/prescient-save.el"))
+  (prescient-persist-mode 1))
+
+(with-eval-after-load "ivy"
+  (when (and (require 'prescient nil t)
+             (require 'ivy-prescient nil t))
+    (setq ivy-prescient-retain-classic-highlighting t)
+    (dolist (command '(counsel-world-clock ;; Merged!
+                       counsel-app))
+      (add-to-list 'ivy-prescient-sort-commands command))
+    (ivy-prescient-mode 1)
+    (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
+          #'ivy-prescient-re-builder)
+    (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
+
+(with-eval-after-load "company"
+  (when (and (require 'prescient nil t)
+             (require 'company-prescient nil t))
+    (company-prescient-mode 1)))
+
 (when (autoload-if-found
        '(swiper-thing-at-point swiper-all-thing-at-point)
        "swiper" nil t)
@@ -1718,29 +1757,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
              (timestamp (concat timestamp-without-timezone
                                 timezone-utf-offset)))
         timestamp))))
-
-(with-eval-after-load "prescient"
-  (setq prescient-aggressive-file-save t) ;; Merged!
-  (setq prescient-save-file
-        (expand-file-name "~/.emacs.d/prescient-save.el"))
-  (prescient-persist-mode 1))
-
-(with-eval-after-load "ivy"
-  (when (and (require 'prescient nil t)
-             (require 'ivy-prescient nil t))
-    (setq ivy-prescient-retain-classic-highlighting t)
-    (dolist (command '(counsel-world-clock ;; Merged!
-                       counsel-app))
-      (add-to-list 'ivy-prescient-sort-commands command))
-    (ivy-prescient-mode 1)
-    (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
-          #'ivy-prescient-re-builder)
-    (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
-
-(with-eval-after-load "company"
-  (when (and (require 'prescient nil t)
-             (require 'company-prescient nil t))
-    (company-prescient-mode 1)))
 
 (when (autoload-if-found
        '(emms-play-file
@@ -1927,16 +1943,33 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
   (add-hook 'after-save-hook #'my-auto-backup)
 
-  ;; %y-%m-%d_%M:%S で終わるファイルを本来のメジャーモードで開く
-  (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9:]\\{5\\}$" nil t))
+  ;; %y-%m-%d_%M-%S で終わるファイルを本来のメジャーモードで開く
+  (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9-]\\{5\\}$" nil t))
 
   (with-eval-after-load "backup-each-save"
     (defun my-auto-backup ()
       (unless (equal (buffer-name) "recentf")
         (backup-each-save)))
     (setq backup-each-save-mirror-location "~/.emacs.d/backup")
-    (setq backup-each-save-time-format "%y-%m-%d_%M:%S")
-    (setq backup-each-save-size-limit 1048576)))
+    (setq backup-each-save-time-format "%y-%m-%d_%M-%S") ;; do not use ":" for w32
+    (setq backup-each-save-size-limit 1048576))
+
+  (defun my-backup-each-save-compute-location (filename)
+    (let* ((containing-dir (file-name-directory filename))
+           (basename (file-name-nondirectory filename))
+           (backup-container
+            (format "%s/%s"
+                    backup-each-save-mirror-location
+                    ;; "c:" is not allowed
+                    (replace-regexp-in-string ":" "" containing-dir))))
+      (when (not (file-exists-p backup-container))
+        (make-directory backup-container t))
+      (format "%s/%s-%s" backup-container basename
+              (format-time-string backup-each-save-time-format))))
+
+  (when (eq window-system 'w32)
+    (advice-add 'backup-each-save-compute-location :override
+                #'my-backup-each-save-compute-location)))
 
 (when (autoload-if-found
        '(dired-recent-open dired-recent-mode)
@@ -1953,51 +1986,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
   (when (require 'osx-trash nil t)
     (setq delete-by-moving-to-trash t)
     (osx-trash-setup)))
-
-(when (autoload-if-found
-       '(my-undo-tree-visualize)
-       "undo-tree" nil t)
-
-  (global-set-key (kbd "C-x u") 'my-undo-tree-visualize)
-
-  (with-eval-after-load "undo-tree"
-    ;; (global-undo-tree-mode)
-    (setq undo-tree-mode-lighter nil) ;; モードライン領域を節約
-
-    (defvar my-undo-tree-active nil)
-    (defvar my-undo-tree-width 90)
-
-    (defun my-undo-tree-visualize ()
-      (interactive)
-      (undo-tree-mode 1)
-      (if (require 'moom nil t)
-          (moom-change-frame-width-double)
-        (when (and (not my-undo-tree-active)
-                   (not (eq buffer-undo-list t)))
-          (set-frame-width nil (+ (frame-width) my-undo-tree-width))
-          (setq my-undo-tree-active t)))
-      (undo-tree-visualize))
-
-    (define-key undo-tree-map (kbd "C-x u") 'my-undo-tree-visualize)
-
-    (defun my-undo-tree-visualizer-quit ()
-      (interactive)
-      (undo-tree-visualizer-quit)
-      (if (require 'moom nil t)
-          (moom-change-frame-width-single)
-        (delete-window)
-        (when my-undo-tree-active
-          (set-frame-width nil (- (frame-width) my-undo-tree-width))
-          (setq my-undo-tree-active nil)))
-      (when (< (frame-width) 80)
-        (set-frame-width nil 80))
-      (undo-tree-mode -1))
-
-    (define-key undo-tree-visualizer-mode-map (kbd "q")
-      'my-undo-tree-visualizer-quit))
-
-  (advice-add 'undo-tree-undo-1 :after #'my-org-reveal-and-focus)
-  (advice-add 'undo-tree-redo-1 :after #'my-org-reveal-and-focus))
 
 (when (autoload-if-found
        '(undo-propose)
@@ -2076,6 +2064,13 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
     (add-hook 'undo-propose-entry-hook #'my-undo-propose-mode-line)
     (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
+
+(when (autoload-if-found
+       '(undo-fu-only-undo undo-fu-only-redo)
+       "undo-fu" nil t)
+
+  (global-set-key (kbd "C-/") 'undo-fu-only-undo)
+  (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 
 (when (require 'auto-save-buffers nil t)
 
@@ -2667,24 +2662,6 @@ For example: \"<e\" -> (\"e\" . t)"
             org-refile
             org-tree-to-indirect-buffer
             org-bookmark-jump))))
-
-(with-eval-after-load "moom"
-  (when (require 'olivetti nil t)
-    (setq olivetti-lighter nil)
-    (setq-default olivetti-body-width 80)
-    (defun ad:turn-on-olivetti-mode ()
-      "Disable `visual-line-mode'."
-      (unless moom--maximized
-        (olivetti-mode -1))
-      (visual-line-mode -1))
-    (advice-add 'turn-on-olivetti-mode :after #'ad:turn-on-olivetti-mode)
-    (add-hook 'find-file-hook #'turn-on-olivetti-mode)
-    (defun ad:olivetti:moom-toggle-frame-maximized ()
-      (if moom--maximized
-          (turn-on-olivetti-mode)
-        (olivetti-mode -1)))
-    (advice-add 'moom-toggle-frame-maximized :after
-                #'ad:olivetti:moom-toggle-frame-maximized)))
 
 (global-set-key (kbd "<f12>") 'my-toggle-mode-line)
 (with-eval-after-load "moom"
@@ -3506,8 +3483,6 @@ Uses `all-the-icons-material' to fetch the icon."
   (advice-add 'ivy--insert-prompt :before #'ad:fzf:ivy--insert-prompt)
   (add-hook 'minibuffer-setup-hook #'my-nocand-then-fzf-reset)
   (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
-
-(autoload-if-found '(gitter) "gitter"  nil t)
 
 (if (not (executable-find "pass"))
     (message "--- pass is NOT installed.")

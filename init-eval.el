@@ -2,6 +2,11 @@
 
 (setq gc-cons-threshold (* 256 1024 1024))
 (setq garbage-collection-messages t)
+(setq byte-compile-warnings
+      '(not free-vars unresolved callargs redefine obsolete noruntime
+            cl-functions interactive-only make-local))
+;; (setq byte-compile-warnings '(not obsolete))
+(setq ad-redefinition-action 'accept)
 
 ;; for init-dired.el and late-init.el
 (require 'hydra nil t)

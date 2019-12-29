@@ -229,7 +229,7 @@
   (el-get-bundle "migemo")
   (el-get-bundle "sabof/edit-color-stamp")
   (el-get-bundle "tiny")
-  (el-get-bundle "rnkn/olivetti")
+  ;; (el-get-bundle "rnkn/olivetti")
   (el-get-bundle "abo-abo/hydra")
   ;; (el-get-bundle "parinfer")
   (el-get-bundle "magnars/expand-region.el" :name expand-region)
@@ -248,7 +248,7 @@
   (el-get-bundle "emacsmirror/delight") ;; or diminish
   (el-get-bundle "emacsmirror/centered-cursor-mode")
   (el-get-bundle "hide-lines")
-  (el-get-bundle "undo-tree")
+  ;; (el-get-bundle "undo-tree")
   (el-get-bundle "back-button")
   (el-get-bundle "takaxp/all-the-icons.el" :name all-the-icons)
   (el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
@@ -273,6 +273,9 @@
   (el-get-bundle "kiennq/emacs-mini-modeline")
   ;; (el-get-bundle "emacsmirror/minibuffer-line")
   (el-get-bundle "jackkamm/undo-propose-el" :name undo-propose)
+  (el-get-bundle "ideasman42/emacs-undo-fu"
+    :type git
+    :url "https://gitlab.com/ideasman42/emacs-undo-fu.git")
   (el-get-bundle "dakra/statusbar.el" :name "statusbar")
   (el-get-bundle "zk-phi/gitmole")
   (el-get-bundle "kawabata/rot47")
@@ -313,9 +316,9 @@
   (el-get-bundle "emacsmirror/syntax-subword")
   (el-get-bundle "goto-chg")
   (el-get-bundle "yuttie/initchart")
-  (progn ;; frog-menu
-    (el-get-bundle "clemera/frog-menu")
-    (el-get-bundle "waymondo/frog-jump-buffer" :depends (avy)))
+  ;; (progn ;; frog-menu
+  ;;   (el-get-bundle "clemera/frog-menu")
+  ;;   (el-get-bundle "waymondo/frog-jump-buffer" :depends (avy)))
   ;; (el-get-bundle "esup")
   (el-get-bundle "rolandwalker/ignoramus") ;; Ignore backups, build files, et al.
   (el-get-bundle "takaxp/ah")

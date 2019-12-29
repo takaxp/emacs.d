@@ -1,4 +1,4 @@
-;; -*- lexical-binding: t -*-
+;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 
 (when (autoload-if-found
        '(org-mode)
