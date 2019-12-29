@@ -468,21 +468,6 @@
     ;; (setq YaTeX-kanji-code nil)
     (modify-coding-system-alist 'file "\\.tex$'" 'utf-8)))
 
-(when (autoload-if-found
-       '(emmet-mode)
-       "emmet-mode" nil t nil)
-
-  (push '("\\.xml\\'" . nxml-mode) auto-mode-alist)
-  (push '("\\.rdf\\'" . nxml-mode) auto-mode-alist)
-  (dolist (hook
-           '(sgml-mode-hook
-             nxml-mode-hook css-mode-hook html-mode-hook web-mode-hook))
-    (add-hook hook #'emmet-mode))
-
-  (with-eval-after-load "emmet-mode"
-    (setq emmet-indentation 2)
-    (setq emmet-move-cursor-between-quotes t)))
-
 (my-tick-init-time "editing")
 
 (with-eval-after-load "vc-hooks"

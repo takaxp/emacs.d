@@ -1,4 +1,4 @@
-;; -*- lexical-binding: t -*-
+;; utility.el --- My utilities -*- lexical-binding: t -*-
 ;;
 
 ;;;###autoload
