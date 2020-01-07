@@ -168,17 +168,30 @@
     (interactive)
     (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+  (if (< emacs-major-version 27)
+      (progn
+        (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+        (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns))
+    (define-key isearch-mode-map (kbd "M-SPC") 'mac-ime-toggle)
+    (define-key isearch-mode-map (kbd "S-SPC") 'mac-ime-toggle))
 
-  (defun my-ns-org-heading-auto-ascii ()
-    "IME off, when the cursor on org headings."
-    (when (and (window-focus-p)
-               (eq major-mode 'org-mode)
-               (or (looking-at org-heading-regexp)
-                   (equal (buffer-name) org-agenda-buffer-name))
-               (my-ime-active-p))
-      (my-ime-off)))
+  (if (< emacs-major-version 27)
+      (defun my-ns-org-heading-auto-ascii ()
+        "IME off, when the cursor on org headings."
+        (when (and (window-focus-p)
+                   (eq major-mode 'org-mode)
+                   (or (looking-at org-heading-regexp)
+                       (equal (buffer-name) org-agenda-buffer-name))
+                   (my-ime-active-p))
+          (my-ime-off)))
+    (defun my-ns-org-heading-auto-ascii ()
+      "IME off, when the cursor on org headings."
+      (when (and (window-focus-p)
+                 (eq major-mode 'org-mode)
+                 (or (looking-at org-heading-regexp)
+                     (equal (buffer-name) org-agenda-buffer-name))
+                 (mac-ime-active-p))
+        (mac-ime-deactivate))))
 
   ;; カーソル移動で heading に留まった時にIMEをOFFにする
   (run-with-idle-timer 0.8 t #'my-ns-org-heading-auto-ascii)
@@ -186,10 +199,11 @@
   ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
   ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
-  (defun my-ns-ime-restore ()
-    "Restore the last IME status changed in Emacs."
-    (if my-ime-last (my-ime-on) (my-ime-off)))
-  (add-hook 'focus-in-hook #'my-ns-ime-restore))
+  (when (< emacs-major-version 27)
+    (defun my-ns-ime-restore ()
+      "Restore the last IME status changed in Emacs."
+      (if my-ime-last (my-ime-on) (my-ime-off)))
+    (add-hook 'focus-in-hook #'my-ns-ime-restore)))
 
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
@@ -429,12 +443,12 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (setq time-stamp-start "#\\+date:[ \t]*")
     (setq time-stamp-end "$")
     (setq time-stamp-line-limit 10) ;; def=8
-    (setq time-stamp-default-format "%04y-%02m-%02d")
+    (setq time-stamp-default-format "%Y-%02m-%02d")
 
     (defun my-time-stamp ()
       (setq time-stamp-format
             (if (eq major-mode 'org-mode)
-                "[%04y-%02m-%02d %3a %02H:%02M]"
+                "[%Y-%02m-%02d %3a %02H:%02M]" ;; "%04y"
               time-stamp-default-format))
       (if (boundp 'org-tree-slide-mode)
           (unless org-tree-slide-mode
@@ -501,7 +515,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (message "--- cmake is NOT installed."))
 
 ;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.emacs.d/[^/]+/el-get")
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.emacs.d/[^/]+/el-get")
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
@@ -1047,7 +1061,7 @@ Call this function at updating `mode-line-mode'."
         (user-error "The display-line-numbers is NOT supported")))))
 
 ;; Show clock in in the mode line
-(setq display-time-format "%H%M.%S") ;; %y%m%d.
+(setq display-time-format "%H:%M") ;; %y%m%d. ;; "%H%M.%S"
 (setq display-time-interval 1)
 (setq display-time-default-load-average nil)
 (unless noninteractive
@@ -1988,84 +2002,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
     (osx-trash-setup)))
 
 (when (autoload-if-found
-       '(undo-propose)
-       "undo-propose" nil t)
-
-  (defun my-undo-propose ()
-    (interactive)
-    (if (or (buffer-narrowed-p)
-            (eq major-mode 'org-mode))
-        (undo)
-      (undo-propose)))
-
-  (global-set-key (kbd "C-/") 'my-undo-propose)
-
-  ;; located here intended to share this command with `undo-tree'
-  (defun my-org-reveal-and-focus (&optional _arg)
-    "Reveal a heading and focus on the content."
-    (when (eq major-mode 'org-mode)
-      (org-overview)
-      (unless (org-before-first-heading-p)
-        (org-reveal)
-        (org-cycle-hide-drawers 'all)
-        (org-show-entry)
-        (show-children)
-        (org-show-siblings))))
-  (advice-add 'undo :after #'my-org-reveal-and-focus)
-
-  (eval-when-compile
-    (require 'undo-propose nil t)) ;; for `undo-propose-wrap'
-
-  (with-eval-after-load "undo-propose"
-    (add-hook 'undo-propose-entry-hook #'undo) ;; immediate undo
-    (undo-propose-wrap redo)
-
-    (define-key undo-propose-mode-map (kbd "/") 'undo)
-    (define-key undo-propose-mode-map (kbd "q") 'undo-propose-cancel)
-    (advice-add 'undo-propose-commit :after #'my-org-reveal-and-focus)
-    (advice-add 'undo-propose-squash-commit :after #'my-org-reveal-and-focus)
-
-    ;; Moving coursor in `undo-propose-mode' will also commit changes.
-    (defun my-undo-propose-commit ()
-      (when undo-propose-mode
-        (undo-propose-commit)))
-
-    (defun my-undo-propose-autocommit-on ()
-      (add-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
-    (advice-add 'undo-propose :after #'my-undo-propose-autocommit-on)
-
-    (defun my-undo-propose-autocommit-off ()
-      (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
-    (add-hook 'undo-propose-done-hook #'my-undo-propose-autocommit-off)
-
-    ;; SPC and RET in `undo-propose-mode' will commit changes.
-    ;; Additionally, the commands will be executed.
-    (define-key undo-propose-mode-map (kbd "SPC") 'undo-propose-commit)
-    (define-key undo-propose-mode-map (kbd "RET") 'undo-propose-commit)
-    (defun my-undo-propose-key-through ()
-      "Through SPC and RET."
-      (let ((command (this-command-keys)))
-        (cond ((equal (kbd "SPC") command)
-               (insert " "))
-              ((equal (kbd "RET") command)
-               (electric-newline-and-maybe-indent)))))
-    (advice-add 'undo-propose-commit :after #'my-undo-propose-key-through)
-
-    (defvar my-undo-propose-modeline '("#FF5d5d" "#FFFFFF"))
-    (defun my-undo-propose-mode-line ()
-      (custom-set-faces
-       `(mode-line ((t (:background
-                        ,(nth 0 my-undo-propose-modeline)
-                        :foreground
-                        ,(nth 1 my-undo-propose-modeline)))))))
-
-    (defun my-undo-propose-mode-line-restore ()
-      (custom-set-faces '(mode-line ((t nil)))))
-
-    (add-hook 'undo-propose-entry-hook #'my-undo-propose-mode-line)
-    (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
-
-(when (autoload-if-found
        '(undo-fu-only-undo undo-fu-only-redo)
        "undo-fu" nil t)
 
@@ -2826,7 +2762,9 @@ Uses `all-the-icons-material' to fetch the icon."
     (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
 
 ;; init
-(if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+(if (< emacs-major-version 27)
+    (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+  (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline)))
 
 (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)

@@ -1320,17 +1320,30 @@ GPG error: "no usable configuration," OpenPGP
     (interactive)
     (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+  (if (< emacs-major-version 27)
+      (progn
+        (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+        (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns))
+    (define-key isearch-mode-map (kbd "M-SPC") 'mac-ime-toggle)
+    (define-key isearch-mode-map (kbd "S-SPC") 'mac-ime-toggle))
 
-  (defun my-ns-org-heading-auto-ascii ()
-    "IME off, when the cursor on org headings."
-    (when (and (window-focus-p)
-               (eq major-mode 'org-mode)
-               (or (looking-at org-heading-regexp)
-                   (equal (buffer-name) org-agenda-buffer-name))
-               (my-ime-active-p))
-      (my-ime-off)))
+  (if (< emacs-major-version 27)
+      (defun my-ns-org-heading-auto-ascii ()
+        "IME off, when the cursor on org headings."
+        (when (and (window-focus-p)
+                   (eq major-mode 'org-mode)
+                   (or (looking-at org-heading-regexp)
+                       (equal (buffer-name) org-agenda-buffer-name))
+                   (my-ime-active-p))
+          (my-ime-off)))
+    (defun my-ns-org-heading-auto-ascii ()
+      "IME off, when the cursor on org headings."
+      (when (and (window-focus-p)
+                 (eq major-mode 'org-mode)
+                 (or (looking-at org-heading-regexp)
+                     (equal (buffer-name) org-agenda-buffer-name))
+                 (mac-ime-active-p))
+        (mac-ime-deactivate))))
 
   ;; カーソル移動で heading に留まった時にIMEをOFFにする
   (run-with-idle-timer 0.8 t #'my-ns-org-heading-auto-ascii)
@@ -1338,10 +1351,11 @@ GPG error: "no usable configuration," OpenPGP
   ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
   ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
-  (defun my-ns-ime-restore ()
-    "Restore the last IME status changed in Emacs."
-    (if my-ime-last (my-ime-on) (my-ime-off)))
-  (add-hook 'focus-in-hook #'my-ns-ime-restore))
+  (when (< emacs-major-version 27)
+    (defun my-ns-ime-restore ()
+      "Restore the last IME status changed in Emacs."
+      (if my-ime-last (my-ime-on) (my-ime-off)))
+    (add-hook 'focus-in-hook #'my-ns-ime-restore)))
 #+end_src
 
 ** EMPビルド用設定                                                    :macOS:
@@ -2086,12 +2100,12 @@ Built-in の time-stamp.el を使う．
     (setq time-stamp-start "#\\+date:[ \t]*")
     (setq time-stamp-end "$")
     (setq time-stamp-line-limit 10) ;; def=8
-    (setq time-stamp-default-format "%04y-%02m-%02d")
+    (setq time-stamp-default-format "%Y-%02m-%02d")
 
     (defun my-time-stamp ()
       (setq time-stamp-format
             (if (eq major-mode 'org-mode)
-                "[%04y-%02m-%02d %3a %02H:%02M]"
+                "[%Y-%02m-%02d %3a %02H:%02M]" ;; "%04y"
               time-stamp-default-format))
       (if (boundp 'org-tree-slide-mode)
           (unless org-tree-slide-mode
@@ -2432,7 +2446,7 @@ gzされた elisp ソースを見るときに， ~view-mode~ を使います．�
 
 #+begin_src emacs-lisp :tangle late-init.el
 ;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.emacs.d/[^/]+/el-get")
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.emacs.d/[^/]+/el-get")
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
@@ -4046,7 +4060,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 
 #+begin_src emacs-lisp :tangle late-init.el :exports yes
 ;; Show clock in in the mode line
-(setq display-time-format "%H%M.%S") ;; %y%m%d.
+(setq display-time-format "%H:%M") ;; %y%m%d. ;; "%H%M.%S"
 (setq display-time-interval 1)
 (setq display-time-default-load-average nil)
 (unless noninteractive
@@ -4275,7 +4289,8 @@ paren.el の場合は以下の設定．
    :CUSTOM_ID: org74bad2de
    :END:
 
-http://0xcc.net/migemo/#download
+ - http://0xcc.net/migemo/#download
+ - [[https://github.com/emacs-jp/migemo][emacs-jp/migemo: emacs migemo client]]
 
 以下は，[[http://www.kaoriya.net/software/cmigemo][cmigemo]] を使う設定です．正直なところ，それほどメリットを感じていません．
 
@@ -6054,100 +6069,6 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
     (osx-trash-setup)))
 #+end_src
 
-** [undo-propose] undo を編集不可モードで辿る
-   :PROPERTIES:
-   :CUSTOM_ID: org694ee426
-   :ID:       BC3E384B-80DF-4524-BB0B-6141A25067F5
-   :END:
-
- - [[https://github.com/jackkamm/undo-propose-el][jackkamm/undo-propose-el: Navigate the emacs undo history by staging undo's in a temporary buffer]]
-
-=undo= する時に，バッファに意図しない変更が加わると面倒なことになります．そこで =org-capture= なキーバインドで動作する =undo-propose= を使います．
-
-=undo-propose= でモードに入ったら， =C-/= で =undo= して，確定するなら =C-c C-c= ，キャンセルするなら =C-c C-k= します．オリジナルのバッファを直接変更せず，一時的なバッファで =undo= してから反映させるのでより安全です．
-
-次の設定では，標準の =undo= をオーバーライドするように =undo-propose= を使います．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(undo-propose)
-       "undo-propose" nil t)
-
-  (defun my-undo-propose ()
-    (interactive)
-    (if (or (buffer-narrowed-p)
-            (eq major-mode 'org-mode))
-        (undo)
-      (undo-propose)))
-
-  (global-set-key (kbd "C-/") 'my-undo-propose)
-
-  ;; located here intended to share this command with `undo-tree'
-  (defun my-org-reveal-and-focus (&optional _arg)
-    "Reveal a heading and focus on the content."
-    (when (eq major-mode 'org-mode)
-      (org-overview)
-      (unless (org-before-first-heading-p)
-        (org-reveal)
-        (org-cycle-hide-drawers 'all)
-        (org-show-entry)
-        (show-children)
-        (org-show-siblings))))
-  (advice-add 'undo :after #'my-org-reveal-and-focus)
-
-  (eval-when-compile
-    (require 'undo-propose nil t)) ;; for `undo-propose-wrap'
-
-  (with-eval-after-load "undo-propose"
-    (add-hook 'undo-propose-entry-hook #'undo) ;; immediate undo
-    (undo-propose-wrap redo)
-
-    (define-key undo-propose-mode-map (kbd "/") 'undo)
-    (define-key undo-propose-mode-map (kbd "q") 'undo-propose-cancel)
-    (advice-add 'undo-propose-commit :after #'my-org-reveal-and-focus)
-    (advice-add 'undo-propose-squash-commit :after #'my-org-reveal-and-focus)
-
-    ;; Moving coursor in `undo-propose-mode' will also commit changes.
-    (defun my-undo-propose-commit ()
-      (when undo-propose-mode
-        (undo-propose-commit)))
-
-    (defun my-undo-propose-autocommit-on ()
-      (add-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
-    (advice-add 'undo-propose :after #'my-undo-propose-autocommit-on)
-
-    (defun my-undo-propose-autocommit-off ()
-      (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
-    (add-hook 'undo-propose-done-hook #'my-undo-propose-autocommit-off)
-
-    ;; SPC and RET in `undo-propose-mode' will commit changes.
-    ;; Additionally, the commands will be executed.
-    (define-key undo-propose-mode-map (kbd "SPC") 'undo-propose-commit)
-    (define-key undo-propose-mode-map (kbd "RET") 'undo-propose-commit)
-    (defun my-undo-propose-key-through ()
-      "Through SPC and RET."
-      (let ((command (this-command-keys)))
-        (cond ((equal (kbd "SPC") command)
-               (insert " "))
-              ((equal (kbd "RET") command)
-               (electric-newline-and-maybe-indent)))))
-    (advice-add 'undo-propose-commit :after #'my-undo-propose-key-through)
-
-    (defvar my-undo-propose-modeline '("#FF5d5d" "#FFFFFF"))
-    (defun my-undo-propose-mode-line ()
-      (custom-set-faces
-       `(mode-line ((t (:background
-                        ,(nth 0 my-undo-propose-modeline)
-                        :foreground
-                        ,(nth 1 my-undo-propose-modeline)))))))
-
-    (defun my-undo-propose-mode-line-restore ()
-      (custom-set-faces '(mode-line ((t nil)))))
-
-    (add-hook 'undo-propose-entry-hook #'my-undo-propose-mode-line)
-    (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
-#+end_src
-
 ** [undo-fu.el] シンプルな redo を提供してくる
    :PROPERTIES:
    :CUSTOM_ID: org6e71b562
@@ -6552,11 +6473,111 @@ the_silver_searcher @0.18.1 (textproc)
      '(("r" my-counsel-fzf-in-dir "search in directory")))))
 #+end_src
 
+** DONE [undo-propose] undo を編集不可モードで辿る                 :notinuse:
+   CLOSED: [2020-01-07 Tue 10:07]
+   :PROPERTIES:
+   :CUSTOM_ID: org694ee426
+   :ID:       BC3E384B-80DF-4524-BB0B-6141A25067F5
+   :END:
+
+最近は *undo-fu.el* を使っています．
+
+ - [[https://github.com/jackkamm/undo-propose-el][jackkamm/undo-propose-el: Navigate the emacs undo history by staging undo's in a temporary buffer]]
+
+=undo= する時に，バッファに意図しない変更が加わると面倒なことになります．そこで =org-capture= なキーバインドで動作する =undo-propose= を使います．
+
+=undo-propose= でモードに入ったら， =C-/= で =undo= して，確定するなら =C-c C-c= ，キャンセルするなら =C-c C-k= します．オリジナルのバッファを直接変更せず，一時的なバッファで =undo= してから反映させるのでより安全です．
+
+次の設定では，標準の =undo= をオーバーライドするように =undo-propose= を使います．
+
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
+(when (autoload-if-found
+       '(undo-propose)
+       "undo-propose" nil t)
+
+  (defun my-undo-propose ()
+    (interactive)
+    (if (or (buffer-narrowed-p)
+            (eq major-mode 'org-mode))
+        (undo)
+      (undo-propose)))
+
+  (global-set-key (kbd "C-/") 'my-undo-propose)
+
+  ;; located here intended to share this command with `undo-tree'
+  (defun my-org-reveal-and-focus (&optional _arg)
+    "Reveal a heading and focus on the content."
+    (when (eq major-mode 'org-mode)
+      (org-overview)
+      (unless (org-before-first-heading-p)
+        (org-reveal)
+        (org-cycle-hide-drawers 'all)
+        (org-show-entry)
+        (show-children)
+        (org-show-siblings))))
+  (advice-add 'undo :after #'my-org-reveal-and-focus)
+
+  (eval-when-compile
+    (require 'undo-propose nil t)) ;; for `undo-propose-wrap'
+
+  (with-eval-after-load "undo-propose"
+    (add-hook 'undo-propose-entry-hook #'undo) ;; immediate undo
+    (undo-propose-wrap redo)
+
+    (define-key undo-propose-mode-map (kbd "/") 'undo)
+    (define-key undo-propose-mode-map (kbd "q") 'undo-propose-cancel)
+    (advice-add 'undo-propose-commit :after #'my-org-reveal-and-focus)
+    (advice-add 'undo-propose-squash-commit :after #'my-org-reveal-and-focus)
+
+    ;; Moving coursor in `undo-propose-mode' will also commit changes.
+    (defun my-undo-propose-commit ()
+      (when undo-propose-mode
+        (undo-propose-commit)))
+
+    (defun my-undo-propose-autocommit-on ()
+      (add-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
+    (advice-add 'undo-propose :after #'my-undo-propose-autocommit-on)
+
+    (defun my-undo-propose-autocommit-off ()
+      (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
+    (add-hook 'undo-propose-done-hook #'my-undo-propose-autocommit-off)
+
+    ;; SPC and RET in `undo-propose-mode' will commit changes.
+    ;; Additionally, the commands will be executed.
+    (define-key undo-propose-mode-map (kbd "SPC") 'undo-propose-commit)
+    (define-key undo-propose-mode-map (kbd "RET") 'undo-propose-commit)
+    (defun my-undo-propose-key-through ()
+      "Through SPC and RET."
+      (let ((command (this-command-keys)))
+        (cond ((equal (kbd "SPC") command)
+               (insert " "))
+              ((equal (kbd "RET") command)
+               (electric-newline-and-maybe-indent)))))
+    (advice-add 'undo-propose-commit :after #'my-undo-propose-key-through)
+
+    (defvar my-undo-propose-modeline '("#FF5d5d" "#FFFFFF"))
+    (defun my-undo-propose-mode-line ()
+      (custom-set-faces
+       `(mode-line ((t (:background
+                        ,(nth 0 my-undo-propose-modeline)
+                        :foreground
+                        ,(nth 1 my-undo-propose-modeline)))))))
+
+    (defun my-undo-propose-mode-line-restore ()
+      (custom-set-faces '(mode-line ((t nil)))))
+
+    (add-hook 'undo-propose-entry-hook #'my-undo-propose-mode-line)
+    (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
+#+end_src
+
 ** DONE [undo-tree] 編集履歴をわかりやすくたどる                   :notinuse:
    CLOSED: [2019-12-29 Sun 15:59]
    :PROPERTIES:
    :CUSTOM_ID: org82bd942f
    :END:
+
+最近は *undo-fu.el* を使っています．
 
 Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= に対して，フレームサイズの変更を紐付けています．また， =auto-save-buffers= が org-files をどんどん保存して記録してしまうので，ツリーを選んでいる時に auto-save-buffers が発動するのを別途抑制しています．加えて， =org-tree-slide= でナローイングしていると，タイムスタンプが記録される時に履歴が辿れなくなるので， =org-tree-slide= が有効の時は，タイムスタンプを押させないように別途制限を加えています．
 
@@ -10322,10 +10343,15 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-(defun my-apply-cursor-config ()
-  (interactive)
-  (when (display-graphic-p)
-    (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+(if (< emacs-major-version 27)
+    (defun my-apply-cursor-config ()
+      (interactive)
+      (when (display-graphic-p)
+        (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+  (defun my-apply-cursor-config ()
+    (interactive)
+    (when (display-graphic-p)
+      (if (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor)))))
 
 ;; (unless (and (memq window-system '(ns mac))
 ;;              noninteractive)
@@ -10383,12 +10409,17 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
       (when (setq my-ime-before-action (my-ime-active-p))
         (my-ime-off)))
 
-    ;; For selected.el
-    (add-hook 'activate-mark-hook #'my-ime-off-sticky)
-    (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-    ;; 「M-x あ」対策
-    (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
-    (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky)
+    (if (< emacs-major-version 27)
+        (progn
+          ;; For selected.el
+          (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+          (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+          ;; 「M-x あ」対策
+          (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
+          (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
+      ;; For selected.el
+      (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
+      (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
 
     ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
     ;;   "Extension to find-file as before-find-file-hook."
@@ -11014,7 +11045,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
     (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
 
 ;; init
-(if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+(if (< emacs-major-version 27)
+    (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+  (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline)))
 
 (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
@@ -11056,6 +11089,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 ** フォント設定
    :PROPERTIES:
    :CUSTOM_ID: org919a945a
+   :ID:       2FEFAC68-9DCD-42A9-9F0B-04AE718094B9
    :END:
 
 表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．最近は，[[http://mix-mplus-ipa.sourceforge.jp/migu/][Migu 2M]]を気に入って使っています．

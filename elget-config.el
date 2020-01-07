@@ -115,6 +115,8 @@
   (el-get-bundle "bruceravel/gnuplot-mode")
   ;; (el-get-bundle "abo-abo/matlab-mode")
   (el-get-bundle "dominikh/go-mode.el" :name go-mode)
+  (el-get-bundle "tarsius/outline-minor-faces")
+  (el-get-bundle "tarsius/backline")
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Development ;;;
   (el-get-bundle "gregsexton/origami.el" :name origami)
@@ -226,7 +228,7 @@
   (el-get-bundle "company-mode/company-mode")
   (el-get-bundle "expez/company-quickhelp")
   (el-get-bundle "ac-js2")
-  (el-get-bundle "migemo")
+  (el-get-bundle "takaxp/migemo")
   (el-get-bundle "sabof/edit-color-stamp")
   (el-get-bundle "tiny")
   ;; (el-get-bundle "rnkn/olivetti")

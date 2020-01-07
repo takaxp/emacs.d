@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-12-29 Sun 17:01 -->
+<!-- 2020-01-07 Tue 13:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -499,19 +499,19 @@ for the JavaScript code in this tag.
 <li><a href="#orge2f78ad3">8.8. [dired] ファイラのサポートツール&#xa0;&#xa0;&#xa0;<span class="tag"><span class="dired">dired</span></span></a></li>
 <li><a href="#org7c53511f">8.9. [dired-recent.el] 訪問したディレクトリの履歴を取る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="dired">dired</span></span></a></li>
 <li><a href="#orga3cbefa8">8.10. [osx-trash] system-move-file-to-trash を有効にする</a></li>
-<li><a href="#org694ee426">8.11. [undo-propose] undo を編集不可モードで辿る</a></li>
-<li><a href="#org6e71b562">8.12. [undo-fu.el] シンプルな redo を提供してくる</a></li>
-<li><a href="#orgb8c01946">8.13. [auto-save-buffers.el] 一定間隔でバッファを保存する</a></li>
-<li><a href="#orgab837e6a">8.14. [session.el] 様々な履歴を保存し復元に利用する</a></li>
-<li><a href="#org92404bbd">8.15. [neotree.el] ディレクトリ情報をツリー表示</a></li>
-<li><a href="#orgf2d47943">8.16. [helpful.el] リッチなヘルプページ</a></li>
-<li><a href="#orgc08799d2">8.17. [facecheck.el] クリックしてfaceをチェック</a></li>
-<li><a href="#org0d952d68">8.18. [keyfreq.el] コマンドログ</a></li>
-<li><a href="#orged77c483">8.19. [disk-usage.el] ディスク利用率を調べる</a></li>
-<li><a href="#orgdd1e03ec">8.20. [uptimes.el] Emacsの起動時間を記録する</a></li>
-<li><a href="#orgfd3c67b9">8.21. [ag.el] 検索</a></li>
-<li><a href="#org29c7b6b7">8.22. [counsel-ag.el] 高速全文検索</a></li>
-<li><a href="#org24fd7b68">8.23. [counsel-fzf.el] 高速ファイル検索</a></li>
+<li><a href="#org6e71b562">8.11. [undo-fu.el] シンプルな redo を提供してくる</a></li>
+<li><a href="#orgb8c01946">8.12. [auto-save-buffers.el] 一定間隔でバッファを保存する</a></li>
+<li><a href="#orgab837e6a">8.13. [session.el] 様々な履歴を保存し復元に利用する</a></li>
+<li><a href="#org92404bbd">8.14. [neotree.el] ディレクトリ情報をツリー表示</a></li>
+<li><a href="#orgf2d47943">8.15. [helpful.el] リッチなヘルプページ</a></li>
+<li><a href="#orgc08799d2">8.16. [facecheck.el] クリックしてfaceをチェック</a></li>
+<li><a href="#org0d952d68">8.17. [keyfreq.el] コマンドログ</a></li>
+<li><a href="#orged77c483">8.18. [disk-usage.el] ディスク利用率を調べる</a></li>
+<li><a href="#orgdd1e03ec">8.19. [uptimes.el] Emacsの起動時間を記録する</a></li>
+<li><a href="#orgfd3c67b9">8.20. [ag.el] 検索</a></li>
+<li><a href="#org29c7b6b7">8.21. [counsel-ag.el] 高速全文検索</a></li>
+<li><a href="#org24fd7b68">8.22. [counsel-fzf.el] 高速ファイル検索</a></li>
+<li><a href="#org694ee426">8.23. <span class="done DONE">DONE</span> [undo-propose] undo を編集不可モードで辿る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#org82bd942f">8.24. <span class="done DONE">DONE</span> [undo-tree] 編集履歴をわかりやすくたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgc47c1e75">8.25. <span class="done DONE">DONE</span> [wakatime-mode.el] WakaTime を利用して作業記録する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgc470d5a3">8.26. <span class="done DONE">DONE</span> [backup-dir.el] バックアップファイルを一箇所に集める&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
@@ -2250,17 +2250,30 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
     (<span style="color: #a020f0;">interactive</span>)
     (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
+  (<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+      (<span style="color: #a020f0;">progn</span>
+        (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
+        (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns))
+    (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'mac-ime-toggle)
+    (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-ime-toggle))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
-    <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (window-focus-p)
-               (eq major-mode 'org-mode)
-               (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
-                   (equal (buffer-name) org-agenda-buffer-name))
-               (my-ime-active-p))
-      (my-ime-off)))
+  (<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
+        <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
+        (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (window-focus-p)
+                   (eq major-mode 'org-mode)
+                   (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
+                       (equal (buffer-name) org-agenda-buffer-name))
+                   (my-ime-active-p))
+          (my-ime-off)))
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
+      <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
+      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (window-focus-p)
+                 (eq major-mode 'org-mode)
+                 (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
+                     (equal (buffer-name) org-agenda-buffer-name))
+                 (mac-ime-active-p))
+        (mac-ime-deactivate))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#30041;&#12414;&#12387;&#12383;&#26178;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
   (run-with-idle-timer 0.8 t #'my-ns-org-heading-auto-ascii)
@@ -2268,10 +2281,11 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#26469;&#12383;&#12392;&#12365;&#12399;&#21363;&#24231;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)</span>
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-ime-restore</span> ()
-    <span style="color: #8b2252;">"Restore the last IME status changed in Emacs."</span>
-    (<span style="color: #a020f0;">if</span> my-ime-last (my-ime-on) (my-ime-off)))
-  (add-hook 'focus-in-hook #'my-ns-ime-restore))
+  (<span style="color: #a020f0;">when</span> (&lt; emacs-major-version 27)
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-ime-restore</span> ()
+      <span style="color: #8b2252;">"Restore the last IME status changed in Emacs."</span>
+      (<span style="color: #a020f0;">if</span> my-ime-last (my-ime-on) (my-ime-off)))
+    (add-hook 'focus-in-hook #'my-ns-ime-restore)))
 </pre>
 </div>
 </div>
@@ -3184,12 +3198,12 @@ Built-in の time-stamp.el を使う．<br />
     (<span style="color: #a020f0;">setq</span> time-stamp-start <span style="color: #8b2252;">"#\\+date:[ \t]*"</span>)
     (<span style="color: #a020f0;">setq</span> time-stamp-end <span style="color: #8b2252;">"$"</span>)
     (<span style="color: #a020f0;">setq</span> time-stamp-line-limit 10) <span style="color: #b22222;">;; </span><span style="color: #b22222;">def=8</span>
-    (<span style="color: #a020f0;">setq</span> time-stamp-default-format <span style="color: #8b2252;">"%04y-%02m-%02d"</span>)
+    (<span style="color: #a020f0;">setq</span> time-stamp-default-format <span style="color: #8b2252;">"%Y-%02m-%02d"</span>)
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-time-stamp</span> ()
       (<span style="color: #a020f0;">setq</span> time-stamp-format
             (<span style="color: #a020f0;">if</span> (eq major-mode 'org-mode)
-                <span style="color: #8b2252;">"[%04y-%02m-%02d %3a %02H:%02M]"</span>
+                <span style="color: #8b2252;">"[%Y-%02m-%02d %3a %02H:%02M]"</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">"%04y"</span>
               time-stamp-default-format))
       (<span style="color: #a020f0;">if</span> (boundp 'org-tree-slide-mode)
           (<span style="color: #a020f0;">unless</span> org-tree-slide-mode
@@ -3577,7 +3591,7 @@ gzされた elisp ソースを見るときに， <code>view-mode</code> を使�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#25313;&#24373;&#23376;&#12539;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-regexp</span> <span style="color: #8b2252;">"\\.el.gz$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.emacs.d/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]+/el-get"</span>)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-regexp</span> <span style="color: #8b2252;">"\\.el.gz$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.patch$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.emacs.d/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]+/el-get"</span>)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#65288;&#32118;&#23550;&#12497;&#12473;&#12539;&#12507;&#12540;&#12512;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#20197;&#19979;&#65289;</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-dirs</span> nil)
@@ -5482,7 +5496,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 <div class="outline-text-3" id="text-org5117762c">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Show clock in in the mode line</span>
-(<span style="color: #a020f0;">setq</span> display-time-format <span style="color: #8b2252;">"%H%M.%S"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">%y%m%d.</span>
+(<span style="color: #a020f0;">setq</span> display-time-format <span style="color: #8b2252;">"%H:%M"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">%y%m%d. ;; "%H%M.%S"</span>
 (<span style="color: #a020f0;">setq</span> display-time-interval 1)
 (<span style="color: #a020f0;">setq</span> display-time-default-load-average nil)
 (<span style="color: #a020f0;">unless</span> noninteractive
@@ -5732,9 +5746,10 @@ paren.el の場合は以下の設定．<br />
 <div id="outline-container-org74bad2de" class="outline-3">
 <h3 id="org74bad2de"><span class="section-number-3">6.23</span> [migemo.el] ローマ字入力で日本語を検索する</h3>
 <div class="outline-text-3" id="text-org74bad2de">
-<p>
-<a href="http://0xcc.net/migemo/#download">http://0xcc.net/migemo/#download</a><br />
-</p>
+<ul class="org-ul">
+<li><a href="http://0xcc.net/migemo/#download">http://0xcc.net/migemo/#download</a><br /></li>
+<li><a href="https://github.com/emacs-jp/migemo">emacs-jp/migemo: emacs migemo client</a><br /></li>
+</ul>
 
 <p>
 以下は，<a href="http://www.kaoriya.net/software/cmigemo">cmigemo</a> を使う設定です．正直なところ，それほどメリットを感じていません．<br />
@@ -7690,110 +7705,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-org694ee426" class="outline-3">
-<h3 id="org694ee426"><span class="section-number-3">8.11</span> [undo-propose] undo を編集不可モードで辿る</h3>
-<div class="outline-text-3" id="text-org694ee426">
-<ul class="org-ul">
-<li><a href="https://github.com/jackkamm/undo-propose-el">jackkamm/undo-propose-el: Navigate the emacs undo history by staging undo's in a temporary buffer</a><br /></li>
-</ul>
-
-<p>
-<code>undo</code> する時に，バッファに意図しない変更が加わると面倒なことになります．そこで <code>org-capture</code> なキーバインドで動作する <code>undo-propose</code> を使います．<br />
-</p>
-
-<p>
-<code>undo-propose</code> でモードに入ったら， <code>C-/</code> で <code>undo</code> して，確定するなら <code>C-c C-c</code> ，キャンセルするなら <code>C-c C-k</code> します．オリジナルのバッファを直接変更せず，一時的なバッファで <code>undo</code> してから反映させるのでより安全です．<br />
-</p>
-
-<p>
-次の設定では，標準の <code>undo</code> をオーバーライドするように <code>undo-propose</code> を使います．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(undo-propose)
-       <span style="color: #8b2252;">"undo-propose"</span> nil t)
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose</span> ()
-    (<span style="color: #a020f0;">interactive</span>)
-    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (buffer-narrowed-p)
-            (eq major-mode 'org-mode))
-        (undo)
-      (undo-propose)))
-
-  (global-set-key (kbd <span style="color: #8b2252;">"C-/"</span>) 'my-undo-propose)
-
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">located here intended to share this command with `</span><span style="color: #008b8b;">undo-tree</span><span style="color: #b22222;">'</span>
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-reveal-and-focus</span> (<span style="color: #228b22;">&amp;optional</span> _arg)
-    <span style="color: #8b2252;">"Reveal a heading and focus on the content."</span>
-    (<span style="color: #a020f0;">when</span> (eq major-mode 'org-mode)
-      (org-overview)
-      (<span style="color: #a020f0;">unless</span> (org-before-first-heading-p)
-        (org-reveal)
-        (org-cycle-hide-drawers 'all)
-        (org-show-entry)
-        (show-children)
-        (org-show-siblings))))
-  (advice-add 'undo <span style="color: #483d8b;">:after</span> #'my-org-reveal-and-focus)
-
-  (<span style="color: #a020f0;">eval-when-compile</span>
-    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">undo-propose</span> nil t)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">for `</span><span style="color: #008b8b;">undo-propose-wrap</span><span style="color: #b22222;">'</span>
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"undo-propose"</span>
-    (add-hook 'undo-propose-entry-hook #'undo) <span style="color: #b22222;">;; </span><span style="color: #b22222;">immediate undo</span>
-    (undo-propose-wrap redo)
-
-    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"/"</span>) 'undo)
-    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"q"</span>) 'undo-propose-cancel)
-    (advice-add 'undo-propose-commit <span style="color: #483d8b;">:after</span> #'my-org-reveal-and-focus)
-    (advice-add 'undo-propose-squash-commit <span style="color: #483d8b;">:after</span> #'my-org-reveal-and-focus)
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Moving coursor in `</span><span style="color: #008b8b;">undo-propose-mode</span><span style="color: #b22222;">' will also commit changes.</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-commit</span> ()
-      (<span style="color: #a020f0;">when</span> undo-propose-mode
-        (undo-propose-commit)))
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-autocommit-on</span> ()
-      (add-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
-    (advice-add 'undo-propose <span style="color: #483d8b;">:after</span> #'my-undo-propose-autocommit-on)
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-autocommit-off</span> ()
-      (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
-    (add-hook 'undo-propose-done-hook #'my-undo-propose-autocommit-off)
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">SPC and RET in `</span><span style="color: #008b8b;">undo-propose-mode</span><span style="color: #b22222;">' will commit changes.</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Additionally, the commands will be executed.</span>
-    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"SPC"</span>) 'undo-propose-commit)
-    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"RET"</span>) 'undo-propose-commit)
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-key-through</span> ()
-      <span style="color: #8b2252;">"Through SPC and RET."</span>
-      (<span style="color: #a020f0;">let</span> ((command (this-command-keys)))
-        (<span style="color: #a020f0;">cond</span> ((equal (kbd <span style="color: #8b2252;">"SPC"</span>) command)
-               (insert <span style="color: #8b2252;">" "</span>))
-              ((equal (kbd <span style="color: #8b2252;">"RET"</span>) command)
-               (electric-newline-and-maybe-indent)))))
-    (advice-add 'undo-propose-commit <span style="color: #483d8b;">:after</span> #'my-undo-propose-key-through)
-
-    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-undo-propose-modeline</span> '(<span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #FF5d5d;">#FF5d5d</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #8b2252;">"</span>))
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-mode-line</span> ()
-      (custom-set-faces
-       `(mode-line ((t (<span style="color: #483d8b;">:background</span>
-                        ,(nth 0 my-undo-propose-modeline)
-                        <span style="color: #483d8b;">:foreground</span>
-                        ,(nth 1 my-undo-propose-modeline)))))))
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-mode-line-restore</span> ()
-      (custom-set-faces '(mode-line ((t nil)))))
-
-    (add-hook 'undo-propose-entry-hook #'my-undo-propose-mode-line)
-    (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
-</pre>
-</div>
-</div>
-</div>
-
 <div id="outline-container-org6e71b562" class="outline-3">
-<h3 id="org6e71b562"><span class="section-number-3">8.12</span> [undo-fu.el] シンプルな redo を提供してくる</h3>
+<h3 id="org6e71b562"><span class="section-number-3">8.11</span> [undo-fu.el] シンプルな redo を提供してくる</h3>
 <div class="outline-text-3" id="text-org6e71b562">
 <ul class="org-ul">
 <li><a href="https://gitlab.com/ideasman42/emacs-undo-fu">Campbell Barton / emacs-undo-fu · GitLab</a><br /></li>
@@ -7812,7 +7725,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 
 <div id="outline-container-orgb8c01946" class="outline-3">
-<h3 id="orgb8c01946"><span class="section-number-3">8.13</span> [auto-save-buffers.el] 一定間隔でバッファを保存する</h3>
+<h3 id="orgb8c01946"><span class="section-number-3">8.12</span> [auto-save-buffers.el] 一定間隔でバッファを保存する</h3>
 <div class="outline-text-3" id="text-orgb8c01946">
 <ul class="org-ul">
 <li><a href="http://0xcc.net/misc/auto-save/">http://0xcc.net/misc/auto-save/</a><br /></li>
@@ -7846,7 +7759,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 
 <div id="outline-container-orgab837e6a" class="outline-3">
-<h3 id="orgab837e6a"><span class="section-number-3">8.14</span> [session.el] 様々な履歴を保存し復元に利用する</h3>
+<h3 id="orgab837e6a"><span class="section-number-3">8.13</span> [session.el] 様々な履歴を保存し復元に利用する</h3>
 <div class="outline-text-3" id="text-orgab837e6a">
 <p>
 <a href="http://emacs-session.sourceforge.net/">http://emacs-session.sourceforge.net/</a><br />
@@ -7945,7 +7858,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-org92404bbd" class="outline-3">
-<h3 id="org92404bbd"><span class="section-number-3">8.15</span> [neotree.el] ディレクトリ情報をツリー表示</h3>
+<h3 id="org92404bbd"><span class="section-number-3">8.14</span> [neotree.el] ディレクトリ情報をツリー表示</h3>
 <div class="outline-text-3" id="text-org92404bbd">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
@@ -8003,7 +7916,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-orgf2d47943" class="outline-3">
-<h3 id="orgf2d47943"><span class="section-number-3">8.16</span> [helpful.el] リッチなヘルプページ</h3>
+<h3 id="orgf2d47943"><span class="section-number-3">8.15</span> [helpful.el] リッチなヘルプページ</h3>
 <div class="outline-text-3" id="text-orgf2d47943">
 <p>
 ヘルプの内容を見やすく構造化して表示してくれます．関数や変数のヘルプだけでなく，キーやマクロなども見やすく表示してくれます．<br />
@@ -8029,7 +7942,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-orgc08799d2" class="outline-3">
-<h3 id="orgc08799d2"><span class="section-number-3">8.17</span> [facecheck.el] クリックしてfaceをチェック</h3>
+<h3 id="orgc08799d2"><span class="section-number-3">8.16</span> [facecheck.el] クリックしてfaceをチェック</h3>
 <div class="outline-text-3" id="text-orgc08799d2">
 <p>
 マウスクリックでface情報を表示する．マイナーモードを有効にして使います．<br />
@@ -8047,7 +7960,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-org0d952d68" class="outline-3">
-<h3 id="org0d952d68"><span class="section-number-3">8.18</span> [keyfreq.el] コマンドログ</h3>
+<h3 id="org0d952d68"><span class="section-number-3">8.17</span> [keyfreq.el] コマンドログ</h3>
 <div class="outline-text-3" id="text-org0d952d68">
 <p>
 発行しているコマンドの使用頻度を記録し確認できます．デフォルトで， <code>~/.emacs.keyfreq</code> に情報が記録されます．<br />
@@ -8082,7 +7995,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-orged77c483" class="outline-3">
-<h3 id="orged77c483"><span class="section-number-3">8.19</span> [disk-usage.el] ディスク利用率を調べる</h3>
+<h3 id="orged77c483"><span class="section-number-3">8.18</span> [disk-usage.el] ディスク利用率を調べる</h3>
 <div class="outline-text-3" id="text-orged77c483">
 <p>
 <code>ncdu</code> コマンドのように，システムのディスク利用率を調べてバッファに一覧表示します．ただ，非同期に対応していないので，普通にシェルで <code>ncdu</code> コマンドを使う方が良い気がします．<br />
@@ -8103,7 +8016,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-orgdd1e03ec" class="outline-3">
-<h3 id="orgdd1e03ec"><span class="section-number-3">8.20</span> [uptimes.el] Emacsの起動時間を記録する</h3>
+<h3 id="orgdd1e03ec"><span class="section-number-3">8.19</span> [uptimes.el] Emacsの起動時間を記録する</h3>
 <div class="outline-text-3" id="text-orgdd1e03ec">
 <p>
 <a href="https://github.com/davep/uptimes.el">davep/uptimes.el: Uptime tracking system for emacs.</a> を使うと，過去数回の起動・稼働・終了履歴がわかります．<br />
@@ -8142,7 +8055,7 @@ Boot                Endtime             Uptime       This emacs
 </div>
 
 <div id="outline-container-orgfd3c67b9" class="outline-3">
-<h3 id="orgfd3c67b9"><span class="section-number-3">8.21</span> [ag.el] 検索</h3>
+<h3 id="orgfd3c67b9"><span class="section-number-3">8.20</span> [ag.el] 検索</h3>
 <div class="outline-text-3" id="text-orgfd3c67b9">
 <p>
 検索には <code>The Silver Searcher</code> を使います．あらかじめインストールしておく必要があります．MacPorts の場合，the_silver_searcher の名称で頒布されています． <code>exec-path</code> に <code>/opt/local/bin</code> が含まれていることを確認してください．<br />
@@ -8192,7 +8105,7 @@ Boot                Endtime             Uptime       This emacs
 </div>
 </div>
 <div id="outline-container-org29c7b6b7" class="outline-3">
-<h3 id="org29c7b6b7"><span class="section-number-3">8.22</span> [counsel-ag.el] 高速全文検索</h3>
+<h3 id="org29c7b6b7"><span class="section-number-3">8.21</span> [counsel-ag.el] 高速全文検索</h3>
 <div class="outline-text-3" id="text-org29c7b6b7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-ag) <span style="color: #8b2252;">"counsel"</span> nil t)
@@ -8218,7 +8131,7 @@ Boot                Endtime             Uptime       This emacs
 </div>
 
 <div id="outline-container-org24fd7b68" class="outline-3">
-<h3 id="org24fd7b68"><span class="section-number-3">8.23</span> [counsel-fzf.el] 高速ファイル検索</h3>
+<h3 id="org24fd7b68"><span class="section-number-3">8.22</span> [counsel-fzf.el] 高速ファイル検索</h3>
 <div class="outline-text-3" id="text-org24fd7b68">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
@@ -8245,9 +8158,120 @@ Boot                Endtime             Uptime       This emacs
 </div>
 </div>
 
+<div id="outline-container-org694ee426" class="outline-3">
+<h3 id="org694ee426"><span class="section-number-3">8.23</span> <span class="done DONE">DONE</span> [undo-propose] undo を編集不可モードで辿る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<div class="outline-text-3" id="text-org694ee426">
+<p>
+最近は <b>undo-fu.el</b> を使っています．<br />
+</p>
+
+<ul class="org-ul">
+<li><a href="https://github.com/jackkamm/undo-propose-el">jackkamm/undo-propose-el: Navigate the emacs undo history by staging undo's in a temporary buffer</a><br /></li>
+</ul>
+
+<p>
+<code>undo</code> する時に，バッファに意図しない変更が加わると面倒なことになります．そこで <code>org-capture</code> なキーバインドで動作する <code>undo-propose</code> を使います．<br />
+</p>
+
+<p>
+<code>undo-propose</code> でモードに入ったら， <code>C-/</code> で <code>undo</code> して，確定するなら <code>C-c C-c</code> ，キャンセルするなら <code>C-c C-k</code> します．オリジナルのバッファを直接変更せず，一時的なバッファで <code>undo</code> してから反映させるのでより安全です．<br />
+</p>
+
+<p>
+次の設定では，標準の <code>undo</code> をオーバーライドするように <code>undo-propose</code> を使います．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(undo-propose)
+       <span style="color: #8b2252;">"undo-propose"</span> nil t)
+
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (buffer-narrowed-p)
+            (eq major-mode 'org-mode))
+        (undo)
+      (undo-propose)))
+
+  (global-set-key (kbd <span style="color: #8b2252;">"C-/"</span>) 'my-undo-propose)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">located here intended to share this command with `</span><span style="color: #008b8b;">undo-tree</span><span style="color: #b22222;">'</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-reveal-and-focus</span> (<span style="color: #228b22;">&amp;optional</span> _arg)
+    <span style="color: #8b2252;">"Reveal a heading and focus on the content."</span>
+    (<span style="color: #a020f0;">when</span> (eq major-mode 'org-mode)
+      (org-overview)
+      (<span style="color: #a020f0;">unless</span> (org-before-first-heading-p)
+        (org-reveal)
+        (org-cycle-hide-drawers 'all)
+        (org-show-entry)
+        (show-children)
+        (org-show-siblings))))
+  (advice-add 'undo <span style="color: #483d8b;">:after</span> #'my-org-reveal-and-focus)
+
+  (<span style="color: #a020f0;">eval-when-compile</span>
+    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">undo-propose</span> nil t)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">for `</span><span style="color: #008b8b;">undo-propose-wrap</span><span style="color: #b22222;">'</span>
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"undo-propose"</span>
+    (add-hook 'undo-propose-entry-hook #'undo) <span style="color: #b22222;">;; </span><span style="color: #b22222;">immediate undo</span>
+    (undo-propose-wrap redo)
+
+    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"/"</span>) 'undo)
+    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"q"</span>) 'undo-propose-cancel)
+    (advice-add 'undo-propose-commit <span style="color: #483d8b;">:after</span> #'my-org-reveal-and-focus)
+    (advice-add 'undo-propose-squash-commit <span style="color: #483d8b;">:after</span> #'my-org-reveal-and-focus)
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Moving coursor in `</span><span style="color: #008b8b;">undo-propose-mode</span><span style="color: #b22222;">' will also commit changes.</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-commit</span> ()
+      (<span style="color: #a020f0;">when</span> undo-propose-mode
+        (undo-propose-commit)))
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-autocommit-on</span> ()
+      (add-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
+    (advice-add 'undo-propose <span style="color: #483d8b;">:after</span> #'my-undo-propose-autocommit-on)
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-autocommit-off</span> ()
+      (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
+    (add-hook 'undo-propose-done-hook #'my-undo-propose-autocommit-off)
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">SPC and RET in `</span><span style="color: #008b8b;">undo-propose-mode</span><span style="color: #b22222;">' will commit changes.</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Additionally, the commands will be executed.</span>
+    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"SPC"</span>) 'undo-propose-commit)
+    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"RET"</span>) 'undo-propose-commit)
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-key-through</span> ()
+      <span style="color: #8b2252;">"Through SPC and RET."</span>
+      (<span style="color: #a020f0;">let</span> ((command (this-command-keys)))
+        (<span style="color: #a020f0;">cond</span> ((equal (kbd <span style="color: #8b2252;">"SPC"</span>) command)
+               (insert <span style="color: #8b2252;">" "</span>))
+              ((equal (kbd <span style="color: #8b2252;">"RET"</span>) command)
+               (electric-newline-and-maybe-indent)))))
+    (advice-add 'undo-propose-commit <span style="color: #483d8b;">:after</span> #'my-undo-propose-key-through)
+
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-undo-propose-modeline</span> '(<span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #FF5d5d;">#FF5d5d</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #FFFFFF;">#FFFFFF</span><span style="color: #8b2252;">"</span>))
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-mode-line</span> ()
+      (custom-set-faces
+       `(mode-line ((t (<span style="color: #483d8b;">:background</span>
+                        ,(nth 0 my-undo-propose-modeline)
+                        <span style="color: #483d8b;">:foreground</span>
+                        ,(nth 1 my-undo-propose-modeline)))))))
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-mode-line-restore</span> ()
+      (custom-set-faces '(mode-line ((t nil)))))
+
+    (add-hook 'undo-propose-entry-hook #'my-undo-propose-mode-line)
+    (add-hook 'undo-propose-done-hook #'my-undo-propose-mode-line-restore)))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org82bd942f" class="outline-3">
 <h3 id="org82bd942f"><span class="section-number-3">8.24</span> <span class="done DONE">DONE</span> [undo-tree] 編集履歴をわかりやすくたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org82bd942f">
+<p>
+最近は <b>undo-fu.el</b> を使っています．<br />
+</p>
+
 <p>
 Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code> と <code>q</code> に対して，フレームサイズの変更を紐付けています．また， <code>auto-save-buffers</code> が org-files をどんどん保存して記録してしまうので，ツリーを選んでいる時に auto-save-buffers が発動するのを別途抑制しています．加えて， <code>org-tree-slide</code> でナローイングしていると，タイムスタンプが記録される時に履歴が辿れなくなるので， <code>org-tree-slide</code> が有効の時は，タイムスタンプを押させないように別途制限を加えています．<br />
 </p>
@@ -11206,7 +11230,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgc71539d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org5103c2d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -12395,10 +12419,15 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-apply-cursor-config</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> (display-graphic-p)
-    (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+(<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-apply-cursor-config</span> ()
+      (<span style="color: #a020f0;">interactive</span>)
+      (<span style="color: #a020f0;">when</span> (display-graphic-p)
+        (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-apply-cursor-config</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">when</span> (display-graphic-p)
+      (<span style="color: #a020f0;">if</span> (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor)))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (and (memq window-system '(ns mac))</span>
 <span style="color: #b22222;">;;              </span><span style="color: #b22222;">noninteractive)</span>
@@ -12456,12 +12485,17 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
       (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">setq</span> my-ime-before-action (my-ime-active-p))
         (my-ime-off)))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">For selected.el</span>
-    (add-hook 'activate-mark-hook #'my-ime-off-sticky)
-    (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12300;M-x &#12354;&#12301;&#23550;&#31574;</span>
-    (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
-    (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky)
+    (<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+        (<span style="color: #a020f0;">progn</span>
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">For selected.el</span>
+          (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+          (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12300;M-x &#12354;&#12301;&#23550;&#31574;</span>
+          (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
+          (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">For selected.el</span>
+      (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
+      (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:find-file (FILENAME &amp;optional WILDCARDS)</span>
     <span style="color: #b22222;">;;   </span><span style="color: #b22222;">"Extension to find-file as before-find-file-hook."</span>
@@ -13138,7 +13172,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
     (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #594d5d;">#594d5d</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #fff0de;">#fff0de</span><span style="color: #8b2252;">"</span>))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">init</span>
-(<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+(<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+    (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+  (<span style="color: #a020f0;">if</span> (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline)))
 
 (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
@@ -14693,7 +14729,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2019-12-29 Sun 17:01</p>
+<p class="date">Created: 2020-01-07 Tue 13:00</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

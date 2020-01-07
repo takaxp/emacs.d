@@ -684,10 +684,15 @@
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-(defun my-apply-cursor-config ()
-  (interactive)
-  (when (display-graphic-p)
-    (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+(if (< emacs-major-version 27)
+    (defun my-apply-cursor-config ()
+      (interactive)
+      (when (display-graphic-p)
+        (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+  (defun my-apply-cursor-config ()
+    (interactive)
+    (when (display-graphic-p)
+      (if (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor)))))
 
 ;; (unless (and (memq window-system '(ns mac))
 ;;              noninteractive)
@@ -745,12 +750,17 @@
       (when (setq my-ime-before-action (my-ime-active-p))
         (my-ime-off)))
 
-    ;; For selected.el
-    (add-hook 'activate-mark-hook #'my-ime-off-sticky)
-    (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-    ;; 「M-x あ」対策
-    (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
-    (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky)
+    (if (< emacs-major-version 27)
+        (progn
+          ;; For selected.el
+          (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+          (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+          ;; 「M-x あ」対策
+          (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
+          (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
+      ;; For selected.el
+      (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
+      (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
 
     ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
     ;;   "Extension to find-file as before-find-file-hook."

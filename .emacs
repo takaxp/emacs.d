@@ -5,23 +5,68 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-(with-eval-after-load "postpone"
-  (setq ns-alerter-command nil)) ;; due to broken of alerter command
+(when (>= emacs-major-version 27)
+  (with-eval-after-load "postpone"
+    (setq ns-alerter-command nil)) ;; due to broken of alerter command
+
+  (custom-set-variables
+   '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
+  ;; mac-get-cursor-color を設定するとどうなる？
+  (mac-input-method-mode 1)
 
 
+  ;; Shiftを使って大文字を入力する時，IME的にはASCIIにHLINEがかわるから
+  ;; 表示が乱れる．Shiftモードに入る時のフックと抜ける時のフックが必要
+  ;; hook があれば，そこに custom-set-faces を当てられる．
+  ;; それか，let で回避するか．
+  ;; それか，ShiftでIME入力を継続させる時は，IMEONを継続させるとか？
+  ;; /usr/local/bin/gpg へ gpg2 からシンボリックリンクを貼るでOK．OK
+  ;; %04y を %Y にしろと怒られた
 
 
+  (with-eval-after-load "hl-line"
+    ;; isearchも同様の設定が必要
+    (defun my-working-text-face-on ()
+      (if (or isearch-mode
+              (minibufferp))
+          (custom-set-faces
+           '(ns-working-text-face nil))
+        (custom-set-faces
+         '(ns-working-text-face
+           ((((background dark)) :background "#594d5d" :underline "white")
+            (t (:background "#fff0de" :underline "black")))))))
+    (defun my-working-text-face-off ()
+      (if (or isearch-mode
+              (minibufferp))
+          (custom-set-faces
+           '(ns-working-text-face nil))
+        (custom-set-faces
+         '(ns-working-text-face
+           ((((background dark)) :background "#484c5c" :underline "white")
+            (t (:background "#DEEDFF" :underline "black")))))))
 
+    (add-hook 'input-method-activate-hook #'my-working-text-face-on)
+    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)
 
+    ;; input-method-activate-hook, input-method-deactivate-hook
+    ;; activate-mark-hook, deactivate-mark-hook
+    ;; minibuffer-setup-hook, minibuffer-exit-hook
+    ;; isearch-mode-hook, isearch-mode-end-hook
 
+    (when (require 'migemo nil t)
+      ;; FIXME Conflict with migemo...
+      ;; To fix this issue, you should update migemo.el because it is not minor mode
+      (defun my-isearch-ime-deactivate-sticky ()
+        (unless (region-active-p)
+          (mac-ime-deactivate-sticky)))
+      ;; see also activate-mark-hook, deactivate-mark-hook
+      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky))
+    ))
 
-
-
-
-
-
-
-
+(with-eval-after-load "org"
+  (when (require 'backline nil t)
+    (advice-add 'outline-flag-region :after 'backline-update)))
 
 
 
