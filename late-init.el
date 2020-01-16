@@ -86,14 +86,9 @@
       (when (fboundp 'paradox-enable)
         (paradox-enable)))))
 
-(when (autoload-if-found
-       '(my-elget-list
-         my-elget-reset-links el-get-update el-get-cd
-         el-get-install el-get-remove el-get-version el-get-bundle)
-       "elget-config" nil t)
-
-  (with-eval-after-load "elget-config"
-    (my-elget-load-and-sync)))
+(autoload-if-found
+ '(my-elget-list my-elget-reset-links el-get-cd el-get-install el-get-remove)
+ "elget-config" nil t)
 
 (setq vc-follow-symlinks t)
 
@@ -126,7 +121,7 @@
   (with-eval-after-load "ws-butler"
     (custom-set-variables
      '(ws-butler-global-exempt-modes
-       (append '(org-mode empty-booting-mode)
+       (append '(org-mode empty-booting-mode diff-mode)
                ws-butler-global-exempt-modes))))
 
   (unless noninteractive
@@ -163,19 +158,34 @@
 (when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
 
+  (when (version< "27.0" emacs-version)
+    (custom-set-variables
+     '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
+    (mac-input-method-mode 1)
+
+    ;; FIXME Conflict with migemo...
+    ;; To fix this issue, you need to update migemo.el to support minor-mode.
+    (when (require 'migemo nil t)
+      (defun my-isearch-ime-deactivate-sticky ()
+        (unless (region-active-p)
+          (mac-ime-deactivate-sticky)))
+      ;; see also activate-mark-hook, deactivate-mark-hook
+      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
+
   (defun my-toggle-ime-ns ()
     "Toggle IME."
     (interactive)
     (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (if (< emacs-major-version 27)
+  (if (version< emacs-version "27.0")
       (progn
         (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
         (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns))
     (define-key isearch-mode-map (kbd "M-SPC") 'mac-ime-toggle)
     (define-key isearch-mode-map (kbd "S-SPC") 'mac-ime-toggle))
 
-  (if (< emacs-major-version 27)
+  (if (version< emacs-version "27.0")
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
         (when (and (window-focus-p)
@@ -199,7 +209,31 @@
   ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
   ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
-  (when (< emacs-major-version 27)
+  (with-eval-after-load "hl-line"
+    (defun my-working-text-face-on ()
+      (if (or isearch-mode
+              (minibufferp))
+          (custom-set-faces
+           '(ns-working-text-face nil))
+        (custom-set-faces
+         '(ns-working-text-face
+           ((((background dark)) :background "#594d5d" :underline "LightSlateBlue")
+            (t (:background "#fff0de" :underline "gray20")))))))
+
+    (defun my-working-text-face-off ()
+      (if (or isearch-mode
+              (minibufferp))
+          (custom-set-faces
+           '(ns-working-text-face nil))
+        (custom-set-faces
+         '(ns-working-text-face
+           ((((background dark)) :background "#484c5c" :underline "white")
+            (t (:background "#DEEDFF" :underline "DarkOrchid3")))))))
+
+    (add-hook 'input-method-activate-hook #'my-working-text-face-on)
+    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off))
+
+  (when (version< emacs-version "27.0")
     (defun my-ns-ime-restore ()
       "Restore the last IME status changed in Emacs."
       (if my-ime-last (my-ime-on) (my-ime-off)))
@@ -769,9 +803,7 @@ This works also for other defined begin/end tokens to define the structure."
 
   (with-eval-after-load "yasnippet"
     (setq yas-verbosity 2)
-    (setq yas-snippet-dirs
-          (list "~/Dropbox/emacs.d/yas-dict"
-                'yas-installed-snippets-dir)) ;; for Cask
+    (setq yas-snippet-dirs '("~/Dropbox/emacs.d/yas-dict"))
     (unless noninteractive
       (yas-global-mode 1))))
 
@@ -1474,6 +1506,7 @@ Call this function at updating `mode-line-mode'."
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+    ;; (setq ivy-truncate-lines nil) ;; 選択候補も折り返されてしまう．
     ;; (setq ivy-wrap t)
 
     (ivy-mode 1))
@@ -2187,13 +2220,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
                     (doxymacs-font-lock))))
     (define-key doxymacs-mode-map (kbd "C-c C-s") 'ff-find-other-file)))
 
-(when (and (memq window-system '(mac ns))
-           (> emacs-major-version 23))
-  (when (autoload-if-found
-         '(matlab-mode matlab-shell)
-         "matlab" nil t)
-    (push '("\\.m$" . matlab-mode) auto-mode-alist)))
-
 (when (autoload-if-found
        '(flycheck-mode)
        "flycheck" nil t)
@@ -2396,30 +2422,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
       (projectile-mode 1)
       (remove-hook 'find-file-hook #'my-projectile-activate))
     (add-hook 'find-file-hook #'my-projectile-activate)))
-
-(when (autoload-if-found
-       '(magit-status ad:magit-mode-bury-buffer)
-       "magit" nil t)
-
-  (global-set-key (kbd "C-c m") 'magit-status)
-
-  (with-eval-after-load "magit"
-    (when (fboundp 'dimmer-off)
-      (add-hook 'magit-status-mode-hook 'dimmer-off))
-    (when (fboundp 'magit-mode-bury-buffer)
-      (defun ad:magit-mode-bury-buffer (&optional _bury)
-        (when (fboundp 'dimmer-on)
-          (setq my-dimmer-mode t)
-          (dimmer-on)
-          (redraw-frame)))
-      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
-    (when (boundp 'magit-completing-read-function)
-      ;; ivy を使う
-      (setq magit-completing-read-function 'ivy-completing-read))
-    (when (boundp 'magit-repository-directories)
-      (setq magit-repository-directories
-            '(("~/devel/git" . 1)
-              ("~/devel/mygit" . 1))))))
 
 (autoload-if-found '(relint-current-buffer) "relint" nil t)
 
@@ -2754,15 +2756,17 @@ Uses `all-the-icons-material' to fetch the icon."
     (global-hl-line-mode 1)))
 
 (defun my-ime-off-hline ()
+  (my-hl-line-enable)
   (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
     (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF"))))
 
 (defun my-ime-on-hline ()
+  (my-hl-line-enable)
   (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
     (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
 
 ;; init
-(if (< emacs-major-version 27)
+(if (version< emacs-version "27.0")
     (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
   (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline)))
 
@@ -2770,8 +2774,6 @@ Uses `all-the-icons-material' to fetch the icon."
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)
-(add-hook 'input-method-activate-hook #'my-hl-line-enable)
-(add-hook 'input-method-deactivate-hook #'my-hl-line-enable)
 (add-hook 'input-method-activate-hook #'my-ime-on-hline)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
 
@@ -2784,7 +2786,7 @@ Uses `all-the-icons-material' to fetch the icon."
 
 (with-eval-after-load "diff-mode"
   (set-face-attribute 'diff-added nil
-                      :background nil :foreground "green"
+                      :background nil :foreground "lime green"
                       :weight 'normal)
 
   (set-face-attribute 'diff-removed nil

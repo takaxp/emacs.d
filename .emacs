@@ -5,78 +5,127 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-(when (>= emacs-major-version 27)
-  (with-eval-after-load "postpone"
-    (setq ns-alerter-command nil)) ;; due to broken of alerter command
 
+(when nil
+  ;; https://github.com/chuntaro/emacs-keycaster/issues/4
+  (load "~/.emacs.d/27.0.60/el-get/emacs-keycaster/keycaster.el")
+  ;; (custom-set-variables
+  ;;  '(keycaster-x-offset (+ (frame-pixel-width) 10)))
   (custom-set-variables
-   '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
-  ;; mac-get-cursor-color を設定するとどうなる？
-  (mac-input-method-mode 1)
+   '(keycaster-use-child-frame t)
+   '(keycaster-x-offset (+ 576 10)))
+  ;; (custom-set-variables
+  ;;  '(keycaster-x-offset (+ 476 10)))
+  (keycaster-mode))
 
+(when t
+  ;; Shall be updated for Kotoeri
+  (setq mac-ime-cursor-type nil)
+  (defun ns-insert-marked-text (pos len)
+    "Insert contents of `ns-working-text' as UTF-8 string and mark with
+  `ns-working-overlay' and `ns-marked-overlay'.  Any previously existing
+  working text is cleared first. The overlay is assigned the faces
+  `ns-working-text-face' and `ns-marked-text-face'."
+    (ns-delete-working-text)
+    (let ((start (point)))
+      (when (<= pos (length ns-working-text))
+        ;; (put-text-property pos len 'face 'ns-working-text-face ns-working-text)
+        ;; (insert ns-working-text)
+        ;; (if (= len 0)
+        ;;     (overlay-put (setq ns-working-overlay
+        ;;                        (make-overlay start (point) (current-buffer) nil t))
+        ;;                  'face 'ns-working-text-face)
+        ;;   (overlay-put (setq ns-working-overlay
+        ;;                      (make-overlay start (point) (current-buffer) nil t))
+        ;;                'face 'ns-unmarked-text-face)
+        ;;   (overlay-put (setq ns-marked-overlay
+        ;;                      (make-overlay (+ start pos) (+ start pos len)
+        ;;                                    (current-buffer) nil t))
+        ;;                'face 'ns-marked-text-face))
+        ;; (goto-char (+ start pos))
 
-  ;; Shiftを使って大文字を入力する時，IME的にはASCIIにHLINEがかわるから
-  ;; 表示が乱れる．Shiftモードに入る時のフックと抜ける時のフックが必要
-  ;; hook があれば，そこに custom-set-faces を当てられる．
-  ;; それか，let で回避するか．
-  ;; それか，ShiftでIME入力を継続させる時は，IMEONを継続させるとか？
-  ;; /usr/local/bin/gpg へ gpg2 からシンボリックリンクを貼るでOK．OK
-  ;; %04y を %Y にしろと怒られた
+        (if (= len 0)
+            (overlay-put (setq ns-working-overlay
+                               (make-overlay start (point) (current-buffer) nil t))
+                         'after-string
+                         (propertize ns-working-text 'face 'ns-working-text-face))
+          (overlay-put (setq ns-working-overlay
+                             (make-overlay start (point) (current-buffer) nil t))
+                       'after-string
+                       (propertize (substring ns-working-text 0 len)
+                                   'face 'ns-marked-text-face))
+          (overlay-put (setq ns-marked-overlay
+                             (make-overlay (point) (+ (point) pos len)
+                                           (current-buffer) nil t))
+                       'before-string
+                       (propertize (substring ns-working-text len
+                                              (length ns-working-text))
+                                   'face 'ns-unmarked-text-face))
+          (goto-char (+ start pos)))
+        ))))
 
+(when nil
+  (unless (version< emacs-version "27.0")
+    (when (autoload-if-found
+           '(keycaster-mode)
+           "keycaster" nil t)
 
-  (with-eval-after-load "hl-line"
-    ;; isearchも同様の設定が必要
-    (defun my-working-text-face-on ()
-      (if (or isearch-mode
-              (minibufferp))
-          (custom-set-faces
-           '(ns-working-text-face nil))
-        (custom-set-faces
-         '(ns-working-text-face
-           ((((background dark)) :background "#594d5d" :underline "white")
-            (t (:background "#fff0de" :underline "black")))))))
-    (defun my-working-text-face-off ()
-      (if (or isearch-mode
-              (minibufferp))
-          (custom-set-faces
-           '(ns-working-text-face nil))
-        (custom-set-faces
-         '(ns-working-text-face
-           ((((background dark)) :background "#484c5c" :underline "white")
-            (t (:background "#DEEDFF" :underline "black")))))))
+      (add-hook 'keycaster-mode-hook #'dimmer-permanent-off)
+      (with-eval-after-load "keycaster"
 
-    (add-hook 'input-method-activate-hook #'my-working-text-face-on)
-    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)
+        ;; 日本語入力のガード
+        ;; 表示位置の調整
+        (defun keycaster--set-frame-string (i string)
+          (aset keycaster--strings i string)
+          (with-current-buffer (aref keycaster--buffers i)
+            (erase-buffer)
+            (insert string))
+          (let ((window-resize-pixelwise t)
+                (frame-resize-pixelwise t)
+                (window-min-width 0)
+                (window-min-height 0)
+                (frame (aref keycaster--frames i)))
+            (if keycaster-use-child-frame
+                (fit-frame-to-buffer frame nil 0 nil 0)
+              (set-frame-width frame (string-width string)))))
 
-    ;; input-method-activate-hook, input-method-deactivate-hook
-    ;; activate-mark-hook, deactivate-mark-hook
-    ;; minibuffer-setup-hook, minibuffer-exit-hook
-    ;; isearch-mode-hook, isearch-mode-end-hook
+        (setq keycaster-frames-maxnum 8
+              ;; keycaster-frame-justify 'keycaster-left-justified
+              keycaster-use-child-frame nil
+              keycaster-x-offset 1
+              keycaster-font "Monaco"
+              keycaster-fade-out-delay 2.0
+              keycaster-y-offset 20))
+      )))
 
-    (when (require 'migemo nil t)
-      ;; FIXME Conflict with migemo...
-      ;; To fix this issue, you should update migemo.el because it is not minor mode
-      (defun my-isearch-ime-deactivate-sticky ()
-        (unless (region-active-p)
-          (mac-ime-deactivate-sticky)))
-      ;; see also activate-mark-hook, deactivate-mark-hook
-      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
-      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky))
-    ))
+(with-eval-after-load "postpone"
+  (add-hook 'focus-in-hook 'mac-ime-update-title))
+
+(with-eval-after-load "postpone"
+  (setq ns-alerter-command nil)) ;; due to broken of alerter command
+
+;; Shiftを使って大文字を入力する時，IME的にはASCIIにHLINEがかわるから
+;; 表示が乱れる．Shiftモードに入る時のフックと抜ける時のフックが必要
+;; hook があれば，そこに custom-set-faces を当てられる．
+;; それか，let で回避するか．
+;; それか，ShiftでIME入力を継続させる時は，IMEONを継続させるとか？
+;; /usr/local/bin/gpg へ gpg2 からシンボリックリンクを貼るでOK．OK
+;; %04y を %Y にしろと怒られた
+
+;; input-method-activate-hook, input-method-deactivate-hook
+;; activate-mark-hook, deactivate-mark-hook
+;; minibuffer-setup-hook, minibuffer-exit-hook
+;; isearch-mode-hook, isearch-mode-end-hook
 
 (with-eval-after-load "org"
   (when (require 'backline nil t)
     (advice-add 'outline-flag-region :after 'backline-update)))
 
-
-
-
-
-
-
-
-
-
+(custom-set-faces
+ '(ns-marked-text-face
+   ((t (:background "light pink" :underline "OrangeRed2"))))
+ '(ns-unmarked-text-face
+   ((t (:background "light sky blue" :underline "royal blue")))))
 
 ;; TODO eldocの確認時に narrowing/widen している可能性がある．
 
@@ -272,6 +321,3 @@ hoge.")
   ;; (advice-add 'message :around #'ad:message)
   ;; (advice-remove 'message #'ad:message)
   )
-
-;; .emacs ends here
-;; (put 'narrow-to-region 'disabled nil)

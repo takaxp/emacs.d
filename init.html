@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-07 Tue 13:00 -->
+<!-- 2020-01-16 Thu 18:31 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -205,7 +205,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2019 Free Software Foundation, Inc.
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -541,15 +541,15 @@ for the JavaScript code in this tag.
 <li><a href="#org9ffc2142">9.12. [uuid.el] UUID の生成</a></li>
 <li><a href="#orga1d9863f">9.13. [package-lint.el] MEPLA登録用Lint</a></li>
 <li><a href="#org7d18b489">9.14. [projectile.el] ディレクトリ単位でファイル群をプロジェクト扱いする</a></li>
-<li><a href="#org7d969237">9.15. [magit.el] Gitクライアント</a></li>
-<li><a href="#org1c672519">9.16. [relint.el] elispの正規表現用のlinter</a></li>
-<li><a href="#orgaa25b74c">9.17. <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</a></li>
-<li><a href="#orgae4ecac7">9.18. <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</a></li>
-<li><a href="#orgbf790f4d">9.19. <span class="todo TODO">TODO</span> [format-all.el] コード整形</a></li>
-<li><a href="#orgac7d24d7">9.20. <span class="todo TODO">TODO</span> [emr.el] リファクタリング</a></li>
-<li><a href="#org4e23f079">9.21. <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</a></li>
-<li><a href="#org9547f772">9.22. <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</a></li>
-<li><a href="#orgea32afad">9.23. <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</a></li>
+<li><a href="#org1c672519">9.15. [relint.el] elispの正規表現用のlinter</a></li>
+<li><a href="#orgaa25b74c">9.16. <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</a></li>
+<li><a href="#orgae4ecac7">9.17. <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</a></li>
+<li><a href="#orgbf790f4d">9.18. <span class="todo TODO">TODO</span> [format-all.el] コード整形</a></li>
+<li><a href="#orgac7d24d7">9.19. <span class="todo TODO">TODO</span> [emr.el] リファクタリング</a></li>
+<li><a href="#org4e23f079">9.20. <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</a></li>
+<li><a href="#org9547f772">9.21. <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</a></li>
+<li><a href="#orgea32afad">9.22. <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</a></li>
+<li><a href="#org7d969237">9.23. <span class="done DONE">DONE</span> [magit.el] Gitクライアント</a></li>
 <li><a href="#org09687b9c">9.24. <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgcde881ad">9.25. <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
@@ -2020,14 +2020,9 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(my-elget-list
-         my-elget-reset-links el-get-update el-get-cd
-         el-get-install el-get-remove el-get-version el-get-bundle)
-       <span style="color: #8b2252;">"elget-config"</span> nil t)
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"elget-config"</span>
-    (my-elget-load-and-sync)))
+<pre class="src src-emacs-lisp">(autoload-if-found
+ '(my-elget-list my-elget-reset-links el-get-cd el-get-install el-get-remove)
+ <span style="color: #8b2252;">"elget-config"</span> nil t)
 </pre>
 </div>
 </div>
@@ -2109,7 +2104,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27"</span> emacs-version)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
   (<span style="color: #a020f0;">setq</span> default-directory <span style="color: #8b2252;">"~/"</span>))
 </pre>
 </div>
@@ -2171,7 +2166,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ws-butler"</span>
     (custom-set-variables
      '(ws-butler-global-exempt-modes
-       (append '(org-mode empty-booting-mode)
+       (append '(org-mode empty-booting-mode diff-mode)
                ws-butler-global-exempt-modes))))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
@@ -2245,19 +2240,34 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
 
+  (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
+    (custom-set-variables
+     '(mac-default-input-source <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span>))
+    (mac-input-method-mode 1)
+
+    <span style="color: #b22222;">;; </span><span style="color: ##3030FF;">FIXME</span><span style="color: #b22222;"> Conflict with migemo...</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">To fix this issue, you need to update migemo.el to support minor-mode.</span>
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">migemo</span> nil t)
+      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-isearch-ime-deactivate-sticky</span> ()
+        (<span style="color: #a020f0;">unless</span> (region-active-p)
+          (mac-ime-deactivate-sticky)))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">see also activate-mark-hook, deactivate-mark-hook</span>
+      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
+
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-toggle-ime-ns</span> ()
     <span style="color: #8b2252;">"Toggle IME."</span>
     (<span style="color: #a020f0;">interactive</span>)
     (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
       (<span style="color: #a020f0;">progn</span>
         (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
         (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns))
     (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'mac-ime-toggle)
     (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-ime-toggle))
 
-  (<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
       (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
         <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
         (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (window-focus-p)
@@ -2281,7 +2291,31 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#26469;&#12383;&#12392;&#12365;&#12399;&#21363;&#24231;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)</span>
 
-  (<span style="color: #a020f0;">when</span> (&lt; emacs-major-version 27)
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-working-text-face-on</span> ()
+      (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> isearch-mode
+              (minibufferp))
+          (custom-set-faces
+           '(ns-working-text-face nil))
+        (custom-set-faces
+         '(ns-working-text-face
+           ((((background dark)) <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #594d5d;">#594d5d</span><span style="color: #8b2252;">"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #8470ff;">LightSlateBlue</span><span style="color: #8b2252;">"</span>)
+            (t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #fff0de;">#fff0de</span><span style="color: #8b2252;">"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #333333;">gray20</span><span style="color: #8b2252;">"</span>)))))))
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-working-text-face-off</span> ()
+      (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> isearch-mode
+              (minibufferp))
+          (custom-set-faces
+           '(ns-working-text-face nil))
+        (custom-set-faces
+         '(ns-working-text-face
+           ((((background dark)) <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #484c5c;">#484c5c</span><span style="color: #8b2252;">"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #ffffff;">white</span><span style="color: #8b2252;">"</span>)
+            (t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #DEEDFF;">#DEEDFF</span><span style="color: #8b2252;">"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #9a32cd;">DarkOrchid3</span><span style="color: #8b2252;">"</span>)))))))
+
+    (add-hook 'input-method-activate-hook #'my-working-text-face-on)
+    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off))
+
+  (<span style="color: #a020f0;">when</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-ime-restore</span> ()
       <span style="color: #8b2252;">"Restore the last IME status changed in Emacs."</span>
       (<span style="color: #a020f0;">if</span> my-ime-last (my-ime-on) (my-ime-off)))
@@ -3300,7 +3334,7 @@ Built-in の time-stamp.el を使う．<br />
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(modern-c++-font-lock-mode)
        <span style="color: #8b2252;">"modern-cpp-font-lock"</span> nil t)
-  (<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"\\.h$"</span> . c++-mode) auto-mode-alist)
+  (<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"\\.[hm]$"</span> . c++-mode) auto-mode-alist)
   (add-hook 'c-mode-hook #'modern-c++-font-lock-mode)
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 </pre>
@@ -4173,9 +4207,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"yasnippet"</span>
     (<span style="color: #a020f0;">setq</span> yas-verbosity 2)
-    (<span style="color: #a020f0;">setq</span> yas-snippet-dirs
-          (list <span style="color: #8b2252;">"~/Dropbox/emacs.d/yas-dict"</span>
-                'yas-installed-snippets-dir)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">for Cask</span>
+    (<span style="color: #a020f0;">setq</span> yas-snippet-dirs '(<span style="color: #8b2252;">"~/Dropbox/emacs.d/yas-dict"</span>))
     (<span style="color: #a020f0;">unless</span> noninteractive
       (yas-global-mode 1))))
 </pre>
@@ -6166,6 +6198,7 @@ paren.el の場合は以下の設定．<br />
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">setq</span> enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd <span style="color: #8b2252;">"&lt;escape&gt;"</span>) 'minibuffer-keyboard-quit)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq ivy-truncate-lines nil) ;; &#36984;&#25246;&#20505;&#35036;&#12418;&#25240;&#12426;&#36820;&#12373;&#12428;&#12390;&#12375;&#12414;&#12358;&#65294;</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq ivy-wrap t)</span>
 
     (ivy-mode 1))
@@ -8530,7 +8563,8 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 <h3 id="org0e27778c"><span class="section-number-3">9.4</span> [matlab.el] Matlab用の設定</h3>
 <div class="outline-text-3" id="text-org0e27778c">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (memq window-system '(mac ns))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (memq window-system '(mac ns))
            (&gt; emacs-major-version 23))
   (<span style="color: #a020f0;">when</span> (autoload-if-found
          '(matlab-mode matlab-shell)
@@ -8963,44 +8997,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
-<div id="outline-container-org7d969237" class="outline-3">
-<h3 id="org7d969237"><span class="section-number-3">9.15</span> [magit.el] Gitクライアント</h3>
-<div class="outline-text-3" id="text-org7d969237">
-<p>
-Emacs の中で Git リポジトリを操作できます． <code>magit-repository-directories</code> を設定しておけば，管理しているリポジトリの一覧を表示できます． <code>helm</code> や <code>ivy</code> と連携していれば，絞り込みも簡単です．さらに， <code>M-x magit-list-repositories</code> を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(magit-status ad:magit-mode-bury-buffer)
-       <span style="color: #8b2252;">"magit"</span> nil t)
-
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c m"</span>) 'magit-status)
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"magit"</span>
-    (<span style="color: #a020f0;">when</span> (fboundp 'dimmer-off)
-      (add-hook 'magit-status-mode-hook 'dimmer-off))
-    (<span style="color: #a020f0;">when</span> (fboundp 'magit-mode-bury-buffer)
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:magit-mode-bury-buffer</span> (<span style="color: #228b22;">&amp;optional</span> _bury)
-        (<span style="color: #a020f0;">when</span> (fboundp 'dimmer-on)
-          (<span style="color: #a020f0;">setq</span> my-dimmer-mode t)
-          (dimmer-on)
-          (redraw-frame)))
-      (advice-add 'magit-mode-bury-buffer <span style="color: #483d8b;">:before</span> #'ad:magit-mode-bury-buffer))
-    (<span style="color: #a020f0;">when</span> (boundp 'magit-completing-read-function)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">ivy &#12434;&#20351;&#12358;</span>
-      (<span style="color: #a020f0;">setq</span> magit-completing-read-function 'ivy-completing-read))
-    (<span style="color: #a020f0;">when</span> (boundp 'magit-repository-directories)
-      (<span style="color: #a020f0;">setq</span> magit-repository-directories
-            '((<span style="color: #8b2252;">"~/devel/git"</span> . 1)
-              (<span style="color: #8b2252;">"~/devel/mygit"</span> . 1))))))
-</pre>
-</div>
-</div>
-</div>
-
 <div id="outline-container-org1c672519" class="outline-3">
-<h3 id="org1c672519"><span class="section-number-3">9.16</span> [relint.el] elispの正規表現用のlinter</h3>
+<h3 id="org1c672519"><span class="section-number-3">9.15</span> [relint.el] elispの正規表現用のlinter</h3>
 <div class="outline-text-3" id="text-org1c672519">
 <p>
 正規表現をチェックしてくれます．<br />
@@ -9018,7 +9016,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 
 <div id="outline-container-orgaa25b74c" class="outline-3">
-<h3 id="orgaa25b74c"><span class="section-number-3">9.17</span> <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</h3>
+<h3 id="orgaa25b74c"><span class="section-number-3">9.16</span> <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</h3>
 <div class="outline-text-3" id="text-orgaa25b74c">
 <ul class="org-ul">
 <li><a href="http://editorconfig.org/#contributing">EditorConfig</a><br /></li>
@@ -9059,7 +9057,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 
 <div id="outline-container-orgae4ecac7" class="outline-3">
-<h3 id="orgae4ecac7"><span class="section-number-3">9.18</span> <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</h3>
+<h3 id="orgae4ecac7"><span class="section-number-3">9.17</span> <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</h3>
 <div class="outline-text-3" id="text-orgae4ecac7">
 <p>
 <code>gcov</code> の結果をフリンジに表示します．<br />
@@ -9077,7 +9075,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 
 <div id="outline-container-orgbf790f4d" class="outline-3">
-<h3 id="orgbf790f4d"><span class="section-number-3">9.19</span> <span class="todo TODO">TODO</span> [format-all.el] コード整形</h3>
+<h3 id="orgbf790f4d"><span class="section-number-3">9.18</span> <span class="todo TODO">TODO</span> [format-all.el] コード整形</h3>
 <div class="outline-text-3" id="text-orgbf790f4d">
 <ul class="org-ul">
 <li><a href="https://melpa.org/#/format-all">format-all - MELPA</a><br /></li>
@@ -9095,7 +9093,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 
 <div id="outline-container-orgac7d24d7" class="outline-3">
-<h3 id="orgac7d24d7"><span class="section-number-3">9.20</span> <span class="todo TODO">TODO</span> [emr.el] リファクタリング</h3>
+<h3 id="orgac7d24d7"><span class="section-number-3">9.19</span> <span class="todo TODO">TODO</span> [emr.el] リファクタリング</h3>
 <div class="outline-text-3" id="text-orgac7d24d7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
@@ -9108,7 +9106,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 
 <div id="outline-container-org4e23f079" class="outline-3">
-<h3 id="org4e23f079"><span class="section-number-3">9.21</span> <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</h3>
+<h3 id="org4e23f079"><span class="section-number-3">9.20</span> <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</h3>
 <div class="outline-text-3" id="text-org4e23f079">
 <ul class="org-ul">
 <li><a href="https://gitlab.com/jgkamat/rmsbolt">https://gitlab.com/jgkamat/rmsbolt</a><br /></li>
@@ -9122,7 +9120,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 
 <div id="outline-container-org9547f772" class="outline-3">
-<h3 id="org9547f772"><span class="section-number-3">9.22</span> <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</h3>
+<h3 id="org9547f772"><span class="section-number-3">9.21</span> <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</h3>
 <div class="outline-text-3" id="text-org9547f772">
 <ul class="org-ul">
 <li><a href="https://github.com/tuhdo/semantic-refactor">tuhdo/semantic-refactor: Semantic Refactor is a refactoring tool based on Semantic parser framework</a><br /></li>
@@ -9130,7 +9128,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 <div id="outline-container-orgea32afad" class="outline-3">
-<h3 id="orgea32afad"><span class="section-number-3">9.23</span> <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</h3>
+<h3 id="orgea32afad"><span class="section-number-3">9.22</span> <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</h3>
 <div class="outline-text-3" id="text-orgea32afad">
 <p>
 <code>auto-complete.el</code> がメンテナンスモードに入ったので <code>company</code> に移行しました．<br />
@@ -9233,6 +9231,43 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
   (global-company-mode)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">company-quickhelp</span> nil t)
     (company-quickhelp-mode)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7d969237" class="outline-3">
+<h3 id="org7d969237"><span class="section-number-3">9.23</span> <span class="done DONE">DONE</span> [magit.el] Gitクライアント</h3>
+<div class="outline-text-3" id="text-org7d969237">
+<p>
+Emacs の中で Git リポジトリを操作できます． <code>magit-repository-directories</code> を設定しておけば，管理しているリポジトリの一覧を表示できます． <code>helm</code> や <code>ivy</code> と連携していれば，絞り込みも簡単です．さらに， <code>M-x magit-list-repositories</code> を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(magit-status ad:magit-mode-bury-buffer)
+       <span style="color: #8b2252;">"magit"</span> nil t)
+
+  (global-set-key (kbd <span style="color: #8b2252;">"C-c m"</span>) 'magit-status)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"magit"</span>
+    (<span style="color: #a020f0;">when</span> (fboundp 'dimmer-off)
+      (add-hook 'magit-status-mode-hook 'dimmer-off))
+    (<span style="color: #a020f0;">when</span> (fboundp 'magit-mode-bury-buffer)
+      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:magit-mode-bury-buffer</span> (<span style="color: #228b22;">&amp;optional</span> _bury)
+        (<span style="color: #a020f0;">when</span> (fboundp 'dimmer-on)
+          (<span style="color: #a020f0;">setq</span> my-dimmer-mode t)
+          (dimmer-on)
+          (redraw-frame)))
+      (advice-add 'magit-mode-bury-buffer <span style="color: #483d8b;">:before</span> #'ad:magit-mode-bury-buffer))
+    (<span style="color: #a020f0;">when</span> (boundp 'magit-completing-read-function)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">ivy &#12434;&#20351;&#12358;</span>
+      (<span style="color: #a020f0;">setq</span> magit-completing-read-function 'ivy-completing-read))
+    (<span style="color: #a020f0;">when</span> (boundp 'magit-repository-directories)
+      (<span style="color: #a020f0;">setq</span> magit-repository-directories
+            '((<span style="color: #8b2252;">"~/devel/git"</span> . 1)
+              (<span style="color: #8b2252;">"~/devel/mygit"</span> . 1))))))
 </pre>
 </div>
 </div>
@@ -11230,7 +11265,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org5103c2d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orge66b84e"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -12419,7 +12454,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-(<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+(<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-apply-cursor-config</span> ()
       (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">when</span> (display-graphic-p)
@@ -12485,7 +12520,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
       (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">setq</span> my-ime-before-action (my-ime-active-p))
         (my-ime-off)))
 
-    (<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+    (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
         (<span style="color: #a020f0;">progn</span>
           <span style="color: #b22222;">;; </span><span style="color: #b22222;">For selected.el</span>
           (add-hook 'activate-mark-hook #'my-ime-off-sticky)
@@ -13164,15 +13199,17 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
     (global-hl-line-mode 1)))
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-off-hline</span> ()
+  (my-hl-line-enable)
   (<span style="color: #a020f0;">let</span> ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
     (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #484c5c;">#484c5c</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #DEEDFF;">#DEEDFF</span><span style="color: #8b2252;">"</span>))))
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-on-hline</span> ()
+  (my-hl-line-enable)
   (<span style="color: #a020f0;">let</span> ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
     (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"</span><span style="color: #ffffff; background-color: #594d5d;">#594d5d</span><span style="color: #8b2252;">"</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #fff0de;">#fff0de</span><span style="color: #8b2252;">"</span>))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">init</span>
-(<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 27)
+(<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
     (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
   (<span style="color: #a020f0;">if</span> (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline)))
 
@@ -13180,8 +13217,6 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)
-(add-hook 'input-method-activate-hook #'my-hl-line-enable)
-(add-hook 'input-method-deactivate-hook #'my-hl-line-enable)
 (add-hook 'input-method-activate-hook #'my-ime-on-hline)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
 </pre>
@@ -13403,6 +13438,14 @@ Linux では次のように処理するだけでよく，意外と簡単．<br /
 (add-hook 'buffer-list-update-hook #'my-linespacing)
 (add-hook 'org-src-mode-hook #'my-linespacing)
 (add-hook 'debugger-mode-hook #'my-linespacing)
+
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda</span> (<span style="color: #228b22;">&amp;optional</span> _arg _org-keys _restriction)
+    (my-linespacing))
+  (advice-add 'org-agenda <span style="color: #483d8b;">:after</span> #'my-org-agenda)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-redo</span> (<span style="color: #228b22;">&amp;optional</span> _all)
+    (my-linespacing))
+  (advice-add 'org-agenda-redo <span style="color: #483d8b;">:after</span> #'my-org-agenda-redo))
 </pre>
 </div>
 </div>
@@ -13422,7 +13465,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"diff-mode"</span>
   (set-face-attribute 'diff-added nil
-                      <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #00ff00;">green</span><span style="color: #8b2252;">"</span>
+                      <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"</span><span style="color: #000000; background-color: #32cd32;">lime green</span><span style="color: #8b2252;">"</span>
                       <span style="color: #483d8b;">:weight</span> 'normal)
 
   (set-face-attribute 'diff-removed nil
@@ -14729,7 +14772,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-01-07 Tue 13:00</p>
+<p class="date">Created: 2020-01-16 Thu 18:31</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -1119,19 +1119,15 @@ echo "--- done."
 *** [el-get.el] パッケージ管理（GUI，CUI）
     :PROPERTIES:
     :CUSTOM_ID: org6c5717fc
+    :ID:       4E958002-BA51-4182-A9CF-AF33A090120E
     :END:
 
 密かに =el-get= に移行．コマンドラインからも効率よく管理可能．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(my-elget-list
-         my-elget-reset-links el-get-update el-get-cd
-         el-get-install el-get-remove el-get-version el-get-bundle)
-       "elget-config" nil t)
-
-  (with-eval-after-load "elget-config"
-    (my-elget-load-and-sync)))
+(autoload-if-found
+ '(my-elget-list my-elget-reset-links el-get-cd el-get-install el-get-remove)
+ "elget-config" nil t)
 #+end_src
 
 ** インデント
@@ -1197,7 +1193,7 @@ echo "--- done."
 Version 27 から =C-x C-f= のデフォルトが変わったようなので， =~/= に矯正する．
 
 #+begin_src emacs-lisp :tangle yes
-(when (version< "27" emacs-version)
+(when (version< "27.0" emacs-version)
   (setq default-directory "~/"))
 #+end_src
 
@@ -1251,7 +1247,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
   (with-eval-after-load "ws-butler"
     (custom-set-variables
      '(ws-butler-global-exempt-modes
-       (append '(org-mode empty-booting-mode)
+       (append '(org-mode empty-booting-mode diff-mode)
                ws-butler-global-exempt-modes))))
 
   (unless noninteractive
@@ -1315,19 +1311,34 @@ GPG error: "no usable configuration," OpenPGP
 (when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
 
+  (when (version< "27.0" emacs-version)
+    (custom-set-variables
+     '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
+    (mac-input-method-mode 1)
+
+    ;; FIXME Conflict with migemo...
+    ;; To fix this issue, you need to update migemo.el to support minor-mode.
+    (when (require 'migemo nil t)
+      (defun my-isearch-ime-deactivate-sticky ()
+        (unless (region-active-p)
+          (mac-ime-deactivate-sticky)))
+      ;; see also activate-mark-hook, deactivate-mark-hook
+      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
+
   (defun my-toggle-ime-ns ()
     "Toggle IME."
     (interactive)
     (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (if (< emacs-major-version 27)
+  (if (version< emacs-version "27.0")
       (progn
         (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
         (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns))
     (define-key isearch-mode-map (kbd "M-SPC") 'mac-ime-toggle)
     (define-key isearch-mode-map (kbd "S-SPC") 'mac-ime-toggle))
 
-  (if (< emacs-major-version 27)
+  (if (version< emacs-version "27.0")
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
         (when (and (window-focus-p)
@@ -1351,7 +1362,31 @@ GPG error: "no usable configuration," OpenPGP
   ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
   ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
-  (when (< emacs-major-version 27)
+  (with-eval-after-load "hl-line"
+    (defun my-working-text-face-on ()
+      (if (or isearch-mode
+              (minibufferp))
+          (custom-set-faces
+           '(ns-working-text-face nil))
+        (custom-set-faces
+         '(ns-working-text-face
+           ((((background dark)) :background "#594d5d" :underline "LightSlateBlue")
+            (t (:background "#fff0de" :underline "gray20")))))))
+
+    (defun my-working-text-face-off ()
+      (if (or isearch-mode
+              (minibufferp))
+          (custom-set-faces
+           '(ns-working-text-face nil))
+        (custom-set-faces
+         '(ns-working-text-face
+           ((((background dark)) :background "#484c5c" :underline "white")
+            (t (:background "#DEEDFF" :underline "DarkOrchid3")))))))
+
+    (add-hook 'input-method-activate-hook #'my-working-text-face-on)
+    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off))
+
+  (when (version< emacs-version "27.0")
     (defun my-ns-ime-restore ()
       "Restore the last IME status changed in Emacs."
       (if my-ime-last (my-ime-on) (my-ime-off)))
@@ -2189,7 +2224,7 @@ http://d.hatena.ne.jp/NeoCat/20080211
 (when (autoload-if-found
        '(modern-c++-font-lock-mode)
        "modern-cpp-font-lock" nil t)
-  (push '("\\.h$" . c++-mode) auto-mode-alist)
+  (push '("\\.[hm]$" . c++-mode) auto-mode-alist)
   (add-hook 'c-mode-hook #'modern-c++-font-lock-mode)
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 #+end_src
@@ -2947,9 +2982,7 @@ This works also for other defined begin/end tokens to define the structure."
 
   (with-eval-after-load "yasnippet"
     (setq yas-verbosity 2)
-    (setq yas-snippet-dirs
-          (list "~/Dropbox/emacs.d/yas-dict"
-                'yas-installed-snippets-dir)) ;; for Cask
+    (setq yas-snippet-dirs '("~/Dropbox/emacs.d/yas-dict"))
     (unless noninteractive
       (yas-global-mode 1))))
 #+end_src
@@ -4669,6 +4702,7 @@ go get -v github.com/mdempsky/gocode
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+    ;; (setq ivy-truncate-lines nil) ;; 選択候補も折り返されてしまう．
     ;; (setq ivy-wrap t)
 
     (ivy-mode 1))
@@ -6807,7 +6841,8 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
    :CUSTOM_ID: org0e27778c
    :END:
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (when (and (memq window-system '(mac ns))
            (> emacs-major-version 23))
   (when (autoload-if-found
@@ -7195,39 +7230,6 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
     (add-hook 'find-file-hook #'my-projectile-activate)))
 #+end_src
 
-** [magit.el] Gitクライアント
-   :PROPERTIES:
-   :CUSTOM_ID: org7d969237
-   :END:
-
-Emacs の中で Git リポジトリを操作できます． =magit-repository-directories= を設定しておけば，管理しているリポジトリの一覧を表示できます． =helm= や =ivy= と連携していれば，絞り込みも簡単です．さらに， =M-x magit-list-repositories= を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(magit-status ad:magit-mode-bury-buffer)
-       "magit" nil t)
-
-  (global-set-key (kbd "C-c m") 'magit-status)
-
-  (with-eval-after-load "magit"
-    (when (fboundp 'dimmer-off)
-      (add-hook 'magit-status-mode-hook 'dimmer-off))
-    (when (fboundp 'magit-mode-bury-buffer)
-      (defun ad:magit-mode-bury-buffer (&optional _bury)
-        (when (fboundp 'dimmer-on)
-          (setq my-dimmer-mode t)
-          (dimmer-on)
-          (redraw-frame)))
-      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
-    (when (boundp 'magit-completing-read-function)
-      ;; ivy を使う
-      (setq magit-completing-read-function 'ivy-completing-read))
-    (when (boundp 'magit-repository-directories)
-      (setq magit-repository-directories
-            '(("~/devel/git" . 1)
-              ("~/devel/mygit" . 1))))))
-#+end_src
-
 ** [relint.el] elispの正規表現用のlinter
    :PROPERTIES:
    :CUSTOM_ID: org1c672519
@@ -7434,6 +7436,41 @@ For example: \"<e\" -> (\"e\" . t)"
   (global-company-mode)
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode)))
+#+end_src
+
+** DONE [magit.el] Gitクライアント
+   CLOSED: [2020-01-16 Thu 16:06]
+   :PROPERTIES:
+   :CUSTOM_ID: org7d969237
+   :END:
+
+Emacs の中で Git リポジトリを操作できます． =magit-repository-directories= を設定しておけば，管理しているリポジトリの一覧を表示できます． =helm= や =ivy= と連携していれば，絞り込みも簡単です．さらに， =M-x magit-list-repositories= を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．
+
+#+begin_src emacs-lisp :tangle no :exports yes
+;; late-init.el
+(when (autoload-if-found
+       '(magit-status ad:magit-mode-bury-buffer)
+       "magit" nil t)
+
+  (global-set-key (kbd "C-c m") 'magit-status)
+
+  (with-eval-after-load "magit"
+    (when (fboundp 'dimmer-off)
+      (add-hook 'magit-status-mode-hook 'dimmer-off))
+    (when (fboundp 'magit-mode-bury-buffer)
+      (defun ad:magit-mode-bury-buffer (&optional _bury)
+        (when (fboundp 'dimmer-on)
+          (setq my-dimmer-mode t)
+          (dimmer-on)
+          (redraw-frame)))
+      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
+    (when (boundp 'magit-completing-read-function)
+      ;; ivy を使う
+      (setq magit-completing-read-function 'ivy-completing-read))
+    (when (boundp 'magit-repository-directories)
+      (setq magit-repository-directories
+            '(("~/devel/git" . 1)
+              ("~/devel/mygit" . 1))))))
 #+end_src
 
 ** DONE [auto-complete.el] 自動補完機能                            :notinuse:
@@ -10343,7 +10380,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-(if (< emacs-major-version 27)
+(if (version< emacs-version "27.0")
     (defun my-apply-cursor-config ()
       (interactive)
       (when (display-graphic-p)
@@ -10409,7 +10446,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
       (when (setq my-ime-before-action (my-ime-active-p))
         (my-ime-off)))
 
-    (if (< emacs-major-version 27)
+    (if (version< emacs-version "27.0")
         (progn
           ;; For selected.el
           (add-hook 'activate-mark-hook #'my-ime-off-sticky)
@@ -11037,15 +11074,17 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
     (global-hl-line-mode 1)))
 
 (defun my-ime-off-hline ()
+  (my-hl-line-enable)
   (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
     (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF"))))
 
 (defun my-ime-on-hline ()
+  (my-hl-line-enable)
   (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
     (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
 
 ;; init
-(if (< emacs-major-version 27)
+(if (version< emacs-version "27.0")
     (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
   (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline)))
 
@@ -11053,8 +11092,6 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 (add-hook 'focus-in-hook #'my-hl-line-enable)
 (add-hook 'focus-out-hook #'my-hl-line-disable)
-(add-hook 'input-method-activate-hook #'my-hl-line-enable)
-(add-hook 'input-method-deactivate-hook #'my-hl-line-enable)
 (add-hook 'input-method-activate-hook #'my-ime-on-hline)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
 #+end_src
@@ -11224,6 +11261,14 @@ Linux では次のように処理するだけでよく，意外と簡単．
 (add-hook 'buffer-list-update-hook #'my-linespacing)
 (add-hook 'org-src-mode-hook #'my-linespacing)
 (add-hook 'debugger-mode-hook #'my-linespacing)
+
+(with-eval-after-load "org-agenda"
+  (defun my-org-agenda (&optional _arg _org-keys _restriction)
+    (my-linespacing))
+  (advice-add 'org-agenda :after #'my-org-agenda)
+  (defun my-org-agenda-redo (&optional _all)
+    (my-linespacing))
+  (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
 #+end_src
 
 *** COMMENT 分析
@@ -11254,7 +11299,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "diff-mode"
   (set-face-attribute 'diff-added nil
-                      :background nil :foreground "green"
+                      :background nil :foreground "lime green"
                       :weight 'normal)
 
   (set-face-attribute 'diff-removed nil

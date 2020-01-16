@@ -188,7 +188,7 @@
 ;;              (setq tab-width 8)
 ;;              (setq indent-line-function 'lisp-indent-line)))
 
-(when (version< "27" emacs-version)
+(when (version< "27.0" emacs-version)
   (setq default-directory "~/"))
 
 (when (eq window-system 'mac)
@@ -337,7 +337,7 @@
 (when (autoload-if-found
        '(modern-c++-font-lock-mode)
        "modern-cpp-font-lock" nil t)
-  (push '("\\.h$" . c++-mode) auto-mode-alist)
+  (push '("\\.[hm]$" . c++-mode) auto-mode-alist)
   (add-hook 'c-mode-hook #'modern-c++-font-lock-mode)
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 
@@ -684,7 +684,7 @@
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-(if (< emacs-major-version 27)
+(if (version< emacs-version "27.0")
     (defun my-apply-cursor-config ()
       (interactive)
       (when (display-graphic-p)
@@ -750,7 +750,7 @@
       (when (setq my-ime-before-action (my-ime-active-p))
         (my-ime-off)))
 
-    (if (< emacs-major-version 27)
+    (if (version< emacs-version "27.0")
         (progn
           ;; For selected.el
           (add-hook 'activate-mark-hook #'my-ime-off-sticky)
@@ -954,6 +954,14 @@
 (add-hook 'buffer-list-update-hook #'my-linespacing)
 (add-hook 'org-src-mode-hook #'my-linespacing)
 (add-hook 'debugger-mode-hook #'my-linespacing)
+
+(with-eval-after-load "org-agenda"
+  (defun my-org-agenda (&optional _arg _org-keys _restriction)
+    (my-linespacing))
+  (advice-add 'org-agenda :after #'my-org-agenda)
+  (defun my-org-agenda-redo (&optional _all)
+    (my-linespacing))
+  (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
 
 (declare-function my-daylight-theme "init" nil)
 (declare-function my-night-theme "init" nil)
