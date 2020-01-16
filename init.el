@@ -689,10 +689,12 @@
       (interactive)
       (when (display-graphic-p)
         (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+
   (defun my-apply-cursor-config ()
     (interactive)
     (when (display-graphic-p)
-      (if (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor)))))
+      (if (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+  (add-hook 'buffer-list-update-hook #'my-apply-cursor-config))
 
 ;; (unless (and (memq window-system '(ns mac))
 ;;              noninteractive)

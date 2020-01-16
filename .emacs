@@ -8,7 +8,7 @@
 
 (when nil
   ;; https://github.com/chuntaro/emacs-keycaster/issues/4
-  (load "~/.emacs.d/27.0.60/el-get/emacs-keycaster/keycaster.el")
+  (load "~/.emacs.d/27.0.60/el-get/keypression/keypression.el")
   ;; (custom-set-variables
   ;;  '(keycaster-x-offset (+ (frame-pixel-width) 10)))
   (custom-set-variables
@@ -162,7 +162,6 @@
    (lambda (result)
      (message "%s" result))))
 
-
 ;; (require 'package)
 ;; (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 ;; (add-to-list 'package-archives
@@ -182,9 +181,6 @@
 ;;   ;; line-number-current-line ((t (:bold t :background "#DEEDFF")))
 ;;   (funcall #'(lambda () '((t (:bold t :background "#DEEDFF")))))
 ;;   )
-
-
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
