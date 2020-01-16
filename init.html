@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-16 Thu 18:31 -->
+<!-- 2020-01-16 Thu 23:40 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -3897,7 +3897,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
                         <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:underline</span> t)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">ispell-complete-word &#12398;&#12461;&#12540;&#12496;&#12452;&#12531;&#12489;&#12434;&#19978;&#26360;&#12365;</span>
-    (global-set-key (kbd <span style="color: #8b2252;">"&lt;f7&gt;"</span>) 'flyspell-correct-word-generic)
+    (global-set-key (kbd <span style="color: #8b2252;">"&lt;f7&gt;"</span>) 'flyspell-correct-at-point)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">ivy &#12434;&#29992;&#12356;&#12427;</span>
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">flyspell-correct-ivy</span> nil t)
@@ -11265,7 +11265,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orge66b84e"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgd862d6c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -12459,10 +12459,12 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
       (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">when</span> (display-graphic-p)
         (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-apply-cursor-config</span> ()
     (<span style="color: #a020f0;">interactive</span>)
     (<span style="color: #a020f0;">when</span> (display-graphic-p)
-      (<span style="color: #a020f0;">if</span> (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor)))))
+      (<span style="color: #a020f0;">if</span> (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+  (add-hook 'buffer-list-update-hook #'my-apply-cursor-config))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (and (memq window-system '(ns mac))</span>
 <span style="color: #b22222;">;;              </span><span style="color: #b22222;">noninteractive)</span>
@@ -14772,7 +14774,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-01-16 Thu 18:31</p>
+<p class="date">Created: 2020-01-16 Thu 23:40</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

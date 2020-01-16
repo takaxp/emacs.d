@@ -667,7 +667,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                         :background nil :underline t)
 
     ;; ispell-complete-word のキーバインドを上書き
-    (global-set-key (kbd "<f7>") 'flyspell-correct-word-generic)
+    (global-set-key (kbd "<f7>") 'flyspell-correct-at-point)
 
     ;; ivy を用いる
     (when (require 'flyspell-correct-ivy nil t)
