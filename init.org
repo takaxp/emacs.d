@@ -7249,6 +7249,39 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 (autoload-if-found '(relint-current-buffer) "relint" nil t)
 #+end_src
 
+** [magit.el] Gitクライアント
+   :PROPERTIES:
+   :CUSTOM_ID: org7d969237
+   :END:
+
+Emacs の中で Git リポジトリを操作できます． =magit-repository-directories= を設定しておけば，管理しているリポジトリの一覧を表示できます． =helm= や =ivy= と連携していれば，絞り込みも簡単です．さらに， =M-x magit-list-repositories= を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(magit-status ad:magit-mode-bury-buffer)
+       "magit" nil t)
+
+  (global-set-key (kbd "C-c m") 'magit-status)
+
+  (with-eval-after-load "magit"
+    (when (fboundp 'dimmer-off)
+      (add-hook 'magit-status-mode-hook 'dimmer-off))
+    (when (fboundp 'magit-mode-bury-buffer)
+      (defun ad:magit-mode-bury-buffer (&optional _bury)
+        (when (fboundp 'dimmer-on)
+          (setq my-dimmer-mode t)
+          (dimmer-on)
+          (redraw-frame)))
+      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
+    (when (boundp 'magit-completing-read-function)
+      ;; ivy を使う
+      (setq magit-completing-read-function 'ivy-completing-read))
+    (when (boundp 'magit-repository-directories)
+      (setq magit-repository-directories
+            '(("~/devel/git" . 1)
+              ("~/devel/mygit" . 1))))))
+#+end_src
+
 ** TODO [EditorConfig] コードスタイルの強制
    :PROPERTIES:
    :CUSTOM_ID: orgaa25b74c
@@ -7442,41 +7475,6 @@ For example: \"<e\" -> (\"e\" . t)"
   (global-company-mode)
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode)))
-#+end_src
-
-** DONE [magit.el] Gitクライアント
-   CLOSED: [2020-01-16 Thu 16:06]
-   :PROPERTIES:
-   :CUSTOM_ID: org7d969237
-   :END:
-
-Emacs の中で Git リポジトリを操作できます． =magit-repository-directories= を設定しておけば，管理しているリポジトリの一覧を表示できます． =helm= や =ivy= と連携していれば，絞り込みも簡単です．さらに， =M-x magit-list-repositories= を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．
-
-#+begin_src emacs-lisp :tangle no :exports yes
-;; late-init.el
-(when (autoload-if-found
-       '(magit-status ad:magit-mode-bury-buffer)
-       "magit" nil t)
-
-  (global-set-key (kbd "C-c m") 'magit-status)
-
-  (with-eval-after-load "magit"
-    (when (fboundp 'dimmer-off)
-      (add-hook 'magit-status-mode-hook 'dimmer-off))
-    (when (fboundp 'magit-mode-bury-buffer)
-      (defun ad:magit-mode-bury-buffer (&optional _bury)
-        (when (fboundp 'dimmer-on)
-          (setq my-dimmer-mode t)
-          (dimmer-on)
-          (redraw-frame)))
-      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
-    (when (boundp 'magit-completing-read-function)
-      ;; ivy を使う
-      (setq magit-completing-read-function 'ivy-completing-read))
-    (when (boundp 'magit-repository-directories)
-      (setq magit-repository-directories
-            '(("~/devel/git" . 1)
-              ("~/devel/mygit" . 1))))))
 #+end_src
 
 ** DONE [auto-complete.el] 自動補完機能                            :notinuse:
@@ -8166,6 +8164,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 ** ImageMagick を使って様々な画像をインライン表示する
    :PROPERTIES:
    :CUSTOM_ID: org55076fa0
+   :ID:       3CAD24F0-93AC-4692-9EBF-964A4A3F2CF6
    :END:
 
 システムに ~OpenJPEG~ と ~ImageMagick~ がインストールされていれば，JPEG 2000 などの画像形式もバッファに表示できます．

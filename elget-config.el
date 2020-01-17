@@ -129,17 +129,18 @@
     (el-get-bundle "Wilfred/helpful"))
   (el-get-bundle "gonewest818/elisp-lint")
   (el-get-bundle "purcell/package-lint")
-  ;; (progn ;; magit
-  ;;   (el-get-bundle "magit/libegit2"
-  ;;     :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
-  ;;   (el-get-bundle "magit-popup")
-  ;;   (el-get-bundle "forge")
-  ;;   (el-get-bundle "ghub")
-  ;;   (el-get-bundle "takaxp/magit" ;; require transient and libegit2
-  ;;     :branch "stable" ;; require Tags in the target commit
-  ;;     :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "docs" "install")
-  ;;              ("touch" "lisp/magit-autoloads.el"))
-  ;;     :depends (dash transient with-editor)))
+  ;; (el-get-bundle "forge")
+  (progn ;; magit
+    (el-get-bundle "ghub")
+    (el-get-bundle "magit-popup")
+    (el-get-bundle "magit/libegit2"
+      :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
+    ;; (el-get-bundle "takaxp/magit" ;; require transient and libegit2
+    ;;                :branch "stable" ;; require Tags in the target commit
+    ;;                :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "docs" "install")
+    ;;                         ("touch" "lisp/magit-autoloads.el"))
+    ;;                :depends (dash transient with-editor))
+    )
   (el-get-bundle "AdamNiederer/cov")
   (el-get-bundle "ggtags")
   (el-get-bundle "dedi/gxref") ;; emacs 25.1 or later
@@ -296,6 +297,17 @@
   (el-get-bundle "davep/uptimes.el" :name "uptimes")
   )
 
+(defmacro my-elget-bundles-full ()
+  (let ((el-get-git-shallow-clone nil))
+    (el-get-bundle "magit/magit" ;; require transient and libegit2
+      :branch "master" ;; require Tags in the target commit
+      :checkout "tags/v2.90.1"
+      :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "docs" "install")
+               ("touch" "lisp/magit-autoloads.el"))
+      :depends (dash transient with-editor))
+
+    ))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; End of package list
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -439,17 +451,13 @@
   (my-elget-setup)
   ;; for shallow clone repositories
   (eval '(my-elget-bundles))
-  (el-get 'sync)
-  (when nil
-    ;; for normal clone repositories
-    (let ((el-get-git-shallow-clone nil))
-      ;; add el-get-bundle here, but still testing.
-      ;; need to re-sync
-      (el-get 'sync))))
+  (eval '(my-elget-bundles-full))
+  (el-get 'sync))
 
 ;; init
 (unless noninteractive
-  (my-elget-load-and-sync))
+  (my-elget-load-and-sync)
+  (my-elget-reset-links))
 
 (provide 'elget-config)
 ;;; elget-config.el ends here

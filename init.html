@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-17 Fri 10:10 -->
+<!-- 2020-01-17 Fri 14:38 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -542,14 +542,14 @@ for the JavaScript code in this tag.
 <li><a href="#orga1d9863f">9.13. [package-lint.el] MEPLA登録用Lint</a></li>
 <li><a href="#org7d18b489">9.14. [projectile.el] ディレクトリ単位でファイル群をプロジェクト扱いする</a></li>
 <li><a href="#org1c672519">9.15. [relint.el] elispの正規表現用のlinter</a></li>
-<li><a href="#orgaa25b74c">9.16. <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</a></li>
-<li><a href="#orgae4ecac7">9.17. <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</a></li>
-<li><a href="#orgbf790f4d">9.18. <span class="todo TODO">TODO</span> [format-all.el] コード整形</a></li>
-<li><a href="#orgac7d24d7">9.19. <span class="todo TODO">TODO</span> [emr.el] リファクタリング</a></li>
-<li><a href="#org4e23f079">9.20. <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</a></li>
-<li><a href="#org9547f772">9.21. <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</a></li>
-<li><a href="#orgea32afad">9.22. <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</a></li>
-<li><a href="#org7d969237">9.23. <span class="done DONE">DONE</span> [magit.el] Gitクライアント</a></li>
+<li><a href="#org7d969237">9.16. [magit.el] Gitクライアント</a></li>
+<li><a href="#orgaa25b74c">9.17. <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</a></li>
+<li><a href="#orgae4ecac7">9.18. <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</a></li>
+<li><a href="#orgbf790f4d">9.19. <span class="todo TODO">TODO</span> [format-all.el] コード整形</a></li>
+<li><a href="#orgac7d24d7">9.20. <span class="todo TODO">TODO</span> [emr.el] リファクタリング</a></li>
+<li><a href="#org4e23f079">9.21. <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</a></li>
+<li><a href="#org9547f772">9.22. <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</a></li>
+<li><a href="#orgea32afad">9.23. <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</a></li>
 <li><a href="#org09687b9c">9.24. <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgcde881ad">9.25. <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
@@ -9020,8 +9020,44 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 
+<div id="outline-container-org7d969237" class="outline-3">
+<h3 id="org7d969237"><span class="section-number-3">9.16</span> [magit.el] Gitクライアント</h3>
+<div class="outline-text-3" id="text-org7d969237">
+<p>
+Emacs の中で Git リポジトリを操作できます． <code>magit-repository-directories</code> を設定しておけば，管理しているリポジトリの一覧を表示できます． <code>helm</code> や <code>ivy</code> と連携していれば，絞り込みも簡単です．さらに， <code>M-x magit-list-repositories</code> を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(magit-status ad:magit-mode-bury-buffer)
+       <span style="color: #8b2252;">"magit"</span> nil t)
+
+  (global-set-key (kbd <span style="color: #8b2252;">"C-c m"</span>) 'magit-status)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"magit"</span>
+    (<span style="color: #a020f0;">when</span> (fboundp 'dimmer-off)
+      (add-hook 'magit-status-mode-hook 'dimmer-off))
+    (<span style="color: #a020f0;">when</span> (fboundp 'magit-mode-bury-buffer)
+      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:magit-mode-bury-buffer</span> (<span style="color: #228b22;">&amp;optional</span> _bury)
+        (<span style="color: #a020f0;">when</span> (fboundp 'dimmer-on)
+          (<span style="color: #a020f0;">setq</span> my-dimmer-mode t)
+          (dimmer-on)
+          (redraw-frame)))
+      (advice-add 'magit-mode-bury-buffer <span style="color: #483d8b;">:before</span> #'ad:magit-mode-bury-buffer))
+    (<span style="color: #a020f0;">when</span> (boundp 'magit-completing-read-function)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">ivy &#12434;&#20351;&#12358;</span>
+      (<span style="color: #a020f0;">setq</span> magit-completing-read-function 'ivy-completing-read))
+    (<span style="color: #a020f0;">when</span> (boundp 'magit-repository-directories)
+      (<span style="color: #a020f0;">setq</span> magit-repository-directories
+            '((<span style="color: #8b2252;">"~/devel/git"</span> . 1)
+              (<span style="color: #8b2252;">"~/devel/mygit"</span> . 1))))))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgaa25b74c" class="outline-3">
-<h3 id="orgaa25b74c"><span class="section-number-3">9.16</span> <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</h3>
+<h3 id="orgaa25b74c"><span class="section-number-3">9.17</span> <span class="todo TODO">TODO</span> [EditorConfig] コードスタイルの強制</h3>
 <div class="outline-text-3" id="text-orgaa25b74c">
 <ul class="org-ul">
 <li><a href="http://editorconfig.org/#contributing">EditorConfig</a><br /></li>
@@ -9062,7 +9098,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 
 <div id="outline-container-orgae4ecac7" class="outline-3">
-<h3 id="orgae4ecac7"><span class="section-number-3">9.17</span> <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</h3>
+<h3 id="orgae4ecac7"><span class="section-number-3">9.18</span> <span class="todo TODO">TODO</span> [cov] カバレッジの状態をフリンジで確認</h3>
 <div class="outline-text-3" id="text-orgae4ecac7">
 <p>
 <code>gcov</code> の結果をフリンジに表示します．<br />
@@ -9080,7 +9116,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 
 <div id="outline-container-orgbf790f4d" class="outline-3">
-<h3 id="orgbf790f4d"><span class="section-number-3">9.18</span> <span class="todo TODO">TODO</span> [format-all.el] コード整形</h3>
+<h3 id="orgbf790f4d"><span class="section-number-3">9.19</span> <span class="todo TODO">TODO</span> [format-all.el] コード整形</h3>
 <div class="outline-text-3" id="text-orgbf790f4d">
 <ul class="org-ul">
 <li><a href="https://melpa.org/#/format-all">format-all - MELPA</a><br /></li>
@@ -9098,7 +9134,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 
 <div id="outline-container-orgac7d24d7" class="outline-3">
-<h3 id="orgac7d24d7"><span class="section-number-3">9.19</span> <span class="todo TODO">TODO</span> [emr.el] リファクタリング</h3>
+<h3 id="orgac7d24d7"><span class="section-number-3">9.20</span> <span class="todo TODO">TODO</span> [emr.el] リファクタリング</h3>
 <div class="outline-text-3" id="text-orgac7d24d7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
@@ -9111,7 +9147,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 
 <div id="outline-container-org4e23f079" class="outline-3">
-<h3 id="org4e23f079"><span class="section-number-3">9.20</span> <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</h3>
+<h3 id="org4e23f079"><span class="section-number-3">9.21</span> <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</h3>
 <div class="outline-text-3" id="text-org4e23f079">
 <ul class="org-ul">
 <li><a href="https://gitlab.com/jgkamat/rmsbolt">https://gitlab.com/jgkamat/rmsbolt</a><br /></li>
@@ -9125,7 +9161,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 
 <div id="outline-container-org9547f772" class="outline-3">
-<h3 id="org9547f772"><span class="section-number-3">9.21</span> <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</h3>
+<h3 id="org9547f772"><span class="section-number-3">9.22</span> <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</h3>
 <div class="outline-text-3" id="text-org9547f772">
 <ul class="org-ul">
 <li><a href="https://github.com/tuhdo/semantic-refactor">tuhdo/semantic-refactor: Semantic Refactor is a refactoring tool based on Semantic parser framework</a><br /></li>
@@ -9133,7 +9169,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 </div>
 </div>
 <div id="outline-container-orgea32afad" class="outline-3">
-<h3 id="orgea32afad"><span class="section-number-3">9.22</span> <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</h3>
+<h3 id="orgea32afad"><span class="section-number-3">9.23</span> <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</h3>
 <div class="outline-text-3" id="text-orgea32afad">
 <p>
 <code>auto-complete.el</code> がメンテナンスモードに入ったので <code>company</code> に移行しました．<br />
@@ -9236,43 +9272,6 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (global-company-mode)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">company-quickhelp</span> nil t)
     (company-quickhelp-mode)))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org7d969237" class="outline-3">
-<h3 id="org7d969237"><span class="section-number-3">9.23</span> <span class="done DONE">DONE</span> [magit.el] Gitクライアント</h3>
-<div class="outline-text-3" id="text-org7d969237">
-<p>
-Emacs の中で Git リポジトリを操作できます． <code>magit-repository-directories</code> を設定しておけば，管理しているリポジトリの一覧を表示できます． <code>helm</code> や <code>ivy</code> と連携していれば，絞り込みも簡単です．さらに， <code>M-x magit-list-repositories</code> を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
-(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(magit-status ad:magit-mode-bury-buffer)
-       <span style="color: #8b2252;">"magit"</span> nil t)
-
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c m"</span>) 'magit-status)
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"magit"</span>
-    (<span style="color: #a020f0;">when</span> (fboundp 'dimmer-off)
-      (add-hook 'magit-status-mode-hook 'dimmer-off))
-    (<span style="color: #a020f0;">when</span> (fboundp 'magit-mode-bury-buffer)
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:magit-mode-bury-buffer</span> (<span style="color: #228b22;">&amp;optional</span> _bury)
-        (<span style="color: #a020f0;">when</span> (fboundp 'dimmer-on)
-          (<span style="color: #a020f0;">setq</span> my-dimmer-mode t)
-          (dimmer-on)
-          (redraw-frame)))
-      (advice-add 'magit-mode-bury-buffer <span style="color: #483d8b;">:before</span> #'ad:magit-mode-bury-buffer))
-    (<span style="color: #a020f0;">when</span> (boundp 'magit-completing-read-function)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">ivy &#12434;&#20351;&#12358;</span>
-      (<span style="color: #a020f0;">setq</span> magit-completing-read-function 'ivy-completing-read))
-    (<span style="color: #a020f0;">when</span> (boundp 'magit-repository-directories)
-      (<span style="color: #a020f0;">setq</span> magit-repository-directories
-            '((<span style="color: #8b2252;">"~/devel/git"</span> . 1)
-              (<span style="color: #8b2252;">"~/devel/mygit"</span> . 1))))))
 </pre>
 </div>
 </div>
@@ -11270,7 +11269,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgb51667a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org6b8e1e4"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14779,7 +14778,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-01-17 Fri 10:10</p>
+<p class="date">Created: 2020-01-17 Fri 14:38</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

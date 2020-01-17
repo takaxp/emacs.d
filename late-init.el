@@ -2426,6 +2426,30 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
 (autoload-if-found '(relint-current-buffer) "relint" nil t)
 
+(when (autoload-if-found
+       '(magit-status ad:magit-mode-bury-buffer)
+       "magit" nil t)
+
+  (global-set-key (kbd "C-c m") 'magit-status)
+
+  (with-eval-after-load "magit"
+    (when (fboundp 'dimmer-off)
+      (add-hook 'magit-status-mode-hook 'dimmer-off))
+    (when (fboundp 'magit-mode-bury-buffer)
+      (defun ad:magit-mode-bury-buffer (&optional _bury)
+        (when (fboundp 'dimmer-on)
+          (setq my-dimmer-mode t)
+          (dimmer-on)
+          (redraw-frame)))
+      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
+    (when (boundp 'magit-completing-read-function)
+      ;; ivy を使う
+      (setq magit-completing-read-function 'ivy-completing-read))
+    (when (boundp 'magit-repository-directories)
+      (setq magit-repository-directories
+            '(("~/devel/git" . 1)
+              ("~/devel/mygit" . 1))))))
+
 (if (executable-find "editorconfig")
     (when (require 'editorconfig nil t)
       (unless noninteractive
