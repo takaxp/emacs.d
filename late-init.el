@@ -714,8 +714,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
   (defun ad:view--enable () (my-mode-line-on))
   (defun ad:view--disable () (my-mode-line-off))
-  (advice-add 'view--enable :before #'ad:view--enable)
-  (advice-add 'view--disable :before #'ad:view--disable))
+  (when my-toggle-modeline-global
+    (advice-add 'view--enable :before #'ad:view--enable)
+    (advice-add 'view--disable :before #'ad:view--disable)))
 
 (when (autoload-if-found
        '(latex-math-preview-expression

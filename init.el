@@ -189,7 +189,11 @@
 ;;              (setq indent-line-function 'lisp-indent-line)))
 
 (when (version< "27.0" emacs-version)
-  (setq default-directory "~/"))
+  (defun ad:find-file-read-args (f prompt mustmatch)
+    (unless buffer-file-name
+      (setq default-directory "~/"))
+    (funcall f prompt mustmatch))
+  (advice-add 'find-file-read-args :around #'ad:find-file-read-args))
 
 (when (eq window-system 'mac)
   (global-set-key (kbd "M-SPC") 'mac-win-toggle-ime)
