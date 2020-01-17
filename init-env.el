@@ -15,7 +15,7 @@
       my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
-      debug-on-error t)
+      debug-on-error nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; swiper(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
@@ -73,9 +73,10 @@
          (od "org-mode")
          (l `("~/Dropbox/config"
               "~/.emacs.d/lisp"
-              ,(concat g od "/lisp")
+              ,my-package-dir ;; may include a path to org
+              ,(concat g od "/lisp") ;; override the path to org
               ,(concat g od "/contrib/lisp")
-              ,my-package-dir)))
+              )))
     (my-path-setter l 'load-path))
 
   (when my-ad-require-p

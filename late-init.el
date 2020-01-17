@@ -87,7 +87,8 @@
         (paradox-enable)))))
 
 (autoload-if-found
- '(my-elget-list my-elget-reset-links el-get-cd el-get-install el-get-remove)
+ '(el-get-version
+   my-elget-list my-elget-reset-links el-get-cd el-get-install el-get-remove)
  "elget-config" nil t)
 
 (setq vc-follow-symlinks t)

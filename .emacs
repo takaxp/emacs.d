@@ -18,17 +18,6 @@
   ;;  '(keycaster-x-offset (+ 476 10)))
   (keycaster-mode))
 
-(with-eval-after-load "magit"
-  ;; To suppress warnings
-  (remove-hook 'magit-status-sections-hook 'magit-insert-merge-log)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-rebase-sequence)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-am-sequence)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-sequencer-sequence)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-bisect-output)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-bisect-rest)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-bisect-log)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-stashes))
-
 (when t
   ;; Shall be updated for Kotoeri
   (setq mac-ime-cursor-type nil)
