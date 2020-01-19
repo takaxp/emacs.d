@@ -2,6 +2,19 @@
 ;;
 
 ;;;###autoload
+(defun my-print-build-info ()
+  (interactive)
+  (switch-to-buffer (get-buffer-create "*Build info*"))
+  (erase-buffer)
+  (insert
+   (format "GNU Emacs %s\nCommit:\t%s\nBranch:\t%s\nSystem:\t%s\n"
+           emacs-version
+           (emacs-repository-get-version)
+           (emacs-repository-get-branch)
+           system-configuration))
+  (view-mode))
+
+;;;###autoload
 (defun my-cmd-to-open-iterm2 (&optional arg)
   (interactive "P")
   (shell-command-to-string

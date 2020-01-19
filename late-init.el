@@ -793,22 +793,6 @@ This works also for other defined begin/end tokens to define the structure."
   (advice-add 'YaTeX-insert-begin-end
               :override #'ad:YaTeX-insert-begin-end))
 
-(when (autoload-if-found
-       '(yas-minor-mode yas-global-mode)
-       "yasnippet" nil t)
-
-  (dolist (hook
-           (list
-            'perl-mode-hook 'c-mode-common-hook 'js2-mode-hook 'org-mode-hook
-            'python-mode-hook 'emacs-lisp-mode-hook))
-    (add-hook hook #'yas-minor-mode))
-
-  (with-eval-after-load "yasnippet"
-    (setq yas-verbosity 2)
-    (setq yas-snippet-dirs '("~/Dropbox/emacs.d/yas-dict"))
-    (unless noninteractive
-      (yas-global-mode 1))))
-
 (with-eval-after-load "yasnippet"
   (require 'ivy-yasnippet nil t))
 

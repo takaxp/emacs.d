@@ -190,7 +190,7 @@
 
 (when (version< "27.0" emacs-version)
   (defun ad:find-file-read-args (f prompt mustmatch)
-    (unless buffer-file-name
+    (when (equal default-directory "/")
       (setq default-directory "~/"))
     (funcall f prompt mustmatch))
   (advice-add 'find-file-read-args :around #'ad:find-file-read-args))

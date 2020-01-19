@@ -44,7 +44,7 @@
       (bookmark-maybe-load-default-file))
 
     ;; 不必要なモジュールの読み込みを停止する
-    (delq 'org-gnus org-modules)
+    (delq 'ol-gnus org-modules)
     ;; (setq org-modules (delete 'org-bibtex org-modules))
 
     ;; org ファイルの集中管理

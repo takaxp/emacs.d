@@ -19,6 +19,26 @@
 ;;
 #+end_src
 
+** ビルド情報をバッファに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orgb91a9245
+   :END:
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-print-build-info ()
+  (interactive)
+  (switch-to-buffer (get-buffer-create "*Build info*"))
+  (erase-buffer)
+  (insert
+   (format "GNU Emacs %s\nCommit:\t%s\nBranch:\t%s\nSystem:\t%s\n"
+           emacs-version
+           (emacs-repository-get-version)
+           (emacs-repository-get-branch)
+           system-configuration))
+  (view-mode))
+#+end_src
+
 ** iTerm2.app を呼び出す関数
    :PROPERTIES:
    :CUSTOM_ID: org62365dfa

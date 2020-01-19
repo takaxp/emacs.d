@@ -292,28 +292,31 @@
   (el-get-bundle "ghub")
   (el-get-bundle "magit-popup")
   (el-get-bundle "magit/libegit2"
-                 :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
+    :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
   (let ((el-get-git-shallow-clone nil))
     (el-get-bundle "magit/magit" ;; require transient and libegit2
-                   :branch "master" ;; require Tags in the target commit
-                   :checkout "tags/v2.90.1"
-                   :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "docs" "install")
-                            ("touch" "lisp/magit-autoloads.el"))
-                   :depends (dash transient with-editor)))
+      :branch "master" ;; require Tags in the target commit
+      :checkout "tags/v2.90.1"
+      :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "docs" "install")
+               ("touch" "lisp/magit-autoloads.el"))
+      :depends (dash transient with-editor)))
 
   ;; Org Mode
   (let ((el-get-git-shallow-clone nil))
     (el-get-bundle "org-mode"
-                   :type git
-                   :url "https://code.orgmode.org/bzg/org-mode.git"
-                   :branch "maint"
-                   :checkout "tags/release_9.3.1"
-                   :build `,(mapcar
-                             (lambda (target)
-                               (list "make" target (concat "EMACS=" (shell-quote-argument el-get-emacs))))
-                             '("all"))
-                   :load-path ("." "contrib/lisp" "lisp")
-                   :load ("lisp/org-loaddefs.el"))))
+      :type git
+      :url "https://code.orgmode.org/bzg/org-mode.git"
+      :branch "maint"
+      :checkout "tags/release_9.3.1"
+      :build `(("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/org-mac-link.patch")
+               ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/org-element.patch")
+               ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/ox-html-id.patch")
+               ,(mapcar
+                 (lambda (target)
+                   (list "make" target (concat "EMACS=" (shell-quote-argument el-get-emacs))))
+                 '("all")))
+      :load-path ("." "contrib/lisp" "lisp")
+      :load ("lisp/org-loaddefs.el"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; End of package list

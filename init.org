@@ -222,6 +222,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 ** Common Lisp を使う
    :PROPERTIES:
    :CUSTOM_ID: orgc7901a57
+   :ID:       B46AC417-6695-4C2A-A6EE-3B35F21C589A
    :END:
 
 - http://lisperblog.blogspot.com/2008/12/blog-post_18.html
@@ -1197,7 +1198,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 #+begin_src emacs-lisp :tangle yes
 (when (version< "27.0" emacs-version)
   (defun ad:find-file-read-args (f prompt mustmatch)
-    (unless buffer-file-name
+    (when (equal default-directory "/")
       (setq default-directory "~/"))
     (funcall f prompt mustmatch))
   (advice-add 'find-file-read-args :around #'ad:find-file-read-args))
@@ -2976,7 +2977,8 @@ This works also for other defined begin/end tokens to define the structure."
 
 ↑どうやら[[https://github.com/joaotavora/yasnippet/commit/0041efedf9f06bfe427d36547f7c4a73ab7405ba][本家で対応]]がなされたようです． =my-yas-expand= なしで所望の動作になりました．ありがたや，ありがたや．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (when (autoload-if-found
        '(yas-minor-mode yas-global-mode)
        "yasnippet" nil t)
@@ -7660,7 +7662,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (bookmark-maybe-load-default-file))
 
     ;; 不必要なモジュールの読み込みを停止する
-    (delq 'org-gnus org-modules)
+    (delq 'ol-gnus org-modules)
     ;; (setq org-modules (delete 'org-bibtex org-modules))
 
     ;; org ファイルの集中管理
