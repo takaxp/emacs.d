@@ -54,8 +54,8 @@
   (el-get-bundle "harrybournis/org-fancy-priorities")
   (el-get-bundle "kiwanami/emacs-calfw")
   (el-get-bundle "org-emms"
-                 :type git
-                 :url "https://gitlab.com/jagrg/org-emms.git")
+    :type git
+    :url "https://gitlab.com/jagrg/org-emms.git")
   (el-get-bundle "takaxp/emacs-easy-hugo") ;; using a private repo not to download images
   (el-get-bundle "org-bullets")
   (el-get-bundle "IvanMalison/org-projectile")
@@ -88,8 +88,8 @@
   ;; Major modes
   ;; download zip since python-mode git repository is extremely huge
   (el-get-bundle "python-mode"
-                 :type http-zip
-                 :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
+    :type http-zip
+    :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
   (el-get-bundle "csharp-mode")
   (el-get-bundle "yaml-mode")
   (el-get-bundle "json-mode")
@@ -155,8 +155,8 @@
   (el-get-bundle "ericdanan/counsel-projectile")
   (el-get-bundle "syohex/emacs-counsel-gtags")
   (el-get-bundle "password-store"
-                 :type http
-                 :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
+    :type http
+    :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
   (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
   (el-get-bundle "abo-abo/swiper")
   (el-get-bundle "Yevgnen/ivy-rich")
@@ -176,12 +176,13 @@
 
   ;; Editing support
   (el-get-bundle "d12frosted/flyspell-correct")
-  (el-get-bundle "auto-complete")
-  (el-get-bundle "auto-complete-clang")
+  ;; (el-get-bundle "auto-complete")
+  ;; (el-get-bundle "auto-complete-clang")
   (el-get-bundle "company-mode/company-mode")
   (el-get-bundle "expez/company-quickhelp")
   (el-get-bundle "ac-js2")
-  (el-get-bundle "takaxp/migemo")
+  ;; (el-get-bundle "takaxp/migemo")
+  (el-get-bundle "emacs-jp/migemo")
   (el-get-bundle "sabof/edit-color-stamp")
   (el-get-bundle "tiny")
   (el-get-bundle "abo-abo/hydra")
@@ -212,17 +213,17 @@
   (el-get-bundle "bm")
   (el-get-bundle "emacsmirror/rainbow-mode")
   (el-get-bundle "shrink-path"
-                 :type git
-                 :url "https://gitlab.com/bennya/shrink-path.el.git")
+    :type git
+    :url "https://gitlab.com/bennya/shrink-path.el.git")
   (el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))
   (el-get-bundle "disk-usage"
-                 :type git
-                 :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
+    :type git
+    :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
   (el-get-bundle "sebastiencs/company-box")
   (el-get-bundle "kiennq/emacs-mini-modeline")
   (el-get-bundle "ideasman42/emacs-undo-fu"
-                 :type git
-                 :url "https://gitlab.com/ideasman42/emacs-undo-fu.git")
+    :type git
+    :url "https://gitlab.com/ideasman42/emacs-undo-fu.git")
   (el-get-bundle "dakra/statusbar.el" :name "statusbar")
   (el-get-bundle "zk-phi/gitmole")
   (el-get-bundle "kawabata/rot47")
@@ -250,8 +251,8 @@
   (el-get-bundle "rubikitch/replace-from-region")
   (el-get-bundle "quickrun")
   (el-get-bundle "latex-math-preview"
-                 :type git
-                 :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
+    :type git
+    :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
   (el-get-bundle "sbrisard/bratex")
   (el-get-bundle "zhangkaiyulw/smart-mark")
   (el-get-bundle "emacsmirror/syntax-subword")
@@ -271,12 +272,12 @@
   (el-get-bundle "NicolasPetton/pass")
   (el-get-bundle "pdf-tools")
   (el-get-bundle "gif-screencast"
-                 :type git
-                 :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
+    :type git
+    :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
   (el-get-bundle "emms"
-                 :type git
-                 :url "https://git.savannah.gnu.org/git/emms.git"
-                 :load-path ("./lisp"))
+    :type git
+    :url "https://git.savannah.gnu.org/git/emms.git"
+    :load-path ("./lisp"))
   (el-get-bundle "tarsius/keycast")
   (el-get-bundle "jamiguet/network-watch")
   (el-get-bundle "d12frosted/counsel-osx-app")
@@ -288,41 +289,34 @@
 (defmacro my-elget-bundles-by-tag ()
   "Packages to install with specific Tag."
 
-  ;; Magit
+  ;; Resolve Magit dependency
   (el-get-bundle "ghub")
   (el-get-bundle "magit-popup")
   (el-get-bundle "magit/libegit2"
-    :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
-  (let ((el-get-git-shallow-clone nil))
-    (el-get-bundle "magit/magit" ;; require transient and libegit2
-      :branch "master" ;; require Tags in the target commit
-      :checkout "tags/v2.90.1"
-      :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "docs" "install")
-               ("touch" "lisp/magit-autoloads.el"))
-      :depends (dash transient with-editor)))
+                 :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
 
-  ;; Org Mode
-  (let ((el-get-git-shallow-clone nil))
-    (el-get-bundle "org-mode"
-      :type git
-      :url "https://code.orgmode.org/bzg/org-mode.git"
-      :branch "maint"
-      :checkout "tags/release_9.3.1"
-      :build `(("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/org-mac-link.patch")
-               ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/org-element.patch")
-               ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/ox-html-id.patch")
-               ,(mapcar
-                 (lambda (target)
-                   (list "make" target (concat "EMACS=" (shell-quote-argument el-get-emacs))))
-                 '("all")))
-      :load-path ("." "contrib/lisp" "lisp")
-      :load ("lisp/org-loaddefs.el"))))
+  ;; with private recipe
+  (dolist (recipe my-elget--non-shallow)
+    (when noninteractive
+      (if (my-elget-private-recipe-p recipe)
+          (message "--- \"%s\" is installed with private recipe" recipe)
+        (error "No private recipe exists for \"%s\"" recipe)))
+    `(el-get-bundle ,recipe)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; End of package list
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar my-elget-threads 1)
-(defvar verbose nil)
+(defvar my-elget--verbose nil)
+(defvar my-elget--non-shallow nil)
+(defvar my-elget--private-recipe-dir '("~/.emacs.d/recipes"))
+
+(defun my-elget-private-recipe-p (recipe)
+  (let ((result nil))
+    (dolist (dir my-elget--private-recipe-dir)
+      (when (file-exists-p (concat dir "/" recipe ".rcp"))
+        (setq result t)))
+    result))
 
 (defun my-elget-update-packages (packages &optional current total)
   (unless (eq (or current 0) 0)
@@ -350,7 +344,7 @@
          (index 0))
     (while packages
       (setq target-packages (nthcdr (- (length packages) unit) packages))
-      (when verbose
+      (when my-elget--verbose
         (message "------------------------------------------")
         (message "remaining: %s" (length packages))
         (message "target: %s"  (length target-packages))
@@ -412,14 +406,19 @@
       (eval-print-last-sexp)))
 
   ;; use private recipes
-  (add-to-list 'el-get-recipe-path "~/.emacs.d/recipes")
+  (dolist (dir my-elget--private-recipe-dir)
+    (add-to-list 'el-get-recipe-path dir))
 
   (setq el-get-git-shallow-clone t ;; "--depth 1"
         el-get-verbose nil ;; just for sure
         el-get-silent-update t ;; 出力されるメッセージの抑制
         gc-cons-threshold (* 512 1024 1024) ;; 512MB
         el-get-default-process-sync t ;; 常にシングルスレッドで動かす
-        garbage-collection-messages t))
+        garbage-collection-messages t)
+
+  ;; Non shallow packages, requires private recipe
+  (add-to-list 'my-elget--non-shallow "org-mode")
+  (add-to-list 'my-elget--non-shallow "magit"))
 
 ;;;###autoload
 (defun my-elget-list ()

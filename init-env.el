@@ -1,6 +1,6 @@
 (defconst my-before-load-init-time (current-time)
   "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
-(defconst my-ad-require-p t
+(defconst my-ad-require-p nil
   "If non-nil, override `require' and `load' to show loading times.")
 (defconst my-profiler-p nil
   "If non-nil, use built-in profiler.el.")

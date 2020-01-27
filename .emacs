@@ -123,9 +123,9 @@
 
 (custom-set-faces
  '(ns-marked-text-face
-   ((t (:background "light pink" :underline "OrangeRed2"))))
+   ((t (:foreground "black" :background "light pink" :underline "OrangeRed2"))))
  '(ns-unmarked-text-face
-   ((t (:background "light sky blue" :underline "royal blue")))))
+   ((t (:foreground "black" :background "light sky blue" :underline "royal blue")))))
 
 ;; TODO eldocの確認時に narrowing/widen している可能性がある．
 

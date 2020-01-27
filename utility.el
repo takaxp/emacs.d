@@ -5,13 +5,17 @@
 (defun my-print-build-info ()
   (interactive)
   (switch-to-buffer (get-buffer-create "*Build info*"))
-  (erase-buffer)
-  (insert
-   (format "GNU Emacs %s\nCommit:\t%s\nBranch:\t%s\nSystem:\t%s\n"
-           emacs-version
-           (emacs-repository-get-version)
-           (emacs-repository-get-branch)
-           system-configuration))
+  (let ((buffer-read-only nil))
+    (erase-buffer)
+    (insert
+     (format "GNU Emacs %s\nCommit:\t%s\nBranch:\t%s\nSystem:\t%s\nDate:\t\t%s\n"
+             emacs-version
+             (emacs-repository-get-version)
+             (when (version< "27.0" emacs-version)
+               (emacs-repository-get-branch))
+             system-configuration
+             (when emacs-build-time
+               (format-time-string "%Y-%m-%d")))))
   (view-mode))
 
 ;;;###autoload
