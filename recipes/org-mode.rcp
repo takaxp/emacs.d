@@ -1,0 +1,22 @@
+(:name org-mode
+       :website "http://orgmode.org/"
+       :description "Org-mode is for keeping notes, maintaining ToDo lists, doing project planning, and authoring with a fast and effective plain-text system."
+       :type git
+       :url "https://code.orgmode.org/bzg/org-mode.git"
+       :shallow nil
+       :branch "maint"
+       :checkout "tags/release_9.3.1"
+       :info "doc"
+       :build/berkeley-unix `,(mapcar
+                               (lambda (target)
+                                 (list "gmake" target (concat "EMACS=" (shell-quote-argument el-get-emacs))))
+                               '("all"))
+       :build `(("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/org-mac-link.patch")
+                ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/org-element.patch")
+                ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/ox-html-id.patch")
+                ,(mapcar
+                  (lambda (target)
+                    (list "make" target (concat "EMACS=" (shell-quote-argument el-get-emacs))))
+                  '("all")))
+       :load-path ("." "contrib/lisp" "lisp")
+       :load ("lisp/org-loaddefs.el"))

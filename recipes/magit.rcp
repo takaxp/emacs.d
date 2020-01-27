@@ -1,0 +1,23 @@
+(:name magit
+       :website "https://github.com/magit/magit#readme"
+       :description "It's Magit! An Emacs mode for Git."
+       :type github
+       :pkgname "magit/magit"
+       :shallow nil
+       :branch "master"
+       :checkout "tags/v2.90.1"
+       :minimum-emacs-version "25.1"
+       :depends (dash transient with-editor)
+       :info "Documentation"
+       :load-path "lisp/"
+       :compile "lisp/"
+       ;; Use the Makefile to produce the info manual, el-get can
+       ;; handle compilation and autoloads on its own.  Create an
+       ;; empty autoloads file because magit.el explicitly checks for
+       ;; a file of that name.
+       :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "docs" "install")
+                ("touch" "lisp/magit-autoloads.el"))
+       :build/berkeley-unix `(("gmake" ,(format "EMACSBIN=%s" el-get-emacs) "docs")
+                              ("touch" "lisp/magit-autoloads.el"))
+       ;; assume windows lacks make and makeinfo
+       :build/windows-nt (with-temp-file "lisp/magit-autoloads.el" nil))
