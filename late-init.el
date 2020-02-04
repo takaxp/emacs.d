@@ -60,31 +60,31 @@
 
     (defun my-reset-load-path ()
       "Revert `load-path' to `my-default-load-path'."
-      (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
-      (setq load-path my-default-load-path)
-      (message "--- Reverted to the original `load-path'."))
+      (shell-command-to-string "update-cask.sh link"))
+    (setq load-path my-default-load-path)
+    (message "--- Reverted to the original `load-path'."))
 
-    ;; (declare-function advice:paradox-quit-and-close "init" (kill))
+  ;; (declare-function advice:paradox-quit-and-close "init" (kill))
 
-    (when (and (fboundp 'cask-load-path)
-               (fboundp 'cask-initialize))
-      (defun my-setup-cask ()
-        "Override `load-path' to use cask."
-        (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
-                  (require 'cask "~/.cask/cask.el" t))
-          (setq load-path (cask-load-path (cask-initialize))))))
+  (when (and (fboundp 'cask-load-path)
+             (fboundp 'cask-initialize))
+    (defun my-setup-cask ()
+      "Override `load-path' to use cask."
+      (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
+                (require 'cask "~/.cask/cask.el" t))
+        (setq load-path (cask-load-path (cask-initialize))))))
 
-    (defun advice:paradox-quit-and-close (_kill)
-      (my-reset-load-path))
-    (advice-add 'paradox-quit-and-close :after
-                #'advice:paradox-quit-and-close)
+  (defun advice:paradox-quit-and-close (_kill)
+    (my-reset-load-path))
+  (advice-add 'paradox-quit-and-close :after
+              #'advice:paradox-quit-and-close)
 
-    (custom-set-variables
-     '(paradox-github-token t))
+  (custom-set-variables
+   '(paradox-github-token t))
 
-    (unless noninteractive
-      (when (fboundp 'paradox-enable)
-        (paradox-enable)))))
+  (unless noninteractive
+    (when (fboundp 'paradox-enable)
+      (paradox-enable))))
 
 (autoload-if-found
  '(el-get-version
@@ -201,6 +201,7 @@
                  (eq major-mode 'org-mode)
                  (or (looking-at org-heading-regexp)
                      (equal (buffer-name) org-agenda-buffer-name))
+                 (fboundp 'mac-ime-active-p)
                  (mac-ime-active-p))
         (mac-ime-deactivate))))
 
@@ -336,7 +337,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (setq bm-buffer-persistence t)
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
-          (expand-file-name "~/Dropbox/emacs.d/.bm-repository"))
+          (expand-file-name
+           (concat (getenv "SYNCROOT") "/emacs.d/.bm-repository")))
 
     (unless noninteractive
       (bm-repository-load)
@@ -611,7 +613,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
       (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
-      (setq ispell-personal-dictionary "~/Dropbox/emacs.d/.hunspell.en.dic"))
+      (setq ispell-personal-dictionary
+            (concat (getenv "SYNCROOT") "/emacs.d/.hunspell.en.dic")))
 
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
@@ -626,7 +629,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
             '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
                    ("-d" "en" "--encoding=utf-8") nil utf-8)))
       (setq ispell-personal-dictionary
-            "~/Dropbox/emacs.d/config/aspell.en.pws"))
+            (concat (getenv "SYNCROOT") "/emacs.d/config/aspell.en.pws")))
      (t
       nil))))
 
@@ -1721,6 +1724,7 @@ sorted.  FUNCTION must be a function of one argument."
   (with-eval-after-load "hydra"
     (require 'org nil t)
     (require 'hydra nil t)
+    (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
     (custom-set-faces
      '(hydra-face-blue
        ((((background light))
@@ -2132,7 +2136,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
     ;;       (when (string= (buffer-name) keyfreq-buffer)
     ;;         (kill-buffer-and-window))))
     (setq keyfreq-file
-          (expand-file-name "~/Dropbox/emacs.d/.keyfreq"))
+          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.keyfreq")))
     (keyfreq-autosave-mode 1))
 
   (unless noninteractive
@@ -2776,9 +2780,10 @@ Uses `all-the-icons-material' to fetch the icon."
     (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
 
 ;; init
-(if (version< emacs-version "27.0")
-    (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
-  (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline)))
+(when (fboundp 'mac-ime-active-p)
+  (if (version< emacs-version "27.0")
+      (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+    (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
 
 (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)

@@ -48,7 +48,7 @@
     ;; (setq org-modules (delete 'org-bibtex org-modules))
 
     ;; org ファイルの集中管理
-    (setq org-directory "~/Dropbox/org/")
+    (setq org-directory (concat (getenv "SYNCROOT") "/org/"))
 
     ;; アーカイブファイルの名称を指定
     (setq org-archive-location "%s_archive::")
@@ -61,7 +61,7 @@
 
     ;; Set checksum program path for windows
     (when (eq window-system 'w32)
-      (setq org-mobile-checksum-binary "~/Dropbox/do/cksum.exe"))
+      (setq org-mobile-checksum-binary (concat (getenv "SYNCROOT") "/do/cksum.exe")))
 
     ;; Set default table export format
     (setq org-table-export-default-format "orgtbl-to-csv")
@@ -465,6 +465,7 @@
           ("Open"        :foreground "#CC9999" :weight bold)
           ("Blog"        :foreground "#9966CC")
           ("story"       :foreground "#FF7D7D")
+          ("plan"        :foreground "#FF7D7D")
           ("Test"        :foreground "#FF0000" :weight bold)
           ("attach"      :foreground "#FF0000")
           ("drill"       :foreground "#66BB66" :underline t)
@@ -721,11 +722,17 @@ will not be modified."
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (setq org-agenda-files
-        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
-          "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
-          "~/Dropbox/org/db/daily.org" "~/Dropbox/org/db/trigger.org"
-          "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
-          "~/Dropbox/org/org2ja.org"))
+        (mapcar (lambda (arg)
+                  (concat (getenv "SYNCROOT") "/org/" arg))
+                '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
+                  "db/daily.org" "db/trigger.org" "tr/work.org" "academic.org"
+                  "org2ja.org")))
+  ;; (setq org-agenda-files
+  ;;       '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+  ;;         "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
+  ;;         "~/Dropbox/org/db/daily.org" "~/Dropbox/org/db/trigger.org"
+  ;;         "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
+  ;;         "~/Dropbox/org/org2ja.org"))
 
   ;; sorting strategy
   (setq org-agenda-sorting-strategy
@@ -1273,7 +1280,7 @@ update it for multiple appts?")
     ;; (add-to-list 'org-odt-data-dir
     ;;              (concat (getenv "HOME") "/Dropbox/emacs.d/config/"))
     (setq org-odt-styles-file
-          (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.odt"))
+          (concat (getenv "SYNCROOT") "/emacs.d/config/style.odt"))
     ;; (setq org-odt-content-template-file
     ;;       (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
     (setq org-odt-preferred-output-format "pdf") ;; docx
@@ -1714,8 +1721,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (setq org-attach-git-annex-cutoff nil)
 
     (defvar org-attach-directory-absolute
-      (concat (getenv "HOME")
-              "/Dropbox/org/"
+      (concat (getenv "SYNCROOT")
+              "/org/"
               (when (boundp 'org-attach-directory)
                 "data/")))
 

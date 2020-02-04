@@ -158,7 +158,7 @@
     :type http
     :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
   (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
-  (el-get-bundle "abo-abo/swiper")
+  (el-get-bundle "swiper")
   (el-get-bundle "Yevgnen/ivy-rich")
   (el-get-bundle "asok/all-the-icons-ivy")
   (el-get-bundle "takaxp/counsel-selected")

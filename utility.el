@@ -15,7 +15,9 @@
                (emacs-repository-get-branch))
              system-configuration
              (when emacs-build-time
-               (format-time-string "%Y-%m-%d")))))
+               (format-time-string "%Y-%m-%d")))
+     (when (boundp 'mac-ime-cursor-type)
+       (format "Patch:\tns-inline\n"))))
   (view-mode))
 
 ;;;###autoload
@@ -171,7 +173,7 @@
       (let ((buffer (get-buffer file)))
         (switch-to-buffer buffer)
         (message "%s" file))
-    (find-file (concat "~/Dropbox/org/" file)))
+    (find-file (concat (getenv "SYNCROOT") "/org/" file)))
   (when (fboundp 'my-org-agenda-to-appt)
     (my-org-agenda-to-appt)))
 
@@ -337,7 +339,7 @@
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
   (let ((system (system-name))
-        (rootdir (or dropbox "~/Dropbox")))
+        (rootdir (or dropbox (getenv "SYNCROOT"))))
     (if (and system
              (stringp rootdir)
              (file-directory-p (or rootdir (expand-file-name rootdir))))

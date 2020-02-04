@@ -6,6 +6,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+(with-eval-after-load "org"
+  (defun ad:org-read-date (f &optional with-time to-time from-string prompt
+				                     default-time default-input inactive)
+    (let ((cursor-type nil))
+      (funcall f with-time to-time from-string prompt
+				       default-time default-input inactive)))
+  (advice-add 'org-read-date :around #'ad:org-read-date))
+
 (when nil
   ;; https://github.com/chuntaro/emacs-keycaster/issues/4
   (load "~/.emacs.d/27.0.60/el-get/keypression/keypression.el")

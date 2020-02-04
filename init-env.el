@@ -16,6 +16,10 @@
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t
       debug-on-error nil)
+(unless (getenv "SYNCROOT")
+  (setenv "SYNCROOT" (concat (getenv "HOME")
+                             "/Dropbox"
+                             )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; swiper(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)

@@ -1090,31 +1090,31 @@ echo "--- done."
 
     (defun my-reset-load-path ()
       "Revert `load-path' to `my-default-load-path'."
-      (shell-command-to-string "~/Dropbox/emacs.d/bin/update-cask.sh link")
-      (setq load-path my-default-load-path)
-      (message "--- Reverted to the original `load-path'."))
+      (shell-command-to-string "update-cask.sh link"))
+    (setq load-path my-default-load-path)
+    (message "--- Reverted to the original `load-path'."))
 
-    ;; (declare-function advice:paradox-quit-and-close "init" (kill))
+  ;; (declare-function advice:paradox-quit-and-close "init" (kill))
 
-    (when (and (fboundp 'cask-load-path)
-               (fboundp 'cask-initialize))
-      (defun my-setup-cask ()
-        "Override `load-path' to use cask."
-        (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
-                  (require 'cask "~/.cask/cask.el" t))
-          (setq load-path (cask-load-path (cask-initialize))))))
+  (when (and (fboundp 'cask-load-path)
+             (fboundp 'cask-initialize))
+    (defun my-setup-cask ()
+      "Override `load-path' to use cask."
+      (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
+                (require 'cask "~/.cask/cask.el" t))
+        (setq load-path (cask-load-path (cask-initialize))))))
 
-    (defun advice:paradox-quit-and-close (_kill)
-      (my-reset-load-path))
-    (advice-add 'paradox-quit-and-close :after
-                #'advice:paradox-quit-and-close)
+  (defun advice:paradox-quit-and-close (_kill)
+    (my-reset-load-path))
+  (advice-add 'paradox-quit-and-close :after
+              #'advice:paradox-quit-and-close)
 
-    (custom-set-variables
-     '(paradox-github-token t))
+  (custom-set-variables
+   '(paradox-github-token t))
 
-    (unless noninteractive
-      (when (fboundp 'paradox-enable)
-        (paradox-enable)))))
+  (unless noninteractive
+    (when (fboundp 'paradox-enable)
+      (paradox-enable))))
 #+end_src
 
 *** [el-get.el] パッケージ管理（GUI，CUI）
@@ -1360,6 +1360,7 @@ GPG error: "no usable configuration," OpenPGP
                  (eq major-mode 'org-mode)
                  (or (looking-at org-heading-regexp)
                      (equal (buffer-name) org-agenda-buffer-name))
+                 (fboundp 'mac-ime-active-p)
                  (mac-ime-active-p))
         (mac-ime-deactivate))))
 
@@ -1783,7 +1784,8 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     (setq bm-buffer-persistence t)
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
-          (expand-file-name "~/Dropbox/emacs.d/.bm-repository"))
+          (expand-file-name
+           (concat (getenv "SYNCROOT") "/emacs.d/.bm-repository")))
 
     (unless noninteractive
       (bm-repository-load)
@@ -2651,7 +2653,8 @@ lang en_US
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
       (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
-      (setq ispell-personal-dictionary "~/Dropbox/emacs.d/.hunspell.en.dic"))
+      (setq ispell-personal-dictionary
+            (concat (getenv "SYNCROOT") "/emacs.d/.hunspell.en.dic")))
 
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
@@ -2666,7 +2669,7 @@ lang en_US
             '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
                    ("-d" "en" "--encoding=utf-8") nil utf-8)))
       (setq ispell-personal-dictionary
-            "~/Dropbox/emacs.d/config/aspell.en.pws"))
+            (concat (getenv "SYNCROOT") "/emacs.d/config/aspell.en.pws")))
      (t
       nil))))
 #+end_src
@@ -2855,6 +2858,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 ** [yatex.el] YaTeXでTex編集                                            :tex:
    :PROPERTIES:
    :CUSTOM_ID: org770fb4ec
+   :ID:       8AB006F1-8725-4310-AD57-6BAE2295C9D0
    :END:
 
 #+begin_src emacs-lisp :tangle yes
@@ -2991,7 +2995,7 @@ This works also for other defined begin/end tokens to define the structure."
 
   (with-eval-after-load "yasnippet"
     (setq yas-verbosity 2)
-    (setq yas-snippet-dirs '("~/Dropbox/emacs.d/yas-dict"))
+    (setq yas-snippet-dirs `(,(concat (getenv "SYNCROOT") "/emacs.d/yas-dict")))
     (unless noninteractive
       (yas-global-mode 1))))
 #+end_src
@@ -5054,6 +5058,7 @@ sorted.  FUNCTION must be a function of one argument."
   (with-eval-after-load "hydra"
     (require 'org nil t)
     (require 'hydra nil t)
+    (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
     (custom-set-faces
      '(hydra-face-blue
        ((((background light))
@@ -6190,7 +6195,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
     (setq session-save-file
-          (expand-file-name "~/Dropbox/emacs.d/.session"))
+          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
     (setq session-initialize '(de-saveplace session keys menus places)
           session-globals-include '((kill-ring 100)
                                     (session-file-alist 100 t)
@@ -6363,7 +6368,7 @@ http://www.emacswiki.org/emacs/EmacsSession
     ;;       (when (string= (buffer-name) keyfreq-buffer)
     ;;         (kill-buffer-and-window))))
     (setq keyfreq-file
-          (expand-file-name "~/Dropbox/emacs.d/.keyfreq"))
+          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.keyfreq")))
     (keyfreq-autosave-mode 1))
 
   (unless noninteractive
@@ -7666,7 +7671,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     ;; (setq org-modules (delete 'org-bibtex org-modules))
 
     ;; org ファイルの集中管理
-    (setq org-directory "~/Dropbox/org/")
+    (setq org-directory (concat (getenv "SYNCROOT") "/org/"))
 
     ;; アーカイブファイルの名称を指定
     (setq org-archive-location "%s_archive::")
@@ -7679,7 +7684,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
     ;; Set checksum program path for windows
     (when (eq window-system 'w32)
-      (setq org-mobile-checksum-binary "~/Dropbox/do/cksum.exe"))
+      (setq org-mobile-checksum-binary (concat (getenv "SYNCROOT") "/do/cksum.exe")))
 
     ;; Set default table export format
     (setq org-table-export-default-format "orgtbl-to-csv")
@@ -8118,6 +8123,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           ("Open"        :foreground "#CC9999" :weight bold)
           ("Blog"        :foreground "#9966CC")
           ("story"       :foreground "#FF7D7D")
+          ("plan"        :foreground "#FF7D7D")
           ("Test"        :foreground "#FF0000" :weight bold)
           ("attach"      :foreground "#FF0000")
           ("drill"       :foreground "#66BB66" :underline t)
@@ -8510,11 +8516,17 @@ will not be modified."
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (setq org-agenda-files
-        '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
-          "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
-          "~/Dropbox/org/db/daily.org" "~/Dropbox/org/db/trigger.org"
-          "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
-          "~/Dropbox/org/org2ja.org"))
+        (mapcar (lambda (arg)
+                  (concat (getenv "SYNCROOT") "/org/" arg))
+                '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
+                  "db/daily.org" "db/trigger.org" "tr/work.org" "academic.org"
+                  "org2ja.org")))
+  ;; (setq org-agenda-files
+  ;;       '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
+  ;;         "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
+  ;;         "~/Dropbox/org/db/daily.org" "~/Dropbox/org/db/trigger.org"
+  ;;         "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
+  ;;         "~/Dropbox/org/org2ja.org"))
 
   ;; sorting strategy
   (setq org-agenda-sorting-strategy
@@ -9258,7 +9270,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
     ;; (add-to-list 'org-odt-data-dir
     ;;              (concat (getenv "HOME") "/Dropbox/emacs.d/config/"))
     (setq org-odt-styles-file
-          (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.odt"))
+          (concat (getenv "SYNCROOT") "/emacs.d/config/style.odt"))
     ;; (setq org-odt-content-template-file
     ;;       (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
     (setq org-odt-preferred-output-format "pdf") ;; docx
@@ -9962,8 +9974,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (setq org-attach-git-annex-cutoff nil)
 
     (defvar org-attach-directory-absolute
-      (concat (getenv "HOME")
-              "/Dropbox/org/"
+      (concat (getenv "SYNCROOT")
+              "/org/"
               (when (boundp 'org-attach-directory)
                 "data/")))
 
@@ -10396,7 +10408,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
   (defun my-apply-cursor-config ()
     (interactive)
-    (when (display-graphic-p)
+    (when (and (display-graphic-p)
+               (fboundp 'mac-ime-active-p))
       (if (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
   (add-hook 'buffer-list-update-hook #'my-apply-cursor-config))
 
@@ -11094,9 +11107,10 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
     (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
 
 ;; init
-(if (version< emacs-version "27.0")
-    (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
-  (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline)))
+(when (fboundp 'mac-ime-active-p)
+  (if (version< emacs-version "27.0")
+      (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+    (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
 
 (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
@@ -12201,6 +12215,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
      '(counsel-osx-app-location
        '("/Applications" "/Applications/Utilities"
          "/System/Applications"
+         "/System/Applications/Utilities"
          "/Applications/Microsoft Remote Desktop.localized")))))
 #+end_src
 

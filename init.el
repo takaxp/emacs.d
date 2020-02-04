@@ -579,7 +579,7 @@
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
     (setq session-save-file
-          (expand-file-name "~/Dropbox/emacs.d/.session"))
+          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
     (setq session-initialize '(de-saveplace session keys menus places)
           session-globals-include '((kill-ring 100)
                                     (session-file-alist 100 t)
@@ -696,7 +696,8 @@
 
   (defun my-apply-cursor-config ()
     (interactive)
-    (when (display-graphic-p)
+    (when (and (display-graphic-p)
+               (fboundp 'mac-ime-active-p))
       (if (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
   (add-hook 'buffer-list-update-hook #'my-apply-cursor-config))
 
@@ -1086,6 +1087,7 @@
      '(counsel-osx-app-location
        '("/Applications" "/Applications/Utilities"
          "/System/Applications"
+         "/System/Applications/Utilities"
          "/Applications/Microsoft Remote Desktop.localized")))))
 
 (my-tick-init-time "utility")

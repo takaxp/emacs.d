@@ -39,7 +39,9 @@
                (emacs-repository-get-branch))
              system-configuration
              (when emacs-build-time
-               (format-time-string "%Y-%m-%d")))))
+               (format-time-string "%Y-%m-%d")))
+     (when (boundp 'mac-ime-cursor-type)
+       (format "Patch:\tns-inline\n"))))
   (view-mode))
 #+end_src
 
@@ -202,6 +204,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
 ** 頻繁に利用するファイルをring形式でたどる
    :PROPERTIES:
    :CUSTOM_ID: org33d4f93d
+   :ID:       086A709D-C558-4E8B-BDC2-1437DCCFDA75
    :END:
 
 http://d.hatena.ne.jp/rubikitch/20111120/elispbook
@@ -246,7 +249,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
       (let ((buffer (get-buffer file)))
         (switch-to-buffer buffer)
         (message "%s" file))
-    (find-file (concat "~/Dropbox/org/" file)))
+    (find-file (concat (getenv "SYNCROOT") "/org/" file)))
   (when (fboundp 'my-org-agenda-to-appt)
     (my-org-agenda-to-appt)))
 #+end_src
@@ -488,7 +491,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
   (let ((system (system-name))
-        (rootdir (or dropbox "~/Dropbox")))
+        (rootdir (or dropbox (getenv "SYNCROOT"))))
     (if (and system
              (stringp rootdir)
              (file-directory-p (or rootdir (expand-file-name rootdir))))
