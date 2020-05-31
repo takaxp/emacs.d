@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-20 Mon 07:52 -->
+<!-- 2020-05-31 Sun 16:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -200,50 +200,28 @@
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
 <script type="text/javascript">
-/*
-@licstart  The following is the entire license notice for the
-JavaScript code in this tag.
-
-Copyright (C) 2012-2019 Free Software Foundation, Inc.
-
-The JavaScript code in this tag is free software: you can
-redistribute it and/or modify it under the terms of the GNU
-General Public License (GNU GPL) as published by the Free Software
-Foundation, either version 3 of the License, or (at your option)
-any later version.  The code is distributed WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
-
-As additional permission under GNU GPL version 3 section 7, you
-may distribute non-source (e.g., minimized or compacted) forms of
-that code without the copy of the GNU GPL normally required by
-section 4, provided you include this license notice and a URL
-through which recipients can access the Corresponding Source.
-
-
-@licend  The above is the entire license notice
-for the JavaScript code in this tag.
-*/
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
 <!--/*--><![CDATA[/*><!--*/
- function CodeHighlightOn(elem, id)
- {
-   var target = document.getElementById(id);
-   if(null != target) {
-     elem.cacheClassElem = elem.className;
-     elem.cacheClassTarget = target.className;
-     target.className = "code-highlighted";
-     elem.className   = "code-highlighted";
-   }
- }
- function CodeHighlightOff(elem, id)
- {
-   var target = document.getElementById(id);
-   if(elem.cacheClassElem)
-     elem.className = elem.cacheClassElem;
-   if(elem.cacheClassTarget)
-     target.className = elem.cacheClassTarget;
- }
-/*]]>*///-->
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.cacheClassElem = elem.className;
+         elem.cacheClassTarget = target.className;
+         target.className = "code-highlighted";
+         elem.className   = "code-highlighted";
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(elem.cacheClassElem)
+         elem.className = elem.cacheClassElem;
+       if(elem.cacheClassTarget)
+         target.className = elem.cacheClassTarget;
+     }
+    /*]]>*///-->
+// @license-end
 </script>
 </head>
 <body>
@@ -328,16 +306,19 @@ for the JavaScript code in this tag.
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-print-build-info</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (switch-to-buffer (get-buffer-create <span style="color: #8b2252;">"*Build info*"</span>))
-  (erase-buffer)
-  (insert
-   (format <span style="color: #8b2252;">"GNU Emacs %s\nCommit:\t%s\nBranch:\t%s\nSystem:\t%s\nDate:\t\t%s\n"</span>
-           emacs-version
-           (emacs-repository-get-version)
-           (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
-             (emacs-repository-get-branch))
-           system-configuration
-           (<span style="color: #a020f0;">when</span> emacs-build-time
-             (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>))))
+  (<span style="color: #a020f0;">let</span> ((buffer-read-only nil))
+    (erase-buffer)
+    (insert
+     (format <span style="color: #8b2252;">"GNU Emacs %s\nCommit:\t%s\nBranch:\t%s\nSystem:\t%s\nDate:\t\t%s\n"</span>
+             emacs-version
+             (emacs-repository-get-version)
+             (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
+               (emacs-repository-get-branch))
+             system-configuration
+             (<span style="color: #a020f0;">when</span> emacs-build-time
+               (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>))))
+    (<span style="color: #a020f0;">when</span> (boundp 'mac-ime--cursor-type)
+      (insert (format <span style="color: #8b2252;">"Patch:\tns-inline\n"</span>))))
   (view-mode))
 </pre>
 </div>
@@ -352,7 +333,7 @@ for the JavaScript code in this tag.
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cmd-to-open-iterm2</span> (<span style="color: #228b22;">&amp;optional</span> arg)
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
   (shell-command-to-string
-   (concat <span style="color: #8b2252;">"open -a iTerm2.app "</span>
+   (concat <span style="color: #8b2252;">"open -a iTerm.app "</span>
            (<span style="color: #a020f0;">when</span> arg default-directory))))
 </pre>
 </div>
@@ -557,7 +538,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
       (<span style="color: #a020f0;">let</span> ((buffer (get-buffer file)))
         (switch-to-buffer buffer)
         (message <span style="color: #8b2252;">"%s"</span> file))
-    (find-file (concat <span style="color: #8b2252;">"~/Dropbox/org/"</span> file)))
+    (find-file (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/org/"</span> file)))
   (<span style="color: #a020f0;">when</span> (fboundp 'my-org-agenda-to-appt)
     (my-org-agenda-to-appt)))
 </pre>
@@ -806,7 +787,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <span style="color: #8b2252;">If `</span><span style="color: #008b8b;">dropbox</span><span style="color: #8b2252;">' option is provided then the value is uased as a root directory."</span>
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
   (<span style="color: #a020f0;">let</span> ((system (system-name))
-        (rootdir (<span style="color: #a020f0;">or</span> dropbox <span style="color: #8b2252;">"~/Dropbox"</span>)))
+        (rootdir (<span style="color: #a020f0;">or</span> dropbox (getenv <span style="color: #8b2252;">"SYNCROOT"</span>))))
     (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> system
              (stringp rootdir)
              (file-directory-p (<span style="color: #a020f0;">or</span> rootdir (expand-file-name rootdir))))
@@ -1560,8 +1541,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-01-20 Mon 07:52</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2020-05-31 Sun 16:08</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

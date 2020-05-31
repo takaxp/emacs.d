@@ -11,11 +11,11 @@
 (defconst my-loading-packages nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
-(setq postpone-verbose nil
+(setq debug-on-error nil
+      postpone-verbose nil
       my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
-      my-skip-check-autoload-file t
-      debug-on-error nil)
+      my-skip-check-autoload-file t)
 (unless (getenv "SYNCROOT")
   (setenv "SYNCROOT" (concat (getenv "HOME")
                              "/Dropbox"

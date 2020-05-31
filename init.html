@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-02-04 Tue 10:52 -->
+<!-- 2020-05-31 Sun 16:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -201,50 +201,28 @@
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <script type="text/javascript">
-/*
-@licstart  The following is the entire license notice for the
-JavaScript code in this tag.
-
-Copyright (C) 2012-2020 Free Software Foundation, Inc.
-
-The JavaScript code in this tag is free software: you can
-redistribute it and/or modify it under the terms of the GNU
-General Public License (GNU GPL) as published by the Free Software
-Foundation, either version 3 of the License, or (at your option)
-any later version.  The code is distributed WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
-
-As additional permission under GNU GPL version 3 section 7, you
-may distribute non-source (e.g., minimized or compacted) forms of
-that code without the copy of the GNU GPL normally required by
-section 4, provided you include this license notice and a URL
-through which recipients can access the Corresponding Source.
-
-
-@licend  The above is the entire license notice
-for the JavaScript code in this tag.
-*/
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
 <!--/*--><![CDATA[/*><!--*/
- function CodeHighlightOn(elem, id)
- {
-   var target = document.getElementById(id);
-   if(null != target) {
-     elem.cacheClassElem = elem.className;
-     elem.cacheClassTarget = target.className;
-     target.className = "code-highlighted";
-     elem.className   = "code-highlighted";
-   }
- }
- function CodeHighlightOff(elem, id)
- {
-   var target = document.getElementById(id);
-   if(elem.cacheClassElem)
-     elem.className = elem.cacheClassElem;
-   if(elem.cacheClassTarget)
-     target.className = elem.cacheClassTarget;
- }
-/*]]>*///-->
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.cacheClassElem = elem.className;
+         elem.cacheClassTarget = target.className;
+         target.className = "code-highlighted";
+         elem.className   = "code-highlighted";
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(elem.cacheClassElem)
+         elem.className = elem.cacheClassElem;
+       if(elem.cacheClassTarget)
+         target.className = elem.cacheClassTarget;
+     }
+    /*]]>*///-->
+// @license-end
 </script>
 </head>
 <body>
@@ -332,19 +310,20 @@ for the JavaScript code in this tag.
 <li><a href="#orgc4c0ed9a">4.3. 対応するカッコを選択（逆方向）</a></li>
 <li><a href="#orgb8c57f30">4.4. スクロールを制御</a></li>
 <li><a href="#org5f40f030">4.5. スクロールで表示を重複させる行数</a></li>
-<li><a href="#org7ea97f70">4.6. [ah.el] カーソル移動に反応するフック</a></li>
-<li><a href="#orgc62cc9bf">4.7. [smooth-scroll.el] 滑らかなスクロール</a></li>
-<li><a href="#org768c06a0">4.8. [bs.el] 続・カレントバッファの表示切り替え</a></li>
-<li><a href="#orgd5942d14">4.9. [bm.el] カーソル位置をブックマークして追う</a></li>
-<li><a href="#orgfa2bad61">4.10. [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</a></li>
-<li><a href="#orgadf36a14">4.11. [smart-mark] C-g後に元の場所へカーソルを戻す</a></li>
-<li><a href="#orgf75f443a">4.12. [syntax-subword.el] M-f で移動する位置をより密にする</a></li>
-<li><a href="#org8435eae2">4.13. [goto-chg.el] 編集箇所を簡単に辿る</a></li>
-<li><a href="#org3901456e">4.14. [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</a></li>
-<li><a href="#org27e3241e">4.15. <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgd906e864">4.16. <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org42db9464">4.17. <span class="done DONE">DONE</span> [point-undo.el] カーソル位置を簡単にたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org1af5f062">4.18. <span class="done DONE">DONE</span> [SmoothScroll.el] カーソル固定でスクロールする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org9811c7e8">4.6. マーク箇所を遡る</a></li>
+<li><a href="#org7ea97f70">4.7. [ah.el] カーソル移動に反応するフック</a></li>
+<li><a href="#orgc62cc9bf">4.8. [smooth-scroll.el] 滑らかなスクロール</a></li>
+<li><a href="#org768c06a0">4.9. [bs.el] 続・カレントバッファの表示切り替え</a></li>
+<li><a href="#orgd5942d14">4.10. [bm.el] カーソル位置をブックマークして追う</a></li>
+<li><a href="#orgfa2bad61">4.11. [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</a></li>
+<li><a href="#orgadf36a14">4.12. [smart-mark] C-g後に元の場所へカーソルを戻す</a></li>
+<li><a href="#orgf75f443a">4.13. [syntax-subword.el] M-f で移動する位置をより密にする</a></li>
+<li><a href="#org8435eae2">4.14. [goto-chg.el] 編集箇所を簡単に辿る</a></li>
+<li><a href="#org3901456e">4.15. [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</a></li>
+<li><a href="#org27e3241e">4.16. <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgd906e864">4.17. <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org42db9464">4.18. <span class="done DONE">DONE</span> [point-undo.el] カーソル位置を簡単にたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org1af5f062">4.19. <span class="done DONE">DONE</span> [SmoothScroll.el] カーソル固定でスクロールする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org36bb3b1a">5. 編集サポート</a>
@@ -2159,9 +2138,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 <h3 id="org982c69d7"><span class="section-number-3">3.20</span> [ws-butler.el] 不要なスペースを自動除去</h3>
 <div class="outline-text-3" id="text-org982c69d7">
 <p>
-行末のスペース等が不要に残るのを回避できます．バッファ保存時の自動処理です．<br />
+行末の不要なスペース等が残るのを回避できます．バッファ保存時の自動処理です．<br />
 </p>
-
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
@@ -2171,7 +2149,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ws-butler"</span>
     (custom-set-variables
      '(ws-butler-global-exempt-modes
-       (append '(org-mode empty-booting-mode diff-mode)
+       (append '(org-mode empty-booting-mode diff-mode change-log-mode)
                ws-butler-global-exempt-modes))))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
@@ -2236,11 +2214,17 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (memq window-system '(ns nil))
-  (global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns) <span style="color: #b22222;">;; </span><span style="color: #b22222;">toggle-input-method</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns) <span style="color: #b22222;">;; </span><span style="color: #b22222;">toggle-input-method</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">toggle-input-method</span>
   (<span style="color: #a020f0;">declare-function</span> my-ns-org-heading-auto-ascii <span style="color: #8b2252;">"init"</span> nil)
   (<span style="color: #a020f0;">declare-function</span> my-ns-ime-restore <span style="color: #8b2252;">"init"</span> nil)
-  (<span style="color: #a020f0;">declare-function</span> my-ime-active-p <span style="color: #8b2252;">"init"</span> nil))
+  (<span style="color: #a020f0;">declare-function</span> my-ime-active-p <span style="color: #8b2252;">"init"</span> nil)
+
+  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
+      (<span style="color: #a020f0;">progn</span>
+        (global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
+        (global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns))
+    (global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'mac-ime-toggle)
+    (global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-ime-toggle)))
 
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
@@ -2292,7 +2276,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
         (mac-ime-deactivate))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#30041;&#12414;&#12387;&#12383;&#26178;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
-  (run-with-idle-timer 0.8 t #'my-ns-org-heading-auto-ascii)
+  (run-with-idle-timer 0.4 t #'my-ns-org-heading-auto-ascii)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#26469;&#12383;&#12392;&#12365;&#12399;&#21363;&#24231;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)</span>
@@ -2687,8 +2671,24 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 
+<div id="outline-container-org9811c7e8" class="outline-3">
+<h3 id="org9811c7e8"><span class="section-number-3">4.6</span> マーク箇所を遡る</h3>
+<div class="outline-text-3" id="text-org9811c7e8">
+<p>
+<code>C-u C-SPC</code> で辿れるようになります．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> set-mark-command-repeat-pop t)
+(<span style="color: #a020f0;">setq</span> mark-ring-max 32)
+(<span style="color: #a020f0;">setq</span> global-mark-ring-max 64)
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org7ea97f70" class="outline-3">
-<h3 id="org7ea97f70"><span class="section-number-3">4.6</span> [ah.el] カーソル移動に反応するフック</h3>
+<h3 id="org7ea97f70"><span class="section-number-3">4.7</span> [ah.el] カーソル移動に反応するフック</h3>
 <div class="outline-text-3" id="text-org7ea97f70">
 <p>
 カーソルを移動するインタラクティブ関数に反応する <code>ah-before-move-cursor-hook</code> と <code>ah-after-move-cursor-hook</code> を使います． <a href="https://github.com/takaxp/ah">ah.el</a> に関数定義を切り出しました．<br />
@@ -2705,7 +2705,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 
 <div id="outline-container-orgc62cc9bf" class="outline-3">
-<h3 id="orgc62cc9bf"><span class="section-number-3">4.7</span> [smooth-scroll.el] 滑らかなスクロール</h3>
+<h3 id="orgc62cc9bf"><span class="section-number-3">4.8</span> [smooth-scroll.el] 滑らかなスクロール</h3>
 <div class="outline-text-3" id="text-orgc62cc9bf">
 <p>
 良い感じです．スススっとスクロールします．最初にスクロールする時にパッケージを読み込みます．<br />
@@ -2727,7 +2727,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 
 <div id="outline-container-org768c06a0" class="outline-3">
-<h3 id="org768c06a0"><span class="section-number-3">4.8</span> [bs.el] 続・カレントバッファの表示切り替え</h3>
+<h3 id="org768c06a0"><span class="section-number-3">4.9</span> [bs.el] 続・カレントバッファの表示切り替え</h3>
 <div class="outline-text-3" id="text-org768c06a0">
 <p>
 古くから <code>cycle-buffer</code> がありますが，基本機能だけで満足するようになったので，ビルトインの <code>bs.el</code> に移行しました． <code>bs-cycle-next</code> あるいは <code>bs-cycle-previous</code> でバッファを切り替えられます．<br />
@@ -2764,7 +2764,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 
 <div id="outline-container-orgd5942d14" class="outline-3">
-<h3 id="orgd5942d14"><span class="section-number-3">4.9</span> [bm.el] カーソル位置をブックマークして追う</h3>
+<h3 id="orgd5942d14"><span class="section-number-3">4.10</span> [bm.el] カーソル位置をブックマークして追う</h3>
 <div class="outline-text-3" id="text-orgd5942d14">
 <p>
 <a href="https://github.com/joodland/bm">bm.el</a>は，カーソル位置をブックマークしておくためのツールです． <code>point-undo</code> と比較して，ユーザが明示的に位置を保存でき，見た目にも使いやすいです．以下の例では， <code>org-mode</code> のツリー内にブックマークがある時にも，上手い具合に表示ができるように調整してあります．カーソル移動は，順方向（ <code>bm-next</code> ）にだけ使っています．<br />
@@ -2887,7 +2887,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 
 <div id="outline-container-orgfa2bad61" class="outline-3">
-<h3 id="orgfa2bad61"><span class="section-number-3">4.10</span> [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</h3>
+<h3 id="orgfa2bad61"><span class="section-number-3">4.11</span> [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</h3>
 <div class="outline-text-3" id="text-orgfa2bad61">
 <p>
 <code>isearch-mode</code> の時だけ有効にしています．<br />
@@ -2909,7 +2909,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 
 <div id="outline-container-orgadf36a14" class="outline-3">
-<h3 id="orgadf36a14"><span class="section-number-3">4.11</span> [smart-mark] C-g後に元の場所へカーソルを戻す</h3>
+<h3 id="orgadf36a14"><span class="section-number-3">4.12</span> [smart-mark] C-g後に元の場所へカーソルを戻す</h3>
 <div class="outline-text-3" id="text-orgadf36a14">
 <p>
 すぐわかる例は， <code>C-x h</code> で全選択して何もせず， <code>C-g</code> する場合です．通常だとバッファの先頭にカーソルが置き去りにされますが， <code>smart-mark</code> を使うと，全選択を実行した時の位置に自動的に戻してくれます．<br />
@@ -2948,7 +2948,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 
 <div id="outline-container-orgf75f443a" class="outline-3">
-<h3 id="orgf75f443a"><span class="section-number-3">4.12</span> [syntax-subword.el] M-f で移動する位置をより密にする</h3>
+<h3 id="orgf75f443a"><span class="section-number-3">4.13</span> [syntax-subword.el] M-f で移動する位置をより密にする</h3>
 <div class="outline-text-3" id="text-orgf75f443a">
 <ul class="org-ul">
 <li><a href="https://bitbucket.org/jpkotta/syntax-subword">https://bitbucket.org/jpkotta/syntax-subword</a><br /></li>
@@ -2964,10 +2964,10 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 
 <div id="outline-container-org8435eae2" class="outline-3">
-<h3 id="org8435eae2"><span class="section-number-3">4.13</span> [goto-chg.el] 編集箇所を簡単に辿る</h3>
+<h3 id="org8435eae2"><span class="section-number-3">4.14</span> [goto-chg.el] 編集箇所を簡単に辿る</h3>
 <div class="outline-text-3" id="text-org8435eae2">
 <p>
-編集結果を保持したまま編集箇所にカーソルを移すことができます． <code>C-/</code> の Undo のような操作で，簡単かつ高速にカーソルを移動できます．<br />
+編集結果を保持したまま編集箇所にカーソルを移すことができます． <code>C-/</code> の Undo のような操作で，簡単かつ高速にカーソルを移動できます．ただ <code>undo-tree</code> 依存です．<br />
 </p>
 
 <div class="org-src-container">
@@ -2987,7 +2987,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 
 <div id="outline-container-org3901456e" class="outline-3">
-<h3 id="org3901456e"><span class="section-number-3">4.14</span> [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</h3>
+<h3 id="org3901456e"><span class="section-number-3">4.15</span> [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</h3>
 <div class="outline-text-3" id="text-org3901456e">
 <ul class="org-ul">
 <li><a href="https://github.com/magnars/expand-region.el">magnars/expand-region.el: Emacs extension to increase selected region by semantic units.</a><br /></li>
@@ -3011,7 +3011,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 
 <div id="outline-container-org27e3241e" class="outline-3">
-<h3 id="org27e3241e"><span class="section-number-3">4.15</span> <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org27e3241e"><span class="section-number-3">4.16</span> <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org27e3241e">
 <p>
 <a href="http://www.emacswiki.org/emacs/download/cycle-buffer.el">http://www.emacswiki.org/emacs/download/cycle-buffer.el</a><br />
@@ -3040,7 +3040,7 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 
 <div id="outline-container-orgd906e864" class="outline-3">
-<h3 id="orgd906e864"><span class="section-number-3">4.16</span> <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgd906e864"><span class="section-number-3">4.17</span> <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgd906e864">
 <p>
 現在のバッファと開いている全てのバッファのマークを辿ることができます．いま注目している位置が，マーク全体でどのあたりに位置するのかをミニバッファに表示してくれます．ツールバーを表示している場合は，マークを付けたり辿る用のボタンが追加されます． <code>global-mark-ring-max</code> を設定して，辿れるマークの数を拡張しておきます．<br />
@@ -3082,7 +3082,7 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 
 <div id="outline-container-org42db9464" class="outline-3">
-<h3 id="org42db9464"><span class="section-number-3">4.17</span> <span class="done DONE">DONE</span> [point-undo.el] カーソル位置を簡単にたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org42db9464"><span class="section-number-3">4.18</span> <span class="done DONE">DONE</span> [point-undo.el] カーソル位置を簡単にたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org42db9464">
 <p>
 <code>autoload</code> や <code>autoload-if-found</code> で定義すると，使いたい時に履歴が取れていないのでよろしくないです．起動時に有効化します． bm.el で明示的にマーカーを残して履歴をたどる方が気に入っているので，最近は point-undo を使っていません．シングルキーを割り当てておくと使いやすいです．<br />
@@ -3100,7 +3100,7 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </div>
 
 <div id="outline-container-org1af5f062" class="outline-3">
-<h3 id="org1af5f062"><span class="section-number-3">4.18</span> <span class="done DONE">DONE</span> [SmoothScroll.el] カーソル固定でスクロールする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org1af5f062"><span class="section-number-3">4.19</span> <span class="done DONE">DONE</span> [SmoothScroll.el] カーソル固定でスクロールする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org1af5f062">
 <p>
 <a href="https://raw.github.com/takaxp/EmacsScripts/master/SmoothScroll.el">https://raw.github.com/takaxp/EmacsScripts/master/SmoothScroll.el</a><br />
@@ -3302,9 +3302,17 @@ Built-in の time-stamp.el を使う．<br />
 
 (add-hook 'change-log-mode-hook
           (<span style="color: #a020f0;">lambda</span> ()
-              (my-orgalist-activate)
-              (<span style="color: #a020f0;">setq</span> tab-width 4)
-              (<span style="color: #a020f0;">setq</span> left-margin 4)))
+            (my-orgalist-activate)
+            (view-mode)
+            (<span style="color: #a020f0;">setq</span> tab-width 4)
+            (<span style="color: #a020f0;">setq</span> left-margin 4)))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:add-change-log-entry-other-window</span> ()
+  (<span style="color: #a020f0;">when</span> view-mode
+    (view-mode-disable)))
+
+(advice-add 'add-change-log-entry-other-window
+            <span style="color: #483d8b;">:before</span> #'ad:add-change-log-entry-other-window)
 </pre>
 </div>
 </div>
@@ -3814,7 +3822,8 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
      ((executable-find <span style="color: #8b2252;">"hunspell"</span>)
       (setenv <span style="color: #8b2252;">"LC_ALL"</span> <span style="color: #8b2252;">"en_US"</span>)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- hunspell loaded.")</span>
-      (setenv <span style="color: #8b2252;">"DICPATH"</span> <span style="color: #8b2252;">"/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en"</span>)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")</span>
+      (setenv <span style="color: #8b2252;">"DICPATH"</span> (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/hunspell/dict-en"</span>))
       (<span style="color: #a020f0;">setq</span> ispell-local-dictionary-alist
             '((<span style="color: #8b2252;">"ja_JP"</span> <span style="color: #8b2252;">"[[:alpha:]]"</span> <span style="color: #8b2252;">"[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">[:alpha:]]"</span> <span style="color: #8b2252;">"[']"</span> nil
                (<span style="color: #8b2252;">"-d"</span> <span style="color: #8b2252;">"en_US"</span>) nil utf-8)
@@ -5410,7 +5419,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Show scroll bar or not</span>
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (display-graphic-p)
-           (eq window-system 'mac))
+           (memq window-system '(ns mac)))
   (set-scroll-bar-mode nil)) <span style="color: #b22222;">; </span><span style="color: #b22222;">'right</span>
 </pre>
 </div>
@@ -6066,37 +6075,38 @@ paren.el の場合は以下の設定．<br />
       (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">font-lock+</span> nil t)
         (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"font-lock+ is NOT installed for all-the-icons."</span>))
 
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:all-the-icons-dired--display</span> ()
-        <span style="color: #8b2252;">"Display the icons of files in a dired buffer."</span>
-        (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (not all-the-icons-dired-displayed) dired-subdir-alist)
-          (<span style="color: #a020f0;">setq-local</span> all-the-icons-dired-displayed t)
-          (<span style="color: #a020f0;">let</span> ((inhibit-read-only t)
-                (remote-p (<span style="color: #a020f0;">and</span> (fboundp 'tramp-tramp-file-p)
-                               (tramp-tramp-file-p default-directory))))
-            (<span style="color: #a020f0;">save-excursion</span>
-              (goto-char (point-min))
-              (<span style="color: #a020f0;">setq</span> tab-width 1)
-              (<span style="color: #a020f0;">while</span> (not (eobp))
-                (<span style="color: #a020f0;">when</span> (dired-move-to-filename nil)
-                  (<span style="color: #a020f0;">let</span> ((file (dired-get-filename 'verbatim t)))
-                    (<span style="color: #a020f0;">unless</span> (member file '(<span style="color: #8b2252;">"."</span> <span style="color: #8b2252;">".."</span>))
-                      (<span style="color: #a020f0;">let</span> ((filename (dired-get-filename nil t)))
-                        (<span style="color: #a020f0;">if</span> (file-directory-p filename)
-                            (<span style="color: #a020f0;">let*</span> ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))
-                                   (icon (<span style="color: #a020f0;">cond</span>
-                                          (remote-p
-                                           (all-the-icons-octicon <span style="color: #8b2252;">"file-directory"</span> <span style="color: #483d8b;">:v-adjust</span> all-the-icons-dired-v-adjust <span style="color: #483d8b;">:face</span> 'all-the-icons-dired-dir-face))
-                                          ((file-symlink-p filename)
-                                           (all-the-icons-octicon <span style="color: #8b2252;">"file-symlink-directory"</span> <span style="color: #483d8b;">:v-adjust</span> all-the-icons-dired-v-adjust <span style="color: #483d8b;">:face</span> 'all-the-icons-dired-dir-face))
-                                          ((all-the-icons-dir-is-submodule filename)
-                                           (all-the-icons-octicon <span style="color: #8b2252;">"file-submodule"</span> <span style="color: #483d8b;">:v-adjust</span> all-the-icons-dired-v-adjust <span style="color: #483d8b;">:face</span> 'all-the-icons-dired-dir-face))
-                                          ((file-exists-p (format <span style="color: #8b2252;">"%s/.git"</span> filename))
-                                           (all-the-icons-octicon <span style="color: #8b2252;">"repo"</span> <span style="color: #483d8b;">:v-adjust</span> all-the-icons-dired-v-adjust <span style="color: #483d8b;">:face</span> 'all-the-icons-dired-dir-face))
-                                          (t (apply (car matcher) (list (cadr matcher) <span style="color: #483d8b;">:face</span> 'all-the-icons-dired-dir-face <span style="color: #483d8b;">:v-adjust</span> all-the-icons-dired-v-adjust))))))
-                              (insert (concat icon <span style="color: #8b2252;">"\t"</span>)))
-                          (insert (concat (all-the-icons-icon-for-file file <span style="color: #483d8b;">:v-adjust</span> all-the-icons-dired-v-adjust) <span style="color: #8b2252;">"\t"</span>))))))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">:height 0.9</span>
-                (forward-line 1))))))
-      (advice-add 'all-the-icons-dired--display <span style="color: #483d8b;">:override</span> #'ad:all-the-icons-dired--display))))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:all-the-icons-dired--display ()</span>
+      <span style="color: #b22222;">;;   </span><span style="color: #b22222;">"Display the icons of files in a dired buffer."</span>
+      <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (and (not all-the-icons-dired-displayed) dired-subdir-alist)</span>
+      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(setq-local all-the-icons-dired-displayed t)</span>
+      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(let ((inhibit-read-only t)</span>
+      <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(file-remote-p (and (fboundp 'tramp-tramp-file-p)</span>
+      <span style="color: #b22222;">;;                               </span><span style="color: #b22222;">(tramp-tramp-file-p default-directory))))</span>
+      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(save-excursion</span>
+      <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(goto-char (point-min))</span>
+      <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(setq tab-width 1)</span>
+      <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(while (not (eobp))</span>
+      <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(when (dired-move-to-filename nil)</span>
+      <span style="color: #b22222;">;;             </span><span style="color: #b22222;">(let ((file (dired-get-filename 'verbatim t)))</span>
+      <span style="color: #b22222;">;;               </span><span style="color: #b22222;">(unless (member file '("." ".."))</span>
+      <span style="color: #b22222;">;;                 </span><span style="color: #b22222;">(let ((filename (dired-get-filename nil t)))</span>
+      <span style="color: #b22222;">;;                   </span><span style="color: #b22222;">(if (file-directory-p filename)</span>
+      <span style="color: #b22222;">;;                       </span><span style="color: #b22222;">(let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))</span>
+      <span style="color: #b22222;">;;                              </span><span style="color: #b22222;">(icon (cond</span>
+      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">(remote-p</span>
+      <span style="color: #b22222;">;;                                      </span><span style="color: #b22222;">(all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
+      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">((file-symlink-p filename)</span>
+      <span style="color: #b22222;">;;                                      </span><span style="color: #b22222;">(all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
+      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">((all-the-icons-dir-is-submodule filename)</span>
+      <span style="color: #b22222;">;;                                      </span><span style="color: #b22222;">(all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
+      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">((file-exists-p (format "%s/.git" filename))</span>
+      <span style="color: #b22222;">;;                                      </span><span style="color: #b22222;">(all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
+      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">(t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))</span>
+      <span style="color: #b22222;">;;                         </span><span style="color: #b22222;">(insert (concat icon "\t")))</span>
+      <span style="color: #b22222;">;;                     </span><span style="color: #b22222;">(insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9</span>
+      <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(forward-line 1))))))</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display)</span>
+      )))
 </pre>
 </div>
 </div>
@@ -6193,8 +6203,12 @@ paren.el の場合は以下の設定．<br />
 
   (global-set-key (kbd <span style="color: #8b2252;">"M-x"</span>) 'counsel-M-x)
   (global-set-key (kbd <span style="color: #8b2252;">"M-y"</span>) 'counsel-yank-pop)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-,"</span>) 'counsel-mark-ring)
   (global-set-key (kbd <span style="color: #8b2252;">"C-x C-b"</span>) 'counsel-ibuffer)
   (global-set-key (kbd <span style="color: #8b2252;">"C-c i r"</span>) 'ivy-resume)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
+    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'goto-last-change))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
 
@@ -10270,6 +10284,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
     (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
     (my-desktop-notification <span style="color: #8b2252;">"### Expired! ###"</span> <span style="color: #8b2252;">"Time is up!"</span> t <span style="color: #8b2252;">"Glass"</span>))
 
+  (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">run-timer</span> 'my-countdown-timer)
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-countdown-timer</span> ()
     (<span style="color: #a020f0;">interactive</span>)
     (<span style="color: #a020f0;">unless</span> mode-line-format
@@ -10489,7 +10504,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
           ))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-agenda-current-time-string "&lt;  d('- ' &#65394;&#65423;&#65402;&#65402;)")</span>
-  (<span style="color: #a020f0;">setq</span> org-agenda-current-time-string <span style="color: #8b2252;">"&lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &#65394;&#65423;&#65402;&#65402;"</span>)
+  (<span style="color: #a020f0;">setq</span> org-agenda-current-time-string <span style="color: #8b2252;">"&lt; &#65394;&#65423;&#65402;&#65402;"</span>)
   (<span style="color: #a020f0;">setq</span> org-agenda-timegrid-use-ampm t)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
@@ -11282,7 +11297,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org598bb36"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org817b424"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -13452,10 +13467,10 @@ Linux では次のように処理するだけでよく，意外と簡単．<br /
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">set-default &#12391; global &#25351;&#23450;&#12377;&#12427;&#12392;&#65292;&#12511;&#12491;&#12496;&#12483;&#12501;&#12449;&#12398; message &#12391;&#21046;&#24481;&#19981;&#33021;&#12395;&#12394;&#12427;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">propertize &#12391;&#25313;&#22823;&#12391;&#12365;&#12427;&#12364;&#65292;global &#12398;&#20516;&#20197;&#19979;&#12395;&#32302;&#23567;&#12391;&#12365;&#12394;&#12367;&#12394;&#12427;&#65294;</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(set-default 'line-spacing 0.3)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(set-default 'line-spacing 2)</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-linespacing</span> ()
   (<span style="color: #a020f0;">unless</span> (minibufferp)
-    (<span style="color: #a020f0;">setq-local</span> line-spacing 0.3)))
+    (<span style="color: #a020f0;">setq-local</span> line-spacing 2)))
 (add-hook 'buffer-list-update-hook #'my-linespacing)
 (add-hook 'org-src-mode-hook #'my-linespacing)
 (add-hook 'debugger-mode-hook #'my-linespacing)
@@ -13623,7 +13638,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
             ((eq my-frame-appearance 'light)
              (my-daylight-theme))
             (t
-             (<span style="color: #a020f0;">let</span> ((night-time-in 21)
+             (<span style="color: #a020f0;">let</span> ((night-time-in 23)
                    (night-time-out 5))
                (<span style="color: #a020f0;">if</span> (my-night-time-p
                     (* night-time-in 60) (* night-time-out 60))
@@ -13635,7 +13650,10 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove unintentional colored frame border</span>
     (select-frame-set-input-focus (selected-frame))
     (my-font-config)
-    (my-apply-cursor-config)))
+    (my-apply-cursor-config)
+    (<span style="color: #a020f0;">when</span> type
+      (moom-move-frame-to-edge-top)
+      (moom-expand-height))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">init. This may override or reset font setting</span>
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
@@ -14794,8 +14812,8 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-02-04 Tue 10:52</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2020-05-31 Sun 16:08</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

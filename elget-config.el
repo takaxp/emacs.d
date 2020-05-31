@@ -54,8 +54,8 @@
   (el-get-bundle "harrybournis/org-fancy-priorities")
   (el-get-bundle "kiwanami/emacs-calfw")
   (el-get-bundle "org-emms"
-    :type git
-    :url "https://gitlab.com/jagrg/org-emms.git")
+                 :type git
+                 :url "https://gitlab.com/jagrg/org-emms.git")
   (el-get-bundle "takaxp/emacs-easy-hugo") ;; using a private repo not to download images
   (el-get-bundle "org-bullets")
   (el-get-bundle "IvanMalison/org-projectile")
@@ -88,8 +88,8 @@
   ;; Major modes
   ;; download zip since python-mode git repository is extremely huge
   (el-get-bundle "python-mode"
-    :type http-zip
-    :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
+                 :type http-zip
+                 :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
   (el-get-bundle "csharp-mode")
   (el-get-bundle "yaml-mode")
   (el-get-bundle "json-mode")
@@ -155,8 +155,8 @@
   (el-get-bundle "ericdanan/counsel-projectile")
   (el-get-bundle "syohex/emacs-counsel-gtags")
   (el-get-bundle "password-store"
-    :type http
-    :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
+                 :type http
+                 :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
   (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
   (el-get-bundle "swiper")
   (el-get-bundle "Yevgnen/ivy-rich")
@@ -164,6 +164,7 @@
   (el-get-bundle "takaxp/counsel-selected")
   (el-get-bundle "kchenphy/counsel-world-clock")
   (el-get-bundle "raxod502/prescient.el" :name prescient)
+  (el-get-bundle "raxod502/ctrlf")
   (el-get-bundle "momomo5717/avy-migemo")
   (el-get-bundle "mkcms/ivy-yasnippet") ;; require ~/.emacs.d/recipes/ivy.rcp
   (el-get-bundle "akirak/ivy-omni-org")
@@ -213,17 +214,17 @@
   (el-get-bundle "bm")
   (el-get-bundle "emacsmirror/rainbow-mode")
   (el-get-bundle "shrink-path"
-    :type git
-    :url "https://gitlab.com/bennya/shrink-path.el.git")
+                 :type git
+                 :url "https://gitlab.com/bennya/shrink-path.el.git")
   (el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))
   (el-get-bundle "disk-usage"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
+                 :type git
+                 :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
   (el-get-bundle "sebastiencs/company-box")
   (el-get-bundle "kiennq/emacs-mini-modeline")
   (el-get-bundle "ideasman42/emacs-undo-fu"
-    :type git
-    :url "https://gitlab.com/ideasman42/emacs-undo-fu.git")
+                 :type git
+                 :url "https://gitlab.com/ideasman42/emacs-undo-fu.git")
   (el-get-bundle "dakra/statusbar.el" :name "statusbar")
   (el-get-bundle "zk-phi/gitmole")
   (el-get-bundle "kawabata/rot47")
@@ -251,8 +252,8 @@
   (el-get-bundle "rubikitch/replace-from-region")
   (el-get-bundle "quickrun")
   (el-get-bundle "latex-math-preview"
-    :type git
-    :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
+                 :type git
+                 :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
   (el-get-bundle "sbrisard/bratex")
   (el-get-bundle "zhangkaiyulw/smart-mark")
   (el-get-bundle "emacsmirror/syntax-subword")
@@ -272,12 +273,12 @@
   (el-get-bundle "NicolasPetton/pass")
   (el-get-bundle "pdf-tools")
   (el-get-bundle "gif-screencast"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
+                 :type git
+                 :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
   (el-get-bundle "emms"
-    :type git
-    :url "https://git.savannah.gnu.org/git/emms.git"
-    :load-path ("./lisp"))
+                 :type git
+                 :url "https://git.savannah.gnu.org/git/emms.git"
+                 :load-path ("./lisp"))
   (el-get-bundle "tarsius/keycast")
   (el-get-bundle "jamiguet/network-watch")
   (el-get-bundle "d12frosted/counsel-osx-app")

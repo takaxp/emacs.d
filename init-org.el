@@ -579,6 +579,7 @@
     (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
     (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
 
+  (defalias 'run-timer 'my-countdown-timer)
   (defun my-countdown-timer ()
     (interactive)
     (unless mode-line-format
@@ -762,7 +763,7 @@ will not be modified."
           ))
 
   ;; (setq org-agenda-current-time-string "<  d('- ' ｲﾏｺｺ)")
-  (setq org-agenda-current-time-string "< < < < < < < < < < < < < < < < ｲﾏｺｺ")
+  (setq org-agenda-current-time-string "< ｲﾏｺｺ")
   (setq org-agenda-timegrid-use-ampm t)
 
   (with-eval-after-load "moom"

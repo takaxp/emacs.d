@@ -15,16 +15,16 @@
                (emacs-repository-get-branch))
              system-configuration
              (when emacs-build-time
-               (format-time-string "%Y-%m-%d")))
-     (when (boundp 'mac-ime-cursor-type)
-       (format "Patch:\tns-inline\n"))))
+               (format-time-string "%Y-%m-%d"))))
+    (when (boundp 'mac-ime--cursor-type)
+      (insert (format "Patch:\tns-inline\n"))))
   (view-mode))
 
 ;;;###autoload
 (defun my-cmd-to-open-iterm2 (&optional arg)
   (interactive "P")
   (shell-command-to-string
-   (concat "open -a iTerm2.app "
+   (concat "open -a iTerm.app "
            (when arg default-directory))))
 
 (defvar my-kyoko-mad-mode nil)

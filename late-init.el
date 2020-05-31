@@ -122,7 +122,7 @@
   (with-eval-after-load "ws-butler"
     (custom-set-variables
      '(ws-butler-global-exempt-modes
-       (append '(org-mode empty-booting-mode diff-mode)
+       (append '(org-mode empty-booting-mode diff-mode change-log-mode)
                ws-butler-global-exempt-modes))))
 
   (unless noninteractive
@@ -150,11 +150,17 @@
   (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
 
 (when (memq window-system '(ns nil))
-  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
-  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns) ;; toggle-input-method
+  ;; toggle-input-method
   (declare-function my-ns-org-heading-auto-ascii "init" nil)
   (declare-function my-ns-ime-restore "init" nil)
-  (declare-function my-ime-active-p "init" nil))
+  (declare-function my-ime-active-p "init" nil)
+
+  (if (version< emacs-version "27.0")
+      (progn
+        (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
+        (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns))
+    (global-set-key (kbd "M-SPC") 'mac-ime-toggle)
+    (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
 
 (when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
@@ -206,7 +212,7 @@
         (mac-ime-deactivate))))
 
   ;; カーソル移動で heading に留まった時にIMEをOFFにする
-  (run-with-idle-timer 0.8 t #'my-ns-org-heading-auto-ascii)
+  (run-with-idle-timer 0.4 t #'my-ns-org-heading-auto-ascii)
 
   ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
   ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
@@ -284,6 +290,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 ;; Scroll window on a page-by-page basis with N line overlapping
 (setq next-screen-context-lines 1)
+
+(setq set-mark-command-repeat-pop t)
+(setq mark-ring-max 32)
+(setq global-mark-ring-max 64)
 
 (when (require 'ah nil t)
   (setq ah-lighter "")
@@ -457,17 +467,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (unless noninteractive
     (global-syntax-subword-mode 1)))
 
-(when (autoload-if-found
-       '(goto-last-change goto-last-change-reverse)
-       "goto-chg" nil t)
-
-  (global-set-key (kbd "C-,") 'goto-last-change)
-  (global-set-key (kbd "C-.") 'goto-last-change-reverse)
-
-  (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
-    (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse)))
-
 (setq yank-excluded-properties t)
 
 (when (autoload-if-found
@@ -512,9 +511,17 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (add-hook 'change-log-mode-hook
           (lambda ()
-              (my-orgalist-activate)
-              (setq tab-width 4)
-              (setq left-margin 4)))
+            (my-orgalist-activate)
+            (view-mode)
+            (setq tab-width 4)
+            (setq left-margin 4)))
+
+(defun ad:add-change-log-entry-other-window ()
+  (when view-mode
+    (view-mode-disable)))
+
+(advice-add 'add-change-log-entry-other-window
+            :before #'ad:add-change-log-entry-other-window)
 
 (when (autoload-if-found
        '(info org-info-ja)
@@ -596,7 +603,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
      ((executable-find "hunspell")
       (setenv "LC_ALL" "en_US")
       ;; (message "--- hunspell loaded.")
-      (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
+      ;; (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
+      (setenv "DICPATH" (concat (getenv "SYNCROOT") "/emacs.d/hunspell/dict-en"))
       (setq ispell-local-dictionary-alist
             '(("ja_JP" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
                ("-d" "en_US") nil utf-8)
@@ -1403,37 +1411,38 @@ Call this function at updating `mode-line-mode'."
       (unless (require 'font-lock+ nil t)
         (user-error "font-lock+ is NOT installed for all-the-icons."))
 
-      (defun ad:all-the-icons-dired--display ()
-        "Display the icons of files in a dired buffer."
-        (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)
-          (setq-local all-the-icons-dired-displayed t)
-          (let ((inhibit-read-only t)
-                (remote-p (and (fboundp 'tramp-tramp-file-p)
-                               (tramp-tramp-file-p default-directory))))
-            (save-excursion
-              (goto-char (point-min))
-              (setq tab-width 1)
-              (while (not (eobp))
-                (when (dired-move-to-filename nil)
-                  (let ((file (dired-get-filename 'verbatim t)))
-                    (unless (member file '("." ".."))
-                      (let ((filename (dired-get-filename nil t)))
-                        (if (file-directory-p filename)
-                            (let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))
-                                   (icon (cond
-                                          (remote-p
-                                           (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-                                          ((file-symlink-p filename)
-                                           (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-                                          ((all-the-icons-dir-is-submodule filename)
-                                           (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-                                          ((file-exists-p (format "%s/.git" filename))
-                                           (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-                                          (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))
-                              (insert (concat icon "\t")))
-                          (insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9
-                (forward-line 1))))))
-      (advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display))))
+      ;; (defun ad:all-the-icons-dired--display ()
+      ;;   "Display the icons of files in a dired buffer."
+      ;;   (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)
+      ;;     (setq-local all-the-icons-dired-displayed t)
+      ;;     (let ((inhibit-read-only t)
+      ;;           (file-remote-p (and (fboundp 'tramp-tramp-file-p)
+      ;;                               (tramp-tramp-file-p default-directory))))
+      ;;       (save-excursion
+      ;;         (goto-char (point-min))
+      ;;         (setq tab-width 1)
+      ;;         (while (not (eobp))
+      ;;           (when (dired-move-to-filename nil)
+      ;;             (let ((file (dired-get-filename 'verbatim t)))
+      ;;               (unless (member file '("." ".."))
+      ;;                 (let ((filename (dired-get-filename nil t)))
+      ;;                   (if (file-directory-p filename)
+      ;;                       (let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))
+      ;;                              (icon (cond
+      ;;                                     (remote-p
+      ;;                                      (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+      ;;                                     ((file-symlink-p filename)
+      ;;                                      (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+      ;;                                     ((all-the-icons-dir-is-submodule filename)
+      ;;                                      (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+      ;;                                     ((file-exists-p (format "%s/.git" filename))
+      ;;                                      (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+      ;;                                     (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))
+      ;;                         (insert (concat icon "\t")))
+      ;;                     (insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9
+      ;;           (forward-line 1))))))
+      ;; (advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display)
+      )))
 
 (when (autoload-if-found
        '(turn-on-eldoc-mode)
@@ -1480,8 +1489,12 @@ Call this function at updating `mode-line-mode'."
 
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (global-set-key (kbd "M-y") 'counsel-yank-pop)
+  (global-set-key (kbd "C-,") 'counsel-mark-ring)
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
   (global-set-key (kbd "C-c i r") 'ivy-resume)
+
+  (with-eval-after-load "flyspell"
+    (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change))
 
   (with-eval-after-load "ivy"
 

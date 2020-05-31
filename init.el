@@ -518,7 +518,7 @@
 
 ;; Show scroll bar or not
 (when (and (display-graphic-p)
-           (eq window-system 'mac))
+           (memq window-system '(ns mac)))
   (set-scroll-bar-mode nil)) ; 'right
 
 ;; Disable to show the tool bar.
@@ -954,10 +954,10 @@
 
 ;; set-default で global 指定すると，ミニバッファの message で制御不能になる
 ;; propertize で拡大できるが，global の値以下に縮小できなくなる．
-;; (set-default 'line-spacing 0.3)
+;; (set-default 'line-spacing 2)
 (defun my-linespacing ()
   (unless (minibufferp)
-    (setq-local line-spacing 0.3)))
+    (setq-local line-spacing 2)))
 (add-hook 'buffer-list-update-hook #'my-linespacing)
 (add-hook 'org-src-mode-hook #'my-linespacing)
 (add-hook 'debugger-mode-hook #'my-linespacing)
@@ -1040,7 +1040,7 @@
             ((eq my-frame-appearance 'light)
              (my-daylight-theme))
             (t
-             (let ((night-time-in 21)
+             (let ((night-time-in 23)
                    (night-time-out 5))
                (if (my-night-time-p
                     (* night-time-in 60) (* night-time-out 60))
@@ -1052,7 +1052,10 @@
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
     (my-font-config)
-    (my-apply-cursor-config)))
+    (my-apply-cursor-config)
+    (when type
+      (moom-move-frame-to-edge-top)
+      (moom-expand-height))))
 
 ;; init. This may override or reset font setting
 (with-eval-after-load "postpone"

@@ -5,14 +5,95 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
+(setq byte-compile-warnings '(cl-functions))
 
 (with-eval-after-load "org"
-  (defun ad:org-read-date (f &optional with-time to-time from-string prompt
-				                     default-time default-input inactive)
-    (let ((cursor-type nil))
-      (funcall f with-time to-time from-string prompt
-				       default-time default-input inactive)))
-  (advice-add 'org-read-date :around #'ad:org-read-date))
+  (setq org-startup-folded 'fold) ;; 効いていない...
+  )
+
+(when nil
+  (with-eval-after-load "all-the-icons-dired"
+    ;; アイコンの backgound が変わらないのは27だから．
+    (custom-set-faces
+     '(all-the-icons-dired-dir-face
+       ((t (:foreground "black" :background "light pink" :underline "OrangeRed2")))))
+
+    (defun all-the-icons-dired--add-overlay (pos string)
+      "Add overlay to display STRING at POS."
+      (custom-set-faces
+       '(all-the-icons-dired-dir-face
+         ((t (:foreground "black" :background "light pink" :underline "OrangeRed2")))))
+      (let ((ov (make-overlay (1- pos) pos)))
+        ;; (overlay-put ov 'priority nil)
+        (overlay-put ov 'face all-the-icons-dired-dir-face)
+        (overlay-put ov 'all-the-icons-dired-overlay t)
+        (overlay-put ov 'after-string string)))
+
+    (defun ad:all-the-icons-dired--refresh ()
+      (all-the-icons-dired--remove-all-overlays)
+      (save-excursion
+        (goto-char (point-min))
+        (setq tab-width 1)
+        (while (not (eobp))
+          (let ((file (dired-get-filename 'verbatim t)))
+            (when file
+              (let ((icon (if (file-directory-p file)
+                              (all-the-icons-icon-for-dir file nil "")
+                            (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust)))
+                    (matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist)))
+                ;;
+                ;; (if (file-directory-p file)
+                ;;     (setq icon (cond
+                ;;                 ((and (fboundp 'tramp-tramp-file-p)
+                ;;                       (tramp-tramp-file-p default-directory))
+                ;;                  (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                ;;                 ((file-symlink-p file)
+                ;;                  (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                ;;                 ((all-the-icons-dir-is-submodule file)
+                ;;                  (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                ;;                 ((file-exists-p (format "%s/.git" file))
+                ;;                  (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+                ;;                 (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust)))))
+                ;;   ;; (setq icon (concat icon "\t"))
+                ;;   )
+
+                ;; ここで適用するオーバーレイの問題だ．例えば "\t" が真っ白（背景色）．
+                ;; all-the-icons-dired--add-overlay にoverlay-put ov 'face hl-line-face を加えると，全体の "\t" に色が着く．
+                ;; しかし，overlay-put で 'face を追加してもアイコンの 'face（背景）は変更されない．
+                (if (member file '("." ".."))
+                    (all-the-icons-dired--add-overlay (point) "\t")
+                  (all-the-icons-dired--add-overlay (point) (concat icon "\t")))
+
+                )))
+          (dired-next-line 1))))
+    ;;(advice-add 'all-the-icons-dired--refresh :override #'ad:all-the-icons-dired--refresh)
+    ))
+
+;; (defun all-the-icons-dired--refresh ()
+;;   "Display the icons of files in a dired buffer."
+;;   (all-the-icons-dired--remove-all-overlays)
+;;   (save-excursion
+;;     (goto-char (point-min))
+;;     (while (not (eobp))
+;;       (when (dired-move-to-filename nil)
+;;         (let ((file (dired-get-filename 'relative 'noerror)))
+;;           (when file
+;;             (let ((icon (if (file-directory-p file)
+;;                             (all-the-icons-icon-for-dir file
+;;                                                         :face 'all-the-icons-dired-dir-face
+;;                                                         :v-adjust all-the-icons-dired-v-adjust)
+;;                           (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust))))
+;;               (if (member file '("." ".."))
+;;                   (all-the-icons-dired--add-overlay (point) "  \t")
+;;                 (all-the-icons-dired--add-overlay (point) (concat icon "\t")))))))
+;;       (forward-line 1))))
+
+(with-eval-after-load "yatex"
+  (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
+  (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp))
+
+;; (with-eval-after-load "postpone"
+;;   (setq mac-default-input-source "com.apple.inputmethod.Kotoeri.Japanese"))
 
 (when nil
   ;; https://github.com/chuntaro/emacs-keycaster/issues/4
@@ -26,9 +107,8 @@
   ;;  '(keycaster-x-offset (+ 476 10)))
   (keycaster-mode))
 
-(when t
+(when nil
   ;; Shall be updated for Kotoeri
-  (setq mac-ime-cursor-type nil)
   (defun ns-insert-marked-text (pos len)
     "Insert contents of `ns-working-text' as UTF-8 string and mark with
   `ns-working-overlay' and `ns-marked-overlay'.  Any previously existing
