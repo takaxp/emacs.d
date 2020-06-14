@@ -24,7 +24,7 @@
    :CUSTOM_ID: orgb91a9245
    :END:
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle no
 ;;;###autoload
 (defun my-print-build-info ()
   (interactive)
@@ -32,16 +32,20 @@
   (let ((buffer-read-only nil))
     (erase-buffer)
     (insert
-     (format "GNU Emacs %s\nCommit:\t%s\nBranch:\t%s\nSystem:\t%s\nDate:\t\t%s\n"
+     (format "GNU Emacs %s\nCommit:\t\t%s\nBranch:\t\t%s\nSystem:\t\t%s\nDate:\t\t\t%s\n"
              emacs-version
              (emacs-repository-get-version)
              (when (version< "27.0" emacs-version)
                (emacs-repository-get-branch))
              system-configuration
-             (when emacs-build-time
-               (format-time-string "%Y-%m-%d"))))
-    (when (boundp 'mac-ime--cursor-type)
-      (insert (format "Patch:\tns-inline\n"))))
+             (format-time-string "%Y-%m-%d %T (%Z)" emacs-build-time)))
+    (insert (format "Patch:\t\t%s ns-inline.patch\n"
+                    (if (boundp 'mac-ime--cursor-type) "with" "without")))
+    (insert
+     (format "Features:\t%s\n" system-configuration-features))
+    ;; (insert
+    ;;  (format "Options:\t%s\n"  system-configuration-options))
+    )
   (view-mode))
 #+end_src
 

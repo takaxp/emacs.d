@@ -1,0 +1,12 @@
+(:name emms
+       :description "The Emacs Multimedia System"
+       :type git
+       :url "https://git.savannah.gnu.org/git/emms.git"
+       :info "doc"
+       :features emms-setup
+       :build `(("mkdir" "-p" ,(expand-file-name (format "%s/emms" user-emacs-directory)))
+                ("make" ,(format "EMACS=%s" el-get-emacs) ,(format "SITEFLAG=--no-site-file")))
+       :build/berkeley-unix `(("mkdir" "-p" ,(expand-file-name (format "%s/emms" user-emacs-directory)))
+                              ("gmake" ,(format "EMACS=%s" el-get-emacs)
+                               ,(format "SITEFLAG=--no-site-file")
+                               "autoloads" "lisp" "docs")))

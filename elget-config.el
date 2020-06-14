@@ -2,6 +2,7 @@
 ;; 2. Use emacsmirror not to install packages under ~/.emacs.d/elpa.
 ;; 3. Write private recipes in ~/.emacs.d/recipes if needed.
 ;; call my-elget-load-and-sync
+(require 'elget-setup)
 
 (defmacro my-elget-bundles ()
   "List of packages."
@@ -74,10 +75,10 @@
   (el-get-bundle "ox-pandoc")
   (el-get-bundle "0x60df/ox-qmd")
   (el-get-bundle "larstvei/ox-gfm")
-  (el-get-bundle "marsmining/ox-twbs")
   (el-get-bundle "kaushalmodi/ox-hugo")
   (el-get-bundle "jkitchin/ox-ipynb")
   (el-get-bundle "jlumpe/ox-json")
+  ;;(el-get-bundle "marsmining/ox-twbs")
 
   ;; Org Mode - ob
   (el-get-bundle "zweifisch/ob-http")
@@ -158,7 +159,7 @@
                  :type http
                  :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
   (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
-  (el-get-bundle "swiper")
+  ;; (el-get-bundle "swiper") ;; use private recipe for ivy.el
   (el-get-bundle "Yevgnen/ivy-rich")
   (el-get-bundle "asok/all-the-icons-ivy")
   (el-get-bundle "takaxp/counsel-selected")
@@ -166,7 +167,8 @@
   (el-get-bundle "raxod502/prescient.el" :name prescient)
   (el-get-bundle "raxod502/ctrlf")
   (el-get-bundle "momomo5717/avy-migemo")
-  (el-get-bundle "mkcms/ivy-yasnippet") ;; require ~/.emacs.d/recipes/ivy.rcp
+  (el-get-bundle "takaxp/ivy-yasnippet" :depends (dash swiper yasnippet))
+  ;; (el-get-bundle "mkcms/ivy-yasnippet" :depends (dash swiper yasnippet)) ;; require ~/.emacs.d/recipes/ivy.rcp
   (el-get-bundle "akirak/ivy-omni-org")
   (el-get-bundle "abo-abo/smex")
 
@@ -275,10 +277,6 @@
   (el-get-bundle "gif-screencast"
                  :type git
                  :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
-  (el-get-bundle "emms"
-                 :type git
-                 :url "https://git.savannah.gnu.org/git/emms.git"
-                 :load-path ("./lisp"))
   (el-get-bundle "tarsius/keycast")
   (el-get-bundle "jamiguet/network-watch")
   (el-get-bundle "d12frosted/counsel-osx-app")
@@ -290,34 +288,39 @@
 (defmacro my-elget-bundles-by-tag ()
   "Packages to install with specific Tag."
 
+  ;; (el-get-bundle "emms") ;; with private recipe
+
   ;; Resolve Magit dependency
   (el-get-bundle "ghub")
   (el-get-bundle "magit-popup")
   (el-get-bundle "magit/libegit2"
-                 :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
+    :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
 
   ;; with private recipe
-  (dolist (recipe my-elget--non-shallow)
+  (dolist (recipe my-elget--private-recipes)
     (when noninteractive
       (if (my-elget-private-recipe-p recipe)
-          (message "--- \"%s\" is installed with private recipe" recipe)
+          (message "--- \"%s\" is being installed with private recipe" recipe)
         (error "No private recipe exists for \"%s\"" recipe)))
-    `(el-get-bundle ,recipe)))
+    (eval `(el-get-bundle ,recipe))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; End of package list
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar my-elget-threads 1)
-(defvar my-elget--verbose nil)
-(defvar my-elget--non-shallow nil)
-(defvar my-elget--private-recipe-dir '("~/.emacs.d/recipes"))
 
 (defun my-elget-private-recipe-p (recipe)
   (let ((result nil))
-    (dolist (dir my-elget--private-recipe-dir)
+    (dolist (dir my-elget--private-recipe-dirs)
       (when (file-exists-p (concat dir "/" recipe ".rcp"))
         (setq result t)))
     result))
+
+;;;###audoload
+(defun my-elget-update-org ()
+  (interactive)
+  (when (shell-command-to-string
+         (concat "~/Dropbox/emacs.d/bin/el-get.sh -o"))
+    (message "[el-get] Org mode updated")))
 
 (defun my-elget-update-packages (packages &optional current total)
   (unless (eq (or current 0) 0)
@@ -380,46 +383,6 @@
   (let ((pos (string-match "[^/]+$" package)))
     (el-get-remove (if pos (substring-no-properties package pos) package))))
 
-(defun my-elget-setup ()
-  ;; Install all packages to this directory
-  (setq el-get-dir
-        (expand-file-name "el-get" (locate-user-emacs-file emacs-version)))
-  (add-to-list 'load-path (concat el-get-dir "/el-get"))
-  (add-to-list 'load-path (concat el-get-dir "/postpone"))
-  (setq el-get-verbose nil)
-  (with-eval-after-load "el-get-notify"
-    ;;(remove-hook 'el-get-post-init-hooks #'el-get-post-init-message)
-    (remove-hook 'el-get-post-update-hooks #'el-get-post-update-message)
-    (remove-hook 'el-get-post-update-hooks #'el-get-post-update-notification)
-    (remove-hook 'el-get-post-install-hooks #'el-get-post-install-notification)
-    (remove-hook 'el-get-post-remove-hooks #'el-get-post-remove-notification))
-  (unless (file-directory-p el-get-dir)
-    (user-error (format "!! Before use this, be sure %s exists !!" el-get-dir)))
-
-  (unless (require 'el-get nil 'noerror)
-    (with-current-buffer
-        ;; `el-get-silent-update' が使えるカスタマイズパッケージを使う．
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/takaxp/el-get/master/el-get-install.el")
-      ;; オリジナルはこっち
-      ;;"https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el")
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-
-  ;; use private recipes
-  (dolist (dir my-elget--private-recipe-dir)
-    (add-to-list 'el-get-recipe-path dir))
-
-  (setq el-get-git-shallow-clone t ;; "--depth 1"
-        el-get-verbose nil ;; just for sure
-        el-get-silent-update t ;; 出力されるメッセージの抑制
-        gc-cons-threshold (* 512 1024 1024) ;; 512MB
-        el-get-default-process-sync t ;; 常にシングルスレッドで動かす
-        garbage-collection-messages t)
-
-  ;; Non shallow packages, requires private recipe
-  (add-to-list 'my-elget--non-shallow "org-mode")
-  (add-to-list 'my-elget--non-shallow "magit"))
 
 ;;;###autoload
 (defun my-elget-list ()
@@ -436,14 +399,15 @@
   (interactive)
   (when (shell-command-to-string
          (concat "export HOSTTYPE=\"intel-mac\" &&"
-                 " ~/Dropbox/emacs.d/bin/update-elget.sh -r"))
+                 " ~/Dropbox/emacs.d/bin/el-get.sh -r"))
     (message "[el-get] Link updated")))
 
 ;; for noninteractive
 (defun my-elget-load-and-sync ()
   (my-elget-setup)
-  (eval '(my-elget-bundles-by-tag))
-  (eval '(my-elget-bundles))
+  (unless my-elget-initialize
+    (eval '(my-elget-bundles-by-tag))
+    (eval '(my-elget-bundles)))
   (el-get 'sync))
 
 ;; init

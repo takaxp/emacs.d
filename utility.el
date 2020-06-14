@@ -2,25 +2,6 @@
 ;;
 
 ;;;###autoload
-(defun my-print-build-info ()
-  (interactive)
-  (switch-to-buffer (get-buffer-create "*Build info*"))
-  (let ((buffer-read-only nil))
-    (erase-buffer)
-    (insert
-     (format "GNU Emacs %s\nCommit:\t%s\nBranch:\t%s\nSystem:\t%s\nDate:\t\t%s\n"
-             emacs-version
-             (emacs-repository-get-version)
-             (when (version< "27.0" emacs-version)
-               (emacs-repository-get-branch))
-             system-configuration
-             (when emacs-build-time
-               (format-time-string "%Y-%m-%d"))))
-    (when (boundp 'mac-ime--cursor-type)
-      (insert (format "Patch:\tns-inline\n"))))
-  (view-mode))
-
-;;;###autoload
 (defun my-cmd-to-open-iterm2 (&optional arg)
   (interactive "P")
   (shell-command-to-string

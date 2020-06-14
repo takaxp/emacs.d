@@ -5,12 +5,18 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-(setq byte-compile-warnings '(cl-functions))
 
-(with-eval-after-load "org"
-  (setq org-startup-folded 'fold) ;; 効いていない...
-  )
 
+
+
+
+
+
+
+
+
+
+;; need to learn the overlay...
 (when nil
   (with-eval-after-load "all-the-icons-dired"
     ;; アイコンの backgound が変わらないのは27だから．
@@ -92,9 +98,6 @@
   (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
   (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp))
 
-;; (with-eval-after-load "postpone"
-;;   (setq mac-default-input-source "com.apple.inputmethod.Kotoeri.Japanese"))
-
 (when nil
   ;; https://github.com/chuntaro/emacs-keycaster/issues/4
   (load "~/.emacs.d/27.0.60/el-get/keypression/keypression.el")
@@ -107,7 +110,11 @@
   ;;  '(keycaster-x-offset (+ 476 10)))
   (keycaster-mode))
 
+
 (when nil
+  (with-eval-after-load "postpone"
+    (setq mac-default-input-source "com.apple.inputmethod.Kotoeri.Japanese"))
+
   ;; Shall be updated for Kotoeri
   (defun ns-insert-marked-text (pos len)
     "Insert contents of `ns-working-text' as UTF-8 string and mark with
@@ -186,8 +193,9 @@
               keycaster-y-offset 20))
       )))
 
-(with-eval-after-load "postpone"
-  (add-hook 'focus-in-hook 'mac-ime-update-title))
+;; (with-eval-after-load "postpone"
+;;   (when (eq system-type 'darwin)
+;;     (add-hook 'focus-in-hook 'mac-ime-update-title)))
 
 (with-eval-after-load "postpone"
   (setq ns-alerter-command nil)) ;; due to broken of alerter command
@@ -209,6 +217,7 @@
   (when (require 'backline nil t)
     (advice-add 'outline-flag-region :after 'backline-update)))
 
+;; ns-inline-patch
 (custom-set-faces
  '(ns-marked-text-face
    ((t (:foreground "black" :background "light pink" :underline "OrangeRed2"))))

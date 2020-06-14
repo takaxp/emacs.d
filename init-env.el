@@ -102,11 +102,13 @@
         (my-delete-old-backup 5)
         (when my-skip-check-autoload-file
           (my-find-missing-packages 10)))
-      (unless (ignore-errors
-                (if shutup-p
-                    (shut-up (require 'private "private.el.gpg" t))
-                  (require 'private "private.el.gpg" t)))
-        (error "GPG decryption error (private.el)"))
+      (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
+                 (eq system-type 'darwin))
+        (unless (ignore-errors
+                  (if shutup-p
+                      (shut-up (require 'private "private.el.gpg" t))
+                    (require 'private "private.el.gpg" t)))
+          (error "GPG decryption error (private.el)")))
       (require 'my-eshell nil t)
       (require 'my-mail nil t)))
   (when my-profiler-p
@@ -133,11 +135,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hide package.el, could be removed
-(when (> 27 emacs-major-version)
-  (defun ad:package--ensure-init-file ()
-    (setq package--init-file-ensured t))
-  (advice-add 'package--ensure-init-file :override
-              #'ad:package--ensure-init-file))
+(unless (version< "27.0" (format "%s" emacs-major-version))
+  (setq byte-compile-warnings '(cl-functions)))
+
+;; (defun ad:package--ensure-init-file ()
+;;   (setq package--init-file-ensured t))
+;; (advice-add 'package--ensure-init-file :override
+;;             #'ad:package--ensure-init-file))
 
 ;; (my-kill-emacs-hook-show)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

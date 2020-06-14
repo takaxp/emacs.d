@@ -113,13 +113,6 @@
         (current-time))))
 ;; (when (future-time-p "10:00") (run-at-time...))
 
-(defvar window-focus-p t)
-(with-eval-after-load "postpone"
-  (defun window-focus-p ()
-    (if window-focus-p t nil))
-  (add-hook 'focus-in-hook (lambda () (setq window-focus-p t)))
-  (add-hook 'focus-out-hook (lambda () (setq window-focus-p nil))))
-
 ;;;###autoload
 (defun library-p (libraries)
   "Return t when every specified library can be located. "
@@ -855,7 +848,7 @@
          moom-font-decrease moom-font-size-reset moom-font-resize)
        "moom-font" nil t)
 
-  (add-hook 'moom-font-after-resize-hook #'moom-expand-height)
+  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
 
   (with-eval-after-load "moom-font"
@@ -1055,7 +1048,7 @@
     (my-apply-cursor-config)
     (when type
       (moom-move-frame-to-edge-top)
-      (moom-expand-height))))
+      (moom-fill-height))))
 
 ;; init. This may override or reset font setting
 (with-eval-after-load "postpone"

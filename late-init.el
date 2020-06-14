@@ -195,7 +195,7 @@
   (if (version< emacs-version "27.0")
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
-        (when (and (window-focus-p)
+        (when (and (frame-focus-state)
                    (eq major-mode 'org-mode)
                    (or (looking-at org-heading-regexp)
                        (equal (buffer-name) org-agenda-buffer-name))
@@ -203,7 +203,7 @@
           (my-ime-off)))
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
-      (when (and (window-focus-p)
+      (when (and (frame-focus-state)
                  (eq major-mode 'org-mode)
                  (or (looking-at org-heading-regexp)
                      (equal (buffer-name) org-agenda-buffer-name))
@@ -241,11 +241,11 @@
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
     (add-hook 'input-method-deactivate-hook #'my-working-text-face-off))
 
-  (when (version< emacs-version "27.0")
-    (defun my-ns-ime-restore ()
-      "Restore the last IME status changed in Emacs."
-      (if my-ime-last (my-ime-on) (my-ime-off)))
-    (add-hook 'focus-in-hook #'my-ns-ime-restore)))
+  (defun my-ns-ime-restore ()
+    "Restore the last IME status changed in Emacs."
+    (if my-ime-last (my-ime-on) (my-ime-off)))
+  ;; (add-hook 'focus-in-hook #'my-ns-ime-restore)
+  )
 
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
@@ -319,9 +319,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
    '(bs-cycle-configuration-name "files-and-scratch")
    '(bs-max-window-height 10))
 
-   ;; リストを縦表示する
+  ;; リストを縦表示する
   (when (require 'bsv nil t)
-    (setq bsv-max-height 5)))
+    (setq bsv-max-height 5
+          bsv-message-timeout 10)))
 
 (when (autoload-if-found
        '(my-toggle-bm
@@ -726,7 +727,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
   (defun ad:view--enable () (my-mode-line-on))
   (defun ad:view--disable () (my-mode-line-off))
-  (when my-toggle-modeline-global
+  (unless my-toggle-modeline-global
     (advice-add 'view--enable :before #'ad:view--enable)
     (advice-add 'view--disable :before #'ad:view--disable)))
 
@@ -2444,7 +2445,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
           (dimmer-on)
           (redraw-frame)))
       (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
-    (when (boundp 'magit-completing-read-function)
+    (when (and (boundp 'magit-completing-read-function)
+               (require 'ivy nil t))
       ;; ivy を使う
       (setq magit-completing-read-function 'ivy-completing-read))
     (when (boundp 'magit-repository-directories)

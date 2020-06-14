@@ -240,7 +240,13 @@
         (save-some-buffers t)))
     ;; implemented in `org-onit.el'. No need to hook this.
     ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
-    ))
+    )
+
+  (with-eval-after-load "org-table"
+    ;; エコー表示前に保存する
+    (defun ad:org-table-field-info (_arg)
+      (save-buffer))
+    (advice-add 'org-table-field-info :before #'ad:org-table-field-info)))
 
 ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
 ;; default = ~/org.ics
@@ -827,7 +833,7 @@ will not be modified."
   (defun my-popup-calendar ()
     (interactive)
     (if (and (eq system-type 'darwin)
-             (window-focus-p))
+             (frame-focus-state))
         (shell-command-to-string "open -a calendar.app")
       (message "--- input focus is currently OUT.")))
 

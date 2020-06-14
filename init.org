@@ -463,20 +463,20 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
             (string-to-number current-min))))))
 #+end_src
 
-** [window-focus-p] フォーカス判定
+** DONE [window-focus-p] フォーカス判定
+   CLOSED: [2020-06-04 Thu 08:00]
    :PROPERTIES:
    :CUSTOM_ID: orgcea06248
    :END:
 
 フォーカスが当たっているのかを判定するための関数です．
 
-#+begin_src emacs-lisp :tangle yes
-(defvar window-focus-p t)
+(2020-06-04) =frame-focus-state= という標準関数がありました．
+
+#+begin_src emacs-lisp :tangle no
 (with-eval-after-load "postpone"
   (defun window-focus-p ()
-    (if window-focus-p t nil))
-  (add-hook 'focus-in-hook (lambda () (setq window-focus-p t)))
-  (add-hook 'focus-out-hook (lambda () (setq window-focus-p nil))))
+    (frame-parameter (selected-frame) 'last-focus-update)))
 #+end_src
 
 ** [library-p] load-path にライブラリがあるかを判定
@@ -1355,7 +1355,7 @@ GPG error: "no usable configuration," OpenPGP
   (if (version< emacs-version "27.0")
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
-        (when (and (window-focus-p)
+        (when (and (frame-focus-state)
                    (eq major-mode 'org-mode)
                    (or (looking-at org-heading-regexp)
                        (equal (buffer-name) org-agenda-buffer-name))
@@ -1363,7 +1363,7 @@ GPG error: "no usable configuration," OpenPGP
           (my-ime-off)))
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
-      (when (and (window-focus-p)
+      (when (and (frame-focus-state)
                  (eq major-mode 'org-mode)
                  (or (looking-at org-heading-regexp)
                      (equal (buffer-name) org-agenda-buffer-name))
@@ -1401,11 +1401,11 @@ GPG error: "no usable configuration," OpenPGP
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
     (add-hook 'input-method-deactivate-hook #'my-working-text-face-off))
 
-  (when (version< emacs-version "27.0")
-    (defun my-ns-ime-restore ()
-      "Restore the last IME status changed in Emacs."
-      (if my-ime-last (my-ime-on) (my-ime-off)))
-    (add-hook 'focus-in-hook #'my-ns-ime-restore)))
+  (defun my-ns-ime-restore ()
+    "Restore the last IME status changed in Emacs."
+    (if my-ime-last (my-ime-on) (my-ime-off)))
+  ;; (add-hook 'focus-in-hook #'my-ns-ime-restore)
+  )
 #+end_src
 
 ** EMPビルド用設定                                                    :macOS:
@@ -1764,9 +1764,10 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
    '(bs-cycle-configuration-name "files-and-scratch")
    '(bs-max-window-height 10))
 
-   ;; リストを縦表示する
+  ;; リストを縦表示する
   (when (require 'bsv nil t)
-    (setq bsv-max-height 5)))
+    (setq bsv-max-height 5
+          bsv-message-timeout 10)))
 #+end_src
 
 ** [bm.el] カーソル位置をブックマークして追う
@@ -2854,7 +2855,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
   (defun ad:view--enable () (my-mode-line-on))
   (defun ad:view--disable () (my-mode-line-off))
-  (when my-toggle-modeline-global
+  (unless my-toggle-modeline-global
     (advice-add 'view--enable :before #'ad:view--enable)
     (advice-add 'view--disable :before #'ad:view--disable)))
 #+end_src
@@ -6179,7 +6180,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 
   - http://0xcc.net/misc/auto-save/
 
-同じ機能で比較的新しいパッケージに， =real-auto-save= があります．ただ，私の場合は，以下のようなモードごとの制御がうまくできなかったので移行していません．
+同じ機能で比較的新しいパッケージに， [[https://github.com/ChillarAnand/real-auto-save][real-auto-save.el]] があります．ただ，私の場合は，以下のようなモードごとの制御がうまくできなかったので移行していません．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'auto-save-buffers nil t)
@@ -7320,7 +7321,8 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
           (dimmer-on)
           (redraw-frame)))
       (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
-    (when (boundp 'magit-completing-read-function)
+    (when (and (boundp 'magit-completing-read-function)
+               (require 'ivy nil t))
       ;; ivy を使う
       (setq magit-completing-read-function 'ivy-completing-read))
     (when (boundp 'magit-repository-directories)
@@ -7902,7 +7904,13 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (save-some-buffers t)))
     ;; implemented in `org-onit.el'. No need to hook this.
     ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
-    ))
+    )
+
+  (with-eval-after-load "org-table"
+    ;; エコー表示前に保存する
+    (defun ad:org-table-field-info (_arg)
+      (save-buffer))
+    (advice-add 'org-table-field-info :before #'ad:org-table-field-info)))
 #+end_src
 
 ** contribution を使う
@@ -8660,7 +8668,7 @@ will not be modified."
   (defun my-popup-calendar ()
     (interactive)
     (if (and (eq system-type 'darwin)
-             (window-focus-p))
+             (frame-focus-state))
         (shell-command-to-string "open -a calendar.app")
       (message "--- input focus is currently OUT.")))
 
@@ -10662,7 +10670,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
          moom-font-decrease moom-font-size-reset moom-font-resize)
        "moom-font" nil t)
 
-  (add-hook 'moom-font-after-resize-hook #'moom-expand-height)
+  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
 
   (with-eval-after-load "moom-font"
@@ -11502,7 +11510,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (my-apply-cursor-config)
     (when type
       (moom-move-frame-to-edge-top)
-      (moom-expand-height))))
+      (moom-fill-height))))
 
 ;; init. This may override or reset font setting
 (with-eval-after-load "postpone"

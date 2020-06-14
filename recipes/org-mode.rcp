@@ -5,18 +5,16 @@
        :url "https://code.orgmode.org/bzg/org-mode.git"
        :shallow nil
        :branch "maint"
-       :checkout "tags/release_9.3.3"
+       :checkout "tags/release_9.3.7"
        :info "doc"
        :build/berkeley-unix `,(mapcar
                                (lambda (target)
                                  (list "gmake" target (concat "EMACS=" (shell-quote-argument el-get-emacs))))
                                '("all"))
-       :build `(("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/org-mac-link.patch")
+       :build `(("git" "stash")
+                ("git" "stash" "clear")
+                ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/org-mac-link.patch")
                 ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/org-element.patch")
-                ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/ox-html-id.patch")
-                ,(mapcar
-                  (lambda (target)
-                    (list "make" target (concat "EMACS=" (shell-quote-argument el-get-emacs))))
-                  '("all")))
+                ("make" ,(concat "EMACS=" (shell-quote-argument el-get-emacs)) "compile" "autoloads"))
        :load-path ("." "contrib/lisp" "lisp")
        :load ("lisp/org-loaddefs.el"))

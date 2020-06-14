@@ -1,0 +1,11 @@
+(:name swiper
+       :website "https://github.com/abo-abo/swiper"
+       :description "Ivy - a generic completion frontend for Emacs, Swiper - isearch with an overview, and more. Oh, man!"
+       :type github
+       :info "doc/ivy.info"
+       :depends (avy cl-lib)
+       :build `(("make" ,(format "emacs=%s -L %s" el-get-emacs (concat (file-name-as-directory el-get-dir) "avy")) "compile")
+                ("makeinfo" "-o" "doc/ivy.info" "doc/ivy.texi"))
+       :build/berkeley-unix `(("gmake" ,(format "emacs=%s -L %s" el-get-emacs (concat (file-name-as-directory el-get-dir) "avy")) "compile")
+                              ("gmakeinfo" "-o" "doc/ivy.info" "doc/ivy.texi"))
+       :pkgname "abo-abo/swiper")
