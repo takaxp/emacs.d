@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-31 Sun 16:08 -->
+<!-- 2020-06-16 Tue 07:23 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -200,28 +200,50 @@
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
 <script type="text/javascript">
-// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
 <!--/*--><![CDATA[/*><!--*/
-     function CodeHighlightOn(elem, id)
-     {
-       var target = document.getElementById(id);
-       if(null != target) {
-         elem.cacheClassElem = elem.className;
-         elem.cacheClassTarget = target.className;
-         target.className = "code-highlighted";
-         elem.className   = "code-highlighted";
-       }
-     }
-     function CodeHighlightOff(elem, id)
-     {
-       var target = document.getElementById(id);
-       if(elem.cacheClassElem)
-         elem.className = elem.cacheClassElem;
-       if(elem.cacheClassTarget)
-         target.className = elem.cacheClassTarget;
-     }
-    /*]]>*///-->
-// @license-end
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
 </script>
 </head>
 <body>
@@ -294,11 +316,11 @@
 注意：コピペだけでは動かない可能性があります．<br />
 </p>
 
-<div id="outline-container-org435340e8" class="outline-2">
+<div id="outline-container-orgcf72a6e" class="outline-2">
 <h2 id="org435340e8"><span class="section-number-2">1</span> ユーティリティ関数</h2>
 <div class="outline-text-2" id="text-org435340e8">
 </div>
-<div id="outline-container-orgb91a9245" class="outline-3">
+<div id="outline-container-org062ae7e" class="outline-3">
 <h3 id="orgb91a9245"><span class="section-number-3">1.1</span> ビルド情報をバッファに表示する</h3>
 <div class="outline-text-3" id="text-orgb91a9245">
 <div class="org-src-container">
@@ -309,23 +331,27 @@
   (<span style="color: #a020f0;">let</span> ((buffer-read-only nil))
     (erase-buffer)
     (insert
-     (format <span style="color: #8b2252;">"GNU Emacs %s\nCommit:\t%s\nBranch:\t%s\nSystem:\t%s\nDate:\t\t%s\n"</span>
+     (format <span style="color: #8b2252;">"GNU Emacs %s\nCommit:\t\t%s\nBranch:\t\t%s\nSystem:\t\t%s\nDate:\t\t\t%s\n"</span>
              emacs-version
              (emacs-repository-get-version)
              (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
                (emacs-repository-get-branch))
              system-configuration
-             (<span style="color: #a020f0;">when</span> emacs-build-time
-               (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>))))
-    (<span style="color: #a020f0;">when</span> (boundp 'mac-ime--cursor-type)
-      (insert (format <span style="color: #8b2252;">"Patch:\tns-inline\n"</span>))))
+             (format-time-string <span style="color: #8b2252;">"%Y-%m-%d %T (%Z)"</span> emacs-build-time)))
+    (insert (format <span style="color: #8b2252;">"Patch:\t\t%s ns-inline.patch\n"</span>
+                    (<span style="color: #a020f0;">if</span> (boundp 'mac-ime--cursor-type) <span style="color: #8b2252;">"with"</span> <span style="color: #8b2252;">"without"</span>)))
+    (insert
+     (format <span style="color: #8b2252;">"Features:\t%s\n"</span> system-configuration-features))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(insert</span>
+    <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(format "Options:\t%s\n"  system-configuration-options))</span>
+    )
   (view-mode))
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org62365dfa" class="outline-3">
+<div id="outline-container-orgf12f361" class="outline-3">
 <h3 id="org62365dfa"><span class="section-number-3">1.2</span> iTerm2.app を呼び出す関数</h3>
 <div class="outline-text-3" id="text-org62365dfa">
 <div class="org-src-container">
@@ -340,7 +366,7 @@
 </div>
 </div>
 
-<div id="outline-container-org68ed2087" class="outline-3">
+<div id="outline-container-org3b141b9" class="outline-3">
 <h3 id="org68ed2087"><span class="section-number-3">1.3</span> サボっていると Kyoko さんに怒られる</h3>
 <div class="outline-text-3" id="text-org68ed2087">
 <p>
@@ -369,7 +395,7 @@ macOS 用の関数です．別途，Kyoko さんの音声をインストール�
 </div>
 </div>
 
-<div id="outline-container-orgbf8ddfed" class="outline-3">
+<div id="outline-container-org8fb778d" class="outline-3">
 <h3 id="orgbf8ddfed"><span class="section-number-3">1.4</span> コンソールでカレントバッファのあるディレクトリに移動する</h3>
 <div class="outline-text-3" id="text-orgbf8ddfed">
 <p>
@@ -406,7 +432,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-orgb8c148ec" class="outline-3">
+<div id="outline-container-org7720056" class="outline-3">
 <h3 id="orgb8c148ec"><span class="section-number-3">1.5</span> ファイルに含まれるテーブルを使って定時にアラートを表示する</h3>
 <div class="outline-text-3" id="text-orgb8c148ec">
 <div class="org-src-container">
@@ -488,7 +514,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org33d4f93d" class="outline-3">
+<div id="outline-container-org9da2da0" class="outline-3">
 <h3 id="org33d4f93d"><span class="section-number-3">1.6</span> 頻繁に利用するファイルをring形式でたどる</h3>
 <div class="outline-text-3" id="text-org33d4f93d">
 <p>
@@ -526,7 +552,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org31226d9e" class="outline-3">
+<div id="outline-container-orgace5241" class="outline-3">
 <h3 id="org31226d9e"><span class="section-number-3">1.7</span> 引数のorgバッファを開く</h3>
 <div class="outline-text-3" id="text-org31226d9e">
 <div class="org-src-container">
@@ -546,7 +572,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org6a1e418a" class="outline-3">
+<div id="outline-container-org7b32d52" class="outline-3">
 <h3 id="org6a1e418a"><span class="section-number-3">1.8</span> orgバッファにいつものヘッダを追加する</h3>
 <div class="outline-text-3" id="text-org6a1e418a">
 <div class="org-src-container">
@@ -571,7 +597,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org8f57b3f8" class="outline-3">
+<div id="outline-container-org2a6de0a" class="outline-3">
 <h3 id="org8f57b3f8"><span class="section-number-3">1.9</span> 議事録ひな形を書き入れる</h3>
 <div class="outline-text-3" id="text-org8f57b3f8">
 <div class="org-src-container">
@@ -590,7 +616,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-orgdd9630ad" class="outline-3">
+<div id="outline-container-org7b4a212" class="outline-3">
 <h3 id="orgdd9630ad"><span class="section-number-3">1.10</span> ランダムの文字列を取得する</h3>
 <div class="outline-text-3" id="text-orgdd9630ad">
 <p>
@@ -620,7 +646,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org3697f6bd" class="outline-3">
+<div id="outline-container-orgd85e216" class="outline-3">
 <h3 id="org3697f6bd"><span class="section-number-3">1.11</span> 行頭に" - "を挿入する</h3>
 <div class="outline-text-3" id="text-org3697f6bd">
 <div class="org-src-container">
@@ -658,7 +684,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org9aef972b" class="outline-3">
+<div id="outline-container-org85252a0" class="outline-3">
 <h3 id="org9aef972b"><span class="section-number-3">1.12</span> 定期実行関数</h3>
 <div class="outline-text-3" id="text-org9aef972b">
 <p>
@@ -687,7 +713,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org175a102f" class="outline-3">
+<div id="outline-container-orgafede7d" class="outline-3">
 <h3 id="org175a102f"><span class="section-number-3">1.13</span> ブラウザの設定</h3>
 <div class="outline-text-3" id="text-org175a102f">
 <div class="org-src-container">
@@ -718,7 +744,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-orgca3eae6b" class="outline-3">
+<div id="outline-container-org33e0091" class="outline-3">
 <h3 id="orgca3eae6b"><span class="section-number-3">1.14</span> バックアップファイルの削除</h3>
 <div class="outline-text-3" id="text-orgca3eae6b">
 <div class="org-src-container">
@@ -758,7 +784,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 </div>
-<div id="outline-container-org65219005" class="outline-3">
+<div id="outline-container-orgfb7e54f" class="outline-3">
 <h3 id="org65219005"><span class="section-number-3">1.15</span> chomp</h3>
 <div class="outline-text-3" id="text-org65219005">
 <p>
@@ -778,7 +804,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org9731a19e" class="outline-3">
+<div id="outline-container-orgb17fe77" class="outline-3">
 <h3 id="org9731a19e"><span class="section-number-3">1.16</span> 特定のファイルを Dropbox 以下にバックアップする</h3>
 <div class="outline-text-3" id="text-org9731a19e">
 <div class="org-src-container">
@@ -807,7 +833,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-orgdfad16ba" class="outline-3">
+<div id="outline-container-orgb49e57d" class="outline-3">
 <h3 id="orgdfad16ba"><span class="section-number-3">1.17</span> ゴミ箱を空にする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-orgdfad16ba">
 <div class="org-src-container">
@@ -828,7 +854,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org4842582b" class="outline-3">
+<div id="outline-container-org46ba7eb" class="outline-3">
 <h3 id="org4842582b"><span class="section-number-3">1.18</span> 終了シーケンスのデバッグ用関数</h3>
 <div class="outline-text-3" id="text-org4842582b">
 <div class="org-src-container">
@@ -851,7 +877,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-orgeb3d01a8" class="outline-3">
+<div id="outline-container-orgf95459b" class="outline-3">
 <h3 id="orgeb3d01a8"><span class="section-number-3">1.19</span> modeline の高さを得る</h3>
 <div class="outline-text-3" id="text-orgeb3d01a8">
 <p>
@@ -869,7 +895,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-org4043fe35" class="outline-3">
+<div id="outline-container-org78b5766" class="outline-3">
 <h3 id="org4043fe35"><span class="section-number-3">1.20</span> [package.el] MELPA利用設定</h3>
 <div class="outline-text-3" id="text-org4043fe35">
 <div class="org-src-container">
@@ -892,7 +918,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </div>
 </div>
 
-<div id="outline-container-orgfd51fa6e" class="outline-3">
+<div id="outline-container-org5e6bb94" class="outline-3">
 <h3 id="orgfd51fa6e"><span class="section-number-3">1.21</span> orgバッファを評価</h3>
 <div class="outline-text-3" id="text-orgfd51fa6e">
 <p>
@@ -921,7 +947,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-orga706f503" class="outline-3">
+<div id="outline-container-org32b3766" class="outline-3">
 <h3 id="orga706f503"><span class="section-number-3">1.22</span> <span class="todo TODO">TODO</span> リージョン内のブリッツを操作する</h3>
 <div class="outline-text-3" id="text-orga706f503">
 <div class="org-src-container">
@@ -1011,7 +1037,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-orgc99664d5" class="outline-3">
+<div id="outline-container-orgf279a95" class="outline-3">
 <h3 id="orgc99664d5"><span class="section-number-3">1.23</span> <span class="todo TODO">TODO</span> " - "と" - [ ] "をサイクルさせる</h3>
 <div class="outline-text-3" id="text-orgc99664d5">
 <ul class="org-ul">
@@ -1047,7 +1073,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-orgda007b63" class="outline-3">
+<div id="outline-container-org65b8619" class="outline-3">
 <h3 id="orgda007b63"><span class="section-number-3">1.24</span> <span class="todo TODO">TODO</span> ガベージコレクト情報を表示</h3>
 <div class="outline-text-3" id="text-orgda007b63">
 <ul class="org-ul">
@@ -1084,7 +1110,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-orgfd77df9c" class="outline-3">
+<div id="outline-container-orgb5ff016" class="outline-3">
 <h3 id="orgfd77df9c"><span class="section-number-3">1.25</span> その他</h3>
 <div class="outline-text-3" id="text-orgfd77df9c">
 <div class="org-src-container">
@@ -1140,7 +1166,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-orgdf529698" class="outline-3">
+<div id="outline-container-org05cc136" class="outline-3">
 <h3 id="orgdf529698"><span class="section-number-3">1.26</span> XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgdf529698">
 <p>
@@ -1203,7 +1229,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-org481e7f96" class="outline-3">
+<div id="outline-container-org7c18bfc" class="outline-3">
 <h3 id="org481e7f96"><span class="section-number-3">1.27</span> Auto-install をセットアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org481e7f96">
 <p>
@@ -1230,7 +1256,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-org6183f766" class="outline-3">
+<div id="outline-container-orgddf03b6" class="outline-3">
 <h3 id="org6183f766"><span class="section-number-3">1.28</span> org-buffer を dokuwiki 形式に変換し，kill-ring に格納&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org6183f766">
 <p>
@@ -1255,7 +1281,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-org5e548445" class="outline-3">
+<div id="outline-container-org9144f6c" class="outline-3">
 <h3 id="org5e548445"><span class="section-number-3">1.29</span> ミニバッファに日時を表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org5e548445">
 <ul class="org-ul">
@@ -1275,7 +1301,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 </div>
-<div id="outline-container-org81ca01d1" class="outline-3">
+<div id="outline-container-orgc63c52a" class="outline-3">
 <h3 id="org81ca01d1"><span class="section-number-3">1.30</span> 日付などを簡単に挿入する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org81ca01d1">
 <ul class="org-ul">
@@ -1308,7 +1334,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-org74fab35b" class="outline-4">
+<div id="outline-container-org4c60e40" class="outline-4">
 <h4 id="org74fab35b"><span class="section-number-4">1.30.1</span> キーバインド</h4>
 <div class="outline-text-4" id="text-org74fab35b">
 <div class="org-src-container">
@@ -1321,11 +1347,11 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-org67dcc87b" class="outline-2">
+<div id="outline-container-orgacfc37e" class="outline-2">
 <h2 id="org67dcc87b"><span class="section-number-2">2</span> 未設定／テスト中</h2>
 <div class="outline-text-2" id="text-org67dcc87b">
 </div>
-<div id="outline-container-org1a1d73ca" class="outline-3">
+<div id="outline-container-org078c4c9" class="outline-3">
 <h3 id="org1a1d73ca"><span class="section-number-3">2.1</span> UUID をファイル名にして所定のディレクトリにコピー／移動</h3>
 <div class="outline-text-3" id="text-org1a1d73ca">
 <ul class="org-ul">
@@ -1376,7 +1402,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-orgbdeca93a" class="outline-3">
+<div id="outline-container-orgc444e69" class="outline-3">
 <h3 id="orgbdeca93a"><span class="section-number-3">2.2</span> byte-compile の警告を抑制する</h3>
 <div class="outline-text-3" id="text-orgbdeca93a">
 <div class="org-src-container">
@@ -1390,7 +1416,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
-<div id="outline-container-org32ff042a" class="outline-3">
+<div id="outline-container-org4db38b5" class="outline-3">
 <h3 id="org32ff042a"><span class="section-number-3">2.3</span> [window-resizer.el] 分割したウィンドウサイズを変更する</h3>
 <div class="outline-text-3" id="text-org32ff042a">
 <p>
@@ -1451,7 +1477,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-org54f46ec1" class="outline-3">
+<div id="outline-container-org2d44842" class="outline-3">
 <h3 id="org54f46ec1"><span class="section-number-3">2.4</span> [idle-requie]</h3>
 <div class="outline-text-3" id="text-org54f46ec1">
 <div class="org-src-container">
@@ -1462,7 +1488,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-org22e29aa4" class="outline-3">
+<div id="outline-container-orgfe4cece" class="outline-3">
 <h3 id="org22e29aa4"><span class="section-number-3">2.5</span> [pdf-preview]</h3>
 <div class="outline-text-3" id="text-org22e29aa4">
 <div class="org-src-container">
@@ -1472,7 +1498,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-orge6a31c57" class="outline-3">
+<div id="outline-container-org3d8670c" class="outline-3">
 <h3 id="orge6a31c57"><span class="section-number-3">2.6</span> [EasyPG]</h3>
 <div class="outline-text-3" id="text-orge6a31c57">
 <div class="org-src-container">
@@ -1483,7 +1509,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-org1495619c" class="outline-3">
+<div id="outline-container-orgdb5c3dc" class="outline-3">
 <h3 id="org1495619c"><span class="section-number-3">2.7</span> [eblook]</h3>
 <div class="outline-text-3" id="text-org1495619c">
 <div class="org-src-container">
@@ -1500,7 +1526,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 
-<div id="outline-container-org13d9d76f" class="outline-3">
+<div id="outline-container-orgedba566" class="outline-3">
 <h3 id="org13d9d76f"><span class="section-number-3">2.8</span> [iBuffer]</h3>
 <div class="outline-text-3" id="text-org13d9d76f">
 <p>
@@ -1514,7 +1540,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 
-<div id="outline-container-orgafde656e" class="outline-3">
+<div id="outline-container-orgf4535c6" class="outline-3">
 <h3 id="orgafde656e"><span class="section-number-3">2.9</span> キーバインド</h3>
 <div class="outline-text-3" id="text-orgafde656e">
 <div class="org-src-container">
@@ -1530,7 +1556,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 
-<div id="outline-container-org370c7681" class="outline-2">
+<div id="outline-container-org24e1573" class="outline-2">
 <h2 id="org370c7681"><span class="section-number-2">3</span> おわりに</h2>
 <div class="outline-text-2" id="text-org370c7681">
 <p>
@@ -1541,8 +1567,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-05-31 Sun 16:08</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2020-06-16 Tue 07:23</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>
