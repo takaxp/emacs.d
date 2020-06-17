@@ -7001,6 +7001,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 ** [auto-complete-clang.el] オムニ補完
    :PROPERTIES:
    :CUSTOM_ID: org291c6055
+   :ID:       2B0FE7CA-E17F-4DEF-9C5C-7A834F79D6AC
    :END:
 
 C++バッファでメソッドを補完対象とする．try-catch を使っている場合， =-fcxx-exceptions= オプションが必要で，これはプリコンパイルヘッダを生成する時も同じだ．ここ示す設定では， =~/.emacs.d/= 以下に =stdafx.pch= を生成する必要があり，以下のコマンドを用いてプリコンパイルヘッダを生成する．ヘッダファイルのパスを適切に与えれば，Boostや自作のライブラリも補完対象に設定できる．
@@ -7021,7 +7022,9 @@ clang -cc1 -x c++-header -fcxx-exceptions -std=c++11 -stdlib=libc++ -emit-pch ~/
   (add-hook 'c-mode-common-hook #'ac-cc-mode-setup)
 
   (with-eval-after-load "auto-complete"
-    (when (require 'auto-complete-clang nil t)
+    (if (not (require 'auto-complete-clang nil t))
+        (defun ac-cc-mode-setup ()
+          (warn "auto-complete-clang is NOT installed"))
       (setq ac-clang-executable (executable-find "clang"))
       ;; ac-cc-mode-setup のオーバーライド
       ;; "-w" "-ferror-limit" "1"
@@ -7344,7 +7347,8 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
 
 #+begin_src emacs-lisp :tangle late-init.el
 (if (executable-find "editorconfig")
-    (when (require 'editorconfig nil t)
+    (when (and (require 'editorconfig nil t)
+               (require 'editorconfig-core nil t))
       (unless noninteractive
         ;; (add-to-list 'editorconfig-exclude-modes 'org-mode)
         ;; (when (require 'editorconfig-charset-extras nil t)

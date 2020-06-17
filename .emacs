@@ -6,6 +6,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+(with-eval-after-load "editorconfig"
+  (setq editorconfig-get-properties-function
+        'editorconfig-core-get-properties-hash))
 
 
 

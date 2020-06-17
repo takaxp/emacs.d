@@ -2300,7 +2300,9 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
   (add-hook 'c-mode-common-hook #'ac-cc-mode-setup)
 
   (with-eval-after-load "auto-complete"
-    (when (require 'auto-complete-clang nil t)
+    (if (not (require 'auto-complete-clang nil t))
+        (defun ac-cc-mode-setup ()
+          (warn "auto-complete-clang is NOT installed"))
       (setq ac-clang-executable (executable-find "clang"))
       ;; ac-cc-mode-setup のオーバーライド
       ;; "-w" "-ferror-limit" "1"
@@ -2455,7 +2457,8 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
               ("~/devel/mygit" . 1))))))
 
 (if (executable-find "editorconfig")
-    (when (require 'editorconfig nil t)
+    (when (and (require 'editorconfig nil t)
+               (require 'editorconfig-core nil t))
       (unless noninteractive
         ;; (add-to-list 'editorconfig-exclude-modes 'org-mode)
         ;; (when (require 'editorconfig-charset-extras nil t)
