@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-17 Wed 09:54 -->
+<!-- 2020-06-25 Thu 23:03 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -10233,7 +10233,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
   (<span style="font-weight: bold;">defvar</span> <span style="font-weight: bold; font-style: italic;">ns-default-notification-sound</span> <span style="font-style: italic;">"Pop"</span>)
 
   (<span style="font-weight: bold;">defvar</span> <span style="font-weight: bold; font-style: italic;">ns-alerter-command</span>
-    (executable-find <span style="font-style: italic;">"/Users/taka/Dropbox/bin/alerter"</span>)
+    (executable-find (concat (getenv <span style="font-style: italic;">"HOME"</span>) <span style="font-style: italic;">"/Dropbox/bin/alerter"</span>))
     <span style="font-style: italic;">"Path to alerter command. see https://github.com/vjeantet/alerter"</span>)
 
   (<span style="font-weight: bold;">defun</span> <span style="font-weight: bold;">my-desktop-notification</span> (title message <span style="font-weight: bold; text-decoration: underline;">&amp;optional</span> sticky sound timeout)
@@ -11331,7 +11331,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga901a19"><span style="font-weight: bold; font-style: italic;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orge8f041a"><span style="font-weight: bold; font-style: italic;"># -*- mode: org; -*-</span>
 
 <span style="font-weight: bold; font-style: italic;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="font-weight: bold; font-style: italic;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -12735,8 +12735,8 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
          moom-font-decrease moom-font-size-reset moom-font-resize)
        <span style="font-style: italic;">"moom-font"</span> nil t)
 
-  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
+  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
 
   (<span style="font-weight: bold;">with-eval-after-load</span> <span style="font-style: italic;">"moom-font"</span>
     (<span style="font-weight: bold;">setq</span> moom-scaling-gradient (/ (float 50) 30))
@@ -14846,7 +14846,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-06-17 Wed 09:54</p>
+<p class="date">Created: 2020-06-25 Thu 23:03</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

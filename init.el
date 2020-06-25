@@ -848,8 +848,8 @@
          moom-font-decrease moom-font-size-reset moom-font-resize)
        "moom-font" nil t)
 
-  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
+  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
 
   (with-eval-after-load "moom-font"
     (setq moom-scaling-gradient (/ (float 50) 30))

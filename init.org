@@ -8325,7 +8325,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
   (defvar ns-default-notification-sound "Pop")
 
   (defvar ns-alerter-command
-    (executable-find "/Users/taka/Dropbox/bin/alerter")
+    (executable-find (concat (getenv "HOME") "/Dropbox/bin/alerter"))
     "Path to alerter command. see https://github.com/vjeantet/alerter")
 
   (defun my-desktop-notification (title message &optional sticky sound timeout)
@@ -8348,6 +8348,8 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
     (when ns-alerter-command
       (setq org-show-notification-handler #'my-desktop-notification-handler))))
 #+end_src
+
+#+RESULTS:
 
 ** org-mode でアラーム管理
    :PROPERTIES:
@@ -9050,6 +9052,7 @@ update it for multiple appts?")
 ** [org-babel] ソースブロックの配色
    :PROPERTIES:
    :CUSTOM_ID: org556eb376
+   :ID:       1868BCF8-A93E-4E83-8684-5FEE3C9BD27B
    :END:
 
 =org-src-block-faces=, =org-block-begin-line=, =org-block-end-line= をカスタマイズして，配色を変えます．
@@ -10675,8 +10678,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
          moom-font-decrease moom-font-size-reset moom-font-resize)
        "moom-font" nil t)
 
-  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
+  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
 
   (with-eval-after-load "moom-font"
     (setq moom-scaling-gradient (/ (float 50) 30))

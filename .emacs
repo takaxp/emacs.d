@@ -6,10 +6,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-(with-eval-after-load "editorconfig"
-  (setq editorconfig-get-properties-function
-        'editorconfig-core-get-properties-hash))
-
+;; ivy-emms
+(autoload-if-found '(ivy-emms) "ivy-emms" nil t)
 
 
 
@@ -200,8 +198,8 @@
 ;;   (when (eq system-type 'darwin)
 ;;     (add-hook 'focus-in-hook 'mac-ime-update-title)))
 
-(with-eval-after-load "postpone"
-  (setq ns-alerter-command nil)) ;; due to broken of alerter command
+;; (with-eval-after-load "postpone"
+;;   (setq ns-alerter-command nil)) ;; due to broken of alerter command
 
 ;; Shiftを使って大文字を入力する時，IME的にはASCIIにHLINEがかわるから
 ;; 表示が乱れる．Shiftモードに入る時のフックと抜ける時のフックが必要
