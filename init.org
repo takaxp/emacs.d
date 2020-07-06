@@ -3248,6 +3248,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       ;; (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
       (define-key selected-keymap (kbd "v") #'my-helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
+    (define-key selected-keymap (kbd "d") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
     (define-key selected-keymap (kbd "g") #'my-google-this)
     (define-key selected-keymap (kbd "s") #'osx-lib-say-region)
@@ -7531,6 +7532,9 @@ For example: \"<e\" -> (\"e\" . t)"
     (company-quickhelp-mode)))
 #+end_src
 
+#+RESULTS:
+: t
+
 ** DONE [auto-complete.el] 自動補完機能                            :notinuse:
    CLOSED: [2019-04-09 Tue 00:51]
    :PROPERTIES:
@@ -8611,7 +8615,7 @@ will not be modified."
           ))
 
   ;; (setq org-agenda-current-time-string "<  d('- ' ｲﾏｺｺ)")
-  (setq org-agenda-current-time-string "< ｲﾏｺｺ")
+  (setq org-agenda-current-time-string "<<  ｲﾏｺｺ")
   (setq org-agenda-timegrid-use-ampm t)
 
   (with-eval-after-load "moom"
@@ -8808,6 +8812,7 @@ will not be modified."
 ** [appt.el] アラーム設定
    :PROPERTIES:
    :CUSTOM_ID: org5790e981
+   :ID:       411695CC-4144-483C-AC0D-962C48985F42
    :END:
 
   - Growl や [[https://github.com/julienXX/terminal-notifier/releases][Terminal Notifier]] と連携していると，Emacsがバックグラウンドにあってもアラームに気づける．
@@ -8916,6 +8921,19 @@ update it for multiple appts?")
            `(lambda ()
               (setq org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline "TODO")))
+              ;; Remove tags
+              (let ((msgs appt-time-msg-list))
+                (setq appt-time-msg-list nil)
+                (dolist (msg msgs)
+                  (add-to-list 'appt-time-msg-list
+                               (let ((match (string-match
+                                             org-tag-group-re (nth 1 msg))))
+                                 (when match
+                                   ;; (message "%s -- %s" (org-trim (substring (nth 1 msg) 0 match)) (nth 1 msg))
+                                   (list (nth 0 msg)
+                                         (org-trim (substring (nth 1 msg)
+                                                              0 match)) ;; FIXME
+                                         (nth 2 msg)))) t)))
               appt-time-msg-list)
            (lambda (result)
              (setq appt-time-msg-list result)
@@ -10670,6 +10688,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (setq moom-command-with-centering nil)
     (setq moom-lighter "M")
     (setq moom-verbose t)
+    (setq moom-multi-monitors-support t)
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 

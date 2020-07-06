@@ -885,6 +885,7 @@ This works also for other defined begin/end tokens to define the structure."
       ;; (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
       (define-key selected-keymap (kbd "v") #'my-helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
+    (define-key selected-keymap (kbd "d") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "5") #'query-replace-from-region)
     (define-key selected-keymap (kbd "g") #'my-google-this)
     (define-key selected-keymap (kbd "s") #'osx-lib-say-region)

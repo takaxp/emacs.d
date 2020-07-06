@@ -544,7 +544,7 @@
   (defvar ns-default-notification-sound "Pop")
 
   (defvar ns-alerter-command
-    (executable-find "/Users/taka/Dropbox/bin/alerter")
+    (executable-find (concat (getenv "HOME") "/Dropbox/bin/alerter"))
     "Path to alerter command. see https://github.com/vjeantet/alerter")
 
   (defun my-desktop-notification (title message &optional sticky sound timeout)
@@ -769,7 +769,7 @@ will not be modified."
           ))
 
   ;; (setq org-agenda-current-time-string "<  d('- ' ｲﾏｺｺ)")
-  (setq org-agenda-current-time-string "< ｲﾏｺｺ")
+  (setq org-agenda-current-time-string "<<  ｲﾏｺｺ")
   (setq org-agenda-timegrid-use-ampm t)
 
   (with-eval-after-load "moom"
@@ -1043,6 +1043,18 @@ update it for multiple appts?")
            `(lambda ()
               (setq org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline "TODO")))
+              (let ((msgs appt-time-msg-list))
+                (setq appt-time-msg-list nil)
+                (dolist (msg msgs)
+                  (add-to-list 'appt-time-msg-list
+                               (let ((match (string-match
+                                             org-tag-group-re (nth 1 msg))))
+                                 (when match
+                                   ;; (message "%s -- %s" (org-trim (substring (nth 1 msg) 0 match)) (nth 1 msg))
+                                   (list (nth 0 msg)
+                                         (org-trim (substring (nth 1 msg)
+                                                              0 match)) ;; FIXME
+                                         (nth 2 msg)))) t)))
               appt-time-msg-list)
            (lambda (result)
              (setq appt-time-msg-list result)

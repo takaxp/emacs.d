@@ -9,14 +9,6 @@
 ;; ivy-emms
 (autoload-if-found '(ivy-emms) "ivy-emms" nil t)
 
-
-
-
-
-
-
-
-
 ;; need to learn the overlay...
 (when nil
   (with-eval-after-load "all-the-icons-dired"

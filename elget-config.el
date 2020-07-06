@@ -16,7 +16,7 @@
   (el-get-bundle "jwiegley/emacs-async")
   (el-get-bundle "Kungsgeten/selected.el" :name selected)
   (el-get-bundle "ws-butler")
-  (el-get-bundle "takaxp/moom")
+  (el-get-bundle "takaxp/moom") ;; :branch "grid")
   (el-get-bundle "emacsattic/mic-paren")
   (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)
   (el-get-bundle "which-key")
@@ -41,16 +41,17 @@
   (el-get-bundle "orgbox")
   (el-get-bundle "poporg")
   (el-get-bundle "alphapapa/org-web-tools")
-  (el-get-bundle "emacsmirror/org-edna")
+  ;; (el-get-bundle "emacsmirror/org-edna")
   (el-get-bundle "brabalan/org-review")
-  (el-get-bundle "alphapapa/org-dashboard")
-  (el-get-bundle "unhammer/org-random-todo")
+  ;; (el-get-bundle "alphapapa/org-dashboard")
+  ;; (el-get-bundle "unhammer/org-random-todo")
   (el-get-bundle "dfeich/org-screenshot")
   (el-get-bundle "mallt/org-clock-today-mode")
-  (el-get-bundle "alphapapa/a.el" :name a)
-  (el-get-bundle "alphapapa/frecency.el" :name frecency) ;; requires a.el
-  (el-get-bundle "alphapapa/org-recent-headings") ;; requires frecency.el
-  (el-get-bundle "facetframer/orgnav")
+  (progn ;; org-recent-headings
+    (el-get-bundle "alphapapa/a.el" :name a)
+    (el-get-bundle "alphapapa/frecency.el" :name frecency) ;; requires a.el
+    (el-get-bundle "alphapapa/org-recent-headings") ;; requires frecency.el
+    (el-get-bundle "facetframer/orgnav"))
   (el-get-bundle "toc-org") ;; using a private recipe to exclude org
   (el-get-bundle "harrybournis/org-fancy-priorities")
   (el-get-bundle "kiwanami/emacs-calfw")
@@ -72,11 +73,11 @@
   (el-get-bundle "org-tree-slide")
 
   ;; Org Mode - ox
-  (el-get-bundle "ox-pandoc")
+  ;; (el-get-bundle "ox-pandoc")
   (el-get-bundle "0x60df/ox-qmd")
   (el-get-bundle "larstvei/ox-gfm")
   (el-get-bundle "kaushalmodi/ox-hugo")
-  (el-get-bundle "jkitchin/ox-ipynb")
+  ;; (el-get-bundle "jkitchin/ox-ipynb")
   (el-get-bundle "jlumpe/ox-json")
   ;;(el-get-bundle "marsmining/ox-twbs")
 
@@ -91,7 +92,7 @@
   (el-get-bundle "python-mode"
                  :type http-zip
                  :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
-  (el-get-bundle "csharp-mode")
+  ;; (el-get-bundle "csharp-mode")
   (el-get-bundle "yaml-mode")
   (el-get-bundle "json-mode")
   (el-get-bundle "emacsmirror/csv-mode")
@@ -99,7 +100,7 @@
   (el-get-bundle "markdown-mode")
   ;; (el-get-bundle "po-mode")
   (el-get-bundle "gnuplot-mode")
-  (el-get-bundle "emacsmirror/ess")
+  ;; (el-get-bundle "emacsmirror/ess")
   (el-get-bundle "emacsmirror/yatex")
   (el-get-bundle "cmake-mode")
   (el-get-bundle "php-mode")
@@ -137,7 +138,7 @@
   (el-get-bundle "clang-format")
   (el-get-bundle "lassik/emacs-format-all-the-code")
   (el-get-bundle "emacsmirror/emr")
-  (el-get-bundle "emacsmirror/rmsbolt")
+  ;; (el-get-bundle "emacsmirror/rmsbolt")
   (el-get-bundle "diffview")
   (el-get-bundle "projectile")
   (el-get-bundle "takaxp/facecheck")
@@ -152,6 +153,7 @@
   (el-get-bundle "emacs-lsp/lsp-ui")
 
   ;; ivy modules
+  ;; (el-get-bundle "swiper") ;; use private recipe for ivy.el
   (el-get-bundle "jixiuf/ivy-dired-history")
   (el-get-bundle "ericdanan/counsel-projectile")
   (el-get-bundle "syohex/emacs-counsel-gtags")
@@ -159,8 +161,7 @@
                  :type http
                  :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
   (el-get-bundle "ecraven/ivy-pass") ;; requires password-store.el
-  ;; (el-get-bundle "swiper") ;; use private recipe for ivy.el
-  (el-get-bundle "Yevgnen/ivy-rich")
+  ;; (el-get-bundle "Yevgnen/ivy-rich")
   (el-get-bundle "asok/all-the-icons-ivy")
   (el-get-bundle "takaxp/counsel-selected")
   (el-get-bundle "kchenphy/counsel-world-clock")
@@ -180,8 +181,9 @@
 
   ;; Editing support
   (el-get-bundle "d12frosted/flyspell-correct")
-  (el-get-bundle "skewer-mode")
-  (el-get-bundle "auto-complete") ;; require 'skewer
+  (progn ;; skewer
+    (el-get-bundle "skewer-mode")
+    (el-get-bundle "auto-complete")) ;; require 'skewer
   (el-get-bundle "auto-complete-clang")
   (el-get-bundle "company-mode/company-mode")
   (el-get-bundle "expez/company-quickhelp")
@@ -383,7 +385,8 @@
 (defun my-elget-remove-package (package)
   "Remove PACKAGE."
   (let ((pos (string-match "[^/]+$" package)))
-    (el-get-remove (if pos (substring-no-properties package pos) package))))
+    (funcall-interactively
+     'el-get-remove (if pos (substring-no-properties package pos) package))))
 
 
 ;;;###autoload

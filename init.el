@@ -840,6 +840,7 @@
     (setq moom-command-with-centering nil)
     (setq moom-lighter "M")
     (setq moom-verbose t)
+    (setq moom-multi-monitors-support t)
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 
