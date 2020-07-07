@@ -8901,6 +8901,25 @@ update it for multiple appts?")
      ((eq appt-display-format 'window)
       (advice-add 'appt-disp-window :before #'ad:appt-disp-window))))
 
+  (with-eval-after-load "ivy"
+    (defvar counsel-appt-time-msg-list nil)
+    (defun counsel-appt-list ()
+      "Create a list of appt."
+      (setq counsel-appt-time-msg-list nil)
+      (dolist (msg appt-time-msg-list)
+        (when msg
+          (add-to-list 'counsel-appt-time-msg-list
+                       (substring-no-properties (nth 1 msg)) t)))
+      counsel-appt-time-msg-list)
+
+    (defun counsel-appt ()
+      "List active appt."
+      (interactive)
+      (ivy-read "Appt: "
+                (counsel-appt-list)
+                :require-match t
+                :caller 'counsel-appt)))
+
   (with-eval-after-load "org"
     ;; アジェンダを開いたらアラームリストを更新して有効化する
     (unless noninteractive
@@ -8924,17 +8943,19 @@ update it for multiple appts?")
               ;; Remove tags
               (let ((msgs appt-time-msg-list))
                 (setq appt-time-msg-list nil)
+                ;; (message "%s -- %s" (org-trim (substring (nth 1 msg) 0 match)) (nth 1 msg))
                 (dolist (msg msgs)
                   (add-to-list 'appt-time-msg-list
                                (let ((match (string-match
                                              org-tag-group-re (nth 1 msg))))
-                                 (when match
-                                   ;; (message "%s -- %s" (org-trim (substring (nth 1 msg) 0 match)) (nth 1 msg))
-                                   (list (nth 0 msg)
-                                         (org-trim (substring (nth 1 msg)
-                                                              0 match)) ;; FIXME
-                                         (nth 2 msg)))) t)))
-              appt-time-msg-list)
+                                 (if match
+                                     (list (nth 0 msg)
+                                           (org-trim (substring (nth 1 msg)
+                                                                0 match)) ;; FIXME
+                                           (nth 2 msg))
+                                   msg)) t))
+                ;; just for sure
+                (delq nil appt-time-msg-list)))
            (lambda (result)
              (setq appt-time-msg-list result)
              (unless (active-minibuffer-window)
@@ -8944,6 +8965,7 @@ update it for multiple appts?")
                    (message "[async] Added %d event%s for today"
                             cnt (if (> cnt 1) "s" "")))))
              (setq my-org-agenda-to-appt-ready t))))))
+
     ;; 定期的に更新する
     (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
     ;; キャプチャ直後に更新

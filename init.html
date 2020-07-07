@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-07-07 Tue 03:15 -->
+<!-- 2020-07-07 Tue 15:18 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -10837,6 +10837,25 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
      ((eq appt-display-format 'window)
       (advice-add 'appt-disp-window <span style="color: #483d8b;">:before</span> #'ad:appt-disp-window))))
 
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">counsel-appt-time-msg-list</span> nil)
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">counsel-appt-list</span> ()
+      <span style="color: #8b2252;">"Create a list of appt."</span>
+      (<span style="color: #a020f0;">setq</span> counsel-appt-time-msg-list nil)
+      (<span style="color: #a020f0;">dolist</span> (msg appt-time-msg-list)
+        (<span style="color: #a020f0;">when</span> msg
+          (add-to-list 'counsel-appt-time-msg-list
+                       (substring-no-properties (nth 1 msg)) t)))
+      counsel-appt-time-msg-list)
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">counsel-appt</span> ()
+      <span style="color: #8b2252;">"List active appt."</span>
+      (<span style="color: #a020f0;">interactive</span>)
+      (ivy-read <span style="color: #8b2252;">"Appt: "</span>
+                (counsel-appt-list)
+                <span style="color: #483d8b;">:require-match</span> t
+                <span style="color: #483d8b;">:caller</span> 'counsel-appt)))
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#12434;&#38283;&#12356;&#12383;&#12425;&#12450;&#12521;&#12540;&#12512;&#12522;&#12473;&#12488;&#12434;&#26356;&#26032;&#12375;&#12390;&#26377;&#21177;&#21270;&#12377;&#12427;</span>
     (<span style="color: #a020f0;">unless</span> noninteractive
@@ -10857,19 +10876,22 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
            `(<span style="color: #a020f0;">lambda</span> ()
               (<span style="color: #a020f0;">setq</span> org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"</span><span style="color: #FF0000;">TODO</span><span style="color: #8b2252;">"</span>)))
+              <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove tags</span>
               (<span style="color: #a020f0;">let</span> ((msgs appt-time-msg-list))
                 (<span style="color: #a020f0;">setq</span> appt-time-msg-list nil)
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "%s -- %s" (org-trim (substring (nth 1 msg) 0 match)) (nth 1 msg))</span>
                 (<span style="color: #a020f0;">dolist</span> (msg msgs)
                   (add-to-list 'appt-time-msg-list
                                (<span style="color: #a020f0;">let</span> ((match (string-match
                                              org-tag-group-re (nth 1 msg))))
-                                 (<span style="color: #a020f0;">when</span> match
-                                   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "%s -- %s" (org-trim (substring (nth 1 msg) 0 match)) (nth 1 msg))</span>
-                                   (list (nth 0 msg)
-                                         (org-trim (substring (nth 1 msg)
-                                                              0 match)) <span style="color: #b22222;">;; </span><span style="color: ##3030FF;">FIXME</span>
-                                         (nth 2 msg)))) <span style="color: #ff0000; font-weight: bold;">t)))</span>
-              appt-time-msg-list)
+                                 (<span style="color: #a020f0;">if</span> match
+                                     (list (nth 0 msg)
+                                           (org-trim (substring (nth 1 msg)
+                                                                0 match)) <span style="color: #b22222;">;; </span><span style="color: ##3030FF;">FIXME</span>
+                                           (nth 2 msg))
+                                   msg)) <span style="color: #ff0000; font-weight: bold;">t))</span>
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">just for sure</span>
+                (delq nil appt-time-msg-list)))
            (<span style="color: #a020f0;">lambda</span> (result)
              (<span style="color: #a020f0;">setq</span> appt-time-msg-list result)
              (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
@@ -10879,6 +10901,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                    (message <span style="color: #8b2252;">"[async] Added %d event%s for today"</span>
                             cnt (<span style="color: #a020f0;">if</span> (&gt; cnt 1) <span style="color: #8b2252;">"s"</span> <span style="color: #8b2252;">""</span>)))))
              (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))))))
+
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23450;&#26399;&#30340;&#12395;&#26356;&#26032;&#12377;&#12427;</span>
     (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12461;&#12515;&#12503;&#12481;&#12515;&#30452;&#24460;&#12395;&#26356;&#26032;</span>
@@ -11344,7 +11367,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org88f6e4d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga860cb8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14860,7 +14883,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-07-07 Tue 03:15</p>
+<p class="date">Created: 2020-07-07 Tue 15:18</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
