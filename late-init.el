@@ -37,55 +37,6 @@
 
 (setq confirm-kill-emacs 'y-or-n-p)
 
-(when (autoload-if-found '(cask-mode) "cask-mode" nil t)
-  (push '("/Cask\\'" . cask-mode) auto-mode-alist))
-
-(when (autoload-if-found
-       '(paradox-list-packages
-         my-list-packages my-setup-cask
-         my-reset-load-path
-         advice:paradox-quit-and-close)
-       "paradox" nil t)
-
-  (with-eval-after-load "paradox"
-    (defvar my-default-load-path nil)
-    (defun my-list-packages ()
-      "Call paradox-list-packages if available instead of list-packages."
-      (interactive)
-      (setq my-default-load-path load-path)
-      (my-setup-cask)
-      (if (fboundp 'paradox-list-packages)
-          (paradox-list-packages nil)
-        (list-packages nil)))
-
-    (defun my-reset-load-path ()
-      "Revert `load-path' to `my-default-load-path'."
-      (shell-command-to-string "update-cask.sh link"))
-    (setq load-path my-default-load-path)
-    (message "--- Reverted to the original `load-path'."))
-
-  ;; (declare-function advice:paradox-quit-and-close "init" (kill))
-
-  (when (and (fboundp 'cask-load-path)
-             (fboundp 'cask-initialize))
-    (defun my-setup-cask ()
-      "Override `load-path' to use cask."
-      (when (or (require 'cask "/usr/local/opt/cask/cask.el" t)
-                (require 'cask "~/.cask/cask.el" t))
-        (setq load-path (cask-load-path (cask-initialize))))))
-
-  (defun advice:paradox-quit-and-close (_kill)
-    (my-reset-load-path))
-  (advice-add 'paradox-quit-and-close :after
-              #'advice:paradox-quit-and-close)
-
-  (custom-set-variables
-   '(paradox-github-token t))
-
-  (unless noninteractive
-    (when (fboundp 'paradox-enable)
-      (paradox-enable))))
-
 (autoload-if-found
  '(el-get-version
    my-elget-list my-elget-reset-links el-get-cd el-get-install el-get-remove)
@@ -917,19 +868,14 @@ This works also for other defined begin/end tokens to define the structure."
     (defun my-eval-region ()
       (interactive)
       (when (use-region-p)
-        (unless (ignore-errors (eval-region (region-beginning) (region-end) t))
-          (let ((region (intern (buffer-substring-no-properties
-                                 (region-beginning) (region-end)))))
-            (when (functionp region)
-              (call-interactively region))))))
+        (eval-region (region-beginning) (region-end) t)))
 
     (defun my-eval-region-as-function ()
       (interactive)
       (when (use-region-p)
         (let ((region (intern (buffer-substring-no-properties
                                (region-beginning) (region-end)))))
-          (when (functionp region)
-            (funcall region)))))
+          (funcall region))))
     (setq selected-org-mode-map (make-sparse-keymap))
 
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
@@ -1891,13 +1837,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
       (message "--- mpv is NOT installed."))))
 
 (when (autoload-if-found
-       '(google-maps)
-       "google-maps" nil t)
-
-  (with-eval-after-load "google-maps"
-    (require 'org-location-google-maps nil t)))
-
-(when (autoload-if-found
        '(sunshine-forecast sunshine-quick-forecast)
        "sunshine" nil t)
 
@@ -2471,8 +2410,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 (autoload-if-found '(cov-mode) "cov" nil t)
 
 (autoload-if-found '(format-all-mode) "format-all" nil t)
-
-(autoload-if-found '(rmsbolt-mode) "rmsbolt" nil t)
 
 (defun my-company-activate ()
   (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
@@ -3318,13 +3255,6 @@ Uses `all-the-icons-material' to fetch the icon."
     (defun my-google-this ()
       (interactive)
       (google-this (current-word) t))))
-
-(when (autoload-if-found
-       '(multi-term)
-       "multi-term" nil t)
-
-  (with-eval-after-load "multi-term"
-    (setenv "HOSTTYPE" "intel-mac")))
 
 (when (autoload-if-found
        '(osx-lib-say osx-lib-say-region)

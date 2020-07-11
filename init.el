@@ -382,12 +382,6 @@
   (push '("\\.es$" . es-mode) auto-mode-alist))
 
 (when (autoload-if-found
-       '(gnuplot-mode)
-       "gnuplot-mode" nil t)
-
-  (push '("\\.plt$" . gnuplot-mode) auto-mode-alist))
-
-(when (autoload-if-found
        '(markdown-mode)
        "markdown-mode" nil t)
 

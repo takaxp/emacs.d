@@ -1028,10 +1028,11 @@ update it for multiple appts?")
     (defun counsel-appt-list ()
       "Create a list of appt."
       (setq counsel-appt-time-msg-list nil)
-      (dolist (msg appt-time-msg-list)
-        (when msg
-          (add-to-list 'counsel-appt-time-msg-list
-                       (substring-no-properties (nth 1 msg)) t)))
+      (when (boundp 'appt-time-msg-list)
+        (dolist (msg appt-time-msg-list)
+          (when msg
+            (add-to-list 'counsel-appt-time-msg-list
+                         (substring-no-properties (nth 1 msg)) t))))
       counsel-appt-time-msg-list)
 
     (defun counsel-appt ()
@@ -1073,13 +1074,15 @@ update it for multiple appts?")
                                  (if match
                                      (list (nth 0 msg)
                                            (org-trim (substring (nth 1 msg)
-                                                                0 match)) ;; FIXME
+                                                                0 match))
                                            (nth 2 msg))
-                                   msg)) t))
+                                   msg)
+                                 ) t))
                 ;; just for sure
                 (delq nil appt-time-msg-list)))
            (lambda (result)
              (setq appt-time-msg-list result)
+             (appt-check) ;; remove passed events
              (unless (active-minibuffer-window)
                (let ((cnt (length appt-time-msg-list)))
                  (if (eq cnt 0)
@@ -1396,13 +1399,6 @@ update it for multiple appts?")
              (version< "9.1.4" (org-version)))
     (setq org-reveal-note-key-char ?n)))
 
-(when (autoload-if-found
-       '(org-dashboard-display)
-       "org-dashboard" nil t)
-
-  (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c f y") 'org-dashboard-display)))
-
 (with-eval-after-load "org-clock-today"
   (defun my-print-working-clocks ()
     (interactive)
@@ -1428,10 +1424,6 @@ update it for multiple appts?")
     (unless noninteractive
       (setq org-clock-today-count-subtree t)
       (org-clock-today-mode 1))))
-
-(autoload-if-found
- '(org-random-todo org-random-todo-goto-current)
- "org-random-todo" nil t)
 
 ;; see https://ox-hugo.scripter.co/doc/deprecation-notices/#org-hugo-auto-export-feature-now-a-minor-mode
 ;; (with-eval-after-load "org"

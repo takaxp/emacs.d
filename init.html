@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-07-07 Tue 15:18 -->
+<!-- 2020-07-11 Sat 15:30 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1810,7 +1810,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(cask-mode) <span style="color: #8b2252;">"cask-mode"</span> nil t)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found '(cask-mode) <span style="color: #8b2252;">"cask-mode"</span> nil t)
   (<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"/Cask\\'"</span> . cask-mode) auto-mode-alist))
 </pre>
 </div>
@@ -1964,7 +1965,8 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(paradox-list-packages
          my-list-packages my-setup-cask
          my-reset-load-path
@@ -3584,7 +3586,8 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 <h3 id="org2a14728f"><span class="section-number-3">5.20</span> gnuplotモード</h3>
 <div class="outline-text-3" id="text-org2a14728f">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">yes</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(gnuplot-mode)
        <span style="color: #8b2252;">"gnuplot-mode"</span> nil t)
 
@@ -4560,19 +4563,14 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-eval-region</span> ()
       (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">when</span> (use-region-p)
-        (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">ignore-errors</span> (eval-region (region-beginning) (region-end) t))
-          (<span style="color: #a020f0;">let</span> ((region (intern (buffer-substring-no-properties
-                                 (region-beginning) (region-end)))))
-            (<span style="color: #a020f0;">when</span> (functionp region)
-              (call-interactively region))))))
+        (eval-region (region-beginning) (region-end) t)))
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-eval-region-as-function</span> ()
       (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">when</span> (use-region-p)
         (<span style="color: #a020f0;">let</span> ((region (intern (buffer-substring-no-properties
                                (region-beginning) (region-end)))))
-          (<span style="color: #a020f0;">when</span> (functionp region)
-            (funcall region)))))
+          (funcall region))))
     (<span style="color: #a020f0;">setq</span> selected-org-mode-map (make-sparse-keymap))
 
     (define-key selected-org-mode-map (kbd <span style="color: #8b2252;">"t"</span>) #'org-table-convert-region)
@@ -6191,7 +6189,8 @@ paren.el の場合は以下の設定．<br />
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(autoload-if-found '(keycast-mode) <span style="color: #8b2252;">"keycast"</span> nil t)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(autoload-if-found '(keycast-mode) <span style="color: #8b2252;">"keycast"</span> nil t)
 </pre>
 </div>
 </div>
@@ -7244,7 +7243,8 @@ ivyに移行しました．<br />
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(google-maps)
        <span style="color: #8b2252;">"google-maps"</span> nil t)
 
@@ -7295,7 +7295,8 @@ Emacs で総務省の「<a href="http://law.e-gov.go.jp/">法令データ提供�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(sunshine-forecast sunshine-quick-forecast)
        <span style="color: #8b2252;">"sunshine"</span> nil t)
 
@@ -8106,7 +8107,8 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">uptimes</span> nil t)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;</span><span style="color: #b22222; background-color: #ffa500;"> </span>
+(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">uptimes</span> nil t)
 </pre>
 </div>
 
@@ -9203,7 +9205,8 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(autoload-if-found '(rmsbolt-mode) <span style="color: #8b2252;">"rmsbolt"</span> nil t)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(autoload-if-found '(rmsbolt-mode) <span style="color: #8b2252;">"rmsbolt"</span> nil t)
 </pre>
 </div>
 </div>
@@ -10842,10 +10845,11 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">counsel-appt-list</span> ()
       <span style="color: #8b2252;">"Create a list of appt."</span>
       (<span style="color: #a020f0;">setq</span> counsel-appt-time-msg-list nil)
-      (<span style="color: #a020f0;">dolist</span> (msg appt-time-msg-list)
-        (<span style="color: #a020f0;">when</span> msg
-          (add-to-list 'counsel-appt-time-msg-list
-                       (substring-no-properties (nth 1 msg)) t)))
+      (<span style="color: #a020f0;">when</span> (boundp 'appt-time-msg-list)
+        (<span style="color: #a020f0;">dolist</span> (msg appt-time-msg-list)
+          (<span style="color: #a020f0;">when</span> msg
+            (add-to-list 'counsel-appt-time-msg-list
+                         (substring-no-properties (nth 1 msg)) t))))
       counsel-appt-time-msg-list)
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">counsel-appt</span> ()
@@ -10887,13 +10891,15 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                                  (<span style="color: #a020f0;">if</span> match
                                      (list (nth 0 msg)
                                            (org-trim (substring (nth 1 msg)
-                                                                0 match)) <span style="color: #b22222;">;; </span><span style="color: ##3030FF;">FIXME</span>
+                                                                0 match))
                                            (nth 2 msg))
-                                   msg)) <span style="color: #ff0000; font-weight: bold;">t))</span>
+                                   msg)
+                                 ) <span style="color: #ff0000; font-weight: bold;">t))</span>
                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">just for sure</span>
                 (delq nil appt-time-msg-list)))
            (<span style="color: #a020f0;">lambda</span> (result)
              (<span style="color: #a020f0;">setq</span> appt-time-msg-list result)
+             (appt-check) <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove passed events</span>
              (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
                (<span style="color: #a020f0;">let</span> ((cnt (length appt-time-msg-list)))
                  (<span style="color: #a020f0;">if</span> (eq cnt 0)
@@ -11367,7 +11373,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga860cb8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3a506bd"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -11526,7 +11532,8 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">init-org.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(org-dashboard-display)
        <span style="color: #8b2252;">"org-dashboard"</span> nil t)
 
@@ -11587,7 +11594,8 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">init-org.el</span>
+(autoload-if-found
  '(org-random-todo org-random-todo-goto-current)
  <span style="color: #8b2252;">"org-random-todo"</span> nil t)
 </pre>
@@ -14442,7 +14450,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(multi-term)
        <span style="color: #8b2252;">"multi-term"</span> nil t)
 
@@ -14804,7 +14813,8 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">last-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(network-watch-mode
          network-watch-active-p ad:network-watch-update-lighter)
        <span style="color: #8b2252;">"network-watch"</span> nil t)
@@ -14883,7 +14893,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-07-07 Tue 15:18</p>
+<p class="date">Created: 2020-07-11 Sat 15:30</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

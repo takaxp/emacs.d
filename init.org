@@ -933,7 +933,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
   - [[https://github.com/Wilfred/cask-mode][Wilfred/cask-mode: Major mode for editing Cask files]]
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (when (autoload-if-found '(cask-mode) "cask-mode" nil t)
   (push '("/Cask\\'" . cask-mode) auto-mode-alist))
 #+end_src
@@ -1070,7 +1071,8 @@ echo "--- done."
 
 パッケージインストール用のバッファが多機能になります．スターが表示されたり，ミニバッファには様々な情報が表示されるようになります．基本の操作系は同じで，拡張部分は =h= を押すとミニバッファにディスパッチャが表示されます．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (when (autoload-if-found
        '(paradox-list-packages
          my-list-packages my-setup-cask
@@ -2457,7 +2459,8 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
    :CUSTOM_ID: org2a14728f
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
+;; yes
 (when (autoload-if-found
        '(gnuplot-mode)
        "gnuplot-mode" nil t)
@@ -3280,19 +3283,14 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (defun my-eval-region ()
       (interactive)
       (when (use-region-p)
-        (unless (ignore-errors (eval-region (region-beginning) (region-end) t))
-          (let ((region (intern (buffer-substring-no-properties
-                                 (region-beginning) (region-end)))))
-            (when (functionp region)
-              (call-interactively region))))))
+        (eval-region (region-beginning) (region-end) t)))
 
     (defun my-eval-region-as-function ()
       (interactive)
       (when (use-region-p)
         (let ((region (intern (buffer-substring-no-properties
                                (region-beginning) (region-end)))))
-          (when (functionp region)
-            (funcall region)))))
+          (funcall region))))
     (setq selected-org-mode-map (make-sparse-keymap))
 
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
@@ -4703,7 +4701,8 @@ go get -v github.com/mdempsky/gocode
  - 入力した文字や発行したコマンドキーをモードラインに表示．コマンドの名前もリアルタイムに表示される．
  - [[https://github.com/tarsius/keycast][tarsius/keycast: Show current command and its key in the mode line]]
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 #+end_src
 
@@ -5677,7 +5676,8 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
 =M-x google-maps= で起動します．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (when (autoload-if-found
        '(google-maps)
        "google-maps" nil t)
@@ -5716,7 +5716,8 @@ Emacs で総務省の「[[http://law.e-gov.go.jp/][法令データ提供シス�
 
   - https://openweathermap.org/ にアカウントを作り，APIを呼び出すための専用IDを発行する必要があります．取得した idを， =sunshine-appid= に格納し， =sunshine-location= で対象地域を設定すれば， =M-x sunshine-forecast= で天気が表示されます． =M-x sunshine-quick-format= を使うと，結果がミニバッファに表示されます．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (when (autoload-if-found
        '(sunshine-forecast sunshine-quick-forecast)
        "sunshine" nil t)
@@ -6126,6 +6127,9 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
   )
 #+end_src
 
+#+RESULTS:
+: hydra-dired/body
+
 ** [dired-recent.el] 訪問したディレクトリの履歴を取る                 :dired:
    :PROPERTIES:
    :CUSTOM_ID: org7c53511f
@@ -6442,7 +6446,8 @@ http://www.emacswiki.org/emacs/EmacsSession
 
 [[https://github.com/davep/uptimes.el][davep/uptimes.el: Uptime tracking system for emacs.]] を使うと，過去数回の起動・稼働・終了履歴がわかります．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; 
 (require 'uptimes nil t)
 #+end_src
 
@@ -7417,7 +7422,8 @@ trim_trailing_whitespace = true
    :END:
  - https://gitlab.com/jgkamat/rmsbolt
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (autoload-if-found '(rmsbolt-mode) "rmsbolt" nil t)
 #+end_src
 
@@ -8906,10 +8912,11 @@ update it for multiple appts?")
     (defun counsel-appt-list ()
       "Create a list of appt."
       (setq counsel-appt-time-msg-list nil)
-      (dolist (msg appt-time-msg-list)
-        (when msg
-          (add-to-list 'counsel-appt-time-msg-list
-                       (substring-no-properties (nth 1 msg)) t)))
+      (when (boundp 'appt-time-msg-list)
+        (dolist (msg appt-time-msg-list)
+          (when msg
+            (add-to-list 'counsel-appt-time-msg-list
+                         (substring-no-properties (nth 1 msg)) t))))
       counsel-appt-time-msg-list)
 
     (defun counsel-appt ()
@@ -8951,13 +8958,15 @@ update it for multiple appts?")
                                  (if match
                                      (list (nth 0 msg)
                                            (org-trim (substring (nth 1 msg)
-                                                                0 match)) ;; FIXME
+                                                                0 match))
                                            (nth 2 msg))
-                                   msg)) t))
+                                   msg)
+                                 ) t))
                 ;; just for sure
                 (delq nil appt-time-msg-list)))
            (lambda (result)
              (setq appt-time-msg-list result)
+             (appt-check) ;; remove passed events
              (unless (active-minibuffer-window)
                (let ((cnt (length appt-time-msg-list)))
                  (if (eq cnt 0)
@@ -9528,7 +9537,8 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
   - https://github.com/bard/org-dashboard
   - 日本語だとバーの表示位置がずれるので修正．PR反映済み．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle no
+;; init-org.el
 (when (autoload-if-found
        '(org-dashboard-display)
        "org-dashboard" nil t)
@@ -9584,7 +9594,8 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
  - org-random-todo はミニバッファに選択したタスクを表示するだけ．
  - org-random-todo-goto-current 最後に表示したタスクに移動する．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle no
+;; init-org.el
 (autoload-if-found
  '(org-random-todo org-random-todo-goto-current)
  "org-random-todo" nil t)
@@ -12230,7 +12241,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 たまに使いたくなるので一応．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (when (autoload-if-found
        '(multi-term)
        "multi-term" nil t)
@@ -12545,7 +12557,8 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 
  - プロキシ内での挙動は不明．
 
-#+begin_src emacs-lisp :tangle last-init.el
+#+begin_src emacs-lisp :tangle no
+;; last-init.el
 (when (autoload-if-found
        '(network-watch-mode
          network-watch-active-p ad:network-watch-update-lighter)

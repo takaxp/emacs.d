@@ -98,7 +98,7 @@
   (el-get-bundle "emacsmirror/csv-mode")
   (el-get-bundle "es-mode")
   (el-get-bundle "markdown-mode")
-  ;; (el-get-bundle "po-mode")
+  (el-get-bundle "po-mode")
   (el-get-bundle "gnuplot-mode")
   ;; (el-get-bundle "emacsmirror/ess")
   (el-get-bundle "emacsmirror/yatex")
@@ -248,11 +248,12 @@
   ;; Frame and windows
   (el-get-bundle "popwin")
   (el-get-bundle "shackle")
-  (el-get-bundle "tabbar")
-
-  (el-get-bundle "emacsmirror/frame-tabs")
   (el-get-bundle "tumashu/ivy-posframe") ;; require swiper
-  (el-get-bundle "ajgrf/edwin")
+  (when nil
+    (el-get-bundle "tabbar")
+    (el-get-bundle "ajgrf/edwin")
+    (el-get-bundle "emacsmirror/frame-tabs"))
+
 
   ;; Efficiency
   (el-get-bundle "rubikitch/replace-from-region")
@@ -263,31 +264,36 @@
   (el-get-bundle "sbrisard/bratex")
   (el-get-bundle "zhangkaiyulw/smart-mark")
   (el-get-bundle "emacsmirror/syntax-subword")
-  (el-get-bundle "goto-chg")
-  (el-get-bundle "yuttie/initchart")
-  (el-get-bundle "rolandwalker/ignoramus") ;; Ignore backups, build files, et al.
   (el-get-bundle "takaxp/ah")
-
+  (when nil
+    (el-get-bundle "yuttie/initchart")
+    (el-get-bundle "rolandwalker/ignoramus") ;; Ignore backups, build files, et al.
+    (el-get-bundle "goto-chg"))
 
   ;; Applications
-  (el-get-bundle "xuchunyang/gitter.el")
   (el-get-bundle "ag")
   (el-get-bundle "google-this")
   (el-get-bundle "japanese-holidays")
-  (el-get-bundle "skeeto/emacsql")
-  (el-get-bundle "aaronbieber/sunshine.el" :name sunshine)
   (el-get-bundle "NicolasPetton/pass")
   (el-get-bundle "pdf-tools")
   (el-get-bundle "gif-screencast"
                  :type git
                  :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
-  (el-get-bundle "tarsius/keycast")
-  (el-get-bundle "jamiguet/network-watch")
   (el-get-bundle "d12frosted/counsel-osx-app")
+  (when nil
+    (el-get-bundle "skeeto/emacsql")
+    (el-get-bundle "tarsius/keycast")
+    (el-get-bundle "xuchunyang/gitter.el")
+    (el-get-bundle "jamiguet/network-watch")
+    (el-get-bundle "aaronbieber/sunshine.el" :name sunshine))
 
   ;; Log
-  (el-get-bundle "davep/uptimes.el" :name "uptimes")
+  (when nil
+    (el-get-bundle "davep/uptimes.el" :name "uptimes"))
+
   )
+
+;; =========================================================================
 
 (defmacro my-elget-bundles-by-tag ()
   "Packages to install with specific Tag."
