@@ -285,9 +285,10 @@
 
     (defun my-ox-upload-icalendar ()
       (interactive)
-      (if (require 'async nil t)
-          (my-async-ox-icalendar)
-        (my-ox-icalendar)))
+      (when org-ical-file-in-orz-server
+        (if (require 'async nil t)
+            (my-async-ox-icalendar)
+          (my-ox-icalendar))))
 
     (defun my-ox-icalendar ()
       (let ((message-log-max nil)
@@ -734,6 +735,8 @@ will not be modified."
                 '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                   "db/daily.org" "db/trigger.org" "tr/work.org" "academic.org"
                   "org2ja.org")))
+  (when (eq system-type 'windows-nt) ;; FIXME
+    (setq org-agenda-files "~/Dropbox/org/next.org"))
   ;; (setq org-agenda-files
   ;;       '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
   ;;         "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
@@ -1061,6 +1064,7 @@ update it for multiple appts?")
           (setq my-org-agenda-to-appt-ready nil)
           (async-start
            `(lambda ()
+              (setq load-path ',load-path)
               (setq org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline "TODO")))
               ;; Remove tags

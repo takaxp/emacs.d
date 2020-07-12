@@ -134,6 +134,9 @@
 (set-default-coding-systems 'utf-8-unix)
 (set-selection-coding-system 'utf-8-unix)
 (set-buffer-file-coding-system 'utf-8-unix)
+(setq locale-coding-system 'utf-8-unix)
+(when (eq system-type 'windows-nt)
+  (setq system-time-locale "C")) ;; format-time-string %a, not 日 but Sun
 
 (when (fboundp 'mac-add-key-passed-to-system)
   (setq default-input-method "MacOSX")

@@ -730,6 +730,9 @@ Emacs を操作して文書編集する上で欠かせない設定です．
 (set-default-coding-systems 'utf-8-unix)
 (set-selection-coding-system 'utf-8-unix)
 (set-buffer-file-coding-system 'utf-8-unix)
+(setq locale-coding-system 'utf-8-unix)
+(when (eq system-type 'windows-nt)
+  (setq system-time-locale "C")) ;; format-time-string %a, not 日 but Sun
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports none
@@ -1278,7 +1281,8 @@ GPG error: "no usable configuration," OpenPGP
 しかし実際には， ~epg-find-configuration~ が ~epg-check-configuration~ のエラーを正しく処理していないのが原因であり，この関数のハックが必要となる．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "epa"
+(with-eval-after-load "org-crypt"
+  (require 'epa)
   (when (eq window-system 'w32)
     ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
     (setq epg-gpg-home-directory ".gnupg"))
@@ -2527,7 +2531,7 @@ gzされた elisp ソースを見るときに， ~view-mode~ を使います．�
 
 #+begin_src emacs-lisp :tangle late-init.el
 ;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.emacs.d/[^/]+/el-get")
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.gpg$\\|\\.emacs.d/[^/]+/el-get")
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
@@ -7981,9 +7985,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
     (defun my-ox-upload-icalendar ()
       (interactive)
-      (if (require 'async nil t)
-          (my-async-ox-icalendar)
-        (my-ox-icalendar)))
+      (when org-ical-file-in-orz-server
+        (if (require 'async nil t)
+            (my-async-ox-icalendar)
+          (my-ox-icalendar))))
 
     (defun my-ox-icalendar ()
       (let ((message-log-max nil)
@@ -8586,6 +8591,8 @@ will not be modified."
                 '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                   "db/daily.org" "db/trigger.org" "tr/work.org" "academic.org"
                   "org2ja.org")))
+  (when (eq system-type 'windows-nt) ;; FIXME
+    (setq org-agenda-files "~/Dropbox/org/next.org"))
   ;; (setq org-agenda-files
   ;;       '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
   ;;         "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
@@ -8945,6 +8952,7 @@ update it for multiple appts?")
           (setq my-org-agenda-to-appt-ready nil)
           (async-start
            `(lambda ()
+              (setq load-path ',load-path)
               (setq org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline "TODO")))
               ;; Remove tags
@@ -10167,6 +10175,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ** TODO [org-review.el] レビューフローのサポート
    :PROPERTIES:
    :CUSTOM_ID: org4ca4749d
+   :ID:       461113E3-16FB-4E36-A3CB-B0814ED9559E
    :END:
 
   - https://github.com/brabalan/org-review

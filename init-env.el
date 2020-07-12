@@ -52,12 +52,14 @@
 ;; (2) exec-path
 (my-path-setter
  `("/usr/bin" "/usr/local/bin"
-   ,(expand-file-name ".cask/bin")
-   ,(expand-file-name "devel/git/tern/bin")
-   "~/.go/bin"
-   "~/Dropbox/emacs.d/bin"
-   "~/Dropbox/scripts"
+   ,(expand-file-name "~/.cask/bin")
+   ,(expand-file-name "~/devel/git/tern/bin")
+   ,(expand-file-name "~/.go/bin")
+   ,(expand-file-name "~/Dropbox/emacs.d/bin")
+   ,(expand-file-name "~/Dropbox/scripts")
    "/usr/local/opt/llvm/bin"
+   "C:/msys64/usr/bin"
+   "C:/msys64/mingw64/bin"
    "/Applications/UpTex.app/teTeX/bin"
    "/Applications/UpTeX.app/Contents/Resources/TEX/texbin"
    "/Applications/LibreOffice.app/Contents/MacOS/"

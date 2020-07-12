@@ -79,7 +79,8 @@
   (unless noninteractive
     (ws-butler-global-mode)))
 
-(with-eval-after-load "epa"
+(with-eval-after-load "org-crypt"
+  (require 'epa)
   (when (eq window-system 'w32)
     ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
     (setq epg-gpg-home-directory ".gnupg"))
@@ -1416,8 +1417,6 @@ Call this function at updating `mode-line-mode'."
       (add-hook 'go-mode-hook #'go-eldoc-setup))
   (message "--- gocode is NOT installed."))
 
-(autoload-if-found '(keycast-mode) "keycast" nil t)
-
 (when (autoload-if-found
        '(ivy-hydra-read-action)
        "ivy-hydra" nil t)
@@ -1837,17 +1836,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
       (message "--- mpv is NOT installed."))))
 
 (when (autoload-if-found
-       '(sunshine-forecast sunshine-quick-forecast)
-       "sunshine" nil t)
-
-  (with-eval-after-load "sunshine"
-    ;; (setq sunshine-location "Tokyo, Japan")
-    ;; (setq sunshine-appid "................................")
-    (custom-set-variables
-     '(sunshine-show-icons t)
-     '(sunshine-units 'metric))))
-
-(when (autoload-if-found
        '(rencetf-mode
          my-recentf-save-list-silence
          my-recentf-cleanup-silence
@@ -2104,8 +2092,6 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
     (when (eq system-type 'darwin)
       (custom-set-variables
        '(disk-usage-du-command "du")))))
-
-(require 'uptimes nil t)
 
 (when (autoload-if-found '(counsel-ag) "counsel" nil t)
   (global-set-key (kbd "C-M-f") 'counsel-ag))

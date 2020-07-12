@@ -1,10 +1,15 @@
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(when (eq system-type 'windows-nt) (setenv "HOME" "C:\\msys64\\home\\taka"))
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
+
+(when (eq system-type 'windows-nt)
+
+  )
 
 ;; ivy-emms
 (autoload-if-found '(ivy-emms) "ivy-emms" nil t)
