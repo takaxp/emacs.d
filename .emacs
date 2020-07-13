@@ -7,10 +7,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-(when (eq system-type 'windows-nt)
-
-  )
-
 ;; ivy-emms
 (autoload-if-found '(ivy-emms) "ivy-emms" nil t)
 

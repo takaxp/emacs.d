@@ -512,7 +512,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (message "--- cmake is NOT installed."))
 
 ;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.emacs.d/[^/]+/el-get")
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.gpg$\\|\\.emacs.d/[^/]+/el-get")
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)

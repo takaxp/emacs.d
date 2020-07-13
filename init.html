@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-07-11 Sat 15:30 -->
+<!-- 2020-07-14 Tue 08:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1576,6 +1576,9 @@ Emacs を操作して文書編集する上で欠かせない設定です．<br /
 (set-default-coding-systems 'utf-8-unix)
 (set-selection-coding-system 'utf-8-unix)
 (set-buffer-file-coding-system 'utf-8-unix)
+(<span style="color: #a020f0;">setq</span> locale-coding-system 'utf-8-unix)
+(<span style="color: #a020f0;">when</span> (eq system-type 'windows-nt)
+  (<span style="color: #a020f0;">setq</span> system-time-locale <span style="color: #8b2252;">"C"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">format-time-string %a, not &#26085; but Sun</span>
 </pre>
 </div>
 </div>
@@ -2201,7 +2204,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"epa"</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-crypt"</span>
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">epa</span>)
   (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">with export GNUPGHOME="/home/taka/.gnupg" in .bashrc</span>
     (<span style="color: #a020f0;">setq</span> epg-gpg-home-directory <span style="color: #8b2252;">".gnupg"</span>))
@@ -3667,7 +3671,7 @@ gzされた elisp ソースを見るときに， <code>view-mode</code> を使�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#25313;&#24373;&#23376;&#12539;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-regexp</span> <span style="color: #8b2252;">"\\.el.gz$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.patch$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.emacs.d/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]+/el-get"</span>)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-regexp</span> <span style="color: #8b2252;">"\\.el.gz$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.patch$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.gpg$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.emacs.d/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]+/el-get"</span>)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#65288;&#32118;&#23550;&#12497;&#12473;&#12539;&#12507;&#12540;&#12512;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#20197;&#19979;&#65289;</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-dirs</span> nil)
@@ -9784,9 +9788,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ox-upload-icalendar</span> ()
       (<span style="color: #a020f0;">interactive</span>)
-      (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t)
-          (my-async-ox-icalendar)
-        (my-ox-icalendar)))
+      (<span style="color: #a020f0;">when</span> org-ical-file-in-orz-server
+        (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t)
+            (my-async-ox-icalendar)
+          (my-ox-icalendar))))
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ox-icalendar</span> ()
       (<span style="color: #a020f0;">let</span> ((message-log-max nil)
@@ -10507,6 +10512,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                 '(<span style="color: #8b2252;">"org-ical.org"</span> <span style="color: #8b2252;">"next.org"</span> <span style="color: #8b2252;">"db/cooking.org"</span> <span style="color: #8b2252;">"minutes/wg1.org"</span>
                   <span style="color: #8b2252;">"db/daily.org"</span> <span style="color: #8b2252;">"db/trigger.org"</span> <span style="color: #8b2252;">"tr/work.org"</span> <span style="color: #8b2252;">"academic.org"</span>
                   <span style="color: #8b2252;">"org2ja.org"</span>)))
+  (<span style="color: #a020f0;">when</span> (eq system-type 'windows-nt) <span style="color: #b22222;">;; </span><span style="color: ##3030FF;">FIXME</span>
+    (<span style="color: #a020f0;">setq</span> org-agenda-files <span style="color: #8b2252;">"~/Dropbox/org/next.org"</span>))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-agenda-files</span>
   <span style="color: #b22222;">;;       </span><span style="color: #b22222;">'("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"</span>
   <span style="color: #b22222;">;;         </span><span style="color: #b22222;">"~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"</span>
@@ -10538,12 +10545,23 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
         '((daily today require-timed)
           (0800 1000 1200 1400 1600 1800 2000 2200 2400)
           <span style="color: #8b2252;">"......"</span>
-          <span style="color: #8b2252;">"----------------"</span>
+          <span style="color: #8b2252;">"------------------------"</span>
           ))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-agenda-current-time-string "&lt;  d('- ' &#65394;&#65423;&#65402;&#65402;)")</span>
-  (<span style="color: #a020f0;">setq</span> org-agenda-current-time-string <span style="color: #8b2252;">"&lt;&lt;  &#65394;&#65423;&#65402;&#65402;"</span>)
+  (<span style="color: #a020f0;">setq</span> org-agenda-current-time-string <span style="color: #8b2252;">"&lt;&lt;&lt; &#65394;&#65423;&#65402;&#65402;"</span>)
   (<span style="color: #a020f0;">setq</span> org-agenda-timegrid-use-ampm t)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#34920;&#31034;&#12398;&#27700;&#24179;&#26041;&#21521;&#12398;&#20887;&#38263;&#12373;&#12434;&#21066;&#28187;</span>
+  (<span style="color: #a020f0;">setq</span> org-agenda-prefix-format
+        '((agenda  . <span style="color: #8b2252;">"%-9c| %?-12t% s"</span>)
+          (todo  . <span style="color: #8b2252;">" %i %-12:c"</span>)
+          (tags  . <span style="color: #8b2252;">" %i %-12:c"</span>)
+          (search . <span style="color: #8b2252;">" %i %-12:c"</span>)))
+  (<span style="color: #a020f0;">setq</span> org-agenda-remove-tags t)
+  (<span style="color: #a020f0;">setq</span> org-agenda-scheduled-leaders '(<span style="color: #8b2252;">"[S]"</span> <span style="color: #8b2252;">"S.%2dx:\t"</span>))
+  (<span style="color: #a020f0;">setq</span> org-agenda-deadline-leaders '(<span style="color: #8b2252;">"[D]"</span> <span style="color: #8b2252;">"In %3d d.:\t"</span> <span style="color: #8b2252;">"%2d d. ago:\t"</span>))
+
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-tags-column</span> org-tags-column)
@@ -10861,6 +10879,31 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                 <span style="color: #483d8b;">:caller</span> 'counsel-appt)))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda-to-appt &#12434;&#38750;&#21516;&#26399;&#12391;&#20351;&#12358;&#12383;&#12417;&#12398; advice</span>
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">read-char-default-timeout</span> 10)
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:read-char-exclusive</span> (f <span style="color: #228b22;">&amp;optional</span> PROMPT INHERIT-INPUT-METHOD SECONDS)
+      (funcall f PROMPT INHERIT-INPUT-METHOD
+               (<span style="color: #a020f0;">or</span> SECONDS read-char-default-timeout)))
+    (advice-add 'read-char-exclusive <span style="color: #483d8b;">:around</span> #'ad:read-char-exclusive)
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-check-agenda-file</span> (file)
+      <span style="color: #8b2252;">"Make sure FILE exists.  If not, ask user what to do."</span>
+      (<span style="color: #a020f0;">let</span> ((read-char-default-timeout 0.01))
+        (<span style="color: #a020f0;">unless</span> (file-exists-p file)
+          (message <span style="color: #8b2252;">"Non-existent agenda file %s.  [R]emove from list or [A]bort?"</span>
+                   (abbreviate-file-name file))
+          (<span style="color: #a020f0;">let</span> ((r (downcase (<span style="color: #a020f0;">or</span> nil ?r)))) <span style="color: #b22222;">;;</span>
+            (<span style="color: #a020f0;">cond</span>
+             ((equal r ?r)
+              (org-remove-file file)
+              (<span style="color: #a020f0;">throw</span> '<span style="color: #008b8b;">nextfile</span> t))
+             (t (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"Abort"</span>)))))))
+    (advice-add 'org-check-agenda-file <span style="color: #483d8b;">:override</span> #'ad:org-check-agenda-file)
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Check files existence</span>
+    (org-agenda-prepare-buffers org-agenda-files))
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#12434;&#38283;&#12356;&#12383;&#12425;&#12450;&#12521;&#12540;&#12512;&#12522;&#12473;&#12488;&#12434;&#26356;&#26032;&#12375;&#12390;&#26377;&#21177;&#21270;&#12377;&#12427;</span>
     (<span style="color: #a020f0;">unless</span> noninteractive
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) <span style="color: #b22222;">;; </span><span style="color: #b22222;">init</span>
@@ -10874,10 +10917,12 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
       (<span style="color: #a020f0;">if</span> (not (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t))
           (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
             (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"</span><span style="color: #FF0000;">TODO</span><span style="color: #8b2252;">"</span>))))
-        (<span style="color: #a020f0;">when</span> my-org-agenda-to-appt-ready
+        (<span style="color: #a020f0;">if</span> (not my-org-agenda-to-appt-ready)
+            (message <span style="color: #8b2252;">"[appt] Locked"</span>)
           (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready nil)
           (async-start
            `(<span style="color: #a020f0;">lambda</span> ()
+              (<span style="color: #a020f0;">setq</span> load-path ',load-path)
               (<span style="color: #a020f0;">setq</span> org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"</span><span style="color: #FF0000;">TODO</span><span style="color: #8b2252;">"</span>)))
               <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove tags</span>
@@ -11373,7 +11418,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org3a506bd"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga75539a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14893,7 +14938,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-07-11 Sat 15:30</p>
+<p class="date">Created: 2020-07-14 Tue 08:46</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -8624,12 +8624,23 @@ will not be modified."
         '((daily today require-timed)
           (0800 1000 1200 1400 1600 1800 2000 2200 2400)
           "......"
-          "----------------"
+          "------------------------"
           ))
 
   ;; (setq org-agenda-current-time-string "<  d('- ' ｲﾏｺｺ)")
-  (setq org-agenda-current-time-string "<<  ｲﾏｺｺ")
+  (setq org-agenda-current-time-string "<<< ｲﾏｺｺ")
   (setq org-agenda-timegrid-use-ampm t)
+
+  ;; org-agenda 表示の水平方向の冗長さを削減
+  (setq org-agenda-prefix-format
+        '((agenda  . "%-9c| %?-12t% s")
+          (todo  . " %i %-12:c")
+          (tags  . " %i %-12:c")
+          (search . " %i %-12:c")))
+  (setq org-agenda-remove-tags t)
+  (setq org-agenda-scheduled-leaders '("[S]" "S.%2dx:\t"))
+  (setq org-agenda-deadline-leaders '("[D]" "In %3d d.:\t" "%2d d. ago:\t"))
+
 
   (with-eval-after-load "moom"
     (defvar my-org-tags-column org-tags-column)
@@ -8935,6 +8946,31 @@ update it for multiple appts?")
                 :caller 'counsel-appt)))
 
   (with-eval-after-load "org"
+    ;; org-agenda-to-appt を非同期で使うための advice
+    (defvar read-char-default-timeout 10)
+    (defun ad:read-char-exclusive (f &optional PROMPT INHERIT-INPUT-METHOD SECONDS)
+      (funcall f PROMPT INHERIT-INPUT-METHOD
+               (or SECONDS read-char-default-timeout)))
+    (advice-add 'read-char-exclusive :around #'ad:read-char-exclusive)
+
+    (defun ad:org-check-agenda-file (file)
+      "Make sure FILE exists.  If not, ask user what to do."
+      (let ((read-char-default-timeout 0.01))
+        (unless (file-exists-p file)
+          (message "Non-existent agenda file %s.  [R]emove from list or [A]bort?"
+	                 (abbreviate-file-name file))
+          (let ((r (downcase (or nil ?r)))) ;;
+            (cond
+             ((equal r ?r)
+	            (org-remove-file file)
+	            (throw 'nextfile t))
+             (t (user-error "Abort")))))))
+    (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
+
+    ;; Check files existence
+    (org-agenda-prepare-buffers org-agenda-files))
+
+  (with-eval-after-load "org"
     ;; アジェンダを開いたらアラームリストを更新して有効化する
     (unless noninteractive
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init
@@ -8948,7 +8984,8 @@ update it for multiple appts?")
       (if (not (require 'async nil t))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))
-        (when my-org-agenda-to-appt-ready
+        (if (not my-org-agenda-to-appt-ready)
+            (message "[appt] Locked")
           (setq my-org-agenda-to-appt-ready nil)
           (async-start
            `(lambda ()
