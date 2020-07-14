@@ -982,6 +982,7 @@ will not be modified."
     (setq appt-display-interval 1)
 
     ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
+    ;; Need review
     (defun ad:appt-display-message (string mins)
       "Display a reminder about an appointment.
 The string STRING describes the appointment, due in integer MINS minutes.
@@ -995,7 +996,7 @@ also calls `beep' for an audible reminder."
            (= (length mins) 1)
            (setq mins (car mins)
                  string (car string)))
-      (when (memq appt-display-format '(window echo))
+      (when (memq appt-display-format '(window echo)) ;; modified
         (let ((time (format-time-string "%a %b %e "))
               err)
           (condition-case err
@@ -1007,8 +1008,8 @@ also calls `beep' for an audible reminder."
             (wrong-type-argument
              (if (not (listp mins))
                  (signal (car err) (cdr err))
-               (message "Argtype error in `appt-disp-window-function' - \
-update it for multiple appts?")
+               ;; suppress
+               ;; (message "Argtype error in `appt-disp-window-function' - update it for multiple appts?")
                ;; Fallback to just displaying the first appt, as we used to.
                (funcall appt-disp-window-function
                         (number-to-string (car mins)) time
@@ -1067,11 +1068,11 @@ update it for multiple appts?")
 
     (defun ad:org-check-agenda-file (file)
       "Make sure FILE exists.  If not, ask user what to do."
-      (let ((read-char-default-timeout 0.01))
+      (let ((read-char-default-timeout 0)) ;; not nil
         (unless (file-exists-p file)
           (message "Non-existent agenda file %s.  [R]emove from list or [A]bort?"
 	                 (abbreviate-file-name file))
-          (let ((r (downcase (or nil ?r)))) ;;
+          (let ((r (downcase (or (read-char-exclusive) ?r))))
             (cond
              ((equal r ?r)
 	            (org-remove-file file)

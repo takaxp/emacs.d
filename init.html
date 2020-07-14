@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-07-14 Tue 08:46 -->
+<!-- 2020-07-14 Tue 10:56 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -10803,6 +10803,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
     (<span style="color: #a020f0;">setq</span> appt-display-interval 1)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">appt-display-format &#12364; 'echo &#12391;&#12418; appt-disp-window-function &#12434;&#21628;&#12406;</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Need review</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:appt-display-message</span> (string mins)
       <span style="color: #8b2252;">"Display a reminder about an appointment.</span>
 <span style="color: #8b2252;">The string STRING describes the appointment, due in integer MINS minutes.</span>
@@ -10816,7 +10817,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
            (= (length mins) 1)
            (<span style="color: #a020f0;">setq</span> mins (car mins)
                  string (car string)))
-      (<span style="color: #a020f0;">when</span> (memq appt-display-format '(window echo))
+      (<span style="color: #a020f0;">when</span> (memq appt-display-format '(window echo)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">modified</span>
         (<span style="color: #a020f0;">let</span> ((time (format-time-string <span style="color: #8b2252;">"%a %b %e "</span>))
               err)
           (<span style="color: #a020f0;">condition-case</span> err
@@ -10828,8 +10829,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
             (wrong-type-argument
              (<span style="color: #a020f0;">if</span> (not (listp mins))
                  (<span style="color: #ff0000; font-weight: bold;">signal</span> (car err) (cdr err))
-               (message <span style="color: #8b2252;">"Argtype error in `</span><span style="color: #008b8b;">appt-disp-window-function</span><span style="color: #8b2252;">' - \</span>
-<span style="color: #8b2252;">update it for multiple appts?"</span>)
+               <span style="color: #b22222;">;; </span><span style="color: #b22222;">suppress</span>
+               <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "Argtype error in `</span><span style="color: #008b8b;">appt-disp-window-function</span><span style="color: #b22222;">' - update it for multiple appts?")</span>
                <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fallback to just displaying the first appt, as we used to.</span>
                (funcall appt-disp-window-function
                         (number-to-string (car mins)) time
@@ -10888,11 +10889,11 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-check-agenda-file</span> (file)
       <span style="color: #8b2252;">"Make sure FILE exists.  If not, ask user what to do."</span>
-      (<span style="color: #a020f0;">let</span> ((read-char-default-timeout 0.01))
+      (<span style="color: #a020f0;">let</span> ((read-char-default-timeout 0)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">not nil</span>
         (<span style="color: #a020f0;">unless</span> (file-exists-p file)
           (message <span style="color: #8b2252;">"Non-existent agenda file %s.  [R]emove from list or [A]bort?"</span>
                    (abbreviate-file-name file))
-          (<span style="color: #a020f0;">let</span> ((r (downcase (<span style="color: #a020f0;">or</span> nil ?r)))) <span style="color: #b22222;">;;</span>
+          (<span style="color: #a020f0;">let</span> ((r (downcase (<span style="color: #a020f0;">or</span> (read-char-exclusive) ?r))))
             (<span style="color: #a020f0;">cond</span>
              ((equal r ?r)
               (org-remove-file file)
@@ -11418,7 +11419,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga75539a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org23b1513"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -14938,7 +14939,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-07-14 Tue 08:46</p>
+<p class="date">Created: 2020-07-14 Tue 10:56</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
