@@ -58,6 +58,7 @@
    ,(expand-file-name "~/Dropbox/emacs.d/bin")
    ,(expand-file-name "~/Dropbox/scripts")
    "/usr/local/opt/llvm/bin"
+   "C:/cygwin64/bin"
    "C:/msys64/usr/bin"
    "C:/msys64/mingw64/bin"
    "/Applications/UpTex.app/teTeX/bin"
@@ -137,8 +138,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hide package.el, could be removed
-(unless (version< "27.0" (format "%s" emacs-major-version))
-  (setq byte-compile-warnings '(cl-functions)))
+;; (unless (version< "27.0" (format "%s" emacs-major-version))
+;;   (setq byte-compile-warnings '(cl-functions)))
 
 ;; (defun ad:package--ensure-init-file ()
 ;;   (setq package--init-file-ensured t))

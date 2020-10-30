@@ -48,6 +48,54 @@
 (setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
 (setq garbage-collection-messages t)
 
+(setq byte-compile-warnings '(obsolete))
+;; Suppress warning on cl.el loading
+(defvar my-exclude-deprecated-packages '(cl tls))
+(defun ad:do-after-load-evaluation (abs-file)
+  "Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
+ABS-FILE, a string, should be the absolute true name of a file just loaded.
+This function is called directly from the C code."
+  ;; Run the relevant eval-after-load forms.
+  (dolist (a-l-element after-load-alist)
+    (when (and (stringp (car a-l-element))
+               (string-match-p (car a-l-element) abs-file))
+      ;; discard the file name regexp
+      (mapc #'funcall (cdr a-l-element))))
+  ;; Complain when the user uses obsolete files.
+  (when (string-match-p "/obsolete/[^/]*\\'" abs-file)
+    ;; Maybe we should just use display-warning?  This seems yucky...
+    (let* ((file (file-name-nondirectory abs-file))
+           (package (intern (substring file 0
+			                                 (string-match "\\.elc?\\>" file))
+                            obarray))
+           (msg (unless (memq package my-exclude-deprecated-packages)
+                  (format "Package %s is deprecated" package)))
+	         (fun (lambda (msg) (message "%s" msg))))
+      ;; Cribbed from cl--compiling-file.
+      (when (or (not (fboundp 'byte-compile-warning-enabled-p))
+                (byte-compile-warning-enabled-p 'obsolete package))
+        (cond
+	       ((and (boundp 'byte-compile--outbuffer)
+	             (bufferp (symbol-value 'byte-compile--outbuffer))
+	             (equal (buffer-name (symbol-value 'byte-compile--outbuffer))
+		                  " *Compiler Output*"))
+	        ;; Don't warn about obsolete files using other obsolete files.
+	        (unless (and (stringp byte-compile-current-file)
+		                   (string-match-p "/obsolete/[^/]*\\'"
+				                               (expand-file-name
+					                              byte-compile-current-file
+					                              byte-compile-root-dir)))
+	          (byte-compile-warn "%s" msg)))
+         ((and msg
+               noninteractive (funcall fun msg))) ;; No timer will be run!
+	       (t (when msg
+              (run-with-idle-timer 0 nil fun msg)))
+	       ))))
+
+  ;; Finally, run any other hook.
+  (run-hook-with-args 'after-load-functions abs-file))
+(advice-add 'do-after-load-evaluation :override #'ad:do-after-load-evaluation)
+
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
 (defun my-load-package-p (file)
@@ -136,6 +184,7 @@
 (set-buffer-file-coding-system 'utf-8-unix)
 (setq locale-coding-system 'utf-8-unix)
 (when (eq system-type 'windows-nt)
+  (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
   (setq system-time-locale "C")) ;; format-time-string %a, not 日 but Sun
 
 (when (fboundp 'mac-add-key-passed-to-system)
@@ -342,18 +391,6 @@
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 
 (when (autoload-if-found
-       '(csharp-mode)
-       "csharp-mode" "Major mode for editing C# mode." nil t)
-
-  (push '("\\.cs$" . csharp-mode) auto-mode-alist))
-
-(when (autoload-if-found
-       '(R-mode R)
-       "ess-site" "Emacs Speaks Statistics mode" nil t)
-
-  (push '("\\.[rR]$" . R-mode) auto-mode-alist))
-
-(when (autoload-if-found
        '(yaml-mode)
        "yaml-mode" nil t)
 
@@ -508,14 +545,18 @@
 
 ;; Show scroll bar or not
 (when (and (display-graphic-p)
+           (not early-init-file)
            (memq window-system '(ns mac)))
   (set-scroll-bar-mode nil)) ; 'right
 
 ;; Disable to show the tool bar.
-(when (display-graphic-p)
+(when (and (not early-init-file)
+           (display-graphic-p))
   (tool-bar-mode -1))
 
-(unless (display-graphic-p)
+(when (and (not early-init-file)
+           (or (not (display-graphic-p))
+               (eq system-type 'windows-nt)))
   (menu-bar-mode -1))
 
 ;; Disable to show the splash window at startup
@@ -825,6 +866,7 @@
        moom-autoloads
        "moom" nil t)
 
+  (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
@@ -838,6 +880,9 @@
     (setq moom-lighter "M")
     (setq moom-verbose t)
     (setq moom-multi-monitors-support t)
+    (when (eq system-type 'windows-nt)
+      (setq moom-user-margin '(0 40 0 0)))
+    ;; (setq moom-user-margin '(50 50 50 50))
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 
@@ -896,52 +941,57 @@
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
 
-(cond
- ;; CocoaEmacs
- ((memq window-system '(mac ns))
-  (when (>= emacs-major-version 23)
+(defun my-setup-font ()
+  (interactive)
+  (cond
+   ;; CocoaEmacs
+   ((memq window-system '(mac ns))
+    (when (>= emacs-major-version 23)
 
-    ;; Fix ratio provided by set-face-attribute for fonts display
-    (setq face-font-rescale-alist
-          '(("^-apple-hiragino.*" . 1.0) ; 1.2
-            (".*Migu.*" . 1.2)
-            (".*Ricty.*" . 1.0)
-            (".*Inconsolata.*" . 1.0)
-            (".*osaka-bold.*" . 1.0)     ; 1.2
-            (".*osaka-medium.*" . 1.0)   ; 1.0
-            (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-            ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-            ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-            ("-cdac$" . 1.0))))) ; 1.3
- ;; (my-font-config) ;; see `my-theme'
+      ;; Fix ratio provided by set-face-attribute for fonts display
+      (setq face-font-rescale-alist
+            '(("^-apple-hiragino.*" . 1.0) ; 1.2
+              (".*Migu.*" . 1.2)
+              (".*Ricty.*" . 1.0)
+              (".*Inconsolata.*" . 1.0)
+              (".*osaka-bold.*" . 1.0)     ; 1.2
+              (".*osaka-medium.*" . 1.0)   ; 1.0
+              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+              ("-cdac$" . 1.0))))) ; 1.3
+   ;; (my-font-config) ;; see `my-theme'
 
- ((eq window-system 'ns)
-  ;; Anti aliasing with Quartz 2D
-  (when (boundp 'mac-allow-anti-aliasing)
-    (setq mac-allow-anti-aliasing t)))
+   ((eq window-system 'ns)
+    ;; Anti aliasing with Quartz 2D
+    (when (boundp 'mac-allow-anti-aliasing)
+      (setq mac-allow-anti-aliasing t)))
 
- ((eq window-system 'w32) ; windows7
-  (let ((font-size 14)
-        (font-height 100)
-        (ascii-font "Inconsolata")
-        (ja-font "メイリオ")) ;; Meiryo UI
-    (my-ja-font-setter
-     (font-spec :family ja-font :size font-size :height font-height))
-    (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-    (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
+   ((eq window-system 'w32) ; windows7
+    (let ((font-size 14)
+          (font-height 100)
+          (ascii-font "Inconsolata")
+          (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
- ((eq window-system 'x) ; for SuSE Linux 12.1
-  (let
-      ((font-size 14)
-       (font-height 100)
-       (ascii-font "Inconsolata")
-       ;; (ja-font "MigMix 1M")
-       (ja-font "Migu 2M"))
-    (my-ja-font-setter
-     (font-spec :family ja-font :size font-size :height font-height))
-    (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
-  (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
-                                  (".*Inconsolata.*" . 1.0))))) ; 0.9
+   ((eq window-system 'x) ; for SuSE Linux 12.1
+    (let
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font "Inconsolata")
+         ;; (ja-font "MigMix 1M")
+         (ja-font "Migu 2M"))
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
+    (setq face-font-rescale-alist '((".*Migu.*" . 2.0)
+                                    (".*MigMix.*" . 2.0)
+                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
+  )
+(my-setup-font)
 
 ;; set-default で global 指定すると，ミニバッファの message で制御不能になる
 ;; propertize で拡大できるが，global の値以下に縮小できなくなる．

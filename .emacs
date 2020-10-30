@@ -1,28 +1,114 @@
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(when (eq system-type 'windows-nt) (setenv "HOME" "C:\\msys64\\home\\taka"))
+(when (eq system-type 'windows-nt)
+  (let ((base-system "cygwin64")) ;; msys64
+    (setenv "HOME" (format "C:\\%s\\home\\taka" base-system))
+    (setenv "PATH"
+            (concat (getenv "PATH")
+                    (format ";C:\\%s\\usr\\local\\bin" base-system)
+                    (format ";C:\\%s\\opt\\bin" base-system)
+                    (format ";C:\\%s\\usr\\bin" base-system)
+                    (format ";C:\\%s\\bin" base-system)
+                    (format ";C:\\%s\\mingw64\\bin" base-system)))
+    (setq shell-file-name "C:/cygwin64/bin/bash")))
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-;; ivy-emms
-(autoload-if-found '(ivy-emms) "ivy-emms" nil t)
+;; grugru.el
+(with-eval-after-load "postpone"
+  (when (require 'grugru-default nil t)
+    (setq grugru-edit-completing-function #'ivy-completing-read)
+    (custom-set-faces
+     '(grugru-highlight-face ((t (:bold t :underline "#FF3333")))))
+    (setq grugru-highlight-idle-delay 1)
+    (grugru-highlight-mode 1)
+    (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
+    (defun grugru-default-setup ()
+      "Setup default value.
+If some are not confortable, you can remove some of them,
+with `grugru-remove-on-major-mode' or `grugru-remove-global'."
+      (grugru-define-multiple
+       (c++-mode
+        (symbol "true" "false")
+        (symbol "vector" "array" "deque")
+        (symbol "class" "struct")
+        (symbol "float" "double")
+        (symbol "private" "public" "protected"))
+       (emacs-lisp-mode
+        (symbol "nil" "t")
+        (symbol "let" "let*")
+        (symbol "defun" "cl-defun")
+        (symbol "defvar" "defcustom")
+        (word   "add" "remove")
+        (symbol "setq" "setq-default")
+        (word   "global" "local"))
+       ((tex-mode latex-mode yatex-mode)
+        (symbol "figure" "table"))
+       ((org-mode) ;; v9.3.6
+        (word ":t" ":nil")
+        (word "overview" "showall")
+        (word "fold" "unfold" "content" "showeverything")
+        (word "indent" "noindent")
+        (word "align" "noalign")
+        (word "inlineimages" "noinlineimages")
+        (word "latexpreview" "nolatexpreview")
+        (word "hideblocks" "showblocks") ;; nohideblocks
+        (word "odd" "oddeven")
+        (word "nologrefile" "logrefile" "lognoterefile")
+        (word "nologdone" "logdone" "lognotedone")
+        (word "nologreschedule" "logreschedule" "lognotereschedule")
+        (word "nologredeadline" "logredeadline" "lognoteredeadline")
+        (word "lognoteclock-out" "nolognoteclock-out")
+        (word "logdrawer" "nologdrawer")
+        (word "logstatesreversed" "nologstatesreversed")
+        (word "nologrepeat" "logrepeat" "lognoterepeat")
+        (word "hidestars" "showstars")
+        (word "fninline" "nofninline" "fnlocal")
+        (word "fnauto" "fnprompt" "fnconfirm" "fnplain") ;; TODO
+        (word "nofnadjust" "fnadjust")
+        (word "entitiespretty" "entitiesplain")
+        (word "title" "author" "email" "date")
+        (word "todo" "done")
+        ;; source
+        ;; (word "c") ;; これは直接リストをここに流せる？
+        )))
+    (grugru-default-setup)
+    (global-set-key (kbd "C-9") #'grugru)
+    (add-hook 'grugru-after-hook #'save-buffer)
+    (grugru-find-function-integration-mode 1)))
 
+(when nil
+  ;; https://github.com/chuntaro/emacs-keycaster/issues/4
+  (load "~/.emacs.d/27.0.60/el-get/keypression/keypression.el")
+  ;; (custom-set-variables
+  ;;  '(keycaster-x-offset (+ (frame-pixel-width) 10)))
+  (custom-set-variables
+   '(keycaster-use-child-frame t)
+   '(keycaster-x-offset (+ 576 10)))
+  ;; (custom-set-variables
+  ;;  '(keycaster-x-offset (+ 476 10)))
+  (keypression-mode 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; need to learn the overlay...
 (when nil
   (with-eval-after-load "all-the-icons-dired"
     ;; アイコンの backgound が変わらないのは27だから．
     (custom-set-faces
      '(all-the-icons-dired-dir-face
-       ((t (:foreground "black" :background "light pink" :underline "OrangeRed2")))))
+       ((t (:foreground "black" :background "light pink"
+                        :underline "OrangeRed2")))))
 
     (defun all-the-icons-dired--add-overlay (pos string)
       "Add overlay to display STRING at POS."
       (custom-set-faces
        '(all-the-icons-dired-dir-face
-         ((t (:foreground "black" :background "light pink" :underline "OrangeRed2")))))
+         ((t (:foreground "black" :background "light pink"
+                          :underline "OrangeRed2")))))
+
       (let ((ov (make-overlay (1- pos) pos)))
         ;; (overlay-put ov 'priority nil)
         (overlay-put ov 'face all-the-icons-dired-dir-face)
@@ -91,19 +177,6 @@
 (with-eval-after-load "yatex"
   (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
   (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp))
-
-(when nil
-  ;; https://github.com/chuntaro/emacs-keycaster/issues/4
-  (load "~/.emacs.d/27.0.60/el-get/keypression/keypression.el")
-  ;; (custom-set-variables
-  ;;  '(keycaster-x-offset (+ (frame-pixel-width) 10)))
-  (custom-set-variables
-   '(keycaster-use-child-frame t)
-   '(keycaster-x-offset (+ 576 10)))
-  ;; (custom-set-variables
-  ;;  '(keycaster-x-offset (+ 476 10)))
-  (keycaster-mode))
-
 
 (when nil
   (with-eval-after-load "postpone"

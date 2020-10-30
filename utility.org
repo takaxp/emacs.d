@@ -249,13 +249,15 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 (defun my-show-org-buffer (file)
   "Show an org-file on the current buffer."
   (interactive)
-  (if (get-buffer file)
-      (let ((buffer (get-buffer file)))
-        (switch-to-buffer buffer)
-        (message "%s" file))
-    (find-file (concat (getenv "SYNCROOT") "/org/" file)))
-  (when (fboundp 'my-org-agenda-to-appt)
-    (my-org-agenda-to-appt)))
+  (message "%s" file)
+  (let ((tbuffer (get-buffer file))
+        (cbuffer (current-buffer)))
+    (if tbuffer
+        (switch-to-buffer tbuffer)
+      (find-file (concat (getenv "SYNCROOT") "/org/" file)))
+    (when (and (fboundp 'my-org-agenda-to-appt)
+               (not (eq cbuffer tbuffer)))
+      (my-org-agenda-to-appt 'force))))
 #+end_src
 
 ** orgバッファにいつものヘッダを追加する
@@ -280,6 +282,17 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
         (insert title date author option other))
       (when (require 'org nil t)
         (org-end-of-line)))))
+#+end_src
+
+** orgバッファにPGPヘッダとフッタを書き込む
+PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで =org-decrypt-entry= するための空ツリーを書き込みます．
+
+#+begin_src emacs-lisp :tangle utility.el
+(defun my-insert-empty-pgp-tree ()
+  (interactive)
+  (insert "** TODO hoge\n")
+  (insert "-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n")
+  (forward-line -2))
 #+end_src
 
 ** 議事録ひな形を書き入れる
@@ -374,13 +387,14 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 #+begin_src emacs-lisp :tangle utility.el
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
-  (run-with-idle-timer 180 t 'my-reload-ical-export)
-  ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
-  ;; FIXME
-  (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
-  (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t))))
+  (when (eq system-type 'ns)
+    (run-with-idle-timer 180 t 'my-reload-ical-export)
+    ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
+    ;; FIXME
+    (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
+    (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t)))))
 
-(declare-function my-ox-upload-icalendar "init-org")
+(declare-function my-ox-upload-icalendar "init.org")
 ;;;###autoload
 (defun my-reload-ical-export ()
   "Export org files as an iCal format file"
@@ -615,7 +629,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
     (message "Nothing to do for this buffer.")))
 #+end_src
 
-** TODO リージョン内のブリッツを操作する
+** TODO リージョン内のブリッツを操作する(orgmode)
    :PROPERTIES:
    :CUSTOM_ID: orga706f503
    :END:

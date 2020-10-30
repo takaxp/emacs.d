@@ -157,7 +157,8 @@
         (beginning-of-line)
         (unless (looking-at-p org-drawer-regexp)
           (org-cycle-hide-drawers 'children))))
-    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+    ;; Broken from org 9.4 (error "Invalid search bound (wrong side of point)")
+    ;; (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
     ;; CSV指定でテーブルを出力する．
     (defun my-org-table-export ()
@@ -285,7 +286,8 @@
 
     (defun my-ox-upload-icalendar ()
       (interactive)
-      (when org-ical-file-in-orz-server
+      (when (and org-ical-file-in-orz-server
+                 (eq system-type 'darwin))
         (if (require 'async nil t)
             (my-async-ox-icalendar)
           (my-ox-icalendar))))
@@ -736,13 +738,7 @@ will not be modified."
                   "db/daily.org" "db/trigger.org" "tr/work.org" "academic.org"
                   "org2ja.org")))
   (when (eq system-type 'windows-nt) ;; FIXME
-    (setq org-agenda-files "~/Dropbox/org/next.org"))
-  ;; (setq org-agenda-files
-  ;;       '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
-  ;;         "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
-  ;;         "~/Dropbox/org/db/daily.org" "~/Dropbox/org/db/trigger.org"
-  ;;         "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
-  ;;         "~/Dropbox/org/org2ja.org"))
+    (setq org-agenda-files '("~/Dropbox/org/next.org")))
 
   ;; sorting strategy
   (setq org-agenda-sorting-strategy
@@ -1090,13 +1086,37 @@ also calls `beep' for an audible reminder."
       (appt-activate 1))
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
+    (defun my-unlock-org-agenda-to-appt ()
+      (interactive)
+      (setq my-org-agenda-to-appt-ready t)
+      (my-org-agenda-to-appt))
+
+    (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
+      (let ((msgs appt-time-msg-list))
+        (setq appt-time-msg-list nil)
+        (dolist (msg msgs)
+          (add-to-list 'appt-time-msg-list
+                       (list (nth 0 msg)
+                             (let ((str (nth 1 msg)))
+                               (add-text-properties 6 10 '(org-heading t) str)
+                               str)
+                             (nth 2 msg))
+                       ) t)
+        ;; just for sure
+        (delq nil appt-time-msg-list)))
+
+    (defvar my-org-agenda-to-appt-async t)
+
     ;; org-agenda の内容をアラームに登録する
-    (defun my-org-agenda-to-appt ()
+    (defun my-org-agenda-to-appt (&optional force)
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
-      (if (not (require 'async nil t))
+      (if (or (not (require 'async nil t))
+              (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))
+        (when force
+          (setq my-org-agenda-to-appt-ready t))
         (if (not my-org-agenda-to-appt-ready)
             (message "[appt] Locked")
           (setq my-org-agenda-to-appt-ready nil)
@@ -1115,15 +1135,17 @@ also calls `beep' for an audible reminder."
                                              org-tag-group-re (nth 1 msg))))
                                  (if match
                                      (list (nth 0 msg)
-                                           (org-trim (substring (nth 1 msg)
-                                                                0 match))
+                                           (org-trim (substring-no-properties
+                                                      (nth 1 msg)
+                                                      0 match))
                                            (nth 2 msg))
                                    msg)
                                  ) t))
                 ;; just for sure
                 (delq nil appt-time-msg-list)))
            (lambda (result)
-             (setq appt-time-msg-list result)
+             (setq appt-time-msg-list result) ;; nil means No event
+             ;; (my-add-prop-to-appt-time-msg-list)
              (appt-check) ;; remove passed events
              (unless (active-minibuffer-window)
                (let ((cnt (length appt-time-msg-list)))
@@ -1300,64 +1322,6 @@ also calls `beep' for an audible reminder."
     (add-hook 'org-tree-slide-stop-hook
               (lambda ()
                   (buffer-face-mode 0)))))
-
-(when (autoload-if-found
-       '(my-cfw-open-org-calendar cfw:open-org-calendar)
-       "calfw-org" "Rich calendar for org-mode" t)
-
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c f c w") 'my-cfw-open-org-calendar))
-
-  (with-eval-after-load "calfw-org"
-    ;; icalendar との連結
-    (custom-set-variables
-     '(cfw:org-icalendars '("~/Dropbox/org/org-ical.org"))
-     '(cfw:fchar-junction ?+) ;; org で使う表にフェイスを統一
-     '(cfw:fchar-vertical-line ?|)
-     '(cfw:fchar-horizontal-line ?-)
-     '(cfw:fchar-left-junction ?|)
-     '(cfw:fchar-right-junction ?|)
-     '(cfw:fchar-top-junction ?+)
-     '(cfw:fchar-top-left-corner ?|)
-     '(cfw:fchar-top-right-corner ?|))
-
-    (defun my-org-mark-ring-goto-calfw ()
-      (interactive)
-      (org-mark-ring-goto))
-
-    (defun my-cfw-open-org-calendar ()
-      (interactive)
-      (moom-change-frame-width-double)
-      (cfw:open-org-calendar))
-
-    (defun my-cfw-burry-buffer ()
-      (interactive)
-      (bury-buffer)
-      (moom-change-frame-width-single))
-
-    (defun cfw:org-goto-date ()
-      "Move the cursor to the specified date."
-      (interactive)
-      (cfw:navi-goto-date
-       (cfw:emacs-to-calendar (org-read-date nil 'to-time))))
-
-    (define-key cfw:calendar-mode-map (kbd "j") 'cfw:org-goto-date)
-    (define-key cfw:org-schedule-map (kbd "q") 'my-cfw-burry-buffer)))
-
-;;         (add-hook 'window-configuration-change-hook #'cfw:resize-calendar)
-;; (defun cfw:resize-calendar ()
-;;   (interactive)
-;;   (when (eq major-mode 'cfw:calendar-mode)
-;;     (cfw:refresh-calendar-buffer nil)
-;;     (message "Calendar resized.")))
-
-;; (defun open-calfw-agenda-org ()
-;;   (interactive)
-;;   (cfw:open-org-calendar))
-
-;; (setq org-agenda-custom-commands
-;;       '(("w" todo "FOCUS")
-;;         ("G" open-calfw-agenda-org "Graphical display in calfw"))))))
 
 (when (autoload-if-found
        '(ox-odt)

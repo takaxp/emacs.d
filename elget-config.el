@@ -14,7 +14,7 @@
   (el-get-bundle "takaxp/help-fns-plus")
   (el-get-bundle "takaxp/dimmer.el") ;; to avoid downloding images
   (el-get-bundle "ws-butler")
-  (el-get-bundle "session")
+  (el-get-bundle "jwiegley/session")
   (el-get-bundle "which-key")
   (el-get-bundle "aggressive-indent")
   (el-get-bundle "dacap/keyfreq")
@@ -55,8 +55,8 @@
   (el-get-bundle "Fuco1/org-pretty-table")
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "org-emms"
-      :type git
-      :url "https://gitlab.com/jagrg/org-emms.git")
+                   :type git
+                   :url "https://gitlab.com/jagrg/org-emms.git")
     (el-get-bundle "org-trello"))
 
   ;; Org Mode - ox/ob
@@ -72,8 +72,8 @@
   ;; Major modes
   ;; download zip since python-mode git repository is extremely huge
   (el-get-bundle "python-mode"
-    :type http-zip
-    :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
+                 :type http-zip
+                 :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
   (el-get-bundle "yaml-mode")
   (el-get-bundle "json-mode")
   (el-get-bundle "emacsmirror/csv-mode")
@@ -81,7 +81,6 @@
   (el-get-bundle "markdown-mode")
   (el-get-bundle "po-mode")
   (el-get-bundle "gnuplot-mode")
-  (el-get-bundle "emacsmirror/yatex")
   (el-get-bundle "cmake-mode")
   (el-get-bundle "php-mode")
   (el-get-bundle "bruceravel/gnuplot-mode")
@@ -89,9 +88,11 @@
   (progn ;; pass
     (el-get-bundle "NicolasPetton/pass")
     (el-get-bundle "password-store"
-      :type http
-      :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
+                   :type http
+                   :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
     (el-get-bundle "ecraven/ivy-pass")) ;; requires password-store.el
+  (unless (eq system-type 'windows-nt)
+    (el-get-bundle "emacsmirror/yatex"))
 
   ;; Development
   (el-get-bundle "gregsexton/origami.el" :name origami)
@@ -139,11 +140,13 @@
   (el-get-bundle "raxod502/prescient.el" :name prescient)
   (el-get-bundle "raxod502/ctrlf")
   (el-get-bundle "momomo5717/avy-migemo")
-  (el-get-bundle "takaxp/ivy-yasnippet" :depends (dash swiper yasnippet))
-  ;; (el-get-bundle "mkcms/ivy-yasnippet" :depends (dash swiper yasnippet)) ;; require ~/.emacs.d/recipes/ivy.rcp
+  ;;(el-get-bundle "takaxp/ivy-yasnippet" :depends (dash swiper yasnippet))
+  (el-get-bundle "mkcms/ivy-yasnippet" :depends (dash swiper yasnippet))
+  ;; require ~/.emacs.d/recipes/ivy.rcp
   (el-get-bundle "akirak/ivy-omni-org")
   (el-get-bundle "abo-abo/smex")
   (el-get-bundle "franburstall/ivy-emms")
+  (el-get-bundle "ROCKTAKEY/grugru")
 
   ;; macOS support
   (when (eq system-type 'darwin)
@@ -185,13 +188,12 @@
   (el-get-bundle "emacsmirror/rainbow-mode")
   (el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))
   (el-get-bundle "disk-usage"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
+                 :type git
+                 :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
   (el-get-bundle "ideasman42/emacs-undo-fu"
-    :type git
-    :url "https://gitlab.com/ideasman42/emacs-undo-fu.git")
+                 :type git
+                 :url "https://gitlab.com/ideasman42/emacs-undo-fu.git")
   (el-get-bundle "zk-phi/gitmole")
-  (el-get-bundle "kawabata/rot47")
   (el-get-bundle "chuntaro/emacs-keypression" :name keypression)
   (el-get-bundle "tarsius/outline-minor-faces")
   (el-get-bundle "tarsius/backline")
@@ -211,8 +213,8 @@
   (el-get-bundle "rubikitch/replace-from-region")
   (el-get-bundle "quickrun")
   (el-get-bundle "latex-math-preview"
-    :type git
-    :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
+                 :type git
+                 :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
   (el-get-bundle "sbrisard/bratex")
   (el-get-bundle "zhangkaiyulw/smart-mark")
   (el-get-bundle "emacsmirror/syntax-subword")
@@ -224,8 +226,8 @@
   (el-get-bundle "japanese-holidays")
   (el-get-bundle "pdf-tools")
   (el-get-bundle "gif-screencast"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
+                 :type git
+                 :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
   (when (eq system-type 'darwin)
     (el-get-bundle "d12frosted/counsel-osx-app"))
 
@@ -282,6 +284,7 @@
   (el-get-bundle "magnars/multiple-cursors.el" :name multiple-cursors)
   (el-get-bundle "sabof/edit-color-stamp")
   ;; Visualize
+  (el-get-bundle "kawabata/rot47")
   (el-get-bundle "fancy-narrow")
   (el-get-bundle "back-button")
   (el-get-bundle "hide-lines")

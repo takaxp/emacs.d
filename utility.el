@@ -150,13 +150,15 @@
 (defun my-show-org-buffer (file)
   "Show an org-file on the current buffer."
   (interactive)
-  (if (get-buffer file)
-      (let ((buffer (get-buffer file)))
-        (switch-to-buffer buffer)
-        (message "%s" file))
-    (find-file (concat (getenv "SYNCROOT") "/org/" file)))
-  (when (fboundp 'my-org-agenda-to-appt)
-    (my-org-agenda-to-appt)))
+  (message "%s" file)
+  (let ((tbuffer (get-buffer file))
+        (cbuffer (current-buffer)))
+    (if tbuffer
+        (switch-to-buffer tbuffer)
+      (find-file (concat (getenv "SYNCROOT") "/org/" file)))
+    (when (and (fboundp 'my-org-agenda-to-appt)
+               (not (eq cbuffer tbuffer)))
+      (my-org-agenda-to-appt 'force))))
 
 (declare-function org-end-of-line "org")
 
@@ -174,6 +176,12 @@
         (insert title date author option other))
       (when (require 'org nil t)
         (org-end-of-line)))))
+
+(defun my-insert-empty-pgp-tree ()
+  (interactive)
+  (insert "** TODO hoge\n")
+  (insert "-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n")
+  (forward-line -2))
 
 ;;;###autoload
 (defun insert-minutes-template ()
@@ -236,13 +244,14 @@
 
 (defvar ox-icalendar-activate nil)
 (with-eval-after-load "org"
-  (run-with-idle-timer 180 t 'my-reload-ical-export)
-  ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
-  ;; FIXME
-  (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
-  (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t))))
+  (when (eq system-type 'ns)
+    (run-with-idle-timer 180 t 'my-reload-ical-export)
+    ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
+    ;; FIXME
+    (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
+    (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t)))))
 
-(declare-function my-ox-upload-icalendar "init-org")
+(declare-function my-ox-upload-icalendar "init.org")
 ;;;###autoload
 (defun my-reload-ical-export ()
   "Export org files as an iCal format file"

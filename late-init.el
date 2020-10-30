@@ -18,14 +18,6 @@
 (defvar shutup-p nil)
 (setq shutup-p (when (require 'shut-up nil t) t))
 
-(autoload-if-found
- '(fancy-narrow-to-region
-   fancy-widen
-   org-fancy-narrow-to-block
-   org-fancy-narrow-to-element
-   org-fancy-narrow-to-subtree)
- "fancy-narrow" nil t)
-
 (setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)
 
@@ -39,7 +31,8 @@
 
 (autoload-if-found
  '(el-get-version
-   my-elget-list my-elget-reset-links el-get-cd el-get-install el-get-remove)
+   my-elget-list my-elget-reset-links
+   el-get-cd el-get-install el-get-remove el-get-update)
  "elget-config" nil t)
 
 (setq vc-follow-symlinks t)
@@ -73,17 +66,19 @@
   (with-eval-after-load "ws-butler"
     (custom-set-variables
      '(ws-butler-global-exempt-modes
-       (append '(org-mode empty-booting-mode diff-mode change-log-mode)
-               ws-butler-global-exempt-modes))))
+       (append '(org-mode empty-booting-mode diff-mode
+                          change-log-mode epa-mode)
+		           ws-butler-global-exempt-modes))))
 
   (unless noninteractive
     (ws-butler-global-mode)))
 
 (with-eval-after-load "org-crypt"
   (require 'epa)
-  (when (eq window-system 'w32)
-    ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
-    (setq epg-gpg-home-directory ".gnupg"))
+  ;; (when (eq window-system 'w32)
+  ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
+  ;;   (setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs
+  ;; epg-gpg-home-directory が設定されていると，(epg-make-context nil t t) の戻り値に反映され，結果 epg-list-keys の戻り値が nil になり鍵をリストできなくなる．
 
   (defun my-epg-check-configuration (config &optional minimum-version)
     "Verify that a sufficient version of GnuPG is installed."
@@ -100,6 +95,14 @@
                          version)
         (error "Unsupported version: %s" version))))
   (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
+
+(with-eval-after-load "epa"
+    ;; Suppress message when saving encrypted file (hoge.org.gpg)
+    (defun ad:epa-file-write-region (f start end file &optional append visit
+                                       lockname mustbenew)
+      (let ((message-log-max nil))
+        (funcall f start end file append visit lockname mustbenew)))
+    (advice-add 'epa-file-write-region :around #'ad:epa-file-write-region))
 
 (when (memq window-system '(ns nil))
   ;; toggle-input-method
@@ -274,7 +277,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   ;; リストを縦表示する
   (when (require 'bsv nil t)
     (setq bsv-max-height 5
-          bsv-message-timeout 10)))
+          bsv-message-timeout 9)))
 
 (when (autoload-if-found
        '(my-toggle-bm
@@ -512,7 +515,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (message "--- cmake is NOT installed."))
 
 ;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.gpg$\\|\\.emacs.d/[^/]+/el-get")
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get")
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
@@ -522,12 +525,15 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (defun my-auto-view ()
   (when (and my-auto-view-regexp
-             (string-match my-auto-view-regexp buffer-file-name))
+	     (string-match my-auto-view-regexp buffer-file-name))
     (view-mode 1))
   (dolist (dir my-auto-view-dirs)
     (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
       (view-mode 1))))
 (add-hook 'find-file-hook #'my-auto-view)
+
+(with-eval-after-load "view"
+  (define-key view-mode-map (kbd "i") 'View-exit))
 
 (when (autoload-if-found
        '(go-mode) "go-mode" nil t)
@@ -565,6 +571,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                ("-d" "en_US") nil utf-8)))
       (setq ispell-local-dictionary "en_US")
       (setq ispell-dictionary ispell-local-dictionary)
+      (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
       (if shutup-p
           ;; 必要．しかも ispell-program-name 指定の前で．
           ;; ただし，ispell-local-dictionary-alist の後で．
@@ -573,7 +580,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (setq-default ispell-program-name (executable-find "hunspell"))
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
-      (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
       (setq ispell-personal-dictionary
             (concat (getenv "SYNCROOT") "/emacs.d/.hunspell.en.dic")))
 
@@ -805,7 +811,7 @@ This works also for other defined begin/end tokens to define the structure."
     (setq-default sp-highlight-wrap-tag-overlay nil)
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'org-mode "~" "~")
-    (sp-local-pair 'org-mode "+" "+")
+    ;; (sp-local-pair 'org-mode "+" "+")
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "_" "_")
     (sp-local-pair 'yatex-mode "$" "$")
@@ -866,10 +872,28 @@ This works also for other defined begin/end tokens to define the structure."
             (helpful-variable thing)
           (call-interactively 'helpful-variable))))
 
+    ;; (defun my-eval-region ()
+    ;;   (interactive)
+    ;;   (when (use-region-p)
+    ;;     (eval-region (region-beginning) (region-end) t)))
+
+    (defvar my-eval-result "*eval-result*")
     (defun my-eval-region ()
       (interactive)
       (when (use-region-p)
-        (eval-region (region-beginning) (region-end) t)))
+        (eval-region (region-beginning) (region-end)
+                     (get-buffer-create my-eval-result))
+        (with-current-buffer (get-buffer-create my-eval-result)
+          (delete-char -1)
+          (goto-char (point-min))
+          (delete-blank-lines)
+          (mark-whole-buffer)
+          (kill-ring-save (point-min) (point-max))
+          (message "%s" (car kill-ring))
+          (erase-buffer))
+        ;; Jump to the end of the region
+        (goto-char (max (mark) (point)))
+        (deactivate-mark)))
 
     (defun my-eval-region-as-function ()
       (interactive)
@@ -1537,12 +1561,18 @@ sorted.  FUNCTION must be a function of one argument."
 ;; プロンプトをカスタマイズ（モードライン非表示派向け）
 (with-eval-after-load "ivy"
   (defun my-pre-prompt-function ()
-    (if window-system
-        (format "%s%s "
-                (if my-toggle-modeline-global "" ;; FIXME
-                  (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                (all-the-icons-faicon "sort-amount-asc")) ;; ""
-      (format "%s\n" (make-string (1- (frame-width)) ?\x2D))))
+    (cond ((eq system-type 'windows-nt)
+           (format "%s%s "
+                   (if my-toggle-modeline-global "" ;; FIXME
+                     (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+                   ">>"))
+          (window-system
+           (format "%s%s "
+                   (if my-toggle-modeline-global "" ;; FIXME
+                     (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+                   (all-the-icons-faicon "sort-amount-asc")))
+          (t
+           (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
 
 (when (autoload-if-found
@@ -1584,9 +1614,9 @@ sorted.  FUNCTION must be a function of one argument."
   (when (and (require 'prescient nil t)
              (require 'ivy-prescient nil t))
     (setq ivy-prescient-retain-classic-highlighting t)
-    (dolist (command '(counsel-world-clock ;; Merged!
-                       counsel-app))
-      (add-to-list 'ivy-prescient-sort-commands command))
+    ;; (dolist (command '(counsel-world-clock ;; Merged!
+    ;;                    counsel-app))
+    ;;   (add-to-list 'ivy-prescient-sort-commands command t))
     (ivy-prescient-mode 1)
     (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
           #'ivy-prescient-re-builder)
@@ -1685,6 +1715,7 @@ sorted.  FUNCTION must be a function of one argument."
     (require 'org nil t)
     (require 'hydra nil t)
     (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
+    (global-set-key (kbd "C-c )") #'help/insert-currenttime)
     (custom-set-faces
      '(hydra-face-blue
        ((((background light))
@@ -1834,6 +1865,9 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
           )
 
       (message "--- mpv is NOT installed."))))
+
+;; ivy で過去再生した楽曲をたどる
+(autoload-if-found '(ivy-emms) "ivy-emms" nil t)
 
 (when (autoload-if-found
        '(rencetf-mode
@@ -1985,6 +2019,10 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
     (cond ((eq major-mode 'undo-tree-visualizer-mode) nil)
           ((eq major-mode 'diff-mode) nil)
           ((string-match "Org Src" (buffer-name)) nil)
+          ((let ((pt (point)))
+             (and (string-match ".gpg" (buffer-name))
+                  (not (eq pt 1))
+                  (string-match (buffer-substring (- pt 1) pt) " "))) nil) ;; .gpg で半角スペースの後ろのブリッツでは自動保存しない．FIXME 半角スペース+行末
           ((my-ox-hugo-auto-saving-p) nil)
           (t
            (auto-save-buffers))))

@@ -268,6 +268,58 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 (setq ad-redefinition-action 'accept)
 #+end_src
 
+特定のパッケージの deprecated メッセージを抑制します． =my-exclude-deprecated-packages= にパッケージを列挙します．以下は =cl= と =tls= の出力だけ抑制して他のパッケージの場合は表示します．
+
+#+begin_src emacs-lisp :tangle yes
+(setq byte-compile-warnings '(obsolete))
+;; Suppress warning on cl.el loading
+(defvar my-exclude-deprecated-packages '(cl tls))
+(defun ad:do-after-load-evaluation (abs-file)
+  "Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
+ABS-FILE, a string, should be the absolute true name of a file just loaded.
+This function is called directly from the C code."
+  ;; Run the relevant eval-after-load forms.
+  (dolist (a-l-element after-load-alist)
+    (when (and (stringp (car a-l-element))
+               (string-match-p (car a-l-element) abs-file))
+      ;; discard the file name regexp
+      (mapc #'funcall (cdr a-l-element))))
+  ;; Complain when the user uses obsolete files.
+  (when (string-match-p "/obsolete/[^/]*\\'" abs-file)
+    ;; Maybe we should just use display-warning?  This seems yucky...
+    (let* ((file (file-name-nondirectory abs-file))
+           (package (intern (substring file 0
+			                                 (string-match "\\.elc?\\>" file))
+                            obarray))
+           (msg (unless (memq package my-exclude-deprecated-packages)
+                  (format "Package %s is deprecated" package)))
+	         (fun (lambda (msg) (message "%s" msg))))
+      ;; Cribbed from cl--compiling-file.
+      (when (or (not (fboundp 'byte-compile-warning-enabled-p))
+                (byte-compile-warning-enabled-p 'obsolete package))
+        (cond
+	       ((and (boundp 'byte-compile--outbuffer)
+	             (bufferp (symbol-value 'byte-compile--outbuffer))
+	             (equal (buffer-name (symbol-value 'byte-compile--outbuffer))
+		                  " *Compiler Output*"))
+	        ;; Don't warn about obsolete files using other obsolete files.
+	        (unless (and (stringp byte-compile-current-file)
+		                   (string-match-p "/obsolete/[^/]*\\'"
+				                               (expand-file-name
+					                              byte-compile-current-file
+					                              byte-compile-root-dir)))
+	          (byte-compile-warn "%s" msg)))
+         ((and msg
+               noninteractive (funcall fun msg))) ;; No timer will be run!
+	       (t (when msg
+              (run-with-idle-timer 0 nil fun msg)))
+	       ))))
+
+  ;; Finally, run any other hook.
+  (run-hook-with-args 'after-load-functions abs-file))
+(advice-add 'do-after-load-evaluation :override #'ad:do-after-load-evaluation)
+#+end_src
+
 ** エラー表示の抑制
    :PROPERTIES:
    :CUSTOM_ID: org0ea7dbaf
@@ -732,6 +784,7 @@ Emacs を操作して文書編集する上で欠かせない設定です．
 (set-buffer-file-coding-system 'utf-8-unix)
 (setq locale-coding-system 'utf-8-unix)
 (when (eq system-type 'windows-nt)
+  (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
   (setq system-time-locale "C")) ;; format-time-string %a, not 日 but Sun
 #+end_src
 
@@ -821,7 +874,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 =fancy-narrow= を使うと，通常のナローイングではバッファ上で表示しなくなる領域を目立たないように残すことができます．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (autoload-if-found
  '(fancy-narrow-to-region
    fancy-widen
@@ -881,6 +935,18 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 #+begin_src emacs-lisp :tangle late-init.el
 (setq compilation-scroll-output t)
+#+end_src
+
+** NS版でスクロール時の表示乱れを補正
+
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
+(when (eq window-system 'ns)
+  ;; NS版でスクロール後に表示が消えるのを回避（ただしちらつく）
+  (defun ad:scroll (_ARG)
+    (redraw-display))
+  (advice-add 'scroll-up :after #'ad:scroll)
+  (advice-add 'scroll-down :after #'ad:scroll))
 #+end_src
 
 ** 水平方向の自動スクロール調整
@@ -1134,7 +1200,8 @@ echo "--- done."
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found
  '(el-get-version
-   my-elget-list my-elget-reset-links el-get-cd el-get-install el-get-remove)
+   my-elget-list my-elget-reset-links
+   el-get-cd el-get-install el-get-remove el-get-update)
  "elget-config" nil t)
 #+end_src
 
@@ -1260,8 +1327,9 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
   (with-eval-after-load "ws-butler"
     (custom-set-variables
      '(ws-butler-global-exempt-modes
-       (append '(org-mode empty-booting-mode diff-mode change-log-mode)
-               ws-butler-global-exempt-modes))))
+       (append '(org-mode empty-booting-mode diff-mode
+                          change-log-mode epa-mode)
+		           ws-butler-global-exempt-modes))))
 
   (unless noninteractive
     (ws-butler-global-mode)))
@@ -1283,9 +1351,10 @@ GPG error: "no usable configuration," OpenPGP
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "org-crypt"
   (require 'epa)
-  (when (eq window-system 'w32)
-    ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
-    (setq epg-gpg-home-directory ".gnupg"))
+  ;; (when (eq window-system 'w32)
+  ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
+  ;;   (setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs
+  ;; epg-gpg-home-directory が設定されていると，(epg-make-context nil t t) の戻り値に反映され，結果 epg-list-keys の戻り値が nil になり鍵をリストできなくなる．
 
   (defun my-epg-check-configuration (config &optional minimum-version)
     "Verify that a sufficient version of GnuPG is installed."
@@ -1303,6 +1372,23 @@ GPG error: "no usable configuration," OpenPGP
         (error "Unsupported version: %s" version))))
   (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
 #+end_src
+** [epa.el] GPGファイルの保存時のメッセージを停止する
+   :PROPERTIES:
+   :CREATED:  [2020-10-11 Sun 19:19]
+   :END:
+
+GPGで暗号化されたファイルを編集すると，保存時に暗号化していることを知らせる情報が Messages バッファに出力されます．頻度が低ければ特に気にならないかもしれませんが，自動的にバッファを保存する設定を施していると，Messages バッファが埋め尽くされてしまうので困ります． =epa-file-write-region= をハックして黙らせます．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "epa"
+    ;; Suppress message when saving encrypted file (hoge.org.gpg)
+    (defun ad:epa-file-write-region (f start end file &optional append visit
+                                       lockname mustbenew)
+      (let ((message-log-max nil))
+        (funcall f start end file append visit lockname mustbenew)))
+    (advice-add 'epa-file-write-region :around #'ad:epa-file-write-region))
+#+end_src
+
 ** NSビルド用設定                                                     :macOS:
    :PROPERTIES:
    :CUSTOM_ID: orge44eded5
@@ -1773,7 +1859,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
   ;; リストを縦表示する
   (when (require 'bsv nil t)
     (setq bsv-max-height 5
-          bsv-message-timeout 10)))
+          bsv-message-timeout 9)))
 #+end_src
 
 ** [bm.el] カーソル位置をブックマークして追う
@@ -2283,7 +2369,7 @@ http://d.hatena.ne.jp/NeoCat/20080211
    :CUSTOM_ID: orga6184922
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(csharp-mode)
        "csharp-mode" "Major mode for editing C# mode." nil t)
@@ -2319,7 +2405,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
    :CUSTOM_ID: orgd2a57328
    :END:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(R-mode R)
        "ess-site" "Emacs Speaks Statistics mode" nil t)
@@ -2523,6 +2609,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 ** viewモード
    :PROPERTIES:
    :CUSTOM_ID: org6b6c1c11
+   :ID:       6F2DF669-7FCE-4BA6-9CC7-B654030433B7
    :END:
 
 gzされた elisp ソースを見るときに， ~view-mode~ を使います．また下記の設定では， ~my-auto-view-dirs~ に追加したディレクトリのファイルを開くと， ~view-mode~ が常に有効になります．
@@ -2530,23 +2617,26 @@ gzされた elisp ソースを見るときに， ~view-mode~ を使います．�
 さらなる細かい制御が必要な場合は，[[https://www.emacswiki.org/emacs/viewer.el][viewer.el]] がおすすめです．
 
 #+begin_src emacs-lisp :tangle late-init.el
-;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.gpg$\\|\\.emacs.d/[^/]+/el-get")
+  ;; 特定の拡張子・ディレクトリ
+  (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get")
 
-;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
-(defvar my-auto-view-dirs nil)
-(add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
-(when (eq window-system 'w32)
-  (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
+  ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
+  (defvar my-auto-view-dirs nil)
+  (add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
+  (when (eq window-system 'w32)
+    (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
-(defun my-auto-view ()
-  (when (and my-auto-view-regexp
-             (string-match my-auto-view-regexp buffer-file-name))
-    (view-mode 1))
-  (dolist (dir my-auto-view-dirs)
-    (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
-      (view-mode 1))))
-(add-hook 'find-file-hook #'my-auto-view)
+  (defun my-auto-view ()
+    (when (and my-auto-view-regexp
+	       (string-match my-auto-view-regexp buffer-file-name))
+      (view-mode 1))
+    (dolist (dir my-auto-view-dirs)
+      (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+	(view-mode 1))))
+  (add-hook 'find-file-hook #'my-auto-view)
+
+  (with-eval-after-load "view"
+    (define-key view-mode-map (kbd "i") 'View-exit))
 #+end_src
 
 ** Web/HTMLモード                                                       :web:
@@ -2686,6 +2776,7 @@ lang en_US
                ("-d" "en_US") nil utf-8)))
       (setq ispell-local-dictionary "en_US")
       (setq ispell-dictionary ispell-local-dictionary)
+      (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
       (if shutup-p
           ;; 必要．しかも ispell-program-name 指定の前で．
           ;; ただし，ispell-local-dictionary-alist の後で．
@@ -2694,7 +2785,6 @@ lang en_US
       (setq-default ispell-program-name (executable-find "hunspell"))
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
-      (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
       (setq ispell-personal-dictionary
             (concat (getenv "SYNCROOT") "/emacs.d/.hunspell.en.dic")))
 
@@ -3196,7 +3286,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (setq-default sp-highlight-wrap-tag-overlay nil)
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'org-mode "~" "~")
-    (sp-local-pair 'org-mode "+" "+")
+    ;; (sp-local-pair 'org-mode "+" "+")
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "_" "_")
     (sp-local-pair 'yatex-mode "$" "$")
@@ -3284,10 +3374,29 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
             (helpful-variable thing)
           (call-interactively 'helpful-variable))))
 
+    ;; (defun my-eval-region ()
+    ;;   (interactive)
+    ;;   (when (use-region-p)
+    ;;     (eval-region (region-beginning) (region-end) t)))
+
+    (defvar my-eval-result "*eval-result*")
     (defun my-eval-region ()
       (interactive)
       (when (use-region-p)
-        (eval-region (region-beginning) (region-end) t)))
+        (eval-region (region-beginning) (region-end)
+                     (get-buffer-create my-eval-result))
+        ;; Copy the result to kill-ring and print it
+        (with-current-buffer (get-buffer-create my-eval-result)
+          (delete-char -1)
+          (goto-char (point-min))
+          (delete-blank-lines)
+          (mark-whole-buffer)
+          (kill-ring-save (point-min) (point-max))
+          (message "%s" (car kill-ring))
+          (erase-buffer))
+        ;; Jump to the end of the region
+        (goto-char (max (mark) (point)))
+        (deactivate-mark)))
 
     (defun my-eval-region-as-function ()
       (interactive)
@@ -4031,6 +4140,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 #+begin_src emacs-lisp :tangle yes
 ;; Show scroll bar or not
 (when (and (display-graphic-p)
+           (not early-init-file)
            (memq window-system '(ns mac)))
   (set-scroll-bar-mode nil)) ; 'right
 #+end_src
@@ -4044,7 +4154,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 
 #+begin_src emacs-lisp :tangle yes
 ;; Disable to show the tool bar.
-(when (display-graphic-p)
+(when (and (not early-init-file)
+           (display-graphic-p))
   (tool-bar-mode -1))
 #+end_src
 
@@ -4053,10 +4164,12 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
    :CUSTOM_ID: org52e500e2
    :END:
 
-特にターミナルでは不要です．
+特にターミナルでは不要です．Windowsでも非表示にします．
 
 #+begin_src emacs-lisp :tangle yes
-(unless (display-graphic-p)
+(when (and (not early-init-file)
+           (or (not (display-graphic-p))
+               (eq system-type 'windows-nt)))
   (menu-bar-mode -1))
 #+end_src
 
@@ -4851,12 +4964,18 @@ sorted.  FUNCTION must be a function of one argument."
 ;; プロンプトをカスタマイズ（モードライン非表示派向け）
 (with-eval-after-load "ivy"
   (defun my-pre-prompt-function ()
-    (if window-system
-        (format "%s%s "
-                (if my-toggle-modeline-global "" ;; FIXME
-                  (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                (all-the-icons-faicon "sort-amount-asc")) ;; ""
-      (format "%s\n" (make-string (1- (frame-width)) ?\x2D))))
+    (cond ((eq system-type 'windows-nt)
+           (format "%s%s "
+                   (if my-toggle-modeline-global "" ;; FIXME
+                     (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+                   ">>"))
+          (window-system
+           (format "%s%s "
+                   (if my-toggle-modeline-global "" ;; FIXME
+                     (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+                   (all-the-icons-faicon "sort-amount-asc")))
+          (t
+           (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
 #+end_src
 
@@ -4920,9 +5039,9 @@ sorted.  FUNCTION must be a function of one argument."
   (when (and (require 'prescient nil t)
              (require 'ivy-prescient nil t))
     (setq ivy-prescient-retain-classic-highlighting t)
-    (dolist (command '(counsel-world-clock ;; Merged!
-                       counsel-app))
-      (add-to-list 'ivy-prescient-sort-commands command))
+    ;; (dolist (command '(counsel-world-clock ;; Merged!
+    ;;                    counsel-app))
+    ;;   (add-to-list 'ivy-prescient-sort-commands command t))
     (ivy-prescient-mode 1)
     (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
           #'ivy-prescient-re-builder)
@@ -5103,6 +5222,7 @@ sorted.  FUNCTION must be a function of one argument."
     (require 'org nil t)
     (require 'hydra nil t)
     (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
+    (global-set-key (kbd "C-c )") #'help/insert-currenttime)
     (custom-set-faces
      '(hydra-face-blue
        ((((background light))
@@ -5667,6 +5787,9 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
           )
 
       (message "--- mpv is NOT installed."))))
+
+;; ivy で過去再生した楽曲をたどる
+(autoload-if-found '(ivy-emms) "ivy-emms" nil t)
 #+end_src
 
 ** [GoogleMaps.el] GoogleMaps を Emacs 内で使う
@@ -6204,6 +6327,10 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
     (cond ((eq major-mode 'undo-tree-visualizer-mode) nil)
           ((eq major-mode 'diff-mode) nil)
           ((string-match "Org Src" (buffer-name)) nil)
+          ((let ((pt (point)))
+             (and (string-match ".gpg" (buffer-name))
+                  (not (eq pt 1))
+                  (string-match (buffer-substring (- pt 1) pt) " "))) nil) ;; .gpg で半角スペースの後ろのブリッツでは自動保存しない．FIXME 半角スペース+行末
           ((my-ox-hugo-auto-saving-p) nil)
           (t
            (auto-save-buffers))))
@@ -7840,7 +7967,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (beginning-of-line)
         (unless (looking-at-p org-drawer-regexp)
           (org-cycle-hide-drawers 'children))))
-    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+    ;; Broken from org 9.4 (error "Invalid search bound (wrong side of point)")
+    ;; (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
     ;; CSV指定でテーブルを出力する．
     (defun my-org-table-export ()
@@ -7985,7 +8113,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
     (defun my-ox-upload-icalendar ()
       (interactive)
-      (when org-ical-file-in-orz-server
+      (when (and org-ical-file-in-orz-server
+                 (eq system-type 'darwin))
         (if (require 'async nil t)
             (my-async-ox-icalendar)
           (my-ox-icalendar))))
@@ -8592,13 +8721,7 @@ will not be modified."
                   "db/daily.org" "db/trigger.org" "tr/work.org" "academic.org"
                   "org2ja.org")))
   (when (eq system-type 'windows-nt) ;; FIXME
-    (setq org-agenda-files "~/Dropbox/org/next.org"))
-  ;; (setq org-agenda-files
-  ;;       '("~/Dropbox/org/org-ical.org" "~/Dropbox/org/next.org"
-  ;;         "~/Dropbox/org/db/cooking.org" "~/Dropbox/org/minutes/wg1.org"
-  ;;         "~/Dropbox/org/db/daily.org" "~/Dropbox/org/db/trigger.org"
-  ;;         "~/Dropbox/org/tr/work.org" "~/Dropbox/org/academic.org"
-  ;;         "~/Dropbox/org/org2ja.org"))
+    (setq org-agenda-files '("~/Dropbox/org/next.org")))
 
   ;; sorting strategy
   (setq org-agenda-sorting-strategy
@@ -8978,13 +9101,37 @@ also calls `beep' for an audible reminder."
       (appt-activate 1))
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
+    (defun my-unlock-org-agenda-to-appt ()
+      (interactive)
+      (setq my-org-agenda-to-appt-ready t)
+      (my-org-agenda-to-appt))
+
+    (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
+      (let ((msgs appt-time-msg-list))
+        (setq appt-time-msg-list nil)
+        (dolist (msg msgs)
+          (add-to-list 'appt-time-msg-list
+                       (list (nth 0 msg)
+                             (let ((str (nth 1 msg)))
+                               (add-text-properties 6 10 '(org-heading t) str)
+                               str)
+                             (nth 2 msg))
+                       ) t)
+        ;; just for sure
+        (delq nil appt-time-msg-list)))
+
+    (defvar my-org-agenda-to-appt-async t)
+
     ;; org-agenda の内容をアラームに登録する
-    (defun my-org-agenda-to-appt ()
+    (defun my-org-agenda-to-appt (&optional force)
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
-      (if (not (require 'async nil t))
+      (if (or (not (require 'async nil t))
+              (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))
+        (when force
+          (setq my-org-agenda-to-appt-ready t))
         (if (not my-org-agenda-to-appt-ready)
             (message "[appt] Locked")
           (setq my-org-agenda-to-appt-ready nil)
@@ -9003,15 +9150,17 @@ also calls `beep' for an audible reminder."
                                              org-tag-group-re (nth 1 msg))))
                                  (if match
                                      (list (nth 0 msg)
-                                           (org-trim (substring (nth 1 msg)
-                                                                0 match))
+                                           (org-trim (substring-no-properties
+                                                      (nth 1 msg)
+                                                      0 match))
                                            (nth 2 msg))
                                    msg)
                                  ) t))
                 ;; just for sure
                 (delq nil appt-time-msg-list)))
            (lambda (result)
-             (setq appt-time-msg-list result)
+             (setq appt-time-msg-list result) ;; nil means No event
+             ;; (my-add-prop-to-appt-time-msg-list)
              (appt-check) ;; remove passed events
              (unless (active-minibuffer-window)
                (let ((cnt (length appt-time-msg-list)))
@@ -9346,7 +9495,8 @@ also calls `beep' for an audible reminder."
 
 org-mode の表のようにフェイスを統一しています． =calfw= を起動する時に，自動的にフレームサイズを拡大するような独自関数をぶら下げています．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle no
+;; init-org.el
 (when (autoload-if-found
        '(my-cfw-open-org-calendar cfw:open-org-calendar)
        "calfw-org" "Rich calendar for org-mode" t)
@@ -10756,6 +10906,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
        moom-autoloads
        "moom" nil t)
 
+  (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
@@ -10769,6 +10920,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (setq moom-lighter "M")
     (setq moom-verbose t)
     (setq moom-multi-monitors-support t)
+    (when (eq system-type 'windows-nt)
+      (setq moom-user-margin '(0 40 0 0)))
+    ;; (setq moom-user-margin '(50 50 50 50))
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 
@@ -11355,52 +11509,57 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
 
-(cond
- ;; CocoaEmacs
- ((memq window-system '(mac ns))
-  (when (>= emacs-major-version 23)
+(defun my-setup-font ()
+  (interactive)
+  (cond
+   ;; CocoaEmacs
+   ((memq window-system '(mac ns))
+    (when (>= emacs-major-version 23)
 
-    ;; Fix ratio provided by set-face-attribute for fonts display
-    (setq face-font-rescale-alist
-          '(("^-apple-hiragino.*" . 1.0) ; 1.2
-            (".*Migu.*" . 1.2)
-            (".*Ricty.*" . 1.0)
-            (".*Inconsolata.*" . 1.0)
-            (".*osaka-bold.*" . 1.0)     ; 1.2
-            (".*osaka-medium.*" . 1.0)   ; 1.0
-            (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-            ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-            ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-            ("-cdac$" . 1.0))))) ; 1.3
- ;; (my-font-config) ;; see `my-theme'
+      ;; Fix ratio provided by set-face-attribute for fonts display
+      (setq face-font-rescale-alist
+            '(("^-apple-hiragino.*" . 1.0) ; 1.2
+              (".*Migu.*" . 1.2)
+              (".*Ricty.*" . 1.0)
+              (".*Inconsolata.*" . 1.0)
+              (".*osaka-bold.*" . 1.0)     ; 1.2
+              (".*osaka-medium.*" . 1.0)   ; 1.0
+              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+              ("-cdac$" . 1.0))))) ; 1.3
+   ;; (my-font-config) ;; see `my-theme'
 
- ((eq window-system 'ns)
-  ;; Anti aliasing with Quartz 2D
-  (when (boundp 'mac-allow-anti-aliasing)
-    (setq mac-allow-anti-aliasing t)))
+   ((eq window-system 'ns)
+    ;; Anti aliasing with Quartz 2D
+    (when (boundp 'mac-allow-anti-aliasing)
+      (setq mac-allow-anti-aliasing t)))
 
- ((eq window-system 'w32) ; windows7
-  (let ((font-size 14)
-        (font-height 100)
-        (ascii-font "Inconsolata")
-        (ja-font "メイリオ")) ;; Meiryo UI
-    (my-ja-font-setter
-     (font-spec :family ja-font :size font-size :height font-height))
-    (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-    (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
+   ((eq window-system 'w32) ; windows7
+    (let ((font-size 14)
+          (font-height 100)
+          (ascii-font "Inconsolata")
+          (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
- ((eq window-system 'x) ; for SuSE Linux 12.1
-  (let
-      ((font-size 14)
-       (font-height 100)
-       (ascii-font "Inconsolata")
-       ;; (ja-font "MigMix 1M")
-       (ja-font "Migu 2M"))
-    (my-ja-font-setter
-     (font-spec :family ja-font :size font-size :height font-height))
-    (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
-  (setq face-font-rescale-alist '((".*MigMix.*" . 2.0)
-                                  (".*Inconsolata.*" . 1.0))))) ; 0.9
+   ((eq window-system 'x) ; for SuSE Linux 12.1
+    (let
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font "Inconsolata")
+         ;; (ja-font "MigMix 1M")
+         (ja-font "Migu 2M"))
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
+    (setq face-font-rescale-alist '((".*Migu.*" . 2.0)
+                                    (".*MigMix.*" . 2.0)
+                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
+  )
+(my-setup-font)
 #+end_src
 
 *** フォントのインストール方法
@@ -12573,6 +12732,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
   - Add no-tty into ~/.gnupg/gpg.conf if an error occurred.
   - システムで =pass= コマンドを使えることが条件
   - [[https://github.com/ecraven/ivy-pass][ecraven/ivy-pass: ivy interface for pass]]
+  - うまくいかない時は，まず =password-store-executable= を確認する．もし nil ならば， =exec-path= を正しく設定する．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (if (not (executable-find "pass"))
