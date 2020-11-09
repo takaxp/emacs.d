@@ -167,7 +167,7 @@
         (mac-ime-deactivate))))
 
   ;; カーソル移動で heading に留まった時にIMEをOFFにする
-  (run-with-idle-timer 0.4 t #'my-ns-org-heading-auto-ascii)
+  (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)
 
   ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
   ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
@@ -883,6 +883,7 @@ This works also for other defined begin/end tokens to define the structure."
       (when (use-region-p)
         (eval-region (region-beginning) (region-end)
                      (get-buffer-create my-eval-result))
+        ;; Copy the result to kill-ring and print it
         (with-current-buffer (get-buffer-create my-eval-result)
           (delete-char -1)
           (goto-char (point-min))

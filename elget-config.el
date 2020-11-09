@@ -219,6 +219,9 @@
   (el-get-bundle "zhangkaiyulw/smart-mark")
   (el-get-bundle "emacsmirror/syntax-subword")
   (el-get-bundle "takaxp/ah")
+  (el-get-bundle "conao3/transient-dwim.el"
+                 :name transient-dwim
+                 :depends (transient))
 
   ;; Applications
   (el-get-bundle "ag")
@@ -290,8 +293,8 @@
   (el-get-bundle "hide-lines")
   (el-get-bundle "kiennq/emacs-mini-modeline")
   (el-get-bundle "shrink-path"
-    :type git
-    :url "https://gitlab.com/bennya/shrink-path.el.git")
+                 :type git
+                 :url "https://gitlab.com/bennya/shrink-path.el.git")
   ;; System related
   ;; Frame and windows
   (el-get-bundle "tabbar")

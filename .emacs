@@ -17,6 +17,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+;; transient-dwim
+(with-eval-after-load "postpone"
+  (require 'transient-dwim nil t))
+
 ;; grugru.el
 (with-eval-after-load "postpone"
   (when (require 'grugru-default nil t)
@@ -26,55 +30,55 @@
     (setq grugru-highlight-idle-delay 1)
     (grugru-highlight-mode 1)
     (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
-    (defun grugru-default-setup ()
-      "Setup default value.
-If some are not confortable, you can remove some of them,
-with `grugru-remove-on-major-mode' or `grugru-remove-global'."
-      (grugru-define-multiple
-       (c++-mode
-        (symbol "true" "false")
-        (symbol "vector" "array" "deque")
-        (symbol "class" "struct")
-        (symbol "float" "double")
-        (symbol "private" "public" "protected"))
-       (emacs-lisp-mode
-        (symbol "nil" "t")
-        (symbol "let" "let*")
-        (symbol "defun" "cl-defun")
-        (symbol "defvar" "defcustom")
-        (word   "add" "remove")
-        (symbol "setq" "setq-default")
-        (word   "global" "local"))
-       ((tex-mode latex-mode yatex-mode)
-        (symbol "figure" "table"))
-       ((org-mode) ;; v9.3.6
-        (word ":t" ":nil")
-        (word "overview" "showall")
-        (word "fold" "unfold" "content" "showeverything")
-        (word "indent" "noindent")
-        (word "align" "noalign")
-        (word "inlineimages" "noinlineimages")
-        (word "latexpreview" "nolatexpreview")
-        (word "hideblocks" "showblocks") ;; nohideblocks
-        (word "odd" "oddeven")
-        (word "nologrefile" "logrefile" "lognoterefile")
-        (word "nologdone" "logdone" "lognotedone")
-        (word "nologreschedule" "logreschedule" "lognotereschedule")
-        (word "nologredeadline" "logredeadline" "lognoteredeadline")
-        (word "lognoteclock-out" "nolognoteclock-out")
-        (word "logdrawer" "nologdrawer")
-        (word "logstatesreversed" "nologstatesreversed")
-        (word "nologrepeat" "logrepeat" "lognoterepeat")
-        (word "hidestars" "showstars")
-        (word "fninline" "nofninline" "fnlocal")
-        (word "fnauto" "fnprompt" "fnconfirm" "fnplain") ;; TODO
-        (word "nofnadjust" "fnadjust")
-        (word "entitiespretty" "entitiesplain")
-        (word "title" "author" "email" "date")
-        (word "todo" "done")
-        ;; source
-        ;; (word "c") ;; これは直接リストをここに流せる？
-        )))
+    ;;     (defun grugru-default-setup ()
+    ;;       "Setup default value.
+    ;; If some are not confortable, you can remove some of them,
+    ;; with `grugru-remove-on-major-mode' or `grugru-remove-global'."
+    ;;       (grugru-define-multiple
+    ;;        (c++-mode
+    ;;         (symbol "true" "false")
+    ;;         (symbol "vector" "array" "deque")
+    ;;         (symbol "class" "struct")
+    ;;         (symbol "float" "double")
+    ;;         (symbol "private" "public" "protected"))
+    ;;        (emacs-lisp-mode
+    ;;         (symbol "nil" "t")
+    ;;         (symbol "let" "let*")
+    ;;         (symbol "defun" "cl-defun")
+    ;;         (symbol "defvar" "defcustom")
+    ;;         (word   "add" "remove")
+    ;;         (symbol "setq" "setq-default")
+    ;;         (word   "global" "local"))
+    ;;        ((tex-mode latex-mode yatex-mode)
+    ;;         (symbol "figure" "table"))
+    ;;        ((org-mode) ;; v9.3.6
+    ;;         (word ":t" ":nil")
+    ;;         (word "overview" "showall")
+    ;;         (word "fold" "unfold" "content" "showeverything")
+    ;;         (word "indent" "noindent")
+    ;;         (word "align" "noalign")
+    ;;         (word "inlineimages" "noinlineimages")
+    ;;         (word "latexpreview" "nolatexpreview")
+    ;;         (word "hideblocks" "showblocks") ;; nohideblocks
+    ;;         (word "odd" "oddeven")
+    ;;         (word "nologrefile" "logrefile" "lognoterefile")
+    ;;         (word "nologdone" "logdone" "lognotedone")
+    ;;         (word "nologreschedule" "logreschedule" "lognotereschedule")
+    ;;         (word "nologredeadline" "logredeadline" "lognoteredeadline")
+    ;;         (word "lognoteclock-out" "nolognoteclock-out")
+    ;;         (word "logdrawer" "nologdrawer")
+    ;;         (word "logstatesreversed" "nologstatesreversed")
+    ;;         (word "nologrepeat" "logrepeat" "lognoterepeat")
+    ;;         (word "hidestars" "showstars")
+    ;;         (word "fninline" "nofninline" "fnlocal")
+    ;;         (word "fnauto" "fnprompt" "fnconfirm" "fnplain") ;; TODO
+    ;;         (word "nofnadjust" "fnadjust")
+    ;;         (word "entitiespretty" "entitiesplain")
+    ;;         (word "title" "author" "email" "date")
+    ;;         (word "todo" "done")
+    ;;         ;; source
+    ;;         ;; (word "c") ;; これは直接リストをここに流せる？
+    ;;         )))
     (grugru-default-setup)
     (global-set-key (kbd "C-9") #'grugru)
     (add-hook 'grugru-after-hook #'save-buffer)
@@ -173,10 +177,6 @@ with `grugru-remove-on-major-mode' or `grugru-remove-global'."
 ;;                   (all-the-icons-dired--add-overlay (point) "  \t")
 ;;                 (all-the-icons-dired--add-overlay (point) (concat icon "\t")))))))
 ;;       (forward-line 1))))
-
-(with-eval-after-load "yatex"
-  (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
-  (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp))
 
 (when nil
   (with-eval-after-load "postpone"

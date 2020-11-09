@@ -492,12 +492,14 @@ This function is called directly from the C code."
   ;; Disable auto line break
   (add-hook 'yatex-mode-hook
             (lambda ()
-                (setq auto-fill-function nil)))
+              (setq auto-fill-function nil)))
 
   (with-eval-after-load "yatex"
     ;; 1=Shift JIS, 2=JIS, 3=EUC, 4=UTF-8
     ;; (setq YaTeX-kanji-code nil)
-    (modify-coding-system-alist 'file "\\.tex$'" 'utf-8)))
+    (modify-coding-system-alist 'file "\\.tex$'" 'utf-8)
+    (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
+    (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp)))
 
 (my-tick-init-time "editing")
 
