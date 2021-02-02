@@ -119,7 +119,7 @@
   (el-get-bundle "AdamNiederer/cov")
   (el-get-bundle "ggtags")
   (el-get-bundle "dedi/gxref") ;; emacs 25.1 or later
-  (el-get-bundle "clang-format")
+  ;; (el-get-bundle "clang-format") ;; TODO Waiting for merge my PR
   (el-get-bundle "lassik/emacs-format-all-the-code")
   (el-get-bundle "emacsmirror/emr")
   (el-get-bundle "diffview")
@@ -231,6 +231,7 @@
   (el-get-bundle "gif-screencast"
                  :type git
                  :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
+  (el-get-bundle "jorgenschaefer/circe")
   (when (eq system-type 'darwin)
     (el-get-bundle "d12frosted/counsel-osx-app"))
 

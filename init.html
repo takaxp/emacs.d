@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-10-30 Fri 21:15 -->
+<!-- 2020-12-28 Mon 19:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -193,12 +193,12 @@
   .org-svg { width: 90%; }
   /*]]>*/-->
 </style>
-<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/htmlize.css"/>
-<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/readtheorg.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
-<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <script type="text/javascript">
 /*
@@ -301,7 +301,7 @@ for the JavaScript code in this tag.
 <li><a href="#org7a9614cc">3.7. 長い文章を右端で常に折り返す</a></li>
 <li><a href="#org8dd417a4">3.8. マウスで選択した領域を自動コピー</a></li>
 <li><a href="#org1b2d3cc0">3.9. compilation buffer でのデータ表示で自動するスクロールする</a></li>
-<li><a href="#org5703433">3.10. NS版でスクロール時の表示乱れを補正</a></li>
+<li><a href="#org3111a4c">3.10. NS版でスクロール時の表示乱れを補正</a></li>
 <li><a href="#orgb26cd017">3.11. 水平方向の自動スクロール調整</a></li>
 <li><a href="#org68d1750d">3.12. C-x C-c で容易にEmacsを終了させないように質問する</a></li>
 <li><a href="#orgd7b8f4e2">3.13. パッケージ管理</a>
@@ -322,7 +322,7 @@ for the JavaScript code in this tag.
 <li><a href="#org723e2b73">3.20. [uniquify.el] 同じバッファ名が開かれた場合に区別する</a></li>
 <li><a href="#org982c69d7">3.21. [ws-butler.el] 不要なスペースを自動除去</a></li>
 <li><a href="#orge014847e">3.22. [epa.el] GPGを使う</a></li>
-<li><a href="#org571e850">3.23. [epa.el] GPGファイルの保存時のメッセージを停止する</a></li>
+<li><a href="#org411651b">3.23. [epa.el] GPGファイルの保存時のメッセージを停止する</a></li>
 <li><a href="#orge44eded5">3.24. NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
 <li><a href="#org53a63301">3.25. EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
 </ul>
@@ -1027,7 +1027,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> byte-compile-warnings '(obsolete))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq byte-compile-warnings '(obsolete))</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress warning on cl.el loading</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-exclude-deprecated-packages</span> '(cl tls))
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:do-after-load-evaluation</span> (abs-file)
@@ -1806,8 +1806,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org5703433" class="outline-3">
-<h3 id="org5703433"><span class="section-number-3">3.10</span> NS版でスクロール時の表示乱れを補正</h3>
+<div id="outline-container-org3111a4c" class="outline-3">
+<h3 id="org3111a4c"><span class="section-number-3">3.10</span> NS版でスクロール時の表示乱れを補正</h3>
 <div class="outline-text-3" id="text-3-10">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
@@ -2307,8 +2307,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 </div>
-<div id="outline-container-org571e850" class="outline-3">
-<h3 id="org571e850"><span class="section-number-3">3.23</span> [epa.el] GPGファイルの保存時のメッセージを停止する</h3>
+<div id="outline-container-org411651b" class="outline-3">
+<h3 id="org411651b"><span class="section-number-3">3.23</span> [epa.el] GPGファイルの保存時のメッセージを停止する</h3>
 <div class="outline-text-3" id="text-3-23">
 <p>
 GPGで暗号化されたファイルを編集すると，保存時に暗号化していることを知らせる情報が Messages バッファに出力されます．頻度が低ければ特に気にならないかもしれませんが，自動的にバッファを保存する設定を施していると，Messages バッファが埋め尽くされてしまうので困ります． <code>epa-file-write-region</code> をハックして黙らせます．<br />
@@ -2403,7 +2403,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
         (mac-ime-deactivate))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#30041;&#12414;&#12387;&#12383;&#26178;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
-  (run-with-idle-timer 0.4 t #'my-ns-org-heading-auto-ascii)
+  (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#26469;&#12383;&#12392;&#12365;&#12399;&#21363;&#24231;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)</span>
@@ -4217,12 +4217,14 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Disable auto line break</span>
   (add-hook 'yatex-mode-hook
             (<span style="color: #a020f0;">lambda</span> ()
-                (<span style="color: #a020f0;">setq</span> auto-fill-function nil)))
+              (<span style="color: #a020f0;">setq</span> auto-fill-function nil)))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"yatex"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">1=Shift JIS, 2=JIS, 3=EUC, 4=UTF-8</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq YaTeX-kanji-code nil)</span>
-    (modify-coding-system-alist 'file <span style="color: #8b2252;">"\\.tex$'"</span> 'utf-8)))
+    (modify-coding-system-alist 'file <span style="color: #8b2252;">"\\.tex$'"</span> 'utf-8)
+    (define-key YaTeX-mode-map (kbd <span style="color: #8b2252;">"C-M-SPC"</span>) 'mark-sexp)
+    (define-key YaTeX-mode-map (kbd <span style="color: #8b2252;">"C-M-@"</span>) 'mark-sexp)))
 </pre>
 </div>
 
@@ -9776,6 +9778,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12503;&#12525;&#12497;&#12486;&#12451;&#31561;&#12434;&#33258;&#21205;&#30340;&#38281;&#12376;&#12427;&#65294;</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-hide-drawers</span> ()
       <span style="color: #8b2252;">"Hide all drawers in an org tree."</span>
+      (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">save-excursion</span>
         (beginning-of-line)
         (<span style="color: #a020f0;">unless</span> (looking-at-p org-drawer-regexp)
@@ -11302,9 +11305,13 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-reload-header-face</span> ()
     (face-spec-set 'org-tree-slide-header-overlay-face
-                   `((t (<span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:foreground</span> ,(face-foreground 'default)
+                   `((t (<span style="color: #483d8b;">:bold</span> t
+                               <span style="color: #483d8b;">:foreground</span> ,(face-foreground 'default)
                                <span style="color: #483d8b;">:background</span> ,(face-background 'default))))))
-  (add-hook 'org-tree-slide-play-hook #'my-reload-header-face))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'org-tree-slide-play-hook #'my-reload-header-face)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'my-light-theme-hook #'my-reload-header-face)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'my-dark-theme-hook #'my-reload-header-face)</span>
+  )
 </pre>
 </div>
 
@@ -11580,7 +11587,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgd61a7c9"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgebc779d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -12966,8 +12973,11 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
        moom-autoloads
        <span style="color: #8b2252;">"moom"</span> nil t)
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Setting for &lt;f1&gt;/&lt;f2&gt; will be removed in future, use C-1/C-2 instead</span>
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-top)
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;f2&gt;"</span>) 'moom-cycle-frame-height)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-1"</span>) 'moom-move-frame-to-edge-top)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-2"</span>) 'moom-cycle-frame-height)
   (global-set-key (kbd <span style="color: #8b2252;">"M-2"</span>) 'moom-move-frame-to-center)
   (global-set-key (kbd <span style="color: #8b2252;">"M-&lt;f2&gt;"</span>) 'moom-toggle-frame-maximized)
 
@@ -15110,7 +15120,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-10-30 Fri 21:15</p>
+<p class="date">Created: 2020-12-28 Mon 19:54</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -271,7 +271,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 特定のパッケージの deprecated メッセージを抑制します． =my-exclude-deprecated-packages= にパッケージを列挙します．以下は =cl= と =tls= の出力だけ抑制して他のパッケージの場合は表示します．
 
 #+begin_src emacs-lisp :tangle yes
-(setq byte-compile-warnings '(obsolete))
+;; (setq byte-compile-warnings '(obsolete))
 ;; Suppress warning on cl.el loading
 (defvar my-exclude-deprecated-packages '(cl tls))
 (defun ad:do-after-load-evaluation (abs-file)
@@ -7965,12 +7965,13 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     ;; プロパティ等を自動的閉じる．
     (defun my-org-hide-drawers ()
       "Hide all drawers in an org tree."
+      (interactive)
       (save-excursion
         (beginning-of-line)
         (unless (looking-at-p org-drawer-regexp)
           (org-cycle-hide-drawers 'children))))
     ;; Broken from org 9.4 (error "Invalid search bound (wrong side of point)")
-    ;; (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
     ;; CSV指定でテーブルを出力する．
     (defun my-org-table-export ()
@@ -8188,7 +8189,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
   (add-to-list 'org-speed-commands-user '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands-user '("." my-org-deadline-today))
-  (add-to-list 'org-speed-commands-user '("!" my-org-set-created-property))
+  (add-to-list 'org-speed-commands-user '("!" my-org-default-property))
   (add-to-list 'org-speed-commands-user
                '("$" call-interactively 'org-archive-subtree))
 
@@ -8605,6 +8606,11 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   (with-eval-after-load "org"
     ;; キャプチャ時に作成日時をプロパティに入れる
     ;; Thanks to https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook
+    (defun my-org-default-property ()
+      "Set the creation date and org-id."
+      (interactive)
+      (my-org-set-created-property)
+      (org-id-get-create))
     (defvar my-org-created-property-name "CREATED"
       "The name of the org-mode property.
 This user property stores the creation date of the entry")
@@ -8624,7 +8630,7 @@ will not be modified."
           (org-cycle-hide-drawers 'children))))
     (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
       (unless (org-at-item-checkbox-p)
-        (my-org-set-created-property)))
+        (my-org-default-property)))
     (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"
@@ -9123,6 +9129,9 @@ also calls `beep' for an audible reminder."
         (delq nil appt-time-msg-list)))
 
     (defvar my-org-agenda-to-appt-async t)
+    (when (eq window-system 'w32)
+      (message "--- my-org-agenda-to-appt-async was changed to nil for w32")
+      (setq my-org-agenda-to-appt-async nil))
 
     ;; org-agenda の内容をアラームに登録する
     (defun my-org-agenda-to-appt (&optional force)
@@ -9140,6 +9149,7 @@ also calls `beep' for an audible reminder."
           (async-start
            `(lambda ()
               (setq load-path ',load-path)
+              (require 'org-agenda)
               (setq org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline "TODO")))
               ;; Remove tags
@@ -9323,6 +9333,7 @@ also calls `beep' for an audible reminder."
 ** [org-tree-slide] Org Modeでプレゼンテーション
    :PROPERTIES:
    :CUSTOM_ID: org89c34f23
+   :ID:       4ADF24E3-415D-4C10-92FF-A7CD32E4B692
    :END:
 
 パワーポイントはもう使わなくてよいのです．
@@ -9352,9 +9363,13 @@ also calls `beep' for an audible reminder."
 
   (defun my-reload-header-face ()
     (face-spec-set 'org-tree-slide-header-overlay-face
-                   `((t (:bold t :foreground ,(face-foreground 'default)
+                   `((t (:bold t
+                               :foreground ,(face-foreground 'default)
                                :background ,(face-background 'default))))))
-  (add-hook 'org-tree-slide-play-hook #'my-reload-header-face))
+  ;; (add-hook 'org-tree-slide-play-hook #'my-reload-header-face)
+  ;; (add-hook 'my-light-theme-hook #'my-reload-header-face)
+  ;; (add-hook 'my-dark-theme-hook #'my-reload-header-face)
+  )
 #+end_src
 
 ~Doing~ タグのトグルに =f11= を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
@@ -10908,8 +10923,11 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
        moom-autoloads
        "moom" nil t)
 
+  ;; Setting for <f1>/<f2> will be removed in future, use C-1/C-2 instead
   (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
+  (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
+  (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 

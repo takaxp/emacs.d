@@ -48,7 +48,7 @@
 (setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
 (setq garbage-collection-messages t)
 
-(setq byte-compile-warnings '(obsolete))
+;; (setq byte-compile-warnings '(obsolete))
 ;; Suppress warning on cl.el loading
 (defvar my-exclude-deprecated-packages '(cl tls))
 (defun ad:do-after-load-evaluation (abs-file)
@@ -868,8 +868,11 @@ This function is called directly from the C code."
        moom-autoloads
        "moom" nil t)
 
+  ;; Setting for <f1>/<f2> will be removed in future, use C-1/C-2 instead
   (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
   (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
+  (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
+  (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 

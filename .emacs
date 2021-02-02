@@ -17,69 +17,71 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-;; transient-dwim
+(with-eval-after-load "org"
+  (add-hook 'org-tab-first-hook 'my-org-hide-drawers))
+
+(with-eval-after-load "org-tree-slide"
+
+  ;; README (1)
+  ;; org-tree-slide.el を読み込み，custom-set-faces すれば，dark/light にそれぞれ色がつく．
+  ;; dark <-> light 間で配色を交換しても，期待通りに色が変わる．
+  ;; (custom-set-faces
+  ;;  '(org-tree-slide-header-overlay-face
+  ;;    ((((background dark))
+  ;;      :foreground "white" :background "#594d5d" :underline "LightS lateBlue")
+  ;;     (t
+  ;;      :bold t :foreground "red"  :background "purple"))))
+
+  ;; README (2)
+  ;; これで期待通りの振る舞いになる
+  ;; TODO 別途，title だけ変えられる？
+  (defun org-tree-slide-reload-header-face ()
+    (face-spec-set 'org-tree-slide-header-overlay-face
+                   `((t (:bold t
+                               :foreground ,(face-foreground 'default)
+                               :background ,(face-background 'default))))))
+  (when (require 'ah nil t)
+    (add-hook 'ah-after-enable-theme-hook #'org-tree-slide-reload-header-face))
+
+  ;; ということで，dark/light の変換コマンドと，hook がわかれば，
+  ;; それにorg-tree-slide-reload-header-faceのような補助関数をぶら下げればOK
+
+  ;; title 等の表示を変えたい場合（dark/light の設定が，テーマ変更時に反映される）
+  ;; (custom-set-faces
+  ;;  '(org-document-title ((t (:bold t :height 200))))
+  ;;  '(org-document-info ((t (:bold t :underline "red")))))
+  )
+
+;; For tr-ime.el
+;; (tr-ime-advanced-install)
+;; (set-frame-parameter nil 'ime-font "MS Gothic-40")
+;; (tr-ime-font-reflect-frame-parameter)
+
 (with-eval-after-load "postpone"
+  ;; circe.el
+  (setq circe-network-options
+        '(("Freenode"
+           :tls t
+           :nick "takaxp"
+           :channels ("#emacsconf"))))
+
+  ;; transient-dwim
   (require 'transient-dwim nil t))
+
+;; https://gitlab.com/matsievskiysv/math-preview
+;; https://github.com/dandavison/xenops
 
 ;; grugru.el
 (with-eval-after-load "postpone"
   (when (require 'grugru-default nil t)
-    (setq grugru-edit-completing-function #'ivy-completing-read)
     (custom-set-faces
-     '(grugru-highlight-face ((t (:bold t :underline "#FF3333")))))
-    (setq grugru-highlight-idle-delay 1)
+     '(grugru-edit-completing-function #'ivy-completing-read)
+     '(grugru-highlight-face ((t (:bold t :underline "#FF3333"))))
+     '(grugru-highlight-idle-delay 1))
     (grugru-highlight-mode 1)
     (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
-    ;;     (defun grugru-default-setup ()
-    ;;       "Setup default value.
-    ;; If some are not confortable, you can remove some of them,
-    ;; with `grugru-remove-on-major-mode' or `grugru-remove-global'."
-    ;;       (grugru-define-multiple
-    ;;        (c++-mode
-    ;;         (symbol "true" "false")
-    ;;         (symbol "vector" "array" "deque")
-    ;;         (symbol "class" "struct")
-    ;;         (symbol "float" "double")
-    ;;         (symbol "private" "public" "protected"))
-    ;;        (emacs-lisp-mode
-    ;;         (symbol "nil" "t")
-    ;;         (symbol "let" "let*")
-    ;;         (symbol "defun" "cl-defun")
-    ;;         (symbol "defvar" "defcustom")
-    ;;         (word   "add" "remove")
-    ;;         (symbol "setq" "setq-default")
-    ;;         (word   "global" "local"))
-    ;;        ((tex-mode latex-mode yatex-mode)
-    ;;         (symbol "figure" "table"))
-    ;;        ((org-mode) ;; v9.3.6
-    ;;         (word ":t" ":nil")
-    ;;         (word "overview" "showall")
-    ;;         (word "fold" "unfold" "content" "showeverything")
-    ;;         (word "indent" "noindent")
-    ;;         (word "align" "noalign")
-    ;;         (word "inlineimages" "noinlineimages")
-    ;;         (word "latexpreview" "nolatexpreview")
-    ;;         (word "hideblocks" "showblocks") ;; nohideblocks
-    ;;         (word "odd" "oddeven")
-    ;;         (word "nologrefile" "logrefile" "lognoterefile")
-    ;;         (word "nologdone" "logdone" "lognotedone")
-    ;;         (word "nologreschedule" "logreschedule" "lognotereschedule")
-    ;;         (word "nologredeadline" "logredeadline" "lognoteredeadline")
-    ;;         (word "lognoteclock-out" "nolognoteclock-out")
-    ;;         (word "logdrawer" "nologdrawer")
-    ;;         (word "logstatesreversed" "nologstatesreversed")
-    ;;         (word "nologrepeat" "logrepeat" "lognoterepeat")
-    ;;         (word "hidestars" "showstars")
-    ;;         (word "fninline" "nofninline" "fnlocal")
-    ;;         (word "fnauto" "fnprompt" "fnconfirm" "fnplain") ;; TODO
-    ;;         (word "nofnadjust" "fnadjust")
-    ;;         (word "entitiespretty" "entitiesplain")
-    ;;         (word "title" "author" "email" "date")
-    ;;         (word "todo" "done")
-    ;;         ;; source
-    ;;         ;; (word "c") ;; これは直接リストをここに流せる？
-    ;;         )))
     (grugru-default-setup)
+    (grugru-define-on-major-mode 'org-mode 'word '("TODO" "DONE"))
     (global-set-key (kbd "C-9") #'grugru)
     (add-hook 'grugru-after-hook #'save-buffer)
     (grugru-find-function-integration-mode 1)))

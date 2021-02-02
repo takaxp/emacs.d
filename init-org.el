@@ -153,12 +153,13 @@
     ;; プロパティ等を自動的閉じる．
     (defun my-org-hide-drawers ()
       "Hide all drawers in an org tree."
+      (interactive)
       (save-excursion
         (beginning-of-line)
         (unless (looking-at-p org-drawer-regexp)
           (org-cycle-hide-drawers 'children))))
     ;; Broken from org 9.4 (error "Invalid search bound (wrong side of point)")
-    ;; (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
     ;; CSV指定でテーブルを出力する．
     (defun my-org-table-export ()
@@ -350,7 +351,7 @@
   ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
   (add-to-list 'org-speed-commands-user '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands-user '("." my-org-deadline-today))
-  (add-to-list 'org-speed-commands-user '("!" my-org-set-created-property))
+  (add-to-list 'org-speed-commands-user '("!" my-org-default-property))
   (add-to-list 'org-speed-commands-user
                '("$" call-interactively 'org-archive-subtree))
 
@@ -628,6 +629,11 @@
   (with-eval-after-load "org"
     ;; キャプチャ時に作成日時をプロパティに入れる
     ;; Thanks to https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook
+    (defun my-org-default-property ()
+      "Set the creation date and org-id."
+      (interactive)
+      (my-org-set-created-property)
+      (org-id-get-create))
     (defvar my-org-created-property-name "CREATED"
       "The name of the org-mode property.
 This user property stores the creation date of the entry")
@@ -647,7 +653,7 @@ will not be modified."
           (org-cycle-hide-drawers 'children))))
     (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
       (unless (org-at-item-checkbox-p)
-        (my-org-set-created-property)))
+        (my-org-default-property)))
     (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"
@@ -1106,6 +1112,9 @@ also calls `beep' for an audible reminder."
         (delq nil appt-time-msg-list)))
 
     (defvar my-org-agenda-to-appt-async t)
+    (when (eq window-system 'w32)
+      (message "--- my-org-agenda-to-appt-async was changed to nil for w32")
+      (setq my-org-agenda-to-appt-async nil))
 
     ;; org-agenda の内容をアラームに登録する
     (defun my-org-agenda-to-appt (&optional force)
@@ -1123,6 +1132,7 @@ also calls `beep' for an audible reminder."
           (async-start
            `(lambda ()
               (setq load-path ',load-path)
+              (require 'org-agenda)
               (setq org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline "TODO")))
               ;; Remove tags
@@ -1281,9 +1291,13 @@ also calls `beep' for an audible reminder."
 
   (defun my-reload-header-face ()
     (face-spec-set 'org-tree-slide-header-overlay-face
-                   `((t (:bold t :foreground ,(face-foreground 'default)
+                   `((t (:bold t
+                               :foreground ,(face-foreground 'default)
                                :background ,(face-background 'default))))))
-  (add-hook 'org-tree-slide-play-hook #'my-reload-header-face))
+  ;; (add-hook 'org-tree-slide-play-hook #'my-reload-header-face)
+  ;; (add-hook 'my-light-theme-hook #'my-reload-header-face)
+  ;; (add-hook 'my-dark-theme-hook #'my-reload-header-face)
+  )
 
 (with-eval-after-load "org-tree-slide"
   (when (and (eq my-toggle-modeline-global 'doom)

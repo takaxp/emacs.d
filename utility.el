@@ -183,6 +183,15 @@
   (insert "-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n")
   (forward-line -2))
 
+(defun my-insert-enc2me-pgp-tree ()
+    (interactive)
+    (insert "** TODO share with me\n")
+    (insert "   :PROPERTIES:\n")
+    (insert "   :CRYPTKEY: takaxp@ieee.org\n")
+    (insert "   :END:\n")
+    (insert "\n")
+    (forward-line -1))
+
 ;;;###autoload
 (defun insert-minutes-template ()
   (interactive)

@@ -295,6 +295,20 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
   (forward-line -2))
 #+end_src
 
+** orgバッファでPGPを使った自分宛ての暗号化データ生成する
+下記の関数で生成したツリーの本体をメールで送信すれば，秘密鍵のある端末で復号できます．
+
+#+begin_src emacs-lisp :tangle utility.el
+(defun my-insert-enc2me-pgp-tree ()
+    (interactive)
+    (insert "** TODO share with me\n")
+    (insert "   :PROPERTIES:\n")
+    (insert "   :CRYPTKEY: takaxp@ieee.org\n")
+    (insert "   :END:\n")
+    (insert "\n")
+    (forward-line -1))
+#+end_src
+
 ** 議事録ひな形を書き入れる
    :PROPERTIES:
    :CUSTOM_ID: org8f57b3f8
