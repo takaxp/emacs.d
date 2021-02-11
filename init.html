@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-12-28 Mon 19:54 -->
+<!-- 2021-02-11 Thu 13:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -301,7 +301,7 @@ for the JavaScript code in this tag.
 <li><a href="#org7a9614cc">3.7. 長い文章を右端で常に折り返す</a></li>
 <li><a href="#org8dd417a4">3.8. マウスで選択した領域を自動コピー</a></li>
 <li><a href="#org1b2d3cc0">3.9. compilation buffer でのデータ表示で自動するスクロールする</a></li>
-<li><a href="#org3111a4c">3.10. NS版でスクロール時の表示乱れを補正</a></li>
+<li><a href="#org3124774">3.10. NS版でスクロール時の表示乱れを補正</a></li>
 <li><a href="#orgb26cd017">3.11. 水平方向の自動スクロール調整</a></li>
 <li><a href="#org68d1750d">3.12. C-x C-c で容易にEmacsを終了させないように質問する</a></li>
 <li><a href="#orgd7b8f4e2">3.13. パッケージ管理</a>
@@ -322,7 +322,7 @@ for the JavaScript code in this tag.
 <li><a href="#org723e2b73">3.20. [uniquify.el] 同じバッファ名が開かれた場合に区別する</a></li>
 <li><a href="#org982c69d7">3.21. [ws-butler.el] 不要なスペースを自動除去</a></li>
 <li><a href="#orge014847e">3.22. [epa.el] GPGを使う</a></li>
-<li><a href="#org411651b">3.23. [epa.el] GPGファイルの保存時のメッセージを停止する</a></li>
+<li><a href="#org7035fff">3.23. [epa.el] GPGファイルの保存時のメッセージを停止する</a></li>
 <li><a href="#orge44eded5">3.24. NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
 <li><a href="#org53a63301">3.25. EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
 </ul>
@@ -342,8 +342,8 @@ for the JavaScript code in this tag.
 <li><a href="#orgfa2bad61">4.11. [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</a></li>
 <li><a href="#orgadf36a14">4.12. [smart-mark] C-g後に元の場所へカーソルを戻す</a></li>
 <li><a href="#orgf75f443a">4.13. [syntax-subword.el] M-f で移動する位置をより密にする</a></li>
-<li><a href="#org8435eae2">4.14. [goto-chg.el] 編集箇所を簡単に辿る</a></li>
-<li><a href="#org3901456e">4.15. [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</a></li>
+<li><a href="#org3901456e">4.14. [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</a></li>
+<li><a href="#org8435eae2">4.15. <span class="done DONE">DONE</span> [goto-chg.el] 編集箇所を簡単に辿る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#org27e3241e">4.16. <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgd906e864">4.17. <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#org42db9464">4.18. <span class="done DONE">DONE</span> [point-undo.el] カーソル位置を簡単にたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
@@ -1806,8 +1806,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org3111a4c" class="outline-3">
-<h3 id="org3111a4c"><span class="section-number-3">3.10</span> NS版でスクロール時の表示乱れを補正</h3>
+<div id="outline-container-org3124774" class="outline-3">
+<h3 id="org3124774"><span class="section-number-3">3.10</span> NS版でスクロール時の表示乱れを補正</h3>
 <div class="outline-text-3" id="text-3-10">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
@@ -2162,7 +2162,14 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
-  (global-auto-revert-mode 1))
+  (global-auto-revert-mode 1)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">revert &#12373;&#12428;&#12427;&#12398;&#12364; org &#12496;&#12483;&#12501;&#12449;&#12398;&#12392;&#12365;&#65292;&#33258;&#21205;&#30340;&#12395;&#12489;&#12525;&#12527;&#12434;&#12383;&#12383;&#12416;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#12364; (point-max) &#12395;&#31227;&#21205;&#12375;&#12390;&#12375;&#12414;&#12358;&#22580;&#21512;&#12399;&#38750;&#25512;&#22888;</span>
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-hide-drawers-all</span> ()
+      (<span style="color: #a020f0;">when</span> (eq major-mode 'org-mode)
+        (org-cycle-hide-drawers 'all)))
+    (add-hook 'after-revert-hook 'my-org-hide-drawers-all)))
 </pre>
 </div>
 </div>
@@ -2307,8 +2314,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 </div>
-<div id="outline-container-org411651b" class="outline-3">
-<h3 id="org411651b"><span class="section-number-3">3.23</span> [epa.el] GPGファイルの保存時のメッセージを停止する</h3>
+<div id="outline-container-org7035fff" class="outline-3">
+<h3 id="org7035fff"><span class="section-number-3">3.23</span> [epa.el] GPGファイルの保存時のメッセージを停止する</h3>
 <div class="outline-text-3" id="text-3-23">
 <p>
 GPGで暗号化されたファイルを編集すると，保存時に暗号化していることを知らせる情報が Messages バッファに出力されます．頻度が低ければ特に気にならないかもしれませんが，自動的にバッファを保存する設定を施していると，Messages バッファが埋め尽くされてしまうので困ります． <code>epa-file-write-region</code> をハックして黙らせます．<br />
@@ -2639,7 +2646,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 <tr>
 <td class="org-left">編集点の移動</td>
-<td class="org-left">C-,/C-.</td>
+<td class="org-left">C-u C-SPC</td>
 </tr>
 
 <tr>
@@ -3091,31 +3098,8 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 
-<div id="outline-container-org8435eae2" class="outline-3">
-<h3 id="org8435eae2"><span class="section-number-3">4.14</span> [goto-chg.el] 編集箇所を簡単に辿る</h3>
-<div class="outline-text-3" id="text-org8435eae2">
-<p>
-編集結果を保持したまま編集箇所にカーソルを移すことができます． <code>C-/</code> の Undo のような操作で，簡単かつ高速にカーソルを移動できます．ただ <code>undo-tree</code> 依存です．<br />
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(goto-last-change goto-last-change-reverse)
-       <span style="color: #8b2252;">"goto-chg"</span> nil t)
-
-  (global-set-key (kbd <span style="color: #8b2252;">"C-,"</span>) 'goto-last-change)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-."</span>) 'goto-last-change-reverse)
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
-    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'goto-last-change)
-    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-."</span>) 'goto-last-change-reverse)))
-</pre>
-</div>
-</div>
-</div>
-
 <div id="outline-container-org3901456e" class="outline-3">
-<h3 id="org3901456e"><span class="section-number-3">4.15</span> [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</h3>
+<h3 id="org3901456e"><span class="section-number-3">4.14</span> [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</h3>
 <div class="outline-text-3" id="text-org3901456e">
 <ul class="org-ul">
 <li><a href="https://github.com/magnars/expand-region.el">magnars/expand-region.el: Emacs extension to increase selected region by semantic units.</a><br /></li>
@@ -3133,6 +3117,29 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"selected"</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region</span> nil t)
     (define-key selected-keymap (kbd <span style="color: #8b2252;">"SPC"</span>) #'er/expand-region)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8435eae2" class="outline-3">
+<h3 id="org8435eae2"><span class="section-number-3">4.15</span> <span class="done DONE">DONE</span> [goto-chg.el] 編集箇所を簡単に辿る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<div class="outline-text-3" id="text-org8435eae2">
+<p>
+編集結果を保持したまま編集箇所にカーソルを移すことができます． <code>C-/</code> の Undo のような操作で，簡単かつ高速にカーソルを移動できます．ただ <code>undo-tree</code> 依存です．<br />
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(goto-last-change goto-last-change-reverse)
+       <span style="color: #8b2252;">"goto-chg"</span> nil t)
+
+  (global-set-key (kbd <span style="color: #8b2252;">"C-,"</span>) 'goto-last-change)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-."</span>) 'goto-last-change-reverse)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
+    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'goto-last-change)
+    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-."</span>) 'goto-last-change-reverse)))
 </pre>
 </div>
 </div>
@@ -3437,7 +3444,7 @@ Built-in の time-stamp.el を使う．<br />
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:add-change-log-entry-other-window</span> ()
   (<span style="color: #a020f0;">when</span> view-mode
-    (view-mode-disable)))
+    (view--disable)))
 
 (advice-add 'add-change-log-entry-other-window
             <span style="color: #483d8b;">:before</span> #'ad:add-change-log-entry-other-window)
@@ -6362,7 +6369,7 @@ paren.el の場合は以下の設定．<br />
   (global-set-key (kbd <span style="color: #8b2252;">"C-c i r"</span>) 'ivy-resume)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
-    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'goto-last-change))
+    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'counsel-mark-ring))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
 
@@ -7645,7 +7652,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <h3 id="org9f20061e"><span class="section-number-3">8.4</span> C-g した場所をブックマークする</h3>
 <div class="outline-text-3" id="text-org9f20061e">
 <p>
-<code>C-g</code> でカーソルが飛んだ時，元の場所へブックマークから戻れます．<br />
+<code>C-g</code> でカーソルが飛んだ時，元の場所へブックマークから戻れます．mark でも辿れるようにしておきます．<br />
 </p>
 
 <ul class="org-ul">
@@ -7655,8 +7662,9 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-cg-bookmark</span> <span style="color: #8b2252;">"c-g-point-last"</span>)
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cg-bookmark</span> ()
+  (push-mark)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> buffer-file-name
-             isearch-mode)
+             isearch-mode) <span style="color: #b22222;">;; </span><span style="color: #FF0000;">TODO</span><span style="color: #b22222;"> could be removed this?</span>
     (bookmark-set my-cg-bookmark)))
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ah</span> nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
@@ -9784,7 +9792,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (<span style="color: #a020f0;">unless</span> (looking-at-p org-drawer-regexp)
           (org-cycle-hide-drawers 'children))))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Broken from org 9.4 (error "Invalid search bound (wrong side of point)")</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'org-tab-first-hook 'my-org-hide-drawers)</span>
+    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">CSV&#25351;&#23450;&#12391;&#12486;&#12540;&#12502;&#12523;&#12434;&#20986;&#21147;&#12377;&#12427;&#65294;</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-table-export</span> ()
@@ -10006,7 +10014,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))</span>
   (add-to-list 'org-speed-commands-user '(<span style="color: #8b2252;">"H"</span> my-hugo-export-upload))
   (add-to-list 'org-speed-commands-user '(<span style="color: #8b2252;">"."</span> my-org-deadline-today))
-  (add-to-list 'org-speed-commands-user '(<span style="color: #8b2252;">"!"</span> my-org-set-created-property))
+  (add-to-list 'org-speed-commands-user '(<span style="color: #8b2252;">"!"</span> my-org-default-property))
   (add-to-list 'org-speed-commands-user
                '(<span style="color: #8b2252;">"$"</span> call-interactively 'org-archive-subtree))
 
@@ -10538,6 +10546,11 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12461;&#12515;&#12503;&#12481;&#12515;&#26178;&#12395;&#20316;&#25104;&#26085;&#26178;&#12434;&#12503;&#12525;&#12497;&#12486;&#12451;&#12395;&#20837;&#12428;&#12427;</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Thanks to </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook">https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook</a></span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-default-property</span> ()
+      <span style="color: #8b2252;">"Set the creation date and org-id."</span>
+      (<span style="color: #a020f0;">interactive</span>)
+      (my-org-set-created-property)
+      (org-id-get-create))
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-created-property-name</span> <span style="color: #8b2252;">"CREATED"</span>
       <span style="color: #8b2252;">"The name of the org-mode property.</span>
 <span style="color: #8b2252;">This user property stores the creation date of the entry"</span>)
@@ -10557,7 +10570,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
           (org-cycle-hide-drawers 'children))))
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-insert-todo-heading</span> (_arg <span style="color: #228b22;">&amp;optional</span> _force-heading)
       (<span style="color: #a020f0;">unless</span> (org-at-item-checkbox-p)
-        (my-org-set-created-property)))
+        (my-org-default-property)))
     (advice-add 'org-insert-todo-heading <span style="color: #483d8b;">:after</span> #'ad:org-insert-todo-heading))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-capture"</span>
@@ -11068,6 +11081,9 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
         (delq nil appt-time-msg-list)))
 
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-async</span> t)
+    (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
+      (message <span style="color: #8b2252;">"--- my-org-agenda-to-appt-async was changed to nil for w32"</span>)
+      (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-async nil))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12398;&#20869;&#23481;&#12434;&#12450;&#12521;&#12540;&#12512;&#12395;&#30331;&#37682;&#12377;&#12427;</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-to-appt</span> (<span style="color: #228b22;">&amp;optional</span> force)
@@ -11085,6 +11101,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
           (async-start
            `(<span style="color: #a020f0;">lambda</span> ()
               (<span style="color: #a020f0;">setq</span> load-path ',load-path)
+              (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-agenda</span>)
               (<span style="color: #a020f0;">setq</span> org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"</span><span style="color: #FF0000;">TODO</span><span style="color: #8b2252;">"</span>)))
               <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove tags</span>
@@ -11587,7 +11604,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgebc779d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgfe11af2"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -12973,13 +12990,9 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
        moom-autoloads
        <span style="color: #8b2252;">"moom"</span> nil t)
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Setting for &lt;f1&gt;/&lt;f2&gt; will be removed in future, use C-1/C-2 instead</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-top)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f2&gt;"</span>) 'moom-cycle-frame-height)
   (global-set-key (kbd <span style="color: #8b2252;">"C-1"</span>) 'moom-move-frame-to-edge-top)
   (global-set-key (kbd <span style="color: #8b2252;">"C-2"</span>) 'moom-cycle-frame-height)
   (global-set-key (kbd <span style="color: #8b2252;">"M-2"</span>) 'moom-move-frame-to-center)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-&lt;f2&gt;"</span>) 'moom-toggle-frame-maximized)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
@@ -12992,7 +13005,6 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
     (<span style="color: #a020f0;">setq</span> moom-multi-monitors-support t)
     (<span style="color: #a020f0;">when</span> (eq system-type 'windows-nt)
       (<span style="color: #a020f0;">setq</span> moom-user-margin '(0 40 0 0)))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq moom-user-margin '(50 50 50 50))</span>
     (moom-mode 1)
     (my-font-config)))  <span style="color: #b22222;">;; </span><span style="color: #b22222;">this could increase `</span><span style="color: #008b8b;">postpone-init-time</span><span style="color: #b22222;">'.</span>
 
@@ -15120,7 +15132,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2020-12-28 Mon 19:54</p>
+<p class="date">Created: 2021-02-11 Thu 13:54</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
