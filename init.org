@@ -1247,7 +1247,14 @@ echo "--- done."
 
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
-  (global-auto-revert-mode 1))
+  (global-auto-revert-mode 1)
+  ;; revert されるのが org バッファのとき，自動的にドロワをたたむ
+  ;; カーソルが (point-max) に移動してしまう場合は非推奨
+  (with-eval-after-load "org"
+    (defun my-org-hide-drawers-all ()
+      (when (eq major-mode 'org-mode)
+        (org-cycle-hide-drawers 'all)))
+    (add-hook 'after-revert-hook 'my-org-hide-drawers-all)))
 #+end_src
 
 ** マウススクロールをピクセル単位にする
@@ -1664,7 +1671,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   | ウィンドウ移動           | C-M-n/C-M-p |
   | バッファ切り替え         | M-]/M-[     |
   | バッファ先頭・末尾       | C-M-t/C-M-b |
-  | 編集点の移動             | C-,/C-.     |
+  | 編集点の移動             | C-u C-SPC   |
   | タグジャンプ             | M-,/M-.     |
 
 なお， =C-M-b=, =C-M-n=, =C-M-p=, はそれぞれ，本来S式の移動(=backward-sexp=, =forward-list=, =backward-list=)に割り振られています．また， =C-M-t= は，本来，2つのS式の入れ替え(=transpose-sexps=)に割り振られています．
@@ -2050,7 +2057,25 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     (global-syntax-subword-mode 1)))
 #+end_src
 
-** [goto-chg.el] 編集箇所を簡単に辿る
+** [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる
+   :PROPERTIES:
+   :CUSTOM_ID: org3901456e
+   :END:
+
+ - [[https://github.com/magnars/expand-region.el][magnars/expand-region.el: Emacs extension to increase selected region by semantic units.]]
+
+=er/expand-region= を呼ぶと，カーソル位置を起点として前後に選択範囲を広げてくれます．2回以上呼ぶと，読んだ回数だけ賢く選択範囲が広がりますが，2回目は設定したキーバインドの最後の一文字を連打すればOKです．その場合，選択範囲を狭める時は =-= を押し， =0= を押せばリセットされます．
+
+自分は =selected.el= とペアで使うように設定していて， =C-SPC= か =C-M-SPC= から =SPC= を押すことで =er/expand-region= が呼ばれるように設定しています．
+
+#+begin_src emacs-lisp :tangle no
+(with-eval-after-load "selected"
+  (when (require 'expand-region nil t)
+    (define-key selected-keymap (kbd "SPC") #'er/expand-region)))
+#+end_src
+
+** DONE [goto-chg.el] 編集箇所を簡単に辿る                         :notinuse:
+   CLOSED: [2021-02-11 Thu 09:52]
    :PROPERTIES:
    :CUSTOM_ID: org8435eae2
    :END:
@@ -2068,23 +2093,6 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
     (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse)))
-#+end_src
-
-** [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる
-   :PROPERTIES:
-   :CUSTOM_ID: org3901456e
-   :END:
-
- - [[https://github.com/magnars/expand-region.el][magnars/expand-region.el: Emacs extension to increase selected region by semantic units.]]
-
-=er/expand-region= を呼ぶと，カーソル位置を起点として前後に選択範囲を広げてくれます．2回以上呼ぶと，読んだ回数だけ賢く選択範囲が広がりますが，2回目は設定したキーバインドの最後の一文字を連打すればOKです．その場合，選択範囲を狭める時は =-= を押し， =0= を押せばリセットされます．
-
-自分は =selected.el= とペアで使うように設定していて， =C-SPC= か =C-M-SPC= から =SPC= を押すことで =er/expand-region= が呼ばれるように設定しています．
-
-#+begin_src emacs-lisp :tangle no
-(with-eval-after-load "selected"
-  (when (require 'expand-region nil t)
-    (define-key selected-keymap (kbd "SPC") #'er/expand-region)))
 #+end_src
 
 ** DONE [cycle-buffer.el] カレントバッファの表示切り替え           :notinuse:
@@ -2323,7 +2331,7 @@ Built-in の time-stamp.el を使う．
 
 (defun ad:add-change-log-entry-other-window ()
   (when view-mode
-    (view-mode-disable)))
+    (view--disable)))
 
 (advice-add 'add-change-log-entry-other-window
             :before #'ad:add-change-log-entry-other-window)
@@ -4860,7 +4868,7 @@ go get -v github.com/mdempsky/gocode
   (global-set-key (kbd "C-c i r") 'ivy-resume)
 
   (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change))
+    (define-key flyspell-mode-map (kbd "C-,") 'counsel-mark-ring))
 
   (with-eval-after-load "ivy"
 
@@ -6031,15 +6039,16 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
    :ID:       C1A76A0A-0845-4283-BB16-1C42BD427AF0
    :END:
 
-=C-g= でカーソルが飛んだ時，元の場所へブックマークから戻れます．
+=C-g= でカーソルが飛んだ時，元の場所へブックマークから戻れます．mark でも辿れるようにしておきます．
 
  - [[https://pxaka.tokyo/blog/2019/7f6518aa-bab0-91a4-53b3-ba3b8f02a481/][C-g した場所をブックマークする - imadenale]]
 
 #+begin_src emacs-lisp :tangle late-init.el
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark ()
+  (push-mark)
   (when (and buffer-file-name
-             isearch-mode)
+             isearch-mode) ;; TODO could be removed this?
     (bookmark-set my-cg-bookmark)))
 (when (require 'ah nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
@@ -10923,13 +10932,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
        moom-autoloads
        "moom" nil t)
 
-  ;; Setting for <f1>/<f2> will be removed in future, use C-1/C-2 instead
-  (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
-  (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
   (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-  (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 
   (with-eval-after-load "moom"
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
@@ -10942,7 +10947,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (setq moom-multi-monitors-support t)
     (when (eq system-type 'windows-nt)
       (setq moom-user-margin '(0 40 0 0)))
-    ;; (setq moom-user-margin '(50 50 50 50))
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 
@@ -10964,6 +10968,54 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
             (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
             (9 5) (8 5) (7 4) (6 4) (5 3)))))
 #+end_src
+
+#+RESULTS:
+| 50 | 30 |
+| 49 | 29 |
+| 48 | 29 |
+| 47 | 28 |
+| 46 | 28 |
+| 45 | 27 |
+| 44 | 26 |
+| 43 | 26 |
+| 42 | 25 |
+| 41 | 25 |
+| 40 | 24 |
+| 39 | 23 |
+| 38 | 23 |
+| 37 | 22 |
+| 36 | 22 |
+| 35 | 21 |
+| 34 | 20 |
+| 33 | 20 |
+| 32 | 19 |
+| 31 | 19 |
+| 30 | 18 |
+| 29 | 17 |
+| 28 | 17 |
+| 27 | 16 |
+| 26 | 16 |
+| 25 | 15 |
+| 24 | 14 |
+| 23 | 14 |
+| 22 | 13 |
+| 21 | 13 |
+| 20 | 12 |
+| 19 | 11 |
+| 18 | 11 |
+| 17 | 10 |
+| 16 | 10 |
+| 15 |  9 |
+| 14 |  8 |
+| 13 |  8 |
+| 12 |  7 |
+| 11 |  7 |
+| 10 |  6 |
+|  9 |  5 |
+|  8 |  5 |
+|  7 |  4 |
+|  6 |  4 |
+|  5 |  3 |
 
 *** 最大化時にモードラインを消す
     :PROPERTIES:

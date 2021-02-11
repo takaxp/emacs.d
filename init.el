@@ -868,13 +868,9 @@ This function is called directly from the C code."
        moom-autoloads
        "moom" nil t)
 
-  ;; Setting for <f1>/<f2> will be removed in future, use C-1/C-2 instead
-  (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
-  (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
   (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-  (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
 
   (with-eval-after-load "moom"
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
@@ -887,7 +883,6 @@ This function is called directly from the C code."
     (setq moom-multi-monitors-support t)
     (when (eq system-type 'windows-nt)
       (setq moom-user-margin '(0 40 0 0)))
-    ;; (setq moom-user-margin '(50 50 50 50))
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 

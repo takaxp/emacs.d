@@ -38,7 +38,14 @@
 (setq vc-follow-symlinks t)
 
 (unless noninteractive
-  (global-auto-revert-mode 1))
+  (global-auto-revert-mode 1)
+  ;; revert されるのが org バッファのとき，自動的にドロワをたたむ
+  ;; カーソルが (point-max) に移動してしまう場合は非推奨
+  (with-eval-after-load "org"
+    (defun my-org-hide-drawers-all ()
+      (when (eq major-mode 'org-mode)
+        (org-cycle-hide-drawers 'all)))
+    (add-hook 'after-revert-hook 'my-org-hide-drawers-all)))
 
 (unless noninteractive
   (when (fboundp 'pixel-scroll-mode)
@@ -474,7 +481,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (defun ad:add-change-log-entry-other-window ()
   (when view-mode
-    (view-mode-disable)))
+    (view--disable)))
 
 (advice-add 'add-change-log-entry-other-window
             :before #'ad:add-change-log-entry-other-window)
@@ -1466,7 +1473,7 @@ Call this function at updating `mode-line-mode'."
   (global-set-key (kbd "C-c i r") 'ivy-resume)
 
   (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change))
+    (define-key flyspell-mode-map (kbd "C-,") 'counsel-mark-ring))
 
   (with-eval-after-load "ivy"
 
@@ -1938,8 +1945,9 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
 
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark ()
+  (push-mark)
   (when (and buffer-file-name
-             isearch-mode)
+             isearch-mode) ;; TODO could be removed this?
     (bookmark-set my-cg-bookmark)))
 (when (require 'ah nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
