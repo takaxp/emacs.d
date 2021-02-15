@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-02-11 Thu 14:22 -->
+<!-- 2021-02-15 Mon 23:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -301,7 +301,7 @@ for the JavaScript code in this tag.
 <li><a href="#org7a9614cc">3.7. 長い文章を右端で常に折り返す</a></li>
 <li><a href="#org8dd417a4">3.8. マウスで選択した領域を自動コピー</a></li>
 <li><a href="#org1b2d3cc0">3.9. compilation buffer でのデータ表示で自動するスクロールする</a></li>
-<li><a href="#org5b9f129">3.10. NS版でスクロール時の表示乱れを補正</a></li>
+<li><a href="#orgfff090d">3.10. NS版でスクロール時の表示乱れを補正</a></li>
 <li><a href="#orgb26cd017">3.11. 水平方向の自動スクロール調整</a></li>
 <li><a href="#org68d1750d">3.12. C-x C-c で容易にEmacsを終了させないように質問する</a></li>
 <li><a href="#orgd7b8f4e2">3.13. パッケージ管理</a>
@@ -322,7 +322,7 @@ for the JavaScript code in this tag.
 <li><a href="#org723e2b73">3.20. [uniquify.el] 同じバッファ名が開かれた場合に区別する</a></li>
 <li><a href="#org982c69d7">3.21. [ws-butler.el] 不要なスペースを自動除去</a></li>
 <li><a href="#orge014847e">3.22. [epa.el] GPGを使う</a></li>
-<li><a href="#org55e0650">3.23. [epa.el] GPGファイルの保存時のメッセージを停止する</a></li>
+<li><a href="#org30cb567">3.23. [epa.el] GPGファイルの保存時のメッセージを停止する</a></li>
 <li><a href="#orge44eded5">3.24. NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
 <li><a href="#org53a63301">3.25. EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
 </ul>
@@ -1806,8 +1806,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 
-<div id="outline-container-org5b9f129" class="outline-3">
-<h3 id="org5b9f129"><span class="section-number-3">3.10</span> NS版でスクロール時の表示乱れを補正</h3>
+<div id="outline-container-orgfff090d" class="outline-3">
+<h3 id="orgfff090d"><span class="section-number-3">3.10</span> NS版でスクロール時の表示乱れを補正</h3>
 <div class="outline-text-3" id="text-3-10">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="font-weight: bold; font-style: italic;">;; </span><span style="font-weight: bold; font-style: italic;">late-init.el</span>
@@ -2314,8 +2314,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 </div>
-<div id="outline-container-org55e0650" class="outline-3">
-<h3 id="org55e0650"><span class="section-number-3">3.23</span> [epa.el] GPGファイルの保存時のメッセージを停止する</h3>
+<div id="outline-container-org30cb567" class="outline-3">
+<h3 id="org30cb567"><span class="section-number-3">3.23</span> [epa.el] GPGファイルの保存時のメッセージを停止する</h3>
 <div class="outline-text-3" id="text-3-23">
 <p>
 GPGで暗号化されたファイルを編集すると，保存時に暗号化していることを知らせる情報が Messages バッファに出力されます．頻度が低ければ特に気にならないかもしれませんが，自動的にバッファを保存する設定を施していると，Messages バッファが埋め尽くされてしまうので困ります． <code>epa-file-write-region</code> をハックして黙らせます．
@@ -11337,7 +11337,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">#+begin_src emacs-lisp <span style="font-weight: bold;">:results</span> none
+<pre class="src src-emacs-lisp">#+begin_src emacs-lisp <span style="font-weight: bold;">:results</span> silent
 (<span style="font-weight: bold;">with-eval-after-load</span> <span style="font-style: italic;">"org-tree-slide"</span>
   (org-tree-slide-presentation-profile))
 #+end_src
@@ -11604,7 +11604,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgf0409a1"><span style="font-weight: bold; font-style: italic;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgff5e5a3"><span style="font-weight: bold; font-style: italic;"># -*- mode: org; -*-</span>
 
 <span style="font-weight: bold; font-style: italic;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="font-weight: bold; font-style: italic;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
@@ -12984,7 +12984,8 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
     moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
     moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
     moom-change-frame-width moom-change-frame-width-double
-    moom-change-frame-width-single moom-change-frame-width-half-again))
+    moom-change-frame-width-single moom-change-frame-width-half-again
+    moom-cycle-monitors))
 
 (<span style="font-weight: bold;">when</span> (autoload-if-found
        moom-autoloads
@@ -12993,6 +12994,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
   (global-set-key (kbd <span style="font-style: italic;">"C-1"</span>) 'moom-move-frame-to-edge-top)
   (global-set-key (kbd <span style="font-style: italic;">"C-2"</span>) 'moom-cycle-frame-height)
   (global-set-key (kbd <span style="font-style: italic;">"M-2"</span>) 'moom-move-frame-to-center)
+  (global-set-key (kbd <span style="font-style: italic;">"M-9"</span>) 'moom-cycle-monitors)
 
   (<span style="font-weight: bold;">with-eval-after-load</span> <span style="font-style: italic;">"moom"</span>
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
@@ -15132,7 +15134,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-02-11 Thu 14:22</p>
+<p class="date">Created: 2021-02-15 Mon 23:29</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

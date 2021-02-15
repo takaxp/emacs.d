@@ -862,7 +862,8 @@ This function is called directly from the C code."
     moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
     moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
     moom-change-frame-width moom-change-frame-width-double
-    moom-change-frame-width-single moom-change-frame-width-half-again))
+    moom-change-frame-width-single moom-change-frame-width-half-again
+    moom-cycle-monitors))
 
 (when (autoload-if-found
        moom-autoloads
@@ -871,6 +872,7 @@ This function is called directly from the C code."
   (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
+  (global-set-key (kbd "M-9") 'moom-cycle-monitors)
 
   (with-eval-after-load "moom"
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)

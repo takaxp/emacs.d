@@ -50,10 +50,6 @@
     (interactive)
     (shell-command-to-string "open ."))
   (global-set-key (kbd "C-M-<return>") #'my-open-w32-explore)
-  (defun my-open-ie ()
-    (interactive)
-    (shell-command-to-string "open iexplore"))
-  (global-set-key (kbd "C-M-1") #'my-open-ie)
 
   ;; Cursor color
   (set-cursor-color (plist-get my-cur-color-ime :off))
@@ -116,4 +112,52 @@
   (add-hook 'activate-mark-hook #'my-ime-off-sticky)
   (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
   (global-set-key (kbd "M-SPC") 'my-toggle-ime)
-  (global-set-key (kbd "S-SPC") 'my-toggle-ime))
+  (global-set-key (kbd "S-SPC") 'my-toggle-ime)
+
+  (with-eval-after-load "counsel-osx-app"
+    ;; under experimental implementation
+    (defun counsel-win-app-list ()
+      ;; TODO 第二引数が存在しない場合に user-error を出す．
+      '(("Emacs" . "C:/Users/takaxp/share/emacs-27.1-x86_64/bin/runemacs.exe")
+        ("Chrome" . "C:/Program Files/Google/Chrome/Application/chrome.exe")
+        ("Internet Explorer" . "C:/Program Files/Internet Explorer/iexplore.exe")
+        ("Edge" . "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe")
+        ("Notepad". "C:/WINDOWS/system32/notepad.exe")
+        ("Task manager". "C:/WINDOWS/system32/taskmgr.exe")
+        ("Command Prompt". "C:/WINDOWS/system32/cmd.exe")
+        ("Mintty" . "C:/cygwin64/bin/mintty.exe")
+        ("Word" . "C:/Program Files (x86)/Microsoft Office/Office16/winword.exe")
+        ("Excel" . "C:/Program Files (x86)/Microsoft Office/Office16/excel.exe")
+        ("PowerPoint" . "C:/Program Files (x86)/Microsoft Office/Office16/powerpnt.exe")
+        ("Outlook" . "C:/Program Files (x86)/Microsoft Office/Office16/outlook.exe")
+        ("Visio" . "C:/Program Files (x86)/Microsoft Office/Office16/visio.exe")
+        ))
+
+    (defvar counsel-win-app-launch-cmd
+      (lambda (app &optional file)
+        (if (bound-and-true-p file)
+            (format "%s -a %s" file app)
+	        (format "%s" app))) "")
+
+    (defun counsel-osx-app-action-default (app)
+      "Launch APP using `counsel-win-app-launch-cmd'."
+      (let ((arg (cond
+		              ((stringp counsel-win-app-launch-cmd)
+		               (format "%s %s" counsel-win-app-launch-cmd app))
+		              ((functionp counsel-win-app-launch-cmd)
+		               (funcall counsel-win-app-launch-cmd app))
+		              (t
+		               (user-error
+                    "Could not construct cmd from `counsel-win-app-launch-cmd'")))))
+        (message "%s" (concat "cygstart " "\"" arg "\""))
+        (if (file-exists-p arg)
+            (call-process-shell-command (concat "cygstart " "\"" arg "\""))
+          (user-error (format "Could not find \"%s\"" arg)))))
+
+    (defun counsel-osx-app ()
+      "Launch an application via ivy interface."
+      (interactive)
+      (ivy-read "Run application: " (counsel-win-app-list)
+                :action (counsel-osx-app--use-cdr counsel-osx-app-action-default)
+                :caller 'counsel-app)))
+  )

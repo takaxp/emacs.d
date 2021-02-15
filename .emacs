@@ -7,14 +7,13 @@
 ;;                                                              TODO/DONE/FIXME
 
 (with-eval-after-load "org-tree-slide"
-
   ;; README (1)
   ;; org-tree-slide.el を読み込み，custom-set-faces すれば，dark/light にそれぞれ色がつく．
   ;; dark <-> light 間で配色を交換しても，期待通りに色が変わる．
   ;; (custom-set-faces
   ;;  '(org-tree-slide-header-overlay-face
   ;;    ((((background dark))
-  ;;      :foreground "white" :background "#594d5d" :underline "LightS lateBlue")
+  ;;      :foreground "white" :background "#594d5d" :underline "red")
   ;;     (t
   ;;      :bold t :foreground "red"  :background "purple"))))
 
@@ -28,7 +27,6 @@
                                :background ,(face-background 'default))))))
   (when (require 'ah nil t)
     (add-hook 'ah-after-enable-theme-hook #'org-tree-slide-reload-header-face))
-
   ;; ということで，dark/light の変換コマンドと，hook がわかれば，
   ;; それにorg-tree-slide-reload-header-faceのような補助関数をぶら下げればOK
 
@@ -46,10 +44,7 @@
 (with-eval-after-load "postpone"
   ;; circe.el
   (setq circe-network-options
-        '(("Freenode"
-           :tls t
-           :nick "takaxp"
-           :channels ("#emacsconf"))))
+        '(("Freenode" :tls t :nick "takaxp" :channels ("#emacsconf"))))
 
   ;; transient-dwim
   (require 'transient-dwim nil t))

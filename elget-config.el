@@ -232,7 +232,7 @@
                  :type git
                  :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
   (el-get-bundle "jorgenschaefer/circe")
-  (when (eq system-type 'darwin)
+  (when (memq system-type '(darwin windows-nt))
     (el-get-bundle "d12frosted/counsel-osx-app"))
 
   ;; Under consideration
