@@ -683,7 +683,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
            (len (string-width checkbox)))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]+\\|"
+              (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
                       "^[ \t]*[0-9]*[\\.)][ \t]+\\)") end t)
         (replace-match (concat "\\1" checkbox) nil nil)
         (setq end (+ end len)))
@@ -697,7 +697,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
           (len (string-width "[ ] ")))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+              (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
                       "\\[.\\][ \t]+")
               end t)
         (replace-match "\\1" nil nil)
@@ -729,7 +729,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
            (clen (string-width checkbox)))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+              (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
                       "\\[.\\][ \t]+") end t)
         (replace-match "" nil nil)
         (setq end (- end blen clen)))

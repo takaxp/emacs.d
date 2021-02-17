@@ -58,8 +58,10 @@
   (with-eval-after-load "moom"
     (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
     (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
-    (moom-font-resize 16)
-    (setq moom-font-ja-scale 1.0))
+    ;;(moom-font-resize 16)
+    ;;(setq moom-user-margin '(0 -6 0 0))
+    (setq moom-font-ja-scale 1.0)
+    (moom-reset))
 
   ;; org-agenda
   (with-eval-after-load "org-agenda"
