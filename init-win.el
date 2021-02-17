@@ -141,23 +141,25 @@
 
     (defun counsel-osx-app-action-default (app)
       "Launch APP using `counsel-win-app-launch-cmd'."
-      (let ((arg (cond
-		              ((stringp counsel-win-app-launch-cmd)
-		               (format "%s %s" counsel-win-app-launch-cmd app))
-		              ((functionp counsel-win-app-launch-cmd)
-		               (funcall counsel-win-app-launch-cmd app))
-		              (t
-		               (user-error
-                    "Could not construct cmd from `counsel-win-app-launch-cmd'")))))
-        (message "%s" (concat "cygstart " "\"" arg "\""))
+      (let ((arg
+             (cond
+		          ((stringp counsel-win-app-launch-cmd)
+		           (format "%s %s" counsel-win-app-launch-cmd app))
+		          ((functionp counsel-win-app-launch-cmd)
+		           (funcall counsel-win-app-launch-cmd app))
+		          (t
+		           (user-error
+                "Could not construct cmd from `counsel-win-app-launch-cmd'")))))
+        (message "%s" (concat "open " "\"" arg "\""))
         (if (file-exists-p arg)
-            (call-process-shell-command (concat "cygstart " "\"" arg "\""))
+            (call-process-shell-command (concat "open " "\"" arg "\""))
           (user-error (format "Could not find \"%s\"" arg)))))
 
     (defun counsel-osx-app ()
       "Launch an application via ivy interface."
       (interactive)
       (ivy-read "Run application: " (counsel-win-app-list)
-                :action (counsel-osx-app--use-cdr counsel-osx-app-action-default)
+                :action (counsel-osx-app--use-cdr
+                         counsel-osx-app-action-default)
                 :caller 'counsel-app)))
   )

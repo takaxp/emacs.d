@@ -444,12 +444,13 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun my-org-list-insert-checkbox-into-items (begin end)
   (interactive "r")
   (when mark-active
-    (let* ((bullet "- ")
-           (checkbox "[ ] ")
+    (let* ((checkbox "[ ] ")
            (len (string-width checkbox)))
       (goto-char begin)
-      (while (re-search-forward (concat "\\(^[ \t]*\\)" bullet) end t)
-        (replace-match (concat "\\1" bullet checkbox) nil nil)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]+\\|"
+                      "^[ \t]*[0-9]*[\\.)][ \t]+\\)") end t)
+        (replace-match (concat "\\1" checkbox) nil nil)
         (setq end (+ end len)))
       (goto-char begin))))
 
@@ -461,8 +462,10 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
           (len (string-width "[ ] ")))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
-        (replace-match (concat "\\1" bullet) nil nil)
+              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+                      "\\[.\\][ \t]+")
+              end t)
+        (replace-match "\\1" nil nil)
         (setq end (- end len)))
       (goto-char begin))))
 
@@ -491,7 +494,8 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
            (clen (string-width checkbox)))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+                      "\\[.\\][ \t]+") end t)
         (replace-match "" nil nil)
         (setq end (- end blen clen)))
       (goto-char begin))))

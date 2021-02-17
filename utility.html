@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-02-15 Mon 23:29 -->
+<!-- 2021-02-17 Wed 09:34 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -263,8 +263,8 @@ for the JavaScript code in this tag.
 <li><a href="#org33d4f93d">1.6. 頻繁に利用するファイルをring形式でたどる</a></li>
 <li><a href="#org31226d9e">1.7. 引数のorgバッファを開く</a></li>
 <li><a href="#org6a1e418a">1.8. orgバッファにいつものヘッダを追加する</a></li>
-<li><a href="#org08a979c">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
-<li><a href="#org07702fd">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
+<li><a href="#orgd047b6a">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
+<li><a href="#orgc2ed8d8">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
 <li><a href="#org8f57b3f8">1.11. 議事録ひな形を書き入れる</a></li>
 <li><a href="#orgdd9630ad">1.12. ランダムの文字列を取得する</a></li>
 <li><a href="#org3697f6bd">1.13. 行頭に" - "を挿入する</a></li>
@@ -278,7 +278,7 @@ for the JavaScript code in this tag.
 <li><a href="#orgeb3d01a8">1.21. modeline の高さを得る</a></li>
 <li><a href="#org4043fe35">1.22. [package.el] MELPA利用設定</a></li>
 <li><a href="#orgfd51fa6e">1.23. orgバッファを評価</a></li>
-<li><a href="#orga706f503">1.24. <span class="todo TODO">TODO</span> リージョン内のブリッツを操作する(orgmode)</a></li>
+<li><a href="#orga706f503">1.24. リージョン内のブリッツを操作する(orgmode)</a></li>
 <li><a href="#orgc99664d5">1.25. <span class="todo TODO">TODO</span> " - "と" - [ ] "をサイクルさせる</a></li>
 <li><a href="#orgda007b63">1.26. <span class="todo TODO">TODO</span> ガベージコレクト情報を表示</a></li>
 <li><a href="#orgfd77df9c">1.27. その他</a></li>
@@ -601,8 +601,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org08a979c" class="outline-3">
-<h3 id="org08a979c"><span class="section-number-3">1.9</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
+<div id="outline-container-orgd047b6a" class="outline-3">
+<h3 id="orgd047b6a"><span class="section-number-3">1.9</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
 <div class="outline-text-3" id="text-1-9">
 <p>
 PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで <code>org-decrypt-entry</code> するための空ツリーを書き込みます．
@@ -619,8 +619,8 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 </div>
 </div>
 
-<div id="outline-container-org07702fd" class="outline-3">
-<h3 id="org07702fd"><span class="section-number-3">1.10</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
+<div id="outline-container-orgc2ed8d8" class="outline-3">
+<h3 id="orgc2ed8d8"><span class="section-number-3">1.10</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
 <div class="outline-text-3" id="text-1-10">
 <p>
 下記の関数で生成したツリーの本体をメールで送信すれば，秘密鍵のある端末で復号できます．
@@ -992,7 +992,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-orga706f503" class="outline-3">
-<h3 id="orga706f503"><span class="section-number-3">1.24</span> <span class="todo TODO">TODO</span> リージョン内のブリッツを操作する(orgmode)</h3>
+<h3 id="orga706f503"><span class="section-number-3">1.24</span> リージョン内のブリッツを操作する(orgmode)</h3>
 <div class="outline-text-3" id="text-orga706f503">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="font-weight: bold; font-style: italic;">;;;</span><span style="font-weight: bold; font-style: italic;">###</span><span style="font-weight: bold; font-style: italic;">autoload</span>
@@ -1025,12 +1025,13 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 (<span style="font-weight: bold;">defun</span> <span style="font-weight: bold;">my-org-list-insert-checkbox-into-items</span> (begin end)
   (<span style="font-weight: bold;">interactive</span> <span style="font-style: italic;">"r"</span>)
   (<span style="font-weight: bold;">when</span> mark-active
-    (<span style="font-weight: bold;">let*</span> ((bullet <span style="font-style: italic;">"- "</span>)
-           (checkbox <span style="font-style: italic;">"[ ] "</span>)
+    (<span style="font-weight: bold;">let*</span> ((checkbox <span style="font-style: italic;">"[ ] "</span>)
            (len (string-width checkbox)))
       (goto-char begin)
-      (<span style="font-weight: bold;">while</span> (re-search-forward (concat <span style="font-style: italic;">"</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">(</span><span style="font-style: italic;">^[ \t]*</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">)</span><span style="font-style: italic;">"</span> bullet) end t)
-        (replace-match (concat <span style="font-style: italic;">"\\1"</span> bullet checkbox) nil nil)
+      (<span style="font-weight: bold;">while</span> (re-search-forward
+              (concat <span style="font-style: italic;">"</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">(</span><span style="font-style: italic;">^[ \t]*[\\+\\-\\*][ \t]+</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">|</span><span style="font-style: italic;">"</span>
+                      <span style="font-style: italic;">"^[ \t]*[0-9]*[\\.)][ \t]+</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">)</span><span style="font-style: italic;">"</span>) <span style="font-weight: bold;">end t)</span>
+        (replace-match (concat <span style="font-style: italic;">"\\1"</span> checkbox) nil nil)
         (<span style="font-weight: bold;">setq</span> end (+ end len)))
       (goto-char begin))))
 
@@ -1042,8 +1043,10 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
           (len (string-width <span style="font-style: italic;">"[ ] "</span>)))
       (goto-char begin)
       (<span style="font-weight: bold;">while</span> (re-search-forward
-              (concat <span style="font-style: italic;">"</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">(</span><span style="font-style: italic;">^[ \t]*</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">)</span><span style="font-style: italic;">"</span> bullet <span style="font-style: italic;">"\\[</span><span style="font-weight: bold; font-style: italic; text-decoration: underline;">.\\</span><span style="font-style: italic;">][ \t]+"</span>) end t)
-        (replace-match (concat <span style="font-style: italic;">"\\1"</span> bullet) nil nil)
+              (concat <span style="font-style: italic;">"</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">(</span><span style="font-style: italic;">^[ \t]*[\\+\\-\\*][ \t]</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">|</span><span style="font-style: italic;">^[ \t]*[0-9]*[\\.)][ \t]</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">)</span><span style="font-style: italic;">"</span>
+                      <span style="font-style: italic;">"\\[</span><span style="font-weight: bold; font-style: italic; text-decoration: underline;">.\\</span><span style="font-style: italic;">][ \t]+"</span>)
+              end t)
+        (replace-match <span style="font-style: italic;">"\\1"</span> nil nil)
         (<span style="font-weight: bold;">setq</span> end (- end len)))
       (goto-char begin))))
 
@@ -1072,7 +1075,8 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
            (clen (string-width checkbox)))
       (goto-char begin)
       (<span style="font-weight: bold;">while</span> (re-search-forward
-              (concat <span style="font-style: italic;">"</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">(</span><span style="font-style: italic;">^[ \t]*</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">)</span><span style="font-style: italic;">"</span> bullet <span style="font-style: italic;">"\\[</span><span style="font-weight: bold; font-style: italic; text-decoration: underline;">.\\</span><span style="font-style: italic;">][ \t]+"</span>) end t)
+              (concat <span style="font-style: italic;">"</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">(</span><span style="font-style: italic;">^[ \t]*[\\+\\-\\*][ \t]</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">|</span><span style="font-style: italic;">^[ \t]*[0-9]*[\\.)][ \t]</span><span style="font-weight: bold; font-style: italic;">\\</span><span style="font-weight: bold; font-style: italic;">)</span><span style="font-style: italic;">"</span>
+                      <span style="font-style: italic;">"\\[</span><span style="font-weight: bold; font-style: italic; text-decoration: underline;">.\\</span><span style="font-style: italic;">][ \t]+"</span>) <span style="font-weight: bold;">end t)</span>
         (replace-match <span style="font-style: italic;">""</span> nil nil)
         (<span style="font-weight: bold;">setq</span> end (- end blen clen)))
       (goto-char begin))))
@@ -1611,7 +1615,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-02-15 Mon 23:29</p>
+<p class="date">Created: 2021-02-17 Wed 09:34</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

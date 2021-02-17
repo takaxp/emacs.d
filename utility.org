@@ -643,7 +643,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
     (message "Nothing to do for this buffer.")))
 #+end_src
 
-** TODO リージョン内のブリッツを操作する(orgmode)
+** リージョン内のブリッツを操作する(orgmode)
    :PROPERTIES:
    :CUSTOM_ID: orga706f503
    :END:
@@ -679,12 +679,13 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 (defun my-org-list-insert-checkbox-into-items (begin end)
   (interactive "r")
   (when mark-active
-    (let* ((bullet "- ")
-           (checkbox "[ ] ")
+    (let* ((checkbox "[ ] ")
            (len (string-width checkbox)))
       (goto-char begin)
-      (while (re-search-forward (concat "\\(^[ \t]*\\)" bullet) end t)
-        (replace-match (concat "\\1" bullet checkbox) nil nil)
+      (while (re-search-forward
+              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]+\\|"
+                      "^[ \t]*[0-9]*[\\.)][ \t]+\\)") end t)
+        (replace-match (concat "\\1" checkbox) nil nil)
         (setq end (+ end len)))
       (goto-char begin))))
 
@@ -696,8 +697,10 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
           (len (string-width "[ ] ")))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
-        (replace-match (concat "\\1" bullet) nil nil)
+              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+                      "\\[.\\][ \t]+")
+              end t)
+        (replace-match "\\1" nil nil)
         (setq end (- end len)))
       (goto-char begin))))
 
@@ -726,27 +729,11 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
            (clen (string-width checkbox)))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") end t)
+              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+                      "\\[.\\][ \t]+") end t)
         (replace-match "" nil nil)
         (setq end (- end blen clen)))
       (goto-char begin))))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :exports none
-;; (defun my-insert-bullets (begin end)
-;;   (interactive "r")
-;;   (when mark-active
-;;     (let* ((bullet " - ")
-;;            (len (length bullet)))
-;;       (goto-char begin)
-;;       (while (> end (point))
-;;         (beginning-of-line)
-;;         (when (re-search-forward
-;;                (concat "\\(^[ \t]*\\)") (point-at-eol) t)
-;;           (replace-match (concat "\\1" bullet) nil nil)
-;;           (setq end (+ end len)))
-;;         (forward-line 1))
-;;       (goto-char begin))))
 #+end_src
 
 ** TODO " - "と" - [ ] "をサイクルさせる
