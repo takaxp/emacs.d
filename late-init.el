@@ -475,7 +475,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (add-hook 'change-log-mode-hook
           (lambda ()
             (my-orgalist-activate)
-            (view-mode)
+            ;; (view-mode)
             (setq tab-width 4)
             (setq left-margin 4)))
 
@@ -483,8 +483,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (when view-mode
     (view--disable)))
 
-(advice-add 'add-change-log-entry-other-window
-            :before #'ad:add-change-log-entry-other-window)
+;; (advice-add 'add-change-log-entry-other-window
+;;             :before #'ad:add-change-log-entry-other-window)
 
 (when (autoload-if-found
        '(info org-info-ja)

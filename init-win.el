@@ -14,6 +14,18 @@
   (setenv "PATH" (concat (getenv "PATH") ";C:\\cygwin64\\bin"))
   (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
   (setq shell-file-name "C:/cygwin64/bin/bash")
+  ;; For MSYS
+  ;; (when (eq system-type 'windows-nt)
+  ;;   (setenv "HOME" "C:\\cygwin64\\home\\takaxp")
+  ;;   (setenv "PATH" (concat (getenv "PATH")
+  ;;                          ";C:\\cygwin64\\usr\\local\\bin"
+  ;;                          ";C:\\cygwin64\\opt\\bin"
+  ;;                          ;; ";C:\\msys64\\mingw64\\bin"
+  ;;                          ";C:\\cygwin64\\usr\\bin"))
+  ;;   ;;  (setenv "PATH" (concat (getenv "PATH")
+  ;;   ;;  ";C:\\msys64\\usr\\local\\bin" ";C:\\msys64\\opt\\bin"
+  ;;   ;;  ";C:\\msys64\\mingw64\\bin" ";C:\\msys64\\usr\\bin"))
+  ;;   (setq shell-file-name "C:/cygwin64/bin/bash"))
 
   ;; For IME module (do not load under postpone.el)
   (unless noninteractive
@@ -119,7 +131,7 @@
   (with-eval-after-load "counsel-osx-app"
     ;; under experimental implementation
     (defun counsel-win-app-list ()
-      ;; TODO 第二引数が存在しない場合に user-error を出す．
+      ;; NOTE MSYS の場合は，第2引数はフルパスではなく実行ファイル名のみ．
       '(("Emacs" . "C:/Users/takaxp/share/emacs-27.1-x86_64/bin/runemacs.exe")
         ("Chrome" . "C:/Program Files/Google/Chrome/Application/chrome.exe")
         ("Internet Explorer" . "C:/Program Files/Internet Explorer/iexplore.exe")
@@ -153,6 +165,8 @@
 		           (user-error
                 "Could not construct cmd from `counsel-win-app-launch-cmd'")))))
         (message "%s" (concat "open " "\"" arg "\""))
+        ;; MSYS2 の場合はファイルパスではなくアプリ名で判定されるの
+        ;; TODO file check only in Cygwin
         (if (file-exists-p arg)
             (call-process-shell-command (concat "open " "\"" arg "\""))
           (user-error (format "Could not find \"%s\"" arg)))))

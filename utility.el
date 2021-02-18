@@ -458,8 +458,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun my-org-list-delete-checkbox-from-items (begin end)
   (interactive "r")
   (when mark-active
-    (let ((bullet "- ")
-          (len (string-width "[ ] ")))
+    (let ((len (string-width "[ ] ")))
       (goto-char begin)
       (while (re-search-forward
               (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
