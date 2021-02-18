@@ -448,7 +448,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
            (len (string-width checkbox)))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]+\\|"
+              (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
                       "^[ \t]*[0-9]*[\\.)][ \t]+\\)") end t)
         (replace-match (concat "\\1" checkbox) nil nil)
         (setq end (+ end len)))
@@ -462,7 +462,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
           (len (string-width "[ ] ")))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+              (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
                       "\\[.\\][ \t]+")
               end t)
         (replace-match "\\1" nil nil)
@@ -494,7 +494,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
            (clen (string-width checkbox)))
       (goto-char begin)
       (while (re-search-forward
-              (concat "\\(^[ \t]*[\\+\\-\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+              (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
                       "\\[.\\][ \t]+") end t)
         (replace-match "" nil nil)
         (setq end (- end blen clen)))
