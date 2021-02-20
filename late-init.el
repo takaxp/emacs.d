@@ -911,10 +911,14 @@ This works also for other defined begin/end tokens to define the structure."
           (funcall region))))
     (setq selected-org-mode-map (make-sparse-keymap))
 
+    (defun my-org-toggle-checkbox ()
+      (interactive)
+      (let ((current-prefix-arg '(4)))
+        (call-interactively 'org-toggle-checkbox)))
+
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
     (define-key selected-keymap (kbd "-") #'my-org-list-insert-items)
-    (define-key selected-keymap (kbd "_")
-      #'my-org-list-insert-checkbox-into-items)
+    (define-key selected-keymap (kbd "_") #'my-org-toggle-checkbox)
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
@@ -2547,7 +2551,7 @@ For example: \"<e\" -> (\"e\" . t)"
 ;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
-(run-with-idle-timer 10 nil
+(run-with-idle-timer 3 nil
                      (lambda ()
                        (unless (featurep 'org-agenda)
                          (when (require 'org-agenda nil t)

@@ -3411,10 +3411,14 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
           (funcall region))))
     (setq selected-org-mode-map (make-sparse-keymap))
 
+    (defun my-org-toggle-checkbox ()
+      (interactive)
+      (let ((current-prefix-arg '(4)))
+        (call-interactively 'org-toggle-checkbox)))
+
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
     (define-key selected-keymap (kbd "-") #'my-org-list-insert-items)
-    (define-key selected-keymap (kbd "_")
-      #'my-org-list-insert-checkbox-into-items)
+    (define-key selected-keymap (kbd "_") #'my-org-toggle-checkbox)
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
@@ -7850,7 +7854,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     ;; モジュールの追加
     (add-to-list 'org-modules 'org-id)
     (with-eval-after-load "org-agenda"
-      ;; org-mode 開始時には読み込ませない
+      ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
       (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
@@ -8731,7 +8735,7 @@ will not be modified."
 ;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
-(run-with-idle-timer 10 nil
+(run-with-idle-timer 3 nil
                      (lambda ()
                        (unless (featurep 'org-agenda)
                          (when (require 'org-agenda nil t)

@@ -34,7 +34,7 @@
     ;; モジュールの追加
     (add-to-list 'org-modules 'org-id)
     (with-eval-after-load "org-agenda"
-      ;; org-mode 開始時には読み込ませない
+      ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
       (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
