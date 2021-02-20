@@ -22,7 +22,7 @@
 
   (with-eval-after-load "org"
     ;; 関連モジュールの読み込み
-    (require 'org-mobile nil t)
+    ;; (require 'org-mobile nil t)
     (when (require 'org-eldoc nil t)
       (defun my-org-eldoc-load ()
         "Set up org-eldoc documentation function."
@@ -32,8 +32,10 @@
       (advice-add 'org-eldoc-load :override #'my-org-eldoc-load))
 
     ;; モジュールの追加
-    (add-to-list 'org-modules 'org-habit)
     (add-to-list 'org-modules 'org-id)
+    (with-eval-after-load "org-agenda"
+      ;; org-mode 開始時には読み込ませない
+      (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
     (when (require 'ol-bookmark nil t)
@@ -734,18 +736,19 @@ will not be modified."
              "** %? :%(get-current-date-tags):\n\n%U")
             ))))
 
-(with-eval-after-load "org-agenda"
+(with-eval-after-load "org"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (setq org-agenda-files
         (mapcar (lambda (arg)
                   (concat (getenv "SYNCROOT") "/org/" arg))
                 '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
-                  "db/daily.org" "db/trigger.org" "tr/work.org" "academic.org"
-                  "org2ja.org")))
+                  "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
+                  "org2ja.org"))) ;;   
   (when (eq system-type 'windows-nt) ;; FIXME
-    (setq org-agenda-files '("~/Dropbox/org/next.org")))
+    (setq org-agenda-files '("~/Dropbox/org/next.org"))))
 
+(with-eval-after-load "org-agenda"
   ;; sorting strategy
   (setq org-agenda-sorting-strategy
         '((agenda habit-down time-up timestamp-up priority-down category-keep)
@@ -953,8 +956,15 @@ will not be modified."
                            org-mode-line-string))
             " - %b"))))
 
-(with-eval-after-load "org"
-  (require 'orgbox nil t))
+(when (autoload-if-found
+	 '(orgbox-schedule orgbox-agenda-schedule)
+	 "orgbox" nil t)
+
+  (with-eval-after-load "org"
+    (org-defkey org-mode-map (kbd "C-c C-s") 'orgbox-schedule))
+  (with-eval-after-load "org-agenda"
+    (org-defkey org-agenda-mode-map (kbd "C-c C-s") 'orgbox-agenda-schedule)))
+  ;; (require 'orgbox nil t)) ;; require org-agenda
 
 (when (autoload-if-found
        '(appt my-org-agenda-to-appt ad:appt-display-message
@@ -1082,10 +1092,6 @@ also calls `beep' for an audible reminder."
              (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
 
-    ;; Check files existence
-    (org-agenda-prepare-buffers org-agenda-files))
-
-  (with-eval-after-load "org"
     ;; アジェンダを開いたらアラームリストを更新して有効化する
     (unless noninteractive
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init

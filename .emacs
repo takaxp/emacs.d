@@ -6,6 +6,39 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+(with-eval-after-load "smartparens"
+  (defun sp-split-sexp (arg)
+    ""
+    (interactive "P")
+    (cond
+     ((equal arg '(4))
+      (-when-let ((first-item . rest-items) (sp-get-list-items))
+        (sp-get first-item
+          (save-excursion
+            (goto-char :end)            (delete-char (- (length :cl)))
+            (--each (nreverse rest-items)
+              (goto-char (sp-get it :end))              (insert :cl)
+              (goto-char (sp-get it :beg))              (insert :op))
+            (goto-char :beg)            (delete-char (length :op))))))
+     (t
+      (let ((should-split-as-string
+             (and sp-split-sexp-always-split-as-string
+                  (sp-point-in-string))))
+        (-when-let (ok (if should-split-as-string
+                           (save-excursion
+                             (goto-char (car (sp-get-quoted-string-bounds)))
+                             (sp-get-sexp))
+                         (sp-get-enclosing-sexp 1)))
+          (sp-get ok
+            (sp--run-hook-with-args :op :pre-handlers 'split-sexp)
+            (if should-split-as-string
+                (progn                  (insert :cl)
+                                        (save-excursion (insert :op)))
+              (forward-char (- (prog1 (sp-backward-whitespace t) (insert :cl))))
+              (save-excursion (sp-forward-whitespace) (insert :op)))
+            (sp--run-hook-with-args :op :post-handlers 'split-sexp))))))))
+
+
 (with-eval-after-load "org-tree-slide"
   ;; README (1)
   ;; org-tree-slide.el を読み込み，custom-set-faces すれば，dark/light にそれぞれ色がつく．

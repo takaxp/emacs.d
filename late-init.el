@@ -474,17 +474,17 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (add-hook 'change-log-mode-hook
           (lambda ()
+            (view-mode 1)
             (my-orgalist-activate)
-            ;; (view-mode)
             (setq tab-width 4)
             (setq left-margin 4)))
 
 (defun ad:add-change-log-entry-other-window ()
   (when view-mode
-    (view--disable)))
+    (View-exit-and-edit)))
 
-;; (advice-add 'add-change-log-entry-other-window
-;;             :before #'ad:add-change-log-entry-other-window)
+(advice-add 'add-change-log-entry-other-window
+            :before #'ad:add-change-log-entry-other-window)
 
 (when (autoload-if-found
        '(info org-info-ja)
@@ -532,7 +532,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (defun my-auto-view ()
   (when (and my-auto-view-regexp
-	     (string-match my-auto-view-regexp buffer-file-name))
+	           (string-match my-auto-view-regexp buffer-file-name))
     (view-mode 1))
   (dolist (dir my-auto-view-dirs)
     (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
@@ -540,7 +540,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (add-hook 'find-file-hook #'my-auto-view)
 
 (with-eval-after-load "view"
-  (define-key view-mode-map (kbd "i") 'View-exit))
+  (define-key view-mode-map (kbd "i") 'View-exit-and-edit))
 
 (when (autoload-if-found
        '(go-mode) "go-mode" nil t)
@@ -2540,6 +2540,20 @@ For example: \"<e\" -> (\"e\" . t)"
   (global-company-mode)
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode)))
+
+;; `org-agenda-prepare-buffers' は重い．最初に agenda 実行時に走るが
+;; 事前に走らせておくほうがいい．以下の例では，
+;; 起動後，何もしなければ10秒後に org, org-agenda が有効になる
+;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
+;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
+;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
+(run-with-idle-timer 10 nil
+                     (lambda ()
+                       (unless (featurep 'org-agenda)
+                         (when (require 'org-agenda nil t)
+                           (message "Building agenda buffers...")
+                           (org-agenda-prepare-buffers org-agenda-files)
+                           (message "Building agenda buffers...[done]")))))
 
 ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
 ;; 2. M-x org-trello-install-key-and-token

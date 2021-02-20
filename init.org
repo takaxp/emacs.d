@@ -2314,9 +2314,6 @@ Built-in の time-stamp.el を使う．
 (setq user-mail-address "your@address.com")
 #+end_src
 
-#+RESULTS:
-: your@address.com
-
 #+begin_src emacs-lisp :tangle late-init.el
 (defun my-orgalist-activate ()
   (when (require 'orgalist nil t)
@@ -2324,20 +2321,18 @@ Built-in の time-stamp.el を使う．
 
 (add-hook 'change-log-mode-hook
           (lambda ()
+            (view-mode 1)
             (my-orgalist-activate)
-            ;; (view-mode)
             (setq tab-width 4)
             (setq left-margin 4)))
 
 (defun ad:add-change-log-entry-other-window ()
   (when view-mode
-    (view--disable)))
+    (View-exit-and-edit)))
 
-;; (advice-add 'add-change-log-entry-other-window
-;;             :before #'ad:add-change-log-entry-other-window)
+(advice-add 'add-change-log-entry-other-window
+            :before #'ad:add-change-log-entry-other-window)
 #+end_src
-
-#+RESULTS:
 
 ** テキストモード
    :PROPERTIES:
@@ -2625,26 +2620,26 @@ gzされた elisp ソースを見るときに， ~view-mode~ を使います．�
 さらなる細かい制御が必要な場合は，[[https://www.emacswiki.org/emacs/viewer.el][viewer.el]] がおすすめです．
 
 #+begin_src emacs-lisp :tangle late-init.el
-  ;; 特定の拡張子・ディレクトリ
-  (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get")
+;; 特定の拡張子・ディレクトリ
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get")
 
-  ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
-  (defvar my-auto-view-dirs nil)
-  (add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
-  (when (eq window-system 'w32)
-    (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
+;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
+(defvar my-auto-view-dirs nil)
+(add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
+(when (eq window-system 'w32)
+  (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
-  (defun my-auto-view ()
-    (when (and my-auto-view-regexp
-	       (string-match my-auto-view-regexp buffer-file-name))
-      (view-mode 1))
-    (dolist (dir my-auto-view-dirs)
-      (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
-	(view-mode 1))))
-  (add-hook 'find-file-hook #'my-auto-view)
+(defun my-auto-view ()
+  (when (and my-auto-view-regexp
+	           (string-match my-auto-view-regexp buffer-file-name))
+    (view-mode 1))
+  (dolist (dir my-auto-view-dirs)
+    (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+      (view-mode 1))))
+(add-hook 'find-file-hook #'my-auto-view)
 
-  (with-eval-after-load "view"
-    (define-key view-mode-map (kbd "i") 'View-exit))
+(with-eval-after-load "view"
+  (define-key view-mode-map (kbd "i") 'View-exit-and-edit))
 #+end_src
 
 ** Web/HTMLモード                                                       :web:
@@ -7843,7 +7838,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   (with-eval-after-load "org"
     ;; 関連モジュールの読み込み
-    (require 'org-mobile nil t)
+    ;; (require 'org-mobile nil t)
     (when (require 'org-eldoc nil t)
       (defun my-org-eldoc-load ()
         "Set up org-eldoc documentation function."
@@ -7853,8 +7848,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (advice-add 'org-eldoc-load :override #'my-org-eldoc-load))
 
     ;; モジュールの追加
-    (add-to-list 'org-modules 'org-habit)
     (add-to-list 'org-modules 'org-id)
+    (with-eval-after-load "org-agenda"
+      ;; org-mode 開始時には読み込ませない
+      (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
     (when (require 'ol-bookmark nil t)
@@ -8727,19 +8724,36 @@ will not be modified."
    :ID:       F3A7E879-867A-4389-8DAC-620F13B43590
    :END:
 
+#+begin_src emacs-lisp :tangle late-init.el
+;; `org-agenda-prepare-buffers' は重い．最初に agenda 実行時に走るが
+;; 事前に走らせておくほうがいい．以下の例では，
+;; 起動後，何もしなければ10秒後に org, org-agenda が有効になる
+;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
+;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
+;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
+(run-with-idle-timer 10 nil
+                     (lambda ()
+                       (unless (featurep 'org-agenda)
+                         (when (require 'org-agenda nil t)
+                           (message "Building agenda buffers...")
+                           (org-agenda-prepare-buffers org-agenda-files)
+                           (message "Building agenda buffers...[done]")))))
+#+end_src
+
 #+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org-agenda"
+(with-eval-after-load "org"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (setq org-agenda-files
         (mapcar (lambda (arg)
                   (concat (getenv "SYNCROOT") "/org/" arg))
                 '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
-                  "db/daily.org" "db/trigger.org" "tr/work.org" "academic.org"
-                  "org2ja.org")))
+                  "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
+                  "org2ja.org"))) ;;   
   (when (eq system-type 'windows-nt) ;; FIXME
-    (setq org-agenda-files '("~/Dropbox/org/next.org")))
+    (setq org-agenda-files '("~/Dropbox/org/next.org"))))
 
+(with-eval-after-load "org-agenda"
   ;; sorting strategy
   (setq org-agenda-sorting-strategy
         '((agenda habit-down time-up timestamp-up priority-down category-keep)
@@ -8969,8 +8983,15 @@ will not be modified."
 =C-c C-s= をオーバーライドして =orgbox-schedule= を実行する．
 
 #+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org"
-  (require 'orgbox nil t))
+(when (autoload-if-found
+	 '(orgbox-schedule orgbox-agenda-schedule)
+	 "orgbox" nil t)
+
+  (with-eval-after-load "org"
+    (org-defkey org-mode-map (kbd "C-c C-s") 'orgbox-schedule))
+  (with-eval-after-load "org-agenda"
+    (org-defkey org-agenda-mode-map (kbd "C-c C-s") 'orgbox-agenda-schedule)))
+  ;; (require 'orgbox nil t)) ;; require org-agenda
 #+end_src
 
 ** [appt.el] アラーム設定
@@ -9108,10 +9129,6 @@ also calls `beep' for an audible reminder."
              (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
 
-    ;; Check files existence
-    (org-agenda-prepare-buffers org-agenda-files))
-
-  (with-eval-after-load "org"
     ;; アジェンダを開いたらアラームリストを更新して有効化する
     (unless noninteractive
       (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init
