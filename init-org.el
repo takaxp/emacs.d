@@ -1185,6 +1185,7 @@ also calls `beep' for an audible reminder."
     (setq org-refile-targets
           `((,(concat dir "next.org") :level . 1)
             (,(concat dir "org-ical.org") :level . 1)
+            (,(concat dir "itr.org") :level . 1)
             (,(concat dir "academic.org") :level . 1)
             (,(concat dir "tr/work.org") :level . 1)
             (,(concat dir "minutes/wg1.org") :level . 1)

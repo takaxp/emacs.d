@@ -688,6 +688,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (define-key view-mode-map (kbd "p") 'previous-line)
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
+  (define-key view-mode-map (kbd "g") #'my-google-this)
   (when (require 'origami nil t)
     (define-key view-mode-map (kbd "<tab>") 'origami-toggle-node)
     (define-key view-mode-map (kbd "S-<tab>") 'origami-toggle-all-nodes))
@@ -827,6 +828,26 @@ This works also for other defined begin/end tokens to define the structure."
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)))
+
+(when (autoload-if-found
+       '(grugru-default grugru)
+       "grugru-default"
+       nil t)
+
+  (global-set-key (kbd "C-9") #'grugru)
+
+  (with-eval-after-load "grugru-default"
+    (custom-set-faces
+     '(grugru-edit-completing-function #'ivy-completing-read)
+     '(grugru-highlight-face ((t (:bold t :underline "#FF3333"))))
+     '(grugru-highlight-idle-delay 1))
+
+    (add-hook 'grugru-after-hook #'save-buffer)
+    (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
+    (grugru-define-on-major-mode 'org-mode 'word '("TODO" "DONE"))
+    (grugru-default-setup)
+    (grugru-find-function-integration-mode 1)
+    (grugru-highlight-mode 1)))
 
 (autoload-if-found
  '(query-replace-from-region query-replace-regexp-from-region)
@@ -1483,6 +1504,8 @@ Call this function at updating `mode-line-mode'."
     (define-key flyspell-mode-map (kbd "C-,") 'counsel-mark-ring))
 
   (with-eval-after-load "ivy"
+    ;; counsel-mark-ring のリストをソートさせない
+    (setf (alist-get 'counsel-mark-ring ivy-sort-functions-alist) nil)
 
     ;; M-o を ivy-dispatching-done-hydra に割り当てる．
     ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)

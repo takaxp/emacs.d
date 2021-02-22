@@ -3307,6 +3307,37 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair "[" nil :actions :rem)))
 #+end_src
 
+** TODO [grugru.el] 所定のキーワードをサイクルさせる
+   :PROPERTIES:
+   :CUSTOM_ID: orgcbb87f41
+   :END:
+
+入力する候補が決まっているキーワード群について，それらをサイクルさせるようにするパッケージです．例えば， =nil=, =t= を高速に切り替えられるようになります．
+
+ - https://github.com/ROCKTAKEY/grugru
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(grugru-default grugru)
+       "grugru-default"
+       nil t)
+
+  (global-set-key (kbd "C-9") #'grugru)
+
+  (with-eval-after-load "grugru-default"
+    (custom-set-faces
+     '(grugru-edit-completing-function #'ivy-completing-read)
+     '(grugru-highlight-face ((t (:bold t :underline "#FF3333"))))
+     '(grugru-highlight-idle-delay 1))
+
+    (add-hook 'grugru-after-hook #'save-buffer)
+    (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
+    (grugru-define-on-major-mode 'org-mode 'word '("TODO" "DONE"))
+    (grugru-default-setup)
+    (grugru-find-function-integration-mode 1)
+    (grugru-highlight-mode 1)))
+#+end_src
+
 ** [replace-from-region.el] 選択領域を別の文字列に置き換える
    :PROPERTIES:
    :CUSTOM_ID: org69748b72
@@ -4878,6 +4909,8 @@ go get -v github.com/mdempsky/gocode
     (define-key flyspell-mode-map (kbd "C-,") 'counsel-mark-ring))
 
   (with-eval-after-load "ivy"
+    ;; counsel-mark-ring のリストをソートさせない
+    (setf (alist-get 'counsel-mark-ring ivy-sort-functions-alist) nil)
 
     ;; M-o を ivy-dispatching-done-hydra に割り当てる．
     ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)

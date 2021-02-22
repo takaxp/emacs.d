@@ -7,6 +7,7 @@
 ;;                                                              TODO/DONE/FIXME
 
 (with-eval-after-load "smartparens"
+  ;; To avoid an error
   (defun sp-split-sexp (arg)
     ""
     (interactive "P")
@@ -14,12 +15,12 @@
      ((equal arg '(4))
       (-when-let ((first-item . rest-items) (sp-get-list-items))
         (sp-get first-item
-          (save-excursion
-            (goto-char :end)            (delete-char (- (length :cl)))
-            (--each (nreverse rest-items)
-              (goto-char (sp-get it :end))              (insert :cl)
-              (goto-char (sp-get it :beg))              (insert :op))
-            (goto-char :beg)            (delete-char (length :op))))))
+                (save-excursion
+                  (goto-char :end)            (delete-char (- (length :cl)))
+                  (--each (nreverse rest-items)
+                    (goto-char (sp-get it :end))              (insert :cl)
+                    (goto-char (sp-get it :beg))              (insert :op))
+                  (goto-char :beg)            (delete-char (length :op))))))
      (t
       (let ((should-split-as-string
              (and sp-split-sexp-always-split-as-string
@@ -30,14 +31,15 @@
                              (sp-get-sexp))
                          (sp-get-enclosing-sexp 1)))
           (sp-get ok
-            (sp--run-hook-with-args :op :pre-handlers 'split-sexp)
-            (if should-split-as-string
-                (progn                  (insert :cl)
-                                        (save-excursion (insert :op)))
-              (forward-char (- (prog1 (sp-backward-whitespace t) (insert :cl))))
-              (save-excursion (sp-forward-whitespace) (insert :op)))
-            (sp--run-hook-with-args :op :post-handlers 'split-sexp))))))))
-
+                  (sp--run-hook-with-args :op :pre-handlers 'split-sexp)
+                  (if should-split-as-string
+                      (progn
+                        (insert :cl)
+                        (save-excursion (insert :op)))
+                    (forward-char
+                     (- (prog1 (sp-backward-whitespace t) (insert :cl))))
+                    (save-excursion (sp-forward-whitespace) (insert :op)))
+                  (sp--run-hook-with-args :op :post-handlers 'split-sexp))))))))
 
 (with-eval-after-load "org-tree-slide"
   ;; README (1)
@@ -69,10 +71,8 @@
   ;;  '(org-document-info ((t (:bold t :underline "red")))))
   )
 
-;; For tr-ime.el
-;; (tr-ime-advanced-install)
-;; (set-frame-parameter nil 'ime-font "MS Gothic-40")
-;; (tr-ime-font-reflect-frame-parameter)
+;; https://gitlab.com/matsievskiysv/math-preview
+;; https://github.com/dandavison/xenops
 
 (with-eval-after-load "postpone"
   ;; circe.el
@@ -81,24 +81,6 @@
 
   ;; transient-dwim
   (require 'transient-dwim nil t))
-
-;; https://gitlab.com/matsievskiysv/math-preview
-;; https://github.com/dandavison/xenops
-
-;; grugru.el
-(with-eval-after-load "postpone"
-  (when (require 'grugru-default nil t)
-    (custom-set-faces
-     '(grugru-edit-completing-function #'ivy-completing-read)
-     '(grugru-highlight-face ((t (:bold t :underline "#FF3333"))))
-     '(grugru-highlight-idle-delay 1))
-    (grugru-highlight-mode 1)
-    (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
-    (grugru-default-setup)
-    (grugru-define-on-major-mode 'org-mode 'word '("TODO" "DONE"))
-    (global-set-key (kbd "C-9") #'grugru)
-    (add-hook 'grugru-after-hook #'save-buffer)
-    (grugru-find-function-integration-mode 1)))
 
 (when nil
   ;; https://github.com/chuntaro/emacs-keycaster/issues/4
@@ -174,25 +156,6 @@
           (dired-next-line 1))))
     ;;(advice-add 'all-the-icons-dired--refresh :override #'ad:all-the-icons-dired--refresh)
     ))
-
-;; (defun all-the-icons-dired--refresh ()
-;;   "Display the icons of files in a dired buffer."
-;;   (all-the-icons-dired--remove-all-overlays)
-;;   (save-excursion
-;;     (goto-char (point-min))
-;;     (while (not (eobp))
-;;       (when (dired-move-to-filename nil)
-;;         (let ((file (dired-get-filename 'relative 'noerror)))
-;;           (when file
-;;             (let ((icon (if (file-directory-p file)
-;;                             (all-the-icons-icon-for-dir file
-;;                                                         :face 'all-the-icons-dired-dir-face
-;;                                                         :v-adjust all-the-icons-dired-v-adjust)
-;;                           (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust))))
-;;               (if (member file '("." ".."))
-;;                   (all-the-icons-dired--add-overlay (point) "  \t")
-;;                 (all-the-icons-dired--add-overlay (point) (concat icon "\t")))))))
-;;       (forward-line 1))))
 
 (when nil
   (with-eval-after-load "postpone"
@@ -306,184 +269,6 @@
    ((t (:foreground "black" :background "light pink" :underline "OrangeRed2"))))
  '(ns-unmarked-text-face
    ((t (:foreground "black" :background "light sky blue" :underline "royal blue")))))
-
-;; TODO eldocの確認時に narrowing/widen している可能性がある．
-
-;; これは，async で切り離したプロセス(emacs -Q)内部で動かせばよいのでは？
-;; 結果はバッファで受け取る
-
-(defun my-test-release-build ()
-  (interactive)
-  (unless (require 'async nil t)
-    (user-error "Async is NOT installed"))
-  (async-start
-   (lambda ()
-     (add-to-list 'load-path "~/devel/git/org-mode/lisp")
-     (require 'org)
-     (defvar result `(:org ,(org-version)))
-     (load "~/.emacs.d/26.3.50/el-get/package-lint/package-lint.el" nil t)
-     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     ;; Build a new package here for release
-     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     (byte-compile-file "~/devel/git/org-onit/org-onit.el")
-     ;; (with-current-buffer (get-file-buffer "~/devel/git/org-onit/org-onit.el")
-     ;;   (package-lint-current-buffer))
-     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     ;; (load "~/devel/git/org-onit/org-onit.el" nil t)
-     ;; (require 'org-onit)
-     ;; (org-onit-get-sign)
-
-     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     (switch-to-buffer "*Compile-Log*") ;; FIXME
-     (message "%s"
-              (buffer-substring-no-properties (point-min) (point-max)))
-     ;;     (message "%s" (buffer-list))
-     )
-   (lambda (result)
-     (message "%s" result))))
-
-;; (require 'package)
-;; (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-;; (add-to-list 'package-archives
-;;              '("melpa" . "https://melpa.org/packages/") t)
-;; (package-initialize)
-;;
-;; (require 'package-lint)
-
-
-;; (with-eval-after-load "org-num"
-;;   (defun my-org-num-format (numbering)
-;;     (concat (mapconcat #'number-to-string numbering ".") " "))
-;;   (setq org-num-face
-;;         (funcall #'(lambda ()
-;;                      (when )
-;;                      '((t (:bold t :background "#DEEDFF"))))))
-;;   ;; line-number-current-line ((t (:bold t :background "#DEEDFF")))
-;;   (funcall #'(lambda () '((t (:bold t :background "#DEEDFF")))))
-;;   )
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; posframe - testing
-
-;; (set-frame-parameter (selected-frame) 'internal-border-width 10)
-;; (set-face-background 'internal-border "#FF00FF")
-;; Could be useful.
-;; (when (require 'mini-modeline nil t)
-;;   (mini-modeline-mode 1))
-
-(with-eval-after-load "posframe"
-  (custom-set-faces
-   '(internal-border
-     ((((background dark)) :background "#FF0000")
-      (t (:background "#FF0000")))))
-
-  (with-eval-after-load "frame"
-    (advice-remove 'make-frame #'ad:make-frame))
-
-  (setq my-string "hoge.
-hoge.")
-
-  (when (and nil
-             (require 'posframe nil t)
-             (posframe-workable-p))
-    (posframe-show
-     "test"
-     :string my-string
-     :background-color "black"
-     :foreground-color "green"
-     :internal-border-width 1
-     :internal-border-color "red"))
-  )
-
-
-;; ivy-posframe
-(when (and nil
-           (require 'ivy-posframe nil t))
-  (defun my-toggle-ivy-posframe ()
-    "Toggle `ivy-posframe'."
-    (interactive)
-    (ivy-posframe-mode (if ivy-posframe-mode -1 1)))
-  (setq ivy-posframe-border-width
-        (* 2 (cdr (assoc 'internal-border-width (frame-geometry)))))
-  (setq ivy-posframe-hide-minibuffer nil)
-  ;;  (setq ivy-posframe-border ((t (:background "#6272a4"))))
-  (setq ivy-posframe-parameters
-        '((left-fringe . (frame-parameter nil 'left-fringe))
-          (right-fringe . (frame-parameter nil 'right-fringe))))
-  (setq ivy-posframe-display-functions-alist
-        '((counsel-M-x . ivy-posframe-display-at-point)
-          (t           . ivy-posframe-display)))
-  (set-face-background 'internal-border "#FF0000")
-  (set-frame-parameter (selected-frame) 'internal-border-width 10)
-  (ivy-posframe-mode 1)
-  (set-face-background 'internal-border "#FF0000")
-  (set-frame-parameter (selected-frame) 'internal-border-width 10))
-
-(when nil
-  (set-face-background 'fringe "green")
-  (set-face-background 'default "#999999")
-  (set-face-foreground 'default "#FFFFFF")
-  (frame-parameter (selected-frame) 'foreground-color)
-  (frame-parameter (selected-frame) 'background-color)
-
-  (set-frame-parameter (selected-frame) 'border-width '20)
-  (frame-parameter (selected-frame) 'border-width)
-
-  (set-frame-parameter (selected-frame) 'outer-border-width '30)
-  (frame-parameter (selected-frame) 'outer-border-width)
-  (frame-parameter (selected-frame) 'frame-width)
-
-  (set-frame-parameter (selected-frame) 'border-color "#FF0000")
-  (frame-parameter (selected-frame) 'border-color)
-
-  (frame-parameter (selected-frame) 'internal-border-width)
-  (frame-parameter (selected-frame) 'internal-frame-width)
-
-  (modify-frame-parameters (selected-frame) '((border-width . 20)))
-
-  (insert (format "%s" (frame-parameters))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Company-box
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (with-eval-after-load "company"
-;;   (when (and (require 'all-the-icons nil t)
-;;              (require 'company-box nil t))
-;;     (add-hook 'company-mode-hook 'company-box-mode)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Trying LSP
-;; https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
-(when (and (fboundp 'lsp)
-           (autoload-if-found '(lsp) "lsp-mode" nil t))
-
-  (add-hook 'c-mode-common-hook #'lsp)
-  (add-hook 'python-mode-hook #'lsp)
-  (add-hook 'lsp-mode-hook #'lsp-ui-mode)
-
-  (with-eval-after-load "lsp"
-    (setq lsp-prefer-flymake nil)
-    (setq lsp-clients-clangd-args '("-j=4" "-background-index" "-log=error")))
-
-  (with-eval-after-load "lsp-ui"
-    (setq lsp-ui-doc-enable t
-          lsp-ui-doc-use-childframe t
-          lsp-ui-doc-position 'top
-          lsp-ui-doc-include-signature t
-          lsp-ui-sideline-enable nil
-          lsp-ui-flycheck-enable t
-          lsp-ui-flycheck-list-position 'right
-          lsp-ui-flycheck-live-reporting t
-          lsp-ui-peek-enable t
-          lsp-ui-peek-list-width 60
-          lsp-ui-peek-peek-height 25)))
-
-;; Trying... but...
-;; (when (require 'dumb-jump nil t)
-;;   (dumb-jump-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
