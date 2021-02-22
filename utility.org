@@ -646,6 +646,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 ** リージョン内のブリッツを操作する(orgmode)
    :PROPERTIES:
    :CUSTOM_ID: orga706f503
+   :ID:       E0F72907-397A-40EE-A575-A45004B42740
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -675,6 +676,20 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
         (setq end (- end len)))
       (goto-char begin))))
 
+(defvar my-org-list-with-checkbox-regexp
+  (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+          "\\[.\\][ \t]+"))
+
+;;;###autoload
+(defun my-org-list-toggle-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (goto-char begin)
+    (if (re-search-forward
+         my-org-list-with-checkbox-regexp (point-at-eol) t)
+        (my-org-list-delete-checkbox-from-items begin end)
+      (my-org-list-insert-checkbox-into-items begin end))))
+
 ;;;###autoload
 (defun my-org-list-insert-checkbox-into-items (begin end)
   (interactive "r")
@@ -695,10 +710,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (when mark-active
     (let ((len (string-width "[ ] ")))
       (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
-                      "\\[.\\][ \t]+")
-              end t)
+      (while (re-search-forward my-org-list-with-checkbox-regexp end t)
         (replace-match "\\1" nil nil)
         (setq end (- end len)))
       (goto-char begin))))
@@ -727,9 +739,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
            (blen (string-width bullet))
            (clen (string-width checkbox)))
       (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
-                      "\\[.\\][ \t]+") end t)
+      (while (re-search-forward my-org-list-with-checkbox-regexp end t)
         (replace-match "" nil nil)
         (setq end (- end blen clen)))
       (goto-char begin))))
@@ -1033,7 +1043,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
     :CUSTOM_ID: org74fab35b
     :END:
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle no
 (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
 (global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
 #+end_src

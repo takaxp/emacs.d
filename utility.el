@@ -440,6 +440,20 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
         (setq end (- end len)))
       (goto-char begin))))
 
+(defvar my-org-list-with-checkbox-regexp
+  (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+          "\\[.\\][ \t]+"))
+
+;;;###autoload
+(defun my-org-list-toggle-checkbox (begin end)
+  (interactive "r")
+  (when mark-active
+    (goto-char begin)
+    (if (re-search-forward
+         my-org-list-with-checkbox-regexp (point-at-eol) t)
+        (my-org-list-delete-checkbox-from-items begin end)
+      (my-org-list-insert-checkbox-into-items begin end))))
+
 ;;;###autoload
 (defun my-org-list-insert-checkbox-into-items (begin end)
   (interactive "r")
@@ -460,10 +474,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (when mark-active
     (let ((len (string-width "[ ] ")))
       (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
-                      "\\[.\\][ \t]+")
-              end t)
+      (while (re-search-forward my-org-list-with-checkbox-regexp end t)
         (replace-match "\\1" nil nil)
         (setq end (- end len)))
       (goto-char begin))))
@@ -492,9 +503,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
            (blen (string-width bullet))
            (clen (string-width checkbox)))
       (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
-                      "\\[.\\][ \t]+") end t)
+      (while (re-search-forward my-org-list-with-checkbox-regexp end t)
         (replace-match "" nil nil)
         (setq end (- end blen clen)))
       (goto-char begin))))
@@ -605,9 +614,6 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
                      (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
            (minibuffer-message "Copying %s ... done" buffer-file-name))
           (t (message "There is NOT such a file.")))))
-
-(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
-(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
 
 ;;;###autoload
 (defun my-window-resizer ()

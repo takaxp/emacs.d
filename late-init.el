@@ -159,6 +159,7 @@
         "IME off, when the cursor on org headings."
         (when (and (frame-focus-state)
                    (eq major-mode 'org-mode)
+                   (boundp 'org-agenda-buffer-name)
                    (or (looking-at org-heading-regexp)
                        (equal (buffer-name) org-agenda-buffer-name))
                    (my-ime-active-p))
@@ -167,6 +168,7 @@
       "IME off, when the cursor on org headings."
       (when (and (frame-focus-state)
                  (eq major-mode 'org-mode)
+                 (boundp 'org-agenda-buffer-name)
                  (or (looking-at org-heading-regexp)
                      (equal (buffer-name) org-agenda-buffer-name))
                  (fboundp 'mac-ime-active-p)
@@ -918,7 +920,8 @@ This works also for other defined begin/end tokens to define the structure."
 
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
     (define-key selected-keymap (kbd "-") #'my-org-list-insert-items)
-    (define-key selected-keymap (kbd "_") #'my-org-toggle-checkbox)
+    (define-key selected-keymap (kbd "_")
+      #'my-org-list-toggle-checkbox) ;; my-org-toggle-checkbox
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
@@ -1718,15 +1721,15 @@ sorted.  FUNCTION must be a function of one argument."
     (setq my-dimmer-mode (dimmer-mode 1))))
 
 (when (autoload-if-found
-       '(hydra-timestamp/body)
+       '(hydra-timestamp/body help/insert-datestamp)
        "hydra" nil t)
 
   (global-set-key (kbd "C-c h t") #'hydra-timestamp/body)
-
+  (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
+    
   (with-eval-after-load "hydra"
     (require 'org nil t)
     (require 'hydra nil t)
-    (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
     (global-set-key (kbd "C-c )") #'help/insert-currenttime)
     (custom-set-faces
      '(hydra-face-blue
@@ -2029,8 +2032,7 @@ _3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
                (equal "" (org-entry-get (point) "EXPORT_FILE_NAME"))))))
 
   (defun my-auto-save-buffers ()
-    (cond ((eq major-mode 'undo-tree-visualizer-mode) nil)
-          ((eq major-mode 'diff-mode) nil)
+    (cond ((memq major-mode '(undo-tree-visualizer-mode diff-mode)) nil)
           ((string-match "Org Src" (buffer-name)) nil)
           ((let ((pt (point)))
              (and (string-match ".gpg" (buffer-name))
@@ -2545,7 +2547,7 @@ For example: \"<e\" -> (\"e\" . t)"
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode)))
 
-;; `org-agenda-prepare-buffers' は重い．最初に agenda 実行時に走るが
+;; `org-agenda-prepare-buffers' は重い．agenda 実行時の最初に走るが，
 ;; 事前に走らせておくほうがいい．以下の例では，
 ;; 起動後，何もしなければ10秒後に org, org-agenda が有効になる
 ;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
@@ -2557,7 +2559,7 @@ For example: \"<e\" -> (\"e\" . t)"
                          (when (require 'org-agenda nil t)
                            (message "Building agenda buffers...")
                            (org-agenda-prepare-buffers org-agenda-files)
-                           (message "Building agenda buffers...[done]")))))
+                           (message "Building agenda buffers...done")))))
 
 ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
 ;; 2. M-x org-trello-install-key-and-token

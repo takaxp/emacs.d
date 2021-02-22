@@ -1456,6 +1456,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
         "IME off, when the cursor on org headings."
         (when (and (frame-focus-state)
                    (eq major-mode 'org-mode)
+                   (boundp 'org-agenda-buffer-name)
                    (or (looking-at org-heading-regexp)
                        (equal (buffer-name) org-agenda-buffer-name))
                    (my-ime-active-p))
@@ -1464,6 +1465,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
       "IME off, when the cursor on org headings."
       (when (and (frame-focus-state)
                  (eq major-mode 'org-mode)
+                 (boundp 'org-agenda-buffer-name)
                  (or (looking-at org-heading-regexp)
                      (equal (buffer-name) org-agenda-buffer-name))
                  (fboundp 'mac-ime-active-p)
@@ -3418,7 +3420,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
     (define-key selected-keymap (kbd "-") #'my-org-list-insert-items)
-    (define-key selected-keymap (kbd "_") #'my-org-toggle-checkbox)
+    (define-key selected-keymap (kbd "_")
+      #'my-org-list-toggle-checkbox) ;; my-org-toggle-checkbox
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
@@ -5222,15 +5225,15 @@ sorted.  FUNCTION must be a function of one argument."
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(hydra-timestamp/body)
+       '(hydra-timestamp/body help/insert-datestamp)
        "hydra" nil t)
 
   (global-set-key (kbd "C-c h t") #'hydra-timestamp/body)
-
+  (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
+    
   (with-eval-after-load "hydra"
     (require 'org nil t)
     (require 'hydra nil t)
-    (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
     (global-set-key (kbd "C-c )") #'help/insert-currenttime)
     (custom-set-faces
      '(hydra-face-blue
@@ -6318,6 +6321,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 ** [auto-save-buffers.el] 一定間隔でバッファを保存する
    :PROPERTIES:
    :CUSTOM_ID: orgb8c01946
+   :ID:       05CC85C8-311B-4855-8224-87B843F4EFE5
    :END:
 
   - http://0xcc.net/misc/auto-save/
@@ -6334,8 +6338,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
                (equal "" (org-entry-get (point) "EXPORT_FILE_NAME"))))))
 
   (defun my-auto-save-buffers ()
-    (cond ((eq major-mode 'undo-tree-visualizer-mode) nil)
-          ((eq major-mode 'diff-mode) nil)
+    (cond ((memq major-mode '(undo-tree-visualizer-mode diff-mode)) nil)
           ((string-match "Org Src" (buffer-name)) nil)
           ((let ((pt (point)))
              (and (string-match ".gpg" (buffer-name))
@@ -7979,7 +7982,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (save-excursion
         (beginning-of-line)
         (unless (looking-at-p org-drawer-regexp)
-          (org-cycle-hide-drawers 'children))))
+          (org-cycle-hide-drawers 'subtree))))
     ;; Broken from org 9.4 (error "Invalid search bound (wrong side of point)")
     (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
@@ -8729,7 +8732,7 @@ will not be modified."
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
-;; `org-agenda-prepare-buffers' は重い．最初に agenda 実行時に走るが
+;; `org-agenda-prepare-buffers' は重い．agenda 実行時の最初に走るが，
 ;; 事前に走らせておくほうがいい．以下の例では，
 ;; 起動後，何もしなければ10秒後に org, org-agenda が有効になる
 ;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
@@ -8741,7 +8744,7 @@ will not be modified."
                          (when (require 'org-agenda nil t)
                            (message "Building agenda buffers...")
                            (org-agenda-prepare-buffers org-agenda-files)
-                           (message "Building agenda buffers...[done]")))))
+                           (message "Building agenda buffers...done")))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el

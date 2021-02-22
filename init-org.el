@@ -159,7 +159,7 @@
       (save-excursion
         (beginning-of-line)
         (unless (looking-at-p org-drawer-regexp)
-          (org-cycle-hide-drawers 'children))))
+          (org-cycle-hide-drawers 'subtree))))
     ;; Broken from org 9.4 (error "Invalid search bound (wrong side of point)")
     (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
