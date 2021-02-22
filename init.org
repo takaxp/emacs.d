@@ -938,6 +938,9 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 #+end_src
 
 ** NS版でスクロール時の表示乱れを補正
+   :PROPERTIES:
+   :CUSTOM_ID: orgbe5f52a7
+   :END:
 
 #+begin_src emacs-lisp :tangle no
 ;; late-init.el
@@ -1382,6 +1385,7 @@ GPG error: "no usable configuration," OpenPGP
 ** [epa.el] GPGファイルの保存時のメッセージを停止する
    :PROPERTIES:
    :CREATED:  [2020-10-11 Sun 19:19]
+   :CUSTOM_ID: orgedc5d7af
    :END:
 
 GPGで暗号化されたファイルを編集すると，保存時に暗号化していることを知らせる情報が Messages バッファに出力されます．頻度が低ければ特に気にならないかもしれませんが，自動的にバッファを保存する設定を施していると，Messages バッファが埋め尽くされてしまうので困ります． =epa-file-write-region= をハックして黙らせます．
@@ -2951,6 +2955,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
   (define-key view-mode-map (kbd "p") 'previous-line)
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
+  (define-key view-mode-map (kbd "g") #'my-google-this)
   (when (require 'origami nil t)
     (define-key view-mode-map (kbd "<tab>") 'origami-toggle-node)
     (define-key view-mode-map (kbd "S-<tab>") 'origami-toggle-all-nodes))
@@ -8756,7 +8761,7 @@ will not be modified."
                   (concat (getenv "SYNCROOT") "/org/" arg))
                 '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                   "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                  "org2ja.org"))) ;;   
+                  "org2ja.org" "itr.org")))
   (when (eq system-type 'windows-nt) ;; FIXME
     (setq org-agenda-files '("~/Dropbox/org/next.org"))))
 
@@ -9239,6 +9244,7 @@ also calls `beep' for an audible reminder."
     (setq org-refile-targets
           `((,(concat dir "next.org") :level . 1)
             (,(concat dir "org-ical.org") :level . 1)
+            (,(concat dir "itr.org") :level . 1)
             (,(concat dir "academic.org") :level . 1)
             (,(concat dir "tr/work.org") :level . 1)
             (,(concat dir "minutes/wg1.org") :level . 1)
@@ -9636,6 +9642,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 ** [ox-twbs] Twitter Bootstrap 互換のHTML出力
    :PROPERTIES:
    :CUSTOM_ID: org02d2c3de
+   :ID:       3BE3EFEE-F0C5-4398-8B33-0F52CF3C1115
    :END:
 
   - [[https://github.com/marsmining/ox-twbs][marsmining/ox-twbs: Export org-mode docs as HTML compatible with Twitter Bootstrap.]]
@@ -9652,7 +9659,6 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+name: theme-readtheorg.setup
 #+begin_src org :tangle no
 # -*- mode: org; -*-
-
 ,#+html_head: <link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
 ,#+html_head: <link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
 

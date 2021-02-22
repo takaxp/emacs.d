@@ -744,7 +744,7 @@ will not be modified."
                   (concat (getenv "SYNCROOT") "/org/" arg))
                 '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                   "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                  "org2ja.org"))) ;;   
+                  "org2ja.org" "itr.org")))
   (when (eq system-type 'windows-nt) ;; FIXME
     (setq org-agenda-files '("~/Dropbox/org/next.org"))))
 
