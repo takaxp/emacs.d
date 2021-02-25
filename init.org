@@ -515,22 +515,6 @@ This function is called directly from the C code."
             (string-to-number current-min))))))
 #+end_src
 
-** DONE [window-focus-p] フォーカス判定
-   CLOSED: [2020-06-04 Thu 08:00]
-   :PROPERTIES:
-   :CUSTOM_ID: orgcea06248
-   :END:
-
-フォーカスが当たっているのかを判定するための関数です．
-
-(2020-06-04) =frame-focus-state= という標準関数がありました．
-
-#+begin_src emacs-lisp :tangle no
-(with-eval-after-load "postpone"
-  (defun window-focus-p ()
-    (frame-parameter (selected-frame) 'last-focus-update)))
-#+end_src
-
 ** [library-p] load-path にライブラリがあるかを判定
    :PROPERTIES:
    :CUSTOM_ID: org30c47759
@@ -749,6 +733,22 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
        ,@(when after-body
            `((eval-after-load file '(progn ,@after-body))))
        t)))
+#+end_src
+
+** DONE [window-focus-p] フォーカス判定
+   CLOSED: [2020-06-04 Thu 08:00]
+   :PROPERTIES:
+   :CUSTOM_ID: orgcea06248
+   :END:
+
+フォーカスが当たっているのかを判定するための関数です．
+
+(2020-06-04) =frame-focus-state= という標準関数がありました．
+
+#+begin_src emacs-lisp :tangle no
+(with-eval-after-load "postpone"
+  (defun window-focus-p ()
+    (frame-parameter (selected-frame) 'last-focus-update)))
 #+end_src
 
 * コア設定
@@ -4871,6 +4871,38 @@ go get -v github.com/mdempsky/gocode
 (autoload-if-found '(keycast-mode) "keycast" nil t)
 #+end_src
 
+** [keypression.el] 入力しているキーとコマンドを任意の場所に表示
+   :PROPERTIES:
+   :CUSTOM_ID: org8af73f26
+   :END:
+
+ - =keycast.el= は表示がモードラインに限定されますが， =keypression.el= は任意の場所に入力状況を表示できます．一般的なキーキャストアプリとほぼ同じ振る舞いになります．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(keypression-mode)
+       "keypression" nil t)
+
+  (with-eval-after-load "keypression"
+    (setq keypression-use-child-frame t)
+    (setq keypression-frames-maxnum 3)
+    (setq keypression-fade-out-delay 1.5)
+    (setq keypression-font "Monaco")
+    (setq keypression-font-face-attribute
+          '(:width normal :height 200 :weight bold))
+    ;; (progn
+    ;;   (setq keypression-frame-origin 'keypression-origin-top-left)
+    ;;   (setq keypression-x-offset -10)
+    ;;   (setq keypression-y-offset +10))
+    (progn
+      (setq keypression-x-offset +8)
+      (setq keypression-y-offset +16))
+    (add-hook 'keypression-mode-hook #'dimmer-permanent-off)
+    ;; (keypression-mode 1) ;; To start, M-x keypression-mode
+    ))
+#+end_src
+
+
 ** [ivy.el] 続々・何でも絞り込みインターフェイス
    :PROPERTIES:
    :CUSTOM_ID: orgfa7d126f
@@ -7882,6 +7914,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (global-set-key (kbd "C-c a") 'org-agenda))
 
   (with-eval-after-load "org"
+    ;; タイトルを少し強調
+    (custom-set-faces
+     '(org-document-title ((t (:bold t :height 1.2)))))
+
     ;; 関連モジュールの読み込み
     ;; (require 'org-mobile nil t)
     (when (require 'org-eldoc nil t)
@@ -8021,7 +8057,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (beginning-of-line)
         (unless (looking-at-p org-drawer-regexp)
           (org-cycle-hide-drawers 'subtree))))
-    ;; Broken from org 9.4 (error "Invalid search bound (wrong side of point)")
     (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
     ;; CSV指定でテーブルを出力する．
@@ -9431,17 +9466,7 @@ also calls `beep' for an audible reminder."
       (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
     (setq org-tree-slide-skip-outline-level 5)
-    (setq org-tree-slide-skip-done nil))
-
-  (defun my-reload-header-face ()
-    (face-spec-set 'org-tree-slide-header-overlay-face
-                   `((t (:bold t
-                               :foreground ,(face-foreground 'default)
-                               :background ,(face-background 'default))))))
-  ;; (add-hook 'org-tree-slide-play-hook #'my-reload-header-face)
-  ;; (add-hook 'my-light-theme-hook #'my-reload-header-face)
-  ;; (add-hook 'my-dark-theme-hook #'my-reload-header-face)
-  )
+    (setq org-tree-slide-skip-done nil)))
 #+end_src
 
 ~Doing~ タグのトグルに =f11= を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
@@ -12872,6 +12897,20 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     (if shutup-p
         (shut-up (network-watch-mode 1))
       (network-watch-mode 1))))
+#+end_src
+
+** TODO [circe.el] IRCにログインする
+   :PROPERTIES:
+   :CREATED:  [2021-02-23 Tue 22:54]
+   :ID:       72079387-5C35-4983-8E4A-6E3493B5B25D
+   :CUSTOM_ID: orgf14fe89c
+   :END:
+
+#+begin_src emacs-lisp :tangle no
+(when (autoload-if-found '(circe) "circe" nil t)
+  (with-eval-after-load "cire"
+    (setq circe-network-options
+          '(("Freenode" :tls t :nick "xxxxxx" :channels ("#emacsconf"))))))
 #+end_src
 
 ** DONE [lingr.el] チャットルームに自動参加                        :notinuse:

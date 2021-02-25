@@ -21,6 +21,10 @@
     (global-set-key (kbd "C-c a") 'org-agenda))
 
   (with-eval-after-load "org"
+    ;; タイトルを少し強調
+    (custom-set-faces
+     '(org-document-title ((t (:bold t :height 1.2)))))
+
     ;; 関連モジュールの読み込み
     ;; (require 'org-mobile nil t)
     (when (require 'org-eldoc nil t)
@@ -160,7 +164,6 @@
         (beginning-of-line)
         (unless (looking-at-p org-drawer-regexp)
           (org-cycle-hide-drawers 'subtree))))
-    ;; Broken from org 9.4 (error "Invalid search bound (wrong side of point)")
     (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
     ;; CSV指定でテーブルを出力する．
@@ -1294,17 +1297,7 @@ also calls `beep' for an audible reminder."
       (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
     (setq org-tree-slide-skip-outline-level 5)
-    (setq org-tree-slide-skip-done nil))
-
-  (defun my-reload-header-face ()
-    (face-spec-set 'org-tree-slide-header-overlay-face
-                   `((t (:bold t
-                               :foreground ,(face-foreground 'default)
-                               :background ,(face-background 'default))))))
-  ;; (add-hook 'org-tree-slide-play-hook #'my-reload-header-face)
-  ;; (add-hook 'my-light-theme-hook #'my-reload-header-face)
-  ;; (add-hook 'my-dark-theme-hook #'my-reload-header-face)
-  )
+    (setq org-tree-slide-skip-done nil)))
 
 (with-eval-after-load "org-tree-slide"
   (when (and (eq my-toggle-modeline-global 'doom)
