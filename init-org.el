@@ -23,7 +23,8 @@
   (with-eval-after-load "org"
     ;; タイトルを少し強調
     (custom-set-faces
-     '(org-document-title ((t (:bold t :height 1.2)))))
+     '(org-document-title ((t (:foreground "RoyalBlue1" :bold t :height 1.2))))
+     '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
 
     ;; 関連モジュールの読み込み
     ;; (require 'org-mobile nil t)

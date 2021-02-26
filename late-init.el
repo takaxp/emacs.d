@@ -1478,6 +1478,28 @@ Call this function at updating `mode-line-mode'."
   (message "--- gocode is NOT installed."))
 
 (when (autoload-if-found
+       '(keypression-mode)
+       "keypression" nil t)
+
+  (with-eval-after-load "keypression"
+    (setq keypression-use-child-frame t)
+    (setq keypression-frames-maxnum 3)
+    (setq keypression-fade-out-delay 1.5)
+    (setq keypression-font "Monaco")
+    (setq keypression-font-face-attribute
+          '(:width normal :height 200 :weight bold))
+    ;; (progn
+    ;;   (setq keypression-frame-origin 'keypression-origin-top-left)
+    ;;   (setq keypression-x-offset -10)
+    ;;   (setq keypression-y-offset +10))
+    (progn
+      (setq keypression-x-offset +8)
+      (setq keypression-y-offset +16))
+    (add-hook 'keypression-mode-hook #'dimmer-permanent-off)
+    ;; (keypression-mode 1) ;; To start, M-x keypression-mode
+    ))
+
+(when (autoload-if-found
        '(ivy-hydra-read-action)
        "ivy-hydra" nil t)
 
@@ -2786,43 +2808,53 @@ Uses `all-the-icons-material' to fetch the icon."
 (unless noninteractive
   (require 'generic-x nil t))
 
-(unless noninteractive
-  (global-hl-line-mode 1))
+(when (autoload-if-found
+       '(hl-line-mode my-hl-line-enable)
+       "hl-line" nil t)
 
-(defvar my-hl-active-period 120
-  "Disable `hl-line' after this period")
+  (defvar my-hl-permanent-disabled '(dired-mode)
+    "A list of major modes to disable `hl-line'.")
 
-(defun my-hl-line-disable ()
-  "Disable `hl-line'."
-  (global-hl-line-mode -1))
+  (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 
-(defun my-hl-line-enable ()
-  "Enable `hl-line'."
-  (unless global-hl-line-mode
-    (global-hl-line-mode 1)))
+  (with-eval-after-load "hl-line"
+    (defvar my-hl-active-period 120
+      "Disable `hl-line' after this period")
 
-(defun my-ime-off-hline ()
-  (my-hl-line-enable)
-  (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-    (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF"))))
+    (defun my-hl-line-disable ()
+      "Disable `hl-line'."
+      (hl-line-mode -1))
 
-(defun my-ime-on-hline ()
-  (my-hl-line-enable)
-  (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-    (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
+    (defun my-hl-line-enable ()
+      "Enable `hl-line'."
+      (unless (or hl-line-mode
+                  (minibufferp)
+		              (memq major-mode my-hl-permanent-disabled))
+        (hl-line-mode 1)))
 
-;; init
-(when (fboundp 'mac-ime-active-p)
-  (if (version< emacs-version "27.0")
-      (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
-    (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
+    (defun my-ime-off-hline ()
+      (my-hl-line-enable)
+      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+        (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF"))))
 
-(add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
-(run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
-(add-hook 'focus-in-hook #'my-hl-line-enable)
-(add-hook 'focus-out-hook #'my-hl-line-disable)
-(add-hook 'input-method-activate-hook #'my-ime-on-hline)
-(add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
+    (defun my-ime-on-hline ()
+      (my-hl-line-enable)
+      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+        (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
+
+    ;; init
+    (when (fboundp 'mac-ime-active-p)
+      (if (version< emacs-version "27.0")
+	        (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+        (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
+
+    (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
+    (add-hook 'focus-in-hook #'my-hl-line-enable)
+    (add-hook 'focus-out-hook #'my-hl-line-disable)
+    ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
+    ;; (add-hook 'minibuffer-exit-hook #'my-hl-line-enable)
+    (add-hook 'input-method-activate-hook #'my-ime-on-hline)
+    (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)))
 
 (setq blink-cursor-blinks 0)
 (setq blink-cursor-interval 0.2)

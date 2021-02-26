@@ -195,6 +195,7 @@
                  :url "https://gitlab.com/ideasman42/emacs-undo-fu.git")
   (el-get-bundle "zk-phi/gitmole")
   (el-get-bundle "chuntaro/emacs-keypression" :name keypression)
+  (el-get-bundle "lewang/command-log-mode")
   (el-get-bundle "tarsius/outline-minor-faces")
   (el-get-bundle "tarsius/backline")
 

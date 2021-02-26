@@ -1,3 +1,4 @@
+
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -5,19 +6,18 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-;; "sp-split-sexp" has an error
+;; "sp-split-sexp" has an error @2021-02-25
 
-;; (load "~/.emacs.d/27.1.91/el-get/keypression/keypression.el")
-;; https://github.com/chuntaro/emacs-keycaster/issues/4
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ns-inline-patch
+
 (custom-set-faces
  '(ns-marked-text-face
-   ((t (:foreground "black" :background "light pink" :underline "OrangeRed2"))))
+   ((t (:foreground "black"
+                    :background "light pink" :underline "OrangeRed2"))))
  '(ns-unmarked-text-face
-   ((t (:foreground "black" :background "light sky blue" :underline "royal blue")))))
+   ((t (:foreground "black"
+                    :background "light sky blue" :underline "royal blue")))))
 
 (when nil
   (with-eval-after-load "postpone"
@@ -32,28 +32,34 @@
     (ns-delete-working-text)
     (let ((start (point)))
       (when (<= pos (length ns-working-text))
-        ;; (put-text-property pos len 'face 'ns-working-text-face ns-working-text)
-        ;; (insert ns-working-text)
+        (put-text-property pos len 'face 'ns-working-text-face ns-working-text)
+        (insert ns-working-text)
         ;; (if (= len 0)
         ;;     (overlay-put (setq ns-working-overlay
-        ;;                        (make-overlay start (point) (current-buffer) nil t))
+        ;;                        (make-overlay start (point)
+        ;;                                      (current-buffer) nil t))
         ;;                  'face 'ns-working-text-face)
         ;;   (overlay-put (setq ns-working-overlay
-        ;;                      (make-overlay start (point) (current-buffer) nil t))
+        ;;                      (make-overlay start (point)
+        ;;                                    (current-buffer) nil t))
         ;;                'face 'ns-unmarked-text-face)
         ;;   (overlay-put (setq ns-marked-overlay
-        ;;                      (make-overlay (+ start pos) (+ start pos len)
-        ;;                                    (current-buffer) nil t))
+        ;;                      (make-overlay
+        ;;                       (+ start pos) (+ start pos len)
+        ;;                       (current-buffer) nil t))
         ;;                'face 'ns-marked-text-face))
-        ;; (goto-char (+ start pos))
+        (goto-char (+ start pos))
 
         (if (= len 0)
             (overlay-put (setq ns-working-overlay
-                               (make-overlay start (point) (current-buffer) nil t))
+                               (make-overlay start (point)
+                                             (current-buffer) nil t))
                          'after-string
-                         (propertize ns-working-text 'face 'ns-working-text-face))
+                         (propertize ns-working-text
+                                     'face 'ns-working-text-face))
           (overlay-put (setq ns-working-overlay
-                             (make-overlay start (point) (current-buffer) nil t))
+                             (make-overlay start (point)
+                                           (current-buffer) nil t))
                        'after-string
                        (propertize (substring ns-working-text 0 len)
                                    'face 'ns-marked-text-face))

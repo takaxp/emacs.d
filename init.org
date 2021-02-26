@@ -4902,7 +4902,6 @@ go get -v github.com/mdempsky/gocode
     ))
 #+end_src
 
-
 ** [ivy.el] 続々・何でも絞り込みインターフェイス
    :PROPERTIES:
    :CUSTOM_ID: orgfa7d126f
@@ -5135,6 +5134,47 @@ sorted.  FUNCTION must be a function of one argument."
     (company-prescient-mode 1)))
 #+end_src
 
+** [command-log-mode.el] 発行したコマンドの履歴をバッファに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: orga3715560
+   :END:
+
+入力したコマンドの履歴をバッファに表示してくれます．Emacsのバッファを表示しながらお話する時に便利です．
+
+プレゼンテーションという点で，さらに，キーキャストを実現する =keypression.el= と， Org Mode のプレゼンツールである =org-tree-slide.el= と組み合わせることで，視覚的なサポートが完成します．
+
+=command-log-mode.el= の出力は，フレームの横幅を拡張してできる空間に表示するようにしています．フレームサイズの制御は =moom.el= で簡単にできます．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+         '(my-command-log-mode-activate my-command-log-mode-deactivate)
+         "command-log-mode" nil t)
+
+    (with-eval-after-load "command-log-mode"
+      (require 'keypression)
+      (require 'moom)
+      ;; (setq command-log-mode-window-font-size 0)
+      (setq command-log-mode-window-size 60)
+
+      (defun my-command-log-mode-activate ()
+        (interactive)
+        (keypression-mode 1)
+        (unless command-log-mode
+          (global-command-log-mode 1))
+        (when (require 'moom nil t)
+          (moom-delete-windows)
+          (moom-change-frame-width 140)
+          (moom--stay-in-region)
+          (clm/open-command-log-buffer)))
+
+      (defun my-command-log-mode-deactivate ()
+        (interactive)
+        (keypression-mode -1)
+        (when command-log-mode
+          (global-command-log-mode -1))
+        (when (require 'moom nil t)
+          (moom-delete-windows)))))
+#+end_src
 ** TODO [swiper.el] 文字列探索とプレビューを同時に行う
    :PROPERTIES:
    :CUSTOM_ID: orgf0e91c5a
@@ -7916,7 +7956,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (with-eval-after-load "org"
     ;; タイトルを少し強調
     (custom-set-faces
-     '(org-document-title ((t (:bold t :height 1.2)))))
+     '(org-document-title ((t (:foreground "RoyalBlue1" :bold t :height 1.2))))
+     '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
 
     ;; 関連モジュールの読み込み
     ;; (require 'org-mobile nil t)
@@ -11500,48 +11541,56 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   - http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html
   - http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el
 
-#+begin_src emacs-lisp :tangle late-init.el
-(unless noninteractive
-  (global-hl-line-mode 1))
-#+end_src
-
 色の設定は =custom-set-faces= で．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(defvar my-hl-active-period 120
-  "Disable `hl-line' after this period")
+(when (autoload-if-found
+       '(hl-line-mode my-hl-line-enable)
+       "hl-line" nil t)
 
-(defun my-hl-line-disable ()
-  "Disable `hl-line'."
-  (global-hl-line-mode -1))
+  (defvar my-hl-permanent-disabled '(dired-mode)
+    "A list of major modes to disable `hl-line'.")
 
-(defun my-hl-line-enable ()
-  "Enable `hl-line'."
-  (unless global-hl-line-mode
-    (global-hl-line-mode 1)))
+  (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 
-(defun my-ime-off-hline ()
-  (my-hl-line-enable)
-  (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-    (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF"))))
+  (with-eval-after-load "hl-line"
+    (defvar my-hl-active-period 120
+      "Disable `hl-line' after this period")
 
-(defun my-ime-on-hline ()
-  (my-hl-line-enable)
-  (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-    (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
+    (defun my-hl-line-disable ()
+      "Disable `hl-line'."
+      (hl-line-mode -1))
 
-;; init
-(when (fboundp 'mac-ime-active-p)
-  (if (version< emacs-version "27.0")
-      (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
-    (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
+    (defun my-hl-line-enable ()
+      "Enable `hl-line'."
+      (unless (or hl-line-mode
+                  (minibufferp)
+		              (memq major-mode my-hl-permanent-disabled))
+        (hl-line-mode 1)))
 
-(add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
-(run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
-(add-hook 'focus-in-hook #'my-hl-line-enable)
-(add-hook 'focus-out-hook #'my-hl-line-disable)
-(add-hook 'input-method-activate-hook #'my-ime-on-hline)
-(add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
+    (defun my-ime-off-hline ()
+      (my-hl-line-enable)
+      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+        (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF"))))
+
+    (defun my-ime-on-hline ()
+      (my-hl-line-enable)
+      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+        (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
+
+    ;; init
+    (when (fboundp 'mac-ime-active-p)
+      (if (version< emacs-version "27.0")
+	        (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+        (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
+
+    (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
+    (add-hook 'focus-in-hook #'my-hl-line-enable)
+    (add-hook 'focus-out-hook #'my-hl-line-disable)
+    ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
+    ;; (add-hook 'minibuffer-exit-hook #'my-hl-line-enable)
+    (add-hook 'input-method-activate-hook #'my-ime-on-hline)
+    (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)))
 #+end_src
 
 色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．

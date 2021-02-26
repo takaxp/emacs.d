@@ -17,9 +17,7 @@
       my-frame-appearance nil ;; {nil, 'dark, 'light}
       my-skip-check-autoload-file t)
 (unless (getenv "SYNCROOT")
-  (setenv "SYNCROOT" (concat (getenv "HOME")
-                             "/Dropbox"
-                             )))
+  (setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; swiper(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
@@ -58,9 +56,7 @@
    ,(expand-file-name "~/Dropbox/emacs.d/bin")
    ,(expand-file-name "~/Dropbox/scripts")
    "/usr/local/opt/llvm/bin"
-   "C:/cygwin64/bin"
-   "C:/msys64/usr/bin"
-   "C:/msys64/mingw64/bin"
+   "C:/cygwin64/bin" "C:/msys64/usr/bin" "C:/msys64/mingw64/bin"
    "/Applications/UpTex.app/teTeX/bin"
    "/Applications/UpTeX.app/Contents/Resources/TEX/texbin"
    "/Applications/LibreOffice.app/Contents/MacOS/"
