@@ -2632,6 +2632,7 @@ gzされた elisp ソースを見るときに， ~view-mode~ を使います．�
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
 (add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
+(add-to-list 'my-auto-view-dirs "~/devel/git/org-mode/lisp/")
 (when (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
@@ -5175,6 +5176,32 @@ sorted.  FUNCTION must be a function of one argument."
         (when (require 'moom nil t)
           (moom-delete-windows)))))
 #+end_src
+** TODO [emacs-tree-sitter.el] tree-sitter でシンタックスハイライトする
+   :PROPERTIES:
+   :CUSTOM_ID: orga6eb6883
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(let* ((elp (expand-file-name
+	     (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")))
+ (ets (concat elp "emacs-tree-sitter/"))
+ (tsl (concat elp "tree-sitter-langs/")))
+  ;; (add-to-list 'load-path (concat ets "langs"))
+  (add-to-list 'load-path (concat ets "core"))
+  (add-to-list 'load-path (concat ets "lisp"))
+  (add-to-list 'load-path tsl))
+(defun my-enable-tree-sitter ()
+  (unless (featurep 'tree-sitter)
+    (require 'tree-sitter)
+    (require 'tree-sitter-hl)
+    (require 'tree-sitter-debug)
+    (require 'tree-sitter-query)
+    (require 'tree-sitter-langs))
+  (tree-sitter-hl-mode))
+(dolist (hook '(js-mode-hook))
+  (add-hook hook #'my-enable-tree-sitter))
+#+end_src
+
 ** TODO [swiper.el] 文字列探索とプレビューを同時に行う
    :PROPERTIES:
    :CUSTOM_ID: orgf0e91c5a

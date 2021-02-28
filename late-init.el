@@ -529,6 +529,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
 (add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
+(add-to-list 'my-auto-view-dirs "~/devel/git/org-mode/lisp/")
 (when (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
@@ -1686,6 +1687,54 @@ sorted.  FUNCTION must be a function of one argument."
   (when (and (require 'prescient nil t)
              (require 'company-prescient nil t))
     (company-prescient-mode 1)))
+
+(when (autoload-if-found
+         '(my-command-log-mode-activate my-command-log-mode-deactivate)
+         "command-log-mode" nil t)
+
+    (with-eval-after-load "command-log-mode"
+      (require 'keypression)
+      (require 'moom)
+      ;; (setq command-log-mode-window-font-size 0)
+      (setq command-log-mode-window-size 60)
+
+      (defun my-command-log-mode-activate ()
+        (interactive)
+        (keypression-mode 1)
+        (unless command-log-mode
+          (global-command-log-mode 1))
+        (when (require 'moom nil t)
+          (moom-delete-windows)
+          (moom-change-frame-width 140)
+          (moom--stay-in-region)
+          (clm/open-command-log-buffer)))
+
+      (defun my-command-log-mode-deactivate ()
+        (interactive)
+        (keypression-mode -1)
+        (when command-log-mode
+          (global-command-log-mode -1))
+        (when (require 'moom nil t)
+          (moom-delete-windows)))))
+
+(let* ((elp (expand-file-name
+	     (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")))
+ (ets (concat elp "emacs-tree-sitter/"))
+ (tsl (concat elp "tree-sitter-langs/")))
+  ;; (add-to-list 'load-path (concat ets "langs"))
+  (add-to-list 'load-path (concat ets "core"))
+  (add-to-list 'load-path (concat ets "lisp"))
+  (add-to-list 'load-path tsl))
+(defun my-enable-tree-sitter ()
+  (unless (featurep 'tree-sitter)
+    (require 'tree-sitter)
+    (require 'tree-sitter-hl)
+    (require 'tree-sitter-debug)
+    (require 'tree-sitter-query)
+    (require 'tree-sitter-langs))
+  (tree-sitter-hl-mode))
+(dolist (hook '(js-mode-hook))
+  (add-hook hook #'my-enable-tree-sitter))
 
 (when (autoload-if-found
        '(swiper-thing-at-point swiper-all-thing-at-point)

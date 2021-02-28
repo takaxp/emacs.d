@@ -129,6 +129,9 @@
   (el-get-bundle "mhayashi1120/Emacs-wgrep")
   (el-get-bundle "syohex/emacs-go-eldoc" :name go-eldoc)
   (el-get-bundle "jacktasia/dumb-jump")
+  (el-get-bundle "karlotness/tree-sitter.el" :name tree-sitter)
+  (el-get-bundle "ubolonton/emacs-tree-sitter")
+  (el-get-bundle "ubolonton/tree-sitter-langs")
 
   ;; ivy modules
   (el-get-bundle "takaxp/counsel-selected")
