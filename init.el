@@ -882,10 +882,6 @@ This function is called directly from the C code."
     (setq moom-command-with-centering nil)
     (setq moom-lighter "M")
     (setq moom-verbose t)
-    (setq moom-multi-monitors-support t)
-    (when (eq system-type 'windows-nt)
-      (setq moom-user-margin '(0 40 0 0)))
-    ;; (setq moom-use-font-module nil)
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 

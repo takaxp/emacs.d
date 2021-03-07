@@ -134,6 +134,9 @@
       (apply f arg))
     (advice-add 'org-return :around #'ad:org-return)
 
+    ;; ブリッツにアルファベットを使う
+    (setq org-list-allow-alphabetical t)
+
     ;; - を優先．親のブリッツ表示を継承させない
     (setq org-list-demote-modify-bullet
           '(("+" . "-")

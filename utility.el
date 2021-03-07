@@ -441,7 +441,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (goto-char begin))))
 
 (defvar my-org-list-with-checkbox-regexp
-  (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[0-9]*[\\.)][ \t]\\)"
+  (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
           "\\[.\\][ \t]+"))
 
 ;;;###autoload
@@ -463,7 +463,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (goto-char begin)
       (while (re-search-forward
               (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
-                      "^[ \t]*[0-9]*[\\.)][ \t]+\\)") end t)
+                      "^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+\\)") end t)
         (replace-match (concat "\\1" checkbox) nil nil)
         (setq end (+ end len)))
       (goto-char begin))))

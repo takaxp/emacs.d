@@ -8094,6 +8094,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (apply f arg))
     (advice-add 'org-return :around #'ad:org-return)
 
+    ;; ブリッツにアルファベットを使う
+    (setq org-list-allow-alphabetical t)
+
     ;; - を優先．親のブリッツ表示を継承させない
     (setq org-list-demote-modify-bullet
           '(("+" . "-")
@@ -11102,10 +11105,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (setq moom-command-with-centering nil)
     (setq moom-lighter "M")
     (setq moom-verbose t)
-    (setq moom-multi-monitors-support t)
-    (when (eq system-type 'windows-nt)
-      (setq moom-user-margin '(0 40 0 0)))
-    ;; (setq moom-use-font-module nil)
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 
