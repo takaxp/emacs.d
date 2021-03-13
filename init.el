@@ -878,6 +878,9 @@ This function is called directly from the C code."
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
     (add-hook 'moom-delete-window-hook #'dimmer-on)
 
+    (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
+    (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
+
     (moom-recommended-keybindings 'all)
     (setq moom-command-with-centering nil)
     (setq moom-lighter "M")

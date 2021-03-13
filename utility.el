@@ -431,14 +431,14 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun my-org-list-delete-items (begin end)
   (interactive "r")
   (when mark-active
-    (let* ((bullet "- ")
-           (len (string-width bullet)))
-      (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*\\)" bullet) end t)
+    (goto-char begin)
+    (while (re-search-forward
+            "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)"
+            end t)
+      (let ((len (- (match-end 0) (match-beginning 0))))
         (replace-match "" nil nil)
-        (setq end (- end len)))
-      (goto-char begin))))
+        (setq end (- end len))))
+    (goto-char begin)))
 
 (defvar my-org-list-with-checkbox-regexp
   (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
@@ -498,18 +498,35 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun my-org-list-delete-items-with-checkbox (begin end)
   (interactive "r")
   (when mark-active
-    (let* ((bullet "- ")
-           (checkbox "[ ] ")
-           (blen (string-width bullet))
-           (clen (string-width checkbox)))
-      (goto-char begin)
-      (while (re-search-forward my-org-list-with-checkbox-regexp end t)
+    (goto-char begin)
+    (while (re-search-forward my-org-list-with-checkbox-regexp end t)
+      (let ((len (- (match-end 0) (match-beginning 0))))
         (replace-match "" nil nil)
-        (setq end (- end blen clen)))
-      (goto-char begin))))
+        (setq end (- end len))))
+    (goto-char begin)))
 
 ;;;###autoload
 (defun my-cycle-bullet-at-heading (arg)
+  "Add a bullet of \" - \" if the line is NOT a bullet line."
+  (interactive "P")
+  (save-excursion
+    (beginning-of-line)
+    (let ((bullet "- ")
+          (point-at-eol (point-at-eol)))
+      (cond
+       ((re-search-forward
+         my-org-list-with-checkbox-regexp point-at-eol t)
+        (replace-match (if arg "" "\\1") nil nil))
+       ((re-search-forward
+         "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
+         point-at-eol t)
+        (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
+       ((re-search-forward
+         (concat "\\(^[ \t]*\\)") point-at-eol t)
+        (replace-match (concat "\\1 " bullet) nil nil))
+       (t nil)))))
+
+(defun my-cycle-bullet-at-heading1 (arg)
   "Add a bullet of \" - \" if the line is NOT a bullet line."
   (interactive "P")
   (save-excursion

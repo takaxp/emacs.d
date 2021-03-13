@@ -323,7 +323,8 @@
        `(lambda ()
           (when (and (load "~/.emacs" nil t)
                      (load "~/.emacs.d/lisp/init-org.el" nil t)
-                     (require 'org nil t))
+                     (require 'org nil t)
+                     (require 'org-agenda nil t))
             (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
             (if (file-exists-p
                  (expand-file-name org-icalendar-combined-agenda-file))

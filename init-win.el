@@ -32,6 +32,9 @@
     ;; Language, will override default-input-method
     (set-language-environment "Japanese")
 
+    ;; load-path の追加
+    (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/tr-ime"))
+
     ;; IME パッチモジュールの読み込み
     (when (and (eq window-system 'w32)
                (not (fboundp 'ime-get-mode))
@@ -70,10 +73,11 @@
   (with-eval-after-load "moom"
     (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
     (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
-    ;;(moom-font-resize 16)
-    ;;(setq moom-user-margin '(0 -6 0 0))
+    (global-set-key (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
+    (global-set-key (kbd "C-c C->") 'moom-move-frame-to-edge-right)
     (setq moom-font-ja-scale 1.0)
-    (moom-reset))
+    (moom-reset)
+    (moom-font-resize 20))
 
   ;; org-agenda
   (with-eval-after-load "org-agenda"

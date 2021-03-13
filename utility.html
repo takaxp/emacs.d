@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-03-07 Sun 12:19 -->
+<!-- 2021-03-14 Sun 02:34 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -239,8 +239,8 @@
 <li><a href="#org33d4f93d">1.6. 頻繁に利用するファイルをring形式でたどる</a></li>
 <li><a href="#org31226d9e">1.7. 引数のorgバッファを開く</a></li>
 <li><a href="#org6a1e418a">1.8. orgバッファにいつものヘッダを追加する</a></li>
-<li><a href="#orgfbb398c">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
-<li><a href="#org1c382d4">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
+<li><a href="#org1095b09">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
+<li><a href="#org6367942">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
 <li><a href="#org8f57b3f8">1.11. 議事録ひな形を書き入れる</a></li>
 <li><a href="#orgdd9630ad">1.12. ランダムの文字列を取得する</a></li>
 <li><a href="#org3697f6bd">1.13. 行頭に" - "を挿入する</a></li>
@@ -255,7 +255,7 @@
 <li><a href="#org4043fe35">1.22. [package.el] MELPA利用設定</a></li>
 <li><a href="#orgfd51fa6e">1.23. orgバッファを評価</a></li>
 <li><a href="#orga706f503">1.24. リージョン内のブリッツを操作する(orgmode)</a></li>
-<li><a href="#orgc99664d5">1.25. <span class="todo TODO">TODO</span> " - "と" - [ ] "をサイクルさせる</a></li>
+<li><a href="#orgc99664d5">1.25. " - "と" - [ ] "をサイクルさせる</a></li>
 <li><a href="#orgda007b63">1.26. <span class="todo TODO">TODO</span> ガベージコレクト情報を表示</a></li>
 <li><a href="#orgfd77df9c">1.27. その他</a></li>
 <li><a href="#orgdf529698">1.28. XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
@@ -577,8 +577,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-orgfbb398c" class="outline-3">
-<h3 id="orgfbb398c"><span class="section-number-3">1.9</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
+<div id="outline-container-org1095b09" class="outline-3">
+<h3 id="org1095b09"><span class="section-number-3">1.9</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
 <div class="outline-text-3" id="text-1-9">
 <p>
 PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで <code>org-decrypt-entry</code> するための空ツリーを書き込みます．
@@ -595,8 +595,8 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 </div>
 </div>
 
-<div id="outline-container-org1c382d4" class="outline-3">
-<h3 id="org1c382d4"><span class="section-number-3">1.10</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
+<div id="outline-container-org6367942" class="outline-3">
+<h3 id="org6367942"><span class="section-number-3">1.10</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
 <div class="outline-text-3" id="text-1-10">
 <p>
 下記の関数で生成したツリーの本体をメールで送信すれば，秘密鍵のある端末で復号できます．
@@ -988,14 +988,14 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-delete-items</span> (begin end)
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
   (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">"- "</span>)
-           (len (string-width bullet)))
-      (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (re-search-forward
-              (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> bullet) end t)
+    (goto-char begin)
+    (<span style="color: #a020f0;">while</span> (re-search-forward
+            <span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
+            end t)
+      (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
         (replace-match <span style="color: #8b2252;">""</span> nil nil)
-        (<span style="color: #a020f0;">setq</span> end (- end len)))
-      (goto-char begin))))
+        (<span style="color: #a020f0;">setq</span> end (- end len))))
+    (goto-char begin)))
 
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-list-with-checkbox-regexp</span>
   (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
@@ -1037,7 +1037,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
       (goto-char begin))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-insert-itms-with-checkbox</span> (begin end)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-insert-items-with-checkbox</span> (begin end)
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
   (<span style="color: #a020f0;">when</span> mark-active
     (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">" - "</span>)
@@ -1055,22 +1055,19 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-delete-items-with-checkbox</span> (begin end)
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
   (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">"- "</span>)
-           (checkbox <span style="color: #8b2252;">"[ ] "</span>)
-           (blen (string-width bullet))
-           (clen (string-width checkbox)))
-      (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (re-search-forward my-org-list-with-checkbox-regexp end t)
+    (goto-char begin)
+    (<span style="color: #a020f0;">while</span> (re-search-forward my-org-list-with-checkbox-regexp end t)
+      (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
         (replace-match <span style="color: #8b2252;">""</span> nil nil)
-        (<span style="color: #a020f0;">setq</span> end (- end blen clen)))
-      (goto-char begin))))
+        (<span style="color: #a020f0;">setq</span> end (- end len))))
+    (goto-char begin)))
 </pre>
 </div>
 </div>
 </div>
 
 <div id="outline-container-orgc99664d5" class="outline-3">
-<h3 id="orgc99664d5"><span class="section-number-3">1.25</span> <span class="todo TODO">TODO</span> " - "と" - [ ] "をサイクルさせる</h3>
+<h3 id="orgc99664d5"><span class="section-number-3">1.25</span> " - "と" - [ ] "をサイクルさせる</h3>
 <div class="outline-text-3" id="text-orgc99664d5">
 <ul class="org-ul">
 <li>ブリッツ行でないときは，ブリッツ化する．</li>
@@ -1082,6 +1079,26 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cycle-bullet-at-heading</span> (arg)
+  <span style="color: #8b2252;">"Add a bullet of \" - \" if the line is NOT a bullet line."</span>
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
+  (<span style="color: #a020f0;">save-excursion</span>
+    (beginning-of-line)
+    (<span style="color: #a020f0;">let</span> ((bullet <span style="color: #8b2252;">"- "</span>)
+          (point-at-eol (point-at-eol)))
+      (<span style="color: #a020f0;">cond</span>
+       ((re-search-forward
+         my-org-list-with-checkbox-regexp point-at-eol t)
+        (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> <span style="color: #8b2252;">"\\1"</span>) nil nil))
+       ((re-search-forward
+         <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
+         point-at-eol t)
+        (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> (concat <span style="color: #8b2252;">"\\1[ ] "</span>)) nil nil))
+       ((re-search-forward
+         (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) point-at-eol t)
+        (replace-match (concat <span style="color: #8b2252;">"\\1 "</span> bullet) nil nil))
+       (t nil)))))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cycle-bullet-at-heading1</span> (arg)
   <span style="color: #8b2252;">"Add a bullet of \" - \" if the line is NOT a bullet line."</span>
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
   (<span style="color: #a020f0;">save-excursion</span>
@@ -1599,7 +1616,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-03-07 Sun 12:19</p>
+<p class="date">Created: 2021-03-14 Sun 02:34</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
