@@ -480,7 +480,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (goto-char begin))))
 
 ;;;###autoload
-(defun my-org-list-insert-itms-with-checkbox (begin end)
+(defun my-org-list-insert-items-with-checkbox (begin end)
   (interactive "r")
   (when mark-active
     (let* ((bullet " - ")
