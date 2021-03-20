@@ -4143,10 +4143,13 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
                       :inherit nil
                       :overline nil
                       :underline nil)
-  (setq header-line-format
-        (concat
-         " No day is a good day.                                       "
-         (format-time-string "     %Y-%m-%d %a."))))
+  (defun empty-booting-header-line ()
+    (with-current-buffer "*scratch*"
+      (setq header-line-format
+            (concat
+             " No day is a good day.                                       "
+             (format-time-string "     %Y-%m-%d %a.")))))
+  (run-at-time nil 600 'empty-booting-header-line))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -4693,12 +4696,7 @@ paren.el の場合は以下の設定．
                (list (string-to-number (format-time-string "%m"))
                      (- (string-to-number (format-time-string "%d"))
                         (1- calendar-week-start-day))
-                     (string-to-number (format-time-string "%y"))))))))
-  (setq header-line-format
-        (concat
-         " No day is a good day.                                       "
-         (format "W%s: " (my-get-week-number))
-         (format-time-string "%Y-%m-%d %a."))))
+                     (string-to-number (format-time-string "%y")))))))))
 #+end_src
 
 ** [which-key] キーバインドの選択肢をポップアップする
@@ -8897,12 +8895,14 @@ will not be modified."
 (with-eval-after-load "org"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
-  (setq org-agenda-files
-        (mapcar (lambda (arg)
-                  (concat (getenv "SYNCROOT") "/org/" arg))
-                '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
-                  "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                  "org2ja.org" "itr.org")))
+  (dolist (file (mapcar
+                 (lambda (arg)
+                   (concat (getenv "SYNCROOT") "/org/" arg))
+                 '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
+                   "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
+                   "org2ja.org" "itr.org")))
+    (when (file-exists-p (expand-file-name file))
+      (add-to-list 'org-agenda-files file 'append)))
   (when (eq system-type 'windows-nt) ;; FIXME
     (setq org-agenda-files '("~/Dropbox/org/next.org"))))
 

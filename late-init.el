@@ -1375,12 +1375,7 @@ Call this function at updating `mode-line-mode'."
                (list (string-to-number (format-time-string "%m"))
                      (- (string-to-number (format-time-string "%d"))
                         (1- calendar-week-start-day))
-                     (string-to-number (format-time-string "%y"))))))))
-  (setq header-line-format
-        (concat
-         " No day is a good day.                                       "
-         (format "W%s: " (my-get-week-number))
-         (format-time-string "%Y-%m-%d %a."))))
+                     (string-to-number (format-time-string "%y")))))))))
 
 (when (autoload-if-found
        '(which-key-mode)

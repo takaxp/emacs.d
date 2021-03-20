@@ -7,31 +7,6 @@
 ;;                                                              TODO/DONE/FIXME
 ;; "sp-split-sexp" has an error @2021-02-25
 
-(with-eval-after-load "org"
-  (setq org-publish-project-alist
-        '(("test"
-           :base-directory "~/Desktop"
-           :publishing-directory "~/Desktop"
-           :publishing-function org-html-publish-to-html)))
-
-  (defun org-publish-current-file (&optional force async)
-    "Publish the current file.
-With prefix argument FORCE, force publish the file.  When
-optional argument ASYNC is non-nil, publishing will be done
-asynchronously, in another process."
-    (interactive "P")
-    (let ((file (buffer-file-name (buffer-base-buffer))))
-      (if async
-	        (org-export-async-start (lambda (_) nil)
-	          `(let ((org-publish-use-timestamps-flag
-		                (if ',force nil ,org-publish-use-timestamps-flag)))
-	             (org-publish-file ,file)))
-        (save-excursion
-	        (let ((org-publish-use-timestamps-flag
-	               (if force nil org-publish-use-timestamps-flag)))
-	          (org-publish-file file))))))
-  )
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ns-inline-patch
 

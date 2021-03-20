@@ -41,7 +41,7 @@
 (when my-use-el-get
   (setq my-package-dir my-elget-package-dir))
 (unless (file-directory-p my-package-dir)
-  (user-error "%s does NOT exist. Run setup script first." my-package-dir))
+  (user-error "%s does NOT exist. Run setup script first" my-package-dir))
 
 ;; (1) theme-path
 (my-path-setter

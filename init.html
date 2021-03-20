@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-03-15 Mon 00:49 -->
+<!-- 2021-03-21 Sun 00:49 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -5546,10 +5546,13 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
                       <span style="color: #483d8b;">:inherit</span> nil
                       <span style="color: #483d8b;">:overline</span> nil
                       <span style="color: #483d8b;">:underline</span> nil)
-  (<span style="color: #a020f0;">setq</span> header-line-format
-        (concat
-         <span style="color: #8b2252;">" No day is a good day.                                       "</span>
-         (format-time-string <span style="color: #8b2252;">"     %Y-%m-%d %a."</span>))))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">empty-booting-header-line</span> ()
+    (<span style="color: #a020f0;">with-current-buffer</span> <span style="color: #8b2252;">"*scratch*"</span>
+      (<span style="color: #a020f0;">setq</span> header-line-format
+            (concat
+             <span style="color: #8b2252;">" No day is a good day.                                       "</span>
+             (format-time-string <span style="color: #8b2252;">"     %Y-%m-%d %a."</span>)))))
+  (run-at-time nil 600 'empty-booting-header-line))
 </pre>
 </div>
 
@@ -6154,12 +6157,7 @@ paren.el の場合は以下の設定．
                (list (string-to-number (format-time-string <span style="color: #8b2252;">"%m"</span>))
                      (- (string-to-number (format-time-string <span style="color: #8b2252;">"%d"</span>))
                         (1- calendar-week-start-day))
-                     (string-to-number (format-time-string <span style="color: #8b2252;">"%y"</span>))))))))
-  (<span style="color: #a020f0;">setq</span> header-line-format
-        (concat
-         <span style="color: #8b2252;">" No day is a good day.                                       "</span>
-         (format <span style="color: #8b2252;">"W%s: "</span> (my-get-week-number))
-         (format-time-string <span style="color: #8b2252;">"%Y-%m-%d %a."</span>))))
+                     (string-to-number (format-time-string <span style="color: #8b2252;">"%y"</span>)))))))))
 </pre>
 </div>
 </div>
@@ -10825,12 +10823,14 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#20316;&#25104;&#23550;&#35937;&#65288;&#25351;&#23450;&#12375;&#12394;&#12356;&#12392;agenda&#12364;&#29983;&#25104;&#12373;&#12428;&#12394;&#12356;&#65289;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12371;&#12434;&#38291;&#36949;&#12358;&#12392;&#65292;MobileOrg, iCal export &#12418;&#12358;&#12414;&#12367;&#12356;&#12363;&#12394;&#12356;</span>
-  (<span style="color: #a020f0;">setq</span> org-agenda-files
-        (mapcar (<span style="color: #a020f0;">lambda</span> (arg)
-                  (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/org/"</span> arg))
-                '(<span style="color: #8b2252;">"org-ical.org"</span> <span style="color: #8b2252;">"next.org"</span> <span style="color: #8b2252;">"db/cooking.org"</span> <span style="color: #8b2252;">"minutes/wg1.org"</span>
-                  <span style="color: #8b2252;">"db/daily.org"</span> <span style="color: #8b2252;">"db/trigger.org"</span>  <span style="color: #8b2252;">"academic.org"</span> <span style="color: #8b2252;">"tr/work.org"</span>
-                  <span style="color: #8b2252;">"org2ja.org"</span> <span style="color: #8b2252;">"itr.org"</span>)))
+  (<span style="color: #a020f0;">dolist</span> (file (mapcar
+                 (<span style="color: #a020f0;">lambda</span> (arg)
+                   (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/org/"</span> arg))
+                 '(<span style="color: #8b2252;">"org-ical.org"</span> <span style="color: #8b2252;">"next.org"</span> <span style="color: #8b2252;">"db/cooking.org"</span> <span style="color: #8b2252;">"minutes/wg1.org"</span>
+                   <span style="color: #8b2252;">"db/daily.org"</span> <span style="color: #8b2252;">"db/trigger.org"</span>  <span style="color: #8b2252;">"academic.org"</span> <span style="color: #8b2252;">"tr/work.org"</span>
+                   <span style="color: #8b2252;">"org2ja.org"</span> <span style="color: #8b2252;">"itr.org"</span>)))
+    (<span style="color: #a020f0;">when</span> (file-exists-p (expand-file-name file))
+      (add-to-list 'org-agenda-files file 'append)))
   (<span style="color: #a020f0;">when</span> (eq system-type 'windows-nt) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
     (<span style="color: #a020f0;">setq</span> org-agenda-files '(<span style="color: #8b2252;">"~/Dropbox/org/next.org"</span>))))
 
@@ -11762,7 +11762,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org7a1afe3"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgc800088"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12627,7 +12627,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgbe62ac9" class="figure">
+<div id="orgd7b8b75" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15311,7 +15311,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-03-15 Mon 00:49</p>
+<p class="date">Created: 2021-03-21 Sun 00:49</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
