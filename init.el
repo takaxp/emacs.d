@@ -540,13 +540,15 @@ This function is called directly from the C code."
                       :inherit nil
                       :overline nil
                       :underline nil)
+  (setq header-line-format " No day is a good day.")
   (defun empty-booting-header-line ()
     (with-current-buffer "*scratch*"
       (setq header-line-format
             (concat
              " No day is a good day.                                       "
-             (format-time-string "     %Y-%m-%d %a.")))))
-  (run-at-time nil 600 'empty-booting-header-line))
+             (format "W%s: " (my-get-week-number))
+             (format-time-string "%Y-%m-%d %a.")))))  
+  )
 
 ;; Show scroll bar or not
 (when (and (display-graphic-p)

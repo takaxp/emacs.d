@@ -747,12 +747,14 @@ will not be modified."
 (with-eval-after-load "org"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
-  (setq org-agenda-files
-        (mapcar (lambda (arg)
-                  (concat (getenv "SYNCROOT") "/org/" arg))
-                '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
-                  "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                  "org2ja.org" "itr.org")))
+  (dolist (file (mapcar
+                 (lambda (arg)
+                   (concat (getenv "SYNCROOT") "/org/" arg))
+                 '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
+                   "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
+                   "org2ja.org" "itr.org")))
+    (when (file-exists-p (expand-file-name file))
+      (add-to-list 'org-agenda-files file 'append)))
   (when (eq system-type 'windows-nt) ;; FIXME
     (setq org-agenda-files '("~/Dropbox/org/next.org"))))
 

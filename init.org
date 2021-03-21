@@ -4143,13 +4143,15 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
                       :inherit nil
                       :overline nil
                       :underline nil)
+  (setq header-line-format " No day is a good day.")
   (defun empty-booting-header-line ()
     (with-current-buffer "*scratch*"
       (setq header-line-format
             (concat
              " No day is a good day.                                       "
-             (format-time-string "     %Y-%m-%d %a.")))))
-  (run-at-time nil 600 'empty-booting-header-line))
+             (format "W%s: " (my-get-week-number))
+             (format-time-string "%Y-%m-%d %a.")))))  
+  )
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -4662,6 +4664,8 @@ paren.el の場合は以下の設定．
 ビルドインの =calendar.el= にある =calendar-intermonth-text= をカスタマイズすると，カレンダーに週番号を表示させることが可能です．ただ， =calendar.el= に記載されている例だと， =calendar-week-start-day= が =1= 以外の時に計算結果がおかしくなるので，次のように =calendar-absolute-from-gregorian= に渡す値を補正する必要があります．
 
 #+begin_src emacs-lisp :tangle late-init.el
+(when (require 'empty-booting nil t)
+  (run-at-time "10 sec" 600 'empty-booting-header-line))
 (with-eval-after-load "calendar"
   (setq calendar-week-start-day 1)
   (copy-face 'default 'calendar-iso-week-header-face)
