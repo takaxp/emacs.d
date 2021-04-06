@@ -10,6 +10,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ns-inline-patch
 
+(with-eval-after-load "postpone"
+  (unless (version< emacs-version "28.0")
+    (setq nobreak-char-display nil)))
+
 (custom-set-faces
  '(ns-marked-text-face
    ((t (:foreground "black"
@@ -73,4 +77,4 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
-;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)
+;;(advice-add 'epg--check-error-for-decrypt :override 'ignore)

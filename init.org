@@ -1361,6 +1361,9 @@ GPG error: "no usable configuration," OpenPGP
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "org-crypt"
   (require 'epa)
+  (when (version< "27.0" emacs-version)
+    ;; ミニバッファでパスワードを入力する
+    (setq epg-pinentry-mode 'loopback))
   ;; (when (eq window-system 'w32)
   ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
   ;;   (setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs
@@ -4150,8 +4153,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
             (concat
              " No day is a good day.                                       "
              (format "W%s: " (my-get-week-number))
-             (format-time-string "%Y-%m-%d %a.")))))  
-  )
+             (format-time-string "%Y-%m-%d %a."))))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -4651,7 +4653,6 @@ paren.el の場合は以下の設定．
     (setq japanese-holiday-weekend-marker
           '(holiday nil nil nil nil nil japanese-holiday-saturday))
     (setq japanese-holiday-weekend '(0 6))
-
     (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
     (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend)))
 #+end_src
@@ -4666,41 +4667,45 @@ paren.el の場合は以下の設定．
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'empty-booting nil t)
   (run-at-time "10 sec" 600 'empty-booting-header-line))
-(with-eval-after-load "calendar"
-  (setq calendar-week-start-day 1)
-  (copy-face 'default 'calendar-iso-week-header-face)
-  (set-face-attribute 'calendar-iso-week-header-face nil
-                      :height 1.0 :foreground "#1010FF"
-                      :background (face-background 'default))
-  (setq calendar-intermonth-header
-        (propertize " w"
-                    'font-lock-face 'calendar-iso-week-header-face))
+(when (autoload-if-found
+       '(my-get-week-number)
+       "calendar" nil t)
 
-  (copy-face font-lock-constant-face 'calendar-iso-week-face)
-  (set-face-attribute 'calendar-iso-week-face nil
-                      :height 1.0 :foreground "orange"
-                      :background (face-background 'default))
+  (with-eval-after-load "calendar"
+    (setq calendar-week-start-day 1)
+    (copy-face 'default 'calendar-iso-week-header-face)
+    (set-face-attribute 'calendar-iso-week-header-face nil
+                        :height 1.0 :foreground "#1010FF"
+                        :background (face-background 'default))
+    (setq calendar-intermonth-header
+          (propertize " w"
+                      'font-lock-face 'calendar-iso-week-header-face))
 
-  (setq calendar-intermonth-text
-        '(propertize
-          (format "%02d"
-                  (car
-                   (calendar-iso-from-absolute
-                    (calendar-absolute-from-gregorian
-                     (list month
-                           (- day (1- calendar-week-start-day)) year)))))
-          'font-lock-face 'calendar-iso-week-face))
+    (copy-face font-lock-constant-face 'calendar-iso-week-face)
+    (set-face-attribute 'calendar-iso-week-face nil
+                        :height 1.0 :foreground "orange"
+                        :background (face-background 'default))
 
-  (defun my-get-week-number ()
-    "Return the current week number."
-    (format "%02d"
-            (car
-             (calendar-iso-from-absolute
-              (calendar-absolute-from-gregorian
-               (list (string-to-number (format-time-string "%m"))
-                     (- (string-to-number (format-time-string "%d"))
-                        (1- calendar-week-start-day))
-                     (string-to-number (format-time-string "%y")))))))))
+    (setq calendar-intermonth-text
+          '(propertize
+            (format "%02d"
+                    (car
+                     (calendar-iso-from-absolute
+                      (calendar-absolute-from-gregorian
+                       (list month
+                             (- day (1- calendar-week-start-day)) year)))))
+            'font-lock-face 'calendar-iso-week-face))
+
+    (defun my-get-week-number ()
+      "Return the current week number."
+      (format "%02d"
+              (car
+               (calendar-iso-from-absolute
+                (calendar-absolute-from-gregorian
+                 (list (string-to-number (format-time-string "%m"))
+                       (- (string-to-number (format-time-string "%d"))
+                          (1- calendar-week-start-day))
+                       (string-to-number (format-time-string "%y"))))))))))
 #+end_src
 
 ** [which-key] キーバインドの選択肢をポップアップする
@@ -6332,6 +6337,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   (shell-command-to-string "open ."))
 ;; dired-x を読み込んだあとじゃないとだめ
 (define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
+
+;; 上位ディレクトリへの移動
+(define-key dired-mode-map (kbd "u") 'dired-up-directory)
 
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired
@@ -8751,6 +8759,59 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
       )))
 #+end_src
 
+** orgmode のテーブルを csv に変換する
+   :PROPERTIES:
+   :CREATED:  [2021-04-04 Sun 21:32]
+   :ID:       BF529B02-A87A-491B-B011-E7AB8ABDA3DA
+   :CUSTOM_ID: org0d2cce2f
+   :END:
+標準関数の =org-table-export= を使えば，テーブルを csv 等の形式で外部出力できます．ただバッファ上で csv に変えたりする関数があると楽なので次の関数を使います．標準関数の一部を再利用しています．
+
+=M-x org-table-to-format= を呼び出すとデフォルトでカンマ区切りに変換してくれます．さらにその情報をコピペできるようにクリップボードに流し込みます．
+
+#+begin_src emacs-lisp :tangle init-org.el
+(defun my-org-table-copy-as (&optional format)
+  "Copy converted table."
+  (interactive)
+  (let ((format (or format
+                    (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                    org-table-export-default-format)))
+    (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
+	      (let ((transform (intern (match-string 1 format)))
+	            (params (and (match-end 2)
+			                     (read (concat "(" (match-string 2 format) ")"))))
+	            (table (org-table-to-lisp)))
+          (if (not (org-at-table-p))
+              (user-error "The cursor is not at a table")
+	          (with-temp-buffer
+		          (insert (funcall transform table params) "\n")
+              (clipboard-kill-ring-save (point-min) (point-max)))))
+      (user-error "TABLE_EXPORT_FORMAT invalid"))))
+
+(defun my-org-table-convert-to (&optional format)
+  "Convert a table to FORMAT.
+If FORMAT is nil, it is set equal to a property value specified
+by \"TABLE_EXPORT_FORMAT\" or `org-table-export-default-format'.
+Converted table is copied to kill ring for further use.
+The core part is extracted from `org-table-export'."
+  (interactive)
+  (let ((format (or format
+                    (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                    org-table-export-default-format)))
+    (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
+	      (let ((transform (intern (match-string 1 format)))
+	            (params (and (match-end 2)
+			                     (read (concat "(" (match-string 2 format) ")"))))
+	            (table (org-table-to-lisp)))
+          (if (not (org-at-table-p))
+              (user-error "The cursor is not at a table")
+	          (kill-region (org-table-begin) (org-table-end))
+	          (let ((begin (point)))
+	            (insert (funcall transform table params))
+	            (clipboard-kill-ring-save begin (point))
+              (insert "\n"))))
+      (user-error "TABLE_EXPORT_FORMAT invalid"))))
+#+end_src
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf
@@ -9162,11 +9223,12 @@ will not be modified."
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found
        '(appt my-org-agenda-to-appt ad:appt-display-message
-              ad:appt-disp-window)
+              ad:appt-disp-window appt-check)
        "appt" nil t)
 
   (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt))
+    (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
+    (run-at-time "20 sec" nil #'my-org-agenda-to-appt))
 
   (with-eval-after-load "appt"
     ;; モードラインに残り時間を表示しない
@@ -9264,6 +9326,10 @@ also calls `beep' for an audible reminder."
                 :require-match t
                 :caller 'counsel-appt)))
 
+  ;; (with-eval-after-load "org-agenda"
+  ;;   (unless noninteractive
+  ;;     (appt-activate 1)))
+
   (with-eval-after-load "org"
     ;; org-agenda-to-appt を非同期で使うための advice
     (defvar read-char-default-timeout 10)
@@ -9286,10 +9352,10 @@ also calls `beep' for an audible reminder."
              (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
 
-    ;; アジェンダを開いたらアラームリストを更新して有効化する
+    ;; アジェンダを開いたらアラームリストを更新
     (unless noninteractive
-      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init
-      (appt-activate 1))
+      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
+
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
     (defun my-unlock-org-agenda-to-appt ()
@@ -9333,6 +9399,7 @@ also calls `beep' for an audible reminder."
            `(lambda ()
               (setq load-path ',load-path)
               (require 'org-agenda)
+              (require 'appt)
               (setq org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline "TODO")))
               ;; Remove tags
@@ -9356,7 +9423,7 @@ also calls `beep' for an audible reminder."
            (lambda (result)
              (setq appt-time-msg-list result) ;; nil means No event
              ;; (my-add-prop-to-appt-time-msg-list)
-             (appt-check) ;; remove passed events
+             (appt-check) ;; remove past events
              (unless (active-minibuffer-window)
                (let ((cnt (length appt-time-msg-list)))
                  (if (eq cnt 0)
@@ -10877,7 +10944,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 ;; カーソルの色
 (defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
-(defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2)))
+(defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2) :invisible nil))
 (defvar my-ime-last nil)
 
 (defun my-ime-active-p ()
@@ -10892,6 +10959,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (interactive)
   (setq cursor-type (plist-get my-cur-type-ime :off))
   (set-cursor-color (plist-get my-cur-color-ime :off)))
+(defun my-ime-invisible-cursor ()
+  (interactive)
+  (setq cursor-type (plist-get my-cur-type-ime :invisible)))
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 

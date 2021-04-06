@@ -27,6 +27,9 @@
 ;; dired-x を読み込んだあとじゃないとだめ
 (define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
 
+;; 上位ディレクトリへの移動
+(define-key dired-mode-map (kbd "u") 'dired-up-directory)
+
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired
 (when (eq system-type 'darwin)

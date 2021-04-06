@@ -547,8 +547,7 @@ This function is called directly from the C code."
             (concat
              " No day is a good day.                                       "
              (format "W%s: " (my-get-week-number))
-             (format-time-string "%Y-%m-%d %a.")))))  
-  )
+             (format-time-string "%Y-%m-%d %a."))))))
 
 ;; Show scroll bar or not
 (when (and (display-graphic-p)
@@ -708,7 +707,7 @@ This function is called directly from the C code."
 
 ;; カーソルの色
 (defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
-(defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2)))
+(defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2) :invisible nil))
 (defvar my-ime-last nil)
 
 (defun my-ime-active-p ()
@@ -723,6 +722,9 @@ This function is called directly from the C code."
   (interactive)
   (setq cursor-type (plist-get my-cur-type-ime :off))
   (set-cursor-color (plist-get my-cur-color-ime :off)))
+(defun my-ime-invisible-cursor ()
+  (interactive)
+  (setq cursor-type (plist-get my-cur-type-ime :invisible)))
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 

@@ -82,6 +82,9 @@
 
 (with-eval-after-load "org-crypt"
   (require 'epa)
+  (when (version< "27.0" emacs-version)
+    ;; ミニバッファでパスワードを入力する
+    (setq epg-pinentry-mode 'loopback))
   ;; (when (eq window-system 'w32)
   ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
   ;;   (setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs
@@ -1337,47 +1340,50 @@ Call this function at updating `mode-line-mode'."
     (setq japanese-holiday-weekend-marker
           '(holiday nil nil nil nil nil japanese-holiday-saturday))
     (setq japanese-holiday-weekend '(0 6))
-
     (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
     (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend)))
 
 (when (require 'empty-booting nil t)
   (run-at-time "10 sec" 600 'empty-booting-header-line))
-(with-eval-after-load "calendar"
-  (setq calendar-week-start-day 1)
-  (copy-face 'default 'calendar-iso-week-header-face)
-  (set-face-attribute 'calendar-iso-week-header-face nil
-                      :height 1.0 :foreground "#1010FF"
-                      :background (face-background 'default))
-  (setq calendar-intermonth-header
-        (propertize " w"
-                    'font-lock-face 'calendar-iso-week-header-face))
+(when (autoload-if-found
+       '(my-get-week-number)
+       "calendar" nil t)
 
-  (copy-face font-lock-constant-face 'calendar-iso-week-face)
-  (set-face-attribute 'calendar-iso-week-face nil
-                      :height 1.0 :foreground "orange"
-                      :background (face-background 'default))
+  (with-eval-after-load "calendar"
+    (setq calendar-week-start-day 1)
+    (copy-face 'default 'calendar-iso-week-header-face)
+    (set-face-attribute 'calendar-iso-week-header-face nil
+                        :height 1.0 :foreground "#1010FF"
+                        :background (face-background 'default))
+    (setq calendar-intermonth-header
+          (propertize " w"
+                      'font-lock-face 'calendar-iso-week-header-face))
 
-  (setq calendar-intermonth-text
-        '(propertize
-          (format "%02d"
-                  (car
-                   (calendar-iso-from-absolute
-                    (calendar-absolute-from-gregorian
-                     (list month
-                           (- day (1- calendar-week-start-day)) year)))))
-          'font-lock-face 'calendar-iso-week-face))
+    (copy-face font-lock-constant-face 'calendar-iso-week-face)
+    (set-face-attribute 'calendar-iso-week-face nil
+                        :height 1.0 :foreground "orange"
+                        :background (face-background 'default))
 
-  (defun my-get-week-number ()
-    "Return the current week number."
-    (format "%02d"
-            (car
-             (calendar-iso-from-absolute
-              (calendar-absolute-from-gregorian
-               (list (string-to-number (format-time-string "%m"))
-                     (- (string-to-number (format-time-string "%d"))
-                        (1- calendar-week-start-day))
-                     (string-to-number (format-time-string "%y")))))))))
+    (setq calendar-intermonth-text
+          '(propertize
+            (format "%02d"
+                    (car
+                     (calendar-iso-from-absolute
+                      (calendar-absolute-from-gregorian
+                       (list month
+                             (- day (1- calendar-week-start-day)) year)))))
+            'font-lock-face 'calendar-iso-week-face))
+
+    (defun my-get-week-number ()
+      "Return the current week number."
+      (format "%02d"
+              (car
+               (calendar-iso-from-absolute
+                (calendar-absolute-from-gregorian
+                 (list (string-to-number (format-time-string "%m"))
+                       (- (string-to-number (format-time-string "%d"))
+                          (1- calendar-week-start-day))
+                       (string-to-number (format-time-string "%y"))))))))))
 
 (when (autoload-if-found
        '(which-key-mode)

@@ -632,6 +632,48 @@
       ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
       )))
 
+(defun my-org-table-copy-as (&optional format)
+  "Copy converted table."
+  (interactive)
+  (let ((format (or format
+                    (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                    org-table-export-default-format)))
+    (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
+	      (let ((transform (intern (match-string 1 format)))
+	            (params (and (match-end 2)
+			                     (read (concat "(" (match-string 2 format) ")"))))
+	            (table (org-table-to-lisp)))
+          (if (not (org-at-table-p))
+              (user-error "The cursor is not at a table")
+	          (with-temp-buffer
+		          (insert (funcall transform table params) "\n")
+              (clipboard-kill-ring-save (point-min) (point-max)))))
+      (user-error "TABLE_EXPORT_FORMAT invalid"))))
+
+(defun my-org-table-convert-to (&optional format)
+  "Convert a table to FORMAT.
+If FORMAT is nil, it is set equal to a property value specified
+by \"TABLE_EXPORT_FORMAT\" or `org-table-export-default-format'.
+Converted table is copied to kill ring for further use.
+The core part is extracted from `org-table-export'."
+  (interactive)
+  (let ((format (or format
+                    (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                    org-table-export-default-format)))
+    (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
+	      (let ((transform (intern (match-string 1 format)))
+	            (params (and (match-end 2)
+			                     (read (concat "(" (match-string 2 format) ")"))))
+	            (table (org-table-to-lisp)))
+          (if (not (org-at-table-p))
+              (user-error "The cursor is not at a table")
+	          (kill-region (org-table-begin) (org-table-end))
+	          (let ((begin (point)))
+	            (insert (funcall transform table params))
+	            (clipboard-kill-ring-save begin (point))
+              (insert "\n"))))
+      (user-error "TABLE_EXPORT_FORMAT invalid"))))
+
 (when (autoload-if-found
        '(org-capture)
        "org-capture" nil t)
@@ -978,11 +1020,12 @@ will not be modified."
 
 (when (autoload-if-found
        '(appt my-org-agenda-to-appt ad:appt-display-message
-              ad:appt-disp-window)
+              ad:appt-disp-window appt-check)
        "appt" nil t)
 
   (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt))
+    (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
+    (run-at-time "20 sec" nil #'my-org-agenda-to-appt))
 
   (with-eval-after-load "appt"
     ;; モードラインに残り時間を表示しない
@@ -1080,6 +1123,10 @@ also calls `beep' for an audible reminder."
                 :require-match t
                 :caller 'counsel-appt)))
 
+  ;; (with-eval-after-load "org-agenda"
+  ;;   (unless noninteractive
+  ;;     (appt-activate 1)))
+
   (with-eval-after-load "org"
     ;; org-agenda-to-appt を非同期で使うための advice
     (defvar read-char-default-timeout 10)
@@ -1102,10 +1149,10 @@ also calls `beep' for an audible reminder."
              (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
 
-    ;; アジェンダを開いたらアラームリストを更新して有効化する
+    ;; アジェンダを開いたらアラームリストを更新
     (unless noninteractive
-      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt) ;; init
-      (appt-activate 1))
+      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
+
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
     (defun my-unlock-org-agenda-to-appt ()
@@ -1149,6 +1196,7 @@ also calls `beep' for an audible reminder."
            `(lambda ()
               (setq load-path ',load-path)
               (require 'org-agenda)
+              (require 'appt)
               (setq org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline "TODO")))
               ;; Remove tags
@@ -1172,7 +1220,7 @@ also calls `beep' for an audible reminder."
            (lambda (result)
              (setq appt-time-msg-list result) ;; nil means No event
              ;; (my-add-prop-to-appt-time-msg-list)
-             (appt-check) ;; remove passed events
+             (appt-check) ;; remove past events
              (unless (active-minibuffer-window)
                (let ((cnt (length appt-time-msg-list)))
                  (if (eq cnt 0)
