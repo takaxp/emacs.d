@@ -431,7 +431,8 @@ This function is called directly from the C code."
     (setq v5 nil)))
 #+end_src
 
-このカスタマイズされた =autoload-if-found= は引数にリストのみを受け付けます．欠点は，リスト内の全て関数に個別の =docstring= を設定できないため，ヘルプ画面で何の関数なのかの情報があまり表示されないことです．ただ， =require= でパッケージを読み込んでしまえば，本来の =docstring= の内容が正しく反映されるので，すべての情報を確認できるようになります．また， =interactive= を =t= にすれば， =M-x= で当該関数がリストアップされるようになります．したがって， =(docstring interactive) = (nil t)= をデフォルトで指定すればOKです． =type= には， =macro= や =keymap= を指定して，関数以外の情報をオートロード対象にします．
+このカスタマイズされた =autoload-if-found= は引数にリストのみを受け付けます．欠点は，リスト内の全て関数に個別の =docstring= を設定できないため，ヘルプ画面で何の関数なのかの情報があまり表示されないことです．ただ， =require= でパッケージを読み込んでしまえば，本来の =docstring= の内容が正しく反映されるので，すべての情報を確認できるようになります．また， =interactive= を =t= にすれば， =M-x= で当該関数がリストアップされるようになります．したがって， =(docstring interactive) = (nil t)= をデフォルトで指定すればOKです． =type= には， =macro= や =keymap= を
+指定して，関数以外の情報をオートロード対象にします．
 
 コンパイル時に =Warning: the function ‘google-this’ is not known to be defined.= のようなメッセージが出る時には， =autoload-if-found= の =functions= に当該関数を追加すると，警告されなくなります． =declare-function= を追記せずに済みます．
 
@@ -4783,43 +4784,44 @@ paren.el の場合は以下の設定．
                  '("google[ _-]drive" all-the-icons-alltheicon "google-drive"
                    :height 1.0 :v-adjust -0.1)))
 
-  (with-eval-after-load "all-the-icons-dired"
-    (unless noninteractive
-      (unless (require 'font-lock+ nil t)
-        (user-error "font-lock+ is NOT installed for all-the-icons."))
+  ;; (with-eval-after-load "all-the-icons-dired"
+  ;;   (unless noninteractive
+  ;;     (unless (require 'font-lock+ nil t)
+  ;;       (user-error "font-lock+ is NOT installed for all-the-icons."))
 
-      ;; (defun ad:all-the-icons-dired--display ()
-      ;;   "Display the icons of files in a dired buffer."
-      ;;   (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)
-      ;;     (setq-local all-the-icons-dired-displayed t)
-      ;;     (let ((inhibit-read-only t)
-      ;;           (file-remote-p (and (fboundp 'tramp-tramp-file-p)
-      ;;                               (tramp-tramp-file-p default-directory))))
-      ;;       (save-excursion
-      ;;         (goto-char (point-min))
-      ;;         (setq tab-width 1)
-      ;;         (while (not (eobp))
-      ;;           (when (dired-move-to-filename nil)
-      ;;             (let ((file (dired-get-filename 'verbatim t)))
-      ;;               (unless (member file '("." ".."))
-      ;;                 (let ((filename (dired-get-filename nil t)))
-      ;;                   (if (file-directory-p filename)
-      ;;                       (let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))
-      ;;                              (icon (cond
-      ;;                                     (remote-p
-      ;;                                      (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-      ;;                                     ((file-symlink-p filename)
-      ;;                                      (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-      ;;                                     ((all-the-icons-dir-is-submodule filename)
-      ;;                                      (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-      ;;                                     ((file-exists-p (format "%s/.git" filename))
-      ;;                                      (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-      ;;                                     (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))
-      ;;                         (insert (concat icon "\t")))
-      ;;                     (insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9
-      ;;           (forward-line 1))))))
-      ;; (advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display)
-      )))
+  ;;     ;; (defun ad:all-the-icons-dired--display ()
+  ;;     ;;   "Display the icons of files in a dired buffer."
+  ;;     ;;   (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)
+  ;;     ;;     (setq-local all-the-icons-dired-displayed t)
+  ;;     ;;     (let ((inhibit-read-only t)
+  ;;     ;;           (file-remote-p (and (fboundp 'tramp-tramp-file-p)
+  ;;     ;;                               (tramp-tramp-file-p default-directory))))
+  ;;     ;;       (save-excursion
+  ;;     ;;         (goto-char (point-min))
+  ;;     ;;         (setq tab-width 1)
+  ;;     ;;         (while (not (eobp))
+  ;;     ;;           (when (dired-move-to-filename nil)
+  ;;     ;;             (let ((file (dired-get-filename 'verbatim t)))
+  ;;     ;;               (unless (member file '("." ".."))
+  ;;     ;;                 (let ((filename (dired-get-filename nil t)))
+  ;;     ;;                   (if (file-directory-p filename)
+  ;;     ;;                       (let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))
+  ;;     ;;                              (icon (cond
+  ;;     ;;                                     (remote-p
+  ;;     ;;                                      (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+  ;;     ;;                                     ((file-symlink-p filename)
+  ;;     ;;                                      (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+  ;;     ;;                                     ((all-the-icons-dir-is-submodule filename)
+  ;;     ;;                                      (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+  ;;     ;;                                     ((file-exists-p (format "%s/.git" filename))
+  ;;     ;;                                      (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
+  ;;     ;;                                     (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))
+  ;;     ;;                         (insert (concat icon "\t")))
+  ;;     ;;                     (insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9
+  ;;     ;;           (forward-line 1))))))
+  ;;     ;; (advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display)
+  ;;     ))
+  )
 #+end_src
 
 ** [eldoc.el] コンテクストに応じてヘルプを表示
@@ -5062,7 +5064,7 @@ sorted.  FUNCTION must be a function of one argument."
            (format "%s%s "
                    (if my-toggle-modeline-global "" ;; FIXME
                      (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                   (all-the-icons-faicon "sort-amount-asc")))
+                   (all-the-icons-material "filter_list"))) ;; sort-amount-asc
           (t
            (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
@@ -7928,6 +7930,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
                          ac-source-dictionary
                          )))))
 #+end_src
+
 ** DONE [hideshowvis.el] 関数の表示／非表示                        :notinuse:
    CLOSED: [2018-09-24 Mon 11:23]
    :PROPERTIES:
@@ -7954,7 +7957,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     (with-eval-after-load "hideshowvis"
       (define-key hideshowvis-mode-map (kbd "C-(") 'hs-hide-block)
       (define-key hideshowvis-mode-map (kbd "C-)") 'hs-show-block))))
-#+end_src
+                                                                             #+end_src
 
 * Org Mode
   :PROPERTIES:
@@ -8369,18 +8372,55 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (org-cancel-repeater))
     (org-todo ARG))
 
+  (defun my-org-replace-punc-in-buffer ()
+    "Replace \"，\" and \"．\" with \"、\" and \"。\" in a buffer."
+    (interactive)
+    (goto-char (point-min))
+    (while (re-search-forward "\\(，\\)\\|\\(．\\)" nil :noerror)
+      (let ((w (match-string-no-properties 0)))
+        (cond ((equal w "，") (replace-match "、"))
+              ((equal w "．") (replace-match "。"))))))
+
+  (defun my-org-replace-punc-in-tree ()
+    "Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree."
+    (interactive)
+    (let* ((element (org-element-at-point))
+           (begin (org-element-property :begin element))
+           (end (org-element-property :end element)))
+      (when (eq (org-element-type element) 'headline)
+        (goto-char begin)
+        (while (re-search-forward "\\(，\\)\\|\\(．\\)" end :noerror)
+          (let ((w (match-string-no-properties 0)))
+            (cond ((equal w "，") (replace-match "、"))
+                  ((equal w "．") (replace-match "。")))))
+        (goto-char begin))))
+
   ;; Hugo の記事を書き出し&アップロード
   (defun my-hugo-export-upload ()
     "Export subtree for Hugo and upload the engty."
     (when (member (buffer-name) '("imadenale.org" "archive.org"))
       (if (not (org-entry-is-done-p))
           (message "The state of the entry is not \"DONE\" yet.")
+        ;; (my-org-replace-punc-in-tree)
+        ;; (save-buffer)
+        ;; (let ((outfile (org-hugo-export-wim-to-md)))
+        ;;   (sit-for 2)
+        ;;   (when (and outfile
+        ;;              (file-exists-p outfile))
+        ;;     (switch-to-buffer
+        ;;      (find-file-noselect outfile)
+        ;;      (my-org-replace-punc-in-buffer))))
         (org-hugo-export-wim-to-md)
         (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
               (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
               (exported (format "[ox-hugo] \"%s\" has been exported."
                                 (nth 4 (org-heading-components)))))
           (when filename
+            (when (file-exists-p (concat outfile ".md"))
+              (switch-to-buffer
+               (find-file-noselect (concat outfile ".md"))
+               (my-org-replace-punc-in-buffer)
+               (save-buffer)))
             (save-excursion
               (save-restriction
                 (outline-up-heading 1)
@@ -9562,15 +9602,23 @@ also calls `beep' for an audible reminder."
    :ID:       1868BCF8-A93E-4E83-8684-5FEE3C9BD27B
    :END:
 
-=org-src-block-faces=, =org-block-begin-line=, =org-block-end-line= をカスタマイズして，配色を変えます．
-
-#+begin_src emacs-lisp :tangle no
-(setq org-src-block-faces
-      '(("emacs-lisp" (:background "cornsilk"))))
-#+end_src
+=org-src-block-faces=, =org-block-begin-line=, =org-block-end-line= をカスタマイズして，配色を変えます．さらに， =prettify-symbols-mode= を利用して =begin_src= と =end_src= の表示を別な文字列に変えます．
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
+  (defun my-org-src-block-face ()
+    (setq org-src-block-faces
+          (if (eq 'light (frame-parameter nil 'background-mode))
+              '(("emacs-lisp" (:background "#F9F9F9" :extend t))
+                ("conf" (:background "#F9F9F9" :extend t))
+                ("html" (:background "#F9F9F9" :extend t)))
+            '(("emacs-lisp" (:background "#383c4c" :extend t))
+              ("conf" (:background "#383c4c" :extend t))
+              ("html" (:background "#383c4c" :extend t)))))
+    (font-lock-fontify-buffer))
+  (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
+  (my-org-src-block-face)
+
   (custom-set-faces
    '(org-block-begin-line
      ((((background dark))
@@ -9579,6 +9627,13 @@ also calls `beep' for an audible reminder."
      (org-block-end-line
       ((((background dark)) (:inherit org-block-begin-line))
        (t (:inherit org-block-begin-line)))))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(setq-default prettify-symbols-alist '(("#+begin_src" . "") ;; ┌⌜⎡
+                                       ("#+end_src" . "▨") ;; └⌞
+                                       ("#+RESULTS:" . ""))) ;; ✓
+(add-hook 'org-mode-hook 'prettify-symbols-mode)
 #+end_src
 
 ** [org-tree-slide] Org Modeでプレゼンテーション
@@ -10998,7 +11053,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    ((memq window-system '(ns x))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
+       "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
 
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)

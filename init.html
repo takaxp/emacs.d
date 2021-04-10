@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-06 Tue 12:21 -->
+<!-- 2021-04-10 Sat 13:30 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1188,7 +1188,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <p>
-このカスタマイズされた <code>autoload-if-found</code> は引数にリストのみを受け付けます．欠点は，リスト内の全て関数に個別の <code>docstring</code> を設定できないため，ヘルプ画面で何の関数なのかの情報があまり表示されないことです．ただ， <code>require</code> でパッケージを読み込んでしまえば，本来の <code>docstring</code> の内容が正しく反映されるので，すべての情報を確認できるようになります．また， <code>interactive</code> を <code>t</code> にすれば， <code>M-x</code> で当該関数がリストアップされるようになります．したがって， <code>(docstring interactive) = (nil t)</code> をデフォルトで指定すればOKです． <code>type</code> には， <code>macro</code> や <code>keymap</code> を指定して，関数以外の情報をオートロード対象にします．
+このカスタマイズされた <code>autoload-if-found</code> は引数にリストのみを受け付けます．欠点は，リスト内の全て関数に個別の <code>docstring</code> を設定できないため，ヘルプ画面で何の関数なのかの情報があまり表示されないことです．ただ， <code>require</code> でパッケージを読み込んでしまえば，本来の <code>docstring</code> の内容が正しく反映されるので，すべての情報を確認できるようになります．また， <code>interactive</code> を <code>t</code> にすれば， <code>M-x</code> で当該関数がリストアップされるようになります．したがって， <code>(docstring interactive) = (nil t)</code> をデフォルトで指定すればOKです． <code>type</code> には， <code>macro</code> や <code>keymap</code> を
+指定して，関数以外の情報をオートロード対象にします．
 </p>
 
 <p>
@@ -6264,43 +6265,44 @@ paren.el の場合は以下の設定．
                  '(<span style="color: #8b2252;">"google[ _-]drive"</span> all-the-icons-alltheicon <span style="color: #8b2252;">"google-drive"</span>
                    <span style="color: #483d8b;">:height</span> 1.0 <span style="color: #483d8b;">:v-adjust</span> -0.1)))
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"all-the-icons-dired"</span>
-    (<span style="color: #a020f0;">unless</span> noninteractive
-      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">font-lock+</span> nil t)
-        (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"font-lock+ is NOT installed for all-the-icons."</span>))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "all-the-icons-dired"</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(unless noninteractive</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(unless (require 'font-lock+ nil t)</span>
+  <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(user-error "font-lock+ is NOT installed for all-the-icons."))</span>
 
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:all-the-icons-dired--display ()</span>
-      <span style="color: #b22222;">;;   </span><span style="color: #b22222;">"Display the icons of files in a dired buffer."</span>
-      <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (and (not all-the-icons-dired-displayed) dired-subdir-alist)</span>
-      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(setq-local all-the-icons-dired-displayed t)</span>
-      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(let ((inhibit-read-only t)</span>
-      <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(file-remote-p (and (fboundp 'tramp-tramp-file-p)</span>
-      <span style="color: #b22222;">;;                               </span><span style="color: #b22222;">(tramp-tramp-file-p default-directory))))</span>
-      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(save-excursion</span>
-      <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(goto-char (point-min))</span>
-      <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(setq tab-width 1)</span>
-      <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(while (not (eobp))</span>
-      <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(when (dired-move-to-filename nil)</span>
-      <span style="color: #b22222;">;;             </span><span style="color: #b22222;">(let ((file (dired-get-filename 'verbatim t)))</span>
-      <span style="color: #b22222;">;;               </span><span style="color: #b22222;">(unless (member file '("." ".."))</span>
-      <span style="color: #b22222;">;;                 </span><span style="color: #b22222;">(let ((filename (dired-get-filename nil t)))</span>
-      <span style="color: #b22222;">;;                   </span><span style="color: #b22222;">(if (file-directory-p filename)</span>
-      <span style="color: #b22222;">;;                       </span><span style="color: #b22222;">(let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))</span>
-      <span style="color: #b22222;">;;                              </span><span style="color: #b22222;">(icon (cond</span>
-      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">(remote-p</span>
-      <span style="color: #b22222;">;;                                      </span><span style="color: #b22222;">(all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
-      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">((file-symlink-p filename)</span>
-      <span style="color: #b22222;">;;                                      </span><span style="color: #b22222;">(all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
-      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">((all-the-icons-dir-is-submodule filename)</span>
-      <span style="color: #b22222;">;;                                      </span><span style="color: #b22222;">(all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
-      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">((file-exists-p (format "%s/.git" filename))</span>
-      <span style="color: #b22222;">;;                                      </span><span style="color: #b22222;">(all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
-      <span style="color: #b22222;">;;                                     </span><span style="color: #b22222;">(t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))</span>
-      <span style="color: #b22222;">;;                         </span><span style="color: #b22222;">(insert (concat icon "\t")))</span>
-      <span style="color: #b22222;">;;                     </span><span style="color: #b22222;">(insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9</span>
-      <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(forward-line 1))))))</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display)</span>
-      )))
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;; (defun ad:all-the-icons-dired--display ()</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;   "Display the icons of files in a dired buffer."</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;   (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;     (setq-local all-the-icons-dired-displayed t)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;     (let ((inhibit-read-only t)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;           (file-remote-p (and (fboundp 'tramp-tramp-file-p)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                               (tramp-tramp-file-p default-directory))))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;       (save-excursion</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;         (goto-char (point-min))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;         (setq tab-width 1)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;         (while (not (eobp))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;           (when (dired-move-to-filename nil)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;             (let ((file (dired-get-filename 'verbatim t)))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;               (unless (member file '("." ".."))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                 (let ((filename (dired-get-filename nil t)))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                   (if (file-directory-p filename)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                       (let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                              (icon (cond</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     (remote-p</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                      (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     ((file-symlink-p filename)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                      (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     ((all-the-icons-dir-is-submodule filename)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                      (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     ((file-exists-p (format "%s/.git" filename))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                      (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                         (insert (concat icon "\t")))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                     (insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;           (forward-line 1))))))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;; (advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">))</span>
+  )
 </pre>
 </div>
 </div>
@@ -6556,7 +6558,7 @@ paren.el の場合は以下の設定．
            (format <span style="color: #8b2252;">"%s%s "</span>
                    (<span style="color: #a020f0;">if</span> my-toggle-modeline-global <span style="color: #8b2252;">""</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
                      (concat (make-string (frame-width) ?\x5F) <span style="color: #8b2252;">"\n"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"__"</span>
-                   (all-the-icons-faicon <span style="color: #8b2252;">"sort-amount-asc"</span>)))
+                   (all-the-icons-material <span style="color: #8b2252;">"filter_list"</span>))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">sort-amount-asc</span>
           (t
            (format <span style="color: #8b2252;">"%s\n"</span> (make-string (1- (frame-width)) ?\x2D)))))
   (<span style="color: #a020f0;">setq</span> ivy-pre-prompt-function #'my-pre-prompt-function))
@@ -9733,6 +9735,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
 </div>
 </div>
 </div>
+
 <div id="outline-container-orgcde881ad" class="outline-3">
 <h3 id="orgcde881ad"><span class="section-number-3">9.25</span> <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgcde881ad">
@@ -10182,18 +10185,55 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (org-cancel-repeater))
     (org-todo ARG))
 
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-replace-punc-in-buffer</span> ()
+    <span style="color: #8b2252;">"Replace \"&#65292;\" and \"&#65294;\" with \"&#12289;\" and \"&#12290;\" in a buffer."</span>
+    (<span style="color: #a020f0;">interactive</span>)
+    (goto-char (point-min))
+    (<span style="color: #a020f0;">while</span> (re-search-forward <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65292;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65294;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> nil <span style="color: #483d8b;">:noerror</span>)
+      (<span style="color: #a020f0;">let</span> ((w (match-string-no-properties 0)))
+        (<span style="color: #a020f0;">cond</span> ((equal w <span style="color: #8b2252;">"&#65292;"</span>) (replace-match <span style="color: #8b2252;">"&#12289;"</span>))
+              ((equal w <span style="color: #8b2252;">"&#65294;"</span>) (replace-match <span style="color: #8b2252;">"&#12290;"</span>))))))
+
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-replace-punc-in-tree</span> ()
+    <span style="color: #8b2252;">"Replace \"&#65292;\" and \"&#65294;\" with \"&#12289;\" and \"&#12290;\" in an org tree."</span>
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">let*</span> ((element (org-element-at-point))
+           (begin (org-element-property <span style="color: #483d8b;">:begin</span> element))
+           (end (org-element-property <span style="color: #483d8b;">:end</span> element)))
+      (<span style="color: #a020f0;">when</span> (eq (org-element-type element) 'headline)
+        (goto-char begin)
+        (<span style="color: #a020f0;">while</span> (re-search-forward <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65292;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65294;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> end <span style="color: #483d8b;">:noerror</span>)
+          (<span style="color: #a020f0;">let</span> ((w (match-string-no-properties 0)))
+            (<span style="color: #a020f0;">cond</span> ((equal w <span style="color: #8b2252;">"&#65292;"</span>) (replace-match <span style="color: #8b2252;">"&#12289;"</span>))
+                  ((equal w <span style="color: #8b2252;">"&#65294;"</span>) (replace-match <span style="color: #8b2252;">"&#12290;"</span>)))))
+        (goto-char begin))))
+
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Hugo &#12398;&#35352;&#20107;&#12434;&#26360;&#12365;&#20986;&#12375;&amp;&#12450;&#12483;&#12503;&#12525;&#12540;&#12489;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hugo-export-upload</span> ()
     <span style="color: #8b2252;">"Export subtree for Hugo and upload the engty."</span>
     (<span style="color: #a020f0;">when</span> (member (buffer-name) '(<span style="color: #8b2252;">"imadenale.org"</span> <span style="color: #8b2252;">"archive.org"</span>))
       (<span style="color: #a020f0;">if</span> (not (org-entry-is-done-p))
           (message <span style="color: #8b2252;">"The state of the entry is not \"DONE\" yet."</span>)
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-org-replace-punc-in-tree)</span>
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(save-buffer)</span>
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(let ((outfile (org-hugo-export-wim-to-md)))</span>
+        <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(sit-for 2)</span>
+        <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (and outfile</span>
+        <span style="color: #b22222;">;;              </span><span style="color: #b22222;">(file-exists-p outfile))</span>
+        <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(switch-to-buffer</span>
+        <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(find-file-noselect outfile)</span>
+        <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(my-org-replace-punc-in-buffer))))</span>
         (org-hugo-export-wim-to-md)
         (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/Dropbox/scripts/push-hugo.sh"</span>)
               (filename (org-entry-get (point) <span style="color: #8b2252;">"EXPORT_FILE_NAME"</span>))
               (exported (format <span style="color: #8b2252;">"[ox-hugo] \"%s\" has been exported."</span>
                                 (nth 4 (org-heading-components)))))
           (<span style="color: #a020f0;">when</span> filename
+            (<span style="color: #a020f0;">when</span> (file-exists-p (concat outfile <span style="color: #8b2252;">".md"</span>))
+              (switch-to-buffer
+               (find-file-noselect (concat outfile <span style="color: #8b2252;">".md"</span>))
+               (my-org-replace-punc-in-buffer)
+               (save-buffer)))
             (<span style="color: #a020f0;">save-excursion</span>
               (<span style="color: #a020f0;">save-restriction</span>
                 (outline-up-heading 1)
@@ -11508,17 +11548,24 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <h3 id="org556eb376"><span class="section-number-3">10.23</span> [org-babel] ソースブロックの配色</h3>
 <div class="outline-text-3" id="text-org556eb376">
 <p>
-<code>org-src-block-faces</code>, <code>org-block-begin-line</code>, <code>org-block-end-line</code> をカスタマイズして，配色を変えます．
+<code>org-src-block-faces</code>, <code>org-block-begin-line</code>, <code>org-block-end-line</code> をカスタマイズして，配色を変えます．さらに， <code>prettify-symbols-mode</code> を利用して <code>begin_src</code> と <code>end_src</code> の表示を別な文字列に変えます．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> org-src-block-faces
-      '((<span style="color: #8b2252;">"emacs-lisp"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"cornsilk"</span>))))
-</pre>
-</div>
-
-<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-src-block-face</span> ()
+    (<span style="color: #a020f0;">setq</span> org-src-block-faces
+          (<span style="color: #a020f0;">if</span> (eq 'light (frame-parameter nil 'background-mode))
+              '((<span style="color: #8b2252;">"emacs-lisp"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#F9F9F9"</span> <span style="color: #483d8b;">:extend</span> t))
+                (<span style="color: #8b2252;">"conf"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#F9F9F9"</span> <span style="color: #483d8b;">:extend</span> t))
+                (<span style="color: #8b2252;">"html"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#F9F9F9"</span> <span style="color: #483d8b;">:extend</span> t)))
+            '((<span style="color: #8b2252;">"emacs-lisp"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t))
+              (<span style="color: #8b2252;">"conf"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t))
+              (<span style="color: #8b2252;">"html"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t)))))
+    (font-lock-fontify-buffer))
+  (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
+  (my-org-src-block-face)
+
   (custom-set-faces
    '(org-block-begin-line
      ((((background dark))
@@ -11527,6 +11574,14 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
      (org-block-end-line
       ((((background dark)) (<span style="color: #483d8b;">:inherit</span> org-block-begin-line))
        (t (<span style="color: #483d8b;">:inherit</span> org-block-begin-line)))))))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist '((<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#62029;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9484;&#8988;&#9121;&#57944;&#58681;</span>
+                                       (<span style="color: #8b2252;">"#+end_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9492;&#8990;</span>
+                                       (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#61509;"</span>))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#61452;&#10003;</span>
+(add-hook 'org-mode-hook 'prettify-symbols-mode)
 </pre>
 </div>
 </div>
@@ -11838,7 +11893,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org50faba1"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org14a6021"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12703,7 +12758,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgb84d9d0" class="figure">
+<div id="orgc3489dd" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -13064,7 +13119,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
    ((memq window-system '(ns x))
     (<span style="color: #a020f0;">when</span> (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span> 'title <span style="color: #8b2252;">"&#61724; "</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#61504;&#61956;&#61957;&#61867;</span>
+       <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span> 'title <span style="color: #8b2252;">"&#61867; "</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#61504;&#61956;&#61957;&#61724;</span>
 
     (<span style="color: #a020f0;">declare-function</span> my-ime-on <span style="color: #8b2252;">"init"</span> nil)
     (<span style="color: #a020f0;">declare-function</span> my-ime-off <span style="color: #8b2252;">"init"</span> nil)
@@ -15390,7 +15445,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-04-06 Tue 12:21</p>
+<p class="date">Created: 2021-04-10 Sat 13:30</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

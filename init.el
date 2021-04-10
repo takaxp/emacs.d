@@ -761,7 +761,7 @@ This function is called directly from the C code."
    ((memq window-system '(ns x))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
+       "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
 
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)

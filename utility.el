@@ -546,6 +546,31 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
          (concat "\\1 " bullet) nil nil))
        (t nil)))))
 
+;;;###autoload
+(defun my-replace-punctuation-to-normal ()
+  (interactive)
+  (my-replace-punctuation 'normal))
+
+;;;###autoload
+(defun my-replace-punctuation-to-scientific ()
+  (interactive)
+  (my-replace-punctuation 'scientific))
+
+(defun my-replace-punctuation (to)
+  (let ((pos (point))
+        (source (cond ((eq to 'normal) "\\(，\\)\\|\\(．\\)")
+                      ((eq to 'scientific) "\\(、\\)\\|\\(。\\)"))))
+    (if (not source)
+        (error "Target punctuation is wrong")
+      (goto-char (point-min))
+      (while (re-search-forward source nil :noerror)
+        (let ((w (match-string-no-properties 0)))
+          (cond ((equal w "，") (replace-match "、"))
+                ((equal w "．") (replace-match "。"))
+                ((equal w "、") (replace-match "，"))
+                ((equal w "。") (replace-match "．")))))
+      (goto-char pos))))
+
 (defvar my-garbage-collect-height max-mini-window-height)
 (defun my-garbage-collect-activate ()
   (setq max-mini-window-height 16)

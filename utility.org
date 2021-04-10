@@ -795,6 +795,42 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
        (t nil)))))
 #+end_src
 
+** 句読点を変換する
+   :PROPERTIES:
+   :CREATED:  [2021-04-09 Fri 22:28]
+   :ID:       7725B115-9B0C-4D96-BA29-3D88B15E8CE3
+   :CUSTOM_ID: orga3da97e5
+   :END:
+
+普段は「，．」を使っていますが，文章の行き先に応じて「、。」の方が良いことがあるので，一括置換できるコマンドを準備しました．「，．」へ戻すコマンドもご一緒に．
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-replace-punctuation-to-normal ()
+  (interactive)
+  (my-replace-punctuation 'normal))
+
+;;;###autoload
+(defun my-replace-punctuation-to-scientific ()
+  (interactive)
+  (my-replace-punctuation 'scientific))
+
+(defun my-replace-punctuation (to)
+  (let ((pos (point))
+        (source (cond ((eq to 'normal) "\\(，\\)\\|\\(．\\)")
+                      ((eq to 'scientific) "\\(、\\)\\|\\(。\\)"))))
+    (if (not source)
+        (error "Target punctuation is wrong")
+      (goto-char (point-min))
+      (while (re-search-forward source nil :noerror)
+        (let ((w (match-string-no-properties 0)))
+          (cond ((equal w "，") (replace-match "、"))
+                ((equal w "．") (replace-match "。"))
+                ((equal w "、") (replace-match "，"))
+                ((equal w "。") (replace-match "．")))))
+      (goto-char pos))))
+#+end_src
+
 ** TODO ガベージコレクト情報を表示
    :PROPERTIES:
    :CUSTOM_ID: orgda007b63

@@ -23,7 +23,7 @@
   (el-get-bundle "emacsattic/mic-paren")
   (el-get-bundle "Kungsgeten/selected.el" :name selected)
   (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)
-  (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
+  ;;(el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
   (el-get-bundle "tarsius/hl-todo")
   (el-get-bundle "syohex/emacs-utils")
   (el-get-bundle "emacsmirror/centered-cursor-mode")
@@ -181,7 +181,7 @@
   (el-get-bundle "smartparens")
   (el-get-bundle "cask/shut-up")
   (el-get-bundle "emacsmirror/delight") ;; or diminish
-  (el-get-bundle "takaxp/all-the-icons.el" :name all-the-icons)
+  (el-get-bundle "domtronn/all-the-icons.el" :name all-the-icons)
   (el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
   (el-get-bundle "manage-minor-mode")
   (el-get-bundle "syohex/emacs-git-gutter" :name git-gutter)

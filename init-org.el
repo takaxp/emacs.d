@@ -372,18 +372,55 @@
       (org-cancel-repeater))
     (org-todo ARG))
 
+  (defun my-org-replace-punc-in-buffer ()
+    "Replace \"，\" and \"．\" with \"、\" and \"。\" in a buffer."
+    (interactive)
+    (goto-char (point-min))
+    (while (re-search-forward "\\(，\\)\\|\\(．\\)" nil :noerror)
+      (let ((w (match-string-no-properties 0)))
+        (cond ((equal w "，") (replace-match "、"))
+              ((equal w "．") (replace-match "。"))))))
+
+  (defun my-org-replace-punc-in-tree ()
+    "Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree."
+    (interactive)
+    (let* ((element (org-element-at-point))
+           (begin (org-element-property :begin element))
+           (end (org-element-property :end element)))
+      (when (eq (org-element-type element) 'headline)
+        (goto-char begin)
+        (while (re-search-forward "\\(，\\)\\|\\(．\\)" end :noerror)
+          (let ((w (match-string-no-properties 0)))
+            (cond ((equal w "，") (replace-match "、"))
+                  ((equal w "．") (replace-match "。")))))
+        (goto-char begin))))
+
   ;; Hugo の記事を書き出し&アップロード
   (defun my-hugo-export-upload ()
     "Export subtree for Hugo and upload the engty."
     (when (member (buffer-name) '("imadenale.org" "archive.org"))
       (if (not (org-entry-is-done-p))
           (message "The state of the entry is not \"DONE\" yet.")
+        ;; (my-org-replace-punc-in-tree)
+        ;; (save-buffer)
+        ;; (let ((outfile (org-hugo-export-wim-to-md)))
+        ;;   (sit-for 2)
+        ;;   (when (and outfile
+        ;;              (file-exists-p outfile))
+        ;;     (switch-to-buffer
+        ;;      (find-file-noselect outfile)
+        ;;      (my-org-replace-punc-in-buffer))))
         (org-hugo-export-wim-to-md)
         (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
               (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
               (exported (format "[ox-hugo] \"%s\" has been exported."
                                 (nth 4 (org-heading-components)))))
           (when filename
+            (when (file-exists-p (concat outfile ".md"))
+              (switch-to-buffer
+               (find-file-noselect (concat outfile ".md"))
+               (my-org-replace-punc-in-buffer)
+               (save-buffer)))
             (save-excursion
               (save-restriction
                 (outline-up-heading 1)
@@ -1325,6 +1362,19 @@ also calls `beep' for an audible reminder."
                  '("S" "#+begin_src emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
 
 (with-eval-after-load "org"
+  (defun my-org-src-block-face ()
+    (setq org-src-block-faces
+          (if (eq 'light (frame-parameter nil 'background-mode))
+              '(("emacs-lisp" (:background "#F9F9F9" :extend t))
+                ("conf" (:background "#F9F9F9" :extend t))
+                ("html" (:background "#F9F9F9" :extend t)))
+            '(("emacs-lisp" (:background "#383c4c" :extend t))
+              ("conf" (:background "#383c4c" :extend t))
+              ("html" (:background "#383c4c" :extend t)))))
+    (font-lock-fontify-buffer))
+  (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
+  (my-org-src-block-face)
+
   (custom-set-faces
    '(org-block-begin-line
      ((((background dark))

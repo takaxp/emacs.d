@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-06 Tue 12:21 -->
+<!-- 2021-04-10 Sat 13:30 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -239,8 +239,8 @@
 <li><a href="#org33d4f93d">1.6. 頻繁に利用するファイルをring形式でたどる</a></li>
 <li><a href="#org31226d9e">1.7. 引数のorgバッファを開く</a></li>
 <li><a href="#org6a1e418a">1.8. orgバッファにいつものヘッダを追加する</a></li>
-<li><a href="#orgc659f34">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
-<li><a href="#orgd9abaa0">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
+<li><a href="#org76335f6">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
+<li><a href="#org1a9aa7f">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
 <li><a href="#org8f57b3f8">1.11. 議事録ひな形を書き入れる</a></li>
 <li><a href="#orgdd9630ad">1.12. ランダムの文字列を取得する</a></li>
 <li><a href="#org3697f6bd">1.13. 行頭に" - "を挿入する</a></li>
@@ -256,15 +256,16 @@
 <li><a href="#orgfd51fa6e">1.23. orgバッファを評価</a></li>
 <li><a href="#orga706f503">1.24. リージョン内のブリッツを操作する(orgmode)</a></li>
 <li><a href="#orgc99664d5">1.25. " - "と" - [ ] "をサイクルさせる</a></li>
-<li><a href="#orgda007b63">1.26. <span class="todo TODO">TODO</span> ガベージコレクト情報を表示</a></li>
-<li><a href="#orgfd77df9c">1.27. その他</a></li>
-<li><a href="#orgdf529698">1.28. XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org481e7f96">1.29. Auto-install をセットアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org6183f766">1.30. org-buffer を dokuwiki 形式に変換し，kill-ring に格納&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org5e548445">1.31. ミニバッファに日時を表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org81ca01d1">1.32. 日付などを簡単に挿入する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
+<li><a href="#orga3da97e5">1.26. 句読点を変換する</a></li>
+<li><a href="#orgda007b63">1.27. <span class="todo TODO">TODO</span> ガベージコレクト情報を表示</a></li>
+<li><a href="#orgfd77df9c">1.28. その他</a></li>
+<li><a href="#orgdf529698">1.29. XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org481e7f96">1.30. Auto-install をセットアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org6183f766">1.31. org-buffer を dokuwiki 形式に変換し，kill-ring に格納&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org5e548445">1.32. ミニバッファに日時を表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org81ca01d1">1.33. 日付などを簡単に挿入する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
 <ul>
-<li><a href="#org74fab35b">1.32.1. キーバインド</a></li>
+<li><a href="#org74fab35b">1.33.1. キーバインド</a></li>
 </ul>
 </li>
 </ul>
@@ -577,8 +578,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-orgc659f34" class="outline-3">
-<h3 id="orgc659f34"><span class="section-number-3">1.9</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
+<div id="outline-container-org76335f6" class="outline-3">
+<h3 id="org76335f6"><span class="section-number-3">1.9</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
 <div class="outline-text-3" id="text-1-9">
 <p>
 PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで <code>org-decrypt-entry</code> するための空ツリーを書き込みます．
@@ -595,8 +596,8 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 </div>
 </div>
 
-<div id="outline-container-orgd9abaa0" class="outline-3">
-<h3 id="orgd9abaa0"><span class="section-number-3">1.10</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
+<div id="outline-container-org1a9aa7f" class="outline-3">
+<h3 id="org1a9aa7f"><span class="section-number-3">1.10</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
 <div class="outline-text-3" id="text-1-10">
 <p>
 下記の関数で生成したツリーの本体をメールで送信すれば，秘密鍵のある端末で復号できます．
@@ -1122,8 +1123,45 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
+<div id="outline-container-orga3da97e5" class="outline-3">
+<h3 id="orga3da97e5"><span class="section-number-3">1.26</span> 句読点を変換する</h3>
+<div class="outline-text-3" id="text-orga3da97e5">
+<p>
+普段は「，．」を使っていますが，文章の行き先に応じて「、。」の方が良いことがあるので，一括置換できるコマンドを準備しました．「，．」へ戻すコマンドもご一緒に．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-replace-punctuation-to-normal</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (my-replace-punctuation 'normal))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-replace-punctuation-to-scientific</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (my-replace-punctuation 'scientific))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-replace-punctuation</span> (to)
+  (<span style="color: #a020f0;">let</span> ((pos (point))
+        (source (<span style="color: #a020f0;">cond</span> ((eq to 'normal) <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65292;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65294;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>)
+                      ((eq to 'scientific) <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#12289;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#12290;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>))))
+    (<span style="color: #a020f0;">if</span> (not source)
+        (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"Target punctuation is wrong"</span>)
+      (goto-char (point-min))
+      (<span style="color: #a020f0;">while</span> (re-search-forward source nil <span style="color: #483d8b;">:noerror</span>)
+        (<span style="color: #a020f0;">let</span> ((w (match-string-no-properties 0)))
+          (<span style="color: #a020f0;">cond</span> ((equal w <span style="color: #8b2252;">"&#65292;"</span>) (replace-match <span style="color: #8b2252;">"&#12289;"</span>))
+                ((equal w <span style="color: #8b2252;">"&#65294;"</span>) (replace-match <span style="color: #8b2252;">"&#12290;"</span>))
+                ((equal w <span style="color: #8b2252;">"&#12289;"</span>) (replace-match <span style="color: #8b2252;">"&#65292;"</span>))
+                ((equal w <span style="color: #8b2252;">"&#12290;"</span>) (replace-match <span style="color: #8b2252;">"&#65294;"</span>)))))
+      (goto-char pos))))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgda007b63" class="outline-3">
-<h3 id="orgda007b63"><span class="section-number-3">1.26</span> <span class="todo TODO">TODO</span> ガベージコレクト情報を表示</h3>
+<h3 id="orgda007b63"><span class="section-number-3">1.27</span> <span class="todo TODO">TODO</span> ガベージコレクト情報を表示</h3>
 <div class="outline-text-3" id="text-orgda007b63">
 <ul class="org-ul">
 <li><a href="https://www.reddit.com/r/emacs/comments/ck4zb3/trying_to_understand_emacs_memory_usage_and/">https://www.reddit.com/r/emacs/comments/ck4zb3/trying_to_understand_emacs_memory_usage_and/</a></li>
@@ -1160,7 +1198,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-orgfd77df9c" class="outline-3">
-<h3 id="orgfd77df9c"><span class="section-number-3">1.27</span> その他</h3>
+<h3 id="orgfd77df9c"><span class="section-number-3">1.28</span> その他</h3>
 <div class="outline-text-3" id="text-orgfd77df9c">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;; </span><span style="color: #b22222;">Test function from GNU Emacs (O'REILLY, P.328)</span>
@@ -1216,7 +1254,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-orgdf529698" class="outline-3">
-<h3 id="orgdf529698"><span class="section-number-3">1.28</span> XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="orgdf529698"><span class="section-number-3">1.29</span> XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgdf529698">
 <p>
 最近使っていません．
@@ -1279,7 +1317,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-org481e7f96" class="outline-3">
-<h3 id="org481e7f96"><span class="section-number-3">1.29</span> Auto-install をセットアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org481e7f96"><span class="section-number-3">1.30</span> Auto-install をセットアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org481e7f96">
 <p>
 いつも auto-install を使うわけではないので，必要時に <code>init-auto-install</code> を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．
@@ -1306,7 +1344,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-org6183f766" class="outline-3">
-<h3 id="org6183f766"><span class="section-number-3">1.30</span> org-buffer を dokuwiki 形式に変換し，kill-ring に格納&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org6183f766"><span class="section-number-3">1.31</span> org-buffer を dokuwiki 形式に変換し，kill-ring に格納&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org6183f766">
 <p>
 外部プログラム<a href="https://gist.github.com/1369417">org2dokuwiki.pl</a>を使います．
@@ -1331,7 +1369,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-org5e548445" class="outline-3">
-<h3 id="org5e548445"><span class="section-number-3">1.31</span> ミニバッファに日時を表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org5e548445"><span class="section-number-3">1.32</span> ミニバッファに日時を表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org5e548445">
 <ul class="org-ul">
 <li>hydra に移行しました．</li>
@@ -1351,7 +1389,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 <div id="outline-container-org81ca01d1" class="outline-3">
-<h3 id="org81ca01d1"><span class="section-number-3">1.32</span> 日付などを簡単に挿入する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org81ca01d1"><span class="section-number-3">1.33</span> 日付などを簡単に挿入する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org81ca01d1">
 <ul class="org-ul">
 <li>hydra に移行しました．</li>
@@ -1384,7 +1422,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-org74fab35b" class="outline-4">
-<h4 id="org74fab35b"><span class="section-number-4">1.32.1</span> キーバインド</h4>
+<h4 id="org74fab35b"><span class="section-number-4">1.33.1</span> キーバインド</h4>
 <div class="outline-text-4" id="text-org74fab35b">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c 0"</span>) 'insert-formatted-current-date)
@@ -1616,7 +1654,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-04-06 Tue 12:21</p>
+<p class="date">Created: 2021-04-10 Sat 13:30</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
