@@ -4758,7 +4758,7 @@ paren.el の場合は以下の設定．
 
 [[https://github.com/domtronn/all-the-icons.el][domtronn/all-the-icons.el: A utility package to collect various Icon Fonts and propertize them within Emacs.]]
 
-パッケージを使えるようにした後， =M-x all-the-icons-install-fonts= すると自動的にフォントがインストールされます．続いて =fc-cache -f -v= を発行すればフォントが使えるようになります．
+パッケージを使えるようにした後， =M-x all-the-icons-install-fonts= すると自動的にフォントがインストールされます．必要に応じて =fc-cache -f -v= を発行すればフォントが使えるようになります．
 
 ** [all-the-icons-dired] dired でアイコンを表示
    :PROPERTIES:
@@ -4782,46 +4782,7 @@ paren.el の場合は以下の設定．
     (setq all-the-icons-scale-factor 1.0)
     (add-to-list 'all-the-icons-dir-icon-alist
                  '("google[ _-]drive" all-the-icons-alltheicon "google-drive"
-                   :height 1.0 :v-adjust -0.1)))
-
-  ;; (with-eval-after-load "all-the-icons-dired"
-  ;;   (unless noninteractive
-  ;;     (unless (require 'font-lock+ nil t)
-  ;;       (user-error "font-lock+ is NOT installed for all-the-icons."))
-
-  ;;     ;; (defun ad:all-the-icons-dired--display ()
-  ;;     ;;   "Display the icons of files in a dired buffer."
-  ;;     ;;   (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)
-  ;;     ;;     (setq-local all-the-icons-dired-displayed t)
-  ;;     ;;     (let ((inhibit-read-only t)
-  ;;     ;;           (file-remote-p (and (fboundp 'tramp-tramp-file-p)
-  ;;     ;;                               (tramp-tramp-file-p default-directory))))
-  ;;     ;;       (save-excursion
-  ;;     ;;         (goto-char (point-min))
-  ;;     ;;         (setq tab-width 1)
-  ;;     ;;         (while (not (eobp))
-  ;;     ;;           (when (dired-move-to-filename nil)
-  ;;     ;;             (let ((file (dired-get-filename 'verbatim t)))
-  ;;     ;;               (unless (member file '("." ".."))
-  ;;     ;;                 (let ((filename (dired-get-filename nil t)))
-  ;;     ;;                   (if (file-directory-p filename)
-  ;;     ;;                       (let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))
-  ;;     ;;                              (icon (cond
-  ;;     ;;                                     (remote-p
-  ;;     ;;                                      (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-  ;;     ;;                                     ((file-symlink-p filename)
-  ;;     ;;                                      (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-  ;;     ;;                                     ((all-the-icons-dir-is-submodule filename)
-  ;;     ;;                                      (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-  ;;     ;;                                     ((file-exists-p (format "%s/.git" filename))
-  ;;     ;;                                      (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))
-  ;;     ;;                                     (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))
-  ;;     ;;                         (insert (concat icon "\t")))
-  ;;     ;;                     (insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9
-  ;;     ;;           (forward-line 1))))))
-  ;;     ;; (advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display)
-  ;;     ))
-  )
+                   :height 1.0 :v-adjust -0.1))))
 #+end_src
 
 ** [eldoc.el] コンテクストに応じてヘルプを表示
@@ -6416,9 +6377,6 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
     ("." nil :color blue))
   )
 #+end_src
-
-#+RESULTS:
-: hydra-dired/body
 
 ** [dired-recent.el] 訪問したディレクトリの履歴を取る                 :dired:
    :PROPERTIES:

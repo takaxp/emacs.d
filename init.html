@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-10 Sat 13:30 -->
+<!-- 2021-04-10 Sat 14:51 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -6232,7 +6232,7 @@ paren.el の場合は以下の設定．
 </p>
 
 <p>
-パッケージを使えるようにした後， <code>M-x all-the-icons-install-fonts</code> すると自動的にフォントがインストールされます．続いて <code>fc-cache -f -v</code> を発行すればフォントが使えるようになります．
+パッケージを使えるようにした後， <code>M-x all-the-icons-install-fonts</code> すると自動的にフォントがインストールされます．必要に応じて <code>fc-cache -f -v</code> を発行すればフォントが使えるようになります．
 </p>
 </div>
 </div>
@@ -6263,46 +6263,7 @@ paren.el の場合は以下の設定．
     (<span style="color: #a020f0;">setq</span> all-the-icons-scale-factor 1.0)
     (add-to-list 'all-the-icons-dir-icon-alist
                  '(<span style="color: #8b2252;">"google[ _-]drive"</span> all-the-icons-alltheicon <span style="color: #8b2252;">"google-drive"</span>
-                   <span style="color: #483d8b;">:height</span> 1.0 <span style="color: #483d8b;">:v-adjust</span> -0.1)))
-
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "all-the-icons-dired"</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(unless noninteractive</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(unless (require 'font-lock+ nil t)</span>
-  <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(user-error "font-lock+ is NOT installed for all-the-icons."))</span>
-
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;; (defun ad:all-the-icons-dired--display ()</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;   "Display the icons of files in a dired buffer."</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;   (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;     (setq-local all-the-icons-dired-displayed t)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;     (let ((inhibit-read-only t)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;           (file-remote-p (and (fboundp 'tramp-tramp-file-p)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                               (tramp-tramp-file-p default-directory))))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;       (save-excursion</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;         (goto-char (point-min))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;         (setq tab-width 1)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;         (while (not (eobp))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;           (when (dired-move-to-filename nil)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;             (let ((file (dired-get-filename 'verbatim t)))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;               (unless (member file '("." ".."))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                 (let ((filename (dired-get-filename nil t)))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                   (if (file-directory-p filename)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                       (let* ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                              (icon (cond</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     (remote-p</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                      (all-the-icons-octicon "file-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     ((file-symlink-p filename)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                      (all-the-icons-octicon "file-symlink-directory" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     ((all-the-icons-dir-is-submodule filename)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                      (all-the-icons-octicon "file-submodule" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     ((file-exists-p (format "%s/.git" filename))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                      (all-the-icons-octicon "repo" :v-adjust all-the-icons-dired-v-adjust :face 'all-the-icons-dired-dir-face))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                                     (t (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))))))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                         (insert (concat icon "\t")))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;                     (insert (concat (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust) "\t"))))))) ;; :height 0.9</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;;           (forward-line 1))))))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;; (advice-add 'all-the-icons-dired--display :override #'ad:all-the-icons-dired--display)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">))</span>
-  )
+                   <span style="color: #483d8b;">:height</span> 1.0 <span style="color: #483d8b;">:v-adjust</span> -0.1))))
 </pre>
 </div>
 </div>
@@ -11893,7 +11854,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org14a6021"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org20f7a5c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12758,7 +12719,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgc3489dd" class="figure">
+<div id="org3b10563" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15445,7 +15406,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-04-10 Sat 13:30</p>
+<p class="date">Created: 2021-04-10 Sat 14:51</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
