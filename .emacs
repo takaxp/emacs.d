@@ -10,10 +10,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ns-inline-patch
 
-(with-eval-after-load "postpone"
-  (unless (version< emacs-version "28.0")
-    (setq nobreak-char-display nil)))
-
 (custom-set-faces
  '(ns-marked-text-face
    ((t (:foreground "black"

@@ -401,8 +401,8 @@
     (when (member (buffer-name) '("imadenale.org" "archive.org"))
       (if (not (org-entry-is-done-p))
           (message "The state of the entry is not \"DONE\" yet.")
-        ;; (my-org-replace-punc-in-tree)
-        ;; (save-buffer)
+        (my-org-replace-punc-in-tree)
+        (save-buffer)
         ;; (let ((outfile (org-hugo-export-wim-to-md)))
         ;;   (sit-for 2)
         ;;   (when (and outfile
@@ -416,11 +416,11 @@
               (exported (format "[ox-hugo] \"%s\" has been exported."
                                 (nth 4 (org-heading-components)))))
           (when filename
-            (when (file-exists-p (concat outfile ".md"))
-              (switch-to-buffer
-               (find-file-noselect (concat outfile ".md"))
-               (my-org-replace-punc-in-buffer)
-               (save-buffer)))
+            ;; (when (file-exists-p (concat outfile ".md"))
+            ;;   (switch-to-buffer
+            ;;    (find-file-noselect (concat outfile ".md"))
+            ;;    (my-org-replace-punc-in-buffer)
+            ;;    (save-buffer)))
             (save-excursion
               (save-restriction
                 (outline-up-heading 1)
@@ -1376,13 +1376,17 @@ also calls `beep' for an audible reminder."
   (my-org-src-block-face)
 
   (custom-set-faces
+   ;; org-block が効かない(2021-04-13@9.4.4)，org-src-block-faces で対応
+   ;; '(org-block
+   ;;   ((((background dark)) (:background "#383c4c" :extend t)
+   ;;     (t (:background "#F9F9F9" :extend t)))))
    '(org-block-begin-line
      ((((background dark))
        (:foreground "#669966" :weight bold)) ;; :background "#444444"
-      (t (:inherit org-meta-line :weight bold))) ;; :background "#EFEFEF"
-     (org-block-end-line
-      ((((background dark)) (:inherit org-block-begin-line))
-       (t (:inherit org-block-begin-line)))))))
+      (t (:inherit org-meta-line :weight bold)))) ;; :background "#EFEFEF"
+   '(org-block-end-line
+     ((((background dark)) (:inherit org-block-begin-line))
+      (t (:inherit org-block-begin-line))))))
 
 (when (autoload-if-found
        '(org-tree-slide-mode)
@@ -1771,6 +1775,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (with-eval-after-load "org-tree-slide"
     ;; FIXME 複数のバッファで並行動作させるとおかしくなる．hide-lines の問題？
+    ;; prettify-symbols で置き換えるほうが良い
     (when (and nil (require 'hide-lines nil t))
       (defvar my-org-src-block-faces nil)
       (defun my-show-headers ()

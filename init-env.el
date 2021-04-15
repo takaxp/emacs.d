@@ -107,7 +107,7 @@
                   (if shutup-p
                       (shut-up (require 'private "private.el.gpg" t))
                     (require 'private "private.el.gpg" t)))
-          (error "GPG decryption error (private.el)")))
+          (warn "GPG decryption error (private.el)")))
       (require 'my-eshell nil t)
       (require 'my-mail nil t)))
   (when my-profiler-p

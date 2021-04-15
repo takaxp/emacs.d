@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-10 Sat 14:51 -->
+<!-- 2021-04-15 Thu 10:34 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -421,7 +421,11 @@
 <li><a href="#orga76ec530">6.16. 行番号をバッファに表示する</a></li>
 <li><a href="#org5117762c">6.17. 時刻をモードラインに表示する</a></li>
 <li><a href="#orga734802e">6.18. 対応するカッコをハイライトする</a></li>
-<li><a href="#orgd1e62da7">6.19. 全角スペースと行末タブ／半角スペースを強調表示する</a></li>
+<li><a href="#orgd1e62da7">6.19. 全角スペースと行末タブ／半角スペースを強調表示する</a>
+<ul>
+<li><a href="#org58e6bf63">6.19.1. emacs 28 からの表示制御</a></li>
+</ul>
+</li>
 <li><a href="#orgc93741fa">6.20. バッファの終わりをフリンジで明示</a></li>
 <li><a href="#orgec7835e0">6.21. 文字エンコードの表示を明確化</a></li>
 <li><a href="#org0e59b85f">6.22. [delight.el] モードラインのモード名を短縮する</a></li>
@@ -2356,7 +2360,8 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME Conflict with migemo...</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">To fix this issue, you need to update migemo.el to support minor-mode.</span>
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">migemo</span> nil t)
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (executable-find <span style="color: #8b2252;">"cmigemo"</span>)
+               (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">migemo</span> nil t))
       (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-isearch-ime-deactivate-sticky</span> ()
         (<span style="color: #a020f0;">unless</span> (region-active-p)
           (mac-ime-deactivate-sticky)))
@@ -5231,7 +5236,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 <h3 id="org581a32ab"><span class="section-number-3">6.2</span> <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</h3>
 <div class="outline-text-3" id="text-org581a32ab">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"#426EBB"</span> <span style="color: #8b2252;">"#FFFFFF"</span>))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"#426EBB"</span> <span style="color: #8b2252;">"#FFFFFF"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">background, foreground</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-selected-window-last</span> nil)
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-update-modeline-face</span> ()
   (<span style="color: #a020f0;">setq</span> my-selected-window-last (frame-selected-window))
@@ -5554,11 +5559,19 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
   (<span style="color: #a020f0;">setq</span> header-line-format <span style="color: #8b2252;">" No day is a good day."</span>)
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">empty-booting-header-line</span> ()
     (<span style="color: #a020f0;">with-current-buffer</span> <span style="color: #8b2252;">"*scratch*"</span>
-      (<span style="color: #a020f0;">setq</span> header-line-format
-            (concat
-             <span style="color: #8b2252;">" No day is a good day.                                       "</span>
-             (format <span style="color: #8b2252;">"W%s: "</span> (my-get-week-number))
-             (format-time-string <span style="color: #8b2252;">"%Y-%m-%d %a."</span>))))))
+      (<span style="color: #a020f0;">let</span> ((week (format <span style="color: #8b2252;">"W%s: "</span> (my-get-week-number)))
+            (date (format-time-string <span style="color: #8b2252;">"%Y-%m-%d %a."</span>)))
+        (<span style="color: #a020f0;">setq</span> header-line-format
+              (concat
+               <span style="color: #8b2252;">" No day is a good day.                                       "</span>
+               week
+               date
+               (propertize <span style="color: #8b2252;">" "</span>
+                           'display
+                           `(space . (<span style="color: #483d8b;">:align-to</span>
+                                      ,(- (frame-width)
+                                          (length week)
+                                          (length date)))))))))))
 </pre>
 </div>
 
@@ -5848,6 +5861,21 @@ paren.el の場合は以下の設定．
 </pre>
 </div>
 </div>
+<div id="outline-container-org58e6bf63" class="outline-4">
+<h4 id="org58e6bf63"><span class="section-number-4">6.19.1</span> emacs 28 からの表示制御</h4>
+<div class="outline-text-4" id="text-org58e6bf63">
+<p>
+version 28 で全角スペースに黒下線が付くので回避します．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> (version&lt; emacs-version <span style="color: #8b2252;">"28.0"</span>)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#20840;&#35282;&#12473;&#12506;&#12540;&#12473;"&#12288;"&#12395;&#12487;&#12501;&#12457;&#12523;&#12488;&#12391;&#40658;&#19979;&#32218;&#12364;&#20184;&#12367;&#12398;&#12434;&#22238;&#36991;&#12377;&#12427;</span>
+    (<span style="color: #a020f0;">setq</span> nobreak-char-display nil))
+</pre>
+</div>
+</div>
+</div>
 </div>
 
 <div id="outline-container-orgc93741fa" class="outline-3">
@@ -6007,7 +6035,8 @@ paren.el の場合は以下の設定．
            '(migemo-init)
            <span style="color: #8b2252;">"migemo"</span> nil t)
 
-      (<span style="color: #a020f0;">when</span> (locate-library <span style="color: #8b2252;">"migemo"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">overhead but should be checked here</span>
+      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (locate-library <span style="color: #8b2252;">"migemo"</span>)<span style="color: #b22222;">;; </span><span style="color: #b22222;">overhead but should be checked here</span>
+                 (executable-find <span style="color: #8b2252;">"cmigemo"</span>))
         (add-hook 'isearch-mode-hook #'migemo-init))
 
       (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"migemo"</span>
@@ -6519,7 +6548,9 @@ paren.el の場合は以下の設定．
            (format <span style="color: #8b2252;">"%s%s "</span>
                    (<span style="color: #a020f0;">if</span> my-toggle-modeline-global <span style="color: #8b2252;">""</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
                      (concat (make-string (frame-width) ?\x5F) <span style="color: #8b2252;">"\n"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"__"</span>
-                   (all-the-icons-material <span style="color: #8b2252;">"filter_list"</span>))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">sort-amount-asc</span>
+                   <span style="color: #b22222;">;;</span><span style="color: #b22222;">(all-the-icons-alltheicon "terminal")</span>
+                   (all-the-icons-material <span style="color: #8b2252;">"playlist_add_check"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">menu</span>
+                   )) <span style="color: #b22222;">;; </span><span style="color: #b22222;">sort-amount-asc</span>
           (t
            (format <span style="color: #8b2252;">"%s\n"</span> (make-string (1- (frame-width)) ?\x2D)))))
   (<span style="color: #a020f0;">setq</span> ivy-pre-prompt-function #'my-pre-prompt-function))
@@ -10175,8 +10206,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (<span style="color: #a020f0;">when</span> (member (buffer-name) '(<span style="color: #8b2252;">"imadenale.org"</span> <span style="color: #8b2252;">"archive.org"</span>))
       (<span style="color: #a020f0;">if</span> (not (org-entry-is-done-p))
           (message <span style="color: #8b2252;">"The state of the entry is not \"DONE\" yet."</span>)
-        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-org-replace-punc-in-tree)</span>
-        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(save-buffer)</span>
+        (my-org-replace-punc-in-tree)
+        (save-buffer)
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(let ((outfile (org-hugo-export-wim-to-md)))</span>
         <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(sit-for 2)</span>
         <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (and outfile</span>
@@ -10190,11 +10221,11 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
               (exported (format <span style="color: #8b2252;">"[ox-hugo] \"%s\" has been exported."</span>
                                 (nth 4 (org-heading-components)))))
           (<span style="color: #a020f0;">when</span> filename
-            (<span style="color: #a020f0;">when</span> (file-exists-p (concat outfile <span style="color: #8b2252;">".md"</span>))
-              (switch-to-buffer
-               (find-file-noselect (concat outfile <span style="color: #8b2252;">".md"</span>))
-               (my-org-replace-punc-in-buffer)
-               (save-buffer)))
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (file-exists-p (concat outfile ".md"))</span>
+            <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(switch-to-buffer</span>
+            <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(find-file-noselect (concat outfile ".md"))</span>
+            <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(my-org-replace-punc-in-buffer)</span>
+            <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(save-buffer)))</span>
             (<span style="color: #a020f0;">save-excursion</span>
               (<span style="color: #a020f0;">save-restriction</span>
                 (outline-up-heading 1)
@@ -11528,13 +11559,17 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   (my-org-src-block-face)
 
   (custom-set-faces
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-block &#12364;&#21177;&#12363;&#12394;&#12356;(2021-04-13@9.4.4)&#65292;org-src-block-faces &#12391;&#23550;&#24540;</span>
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">'(org-block</span>
+   <span style="color: #b22222;">;;   </span><span style="color: #b22222;">((((background dark)) (:background "#383c4c" :extend t)</span>
+   <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(t (:background "#F9F9F9" :extend t)))))</span>
    '(org-block-begin-line
      ((((background dark))
        (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#669966"</span> <span style="color: #483d8b;">:weight</span> bold)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">:background "#444444"</span>
-      (t (<span style="color: #483d8b;">:inherit</span> org-meta-line <span style="color: #483d8b;">:weight</span> bold))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">:background "#EFEFEF"</span>
-     (org-block-end-line
-      ((((background dark)) (<span style="color: #483d8b;">:inherit</span> org-block-begin-line))
-       (t (<span style="color: #483d8b;">:inherit</span> org-block-begin-line)))))))
+      (t (<span style="color: #483d8b;">:inherit</span> org-meta-line <span style="color: #483d8b;">:weight</span> bold)))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">:background "#EFEFEF"</span>
+   '(org-block-end-line
+     ((((background dark)) (<span style="color: #483d8b;">:inherit</span> org-block-begin-line))
+      (t (<span style="color: #483d8b;">:inherit</span> org-block-begin-line))))))
 </pre>
 </div>
 
@@ -11854,7 +11889,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org20f7a5c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org9883dab"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12437,6 +12472,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-tree-slide"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME &#35079;&#25968;&#12398;&#12496;&#12483;&#12501;&#12449;&#12391;&#20006;&#34892;&#21205;&#20316;&#12373;&#12379;&#12427;&#12392;&#12362;&#12363;&#12375;&#12367;&#12394;&#12427;&#65294;hide-lines &#12398;&#21839;&#38988;&#65311;</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">prettify-symbols &#12391;&#32622;&#12365;&#25563;&#12360;&#12427;&#12411;&#12358;&#12364;&#33391;&#12356;</span>
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> nil (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hide-lines</span> nil t))
       (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-src-block-faces</span> nil)
       (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-show-headers</span> ()
@@ -12719,7 +12755,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org3b10563" class="figure">
+<div id="org5bd55ef" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15406,7 +15442,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-04-10 Sat 14:51</p>
+<p class="date">Created: 2021-04-15 Thu 10:34</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -543,11 +543,19 @@ This function is called directly from the C code."
   (setq header-line-format " No day is a good day.")
   (defun empty-booting-header-line ()
     (with-current-buffer "*scratch*"
-      (setq header-line-format
-            (concat
-             " No day is a good day.                                       "
-             (format "W%s: " (my-get-week-number))
-             (format-time-string "%Y-%m-%d %a."))))))
+      (let ((week (format "W%s: " (my-get-week-number)))
+            (date (format-time-string "%Y-%m-%d %a.")))
+        (setq header-line-format
+              (concat
+               " No day is a good day.                                       "
+               week
+               date
+               (propertize " "
+                           'display
+                           `(space . (:align-to
+                                      ,(- (frame-width)
+                                          (length week)
+                                          (length date)))))))))))
 
 ;; Show scroll bar or not
 (when (and (display-graphic-p)

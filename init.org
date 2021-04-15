@@ -1439,7 +1439,8 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
     ;; FIXME Conflict with migemo...
     ;; To fix this issue, you need to update migemo.el to support minor-mode.
-    (when (require 'migemo nil t)
+    (when (and (executable-find "cmigemo")
+               (require 'migemo nil t))
       (defun my-isearch-ime-deactivate-sticky ()
         (unless (region-active-p)
           (mac-ime-deactivate-sticky)))
@@ -3888,7 +3889,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
-(defvar my-narrow-modeline '("#426EBB" "#FFFFFF"))
+(defvar my-narrow-modeline '("#426EBB" "#FFFFFF")) ;; background, foreground
 (defvar my-selected-window-last nil)
 (defun my-update-modeline-face ()
   (setq my-selected-window-last (frame-selected-window))
@@ -4150,11 +4151,19 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
   (setq header-line-format " No day is a good day.")
   (defun empty-booting-header-line ()
     (with-current-buffer "*scratch*"
-      (setq header-line-format
-            (concat
-             " No day is a good day.                                       "
-             (format "W%s: " (my-get-week-number))
-             (format-time-string "%Y-%m-%d %a."))))))
+      (let ((week (format "W%s: " (my-get-week-number)))
+            (date (format-time-string "%Y-%m-%d %a.")))
+        (setq header-line-format
+              (concat
+               " No day is a good day.                                       "
+               week
+               date
+               (propertize " "
+                           'display
+                           `(space . (:align-to
+                                      ,(- (frame-width)
+                                          (length week)
+                                          (length date)))))))))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -4408,6 +4417,18 @@ paren.el の場合は以下の設定．
 ;;                        (move-overlay overlay (point-max) (point-max))))))))
 ;; (add-hook 'find-file-hooks #'set-buffer-end-mark)
 #+end_src
+*** emacs 28 からの表示制御
+    :PROPERTIES:
+    :CUSTOM_ID: org58e6bf63
+    :END:
+
+version 28 で全角スペースに黒下線が付くので回避します．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(unless (version< emacs-version "28.0")
+    ;; 全角スペース"　"にデフォルトで黒下線が付くのを回避する
+    (setq nobreak-char-display nil))
+#+end_src
 
 ** バッファの終わりをフリンジで明示
    :PROPERTIES:
@@ -4554,7 +4575,8 @@ paren.el の場合は以下の設定．
            '(migemo-init)
            "migemo" nil t)
 
-      (when (locate-library "migemo") ;; overhead but should be checked here
+      (when (and (locate-library "migemo");; overhead but should be checked here
+                 (executable-find "cmigemo"))
         (add-hook 'isearch-mode-hook #'migemo-init))
 
       (with-eval-after-load "migemo"
@@ -5025,7 +5047,9 @@ sorted.  FUNCTION must be a function of one argument."
            (format "%s%s "
                    (if my-toggle-modeline-global "" ;; FIXME
                      (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                   (all-the-icons-material "filter_list"))) ;; sort-amount-asc
+                   ;;(all-the-icons-alltheicon "terminal")
+                   (all-the-icons-material "playlist_add_check") ;; menu
+                   )) ;; sort-amount-asc
           (t
            (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
@@ -8359,8 +8383,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (when (member (buffer-name) '("imadenale.org" "archive.org"))
       (if (not (org-entry-is-done-p))
           (message "The state of the entry is not \"DONE\" yet.")
-        ;; (my-org-replace-punc-in-tree)
-        ;; (save-buffer)
+        (my-org-replace-punc-in-tree)
+        (save-buffer)
         ;; (let ((outfile (org-hugo-export-wim-to-md)))
         ;;   (sit-for 2)
         ;;   (when (and outfile
@@ -8374,11 +8398,11 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
               (exported (format "[ox-hugo] \"%s\" has been exported."
                                 (nth 4 (org-heading-components)))))
           (when filename
-            (when (file-exists-p (concat outfile ".md"))
-              (switch-to-buffer
-               (find-file-noselect (concat outfile ".md"))
-               (my-org-replace-punc-in-buffer)
-               (save-buffer)))
+            ;; (when (file-exists-p (concat outfile ".md"))
+            ;;   (switch-to-buffer
+            ;;    (find-file-noselect (concat outfile ".md"))
+            ;;    (my-org-replace-punc-in-buffer)
+            ;;    (save-buffer)))
             (save-excursion
               (save-restriction
                 (outline-up-heading 1)
@@ -9578,13 +9602,17 @@ also calls `beep' for an audible reminder."
   (my-org-src-block-face)
 
   (custom-set-faces
+   ;; org-block が効かない(2021-04-13@9.4.4)，org-src-block-faces で対応
+   ;; '(org-block
+   ;;   ((((background dark)) (:background "#383c4c" :extend t)
+   ;;     (t (:background "#F9F9F9" :extend t)))))
    '(org-block-begin-line
      ((((background dark))
        (:foreground "#669966" :weight bold)) ;; :background "#444444"
-      (t (:inherit org-meta-line :weight bold))) ;; :background "#EFEFEF"
-     (org-block-end-line
-      ((((background dark)) (:inherit org-block-begin-line))
-       (t (:inherit org-block-begin-line)))))))
+      (t (:inherit org-meta-line :weight bold)))) ;; :background "#EFEFEF"
+   '(org-block-end-line
+     ((((background dark)) (:inherit org-block-begin-line))
+      (t (:inherit org-block-begin-line))))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -10398,6 +10426,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (with-eval-after-load "org-tree-slide"
     ;; FIXME 複数のバッファで並行動作させるとおかしくなる．hide-lines の問題？
+    ;; prettify-symbols で置き換えるほうが良い
     (when (and nil (require 'hide-lines nil t))
       (defvar my-org-src-block-faces nil)
       (defun my-show-headers ()

@@ -137,7 +137,8 @@
 
     ;; FIXME Conflict with migemo...
     ;; To fix this issue, you need to update migemo.el to support minor-mode.
-    (when (require 'migemo nil t)
+    (when (and (executable-find "cmigemo")
+               (require 'migemo nil t))
       (defun my-isearch-ime-deactivate-sticky ()
         (unless (region-active-p)
           (mac-ime-deactivate-sticky)))
@@ -1011,7 +1012,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 (setq echo-keystrokes 0.5)
 
-(defvar my-narrow-modeline '("#426EBB" "#FFFFFF"))
+(defvar my-narrow-modeline '("#426EBB" "#FFFFFF")) ;; background, foreground
 (defvar my-selected-window-last nil)
 (defun my-update-modeline-face ()
   (setq my-selected-window-last (frame-selected-window))
@@ -1161,6 +1162,10 @@ Call this function at updating `mode-line-mode'."
 ;;                        (move-overlay overlay (point-max) (point-max))))))))
 ;; (add-hook 'find-file-hooks #'set-buffer-end-mark)
 
+(unless (version< emacs-version "28.0")
+    ;; 全角スペース"　"にデフォルトで黒下線が付くのを回避する
+    (setq nobreak-char-display nil))
+
 ;; 改行文字の文字列表現
 (set 'eol-mnemonic-dos "(CRLF)")
 (set 'eol-mnemonic-unix "(LF)")
@@ -1258,7 +1263,8 @@ Call this function at updating `mode-line-mode'."
            '(migemo-init)
            "migemo" nil t)
 
-      (when (locate-library "migemo") ;; overhead but should be checked here
+      (when (and (locate-library "migemo");; overhead but should be checked here
+                 (executable-find "cmigemo"))
         (add-hook 'isearch-mode-hook #'migemo-init))
 
       (with-eval-after-load "migemo"
@@ -1596,7 +1602,9 @@ sorted.  FUNCTION must be a function of one argument."
            (format "%s%s "
                    (if my-toggle-modeline-global "" ;; FIXME
                      (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                   (all-the-icons-material "filter_list"))) ;; sort-amount-asc
+                   ;;(all-the-icons-alltheicon "terminal")
+                   (all-the-icons-material "playlist_add_check") ;; menu
+                   )) ;; sort-amount-asc
           (t
            (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
