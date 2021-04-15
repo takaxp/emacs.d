@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-15 Thu 10:34 -->
+<!-- 2021-04-15 Thu 21:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -3764,12 +3764,16 @@ gzされた elisp ソースを見るときに， <code>view-mode</code> を使�
 </p>
 
 <p>
+それから <code>org-mode</code> のバッファで <code>view-mode</code> を使う場合には，ツリーを fold することができなくなるので， <code>&lt;tab&gt;</code> で制御できるように <code>my-org-view-cycle</code> などを追加しています．
+</p>
+
+<p>
 さらなる細かい制御が必要な場合は，<a href="https://www.emacswiki.org/emacs/viewer.el">viewer.el</a> がおすすめです．
 </p>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#25313;&#24373;&#23376;&#12539;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-regexp</span> <span style="color: #8b2252;">"\\.el.gz$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.patch$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.xml$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.csv$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.emacs.d/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]+/el-get"</span>)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-regexp</span> <span style="color: #8b2252;">"\\.el.gz$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.patch$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.xml$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.csv$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.emacs.d/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]+/el-get</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">config"</span>)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#65288;&#32118;&#23550;&#12497;&#12473;&#12539;&#12507;&#12540;&#12512;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#20197;&#19979;&#65289;</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-dirs</span> nil)
@@ -3787,8 +3791,35 @@ gzされた elisp ソースを見るときに， <code>view-mode</code> を使�
       (view-mode 1))))
 (add-hook 'find-file-hook #'my-auto-view)
 
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-next-heading</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
+           (org-at-heading-p))
+      (org-next-visible-heading 1)
+    (next-line)))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-previous-heading</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
+           (org-at-heading-p))
+      (org-previous-visible-heading 1)
+    (previous-line)))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-cycle</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">when</span> (derived-mode-p 'org-mode)
+    (<span style="color: #a020f0;">let</span> ((view-mode nil))
+      (org-cycle))))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-shifttab</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">when</span> (derived-mode-p 'org-mode)
+    (<span style="color: #a020f0;">let</span> ((view-mode nil))
+      (org-shifttab))))
+
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"view"</span>
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"i"</span>) 'View-exit-and-edit))
+  (define-key view-mode-map (kbd <span style="color: #8b2252;">"i"</span>) 'View-exit-and-edit)
+  (define-key view-mode-map (kbd <span style="color: #8b2252;">"n"</span>) 'my-org-view-next-heading)
+  (define-key view-mode-map (kbd <span style="color: #8b2252;">"p"</span>) 'my-org-view-previous-heading)
+  (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;tab&gt;"</span>) 'my-org-view-cycle)
+  (define-key view-mode-map (kbd <span style="color: #8b2252;">"S-&lt;tab&gt;"</span>) 'my-org-view-shifttab))
 </pre>
 </div>
 </div>
@@ -4010,7 +4041,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(flyspell-prog-mode flyspell-mode)
+       '(flyspell-prog-mode flyspell-mode flyspell-mode-on)
        <span style="color: #8b2252;">"flyspell"</span> nil t)
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">major-mode-with-flyspell</span>
@@ -4024,13 +4055,11 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12496;&#12483;&#12501;&#12449;&#20869;&#12398;&#20840;&#12390;&#12434;&#12481;&#12455;&#12483;&#12463;&#23550;&#35937;&#12395;&#12377;&#12427;&#12514;&#12540;&#12489;&#12398; hook &#12395; flyspell &#36215;&#21205;&#12434;&#30331;&#37682;</span>
   (<span style="color: #a020f0;">dolist</span> (hook major-mode-with-flyspell)
-    (add-hook (intern (format <span style="color: #8b2252;">"%s-hook"</span> hook))
-              (<span style="color: #a020f0;">lambda</span> () (flyspell-mode 1))))
+    (add-hook (intern (format <span style="color: #8b2252;">"%s-hook"</span> hook)) #'flyspell-mode-on))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12467;&#12513;&#12531;&#12488;&#34892;&#12398;&#12415;&#12434;&#12481;&#12455;&#12483;&#12463;&#23550;&#35937;&#12395;&#12377;&#12427;</span>
   (<span style="color: #a020f0;">dolist</span> (hook major-mode-with-flyspell-prog)
-    (add-hook (intern (format <span style="color: #8b2252;">"%s-hook"</span> hook))
-              #'flyspell-prog-mode))
+    (add-hook (intern (format <span style="color: #8b2252;">"%s-hook"</span> hook)) #'flyspell-prog-mode))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-; &#12434;&#12458;&#12540;&#12496;&#12540;&#12521;&#12452;&#12489;</span>
@@ -11889,7 +11918,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org9883dab"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgdf88070"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12755,7 +12784,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org5bd55ef" class="figure">
+<div id="orgd8bc216" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15442,7 +15471,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-04-15 Thu 10:34</p>
+<p class="date">Created: 2021-04-15 Thu 21:54</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -5,11 +5,9 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-;; "sp-split-sexp" has an error @2021-02-25
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ns-inline-patch
-
 (custom-set-faces
  '(ns-marked-text-face
    ((t (:foreground "black"

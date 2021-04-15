@@ -528,7 +528,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (message "--- cmake is NOT installed."))
 
 ;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get")
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
@@ -615,7 +615,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       nil))))
 
 (when (autoload-if-found
-       '(flyspell-prog-mode flyspell-mode)
+       '(flyspell-prog-mode flyspell-mode flyspell-mode-on)
        "flyspell" nil t)
 
   (defvar major-mode-with-flyspell
@@ -629,13 +629,11 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
   ;; バッファ内の全てをチェック対象にするモードの hook に flyspell 起動を登録
   (dolist (hook major-mode-with-flyspell)
-    (add-hook (intern (format "%s-hook" hook))
-              (lambda () (flyspell-mode 1))))
+    (add-hook (intern (format "%s-hook" hook)) #'flyspell-mode-on))
 
   ;; コメント行のみをチェック対象にする
   (dolist (hook major-mode-with-flyspell-prog)
-    (add-hook (intern (format "%s-hook" hook))
-              #'flyspell-prog-mode))
+    (add-hook (intern (format "%s-hook" hook)) #'flyspell-prog-mode))
 
   (with-eval-after-load "flyspell"
     ;; C-; をオーバーライド

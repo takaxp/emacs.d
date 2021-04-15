@@ -143,7 +143,6 @@
   (el-get-bundle "raxod502/prescient.el" :name prescient)
   (el-get-bundle "raxod502/ctrlf")
   (el-get-bundle "momomo5717/avy-migemo")
-  ;;(el-get-bundle "takaxp/ivy-yasnippet" :depends (dash swiper yasnippet))
   (el-get-bundle "mkcms/ivy-yasnippet" :depends (dash swiper yasnippet))
   ;; require ~/.emacs.d/recipes/ivy.rcp
   (el-get-bundle "akirak/ivy-omni-org")
