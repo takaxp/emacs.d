@@ -2628,9 +2628,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 
 gzされた elisp ソースを見るときに， ~view-mode~ を使います．また下記の設定では， ~my-auto-view-dirs~ に追加したディレクトリのファイルを開くと， ~view-mode~ が常に有効になります．
 
-それから ~org-mode~ のバッファで ~view-mode~ を使う場合には，ツリーを fold することができなくなるので， ~<tab>~ で制御できるように ~my-org-view-cycle~ などを追加しています．
-
 さらなる細かい制御が必要な場合は，[[https://www.emacswiki.org/emacs/viewer.el][viewer.el]] がおすすめです．
+
+また =origami.el= があれば，書き込みが禁止されるので安心して読めることに加え， =origami.el= の FOLD機能を使い，関数を簡略表示して Org Modeのように，注目するものだけ読むことが可能です． =M-x view-mode= で起動します．
 
 #+begin_src emacs-lisp :tangle late-init.el
 ;; 特定の拡張子・ディレクトリ
@@ -2658,29 +2658,44 @@ gzされた elisp ソースを見るときに， ~view-mode~ を使います．�
            (org-at-heading-p))
       (org-next-visible-heading 1)
     (next-line)))
+
 (defun my-org-view-previous-heading ()
   (interactive)
   (if (and (derived-mode-p 'org-mode)
            (org-at-heading-p))
       (org-previous-visible-heading 1)
     (previous-line)))
+
 (defun my-org-view-cycle ()
   (interactive)
-  (when (derived-mode-p 'org-mode)
+  (if (derived-mode-p 'org-mode)
     (let ((view-mode nil))
-      (org-cycle))))
+      (org-cycle))
+    (when (require 'origami nil t)
+      (origami-toggle-node (current-buffer) (point)))))
+
 (defun my-org-view-shifttab ()
   (interactive)
-  (when (derived-mode-p 'org-mode)
+  (if (derived-mode-p 'org-mode)
     (let ((view-mode nil))
-      (org-shifttab))))
+      (org-shifttab))
+    (when (require 'origami nil t)
+      (origami-toggle-all-nodes (current-buffer)))))
 
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
+  (define-key view-mode-map (kbd "f") 'forward-char)
+  (define-key view-mode-map (kbd "b") 'backward-char)
   (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
   (define-key view-mode-map (kbd "p") 'my-org-view-previous-heading)
+  (define-key view-mode-map (kbd "g") #'my-google-this)
   (define-key view-mode-map (kbd "<tab>") 'my-org-view-cycle)
-  (define-key view-mode-map (kbd "S-<tab>") 'my-org-view-shifttab))
+  (define-key view-mode-map (kbd "S-<tab>") 'my-org-view-shifttab)
+  (defun ad:view--enable () (my-mode-line-on))
+  (defun ad:view--disable () (my-mode-line-off))
+  (unless my-toggle-modeline-global
+    (advice-add 'view--enable :before #'ad:view--enable)
+    (advice-add 'view--disable :before #'ad:view--disable)))
 #+end_src
 
 ** Web/HTMLモード                                                       :web:
@@ -2973,31 +2988,6 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(counsel-world-clock) "counsel-world-clock" nil t)
-#+end_src
-
-** 読書モード
-   :PROPERTIES:
-   :CUSTOM_ID: org66e1952c
-   :END:
-
-=view-mode= と =origami.el= を使い，読書モードにします．書き込みが禁止されるので，安心して読めることに加え， =origami.el= の FOLD機能を使い，関数を簡略表示して Org Modeのように，注目するものだけ読むことが可能です． =M-x view-mode= で起動します．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "view"
-  (define-key view-mode-map (kbd "n") 'next-line)
-  (define-key view-mode-map (kbd "p") 'previous-line)
-  (define-key view-mode-map (kbd "f") 'forward-char)
-  (define-key view-mode-map (kbd "b") 'backward-char)
-  (define-key view-mode-map (kbd "g") #'my-google-this)
-  (when (require 'origami nil t)
-    (define-key view-mode-map (kbd "<tab>") 'origami-toggle-node)
-    (define-key view-mode-map (kbd "S-<tab>") 'origami-toggle-all-nodes))
-
-  (defun ad:view--enable () (my-mode-line-on))
-  (defun ad:view--disable () (my-mode-line-off))
-  (unless my-toggle-modeline-global
-    (advice-add 'view--enable :before #'ad:view--enable)
-    (advice-add 'view--disable :before #'ad:view--disable)))
 #+end_src
 
 ** [latex-math-preview.el] TeX数式をプレビュー                          :tex:

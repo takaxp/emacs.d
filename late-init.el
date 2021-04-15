@@ -546,8 +546,50 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (view-mode 1))))
 (add-hook 'find-file-hook #'my-auto-view)
 
+(defun my-org-view-next-heading ()
+  (interactive)
+  (if (and (derived-mode-p 'org-mode)
+           (org-at-heading-p))
+      (org-next-visible-heading 1)
+    (next-line)))
+
+(defun my-org-view-previous-heading ()
+  (interactive)
+  (if (and (derived-mode-p 'org-mode)
+           (org-at-heading-p))
+      (org-previous-visible-heading 1)
+    (previous-line)))
+
+(defun my-org-view-cycle ()
+  (interactive)
+  (if (derived-mode-p 'org-mode)
+    (let ((view-mode nil))
+      (org-cycle))
+    (when (require 'origami nil t)
+      (origami-toggle-node (current-buffer) (point)))))
+
+(defun my-org-view-shifttab ()
+  (interactive)
+  (if (derived-mode-p 'org-mode)
+    (let ((view-mode nil))
+      (org-shifttab))
+    (when (require 'origami nil t)
+      (origami-toggle-all-nodes (current-buffer)))))
+
 (with-eval-after-load "view"
-  (define-key view-mode-map (kbd "i") 'View-exit-and-edit))
+  (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
+  (define-key view-mode-map (kbd "f") 'forward-char)
+  (define-key view-mode-map (kbd "b") 'backward-char)
+  (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
+  (define-key view-mode-map (kbd "p") 'my-org-view-previous-heading)
+  (define-key view-mode-map (kbd "g") #'my-google-this)
+  (define-key view-mode-map (kbd "<tab>") 'my-org-view-cycle)
+  (define-key view-mode-map (kbd "S-<tab>") 'my-org-view-shifttab)
+  (defun ad:view--enable () (my-mode-line-on))
+  (defun ad:view--disable () (my-mode-line-off))
+  (unless my-toggle-modeline-global
+    (advice-add 'view--enable :before #'ad:view--enable)
+    (advice-add 'view--disable :before #'ad:view--disable)))
 
 (when (autoload-if-found
        '(go-mode) "go-mode" nil t)
@@ -685,22 +727,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (global-set-key (kbd "M-=") 'count-words)
 
 (autoload-if-found '(counsel-world-clock) "counsel-world-clock" nil t)
-
-(with-eval-after-load "view"
-  (define-key view-mode-map (kbd "n") 'next-line)
-  (define-key view-mode-map (kbd "p") 'previous-line)
-  (define-key view-mode-map (kbd "f") 'forward-char)
-  (define-key view-mode-map (kbd "b") 'backward-char)
-  (define-key view-mode-map (kbd "g") #'my-google-this)
-  (when (require 'origami nil t)
-    (define-key view-mode-map (kbd "<tab>") 'origami-toggle-node)
-    (define-key view-mode-map (kbd "S-<tab>") 'origami-toggle-all-nodes))
-
-  (defun ad:view--enable () (my-mode-line-on))
-  (defun ad:view--disable () (my-mode-line-off))
-  (unless my-toggle-modeline-global
-    (advice-add 'view--enable :before #'ad:view--enable)
-    (advice-add 'view--disable :before #'ad:view--disable)))
 
 (when (autoload-if-found
        '(latex-math-preview-expression
