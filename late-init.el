@@ -538,6 +538,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
 (defun my-auto-view ()
+  "Open a file with `view-mode'."
   (when (and my-auto-view-regexp
 	           (string-match my-auto-view-regexp buffer-file-name))
     (view-mode 1))
@@ -560,31 +561,34 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (org-previous-visible-heading 1)
     (previous-line)))
 
-(defun my-org-view-cycle ()
+(defun my-view-tab ()
   (interactive)
-  (if (derived-mode-p 'org-mode)
-    (let ((view-mode nil))
-      (org-cycle))
+  (if (and (derived-mode-p 'org-mode)
+           (or (org-at-heading-p)
+               (org-at-property-drawer-p)))
+      (let ((view-mode nil))
+        (org-cycle))
     (when (require 'origami nil t)
       (origami-toggle-node (current-buffer) (point)))))
 
-(defun my-org-view-shifttab ()
+(defun my-view-shifttab ()
   (interactive)
   (if (derived-mode-p 'org-mode)
-    (let ((view-mode nil))
-      (org-shifttab))
+      (let ((view-mode nil))
+        (org-shifttab))
     (when (require 'origami nil t)
       (origami-toggle-all-nodes (current-buffer)))))
 
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
+  (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
   (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
   (define-key view-mode-map (kbd "p") 'my-org-view-previous-heading)
   (define-key view-mode-map (kbd "g") #'my-google-this)
-  (define-key view-mode-map (kbd "<tab>") 'my-org-view-cycle)
-  (define-key view-mode-map (kbd "S-<tab>") 'my-org-view-shifttab)
+  (define-key view-mode-map (kbd "<tab>") 'my-view-tab)
+  (define-key view-mode-map (kbd "S-<tab>") 'my-view-shifttab)
   (defun ad:view--enable () (my-mode-line-on))
   (defun ad:view--disable () (my-mode-line-off))
   (unless my-toggle-modeline-global
@@ -1070,6 +1074,7 @@ Call this function at updating `mode-line-mode'."
   (when (eq my-selected-window-last (frame-selected-window))
     (my-modeline-face (buffer-narrowed-p))))
 
+(require 'all-the-icons nil t)
 (setq mode-line-modes
       (mapcar
        (lambda (entry)
@@ -1079,7 +1084,8 @@ Call this function at updating `mode-line-mode'."
                        ;; 色の変更
                        (my-update-modeline-color)
                        ;; "Narrow" を "N" に短縮表示
-                       (if (buffer-narrowed-p)
+                       (if (and (buffer-narrowed-p)
+                                (fboundp 'all-the-icons-octicon))
                            (concat " "
                                    (all-the-icons-octicon "fold" :v-adjust 0.0))
                          "")
@@ -1263,6 +1269,7 @@ Call this function at updating `mode-line-mode'."
      (volatile-highlights-mode nil "volatile-highlights")
      (aggressive-indent-mode nil "aggressive-indent")
      (all-the-icons-dired-mode nil "all-the-icons-dired")
+     (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
      (yas-minor-mode nil "yasnippet")
      (auto-complete-mode nil "auto-complete")
      (company-mode nil "company")
@@ -1441,13 +1448,23 @@ Call this function at updating `mode-line-mode'."
        '(all-the-icons-dired-mode ad:all-the-icons-dired--display)
        "all-the-icons-dired" nil t)
 
-  (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)
-
   (with-eval-after-load "all-the-icons"
     (setq all-the-icons-scale-factor 1.0)
     (add-to-list 'all-the-icons-dir-icon-alist
                  '("google[ _-]drive" all-the-icons-alltheicon "google-drive"
                    :height 1.0 :v-adjust -0.1))))
+
+(when (autoload-if-found
+       '(icons-in-terminal-dired-mode)
+       "icons-in-terminal-dired" nil t)
+
+  (with-eval-after-load "icons-in-terminal"
+    (setq icons-in-terminal-scale-factor 1.0)))
+
+(cond ((require 'icons-in-terminal nil t)
+       (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
+      ((require 'all-the-icons nil t)
+       (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
 
 (when (autoload-if-found
        '(turn-on-eldoc-mode)
@@ -1626,9 +1643,11 @@ sorted.  FUNCTION must be a function of one argument."
            (format "%s%s "
                    (if my-toggle-modeline-global "" ;; FIXME
                      (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                   ;;(all-the-icons-alltheicon "terminal")
-                   (all-the-icons-material "playlist_add_check") ;; menu
-                   )) ;; sort-amount-asc
+                   (cond ((require 'icons-in-terminal nil t)
+                          (icons-in-terminal-material "playlist_add_check"))
+                         ((require 'all-the-icons nil t) ;; safeguard
+                          (all-the-icons-material "playlist_add_check"))
+                         (t "")))) ;; menu, sort-amount-asc
           (t
            (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
@@ -1754,11 +1773,18 @@ sorted.  FUNCTION must be a function of one argument."
 
 (when window-system
   (with-eval-after-load "ivy"
-    (when (require 'all-the-icons-ivy nil t)
-      (dolist (command '(counsel-projectile-switch-project
-                         counsel-ibuffer))
-        (add-to-list 'all-the-icons-ivy-buffer-commands command))
-      (all-the-icons-ivy-setup))))
+    (cond ((and (require 'icons-in-terminal nil t) ;; safeguard
+                (require 'icons-in-terminal-ivy nil t))
+           (dolist (command '(counsel-projectile-switch-project
+                              counsel-ibuffer))
+             (add-to-list 'icons-in-terminal-ivy-buffer-commands command))
+           (icons-in-terminal-ivy-setup))
+          ((and (require 'all-the-icons nil t) ;; safeguard
+                (require 'all-the-icons-ivy nil t))
+           (dolist (command '(counsel-projectile-switch-project
+                              counsel-ibuffer))
+             (add-to-list 'all-the-icons-ivy-buffer-commands command))
+           (all-the-icons-ivy-setup)))))
 
 (when (autoload-if-found
        '(dimmer-mode dimmer-process-all dimmer-off dimmer-on
@@ -2652,9 +2678,9 @@ For example: \"<e\" -> (\"e\" . t)"
                            (org-agenda-prepare-buffers org-agenda-files)
                            (message "Building agenda buffers...done")))))
 
-(setq-default prettify-symbols-alist '(("#+begin_src" . "") ;; ┌⌜⎡
+(setq-default prettify-symbols-alist '(("#+begin_src" . "") ;; ┌⌜⎡
                                        ("#+end_src" . "▨") ;; └⌞
-                                       ("#+RESULTS:" . ""))) ;; ✓
+                                       ("#+RESULTS:" . ""))) ;; ✓
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 
 ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
@@ -3014,9 +3040,9 @@ Uses `all-the-icons-material' to fetch the icon."
   (custom-set-faces
    '(ivy-current-match
      ((((class color) (background light))
-       :background "#FFF3F3" :distant-foreground "#000000")
+       :background "#FFF3F3" :distant-foreground "#000000" :extend t)
       (((class color) (background dark))
-       :background "#404040" :distant-foreground "#abb2bf")))
+       :background "#404040" :distant-foreground "#abb2bf" :extend t)))
    '(ivy-minibuffer-match-face-1
      ((((class color) (background light)) :foreground "#666666")
       (((class color) (background dark)) :foreground "#999999")))
@@ -3042,22 +3068,40 @@ Uses `all-the-icons-material' to fetch the icon."
     "Face used by Ivy for highlighting the invisible arrow.")
 
   (if window-system
-      (when (require 'all-the-icons nil t)
-        (defun my-ivy-format-function-arrow (cands)
-          "Transform CANDS into a string for minibuffer."
-          (ivy--format-function-generic
-           (lambda (str)
-             (concat (all-the-icons-faicon
-                      "hand-o-right"
-                      :v-adjust -0.2 :face 'my-ivy-arrow-visible)
-                     " " (ivy--add-face str 'ivy-current-match)))
-           (lambda (str)
-             (concat (all-the-icons-faicon
-                      "hand-o-right" :face 'my-ivy-arrow-invisible) " " str))
-           cands
-           "\n"))
-        (setq ivy-format-functions-alist
-              '((t . my-ivy-format-function-arrow))))
+      (cond ((require 'icons-in-terminal nil t)
+             (defun my-ivy-format-function-arrow (cands)
+               "Transform CANDS into a string for minibuffer."
+               (ivy--format-function-generic
+                (lambda (str)
+                  (concat (icons-in-terminal-faicon
+                           "hand-o-right" :v-adjust -0.1 :face 'my-ivy-arrow-visible :height 0.8)
+                          " " (ivy--add-face (concat str "\n") 'ivy-current-match)))
+                (lambda (str)
+                  (concat (icons-in-terminal-faicon
+                           "hand-o-right" :v-adjust -0.1 :face 'my-ivy-arrow-invisible :height 0.8)
+                          " " (concat str "\n")))
+                cands
+                ""))
+             (setq ivy-format-functions-alist
+                   '((t . my-ivy-format-function-arrow))))
+            ((require 'all-the-icons nil t)
+             (defun my-ivy-format-function-arrow (cands)
+               "Transform CANDS into a string for minibuffer."
+               (ivy--format-function-generic
+                (lambda (str)
+                  (concat (all-the-icons-faicon
+                           "hand-o-right"
+                           :v-adjust -0.2 :face 'my-ivy-arrow-visible)
+                          " " (ivy--add-face str 'ivy-current-match)))
+                (lambda (str)
+                  (concat (all-the-icons-faicon
+                           "hand-o-right" :face 'my-ivy-arrow-invisible) " " str))
+                cands
+                "\n"))
+             (setq ivy-format-functions-alist
+                   '((t . my-ivy-format-function-arrow))))
+            (t (setq ivy-format-functions-alist
+                     '((t . ivy-format-function-arrow)))))
     (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
 
 (when (autoload-if-found

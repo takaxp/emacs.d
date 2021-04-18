@@ -941,7 +941,16 @@ This function is called directly from the C code."
 (defun my-ascii-font-setter (spec)
   (set-fontset-font nil 'ascii spec))
 (defun my-unicode-font-setter (spec)
-  (set-fontset-font nil 'unicode spec))
+  (set-fontset-font t 'unicode spec nil 'prepend))
+(defun my-all-the-icons-setter ()
+  (when (require 'icons-in-terminal nil t)
+    (my-unicode-font-setter (font-spec :family (icons-in-terminal-faicon-family)))
+    (my-unicode-font-setter (font-spec :family (icons-in-terminal-fileicon-family)))
+    (my-unicode-font-setter (font-spec :family (icons-in-terminal-material-family)))
+    (my-unicode-font-setter (font-spec :family (icons-in-terminal-octicon-family)))
+    (my-unicode-font-setter (font-spec :family (icons-in-terminal-wicon-family)))
+    ))
+
 (defun my-font-config (&optional size ascii ja)
   "Font config.
 - SIZE: font size for ASCII and Japanese (default: 12)
@@ -953,8 +962,8 @@ This function is called directly from the C code."
           ;; (unicode-font (or uc "FreeSerif"))
           (ascii-font (or ascii my-ascii-font))
           (ja-font (or ja my-ja-font)))
-      ;; (my-unicode-font-setter
-      ;;  (font-spec :family unicode-font :size font-size))
+      ;;(my-all-the-icons-setter)
+      (set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
 
@@ -1013,12 +1022,12 @@ This function is called directly from the C code."
 ;; set-default で global 指定すると，ミニバッファの message で制御不能になる
 ;; propertize で拡大できるが，global の値以下に縮小できなくなる．
 ;; (set-default 'line-spacing 2)
-(defun my-linespacing ()
+(defun my-linespacing-2 ()
   (unless (minibufferp)
     (setq-local line-spacing 2)))
-(add-hook 'buffer-list-update-hook #'my-linespacing)
-(add-hook 'org-src-mode-hook #'my-linespacing)
-(add-hook 'debugger-mode-hook #'my-linespacing)
+(add-hook 'buffer-list-update-hook #'my-linespacing-2)
+(add-hook 'org-src-mode-hook #'my-linespacing-2)
+(add-hook 'debugger-mode-hook #'my-linespacing-2)
 
 (with-eval-after-load "org-agenda"
   (defun my-org-agenda (&optional _arg _org-keys _restriction)
