@@ -1631,23 +1631,23 @@ sorted.  FUNCTION must be a function of one argument."
         (counsel-ag ivy-text nil ""))) ;; also disable extra-ag-args
     ))
 
-;; プロンプトをカスタマイズ（モードライン非表示派向け）
+;; プロンプトをカスタマイズ
 (with-eval-after-load "ivy"
   (defun my-pre-prompt-function ()
-    (cond ((eq system-type 'windows-nt)
-           (format "%s%s "
-                   (if my-toggle-modeline-global "" ;; FIXME
-                     (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                   ">>"))
-          (window-system
+    (cond (window-system
            (format "%s%s "
                    (if my-toggle-modeline-global "" ;; FIXME
                      (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
                    (cond ((require 'icons-in-terminal nil t)
                           (icons-in-terminal-material "playlist_add_check"))
-                         ((require 'all-the-icons nil t) ;; safeguard
+                         ((require 'all-the-icons nil t)
                           (all-the-icons-material "playlist_add_check"))
-                         (t "")))) ;; menu, sort-amount-asc
+                         (t ""))))
+          ;; ((eq system-type 'windows-nt)
+          ;;  (format "%s%s "
+          ;;          (if my-toggle-modeline-global "" ;; FIXME
+          ;;            (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+          ;;          ">>"))
           (t
            (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
@@ -1771,7 +1771,7 @@ sorted.  FUNCTION must be a function of one argument."
         (swiper thing)))
     (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
 
-(when window-system
+(when (eq system-type 'darwin)
   (with-eval-after-load "ivy"
     (cond ((and (require 'icons-in-terminal nil t) ;; safeguard
                 (require 'icons-in-terminal-ivy nil t))
@@ -2678,9 +2678,10 @@ For example: \"<e\" -> (\"e\" . t)"
                            (org-agenda-prepare-buffers org-agenda-files)
                            (message "Building agenda buffers...done")))))
 
-(setq-default prettify-symbols-alist '(("#+begin_src" . "") ;; ┌⌜⎡
-                                       ("#+end_src" . "▨") ;; └⌞
-                                       ("#+RESULTS:" . ""))) ;; ✓
+(setq-default prettify-symbols-alist '(("#+begin_src" . "")
+                                       ("#+end_src" . "▨")
+                                       ("#+RESULTS:" . "")
+                                       ("以上". "")))
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 
 ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
@@ -3074,11 +3075,18 @@ Uses `all-the-icons-material' to fetch the icon."
                (ivy--format-function-generic
                 (lambda (str)
                   (concat (icons-in-terminal-faicon
-                           "hand-o-right" :v-adjust -0.1 :face 'my-ivy-arrow-visible :height 0.8)
-                          " " (ivy--add-face (concat str "\n") 'ivy-current-match)))
+                           "hand-o-right"
+                           :v-adjust -0.1 
+                           :face 'my-ivy-arrow-visible
+                           :height 0.8)
+                          " " (ivy--add-face (concat str "\n")
+                                             'ivy-current-match)))
                 (lambda (str)
                   (concat (icons-in-terminal-faicon
-                           "hand-o-right" :v-adjust -0.1 :face 'my-ivy-arrow-invisible :height 0.8)
+                           "hand-o-right"
+                           :v-adjust -0.1
+                           :face 'my-ivy-arrow-invisible
+                           :height 0.8)
                           " " (concat str "\n")))
                 cands
                 ""))
@@ -3095,7 +3103,8 @@ Uses `all-the-icons-material' to fetch the icon."
                           " " (ivy--add-face str 'ivy-current-match)))
                 (lambda (str)
                   (concat (all-the-icons-faicon
-                           "hand-o-right" :face 'my-ivy-arrow-invisible) " " str))
+                           "hand-o-right" :face 'my-ivy-arrow-invisible)
+                          " " str))
                 cands
                 "\n"))
              (setq ivy-format-functions-alist

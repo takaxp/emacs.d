@@ -1065,6 +1065,8 @@ will not be modified."
     (run-at-time "20 sec" nil #'my-org-agenda-to-appt))
 
   (with-eval-after-load "appt"
+    (autoload 'my-org-agenda-to-appt "org" nil t)
+
     ;; モードラインに残り時間を表示しない
     (setq appt-display-mode-line nil)
 
@@ -1165,6 +1167,16 @@ also calls `beep' for an audible reminder."
   ;;     (appt-activate 1)))
 
   (with-eval-after-load "org"
+    ;; 定期的に更新する
+    (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
+
+    ;; キャプチャ直後に更新
+    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
+
+    ;; アジェンダを開いたらアラームリストを更新
+    (unless noninteractive
+      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
+
     ;; org-agenda-to-appt を非同期で使うための advice
     (defvar read-char-default-timeout 10)
     (defun ad:read-char-exclusive (f &optional PROMPT INHERIT-INPUT-METHOD SECONDS)
@@ -1185,10 +1197,6 @@ also calls `beep' for an audible reminder."
 	            (throw 'nextfile t))
              (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
-
-    ;; アジェンダを開いたらアラームリストを更新
-    (unless noninteractive
-      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
 
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
@@ -1264,12 +1272,7 @@ also calls `beep' for an audible reminder."
                      (message "[async] No event to add")
                    (message "[async] Added %d event%s for today"
                             cnt (if (> cnt 1) "s" "")))))
-             (setq my-org-agenda-to-appt-ready t))))))
-
-    ;; 定期的に更新する
-    (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
-    ;; キャプチャ直後に更新
-    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)))
+             (setq my-org-agenda-to-appt-ready t))))))))
 
 (with-eval-after-load "org"
   ;; 履歴が生成されるのを抑制．

@@ -557,12 +557,6 @@ This function is called directly from the C code."
                                           (length week)
                                           (length date)))))))))))
 
-;; Show scroll bar or not
-(when (and (display-graphic-p)
-           (not early-init-file)
-           (memq window-system '(ns mac)))
-  (set-scroll-bar-mode nil)) ; 'right
-
 ;; Disable to show the tool bar.
 (when (and (not early-init-file)
            (display-graphic-p))
@@ -769,7 +763,10 @@ This function is called directly from the C code."
    ((memq window-system '(ns x))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
+       "com.google.inputmethod.Japanese.base" 'title
+       (concat (icons-in-terminal-octicon "keyboard") " ")))
+
+
 
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)
@@ -948,9 +945,7 @@ This function is called directly from the C code."
     (my-unicode-font-setter (font-spec :family (icons-in-terminal-fileicon-family)))
     (my-unicode-font-setter (font-spec :family (icons-in-terminal-material-family)))
     (my-unicode-font-setter (font-spec :family (icons-in-terminal-octicon-family)))
-    (my-unicode-font-setter (font-spec :family (icons-in-terminal-wicon-family)))
-    ))
-
+    (my-unicode-font-setter (font-spec :family (icons-in-terminal-wicon-family)))))
 (defun my-font-config (&optional size ascii ja)
   "Font config.
 - SIZE: font size for ASCII and Japanese (default: 12)
@@ -959,10 +954,8 @@ This function is called directly from the C code."
 "
   (when (memq window-system '(mac ns))
     (let ((font-size (or size my-font-size))
-          ;; (unicode-font (or uc "FreeSerif"))
           (ascii-font (or ascii my-ascii-font))
           (ja-font (or ja my-ja-font)))
-      ;;(my-all-the-icons-setter)
       (set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
@@ -993,14 +986,15 @@ This function is called directly from the C code."
     (when (boundp 'mac-allow-anti-aliasing)
       (setq mac-allow-anti-aliasing t)))
 
-   ((eq window-system 'w32) ; windows7
+   ((eq window-system 'w32) ;; Windows
     (let ((font-size 14)
           (font-height 100)
           (ascii-font "Inconsolata")
           (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter
        (font-spec :family ja-font :size font-size :height font-height))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
    ((eq window-system 'x) ; for SuSE Linux 12.1
@@ -1010,6 +1004,7 @@ This function is called directly from the C code."
          (ascii-font "Inconsolata")
          ;; (ja-font "MigMix 1M")
          (ja-font "Migu 2M"))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
       (my-ja-font-setter
        (font-spec :family ja-font :size font-size :height font-height))
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))

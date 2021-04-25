@@ -4224,9 +4224,9 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 
 スクロールバーを非表示にするには，nil を指定します．
 右側に表示したい場合は，'right とします．
-スクロールバーの非表示は起動後に実施されるため，フレームがチラつきます．それを解消するために，現在は，ソースコードレベルでオフにしています．パッチに興味がある場合は，[[https://gist.github.com/takaxp/01ff965361d70de93e9aba3795193cc7][こちら]]．以下は，MBPビルド向けに設定しています．
+スクロールバーの非表示は起動後に実施されるため，フレームがチラつきます．それを解消するために，現在は，ソースコードレベルでオフにしています．パッチに興味がある場合は，[[https://gist.github.com/takaxp/01ff965361d70de93e9aba3795193cc7][こちら]]．以下は，EMPビルド向けに設定しています．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 ;; Show scroll bar or not
 (when (and (display-graphic-p)
            (not early-init-file)
@@ -5071,23 +5071,23 @@ sorted.  FUNCTION must be a function of one argument."
 =ivy-pre-prompt-function= に文字列を返す任意の関数を与えると，プロンプトの前を修飾できます．好みの情報を出力しましょう．
 
 #+begin_src emacs-lisp :tangle late-init.el
-;; プロンプトをカスタマイズ（モードライン非表示派向け）
+;; プロンプトをカスタマイズ
 (with-eval-after-load "ivy"
   (defun my-pre-prompt-function ()
-    (cond ((eq system-type 'windows-nt)
-           (format "%s%s "
-                   (if my-toggle-modeline-global "" ;; FIXME
-                     (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                   ">>"))
-          (window-system
+    (cond (window-system
            (format "%s%s "
                    (if my-toggle-modeline-global "" ;; FIXME
                      (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
                    (cond ((require 'icons-in-terminal nil t)
                           (icons-in-terminal-material "playlist_add_check"))
-                         ((require 'all-the-icons nil t) ;; safeguard
+                         ((require 'all-the-icons nil t)
                           (all-the-icons-material "playlist_add_check"))
-                         (t "")))) ;; menu, sort-amount-asc
+                         (t ""))))
+          ;; ((eq system-type 'windows-nt)
+          ;;  (format "%s%s "
+          ;;          (if my-toggle-modeline-global "" ;; FIXME
+          ;;            (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+          ;;          ">>"))
           (t
            (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
@@ -5268,7 +5268,7 @@ sorted.  FUNCTION must be a function of one argument."
  - https://github.com/asok/all-the-icons-ivy
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when window-system
+(when (eq system-type 'darwin)
   (with-eval-after-load "ivy"
     (cond ((and (require 'icons-in-terminal nil t) ;; safeguard
                 (require 'icons-in-terminal-ivy nil t))
@@ -9299,6 +9299,8 @@ will not be modified."
     (run-at-time "20 sec" nil #'my-org-agenda-to-appt))
 
   (with-eval-after-load "appt"
+    (autoload 'my-org-agenda-to-appt "org" nil t)
+
     ;; モードラインに残り時間を表示しない
     (setq appt-display-mode-line nil)
 
@@ -9399,6 +9401,16 @@ also calls `beep' for an audible reminder."
   ;;     (appt-activate 1)))
 
   (with-eval-after-load "org"
+    ;; 定期的に更新する
+    (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
+
+    ;; キャプチャ直後に更新
+    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
+
+    ;; アジェンダを開いたらアラームリストを更新
+    (unless noninteractive
+      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
+
     ;; org-agenda-to-appt を非同期で使うための advice
     (defvar read-char-default-timeout 10)
     (defun ad:read-char-exclusive (f &optional PROMPT INHERIT-INPUT-METHOD SECONDS)
@@ -9419,10 +9431,6 @@ also calls `beep' for an audible reminder."
 	            (throw 'nextfile t))
              (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
-
-    ;; アジェンダを開いたらアラームリストを更新
-    (unless noninteractive
-      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
 
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
@@ -9498,12 +9506,7 @@ also calls `beep' for an audible reminder."
                      (message "[async] No event to add")
                    (message "[async] Added %d event%s for today"
                             cnt (if (> cnt 1) "s" "")))))
-             (setq my-org-agenda-to-appt-ready t))))))
-
-    ;; 定期的に更新する
-    (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
-    ;; キャプチャ直後に更新
-    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)))
+             (setq my-org-agenda-to-appt-ready t))))))))
 #+end_src
 
 ** [org-refile] orgツリーの高速移動
@@ -9662,9 +9665,10 @@ also calls `beep' for an audible reminder."
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(setq-default prettify-symbols-alist '(("#+begin_src" . "") ;; ┌⌜⎡
-                                       ("#+end_src" . "▨") ;; └⌞
-                                       ("#+RESULTS:" . ""))) ;; ✓
+(setq-default prettify-symbols-alist '(("#+begin_src" . "")
+                                       ("#+end_src" . "▨")
+                                       ("#+RESULTS:" . "")
+                                       ("以上". "")))
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 #+end_src
 
@@ -11086,7 +11090,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    ((memq window-system '(ns x))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title " ")) ;; 
+       "com.google.inputmethod.Japanese.base" 'title
+       (concat (icons-in-terminal-octicon "keyboard") " ")))
+
+
 
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)
@@ -11856,9 +11863,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
     (my-unicode-font-setter (font-spec :family (icons-in-terminal-fileicon-family)))
     (my-unicode-font-setter (font-spec :family (icons-in-terminal-material-family)))
     (my-unicode-font-setter (font-spec :family (icons-in-terminal-octicon-family)))
-    (my-unicode-font-setter (font-spec :family (icons-in-terminal-wicon-family)))
-    ))
-
+    (my-unicode-font-setter (font-spec :family (icons-in-terminal-wicon-family)))))
 (defun my-font-config (&optional size ascii ja)
   "Font config.
 - SIZE: font size for ASCII and Japanese (default: 12)
@@ -11867,10 +11872,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 "
   (when (memq window-system '(mac ns))
     (let ((font-size (or size my-font-size))
-          ;; (unicode-font (or uc "FreeSerif"))
           (ascii-font (or ascii my-ascii-font))
           (ja-font (or ja my-ja-font)))
-      ;;(my-all-the-icons-setter)
       (set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
@@ -11901,14 +11904,15 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
     (when (boundp 'mac-allow-anti-aliasing)
       (setq mac-allow-anti-aliasing t)))
 
-   ((eq window-system 'w32) ; windows7
+   ((eq window-system 'w32) ;; Windows
     (let ((font-size 14)
           (font-height 100)
           (ascii-font "Inconsolata")
           (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter
        (font-spec :family ja-font :size font-size :height font-height))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
    ((eq window-system 'x) ; for SuSE Linux 12.1
@@ -11918,6 +11922,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
          (ascii-font "Inconsolata")
          ;; (ja-font "MigMix 1M")
          (ja-font "Migu 2M"))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
       (my-ja-font-setter
        (font-spec :family ja-font :size font-size :height font-height))
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
@@ -12385,11 +12390,18 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
                (ivy--format-function-generic
                 (lambda (str)
                   (concat (icons-in-terminal-faicon
-                           "hand-o-right" :v-adjust -0.1 :face 'my-ivy-arrow-visible :height 0.8)
-                          " " (ivy--add-face (concat str "\n") 'ivy-current-match)))
+                           "hand-o-right"
+                           :v-adjust -0.1 
+                           :face 'my-ivy-arrow-visible
+                           :height 0.8)
+                          " " (ivy--add-face (concat str "\n")
+                                             'ivy-current-match)))
                 (lambda (str)
                   (concat (icons-in-terminal-faicon
-                           "hand-o-right" :v-adjust -0.1 :face 'my-ivy-arrow-invisible :height 0.8)
+                           "hand-o-right"
+                           :v-adjust -0.1
+                           :face 'my-ivy-arrow-invisible
+                           :height 0.8)
                           " " (concat str "\n")))
                 cands
                 ""))
@@ -12406,7 +12418,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
                           " " (ivy--add-face str 'ivy-current-match)))
                 (lambda (str)
                   (concat (all-the-icons-faicon
-                           "hand-o-right" :face 'my-ivy-arrow-invisible) " " str))
+                           "hand-o-right" :face 'my-ivy-arrow-invisible)
+                          " " str))
                 cands
                 "\n"))
              (setq ivy-format-functions-alist

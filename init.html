@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-18 Sun 11:26 -->
+<!-- 2021-04-25 Sun 16:01 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -5638,7 +5638,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 <p>
 スクロールバーを非表示にするには，nil を指定します．
 右側に表示したい場合は，'right とします．
-スクロールバーの非表示は起動後に実施されるため，フレームがチラつきます．それを解消するために，現在は，ソースコードレベルでオフにしています．パッチに興味がある場合は，<a href="https://gist.github.com/takaxp/01ff965361d70de93e9aba3795193cc7">こちら</a>．以下は，MBPビルド向けに設定しています．
+スクロールバーの非表示は起動後に実施されるため，フレームがチラつきます．それを解消するために，現在は，ソースコードレベルでオフにしています．パッチに興味がある場合は，<a href="https://gist.github.com/takaxp/01ff965361d70de93e9aba3795193cc7">こちら</a>．以下は，EMPビルド向けに設定しています．
 </p>
 
 <div class="org-src-container">
@@ -6572,23 +6572,23 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12503;&#12525;&#12531;&#12503;&#12488;&#12434;&#12459;&#12473;&#12479;&#12510;&#12452;&#12474;&#65288;&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#38750;&#34920;&#31034;&#27966;&#21521;&#12369;&#65289;</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12503;&#12525;&#12531;&#12503;&#12488;&#12434;&#12459;&#12473;&#12479;&#12510;&#12452;&#12474;</span>
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-pre-prompt-function</span> ()
-    (<span style="color: #a020f0;">cond</span> ((eq system-type 'windows-nt)
-           (format <span style="color: #8b2252;">"%s%s "</span>
-                   (<span style="color: #a020f0;">if</span> my-toggle-modeline-global <span style="color: #8b2252;">""</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-                     (concat (make-string (frame-width) ?\x5F) <span style="color: #8b2252;">"\n"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"__"</span>
-                   <span style="color: #8b2252;">"&gt;&gt;"</span>))
-          (window-system
+    (<span style="color: #a020f0;">cond</span> (window-system
            (format <span style="color: #8b2252;">"%s%s "</span>
                    (<span style="color: #a020f0;">if</span> my-toggle-modeline-global <span style="color: #8b2252;">""</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
                      (concat (make-string (frame-width) ?\x5F) <span style="color: #8b2252;">"\n"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"__"</span>
                    (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
                           (icons-in-terminal-material <span style="color: #8b2252;">"playlist_add_check"</span>))
-                         ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">safeguard</span>
+                         ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
                           (all-the-icons-material <span style="color: #8b2252;">"playlist_add_check"</span>))
-                         (t <span style="color: #8b2252;">""</span>)))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">menu, sort-amount-asc</span>
+                         (t <span style="color: #8b2252;">""</span>))))
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">((eq system-type 'windows-nt)</span>
+          <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(format "%s%s "</span>
+          <span style="color: #b22222;">;;          </span><span style="color: #b22222;">(if my-toggle-modeline-global "" ;; FIXME</span>
+          <span style="color: #b22222;">;;            </span><span style="color: #b22222;">(concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"</span>
+          <span style="color: #b22222;">;;          </span><span style="color: #b22222;">"&gt;&gt;"))</span>
           (t
            (format <span style="color: #8b2252;">"%s\n"</span> (make-string (1- (frame-width)) ?\x2D)))))
   (<span style="color: #a020f0;">setq</span> ivy-pre-prompt-function #'my-pre-prompt-function))
@@ -6790,7 +6790,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> window-system
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
     (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">safeguard</span>
                 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal-ivy</span> nil t))
@@ -11253,6 +11253,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
     (run-at-time <span style="color: #8b2252;">"20 sec"</span> nil #'my-org-agenda-to-appt))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"appt"</span>
+    (autoload 'my-org-agenda-to-appt <span style="color: #8b2252;">"org"</span> nil t)
+
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12395;&#27531;&#12426;&#26178;&#38291;&#12434;&#34920;&#31034;&#12375;&#12394;&#12356;</span>
     (<span style="color: #a020f0;">setq</span> appt-display-mode-line nil)
 
@@ -11353,6 +11355,16 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(appt-activate 1)))</span>
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23450;&#26399;&#30340;&#12395;&#26356;&#26032;&#12377;&#12427;</span>
+    (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12461;&#12515;&#12503;&#12481;&#12515;&#30452;&#24460;&#12395;&#26356;&#26032;</span>
+    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#12434;&#38283;&#12356;&#12383;&#12425;&#12450;&#12521;&#12540;&#12512;&#12522;&#12473;&#12488;&#12434;&#26356;&#26032;</span>
+    (<span style="color: #a020f0;">unless</span> noninteractive
+      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
+
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda-to-appt &#12434;&#38750;&#21516;&#26399;&#12391;&#20351;&#12358;&#12383;&#12417;&#12398; advice</span>
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">read-char-default-timeout</span> 10)
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:read-char-exclusive</span> (f <span style="color: #228b22;">&amp;optional</span> PROMPT INHERIT-INPUT-METHOD SECONDS)
@@ -11373,10 +11385,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
               (<span style="color: #a020f0;">throw</span> '<span style="color: #008b8b;">nextfile</span> t))
              (t (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"Abort"</span>)))))))
     (advice-add 'org-check-agenda-file <span style="color: #483d8b;">:override</span> #'ad:org-check-agenda-file)
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#12434;&#38283;&#12356;&#12383;&#12425;&#12450;&#12521;&#12540;&#12512;&#12522;&#12473;&#12488;&#12434;&#26356;&#26032;</span>
-    (<span style="color: #a020f0;">unless</span> noninteractive
-      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#37325;&#35079;&#23455;&#34892;&#12398;&#25233;&#21046;&#29992;&#12501;&#12521;&#12464;</span>
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-ready</span> t)
@@ -11452,12 +11460,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                      (message <span style="color: #8b2252;">"[async] No event to add"</span>)
                    (message <span style="color: #8b2252;">"[async] Added %d event%s for today"</span>
                             cnt (<span style="color: #a020f0;">if</span> (&gt; cnt 1) <span style="color: #8b2252;">"s"</span> <span style="color: #8b2252;">""</span>)))))
-             (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))))))
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23450;&#26399;&#30340;&#12395;&#26356;&#26032;&#12377;&#12427;</span>
-    (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12461;&#12515;&#12503;&#12481;&#12515;&#30452;&#24460;&#12395;&#26356;&#26032;</span>
-    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)))
+             (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))))))))
 </pre>
 </div>
 </div>
@@ -11619,9 +11622,10 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist '((<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#58110;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9484;&#8988;&#9121;&#57944;&#58681;</span>
-                                       (<span style="color: #8b2252;">"#+end_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9492;&#8990;</span>
-                                       (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#57634;"</span>))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#61452;&#10003;</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist '((<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#58110;"</span>)
+                                       (<span style="color: #8b2252;">"#+end_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>)
+                                       (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#57634;"</span>)
+                                       (<span style="color: #8b2252;">"&#20197;&#19978;"</span>. <span style="color: #8b2252;">"&#61498;"</span>)))
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 </pre>
 </div>
@@ -11934,7 +11938,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org5c1e02a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgcb1f5c8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12800,7 +12804,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org34c4434" class="figure">
+<div id="org75dc248" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -13161,7 +13165,10 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
    ((memq window-system '(ns x))
     (<span style="color: #a020f0;">when</span> (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
-       <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span> 'title <span style="color: #8b2252;">"&#61867; "</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#61504;&#61956;&#61957;&#61724;</span>
+       <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span> 'title
+       (concat (icons-in-terminal-octicon <span style="color: #8b2252;">"keyboard"</span>) <span style="color: #8b2252;">" "</span>)))
+
+
 
     (<span style="color: #a020f0;">declare-function</span> my-ime-on <span style="color: #8b2252;">"init"</span> nil)
     (<span style="color: #a020f0;">declare-function</span> my-ime-off <span style="color: #8b2252;">"init"</span> nil)
@@ -14025,9 +14032,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
     (my-unicode-font-setter (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-fileicon-family)))
     (my-unicode-font-setter (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-material-family)))
     (my-unicode-font-setter (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-octicon-family)))
-    (my-unicode-font-setter (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-wicon-family)))
-    ))
-
+    (my-unicode-font-setter (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-wicon-family)))))
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-font-config</span> (<span style="color: #228b22;">&amp;optional</span> size ascii ja)
   <span style="color: #8b2252;">"Font config.</span>
 <span style="color: #8b2252;">- SIZE: font size for ASCII and Japanese (default: 12)</span>
@@ -14036,10 +14041,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 <span style="color: #8b2252;">"</span>
   (<span style="color: #a020f0;">when</span> (memq window-system '(mac ns))
     (<span style="color: #a020f0;">let</span> ((font-size (<span style="color: #a020f0;">or</span> size my-font-size))
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unicode-font (or uc "FreeSerif"))</span>
           (ascii-font (<span style="color: #a020f0;">or</span> ascii my-ascii-font))
           (ja-font (<span style="color: #a020f0;">or</span> ja my-ja-font)))
-      <span style="color: #b22222;">;;</span><span style="color: #b22222;">(my-all-the-icons-setter)</span>
       (set-fontset-font t '(#Xe0a0 . #Xeea0) <span style="color: #8b2252;">"icons-in-terminal"</span>)
       (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
       (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size)))))
@@ -14070,14 +14073,15 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
     (<span style="color: #a020f0;">when</span> (boundp 'mac-allow-anti-aliasing)
       (<span style="color: #a020f0;">setq</span> mac-allow-anti-aliasing t)))
 
-   ((eq window-system 'w32) <span style="color: #b22222;">; </span><span style="color: #b22222;">windows7</span>
+   ((eq window-system 'w32) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Windows</span>
     (<span style="color: #a020f0;">let</span> ((font-size 14)
           (font-height 100)
           (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
           (ja-font <span style="color: #8b2252;">"Migu 2M"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Meiryo UI, &#12513;&#12452;&#12522;&#12458;</span>
+      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
       (my-ja-font-setter
        (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
-      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
       (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
 
    ((eq window-system 'x) <span style="color: #b22222;">; </span><span style="color: #b22222;">for SuSE Linux 12.1</span>
@@ -14087,6 +14091,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
          (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ja-font "MigMix 1M")</span>
          (ja-font <span style="color: #8b2252;">"Migu 2M"</span>))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
       (my-ja-font-setter
        (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
       (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))
@@ -14590,11 +14595,18 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
                (ivy--format-function-generic
                 (<span style="color: #a020f0;">lambda</span> (str)
                   (concat (icons-in-terminal-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span> <span style="color: #483d8b;">:v-adjust</span> -0.1 <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible <span style="color: #483d8b;">:height</span> 0.8)
-                          <span style="color: #8b2252;">" "</span> (ivy--add-face (concat str <span style="color: #8b2252;">"\n"</span>) 'ivy-current-match)))
+                           <span style="color: #8b2252;">"hand-o-right"</span>
+                           <span style="color: #483d8b;">:v-adjust</span> -0.1 
+                           <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible
+                           <span style="color: #483d8b;">:height</span> 0.8)
+                          <span style="color: #8b2252;">" "</span> (ivy--add-face (concat str <span style="color: #8b2252;">"\n"</span>)
+                                             'ivy-current-match)))
                 (<span style="color: #a020f0;">lambda</span> (str)
                   (concat (icons-in-terminal-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span> <span style="color: #483d8b;">:v-adjust</span> -0.1 <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible <span style="color: #483d8b;">:height</span> 0.8)
+                           <span style="color: #8b2252;">"hand-o-right"</span>
+                           <span style="color: #483d8b;">:v-adjust</span> -0.1
+                           <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible
+                           <span style="color: #483d8b;">:height</span> 0.8)
                           <span style="color: #8b2252;">" "</span> (concat str <span style="color: #8b2252;">"\n"</span>)))
                 cands
                 <span style="color: #8b2252;">""</span>))
@@ -14611,7 +14623,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
                           <span style="color: #8b2252;">" "</span> (ivy--add-face str 'ivy-current-match)))
                 (<span style="color: #a020f0;">lambda</span> (str)
                   (concat (all-the-icons-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span> <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible) <span style="color: #8b2252;">" "</span> str))
+                           <span style="color: #8b2252;">"hand-o-right"</span> <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible)
+                          <span style="color: #8b2252;">" "</span> str))
                 cands
                 <span style="color: #8b2252;">"\n"</span>))
              (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
@@ -15514,7 +15527,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-04-18 Sun 11:26</p>
+<p class="date">Created: 2021-04-25 Sun 16:01</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
