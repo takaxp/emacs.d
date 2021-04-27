@@ -2626,7 +2626,13 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
    :ID:       6F2DF669-7FCE-4BA6-9CC7-B654030433B7
    :END:
 
-gzされた elisp ソースを見るときに， ~view-mode~ を使います．また下記の設定では， ~my-auto-view-dirs~ に追加したディレクトリのファイルを開くと， ~view-mode~ が常に有効になります．
+個別のファイルで view モードで開くことを指定するには次のようにします．
+
+#+begin_src text :tangle no
+-*- mode:org; eval: (view-mode) -*-
+#+end_src
+
+一方，特定の拡張子に対して常に view モードで開きたい，例えば，gzされた elisp ソースを見るときに， ~view-mode~ を使います．また下記の設定では， ~my-auto-view-dirs~ に追加したディレクトリのファイルを開くと， ~view-mode~ が常に有効になります．
 
 さらなる細かい制御が必要な場合は，[[https://www.emacswiki.org/emacs/viewer.el][viewer.el]] がおすすめです．
 

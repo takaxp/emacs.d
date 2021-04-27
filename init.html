@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-25 Sun 16:01 -->
+<!-- 2021-04-27 Tue 22:26 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -3759,7 +3759,16 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 <h3 id="org6b6c1c11"><span class="section-number-3">5.24</span> viewモード</h3>
 <div class="outline-text-3" id="text-org6b6c1c11">
 <p>
-gzされた elisp ソースを見るときに， <code>view-mode</code> を使います．また下記の設定では， <code>my-auto-view-dirs</code> に追加したディレクトリのファイルを開くと， <code>view-mode</code> が常に有効になります．
+個別のファイルで view モードで開くことを指定するには次のようにします．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-text">-*- mode:org; eval: (view-mode) -*-
+</pre>
+</div>
+
+<p>
+一方，特定の拡張子に対して常に view モードで開きたい，例えば，gzされた elisp ソースを見るときに， <code>view-mode</code> を使います．また下記の設定では， <code>my-auto-view-dirs</code> に追加したディレクトリのファイルを開くと， <code>view-mode</code> が常に有効になります．
 </p>
 
 <p>
@@ -11938,7 +11947,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgcb1f5c8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgd7471be"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12804,7 +12813,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org75dc248" class="figure">
+<div id="orgbcaa1cf" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15527,7 +15536,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-04-25 Sun 16:01</p>
+<p class="date">Created: 2021-04-27 Tue 22:26</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
