@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-27 Tue 22:26 -->
+<!-- 2021-04-29 Thu 19:51 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4848,7 +4848,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"multiple-cursors"</span>
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">see https://github.com/abo-abo/hydra/wiki/multiple-cursors</span>
-      (<span style="color: #a020f0;">defhydra</span> hydra-multi-cursors (<span style="color: #483d8b;">:hint</span> nil)
+      (defhydra hydra-multi-cursors (<span style="color: #483d8b;">:hint</span> nil)
         <span style="color: #8b2252;">"</span>
 <span style="color: #8b2252;">==================================================================</span>
 <span style="color: #8b2252;"> Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (&gt; (mc/num-cursors) 1) \"s\" \"\")</span>
@@ -6928,7 +6928,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
     (add-hook 'minibuffer-exit-hook #'dimmer-on))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
-    (<span style="color: #a020f0;">setq</span> my-dimmer-mode (dimmer-mode 1))))
+    (<span style="color: #a020f0;">unless</span> (version&lt; <span style="color: #8b2252;">"28.0"</span> emacs-version)
+      (<span style="color: #a020f0;">setq</span> my-dimmer-mode (dimmer-mode 1)))))
 </pre>
 </div>
 </div>
@@ -6965,7 +6966,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
         (((background dark))
          <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span> <span style="color: #483d8b;">:bold</span> t))))
 
-    (<span style="color: #a020f0;">defhydra</span> hydra-timestamp (<span style="color: #483d8b;">:color</span> blue <span style="color: #483d8b;">:hint</span> none)
+    (defhydra hydra-timestamp (<span style="color: #483d8b;">:color</span> blue <span style="color: #483d8b;">:hint</span> none)
       <span style="color: #8b2252;">"</span>
 <span style="color: #8b2252;">   === Timestamp ===</span>
 <span style="color: #8b2252;">0. <i class="far fa-hand-point-right"></i> ?i? (_i_so 8601)   <i class="far fa-hand-point-right"></i> ?n? (_n_ow)   <i class="far fa-hand-point-right"></i> ?w? (_w_eek)   <i class="far fa-hand-point-right"></i> ?a? (week-d_a_y)</span>
@@ -7824,7 +7825,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                                      (substring-no-properties x)))
                         recentf-list)
                 <span style="color: #483d8b;">:action</span> (<span style="color: #a020f0;">lambda</span> (f)
-                          (<span style="color: #a020f0;">with-ivy-window</span>
+                          (with-ivy-window
                             (find-file f)))
                 <span style="color: #483d8b;">:require-match</span> t
                 <span style="color: #483d8b;">:caller</span> 'counsel-recentf))
@@ -8043,7 +8044,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
   (define-key dired-mode-map <span style="color: #8b2252;">"r"</span> 'dired-recent-open)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/abo-abo/hydra/wiki/Dired</span>
-  (<span style="color: #a020f0;">defhydra</span> hydra-dired (<span style="color: #483d8b;">:hint</span> nil <span style="color: #483d8b;">:color</span> pink)
+  (defhydra hydra-dired (<span style="color: #483d8b;">:hint</span> nil <span style="color: #483d8b;">:color</span> pink)
     <span style="color: #8b2252;">"</span>
 <span style="color: #8b2252;">_+_ mkdir        _v_iew        _m_ark            _(_ details       _i_nsert-subdir</span>
 <span style="color: #8b2252;">_C_opy           View _O_ther  _U_nmark all      _)_ omit-mode</span>
@@ -9010,7 +9011,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
       <span style="color: #8b2252;">"History for `</span><span style="color: #008b8b;">counsel-flycheck</span><span style="color: #8b2252;">'"</span>)
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">counsel-flycheck-action</span> (obj <span style="color: #228b22;">&amp;rest</span> _)
-      (<span style="color: #a020f0;">-when-let*</span> ((<span style="color: #ff0000; font-weight: bold;">error</span> (get-text-property 0 'tabulated-list-id obj))
+      (-when-let* ((<span style="color: #ff0000; font-weight: bold;">error</span> (get-text-property 0 'tabulated-list-id obj))
                    (pos (flycheck-error-pos error)) )
         (goto-char (flycheck-error-pos error))))
 
@@ -11299,7 +11300,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                  string (car string)))
       (<span style="color: #a020f0;">when</span> (memq appt-display-format '(window echo)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">modified</span>
         (<span style="color: #a020f0;">let</span> ((time (format-time-string <span style="color: #8b2252;">"%a %b %e "</span>))
-              err)
+              (err nil))
           (<span style="color: #a020f0;">condition-case</span> err
               (funcall appt-disp-window-function
                        (<span style="color: #a020f0;">if</span> (listp mins)
@@ -11947,7 +11948,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgd7471be"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org92b6bec"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12813,7 +12814,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgbcaa1cf" class="figure">
+<div id="org6f013b7" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -13175,9 +13176,9 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
     (<span style="color: #a020f0;">when</span> (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
        <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span> 'title
-       (concat (icons-in-terminal-octicon <span style="color: #8b2252;">"keyboard"</span>) <span style="color: #8b2252;">" "</span>)))
-
-
+       (concat
+        (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+            (icons-in-terminal-octicon <span style="color: #8b2252;">"keyboard"</span>) <span style="color: #8b2252;">""</span>) <span style="color: #8b2252;">" "</span>)))
 
     (<span style="color: #a020f0;">declare-function</span> my-ime-on <span style="color: #8b2252;">"init"</span> nil)
     (<span style="color: #a020f0;">declare-function</span> my-ime-off <span style="color: #8b2252;">"init"</span> nil)
@@ -15536,7 +15537,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-04-27 Tue 22:26</p>
+<p class="date">Created: 2021-04-29 Thu 19:51</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

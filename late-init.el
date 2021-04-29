@@ -1787,57 +1787,6 @@ sorted.  FUNCTION must be a function of one argument."
            (all-the-icons-ivy-setup)))))
 
 (when (autoload-if-found
-       '(dimmer-mode dimmer-process-all dimmer-off dimmer-on
-                     my-toggle-dimmer dimmer-permanent-off
-                     ad:dimmer-org-agenda--quit)
-       "dimmer" nil t)
-
-  (defvar my-dimmer-mode nil)
-
-  (with-eval-after-load "dimmer"
-    (custom-set-variables
-     '(dimmer-exclusion-regexp
-       "^\\*[Hh]elm\\|^ \\*Minibuf\\|^\\*scratch\\|^ \\*Neo\\|^ \\*Echo\\|^\\*Calendar\\|*Org\\|^ \\*LV*")
-     '(dimmer-fraction 0.6))
-
-    (defun my-toggle-dimmer ()
-      (interactive)
-      (if (setq my-dimmer-mode (not my-dimmer-mode))
-          (dimmer-on) (dimmer-off)))
-
-    (defun dimmer-permanent-off ()
-      (setq my-dimmer-mode nil)
-      (dimmer-off))
-
-    (defun dimmer-off ()
-      (dimmer-process-all)
-      (dimmer-mode -1))
-
-    (defun dimmer-on ()
-      (when my-dimmer-mode
-        (dimmer-mode 1)
-        (dimmer-process-all)))
-
-    (add-hook 'focus-out-hook #'dimmer-off)
-    (add-hook 'focus-in-hook #'dimmer-on)
-
-    ;; for org-agenda
-    (add-hook 'org-agenda-mode-hook #'dimmer-permanent-off)
-    (defun ad:dimmer-org-agenda--quit (&optional _bury)
-      (when (fboundp 'dimmer-on)
-        (setq my-dimmer-mode t)
-        (dimmer-on)
-        (redraw-frame)))
-    (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
-
-    ;; for swiper/helm-swoop
-    (add-hook 'minibuffer-setup-hook #'dimmer-off)
-    (add-hook 'minibuffer-exit-hook #'dimmer-on))
-
-  (unless noninteractive
-    (setq my-dimmer-mode (dimmer-mode 1))))
-
-(when (autoload-if-found
        '(hydra-timestamp/body help/insert-datestamp)
        "hydra" nil t)
 

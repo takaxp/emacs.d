@@ -2,6 +2,18 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
+(when (version< "28.0" emacs-version)
+  (require 'icons-in-terminal)
+  (setq comp-async-report-warnings-errors nil)
+  ;; https://github.com/syl20bnr/spacemacs/issues/14265
+  (defun wrap-obsolete (orig-fn &rest args)
+    (let ((args_ (if (= (length args) 2)
+                     (append args (list "0"))
+                   args)))
+      (apply orig-fn args_)))
+  ;; For 28, check shut-up.el, init-dired.el, async.el
+  (advice-add 'define-obsolete-function-alias :around #'wrap-obsolete))
+
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME

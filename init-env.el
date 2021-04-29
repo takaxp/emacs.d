@@ -11,7 +11,7 @@
 (defconst my-loading-packages nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
-(setq debug-on-error nil
+(setq debug-on-error t
       postpone-verbose nil
       my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
@@ -148,8 +148,8 @@
 ;; この設定でファイルを一度編集後に，M-x tabify しないとだめ．
 (when nil
   (add-hook 'emacs-lisp-mode-hook
-            '(lambda ()
-               (setq indent-tabs-mode t)
-               (setq tab-width 8)
-               (setq indent-line-function 'lisp-indent-line)
-               )))
+            #'(lambda ()
+                (setq indent-tabs-mode t)
+                (setq tab-width 8)
+                (setq indent-line-function 'lisp-indent-line)
+                )))

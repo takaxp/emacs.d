@@ -1102,7 +1102,7 @@ also calls `beep' for an audible reminder."
                  string (car string)))
       (when (memq appt-display-format '(window echo)) ;; modified
         (let ((time (format-time-string "%a %b %e "))
-              err)
+              (err nil))
           (condition-case err
               (funcall appt-disp-window-function
                        (if (listp mins)
