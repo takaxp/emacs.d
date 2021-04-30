@@ -665,40 +665,40 @@ This function is called directly from the C code."
  ;; for Macintosh
  ((memq window-system '(mac ns))
   (setq initial-frame-alist
-	(append
-	 '((top . 23)
-	   (left . 0)
-	   ;; (alpha . (100 90))
-	   ;; (vertical-scroll-bars . nil)
-	   ;; (internal-border-width . 20)
-	   ;; (outer-border-width . 20)
-	   ;; (ns-appearance . nil) ;; 26.1 {light, dark}
-	   (ns-transparent-titlebar . t)) ;; 26.1
-	 initial-frame-alist)))
+	      (append
+	       '((top . 23)
+	         (left . 0)
+	         ;; (alpha . (100 90))
+	         ;; (vertical-scroll-bars . nil)
+	         ;; (internal-border-width . 20)
+	         ;; (outer-border-width . 20)
+	         ;; (ns-appearance . nil) ;; 26.1 {light, dark}
+	         (ns-transparent-titlebar . t)) ;; 26.1
+	       initial-frame-alist)))
 
  ;; for Linux
  ((eq window-system 'x)
   (setq initial-frame-alist
-	(append
-	 '((vertical-scroll-bars . nil)
-	   (top . 0)
-	   (left . 0)
-	   (width . 80)
-	   (height . 38))
-	 initial-frame-alist)))
+	      (append
+	       '((vertical-scroll-bars . nil)
+	         (top . 0)
+	         (left . 0)
+	         (width . 80)
+	         (height . 38))
+	       initial-frame-alist)))
 
  ((eq window-system nil)
   nil)
 
  ;; for Windows
  (t (setq initial-frame-alist
-	  (append
-	   '((vertical-scroll-bars . nil)
-	     (top . 0)
-	     (left . 0)
-	     (width . 80)
-	     (height . 26))
-	   initial-frame-alist))))
+	        (append
+	         '((vertical-scroll-bars . nil)
+	           (top . 0)
+	           (left . 0)
+	           (width . 80)
+	           (height . 26))
+	         initial-frame-alist))))
 
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)
@@ -734,12 +734,12 @@ This function is called directly from the C code."
     (defun my-apply-cursor-config ()
       (interactive)
       (when (display-graphic-p)
-	(if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+	      (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
 
   (defun my-apply-cursor-config ()
     (interactive)
     (when (and (display-graphic-p)
-	       (fboundp 'mac-ime-active-p))
+	             (fboundp 'mac-ime-active-p))
       (if (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
   (add-hook 'buffer-list-update-hook #'my-apply-cursor-config))
 
@@ -765,8 +765,8 @@ This function is called directly from the C code."
       (mac-set-input-method-parameter
        "com.google.inputmethod.Japanese.base" 'title
        (concat
-	(if (require 'icons-in-terminal nil t)
-	    (icons-in-terminal-octicon "keyboard") "") " ")))
+	      (if (require 'icons-in-terminal nil t)
+	          (icons-in-terminal-octicon "keyboard") "") " ")))
 
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)
@@ -780,36 +780,36 @@ This function is called directly from the C code."
     (defun my-ime-on ()
       (interactive)
       (if (fboundp 'mac-toggle-input-method)
-	  (progn
-	    (mac-toggle-input-method t)
-	    (run-hooks 'input-method-activate-hook))
-	(activate-input-method default-input-method))
+	        (progn
+	          (mac-toggle-input-method t)
+	          (run-hooks 'input-method-activate-hook))
+	      (activate-input-method default-input-method))
       (setq my-ime-last t))
     (defun my-ime-off ()
       (interactive)
       (if (fboundp 'mac-toggle-input-method)
-	  (progn
-	    (mac-toggle-input-method nil)
-	    (run-hooks 'input-method-deactivate-hook))
-	(deactivate-input-method))
+	        (progn
+	          (mac-toggle-input-method nil)
+	          (run-hooks 'input-method-deactivate-hook))
+	      (deactivate-input-method))
       (setq my-ime-last nil))
 
     (defvar my-ime-before-action nil)
     (defun my-ime-on-sticky ()
       (when my-ime-before-action
-	(my-ime-on)))
+	      (my-ime-on)))
     (defun my-ime-off-sticky ()
       (when (setq my-ime-before-action (my-ime-active-p))
-	(my-ime-off)))
+	      (my-ime-off)))
 
     (if (version< emacs-version "27.0")
-	(progn
-	  ;; For selected.el
-	  (add-hook 'activate-mark-hook #'my-ime-off-sticky)
-	  (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-	  ;; 「M-x あ」対策
-	  (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
-	  (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
+	      (progn
+	        ;; For selected.el
+	        (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+	        (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+	        ;; 「M-x あ」対策
+	        (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
+	        (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
       ;; For selected.el
       (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
       (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
@@ -841,28 +841,28 @@ This function is called directly from the C code."
    ((eq window-system 'mac)
     (when (fboundp 'mac-input-source)
       (defun my-mac-keyboard-input-source () ;; Need update
-	(if (string-match "\\.Roman$" (mac-input-source))
-	    (progn
-	      (setq cursor-type (plist-get my-cur-type-ime :off))
-	      (add-to-list 'default-frame-alist
-			   `(cursor-type . ,(plist-get my-cur-type-ime :off)))
-	      (set-cursor-color (plist-get my-cur-color-ime :off)))
-	  (progn
-	    (setq cursor-type (plist-get my-cur-type-ime :on))
-	    (add-to-list 'default-frame-alist
-			 `(cursor-type . ,(plist-get my-cur-type-ime :on)))
-	    (set-cursor-color (plist-get my-cur-color-ime :on)))))
+	      (if (string-match "\\.Roman$" (mac-input-source))
+	          (progn
+	            (setq cursor-type (plist-get my-cur-type-ime :off))
+	            (add-to-list 'default-frame-alist
+			                     `(cursor-type . ,(plist-get my-cur-type-ime :off)))
+	            (set-cursor-color (plist-get my-cur-color-ime :off)))
+	        (progn
+	          (setq cursor-type (plist-get my-cur-type-ime :on))
+	          (add-to-list 'default-frame-alist
+			                   `(cursor-type . ,(plist-get my-cur-type-ime :on)))
+	          (set-cursor-color (plist-get my-cur-color-ime :on)))))
 
       (when (fboundp 'mac-auto-ascii-mode)
-	;; (mac-auto-ascii-mode 1)
-	;; IME ON/OFF でカーソルの種別や色を替える
-	(add-hook 'mac-selected-keyboard-input-source-change-hook
-		  #'my-mac-keyboard-input-source)
-	;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
-	;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
-	;;           #'my-mac-keyboard-input-source)
-	(declare-function my-mac-keyboard-input-source "init" nil)
-	(my-mac-keyboard-input-source))))
+	      ;; (mac-auto-ascii-mode 1)
+	      ;; IME ON/OFF でカーソルの種別や色を替える
+	      (add-hook 'mac-selected-keyboard-input-source-change-hook
+		              #'my-mac-keyboard-input-source)
+	      ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
+	      ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
+	      ;;           #'my-mac-keyboard-input-source)
+	      (declare-function my-mac-keyboard-input-source "init" nil)
+	      (my-mac-keyboard-input-source))))
 
    (t nil)))
 
@@ -956,7 +956,8 @@ This function is called directly from the C code."
     (let ((font-size (or size my-font-size))
           (ascii-font (or ascii my-ascii-font))
           (ja-font (or ja my-ja-font)))
-      (set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
       (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
 
@@ -1017,12 +1018,12 @@ This function is called directly from the C code."
 ;; set-default で global 指定すると，ミニバッファの message で制御不能になる
 ;; propertize で拡大できるが，global の値以下に縮小できなくなる．
 ;; (set-default 'line-spacing 2)
-(defun my-linespacing-2 ()
+(defun my-linespacing ()
   (unless (minibufferp)
     (setq-local line-spacing 2)))
-(add-hook 'buffer-list-update-hook #'my-linespacing-2)
-(add-hook 'org-src-mode-hook #'my-linespacing-2)
-(add-hook 'debugger-mode-hook #'my-linespacing-2)
+(add-hook 'buffer-list-update-hook #'my-linespacing)
+(add-hook 'org-src-mode-hook #'my-linespacing)
+(add-hook 'debugger-mode-hook #'my-linespacing)
 
 (with-eval-after-load "org-agenda"
   (defun my-org-agenda (&optional _arg _org-keys _restriction)

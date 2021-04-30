@@ -990,43 +990,6 @@ This works also for other defined begin/end tokens to define the structure."
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))))
 
 (when (autoload-if-found
-       '(mc/num-cursors
-         mc/edit-lines
-         hydra-multi-cursors/body)
-       "multiple-cursors" nil t)
-
-  (global-set-key (kbd "C-c h m") #'hydra-multi-cursors/body)
-
-  (with-eval-after-load "multiple-cursors"
-    (when (require 'hydra nil t)
-      ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
-      (defhydra hydra-multi-cursors (:hint nil)
-        "
-==================================================================
- Up^^             Down^^           Miscellaneous           % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
-------------------------------------------------------------------
- [_p_]   Next     [_n_]   Next     [_l_] Edit lines  [_0_] Insert numbers
- [_P_]   Skip     [_N_]   Skip     [_a_] Mark all    [_A_] Insert letters
- [_M-p_] Unmark   [_M-n_] Unmark   [_s_] Search
- [Click] Cursor at point       [_q_] Quit"
-        ("l" mc/edit-lines) ;;  :exit t
-        ("a" mc/mark-all-like-this) ;;  :exit t
-        ("n" mc/mark-next-like-this)
-        ("N" mc/skip-to-next-like-this)
-        ("M-n" mc/unmark-next-like-this)
-        ("p" mc/mark-previous-like-this)
-        ("P" mc/skip-to-previous-like-this)
-        ("M-p" mc/unmark-previous-like-this)
-        ("s" mc/mark-all-in-region-regexp) ;;  :exit t
-        ("0" mc/insert-numbers) ;;  :exit t
-        ("A" mc/insert-letters) ;;  :exit t
-        ("<mouse-1>" mc/add-cursor-on-click)
-        ;; Help with click recognition in this hydra
-        ("<down-mouse-1>" ignore)
-        ("<drag-mouse-1>" ignore)
-        ("q" nil)))))
-
-(when (autoload-if-found
        '(git-complete)
        "git-complete" nil t)
 
@@ -1787,85 +1750,56 @@ sorted.  FUNCTION must be a function of one argument."
            (all-the-icons-ivy-setup)))))
 
 (when (autoload-if-found
-       '(hydra-timestamp/body help/insert-datestamp)
-       "hydra" nil t)
+       '(dimmer-mode dimmer-process-all dimmer-off dimmer-on
+		                 my-toggle-dimmer dimmer-permanent-off
+		                 ad:dimmer-org-agenda--quit)
+       "dimmer" nil t)
 
-  (global-set-key (kbd "C-c h t") #'hydra-timestamp/body)
-  (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
-    
-  (with-eval-after-load "hydra"
-    (require 'org nil t)
-    (require 'hydra nil t)
-    (global-set-key (kbd "C-c )") #'help/insert-currenttime)
-    (custom-set-faces
-     '(hydra-face-blue
-       ((((background light))
-         :foreground "orange red" :bold t)
-        (((background dark))
-         :foreground "orange" :bold t))))
+  (defvar my-dimmer-mode nil)
 
-    (defhydra hydra-timestamp (:color blue :hint none)
-      "
-   === Timestamp ===
-0.  ?i? (_i_so 8601)    ?n? (_n_ow)    ?w? (_w_eek)    ?a? (week-d_a_y)
-_1_.  ?t? (ISO 8601 including _t_imezone)
-_2_.  ?r?    (Org Mode: _r_ight now)
-_3_.  ?s?          (Org Mode: by _s_elect)                             _q_uit
-"
-      ("q" nil)
-      ("i" help/insert-datestamp (format-time-string "%F"))
-      ("n" help/insert-currenttime (format-time-string "%H:%M"))
-      ("w" help/insert-week (format-time-string "%W"))
-      ("a" help/insert-month-and-day (format-time-string "%m%d"))
-      ("t" help/insert-timestamp (help/get-timestamp))
-      ("r" help/org-time-stamp-with-seconds-now
-       (format-time-string "<%F %a %H:%M>"))
-      ("s" org-time-stamp (format-time-string "<%F %a>"))
-      ("0" help/show-my-date)
-      ("1" help/insert-timestamp)
-      ("2" help/org-time-stamp-with-seconds-now)
-      ("3" org-time-stamp))
-    (defun help/show-my-date ()
-      "Produces and show date and time in preferred format."
+  (with-eval-after-load "dimmer"
+    (custom-set-variables
+     '(dimmer-exclusion-regexp
+       "^\\*[Hh]elm\\|^ \\*Minibuf\\|^\\*scratch\\|^ \\*Neo\\|^ \\*Echo\\|^\\*Calendar\\|*Org\\|^ \\*LV*")
+     '(dimmer-fraction 0.6))
+
+    (defun my-toggle-dimmer ()
       (interactive)
-      (message (format-time-string "%Y-%m-%d (%a.) W:%W @%H:%M"))
-      (hydra-keyboard-quit))
-    (defun help/insert-currenttime ()
-      "Produces and inserts the current time."
-      (interactive)
-      (insert (format-time-string "%H:%M")))
-    (defun help/insert-week ()
-      "Produces and inserts the week number."
-      (interactive)
-      (insert (format-time-string "%W")))
-    (defun help/insert-month-and-day ()
-      "Inserts a month and day pair in 4-degits."
-      (interactive)
-      (insert (format-time-string "%m%d")))
-    (defun help/insert-datestamp ()
-      "Produces and inserts a partial ISO 8601 format timestamp."
-      (interactive)
-      (insert (format-time-string "%F")))
-    (defun help/insert-timestamp ()
-      "Inserts a full ISO 8601 format timestamp."
-      (interactive)
-      (insert (help/get-timestamp)))
-    (defun help/org-time-stamp-with-seconds-now ()
-      (interactive)
-      (let ((current-prefix-arg '(16)))
-        (call-interactively 'org-time-stamp)))
-    (defun help/get-timestamp ()
-      "Produces a full ISO 8601 format timestamp."
-      (interactive)
-      (let* ((timestamp-without-timezone (format-time-string "%Y-%m-%dT%T"))
-             (timezone-name-in-numeric-form (format-time-string "%z"))
-             (timezone-utf-offset
-              (concat (substring timezone-name-in-numeric-form 0 3)
-                      ":"
-                      (substring timezone-name-in-numeric-form 3 5)))
-             (timestamp (concat timestamp-without-timezone
-                                timezone-utf-offset)))
-        timestamp))))
+      (if (setq my-dimmer-mode (not my-dimmer-mode))
+	        (dimmer-on) (dimmer-off)))
+
+    (defun dimmer-permanent-off ()
+      (setq my-dimmer-mode nil)
+      (dimmer-off))
+
+    (defun dimmer-off ()
+      (dimmer-process-all)
+      (dimmer-mode -1))
+
+    (defun dimmer-on ()
+      (when my-dimmer-mode
+	      (dimmer-mode 1)
+	      (dimmer-process-all)))
+
+    (add-hook 'focus-out-hook #'dimmer-off)
+    (add-hook 'focus-in-hook #'dimmer-on)
+
+    ;; for org-agenda
+    (add-hook 'org-agenda-mode-hook #'dimmer-permanent-off)
+    (defun ad:dimmer-org-agenda--quit (&optional _bury)
+      (when (fboundp 'dimmer-on)
+	      (setq my-dimmer-mode t)
+	      (dimmer-on)
+	      (redraw-frame)))
+    (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
+
+    ;; for swiper/helm-swoop
+    (add-hook 'minibuffer-setup-hook #'dimmer-off)
+    (add-hook 'minibuffer-exit-hook #'dimmer-on))
+
+  (unless noninteractive
+    (unless (version< "28.0" emacs-version)
+      (setq my-dimmer-mode (dimmer-mode 1)))))
 
 (when (autoload-if-found
        '(emms-play-file
@@ -2939,7 +2873,7 @@ Uses `all-the-icons-material' to fetch the icon."
               ("KLUDGE" . "#d0bf8f")
               ("HACK"   . "#d0bf8f")
               ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "##3030FF")
+              ("FIXME"  . "#3030FF")
               ("XXX+"   . "#cc9393")
               ("\\?\\?\\?+" . "#cc9393")
               ("" . "orange")

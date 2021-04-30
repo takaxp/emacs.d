@@ -3,16 +3,33 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 (when (version< "28.0" emacs-version)
-  (require 'icons-in-terminal)
   (setq comp-async-report-warnings-errors nil)
   ;; https://github.com/syl20bnr/spacemacs/issues/14265
-  (defun wrap-obsolete (orig-fn &rest args)
-    (let ((args_ (if (= (length args) 2)
-                     (append args (list "0"))
-                   args)))
-      (apply orig-fn args_)))
-  ;; For 28, check shut-up.el, init-dired.el, async.el
-  (advice-add 'define-obsolete-function-alias :around #'wrap-obsolete))
+  (defmacro define-obsolete-variable-alias (obsolete-name
+                                            current-name
+						                                &optional when docstring)
+    ""
+    (declare (doc-string 4)
+             (advertised-calling-convention
+              (obsolete-name current-name when &optional docstring) "23.1"))
+    `(progn
+       (defvaralias ,obsolete-name ,current-name ,docstring)
+       (dolist (prop '(saved-value saved-variable-comment))
+         (and (get ,obsolete-name prop)
+              (null (get ,current-name prop))
+              (put ,current-name prop (get ,obsolete-name prop))))
+       (make-obsolete-variable ,obsolete-name ,current-name ,when)))
+
+  (defmacro define-obsolete-function-alias (obsolete-name
+                                            current-name
+						                                &optional when docstring)
+    ""
+    (declare (doc-string 4)
+             (advertised-calling-convention
+              (obsolete-name current-name when &optional docstring) "23.1"))
+    `(progn
+       (defalias ,obsolete-name ,current-name ,docstring)
+       (make-obsolete ,obsolete-name ,current-name ,when))))
 
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

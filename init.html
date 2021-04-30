@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-29 Thu 19:51 -->
+<!-- 2021-05-01 Sat 01:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4837,7 +4837,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(mc/num-cursors
          mc/edit-lines
          hydra-multi-cursors/body)
@@ -6948,7 +6949,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(hydra-timestamp/body help/insert-datestamp)
        <span style="color: #8b2252;">"hydra"</span> nil t)
 
@@ -6957,7 +6959,6 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hydra"</span>
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span> nil t)
-    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)
     (global-set-key (kbd <span style="color: #8b2252;">"C-c )"</span>) #'help/insert-currenttime)
     (custom-set-faces
      '(hydra-face-blue
@@ -6987,6 +6988,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
       (<span style="color: #8b2252;">"1"</span> help/insert-timestamp)
       (<span style="color: #8b2252;">"2"</span> help/org-time-stamp-with-seconds-now)
       (<span style="color: #8b2252;">"3"</span> org-time-stamp))
+
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">help/show-my-date</span> ()
       <span style="color: #8b2252;">"Produces and show date and time in preferred format."</span>
       (<span style="color: #a020f0;">interactive</span>)
@@ -7825,7 +7827,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                                      (substring-no-properties x)))
                         recentf-list)
                 <span style="color: #483d8b;">:action</span> (<span style="color: #a020f0;">lambda</span> (f)
-                          (with-ivy-window
+                          (<span style="color: #a020f0;">with-ivy-window</span>
                             (find-file f)))
                 <span style="color: #483d8b;">:require-match</span> t
                 <span style="color: #483d8b;">:caller</span> 'counsel-recentf))
@@ -7993,13 +7995,12 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
       (append completion-ignored-extensions
               '(<span style="color: #8b2252;">"./"</span> <span style="color: #8b2252;">"../"</span> <span style="color: #8b2252;">".xlsx"</span> <span style="color: #8b2252;">".docx"</span> <span style="color: #8b2252;">".pptx"</span> <span style="color: #8b2252;">".DS_Store"</span>)))
 
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">"dired-mode-map"</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Use build-in `</span><span style="color: #008b8b;">wdired-mode</span><span style="color: #b22222;">'.</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)</span>
-
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">http://elpa.gnu.org/packages/gited.html</span>
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">gited</span> nil t)
   (define-key dired-mode-map (kbd <span style="color: #8b2252;">"C-x C-g"</span>) 'gited-list-branches))
-
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/Fuco1/dired-hacks</span>
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-narrow</span> nil t)
   (define-key dired-mode-map (kbd <span style="color: #8b2252;">"/"</span>) 'dired-narrow))
@@ -8008,7 +8009,6 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">ivy-dired-history-variable &#12399;&#65292;session.el &#12391;&#26126;&#31034;&#30340;&#12395;&#31649;&#29702;&#20013;&#65294;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">check session-globals-include</span>
   (define-key dired-mode-map <span style="color: #8b2252;">","</span> 'dired))
-
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-x</span> nil t)
   (dired-extra-startup))
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-reveal-in-finder</span> ()
@@ -8017,9 +8017,9 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
   (shell-command-to-string <span style="color: #8b2252;">"open ."</span>))
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">dired-x &#12434;&#35501;&#12415;&#36796;&#12435;&#12384;&#12354;&#12392;&#12376;&#12419;&#12394;&#12356;&#12392;&#12384;&#12417;</span>
 (define-key dired-mode-map (kbd <span style="color: #8b2252;">"F"</span>) 'my-reveal-in-finder)
-
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19978;&#20301;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#12408;&#12398;&#31227;&#21205;</span>
 (define-key dired-mode-map (kbd <span style="color: #8b2252;">"u"</span>) 'dired-up-directory)
+
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/xuchunyang/emacs.d</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">type "!" or "X" in dired</span>
@@ -8038,10 +8038,12 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                          <span style="color: #8b2252;">"gif"</span> <span style="color: #8b2252;">"png"</span> <span style="color: #8b2252;">"jpg"</span> <span style="color: #8b2252;">"jpeg"</span>)
                         string-end)) <span style="color: #8b2252;">"open"</span>))))
 
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)
+(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> nil
+           (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)
            (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-recent</span> nil t))
-  (define-key dired-mode-map <span style="color: #8b2252;">"h"</span> 'hydra-dired/body)
-  (define-key dired-mode-map <span style="color: #8b2252;">"r"</span> 'dired-recent-open)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key dired-mode-map "h" 'hydra-dired/body)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key dired-mode-map "r" 'dired-recent-open)</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/abo-abo/hydra/wiki/Dired</span>
   (defhydra hydra-dired (<span style="color: #483d8b;">:hint</span> nil <span style="color: #483d8b;">:color</span> pink)
@@ -9011,7 +9013,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
       <span style="color: #8b2252;">"History for `</span><span style="color: #008b8b;">counsel-flycheck</span><span style="color: #8b2252;">'"</span>)
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">counsel-flycheck-action</span> (obj <span style="color: #228b22;">&amp;rest</span> _)
-      (-when-let* ((<span style="color: #ff0000; font-weight: bold;">error</span> (get-text-property 0 'tabulated-list-id obj))
+      (<span style="color: #a020f0;">-when-let*</span> ((<span style="color: #ff0000; font-weight: bold;">error</span> (get-text-property 0 'tabulated-list-id obj))
                    (pos (flycheck-error-pos error)) )
         (goto-char (flycheck-error-pos error))))
 
@@ -11948,7 +11950,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org92b6bec"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org277131e"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12814,7 +12816,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org6f013b7" class="figure">
+<div id="orgcdf9358" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14053,7 +14055,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
     (<span style="color: #a020f0;">let</span> ((font-size (<span style="color: #a020f0;">or</span> size my-font-size))
           (ascii-font (<span style="color: #a020f0;">or</span> ascii my-ascii-font))
           (ja-font (<span style="color: #a020f0;">or</span> ja my-ja-font)))
-      (set-fontset-font t '(#Xe0a0 . #Xeea0) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+      <span style="color: #b22222;">;;</span><span style="color: #b22222;">(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")</span>
       (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
       (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size)))))
 
@@ -14151,12 +14154,12 @@ Linux では次のように処理するだけでよく，意外と簡単．
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">set-default &#12391; global &#25351;&#23450;&#12377;&#12427;&#12392;&#65292;&#12511;&#12491;&#12496;&#12483;&#12501;&#12449;&#12398; message &#12391;&#21046;&#24481;&#19981;&#33021;&#12395;&#12394;&#12427;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">propertize &#12391;&#25313;&#22823;&#12391;&#12365;&#12427;&#12364;&#65292;global &#12398;&#20516;&#20197;&#19979;&#12395;&#32302;&#23567;&#12391;&#12365;&#12394;&#12367;&#12394;&#12427;&#65294;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(set-default 'line-spacing 2)</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-linespacing-2</span> ()
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-linespacing</span> ()
   (<span style="color: #a020f0;">unless</span> (minibufferp)
     (<span style="color: #a020f0;">setq-local</span> line-spacing 2)))
-(add-hook 'buffer-list-update-hook #'my-linespacing-2)
-(add-hook 'org-src-mode-hook #'my-linespacing-2)
-(add-hook 'debugger-mode-hook #'my-linespacing-2)
+(add-hook 'buffer-list-update-hook #'my-linespacing)
+(add-hook 'org-src-mode-hook #'my-linespacing)
+(add-hook 'debugger-mode-hook #'my-linespacing)
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda</span> (<span style="color: #228b22;">&amp;optional</span> _arg _org-keys _restriction)
@@ -14390,7 +14393,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
               (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
               (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
               (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"##3030FF"</span>)
+              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"#3030FF"</span>)
               (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
               (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
               (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
@@ -15537,7 +15540,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-04-29 Thu 19:51</p>
+<p class="date">Created: 2021-05-01 Sat 01:57</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
