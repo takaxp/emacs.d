@@ -5,6 +5,8 @@
 (when (version< "28.0" emacs-version)
   (setq comp-async-report-warnings-errors nil)
   ;; https://github.com/syl20bnr/spacemacs/issues/14265
+
+
   (defmacro define-obsolete-variable-alias (obsolete-name
                                             current-name
 						                                &optional when docstring)

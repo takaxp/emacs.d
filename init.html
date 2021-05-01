@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-05-01 Sat 02:12 -->
+<!-- 2021-05-02 Sun 02:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -5757,9 +5757,13 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
        <span style="color: #8b2252;">"display-line-numbers"</span> nil t)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
-    (custom-set-faces
-     `(line-number-current-line
-       ((t (<span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:background</span> ,(face-attribute 'hl-line <span style="color: #483d8b;">:background</span>)))))))
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-update-display-line-numbers-face</span> ()
+      (custom-set-faces
+       `(line-number-current-line
+         ((t (<span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:background</span> ,(face-attribute 'hl-line <span style="color: #483d8b;">:background</span>)))))))
+    (my-update-display-line-numbers-face)
+    (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
+    (add-hook 'my-ime-on-hline-hook #'my-update-display-line-numbers-face))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"display-line-numbers"</span>
     (custom-set-faces
@@ -11950,7 +11954,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org3210c4c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org5a383b5"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12816,7 +12820,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org746564d" class="figure">
+<div id="org4bcaada" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -13890,6 +13894,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 
   (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-off-hline-hook</span> nil)
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-on-hline-hook</span> nil)
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-active-period</span> 120
       <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">' after this period"</span>)
@@ -13908,12 +13915,14 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-off-hline</span> ()
       (my-hl-line-enable)
       (<span style="color: #a020f0;">let</span> ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-        (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"#484c5c"</span> <span style="color: #8b2252;">"#DEEDFF"</span>))))
+        (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"#484c5c"</span> <span style="color: #8b2252;">"#DEEDFF"</span>)))
+      (run-hooks 'my-ime-off-hline-hook))
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-on-hline</span> ()
       (my-hl-line-enable)
       (<span style="color: #a020f0;">let</span> ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-        (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"#594d5d"</span> <span style="color: #8b2252;">"#fff0de"</span>))))
+        (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"#594d5d"</span> <span style="color: #8b2252;">"#fff0de"</span>)))
+      (run-hooks 'my-ime-on-hline-hook))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">init</span>
     (<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-active-p)
@@ -15540,7 +15549,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-05-01 Sat 02:12</p>
+<p class="date">Created: 2021-05-02 Sun 02:57</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

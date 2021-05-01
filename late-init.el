@@ -1076,9 +1076,13 @@ Call this function at updating `mode-line-mode'."
        "display-line-numbers" nil t)
 
   (with-eval-after-load "hl-line"
-    (custom-set-faces
-     `(line-number-current-line
-       ((t (:bold t :background ,(face-attribute 'hl-line :background)))))))
+    (defun my-update-display-line-numbers-face ()
+      (custom-set-faces
+       `(line-number-current-line
+         ((t (:bold t :background ,(face-attribute 'hl-line :background)))))))
+    (my-update-display-line-numbers-face)
+    (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
+    (add-hook 'my-ime-on-hline-hook #'my-update-display-line-numbers-face))
 
   (with-eval-after-load "display-line-numbers"
     (custom-set-faces
@@ -2778,6 +2782,9 @@ Uses `all-the-icons-material' to fetch the icon."
 
   (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 
+  (defvar my-ime-off-hline-hook nil)
+  (defvar my-ime-on-hline-hook nil)
+
   (with-eval-after-load "hl-line"
     (defvar my-hl-active-period 120
       "Disable `hl-line' after this period")
@@ -2796,12 +2803,14 @@ Uses `all-the-icons-material' to fetch the icon."
     (defun my-ime-off-hline ()
       (my-hl-line-enable)
       (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-        (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF"))))
+        (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
+      (run-hooks 'my-ime-off-hline-hook))
 
     (defun my-ime-on-hline ()
       (my-hl-line-enable)
       (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-        (set-face-background hl-line-face (if dark "#594d5d" "#fff0de"))))
+        (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
+      (run-hooks 'my-ime-on-hline-hook))
 
     ;; init
     (when (fboundp 'mac-ime-active-p)
