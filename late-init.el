@@ -1967,7 +1967,8 @@ sorted.  FUNCTION must be a function of one argument."
   (defun my-backup-recentf ()
     (interactive)
     (when (require 'utility nil t)
-      (my-backup recentf-save-file))) ;; "~/.emacs.d/recentf"
+      (my-backup recentf-save-file) ;; "~/.emacs.d/recentf"
+      (my-backup (expand-file-name "~/.histfile"))))
   (run-with-idle-timer 180 t 'my-backup-recentf))
 
 (when (autoload-if-found

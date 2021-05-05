@@ -4,9 +4,6 @@
 (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
 (when (version< "28.0" emacs-version)
   (setq comp-async-report-warnings-errors nil)
-  ;; https://github.com/syl20bnr/spacemacs/issues/14265
-
-
   (defmacro define-obsolete-variable-alias (obsolete-name
                                             current-name
 						                                &optional when docstring)
@@ -21,7 +18,6 @@
               (null (get ,current-name prop))
               (put ,current-name prop (get ,obsolete-name prop))))
        (make-obsolete-variable ,obsolete-name ,current-name ,when)))
-
   (defmacro define-obsolete-function-alias (obsolete-name
                                             current-name
 						                                &optional when docstring)
@@ -32,7 +28,6 @@
     `(progn
        (defalias ,obsolete-name ,current-name ,docstring)
        (make-obsolete ,obsolete-name ,current-name ,when))))
-
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME

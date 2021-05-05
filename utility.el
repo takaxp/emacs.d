@@ -348,7 +348,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
                     (file-readable-p (or file (expand-file-name file))))
                (shell-command-to-string
                 (concat "cp -f " file " " rootdir "/backup/" system "/"))
-             (message (format "--- backup failure: %s" file))))
+             (warn (format "--- backup failure: %s" file))))
          (if (listp files)
              files
            (list files)))
