@@ -34,11 +34,11 @@
   (el-get-bundle "org-tree-slide")
   (el-get-bundle "takaxp/org-onit")
   (el-get-bundle "takaxp/org-plist")
-  (el-get-bundle "takaxp/org-reveal" :name ox-reveal :branch "org9.2")
   (el-get-bundle "takaxp/org-bookmark-heading")
   (el-get-bundle "org-download")
   (el-get-bundle "org-bullets")
   (el-get-bundle "orgbox")
+  (el-get-bundle "yjwen/org-reveal" :name ox-reveal)
   (el-get-bundle "hniksic/emacs-htmlize")
   (el-get-bundle "emacsorphanage/org-grep")
   (el-get-bundle "alphapapa/org-web-tools")
@@ -58,6 +58,7 @@
                    :type git
                    :url "https://gitlab.com/jagrg/org-emms.git")
     (el-get-bundle "org-trello"))
+  (el-get-bundle "xenodium/company-org-block")
 
   ;; Org Mode - ox/ob
   (el-get-bundle "0x60df/ox-qmd")
@@ -205,6 +206,7 @@
   (el-get-bundle "lewang/command-log-mode")
   (el-get-bundle "tarsius/outline-minor-faces")
   (el-get-bundle "tarsius/backline")
+  (el-get-bundle "jdtsmith/mlscroll")
 
   ;; System related
   (el-get-bundle "Fuco1/dired-hacks")

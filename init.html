@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-05-06 Thu 07:17 -->
+<!-- 2021-06-28 Mon 22:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -5324,7 +5324,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
                        (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (buffer-narrowed-p)
                                 (fboundp 'all-the-icons-octicon))
                            (concat <span style="color: #8b2252;">" "</span>
-                                   (all-the-icons-octicon <span style="color: #8b2252;">"fold"</span> <span style="color: #483d8b;">:v-adjust</span> 0.0))
+                                   (icons-in-terminal-octicon <span style="color: #8b2252;">"fold"</span> <span style="color: #483d8b;">:v-adjust</span> 0.0))
                          <span style="color: #8b2252;">""</span>)
                        ))
            entry))
@@ -9582,6 +9582,10 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 <code>auto-complete.el</code> がメンテナンスモードに入ったので <code>company</code> に移行しました．
 </p>
 
+<p>
+<code>company-org-block</code> は，<a href="http://xenodium.com/emacs-org-block-company-completion/">http://xenodium.com/emacs-org-block-company-completion/</a> で公開されている情報でしたが，パッケージ化されて，<a href="https://melpa.org/#/company-org-block">MELPA</a>から入手できるようになりました．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-company-activate</span> ()
   (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
@@ -9589,78 +9593,6 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
   (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">company</span> nil t))
 (add-hook 'emacs-lisp-mode-hook #'my-company-activate)
 (add-hook 'org-mode-hook #'my-company-activate)
-
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"company"</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">http://xenodium.com/emacs-org-block-company-completion/</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'map)</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'org)</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'seq)</span>
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">company-org-block-bol-p</span> t <span style="color: #8b2252;">"If t, detect completion when at</span>
-<span style="color: #8b2252;">begining of line, otherwise detect completion anywhere."</span>)
-
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">company-org--regexp</span> <span style="color: #8b2252;">"&lt;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> ]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>)
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">company-org-block</span> (command <span style="color: #228b22;">&amp;optional</span> arg <span style="color: #228b22;">&amp;rest</span> ignored)
-    <span style="color: #8b2252;">"Complete org babel languages into source blocks."</span>
-    (<span style="color: #a020f0;">interactive</span> (list 'interactive))
-    (<span style="color: #a020f0;">cl-case</span> command
-      (<span style="color: #a020f0;">interactive</span> (company-begin-backend 'company-org-block))
-      (prefix (<span style="color: #a020f0;">when</span> (derived-mode-p 'org-mode)
-                (company-org-block--grab-symbol-cons)))
-      (candidates (company-org-block--candidates arg))
-      (post-completion
-       (company-org-block--expand arg))))
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">company-org-block--candidates</span> (prefix)
-    <span style="color: #8b2252;">"Return a list of org babel languages matching PREFIX."</span>
-    (seq-filter (<span style="color: #a020f0;">lambda</span> (language)
-                  (string-prefix-p prefix language))
-                <span style="color: #b22222;">;; </span><span style="color: #b22222;">Flatten `</span><span style="color: #008b8b;">org-babel-load-languages</span><span style="color: #b22222;">' and</span>
-                <span style="color: #b22222;">;; </span><span style="color: #b22222;">`</span><span style="color: #008b8b;">org-structure-template-alist</span><span style="color: #b22222;">', join, and sort.</span>
-                (seq-sort
-                 #'string-lessp
-                 (append
-                  (mapcar #'prin1-to-string
-                          (map-keys org-babel-load-languages))
-                  (map-values org-structure-template-alist)))))
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">company-org-block--template-p</span> (template)
-    (seq-contains (map-values org-structure-template-alist)
-                  template))
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">company-org-block--expand</span> (insertion)
-    <span style="color: #8b2252;">"Replace INSERTION with actual source block."</span>
-    (delete-region (point) (- (point) (1+ <span style="color: #b22222;">;; </span><span style="color: #b22222;">Include "&lt;" in length.</span>
-                                       (length insertion))))
-    (<span style="color: #a020f0;">if</span> (company-org-block--template-p insertion)
-        (company-org-block--wrap-point insertion
-                                       <span style="color: #b22222;">;; </span><span style="color: #b22222;">May be multiple words.</span>
-                                       <span style="color: #b22222;">;; </span><span style="color: #b22222;">Take the first one.</span>
-                                       (nth 0 (split-string insertion)))
-      (company-org-block--wrap-point (format <span style="color: #8b2252;">"src %s"</span> insertion)
-                                     <span style="color: #8b2252;">"src"</span>)))
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">company-org-block--wrap-point</span> (begin end)
-    <span style="color: #8b2252;">"Wrap point with block using BEGIN and END.  For example:</span>
-<span style="color: #8b2252;">#+begin_BEGIN</span>
-<span style="color: #8b2252;">  |</span>
-<span style="color: #8b2252;">#+end_END"</span>
-    (insert (format <span style="color: #8b2252;">"#+begin_%s\n"</span> begin))
-    (insert (make-string org-edit-src-content-indentation ?\s))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Saving excursion restores point to location inside code block.</span>
-    (<span style="color: #a020f0;">save-excursion</span>
-      (insert (format <span style="color: #8b2252;">"\n#+end_%s"</span> end))))
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">company-org-block--grab-symbol-cons</span> ()
-    <span style="color: #8b2252;">"Return cons with symbol and t whenever prefix of &lt; is found.</span>
-<span style="color: #8b2252;">For example: \"&lt;e\" -&gt; (\"e\" . t)"</span>
-    (<span style="color: #a020f0;">when</span> (looking-back (<span style="color: #a020f0;">if</span> company-org-block-bol-p
-                            (concat <span style="color: #8b2252;">"^"</span> company-org--regexp)
-                          company-org--regexp)
-                        (line-beginning-position))
-      (cons (match-string-no-properties 1) t)))
-
-  (add-to-list 'company-backends 'company-org-block))
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"company"</span>
   (define-key company-active-map (kbd <span style="color: #8b2252;">"C-n"</span>) 'company-select-next)
@@ -9671,8 +9603,11 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">To complete file path, move `</span><span style="color: #008b8b;">company-files</span><span style="color: #b22222;">' to the fist item of the list</span>
   (delq 'company-files company-backends)
 
-
   (add-to-list 'company-backends 'company-files)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">company-org-block</span> nil t)
+    (<span style="color: #a020f0;">setq</span> company-org-block-edit-style 'inline) <span style="color: #b22222;">;; </span><span style="color: #b22222;">'auto, 'prompt, or 'inline</span>
+    (<span style="color: #a020f0;">setq</span> company-org-block-auto-indent nil)
+    (add-to-list 'company-backends 'company-org-block))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#35036;&#23436;&#20505;&#35036;&#12395;&#30058;&#21495;&#12434;&#34920;&#31034;</span>
   (<span style="color: #a020f0;">setq</span> company-show-numbers t)
@@ -11955,7 +11890,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org1e8011c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org2c40a54"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12821,7 +12756,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org213c23e" class="figure">
+<div id="org4ab5148" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15550,7 +15485,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-05-06 Thu 07:17</p>
+<p class="date">Created: 2021-06-28 Mon 22:20</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

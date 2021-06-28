@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-05-06 Thu 07:17 -->
+<!-- 2021-06-28 Mon 22:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -239,8 +239,8 @@
 <li><a href="#org33d4f93d">1.6. 頻繁に利用するファイルをring形式でたどる</a></li>
 <li><a href="#org31226d9e">1.7. 引数のorgバッファを開く</a></li>
 <li><a href="#org6a1e418a">1.8. orgバッファにいつものヘッダを追加する</a></li>
-<li><a href="#org52209ad">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
-<li><a href="#org95ca3f4">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
+<li><a href="#orgc210154">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
+<li><a href="#org5be5530">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
 <li><a href="#org8f57b3f8">1.11. 議事録ひな形を書き入れる</a></li>
 <li><a href="#orgdd9630ad">1.12. ランダムの文字列を取得する</a></li>
 <li><a href="#org3697f6bd">1.13. 行頭に" - "を挿入する</a></li>
@@ -259,15 +259,15 @@
 <li><a href="#orga3da97e5">1.26. 句読点を変換する</a></li>
 <li><a href="#orgda007b63">1.27. <span class="todo TODO">TODO</span> ガベージコレクト情報を表示</a></li>
 <li><a href="#orgfd77df9c">1.28. その他</a></li>
-<li><a href="#orgdf529698">1.29. XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org481e7f96">1.30. Auto-install をセットアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org6183f766">1.31. org-buffer を dokuwiki 形式に変換し，kill-ring に格納&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org5e548445">1.32. ミニバッファに日時を表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org81ca01d1">1.33. 日付などを簡単に挿入する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
+<li><a href="#org81ca01d1">1.29. 日付などを簡単に挿入する</a>
 <ul>
-<li><a href="#org74fab35b">1.33.1. キーバインド</a></li>
+<li><a href="#org74fab35b">1.29.1. キーバインド</a></li>
 </ul>
 </li>
+<li><a href="#orgdf529698">1.30. XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org481e7f96">1.31. Auto-install をセットアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org6183f766">1.32. org-buffer を dokuwiki 形式に変換し，kill-ring に格納&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org5e548445">1.33. ミニバッファに日時を表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org67dcc87b">2. 未設定／テスト中</a>
@@ -578,8 +578,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-org52209ad" class="outline-3">
-<h3 id="org52209ad"><span class="section-number-3">1.9</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
+<div id="outline-container-orgc210154" class="outline-3">
+<h3 id="orgc210154"><span class="section-number-3">1.9</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
 <div class="outline-text-3" id="text-1-9">
 <p>
 PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで <code>org-decrypt-entry</code> するための空ツリーを書き込みます．
@@ -596,8 +596,8 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 </div>
 </div>
 
-<div id="outline-container-org95ca3f4" class="outline-3">
-<h3 id="org95ca3f4"><span class="section-number-3">1.10</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
+<div id="outline-container-org5be5530" class="outline-3">
+<h3 id="org5be5530"><span class="section-number-3">1.10</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
 <div class="outline-text-3" id="text-1-10">
 <p>
 下記の関数で生成したツリーの本体をメールで送信すれば，秘密鍵のある端末で復号できます．
@@ -1253,8 +1253,58 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 
+<div id="outline-container-org81ca01d1" class="outline-3">
+<h3 id="org81ca01d1"><span class="section-number-3">1.29</span> 日付などを簡単に挿入する</h3>
+<div class="outline-text-3" id="text-org81ca01d1">
+<ul class="org-ul">
+<li>hydra に移行しました．</li>
+<li>戻しました（2021-06-24）</li>
+</ul>
+
+<p>
+<a href="http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608">http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun insert-formatted-current-date (arg)</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">"Insert a timestamp at the cursor position. C-u will add [] brackets."</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(interactive "p")</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(cl-case</span>
+<span style="color: #b22222;">;;       </span><span style="color: #b22222;">(4 (if (equal major-mode 'org-mode)</span>
+<span style="color: #b22222;">;;              </span><span style="color: #b22222;">(org-time-stamp-inactive)</span>
+<span style="color: #b22222;">;;            </span><span style="color: #b22222;">(insert (format-time-string "[%Y-%m-%d]"))))</span>
+<span style="color: #b22222;">;;     </span><span style="color: #b22222;">(t (insert (format-time-string "%Y-%m-%d")))))</span>
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-date</span> ()
+  <span style="color: #8b2252;">"Insert a timestamp at the cursor position."</span>
+  (<span style="color: #a020f0;">interactive</span>)
+  (insert (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>)))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-time</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (insert (format-time-string <span style="color: #8b2252;">"%H:%M"</span>)))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-signature</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (insert (concat (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>) <span style="color: #8b2252;">"  "</span> user-full-name
+                  <span style="color: #8b2252;">"  &lt;"</span> user-mail-address <span style="color: #8b2252;">"&gt;"</span>)))
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org74fab35b" class="outline-4">
+<h4 id="org74fab35b"><span class="section-number-4">1.29.1</span> キーバインド</h4>
+<div class="outline-text-4" id="text-org74fab35b">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c 0"</span>) 'insert-formatted-current-date)
+(global-set-key (kbd <span style="color: #8b2252;">"C-c 9"</span>) 'insert-formatted-current-time)
+</pre>
+</div>
+</div>
+</div>
+</div>
 <div id="outline-container-orgdf529698" class="outline-3">
-<h3 id="orgdf529698"><span class="section-number-3">1.29</span> XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="orgdf529698"><span class="section-number-3">1.30</span> XHTMLを利用したガントチャート生成&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgdf529698">
 <p>
 最近使っていません．
@@ -1317,7 +1367,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-org481e7f96" class="outline-3">
-<h3 id="org481e7f96"><span class="section-number-3">1.30</span> Auto-install をセットアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org481e7f96"><span class="section-number-3">1.31</span> Auto-install をセットアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org481e7f96">
 <p>
 いつも auto-install を使うわけではないので，必要時に <code>init-auto-install</code> を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．
@@ -1344,7 +1394,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-org6183f766" class="outline-3">
-<h3 id="org6183f766"><span class="section-number-3">1.31</span> org-buffer を dokuwiki 形式に変換し，kill-ring に格納&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org6183f766"><span class="section-number-3">1.32</span> org-buffer を dokuwiki 形式に変換し，kill-ring に格納&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org6183f766">
 <p>
 外部プログラム<a href="https://gist.github.com/1369417">org2dokuwiki.pl</a>を使います．
@@ -1369,7 +1419,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div id="outline-container-org5e548445" class="outline-3">
-<h3 id="org5e548445"><span class="section-number-3">1.32</span> ミニバッファに日時を表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org5e548445"><span class="section-number-3">1.33</span> ミニバッファに日時を表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org5e548445">
 <ul class="org-ul">
 <li>hydra に移行しました．</li>
@@ -1388,52 +1438,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 </div>
-<div id="outline-container-org81ca01d1" class="outline-3">
-<h3 id="org81ca01d1"><span class="section-number-3">1.33</span> 日付などを簡単に挿入する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
-<div class="outline-text-3" id="text-org81ca01d1">
-<ul class="org-ul">
-<li>hydra に移行しました．</li>
-</ul>
-
-<p>
-<a href="http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608">http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608</a>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-date</span> (arg)
-  <span style="color: #8b2252;">"Insert a timestamp at the cursor position. C-u will add [] brackets."</span>
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"p"</span>)
-  (case arg
-    (4 (<span style="color: #a020f0;">if</span> (equal major-mode 'org-mode)
-           (org-time-stamp-inactive)
-         (insert (format-time-string <span style="color: #8b2252;">"[%Y-%m-%d]"</span>))))
-    (t (insert (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>)))))
-
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-current-time</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (insert (format-time-string <span style="color: #8b2252;">"%H:%M"</span>)))
-
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">insert-formatted-signature</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (insert (concat (format-time-string <span style="color: #8b2252;">"%Y-%m-%d"</span>) <span style="color: #8b2252;">"  "</span> user-full-name
-                  <span style="color: #8b2252;">"  &lt;"</span> user-mail-address <span style="color: #8b2252;">"&gt;"</span>)))
-</pre>
 </div>
-</div>
-
-<div id="outline-container-org74fab35b" class="outline-4">
-<h4 id="org74fab35b"><span class="section-number-4">1.33.1</span> キーバインド</h4>
-<div class="outline-text-4" id="text-org74fab35b">
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c 0"</span>) 'insert-formatted-current-date)
-(global-set-key (kbd <span style="color: #8b2252;">"C-c 9"</span>) 'insert-formatted-current-time)
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-
 <div id="outline-container-org67dcc87b" class="outline-2">
 <h2 id="org67dcc87b"><span class="section-number-2">2</span> 未設定／テスト中</h2>
 <div class="outline-text-2" id="text-org67dcc87b">
@@ -1654,7 +1659,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-05-06 Thu 07:17</p>
+<p class="date">Created: 2021-06-28 Mon 22:20</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

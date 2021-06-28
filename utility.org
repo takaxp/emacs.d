@@ -920,6 +920,69 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
     (read-only-mode 1)))
 #+end_src
 
+** 日付などを簡単に挿入する
+   :PROPERTIES:
+   :CUSTOM_ID: org81ca01d1
+   :END:
+
+ - hydra に移行しました．
+ - 戻しました（2021-06-24）
+
+http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
+
+#+begin_src emacs-lisp :tangle no :exports none
+;;;###autoload
+(defun insert-formatted-current-date ()
+  "Insert a timestamp at the cursor position. C-u will add [] brackets."
+  (interactive)
+  (insert (format-time-string "%Y-%m-%d")))
+
+;;;###autoload
+(defun insert-formatted-current-time ()
+  (interactive)
+  (insert (format-time-string "%H:%M")))
+
+;;;###autoload
+(defun insert-formatted-signature ()
+  (interactive)
+  (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
+                  "  <" user-mail-address ">")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle utility.el
+;; (defun insert-formatted-current-date (arg)
+;;   "Insert a timestamp at the cursor position. C-u will add [] brackets."
+;;   (interactive "p")
+;;   (cl-case
+;;       (4 (if (equal major-mode 'org-mode)
+;;              (org-time-stamp-inactive)
+;;            (insert (format-time-string "[%Y-%m-%d]"))))
+;;     (t (insert (format-time-string "%Y-%m-%d")))))
+
+(defun insert-formatted-current-date ()
+  "Insert a timestamp at the cursor position."
+  (interactive)
+  (insert (format-time-string "%Y-%m-%d")))
+
+(defun insert-formatted-current-time ()
+  (interactive)
+  (insert (format-time-string "%H:%M")))
+
+(defun insert-formatted-signature ()
+  (interactive)
+  (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
+                  "  <" user-mail-address ">")))
+#+end_src
+
+*** キーバインド
+    :PROPERTIES:
+    :CUSTOM_ID: org74fab35b
+    :END:
+
+#+begin_src emacs-lisp :tangle yes
+(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
+(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
+#+end_src
 ** XHTMLを利用したガントチャート生成                               :obsolete:
    :PROPERTIES:
    :CUSTOM_ID: orgdf529698
@@ -1043,64 +1106,6 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
                  (format-time-string "W:%W @")
                  (format-time-string "%H:%M"))))
 #+end_src
-** 日付などを簡単に挿入する                                        :obsolete:
-   :PROPERTIES:
-   :CUSTOM_ID: org81ca01d1
-   :END:
-
- - hydra に移行しました．
-
-http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
-
-#+begin_src emacs-lisp :tangle no :exports none
-;;;###autoload
-(defun insert-formatted-current-date ()
-  "Insert a timestamp at the cursor position. C-u will add [] brackets."
-  (interactive)
-  (insert (format-time-string "%Y-%m-%d")))
-
-;;;###autoload
-(defun insert-formatted-current-time ()
-  (interactive)
-  (insert (format-time-string "%H:%M")))
-
-;;;###autoload
-(defun insert-formatted-signature ()
-  (interactive)
-  (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
-                  "  <" user-mail-address ">")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :exports yes
-(defun insert-formatted-current-date (arg)
-  "Insert a timestamp at the cursor position. C-u will add [] brackets."
-  (interactive "p")
-  (case arg
-    (4 (if (equal major-mode 'org-mode)
-           (org-time-stamp-inactive)
-         (insert (format-time-string "[%Y-%m-%d]"))))
-    (t (insert (format-time-string "%Y-%m-%d")))))
-
-(defun insert-formatted-current-time ()
-  (interactive)
-  (insert (format-time-string "%H:%M")))
-
-(defun insert-formatted-signature ()
-  (interactive)
-  (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
-                  "  <" user-mail-address ">")))
-#+end_src
-
-*** キーバインド
-    :PROPERTIES:
-    :CUSTOM_ID: org74fab35b
-    :END:
-
-#+begin_src emacs-lisp :tangle no
-(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
-(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
-#+end_src
-
 * 未設定／テスト中
   :PROPERTIES:
   :CUSTOM_ID: org67dcc87b

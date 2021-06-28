@@ -644,6 +644,32 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (setq tl (cdr tl)))
     (read-only-mode 1)))
 
+;; (defun insert-formatted-current-date (arg)
+;;   "Insert a timestamp at the cursor position. C-u will add [] brackets."
+;;   (interactive "p")
+;;   (cl-case
+;;       (4 (if (equal major-mode 'org-mode)
+;;              (org-time-stamp-inactive)
+;;            (insert (format-time-string "[%Y-%m-%d]"))))
+;;     (t (insert (format-time-string "%Y-%m-%d")))))
+
+(defun insert-formatted-current-date ()
+  "Insert a timestamp at the cursor position."
+  (interactive)
+  (insert (format-time-string "%Y-%m-%d")))
+
+(defun insert-formatted-current-time ()
+  (interactive)
+  (insert (format-time-string "%H:%M")))
+
+(defun insert-formatted-signature ()
+  (interactive)
+  (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
+                  "  <" user-mail-address ">")))
+
+(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
+(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
+
 ;;;###autoload
 (defun org2dokuwiki-cp-kill-ring ()
   "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
