@@ -57,6 +57,9 @@
     ;; org ファイルの集中管理
     (setq org-directory (concat (getenv "SYNCROOT") "/org/"))
 
+    ;; org-store-link で heading に自動的に挿入される id を使う
+    (setq org-id-link-to-org-use-id t)
+
     ;; アーカイブファイルの名称を指定
     (setq org-archive-location "%s_archive::")
 

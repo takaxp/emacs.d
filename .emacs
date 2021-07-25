@@ -9,14 +9,15 @@
 (with-eval-after-load "postpone"
   (when (require 'mlscroll nil t)
     ;; (setq mlscroll-in-color "salmon1")
-    (setq mlscroll-in-color "#BBBBBB")
-    (setq mlscroll-out-color "#FFFFFF")
+    ;;(setq mlscroll-in-color "#BBBBBB")
+    (setq mlscroll-in-color "#FFA07A")
+    (setq mlscroll-out-color "#FFFFE0")
     (mlscroll-mode 1)))
 (when (version< "28.0" emacs-version)
   (setq comp-async-report-warnings-errors nil)
   (defmacro define-obsolete-variable-alias (obsolete-name
                                             current-name
-					    &optional when docstring)
+					                                  &optional when docstring)
     ""
     (declare (doc-string 4)
              (advertised-calling-convention
@@ -30,7 +31,7 @@
        (make-obsolete-variable ,obsolete-name ,current-name ,when)))
   (defmacro define-obsolete-function-alias (obsolete-name
                                             current-name
-					    &optional when docstring)
+					                                  &optional when docstring)
     ""
     (declare (doc-string 4)
              (advertised-calling-convention
