@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-08-01 Sun 22:47 -->
+<!-- 2021-08-02 Mon 02:17 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -5583,22 +5583,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
                       <span style="color: #483d8b;">:inherit</span> nil
                       <span style="color: #483d8b;">:overline</span> nil
                       <span style="color: #483d8b;">:underline</span> nil)
-  (<span style="color: #a020f0;">setq</span> header-line-format <span style="color: #8b2252;">" No day is a good day."</span>)
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">empty-booting-header-line</span> ()
-    (<span style="color: #a020f0;">with-current-buffer</span> <span style="color: #8b2252;">"*scratch*"</span>
-      (<span style="color: #a020f0;">let</span> ((week (format <span style="color: #8b2252;">"W%s: "</span> (my-get-week-number)))
-            (date (format-time-string <span style="color: #8b2252;">"%Y-%m-%d %a."</span>)))
-        (<span style="color: #a020f0;">setq</span> header-line-format
-              (concat
-               <span style="color: #8b2252;">" No day is a good day.                                       "</span>
-               week
-               date
-               (propertize <span style="color: #8b2252;">" "</span>
-                           'display
-                           `(space . (<span style="color: #483d8b;">:align-to</span>
-                                      ,(- (frame-width)
-                                          (length week)
-                                          (length date)))))))))))
+  )
 </pre>
 </div>
 
@@ -6280,7 +6265,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">empty-booting</span> nil t)
-  (run-at-time <span style="color: #8b2252;">"10 sec"</span> 600 'empty-booting-header-line))
+  (run-at-time <span style="color: #8b2252;">"5 sec"</span> 600 'empty-booting-header-line))
 (<span style="color: #a020f0;">when</span> (autoload-if-found
        '(my-get-week-number)
        <span style="color: #8b2252;">"calendar"</span> nil t)
@@ -10247,6 +10232,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   (<span style="color: #a020f0;">setq</span> org-use-speed-commands t)
 
+  (<span style="color: #a020f0;">when</span> (version&lt; (org-version) <span style="color: #8b2252;">"9.4.6"</span>)
+    (<span style="color: #a020f0;">defvaralias</span> '<span style="color: #a0522d;">org-speed-commands</span> 'org-speed-commands-user))
+
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"d"</span> org-todo <span style="color: #8b2252;">"DONE"</span>))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-speed-commands '("S" call-interactively 'widen))</span>
   (add-to-list 'org-speed-commands
@@ -11984,7 +11972,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgf984eac"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3b79534"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12850,7 +12838,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org67a2498" class="figure">
+<div id="org1408fbc" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14348,6 +14336,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">declare-function</span> my-font-config <span style="color: #8b2252;">"init"</span> nil)
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-night-time-p</span> (begin end)
   (<span style="color: #a020f0;">let*</span> ((ch (string-to-number (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time))))
          (cm (string-to-number (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time))))
@@ -14357,6 +14346,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
       (<span style="color: #a020f0;">and</span> (&lt;= begin ct) (&lt;= ct end)))))
 
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-frame-appearance</span> nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">{nil, 'dark, 'light} see init-env.el</span>
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-theme</span> (<span style="color: #228b22;">&amp;optional</span> type)
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"MType (light or dark): "</span>)
   (<span style="color: #a020f0;">setq</span> my-frame-appearance
@@ -15586,7 +15576,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-08-01 Sun 22:47</p>
+<p class="date">Created: 2021-08-02 Mon 02:17</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

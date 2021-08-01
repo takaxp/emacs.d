@@ -1348,7 +1348,7 @@ Call this function at updating `mode-line-mode'."
     (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend)))
 
 (when (require 'empty-booting nil t)
-  (run-at-time "10 sec" 600 'empty-booting-header-line))
+  (run-at-time "5 sec" 600 'empty-booting-header-line))
 (when (autoload-if-found
        '(my-get-week-number)
        "calendar" nil t)

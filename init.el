@@ -417,22 +417,7 @@ This function is called directly from the C code."
                       :inherit nil
                       :overline nil
                       :underline nil)
-  (setq header-line-format " No day is a good day.")
-  (defun empty-booting-header-line ()
-    (with-current-buffer "*scratch*"
-      (let ((week (format "W%s: " (my-get-week-number)))
-            (date (format-time-string "%Y-%m-%d %a.")))
-        (setq header-line-format
-              (concat
-               " No day is a good day.                                       "
-               week
-               date
-               (propertize " "
-                           'display
-                           `(space . (:align-to
-                                      ,(- (frame-width)
-                                          (length week)
-                                          (length date)))))))))))
+  )
 
 ;; Disable to show the tool bar.
 (when (and (not early-init-file)
@@ -960,6 +945,7 @@ This function is called directly from the C code."
       (run-hooks 'my-dark-theme-hook))))
 
 (declare-function my-font-config "init" nil)
+;;;###autoload
 (defun my-night-time-p (begin end)
   (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
          (cm (string-to-number (format-time-string "%M" (current-time))))
@@ -969,6 +955,7 @@ This function is called directly from the C code."
       (and (<= begin ct) (<= ct end)))))
 
 (defvar my-frame-appearance nil) ;; {nil, 'dark, 'light} see init-env.el
+;;;###autoload
 (defun my-theme (&optional type)
   (interactive "MType (light or dark): ")
   (setq my-frame-appearance

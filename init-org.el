@@ -359,6 +359,9 @@
 (with-eval-after-load "org"
   (setq org-use-speed-commands t)
 
+  (when (version< (org-version) "9.4.6")
+    (defvaralias 'org-speed-commands 'org-speed-commands-user))
+
   (add-to-list 'org-speed-commands '("d" org-todo "DONE"))
   ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
   (add-to-list 'org-speed-commands
