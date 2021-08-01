@@ -6,6 +6,10 @@
        (setq org-agenda-files '("~/Desktop/hoge.org")))
       (t ;; Normal mode. see also init-eval.el
        (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
+;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                                              TODO/DONE/FIXME
+
 (with-eval-after-load "postpone"
   (when (require 'mlscroll nil t)
     ;; (setq mlscroll-in-color "salmon1")
@@ -13,36 +17,6 @@
     (setq mlscroll-in-color "#FFA07A")
     (setq mlscroll-out-color "#FFFFE0")
     (mlscroll-mode 1)))
-(when (version< "28.0" emacs-version)
-  (setq native-comp-async-report-warnings-errors nil)
-  (defmacro define-obsolete-variable-alias (obsolete-name
-                                            current-name
-					                                  &optional when docstring)
-    ""
-    (declare (doc-string 4)
-             (advertised-calling-convention
-              (obsolete-name current-name when &optional docstring) "23.1"))
-    `(progn
-       (defvaralias ,obsolete-name ,current-name ,docstring)
-       (dolist (prop '(saved-value saved-variable-comment))
-         (and (get ,obsolete-name prop)
-              (null (get ,current-name prop))
-              (put ,current-name prop (get ,obsolete-name prop))))
-       (make-obsolete-variable ,obsolete-name ,current-name ,when)))
-  (defmacro define-obsolete-function-alias (obsolete-name
-                                            current-name
-					                                  &optional when docstring)
-    ""
-    (declare (doc-string 4)
-             (advertised-calling-convention
-              (obsolete-name current-name when &optional docstring) "23.1"))
-    `(progn
-       (defalias ,obsolete-name ,current-name ,docstring)
-       (make-obsolete ,obsolete-name ,current-name ,when)))
-  )
-;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;                                                              TODO/DONE/FIXME
 
 ;;(add-to-list 'load-path "~/.local/share/icons-in-terminal/")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
