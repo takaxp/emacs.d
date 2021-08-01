@@ -16,6 +16,7 @@
   ;; ivy-dired-history-variable は，session.el で明示的に管理中．
   ;; check session-globals-include
   (define-key dired-mode-map "," 'dired))
+(declare-function dired-extra-startup "dired-x")
 (when (require 'dired-x nil t)
   (dired-extra-startup))
 (defun my-reveal-in-finder ()

@@ -2,6 +2,7 @@
 ;; Configurations for Emacs
 ;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
+(require 'utility-autoloads nil t)
 
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
@@ -12,6 +13,8 @@
     (require 'postpone nil t)
     (require 'init-org nil t)))
 
+(defconst my-before-load-init-time (current-time))
+;;;###autoload
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
   (let ((time1 (float-time
@@ -25,6 +28,7 @@
 (add-hook 'after-init-hook #'my-load-init-time t)
 
 (defvar my-tick-previous-time my-before-load-init-time)
+;;;###autoload
 (defun my-tick-init-time (msg)
   "Tick boot sequence at loading MSG."
   (when my-loading-profile-p
@@ -35,6 +39,7 @@
                msg)
       (setq my-tick-previous-time ctime))))
 
+;;;###autoload
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (message "Emacs booting time: %.0f [msec] = `emacs-init-time'."
@@ -98,6 +103,7 @@ This function is called directly from the C code."
 
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
+;;;###autoload
 (defun my-load-package-p (file)
   (let ((enabled t))
     (when (boundp 'my-loading-packages)
@@ -115,6 +121,7 @@ This function is called directly from the C code."
 (when (bound-and-true-p my-loading-packages)
   (setq my-skip-check-autoload-file nil))
 
+;;;###autoload
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
   (when (boundp 'my-required-libraries)
@@ -129,6 +136,7 @@ This function is called directly from the C code."
 (if (not (locate-library "postpone"))
     (message "postpone.el is NOT installed.")
   (autoload 'postpone-kicker "postpone" nil t)
+  (defvar postpone-init-time 0)
   (defun my-postpone-kicker ()
     (interactive)
     (unless (memq this-command ;; specify commands for exclusion
@@ -148,6 +156,7 @@ This function is called directly from the C code."
                postpone-init-time)))
   (add-hook 'pre-command-hook #'my-postpone-kicker))
 
+;;;###autoload
 (defun future-time-p (time)
   "Return non-nil if provided TIME formed of \"10:00\" is the future time."
   (not (time-less-p
@@ -173,6 +182,11 @@ This function is called directly from the C code."
               libraries
             (list libraries)))
     result))
+
+;;;###autoload
+(defun my-native-comp-p ()
+  (when (fboundp 'native-comp-available-p)
+    (native-comp-available-p)))
 
 (my-tick-init-time "startup")
 
@@ -239,143 +253,6 @@ This function is called directly from the C code."
       (setq default-directory "~/"))
     (funcall f prompt mustmatch))
   (advice-add 'find-file-read-args :around #'ad:find-file-read-args))
-
-(when (eq window-system 'mac)
-  (global-set-key (kbd "M-SPC") 'mac-win-toggle-ime)
-  (global-set-key (kbd "S-SPC") 'mac-win-toggle-ime)
-  (declare-function mac-win-save-last-ime-status "init" nil)
-  (declare-function ad:mac-auto-ascii-setup-input-source "init" nil)
-  (declare-function mac-win-restore-ime "init" nil)
-  (declare-function mac-win-restore-ime-target-commands "init" nil))
-
-(when (and (eq window-system 'mac)
-           (fboundp 'mac-select-input-source)
-           (fboundp 'mac-auto-ascii-select-input-source)
-           (fboundp 'mac-auto-ascii-setup-input-source)
-           (fboundp 'mac-input-source)
-           (fboundp 'mac-auto-ascii-mode))
-
-  (defvar mac-win-last-ime-status 'off) ;; {'off|'on}
-  (defun mac-win-save-last-ime-status ()
-    (setq mac-win-last-ime-status
-          (if (string-match "\\.\\(Roman\\|US\\)$" (mac-input-source))
-              'off 'on)))
-  (mac-win-save-last-ime-status) ;; 初期化
-
-  (defun mac-win-restore-ime ()
-    (when (and (bound-and-true-p mac-auto-ascii-mode)
-               (eq mac-win-last-ime-status 'on))
-      (mac-select-input-source
-       "com.google.inputmethod.Japanese.base")))
-
-  (defun ad:mac-auto-ascii-setup-input-source (&optional _prompt)
-    "Extension to store IME status"
-    (mac-win-save-last-ime-status))
-  (advice-add 'mac-auto-ascii-setup-input-source :before
-              #'ad:mac-auto-ascii-setup-input-source)
-
-  (defvar mac-win-target-commands
-    '(find-file save-buffer other-window delete-window split-window))
-
-  (defun mac-win-restore-ime-target-commands ()
-    (when (and (bound-and-true-p mac-auto-ascii-mode)
-               (eq mac-win-last-ime-status 'on))
-      (mapc (lambda (command)
-              (when (string-match
-                     (format "^%s" command) (format "%s" this-command))
-                (mac-select-input-source
-                 "com.google.inputmethod.Japanese.base")))
-            mac-win-target-commands)))
-  (add-hook 'pre-command-hook #'mac-win-restore-ime-target-commands)
-
-  ;; バッファリストを見るとき
-  (add-to-list 'mac-win-target-commands 'counsel-ibuffer)
-  ;; ChangeLogに行くとき
-  (add-to-list 'mac-win-target-commands 'add-change-log-entry-other-window)
-  ;; 個人用の関数を使うとき
-  ;; (add-to-list 'mac-win-target-commands 'my-)
-  ;; 自分で作ったパッケージ群の関数を使うとき
-  (add-to-list 'mac-win-target-commands 'change-frame)
-  ;; org-mode で締め切りを設定するとき．
-  (add-to-list 'mac-win-target-commands 'org-deadline)
-  ;; org-mode で締め切りを設定するとき．
-  ;; (add-to-list 'mac-win-target-commands 'org-capture)
-  ;; query-replace で変換するとき
-  (add-to-list 'mac-win-target-commands 'query-replace)
-
-  ;; ミニバッファ利用後にIMEを戻す
-  ;; M-x でのコマンド選択でIMEを戻せる．
-  ;; これ移動先で q が効かないことがある
-  (add-hook 'minibuffer-setup-hook #'mac-win-save-last-ime-status)
-  (add-hook 'minibuffer-exit-hook #'mac-win-restore-ime)
-
-  ;; タイトルバーの振る舞いを NS版に合わせる．
-  (setq frame-title-format (format (if (buffer-file-name) "%%f" "%%b")))
-
-  ;; なおテーマを切り替えたら，face の設定をリロードしないと期待通りにならない
-  (when (require 'hl-line nil t)
-    (custom-set-faces
-     ;; 変換前入力時の文字列用 face
-     `(mac-ts-converted-text
-       ((((background dark)) :underline "orange"
-         :background ,(face-attribute 'hl-line :background))
-        (t (:underline "orange"
-                       :background
-                       ,(face-attribute 'hl-line :background)))))
-     ;; 変換対象の文字列用 face
-     `(mac-ts-selected-converted-text
-       ((((background dark)) :underline "orange"
-         :background ,(face-attribute 'hl-line :background))
-        (t (:underline "orange"
-                       :background
-                       ,(face-attribute 'hl-line :background)))))))
-
-  (when (fboundp 'mac-input-source)
-    (run-with-idle-timer 3 t 'my-mac-keyboard-input-source))
-
-
-  ;; あまりよいアプローチでは無い気がするけど，org-heading 上とagendaでは
-  ;; 1秒アイドルすると，自動的に IME を OFF にする
-  (defun my-mac-win-org-heading-auto-ascii ()
-    (when (and (eq major-mode 'org-mode)
-               (or (looking-at org-heading-regexp)
-                   (equal (buffer-name) org-agenda-buffer-name)))
-      (setq mac-win-last-ime-status 'off)
-      (mac-auto-ascii-select-input-source)))
-  (when (fboundp 'mac-auto-ascii-select-input-source)
-    (run-with-idle-timer 1 t 'my-mac-win-org-heading-auto-ascii))
-
-  ;; EMP版Emacsの野良ビルド用独自設定群
-  ;; IME toggleを Emacs内で有効にする
-  (defun mac-win-toggle-ime ()
-    (interactive)
-    (when (fboundp 'mac-input-source)
-      (mac-select-input-source
-       (concat "com.google.inputmethod.Japanese"
-               (if (string-match "\\.base$" (mac-input-source))
-                   ".Roman" ".base")))))
-
-  ;; isearch 中にIMEを切り替えると，[I-Search] の表示が消える．
-  ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
-  (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
-
-  (when (boundp 'mac-win-ime-cursor-type) ;; Need update
-    (setq mac-win-ime-cursor-type (plist-get my-cur-type-ime :on)))
-  ;; minibuffer では↑の背景色を無効にする
-  (when (fboundp 'mac-min--minibuffer-setup)
-    (add-hook 'minibuffer-setup-hook #'mac-min--minibuffer-setup))
-  ;; echo-area でも背景色を無効にする
-  (when (boundp 'mac-win-default-background-echo-area)
-    (setq mac-win-default-background-echo-area t));; *-textのbackgroundを無視
-  ;; デバッグ用
-  (when (boundp 'mac-win-debug-log)
-    (setq mac-win-debug-log nil))
-  ;; Testing...
-  (when (boundp 'mac-win-apply-org-heading-face)
-    (setq mac-win-apply-org-heading-face t))
-
-  (unless noninteractive
-    (mac-auto-ascii-mode 1)))
 
 (my-tick-init-time "core")
 
@@ -574,6 +451,59 @@ This function is called directly from the C code."
 
 (setq-default indicate-buffer-boundaries
               '((top . nil) (bottom . right) (down . left)))
+
+;;late-init.el
+(when (autoload-if-found
+       '(git-gutter-mode)
+       "git-gutter" nil t)
+
+  (dolist (hook
+           '(emacs-lisp-mode-hook
+             lisp-mode-hook perl-mode-hook python-mode-hook
+             c-mode-common-hook nxml-mode-hook web-mode-hook))
+    (add-hook hook #'git-gutter-mode))
+
+  (custom-set-variables
+   '(git-gutter:lighter ""))
+
+  (when (require 'git-gutter-fringe nil t)
+    (custom-set-variables
+     '(git-gutter-fr:side 'left-fringe))
+
+    ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
+    ;; "!"
+    (eval '(fringe-helper-define 'git-gutter-fr:modified nil
+             "...XX..."
+             "...XX..."
+             "...XX..."
+             "...XX..."
+             "...XX..."
+             "........"
+             "...XX..."
+             "...XX..."))
+    ;; "+"
+    (eval '(fringe-helper-define 'git-gutter-fr:added nil
+             "........"
+             "...XX..."
+             "...XX..."
+             ".XXXXXX."
+             ".XXXXXX."
+             "...XX..."
+             "...XX..."
+             "........"))
+    ;; "-"
+    (eval '(fringe-helper-define 'git-gutter-fr:deleted nil
+             "........"
+             "........"
+             "........"
+             ".XXXXXX."
+             ".XXXXXX."
+             "........"
+             "........"
+             "........"))
+    (set-face-foreground 'git-gutter-fr:added    "#FF2600")
+    (set-face-foreground 'git-gutter-fr:modified "orange")
+    (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))
 
 (my-tick-init-time "presentation")
 
@@ -894,9 +824,10 @@ This function is called directly from the C code."
     (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
 
     (moom-recommended-keybindings 'all)
-    (setq moom-command-with-centering nil)
-    (setq moom-lighter "M")
-    (setq moom-verbose t)
+    (custom-set-variables
+     '(moom-command-with-centering nil)
+     '(moom-lighter "M")
+     '(moom-verbose t))
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 
@@ -909,14 +840,15 @@ This function is called directly from the C code."
   (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
 
   (with-eval-after-load "moom-font"
-    (setq moom-scaling-gradient (/ (float 50) 30))
-    (setq moom-font-table
-          '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
-            (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
-            (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
-            (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
-            (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
-            (9 5) (8 5) (7 4) (6 4) (5 3)))))
+    (custom-set-variables
+     '(moom-scaling-gradient (/ (float 50) 30))
+     '(moom-font-table
+       '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
+         (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
+         (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
+         (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
+         (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
+         (9 5) (8 5) (7 4) (6 4) (5 3))))))
 
 (my-tick-init-time "frame and window")
 

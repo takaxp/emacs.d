@@ -1,5 +1,6 @@
 ;; utility.el --- My utilities -*- lexical-binding: t -*-
 ;;
+(require 'init-autoloads nil t)
 
 ;;;###autoload
 (defun my-cmd-to-open-iterm2 (&optional arg)
@@ -252,13 +253,15 @@
                (insert item-string))))))
 
 (defvar ox-icalendar-activate nil)
+    ;;;###autoload
+(defun my-ox-icalendar-activate ()
+  (setq ox-icalendar-activate (frame-focus-state)))
 (with-eval-after-load "org"
   (when (eq system-type 'ns)
     (run-with-idle-timer 180 t 'my-reload-ical-export)
     ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
-    ;; FIXME
-    (add-hook 'focus-in-hook (lambda () (setq ox-icalendar-activate nil)))
-    (add-hook 'focus-out-hook (lambda () (setq ox-icalendar-activate t)))))
+    (add-function :after after-focus-change-function
+                  #'my-ox-icalendar-activate)))
 
 (declare-function my-ox-upload-icalendar "init.org")
 ;;;###autoload

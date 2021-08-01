@@ -1,4 +1,7 @@
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
+(require 'init-autoloads nil t)
+(require 'late-init-autoloads nil t)
+(require 'utility-autoloads nil t)
 
 (when (autoload-if-found
        '(org-mode)
@@ -356,16 +359,16 @@
 (with-eval-after-load "org"
   (setq org-use-speed-commands t)
 
-  (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
-  ;; (add-to-list 'org-speed-commands-user '("S" call-interactively 'widen))
-  (add-to-list 'org-speed-commands-user
+  (add-to-list 'org-speed-commands '("d" org-todo "DONE"))
+  ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
+  (add-to-list 'org-speed-commands
                '("D" my-org-todo-complete-no-repeat "DONE"))
-  ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
-  ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
-  (add-to-list 'org-speed-commands-user '("H" my-hugo-export-upload))
-  (add-to-list 'org-speed-commands-user '("." my-org-deadline-today))
-  (add-to-list 'org-speed-commands-user '("!" my-org-default-property))
-  (add-to-list 'org-speed-commands-user
+  ;; (add-to-list 'org-speed-commands '("N" org-shiftmetadown))
+  ;; (add-to-list 'org-speed-commands '("P" org-shiftmetaup))
+  (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
+  (add-to-list 'org-speed-commands '("." my-org-deadline-today))
+  (add-to-list 'org-speed-commands '("!" my-org-default-property))
+  (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
 
   ;; 周期タクスを終了させます．
@@ -592,34 +595,6 @@
             (replace-match new :fixedcase nil nil 1)
             (message "Updated(%d): %s => %s" count prev new)))
         (message "Lower-cased %d matches" count)))))
-
-(with-eval-after-load "postpone"
-  ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
-  (defvar ns-default-notification-sound "Pop")
-
-  (defvar ns-alerter-command
-    (executable-find (concat (getenv "HOME") "/Dropbox/bin/alerter"))
-    "Path to alerter command. see https://github.com/vjeantet/alerter")
-
-  (defun my-desktop-notification (title message &optional sticky sound timeout)
-    "Show a message by `alerter' command."
-    (if ns-alerter-command
-        (start-process
-         "notification" "*notification*"
-         ns-alerter-command
-         "-title" title
-         "-message" message
-         "-sender" "org.gnu.Emacs"
-         "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
-         "-sound" (or sound ns-default-notification-sound))
-      (message "--- ns-alerter-command is %s." ns-alerter-command)))
-
-  ;; eval (org-notify "hoge") to test this setting
-  (defun my-desktop-notification-handler (message)
-    (my-desktop-notification "Message from org-mode" message t))
-  (with-eval-after-load "org"
-    (when ns-alerter-command
-      (setq org-show-notification-handler #'my-desktop-notification-handler))))
 
 (unless noninteractive
   (with-eval-after-load "org"
@@ -1232,6 +1207,7 @@ also calls `beep' for an audible reminder."
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (or (not (require 'async nil t))
+              (my-native-comp-p)
               (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))

@@ -14,7 +14,7 @@
     (setq mlscroll-out-color "#FFFFE0")
     (mlscroll-mode 1)))
 (when (version< "28.0" emacs-version)
-  (setq comp-async-report-warnings-errors nil)
+  (setq native-comp-async-report-warnings-errors nil)
   (defmacro define-obsolete-variable-alias (obsolete-name
                                             current-name
 					                                  &optional when docstring)
@@ -39,8 +39,7 @@
     `(progn
        (defalias ,obsolete-name ,current-name ,docstring)
        (make-obsolete ,obsolete-name ,current-name ,when)))
-  (require 'shut-up)
-  (require 'fringe-helper))
+  )
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME

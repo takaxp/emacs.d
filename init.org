@@ -83,6 +83,7 @@ Then load the following at startup
 ;; Configurations for Emacs
 ;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
+(require 'utility-autoloads nil t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :exports none
@@ -104,11 +105,9 @@ Then load the following at startup
 
 次の関数を =init.el= の最初に記載して，オプション付きで =after-init-hook= に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する =emacs-init-time= の派生関数とは違い， =after-init-hook= で実行される処理の時間もわかります．また，ほかの処理も微妙に入るので，あくまで目安です．
 
-#+begin_src emacs-lisp :tangle no :exports yes
-(defconst my-before-load-init-time (current-time))
-#+end_src
-
 #+begin_src emacs-lisp :tangle yes
+(defconst my-before-load-init-time (current-time))
+;;;###autoload
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
   (let ((time1 (float-time
@@ -122,6 +121,7 @@ Then load the following at startup
 (add-hook 'after-init-hook #'my-load-init-time t)
 
 (defvar my-tick-previous-time my-before-load-init-time)
+;;;###autoload
 (defun my-tick-init-time (msg)
   "Tick boot sequence at loading MSG."
   (when my-loading-profile-p
@@ -173,6 +173,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 =M-x emacs-init-time= を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えて表示を変えます．元ネタは[[http://d.hatena.ne.jp/sugyan/20120120/1327037494][すぎゃーんメモ]]からです．感謝．
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (message "Emacs booting time: %.0f [msec] = `emacs-init-time'."
@@ -188,6 +189,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 #+begin_src emacs-lisp :tangle late-init.el :exports none
 ;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
+(require 'init-autoloads nil t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -353,6 +355,7 @@ This function is called directly from the C code."
 =my-loading-packages= 変数に，設定を無視するパッケージを記述しておくと， =autoload-if-found= 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． =autoload-if-found= は本来の実装ではなく， =my-loading-packages= を参照するように手を加えています．
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun my-load-package-p (file)
   (let ((enabled t))
     (when (boundp 'my-loading-packages)
@@ -382,6 +385,7 @@ This function is called directly from the C code."
 (when (bound-and-true-p my-loading-packages)
   (setq my-skip-check-autoload-file nil))
 
+;;;###autoload
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
   (when (boundp 'my-required-libraries)
@@ -454,6 +458,7 @@ This function is called directly from the C code."
 (if (not (locate-library "postpone"))
     (message "postpone.el is NOT installed.")
   (autoload 'postpone-kicker "postpone" nil t)
+  (defvar postpone-init-time 0)
   (defun my-postpone-kicker ()
     (interactive)
     (unless (memq this-command ;; specify commands for exclusion
@@ -483,6 +488,7 @@ This function is called directly from the C code."
 今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． =run-at-time= が想定通りに動かず，起動時に =run-at-time= に登録した関数が走ってしまうので，この判定が =non-nil= の時だけタイマー登録します． =time= を ~HH:MM~ の書式で与えます．指定時刻と現在時刻が同じ場合は，過去とみなします．
 
 #+begin_src emacs-lisp :tangle yes
+;;;###autoload
 (defun future-time-p (time)
   "Return non-nil if provided TIME formed of \"10:00\" is the future time."
   (not (time-less-p
@@ -555,7 +561,7 @@ This function is called directly from the C code."
 #+begin_src emacs-lisp :tangle late-init.el
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 (defvar shutup-p nil)
-(setq shutup-p (when (require 'shut-up nil t) t))
+(setq shutup-p (and (not (my-native-comp-p)) (require 'shut-up nil t)))
 #+end_src
 
 *** with-suppressed-message                                        :notinuse:
@@ -574,6 +580,18 @@ This function is called directly from the C code."
   (declare (indent 0))
   (let ((message-log-max nil))
     `(with-temp-message (or (current-message) "") ,@body)))
+#+end_src
+
+** Native comp が使えるかを判定する
+   :PROPERTIES:
+   :CUSTOM_ID: org5a18ac68
+   :END:
+
+#+begin_src emacs-lisp :tangle yes
+;;;###autoload
+(defun my-native-comp-p ()
+  (when (fboundp 'native-comp-available-p)
+    (native-comp-available-p)))
 #+end_src
 
 ** [exec-path-from-shell.el] PATH設定をシェルから継承する          :notinuse:
@@ -1528,7 +1546,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
   - [[http://qiita.com/takaxp/items/a86ee2aacb27c7c3a902][Emacs 25.1/25.2 を EMP版で快適に使う - Qiita]]
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no :exports yes
 (when (eq window-system 'mac)
   (global-set-key (kbd "M-SPC") 'mac-win-toggle-ime)
   (global-set-key (kbd "S-SPC") 'mac-win-toggle-ime)
@@ -4024,6 +4042,9 @@ Call this function at updating `mode-line-mode'."
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
+(require 'init-autoloads nil t)
+(require 'late-init-autoloads nil t)
+(require 'utility-autoloads nil t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -4632,11 +4653,101 @@ version 28 で全角スペースに黒下線が付くので回避します．
 ** [git-gutter-fringe] 編集差分をフレーム端で視覚化
    :PROPERTIES:
    :CUSTOM_ID: org6332fe92
+   :ID:       DB701535-A1DA-42FC-B85A-F9329ADC1371
    :END:
 
 編集差分の視覚化は，元々 git-gutter が提供している機能です．しかし有効にするとフレームの幅が若干広がってしまうので，気になる人は git-gutter-fringe を使えばよいです．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+(when (require 'git-gutter nil t)
+  (dolist (hook
+           '(emacs-lisp-mode-hook
+             lisp-mode-hook perl-mode-hook python-mode-hook
+             c-mode-common-hook nxml-mode-hook web-mode-hook))
+    (add-hook hook #'git-gutter-mode))
+  (custom-set-variables
+   '(git-gutter:lighter "")))
+
+(when (require 'git-gutter-fringe nil t)
+  (custom-set-variables
+   '(git-gutter-fr:side 'left-fringe)))
+
+;;;###autoload
+(defun my-fringe-helper ()
+  (eval '(fringe-helper-define 'git-gutter-fr:modified nil
+    "...XX..."
+    "...XX..."
+    "...XX..."
+    "...XX..."
+    "...XX..."
+    "........"
+    "...XX..."
+    "...XX..."))
+  (set-face-foreground 'git-gutter-fr:added    "#FF2600")
+  (set-face-foreground 'git-gutter-fr:modified "orange")
+  (set-face-foreground 'git-gutter-fr:deleted  "medium sea green"))
+
+;;(add-hook 'git-gutter-mode-hook #'my-fringe-helper)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;;late-init.el
+(when (autoload-if-found
+       '(git-gutter-mode)
+       "git-gutter" nil t)
+
+  (dolist (hook
+           '(emacs-lisp-mode-hook
+             lisp-mode-hook perl-mode-hook python-mode-hook
+             c-mode-common-hook nxml-mode-hook web-mode-hook))
+    (add-hook hook #'git-gutter-mode))
+
+  (custom-set-variables
+   '(git-gutter:lighter ""))
+
+  (when (require 'git-gutter-fringe nil t)
+    (custom-set-variables
+     '(git-gutter-fr:side 'left-fringe))
+
+    ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
+    ;; "!"
+    (eval '(fringe-helper-define 'git-gutter-fr:modified nil
+             "...XX..."
+             "...XX..."
+             "...XX..."
+             "...XX..."
+             "...XX..."
+             "........"
+             "...XX..."
+             "...XX..."))
+    ;; "+"
+    (eval '(fringe-helper-define 'git-gutter-fr:added nil
+             "........"
+             "...XX..."
+             "...XX..."
+             ".XXXXXX."
+             ".XXXXXX."
+             "...XX..."
+             "...XX..."
+             "........"))
+    ;; "-"
+    (eval '(fringe-helper-define 'git-gutter-fr:deleted nil
+             "........"
+             "........"
+             "........"
+             ".XXXXXX."
+             ".XXXXXX."
+             "........"
+             "........"
+             "........"))
+    (set-face-foreground 'git-gutter-fr:added    "#FF2600")
+    (set-face-foreground 'git-gutter-fr:modified "orange")
+    (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (when (autoload-if-found
        '(git-gutter-mode)
        "git-gutter" nil t)
@@ -4655,7 +4766,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
       (custom-set-variables
        '(git-gutter-fr:side 'left-fringe))
 
-      ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
+      (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
       ;; "!"
       (fringe-helper-define 'git-gutter-fr:modified nil
         "...XX..."
@@ -6179,19 +6290,19 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
     (defun my-recentf-save-list-silence ()
       (interactive)
-      (let ((message-log-max nil))
-        (if (fboundp 'shut-up)
+        (if shutup-p
             (shut-up (recentf-save-list))
-          (recentf-save-list)))
+          (let ((message-log-max nil))
+            (recentf-save-list)))
       (message ""))
 
     (defun my-recentf-cleanup-silence ()
       (interactive)
       (when (file-exists-p "/Volumes/orzHDn")
-        (let ((message-log-max nil))
           (if shutup-p
               (shut-up (recentf-cleanup))
-            (recentf-cleanup)))
+            (let ((message-log-max nil))
+              (recentf-cleanup)))
         (message "")))
     (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
     (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
@@ -6204,6 +6315,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
     (global-set-key (kbd "C-M-r") 'counsel-recentf))
 
   (with-eval-after-load "counsel"
+    (defun my-counsel-recentf-action (file)
+      (eval `(with-ivy-window (find-file ,file))))
+
     (defun ad:counsel-recentf ()
       "Find a file on `recentf-list'."
       (interactive)
@@ -6213,9 +6327,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
                 (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
                                      (substring-no-properties x)))
                         recentf-list)
-                :action (lambda (f)
-                          (with-ivy-window
-                            (find-file f)))
+                :action #'my-counsel-recentf-action
                 :require-match t
                 :caller 'counsel-recentf))
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
@@ -6377,6 +6489,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   ;; ivy-dired-history-variable は，session.el で明示的に管理中．
   ;; check session-globals-include
   (define-key dired-mode-map "," 'dired))
+(declare-function dired-extra-startup "dired-x")
 (when (require 'dired-x nil t)
   (dired-extra-startup))
 (defun my-reveal-in-finder ()
@@ -6706,6 +6819,7 @@ http://www.emacswiki.org/emacs/EmacsSession
   (global-set-key (kbd "C-h o") 'helpful-symbol)
   (global-set-key (kbd "C-h f") 'helpful-function)
   (global-set-key (kbd "C-h v") 'helpful-variable)
+  (global-set-key (kbd "C-h m") 'helpful-macro)
 
   (with-eval-after-load "helpful"
     (define-key helpful-mode-map (kbd "@") #'helpful-at-point)))
@@ -8325,6 +8439,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
    :PROPERTIES:
    :CUSTOM_ID: org739cd53d
    :ID:       418AFA81-82B1-485C-98BB-83E6A3EF0F8A
+   :CREATED:  [2021-07-31 Sat 17:00]
    :END:
 慣れてくると Org Mode の通常キーバインドでは満足できなくなります．コンテクストに応じて適切なキーバインドを設定するのが Emacs の醍醐味ですから，そういう欲求が出てきたらスピーコマンドの出番です．シングルキーで各ツリーのステータスを変更したり，任意のコマンドを呼び出せます．
 
@@ -8332,16 +8447,16 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 (with-eval-after-load "org"
   (setq org-use-speed-commands t)
 
-  (add-to-list 'org-speed-commands-user '("d" org-todo "DONE"))
-  ;; (add-to-list 'org-speed-commands-user '("S" call-interactively 'widen))
-  (add-to-list 'org-speed-commands-user
+  (add-to-list 'org-speed-commands '("d" org-todo "DONE"))
+  ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
+  (add-to-list 'org-speed-commands
                '("D" my-org-todo-complete-no-repeat "DONE"))
-  ;; (add-to-list 'org-speed-commands-user '("N" org-shiftmetadown))
-  ;; (add-to-list 'org-speed-commands-user '("P" org-shiftmetaup))
-  (add-to-list 'org-speed-commands-user '("H" my-hugo-export-upload))
-  (add-to-list 'org-speed-commands-user '("." my-org-deadline-today))
-  (add-to-list 'org-speed-commands-user '("!" my-org-default-property))
-  (add-to-list 'org-speed-commands-user
+  ;; (add-to-list 'org-speed-commands '("N" org-shiftmetadown))
+  ;; (add-to-list 'org-speed-commands '("P" org-shiftmetaup))
+  (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
+  (add-to-list 'org-speed-commands '("." my-org-deadline-today))
+  (add-to-list 'org-speed-commands '("!" my-org-default-property))
+  (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
 
   ;; 周期タクスを終了させます．
@@ -8654,37 +8769,36 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 | daily.org   | Alarms on a table        |
 | appt        | TODO items with deadline |
 
-#+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "postpone"
-  ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
-  (defvar ns-default-notification-sound "Pop")
+#+begin_src emacs-lisp :tangle late-init.el
+;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
+(defvar ns-default-notification-sound "Pop")
 
-  (defvar ns-alerter-command
-    (executable-find (concat (getenv "HOME") "/Dropbox/bin/alerter"))
-    "Path to alerter command. see https://github.com/vjeantet/alerter")
+(defvar ns-alerter-command
+  (executable-find (concat (getenv "HOME") "/Dropbox/bin/alerter"))
+  "Path to alerter command. see https://github.com/vjeantet/alerter")
 
-  (defun my-desktop-notification (title message &optional sticky sound timeout)
-    "Show a message by `alerter' command."
-    (if ns-alerter-command
-        (start-process
-         "notification" "*notification*"
-         ns-alerter-command
-         "-title" title
-         "-message" message
-         "-sender" "org.gnu.Emacs"
-         "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
-         "-sound" (or sound ns-default-notification-sound))
-      (message "--- ns-alerter-command is %s." ns-alerter-command)))
+;;;###autoload
+(defun my-desktop-notification (title message &optional sticky sound timeout)
+  "Show a message by `alerter' command."
+  (if ns-alerter-command
+      (start-process
+       "notification" "*notification*"
+       ns-alerter-command
+       "-title" title
+       "-message" message
+       "-sender" "org.gnu.Emacs"
+       "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
+       "-sound" (or sound ns-default-notification-sound))
+    (message "--- ns-alerter-command is %s." ns-alerter-command)))
 
-  ;; eval (org-notify "hoge") to test this setting
-  (defun my-desktop-notification-handler (message)
-    (my-desktop-notification "Message from org-mode" message t))
-  (with-eval-after-load "org"
-    (when ns-alerter-command
-      (setq org-show-notification-handler #'my-desktop-notification-handler))))
+;; eval (org-notify "hoge") to test this setting
+;;;###autoload
+(defun my-desktop-notification-handler (message)
+  (my-desktop-notification "Message from org-mode" message t))
+(with-eval-after-load "org"
+  (when ns-alerter-command
+    (setq org-show-notification-handler #'my-desktop-notification-handler)))
 #+end_src
-
-#+RESULTS:
 
 ** org-mode でアラーム管理
    :PROPERTIES:
@@ -9414,6 +9528,7 @@ also calls `beep' for an audible reminder."
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (or (not (require 'async nil t))
+              (my-native-comp-p)
               (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))
@@ -11227,9 +11342,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
 
     (moom-recommended-keybindings 'all)
-    (setq moom-command-with-centering nil)
-    (setq moom-lighter "M")
-    (setq moom-verbose t)
+    (custom-set-variables
+     '(moom-command-with-centering nil)
+     '(moom-lighter "M")
+     '(moom-verbose t))
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-init-time'.
 
@@ -11242,14 +11358,15 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
 
   (with-eval-after-load "moom-font"
-    (setq moom-scaling-gradient (/ (float 50) 30))
-    (setq moom-font-table
-          '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
-            (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
-            (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
-            (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
-            (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
-            (9 5) (8 5) (7 4) (6 4) (5 3)))))
+    (custom-set-variables
+     '(moom-scaling-gradient (/ (float 50) 30))
+     '(moom-font-table
+       '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
+         (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
+         (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
+         (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
+         (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
+         (9 5) (8 5) (7 4) (6 4) (5 3))))))
 #+end_src
 
 *** 最大化時にモードラインを消す
@@ -11282,6 +11399,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (defvar my-toggle-modeline-global t)
 (unless (display-graphic-p)
   (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
+
+;;;###autoload
 (defun my-toggle-modeline-global ()
   (interactive)
   (setq my-toggle-modeline-global (not my-toggle-modeline-global))
@@ -11289,6 +11408,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
       (my-mode-line-on)
     (my-mode-line-off)))
 
+;;;###autoload
 (defun my-mode-line-off ()
   "Turn off mode line."
   (when (fboundp 'dimmer-on)
@@ -11299,6 +11419,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (setq my-mode-line-format mode-line-format))
   (setq mode-line-format nil))
 
+;;;###autoload
 (defun my-mode-line-on ()
   "Turn on mode line."
   (when (fboundp 'dimmer-off)
@@ -11310,6 +11431,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (setq mode-line-format my-mode-line-format)
   (redraw-frame))
 
+;;;###autoload
 (defun my-toggle-mode-line ()
   "Toggle mode line."
   (interactive)

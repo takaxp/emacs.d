@@ -1,4 +1,5 @@
 ;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
+(require 'init-autoloads nil t)
 
 (with-eval-after-load "time"
   (defun ad:emacs-init-time ()
@@ -16,7 +17,7 @@
 
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 (defvar shutup-p nil)
-(setq shutup-p (when (require 'shut-up nil t) t))
+(setq shutup-p (and (not (my-native-comp-p)) (require 'shut-up nil t)))
 
 (setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)
@@ -1279,59 +1280,6 @@ Call this function at updating `mode-line-mode'."
          '(migemo-coding-system 'utf-8-unix))))
   (message "--- cmigemo is NOT installed."))
 
-(when (autoload-if-found
-       '(git-gutter-mode)
-       "git-gutter" nil t)
-
-  (dolist (hook
-           '(emacs-lisp-mode-hook
-             lisp-mode-hook perl-mode-hook python-mode-hook
-             c-mode-common-hook nxml-mode-hook web-mode-hook))
-    (add-hook hook #'git-gutter-mode))
-
-  (with-eval-after-load "git-gutter"
-    (custom-set-variables
-     '(git-gutter:lighter ""))
-
-    (when (require 'git-gutter-fringe nil t)
-      (custom-set-variables
-       '(git-gutter-fr:side 'left-fringe))
-
-      ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
-      ;; "!"
-      (fringe-helper-define 'git-gutter-fr:modified nil
-        "...XX..."
-        "...XX..."
-        "...XX..."
-        "...XX..."
-        "...XX..."
-        "........"
-        "...XX..."
-        "...XX...")
-      ;; "+"
-      (fringe-helper-define 'git-gutter-fr:added nil
-        "........"
-        "...XX..."
-        "...XX..."
-        ".XXXXXX."
-        ".XXXXXX."
-        "...XX..."
-        "...XX..."
-        "........")
-      ;; "-"
-      (fringe-helper-define 'git-gutter-fr:deleted nil
-        "........"
-        "........"
-        "........"
-        ".XXXXXX."
-        ".XXXXXX."
-        "........"
-        "........"
-        "........")
-      (set-face-foreground 'git-gutter-fr:added    "#FF2600")
-      (set-face-foreground 'git-gutter-fr:modified "orange")
-      (set-face-foreground 'git-gutter-fr:deleted  "medium sea green"))))
-
 (with-eval-after-load "calendar"
 
   (add-hook 'calendar-today-visible-hook #'calendar-mark-today)
@@ -1906,19 +1854,19 @@ sorted.  FUNCTION must be a function of one argument."
 
     (defun my-recentf-save-list-silence ()
       (interactive)
-      (let ((message-log-max nil))
-        (if (fboundp 'shut-up)
+        (if shutup-p
             (shut-up (recentf-save-list))
-          (recentf-save-list)))
+          (let ((message-log-max nil))
+            (recentf-save-list)))
       (message ""))
 
     (defun my-recentf-cleanup-silence ()
       (interactive)
       (when (file-exists-p "/Volumes/orzHDn")
-        (let ((message-log-max nil))
           (if shutup-p
               (shut-up (recentf-cleanup))
-            (recentf-cleanup)))
+            (let ((message-log-max nil))
+              (recentf-cleanup)))
         (message "")))
     (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
     (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
@@ -1931,6 +1879,9 @@ sorted.  FUNCTION must be a function of one argument."
     (global-set-key (kbd "C-M-r") 'counsel-recentf))
 
   (with-eval-after-load "counsel"
+    (defun my-counsel-recentf-action (file)
+      (eval `(with-ivy-window (find-file ,file))))
+
     (defun ad:counsel-recentf ()
       "Find a file on `recentf-list'."
       (interactive)
@@ -1940,9 +1891,7 @@ sorted.  FUNCTION must be a function of one argument."
                 (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
                                      (substring-no-properties x)))
                         recentf-list)
-                :action (lambda (f)
-                          (with-ivy-window
-                            (find-file f)))
+                :action #'my-counsel-recentf-action
                 :require-match t
                 :caller 'counsel-recentf))
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
@@ -2109,6 +2058,7 @@ sorted.  FUNCTION must be a function of one argument."
   (global-set-key (kbd "C-h o") 'helpful-symbol)
   (global-set-key (kbd "C-h f") 'helpful-function)
   (global-set-key (kbd "C-h v") 'helpful-variable)
+  (global-set-key (kbd "C-h m") 'helpful-macro)
 
   (with-eval-after-load "helpful"
     (define-key helpful-mode-map (kbd "@") #'helpful-at-point)))
@@ -2483,6 +2433,35 @@ sorted.  FUNCTION must be a function of one argument."
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode)))
 
+;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
+(defvar ns-default-notification-sound "Pop")
+
+(defvar ns-alerter-command
+  (executable-find (concat (getenv "HOME") "/Dropbox/bin/alerter"))
+  "Path to alerter command. see https://github.com/vjeantet/alerter")
+
+;;;###autoload
+(defun my-desktop-notification (title message &optional sticky sound timeout)
+  "Show a message by `alerter' command."
+  (if ns-alerter-command
+      (start-process
+       "notification" "*notification*"
+       ns-alerter-command
+       "-title" title
+       "-message" message
+       "-sender" "org.gnu.Emacs"
+       "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
+       "-sound" (or sound ns-default-notification-sound))
+    (message "--- ns-alerter-command is %s." ns-alerter-command)))
+
+;; eval (org-notify "hoge") to test this setting
+;;;###autoload
+(defun my-desktop-notification-handler (message)
+  (my-desktop-notification "Message from org-mode" message t))
+(with-eval-after-load "org"
+  (when ns-alerter-command
+    (setq org-show-notification-handler #'my-desktop-notification-handler)))
+
 ;; `org-agenda-prepare-buffers' は重い．agenda 実行時の最初に走るが，
 ;; 事前に走らせておくほうがいい．以下の例では，
 ;; 起動後，何もしなければ10秒後に org, org-agenda が有効になる
@@ -2583,6 +2562,8 @@ sorted.  FUNCTION must be a function of one argument."
 (defvar my-toggle-modeline-global t)
 (unless (display-graphic-p)
   (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
+
+;;;###autoload
 (defun my-toggle-modeline-global ()
   (interactive)
   (setq my-toggle-modeline-global (not my-toggle-modeline-global))
@@ -2590,6 +2571,7 @@ sorted.  FUNCTION must be a function of one argument."
       (my-mode-line-on)
     (my-mode-line-off)))
 
+;;;###autoload
 (defun my-mode-line-off ()
   "Turn off mode line."
   (when (fboundp 'dimmer-on)
@@ -2600,6 +2582,7 @@ sorted.  FUNCTION must be a function of one argument."
     (setq my-mode-line-format mode-line-format))
   (setq mode-line-format nil))
 
+;;;###autoload
 (defun my-mode-line-on ()
   "Turn on mode line."
   (when (fboundp 'dimmer-off)
@@ -2611,6 +2594,7 @@ sorted.  FUNCTION must be a function of one argument."
   (setq mode-line-format my-mode-line-format)
   (redraw-frame))
 
+;;;###autoload
 (defun my-toggle-mode-line ()
   "Toggle mode line."
   (interactive)
