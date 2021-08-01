@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-08-01 Sun 14:20 -->
+<!-- 2021-08-01 Sun 17:40 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1542,7 +1542,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
   <span style="color: #8b2252;">"Set up autoload and eval-after-load for FUNCTIONS iff. FILE has found."</span>
   `(<span style="color: #a020f0;">let*</span> ((functions ,functions)
           (docstring ,docstring)
-          (<span style="color: #a020f0;">interactive</span> ,interactive)
+          (interactive ,interactive)
           (type ,type)
           (file ,file))
      (<span style="color: #a020f0;">when</span> (locate-library file)
@@ -1552,7 +1552,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
                  functions
                (list functions)))
        ,@(<span style="color: #a020f0;">when</span> after-body
-           `((eval-after-load file '(<span style="color: #a020f0;">progn</span> ,@after-body))))
+           `((eval-after-load file '(progn ,@after-body))))
        t)))
 </pre>
 </div>
@@ -6130,8 +6130,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;</span><span style="color: #b22222;">late-init.el</span>
-(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(git-gutter-mode)
        <span style="color: #8b2252;">"git-gutter"</span> nil t)
 
@@ -6208,7 +6207,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
       (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">fringe-helper</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">byte-compile &#26178;&#12395;&#26126;&#31034;&#30340;&#12395;&#25351;&#23450;&#12364;&#24517;&#35201;&#65294;</span>
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">"!"</span>
-      (<span style="color: #a020f0;">fringe-helper-define</span> 'git-gutter-fr:modified nil
+      (fringe-helper-define 'git-gutter-fr:modified nil
         <span style="color: #8b2252;">"...XX..."</span>
         <span style="color: #8b2252;">"...XX..."</span>
         <span style="color: #8b2252;">"...XX..."</span>
@@ -6218,7 +6217,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
         <span style="color: #8b2252;">"...XX..."</span>
         <span style="color: #8b2252;">"...XX..."</span>)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">"+"</span>
-      (<span style="color: #a020f0;">fringe-helper-define</span> 'git-gutter-fr:added nil
+      (fringe-helper-define 'git-gutter-fr:added nil
         <span style="color: #8b2252;">"........"</span>
         <span style="color: #8b2252;">"...XX..."</span>
         <span style="color: #8b2252;">"...XX..."</span>
@@ -6228,7 +6227,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
         <span style="color: #8b2252;">"...XX..."</span>
         <span style="color: #8b2252;">"........"</span>)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">"-"</span>
-      (<span style="color: #a020f0;">fringe-helper-define</span> 'git-gutter-fr:deleted nil
+      (fringe-helper-define 'git-gutter-fr:deleted nil
         <span style="color: #8b2252;">"........"</span>
         <span style="color: #8b2252;">"........"</span>
         <span style="color: #8b2252;">"........"</span>
@@ -8130,7 +8129,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                          <span style="color: #8b2252;">"pdf"</span>
                          <span style="color: #b22222;">;; </span><span style="color: #b22222;">Image</span>
                          <span style="color: #8b2252;">"gif"</span> <span style="color: #8b2252;">"png"</span> <span style="color: #8b2252;">"jpg"</span> <span style="color: #8b2252;">"jpeg"</span>)
-                        string-end)) <span style="color: #8b2252;">"open"</span>))))
+                        string-end)) <span style="color: #ff0000; font-weight: bold;">"open"</span><span style="color: #ff0000; font-weight: bold;">))))</span>
 
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> nil
            (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)
@@ -8275,7 +8274,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
           ((<span style="color: #a020f0;">let</span> ((pt (point)))
              (<span style="color: #a020f0;">and</span> (string-match <span style="color: #8b2252;">".gpg"</span> (buffer-name))
                   (not (eq pt 1))
-                  (string-match (buffer-substring (- pt 1) pt) <span style="color: #8b2252;">" "</span>))) nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">.gpg &#12391;&#21322;&#35282;&#12473;&#12506;&#12540;&#12473;&#12398;&#24460;&#12429;&#12398;&#12502;&#12522;&#12483;&#12484;&#12391;&#12399;&#33258;&#21205;&#20445;&#23384;&#12375;&#12394;&#12356;&#65294;FIXME &#21322;&#35282;&#12473;&#12506;&#12540;&#12473;+&#34892;&#26411;</span>
+                  (string-match (buffer-substring (- pt 1) pt) <span style="color: #8b2252;">" "</span>))) <span style="color: #ff0000; font-weight: bold;">nil) </span><span style="color: #ff0000; font-weight: bold;">;; </span><span style="color: #ff0000; font-weight: bold;">.gpg &#12391;&#21322;&#35282;&#12473;&#12506;&#12540;&#12473;&#12398;&#24460;&#12429;&#12398;&#12502;&#12522;&#12483;&#12484;&#12391;&#12399;&#33258;&#21205;&#20445;&#23384;&#12375;&#12394;&#12356;&#65294;FIXME &#21322;&#35282;&#12473;&#12506;&#12540;&#12473;+&#34892;&#26411;</span>
           ((my-ox-hugo-auto-saving-p) nil)
           (t
            (auto-save-buffers))))
@@ -8359,7 +8358,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 
   (add-hook 'after-init-hook #'session-initialize)
   (eval-after-load <span style="color: #8b2252;">"session"</span>
-    '(<span style="color: #a020f0;">progn</span>
+    '(progn
        <span style="color: #b22222;">;; </span><span style="color: #b22222;">For Org-mode</span>
        (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-maybe-reveal</span> ()
          (<span style="color: #a020f0;">interactive</span>)
@@ -11985,7 +11984,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga3a43eb"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org99f686a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12333,7 +12332,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-org-ids-to-headlines-in-file</span> ()
     <span style="color: #8b2252;">"Add CUSTOM_ID properties to all headlines in the current file.</span>
 <span style="color: #8b2252;">Which do not already have one.  Only adds ids if the</span>
-<span style="color: #8b2252;">`</span><span style="color: #008b8b;">auto-id</span><span style="color: #8b2252;">' option is set to `t' in the file somewhere. ie,</span>
+<span style="color: #8b2252;">`</span><span style="color: #008b8b;">auto-id</span><span style="color: #8b2252;">' option is set to `</span><span style="color: #008b8b;">t</span><span style="color: #8b2252;">' in the file somewhere. ie,</span>
 <span style="color: #8b2252;">#+options: auto-id:t</span>
 
 <span style="color: #8b2252;">See https://writequit.org/articles/emacs-org-mode-generate-ids.html"</span>
@@ -12851,7 +12850,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgaebfe0c" class="figure">
+<div id="org0a82185" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -13215,7 +13214,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
        <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span> 'title
        (concat
         (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-            (icons-in-terminal-octicon <span style="color: #8b2252;">"keyboard"</span>) <span style="color: #8b2252;">""</span>) <span style="color: #8b2252;">" "</span>)))
+            (icons-in-terminal-octicon <span style="color: #8b2252;">"keyboard"</span>) <span style="color: #8b2252;">""</span>) <span style="color: #ff0000; font-weight: bold;">" "</span><span style="color: #ff0000; font-weight: bold;">)))</span>
 
     (<span style="color: #a020f0;">declare-function</span> my-ime-on <span style="color: #8b2252;">"init"</span> nil)
     (<span style="color: #a020f0;">declare-function</span> my-ime-off <span style="color: #8b2252;">"init"</span> nil)
@@ -14879,7 +14878,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
         (my-desktop-notification
          <span style="color: #8b2252;">"Pomodoro"</span>
          (concat <span style="color: #8b2252;">"&#19977;&#19977; &#65421;(*&#65439;&#8711;&#65439;)&#65417;   Go #"</span>
-                 (format <span style="color: #8b2252;">"%s"</span> (1+ pomodoro:work-count))) nil <span style="color: #8b2252;">"Glass"</span>))
+                 (format <span style="color: #8b2252;">"%s"</span> (1+ pomodoro:work-count))) <span style="color: #ff0000; font-weight: bold;">nil </span><span style="color: #ff0000; font-weight: bold;">"Glass"</span><span style="color: #ff0000; font-weight: bold;">))</span>
       (add-hook 'pomodoro:finish-work-hook #'my-pomodoro-notify))))
 </pre>
 </div>
@@ -15587,7 +15586,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-08-01 Sun 14:20</p>
+<p class="date">Created: 2021-08-01 Sun 17:40</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

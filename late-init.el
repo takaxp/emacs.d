@@ -1280,6 +1280,58 @@ Call this function at updating `mode-line-mode'."
          '(migemo-coding-system 'utf-8-unix))))
   (message "--- cmigemo is NOT installed."))
 
+(when (autoload-if-found
+       '(git-gutter-mode)
+       "git-gutter" nil t)
+
+  (dolist (hook
+           '(emacs-lisp-mode-hook
+             lisp-mode-hook perl-mode-hook python-mode-hook
+             c-mode-common-hook nxml-mode-hook web-mode-hook))
+    (add-hook hook #'git-gutter-mode))
+
+  (custom-set-variables
+   '(git-gutter:lighter ""))
+
+  (when (require 'git-gutter-fringe nil t)
+    (custom-set-variables
+     '(git-gutter-fr:side 'left-fringe))
+
+    ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
+    ;; "!"
+    (eval '(fringe-helper-define 'git-gutter-fr:modified nil
+             "...XX..."
+             "...XX..."
+             "...XX..."
+             "...XX..."
+             "...XX..."
+             "........"
+             "...XX..."
+             "...XX..."))
+    ;; "+"
+    (eval '(fringe-helper-define 'git-gutter-fr:added nil
+             "........"
+             "...XX..."
+             "...XX..."
+             ".XXXXXX."
+             ".XXXXXX."
+             "...XX..."
+             "...XX..."
+             "........"))
+    ;; "-"
+    (eval '(fringe-helper-define 'git-gutter-fr:deleted nil
+             "........"
+             "........"
+             "........"
+             ".XXXXXX."
+             ".XXXXXX."
+             "........"
+             "........"
+             "........"))
+    (set-face-foreground 'git-gutter-fr:added    "#FF2600")
+    (set-face-foreground 'git-gutter-fr:modified "orange")
+    (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))
+
 (with-eval-after-load "calendar"
 
   (add-hook 'calendar-today-visible-hook #'calendar-mark-today)
