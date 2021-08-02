@@ -11,7 +11,7 @@
 (defconst my-loading-packages nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
-(setq debug-on-error t
+(setq debug-on-error nil
       postpone-verbose nil
       my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
