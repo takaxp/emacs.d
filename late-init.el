@@ -1049,13 +1049,19 @@ Call this function at updating `mode-line-mode'."
                        (my-update-modeline-color)
                        ;; "Narrow" を "N" に短縮表示
                        (if (and (buffer-narrowed-p)
-                                (fboundp 'all-the-icons-octicon))
+                                (fboundp 'icons-in-terminal-octicon))
                            (concat " "
                                    (icons-in-terminal-octicon "fold" :v-adjust 0.0))
                          "")
                        ))
            entry))
        mode-line-modes))
+
+(when (require 'mlscroll nil t)
+  (custom-set-variables
+   '(mlscroll-in-color "#FFA07A")
+   '(mlscroll-out-color "#FFFFE0"))
+  (mlscroll-mode 1))
 
 (defun ad:split-window-below (&optional _size)
   "An extention to switch to \*scratch\* buffer after splitting window."
@@ -1410,16 +1416,6 @@ Call this function at updating `mode-line-mode'."
   (with-eval-after-load "highlight-symbol"
     (custom-set-variables
      '(highlight-symbol-idle-delay 0.5))))
-
-(when (autoload-if-found
-       '(all-the-icons-dired-mode ad:all-the-icons-dired--display)
-       "all-the-icons-dired" nil t)
-
-  (with-eval-after-load "all-the-icons"
-    (setq all-the-icons-scale-factor 1.0)
-    (add-to-list 'all-the-icons-dir-icon-alist
-                 '("google[ _-]drive" all-the-icons-alltheicon "google-drive"
-                   :height 1.0 :v-adjust -0.1))))
 
 (when (autoload-if-found
        '(icons-in-terminal-dired-mode)
@@ -2918,7 +2914,7 @@ Uses `all-the-icons-material' to fetch the icon."
       (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
 
 (with-eval-after-load "ivy"
-;;; 選択対象を "" にする (requires all-the-icons.el)
+;;; 選択対象を "" にする (requires all-the-icons.el)
   (defface my-ivy-arrow-visible
     '((((class color) (background light)) :foreground "orange")
       (((class color) (background dark)) :foreground "#EE6363"))

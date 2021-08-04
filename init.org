@@ -4059,7 +4059,7 @@ Call this function at updating `mode-line-mode'."
                        (my-update-modeline-color)
                        ;; "Narrow" を "N" に短縮表示
                        (if (and (buffer-narrowed-p)
-                                (fboundp 'all-the-icons-octicon))
+                                (fboundp 'icons-in-terminal-octicon))
                            (concat " "
                                    (icons-in-terminal-octicon "fold" :v-adjust 0.0))
                          "")
@@ -4068,6 +4068,18 @@ Call this function at updating `mode-line-mode'."
        mode-line-modes))
 #+end_src
 
+** TODO モードラインにバッファ内表示位置をバー形式で表示
+   :PROPERTIES:
+   :CREATED:  [2021-08-04 Wed 01:02]
+   :ID:       955D37D9-7AC2-4878-8574-13B7C6C12E47
+   :END:
+#+begin_src emacs-lisp :tangle late-init.el
+(when (require 'mlscroll nil t)
+  (custom-set-variables
+   '(mlscroll-in-color "#FFA07A")
+   '(mlscroll-out-color "#FFFFE0"))
+  (mlscroll-mode 1))
+#+end_src
 ** モードラインの節約（VC-mode編）
    :PROPERTIES:
    :CUSTOM_ID: org5fd3a668
@@ -4925,7 +4937,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 =font-lock-mode= が無効の場合に，意図しないアイコンが表示されることがあります．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no :exports yes
 (when (autoload-if-found
        '(all-the-icons-dired-mode ad:all-the-icons-dired--display)
        "all-the-icons-dired" nil t)
@@ -4935,7 +4947,9 @@ version 28 で全角スペースに黒下線が付くので回避します．
     (add-to-list 'all-the-icons-dir-icon-alist
                  '("google[ _-]drive" all-the-icons-alltheicon "google-drive"
                    :height 1.0 :v-adjust -0.1))))
+#+end_src
 
+#+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(icons-in-terminal-dired-mode)
        "icons-in-terminal-dired" nil t)
@@ -8116,6 +8130,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
     ;; ログをドロアーに入れる
     (setq org-log-into-drawer t)
+
+    ;; indent を electric-indent-mode の振る舞いに合わせる
+    (setq org-adapt-indentation t)    
 
     ;; Set checksum program path for windows
     (when (eq window-system 'w32)
@@ -12441,7 +12458,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "ivy"
-;;; 選択対象を "" にする (requires all-the-icons.el)
+;;; 選択対象を "" にする (requires all-the-icons.el)
   (defface my-ivy-arrow-visible
     '((((class color) (background light)) :foreground "orange")
       (((class color) (background dark)) :foreground "#EE6363"))

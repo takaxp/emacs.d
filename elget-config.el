@@ -360,7 +360,7 @@
 (defun my-elget-update-org ()
   (interactive)
   (when (shell-command-to-string
-         (concat "~/Dropbox/emacs.d/bin/el-get.sh -o"))
+         (concat "~/Dropbox/emacs.d/bin/el-get.sh -g tag"))
     (message "[el-get] Org mode updated")))
 
 (defun my-elget-update-packages (packages &optional current total)

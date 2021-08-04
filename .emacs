@@ -9,14 +9,8 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-(with-eval-after-load "postpone"
-  (when (require 'mlscroll nil t)
-    (setq mlscroll-in-color "#FFA07A")
-    (setq mlscroll-out-color "#FFFFE0")
-    (mlscroll-mode 1)))
-(with-eval-after-load
-    "org" (setq org-adapt-indentation t))
-;;(add-to-list 'load-path "~/.local/share/icons-in-terminal/")
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ns-inline-patch
 (custom-set-faces

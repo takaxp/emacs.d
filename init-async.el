@@ -68,7 +68,7 @@ This function could create many sub processes."
           t))
      (lambda (result)
        (if result
-           (unless (active-minibuffer-window)
+           (unless (eval '(active-minibuffer-window))
              (message "[async] Deleting old backup files...done"))
          (error "[async] Failed to delete backup files."))))))
 

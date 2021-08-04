@@ -49,7 +49,7 @@
 
 ;; (2) exec-path
 (my-path-setter
- `("/usr/bin" "/usr/local/bin"
+ `("/usr/bin" "/usr/local/bin" "/opt/homebrew/bin"
    ,(expand-file-name "~/.cask/bin")
    ,(expand-file-name "~/devel/git/tern/bin")
    ,(expand-file-name "~/.go/bin")

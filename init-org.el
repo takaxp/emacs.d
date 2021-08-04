@@ -72,6 +72,9 @@
     ;; ログをドロアーに入れる
     (setq org-log-into-drawer t)
 
+    ;; indent を electric-indent-mode の振る舞いに合わせる
+    (setq org-adapt-indentation t)    
+
     ;; Set checksum program path for windows
     (when (eq window-system 'w32)
       (setq org-mobile-checksum-binary (concat (getenv "SYNCROOT") "/do/cksum.exe")))
