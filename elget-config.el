@@ -59,6 +59,7 @@
                    :url "https://gitlab.com/jagrg/org-emms.git")
     (el-get-bundle "org-trello"))
   (el-get-bundle "xenodium/company-org-block")
+  (el-get-bundle "emacsmirror/org-contrib")
 
   ;; Org Mode - ox/ob
   (el-get-bundle "0x60df/ox-qmd")

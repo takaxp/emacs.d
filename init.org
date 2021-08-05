@@ -9532,7 +9532,6 @@ also calls `beep' for an audible reminder."
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (or (not (require 'async nil t))
-              (my-native-comp-p)
               (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))
@@ -10057,6 +10056,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 ** [org-mac-link] 外部アプリから情報を取る
    :PROPERTIES:
    :CUSTOM_ID: org01951291
+   :ID:       748891D2-EC3B-41A6-BA09-6DA8E622D68A
    :END:
 
 =org-mac-link= を使うと，外部アプリの表示状態をリンクとして取得して，orgバッファに流し込めます．Mac環境用です．簡単な例ではURLで，取得したリンクを =C-c C-o= で開けばブラウザが起動してリンク先が表示できます．同じ話を，ファインダーで表示しているディレクトリ，メーラーで表示していた特定のメール，PDFビューアで表示していた特定のファイルの特定のページなどで実施できます．対応している外部アプリは，Finder, Mail.app, Outlook, Addressbook, Safari, Firefox, Chrome, そして Skimです．

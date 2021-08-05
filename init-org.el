@@ -1213,7 +1213,7 @@ also calls `beep' for an audible reminder."
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (or (not (require 'async nil t))
-              (my-native-comp-p)
+              ;; (my-native-comp-p)
               (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))
