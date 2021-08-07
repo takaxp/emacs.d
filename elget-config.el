@@ -29,6 +29,7 @@
   (el-get-bundle "emacsmirror/centered-cursor-mode")
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "zk-phi/git-complete"))
+  (el-get-bundle "oantolin/embark")
 
   ;; Org Mode
   (el-get-bundle "org-tree-slide")
@@ -322,6 +323,7 @@
   (el-get-bundle "xuchunyang/gitter.el")
   (el-get-bundle "jamiguet/network-watch")
   (el-get-bundle "aaronbieber/sunshine.el" :name sunshine)
+  ;; (el-get-bundle "takaxp/mu4e")
   ;; Log
   (el-get-bundle "davep/uptimes.el" :name "uptimes"))
 

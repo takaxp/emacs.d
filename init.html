@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-08-05 Thu 10:18 -->
+<!-- 2021-08-07 Sat 20:36 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -380,7 +380,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org11d6998">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#orgc08c228">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -3787,6 +3787,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs <span style="color: #8b2252;">"c:/msys64/mingw64"</span>))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-auto-view</span> ()
   <span style="color: #8b2252;">"Open a file with `</span><span style="color: #008b8b;">view-mode</span><span style="color: #8b2252;">'."</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> my-auto-view-regexp
@@ -3797,6 +3798,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
       (view-mode 1))))
 (add-hook 'find-file-hook #'my-auto-view)
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-next-heading</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
@@ -3804,6 +3806,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
       (org-next-visible-heading 1)
     (next-line)))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-previous-heading</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
@@ -3811,6 +3814,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
       (org-previous-visible-heading 1)
     (previous-line)))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-view-tab</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
@@ -3821,6 +3825,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">origami</span> nil t)
       (origami-toggle-node (current-buffer) (point)))))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-view-shifttab</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">if</span> (derived-mode-p 'org-mode)
@@ -3828,6 +3833,11 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
         (org-shifttab))
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">origami</span> nil t)
       (origami-toggle-all-nodes (current-buffer)))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-unlock-view-mode</span> ()
+  (<span style="color: #a020f0;">when</span> view-mode
+    (View-exit-and-edit)))
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"view"</span>
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"i"</span>) 'View-exit-and-edit)
@@ -4629,6 +4639,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
      '(grugru-highlight-face ((t (<span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"#FF3333"</span>))))
      '(grugru-highlight-idle-delay 1))
 
+    (add-hook 'grugru-before-hook #'my-unlock-view-mode)
     (add-hook 'grugru-after-hook #'save-buffer)
     (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
     (grugru-define-on-major-mode 'org-mode 'word '(<span style="color: #8b2252;">"TODO"</span> <span style="color: #8b2252;">"DONE"</span>))
@@ -4681,6 +4692,11 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </ul>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp">(autoload-if-found '(embark-act) <span style="color: #8b2252;">"embark"</span> nil t)
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(selected-global-mode my-helpful)
        <span style="color: #8b2252;">"selected"</span> nil t)
@@ -4692,6 +4708,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
   (add-hook 'activate-mark-hook #'my-activate-selected)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"selected"</span>
+    (define-key selected-keymap (kbd <span style="color: #8b2252;">"a"</span>) #'embark-act)
     (define-key selected-keymap (kbd <span style="color: #8b2252;">";"</span>) #'comment-dwim)
     (define-key selected-keymap (kbd <span style="color: #8b2252;">"e"</span>) #'my-eval-region)
     (define-key selected-keymap (kbd <span style="color: #8b2252;">"E"</span>) #'my-eval-region-as-function)
@@ -5331,8 +5348,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org11d6998" class="outline-3">
-<h3 id="org11d6998"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-orgc08c228" class="outline-3">
+<h3 id="orgc08c228"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">mlscroll</span> nil t)
@@ -5661,7 +5678,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 <h3 id="orgdd0a9c41"><span class="section-number-3">6.11.</span> ツールバーを非表示にする</h3>
 <div class="outline-text-3" id="text-orgdd0a9c41">
 <p>
-ツールバーは使わないので非表示にします．
+ツールバーは使わないので非表示にします． <code>early-init.el</code> にも設定があることを前提しています．
 </p>
 
 <div class="org-src-container">
@@ -5678,7 +5695,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 <h3 id="org52e500e2"><span class="section-number-3">6.12.</span> メニューバーを非表示にする</h3>
 <div class="outline-text-3" id="text-org52e500e2">
 <p>
-特にターミナルでは不要です．Windowsでも非表示にします．
+特にターミナルでは不要です．Windowsでも非表示にします． <code>early-init.el</code> にも設定があることを前提しています．
 </p>
 
 <div class="org-src-container">
@@ -11470,6 +11487,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
       <span style="color: #8b2252;">"Update `</span><span style="color: #008b8b;">appt-time-mag-list</span><span style="color: #8b2252;">'.  Use `</span><span style="color: #008b8b;">async</span><span style="color: #8b2252;">' if possible."</span>
       (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (not (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t))
+              (my-native-comp-p)
               (not my-org-agenda-to-appt-async))
           (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
             (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"TODO"</span>))))
@@ -11651,9 +11669,11 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
           (<span style="color: #a020f0;">if</span> (eq 'light (frame-parameter nil 'background-mode))
               '((<span style="color: #8b2252;">"emacs-lisp"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#F9F9F9"</span> <span style="color: #483d8b;">:extend</span> t))
                 (<span style="color: #8b2252;">"conf"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#F9F9F9"</span> <span style="color: #483d8b;">:extend</span> t))
+                (<span style="color: #8b2252;">"org"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#F9F9F9"</span> <span style="color: #483d8b;">:extend</span> t))
                 (<span style="color: #8b2252;">"html"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#F9F9F9"</span> <span style="color: #483d8b;">:extend</span> t)))
             '((<span style="color: #8b2252;">"emacs-lisp"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t))
               (<span style="color: #8b2252;">"conf"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t))
+              (<span style="color: #8b2252;">"org"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t))
               (<span style="color: #8b2252;">"html"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t)))))
     (font-lock-fontify-buffer))
   (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
@@ -11675,10 +11695,9 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist '((<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#58110;"</span>)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist '((<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#57986;"</span>)
                                        (<span style="color: #8b2252;">"#+end_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>)
-                                       (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#57634;"</span>)
-                                       (<span style="color: #8b2252;">"&#20197;&#19978;"</span>. <span style="color: #8b2252;">"&#61498;"</span>)))
+                                       (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#57634;"</span>)))
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 </pre>
 </div>
@@ -11991,7 +12010,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga667c62"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org456f2a6"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12857,7 +12876,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orge162f64" class="figure">
+<div id="org9a545b7" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15595,7 +15614,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-08-05 Thu 10:18</p>
+<p class="date">Created: 2021-08-07 Sat 20:36</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

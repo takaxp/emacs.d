@@ -2667,6 +2667,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 (when (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
+;;;###autoload
 (defun my-auto-view ()
   "Open a file with `view-mode'."
   (when (and my-auto-view-regexp
@@ -2677,6 +2678,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
       (view-mode 1))))
 (add-hook 'find-file-hook #'my-auto-view)
 
+;;;###autoload
 (defun my-org-view-next-heading ()
   (interactive)
   (if (and (derived-mode-p 'org-mode)
@@ -2684,6 +2686,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
       (org-next-visible-heading 1)
     (next-line)))
 
+;;;###autoload
 (defun my-org-view-previous-heading ()
   (interactive)
   (if (and (derived-mode-p 'org-mode)
@@ -2691,6 +2694,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
       (org-previous-visible-heading 1)
     (previous-line)))
 
+;;;###autoload
 (defun my-view-tab ()
   (interactive)
   (if (and (derived-mode-p 'org-mode)
@@ -2701,6 +2705,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
     (when (require 'origami nil t)
       (origami-toggle-node (current-buffer) (point)))))
 
+;;;###autoload
 (defun my-view-shifttab ()
   (interactive)
   (if (derived-mode-p 'org-mode)
@@ -2708,6 +2713,11 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
         (org-shifttab))
     (when (require 'origami nil t)
       (origami-toggle-all-nodes (current-buffer)))))
+
+;;;###autoload
+(defun my-unlock-view-mode ()
+  (when view-mode
+    (View-exit-and-edit)))
 
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
@@ -3381,6 +3391,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
      '(grugru-highlight-face ((t (:bold t :underline "#FF3333"))))
      '(grugru-highlight-idle-delay 1))
 
+    (add-hook 'grugru-before-hook #'my-unlock-view-mode)
     (add-hook 'grugru-after-hook #'save-buffer)
     (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
     (grugru-define-on-major-mode 'org-mode 'word '("TODO" "DONE"))
@@ -3418,6 +3429,10 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
   - [[https://github.com/Kungsgeten/selected.el][Kungsgeten/selected.el: Keymap for when region is active]]
   - [[https://www.reddit.com/r/emacs/comments/4fxnss/selectedel_keymap_for_when_region_is_active/][selected.el - Keymap for when region is active : emacs]]
 
+#+begin_src emacs-lisp :tangle yes
+(autoload-if-found '(embark-act) "embark" nil t)
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(selected-global-mode my-helpful)
@@ -3430,6 +3445,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
   (add-hook 'activate-mark-hook #'my-activate-selected)
 
   (with-eval-after-load "selected"
+    (define-key selected-keymap (kbd "a") #'embark-act)
     (define-key selected-keymap (kbd ";") #'comment-dwim)
     (define-key selected-keymap (kbd "e") #'my-eval-region)
     (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
@@ -4264,7 +4280,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
    :CUSTOM_ID: orgdd0a9c41
    :END:
 
-ツールバーは使わないので非表示にします．
+ツールバーは使わないので非表示にします． =early-init.el= にも設定があることを前提しています．
 
 #+begin_src emacs-lisp :tangle yes
 ;; Disable to show the tool bar.
@@ -4278,7 +4294,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
    :CUSTOM_ID: org52e500e2
    :END:
 
-特にターミナルでは不要です．Windowsでも非表示にします．
+特にターミナルでは不要です．Windowsでも非表示にします． =early-init.el= にも設定があることを前提しています．
 
 #+begin_src emacs-lisp :tangle yes
 (when (and (not early-init-file)
@@ -9532,6 +9548,7 @@ also calls `beep' for an audible reminder."
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (or (not (require 'async nil t))
+              (my-native-comp-p)
               (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))
@@ -9711,9 +9728,11 @@ also calls `beep' for an audible reminder."
           (if (eq 'light (frame-parameter nil 'background-mode))
               '(("emacs-lisp" (:background "#F9F9F9" :extend t))
                 ("conf" (:background "#F9F9F9" :extend t))
+                ("org" (:background "#F9F9F9" :extend t))
                 ("html" (:background "#F9F9F9" :extend t)))
             '(("emacs-lisp" (:background "#383c4c" :extend t))
               ("conf" (:background "#383c4c" :extend t))
+              ("org" (:background "#383c4c" :extend t))
               ("html" (:background "#383c4c" :extend t)))))
     (font-lock-fontify-buffer))
   (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
@@ -9734,10 +9753,9 @@ also calls `beep' for an audible reminder."
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(setq-default prettify-symbols-alist '(("#+begin_src" . "")
+(setq-default prettify-symbols-alist '(("#+begin_src" . "")
                                        ("#+end_src" . "▨")
-                                       ("#+RESULTS:" . "")
-                                       ("以上". "")))
+                                       ("#+RESULTS:" . "")))
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 #+end_src
 

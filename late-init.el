@@ -538,6 +538,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (when (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
+;;;###autoload
 (defun my-auto-view ()
   "Open a file with `view-mode'."
   (when (and my-auto-view-regexp
@@ -548,6 +549,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (view-mode 1))))
 (add-hook 'find-file-hook #'my-auto-view)
 
+;;;###autoload
 (defun my-org-view-next-heading ()
   (interactive)
   (if (and (derived-mode-p 'org-mode)
@@ -555,6 +557,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (org-next-visible-heading 1)
     (next-line)))
 
+;;;###autoload
 (defun my-org-view-previous-heading ()
   (interactive)
   (if (and (derived-mode-p 'org-mode)
@@ -562,6 +565,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (org-previous-visible-heading 1)
     (previous-line)))
 
+;;;###autoload
 (defun my-view-tab ()
   (interactive)
   (if (and (derived-mode-p 'org-mode)
@@ -572,6 +576,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (when (require 'origami nil t)
       (origami-toggle-node (current-buffer) (point)))))
 
+;;;###autoload
 (defun my-view-shifttab ()
   (interactive)
   (if (derived-mode-p 'org-mode)
@@ -579,6 +584,11 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
         (org-shifttab))
     (when (require 'origami nil t)
       (origami-toggle-all-nodes (current-buffer)))))
+
+;;;###autoload
+(defun my-unlock-view-mode ()
+  (when view-mode
+    (View-exit-and-edit)))
 
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
@@ -876,6 +886,7 @@ This works also for other defined begin/end tokens to define the structure."
      '(grugru-highlight-face ((t (:bold t :underline "#FF3333"))))
      '(grugru-highlight-idle-delay 1))
 
+    (add-hook 'grugru-before-hook #'my-unlock-view-mode)
     (add-hook 'grugru-after-hook #'save-buffer)
     (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
     (grugru-define-on-major-mode 'org-mode 'word '("TODO" "DONE"))
@@ -898,6 +909,7 @@ This works also for other defined begin/end tokens to define the structure."
   (add-hook 'activate-mark-hook #'my-activate-selected)
 
   (with-eval-after-load "selected"
+    (define-key selected-keymap (kbd "a") #'embark-act)
     (define-key selected-keymap (kbd ";") #'comment-dwim)
     (define-key selected-keymap (kbd "e") #'my-eval-region)
     (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
@@ -2524,10 +2536,9 @@ sorted.  FUNCTION must be a function of one argument."
                            (org-agenda-prepare-buffers org-agenda-files)
                            (message "Building agenda buffers...done")))))
 
-(setq-default prettify-symbols-alist '(("#+begin_src" . "")
+(setq-default prettify-symbols-alist '(("#+begin_src" . "")
                                        ("#+end_src" . "▨")
-                                       ("#+RESULTS:" . "")
-                                       ("以上". "")))
+                                       ("#+RESULTS:" . "")))
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 
 ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．

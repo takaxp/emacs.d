@@ -378,6 +378,8 @@ This function is called directly from the C code."
     (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
     (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp)))
 
+(autoload-if-found '(embark-act) "embark" nil t)
+
 (my-tick-init-time "editing")
 
 (with-eval-after-load "vc-hooks"

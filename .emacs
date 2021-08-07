@@ -10,7 +10,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ns-inline-patch
 (custom-set-faces
@@ -34,7 +33,8 @@
       (ns-delete-working-text)
       (let ((start (point)))
         (when (<= pos (length ns-working-text))
-          (put-text-property pos len 'face 'ns-working-text-face ns-working-text)
+          (put-text-property pos len 'face
+                             'ns-working-text-face ns-working-text)
           (insert ns-working-text)
           ;; (if (= len 0)
           ;;     (overlay-put (setq ns-working-overlay
