@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-08-07 Sat 20:36 -->
+<!-- 2021-08-08 Sun 01:35 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -380,7 +380,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#orgc08c228">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#orge9ba2b8">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -2911,6 +2911,9 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;S-f10&gt;"</span>) 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12499;&#12523;&#12488;&#12452;&#12531; bookmark &#12398;&#37197;&#33394;&#12434;&#28961;&#21177;&#12395;&#12377;&#12427;(as of 28.1)</span>
+  (<span style="color: #a020f0;">setq</span> bookmark-fontify nil)
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
     (global-set-key (kbd <span style="color: #8b2252;">"&lt;S-f10&gt;"</span>) 'counsel-bm))
 
@@ -5348,8 +5351,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orgc08c228" class="outline-3">
-<h3 id="orgc08c228"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-orge9ba2b8" class="outline-3">
+<h3 id="orge9ba2b8"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">mlscroll</span> nil t)
@@ -12010,7 +12013,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org456f2a6"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org91030b3"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12876,7 +12879,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org9a545b7" class="figure">
+<div id="org57d783f" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15614,7 +15617,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-08-07 Sat 20:36</p>
+<p class="date">Created: 2021-08-08 Sun 01:35</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -305,6 +305,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (global-set-key (kbd "<S-f10>") 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
+  ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
+  (setq bookmark-fontify nil)
+
   (with-eval-after-load "ivy"
     (global-set-key (kbd "<S-f10>") 'counsel-bm))
 

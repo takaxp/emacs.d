@@ -1,15 +1,13 @@
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                                              TODO/DONE/FIXME
 (cond (nil ;; To test the latest org
        (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
        (setq org-agenda-files '("~/Desktop/hoge.org")))
       (t ;; Normal mode. see also init-eval.el
        (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;                                                              TODO/DONE/FIXME
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ns-inline-patch
 (custom-set-faces
