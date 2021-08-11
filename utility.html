@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-08-08 Sun 01:35 -->
+<!-- 2021-08-11 Wed 22:49 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -217,11 +217,11 @@
 <li><a href="#org33d4f93d">1.6. 頻繁に利用するファイルをring形式でたどる</a></li>
 <li><a href="#org31226d9e">1.7. 引数のorgバッファを開く</a></li>
 <li><a href="#org6a1e418a">1.8. orgバッファにいつものヘッダを追加する</a></li>
-<li><a href="#orge060ae9">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
-<li><a href="#org2fb0591">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
+<li><a href="#org285fb70">1.9. orgバッファにPGPヘッダとフッタを書き込む</a></li>
+<li><a href="#orgd8e3edf">1.10. orgバッファでPGPを使った自分宛ての暗号化データ生成する</a></li>
 <li><a href="#org8f57b3f8">1.11. 議事録ひな形を書き入れる</a></li>
 <li><a href="#orgdd9630ad">1.12. ランダムの文字列を取得する</a></li>
-<li><a href="#org3697f6bd">1.13. 行頭に" - "を挿入する</a></li>
+<li><a href="#org3697f6bd">1.13. 行頭に" - "を挿入する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#org9aef972b">1.14. 定期実行関数</a></li>
 <li><a href="#org175a102f">1.15. ブラウザの設定</a></li>
 <li><a href="#orgca3eae6b">1.16. バックアップファイルの削除</a></li>
@@ -556,8 +556,8 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 </div>
 </div>
 
-<div id="outline-container-orge060ae9" class="outline-3">
-<h3 id="orge060ae9"><span class="section-number-3">1.9.</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
+<div id="outline-container-org285fb70" class="outline-3">
+<h3 id="org285fb70"><span class="section-number-3">1.9.</span> orgバッファにPGPヘッダとフッタを書き込む</h3>
 <div class="outline-text-3" id="text-1-9">
 <p>
 PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで <code>org-decrypt-entry</code> するための空ツリーを書き込みます．
@@ -574,8 +574,8 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 </div>
 </div>
 
-<div id="outline-container-org2fb0591" class="outline-3">
-<h3 id="org2fb0591"><span class="section-number-3">1.10.</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
+<div id="outline-container-orgd8e3edf" class="outline-3">
+<h3 id="orgd8e3edf"><span class="section-number-3">1.10.</span> orgバッファでPGPを使った自分宛ての暗号化データ生成する</h3>
 <div class="outline-text-3" id="text-1-10">
 <p>
 下記の関数で生成したツリーの本体をメールで送信すれば，秘密鍵のある端末で復号できます．
@@ -645,11 +645,15 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 </div>
 
 <div id="outline-container-org3697f6bd" class="outline-3">
-<h3 id="org3697f6bd"><span class="section-number-3">1.13.</span> 行頭に" - "を挿入する</h3>
+<h3 id="org3697f6bd"><span class="section-number-3">1.13.</span> 行頭に" - "を挿入する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org3697f6bd">
+<p>
+<code>my-cycle-bullet-at-heading</code> に移行しました．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">add-itemize-head</span> (arg)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-itemize-head</span> (arg)
   <span style="color: #8b2252;">"Insert \" - \" at the head of line.</span>
 <span style="color: #8b2252;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
 <span style="color: #8b2252;">  original position again. Otherwise, the cursor is moved to the right of the</span>
@@ -665,7 +669,7 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
                (insert item-string))))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">add-itemize-head-checkbox</span> ()
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-itemize-head-checkbox</span> ()
   <span style="color: #8b2252;">"Insert \" - [ ] \" at the head of line.</span>
 <span style="color: #8b2252;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
 <span style="color: #8b2252;">  original position again. Otherwise, the cursor is moved to the right of the</span>
@@ -717,10 +721,12 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 <div id="outline-container-org175a102f" class="outline-3">
 <h3 id="org175a102f"><span class="section-number-3">1.15.</span> ブラウザの設定</h3>
 <div class="outline-text-3" id="text-org175a102f">
+<ul class="org-ul">
+<li><a href="http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome">http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome</a></li>
+</ul>
+
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim</span>
-(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(browse-url)
        <span style="color: #8b2252;">"browse-url"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"browse-url"</span>
@@ -736,7 +742,6 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
        ))
      (t
       nil))))
-
 <span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq browse-url-browser-function 'browse-url-default-macosx-browser)</span>
 <span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq browse-url-browser-function 'browse-url-default-windows-browser)</span>
 <span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq browse-url-browser-function 'browse-url-chrome)</span>
@@ -952,96 +957,106 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h3 id="orga706f503"><span class="section-number-3">1.24.</span> リージョン内のブリッツを操作する(orgmode)</h3>
 <div class="outline-text-3" id="text-orga706f503">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-insert-items</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">" - "</span>)
-           (len (string-width bullet)))
-      (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) end t)
-                  (not (equal (point) end)))
-        (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet) nil nil)
-        (<span style="color: #a020f0;">setq</span> end (+ end len)))
-      (goto-char begin))))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-delete-items</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (goto-char begin)
-    (<span style="color: #a020f0;">while</span> (re-search-forward
-            <span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
-            end t)
-      (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
-        (replace-match <span style="color: #8b2252;">""</span> nil nil)
-        (<span style="color: #a020f0;">setq</span> end (- end len))))
-    (goto-char begin)))
-
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-list-with-checkbox-regexp</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-bullet-with-checkbox-regexp</span>
   (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
           <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-toggle-checkbox</span> (begin end)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-insert-bullet</span> (begin end)
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
+  (<span style="color: #a020f0;">unless</span> mark-active
+    (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
+    (<span style="color: #a020f0;">setq</span> end (line-end-position)))
+  (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">" - "</span>)
+         (len (string-width bullet)))
     (goto-char begin)
-    (<span style="color: #a020f0;">if</span> (re-search-forward
-         my-org-list-with-checkbox-regexp (point-at-eol) t)
-        (my-org-list-delete-checkbox-from-items begin end)
-      (my-org-list-insert-checkbox-into-items begin end))))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-insert-checkbox-into-items</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((checkbox <span style="color: #8b2252;">"[ ] "</span>)
-           (len (string-width checkbox)))
-      (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (re-search-forward
-              (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">"</span>
-                      <span style="color: #8b2252;">"^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) <span style="color: #ff0000; font-weight: bold;">end t)</span>
-        (replace-match (concat <span style="color: #8b2252;">"\\1"</span> checkbox) nil nil)
-        (<span style="color: #a020f0;">setq</span> end (+ end len)))
-      (goto-char begin))))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-delete-checkbox-from-items</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let</span> ((len (string-width <span style="color: #8b2252;">"[ ] "</span>)))
-      (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (re-search-forward my-org-list-with-checkbox-regexp end t)
-        (replace-match <span style="color: #8b2252;">"\\1"</span> nil nil)
-        (<span style="color: #a020f0;">setq</span> end (- end len)))
-      (goto-char begin))))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-insert-items-with-checkbox</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">" - "</span>)
-           (checkbox <span style="color: #8b2252;">"[ ] "</span>)
-           (blen (string-width bullet))
-           (clen (string-width checkbox)))
-      (goto-char begin)
-      (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) end t)
-                  (not (equal (point) end)))
-        (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet checkbox) nil nil)
-        (<span style="color: #a020f0;">setq</span> end (+ end blen clen)))
-      (goto-char begin))))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-list-delete-items-with-checkbox</span> (begin end)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
-  (<span style="color: #a020f0;">when</span> mark-active
-    (goto-char begin)
-    (<span style="color: #a020f0;">while</span> (re-search-forward my-org-list-with-checkbox-regexp end t)
-      (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
-        (replace-match <span style="color: #8b2252;">""</span> nil nil)
-        (<span style="color: #a020f0;">setq</span> end (- end len))))
+    (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) end t)
+                (not (equal (point) end)))
+      (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet) nil nil)
+      (<span style="color: #a020f0;">setq</span> end (+ end len)))
     (goto-char begin)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-delete-bullet</span> (begin end)
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
+  (<span style="color: #a020f0;">unless</span> mark-active
+    (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
+    (<span style="color: #a020f0;">setq</span> end (line-end-position)))
+  (goto-char begin)
+  (<span style="color: #a020f0;">while</span> (re-search-forward
+          <span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
+          end t)
+    (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
+      (replace-match <span style="color: #8b2252;">""</span> nil nil)
+      (<span style="color: #a020f0;">setq</span> end (- end len))))
+  (goto-char begin))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-toggle-checkbox</span> (begin end)
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
+  (<span style="color: #a020f0;">unless</span> mark-active
+    (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
+    (<span style="color: #a020f0;">setq</span> end (line-end-position)))
+  (goto-char begin)
+  (<span style="color: #a020f0;">if</span> (re-search-forward
+       my-org-bullet-with-checkbox-regexp (point-at-eol) t)
+      (my-org-delete-checkbox-from-bullet begin end)
+    (my-org-insert-checkbox-into-bullet begin end)))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-insert-checkbox-into-bullet</span> (begin end)
+  (<span style="color: #a020f0;">unless</span> mark-active
+    (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
+    (<span style="color: #a020f0;">setq</span> end (line-end-position)))
+  (<span style="color: #a020f0;">let*</span> ((checkbox <span style="color: #8b2252;">"[ ] "</span>)
+         (len (string-width checkbox)))
+    (goto-char begin)
+    (<span style="color: #a020f0;">while</span> (re-search-forward
+            (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">"</span>
+                    <span style="color: #8b2252;">"^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) <span style="color: #ff0000; font-weight: bold;">end t)</span>
+      (replace-match (concat <span style="color: #8b2252;">"\\1"</span> checkbox) nil nil)
+      (<span style="color: #a020f0;">setq</span> end (+ end len)))
+    (goto-char begin)))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-delete-checkbox-from-bullet</span> (begin end)
+  (<span style="color: #a020f0;">unless</span> mark-active
+    (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
+    (<span style="color: #a020f0;">setq</span> end (line-end-position)))
+  (<span style="color: #a020f0;">let</span> ((len (string-width <span style="color: #8b2252;">"[ ] "</span>)))
+    (goto-char begin)
+    (<span style="color: #a020f0;">while</span> (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+      (replace-match <span style="color: #8b2252;">"\\1"</span> nil nil)
+      (<span style="color: #a020f0;">setq</span> end (- end len)))
+    (goto-char begin)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-insert-bullet-and-checkbox</span> (begin end)
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
+  (<span style="color: #a020f0;">unless</span> mark-active
+    (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
+    (<span style="color: #a020f0;">setq</span> end (line-end-position)))
+  (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">" - "</span>)
+         (checkbox <span style="color: #8b2252;">"[ ] "</span>)
+         (blen (string-width bullet))
+         (clen (string-width checkbox)))
+    (goto-char begin)
+    (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) end t)
+                (not (equal (point) end)))
+      (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet checkbox) nil nil)
+      (<span style="color: #a020f0;">setq</span> end (+ end blen clen)))
+    (goto-char begin)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-delete-bullet-and-checkbox</span> (begin end)
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
+  (<span style="color: #a020f0;">unless</span> mark-active
+    (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
+    (<span style="color: #a020f0;">setq</span> end (line-end-position)))
+  (goto-char begin)
+  (<span style="color: #a020f0;">while</span> (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+    (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
+      (replace-match <span style="color: #8b2252;">""</span> nil nil)
+      (<span style="color: #a020f0;">setq</span> end (- end len))))
+  (goto-char begin))
 </pre>
 </div>
 </div>
@@ -1051,7 +1066,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h3 id="orgc99664d5"><span class="section-number-3">1.25.</span> " - "と" - [ ] "をサイクルさせる</h3>
 <div class="outline-text-3" id="text-orgc99664d5">
 <ul class="org-ul">
-<li>ブリッツ行でないときは，ブリッツ化する．</li>
+<li>空行を含むブリッツ行でないときは，ブリッツ化する．</li>
 <li>ブリッツ行の場合は，チェックボックス付きに変更する．</li>
 <li>チェックボックス付きブリッツ行の場合は，チェックボックスを取る．</li>
 <li>引数付きで呼び出すと，チェックボックスの有無に依らずブリッツを取る．</li>
@@ -1068,7 +1083,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
           (point-at-eol (point-at-eol)))
       (<span style="color: #a020f0;">cond</span>
        ((re-search-forward
-         my-org-list-with-checkbox-regexp point-at-eol t)
+         my-org-bullet-with-checkbox-regexp point-at-eol t)
         (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> <span style="color: #8b2252;">"\\1"</span>) nil nil))
        ((re-search-forward
          <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
@@ -1077,26 +1092,6 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
        ((re-search-forward
          (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) point-at-eol t)
         (replace-match (concat <span style="color: #8b2252;">"\\1 "</span> bullet) nil nil))
-       (t nil)))))
-
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cycle-bullet-at-heading1</span> (arg)
-  <span style="color: #8b2252;">"Add a bullet of \" - \" if the line is NOT a bullet line."</span>
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
-  (<span style="color: #a020f0;">save-excursion</span>
-    (beginning-of-line)
-    (<span style="color: #a020f0;">let</span> ((bullet <span style="color: #8b2252;">"- "</span>)
-          (point-at-eol (point-at-eol)))
-      (<span style="color: #a020f0;">cond</span>
-       ((re-search-forward
-         (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> bullet <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>) point-at-eol t)
-        (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> (concat <span style="color: #8b2252;">"\\1"</span> bullet)) nil nil))
-       ((re-search-forward
-         (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> bullet) point-at-eol t)
-        (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> (concat <span style="color: #8b2252;">"\\1"</span> bullet <span style="color: #8b2252;">"[ ] "</span>)) nil nil))
-       ((re-search-forward
-         (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) point-at-eol t)
-        (replace-match
-         (concat <span style="color: #8b2252;">"\\1 "</span> bullet) nil nil))
        (t nil)))))
 </pre>
 </div>
@@ -1639,7 +1634,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-08-08 Sun 01:35</p>
+<p class="date">Created: 2021-08-11 Wed 22:49</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -1,9 +1,13 @@
 ;; The initial file that will be loaded first in w32 environment .
 (when (eq system-type 'windows-nt)
   (setq byte-compile-warnings '(obsolete))
+  (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
+  (setq system-time-locale "C") ;; format-time-string %a, not 日 but Sun
+
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
+  (setq make-backup-files nil)
 
   ;; Home directory
   ;; (setenv "HOME" "c:/cygwin64/home/********")
@@ -27,8 +31,42 @@
   ;;   ;;  ";C:\\msys64\\mingw64\\bin" ";C:\\msys64\\usr\\bin"))
   ;;   (setq shell-file-name "C:/cygwin64/bin/bash"))
 
+  ;; AppData\Roaming\.emacs.d 以下に各追加パッケージを配置すること（e.g. bsv, moom）
+  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
+  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/moom"))
+  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/swiper"))
+  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/htmlize"))
+  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/counsel-osx-app"))
+  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/bsv"))
+
+  (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
+  (global-set-key (kbd "C-M-b") 'end-of-buffer)
+  (global-set-key (kbd "M-v") 'yank)
+  (global-set-key (kbd "M-p") 'scroll-down)
+  (global-set-key (kbd "M-n") 'scroll-up)
+  (global-set-key (kbd "C-c g") 'goto-line)
+  (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
+  (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+  (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+  (global-set-key (kbd "M-=") 'count-words)
+
   ;; For IME module (do not load under postpone.el)
   (unless noninteractive
+    (setq truncate-line nil
+          truncate-partial-width-windows nil
+          mouse-drag-copy-region t)
+    (setq-default tab-width 2)
+    (setq-default indent-tabls-mode nil)
+    (setq indent-line-function 'insert-tab)
+    (global-auto-revert-mode 1)
+
+		(defun my-linespacing ()
+			(unless (minibufferp)
+				(setq-local line-spacing 0)))
+		(add-hook 'buffer-list-update-hook #'my-linespacing)
+		(add-hook 'org-src-mode-hook #'my-linespacing)
+		(add-hook 'debugger-mode-hook #'my-linespacing)
+
     ;; Language, will override default-input-method
     (set-language-environment "Japanese")
 
@@ -58,23 +96,101 @@
     (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
     (wrap-function-to-control-ime 'y-or-n-p nil nil)
     (wrap-function-to-control-ime 'yes-or-no-p nil nil)
-    (wrap-function-to-control-ime 'map-y-or-n-p nil nil)))
+    (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
 
-(with-eval-after-load "postpone"
+    ;; IME toggle (M-SPC/S-SPC)
+    (defun my-ime-active-p ()
+      (if current-input-method t nil))
+    ;; Auto ascii for org-mode headings
+    (defun my-ime-on ()
+      "IME OFN."
+      (interactive)
+      (activate-input-method default-input-method))
+    (defun my-ime-off ()
+      "IME OFF."
+      (interactive)
+      (deactivate-input-method))
+    (defun my-toggle-ime ()
+      "Toggle IME."
+      (interactive)
+      (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
+    (defvar my-ime-before-action nil)
+    (defun my-ime-on-sticky ()
+      (when my-ime-before-action
+        (my-ime-on)))
+    (defun my-ime-off-sticky ()
+      (when (setq my-ime-before-action (my-ime-active-p))
+        (my-ime-off)))
+    (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+    (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+    (global-set-key (kbd "M-SPC") 'my-toggle-ime)
+    (global-set-key (kbd "S-SPC") 'my-toggle-ime))
+
   (defun my-open-w32-explore ()
     (interactive)
     (shell-command-to-string "open ."))
   (global-set-key (kbd "C-M-<return>") #'my-open-w32-explore)
 
+  (defun my-open-hoge ()
+    (interactive)
+    (find-file (expand-file-name "~/hoge.org")))
+  (global-set-key (kbd "C-M-o") 'my-open-hoge)
+
   ;; Cursor color
   (set-cursor-color (plist-get my-cur-color-ime :off))
 
-  ;; Local setting
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; recentf
+  (when (require 'recentf nil t)
+	  (custom-set-variables
+	   '(recentf-max-saved-items 2000)
+	   '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
+	   '(recentf-auto-cleanup 'never)
+	   '(recentf-exclude
+		   '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
+			   "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+
+	  (defun my-recentf-save-list-silence ()
+		  (interactive)
+      (let ((message-log-max nil))
+        (recentf-save-list))
+		  (message ""))
+	  (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+	  (unless noninteractive
+		  (let ((message-log-max nil))
+			  (recentf-mode 1)))
+	  (global-set-key (kbd "C-M-r") 'counsel-recentf))
+
+  (when (and (require 'swiper nil t)
+	           (require 'ivy nil t)
+	           (require 'counsel nil t))
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "M-y") 'counsel-yank-pop)
+    (global-set-key (kbd "C-,") 'counsel-mark-ring)
+    (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+    (global-set-key (kbd "C-c i r") 'ivy-resume)
+    (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point))
+
+  (when (require 'bs nil t)
+    (global-set-key (kbd "M-]") 'bs-cycle-next)
+    (global-set-key (kbd "M-[") 'bs-cycle-previous)
+    (when (require 'bsv nil t)
+		  (setq bsv-max-height 5)
+		  (setq bsv-message-timeout 9)))
+
+  ;; moom
   (with-eval-after-load "moom"
     (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
     (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
+    (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
+    (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
     (global-set-key (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
     (global-set-key (kbd "C-c C->") 'moom-move-frame-to-edge-right)
+    (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
+    (global-set-key (kbd "M-9") 'moom-cycle-monitors)
+    (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
+    (moom-recommended-keybindings 'all)
     (setq moom-font-ja-scale 1.0)
     (moom-reset)
     (moom-font-resize 20))
@@ -88,7 +204,20 @@
                     "reports.org"))))
 
   (with-eval-after-load "org"
-    (remove-hook 'org-tab-first-hook 'my-org-hide-drawers) ;; error on v9.4
+    (setq org-startup-truncated nil
+		      org-hide-leading-stars t
+          org-use-speed-commands t
+          org-adapt-indentation t
+          org-list-allow-alphabetical t)
+    (define-key org-mode-map (kbd "C-M-t") 'beginning-of-buffer)
+
+    (defun ad:org-return (f &optional arg)
+	    "An extension for checking invisible editing when you hit the enter."
+	    (interactive "P")
+	    (org-check-before-invisible-edit 'insert)
+	    (apply f arg))
+    (advice-add 'org-return :around #'ad:org-return)
+
     (let ((dir (expand-file-name org-directory)))
       (setq org-refile-targets
             `((,(concat dir "next.org") :level . 1)
@@ -103,34 +232,24 @@
                      (equal (buffer-name) org-agenda-buffer-name))
                  (my-ime-active-p))
         (my-ime-off)))
-    (run-with-idle-timer 0.4 t #'my-ns-org-heading-auto-ascii))
+    (run-with-idle-timer 0.4 t #'my-ns-org-heading-auto-ascii)
 
-  (defun my-ime-active-p ()
-    (if current-input-method t nil))
-  ;; Auto ascii for org-mode headings
-  (defun my-ime-on ()
-    "IME OFN."
-    (interactive)
-    (activate-input-method default-input-method))
-  (defun my-ime-off ()
-    "IME OFF."
-    (interactive)
-    (deactivate-input-method))
-  (defun my-toggle-ime ()
-    "Toggle IME."
-    (interactive)
-    (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
-  (defvar my-ime-before-action nil)
-  (defun my-ime-on-sticky ()
-    (when my-ime-before-action
-      (my-ime-on)))
-  (defun my-ime-off-sticky ()
-    (when (setq my-ime-before-action (my-ime-active-p))
-      (my-ime-off)))
-  (add-hook 'activate-mark-hook #'my-ime-off-sticky)
-  (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-  (global-set-key (kbd "M-SPC") 'my-toggle-ime)
-  (global-set-key (kbd "S-SPC") 'my-toggle-ime)
+    (defun my-insert-empty-pgp-tree ()
+      (interactive)
+      (insert "** TODO\n")
+      (insert "-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n"))
+
+    (defun my-insert-enc2me-tree ()
+      (interactive)
+      (insert "** TODO share with me\n")
+      (insert "   :PROPERTIES:\n")
+      (insert "   :CRYPTKEY: takaxp@ieee.org\n")
+      (insert "   :END:\n")
+      (insert "\n")
+      (forward-line -1))
+
+    (remove-hook 'org-tab-first-hook 'my-org-hide-drawers) ;; error on v9.4
+    (add-hook 'org-mode-hook #'turn-on-font-lock))
 
   (with-eval-after-load "counsel-osx-app"
     ;; under experimental implementation

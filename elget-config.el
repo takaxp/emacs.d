@@ -306,8 +306,8 @@
   (el-get-bundle "hide-lines")
   (el-get-bundle "kiennq/emacs-mini-modeline")
   (el-get-bundle "shrink-path"
-                 :type git
-                 :url "https://gitlab.com/bennya/shrink-path.el.git")
+    :type git
+    :url "https://gitlab.com/bennya/shrink-path.el.git")
   ;; System related
   ;; Frame and windows
   (el-get-bundle "tabbar")
@@ -323,6 +323,9 @@
   (el-get-bundle "xuchunyang/gitter.el")
   (el-get-bundle "jamiguet/network-watch")
   (el-get-bundle "aaronbieber/sunshine.el" :name sunshine)
+  (el-get-bundle "skeeto/elfeed")
+  (el-get-bundle "remyhonig/elfeed-org")
+
   ;; (el-get-bundle "takaxp/mu4e")
   ;; Log
   (el-get-bundle "davep/uptimes.el" :name "uptimes"))

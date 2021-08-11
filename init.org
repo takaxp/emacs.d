@@ -3,9 +3,10 @@
 #+email:    takaxp@ieee.org
 #+startup:  content
 #+startup:  nohideblocks
-#+options:  num:t auto-id:t
+#+options:  ^:{} num:t auto-id:t
 #+setupfile: theme-readtheorg.setup
-#+html_head: <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+#+html_head: <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous" />
+#+html_head: <style>pre{ font-family: Inconsolata; }</style>
 
 * はじめに
   :PROPERTIES:
@@ -3519,15 +3520,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
           (funcall region))))
     (setq selected-org-mode-map (make-sparse-keymap))
 
-    (defun my-org-toggle-checkbox ()
-      (interactive)
-      (let ((current-prefix-arg '(4)))
-        (call-interactively 'org-toggle-checkbox)))
-
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
-    (define-key selected-keymap (kbd "-") #'my-org-list-insert-items)
-    (define-key selected-keymap (kbd "_")
-      #'my-org-list-toggle-checkbox) ;; my-org-toggle-checkbox
+    (define-key selected-keymap (kbd "-") #'my-org-insert-bullet)
+    (define-key selected-keymap (kbd "[") #'org-toggle-checkbox)
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))

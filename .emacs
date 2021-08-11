@@ -9,6 +9,22 @@
        (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(with-eval-after-load "postpone"
+  ;; elfeed, elfeed-org,elfeed-web
+  (when (autoload-if-found
+         '(elfeed elfeed-web-start)
+         "elfeed" nil t)
+
+    (with-eval-after-load "elfeed"
+      (when (require 'elfeed-org nil t)
+        (elfeed-org)
+        (setq rmh-elfeed-org-files (list "~/Dropbox/org/elfeed.org")))
+      ;; これで elfeed-feeds が更新される
+      ;; その後，M-x elfeed, M-x elfeed-update する
+      (when (require 'elfeed-web nil t)
+        (setq elfeed-web-data-root (concat my-elget-package-dir "/web"))))))
+
 ;; ns-inline-patch
 (custom-set-faces
  '(ns-marked-text-face

@@ -286,6 +286,9 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 #+end_src
 
 ** orgバッファにPGPヘッダとフッタを書き込む
+   :PROPERTIES:
+   :ID:       C3DD5482-120D-4B7D-A96F-C06A3176C461
+   :END:
 PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで =org-decrypt-entry= するための空ツリーを書き込みます．
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -297,6 +300,9 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 #+end_src
 
 ** orgバッファでPGPを使った自分宛ての暗号化データ生成する
+   :PROPERTIES:
+   :ID:       B8D35CE7-128C-4A70-ADD2-6475EC480337
+   :END:
 下記の関数で生成したツリーの本体をメールで送信すれば，秘密鍵のある端末で復号できます．
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -355,14 +361,16 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
         (t "0")))
 #+end_src
 
-** 行頭に" - "を挿入する
+** 行頭に" - "を挿入する                                           :notinuse:
    :PROPERTIES:
    :CUSTOM_ID: org3697f6bd
    :END:
 
-#+begin_src emacs-lisp :tangle utility.el
+=my-cycle-bullet-at-heading= に移行しました．
+
+#+begin_src emacs-lisp :tangle no
 ;;;###autoload
-(defun add-itemize-head (arg)
+(defun my-add-itemize-head (arg)
   "Insert \" - \" at the head of line.
   If the cursor is already at the head of line, it is NOT returned back to the
   original position again. Otherwise, the cursor is moved to the right of the
@@ -378,7 +386,7 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
                (insert item-string))))))
 
 ;;;###autoload
-(defun add-itemize-head-checkbox ()
+(defun my-add-itemize-head-checkbox ()
   "Insert \" - [ ] \" at the head of line.
   If the cursor is already at the head of line, it is NOT returned back to the
   original position again. Otherwise, the cursor is moved to the right of the
@@ -425,10 +433,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
    :PROPERTIES:
    :CUSTOM_ID: org175a102f
    :END:
+ - [[http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome]]
 
 #+begin_src emacs-lisp :tangle utility.el
-;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
-;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
 (when (autoload-if-found
        '(browse-url)
        "browse-url" nil t)
@@ -445,13 +452,10 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
        ))
      (t
       nil))))
-
 ;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
 ;;(setq browse-url-browser-function 'browse-url-default-windows-browser)
 ;;(setq browse-url-browser-function 'browse-url-chrome)
 #+end_src
-
-#+RESULTS:
 
 ** バックアップファイルの削除
    :PROPERTIES:
@@ -653,104 +657,115 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
-;;;###autoload
-(defun my-org-list-insert-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet " - ")
-           (len (string-width bullet)))
-      (goto-char begin)
-      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
-                  (not (equal (point) end)))
-        (replace-match (concat "\\1" bullet) nil nil)
-        (setq end (+ end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (goto-char begin)
-    (while (re-search-forward
-            "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)"
-            end t)
-      (let ((len (- (match-end 0) (match-beginning 0))))
-        (replace-match "" nil nil)
-        (setq end (- end len))))
-    (goto-char begin)))
-
-(defvar my-org-list-with-checkbox-regexp
+(defvar my-org-bullet-with-checkbox-regexp
   (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
           "\\[.\\][ \t]+"))
 
 ;;;###autoload
-(defun my-org-list-toggle-checkbox (begin end)
+(defun my-org-insert-bullet (begin end)
   (interactive "r")
-  (when mark-active
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (let* ((bullet " - ")
+         (len (string-width bullet)))
     (goto-char begin)
-    (if (re-search-forward
-         my-org-list-with-checkbox-regexp (point-at-eol) t)
-        (my-org-list-delete-checkbox-from-items begin end)
-      (my-org-list-insert-checkbox-into-items begin end))))
-
-;;;###autoload
-(defun my-org-list-insert-checkbox-into-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((checkbox "[ ] ")
-           (len (string-width checkbox)))
-      (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
-                      "^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+\\)") end t)
-        (replace-match (concat "\\1" checkbox) nil nil)
-        (setq end (+ end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-checkbox-from-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let ((len (string-width "[ ] ")))
-      (goto-char begin)
-      (while (re-search-forward my-org-list-with-checkbox-regexp end t)
-        (replace-match "\\1" nil nil)
-        (setq end (- end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-insert-items-with-checkbox (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet " - ")
-           (checkbox "[ ] ")
-           (blen (string-width bullet))
-           (clen (string-width checkbox)))
-      (goto-char begin)
-      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
-                  (not (equal (point) end)))
-        (replace-match (concat "\\1" bullet checkbox) nil nil)
-        (setq end (+ end blen clen)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-items-with-checkbox (begin end)
-  (interactive "r")
-  (when mark-active
-    (goto-char begin)
-    (while (re-search-forward my-org-list-with-checkbox-regexp end t)
-      (let ((len (- (match-end 0) (match-beginning 0))))
-        (replace-match "" nil nil)
-        (setq end (- end len))))
+    (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                (not (equal (point) end)))
+      (replace-match (concat "\\1" bullet) nil nil)
+      (setq end (+ end len)))
     (goto-char begin)))
+
+;;;###autoload
+(defun my-org-delete-bullet (begin end)
+  (interactive "r")
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (goto-char begin)
+  (while (re-search-forward
+          "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)"
+          end t)
+    (let ((len (- (match-end 0) (match-beginning 0))))
+      (replace-match "" nil nil)
+      (setq end (- end len))))
+  (goto-char begin))
+
+;;;###autoload
+(defun my-org-toggle-checkbox (begin end)
+  (interactive "r")
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (goto-char begin)
+  (if (re-search-forward
+       my-org-bullet-with-checkbox-regexp (point-at-eol) t)
+      (my-org-delete-checkbox-from-bullet begin end)
+    (my-org-insert-checkbox-into-bullet begin end)))
+
+(defun my-org-insert-checkbox-into-bullet (begin end)
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (let* ((checkbox "[ ] ")
+         (len (string-width checkbox)))
+    (goto-char begin)
+    (while (re-search-forward
+            (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
+                    "^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+\\)") end t)
+      (replace-match (concat "\\1" checkbox) nil nil)
+      (setq end (+ end len)))
+    (goto-char begin)))
+
+(defun my-org-delete-checkbox-from-bullet (begin end)
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (let ((len (string-width "[ ] ")))
+    (goto-char begin)
+    (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+      (replace-match "\\1" nil nil)
+      (setq end (- end len)))
+    (goto-char begin)))
+
+;;;###autoload
+(defun my-org-insert-bullet-and-checkbox (begin end)
+  (interactive "r")
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (let* ((bullet " - ")
+         (checkbox "[ ] ")
+         (blen (string-width bullet))
+         (clen (string-width checkbox)))
+    (goto-char begin)
+    (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                (not (equal (point) end)))
+      (replace-match (concat "\\1" bullet checkbox) nil nil)
+      (setq end (+ end blen clen)))
+    (goto-char begin)))
+
+;;;###autoload
+(defun my-org-delete-bullet-and-checkbox (begin end)
+  (interactive "r")
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (goto-char begin)
+  (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+    (let ((len (- (match-end 0) (match-beginning 0))))
+      (replace-match "" nil nil)
+      (setq end (- end len))))
+  (goto-char begin))
 #+end_src
 
 ** " - "と" - [ ] "をサイクルさせる
    :PROPERTIES:
    :CUSTOM_ID: orgc99664d5
+   :ID:       EC3D1597-3AC9-4FA6-907E-9DD59C54518E
    :END:
 
- - ブリッツ行でないときは，ブリッツ化する．
+ - 空行を含むブリッツ行でないときは，ブリッツ化する．
  - ブリッツ行の場合は，チェックボックス付きに変更する．
  - チェックボックス付きブリッツ行の場合は，チェックボックスを取る．
  - 引数付きで呼び出すと，チェックボックスの有無に依らずブリッツを取る．
@@ -766,7 +781,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
           (point-at-eol (point-at-eol)))
       (cond
        ((re-search-forward
-         my-org-list-with-checkbox-regexp point-at-eol t)
+         my-org-bullet-with-checkbox-regexp point-at-eol t)
         (replace-match (if arg "" "\\1") nil nil))
        ((re-search-forward
          "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
@@ -776,7 +791,9 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
          (concat "\\(^[ \t]*\\)") point-at-eol t)
         (replace-match (concat "\\1 " bullet) nil nil))
        (t nil)))))
+#+end_src
 
+#+begin_src emacs-lisp :tangle no :exports none
 (defun my-cycle-bullet-at-heading1 (arg)
   "Add a bullet of \" - \" if the line is NOT a bullet line."
   (interactive "P")

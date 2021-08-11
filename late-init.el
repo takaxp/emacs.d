@@ -983,15 +983,9 @@ This works also for other defined begin/end tokens to define the structure."
           (funcall region))))
     (setq selected-org-mode-map (make-sparse-keymap))
 
-    (defun my-org-toggle-checkbox ()
-      (interactive)
-      (let ((current-prefix-arg '(4)))
-        (call-interactively 'org-toggle-checkbox)))
-
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
-    (define-key selected-keymap (kbd "-") #'my-org-list-insert-items)
-    (define-key selected-keymap (kbd "_")
-      #'my-org-list-toggle-checkbox) ;; my-org-toggle-checkbox
+    (define-key selected-keymap (kbd "-") #'my-org-insert-bullet)
+    (define-key selected-keymap (kbd "[") #'org-toggle-checkbox)
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))

@@ -222,36 +222,6 @@
            (message "%s" string)))
         (t "0")))
 
-;;;###autoload
-(defun add-itemize-head (arg)
-  "Insert \" - \" at the head of line.
-  If the cursor is already at the head of line, it is NOT returned back to the
-  original position again. Otherwise, the cursor is moved to the right of the
-  inserted string. \" - [ ] \" will be inserted using C-u prefix."
-  (interactive "P")
-  (let ((item-string " - "))
-    (when arg
-      (setq item-string " - [ ] "))
-    (cond ((= (point) (line-beginning-position))
-           (insert item-string))
-          (t (save-excursion
-               (move-beginning-of-line 1)
-               (insert item-string))))))
-
-;;;###autoload
-(defun add-itemize-head-checkbox ()
-  "Insert \" - [ ] \" at the head of line.
-  If the cursor is already at the head of line, it is NOT returned back to the
-  original position again. Otherwise, the cursor is moved to the right of the
-  inserted string."
-  (interactive)
-  (let ((item-string " - [ ] "))
-    (cond ((= (point) (line-beginning-position))
-           (insert item-string))
-          (t (save-excursion
-               (move-beginning-of-line 1)
-               (insert item-string))))))
-
 (defvar ox-icalendar-activate nil)
     ;;;###autoload
 (defun my-ox-icalendar-activate ()
@@ -272,8 +242,6 @@
              ox-icalendar-activate)
     (my-ox-upload-icalendar)))
 
-;; http://stackoverflow.com/questions/4506249/how-to-make-emacs-org-mode-open-links-to-sites-in-google-chrome
-;; http://www.koders.com/lisp/fidD53E4053393F9CD578FA7D2AA58BD12FDDD8EB89.aspx?s="skim
 (when (autoload-if-found
        '(browse-url)
        "browse-url" nil t)
@@ -290,7 +258,6 @@
        ))
      (t
       nil))))
-
 ;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
 ;;(setq browse-url-browser-function 'browse-url-default-windows-browser)
 ;;(setq browse-url-browser-function 'browse-url-chrome)
@@ -417,96 +384,106 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
             (byte-compile-file tangled-file))))
     (message "Nothing to do for this buffer.")))
 
-;;;###autoload
-(defun my-org-list-insert-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet " - ")
-           (len (string-width bullet)))
-      (goto-char begin)
-      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
-                  (not (equal (point) end)))
-        (replace-match (concat "\\1" bullet) nil nil)
-        (setq end (+ end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (goto-char begin)
-    (while (re-search-forward
-            "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)"
-            end t)
-      (let ((len (- (match-end 0) (match-beginning 0))))
-        (replace-match "" nil nil)
-        (setq end (- end len))))
-    (goto-char begin)))
-
-(defvar my-org-list-with-checkbox-regexp
+(defvar my-org-bullet-with-checkbox-regexp
   (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
           "\\[.\\][ \t]+"))
 
 ;;;###autoload
-(defun my-org-list-toggle-checkbox (begin end)
+(defun my-org-insert-bullet (begin end)
   (interactive "r")
-  (when mark-active
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (let* ((bullet " - ")
+         (len (string-width bullet)))
     (goto-char begin)
-    (if (re-search-forward
-         my-org-list-with-checkbox-regexp (point-at-eol) t)
-        (my-org-list-delete-checkbox-from-items begin end)
-      (my-org-list-insert-checkbox-into-items begin end))))
-
-;;;###autoload
-(defun my-org-list-insert-checkbox-into-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((checkbox "[ ] ")
-           (len (string-width checkbox)))
-      (goto-char begin)
-      (while (re-search-forward
-              (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
-                      "^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+\\)") end t)
-        (replace-match (concat "\\1" checkbox) nil nil)
-        (setq end (+ end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-checkbox-from-items (begin end)
-  (interactive "r")
-  (when mark-active
-    (let ((len (string-width "[ ] ")))
-      (goto-char begin)
-      (while (re-search-forward my-org-list-with-checkbox-regexp end t)
-        (replace-match "\\1" nil nil)
-        (setq end (- end len)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-insert-items-with-checkbox (begin end)
-  (interactive "r")
-  (when mark-active
-    (let* ((bullet " - ")
-           (checkbox "[ ] ")
-           (blen (string-width bullet))
-           (clen (string-width checkbox)))
-      (goto-char begin)
-      (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
-                  (not (equal (point) end)))
-        (replace-match (concat "\\1" bullet checkbox) nil nil)
-        (setq end (+ end blen clen)))
-      (goto-char begin))))
-
-;;;###autoload
-(defun my-org-list-delete-items-with-checkbox (begin end)
-  (interactive "r")
-  (when mark-active
-    (goto-char begin)
-    (while (re-search-forward my-org-list-with-checkbox-regexp end t)
-      (let ((len (- (match-end 0) (match-beginning 0))))
-        (replace-match "" nil nil)
-        (setq end (- end len))))
+    (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                (not (equal (point) end)))
+      (replace-match (concat "\\1" bullet) nil nil)
+      (setq end (+ end len)))
     (goto-char begin)))
+
+;;;###autoload
+(defun my-org-delete-bullet (begin end)
+  (interactive "r")
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (goto-char begin)
+  (while (re-search-forward
+          "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)"
+          end t)
+    (let ((len (- (match-end 0) (match-beginning 0))))
+      (replace-match "" nil nil)
+      (setq end (- end len))))
+  (goto-char begin))
+
+;;;###autoload
+(defun my-org-toggle-checkbox (begin end)
+  (interactive "r")
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (goto-char begin)
+  (if (re-search-forward
+       my-org-bullet-with-checkbox-regexp (point-at-eol) t)
+      (my-org-delete-checkbox-from-bullet begin end)
+    (my-org-insert-checkbox-into-bullet begin end)))
+
+(defun my-org-insert-checkbox-into-bullet (begin end)
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (let* ((checkbox "[ ] ")
+         (len (string-width checkbox)))
+    (goto-char begin)
+    (while (re-search-forward
+            (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
+                    "^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+\\)") end t)
+      (replace-match (concat "\\1" checkbox) nil nil)
+      (setq end (+ end len)))
+    (goto-char begin)))
+
+(defun my-org-delete-checkbox-from-bullet (begin end)
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (let ((len (string-width "[ ] ")))
+    (goto-char begin)
+    (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+      (replace-match "\\1" nil nil)
+      (setq end (- end len)))
+    (goto-char begin)))
+
+;;;###autoload
+(defun my-org-insert-bullet-and-checkbox (begin end)
+  (interactive "r")
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (let* ((bullet " - ")
+         (checkbox "[ ] ")
+         (blen (string-width bullet))
+         (clen (string-width checkbox)))
+    (goto-char begin)
+    (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                (not (equal (point) end)))
+      (replace-match (concat "\\1" bullet checkbox) nil nil)
+      (setq end (+ end blen clen)))
+    (goto-char begin)))
+
+;;;###autoload
+(defun my-org-delete-bullet-and-checkbox (begin end)
+  (interactive "r")
+  (unless mark-active
+    (setq begin (line-beginning-position))
+    (setq end (line-end-position)))
+  (goto-char begin)
+  (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+    (let ((len (- (match-end 0) (match-beginning 0))))
+      (replace-match "" nil nil)
+      (setq end (- end len))))
+  (goto-char begin))
 
 ;;;###autoload
 (defun my-cycle-bullet-at-heading (arg)
@@ -518,7 +495,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
           (point-at-eol (point-at-eol)))
       (cond
        ((re-search-forward
-         my-org-list-with-checkbox-regexp point-at-eol t)
+         my-org-bullet-with-checkbox-regexp point-at-eol t)
         (replace-match (if arg "" "\\1") nil nil))
        ((re-search-forward
          "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
@@ -527,26 +504,6 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
        ((re-search-forward
          (concat "\\(^[ \t]*\\)") point-at-eol t)
         (replace-match (concat "\\1 " bullet) nil nil))
-       (t nil)))))
-
-(defun my-cycle-bullet-at-heading1 (arg)
-  "Add a bullet of \" - \" if the line is NOT a bullet line."
-  (interactive "P")
-  (save-excursion
-    (beginning-of-line)
-    (let ((bullet "- ")
-          (point-at-eol (point-at-eol)))
-      (cond
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)" bullet "\\[.\\][ \t]+") point-at-eol t)
-        (replace-match (if arg "" (concat "\\1" bullet)) nil nil))
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)" bullet) point-at-eol t)
-        (replace-match (if arg "" (concat "\\1" bullet "[ ] ")) nil nil))
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)") point-at-eol t)
-        (replace-match
-         (concat "\\1 " bullet) nil nil))
        (t nil)))))
 
 ;;;###autoload
