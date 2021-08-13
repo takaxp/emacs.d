@@ -211,6 +211,81 @@
           org-list-allow-alphabetical t)
     (define-key org-mode-map (kbd "C-M-t") 'beginning-of-buffer)
 
+		(when (version< (org-version) "9.4.6")
+			(defvaralias 'org-speed-commands 'org-speed-commands-user))
+		(add-to-list 'org-speed-commands '("d" org-todo "DONE"))
+		(add-to-list 'org-speed-commands
+								 '("$" call-interactively 'org-archive-subtree))
+		(setq org-log-done 'time)
+		(add-to-list 'org-modules 'org-id)
+		(delq 'ol-gnus org-modules)
+
+		(defun my-org-default-property ()
+      "Set the creation date and org-id."
+			(interactive)
+			(my-org-set-created-property)
+			(org-id-get-create))
+		(defvar my-org-created-property-name "CREATED"
+			"The name of the org-mode property.
+This user property stores the creation date of the entry")
+		(defun my-org-set-created-property (&optional active NAME)
+			"Set a property on the entry giving the creation time.
+
+By default the property is called CREATED. If given the `NAME'
+argument will be used instead. If the property already exists, it
+will not be modified."
+			(interactive)
+			(let* ((created (or NAME my-org-created-property-name))
+						 (fmt (if active "<%s>" "[%s]"))
+						 (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
+						 (field (org-entry-get (point) created nil)))
+				(unless (or field (equal "" field))
+					(org-set-property created now)
+					(org-cycle-hide-drawers 'children))))
+		(defun ad:org-insert-todo-heading (_arg &optional _force-heading)
+			(unless (org-at-item-checkbox-p)
+				(my-org-default-property)))
+		(advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading)
+		(add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
+
+    (setq org-list-demote-modify-bullet
+          '(("+" . "-")
+            ("*" . "-")
+            ("1." . "-")
+            ("1)" . "-")
+            ("A)" . "-")
+            ("B)" . "-")
+            ("a)" . "-")
+            ("b)" . "-")
+            ("A." . "-")
+            ("B." . "-")
+            ("a." . "-")
+            ("b." . "-")))
+
+    (defvar my-org-bullet-with-checkbox-regexp
+      (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
+              "\\[.\\][ \t]+"))
+		(defun my-cycle-bullet-at-heading (arg)
+			"Add a bullet of \" - \" if the line is NOT a bullet line."
+			(interactive "P")
+			(save-excursion
+				(beginning-of-line)
+				(let ((bullet "- ")
+							(point-at-eol (point-at-eol)))
+					(cond
+					 ((re-search-forward
+						 my-org-bullet-with-checkbox-regexp point-at-eol t)
+						(replace-match (if arg "" "\\1") nil nil))
+					 ((re-search-forward
+						 "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
+						 point-at-eol t)
+						(replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
+					 ((re-search-forward
+						 (concat "\\(^[ \t]*\\)") point-at-eol t)
+						(replace-match (concat "\\1 " bullet) nil nil))
+					 (t nil)))))
+		(global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
+
     (defun ad:org-return (f &optional arg)
 	    "An extension for checking invisible editing when you hit the enter."
 	    (interactive "P")
