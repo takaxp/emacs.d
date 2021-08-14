@@ -918,7 +918,7 @@ This works also for other defined begin/end tokens to define the structure."
     (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
     ;; (define-key selected-keymap (kbd "=") #'count-words-region)
     (when (require 'helpful nil t)
-      (define-key selected-keymap (kbd "h") #'my-helpful)
+      (define-key selected-keymap (kbd "h") #'helpful-at-point)
       ;; (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
       (define-key selected-keymap (kbd "v") #'my-helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
@@ -2111,14 +2111,15 @@ sorted.  FUNCTION must be a function of one argument."
        "helpful" nil t)
 
   (global-set-key (kbd "C-h k") 'helpful-key)
-  (global-set-key (kbd "C-h @") 'helpful-at-point)
-  (global-set-key (kbd "C-h o") 'helpful-symbol)
   (global-set-key (kbd "C-h f") 'helpful-function)
   (global-set-key (kbd "C-h v") 'helpful-variable)
   (global-set-key (kbd "C-h m") 'helpful-macro)
+  (global-set-key (kbd "C-h @") 'helpful-at-point)
 
   (with-eval-after-load "helpful"
-    (define-key helpful-mode-map (kbd "@") #'helpful-at-point)))
+    (defun ad:helpful-at-point ()
+      (deactivate-mark))
+    (advice-add 'helpful-at-point :before #'ad:helpful-at-point)))
 
 (when (autoload-if-found
        '(facecheck-at-point facecheck-mode)

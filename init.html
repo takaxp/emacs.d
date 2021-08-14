@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-08-13 Fri 19:48 -->
+<!-- 2021-08-14 Sat 22:27 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#orgd214a81">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org056d881">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -4718,7 +4718,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (define-key selected-keymap (kbd <span style="color: #8b2252;">"E"</span>) #'my-eval-region-as-function)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key selected-keymap (kbd "=") #'count-words-region)</span>
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">helpful</span> nil t)
-      (define-key selected-keymap (kbd <span style="color: #8b2252;">"h"</span>) #'my-helpful)
+      (define-key selected-keymap (kbd <span style="color: #8b2252;">"h"</span>) #'helpful-at-point)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted</span>
       (define-key selected-keymap (kbd <span style="color: #8b2252;">"v"</span>) #'my-helpful-variable))
     (define-key selected-keymap (kbd <span style="color: #8b2252;">"w"</span>) #'osx-dictionary-search-pointer)
@@ -5346,8 +5346,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orgd214a81" class="outline-3">
-<h3 id="orgd214a81"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org056d881" class="outline-3">
+<h3 id="org056d881"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">mlscroll</span> nil t)
@@ -8473,14 +8473,15 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
        <span style="color: #8b2252;">"helpful"</span> nil t)
 
   (global-set-key (kbd <span style="color: #8b2252;">"C-h k"</span>) 'helpful-key)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-h @"</span>) 'helpful-at-point)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-h o"</span>) 'helpful-symbol)
   (global-set-key (kbd <span style="color: #8b2252;">"C-h f"</span>) 'helpful-function)
   (global-set-key (kbd <span style="color: #8b2252;">"C-h v"</span>) 'helpful-variable)
   (global-set-key (kbd <span style="color: #8b2252;">"C-h m"</span>) 'helpful-macro)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-h @"</span>) 'helpful-at-point)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"helpful"</span>
-    (define-key helpful-mode-map (kbd <span style="color: #8b2252;">"@"</span>) #'helpful-at-point)))
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:helpful-at-point</span> ()
+      (deactivate-mark))
+    (advice-add 'helpful-at-point <span style="color: #483d8b;">:before</span> #'ad:helpful-at-point)))
 </pre>
 </div>
 </div>
@@ -12008,7 +12009,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgd851be9"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org96de9b1"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12874,7 +12875,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org1755fe4" class="figure">
+<div id="org37431c4" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15612,7 +15613,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-08-13 Fri 19:48</p>
+<p class="date">Created: 2021-08-14 Sat 22:27</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
