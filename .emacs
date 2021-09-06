@@ -10,6 +10,12 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+(with-eval-after-load "keypression"
+  ;; (setq keypression-frame-origin 'keypression-origin-bottom-right)
+  (setq keypression-frame-origin 'keypression-origin-top-left)
+  (setq keypression-x-offset (- (frame-pixel-width) 100))
+  (setq keypression-y-offset 10))
 (with-eval-after-load "postpone"
   ;; elfeed, elfeed-org,elfeed-web
   (when (autoload-if-found

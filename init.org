@@ -9752,10 +9752,14 @@ also calls `beep' for an audible reminder."
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(setq-default prettify-symbols-alist '(("#+begin_src" . "")
-                                       ("#+end_src" . "▨")
-                                       ("#+RESULTS:" . "")))
-(add-hook 'org-mode-hook 'prettify-symbols-mode)
+(with-eval-after-load "icons-in-terminal"
+  (setq-default prettify-symbols-alist '(("#+begin_src" . "")
+                                         ("#+end_src" . "▨")
+                                         ("#+RESULTS:" . "")
+                                         ("[ ]" .  "") ;; ☐ 
+                                         ("[X]" . "" ) ;; ☑ 
+                                         ("[-]" . "" ))) ;; 
+  (add-hook 'org-mode-hook 'prettify-symbols-mode))
 #+end_src
 
 ** [org-tree-slide] Org Modeでプレゼンテーション

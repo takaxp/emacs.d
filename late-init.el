@@ -2534,10 +2534,14 @@ sorted.  FUNCTION must be a function of one argument."
                            (org-agenda-prepare-buffers org-agenda-files)
                            (message "Building agenda buffers...done")))))
 
-(setq-default prettify-symbols-alist '(("#+begin_src" . "")
-                                       ("#+end_src" . "▨")
-                                       ("#+RESULTS:" . "")))
-(add-hook 'org-mode-hook 'prettify-symbols-mode)
+(with-eval-after-load "icons-in-terminal"
+  (setq-default prettify-symbols-alist '(("#+begin_src" . "")
+                                         ("#+end_src" . "▨")
+                                         ("#+RESULTS:" . "")
+                                         ("[ ]" .  "") ;; ☐ 
+                                         ("[X]" . "" ) ;; ☑ 
+                                         ("[-]" . "" ))) ;; 
+  (add-hook 'org-mode-hook 'prettify-symbols-mode))
 
 ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
 ;; 2. M-x org-trello-install-key-and-token

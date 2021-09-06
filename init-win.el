@@ -37,6 +37,7 @@
   ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/swiper"))
   ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/htmlize"))
   ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/counsel-osx-app"))
+  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/undo-fu"))
   ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/bsv"))
 
   (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
@@ -49,6 +50,9 @@
   (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
   (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
   (global-set-key (kbd "M-=") 'count-words)
+  (when (require 'undo-fu nil t)
+    (global-set-key (kbd "C-/") 'undo-fu-only-undo)
+    (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 
   ;; For IME module (do not load under postpone.el)
   (unless noninteractive
@@ -56,7 +60,7 @@
           truncate-partial-width-windows nil
           mouse-drag-copy-region t)
     (setq-default tab-width 2)
-    (setq-default indent-tabls-mode nil)
+    (setq-default indent-tabs-mode nil)
     (setq indent-line-function 'insert-tab)
     (global-auto-revert-mode 1)
 

@@ -445,7 +445,7 @@
 (defun my-elget-reset-links ()
   (interactive)
   (when (shell-command-to-string
-         (concat "export HOSTTYPE=\"intel-mac\" &&"
+         (concat "export SYSTEMTYPE=\"darwin\" &&"
                  " ~/Dropbox/emacs.d/bin/el-get.sh -r"))
     (message "[el-get] Link updated")))
 
