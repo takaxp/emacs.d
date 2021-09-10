@@ -143,6 +143,21 @@
   ;; Cursor color
   (set-cursor-color (plist-get my-cur-color-ime :off))
 
+  ;; isearch with a selected reagion
+  (defadvice isearch-mode
+      (around isearch-mode-default-string
+              (forward &optional regexp op-fun recursive-edit word-p) activate)
+    (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
+        (progn
+          (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
+          (deactivate-mark)
+          ad-do-it
+          (if (not forward)
+              (isearch-repeat-backward)
+            (goto-char (mark))
+            (isearch-repeat-forward)))
+      ad-do-it))
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ;; recentf
@@ -198,6 +213,24 @@
     (setq moom-font-ja-scale 1.0)
     (moom-reset)
     (moom-font-resize 20))
+
+  ;; M-x calendar
+  (with-eval-after-load "org-keys"
+    (org-defkey org-read-date-minibuffer-local-map (kbd "C-n")
+                (lambda () (interactive)
+                  (org-eval-in-calendar '(calendar-forward-week 1))))
+    (org-defkey org-read-date-minibuffer-local-map (kbd "C-p")
+                (lambda () (interactive)
+                  (org-eval-in-calendar '(calendar-backward-week 1))))
+    (org-defkey org-read-date-minibuffer-local-map (kbd "C-b")
+                (lambda () (interactive)
+                  (org-eval-in-calendar '(calendar-backward-day 1))))
+    (org-defkey org-read-date-minibuffer-local-map (kbd "C-f")
+                (lambda () (interactive)
+                  (org-eval-in-calendar '(calendar-forward-day 1))))
+    (org-defkey org-read-date-minibuffer-local-map (kbd "q")
+                (lambda () (interactive)
+                  (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
 
   ;; org-agenda
   (with-eval-after-load "org-agenda"
