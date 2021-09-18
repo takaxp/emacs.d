@@ -7901,6 +7901,7 @@ trim_trailing_whitespace = true
 ** TODO [company.el] 続・自動補完機能
    :PROPERTIES:
    :CUSTOM_ID: orgea32afad
+   :ID:       E8D670B5-9CD4-4A97-8C37-8C03DD6D0912
    :END:
 
 =auto-complete.el= がメンテナンスモードに入ったので =company= に移行しました．
@@ -7932,9 +7933,22 @@ trim_trailing_whitespace = true
 
   ;; 補完候補に番号を表示
   (setq company-show-numbers t)
+  ;; 補完候補を出すまでの猶予
+  (setq company-idle-delay 0.5)
   (global-company-mode)
   (when (require 'company-quickhelp nil t)
-    (company-quickhelp-mode)))
+    (company-quickhelp-mode))
+
+  (defun ad:company-idle-begin (f buf win tick pos)
+    (unless (and (boundp 'ns-put-active-p) ns-put-active-p)
+      (funcall f buf win tick pos)))
+  (advice-add 'company-idle-begin :around #'ad:company-idle-begin)
+  (defun ad:company-pseudo-tooltip--ujofwd-on-timer (f command)
+    (unless (and (boundp 'ns-put-active-p) ns-put-active-p)
+      (funcall f command)))
+  ;; (advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around
+  ;;             #'ad:company-pseudo-tooltip--ujofwd-on-timer)
+  )
 #+end_src
 
 ** DONE [auto-complete.el] 自動補完機能                            :notinuse:
@@ -8466,7 +8480,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (when (version< (org-version) "9.4.6")
     (defvaralias 'org-speed-commands 'org-speed-commands-user))
 
-  (add-to-list 'org-speed-commands '("d" org-todo "DONE"))
+  (add-to-list 'org-speed-commands '("d" my-done-with-update-list))
   ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
   (add-to-list 'org-speed-commands
                '("D" my-org-todo-complete-no-repeat "DONE"))
@@ -8477,6 +8491,11 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
+
+  ;; done にして，apptを更新する
+  (defun my-done-with-update-list ()
+    (org-todo "DONE")
+    (my-org-agenda-to-appt))
 
   ;; 周期タクスを終了させます．
   (defun my-org-todo-complete-no-repeat (&optional ARG)

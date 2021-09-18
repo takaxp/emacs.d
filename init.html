@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-09-10 Fri 09:33 -->
+<!-- 2021-09-19 Sun 00:35 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -403,7 +403,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org2962d8a">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#orgc1693f1">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -2488,7 +2488,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
            (fboundp 'mac-input-source)
            (fboundp 'mac-auto-ascii-mode))
 
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">mac-win-last-ime-status</span> 'off) <span style="color: #b22222;">;; </span><span style="color: #b22222;">{'off|'on}</span>
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">mac-win-last-ime-status</span> 'off) <span style="color: #b22222;">;; </span><span style="color: #b22222;">{'</span><span style="color: #008b8b;">off|</span><span style="color: #b22222;">'on}</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">mac-win-save-last-ime-status</span> ()
     (<span style="color: #a020f0;">setq</span> mac-win-last-ime-status
           (<span style="color: #a020f0;">if</span> (string-match <span style="color: #8b2252;">"\\.</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">Roman</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">US</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">$"</span> (mac-input-source))
@@ -5368,8 +5368,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org2962d8a" class="outline-3">
-<h3 id="org2962d8a"><span class="section-number-3">6.4</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-orgc1693f1" class="outline-3">
+<h3 id="orgc1693f1"><span class="section-number-3">6.4</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">mlscroll</span> nil t)
@@ -9740,9 +9740,22 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#35036;&#23436;&#20505;&#35036;&#12395;&#30058;&#21495;&#12434;&#34920;&#31034;</span>
   (<span style="color: #a020f0;">setq</span> company-show-numbers t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#35036;&#23436;&#20505;&#35036;&#12434;&#20986;&#12377;&#12414;&#12391;&#12398;&#29494;&#20104;</span>
+  (<span style="color: #a020f0;">setq</span> company-idle-delay 0.5)
   (global-company-mode)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">company-quickhelp</span> nil t)
-    (company-quickhelp-mode)))
+    (company-quickhelp-mode))
+
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:company-idle-begin</span> (f buf win tick pos)
+    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">and</span> (boundp 'ns-put-active-p) ns-put-active-p)
+      (funcall f buf win tick pos)))
+  (advice-add 'company-idle-begin <span style="color: #483d8b;">:around</span> #'ad:company-idle-begin)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:company-pseudo-tooltip--ujofwd-on-timer</span> (f command)
+    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">and</span> (boundp 'ns-put-active-p) ns-put-active-p)
+      (funcall f command)))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around</span>
+  <span style="color: #b22222;">;;             </span><span style="color: #b22222;">#'ad:company-pseudo-tooltip--ujofwd-on-timer)</span>
+  )
 </pre>
 </div>
 </div>
@@ -10293,7 +10306,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">when</span> (version&lt; (org-version) <span style="color: #8b2252;">"9.4.6"</span>)
     (<span style="color: #a020f0;">defvaralias</span> '<span style="color: #a0522d;">org-speed-commands</span> 'org-speed-commands-user))
 
-  (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"d"</span> org-todo <span style="color: #8b2252;">"DONE"</span>))
+  (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"d"</span> my-done-with-update-list))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-speed-commands '("S" call-interactively 'widen))</span>
   (add-to-list 'org-speed-commands
                '(<span style="color: #8b2252;">"D"</span> my-org-todo-complete-no-repeat <span style="color: #8b2252;">"DONE"</span>))
@@ -10304,6 +10317,11 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"!"</span> my-org-default-property))
   (add-to-list 'org-speed-commands
                '(<span style="color: #8b2252;">"$"</span> call-interactively 'org-archive-subtree))
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">done &#12395;&#12375;&#12390;&#65292;appt&#12434;&#26356;&#26032;&#12377;&#12427;</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-done-with-update-list</span> ()
+    (org-todo <span style="color: #8b2252;">"DONE"</span>)
+    (my-org-agenda-to-appt))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21608;&#26399;&#12479;&#12463;&#12473;&#12434;&#32066;&#20102;&#12373;&#12379;&#12414;&#12377;&#65294;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-todo-complete-no-repeat</span> (<span style="color: #228b22;">&amp;optional</span> ARG)
@@ -12035,7 +12053,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org05a61c3"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga2479ad"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12901,7 +12919,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgaac31c3" class="figure">
+<div id="orgb768d24" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15639,7 +15657,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-09-10 Fri 09:33</p>
+<p class="date">Created: 2021-09-19 Sun 00:35</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

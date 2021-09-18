@@ -2487,9 +2487,22 @@ sorted.  FUNCTION must be a function of one argument."
 
   ;; 補完候補に番号を表示
   (setq company-show-numbers t)
+  ;; 補完候補を出すまでの猶予
+  (setq company-idle-delay 0.5)
   (global-company-mode)
   (when (require 'company-quickhelp nil t)
-    (company-quickhelp-mode)))
+    (company-quickhelp-mode))
+
+  (defun ad:company-idle-begin (f buf win tick pos)
+    (unless (and (boundp 'ns-put-active-p) ns-put-active-p)
+      (funcall f buf win tick pos)))
+  (advice-add 'company-idle-begin :around #'ad:company-idle-begin)
+  (defun ad:company-pseudo-tooltip--ujofwd-on-timer (f command)
+    (unless (and (boundp 'ns-put-active-p) ns-put-active-p)
+      (funcall f command)))
+  ;; (advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around
+  ;;             #'ad:company-pseudo-tooltip--ujofwd-on-timer)
+  )
 
 ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
 (defvar ns-default-notification-sound "Pop")

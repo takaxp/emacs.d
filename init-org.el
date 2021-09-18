@@ -365,7 +365,7 @@
   (when (version< (org-version) "9.4.6")
     (defvaralias 'org-speed-commands 'org-speed-commands-user))
 
-  (add-to-list 'org-speed-commands '("d" org-todo "DONE"))
+  (add-to-list 'org-speed-commands '("d" my-done-with-update-list))
   ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
   (add-to-list 'org-speed-commands
                '("D" my-org-todo-complete-no-repeat "DONE"))
@@ -376,6 +376,11 @@
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
+
+  ;; done にして，apptを更新する
+  (defun my-done-with-update-list ()
+    (org-todo "DONE")
+    (my-org-agenda-to-appt))
 
   ;; 周期タクスを終了させます．
   (defun my-org-todo-complete-no-repeat (&optional ARG)
