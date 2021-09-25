@@ -162,7 +162,8 @@
   (if (version< emacs-version "27.0")
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
-        (when (and (frame-focus-state)
+        (when (and (fboundp 'frame-focus-state)
+		               (frame-focus-state)
                    (eq major-mode 'org-mode)
                    (boundp 'org-agenda-buffer-name)
                    (or (looking-at org-heading-regexp)
@@ -171,7 +172,8 @@
           (my-ime-off)))
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
-      (when (and (frame-focus-state)
+      (when (and (fboundp 'frame-focus-state)
+		             (frame-focus-state)
                  (eq major-mode 'org-mode)
                  (boundp 'org-agenda-buffer-name)
                  (or (looking-at org-heading-regexp)
@@ -2173,6 +2175,9 @@ sorted.  FUNCTION must be a function of one argument."
            extra-ag-args ag-prompt caller))
   (advice-add 'counsel-ag :around #'ad:counsel-ag)
 
+  ;; 2文字でも検索が発動するようにする
+  (add-to-list 'ivy-more-chars-alist '(counsel-ag . 2))
+
   (ivy-add-actions
    'counsel-ag
    '(("r" my-counsel-ag-in-dir "search in directory"))))
@@ -2488,20 +2493,25 @@ sorted.  FUNCTION must be a function of one argument."
   ;; 補完候補に番号を表示
   (setq company-show-numbers t)
   ;; 補完候補を出すまでの猶予
-  (setq company-idle-delay 0.5)
+  (setq company-idle-delay 0.8)
+  (setq company-tooltip-idle-delay 0.8)
   (global-company-mode)
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode))
 
   (defun ad:company-idle-begin (f buf win tick pos)
-    (unless (and (boundp 'ns-put-active-p) ns-put-active-p)
+    (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
       (funcall f buf win tick pos)))
   (advice-add 'company-idle-begin :around #'ad:company-idle-begin)
   (defun ad:company-pseudo-tooltip--ujofwd-on-timer (f command)
-    (unless (and (boundp 'ns-put-active-p) ns-put-active-p)
+    (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
       (funcall f command)))
   ;; (advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around
   ;;             #'ad:company-pseudo-tooltip--ujofwd-on-timer)
+
+  (when (boundp 'mac-ime-before-put-text-hook)
+    ;; 補完候補が表示されたタイミングで入力を続けたら，補完候補を消す．
+    (add-hook 'mac-ime-before-put-text-hook #'company-cancel))
   )
 
 ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
@@ -2548,7 +2558,8 @@ sorted.  FUNCTION must be a function of one argument."
                            (message "Building agenda buffers...done")))))
 
 (with-eval-after-load "icons-in-terminal"
-  (setq-default prettify-symbols-alist '(("#+begin_src" . "")
+  (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
+                                         ("#+begin_src" . "▨")
                                          ("#+end_src" . "▨")
                                          ("#+RESULTS:" . "")
                                          ("[ ]" .  "") ;; ☐ 
@@ -2586,38 +2597,48 @@ sorted.  FUNCTION must be a function of one argument."
     (defun my-pull-trello () (interactive) (org-trello-sync-buffer t))))
 
 (when (autoload-if-found
-       '(org-recent-headings-ivy org-recent-headings-mode)
+       '(org-recent-headings org-recent-headings-mode)
        "org-recent-headings" nil t)
 
   ;; (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
-  (global-set-key (kbd "C-c f r") 'org-recent-headings-ivy)
+  (global-set-key (kbd "C-M-h") 'org-recent-headings)
 
   (with-eval-after-load "org-recent-headings"
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
-    (setf (alist-get 'org-recent-headings-ivy ivy-sort-functions-alist) nil)
+    (setf (alist-get 'org-recent-headings ivy-sort-functions-alist) nil)
 
     (defun ad:org-recent-headings-activate ()
       (interactive)
       (when (require 'org-recent-headings nil t)
-        (org-recent-headings-mode 1)
-        (advice-remove 'org-recent-headings-ivy
+        (org-recent-headings-mode 1) ;; one time activate
+        (advice-remove 'org-recent-headings
                        #'ad:org-recent-headings-activate)))
-    (advice-add 'org-recent-headings-ivy :before
+    (advice-add 'org-recent-headings :before
                 #'ad:org-recent-headings-activate)
 
     (setq org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
-    ;; (setq org-recent-headings-use-ids 'when-available)
+    (setq org-recent-headings-use-ids 'when-available)
     (setq org-recent-headings-show-entry-function
           'org-recent-headings--show-entry-direct) ;; 直接移動する
     (setq org-recent-headings-advise-functions
-          '(org-agenda-goto
+          '(org-cycle
+            org-agenda-goto
             org-agenda-show
             org-agenda-show-mouse
             org-show-entry
             org-reveal
             org-refile
             org-tree-to-indirect-buffer
-            org-bookmark-jump))))
+            org-bookmark-jump)))
+
+  ;; (with-eval-after-load 'ivy
+  ;;   ;; Helm, Ivy support was removed from the official package
+  ;;   (defun org-recent-headings-ivy ()
+  ;;     "Choose from recent Org headings with Ivy."
+  ;;     (interactive)
+  ;;     (let ((completing-read-function  #'ivy-completing-read))
+  ;;       (org-recent-headings))))
+  )
 
 (global-set-key (kbd "<f12>") 'my-toggle-mode-line)
 (with-eval-after-load "moom"

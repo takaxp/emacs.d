@@ -422,13 +422,15 @@ This function is called directly from the C code."
   )
 
 ;; Disable to show the tool bar.
-(when (and (not early-init-file)
-           (display-graphic-p))
+(when (and (boundp 'early-init-file)
+	   (not early-init-file)
+	   (display-graphic-p))
   (tool-bar-mode -1))
 
-(when (and (not early-init-file)
-           (or (not (display-graphic-p))
-               (eq system-type 'windows-nt)))
+(when (and (boundp 'early-init-file)
+	   (not early-init-file)
+	   (or (not (display-graphic-p))
+	       (eq system-type 'windows-nt)))
   (menu-bar-mode -1))
 
 ;; Disable to show the splash window at startup
@@ -576,10 +578,15 @@ This function is called directly from the C code."
 (defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2) :invisible nil))
 (defvar my-ime-last nil)
 
+;; (defun my-ime-active-p ()
+;;   (if (fboundp 'mac-get-current-input-source)
+;;       (not (string-match "\\.\\(Roman\\|US\\|ABC\\)$"
+;; 			 (mac-get-current-input-source)))
+;;     (if current-input-method t nil)))
+
 (defun my-ime-active-p ()
-  (if (fboundp 'mac-get-current-input-source)
-      (not (string-match "\\.Roman$" (mac-get-current-input-source)))
-    (if current-input-method t nil)))
+  (mac-ime-active-p))
+
 (defun my-ime-on-cursor ()
   (interactive)
   (setq cursor-type (plist-get my-cur-type-ime :on))
