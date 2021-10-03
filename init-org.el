@@ -1378,9 +1378,9 @@ also calls `beep' for an audible reminder."
    '(org-block-begin-line
      ((((background dark))
        (:foreground "#669966" :weight bold)) ;; :background "#444444"
-      (t (:foreground "#FF3333" :weight bold)))) ;; :background "#EFEFEF"
+      (t (:foreground "#CC3333" :weight bold)))) ;; :background "#EFEFEF"
    '(org-block-end-line
-     ((((background dark)) (:foreground "#FF3333" :weight bold))
+     ((((background dark)) (:foreground "#CC3333" :weight bold))
       (t (:foreground "#669966" :weight bold))))
    ;; '(org-block-end-line
    ;;   ((((background dark)) (:inherit org-block-begin-line))

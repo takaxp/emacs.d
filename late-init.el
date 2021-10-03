@@ -74,8 +74,7 @@
   (with-eval-after-load "ws-butler"
     (custom-set-variables
      '(ws-butler-global-exempt-modes
-       (append '(org-mode empty-booting-mode diff-mode
-                          change-log-mode epa-mode)
+       (append '(org-mode empty-booting-mode change-log-mode epa-mode)
 		           ws-butler-global-exempt-modes))))
 
   (unless noninteractive
