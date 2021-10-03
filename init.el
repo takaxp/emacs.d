@@ -202,7 +202,7 @@ This function is called directly from the C code."
   (setq system-time-locale "C")) ;; format-time-string %a, not 日 but Sun
 
 (when (fboundp 'mac-add-key-passed-to-system)
-  (setq default-input-method "MacOSX")
+  (setq default-input-method "macOS")
   (mac-add-key-passed-to-system 'shift))
 
 (when (eq system-type 'gnu/linux)

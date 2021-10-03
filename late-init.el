@@ -130,7 +130,19 @@
 (when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
 
+  (custom-set-faces
+   '(ns-working-text-face
+     ((t (:foreground "black"
+                      :background "LightGreen" :underline "SpringGreen3"))))
+   '(ns-marked-text-face
+     ((t (:foreground "black"
+                      :background "light pink" :underline "OrangeRed2"))))
+   '(ns-unmarked-text-face
+     ((t (:foreground "black"
+                      :background "light sky blue" :underline "royal blue")))))
+
   (when (version< "27.0" emacs-version)
+    ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
     (custom-set-variables
      '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
     (mac-input-method-mode 1)
@@ -162,7 +174,7 @@
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
         (when (and (fboundp 'frame-focus-state)
-		               (frame-focus-state)
+		   (frame-focus-state)
                    (eq major-mode 'org-mode)
                    (boundp 'org-agenda-buffer-name)
                    (or (looking-at org-heading-regexp)
@@ -172,7 +184,7 @@
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
       (when (and (fboundp 'frame-focus-state)
-		             (frame-focus-state)
+		 (frame-focus-state)
                  (eq major-mode 'org-mode)
                  (boundp 'org-agenda-buffer-name)
                  (or (looking-at org-heading-regexp)
@@ -1083,6 +1095,17 @@ Call this function at updating `mode-line-mode'."
   (interactive)
   (switch-to-buffer "*scratch*"))
 (global-set-key (kbd "C-M-s") #'my-open-scratch)
+
+(unless (display-graphic-p)
+  ;; ターミナルの縦分割線をUTF-8できれいに描く
+  (defun my-change-window-divider ()
+    (interactive)
+    (let ((display-table (or buffer-display-table
+			     standard-display-table
+			     (make-display-table))))
+      (set-display-table-slot display-table 5 ?│)
+      (set-window-display-table (selected-window) display-table)))
+  (add-hook 'window-configuration-change-hook 'my-change-window-divider))
 
 ;; Show line number in the mode line.
 (unless noninteractive
@@ -2638,6 +2661,21 @@ sorted.  FUNCTION must be a function of one argument."
   ;;     (let ((completing-read-function  #'ivy-completing-read))
   ;;       (org-recent-headings))))
   )
+
+;; (declare-function my-font-config "init" nil)
+(global-set-key (kbd "M-`") 'other-frame)
+(with-eval-after-load "frame"
+  (defun ad:make-frame (&optional _parameters)
+    (when (display-graphic-p)
+      (my-theme)
+      (my-apply-cursor-config)
+      (setq-default cursor-type
+                    (if (my-ime-active-p)
+                        (plist-get my-cur-type-ime :on)
+                      (plist-get my-cur-type-ime :off)))
+      (when (require 'moom-font nil t)
+        (moom-font-resize))))
+  (advice-add 'make-frame :after #'ad:make-frame))
 
 (global-set-key (kbd "<f12>") 'my-toggle-mode-line)
 (with-eval-after-load "moom"

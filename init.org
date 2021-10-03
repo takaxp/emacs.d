@@ -833,7 +833,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
 
 #+begin_src emacs-lisp :tangle yes
 (when (fboundp 'mac-add-key-passed-to-system)
-  (setq default-input-method "MacOSX")
+  (setq default-input-method "macOS")
   (mac-add-key-passed-to-system 'shift))
 
 (when (eq system-type 'gnu/linux)
@@ -1450,7 +1450,19 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 (when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
 
+  (custom-set-faces
+   '(ns-working-text-face
+     ((t (:foreground "black"
+                      :background "LightGreen" :underline "SpringGreen3"))))
+   '(ns-marked-text-face
+     ((t (:foreground "black"
+                      :background "light pink" :underline "OrangeRed2"))))
+   '(ns-unmarked-text-face
+     ((t (:foreground "black"
+                      :background "light sky blue" :underline "royal blue")))))
+
   (when (version< "27.0" emacs-version)
+    ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
     (custom-set-variables
      '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
     (mac-input-method-mode 1)
@@ -1482,7 +1494,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
         (when (and (fboundp 'frame-focus-state)
-		               (frame-focus-state)
+		   (frame-focus-state)
                    (eq major-mode 'org-mode)
                    (boundp 'org-agenda-buffer-name)
                    (or (looking-at org-heading-regexp)
@@ -1492,7 +1504,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
       (when (and (fboundp 'frame-focus-state)
-		             (frame-focus-state)
+		 (frame-focus-state)
                  (eq major-mode 'org-mode)
                  (boundp 'org-agenda-buffer-name)
                  (or (looking-at org-heading-regexp)
@@ -4312,6 +4324,27 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 #+begin_src emacs-lisp :tangle yes
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
+#+end_src
+
+** ターミナル時のウィンドウ分割線を見やすくする
+   :PROPERTIES:
+   :CREATED:  [2021-10-03 Sun 18:16]
+   :ID:       E114E71E-0456-452B-B03F-75AF8B1C376E
+   :END:
+
+see https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/
+
+#+begin_src emacs-lisp :tangle late-init.el
+(unless (display-graphic-p)
+  ;; ターミナルの縦分割線をUTF-8できれいに描く
+  (defun my-change-window-divider ()
+    (interactive)
+    (let ((display-table (or buffer-display-table
+			     standard-display-table
+			     (make-display-table))))
+      (set-display-table-slot display-table 5 ?│)
+      (set-window-display-table (selected-window) display-table)))
+  (add-hook 'window-configuration-change-hook 'my-change-window-divider))
 #+end_src
 
 ** default.el を探索させない
@@ -11335,7 +11368,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    (t nil)))
 #+end_src
 
-** COMMENT 複数フレーム対応
+** 複数フレーム対応
    :PROPERTIES:
    :CUSTOM_ID: orgdffe4e49
    :ID:       6D9194F2-4A2A-4CF5-B463-32B6C9E2F493

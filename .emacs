@@ -15,6 +15,7 @@
   (setq keypression-frame-origin 'keypression-origin-top-left)
   (setq keypression-x-offset (- (frame-pixel-width) 100))
   (setq keypression-y-offset 10))
+
 (with-eval-after-load "postpone"
   ;; elfeed, elfeed-org,elfeed-web
   (when (autoload-if-found
@@ -29,21 +30,6 @@
       ;; その後，M-x elfeed, M-x elfeed-update する
       (when (require 'elfeed-web nil t)
         (setq elfeed-web-data-root (concat my-elget-package-dir "/web"))))))
-
-;; ns-inline-patch
-(custom-set-faces
- '(ns-working-text-face
-   ((t (:foreground "black"
-                    :background "LightGreen" :underline "LightSeaGreen"))))
- '(ns-marked-text-face
-   ((t (:foreground "black"
-                    :background "light pink" :underline "OrangeRed2"))))
- '(ns-unmarked-text-face
-   ((t (:foreground "black"
-                    :background "light sky blue" :underline "royal blue")))))
-
-;; (setq mac-default-input-source "com.apple.inputmethod.Kotoeri.Japanese")
-;; (setq mac-default-input-source "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
