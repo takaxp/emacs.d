@@ -760,9 +760,11 @@ This function is called directly from the C code."
   (with-eval-after-load "moom"
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
     (add-hook 'moom-delete-window-hook #'dimmer-on)
+    (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
 
     (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
     (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
+
 
     (moom-recommended-keybindings 'all)
     (custom-set-variables
