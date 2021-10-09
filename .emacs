@@ -10,6 +10,13 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(with-eval-after-load "postpone"
+  ;; At least in Big Sur, this setting shall be used with side car for moom.el.
+  ;; Without side car in Big Sur, the following setting is also correct.
+  ;; Then what about other macOSs?
+  (when (string= "Big Sur" (macos-name (macos-version)))
+    (setq moom--common-margin '(0 0 0 0))))
+
 (with-eval-after-load "org-tree-slide"
   (defvar my-hide-org-meta-line-p nil)
   (defun my-hide-org-meta-line ()
