@@ -462,22 +462,34 @@ This function is called directly from the C code."
   (defvar postpone-init-time 0)
   (defun my-postpone-kicker ()
     (interactive)
-    (unless (memq this-command ;; specify commands for exclusion
-                  '(self-insert-command
-                    newline
-                    delete-backward-char
-                    save-buffer
-                    save-buffers-kill-terminal
-                    electric-newline-and-maybe-indent
-                    exit-minibuffer))
-      (message "Activating postponed packages...")
-      (let ((t1 (current-time)))
-        (postpone-kicker 'my-postpone-kicker)
-        (setq postpone-init-time (float-time
-                                  (time-subtract (current-time) t1))))
-      (message "Activating postponed packages...done (%.3f seconds)"
-               postpone-init-time)))
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
+    (when (eq postpone-init-time 0)
+      (unless (memq this-command ;; specify commands for exclusion
+                    '(self-insert-command
+                      newline
+		                  forward-char
+		                  backward-char
+		                  previous-line
+		                  next-line
+		                  move-beginning-of-line
+		                  delete-backward-char
+                      save-buffer
+                      save-buffers-kill-terminal
+                      electric-newline-and-maybe-indent
+                      exit-minibuffer))
+        (message "Activating postponed packages...")
+        (let ((t1 (current-time)))
+          (postpone-kicker 'my-postpone-kicker)
+          (setq postpone-init-time (float-time
+                                    (time-subtract (current-time) t1))))
+        (message "Activating postponed packages...done (%.3f seconds)"
+                 postpone-init-time))))
+
+  ;; 起動後，最初のアクションでキック
+  (add-hook 'pre-command-hook #'my-postpone-kicker)
+
+  ;; 起動後10秒何もしない場合は自動でキック (related to setting on org-agenda)
+  (run-with-idle-timer 8 nil #'my-postpone-kicker)
+  )
 #+end_src
 
 ** [future-time-p] 指定時刻が本日の未来の時刻かを判定
@@ -1243,11 +1255,11 @@ echo "--- done."
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
 
-;; (add-hook 'emacs-lisp-mode-hook
-;;           (lambda ()
-;;              (setq indent-tabs-mode t)
-;;              (setq tab-width 8)
-;;              (setq indent-line-function 'lisp-indent-line)))
+(defun my-emacs-lisp-mode-conf ()
+  ;; (setq indent-tabs-mode t)
+  ;; (setq tab-width 8)
+  (setq indent-line-function 'lisp-indent-line))
+(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
 #+end_src
 
 ** ファイルリンクを辿る時に確認のメッセージを出さない
@@ -9162,7 +9174,7 @@ will not be modified."
 ;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
-(run-with-idle-timer 5 nil
+(run-with-idle-timer 10 nil
                      (lambda ()
                        (unless (featurep 'org-agenda)
                          (when (require 'org-agenda nil t)

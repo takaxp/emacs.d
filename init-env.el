@@ -176,7 +176,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; diff を取る前に tabify スペースをタブに変換する．今は全てスペース置換中．
 ;; この設定でファイルを一度編集後に，M-x tabify しないとだめ．
-(when t
+(when nil
   (add-hook 'emacs-lisp-mode-hook
             #'(lambda ()
                 (setq indent-tabs-mode t)

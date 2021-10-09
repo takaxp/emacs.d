@@ -2571,7 +2571,7 @@ sorted.  FUNCTION must be a function of one argument."
 ;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
-(run-with-idle-timer 5 nil
+(run-with-idle-timer 10 nil
                      (lambda ()
                        (unless (featurep 'org-agenda)
                          (when (require 'org-agenda nil t)

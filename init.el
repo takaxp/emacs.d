@@ -139,22 +139,34 @@ This function is called directly from the C code."
   (defvar postpone-init-time 0)
   (defun my-postpone-kicker ()
     (interactive)
-    (unless (memq this-command ;; specify commands for exclusion
-                  '(self-insert-command
-                    newline
-                    delete-backward-char
-                    save-buffer
-                    save-buffers-kill-terminal
-                    electric-newline-and-maybe-indent
-                    exit-minibuffer))
-      (message "Activating postponed packages...")
-      (let ((t1 (current-time)))
-        (postpone-kicker 'my-postpone-kicker)
-        (setq postpone-init-time (float-time
-                                  (time-subtract (current-time) t1))))
-      (message "Activating postponed packages...done (%.3f seconds)"
-               postpone-init-time)))
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
+    (when (eq postpone-init-time 0)
+      (unless (memq this-command ;; specify commands for exclusion
+                    '(self-insert-command
+                      newline
+		                  forward-char
+		                  backward-char
+		                  previous-line
+		                  next-line
+		                  move-beginning-of-line
+		                  delete-backward-char
+                      save-buffer
+                      save-buffers-kill-terminal
+                      electric-newline-and-maybe-indent
+                      exit-minibuffer))
+        (message "Activating postponed packages...")
+        (let ((t1 (current-time)))
+          (postpone-kicker 'my-postpone-kicker)
+          (setq postpone-init-time (float-time
+                                    (time-subtract (current-time) t1))))
+        (message "Activating postponed packages...done (%.3f seconds)"
+                 postpone-init-time))))
+
+  ;; 起動後，最初のアクションでキック
+  (add-hook 'pre-command-hook #'my-postpone-kicker)
+
+  ;; 起動後10秒何もしない場合は自動でキック (related to setting on org-agenda)
+  (run-with-idle-timer 8 nil #'my-postpone-kicker)
+  )
 
 ;;;###autoload
 (defun future-time-p (time)
@@ -241,11 +253,11 @@ This function is called directly from the C code."
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
 
-;; (add-hook 'emacs-lisp-mode-hook
-;;           (lambda ()
-;;              (setq indent-tabs-mode t)
-;;              (setq tab-width 8)
-;;              (setq indent-line-function 'lisp-indent-line)))
+(defun my-emacs-lisp-mode-conf ()
+  ;; (setq indent-tabs-mode t)
+  ;; (setq tab-width 8)
+  (setq indent-line-function 'lisp-indent-line))
+(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
 
 (when (version< "27.0" emacs-version)
   (defun ad:find-file-read-args (f prompt mustmatch)

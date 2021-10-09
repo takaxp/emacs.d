@@ -246,6 +246,11 @@
   (el-get-bundle "jorgenschaefer/circe")
   (when (memq system-type '(darwin windows-nt))
     (el-get-bundle "d12frosted/counsel-osx-app"))
+  (el-get-bundle "skeeto/elfeed")
+  (el-get-bundle "remyhonig/elfeed-org")
+
+  ;; Log
+  (el-get-bundle "davep/uptimes.el" :name "uptimes")
 
   ;; Under consideration
   ;; (my-elget-bundles1)
@@ -306,8 +311,8 @@
   (el-get-bundle "hide-lines")
   (el-get-bundle "kiennq/emacs-mini-modeline")
   (el-get-bundle "shrink-path"
-    :type git
-    :url "https://gitlab.com/bennya/shrink-path.el.git")
+                 :type git
+                 :url "https://gitlab.com/bennya/shrink-path.el.git")
   ;; System related
   ;; Frame and windows
   (el-get-bundle "tabbar")
@@ -323,12 +328,9 @@
   (el-get-bundle "xuchunyang/gitter.el")
   (el-get-bundle "jamiguet/network-watch")
   (el-get-bundle "aaronbieber/sunshine.el" :name sunshine)
-  (el-get-bundle "skeeto/elfeed")
-  (el-get-bundle "remyhonig/elfeed-org")
 
   ;; (el-get-bundle "takaxp/mu4e")
-  ;; Log
-  (el-get-bundle "davep/uptimes.el" :name "uptimes"))
+  )
 
 ;; =========================================================================
 
@@ -341,7 +343,7 @@
   (el-get-bundle "ghub")
   (el-get-bundle "magit-popup")
   (el-get-bundle "magit/libegit2"
-    :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
+                 :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
 
   ;; with private recipe
   (dolist (recipe my-elget--private-recipes)

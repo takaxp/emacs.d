@@ -15,36 +15,32 @@
   "Return macOS name according to the VERSION number."
   (if (stringp version)
       (cond ((version<= "21.0" version) "Monterey")
-	    ((version<= "20.0" version) "Big Sur")
-	    ((version<= "19.0" version) "Catalina")
-	    ((version<= "18.0" version) "Mojave")
-	    ((version<= "17.0" version) "High Sierra")
-	    ((version<= "16.0" version) "Sierra")
-	    ((version<= "15.0" version) "El Capitan")
-	    ((version<= "14.0" version) "Yosemite")
-	    ((version<= "13.0" version) "Mavericks")
-	    ((version<= "12.0" version) "Mountain Lion")
-	    ((version<= "11.0" version) "Lion")
-	    ((version<= "10.0" version) "Snow Leopard")
-	    ((version<= "9.0" version) "Leopard")
-	    ((version<= "8.0" version) "Tiger")
-	    ((version<= "7.0" version) "Panther")
-	    (t "undefined"))
+	          ((version<= "20.0" version) "Big Sur")
+	          ((version<= "19.0" version) "Catalina")
+	          ((version<= "18.0" version) "Mojave")
+	          ((version<= "17.0" version) "High Sierra")
+	          ((version<= "16.0" version) "Sierra")
+	          ((version<= "15.0" version) "El Capitan")
+	          ((version<= "14.0" version) "Yosemite")
+	          ((version<= "13.0" version) "Mavericks")
+	          ((version<= "12.0" version) "Mountain Lion")
+	          ((version<= "11.0" version) "Lion")
+	          ((version<= "10.0" version) "Snow Leopard")
+	          ((version<= "9.0" version) "Leopard")
+	          ((version<= "8.0" version) "Tiger")
+	          ((version<= "7.0" version) "Panther")
+	          (t "undefined"))
     nil))
+(defun macos-version ()
+  (let ((macos-type-version (nth 2 (split-string system-configuration "-"))))
+		(string-match "darwin\\(.*\\)" macos-type-version)
+		(match-string 1 macos-type-version)))
 
 ;; At least in Big Sur, this setting shall be used with side car for moom.el.
 ;; Without side car in Big Sur, the following setting is also correct.
 ;; Then what about other macOSs?
-(let ((macos-type-version (nth 2 (split-string system-configuration "-"))))
-  (when (string= "Big Sur"
-		 (macos-name
-		  (progn
-		    (string-match "darwin\\(.*\\)" macos-type-version)
-		    (match-string 1 macos-type-version))))
-    (setq moom--common-margin '(0 0 0 0))))
-
-
-
+(when (string= "Big Sur" (macos-name (macos-version)))
+  (setq moom--common-margin '(0 0 0 0)))
 
 (with-eval-after-load "org-tree-slide"
   (defvar my-hide-org-meta-line-p nil)
@@ -52,7 +48,7 @@
     (interactive)
     (setq my-hide-org-meta-line-p t)
     (set-face-attribute 'org-meta-line nil
-			:foreground (face-attribute 'default :background)))
+			                  :foreground (face-attribute 'default :background)))
   (defun my-show-org-meta-line ()
     (interactive)
     (setq my-hide-org-meta-line-p nil)
@@ -61,7 +57,7 @@
   (defun my-toggle-org-meta-line ()
     (interactive)
     (if my-hide-org-meta-line-p
-	(my-show-org-meta-line) (my-hide-org-meta-line)))
+	      (my-show-org-meta-line) (my-hide-org-meta-line)))
 
   (add-hook 'org-tree-slide-play-hook #'my-hide-org-meta-line)
   (add-hook 'org-tree-slide-stop-hook #'my-show-org-meta-line)
@@ -71,8 +67,7 @@
     (interactive)
     (when my-hide-org-meta-line-p
       (my-hide-org-meta-line)))
-  (add-hook 'ah-after-enable-theme-hook #'my-update-org-meta-line)
-  )
+  (add-hook 'ah-after-enable-theme-hook #'my-update-org-meta-line))
 
 (with-eval-after-load "keypression"
   ;; (setq keypression-frame-origin 'keypression-origin-bottom-right)

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-10-08 Fri 16:08 -->
+<!-- 2021-10-10 Sun 00:36 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org8727101">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org54e9e89">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -395,7 +395,7 @@
 <li><a href="#orgdd0a9c41">6.11. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.12. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.13. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org31e931c">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#orgf889e35">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.15. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.16. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.17. カーソル行の関数名をモードラインに表示する</a></li>
@@ -1212,22 +1212,34 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">postpone-init-time</span> 0)
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-postpone-kicker</span> ()
     (<span style="color: #a020f0;">interactive</span>)
-    (<span style="color: #a020f0;">unless</span> (memq this-command <span style="color: #b22222;">;; </span><span style="color: #b22222;">specify commands for exclusion</span>
-                  '(self-insert-command
-                    newline
-                    delete-backward-char
-                    save-buffer
-                    save-buffers-kill-terminal
-                    electric-newline-and-maybe-indent
-                    exit-minibuffer))
-      (message <span style="color: #8b2252;">"Activating postponed packages..."</span>)
-      (<span style="color: #a020f0;">let</span> ((t1 (current-time)))
-        (postpone-kicker 'my-postpone-kicker)
-        (<span style="color: #a020f0;">setq</span> postpone-init-time (float-time
-                                  (time-subtract (current-time) t1))))
-      (message <span style="color: #8b2252;">"Activating postponed packages...done (%.3f seconds)"</span>
-               postpone-init-time)))
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
+    (<span style="color: #a020f0;">when</span> (eq postpone-init-time 0)
+      (<span style="color: #a020f0;">unless</span> (memq this-command <span style="color: #b22222;">;; </span><span style="color: #b22222;">specify commands for exclusion</span>
+                    '(self-insert-command
+                      newline
+                      forward-char
+                      backward-char
+                      previous-line
+                      next-line
+                      move-beginning-of-line
+                      delete-backward-char
+                      save-buffer
+                      save-buffers-kill-terminal
+                      electric-newline-and-maybe-indent
+                      exit-minibuffer))
+        (message <span style="color: #8b2252;">"Activating postponed packages..."</span>)
+        (<span style="color: #a020f0;">let</span> ((t1 (current-time)))
+          (postpone-kicker 'my-postpone-kicker)
+          (<span style="color: #a020f0;">setq</span> postpone-init-time (float-time
+                                    (time-subtract (current-time) t1))))
+        (message <span style="color: #8b2252;">"Activating postponed packages...done (%.3f seconds)"</span>
+                 postpone-init-time))))
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#26368;&#21021;&#12398;&#12450;&#12463;&#12471;&#12519;&#12531;&#12391;&#12461;&#12483;&#12463;</span>
+  (add-hook 'pre-command-hook #'my-postpone-kicker)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;10&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
+  (run-with-idle-timer 8 nil #'my-postpone-kicker)
+  )
 </pre>
 </div>
 </div>
@@ -2115,11 +2127,11 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 (<span style="color: #a020f0;">setq-default</span> indent-tabs-mode nil)
 (<span style="color: #a020f0;">setq</span> indent-line-function 'insert-tab)
 
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'emacs-lisp-mode-hook</span>
-<span style="color: #b22222;">;;           </span><span style="color: #b22222;">(lambda ()</span>
-<span style="color: #b22222;">;;              </span><span style="color: #b22222;">(setq indent-tabs-mode t)</span>
-<span style="color: #b22222;">;;              </span><span style="color: #b22222;">(setq tab-width 8)</span>
-<span style="color: #b22222;">;;              </span><span style="color: #b22222;">(setq indent-line-function 'lisp-indent-line)))</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-emacs-lisp-mode-conf</span> ()
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq indent-tabs-mode t)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq tab-width 8)</span>
+  (<span style="color: #a020f0;">setq</span> indent-line-function 'lisp-indent-line))
+(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
 </pre>
 </div>
 </div>
@@ -4297,7 +4309,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 <span style="color: #8b2252;">This works also for other defined begin/end tokens to define the structure."</span>
     (<span style="color: #a020f0;">setq</span> YaTeX-current-completion-type 'begin)
     (<span style="color: #a020f0;">let*</span>((ccol (current-column)) beg beg2 exchange
-          (_arg region-mode)            <span style="color: #b22222;">;</span><span style="color: #b22222;">for old compatibility</span>
+          (_arg region-mode)    <span style="color: #b22222;">;</span><span style="color: #b22222;">for old compatibility</span>
           (indent-column (+ ccol YaTeX-environment-indent))(_i 1) _func)
       (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> region-mode (&gt; (point) (mark)))
           (<span style="color: #a020f0;">progn</span> (exchange-point-and-mark)
@@ -5361,8 +5373,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org8727101" class="outline-3">
-<h3 id="org8727101"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org54e9e89" class="outline-3">
+<h3 id="org54e9e89"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">mlscroll</span> nil t)
@@ -5734,8 +5746,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org31e931c" class="outline-3">
-<h3 id="org31e931c"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-orgf889e35" class="outline-3">
+<h3 id="orgf889e35"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-14">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -8674,8 +8686,8 @@ Boot                Endtime             Uptime       This emacs
       (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ag"</span>
         (custom-set-variables
          '(ag-highlight-search t)
-         '(ag-reuse-buffers t)          <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil: &#21029;&#12454;&#12451;&#12531;&#12489;&#12454;&#12364;&#38283;&#12367;</span>
-         '(ag-reuse-window nil))        <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil: &#32080;&#26524;&#12434;&#36984;&#25246;&#26178;&#12395;&#21029;&#12454;&#12451;&#12531;&#12489;&#12454;&#12395;&#32080;&#26524;&#12434;&#20986;&#12377;</span>
+         '(ag-reuse-buffers t)    <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil: &#21029;&#12454;&#12451;&#12531;&#12489;&#12454;&#12364;&#38283;&#12367;</span>
+         '(ag-reuse-window nil))  <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil: &#32080;&#26524;&#12434;&#36984;&#25246;&#26178;&#12395;&#21029;&#12454;&#12451;&#12531;&#12489;&#12454;&#12395;&#32080;&#26524;&#12434;&#20986;&#12377;</span>
 
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">q &#12391;&#12454;&#12451;&#12531;&#12489;&#12454;&#12434;&#25244;&#12369;&#12427;</span>
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key ag-mode-map (kbd "q") 'delete-window)</span>
@@ -11007,7 +11019,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
       <span style="color: #8b2252;">"Testing..."</span>
       (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">when</span> (looking-at org-drawer-regexp)
-        (org-flag-drawer                <span style="color: #b22222;">; </span><span style="color: #b22222;">toggle block visibility</span>
+        (org-flag-drawer    <span style="color: #b22222;">; </span><span style="color: #b22222;">toggle block visibility</span>
          (not (get-char-property (match-end 0) 'invisible)))))
 
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
@@ -11094,7 +11106,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;org buffer &#12434;&#35370;&#21839;&#12375;&#12390;&#65292;10&#31186;&#24453;&#12388;&#12392;&#65292;org-agenda &#12364;&#26377;&#21177;&#12395;&#12394;&#12427;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#30452;&#25509; org-agenda &#12434;&#21481;&#12367;&#22580;&#21512;&#12399;&#37325;&#12356;&#12414;&#12414;&#65288;&#12479;&#12452;&#12510;&#12540;&#36208;&#12387;&#12390;&#12418;&#12473;&#12523;&#12540;&#65289;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12428;&#12434; (with-eval-after-load "org") &#12398;&#20013;&#12395;&#32622;&#12367;&#12392;&#25391;&#12427;&#33310;&#12356;&#12364;&#22793;(2&#22238;&#23455;&#34892;)&#12395;&#12394;&#12427;</span>
-(run-with-idle-timer 5 nil
+(run-with-idle-timer 10 nil
                      (<span style="color: #a020f0;">lambda</span> ()
                        (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-agenda</span>)
                          (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-agenda</span> nil t)
@@ -12087,7 +12099,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgefce452"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org107ad44"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12761,13 +12773,13 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
       <span style="color: #8b2252;">" delay 0.3\n"</span>
       <span style="color: #8b2252;">" set the clipboard to \"\"\n"</span>
       <span style="color: #8b2252;">" tell application \"System Events\" to tell process \"Papers\"\n"</span>
-      <span style="color: #8b2252;">"         keystroke \"l\" using {command down, shift down}\n"</span>
+      <span style="color: #8b2252;">"   keystroke \"l\" using {command down, shift down}\n"</span>
       <span style="color: #8b2252;">" end tell\n"</span>
       <span style="color: #8b2252;">" delay 0.2\n"</span>
       <span style="color: #8b2252;">" set aLink to the clipboard\n"</span>
       <span style="color: #8b2252;">" tell application \"System Events\" to tell process \"Papers\"\n"</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">"              keystroke \"c\" using {command down, alt down\}\n"</span>
-      <span style="color: #8b2252;">"         keystroke \"m\" using {command down, option down</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">}\n"</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">"    keystroke \"c\" using {command down, alt down\}\n"</span>
+      <span style="color: #8b2252;">"   keystroke \"m\" using {command down, option down</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">}\n"</span>
       <span style="color: #8b2252;">" end tell\n"</span>
       <span style="color: #8b2252;">" delay 0.2\n"</span>
       <span style="color: #8b2252;">" set aName to the clipboard\n"</span>
@@ -12963,7 +12975,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgfd3734a" class="figure">
+<div id="org3f5863c" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -13276,7 +13288,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-ime-active-p ()</span>
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(if (fboundp 'mac-get-current-input-source)</span>
 <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(not (string-match "\\.\\(Roman\\|US\\|ABC\\)$"</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">                      (mac-get-current-input-source)))</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">      (mac-get-current-input-source)))</span>
 <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(if current-input-method t nil)))</span>
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-active-p</span> ()
@@ -15735,7 +15747,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-10-08 Fri 16:08</p>
+<p class="date">Created: 2021-10-10 Sun 00:36</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
