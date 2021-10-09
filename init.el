@@ -489,9 +489,9 @@ This function is called directly from the C code."
     (add-hook 'after-init-hook #'session-initialize))
 
   (with-eval-after-load "session"
-    (custom-set-variables
-     '(session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")) ;; FIXME: not activated
+    (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     (add-to-list 'session-globals-exclude 'org-mark-ring)
+    (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG") ;; FIXME: not activated
     ;; Change save point of session.el
     (setq session-save-file
           (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
@@ -502,7 +502,6 @@ This function is called directly from the C code."
                                     ivy-dired-history-variable
                                     search-ring
                                     regexp-search-ring))
-    (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     (setq session-undo-check -1)))
 
 ;; FIXME
