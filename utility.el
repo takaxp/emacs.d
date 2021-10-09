@@ -2,6 +2,35 @@
 ;;
 (require 'init-autoloads nil t)
 
+;; https://en.wikipedia.org/wiki/Darwin_(operating_system)
+;;;###autoload
+(defun macos-name (version)
+  "Return macOS name according to the VERSION number."
+  (if (stringp version)
+      (cond ((version<= "21.0" version) "Monterey")
+	          ((version<= "20.0" version) "Big Sur")
+	          ((version<= "19.0" version) "Catalina")
+	          ((version<= "18.0" version) "Mojave")
+	          ((version<= "17.0" version) "High Sierra")
+	          ((version<= "16.0" version) "Sierra")
+	          ((version<= "15.0" version) "El Capitan")
+	          ((version<= "14.0" version) "Yosemite")
+	          ((version<= "13.0" version) "Mavericks")
+	          ((version<= "12.0" version) "Mountain Lion")
+	          ((version<= "11.0" version) "Lion")
+	          ((version<= "10.0" version) "Snow Leopard")
+	          ((version<= "9.0" version) "Leopard")
+	          ((version<= "8.0" version) "Tiger")
+	          ((version<= "7.0" version) "Panther")
+	          (t "undefined"))
+    nil))
+
+;;;###autoload
+(defun macos-version ()
+  (let ((macos-type-version (nth 2 (split-string system-configuration "-"))))
+		(string-match "darwin\\(.*\\)" macos-type-version)
+		(match-string 1 macos-type-version)))
+
 ;;;###autoload
 (defun my-cmd-to-open-iterm2 (&optional arg)
   (interactive "P")
