@@ -491,7 +491,7 @@ This function is called directly from the C code."
   (with-eval-after-load "session"
     (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     (add-to-list 'session-globals-exclude 'org-mark-ring)
-    (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG") ;; FIXME: not activated
+    (setq session-set-file-name-exclude-regexp "\\.overview\\|\\.session\\|News\\|COMMIT_EDITMSG")
     ;; Change save point of session.el
     (setq session-save-file
           (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
