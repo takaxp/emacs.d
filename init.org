@@ -315,8 +315,7 @@ This function is called directly from the C code."
          ((and msg
                noninteractive (funcall fun msg))) ;; No timer will be run!
 	       (t (when msg
-              (run-with-idle-timer 0 nil fun msg)))
-	       ))))
+              (run-with-idle-timer 0 nil fun msg)))))))
 
   ;; Finally, run any other hook.
   (run-hook-with-args 'after-load-functions abs-file))
@@ -487,9 +486,8 @@ This function is called directly from the C code."
   ;; 起動後，最初のアクションでキック
   (add-hook 'pre-command-hook #'my-postpone-kicker)
 
-  ;; 起動後10秒何もしない場合は自動でキック (related to setting on org-agenda)
-  (run-with-idle-timer 8 nil #'my-postpone-kicker)
-  )
+  ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
+  (run-with-idle-timer 8 nil #'my-postpone-kicker))
 #+end_src
 
 ** [future-time-p] 指定時刻が本日の未来の時刻かを判定
@@ -4115,9 +4113,17 @@ Call this function at updating `mode-line-mode'."
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'mlscroll nil t)
   (custom-set-variables
-   '(mlscroll-in-color "#FFA07A")
-   '(mlscroll-out-color "#FFFFE0"))
-  (mlscroll-mode 1))
+   '(mlscroll-in-color "#FFA07A") ;; light coral
+   '(mlscroll-out-color "#FFFFE0")
+   '(mlscroll-width-chars 12))
+  (mlscroll-mode 1)
+
+  (with-eval-after-load "moom"
+    (defun my-reload-mlscroll ()
+      (mlscroll-mode -1)
+      (setq mlscroll-border (ceiling (/ moom-font--size 4.0)))
+      (mlscroll-mode 1))
+    (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)))
 #+end_src
 ** モードラインの節約（VC-mode編）
    :PROPERTIES:
@@ -13320,6 +13326,28 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 #+begin_src emacs-lisp :tangle no
 ;; late-init.el
 (autoload-if-found '(gitter) "gitter"  nil t)
+#+end_src
+
+** TODO [elfeed.el] RSSフィードの管理と閲覧
+   :PROPERTIES:
+   :CREATED:  [2021-10-10 Sun 01:04]
+   :ID:       DFD72B16-8ABC-40D4-98CF-1B278F18E1DF
+   :CUSTOM_ID: org693f8def
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(elfeed elfeed-web-start)
+       "elfeed" nil t)
+
+  (with-eval-after-load "elfeed"
+    (when (require 'elfeed-org nil t)
+      (elfeed-org)
+      (setq rmh-elfeed-org-files (list "~/Dropbox/org/elfeed.org")))
+    ;; これで elfeed-feeds が更新される
+    ;; その後，M-x elfeed, M-x elfeed-update する
+    (when (require 'elfeed-web nil t)
+      (setq elfeed-web-data-root (concat my-elget-package-dir "/web")))))
 #+end_src
 
 ** TODO [password-store.el] パスワード管理

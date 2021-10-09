@@ -1081,9 +1081,17 @@ Call this function at updating `mode-line-mode'."
 
 (when (require 'mlscroll nil t)
   (custom-set-variables
-   '(mlscroll-in-color "#FFA07A")
-   '(mlscroll-out-color "#FFFFE0"))
-  (mlscroll-mode 1))
+   '(mlscroll-in-color "#FFA07A") ;; light coral
+   '(mlscroll-out-color "#FFFFE0")
+   '(mlscroll-width-chars 12))
+  (mlscroll-mode 1)
+
+  (with-eval-after-load "moom"
+    (defun my-reload-mlscroll ()
+      (mlscroll-mode -1)
+      (setq mlscroll-border (ceiling (/ moom-font--size 4.0)))
+      (mlscroll-mode 1))
+    (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)))
 
 (defun ad:split-window-below (&optional _size)
   "An extention to switch to \*scratch\* buffer after splitting window."
@@ -3539,6 +3547,19 @@ Uses `all-the-icons-material' to fetch the icon."
   (advice-add 'ivy--insert-prompt :before #'ad:fzf:ivy--insert-prompt)
   (add-hook 'minibuffer-setup-hook #'my-nocand-then-fzf-reset)
   (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
+
+(when (autoload-if-found
+       '(elfeed elfeed-web-start)
+       "elfeed" nil t)
+
+  (with-eval-after-load "elfeed"
+    (when (require 'elfeed-org nil t)
+      (elfeed-org)
+      (setq rmh-elfeed-org-files (list "~/Dropbox/org/elfeed.org")))
+    ;; これで elfeed-feeds が更新される
+    ;; その後，M-x elfeed, M-x elfeed-update する
+    (when (require 'elfeed-web nil t)
+      (setq elfeed-web-data-root (concat my-elget-package-dir "/web")))))
 
 (if (not (executable-find "pass"))
     (message "--- pass is NOT installed.")

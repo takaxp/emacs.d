@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-10-10 Sun 00:41 -->
+<!-- 2021-10-10 Sun 05:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#orgb459af6">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org8910597">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -395,7 +395,7 @@
 <li><a href="#orgdd0a9c41">6.11. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.12. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.13. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org6e30c7a">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org20ea355">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.15. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.16. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.17. カーソル行の関数名をモードラインに表示する</a></li>
@@ -658,11 +658,12 @@
 <li><a href="#org72dab3c6">13.11. [manage-minor-mode.el] マイナーモードの視覚的な管理</a></li>
 <li><a href="#org2adaf11c">13.12. 検索語を変えずに counsel-fzf に接続する</a></li>
 <li><a href="#org409d5d63">13.13. [gitter.el] Gitter にログイン</a></li>
-<li><a href="#orgc75ab540">13.14. <span class="todo TODO">TODO</span> [password-store.el] パスワード管理</a></li>
-<li><a href="#org1141e95f">13.15. <span class="todo TODO">TODO</span> [network-watch.el] ネットワークインターフェイスの状態を監視</a></li>
-<li><a href="#orgf14fe89c">13.16. <span class="todo TODO">TODO</span> [circe.el] IRCにログインする</a></li>
-<li><a href="#org71c49002">13.17. <span class="done DONE">DONE</span> [lingr.el] チャットルームに自動参加&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org2be833d3">13.18. <span class="done DONE">DONE</span> [lingr.el] lingr にログインする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org693f8def">13.14. <span class="todo TODO">TODO</span> [elfeed.el] RSSフィードの管理と閲覧</a></li>
+<li><a href="#orgc75ab540">13.15. <span class="todo TODO">TODO</span> [password-store.el] パスワード管理</a></li>
+<li><a href="#org1141e95f">13.16. <span class="todo TODO">TODO</span> [network-watch.el] ネットワークインターフェイスの状態を監視</a></li>
+<li><a href="#orgf14fe89c">13.17. <span class="todo TODO">TODO</span> [circe.el] IRCにログインする</a></li>
+<li><a href="#org71c49002">13.18. <span class="done DONE">DONE</span> [lingr.el] チャットルームに自動参加&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org2be833d3">13.19. <span class="done DONE">DONE</span> [lingr.el] lingr にログインする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org362fb2dc">14. おわりに</a></li>
@@ -1036,8 +1037,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
          ((<span style="color: #a020f0;">and</span> msg
                noninteractive (funcall fun msg))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">No timer will be run!</span>
          (t (<span style="color: #a020f0;">when</span> msg
-              (run-with-idle-timer 0 nil fun msg)))
-         ))))
+              (run-with-idle-timer 0 nil fun msg)))))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Finally, run any other hook.</span>
   (run-hook-with-args 'after-load-functions abs-file))
@@ -1237,9 +1237,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#26368;&#21021;&#12398;&#12450;&#12463;&#12471;&#12519;&#12531;&#12391;&#12461;&#12483;&#12463;</span>
   (add-hook 'pre-command-hook #'my-postpone-kicker)
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;10&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
-  (run-with-idle-timer 8 nil #'my-postpone-kicker)
-  )
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;X&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
+  (run-with-idle-timer 8 nil #'my-postpone-kicker))
 </pre>
 </div>
 </div>
@@ -5373,15 +5372,23 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orgb459af6" class="outline-3">
-<h3 id="orgb459af6"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org8910597" class="outline-3">
+<h3 id="org8910597"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">mlscroll</span> nil t)
   (custom-set-variables
-   '(mlscroll-in-color <span style="color: #8b2252;">"#FFA07A"</span>)
-   '(mlscroll-out-color <span style="color: #8b2252;">"#FFFFE0"</span>))
-  (mlscroll-mode 1))
+   '(mlscroll-in-color <span style="color: #8b2252;">"#FFA07A"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">light coral</span>
+   '(mlscroll-out-color <span style="color: #8b2252;">"#FFFFE0"</span>)
+   '(mlscroll-width-chars 12))
+  (mlscroll-mode 1)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-reload-mlscroll</span> ()
+      (mlscroll-mode -1)
+      (<span style="color: #a020f0;">setq</span> mlscroll-border (ceiling (/ moom-font--size 4.0)))
+      (mlscroll-mode 1))
+    (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)))
 </pre>
 </div>
 </div>
@@ -5746,8 +5753,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org6e30c7a" class="outline-3">
-<h3 id="org6e30c7a"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-org20ea355" class="outline-3">
+<h3 id="org20ea355"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-14">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -12099,7 +12106,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org53a22aa"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgc7b6b29"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12975,7 +12982,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgdae2636" class="figure">
+<div id="org99a1ddc" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15603,8 +15610,29 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 </div>
 
+<div id="outline-container-org693f8def" class="outline-3">
+<h3 id="org693f8def"><span class="section-number-3">13.14.</span> <span class="todo TODO">TODO</span> [elfeed.el] RSSフィードの管理と閲覧</h3>
+<div class="outline-text-3" id="text-org693f8def">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(elfeed elfeed-web-start)
+       <span style="color: #8b2252;">"elfeed"</span> nil t)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"elfeed"</span>
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">elfeed-org</span> nil t)
+      (elfeed-org)
+      (<span style="color: #a020f0;">setq</span> rmh-elfeed-org-files (list <span style="color: #8b2252;">"~/Dropbox/org/elfeed.org"</span>)))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12428;&#12391; elfeed-feeds &#12364;&#26356;&#26032;&#12373;&#12428;&#12427;</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12381;&#12398;&#24460;&#65292;M-x elfeed, M-x elfeed-update &#12377;&#12427;</span>
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">elfeed-web</span> nil t)
+      (<span style="color: #a020f0;">setq</span> elfeed-web-data-root (concat my-elget-package-dir <span style="color: #8b2252;">"/web"</span>)))))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgc75ab540" class="outline-3">
-<h3 id="orgc75ab540"><span class="section-number-3">13.14.</span> <span class="todo TODO">TODO</span> [password-store.el] パスワード管理</h3>
+<h3 id="orgc75ab540"><span class="section-number-3">13.15.</span> <span class="todo TODO">TODO</span> [password-store.el] パスワード管理</h3>
 <div class="outline-text-3" id="text-orgc75ab540">
 <ul class="org-ul">
 <li><a href="http://h12.me/article/password-management">http://h12.me/article/password-management</a></li>
@@ -15647,7 +15675,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 
 <div id="outline-container-org1141e95f" class="outline-3">
-<h3 id="org1141e95f"><span class="section-number-3">13.15.</span> <span class="todo TODO">TODO</span> [network-watch.el] ネットワークインターフェイスの状態を監視</h3>
+<h3 id="org1141e95f"><span class="section-number-3">13.16.</span> <span class="todo TODO">TODO</span> [network-watch.el] ネットワークインターフェイスの状態を監視</h3>
 <div class="outline-text-3" id="text-org1141e95f">
 <ul class="org-ul">
 <li>プロキシ内での挙動は不明．</li>
@@ -15677,7 +15705,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 
 <div id="outline-container-orgf14fe89c" class="outline-3">
-<h3 id="orgf14fe89c"><span class="section-number-3">13.16.</span> <span class="todo TODO">TODO</span> [circe.el] IRCにログインする</h3>
+<h3 id="orgf14fe89c"><span class="section-number-3">13.17.</span> <span class="todo TODO">TODO</span> [circe.el] IRCにログインする</h3>
 <div class="outline-text-3" id="text-orgf14fe89c">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(circe) <span style="color: #8b2252;">"circe"</span> nil t)
@@ -15690,7 +15718,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </div>
 
 <div id="outline-container-org71c49002" class="outline-3">
-<h3 id="org71c49002"><span class="section-number-3">13.17.</span> <span class="done DONE">DONE</span> [lingr.el] チャットルームに自動参加&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org71c49002"><span class="section-number-3">13.18.</span> <span class="done DONE">DONE</span> [lingr.el] チャットルームに自動参加&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org71c49002">
 <p>
 init.el読書会が毎週土曜日の23時に開催されています．作業に集中していると，ついつい忘れてしまうので，その時間が来たら自動的にログインするように設定しています．ユーザ名とパスワードは，セキュリティを考慮して別なファイルに記載しています．
@@ -15719,7 +15747,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 
 <div id="outline-container-org2be833d3" class="outline-3">
-<h3 id="org2be833d3"><span class="section-number-3">13.18.</span> <span class="done DONE">DONE</span> [lingr.el] lingr にログインする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org2be833d3"><span class="section-number-3">13.19.</span> <span class="done DONE">DONE</span> [lingr.el] lingr にログインする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org2be833d3">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
@@ -15747,7 +15775,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-10-10 Sun 00:41</p>
+<p class="date">Created: 2021-10-10 Sun 05:08</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

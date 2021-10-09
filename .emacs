@@ -10,13 +10,6 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(with-eval-after-load "postpone"
-  ;; At least in Big Sur, this setting shall be used with side car for moom.el.
-  ;; Without side car in Big Sur, the following setting is also correct.
-  ;; Then what about other macOSs?
-  (when (string= "Big Sur" (macos-name (macos-version)))
-    (setq moom--common-margin '(0 0 0 0))))
-
 (with-eval-after-load "org-tree-slide"
   (defvar my-hide-org-meta-line-p nil)
   (defun my-hide-org-meta-line ()
@@ -49,21 +42,6 @@
   (setq keypression-frame-origin 'keypression-origin-top-left)
   (setq keypression-x-offset (- (frame-pixel-width) 100))
   (setq keypression-y-offset 10))
-
-(with-eval-after-load "postpone"
-  ;; elfeed, elfeed-org,elfeed-web
-  (when (autoload-if-found
-         '(elfeed elfeed-web-start)
-         "elfeed" nil t)
-
-    (with-eval-after-load "elfeed"
-      (when (require 'elfeed-org nil t)
-        (elfeed-org)
-        (setq rmh-elfeed-org-files (list "~/Dropbox/org/elfeed.org")))
-      ;; これで elfeed-feeds が更新される
-      ;; その後，M-x elfeed, M-x elfeed-update する
-      (when (require 'elfeed-web nil t)
-        (setq elfeed-web-data-root (concat my-elget-package-dir "/web"))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees

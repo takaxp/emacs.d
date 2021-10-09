@@ -94,8 +94,7 @@ This function is called directly from the C code."
          ((and msg
                noninteractive (funcall fun msg))) ;; No timer will be run!
 	       (t (when msg
-              (run-with-idle-timer 0 nil fun msg)))
-	       ))))
+              (run-with-idle-timer 0 nil fun msg)))))))
 
   ;; Finally, run any other hook.
   (run-hook-with-args 'after-load-functions abs-file))
@@ -164,9 +163,8 @@ This function is called directly from the C code."
   ;; 起動後，最初のアクションでキック
   (add-hook 'pre-command-hook #'my-postpone-kicker)
 
-  ;; 起動後10秒何もしない場合は自動でキック (related to setting on org-agenda)
-  (run-with-idle-timer 8 nil #'my-postpone-kicker)
-  )
+  ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
+  (run-with-idle-timer 8 nil #'my-postpone-kicker))
 
 ;;;###autoload
 (defun future-time-p (time)
