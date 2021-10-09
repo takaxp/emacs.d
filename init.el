@@ -490,7 +490,7 @@ This function is called directly from the C code."
 
   (with-eval-after-load "session"
     (custom-set-variables
-     '(session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|COMMIT_EDITMSG")) ;; FIXME: not activated
+     '(session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")) ;; FIXME: not activated
     (add-to-list 'session-globals-exclude 'org-mark-ring)
     ;; Change save point of session.el
     (setq session-save-file
