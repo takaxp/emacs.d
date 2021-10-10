@@ -144,9 +144,7 @@ This function is called directly from the C code."
                       newline
 		                  forward-char
 		                  backward-char
-		                  previous-line
-		                  next-line
-		                  move-beginning-of-line
+                      delete-char
 		                  delete-backward-char
                       save-buffer
                       save-buffers-kill-terminal
@@ -491,7 +489,7 @@ This function is called directly from the C code."
   (with-eval-after-load "session"
     (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     (add-to-list 'session-globals-exclude 'org-mark-ring)
-    (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News\\|[/\\]COMMIT_EDITMSG")
+    (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
     (setq session-save-file
           (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
