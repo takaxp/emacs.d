@@ -6744,7 +6744,12 @@ session-undo-check を指定していると，保存時ではなくバッファ�
 
 Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必須．
 
+上記のパッケージだと， =session-set-file-name-exclude-regexp= が =session-file-alist= に効かず，除外したはずのファイルのカーソル位置などが記録されてしまうので，それに対処したパッケージを自分用に作って使っています．
+
+- https://github.com/takaxp/session
+
 #+begin_src emacs-lisp :tangle yes
+
 (when (autoload-if-found
        '(session-initialize)
        "session" nil t)
@@ -6755,7 +6760,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
   (with-eval-after-load "session"
     (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     (add-to-list 'session-globals-exclude 'org-mark-ring)
-    (setq session-set-file-name-exclude-regexp "\\.overview\\|\\.session\\|News\\|COMMIT_EDITMSG")
+    (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
     (setq session-save-file
           (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))

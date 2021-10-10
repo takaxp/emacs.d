@@ -14,7 +14,7 @@
   (el-get-bundle "takaxp/help-fns-plus")
   (el-get-bundle "takaxp/dimmer.el") ;; to avoid downloding images
   (el-get-bundle "ws-butler")
-  (el-get-bundle "jwiegley/session")
+  (el-get-bundle "takaxp/session")
   (el-get-bundle "which-key")
   (el-get-bundle "aggressive-indent")
   (el-get-bundle "dacap/keyfreq")
