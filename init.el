@@ -392,7 +392,7 @@ This function is called directly from the C code."
 
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
+          '((:eval (replace-regexp-in-string "^ Git:" " " vc-mode)))))
 
 ;; mode-line
 (set-face-attribute 'mode-line nil

@@ -321,6 +321,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
   (setq bookmark-fontify nil)
 
+  ;; ビルトイン bookmark がfringeに出すマークを無効にする(as of 28.1)
+  (setq bookmark-set-fringe-mark nil)
+
   (with-eval-after-load "ivy"
     (global-set-key (kbd "<S-f10>") 'counsel-bm))
 
@@ -1132,6 +1135,9 @@ Call this function at updating `mode-line-mode'."
     (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
     (add-hook 'my-ime-on-hline-hook #'my-update-display-line-numbers-face))
 
+
+  (global-set-key (kbd "C-<f12>") 'my-toggle-display-line-numbers-mode)
+
   (with-eval-after-load "display-line-numbers"
     (custom-set-faces
      '(line-number-current-line
@@ -1145,7 +1151,8 @@ Call this function at updating `mode-line-mode'."
       (interactive)
       (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
           (let ((flag (if global-display-line-numbers-mode -1 1)))
-            (global-display-line-numbers-mode flag))
+            (global-display-line-numbers-mode flag)
+            (line-number-mode (- flag)))
         (user-error "The display-line-numbers is NOT supported")))))
 
 ;; Show clock in in the mode line
@@ -1212,10 +1219,10 @@ Call this function at updating `mode-line-mode'."
     (setq nobreak-char-display nil))
 
 ;; 改行文字の文字列表現
-(set 'eol-mnemonic-dos "(CRLF)")
-(set 'eol-mnemonic-unix "(LF)")
-(set 'eol-mnemonic-mac "(CR)")
-(set 'eol-mnemonic-undecided "(?)")
+(set 'eol-mnemonic-dos "CRLF")
+(set 'eol-mnemonic-unix "LF")
+(set 'eol-mnemonic-mac "CR")
+(set 'eol-mnemonic-undecided "?")
 
 ;; 文字エンコーディングの文字列表現
 (defun my-coding-system-name-mnemonic (coding-system)

@@ -446,6 +446,7 @@ This function is called directly from the C code."
    :PROPERTIES:
    :CREATED:  [2018-03-14 Wed 15:03]
    :CUSTOM_ID: orga2859651
+   :ID:       00B85B7A-D40E-4104-B9D3-18E0EDA58392
    :END:
 
  - [[https://github.com/takaxp/postpone][takaxp/postpone: Call functions just one time at your first action in Emacs]]
@@ -1945,6 +1946,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
   (setq bookmark-fontify nil)
+
+  ;; ビルトイン bookmark がfringeに出すマークを無効にする(as of 28.1)
+  (setq bookmark-set-fringe-mark nil)
 
   (with-eval-after-load "ivy"
     (global-set-key (kbd "<S-f10>") 'counsel-bm))
@@ -4103,11 +4107,14 @@ Call this function at updating `mode-line-mode'."
        mode-line-modes))
 #+end_src
 
-** TODO モードラインにバッファ内表示位置をバー形式で表示
+** TODO [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示
    :PROPERTIES:
    :CREATED:  [2021-08-04 Wed 01:02]
    :ID:       955D37D9-7AC2-4878-8574-13B7C6C12E47
    :END:
+
+[[https://github.com/jdtsmith/mlscroll][mlscroll.el]] を使います．
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'mlscroll nil t)
   (custom-set-variables
@@ -4133,7 +4140,7 @@ Call this function at updating `mode-line-mode'."
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
+          '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
 #+end_src
 
 ** モードラインの色をカスタマイズする
@@ -4417,6 +4424,9 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
     (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
     (add-hook 'my-ime-on-hline-hook #'my-update-display-line-numbers-face))
 
+
+  (global-set-key (kbd "C-<f12>") 'my-toggle-display-line-numbers-mode)
+
   (with-eval-after-load "display-line-numbers"
     (custom-set-faces
      '(line-number-current-line
@@ -4430,7 +4440,8 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
       (interactive)
       (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
           (let ((flag (if global-display-line-numbers-mode -1 1)))
-            (global-display-line-numbers-mode flag))
+            (global-display-line-numbers-mode flag)
+            (line-number-mode (- flag)))
         (user-error "The display-line-numbers is NOT supported")))))
 #+end_src
 
@@ -4573,10 +4584,10 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 #+begin_src emacs-lisp :tangle late-init.el
 ;; 改行文字の文字列表現
-(set 'eol-mnemonic-dos "(CRLF)")
-(set 'eol-mnemonic-unix "(LF)")
-(set 'eol-mnemonic-mac "(CR)")
-(set 'eol-mnemonic-undecided "(?)")
+(set 'eol-mnemonic-dos "CRLF")
+(set 'eol-mnemonic-unix "LF")
+(set 'eol-mnemonic-mac "CR")
+(set 'eol-mnemonic-undecided "?")
 
 ;; 文字エンコーディングの文字列表現
 (defun my-coding-system-name-mnemonic (coding-system)

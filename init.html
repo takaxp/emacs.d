@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-10-10 Sun 12:12 -->
+<!-- 2021-10-11 Mon 18:39 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org881876e">6.4. <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#orgb3c139c">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -395,7 +395,7 @@
 <li><a href="#orgdd0a9c41">6.11. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.12. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.13. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#orgc26b0b8">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org1e178ab">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.15. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.16. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.17. カーソル行の関数名をモードラインに表示する</a></li>
@@ -2939,6 +2939,9 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12499;&#12523;&#12488;&#12452;&#12531; bookmark &#12398;&#37197;&#33394;&#12434;&#28961;&#21177;&#12395;&#12377;&#12427;(as of 28.1)</span>
   (<span style="color: #a020f0;">setq</span> bookmark-fontify nil)
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12499;&#12523;&#12488;&#12452;&#12531; bookmark &#12364;fringe&#12395;&#20986;&#12377;&#12510;&#12540;&#12463;&#12434;&#28961;&#21177;&#12395;&#12377;&#12427;(as of 28.1)</span>
+  (<span style="color: #a020f0;">setq</span> bookmark-set-fringe-mark nil)
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
     (global-set-key (kbd <span style="color: #8b2252;">"&lt;S-f10&gt;"</span>) 'counsel-bm))
 
@@ -5370,9 +5373,13 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org881876e" class="outline-3">
-<h3 id="org881876e"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-orgb3c139c" class="outline-3">
+<h3 id="orgb3c139c"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
+<p>
+<a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">mlscroll</span> nil t)
   (custom-set-variables
@@ -5401,7 +5408,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"vc-hooks"</span>
   (setcdr (assq 'vc-mode mode-line-format)
-          '((<span style="color: #483d8b;">:eval</span> (replace-regexp-in-string <span style="color: #8b2252;">"^ Git"</span> <span style="color: #8b2252;">" "</span> vc-mode)))))
+          '((<span style="color: #483d8b;">:eval</span> (replace-regexp-in-string <span style="color: #8b2252;">"^ Git"</span> <span style="color: #8b2252;">" &#57370;"</span> vc-mode)))))
 </pre>
 </div>
 </div>
@@ -5751,8 +5758,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-orgc26b0b8" class="outline-3">
-<h3 id="orgc26b0b8"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-org1e178ab" class="outline-3">
+<h3 id="org1e178ab"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-14">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -5832,6 +5839,9 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
     (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
     (add-hook 'my-ime-on-hline-hook #'my-update-display-line-numbers-face))
 
+
+  (global-set-key (kbd <span style="color: #8b2252;">"C-&lt;f12&gt;"</span>) 'my-toggle-display-line-numbers-mode)
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"display-line-numbers"</span>
     (custom-set-faces
      '(line-number-current-line
@@ -5845,7 +5855,8 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
       (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">if</span> (fboundp 'global-display-line-numbers-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">26.1 or later</span>
           (<span style="color: #a020f0;">let</span> ((flag (<span style="color: #a020f0;">if</span> global-display-line-numbers-mode -1 1)))
-            (global-display-line-numbers-mode flag))
+            (global-display-line-numbers-mode flag)
+            (line-number-mode (- flag)))
         (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"The display-line-numbers is NOT supported"</span>)))))
 </pre>
 </div>
@@ -6008,10 +6019,10 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#25913;&#34892;&#25991;&#23383;&#12398;&#25991;&#23383;&#21015;&#34920;&#29694;</span>
-(set 'eol-mnemonic-dos <span style="color: #8b2252;">"(CRLF)"</span>)
-(set 'eol-mnemonic-unix <span style="color: #8b2252;">"(LF)"</span>)
-(set 'eol-mnemonic-mac <span style="color: #8b2252;">"(CR)"</span>)
-(set 'eol-mnemonic-undecided <span style="color: #8b2252;">"(?)"</span>)
+(set 'eol-mnemonic-dos <span style="color: #8b2252;">"CRLF"</span>)
+(set 'eol-mnemonic-unix <span style="color: #8b2252;">"LF"</span>)
+(set 'eol-mnemonic-mac <span style="color: #8b2252;">"CR"</span>)
+(set 'eol-mnemonic-undecided <span style="color: #8b2252;">"?"</span>)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#25991;&#23383;&#12456;&#12531;&#12467;&#12540;&#12487;&#12451;&#12531;&#12464;&#12398;&#25991;&#23383;&#21015;&#34920;&#29694;</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-coding-system-name-mnemonic</span> (coding-system)
@@ -12112,7 +12123,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org8f9e693"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org17c89b2"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12988,7 +12999,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orge0161e9" class="figure">
+<div id="orga389b40" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15781,7 +15792,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-10-10 Sun 12:12</p>
+<p class="date">Created: 2021-10-11 Mon 18:39</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
