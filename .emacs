@@ -10,6 +10,20 @@
 ;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(with-eval-after-load "display-line-numbers"
+  (require 'moom nil t)
+  ;; ウィンドウ左に表示する行数の幅を5以上に固定する．
+  (defun my-display-line-numbers-width ()
+    (when (< display-line-numbers-width 5)
+      (setq display-line-numbers-width 5))
+    (setq moom-display-line-numbers-width (+ 2 display-line-numbers-width)))
+  (add-hook 'display-line-numbers-mode-hook #'my-display-line-numbers-width))
+
+(with-eval-after-load "postpone"
+  ;; 行数の前にアイコンを追加
+  (setq mode-line-position-line-format
+        `(,(icons-in-terminal-material "edit") "%3l")))
+
 (with-eval-after-load "vc-hooks"
   (make-face 'mode-line-vc-normal-face)
   (make-face 'mode-line-vc-modified-face)
@@ -23,8 +37,7 @@
                   (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
                (replace-regexp-in-string
                 "^ Git-"
-                (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))))
-  )
+                (propertize " " 'face 'mode-line-vc-normal-face) vc-mode))))))
 
 (with-eval-after-load "postpone"
   ;; At least in Big Sur, this setting shall be used with side car for moom.el.

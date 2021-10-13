@@ -131,7 +131,7 @@
            (fboundp 'mac-get-current-input-source))
 
   (custom-set-faces
-   '(ns-working-text-face
+   '(ns-working-text-face ;; FIXME: duplicated in this file?
      ((t (:foreground "black"
                       :background "LightGreen" :underline "SpringGreen3"))))
    '(ns-marked-text-face
@@ -612,6 +612,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
+  (define-key view-mode-map (kbd "<DEL>") 'ignore)
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
   (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
@@ -1126,6 +1127,8 @@ Call this function at updating `mode-line-mode'."
        '(my-toggle-display-line-numbers-mode)
        "display-line-numbers" nil t)
 
+  (global-set-key (kbd "C-<f12>") 'my-toggle-display-line-numbers-mode)
+
   (with-eval-after-load "hl-line"
     (defun my-update-display-line-numbers-face ()
       (custom-set-faces
@@ -1134,9 +1137,6 @@ Call this function at updating `mode-line-mode'."
     (my-update-display-line-numbers-face)
     (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
     (add-hook 'my-ime-on-hline-hook #'my-update-display-line-numbers-face))
-
-
-  (global-set-key (kbd "C-<f12>") 'my-toggle-display-line-numbers-mode)
 
   (with-eval-after-load "display-line-numbers"
     (custom-set-faces
@@ -1153,7 +1153,8 @@ Call this function at updating `mode-line-mode'."
           (let ((flag (if global-display-line-numbers-mode -1 1)))
             (global-display-line-numbers-mode flag)
             (line-number-mode (- flag)))
-        (user-error "The display-line-numbers is NOT supported")))))
+        (user-error "The display-line-numbers is NOT supported"))
+      )))
 
 ;; Show clock in in the mode line
 (setq display-time-format "%H:%M") ;; %y%m%d. ;; "%H%M.%S"
@@ -1212,7 +1213,7 @@ Call this function at updating `mode-line-mode'."
 ;;                  '((lambda (overlay after beg end &optional len)
 ;;                      (when after
 ;;                        (move-overlay overlay (point-max) (point-max))))))))
-;; (add-hook 'find-file-hooks #'set-buffer-end-mark)
+;; (add-hook 'find-file-hook #'set-buffer-end-mark)
 
 (unless (version< emacs-version "28.0")
     ;; 全角スペース"　"にデフォルトで黒下線が付くのを回避する
@@ -1234,8 +1235,7 @@ Call this function at updating `mode-line-mode'."
           ((string-prefix-p "japanese-shift-jis" name) "SJIS")
           ((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
           ((string-match "japanese-iso-8bit" name) "EUC")
-          (t "???")
-          )))
+          (t "???"))))
 
 (defun my-coding-system-bom-mnemonic (coding-system)
   (let ((name (symbol-name coding-system)))
@@ -1244,12 +1244,22 @@ Call this function at updating `mode-line-mode'."
           ((string-match "-with-signature" name) "[BOM]")
           (t ""))))
 
+(make-face 'mode-line-file-icon-face)
+(custom-set-faces
+ '(mode-line-file-icon-face
+   ((((background dark)) :foreground "VioletRed1")
+    (t (:foreground "LightGoldenrod1")))))
+
+(defun my-mode-line-icon-for-file ()
+  (icons-in-terminal-icon-for-file
+             (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
+
 (defun my-buffer-coding-system-mnemonic ()
   "Return a mnemonic for `buffer-file-coding-system'."
   (let* ((code buffer-file-coding-system)
          (name (my-coding-system-name-mnemonic code))
          (bom (my-coding-system-bom-mnemonic code)))
-    (format "%s%s" name bom)))
+    (format "%s %s%s" (my-mode-line-icon-for-file) name bom)))
 
 ;; `mode-line-mule-info' の文字エンコーディングの文字列表現を差し替える
 (setq-default mode-line-mule-info

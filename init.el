@@ -392,7 +392,7 @@ This function is called directly from the C code."
 
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval (replace-regexp-in-string "^ Git:" " " vc-mode)))))
+          '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
 
 ;; mode-line
 (set-face-attribute 'mode-line nil
@@ -639,12 +639,19 @@ This function is called directly from the C code."
 (with-eval-after-load "postpone"
   (cond
    ((memq window-system '(ns x))
+    ;; モードラインにアイコンを出す
+    (make-face 'mode-line-ime-on-face)
+    (set-face-attribute 'mode-line-ime-on-face
+                        nil :foreground (plist-get my-cur-color-ime :on))
     (when (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
        "com.google.inputmethod.Japanese.base" 'title
        (concat
 	      (if (require 'icons-in-terminal nil t)
-	          (icons-in-terminal-octicon "keyboard") "") " ")))
+            (icons-in-terminal-octicon "keyboard"
+                                       :v-adjust 0.0
+                                       :face 'mode-line-ime-on-face)
+          "") " "))) ;; FIXME (the color is NOT changed, patch is wrong?)
 
     (declare-function my-ime-on "init" nil)
     (declare-function my-ime-off "init" nil)

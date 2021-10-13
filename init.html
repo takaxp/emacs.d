@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-10-11 Mon 18:39 -->
+<!-- 2021-10-13 Wed 12:55 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#orgb3c139c">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org57ba2ec">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -395,7 +395,7 @@
 <li><a href="#orgdd0a9c41">6.11. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.12. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.13. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org1e178ab">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org87301de">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.15. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.16. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.17. カーソル行の関数名をモードラインに表示する</a></li>
@@ -1765,9 +1765,17 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 <div id="outline-container-org7a9614cc" class="outline-3">
 <h3 id="org7a9614cc"><span class="section-number-3">3.7.</span> 長い文章を右端で常に折り返す</h3>
 <div class="outline-text-3" id="text-org7a9614cc">
+<p>
+さらに折返しのマークを右側のfringeだけに表示させています．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> truncate-lines nil)
 (<span style="color: #a020f0;">setq</span> truncate-partial-width-windows nil)
+(<span style="color: #a020f0;">setq-default</span> fringe-indicator-alist
+              (append (list '(continuation . (nil right-curly-arrow)))
+                      (remove (assoc 'continuation fringe-indicator-alist)
+                              fringe-indicator-alist)))
 </pre>
 </div>
 </div>
@@ -2361,7 +2369,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
            (fboundp 'mac-get-current-input-source))
 
   (custom-set-faces
-   '(ns-working-text-face
+   '(ns-working-text-face <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME: duplicated in this file?</span>
      ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
                       <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"LightGreen"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"SpringGreen3"</span>))))
    '(ns-marked-text-face
@@ -3873,6 +3881,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"view"</span>
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"i"</span>) 'View-exit-and-edit)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;SPC&gt;"</span>) 'ignore)
+  (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;DEL&gt;"</span>) 'ignore)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"f"</span>) 'forward-char)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"b"</span>) 'backward-char)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"n"</span>) 'my-org-view-next-heading)
@@ -5373,8 +5382,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orgb3c139c" class="outline-3">
-<h3 id="orgb3c139c"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org57ba2ec" class="outline-3">
+<h3 id="org57ba2ec"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5758,8 +5767,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org1e178ab" class="outline-3">
-<h3 id="org1e178ab"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-org87301de" class="outline-3">
+<h3 id="org87301de"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-14">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -5830,6 +5839,8 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
        '(my-toggle-display-line-numbers-mode)
        <span style="color: #8b2252;">"display-line-numbers"</span> nil t)
 
+  (global-set-key (kbd <span style="color: #8b2252;">"C-&lt;f12&gt;"</span>) 'my-toggle-display-line-numbers-mode)
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-update-display-line-numbers-face</span> ()
       (custom-set-faces
@@ -5838,9 +5849,6 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
     (my-update-display-line-numbers-face)
     (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
     (add-hook 'my-ime-on-hline-hook #'my-update-display-line-numbers-face))
-
-
-  (global-set-key (kbd <span style="color: #8b2252;">"C-&lt;f12&gt;"</span>) 'my-toggle-display-line-numbers-mode)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"display-line-numbers"</span>
     (custom-set-faces
@@ -5857,7 +5865,8 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
           (<span style="color: #a020f0;">let</span> ((flag (<span style="color: #a020f0;">if</span> global-display-line-numbers-mode -1 1)))
             (global-display-line-numbers-mode flag)
             (line-number-mode (- flag)))
-        (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"The display-line-numbers is NOT supported"</span>)))))
+        (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"The display-line-numbers is NOT supported"</span>))
+      )))
 </pre>
 </div>
 </div>
@@ -5970,7 +5979,7 @@ paren.el の場合は以下の設定．
 <span style="color: #b22222;">;;                  </span><span style="color: #b22222;">'((lambda (overlay after beg end &amp;optional len)</span>
 <span style="color: #b22222;">;;                      </span><span style="color: #b22222;">(when after</span>
 <span style="color: #b22222;">;;                        </span><span style="color: #b22222;">(move-overlay overlay (point-max) (point-max))))))))</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'find-file-hooks #'set-buffer-end-mark)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'find-file-hook #'set-buffer-end-mark)</span>
 </pre>
 </div>
 </div>
@@ -6034,8 +6043,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
           ((string-prefix-p <span style="color: #8b2252;">"japanese-shift-jis"</span> name) <span style="color: #8b2252;">"SJIS"</span>)
           ((string-match <span style="color: #8b2252;">"cp</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> name) (match-string 1 name))
           ((string-match <span style="color: #8b2252;">"japanese-iso-8bit"</span> name) <span style="color: #8b2252;">"EUC"</span>)
-          (t <span style="color: #8b2252;">"???"</span>)
-          )))
+          (t <span style="color: #8b2252;">"???"</span>))))
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-coding-system-bom-mnemonic</span> (coding-system)
   (<span style="color: #a020f0;">let</span> ((name (symbol-name coding-system)))
@@ -6044,12 +6052,22 @@ version 28 で全角スペースに黒下線が付くので回避します．
           ((string-match <span style="color: #8b2252;">"-with-signature"</span> name) <span style="color: #8b2252;">"[BOM]"</span>)
           (t <span style="color: #8b2252;">""</span>))))
 
+(make-face 'mode-line-file-icon-face)
+(custom-set-faces
+ '(mode-line-file-icon-face
+   ((((background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"VioletRed1"</span>)
+    (t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"LightGoldenrod1"</span>)))))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-icon-for-file</span> ()
+  (icons-in-terminal-icon-for-file
+             (buffer-name) <span style="color: #483d8b;">:v-adjust</span> 0.03 <span style="color: #483d8b;">:face</span> 'mode-line-file-icon-face))
+
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-buffer-coding-system-mnemonic</span> ()
   <span style="color: #8b2252;">"Return a mnemonic for `</span><span style="color: #008b8b;">buffer-file-coding-system</span><span style="color: #8b2252;">'."</span>
   (<span style="color: #a020f0;">let*</span> ((code buffer-file-coding-system)
          (name (my-coding-system-name-mnemonic code))
          (bom (my-coding-system-bom-mnemonic code)))
-    (format <span style="color: #8b2252;">"%s%s"</span> name bom)))
+    (format <span style="color: #8b2252;">"%s %s%s"</span> (my-mode-line-icon-for-file) name bom)))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">`</span><span style="color: #008b8b;">mode-line-mule-info</span><span style="color: #b22222;">' &#12398;&#25991;&#23383;&#12456;&#12531;&#12467;&#12540;&#12487;&#12451;&#12531;&#12464;&#12398;&#25991;&#23383;&#21015;&#34920;&#29694;&#12434;&#24046;&#12375;&#26367;&#12360;&#12427;</span>
 (<span style="color: #a020f0;">setq-default</span> mode-line-mule-info
@@ -12123,7 +12141,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org17c89b2"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgb0ac070"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12999,7 +13017,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orga389b40" class="figure">
+<div id="org92e28d6" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -13363,12 +13381,19 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
   (<span style="color: #a020f0;">cond</span>
    ((memq window-system '(ns x))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12395;&#12450;&#12452;&#12467;&#12531;&#12434;&#20986;&#12377;</span>
+    (make-face 'mode-line-ime-on-face)
+    (set-face-attribute 'mode-line-ime-on-face
+                        nil <span style="color: #483d8b;">:foreground</span> (plist-get my-cur-color-ime <span style="color: #483d8b;">:on</span>))
     (<span style="color: #a020f0;">when</span> (fboundp 'mac-set-input-method-parameter)
       (mac-set-input-method-parameter
        <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span> 'title
        (concat
         (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-            (icons-in-terminal-octicon <span style="color: #8b2252;">"keyboard"</span>) <span style="color: #8b2252;">""</span>) <span style="color: #ff0000; font-weight: bold;">" "</span><span style="color: #ff0000; font-weight: bold;">)))</span>
+            (icons-in-terminal-octicon <span style="color: #8b2252;">"keyboard"</span>
+                                       <span style="color: #483d8b;">:v-adjust</span> 0.0
+                                       <span style="color: #483d8b;">:face</span> 'mode-line-ime-on-face)
+          <span style="color: #8b2252;">""</span>) <span style="color: #ff0000; font-weight: bold;">" "</span><span style="color: #ff0000; font-weight: bold;">))) </span><span style="color: #ff0000; font-weight: bold;">;; </span><span style="color: #ff0000; font-weight: bold;">FIXME (the color is NOT changed, patch is wrong?)</span>
 
     (<span style="color: #a020f0;">declare-function</span> my-ime-on <span style="color: #8b2252;">"init"</span> nil)
     (<span style="color: #a020f0;">declare-function</span> my-ime-off <span style="color: #8b2252;">"init"</span> nil)
@@ -15792,7 +15817,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-10-11 Mon 18:39</p>
+<p class="date">Created: 2021-10-13 Wed 12:55</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
