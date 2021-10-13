@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-10-13 Wed 12:55 -->
+<!-- 2021-10-13 Wed 15:39 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org57ba2ec">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#orgb5191d2">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -395,7 +395,7 @@
 <li><a href="#orgdd0a9c41">6.11. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.12. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.13. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org87301de">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org36f27bc">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.15. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.16. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.17. カーソル行の関数名をモードラインに表示する</a></li>
@@ -2368,17 +2368,6 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
 
-  (custom-set-faces
-   '(ns-working-text-face <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME: duplicated in this file?</span>
-     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
-                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"LightGreen"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"SpringGreen3"</span>))))
-   '(ns-marked-text-face
-     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
-                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light pink"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"OrangeRed2"</span>))))
-   '(ns-unmarked-text-face
-     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
-                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light sky blue"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"royal blue"</span>)))))
-
   (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">"com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur</span>
     (custom-set-variables
@@ -2459,7 +2448,15 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
             (t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#DEEDFF"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"DarkOrchid3"</span>)))))))
 
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
-    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off))
+    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)
+
+  (custom-set-faces
+   '(ns-marked-text-face
+     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
+                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light pink"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"OrangeRed2"</span>))))
+   '(ns-unmarked-text-face
+     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
+                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light sky blue"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"royal blue"</span>))))))
 
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-ime-restore</span> ()
     <span style="color: #8b2252;">"Restore the last IME status changed in Emacs."</span>
@@ -3100,7 +3097,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
       (<span style="color: #a020f0;">defadvice</span> <span style="color: #0000ff;">keyboard-quit</span> (before collapse-region activate)
         (<span style="color: #a020f0;">when</span> (memq last-command '(er/expand-region er/contract-region))
           (er/contract-region 0)
-          (<span style="color: #a020f0;">when</span> smart-mark-point-before-mark
+          (<span style="color: #a020f0;">when</span> (&gt; smart-mark-point-before-mark 1) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
             (goto-char smart-mark-point-before-mark))))))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
@@ -3882,6 +3879,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"i"</span>) 'View-exit-and-edit)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;SPC&gt;"</span>) 'ignore)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;DEL&gt;"</span>) 'ignore)
+  (define-key view-mode-map (kbd <span style="color: #8b2252;">"S-&lt;space&gt;"</span>) 'ignore)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"f"</span>) 'forward-char)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"b"</span>) 'backward-char)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"n"</span>) 'my-org-view-next-heading)
@@ -5382,8 +5380,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org57ba2ec" class="outline-3">
-<h3 id="org57ba2ec"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-orgb5191d2" class="outline-3">
+<h3 id="orgb5191d2"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5767,8 +5765,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org87301de" class="outline-3">
-<h3 id="org87301de"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-org36f27bc" class="outline-3">
+<h3 id="org36f27bc"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-14">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -6669,6 +6667,9 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
     (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'counsel-mark-ring))
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'counsel-mark-ring))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">counsel-mark-ring &#12398;&#12522;&#12473;&#12488;&#12434;&#12477;&#12540;&#12488;&#12373;&#12379;&#12394;&#12356;</span>
@@ -12141,7 +12142,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgb0ac070"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org7a09956"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13017,7 +13018,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org92e28d6" class="figure">
+<div id="orgcca2015" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15817,7 +15818,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-10-13 Wed 12:55</p>
+<p class="date">Created: 2021-10-13 Wed 15:39</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

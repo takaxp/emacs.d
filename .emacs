@@ -29,15 +29,14 @@
   (make-face 'mode-line-vc-modified-face)
   (set-face-attribute 'mode-line-vc-normal-face nil :foreground "#AFFFAF")
   (set-face-attribute 'mode-line-vc-modified-face nil :foreground "#EEAFAF")
+  (defun my-mode-line-vc-mode-icon ()
+    (if (string-match "^ Git:" vc-mode)
+        (replace-regexp-in-string
+         "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
+      (replace-regexp-in-string
+       "^ Git-" (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))
   (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval
-             (if (string-match "^ Git:" vc-mode)
-                 (replace-regexp-in-string
-                  "^ Git:"
-                  (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
-               (replace-regexp-in-string
-                "^ Git-"
-                (propertize " " 'face 'mode-line-vc-normal-face) vc-mode))))))
+          '((:eval (my-mode-line-vc-mode-icon)))))
 
 (with-eval-after-load "postpone"
   ;; At least in Big Sur, this setting shall be used with side car for moom.el.

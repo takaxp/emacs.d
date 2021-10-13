@@ -21,6 +21,10 @@
 
 (setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)
+(setq-default fringe-indicator-alist
+              (append (list '(continuation . (nil right-curly-arrow)))
+                      (remove (assoc 'continuation fringe-indicator-alist)
+                              fringe-indicator-alist)))
 
 (setq mouse-drag-copy-region t)
 
@@ -130,17 +134,6 @@
 (when (and (memq window-system '(ns nil))
            (fboundp 'mac-get-current-input-source))
 
-  (custom-set-faces
-   '(ns-working-text-face ;; FIXME: duplicated in this file?
-     ((t (:foreground "black"
-                      :background "LightGreen" :underline "SpringGreen3"))))
-   '(ns-marked-text-face
-     ((t (:foreground "black"
-                      :background "light pink" :underline "OrangeRed2"))))
-   '(ns-unmarked-text-face
-     ((t (:foreground "black"
-                      :background "light sky blue" :underline "royal blue")))))
-
   (when (version< "27.0" emacs-version)
     ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
     (custom-set-variables
@@ -221,7 +214,15 @@
             (t (:background "#DEEDFF" :underline "DarkOrchid3")))))))
 
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
-    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off))
+    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)
+
+  (custom-set-faces
+   '(ns-marked-text-face
+     ((t (:foreground "black"
+                      :background "light pink" :underline "OrangeRed2"))))
+   '(ns-unmarked-text-face
+     ((t (:foreground "black"
+                      :background "light sky blue" :underline "royal blue"))))))
 
   (defun my-ns-ime-restore ()
     "Restore the last IME status changed in Emacs."
@@ -446,7 +447,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (defadvice keyboard-quit (before collapse-region activate)
         (when (memq last-command '(er/expand-region er/contract-region))
           (er/contract-region 0)
-          (when smart-mark-point-before-mark
+          (when (> smart-mark-point-before-mark 1) ;; FIXME
             (goto-char smart-mark-point-before-mark))))))
 
   (unless noninteractive
@@ -613,6 +614,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
+  (define-key view-mode-map (kbd "S-<space>") 'ignore)
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
   (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
@@ -1558,6 +1560,9 @@ Call this function at updating `mode-line-mode'."
 
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-,") 'counsel-mark-ring))
+
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-,") 'counsel-mark-ring))
 
   (with-eval-after-load "ivy"
     ;; counsel-mark-ring のリストをソートさせない
