@@ -17,12 +17,6 @@
   (when (string= "Big Sur" (macos-name (macos-version)))
     (setq moom--common-margin '(0 0 0 0))))
 
-(with-eval-after-load "keypression"
-  ;; (setq keypression-frame-origin 'keypression-origin-bottom-right)
-  (setq keypression-frame-origin 'keypression-origin-top-left)
-  (setq keypression-x-offset (- (frame-pixel-width) 100))
-  (setq keypression-y-offset 10))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
 ;;(advice-add 'epg--check-error-for-decrypt :override 'ignore)

@@ -426,13 +426,6 @@ This function is called directly from the C code."
   (set-face-foreground 'mode-line "#96CBFE")
   (set-face-background 'mode-line "#21252B"))
 
-(setq line-number-display-limit-width 100000)
-
-;; モードラインの行数表示の前にアイコンを追加
-(with-eval-after-load "icons-in-terminal"
-  (setq mode-line-position-line-format
-        `(,(icons-in-terminal-material "edit") "%3l")))
-
 ;;  (setq visible-bell nil) ;; default=nil
 (setq ring-bell-function 'ignore)
 
@@ -465,6 +458,13 @@ This function is called directly from the C code."
 (setq inhibit-startup-screen t)
 
 (setq inhibit-default-init t)
+
+(setq line-number-display-limit-width 100000)
+
+;; モードラインの行数表示の前にアイコンを追加
+(with-eval-after-load "icons-in-terminal"
+  (setq mode-line-position-line-format
+        `(,(icons-in-terminal-material "edit") "%3l")))
 
 (setq-default indicate-buffer-boundaries
               '((top . nil) (bottom . right) (down . left)))

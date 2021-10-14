@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-10-14 Thu 16:11 -->
+<!-- 2021-10-15 Fri 03:06 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,25 +381,25 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org1498185">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org379e07f">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
 <li><a href="#org21b30e75">6.6.1. 色セット例</a></li>
 </ul>
 </li>
-<li><a href="#org19cbc9b3">6.7. 行番号の表示制限を拡張する</a></li>
-<li><a href="#org328bb797">6.8. visible-bell のカスタマイズ</a></li>
-<li><a href="#org91a9f893">6.9. 常に <b>scratch</b> を表示して起動する</a></li>
-<li><a href="#orgdf6d1ea2">6.10. スクロールバーを非表示にする</a></li>
-<li><a href="#orgdd0a9c41">6.11. ツールバーを非表示にする</a></li>
-<li><a href="#org52e500e2">6.12. メニューバーを非表示にする</a></li>
-<li><a href="#orgd432e8ff">6.13. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#orgf140e14">6.14. ターミナル時のウィンドウ分割線を見やすくする</a></li>
-<li><a href="#org4a736379">6.15. default.el を探索させない</a></li>
-<li><a href="#org8d729190">6.16. カーソル行の行数をモードラインに表示する</a></li>
-<li><a href="#orge456e19c">6.17. カーソル行の関数名をモードラインに表示する</a></li>
-<li><a href="#orga76ec530">6.18. 行番号をバッファに表示する</a></li>
+<li><a href="#org328bb797">6.7. visible-bell のカスタマイズ</a></li>
+<li><a href="#org91a9f893">6.8. 常に <b>scratch</b> を表示して起動する</a></li>
+<li><a href="#orgdf6d1ea2">6.9. スクロールバーを非表示にする</a></li>
+<li><a href="#orgdd0a9c41">6.10. ツールバーを非表示にする</a></li>
+<li><a href="#org52e500e2">6.11. メニューバーを非表示にする</a></li>
+<li><a href="#orgd432e8ff">6.12. 起動時のスプラッシュ画面を表示しない</a></li>
+<li><a href="#orgba2a974">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org4a736379">6.14. default.el を探索させない</a></li>
+<li><a href="#org8d729190">6.15. カーソル行の行数をモードラインに表示する</a></li>
+<li><a href="#orge456e19c">6.16. カーソル行の関数名をモードラインに表示する</a></li>
+<li><a href="#orga76ec530">6.17. 行番号をバッファに表示する</a></li>
+<li><a href="#org19cbc9b3">6.18. 行番号の表示制限を拡張する</a></li>
 <li><a href="#org5117762c">6.19. 時刻をモードラインに表示する</a></li>
 <li><a href="#orga734802e">6.20. 対応するカッコをハイライトする</a></li>
 <li><a href="#orgd1e62da7">6.21. 全角スペースと行末タブ／半角スペースを強調表示する</a>
@@ -1781,12 +1781,12 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 (define-fringe-bitmap 'right-curly-arrow
   [#b00000000
    #b00000000
-   #b00111110
-   #b00100010
-   #b00100010
-   #b00100010
-   #b00100010
-   #b00111110])
+   #b00000000
+   #b00000000
+   #b01111110
+   #b01111110
+   #b01100000
+   #b01100000])
 </pre>
 </div>
 </div>
@@ -3111,6 +3111,11 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
           (<span style="color: #a020f0;">when</span> (&gt; smart-mark-point-before-mark 1) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
             (goto-char smart-mark-point-before-mark))))))
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-smart-mark-activate () (smart-mark-mode 1))</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-smart-mark-dectivate () (smart-mark-mode -1))</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'isearch-mode-hook #'my-smart-mark-dectivate)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'isearch-mode-end-hook #'my-smart-mark-activate)</span>
+
   (<span style="color: #a020f0;">unless</span> noninteractive
     (smart-mark-mode 1)))
 </pre>
@@ -3451,6 +3456,9 @@ Built-in の time-stamp.el を使う．
           (goto-char (mark))
           (isearch-repeat-forward)))
     ad-do-it))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">C-g &#12434; isearch-exit &#12395;&#21106;&#12426;&#24403;&#12390;&#12390;&#36884;&#20013;&#20013;&#26029;&#12392;&#12377;&#12427;&#65294;&#65288;&#12459;&#12540;&#12477;&#12523;&#12434;&#30041;&#12417;&#12390;&#12362;&#12365;&#12383;&#12356;&#65289;&#12459;&#12540;&#12477;&#12523;&#12434;&#26908;&#32034;&#38283;&#22987;&#26178;&#28857;&#12398;&#22580;&#25152;&#12395;&#25147;&#12377;&#12395;&#12399;&#65292;&#21029;&#36884; counsel-mark-ring &#12434;&#20351;&#12358;</span>
+(define-key isearch-mode-map (kbd <span style="color: #8b2252;">"C-g"</span>) 'isearch-exit)
 </pre>
 </div>
 </div>
@@ -3890,7 +3898,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"i"</span>) 'View-exit-and-edit)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;SPC&gt;"</span>) 'ignore)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;DEL&gt;"</span>) 'ignore)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"S-&lt;space&gt;"</span>) 'mac-ime-toggle)
+  (define-key view-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-ime-toggle)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"f"</span>) 'forward-char)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"b"</span>) 'backward-char)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"n"</span>) 'my-org-view-next-heading)
@@ -5380,10 +5388,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
                        <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Narrow" &#12434; "N" &#12395;&#30701;&#32302;&#34920;&#31034;</span>
                        (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (buffer-narrowed-p)
                                 (fboundp 'icons-in-terminal-octicon))
-                           (concat <span style="color: #8b2252;">" "</span>
-                                   (icons-in-terminal-octicon <span style="color: #8b2252;">"fold"</span> <span style="color: #483d8b;">:v-adjust</span> 0.0))
-                         <span style="color: #8b2252;">""</span>)
-                       ))
+                           (concat <span style="color: #8b2252;">" "</span> (icons-in-terminal-octicon
+                                        <span style="color: #8b2252;">"fold"</span> <span style="color: #483d8b;">:v-adjust</span> 0.0)) <span style="color: #ff0000; font-weight: bold;">""</span><span style="color: #ff0000; font-weight: bold;">)))</span>
            entry))
        mode-line-modes))
 </pre>
@@ -5391,8 +5397,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org1498185" class="outline-3">
-<h3 id="org1498185"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org379e07f" class="outline-3">
+<h3 id="org379e07f"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5599,31 +5605,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org19cbc9b3" class="outline-3">
-<h3 id="org19cbc9b3"><span class="section-number-3">6.7.</span> 行番号の表示制限を拡張する</h3>
-<div class="outline-text-3" id="text-org19cbc9b3">
-<p>
-デフォルトだと200桁までしか把握しないので，いつも表示されるように拡張します．
-</p>
-
-<p>
-さらにモードラインの表示をちょっとリッチにします．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> line-number-display-limit-width 100000)
-
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12398;&#34892;&#25968;&#34920;&#31034;&#12398;&#21069;&#12395;&#12450;&#12452;&#12467;&#12531;&#12434;&#36861;&#21152;</span>
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
-  (<span style="color: #a020f0;">setq</span> mode-line-position-line-format
-        `(,(icons-in-terminal-material <span style="color: #8b2252;">"edit"</span>) <span style="color: #8b2252;">"%3l"</span>)))
-</pre>
-</div>
-</div>
-</div>
-
 <div id="outline-container-org328bb797" class="outline-3">
-<h3 id="org328bb797"><span class="section-number-3">6.8.</span> visible-bell のカスタマイズ</h3>
+<h3 id="org328bb797"><span class="section-number-3">6.7.</span> visible-bell のカスタマイズ</h3>
 <div class="outline-text-3" id="text-org328bb797">
 <p>
 最近は鬱陶しくなってしまい，ビープ音も無しかつ視覚効果も無しにしています．
@@ -5668,7 +5651,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 
 <div id="outline-container-org91a9f893" class="outline-3">
-<h3 id="org91a9f893"><span class="section-number-3">6.9.</span> 常に <b>scratch</b> を表示して起動する</h3>
+<h3 id="org91a9f893"><span class="section-number-3">6.8.</span> 常に <b>scratch</b> を表示して起動する</h3>
 <div class="outline-text-3" id="text-org91a9f893">
 <p>
 最近は，起動用にメジャーモードを書いて対応しています．詳しくはリンク先にて．
@@ -5735,7 +5718,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 
 <div id="outline-container-orgdf6d1ea2" class="outline-3">
-<h3 id="orgdf6d1ea2"><span class="section-number-3">6.10.</span> スクロールバーを非表示にする</h3>
+<h3 id="orgdf6d1ea2"><span class="section-number-3">6.9.</span> スクロールバーを非表示にする</h3>
 <div class="outline-text-3" id="text-orgdf6d1ea2">
 <p>
 スクロールバーを非表示にするには，nil を指定します．
@@ -5755,7 +5738,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 
 <div id="outline-container-orgdd0a9c41" class="outline-3">
-<h3 id="orgdd0a9c41"><span class="section-number-3">6.11.</span> ツールバーを非表示にする</h3>
+<h3 id="orgdd0a9c41"><span class="section-number-3">6.10.</span> ツールバーを非表示にする</h3>
 <div class="outline-text-3" id="text-orgdd0a9c41">
 <p>
 ツールバーは使わないので非表示にします． <code>early-init.el</code> にも設定があることを前提しています．
@@ -5773,7 +5756,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 
 <div id="outline-container-org52e500e2" class="outline-3">
-<h3 id="org52e500e2"><span class="section-number-3">6.12.</span> メニューバーを非表示にする</h3>
+<h3 id="org52e500e2"><span class="section-number-3">6.11.</span> メニューバーを非表示にする</h3>
 <div class="outline-text-3" id="text-org52e500e2">
 <p>
 特にターミナルでは不要です．Windowsでも非表示にします． <code>early-init.el</code> にも設定があることを前提しています．
@@ -5791,7 +5774,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 
 <div id="outline-container-orgd432e8ff" class="outline-3">
-<h3 id="orgd432e8ff"><span class="section-number-3">6.13.</span> 起動時のスプラッシュ画面を表示しない</h3>
+<h3 id="orgd432e8ff"><span class="section-number-3">6.12.</span> 起動時のスプラッシュ画面を表示しない</h3>
 <div class="outline-text-3" id="text-orgd432e8ff">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Disable to show the splash window at startup</span>
@@ -5801,9 +5784,9 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-orgf140e14" class="outline-3">
-<h3 id="orgf140e14"><span class="section-number-3">6.14.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
-<div class="outline-text-3" id="text-6-14">
+<div id="outline-container-orgba2a974" class="outline-3">
+<h3 id="orgba2a974"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div class="outline-text-3" id="text-6-13">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
 </p>
@@ -5825,7 +5808,7 @@ see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_ve
 </div>
 
 <div id="outline-container-org4a736379" class="outline-3">
-<h3 id="org4a736379"><span class="section-number-3">6.15.</span> default.el を探索させない</h3>
+<h3 id="org4a736379"><span class="section-number-3">6.14.</span> default.el を探索させない</h3>
 <div class="outline-text-3" id="text-org4a736379">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> inhibit-default-init t)
@@ -5835,7 +5818,7 @@ see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_ve
 </div>
 
 <div id="outline-container-org8d729190" class="outline-3">
-<h3 id="org8d729190"><span class="section-number-3">6.16.</span> カーソル行の行数をモードラインに表示する</h3>
+<h3 id="org8d729190"><span class="section-number-3">6.15.</span> カーソル行の行数をモードラインに表示する</h3>
 <div class="outline-text-3" id="text-org8d729190">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Show line number in the mode line.</span>
@@ -5847,7 +5830,7 @@ see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_ve
 </div>
 
 <div id="outline-container-orge456e19c" class="outline-3">
-<h3 id="orge456e19c"><span class="section-number-3">6.17.</span> カーソル行の関数名をモードラインに表示する</h3>
+<h3 id="orge456e19c"><span class="section-number-3">6.16.</span> カーソル行の関数名をモードラインに表示する</h3>
 <div class="outline-text-3" id="text-orge456e19c">
 <ul class="org-ul">
 <li>emacs24.3 で重く感じるので外している．</li>
@@ -5862,7 +5845,7 @@ see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_ve
 </div>
 
 <div id="outline-container-orga76ec530" class="outline-3">
-<h3 id="orga76ec530"><span class="section-number-3">6.18.</span> 行番号をバッファに表示する</h3>
+<h3 id="orga76ec530"><span class="section-number-3">6.17.</span> 行番号をバッファに表示する</h3>
 <div class="outline-text-3" id="text-orga76ec530">
 <p>
 Emacs Version 26.1 からネイティブ実装に切り替わった <code>display-line-numbers.el</code> を使います．普段は使わないので，必要に応じてグローバルにトグルできるようにしてあります．現在行の番号について <code>face</code> を変更したい場合は， <code>line-number-current-line</code> をカスタマイズすればOKです．
@@ -5926,6 +5909,29 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
             (global-display-line-numbers-mode flag)
             (line-number-mode (- flag)))
         (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"The display-line-numbers is NOT supported"</span>)))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org19cbc9b3" class="outline-3">
+<h3 id="org19cbc9b3"><span class="section-number-3">6.18.</span> 行番号の表示制限を拡張する</h3>
+<div class="outline-text-3" id="text-org19cbc9b3">
+<p>
+デフォルトだと200桁までしか把握しないので，いつも表示されるように拡張します．
+</p>
+
+<p>
+さらにモードラインの表示をちょっとリッチにします．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> line-number-display-limit-width 100000)
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12398;&#34892;&#25968;&#34920;&#31034;&#12398;&#21069;&#12395;&#12450;&#12452;&#12467;&#12531;&#12434;&#36861;&#21152;</span>
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
+  (<span style="color: #a020f0;">setq</span> mode-line-position-line-format
+        `(,(icons-in-terminal-material <span style="color: #8b2252;">"edit"</span>) <span style="color: #8b2252;">"%3l"</span>)))
 </pre>
 </div>
 </div>
@@ -6117,6 +6123,12 @@ version 28 で全角スペースに黒下線が付くので回避します．
    ((((background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"VioletRed1"</span>)
     (t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"LightGoldenrod1"</span>)))))
 
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-icon-lock</span> ()
+  (<span style="color: #a020f0;">if</span> view-mode
+      (concat (icons-in-terminal-faicon
+               <span style="color: #8b2252;">"lock"</span> <span style="color: #483d8b;">:face</span> '(<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF0000"</span>)) <span style="color: #ff0000; font-weight: bold;">" "</span><span style="color: #ff0000; font-weight: bold;">) </span><span style="color: #ff0000; font-weight: bold;">""</span><span style="color: #ff0000; font-weight: bold;">))</span>
+
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-icon-for-file</span> ()
   (icons-in-terminal-icon-for-file
              (buffer-name) <span style="color: #483d8b;">:v-adjust</span> 0.03 <span style="color: #483d8b;">:face</span> 'mode-line-file-icon-face))
@@ -6173,7 +6185,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
      (ggtags-mode <span style="color: #8b2252;">" G"</span> <span style="color: #8b2252;">"ggtags"</span>)
      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(orgstruct-mode " OrgS" "org")</span>
      (orgalist-mode <span style="color: #8b2252;">" ol"</span> <span style="color: #8b2252;">"orgalist"</span>)
-
+     (view-mode <span style="color: #8b2252;">" V"</span> <span style="color: #8b2252;">"view"</span>)
      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Stop to display for minor modes</span>
      (org-fancy-priorities-mode nil <span style="color: #8b2252;">"org-fancy-priorities"</span>)
      (smooth-scroll-mode nil <span style="color: #8b2252;">"smooth-scroll"</span>)
@@ -6202,7 +6214,12 @@ version 28 で全角スペースに黒下線が付くので回避します．
      (fancy-narrow-mode nil <span style="color: #8b2252;">"fancy-narrow"</span>)
      (smartparens-mode nil <span style="color: #8b2252;">"smartparens"</span>)
      (projectile-mode nil <span style="color: #8b2252;">"projectile"</span>)
-     (selected-minor-mode nil <span style="color: #8b2252;">"selected"</span>))))
+     (selected-minor-mode nil <span style="color: #8b2252;">"selected"</span>)))
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Override by icon</span>
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+    (delight
+     `((view-mode ,(concat <span style="color: #8b2252;">" "</span> (icons-in-terminal-faicon <span style="color: #8b2252;">"lock"</span>)) <span style="color: #8b2252;">"view"</span>)))))
 </pre>
 </div>
 </div>
@@ -8115,8 +8132,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-cg-bookmark</span> <span style="color: #8b2252;">"c-g-point-last"</span>)
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cg-bookmark</span> ()
   (push-mark)
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> buffer-file-name
-             isearch-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">TODO could be removed this?</span>
+  (<span style="color: #a020f0;">when</span> buffer-file-name
     (bookmark-set my-cg-bookmark)))
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ah</span> nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
@@ -12241,7 +12257,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org8c8ebb2"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgfed1e43"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13117,7 +13133,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org19398b1" class="figure">
+<div id="orgff8d20f" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14234,10 +14250,10 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
        '(hl-line-mode my-hl-line-enable)
        <span style="color: #8b2252;">"hl-line"</span> nil t)
 
+  (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
+
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-permanent-disabled</span> '(dired-mode)
     <span style="color: #8b2252;">"A list of major modes to disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>)
-
-  (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-off-hline-hook</span> nil)
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-on-hline-hook</span> nil)
@@ -15917,7 +15933,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-10-14 Thu 16:11</p>
+<p class="date">Created: 2021-10-15 Fri 03:06</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -29,12 +29,12 @@
 (define-fringe-bitmap 'right-curly-arrow
   [#b00000000
    #b00000000
-   #b00111110
-   #b00100010
-   #b00100010
-   #b00100010
-   #b00100010
-   #b00111110])
+   #b00000000
+   #b00000000
+   #b01111110
+   #b01111110
+   #b01100000
+   #b01100000])
 
 (setq mouse-drag-copy-region t)
 
@@ -460,6 +460,11 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
           (when (> smart-mark-point-before-mark 1) ;; FIXME
             (goto-char smart-mark-point-before-mark))))))
 
+  ;; (defun my-smart-mark-activate () (smart-mark-mode 1))
+  ;; (defun my-smart-mark-dectivate () (smart-mark-mode -1))
+  ;; (add-hook 'isearch-mode-hook #'my-smart-mark-dectivate)
+  ;; (add-hook 'isearch-mode-end-hook #'my-smart-mark-activate)
+
   (unless noninteractive
     (smart-mark-mode 1)))
 
@@ -504,6 +509,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
           (goto-char (mark))
           (isearch-repeat-forward)))
     ad-do-it))
+
+;; C-g を isearch-exit に割り当てて途中中断とする．（カーソルを留めておきたい）カーソルを検索開始時点の場所に戻すには，別途 counsel-mark-ring を使う
+(define-key isearch-mode-map (kbd "C-g") 'isearch-exit)
 
 (defun my-orgalist-activate ()
   (when (require 'orgalist nil t)
@@ -624,7 +632,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
-  (define-key view-mode-map (kbd "S-<space>") 'mac-ime-toggle)
+  (define-key view-mode-map (kbd "S-SPC") 'mac-ime-toggle)
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
   (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
@@ -1088,10 +1096,8 @@ Call this function at updating `mode-line-mode'."
                        ;; "Narrow" を "N" に短縮表示
                        (if (and (buffer-narrowed-p)
                                 (fboundp 'icons-in-terminal-octicon))
-                           (concat " "
-                                   (icons-in-terminal-octicon "fold" :v-adjust 0.0))
-                         "")
-                       ))
+                           (concat " " (icons-in-terminal-octicon
+                                        "fold" :v-adjust 0.0)) "")))
            entry))
        mode-line-modes))
 
@@ -1287,6 +1293,12 @@ Call this function at updating `mode-line-mode'."
    ((((background dark)) :foreground "VioletRed1")
     (t (:foreground "LightGoldenrod1")))))
 
+
+(defun my-mode-line-icon-lock ()
+  (if view-mode
+      (concat (icons-in-terminal-faicon
+               "lock" :face '(:foreground "#FF0000")) " ") ""))
+
 (defun my-mode-line-icon-for-file ()
   (icons-in-terminal-icon-for-file
              (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
@@ -1311,52 +1323,57 @@ Call this function at updating `mode-line-mode'."
 (with-eval-after-load "delight"
   (delight
    '(;; Major modes
-     ;;     (c-mode "C" :major)
-     ;;     (c++mode "C++" :major)
-     (js2-mode "JS" :major)
-     (csharp-mode "C#" :major)
-     (prog-mode "Pr" :major)
-     (emacs-lisp-mode "El" :major)
-     (python-mode "Py" :major)
-     (perl-mode "Pl" :major)
-     (web-mode "W" :major)
-     (change-log-mode "ChangeLog" :major)
-     (lisp-interaction-mode "Lisp" :major)
+	   ;;     (c-mode "C" :major)
+	   ;;     (c++mode "C++" :major)
+	   (js2-mode "JS" :major)
+	   (csharp-mode "C#" :major)
+	   (prog-mode "Pr" :major)
+	   (emacs-lisp-mode "El" :major)
+	   (python-mode "Py" :major)
+	   (perl-mode "Pl" :major)
+	   (web-mode "W" :major)
+	   (change-log-mode "ChangeLog" :major)
+	   (lisp-interaction-mode "Lisp" :major)
 
-     ;; Shorten for minor modes
-     (ggtags-mode " G" "ggtags")
-     ;; (orgstruct-mode " OrgS" "org")
-     (orgalist-mode " ol" "orgalist")
+	   ;; Shorten for minor modes
+	   (ggtags-mode " G" "ggtags")
+	   ;; (orgstruct-mode " OrgS" "org")
+	   (orgalist-mode " ol" "orgalist")
+	   (view-mode " V" "view")
+	   ;; Stop to display for minor modes
+	   (org-fancy-priorities-mode nil "org-fancy-priorities")
+	   (smooth-scroll-mode nil "smooth-scroll")
+	   (eldoc-mode nil "eldoc")
+	   (ivy-mode nil "ivy")
+	   (counsel-mode nil "counsel")
+	   (centered-cursor-mode nil "centered-cursor-mode")
+	   (volatile-highlights-mode nil "volatile-highlights")
+	   (aggressive-indent-mode nil "aggressive-indent")
+	   (all-the-icons-dired-mode nil "all-the-icons-dired")
+	   (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
+	   (yas-minor-mode nil "yasnippet")
+	   (auto-complete-mode nil "auto-complete")
+	   (company-mode nil "company")
+	   (ws-butler-mode nil "ws-butler")
+	   (isearch-mode nil "isearch")
+	   (auto-revert-mode nil "autorevert")
+	   (global-whitespace-mode nil "whitespace")
+	   (emmet-mode nil "emmet-mode")
+	   (abbrev-mode nil "abbrev")
+	   (doxymacs-mode nil "doxymacs")
+	   (editorconfig-mode nil "editorconfig")
+	   (rainbow-mode nil "rainbow-mode")
+	   (highlight-symbol-mode nil "highlight-symbol")
+	   (which-key-mode nil "which-key")
+	   (fancy-narrow-mode nil "fancy-narrow")
+	   (smartparens-mode nil "smartparens")
+	   (projectile-mode nil "projectile")
+	   (selected-minor-mode nil "selected")))
 
-     ;; Stop to display for minor modes
-     (org-fancy-priorities-mode nil "org-fancy-priorities")
-     (smooth-scroll-mode nil "smooth-scroll")
-     (eldoc-mode nil "eldoc")
-     (ivy-mode nil "ivy")
-     (counsel-mode nil "counsel")
-     (centered-cursor-mode nil "centered-cursor-mode")
-     (volatile-highlights-mode nil "volatile-highlights")
-     (aggressive-indent-mode nil "aggressive-indent")
-     (all-the-icons-dired-mode nil "all-the-icons-dired")
-     (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
-     (yas-minor-mode nil "yasnippet")
-     (auto-complete-mode nil "auto-complete")
-     (company-mode nil "company")
-     (ws-butler-mode nil "ws-butler")
-     (isearch-mode nil "isearch")
-     (auto-revert-mode nil "autorevert")
-     (global-whitespace-mode nil "whitespace")
-     (emmet-mode nil "emmet-mode")
-     (abbrev-mode nil "abbrev")
-     (doxymacs-mode nil "doxymacs")
-     (editorconfig-mode nil "editorconfig")
-     (rainbow-mode nil "rainbow-mode")
-     (highlight-symbol-mode nil "highlight-symbol")
-     (which-key-mode nil "which-key")
-     (fancy-narrow-mode nil "fancy-narrow")
-     (smartparens-mode nil "smartparens")
-     (projectile-mode nil "projectile")
-     (selected-minor-mode nil "selected"))))
+  ;; Override by icon
+  (when (require 'icons-in-terminal nil t)
+	  (delight
+	   `((view-mode ,(concat " " (icons-in-terminal-faicon "lock")) "view")))))
 
 (if (executable-find "cmigemo")
     (when (autoload-if-found
@@ -2052,8 +2069,7 @@ sorted.  FUNCTION must be a function of one argument."
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark ()
   (push-mark)
-  (when (and buffer-file-name
-             isearch-mode) ;; TODO could be removed this?
+  (when buffer-file-name
     (bookmark-set my-cg-bookmark)))
 (when (require 'ah nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
@@ -2890,10 +2906,10 @@ Uses `all-the-icons-material' to fetch the icon."
        '(hl-line-mode my-hl-line-enable)
        "hl-line" nil t)
 
+  (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
+
   (defvar my-hl-permanent-disabled '(dired-mode)
     "A list of major modes to disable `hl-line'.")
-
-  (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
 
   (defvar my-ime-off-hline-hook nil)
   (defvar my-ime-on-hline-hook nil)
