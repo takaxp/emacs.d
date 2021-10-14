@@ -392,7 +392,22 @@ This function is called directly from the C code."
 
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
+          '((:eval (replace-regexp-in-string "^ Git" "" vc-mode)))))
+
+(with-eval-after-load "icons-in-terminal"
+  ;; 変更がアリ時は赤アイコン，そうでない時に緑アイコンをモードラインに表示
+  (make-face 'mode-line-vc-normal-face)
+  (make-face 'mode-line-vc-modified-face)
+  (set-face-attribute 'mode-line-vc-normal-face nil :foreground "#AFFFAF")
+  (set-face-attribute 'mode-line-vc-modified-face nil :foreground "#EEAFAF")
+  (defun my-mode-line-vc-mode-icon ()
+    (if (string-match "^ Git:" vc-mode)
+        (replace-regexp-in-string
+         "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
+      (replace-regexp-in-string
+       "^ Git-" (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))
+  (setcdr (assq 'vc-mode mode-line-format)
+          '((:eval (my-mode-line-vc-mode-icon)))))
 
 ;; mode-line
 (set-face-attribute 'mode-line nil
@@ -412,6 +427,11 @@ This function is called directly from the C code."
   (set-face-background 'mode-line "#21252B"))
 
 (setq line-number-display-limit-width 100000)
+
+;; モードラインの行数表示の前にアイコンを追加
+(with-eval-after-load "icons-in-terminal"
+  (setq mode-line-position-line-format
+        `(,(icons-in-terminal-material "edit") "%3l")))
 
 ;;  (setq visible-bell nil) ;; default=nil
 (setq ring-bell-function 'ignore)

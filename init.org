@@ -939,7 +939,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
    :CUSTOM_ID: org7a9614cc
    :END:
 
-さらに折返しのマークを右側のfringeだけに表示させています．
+さらに折り返しのマークを右側のfringeだけに表示させています．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (setq truncate-lines nil)
@@ -948,6 +948,16 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
               (append (list '(continuation . (nil right-curly-arrow)))
                       (remove (assoc 'continuation fringe-indicator-alist)
                               fringe-indicator-alist)))
+;; fringeに表示するマークの形状を変更
+(define-fringe-bitmap 'right-curly-arrow
+  [#b00000000
+   #b00000000
+   #b00111110
+   #b00100010
+   #b00100010
+   #b00100010
+   #b00100010
+   #b00111110])
 #+end_src
 
 ** マウスで選択した領域を自動コピー
@@ -2755,7 +2765,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
-  (define-key view-mode-map (kbd "S-<space>") 'ignore)
+  (define-key view-mode-map (kbd "S-<space>") 'mac-ime-toggle)
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
   (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
@@ -4135,6 +4145,7 @@ Call this function at updating `mode-line-mode'."
       (mlscroll-mode 1))
     (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)))
 #+end_src
+
 ** モードラインの節約（VC-mode編）
    :PROPERTIES:
    :CUSTOM_ID: org5fd3a668
@@ -4145,7 +4156,22 @@ Call this function at updating `mode-line-mode'."
 #+begin_src emacs-lisp :tangle yes
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval (replace-regexp-in-string "^ Git" " " vc-mode)))))
+          '((:eval (replace-regexp-in-string "^ Git" "" vc-mode)))))
+
+(with-eval-after-load "icons-in-terminal"
+  ;; 変更がアリ時は赤アイコン，そうでない時に緑アイコンをモードラインに表示
+  (make-face 'mode-line-vc-normal-face)
+  (make-face 'mode-line-vc-modified-face)
+  (set-face-attribute 'mode-line-vc-normal-face nil :foreground "#AFFFAF")
+  (set-face-attribute 'mode-line-vc-modified-face nil :foreground "#EEAFAF")
+  (defun my-mode-line-vc-mode-icon ()
+    (if (string-match "^ Git:" vc-mode)
+        (replace-regexp-in-string
+         "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
+      (replace-regexp-in-string
+       "^ Git-" (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))
+  (setcdr (assq 'vc-mode mode-line-format)
+          '((:eval (my-mode-line-vc-mode-icon)))))
 #+end_src
 
 ** モードラインの色をカスタマイズする
@@ -4203,8 +4229,15 @@ Call this function at updating `mode-line-mode'."
 
 デフォルトだと200桁までしか把握しないので，いつも表示されるように拡張します．
 
+さらにモードラインの表示をちょっとリッチにします．
+
 #+begin_src emacs-lisp :tangle yes
 (setq line-number-display-limit-width 100000)
+
+;; モードラインの行数表示の前にアイコンを追加
+(with-eval-after-load "icons-in-terminal"
+  (setq mode-line-position-line-format
+        `(,(icons-in-terminal-material "edit") "%3l")))
 #+end_src
 
 ** visible-bell のカスタマイズ
@@ -4432,12 +4465,38 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
     (add-hook 'my-ime-on-hline-hook #'my-update-display-line-numbers-face))
 
   (with-eval-after-load "display-line-numbers"
+    (require 'moom nil t)
     (custom-set-faces
      '(line-number-current-line
        ((t (:bold t)))))
 
     (custom-set-variables
      '(display-line-numbers-width-start t))
+
+    ;; ウィンドウ左に表示する行数の幅を5以上に固定する．
+    (defun my-display-line-numbers-width ()
+      (when (< display-line-numbers-width 5)
+        (setq display-line-numbers-width 5))
+      (setq moom-display-line-numbers-width (+ 2 display-line-numbers-width)))
+    (add-hook 'display-line-numbers-mode-hook #'my-display-line-numbers-width)
+
+    (defun my-display-line-numbers-mode-on ()
+      "Trun on `display-line-numbers'."
+      (interactive)
+      (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
+          (unless global-display-line-numbers-mode
+            (global-display-line-numbers-mode 1)
+            (line-number-mode -1))
+        (user-error "The display-line-numbers is NOT supported")))
+
+    (defun my-display-line-numbers-mode-off ()
+      "Trun off `display-line-numbers'."
+      (interactive)
+      (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
+          (when global-display-line-numbers-mode
+            (global-display-line-numbers-mode -1)
+            (line-number-mode 1))
+        (user-error "The display-line-numbers is NOT supported")))
 
     (defun my-toggle-display-line-numbers-mode ()
       "Toggle variable `global-display-line-numbers-mode'."
@@ -4446,8 +4505,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
           (let ((flag (if global-display-line-numbers-mode -1 1)))
             (global-display-line-numbers-mode flag)
             (line-number-mode (- flag)))
-        (user-error "The display-line-numbers is NOT supported"))
-      )))
+        (user-error "The display-line-numbers is NOT supported")))))
 #+end_src
 
 ** 時刻をモードラインに表示する
@@ -10041,6 +10099,42 @@ also calls `beep' for an audible reminder."
 
   (add-hook 'org-tree-slide-play-hook (lambda () (org-bullets-mode 1)))
   (add-hook 'org-tree-slide-stop-hook (lambda () (org-bullets-mode -1))))
+#+end_src
+
+** [org-tree-slide] 一時的に #+ATTR_ORG などを非表示にする
+   :PROPERTIES:
+   :CUSTOM_ID: org639ece0e
+   :CREATED:  [2021-10-13 Wed 19:20]
+   :END:
+
+プレゼンテーション実行時に，制御コードが記述されている =#+ATTR_ORG= などの行を非表示（背景と同じ色）にします．
+
+#+begin_src emacs-lisp :tangle init-org.el
+(defvar my-hide-org-meta-line-p nil)
+(defun my-hide-org-meta-line ()
+  (interactive)
+  (setq my-hide-org-meta-line-p t)
+  (set-face-attribute 'org-meta-line nil
+			                :foreground (face-attribute 'default :background)))
+(defun my-show-org-meta-line ()
+  (interactive)
+  (setq my-hide-org-meta-line-p nil)
+  (set-face-attribute 'org-meta-line nil :foreground nil))
+
+(defun my-toggle-org-meta-line ()
+  (interactive)
+  (if my-hide-org-meta-line-p
+	    (my-show-org-meta-line) (my-hide-org-meta-line)))
+
+(add-hook 'org-tree-slide-play-hook #'my-hide-org-meta-line)
+(add-hook 'org-tree-slide-stop-hook #'my-show-org-meta-line)
+
+;; Option
+(defun my-update-org-meta-line ()
+  (interactive)
+  (when my-hide-org-meta-line-p
+    (my-hide-org-meta-line)))
+(add-hook 'ah-after-enable-theme-hook #'my-update-org-meta-line)
 #+end_src
 
 ** [calfw-org.el] calfw に org の予定を表示する

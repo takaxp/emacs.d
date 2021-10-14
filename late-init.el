@@ -25,6 +25,16 @@
               (append (list '(continuation . (nil right-curly-arrow)))
                       (remove (assoc 'continuation fringe-indicator-alist)
                               fringe-indicator-alist)))
+;; fringeに表示するマークの形状を変更
+(define-fringe-bitmap 'right-curly-arrow
+  [#b00000000
+   #b00000000
+   #b00111110
+   #b00100010
+   #b00100010
+   #b00100010
+   #b00100010
+   #b00111110])
 
 (setq mouse-drag-copy-region t)
 
@@ -614,7 +624,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
-  (define-key view-mode-map (kbd "S-<space>") 'ignore)
+  (define-key view-mode-map (kbd "S-<space>") 'mac-ime-toggle)
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
   (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
@@ -1141,12 +1151,38 @@ Call this function at updating `mode-line-mode'."
     (add-hook 'my-ime-on-hline-hook #'my-update-display-line-numbers-face))
 
   (with-eval-after-load "display-line-numbers"
+    (require 'moom nil t)
     (custom-set-faces
      '(line-number-current-line
        ((t (:bold t)))))
 
     (custom-set-variables
      '(display-line-numbers-width-start t))
+
+    ;; ウィンドウ左に表示する行数の幅を5以上に固定する．
+    (defun my-display-line-numbers-width ()
+      (when (< display-line-numbers-width 5)
+        (setq display-line-numbers-width 5))
+      (setq moom-display-line-numbers-width (+ 2 display-line-numbers-width)))
+    (add-hook 'display-line-numbers-mode-hook #'my-display-line-numbers-width)
+
+    (defun my-display-line-numbers-mode-on ()
+      "Trun on `display-line-numbers'."
+      (interactive)
+      (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
+          (unless global-display-line-numbers-mode
+            (global-display-line-numbers-mode 1)
+            (line-number-mode -1))
+        (user-error "The display-line-numbers is NOT supported")))
+
+    (defun my-display-line-numbers-mode-off ()
+      "Trun off `display-line-numbers'."
+      (interactive)
+      (if (fboundp 'global-display-line-numbers-mode) ;; 26.1 or later
+          (when global-display-line-numbers-mode
+            (global-display-line-numbers-mode -1)
+            (line-number-mode 1))
+        (user-error "The display-line-numbers is NOT supported")))
 
     (defun my-toggle-display-line-numbers-mode ()
       "Toggle variable `global-display-line-numbers-mode'."
@@ -1155,8 +1191,7 @@ Call this function at updating `mode-line-mode'."
           (let ((flag (if global-display-line-numbers-mode -1 1)))
             (global-display-line-numbers-mode flag)
             (line-number-mode (- flag)))
-        (user-error "The display-line-numbers is NOT supported"))
-      )))
+        (user-error "The display-line-numbers is NOT supported")))))
 
 ;; Show clock in in the mode line
 (setq display-time-format "%H:%M") ;; %y%m%d. ;; "%H%M.%S"

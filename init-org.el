@@ -1445,6 +1445,32 @@ also calls `beep' for an audible reminder."
               (lambda ()
                   (buffer-face-mode 0)))))
 
+(defvar my-hide-org-meta-line-p nil)
+(defun my-hide-org-meta-line ()
+  (interactive)
+  (setq my-hide-org-meta-line-p t)
+  (set-face-attribute 'org-meta-line nil
+			                :foreground (face-attribute 'default :background)))
+(defun my-show-org-meta-line ()
+  (interactive)
+  (setq my-hide-org-meta-line-p nil)
+  (set-face-attribute 'org-meta-line nil :foreground nil))
+
+(defun my-toggle-org-meta-line ()
+  (interactive)
+  (if my-hide-org-meta-line-p
+	    (my-show-org-meta-line) (my-hide-org-meta-line)))
+
+(add-hook 'org-tree-slide-play-hook #'my-hide-org-meta-line)
+(add-hook 'org-tree-slide-stop-hook #'my-show-org-meta-line)
+
+;; Option
+(defun my-update-org-meta-line ()
+  (interactive)
+  (when my-hide-org-meta-line-p
+    (my-hide-org-meta-line)))
+(add-hook 'ah-after-enable-theme-hook #'my-update-org-meta-line)
+
 (when (autoload-if-found
        '(ox-odt)
        "ox-odt" nil t)
