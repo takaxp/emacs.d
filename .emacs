@@ -17,6 +17,10 @@
   (when (string= "Big Sur" (macos-name (macos-version)))
     (setq moom--common-margin '(0 0 0 0))))
 
+(with-eval-after-load "postpone"
+  (autoload-if-found '(vterm) "vterm"  nil t)
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
 ;;(advice-add 'epg--check-error-for-decrypt :override 'ignore)

@@ -1332,7 +1332,7 @@ Call this function at updating `mode-line-mode'."
 	   (python-mode "Py" :major)
 	   (perl-mode "Pl" :major)
 	   (web-mode "W" :major)
-	   (change-log-mode "ChangeLog" :major)
+	   (change-log-mode "CLog" :major)
 	   (lisp-interaction-mode "Lisp" :major)
 
 	   ;; Shorten for minor modes
@@ -2229,6 +2229,7 @@ sorted.  FUNCTION must be a function of one argument."
 (when (autoload-if-found
        '(facecheck-at-point facecheck-mode)
        "facecheck" nil t)
+
   (with-eval-after-load "facecheck"
     (facecheck-mode 1)))
 
@@ -3170,6 +3171,9 @@ Uses `all-the-icons-material' to fetch the icon."
         (my-vhl-change-color)))
     (global-set-key (kbd "M-v") 'my-yank)
     (global-set-key (kbd "C-y") 'my-yank)
+
+    (with-eval-after-load "vterm"
+      (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
 
     (with-eval-after-load "org"
       (define-key org-mode-map (kbd "C-y") 'my-org-yank)
