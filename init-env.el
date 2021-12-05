@@ -25,7 +25,7 @@
 (when my-profiler-p
   (profiler-start 'cpu+mem))
 ;; Suppress exporting of custom-set-variables (25.1 or later)
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(setq custom-file (locate-user-emacs-file "custom.el"))
 (defun my-path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."
   (dolist (x path-list)

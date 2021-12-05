@@ -18,8 +18,13 @@
     (setq moom--common-margin '(0 0 0 0))))
 
 (with-eval-after-load "postpone"
-  (autoload-if-found '(vterm) "vterm"  nil t)
-  )
+  (autoload-if-found '(vterm) "vterm"  nil t))
+
+(with-eval-after-load "moom"
+  (defun my-moom-mixmized-plus ()
+    (moom-change-frame-width-single)
+    (moom-move-frame-to-center))
+  (setq moom-after-fill-screen-hook 'my-moom-mixmized-plus))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
