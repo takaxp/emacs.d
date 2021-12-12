@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-12-05 Sun 14:33 -->
+<!-- 2021-12-12 Sun 21:14 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#orgfe3d0fd">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org2e30c13">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -394,7 +394,7 @@
 <li><a href="#orgdd0a9c41">6.10. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.11. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.12. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org0729bb5">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org238b768">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.14. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.15. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.16. カーソル行の関数名をモードラインに表示する</a></li>
@@ -1785,8 +1785,8 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
    #b00000000
    #b01111110
    #b01111110
-   #b01100000
-   #b01100000])
+   #b00000110
+   #b00000110])
 </pre>
 </div>
 </div>
@@ -3093,23 +3093,36 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">smart-mark</span> nil t)
   (<span style="color: #a020f0;">progn</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-M-SPC SPC SPC ... C-g &#12398;&#22580;&#21512;&#12395;&#27491;&#12375;&#12367;&#12459;&#12540;&#12477;&#12523;&#12392;&#20803;&#12395;&#25147;&#12377;&#65294;</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:smart-mark-restore-cursor</span> ()
+      <span style="color: #8b2252;">"Restore cursor position saved just before mark."</span>
+      (<span style="color: #a020f0;">when</span> smart-mark-point-before-mark
+        (<span style="color: #a020f0;">when</span> (&gt; smart-mark-point-before-mark 1)
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">To avoid to jump to the beginning of the buffer</span>
+          (goto-char smart-mark-point-before-mark))
+        (<span style="color: #a020f0;">setq</span> smart-mark-point-before-mark nil)))
+    (advice-add 'smart-mark-restore-cursor <span style="color: #483d8b;">:override</span>
+                #'ad:smart-mark-restore-cursor)
+
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:smart-mark-set-restore-before-mark</span> (<span style="color: #228b22;">&amp;rest</span> _arg)
       (<span style="color: #a020f0;">unless</span> (memq this-command
                     '(er/expand-region er/mark-symbol er/contract-region))
         (<span style="color: #a020f0;">setq</span> smart-mark-point-before-mark (point))))
     (advice-add 'smart-mark-set-restore-before-mark <span style="color: #483d8b;">:override</span>
                 #'ad:smart-mark-set-restore-before-mark)
+
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region-core</span> nil t)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:er:keyboard-quit ()</span>
-      <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (memq last-command '(er/expand-region er/contract-region))</span>
-      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(when smart-mark-point-before-mark</span>
-      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(goto-char smart-mark-point-before-mark))))</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)</span>
+      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:er:keyboard-quit</span> ()
+        (<span style="color: #a020f0;">when</span> (memq last-command '(er/expand-region er/contract-region))
+          (<span style="color: #a020f0;">when</span> smart-mark-point-before-mark
+            (goto-char smart-mark-point-before-mark))))
+      (advice-add 'keyboard-quit <span style="color: #483d8b;">:after</span> #'ad:er:keyboard-quit)
+
       (<span style="color: #a020f0;">defadvice</span> <span style="color: #0000ff;">keyboard-quit</span> (before collapse-region activate)
         (<span style="color: #a020f0;">when</span> (memq last-command '(er/expand-region er/contract-region))
           (er/contract-region 0)
-          (<span style="color: #a020f0;">when</span> (&gt; smart-mark-point-before-mark 1) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-            (goto-char smart-mark-point-before-mark))))))
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (&gt; smart-mark-point-before-mark 1) ;; FIXME</span>
+          <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(goto-char smart-mark-point-before-mark))</span>
+          ))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-smart-mark-activate () (smart-mark-mode 1))</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-smart-mark-dectivate () (smart-mark-mode -1))</span>
@@ -5397,8 +5410,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orgfe3d0fd" class="outline-3">
-<h3 id="orgfe3d0fd"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org2e30c13" class="outline-3">
+<h3 id="org2e30c13"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5784,8 +5797,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org0729bb5" class="outline-3">
-<h3 id="org0729bb5"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-org238b768" class="outline-3">
+<h3 id="org238b768"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-13">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -6462,7 +6475,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
        <span style="color: #8b2252;">"calendar"</span> nil t)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"calendar"</span>
-    (<span style="color: #a020f0;">setq</span> calendar-week-start-day 1)
+    (<span style="color: #a020f0;">setq</span> calendar-week-start-day 6)
     (copy-face 'default 'calendar-iso-week-header-face)
     (set-face-attribute 'calendar-iso-week-header-face nil
                         <span style="color: #483d8b;">:height</span> 1.0 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#1010FF"</span>
@@ -12258,7 +12271,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org6e58a68"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org01a9e02"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13134,7 +13147,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org04a1547" class="figure">
+<div id="org04e984c" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15937,7 +15950,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2021-12-05 Sun 14:33</p>
+<p class="date">Created: 2021-12-12 Sun 21:14</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

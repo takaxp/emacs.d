@@ -33,8 +33,8 @@
    #b00000000
    #b01111110
    #b01111110
-   #b01100000
-   #b01100000])
+   #b00000110
+   #b00000110])
 
 (setq mouse-drag-copy-region t)
 
@@ -442,23 +442,36 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (when (require 'smart-mark nil t)
   (progn ;; C-M-SPC SPC SPC ... C-g の場合に正しくカーソルと元に戻す．
+    (defun ad:smart-mark-restore-cursor ()
+      "Restore cursor position saved just before mark."
+      (when smart-mark-point-before-mark
+        (when (> smart-mark-point-before-mark 1)
+          ;; To avoid to jump to the beginning of the buffer
+          (goto-char smart-mark-point-before-mark))
+        (setq smart-mark-point-before-mark nil)))
+    (advice-add 'smart-mark-restore-cursor :override
+                #'ad:smart-mark-restore-cursor)
+
     (defun ad:smart-mark-set-restore-before-mark (&rest _arg)
       (unless (memq this-command
                     '(er/expand-region er/mark-symbol er/contract-region))
         (setq smart-mark-point-before-mark (point))))
     (advice-add 'smart-mark-set-restore-before-mark :override
                 #'ad:smart-mark-set-restore-before-mark)
+
     (when (require 'expand-region-core nil t)
-      ;; (defun ad:er:keyboard-quit ()
-      ;;   (when (memq last-command '(er/expand-region er/contract-region))
-      ;;     (when smart-mark-point-before-mark
-      ;;       (goto-char smart-mark-point-before-mark))))
-      ;; (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)
+      (defun ad:er:keyboard-quit ()
+        (when (memq last-command '(er/expand-region er/contract-region))
+          (when smart-mark-point-before-mark
+            (goto-char smart-mark-point-before-mark))))
+      (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)
+
       (defadvice keyboard-quit (before collapse-region activate)
         (when (memq last-command '(er/expand-region er/contract-region))
           (er/contract-region 0)
-          (when (> smart-mark-point-before-mark 1) ;; FIXME
-            (goto-char smart-mark-point-before-mark))))))
+          ;; (when (> smart-mark-point-before-mark 1) ;; FIXME
+          ;;   (goto-char smart-mark-point-before-mark))
+          ))))
 
   ;; (defun my-smart-mark-activate () (smart-mark-mode 1))
   ;; (defun my-smart-mark-dectivate () (smart-mark-mode -1))
@@ -1472,7 +1485,7 @@ Call this function at updating `mode-line-mode'."
        "calendar" nil t)
 
   (with-eval-after-load "calendar"
-    (setq calendar-week-start-day 1)
+    (setq calendar-week-start-day 6)
     (copy-face 'default 'calendar-iso-week-header-face)
     (set-face-attribute 'calendar-iso-week-header-face nil
                         :height 1.0 :foreground "#1010FF"

@@ -2,6 +2,32 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
+
+(with-eval-after-load "org"
+  (with-eval-after-load "eldoc"
+    (defun eldoc-print-current-symbol-info (&optional interactive)
+      "Document thing at point."
+      (interactive '(t))
+      (let (token)
+        (cond (interactive
+               (eldoc--invoke-strategy t))
+              ((not (equal (setq token (eldoc--request-state))
+                           eldoc--last-request-state))
+               (let ((non-essential t))
+                 (setq eldoc--last-request-state token)
+                 (eldoc--invoke-strategy nil))))))
+
+    (defun ad:eldoc-print-current-symbol-info (f &optional interactive)
+      (interactive '(t))
+      (unless (eq (car (org-element-at-point)) 'src-block)
+        (funcall f interactive)))
+
+    (advice-add 'eldoc-print-current-symbol-info :around #'ad:eldoc-print-current-symbol-info)))
+
+(with-eval-after-load "transient"
+  ;; https://github.com/magit/transient/blob/master/docs/transient.org
+  )
+
 (cond (nil ;; To test the latest org
        (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
        (setq org-agenda-files '("~/Desktop/hoge.org")))
