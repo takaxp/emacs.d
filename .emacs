@@ -5,24 +5,14 @@
 
 (with-eval-after-load "org"
   (with-eval-after-load "eldoc"
-    (defun eldoc-print-current-symbol-info (&optional interactive)
-      "Document thing at point."
-      (interactive '(t))
-      (let (token)
-        (cond (interactive
-               (eldoc--invoke-strategy t))
-              ((not (equal (setq token (eldoc--request-state))
-                           eldoc--last-request-state))
-               (let ((non-essential t))
-                 (setq eldoc--last-request-state token)
-                 (eldoc--invoke-strategy nil))))))
-
     (defun ad:eldoc-print-current-symbol-info (f &optional interactive)
+      "Run `eldoc' when the cursor is located in org source block."
       (interactive '(t))
       (unless (eq (car (org-element-at-point)) 'src-block)
         (funcall f interactive)))
 
-    (advice-add 'eldoc-print-current-symbol-info :around #'ad:eldoc-print-current-symbol-info)))
+    (advice-add 'eldoc-print-current-symbol-info :around
+                #'ad:eldoc-print-current-symbol-info)))
 
 (with-eval-after-load "transient"
   ;; https://github.com/magit/transient/blob/master/docs/transient.org

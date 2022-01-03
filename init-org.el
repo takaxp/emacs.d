@@ -365,6 +365,8 @@
   (when (version< (org-version) "9.4.6")
     (defvaralias 'org-speed-commands 'org-speed-commands-user))
 
+  ;; "C"(org-shifttab) をオーバーライド
+  (add-to-list 'org-speed-commands '("C" org-copy-subtree))
   (add-to-list 'org-speed-commands '("d" my-done-with-update-list))
   ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
   (add-to-list 'org-speed-commands
