@@ -781,10 +781,10 @@ will not be modified."
              "** %?\n  - \n\t%U")
             ("b" "Create new post for imadenale blog" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:EXPORT_HUGO_IMAGES: \n:END:\n")
+             "** TODO \n:PROPERTIES:\n:EXPORT_FILE_NAME: %?\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:EXPORT_HUGO_IMAGES: \n:END:\n{{< tweet user=\"takaxp\" id=\"\" >}}\n")
             ("B" "Create new post for imadenale blog (UUID)" entry
              (file+headline ,org-capture-blog-file ,(format-time-string "%Y"))
-             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:EXPORT_HUGO_IMAGES: \n:END:\n")
+             "** TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME: %(uuid-string)\n:EXPORT_HUGO_TAGS: \n:EXPORT_HUGO_LASTMOD: \n:EXPORT_HUGO_IMAGES: \n:END:\n{{< tweet user=\"takaxp\" id=\"\" >}}\n")
             ;; ("b" "Bug タグ付きの TODO 項目を貼り付ける" entry
             ;;  (file+headline ,org-default-notes-file "INBOX")
             ;;  "** TODO %? :bug:\n %i\n %a %t")

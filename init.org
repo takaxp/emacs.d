@@ -5005,9 +5005,15 @@ version 28 で全角スペースに黒下線が付くので回避します．
 ** [calendar.el] カレンダーで週番号を表示する
    :PROPERTIES:
    :CUSTOM_ID: org12f72886
+   :ID:       F054376C-311C-4E01-8E13-0BCF4354E485
    :END:
 
-ビルドインの =calendar.el= にある =calendar-intermonth-text= をカスタマイズすると，カレンダーに週番号を表示させることが可能です．ただ， =calendar.el= に記載されている例だと， =calendar-week-start-day= が =1= 以外の時に計算結果がおかしくなるので，次のように =calendar-absolute-from-gregorian= に渡す値を補正する必要があります．
+ビルドインの =calendar.el= にある =calendar-intermonth-text= をカスタマイズすると，カレンダーに週番号を表示させることが可能です．
+
+#+begin_quote
+ただ， =calendar.el= に記載されている例だと， =calendar-week-start-day= が =1= 以外の時に計算結果がおかしくなるので，次のように =calendar-absolute-from-gregorian= に渡す値を補正する必要があります．
+#+end_quote
+↑要再検討（以前は， =calendar-week-start-day= が2の場合でうまく行っていたが，現在は6を用いており，翌月の第一週の週番号が正しく表示されない状態）
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'empty-booting nil t)
@@ -5036,9 +5042,10 @@ version 28 で全角スペースに黒下線が付くので回避します．
             (format "%02d"
                     (car
                      (calendar-iso-from-absolute
-                      (calendar-absolute-from-gregorian
-                       (list month
-                             (- day (1- calendar-week-start-day)) year)))))
+                      (+ (calendar-absolute-from-gregorian
+                          (list month day year))
+                         calendar-week-start-day
+                         ))))
             'font-lock-face 'calendar-iso-week-face))
 
     (defun my-get-week-number ()
@@ -5048,8 +5055,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
                (calendar-iso-from-absolute
                 (calendar-absolute-from-gregorian
                  (list (string-to-number (format-time-string "%m"))
-                       (- (string-to-number (format-time-string "%d"))
-                          (1- calendar-week-start-day))
+                       (string-to-number (format-time-string "%d"))
                        (string-to-number (format-time-string "%y"))))))))))
 #+end_src
 

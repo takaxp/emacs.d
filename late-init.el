@@ -1485,7 +1485,7 @@ Call this function at updating `mode-line-mode'."
        "calendar" nil t)
 
   (with-eval-after-load "calendar"
-    (setq calendar-week-start-day 6)
+    (setq calendar-week-start-day 1)
     (copy-face 'default 'calendar-iso-week-header-face)
     (set-face-attribute 'calendar-iso-week-header-face nil
                         :height 1.0 :foreground "#1010FF"
@@ -1504,9 +1504,9 @@ Call this function at updating `mode-line-mode'."
             (format "%02d"
                     (car
                      (calendar-iso-from-absolute
-                      (calendar-absolute-from-gregorian
-                       (list month
-                             (- day (1- calendar-week-start-day)) year)))))
+                      (+ (calendar-absolute-from-gregorian
+                          (list month day year))
+                         calendar-week-start-day))))
             'font-lock-face 'calendar-iso-week-face))
 
     (defun my-get-week-number ()
@@ -1516,8 +1516,7 @@ Call this function at updating `mode-line-mode'."
                (calendar-iso-from-absolute
                 (calendar-absolute-from-gregorian
                  (list (string-to-number (format-time-string "%m"))
-                       (- (string-to-number (format-time-string "%d"))
-                          (1- calendar-week-start-day))
+                       (string-to-number (format-time-string "%d"))
                        (string-to-number (format-time-string "%y"))))))))))
 
 (when (autoload-if-found
