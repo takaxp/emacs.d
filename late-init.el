@@ -916,15 +916,16 @@ This works also for other defined begin/end tokens to define the structure."
     (setq-default sp-highlight-pair-overlay nil)
     (setq-default sp-highlight-wrap-overlay nil)
     (setq-default sp-highlight-wrap-tag-overlay nil)
+    (sp-pair "`" nil :actions :rem)
+    (sp-pair "'" nil :actions :rem)
+    (sp-pair "[" nil :actions :rem)
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'org-mode "~" "~")
+    ;; (sp-local-pair 'org-mode "[" "]")
     ;; (sp-local-pair 'org-mode "+" "+")
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "_" "_")
-    (sp-local-pair 'yatex-mode "$" "$")
-    (sp-pair "`" nil :actions :rem)
-    (sp-pair "'" nil :actions :rem)
-    (sp-pair "[" nil :actions :rem)))
+    (sp-local-pair 'yatex-mode "$" "$")))
 
 (when (autoload-if-found
        '(grugru-default grugru)
@@ -1485,7 +1486,7 @@ Call this function at updating `mode-line-mode'."
        "calendar" nil t)
 
   (with-eval-after-load "calendar"
-    (setq calendar-week-start-day 1)
+    (setq calendar-week-start-day 6)
     (copy-face 'default 'calendar-iso-week-header-face)
     (set-face-attribute 'calendar-iso-week-header-face nil
                         :height 1.0 :foreground "#1010FF"
@@ -1506,7 +1507,8 @@ Call this function at updating `mode-line-mode'."
                      (calendar-iso-from-absolute
                       (+ (calendar-absolute-from-gregorian
                           (list month day year))
-                         calendar-week-start-day))))
+                         calendar-week-start-day
+                         ))))
             'font-lock-face 'calendar-iso-week-face))
 
     (defun my-get-week-number ()
@@ -2227,11 +2229,11 @@ sorted.  FUNCTION must be a function of one argument."
                      helpful-symbol)
        "helpful" nil t)
 
-  (global-set-key (kbd "C-h k") 'helpful-key)
-  (global-set-key (kbd "C-h f") 'helpful-function)
-  (global-set-key (kbd "C-h v") 'helpful-variable)
-  (global-set-key (kbd "C-h m") 'helpful-macro)
-  (global-set-key (kbd "C-h @") 'helpful-at-point)
+  (global-set-key (kbd "<f1> k") 'helpful-key)
+  (global-set-key (kbd "<f1> f") 'helpful-function)
+  (global-set-key (kbd "<f1> v") 'helpful-variable)
+  (global-set-key (kbd "<f1> m") 'helpful-macro)
+  (global-set-key (kbd "<f1> @") 'helpful-at-point)
 
   (with-eval-after-load "helpful"
     (defun ad:helpful-at-point ()

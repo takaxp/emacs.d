@@ -73,7 +73,7 @@
     (setq org-log-into-drawer t)
 
     ;; indent を electric-indent-mode の振る舞いに合わせる
-    (setq org-adapt-indentation t)    
+    (setq org-adapt-indentation t)
 
     ;; Set checksum program path for windows
     (when (eq window-system 'w32)
@@ -659,6 +659,75 @@
                     #'my-echo-org-link)
       ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
       )))
+
+(with-eval-after-load "org"
+  (org-defkey org-mode-map (kbd "M-p") #'my-org-metaup)
+  (org-defkey org-mode-map (kbd "M-n") #'my-org-metadown)
+  (org-defkey org-mode-map (kbd "M-b") #'my-org-metaleft)
+  (org-defkey org-mode-map (kbd "M-f") #'my-org-metaright))
+
+(defun my-org-list-has-child-p ()
+  "Return t, if the item has at least a child item."
+  (save-excursion
+    (beginning-of-line)
+    (org-list-has-child-p (point) (org-list-struct))))
+
+(defun my-org-heading-has-child-p ()
+  "Return t, if the heading has at least a child heading."
+  (save-excursion
+    (org-goto-first-child)))
+
+(defun my-org-metadown ()
+  "Scroll up except at list and heading of `org'."
+  (interactive)
+  (cond ((org-at-item-p)
+	       (call-interactively 'org-move-item-down))
+	      ((or (looking-at org-heading-regexp)
+             (and (org-at-heading-p) (eolp)))
+	       (call-interactively 'org-move-subtree-down))
+	      (t (call-interactively 'scroll-up))))
+
+(defun my-org-metaup ()
+  "Scroll down except at list and heading of `org'."
+  (interactive)
+  (cond ((org-at-item-p)
+	       (call-interactively 'org-move-item-up))
+	      ((or (looking-at org-heading-regexp)
+             (and (org-at-heading-p) (eolp)))
+	       (call-interactively 'org-move-subtree-up))
+	      (t (call-interactively 'scroll-down))))
+
+(defvar my-org-promote-demote-independently nil)
+(defun my-inherit-struct-p ()
+  (and (not my-org-promote-demote-independently)
+       (or (my-org-list-has-child-p) (my-org-heading-has-child-p))))
+(defun my-org-metaleft-and-right-p ()
+  (or (org-at-item-p)
+      (looking-at org-heading-regexp)
+      (and (org-at-heading-p) (eolp))
+      (org-at-table-p)
+      (org-at-drawer-p)
+      (org-at-block-p)))
+(defun my-org-metaright ()
+  (interactive)
+  (if (my-org-metaleft-and-right-p)
+      (if (my-inherit-struct-p)
+          (org-shiftmetaright)
+        (org-metaright)) ;; FIXME similar check to my-org-metaleft-and-right-p
+    (if (and (fboundp 'syntax-subword-mode)
+             syntax-subword-mode)
+        (call-interactively 'syntax-subword-forward)
+      (forward-word))))
+(defun my-org-metaleft ()
+  (interactive)
+  (if (my-org-metaleft-and-right-p)
+      (if (my-inherit-struct-p)
+          (org-shiftmetaleft)
+        (org-metaleft)) ;; FIXME similar check to my-org-metaleft-and-right-p
+    (if (and (fboundp 'syntax-subword-mode)
+             syntax-subword-mode)
+        (call-interactively 'syntax-subword-backward)
+      (backward-word))))
 
 (defun my-org-table-copy-as (&optional format)
   "Copy converted table."

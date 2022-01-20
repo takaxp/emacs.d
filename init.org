@@ -866,6 +866,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
 ** 基本キーバインド
    :PROPERTIES:
    :CUSTOM_ID: org532e1f02
+   :ID:       FD7A45BB-B18D-4294-B58C-43E57DCCF059
    :END:
 
 次の機能にキーバインドを設定する．
@@ -3403,6 +3404,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 ** [smartparens.el] 対応するカッコの挿入をアシスト
    :PROPERTIES:
    :CUSTOM_ID: orgc3ce60f5
+   :ID:       A3E2186E-9675-4E62-83EB-2B78FF4B1879
    :END:
 
   - http://smartparens.readthedocs.io/
@@ -3423,15 +3425,16 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (setq-default sp-highlight-pair-overlay nil)
     (setq-default sp-highlight-wrap-overlay nil)
     (setq-default sp-highlight-wrap-tag-overlay nil)
+    (sp-pair "`" nil :actions :rem)
+    (sp-pair "'" nil :actions :rem)
+    (sp-pair "[" nil :actions :rem)
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'org-mode "~" "~")
+    ;; (sp-local-pair 'org-mode "[" "]")
     ;; (sp-local-pair 'org-mode "+" "+")
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "_" "_")
-    (sp-local-pair 'yatex-mode "$" "$")
-    (sp-pair "`" nil :actions :rem)
-    (sp-pair "'" nil :actions :rem)
-    (sp-pair "[" nil :actions :rem)))
+    (sp-local-pair 'yatex-mode "$" "$")))
 #+end_src
 
 ** TODO [grugru.el] 所定のキーワードをサイクルさせる
@@ -7004,11 +7007,11 @@ http://www.emacswiki.org/emacs/EmacsSession
                      helpful-symbol)
        "helpful" nil t)
 
-  (global-set-key (kbd "C-h k") 'helpful-key)
-  (global-set-key (kbd "C-h f") 'helpful-function)
-  (global-set-key (kbd "C-h v") 'helpful-variable)
-  (global-set-key (kbd "C-h m") 'helpful-macro)
-  (global-set-key (kbd "C-h @") 'helpful-at-point)
+  (global-set-key (kbd "<f1> k") 'helpful-key)
+  (global-set-key (kbd "<f1> f") 'helpful-function)
+  (global-set-key (kbd "<f1> v") 'helpful-variable)
+  (global-set-key (kbd "<f1> m") 'helpful-macro)
+  (global-set-key (kbd "<f1> @") 'helpful-at-point)
 
   (with-eval-after-load "helpful"
     (defun ad:helpful-at-point ()
@@ -8348,7 +8351,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (setq org-log-into-drawer t)
 
     ;; indent を electric-indent-mode の振る舞いに合わせる
-    (setq org-adapt-indentation t)    
+    (setq org-adapt-indentation t)
 
     ;; Set checksum program path for windows
     (when (eq window-system 'w32)
@@ -9119,59 +9122,155 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
       )))
 #+end_src
 
+** TODO HHKBfで矢印を使わないように設定する
+   :PROPERTIES:
+   :CREATED:  [2022-01-19 Wed 22:38]
+   :ID:       907369AE-679E-4E73-879E-1B4200FE9493
+   :CUSTOM_ID: org10cf6a0a
+   :END:
+
+#+begin_comment
+;; まさか HHKB に対応するための設定を追加することになるとは思わなかった．
+;; ただし，HHKB でなくても，下記の設定を使う方が効率が良いと思う．
+;; HHKB (move item or heading without using arrow keys)
+;; advice だとちとうまくいかなかった（ツリーの移動がおかしくなった）
+;; heading の行末と，*周辺にカーソルがある時に，M-n/M-pで移動できるようにする
+;; heading の行頭と行末にカーソルがある時には，M-n/M-pでツリーを動かせる
+;; M-<enter>で新しいツリーを生成した時や，その状態でheading にタイトルを入れる場合には，カーソル位置がheadingの行末にあるという前提で設定しています．
+;; 作成直後が最もpromote/demote/up/downしたくなるので，上記で十分．
+;; さらに，スピードコマンド(n/p)でツリー間を移動している時（heading行頭固定）にもM-n/M-pでpromote/demote/up/downできる．
+;; S-M-<enter> で新しいツリーを作ったあとに，そのツリーをM-n/M-pですぐに移動できる．
+;; syntax-subword-mode
+;; item 行にカーソルがある時，heading の★マークにカーソルがある時
+;; childrenがある時は，org-metarightではなく，org-shiftmetarightを呼ぶ．
+;; forward-word/backward-word
+;; item 行にカーソルがある時，heading の★マークにカーソルがある時
+#+end_comment
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "org"
+  (org-defkey org-mode-map (kbd "M-p") #'my-org-metaup)
+  (org-defkey org-mode-map (kbd "M-n") #'my-org-metadown)
+  (org-defkey org-mode-map (kbd "M-b") #'my-org-metaleft)
+  (org-defkey org-mode-map (kbd "M-f") #'my-org-metaright))
+
+(defun my-org-list-has-child-p ()
+  "Return t, if the item has at least a child item."
+  (save-excursion
+    (beginning-of-line)
+    (org-list-has-child-p (point) (org-list-struct))))
+
+(defun my-org-heading-has-child-p ()
+  "Return t, if the heading has at least a child heading."
+  (save-excursion
+    (org-goto-first-child)))
+
+(defun my-org-metadown ()
+  "Move item or subtree down, otherwise `scroll-up'."
+  (interactive)
+  (cond ((org-at-item-p)
+	       (call-interactively 'org-move-item-down))
+	      ((or (looking-at org-heading-regexp)
+             (and (org-at-heading-p) (eolp)))
+	       (call-interactively 'org-move-subtree-down))
+	      (t (call-interactively 'scroll-up))))
+
+(defun my-org-metaup ()
+  "Move item or subtree up, otherwise `scroll-down'."
+  (interactive)
+  (cond ((org-at-item-p)
+	       (call-interactively 'org-move-item-up))
+	      ((or (looking-at org-heading-regexp)
+             (and (org-at-heading-p) (eolp)))
+	       (call-interactively 'org-move-subtree-up))
+	      (t (call-interactively 'scroll-down))))
+
+(defvar my-org-promote-demote-independently nil)
+(defun my-inherit-struct-p ()
+  (and (not my-org-promote-demote-independently)
+       (or (my-org-list-has-child-p) (my-org-heading-has-child-p))))
+(defun my-org-metaleft-and-right-p ()
+  (or (org-at-item-p)
+      (looking-at org-heading-regexp)
+      (and (org-at-heading-p) (eolp))
+      (org-at-table-p)
+      (org-at-drawer-p)
+      (org-at-block-p)))
+(defun my-org-metaright ()
+  (interactive)
+  (if (my-org-metaleft-and-right-p)
+      (if (my-inherit-struct-p)
+          (org-shiftmetaright)
+        (org-metaright)) ;; FIXME similar check to my-org-metaleft-and-right-p
+    (if (and (fboundp 'syntax-subword-mode)
+             syntax-subword-mode)
+        (call-interactively 'syntax-subword-forward)
+      (forward-word))))
+(defun my-org-metaleft ()
+  (interactive)
+  (if (my-org-metaleft-and-right-p)
+      (if (my-inherit-struct-p)
+          (org-shiftmetaleft)
+        (org-metaleft)) ;; FIXME similar check to my-org-metaleft-and-right-p
+    (if (and (fboundp 'syntax-subword-mode)
+             syntax-subword-mode)
+        (call-interactively 'syntax-subword-backward)
+      (backward-word))))
+#+end_src
+
 ** orgmode のテーブルを csv に変換する
    :PROPERTIES:
    :CREATED:  [2021-04-04 Sun 21:32]
    :ID:       BF529B02-A87A-491B-B011-E7AB8ABDA3DA
    :CUSTOM_ID: org0d2cce2f
    :END:
-標準関数の =org-table-export= を使えば，テーブルを csv 等の形式で外部出力できます．ただバッファ上で csv に変えたりする関数があると楽なので次の関数を使います．標準関数の一部を再利用しています．
+ 標準関数の =org-table-export= を使えば，テーブルを csv 等の形式で外部出力できます．ただバッファ上で csv に変えたりする関数があると楽なので次の関数を使います．標準関数の一部を再利用しています．
 
-=M-x org-table-to-format= を呼び出すとデフォルトでカンマ区切りに変換してくれます．さらにその情報をコピペできるようにクリップボードに流し込みます．
+ =M-x org-table-to-format= を呼び出すとデフォルトでカンマ区切りに変換してくれます．さらにその情報をコピペできるようにクリップボードに流し込みます．
 
-#+begin_src emacs-lisp :tangle init-org.el
-(defun my-org-table-copy-as (&optional format)
-  "Copy converted table."
-  (interactive)
-  (let ((format (or format
-                    (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
-                    org-table-export-default-format)))
-    (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
-	      (let ((transform (intern (match-string 1 format)))
-	            (params (and (match-end 2)
-			                     (read (concat "(" (match-string 2 format) ")"))))
-	            (table (org-table-to-lisp)))
-          (if (not (org-at-table-p))
-              (user-error "The cursor is not at a table")
-	          (with-temp-buffer
-		          (insert (funcall transform table params) "\n")
-              (clipboard-kill-ring-save (point-min) (point-max)))))
-      (user-error "TABLE_EXPORT_FORMAT invalid"))))
+ #+begin_src emacs-lisp :tangle init-org.el
+ (defun my-org-table-copy-as (&optional format)
+   "Copy converted table."
+   (interactive)
+   (let ((format (or format
+                     (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                     org-table-export-default-format)))
+     (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
+	       (let ((transform (intern (match-string 1 format)))
+	             (params (and (match-end 2)
+			                      (read (concat "(" (match-string 2 format) ")"))))
+	             (table (org-table-to-lisp)))
+           (if (not (org-at-table-p))
+               (user-error "The cursor is not at a table")
+	           (with-temp-buffer
+		           (insert (funcall transform table params) "\n")
+               (clipboard-kill-ring-save (point-min) (point-max)))))
+       (user-error "TABLE_EXPORT_FORMAT invalid"))))
 
-(defun my-org-table-convert-to (&optional format)
-  "Convert a table to FORMAT.
-If FORMAT is nil, it is set equal to a property value specified
-by \"TABLE_EXPORT_FORMAT\" or `org-table-export-default-format'.
-Converted table is copied to kill ring for further use.
-The core part is extracted from `org-table-export'."
-  (interactive)
-  (let ((format (or format
-                    (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
-                    org-table-export-default-format)))
-    (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
-	      (let ((transform (intern (match-string 1 format)))
-	            (params (and (match-end 2)
-			                     (read (concat "(" (match-string 2 format) ")"))))
-	            (table (org-table-to-lisp)))
-          (if (not (org-at-table-p))
-              (user-error "The cursor is not at a table")
-	          (kill-region (org-table-begin) (org-table-end))
-	          (let ((begin (point)))
-	            (insert (funcall transform table params))
-	            (clipboard-kill-ring-save begin (point))
-              (insert "\n"))))
-      (user-error "TABLE_EXPORT_FORMAT invalid"))))
-#+end_src
+ (defun my-org-table-convert-to (&optional format)
+   "Convert a table to FORMAT.
+ If FORMAT is nil, it is set equal to a property value specified
+ by \"TABLE_EXPORT_FORMAT\" or `org-table-export-default-format'.
+ Converted table is copied to kill ring for further use.
+ The core part is extracted from `org-table-export'."
+   (interactive)
+   (let ((format (or format
+                     (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                     org-table-export-default-format)))
+     (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
+	       (let ((transform (intern (match-string 1 format)))
+	             (params (and (match-end 2)
+			                      (read (concat "(" (match-string 2 format) ")"))))
+	             (table (org-table-to-lisp)))
+           (if (not (org-at-table-p))
+               (user-error "The cursor is not at a table")
+	           (kill-region (org-table-begin) (org-table-end))
+	           (let ((begin (point)))
+	             (insert (funcall transform table params))
+	             (clipboard-kill-ring-save begin (point))
+               (insert "\n"))))
+       (user-error "TABLE_EXPORT_FORMAT invalid"))))
+ #+end_src
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf
@@ -11640,6 +11739,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 
     (moom-recommended-keybindings 'all)
+    (define-key moom-mode-map (kbd "<f1>") nil) ;; helpful 用に <f1> を解放
+
     (custom-set-variables
      '(moom-command-with-centering nil)
      '(moom-lighter "M")

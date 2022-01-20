@@ -801,6 +801,8 @@ This function is called directly from the C code."
 
 
     (moom-recommended-keybindings 'all)
+    (define-key moom-mode-map (kbd "<f1>") nil) ;; helpful 用に <f1> を解放
+
     (custom-set-variables
      '(moom-command-with-centering nil)
      '(moom-lighter "M")
