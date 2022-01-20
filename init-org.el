@@ -661,10 +661,10 @@
       )))
 
 (with-eval-after-load "org"
-  (org-defkey org-mode-map (kbd "M-p") #'my-org-metaup)
-  (org-defkey org-mode-map (kbd "M-n") #'my-org-metadown)
-  (org-defkey org-mode-map (kbd "M-b") #'my-org-metaleft)
-  (org-defkey org-mode-map (kbd "M-f") #'my-org-metaright))
+  (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
+  (org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
+  (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
+  (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward))
 
 (defun my-org-list-has-child-p ()
   "Return t, if the item has at least a child item."
@@ -677,53 +677,56 @@
   (save-excursion
     (org-goto-first-child)))
 
-(defun my-org-metadown ()
-  "Scroll up except at list and heading of `org'."
+(defun my-org-meta-previous ()
+  "Move item or subtree down, otherwise `scroll-up'."
   (interactive)
   (cond ((org-at-item-p)
 	       (call-interactively 'org-move-item-down))
 	      ((or (looking-at org-heading-regexp)
              (and (org-at-heading-p) (eolp)))
 	       (call-interactively 'org-move-subtree-down))
+        ((org-at-table-p)
+         (org-call-with-arg 'org-table-move-row 'up))
 	      (t (call-interactively 'scroll-up))))
 
-(defun my-org-metaup ()
-  "Scroll down except at list and heading of `org'."
+(defun my-org-meta-next ()
+  "Move item or subtree up, otherwise `scroll-down'."
   (interactive)
   (cond ((org-at-item-p)
 	       (call-interactively 'org-move-item-up))
 	      ((or (looking-at org-heading-regexp)
              (and (org-at-heading-p) (eolp)))
 	       (call-interactively 'org-move-subtree-up))
+        ((org-at-table-p)
+         (call-interactively 'org-table-move-row))
 	      (t (call-interactively 'scroll-down))))
 
 (defvar my-org-promote-demote-independently nil)
 (defun my-inherit-struct-p ()
   (and (not my-org-promote-demote-independently)
        (or (my-org-list-has-child-p) (my-org-heading-has-child-p))))
-(defun my-org-metaleft-and-right-p ()
+(defun my-org-at-meta-fb-p ()
+  "Return t, if the cursor stay at an item, a heading, and a table."
   (or (org-at-item-p)
       (looking-at org-heading-regexp)
       (and (org-at-heading-p) (eolp))
-      (org-at-table-p)
-      (org-at-drawer-p)
-      (org-at-block-p)))
-(defun my-org-metaright ()
+      (org-at-table-p)))
+(defun my-org-meta-forward ()
   (interactive)
-  (if (my-org-metaleft-and-right-p)
+  (if (my-org-at-meta-fb-p)
       (if (my-inherit-struct-p)
           (org-shiftmetaright)
-        (org-metaright)) ;; FIXME similar check to my-org-metaleft-and-right-p
+        (org-metaright)) ;; FIXME similar check to my-org-at-meta-fb-p
     (if (and (fboundp 'syntax-subword-mode)
              syntax-subword-mode)
         (call-interactively 'syntax-subword-forward)
       (forward-word))))
-(defun my-org-metaleft ()
+(defun my-org-meta-backward ()
   (interactive)
-  (if (my-org-metaleft-and-right-p)
+  (if (my-org-at-meta-fb-p)
       (if (my-inherit-struct-p)
           (org-shiftmetaleft)
-        (org-metaleft)) ;; FIXME similar check to my-org-metaleft-and-right-p
+        (org-metaleft)) ;; FIXME similar check to my-org-at-meta-fb-p
     (if (and (fboundp 'syntax-subword-mode)
              syntax-subword-mode)
         (call-interactively 'syntax-subword-backward)
