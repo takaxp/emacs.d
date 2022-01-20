@@ -9130,6 +9130,9 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
    :END:
 
 #+begin_comment
+;; 発動するelementを，item, heading, table に限定．
+;; 本来org-meta*やorg-shiftmeta*で
+;; 実行している分木を独自の条件で一部のelementに対して実行している．
 ;; まさか HHKB に対応するための設定を追加することになるとは思わなかった．
 ;; ただし，HHKB でなくても，下記の設定を使う方が効率が良いと思う．
 ;; HHKB (move item or heading without using arrow keys)
@@ -9174,7 +9177,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
              (and (org-at-heading-p) (eolp)))
 	       (call-interactively 'org-move-subtree-down))
         ((org-at-table-p)
-         (org-call-with-arg 'org-table-move-row 'up))
+         (call-interactively 'org-table-move-row))
 	      (t (call-interactively 'scroll-up))))
 
 (defun my-org-meta-next ()
@@ -9186,19 +9189,21 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
              (and (org-at-heading-p) (eolp)))
 	       (call-interactively 'org-move-subtree-up))
         ((org-at-table-p)
-         (call-interactively 'org-table-move-row))
+         (org-call-with-arg 'org-table-move-row 'up))
 	      (t (call-interactively 'scroll-down))))
 
 (defvar my-org-promote-demote-independently nil)
 (defun my-inherit-struct-p ()
   (and (not my-org-promote-demote-independently)
        (or (my-org-list-has-child-p) (my-org-heading-has-child-p))))
+
 (defun my-org-at-meta-fb-p ()
-  "Return t, if the cursor stay at an item, a heading, and a table."
+  "Return t, if the cursor stay at item, heading, or table."
   (or (org-at-item-p)
       (looking-at org-heading-regexp)
       (and (org-at-heading-p) (eolp))
       (org-at-table-p)))
+
 (defun my-org-meta-forward ()
   (interactive)
   (if (my-org-at-meta-fb-p)
@@ -9209,6 +9214,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
              syntax-subword-mode)
         (call-interactively 'syntax-subword-forward)
       (forward-word))))
+
 (defun my-org-meta-backward ()
   (interactive)
   (if (my-org-at-meta-fb-p)

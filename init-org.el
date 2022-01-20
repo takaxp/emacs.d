@@ -686,7 +686,7 @@
              (and (org-at-heading-p) (eolp)))
 	       (call-interactively 'org-move-subtree-down))
         ((org-at-table-p)
-         (org-call-with-arg 'org-table-move-row 'up))
+         (call-interactively 'org-table-move-row))
 	      (t (call-interactively 'scroll-up))))
 
 (defun my-org-meta-next ()
@@ -698,7 +698,7 @@
              (and (org-at-heading-p) (eolp)))
 	       (call-interactively 'org-move-subtree-up))
         ((org-at-table-p)
-         (call-interactively 'org-table-move-row))
+         (org-call-with-arg 'org-table-move-row 'up))
 	      (t (call-interactively 'scroll-down))))
 
 (defvar my-org-promote-demote-independently nil)
