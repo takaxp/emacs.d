@@ -666,7 +666,7 @@
   (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
   (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward))
 
-(defun my-org-list-has-child-p ()
+(defun my-org-item-has-child-p ()
   "Return t, if the item has at least a child item."
   (save-excursion
     (beginning-of-line)
@@ -704,13 +704,15 @@
 (defvar my-org-promote-demote-independently nil)
 (defun my-inherit-struct-p ()
   (and (not my-org-promote-demote-independently)
-       (or (my-org-list-has-child-p) (my-org-heading-has-child-p))))
+       (or (my-org-item-has-child-p) (my-org-heading-has-child-p))))
+
 (defun my-org-at-meta-fb-p ()
-  "Return t, if the cursor stay at an item, a heading, and a table."
+  "Return t, if the cursor stay at item, heading, or table."
   (or (org-at-item-p)
       (looking-at org-heading-regexp)
       (and (org-at-heading-p) (eolp))
       (org-at-table-p)))
+
 (defun my-org-meta-forward ()
   (interactive)
   (if (my-org-at-meta-fb-p)
@@ -721,6 +723,7 @@
              syntax-subword-mode)
         (call-interactively 'syntax-subword-forward)
       (forward-word))))
+
 (defun my-org-meta-backward ()
   (interactive)
   (if (my-org-at-meta-fb-p)

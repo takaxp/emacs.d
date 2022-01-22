@@ -9157,7 +9157,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
   (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
   (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward))
 
-(defun my-org-list-has-child-p ()
+(defun my-org-item-has-child-p ()
   "Return t, if the item has at least a child item."
   (save-excursion
     (beginning-of-line)
@@ -9195,7 +9195,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 (defvar my-org-promote-demote-independently nil)
 (defun my-inherit-struct-p ()
   (and (not my-org-promote-demote-independently)
-       (or (my-org-list-has-child-p) (my-org-heading-has-child-p))))
+       (or (my-org-item-has-child-p) (my-org-heading-has-child-p))))
 
 (defun my-org-at-meta-fb-p ()
   "Return t, if the cursor stay at item, heading, or table."
