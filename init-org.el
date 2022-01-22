@@ -777,6 +777,17 @@ The core part is extracted from `org-table-export'."
               (insert "\n"))))
       (user-error "TABLE_EXPORT_FORMAT invalid"))))
 
+(with-eval-after-load "eldoc"
+  (defvar my-eldoc-disable-in-org-block nil)
+  (defun ad:eldoc-print-current-symbol-info (f &optional interactive)
+    "Run `eldoc' when the cursor is NOT located in org source block."
+    (interactive '(t))
+    (unless (or my-eldoc-disable-in-org-block
+                (eq (car (org-element-at-point)) 'src-block))
+        (funcall f interactive)))
+  (advice-add 'eldoc-print-current-symbol-info :around
+              #'ad:eldoc-print-current-symbol-info))
+
 (when (autoload-if-found
        '(org-capture)
        "org-capture" nil t)

@@ -4,15 +4,7 @@
 ;;                                                              TODO/DONE/FIXME
 
 (with-eval-after-load "org"
-  (with-eval-after-load "eldoc"
-    (defun ad:eldoc-print-current-symbol-info (f &optional interactive)
-      "Run `eldoc' when the cursor is located in org source block."
-      (interactive '(t))
-      (unless (eq (car (org-element-at-point)) 'src-block)
-        (funcall f interactive)))
-
-    (advice-add 'eldoc-print-current-symbol-info :around
-                #'ad:eldoc-print-current-symbol-info)))
+  )
 
 (with-eval-after-load "transient"
   ;; https://github.com/magit/transient/blob/master/docs/transient.org

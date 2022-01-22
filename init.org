@@ -9280,6 +9280,28 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
                (insert "\n"))))
        (user-error "TABLE_EXPORT_FORMAT invalid"))))
  #+end_src
+** ソースブロック内で eldoc の発動を抑制する
+   :PROPERTIES:
+   :CREATED:  [2022-01-22 Sat 14:27]
+   :ID:       F3A68BD3-6F8E-42B7-A1CC-D617005E0E5E
+   :CUSTOM_ID: org5c265a12
+   :END:
+
+org バッファのソースブロックにカーソルがある時には， =eldoc= が発動しないようにします．
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "eldoc"
+  (defvar my-eldoc-disable-in-org-block nil)
+  (defun ad:eldoc-print-current-symbol-info (f &optional interactive)
+    "Run `eldoc' when the cursor is NOT located in org source block."
+    (interactive '(t))
+    (unless (or my-eldoc-disable-in-org-block
+                (eq (car (org-element-at-point)) 'src-block))
+        (funcall f interactive)))
+  (advice-add 'eldoc-print-current-symbol-info :around
+              #'ad:eldoc-print-current-symbol-info))
+#+end_src
+
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf
