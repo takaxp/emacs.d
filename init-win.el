@@ -241,6 +241,81 @@
                     "reports.org"))))
 
   (with-eval-after-load "org"
+    (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
+    (org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
+    (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
+    (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward)
+
+    (defun my-org-item-has-child-p ()
+      "Return t, if the item has at least a child item."
+      (save-excursion
+        (beginning-of-line)
+        (org-list-has-child-p (point) (org-list-struct))))
+
+    (defun my-org-heading-has-child-p ()
+      "Return t, if the heading has at least a child heading."
+      (save-excursion
+        (org-goto-first-child)))
+
+    (defun my-org-meta-previous ()
+      "Move item or subtree down, otherwise `scroll-up'."
+      (interactive)
+      (cond ((org-at-item-p)
+	           (call-interactively 'org-move-item-down))
+	          ((or (looking-at org-heading-regexp)
+                 (and (org-at-heading-p) (eolp)))
+	           (call-interactively 'org-move-subtree-down))
+            ((org-at-table-p)
+             (call-interactively 'org-table-move-row))
+	          (t (call-interactively 'scroll-up))))
+
+    (defun my-org-meta-next ()
+      "Move item or subtree up, otherwise `scroll-down'."
+      (interactive)
+      (cond ((org-at-item-p)
+	           (call-interactively 'org-move-item-up))
+	          ((or (looking-at org-heading-regexp)
+                 (and (org-at-heading-p) (eolp)))
+	           (call-interactively 'org-move-subtree-up))
+            ((org-at-table-p)
+             (org-call-with-arg 'org-table-move-row 'up))
+	          (t (call-interactively 'scroll-down))))
+
+    (defvar my-org-promote-demote-independently nil)
+    (defun my-inherit-struct-p ()
+      (and (not my-org-promote-demote-independently)
+           (or (my-org-item-has-child-p) (my-org-heading-has-child-p))))
+
+    (defun my-org-at-meta-fb-p ()
+      "Return t, if the cursor stay at item, heading, or table."
+      (or (org-at-item-p)
+          (looking-at org-heading-regexp)
+          (and (org-at-heading-p) (eolp))
+          (org-at-table-p)))
+
+    (defun my-org-meta-forward ()
+      (interactive)
+      (if (my-org-at-meta-fb-p)
+          (if (my-inherit-struct-p)
+              (org-shiftmetaright)
+            (org-metaright)) ;; FIXME similar check to my-org-at-meta-fb-p
+        (if (and (fboundp 'syntax-subword-mode)
+                 syntax-subword-mode)
+            (call-interactively 'syntax-subword-forward)
+          (forward-word))))
+
+    (defun my-org-meta-backward ()
+      (interactive)
+      (if (my-org-at-meta-fb-p)
+          (if (my-inherit-struct-p)
+              (org-shiftmetaleft)
+            (org-metaleft)) ;; FIXME similar check to my-org-at-meta-fb-p
+        (if (and (fboundp 'syntax-subword-mode)
+                 syntax-subword-mode)
+            (call-interactively 'syntax-subword-backward)
+          (backward-word)))))
+
+  (with-eval-after-load "org"
     (setq org-startup-truncated nil
 		      org-hide-leading-stars t
           org-use-speed-commands t
@@ -248,42 +323,42 @@
           org-list-allow-alphabetical t)
     (define-key org-mode-map (kbd "C-M-t") 'beginning-of-buffer)
 
-		(when (version< (org-version) "9.4.6")
-			(defvaralias 'org-speed-commands 'org-speed-commands-user))
-		(add-to-list 'org-speed-commands '("d" org-todo "DONE"))
-		(add-to-list 'org-speed-commands
-								 '("$" call-interactively 'org-archive-subtree))
-		(setq org-log-done 'time)
-		(add-to-list 'org-modules 'org-id)
-		(delq 'ol-gnus org-modules)
+	  (when (version< (org-version) "9.4.6")
+		  (defvaralias 'org-speed-commands 'org-speed-commands-user))
+	  (add-to-list 'org-speed-commands '("d" org-todo "DONE"))
+	  (add-to-list 'org-speed-commands
+							   '("$" call-interactively 'org-archive-subtree))
+	  (setq org-log-done 'time)
+	  (add-to-list 'org-modules 'org-id)
+	  (delq 'ol-gnus org-modules)
 
-		(defun my-org-default-property ()
+	  (defun my-org-default-property ()
       "Set the creation date and org-id."
-			(interactive)
-			(my-org-set-created-property)
-			(org-id-get-create))
-		(defvar my-org-created-property-name "CREATED"
-			"The name of the org-mode property.
+		  (interactive)
+		  (my-org-set-created-property)
+		  (org-id-get-create))
+	  (defvar my-org-created-property-name "CREATED"
+		  "The name of the org-mode property.
 This user property stores the creation date of the entry")
-		(defun my-org-set-created-property (&optional active NAME)
-			"Set a property on the entry giving the creation time.
+	  (defun my-org-set-created-property (&optional active NAME)
+		  "Set a property on the entry giving the creation time.
 
 By default the property is called CREATED. If given the `NAME'
 argument will be used instead. If the property already exists, it
 will not be modified."
-			(interactive)
-			(let* ((created (or NAME my-org-created-property-name))
-						 (fmt (if active "<%s>" "[%s]"))
-						 (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
-						 (field (org-entry-get (point) created nil)))
-				(unless (or field (equal "" field))
-					(org-set-property created now)
-					(org-cycle-hide-drawers 'children))))
-		(defun ad:org-insert-todo-heading (_arg &optional _force-heading)
-			(unless (org-at-item-checkbox-p)
-				(my-org-default-property)))
-		(advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading)
-		(add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
+		  (interactive)
+		  (let* ((created (or NAME my-org-created-property-name))
+					   (fmt (if active "<%s>" "[%s]"))
+					   (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
+					   (field (org-entry-get (point) created nil)))
+			  (unless (or field (equal "" field))
+				  (org-set-property created now)
+				  (org-cycle-hide-drawers 'children))))
+	  (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
+		  (unless (org-at-item-checkbox-p)
+			  (my-org-default-property)))
+	  (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading)
+	  (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
     (setq org-list-demote-modify-bullet
           '(("+" . "-")
@@ -302,26 +377,26 @@ will not be modified."
     (defvar my-org-bullet-with-checkbox-regexp
       (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
               "\\[.\\][ \t]+"))
-		(defun my-cycle-bullet-at-heading (arg)
-			"Add a bullet of \" - \" if the line is NOT a bullet line."
-			(interactive "P")
-			(save-excursion
-				(beginning-of-line)
-				(let ((bullet "- ")
-							(point-at-eol (point-at-eol)))
-					(cond
-					 ((re-search-forward
-						 my-org-bullet-with-checkbox-regexp point-at-eol t)
-						(replace-match (if arg "" "\\1") nil nil))
-					 ((re-search-forward
-						 "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
-						 point-at-eol t)
-						(replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
-					 ((re-search-forward
-						 (concat "\\(^[ \t]*\\)") point-at-eol t)
-						(replace-match (concat "\\1 " bullet) nil nil))
-					 (t nil)))))
-		(global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
+	  (defun my-cycle-bullet-at-heading (arg)
+		  "Add a bullet of \" - \" if the line is NOT a bullet line."
+		  (interactive "P")
+		  (save-excursion
+			  (beginning-of-line)
+			  (let ((bullet "- ")
+						  (point-at-eol (point-at-eol)))
+				  (cond
+				   ((re-search-forward
+					   my-org-bullet-with-checkbox-regexp point-at-eol t)
+					  (replace-match (if arg "" "\\1") nil nil))
+				   ((re-search-forward
+					   "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
+					   point-at-eol t)
+					  (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
+				   ((re-search-forward
+					   (concat "\\(^[ \t]*\\)") point-at-eol t)
+					  (replace-match (concat "\\1 " bullet) nil nil))
+				   (t nil)))))
+	  (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
 
     (defun ad:org-return (f &optional arg)
 	    "An extension for checking invisible editing when you hit the enter."

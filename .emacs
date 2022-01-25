@@ -3,9 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-(with-eval-after-load "org"
-  )
-
 (with-eval-after-load "transient"
   ;; https://github.com/magit/transient/blob/master/docs/transient.org
   )
