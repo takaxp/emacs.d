@@ -2543,14 +2543,23 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 ** jsonモード
    :PROPERTIES:
    :CUSTOM_ID: org34a54f82
+   :ID:       8B269347-D237-4244-87A1-8B68EB12B934
    :END:
+
+バッファの保存時に =json-mode-beautify= を走らせます．
 
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
        '(json-mode)
        "json-mode" nil t)
 
-  (push '("\\.json$" . json-mode) auto-mode-alist))
+  (push '("\\.json$" . json-mode) auto-mode-alist)
+  (with-eval-after-load "json-mode"
+    (defun my-json-mode-beautify ()
+      (when (eq major-mode 'json-mode)
+        (json-mode-beautify (point-min) (point-max))))
+    (add-hook 'before-save-hook #'my-json-mode-beautify)
+    (add-hook 'after-save-hook #'json-pretty-print-buffer)))
 #+end_src
 
 ** javascriptモード
@@ -4653,7 +4662,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 以下の設定では，ウィンドウ以下にバッファが続いているかを表す矢印と，続いていないことを示すカギカッコをフリンジに表示します．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no :exports yes
 (setq-default indicate-buffer-boundaries
               '((top . nil) (bottom . right) (down . left)))
 #+end_src
@@ -5486,6 +5495,7 @@ sorted.  FUNCTION must be a function of one argument."
 ** [command-log-mode.el] 発行したコマンドの履歴をバッファに表示する
    :PROPERTIES:
    :CUSTOM_ID: orga3715560
+   :ID:       6ED52EA2-CDDF-4773-B9A9-2079A6EBAA35
    :END:
 
 入力したコマンドの履歴をバッファに表示してくれます．Emacsのバッファを表示しながらお話する時に便利です．
@@ -6546,7 +6556,8 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 (defun my-cg-bookmark ()
   (push-mark)
   (when buffer-file-name
-    (bookmark-set my-cg-bookmark)))
+    (bookmark-set my-cg-bookmark)
+    (save-buffer)))
 (when (require 'ah nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 #+end_src
@@ -10257,6 +10268,7 @@ also calls `beep' for an audible reminder."
 ** [org-tree-slide] ヘッドラインをリッチにする
    :PROPERTIES:
    :CUSTOM_ID: orgf5c603e5
+   :ID:       D0783BB0-4F80-47DD-A220-3F275EE79908
    :END:
 
 =org-tree-slide= が有効な時だけ =org-bullets= を有効にして，ヘッドラインをリッチにします．元ネタは， =org-beautify-theme.el= です．

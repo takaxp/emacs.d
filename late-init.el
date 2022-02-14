@@ -2084,7 +2084,8 @@ sorted.  FUNCTION must be a function of one argument."
 (defun my-cg-bookmark ()
   (push-mark)
   (when buffer-file-name
-    (bookmark-set my-cg-bookmark)))
+    (bookmark-set my-cg-bookmark)
+    (save-buffer)))
 (when (require 'ah nil t)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 

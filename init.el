@@ -285,7 +285,13 @@ This function is called directly from the C code."
        '(json-mode)
        "json-mode" nil t)
 
-  (push '("\\.json$" . json-mode) auto-mode-alist))
+  (push '("\\.json$" . json-mode) auto-mode-alist)
+  (with-eval-after-load "json-mode"
+    (defun my-json-mode-beautify ()
+      (when (eq major-mode 'json-mode)
+        (json-mode-beautify (point-min) (point-max))))
+    (add-hook 'before-save-hook #'my-json-mode-beautify)
+    (add-hook 'after-save-hook #'json-pretty-print-buffer)))
 
 (when (autoload-if-found
        '(csv-mode)
@@ -465,9 +471,6 @@ This function is called directly from the C code."
 (with-eval-after-load "icons-in-terminal"
   (setq mode-line-position-line-format
         `(,(icons-in-terminal-material "edit") "%3l")))
-
-(setq-default indicate-buffer-boundaries
-              '((top . nil) (bottom . right) (down . left)))
 
 (my-tick-init-time "presentation")
 
