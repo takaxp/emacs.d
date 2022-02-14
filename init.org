@@ -2558,8 +2558,11 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
     (defun my-json-mode-beautify ()
       (when (eq major-mode 'json-mode)
         (json-mode-beautify (point-min) (point-max))))
+    (defun my-json-pretty-print-buffer ()
+      (when (eq major-mode 'json-mode)
+        (json-pretty-print-buffer)))
     (add-hook 'before-save-hook #'my-json-mode-beautify)
-    (add-hook 'after-save-hook #'json-pretty-print-buffer)))
+    (add-hook 'after-save-hook #'my-json-pretty-print-buffer)))
 #+end_src
 
 ** javascriptモード

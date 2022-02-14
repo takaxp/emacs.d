@@ -290,8 +290,11 @@ This function is called directly from the C code."
     (defun my-json-mode-beautify ()
       (when (eq major-mode 'json-mode)
         (json-mode-beautify (point-min) (point-max))))
+    (defun my-json-pretty-print-buffer ()
+      (when (eq major-mode 'json-mode)
+        (json-pretty-print-buffer)))
     (add-hook 'before-save-hook #'my-json-mode-beautify)
-    (add-hook 'after-save-hook #'json-pretty-print-buffer)))
+    (add-hook 'after-save-hook #'my-json-pretty-print-buffer)))
 
 (when (autoload-if-found
        '(csv-mode)
