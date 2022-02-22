@@ -104,7 +104,7 @@ Then load the following at startup
    :ID:       9C495AD3-0D38-406B-ACAE-D4A613BE9E7E
    :END:
 
-次の関数を =init.el= の最初に記載して，オプション付きで =after-init-hook= に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する =emacs-init-time= の派生関数とは違い， =after-init-hook= で実行される処理の時間もわかります．また，ほかの処理も微妙に入るので，あくまで目安です．
+次の関数を =init.el= の最初に記載して，オプション付きで =after-init-hook= に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する =emacs-init-time= の派生関数とは違い， =after-init-hook= で実行される処理の時間もわかります．ただ，ほかの処理も微妙に入るので，あくまで目安です．
 
 #+begin_src emacs-lisp :tangle yes
 (defconst my-before-load-init-time (current-time))
@@ -535,6 +535,7 @@ This function is called directly from the C code."
 ** [library-p] load-path にライブラリがあるかを判定
    :PROPERTIES:
    :CUSTOM_ID: org30c47759
+   :ID:       3A98DC0A-88FF-4AEF-946D-A94E9979AA0E
    :END:
 
 パッケージが =load-path= に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
@@ -13740,6 +13741,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
        "elfeed" nil t)
 
   (with-eval-after-load "elfeed"
+    (setq elfeed-db-directory "~/Dropbox/emacs.d/elfeed")
     (when (require 'elfeed-org nil t)
       (elfeed-org)
       (setq rmh-elfeed-org-files (list "~/Dropbox/org/elfeed.org")))

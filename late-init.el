@@ -3645,6 +3645,7 @@ Uses `all-the-icons-material' to fetch the icon."
        "elfeed" nil t)
 
   (with-eval-after-load "elfeed"
+    (setq elfeed-db-directory "~/Dropbox/emacs.d/elfeed")
     (when (require 'elfeed-org nil t)
       (elfeed-org)
       (setq rmh-elfeed-org-files (list "~/Dropbox/org/elfeed.org")))

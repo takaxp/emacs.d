@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-02-15 Tue 09:33 -->
+<!-- 2022-02-22 Tue 10:33 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#orgb6db6dd">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#orgc948ce3">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -394,7 +394,7 @@
 <li><a href="#orgdd0a9c41">6.10. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.11. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.12. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org4191b3e">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org4097ebd">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.14. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.15. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.16. カーソル行の関数名をモードラインに表示する</a></li>
@@ -786,7 +786,7 @@ Then load the following at startup
 <h3 id="org3c4d5a7a"><span class="section-number-3">2.3.</span> initファイルの読み込み時間計測</h3>
 <div class="outline-text-3" id="text-org3c4d5a7a">
 <p>
-次の関数を <code>init.el</code> の最初に記載して，オプション付きで <code>after-init-hook</code> に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する <code>emacs-init-time</code> の派生関数とは違い， <code>after-init-hook</code> で実行される処理の時間もわかります．また，ほかの処理も微妙に入るので，あくまで目安です．
+次の関数を <code>init.el</code> の最初に記載して，オプション付きで <code>after-init-hook</code> に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する <code>emacs-init-time</code> の派生関数とは違い， <code>after-init-hook</code> で実行される処理の時間もわかります．ただ，ほかの処理も微妙に入るので，あくまで目安です．
 </p>
 
 <div class="org-src-container">
@@ -5426,8 +5426,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orgb6db6dd" class="outline-3">
-<h3 id="orgb6db6dd"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-orgc948ce3" class="outline-3">
+<h3 id="orgc948ce3"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5813,8 +5813,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org4191b3e" class="outline-3">
-<h3 id="org4191b3e"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-org4097ebd" class="outline-3">
+<h3 id="org4097ebd"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-13">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -12405,7 +12405,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga55e2de"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org93a015f"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13281,7 +13281,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgc82eaf1" class="figure">
+<div id="orgd18c9a2" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16008,6 +16008,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
        <span style="color: #8b2252;">"elfeed"</span> nil t)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"elfeed"</span>
+    (<span style="color: #a020f0;">setq</span> elfeed-db-directory <span style="color: #8b2252;">"~/Dropbox/emacs.d/elfeed"</span>)
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">elfeed-org</span> nil t)
       (elfeed-org)
       (<span style="color: #a020f0;">setq</span> rmh-elfeed-org-files (list <span style="color: #8b2252;">"~/Dropbox/org/elfeed.org"</span>)))
@@ -16164,7 +16165,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-02-15 Tue 09:33</p>
+<p class="date">Created: 2022-02-22 Tue 10:33</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
