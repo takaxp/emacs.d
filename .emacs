@@ -9,6 +9,8 @@
 
 (with-eval-after-load "postpone"
   ;; (my-mode-line-off)
+  ;; (setq default-directory "~/")
+  (setq command-line-default-directory "~/")
   )
 
 (cond

@@ -9,15 +9,17 @@
   (scroll-bar-mode -1)
   (setq make-backup-files nil)
 
+  ;; (setq default-directory "~/")
+  (setq command-line-default-directory "~/")
+
   ;; Home directory
-  ;; (setenv "HOME" "c:/cygwin64/home/********")
-  ;; Proxy
-  ;; (setq url-proxy-services
-  ;;       '(("http" . "hoge@hoge.org:8888")
-  ;;         ("https" . "hoge@hoge.org:8888")))
-  (setenv "PATH" (concat (getenv "PATH") ";C:\\cygwin64\\bin"))
-  (load "~/Dropbox/emacs.d/config/init-env.el" nil t) ;; see also init-eval.el
-  (setq shell-file-name "C:/cygwin64/bin/bash")
+  ;; (setenv "HOME" "c:/Users/******/AppData/Roaming") ;; without Cygwin
+  ;; (setenv "HOME" "c:/cygwin64/home/********") ;; with Cygwin
+
+  ;; PATH, shell
+  (setenv "PATH" (concat (getenv "PATH") ";c:\\cygwin64\\bin"))
+  (setq shell-file-name "c:/cygwin64/bin/bash")
+
   ;; For MSYS
   ;; (when (eq system-type 'windows-nt)
   ;;   (setenv "HOME" "C:\\cygwin64\\home\\takaxp")
@@ -31,25 +33,46 @@
   ;;   ;;  ";C:\\msys64\\mingw64\\bin" ";C:\\msys64\\usr\\bin"))
   ;;   (setq shell-file-name "C:/cygwin64/bin/bash"))
 
-  ;; AppData\Roaming\.emacs.d 以下に各追加パッケージを配置すること（e.g. bsv, moom）
-  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
-  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/moom"))
-  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/swiper"))
-  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/htmlize"))
-  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/counsel-osx-app"))
-  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/undo-fu"))
-  ;; (add-to-list 'load-path (expand-file-name "~/.emacs.d/bsv"))
+  ;; Proxy
+  ;; (setq url-proxy-services
+  ;;       '(("http" . "http://hoge.org:8888")
+  ;;         ("https" . "https://hoge.org:8888")))
 
+  ;; org-agenda
+  ;; (with-eval-after-load "org-agenda"
+  ;;   (setq org-agenda-files
+  ;;         (mapcar (lambda (arg)
+  ;;                   (concat (getenv "SYNCROOT") "/org/" arg))
+  ;;                 '("next.org" "patent.org" "vvc.org" "video.org"
+  ;;                   "reports.org"))))
+
+  (defun my-open-hoge ()
+    (interactive)
+    (find-file (expand-file-name "~/hoge.org")))
+  (global-set-key (kbd "C-M-o") 'my-open-hoge)
+
+  ;; AppData\Roaming\.emacs.d 以下に各追加パッケージを配置すること
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp")) ;; default
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/bsv"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/moom"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/swiper"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/htmlize"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/undo-fu"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/counsel-osx-app"))
+
+  ;; Basic key bindings
   (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
   (global-set-key (kbd "C-M-b") 'end-of-buffer)
   (global-set-key (kbd "M-v") 'yank)
   (global-set-key (kbd "M-p") 'scroll-down)
   (global-set-key (kbd "M-n") 'scroll-up)
   (global-set-key (kbd "C-c g") 'goto-line)
+  (global-set-key (kbd "C-c c") 'compile)
   (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
   (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
   (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
   (global-set-key (kbd "M-=") 'count-words)
+  (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
   (when (require 'undo-fu nil t)
     (global-set-key (kbd "C-/") 'undo-fu-only-undo)
     (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
@@ -130,19 +153,7 @@
     (global-set-key (kbd "M-SPC") 'my-toggle-ime)
     (global-set-key (kbd "S-SPC") 'my-toggle-ime))
 
-  (defun my-open-w32-explore ()
-    (interactive)
-    (shell-command-to-string "open ."))
-  (global-set-key (kbd "C-M-<return>") #'my-open-w32-explore)
-
-  (defun my-open-hoge ()
-    (interactive)
-    (find-file (expand-file-name "~/hoge.org")))
-  (global-set-key (kbd "C-M-o") 'my-open-hoge)
-
-  ;; Cursor color
-  (set-cursor-color (plist-get my-cur-color-ime :off))
-
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; isearch with a selected reagion
   (defadvice isearch-mode
       (around isearch-mode-default-string
@@ -199,7 +210,7 @@
 		  (setq bsv-message-timeout 9)))
 
   ;; moom
-  (with-eval-after-load "moom"
+  (when (require 'moom nil t)
     (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
     (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
     (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
@@ -210,8 +221,9 @@
     (global-set-key (kbd "M-9") 'moom-cycle-monitors)
     (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
     (moom-recommended-keybindings 'all)
+    (setq moom-lighter "M")
     (setq moom-font-ja-scale 1.0)
-    (moom-reset)
+    (moom-mode 1)
     (moom-font-resize 20))
 
   ;; M-x calendar
@@ -231,14 +243,6 @@
     (org-defkey org-read-date-minibuffer-local-map (kbd "q")
                 (lambda () (interactive)
                   (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
-
-  ;; org-agenda
-  (with-eval-after-load "org-agenda"
-    (setq org-agenda-files
-          (mapcar (lambda (arg)
-                    (concat (getenv "SYNCROOT") "/org/" arg))
-                  '("next.org" "patent.org" "vvc.org" "video.org"
-                    "reports.org"))))
 
   (with-eval-after-load "org"
     (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
@@ -421,6 +425,11 @@ will not be modified."
         (my-ime-off)))
     (run-with-idle-timer 0.4 t #'my-ns-org-heading-auto-ascii)
 
+    (defun my-open-w32-explore ()
+      (interactive)
+      (shell-command-to-string "open ."))
+    (global-set-key (kbd "C-M-<return>") #'my-open-w32-explore)
+
     (defun my-insert-empty-pgp-tree ()
       (interactive)
       (insert "** TODO\n")
@@ -438,7 +447,7 @@ will not be modified."
     (remove-hook 'org-tab-first-hook 'my-org-hide-drawers) ;; error on v9.4
     (add-hook 'org-mode-hook #'turn-on-font-lock))
 
-  (with-eval-after-load "counsel-osx-app"
+  (when (require 'counsel-osx-app nil t)
     ;; under experimental implementation
     (defun counsel-win-app-list ()
       ;; NOTE MSYS の場合は，第2引数はフルパスではなく実行ファイル名のみ．
@@ -488,4 +497,27 @@ will not be modified."
                 :action (counsel-osx-app--use-cdr
                          counsel-osx-app-action-default)
                 :caller 'counsel-app)))
-  )
+
+  ;; Tree Sitter
+  (let* ((elp (expand-file-name
+               ;; (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")
+               (concat "~/.emacs.d/lisp/")))
+         (ets (concat elp "emacs-tree-sitter/"))
+         (tsl (concat elp "tree-sitter-langs/")))
+    (add-to-list 'load-path (concat ets "core"))
+    (add-to-list 'load-path (concat ets "lisp"))
+    (add-to-list 'load-path tsl))
+
+  (defun my-enable-tree-sitter ()
+    (unless (featurep 'tree-sitter)
+      (require 'tree-sitter)
+      (require 'tree-sitter-hl)
+      (require 'tree-sitter-debug)
+      (require 'tree-sitter-query)
+      (require 'tree-sitter-langs))
+    (tree-sitter-hl-mode))
+
+  (dolist (hook '(js-mode-hook))
+    (add-hook hook #'my-enable-tree-sitter))
+
+  ) ;; End of this file
