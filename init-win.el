@@ -415,6 +415,7 @@ will not be modified."
               (,(concat dir "patent.org") :level . 1)
               (,(concat dir "reports.org") :level . 1))))
 
+    (require 'org-agenda nil t) ;; to use `org-agenda-buffer-name' properly
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
       (when (and (frame-focus-state)
@@ -448,6 +449,7 @@ will not be modified."
     (add-hook 'org-mode-hook #'turn-on-font-lock))
 
   (when (require 'counsel-osx-app nil t)
+    (global-set-key (kbd "C-M-1") 'counsel-osx-app)
     ;; under experimental implementation
     (defun counsel-win-app-list ()
       ;; NOTE MSYS の場合は，第2引数はフルパスではなく実行ファイル名のみ．
