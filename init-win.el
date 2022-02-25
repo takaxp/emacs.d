@@ -77,6 +77,11 @@
     (global-set-key (kbd "C-/") 'undo-fu-only-undo)
     (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 
+  ;; Scroll window on a line-by-line basis
+  (setq scroll-conservatively 1000)
+  (setq scroll-step 1)
+  (setq scroll-preserve-screen-position t) ;; スクロール時にスクリーン内で固定
+
   ;; For IME module (do not load under postpone.el)
   (unless noninteractive
     (setq truncate-line nil
@@ -87,12 +92,12 @@
     (setq indent-line-function 'insert-tab)
     (global-auto-revert-mode 1)
 
-		(defun my-linespacing ()
-			(unless (minibufferp)
-				(setq-local line-spacing 0)))
-		(add-hook 'buffer-list-update-hook #'my-linespacing)
-		(add-hook 'org-src-mode-hook #'my-linespacing)
-		(add-hook 'debugger-mode-hook #'my-linespacing)
+	  (defun my-linespacing ()
+		  (unless (minibufferp)
+			  (setq-local line-spacing 0)))
+	  (add-hook 'buffer-list-update-hook #'my-linespacing)
+	  (add-hook 'org-src-mode-hook #'my-linespacing)
+	  (add-hook 'debugger-mode-hook #'my-linespacing)
 
     ;; Language, will override default-input-method
     (set-language-environment "Japanese")
