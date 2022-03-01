@@ -135,7 +135,7 @@
       (if current-input-method t nil))
     ;; Auto ascii for org-mode headings
     (defun my-ime-on ()
-      "IME OFN."
+      "IME ON."
       (interactive)
       (activate-input-method default-input-method))
     (defun my-ime-off ()

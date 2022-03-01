@@ -12370,7 +12370,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
         (hl-line-mode 1)))
 
     (defun my-ime-off-hline ()
-      (my-hl-line-enable)
+      (my-hl-line-disable)
       (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
         (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
       (run-hooks 'my-ime-off-hline-hook))
@@ -12948,6 +12948,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ** [ivy.el] インターフェイスの配色
    :PROPERTIES:
    :CUSTOM_ID: orge836aa4d
+   :ID:       4E6C6C26-AEBB-48D7-8CEB-8769F48C5FB0
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el

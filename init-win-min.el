@@ -338,9 +338,9 @@
     (custom-set-faces
      '(ivy-current-match
        ((((class color) (background light))
-         :background "#FFF3F3" :distant-foreground "#000000")
+         :background "#FFF3F3" :distant-foreground "#000000" :extend t)
         (((class color) (background dark))
-         :background "#404040" :distant-foreground "#abb2bf")))
+         :background "#404040" :distant-foreground "#abb2bf" :extend t)))
      '(ivy-minibuffer-match-face-1
        ((((class color) (background light)) :foreground "#666666")
         (((class color) (background dark)) :foreground "#999999")))
