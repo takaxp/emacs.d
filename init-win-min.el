@@ -113,7 +113,7 @@
       (if current-input-method t nil))
     ;; Auto ascii for org-mode headings
     (defun my-ime-on ()
-      "IME OFN."
+      "IME ON."
       (interactive)
       (activate-input-method default-input-method))
     (defun my-ime-off ()
@@ -264,6 +264,7 @@
   (global-set-key (kbd "M-0") 'moom-move-frame)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Counsel (apps)
   (autoload #'counsel-osx-app "counsel-osx-app" "Application Launcher" nil t)
   (global-set-key (kbd "C-M-1") 'counsel-osx-app)
@@ -275,6 +276,7 @@
   (global-set-key (kbd "C-/") 'undo-fu-only-undo)
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo)
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Tree Sitter
   (let* ((elp (expand-file-name
                ;; (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")
@@ -296,6 +298,7 @@
     (tree-sitter-hl-mode))
   (dolist (hook '(js-mode-hook))
     (add-hook hook #'my-enable-tree-sitter))
+
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -594,9 +597,7 @@ will not be modified."
                  syntax-subword-mode)
             (call-interactively 'syntax-subword-backward)
           (backward-word))))
-
     )
-
 
   (with-eval-after-load "counsel-osx-app"
     ;; under experimental implementation
