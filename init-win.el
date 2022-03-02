@@ -1,25 +1,31 @@
 ;; The initial file that will be loaded first in w32 environment .
 (when (eq system-type 'windows-nt)
   (setq byte-compile-warnings '(obsolete))
-  (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
   (setq system-time-locale "C") ;; format-time-string %a, not 日 but Sun
-
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
   (setq make-backup-files nil)
+  (setq ring-bell-function 'ignore)
+  (setq command-line-default-directory "~/") ;; (setq default-directory "~/")
+  (setq initial-buffer-choice t) ;; Starting from *scratch* buffer
+  (setq confirm-kill-emacs 'yes-or-no-p)
+  (setq truncate-line nil
+        truncate-partial-width-windows nil
+        mouse-drag-copy-region t)
+  (setq-default tab-width 2)
+  (setq-default indent-tabs-mode nil)
+  (setq indent-line-function 'insert-tab)
 
-  ;; (setq default-directory "~/")
-  (setq command-line-default-directory "~/")
+  ;; Language, will override default-input-method
+  (set-language-environment "Japanese")
+  (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
+  (global-auto-revert-mode 1)
 
   ;; Home directory
-  ;; (setenv "HOME" "c:/Users/******/AppData/Roaming") ;; without Cygwin
-  ;; (setenv "HOME" "c:/cygwin64/home/********") ;; with Cygwin
-
-  ;; PATH, shell
-  (setenv "PATH" (concat (getenv "PATH") ";c:\\cygwin64\\bin"))
-  (setq shell-file-name "c:/cygwin64/bin/bash")
-
+  ;; (setenv "HOME" "C:/Users/******/AppData/Roaming")
+  ;; (setenv "HOME" "c:/cygwin64/home/********")
+  ;; Proxy
+  ;; (setq url-proxy-services
+  ;;       '(("http" . "http://hoge.org:8888")
+  ;;         ("https" . "https://hoge.org:8888")))
   ;; For MSYS
   ;; (when (eq system-type 'windows-nt)
   ;;   (setenv "HOME" "C:\\cygwin64\\home\\takaxp")
@@ -33,64 +39,39 @@
   ;;   ;;  ";C:\\msys64\\mingw64\\bin" ";C:\\msys64\\usr\\bin"))
   ;;   (setq shell-file-name "C:/cygwin64/bin/bash"))
 
-  ;; Proxy
-  ;; (setq url-proxy-services
-  ;;       '(("http" . "http://hoge.org:8888")
-  ;;         ("https" . "https://hoge.org:8888")))
-
-  ;; org-agenda
-  ;; (with-eval-after-load "org-agenda"
-  ;;   (setq org-agenda-files
-  ;;         (mapcar (lambda (arg)
-  ;;                   (concat (getenv "SYNCROOT") "/org/" arg))
-  ;;                 '("next.org" "patent.org" "vvc.org" "video.org"
-  ;;                   "reports.org"))))
-
-  (defun my-open-hoge ()
-    (interactive)
-    (find-file (expand-file-name "~/hoge.org")))
-  (global-set-key (kbd "C-M-o") 'my-open-hoge)
-
   ;; AppData\Roaming\.emacs.d 以下に各追加パッケージを配置すること
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp")) ;; default
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/bsv"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/moom"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/swiper"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/htmlize"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/undo-fu"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/counsel-osx-app"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/emacs-htmlize"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/emacs-undo-fu"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/bsv"))
 
-  ;; Basic key bindings
-  (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-  (global-set-key (kbd "C-M-b") 'end-of-buffer)
-  (global-set-key (kbd "M-v") 'yank)
-  (global-set-key (kbd "M-p") 'scroll-down)
-  (global-set-key (kbd "M-n") 'scroll-up)
-  (global-set-key (kbd "C-c g") 'goto-line)
-  (global-set-key (kbd "C-c c") 'compile)
-  (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
-  (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
-  (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
-  (global-set-key (kbd "M-=") 'count-words)
-  (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
-  (when (require 'undo-fu nil t)
-    (global-set-key (kbd "C-/") 'undo-fu-only-undo)
-    (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
-
-  ;; Scroll window on a line-by-line basis
-  (setq scroll-conservatively 1000)
-  (setq scroll-step 1)
-  (setq scroll-preserve-screen-position t) ;; スクロール時にスクリーン内で固定
-
-  ;; For IME module (do not load under postpone.el)
   (unless noninteractive
-    (setq truncate-line nil
-          truncate-partial-width-windows nil
-          mouse-drag-copy-region t)
-    (setq-default tab-width 2)
-    (setq-default indent-tabs-mode nil)
-    (setq indent-line-function 'insert-tab)
-    (global-auto-revert-mode 1)
+    (menu-bar-mode -1)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)
+    (set-face-background 'fringe (face-background 'default))
+
+    ;; Basic key-binding
+    (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
+    (global-set-key (kbd "C-c g") 'goto-line)
+    (global-set-key (kbd "C-c c") 'compile)
+    (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
+    (global-set-key (kbd "C-M-b") 'end-of-buffer)
+    (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
+    (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+    (global-set-key (kbd "M-v") 'yank)
+    (global-set-key (kbd "M-p") 'scroll-down)
+    (global-set-key (kbd "M-n") 'scroll-up)
+    (global-set-key (kbd "M-=") 'count-words)
+    (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+
+    ;; Scroll window on a line-by-line basis
+    (setq scroll-conservatively 1000)
+    (setq scroll-step 1)
+    (setq scroll-preserve-screen-position t) ;; スクロール時にスクリーン内で固定
 
 	  (defun my-linespacing ()
 		  (unless (minibufferp)
@@ -99,36 +80,33 @@
 	  (add-hook 'org-src-mode-hook #'my-linespacing)
 	  (add-hook 'debugger-mode-hook #'my-linespacing)
 
-    ;; Language, will override default-input-method
-    (set-language-environment "Japanese")
-
     ;; load-path の追加
     (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/tr-ime"))
 
-    ;; IME パッチモジュールの読み込み
+    ;; IME パッチモジュールの読み込み 200[ms]
     (when (and (eq window-system 'w32)
+               (string= module-file-suffix ".dll")
                (not (fboundp 'ime-get-mode))
-               (string= module-file-suffix ".dll"))
-      (when (require 'tr-ime nil t)
-        (tr-ime-advanced-initialize)))
+               (require 'tr-ime nil t))
 
-    ;; IM のデフォルトを IME に設定
-    (setq default-input-method "W32-IME")
-    ;; IME のモードライン表示設定
-    (setq-default w32-ime-mode-line-state-indicator "[--]")
-    (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
-    ;; IME ON/OFF state を全ウィンドウで1つにする
-    (setq w32-ime-buffer-switch-p nil)
-    ;; IME 初期化
-    (w32-ime-initialize)
-    ;; IME 制御（yes/no などの入力の時に IME を OFF にする）
-    (wrap-function-to-control-ime 'universal-argument t nil)
-    (wrap-function-to-control-ime 'read-string nil nil)
-    (wrap-function-to-control-ime 'read-char nil nil)
-    (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
-    (wrap-function-to-control-ime 'y-or-n-p nil nil)
-    (wrap-function-to-control-ime 'yes-or-no-p nil nil)
-    (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
+      (tr-ime-advanced-initialize)
+      ;; IM のデフォルトを IME に設定
+      (setq default-input-method "W32-IME")
+      ;; IME のモードライン表示設定
+      (setq-default w32-ime-mode-line-state-indicator "[--]")
+      (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
+      ;; IME ON/OFF state を全ウィンドウで1つにする
+      (setq w32-ime-buffer-switch-p nil)
+      ;; IME 初期化
+      (w32-ime-initialize)
+      ;; IME 制御（yes/no などの入力の時に IME を OFF にする）
+      (wrap-function-to-control-ime 'universal-argument t nil)
+      (wrap-function-to-control-ime 'read-string nil nil)
+      (wrap-function-to-control-ime 'read-char nil nil)
+      (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
+      (wrap-function-to-control-ime 'y-or-n-p nil nil)
+      (wrap-function-to-control-ime 'yes-or-no-p nil nil)
+      (wrap-function-to-control-ime 'map-y-or-n-p nil nil))
 
     ;; IME toggle (M-SPC/S-SPC)
     (defun my-ime-active-p ()
@@ -156,179 +134,232 @@
     (add-hook 'activate-mark-hook #'my-ime-off-sticky)
     (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
     (global-set-key (kbd "M-SPC") 'my-toggle-ime)
-    (global-set-key (kbd "S-SPC") 'my-toggle-ime))
+    (global-set-key (kbd "S-SPC") 'my-toggle-ime)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; isearch with a selected reagion
-  (defadvice isearch-mode
-      (around isearch-mode-default-string
-              (forward &optional regexp op-fun recursive-edit word-p) activate)
-    (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
-        (progn
-          (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
-          (deactivate-mark)
-          ad-do-it
-          (if (not forward)
-              (isearch-repeat-backward)
-            (goto-char (mark))
-            (isearch-repeat-forward)))
-      ad-do-it))
+    ;; カーソル行の色
+    (defvar my-ime-off-hline-hook nil)
+    (defvar my-ime-on-hline-hook nil)
+    (defvar my-hl-permanent-disabled '(dired-mode)
+      "A list of major modes to disable `hl-line'.")
+    (defun my-ime-off-hline ()
+      (my-hl-line-disable)
+      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+        (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
+      (run-hooks 'my-ime-off-hline-hook))
+    (defun my-ime-on-hline ()
+      (my-hl-line-enable)
+      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+        (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
+      (run-hooks 'my-ime-on-hline-hook))
+    (add-hook 'input-method-activate-hook #'my-ime-on-hline)
+    (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)
+    (defun my-hl-line-disable ()
+      "Disable `hl-line'."
+      (hl-line-mode -1))
+    (defun my-hl-line-enable ()
+      "Enable `hl-line'."
+      (unless (or hl-line-mode
+                  (minibufferp)
+		              (memq major-mode my-hl-permanent-disabled))
+        (hl-line-mode 1)))
+    (global-hl-line-mode)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; カーソルの色
+    (defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
+    (defconst my-cur-type-ime '(:on (bar . 4) :off (bar . 4) :invisible nil))
+    (setq-default cursor-type (if (my-ime-active-p)
+                                  (plist-get my-cur-type-ime :on)
+                                (plist-get my-cur-type-ime :off)))
+    (defun my-ime-on-cursor ()
+      (interactive)
+      (setq cursor-type (plist-get my-cur-type-ime :on))
+      (set-cursor-color (plist-get my-cur-color-ime :on)))
+    (defun my-ime-off-cursor ()
+      (interactive)
+      (setq cursor-type (plist-get my-cur-type-ime :off))
+      (set-cursor-color (plist-get my-cur-color-ime :off)))
+    (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
+    (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
+    ;; for init setup
+    (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+    (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))
+
+    (defun my-open-w32-explore ()
+      (interactive)
+      (shell-command-to-string "open ."))
+    (global-set-key (kbd "C-M-<return>") #'my-open-w32-explore)
+
+    (defun my-open-hoge ()
+      (interactive)
+      (find-file (expand-file-name "~/hoge.org")))
+    (global-set-key (kbd "C-M-o") 'my-open-hoge)
+
+    (defun my-open-scratch ()
+      "Switch the current buffer to \*scratch\* buffer."
+      (interactive)
+      (switch-to-buffer "*scratch*"))
+    (global-set-key (kbd "C-M-s") #'my-open-scratch)
+
+    ;; isearch with a selected reagion
+    (defadvice isearch-mode
+        (around isearch-mode-default-string
+                (forward &optional regexp op-fun recursive-edit word-p) activate)
+      (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
+          (progn
+            (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
+            (deactivate-mark)
+            ad-do-it
+            (if (not forward)
+                (isearch-repeat-backward)
+              (goto-char (mark))
+              (isearch-repeat-forward)))
+        ad-do-it)))
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; recentf
-  (when (require 'recentf nil t)
-	  (custom-set-variables
-	   '(recentf-max-saved-items 2000)
-	   '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
-	   '(recentf-auto-cleanup 'never)
-	   '(recentf-exclude
-		   '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
-			   "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+	(custom-set-variables
+	 '(recentf-max-saved-items 2000)
+	 '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
+	 '(recentf-auto-cleanup 'never)
+	 '(recentf-exclude
+		 '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
+			 "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
-	  (defun my-recentf-save-list-silence ()
-		  (interactive)
-      (let ((message-log-max nil))
-        (recentf-save-list))
-		  (message ""))
-	  (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-	  (unless noninteractive
-		  (let ((message-log-max nil))
-			  (recentf-mode 1)))
-	  (global-set-key (kbd "C-M-r") 'counsel-recentf))
+	(defun my-recentf-save-list-silence ()
+		(interactive)
+    (let ((message-log-max nil))
+      (recentf-save-list))
+		(message ""))
+	(add-hook 'focus-out-hook #'my-recentf-save-list-silence)
 
-  (when (and (require 'swiper nil t)
-	           (require 'ivy nil t)
-	           (require 'counsel nil t))
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "M-y") 'counsel-yank-pop)
-    (global-set-key (kbd "C-,") 'counsel-mark-ring)
-    (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
-    (global-set-key (kbd "C-c i r") 'ivy-resume)
-    (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point))
+	(unless noninteractive
+		(let ((message-log-max nil))
+			(recentf-mode 1)))
 
-  (when (require 'bs nil t)
-    (global-set-key (kbd "M-]") 'bs-cycle-next)
-    (global-set-key (kbd "M-[") 'bs-cycle-previous)
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Ivy, Counsel, Swiper
+  (autoload #'counsel-M-x "ivy" "ivy,counsel,swiper" nil t)
+  (autoload #'counsel-ibuffer "ivy" "ivy,counsel,swiper" nil t)
+  (autoload #'counsel-recentf "ivy" "ivy,counsel,swiper" nil t)
+  (autoload #'swiper-thing-at-point "ivy" "ivy,counsel,swiper" nil t)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-M-r") 'counsel-recentf)
+  (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+  (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; bs with bsv.el
+  (global-set-key (kbd "M-]") 'bs-cycle-next)
+  (global-set-key (kbd "M-[") 'bs-cycle-previous)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; moom
+  (autoload #'moom-move-frame-to-edge-top "moom" "Moom" nil t)
+  (autoload #'moom-cycle-frame-height "moom" "Moom" nil t)
+  (autoload #'moom-move-frame-to-center "moom" "Moom" nil t)
+  (autoload #'moom-move-frame "moom" "Moom" nil t)
+  (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
+  (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
+  (global-set-key (kbd "M-0") 'moom-move-frame)
+  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Counsel (apps)
+  (autoload #'counsel-osx-app "counsel-osx-app" "Application Launcher" nil t)
+  (global-set-key (kbd "C-M-1") 'counsel-osx-app)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Undo-fu
+  (autoload #'undo-fu-only-undo "undo-fu" "Undo" nil t)
+  (autoload #'undo-fu-only-redo "undo-fu" "Undo" nil t)
+  (global-set-key (kbd "C-/") 'undo-fu-only-undo)
+  (global-set-key (kbd "C-M-/") 'undo-fu-only-redo)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Tree Sitter
+  (let* ((elp (expand-file-name
+               ;; (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")
+               (concat "~/.emacs.d/lisp/")
+               ))
+         (ets (concat elp "emacs-tree-sitter/"))
+         (tsl (concat elp "tree-sitter-langs/")))
+    ;; (add-to-list 'load-path (concat ets "langs"))
+    (add-to-list 'load-path (concat ets "core"))
+    (add-to-list 'load-path (concat ets "lisp"))
+    (add-to-list 'load-path tsl))
+  (defun my-enable-tree-sitter ()
+    (unless (featurep 'tree-sitter)
+      (require 'tree-sitter)
+      (require 'tree-sitter-hl)
+      (require 'tree-sitter-debug)
+      (require 'tree-sitter-query)
+      (require 'tree-sitter-langs))
+    (tree-sitter-hl-mode))
+  (dolist (hook '(js-mode-hook))
+    (add-hook hook #'my-enable-tree-sitter))
+
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (with-eval-after-load "bs"
     (when (require 'bsv nil t)
 		  (setq bsv-max-height 5)
 		  (setq bsv-message-timeout 9)))
 
-  ;; moom
-  (when (require 'moom nil t)
-    (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
-    (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
-    (global-set-key (kbd "<f1>") 'moom-move-frame-to-edge-top)
-    (global-set-key (kbd "<f2>") 'moom-cycle-frame-height)
-    (global-set-key (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
-    (global-set-key (kbd "C-c C->") 'moom-move-frame-to-edge-right)
-    (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-    (global-set-key (kbd "M-9") 'moom-cycle-monitors)
-    (global-set-key (kbd "M-<f2>") 'moom-toggle-frame-maximized)
+  (with-eval-after-load "moom"
     (moom-recommended-keybindings 'all)
     (setq moom-lighter "M")
+    (setq moom-verbose t)
     (setq moom-font-ja-scale 1.0)
     (moom-mode 1)
-    (moom-font-resize 20))
 
-  ;; M-x calendar
-  (with-eval-after-load "org-keys"
-    (org-defkey org-read-date-minibuffer-local-map (kbd "C-n")
-                (lambda () (interactive)
-                  (org-eval-in-calendar '(calendar-forward-week 1))))
-    (org-defkey org-read-date-minibuffer-local-map (kbd "C-p")
-                (lambda () (interactive)
-                  (org-eval-in-calendar '(calendar-backward-week 1))))
-    (org-defkey org-read-date-minibuffer-local-map (kbd "C-b")
-                (lambda () (interactive)
-                  (org-eval-in-calendar '(calendar-backward-day 1))))
-    (org-defkey org-read-date-minibuffer-local-map (kbd "C-f")
-                (lambda () (interactive)
-                  (org-eval-in-calendar '(calendar-forward-day 1))))
-    (org-defkey org-read-date-minibuffer-local-map (kbd "q")
-                (lambda () (interactive)
-                  (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
+    ;; Font setting with `moom-font'
+    (when (require 'moom-font nil t)
+      (moom-font-ja "Migu 2M")
+      (moom-font-ascii "Inconsolata")
+      (moom-font-resize 24)))
 
-  (with-eval-after-load "org"
-    (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
-    (org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
-    (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
-    (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward)
+  (with-eval-after-load "ivy"
+    (require 'swiper)
+    (require 'counsel)
+    (global-set-key (kbd "M-y") 'counsel-yank-pop)
+    (global-set-key (kbd "C-,") 'counsel-mark-ring)
+    (global-set-key (kbd "C-c i r") 'ivy-resume)
 
-    (defun my-org-item-has-child-p ()
-      "Return t, if the item has at least a child item."
-      (save-excursion
-        (beginning-of-line)
-        (org-list-has-child-p (point) (org-list-struct))))
+    (setq ivy-initial-inputs-alist
+          '((org-agenda-refile . "^")
+            (org-capture-refile . "^")
+            (counsel-describe-function . "^")
+            (counsel-describe-variable . "^")
+            (Man-completion-table . "^")
+            (woman . "^")))
 
-    (defun my-org-heading-has-child-p ()
-      "Return t, if the heading has at least a child heading."
-      (save-excursion
-        (org-goto-first-child)))
+    (custom-set-faces
+     '(ivy-current-match
+       ((((class color) (background light))
+         :background "#FFF3F3" :distant-foreground "#000000" :extend t)
+        (((class color) (background dark))
+         :background "#404040" :distant-foreground "#abb2bf" :extend t)))
+     '(ivy-minibuffer-match-face-1
+       ((((class color) (background light)) :foreground "#666666")
+        (((class color) (background dark)) :foreground "#999999")))
+     '(ivy-minibuffer-match-face-2
+       ((((class color) (background light)) :foreground "#c03333" :underline t)
+        (((class color) (background dark)) :foreground "#e04444" :underline t)))
+     '(ivy-minibuffer-match-face-3
+       ((((class color) (background light)) :foreground "#8585ff" :underline t)
+        (((class color) (background dark)) :foreground "#7777ff" :underline t)))
+     '(ivy-minibuffer-match-face-4
+       ((((class color) (background light)) :foreground "#439943" :underline t)
+        (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
 
-    (defun my-org-meta-previous ()
-      "Move item or subtree down, otherwise `scroll-up'."
-      (interactive)
-      (cond ((org-at-item-p)
-	           (call-interactively 'org-move-item-down))
-	          ((or (looking-at org-heading-regexp)
-                 (and (org-at-heading-p) (eolp)))
-	           (call-interactively 'org-move-subtree-down))
-            ((org-at-table-p)
-             (call-interactively 'org-table-move-row))
-	          (t (call-interactively 'scroll-up))))
-
-    (defun my-org-meta-next ()
-      "Move item or subtree up, otherwise `scroll-down'."
-      (interactive)
-      (cond ((org-at-item-p)
-	           (call-interactively 'org-move-item-up))
-	          ((or (looking-at org-heading-regexp)
-                 (and (org-at-heading-p) (eolp)))
-	           (call-interactively 'org-move-subtree-up))
-            ((org-at-table-p)
-             (org-call-with-arg 'org-table-move-row 'up))
-	          (t (call-interactively 'scroll-down))))
-
-    (defvar my-org-promote-demote-independently nil)
-    (defun my-inherit-struct-p ()
-      (and (not my-org-promote-demote-independently)
-           (or (my-org-item-has-child-p) (my-org-heading-has-child-p))))
-
-    (defun my-org-at-meta-fb-p ()
-      "Return t, if the cursor stay at item, heading, or table."
-      (or (org-at-item-p)
-          (looking-at org-heading-regexp)
-          (and (org-at-heading-p) (eolp))
-          (org-at-table-p)))
-
-    (defun my-org-meta-forward ()
-      (interactive)
-      (if (my-org-at-meta-fb-p)
-          (if (my-inherit-struct-p)
-              (org-shiftmetaright)
-            (org-metaright)) ;; FIXME similar check to my-org-at-meta-fb-p
-        (if (and (fboundp 'syntax-subword-mode)
-                 syntax-subword-mode)
-            (call-interactively 'syntax-subword-forward)
-          (forward-word))))
-
-    (defun my-org-meta-backward ()
-      (interactive)
-      (if (my-org-at-meta-fb-p)
-          (if (my-inherit-struct-p)
-              (org-shiftmetaleft)
-            (org-metaleft)) ;; FIXME similar check to my-org-at-meta-fb-p
-        (if (and (fboundp 'syntax-subword-mode)
-                 syntax-subword-mode)
-            (call-interactively 'syntax-subword-backward)
-          (backward-word)))))
-
+  (add-hook 'org-mode-hook #'turn-on-font-lock)
   (with-eval-after-load "org"
     (setq org-startup-truncated nil
 		      org-hide-leading-stars t
           org-use-speed-commands t
-          org-adapt-indentation t
+          org-adapt-indentation nil
           org-list-allow-alphabetical t)
     (define-key org-mode-map (kbd "C-M-t") 'beginning-of-buffer)
 
@@ -338,8 +369,16 @@
 	  (add-to-list 'org-speed-commands
 							   '("$" call-interactively 'org-archive-subtree))
 	  (setq org-log-done 'time)
+    (setq org-log-into-drawer t)
+
 	  (add-to-list 'org-modules 'org-id)
 	  (delq 'ol-gnus org-modules)
+
+    (font-lock-add-keywords
+     'org-mode
+     `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+        1 'org-headline-done prepend))
+     'append)
 
 	  (defun my-org-default-property ()
       "Set the creation date and org-id."
@@ -420,7 +459,44 @@ will not be modified."
               (,(concat dir "patent.org") :level . 1)
               (,(concat dir "reports.org") :level . 1))))
 
-    (require 'org-agenda nil t) ;; to use `org-agenda-buffer-name' properly
+    ;; M-x calendar
+    (with-eval-after-load "org-keys"
+      (org-defkey org-read-date-minibuffer-local-map (kbd "C-n")
+                  (lambda () (interactive)
+                    (org-eval-in-calendar '(calendar-forward-week 1))))
+      (org-defkey org-read-date-minibuffer-local-map (kbd "C-p")
+                  (lambda () (interactive)
+                    (org-eval-in-calendar '(calendar-backward-week 1))))
+      (org-defkey org-read-date-minibuffer-local-map (kbd "C-b")
+                  (lambda () (interactive)
+                    (org-eval-in-calendar '(calendar-backward-day 1))))
+      (org-defkey org-read-date-minibuffer-local-map (kbd "C-f")
+                  (lambda () (interactive)
+                    (org-eval-in-calendar '(calendar-forward-day 1))))
+      (org-defkey org-read-date-minibuffer-local-map (kbd "q")
+                  (lambda () (interactive)
+                    (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
+
+    (with-eval-after-load "ob-core"
+      (setq org-edit-src-content-indentation 0)
+      (setq org-src-fontify-natively t)
+      (setq org-src-tab-acts-natively t)
+      (setq org-confirm-babel-evaluate nil)
+      (setq org-src-window-setup 'current-window)
+      (org-babel-do-load-languages
+       'org-babel-load-languages
+       '((emacs-lisp . t)
+         (dot . t)
+         (C . t)
+         (ditaa . t)
+         (perl . t)
+         (shell . t)
+         (latex . t)
+         (sqlite . t)
+         (R . t)
+         (python . t))))
+
+    (require 'org-agenda nil t)
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
       (when (and (frame-focus-state)
@@ -430,11 +506,6 @@ will not be modified."
                  (my-ime-active-p))
         (my-ime-off)))
     (run-with-idle-timer 0.4 t #'my-ns-org-heading-auto-ascii)
-
-    (defun my-open-w32-explore ()
-      (interactive)
-      (shell-command-to-string "open ."))
-    (global-set-key (kbd "C-M-<return>") #'my-open-w32-explore)
 
     (defun my-insert-empty-pgp-tree ()
       (interactive)
@@ -451,10 +522,84 @@ will not be modified."
       (forward-line -1))
 
     (remove-hook 'org-tab-first-hook 'my-org-hide-drawers) ;; error on v9.4
-    (add-hook 'org-mode-hook #'turn-on-font-lock))
 
-  (when (require 'counsel-osx-app nil t)
-    (global-set-key (kbd "C-M-1") 'counsel-osx-app)
+
+    (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
+    (org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
+    (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
+    (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward)
+
+    (defun my-org-item-has-child-p ()
+      "Return t, if the item has at least a child item."
+      (save-excursion
+        (beginning-of-line)
+        (org-list-has-child-p (point) (org-list-struct))))
+
+    (defun my-org-heading-has-child-p ()
+      "Return t, if the heading has at least a child heading."
+      (save-excursion
+        (org-goto-first-child)))
+
+    (defun my-org-meta-previous ()
+      "Move item or subtree down, otherwise `scroll-up'."
+      (interactive)
+      (cond ((org-at-item-p)
+	           (call-interactively 'org-move-item-down))
+	          ((or (looking-at org-heading-regexp)
+                 (and (org-at-heading-p) (eolp)))
+	           (call-interactively 'org-move-subtree-down))
+            ((org-at-table-p)
+             (call-interactively 'org-table-move-row))
+	          (t (call-interactively 'scroll-up))))
+
+    (defun my-org-meta-next ()
+      "Move item or subtree up, otherwise `scroll-down'."
+      (interactive)
+      (cond ((org-at-item-p)
+	           (call-interactively 'org-move-item-up))
+	          ((or (looking-at org-heading-regexp)
+                 (and (org-at-heading-p) (eolp)))
+	           (call-interactively 'org-move-subtree-up))
+            ((org-at-table-p)
+             (org-call-with-arg 'org-table-move-row 'up))
+	          (t (call-interactively 'scroll-down))))
+
+    (defvar my-org-promote-demote-independently nil)
+    (defun my-inherit-struct-p ()
+      (and (not my-org-promote-demote-independently)
+           (or (my-org-item-has-child-p) (my-org-heading-has-child-p))))
+
+    (defun my-org-at-meta-fb-p ()
+      "Return t, if the cursor stay at item, heading, or table."
+      (or (org-at-item-p)
+          (looking-at org-heading-regexp)
+          (and (org-at-heading-p) (eolp))
+          (org-at-table-p)))
+
+    (defun my-org-meta-forward ()
+      (interactive)
+      (if (my-org-at-meta-fb-p)
+          (if (my-inherit-struct-p)
+              (org-shiftmetaright)
+            (org-metaright)) ;; FIXME similar check to my-org-at-meta-fb-p
+        (if (and (fboundp 'syntax-subword-mode)
+                 syntax-subword-mode)
+            (call-interactively 'syntax-subword-forward)
+          (forward-word))))
+
+    (defun my-org-meta-backward ()
+      (interactive)
+      (if (my-org-at-meta-fb-p)
+          (if (my-inherit-struct-p)
+              (org-shiftmetaleft)
+            (org-metaleft)) ;; FIXME similar check to my-org-at-meta-fb-p
+        (if (and (fboundp 'syntax-subword-mode)
+                 syntax-subword-mode)
+            (call-interactively 'syntax-subword-backward)
+          (backward-word))))
+    )
+
+  (with-eval-after-load "counsel-osx-app"
     ;; under experimental implementation
     (defun counsel-win-app-list ()
       ;; NOTE MSYS の場合は，第2引数はフルパスではなく実行ファイル名のみ．
@@ -505,26 +650,4 @@ will not be modified."
                          counsel-osx-app-action-default)
                 :caller 'counsel-app)))
 
-  ;; Tree Sitter
-  (let* ((elp (expand-file-name
-               ;; (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")
-               (concat "~/.emacs.d/lisp/")))
-         (ets (concat elp "emacs-tree-sitter/"))
-         (tsl (concat elp "tree-sitter-langs/")))
-    (add-to-list 'load-path (concat ets "core"))
-    (add-to-list 'load-path (concat ets "lisp"))
-    (add-to-list 'load-path tsl))
-
-  (defun my-enable-tree-sitter ()
-    (unless (featurep 'tree-sitter)
-      (require 'tree-sitter)
-      (require 'tree-sitter-hl)
-      (require 'tree-sitter-debug)
-      (require 'tree-sitter-query)
-      (require 'tree-sitter-langs))
-    (tree-sitter-hl-mode))
-
-  (dolist (hook '(js-mode-hook))
-    (add-hook hook #'my-enable-tree-sitter))
-
-  ) ;; End of this file
+  ) ;; End of init-win.el
