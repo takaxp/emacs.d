@@ -2946,7 +2946,7 @@ Uses `all-the-icons-material' to fetch the icon."
         (hl-line-mode 1)))
 
     (defun my-ime-off-hline ()
-      (my-hl-line-enable)
+      (my-hl-line-disable)
       (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
         (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
       (run-hooks 'my-ime-off-hline-hook))

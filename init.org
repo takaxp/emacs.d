@@ -1327,13 +1327,20 @@ echo "--- done."
 
 Version 27 から =C-x C-f= のデフォルトが変わったようなので， =~/= に矯正する．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (when (version< "27.0" emacs-version)
   (defun ad:find-file-read-args (f prompt mustmatch)
     (when (equal default-directory "/")
       (setq default-directory "~/"))
     (funcall f prompt mustmatch))
   (advice-add 'find-file-read-args :around #'ad:find-file-read-args))
+#+end_src
+
+[2022-03-05 Sat] =command-line-default-directory= を設定するのが正攻法のようです．
+
+#+begin_src emacs-lisp :tangle yes
+(when (version< "27.0" emacs-version)
+  (setq command-line-default-directory "~/"))
 #+end_src
 
 ** [aggressive-indent.el] 即時バッファ整形

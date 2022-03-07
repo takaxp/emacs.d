@@ -256,11 +256,7 @@ This function is called directly from the C code."
 (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
 
 (when (version< "27.0" emacs-version)
-  (defun ad:find-file-read-args (f prompt mustmatch)
-    (when (equal default-directory "/")
-      (setq default-directory "~/"))
-    (funcall f prompt mustmatch))
-  (advice-add 'find-file-read-args :around #'ad:find-file-read-args))
+  (setq command-line-default-directory "~/"))
 
 (my-tick-init-time "core")
 

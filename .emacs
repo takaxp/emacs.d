@@ -11,12 +11,6 @@
 (with-eval-after-load "transient"
   )
 
-(with-eval-after-load "postpone"
-  ;; (my-mode-line-off)
-  ;; (setq default-directory "~/")
-  (setq command-line-default-directory "~/")
-  )
-
 (cond
  (nil ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
@@ -37,12 +31,6 @@
 
 (with-eval-after-load "postpone"
   (autoload-if-found '(vterm) "vterm"  nil t))
-
-(with-eval-after-load "moom"
-  (defun my-moom-mixmized-plus ()
-    (moom-change-frame-width-single)
-    (moom-move-frame-to-center))
-  (setq moom-after-fill-screen-hook 'my-moom-mixmized-plus))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees

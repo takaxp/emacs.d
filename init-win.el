@@ -18,6 +18,7 @@
   (set-language-environment "Japanese")
   (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
   (global-auto-revert-mode 1)
+  (global-font-lock-mode 1)
 
   ;; Home directory
   ;; (setenv "HOME" "C:/Users/******/AppData/Roaming")
@@ -43,6 +44,8 @@
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/moom"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/swiper"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/selected"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/expand-region"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/counsel-osx-app"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/emacs-htmlize"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/emacs-undo-fu"))
@@ -192,7 +195,7 @@
 
     (defun my-open-hoge ()
       (interactive)
-      (find-file (expand-file-name "~/hoge.org")))
+      (find-file "U://org/hoge.org"))
     (global-set-key (kbd "C-M-o") 'my-open-hoge)
 
     (defun my-open-scratch ()
@@ -200,6 +203,12 @@
       (interactive)
       (switch-to-buffer "*scratch*"))
     (global-set-key (kbd "C-M-s") #'my-open-scratch)
+
+    (defun insert-formatted-current-date ()
+      "Insert a timestamp at the cursor position. C-u will add [] brackets."
+      (interactive)
+      (insert (format-time-string "%Y-%m-%d")))
+    (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
 
     ;; isearch with a selected reagion
     (defadvice isearch-mode
@@ -214,7 +223,21 @@
                 (isearch-repeat-backward)
               (goto-char (mark))
               (isearch-repeat-forward)))
-        ad-do-it)))
+        ad-do-it))
+
+    (defun ad:mark-sexp (f &optional arg allow-extend)
+      "If the cursor is on a symbol, expand the region along the symbol.
+Otherwise, set mark ARG sexps from point.
+When the cursor is at the end of line or before a whitespace, set ARG -1."
+      (interactive "P\np")
+      (funcall f (if (and (not (bolp))
+                          (not (eq (preceding-char) ?\ ))
+                          (or (eolp)
+                              (eq (following-char) ?\ )
+                              (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
+                     -1 arg)
+               allow-extend))
+    (advice-add 'mark-sexp :around #'ad:mark-sexp))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; recentf
@@ -299,6 +322,14 @@
   (dolist (hook '(js-mode-hook))
     (add-hook hook #'my-enable-tree-sitter))
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; selected
+  (autoload #'selected-global-mode "selected" "selected" nil t)
+  (defun my-activate-selected ()
+    (selected-global-mode 1)
+    (selected--on) ;; must call expclitly here
+    (remove-hook 'activate-mark-hook #'my-activate-selected))
+  (add-hook 'activate-mark-hook #'my-activate-selected)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -356,6 +387,18 @@
 
   (add-hook 'org-mode-hook #'turn-on-font-lock)
   (with-eval-after-load "org"
+    (custom-set-faces '(org-drawer ((t (:foreground "#999999")))))
+
+    ;; プロパティ等を自動的閉じる．
+    (defun my-org-hide-drawers ()
+      "Hide all drawers in an org tree."
+      (interactive)
+      (save-excursion
+        (beginning-of-line)
+        (unless (looking-at-p org-drawer-regexp)
+          (org-cycle-hide-drawers 'subtree))))
+    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+
     (setq org-startup-truncated nil
 		      org-hide-leading-stars t
           org-use-speed-commands t
@@ -599,6 +642,41 @@ will not be modified."
           (backward-word))))
     )
 
+  (with-eval-after-load "org"
+    (when (version< "9.1.4" (org-version))
+      (add-to-list 'org-modules 'org-tempo)))
+
+  (with-eval-after-load "org-tempo"
+    ;; 空行のとき "<" をインデントさせない
+    (defun ad:org-tempo-complete-tag (f &rest arg)
+      (if (save-excursion
+            (beginning-of-line)
+            (looking-at "<"))
+          (let ((indent-line-function 'ignore))
+            (apply f arg))
+        (apply f arg)))
+    (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag)
+
+    (defun my-org-tempo-add-block (entry)
+      "Add block entry from `org-structure-template-alist'."
+      (let* ((key (format "<%s" (car entry)))
+             (name (cdr entry))
+             (special nil)) ;; FIXED
+        (tempo-define-template
+         (format "org-%s" (replace-regexp-in-string " " "-" name))
+         `(,(format "#+begin_%s%s" name (if special " " ""))
+           ,(when special 'p) '> n '> ,(unless special 'p) n
+           ,(format "#+end_%s" (car (split-string name " ")))
+           >)
+         key
+         (format "Insert a %s block" name)
+         'org-tempo-tags)))
+    ;; 更新
+    (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
+    ;; 反映
+    (org-tempo-add-templates))
+
+
   (with-eval-after-load "counsel-osx-app"
     ;; under experimental implementation
     (defun counsel-win-app-list ()
@@ -650,4 +728,18 @@ will not be modified."
                          counsel-osx-app-action-default)
                 :caller 'counsel-app)))
 
-  ) ;; End of init-win.el
+  (with-eval-after-load "selected"
+    (when (require 'expand-region nil t)
+      (define-key selected-keymap (kbd "SPC") #'er/expand-region)))
+
+  (with-eval-after-load "expand-region"
+    (defun ad:er:mark-sexp (f &optional arg allow-extend)
+      "If the cursor is on a symbol, expand the region along the symbol."
+      (interactive "P\np")
+      (if (and (not (use-region-p))
+               (symbol-at-point))
+          (er/mark-symbol)
+        (funcall f arg allow-extend)))
+    (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
+
+  ) ;; End of init-win-min.el
