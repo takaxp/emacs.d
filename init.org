@@ -1373,6 +1373,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 ** [ws-butler.el] 不要なスペースを自動除去
    :PROPERTIES:
    :CUSTOM_ID: org982c69d7
+   :ID:       1B43AD83-2145-4ADC-9B17-864BEF30DE6C
    :END:
 
 行末の不要なスペース等が残るのを回避できます．バッファ保存時の自動処理です．
@@ -2401,6 +2402,7 @@ Built-in の time-stamp.el を使う．
 ** ChangeLog モード
    :PROPERTIES:
    :CUSTOM_ID: org7cb03523
+   :ID:       C01237EE-2654-4C19-8573-25EBC451F453
    :END:
 
 #+begin_src emacs-lisp :tangle no
@@ -6559,7 +6561,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark ()
   (push-mark)
-  (when buffer-file-name
+  (when (or buffer-file-name
+            (and (eq major-mode 'org-mode)
+                 (> (org-current-level) 1))) ;; レベル1の heading を除外
     (bookmark-set my-cg-bookmark)
     (save-buffer)))
 (when (require 'ah nil t)
@@ -6569,6 +6573,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 ** バッファ保存時にバックアップを生成させない                        :backup:
    :PROPERTIES:
    :CUSTOM_ID: org300e8f70
+   :ID:       DCE9C1F0-3A68-4AC9-94B4-4176BE039DC4
    :END:
 
 #+begin_src emacs-lisp :tangle yes
@@ -8119,9 +8124,9 @@ trim_trailing_whitespace = true
 (with-eval-after-load "company"
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
+  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   (define-key company-search-map (kbd "C-n") 'company-select-next)
   (define-key company-search-map (kbd "C-p") 'company-select-previous)
-  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   ;; To complete file path, move `company-files' to the fist item of the list
   (delq 'company-files company-backends)
 
@@ -12370,7 +12375,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
         (hl-line-mode 1)))
 
     (defun my-ime-off-hline ()
-      (my-hl-line-disable)
+      (my-hl-line-enable)
       (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
         (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
       (run-hooks 'my-ime-off-hline-hook))
@@ -13738,7 +13743,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(elfeed elfeed-web-start)
+       '(elfeed elfeed-update elfeed-web-start)
        "elfeed" nil t)
 
   (with-eval-after-load "elfeed"

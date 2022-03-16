@@ -2083,7 +2083,8 @@ sorted.  FUNCTION must be a function of one argument."
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark ()
   (push-mark)
-  (when buffer-file-name
+  (when (and buffer-file-name
+             (> (org-current-level) 1)) ;; レベル1の heading を除外
     (bookmark-set my-cg-bookmark)
     (save-buffer)))
 (when (require 'ah nil t)
@@ -2597,9 +2598,9 @@ sorted.  FUNCTION must be a function of one argument."
 (with-eval-after-load "company"
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
+  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   (define-key company-search-map (kbd "C-n") 'company-select-next)
   (define-key company-search-map (kbd "C-p") 'company-select-previous)
-  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   ;; To complete file path, move `company-files' to the fist item of the list
   (delq 'company-files company-backends)
 
@@ -2946,7 +2947,7 @@ Uses `all-the-icons-material' to fetch the icon."
         (hl-line-mode 1)))
 
     (defun my-ime-off-hline ()
-      (my-hl-line-disable)
+      (my-hl-line-enable)
       (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
         (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
       (run-hooks 'my-ime-off-hline-hook))

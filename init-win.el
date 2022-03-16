@@ -145,7 +145,7 @@
     (defvar my-hl-permanent-disabled '(dired-mode)
       "A list of major modes to disable `hl-line'.")
     (defun my-ime-off-hline ()
-      (my-hl-line-disable)
+      (my-hl-line-enable)
       (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
         (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
       (run-hooks 'my-ime-off-hline-hook))
