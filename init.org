@@ -6561,9 +6561,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 (defvar my-cg-bookmark "c-g-point-last")
 (defun my-cg-bookmark ()
   (push-mark)
-  (when (or buffer-file-name
-            (and (eq major-mode 'org-mode)
-                 (> (org-current-level) 1))) ;; レベル1の heading を除外
+  (when (and buffer-file-name
+             (eq major-mode 'org-mode)
+             (> (org-current-level) 1)) ;; レベル1の heading を除外
     (bookmark-set my-cg-bookmark)
     (save-buffer)))
 (when (require 'ah nil t)

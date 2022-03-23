@@ -3,12 +3,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-
 ;; https://github.com/qaiviq/echo-bar.el/blob/master/echo-bar.el
 ;; https://codeberg.org/akib/emacs-why-this
 
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 (with-eval-after-load "transient"
+
+
+
+
+
+
+
+
+
   )
 
 (cond

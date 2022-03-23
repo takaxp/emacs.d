@@ -4,7 +4,7 @@
   (setq system-time-locale "C") ;; format-time-string %a, not 日 but Sun
   (setq make-backup-files nil)
   (setq ring-bell-function 'ignore)
-  (setq command-line-default-directory "~/") ;; (setq default-directory "~/")
+  (setq default-directory "~/")
   (setq initial-buffer-choice t) ;; Starting from *scratch* buffer
   (setq confirm-kill-emacs 'yes-or-no-p)
   (setq truncate-line nil
@@ -42,19 +42,20 @@
 
   ;; AppData\Roaming\.emacs.d 以下に各追加パッケージを配置すること
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/moom"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/swiper"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/selected"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/expand-region"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/counsel-osx-app"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/emacs-htmlize"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/emacs-undo-fu"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/bsv"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/moom"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/swiper"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/selected"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/expand-region"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/counsel-osx-app"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/emacs-htmlize"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/emacs-undo-fu"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/bsv"))
 
   (unless noninteractive
     (menu-bar-mode -1)
     (tool-bar-mode -1)
     (scroll-bar-mode -1)
+    (display-time-mode 1)
     (set-face-background 'fringe (face-background 'default))
 
     ;; Basic key-binding
@@ -195,7 +196,7 @@
 
     (defun my-open-hoge ()
       (interactive)
-      (find-file "U://org/hoge.org"))
+      (find-file "U://org/remote.org"))
     (global-set-key (kbd "C-M-o") 'my-open-hoge)
 
     (defun my-open-scratch ()
@@ -263,14 +264,14 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Ivy, Counsel, Swiper
   (autoload #'counsel-M-x "ivy" "ivy,counsel,swiper" nil t)
-  (autoload #'counsel-ibuffer "ivy" "ivy,counsel,swiper" nil t)
-  (autoload #'counsel-recentf "ivy" "ivy,counsel,swiper" nil t)
+  (autoload #'counsel-ibuffer "ivy" "ivy,counsel,swiper" nil t)  
+  (autoload #'counsel-recentf "ivy" "ivy,counsel,swiper" nil t)  
   (autoload #'swiper-thing-at-point "ivy" "ivy,counsel,swiper" nil t)
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (global-set-key (kbd "C-M-r") 'counsel-recentf)
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
   (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
-
+  
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; bs with bsv.el
   (global-set-key (kbd "M-]") 'bs-cycle-next)
@@ -310,7 +311,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     ;; (add-to-list 'load-path (concat ets "langs"))
     (add-to-list 'load-path (concat ets "core"))
     (add-to-list 'load-path (concat ets "lisp"))
-    (add-to-list 'load-path tsl))
+    (add-to-list 'load-path tsl))  
   (defun my-enable-tree-sitter ()
     (unless (featurep 'tree-sitter)
       (require 'tree-sitter)
@@ -332,6 +333,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (add-hook 'activate-mark-hook #'my-activate-selected)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (with-eval-after-load "epa"
+    (setq epg-pinentry-mode 'loopback))
 
   (with-eval-after-load "bs"
     (when (require 'bsv nil t)
@@ -364,7 +368,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
             (counsel-describe-function . "^")
             (counsel-describe-variable . "^")
             (Man-completion-table . "^")
-            (woman . "^")))
+            (woman . "^")))  
 
     (custom-set-faces
      '(ivy-current-match
@@ -409,6 +413,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 	  (when (version< (org-version) "9.4.6")
 		  (defvaralias 'org-speed-commands 'org-speed-commands-user))
 	  (add-to-list 'org-speed-commands '("d" org-todo "DONE"))
+    (add-to-list 'org-speed-commands
+                 '("D" my-org-todo-complete-no-repeat "DONE"))
 	  (add-to-list 'org-speed-commands
 							   '("$" call-interactively 'org-archive-subtree))
 	  (setq org-log-done 'time)
@@ -422,6 +428,13 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
      `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
         1 'org-headline-done prepend))
      'append)
+
+    ;; 周期タクスを終了させます．
+    (defun my-org-todo-complete-no-repeat (&optional ARG)
+      (interactive "P")
+      (when (org-get-repeat)
+        (org-cancel-repeater))
+      (org-todo ARG))
 
 	  (defun my-org-default-property ()
       "Set the creation date and org-id."
@@ -502,6 +515,19 @@ will not be modified."
               (,(concat dir "patent.org") :level . 1)
               (,(concat dir "reports.org") :level . 1))))
 
+    (defun do-org-update-statistics-cookies ()
+      (interactive)
+      (org-update-statistics-cookies 'all))
+
+    (defun my-do-org-update-staistics-cookies ()
+      (interactive)
+      (message "Update statistics...")
+      (do-org-update-statistics-cookies)
+      (message "Update statistics...done"))
+
+    (define-key org-mode-map (kbd "C-c f 2")
+      'my-do-org-update-staistics-cookies)
+    
     ;; M-x calendar
     (with-eval-after-load "org-keys"
       (org-defkey org-read-date-minibuffer-local-map (kbd "C-n")
@@ -566,7 +592,6 @@ will not be modified."
 
     (remove-hook 'org-tab-first-hook 'my-org-hide-drawers) ;; error on v9.4
 
-
     (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
     (org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
     (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
@@ -629,7 +654,7 @@ will not be modified."
                  syntax-subword-mode)
             (call-interactively 'syntax-subword-forward)
           (forward-word))))
-
+    
     (defun my-org-meta-backward ()
       (interactive)
       (if (my-org-at-meta-fb-p)
@@ -645,6 +670,67 @@ will not be modified."
   (with-eval-after-load "org"
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo)))
+
+  (add-hook 'org-mode-hook #'my-load-echo-org-link)
+  (with-eval-after-load "org"
+    (defun my-echo-org-link ()
+      (when (org-in-regexp org-link-bracket-re 1)
+        (let ((link "Link:")
+              (msg (org-link-unescape (match-string-no-properties 1))))
+          (put-text-property 0 (length link) 'face 'minibuffer-prompt link)
+          (eldoc-message (format "%s %s" link msg)))))
+
+    (defun my-load-echo-org-link ()
+      (add-function :before-until (local 'eldoc-documentation-function)
+                    #'my-echo-org-link)))
+
+  (with-eval-after-load "org"
+    (setq org-todo-keyword-faces
+          '(("FOCUS"    :foreground "#FF0000" :background "#FFCC66")
+            ("BUG"      :foreground "#FF0000" :background "#FFCC66")
+            ("CHECK"    :foreground "#FF9900" :background "#FFF0F0" :underline t)
+            ("ICAL"     :foreground "#33CC66")
+            ("APPROVED" :foreground "#66CC66")
+            ("QUESTION" :foreground "#FF0000")
+            ("WAIT"     :foreground "#CCCCCC" :background "#666666")
+            ("MAIL"     :foreground "#CC3300" :background "#FFEE99")
+            ("PLAN"     :foreground "#FF6600")
+            ("PLAN2"    :foreground "#FFFFFF" :background "#FF6600")
+            ("REV1"     :foreground "#3366FF")
+            ("REV2"     :foreground "#3366FF" :background "#99CCFF")
+            ("REV3"     :foreground "#FFFFFF" :background "#3366FF")
+            ("SLEEP"    :foreground "#9999CC")))
+
+    (setq org-tag-faces
+          '(("Achievement" :foreground "#66CC66")
+            ("Bug"         :foreground "#FF0000")
+            ("Background"  :foreground "#66CC99")
+            ("Chore"       :foreground "#6699CC")
+            ("book"        :foreground "#6666CC")
+            ("Doing"       :foreground "#FF0000")
+            ("Draft"       :foreground "#9933CC") ;; Draft(r1,r2,r3)->Review(1,2)
+            ("Mag"         :foreground "#9966CC")
+            ("emacs"       :foreground "#6633CC")
+            ("Ongoing"     :foreground "#CC6666") ; for non scheduled/reminder
+            ("Repeat"      :foreground "#CC9999") ; for interval tasks
+            ("buy"         :foreground "#9966CC")
+            ("pay"         :foreground "#CC6699")
+            ("try"         :foreground "#FF3366")
+            ("secret"      :foreground "#FF0000")
+            ("study"       :foreground "#6666CC")
+            ("Open"        :foreground "#CC9999" :weight bold)
+            ("plan"        :foreground "#FF7D7D")
+            ("Test"        :foreground "#FF0000" :weight bold)
+            ("drill"       :foreground "#66BB66" :underline t)
+            ("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
+            ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
+            ("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
+            ("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
+            ("INPUT"       :foreground "#FFFFFF" :background "#CC6666")
+            ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99")
+            ("CYCLE"       :foreground "#FFFFFF" :background "#6699CC")
+            ("weekend"     :foreground "#FFFFFF" :background "#CC6666")
+            ("Log"         :foreground "#008500"))))
 
   (with-eval-after-load "org-tempo"
     ;; 空行のとき "<" をインデントさせない
@@ -714,11 +800,13 @@ will not be modified."
 		           (user-error
                 "Could not construct cmd from `counsel-win-app-launch-cmd'")))))
         (message "%s" (concat "open " "\"" arg "\""))
-        ;; MSYS2 の場合はファイルパスではなくアプリ名で判定されるの
+        ;; MSYS2 の場合はファイルパスではなくアプリ名で判定される
         ;; TODO file check only in Cygwin
-        (if (file-exists-p arg)
-            (call-process-shell-command (concat "open " "\"" arg "\""))
-          (user-error (format "Could not find \"%s\"" arg)))))
+        (w32-shell-execute "open" arg)
+        ;; (if (file-exists-p arg)
+        ;;     (call-process-shell-command (concat "open " "\"" arg "\""))
+        ;;   (user-error (format "Could not find \"%s\"" arg)))
+        ))
 
     (defun counsel-osx-app ()
       "Launch an application via ivy interface."
@@ -742,4 +830,4 @@ will not be modified."
         (funcall f arg allow-extend)))
     (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 
-  ) ;; End of init-win-min.el
+  ) ;; End of init-win.el

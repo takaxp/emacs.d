@@ -194,6 +194,8 @@
   (el-get-bundle "syohex/emacs-git-gutter" :name git-gutter)
   (el-get-bundle "git-gutter-fringe")
   (el-get-bundle "doublep/logview")
+  (el-get-bundle "rougier/svg-lib")
+  (el-get-bundle "rougier/svg-tag-mode")
   (el-get-bundle "bm")
   (el-get-bundle "emacsmirror/rainbow-mode")
   (el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))

@@ -2084,6 +2084,7 @@ sorted.  FUNCTION must be a function of one argument."
 (defun my-cg-bookmark ()
   (push-mark)
   (when (and buffer-file-name
+             (eq major-mode 'org-mode)
              (> (org-current-level) 1)) ;; レベル1の heading を除外
     (bookmark-set my-cg-bookmark)
     (save-buffer)))
@@ -3642,7 +3643,7 @@ Uses `all-the-icons-material' to fetch the icon."
   (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
 
 (when (autoload-if-found
-       '(elfeed elfeed-web-start)
+       '(elfeed elfeed-update elfeed-web-start)
        "elfeed" nil t)
 
   (with-eval-after-load "elfeed"

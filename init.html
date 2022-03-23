@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-03-16 Wed 22:01 -->
+<!-- 2022-03-23 Wed 13:19 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#orgea82065">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org74e5eef">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -394,7 +394,7 @@
 <li><a href="#orgdd0a9c41">6.10. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.11. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.12. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org89fbfd0">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#orgcf71203">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.14. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.15. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.16. カーソル行の関数名をモードラインに表示する</a></li>
@@ -5426,8 +5426,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orgea82065" class="outline-3">
-<h3 id="orgea82065"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org74e5eef" class="outline-3">
+<h3 id="org74e5eef"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5813,8 +5813,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org89fbfd0" class="outline-3">
-<h3 id="org89fbfd0"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-orgcf71203" class="outline-3">
+<h3 id="orgcf71203"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-13">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -8170,9 +8170,9 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-cg-bookmark</span> <span style="color: #8b2252;">"c-g-point-last"</span>)
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cg-bookmark</span> ()
   (push-mark)
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">or</span> buffer-file-name
-            (<span style="color: #a020f0;">and</span> (eq major-mode 'org-mode)
-                 (&gt; (org-current-level) 1))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12524;&#12505;&#12523;1&#12398; heading &#12434;&#38500;&#22806;</span>
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> buffer-file-name
+             (eq major-mode 'org-mode)
+             (&gt; (org-current-level) 1)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12524;&#12505;&#12523;1&#12398; heading &#12434;&#38500;&#22806;</span>
     (bookmark-set my-cg-bookmark)
     (save-buffer)))
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ah</span> nil t)
@@ -12407,7 +12407,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org2a16d99"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgff18d67"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13283,7 +13283,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgf643f06" class="figure">
+<div id="org96177aa" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16167,7 +16167,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-03-16 Wed 22:01</p>
+<p class="date">Created: 2022-03-23 Wed 13:19</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
