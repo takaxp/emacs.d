@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-03-23 Wed 13:19 -->
+<!-- 2022-03-26 Sat 10:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org74e5eef">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#orgf905072">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -394,7 +394,7 @@
 <li><a href="#orgdd0a9c41">6.10. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.11. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.12. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#orgcf71203">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org33e7eee">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.14. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.15. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.16. カーソル行の関数名をモードラインに表示する</a></li>
@@ -433,16 +433,17 @@
 <li><a href="#org5eaeb687">6.45. <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</a></li>
 <li><a href="#org7270262d">6.46. <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</a></li>
 <li><a href="#org8ba0784e">6.47. <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</a></li>
-<li><a href="#org1e701627">6.48. <span class="todo TODO">TODO</span> [hydra.el] コマンドディスパッチャを構築する</a></li>
-<li><a href="#org56d8bf9d">6.49. <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgc00267d7">6.50. <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org205dbe20">6.51. <span class="done DONE">DONE</span> [mode-icons] 使用中のモード表示をアイコンで代替&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org6e56a94f">6.52. <span class="done DONE">DONE</span> [stock-ticker] 株価をモードラインに表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0ed58559">6.53. <span class="done DONE">DONE</span> [zlc.el] find-file バッファを zsh ライクにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org5cc37356">6.54. <span class="done DONE">DONE</span> [stripe-buffer.el] テーブルの色をストライプにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org62c6f085">6.55. <span class="done DONE">DONE</span> [guide-key] キーバインドの選択肢をポップアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgdf971702">6.56. <span class="done DONE">DONE</span> [anything.el] 何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org83eaaf3a">6.57. <span class="done DONE">DONE</span> [diminish.el] モードラインのモード名を短くする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org9f110eb">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
+<li><a href="#org1e701627">6.49. <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org56d8bf9d">6.50. <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgc00267d7">6.51. <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org205dbe20">6.52. <span class="done DONE">DONE</span> [mode-icons] 使用中のモード表示をアイコンで代替&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org6e56a94f">6.53. <span class="done DONE">DONE</span> [stock-ticker] 株価をモードラインに表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0ed58559">6.54. <span class="done DONE">DONE</span> [zlc.el] find-file バッファを zsh ライクにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org5cc37356">6.55. <span class="done DONE">DONE</span> [stripe-buffer.el] テーブルの色をストライプにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org62c6f085">6.56. <span class="done DONE">DONE</span> [guide-key] キーバインドの選択肢をポップアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgdf971702">6.57. <span class="done DONE">DONE</span> [anything.el] 何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org83eaaf3a">6.58. <span class="done DONE">DONE</span> [diminish.el] モードラインのモード名を短くする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org9ff300b4">7. メディアサポート</a>
@@ -4788,6 +4789,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
        <span style="color: #8b2252;">"selected"</span> nil t)
 
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-activate-selected</span> ()
+    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">transient</span> nil t)
     (selected-global-mode 1)
     (selected--on) <span style="color: #b22222;">;; </span><span style="color: #b22222;">must call expclitly here</span>
     (remove-hook 'activate-mark-hook #'my-activate-selected))
@@ -4866,8 +4868,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (<span style="color: #a020f0;">setq</span> selected-org-mode-map (make-sparse-keymap))
 
     (define-key selected-org-mode-map (kbd <span style="color: #8b2252;">"t"</span>) #'org-table-convert-region)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"-"</span>) #'my-org-insert-bullet)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"["</span>) #'org-toggle-checkbox)
+    (define-key selected-org-mode-map (kbd <span style="color: #8b2252;">"-"</span>) #'my-org-bullet-and-checkbox)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key selected-keymap (kbd "[") #'org-toggle-checkbox)</span>
 
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region</span> nil t)
       (define-key selected-keymap (kbd <span style="color: #8b2252;">"SPC"</span>) #'er/expand-region))
@@ -5426,8 +5428,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org74e5eef" class="outline-3">
-<h3 id="org74e5eef"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-orgf905072" class="outline-3">
+<h3 id="orgf905072"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5813,8 +5815,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-orgcf71203" class="outline-3">
-<h3 id="orgcf71203"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-org33e7eee" class="outline-3">
+<h3 id="org33e7eee"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-13">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -7246,8 +7248,39 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 </div>
 
+<div id="outline-container-org9f110eb" class="outline-3">
+<h3 id="org9f110eb"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
+<div class="outline-text-3" id="text-6-48">
+<p>
+<code>my-org-bullet-and-checkbox</code> を <code>selected.el</code> から呼び出しています．
+</p>
+
+<p>
+note: 出力したファイルをバイトコンパイルする場合は， <code>transient.el</code> を明示的に読み込む必要があります．そうしないと， <code>my-org-bullet-and-checkbox</code> が void variable だとしてうまく動かなくなります．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> 'transient
+  (transient-define-prefix my-org-bullet-and-checkbox ()
+    <span style="color: #8b2252;">"Commands to handle bullet and checkbox"</span>
+    [[<span style="color: #8b2252;">"Bullet"</span>
+      (<span style="color: #8b2252;">"i"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet)
+      (<span style="color: #8b2252;">"d"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-bullet)]
+     [<span style="color: #8b2252;">"Checkbox"</span>
+      (<span style="color: #8b2252;">"["</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-checkbox-into-bullet)
+      (<span style="color: #8b2252;">"]"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-checkbox-from-bullet)
+      <span style="color: #b22222;">;;</span><span style="color: #b22222;">("a" "toggle checkbox" my-org-toggle-checkbox)</span>
+      <span style="color: #b22222;">;;</span><span style="color: #b22222;">("h" "cycle" my-cycle-bullet-at-heading) ;; single line</span>
+      ]
+     [<span style="color: #8b2252;">"Bullet and Checkbox"</span>
+      (<span style="color: #8b2252;">"I"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet-and-checkbox)
+      (<span style="color: #8b2252;">"D"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-bullet-and-checkbox)]]))
+</pre>
+</div>
+</div>
+</div>
 <div id="outline-container-org1e701627" class="outline-3">
-<h3 id="org1e701627"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [hydra.el] コマンドディスパッチャを構築する</h3>
+<h3 id="org1e701627"><span class="section-number-3">6.49.</span> <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org1e701627">
 <ul class="org-ul">
 <li><a href="https://www.wisdomandwonder.com/article/10763/emacsorg-mode-hydra-to-insert-timestamps">(Emacs+Org-Mode) Hydra To Insert Timestamps | Wisdom and Wonder</a></li>
@@ -7346,7 +7379,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org56d8bf9d" class="outline-3">
-<h3 id="org56d8bf9d"><span class="section-number-3">6.49.</span> <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org56d8bf9d"><span class="section-number-3">6.50.</span> <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org56d8bf9d">
 <p>
 ivyに移行しました．
@@ -7464,7 +7497,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-orgc00267d7" class="outline-3">
-<h3 id="orgc00267d7"><span class="section-number-3">6.50.</span> <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgc00267d7"><span class="section-number-3">6.51.</span> <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgc00267d7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Show battery information on the mode line.</span>
@@ -7475,7 +7508,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org205dbe20" class="outline-3">
-<h3 id="org205dbe20"><span class="section-number-3">6.51.</span> <span class="done DONE">DONE</span> [mode-icons] 使用中のモード表示をアイコンで代替&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org205dbe20"><span class="section-number-3">6.52.</span> <span class="done DONE">DONE</span> [mode-icons] 使用中のモード表示をアイコンで代替&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org205dbe20">
 <p>
 しばらく使ってみたが，統一感が失われるので使用停止中．
@@ -7493,7 +7526,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org6e56a94f" class="outline-3">
-<h3 id="org6e56a94f"><span class="section-number-3">6.52.</span> <span class="done DONE">DONE</span> [stock-ticker] 株価をモードラインに表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org6e56a94f"><span class="section-number-3">6.53.</span> <span class="done DONE">DONE</span> [stock-ticker] 株価をモードラインに表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org6e56a94f">
 <p>
 季節が過ぎ去りました．不使用です．
@@ -7554,7 +7587,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org0ed58559" class="outline-3">
-<h3 id="org0ed58559"><span class="section-number-3">6.53.</span> <span class="done DONE">DONE</span> [zlc.el] find-file バッファを zsh ライクにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0ed58559"><span class="section-number-3">6.54.</span> <span class="done DONE">DONE</span> [zlc.el] find-file バッファを zsh ライクにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0ed58559">
 <p>
 ファイル選択を zsh ライクに変更できます．しっくりこないので不使用．
@@ -7582,7 +7615,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org5cc37356" class="outline-3">
-<h3 id="org5cc37356"><span class="section-number-3">6.54.</span> <span class="done DONE">DONE</span> [stripe-buffer.el] テーブルの色をストライプにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org5cc37356"><span class="section-number-3">6.55.</span> <span class="done DONE">DONE</span> [stripe-buffer.el] テーブルの色をストライプにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org5cc37356">
 <p>
 <a href="https://github.com/sabof/stripe-buffer/blob/master/stripe-buffer.el">stripe-buffer.el</a>を使います．重くツリーが多いOrgバッファだと激重になる可能性があります．
@@ -7600,7 +7633,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org62c6f085" class="outline-3">
-<h3 id="org62c6f085"><span class="section-number-3">6.55.</span> <span class="done DONE">DONE</span> [guide-key] キーバインドの選択肢をポップアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org62c6f085"><span class="section-number-3">6.56.</span> <span class="done DONE">DONE</span> [guide-key] キーバインドの選択肢をポップアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org62c6f085">
 <p>
 <code>which-key</code> に移行しました．
@@ -7635,7 +7668,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-orgdf971702" class="outline-3">
-<h3 id="orgdf971702"><span class="section-number-3">6.56.</span> <span class="done DONE">DONE</span> [anything.el] 何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgdf971702"><span class="section-number-3">6.57.</span> <span class="done DONE">DONE</span> [anything.el] 何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgdf971702">
 <ul class="org-ul">
 <li>helm に移行しました．</li>
@@ -7714,7 +7747,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org83eaaf3a" class="outline-3">
-<h3 id="org83eaaf3a"><span class="section-number-3">6.57.</span> <span class="done DONE">DONE</span> [diminish.el] モードラインのモード名を短くする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org83eaaf3a"><span class="section-number-3">6.58.</span> <span class="done DONE">DONE</span> [diminish.el] モードラインのモード名を短くする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org83eaaf3a">
 <p>
 以前は自作したパッケージを使っていましたが，不具合も多く，調べると <code>diminish.el</code> という素晴らしいパッケージがあったので移行しました．これはマイナーモードの短縮表示なので，メジャーモードは個別にフックで <code>mode-name</code> を書き換えて対応します． <code>use-package.el</code> を使っていると依存関係から自動的にインストールされます．
@@ -8172,6 +8205,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
   (push-mark)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> buffer-file-name
              (eq major-mode 'org-mode)
+             (not (org-before-first-heading-p))
              (&gt; (org-current-level) 1)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12524;&#12505;&#12523;1&#12398; heading &#12434;&#38500;&#22806;</span>
     (bookmark-set my-cg-bookmark)
     (save-buffer)))
@@ -12407,7 +12441,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgff18d67"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org5278162"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13283,7 +13317,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org96177aa" class="figure">
+<div id="orgaf449a1" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16167,7 +16201,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-03-23 Wed 13:19</p>
+<p class="date">Created: 2022-03-26 Sat 10:29</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -7,16 +7,28 @@
 ;; https://codeberg.org/akib/emacs-why-this
 
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
+;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 (with-eval-after-load "transient"
-
-
-
-
-
-
-
-
-
+  (transient-define-prefix moom-transient-undo ()
+    "Undo"
+    :transient-suffix     'transient--do-stay
+    :transient-non-suffix 'transient--do-warn
+    ["Undo (type `C-g' to exit)"
+     [("u" "undo" moom-undo)]]
+    )
+  (transient-define-prefix moom-dispatch ()
+    "Command list of `moom'."
+    ["Command 1"
+     [("r" "reset" moom-reset)]
+     [("u" "undo" moom-undo)]]
+    ["Filling region of a display"
+     [("fft" "fill top" moom-fill-top)]
+     [("ffb" "fill bottom" moom-fill-bottom)]
+     [("ffl" "fill left" moom-fill-left)]
+     [("ffr" "fill right" moom-fill-right)]]
+    ["Move the frame"
+     [("1" "move left" moom-move-frame-left)]
+     [("3" "move right" moom-move-frame-right)]])
   )
 
 (cond

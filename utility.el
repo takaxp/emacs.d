@@ -447,7 +447,6 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (setq end (- end len))))
   (goto-char begin))
 
-;;;###autoload
 (defun my-org-toggle-checkbox (begin end)
   (interactive "r")
   (unless mark-active
@@ -459,7 +458,9 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (my-org-delete-checkbox-from-bullet begin end)
     (my-org-insert-checkbox-into-bullet begin end)))
 
+;;;###autoload
 (defun my-org-insert-checkbox-into-bullet (begin end)
+  (interactive "r")
   (unless mark-active
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))
@@ -473,7 +474,9 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (setq end (+ end len)))
     (goto-char begin)))
 
+;;;###autoload
 (defun my-org-delete-checkbox-from-bullet (begin end)
+  (interactive "r")
   (unless mark-active
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))

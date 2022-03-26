@@ -17,6 +17,8 @@
 (require 'shut-up nil t)
 (require 'fringe-helper nil t)
 
+(require 'transient nil t)
+
 (when nil
   ;; as an entry point
   (require 'postpone nil t)

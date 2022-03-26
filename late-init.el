@@ -957,6 +957,7 @@ This works also for other defined begin/end tokens to define the structure."
        "selected" nil t)
 
   (defun my-activate-selected ()
+    (require 'transient nil t)
     (selected-global-mode 1)
     (selected--on) ;; must call expclitly here
     (remove-hook 'activate-mark-hook #'my-activate-selected))
@@ -1035,8 +1036,8 @@ This works also for other defined begin/end tokens to define the structure."
     (setq selected-org-mode-map (make-sparse-keymap))
 
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
-    (define-key selected-keymap (kbd "-") #'my-org-insert-bullet)
-    (define-key selected-keymap (kbd "[") #'org-toggle-checkbox)
+    (define-key selected-org-mode-map (kbd "-") #'my-org-bullet-and-checkbox)
+    ;; (define-key selected-keymap (kbd "[") #'org-toggle-checkbox)
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
@@ -1930,6 +1931,22 @@ sorted.  FUNCTION must be a function of one argument."
     (unless (version< "28.0" emacs-version)
       (setq my-dimmer-mode (dimmer-mode 1)))))
 
+(with-eval-after-load 'transient
+  (transient-define-prefix my-org-bullet-and-checkbox ()
+    "Commands to handle bullet and checkbox"
+    [["Bullet"
+      ("i" "insert" my-org-insert-bullet)
+      ("d" "delete" my-org-delete-bullet)]
+     ["Checkbox"
+      ("[" "insert" my-org-insert-checkbox-into-bullet)
+      ("]" "delete" my-org-delete-checkbox-from-bullet)
+      ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+      ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+      ]
+     ["Bullet and Checkbox"
+      ("I" "insert" my-org-insert-bullet-and-checkbox)
+      ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+
 (when (autoload-if-found
        '(emms-play-file
          emms-play-playlist emms-play-directory my-play-bgm
@@ -2085,6 +2102,7 @@ sorted.  FUNCTION must be a function of one argument."
   (push-mark)
   (when (and buffer-file-name
              (eq major-mode 'org-mode)
+             (not (org-before-first-heading-p))
              (> (org-current-level) 1)) ;; レベル1の heading を除外
     (bookmark-set my-cg-bookmark)
     (save-buffer)))

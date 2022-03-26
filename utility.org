@@ -729,7 +729,6 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
       (setq end (- end len))))
   (goto-char begin))
 
-;;;###autoload
 (defun my-org-toggle-checkbox (begin end)
   (interactive "r")
   (unless mark-active
@@ -741,7 +740,9 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
       (my-org-delete-checkbox-from-bullet begin end)
     (my-org-insert-checkbox-into-bullet begin end)))
 
+;;;###autoload
 (defun my-org-insert-checkbox-into-bullet (begin end)
+  (interactive "r")
   (unless mark-active
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))
@@ -755,7 +756,9 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
       (setq end (+ end len)))
     (goto-char begin)))
 
+;;;###autoload
 (defun my-org-delete-checkbox-from-bullet (begin end)
+  (interactive "r")
   (unless mark-active
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))

@@ -3506,6 +3506,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 ** [selected.el] リージョン選択時のアクションを制御
    :PROPERTIES:
    :CUSTOM_ID: orgbc8501cf
+   :ID:       8EE2D5FE-B53A-477A-81B0-6638F14906FF
    :END:
 
 選択した後に右クリック的な感じでリージョンに対するアクションを制御できます．選択領域に対するスピードコマンドですね．普通にシングルキーを割り当てると，日本語IMEが有効な時に上手くいかないので， =activate-mark-hook= と =deactivate-mark-hook= に細工しています．
@@ -3523,6 +3524,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
        "selected" nil t)
 
   (defun my-activate-selected ()
+    (require 'transient nil t)
     (selected-global-mode 1)
     (selected--on) ;; must call expclitly here
     (remove-hook 'activate-mark-hook #'my-activate-selected))
@@ -3601,8 +3603,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (setq selected-org-mode-map (make-sparse-keymap))
 
     (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
-    (define-key selected-keymap (kbd "-") #'my-org-insert-bullet)
-    (define-key selected-keymap (kbd "[") #'org-toggle-checkbox)
+    (define-key selected-org-mode-map (kbd "-") #'my-org-bullet-and-checkbox)
+    ;; (define-key selected-keymap (kbd "[") #'org-toggle-checkbox)
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
@@ -5723,7 +5725,35 @@ sorted.  FUNCTION must be a function of one argument."
       (setq my-dimmer-mode (dimmer-mode 1)))))
 #+end_src
 
-** TODO [hydra.el] コマンドディスパッチャを構築する
+** TODO [transient.el] コマンドディスパッチャを構築する
+   :PROPERTIES:
+   :CREATED:  [2022-03-26 Sat 00:51]
+   :ID:       950EB87C-C3EA-4BC3-8989-E30D8C8B12AF
+   :END:
+
+~my-org-bullet-and-checkbox~ を ~selected.el~ から呼び出しています．
+
+note: 出力したファイルをバイトコンパイルする場合は， =transient.el= を明示的に読み込む必要があります．そうしないと， ~my-org-bullet-and-checkbox~ が void variable だとしてうまく動かなくなります．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load 'transient
+  (transient-define-prefix my-org-bullet-and-checkbox ()
+    "Commands to handle bullet and checkbox"
+    [["Bullet"
+      ("i" "insert" my-org-insert-bullet)
+      ("d" "delete" my-org-delete-bullet)]
+     ["Checkbox"
+      ("[" "insert" my-org-insert-checkbox-into-bullet)
+      ("]" "delete" my-org-delete-checkbox-from-bullet)
+      ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+      ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+      ]
+     ["Bullet and Checkbox"
+      ("I" "insert" my-org-insert-bullet-and-checkbox)
+      ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+#+end_src
+** DONE [hydra.el] コマンドディスパッチャを構築する                :notinuse:
+   CLOSED: [2022-03-26 Sat 03:14]
    :PROPERTIES:
    :CUSTOM_ID: org1e701627
    :END:
@@ -6563,6 +6593,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   (push-mark)
   (when (and buffer-file-name
              (eq major-mode 'org-mode)
+             (not (org-before-first-heading-p))
              (> (org-current-level) 1)) ;; レベル1の heading を除外
     (bookmark-set my-cg-bookmark)
     (save-buffer)))

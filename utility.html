@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-03-23 Wed 13:19 -->
+<!-- 2022-03-26 Sat 10:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -1029,7 +1029,6 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
       (<span style="color: #a020f0;">setq</span> end (- end len))))
   (goto-char begin))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-toggle-checkbox</span> (begin end)
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
   (<span style="color: #a020f0;">unless</span> mark-active
@@ -1041,7 +1040,9 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
       (my-org-delete-checkbox-from-bullet begin end)
     (my-org-insert-checkbox-into-bullet begin end)))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-insert-checkbox-into-bullet</span> (begin end)
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
   (<span style="color: #a020f0;">unless</span> mark-active
     (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
     (<span style="color: #a020f0;">setq</span> end (line-end-position)))
@@ -1055,7 +1056,9 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
       (<span style="color: #a020f0;">setq</span> end (+ end len)))
     (goto-char begin)))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-delete-checkbox-from-bullet</span> (begin end)
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"r"</span>)
   (<span style="color: #a020f0;">unless</span> mark-active
     (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
     (<span style="color: #a020f0;">setq</span> end (line-end-position)))
@@ -1672,7 +1675,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-03-23 Wed 13:19</p>
+<p class="date">Created: 2022-03-26 Sat 10:29</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

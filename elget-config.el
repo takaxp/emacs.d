@@ -269,6 +269,8 @@
   (el-get-bundle "emacs-lsp/lsp-mode")
   (el-get-bundle "emacs-lsp/dap-mode")
   (el-get-bundle "emacs-lsp/lsp-ui")
+  (el-get-bundle "emacs-lsp/lsp-ivy")
+  (el-get-bundle "emacs-lsp/lsp-pyright")
   ;;
   (el-get-bundle "casouri/isolate")
   (el-get-bundle "dakra/statusbar.el" :name "statusbar")
