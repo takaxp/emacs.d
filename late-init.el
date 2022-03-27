@@ -1033,11 +1033,10 @@ This works also for other defined begin/end tokens to define the structure."
         (let ((region (intern (buffer-substring-no-properties
                                (region-beginning) (region-end)))))
           (funcall region))))
-    (setq selected-org-mode-map (make-sparse-keymap))
 
-    (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
+    (setq selected-org-mode-map (make-sparse-keymap))
+    (define-key selected-org-mode-map (kbd "t") #'org-toggle-checkbox)
     (define-key selected-org-mode-map (kbd "-") #'my-org-bullet-and-checkbox)
-    ;; (define-key selected-keymap (kbd "[") #'org-toggle-checkbox)
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
@@ -1930,22 +1929,6 @@ sorted.  FUNCTION must be a function of one argument."
   (unless noninteractive
     (unless (version< "28.0" emacs-version)
       (setq my-dimmer-mode (dimmer-mode 1)))))
-
-(with-eval-after-load 'transient
-  (transient-define-prefix my-org-bullet-and-checkbox ()
-    "Commands to handle bullet and checkbox"
-    [["Bullet"
-      ("i" "insert" my-org-insert-bullet)
-      ("d" "delete" my-org-delete-bullet)]
-     ["Checkbox"
-      ("[" "insert" my-org-insert-checkbox-into-bullet)
-      ("]" "delete" my-org-delete-checkbox-from-bullet)
-      ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-      ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-      ]
-     ["Bullet and Checkbox"
-      ("I" "insert" my-org-insert-bullet-and-checkbox)
-      ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
 
 (when (autoload-if-found
        '(emms-play-file

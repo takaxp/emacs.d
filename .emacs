@@ -16,19 +16,23 @@
     ["Undo (type `C-g' to exit)"
      [("u" "undo" moom-undo)]]
     )
+
   (transient-define-prefix moom-dispatch ()
     "Command list of `moom'."
-    ["Command 1"
-     [("r" "reset" moom-reset)]
-     [("u" "undo" moom-undo)]]
-    ["Filling region of a display"
-     [("fft" "fill top" moom-fill-top)]
-     [("ffb" "fill bottom" moom-fill-bottom)]
-     [("ffl" "fill left" moom-fill-left)]
-     [("ffr" "fill right" moom-fill-right)]]
-    ["Move the frame"
-     [("1" "move left" moom-move-frame-left)]
-     [("3" "move right" moom-move-frame-right)]])
+    :transient-suffix     'transient--do-stay
+    :transient-non-suffix 'transient--do-warn
+    [["Command 1"
+      ("r" "reset" moom-reset)
+      ("u" "undo" moom-undo)]
+     ["Filling region of a display"
+      ("fft" "fill top" moom-fill-top)
+      ("ffb" "fill bottom" moom-fill-bottom)
+      ("ffl" "fill left" moom-fill-left)
+      ("ffr" "fill right" moom-fill-right)]
+     ["Move the frame"
+      ("1" "move left" moom-move-frame-left)
+      ("2" "move center" moom-move-frame-to-center)
+      ("3" "move right" moom-move-frame-right)]])
   )
 
 (cond

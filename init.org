@@ -3600,11 +3600,10 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
         (let ((region (intern (buffer-substring-no-properties
                                (region-beginning) (region-end)))))
           (funcall region))))
-    (setq selected-org-mode-map (make-sparse-keymap))
 
-    (define-key selected-org-mode-map (kbd "t") #'org-table-convert-region)
+    (setq selected-org-mode-map (make-sparse-keymap))
+    (define-key selected-org-mode-map (kbd "t") #'org-toggle-checkbox)
     (define-key selected-org-mode-map (kbd "-") #'my-org-bullet-and-checkbox)
-    ;; (define-key selected-keymap (kbd "[") #'org-toggle-checkbox)
 
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region))
@@ -5731,12 +5730,10 @@ sorted.  FUNCTION must be a function of one argument."
    :ID:       950EB87C-C3EA-4BC3-8989-E30D8C8B12AF
    :END:
 
-~my-org-bullet-and-checkbox~ を ~selected.el~ から呼び出しています．
+~my-org-bullet-and-checkbox~ を ~selected.el~ から呼び出しています．それもあって，設定の読み込みは ~selected.el~ に紐づけています．
 
-note: 出力したファイルをバイトコンパイルする場合は， =transient.el= を明示的に読み込む必要があります．そうしないと， ~my-org-bullet-and-checkbox~ が void variable だとしてうまく動かなくなります．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load 'transient
+#+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "selected"
   (transient-define-prefix my-org-bullet-and-checkbox ()
     "Commands to handle bullet and checkbox"
     [["Bullet"
@@ -5750,7 +5747,8 @@ note: 出力したファイルをバイトコンパイルする場合は， =tra
       ]
      ["Bullet and Checkbox"
       ("I" "insert" my-org-insert-bullet-and-checkbox)
-      ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+      ("D" "delete" my-org-delete-bullet-and-checkbox)]])
+  )
 #+end_src
 ** DONE [hydra.el] コマンドディスパッチャを構築する                :notinuse:
    CLOSED: [2022-03-26 Sat 03:14]
