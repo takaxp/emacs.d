@@ -5731,36 +5731,36 @@ sorted.  FUNCTION must be a function of one argument."
    :ID:       950EB87C-C3EA-4BC3-8989-E30D8C8B12AF
    :END:
 
-~transient-define-prefix~ で定義する関数は， ~autoload~ 指定されているとバイトコンパイルした場合にも正しく動作するようです．
+下記の設定は有効だが，バイトコンパイルするとうまくいかないので，原因究明中．
+
+# ~transient-define-prefix~ で定義する関数は， ~autoload~ 指定されているとバイトコンパイルした場合にも正しく動作するようです．
 
 # late-init.el ではなく，init.el に紐づけて，autoload がトップレベルで実行されるようにしないとだめのようだ．
 
-#+begin_src emacs-lisp :tangle yes
-(when (autoload-if-found
-       '(my-org-bullet-and-checkbox)
-       "transient" nil t)
-
-  (with-eval-after-load "transient"
-    (transient-define-prefix my-org-bullet-and-checkbox ()
-	    "Commands to handle bullet and checkbox"
-	    [["Bullet"
-		    ("i" "insert" my-org-insert-bullet)
-		    ("d" "delete" my-org-delete-bullet)]
-		   ["Checkbox"
-		    ("[" "insert" my-org-insert-checkbox-into-bullet)
-		    ("]" "delete" my-org-delete-checkbox-from-bullet)
-		    ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-		    ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-		    ]
-		   ["Bullet and Checkbox"
-		    ("I" "insert" my-org-insert-bullet-and-checkbox)
-		    ("D" "delete" my-org-delete-bullet-and-checkbox)]])
-    ))
+#+begin_src emacs-lisp :tangle no
+(autoload 'my-org-bullet-and-checkbox "transient" nil t)
+(with-eval-after-load "transient"
+  (transient-define-prefix my-org-bullet-and-checkbox ()
+	  "Commands to handle bullet and checkbox"
+	  [["Bullet"
+		  ("i" "insert" my-org-insert-bullet)
+		  ("d" "delete" my-org-delete-bullet)]
+		 ["Checkbox"
+		  ("[" "insert" my-org-insert-checkbox-into-bullet)
+		  ("]" "delete" my-org-delete-checkbox-from-bullet)
+		  ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+		  ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+		  ]
+		 ["Bullet and Checkbox"
+		  ("I" "insert" my-org-insert-bullet-and-checkbox)
+		  ("D" "delete" my-org-delete-bullet-and-checkbox)]])
+  )
 #+end_src
 ** DONE [hydra.el] コマンドディスパッチャを構築する                :notinuse:
    CLOSED: [2022-03-26 Sat 03:14]
    :PROPERTIES:
    :CUSTOM_ID: org1e701627
+   :ID:       A66AE85F-7075-4027-BF3C-E2DDC49758ED
    :END:
 
  - [[https://www.wisdomandwonder.com/article/10763/emacsorg-mode-hydra-to-insert-timestamps][(Emacs+Org-Mode) Hydra To Insert Timestamps | Wisdom and Wonder]]
