@@ -8,7 +8,7 @@
 
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
-(with-eval-after-load "transient"
+(with-eval-after-load "selected"
   (transient-define-prefix moom-transient-undo ()
     "Undo"
     :transient-suffix     'transient--do-stay
