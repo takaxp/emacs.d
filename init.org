@@ -769,6 +769,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
    CLOSED: [2020-06-04 Thu 08:00]
    :PROPERTIES:
    :CUSTOM_ID: orgcea06248
+   :ID:       96313D74-E2EB-4DFD-9B5C-36F52BE30A71
    :END:
 
 フォーカスが当たっているのかを判定するための関数です．
@@ -5730,25 +5731,31 @@ sorted.  FUNCTION must be a function of one argument."
    :ID:       950EB87C-C3EA-4BC3-8989-E30D8C8B12AF
    :END:
 
-~my-org-bullet-and-checkbox~ を ~selected.el~ から呼び出しています．それもあって，設定の読み込みは ~selected.el~ に紐づけています．
+~transient-define-prefix~ で定義する関数は， ~autoload~ 指定されているとバイトコンパイルした場合にも正しく動作するようです．
+
+# late-init.el ではなく，init.el に紐づけて，autoload がトップレベルで実行されるようにしないとだめのようだ．
 
 #+begin_src emacs-lisp :tangle yes
-(with-eval-after-load "selected"
-  (transient-define-prefix my-org-bullet-and-checkbox ()
-    "Commands to handle bullet and checkbox"
-    [["Bullet"
-      ("i" "insert" my-org-insert-bullet)
-      ("d" "delete" my-org-delete-bullet)]
-     ["Checkbox"
-      ("[" "insert" my-org-insert-checkbox-into-bullet)
-      ("]" "delete" my-org-delete-checkbox-from-bullet)
-      ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-      ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-      ]
-     ["Bullet and Checkbox"
-      ("I" "insert" my-org-insert-bullet-and-checkbox)
-      ("D" "delete" my-org-delete-bullet-and-checkbox)]])
-  )
+(when (autoload-if-found
+       '(my-org-bullet-and-checkbox)
+       "transient" nil t)
+
+  (with-eval-after-load "transient"
+    (transient-define-prefix my-org-bullet-and-checkbox ()
+	    "Commands to handle bullet and checkbox"
+	    [["Bullet"
+		    ("i" "insert" my-org-insert-bullet)
+		    ("d" "delete" my-org-delete-bullet)]
+		   ["Checkbox"
+		    ("[" "insert" my-org-insert-checkbox-into-bullet)
+		    ("]" "delete" my-org-delete-checkbox-from-bullet)
+		    ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+		    ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+		    ]
+		   ["Bullet and Checkbox"
+		    ("I" "insert" my-org-insert-bullet-and-checkbox)
+		    ("D" "delete" my-org-delete-bullet-and-checkbox)]])
+    ))
 #+end_src
 ** DONE [hydra.el] コマンドディスパッチャを構築する                :notinuse:
    CLOSED: [2022-03-26 Sat 03:14]

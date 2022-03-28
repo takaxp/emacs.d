@@ -475,22 +475,26 @@ This function is called directly from the C code."
   (setq mode-line-position-line-format
         `(,(icons-in-terminal-material "edit") "%3l")))
 
-(with-eval-after-load "selected"
-  (transient-define-prefix my-org-bullet-and-checkbox ()
-    "Commands to handle bullet and checkbox"
-    [["Bullet"
-      ("i" "insert" my-org-insert-bullet)
-      ("d" "delete" my-org-delete-bullet)]
-     ["Checkbox"
-      ("[" "insert" my-org-insert-checkbox-into-bullet)
-      ("]" "delete" my-org-delete-checkbox-from-bullet)
-      ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-      ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-      ]
-     ["Bullet and Checkbox"
-      ("I" "insert" my-org-insert-bullet-and-checkbox)
-      ("D" "delete" my-org-delete-bullet-and-checkbox)]])
-  )
+(when (autoload-if-found
+       '(my-org-bullet-and-checkbox)
+       "transient" nil t)
+
+  (with-eval-after-load "transient"
+    (transient-define-prefix my-org-bullet-and-checkbox ()
+	    "Commands to handle bullet and checkbox"
+	    [["Bullet"
+		    ("i" "insert" my-org-insert-bullet)
+		    ("d" "delete" my-org-delete-bullet)]
+		   ["Checkbox"
+		    ("[" "insert" my-org-insert-checkbox-into-bullet)
+		    ("]" "delete" my-org-delete-checkbox-from-bullet)
+		    ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+		    ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+		    ]
+		   ["Bullet and Checkbox"
+		    ("I" "insert" my-org-insert-bullet-and-checkbox)
+		    ("D" "delete" my-org-delete-bullet-and-checkbox)]])
+    ))
 
 (my-tick-init-time "presentation")
 

@@ -8,32 +8,63 @@
 
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
-(with-eval-after-load "selected"
-  (transient-define-prefix moom-transient-undo ()
-    "Undo"
-    :transient-suffix     'transient--do-stay
-    :transient-non-suffix 'transient--do-warn
-    ["Undo (type `C-g' to exit)"
-     [("u" "undo" moom-undo)]]
-    )
 
-  (transient-define-prefix moom-dispatch ()
-    "Command list of `moom'."
-    :transient-suffix     'transient--do-stay
-    :transient-non-suffix 'transient--do-warn
-    [["Command 1"
-      ("r" "reset" moom-reset)
-      ("u" "undo" moom-undo)]
-     ["Filling region of a display"
-      ("fft" "fill top" moom-fill-top)
-      ("ffb" "fill bottom" moom-fill-bottom)
-      ("ffl" "fill left" moom-fill-left)
-      ("ffr" "fill right" moom-fill-right)]
-     ["Move the frame"
-      ("1" "move left" moom-move-frame-left)
-      ("2" "move center" moom-move-frame-to-center)
-      ("3" "move right" moom-move-frame-right)]])
-  )
+;; (autoload 'moom-transient-undo "transient" nil t)
+;; (autoload 'moom-dispatch "transient" nil t)
+;; (with-eval-after-load "transient"
+;;   ;; "q" で transient を抜ける方法を提供する．
+;;   (transient-define-prefix moom-transient-undo ()
+;;     "Undo"
+;;     :transient-suffix     'transient--do-stay
+;;     :transient-non-suffix 'transient--do-warn
+;;     ["Undo (type `C-g' to exit)"
+;;      [("u" "undo" moom-undo)]]
+;;     )
+
+;;   (transient-define-prefix moom-dispatch ()
+;;     "Command list of `moom'."
+;;     :transient-suffix     'transient--do-stay
+;;     :transient-non-suffix 'transient--do-warn
+;;     [""
+;;      ["Fill screen"
+;;       ("f s" "screen" moom-fill-screen)
+;;       ("f f w" "width" moom-fill-width)
+;;       ("f f h" "height" moom-fill-height)
+;;       ("f f m" "band" moom-fill-band)
+;;       ("f f t" "top" moom-fill-top)
+;;       ("f f b" "bottom" moom-fill-bottom)
+;;       ("f f l" "left" moom-fill-left)
+;;       ("f f r" "right" moom-fill-right)
+;;       ("f f 1" "fill top" moom-fill-top-left)
+;;       ("f f 2" "fill bottom" moom-fill-top-right)
+;;       ("f f 3" "fill left" moom-fill-bottom-left)
+;;       ("f f 4" "fill right" moom-fill-bottom-right)]
+;;      ["Fit"
+;;       ("M-<f1>" "edge left" moom-move-frame-to-edge-left)
+;;       ("M-<f3>" "edge right" moom-move-frame-to-edge-right)
+;;       ("<f1>", "edge top" moom-move-frame-to-edge-top)
+;;       ("S-<f1>", "edge bottom" moom-move-frame-to-edge-bottom)
+;;       ("fcl" "center left" moom-move-frame-to-centerline-from-left)
+;;       ("fcr" "center right" moom-move-frame-to-centerline-from-right)
+;;       ("fct" "center top" moom-move-frame-to-centerline-from-top)
+;;       ("fcb" "center bottom" moom-move-frame-to-centerline-from-bottom)]]
+;;     ;; moom-change-frame-width
+;;     ;; moom-change-frame-height
+;;     ["Filling region of a display"
+;;      ["Move the frame"
+;;       ("0" "move top-left" moom-move-frame)
+;;       ("1" "move left" moom-move-frame-left)
+;;       ("2" "move center" moom-move-frame-to-center)
+;;       ("3" "move right" moom-move-frame-right)]
+;;      ["Expand"
+;;       ("cfs" "single" moom-change-frame-width-single) ;; disabled, why?
+;;       ("cfd" "double" moom-change-frame-width-double)
+;;       ("cfa" "3/2" moom-change-frame-width-half-again)
+;;       ("cfh" "height" moom-cycle-frame-height)]
+;;      ["Utilities"
+;;       ("r" "reset" moom-reset)
+;;       ("u" "undo" moom-undo)]]
+;;     ))
 
 (cond
  (nil ;; To test the latest org
