@@ -11,7 +11,7 @@
 (defconst my-loading-packages nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
-(setq debug-on-error t
+(setq debug-on-error nil
       postpone-verbose nil
       my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
@@ -108,7 +108,6 @@
                       (shut-up (require 'private "private.el.gpg" t))
                     (require 'private "private.el.gpg" t)))
           (warn "GPG decryption error (private.el)")))
-      (require 'no-compile nil t)
       (require 'my-eshell nil t)
       (require 'my-mail nil t)))
   (when my-profiler-p

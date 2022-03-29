@@ -9,7 +9,7 @@
 (setq ad-redefinition-action 'accept)
 
 ;; for init-dired.el and late-init.el
-(require 'hydra nil t)
+;; (require 'hydra nil t)
 
 ;; for late-init.el
 (require 'mic-paren)

@@ -245,7 +245,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done ~/Dropbox/emacs.d/config/init.el
 #+end_src
 
-これなら =init.el= に =eval-when-compile= を書くのと同じに見えますが，そうしてしまうと，バイトコンパイルしない状態の =init.el= を読み込む場合に， =eval-when-compile= の中身がすべて実行されてしまい，起動が重くなってしまいます．
+これなら =init.el= に =eval-when-compile= を書くのと同じに見えますが，そうしてしまうと，バイトコンパイルしない状態の =init.el= を読み込む場合に， =eval-when-compile= の中身が起動のたびにすべて実行されてしまいます．もちろん起動が重くなります．
 
 そもそも =init.org= を編集対象にしていて， =init.el= を手動でバイトコンパイルすることはないので，私のフローには合っています.
 
@@ -5731,6 +5731,8 @@ sorted.  FUNCTION must be a function of one argument."
    :ID:       950EB87C-C3EA-4BC3-8989-E30D8C8B12AF
    :END:
 
+~autoload-if-found~ を使ういつもの設定では正しく動作しないので， ~eval-when-compile~ を使用して require しています．
+
 # 下記の設定は有効だが，バイトコンパイルするとうまくいかないので，バイトコンパイルしない設定群を収録する =no-compile.el= を作成して， ~transient.el~ 関連の設定を格納することにしました．
 
 # ~transient-define-prefix~ を ~with-eval-after-load~ でくくると駄目の模様．
@@ -5742,14 +5744,32 @@ sorted.  FUNCTION must be a function of one argument."
 # whenでくくると，require 'transient と autoload が byte-code の中に入ってしまい，うまく行かないことがわかった．すなわち，(1) autoload はトップレベルで実行されること．(2) 使用するマクロが定義されているパッケージを同じくトップレベルで require すること．
 
 # つまり，requireを明示的に書かないといけないから，init.elには置けない．
+# eval-when-compile で回避できる．ただ，起動時間への影響は本当に無いのか？
 
 #+begin_src emacs-lisp :tangle late-init.el
-;;(autoload 'my-org-bullet-and-checkbox "transient" nil t)
-;;(when (require 'transient nil t)
+;; この場合は，interactive モードで init-eval.el にある記述をロードするはだめ．
+(eval-when-compile
+  (require 'transient))
 
+(with-eval-after-load "transient"
+  (transient-define-prefix my-org-bullet-and-checkbox ()
+	  "Commands to handle bullet and checkbox"
+	  [["Bullet"
+		  ("i" "insert" my-org-insert-bullet)
+		  ("d" "delete" my-org-delete-bullet)]
+	   ["Checkbox"
+		  ("[" "insert" my-org-insert-checkbox-into-bullet)
+		  ("]" "delete" my-org-delete-checkbox-from-bullet)
+		  ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+		  ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+		  ]
+	   ["Bullet and Checkbox"
+		  ("I" "insert" my-org-insert-bullet-and-checkbox)
+		  ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+#+end_src
+#+begin_src emacs-lisp :tangle no :exports none
 (require 'transient nil t)
 
-;;;###autoload
 (transient-define-prefix my-org-bullet-and-checkbox ()
 	"Commands to handle bullet and checkbox"
 	[["Bullet"
@@ -5765,7 +5785,30 @@ sorted.  FUNCTION must be a function of one argument."
 		("I" "insert" my-org-insert-bullet-and-checkbox)
 		("D" "delete" my-org-delete-bullet-and-checkbox)]])
 #+end_src
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no :exports none
+;;(autoload 'my-org-bullet-and-checkbox "transient" nil t)
+;;(when (require 'transient nil t)
+
+(require 'transient nil t)
+(autoload 'my-org-bullet-and-checkbox "transient" nil t)
+
+(with-eval-after-load "transient"
+  (transient-define-prefix my-org-bullet-and-checkbox ()
+	  "Commands to handle bullet and checkbox"
+	  [["Bullet"
+		  ("i" "insert" my-org-insert-bullet)
+		  ("d" "delete" my-org-delete-bullet)]
+	   ["Checkbox"
+		  ("[" "insert" my-org-insert-checkbox-into-bullet)
+		  ("]" "delete" my-org-delete-checkbox-from-bullet)
+		  ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+		  ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+		  ]
+	   ["Bullet and Checkbox"
+		  ("I" "insert" my-org-insert-bullet-and-checkbox)
+		  ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+#+end_src
+#+begin_src emacs-lisp :tangle no :exports none
 # この書き方はだめ！
 (when (autoload-if-found
        '(my-org-bullet-and-checkbox)
@@ -5787,6 +5830,7 @@ sorted.  FUNCTION must be a function of one argument."
 		    ("I" "insert" my-org-insert-bullet-and-checkbox)
 		    ("D" "delete" my-org-delete-bullet-and-checkbox)]])))
 #+end_src
+
 ** DONE [hydra.el] コマンドディスパッチャを構築する                :notinuse:
    CLOSED: [2022-03-26 Sat 03:14]
    :PROPERTIES:

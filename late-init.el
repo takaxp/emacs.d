@@ -1930,26 +1930,25 @@ sorted.  FUNCTION must be a function of one argument."
     (unless (version< "28.0" emacs-version)
       (setq my-dimmer-mode (dimmer-mode 1)))))
 
-;;(autoload 'my-org-bullet-and-checkbox "transient" nil t)
-;;(when (require 'transient nil t)
+;; この場合は，interactive モードで init-eval.el にある記述をロードするはだめ．
+(eval-when-compile
+  (require 'transient))
 
-(require 'transient nil t)
-
-;;;###autoload
-(transient-define-prefix my-org-bullet-and-checkbox ()
-	"Commands to handle bullet and checkbox"
-	[["Bullet"
-		("i" "insert" my-org-insert-bullet)
-		("d" "delete" my-org-delete-bullet)]
-	 ["Checkbox"
-		("[" "insert" my-org-insert-checkbox-into-bullet)
-		("]" "delete" my-org-delete-checkbox-from-bullet)
-		;;("a" "toggle checkbox" my-org-toggle-checkbox)
-		;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-		]
-	 ["Bullet and Checkbox"
-		("I" "insert" my-org-insert-bullet-and-checkbox)
-		("D" "delete" my-org-delete-bullet-and-checkbox)]])
+(with-eval-after-load "transient"
+  (transient-define-prefix my-org-bullet-and-checkbox ()
+	  "Commands to handle bullet and checkbox"
+	  [["Bullet"
+		  ("i" "insert" my-org-insert-bullet)
+		  ("d" "delete" my-org-delete-bullet)]
+	   ["Checkbox"
+		  ("[" "insert" my-org-insert-checkbox-into-bullet)
+		  ("]" "delete" my-org-delete-checkbox-from-bullet)
+		  ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+		  ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+		  ]
+	   ["Bullet and Checkbox"
+		  ("I" "insert" my-org-insert-bullet-and-checkbox)
+		  ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
 
 (when (autoload-if-found
        '(emms-play-file

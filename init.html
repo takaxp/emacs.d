@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-03-29 Tue 12:48 -->
+<!-- 2022-03-29 Tue 23:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#orgf8871b4">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org1856684">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -394,7 +394,7 @@
 <li><a href="#orgdd0a9c41">6.10. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.11. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.12. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org65f7059">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org37ce76d">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.14. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.15. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.16. カーソル行の関数名をモードラインに表示する</a></li>
@@ -433,7 +433,7 @@
 <li><a href="#org5eaeb687">6.45. <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</a></li>
 <li><a href="#org7270262d">6.46. <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</a></li>
 <li><a href="#org8ba0784e">6.47. <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</a></li>
-<li><a href="#org82b5f78">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
+<li><a href="#org8ffb235">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
 <li><a href="#org1e701627">6.49. <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#org56d8bf9d">6.50. <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgc00267d7">6.51. <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
@@ -960,7 +960,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <p>
-これなら <code>init.el</code> に <code>eval-when-compile</code> を書くのと同じに見えますが，そうしてしまうと，バイトコンパイルしない状態の <code>init.el</code> を読み込む場合に， <code>eval-when-compile</code> の中身がすべて実行されてしまい，起動が重くなってしまいます．
+これなら <code>init.el</code> に <code>eval-when-compile</code> を書くのと同じに見えますが，そうしてしまうと，バイトコンパイルしない状態の <code>init.el</code> を読み込む場合に， <code>eval-when-compile</code> の中身が起動のたびにすべて実行されてしまいます．もちろん起動が重くなります．
 </p>
 
 <p>
@@ -5427,8 +5427,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-orgf8871b4" class="outline-3">
-<h3 id="orgf8871b4"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org1856684" class="outline-3">
+<h3 id="org1856684"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5814,8 +5814,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org65f7059" class="outline-3">
-<h3 id="org65f7059"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-org37ce76d" class="outline-3">
+<h3 id="org37ce76d"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-13">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -7247,53 +7247,33 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 </div>
 
-<div id="outline-container-org82b5f78" class="outline-3">
-<h3 id="org82b5f78"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
+<div id="outline-container-org8ffb235" class="outline-3">
+<h3 id="org8ffb235"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
 <div class="outline-text-3" id="text-6-48">
+<p>
+<code>autoload-if-found</code> を使ういつもの設定では正しく動作しないので， <code>eval-when-compile</code> を使用して require しています．
+</p>
+
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;</span><span style="color: #b22222;">(autoload 'my-org-bullet-and-checkbox "transient" nil t)</span>
-<span style="color: #b22222;">;;</span><span style="color: #b22222;">(when (require 'transient nil t)</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12398;&#22580;&#21512;&#12399;&#65292;interactive &#12514;&#12540;&#12489;&#12391; init-eval.el &#12395;&#12354;&#12427;&#35352;&#36848;&#12434;&#12525;&#12540;&#12489;&#12377;&#12427;&#12399;&#12384;&#12417;&#65294;</span>
+(<span style="color: #a020f0;">eval-when-compile</span>
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">transient</span>))
 
-(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">transient</span> nil t)
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(transient-define-prefix my-org-bullet-and-checkbox ()
-  <span style="color: #8b2252;">"Commands to handle bullet and checkbox"</span>
-  [[<span style="color: #8b2252;">"Bullet"</span>
-    (<span style="color: #8b2252;">"i"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet)
-    (<span style="color: #8b2252;">"d"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-bullet)]
-   [<span style="color: #8b2252;">"Checkbox"</span>
-    (<span style="color: #8b2252;">"["</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-checkbox-into-bullet)
-    (<span style="color: #8b2252;">"]"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-checkbox-from-bullet)
-    <span style="color: #b22222;">;;</span><span style="color: #b22222;">("a" "toggle checkbox" my-org-toggle-checkbox)</span>
-    <span style="color: #b22222;">;;</span><span style="color: #b22222;">("h" "cycle" my-cycle-bullet-at-heading) ;; single line</span>
-    ]
-   [<span style="color: #8b2252;">"Bullet and Checkbox"</span>
-    (<span style="color: #8b2252;">"I"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet-and-checkbox)
-    (<span style="color: #8b2252;">"D"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-bullet-and-checkbox)]])
-</pre>
-</div>
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"># &#12371;&#12398;&#26360;&#12365;&#26041;&#12399;&#12384;&#12417;&#65281;
-(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(my-org-bullet-and-checkbox)
-       <span style="color: #8b2252;">"transient"</span> nil t)
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"transient"</span>
-    (transient-define-prefix my-org-bullet-and-checkbox ()
-      <span style="color: #8b2252;">"Commands to handle bullet and checkbox"</span>
-      [[<span style="color: #8b2252;">"Bullet"</span>
-        (<span style="color: #8b2252;">"i"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet)
-        (<span style="color: #8b2252;">"d"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-bullet)]
-       [<span style="color: #8b2252;">"Checkbox"</span>
-        (<span style="color: #8b2252;">"["</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-checkbox-into-bullet)
-        (<span style="color: #8b2252;">"]"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-checkbox-from-bullet)
-        <span style="color: #b22222;">;;</span><span style="color: #b22222;">("a" "toggle checkbox" my-org-toggle-checkbox)</span>
-        <span style="color: #b22222;">;;</span><span style="color: #b22222;">("h" "cycle" my-cycle-bullet-at-heading) ;; single line</span>
-        ]
-       [<span style="color: #8b2252;">"Bullet and Checkbox"</span>
-        (<span style="color: #8b2252;">"I"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet-and-checkbox)
-        (<span style="color: #8b2252;">"D"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-bullet-and-checkbox)]])))
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"transient"</span>
+  (transient-define-prefix my-org-bullet-and-checkbox ()
+    <span style="color: #8b2252;">"Commands to handle bullet and checkbox"</span>
+    [[<span style="color: #8b2252;">"Bullet"</span>
+      (<span style="color: #8b2252;">"i"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet)
+      (<span style="color: #8b2252;">"d"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-bullet)]
+     [<span style="color: #8b2252;">"Checkbox"</span>
+      (<span style="color: #8b2252;">"["</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-checkbox-into-bullet)
+      (<span style="color: #8b2252;">"]"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-checkbox-from-bullet)
+      <span style="color: #b22222;">;;</span><span style="color: #b22222;">("a" "toggle checkbox" my-org-toggle-checkbox)</span>
+      <span style="color: #b22222;">;;</span><span style="color: #b22222;">("h" "cycle" my-cycle-bullet-at-heading) ;; single line</span>
+      ]
+     [<span style="color: #8b2252;">"Bullet and Checkbox"</span>
+      (<span style="color: #8b2252;">"I"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet-and-checkbox)
+      (<span style="color: #8b2252;">"D"</span> <span style="color: #8b2252;">"delete"</span> my-org-delete-bullet-and-checkbox)]]))
 </pre>
 </div>
 </div>
@@ -12460,7 +12440,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org185f14a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org2e06395"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13336,7 +13316,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org298cdaf" class="figure">
+<div id="orgbddf628" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16220,7 +16200,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-03-29 Tue 12:48</p>
+<p class="date">Created: 2022-03-29 Tue 23:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
