@@ -571,8 +571,11 @@ This function is called directly from the C code."
 
 #+begin_src emacs-lisp :tangle late-init.el
 (setq message-log-max 5000) ;; メッセージバッファの長さ
+(eval-when-compile
+  (require 'shut-up nil t))
 (defvar shutup-p nil)
-(setq shutup-p (and (not (my-native-comp-p)) (require 'shut-up nil t)))
+(setq shutup-p (require 'shut-up nil t))
+;; (setq shutup-p (and (not (my-native-comp-p)) (require 'shut-up nil t)))
 #+end_src
 
 *** with-suppressed-message                                        :notinuse:
@@ -4571,6 +4574,9 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 Built-in の paren.el が利用できる．拡張版として [[http://www.emacswiki.org/emacs/mic-paren.el][mic-paren.el]] があり，現在はこれを利用している．
 
 #+begin_src emacs-lisp :tangle late-init.el
+(eval-when-compile
+  (require 'mic-paren nil t))
+
 (when (require 'mic-paren nil t)
   (setq paren-sexp-mode nil)
   (set-face-foreground 'paren-face-match "#FFFFFF")
@@ -4888,6 +4894,9 @@ version 28 で全角スペースに黒下線が付くので回避します．
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
+(eval-when-compile
+  (require 'fringe-helper))
+
 (when (autoload-if-found
        '(git-gutter-mode)
        "git-gutter" nil t)
@@ -7702,6 +7711,9 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
   - auto-complete より前に hook設定しておくと余計なエラーが出ないようです．
 
 #+begin_src emacs-lisp :tangle late-init.el
+(eval-when-compile
+  (require 'dash nil t))
+
 (when (autoload-if-found
        '(flycheck-mode)
        "flycheck" nil t)

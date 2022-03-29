@@ -16,8 +16,11 @@
   (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
 
 (setq message-log-max 5000) ;; メッセージバッファの長さ
+(eval-when-compile
+  (require 'shut-up nil t))
 (defvar shutup-p nil)
-(setq shutup-p (and (not (my-native-comp-p)) (require 'shut-up nil t)))
+(setq shutup-p (require 'shut-up nil t))
+;; (setq shutup-p (and (not (my-native-comp-p)) (require 'shut-up nil t)))
 
 (setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)
@@ -1220,6 +1223,9 @@ Call this function at updating `mode-line-mode'."
 (unless noninteractive
   (display-time-mode 1))
 
+(eval-when-compile
+  (require 'mic-paren nil t))
+
 (when (require 'mic-paren nil t)
   (setq paren-sexp-mode nil)
   (set-face-foreground 'paren-face-match "#FFFFFF")
@@ -1411,6 +1417,9 @@ Call this function at updating `mode-line-mode'."
          '(migemo-pattern-alist-length 1024)
          '(migemo-coding-system 'utf-8-unix))))
   (message "--- cmigemo is NOT installed."))
+
+(eval-when-compile
+  (require 'fringe-helper))
 
 (when (autoload-if-found
        '(git-gutter-mode)
@@ -2362,6 +2371,9 @@ sorted.  FUNCTION must be a function of one argument."
                   (when (memq major-mode '(c-mode c++-mode))
                     (doxymacs-font-lock))))
     (define-key doxymacs-mode-map (kbd "C-c C-s") 'ff-find-other-file)))
+
+(eval-when-compile
+  (require 'dash nil t))
 
 (when (autoload-if-found
        '(flycheck-mode)
