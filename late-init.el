@@ -1930,6 +1930,27 @@ sorted.  FUNCTION must be a function of one argument."
     (unless (version< "28.0" emacs-version)
       (setq my-dimmer-mode (dimmer-mode 1)))))
 
+;;(autoload 'my-org-bullet-and-checkbox "transient" nil t)
+;;(when (require 'transient nil t)
+
+(require 'transient nil t)
+
+;;;###autoload
+(transient-define-prefix my-org-bullet-and-checkbox ()
+	"Commands to handle bullet and checkbox"
+	[["Bullet"
+		("i" "insert" my-org-insert-bullet)
+		("d" "delete" my-org-delete-bullet)]
+	 ["Checkbox"
+		("[" "insert" my-org-insert-checkbox-into-bullet)
+		("]" "delete" my-org-delete-checkbox-from-bullet)
+		;;("a" "toggle checkbox" my-org-toggle-checkbox)
+		;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+		]
+	 ["Bullet and Checkbox"
+		("I" "insert" my-org-insert-bullet-and-checkbox)
+		("D" "delete" my-org-delete-bullet-and-checkbox)]])
+
 (when (autoload-if-found
        '(emms-play-file
          emms-play-playlist emms-play-directory my-play-bgm

@@ -9,7 +9,7 @@
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 
-;; byte-compile すると正しく動作しない．
+;; byte-compile すると正しく動作しない．パッケージにして配布できないじゃんか．
 (with-eval-after-load "transient"
   ;; "q" で transient を抜ける方法を提供する．
   (transient-define-prefix moom-transient-undo ()
