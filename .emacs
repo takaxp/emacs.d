@@ -26,7 +26,7 @@
     :transient-non-suffix 'transient--do-warn
     [""
      ["Fill screen"
-      ("f s" "screen" moom-fill-screen)
+      ;; ("f s" "screen" moom-fill-screen)
       ("f f w" "width" moom-fill-width)
       ("f f h" "height" moom-fill-height)
       ("f f m" "band" moom-fill-band)

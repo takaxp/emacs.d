@@ -49,6 +49,7 @@
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/counsel-osx-app"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/emacs-htmlize"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/emacs-undo-fu"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/transient"))
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/bsv"))
 
   (unless noninteractive
@@ -244,7 +245,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   ;; recentf
 	(custom-set-variables
 	 '(recentf-max-saved-items 2000)
-	 '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
+	 '(recentf-save-file (expand-file-name "u:/.emacs.d/recentf"))
 	 '(recentf-auto-cleanup 'never)
 	 '(recentf-exclude
 		 '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
@@ -327,6 +328,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   ;; selected
   (autoload #'selected-global-mode "selected" "selected" nil t)
   (defun my-activate-selected ()
+    (require 'transient nil t)
     (selected-global-mode 1)
     (selected--on) ;; must call expclitly here
     (remove-hook 'activate-mark-hook #'my-activate-selected))
@@ -816,7 +818,124 @@ will not be modified."
                          counsel-osx-app-action-default)
                 :caller 'counsel-app)))
 
+  (with-eval-after-load "transient"
+    (defvar my-org-bullet-with-checkbox-regexp
+      (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
+              "\\[.\\][ \t]+"))
+
+    (defun my-org-insert-bullet (begin end)
+      (interactive "r")
+      (unless mark-active
+        (setq begin (line-beginning-position))
+        (setq end (line-end-position)))
+      (let* ((bullet " - ")
+             (len (string-width bullet)))
+        (goto-char begin)
+        (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                    (not (equal (point) end)))
+          (replace-match (concat "\\1" bullet) nil nil)
+          (setq end (+ end len)))
+        (goto-char begin)))
+
+    (defun my-org-delete-bullet (begin end)
+      (interactive "r")
+      (unless mark-active
+        (setq begin (line-beginning-position))
+        (setq end (line-end-position)))
+      (goto-char begin)
+      (while (re-search-forward
+              "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)"
+              end t)
+        (let ((len (- (match-end 0) (match-beginning 0))))
+          (replace-match "" nil nil)
+          (setq end (- end len))))
+      (goto-char begin))
+
+    (defun my-org-toggle-checkbox (begin end)
+      (interactive "r")
+      (unless mark-active
+        (setq begin (line-beginning-position))
+        (setq end (line-end-position)))
+      (goto-char begin)
+      (if (re-search-forward
+           my-org-bullet-with-checkbox-regexp (point-at-eol) t)
+          (my-org-delete-checkbox-from-bullet begin end)
+        (my-org-insert-checkbox-into-bullet begin end)))
+
+    (defun my-org-insert-checkbox-into-bullet (begin end)
+      (interactive "r")
+      (unless mark-active
+        (setq begin (line-beginning-position))
+        (setq end (line-end-position)))
+      (let* ((checkbox "[ ] ")
+             (len (string-width checkbox)))
+        (goto-char begin)
+        (while (re-search-forward
+                (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
+                        "^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+\\)") end t)
+          (replace-match (concat "\\1" checkbox) nil nil)
+          (setq end (+ end len)))
+        (goto-char begin)))
+
+    (defun my-org-delete-checkbox-from-bullet (begin end)
+      (interactive "r")
+      (unless mark-active
+        (setq begin (line-beginning-position))
+        (setq end (line-end-position)))
+      (let ((len (string-width "[ ] ")))
+        (goto-char begin)
+        (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+          (replace-match "\\1" nil nil)
+          (setq end (- end len)))
+        (goto-char begin)))
+
+    (defun my-org-insert-bullet-and-checkbox (begin end)
+      (interactive "r")
+      (unless mark-active
+        (setq begin (line-beginning-position))
+        (setq end (line-end-position)))
+      (let* ((bullet " - ")
+             (checkbox "[ ] ")
+             (blen (string-width bullet))
+             (clen (string-width checkbox)))
+        (goto-char begin)
+        (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                    (not (equal (point) end)))
+          (replace-match (concat "\\1" bullet checkbox) nil nil)
+          (setq end (+ end blen clen)))
+        (goto-char begin)))
+
+    (defun my-org-delete-bullet-and-checkbox (begin end)
+      (interactive "r")
+      (unless mark-active
+        (setq begin (line-beginning-position))
+        (setq end (line-end-position)))
+      (goto-char begin)
+      (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+        (let ((len (- (match-end 0) (match-beginning 0))))
+          (replace-match "" nil nil)
+          (setq end (- end len))))
+      (goto-char begin))
+
+    (transient-define-prefix my-org-bullet-and-checkbox ()
+	    "Commands to handle bullet and checkbox"
+	    [["Bullet"
+		    ("i" "insert" my-org-insert-bullet)
+		    ("d" "delete" my-org-delete-bullet)]
+	     ["Checkbox"
+		    ("[" "insert" my-org-insert-checkbox-into-bullet)
+		    ("]" "delete" my-org-delete-checkbox-from-bullet)
+		    ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+		    ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+		    ]
+	     ["Bullet and Checkbox"
+		    ("I" "insert" my-org-insert-bullet-and-checkbox)
+		    ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+
   (with-eval-after-load "selected"
+    (setq selected-org-mode-map (make-sparse-keymap))
+    (define-key selected-org-mode-map (kbd "t") #'org-toggle-checkbox)
+    (define-key selected-org-mode-map (kbd "-") #'my-org-bullet-and-checkbox)
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region)))
 
