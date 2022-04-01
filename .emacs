@@ -9,8 +9,10 @@
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 
-;; byte-compile すると正しく動作しない．パッケージにして配布できないじゃんか．
-(with-eval-after-load "transient"
+(with-eval-after-load "selected"
+  (require 'moom nil t)
+  (require 'transient nil t)
+
   ;; "q" で transient を抜ける方法を提供する．
   (transient-define-prefix moom-transient-undo ()
     "Undo"
@@ -27,26 +29,26 @@
     [""
      ["Fill screen"
       ;; ("f s" "screen" moom-fill-screen)
-      ("f f w" "width" moom-fill-width)
-      ("f f h" "height" moom-fill-height)
-      ("f f m" "band" moom-fill-band)
-      ("f f t" "top" moom-fill-top)
-      ("f f b" "bottom" moom-fill-bottom)
-      ("f f l" "left" moom-fill-left)
-      ("f f r" "right" moom-fill-right)
-      ("f f 1" "fill top" moom-fill-top-left)
-      ("f f 2" "fill bottom" moom-fill-top-right)
-      ("f f 3" "fill left" moom-fill-bottom-left)
-      ("f f 4" "fill right" moom-fill-bottom-right)]
+      ("f w" "width" moom-fill-width)
+      ("f h" "height" moom-fill-height)
+      ("f m" "band" moom-fill-band)
+      ("f t" "top" moom-fill-top)
+      ("f b" "bottom" moom-fill-bottom)
+      ("f l" "left" moom-fill-left)
+      ("f r" "right" moom-fill-right)
+      ("f 1" "fill top" moom-fill-top-left)
+      ("f 2" "fill bottom" moom-fill-top-right)
+      ("f 3" "fill left" moom-fill-bottom-left)
+      ("f 4" "fill right" moom-fill-bottom-right)]
      ["Fit"
       ("M-<f1>" "edge left" moom-move-frame-to-edge-left)
       ("M-<f3>" "edge right" moom-move-frame-to-edge-right)
       ("<f1>", "edge top" moom-move-frame-to-edge-top)
       ("S-<f1>", "edge bottom" moom-move-frame-to-edge-bottom)
-      ("fcl" "center left" moom-move-frame-to-centerline-from-left)
-      ("fcr" "center right" moom-move-frame-to-centerline-from-right)
-      ("fct" "center top" moom-move-frame-to-centerline-from-top)
-      ("fcb" "center bottom" moom-move-frame-to-centerline-from-bottom)]]
+      ("cl" "center left" moom-move-frame-to-centerline-from-left)
+      ("cr" "center right" moom-move-frame-to-centerline-from-right)
+      ("ct" "center top" moom-move-frame-to-centerline-from-top)
+      ("cb" "center bottom" moom-move-frame-to-centerline-from-bottom)]]
     ;; moom-change-frame-width
     ;; moom-change-frame-height
     ["Filling region of a display"
@@ -56,10 +58,10 @@
       ("2" "move center" moom-move-frame-to-center)
       ("3" "move right" moom-move-frame-right)]
      ["Expand"
-      ("cfs" "single" moom-change-frame-width-single) ;; disabled, why?
-      ("cfd" "double" moom-change-frame-width-double)
-      ("cfa" "3/2" moom-change-frame-width-half-again)
-      ("cfh" "height" moom-cycle-frame-height)]
+      ("c f s" "single" moom-change-frame-width-single) ;; disabled, why?
+      ("c f d" "double" moom-change-frame-width-double)
+      ("c f a" "3/2" moom-change-frame-width-half-again)
+      ("c f h" "height" moom-cycle-frame-height)]
      ["Utilities"
       ("r" "reset" moom-reset)
       ("u" "undo" moom-undo)]]

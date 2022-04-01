@@ -413,9 +413,11 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
             (byte-compile-file tangled-file))))
     (message "Nothing to do for this buffer.")))
 
+(defvar my-org-bullet-regexp
+  "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)")
+
 (defvar my-org-bullet-with-checkbox-regexp
-  (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
-          "\\[.\\][ \t]+"))
+  (concat my-org-bullet-regexp "\\[.\\][ \t]+"))
 
 ;;;###autoload
 (defun my-org-insert-bullet (begin end)
@@ -427,6 +429,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
          (len (string-width bullet)))
     (goto-char begin)
     (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                (not (looking-at "[-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]"))
                 (not (equal (point) end)))
       (replace-match (concat "\\1" bullet) nil nil)
       (setq end (+ end len)))
@@ -439,9 +442,9 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))
   (goto-char begin)
-  (while (re-search-forward
-          "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)"
-          end t)
+  (while (and (re-search-forward
+               "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)" end t)
+              (not (looking-at "\\[.\\][ \t]+")))
     (let ((len (- (match-end 0) (match-beginning 0))))
       (replace-match "" nil nil)
       (setq end (- end len))))
@@ -467,9 +470,8 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (let* ((checkbox "[ ] ")
          (len (string-width checkbox)))
     (goto-char begin)
-    (while (re-search-forward
-            (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
-                    "^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+\\)") end t)
+    (while (and (re-search-forward my-org-bullet-regexp end t)
+                (not (looking-at "\\[.\\][ \t]+")))
       (replace-match (concat "\\1" checkbox) nil nil)
       (setq end (+ end len)))
     (goto-char begin)))
@@ -499,6 +501,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
          (clen (string-width checkbox)))
     (goto-char begin)
     (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                (not (looking-at "[-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]"))
                 (not (equal (point) end)))
       (replace-match (concat "\\1" bullet checkbox) nil nil)
       (setq end (+ end blen clen)))

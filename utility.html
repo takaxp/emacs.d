@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-03-30 Wed 18:15 -->
+<!-- 2022-04-01 Fri 12:01 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -995,9 +995,11 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h3 id="orga706f503"><span class="section-number-3">1.25.</span> リージョン内のブリッツを操作する(orgmode)</h3>
 <div class="outline-text-3" id="text-orga706f503">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-bullet-with-checkbox-regexp</span>
-  (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
-          <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-bullet-re</span>
+  <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>)
+
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-bullet-with-checkbox-re</span>
+  (concat my-org-bullet-re <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-insert-bullet</span> (begin end)
@@ -1009,6 +1011,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
          (len (string-width bullet)))
     (goto-char begin)
     (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) end t)
+                (not (looking-at <span style="color: #8b2252;">"[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-z0-9A-Z]*[\\.)][ \t]"</span>))
                 (not (equal (point) end)))
       (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet) nil nil)
       (<span style="color: #a020f0;">setq</span> end (+ end len)))
@@ -1021,9 +1024,9 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
     (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
     (<span style="color: #a020f0;">setq</span> end (line-end-position)))
   (goto-char begin)
-  (<span style="color: #a020f0;">while</span> (re-search-forward
-          <span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
-          end t)
+  (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward
+               <span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> end t)
+              (not (looking-at <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>)))
     (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
       (replace-match <span style="color: #8b2252;">""</span> nil nil)
       (<span style="color: #a020f0;">setq</span> end (- end len))))
@@ -1036,7 +1039,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
     (<span style="color: #a020f0;">setq</span> end (line-end-position)))
   (goto-char begin)
   (<span style="color: #a020f0;">if</span> (re-search-forward
-       my-org-bullet-with-checkbox-regexp (point-at-eol) t)
+       my-org-bullet-with-checkbox-re (point-at-eol) t)
       (my-org-delete-checkbox-from-bullet begin end)
     (my-org-insert-checkbox-into-bullet begin end)))
 
@@ -1049,9 +1052,8 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (<span style="color: #a020f0;">let*</span> ((checkbox <span style="color: #8b2252;">"[ ] "</span>)
          (len (string-width checkbox)))
     (goto-char begin)
-    (<span style="color: #a020f0;">while</span> (re-search-forward
-            (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">"</span>
-                    <span style="color: #8b2252;">"^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) <span style="color: #ff0000; font-weight: bold;">end t)</span>
+    (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward my-org-bullet-re end t)
+                (not (looking-at <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>)))
       (replace-match (concat <span style="color: #8b2252;">"\\1"</span> checkbox) nil nil)
       (<span style="color: #a020f0;">setq</span> end (+ end len)))
     (goto-char begin)))
@@ -1064,7 +1066,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
     (<span style="color: #a020f0;">setq</span> end (line-end-position)))
   (<span style="color: #a020f0;">let</span> ((len (string-width <span style="color: #8b2252;">"[ ] "</span>)))
     (goto-char begin)
-    (<span style="color: #a020f0;">while</span> (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+    (<span style="color: #a020f0;">while</span> (re-search-forward my-org-bullet-with-checkbox-re end t)
       (replace-match <span style="color: #8b2252;">"\\1"</span> nil nil)
       (<span style="color: #a020f0;">setq</span> end (- end len)))
     (goto-char begin)))
@@ -1081,6 +1083,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
          (clen (string-width checkbox)))
     (goto-char begin)
     (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) end t)
+                (not (looking-at <span style="color: #8b2252;">"[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-z0-9A-Z]*[\\.)][ \t]"</span>))
                 (not (equal (point) end)))
       (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet checkbox) nil nil)
       (<span style="color: #a020f0;">setq</span> end (+ end blen clen)))
@@ -1093,7 +1096,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
     (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
     (<span style="color: #a020f0;">setq</span> end (line-end-position)))
   (goto-char begin)
-  (<span style="color: #a020f0;">while</span> (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+  (<span style="color: #a020f0;">while</span> (re-search-forward my-org-bullet-with-checkbox-re end t)
     (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
       (replace-match <span style="color: #8b2252;">""</span> nil nil)
       (<span style="color: #a020f0;">setq</span> end (- end len))))
@@ -1124,7 +1127,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
           (point-at-eol (point-at-eol)))
       (<span style="color: #a020f0;">cond</span>
        ((re-search-forward
-         my-org-bullet-with-checkbox-regexp point-at-eol t)
+         my-org-bullet-with-checkbox-re point-at-eol t)
         (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> <span style="color: #8b2252;">"\\1"</span>) nil nil))
        ((re-search-forward
          <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
@@ -1675,7 +1678,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-03-30 Wed 18:15</p>
+<p class="date">Created: 2022-04-01 Fri 12:01</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

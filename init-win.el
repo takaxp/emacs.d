@@ -819,9 +819,11 @@ will not be modified."
                 :caller 'counsel-app)))
 
   (with-eval-after-load "transient"
-    (defvar my-org-bullet-with-checkbox-regexp
-      (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
-              "\\[.\\][ \t]+"))
+    (defvar my-org-bullet-re
+      "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)")
+
+    (defvar my-org-bullet-with-checkbox-re
+      (concat my-org-bullet-re "\\[.\\][ \t]+"))
 
     (defun my-org-insert-bullet (begin end)
       (interactive "r")
@@ -832,6 +834,7 @@ will not be modified."
              (len (string-width bullet)))
         (goto-char begin)
         (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                    (not (looking-at "[-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]"))
                     (not (equal (point) end)))
           (replace-match (concat "\\1" bullet) nil nil)
           (setq end (+ end len)))
@@ -843,9 +846,9 @@ will not be modified."
         (setq begin (line-beginning-position))
         (setq end (line-end-position)))
       (goto-char begin)
-      (while (re-search-forward
-              "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)"
-              end t)
+      (while (and (re-search-forward
+                   "^[ \t]*\\([-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]\\)" end t)
+                  (not (looking-at "\\[.\\][ \t]+")))
         (let ((len (- (match-end 0) (match-beginning 0))))
           (replace-match "" nil nil)
           (setq end (- end len))))
@@ -858,7 +861,7 @@ will not be modified."
         (setq end (line-end-position)))
       (goto-char begin)
       (if (re-search-forward
-           my-org-bullet-with-checkbox-regexp (point-at-eol) t)
+           my-org-bullet-with-checkbox-re (point-at-eol) t)
           (my-org-delete-checkbox-from-bullet begin end)
         (my-org-insert-checkbox-into-bullet begin end)))
 
@@ -870,9 +873,8 @@ will not be modified."
       (let* ((checkbox "[ ] ")
              (len (string-width checkbox)))
         (goto-char begin)
-        (while (re-search-forward
-                (concat "\\(^[ \t]*[-\\+\\*][ \t]+\\|"
-                        "^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]+\\)") end t)
+        (while (and (re-search-forward my-org-bullet-re end t)
+                    (not (looking-at "\\[.\\][ \t]+")))
           (replace-match (concat "\\1" checkbox) nil nil)
           (setq end (+ end len)))
         (goto-char begin)))
@@ -884,7 +886,7 @@ will not be modified."
         (setq end (line-end-position)))
       (let ((len (string-width "[ ] ")))
         (goto-char begin)
-        (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+        (while (re-search-forward my-org-bullet-with-checkbox-re end t)
           (replace-match "\\1" nil nil)
           (setq end (- end len)))
         (goto-char begin)))
@@ -900,6 +902,7 @@ will not be modified."
              (clen (string-width checkbox)))
         (goto-char begin)
         (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
+                    (not (looking-at "[-\\+\\*][ \t]\\|[a-z0-9A-Z]*[\\.)][ \t]"))
                     (not (equal (point) end)))
           (replace-match (concat "\\1" bullet checkbox) nil nil)
           (setq end (+ end blen clen)))
@@ -911,7 +914,7 @@ will not be modified."
         (setq begin (line-beginning-position))
         (setq end (line-end-position)))
       (goto-char begin)
-      (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+      (while (re-search-forward my-org-bullet-with-checkbox-re end t)
         (let ((len (- (match-end 0) (match-beginning 0))))
           (replace-match "" nil nil)
           (setq end (- end len))))
