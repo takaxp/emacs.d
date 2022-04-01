@@ -1,5 +1,6 @@
 ;; The initial file that will be loaded first in w32 environment .
 (when (eq system-type 'windows-nt)
+
   (setq byte-compile-warnings '(obsolete))
   (setq system-time-locale "C") ;; format-time-string %a, not 日 but Sun
   (setq make-backup-files nil)
@@ -19,6 +20,13 @@
   (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
   (global-auto-revert-mode 1)
   (global-font-lock-mode 1)
+
+  ;; モードラインの配色
+  (custom-set-faces
+   '(mode-line 
+     ((t (:background "#7D60AF" :foreground "#FFFFFF" :box nil :height 1.0))))
+   '(mode-line-inactive
+     ((t (:background "#CCCCCC" :foreground "#FFFFFF" :box nil :height 1.0)))))
 
   ;; Home directory
   ;; (setenv "HOME" "C:/Users/******/AppData/Roaming")
@@ -41,16 +49,11 @@
   ;;   (setq shell-file-name "C:/cygwin64/bin/bash"))
 
   ;; AppData\Roaming\.emacs.d 以下に各追加パッケージを配置すること
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/moom"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/swiper"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/selected"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/expand-region"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/counsel-osx-app"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/emacs-htmlize"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/emacs-undo-fu"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/transient"))
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/bsv"))
+  (let ((default-directory (expand-file-name "~/.emacs.d/lisp")))
+    (add-to-list 'load-path default-directory)
+    (normal-top-level-add-to-load-path
+     '("moom" "swiper" "selected" "expand-region" "counsel-osx-app"
+       "emacs-htmlize" "emacs-undo-fu" "transient" "bsv")))
 
   (unless noninteractive
     (menu-bar-mode -1)
