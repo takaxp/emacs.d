@@ -413,11 +413,11 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
             (byte-compile-file tangled-file))))
     (message "Nothing to do for this buffer.")))
 
-(defvar my-org-bullet-regexp
+(defvar my-org-bullet-re
   "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)")
 
-(defvar my-org-bullet-with-checkbox-regexp
-  (concat my-org-bullet-regexp "\\[.\\][ \t]+"))
+(defvar my-org-bullet-with-checkbox-re
+  (concat my-org-bullet-re "\\[.\\][ \t]+"))
 
 ;;;###autoload
 (defun my-org-insert-bullet (begin end)
@@ -457,7 +457,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
     (setq end (line-end-position)))
   (goto-char begin)
   (if (re-search-forward
-       my-org-bullet-with-checkbox-regexp (point-at-eol) t)
+       my-org-bullet-with-checkbox-re (point-at-eol) t)
       (my-org-delete-checkbox-from-bullet begin end)
     (my-org-insert-checkbox-into-bullet begin end)))
 
@@ -470,7 +470,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (let* ((checkbox "[ ] ")
          (len (string-width checkbox)))
     (goto-char begin)
-    (while (and (re-search-forward my-org-bullet-regexp end t)
+    (while (and (re-search-forward my-org-bullet-re end t)
                 (not (looking-at "\\[.\\][ \t]+")))
       (replace-match (concat "\\1" checkbox) nil nil)
       (setq end (+ end len)))
@@ -484,7 +484,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
     (setq end (line-end-position)))
   (let ((len (string-width "[ ] ")))
     (goto-char begin)
-    (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+    (while (re-search-forward my-org-bullet-with-checkbox-re end t)
       (replace-match "\\1" nil nil)
       (setq end (- end len)))
     (goto-char begin)))
@@ -514,7 +514,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))
   (goto-char begin)
-  (while (re-search-forward my-org-bullet-with-checkbox-regexp end t)
+  (while (re-search-forward my-org-bullet-with-checkbox-re end t)
     (let ((len (- (match-end 0) (match-beginning 0))))
       (replace-match "" nil nil)
       (setq end (- end len))))
@@ -530,7 +530,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
           (point-at-eol (point-at-eol)))
       (cond
        ((re-search-forward
-         my-org-bullet-with-checkbox-regexp point-at-eol t)
+         my-org-bullet-with-checkbox-re point-at-eol t)
         (replace-match (if arg "" "\\1") nil nil))
        ((re-search-forward
          "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
