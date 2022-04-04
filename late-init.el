@@ -246,9 +246,9 @@
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
 ;; Backward page scrolling instead of M-v
-(global-set-key (kbd "M-p") 'scroll-down)
+;;(global-set-key (kbd "C-i") 'scroll-down)
 ;; Frontward page scrolling instead of C-v
-(global-set-key (kbd "M-n") 'scroll-up)
+;; (global-set-key (kbd "M-n") 'scroll-up)
 ;; Move cursor to a specific line
 (global-set-key (kbd "C-c g") 'goto-line)
 

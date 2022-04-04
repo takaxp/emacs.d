@@ -1760,9 +1760,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
 ;; Backward page scrolling instead of M-v
-(global-set-key (kbd "M-p") 'scroll-down)
+;;(global-set-key (kbd "C-i") 'scroll-down)
 ;; Frontward page scrolling instead of C-v
-(global-set-key (kbd "M-n") 'scroll-up)
+;; (global-set-key (kbd "M-n") 'scroll-up)
 ;; Move cursor to a specific line
 (global-set-key (kbd "C-c g") 'goto-line)
 #+end_src
@@ -9321,7 +9321,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 	       (call-interactively 'org-move-subtree-down))
         ((org-at-table-p)
          (call-interactively 'org-table-move-row))
-	      (t (call-interactively 'scroll-up))))
+	      (t nil))) ;; (call-interactively 'scroll-up)
 
 (defun my-org-meta-next ()
   "Move item or subtree up, otherwise `scroll-down'."
@@ -9333,7 +9333,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 	       (call-interactively 'org-move-subtree-up))
         ((org-at-table-p)
          (org-call-with-arg 'org-table-move-row 'up))
-	      (t (call-interactively 'scroll-down))))
+	      (t nil))) ;; (call-interactively 'scroll-down))))
 
 (defvar my-org-promote-demote-independently nil)
 (defun my-inherit-struct-p ()
@@ -12895,6 +12895,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ** [hl-todo.el] 特定キーワードの配色を変える
    :PROPERTIES:
    :CUSTOM_ID: org6d79c76a
+   :ID:       A7716C15-F465-4442-86DF-EFB0320F0248
    :END:
 
  - [[https://github.com/tarsius/hl-todo][hl-todo]] を導入すれば簡単にできます．

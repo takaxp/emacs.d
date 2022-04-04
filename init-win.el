@@ -23,7 +23,7 @@
 
   ;; モードラインの配色
   (custom-set-faces
-   '(mode-line 
+   '(mode-line
      ((t (:background "#7D60AF" :foreground "#FFFFFF" :box nil :height 1.0))))
    '(mode-line-inactive
      ((t (:background "#CCCCCC" :foreground "#FFFFFF" :box nil :height 1.0)))))
@@ -71,8 +71,7 @@
     (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
     (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
     (global-set-key (kbd "M-v") 'yank)
-    (global-set-key (kbd "M-p") 'scroll-down)
-    (global-set-key (kbd "M-n") 'scroll-up)
+    (global-set-key (kbd "C-t") 'scroll-down)
     (global-set-key (kbd "M-=") 'count-words)
     (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
 
@@ -396,7 +395,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
   (add-hook 'org-mode-hook #'turn-on-font-lock)
   (with-eval-after-load "org"
-    (custom-set-faces '(org-drawer ((t (:foreground "#999999")))))
+    (custom-set-faces '(org-drawer ((t (:foreground "#999999"))))
+                      '(org-verbatim ((t (:foreground "#FF0000")))))
 
     ;; プロパティ等を自動的閉じる．
     (defun my-org-hide-drawers ()
