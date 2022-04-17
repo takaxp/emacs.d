@@ -1413,9 +1413,10 @@ also calls `beep' for an audible reminder."
   (require 'ob-octave nil t)
   (require 'ob-go nil t)
 
-  (when (and (not noninteractive)
-             (not (executable-find "ditaa")))
-    (message "--- ditaa is NOT installed."))
+  ;; ditta
+  ;; (when (and (not noninteractive)
+  ;;            (not (executable-find "ditaa")))
+  ;;   (message "--- ditaa is NOT installed."))
 
   ;; Add ":results output" after program name
 

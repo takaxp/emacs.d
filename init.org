@@ -1296,6 +1296,7 @@ echo "--- done."
 ** バッファが外部から編集された場合に自動で再読み込みする
    :PROPERTIES:
    :CUSTOM_ID: orgc2257142
+   :ID:       B2803C98-AF69-4621-B00A-3EF566925139
    :END:
 
 =auto-save-buffers= を使っていれば，バッファは常に保存された状態になるため， revert が即座に反映されます．適宜バックアップツールと組み合わせないと，バッファが自動更新されてしまうので不安かもしれません．
@@ -1740,7 +1741,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 カーソルの移動は，次のポリシーに従っています．デフォルトでは =C-v/M-v= で上下移動になっていますが， =M-v= は windows のペーストに対応するので混乱を招くので使っていません．
 
   | 行移動                   | C-n/C-p     |
-  | ページ移動（スクロール） | M-n/M-p     |
+  | ページ移動（スクロール） | C-v/C-t     |
   | ウィンドウ移動           | C-M-n/C-M-p |
   | バッファ切り替え         | M-]/M-[     |
   | バッファ先頭・末尾       | C-M-t/C-M-b |
@@ -1760,7 +1761,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
 ;; Backward page scrolling instead of M-v
-;;(global-set-key (kbd "C-i") 'scroll-down)
+(global-set-key (kbd "C-t") 'scroll-down)
 ;; Frontward page scrolling instead of C-v
 ;; (global-set-key (kbd "M-n") 'scroll-up)
 ;; Move cursor to a specific line
@@ -1859,11 +1860,12 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 ** スクロールで表示を重複させる行数
    :PROPERTIES:
    :CUSTOM_ID: org5f40f030
+   :ID:       CCFE3283-75E2-49B2-B5FA-69E93E849A92
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
 ;; Scroll window on a page-by-page basis with N line overlapping
-(setq next-screen-context-lines 1)
+(setq next-screen-context-lines 10)
 #+end_src
 
 ** マーク箇所を遡る
@@ -1916,6 +1918,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 ** [bs.el] 続・カレントバッファの表示切り替え
    :PROPERTIES:
    :CUSTOM_ID: org768c06a0
+   :ID:       481FED38-F3C9-49E1-A04D-DFD0E753E1F9
    :END:
 
 古くから =cycle-buffer= がありますが，基本機能だけで満足するようになったので，ビルトインの =bs.el= に移行しました． =bs-cycle-next= あるいは =bs-cycle-previous= でバッファを切り替えられます．
@@ -5213,12 +5216,13 @@ go get -v github.com/mdempsky/gocode
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(if (executable-find "gocode")
-    (when (autoload-if-found
-           '(go-mode)
-           "go-eldoc" nil t)
-      (add-hook 'go-mode-hook #'go-eldoc-setup))
-  (message "--- gocode is NOT installed."))
+(with-eval-after-load "go-mode"
+  (if (executable-find "gocode")
+      (when (autoload-if-found
+             '(go-mode)
+             "go-eldoc" nil t)
+        (add-hook 'go-mode-hook #'go-eldoc-setup))
+    (message "--- gocode is NOT installed.")))
 #+end_src
 
 ** [keycast.el] 入力しているキーとコマンドをモードラインに表示
@@ -7784,7 +7788,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
   - [[https://github.com/tj64/outline-magic/blob/master/outline-magic.el][outline-magic/outline-magic.el at master · tj64/outline-magic]]
   - 後発として [[https://github.com/tarsius/bicycle][bicycle.el]] があります．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(origami-mode origami-toggle-node)
        "origami" nil t)
@@ -10153,9 +10157,10 @@ also calls `beep' for an audible reminder."
   (require 'ob-octave nil t)
   (require 'ob-go nil t)
 
-  (when (and (not noninteractive)
-             (not (executable-find "ditaa")))
-    (message "--- ditaa is NOT installed."))
+  ;; ditta
+  ;; (when (and (not noninteractive)
+  ;;            (not (executable-find "ditaa")))
+  ;;   (message "--- ditaa is NOT installed."))
 
   ;; Add ":results output" after program name
 
@@ -13893,7 +13898,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
   - [[https://github.com/ecraven/ivy-pass][ecraven/ivy-pass: ivy interface for pass]]
   - うまくいかない時は，まず =password-store-executable= を確認する．もし nil ならば， =exec-path= を正しく設定する．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (if (not (executable-find "pass"))
     (message "--- pass is NOT installed.")
   ;; (global-set-key (kbd "C-c f p") 'helm-pass)

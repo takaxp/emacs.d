@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-04-04 Mon 22:42 -->
+<!-- 2022-04-17 Sun 22:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org0822896">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org9ded1a7">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -394,7 +394,7 @@
 <li><a href="#orgdd0a9c41">6.10. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.11. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.12. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org0b90b8b">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#orgcc2fd51">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.14. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.15. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.16. カーソル行の関数名をモードラインに表示する</a></li>
@@ -433,7 +433,7 @@
 <li><a href="#org5eaeb687">6.45. <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</a></li>
 <li><a href="#org7270262d">6.46. <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</a></li>
 <li><a href="#org8ba0784e">6.47. <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</a></li>
-<li><a href="#orga0015a9">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
+<li><a href="#orga6a59c2">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
 <li><a href="#org1e701627">6.49. <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#org56d8bf9d">6.50. <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgc00267d7">6.51. <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
@@ -2662,7 +2662,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 <tr>
 <td class="org-left">ページ移動（スクロール）</td>
-<td class="org-left">M-n/M-p</td>
+<td class="org-left">C-v/C-t</td>
 </tr>
 
 <tr>
@@ -2708,7 +2708,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 <pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-M-t"</span>) 'beginning-of-buffer)
 (global-set-key (kbd <span style="color: #8b2252;">"C-M-b"</span>) 'end-of-buffer)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Backward page scrolling instead of M-v</span>
-<span style="color: #b22222;">;;</span><span style="color: #b22222;">(global-set-key (kbd "C-i") 'scroll-down)</span>
+(global-set-key (kbd <span style="color: #8b2252;">"C-t"</span>) 'scroll-down)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Frontward page scrolling instead of C-v</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(global-set-key (kbd "M-n") 'scroll-up)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Move cursor to a specific line</span>
@@ -2835,7 +2835,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 <div class="outline-text-3" id="text-org5f40f030">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Scroll window on a page-by-page basis with N line overlapping</span>
-(<span style="color: #a020f0;">setq</span> next-screen-context-lines 1)
+(<span style="color: #a020f0;">setq</span> next-screen-context-lines 10)
 </pre>
 </div>
 </div>
@@ -5430,8 +5430,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org0822896" class="outline-3">
-<h3 id="org0822896"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org9ded1a7" class="outline-3">
+<h3 id="org9ded1a7"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5817,8 +5817,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org0b90b8b" class="outline-3">
-<h3 id="org0b90b8b"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-orgcc2fd51" class="outline-3">
+<h3 id="orgcc2fd51"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-13">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -6695,12 +6695,13 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">if</span> (executable-find <span style="color: #8b2252;">"gocode"</span>)
-    (<span style="color: #a020f0;">when</span> (autoload-if-found
-           '(go-mode)
-           <span style="color: #8b2252;">"go-eldoc"</span> nil t)
-      (add-hook 'go-mode-hook #'go-eldoc-setup))
-  (message <span style="color: #8b2252;">"--- gocode is NOT installed."</span>))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"go-mode"</span>
+  (<span style="color: #a020f0;">if</span> (executable-find <span style="color: #8b2252;">"gocode"</span>)
+      (<span style="color: #a020f0;">when</span> (autoload-if-found
+             '(go-mode)
+             <span style="color: #8b2252;">"go-eldoc"</span> nil t)
+        (add-hook 'go-mode-hook #'go-eldoc-setup))
+    (message <span style="color: #8b2252;">"--- gocode is NOT installed."</span>)))
 </pre>
 </div>
 </div>
@@ -7256,8 +7257,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 </div>
 
-<div id="outline-container-orga0015a9" class="outline-3">
-<h3 id="orga0015a9"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
+<div id="outline-container-orga6a59c2" class="outline-3">
+<h3 id="orga6a59c2"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
 <div class="outline-text-3" id="text-6-48">
 <p>
 <code>autoload-if-found</code> を使ういつもの設定では正しく動作しないので， <code>eval-when-compile</code> を使用して require しています．
@@ -12005,9 +12006,10 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-octave</span> nil t)
   (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-go</span> nil t)
 
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (not noninteractive)
-             (not (executable-find <span style="color: #8b2252;">"ditaa"</span>)))
-    (message <span style="color: #8b2252;">"--- ditaa is NOT installed."</span>))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">ditta</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (and (not noninteractive)</span>
+  <span style="color: #b22222;">;;            </span><span style="color: #b22222;">(not (executable-find "ditaa")))</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "--- ditaa is NOT installed."))</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Add ":results output" after program name</span>
 
@@ -12452,7 +12454,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org8cdb6ee"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org22167c3"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13328,7 +13330,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org40ca231" class="figure">
+<div id="orga361c6e" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16212,7 +16214,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-04-04 Mon 22:42</p>
+<p class="date">Created: 2022-04-17 Sun 22:20</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -246,7 +246,7 @@
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
 ;; Backward page scrolling instead of M-v
-;;(global-set-key (kbd "C-i") 'scroll-down)
+(global-set-key (kbd "C-t") 'scroll-down)
 ;; Frontward page scrolling instead of C-v
 ;; (global-set-key (kbd "M-n") 'scroll-up)
 ;; Move cursor to a specific line
@@ -285,7 +285,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;;  (setq scroll-margin 0) ; default=0
 
 ;; Scroll window on a page-by-page basis with N line overlapping
-(setq next-screen-context-lines 1)
+(setq next-screen-context-lines 10)
 
 (setq set-mark-command-repeat-pop t)
 (setq mark-ring-max 32)
@@ -1581,12 +1581,13 @@ Call this function at updating `mode-line-mode'."
     (custom-set-variables
      '(eldoc-idle-delay 1.0))))
 
-(if (executable-find "gocode")
-    (when (autoload-if-found
-           '(go-mode)
-           "go-eldoc" nil t)
-      (add-hook 'go-mode-hook #'go-eldoc-setup))
-  (message "--- gocode is NOT installed."))
+(with-eval-after-load "go-mode"
+  (if (executable-find "gocode")
+      (when (autoload-if-found
+             '(go-mode)
+             "go-eldoc" nil t)
+        (add-hook 'go-mode-hook #'go-eldoc-setup))
+    (message "--- gocode is NOT installed.")))
 
 (when (autoload-if-found
        '(keypression-mode)
@@ -2431,18 +2432,6 @@ sorted.  FUNCTION must be a function of one argument."
 
 ;; (flycheck-add-next-checker 'javascript-jshint
 ;; 'javascript-gjslint)
-
-(when (autoload-if-found
-       '(origami-mode origami-toggle-node)
-       "origami" nil t)
-
-  (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook yatex-mode-hook))
-    (add-hook hook #'origami-mode))
-
-  (with-eval-after-load "origami"
-    (define-key origami-mode-map (kbd "C-t") #'origami-toggle-node)
-    (define-key origami-mode-map (kbd "C-u C-t")
-      #'origami-toggle-all-nodes)))
 
 (when (autoload-if-found
        '(auto-complete ac-cc-mode-setup)
@@ -3688,12 +3677,5 @@ Uses `all-the-icons-material' to fetch the icon."
     ;; その後，M-x elfeed, M-x elfeed-update する
     (when (require 'elfeed-web nil t)
       (setq elfeed-web-data-root (concat my-elget-package-dir "/web")))))
-
-(if (not (executable-find "pass"))
-    (message "--- pass is NOT installed.")
-  ;; (global-set-key (kbd "C-c f p") 'helm-pass)
-  ;; (autoload-if-found '(helm-pass) "helm-pass" nil t)
-  (global-set-key (kbd "C-c f p") 'ivy-pass)
-  (autoload-if-found '(ivy-pass) "ivy-pass" nil t))
 
 (provide 'late-init)
