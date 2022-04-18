@@ -1321,19 +1321,22 @@ Call this function at updating `mode-line-mode'."
 
 (defun my-mode-line-icon-for-file ()
   (icons-in-terminal-icon-for-file
-             (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
+   (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
 
 (defun my-buffer-coding-system-mnemonic ()
   "Return a mnemonic for `buffer-file-coding-system'."
   (let* ((code buffer-file-coding-system)
          (name (my-coding-system-name-mnemonic code))
          (bom (my-coding-system-bom-mnemonic code)))
-    (format "%s %s%s" (my-mode-line-icon-for-file) name bom)))
+    (if (version< emacs-version "29.0")
+        (format "%s %s%s" (my-mode-line-icon-for-file) name bom )
+      (format "%s%s" name bom ))))
+
 
 ;; `mode-line-mule-info' の文字エンコーディングの文字列表現を差し替える
 (setq-default mode-line-mule-info
-              (cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
-                             "%z" mode-line-mule-info :test 'equal))
+(cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
+               "%z" mode-line-mule-info :test 'equal))
 
 (defun my-delight-activate ()
   (require 'delight nil t)
