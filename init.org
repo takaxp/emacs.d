@@ -455,7 +455,7 @@ This function is called directly from the C code."
 
 起動後，即座にEmacs終了するシーンでは， =postpone.el= に紐付けた設定が活性化すると無駄になります．それを回避するために， =this-command= の値を確認して，条件に合う場合だけ =postpone.el= が読み込まれる（結果的に紐付いている全ての設定が活性化する）ようにしています．
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (if (not (locate-library "postpone"))
     (message "postpone.el is NOT installed.")
   (autoload 'postpone-kicker "postpone" nil t)
@@ -487,6 +487,22 @@ This function is called directly from the C code."
 
   ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
   (run-with-idle-timer 8 nil #'my-postpone-kicker))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes :exports none
+(when (require 'postpone-pre nil t)
+  (setq postpone-excluded-commands
+        '(self-insert-command
+          newline
+		      forward-char
+		      backward-char
+          delete-char
+		      delete-backward-char
+          save-buffer
+          save-buffers-kill-terminal
+          electric-newline-and-maybe-indent
+          exit-minibuffer))
+  (run-with-idle-timer 8 nil #'postpone-pre))
 #+end_src
 
 ** [future-time-p] 指定時刻が本日の未来の時刻かを判定

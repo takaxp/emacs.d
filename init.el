@@ -132,37 +132,19 @@ This function is called directly from the C code."
       (autoload f file docstring interactive type))
     t))
 
-(if (not (locate-library "postpone"))
-    (message "postpone.el is NOT installed.")
-  (autoload 'postpone-kicker "postpone" nil t)
-  (defvar postpone-init-time 0)
-  (defun my-postpone-kicker ()
-    (interactive)
-    (when (eq postpone-init-time 0)
-      (unless (memq this-command ;; specify commands for exclusion
-                    '(self-insert-command
-                      newline
-		                  forward-char
-		                  backward-char
-                      delete-char
-		                  delete-backward-char
-                      save-buffer
-                      save-buffers-kill-terminal
-                      electric-newline-and-maybe-indent
-                      exit-minibuffer))
-        (message "Activating postponed packages...")
-        (let ((t1 (current-time)))
-          (postpone-kicker 'my-postpone-kicker)
-          (setq postpone-init-time (float-time
-                                    (time-subtract (current-time) t1))))
-        (message "Activating postponed packages...done (%.3f seconds)"
-                 postpone-init-time))))
-
-  ;; 起動後，最初のアクションでキック
-  (add-hook 'pre-command-hook #'my-postpone-kicker)
-
-  ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
-  (run-with-idle-timer 8 nil #'my-postpone-kicker))
+(when (require 'postpone-pre nil t)
+  (setq postpone-excluded-commands
+        '(self-insert-command
+          newline
+		      forward-char
+		      backward-char
+          delete-char
+		      delete-backward-char
+          save-buffer
+          save-buffers-kill-terminal
+          electric-newline-and-maybe-indent
+          exit-minibuffer))
+  (run-with-idle-timer 8 nil #'postpone-pre))
 
 ;;;###autoload
 (defun future-time-p (time)
