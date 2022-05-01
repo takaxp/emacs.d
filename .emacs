@@ -86,12 +86,7 @@
 
 (cond
  (nil
-  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
-
-  (hl-line-mode 1)
-  (add-function :after after-focus-change-function
-		            #'(lambda ()
-		                (hl-line-mode -1))))
+  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta)))
  (nil ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (setq org-agenda-files '("~/Desktop/hoge.org")))
