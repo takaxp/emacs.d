@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-04-19 Tue 22:12 -->
+<!-- 2022-05-01 Sun 09:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -692,14 +692,14 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-itemize-head</span> (arg)
-  <span style="color: #8b2252;">"Insert \" - \" at the head of line.</span>
+  <span style="color: #8b2252;">"Insert \"- \" at the head of line.</span>
 <span style="color: #8b2252;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
 <span style="color: #8b2252;">  original position again. Otherwise, the cursor is moved to the right of the</span>
-<span style="color: #8b2252;">  inserted string. \" - [ ] \" will be inserted using C-u prefix."</span>
+<span style="color: #8b2252;">  inserted string. \"- [ ] \" will be inserted using C-u prefix."</span>
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
-  (<span style="color: #a020f0;">let</span> ((item-string <span style="color: #8b2252;">" - "</span>))
+  (<span style="color: #a020f0;">let</span> ((item-string <span style="color: #8b2252;">"- "</span>))
     (<span style="color: #a020f0;">when</span> arg
-      (<span style="color: #a020f0;">setq</span> item-string <span style="color: #8b2252;">" - [ ] "</span>))
+      (<span style="color: #a020f0;">setq</span> item-string <span style="color: #8b2252;">"- [ ] "</span>))
     (<span style="color: #a020f0;">cond</span> ((= (point) (line-beginning-position))
            (insert item-string))
           (t (<span style="color: #a020f0;">save-excursion</span>
@@ -708,12 +708,12 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-itemize-head-checkbox</span> ()
-  <span style="color: #8b2252;">"Insert \" - [ ] \" at the head of line.</span>
+  <span style="color: #8b2252;">"Insert \"- [ ] \" at the head of line.</span>
 <span style="color: #8b2252;">  If the cursor is already at the head of line, it is NOT returned back to the</span>
 <span style="color: #8b2252;">  original position again. Otherwise, the cursor is moved to the right of the</span>
 <span style="color: #8b2252;">  inserted string."</span>
   (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">let</span> ((item-string <span style="color: #8b2252;">" - [ ] "</span>))
+  (<span style="color: #a020f0;">let</span> ((item-string <span style="color: #8b2252;">"- [ ] "</span>))
     (<span style="color: #a020f0;">cond</span> ((= (point) (line-beginning-position))
            (insert item-string))
           (t (<span style="color: #a020f0;">save-excursion</span>
@@ -1007,7 +1007,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (<span style="color: #a020f0;">unless</span> mark-active
     (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
     (<span style="color: #a020f0;">setq</span> end (line-end-position)))
-  (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">" - "</span>)
+  (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">"- "</span>)
          (len (string-width bullet)))
     (goto-char begin)
     (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) end t)
@@ -1077,7 +1077,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (<span style="color: #a020f0;">unless</span> mark-active
     (<span style="color: #a020f0;">setq</span> begin (line-beginning-position))
     (<span style="color: #a020f0;">setq</span> end (line-end-position)))
-  (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">" - "</span>)
+  (<span style="color: #a020f0;">let*</span> ((bullet <span style="color: #8b2252;">"- "</span>)
          (checkbox <span style="color: #8b2252;">"[ ] "</span>)
          (blen (string-width bullet))
          (clen (string-width checkbox)))
@@ -1135,7 +1135,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
         (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> (concat <span style="color: #8b2252;">"\\1[ ] "</span>)) nil nil))
        ((re-search-forward
          (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) point-at-eol t)
-        (replace-match (concat <span style="color: #8b2252;">"\\1 "</span> bullet) nil nil))
+        (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet) nil nil))
        (t nil)))))
 </pre>
 </div>
@@ -1678,7 +1678,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-04-19 Tue 22:12</p>
+<p class="date">Created: 2022-05-01 Sun 09:00</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

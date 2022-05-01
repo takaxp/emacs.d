@@ -133,7 +133,7 @@ This function is called directly from the C code."
     t))
 
 (when (require 'postpone-pre nil t)
-  (setq postpone-excluded-commands
+  (setq postpone-pre-exclude
         '(self-insert-command
           newline
 		      forward-char

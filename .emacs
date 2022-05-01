@@ -6,6 +6,8 @@
 ;; https://github.com/qaiviq/echo-bar.el/blob/master/echo-bar.el
 ;; https://codeberg.org/akib/emacs-why-this
 
+;; (repeat-mode 1)
+
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 (with-eval-after-load "selected"
@@ -83,6 +85,13 @@
 		  ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
 
 (cond
+ (nil
+  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
+
+  (hl-line-mode 1)
+  (add-function :after after-focus-change-function
+		            #'(lambda ()
+		                (hl-line-mode -1))))
  (nil ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (setq org-agenda-files '("~/Desktop/hoge.org")))

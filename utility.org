@@ -53,6 +53,7 @@
 ** macOSのバージョン情報と名前を取得する
    :PROPERTIES:
    :CUSTOM_ID: orgf426bdf4
+   :ID:       BA73AD96-0534-494A-8B65-509CC79AEB06
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -402,6 +403,7 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 ** 行頭に" - "を挿入する                                           :notinuse:
    :PROPERTIES:
    :CUSTOM_ID: org3697f6bd
+   :ID:       B5C08094-51D1-4515-A326-3EF357DFFBE7
    :END:
 
 =my-cycle-bullet-at-heading= に移行しました．
@@ -409,14 +411,14 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 #+begin_src emacs-lisp :tangle no
 ;;;###autoload
 (defun my-add-itemize-head (arg)
-  "Insert \" - \" at the head of line.
+  "Insert \"- \" at the head of line.
   If the cursor is already at the head of line, it is NOT returned back to the
   original position again. Otherwise, the cursor is moved to the right of the
-  inserted string. \" - [ ] \" will be inserted using C-u prefix."
+  inserted string. \"- [ ] \" will be inserted using C-u prefix."
   (interactive "P")
-  (let ((item-string " - "))
+  (let ((item-string "- "))
     (when arg
-      (setq item-string " - [ ] "))
+      (setq item-string "- [ ] "))
     (cond ((= (point) (line-beginning-position))
            (insert item-string))
           (t (save-excursion
@@ -425,12 +427,12 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 
 ;;;###autoload
 (defun my-add-itemize-head-checkbox ()
-  "Insert \" - [ ] \" at the head of line.
+  "Insert \"- [ ] \" at the head of line.
   If the cursor is already at the head of line, it is NOT returned back to the
   original position again. Otherwise, the cursor is moved to the right of the
   inserted string."
   (interactive)
-  (let ((item-string " - [ ] "))
+  (let ((item-string "- [ ] "))
     (cond ((= (point) (line-beginning-position))
            (insert item-string))
           (t (save-excursion
@@ -709,7 +711,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (unless mark-active
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))
-  (let* ((bullet " - ")
+  (let* ((bullet "- ")
          (len (string-width bullet)))
     (goto-char begin)
     (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
@@ -779,7 +781,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (unless mark-active
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))
-  (let* ((bullet " - ")
+  (let* ((bullet "- ")
          (checkbox "[ ] ")
          (blen (string-width bullet))
          (clen (string-width checkbox)))
@@ -835,7 +837,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
         (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
        ((re-search-forward
          (concat "\\(^[ \t]*\\)") point-at-eol t)
-        (replace-match (concat "\\1 " bullet) nil nil))
+        (replace-match (concat "\\1" bullet) nil nil))
        (t nil)))))
 #+end_src
 

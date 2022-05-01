@@ -4,8 +4,8 @@
 (let ((early-init (format "%searly-init.el"
                           (expand-file-name user-emacs-directory))))
   (message "Loading %s..." early-init)
-  (setq package-enable-at-startup nil)
-  (setq frame-inhibit-implied-resize t)
+  (setq package-enable-at-startup nil
+        frame-inhibit-implied-resize t)
   (with-eval-after-load "moom"
     (setq frame-inhibit-implied-resize nil))
   (set-scroll-bar-mode nil)

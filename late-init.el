@@ -1893,8 +1893,8 @@ sorted.  FUNCTION must be a function of one argument."
 
 (when (autoload-if-found
        '(dimmer-mode dimmer-process-all dimmer-off dimmer-on
-		                 my-toggle-dimmer dimmer-permanent-off
-		                 ad:dimmer-org-agenda--quit)
+				             my-toggle-dimmer dimmer-permanent-off
+				             ad:dimmer-org-agenda--quit)
        "dimmer" nil t)
 
   (defvar my-dimmer-mode nil)
@@ -1908,7 +1908,7 @@ sorted.  FUNCTION must be a function of one argument."
     (defun my-toggle-dimmer ()
       (interactive)
       (if (setq my-dimmer-mode (not my-dimmer-mode))
-	        (dimmer-on) (dimmer-off)))
+		      (dimmer-on) (dimmer-off)))
 
     (defun dimmer-permanent-off ()
       (setq my-dimmer-mode nil)
@@ -1923,8 +1923,13 @@ sorted.  FUNCTION must be a function of one argument."
 	      (dimmer-mode 1)
 	      (dimmer-process-all)))
 
-    (add-hook 'focus-out-hook #'dimmer-off)
-    (add-hook 'focus-in-hook #'dimmer-on)
+    (if (version< emacs-version "27.1")
+	      (progn
+	        (add-hook 'focus-out-hook #'dimmer-off)
+	        (add-hook 'focus-in-hook #'dimmer-on))
+      (defun my-dimmer-update ()
+	      (if (frame-focus-state) (dimmer-on) (dimmer-off)))
+      (add-function :before after-focus-change-function #'my-dimmer-update))
 
     ;; for org-agenda
     (add-hook 'org-agenda-mode-hook #'dimmer-permanent-off)
@@ -2048,9 +2053,9 @@ sorted.  FUNCTION must be a function of one argument."
 
 (when (autoload-if-found
        '(rencetf-mode
-         my-recentf-save-list-silence
-         my-recentf-cleanup-silence
-         recentf-open-files)
+	       my-recentf-save-list-silence
+	       my-recentf-cleanup-silence
+	       recentf-open-files)
        "recentf" nil t)
 
   (with-eval-after-load "recentf"
@@ -2060,26 +2065,33 @@ sorted.  FUNCTION must be a function of one argument."
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
        '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
-         "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+	       "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     (defun my-recentf-save-list-silence ()
       (interactive)
-        (if shutup-p
-            (shut-up (recentf-save-list))
-          (let ((message-log-max nil))
-            (recentf-save-list)))
+      (if shutup-p
+	        (shut-up (recentf-save-list))
+	      (let ((message-log-max nil))
+	        (recentf-save-list)))
       (message ""))
 
     (defun my-recentf-cleanup-silence ()
       (interactive)
       (when (file-exists-p "/Volumes/orzHDn")
-          (if shutup-p
-              (shut-up (recentf-cleanup))
-            (let ((message-log-max nil))
-              (recentf-cleanup)))
-        (message "")))
-    (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-    (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+	      (if shutup-p
+	          (shut-up (recentf-cleanup))
+	        (let ((message-log-max nil))
+	          (recentf-cleanup)))
+	      (message "")))
+
+    (if (version< emacs-version "27.1")
+	      (progn
+	        (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+	        (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+      (add-function :before after-focus-change-function
+		                #'my-recentf-save-list-silence)
+      (add-function :before after-focus-change-function
+		                #'my-recentf-cleanup-silence)))
 
   (unless noninteractive
     (let ((message-log-max nil))
@@ -2098,12 +2110,12 @@ sorted.  FUNCTION must be a function of one argument."
       (require 'recentf)
       (recentf-mode)
       (ivy-read "Recentf: "
-                (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
-                                     (substring-no-properties x)))
-                        recentf-list)
-                :action #'my-counsel-recentf-action
-                :require-match t
-                :caller 'counsel-recentf))
+		            (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
+				                             (substring-no-properties x)))
+			                  recentf-list)
+		            :action #'my-counsel-recentf-action
+		            :require-match t
+		            :caller 'counsel-recentf))
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
@@ -2968,31 +2980,38 @@ Uses `all-the-icons-material' to fetch the icon."
     (defun my-hl-line-enable ()
       "Enable `hl-line'."
       (unless (or hl-line-mode
-                  (minibufferp)
-		              (memq major-mode my-hl-permanent-disabled))
-        (hl-line-mode 1)))
+		              (minibufferp)
+			            (memq major-mode my-hl-permanent-disabled))
+	      (hl-line-mode 1)))
 
     (defun my-ime-off-hline ()
       (my-hl-line-enable)
       (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-        (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
+	      (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
       (run-hooks 'my-ime-off-hline-hook))
 
     (defun my-ime-on-hline ()
       (my-hl-line-enable)
       (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-        (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
+	      (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
       (run-hooks 'my-ime-on-hline-hook))
 
     ;; init
     (when (fboundp 'mac-ime-active-p)
-      (if (version< emacs-version "27.0")
-	        (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
-        (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
+      (if (version< emacs-version "27.1")
+		      (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+	      (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
 
     (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
-    (add-hook 'focus-in-hook #'my-hl-line-enable)
-    (add-hook 'focus-out-hook #'my-hl-line-disable)
+
+    (if (version< emacs-version "27.1")
+	      (progn
+	        (add-hook 'focus-in-hook #'my-hl-line-enable)
+	        (add-hook 'focus-out-hook #'my-hl-line-disable))
+      (defun my-hl-line-update ()
+	      (if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
+      (add-function :before after-focus-change-function #'my-hl-line-update))
+
     ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
     ;; (add-hook 'minibuffer-exit-hook #'my-hl-line-enable)
     (add-hook 'input-method-activate-hook #'my-ime-on-hline)

@@ -425,7 +425,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (unless mark-active
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))
-  (let* ((bullet " - ")
+  (let* ((bullet "- ")
          (len (string-width bullet)))
     (goto-char begin)
     (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
@@ -495,7 +495,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (unless mark-active
     (setq begin (line-beginning-position))
     (setq end (line-end-position)))
-  (let* ((bullet " - ")
+  (let* ((bullet "- ")
          (checkbox "[ ] ")
          (blen (string-width bullet))
          (clen (string-width checkbox)))
@@ -538,7 +538,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
         (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
        ((re-search-forward
          (concat "\\(^[ \t]*\\)") point-at-eol t)
-        (replace-match (concat "\\1 " bullet) nil nil))
+        (replace-match (concat "\\1" bullet) nil nil))
        (t nil)))))
 
 ;;;###autoload
