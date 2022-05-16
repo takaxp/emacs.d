@@ -2961,7 +2961,7 @@ Uses `all-the-icons-material' to fetch the icon."
        '(hl-line-mode my-hl-line-enable)
        "hl-line" nil t)
 
-  (add-hook 'ah-before-move-cursor-hook #'my-hl-line-enable)
+  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
 
   (defvar my-hl-permanent-disabled '(dired-mode)
     "A list of major modes to disable `hl-line'.")
@@ -2970,6 +2970,9 @@ Uses `all-the-icons-material' to fetch the icon."
   (defvar my-ime-on-hline-hook nil)
 
   (with-eval-after-load "hl-line"
+    (unless (version< emacs-version "28.1")
+      (setq hl-line-sticky-flag nil))
+
     (defvar my-hl-active-period 120
       "Disable `hl-line' after this period")
 
@@ -3010,7 +3013,8 @@ Uses `all-the-icons-material' to fetch the icon."
 	        (add-hook 'focus-out-hook #'my-hl-line-disable))
       (defun my-hl-line-update ()
 	      (if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
-      (add-function :before after-focus-change-function #'my-hl-line-update))
+      (add-function :after after-focus-change-function #'my-hl-line-update)
+      )
 
     ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
     ;; (add-hook 'minibuffer-exit-hook #'my-hl-line-enable)

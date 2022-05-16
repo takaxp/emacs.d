@@ -73,6 +73,7 @@
   (el-get-bundle "astahlman/ob-async")
   (el-get-bundle "pope/ob-go")
   (unless (eq system-type 'windows-nt)
+    (el-get-bundle "kaushalmodi/tomelr")
     (el-get-bundle "kaushalmodi/ox-hugo"))
 
   ;; Major modes
@@ -236,6 +237,7 @@
   (el-get-bundle "zhangkaiyulw/smart-mark")
   (el-get-bundle "emacsmirror/syntax-subword")
   (el-get-bundle "takaxp/ah")
+  (el-get-bundle "phikal/compat.el" :name compat)
   (el-get-bundle "transient")
   (el-get-bundle "conao3/transient-dwim.el"
                  :name transient-dwim
