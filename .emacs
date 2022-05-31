@@ -86,7 +86,15 @@
 
 (cond
  (nil
-  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta)))
+  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
+  (when (and (memq window-system '(ns mac))
+             (fboundp 'mac-get-current-input-source))
+    ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
+    (custom-set-variables
+     '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
+    (mac-input-method-mode 1)
+    (global-set-key (kbd "M-SPC") 'mac-ime-toggle)
+    (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
  (nil ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (setq org-agenda-files '("~/Desktop/hoge.org")))
