@@ -227,16 +227,6 @@ This function is called directly from the C code."
 ;; Limit the final word to a line break code (automatically correct)
 (setq require-final-newline t)
 
-(setq-default tab-width 2)
-(setq-default indent-tabs-mode nil)
-(setq indent-line-function 'insert-tab)
-
-(defun my-emacs-lisp-mode-conf ()
-  ;; (setq indent-tabs-mode t)
-  ;; (setq tab-width 8)
-  (setq indent-line-function 'lisp-indent-line))
-(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
-
 (when (version< "27.0" emacs-version)
   (defun ad:find-file-read-args (f prompt mustmatch)
     (when (equal default-directory "/")
@@ -643,121 +633,6 @@ This function is called directly from the C code."
 (when (memq window-system '(ns x))
   (with-eval-after-load "postpone"
     (run-with-idle-timer 3 t #'my-apply-cursor-config)))
-
-(with-eval-after-load "postpone"
-  (cond
-   ((memq window-system '(ns x))
-    ;; モードラインにアイコンを出す
-    (make-face 'mode-line-ime-on-face)
-    (set-face-attribute 'mode-line-ime-on-face
-                        nil :foreground (plist-get my-cur-color-ime :on))
-    (when (fboundp 'mac-set-input-method-parameter)
-      (mac-set-input-method-parameter
-       "com.google.inputmethod.Japanese.base" 'title
-       (concat
-	      (if (require 'icons-in-terminal nil t)
-            (icons-in-terminal-octicon "keyboard"
-                                       :v-adjust 0.0
-                                       :face 'mode-line-ime-on-face)
-          "") " "))) ;; FIXME (the color is NOT changed, patch is wrong?)
-
-    (declare-function my-ime-on "init" nil)
-    (declare-function my-ime-off "init" nil)
-    (declare-function my-ime-active-p "init" nil)
-
-    ;; for private patch
-    (when (boundp 'mac-ime-cursor-type)
-      (setq mac-ime-cursor-type (plist-get my-cur-type-ime :on)))
-
-    (setq my-ime-last (my-ime-active-p))
-    (defun my-ime-on ()
-      (interactive)
-      (if (fboundp 'mac-toggle-input-method)
-	        (progn
-	          (mac-toggle-input-method t)
-	          (run-hooks 'input-method-activate-hook))
-	      (activate-input-method default-input-method))
-      (setq my-ime-last t))
-    (defun my-ime-off ()
-      (interactive)
-      (if (fboundp 'mac-toggle-input-method)
-	        (progn
-	          (mac-toggle-input-method nil)
-	          (run-hooks 'input-method-deactivate-hook))
-	      (deactivate-input-method))
-      (setq my-ime-last nil))
-
-    (defvar my-ime-before-action nil)
-    (defun my-ime-on-sticky ()
-      (when my-ime-before-action
-	      (my-ime-on)))
-    (defun my-ime-off-sticky ()
-      (when (setq my-ime-before-action (my-ime-active-p))
-	      (my-ime-off)))
-
-    (if (version< emacs-version "27.0")
-	      (progn
-	        ;; For selected.el
-	        (add-hook 'activate-mark-hook #'my-ime-off-sticky)
-	        (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-	        ;; 「M-x あ」対策
-	        (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
-	        (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
-      ;; For selected.el
-      (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
-      (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
-
-    ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
-    ;;   "Extension to find-file as before-find-file-hook."
-    ;;   (message "--- ad:findfile")
-    ;;   (apply FILENAME WILDCARDS))
-    ;; (advice-add #'find-file :around #'ad:find-file)
-
-    ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-    ;; バッファ切替時に input method を切り替える
-    ;; (with-eval-after-load "postpone"
-    ;;   (when (and (fboundp 'mac-handle-input-method-change)
-    ;;              (require 'cl nil t))
-    ;;     (add-hook
-    ;;      'post-command-hook
-    ;;      (lexical-let ((previous-buffer nil))
-    ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
-    ;;        (lambda ()
-    ;;            (unless (eq (current-buffer) previous-buffer)
-    ;;              (when (bufferp previous-buffer)
-    ;;                (mac-handle-input-method-change))
-    ;;              (setq previous-buffer (current-buffer))))))))
-    )
-
-
-   ;; EMP: Emacs Mac Port
-   ((eq window-system 'mac)
-    (when (fboundp 'mac-input-source)
-      (defun my-mac-keyboard-input-source () ;; Need update
-	      (if (string-match "\\.Roman$" (mac-input-source))
-	          (progn
-	            (setq cursor-type (plist-get my-cur-type-ime :off))
-	            (add-to-list 'default-frame-alist
-			                     `(cursor-type . ,(plist-get my-cur-type-ime :off)))
-	            (set-cursor-color (plist-get my-cur-color-ime :off)))
-	        (progn
-	          (setq cursor-type (plist-get my-cur-type-ime :on))
-	          (add-to-list 'default-frame-alist
-			                   `(cursor-type . ,(plist-get my-cur-type-ime :on)))
-	          (set-cursor-color (plist-get my-cur-color-ime :on)))))
-
-      (when (fboundp 'mac-auto-ascii-mode)
-	      ;; (mac-auto-ascii-mode 1)
-	      ;; IME ON/OFF でカーソルの種別や色を替える
-	      (add-hook 'mac-selected-keyboard-input-source-change-hook
-		              #'my-mac-keyboard-input-source)
-	      ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
-	      ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
-	      ;;           #'my-mac-keyboard-input-source)
-	      (declare-function my-mac-keyboard-input-source "init" nil)
-	      (my-mac-keyboard-input-source))))
-
-   (t nil)))
 
 (declare-function my-font-config "init" nil)
 (defconst moom-autoloads

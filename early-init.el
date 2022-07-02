@@ -4,6 +4,8 @@
 (let ((early-init (format "%searly-init.el"
                           (expand-file-name user-emacs-directory))))
   (message "Loading %s..." early-init)
+  ;; (setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
+  ;; (setq garbage-collection-messages t)
   (setq package-enable-at-startup nil
         frame-inhibit-implied-resize t)
   (with-eval-after-load "moom"

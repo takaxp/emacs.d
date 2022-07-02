@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-05-31 Tue 10:22 -->
+<!-- 2022-07-03 Sun 02:12 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ユーティリティ関数群</title>
@@ -319,28 +319,28 @@
   <span style="color: #8b2252;">"Return macOS name according to the VERSION number."</span>
   (<span style="color: #a020f0;">if</span> (stringp version)
       (<span style="color: #a020f0;">cond</span> ((version&lt;= <span style="color: #8b2252;">"21.0"</span> version) <span style="color: #8b2252;">"Monterey"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"20.0"</span> version) <span style="color: #8b2252;">"Big Sur"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"19.0"</span> version) <span style="color: #8b2252;">"Catalina"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"18.0"</span> version) <span style="color: #8b2252;">"Mojave"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"17.0"</span> version) <span style="color: #8b2252;">"High Sierra"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"16.0"</span> version) <span style="color: #8b2252;">"Sierra"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"15.0"</span> version) <span style="color: #8b2252;">"El Capitan"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"14.0"</span> version) <span style="color: #8b2252;">"Yosemite"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"13.0"</span> version) <span style="color: #8b2252;">"Mavericks"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"12.0"</span> version) <span style="color: #8b2252;">"Mountain Lion"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"11.0"</span> version) <span style="color: #8b2252;">"Lion"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"10.0"</span> version) <span style="color: #8b2252;">"Snow Leopard"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"9.0"</span> version) <span style="color: #8b2252;">"Leopard"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"8.0"</span> version) <span style="color: #8b2252;">"Tiger"</span>)
-            ((version&lt;= <span style="color: #8b2252;">"7.0"</span> version) <span style="color: #8b2252;">"Panther"</span>)
-            (t <span style="color: #8b2252;">"undefined"</span>))
+                  ((version&lt;= <span style="color: #8b2252;">"20.0"</span> version) <span style="color: #8b2252;">"Big Sur"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"19.0"</span> version) <span style="color: #8b2252;">"Catalina"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"18.0"</span> version) <span style="color: #8b2252;">"Mojave"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"17.0"</span> version) <span style="color: #8b2252;">"High Sierra"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"16.0"</span> version) <span style="color: #8b2252;">"Sierra"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"15.0"</span> version) <span style="color: #8b2252;">"El Capitan"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"14.0"</span> version) <span style="color: #8b2252;">"Yosemite"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"13.0"</span> version) <span style="color: #8b2252;">"Mavericks"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"12.0"</span> version) <span style="color: #8b2252;">"Mountain Lion"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"11.0"</span> version) <span style="color: #8b2252;">"Lion"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"10.0"</span> version) <span style="color: #8b2252;">"Snow Leopard"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"9.0"</span> version) <span style="color: #8b2252;">"Leopard"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"8.0"</span> version) <span style="color: #8b2252;">"Tiger"</span>)
+                  ((version&lt;= <span style="color: #8b2252;">"7.0"</span> version) <span style="color: #8b2252;">"Panther"</span>)
+                  (t <span style="color: #8b2252;">"undefined"</span>))
     nil))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">macos-version</span> ()
   (<span style="color: #a020f0;">let</span> ((macos-type-version (nth 2 (split-string system-configuration <span style="color: #8b2252;">"-"</span>))))
-    (string-match <span style="color: #8b2252;">"darwin</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">.*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> macos-type-version)
-    (match-string 1 macos-type-version)))
+                (string-match <span style="color: #8b2252;">"darwin</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">.*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> macos-type-version)
+                (match-string 1 macos-type-version)))
 </pre>
 </div>
 </div>
@@ -1521,7 +1521,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Warning: '</span><span style="color: #008b8b;">mapcar</span><span style="color: #b22222;">' called for effect; use '</span><span style="color: #008b8b;">mapc</span><span style="color: #b22222;">' or '</span><span style="color: #008b8b;">dolist</span><span style="color: #b22222;">' insted</span>
 (<span style="color: #a020f0;">setq</span> byte-compile-warnings
       '(free-vars unresolved callargs redefine obsolete noruntime
-      cl-functions interactive-only make-local))
+                  cl-functions interactive-only make-local))
 </pre>
 </div>
 </div>
@@ -1678,7 +1678,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-05-31 Tue 10:22</p>
+<p class="date">Created: 2022-07-03 Sun 02:12</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
