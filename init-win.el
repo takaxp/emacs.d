@@ -1,5 +1,8 @@
 ;; The initial file that will be loaded first in w32 environment .
+;; each setting will be updated in .emacs, see AppData/Roming/.emacs.
 (when (eq system-type 'windows-nt)
+  (defvar do-profile nil)
+  (when do-profile (profiler-start 'cpu))
 
   (setq byte-compile-warnings '(obsolete))
   (setq system-time-locale "C") ;; format-time-string %a, not 日 but Sun
@@ -14,6 +17,8 @@
   (setq-default tab-width 2)
   (setq-default indent-tabs-mode nil)
   (setq indent-line-function 'insert-tab)
+  (setq yank-excluded-properties t)
+  (setq next-screen-context-lines 10)
 
   ;; Language, will override default-input-method
   (set-language-environment "Japanese")
@@ -49,11 +54,13 @@
   ;;   (setq shell-file-name "C:/cygwin64/bin/bash"))
 
   ;; AppData\Roaming\.emacs.d 以下に各追加パッケージを配置すること
+  ;; smartparens requires dash.el.
   (let ((default-directory (expand-file-name "~/.emacs.d/lisp")))
     (add-to-list 'load-path default-directory)
     (normal-top-level-add-to-load-path
-     '("moom" "swiper" "selected" "expand-region" "counsel-osx-app"
-       "emacs-htmlize" "emacs-undo-fu" "transient" "bsv")))
+     '("moom" "swiper" "selected" "expand-region" "counsel-osx-app" "dash.el"
+       "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
+       "compat" "hl-todo" "bm")))
 
   (unless noninteractive
     (menu-bar-mode -1)
@@ -80,12 +87,12 @@
     (setq scroll-step 1)
     (setq scroll-preserve-screen-position t) ;; スクロール時にスクリーン内で固定
 
-	  (defun my-linespacing ()
-		  (unless (minibufferp)
-			  (setq-local line-spacing 0)))
-	  (add-hook 'buffer-list-update-hook #'my-linespacing)
-	  (add-hook 'org-src-mode-hook #'my-linespacing)
-	  (add-hook 'debugger-mode-hook #'my-linespacing)
+    (defun my-linespacing ()
+      (unless (minibufferp)
+        (setq-local line-spacing 0)))
+    (add-hook 'buffer-list-update-hook #'my-linespacing)
+    (add-hook 'org-src-mode-hook #'my-linespacing)
+    (add-hook 'debugger-mode-hook #'my-linespacing)
 
     ;; load-path の追加
     (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/tr-ime"))
@@ -167,7 +174,7 @@
       "Enable `hl-line'."
       (unless (or hl-line-mode
                   (minibufferp)
-		              (memq major-mode my-hl-permanent-disabled))
+                  (memq major-mode my-hl-permanent-disabled))
         (hl-line-mode 1)))
     (global-hl-line-mode)
 
@@ -241,40 +248,73 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                               (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
                      -1 arg)
                allow-extend))
-    (advice-add 'mark-sexp :around #'ad:mark-sexp))
+    (advice-add 'mark-sexp :around #'ad:mark-sexp)
+
+    ;; スペース
+    (defface my-face-b-1
+      '((t (:background "gray" :bold t :underline "red")))
+      nil :group 'font-lock-highlighting-faces)
+    ;; タブだけの行
+    (defface my-face-b-2
+      '((t (:background "orange" :bold t :underline "red")))
+      nil :group 'font-lock-highlighting-faces)
+    ;; 半角スペース
+    (defface my-face-b-3 '((t (:background "orange")))
+      nil :group 'font-lock-highlighting-faces)
+
+    (defun ad:font-lock-mode (&optional _ARG)
+      (unless (memq major-mode '(vterm-mode))
+        (font-lock-add-keywords major-mode
+                                ;; "[\t]+$" 行末のタブ
+                                '(("　" 0 'my-face-b-1 append)
+                                  ("[ ]+$" 0 'my-face-b-3 append)
+                                  ("[\t]+$" 0 'my-face-b-2 append)))))
+    (advice-add 'font-lock-mode :before #'ad:font-lock-mode))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; recentf
-	(custom-set-variables
-	 '(recentf-max-saved-items 2000)
-	 '(recentf-save-file (expand-file-name "u:/.emacs.d/recentf"))
-	 '(recentf-auto-cleanup 'never)
-	 '(recentf-exclude
-		 '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
-			 "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+  (custom-set-variables
+   '(recentf-max-saved-items 2000)
+   '(recentf-save-file (expand-file-name "u:/.emacs.d/recentf"))
+   '(recentf-auto-cleanup 'never)
+   '(recentf-exclude
+     '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
+       "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
-	(defun my-recentf-save-list-silence ()
-		(interactive)
+  (defun my-recentf-save-list-silence ()
+    (interactive)
     (let ((message-log-max nil))
       (recentf-save-list))
-		(message ""))
-	(add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+    (message ""))
+  (defun my-recentf-cleanup-silence ()
+    (interactive)
+    (when (file-exists-p "/Volumes/orzHDn")
+      (if shutup-p
+          (shut-up (recentf-cleanup))
+        (let ((message-log-max nil))
+          (recentf-cleanup)))
+      (message "")))
+  (add-function :before
+                after-focus-change-function #'my-recentf-save-list-silence)
+  (add-function :before
+                after-focus-change-function #'my-recentf-cleanup-silence)
 
-	(unless noninteractive
-		(let ((message-log-max nil))
-			(recentf-mode 1)))
+  (unless noninteractive
+    (let ((message-log-max nil))
+      (recentf-mode 1)))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Ivy, Counsel, Swiper
   (autoload #'counsel-M-x "ivy" "ivy,counsel,swiper" nil t)
-  (autoload #'counsel-ibuffer "ivy" "ivy,counsel,swiper" nil t)  
-  (autoload #'counsel-recentf "ivy" "ivy,counsel,swiper" nil t)  
+  (autoload #'counsel-ibuffer "ivy" "ivy,counsel,swiper" nil t)
+  (autoload #'counsel-recentf "ivy" "ivy,counsel,swiper" nil t)
   (autoload #'swiper-thing-at-point "ivy" "ivy,counsel,swiper" nil t)
   (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-M-f") 'counsel-ag)
   (global-set-key (kbd "C-M-r") 'counsel-recentf)
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
   (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
-  
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; bs with bsv.el
   (global-set-key (kbd "M-]") 'bs-cycle-next)
@@ -304,27 +344,14 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Tree Sitter
-  (let* ((elp (expand-file-name
-               ;; (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")
-               (concat "~/.emacs.d/lisp/")
-               ))
-         (ets (concat elp "emacs-tree-sitter/"))
-         (tsl (concat elp "tree-sitter-langs/")))
-    ;; (add-to-list 'load-path (concat ets "langs"))
-    (add-to-list 'load-path (concat ets "core"))
-    (add-to-list 'load-path (concat ets "lisp"))
-    (add-to-list 'load-path tsl))  
-  (defun my-enable-tree-sitter ()
-    (unless (featurep 'tree-sitter)
-      (require 'tree-sitter)
-      (require 'tree-sitter-hl)
-      (require 'tree-sitter-debug)
-      (require 'tree-sitter-query)
-      (require 'tree-sitter-langs))
-    (tree-sitter-hl-mode))
-  (dolist (hook '(js-mode-hook))
-    (add-hook hook #'my-enable-tree-sitter))
+  ;; smartparens
+  (autoload #'smartparens-global-mode "smartparens" "smartparens" nil t)
+  (defun my-smartparens-mode ()
+    (smartparens-global-mode)
+    (remove-hook 'yatex-mode-hook #'my-smartparens-mode)
+    (remove-hook 'org-mode-hook #'my-smartparens-mode))
+  (add-hook 'yatex-mode-hook #'my-smartparens-mode)
+  (add-hook 'org-mode-hook #'my-smartparens-mode)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; selected
@@ -337,14 +364,106 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (add-hook 'activate-mark-hook #'my-activate-selected)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; replace-from-region
+  (autoload #'query-replace-from-region "replace-from-region"
+    "replace-from-region" nil t)
+  (global-set-key (kbd "M-%") 'query-replace-from-region)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; hl-todo (depends on compat.el)
+  (autoload #'global-hl-todo-mode "hl-todo" "hl-todo" nil t)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; highlight-symbol
+  (autoload #'highlight-symbol-mode "highlight-symbol" "highlight-symbol" nil t)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; volatile-highlights
+  (autoload #'volatile-highlights-mode "volatile-highlights" "volatile-highlights" nil t)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Postpone: hl-todo.el, highlight-symbol.el, and volatile-highlights.el
+  (defun my-activate-highlights ()
+    (when (require 'hl-todo nil t)
+      (my-hl-todo-light-theme))
+    (when (require 'highlight-symbol nil t)
+      (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook prog-mode-hook))
+        (add-hook hook #'highlight-symbol-mode)))
+    (when (require 'volatile-highlights nil t)
+        (dolist (hook '(org-mode-hook emacs-lisp-mode-hook))
+          (add-hook hook #'volatile-highlights-mode)))
+    (remove-hook 'pre-command-hook #'my-activate-highlights))
+  (add-hook 'pre-command-hook #'my-activate-highlights)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; google-this
+  (autoload #'google-this "google-this" "google-this" nil t)
+  (autoload #'my-google-this "google-this" "google-this" nil t)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; eldoc
+  (defun my-activate-eldoc ()
+    (when (require 'eldoc nil t)
+      (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
+        (add-hook hook #'turn-on-eldoc-mode)))
+    (remove-hook 'pre-command-hook #'my-activate-eldoc))
+  (add-hook 'pre-command-hook #'my-activate-eldoc)
+  (add-hook 'org-mode-hook #'my-load-echo-org-link)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; bm
+  ;; ファイルオープン時にブックマークを復帰
+  (autoload #'my-toggle-bm "bm" "bm" nil t)
+  (autoload #'my-bm-next "bm" "bm" nil t)
+  (autoload #'bm-buffer-restore "bm" "bm" nil t)
+  (autoload #'counsel-bm "bm" "bm" nil t)
+  (global-set-key (kbd "<f10>") 'my-toggle-bm)
+  (global-set-key (kbd "<C-f10>") 'my-bm-next)
+  (global-set-key (kbd "<S-f10>") 'bm-show-all)
+  (add-hook 'find-file-hook #'bm-buffer-restore)
+  ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
+  (setq bookmark-fontify nil)
+  ;; ビルトイン bookmark がfringeに出すマークを無効にする(as of 28.1)
+  (setq bookmark-set-fringe-mark nil)
+  (with-eval-after-load "ivy"
+    (global-set-key (kbd "<S-f10>") 'counsel-bm))
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Tree Sitter
+  (let* ((elp (expand-file-name
+               ;; (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")
+               (concat "~/.emacs.d/lisp/")
+               ))
+         (ets (concat elp "emacs-tree-sitter/"))
+         (tsl (concat elp "tree-sitter-langs/")))
+    ;; (add-to-list 'load-path (concat ets "langs"))
+    (add-to-list 'load-path (concat ets "core"))
+    (add-to-list 'load-path (concat ets "lisp"))
+    (add-to-list 'load-path tsl))
+  (defun my-enable-tree-sitter ()
+    (unless (featurep 'tree-sitter)
+      (require 'tree-sitter)
+      (require 'tree-sitter-hl)
+      (require 'tree-sitter-debug)
+      (require 'tree-sitter-query)
+      (require 'tree-sitter-langs))
+    (tree-sitter-hl-mode))
+  (dolist (hook '(js-mode-hook))
+    (add-hook hook #'my-enable-tree-sitter))
+
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Package config
 
   (with-eval-after-load "epa"
     (setq epg-pinentry-mode 'loopback))
 
   (with-eval-after-load "bs"
     (when (require 'bsv nil t)
-		  (setq bsv-max-height 5)
-		  (setq bsv-message-timeout 9)))
+      (setq bsv-max-height 5)
+      (setq bsv-message-timeout 9)))
 
   (with-eval-after-load "moom"
     (moom-recommended-keybindings 'all)
@@ -372,7 +491,18 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
             (counsel-describe-function . "^")
             (counsel-describe-variable . "^")
             (Man-completion-table . "^")
-            (woman . "^")))  
+            (woman . "^")))
+
+    ;; 順不同化
+    (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)
+
+    ;; 履歴を使う
+    (when (require 'smex nil t)
+      (setq smex-history-length 35)
+      (setq smex-completion-method 'ivy))
+
+    ;; 選択候補の先頭に矢印を入れる
+    (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))
 
     (custom-set-faces
      '(ivy-current-match
@@ -393,8 +523,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
        ((((class color) (background light)) :foreground "#439943" :underline t)
         (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
 
-  (add-hook 'org-mode-hook #'turn-on-font-lock)
   (with-eval-after-load "org"
+    (add-hook 'org-mode-hook #'turn-on-font-lock)
     (custom-set-faces '(org-drawer ((t (:foreground "#999999"))))
                       '(org-verbatim ((t (:foreground "#FF0000")))))
 
@@ -409,24 +539,25 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
     (setq org-startup-truncated nil
-		      org-hide-leading-stars t
+          org-hide-leading-stars t
           org-use-speed-commands t
           org-adapt-indentation nil
+          org-tags-column -76
           org-list-allow-alphabetical t)
     (define-key org-mode-map (kbd "C-M-t") 'beginning-of-buffer)
 
-	  (when (version< (org-version) "9.4.6")
-		  (defvaralias 'org-speed-commands 'org-speed-commands-user))
-	  (add-to-list 'org-speed-commands '("d" org-todo "DONE"))
+    (when (version< (org-version) "9.4.6")
+      (defvaralias 'org-speed-commands 'org-speed-commands-user))
+    (add-to-list 'org-speed-commands '("d" org-todo "DONE"))
     (add-to-list 'org-speed-commands
                  '("D" my-org-todo-complete-no-repeat "DONE"))
-	  (add-to-list 'org-speed-commands
-							   '("$" call-interactively 'org-archive-subtree))
-	  (setq org-log-done 'time)
+    (add-to-list 'org-speed-commands
+                 '("$" call-interactively 'org-archive-subtree))
+    (setq org-log-done 'time)
     (setq org-log-into-drawer t)
 
-	  (add-to-list 'org-modules 'org-id)
-	  (delq 'ol-gnus org-modules)
+    (add-to-list 'org-modules 'org-id)
+    (delq 'ol-gnus org-modules)
 
     (font-lock-add-keywords
      'org-mode
@@ -441,33 +572,33 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
         (org-cancel-repeater))
       (org-todo ARG))
 
-	  (defun my-org-default-property ()
+    (defun my-org-default-property ()
       "Set the creation date and org-id."
-		  (interactive)
-		  (my-org-set-created-property)
-		  (org-id-get-create))
-	  (defvar my-org-created-property-name "CREATED"
-		  "The name of the org-mode property.
+      (interactive)
+      (my-org-set-created-property)
+      (org-id-get-create))
+    (defvar my-org-created-property-name "CREATED"
+      "The name of the org-mode property.
 This user property stores the creation date of the entry")
-	  (defun my-org-set-created-property (&optional active NAME)
-		  "Set a property on the entry giving the creation time.
+    (defun my-org-set-created-property (&optional active NAME)
+      "Set a property on the entry giving the creation time.
 
 By default the property is called CREATED. If given the `NAME'
 argument will be used instead. If the property already exists, it
 will not be modified."
-		  (interactive)
-		  (let* ((created (or NAME my-org-created-property-name))
-					   (fmt (if active "<%s>" "[%s]"))
-					   (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
-					   (field (org-entry-get (point) created nil)))
-			  (unless (or field (equal "" field))
-				  (org-set-property created now)
-				  (org-cycle-hide-drawers 'children))))
-	  (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
-		  (unless (org-at-item-checkbox-p)
-			  (my-org-default-property)))
-	  (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading)
-	  (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
+      (interactive)
+      (let* ((created (or NAME my-org-created-property-name))
+             (fmt (if active "<%s>" "[%s]"))
+             (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
+             (field (org-entry-get (point) created nil)))
+        (unless (or field (equal "" field))
+          (org-set-property created now)
+          (org-cycle-hide-drawers 'children))))
+    (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
+      (unless (org-at-item-checkbox-p)
+        (my-org-default-property)))
+    (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading)
+    (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
     (setq org-list-demote-modify-bullet
           '(("+" . "-")
@@ -486,32 +617,32 @@ will not be modified."
     (defvar my-org-bullet-with-checkbox-regexp
       (concat "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
               "\\[.\\][ \t]+"))
-	  (defun my-cycle-bullet-at-heading (arg)
-		  "Add a bullet of \" - \" if the line is NOT a bullet line."
-		  (interactive "P")
-		  (save-excursion
-			  (beginning-of-line)
-			  (let ((bullet "- ")
-						  (point-at-eol (point-at-eol)))
-				  (cond
-				   ((re-search-forward
-					   my-org-bullet-with-checkbox-regexp point-at-eol t)
-					  (replace-match (if arg "" "\\1") nil nil))
-				   ((re-search-forward
-					   "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
-					   point-at-eol t)
-					  (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
-				   ((re-search-forward
-					   (concat "\\(^[ \t]*\\)") point-at-eol t)
-					  (replace-match (concat "\\1 " bullet) nil nil))
-				   (t nil)))))
-	  (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
+    (defun my-cycle-bullet-at-heading (arg)
+      "Add a bullet of \"- \" if the line is NOT a bullet line."
+      (interactive "P")
+      (save-excursion
+        (beginning-of-line)
+        (let ((bullet "- ")
+              (point-at-eol (point-at-eol)))
+          (cond
+           ((re-search-forward
+             my-org-bullet-with-checkbox-regexp point-at-eol t)
+            (replace-match (if arg "" "\\1") nil nil))
+           ((re-search-forward
+             "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
+             point-at-eol t)
+            (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
+           ((re-search-forward
+             (concat "\\(^[ \t]*\\)") point-at-eol t)
+            (replace-match (concat "\\1" bullet) nil nil))
+           (t nil)))))
+    (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
 
     (defun ad:org-return (f &optional arg)
-	    "An extension for checking invisible editing when you hit the enter."
-	    (interactive "P")
-	    (org-check-before-invisible-edit 'insert)
-	    (apply f arg))
+      "An extension for checking invisible editing when you hit the enter."
+      (interactive "P")
+      (org-check-before-invisible-edit 'insert)
+      (apply f arg))
     (advice-add 'org-return :around #'ad:org-return)
 
     (let ((dir (expand-file-name org-directory)))
@@ -532,7 +663,7 @@ will not be modified."
 
     (define-key org-mode-map (kbd "C-c f 2")
       'my-do-org-update-staistics-cookies)
-    
+
     ;; M-x calendar
     (with-eval-after-load "org-keys"
       (org-defkey org-read-date-minibuffer-local-map (kbd "C-n")
@@ -617,25 +748,25 @@ will not be modified."
       "Move item or subtree down, otherwise `scroll-up'."
       (interactive)
       (cond ((org-at-item-p)
-	           (call-interactively 'org-move-item-down))
-	          ((or (looking-at org-heading-regexp)
+             (call-interactively 'org-move-item-down))
+            ((or (looking-at org-heading-regexp)
                  (and (org-at-heading-p) (eolp)))
-	           (call-interactively 'org-move-subtree-down))
+             (call-interactively 'org-move-subtree-down))
             ((org-at-table-p)
              (call-interactively 'org-table-move-row))
-	          (t (call-interactively 'scroll-up))))
+            (t (call-interactively 'scroll-up))))
 
     (defun my-org-meta-next ()
       "Move item or subtree up, otherwise `scroll-down'."
       (interactive)
       (cond ((org-at-item-p)
-	           (call-interactively 'org-move-item-up))
-	          ((or (looking-at org-heading-regexp)
+             (call-interactively 'org-move-item-up))
+            ((or (looking-at org-heading-regexp)
                  (and (org-at-heading-p) (eolp)))
-	           (call-interactively 'org-move-subtree-up))
+             (call-interactively 'org-move-subtree-up))
             ((org-at-table-p)
              (org-call-with-arg 'org-table-move-row 'up))
-	          (t (call-interactively 'scroll-down))))
+            (t (call-interactively 'scroll-down))))
 
     (defvar my-org-promote-demote-independently nil)
     (defun my-inherit-struct-p ()
@@ -659,7 +790,7 @@ will not be modified."
                  syntax-subword-mode)
             (call-interactively 'syntax-subword-forward)
           (forward-word))))
-    
+
     (defun my-org-meta-backward ()
       (interactive)
       (if (my-org-at-meta-fb-p)
@@ -669,14 +800,14 @@ will not be modified."
         (if (and (fboundp 'syntax-subword-mode)
                  syntax-subword-mode)
             (call-interactively 'syntax-subword-backward)
-          (backward-word))))
-    )
+          (backward-word)))))
 
   (with-eval-after-load "org"
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo)))
 
   (add-hook 'org-mode-hook #'my-load-echo-org-link)
+
   (with-eval-after-load "org"
     (defun my-echo-org-link ()
       (when (org-in-regexp org-link-bracket-re 1)
@@ -737,6 +868,31 @@ will not be modified."
             ("weekend"     :foreground "#FFFFFF" :background "#CC6666")
             ("Log"         :foreground "#008500"))))
 
+  (with-eval-after-load "org"
+    (defun my-org-src-block-face ()
+      (setq org-src-block-faces
+            (if (eq 'light (frame-parameter nil 'background-mode))
+                '(("emacs-lisp" (:background "#F9F9F9" :extend t))
+                  ("conf" (:background "#F9F9F9" :extend t))
+                  ("org" (:background "#F9F9F9" :extend t))
+                  ("html" (:background "#F9F9F9" :extend t)))
+              '(("emacs-lisp" (:background "#383c4c" :extend t))
+                ("conf" (:background "#383c4c" :extend t))
+                ("org" (:background "#383c4c" :extend t))
+                ("html" (:background "#383c4c" :extend t)))))
+      (font-lock-fontify-buffer))
+    (my-org-src-block-face)
+
+    (custom-set-faces
+     '(fixed-pitch ((t (:family inconsolata))))
+     '(org-block-begin-line
+       ((((background dark))
+         (:foreground "#669966" :weight bold)) ;; :background "#444444"
+        (t (:foreground "#CC3333" :weight bold)))) ;; :background "#EFEFEF"
+     '(org-block-end-line
+       ((((background dark)) (:foreground "#CC3333" :weight bold))
+        (t (:foreground "#669966" :weight bold))))))
+
   (with-eval-after-load "org-tempo"
     ;; 空行のとき "<" をインデントさせない
     (defun ad:org-tempo-complete-tag (f &rest arg)
@@ -767,42 +923,40 @@ will not be modified."
     ;; 反映
     (org-tempo-add-templates))
 
-
   (with-eval-after-load "counsel-osx-app"
     ;; under experimental implementation
     (defun counsel-win-app-list ()
       ;; NOTE MSYS の場合は，第2引数はフルパスではなく実行ファイル名のみ．
       '(("Emacs" . "C:/Users/takaxp/share/emacs-27.1-x86_64/bin/runemacs.exe")
-        ("Chrome" . "C:/Program Files/Google/Chrome/Application/chrome.exe")
-        ("Internet Explorer" . "C:/Program Files/Internet Explorer/iexplore.exe")
+        ("Mintty" . "C:/cygwin64/bin/mintty.exe")
         ("Edge" . "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe")
         ("Notepad". "C:/WINDOWS/system32/notepad.exe")
         ("Task manager". "C:/WINDOWS/system32/taskmgr.exe")
         ("Command Prompt". "C:/WINDOWS/system32/cmd.exe")
-        ("Mintty" . "C:/cygwin64/bin/mintty.exe")
+        ("PowerToys" . "C:/Program Files/PowerToys/PowerToys.exe")
+        ("Chrome" . "C:/Program Files/Google/Chrome/Application/chrome.exe")
         ("Word" . "C:/Program Files (x86)/Microsoft Office/Office16/winword.exe")
         ("Excel" . "C:/Program Files (x86)/Microsoft Office/Office16/excel.exe")
         ("PowerPoint" . "C:/Program Files (x86)/Microsoft Office/Office16/powerpnt.exe")
         ("Outlook" . "C:/Program Files (x86)/Microsoft Office/Office16/outlook.exe")
-        ("Visio" . "C:/Program Files (x86)/Microsoft Office/Office16/visio.exe")
-        ))
+        ("Visio" . "C:/Program Files (x86)/Microsoft Office/Office16/visio.exe")))
 
     (defvar counsel-win-app-launch-cmd
       (lambda (app &optional file)
         (if (bound-and-true-p file)
             (format "%s -a %s" file app)
-	        (format "%s" app))) "")
+          (format "%s" app))) "")
 
     (defun counsel-osx-app-action-default (app)
       "Launch APP using `counsel-win-app-launch-cmd'."
       (let ((arg
              (cond
-		          ((stringp counsel-win-app-launch-cmd)
-		           (format "%s %s" counsel-win-app-launch-cmd app))
-		          ((functionp counsel-win-app-launch-cmd)
-		           (funcall counsel-win-app-launch-cmd app))
-		          (t
-		           (user-error
+              ((stringp counsel-win-app-launch-cmd)
+               (format "%s %s" counsel-win-app-launch-cmd app))
+              ((functionp counsel-win-app-launch-cmd)
+               (funcall counsel-win-app-launch-cmd app))
+              (t
+               (user-error
                 "Could not construct cmd from `counsel-win-app-launch-cmd'")))))
         (message "%s" (concat "open " "\"" arg "\""))
         ;; MSYS2 の場合はファイルパスではなくアプリ名で判定される
@@ -833,7 +987,7 @@ will not be modified."
       (unless mark-active
         (setq begin (line-beginning-position))
         (setq end (line-end-position)))
-      (let* ((bullet " - ")
+      (let* ((bullet "- ")
              (len (string-width bullet)))
         (goto-char begin)
         (while (and (re-search-forward (concat "\\(^[ \t]*\\)") end t)
@@ -899,7 +1053,7 @@ will not be modified."
       (unless mark-active
         (setq begin (line-beginning-position))
         (setq end (line-end-position)))
-      (let* ((bullet " - ")
+      (let* ((bullet "- ")
              (checkbox "[ ] ")
              (blen (string-width bullet))
              (clen (string-width checkbox)))
@@ -924,26 +1078,53 @@ will not be modified."
       (goto-char begin))
 
     (transient-define-prefix my-org-bullet-and-checkbox ()
-	    "Commands to handle bullet and checkbox"
-	    [["Bullet"
-		    ("i" "insert" my-org-insert-bullet)
-		    ("d" "delete" my-org-delete-bullet)]
-	     ["Checkbox"
-		    ("[" "insert" my-org-insert-checkbox-into-bullet)
-		    ("]" "delete" my-org-delete-checkbox-from-bullet)
-		    ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-		    ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-		    ]
-	     ["Bullet and Checkbox"
-		    ("I" "insert" my-org-insert-bullet-and-checkbox)
-		    ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+      "Commands to handle bullet and checkbox"
+      [["Bullet"
+        ("i" "insert" my-org-insert-bullet)
+        ("d" "delete" my-org-delete-bullet)]
+       ["Checkbox"
+        ("[" "insert" my-org-insert-checkbox-into-bullet)
+        ("]" "delete" my-org-delete-checkbox-from-bullet)
+        ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+        ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+        ]
+       ["Bullet and Checkbox"
+        ("I" "insert" my-org-insert-bullet-and-checkbox)
+        ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
 
   (with-eval-after-load "selected"
+    (defvar my-eval-result "*eval-result*")
+    (defun my-eval-region ()
+      (interactive)
+      (when (use-region-p)
+        (eval-region (region-beginning) (region-end)
+                     (get-buffer-create my-eval-result))
+        ;; Copy the result to kill-ring and print it
+        (with-current-buffer (get-buffer-create my-eval-result)
+          (delete-char -1)
+          (goto-char (point-min))
+          (delete-blank-lines)
+          (mark-whole-buffer)
+          (kill-ring-save (point-min) (point-max))
+          (message "%s" (car kill-ring))
+          (erase-buffer))
+        ;; Jump to the end of the region
+        (goto-char (max (mark) (point)))
+        (deactivate-mark)))
     (setq selected-org-mode-map (make-sparse-keymap))
     (define-key selected-org-mode-map (kbd "t") #'org-toggle-checkbox)
     (define-key selected-org-mode-map (kbd "-") #'my-org-bullet-and-checkbox)
+    (define-key selected-keymap (kbd "5") #'query-replace-from-region)
+    (define-key selected-keymap (kbd ";") #'comment-dwim)
+    (define-key selected-keymap (kbd "e") #'my-eval-region)
+    (define-key selected-keymap (kbd "g") #'my-google-this)
     (when (require 'expand-region nil t)
       (define-key selected-keymap (kbd "SPC") #'er/expand-region)))
+
+  (with-eval-after-load "google-this"
+    (defun my-google-this ()
+      (interactive)
+      (google-this (current-word) t)))
 
   (with-eval-after-load "expand-region"
     (defun ad:er:mark-sexp (f &optional arg allow-extend)
@@ -955,4 +1136,252 @@ will not be modified."
         (funcall f arg allow-extend)))
     (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 
+  (with-eval-after-load "smartparens"
+    (setq-default sp-highlight-pair-overlay nil)
+    (setq-default sp-highlight-wrap-overlay nil)
+    (setq-default sp-highlight-wrap-tag-overlay nil)
+    (sp-pair "`" nil :actions :rem)
+    (sp-pair "'" nil :actions :rem)
+    (sp-pair "[" nil :actions :rem)
+    (sp-local-pair 'org-mode "$" "$")
+    (sp-local-pair 'org-mode "~" "~")
+    ;; (sp-local-pair 'org-mode "[" "]")
+    ;; (sp-local-pair 'org-mode "+" "+")
+    (sp-local-pair 'org-mode "=" "=")
+    (sp-local-pair 'org-mode "_" "_")
+    (sp-local-pair 'yatex-mode "$" "$"))
+
+  (with-eval-after-load "hl-todo"
+    (defun my-hl-todo-reload ()
+      (interactive)
+      (global-hl-todo-mode -1)
+      (global-hl-todo-mode))
+
+    (defun my-hl-todo-light-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#FF0000")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "SeaGreen")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "#3030FF")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")))
+      (my-hl-todo-reload)))
+
+  (with-eval-after-load "highlight-symbol"
+    (custom-set-variables
+     '(highlight-symbol-idle-delay 0.5)))
+
+  (with-eval-after-load "volatile-highlights"
+    (set-face-attribute
+     'vhl/default-face nil :foreground "#FF3333" :background "#FFCDCD")
+    (volatile-highlights-mode t)
+
+    ;; ふわっとエフェクトの追加（ペースト時の色 => カーソル色 => 本来色）
+    (defun my-vhl-change-color ()
+      (interactive)
+      (let ((next 0.2)
+            (reset 0.5)
+            (colors '("#F8D3D7" "#F2DAE1" "#EBE0EB" "#E5E7F5" "#DEEDFF")))
+        (dolist (color colors)
+          (run-at-time next nil
+                       'set-face-attribute
+                       'vhl/default-face
+                       nil :foreground "#FF3333" :background color)
+          (setq next (+ 0.05 next)))
+        (run-at-time reset nil 'vhl/clear-all))
+      (set-face-attribute 'vhl/default-face
+                          nil :foreground "#FF3333"
+                          :background "#FFCDCD"))
+
+    (defun my-yank (&optional ARG)
+      (interactive)
+      (yank ARG)
+      (when window-system
+        (my-vhl-change-color)))
+    (global-set-key (kbd "M-v") 'my-yank)
+    (global-set-key (kbd "C-y") 'my-yank)
+
+    (with-eval-after-load "vterm"
+      (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
+
+    (with-eval-after-load "org"
+      (define-key org-mode-map (kbd "C-y") 'my-org-yank)
+      (defun my-org-yank ()
+        (interactive)
+        (org-yank)
+        (when window-system
+          (my-vhl-change-color)))))
+
+  (with-eval-after-load "eldoc"
+    ;; for ivy-mode
+    (defun ad:eldoc-message (f &optional string)
+      (unless (active-minibuffer-window)
+        (funcall f string)))
+    (advice-add 'eldoc-message :around #'ad:eldoc-message)
+
+    (defun my-echo-org-link ()
+      (when (org-in-regexp org-link-bracket-re 1)
+        (let ((link "Link:")
+              (msg (org-link-unescape (match-string-no-properties 1))))
+          (put-text-property 0 (length link) 'face 'minibuffer-prompt link)
+          (eldoc-message (format "%s %s" link msg)))))
+
+    (defun my-load-echo-org-link ()
+      (add-function :before-until (local 'eldoc-documentation-function)
+                    #'my-echo-org-link)
+      ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
+      )
+
+    (custom-set-variables
+     '(eldoc-idle-delay 1.0)))
+
+  (with-eval-after-load "calendar"
+    (when (require 'japanese-holidays nil t)
+      (setq calendar-holidays
+            (append japanese-holidays
+                    holiday-local-holidays holiday-other-holidays))
+      (setq mark-holidays-in-calendar t)
+      (setq japanese-holiday-weekend-marker
+            '(holiday nil nil nil nil nil japanese-holiday-saturday))
+      (setq japanese-holiday-weekend '(0 6))
+      (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
+      (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend))
+
+    (setq calendar-week-start-day 1)
+    (add-hook 'calendar-today-visible-hook #'calendar-mark-today)
+    (copy-face 'default 'calendar-iso-week-header-face)
+    (set-face-attribute 'calendar-iso-week-header-face nil
+                        :height 1.0 :foreground "#1010FF"
+                        :background (face-background 'default))
+    (setq calendar-intermonth-header
+          (propertize " w"
+                      'font-lock-face 'calendar-iso-week-header-face))
+
+    (copy-face font-lock-constant-face 'calendar-iso-week-face)
+    (set-face-attribute 'calendar-iso-week-face nil
+                        :height 1.0 :foreground "orange"
+                        :background (face-background 'default))
+
+    (setq calendar-intermonth-text
+          '(propertize
+            (format "%02d"
+                    (car
+                     (calendar-iso-from-absolute
+                      (+ (calendar-absolute-from-gregorian
+                          (list month day year))
+                         calendar-week-start-day
+                         ))))
+            'font-lock-face 'calendar-iso-week-face))
+
+    (defun my-get-week-number ()
+      "Return the current week number."
+      (format "%02d"
+              (car
+               (calendar-iso-from-absolute
+                (calendar-absolute-from-gregorian
+                 (list (string-to-number (format-time-string "%m"))
+                       (string-to-number (format-time-string "%d"))
+                       (string-to-number (format-time-string "%y")))))))))
+
+  (with-eval-after-load "bm"
+    ;; (setq bm-annotation-width 30)
+    (setq-default bm-buffer-persistence t)
+    (setq bm-restore-repository-on-load t)
+    (setq bm-cycle-all-buffers t)
+    ;; (setq bm-toggle-buffer-persistence t)
+    (setq bm-buffer-persistence t)
+    (setq bm-persistent-face 'bm-face)
+    (setq bm-repository-file (expand-file-name "u:/emacs.d/.bm-repository"))
+
+    (unless noninteractive
+      (bm-repository-load)
+      (add-hook 'kill-buffer-hook 'bm-buffer-save)
+      (add-hook 'after-save-hook 'bm-buffer-save)
+      (add-hook 'after-revert-hook 'bm-buffer-restore)
+      (add-hook 'kill-emacs-hook #'my-bm-save-all))
+
+    (defun ad:bm-show-mode ()
+      "Enable truncate mode when showing bm list."
+      (toggle-truncate-lines 1))
+    (advice-add 'bm-show-mode :after #'ad:bm-show-mode)
+
+    (defun my-bm-save-all ()
+      (bm-buffer-save-all)
+      (bm-repository-save))
+
+    (defun my-toggle-bm ()
+      "bm-toggle with updating history"
+      (interactive)
+      (let ((bm (concat
+                 (buffer-name) "::"
+                 (if (and (equal major-mode 'org-mode)
+                          (not (org-before-first-heading-p)))
+                     (nth 4 (org-heading-components))
+                   (format "%s" (line-number-at-pos))))))
+        (if (bm-bookmark-at (point))
+            (bookmark-delete bm)
+          (bookmark-set bm)))
+      (bm-toggle)
+      (bm-buffer-save-all)
+      (bm-repository-save))
+
+    (defun my-bm-next ()
+      "bm-next with org-mode"
+      (interactive)
+      (bm-next)
+      (when (and (equal major-mode 'org-mode)
+                 (not (org-before-first-heading-p)))
+        (widen)
+        (org-overview)
+        (org-reveal)
+        (org-cycle-hide-drawers 'all)
+        (org-show-entry)
+        (show-children)
+        (org-show-siblings)))
+
+    (when (require 'ivy nil t)
+      (defun counsel-bm-get-list (bookmark-overlays)
+        (-map (lambda (bm)
+                (with-current-buffer (overlay-buffer bm)
+                  (let* ((line (replace-regexp-in-string
+                                "\n$" ""
+                                (buffer-substring (overlay-start bm)
+                                                  (overlay-end bm))))
+                         ;; line numbers start on 1
+                         (line-num
+                          (+ 1 (count-lines (point-min) (overlay-start bm))))
+                         (name (format "%s:%d - %s" (buffer-name) line-num line)))
+                    `(,name . ,bm))))
+              bookmark-overlays))
+
+      (defun counsel-bm ()
+        (interactive)
+        (let* ((bm-list (counsel-bm-get-list (bm-overlays-lifo-order t)))
+               (bm-hash-table (make-hash-table :test 'equal))
+               (search-list (-map (lambda (bm) (car bm)) bm-list)))
+          (-each bm-list (lambda (bm)
+                           (puthash (car bm) (cdr bm) bm-hash-table)
+                           ))
+          (ivy-read "Find bookmark(bm.el): "
+                    search-list
+                    :require-match t
+                    :keymap counsel-describe-map
+                    :action (lambda (chosen)
+                              (let ((bookmark (gethash chosen bm-hash-table)))
+                                (switch-to-buffer (overlay-buffer bookmark))
+                                (bm-goto bookmark)
+                                ))
+                    :sort t)))))
+
+  (when do-profile (profiler-stop))
   ) ;; End of init-win.el

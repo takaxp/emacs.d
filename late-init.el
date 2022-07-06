@@ -479,12 +479,14 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
             (goto-char smart-mark-point-before-mark))))
       (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)
 
-      (defadvice keyboard-quit (before collapse-region activate)
+      (defun ad:er:pre:keyboard-quit ()
         (when (memq last-command '(er/expand-region er/contract-region))
           (er/contract-region 0)
           ;; (when (> smart-mark-point-before-mark 1) ;; FIXME
           ;;   (goto-char smart-mark-point-before-mark))
-          ))))
+          ))
+      ;; (advice-add 'keyboard-quit :before #'ad:er:pre:keyboard-quit)
+      ))
 
   ;; (defun my-smart-mark-activate () (smart-mark-mode 1))
   ;; (defun my-smart-mark-dectivate () (smart-mark-mode -1))
@@ -1504,7 +1506,7 @@ Call this function at updating `mode-line-mode'."
        "calendar" nil t)
 
   (with-eval-after-load "calendar"
-    (setq calendar-week-start-day 6)
+    (setq calendar-week-start-day 1)
     (copy-face 'default 'calendar-iso-week-header-face)
     (set-face-attribute 'calendar-iso-week-header-face nil
                         :height 1.0 :foreground "#1010FF"

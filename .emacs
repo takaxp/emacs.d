@@ -113,9 +113,8 @@
   )
 
 (with-eval-after-load "postpone"
-  (autoload-if-found '(vterm) "vterm"  nil t)
-  ;;(setq vterm-term-environment-variable "xterm-24bit")
-  )
+  ;; M-x vterm-copy-mode (C-c C-t)
+  (autoload-if-found '(vterm) "vterm"  nil t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees

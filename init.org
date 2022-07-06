@@ -2143,12 +2143,14 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
             (goto-char smart-mark-point-before-mark))))
       (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)
 
-      (defadvice keyboard-quit (before collapse-region activate)
+      (defun ad:er:pre:keyboard-quit ()
         (when (memq last-command '(er/expand-region er/contract-region))
           (er/contract-region 0)
           ;; (when (> smart-mark-point-before-mark 1) ;; FIXME
           ;;   (goto-char smart-mark-point-before-mark))
-          ))))
+          ))
+      ;; (advice-add 'keyboard-quit :before #'ad:er:pre:keyboard-quit)
+      ))
 
   ;; (defun my-smart-mark-activate () (smart-mark-mode 1))
   ;; (defun my-smart-mark-dectivate () (smart-mark-mode -1))
@@ -5071,7 +5073,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
        "calendar" nil t)
 
   (with-eval-after-load "calendar"
-    (setq calendar-week-start-day 6)
+    (setq calendar-week-start-day 1)
     (copy-face 'default 'calendar-iso-week-header-face)
     (set-face-attribute 'calendar-iso-week-header-face nil
                         :height 1.0 :foreground "#1010FF"
