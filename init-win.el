@@ -1,39 +1,50 @@
-;; The initial file that will be loaded first in w32 environment .
-;; each setting will be updated in .emacs, see AppData/Roming/.emacs.
+;; -*- coding:utf-8-unix; lexical-binding: t; -*-
+;; This initialize file should be loaded first in w32 environment.
+;; Each setting could be overwritten in .emacs, see AppData/Roming/.emacs.
+;; And the .emacs will contain, for insetance,
+;; 1. Set (load "u:/.emacs.d/init-win.el") in the first line.
+;; 2. Overwrite "PATH" and #'counsel-win-app-list in the .emacs if needed.
+;; Note: all local and private settings should be configured in the .emacs.
+;; runemacs.exe is extracted from a distributed zip package from
+;;             https://ftp.jaist.ac.jp/pub/GNU/emacs/windows/
+;;                                                    Last update: 2022-07-07
+
 (when (eq system-type 'windows-nt)
   (defvar do-profile nil)
   (when do-profile (profiler-start 'cpu))
 
+  (setq initial-scratch-message nil)
+  (setq initial-major-mode 'fundamental-mode)
   (setq byte-compile-warnings '(obsolete))
   (setq system-time-locale "C") ;; format-time-string %a, not 日 but Sun
   (setq make-backup-files nil)
-  (setq ring-bell-function 'ignore)
   (setq default-directory "~/")
   (setq initial-buffer-choice t) ;; Starting from *scratch* buffer
-  (setq confirm-kill-emacs 'yes-or-no-p)
   (setq truncate-line nil
         truncate-partial-width-windows nil
         mouse-drag-copy-region t)
   (setq-default tab-width 2)
   (setq-default indent-tabs-mode nil)
   (setq indent-line-function 'insert-tab)
+  (setq confirm-kill-emacs 'yes-or-no-p)
+  (setq ring-bell-function 'ignore)
   (setq yank-excluded-properties t)
-  (setq next-screen-context-lines 10)
 
   ;; Language, will override default-input-method
   (set-language-environment "Japanese")
   (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
-  (global-auto-revert-mode 1)
-  (global-font-lock-mode 1)
 
-  ;; モードラインの配色
-  (custom-set-faces
-   '(mode-line
-     ((t (:background "#7D60AF" :foreground "#FFFFFF" :box nil :height 1.0))))
-   '(mode-line-inactive
-     ((t (:background "#CCCCCC" :foreground "#FFFFFF" :box nil :height 1.0)))))
+  ;; AppData\Roaming\.emacs.d\lisp 以下に各追加パッケージを配置すること
+  ;; smartparens requires dash.el.
+  (let ((default-directory (expand-file-name "~/.emacs.d/lisp")))
+    (add-to-list 'load-path default-directory)
+    (normal-top-level-add-to-load-path
+     '("moom" "swiper" "selected" "expand-region" "counsel-osx-app" "dash.el"
+       "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
+       "compat" "hl-todo" "bm" "japanese-holidays" "highlight-symbol"
+       "emacs-google-this" "smex" "volatile-highlights.el" "tr-ime")))
 
-  ;; Home directory
+  ;; Setting Home directory if needed.
   ;; (setenv "HOME" "C:/Users/******/AppData/Roaming")
   ;; (setenv "HOME" "c:/cygwin64/home/********")
   ;; Proxy
@@ -52,15 +63,6 @@
   ;;   ;;  ";C:\\msys64\\usr\\local\\bin" ";C:\\msys64\\opt\\bin"
   ;;   ;;  ";C:\\msys64\\mingw64\\bin" ";C:\\msys64\\usr\\bin"))
   ;;   (setq shell-file-name "C:/cygwin64/bin/bash"))
-
-  ;; AppData\Roaming\.emacs.d 以下に各追加パッケージを配置すること
-  ;; smartparens requires dash.el.
-  (let ((default-directory (expand-file-name "~/.emacs.d/lisp")))
-    (add-to-list 'load-path default-directory)
-    (normal-top-level-add-to-load-path
-     '("moom" "swiper" "selected" "expand-region" "counsel-osx-app" "dash.el"
-       "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
-       "compat" "hl-todo" "bm")))
 
   (unless noninteractive
     (menu-bar-mode -1)
@@ -86,6 +88,7 @@
     (setq scroll-conservatively 1000)
     (setq scroll-step 1)
     (setq scroll-preserve-screen-position t) ;; スクロール時にスクリーン内で固定
+    (setq next-screen-context-lines 10)
 
     (defun my-linespacing ()
       (unless (minibufferp)
@@ -93,34 +96,6 @@
     (add-hook 'buffer-list-update-hook #'my-linespacing)
     (add-hook 'org-src-mode-hook #'my-linespacing)
     (add-hook 'debugger-mode-hook #'my-linespacing)
-
-    ;; load-path の追加
-    (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/tr-ime"))
-
-    ;; IME パッチモジュールの読み込み 200[ms]
-    (when (and (eq window-system 'w32)
-               (string= module-file-suffix ".dll")
-               (not (fboundp 'ime-get-mode))
-               (require 'tr-ime nil t))
-
-      (tr-ime-advanced-initialize)
-      ;; IM のデフォルトを IME に設定
-      (setq default-input-method "W32-IME")
-      ;; IME のモードライン表示設定
-      (setq-default w32-ime-mode-line-state-indicator "[--]")
-      (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
-      ;; IME ON/OFF state を全ウィンドウで1つにする
-      (setq w32-ime-buffer-switch-p nil)
-      ;; IME 初期化
-      (w32-ime-initialize)
-      ;; IME 制御（yes/no などの入力の時に IME を OFF にする）
-      (wrap-function-to-control-ime 'universal-argument t nil)
-      (wrap-function-to-control-ime 'read-string nil nil)
-      (wrap-function-to-control-ime 'read-char nil nil)
-      (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
-      (wrap-function-to-control-ime 'y-or-n-p nil nil)
-      (wrap-function-to-control-ime 'yes-or-no-p nil nil)
-      (wrap-function-to-control-ime 'map-y-or-n-p nil nil))
 
     ;; IME toggle (M-SPC/S-SPC)
     (defun my-ime-active-p ()
@@ -137,6 +112,7 @@
     (defun my-toggle-ime ()
       "Toggle IME."
       (interactive)
+      (require 'tr-ime)
       (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
     (defvar my-ime-before-action nil)
     (defun my-ime-on-sticky ()
@@ -149,6 +125,13 @@
     (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
     (global-set-key (kbd "M-SPC") 'my-toggle-ime)
     (global-set-key (kbd "S-SPC") 'my-toggle-ime)
+
+    ;; モードラインの配色
+    (custom-set-faces
+     '(mode-line
+       ((t (:background "#7D60AF" :foreground "#FFFFFF" :box nil :height 1.0))))
+     '(mode-line-inactive
+       ((t (:background "#CCCCCC" :foreground "#FFFFFF" :box nil :height 1.0)))))
 
     ;; カーソル行の色
     (defvar my-ime-off-hline-hook nil)
@@ -195,10 +178,33 @@
     (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
     (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-    ;; for init setup
+    ;; for init setup on hline and cursor
     (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
     (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))
 
+    ;; 特定の文字をバッファ内で強調表示する
+    ;; スペース
+    (defface my-face-b-1
+      '((t (:background "gray" :bold t :underline "red")))
+      nil :group 'font-lock-highlighting-faces)
+    ;; タブだけの行
+    (defface my-face-b-2
+      '((t (:background "orange" :bold t :underline "red")))
+      nil :group 'font-lock-highlighting-faces)
+    ;; 半角スペース
+    (defface my-face-b-3 '((t (:background "orange")))
+      nil :group 'font-lock-highlighting-faces)
+
+    (defun ad:font-lock-mode (&optional _ARG)
+      (unless (memq major-mode '(vterm-mode))
+        (font-lock-add-keywords major-mode
+                                ;; "[\t]+$" 行末のタブ
+                                '(("　" 0 'my-face-b-1 append)
+                                  ("[ ]+$" 0 'my-face-b-3 append)
+                                  ("[\t]+$" 0 'my-face-b-2 append)))))
+    (advice-add 'font-lock-mode :before #'ad:font-lock-mode)
+
+    ;; Utilities
     (defun my-open-w32-explore ()
       (interactive)
       (shell-command-to-string "open ."))
@@ -206,7 +212,7 @@
 
     (defun my-open-hoge ()
       (interactive)
-      (find-file "U://org/remote.org"))
+      (find-file "u://org/remote.org"))
     (global-set-key (kbd "C-M-o") 'my-open-hoge)
 
     (defun my-open-scratch ()
@@ -216,7 +222,7 @@
     (global-set-key (kbd "C-M-s") #'my-open-scratch)
 
     (defun insert-formatted-current-date ()
-      "Insert a timestamp at the cursor position. C-u will add [] brackets."
+      "Insert a timestamp at the cursor position."
       (interactive)
       (insert (format-time-string "%Y-%m-%d")))
     (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
@@ -248,62 +254,35 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                               (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
                      -1 arg)
                allow-extend))
-    (advice-add 'mark-sexp :around #'ad:mark-sexp)
-
-    ;; スペース
-    (defface my-face-b-1
-      '((t (:background "gray" :bold t :underline "red")))
-      nil :group 'font-lock-highlighting-faces)
-    ;; タブだけの行
-    (defface my-face-b-2
-      '((t (:background "orange" :bold t :underline "red")))
-      nil :group 'font-lock-highlighting-faces)
-    ;; 半角スペース
-    (defface my-face-b-3 '((t (:background "orange")))
-      nil :group 'font-lock-highlighting-faces)
-
-    (defun ad:font-lock-mode (&optional _ARG)
-      (unless (memq major-mode '(vterm-mode))
-        (font-lock-add-keywords major-mode
-                                ;; "[\t]+$" 行末のタブ
-                                '(("　" 0 'my-face-b-1 append)
-                                  ("[ ]+$" 0 'my-face-b-3 append)
-                                  ("[\t]+$" 0 'my-face-b-2 append)))))
-    (advice-add 'font-lock-mode :before #'ad:font-lock-mode))
+    (advice-add 'mark-sexp :around #'ad:mark-sexp))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Part A: Control package loading
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; auto-revert
+  (defun my-activate-auto-revert ()
+    (global-auto-revert-mode 1)
+    (remove-hook 'find-file-hook #'my-activate-auto-revert))
+  (add-hook 'find-file-hook #'my-activate-auto-revert)
+
+  ;; tr-ime: IME パッチモジュールの読み込み 200[ms]
+  (defun my-activate-tr-ime ()
+    (when (and (eq window-system 'w32)
+               (string= module-file-suffix ".dll")
+               (not (fboundp 'ime-get-mode)))
+      (require 'tr-ime nil t))
+    (remove-hook 'pre-command-hook #'my-activate-tr-ime))
+  (add-hook 'pre-command-hook #'my-activate-tr-ime)
+
   ;; recentf
-  (custom-set-variables
-   '(recentf-max-saved-items 2000)
-   '(recentf-save-file (expand-file-name "u:/.emacs.d/recentf"))
-   '(recentf-auto-cleanup 'never)
-   '(recentf-exclude
-     '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
-       "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+  (defun my-activate-recentf ()
+    (when (require 'recentf nil t)
+      (let ((message-log-max nil))
+        (recentf-mode 1)))
+    (remove-hook 'pre-command-hook #'my-activate-recentf))
+  (add-hook 'pre-command-hook #'my-activate-recentf)
 
-  (defun my-recentf-save-list-silence ()
-    (interactive)
-    (let ((message-log-max nil))
-      (recentf-save-list))
-    (message ""))
-  (defun my-recentf-cleanup-silence ()
-    (interactive)
-    (when (file-exists-p "/Volumes/orzHDn")
-      (if shutup-p
-          (shut-up (recentf-cleanup))
-        (let ((message-log-max nil))
-          (recentf-cleanup)))
-      (message "")))
-  (add-function :before
-                after-focus-change-function #'my-recentf-save-list-silence)
-  (add-function :before
-                after-focus-change-function #'my-recentf-cleanup-silence)
-
-  (unless noninteractive
-    (let ((message-log-max nil))
-      (recentf-mode 1)))
-
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Ivy, Counsel, Swiper
   (autoload #'counsel-M-x "ivy" "ivy,counsel,swiper" nil t)
   (autoload #'counsel-ibuffer "ivy" "ivy,counsel,swiper" nil t)
@@ -315,12 +294,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
   (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; bs with bsv.el
   (global-set-key (kbd "M-]") 'bs-cycle-next)
   (global-set-key (kbd "M-[") 'bs-cycle-previous)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; moom
   (autoload #'moom-move-frame-to-edge-top "moom" "Moom" nil t)
   (autoload #'moom-cycle-frame-height "moom" "Moom" nil t)
@@ -331,29 +308,24 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (global-set-key (kbd "M-0") 'moom-move-frame)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Counsel (apps)
   (autoload #'counsel-osx-app "counsel-osx-app" "Application Launcher" nil t)
   (global-set-key (kbd "C-M-1") 'counsel-osx-app)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Undo-fu
   (autoload #'undo-fu-only-undo "undo-fu" "Undo" nil t)
   (autoload #'undo-fu-only-redo "undo-fu" "Undo" nil t)
   (global-set-key (kbd "C-/") 'undo-fu-only-undo)
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; smartparens
   (autoload #'smartparens-global-mode "smartparens" "smartparens" nil t)
-  (defun my-smartparens-mode ()
-    (smartparens-global-mode)
-    (remove-hook 'yatex-mode-hook #'my-smartparens-mode)
-    (remove-hook 'org-mode-hook #'my-smartparens-mode))
-  (add-hook 'yatex-mode-hook #'my-smartparens-mode)
-  (add-hook 'org-mode-hook #'my-smartparens-mode)
+  (defun my-activate-smartparens ()
+    (when (require 'smartparens nil t)
+      (smartparens-global-mode))
+    (remove-hook 'find-file-hook #'my-activate-smartparens))
+  (add-hook 'find-file-hook #'my-activate-smartparens)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; selected
   (autoload #'selected-global-mode "selected" "selected" nil t)
   (defun my-activate-selected ()
@@ -363,25 +335,20 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (remove-hook 'activate-mark-hook #'my-activate-selected))
   (add-hook 'activate-mark-hook #'my-activate-selected)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; replace-from-region
-  (autoload #'query-replace-from-region "replace-from-region"
-    "replace-from-region" nil t)
+  (autoload #'query-replace-from-region
+    "replace-from-region" "replace-from-region" nil t)
   (global-set-key (kbd "M-%") 'query-replace-from-region)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; hl-todo (depends on compat.el)
   (autoload #'global-hl-todo-mode "hl-todo" "hl-todo" nil t)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; highlight-symbol
   (autoload #'highlight-symbol-mode "highlight-symbol" "highlight-symbol" nil t)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; volatile-highlights
   (autoload #'volatile-highlights-mode "volatile-highlights" "volatile-highlights" nil t)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Postpone: hl-todo.el, highlight-symbol.el, and volatile-highlights.el
   (defun my-activate-highlights ()
     (when (require 'hl-todo nil t)
@@ -390,27 +357,24 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook prog-mode-hook))
         (add-hook hook #'highlight-symbol-mode)))
     (when (require 'volatile-highlights nil t)
-        (dolist (hook '(org-mode-hook emacs-lisp-mode-hook))
-          (add-hook hook #'volatile-highlights-mode)))
+      (dolist (hook '(org-mode-hook emacs-lisp-mode-hook))
+        (add-hook hook #'volatile-highlights-mode)))
     (remove-hook 'pre-command-hook #'my-activate-highlights))
   (add-hook 'pre-command-hook #'my-activate-highlights)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; google-this
   (autoload #'google-this "google-this" "google-this" nil t)
   (autoload #'my-google-this "google-this" "google-this" nil t)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; eldoc
   (defun my-activate-eldoc ()
     (when (require 'eldoc nil t)
       (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
         (add-hook hook #'turn-on-eldoc-mode)))
-    (remove-hook 'pre-command-hook #'my-activate-eldoc))
-  (add-hook 'pre-command-hook #'my-activate-eldoc)
-  (add-hook 'org-mode-hook #'my-load-echo-org-link)
+    (remove-hook 'find-file-hook #'my-activate-eldoc))
+  ;; (add-hook 'find-file-hook #'my-activate-eldoc)
+  ;; (add-hook 'org-mode-hook #'my-load-echo-org-link)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; bm
   ;; ファイルオープン時にブックマークを復帰
   (autoload #'my-toggle-bm "bm" "bm" nil t)
@@ -421,19 +385,11 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (global-set-key (kbd "<C-f10>") 'my-bm-next)
   (global-set-key (kbd "<S-f10>") 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
-  ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
-  (setq bookmark-fontify nil)
-  ;; ビルトイン bookmark がfringeに出すマークを無効にする(as of 28.1)
-  (setq bookmark-set-fringe-mark nil)
-  (with-eval-after-load "ivy"
-    (global-set-key (kbd "<S-f10>") 'counsel-bm))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Tree Sitter
   (let* ((elp (expand-file-name
                ;; (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")
-               (concat "~/.emacs.d/lisp/")
-               ))
+               (concat "~/.emacs.d/lisp/")))
          (ets (concat elp "emacs-tree-sitter/"))
          (tsl (concat elp "tree-sitter-langs/")))
     ;; (add-to-list 'load-path (concat ets "langs"))
@@ -453,9 +409,51 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Part B: Configurations for each package
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Package config
+
+  (with-eval-after-load "tr-ime"
+    (tr-ime-advanced-initialize)
+    ;; IM のデフォルトを IME に設定
+    (setq default-input-method "W32-IME")
+    ;; IME のモードライン表示設定
+    (setq-default w32-ime-mode-line-state-indicator "[--]")
+    (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
+    ;; IME ON/OFF state を全ウィンドウで1つにする
+    (setq w32-ime-buffer-switch-p nil)
+    ;; IME 初期化
+    (w32-ime-initialize)
+    ;; IME 制御（yes/no などの入力の時に IME を OFF にする）
+    (wrap-function-to-control-ime 'universal-argument t nil)
+    (wrap-function-to-control-ime 'read-string nil nil)
+    (wrap-function-to-control-ime 'read-char nil nil)
+    (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
+    (wrap-function-to-control-ime 'y-or-n-p nil nil)
+    (wrap-function-to-control-ime 'yes-or-no-p nil nil)
+    (wrap-function-to-control-ime 'map-y-or-n-p nil nil))
+
+  (with-eval-after-load "recentf"
+    (custom-set-variables
+     '(recentf-max-saved-items 2000)
+     '(recentf-save-file (expand-file-name "u:/.emacs.d/recentf"))
+     '(recentf-auto-cleanup 'never)
+     '(recentf-exclude
+       '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
+         "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+
+    (defun my-recentf-save-list-silence ()
+      (interactive)
+      (let ((message-log-max nil))
+        (recentf-save-list))
+      (message ""))
+    (defun my-recentf-cleanup-silence ()
+      (interactive)
+      (let ((message-log-max nil))
+        (recentf-cleanup))
+      (message ""))
+    (add-function :before
+                  after-focus-change-function #'my-recentf-save-list-silence) 
+    (run-with-idle-timer 180 t #'my-recentf-cleanup-silence))
 
   (with-eval-after-load "epa"
     (setq epg-pinentry-mode 'loopback))
@@ -484,6 +482,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (global-set-key (kbd "M-y") 'counsel-yank-pop)
     (global-set-key (kbd "C-,") 'counsel-mark-ring)
     (global-set-key (kbd "C-c i r") 'ivy-resume)
+    (global-set-key (kbd "<S-f10>") 'counsel-bm)
 
     (setq ivy-initial-inputs-alist
           '((org-agenda-refile . "^")
@@ -805,8 +804,6 @@ will not be modified."
   (with-eval-after-load "org"
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo)))
-
-  (add-hook 'org-mode-hook #'my-load-echo-org-link)
 
   (with-eval-after-load "org"
     (defun my-echo-org-link ()
@@ -1251,6 +1248,7 @@ will not be modified."
             (append japanese-holidays
                     holiday-local-holidays holiday-other-holidays))
       (setq mark-holidays-in-calendar t)
+      (setq calendar-mark-holidays-flag t)
       (setq japanese-holiday-weekend-marker
             '(holiday nil nil nil nil nil japanese-holiday-saturday))
       (setq japanese-holiday-weekend '(0 6))
@@ -1302,6 +1300,10 @@ will not be modified."
     (setq bm-buffer-persistence t)
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file (expand-file-name "u:/emacs.d/.bm-repository"))
+    ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
+    (setq bookmark-fontify nil)
+    ;; ビルトイン bookmark がfringeに出すマークを無効にする(as of 28.1)
+    (setq bookmark-set-fringe-mark nil)
 
     (unless noninteractive
       (bm-repository-load)
