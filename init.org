@@ -2497,7 +2497,7 @@ http://d.hatena.ne.jp/NeoCat/20080211
 #+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(csharp-mode)
-       "csharp-mode" "Major mode for editing C# mode." nil t)
+       "csharp-mode" "Major mode for editing C# mode." t nil)
 
   (push '("\\.cs$" . csharp-mode) auto-mode-alist))
 #+end_src
@@ -2533,7 +2533,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(R-mode R)
-       "ess-site" "Emacs Speaks Statistics mode" nil t)
+       "ess-site" "Emacs Speaks Statistics mode" t)
 
   (push '("\\.[rR]$" . R-mode) auto-mode-alist))
 #+end_src
@@ -2853,7 +2853,7 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found
        '(web-mode)
-       "web-mode" "web-mode" t)
+       "web-mode" "web mode" t)
 
   ;; web-mode で開くファイルの拡張子を指定
   (push '("\\.phtml\\'" . web-mode) auto-mode-alist)
@@ -3489,8 +3489,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(grugru-default grugru)
-       "grugru-default"
-       nil t)
+       "grugru-default" nil t)
 
   (global-set-key (kbd "C-9") #'grugru)
 
