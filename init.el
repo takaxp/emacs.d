@@ -301,7 +301,7 @@ This function is called directly from the C code."
 
 (when (autoload-if-found
        '(web-mode)
-       "web-mode" "web-mode" t)
+       "web-mode" "web mode" t)
 
   ;; web-mode で開くファイルの拡張子を指定
   (push '("\\.phtml\\'" . web-mode) auto-mode-alist)

@@ -944,8 +944,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 (when (autoload-if-found
        '(grugru-default grugru)
-       "grugru-default"
-       nil t)
+       "grugru-default" nil t)
 
   (global-set-key (kbd "C-9") #'grugru)
 
@@ -1492,6 +1491,7 @@ Call this function at updating `mode-line-mode'."
     (setq calendar-holidays
           (append japanese-holidays
                   holiday-local-holidays holiday-other-holidays))
+    (setq calendar-mark-holidays-flag t)
     (setq mark-holidays-in-calendar t)
     (setq japanese-holiday-weekend-marker
           '(holiday nil nil nil nil nil japanese-holiday-saturday))

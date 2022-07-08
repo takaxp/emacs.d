@@ -5030,6 +5030,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 ** [japanese-holidays] カレンダーをカラフルにする
    :PROPERTIES:
    :CUSTOM_ID: orgd6308db6
+   :ID:       6F15F77F-9F8D-4921-9434-28BF014852DA
    :END:
 
 ビルドインの =holidays= と， =japanese-holidays= を使います．土日祝日に色を着けます．土曜日と日曜祝日で異なる配色にできます．
@@ -5043,6 +5044,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
     (setq calendar-holidays
           (append japanese-holidays
                   holiday-local-holidays holiday-other-holidays))
+    (setq calendar-mark-holidays-flag t)
     (setq mark-holidays-in-calendar t)
     (setq japanese-holiday-weekend-marker
           '(holiday nil nil nil nil nil japanese-holiday-saturday))
