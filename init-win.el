@@ -39,12 +39,12 @@
 (when do-profile (profiler-start 'cpu))
 
 (setq initial-scratch-message nil
+      initial-buffer-choice t ;; Starting from *scratch* buffer
       initial-major-mode 'fundamental-mode)
 (setq byte-compile-warnings '(obsolete))
 (setq system-time-locale "C") ;; format-time-string %a, not 日 but Sun
 (setq make-backup-files nil)
 (setq default-directory "~/")
-(setq initial-buffer-choice t) ;; Starting from *scratch* buffer
 (setq truncate-line nil
       truncate-partial-width-windows nil)
 (setq-default tab-width 2)
@@ -61,7 +61,7 @@
   (add-to-list 'load-path default-directory)
   (normal-top-level-add-to-load-path
    '("moom" "swiper" "selected" "expand-region.el" "counsel-osx-app" "dash.el"
-     "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
+     "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv" "session"
      "compat.el" "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
      "emacs-google-this" "smex" "volatile-highlights.el" "hl-todo" "bm" )))
 
@@ -296,6 +296,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (remove-hook 'pre-command-hook #'my-activate-tr-ime))
 (add-hook 'pre-command-hook #'my-activate-tr-ime)
 
+;; session
+(autoload #'session-initialize "session" "session" t)
+(add-hook 'after-init-hook #'session-initialize)
+
 ;; recentf
 (defun my-activate-recentf ()
   (when (require 'recentf nil t)
@@ -451,6 +455,21 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (wrap-function-to-control-ime 'yes-or-no-p nil nil)
   (wrap-function-to-control-ime 'map-y-or-n-p nil nil))
 
+(with-eval-after-load "session"
+  (add-to-list 'session-globals-exclude 'org-mark-ring)
+  (setq session-set-file-name-exclude-regexp
+        "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
+  ;; Change save point of session.el
+  (setq session-save-file (expand-file-name "u:/emacs.d/.session"))
+  (setq session-initialize '(de-saveplace session keys menus places)
+        session-globals-include '((kill-ring 100)
+                                  (session-file-alist 100 t)
+                                  (file-name-history 200)
+                                  ivy-dired-history-variable
+                                  search-ring
+                                  regexp-search-ring))
+  (setq session-undo-check -1))
+
 (with-eval-after-load "recentf"
   (custom-set-variables
    '(recentf-max-saved-items 2000)
@@ -470,9 +489,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (let ((message-log-max nil))
       (recentf-cleanup))
     (message ""))
+  ;; (run-with-idle-timer 180 t #'my-recentf-cleanup-silence)
   (add-function :before
-                after-focus-change-function #'my-recentf-save-list-silence)
-  (run-with-idle-timer 180 t #'my-recentf-cleanup-silence))
+                after-focus-change-function #'my-recentf-save-list-silence))
 
 (with-eval-after-load "ivy"
   (require 'swiper)
