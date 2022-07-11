@@ -60,10 +60,12 @@
 (let ((default-directory (expand-file-name "~/.emacs.d/lisp")))
   (add-to-list 'load-path default-directory)
   (normal-top-level-add-to-load-path
-   '("moom" "swiper" "selected" "expand-region.el" "counsel-osx-app" "dash.el"
-     "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv" "session"
-     "compat.el" "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
-     "emacs-google-this" "smex" "volatile-highlights.el" "hl-todo" "bm" )))
+   '("dash.el" "compat.el" "smex"
+     "moom" "swiper" "selected" "expand-region.el" "counsel-osx-app"
+     "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
+     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
+     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
+     "replace-from-region" "session")))
 
 ;; Setting Home directory if needed.
 ;; (setenv "HOME" "C:/Users/******/AppData/Roaming")
