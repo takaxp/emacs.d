@@ -179,18 +179,18 @@
     (interactive)
     (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (if (version< emacs-version "27.0")
+  (if (version< emacs-version "27.0") ;; FIXME 
       (progn
         (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
         (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns))
     (define-key isearch-mode-map (kbd "M-SPC") 'mac-ime-toggle)
     (define-key isearch-mode-map (kbd "S-SPC") 'mac-ime-toggle))
 
-  (if (version< emacs-version "27.0")
+  (if (version< emacs-version "27.0") ;; FIXME 
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
         (when (and (fboundp 'frame-focus-state)
-		   (frame-focus-state)
+		               (frame-focus-state)
                    (eq major-mode 'org-mode)
                    (boundp 'org-agenda-buffer-name)
                    (or (looking-at org-heading-regexp)
@@ -200,7 +200,7 @@
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
       (when (and (fboundp 'frame-focus-state)
-		 (frame-focus-state)
+		             (frame-focus-state)
                  (eq major-mode 'org-mode)
                  (boundp 'org-agenda-buffer-name)
                  (or (looking-at org-heading-regexp)
@@ -239,13 +239,13 @@
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
     (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)
 
-  (custom-set-faces
-   '(ns-marked-text-face
-     ((t (:foreground "black"
-                      :background "light pink" :underline "OrangeRed2"))))
-   '(ns-unmarked-text-face
-     ((t (:foreground "black"
-                      :background "light sky blue" :underline "royal blue"))))))
+    (custom-set-faces
+     '(ns-marked-text-face
+       ((t (:foreground "black"
+                        :background "light pink" :underline "OrangeRed2"))))
+     '(ns-unmarked-text-face
+       ((t (:foreground "black"
+                        :background "light sky blue" :underline "royal blue"))))))
 
   (defun my-ns-ime-restore ()
     "Restore the last IME status changed in Emacs."
@@ -607,12 +607,13 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;;;###autoload
 (defun my-auto-view ()
   "Open a file with `view-mode'."
-  (when (and my-auto-view-regexp
-	           (string-match my-auto-view-regexp buffer-file-name))
-    (view-mode 1))
-  (dolist (dir my-auto-view-dirs)
-    (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
-      (view-mode 1))))
+  (when (file-exists-p buffer-file-name)
+    (when (and my-auto-view-regexp
+	             (string-match my-auto-view-regexp buffer-file-name))
+      (view-mode 1))
+    (dolist (dir my-auto-view-dirs)
+      (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+        (view-mode 1)))))
 (add-hook 'find-file-hook #'my-auto-view)
 
 ;;;###autoload
@@ -967,7 +968,7 @@ This works also for other defined begin/end tokens to define the structure."
  "replace-from-region" nil t)
 
 (when (autoload-if-found
-       '(selected-global-mode my-helpful)
+       '(selected-global-mode)
        "selected" nil t)
 
   (defun my-activate-selected ()
@@ -985,7 +986,6 @@ This works also for other defined begin/end tokens to define the structure."
     ;; (define-key selected-keymap (kbd "=") #'count-words-region)
     (when (require 'helpful nil t)
       (define-key selected-keymap (kbd "h") #'helpful-at-point)
-      ;; (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
       (define-key selected-keymap (kbd "v") #'my-helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "d") #'osx-dictionary-search-pointer)
@@ -995,20 +995,6 @@ This works also for other defined begin/end tokens to define the structure."
     (define-key selected-keymap (kbd "q") #'selected-off)
     (define-key selected-keymap (kbd "x") #'my-hex-to-decimal)
     (define-key selected-keymap (kbd "X") #'my-decimal-to-hex)
-
-    (defun my-helpful ()
-      (interactive)
-      (let ((thing (symbol-at-point)))
-        (cond ((functionp thing)
-               (helpful-function thing))
-              ((helpful--variable-p thing)
-               (helpful-variable thing))
-              ((macrop thing)
-               (helpful-macro thing))
-              ((symbolp thing)
-               (helpful-symbol thing))
-              (t
-               (call-interactively 'helpful-function)))))
 
     (defun my-helpful-variable ()
       (interactive)

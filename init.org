@@ -3545,7 +3545,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(selected-global-mode my-helpful)
+       '(selected-global-mode)
        "selected" nil t)
 
   (defun my-activate-selected ()
@@ -3563,7 +3563,6 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     ;; (define-key selected-keymap (kbd "=") #'count-words-region)
     (when (require 'helpful nil t)
       (define-key selected-keymap (kbd "h") #'helpful-at-point)
-      ;; (define-key selected-keymap (kbd "f") #'my-helpful) ;; will be deleted
       (define-key selected-keymap (kbd "v") #'my-helpful-variable))
     (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
     (define-key selected-keymap (kbd "d") #'osx-dictionary-search-pointer)
@@ -3573,20 +3572,6 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (define-key selected-keymap (kbd "q") #'selected-off)
     (define-key selected-keymap (kbd "x") #'my-hex-to-decimal)
     (define-key selected-keymap (kbd "X") #'my-decimal-to-hex)
-
-    (defun my-helpful ()
-      (interactive)
-      (let ((thing (symbol-at-point)))
-        (cond ((functionp thing)
-               (helpful-function thing))
-              ((helpful--variable-p thing)
-               (helpful-variable thing))
-              ((macrop thing)
-               (helpful-macro thing))
-              ((symbolp thing)
-               (helpful-symbol thing))
-              (t
-               (call-interactively 'helpful-function)))))
 
     (defun my-helpful-variable ()
       (interactive)
@@ -11942,6 +11927,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
        "moom" nil t)
 
   (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
+  (global-set-key (kbd "C-!") 'moom-move-frame-to-edge-bottom)
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-9") 'moom-cycle-monitors)

@@ -291,9 +291,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (unless (file-exists-p my-loaddefs-file)
       (with-temp-buffer
         (write-file my-loaddefs-file)))
-    (mapc (lambda (dir)
+    (mapc (lambda (package)
             (make-directory-autoloads
-             (concat my-installed-packages-dir dir) my-loaddefs-file))
+             (concat my-installed-packages-dir package) my-loaddefs-file))
           my-installed-packages)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

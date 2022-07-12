@@ -650,6 +650,7 @@ This function is called directly from the C code."
        "moom" nil t)
 
   (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
+  (global-set-key (kbd "C-!") 'moom-move-frame-to-edge-bottom)
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-9") 'moom-cycle-monitors)
