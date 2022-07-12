@@ -2,7 +2,6 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-
 ;; https://github.com/qaiviq/echo-bar.el/blob/master/echo-bar.el
 ;; https://codeberg.org/akib/emacs-why-this
 

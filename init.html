@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-11 Mon 13:42 -->
+<!-- 2022-07-12 Tue 09:35 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -381,7 +381,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org7f0e147">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#org5664d53">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -394,7 +394,7 @@
 <li><a href="#orgdd0a9c41">6.10. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.11. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.12. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#orgdb5bdd1">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#org11710c5">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.14. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.15. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.16. カーソル行の関数名をモードラインに表示する</a></li>
@@ -433,7 +433,7 @@
 <li><a href="#org5eaeb687">6.45. <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</a></li>
 <li><a href="#org7270262d">6.46. <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</a></li>
 <li><a href="#org8ba0784e">6.47. <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</a></li>
-<li><a href="#org1c3d3b4">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
+<li><a href="#org9cc351a">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
 <li><a href="#org1e701627">6.49. <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#org56d8bf9d">6.50. <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgc00267d7">6.51. <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
@@ -2407,18 +2407,18 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (<span style="color: #a020f0;">interactive</span>)
     (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
+  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME </span>
       (<span style="color: #a020f0;">progn</span>
         (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
         (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns))
     (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'mac-ime-toggle)
     (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-ime-toggle))
 
-  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
+  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME </span>
       (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
         <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
         (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (fboundp 'frame-focus-state)
-                   (frame-focus-state)
+                               (frame-focus-state)
                    (eq major-mode 'org-mode)
                    (boundp 'org-agenda-buffer-name)
                    (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
@@ -2428,7 +2428,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
       <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
       (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (fboundp 'frame-focus-state)
-                 (frame-focus-state)
+                             (frame-focus-state)
                  (eq major-mode 'org-mode)
                  (boundp 'org-agenda-buffer-name)
                  (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
@@ -2467,13 +2467,13 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
     (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)
 
-  (custom-set-faces
-   '(ns-marked-text-face
-     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
-                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light pink"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"OrangeRed2"</span>))))
-   '(ns-unmarked-text-face
-     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
-                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light sky blue"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"royal blue"</span>))))))
+    (custom-set-faces
+     '(ns-marked-text-face
+       ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
+                        <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light pink"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"OrangeRed2"</span>))))
+     '(ns-unmarked-text-face
+       ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
+                        <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light sky blue"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"royal blue"</span>))))))
 
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-ime-restore</span> ()
     <span style="color: #8b2252;">"Restore the last IME status changed in Emacs."</span>
@@ -3879,12 +3879,13 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-auto-view</span> ()
   <span style="color: #8b2252;">"Open a file with `</span><span style="color: #008b8b;">view-mode</span><span style="color: #8b2252;">'."</span>
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> my-auto-view-regexp
-                   (string-match my-auto-view-regexp buffer-file-name))
-    (view-mode 1))
-  (<span style="color: #a020f0;">dolist</span> (dir my-auto-view-dirs)
-    (<span style="color: #a020f0;">when</span> (eq 0 (string-match (expand-file-name dir) buffer-file-name))
-      (view-mode 1))))
+  (<span style="color: #a020f0;">when</span> (file-exists-p buffer-file-name)
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> my-auto-view-regexp
+                     (string-match my-auto-view-regexp buffer-file-name))
+      (view-mode 1))
+    (<span style="color: #a020f0;">dolist</span> (dir my-auto-view-dirs)
+      (<span style="color: #a020f0;">when</span> (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+        (view-mode 1)))))
 (add-hook 'find-file-hook #'my-auto-view)
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -5431,8 +5432,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org7f0e147" class="outline-3">
-<h3 id="org7f0e147"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-org5664d53" class="outline-3">
+<h3 id="org5664d53"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5818,8 +5819,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-orgdb5bdd1" class="outline-3">
-<h3 id="orgdb5bdd1"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-org11710c5" class="outline-3">
+<h3 id="org11710c5"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-13">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -7263,8 +7264,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 </div>
 
-<div id="outline-container-org1c3d3b4" class="outline-3">
-<h3 id="org1c3d3b4"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
+<div id="outline-container-org9cc351a" class="outline-3">
+<h3 id="org9cc351a"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
 <div class="outline-text-3" id="text-6-48">
 <p>
 <code>autoload-if-found</code> を使ういつもの設定では正しく動作しないので， <code>eval-when-compile</code> を使用して require しています．
@@ -11435,13 +11436,13 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;org buffer &#12434;&#35370;&#21839;&#12375;&#12390;&#65292;10&#31186;&#24453;&#12388;&#12392;&#65292;org-agenda &#12364;&#26377;&#21177;&#12395;&#12394;&#12427;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#30452;&#25509; org-agenda &#12434;&#21481;&#12367;&#22580;&#21512;&#12399;&#37325;&#12356;&#12414;&#12414;&#65288;&#12479;&#12452;&#12510;&#12540;&#36208;&#12387;&#12390;&#12418;&#12473;&#12523;&#12540;&#65289;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12428;&#12434; (with-eval-after-load "org") &#12398;&#20013;&#12395;&#32622;&#12367;&#12392;&#25391;&#12427;&#33310;&#12356;&#12364;&#22793;(2&#22238;&#23455;&#34892;)&#12395;&#12394;&#12427;</span>
-(run-with-idle-timer 10 nil
-                     (<span style="color: #a020f0;">lambda</span> ()
-                       (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-agenda</span>)
-                         (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-agenda</span> nil t)
-                           (message <span style="color: #8b2252;">"Building agenda buffers..."</span>)
-                           (org-agenda-prepare-buffers org-agenda-files)
-                           (message <span style="color: #8b2252;">"Building agenda buffers...done"</span>)))))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-prepare-buffers</span> ()
+  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-agenda</span>)
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-agenda</span> nil t)
+      (message <span style="color: #8b2252;">"Building agenda buffers..."</span>)
+      (org-agenda-prepare-buffers org-agenda-files)
+      (message <span style="color: #8b2252;">"Building agenda buffers...done"</span>))))
+(run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers)
 </pre>
 </div>
 
@@ -12467,7 +12468,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org3056e2b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org648c6db"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13343,7 +13344,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org565c0a5" class="figure">
+<div id="org496c021" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16242,7 +16243,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-11 Mon 13:42</p>
+<p class="date">Created: 2022-07-12 Tue 09:35</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -111,6 +111,7 @@
   (global-set-key (kbd "C-t") 'scroll-down)
   (global-set-key (kbd "M-=") 'count-words)
   (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+  (global-set-key (kbd "C-c a") 'org-agenda)
 
   (setq scroll-conservatively 1000)
   (setq scroll-step 1)
@@ -240,7 +241,7 @@
     (shell-command-to-string "open ."))
   (defun my-open-hoge ()
     (interactive)
-    (find-file "u://org/remote.org"))
+    (find-file "u://org/next.org"))
   (defun my-open-scratch ()
     "Switch the current buffer to \*scratch\* buffer."
     (interactive)
@@ -432,6 +433,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (global-set-key (kbd "C-/") 'undo-fu-only-undo)
 (global-set-key (kbd "C-M-/") 'undo-fu-only-redo)
 
+;; view
+(autoload #'my-auto-view "view" "view mode" t)
+(add-hook 'find-file-hook #'my-auto-view)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
@@ -1024,6 +1028,70 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       ("I" "insert" my-org-insert-bullet-and-checkbox)
       ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
 
+;; view
+(with-eval-after-load "view"
+
+  ;; 特定の拡張子・ディレクトリ
+  (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
+
+  ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
+  (defvar my-auto-view-dirs nil)
+  (add-to-list 'my-auto-view-dirs (expand-file-name "~/.emacs.d/lisp/"))
+
+  (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
+  (define-key view-mode-map (kbd "<SPC>") 'ignore)
+  (define-key view-mode-map (kbd "<DEL>") 'ignore)
+  (define-key view-mode-map (kbd "S-SPC") 'mac-ime-toggle)
+  (define-key view-mode-map (kbd "f") 'forward-char)
+  (define-key view-mode-map (kbd "b") 'backward-char)
+  (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
+  (define-key view-mode-map (kbd "p") 'my-org-view-previous-heading)
+  (define-key view-mode-map (kbd "g") #'my-google-this)
+  (define-key view-mode-map (kbd "<tab>") 'my-view-tab)
+  (define-key view-mode-map (kbd "S-<tab>") 'my-view-shifttab)
+
+  (defun my-auto-view ()
+    "Open a file with `view-mode'."
+    (when (file-exists-p buffer-file-name)
+      (when (and my-auto-view-regexp
+	               (string-match my-auto-view-regexp buffer-file-name))
+        (view-mode 1))
+      (dolist (dir my-auto-view-dirs)
+        (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+          (view-mode 1)))))
+
+  (defun my-org-view-next-heading ()
+    (interactive)
+    (if (and (derived-mode-p 'org-mode)
+             (org-at-heading-p))
+        (org-next-visible-heading 1)
+      (next-line)))
+
+  (defun my-org-view-previous-heading ()
+    (interactive)
+    (if (and (derived-mode-p 'org-mode)
+             (org-at-heading-p))
+        (org-previous-visible-heading 1)
+      (previous-line)))
+
+  (defun my-view-tab ()
+    (interactive)
+    (if (and (derived-mode-p 'org-mode)
+             (or (org-at-heading-p)
+                 (org-at-property-drawer-p)))
+        (let ((view-mode nil))
+          (org-cycle))))
+
+  (defun my-view-shifttab ()
+    (interactive)
+    (if (derived-mode-p 'org-mode)
+        (let ((view-mode nil))
+          (org-shifttab))))
+
+  (defun my-unlock-view-mode ()
+    (when view-mode
+      (View-exit-and-edit))))
+
 ;; org mode
 (with-eval-after-load "org"
   (add-hook 'org-mode-hook #'turn-on-font-lock)
@@ -1203,16 +1271,17 @@ will not be modified."
        (R . t)
        (python . t))))
 
-  (require 'org-agenda nil t)
-  (defun my-ns-org-heading-auto-ascii ()
+  (defun my-org-heading-auto-ascii ()
     "IME off, when the cursor on org headings."
-    (when (and (frame-focus-state)
+    (when (and (fboundp 'frame-focus-state)
+		           (frame-focus-state)
                (eq major-mode 'org-mode)
+               (boundp 'org-agenda-buffer-name)
                (or (looking-at org-heading-regexp)
                    (equal (buffer-name) org-agenda-buffer-name))
                (my-ime-active-p))
       (my-ime-off)))
-  (run-with-idle-timer 0.4 t #'my-ns-org-heading-auto-ascii)
+  (run-with-idle-timer 0.4 t #'my-org-heading-auto-ascii)
 
   (defun my-insert-empty-pgp-tree ()
     (interactive)
@@ -1392,6 +1461,102 @@ will not be modified."
    '(org-block-end-line
      ((((background dark)) (:foreground "#CC3333" :weight bold))
       (t (:foreground "#669966" :weight bold))))))
+
+(with-eval-after-load "org"
+  (defun my-org-agenda-prepare-buffers ()
+    (unless (featurep 'org-agenda)
+      (when (require 'org-agenda nil t)
+        (message "Building agenda buffers...")
+        (org-agenda-prepare-buffers org-agenda-files)
+        (message "Building agenda buffers...done"))))
+  (run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers))
+
+(with-eval-after-load "org-agenda"
+  ;; sorting strategy
+  (setq org-agenda-sorting-strategy
+        '((agenda habit-down time-up timestamp-up priority-down category-keep)
+          (todo priority-down category-keep)
+          (tags priority-down category-keep)
+          (search category-keep)))
+
+  ;; Set the view span as day in an agenda view, the default is week
+  (setq org-agenda-span 'day)
+
+  ;; アジェンダに警告を表示する期間
+  (setq org-deadline-warning-days 0)
+
+  ;; 時間幅が明示的に指定されない場合のデフォルト値（分指定）
+  (setq org-agenda-default-appointment-duration 60)
+
+  ;; アジェンダビューでFOLLOWを設定（自動的に別バッファに当該タスクを表示）
+  (setq org-agenda-start-with-follow-mode t)
+
+  ;; Customized Time Grid
+  (setq org-agenda-time-grid ;; Format is changed from 9.1
+        '((daily today require-timed)
+          (0800 1000 1200 1400 1600 1800 2000 2200 2400)
+          "......"
+          "------------------------"
+          ))
+
+  ;; (setq org-agenda-current-time-string "<  d('- ' ｲﾏｺｺ)")
+  (setq org-agenda-current-time-string "<<< ｲﾏｺｺ")
+  (setq org-agenda-timegrid-use-ampm t)
+
+  ;; org-agenda 表示の水平方向の冗長さを削減
+  (setq org-agenda-prefix-format
+        '((agenda  . "%-9c| %?-12t% s")
+          (todo  . " %i %-12:c")
+          (tags  . " %i %-12:c")
+          (search . " %i %-12:c")))
+  (setq org-agenda-remove-tags t)
+  (setq org-agenda-scheduled-leaders '("[S]" "S.%2dx:\t"))
+  (setq org-agenda-deadline-leaders '("[D]" "In %3d d.:\t" "%2d d. ago:\t"))
+
+
+  (with-eval-after-load "moom"
+    (defvar my-org-tags-column org-tags-column)
+    ;; Expand the frame width temporarily during org-agenda is activated.
+    (defun my-agenda-frame-width ()
+      (let ((width (floor (* 1.2 moom-frame-width-single))))
+        (setq org-tags-column (- org-tags-column (- width 80)))
+        ;; (org-align-tags t)
+        (moom-change-frame-width width)))
+    ;; (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
+
+    (defun ad:org-agenda--quit (&optional _bury)
+      (setq org-tags-column my-org-tags-column)
+      ;; (org-align-tags t)
+      (moom-change-frame-width))
+    ;; (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit)
+    )
+
+  ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
+  (org-defkey org-agenda-mode-map [(tab)]
+              (lambda () (interactive)
+                (org-agenda-goto)
+                (with-current-buffer "*Org Agenda*"
+                  (org-agenda-quit))))
+
+  (custom-set-faces
+   ;; '(org-agenda-clocking ((t (:background "#300020"))))
+   '(org-agenda-structure ((t (:underline t :foreground "#6873ff"))))
+   '(org-agenda-date-today ((t (:weight bold :foreground "#4a6aff"))))
+   '(org-agenda-date ((t (:weight bold :foreground "#6ac214"))))
+   '(org-agenda-date-weekend ((t (:weight bold :foreground "#ff8d1e"))))
+   '(org-time-grid ((t (:foreground "#0a4796"))))
+   '(org-warning ((t (:foreground "#ff431a"))))
+   '(org-upcoming-deadline ((t (:inherit font-lock-keyword-face))))
+   )
+
+  ;; org-agenda でも "d" 押下で "DONE" にする
+  (defun my-org-agenda-done ()
+    (interactive)
+    (org-agenda-todo "DONE")) ;; call with async
+  (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done)
+
+  ;; org-agenda の表示高さを 50% に固定する
+  (setq org-agenda-window-frame-fractions '(0.5 . 0.5)))
 
 (with-eval-after-load "org-tempo"
   ;; 空行のとき "<" をインデントさせない

@@ -1522,18 +1522,18 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (interactive)
     (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (if (version< emacs-version "27.0")
+  (if (version< emacs-version "27.0") ;; FIXME 
       (progn
         (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
         (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns))
     (define-key isearch-mode-map (kbd "M-SPC") 'mac-ime-toggle)
     (define-key isearch-mode-map (kbd "S-SPC") 'mac-ime-toggle))
 
-  (if (version< emacs-version "27.0")
+  (if (version< emacs-version "27.0") ;; FIXME 
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
         (when (and (fboundp 'frame-focus-state)
-		   (frame-focus-state)
+		               (frame-focus-state)
                    (eq major-mode 'org-mode)
                    (boundp 'org-agenda-buffer-name)
                    (or (looking-at org-heading-regexp)
@@ -1543,7 +1543,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (defun my-ns-org-heading-auto-ascii ()
       "IME off, when the cursor on org headings."
       (when (and (fboundp 'frame-focus-state)
-		 (frame-focus-state)
+		             (frame-focus-state)
                  (eq major-mode 'org-mode)
                  (boundp 'org-agenda-buffer-name)
                  (or (looking-at org-heading-regexp)
@@ -1582,13 +1582,13 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
     (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)
 
-  (custom-set-faces
-   '(ns-marked-text-face
-     ((t (:foreground "black"
-                      :background "light pink" :underline "OrangeRed2"))))
-   '(ns-unmarked-text-face
-     ((t (:foreground "black"
-                      :background "light sky blue" :underline "royal blue"))))))
+    (custom-set-faces
+     '(ns-marked-text-face
+       ((t (:foreground "black"
+                        :background "light pink" :underline "OrangeRed2"))))
+     '(ns-unmarked-text-face
+       ((t (:foreground "black"
+                        :background "light sky blue" :underline "royal blue"))))))
 
   (defun my-ns-ime-restore ()
     "Restore the last IME status changed in Emacs."
@@ -2775,12 +2775,13 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 ;;;###autoload
 (defun my-auto-view ()
   "Open a file with `view-mode'."
-  (when (and my-auto-view-regexp
-	           (string-match my-auto-view-regexp buffer-file-name))
-    (view-mode 1))
-  (dolist (dir my-auto-view-dirs)
-    (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
-      (view-mode 1))))
+  (when (file-exists-p buffer-file-name)
+    (when (and my-auto-view-regexp
+	             (string-match my-auto-view-regexp buffer-file-name))
+      (view-mode 1))
+    (dolist (dir my-auto-view-dirs)
+      (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+        (view-mode 1)))))
 (add-hook 'find-file-hook #'my-auto-view)
 
 ;;;###autoload
@@ -9616,13 +9617,13 @@ will not be modified."
 ;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
-(run-with-idle-timer 10 nil
-                     (lambda ()
-                       (unless (featurep 'org-agenda)
-                         (when (require 'org-agenda nil t)
-                           (message "Building agenda buffers...")
-                           (org-agenda-prepare-buffers org-agenda-files)
-                           (message "Building agenda buffers...done")))))
+(defun my-org-agenda-prepare-buffers ()
+  (unless (featurep 'org-agenda)
+    (when (require 'org-agenda nil t)
+      (message "Building agenda buffers...")
+      (org-agenda-prepare-buffers org-agenda-files)
+      (message "Building agenda buffers...done"))))
+(run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers)
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
