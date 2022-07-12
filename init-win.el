@@ -7,8 +7,7 @@
 ;; Note: all local and private settings should be configured in the .emacs.
 ;; runemacs.exe is extracted from a distributed zip package from
 ;;             https://ftp.jaist.ac.jp/pub/GNU/emacs/windows/
-;;                                                    Last update: 2022-07-08
-(setq debug-on-error nil)
+;;                                                    Last update: 2022-07-12
 (when nil
   ;; advice of load function
   (defadvice load (around require-benchmark activate)
@@ -19,7 +18,6 @@
                     (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
            (arg (ad-get-arg 0)))
       (message "--- %04d [ms]: (loading) %s" time arg)))
-
   ;; advice of require function
   (defadvice require (around require-benchmark activate)
     "http://memo.sugyan.com/entry/20120105/1325756767"
@@ -38,6 +36,8 @@
 (defvar do-profile nil) ;; M-x profiler-report
 (when do-profile (profiler-start 'cpu))
 
+(setq debug-on-error nil)
+(setq inhibit-default-init t)
 (setq initial-scratch-message nil
       initial-buffer-choice t ;; Starting from *scratch* buffer
       initial-major-mode 'fundamental-mode)
@@ -59,6 +59,7 @@
 ;; smartparens requires dash.el.
 (let ((default-directory (expand-file-name "~/.emacs.d/lisp")))
   (add-to-list 'load-path default-directory)
+  ;; (normal-top-level-add-subdirs-to-load-path) ;; Slower than add-to-load
   (normal-top-level-add-to-load-path
    '("dash.el" "compat.el" "smex"
      "moom" "swiper" "selected" "expand-region.el" "counsel-osx-app"
@@ -363,7 +364,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (autoload #'highlight-symbol-mode "highlight-symbol" "highlight-symbol" t)
 
 ;; volatile-highlights
-(autoload #'volatile-highlights-mode "volatile-highlights" "volatile-highlights" t)
+(autoload #'volatile-highlights-mode "volatile-highlights" "VHl" t)
 
 ;; Postpone: hl-todo.el, highlight-symbol.el, and volatile-highlights.el
 (defun my-activate-highlights ()
@@ -402,9 +403,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (autoload #'my-google-this "google-this" "google-this" t)
 
 ;; Tree Sitter
-(let* ((elp (expand-file-name
-             ;; (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")
-             (concat "~/.emacs.d/lisp/")))
+(let* ((elp (expand-file-name (concat "~/.emacs.d/lisp/")))
        (ets (concat elp "emacs-tree-sitter/"))
        (tsl (concat elp "tree-sitter-langs/")))
   ;; (add-to-list 'load-path (concat ets "langs"))
@@ -423,8 +422,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (add-hook hook #'my-enable-tree-sitter))
 
 ;; replace-from-region
-(autoload #'query-replace-from-region
-  "replace-from-region" "replace-from-region" t)
+(autoload #'query-replace-from-region "replace-from-region" nil t)
 (global-set-key (kbd "M-%") 'query-replace-from-region)
 
 ;; Undo-fu
@@ -546,11 +544,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
 
 (with-eval-after-load "counsel-osx-app"
-  ;; under experimental implementation
   (defun counsel-win-app-list ()
     ;; NOTE MSYS の場合は，第2引数はフルパスではなく実行ファイル名のみ．
-    '(("Emacs" . "C:/Users/takaxp/share/emacs-27.1-x86_64/bin/runemacs.exe")
-      ("Mintty" . "C:/cygwin64/bin/mintty.exe")
+    '(("Mintty" . "C:/cygwin64/bin/mintty.exe")
       ("Edge" . "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe")
       ("Notepad". "C:/WINDOWS/system32/notepad.exe")
       ("Task manager". "C:/WINDOWS/system32/taskmgr.exe")
@@ -560,8 +556,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       ("Word" . "C:/Program Files (x86)/Microsoft Office/Office16/winword.exe")
       ("Excel" . "C:/Program Files (x86)/Microsoft Office/Office16/excel.exe")
       ("PowerPoint" . "C:/Program Files (x86)/Microsoft Office/Office16/powerpnt.exe")
-      ("Outlook" . "C:/Program Files (x86)/Microsoft Office/Office16/outlook.exe")
-      ("Visio" . "C:/Program Files (x86)/Microsoft Office/Office16/visio.exe")))
+      ("Outlook" . "C:/Program Files (x86)/Microsoft Office/Office16/outlook.exe")))
 
   (defvar counsel-win-app-launch-cmd
     (lambda (app &optional file)
@@ -1028,12 +1023,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       ("I" "insert" my-org-insert-bullet-and-checkbox)
       ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
 
-;; view
 (with-eval-after-load "view"
-
   ;; 特定の拡張子・ディレクトリ
   (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
-
   ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
   (defvar my-auto-view-dirs nil)
   (add-to-list 'my-auto-view-dirs (expand-file-name "~/.emacs.d/lisp/"))
@@ -1378,18 +1370,6 @@ will not be modified."
     (add-to-list 'org-modules 'org-tempo)))
 
 (with-eval-after-load "org"
-  (defun my-echo-org-link ()
-    (when (org-in-regexp org-link-bracket-re 1)
-      (let ((link "Link:")
-            (msg (org-link-unescape (match-string-no-properties 1))))
-        (put-text-property 0 (length link) 'face 'minibuffer-prompt link)
-        (eldoc-message (format "%s %s" link msg)))))
-
-  (defun my-load-echo-org-link ()
-    (add-function :before-until (local 'eldoc-documentation-function)
-                  #'my-echo-org-link)))
-
-(with-eval-after-load "org"
   (setq org-todo-keyword-faces
         '(("FOCUS"    :foreground "#FF0000" :background "#FFCC66")
           ("BUG"      :foreground "#FF0000" :background "#FFCC66")
@@ -1512,7 +1492,6 @@ will not be modified."
   (setq org-agenda-remove-tags t)
   (setq org-agenda-scheduled-leaders '("[S]" "S.%2dx:\t"))
   (setq org-agenda-deadline-leaders '("[D]" "In %3d d.:\t" "%2d d. ago:\t"))
-
 
   (with-eval-after-load "moom"
     (defvar my-org-tags-column org-tags-column)
