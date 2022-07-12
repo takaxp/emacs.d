@@ -57,16 +57,18 @@
 
 ;; AppData\Roaming\.emacs.d\lisp 以下に各追加パッケージを配置すること
 ;; smartparens requires dash.el.
-(let ((default-directory (expand-file-name "~/.emacs.d/lisp")))
+(defvar my-installed-packages
+  '("dash.el" "compat.el" "smex"
+    "moom" "swiper" "selected" "expand-region.el" "counsel-osx-app"
+    "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
+    "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
+    "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
+    "replace-from-region" "session"))
+(defvar my-installed-packages-dir "~/.emacs.d/lisp/")
+(let ((default-directory (expand-file-name my-installed-packages-dir)))
   (add-to-list 'load-path default-directory)
   ;; (normal-top-level-add-subdirs-to-load-path) ;; Slower than add-to-load
-  (normal-top-level-add-to-load-path
-   '("dash.el" "compat.el" "smex"
-     "moom" "swiper" "selected" "expand-region.el" "counsel-osx-app"
-     "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
-     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
-     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
-     "replace-from-region" "session")))
+  (normal-top-level-add-to-load-path my-installed-packages))
 
 ;; Setting Home directory if needed.
 ;; (setenv "HOME" "C:/Users/******/AppData/Roaming")
@@ -279,7 +281,20 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                             (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
                    -1 arg)
              allow-extend))
-  (advice-add 'mark-sexp :around #'ad:mark-sexp))
+  (advice-add 'mark-sexp :around #'ad:mark-sexp)
+
+  (defvar my-loaddefs-file (concat my-installed-packages-dir "loaddefs.el"))
+  ;; (when (file-exists-p my-loaddefs-file)
+  ;;   (load my-loaddefs-file)) ;; requires over 40[ms] for about 20 packages
+  (defun my-update-autoloads ()
+    (interactive)
+    (unless (file-exists-p my-loaddefs-file)
+      (with-temp-buffer
+        (write-file my-loaddefs-file)))
+    (mapc (lambda (dir)
+            (make-directory-autoloads
+             (concat my-installed-packages-dir dir) my-loaddefs-file))
+          my-installed-packages)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part A: Scheduling of package loading
@@ -403,7 +418,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (autoload #'my-google-this "google-this" "google-this" t)
 
 ;; Tree Sitter
-(let* ((elp (expand-file-name (concat "~/.emacs.d/lisp/")))
+(let* ((elp (expand-file-name my-installed-packages-dir))
        (ets (concat elp "emacs-tree-sitter/"))
        (tsl (concat elp "tree-sitter-langs/")))
   ;; (add-to-list 'load-path (concat ets "langs"))
@@ -464,7 +479,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (setq session-set-file-name-exclude-regexp
         "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
   ;; Change save point of session.el
-  (setq session-save-file (expand-file-name "u:/emacs.d/.session"))
+  (setq session-save-file (expand-file-name "u:/.emacs.d/.session"))
   (setq session-initialize '(de-saveplace session keys menus places)
         session-globals-include '((kill-ring 100)
                                   (session-file-alist 100 t)
@@ -753,7 +768,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   ;; (setq bm-toggle-buffer-persistence t)
   (setq bm-buffer-persistence t)
   (setq bm-persistent-face 'bm-face)
-  (setq bm-repository-file (expand-file-name "u:/emacs.d/.bm-repository"))
+  (setq bm-repository-file (expand-file-name "u:/.emacs.d/.bm-repository"))
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
   (setq bookmark-fontify nil)
   ;; ビルトイン bookmark がfringeに出すマークを無効にする(as of 28.1)
@@ -1028,7 +1043,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
   ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
   (defvar my-auto-view-dirs nil)
-  (add-to-list 'my-auto-view-dirs (expand-file-name "~/.emacs.d/lisp/"))
+  (add-to-list 'my-auto-view-dirs (expand-file-name my-installed-packages-dir))
 
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
