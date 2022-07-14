@@ -2208,9 +2208,12 @@ sorted.  FUNCTION must be a function of one argument."
     (cond ((memq major-mode '(undo-tree-visualizer-mode diff-mode)) nil)
           ((string-match "Org Src" (buffer-name)) nil)
           ((let ((pt (point)))
-             (and (string-match ".gpg" (buffer-name))
-                  (not (eq pt 1))
-                  (string-match (buffer-substring (- pt 1) pt) " "))) nil) ;; .gpg で半角スペースの後ろのブリッツでは自動保存しない．FIXME 半角スペース+行末
+             ;; .gpg で半角スペースの後ろのブリッツでは自動保存しない．FIXME 半角スペース
+             (when (and (string-match ".gpg" (buffer-name))
+                        (not (eq pt 1))
+                        (not (eq pt (point-min))))
+               (string-match (buffer-substring (- pt 1) pt) " ")))
+           nil)
           ((my-ox-hugo-auto-saving-p) nil)
           (t
            (auto-save-buffers))))
