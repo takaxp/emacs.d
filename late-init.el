@@ -2368,20 +2368,6 @@ sorted.  FUNCTION must be a function of one argument."
 
 (autoload-if-found '(gist-mode) "gist" nil t)
 
-(when (autoload-if-found
-       '(doxymacs-mode)
-       "doxymacs" nil t)
-
-  (add-hook 'c-mode-common-hook #'doxymacs-mode)
-
-  (with-eval-after-load "doxymacs"
-    (setq doxymacs-doxygen-style "JavaDoc")
-    (add-hook 'font-lock-mode-hook
-              (lambda ()
-                  (when (memq major-mode '(c-mode c++-mode))
-                    (doxymacs-font-lock))))
-    (define-key doxymacs-mode-map (kbd "C-c C-s") 'ff-find-other-file)))
-
 (eval-when-compile
   (require 'dash nil t))
 
@@ -2665,6 +2651,8 @@ sorted.  FUNCTION must be a function of one argument."
     ;; 補完候補が表示されたタイミングで入力を続けたら，補完候補を消す．
     (add-hook 'mac-ime-before-put-text-hook #'company-cancel))
   )
+
+(autoload-if-found '(vterm) "vterm"  nil t)
 
 ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
 (defvar ns-default-notification-sound "Pop")

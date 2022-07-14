@@ -218,8 +218,13 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 起動時に発生するガベージコレクトを防きます．起動後に使用しているメモリサイズを超えていれば良さ気． =garbage-collection-messages= を設定しておくと，ガベージコレクトが生じる時にメッセージが出るようになります．
 
 #+begin_src emacs-lisp :tangle yes
-(setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
+(setq gc-cons-threshold (* 32 1024 1024)) ;; 128MB
 (setq garbage-collection-messages t)
+(defvar my-gc-last 0.0)
+(add-hook 'post-gc-hook
+          #'(lambda ()
+              (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
+              (setq my-gc-last gc-elapsed)))
 #+end_src
 
 ** Common Lisp を使う
@@ -7693,7 +7698,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 
   - http://doxymacs.sourceforge.net/
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(doxymacs-mode)
        "doxymacs" nil t)
@@ -8305,7 +8310,21 @@ trim_trailing_whitespace = true
     (add-hook 'mac-ime-before-put-text-hook #'company-cancel))
   )
 #+end_src
+** TODO [vterm.el] vterm を使う
+   :PROPERTIES:
+   :CREATED:  [2022-07-14 Thu 22:44]
+   :ID:       4D9E74DC-1189-4490-AE79-750960CB796D
+   :END:
 
+=vterm= を使うとバッファをターミナルとして使えます．通常では ~C-n/C-p~ でコマンド履歴を辿ってしまうので，実行結果などをコピーして別バッファに貼り付けたい場合は， =vterm-copy-mode= (C-c C-t) を使えばよいです．
+
+=vterm= を使うには，macOS の場合は brew で libvterm をインストールします．
+
+- https://github.com/akermu/emacs-libvterm
+
+#+begin_src emacs-lisp :tangle late-init.el
+(autoload-if-found '(vterm) "vterm"  nil t)
+#+end_src
 ** DONE [auto-complete.el] 自動補完機能                            :notinuse:
    CLOSED: [2019-04-09 Tue 00:51]
    :PROPERTIES:

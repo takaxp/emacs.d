@@ -37,6 +37,13 @@
 (when do-profile (profiler-start 'cpu))
 
 (setq debug-on-error nil)
+(setq gc-cons-threshold (* 32 1024 1024))
+(defvar my-gc-last 0.0)
+(add-hook 'post-gc-hook
+          #'(lambda ()
+              (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
+              (setq my-gc-last gc-elapsed)))
+
 (setq inhibit-default-init t)
 (setq initial-scratch-message nil
       initial-buffer-choice t ;; Starting from *scratch* buffer
@@ -58,12 +65,12 @@
 ;; AppData\Roaming\.emacs.d\lisp 以下に各追加パッケージを配置すること
 ;; smartparens requires dash.el.
 (defvar my-installed-packages
-  '("dash.el" "compat.el" "smex"
+  '("dash.el" "compat.el" "smex" "elisp-refs" "s.el" "f.el"
     "moom" "swiper" "selected" "expand-region.el" "counsel-osx-app"
     "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
-    "replace-from-region" "session"))
+    "replace-from-region" "session" "helpful"))
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
   (add-to-list 'load-path default-directory)
@@ -372,6 +379,19 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (remove-hook 'activate-mark-hook #'my-activate-selected))
 (add-hook 'activate-mark-hook #'my-activate-selected)
 
+;; helpful
+(autoload 'helpful-at-point "helpful" "Help" t)
+(autoload 'my-helpful-variable "helpful" "Help" t)
+(autoload 'helpful-key "helpful" "Help" t)
+(autoload 'helpful-function "helpful" "Help" t)
+(autoload 'helpful-variable "helpful" "Help" t)
+(autoload 'helpful-macro "helpful" "Help" t)
+(global-set-key (kbd "<f1> @") 'helpful-at-point)
+(global-set-key (kbd "<f1> k") 'helpful-key)
+(global-set-key (kbd "<f1> f") 'helpful-function)
+(global-set-key (kbd "<f1> v") 'helpful-variable)
+(global-set-key (kbd "<f1> m") 'helpful-macro)
+
 ;; hl-todo (depends on compat.el)
 (autoload #'global-hl-todo-mode "hl-todo" "hl-todo" t)
 
@@ -666,8 +686,24 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (define-key selected-keymap (kbd ";") #'comment-dwim)
   (define-key selected-keymap (kbd "e") #'my-eval-region)
   (define-key selected-keymap (kbd "g") #'my-google-this)
+  (when (require 'helpful nil t)
+    (define-key selected-keymap (kbd "h") #'helpful-at-point)
+    (define-key selected-keymap (kbd "v") #'my-helpful-variable))
   (when (require 'expand-region nil t)
     (define-key selected-keymap (kbd "SPC") #'er/expand-region)))
+
+;; helpful
+(with-eval-after-load "helpful"
+  (defun my-helpful-variable ()
+    (interactive)
+    (let ((thing (symbol-at-point)))
+      (if (helpful--variable-p thing)
+          (helpful-variable thing)
+        (call-interactively 'helpful-variable))))
+
+  (defun ad:helpful-at-point ()
+    (deactivate-mark))
+  (advice-add 'helpful-at-point :before #'ad:helpful-at-point))
 
 (with-eval-after-load "hl-todo"
   (defun my-hl-todo-reload ()

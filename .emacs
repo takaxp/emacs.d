@@ -2,11 +2,6 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-;; https://github.com/qaiviq/echo-bar.el/blob/master/echo-bar.el
-;; https://codeberg.org/akib/emacs-why-this
-
-;; (repeat-mode 1)
-
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 (with-eval-after-load "selected"
@@ -67,22 +62,7 @@
       ("u" "undo" moom-undo)]]
     ))
 
-(with-eval-after-load "transient"
-  (transient-define-prefix my-org-bullet-and-checkbox ()
-	  "Commands to handle bullet and checkbox"
-	  [["Bullet"
-		  ("i" "insert" my-org-insert-bullet)
-		  ("d" "delete" my-org-delete-bullet)]
-		 ["Checkbox"
-		  ("[" "insert" my-org-insert-checkbox-into-bullet)
-		  ("]" "delete" my-org-delete-checkbox-from-bullet)
-		  ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-		  ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-		  ]
-		 ["Bullet and Checkbox"
-		  ("I" "insert" my-org-insert-bullet-and-checkbox)
-		  ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
-
+;; Boot mode selection
 (cond
  (nil
   (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
@@ -97,9 +77,10 @@
  (nil ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (setq org-agenda-files '("~/Desktop/hoge.org")))
+ (nil
+  (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
  (t ;; Normal mode. see also init-eval.el
   (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
-;; (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (with-eval-after-load "postpone"
@@ -110,10 +91,6 @@
   ;; (when (string= "Big Sur" (macos-name (macos-version)))
   ;;   (setq moom--common-margin '(0 0 0 0)))
   )
-
-(with-eval-after-load "postpone"
-  ;; M-x vterm-copy-mode (C-c C-t)
-  (autoload-if-found '(vterm) "vterm"  nil t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees

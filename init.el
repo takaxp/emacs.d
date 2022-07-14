@@ -50,8 +50,13 @@
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
-(setq gc-cons-threshold (* 128 1024 1024)) ;; 128MB
+(setq gc-cons-threshold (* 32 1024 1024)) ;; 128MB
 (setq garbage-collection-messages t)
+(defvar my-gc-last 0.0)
+(add-hook 'post-gc-hook
+          #'(lambda ()
+              (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
+              (setq my-gc-last gc-elapsed)))
 
 ;; (setq byte-compile-warnings '(obsolete))
 ;; Suppress warning on cl.el loading
