@@ -216,6 +216,24 @@ This function is called directly from the C code."
 
 (my-tick-init-time "editing")
 
+(if (not (display-graphic-p))
+    (progn ;; Terminal
+      (set-face-foreground 'mode-line "#96CBFE")
+      (set-face-background 'mode-line "#21252B"))
+
+  ;; mode-line
+  (set-face-attribute 'mode-line nil
+                      :foreground "#FFFFFF"
+                      :background "#a46398"
+                      ;; :overline "#9d5446"
+                      :box nil)
+  ;; mode-line-inactive
+  (set-face-attribute 'mode-line-inactive nil
+                      :foreground "#FFFFFF"
+                      :background "#c8a1b7"
+                      ;; :overline "#FFFFFF"
+                      :box nil))
+
 ;;  (setq visible-bell nil) ;; default=nil
 (setq ring-bell-function 'ignore)
 
@@ -304,7 +322,54 @@ This function is called directly from the C code."
 
 (my-tick-init-time "history")
 
+(my-tick-init-time "frame and window")
+
 (my-tick-init-time "development")
+
+(cond
+ ((memq window-system '(mac ns)) ;; for macOS
+  (setq initial-frame-alist
+	      (append
+	       '((top . 23)
+	         (left . 0)
+	         ;; (alpha . (100 90))
+	         ;; (vertical-scroll-bars . nil)
+	         ;; (internal-border-width . 20)
+	         ;; (outer-border-width . 20)
+	         ;; (ns-appearance . nil) ;; 26.1 {light, dark}
+	         (ns-transparent-titlebar . t)) ;; 26.1
+	       initial-frame-alist)))
+
+ ((eq window-system 'x) ;; for Linux
+  (setq initial-frame-alist
+	      (append
+	       '((vertical-scroll-bars . nil)
+	         (top . 0)
+	         (left . 0)
+	         (width . 80)
+	         (height . 38))
+	       initial-frame-alist)))
+
+ ((eq window-system nil)
+  nil)
+
+ (t ;; for Windows
+  (setq initial-frame-alist
+	        (append
+	         '((vertical-scroll-bars . nil)
+	           (top . 0)
+	           (left . 0)
+	           (width . 80)
+	           (height . 26))
+	         initial-frame-alist))))
+
+;; Apply the initial setting to default
+(setq default-frame-alist initial-frame-alist)
+(with-eval-after-load "postpone"
+  (set-face-foreground 'vertical-border (face-foreground 'default))
+  (set-face-background 'vertical-border (face-background 'default)))
+;;(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
+(set-face-background 'fringe "#FFFFFF") ;; 10-20[ms]
 
 ;; カーソルの色
 (defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
@@ -475,8 +540,6 @@ The keybindings will be assigned only when Emacs runs in GUI."
          (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
          (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
          (9 5) (8 5) (7 4) (6 4) (5 3))))))
-
-(my-tick-init-time "frame and window")
 
 (my-tick-init-time "font")
 

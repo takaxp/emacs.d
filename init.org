@@ -104,6 +104,8 @@ Then load the following at startup
    :CUSTOM_ID: orgf0a01c11
    :END:
 
+~early-init.el~ の読み込み時には， =(display-graphic-p)= と =window-system= が共に =nil= に設定されるので要注意です．
+
 #+begin_src emacs-lisp :tangle early-init.el
 ;; (message "--- Window system (ns mac) %s, display-graphic-p %s, File %s" window-system (display-graphic-p) early-init-file)
 ;; References:
@@ -4261,8 +4263,8 @@ Call this function at updating `mode-line-mode'."
 
 配色は定期的に変えています．
 
-#+begin_src emacs-lisp :tangle early-init.el
-(if (display-graphic-p)
+#+begin_src emacs-lisp :tangle yes
+(if (not (display-graphic-p))
     (progn ;; Terminal
       (set-face-foreground 'mode-line "#96CBFE")
       (set-face-background 'mode-line "#21252B"))
@@ -11687,6 +11689,821 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ;;      org-beamer-sectioning)))
 #+end_src
 
+* フォント／配色関連
+  :PROPERTIES:
+  :CUSTOM_ID: orgf57ce845
+  :END:
+#+begin_src emacs-lisp :tangle yes :exports none
+(my-tick-init-time "frame and window")
+#+end_src
+** 正規表現を見やすくする
+   :PROPERTIES:
+   :CUSTOM_ID: orgbbb079d3
+   :END:
+
+Emacs Lisp の正規表現を色付けします．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
+(set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
+#+end_src
+
+Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-builder= や =rx= マクロがある．
+
+  - [[http://www.emacswiki.org/emacs/ReBuilder][EmacsWiki: Re Builder]]
+  - [[http://emacswiki.org/emacs/rx][EmacsWiki: rx]]
+
+** 設定ファイルを見やすくする
+   :PROPERTIES:
+   :CUSTOM_ID: orgc98c6fff
+   :END:
+
+=generic-x= を使うと， =/etc/hosts= や =/etc/apache2.conf= に色を付けられる．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(unless noninteractive
+  (require 'generic-x nil t))
+#+end_src
+
+** カーソル行に色をつける
+   :PROPERTIES:
+   :CUSTOM_ID: org7858d806
+   :ID:       904FA1EC-3F16-47AA-A2A6-932F5EC84752
+   :END:
+
+  - ビルトインの =hl-line= を使います．
+  - http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html
+  - http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el
+
+色の設定は =custom-set-faces= で．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(hl-line-mode my-hl-line-enable)
+       "hl-line" nil t)
+
+  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
+
+  (defvar my-hl-permanent-disabled '(dired-mode vterm-mode)
+    "A list of major modes to disable `hl-line'.")
+
+  (defvar my-ime-off-hline-hook nil)
+  (defvar my-ime-on-hline-hook nil)
+
+  (with-eval-after-load "hl-line"
+    (unless (version< emacs-version "28.1")
+      (setq hl-line-sticky-flag nil))
+
+    (defvar my-hl-active-period 120
+      "Disable `hl-line' after this period")
+
+    (defun my-hl-line-disable ()
+      "Disable `hl-line'."
+      (hl-line-mode -1))
+
+    (defun my-hl-line-enable ()
+      "Enable `hl-line'."
+      (unless (or hl-line-mode
+		              (minibufferp)
+			            (memq major-mode my-hl-permanent-disabled))
+	      (hl-line-mode 1)))
+
+    (defun my-ime-off-hline ()
+      (my-hl-line-enable)
+      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+	      (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
+      (run-hooks 'my-ime-off-hline-hook))
+
+    (defun my-ime-on-hline ()
+      (my-hl-line-enable)
+      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+	      (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
+      (run-hooks 'my-ime-on-hline-hook))
+
+    ;; init
+    (when (fboundp 'mac-ime-active-p)
+      (if (version< emacs-version "27.1")
+		      (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+	      (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
+
+    (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
+
+    (if (version< emacs-version "27.1")
+	      (progn
+	        (add-hook 'focus-in-hook #'my-hl-line-enable)
+	        (add-hook 'focus-out-hook #'my-hl-line-disable))
+      (defun my-hl-line-update ()
+	      (if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
+      (add-function :after after-focus-change-function #'my-hl-line-update)
+      )
+
+    ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
+    ;; (add-hook 'minibuffer-exit-hook #'my-hl-line-enable)
+    (add-hook 'input-method-activate-hook #'my-ime-on-hline)
+    (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)))
+#+end_src
+
+色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．
+
+** カーソルの点滅を制御
+   :PROPERTIES:
+   :CUSTOM_ID: org29d5304f
+   :END:
+
+以下の例では，入力が止まってから ~30~ 秒後に ~0.2~ 秒間隔で点滅します．次に入力が始まるまで，点滅が続きます．
+
+=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(setq blink-cursor-blinks 0)
+(setq blink-cursor-interval 0.2)
+(setq blink-cursor-delay 30)
+(unless noninteractive
+  (postpone-message "blink-cursor-mode")
+  (blink-cursor-mode 1))
+#+end_src
+
+** カーソル位置のフォントを確認
+   :PROPERTIES:
+   :CUSTOM_ID: orgf36a8366
+   :END:
+
+=M-x describe-char= すると，カーソル位置のフォントの情報が別バッファに表示されます．
+
+** フォント設定
+   :PROPERTIES:
+   :CUSTOM_ID: org919a945a
+   :ID:       2FEFAC68-9DCD-42A9-9F0B-04AE718094B9
+   :END:
+
+表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．最近は，[[http://mix-mplus-ipa.sourceforge.jp/migu/][Migu 2M]]を気に入って使っています．
+
+#+caption: 環境別の使用フォント
+|         | ASCII       | 日本語                    |
+| Mac     | Monaco      | Migu 2M 又は ヒラギノ丸ゴ |
+| Windows | Inconsolata | メイリオ                  |
+| Linux   | Inconsolata | MigMix                    |
+
+  - http://d.hatena.ne.jp/setoryohei/20110117/1295336454
+  - [[http://users.teilar.gr/~g1951d/][Unicode Fonts for Ancient Scripts]]
+
+~early-init.el~ で設定すると高速起動に効果あり（ =emacs-init-time= には表れない）
+
+#+begin_src emacs-lisp :tangle late-init.el
+;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
+;; 2) Inconsolata, Migu 2M     : font-size=14,
+;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
+(defconst my-font-size 12)
+(defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
+(defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
+;; (defconst my-ja-font "Hiragino Maru Gothic Pro") ;; "Hiragino Maru Gothic Pro"
+;; (defconst my-ascii-font "Inconsolata") ;; "Inconsolata", Menlo, "Ricty Diminished"
+(defun my-ja-font-setter (spec)
+  (set-fontset-font nil 'japanese-jisx0208 spec)
+  (set-fontset-font nil 'katakana-jisx0201 spec)
+  (set-fontset-font nil 'japanese-jisx0212 spec)
+  (set-fontset-font nil '(#x0080 . #x024F) spec)
+  (set-fontset-font nil '(#x0370 . #x03FF) spec)
+  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
+(defun my-ascii-font-setter (spec)
+  (set-fontset-font nil 'ascii spec))
+(defun my-unicode-font-setter (spec)
+  (set-fontset-font t 'unicode spec nil 'prepend))
+(defun my-all-the-icons-setter ()
+  (when (require 'icons-in-terminal nil t)
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-faicon-family)))
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-fileicon-family)))
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-material-family)))
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-octicon-family)))
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-wicon-family)))))
+(defun my-font-config (&optional size ascii ja)
+  "Font config.
+- SIZE: font size for ASCII and Japanese (default: 12)
+- ASCII: ascii font family (default: \"Monaco\")
+- JA: Japanese font family (default: \"Migu 2M\")
+"
+  (when (memq window-system '(mac ns))
+    (let ((font-size (or size my-font-size))
+          (ascii-font (or ascii my-ascii-font))
+          (ja-font (or ja my-ja-font)))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
+
+(defun my-setup-font ()
+  (cond
+   ;; CocoaEmacs
+   ((memq window-system '(mac ns))
+    (when (>= emacs-major-version 23)
+
+      ;; Fix ratio provided by set-face-attribute for fonts display
+      (setq face-font-rescale-alist
+            '(("^-apple-hiragino.*" . 1.0) ; 1.2
+              (".*Migu.*" . 1.2)
+              (".*Ricty.*" . 1.0)
+              (".*Inconsolata.*" . 1.0)
+              (".*osaka-bold.*" . 1.0)     ; 1.2
+              (".*osaka-medium.*" . 1.0)   ; 1.0
+              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+              ("-cdac$" . 1.0))))) ; 1.3
+   ;; (my-font-config) ;; see `my-theme'
+
+   ((eq window-system 'ns)
+    ;; Anti aliasing with Quartz 2D
+    (when (boundp 'mac-allow-anti-aliasing)
+      (setq mac-allow-anti-aliasing t)))
+
+   ((eq window-system 'w32) ;; Windows
+    (let ((font-size 14)
+          (font-height 100)
+          (ascii-font "Inconsolata")
+          (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
+
+   ((eq window-system 'x) ; for SuSE Linux 12.1
+    (let
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font "Inconsolata")
+         ;; (ja-font "MigMix 1M")
+         (ja-font "Migu 2M"))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
+    (setq face-font-rescale-alist '((".*Migu.*" . 2.0)
+                                    (".*MigMix.*" . 2.0)
+                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
+  )
+(my-setup-font)
+#+end_src
+
+*** フォントのインストール方法
+    :PROPERTIES:
+    :CUSTOM_ID: orgb94aa5b3
+    :END:
+
+Linux では次のように処理するだけでよく，意外と簡単．
+
+1. ~/.fonts を作成する
+2. フォントを1.のディレクトリに置く
+3. fc-cache -fv を実行
+4. fc-list でインストールされているかを確認．
+
+なお，Windows では，フォントファイルを右クリックして，インストールを選択するだけでOK．
+
+*** フォントチェック用コード
+    :PROPERTIES:
+    :CUSTOM_ID: org66fa6b98
+    :END:
+
+サンプルの [[http://dl.dropbox.com/u/2440/dokuwiki/font-test.org][orgファイル]] を作って，見た目をチェックしています．バッファ内の桁数チェックや，ASCIIが漢字の半分の幅になっているかのチェックが楽になります．
+
+** 行間を制御する
+   :PROPERTIES:
+   :CUSTOM_ID: org2bcbc1db
+   :ID:       C89F3F6A-C379-4214-9398-948359F6E9B7
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+;; set-default で global 指定すると，ミニバッファの message で制御不能になる
+;; propertize で拡大できるが，global の値以下に縮小できなくなる．
+;; (set-default 'line-spacing 2)
+(defun my-linespacing ()
+  (unless (minibufferp)
+    (setq-local line-spacing 2)))
+(add-hook 'buffer-list-update-hook #'my-linespacing)
+(add-hook 'org-src-mode-hook #'my-linespacing)
+(add-hook 'debugger-mode-hook #'my-linespacing)
+
+(with-eval-after-load "org-agenda"
+  (defun my-org-agenda (&optional _arg _org-keys _restriction)
+    (my-linespacing))
+  (advice-add 'org-agenda :after #'my-org-agenda)
+  (defun my-org-agenda-redo (&optional _all)
+    (my-linespacing))
+  (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
+#+end_src
+
+*** COMMENT 分析
+    :PROPERTIES:
+    :ID:       BFA5012E-FEBB-4C02-A29E-C9487C4C0F64
+    :CUSTOM_ID: orgfc334cfa
+    :END:
+#+begin_src emacs-lisp
+;;(add-hook 'post-command-hook #'my-check-current-buffer)
+;;(add-hook 'post-command-hook #'my-linespacing)
+;; (add-hook 'find-file-hook #'my-linespacing)
+;; - org source (C-c '), buffer-list-update-hook will not support this.
+;; - help function
+;; - visit file through ivy interface
+;; - visit file through find file
+;; - multiple C-x, buffer-list-update-hook will break this so need exclude minibuffer
+#+end_src
+
+** パッチをカラフルに表示する
+   :PROPERTIES:
+   :CUSTOM_ID: org372b184d
+   :END:
+
+Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカスタマイズします．
+
+  - http://d.hatena.ne.jp/syohex/20111228/1325086893
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "diff-mode"
+  (set-face-attribute 'diff-added nil
+                      :background nil :foreground "lime green"
+                      :weight 'normal)
+
+  (set-face-attribute 'diff-removed nil
+                      :background nil :foreground "firebrick1"
+                      :weight 'normal)
+
+  (set-face-attribute 'diff-file-header nil
+                      :background nil :weight 'extra-bold)
+
+  (set-face-attribute 'diff-hunk-header nil
+                      :foreground "chocolate4"
+                      :background "white" :weight 'extra-bold
+                      :inherit nil))
+#+end_src
+
+** 背景を黒系色にする
+   :PROPERTIES:
+   :CUSTOM_ID: org009dc6e3
+   :END:
+
+#+begin_src emacs-lisp :tangle no
+(custom-set-faces
+ '(default ((t
+             (:background "black" :foreground "#55FF55")
+             ))))
+#+end_src
+
+** 日中と夜中でテーマを切り替える
+   :PROPERTIES:
+   :CUSTOM_ID: org92d26c4b
+   :ID:       0E02A972-3E0E-43C3-B712-561F4EC174A6
+   :END:
+
+私は使っていませんが，簡単にテーマを切り替えるためのパッケージ([[https://github.com/valignatev/heaven-and-hell][heaven-and-hell]])も存在します．また， [[https://github.com/purcell/ns-auto-titlebar][ns-auto-titlebar.el]] を使うことでも同様の効果が得られます．
+
+色々なテーマを試してた後に，その状態をダンプするには次のツールが役立ちます．
+ - https://gist.github.com/condotti/2035942
+
+私が使っているテーマはこちら．
+1. [[https://gist.github.com/takaxp/f8763df6de734e3aac6834eb6118c0e9][my theme for light]]
+2. [[https://gist.github.com/takaxp/5a500d953d15d6d2155b120e886dcd52][my theme for dark]]
+
+#+begin_src emacs-lisp :tangle late-init.el
+;; (declare-function my-daylight-theme "init" nil)
+;; (declare-function my-night-theme "init" nil)
+;; (declare-function my-terminal-theme "init" nil)
+(defvar my-light-theme-hook nil)
+(defvar my-dark-theme-hook nil)
+(if (not (display-graphic-p))
+    (defun my-terminal-theme ()
+      (interactive)
+      (when (require 'terminal-theme nil t)
+        (mapc 'disable-theme custom-enabled-themes)
+        (load-theme 'terminal t)
+        (plist-put my-cur-color-ime :on "#FF9300")))
+
+  (defun my-daylight-theme ()
+    (when (require 'daylight-theme nil t)
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'daylight t)
+      (plist-put my-cur-color-ime :on "#FF9300")
+      (setq default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (setq default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . light))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . light)))
+      (run-hooks 'my-light-theme-hook)))
+
+  (defun my-night-theme ()
+    (when (require 'night-theme nil t) ;; atom-one-dark-theme
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'night t)
+      (plist-put my-cur-color-ime :on "RosyBrown") ;; #cebcfe
+      (setq default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (setq default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . dark))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . dark)))
+      (run-hooks 'my-dark-theme-hook))))
+#+end_src
+
+** 時間帯を指定して起動時にテーマを切り替える
+   :PROPERTIES:
+   :CUSTOM_ID: org7c97dce0
+   :ID:       CC366389-DA7F-4E55-B8BA-21D327FA64C5
+   :END:
+
+次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(declare-function my-font-config "init" nil)
+(defun my-night-time-p (begin end)
+  (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
+         (cm (string-to-number (format-time-string "%M" (current-time))))
+         (ct (+ cm (* 60 ch))))
+    (if (> begin end)
+        (or (<= begin ct) (<= ct end))
+      (and (<= begin ct) (<= ct end)))))
+
+(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light} see init-env.el
+
+;;;###autoload
+(defun my-theme (&optional type)
+  (interactive "MType (light or dark): ")
+  (setq my-frame-appearance
+        (cond ((member type '("light" "l")) 'light)
+              ((member type '("dark" "d")) 'dark)
+              (t
+               my-frame-appearance)))
+  (if (display-graphic-p)
+      (cond ((eq my-frame-appearance 'dark)
+             (my-night-theme))
+            ((eq my-frame-appearance 'light)
+             (my-daylight-theme))
+            (t
+             (let ((night-time-in 23)
+                   (night-time-out 5))
+               (if (my-night-time-p
+                    (* night-time-in 60) (* night-time-out 60))
+                   (my-night-theme)
+                 (my-daylight-theme)))))
+    (my-terminal-theme))
+
+  (unless noninteractive
+    ;; remove unintentional colored frame border
+    (select-frame-set-input-focus (selected-frame))
+    (my-font-config)
+    (my-apply-cursor-config)
+    (when type
+      (moom-move-frame-to-edge-top)
+      (moom-fill-height))))
+
+;; This may override or reset font setting
+(my-theme)
+;; (run-at-time "21:00" 86400 'my-theme)
+;; (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
+#+end_src
+
+** [hl-todo.el] 特定キーワードの配色を変える
+   :PROPERTIES:
+   :CUSTOM_ID: org6d79c76a
+   :ID:       A7716C15-F465-4442-86DF-EFB0320F0248
+   :END:
+
+ - [[https://github.com/tarsius/hl-todo][hl-todo]] を導入すれば簡単にできます．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(global-hl-todo-mode my-hl-todo-activate)
+       "hl-todo" nil t)
+
+  ;; (defun my-hl-todo-activate ()
+  ;;   (global-hl-todo-mode)
+  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
+  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
+
+  (global-hl-todo-mode) ;; FIXME
+
+  (with-eval-after-load "hl-todo"
+    (defun my-hl-todo-reload ()
+      (interactive)
+      (global-hl-todo-mode -1)
+      (global-hl-todo-mode))
+
+    (defun my-hl-todo-light-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#FF0000")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "SeaGreen")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "#3030FF")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
+      (my-hl-todo-reload))
+    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+
+    (defun my-hl-todo-dark-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#cc9393")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "#afd8af")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "DodgerBlue1")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
+      (my-hl-todo-reload))
+    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
+#+end_src
+
+** [rainbow-mode.el] 配色のリアルタイム確認
+   :PROPERTIES:
+   :CUSTOM_ID: org9ce2fd45
+   :END:
+
+=M-x rainbow-mode= とすると，色指定のコードの背景色を，その指定色にリアルタイム変換してくれる．
+
+[[http://elpa.gnu.org/packages/rainbow-mode.html]]
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(rainbow-mode)
+       "rainbow-mode" nil t)
+
+  (dolist (hook '(emmet-mode-hook emacs-lisp-mode-hook org-mode-hook))
+    (add-hook hook #'rainbow-mode)))
+#+end_src
+
+*** 色一覧
+    :PROPERTIES:
+    :CUSTOM_ID: org19538af3
+    :END:
+
+=0,3,6,9,C,F= の組み合わせ
+
+#+begin_src html
+
+#000000 #000033 #000066 #000099 #0000CC #0000FF
+#003300 #003333 #003366 #003399 #0033CC #0033FF
+#006600 #006633 #006666 #006699 #0066CC #0066FF
+#009900 #009933 #009966 #009999 #0099CC #0099FF
+#00CC00 #00CC33 #00CC66 #00CC99 #00CCCC #00CCFF
+#00FF00 #00FF33 #00FF66 #00FF99 #00FFCC #00FFFF
+
+#330000 #330033 #330066 #330099 #3300CC #3300FF
+#333300 #333333 #333366 #333399 #3333CC #3333FF
+#336600 #336633 #336666 #336699 #3366CC #3366FF
+#339900 #339933 #339966 #339999 #3399CC #3399FF
+#33CC00 #33CC33 #33CC66 #33CC99 #33CCCC #33CCFF
+#33FF00 #33FF33 #33FF66 #33FF99 #33FFCC #33FFFF
+
+#660000 #660033 #660066 #660099 #6600CC #6600FF
+#663300 #663333 #663366 #663399 #6633CC #6633FF
+#666600 #666633 #666666 #666699 #6666CC #6666FF
+#669900 #669933 #669966 #669999 #6699CC #6699FF
+#66CC00 #66CC33 #66CC66 #66CC99 #66CCCC #66CCFF
+#66FF00 #66FF33 #66FF66 #66FF99 #66FFCC #66FFFF
+
+#990000 #990033 #990066 #990099 #9900CC #9900FF
+#993300 #993333 #993366 #993399 #9933CC #9933FF
+#996600 #996633 #996666 #996699 #9966CC #9966FF
+#999900 #999933 #999966 #999999 #9999CC #9999FF
+#99CC00 #99CC33 #99CC66 #99CC99 #99CCCC #99CCFF
+#99FF00 #99FF33 #99FF66 #99FF99 #99FFCC #99FFFF
+
+#CC0000 #CC0033 #CC0066 #CC0099 #CC00CC #CC00FF
+#CC3300 #CC3333 #CC3366 #CC3399 #CC33CC #CC33FF
+#CC6600 #CC6633 #CC6666 #CC6699 #CC66CC #CC66FF
+#CC9900 #CC9933 #CC9966 #CC9999 #CC99CC #CC99FF
+#CCCC00 #CCCC33 #CCCC66 #CCCC99 #CCCCCC #CCCCFF
+#CCFF00 #CCFF33 #CCFF66 #CCFF99 #CCFFCC #CCFFFF
+
+#FF0000 #FF0033 #FF0066 #FF0099 #FF00CC #FF00FF
+#FF3300 #FF3333 #FF3366 #FF3399 #FF33CC #FF33FF
+#FF6600 #FF6633 #FF6666 #FF6699 #FF66CC #FF66FF
+#FF9900 #FF9933 #FF9966 #FF9999 #FF99CC #FF99FF
+#FFCC00 #FFCC33 #FFCC66 #FFCC99 #FFCCCC #FFCCFF
+#FFFF00 #FFFF33 #FFFF66 #FFFF99 #FFFFCC #FFFFFF
+
+#+end_src
+
+** [edit-color-stamp] Qt経由でカラーピッカーを使う
+   :PROPERTIES:
+   :CUSTOM_ID: orgcc116051
+   :END:
+
+  - [[https://github.com/sabof/edit-color-stamp][sabof/edit-color-stamp: Edit hex color stamps using a QT, or the internal color picker]]
+
+  - Macintosh でもちゃんと使えます．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (and (executable-find "qt_color_picker")
+           (autoload-if-found
+            '(edit-color-stamp)
+            "edit-color-stamp" nil t))
+
+  (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
+#+end_src
+
+（設定手順）
+  - QT をインストールして， =qmake= に =PATH= を通す（例：/usr/local/opt/qt/bin）
+  - =edit-color-stamp= を入手してインストール先のフォルダに移動
+  - さらに， =qt_color_picker= ディレクトリに移動
+  - =qt_color_picker.pro= を編集して， "QT +=" に "widgets" を追加して保存する．
+    #+begin_src conf
+    QT += core gui widgets
+    #+end_src
+  - =qmake qt_color_picker.pro && make= を実行
+  - 出来上がった =qt_color_picker.app= を =/Applications/= にコピー（移動）
+  - =exec-path= にパスを通す
+    #+begin_src emacs-lisp
+    (add-to-list 'exec-path "/Applications/qt_color_picker.app/Contents/MacOS/")
+    #+end_src
+  - =(executable-find "qt_color_picker")= でプログラムを呼べることを確認
+  - =#FFFFFF= などの色の上で =M-x edit-color-stamp= を実行する
+  - カラーピッカーで色を選んで「OK」すれば， =#FFFFFF= が更新される．
+
+** [ivy.el] インターフェイスの配色
+   :PROPERTIES:
+   :CUSTOM_ID: orge836aa4d
+   :ID:       4E6C6C26-AEBB-48D7-8CEB-8769F48C5FB0
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "ivy"
+  (custom-set-faces
+   '(ivy-current-match
+     ((((class color) (background light))
+       :background "#FFF3F3" :distant-foreground "#000000" :extend t)
+      (((class color) (background dark))
+       :background "#404040" :distant-foreground "#abb2bf" :extend t)))
+   '(ivy-minibuffer-match-face-1
+     ((((class color) (background light)) :foreground "#666666")
+      (((class color) (background dark)) :foreground "#999999")))
+   '(ivy-minibuffer-match-face-2
+     ((((class color) (background light)) :foreground "#c03333" :underline t)
+      (((class color) (background dark)) :foreground "#e04444" :underline t)))
+   '(ivy-minibuffer-match-face-3
+     ((((class color) (background light)) :foreground "#8585ff" :underline t)
+      (((class color) (background dark)) :foreground "#7777ff" :underline t)))
+   '(ivy-minibuffer-match-face-4
+     ((((class color) (background light)) :foreground "#439943" :underline t)
+      (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
+#+end_src
+
+** [ivy.el] 選択行をアイコンで強調
+   :PROPERTIES:
+   :CUSTOM_ID: org4b927009
+   :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "ivy"
+;;; 選択対象を "" にする (requires all-the-icons.el)
+  (defface my-ivy-arrow-visible
+    '((((class color) (background light)) :foreground "orange")
+      (((class color) (background dark)) :foreground "#EE6363"))
+    "Face used by Ivy for highlighting the arrow.")
+  (defface my-ivy-arrow-invisible
+    '((((class color) (background light)) :foreground "#FFFFFF")
+      (((class color) (background dark)) :foreground "#31343F"))
+    "Face used by Ivy for highlighting the invisible arrow.")
+
+  (if window-system
+      (cond ((require 'icons-in-terminal nil t)
+             (defun my-ivy-format-function-arrow (cands)
+               "Transform CANDS into a string for minibuffer."
+               (ivy--format-function-generic
+                (lambda (str)
+                  (concat (icons-in-terminal-faicon
+                           "hand-o-right"
+                           :v-adjust -0.1 
+                           :face 'my-ivy-arrow-visible
+                           :height 0.8)
+                          " " (ivy--add-face (concat str "\n")
+                                             'ivy-current-match)))
+                (lambda (str)
+                  (concat (icons-in-terminal-faicon
+                           "hand-o-right"
+                           :v-adjust -0.1
+                           :face 'my-ivy-arrow-invisible
+                           :height 0.8)
+                          " " (concat str "\n")))
+                cands
+                ""))
+             (setq ivy-format-functions-alist
+                   '((t . my-ivy-format-function-arrow))))
+            ((require 'all-the-icons nil t)
+             (defun my-ivy-format-function-arrow (cands)
+               "Transform CANDS into a string for minibuffer."
+               (ivy--format-function-generic
+                (lambda (str)
+                  (concat (all-the-icons-faicon
+                           "hand-o-right"
+                           :v-adjust -0.2 :face 'my-ivy-arrow-visible)
+                          " " (ivy--add-face str 'ivy-current-match)))
+                (lambda (str)
+                  (concat (all-the-icons-faicon
+                           "hand-o-right" :face 'my-ivy-arrow-invisible)
+                          " " str))
+                cands
+                "\n"))
+             (setq ivy-format-functions-alist
+                   '((t . my-ivy-format-function-arrow))))
+            (t (setq ivy-format-functions-alist
+                     '((t . ivy-format-function-arrow)))))
+    (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
+#+end_src
+
+** [volatile-highlights] コピペした領域を強調
+   :PROPERTIES:
+   :CUSTOM_ID: org36a28b28
+   :END:
+
+コピペ直後の数秒に限定して，コピペした領域をハイライトします．さらに，所定の間隔で表示色を変えることで，ハイライト色が徐々に消えていくようなエフェクトにしています．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(volatile-highlights-mode my-vhl-change-color)
+       "volatile-highlights" nil t)
+
+  (dolist (hook '(org-mode-hook emacs-lisp-mode-hook emmet-mode-hook))
+    (add-hook hook #'volatile-highlights-mode))
+
+  (with-eval-after-load "volatile-highlights"
+    (set-face-attribute
+     'vhl/default-face nil :foreground "#FF3333" :background "#FFCDCD")
+    (volatile-highlights-mode t)
+
+    ;; ふわっとエフェクトの追加（ペースト時の色 => カーソル色 => 本来色）
+    (defun my-vhl-change-color ()
+      (interactive)
+      (let ((next 0.2)
+            (reset 0.5)
+            (colors '("#F8D3D7" "#F2DAE1" "#EBE0EB" "#E5E7F5" "#DEEDFF")))
+        (dolist (color colors)
+          (run-at-time next nil
+                       'set-face-attribute
+                       'vhl/default-face
+                       nil :foreground "#FF3333" :background color)
+          (setq next (+ 0.05 next)))
+        (run-at-time reset nil 'vhl/clear-all))
+      (set-face-attribute 'vhl/default-face
+                          nil :foreground "#FF3333"
+                          :background "#FFCDCD"))
+
+    (defun my-yank (&optional ARG)
+      (interactive)
+      (yank ARG)
+      (when window-system
+        (my-vhl-change-color)))
+    (global-set-key (kbd "M-v") 'my-yank)
+    (global-set-key (kbd "C-y") 'my-yank)
+
+    (with-eval-after-load "vterm"
+      (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
+
+    (with-eval-after-load "org"
+      (define-key org-mode-map (kbd "C-y") 'my-org-yank)
+      (defun my-org-yank ()
+        (interactive)
+        (org-yank)
+        (when window-system
+          (my-vhl-change-color))))))
+#+end_src
+
 * フレーム／ウィンドウ制御
   :PROPERTIES:
   :CUSTOM_ID: org5fd484a3
@@ -11700,7 +12517,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    :ID:       4A60D259-5D38-4D7B-97B8-0FBFA7219F7C
    :END:
 
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp :tangle yes
 (cond
  ((memq window-system '(mac ns)) ;; for macOS
   (setq initial-frame-alist
@@ -12486,821 +13303,6 @@ Uses `all-the-icons-material' to fetch the icon."
         (olivetti-mode -1)))
     (advice-add 'moom-toggle-frame-maximized :after
                 #'ad:olivetti:moom-toggle-frame-maximized)))
-#+end_src
-
-* フォント／配色関連
-  :PROPERTIES:
-  :CUSTOM_ID: orgf57ce845
-  :END:
-#+begin_src emacs-lisp :tangle yes :exports none
-(my-tick-init-time "frame and window")
-#+end_src
-** 正規表現を見やすくする
-   :PROPERTIES:
-   :CUSTOM_ID: orgbbb079d3
-   :END:
-
-Emacs Lisp の正規表現を色付けします．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
-(set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
-#+end_src
-
-Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-builder= や =rx= マクロがある．
-
-  - [[http://www.emacswiki.org/emacs/ReBuilder][EmacsWiki: Re Builder]]
-  - [[http://emacswiki.org/emacs/rx][EmacsWiki: rx]]
-
-** 設定ファイルを見やすくする
-   :PROPERTIES:
-   :CUSTOM_ID: orgc98c6fff
-   :END:
-
-=generic-x= を使うと， =/etc/hosts= や =/etc/apache2.conf= に色を付けられる．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(unless noninteractive
-  (require 'generic-x nil t))
-#+end_src
-
-** カーソル行に色をつける
-   :PROPERTIES:
-   :CUSTOM_ID: org7858d806
-   :ID:       904FA1EC-3F16-47AA-A2A6-932F5EC84752
-   :END:
-
-  - ビルトインの =hl-line= を使います．
-  - http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html
-  - http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el
-
-色の設定は =custom-set-faces= で．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(hl-line-mode my-hl-line-enable)
-       "hl-line" nil t)
-
-  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
-
-  (defvar my-hl-permanent-disabled '(dired-mode vterm-mode)
-    "A list of major modes to disable `hl-line'.")
-
-  (defvar my-ime-off-hline-hook nil)
-  (defvar my-ime-on-hline-hook nil)
-
-  (with-eval-after-load "hl-line"
-    (unless (version< emacs-version "28.1")
-      (setq hl-line-sticky-flag nil))
-
-    (defvar my-hl-active-period 120
-      "Disable `hl-line' after this period")
-
-    (defun my-hl-line-disable ()
-      "Disable `hl-line'."
-      (hl-line-mode -1))
-
-    (defun my-hl-line-enable ()
-      "Enable `hl-line'."
-      (unless (or hl-line-mode
-		              (minibufferp)
-			            (memq major-mode my-hl-permanent-disabled))
-	      (hl-line-mode 1)))
-
-    (defun my-ime-off-hline ()
-      (my-hl-line-enable)
-      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-	      (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
-      (run-hooks 'my-ime-off-hline-hook))
-
-    (defun my-ime-on-hline ()
-      (my-hl-line-enable)
-      (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-	      (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
-      (run-hooks 'my-ime-on-hline-hook))
-
-    ;; init
-    (when (fboundp 'mac-ime-active-p)
-      (if (version< emacs-version "27.1")
-		      (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
-	      (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
-
-    (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
-
-    (if (version< emacs-version "27.1")
-	      (progn
-	        (add-hook 'focus-in-hook #'my-hl-line-enable)
-	        (add-hook 'focus-out-hook #'my-hl-line-disable))
-      (defun my-hl-line-update ()
-	      (if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
-      (add-function :after after-focus-change-function #'my-hl-line-update)
-      )
-
-    ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
-    ;; (add-hook 'minibuffer-exit-hook #'my-hl-line-enable)
-    (add-hook 'input-method-activate-hook #'my-ime-on-hline)
-    (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)))
-#+end_src
-
-色の変更ではなく，下線に変更したい場合は， =(setq hl-line-face 'underline)= とする．
-
-** カーソルの点滅を制御
-   :PROPERTIES:
-   :CUSTOM_ID: org29d5304f
-   :END:
-
-以下の例では，入力が止まってから ~30~ 秒後に ~0.2~ 秒間隔で点滅します．次に入力が始まるまで，点滅が続きます．
-
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(setq blink-cursor-blinks 0)
-(setq blink-cursor-interval 0.2)
-(setq blink-cursor-delay 30)
-(unless noninteractive
-  (postpone-message "blink-cursor-mode")
-  (blink-cursor-mode 1))
-#+end_src
-
-** カーソル位置のフォントを確認
-   :PROPERTIES:
-   :CUSTOM_ID: orgf36a8366
-   :END:
-
-=M-x describe-char= すると，カーソル位置のフォントの情報が別バッファに表示されます．
-
-** フォント設定
-   :PROPERTIES:
-   :CUSTOM_ID: org919a945a
-   :ID:       2FEFAC68-9DCD-42A9-9F0B-04AE718094B9
-   :END:
-
-表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．最近は，[[http://mix-mplus-ipa.sourceforge.jp/migu/][Migu 2M]]を気に入って使っています．
-
-#+caption: 環境別の使用フォント
-|         | ASCII       | 日本語                    |
-| Mac     | Monaco      | Migu 2M 又は ヒラギノ丸ゴ |
-| Windows | Inconsolata | メイリオ                  |
-| Linux   | Inconsolata | MigMix                    |
-
-  - http://d.hatena.ne.jp/setoryohei/20110117/1295336454
-  - [[http://users.teilar.gr/~g1951d/][Unicode Fonts for Ancient Scripts]]
-
-~early-init.el~ で設定すると高速起動に効果あり（ =emacs-init-time= には表れない）
-
-#+begin_src emacs-lisp :tangle early-init.el
-;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
-;; 2) Inconsolata, Migu 2M     : font-size=14,
-;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
-(defconst my-font-size 12)
-(defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
-(defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
-;; (defconst my-ja-font "Hiragino Maru Gothic Pro") ;; "Hiragino Maru Gothic Pro"
-;; (defconst my-ascii-font "Inconsolata") ;; "Inconsolata", Menlo, "Ricty Diminished"
-(defun my-ja-font-setter (spec)
-  (set-fontset-font nil 'japanese-jisx0208 spec)
-  (set-fontset-font nil 'katakana-jisx0201 spec)
-  (set-fontset-font nil 'japanese-jisx0212 spec)
-  (set-fontset-font nil '(#x0080 . #x024F) spec)
-  (set-fontset-font nil '(#x0370 . #x03FF) spec)
-  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
-(defun my-ascii-font-setter (spec)
-  (set-fontset-font nil 'ascii spec))
-(defun my-unicode-font-setter (spec)
-  (set-fontset-font t 'unicode spec nil 'prepend))
-(defun my-all-the-icons-setter ()
-  (when (require 'icons-in-terminal nil t)
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-faicon-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-fileicon-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-material-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-octicon-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-wicon-family)))))
-(defun my-font-config (&optional size ascii ja)
-  "Font config.
-- SIZE: font size for ASCII and Japanese (default: 12)
-- ASCII: ascii font family (default: \"Monaco\")
-- JA: Japanese font family (default: \"Migu 2M\")
-"
-  (when (memq window-system '(mac ns))
-    (let ((font-size (or size my-font-size))
-          (ascii-font (or ascii my-ascii-font))
-          (ja-font (or ja my-ja-font)))
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-      (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
-
-(defun my-setup-font ()
-  (cond
-   ;; CocoaEmacs
-   ((memq window-system '(mac ns))
-    (when (>= emacs-major-version 23)
-
-      ;; Fix ratio provided by set-face-attribute for fonts display
-      (setq face-font-rescale-alist
-            '(("^-apple-hiragino.*" . 1.0) ; 1.2
-              (".*Migu.*" . 1.2)
-              (".*Ricty.*" . 1.0)
-              (".*Inconsolata.*" . 1.0)
-              (".*osaka-bold.*" . 1.0)     ; 1.2
-              (".*osaka-medium.*" . 1.0)   ; 1.0
-              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-              ("-cdac$" . 1.0))))) ; 1.3
-   ;; (my-font-config) ;; see `my-theme'
-
-   ((eq window-system 'ns)
-    ;; Anti aliasing with Quartz 2D
-    (when (boundp 'mac-allow-anti-aliasing)
-      (setq mac-allow-anti-aliasing t)))
-
-   ((eq window-system 'w32) ;; Windows
-    (let ((font-size 14)
-          (font-height 100)
-          (ascii-font "Inconsolata")
-          (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-      (my-ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
-
-   ((eq window-system 'x) ; for SuSE Linux 12.1
-    (let
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font "Inconsolata")
-         ;; (ja-font "MigMix 1M")
-         (ja-font "Migu 2M"))
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
-    (setq face-font-rescale-alist '((".*Migu.*" . 2.0)
-                                    (".*MigMix.*" . 2.0)
-                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
-  )
-(my-setup-font)
-#+end_src
-
-*** フォントのインストール方法
-    :PROPERTIES:
-    :CUSTOM_ID: orgb94aa5b3
-    :END:
-
-Linux では次のように処理するだけでよく，意外と簡単．
-
-1. ~/.fonts を作成する
-2. フォントを1.のディレクトリに置く
-3. fc-cache -fv を実行
-4. fc-list でインストールされているかを確認．
-
-なお，Windows では，フォントファイルを右クリックして，インストールを選択するだけでOK．
-
-*** フォントチェック用コード
-    :PROPERTIES:
-    :CUSTOM_ID: org66fa6b98
-    :END:
-
-サンプルの [[http://dl.dropbox.com/u/2440/dokuwiki/font-test.org][orgファイル]] を作って，見た目をチェックしています．バッファ内の桁数チェックや，ASCIIが漢字の半分の幅になっているかのチェックが楽になります．
-
-** 行間を制御する
-   :PROPERTIES:
-   :CUSTOM_ID: org2bcbc1db
-   :ID:       C89F3F6A-C379-4214-9398-948359F6E9B7
-   :END:
-
-#+begin_src emacs-lisp :tangle late-init.el
-;; set-default で global 指定すると，ミニバッファの message で制御不能になる
-;; propertize で拡大できるが，global の値以下に縮小できなくなる．
-;; (set-default 'line-spacing 2)
-(defun my-linespacing ()
-  (unless (minibufferp)
-    (setq-local line-spacing 2)))
-(add-hook 'buffer-list-update-hook #'my-linespacing)
-(add-hook 'org-src-mode-hook #'my-linespacing)
-(add-hook 'debugger-mode-hook #'my-linespacing)
-
-(with-eval-after-load "org-agenda"
-  (defun my-org-agenda (&optional _arg _org-keys _restriction)
-    (my-linespacing))
-  (advice-add 'org-agenda :after #'my-org-agenda)
-  (defun my-org-agenda-redo (&optional _all)
-    (my-linespacing))
-  (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
-#+end_src
-
-*** COMMENT 分析
-    :PROPERTIES:
-    :ID:       BFA5012E-FEBB-4C02-A29E-C9487C4C0F64
-    :CUSTOM_ID: orgfc334cfa
-    :END:
-#+begin_src emacs-lisp
-;;(add-hook 'post-command-hook #'my-check-current-buffer)
-;;(add-hook 'post-command-hook #'my-linespacing)
-;; (add-hook 'find-file-hook #'my-linespacing)
-;; - org source (C-c '), buffer-list-update-hook will not support this.
-;; - help function
-;; - visit file through ivy interface
-;; - visit file through find file
-;; - multiple C-x, buffer-list-update-hook will break this so need exclude minibuffer
-#+end_src
-
-** パッチをカラフルに表示する
-   :PROPERTIES:
-   :CUSTOM_ID: org372b184d
-   :END:
-
-Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカスタマイズします．
-
-  - http://d.hatena.ne.jp/syohex/20111228/1325086893
-
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "diff-mode"
-  (set-face-attribute 'diff-added nil
-                      :background nil :foreground "lime green"
-                      :weight 'normal)
-
-  (set-face-attribute 'diff-removed nil
-                      :background nil :foreground "firebrick1"
-                      :weight 'normal)
-
-  (set-face-attribute 'diff-file-header nil
-                      :background nil :weight 'extra-bold)
-
-  (set-face-attribute 'diff-hunk-header nil
-                      :foreground "chocolate4"
-                      :background "white" :weight 'extra-bold
-                      :inherit nil))
-#+end_src
-
-** 背景を黒系色にする
-   :PROPERTIES:
-   :CUSTOM_ID: org009dc6e3
-   :END:
-
-#+begin_src emacs-lisp :tangle no
-(custom-set-faces
- '(default ((t
-             (:background "black" :foreground "#55FF55")
-             ))))
-#+end_src
-
-** 日中と夜中でテーマを切り替える
-   :PROPERTIES:
-   :CUSTOM_ID: org92d26c4b
-   :ID:       0E02A972-3E0E-43C3-B712-561F4EC174A6
-   :END:
-
-私は使っていませんが，簡単にテーマを切り替えるためのパッケージ([[https://github.com/valignatev/heaven-and-hell][heaven-and-hell]])も存在します．また， [[https://github.com/purcell/ns-auto-titlebar][ns-auto-titlebar.el]] を使うことでも同様の効果が得られます．
-
-色々なテーマを試してた後に，その状態をダンプするには次のツールが役立ちます．
- - https://gist.github.com/condotti/2035942
-
-私が使っているテーマはこちら．
-1. [[https://gist.github.com/takaxp/f8763df6de734e3aac6834eb6118c0e9][my theme for light]]
-2. [[https://gist.github.com/takaxp/5a500d953d15d6d2155b120e886dcd52][my theme for dark]]
-
-#+begin_src emacs-lisp :tangle late-init.el
-;; (declare-function my-daylight-theme "init" nil)
-;; (declare-function my-night-theme "init" nil)
-;; (declare-function my-terminal-theme "init" nil)
-(defvar my-light-theme-hook nil)
-(defvar my-dark-theme-hook nil)
-(if (not (display-graphic-p))
-    (defun my-terminal-theme ()
-      (interactive)
-      (when (require 'terminal-theme nil t)
-        (mapc 'disable-theme custom-enabled-themes)
-        (load-theme 'terminal t)
-        (plist-put my-cur-color-ime :on "#FF9300")))
-
-  (defun my-daylight-theme ()
-    (when (require 'daylight-theme nil t)
-      (mapc 'disable-theme custom-enabled-themes)
-      (load-theme 'daylight t)
-      (plist-put my-cur-color-ime :on "#FF9300")
-      (setq default-frame-alist
-            (delete (assoc 'ns-appearance default-frame-alist)
-                    default-frame-alist))
-      (setq default-frame-alist
-            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                    default-frame-alist))
-      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-      (add-to-list 'default-frame-alist '(ns-appearance . light))
-      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . light)))
-      (run-hooks 'my-light-theme-hook)))
-
-  (defun my-night-theme ()
-    (when (require 'night-theme nil t) ;; atom-one-dark-theme
-      (mapc 'disable-theme custom-enabled-themes)
-      (load-theme 'night t)
-      (plist-put my-cur-color-ime :on "RosyBrown") ;; #cebcfe
-      (setq default-frame-alist
-            (delete (assoc 'ns-appearance default-frame-alist)
-                    default-frame-alist))
-      (setq default-frame-alist
-            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                    default-frame-alist))
-      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-      (add-to-list 'default-frame-alist '(ns-appearance . dark))
-      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . dark)))
-      (run-hooks 'my-dark-theme-hook))))
-#+end_src
-
-** 時間帯を指定して起動時にテーマを切り替える
-   :PROPERTIES:
-   :CUSTOM_ID: org7c97dce0
-   :ID:       CC366389-DA7F-4E55-B8BA-21D327FA64C5
-   :END:
-
-次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(declare-function my-font-config "init" nil)
-(defun my-night-time-p (begin end)
-  (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
-         (cm (string-to-number (format-time-string "%M" (current-time))))
-         (ct (+ cm (* 60 ch))))
-    (if (> begin end)
-        (or (<= begin ct) (<= ct end))
-      (and (<= begin ct) (<= ct end)))))
-
-(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light} see init-env.el
-
-;;;###autoload
-(defun my-theme (&optional type)
-  (interactive "MType (light or dark): ")
-  (setq my-frame-appearance
-        (cond ((member type '("light" "l")) 'light)
-              ((member type '("dark" "d")) 'dark)
-              (t
-               my-frame-appearance)))
-  (if (display-graphic-p)
-      (cond ((eq my-frame-appearance 'dark)
-             (my-night-theme))
-            ((eq my-frame-appearance 'light)
-             (my-daylight-theme))
-            (t
-             (let ((night-time-in 23)
-                   (night-time-out 5))
-               (if (my-night-time-p
-                    (* night-time-in 60) (* night-time-out 60))
-                   (my-night-theme)
-                 (my-daylight-theme)))))
-    (my-terminal-theme))
-
-  (unless noninteractive
-    ;; remove unintentional colored frame border
-    (select-frame-set-input-focus (selected-frame))
-    (my-font-config)
-    (my-apply-cursor-config)
-    (when type
-      (moom-move-frame-to-edge-top)
-      (moom-fill-height))))
-
-;; This may override or reset font setting
-(my-theme)
-;; (run-at-time "21:00" 86400 'my-theme)
-;; (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
-#+end_src
-
-** [hl-todo.el] 特定キーワードの配色を変える
-   :PROPERTIES:
-   :CUSTOM_ID: org6d79c76a
-   :ID:       A7716C15-F465-4442-86DF-EFB0320F0248
-   :END:
-
- - [[https://github.com/tarsius/hl-todo][hl-todo]] を導入すれば簡単にできます．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(global-hl-todo-mode my-hl-todo-activate)
-       "hl-todo" nil t)
-
-  ;; (defun my-hl-todo-activate ()
-  ;;   (global-hl-todo-mode)
-  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
-  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
-
-  (global-hl-todo-mode) ;; FIXME
-
-  (with-eval-after-load "hl-todo"
-    (defun my-hl-todo-reload ()
-      (interactive)
-      (global-hl-todo-mode -1)
-      (global-hl-todo-mode))
-
-    (defun my-hl-todo-light-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#FF0000")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "SeaGreen")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "#3030FF")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
-    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
-
-    (defun my-hl-todo-dark-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#cc9393")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "#afd8af")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "DodgerBlue1")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
-    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
-#+end_src
-
-** [rainbow-mode.el] 配色のリアルタイム確認
-   :PROPERTIES:
-   :CUSTOM_ID: org9ce2fd45
-   :END:
-
-=M-x rainbow-mode= とすると，色指定のコードの背景色を，その指定色にリアルタイム変換してくれる．
-
-[[http://elpa.gnu.org/packages/rainbow-mode.html]]
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(rainbow-mode)
-       "rainbow-mode" nil t)
-
-  (dolist (hook '(emmet-mode-hook emacs-lisp-mode-hook org-mode-hook))
-    (add-hook hook #'rainbow-mode)))
-#+end_src
-
-*** 色一覧
-    :PROPERTIES:
-    :CUSTOM_ID: org19538af3
-    :END:
-
-=0,3,6,9,C,F= の組み合わせ
-
-#+begin_src html
-
-#000000 #000033 #000066 #000099 #0000CC #0000FF
-#003300 #003333 #003366 #003399 #0033CC #0033FF
-#006600 #006633 #006666 #006699 #0066CC #0066FF
-#009900 #009933 #009966 #009999 #0099CC #0099FF
-#00CC00 #00CC33 #00CC66 #00CC99 #00CCCC #00CCFF
-#00FF00 #00FF33 #00FF66 #00FF99 #00FFCC #00FFFF
-
-#330000 #330033 #330066 #330099 #3300CC #3300FF
-#333300 #333333 #333366 #333399 #3333CC #3333FF
-#336600 #336633 #336666 #336699 #3366CC #3366FF
-#339900 #339933 #339966 #339999 #3399CC #3399FF
-#33CC00 #33CC33 #33CC66 #33CC99 #33CCCC #33CCFF
-#33FF00 #33FF33 #33FF66 #33FF99 #33FFCC #33FFFF
-
-#660000 #660033 #660066 #660099 #6600CC #6600FF
-#663300 #663333 #663366 #663399 #6633CC #6633FF
-#666600 #666633 #666666 #666699 #6666CC #6666FF
-#669900 #669933 #669966 #669999 #6699CC #6699FF
-#66CC00 #66CC33 #66CC66 #66CC99 #66CCCC #66CCFF
-#66FF00 #66FF33 #66FF66 #66FF99 #66FFCC #66FFFF
-
-#990000 #990033 #990066 #990099 #9900CC #9900FF
-#993300 #993333 #993366 #993399 #9933CC #9933FF
-#996600 #996633 #996666 #996699 #9966CC #9966FF
-#999900 #999933 #999966 #999999 #9999CC #9999FF
-#99CC00 #99CC33 #99CC66 #99CC99 #99CCCC #99CCFF
-#99FF00 #99FF33 #99FF66 #99FF99 #99FFCC #99FFFF
-
-#CC0000 #CC0033 #CC0066 #CC0099 #CC00CC #CC00FF
-#CC3300 #CC3333 #CC3366 #CC3399 #CC33CC #CC33FF
-#CC6600 #CC6633 #CC6666 #CC6699 #CC66CC #CC66FF
-#CC9900 #CC9933 #CC9966 #CC9999 #CC99CC #CC99FF
-#CCCC00 #CCCC33 #CCCC66 #CCCC99 #CCCCCC #CCCCFF
-#CCFF00 #CCFF33 #CCFF66 #CCFF99 #CCFFCC #CCFFFF
-
-#FF0000 #FF0033 #FF0066 #FF0099 #FF00CC #FF00FF
-#FF3300 #FF3333 #FF3366 #FF3399 #FF33CC #FF33FF
-#FF6600 #FF6633 #FF6666 #FF6699 #FF66CC #FF66FF
-#FF9900 #FF9933 #FF9966 #FF9999 #FF99CC #FF99FF
-#FFCC00 #FFCC33 #FFCC66 #FFCC99 #FFCCCC #FFCCFF
-#FFFF00 #FFFF33 #FFFF66 #FFFF99 #FFFFCC #FFFFFF
-
-#+end_src
-
-** [edit-color-stamp] Qt経由でカラーピッカーを使う
-   :PROPERTIES:
-   :CUSTOM_ID: orgcc116051
-   :END:
-
-  - [[https://github.com/sabof/edit-color-stamp][sabof/edit-color-stamp: Edit hex color stamps using a QT, or the internal color picker]]
-
-  - Macintosh でもちゃんと使えます．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (and (executable-find "qt_color_picker")
-           (autoload-if-found
-            '(edit-color-stamp)
-            "edit-color-stamp" nil t))
-
-  (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
-#+end_src
-
-（設定手順）
-  - QT をインストールして， =qmake= に =PATH= を通す（例：/usr/local/opt/qt/bin）
-  - =edit-color-stamp= を入手してインストール先のフォルダに移動
-  - さらに， =qt_color_picker= ディレクトリに移動
-  - =qt_color_picker.pro= を編集して， "QT +=" に "widgets" を追加して保存する．
-    #+begin_src conf
-    QT += core gui widgets
-    #+end_src
-  - =qmake qt_color_picker.pro && make= を実行
-  - 出来上がった =qt_color_picker.app= を =/Applications/= にコピー（移動）
-  - =exec-path= にパスを通す
-    #+begin_src emacs-lisp
-    (add-to-list 'exec-path "/Applications/qt_color_picker.app/Contents/MacOS/")
-    #+end_src
-  - =(executable-find "qt_color_picker")= でプログラムを呼べることを確認
-  - =#FFFFFF= などの色の上で =M-x edit-color-stamp= を実行する
-  - カラーピッカーで色を選んで「OK」すれば， =#FFFFFF= が更新される．
-
-** [ivy.el] インターフェイスの配色
-   :PROPERTIES:
-   :CUSTOM_ID: orge836aa4d
-   :ID:       4E6C6C26-AEBB-48D7-8CEB-8769F48C5FB0
-   :END:
-
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "ivy"
-  (custom-set-faces
-   '(ivy-current-match
-     ((((class color) (background light))
-       :background "#FFF3F3" :distant-foreground "#000000" :extend t)
-      (((class color) (background dark))
-       :background "#404040" :distant-foreground "#abb2bf" :extend t)))
-   '(ivy-minibuffer-match-face-1
-     ((((class color) (background light)) :foreground "#666666")
-      (((class color) (background dark)) :foreground "#999999")))
-   '(ivy-minibuffer-match-face-2
-     ((((class color) (background light)) :foreground "#c03333" :underline t)
-      (((class color) (background dark)) :foreground "#e04444" :underline t)))
-   '(ivy-minibuffer-match-face-3
-     ((((class color) (background light)) :foreground "#8585ff" :underline t)
-      (((class color) (background dark)) :foreground "#7777ff" :underline t)))
-   '(ivy-minibuffer-match-face-4
-     ((((class color) (background light)) :foreground "#439943" :underline t)
-      (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
-#+end_src
-
-** [ivy.el] 選択行をアイコンで強調
-   :PROPERTIES:
-   :CUSTOM_ID: org4b927009
-   :END:
-
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "ivy"
-;;; 選択対象を "" にする (requires all-the-icons.el)
-  (defface my-ivy-arrow-visible
-    '((((class color) (background light)) :foreground "orange")
-      (((class color) (background dark)) :foreground "#EE6363"))
-    "Face used by Ivy for highlighting the arrow.")
-  (defface my-ivy-arrow-invisible
-    '((((class color) (background light)) :foreground "#FFFFFF")
-      (((class color) (background dark)) :foreground "#31343F"))
-    "Face used by Ivy for highlighting the invisible arrow.")
-
-  (if window-system
-      (cond ((require 'icons-in-terminal nil t)
-             (defun my-ivy-format-function-arrow (cands)
-               "Transform CANDS into a string for minibuffer."
-               (ivy--format-function-generic
-                (lambda (str)
-                  (concat (icons-in-terminal-faicon
-                           "hand-o-right"
-                           :v-adjust -0.1 
-                           :face 'my-ivy-arrow-visible
-                           :height 0.8)
-                          " " (ivy--add-face (concat str "\n")
-                                             'ivy-current-match)))
-                (lambda (str)
-                  (concat (icons-in-terminal-faicon
-                           "hand-o-right"
-                           :v-adjust -0.1
-                           :face 'my-ivy-arrow-invisible
-                           :height 0.8)
-                          " " (concat str "\n")))
-                cands
-                ""))
-             (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
-            ((require 'all-the-icons nil t)
-             (defun my-ivy-format-function-arrow (cands)
-               "Transform CANDS into a string for minibuffer."
-               (ivy--format-function-generic
-                (lambda (str)
-                  (concat (all-the-icons-faicon
-                           "hand-o-right"
-                           :v-adjust -0.2 :face 'my-ivy-arrow-visible)
-                          " " (ivy--add-face str 'ivy-current-match)))
-                (lambda (str)
-                  (concat (all-the-icons-faicon
-                           "hand-o-right" :face 'my-ivy-arrow-invisible)
-                          " " str))
-                cands
-                "\n"))
-             (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
-            (t (setq ivy-format-functions-alist
-                     '((t . ivy-format-function-arrow)))))
-    (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
-#+end_src
-
-** [volatile-highlights] コピペした領域を強調
-   :PROPERTIES:
-   :CUSTOM_ID: org36a28b28
-   :END:
-
-コピペ直後の数秒に限定して，コピペした領域をハイライトします．さらに，所定の間隔で表示色を変えることで，ハイライト色が徐々に消えていくようなエフェクトにしています．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(volatile-highlights-mode my-vhl-change-color)
-       "volatile-highlights" nil t)
-
-  (dolist (hook '(org-mode-hook emacs-lisp-mode-hook emmet-mode-hook))
-    (add-hook hook #'volatile-highlights-mode))
-
-  (with-eval-after-load "volatile-highlights"
-    (set-face-attribute
-     'vhl/default-face nil :foreground "#FF3333" :background "#FFCDCD")
-    (volatile-highlights-mode t)
-
-    ;; ふわっとエフェクトの追加（ペースト時の色 => カーソル色 => 本来色）
-    (defun my-vhl-change-color ()
-      (interactive)
-      (let ((next 0.2)
-            (reset 0.5)
-            (colors '("#F8D3D7" "#F2DAE1" "#EBE0EB" "#E5E7F5" "#DEEDFF")))
-        (dolist (color colors)
-          (run-at-time next nil
-                       'set-face-attribute
-                       'vhl/default-face
-                       nil :foreground "#FF3333" :background color)
-          (setq next (+ 0.05 next)))
-        (run-at-time reset nil 'vhl/clear-all))
-      (set-face-attribute 'vhl/default-face
-                          nil :foreground "#FF3333"
-                          :background "#FFCDCD"))
-
-    (defun my-yank (&optional ARG)
-      (interactive)
-      (yank ARG)
-      (when window-system
-        (my-vhl-change-color)))
-    (global-set-key (kbd "M-v") 'my-yank)
-    (global-set-key (kbd "C-y") 'my-yank)
-
-    (with-eval-after-load "vterm"
-      (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
-
-    (with-eval-after-load "org"
-      (define-key org-mode-map (kbd "C-y") 'my-org-yank)
-      (defun my-org-yank ()
-        (interactive)
-        (org-yank)
-        (when window-system
-          (my-vhl-change-color))))))
 #+end_src
 
 * ユーティリティ関数

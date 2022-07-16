@@ -2969,272 +2969,6 @@ sorted.  FUNCTION must be a function of one argument."
   ;;       (org-recent-headings))))
   )
 
-(cond
- ((memq window-system '(ns x))
-  ;; モードラインにアイコンを出す
-  (make-face 'mode-line-ime-on-face)
-  (set-face-attribute 'mode-line-ime-on-face
-                      nil :foreground (plist-get my-cur-color-ime :on))
-  (when (fboundp 'mac-set-input-method-parameter)
-    (mac-set-input-method-parameter
-     "com.google.inputmethod.Japanese.base" 'title
-     (concat
-	    (if (require 'icons-in-terminal nil t)
-          (icons-in-terminal-octicon "keyboard"
-                                     :v-adjust 0.0
-                                     :face 'mode-line-ime-on-face)
-        "") " "))) ;; FIXME (the color is NOT changed, patch is wrong?)
-
-  (declare-function my-ime-on "init" nil)
-  (declare-function my-ime-off "init" nil)
-  (declare-function my-ime-active-p "init" nil)
-
-  ;; for private patch
-  (when (boundp 'mac-ime-cursor-type)
-    (setq mac-ime-cursor-type (plist-get my-cur-type-ime :on)))
-
-  (setq my-ime-last (my-ime-active-p))
-  (defun my-ime-on ()
-    (interactive)
-    (if (fboundp 'mac-toggle-input-method)
-	      (progn
-	        (mac-toggle-input-method t)
-	        (run-hooks 'input-method-activate-hook))
-	    (activate-input-method default-input-method))
-    (setq my-ime-last t))
-  (defun my-ime-off ()
-    (interactive)
-    (if (fboundp 'mac-toggle-input-method)
-	      (progn
-	        (mac-toggle-input-method nil)
-	        (run-hooks 'input-method-deactivate-hook))
-	    (deactivate-input-method))
-    (setq my-ime-last nil))
-
-  (defvar my-ime-before-action nil)
-  (defun my-ime-on-sticky ()
-    (when my-ime-before-action
-	    (my-ime-on)))
-  (defun my-ime-off-sticky ()
-    (when (setq my-ime-before-action (my-ime-active-p))
-	    (my-ime-off)))
-
-  (if (not (fboundp 'mac-ime-active-p))
-	    (progn
-	      ;; For selected.el
-	      (add-hook 'activate-mark-hook #'my-ime-off-sticky)
-	      (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-	      ;; 「M-x あ」対策
-	      (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
-	      (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
-    ;; For selected.el
-    (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
-    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
-
-  ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
-  ;;   "Extension to find-file as before-find-file-hook."
-  ;;   (message "--- ad:findfile")
-  ;;   (apply FILENAME WILDCARDS))
-  ;; (advice-add #'find-file :around #'ad:find-file)
-
-  ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-  ;; バッファ切替時に input method を切り替える
-  ;; (with-eval-after-load "postpone"
-  ;;   (when (and (fboundp 'mac-handle-input-method-change)
-  ;;              (require 'cl nil t))
-  ;;     (add-hook
-  ;;      'post-command-hook
-  ;;      (lexical-let ((previous-buffer nil))
-  ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
-  ;;        (lambda ()
-  ;;            (unless (eq (current-buffer) previous-buffer)
-  ;;              (when (bufferp previous-buffer)
-  ;;                (mac-handle-input-method-change))
-  ;;              (setq previous-buffer (current-buffer))))))))
-  )
-
- ;; EMP: Emacs Mac Port
- ((eq window-system 'mac)
-  (when (fboundp 'mac-input-source)
-    (defun my-mac-keyboard-input-source () ;; Need update
-	    (if (string-match "\\.Roman$" (mac-input-source))
-	        (progn
-	          (setq cursor-type (plist-get my-cur-type-ime :off))
-	          (add-to-list 'default-frame-alist
-			                   `(cursor-type . ,(plist-get my-cur-type-ime :off)))
-	          (set-cursor-color (plist-get my-cur-color-ime :off)))
-	      (progn
-	        (setq cursor-type (plist-get my-cur-type-ime :on))
-	        (add-to-list 'default-frame-alist
-			                 `(cursor-type . ,(plist-get my-cur-type-ime :on)))
-	        (set-cursor-color (plist-get my-cur-color-ime :on)))))
-
-    (when (fboundp 'mac-auto-ascii-mode)
-	    ;; (mac-auto-ascii-mode 1)
-	    ;; IME ON/OFF でカーソルの種別や色を替える
-	    (add-hook 'mac-selected-keyboard-input-source-change-hook
-		            #'my-mac-keyboard-input-source)
-	    ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
-	    ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
-	    ;;           #'my-mac-keyboard-input-source)
-	    (declare-function my-mac-keyboard-input-source "init" nil)
-	    (my-mac-keyboard-input-source))))
-
- (t nil))
-
-;; (declare-function my-font-config "init" nil)
-(global-set-key (kbd "M-`") 'other-frame)
-(with-eval-after-load "frame"
-  (defun ad:make-frame (&optional _parameters)
-    (when (display-graphic-p)
-      (my-theme)
-      (my-apply-cursor-config)
-      (setq-default cursor-type
-                    (if (my-ime-active-p)
-                        (plist-get my-cur-type-ime :on)
-                      (plist-get my-cur-type-ime :off)))
-      (when (require 'moom-font nil t)
-        (moom-font-resize))))
-  (advice-add 'make-frame :after #'ad:make-frame))
-
-(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
-(with-eval-after-load "moom"
-  (defun ad:moom-toggle-frame-maximized ()
-    (when (eq major-mode 'org-mode)
-      (org-redisplay-inline-images))
-    (when (and mode-line-format
-               (not my-toggle-modeline-global))
-      (my-mode-line-off)))
-  (advice-add 'moom-toggle-frame-maximized
-              :after #'ad:moom-toggle-frame-maximized))
-
-;; (make-variable-buffer-local 'my-mode-line-format)
-(defvar-local my-mode-line-format nil)
-(set-default 'my-mode-line-format mode-line-format)
-(defvar my-toggle-modeline-global t)
-(unless (display-graphic-p)
-  (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
-
-;;;###autoload
-(defun my-toggle-modeline-global ()
-  (interactive)
-  (setq my-toggle-modeline-global (not my-toggle-modeline-global))
-  (if my-toggle-modeline-global
-      (my-mode-line-on)
-    (my-mode-line-off)))
-
-;;;###autoload
-(defun my-mode-line-off ()
-  "Turn off mode line."
-  (when (fboundp 'dimmer-on)
-    (dimmer-on))
-  (when (fboundp 'pomodoro:visualize-stop)
-    (pomodoro:visualize-stop))
-  (when mode-line-format
-    (setq my-mode-line-format mode-line-format))
-  (setq mode-line-format nil))
-
-;;;###autoload
-(defun my-mode-line-on ()
-  "Turn on mode line."
-  (when (fboundp 'dimmer-off)
-    (dimmer-off))
-  (when (fboundp 'pomodoro:visualize-start)
-    (pomodoro:visualize-start))
-  (unless my-mode-line-format
-    (error "Invalid value: %s" my-mode-line-format))
-  (setq mode-line-format my-mode-line-format)
-  (redraw-frame))
-
-;;;###autoload
-(defun my-toggle-mode-line ()
-  "Toggle mode line."
-  (interactive)
-  (if mode-line-format
-      (my-mode-line-off)
-    (my-mode-line-on))
-  (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
-
-(add-hook 'find-file-hook
-          (lambda () (unless my-toggle-modeline-global
-                       (if shutup-p
-                           (shut-up (my-mode-line-off))
-                         (my-mode-line-off))))
-          t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
-
-;; init
-(my-mode-line-off)
-
-(unless noninteractive
-  (postpone-message "winner-mode")
-  (when (require 'winner nil t)
-    (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
-    (define-key winner-mode-map (kbd "C-(") 'winner-undo)
-    (define-key winner-mode-map (kbd "C-)") 'winner-redo)
-    (winner-mode 1)))
-
-(when (require 'shackle nil t)
-  (setq shackle-default-ratio 0.33)
-  (setq shackle-rules
-        '(("*osx-dictionary*" :align above :popup t)
-          ("*wclock*" :align above :popup t :select t)
-          ("*Checkdoc Status*" :align above :popup t :noselect t)
-          ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
-          ))
-  (unless noninteractive
-    (shackle-mode 1)))
-
-(with-eval-after-load "checkdoc"
-  (defun my-delete-checkdoc-window ()
-    (interactive)
-    (let ((checkdoc-window (get-buffer-window "*Checkdoc Status*")))
-      (when checkdoc-window
-        (delete-window checkdoc-window)))
-    (checkdoc-minor-mode -1))
-
-  (defun ad:checkdoc ()
-    (interactive)
-    (define-key checkdoc-minor-mode-map (kbd "q")
-      'my-delete-checkdoc-window)
-    (define-key checkdoc-minor-mode-map (kbd "C-g")
-      'my-delete-checkdoc-window)
-    (checkdoc-minor-mode 1))
-
-  (advice-add 'checkdoc :before #'ad:checkdoc))
-
-(with-eval-after-load "moom"
-  (when (and (not noninteractive)
-             (eq my-toggle-modeline-global 'doom)
-             (require 'doom-modeline nil t))
-    (custom-set-variables
-     '(doom-modeline-buffer-file-name-style 'truncate-except-project)
-     '(doom-modeline-bar-width 1)
-     '(doom-modeline-height (let ((font (face-font 'mode-line)))
-                              (if (and font (fboundp 'font-info))
-                                  (floor (* 0.8 ;; 1.0
-                                            (* 2 (aref (font-info font) 2))))
-                                10)))
-     '(doom-modeline-minor-modes t))
-    (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
-    (defun ad:doom-modeline-buffer-file-state-icon
-        (icon &optional text face height voffset)
-      "Displays an ICON with FACE, HEIGHT and VOFFSET.
-TEXT is the alternative if it is not applicable.
-Uses `all-the-icons-material' to fetch the icon."
-      (if doom-modeline-icon
-          (when icon
-            (doom-modeline-icon-material
-             icon
-             :face face
-             :height (or height 0.85) ;; 1.1
-             :v-adjust (or voffset -0.225))) ;; -0.225
-        (when text
-          (propertize text 'face face))))
-    (advice-add 'doom-modeline-buffer-file-state-icon :override
-                #'ad:doom-modeline-buffer-file-state-icon)
-    (size-indication-mode 1)
-    (doom-modeline-mode 1)))
-
 (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
 (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
 
@@ -3311,6 +3045,105 @@ Uses `all-the-icons-material' to fetch the icon."
 (unless noninteractive
   (postpone-message "blink-cursor-mode")
   (blink-cursor-mode 1))
+
+;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
+;; 2) Inconsolata, Migu 2M     : font-size=14,
+;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
+(defconst my-font-size 12)
+(defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
+(defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
+;; (defconst my-ja-font "Hiragino Maru Gothic Pro") ;; "Hiragino Maru Gothic Pro"
+;; (defconst my-ascii-font "Inconsolata") ;; "Inconsolata", Menlo, "Ricty Diminished"
+(defun my-ja-font-setter (spec)
+  (set-fontset-font nil 'japanese-jisx0208 spec)
+  (set-fontset-font nil 'katakana-jisx0201 spec)
+  (set-fontset-font nil 'japanese-jisx0212 spec)
+  (set-fontset-font nil '(#x0080 . #x024F) spec)
+  (set-fontset-font nil '(#x0370 . #x03FF) spec)
+  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
+(defun my-ascii-font-setter (spec)
+  (set-fontset-font nil 'ascii spec))
+(defun my-unicode-font-setter (spec)
+  (set-fontset-font t 'unicode spec nil 'prepend))
+(defun my-all-the-icons-setter ()
+  (when (require 'icons-in-terminal nil t)
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-faicon-family)))
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-fileicon-family)))
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-material-family)))
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-octicon-family)))
+    (my-unicode-font-setter
+     (font-spec :family (icons-in-terminal-wicon-family)))))
+(defun my-font-config (&optional size ascii ja)
+  "Font config.
+- SIZE: font size for ASCII and Japanese (default: 12)
+- ASCII: ascii font family (default: \"Monaco\")
+- JA: Japanese font family (default: \"Migu 2M\")
+"
+  (when (memq window-system '(mac ns))
+    (let ((font-size (or size my-font-size))
+          (ascii-font (or ascii my-ascii-font))
+          (ja-font (or ja my-ja-font)))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
+
+(defun my-setup-font ()
+  (cond
+   ;; CocoaEmacs
+   ((memq window-system '(mac ns))
+    (when (>= emacs-major-version 23)
+
+      ;; Fix ratio provided by set-face-attribute for fonts display
+      (setq face-font-rescale-alist
+            '(("^-apple-hiragino.*" . 1.0) ; 1.2
+              (".*Migu.*" . 1.2)
+              (".*Ricty.*" . 1.0)
+              (".*Inconsolata.*" . 1.0)
+              (".*osaka-bold.*" . 1.0)     ; 1.2
+              (".*osaka-medium.*" . 1.0)   ; 1.0
+              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+              ("-cdac$" . 1.0))))) ; 1.3
+   ;; (my-font-config) ;; see `my-theme'
+
+   ((eq window-system 'ns)
+    ;; Anti aliasing with Quartz 2D
+    (when (boundp 'mac-allow-anti-aliasing)
+      (setq mac-allow-anti-aliasing t)))
+
+   ((eq window-system 'w32) ;; Windows
+    (let ((font-size 14)
+          (font-height 100)
+          (ascii-font "Inconsolata")
+          (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
+
+   ((eq window-system 'x) ; for SuSE Linux 12.1
+    (let
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font "Inconsolata")
+         ;; (ja-font "MigMix 1M")
+         (ja-font "Migu 2M"))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
+    (setq face-font-rescale-alist '((".*Migu.*" . 2.0)
+                                    (".*MigMix.*" . 2.0)
+                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
+  )
+(my-setup-font)
 
 ;; set-default で global 指定すると，ミニバッファの message で制御不能になる
 ;; propertize で拡大できるが，global の値以下に縮小できなくなる．
@@ -3643,6 +3476,272 @@ Uses `all-the-icons-material' to fetch the icon."
         (org-yank)
         (when window-system
           (my-vhl-change-color))))))
+
+(cond
+ ((memq window-system '(ns x))
+  ;; モードラインにアイコンを出す
+  (make-face 'mode-line-ime-on-face)
+  (set-face-attribute 'mode-line-ime-on-face
+                      nil :foreground (plist-get my-cur-color-ime :on))
+  (when (fboundp 'mac-set-input-method-parameter)
+    (mac-set-input-method-parameter
+     "com.google.inputmethod.Japanese.base" 'title
+     (concat
+	    (if (require 'icons-in-terminal nil t)
+          (icons-in-terminal-octicon "keyboard"
+                                     :v-adjust 0.0
+                                     :face 'mode-line-ime-on-face)
+        "") " "))) ;; FIXME (the color is NOT changed, patch is wrong?)
+
+  (declare-function my-ime-on "init" nil)
+  (declare-function my-ime-off "init" nil)
+  (declare-function my-ime-active-p "init" nil)
+
+  ;; for private patch
+  (when (boundp 'mac-ime-cursor-type)
+    (setq mac-ime-cursor-type (plist-get my-cur-type-ime :on)))
+
+  (setq my-ime-last (my-ime-active-p))
+  (defun my-ime-on ()
+    (interactive)
+    (if (fboundp 'mac-toggle-input-method)
+	      (progn
+	        (mac-toggle-input-method t)
+	        (run-hooks 'input-method-activate-hook))
+	    (activate-input-method default-input-method))
+    (setq my-ime-last t))
+  (defun my-ime-off ()
+    (interactive)
+    (if (fboundp 'mac-toggle-input-method)
+	      (progn
+	        (mac-toggle-input-method nil)
+	        (run-hooks 'input-method-deactivate-hook))
+	    (deactivate-input-method))
+    (setq my-ime-last nil))
+
+  (defvar my-ime-before-action nil)
+  (defun my-ime-on-sticky ()
+    (when my-ime-before-action
+	    (my-ime-on)))
+  (defun my-ime-off-sticky ()
+    (when (setq my-ime-before-action (my-ime-active-p))
+	    (my-ime-off)))
+
+  (if (not (fboundp 'mac-ime-active-p))
+	    (progn
+	      ;; For selected.el
+	      (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+	      (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+	      ;; 「M-x あ」対策
+	      (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
+	      (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
+    ;; For selected.el
+    (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
+    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
+
+  ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
+  ;;   "Extension to find-file as before-find-file-hook."
+  ;;   (message "--- ad:findfile")
+  ;;   (apply FILENAME WILDCARDS))
+  ;; (advice-add #'find-file :around #'ad:find-file)
+
+  ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
+  ;; バッファ切替時に input method を切り替える
+  ;; (with-eval-after-load "postpone"
+  ;;   (when (and (fboundp 'mac-handle-input-method-change)
+  ;;              (require 'cl nil t))
+  ;;     (add-hook
+  ;;      'post-command-hook
+  ;;      (lexical-let ((previous-buffer nil))
+  ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
+  ;;        (lambda ()
+  ;;            (unless (eq (current-buffer) previous-buffer)
+  ;;              (when (bufferp previous-buffer)
+  ;;                (mac-handle-input-method-change))
+  ;;              (setq previous-buffer (current-buffer))))))))
+  )
+
+ ;; EMP: Emacs Mac Port
+ ((eq window-system 'mac)
+  (when (fboundp 'mac-input-source)
+    (defun my-mac-keyboard-input-source () ;; Need update
+	    (if (string-match "\\.Roman$" (mac-input-source))
+	        (progn
+	          (setq cursor-type (plist-get my-cur-type-ime :off))
+	          (add-to-list 'default-frame-alist
+			                   `(cursor-type . ,(plist-get my-cur-type-ime :off)))
+	          (set-cursor-color (plist-get my-cur-color-ime :off)))
+	      (progn
+	        (setq cursor-type (plist-get my-cur-type-ime :on))
+	        (add-to-list 'default-frame-alist
+			                 `(cursor-type . ,(plist-get my-cur-type-ime :on)))
+	        (set-cursor-color (plist-get my-cur-color-ime :on)))))
+
+    (when (fboundp 'mac-auto-ascii-mode)
+	    ;; (mac-auto-ascii-mode 1)
+	    ;; IME ON/OFF でカーソルの種別や色を替える
+	    (add-hook 'mac-selected-keyboard-input-source-change-hook
+		            #'my-mac-keyboard-input-source)
+	    ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
+	    ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
+	    ;;           #'my-mac-keyboard-input-source)
+	    (declare-function my-mac-keyboard-input-source "init" nil)
+	    (my-mac-keyboard-input-source))))
+
+ (t nil))
+
+;; (declare-function my-font-config "init" nil)
+(global-set-key (kbd "M-`") 'other-frame)
+(with-eval-after-load "frame"
+  (defun ad:make-frame (&optional _parameters)
+    (when (display-graphic-p)
+      (my-theme)
+      (my-apply-cursor-config)
+      (setq-default cursor-type
+                    (if (my-ime-active-p)
+                        (plist-get my-cur-type-ime :on)
+                      (plist-get my-cur-type-ime :off)))
+      (when (require 'moom-font nil t)
+        (moom-font-resize))))
+  (advice-add 'make-frame :after #'ad:make-frame))
+
+(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
+(with-eval-after-load "moom"
+  (defun ad:moom-toggle-frame-maximized ()
+    (when (eq major-mode 'org-mode)
+      (org-redisplay-inline-images))
+    (when (and mode-line-format
+               (not my-toggle-modeline-global))
+      (my-mode-line-off)))
+  (advice-add 'moom-toggle-frame-maximized
+              :after #'ad:moom-toggle-frame-maximized))
+
+;; (make-variable-buffer-local 'my-mode-line-format)
+(defvar-local my-mode-line-format nil)
+(set-default 'my-mode-line-format mode-line-format)
+(defvar my-toggle-modeline-global t)
+(unless (display-graphic-p)
+  (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
+
+;;;###autoload
+(defun my-toggle-modeline-global ()
+  (interactive)
+  (setq my-toggle-modeline-global (not my-toggle-modeline-global))
+  (if my-toggle-modeline-global
+      (my-mode-line-on)
+    (my-mode-line-off)))
+
+;;;###autoload
+(defun my-mode-line-off ()
+  "Turn off mode line."
+  (when (fboundp 'dimmer-on)
+    (dimmer-on))
+  (when (fboundp 'pomodoro:visualize-stop)
+    (pomodoro:visualize-stop))
+  (when mode-line-format
+    (setq my-mode-line-format mode-line-format))
+  (setq mode-line-format nil))
+
+;;;###autoload
+(defun my-mode-line-on ()
+  "Turn on mode line."
+  (when (fboundp 'dimmer-off)
+    (dimmer-off))
+  (when (fboundp 'pomodoro:visualize-start)
+    (pomodoro:visualize-start))
+  (unless my-mode-line-format
+    (error "Invalid value: %s" my-mode-line-format))
+  (setq mode-line-format my-mode-line-format)
+  (redraw-frame))
+
+;;;###autoload
+(defun my-toggle-mode-line ()
+  "Toggle mode line."
+  (interactive)
+  (if mode-line-format
+      (my-mode-line-off)
+    (my-mode-line-on))
+  (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
+
+(add-hook 'find-file-hook
+          (lambda () (unless my-toggle-modeline-global
+                       (if shutup-p
+                           (shut-up (my-mode-line-off))
+                         (my-mode-line-off))))
+          t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
+
+;; init
+(my-mode-line-off)
+
+(unless noninteractive
+  (postpone-message "winner-mode")
+  (when (require 'winner nil t)
+    (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
+    (define-key winner-mode-map (kbd "C-(") 'winner-undo)
+    (define-key winner-mode-map (kbd "C-)") 'winner-redo)
+    (winner-mode 1)))
+
+(when (require 'shackle nil t)
+  (setq shackle-default-ratio 0.33)
+  (setq shackle-rules
+        '(("*osx-dictionary*" :align above :popup t)
+          ("*wclock*" :align above :popup t :select t)
+          ("*Checkdoc Status*" :align above :popup t :noselect t)
+          ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
+          ))
+  (unless noninteractive
+    (shackle-mode 1)))
+
+(with-eval-after-load "checkdoc"
+  (defun my-delete-checkdoc-window ()
+    (interactive)
+    (let ((checkdoc-window (get-buffer-window "*Checkdoc Status*")))
+      (when checkdoc-window
+        (delete-window checkdoc-window)))
+    (checkdoc-minor-mode -1))
+
+  (defun ad:checkdoc ()
+    (interactive)
+    (define-key checkdoc-minor-mode-map (kbd "q")
+      'my-delete-checkdoc-window)
+    (define-key checkdoc-minor-mode-map (kbd "C-g")
+      'my-delete-checkdoc-window)
+    (checkdoc-minor-mode 1))
+
+  (advice-add 'checkdoc :before #'ad:checkdoc))
+
+(with-eval-after-load "moom"
+  (when (and (not noninteractive)
+             (eq my-toggle-modeline-global 'doom)
+             (require 'doom-modeline nil t))
+    (custom-set-variables
+     '(doom-modeline-buffer-file-name-style 'truncate-except-project)
+     '(doom-modeline-bar-width 1)
+     '(doom-modeline-height (let ((font (face-font 'mode-line)))
+                              (if (and font (fboundp 'font-info))
+                                  (floor (* 0.8 ;; 1.0
+                                            (* 2 (aref (font-info font) 2))))
+                                10)))
+     '(doom-modeline-minor-modes t))
+    (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
+    (defun ad:doom-modeline-buffer-file-state-icon
+        (icon &optional text face height voffset)
+      "Displays an ICON with FACE, HEIGHT and VOFFSET.
+TEXT is the alternative if it is not applicable.
+Uses `all-the-icons-material' to fetch the icon."
+      (if doom-modeline-icon
+          (when icon
+            (doom-modeline-icon-material
+             icon
+             :face face
+             :height (or height 0.85) ;; 1.1
+             :v-adjust (or voffset -0.225))) ;; -0.225
+        (when text
+          (propertize text 'face face))))
+    (advice-add 'doom-modeline-buffer-file-state-icon :override
+                #'ad:doom-modeline-buffer-file-state-icon)
+    (size-indication-mode 1)
+    (doom-modeline-mode 1)))
 
 (when (autoload-if-found
        '(pomodoro:start)

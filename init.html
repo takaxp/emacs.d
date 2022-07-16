@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-17 Sun 00:58 -->
+<!-- 2022-07-17 Sun 01:45 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -382,7 +382,7 @@
 <li><a href="#orgf6a240ab">6.1. キーコマンド入力中に入力過程をミニバッファに反映する</a></li>
 <li><a href="#org581a32ab">6.2. <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</a></li>
 <li><a href="#org3368625d">6.3. <span class="todo TODO">TODO</span> モードラインのNarrowを短くする</a></li>
-<li><a href="#org6ba33ff">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
+<li><a href="#orgd93dbcb">6.4. <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</a></li>
 <li><a href="#org5fd3a668">6.5. モードラインの節約（VC-mode編）</a></li>
 <li><a href="#orgb577af83">6.6. モードラインの色をカスタマイズする</a>
 <ul>
@@ -395,7 +395,7 @@
 <li><a href="#orgdd0a9c41">6.10. ツールバーを非表示にする</a></li>
 <li><a href="#org52e500e2">6.11. メニューバーを非表示にする</a></li>
 <li><a href="#orgd432e8ff">6.12. 起動時のスプラッシュ画面を表示しない</a></li>
-<li><a href="#org640432f">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
+<li><a href="#orgbbe6b08">6.13. ターミナル時のウィンドウ分割線を見やすくする</a></li>
 <li><a href="#org4a736379">6.14. default.el を探索させない</a></li>
 <li><a href="#org8d729190">6.15. カーソル行の行数をモードラインに表示する</a></li>
 <li><a href="#orge456e19c">6.16. カーソル行の関数名をモードラインに表示する</a></li>
@@ -434,7 +434,7 @@
 <li><a href="#org5eaeb687">6.45. <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</a></li>
 <li><a href="#org7270262d">6.46. <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</a></li>
 <li><a href="#org8ba0784e">6.47. <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</a></li>
-<li><a href="#orga16e31a">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
+<li><a href="#orgee9149c">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
 <li><a href="#org1e701627">6.49. <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#org56d8bf9d">6.50. <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgc00267d7">6.51. <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
@@ -520,7 +520,7 @@
 <li><a href="#org4e23f079">9.21. <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</a></li>
 <li><a href="#org9547f772">9.22. <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</a></li>
 <li><a href="#orgea32afad">9.23. <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</a></li>
-<li><a href="#orgc94ee27">9.24. <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</a></li>
+<li><a href="#orgbebc61f">9.24. <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</a></li>
 <li><a href="#org09687b9c">9.25. <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgcde881ad">9.26. <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
@@ -597,57 +597,57 @@
 <li><a href="#org563f7076">10.64. <span class="done DONE">DONE</span> org-mode の latex エクスポート関数をオーバーライド&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
-<li><a href="#org5fd484a3">11. フレーム／ウィンドウ制御</a>
+<li><a href="#orgf57ce845">11. フォント／配色関連</a>
 <ul>
-<li><a href="#orgd05fc75a">11.1. 起動時の設定</a></li>
-<li><a href="#orgdffe4e49">11.2. 複数フレーム対応</a></li>
-<li><a href="#org5f12ba92">11.3. [moom.el] キーボードでフレームの場所を移す</a>
+<li><a href="#orgbbb079d3">11.1. 正規表現を見やすくする</a></li>
+<li><a href="#orgc98c6fff">11.2. 設定ファイルを見やすくする</a></li>
+<li><a href="#org7858d806">11.3. カーソル行に色をつける</a></li>
+<li><a href="#org29d5304f">11.4. カーソルの点滅を制御</a></li>
+<li><a href="#orgf36a8366">11.5. カーソル位置のフォントを確認</a></li>
+<li><a href="#org919a945a">11.6. フォント設定</a>
 <ul>
-<li><a href="#org6e3c20dd">11.3.1. 最大化時にモードラインを消す</a></li>
+<li><a href="#orgb94aa5b3">11.6.1. フォントのインストール方法</a></li>
+<li><a href="#org66fa6b98">11.6.2. フォントチェック用コード</a></li>
 </ul>
 </li>
-<li><a href="#org33fd785f">11.4. [winner.el] ウィンドウ構成の履歴を辿る</a></li>
-<li><a href="#orga9be167a">11.5. <span class="todo TODO">TODO</span> [shackle.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Ongoing">Ongoing</span></span></a>
+<li><a href="#org2bcbc1db">11.7. 行間を制御する</a></li>
+<li><a href="#org372b184d">11.8. パッチをカラフルに表示する</a></li>
+<li><a href="#org009dc6e3">11.9. 背景を黒系色にする</a></li>
+<li><a href="#org92d26c4b">11.10. 日中と夜中でテーマを切り替える</a></li>
+<li><a href="#org7c97dce0">11.11. 時間帯を指定して起動時にテーマを切り替える</a></li>
+<li><a href="#org6d79c76a">11.12. [hl-todo.el] 特定キーワードの配色を変える</a></li>
+<li><a href="#org9ce2fd45">11.13. [rainbow-mode.el] 配色のリアルタイム確認</a>
 <ul>
-<li><a href="#org32b579df">11.5.1. checkdoc.el 用の追加設定</a></li>
+<li><a href="#org19538af3">11.13.1. 色一覧</a></li>
 </ul>
 </li>
-<li><a href="#orgdca5e7c2">11.6. <span class="todo TODO">TODO</span> [doom-modeline.el] モードラインをリッチにする</a></li>
-<li><a href="#org4dd0671c">11.7. [e2wm.el] 二画面表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0c556404">11.8. [tabbar-ruler] バッファをタブ切り替え可能に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org6474a498">11.9. [elscreen.el] Emacs バッファをタブ化&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org750d9aa5">11.10. [popwin.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org7a20b311">11.11. <span class="done DONE">DONE</span> [olivetti.el] ウィンドウを中央寄せで配置&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgcc116051">11.14. [edit-color-stamp] Qt経由でカラーピッカーを使う</a></li>
+<li><a href="#orge836aa4d">11.15. [ivy.el] インターフェイスの配色</a></li>
+<li><a href="#org4b927009">11.16. [ivy.el] 選択行をアイコンで強調</a></li>
+<li><a href="#org36a28b28">11.17. [volatile-highlights] コピペした領域を強調</a></li>
 </ul>
 </li>
-<li><a href="#orgf57ce845">12. フォント／配色関連</a>
+<li><a href="#org5fd484a3">12. フレーム／ウィンドウ制御</a>
 <ul>
-<li><a href="#orgbbb079d3">12.1. 正規表現を見やすくする</a></li>
-<li><a href="#orgc98c6fff">12.2. 設定ファイルを見やすくする</a></li>
-<li><a href="#org7858d806">12.3. カーソル行に色をつける</a></li>
-<li><a href="#org29d5304f">12.4. カーソルの点滅を制御</a></li>
-<li><a href="#orgf36a8366">12.5. カーソル位置のフォントを確認</a></li>
-<li><a href="#org919a945a">12.6. フォント設定</a>
+<li><a href="#orgd05fc75a">12.1. 起動時の設定</a></li>
+<li><a href="#orgdffe4e49">12.2. 複数フレーム対応</a></li>
+<li><a href="#org5f12ba92">12.3. [moom.el] キーボードでフレームの場所を移す</a>
 <ul>
-<li><a href="#orgb94aa5b3">12.6.1. フォントのインストール方法</a></li>
-<li><a href="#org66fa6b98">12.6.2. フォントチェック用コード</a></li>
+<li><a href="#org6e3c20dd">12.3.1. 最大化時にモードラインを消す</a></li>
 </ul>
 </li>
-<li><a href="#org2bcbc1db">12.7. 行間を制御する</a></li>
-<li><a href="#org372b184d">12.8. パッチをカラフルに表示する</a></li>
-<li><a href="#org009dc6e3">12.9. 背景を黒系色にする</a></li>
-<li><a href="#org92d26c4b">12.10. 日中と夜中でテーマを切り替える</a></li>
-<li><a href="#org7c97dce0">12.11. 時間帯を指定して起動時にテーマを切り替える</a></li>
-<li><a href="#org6d79c76a">12.12. [hl-todo.el] 特定キーワードの配色を変える</a></li>
-<li><a href="#org9ce2fd45">12.13. [rainbow-mode.el] 配色のリアルタイム確認</a>
+<li><a href="#org33fd785f">12.4. [winner.el] ウィンドウ構成の履歴を辿る</a></li>
+<li><a href="#orga9be167a">12.5. <span class="todo TODO">TODO</span> [shackle.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Ongoing">Ongoing</span></span></a>
 <ul>
-<li><a href="#org19538af3">12.13.1. 色一覧</a></li>
+<li><a href="#org32b579df">12.5.1. checkdoc.el 用の追加設定</a></li>
 </ul>
 </li>
-<li><a href="#orgcc116051">12.14. [edit-color-stamp] Qt経由でカラーピッカーを使う</a></li>
-<li><a href="#orge836aa4d">12.15. [ivy.el] インターフェイスの配色</a></li>
-<li><a href="#org4b927009">12.16. [ivy.el] 選択行をアイコンで強調</a></li>
-<li><a href="#org36a28b28">12.17. [volatile-highlights] コピペした領域を強調</a></li>
+<li><a href="#orgdca5e7c2">12.6. <span class="todo TODO">TODO</span> [doom-modeline.el] モードラインをリッチにする</a></li>
+<li><a href="#org4dd0671c">12.7. [e2wm.el] 二画面表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0c556404">12.8. [tabbar-ruler] バッファをタブ切り替え可能に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org6474a498">12.9. [elscreen.el] Emacs バッファをタブ化&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org750d9aa5">12.10. [popwin.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org7a20b311">12.11. <span class="done DONE">DONE</span> [olivetti.el] ウィンドウを中央寄せで配置&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
 <li><a href="#orgb8e84b9a">13. ユーティリティ関数</a>
@@ -789,6 +789,10 @@ Then load the following at startup
 <div id="outline-container-orgf0a01c11" class="outline-3">
 <h3 id="orgf0a01c11"><span class="section-number-3">2.3.</span> [early-init.el] early-init.el を使う</h3>
 <div class="outline-text-3" id="text-orgf0a01c11">
+<p>
+<code>early-init.el</code> の読み込み時には， <code>(display-graphic-p)</code> と <code>window-system</code> が共に <code>nil</code> に設定されるので要注意です．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- Window system (ns mac) %s, display-graphic-p %s, File %s" window-system (display-graphic-p) early-init-file)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">References:</span>
@@ -5452,8 +5456,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 </div>
 
-<div id="outline-container-org6ba33ff" class="outline-3">
-<h3 id="org6ba33ff"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
+<div id="outline-container-orgd93dbcb" class="outline-3">
+<h3 id="orgd93dbcb"><span class="section-number-3">6.4.</span> <span class="todo TODO">TODO</span> [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示</h3>
 <div class="outline-text-3" id="text-6-4">
 <p>
 <a href="https://github.com/jdtsmith/mlscroll">mlscroll.el</a> を使います．
@@ -5517,7 +5521,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">if</span> (display-graphic-p)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">if</span> (not (display-graphic-p))
     (<span style="color: #a020f0;">progn</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">Terminal</span>
       (set-face-foreground 'mode-line <span style="color: #8b2252;">"#96CBFE"</span>)
       (set-face-background 'mode-line <span style="color: #8b2252;">"#21252B"</span>))
@@ -5840,8 +5844,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 </div>
 </div>
 
-<div id="outline-container-org640432f" class="outline-3">
-<h3 id="org640432f"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
+<div id="outline-container-orgbbe6b08" class="outline-3">
+<h3 id="orgbbe6b08"><span class="section-number-3">6.13.</span> ターミナル時のウィンドウ分割線を見やすくする</h3>
 <div class="outline-text-3" id="text-6-13">
 <p>
 see <a href="https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/">https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/</a>
@@ -7285,8 +7289,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 </div>
 
-<div id="outline-container-orga16e31a" class="outline-3">
-<h3 id="orga16e31a"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
+<div id="outline-container-orgee9149c" class="outline-3">
+<h3 id="orgee9149c"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
 <div class="outline-text-3" id="text-6-48">
 <p>
 <code>autoload-if-found</code> を使ういつもの設定では正しく動作しないので， <code>eval-when-compile</code> を使用して require しています．
@@ -10042,8 +10046,8 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 </div>
-<div id="outline-container-orgc94ee27" class="outline-3">
-<h3 id="orgc94ee27"><span class="section-number-3">9.24.</span> <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</h3>
+<div id="outline-container-orgbebc61f" class="outline-3">
+<h3 id="orgbebc61f"><span class="section-number-3">9.24.</span> <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</h3>
 <div class="outline-text-3" id="text-9-24">
 <p>
 <code>vterm</code> を使うとバッファをターミナルとして使えます．通常では <code>C-n/C-p</code> でコマンド履歴を辿ってしまうので，実行結果などをコピーして別バッファに貼り付けたい場合は， <code>vterm-copy-mode</code> (C-c C-t) を使えばよいです．
@@ -12508,7 +12512,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org2feed1a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org0f9835b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13406,7 +13410,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org8ce8faa" class="figure">
+<div id="orgd48204c" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -13657,12 +13661,922 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 </div>
 
+<div id="outline-container-orgf57ce845" class="outline-2">
+<h2 id="orgf57ce845"><span class="section-number-2">11.</span> フォント／配色関連</h2>
+<div class="outline-text-2" id="text-orgf57ce845">
+</div>
+<div id="outline-container-orgbbb079d3" class="outline-3">
+<h3 id="orgbbb079d3"><span class="section-number-3">11.1.</span> 正規表現を見やすくする</h3>
+<div class="outline-text-3" id="text-orgbbb079d3">
+<p>
+Emacs Lisp の正規表現を色付けします．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(set-face-foreground 'font-lock-regexp-grouping-backslash <span style="color: #8b2252;">"#66CC99"</span>)
+(set-face-foreground 'font-lock-regexp-grouping-construct <span style="color: #8b2252;">"#9966CC"</span>)
+</pre>
+</div>
+
+<p>
+Emacs Lisp で正規表現入力をサポートするツールには， <code>M-x re-builder</code> や <code>rx</code> マクロがある．
+</p>
+
+<ul class="org-ul">
+<li><a href="http://www.emacswiki.org/emacs/ReBuilder">EmacsWiki: Re Builder</a></li>
+<li><a href="http://emacswiki.org/emacs/rx">EmacsWiki: rx</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgc98c6fff" class="outline-3">
+<h3 id="orgc98c6fff"><span class="section-number-3">11.2.</span> 設定ファイルを見やすくする</h3>
+<div class="outline-text-3" id="text-orgc98c6fff">
+<p>
+<code>generic-x</code> を使うと， <code>/etc/hosts</code> や <code>/etc/apache2.conf</code> に色を付けられる．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">generic-x</span> nil t))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7858d806" class="outline-3">
+<h3 id="org7858d806"><span class="section-number-3">11.3.</span> カーソル行に色をつける</h3>
+<div class="outline-text-3" id="text-org7858d806">
+<ul class="org-ul">
+<li>ビルトインの <code>hl-line</code> を使います．</li>
+<li><a href="http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html">http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html</a></li>
+<li><a href="http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el">http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el</a></li>
+</ul>
+
+<p>
+色の設定は <code>custom-set-faces</code> で．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(hl-line-mode my-hl-line-enable)
+       <span style="color: #8b2252;">"hl-line"</span> nil t)
+
+  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
+
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-permanent-disabled</span> '(dired-mode vterm-mode)
+    <span style="color: #8b2252;">"A list of major modes to disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>)
+
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-off-hline-hook</span> nil)
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-on-hline-hook</span> nil)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
+    (<span style="color: #a020f0;">unless</span> (version&lt; emacs-version <span style="color: #8b2252;">"28.1"</span>)
+      (<span style="color: #a020f0;">setq</span> hl-line-sticky-flag nil))
+
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-active-period</span> 120
+      <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">' after this period"</span>)
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-disable</span> ()
+      <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
+      (hl-line-mode -1))
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-enable</span> ()
+      <span style="color: #8b2252;">"Enable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
+      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> hl-line-mode
+                              (minibufferp)
+                                    (memq major-mode my-hl-permanent-disabled))
+              (hl-line-mode 1)))
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-off-hline</span> ()
+      (my-hl-line-enable)
+      (<span style="color: #a020f0;">let</span> ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+              (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"#484c5c"</span> <span style="color: #8b2252;">"#DEEDFF"</span>)))
+      (run-hooks 'my-ime-off-hline-hook))
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-on-hline</span> ()
+      (my-hl-line-enable)
+      (<span style="color: #a020f0;">let</span> ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
+              (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"#594d5d"</span> <span style="color: #8b2252;">"#fff0de"</span>)))
+      (run-hooks 'my-ime-on-hline-hook))
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">init</span>
+    (<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-active-p)
+      (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
+                      (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+              (<span style="color: #a020f0;">if</span> (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
+
+    (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
+
+    (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
+              (<span style="color: #a020f0;">progn</span>
+                (add-hook 'focus-in-hook #'my-hl-line-enable)
+                (add-hook 'focus-out-hook #'my-hl-line-disable))
+      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-update</span> ()
+              (<span style="color: #a020f0;">if</span> (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
+      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:after</span> after-focus-change-function #'my-hl-line-update)
+      )
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'minibuffer-setup-hook #'my-hl-line-disable)</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'minibuffer-exit-hook #'my-hl-line-enable)</span>
+    (add-hook 'input-method-activate-hook #'my-ime-on-hline)
+    (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)))
+</pre>
+</div>
+
+<p>
+色の変更ではなく，下線に変更したい場合は， <code>(setq hl-line-face 'underline)</code> とする．
+</p>
+</div>
+</div>
+
+<div id="outline-container-org29d5304f" class="outline-3">
+<h3 id="org29d5304f"><span class="section-number-3">11.4.</span> カーソルの点滅を制御</h3>
+<div class="outline-text-3" id="text-org29d5304f">
+<p>
+以下の例では，入力が止まってから <code>30</code> 秒後に <code>0.2</code> 秒間隔で点滅します．次に入力が始まるまで，点滅が続きます．
+</p>
+
+<p>
+<code>postpone</code> の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> blink-cursor-blinks 0)
+(<span style="color: #a020f0;">setq</span> blink-cursor-interval 0.2)
+(<span style="color: #a020f0;">setq</span> blink-cursor-delay 30)
+(<span style="color: #a020f0;">unless</span> noninteractive
+  (postpone-message <span style="color: #8b2252;">"blink-cursor-mode"</span>)
+  (blink-cursor-mode 1))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf36a8366" class="outline-3">
+<h3 id="orgf36a8366"><span class="section-number-3">11.5.</span> カーソル位置のフォントを確認</h3>
+<div class="outline-text-3" id="text-orgf36a8366">
+<p>
+<code>M-x describe-char</code> すると，カーソル位置のフォントの情報が別バッファに表示されます．
+</p>
+</div>
+</div>
+
+<div id="outline-container-org919a945a" class="outline-3">
+<h3 id="org919a945a"><span class="section-number-3">11.6.</span> フォント設定</h3>
+<div class="outline-text-3" id="text-org919a945a">
+<p>
+表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．最近は，<a href="http://mix-mplus-ipa.sourceforge.jp/migu/">Migu 2M</a>を気に入って使っています．
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption class="t-above"><span class="table-number">Table 1:</span> 環境別の使用フォント</caption>
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">ASCII</td>
+<td class="org-left">日本語</td>
+</tr>
+
+<tr>
+<td class="org-left">Mac</td>
+<td class="org-left">Monaco</td>
+<td class="org-left">Migu 2M 又は ヒラギノ丸ゴ</td>
+</tr>
+
+<tr>
+<td class="org-left">Windows</td>
+<td class="org-left">Inconsolata</td>
+<td class="org-left">メイリオ</td>
+</tr>
+
+<tr>
+<td class="org-left">Linux</td>
+<td class="org-left">Inconsolata</td>
+<td class="org-left">MigMix</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li><a href="http://d.hatena.ne.jp/setoryohei/20110117/1295336454">http://d.hatena.ne.jp/setoryohei/20110117/1295336454</a></li>
+<li><a href="http://users.teilar.gr/~g1951d/">Unicode Fonts for Ancient Scripts</a></li>
+</ul>
+
+<p>
+<code>early-init.el</code> で設定すると高速起動に効果あり（ <code>emacs-init-time</code> には表れない）
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">2) Inconsolata, Migu 2M     : font-size=14,</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0</span>
+(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-font-size</span> 12)
+(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-ja-font</span> <span style="color: #8b2252;">"Migu 2M"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Hiragino Maru Gothic Pro"</span>
+(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-ascii-font</span> <span style="color: #8b2252;">"Monaco"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Inconsolata", Monaco</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(defconst my-ja-font "Hiragino Maru Gothic Pro") ;; "Hiragino Maru Gothic Pro"</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(defconst my-ascii-font "Inconsolata") ;; "Inconsolata", Menlo, "Ricty Diminished"</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ja-font-setter</span> (spec)
+  (set-fontset-font nil 'japanese-jisx0208 spec)
+  (set-fontset-font nil 'katakana-jisx0201 spec)
+  (set-fontset-font nil 'japanese-jisx0212 spec)
+  (set-fontset-font nil '(#x0080 . #x024F) spec)
+  (set-fontset-font nil '(#x0370 . #x03FF) spec)
+  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ascii-font-setter</span> (spec)
+  (set-fontset-font nil 'ascii spec))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-unicode-font-setter</span> (spec)
+  (set-fontset-font t 'unicode spec nil 'prepend))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-all-the-icons-setter</span> ()
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+    (my-unicode-font-setter
+     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-faicon-family)))
+    (my-unicode-font-setter
+     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-fileicon-family)))
+    (my-unicode-font-setter
+     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-material-family)))
+    (my-unicode-font-setter
+     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-octicon-family)))
+    (my-unicode-font-setter
+     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-wicon-family)))))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-font-config</span> (<span style="color: #228b22;">&amp;optional</span> size ascii ja)
+  <span style="color: #8b2252;">"Font config.</span>
+<span style="color: #8b2252;">- SIZE: font size for ASCII and Japanese (default: 12)</span>
+<span style="color: #8b2252;">- ASCII: ascii font family (default: \"Monaco\")</span>
+<span style="color: #8b2252;">- JA: Japanese font family (default: \"Migu 2M\")</span>
+<span style="color: #8b2252;">"</span>
+  (<span style="color: #a020f0;">when</span> (memq window-system '(mac ns))
+    (<span style="color: #a020f0;">let</span> ((font-size (<span style="color: #a020f0;">or</span> size my-font-size))
+          (ascii-font (<span style="color: #a020f0;">or</span> ascii my-ascii-font))
+          (ja-font (<span style="color: #a020f0;">or</span> ja my-ja-font)))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+      <span style="color: #b22222;">;;</span><span style="color: #b22222;">(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")</span>
+      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
+      (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size)))))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-setup-font</span> ()
+  (<span style="color: #a020f0;">cond</span>
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">CocoaEmacs</span>
+   ((memq window-system '(mac ns))
+    (<span style="color: #a020f0;">when</span> (&gt;= emacs-major-version 23)
+
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fix ratio provided by set-face-attribute for fonts display</span>
+      (<span style="color: #a020f0;">setq</span> face-font-rescale-alist
+            '((<span style="color: #8b2252;">"^-apple-hiragino.*"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
+              (<span style="color: #8b2252;">".*Migu.*"</span> . 1.2)
+              (<span style="color: #8b2252;">".*Ricty.*"</span> . 1.0)
+              (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0)
+              (<span style="color: #8b2252;">".*osaka-bold.*"</span> . 1.0)     <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
+              (<span style="color: #8b2252;">".*osaka-medium.*"</span> . 1.0)   <span style="color: #b22222;">; </span><span style="color: #b22222;">1.0</span>
+              (<span style="color: #8b2252;">".*courier-bold-.*-mac-roman"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
+              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco cy-bold-.*-mac-cyrillic" . 1.0)</span>
+              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9</span>
+              (<span style="color: #8b2252;">"-cdac$"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.3</span>
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-font-config) ;; see `</span><span style="color: #008b8b;">my-theme</span><span style="color: #b22222;">'</span>
+
+   ((eq window-system 'ns)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Anti aliasing with Quartz 2D</span>
+    (<span style="color: #a020f0;">when</span> (boundp 'mac-allow-anti-aliasing)
+      (<span style="color: #a020f0;">setq</span> mac-allow-anti-aliasing t)))
+
+   ((eq window-system 'w32) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Windows</span>
+    (<span style="color: #a020f0;">let</span> ((font-size 14)
+          (font-height 100)
+          (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
+          (ja-font <span style="color: #8b2252;">"Migu 2M"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Meiryo UI, &#12513;&#12452;&#12522;&#12458;</span>
+      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
+      (my-ja-font-setter
+       (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
+      (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
+
+   ((eq window-system 'x) <span style="color: #b22222;">; </span><span style="color: #b22222;">for SuSE Linux 12.1</span>
+    (<span style="color: #a020f0;">let</span>
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
+         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ja-font "MigMix 1M")</span>
+         (ja-font <span style="color: #8b2252;">"Migu 2M"</span>))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+      (my-ja-font-setter
+       (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
+      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))
+    (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Migu.*"</span> . 2.0)
+                                    (<span style="color: #8b2252;">".*MigMix.*"</span> . 2.0)
+                                    (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
+  )
+(my-setup-font)
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgb94aa5b3" class="outline-4">
+<h4 id="orgb94aa5b3"><span class="section-number-4">11.6.1.</span> フォントのインストール方法</h4>
+<div class="outline-text-4" id="text-orgb94aa5b3">
+<p>
+Linux では次のように処理するだけでよく，意外と簡単．
+</p>
+
+<ol class="org-ol">
+<li>~/.fonts を作成する</li>
+<li>フォントを1.のディレクトリに置く</li>
+<li>fc-cache -fv を実行</li>
+<li>fc-list でインストールされているかを確認．</li>
+</ol>
+
+<p>
+なお，Windows では，フォントファイルを右クリックして，インストールを選択するだけでOK．
+</p>
+</div>
+</div>
+
+<div id="outline-container-org66fa6b98" class="outline-4">
+<h4 id="org66fa6b98"><span class="section-number-4">11.6.2.</span> フォントチェック用コード</h4>
+<div class="outline-text-4" id="text-org66fa6b98">
+<p>
+サンプルの <a href="http://dl.dropbox.com/u/2440/dokuwiki/font-test.org">orgファイル</a> を作って，見た目をチェックしています．バッファ内の桁数チェックや，ASCIIが漢字の半分の幅になっているかのチェックが楽になります．
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2bcbc1db" class="outline-3">
+<h3 id="org2bcbc1db"><span class="section-number-3">11.7.</span> 行間を制御する</h3>
+<div class="outline-text-3" id="text-org2bcbc1db">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">set-default &#12391; global &#25351;&#23450;&#12377;&#12427;&#12392;&#65292;&#12511;&#12491;&#12496;&#12483;&#12501;&#12449;&#12398; message &#12391;&#21046;&#24481;&#19981;&#33021;&#12395;&#12394;&#12427;</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">propertize &#12391;&#25313;&#22823;&#12391;&#12365;&#12427;&#12364;&#65292;global &#12398;&#20516;&#20197;&#19979;&#12395;&#32302;&#23567;&#12391;&#12365;&#12394;&#12367;&#12394;&#12427;&#65294;</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(set-default 'line-spacing 2)</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-linespacing</span> ()
+  (<span style="color: #a020f0;">unless</span> (minibufferp)
+    (<span style="color: #a020f0;">setq-local</span> line-spacing 2)))
+(add-hook 'buffer-list-update-hook #'my-linespacing)
+(add-hook 'org-src-mode-hook #'my-linespacing)
+(add-hook 'debugger-mode-hook #'my-linespacing)
+
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda</span> (<span style="color: #228b22;">&amp;optional</span> _arg _org-keys _restriction)
+    (my-linespacing))
+  (advice-add 'org-agenda <span style="color: #483d8b;">:after</span> #'my-org-agenda)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-redo</span> (<span style="color: #228b22;">&amp;optional</span> _all)
+    (my-linespacing))
+  (advice-add 'org-agenda-redo <span style="color: #483d8b;">:after</span> #'my-org-agenda-redo))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org372b184d" class="outline-3">
+<h3 id="org372b184d"><span class="section-number-3">11.8.</span> パッチをカラフルに表示する</h3>
+<div class="outline-text-3" id="text-org372b184d">
+<p>
+Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> をカスタマイズします．
+</p>
+
+<ul class="org-ul">
+<li><a href="http://d.hatena.ne.jp/syohex/20111228/1325086893">http://d.hatena.ne.jp/syohex/20111228/1325086893</a></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"diff-mode"</span>
+  (set-face-attribute 'diff-added nil
+                      <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"lime green"</span>
+                      <span style="color: #483d8b;">:weight</span> 'normal)
+
+  (set-face-attribute 'diff-removed nil
+                      <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"firebrick1"</span>
+                      <span style="color: #483d8b;">:weight</span> 'normal)
+
+  (set-face-attribute 'diff-file-header nil
+                      <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:weight</span> 'extra-bold)
+
+  (set-face-attribute 'diff-hunk-header nil
+                      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"chocolate4"</span>
+                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"white"</span> <span style="color: #483d8b;">:weight</span> 'extra-bold
+                      <span style="color: #483d8b;">:inherit</span> nil))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org009dc6e3" class="outline-3">
+<h3 id="org009dc6e3"><span class="section-number-3">11.9.</span> 背景を黒系色にする</h3>
+<div class="outline-text-3" id="text-org009dc6e3">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(custom-set-faces
+ '(default ((t
+             (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"black"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#55FF55"</span>)
+             ))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org92d26c4b" class="outline-3">
+<h3 id="org92d26c4b"><span class="section-number-3">11.10.</span> 日中と夜中でテーマを切り替える</h3>
+<div class="outline-text-3" id="text-org92d26c4b">
+<p>
+私は使っていませんが，簡単にテーマを切り替えるためのパッケージ(<a href="https://github.com/valignatev/heaven-and-hell">heaven-and-hell</a>)も存在します．また， <a href="https://github.com/purcell/ns-auto-titlebar">ns-auto-titlebar.el</a> を使うことでも同様の効果が得られます．
+</p>
+
+<p>
+色々なテーマを試してた後に，その状態をダンプするには次のツールが役立ちます．
+</p>
+<ul class="org-ul">
+<li><a href="https://gist.github.com/condotti/2035942">https://gist.github.com/condotti/2035942</a></li>
+</ul>
+
+<p>
+私が使っているテーマはこちら．
+</p>
+<ol class="org-ol">
+<li><a href="https://gist.github.com/takaxp/f8763df6de734e3aac6834eb6118c0e9">my theme for light</a></li>
+<li><a href="https://gist.github.com/takaxp/5a500d953d15d6d2155b120e886dcd52">my theme for dark</a></li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-daylight-theme "init" nil)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-night-theme "init" nil)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-terminal-theme "init" nil)</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-light-theme-hook</span> nil)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-dark-theme-hook</span> nil)
+(<span style="color: #a020f0;">if</span> (not (display-graphic-p))
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-terminal-theme</span> ()
+      (<span style="color: #a020f0;">interactive</span>)
+      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">terminal-theme</span> nil t)
+        (mapc 'disable-theme custom-enabled-themes)
+        (load-theme 'terminal t)
+        (plist-put my-cur-color-ime <span style="color: #483d8b;">:on</span> <span style="color: #8b2252;">"#FF9300"</span>)))
+
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-daylight-theme</span> ()
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">daylight-theme</span> nil t)
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'daylight t)
+      (plist-put my-cur-color-ime <span style="color: #483d8b;">:on</span> <span style="color: #8b2252;">"#FF9300"</span>)
+      (<span style="color: #a020f0;">setq</span> default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (<span style="color: #a020f0;">setq</span> default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . light))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . light)))
+      (run-hooks 'my-light-theme-hook)))
+
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-night-theme</span> ()
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">night-theme</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">atom-one-dark-theme</span>
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'night t)
+      (plist-put my-cur-color-ime <span style="color: #483d8b;">:on</span> <span style="color: #8b2252;">"RosyBrown"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">#cebcfe</span>
+      (<span style="color: #a020f0;">setq</span> default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (<span style="color: #a020f0;">setq</span> default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . dark))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . dark)))
+      (run-hooks 'my-dark-theme-hook))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7c97dce0" class="outline-3">
+<h3 id="org7c97dce0"><span class="section-number-3">11.11.</span> 時間帯を指定して起動時にテーマを切り替える</h3>
+<div class="outline-text-3" id="text-org7c97dce0">
+<p>
+次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">declare-function</span> my-font-config <span style="color: #8b2252;">"init"</span> nil)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-night-time-p</span> (begin end)
+  (<span style="color: #a020f0;">let*</span> ((ch (string-to-number (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time))))
+         (cm (string-to-number (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time))))
+         (ct (+ cm (* 60 ch))))
+    (<span style="color: #a020f0;">if</span> (&gt; begin end)
+        (<span style="color: #a020f0;">or</span> (&lt;= begin ct) (&lt;= ct end))
+      (<span style="color: #a020f0;">and</span> (&lt;= begin ct) (&lt;= ct end)))))
+
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-frame-appearance</span> nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">{nil, 'dark, 'light} see init-env.el</span>
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-theme</span> (<span style="color: #228b22;">&amp;optional</span> type)
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"MType (light or dark): "</span>)
+  (<span style="color: #a020f0;">setq</span> my-frame-appearance
+        (<span style="color: #a020f0;">cond</span> ((member type '(<span style="color: #8b2252;">"light"</span> <span style="color: #8b2252;">"l"</span>)) 'light)
+              ((member type '(<span style="color: #8b2252;">"dark"</span> <span style="color: #8b2252;">"d"</span>)) 'dark)
+              (t
+               my-frame-appearance)))
+  (<span style="color: #a020f0;">if</span> (display-graphic-p)
+      (<span style="color: #a020f0;">cond</span> ((eq my-frame-appearance 'dark)
+             (my-night-theme))
+            ((eq my-frame-appearance 'light)
+             (my-daylight-theme))
+            (t
+             (<span style="color: #a020f0;">let</span> ((night-time-in 23)
+                   (night-time-out 5))
+               (<span style="color: #a020f0;">if</span> (my-night-time-p
+                    (* night-time-in 60) (* night-time-out 60))
+                   (my-night-theme)
+                 (my-daylight-theme)))))
+    (my-terminal-theme))
+
+  (<span style="color: #a020f0;">unless</span> noninteractive
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove unintentional colored frame border</span>
+    (select-frame-set-input-focus (selected-frame))
+    (my-font-config)
+    (my-apply-cursor-config)
+    (<span style="color: #a020f0;">when</span> type
+      (moom-move-frame-to-edge-top)
+      (moom-fill-height))))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">This may override or reset font setting</span>
+(my-theme)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "21:00" 86400 'my-theme)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6d79c76a" class="outline-3">
+<h3 id="org6d79c76a"><span class="section-number-3">11.12.</span> [hl-todo.el] 特定キーワードの配色を変える</h3>
+<div class="outline-text-3" id="text-org6d79c76a">
+<ul class="org-ul">
+<li><a href="https://github.com/tarsius/hl-todo">hl-todo</a> を導入すれば簡単にできます．</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(global-hl-todo-mode my-hl-todo-activate)
+       <span style="color: #8b2252;">"hl-todo"</span> nil t)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-hl-todo-activate ()</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(global-hl-todo-mode)</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(remove-hook 'pre-command-hook #'my-hl-todo-activate))</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'pre-command-hook #'my-hl-todo-activate)</span>
+
+  (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-todo"</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-reload</span> ()
+      (<span style="color: #a020f0;">interactive</span>)
+      (global-hl-todo-mode -1)
+      (global-hl-todo-mode))
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-light-theme</span> ()
+      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
+            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#FF0000"</span>)
+              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
+              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
+              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
+              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
+              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"SeaGreen"</span>)
+              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"#3030FF"</span>)
+              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
+              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
+              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
+      (my-hl-todo-reload))
+    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-dark-theme</span> ()
+      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
+            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
+              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
+              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
+              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
+              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"#afd8af"</span>)
+              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"DodgerBlue1"</span>)
+              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
+              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
+              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
+      (my-hl-todo-reload))
+    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9ce2fd45" class="outline-3">
+<h3 id="org9ce2fd45"><span class="section-number-3">11.13.</span> [rainbow-mode.el] 配色のリアルタイム確認</h3>
+<div class="outline-text-3" id="text-org9ce2fd45">
+<p>
+<code>M-x rainbow-mode</code> とすると，色指定のコードの背景色を，その指定色にリアルタイム変換してくれる．
+</p>
+
+<p>
+<a href="http://elpa.gnu.org/packages/rainbow-mode.html">http://elpa.gnu.org/packages/rainbow-mode.html</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(rainbow-mode)
+       <span style="color: #8b2252;">"rainbow-mode"</span> nil t)
+
+  (<span style="color: #a020f0;">dolist</span> (hook '(emmet-mode-hook emacs-lisp-mode-hook org-mode-hook))
+    (add-hook hook #'rainbow-mode)))
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org19538af3" class="outline-4">
+<h4 id="org19538af3"><span class="section-number-4">11.13.1.</span> 色一覧</h4>
+<div class="outline-text-4" id="text-org19538af3">
+<p>
+<code>0,3,6,9,C,F</code> の組み合わせ
+</p>
+
+<div class="org-src-container">
+<pre class="src src-html">
+#000000 #000033 #000066 #000099 #0000CC #0000FF
+#003300 #003333 #003366 #003399 #0033CC #0033FF
+#006600 #006633 #006666 #006699 #0066CC #0066FF
+#009900 #009933 #009966 #009999 #0099CC #0099FF
+#00CC00 #00CC33 #00CC66 #00CC99 #00CCCC #00CCFF
+#00FF00 #00FF33 #00FF66 #00FF99 #00FFCC #00FFFF
+
+#330000 #330033 #330066 #330099 #3300CC #3300FF
+#333300 #333333 #333366 #333399 #3333CC #3333FF
+#336600 #336633 #336666 #336699 #3366CC #3366FF
+#339900 #339933 #339966 #339999 #3399CC #3399FF
+#33CC00 #33CC33 #33CC66 #33CC99 #33CCCC #33CCFF
+#33FF00 #33FF33 #33FF66 #33FF99 #33FFCC #33FFFF
+
+#660000 #660033 #660066 #660099 #6600CC #6600FF
+#663300 #663333 #663366 #663399 #6633CC #6633FF
+#666600 #666633 #666666 #666699 #6666CC #6666FF
+#669900 #669933 #669966 #669999 #6699CC #6699FF
+#66CC00 #66CC33 #66CC66 #66CC99 #66CCCC #66CCFF
+#66FF00 #66FF33 #66FF66 #66FF99 #66FFCC #66FFFF
+
+#990000 #990033 #990066 #990099 #9900CC #9900FF
+#993300 #993333 #993366 #993399 #9933CC #9933FF
+#996600 #996633 #996666 #996699 #9966CC #9966FF
+#999900 #999933 #999966 #999999 #9999CC #9999FF
+#99CC00 #99CC33 #99CC66 #99CC99 #99CCCC #99CCFF
+#99FF00 #99FF33 #99FF66 #99FF99 #99FFCC #99FFFF
+
+#CC0000 #CC0033 #CC0066 #CC0099 #CC00CC #CC00FF
+#CC3300 #CC3333 #CC3366 #CC3399 #CC33CC #CC33FF
+#CC6600 #CC6633 #CC6666 #CC6699 #CC66CC #CC66FF
+#CC9900 #CC9933 #CC9966 #CC9999 #CC99CC #CC99FF
+#CCCC00 #CCCC33 #CCCC66 #CCCC99 #CCCCCC #CCCCFF
+#CCFF00 #CCFF33 #CCFF66 #CCFF99 #CCFFCC #CCFFFF
+
+#FF0000 #FF0033 #FF0066 #FF0099 #FF00CC #FF00FF
+#FF3300 #FF3333 #FF3366 #FF3399 #FF33CC #FF33FF
+#FF6600 #FF6633 #FF6666 #FF6699 #FF66CC #FF66FF
+#FF9900 #FF9933 #FF9966 #FF9999 #FF99CC #FF99FF
+#FFCC00 #FFCC33 #FFCC66 #FFCC99 #FFCCCC #FFCCFF
+#FFFF00 #FFFF33 #FFFF66 #FFFF99 #FFFFCC #FFFFFF
+
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgcc116051" class="outline-3">
+<h3 id="orgcc116051"><span class="section-number-3">11.14.</span> [edit-color-stamp] Qt経由でカラーピッカーを使う</h3>
+<div class="outline-text-3" id="text-orgcc116051">
+<ul class="org-ul">
+<li><a href="https://github.com/sabof/edit-color-stamp">sabof/edit-color-stamp: Edit hex color stamps using a QT, or the internal color picker</a></li>
+
+<li>Macintosh でもちゃんと使えます．</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (executable-find <span style="color: #8b2252;">"qt_color_picker"</span>)
+           (autoload-if-found
+            '(edit-color-stamp)
+            <span style="color: #8b2252;">"edit-color-stamp"</span> nil t))
+
+  (global-set-key (kbd <span style="color: #8b2252;">"C-c f c p"</span>) 'edit-color-stamp))
+</pre>
+</div>
+
+<p>
+（設定手順）
+</p>
+<ul class="org-ul">
+<li>QT をインストールして， <code>qmake</code> に <code>PATH</code> を通す（例：/usr/local/opt/qt/bin）</li>
+<li><code>edit-color-stamp</code> を入手してインストール先のフォルダに移動</li>
+<li>さらに， <code>qt_color_picker</code> ディレクトリに移動</li>
+<li><p>
+<code>qt_color_picker.pro</code> を編集して， "QT +=" に "widgets" を追加して保存する．
+</p>
+<div class="org-src-container">
+<pre class="src src-conf"><span style="color: #a0522d;">QT +</span>= core gui widgets
+</pre>
+</div></li>
+<li><code>qmake qt_color_picker.pro &amp;&amp; make</code> を実行</li>
+<li>出来上がった <code>qt_color_picker.app</code> を <code>/Applications/</code> にコピー（移動）</li>
+<li><p>
+<code>exec-path</code> にパスを通す
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(add-to-list 'exec-path <span style="color: #8b2252;">"/Applications/qt_color_picker.app/Contents/MacOS/"</span>)
+</pre>
+</div></li>
+<li><code>(executable-find "qt_color_picker")</code> でプログラムを呼べることを確認</li>
+<li><code>#FFFFFF</code> などの色の上で <code>M-x edit-color-stamp</code> を実行する</li>
+<li>カラーピッカーで色を選んで「OK」すれば， <code>#FFFFFF</code> が更新される．</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge836aa4d" class="outline-3">
+<h3 id="orge836aa4d"><span class="section-number-3">11.15.</span> [ivy.el] インターフェイスの配色</h3>
+<div class="outline-text-3" id="text-orge836aa4d">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
+  (custom-set-faces
+   '(ivy-current-match
+     ((((class color) (background light))
+       <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#FFF3F3"</span> <span style="color: #483d8b;">:distant-foreground</span> <span style="color: #8b2252;">"#000000"</span> <span style="color: #483d8b;">:extend</span> t)
+      (((class color) (background dark))
+       <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#404040"</span> <span style="color: #483d8b;">:distant-foreground</span> <span style="color: #8b2252;">"#abb2bf"</span> <span style="color: #483d8b;">:extend</span> t)))
+   '(ivy-minibuffer-match-face-1
+     ((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#666666"</span>)
+      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#999999"</span>)))
+   '(ivy-minibuffer-match-face-2
+     ((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#c03333"</span> <span style="color: #483d8b;">:underline</span> t)
+      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#e04444"</span> <span style="color: #483d8b;">:underline</span> t)))
+   '(ivy-minibuffer-match-face-3
+     ((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#8585ff"</span> <span style="color: #483d8b;">:underline</span> t)
+      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#7777ff"</span> <span style="color: #483d8b;">:underline</span> t)))
+   '(ivy-minibuffer-match-face-4
+     ((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#439943"</span> <span style="color: #483d8b;">:underline</span> t)
+      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#33bb33"</span> <span style="color: #483d8b;">:underline</span> t)))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4b927009" class="outline-3">
+<h3 id="org4b927009"><span class="section-number-3">11.16.</span> [ivy.el] 選択行をアイコンで強調</h3>
+<div class="outline-text-3" id="text-org4b927009">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
+<span style="color: #b22222;">;;; </span><span style="color: #b22222;">&#36984;&#25246;&#23550;&#35937;&#12434; "" &#12395;&#12377;&#12427; (requires all-the-icons.el)</span>
+  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-visible</span>
+    '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span>)
+      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#EE6363"</span>))
+    <span style="color: #8b2252;">"Face used by Ivy for highlighting the arrow."</span>)
+  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-invisible</span>
+    '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>)
+      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#31343F"</span>))
+    <span style="color: #8b2252;">"Face used by Ivy for highlighting the invisible arrow."</span>)
+
+  (<span style="color: #a020f0;">if</span> window-system
+      (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+             (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow</span> (cands)
+               <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
+               (ivy--format-function-generic
+                (<span style="color: #a020f0;">lambda</span> (str)
+                  (concat (icons-in-terminal-faicon
+                           <span style="color: #8b2252;">"hand-o-right"</span>
+                           <span style="color: #483d8b;">:v-adjust</span> -0.1 
+                           <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible
+                           <span style="color: #483d8b;">:height</span> 0.8)
+                          <span style="color: #8b2252;">" "</span> (ivy--add-face (concat str <span style="color: #8b2252;">"\n"</span>)
+                                             'ivy-current-match)))
+                (<span style="color: #a020f0;">lambda</span> (str)
+                  (concat (icons-in-terminal-faicon
+                           <span style="color: #8b2252;">"hand-o-right"</span>
+                           <span style="color: #483d8b;">:v-adjust</span> -0.1
+                           <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible
+                           <span style="color: #483d8b;">:height</span> 0.8)
+                          <span style="color: #8b2252;">" "</span> (concat str <span style="color: #8b2252;">"\n"</span>)))
+                cands
+                <span style="color: #8b2252;">""</span>))
+             (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
+                   '((t . my-ivy-format-function-arrow))))
+            ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
+             (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow</span> (cands)
+               <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
+               (ivy--format-function-generic
+                (<span style="color: #a020f0;">lambda</span> (str)
+                  (concat (all-the-icons-faicon
+                           <span style="color: #8b2252;">"hand-o-right"</span>
+                           <span style="color: #483d8b;">:v-adjust</span> -0.2 <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible)
+                          <span style="color: #8b2252;">" "</span> (ivy--add-face str 'ivy-current-match)))
+                (<span style="color: #a020f0;">lambda</span> (str)
+                  (concat (all-the-icons-faicon
+                           <span style="color: #8b2252;">"hand-o-right"</span> <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible)
+                          <span style="color: #8b2252;">" "</span> str))
+                cands
+                <span style="color: #8b2252;">"\n"</span>))
+             (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
+                   '((t . my-ivy-format-function-arrow))))
+            (t (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
+                     '((t . ivy-format-function-arrow)))))
+    (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org36a28b28" class="outline-3">
+<h3 id="org36a28b28"><span class="section-number-3">11.17.</span> [volatile-highlights] コピペした領域を強調</h3>
+<div class="outline-text-3" id="text-org36a28b28">
+<p>
+コピペ直後の数秒に限定して，コピペした領域をハイライトします．さらに，所定の間隔で表示色を変えることで，ハイライト色が徐々に消えていくようなエフェクトにしています．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(volatile-highlights-mode my-vhl-change-color)
+       <span style="color: #8b2252;">"volatile-highlights"</span> nil t)
+
+  (<span style="color: #a020f0;">dolist</span> (hook '(org-mode-hook emacs-lisp-mode-hook emmet-mode-hook))
+    (add-hook hook #'volatile-highlights-mode))
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"volatile-highlights"</span>
+    (set-face-attribute
+     'vhl/default-face nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF3333"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#FFCDCD"</span>)
+    (volatile-highlights-mode t)
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12405;&#12431;&#12387;&#12392;&#12456;&#12501;&#12455;&#12463;&#12488;&#12398;&#36861;&#21152;&#65288;&#12506;&#12540;&#12473;&#12488;&#26178;&#12398;&#33394; =&gt; &#12459;&#12540;&#12477;&#12523;&#33394; =&gt; &#26412;&#26469;&#33394;&#65289;</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-vhl-change-color</span> ()
+      (<span style="color: #a020f0;">interactive</span>)
+      (<span style="color: #a020f0;">let</span> ((next 0.2)
+            (reset 0.5)
+            (colors '(<span style="color: #8b2252;">"#F8D3D7"</span> <span style="color: #8b2252;">"#F2DAE1"</span> <span style="color: #8b2252;">"#EBE0EB"</span> <span style="color: #8b2252;">"#E5E7F5"</span> <span style="color: #8b2252;">"#DEEDFF"</span>)))
+        (<span style="color: #a020f0;">dolist</span> (color colors)
+          (run-at-time next nil
+                       'set-face-attribute
+                       'vhl/default-face
+                       nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF3333"</span> <span style="color: #483d8b;">:background</span> color)
+          (<span style="color: #a020f0;">setq</span> next (+ 0.05 next)))
+        (run-at-time reset nil 'vhl/clear-all))
+      (set-face-attribute 'vhl/default-face
+                          nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF3333"</span>
+                          <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#FFCDCD"</span>))
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-yank</span> (<span style="color: #228b22;">&amp;optional</span> ARG)
+      (<span style="color: #a020f0;">interactive</span>)
+      (yank ARG)
+      (<span style="color: #a020f0;">when</span> window-system
+        (my-vhl-change-color)))
+    (global-set-key (kbd <span style="color: #8b2252;">"M-v"</span>) 'my-yank)
+    (global-set-key (kbd <span style="color: #8b2252;">"C-y"</span>) 'my-yank)
+
+    (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"vterm"</span>
+      (define-key vterm-mode-map (kbd <span style="color: #8b2252;">"C-y"</span>) 'vterm-yank))
+
+    (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+      (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-y"</span>) 'my-org-yank)
+      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-yank</span> ()
+        (<span style="color: #a020f0;">interactive</span>)
+        (org-yank)
+        (<span style="color: #a020f0;">when</span> window-system
+          (my-vhl-change-color))))))
+</pre>
+</div>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org5fd484a3" class="outline-2">
-<h2 id="org5fd484a3"><span class="section-number-2">11.</span> フレーム／ウィンドウ制御</h2>
+<h2 id="org5fd484a3"><span class="section-number-2">12.</span> フレーム／ウィンドウ制御</h2>
 <div class="outline-text-2" id="text-org5fd484a3">
 </div>
 <div id="outline-container-orgd05fc75a" class="outline-3">
-<h3 id="orgd05fc75a"><span class="section-number-3">11.1.</span> 起動時の設定</h3>
+<h3 id="orgd05fc75a"><span class="section-number-3">12.1.</span> 起動時の設定</h3>
 <div class="outline-text-3" id="text-orgd05fc75a">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">cond</span>
@@ -13867,7 +14781,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-orgdffe4e49" class="outline-3">
-<h3 id="orgdffe4e49"><span class="section-number-3">11.2.</span> 複数フレーム対応</h3>
+<h3 id="orgdffe4e49"><span class="section-number-3">12.2.</span> 複数フレーム対応</h3>
 <div class="outline-text-3" id="text-orgdffe4e49">
 <p>
 フレームを複数使う場合の設定です．
@@ -13894,7 +14808,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org5f12ba92" class="outline-3">
-<h3 id="org5f12ba92"><span class="section-number-3">11.3.</span> [moom.el] キーボードでフレームの場所を移す</h3>
+<h3 id="org5f12ba92"><span class="section-number-3">12.3.</span> [moom.el] キーボードでフレームの場所を移す</h3>
 <div class="outline-text-3" id="text-org5f12ba92">
 <p>
 (2017-07-30) frame-ctr から moom.el にリネームしました．Moom は，Many Tricks がリリースするソフトウェアで，今後はこのソフトウェアのポーティングを目指します．
@@ -14078,7 +14992,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org6e3c20dd" class="outline-4">
-<h4 id="org6e3c20dd"><span class="section-number-4">11.3.1.</span> 最大化時にモードラインを消す</h4>
+<h4 id="org6e3c20dd"><span class="section-number-4">12.3.1.</span> 最大化時にモードラインを消す</h4>
 <div class="outline-text-4" id="text-org6e3c20dd">
 <p>
 バッファの切替時にモードラインの状態を引き継ぐこともできますが，とりあえず想定外にしています．代わりに，必要ならば <code>M-x my-moom-toggle-mode-line</code> で表示可能にしています．
@@ -14167,7 +15081,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org33fd785f" class="outline-3">
-<h3 id="org33fd785f"><span class="section-number-3">11.4.</span> [winner.el] ウィンドウ構成の履歴を辿る</h3>
+<h3 id="org33fd785f"><span class="section-number-3">12.4.</span> [winner.el] ウィンドウ構成の履歴を辿る</h3>
 <div class="outline-text-3" id="text-org33fd785f">
 <ul class="org-ul">
 <li>ビルトインの <code>winner.el</code> を使います．</li>
@@ -14191,7 +15105,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-orga9be167a" class="outline-3">
-<h3 id="orga9be167a"><span class="section-number-3">11.5.</span> <span class="todo TODO">TODO</span> [shackle.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Ongoing">Ongoing</span></span></h3>
+<h3 id="orga9be167a"><span class="section-number-3">12.5.</span> <span class="todo TODO">TODO</span> [shackle.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Ongoing">Ongoing</span></span></h3>
 <div class="outline-text-3" id="text-orga9be167a">
 <ul class="org-ul">
 <li>popwin の後発パッケージ</li>
@@ -14221,7 +15135,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org32b579df" class="outline-4">
-<h4 id="org32b579df"><span class="section-number-4">11.5.1.</span> checkdoc.el 用の追加設定</h4>
+<h4 id="org32b579df"><span class="section-number-4">12.5.1.</span> checkdoc.el 用の追加設定</h4>
 <div class="outline-text-4" id="text-org32b579df">
 <p>
 <code>M-x checkdoc</code> 実行時に <code>checkdoc-minor-mode-map</code> に checkdoc のウィンドウを閉じるキーバインドを設定． <code>q</code> または <code>C-g</code> を押下すると，マイナーモードが終了し，設定したキーバインドが無効になる．マイナーモードが有効な間は， <code>q</code> が占有されてバッファに入力できなくなる．その場合は，必要に応じて <code>M-x my-delete-checkdoc-window</code> を実行する．
@@ -14252,7 +15166,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-orgdca5e7c2" class="outline-3">
-<h3 id="orgdca5e7c2"><span class="section-number-3">11.6.</span> <span class="todo TODO">TODO</span> [doom-modeline.el] モードラインをリッチにする</h3>
+<h3 id="orgdca5e7c2"><span class="section-number-3">12.6.</span> <span class="todo TODO">TODO</span> [doom-modeline.el] モードラインをリッチにする</h3>
 <div class="outline-text-3" id="text-orgdca5e7c2">
 <ul class="org-ul">
 <li><a href="https://github.com/seagle0128/doom-modeline">seagle0128/doom-modeline: A minimal and modern mode-line</a></li>
@@ -14297,7 +15211,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org4dd0671c" class="outline-3">
-<h3 id="org4dd0671c"><span class="section-number-3">11.7.</span> [e2wm.el] 二画面表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org4dd0671c"><span class="section-number-3">12.7.</span> [e2wm.el] 二画面表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org4dd0671c">
 <p>
 使用頻度が低くなりました．
@@ -14369,7 +15283,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org0c556404" class="outline-3">
-<h3 id="org0c556404"><span class="section-number-3">11.8.</span> [tabbar-ruler] バッファをタブ切り替え可能に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0c556404"><span class="section-number-3">12.8.</span> [tabbar-ruler] バッファをタブ切り替え可能に&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0c556404">
 <ul class="org-ul">
 <li>不要かな</li>
@@ -14391,7 +15305,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org6474a498" class="outline-3">
-<h3 id="org6474a498"><span class="section-number-3">11.9.</span> [elscreen.el] Emacs バッファをタブ化&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org6474a498"><span class="section-number-3">12.9.</span> [elscreen.el] Emacs バッファをタブ化&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org6474a498">
 <ul class="org-ul">
 <li>cycle-buffer で十分かなと言う感じで不使用になりました．</li>
@@ -14408,7 +15322,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org750d9aa5" class="outline-3">
-<h3 id="org750d9aa5"><span class="section-number-3">11.10.</span> [popwin.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org750d9aa5"><span class="section-number-3">12.10.</span> [popwin.el] ポップアップウィンドウの制御&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org750d9aa5">
 <ul class="org-ul">
 <li>現在は緩やかに <code>shackle</code> に移行中です．
@@ -14488,7 +15402,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div id="outline-container-org7a20b311" class="outline-3">
-<h3 id="org7a20b311"><span class="section-number-3">11.11.</span> <span class="done DONE">DONE</span> [olivetti.el] ウィンドウを中央寄せで配置&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org7a20b311"><span class="section-number-3">12.11.</span> <span class="done DONE">DONE</span> [olivetti.el] ウィンドウを中央寄せで配置&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org7a20b311">
 <ul class="org-ul">
 <li><a href="https://github.com/rnkn/olivetti">rnkn/olivetti: Emacs minor mode for a nice writing environment</a></li>
@@ -14517,916 +15431,6 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
         (olivetti-mode -1)))
     (advice-add 'moom-toggle-frame-maximized <span style="color: #483d8b;">:after</span>
                 #'ad:olivetti:moom-toggle-frame-maximized)))
-</pre>
-</div>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orgf57ce845" class="outline-2">
-<h2 id="orgf57ce845"><span class="section-number-2">12.</span> フォント／配色関連</h2>
-<div class="outline-text-2" id="text-orgf57ce845">
-</div>
-<div id="outline-container-orgbbb079d3" class="outline-3">
-<h3 id="orgbbb079d3"><span class="section-number-3">12.1.</span> 正規表現を見やすくする</h3>
-<div class="outline-text-3" id="text-orgbbb079d3">
-<p>
-Emacs Lisp の正規表現を色付けします．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(set-face-foreground 'font-lock-regexp-grouping-backslash <span style="color: #8b2252;">"#66CC99"</span>)
-(set-face-foreground 'font-lock-regexp-grouping-construct <span style="color: #8b2252;">"#9966CC"</span>)
-</pre>
-</div>
-
-<p>
-Emacs Lisp で正規表現入力をサポートするツールには， <code>M-x re-builder</code> や <code>rx</code> マクロがある．
-</p>
-
-<ul class="org-ul">
-<li><a href="http://www.emacswiki.org/emacs/ReBuilder">EmacsWiki: Re Builder</a></li>
-<li><a href="http://emacswiki.org/emacs/rx">EmacsWiki: rx</a></li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-orgc98c6fff" class="outline-3">
-<h3 id="orgc98c6fff"><span class="section-number-3">12.2.</span> 設定ファイルを見やすくする</h3>
-<div class="outline-text-3" id="text-orgc98c6fff">
-<p>
-<code>generic-x</code> を使うと， <code>/etc/hosts</code> や <code>/etc/apache2.conf</code> に色を付けられる．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">generic-x</span> nil t))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org7858d806" class="outline-3">
-<h3 id="org7858d806"><span class="section-number-3">12.3.</span> カーソル行に色をつける</h3>
-<div class="outline-text-3" id="text-org7858d806">
-<ul class="org-ul">
-<li>ビルトインの <code>hl-line</code> を使います．</li>
-<li><a href="http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html">http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html</a></li>
-<li><a href="http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el">http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el</a></li>
-</ul>
-
-<p>
-色の設定は <code>custom-set-faces</code> で．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(hl-line-mode my-hl-line-enable)
-       <span style="color: #8b2252;">"hl-line"</span> nil t)
-
-  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
-
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-permanent-disabled</span> '(dired-mode vterm-mode)
-    <span style="color: #8b2252;">"A list of major modes to disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>)
-
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-off-hline-hook</span> nil)
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-on-hline-hook</span> nil)
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
-    (<span style="color: #a020f0;">unless</span> (version&lt; emacs-version <span style="color: #8b2252;">"28.1"</span>)
-      (<span style="color: #a020f0;">setq</span> hl-line-sticky-flag nil))
-
-    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-active-period</span> 120
-      <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">' after this period"</span>)
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-disable</span> ()
-      <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
-      (hl-line-mode -1))
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-enable</span> ()
-      <span style="color: #8b2252;">"Enable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
-      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> hl-line-mode
-                              (minibufferp)
-                                    (memq major-mode my-hl-permanent-disabled))
-              (hl-line-mode 1)))
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-off-hline</span> ()
-      (my-hl-line-enable)
-      (<span style="color: #a020f0;">let</span> ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-              (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"#484c5c"</span> <span style="color: #8b2252;">"#DEEDFF"</span>)))
-      (run-hooks 'my-ime-off-hline-hook))
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-on-hline</span> ()
-      (my-hl-line-enable)
-      (<span style="color: #a020f0;">let</span> ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-              (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"#594d5d"</span> <span style="color: #8b2252;">"#fff0de"</span>)))
-      (run-hooks 'my-ime-on-hline-hook))
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">init</span>
-    (<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-active-p)
-      (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
-                      (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
-              (<span style="color: #a020f0;">if</span> (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
-
-    (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
-
-    (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
-              (<span style="color: #a020f0;">progn</span>
-                (add-hook 'focus-in-hook #'my-hl-line-enable)
-                (add-hook 'focus-out-hook #'my-hl-line-disable))
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-update</span> ()
-              (<span style="color: #a020f0;">if</span> (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
-      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:after</span> after-focus-change-function #'my-hl-line-update)
-      )
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'minibuffer-setup-hook #'my-hl-line-disable)</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'minibuffer-exit-hook #'my-hl-line-enable)</span>
-    (add-hook 'input-method-activate-hook #'my-ime-on-hline)
-    (add-hook 'input-method-deactivate-hook #'my-ime-off-hline)))
-</pre>
-</div>
-
-<p>
-色の変更ではなく，下線に変更したい場合は， <code>(setq hl-line-face 'underline)</code> とする．
-</p>
-</div>
-</div>
-
-<div id="outline-container-org29d5304f" class="outline-3">
-<h3 id="org29d5304f"><span class="section-number-3">12.4.</span> カーソルの点滅を制御</h3>
-<div class="outline-text-3" id="text-org29d5304f">
-<p>
-以下の例では，入力が止まってから <code>30</code> 秒後に <code>0.2</code> 秒間隔で点滅します．次に入力が始まるまで，点滅が続きます．
-</p>
-
-<p>
-<code>postpone</code> の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> blink-cursor-blinks 0)
-(<span style="color: #a020f0;">setq</span> blink-cursor-interval 0.2)
-(<span style="color: #a020f0;">setq</span> blink-cursor-delay 30)
-(<span style="color: #a020f0;">unless</span> noninteractive
-  (postpone-message <span style="color: #8b2252;">"blink-cursor-mode"</span>)
-  (blink-cursor-mode 1))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orgf36a8366" class="outline-3">
-<h3 id="orgf36a8366"><span class="section-number-3">12.5.</span> カーソル位置のフォントを確認</h3>
-<div class="outline-text-3" id="text-orgf36a8366">
-<p>
-<code>M-x describe-char</code> すると，カーソル位置のフォントの情報が別バッファに表示されます．
-</p>
-</div>
-</div>
-
-<div id="outline-container-org919a945a" class="outline-3">
-<h3 id="org919a945a"><span class="section-number-3">12.6.</span> フォント設定</h3>
-<div class="outline-text-3" id="text-org919a945a">
-<p>
-表のような利用環境に対して，個別に設定を施しています．WindowsとLinuxは安定版のEmacs23で，Macは開発版のCocoaEmacs23です．MacではEmacs24でもうまく表示できています．最近は，<a href="http://mix-mplus-ipa.sourceforge.jp/migu/">Migu 2M</a>を気に入って使っています．
-</p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 1:</span> 環境別の使用フォント</caption>
-
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="org-left">&#xa0;</td>
-<td class="org-left">ASCII</td>
-<td class="org-left">日本語</td>
-</tr>
-
-<tr>
-<td class="org-left">Mac</td>
-<td class="org-left">Monaco</td>
-<td class="org-left">Migu 2M 又は ヒラギノ丸ゴ</td>
-</tr>
-
-<tr>
-<td class="org-left">Windows</td>
-<td class="org-left">Inconsolata</td>
-<td class="org-left">メイリオ</td>
-</tr>
-
-<tr>
-<td class="org-left">Linux</td>
-<td class="org-left">Inconsolata</td>
-<td class="org-left">MigMix</td>
-</tr>
-</tbody>
-</table>
-
-<ul class="org-ul">
-<li><a href="http://d.hatena.ne.jp/setoryohei/20110117/1295336454">http://d.hatena.ne.jp/setoryohei/20110117/1295336454</a></li>
-<li><a href="http://users.teilar.gr/~g1951d/">Unicode Fonts for Ancient Scripts</a></li>
-</ul>
-
-<p>
-<code>early-init.el</code> で設定すると高速起動に効果あり（ <code>emacs-init-time</code> には表れない）
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">2) Inconsolata, Migu 2M     : font-size=14,</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0</span>
-(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-font-size</span> 12)
-(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-ja-font</span> <span style="color: #8b2252;">"Migu 2M"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Hiragino Maru Gothic Pro"</span>
-(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-ascii-font</span> <span style="color: #8b2252;">"Monaco"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Inconsolata", Monaco</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(defconst my-ja-font "Hiragino Maru Gothic Pro") ;; "Hiragino Maru Gothic Pro"</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(defconst my-ascii-font "Inconsolata") ;; "Inconsolata", Menlo, "Ricty Diminished"</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ja-font-setter</span> (spec)
-  (set-fontset-font nil 'japanese-jisx0208 spec)
-  (set-fontset-font nil 'katakana-jisx0201 spec)
-  (set-fontset-font nil 'japanese-jisx0212 spec)
-  (set-fontset-font nil '(#x0080 . #x024F) spec)
-  (set-fontset-font nil '(#x0370 . #x03FF) spec)
-  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ascii-font-setter</span> (spec)
-  (set-fontset-font nil 'ascii spec))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-unicode-font-setter</span> (spec)
-  (set-fontset-font t 'unicode spec nil 'prepend))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-all-the-icons-setter</span> ()
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-faicon-family)))
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-fileicon-family)))
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-material-family)))
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-octicon-family)))
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-wicon-family)))))
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-font-config</span> (<span style="color: #228b22;">&amp;optional</span> size ascii ja)
-  <span style="color: #8b2252;">"Font config.</span>
-<span style="color: #8b2252;">- SIZE: font size for ASCII and Japanese (default: 12)</span>
-<span style="color: #8b2252;">- ASCII: ascii font family (default: \"Monaco\")</span>
-<span style="color: #8b2252;">- JA: Japanese font family (default: \"Migu 2M\")</span>
-<span style="color: #8b2252;">"</span>
-  (<span style="color: #a020f0;">when</span> (memq window-system '(mac ns))
-    (<span style="color: #a020f0;">let</span> ((font-size (<span style="color: #a020f0;">or</span> size my-font-size))
-          (ascii-font (<span style="color: #a020f0;">or</span> ascii my-ascii-font))
-          (ja-font (<span style="color: #a020f0;">or</span> ja my-ja-font)))
-      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
-      <span style="color: #b22222;">;;</span><span style="color: #b22222;">(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")</span>
-      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
-      (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size)))))
-
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-setup-font</span> ()
-  (<span style="color: #a020f0;">cond</span>
-   <span style="color: #b22222;">;; </span><span style="color: #b22222;">CocoaEmacs</span>
-   ((memq window-system '(mac ns))
-    (<span style="color: #a020f0;">when</span> (&gt;= emacs-major-version 23)
-
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fix ratio provided by set-face-attribute for fonts display</span>
-      (<span style="color: #a020f0;">setq</span> face-font-rescale-alist
-            '((<span style="color: #8b2252;">"^-apple-hiragino.*"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
-              (<span style="color: #8b2252;">".*Migu.*"</span> . 1.2)
-              (<span style="color: #8b2252;">".*Ricty.*"</span> . 1.0)
-              (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0)
-              (<span style="color: #8b2252;">".*osaka-bold.*"</span> . 1.0)     <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
-              (<span style="color: #8b2252;">".*osaka-medium.*"</span> . 1.0)   <span style="color: #b22222;">; </span><span style="color: #b22222;">1.0</span>
-              (<span style="color: #8b2252;">".*courier-bold-.*-mac-roman"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
-              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco cy-bold-.*-mac-cyrillic" . 1.0)</span>
-              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9</span>
-              (<span style="color: #8b2252;">"-cdac$"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.3</span>
-   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-font-config) ;; see `</span><span style="color: #008b8b;">my-theme</span><span style="color: #b22222;">'</span>
-
-   ((eq window-system 'ns)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Anti aliasing with Quartz 2D</span>
-    (<span style="color: #a020f0;">when</span> (boundp 'mac-allow-anti-aliasing)
-      (<span style="color: #a020f0;">setq</span> mac-allow-anti-aliasing t)))
-
-   ((eq window-system 'w32) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Windows</span>
-    (<span style="color: #a020f0;">let</span> ((font-size 14)
-          (font-height 100)
-          (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
-          (ja-font <span style="color: #8b2252;">"Migu 2M"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Meiryo UI, &#12513;&#12452;&#12522;&#12458;</span>
-      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
-      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
-      (my-ja-font-setter
-       (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
-      (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
-
-   ((eq window-system 'x) <span style="color: #b22222;">; </span><span style="color: #b22222;">for SuSE Linux 12.1</span>
-    (<span style="color: #a020f0;">let</span>
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
-         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ja-font "MigMix 1M")</span>
-         (ja-font <span style="color: #8b2252;">"Migu 2M"</span>))
-      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
-      (my-ja-font-setter
-       (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
-      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))
-    (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Migu.*"</span> . 2.0)
-                                    (<span style="color: #8b2252;">".*MigMix.*"</span> . 2.0)
-                                    (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
-  )
-(my-setup-font)
-</pre>
-</div>
-</div>
-
-<div id="outline-container-orgb94aa5b3" class="outline-4">
-<h4 id="orgb94aa5b3"><span class="section-number-4">12.6.1.</span> フォントのインストール方法</h4>
-<div class="outline-text-4" id="text-orgb94aa5b3">
-<p>
-Linux では次のように処理するだけでよく，意外と簡単．
-</p>
-
-<ol class="org-ol">
-<li>~/.fonts を作成する</li>
-<li>フォントを1.のディレクトリに置く</li>
-<li>fc-cache -fv を実行</li>
-<li>fc-list でインストールされているかを確認．</li>
-</ol>
-
-<p>
-なお，Windows では，フォントファイルを右クリックして，インストールを選択するだけでOK．
-</p>
-</div>
-</div>
-
-<div id="outline-container-org66fa6b98" class="outline-4">
-<h4 id="org66fa6b98"><span class="section-number-4">12.6.2.</span> フォントチェック用コード</h4>
-<div class="outline-text-4" id="text-org66fa6b98">
-<p>
-サンプルの <a href="http://dl.dropbox.com/u/2440/dokuwiki/font-test.org">orgファイル</a> を作って，見た目をチェックしています．バッファ内の桁数チェックや，ASCIIが漢字の半分の幅になっているかのチェックが楽になります．
-</p>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org2bcbc1db" class="outline-3">
-<h3 id="org2bcbc1db"><span class="section-number-3">12.7.</span> 行間を制御する</h3>
-<div class="outline-text-3" id="text-org2bcbc1db">
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">set-default &#12391; global &#25351;&#23450;&#12377;&#12427;&#12392;&#65292;&#12511;&#12491;&#12496;&#12483;&#12501;&#12449;&#12398; message &#12391;&#21046;&#24481;&#19981;&#33021;&#12395;&#12394;&#12427;</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">propertize &#12391;&#25313;&#22823;&#12391;&#12365;&#12427;&#12364;&#65292;global &#12398;&#20516;&#20197;&#19979;&#12395;&#32302;&#23567;&#12391;&#12365;&#12394;&#12367;&#12394;&#12427;&#65294;</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(set-default 'line-spacing 2)</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-linespacing</span> ()
-  (<span style="color: #a020f0;">unless</span> (minibufferp)
-    (<span style="color: #a020f0;">setq-local</span> line-spacing 2)))
-(add-hook 'buffer-list-update-hook #'my-linespacing)
-(add-hook 'org-src-mode-hook #'my-linespacing)
-(add-hook 'debugger-mode-hook #'my-linespacing)
-
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda</span> (<span style="color: #228b22;">&amp;optional</span> _arg _org-keys _restriction)
-    (my-linespacing))
-  (advice-add 'org-agenda <span style="color: #483d8b;">:after</span> #'my-org-agenda)
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-redo</span> (<span style="color: #228b22;">&amp;optional</span> _all)
-    (my-linespacing))
-  (advice-add 'org-agenda-redo <span style="color: #483d8b;">:after</span> #'my-org-agenda-redo))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org372b184d" class="outline-3">
-<h3 id="org372b184d"><span class="section-number-3">12.8.</span> パッチをカラフルに表示する</h3>
-<div class="outline-text-3" id="text-org372b184d">
-<p>
-Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> をカスタマイズします．
-</p>
-
-<ul class="org-ul">
-<li><a href="http://d.hatena.ne.jp/syohex/20111228/1325086893">http://d.hatena.ne.jp/syohex/20111228/1325086893</a></li>
-</ul>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"diff-mode"</span>
-  (set-face-attribute 'diff-added nil
-                      <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"lime green"</span>
-                      <span style="color: #483d8b;">:weight</span> 'normal)
-
-  (set-face-attribute 'diff-removed nil
-                      <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"firebrick1"</span>
-                      <span style="color: #483d8b;">:weight</span> 'normal)
-
-  (set-face-attribute 'diff-file-header nil
-                      <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:weight</span> 'extra-bold)
-
-  (set-face-attribute 'diff-hunk-header nil
-                      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"chocolate4"</span>
-                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"white"</span> <span style="color: #483d8b;">:weight</span> 'extra-bold
-                      <span style="color: #483d8b;">:inherit</span> nil))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org009dc6e3" class="outline-3">
-<h3 id="org009dc6e3"><span class="section-number-3">12.9.</span> 背景を黒系色にする</h3>
-<div class="outline-text-3" id="text-org009dc6e3">
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(custom-set-faces
- '(default ((t
-             (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"black"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#55FF55"</span>)
-             ))))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org92d26c4b" class="outline-3">
-<h3 id="org92d26c4b"><span class="section-number-3">12.10.</span> 日中と夜中でテーマを切り替える</h3>
-<div class="outline-text-3" id="text-org92d26c4b">
-<p>
-私は使っていませんが，簡単にテーマを切り替えるためのパッケージ(<a href="https://github.com/valignatev/heaven-and-hell">heaven-and-hell</a>)も存在します．また， <a href="https://github.com/purcell/ns-auto-titlebar">ns-auto-titlebar.el</a> を使うことでも同様の効果が得られます．
-</p>
-
-<p>
-色々なテーマを試してた後に，その状態をダンプするには次のツールが役立ちます．
-</p>
-<ul class="org-ul">
-<li><a href="https://gist.github.com/condotti/2035942">https://gist.github.com/condotti/2035942</a></li>
-</ul>
-
-<p>
-私が使っているテーマはこちら．
-</p>
-<ol class="org-ol">
-<li><a href="https://gist.github.com/takaxp/f8763df6de734e3aac6834eb6118c0e9">my theme for light</a></li>
-<li><a href="https://gist.github.com/takaxp/5a500d953d15d6d2155b120e886dcd52">my theme for dark</a></li>
-</ol>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-daylight-theme "init" nil)</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-night-theme "init" nil)</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-terminal-theme "init" nil)</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-light-theme-hook</span> nil)
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-dark-theme-hook</span> nil)
-(<span style="color: #a020f0;">if</span> (not (display-graphic-p))
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-terminal-theme</span> ()
-      (<span style="color: #a020f0;">interactive</span>)
-      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">terminal-theme</span> nil t)
-        (mapc 'disable-theme custom-enabled-themes)
-        (load-theme 'terminal t)
-        (plist-put my-cur-color-ime <span style="color: #483d8b;">:on</span> <span style="color: #8b2252;">"#FF9300"</span>)))
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-daylight-theme</span> ()
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">daylight-theme</span> nil t)
-      (mapc 'disable-theme custom-enabled-themes)
-      (load-theme 'daylight t)
-      (plist-put my-cur-color-ime <span style="color: #483d8b;">:on</span> <span style="color: #8b2252;">"#FF9300"</span>)
-      (<span style="color: #a020f0;">setq</span> default-frame-alist
-            (delete (assoc 'ns-appearance default-frame-alist)
-                    default-frame-alist))
-      (<span style="color: #a020f0;">setq</span> default-frame-alist
-            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                    default-frame-alist))
-      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-      (add-to-list 'default-frame-alist '(ns-appearance . light))
-      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . light)))
-      (run-hooks 'my-light-theme-hook)))
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-night-theme</span> ()
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">night-theme</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">atom-one-dark-theme</span>
-      (mapc 'disable-theme custom-enabled-themes)
-      (load-theme 'night t)
-      (plist-put my-cur-color-ime <span style="color: #483d8b;">:on</span> <span style="color: #8b2252;">"RosyBrown"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">#cebcfe</span>
-      (<span style="color: #a020f0;">setq</span> default-frame-alist
-            (delete (assoc 'ns-appearance default-frame-alist)
-                    default-frame-alist))
-      (<span style="color: #a020f0;">setq</span> default-frame-alist
-            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                    default-frame-alist))
-      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-      (add-to-list 'default-frame-alist '(ns-appearance . dark))
-      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . dark)))
-      (run-hooks 'my-dark-theme-hook))))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org7c97dce0" class="outline-3">
-<h3 id="org7c97dce0"><span class="section-number-3">12.11.</span> 時間帯を指定して起動時にテーマを切り替える</h3>
-<div class="outline-text-3" id="text-org7c97dce0">
-<p>
-次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">declare-function</span> my-font-config <span style="color: #8b2252;">"init"</span> nil)
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-night-time-p</span> (begin end)
-  (<span style="color: #a020f0;">let*</span> ((ch (string-to-number (format-time-string <span style="color: #8b2252;">"%H"</span> (current-time))))
-         (cm (string-to-number (format-time-string <span style="color: #8b2252;">"%M"</span> (current-time))))
-         (ct (+ cm (* 60 ch))))
-    (<span style="color: #a020f0;">if</span> (&gt; begin end)
-        (<span style="color: #a020f0;">or</span> (&lt;= begin ct) (&lt;= ct end))
-      (<span style="color: #a020f0;">and</span> (&lt;= begin ct) (&lt;= ct end)))))
-
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-frame-appearance</span> nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">{nil, 'dark, 'light} see init-env.el</span>
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-theme</span> (<span style="color: #228b22;">&amp;optional</span> type)
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"MType (light or dark): "</span>)
-  (<span style="color: #a020f0;">setq</span> my-frame-appearance
-        (<span style="color: #a020f0;">cond</span> ((member type '(<span style="color: #8b2252;">"light"</span> <span style="color: #8b2252;">"l"</span>)) 'light)
-              ((member type '(<span style="color: #8b2252;">"dark"</span> <span style="color: #8b2252;">"d"</span>)) 'dark)
-              (t
-               my-frame-appearance)))
-  (<span style="color: #a020f0;">if</span> (display-graphic-p)
-      (<span style="color: #a020f0;">cond</span> ((eq my-frame-appearance 'dark)
-             (my-night-theme))
-            ((eq my-frame-appearance 'light)
-             (my-daylight-theme))
-            (t
-             (<span style="color: #a020f0;">let</span> ((night-time-in 23)
-                   (night-time-out 5))
-               (<span style="color: #a020f0;">if</span> (my-night-time-p
-                    (* night-time-in 60) (* night-time-out 60))
-                   (my-night-theme)
-                 (my-daylight-theme)))))
-    (my-terminal-theme))
-
-  (<span style="color: #a020f0;">unless</span> noninteractive
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove unintentional colored frame border</span>
-    (select-frame-set-input-focus (selected-frame))
-    (my-font-config)
-    (my-apply-cursor-config)
-    (<span style="color: #a020f0;">when</span> type
-      (moom-move-frame-to-edge-top)
-      (moom-fill-height))))
-
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">This may override or reset font setting</span>
-(my-theme)
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "21:00" 86400 'my-theme)</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink</span>
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org6d79c76a" class="outline-3">
-<h3 id="org6d79c76a"><span class="section-number-3">12.12.</span> [hl-todo.el] 特定キーワードの配色を変える</h3>
-<div class="outline-text-3" id="text-org6d79c76a">
-<ul class="org-ul">
-<li><a href="https://github.com/tarsius/hl-todo">hl-todo</a> を導入すれば簡単にできます．</li>
-</ul>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(global-hl-todo-mode my-hl-todo-activate)
-       <span style="color: #8b2252;">"hl-todo"</span> nil t)
-
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-hl-todo-activate ()</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(global-hl-todo-mode)</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(remove-hook 'pre-command-hook #'my-hl-todo-activate))</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'pre-command-hook #'my-hl-todo-activate)</span>
-
-  (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-todo"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-reload</span> ()
-      (<span style="color: #a020f0;">interactive</span>)
-      (global-hl-todo-mode -1)
-      (global-hl-todo-mode))
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-light-theme</span> ()
-      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#FF0000"</span>)
-              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
-              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
-              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
-              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
-              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"SeaGreen"</span>)
-              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"#3030FF"</span>)
-              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
-              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
-              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
-      (my-hl-todo-reload))
-    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-dark-theme</span> ()
-      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
-              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
-              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
-              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
-              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"#afd8af"</span>)
-              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"DodgerBlue1"</span>)
-              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
-              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
-              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
-      (my-hl-todo-reload))
-    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org9ce2fd45" class="outline-3">
-<h3 id="org9ce2fd45"><span class="section-number-3">12.13.</span> [rainbow-mode.el] 配色のリアルタイム確認</h3>
-<div class="outline-text-3" id="text-org9ce2fd45">
-<p>
-<code>M-x rainbow-mode</code> とすると，色指定のコードの背景色を，その指定色にリアルタイム変換してくれる．
-</p>
-
-<p>
-<a href="http://elpa.gnu.org/packages/rainbow-mode.html">http://elpa.gnu.org/packages/rainbow-mode.html</a>
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(rainbow-mode)
-       <span style="color: #8b2252;">"rainbow-mode"</span> nil t)
-
-  (<span style="color: #a020f0;">dolist</span> (hook '(emmet-mode-hook emacs-lisp-mode-hook org-mode-hook))
-    (add-hook hook #'rainbow-mode)))
-</pre>
-</div>
-</div>
-
-<div id="outline-container-org19538af3" class="outline-4">
-<h4 id="org19538af3"><span class="section-number-4">12.13.1.</span> 色一覧</h4>
-<div class="outline-text-4" id="text-org19538af3">
-<p>
-<code>0,3,6,9,C,F</code> の組み合わせ
-</p>
-
-<div class="org-src-container">
-<pre class="src src-html">
-#000000 #000033 #000066 #000099 #0000CC #0000FF
-#003300 #003333 #003366 #003399 #0033CC #0033FF
-#006600 #006633 #006666 #006699 #0066CC #0066FF
-#009900 #009933 #009966 #009999 #0099CC #0099FF
-#00CC00 #00CC33 #00CC66 #00CC99 #00CCCC #00CCFF
-#00FF00 #00FF33 #00FF66 #00FF99 #00FFCC #00FFFF
-
-#330000 #330033 #330066 #330099 #3300CC #3300FF
-#333300 #333333 #333366 #333399 #3333CC #3333FF
-#336600 #336633 #336666 #336699 #3366CC #3366FF
-#339900 #339933 #339966 #339999 #3399CC #3399FF
-#33CC00 #33CC33 #33CC66 #33CC99 #33CCCC #33CCFF
-#33FF00 #33FF33 #33FF66 #33FF99 #33FFCC #33FFFF
-
-#660000 #660033 #660066 #660099 #6600CC #6600FF
-#663300 #663333 #663366 #663399 #6633CC #6633FF
-#666600 #666633 #666666 #666699 #6666CC #6666FF
-#669900 #669933 #669966 #669999 #6699CC #6699FF
-#66CC00 #66CC33 #66CC66 #66CC99 #66CCCC #66CCFF
-#66FF00 #66FF33 #66FF66 #66FF99 #66FFCC #66FFFF
-
-#990000 #990033 #990066 #990099 #9900CC #9900FF
-#993300 #993333 #993366 #993399 #9933CC #9933FF
-#996600 #996633 #996666 #996699 #9966CC #9966FF
-#999900 #999933 #999966 #999999 #9999CC #9999FF
-#99CC00 #99CC33 #99CC66 #99CC99 #99CCCC #99CCFF
-#99FF00 #99FF33 #99FF66 #99FF99 #99FFCC #99FFFF
-
-#CC0000 #CC0033 #CC0066 #CC0099 #CC00CC #CC00FF
-#CC3300 #CC3333 #CC3366 #CC3399 #CC33CC #CC33FF
-#CC6600 #CC6633 #CC6666 #CC6699 #CC66CC #CC66FF
-#CC9900 #CC9933 #CC9966 #CC9999 #CC99CC #CC99FF
-#CCCC00 #CCCC33 #CCCC66 #CCCC99 #CCCCCC #CCCCFF
-#CCFF00 #CCFF33 #CCFF66 #CCFF99 #CCFFCC #CCFFFF
-
-#FF0000 #FF0033 #FF0066 #FF0099 #FF00CC #FF00FF
-#FF3300 #FF3333 #FF3366 #FF3399 #FF33CC #FF33FF
-#FF6600 #FF6633 #FF6666 #FF6699 #FF66CC #FF66FF
-#FF9900 #FF9933 #FF9966 #FF9999 #FF99CC #FF99FF
-#FFCC00 #FFCC33 #FFCC66 #FFCC99 #FFCCCC #FFCCFF
-#FFFF00 #FFFF33 #FFFF66 #FFFF99 #FFFFCC #FFFFFF
-
-</pre>
-</div>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orgcc116051" class="outline-3">
-<h3 id="orgcc116051"><span class="section-number-3">12.14.</span> [edit-color-stamp] Qt経由でカラーピッカーを使う</h3>
-<div class="outline-text-3" id="text-orgcc116051">
-<ul class="org-ul">
-<li><a href="https://github.com/sabof/edit-color-stamp">sabof/edit-color-stamp: Edit hex color stamps using a QT, or the internal color picker</a></li>
-
-<li>Macintosh でもちゃんと使えます．</li>
-</ul>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (executable-find <span style="color: #8b2252;">"qt_color_picker"</span>)
-           (autoload-if-found
-            '(edit-color-stamp)
-            <span style="color: #8b2252;">"edit-color-stamp"</span> nil t))
-
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f c p"</span>) 'edit-color-stamp))
-</pre>
-</div>
-
-<p>
-（設定手順）
-</p>
-<ul class="org-ul">
-<li>QT をインストールして， <code>qmake</code> に <code>PATH</code> を通す（例：/usr/local/opt/qt/bin）</li>
-<li><code>edit-color-stamp</code> を入手してインストール先のフォルダに移動</li>
-<li>さらに， <code>qt_color_picker</code> ディレクトリに移動</li>
-<li><p>
-<code>qt_color_picker.pro</code> を編集して， "QT +=" に "widgets" を追加して保存する．
-</p>
-<div class="org-src-container">
-<pre class="src src-conf"><span style="color: #a0522d;">QT +</span>= core gui widgets
-</pre>
-</div></li>
-<li><code>qmake qt_color_picker.pro &amp;&amp; make</code> を実行</li>
-<li>出来上がった <code>qt_color_picker.app</code> を <code>/Applications/</code> にコピー（移動）</li>
-<li><p>
-<code>exec-path</code> にパスを通す
-</p>
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(add-to-list 'exec-path <span style="color: #8b2252;">"/Applications/qt_color_picker.app/Contents/MacOS/"</span>)
-</pre>
-</div></li>
-<li><code>(executable-find "qt_color_picker")</code> でプログラムを呼べることを確認</li>
-<li><code>#FFFFFF</code> などの色の上で <code>M-x edit-color-stamp</code> を実行する</li>
-<li>カラーピッカーで色を選んで「OK」すれば， <code>#FFFFFF</code> が更新される．</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-orge836aa4d" class="outline-3">
-<h3 id="orge836aa4d"><span class="section-number-3">12.15.</span> [ivy.el] インターフェイスの配色</h3>
-<div class="outline-text-3" id="text-orge836aa4d">
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
-  (custom-set-faces
-   '(ivy-current-match
-     ((((class color) (background light))
-       <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#FFF3F3"</span> <span style="color: #483d8b;">:distant-foreground</span> <span style="color: #8b2252;">"#000000"</span> <span style="color: #483d8b;">:extend</span> t)
-      (((class color) (background dark))
-       <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#404040"</span> <span style="color: #483d8b;">:distant-foreground</span> <span style="color: #8b2252;">"#abb2bf"</span> <span style="color: #483d8b;">:extend</span> t)))
-   '(ivy-minibuffer-match-face-1
-     ((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#666666"</span>)
-      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#999999"</span>)))
-   '(ivy-minibuffer-match-face-2
-     ((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#c03333"</span> <span style="color: #483d8b;">:underline</span> t)
-      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#e04444"</span> <span style="color: #483d8b;">:underline</span> t)))
-   '(ivy-minibuffer-match-face-3
-     ((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#8585ff"</span> <span style="color: #483d8b;">:underline</span> t)
-      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#7777ff"</span> <span style="color: #483d8b;">:underline</span> t)))
-   '(ivy-minibuffer-match-face-4
-     ((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#439943"</span> <span style="color: #483d8b;">:underline</span> t)
-      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#33bb33"</span> <span style="color: #483d8b;">:underline</span> t)))))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org4b927009" class="outline-3">
-<h3 id="org4b927009"><span class="section-number-3">12.16.</span> [ivy.el] 選択行をアイコンで強調</h3>
-<div class="outline-text-3" id="text-org4b927009">
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
-<span style="color: #b22222;">;;; </span><span style="color: #b22222;">&#36984;&#25246;&#23550;&#35937;&#12434; "" &#12395;&#12377;&#12427; (requires all-the-icons.el)</span>
-  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-visible</span>
-    '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span>)
-      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#EE6363"</span>))
-    <span style="color: #8b2252;">"Face used by Ivy for highlighting the arrow."</span>)
-  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-invisible</span>
-    '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>)
-      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#31343F"</span>))
-    <span style="color: #8b2252;">"Face used by Ivy for highlighting the invisible arrow."</span>)
-
-  (<span style="color: #a020f0;">if</span> window-system
-      (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-             (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow</span> (cands)
-               <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
-               (ivy--format-function-generic
-                (<span style="color: #a020f0;">lambda</span> (str)
-                  (concat (icons-in-terminal-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span>
-                           <span style="color: #483d8b;">:v-adjust</span> -0.1 
-                           <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible
-                           <span style="color: #483d8b;">:height</span> 0.8)
-                          <span style="color: #8b2252;">" "</span> (ivy--add-face (concat str <span style="color: #8b2252;">"\n"</span>)
-                                             'ivy-current-match)))
-                (<span style="color: #a020f0;">lambda</span> (str)
-                  (concat (icons-in-terminal-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span>
-                           <span style="color: #483d8b;">:v-adjust</span> -0.1
-                           <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible
-                           <span style="color: #483d8b;">:height</span> 0.8)
-                          <span style="color: #8b2252;">" "</span> (concat str <span style="color: #8b2252;">"\n"</span>)))
-                cands
-                <span style="color: #8b2252;">""</span>))
-             (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
-            ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
-             (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow</span> (cands)
-               <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
-               (ivy--format-function-generic
-                (<span style="color: #a020f0;">lambda</span> (str)
-                  (concat (all-the-icons-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span>
-                           <span style="color: #483d8b;">:v-adjust</span> -0.2 <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible)
-                          <span style="color: #8b2252;">" "</span> (ivy--add-face str 'ivy-current-match)))
-                (<span style="color: #a020f0;">lambda</span> (str)
-                  (concat (all-the-icons-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span> <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible)
-                          <span style="color: #8b2252;">" "</span> str))
-                cands
-                <span style="color: #8b2252;">"\n"</span>))
-             (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
-            (t (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
-                     '((t . ivy-format-function-arrow)))))
-    (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org36a28b28" class="outline-3">
-<h3 id="org36a28b28"><span class="section-number-3">12.17.</span> [volatile-highlights] コピペした領域を強調</h3>
-<div class="outline-text-3" id="text-org36a28b28">
-<p>
-コピペ直後の数秒に限定して，コピペした領域をハイライトします．さらに，所定の間隔で表示色を変えることで，ハイライト色が徐々に消えていくようなエフェクトにしています．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(volatile-highlights-mode my-vhl-change-color)
-       <span style="color: #8b2252;">"volatile-highlights"</span> nil t)
-
-  (<span style="color: #a020f0;">dolist</span> (hook '(org-mode-hook emacs-lisp-mode-hook emmet-mode-hook))
-    (add-hook hook #'volatile-highlights-mode))
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"volatile-highlights"</span>
-    (set-face-attribute
-     'vhl/default-face nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF3333"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#FFCDCD"</span>)
-    (volatile-highlights-mode t)
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12405;&#12431;&#12387;&#12392;&#12456;&#12501;&#12455;&#12463;&#12488;&#12398;&#36861;&#21152;&#65288;&#12506;&#12540;&#12473;&#12488;&#26178;&#12398;&#33394; =&gt; &#12459;&#12540;&#12477;&#12523;&#33394; =&gt; &#26412;&#26469;&#33394;&#65289;</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-vhl-change-color</span> ()
-      (<span style="color: #a020f0;">interactive</span>)
-      (<span style="color: #a020f0;">let</span> ((next 0.2)
-            (reset 0.5)
-            (colors '(<span style="color: #8b2252;">"#F8D3D7"</span> <span style="color: #8b2252;">"#F2DAE1"</span> <span style="color: #8b2252;">"#EBE0EB"</span> <span style="color: #8b2252;">"#E5E7F5"</span> <span style="color: #8b2252;">"#DEEDFF"</span>)))
-        (<span style="color: #a020f0;">dolist</span> (color colors)
-          (run-at-time next nil
-                       'set-face-attribute
-                       'vhl/default-face
-                       nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF3333"</span> <span style="color: #483d8b;">:background</span> color)
-          (<span style="color: #a020f0;">setq</span> next (+ 0.05 next)))
-        (run-at-time reset nil 'vhl/clear-all))
-      (set-face-attribute 'vhl/default-face
-                          nil <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF3333"</span>
-                          <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#FFCDCD"</span>))
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-yank</span> (<span style="color: #228b22;">&amp;optional</span> ARG)
-      (<span style="color: #a020f0;">interactive</span>)
-      (yank ARG)
-      (<span style="color: #a020f0;">when</span> window-system
-        (my-vhl-change-color)))
-    (global-set-key (kbd <span style="color: #8b2252;">"M-v"</span>) 'my-yank)
-    (global-set-key (kbd <span style="color: #8b2252;">"C-y"</span>) 'my-yank)
-
-    (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"vterm"</span>
-      (define-key vterm-mode-map (kbd <span style="color: #8b2252;">"C-y"</span>) 'vterm-yank))
-
-    (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-      (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-y"</span>) 'my-org-yank)
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-yank</span> ()
-        (<span style="color: #a020f0;">interactive</span>)
-        (org-yank)
-        (<span style="color: #a020f0;">when</span> window-system
-          (my-vhl-change-color))))))
 </pre>
 </div>
 </div>
@@ -16287,7 +16291,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-17 Sun 00:58</p>
+<p class="date">Created: 2022-07-17 Sun 01:45</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
