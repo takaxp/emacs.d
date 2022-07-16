@@ -783,8 +783,9 @@ The core part is extracted from `org-table-export'."
     "Run `eldoc' when the cursor is NOT located in org source block."
     (interactive '(t))
     (unless (or my-eldoc-disable-in-org-block
-                (eq (car (org-element-at-point)) 'src-block))
-        (funcall f interactive)))
+                (and (eq major-mode 'org-mode)
+                     (eq (car (org-element-at-point)) 'src-block)))
+      (funcall f interactive)))
   (advice-add 'eldoc-print-current-symbol-info :around
               #'ad:eldoc-print-current-symbol-info))
 
@@ -1877,6 +1878,16 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (message "Copied: %s" my-org-export-last-buffer))
       (setq my-org-export-last-buffer nil)))
   (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
+
+(when (autoload-if-found
+       '(org-appear-mode)
+       "org-appear" nil t)
+
+  (add-hook 'org-mode-hook 'org-appear-mode)
+
+  (with-eval-after-load "org-appear"
+    (setq org-hide-emphasis-markers t)
+    (setq org-appear-delay 0.4)))
 
 (with-eval-after-load "ob-core"
   (when (require 'ob-async nil t)

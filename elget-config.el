@@ -64,6 +64,7 @@
     (el-get-bundle "org-trello"))
   (el-get-bundle "xenodium/company-org-block")
   (el-get-bundle "emacsmirror/org-contrib")
+  (el-get-bundle "awth13/org-appear")
 
   ;; Org Mode - ox/ob
   (el-get-bundle "0x60df/ox-qmd")

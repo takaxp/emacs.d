@@ -14,7 +14,6 @@
     (require 'init-org nil t)))
 
 (defconst my-before-load-init-time (current-time))
-;;;###autoload
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
   (let ((time1 (float-time
@@ -28,7 +27,6 @@
 (add-hook 'after-init-hook #'my-load-init-time t)
 
 (defvar my-tick-previous-time my-before-load-init-time)
-;;;###autoload
 (defun my-tick-init-time (msg)
   "Tick boot sequence at loading MSG."
   (when my-loading-profile-p
@@ -39,7 +37,6 @@
                msg)
       (setq my-tick-previous-time ctime))))
 
-;;;###autoload
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (message "Emacs booting time: %.0f [msec] = `emacs-init-time'."
@@ -49,14 +46,6 @@
                            before-init-time)))))
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
-
-(setq gc-cons-threshold (* 32 1024 1024)) ;; 128MB
-(setq garbage-collection-messages t)
-(defvar my-gc-last 0.0)
-(add-hook 'post-gc-hook
-          #'(lambda ()
-              (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
-              (setq my-gc-last gc-elapsed)))
 
 ;; (setq byte-compile-warnings '(obsolete))
 ;; Suppress warning on cl.el loading
@@ -107,7 +96,6 @@ This function is called directly from the C code."
 
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
-;;;###autoload
 (defun my-load-package-p (file)
   (let ((enabled t))
     (when (boundp 'my-loading-packages)
@@ -125,7 +113,6 @@ This function is called directly from the C code."
 (when (bound-and-true-p my-loading-packages)
   (setq my-skip-check-autoload-file nil))
 
-;;;###autoload
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
   (when (boundp 'my-required-libraries)
@@ -151,7 +138,6 @@ This function is called directly from the C code."
           exit-minibuffer))
   (run-with-idle-timer 8 nil #'postpone-pre))
 
-;;;###autoload
 (defun future-time-p (time)
   "Return non-nil if provided TIME formed of \"10:00\" is the future time."
   (not (time-less-p
@@ -165,20 +151,6 @@ This function is called directly from the C code."
         (current-time))))
 ;; (when (future-time-p "10:00") (run-at-time...))
 
-;;;###autoload
-(defun library-p (libraries)
-  "Return t when every specified library can be located. "
-  (let ((result t))
-    (mapc (lambda (library)
-            (unless (locate-library library)
-              (message "--- NOT FOUND: %s" library)
-              (setq result nil)))
-          (if (listp libraries)
-              libraries
-            (list libraries)))
-    result))
-
-;;;###autoload
 (defun my-native-comp-p ()
   (when (fboundp 'native-comp-available-p)
     (native-comp-available-p)))
@@ -218,12 +190,9 @@ This function is called directly from the C code."
       (setq default-input-method 'japanese-anthy))))
 
 (when (eq system-type 'darwin)
-  (when (boundp 'ns-command-modifier)
-    (setq ns-command-modifier 'meta))
-  (when (boundp 'ns-alternate-modifier)
-    (setq ns-alternate-modifier 'super))
-  (when (boundp 'ns-pop-up-frames)
-    (setq ns-pop-up-frames nil))
+  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
+  (when (boundp 'ns-alternate-modifier) (setq ns-alternate-modifier 'super))
+  (when (boundp 'ns-pop-up-frames) (setq ns-pop-up-frames nil))
   (global-set-key (kbd "M-v") 'yank)
   (global-set-key [ns-drag-file] 'ns-find-file))
 (global-set-key [delete] 'delete-char)
@@ -245,172 +214,7 @@ This function is called directly from the C code."
 
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
 
-(when (autoload-if-found
-       '(modern-c++-font-lock-mode)
-       "modern-cpp-font-lock" nil t)
-  (push '("\\.[hm]$" . c++-mode) auto-mode-alist)
-  (add-hook 'c-mode-hook #'modern-c++-font-lock-mode)
-  (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
-
-(when (autoload-if-found
-       '(yaml-mode)
-       "yaml-mode" nil t)
-
-  (push '("\\.yml$" . yaml-mode) auto-mode-alist))
-
-(when (autoload-if-found
-       '(json-mode)
-       "json-mode" nil t)
-
-  (push '("\\.json$" . json-mode) auto-mode-alist)
-  (with-eval-after-load "json-mode"
-    (defun my-json-mode-beautify ()
-      (when (eq major-mode 'json-mode)
-        (json-mode-beautify (point-min) (point-max))))
-    (defun my-json-pretty-print-buffer ()
-      (when (eq major-mode 'json-mode)
-        (json-pretty-print-buffer)))
-    (add-hook 'before-save-hook #'my-json-mode-beautify)
-    (add-hook 'after-save-hook #'my-json-pretty-print-buffer)))
-
-(when (autoload-if-found
-       '(csv-mode)
-       "csv-mode" nil t)
-
-  (push '("\\.csv$" . csv-mode) auto-mode-alist))
-
-(when (autoload-if-found
-       '(cc-mode)
-       "cc-mode" nil t)
-
-  (push '("\\.pde$" . java-mode) auto-mode-alist) ;; Processing
-  (push '("\\.java$" . java-mode) auto-mode-alist))
-
-(when (autoload-if-found
-       '(es-mode)
-       "es-mode" nil t)
-
-  (push '("\\.es$" . es-mode) auto-mode-alist))
-
-(when (autoload-if-found
-       '(markdown-mode)
-       "markdown-mode" nil t)
-
-  (push '("\\.markdown$" . markdown-mode) auto-mode-alist)
-  (push '("\\.md$" . markdown-mode) auto-mode-alist))
-
-(when (autoload-if-found
-       '(logview-mode)
-       "logview" nil t)
-  (push '("\\.log$" . logview-mode) auto-mode-alist))
-
-(when (autoload-if-found
-       '(web-mode)
-       "web-mode" "web mode" t)
-
-  ;; web-mode で開くファイルの拡張子を指定
-  (push '("\\.phtml\\'" . web-mode) auto-mode-alist)
-  (push '("\\.tpl\\.php\\'" . web-mode) auto-mode-alist)
-  (push '("\\.jsp\\'" . web-mode) auto-mode-alist)
-  (push '("\\.as[cp]x\\'" . web-mode) auto-mode-alist)
-  (push '("\\.erb\\'" . web-mode) auto-mode-alist)
-  (push '("\\.mustache\\'" . web-mode) auto-mode-alist)
-  (push '("\\.djhtml\\'" . web-mode) auto-mode-alist)
-  (push '("\\.html?\\'" . web-mode) auto-mode-alist)
-
-  (with-eval-after-load "web-mode"
-    (define-key web-mode-map (kbd "S-<tab>") 'my-web-indent-fold)
-
-    (defun my-web-indent-fold ()
-      (interactive)
-      (web-mode-fold-or-unfold)
-      (web-mode-buffer-indent)
-      (indent-for-tab-command))
-
-    ;; indent
-    (setq web-mode-markup-indent-offset 1)
-
-    ;; 色の設定
-    (custom-set-faces
-     ;; custom-set-faces was added by Custom.
-     ;; If you edit it by hand, you could mess it up, so be careful.
-     ;; Your init file should contain only one such instance.
-     ;; If there is more than one, they won't work right.
-     '(web-mode-comment-face ((t (:foreground "#D9333F"))))
-     '(web-mode-css-at-rule-face ((t (:foreground "#FF7F00"))))
-     '(web-mode-css-pseudo-class-face ((t (:foreground "#FF7F00"))))
-     '(web-mode-css-rule-face ((t (:foreground "#A0D8EF"))))
-     '(web-mode-doctype-face ((t (:foreground "#82AE46"))))
-     '(web-mode-html-attr-name-face ((t (:foreground "#C97586"))))
-     '(web-mode-html-attr-value-face ((t (:foreground "#82AE46"))))
-     '(web-mode-html-tag-face ((t (:foreground "##4682ae" :weight bold))))
-     '(web-mode-server-comment-face ((t (:foreground "#D9333F")))))))
-
-;;(autoload 'po-mode "po-mode+" nil nil)
-;;(autoload 'po-mode "po-mode" nil t)
-(when (autoload-if-found
-       '(po-mode)
-       "po-mode" nil t)
-
-  (push '("\\.po[tx]?\\'\\|\\.po\\$" . po-mode) auto-mode-alist))
-
-(when (autoload-if-found
-       '(yatex-mode)
-       "yatex" "Yet Another LaTeX mode" t)
-
-  (push '("\\.tex$" . yatex-mode) auto-mode-alist)
-
-  ;; Disable auto line break
-  (add-hook 'yatex-mode-hook
-            (lambda ()
-              (setq auto-fill-function nil)))
-
-  (with-eval-after-load "yatex"
-    ;; 1=Shift JIS, 2=JIS, 3=EUC, 4=UTF-8
-    ;; (setq YaTeX-kanji-code nil)
-    (modify-coding-system-alist 'file "\\.tex$'" 'utf-8)
-    (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
-    (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp)))
-
-(autoload-if-found '(embark-act) "embark" nil t)
-
 (my-tick-init-time "editing")
-
-(with-eval-after-load "vc-hooks"
-  (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval (replace-regexp-in-string "^ Git" "" vc-mode)))))
-
-(with-eval-after-load "icons-in-terminal"
-  ;; 変更がアリ時は赤アイコン，そうでない時に緑アイコンをモードラインに表示
-  (make-face 'mode-line-vc-normal-face)
-  (make-face 'mode-line-vc-modified-face)
-  (set-face-attribute 'mode-line-vc-normal-face nil :foreground "#AFFFAF")
-  (set-face-attribute 'mode-line-vc-modified-face nil :foreground "#EEAFAF")
-  (defun my-mode-line-vc-mode-icon ()
-    (if (string-match "^ Git:" vc-mode)
-        (replace-regexp-in-string
-         "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
-      (replace-regexp-in-string
-       "^ Git-" (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))
-  (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval (my-mode-line-vc-mode-icon)))))
-
-;; mode-line
-(set-face-attribute 'mode-line nil
-                    :foreground "#FFFFFF"
-                    :background "#a46398"
-                    ;; :overline "#9d5446"
-                    :box nil)
-;; mode-line-inactive
-(set-face-attribute 'mode-line-inactive nil
-                    :foreground "#FFFFFF"
-                    :background "#c8a1b7"
-                    ;; :overline "#FFFFFF"
-                    :box nil)
-;; Terminal
-(unless (display-graphic-p)
-  (set-face-foreground 'mode-line "#96CBFE")
-  (set-face-background 'mode-line "#21252B"))
 
 ;;  (setq visible-bell nil) ;; default=nil
 (setq ring-bell-function 'ignore)
@@ -430,27 +234,20 @@ This function is called directly from the C code."
 
 ;; Disable to show the tool bar.
 (when (and (boundp 'early-init-file)
-	   (not early-init-file)
-	   (display-graphic-p))
+	         (not early-init-file)
+	         (display-graphic-p))
   (tool-bar-mode -1))
 
 (when (and (boundp 'early-init-file)
-	   (not early-init-file)
-	   (or (not (display-graphic-p))
-	       (eq system-type 'windows-nt)))
+	         (not early-init-file)
+	         (or (not (display-graphic-p))
+	             (eq system-type 'windows-nt)))
   (menu-bar-mode -1))
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
 
 (setq inhibit-default-init t)
-
-(setq line-number-display-limit-width 100000)
-
-;; モードラインの行数表示の前にアイコンを追加
-(with-eval-after-load "icons-in-terminal"
-  (setq mode-line-position-line-format
-        `(,(icons-in-terminal-material "edit") "%3l")))
 
 (my-tick-init-time "presentation")
 
@@ -505,97 +302,18 @@ This function is called directly from the C code."
                                     regexp-search-ring))
     (setq session-undo-check -1)))
 
-;; FIXME
-;;  (setq session-set-file-name-exclude-regexp
-;;        "^/private/\\.\\*"))
-;;          "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|^/private\\.*\\|^/var/folders\\.*"))
-
 (my-tick-init-time "history")
 
-(if (not (executable-find "gtags"))
-    (message "--- global is NOT installed in this system.")
-
-  (when (autoload-if-found
-         '(ggtags-mode)
-         "ggtags" nil t)
-
-    (with-eval-after-load "ggtags"
-      ;; (setq ggtags-completing-read-function t) ;; nil for helm
-      (define-key ggtags-mode-map (kbd "M-]") nil))
-
-    (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
-      (add-hook hook (lambda () (ggtags-mode 1)))))
-
-  (when (autoload-if-found
-         '(counsel-gtags-mode)
-         "counsel-gtags" nil t)
-    (dolist (hook '(c-mode-hook c++-mode-hook))
-      (add-hook hook 'counsel-gtags-mode))
-    (with-eval-after-load "counsel-gtags"
-      (custom-set-variables
-       '(counsel-gtags-update-interval-second 10)))))
-
 (my-tick-init-time "development")
-
-(cond
- ;; for Macintosh
- ((memq window-system '(mac ns))
-  (setq initial-frame-alist
-	      (append
-	       '((top . 23)
-	         (left . 0)
-	         ;; (alpha . (100 90))
-	         ;; (vertical-scroll-bars . nil)
-	         ;; (internal-border-width . 20)
-	         ;; (outer-border-width . 20)
-	         ;; (ns-appearance . nil) ;; 26.1 {light, dark}
-	         (ns-transparent-titlebar . t)) ;; 26.1
-	       initial-frame-alist)))
-
- ;; for Linux
- ((eq window-system 'x)
-  (setq initial-frame-alist
-	      (append
-	       '((vertical-scroll-bars . nil)
-	         (top . 0)
-	         (left . 0)
-	         (width . 80)
-	         (height . 38))
-	       initial-frame-alist)))
-
- ((eq window-system nil)
-  nil)
-
- ;; for Windows
- (t (setq initial-frame-alist
-	        (append
-	         '((vertical-scroll-bars . nil)
-	           (top . 0)
-	           (left . 0)
-	           (width . 80)
-	           (height . 26))
-	         initial-frame-alist))))
-
-;; Apply the initial setting to default
-(setq default-frame-alist initial-frame-alist)
-(with-eval-after-load "postpone"
-  (set-face-foreground 'vertical-border (face-foreground 'default))
-  (set-face-background 'vertical-border (face-background 'default)))
-(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 
 ;; カーソルの色
 (defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
 (defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2) :invisible nil))
 (defvar my-ime-last nil)
 
-;; (defun my-ime-active-p ()
-;;   (if (fboundp 'mac-get-current-input-source)
-;;       (not (string-match "\\.\\(Roman\\|US\\|ABC\\)$"
-;; 			 (mac-get-current-input-source)))
-;;     (if current-input-method t nil)))
-
-(defun my-ime-active-p ()
-  (mac-ime-active-p))
+(if (fboundp 'mac-ime-active-p)
+    (defalias 'my-ime-active-p 'mac-ime-active-p)
+  (defun my-ime-active-p () current-input-method))
 
 (defun my-ime-on-cursor ()
   (interactive)
@@ -611,33 +329,15 @@ This function is called directly from the C code."
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-(if (version< emacs-version "27.0")
-    (defun my-apply-cursor-config ()
-      (interactive)
-      (when (display-graphic-p)
-	      (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
-
-  (defun my-apply-cursor-config ()
-    (interactive)
-    (when (and (display-graphic-p)
-	             (fboundp 'mac-ime-active-p))
-      (if (mac-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
-  (add-hook 'buffer-list-update-hook #'my-apply-cursor-config))
-
-;; (unless (and (memq window-system '(ns mac))
-;;              noninteractive)
-;;   ;; ensure IME off when starting Emacs except macOS
-;;   (toggle-input-method)
-;;   (toggle-input-method nil nil))
+(defun my-apply-cursor-config ()
+  (interactive)
+  (when (display-graphic-p)
+	  (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+(add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
 
 ;; for init setup
 (setq-default cursor-type (plist-get my-cur-type-ime :on))
 (my-apply-cursor-config)
-
-;; could be deleted
-(when (memq window-system '(ns x))
-  (with-eval-after-load "postpone"
-    (run-with-idle-timer 3 t #'my-apply-cursor-config)))
 
 (declare-function my-font-config "init" nil)
 (defconst moom-autoloads
@@ -778,229 +478,7 @@ The keybindings will be assigned only when Emacs runs in GUI."
 
 (my-tick-init-time "frame and window")
 
-;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
-;; 2) Inconsolata, Migu 2M     : font-size=14,
-;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
-(defconst my-font-size 12)
-(defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
-(defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
-;; (defconst my-ja-font "Hiragino Maru Gothic Pro") ;; "Hiragino Maru Gothic Pro"
-;; (defconst my-ascii-font "Inconsolata") ;; "Inconsolata", Menlo, "Ricty Diminished"
-(defun my-ja-font-setter (spec)
-  (set-fontset-font nil 'japanese-jisx0208 spec)
-  (set-fontset-font nil 'katakana-jisx0201 spec)
-  (set-fontset-font nil 'japanese-jisx0212 spec)
-  (set-fontset-font nil '(#x0080 . #x024F) spec)
-  (set-fontset-font nil '(#x0370 . #x03FF) spec)
-  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
-(defun my-ascii-font-setter (spec)
-  (set-fontset-font nil 'ascii spec))
-(defun my-unicode-font-setter (spec)
-  (set-fontset-font t 'unicode spec nil 'prepend))
-(defun my-all-the-icons-setter ()
-  (when (require 'icons-in-terminal nil t)
-    (my-unicode-font-setter (font-spec :family (icons-in-terminal-faicon-family)))
-    (my-unicode-font-setter (font-spec :family (icons-in-terminal-fileicon-family)))
-    (my-unicode-font-setter (font-spec :family (icons-in-terminal-material-family)))
-    (my-unicode-font-setter (font-spec :family (icons-in-terminal-octicon-family)))
-    (my-unicode-font-setter (font-spec :family (icons-in-terminal-wicon-family)))))
-(defun my-font-config (&optional size ascii ja)
-  "Font config.
-- SIZE: font size for ASCII and Japanese (default: 12)
-- ASCII: ascii font family (default: \"Monaco\")
-- JA: Japanese font family (default: \"Migu 2M\")
-"
-  (when (memq window-system '(mac ns))
-    (let ((font-size (or size my-font-size))
-          (ascii-font (or ascii my-ascii-font))
-          (ja-font (or ja my-ja-font)))
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-      (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
-
-(defun my-setup-font ()
-  (interactive)
-  (cond
-   ;; CocoaEmacs
-   ((memq window-system '(mac ns))
-    (when (>= emacs-major-version 23)
-
-      ;; Fix ratio provided by set-face-attribute for fonts display
-      (setq face-font-rescale-alist
-            '(("^-apple-hiragino.*" . 1.0) ; 1.2
-              (".*Migu.*" . 1.2)
-              (".*Ricty.*" . 1.0)
-              (".*Inconsolata.*" . 1.0)
-              (".*osaka-bold.*" . 1.0)     ; 1.2
-              (".*osaka-medium.*" . 1.0)   ; 1.0
-              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-              ("-cdac$" . 1.0))))) ; 1.3
-   ;; (my-font-config) ;; see `my-theme'
-
-   ((eq window-system 'ns)
-    ;; Anti aliasing with Quartz 2D
-    (when (boundp 'mac-allow-anti-aliasing)
-      (setq mac-allow-anti-aliasing t)))
-
-   ((eq window-system 'w32) ;; Windows
-    (let ((font-size 14)
-          (font-height 100)
-          (ascii-font "Inconsolata")
-          (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-      (my-ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
-
-   ((eq window-system 'x) ; for SuSE Linux 12.1
-    (let
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font "Inconsolata")
-         ;; (ja-font "MigMix 1M")
-         (ja-font "Migu 2M"))
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
-    (setq face-font-rescale-alist '((".*Migu.*" . 2.0)
-                                    (".*MigMix.*" . 2.0)
-                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
-  )
-(my-setup-font)
-
-;; set-default で global 指定すると，ミニバッファの message で制御不能になる
-;; propertize で拡大できるが，global の値以下に縮小できなくなる．
-;; (set-default 'line-spacing 2)
-(defun my-linespacing ()
-  (unless (minibufferp)
-    (setq-local line-spacing 2)))
-(add-hook 'buffer-list-update-hook #'my-linespacing)
-(add-hook 'org-src-mode-hook #'my-linespacing)
-(add-hook 'debugger-mode-hook #'my-linespacing)
-
-(with-eval-after-load "org-agenda"
-  (defun my-org-agenda (&optional _arg _org-keys _restriction)
-    (my-linespacing))
-  (advice-add 'org-agenda :after #'my-org-agenda)
-  (defun my-org-agenda-redo (&optional _all)
-    (my-linespacing))
-  (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
-
-(declare-function my-daylight-theme "init" nil)
-(declare-function my-night-theme "init" nil)
-(declare-function my-terminal-theme "init" nil)
-(defvar my-light-theme-hook nil)
-(defvar my-dark-theme-hook nil)
-(if (not (display-graphic-p))
-    (defun my-terminal-theme ()
-      (interactive)
-      (when (require 'terminal-theme nil t)
-        (mapc 'disable-theme custom-enabled-themes)
-        (load-theme 'terminal t)
-        (plist-put my-cur-color-ime :on "#FF9300")))
-
-  (defun my-daylight-theme ()
-    (when (require 'daylight-theme nil t)
-      (mapc 'disable-theme custom-enabled-themes)
-      (load-theme 'daylight t)
-      (plist-put my-cur-color-ime :on "#FF9300")
-      (setq default-frame-alist
-            (delete (assoc 'ns-appearance default-frame-alist)
-                    default-frame-alist))
-      (setq default-frame-alist
-            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                    default-frame-alist))
-      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-      (add-to-list 'default-frame-alist '(ns-appearance . light))
-      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . light)))
-      (run-hooks 'my-light-theme-hook)))
-
-  (defun my-night-theme ()
-    (when (require 'night-theme nil t) ;; atom-one-dark-theme
-      (mapc 'disable-theme custom-enabled-themes)
-      (load-theme 'night t)
-      (plist-put my-cur-color-ime :on "RosyBrown") ;; #cebcfe
-      (setq default-frame-alist
-            (delete (assoc 'ns-appearance default-frame-alist)
-                    default-frame-alist))
-      (setq default-frame-alist
-            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
-                    default-frame-alist))
-      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-      (add-to-list 'default-frame-alist '(ns-appearance . dark))
-      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
-                                     (ns-appearance . dark)))
-      (run-hooks 'my-dark-theme-hook))))
-
-(declare-function my-font-config "init" nil)
-;;;###autoload
-(defun my-night-time-p (begin end)
-  (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
-         (cm (string-to-number (format-time-string "%M" (current-time))))
-         (ct (+ cm (* 60 ch))))
-    (if (> begin end)
-        (or (<= begin ct) (<= ct end))
-      (and (<= begin ct) (<= ct end)))))
-
-(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light} see init-env.el
-;;;###autoload
-(defun my-theme (&optional type)
-  (interactive "MType (light or dark): ")
-  (setq my-frame-appearance
-        (cond ((member type '("light" "l")) 'light)
-              ((member type '("dark" "d")) 'dark)
-              (t
-               my-frame-appearance)))
-  (if (display-graphic-p)
-      (cond ((eq my-frame-appearance 'dark)
-             (my-night-theme))
-            ((eq my-frame-appearance 'light)
-             (my-daylight-theme))
-            (t
-             (let ((night-time-in 23)
-                   (night-time-out 5))
-               (if (my-night-time-p
-                    (* night-time-in 60) (* night-time-out 60))
-                   (my-night-theme)
-                 (my-daylight-theme)))))
-    (my-terminal-theme))
-
-  (unless noninteractive
-    ;; remove unintentional colored frame border
-    (select-frame-set-input-focus (selected-frame))
-    (my-font-config)
-    (my-apply-cursor-config)
-    (when type
-      (moom-move-frame-to-edge-top)
-      (moom-fill-height))))
-
-;; init. This may override or reset font setting
-(with-eval-after-load "postpone"
-  (my-theme))
-
-;; (with-eval-after-load "postpone"
-;;   (run-at-time "21:00" 86400 'my-theme)
-;;   (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
-
 (my-tick-init-time "font")
-
-(when (autoload-if-found
-       '(my-cmd-to-open-iterm2)
-       "utility" nil t)
-
-  (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2)
-
-  (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2))
-
-  (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2)))
 
 (when (autoload-if-found
        '(counsel-osx-app)

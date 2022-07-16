@@ -4,6 +4,7 @@
 ;;                                                              TODO/DONE/FIXME
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
+
 (with-eval-after-load "selected"
   (require 'moom nil t)
   (require 'transient nil t)
@@ -64,7 +65,7 @@
 
 ;; Boot mode selection
 (cond
- (nil
+ (nil ;; minimal boot or DOOM Emacs (use toggle-doom.sh to switch)
   (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
   (when (and (memq window-system '(ns mac))
              (fboundp 'mac-get-current-input-source))
@@ -77,7 +78,7 @@
  (nil ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (setq org-agenda-files '("~/Desktop/hoge.org")))
- (nil
+ (nil ;; Spacemacs
   (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
  (t ;; Normal mode. see also init-eval.el
   (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))

@@ -48,7 +48,7 @@
 (setq confirm-kill-emacs 'y-or-n-p)
 
 (autoload-if-found
- '(el-get-version
+ '(el-get-version el-get-bundle
    my-elget-list my-elget-reset-links
    el-get-cd el-get-install el-get-remove el-get-update)
  "elget-config" nil t)
@@ -560,6 +560,13 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
             :before #'ad:add-change-log-entry-other-window)
 
 (when (autoload-if-found
+       '(modern-c++-font-lock-mode)
+       "modern-cpp-font-lock" nil t)
+  (push '("\\.[hm]$" . c++-mode) auto-mode-alist)
+  (add-hook 'c-mode-hook #'modern-c++-font-lock-mode)
+  (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
+
+(when (autoload-if-found
        '(info org-info-ja)
        "info" nil t)
 
@@ -583,7 +590,54 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
             (setq nxml-child-indent 1)
             (setq nxml-attribute-indent 0)))
 
+(when (autoload-if-found
+       '(yaml-mode)
+       "yaml-mode" nil t)
+
+  (push '("\\.yml$" . yaml-mode) auto-mode-alist))
+
+(when (autoload-if-found
+       '(json-mode)
+       "json-mode" nil t)
+
+  (push '("\\.json$" . json-mode) auto-mode-alist)
+  (with-eval-after-load "json-mode"
+    (defun my-json-mode-beautify ()
+      (when (eq major-mode 'json-mode)
+        (json-mode-beautify (point-min) (point-max))))
+    (defun my-json-pretty-print-buffer ()
+      (when (eq major-mode 'json-mode)
+        (json-pretty-print-buffer)))
+    (add-hook 'before-save-hook #'my-json-mode-beautify)
+    (add-hook 'after-save-hook #'my-json-pretty-print-buffer)))
+
+(when (autoload-if-found
+       '(csv-mode)
+       "csv-mode" nil t)
+
+  (push '("\\.csv$" . csv-mode) auto-mode-alist))
+
 (autoload-if-found '(ascii-on ascii-off) "ascii" nil t)
+
+(when (autoload-if-found
+       '(cc-mode)
+       "cc-mode" nil t)
+
+  (push '("\\.pde$" . java-mode) auto-mode-alist) ;; Processing
+  (push '("\\.java$" . java-mode) auto-mode-alist))
+
+(when (autoload-if-found
+       '(es-mode)
+       "es-mode" nil t)
+
+  (push '("\\.es$" . es-mode) auto-mode-alist))
+
+(when (autoload-if-found
+       '(markdown-mode)
+       "markdown-mode" nil t)
+
+  (push '("\\.markdown$" . markdown-mode) auto-mode-alist)
+  (push '("\\.md$" . markdown-mode) auto-mode-alist))
 
 (if (executable-find "cmake")
     (when (autoload-if-found
@@ -593,6 +647,11 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
       (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
   (message "--- cmake is NOT installed."))
+
+(when (autoload-if-found
+       '(logview-mode)
+       "logview" nil t)
+  (push '("\\.log$" . logview-mode) auto-mode-alist))
 
 ;; 特定の拡張子・ディレクトリ
 (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
@@ -657,11 +716,19 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (when view-mode
     (View-exit-and-edit)))
 
+;;;###autoload
+(defun my-view-exit ()
+  (interactive)
+  (if (use-region-p) (my-eval-region) (View-exit)))
+
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
   (define-key view-mode-map (kbd "S-SPC") 'mac-ime-toggle)
+  (define-key view-mode-map (kbd "e") 'my-view-exit)
+  (when (require 'helpful nil t)
+    (define-key view-mode-map (kbd "h") 'helpful-at-point))
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
   (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
@@ -674,6 +741,56 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (unless my-toggle-modeline-global
     (advice-add 'view--enable :before #'ad:view--enable)
     (advice-add 'view--disable :before #'ad:view--disable)))
+
+(when (autoload-if-found
+       '(web-mode)
+       "web-mode" "web mode" t)
+
+  ;; web-mode で開くファイルの拡張子を指定
+  (push '("\\.phtml\\'" . web-mode) auto-mode-alist)
+  (push '("\\.tpl\\.php\\'" . web-mode) auto-mode-alist)
+  (push '("\\.jsp\\'" . web-mode) auto-mode-alist)
+  (push '("\\.as[cp]x\\'" . web-mode) auto-mode-alist)
+  (push '("\\.erb\\'" . web-mode) auto-mode-alist)
+  (push '("\\.mustache\\'" . web-mode) auto-mode-alist)
+  (push '("\\.djhtml\\'" . web-mode) auto-mode-alist)
+  (push '("\\.html?\\'" . web-mode) auto-mode-alist)
+
+  (with-eval-after-load "web-mode"
+    (define-key web-mode-map (kbd "S-<tab>") 'my-web-indent-fold)
+
+    (defun my-web-indent-fold ()
+      (interactive)
+      (web-mode-fold-or-unfold)
+      (web-mode-buffer-indent)
+      (indent-for-tab-command))
+
+    ;; indent
+    (setq web-mode-markup-indent-offset 1)
+
+    ;; 色の設定
+    (custom-set-faces
+     ;; custom-set-faces was added by Custom.
+     ;; If you edit it by hand, you could mess it up, so be careful.
+     ;; Your init file should contain only one such instance.
+     ;; If there is more than one, they won't work right.
+     '(web-mode-comment-face ((t (:foreground "#D9333F"))))
+     '(web-mode-css-at-rule-face ((t (:foreground "#FF7F00"))))
+     '(web-mode-css-pseudo-class-face ((t (:foreground "#FF7F00"))))
+     '(web-mode-css-rule-face ((t (:foreground "#A0D8EF"))))
+     '(web-mode-doctype-face ((t (:foreground "#82AE46"))))
+     '(web-mode-html-attr-name-face ((t (:foreground "#C97586"))))
+     '(web-mode-html-attr-value-face ((t (:foreground "#82AE46"))))
+     '(web-mode-html-tag-face ((t (:foreground "##4682ae" :weight bold))))
+     '(web-mode-server-comment-face ((t (:foreground "#D9333F")))))))
+
+;;(autoload 'po-mode "po-mode+" nil nil)
+;;(autoload 'po-mode "po-mode" nil t)
+(when (autoload-if-found
+       '(po-mode)
+       "po-mode" nil t)
+
+  (push '("\\.po[tx]?\\'\\|\\.po\\$" . po-mode) auto-mode-alist))
 
 (when (autoload-if-found
        '(go-mode) "go-mode" nil t)
@@ -829,6 +946,24 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (define-key latex-math-preview-expression-mode-map (kbd "<f6>")
       'latex-math-preview-delete-buffer)))
 
+(when (autoload-if-found
+       '(yatex-mode)
+       "yatex" "Yet Another LaTeX mode" t)
+
+  (push '("\\.tex$" . yatex-mode) auto-mode-alist)
+
+  ;; Disable auto line break
+  (add-hook 'yatex-mode-hook
+            (lambda ()
+              (setq auto-fill-function nil)))
+
+  (with-eval-after-load "yatex"
+    ;; 1=Shift JIS, 2=JIS, 3=EUC, 4=UTF-8
+    ;; (setq YaTeX-kanji-code nil)
+    (modify-coding-system-alist 'file "\\.tex$'" 'utf-8)
+    (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
+    (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp)))
+
 (with-eval-after-load "yatex"
   (put 'YaTeX-insert-braces 'begend-guide 2)
 
@@ -966,6 +1101,8 @@ This works also for other defined begin/end tokens to define the structure."
 (autoload-if-found
  '(query-replace-from-region query-replace-regexp-from-region)
  "replace-from-region" nil t)
+
+(autoload-if-found '(embark-act) "embark" nil t)
 
 (when (autoload-if-found
        '(selected-global-mode)
@@ -1129,6 +1266,25 @@ Call this function at updating `mode-line-mode'."
       (mlscroll-mode 1))
     (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)))
 
+(with-eval-after-load "vc-hooks"
+  (setcdr (assq 'vc-mode mode-line-format)
+          '((:eval (replace-regexp-in-string "^ Git" "" vc-mode)))))
+
+(with-eval-after-load "icons-in-terminal"
+  ;; 変更がアリ時は赤アイコン，そうでない時に緑アイコンをモードラインに表示
+  (make-face 'mode-line-vc-normal-face)
+  (make-face 'mode-line-vc-modified-face)
+  (set-face-attribute 'mode-line-vc-normal-face nil :foreground "#AFFFAF")
+  (set-face-attribute 'mode-line-vc-modified-face nil :foreground "#EEAFAF")
+  (defun my-mode-line-vc-mode-icon ()
+    (if (string-match "^ Git:" vc-mode)
+        (replace-regexp-in-string
+         "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
+      (replace-regexp-in-string
+       "^ Git-" (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))
+  (setcdr (assq 'vc-mode mode-line-format)
+          '((:eval (my-mode-line-vc-mode-icon)))))
+
 (defun ad:split-window-below (&optional _size)
   "An extention to switch to \*scratch\* buffer after splitting window."
   (my-open-scratch))
@@ -1212,6 +1368,13 @@ Call this function at updating `mode-line-mode'."
             (global-display-line-numbers-mode flag)
             (line-number-mode (- flag)))
         (user-error "The display-line-numbers is NOT supported")))))
+
+(setq line-number-display-limit-width 100000)
+
+;; モードラインの行数表示の前にアイコンを追加
+(with-eval-after-load "icons-in-terminal"
+  (setq mode-line-position-line-format
+        `(,(icons-in-terminal-material "edit") "%3l")))
 
 ;; Show clock in in the mode line
 (setq display-time-format "%H:%M") ;; %y%m%d. ;; "%H%M.%S"
@@ -2471,6 +2634,29 @@ sorted.  FUNCTION must be a function of one argument."
   (with-eval-after-load "gnuplot-mode"
     (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun)))
 
+(if (not (executable-find "gtags"))
+    (message "--- global is NOT installed in this system.")
+
+  (when (autoload-if-found
+         '(ggtags-mode)
+         "ggtags" nil t)
+
+    (with-eval-after-load "ggtags"
+      ;; (setq ggtags-completing-read-function t) ;; nil for helm
+      (define-key ggtags-mode-map (kbd "M-]") nil))
+
+    (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
+      (add-hook hook (lambda () (ggtags-mode 1)))))
+
+  (when (autoload-if-found
+         '(counsel-gtags-mode)
+         "counsel-gtags" nil t)
+    (dolist (hook '(c-mode-hook c++-mode-hook))
+      (add-hook hook 'counsel-gtags-mode))
+    (with-eval-after-load "counsel-gtags"
+      (custom-set-variables
+       '(counsel-gtags-update-interval-second 10)))))
+
 (when (autoload-if-found
        '(0xc-convert 0xc-convert-point my-decimal-to-hex my-hex-to-decimal)
        "0xc" nil t)
@@ -2833,7 +3019,7 @@ sorted.  FUNCTION must be a function of one argument."
     (when (setq my-ime-before-action (my-ime-active-p))
 	    (my-ime-off)))
 
-  (if (version< emacs-version "27.0")
+  (if (not (fboundp 'mac-ime-active-p))
 	    (progn
 	      ;; For selected.el
 	      (add-hook 'activate-mark-hook #'my-ime-off-sticky)
@@ -2866,7 +3052,6 @@ sorted.  FUNCTION must be a function of one argument."
   ;;                (mac-handle-input-method-change))
   ;;              (setq previous-buffer (current-buffer))))))))
   )
-
 
  ;; EMP: Emacs Mac Port
  ((eq window-system 'mac)
@@ -3127,6 +3312,24 @@ Uses `all-the-icons-material' to fetch the icon."
   (postpone-message "blink-cursor-mode")
   (blink-cursor-mode 1))
 
+;; set-default で global 指定すると，ミニバッファの message で制御不能になる
+;; propertize で拡大できるが，global の値以下に縮小できなくなる．
+;; (set-default 'line-spacing 2)
+(defun my-linespacing ()
+  (unless (minibufferp)
+    (setq-local line-spacing 2)))
+(add-hook 'buffer-list-update-hook #'my-linespacing)
+(add-hook 'org-src-mode-hook #'my-linespacing)
+(add-hook 'debugger-mode-hook #'my-linespacing)
+
+(with-eval-after-load "org-agenda"
+  (defun my-org-agenda (&optional _arg _org-keys _restriction)
+    (my-linespacing))
+  (advice-add 'org-agenda :after #'my-org-agenda)
+  (defun my-org-agenda-redo (&optional _all)
+    (my-linespacing))
+  (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
+
 (with-eval-after-load "diff-mode"
   (set-face-attribute 'diff-added nil
                       :background nil :foreground "lime green"
@@ -3143,6 +3346,100 @@ Uses `all-the-icons-material' to fetch the icon."
                       :foreground "chocolate4"
                       :background "white" :weight 'extra-bold
                       :inherit nil))
+
+;; (declare-function my-daylight-theme "init" nil)
+;; (declare-function my-night-theme "init" nil)
+;; (declare-function my-terminal-theme "init" nil)
+(defvar my-light-theme-hook nil)
+(defvar my-dark-theme-hook nil)
+(if (not (display-graphic-p))
+    (defun my-terminal-theme ()
+      (interactive)
+      (when (require 'terminal-theme nil t)
+        (mapc 'disable-theme custom-enabled-themes)
+        (load-theme 'terminal t)
+        (plist-put my-cur-color-ime :on "#FF9300")))
+
+  (defun my-daylight-theme ()
+    (when (require 'daylight-theme nil t)
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'daylight t)
+      (plist-put my-cur-color-ime :on "#FF9300")
+      (setq default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (setq default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . light))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . light)))
+      (run-hooks 'my-light-theme-hook)))
+
+  (defun my-night-theme ()
+    (when (require 'night-theme nil t) ;; atom-one-dark-theme
+      (mapc 'disable-theme custom-enabled-themes)
+      (load-theme 'night t)
+      (plist-put my-cur-color-ime :on "RosyBrown") ;; #cebcfe
+      (setq default-frame-alist
+            (delete (assoc 'ns-appearance default-frame-alist)
+                    default-frame-alist))
+      (setq default-frame-alist
+            (delete (assoc 'ns-transparent-titlebar default-frame-alist)
+                    default-frame-alist))
+      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+      (add-to-list 'default-frame-alist '(ns-appearance . dark))
+      (modify-frame-parameters nil '((ns-transparent-titlebar . t)
+                                     (ns-appearance . dark)))
+      (run-hooks 'my-dark-theme-hook))))
+
+(declare-function my-font-config "init" nil)
+(defun my-night-time-p (begin end)
+  (let* ((ch (string-to-number (format-time-string "%H" (current-time))))
+         (cm (string-to-number (format-time-string "%M" (current-time))))
+         (ct (+ cm (* 60 ch))))
+    (if (> begin end)
+        (or (<= begin ct) (<= ct end))
+      (and (<= begin ct) (<= ct end)))))
+
+(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light} see init-env.el
+
+;;;###autoload
+(defun my-theme (&optional type)
+  (interactive "MType (light or dark): ")
+  (setq my-frame-appearance
+        (cond ((member type '("light" "l")) 'light)
+              ((member type '("dark" "d")) 'dark)
+              (t
+               my-frame-appearance)))
+  (if (display-graphic-p)
+      (cond ((eq my-frame-appearance 'dark)
+             (my-night-theme))
+            ((eq my-frame-appearance 'light)
+             (my-daylight-theme))
+            (t
+             (let ((night-time-in 23)
+                   (night-time-out 5))
+               (if (my-night-time-p
+                    (* night-time-in 60) (* night-time-out 60))
+                   (my-night-theme)
+                 (my-daylight-theme)))))
+    (my-terminal-theme))
+
+  (unless noninteractive
+    ;; remove unintentional colored frame border
+    (select-frame-set-input-focus (selected-frame))
+    (my-font-config)
+    (my-apply-cursor-config)
+    (when type
+      (moom-move-frame-to-edge-top)
+      (moom-fill-height))))
+
+;; This may override or reset font setting
+(my-theme)
+;; (run-at-time "21:00" 86400 'my-theme)
+;; (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
 
 (when (autoload-if-found
        '(global-hl-todo-mode my-hl-todo-activate)
@@ -3665,6 +3962,18 @@ Uses `all-the-icons-material' to fetch the icon."
     (custom-set-variables
      '(osx-lib-say-ratio 100)
      '(osx-lib-say-voice "Samantha"))))
+
+(when (autoload-if-found
+       '(my-cmd-to-open-iterm2)
+       "utility" nil t)
+
+  (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2)
+
+  (with-eval-after-load "flyspell"
+    (define-key flyspell-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2))
+
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2)))
 
 (global-set-key (kbd "C-c f t") 'my-open-current-directory-in-terminal)
 
