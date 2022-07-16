@@ -1724,7 +1724,7 @@ Note that this mechanism is still under consideration."
   (defun my-add-custom-id ()
     "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
     (interactive)
-    (my-org-custom-id-get nil t))
+    (my-org-custom-id-get t))
 
   (defun my-get-custom-id ()
     "Return a part of UUID with an \"org\" prefix.
@@ -1733,7 +1733,7 @@ e.g. \"org3ca6ef0c\"."
       (when (org-uuidgen-p id)
         (downcase (concat "org"  (substring (org-id-new "") 0 8))))))
 
-  (defun my-org-custom-id-get (&optional pom create)
+  (defun my-org-custom-id-get (&optional create)
     "Get the CUSTOM_ID property of the entry at point-or-marker POM.
 If POM is nil, refer to the entry at point.  If the entry does
 not have an CUSTOM_ID, the function returns nil.  However, when
@@ -1742,19 +1742,18 @@ already.  In any case, the CUSTOM_ID of the entry is returned.
 
 See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (interactive)
-    (org-with-point-at pom
-      (let ((id (org-entry-get nil "CUSTOM_ID")))
-        (cond
-         ((and id (stringp id) (string-match "\\S-" id))
-          id)
-         (create
-          (setq id (my-get-custom-id))
-          (unless id
-            (error "Invalid ID"))
-          (org-entry-put pom "CUSTOM_ID" id)
-          (message "--- CUSTOM_ID assigned: %s" id)
-          (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
-          id)))))
+    (let ((id (org-entry-get nil "CUSTOM_ID")))
+      (cond
+       ((and id (stringp id) (string-match "\\S-" id))
+        id)
+       (create
+        (setq id (my-get-custom-id))
+        (unless id
+          (error "Invalid ID"))
+        (org-entry-put pom "CUSTOM_ID" id)
+        (message "--- CUSTOM_ID assigned: %s" id)
+        (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
+        id))))
 
   ;;;###autoload
   (defun my-add-org-ids-to-headlines-in-file ()
@@ -1770,7 +1769,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (goto-char (point-min))
       (when (re-search-forward "^#\\+options:.*auto-id:t" (point-max) t)
         (org-map-entries
-         (lambda () (my-org-custom-id-get (point) 'create))))))
+         (lambda () (my-org-custom-id-get 'create))))))
 
   (defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$")
   (defun my-convert-md-link-to-html ()

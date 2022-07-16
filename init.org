@@ -101,7 +101,7 @@ Then load the following at startup
 ** [early-init.el] early-init.el を使う
    :PROPERTIES:
    :ID:       779FEF5C-522C-4695-B532-B93028BC5FB8
-   :CUSTOM_ID: orgf0a01c11
+   :CUSTOM_ID: org43b7d78e
    :END:
 
 ~early-init.el~ の読み込み時には， =(display-graphic-p)= と =window-system= が共に =nil= に設定されるので要注意です．
@@ -4207,6 +4207,7 @@ Call this function at updating `mode-line-mode'."
    :PROPERTIES:
    :CREATED:  [2021-08-04 Wed 01:02]
    :ID:       955D37D9-7AC2-4878-8574-13B7C6C12E47
+   :CUSTOM_ID: org8e939aed
    :END:
 
 [[https://github.com/jdtsmith/mlscroll][mlscroll.el]] を使います．
@@ -4454,6 +4455,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
    :PROPERTIES:
    :CREATED:  [2021-10-03 Sun 18:16]
    :ID:       E114E71E-0456-452B-B03F-75AF8B1C376E
+   :CUSTOM_ID: org0f9c4edc
    :END:
 
 see https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/
@@ -5785,6 +5787,7 @@ sorted.  FUNCTION must be a function of one argument."
    :PROPERTIES:
    :CREATED:  [2022-03-26 Sat 00:51]
    :ID:       950EB87C-C3EA-4BC3-8989-E30D8C8B12AF
+   :CUSTOM_ID: orgdef403ec
    :END:
 
 ~autoload-if-found~ を使ういつもの設定では正しく動作しないので， ~eval-when-compile~ を使用して require しています．
@@ -8340,6 +8343,7 @@ trim_trailing_whitespace = true
    :PROPERTIES:
    :CREATED:  [2022-07-14 Thu 22:44]
    :ID:       4D9E74DC-1189-4490-AE79-750960CB796D
+   :CUSTOM_ID: orgdd272f8c
    :END:
 
 =vterm= を使うとバッファをターミナルとして使えます．通常では ~C-n/C-p~ でコマンド履歴を辿ってしまうので，実行結果などをコピーして別バッファに貼り付けたい場合は， =vterm-copy-mode= (C-c C-t) を使えばよいです．
@@ -10907,7 +10911,7 @@ Note that this mechanism is still under consideration."
   (defun my-add-custom-id ()
     "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
     (interactive)
-    (my-org-custom-id-get nil t))
+    (my-org-custom-id-get t))
 
   (defun my-get-custom-id ()
     "Return a part of UUID with an \"org\" prefix.
@@ -10916,7 +10920,7 @@ e.g. \"org3ca6ef0c\"."
       (when (org-uuidgen-p id)
         (downcase (concat "org"  (substring (org-id-new "") 0 8))))))
 
-  (defun my-org-custom-id-get (&optional pom create)
+  (defun my-org-custom-id-get (&optional create)
     "Get the CUSTOM_ID property of the entry at point-or-marker POM.
 If POM is nil, refer to the entry at point.  If the entry does
 not have an CUSTOM_ID, the function returns nil.  However, when
@@ -10925,19 +10929,18 @@ already.  In any case, the CUSTOM_ID of the entry is returned.
 
 See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (interactive)
-    (org-with-point-at pom
-      (let ((id (org-entry-get nil "CUSTOM_ID")))
-        (cond
-         ((and id (stringp id) (string-match "\\S-" id))
-          id)
-         (create
-          (setq id (my-get-custom-id))
-          (unless id
-            (error "Invalid ID"))
-          (org-entry-put pom "CUSTOM_ID" id)
-          (message "--- CUSTOM_ID assigned: %s" id)
-          (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
-          id)))))
+    (let ((id (org-entry-get nil "CUSTOM_ID")))
+      (cond
+       ((and id (stringp id) (string-match "\\S-" id))
+        id)
+       (create
+        (setq id (my-get-custom-id))
+        (unless id
+          (error "Invalid ID"))
+        (org-entry-put pom "CUSTOM_ID" id)
+        (message "--- CUSTOM_ID assigned: %s" id)
+        (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
+        id))))
 
   ;;;###autoload
   (defun my-add-org-ids-to-headlines-in-file ()
@@ -10953,7 +10956,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (goto-char (point-min))
       (when (re-search-forward "^#\\+options:.*auto-id:t" (point-max) t)
         (org-map-entries
-         (lambda () (my-org-custom-id-get (point) 'create))))))
+         (lambda () (my-org-custom-id-get 'create))))))
 
   (defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$")
   (defun my-convert-md-link-to-html ()
@@ -10968,6 +10971,9 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (message "====\ninput:\t%s\noutput:\t%s" prev new)))
     (message "--- done.")))
 #+end_src
+
+#+RESULTS:
+: my-convert-md-link-to-html
 
 ** [org-id.el] プロパティに ID を入れる
    :PROPERTIES:
@@ -11687,6 +11693,807 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ;; \\usepackage{amssymb}
 ;; \\usepackage{hyperref}"
 ;;      org-beamer-sectioning)))
+#+end_src
+
+* フレーム／ウィンドウ制御
+  :PROPERTIES:
+  :CUSTOM_ID: org5fd484a3
+  :END:
+#+begin_src emacs-lisp :tangle yes :exports none
+(my-tick-init-time "development")
+#+end_src
+** 起動時の設定
+   :PROPERTIES:
+   :CUSTOM_ID: orgd05fc75a
+   :ID:       4A60D259-5D38-4D7B-97B8-0FBFA7219F7C
+   :END:
+
+#+begin_src emacs-lisp :tangle yes
+(cond
+ ((memq window-system '(mac ns)) ;; for macOS
+  (setq initial-frame-alist
+	      (append
+	       '((top . 23)
+	         (left . 0)
+	         ;; (alpha . (100 90))
+	         ;; (vertical-scroll-bars . nil)
+	         ;; (internal-border-width . 20)
+	         ;; (outer-border-width . 20)
+	         ;; (ns-appearance . nil) ;; 26.1 {light, dark}
+	         (ns-transparent-titlebar . t)) ;; 26.1
+	       initial-frame-alist)))
+
+ ((eq window-system 'x) ;; for Linux
+  (setq initial-frame-alist
+	      (append
+	       '((vertical-scroll-bars . nil)
+	         (top . 0)
+	         (left . 0)
+	         (width . 80)
+	         (height . 38))
+	       initial-frame-alist)))
+
+ ((eq window-system nil)
+  nil)
+
+ (t ;; for Windows
+  (setq initial-frame-alist
+	        (append
+	         '((vertical-scroll-bars . nil)
+	           (top . 0)
+	           (left . 0)
+	           (width . 80)
+	           (height . 26))
+	         initial-frame-alist))))
+
+;; Apply the initial setting to default
+(setq default-frame-alist initial-frame-alist)
+(with-eval-after-load "postpone"
+  (set-face-foreground 'vertical-border (face-foreground 'default))
+  (set-face-background 'vertical-border (face-background 'default)))
+;;(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
+(set-face-background 'fringe "#FFFFFF") ;; 10-20[ms]
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;; カーソルの色
+(defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
+(defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2) :invisible nil))
+(defvar my-ime-last nil)
+
+(if (fboundp 'mac-ime-active-p)
+    (defalias 'my-ime-active-p 'mac-ime-active-p)
+  (defun my-ime-active-p () current-input-method))
+
+(defun my-ime-on-cursor ()
+  (interactive)
+  (setq cursor-type (plist-get my-cur-type-ime :on))
+  (set-cursor-color (plist-get my-cur-color-ime :on)))
+(defun my-ime-off-cursor ()
+  (interactive)
+  (setq cursor-type (plist-get my-cur-type-ime :off))
+  (set-cursor-color (plist-get my-cur-color-ime :off)))
+(defun my-ime-invisible-cursor ()
+  (interactive)
+  (setq cursor-type (plist-get my-cur-type-ime :invisible)))
+(add-hook 'input-method-activate-hook #'my-ime-on-cursor)
+(add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
+
+(defun my-apply-cursor-config ()
+  (interactive)
+  (when (display-graphic-p)
+	  (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+(add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
+
+;; for init setup
+(setq-default cursor-type (plist-get my-cur-type-ime :on))
+(my-apply-cursor-config)
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(cond
+ ((memq window-system '(ns x))
+  ;; モードラインにアイコンを出す
+  (make-face 'mode-line-ime-on-face)
+  (set-face-attribute 'mode-line-ime-on-face
+                      nil :foreground (plist-get my-cur-color-ime :on))
+  (when (fboundp 'mac-set-input-method-parameter)
+    (mac-set-input-method-parameter
+     "com.google.inputmethod.Japanese.base" 'title
+     (concat
+	    (if (require 'icons-in-terminal nil t)
+          (icons-in-terminal-octicon "keyboard"
+                                     :v-adjust 0.0
+                                     :face 'mode-line-ime-on-face)
+        "") " "))) ;; FIXME (the color is NOT changed, patch is wrong?)
+
+  (declare-function my-ime-on "init" nil)
+  (declare-function my-ime-off "init" nil)
+  (declare-function my-ime-active-p "init" nil)
+
+  ;; for private patch
+  (when (boundp 'mac-ime-cursor-type)
+    (setq mac-ime-cursor-type (plist-get my-cur-type-ime :on)))
+
+  (setq my-ime-last (my-ime-active-p))
+  (defun my-ime-on ()
+    (interactive)
+    (if (fboundp 'mac-toggle-input-method)
+	      (progn
+	        (mac-toggle-input-method t)
+	        (run-hooks 'input-method-activate-hook))
+	    (activate-input-method default-input-method))
+    (setq my-ime-last t))
+  (defun my-ime-off ()
+    (interactive)
+    (if (fboundp 'mac-toggle-input-method)
+	      (progn
+	        (mac-toggle-input-method nil)
+	        (run-hooks 'input-method-deactivate-hook))
+	    (deactivate-input-method))
+    (setq my-ime-last nil))
+
+  (defvar my-ime-before-action nil)
+  (defun my-ime-on-sticky ()
+    (when my-ime-before-action
+	    (my-ime-on)))
+  (defun my-ime-off-sticky ()
+    (when (setq my-ime-before-action (my-ime-active-p))
+	    (my-ime-off)))
+
+  (if (not (fboundp 'mac-ime-active-p))
+	    (progn
+	      ;; For selected.el
+	      (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+	      (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+	      ;; 「M-x あ」対策
+	      (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
+	      (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
+    ;; For selected.el
+    (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
+    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
+
+  ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
+  ;;   "Extension to find-file as before-find-file-hook."
+  ;;   (message "--- ad:findfile")
+  ;;   (apply FILENAME WILDCARDS))
+  ;; (advice-add #'find-file :around #'ad:find-file)
+
+  ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
+  ;; バッファ切替時に input method を切り替える
+  ;; (with-eval-after-load "postpone"
+  ;;   (when (and (fboundp 'mac-handle-input-method-change)
+  ;;              (require 'cl nil t))
+  ;;     (add-hook
+  ;;      'post-command-hook
+  ;;      (lexical-let ((previous-buffer nil))
+  ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
+  ;;        (lambda ()
+  ;;            (unless (eq (current-buffer) previous-buffer)
+  ;;              (when (bufferp previous-buffer)
+  ;;                (mac-handle-input-method-change))
+  ;;              (setq previous-buffer (current-buffer))))))))
+  )
+
+ ;; EMP: Emacs Mac Port
+ ((eq window-system 'mac)
+  (when (fboundp 'mac-input-source)
+    (defun my-mac-keyboard-input-source () ;; Need update
+	    (if (string-match "\\.Roman$" (mac-input-source))
+	        (progn
+	          (setq cursor-type (plist-get my-cur-type-ime :off))
+	          (add-to-list 'default-frame-alist
+			                   `(cursor-type . ,(plist-get my-cur-type-ime :off)))
+	          (set-cursor-color (plist-get my-cur-color-ime :off)))
+	      (progn
+	        (setq cursor-type (plist-get my-cur-type-ime :on))
+	        (add-to-list 'default-frame-alist
+			                 `(cursor-type . ,(plist-get my-cur-type-ime :on)))
+	        (set-cursor-color (plist-get my-cur-color-ime :on)))))
+
+    (when (fboundp 'mac-auto-ascii-mode)
+	    ;; (mac-auto-ascii-mode 1)
+	    ;; IME ON/OFF でカーソルの種別や色を替える
+	    (add-hook 'mac-selected-keyboard-input-source-change-hook
+		            #'my-mac-keyboard-input-source)
+	    ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
+	    ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
+	    ;;           #'my-mac-keyboard-input-source)
+	    (declare-function my-mac-keyboard-input-source "init" nil)
+	    (my-mac-keyboard-input-source))))
+
+ (t nil))
+#+end_src
+
+** 複数フレーム対応
+   :PROPERTIES:
+   :CUSTOM_ID: orgdffe4e49
+   :ID:       6D9194F2-4A2A-4CF5-B463-32B6C9E2F493
+   :END:
+
+フレームを複数使う場合の設定です．
+
+#+begin_src emacs-lisp :tangle late-init.el
+;; (declare-function my-font-config "init" nil)
+(global-set-key (kbd "M-`") 'other-frame)
+(with-eval-after-load "frame"
+  (defun ad:make-frame (&optional _parameters)
+    (when (display-graphic-p)
+      (my-theme)
+      (my-apply-cursor-config)
+      (setq-default cursor-type
+                    (if (my-ime-active-p)
+                        (plist-get my-cur-type-ime :on)
+                      (plist-get my-cur-type-ime :off)))
+      (when (require 'moom-font nil t)
+        (moom-font-resize))))
+  (advice-add 'make-frame :after #'ad:make-frame))
+#+end_src
+
+** [moom.el] キーボードでフレームの場所を移す
+   :PROPERTIES:
+   :CUSTOM_ID: org5f12ba92
+   :ID:       52845E4B-AFDB-43CC-B06E-67E9377BC7FA
+   :END:
+
+(2017-07-30) frame-ctr から moom.el にリネームしました．Moom は，Many Tricks がリリースするソフトウェアで，今後はこのソフトウェアのポーティングを目指します．
+
+拙作の [[https://github.com/takaxp/moom][moom.el]] を使います．
+
+# 以下の設定は，標準のフォントサイズが12ptで，日本語フォントに Migu 2M，英字フォントにMonacoを使う場合の設定です．フォントサイズの「増加」「減少」「初期化」「サイズ指定」が可能です．
+
+ビルトインに =face-remap= があり，アスキーフォントは =C-x C--= と =C-x C-== で拡大縮小を制御できます．以下のキーバインドは，face-remap.el が提供する text-scale-adjust のキーバインドを上書きします． =text-scale-adjust= をそのまま使っても，日本語フォントが制御されないので，オーバーライドしてしまってもOKだと思います．
+
+近しいパッケージに， =WindMove= と =FrameMove= がありますが，これらは基本的にカーソルの移動を目的にしています．
+
+  - [[https://www.emacswiki.org/emacs/WindMove][{Home} Wind Move]] (ビルトイン)
+    - ウィンドウ間のカーソル移動を改善
+  - [[https://www.emacswiki.org/emacs/FrameMove][{Home} Frame Move]]
+    - フレーム間のカーソル移動を改善
+
+また類似のパッケージに =frame-cmds= があります．
+
+1. http://www.emacswiki.org/emacs/download/frame-cmds.el
+2. http://www.emacswiki.org/emacs/download/frame-fns.el
+
+=moom-autuloads= に必要なコマンドを +羅列していますが，+ =melpa= でインストールする場合は関係ありません．パッケージ内で autoload 指定してあります． =with-eval-after-load= の中だけを設定すれば十分です．
+
+#+begin_src emacs-lisp :tangle yes :results none
+(declare-function my-font-config "init" nil)
+(defconst moom-autoloads
+  '(moom-cycle-frame-height
+    moom-move-frame-to-edge-top moom-move-frame my-frame-reset
+    moom-toggle-frame-maximized moom-move-frame-to-edge-right
+    moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
+    moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
+    moom-change-frame-width moom-change-frame-width-double
+    moom-change-frame-width-single moom-change-frame-width-half-again
+    moom-cycle-monitors))
+
+(when (autoload-if-found
+       moom-autoloads
+       "moom" nil t)
+
+  (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
+  (global-set-key (kbd "C-!") 'moom-move-frame-to-edge-bottom)
+  (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
+  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
+  (global-set-key (kbd "M-9") 'moom-cycle-monitors)
+
+  (with-eval-after-load "moom"
+    (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
+    (add-hook 'moom-delete-window-hook #'dimmer-on)
+    (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
+
+    ;; (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
+    ;; (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; Trying... (2022-01-28)
+    (defun moom-recommended-keybindings (options)
+      "Apply pre defined keybindings.
+OPTIONS is a list of moom API types.  If you want to set all recommemded
+keybindings, put the following code in your init.el.
+ (with-eval-after-load \"moom\"
+   (moom-recommended-keybindings 'all))
+'all is identical to '(move fit expand fill font reset undo).
+If OPTIONS includes 'wof, then each binding is configured not to use fn key.
+If you give only '(reset) as the argument, then \\[moom-reset] is activated.
+The keybindings will be assigned only when Emacs runs in GUI."
+      (when window-system
+        (when (memq 'all options)
+          (if (memq 'wof options)
+              (setq options '(move fit expand fill font reset undo wof))
+            (setq options '(move fit expand fill font reset undo))))
+        (when (memq 'move options)
+          (define-key moom-mode-map (kbd "M-0") 'moom-move-frame)
+          (define-key moom-mode-map (kbd "M-1") 'moom-move-frame-left)
+          (define-key moom-mode-map (kbd "M-2") 'moom-move-frame-to-center)
+          (define-key moom-mode-map (kbd "M-3") 'moom-move-frame-right))
+        (when (memq 'fit options)
+          (cond ((memq 'wof options)
+                 (define-key moom-mode-map (kbd "C-c e l") 'moom-move-frame-to-edge-left)
+                 (define-key moom-mode-map (kbd "C-c e r") 'moom-move-frame-to-edge-right)
+                 (define-key moom-mode-map (kbd "C-c e t") 'moom-move-frame-to-edge-top)
+                 (define-key moom-mode-map (kbd "C-c e b") 'moom-move-frame-to-edge-bottom))
+                (t
+                 (define-key moom-mode-map (kbd "M-<f1>") 'moom-move-frame-to-edge-left)
+                 (define-key moom-mode-map (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
+                 (define-key moom-mode-map (kbd "<f1>") 'moom-move-frame-to-edge-top)
+                 (define-key moom-mode-map (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom))))
+        (define-key moom-mode-map (kbd "C-c f c l")
+          'moom-move-frame-to-centerline-from-left)
+        (define-key moom-mode-map (kbd "C-c f c r")
+          'moom-move-frame-to-centerline-from-right)
+        (define-key moom-mode-map (kbd "C-c f c t")
+          'moom-move-frame-to-centerline-from-top)
+        (define-key moom-mode-map (kbd "C-c f c b")
+          'moom-move-frame-to-centerline-from-bottom))
+      (when (memq 'expand options)
+        (cond ((memq 'wof options)
+               (define-key moom-mode-map (kbd "C-2") 'moom-cycle-frame-height))
+              (t
+               (define-key moom-mode-map (kbd "<f2>") 'moom-cycle-frame-height)))
+        (define-key moom-mode-map (kbd "C-c f s") 'moom-change-frame-width-single)
+        (define-key moom-mode-map (kbd "C-c f d") 'moom-change-frame-width-double)
+        (define-key moom-mode-map (kbd "C-c f S") 'moom-delete-windows)
+        (define-key moom-mode-map (kbd "C-c f D") 'moom-split-window)
+        (define-key moom-mode-map (kbd "C-c f a")
+          'moom-change-frame-width-half-again))
+      (when (memq 'fill options)
+        (define-key moom-mode-map (kbd "C-c f f t") 'moom-fill-top)
+        (define-key moom-mode-map (kbd "C-c f f b") 'moom-fill-bottom)
+        (define-key moom-mode-map (kbd "C-c f f l") 'moom-fill-left)
+        (define-key moom-mode-map (kbd "C-c f f r") 'moom-fill-right)
+        (define-key moom-mode-map (kbd "C-c f f 1") 'moom-fill-top-left)
+        (define-key moom-mode-map (kbd "C-c f f 2") 'moom-fill-top-right)
+        (define-key moom-mode-map (kbd "C-c f f 3") 'moom-fill-bottom-left)
+        (define-key moom-mode-map (kbd "C-c f f 4") 'moom-fill-bottom-right)
+        (define-key moom-mode-map (kbd "C-c f f m") 'moom-fill-band)
+        (define-key moom-mode-map (kbd "C-c f f w") 'moom-fill-width)
+        (define-key moom-mode-map (kbd "C-c f f h") 'moom-fill-height)
+        (cond ((memq 'wof options)
+               (define-key moom-mode-map (kbd "C-c f m") 'moom-toggle-frame-maximized))
+              (t
+               (define-key moom-mode-map (kbd "M-<f2>") 'moom-toggle-frame-maximized))))
+      (when (memq 'font options)
+        (define-key moom-mode-map (kbd "C--") 'moom-font-decrease)
+        (define-key moom-mode-map (kbd "C-=") 'moom-font-increase)
+        (define-key moom-mode-map (kbd "C-0") 'moom-font-size-reset))
+      (when (memq 'reset options)
+        (define-key moom-mode-map (kbd "C-c C-0") 'moom-reset))
+      (when (memq 'undo options)
+        (define-key moom-mode-map (kbd "C-c C-/") 'moom-undo))
+      (when (and moom-verbose
+                 options)
+        (message "[Moom] Key defined for APIs of %s." options)))
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (custom-set-variables
+     '(moom-command-with-centering nil)
+     '(moom-lighter "M")
+     '(moom-verbose t))
+    (moom-recommended-keybindings '(all wof))
+    (moom-mode 1)
+    (my-font-config)))  ;; this could increase `postpone-init-time'.
+
+(when (autoload-if-found
+       '(moom-font-increase
+         moom-font-decrease moom-font-size-reset moom-font-resize)
+       "moom-font" nil t)
+
+  (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
+  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
+
+  (with-eval-after-load "moom-font"
+    (custom-set-variables
+     '(moom-scaling-gradient (/ (float 50) 30))
+     '(moom-font-table
+       '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
+         (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
+         (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
+         (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
+         (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
+         (9 5) (8 5) (7 4) (6 4) (5 3))))))
+#+end_src
+
+*** 最大化時にモードラインを消す
+    :PROPERTIES:
+    :CUSTOM_ID: org6e3c20dd
+    :ID:       3ABEF934-A608-4F58-9370-D2A940DC9CB1
+    :END:
+
+バッファの切替時にモードラインの状態を引き継ぐこともできますが，とりあえず想定外にしています．代わりに，必要ならば =M-x my-moom-toggle-mode-line= で表示可能にしています．
+
+マイナーモードとして扱えるようにするには，Bastien氏の記事が参考になります．
+
+ - [[https://emacs-doctor.com/emacs-hide-mode-line.html][Emacs mode for hiding the mode-line]]
+
+#+begin_src emacs-lisp :tangle late-init.el
+(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
+(with-eval-after-load "moom"
+  (defun ad:moom-toggle-frame-maximized ()
+    (when (eq major-mode 'org-mode)
+      (org-redisplay-inline-images))
+    (when (and mode-line-format
+               (not my-toggle-modeline-global))
+      (my-mode-line-off)))
+  (advice-add 'moom-toggle-frame-maximized
+              :after #'ad:moom-toggle-frame-maximized))
+
+;; (make-variable-buffer-local 'my-mode-line-format)
+(defvar-local my-mode-line-format nil)
+(set-default 'my-mode-line-format mode-line-format)
+(defvar my-toggle-modeline-global t)
+(unless (display-graphic-p)
+  (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
+
+;;;###autoload
+(defun my-toggle-modeline-global ()
+  (interactive)
+  (setq my-toggle-modeline-global (not my-toggle-modeline-global))
+  (if my-toggle-modeline-global
+      (my-mode-line-on)
+    (my-mode-line-off)))
+
+;;;###autoload
+(defun my-mode-line-off ()
+  "Turn off mode line."
+  (when (fboundp 'dimmer-on)
+    (dimmer-on))
+  (when (fboundp 'pomodoro:visualize-stop)
+    (pomodoro:visualize-stop))
+  (when mode-line-format
+    (setq my-mode-line-format mode-line-format))
+  (setq mode-line-format nil))
+
+;;;###autoload
+(defun my-mode-line-on ()
+  "Turn on mode line."
+  (when (fboundp 'dimmer-off)
+    (dimmer-off))
+  (when (fboundp 'pomodoro:visualize-start)
+    (pomodoro:visualize-start))
+  (unless my-mode-line-format
+    (error "Invalid value: %s" my-mode-line-format))
+  (setq mode-line-format my-mode-line-format)
+  (redraw-frame))
+
+;;;###autoload
+(defun my-toggle-mode-line ()
+  "Toggle mode line."
+  (interactive)
+  (if mode-line-format
+      (my-mode-line-off)
+    (my-mode-line-on))
+  (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
+
+(add-hook 'find-file-hook
+          (lambda () (unless my-toggle-modeline-global
+                       (if shutup-p
+                           (shut-up (my-mode-line-off))
+                         (my-mode-line-off))))
+          t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
+
+;; init
+(my-mode-line-off)
+#+end_src
+
+** [winner.el] ウィンドウ構成の履歴を辿る
+   :PROPERTIES:
+   :CUSTOM_ID: org33fd785f
+   :END:
+
+  - ビルトインの =winner.el= を使います．
+
+ウィンドウ分割状況と各ウィンドウで表示していたバッファの履歴を辿ることができます． =winner-undo= で直前の状態に戻せます．例えば，誤って =C-x 0= で分割ウィンドウを閉じた時にも，即座に元の状態に戻すことが可能です．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(unless noninteractive
+  (postpone-message "winner-mode")
+  (when (require 'winner nil t)
+    (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
+    (define-key winner-mode-map (kbd "C-(") 'winner-undo)
+    (define-key winner-mode-map (kbd "C-)") 'winner-redo)
+    (winner-mode 1)))
+#+end_src
+
+** TODO [shackle.el] ポップアップウィンドウの制御                   :Ongoing:
+   :PROPERTIES:
+   :CUSTOM_ID: orga9be167a
+   :END:
+
+ - popwin の後発パッケージ
+ - popwin.el にある =dedicated= が使えないので，本当に移行するか検討中．
+   - ウィンドウからフォーカスが外れた時に自動的にウィンドウを消す機能
+ - 以下の設定では，パッケージ読み込みのトリガーを =postpone= にひも付け
+ - align がないと，size が効かない？
+ - バッファ名に正規表現を使う時は，regexpが必要．
+ - org関連でディスパッチャとそれを経由するバッファは制御が効かない？
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (require 'shackle nil t)
+  (setq shackle-default-ratio 0.33)
+  (setq shackle-rules
+        '(("*osx-dictionary*" :align above :popup t)
+          ("*wclock*" :align above :popup t :select t)
+          ("*Checkdoc Status*" :align above :popup t :noselect t)
+          ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
+          ))
+  (unless noninteractive
+    (shackle-mode 1)))
+#+end_src
+
+*** checkdoc.el 用の追加設定
+    :PROPERTIES:
+    :CUSTOM_ID: org32b579df
+    :END:
+
+=M-x checkdoc= 実行時に =checkdoc-minor-mode-map= に checkdoc のウィンドウを閉じるキーバインドを設定． =q= または =C-g= を押下すると，マイナーモードが終了し，設定したキーバインドが無効になる．マイナーモードが有効な間は， =q= が占有されてバッファに入力できなくなる．その場合は，必要に応じて =M-x my-delete-checkdoc-window= を実行する．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "checkdoc"
+  (defun my-delete-checkdoc-window ()
+    (interactive)
+    (let ((checkdoc-window (get-buffer-window "*Checkdoc Status*")))
+      (when checkdoc-window
+        (delete-window checkdoc-window)))
+    (checkdoc-minor-mode -1))
+
+  (defun ad:checkdoc ()
+    (interactive)
+    (define-key checkdoc-minor-mode-map (kbd "q")
+      'my-delete-checkdoc-window)
+    (define-key checkdoc-minor-mode-map (kbd "C-g")
+      'my-delete-checkdoc-window)
+    (checkdoc-minor-mode 1))
+
+  (advice-add 'checkdoc :before #'ad:checkdoc))
+#+end_src
+
+** TODO [doom-modeline.el] モードラインをリッチにする
+   :PROPERTIES:
+   :CUSTOM_ID: orgdca5e7c2
+   :END:
+
+ - [[https://github.com/seagle0128/doom-modeline][seagle0128/doom-modeline: A minimal and modern mode-line]]
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "moom"
+  (when (and (not noninteractive)
+             (eq my-toggle-modeline-global 'doom)
+             (require 'doom-modeline nil t))
+    (custom-set-variables
+     '(doom-modeline-buffer-file-name-style 'truncate-except-project)
+     '(doom-modeline-bar-width 1)
+     '(doom-modeline-height (let ((font (face-font 'mode-line)))
+                              (if (and font (fboundp 'font-info))
+                                  (floor (* 0.8 ;; 1.0
+                                            (* 2 (aref (font-info font) 2))))
+                                10)))
+     '(doom-modeline-minor-modes t))
+    (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
+    (defun ad:doom-modeline-buffer-file-state-icon
+        (icon &optional text face height voffset)
+      "Displays an ICON with FACE, HEIGHT and VOFFSET.
+TEXT is the alternative if it is not applicable.
+Uses `all-the-icons-material' to fetch the icon."
+      (if doom-modeline-icon
+          (when icon
+            (doom-modeline-icon-material
+             icon
+             :face face
+             :height (or height 0.85) ;; 1.1
+             :v-adjust (or voffset -0.225))) ;; -0.225
+        (when text
+          (propertize text 'face face))))
+    (advice-add 'doom-modeline-buffer-file-state-icon :override
+                #'ad:doom-modeline-buffer-file-state-icon)
+    (size-indication-mode 1)
+    (doom-modeline-mode 1)))
+#+end_src
+
+** [e2wm.el] 二画面表示                                            :notinuse:
+   :PROPERTIES:
+   :CUSTOM_ID: org4dd0671c
+   :END:
+
+使用頻度が低くなりました．
+
+1. http://github.com/kiwanami/emacs-window-manager/raw/master/e2wm.el
+2. http://github.com/kiwanami/emacs-window-layout/raw/master/window-layout.el
+
+#+begin_src emacs-lisp :tangle no
+(when (autoload-if-found
+       '(my-e2wm:dp-two e2wm:dp-two e2wm:start-management)
+       "e2wm" nil t)
+
+  (with-eval-after-load "e2wm"
+    (defun my-e2wm:dp-two ()
+      (interactive)
+      (e2wm:dp-two)
+      (setq e2wm:c-two-recipe
+            '(- (:lower-size 10)
+                (| left right)
+                sub))
+      (setq e2wm:c-two-winfo
+            '((:name left )
+              (:name right )
+              (:name sub :default-hide t)))
+
+      ;; left, prev
+      (setq e2wm:c-two-right-default 'left))
+
+    ;; 高さを画面の最大に矯正
+    (when (require 'moom nil t)
+      (setq moom-frame-height-tall (moom-max-frame-height))
+      (setq moom-frame-height-small moom-frame-height-tall))
+
+    ;; 幅を画面の最大に矯正
+    (add-hook 'e2wm:pre-start-hook
+              (lambda ()
+                  (set-frame-width
+                   (selected-frame)
+                   (/ (- (display-pixel-width) 30) (frame-char-width)))))
+
+    ;; 幅をデフォルト値に戻す
+    (add-hook 'e2wm:post-stop-hook
+              (lambda ()
+                  (set-frame-width (selected-frame)
+                                   moom--frame-width)))
+
+    ;; To avoid rebooting issue when using desktop.el and recentf.el
+    (add-hook 'kill-emacs-hook
+              (lambda ()
+                  (when (fboundp 'e2wm:stop-management)
+                    (e2wm:stop-management))))))
+;; setting for e2wm
+(when (autoload-if-found
+       '(change-frame-double-window
+         change-frame-single-window)
+       "frame-ctr-e2wm" nil t)
+  ;; Set the frame width single size
+  ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
+  (global-set-key (kbd "C-x -") 'change-frame-single-window)
+  ;; Set the frame width double size
+  ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
+  (global-set-key (kbd "C-x =") 'change-frame-double-window))
+#+end_src
+
+** [tabbar-ruler] バッファをタブ切り替え可能に                     :notinuse:
+   :PROPERTIES:
+   :CUSTOM_ID: org0c556404
+   :END:
+
+ - 不要かな
+
+#+begin_src emacs-lisp :tangle no
+(when (require 'tabbar-ruler nil t)
+  ;; (when (require 'tabbar-ruler nil t)
+  (setq tabbar-ruler-global-tabbar t) ; If you want tabbar
+  (setq tabbar-ruler-popup-menu t) ; If you want a popup menu.
+  (setq tabbar-ruler-popup-toolbar t) ; If you want a popup toolbar
+  ;;  (setq tabbar-ruler-fancy-tab-separator 'round)
+  ;;  (setq tabbar-ruler-fancy-current-tab-separator 'round)
+  (setq tabbar-ruler-invert-deselected nil)
+  (setq tabbar-ruler-modified-symbol t))
+#+end_src
+
+** [elscreen.el] Emacs バッファをタブ化                            :notinuse:
+   :PROPERTIES:
+   :CUSTOM_ID: org6474a498
+   :END:
+
+ - cycle-buffer で十分かなと言う感じで不使用になりました．
+
+#+begin_src emacs-lisp :tangle no
+;;; ElScreen (require apel) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Note: change a string in the elscreen.el from "mac" to "ns"
+;; 2011-10-26: e2wm's perspective (two) mode is more useful for me.
+(load "elscreen" "ElScreen" t)
+#+end_src
+
+** [popwin.el] ポップアップウィンドウの制御                        :notinuse:
+   :PROPERTIES:
+   :CUSTOM_ID: org750d9aa5
+   :ID:       89A14C81-3E35-4216-AADD-2E3471C10F9E
+   :END:
+
+  - 現在は緩やかに =shackle= に移行中です．
+    - ただし， =dedicated= オプションが使えないので，ウィンドウからフォーカスが外れた時に自動的にウィンドウを消すことができません．
+      - それぞれに =q= を実装すれば，近い動作にはできる．
+  - https://github.com/m2ym/popwin-el/
+  - popwin:display-buffer を autoload してもうまくいかない．
+
+=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
+
+#+begin_src emacs-lisp :tangle no
+;; for emacs 24.1
+;; (setq special-display-function 'popwin:special-display-popup-window)
+;; (setq display-buffer-function 'popwin:display-buffer)
+
+;; for emacs 24.3
+;; (setq special-display-alist 'popwin:special-display-popup-window)
+;; (setq display-buffer-alist 'popwin:display-buffer)
+;; (push '("*sdic*" :position top) popwin:special-display-config)
+
+(with-eval-after-load "postpone"
+  (when (require 'popwin nil t)
+    ;; Performed in shackle
+    (push '("*Help*" :height 20 :position top :dedicated t)
+          popwin:special-display-config)
+    (push '("*osx-dictionary*" :height 20 :position top :dedicated t)
+          popwin:special-display-config)
+    (push '("*wclock*" :height 10 :position top :dedicated t)
+          popwin:special-display-config)
+
+    ;; Checking...
+    (push '("*Checkdoc Status*" :position top :dedicated t)
+          popwin:special-display-config)
+    (push '("*frequencies*" :height 20 :position bottom :dedicated t)
+          popwin:special-display-config)
+    (push '("CAPTURE-next.org" :height 10 :position bottom :noselect t)
+          popwin:special-display-config)
+    (push '("CAPTURE-org-ical.org":height 10 :position bottom :noselect t)
+          popwin:special-display-config)
+    (push '("dict-app-result" :height 20 :position bottom)
+          popwin:special-display-config)
+    (push '("*timer*" :height 20 :position bottom :dedicated t)
+          popwin:special-display-config)
+    (push '("Calendar" :position top :dedicated t)
+          popwin:special-display-config)
+    (push '("*Org Dashboard*" :position bottom)
+          popwin:special-display-config)
+    (push '("*Org Select*" :height 10 :position bottom)
+          popwin:special-display-config)
+    (push '("*Org Grep*" :height 20 :position bottom :dedicated t)
+          popwin:special-display-config)
+    (push '("*Occur*" :height 10 :position bottom)
+          popwin:special-display-config)
+    (push '("*Shell Command Output*" :height 10 :position bottom :dedicated t)
+          popwin:special-display-config)
+    (push '("*eshell*" :height 10 :position bottom)
+          popwin:special-display-config)
+;;;            (undo-tree-visualizer-buffer-name :height 10 :position top)
+;;;            (undo-tree-diff-buffer-name :height 20 :position bottom)
+
+    ;; Not performed
+    (push '("*Org Agenda*" :height 10 :position top)
+          popwin:special-display-config))
+
+  (unless noninteractive
+    (popwin-mode 1)))
+#+end_src
+
+** DONE [olivetti.el] ウィンドウを中央寄せで配置                   :notinuse:
+   CLOSED: [2019-12-29 Sun 16:01]
+   :PROPERTIES:
+   :CUSTOM_ID: org7a20b311
+   :END:
+
+ - [[https://github.com/rnkn/olivetti][rnkn/olivetti: Emacs minor mode for a nice writing environment]]
+
+=moom.el= を使ってフレームを最大化したり，画面の半分に配置すると，80桁で表示する領域とウィンドウが占める領域の幅が一致しない場合があります．通常は，フレーム内で左寄せに配置されますが， =olivetti= を使うと，中央寄せにできます．
+
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
+(with-eval-after-load "moom"
+  (when (require 'olivetti nil t)
+    (setq olivetti-lighter nil)
+    (setq-default olivetti-body-width 80)
+    (defun ad:turn-on-olivetti-mode ()
+      "Disable `visual-line-mode'."
+      (unless moom--maximized
+        (olivetti-mode -1))
+      (visual-line-mode -1))
+    (advice-add 'turn-on-olivetti-mode :after #'ad:turn-on-olivetti-mode)
+    (add-hook 'find-file-hook #'turn-on-olivetti-mode)
+    (defun ad:olivetti:moom-toggle-frame-maximized ()
+      (if moom--maximized
+          (turn-on-olivetti-mode)
+        (olivetti-mode -1)))
+    (advice-add 'moom-toggle-frame-maximized :after
+                #'ad:olivetti:moom-toggle-frame-maximized)))
 #+end_src
 
 * フォント／配色関連
@@ -12502,807 +13309,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
         (org-yank)
         (when window-system
           (my-vhl-change-color))))))
-#+end_src
-
-* フレーム／ウィンドウ制御
-  :PROPERTIES:
-  :CUSTOM_ID: org5fd484a3
-  :END:
-#+begin_src emacs-lisp :tangle yes :exports none
-(my-tick-init-time "development")
-#+end_src
-** 起動時の設定
-   :PROPERTIES:
-   :CUSTOM_ID: orgd05fc75a
-   :ID:       4A60D259-5D38-4D7B-97B8-0FBFA7219F7C
-   :END:
-
-#+begin_src emacs-lisp :tangle yes
-(cond
- ((memq window-system '(mac ns)) ;; for macOS
-  (setq initial-frame-alist
-	      (append
-	       '((top . 23)
-	         (left . 0)
-	         ;; (alpha . (100 90))
-	         ;; (vertical-scroll-bars . nil)
-	         ;; (internal-border-width . 20)
-	         ;; (outer-border-width . 20)
-	         ;; (ns-appearance . nil) ;; 26.1 {light, dark}
-	         (ns-transparent-titlebar . t)) ;; 26.1
-	       initial-frame-alist)))
-
- ((eq window-system 'x) ;; for Linux
-  (setq initial-frame-alist
-	      (append
-	       '((vertical-scroll-bars . nil)
-	         (top . 0)
-	         (left . 0)
-	         (width . 80)
-	         (height . 38))
-	       initial-frame-alist)))
-
- ((eq window-system nil)
-  nil)
-
- (t ;; for Windows
-  (setq initial-frame-alist
-	        (append
-	         '((vertical-scroll-bars . nil)
-	           (top . 0)
-	           (left . 0)
-	           (width . 80)
-	           (height . 26))
-	         initial-frame-alist))))
-
-;; Apply the initial setting to default
-(setq default-frame-alist initial-frame-alist)
-(with-eval-after-load "postpone"
-  (set-face-foreground 'vertical-border (face-foreground 'default))
-  (set-face-background 'vertical-border (face-background 'default)))
-;;(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
-(set-face-background 'fringe "#FFFFFF") ;; 10-20[ms]
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-;; カーソルの色
-(defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
-(defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2) :invisible nil))
-(defvar my-ime-last nil)
-
-(if (fboundp 'mac-ime-active-p)
-    (defalias 'my-ime-active-p 'mac-ime-active-p)
-  (defun my-ime-active-p () current-input-method))
-
-(defun my-ime-on-cursor ()
-  (interactive)
-  (setq cursor-type (plist-get my-cur-type-ime :on))
-  (set-cursor-color (plist-get my-cur-color-ime :on)))
-(defun my-ime-off-cursor ()
-  (interactive)
-  (setq cursor-type (plist-get my-cur-type-ime :off))
-  (set-cursor-color (plist-get my-cur-color-ime :off)))
-(defun my-ime-invisible-cursor ()
-  (interactive)
-  (setq cursor-type (plist-get my-cur-type-ime :invisible)))
-(add-hook 'input-method-activate-hook #'my-ime-on-cursor)
-(add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
-
-(defun my-apply-cursor-config ()
-  (interactive)
-  (when (display-graphic-p)
-	  (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
-(add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
-
-;; for init setup
-(setq-default cursor-type (plist-get my-cur-type-ime :on))
-(my-apply-cursor-config)
-#+end_src
-
-#+begin_src emacs-lisp :tangle late-init.el
-(cond
- ((memq window-system '(ns x))
-  ;; モードラインにアイコンを出す
-  (make-face 'mode-line-ime-on-face)
-  (set-face-attribute 'mode-line-ime-on-face
-                      nil :foreground (plist-get my-cur-color-ime :on))
-  (when (fboundp 'mac-set-input-method-parameter)
-    (mac-set-input-method-parameter
-     "com.google.inputmethod.Japanese.base" 'title
-     (concat
-	    (if (require 'icons-in-terminal nil t)
-          (icons-in-terminal-octicon "keyboard"
-                                     :v-adjust 0.0
-                                     :face 'mode-line-ime-on-face)
-        "") " "))) ;; FIXME (the color is NOT changed, patch is wrong?)
-
-  (declare-function my-ime-on "init" nil)
-  (declare-function my-ime-off "init" nil)
-  (declare-function my-ime-active-p "init" nil)
-
-  ;; for private patch
-  (when (boundp 'mac-ime-cursor-type)
-    (setq mac-ime-cursor-type (plist-get my-cur-type-ime :on)))
-
-  (setq my-ime-last (my-ime-active-p))
-  (defun my-ime-on ()
-    (interactive)
-    (if (fboundp 'mac-toggle-input-method)
-	      (progn
-	        (mac-toggle-input-method t)
-	        (run-hooks 'input-method-activate-hook))
-	    (activate-input-method default-input-method))
-    (setq my-ime-last t))
-  (defun my-ime-off ()
-    (interactive)
-    (if (fboundp 'mac-toggle-input-method)
-	      (progn
-	        (mac-toggle-input-method nil)
-	        (run-hooks 'input-method-deactivate-hook))
-	    (deactivate-input-method))
-    (setq my-ime-last nil))
-
-  (defvar my-ime-before-action nil)
-  (defun my-ime-on-sticky ()
-    (when my-ime-before-action
-	    (my-ime-on)))
-  (defun my-ime-off-sticky ()
-    (when (setq my-ime-before-action (my-ime-active-p))
-	    (my-ime-off)))
-
-  (if (not (fboundp 'mac-ime-active-p))
-	    (progn
-	      ;; For selected.el
-	      (add-hook 'activate-mark-hook #'my-ime-off-sticky)
-	      (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-	      ;; 「M-x あ」対策
-	      (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
-	      (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
-    ;; For selected.el
-    (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
-    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
-
-  ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
-  ;;   "Extension to find-file as before-find-file-hook."
-  ;;   (message "--- ad:findfile")
-  ;;   (apply FILENAME WILDCARDS))
-  ;; (advice-add #'find-file :around #'ad:find-file)
-
-  ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-  ;; バッファ切替時に input method を切り替える
-  ;; (with-eval-after-load "postpone"
-  ;;   (when (and (fboundp 'mac-handle-input-method-change)
-  ;;              (require 'cl nil t))
-  ;;     (add-hook
-  ;;      'post-command-hook
-  ;;      (lexical-let ((previous-buffer nil))
-  ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
-  ;;        (lambda ()
-  ;;            (unless (eq (current-buffer) previous-buffer)
-  ;;              (when (bufferp previous-buffer)
-  ;;                (mac-handle-input-method-change))
-  ;;              (setq previous-buffer (current-buffer))))))))
-  )
-
- ;; EMP: Emacs Mac Port
- ((eq window-system 'mac)
-  (when (fboundp 'mac-input-source)
-    (defun my-mac-keyboard-input-source () ;; Need update
-	    (if (string-match "\\.Roman$" (mac-input-source))
-	        (progn
-	          (setq cursor-type (plist-get my-cur-type-ime :off))
-	          (add-to-list 'default-frame-alist
-			                   `(cursor-type . ,(plist-get my-cur-type-ime :off)))
-	          (set-cursor-color (plist-get my-cur-color-ime :off)))
-	      (progn
-	        (setq cursor-type (plist-get my-cur-type-ime :on))
-	        (add-to-list 'default-frame-alist
-			                 `(cursor-type . ,(plist-get my-cur-type-ime :on)))
-	        (set-cursor-color (plist-get my-cur-color-ime :on)))))
-
-    (when (fboundp 'mac-auto-ascii-mode)
-	    ;; (mac-auto-ascii-mode 1)
-	    ;; IME ON/OFF でカーソルの種別や色を替える
-	    (add-hook 'mac-selected-keyboard-input-source-change-hook
-		            #'my-mac-keyboard-input-source)
-	    ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
-	    ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
-	    ;;           #'my-mac-keyboard-input-source)
-	    (declare-function my-mac-keyboard-input-source "init" nil)
-	    (my-mac-keyboard-input-source))))
-
- (t nil))
-#+end_src
-
-** 複数フレーム対応
-   :PROPERTIES:
-   :CUSTOM_ID: orgdffe4e49
-   :ID:       6D9194F2-4A2A-4CF5-B463-32B6C9E2F493
-   :END:
-
-フレームを複数使う場合の設定です．
-
-#+begin_src emacs-lisp :tangle late-init.el
-;; (declare-function my-font-config "init" nil)
-(global-set-key (kbd "M-`") 'other-frame)
-(with-eval-after-load "frame"
-  (defun ad:make-frame (&optional _parameters)
-    (when (display-graphic-p)
-      (my-theme)
-      (my-apply-cursor-config)
-      (setq-default cursor-type
-                    (if (my-ime-active-p)
-                        (plist-get my-cur-type-ime :on)
-                      (plist-get my-cur-type-ime :off)))
-      (when (require 'moom-font nil t)
-        (moom-font-resize))))
-  (advice-add 'make-frame :after #'ad:make-frame))
-#+end_src
-
-** [moom.el] キーボードでフレームの場所を移す
-   :PROPERTIES:
-   :CUSTOM_ID: org5f12ba92
-   :ID:       52845E4B-AFDB-43CC-B06E-67E9377BC7FA
-   :END:
-
-(2017-07-30) frame-ctr から moom.el にリネームしました．Moom は，Many Tricks がリリースするソフトウェアで，今後はこのソフトウェアのポーティングを目指します．
-
-拙作の [[https://github.com/takaxp/moom][moom.el]] を使います．
-
-# 以下の設定は，標準のフォントサイズが12ptで，日本語フォントに Migu 2M，英字フォントにMonacoを使う場合の設定です．フォントサイズの「増加」「減少」「初期化」「サイズ指定」が可能です．
-
-ビルトインに =face-remap= があり，アスキーフォントは =C-x C--= と =C-x C-== で拡大縮小を制御できます．以下のキーバインドは，face-remap.el が提供する text-scale-adjust のキーバインドを上書きします． =text-scale-adjust= をそのまま使っても，日本語フォントが制御されないので，オーバーライドしてしまってもOKだと思います．
-
-近しいパッケージに， =WindMove= と =FrameMove= がありますが，これらは基本的にカーソルの移動を目的にしています．
-
-  - [[https://www.emacswiki.org/emacs/WindMove][{Home} Wind Move]] (ビルトイン)
-    - ウィンドウ間のカーソル移動を改善
-  - [[https://www.emacswiki.org/emacs/FrameMove][{Home} Frame Move]]
-    - フレーム間のカーソル移動を改善
-
-また類似のパッケージに =frame-cmds= があります．
-
-1. http://www.emacswiki.org/emacs/download/frame-cmds.el
-2. http://www.emacswiki.org/emacs/download/frame-fns.el
-
-=moom-autuloads= に必要なコマンドを +羅列していますが，+ =melpa= でインストールする場合は関係ありません．パッケージ内で autoload 指定してあります． =with-eval-after-load= の中だけを設定すれば十分です．
-
-#+begin_src emacs-lisp :tangle yes :results none
-(declare-function my-font-config "init" nil)
-(defconst moom-autoloads
-  '(moom-cycle-frame-height
-    moom-move-frame-to-edge-top moom-move-frame my-frame-reset
-    moom-toggle-frame-maximized moom-move-frame-to-edge-right
-    moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
-    moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
-    moom-change-frame-width moom-change-frame-width-double
-    moom-change-frame-width-single moom-change-frame-width-half-again
-    moom-cycle-monitors))
-
-(when (autoload-if-found
-       moom-autoloads
-       "moom" nil t)
-
-  (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
-  (global-set-key (kbd "C-!") 'moom-move-frame-to-edge-bottom)
-  (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
-  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-  (global-set-key (kbd "M-9") 'moom-cycle-monitors)
-
-  (with-eval-after-load "moom"
-    (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
-    (add-hook 'moom-delete-window-hook #'dimmer-on)
-    (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
-
-    ;; (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
-    ;; (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
-
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; Trying... (2022-01-28)
-    (defun moom-recommended-keybindings (options)
-      "Apply pre defined keybindings.
-OPTIONS is a list of moom API types.  If you want to set all recommemded
-keybindings, put the following code in your init.el.
- (with-eval-after-load \"moom\"
-   (moom-recommended-keybindings 'all))
-'all is identical to '(move fit expand fill font reset undo).
-If OPTIONS includes 'wof, then each binding is configured not to use fn key.
-If you give only '(reset) as the argument, then \\[moom-reset] is activated.
-The keybindings will be assigned only when Emacs runs in GUI."
-      (when window-system
-        (when (memq 'all options)
-          (if (memq 'wof options)
-              (setq options '(move fit expand fill font reset undo wof))
-            (setq options '(move fit expand fill font reset undo))))
-        (when (memq 'move options)
-          (define-key moom-mode-map (kbd "M-0") 'moom-move-frame)
-          (define-key moom-mode-map (kbd "M-1") 'moom-move-frame-left)
-          (define-key moom-mode-map (kbd "M-2") 'moom-move-frame-to-center)
-          (define-key moom-mode-map (kbd "M-3") 'moom-move-frame-right))
-        (when (memq 'fit options)
-          (cond ((memq 'wof options)
-                 (define-key moom-mode-map (kbd "C-c e l") 'moom-move-frame-to-edge-left)
-                 (define-key moom-mode-map (kbd "C-c e r") 'moom-move-frame-to-edge-right)
-                 (define-key moom-mode-map (kbd "C-c e t") 'moom-move-frame-to-edge-top)
-                 (define-key moom-mode-map (kbd "C-c e b") 'moom-move-frame-to-edge-bottom))
-                (t
-                 (define-key moom-mode-map (kbd "M-<f1>") 'moom-move-frame-to-edge-left)
-                 (define-key moom-mode-map (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
-                 (define-key moom-mode-map (kbd "<f1>") 'moom-move-frame-to-edge-top)
-                 (define-key moom-mode-map (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom))))
-        (define-key moom-mode-map (kbd "C-c f c l")
-          'moom-move-frame-to-centerline-from-left)
-        (define-key moom-mode-map (kbd "C-c f c r")
-          'moom-move-frame-to-centerline-from-right)
-        (define-key moom-mode-map (kbd "C-c f c t")
-          'moom-move-frame-to-centerline-from-top)
-        (define-key moom-mode-map (kbd "C-c f c b")
-          'moom-move-frame-to-centerline-from-bottom))
-      (when (memq 'expand options)
-        (cond ((memq 'wof options)
-               (define-key moom-mode-map (kbd "C-2") 'moom-cycle-frame-height))
-              (t
-               (define-key moom-mode-map (kbd "<f2>") 'moom-cycle-frame-height)))
-        (define-key moom-mode-map (kbd "C-c f s") 'moom-change-frame-width-single)
-        (define-key moom-mode-map (kbd "C-c f d") 'moom-change-frame-width-double)
-        (define-key moom-mode-map (kbd "C-c f S") 'moom-delete-windows)
-        (define-key moom-mode-map (kbd "C-c f D") 'moom-split-window)
-        (define-key moom-mode-map (kbd "C-c f a")
-          'moom-change-frame-width-half-again))
-      (when (memq 'fill options)
-        (define-key moom-mode-map (kbd "C-c f f t") 'moom-fill-top)
-        (define-key moom-mode-map (kbd "C-c f f b") 'moom-fill-bottom)
-        (define-key moom-mode-map (kbd "C-c f f l") 'moom-fill-left)
-        (define-key moom-mode-map (kbd "C-c f f r") 'moom-fill-right)
-        (define-key moom-mode-map (kbd "C-c f f 1") 'moom-fill-top-left)
-        (define-key moom-mode-map (kbd "C-c f f 2") 'moom-fill-top-right)
-        (define-key moom-mode-map (kbd "C-c f f 3") 'moom-fill-bottom-left)
-        (define-key moom-mode-map (kbd "C-c f f 4") 'moom-fill-bottom-right)
-        (define-key moom-mode-map (kbd "C-c f f m") 'moom-fill-band)
-        (define-key moom-mode-map (kbd "C-c f f w") 'moom-fill-width)
-        (define-key moom-mode-map (kbd "C-c f f h") 'moom-fill-height)
-        (cond ((memq 'wof options)
-               (define-key moom-mode-map (kbd "C-c f m") 'moom-toggle-frame-maximized))
-              (t
-               (define-key moom-mode-map (kbd "M-<f2>") 'moom-toggle-frame-maximized))))
-      (when (memq 'font options)
-        (define-key moom-mode-map (kbd "C--") 'moom-font-decrease)
-        (define-key moom-mode-map (kbd "C-=") 'moom-font-increase)
-        (define-key moom-mode-map (kbd "C-0") 'moom-font-size-reset))
-      (when (memq 'reset options)
-        (define-key moom-mode-map (kbd "C-c C-0") 'moom-reset))
-      (when (memq 'undo options)
-        (define-key moom-mode-map (kbd "C-c C-/") 'moom-undo))
-      (when (and moom-verbose
-                 options)
-        (message "[Moom] Key defined for APIs of %s." options)))
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    (custom-set-variables
-     '(moom-command-with-centering nil)
-     '(moom-lighter "M")
-     '(moom-verbose t))
-    (moom-recommended-keybindings '(all wof))
-    (moom-mode 1)
-    (my-font-config)))  ;; this could increase `postpone-init-time'.
-
-(when (autoload-if-found
-       '(moom-font-increase
-         moom-font-decrease moom-font-size-reset moom-font-resize)
-       "moom-font" nil t)
-
-  (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
-  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
-
-  (with-eval-after-load "moom-font"
-    (custom-set-variables
-     '(moom-scaling-gradient (/ (float 50) 30))
-     '(moom-font-table
-       '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
-         (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
-         (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
-         (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
-         (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
-         (9 5) (8 5) (7 4) (6 4) (5 3))))))
-#+end_src
-
-*** 最大化時にモードラインを消す
-    :PROPERTIES:
-    :CUSTOM_ID: org6e3c20dd
-    :ID:       3ABEF934-A608-4F58-9370-D2A940DC9CB1
-    :END:
-
-バッファの切替時にモードラインの状態を引き継ぐこともできますが，とりあえず想定外にしています．代わりに，必要ならば =M-x my-moom-toggle-mode-line= で表示可能にしています．
-
-マイナーモードとして扱えるようにするには，Bastien氏の記事が参考になります．
-
- - [[https://emacs-doctor.com/emacs-hide-mode-line.html][Emacs mode for hiding the mode-line]]
-
-#+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
-(with-eval-after-load "moom"
-  (defun ad:moom-toggle-frame-maximized ()
-    (when (eq major-mode 'org-mode)
-      (org-redisplay-inline-images))
-    (when (and mode-line-format
-               (not my-toggle-modeline-global))
-      (my-mode-line-off)))
-  (advice-add 'moom-toggle-frame-maximized
-              :after #'ad:moom-toggle-frame-maximized))
-
-;; (make-variable-buffer-local 'my-mode-line-format)
-(defvar-local my-mode-line-format nil)
-(set-default 'my-mode-line-format mode-line-format)
-(defvar my-toggle-modeline-global t)
-(unless (display-graphic-p)
-  (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
-
-;;;###autoload
-(defun my-toggle-modeline-global ()
-  (interactive)
-  (setq my-toggle-modeline-global (not my-toggle-modeline-global))
-  (if my-toggle-modeline-global
-      (my-mode-line-on)
-    (my-mode-line-off)))
-
-;;;###autoload
-(defun my-mode-line-off ()
-  "Turn off mode line."
-  (when (fboundp 'dimmer-on)
-    (dimmer-on))
-  (when (fboundp 'pomodoro:visualize-stop)
-    (pomodoro:visualize-stop))
-  (when mode-line-format
-    (setq my-mode-line-format mode-line-format))
-  (setq mode-line-format nil))
-
-;;;###autoload
-(defun my-mode-line-on ()
-  "Turn on mode line."
-  (when (fboundp 'dimmer-off)
-    (dimmer-off))
-  (when (fboundp 'pomodoro:visualize-start)
-    (pomodoro:visualize-start))
-  (unless my-mode-line-format
-    (error "Invalid value: %s" my-mode-line-format))
-  (setq mode-line-format my-mode-line-format)
-  (redraw-frame))
-
-;;;###autoload
-(defun my-toggle-mode-line ()
-  "Toggle mode line."
-  (interactive)
-  (if mode-line-format
-      (my-mode-line-off)
-    (my-mode-line-on))
-  (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
-
-(add-hook 'find-file-hook
-          (lambda () (unless my-toggle-modeline-global
-                       (if shutup-p
-                           (shut-up (my-mode-line-off))
-                         (my-mode-line-off))))
-          t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
-
-;; init
-(my-mode-line-off)
-#+end_src
-
-** [winner.el] ウィンドウ構成の履歴を辿る
-   :PROPERTIES:
-   :CUSTOM_ID: org33fd785f
-   :END:
-
-  - ビルトインの =winner.el= を使います．
-
-ウィンドウ分割状況と各ウィンドウで表示していたバッファの履歴を辿ることができます． =winner-undo= で直前の状態に戻せます．例えば，誤って =C-x 0= で分割ウィンドウを閉じた時にも，即座に元の状態に戻すことが可能です．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(unless noninteractive
-  (postpone-message "winner-mode")
-  (when (require 'winner nil t)
-    (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
-    (define-key winner-mode-map (kbd "C-(") 'winner-undo)
-    (define-key winner-mode-map (kbd "C-)") 'winner-redo)
-    (winner-mode 1)))
-#+end_src
-
-** TODO [shackle.el] ポップアップウィンドウの制御                   :Ongoing:
-   :PROPERTIES:
-   :CUSTOM_ID: orga9be167a
-   :END:
-
- - popwin の後発パッケージ
- - popwin.el にある =dedicated= が使えないので，本当に移行するか検討中．
-   - ウィンドウからフォーカスが外れた時に自動的にウィンドウを消す機能
- - 以下の設定では，パッケージ読み込みのトリガーを =postpone= にひも付け
- - align がないと，size が効かない？
- - バッファ名に正規表現を使う時は，regexpが必要．
- - org関連でディスパッチャとそれを経由するバッファは制御が効かない？
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (require 'shackle nil t)
-  (setq shackle-default-ratio 0.33)
-  (setq shackle-rules
-        '(("*osx-dictionary*" :align above :popup t)
-          ("*wclock*" :align above :popup t :select t)
-          ("*Checkdoc Status*" :align above :popup t :noselect t)
-          ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
-          ))
-  (unless noninteractive
-    (shackle-mode 1)))
-#+end_src
-
-*** checkdoc.el 用の追加設定
-    :PROPERTIES:
-    :CUSTOM_ID: org32b579df
-    :END:
-
-=M-x checkdoc= 実行時に =checkdoc-minor-mode-map= に checkdoc のウィンドウを閉じるキーバインドを設定． =q= または =C-g= を押下すると，マイナーモードが終了し，設定したキーバインドが無効になる．マイナーモードが有効な間は， =q= が占有されてバッファに入力できなくなる．その場合は，必要に応じて =M-x my-delete-checkdoc-window= を実行する．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "checkdoc"
-  (defun my-delete-checkdoc-window ()
-    (interactive)
-    (let ((checkdoc-window (get-buffer-window "*Checkdoc Status*")))
-      (when checkdoc-window
-        (delete-window checkdoc-window)))
-    (checkdoc-minor-mode -1))
-
-  (defun ad:checkdoc ()
-    (interactive)
-    (define-key checkdoc-minor-mode-map (kbd "q")
-      'my-delete-checkdoc-window)
-    (define-key checkdoc-minor-mode-map (kbd "C-g")
-      'my-delete-checkdoc-window)
-    (checkdoc-minor-mode 1))
-
-  (advice-add 'checkdoc :before #'ad:checkdoc))
-#+end_src
-
-** TODO [doom-modeline.el] モードラインをリッチにする
-   :PROPERTIES:
-   :CUSTOM_ID: orgdca5e7c2
-   :END:
-
- - [[https://github.com/seagle0128/doom-modeline][seagle0128/doom-modeline: A minimal and modern mode-line]]
-
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "moom"
-  (when (and (not noninteractive)
-             (eq my-toggle-modeline-global 'doom)
-             (require 'doom-modeline nil t))
-    (custom-set-variables
-     '(doom-modeline-buffer-file-name-style 'truncate-except-project)
-     '(doom-modeline-bar-width 1)
-     '(doom-modeline-height (let ((font (face-font 'mode-line)))
-                              (if (and font (fboundp 'font-info))
-                                  (floor (* 0.8 ;; 1.0
-                                            (* 2 (aref (font-info font) 2))))
-                                10)))
-     '(doom-modeline-minor-modes t))
-    (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
-    (defun ad:doom-modeline-buffer-file-state-icon
-        (icon &optional text face height voffset)
-      "Displays an ICON with FACE, HEIGHT and VOFFSET.
-TEXT is the alternative if it is not applicable.
-Uses `all-the-icons-material' to fetch the icon."
-      (if doom-modeline-icon
-          (when icon
-            (doom-modeline-icon-material
-             icon
-             :face face
-             :height (or height 0.85) ;; 1.1
-             :v-adjust (or voffset -0.225))) ;; -0.225
-        (when text
-          (propertize text 'face face))))
-    (advice-add 'doom-modeline-buffer-file-state-icon :override
-                #'ad:doom-modeline-buffer-file-state-icon)
-    (size-indication-mode 1)
-    (doom-modeline-mode 1)))
-#+end_src
-
-** [e2wm.el] 二画面表示                                            :notinuse:
-   :PROPERTIES:
-   :CUSTOM_ID: org4dd0671c
-   :END:
-
-使用頻度が低くなりました．
-
-1. http://github.com/kiwanami/emacs-window-manager/raw/master/e2wm.el
-2. http://github.com/kiwanami/emacs-window-layout/raw/master/window-layout.el
-
-#+begin_src emacs-lisp :tangle no
-(when (autoload-if-found
-       '(my-e2wm:dp-two e2wm:dp-two e2wm:start-management)
-       "e2wm" nil t)
-
-  (with-eval-after-load "e2wm"
-    (defun my-e2wm:dp-two ()
-      (interactive)
-      (e2wm:dp-two)
-      (setq e2wm:c-two-recipe
-            '(- (:lower-size 10)
-                (| left right)
-                sub))
-      (setq e2wm:c-two-winfo
-            '((:name left )
-              (:name right )
-              (:name sub :default-hide t)))
-
-      ;; left, prev
-      (setq e2wm:c-two-right-default 'left))
-
-    ;; 高さを画面の最大に矯正
-    (when (require 'moom nil t)
-      (setq moom-frame-height-tall (moom-max-frame-height))
-      (setq moom-frame-height-small moom-frame-height-tall))
-
-    ;; 幅を画面の最大に矯正
-    (add-hook 'e2wm:pre-start-hook
-              (lambda ()
-                  (set-frame-width
-                   (selected-frame)
-                   (/ (- (display-pixel-width) 30) (frame-char-width)))))
-
-    ;; 幅をデフォルト値に戻す
-    (add-hook 'e2wm:post-stop-hook
-              (lambda ()
-                  (set-frame-width (selected-frame)
-                                   moom--frame-width)))
-
-    ;; To avoid rebooting issue when using desktop.el and recentf.el
-    (add-hook 'kill-emacs-hook
-              (lambda ()
-                  (when (fboundp 'e2wm:stop-management)
-                    (e2wm:stop-management))))))
-;; setting for e2wm
-(when (autoload-if-found
-       '(change-frame-double-window
-         change-frame-single-window)
-       "frame-ctr-e2wm" nil t)
-  ;; Set the frame width single size
-  ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
-  (global-set-key (kbd "C-x -") 'change-frame-single-window)
-  ;; Set the frame width double size
-  ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
-  (global-set-key (kbd "C-x =") 'change-frame-double-window))
-#+end_src
-
-** [tabbar-ruler] バッファをタブ切り替え可能に                     :notinuse:
-   :PROPERTIES:
-   :CUSTOM_ID: org0c556404
-   :END:
-
- - 不要かな
-
-#+begin_src emacs-lisp :tangle no
-(when (require 'tabbar-ruler nil t)
-  ;; (when (require 'tabbar-ruler nil t)
-  (setq tabbar-ruler-global-tabbar t) ; If you want tabbar
-  (setq tabbar-ruler-popup-menu t) ; If you want a popup menu.
-  (setq tabbar-ruler-popup-toolbar t) ; If you want a popup toolbar
-  ;;  (setq tabbar-ruler-fancy-tab-separator 'round)
-  ;;  (setq tabbar-ruler-fancy-current-tab-separator 'round)
-  (setq tabbar-ruler-invert-deselected nil)
-  (setq tabbar-ruler-modified-symbol t))
-#+end_src
-
-** [elscreen.el] Emacs バッファをタブ化                            :notinuse:
-   :PROPERTIES:
-   :CUSTOM_ID: org6474a498
-   :END:
-
- - cycle-buffer で十分かなと言う感じで不使用になりました．
-
-#+begin_src emacs-lisp :tangle no
-;;; ElScreen (require apel) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Note: change a string in the elscreen.el from "mac" to "ns"
-;; 2011-10-26: e2wm's perspective (two) mode is more useful for me.
-(load "elscreen" "ElScreen" t)
-#+end_src
-
-** [popwin.el] ポップアップウィンドウの制御                        :notinuse:
-   :PROPERTIES:
-   :CUSTOM_ID: org750d9aa5
-   :ID:       89A14C81-3E35-4216-AADD-2E3471C10F9E
-   :END:
-
-  - 現在は緩やかに =shackle= に移行中です．
-    - ただし， =dedicated= オプションが使えないので，ウィンドウからフォーカスが外れた時に自動的にウィンドウを消すことができません．
-      - それぞれに =q= を実装すれば，近い動作にはできる．
-  - https://github.com/m2ym/popwin-el/
-  - popwin:display-buffer を autoload してもうまくいかない．
-
-=postpone= の後に呼んでいるのは，Emacs起動時の単純な高速化対策です．
-
-#+begin_src emacs-lisp :tangle no
-;; for emacs 24.1
-;; (setq special-display-function 'popwin:special-display-popup-window)
-;; (setq display-buffer-function 'popwin:display-buffer)
-
-;; for emacs 24.3
-;; (setq special-display-alist 'popwin:special-display-popup-window)
-;; (setq display-buffer-alist 'popwin:display-buffer)
-;; (push '("*sdic*" :position top) popwin:special-display-config)
-
-(with-eval-after-load "postpone"
-  (when (require 'popwin nil t)
-    ;; Performed in shackle
-    (push '("*Help*" :height 20 :position top :dedicated t)
-          popwin:special-display-config)
-    (push '("*osx-dictionary*" :height 20 :position top :dedicated t)
-          popwin:special-display-config)
-    (push '("*wclock*" :height 10 :position top :dedicated t)
-          popwin:special-display-config)
-
-    ;; Checking...
-    (push '("*Checkdoc Status*" :position top :dedicated t)
-          popwin:special-display-config)
-    (push '("*frequencies*" :height 20 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("CAPTURE-next.org" :height 10 :position bottom :noselect t)
-          popwin:special-display-config)
-    (push '("CAPTURE-org-ical.org":height 10 :position bottom :noselect t)
-          popwin:special-display-config)
-    (push '("dict-app-result" :height 20 :position bottom)
-          popwin:special-display-config)
-    (push '("*timer*" :height 20 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("Calendar" :position top :dedicated t)
-          popwin:special-display-config)
-    (push '("*Org Dashboard*" :position bottom)
-          popwin:special-display-config)
-    (push '("*Org Select*" :height 10 :position bottom)
-          popwin:special-display-config)
-    (push '("*Org Grep*" :height 20 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("*Occur*" :height 10 :position bottom)
-          popwin:special-display-config)
-    (push '("*Shell Command Output*" :height 10 :position bottom :dedicated t)
-          popwin:special-display-config)
-    (push '("*eshell*" :height 10 :position bottom)
-          popwin:special-display-config)
-;;;            (undo-tree-visualizer-buffer-name :height 10 :position top)
-;;;            (undo-tree-diff-buffer-name :height 20 :position bottom)
-
-    ;; Not performed
-    (push '("*Org Agenda*" :height 10 :position top)
-          popwin:special-display-config))
-
-  (unless noninteractive
-    (popwin-mode 1)))
-#+end_src
-
-** DONE [olivetti.el] ウィンドウを中央寄せで配置                   :notinuse:
-   CLOSED: [2019-12-29 Sun 16:01]
-   :PROPERTIES:
-   :CUSTOM_ID: org7a20b311
-   :END:
-
- - [[https://github.com/rnkn/olivetti][rnkn/olivetti: Emacs minor mode for a nice writing environment]]
-
-=moom.el= を使ってフレームを最大化したり，画面の半分に配置すると，80桁で表示する領域とウィンドウが占める領域の幅が一致しない場合があります．通常は，フレーム内で左寄せに配置されますが， =olivetti= を使うと，中央寄せにできます．
-
-#+begin_src emacs-lisp :tangle no
-;; late-init.el
-(with-eval-after-load "moom"
-  (when (require 'olivetti nil t)
-    (setq olivetti-lighter nil)
-    (setq-default olivetti-body-width 80)
-    (defun ad:turn-on-olivetti-mode ()
-      "Disable `visual-line-mode'."
-      (unless moom--maximized
-        (olivetti-mode -1))
-      (visual-line-mode -1))
-    (advice-add 'turn-on-olivetti-mode :after #'ad:turn-on-olivetti-mode)
-    (add-hook 'find-file-hook #'turn-on-olivetti-mode)
-    (defun ad:olivetti:moom-toggle-frame-maximized ()
-      (if moom--maximized
-          (turn-on-olivetti-mode)
-        (olivetti-mode -1)))
-    (advice-add 'moom-toggle-frame-maximized :after
-                #'ad:olivetti:moom-toggle-frame-maximized)))
 #+end_src
 
 * ユーティリティ関数

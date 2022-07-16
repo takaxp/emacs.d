@@ -322,8 +322,6 @@ This function is called directly from the C code."
 
 (my-tick-init-time "history")
 
-(my-tick-init-time "frame and window")
-
 (my-tick-init-time "development")
 
 (cond
@@ -540,6 +538,8 @@ The keybindings will be assigned only when Emacs runs in GUI."
          (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
          (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
          (9 5) (8 5) (7 4) (6 4) (5 3))))))
+
+(my-tick-init-time "frame and window")
 
 (my-tick-init-time "font")
 
