@@ -1,6 +1,6 @@
 (defconst my-before-load-init-time (current-time)
   "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
-(defconst my-ad-require-p t
+(defconst my-ad-require-p nil
   "If non-nil, override `require' and `load' to show loading times.")
 (defconst my-profiler-p nil
   "If non-nil, use built-in profiler.el.")
@@ -11,7 +11,7 @@
 (defconst my-loading-packages nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
-(setq debug-on-error nil
+(setq debug-on-error t
       postpone-verbose nil
       my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}

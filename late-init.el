@@ -858,7 +858,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       nil))))
 
 (when (autoload-if-found
-       '(flyspell-prog-mode flyspell-mode flyspell-mode-on)
+       '(flyspell-mode-on flyspell-prog-mode flyspell-mode 
+                          my-flyspell-mode-on my-flyspell-prog-mode)
        "flyspell" nil t)
 
   (defvar major-mode-with-flyspell
@@ -872,13 +873,14 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
   ;; バッファ内の全てをチェック対象にするモードの hook に flyspell 起動を登録
   (dolist (hook major-mode-with-flyspell)
-    (add-hook (intern (format "%s-hook" hook)) #'flyspell-mode-on))
+    (add-hook (intern (format "%s-hook" hook)) #'flyspell-mode))
 
   ;; コメント行のみをチェック対象にする
   (dolist (hook major-mode-with-flyspell-prog)
     (add-hook (intern (format "%s-hook" hook)) #'flyspell-prog-mode))
 
   (with-eval-after-load "flyspell"
+
     ;; C-; をオーバーライド
     (define-key flyspell-mode-map (kbd "C-;") 'comment-dwim)
     (setq flyspell-duplicate-distance 0)

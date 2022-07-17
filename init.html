@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-18 Mon 00:08 -->
+<!-- 2022-07-18 Mon 01:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4206,7 +4206,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(flyspell-prog-mode flyspell-mode flyspell-mode-on)
+       '(flyspell-mode-on flyspell-prog-mode flyspell-mode 
+                          my-flyspell-mode-on my-flyspell-prog-mode)
        <span style="color: #8b2252;">"flyspell"</span> nil t)
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">major-mode-with-flyspell</span>
@@ -4220,13 +4221,14 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12496;&#12483;&#12501;&#12449;&#20869;&#12398;&#20840;&#12390;&#12434;&#12481;&#12455;&#12483;&#12463;&#23550;&#35937;&#12395;&#12377;&#12427;&#12514;&#12540;&#12489;&#12398; hook &#12395; flyspell &#36215;&#21205;&#12434;&#30331;&#37682;</span>
   (<span style="color: #a020f0;">dolist</span> (hook major-mode-with-flyspell)
-    (add-hook (intern (format <span style="color: #8b2252;">"%s-hook"</span> hook)) #'flyspell-mode-on))
+    (add-hook (intern (format <span style="color: #8b2252;">"%s-hook"</span> hook)) #'flyspell-mode))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12467;&#12513;&#12531;&#12488;&#34892;&#12398;&#12415;&#12434;&#12481;&#12455;&#12483;&#12463;&#23550;&#35937;&#12395;&#12377;&#12427;</span>
   (<span style="color: #a020f0;">dolist</span> (hook major-mode-with-flyspell-prog)
     (add-hook (intern (format <span style="color: #8b2252;">"%s-hook"</span> hook)) #'flyspell-prog-mode))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
+
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-; &#12434;&#12458;&#12540;&#12496;&#12540;&#12521;&#12452;&#12489;</span>
     (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-;"</span>) 'comment-dwim)
     (<span style="color: #a020f0;">setq</span> flyspell-duplicate-distance 0)
@@ -12511,7 +12513,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org0572a50"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgecbe248"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13410,7 +13412,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgf9b59bb" class="figure">
+<div id="org7eb1265" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16291,7 +16293,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-18 Mon 00:08</p>
+<p class="date">Created: 2022-07-18 Mon 01:24</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
