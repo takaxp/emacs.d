@@ -3,270 +3,265 @@
 (require 'late-init-autoloads nil t)
 (require 'utility-autoloads nil t)
 
-(when (autoload-if-found
-       '(org-mode)
-       "org" nil t)
+;; テキストファイルを Org Mode で開きます．
+(push '("\\.txt$" . org-mode) auto-mode-alist)
 
-  ;; テキストファイルを Org Mode で開きます．
-  (push '("\\.txt$" . org-mode) auto-mode-alist)
+;; Font lock を使う
+(add-hook 'org-mode-hook #'turn-on-font-lock)
 
-  ;; Font lock を使う
-  (add-hook 'org-mode-hook #'turn-on-font-lock)
+;; ホームポジション的な Orgファイルを一発で開きます．
+(global-set-key (kbd "C-M-o")
+                (lambda () (interactive)
+                  (my-show-org-buffer "next.org")))
 
-  ;; ホームポジション的な Orgファイルを一発で開きます．
-  (global-set-key (kbd "C-M-o")
-                  (lambda () (interactive)
-                    (my-show-org-buffer "next.org")))
+(global-set-key (kbd "C-c r") 'org-capture)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c a") 'org-agenda)
 
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c r") 'org-capture)
-    (global-set-key (kbd "C-c l") 'org-store-link)
-    (global-set-key (kbd "C-c a") 'org-agenda))
+(with-eval-after-load "org"
+  ;; タイトルを少し強調
+  (custom-set-faces
+   '(org-document-title ((t (:foreground "RoyalBlue1" :bold t :height 1.2))))
+   '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
 
-  (with-eval-after-load "org"
-    ;; タイトルを少し強調
-    (custom-set-faces
-     '(org-document-title ((t (:foreground "RoyalBlue1" :bold t :height 1.2))))
-     '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
+  ;; 関連モジュールの読み込み
+  (autoload 'org-eldoc-load "org-eldoc" nil t)
+  (defun my-org-eldoc-load ()
+    "Set up org-eldoc documentation function."
+    (interactive)
+    (add-function :before-until (local 'eldoc-documentation-function)
+                  #'org-eldoc-documentation-function))
+  (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
+  (add-hook 'org-mode-hook #'org-eldoc-load)
 
-    ;; 関連モジュールの読み込み
-    ;; (require 'org-mobile nil t)
-    (when (require 'org-eldoc nil t)
-      (defun my-org-eldoc-load ()
-        "Set up org-eldoc documentation function."
-        (interactive)
-        (add-function :before-until (local 'eldoc-documentation-function)
-                      #'org-eldoc-documentation-function))
-      (advice-add 'org-eldoc-load :override #'my-org-eldoc-load))
+  ;; モジュールの追加
+  (add-to-list 'org-modules 'org-id)
+  (with-eval-after-load "org-agenda"
+    ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
+    (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
+  (when (version< "9.1.4" (org-version))
+    (add-to-list 'org-modules 'org-tempo))
+  (when (require 'ol-bookmark nil t)
+    ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
+    (add-to-list 'org-modules 'ol-bookmark)
+    (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
+    ;; `bookmark-default-file' の読み込み
+    (bookmark-maybe-load-default-file))
 
-    ;; モジュールの追加
-    (add-to-list 'org-modules 'org-id)
-    (with-eval-after-load "org-agenda"
-      ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
-      (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
-    (when (version< "9.1.4" (org-version))
-      (add-to-list 'org-modules 'org-tempo))
-    (when (require 'ol-bookmark nil t)
-      ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
-      (add-to-list 'org-modules 'ol-bookmark)
-      (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
-      ;; `bookmark-default-file' の読み込み
-      (bookmark-maybe-load-default-file))
+  ;; 不必要なモジュールの読み込みを停止する
+  (delq 'ol-gnus org-modules)
+  ;; (setq org-modules (delete 'org-bibtex org-modules))
 
-    ;; 不必要なモジュールの読み込みを停止する
-    (delq 'ol-gnus org-modules)
-    ;; (setq org-modules (delete 'org-bibtex org-modules))
+  ;; org ファイルの集中管理
+  (setq org-directory (concat (getenv "SYNCROOT") "/org/"))
 
-    ;; org ファイルの集中管理
-    (setq org-directory (concat (getenv "SYNCROOT") "/org/"))
+  ;; org-store-link で heading に自動的に挿入される id を使う
+  (setq org-id-link-to-org-use-id t)
 
-    ;; org-store-link で heading に自動的に挿入される id を使う
-    (setq org-id-link-to-org-use-id t)
+  ;; アーカイブファイルの名称を指定
+  (setq org-archive-location "%s_archive::")
 
-    ;; アーカイブファイルの名称を指定
-    (setq org-archive-location "%s_archive::")
+  ;; タイムスタンプによるログ収集設定 DONE 時に CLOSED: を記入．
+  (setq org-log-done 'time) ; 'time 以外に，'(done), '(state) を指定できる
 
-    ;; タイムスタンプによるログ収集設定 DONE 時に CLOSED: を記入．
-    (setq org-log-done 'time) ; 'time 以外に，'(done), '(state) を指定できる
+  ;; ログをドロアーに入れる
+  (setq org-log-into-drawer t)
 
-    ;; ログをドロアーに入れる
-    (setq org-log-into-drawer t)
+  ;; indent を electric-indent-mode の振る舞いに合わせる
+  (setq org-adapt-indentation t)
 
-    ;; indent を electric-indent-mode の振る舞いに合わせる
-    (setq org-adapt-indentation t)
+  ;; Set checksum program path for windows
+  (when (eq window-system 'w32)
+    (setq org-mobile-checksum-binary (concat (getenv "SYNCROOT") "/do/cksum.exe")))
 
-    ;; Set checksum program path for windows
-    (when (eq window-system 'w32)
-      (setq org-mobile-checksum-binary (concat (getenv "SYNCROOT") "/do/cksum.exe")))
+  ;; Set default table export format
+  (setq org-table-export-default-format "orgtbl-to-csv")
 
-    ;; Set default table export format
-    (setq org-table-export-default-format "orgtbl-to-csv")
+  ;; Toggle inline images display at startup
+  (setq org-startup-with-inline-images t)
 
-    ;; Toggle inline images display at startup
-    (setq org-startup-with-inline-images t)
+  ;; dvipng
+  (setq org-export-with-LaTeX-fragments t)
 
-    ;; dvipng
-    (setq org-export-with-LaTeX-fragments t)
+  ;; 数式をハイライト
+  (setq org-highlight-latex-and-related '(latex entities))
 
-    ;; 数式をハイライト
-    (setq org-highlight-latex-and-related '(latex entities))
+  ;; orgバッファ内の全ての動的ブロックを保存直前に変更する
+  ;; (add-hook 'before-save-hook #'org-update-all-dblocks)
 
-    ;; orgバッファ内の全ての動的ブロックを保存直前に変更する
-    ;; (add-hook 'before-save-hook #'org-update-all-dblocks)
+  ;; アンダースコアをエクスポートしない（_{}で明示的に表現できる）
+  (setq org-export-with-sub-superscripts nil)
 
-    ;; アンダースコアをエクスポートしない（_{}で明示的に表現できる）
-    (setq org-export-with-sub-superscripts nil)
+  ;; #+options: \n:t と同じ
+  (setq org-export-preserve-breaks t)
 
-    ;; #+options: \n:t と同じ
-    (setq org-export-preserve-breaks t)
+  ;; タイマーの音
+  ;; (lsetq org-clock-sound "");
 
-    ;; タイマーの音
-    ;; (lsetq org-clock-sound "");
+  ;; org-clock の計測時間をモードラインではなくタイトルに表示する
+  (setq org-clock-clocked-in-display 'frame-title)
 
-    ;; org-clock の計測時間をモードラインではなくタイトルに表示する
-    (setq org-clock-clocked-in-display 'frame-title)
+  ;; 1分未満は記録しない
+  (setq org-clock-out-remove-zero-time-clocks t)
 
-    ;; 1分未満は記録しない
-    (setq org-clock-out-remove-zero-time-clocks t)
+  ;; 再起動後に clock を復帰させる（clock-out で抜けない限り終了中の期間も計上されてしまう）
+  ;; check also org-clock-persist in org-clock.el
+  (org-clock-persistence-insinuate)
 
-    ;; 再起動後に clock を復帰させる（clock-out で抜けない限り終了中の期間も計上されてしまう）
-    ;; check also org-clock-persist in org-clock.el
-    (org-clock-persistence-insinuate)
+  ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
+  (defun my-promote-todo-revision (state)
+    (cond ((member state '("TODO")) "REV1")
+          ((member state '("REV1")) "REV2")
+          ((member state '("REV2")) "REV3")
+          (t state)))
+  ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
-    ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
-    (defun my-promote-todo-revision (state)
-      (cond ((member state '("TODO")) "REV1")
-            ((member state '("REV1")) "REV2")
-            ((member state '("REV2")) "REV3")
-            (t state)))
-    ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
+  ;; undo 時に reveal して表示を改善する
+  ;; (defun ad:org:undo (&optional _ARG)
+  ;;   (when (and (eq major-mode 'org-mode)
+  ;;              (not (org-before-first-heading-p)))
+  ;;     (org-overview)
+  ;;     (org-reveal)
+  ;;     (org-cycle-hide-drawers 'all)
+  ;;     (org-show-entry)
+  ;;     (show-children)
+  ;;     (org-show-siblings)))
+  ;; (advice-add 'undo :after #'ad:org:undo)
 
-    ;; undo 時に reveal して表示を改善する
-    ;; (defun ad:org:undo (&optional _ARG)
-    ;;   (when (and (eq major-mode 'org-mode)
-    ;;              (not (org-before-first-heading-p)))
-    ;;     (org-overview)
-    ;;     (org-reveal)
-    ;;     (org-cycle-hide-drawers 'all)
-    ;;     (org-show-entry)
-    ;;     (show-children)
-    ;;     (org-show-siblings)))
-    ;; (advice-add 'undo :after #'ad:org:undo)
+  ;; 非表示状態の領域への書き込みを防ぐ
+  ;; "Editing in invisible areas is prohibited, make them visible first"
+  (setq org-catch-invisible-edits 'show-and-error)
+  (defun ad:org-return (f &optional arg)
+    "An extension for checking invisible editing when you hit the enter."
+    (interactive "P")
+    (org-check-before-invisible-edit 'insert)
+    (apply f arg))
+  (advice-add 'org-return :around #'ad:org-return)
 
-    ;; 非表示状態の領域への書き込みを防ぐ
-    ;; "Editing in invisible areas is prohibited, make them visible first"
-    (setq org-catch-invisible-edits 'show-and-error)
-    (defun ad:org-return (f &optional arg)
-      "An extension for checking invisible editing when you hit the enter."
-      (interactive "P")
-      (org-check-before-invisible-edit 'insert)
-      (apply f arg))
-    (advice-add 'org-return :around #'ad:org-return)
+  ;; ブリッツにアルファベットを使う
+  (setq org-list-allow-alphabetical t)
 
-    ;; ブリッツにアルファベットを使う
-    (setq org-list-allow-alphabetical t)
+  ;; - を優先．親のブリッツ表示を継承させない
+  (setq org-list-demote-modify-bullet
+        '(("+" . "-")
+          ("*" . "-")
+          ("1." . "-")
+          ("1)" . "-")
+          ("A)" . "-")
+          ("B)" . "-")
+          ("a)" . "-")
+          ("b)" . "-")
+          ("A." . "-")
+          ("B." . "-")
+          ("a." . "-")
+          ("b." . "-")))
 
-    ;; - を優先．親のブリッツ表示を継承させない
-    (setq org-list-demote-modify-bullet
-          '(("+" . "-")
-            ("*" . "-")
-            ("1." . "-")
-            ("1)" . "-")
-            ("A)" . "-")
-            ("B)" . "-")
-            ("a)" . "-")
-            ("b)" . "-")
-            ("A." . "-")
-            ("B." . "-")
-            ("a." . "-")
-            ("b." . "-")))
+  ;; 完了したタスクの配色を変える
+  ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
+  (font-lock-add-keywords
+   'org-mode
+   `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+      1 'org-headline-done prepend))
+   'append)
 
-    ;; 完了したタスクの配色を変える
-    ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
-    (font-lock-add-keywords
-     'org-mode
-     `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
-        1 'org-headline-done prepend))
-     'append)
+  ;; プロパティ等を自動的閉じる．
+  (defun my-org-hide-drawers ()
+    "Hide all drawers in an org tree."
+    (interactive)
+    (save-excursion
+      (beginning-of-line)
+      (unless (looking-at-p org-drawer-regexp)
+        (org-cycle-hide-drawers 'subtree))))
+  (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
-    ;; プロパティ等を自動的閉じる．
-    (defun my-org-hide-drawers ()
-      "Hide all drawers in an org tree."
-      (interactive)
-      (save-excursion
-        (beginning-of-line)
-        (unless (looking-at-p org-drawer-regexp)
-          (org-cycle-hide-drawers 'subtree))))
-    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+  ;; CSV指定でテーブルを出力する．
+  (defun my-org-table-export ()
+    (interactive)
+    (org-table-export nil "orgtbl-to-csv"))
 
-    ;; CSV指定でテーブルを出力する．
-    (defun my-org-table-export ()
-      (interactive)
-      (org-table-export nil "orgtbl-to-csv"))
+  (defun my-do-org-update-staistics-cookies ()
+    (interactive)
+    (message "Update statistics...")
+    (do-org-update-statistics-cookies)
+    (message "Update statistics...done"))
+  (define-key org-mode-map (kbd "C-c f 2")
+    'my-do-org-update-staistics-cookies)
 
-    (defun my-do-org-update-staistics-cookies ()
-      (interactive)
-      (message "Update statistics...")
-      (do-org-update-statistics-cookies)
-      (message "Update statistics...done"))
-    (define-key org-mode-map (kbd "C-c f 2")
-      'my-do-org-update-staistics-cookies)
+  ;; C-c & が yasnippet にオーバーライドされているのを張り替える
+  (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
 
-    ;; C-c & が yasnippet にオーバーライドされているのを張り替える
-    (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
+  ;; (org-transpose-element) が割り当てられているので取り返す．
+  (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
 
-    ;; (org-transpose-element) が割り当てられているので取り返す．
-    (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
+(with-eval-after-load "ox"
+  (add-to-list 'org-modules 'ox-odt)
+  (add-to-list 'org-modules 'ox-org)
+  (add-to-list 'org-modules 'ox-json))
 
-  (with-eval-after-load "ox"
-    (add-to-list 'org-modules 'ox-odt)
-    (add-to-list 'org-modules 'ox-org)
-    (add-to-list 'org-modules 'ox-json))
+(with-eval-after-load "org-tempo"
+  ;; 空行のとき "<" をインデントさせない
+  (defun ad:org-tempo-complete-tag (f &rest arg)
+    (if (save-excursion
+          (beginning-of-line)
+          (looking-at "<"))
+        (let ((indent-line-function 'ignore))
+          (apply f arg))
+      (apply f arg)))
+  (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+;; (Thanks to @conao3)
+;; but when using `flet', byte-compile will warn a malformed function
+;; and using `cl-flet' will not provide us the expected result...
+;; (when (require 'cl-lib nil t)
+;;   (defun ad:org-tempo-complete-tag (f &rest arg)
+;;     (if (save-excursion
+;;           (beginning-of-line)
+;;           (looking-at "<"))
+;;         (cl-flet ((indent-according-to-mode () #'ignore))
+;;           (apply f arg))
+;;       (apply f arg)))
+;;   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 
-  (with-eval-after-load "org-tempo"
-    ;; 空行のとき "<" をインデントさせない
-    (defun ad:org-tempo-complete-tag (f &rest arg)
-      (if (save-excursion
-            (beginning-of-line)
-            (looking-at "<"))
-          (let ((indent-line-function 'ignore))
-            (apply f arg))
-        (apply f arg)))
-    (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
-  ;; (Thanks to @conao3)
-  ;; but when using `flet', byte-compile will warn a malformed function
-  ;; and using `cl-flet' will not provide us the expected result...
-  ;; (when (require 'cl-lib nil t)
-  ;;   (defun ad:org-tempo-complete-tag (f &rest arg)
-  ;;     (if (save-excursion
-  ;;           (beginning-of-line)
-  ;;           (looking-at "<"))
-  ;;         (cl-flet ((indent-according-to-mode () #'ignore))
-  ;;           (apply f arg))
-  ;;       (apply f arg)))
-  ;;   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+(with-eval-after-load "org-tempo"
+  (defun my-org-tempo-add-block (entry)
+    "Add block entry from `org-structure-template-alist'."
+    (let* ((key (format "<%s" (car entry)))
+           (name (cdr entry))
+           (special nil)) ;; FIXED
+      (tempo-define-template
+       (format "org-%s" (replace-regexp-in-string " " "-" name))
+       `(,(format "#+begin_%s%s" name (if special " " ""))
+         ,(when special 'p) '> n '> ,(unless special 'p) n
+         ,(format "#+end_%s" (car (split-string name " ")))
+         >)
+       key
+       (format "Insert a %s block" name)
+       'org-tempo-tags)))
+  ;; 更新
+  (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
+  ;; 反映
+  (org-tempo-add-templates))
 
-  (with-eval-after-load "org-tempo"
-    (defun my-org-tempo-add-block (entry)
-      "Add block entry from `org-structure-template-alist'."
-      (let* ((key (format "<%s" (car entry)))
-             (name (cdr entry))
-             (special nil)) ;; FIXED
-        (tempo-define-template
-         (format "org-%s" (replace-regexp-in-string " " "-" name))
-         `(,(format "#+begin_%s%s" name (if special " " ""))
-           ,(when special 'p) '> n '> ,(unless special 'p) n
-           ,(format "#+end_%s" (car (split-string name " ")))
-           >)
-         key
-         (format "Insert a %s block" name)
-         'org-tempo-tags)))
-    ;; 更新
-    (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
-    ;; 反映
-    (org-tempo-add-templates))
+(with-eval-after-load "org-clock"
+  ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
+  (setq org-clock-persist 'history) ;; {nil, t, 'clock, 'history}
+  (setq org-clock-in-resume t)
+  (setq org-clock-persist-query-resume nil)
 
-  (with-eval-after-load "org-clock"
-    ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
-    (setq org-clock-persist 'history) ;; {nil, t, 'clock, 'history}
-    (setq org-clock-in-resume t)
-    (setq org-clock-persist-query-resume nil)
+  ;; 終了時に clock を止める．
+  (defun my-org-clock-out-and-save-when-exit ()
+    "Save buffers and stop clocking when kill emacs."
+    (when (org-clocking-p)
+      (org-clock-out)
+      (save-some-buffers t)))
+  ;; implemented in `org-onit.el'. No need to hook this.
+  ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
+  )
 
-    ;; 終了時に clock を止める．
-    (defun my-org-clock-out-and-save-when-exit ()
-      "Save buffers and stop clocking when kill emacs."
-      (when (org-clocking-p)
-        (org-clock-out)
-        (save-some-buffers t)))
-    ;; implemented in `org-onit.el'. No need to hook this.
-    ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
-    )
-
-  (with-eval-after-load "org-table"
-    ;; エコー表示前に保存する
-    (defun ad:org-table-field-info (_arg)
-      (save-buffer))
-    (advice-add 'org-table-field-info :before #'ad:org-table-field-info)))
+(with-eval-after-load "org-table"
+  ;; エコー表示前に保存する
+  (defun ad:org-table-field-info (_arg)
+    (save-buffer))
+  (advice-add 'org-table-field-info :before #'ad:org-table-field-info))
 
 ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
 ;; default = ~/org.ics
@@ -585,11 +580,7 @@
   (add-to-list 'image-file-name-extensions "bmp")
   (add-to-list 'image-file-name-extensions "psd"))
 
-(when (autoload-if-found
-       '(org-mode)
-       "org" nil t)
-
-  (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist))
+(push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist)
 
 (with-eval-after-load "org"
   (defun my-lowercase-org-keywords ()
@@ -1077,14 +1068,14 @@ will not be modified."
     (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
     (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
     (define-key org-mode-map (kbd "S-<f11>") 'org-onit-goto-anchor)
-    (unless (require 'org-bookmark-heading nil t)
-      (message "--- org-bookmark-heading.el is NOT installed."))
 
     (defun my-sparse-doing-tree ()
       (interactive)
       (org-tags-view nil org-onit-tag)))
 
   (with-eval-after-load "org-onit"
+    (autoload-if-found '(org-bookmark-jump org-bookmark-make-record)
+                       "org-bookmark-heading" nil t)
     (when (require 'org-plist nil t)
       (add-to-list 'org-plist-dict '("OPTIONS_ONIT" org-onit-basic-options)))
     (custom-set-variables
@@ -1594,11 +1585,13 @@ also calls `beep' for an audible reminder."
 (with-eval-after-load "org"
   ;; (add-to-list 'org-modules 'org-mac-iCal)
   ;; (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
-  (when (and (require 'org-mac-iCal nil t)
-             (require 'org-mac-link nil t))
-    (define-key org-mode-map (kbd "C-c c") 'org-mac-grab-link)))
 
-(with-eval-after-load "org"
+  (autoload 'org-mac-grab-link "org-mac-link" nil t)
+  (define-key org-mode-map (kbd "C-c c") 'org-mac-link-get-link)
+  (with-eval-after-load "org-mac-link"
+    (require 'org-mac-iCal nil t)))
+
+(with-eval-after-load "org-attach"
   (when (require 'org-download nil t)
     (setq org-download-screenshot-method 'screencapture)
     (setq org-download-method 'attach)))
@@ -1675,7 +1668,7 @@ also calls `beep' for an audible reminder."
 ;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
 ;;   (require 'ox-hugo-auto-export nil t))
 
-(with-eval-after-load "org"
+(with-eval-after-load "ox"
   (when (require 'ox-hugo nil t)
     (setq org-hugo-auto-set-lastmod nil) ;; see my-hugo-export-md
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day

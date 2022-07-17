@@ -77,7 +77,7 @@
     (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
  (nil ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
-  (setq org-agenda-files '("~/Desktop/hoge.org")))
+  (setq org-agenda-files '("~/Desktop/test/hoge.org")))
  (nil ;; Spacemacs
   (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
  (t ;; Normal mode. see also init-eval.el

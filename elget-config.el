@@ -65,6 +65,9 @@
   (el-get-bundle "xenodium/company-org-block")
   (el-get-bundle "emacsmirror/org-contrib")
   (el-get-bundle "awth13/org-appear")
+  (el-get-bundle "org-mac-link"
+                 :type git
+                 :url "https://gitlab.com/aimebertrand/org-mac-link.git")
 
   ;; Org Mode - ox/ob
   (el-get-bundle "0x60df/ox-qmd")

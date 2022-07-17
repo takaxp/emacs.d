@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-17 Sun 02:17 -->
+<!-- 2022-07-18 Mon 00:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -10219,271 +10219,270 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 <code>C-M-o</code> は，本来， <code>split-line</code> にアサインされています．
 </p>
 
+<p>
+<code>init-org.el</code> として書き出し，遅延読み込みしています．
+</p>
+
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(org-mode)
-       <span style="color: #8b2252;">"org"</span> nil t)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12486;&#12461;&#12473;&#12488;&#12501;&#12449;&#12452;&#12523;&#12434; Org Mode &#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
+(<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"\\.txt$"</span> . org-mode) auto-mode-alist)
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12486;&#12461;&#12473;&#12488;&#12501;&#12449;&#12452;&#12523;&#12434; Org Mode &#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
-  (<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"\\.txt$"</span> . org-mode) auto-mode-alist)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">Font lock &#12434;&#20351;&#12358;</span>
+(add-hook 'org-mode-hook #'turn-on-font-lock)
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Font lock &#12434;&#20351;&#12358;</span>
-  (add-hook 'org-mode-hook #'turn-on-font-lock)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
+(global-set-key (kbd <span style="color: #8b2252;">"C-M-o"</span>)
+                (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
+                  (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>)))
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-o"</span>)
-                  (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
-                    (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>)))
+(global-set-key (kbd <span style="color: #8b2252;">"C-c r"</span>) 'org-capture)
+(global-set-key (kbd <span style="color: #8b2252;">"C-c l"</span>) 'org-store-link)
+(global-set-key (kbd <span style="color: #8b2252;">"C-c a"</span>) 'org-agenda)
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
-    (global-set-key (kbd <span style="color: #8b2252;">"C-c r"</span>) 'org-capture)
-    (global-set-key (kbd <span style="color: #8b2252;">"C-c l"</span>) 'org-store-link)
-    (global-set-key (kbd <span style="color: #8b2252;">"C-c a"</span>) 'org-agenda))
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12452;&#12488;&#12523;&#12434;&#23569;&#12375;&#24375;&#35519;</span>
+  (custom-set-faces
+   '(org-document-title ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"RoyalBlue1"</span> <span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:height</span> 1.2))))
+   '(org-document-info ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"DodgerBlue1"</span> <span style="color: #483d8b;">:height</span> 1.0)))))
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12452;&#12488;&#12523;&#12434;&#23569;&#12375;&#24375;&#35519;</span>
-    (custom-set-faces
-     '(org-document-title ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"RoyalBlue1"</span> <span style="color: #483d8b;">:bold</span> t <span style="color: #483d8b;">:height</span> 1.2))))
-     '(org-document-info ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"DodgerBlue1"</span> <span style="color: #483d8b;">:height</span> 1.0)))))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#38306;&#36899;&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#35501;&#12415;&#36796;&#12415;</span>
+  (autoload 'org-eldoc-load <span style="color: #8b2252;">"org-eldoc"</span> nil t)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-eldoc-load</span> ()
+    <span style="color: #8b2252;">"Set up org-eldoc documentation function."</span>
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before-until</span> (local 'eldoc-documentation-function)
+                  #'org-eldoc-documentation-function))
+  (advice-add 'org-eldoc-load <span style="color: #483d8b;">:override</span> #'my-org-eldoc-load)
+  (add-hook 'org-mode-hook #'org-eldoc-load)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#38306;&#36899;&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#35501;&#12415;&#36796;&#12415;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'org-mobile nil t)</span>
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-eldoc</span> nil t)
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-eldoc-load</span> ()
-        <span style="color: #8b2252;">"Set up org-eldoc documentation function."</span>
-        (<span style="color: #a020f0;">interactive</span>)
-        (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before-until</span> (local 'eldoc-documentation-function)
-                      #'org-eldoc-documentation-function))
-      (advice-add 'org-eldoc-load <span style="color: #483d8b;">:override</span> #'my-org-eldoc-load))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#36861;&#21152;</span>
+  (add-to-list 'org-modules 'org-id)
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12434;&#35501;&#12435;&#12391;&#12375;&#12414;&#12358;&#12398;&#12391; org-mode &#38283;&#22987;&#26178;&#12395;&#12399;&#35501;&#12415;&#36796;&#12414;&#12379;&#12394;&#12356;</span>
+    (add-to-list 'org-modules 'org-habit)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">require org and org-agenda</span>
+  (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"9.1.4"</span> (org-version))
+    (add-to-list 'org-modules 'org-tempo))
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ol-bookmark</span> nil t)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">[[bookmark:hoge][hogehoge]] &#24418;&#24335;&#12398;&#12522;&#12531;&#12463;&#12434;&#26377;&#21177;&#21270;</span>
+    (add-to-list 'org-modules 'ol-bookmark)
+    (<span style="color: #a020f0;">setq</span> bookmark-save-flag 4) <span style="color: #b22222;">;; </span><span style="color: #b22222;">N&#22238; bookmark &#12434;&#25805;&#20316;&#12375;&#12383;&#12425;&#20445;&#23384;</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">`</span><span style="color: #008b8b;">bookmark-default-file</span><span style="color: #b22222;">' &#12398;&#35501;&#12415;&#36796;&#12415;</span>
+    (bookmark-maybe-load-default-file))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#36861;&#21152;</span>
-    (add-to-list 'org-modules 'org-id)
-    (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12434;&#35501;&#12435;&#12391;&#12375;&#12414;&#12358;&#12398;&#12391; org-mode &#38283;&#22987;&#26178;&#12395;&#12399;&#35501;&#12415;&#36796;&#12414;&#12379;&#12394;&#12356;</span>
-      (add-to-list 'org-modules 'org-habit)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">require org and org-agenda</span>
-    (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"9.1.4"</span> (org-version))
-      (add-to-list 'org-modules 'org-tempo))
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ol-bookmark</span> nil t)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">[[bookmark:hoge][hogehoge]] &#24418;&#24335;&#12398;&#12522;&#12531;&#12463;&#12434;&#26377;&#21177;&#21270;</span>
-      (add-to-list 'org-modules 'ol-bookmark)
-      (<span style="color: #a020f0;">setq</span> bookmark-save-flag 4) <span style="color: #b22222;">;; </span><span style="color: #b22222;">N&#22238; bookmark &#12434;&#25805;&#20316;&#12375;&#12383;&#12425;&#20445;&#23384;</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">`</span><span style="color: #008b8b;">bookmark-default-file</span><span style="color: #b22222;">' &#12398;&#35501;&#12415;&#36796;&#12415;</span>
-      (bookmark-maybe-load-default-file))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19981;&#24517;&#35201;&#12394;&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#35501;&#12415;&#36796;&#12415;&#12434;&#20572;&#27490;&#12377;&#12427;</span>
+  (delq 'ol-gnus org-modules)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-modules (delete 'org-bibtex org-modules))</span>
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19981;&#24517;&#35201;&#12394;&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#35501;&#12415;&#36796;&#12415;&#12434;&#20572;&#27490;&#12377;&#12427;</span>
-    (delq 'ol-gnus org-modules)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-modules (delete 'org-bibtex org-modules))</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">org &#12501;&#12449;&#12452;&#12523;&#12398;&#38598;&#20013;&#31649;&#29702;</span>
+  (<span style="color: #a020f0;">setq</span> org-directory (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/org/"</span>))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">org &#12501;&#12449;&#12452;&#12523;&#12398;&#38598;&#20013;&#31649;&#29702;</span>
-    (<span style="color: #a020f0;">setq</span> org-directory (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/org/"</span>))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-store-link &#12391; heading &#12395;&#33258;&#21205;&#30340;&#12395;&#25407;&#20837;&#12373;&#12428;&#12427; id &#12434;&#20351;&#12358;</span>
+  (<span style="color: #a020f0;">setq</span> org-id-link-to-org-use-id t)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-store-link &#12391; heading &#12395;&#33258;&#21205;&#30340;&#12395;&#25407;&#20837;&#12373;&#12428;&#12427; id &#12434;&#20351;&#12358;</span>
-    (<span style="color: #a020f0;">setq</span> org-id-link-to-org-use-id t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12540;&#12459;&#12452;&#12502;&#12501;&#12449;&#12452;&#12523;&#12398;&#21517;&#31216;&#12434;&#25351;&#23450;</span>
+  (<span style="color: #a020f0;">setq</span> org-archive-location <span style="color: #8b2252;">"%s_archive::"</span>)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12540;&#12459;&#12452;&#12502;&#12501;&#12449;&#12452;&#12523;&#12398;&#21517;&#31216;&#12434;&#25351;&#23450;</span>
-    (<span style="color: #a020f0;">setq</span> org-archive-location <span style="color: #8b2252;">"%s_archive::"</span>)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12452;&#12512;&#12473;&#12479;&#12531;&#12503;&#12395;&#12424;&#12427;&#12525;&#12464;&#21454;&#38598;&#35373;&#23450; DONE &#26178;&#12395; CLOSED: &#12434;&#35352;&#20837;&#65294;</span>
+  (<span style="color: #a020f0;">setq</span> org-log-done 'time) <span style="color: #b22222;">; </span><span style="color: #b22222;">'time &#20197;&#22806;&#12395;&#65292;'(done), '(state) &#12434;&#25351;&#23450;&#12391;&#12365;&#12427;</span>
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12452;&#12512;&#12473;&#12479;&#12531;&#12503;&#12395;&#12424;&#12427;&#12525;&#12464;&#21454;&#38598;&#35373;&#23450; DONE &#26178;&#12395; CLOSED: &#12434;&#35352;&#20837;&#65294;</span>
-    (<span style="color: #a020f0;">setq</span> org-log-done 'time) <span style="color: #b22222;">; </span><span style="color: #b22222;">'time &#20197;&#22806;&#12395;&#65292;'(done), '(state) &#12434;&#25351;&#23450;&#12391;&#12365;&#12427;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12525;&#12464;&#12434;&#12489;&#12525;&#12450;&#12540;&#12395;&#20837;&#12428;&#12427;</span>
+  (<span style="color: #a020f0;">setq</span> org-log-into-drawer t)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12525;&#12464;&#12434;&#12489;&#12525;&#12450;&#12540;&#12395;&#20837;&#12428;&#12427;</span>
-    (<span style="color: #a020f0;">setq</span> org-log-into-drawer t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">indent &#12434; electric-indent-mode &#12398;&#25391;&#12427;&#33310;&#12356;&#12395;&#21512;&#12431;&#12379;&#12427;</span>
+  (<span style="color: #a020f0;">setq</span> org-adapt-indentation t)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">indent &#12434; electric-indent-mode &#12398;&#25391;&#12427;&#33310;&#12356;&#12395;&#21512;&#12431;&#12379;&#12427;</span>
-    (<span style="color: #a020f0;">setq</span> org-adapt-indentation t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Set checksum program path for windows</span>
+  (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
+    (<span style="color: #a020f0;">setq</span> org-mobile-checksum-binary (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/do/cksum.exe"</span>)))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Set checksum program path for windows</span>
-    (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
-      (<span style="color: #a020f0;">setq</span> org-mobile-checksum-binary (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/do/cksum.exe"</span>)))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Set default table export format</span>
+  (<span style="color: #a020f0;">setq</span> org-table-export-default-format <span style="color: #8b2252;">"orgtbl-to-csv"</span>)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Set default table export format</span>
-    (<span style="color: #a020f0;">setq</span> org-table-export-default-format <span style="color: #8b2252;">"orgtbl-to-csv"</span>)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Toggle inline images display at startup</span>
+  (<span style="color: #a020f0;">setq</span> org-startup-with-inline-images t)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Toggle inline images display at startup</span>
-    (<span style="color: #a020f0;">setq</span> org-startup-with-inline-images t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">dvipng</span>
+  (<span style="color: #a020f0;">setq</span> org-export-with-LaTeX-fragments t)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">dvipng</span>
-    (<span style="color: #a020f0;">setq</span> org-export-with-LaTeX-fragments t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#25968;&#24335;&#12434;&#12495;&#12452;&#12521;&#12452;&#12488;</span>
+  (<span style="color: #a020f0;">setq</span> org-highlight-latex-and-related '(latex entities))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#25968;&#24335;&#12434;&#12495;&#12452;&#12521;&#12452;&#12488;</span>
-    (<span style="color: #a020f0;">setq</span> org-highlight-latex-and-related '(latex entities))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">org&#12496;&#12483;&#12501;&#12449;&#20869;&#12398;&#20840;&#12390;&#12398;&#21205;&#30340;&#12502;&#12525;&#12483;&#12463;&#12434;&#20445;&#23384;&#30452;&#21069;&#12395;&#22793;&#26356;&#12377;&#12427;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'before-save-hook #'org-update-all-dblocks)</span>
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">org&#12496;&#12483;&#12501;&#12449;&#20869;&#12398;&#20840;&#12390;&#12398;&#21205;&#30340;&#12502;&#12525;&#12483;&#12463;&#12434;&#20445;&#23384;&#30452;&#21069;&#12395;&#22793;&#26356;&#12377;&#12427;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'before-save-hook #'org-update-all-dblocks)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12531;&#12480;&#12540;&#12473;&#12467;&#12450;&#12434;&#12456;&#12463;&#12473;&#12509;&#12540;&#12488;&#12375;&#12394;&#12356;&#65288;_{}&#12391;&#26126;&#31034;&#30340;&#12395;&#34920;&#29694;&#12391;&#12365;&#12427;&#65289;</span>
+  (<span style="color: #a020f0;">setq</span> org-export-with-sub-superscripts nil)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12531;&#12480;&#12540;&#12473;&#12467;&#12450;&#12434;&#12456;&#12463;&#12473;&#12509;&#12540;&#12488;&#12375;&#12394;&#12356;&#65288;_{}&#12391;&#26126;&#31034;&#30340;&#12395;&#34920;&#29694;&#12391;&#12365;&#12427;&#65289;</span>
-    (<span style="color: #a020f0;">setq</span> org-export-with-sub-superscripts nil)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">#+options: \n:t &#12392;&#21516;&#12376;</span>
+  (<span style="color: #a020f0;">setq</span> org-export-preserve-breaks t)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">#+options: \n:t &#12392;&#21516;&#12376;</span>
-    (<span style="color: #a020f0;">setq</span> org-export-preserve-breaks t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12452;&#12510;&#12540;&#12398;&#38899;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(lsetq org-clock-sound "");</span>
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12452;&#12510;&#12540;&#12398;&#38899;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(lsetq org-clock-sound "");</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-clock &#12398;&#35336;&#28204;&#26178;&#38291;&#12434;&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12391;&#12399;&#12394;&#12367;&#12479;&#12452;&#12488;&#12523;&#12395;&#34920;&#31034;&#12377;&#12427;</span>
+  (<span style="color: #a020f0;">setq</span> org-clock-clocked-in-display 'frame-title)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-clock &#12398;&#35336;&#28204;&#26178;&#38291;&#12434;&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12391;&#12399;&#12394;&#12367;&#12479;&#12452;&#12488;&#12523;&#12395;&#34920;&#31034;&#12377;&#12427;</span>
-    (<span style="color: #a020f0;">setq</span> org-clock-clocked-in-display 'frame-title)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">1&#20998;&#26410;&#28288;&#12399;&#35352;&#37682;&#12375;&#12394;&#12356;</span>
+  (<span style="color: #a020f0;">setq</span> org-clock-out-remove-zero-time-clocks t)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">1&#20998;&#26410;&#28288;&#12399;&#35352;&#37682;&#12375;&#12394;&#12356;</span>
-    (<span style="color: #a020f0;">setq</span> org-clock-out-remove-zero-time-clocks t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#20877;&#36215;&#21205;&#24460;&#12395; clock &#12434;&#24489;&#24112;&#12373;&#12379;&#12427;&#65288;clock-out &#12391;&#25244;&#12369;&#12394;&#12356;&#38480;&#12426;&#32066;&#20102;&#20013;&#12398;&#26399;&#38291;&#12418;&#35336;&#19978;&#12373;&#12428;&#12390;&#12375;&#12414;&#12358;&#65289;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">check also org-clock-persist in org-clock.el</span>
+  (org-clock-persistence-insinuate)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#20877;&#36215;&#21205;&#24460;&#12395; clock &#12434;&#24489;&#24112;&#12373;&#12379;&#12427;&#65288;clock-out &#12391;&#25244;&#12369;&#12394;&#12356;&#38480;&#12426;&#32066;&#20102;&#20013;&#12398;&#26399;&#38291;&#12418;&#35336;&#19978;&#12373;&#12428;&#12390;&#12375;&#12414;&#12358;&#65289;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">check also org-clock-persist in org-clock.el</span>
-    (org-clock-persistence-insinuate)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-clock-out &#26178;&#12395;&#12473;&#12486;&#12540;&#12479;&#12473;&#12434;&#22793;&#12360;&#12427;&#65288;also configure org-todo-keywords&#65289;</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-promote-todo-revision</span> (state)
+    (<span style="color: #a020f0;">cond</span> ((member state '(<span style="color: #8b2252;">"TODO"</span>)) <span style="color: #8b2252;">"REV1"</span>)
+          ((member state '(<span style="color: #8b2252;">"REV1"</span>)) <span style="color: #8b2252;">"REV2"</span>)
+          ((member state '(<span style="color: #8b2252;">"REV2"</span>)) <span style="color: #8b2252;">"REV3"</span>)
+          (t state)))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-clock-out-switch-to-state #'my-promote-todo-revision)</span>
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-clock-out &#26178;&#12395;&#12473;&#12486;&#12540;&#12479;&#12473;&#12434;&#22793;&#12360;&#12427;&#65288;also configure org-todo-keywords&#65289;</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-promote-todo-revision</span> (state)
-      (<span style="color: #a020f0;">cond</span> ((member state '(<span style="color: #8b2252;">"TODO"</span>)) <span style="color: #8b2252;">"REV1"</span>)
-            ((member state '(<span style="color: #8b2252;">"REV1"</span>)) <span style="color: #8b2252;">"REV2"</span>)
-            ((member state '(<span style="color: #8b2252;">"REV2"</span>)) <span style="color: #8b2252;">"REV3"</span>)
-            (t state)))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-clock-out-switch-to-state #'my-promote-todo-revision)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">undo &#26178;&#12395; reveal &#12375;&#12390;&#34920;&#31034;&#12434;&#25913;&#21892;&#12377;&#12427;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:org:undo (&amp;optional _ARG)</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (and (eq major-mode 'org-mode)</span>
+  <span style="color: #b22222;">;;              </span><span style="color: #b22222;">(not (org-before-first-heading-p)))</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-overview)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-reveal)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-cycle-hide-drawers 'all)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-show-entry)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(show-children)</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-show-siblings)))</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'undo :after #'ad:org:undo)</span>
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">undo &#26178;&#12395; reveal &#12375;&#12390;&#34920;&#31034;&#12434;&#25913;&#21892;&#12377;&#12427;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:org:undo (&amp;optional _ARG)</span>
-    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (and (eq major-mode 'org-mode)</span>
-    <span style="color: #b22222;">;;              </span><span style="color: #b22222;">(not (org-before-first-heading-p)))</span>
-    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-overview)</span>
-    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-reveal)</span>
-    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-cycle-hide-drawers 'all)</span>
-    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-show-entry)</span>
-    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(show-children)</span>
-    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-show-siblings)))</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'undo :after #'ad:org:undo)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#38750;&#34920;&#31034;&#29366;&#24907;&#12398;&#38936;&#22495;&#12408;&#12398;&#26360;&#12365;&#36796;&#12415;&#12434;&#38450;&#12368;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Editing in invisible areas is prohibited, make them visible first"</span>
+  (<span style="color: #a020f0;">setq</span> org-catch-invisible-edits 'show-and-error)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-return</span> (f <span style="color: #228b22;">&amp;optional</span> arg)
+    <span style="color: #8b2252;">"An extension for checking invisible editing when you hit the enter."</span>
+    (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
+    (org-check-before-invisible-edit 'insert)
+    (apply f arg))
+  (advice-add 'org-return <span style="color: #483d8b;">:around</span> #'ad:org-return)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#38750;&#34920;&#31034;&#29366;&#24907;&#12398;&#38936;&#22495;&#12408;&#12398;&#26360;&#12365;&#36796;&#12415;&#12434;&#38450;&#12368;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Editing in invisible areas is prohibited, make them visible first"</span>
-    (<span style="color: #a020f0;">setq</span> org-catch-invisible-edits 'show-and-error)
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-return</span> (f <span style="color: #228b22;">&amp;optional</span> arg)
-      <span style="color: #8b2252;">"An extension for checking invisible editing when you hit the enter."</span>
-      (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
-      (org-check-before-invisible-edit 'insert)
-      (apply f arg))
-    (advice-add 'org-return <span style="color: #483d8b;">:around</span> #'ad:org-return)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12502;&#12522;&#12483;&#12484;&#12395;&#12450;&#12523;&#12501;&#12449;&#12505;&#12483;&#12488;&#12434;&#20351;&#12358;</span>
+  (<span style="color: #a020f0;">setq</span> org-list-allow-alphabetical t)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12502;&#12522;&#12483;&#12484;&#12395;&#12450;&#12523;&#12501;&#12449;&#12505;&#12483;&#12488;&#12434;&#20351;&#12358;</span>
-    (<span style="color: #a020f0;">setq</span> org-list-allow-alphabetical t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">- &#12434;&#20778;&#20808;&#65294;&#35242;&#12398;&#12502;&#12522;&#12483;&#12484;&#34920;&#31034;&#12434;&#32153;&#25215;&#12373;&#12379;&#12394;&#12356;</span>
+  (<span style="color: #a020f0;">setq</span> org-list-demote-modify-bullet
+        '((<span style="color: #8b2252;">"+"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"*"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"1."</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"1)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"A)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"B)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"a)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"b)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"A."</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"B."</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"a."</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"b."</span> . <span style="color: #8b2252;">"-"</span>)))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">- &#12434;&#20778;&#20808;&#65294;&#35242;&#12398;&#12502;&#12522;&#12483;&#12484;&#34920;&#31034;&#12434;&#32153;&#25215;&#12373;&#12379;&#12394;&#12356;</span>
-    (<span style="color: #a020f0;">setq</span> org-list-demote-modify-bullet
-          '((<span style="color: #8b2252;">"+"</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"*"</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"1."</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"1)"</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"A)"</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"B)"</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"a)"</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"b)"</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"A."</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"B."</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"a."</span> . <span style="color: #8b2252;">"-"</span>)
-            (<span style="color: #8b2252;">"b."</span> . <span style="color: #8b2252;">"-"</span>)))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23436;&#20102;&#12375;&#12383;&#12479;&#12473;&#12463;&#12398;&#37197;&#33394;&#12434;&#22793;&#12360;&#12427;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</span>
+  (font-lock-add-keywords
+   'org-mode
+   `((<span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">[-+*]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[0-9]+[).]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">[ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">\\[@</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">start:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?[0-9]+\\][ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?\\[</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">X</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">/\\2</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">\\][</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\n]*\n</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
+      1 'org-headline-done prepend))
+   'append)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23436;&#20102;&#12375;&#12383;&#12479;&#12473;&#12463;&#12398;&#37197;&#33394;&#12434;&#22793;&#12360;&#12427;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</span>
-    (font-lock-add-keywords
-     'org-mode
-     `((<span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">[-+*]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[0-9]+[).]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">[ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">\\[@</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">start:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?[0-9]+\\][ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?\\[</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">X</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">/\\2</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">\\][</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\n]*\n</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
-        1 'org-headline-done prepend))
-     'append)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12503;&#12525;&#12497;&#12486;&#12451;&#31561;&#12434;&#33258;&#21205;&#30340;&#38281;&#12376;&#12427;&#65294;</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-hide-drawers</span> ()
+    <span style="color: #8b2252;">"Hide all drawers in an org tree."</span>
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">save-excursion</span>
+      (beginning-of-line)
+      (<span style="color: #a020f0;">unless</span> (looking-at-p org-drawer-regexp)
+        (org-cycle-hide-drawers 'subtree))))
+  (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12503;&#12525;&#12497;&#12486;&#12451;&#31561;&#12434;&#33258;&#21205;&#30340;&#38281;&#12376;&#12427;&#65294;</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-hide-drawers</span> ()
-      <span style="color: #8b2252;">"Hide all drawers in an org tree."</span>
-      (<span style="color: #a020f0;">interactive</span>)
-      (<span style="color: #a020f0;">save-excursion</span>
-        (beginning-of-line)
-        (<span style="color: #a020f0;">unless</span> (looking-at-p org-drawer-regexp)
-          (org-cycle-hide-drawers 'subtree))))
-    (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">CSV&#25351;&#23450;&#12391;&#12486;&#12540;&#12502;&#12523;&#12434;&#20986;&#21147;&#12377;&#12427;&#65294;</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-table-export</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (org-table-export nil <span style="color: #8b2252;">"orgtbl-to-csv"</span>))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">CSV&#25351;&#23450;&#12391;&#12486;&#12540;&#12502;&#12523;&#12434;&#20986;&#21147;&#12377;&#12427;&#65294;</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-table-export</span> ()
-      (<span style="color: #a020f0;">interactive</span>)
-      (org-table-export nil <span style="color: #8b2252;">"orgtbl-to-csv"</span>))
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-do-org-update-staistics-cookies</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (message <span style="color: #8b2252;">"Update statistics..."</span>)
+    (do-org-update-statistics-cookies)
+    (message <span style="color: #8b2252;">"Update statistics...done"</span>))
+  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c f 2"</span>)
+    'my-do-org-update-staistics-cookies)
 
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-do-org-update-staistics-cookies</span> ()
-      (<span style="color: #a020f0;">interactive</span>)
-      (message <span style="color: #8b2252;">"Update statistics..."</span>)
-      (do-org-update-statistics-cookies)
-      (message <span style="color: #8b2252;">"Update statistics...done"</span>))
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c f 2"</span>)
-      'my-do-org-update-staistics-cookies)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-c &amp; &#12364; yasnippet &#12395;&#12458;&#12540;&#12496;&#12540;&#12521;&#12452;&#12489;&#12373;&#12428;&#12390;&#12356;&#12427;&#12398;&#12434;&#24373;&#12426;&#26367;&#12360;&#12427;</span>
+  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c 4"</span>) 'org-mark-ring-goto)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-c &amp; &#12364; yasnippet &#12395;&#12458;&#12540;&#12496;&#12540;&#12521;&#12452;&#12489;&#12373;&#12428;&#12390;&#12356;&#12427;&#12398;&#12434;&#24373;&#12426;&#26367;&#12360;&#12427;</span>
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c 4"</span>) 'org-mark-ring-goto)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-transpose-element) &#12364;&#21106;&#12426;&#24403;&#12390;&#12425;&#12428;&#12390;&#12356;&#12427;&#12398;&#12391;&#21462;&#12426;&#36820;&#12377;&#65294;</span>
+  (org-defkey org-mode-map <span style="color: #8b2252;">"\C-\M-t"</span> 'beginning-of-buffer))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-transpose-element) &#12364;&#21106;&#12426;&#24403;&#12390;&#12425;&#12428;&#12390;&#12356;&#12427;&#12398;&#12391;&#21462;&#12426;&#36820;&#12377;&#65294;</span>
-    (org-defkey org-mode-map <span style="color: #8b2252;">"\C-\M-t"</span> 'beginning-of-buffer))
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ox"</span>
+  (add-to-list 'org-modules 'ox-odt)
+  (add-to-list 'org-modules 'ox-org)
+  (add-to-list 'org-modules 'ox-json))
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ox"</span>
-    (add-to-list 'org-modules 'ox-odt)
-    (add-to-list 'org-modules 'ox-org)
-    (add-to-list 'org-modules 'ox-json))
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-tempo"</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#31354;&#34892;&#12398;&#12392;&#12365; "&lt;" &#12434;&#12452;&#12531;&#12487;&#12531;&#12488;&#12373;&#12379;&#12394;&#12356;</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-tempo-complete-tag</span> (f <span style="color: #228b22;">&amp;rest</span> arg)
+    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">save-excursion</span>
+          (beginning-of-line)
+          (looking-at <span style="color: #8b2252;">"&lt;"</span>))
+        (<span style="color: #a020f0;">let</span> ((indent-line-function 'ignore))
+          (apply f arg))
+      (apply f arg)))
+  (advice-add 'org-tempo-complete-tag <span style="color: #483d8b;">:around</span> #'ad:org-tempo-complete-tag))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(Thanks to @conao3)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">but when using `</span><span style="color: #008b8b;">flet</span><span style="color: #b22222;">', byte-compile will warn a malformed function</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">and using `</span><span style="color: #008b8b;">cl-flet</span><span style="color: #b22222;">' will not provide us the expected result...</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (require 'cl-lib nil t)</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(defun ad:org-tempo-complete-tag (f &amp;rest arg)</span>
+<span style="color: #b22222;">;;     </span><span style="color: #b22222;">(if (save-excursion</span>
+<span style="color: #b22222;">;;           </span><span style="color: #b22222;">(beginning-of-line)</span>
+<span style="color: #b22222;">;;           </span><span style="color: #b22222;">(looking-at "&lt;"))</span>
+<span style="color: #b22222;">;;         </span><span style="color: #b22222;">(cl-flet ((indent-according-to-mode () #'ignore))</span>
+<span style="color: #b22222;">;;           </span><span style="color: #b22222;">(apply f arg))</span>
+<span style="color: #b22222;">;;       </span><span style="color: #b22222;">(apply f arg)))</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))</span>
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-tempo"</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#31354;&#34892;&#12398;&#12392;&#12365; "&lt;" &#12434;&#12452;&#12531;&#12487;&#12531;&#12488;&#12373;&#12379;&#12394;&#12356;</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-tempo-complete-tag</span> (f <span style="color: #228b22;">&amp;rest</span> arg)
-      (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">save-excursion</span>
-            (beginning-of-line)
-            (looking-at <span style="color: #8b2252;">"&lt;"</span>))
-          (<span style="color: #a020f0;">let</span> ((indent-line-function 'ignore))
-            (apply f arg))
-        (apply f arg)))
-    (advice-add 'org-tempo-complete-tag <span style="color: #483d8b;">:around</span> #'ad:org-tempo-complete-tag))
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(Thanks to @conao3)</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">but when using `</span><span style="color: #008b8b;">flet</span><span style="color: #b22222;">', byte-compile will warn a malformed function</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">and using `</span><span style="color: #008b8b;">cl-flet</span><span style="color: #b22222;">' will not provide us the expected result...</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (require 'cl-lib nil t)</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(defun ad:org-tempo-complete-tag (f &amp;rest arg)</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(if (save-excursion</span>
-  <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(beginning-of-line)</span>
-  <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(looking-at "&lt;"))</span>
-  <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(cl-flet ((indent-according-to-mode () #'ignore))</span>
-  <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(apply f arg))</span>
-  <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(apply f arg)))</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))</span>
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-tempo"</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-tempo-add-block</span> (entry)
+    <span style="color: #8b2252;">"Add block entry from `</span><span style="color: #008b8b;">org-structure-template-alist</span><span style="color: #8b2252;">'."</span>
+    (<span style="color: #a020f0;">let*</span> ((key (format <span style="color: #8b2252;">"&lt;%s"</span> (car entry)))
+           (name (cdr entry))
+           (special nil)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXED</span>
+      (tempo-define-template
+       (format <span style="color: #8b2252;">"org-%s"</span> (replace-regexp-in-string <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">"-"</span> name))
+       `(,(format <span style="color: #8b2252;">"#+begin_%s%s"</span> name (<span style="color: #a020f0;">if</span> special <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">""</span>))
+         ,(<span style="color: #a020f0;">when</span> special 'p) '&gt; n '&gt; ,(<span style="color: #a020f0;">unless</span> special 'p) n
+         ,(format <span style="color: #8b2252;">"#+end_%s"</span> (car (split-string name <span style="color: #8b2252;">" "</span>)))
+         &gt;)
+       key
+       (format <span style="color: #8b2252;">"Insert a %s block"</span> name)
+       'org-tempo-tags)))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#26356;&#26032;</span>
+  (advice-add 'org-tempo-add-block <span style="color: #483d8b;">:override</span> #'my-org-tempo-add-block)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21453;&#26144;</span>
+  (org-tempo-add-templates))
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-tempo"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-tempo-add-block</span> (entry)
-      <span style="color: #8b2252;">"Add block entry from `</span><span style="color: #008b8b;">org-structure-template-alist</span><span style="color: #8b2252;">'."</span>
-      (<span style="color: #a020f0;">let*</span> ((key (format <span style="color: #8b2252;">"&lt;%s"</span> (car entry)))
-             (name (cdr entry))
-             (special nil)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXED</span>
-        (tempo-define-template
-         (format <span style="color: #8b2252;">"org-%s"</span> (replace-regexp-in-string <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">"-"</span> name))
-         `(,(format <span style="color: #8b2252;">"#+begin_%s%s"</span> name (<span style="color: #a020f0;">if</span> special <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">""</span>))
-           ,(<span style="color: #a020f0;">when</span> special 'p) '&gt; n '&gt; ,(<span style="color: #a020f0;">unless</span> special 'p) n
-           ,(format <span style="color: #8b2252;">"#+end_%s"</span> (car (split-string name <span style="color: #8b2252;">" "</span>)))
-           &gt;)
-         key
-         (format <span style="color: #8b2252;">"Insert a %s block"</span> name)
-         'org-tempo-tags)))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#26356;&#26032;</span>
-    (advice-add 'org-tempo-add-block <span style="color: #483d8b;">:override</span> #'my-org-tempo-add-block)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21453;&#26144;</span>
-    (org-tempo-add-templates))
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-clock"</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil or 'history &#12394;&#12425;&#12400;&#65292;org-onit &#12364; org-clock-out &#12434;&#23455;&#34892;&#12377;&#12427;&#65294;</span>
+  (<span style="color: #a020f0;">setq</span> org-clock-persist 'history) <span style="color: #b22222;">;; </span><span style="color: #b22222;">{nil, t, 'clock, 'history}</span>
+  (<span style="color: #a020f0;">setq</span> org-clock-in-resume t)
+  (<span style="color: #a020f0;">setq</span> org-clock-persist-query-resume nil)
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-clock"</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil or 'history &#12394;&#12425;&#12400;&#65292;org-onit &#12364; org-clock-out &#12434;&#23455;&#34892;&#12377;&#12427;&#65294;</span>
-    (<span style="color: #a020f0;">setq</span> org-clock-persist 'history) <span style="color: #b22222;">;; </span><span style="color: #b22222;">{nil, t, 'clock, 'history}</span>
-    (<span style="color: #a020f0;">setq</span> org-clock-in-resume t)
-    (<span style="color: #a020f0;">setq</span> org-clock-persist-query-resume nil)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#32066;&#20102;&#26178;&#12395; clock &#12434;&#27490;&#12417;&#12427;&#65294;</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-clock-out-and-save-when-exit</span> ()
+    <span style="color: #8b2252;">"Save buffers and stop clocking when kill emacs."</span>
+    (<span style="color: #a020f0;">when</span> (org-clocking-p)
+      (org-clock-out)
+      (save-some-buffers t)))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">implemented in `</span><span style="color: #008b8b;">org-onit.el</span><span style="color: #b22222;">'. No need to hook this.</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)</span>
+  )
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#32066;&#20102;&#26178;&#12395; clock &#12434;&#27490;&#12417;&#12427;&#65294;</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-clock-out-and-save-when-exit</span> ()
-      <span style="color: #8b2252;">"Save buffers and stop clocking when kill emacs."</span>
-      (<span style="color: #a020f0;">when</span> (org-clocking-p)
-        (org-clock-out)
-        (save-some-buffers t)))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">implemented in `</span><span style="color: #008b8b;">org-onit.el</span><span style="color: #b22222;">'. No need to hook this.</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)</span>
-    )
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-table"</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12456;&#12467;&#12540;&#34920;&#31034;&#21069;&#12395;&#20445;&#23384;&#12377;&#12427;</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-table-field-info</span> (_arg)
-      (save-buffer))
-    (advice-add 'org-table-field-info <span style="color: #483d8b;">:before</span> #'ad:org-table-field-info)))
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-table"</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12456;&#12467;&#12540;&#34920;&#31034;&#21069;&#12395;&#20445;&#23384;&#12377;&#12427;</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-table-field-info</span> (_arg)
+    (save-buffer))
+  (advice-add 'org-table-field-info <span style="color: #483d8b;">:before</span> #'ad:org-table-field-info))
 </pre>
 </div>
 </div>
@@ -10892,12 +10891,12 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 <div id="outline-container-org53663ca9" class="outline-3">
 <h3 id="org53663ca9"><span class="section-number-3">10.8.</span> README を常に org-mode で開く</h3>
 <div class="outline-text-3" id="text-org53663ca9">
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(org-mode)
-       <span style="color: #8b2252;">"org"</span> nil t)
+<p>
+<code>init-org.el</code> として書き出して遅延読み込みしています．
+</p>
 
-  (<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"[rR][eE][aA][dD][mM][eE]"</span> . org-mode) auto-mode-alist))
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"[rR][eE][aA][dD][mM][eE]"</span> . org-mode) auto-mode-alist)
 </pre>
 </div>
 </div>
@@ -11687,14 +11686,14 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
     (define-key org-mode-map (kbd <span style="color: #8b2252;">"&lt;f11&gt;"</span>) 'org-onit-toggle-doing)
     (define-key org-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f11&gt;"</span>) 'org-onit-toggle-auto)
     (define-key org-mode-map (kbd <span style="color: #8b2252;">"S-&lt;f11&gt;"</span>) 'org-onit-goto-anchor)
-    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-bookmark-heading</span> nil t)
-      (message <span style="color: #8b2252;">"--- org-bookmark-heading.el is NOT installed."</span>))
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-sparse-doing-tree</span> ()
       (<span style="color: #a020f0;">interactive</span>)
       (org-tags-view nil org-onit-tag)))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-onit"</span>
+    (autoload-if-found '(org-bookmark-jump org-bookmark-make-record)
+                       <span style="color: #8b2252;">"org-bookmark-heading"</span> nil t)
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-plist</span> nil t)
       (add-to-list 'org-plist-dict '(<span style="color: #8b2252;">"OPTIONS_ONIT"</span> org-onit-basic-options)))
     (custom-set-variables
@@ -12512,7 +12511,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgf06d67f"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org0572a50"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -12572,9 +12571,11 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-modules 'org-mac-iCal)</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message</span>
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-mac-iCal</span> nil t)
-             (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-mac-link</span> nil t))
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c c"</span>) 'org-mac-grab-link)))
+
+  (autoload 'org-mac-grab-link <span style="color: #8b2252;">"org-mac-link"</span> nil t)
+  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c c"</span>) 'org-mac-link-get-link)
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-mac-link"</span>
+    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-mac-iCal</span> nil t)))
 </pre>
 </div>
 </div>
@@ -12588,7 +12589,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-attach"</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-download</span> nil t)
     (<span style="color: #a020f0;">setq</span> org-download-screenshot-method 'screencapture)
     (<span style="color: #a020f0;">setq</span> org-download-method 'attach)))
@@ -12755,7 +12756,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el</span>
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'ox-hugo-auto-export nil t))</span>
 
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ox"</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ox-hugo</span> nil t)
     (<span style="color: #a020f0;">setq</span> org-hugo-auto-set-lastmod nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">see my-hugo-export-md</span>
     (<span style="color: #a020f0;">setq</span> org-hugo-suppress-lastmod-period 86400.0) <span style="color: #b22222;">;; </span><span style="color: #b22222;">1 day</span>
@@ -13409,7 +13410,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org86d87ae" class="figure">
+<div id="orgf9b59bb" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16290,7 +16291,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-17 Sun 02:17</p>
+<p class="date">Created: 2022-07-18 Mon 00:08</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
