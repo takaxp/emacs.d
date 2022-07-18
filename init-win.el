@@ -70,7 +70,8 @@
     "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
-    "replace-from-region" "session" "helpful"))
+    "replace-from-region" "session" "helpful" "org-appear"))
+
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
   (add-to-list 'load-path default-directory)
@@ -131,6 +132,9 @@
   (setq yank-excluded-properties t)
   (setq ring-bell-function 'ignore)
   (setq confirm-kill-emacs 'yes-or-no-p)
+
+  ;; emacs-lisp-mode
+  (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 
   ;; Linspacing adjustment
   (defun my-linespacing ()
@@ -469,6 +473,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; view
 (autoload #'my-auto-view "view" "view mode" t)
 (add-hook 'find-file-hook #'my-auto-view)
+
+;; org-appear
+(autoload 'org-appear-mode "org-appear" nil t)
+(add-hook 'org-mode-hook #'org-appear-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
@@ -1085,6 +1093,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
   (define-key view-mode-map (kbd "S-SPC") 'mac-ime-toggle)
+  (define-key view-mode-map (kbd "e") 'my-view-exit)
+  (when (require 'helpful nil t)
+    (define-key view-mode-map (kbd "h") 'helpful-at-point))
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char)
   (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
@@ -1092,6 +1103,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (define-key view-mode-map (kbd "g") #'my-google-this)
   (define-key view-mode-map (kbd "<tab>") 'my-view-tab)
   (define-key view-mode-map (kbd "S-<tab>") 'my-view-shifttab)
+
+  (defun my-view-exit ()
+    (interactive)
+    (if (use-region-p) (my-eval-region) (View-exit)))
 
   (defun my-auto-view ()
     "Open a file with `view-mode'."
@@ -1501,6 +1516,14 @@ will not be modified."
         (org-agenda-prepare-buffers org-agenda-files)
         (message "Building agenda buffers...done"))))
   (run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers))
+
+(with-eval-after-load "org-appear"
+  (defun my-toggle-org-show-emphasis-markers ()
+    (interactive)
+    (setq org-hide-emphasis-markers (not org-hide-emphasis-markers))
+    (font-lock-fontify-buffer))
+  (setq org-hide-emphasis-markers t)
+  (setq org-appear-delay 0.4))
 
 (with-eval-after-load "org-agenda"
   ;; sorting strategy

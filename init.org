@@ -1320,6 +1320,7 @@ echo "--- done."
   ;; (setq tab-width 8)
   (setq indent-line-function 'lisp-indent-line))
 (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
+(add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 #+end_src
 
 ** ファイルリンクを辿る時に確認のメッセージを出さない
@@ -1428,14 +1429,15 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
        '(ws-butler-mode ws-butler-global-mode)
        "ws-butler" nil t)
 
+  (dolist (hook '(emacs-lisp-mode-hook
+                  lisp-mode-hook perl-mode-hook c-mode-common-hook))
+    (add-hook hook #'ws-butler-mode))
+
   (with-eval-after-load "ws-butler"
     (custom-set-variables
      '(ws-butler-global-exempt-modes
        (append '(org-mode empty-booting-mode change-log-mode epa-mode)
-		           ws-butler-global-exempt-modes))))
-
-  (unless noninteractive
-    (ws-butler-global-mode)))
+		           ws-butler-global-exempt-modes)))))
 #+end_src
 
 ** [epa.el] GPGを使う
@@ -1451,7 +1453,7 @@ GPG error: "no usable configuration," OpenPGP
 
 しかし実際には， ~epg-find-configuration~ が ~epg-check-configuration~ のエラーを正しく処理していないのが原因であり，この関数のハックが必要となる．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org-crypt"
   (require 'epa)
   (when (version< "27.0" emacs-version)
@@ -1511,49 +1513,54 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 (when (memq window-system '(ns nil))
   ;; toggle-input-method
   (declare-function my-ns-org-heading-auto-ascii "init" nil)
-  (declare-function my-ns-ime-restore "init" nil)
   (declare-function my-ime-active-p "init" nil)
-
-  (if (version< emacs-version "27.0")
-      (progn
-        (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
-        (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns))
-    (global-set-key (kbd "M-SPC") 'mac-ime-toggle)
-    (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
-
-(when (and (memq window-system '(ns nil))
-           (fboundp 'mac-get-current-input-source))
-
-  (when (version< "27.0" emacs-version)
-    ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
-    (custom-set-variables
-     '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
-    (mac-input-method-mode 1)
-
-    ;; FIXME Conflict with migemo...
-    ;; To fix this issue, you need to update migemo.el to support minor-mode.
-    (when (and (executable-find "cmigemo")
-               (require 'migemo nil t))
-      (defun my-isearch-ime-deactivate-sticky ()
-        (unless (region-active-p)
-          (mac-ime-deactivate-sticky)))
-      ;; see also activate-mark-hook, deactivate-mark-hook
-      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
-      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
 
   (defun my-toggle-ime-ns ()
     "Toggle IME."
     (interactive)
+    (message "hoge")
     (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (if (version< emacs-version "27.0") ;; FIXME 
-      (progn
-        (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-        (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns))
-    (define-key isearch-mode-map (kbd "M-SPC") 'mac-ime-toggle)
-    (define-key isearch-mode-map (kbd "S-SPC") 'mac-ime-toggle))
+  (when (fboundp 'mac-ime-toggle)
+    (defalias 'my-toggle-ime-ns 'mac-ime-toggle)) ;; FIXME
 
-  (if (version< emacs-version "27.0") ;; FIXME 
+  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
+  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+
+  (when (and (memq window-system '(ns nil))
+             (fboundp 'mac-get-current-input-source))
+
+    (when (version< "27.0" emacs-version)
+      ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
+      (custom-set-variables
+       '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
+      (mac-input-method-mode 1)
+
+      ;; FIXME Conflict with migemo...
+      ;; To fix this issue, you need to update migemo.el to support minor-mode.
+      (when (and (executable-find "cmigemo")
+                 (require 'migemo nil t))
+        (defun my-isearch-ime-deactivate-sticky ()
+          (unless (region-active-p)
+            (mac-ime-deactivate-sticky)))
+        ;; see also activate-mark-hook, deactivate-mark-hook
+        (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+        (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky))))
+
+  (with-eval-after-load "org"
+    (if (version< emacs-version "27.0") ;; FIXME
+        (defun my-ns-org-heading-auto-ascii ()
+          "IME off, when the cursor on org headings."
+          (when (and (fboundp 'frame-focus-state)
+		                 (frame-focus-state)
+                     (eq major-mode 'org-mode)
+                     (boundp 'org-agenda-buffer-name)
+                     (or (looking-at org-heading-regexp)
+                         (equal (buffer-name) org-agenda-buffer-name))
+                     (my-ime-active-p))
+            (my-ime-off)))
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
         (when (and (fboundp 'frame-focus-state)
@@ -1562,25 +1569,15 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
                    (boundp 'org-agenda-buffer-name)
                    (or (looking-at org-heading-regexp)
                        (equal (buffer-name) org-agenda-buffer-name))
-                   (my-ime-active-p))
-          (my-ime-off)))
-    (defun my-ns-org-heading-auto-ascii ()
-      "IME off, when the cursor on org headings."
-      (when (and (fboundp 'frame-focus-state)
-		             (frame-focus-state)
-                 (eq major-mode 'org-mode)
-                 (boundp 'org-agenda-buffer-name)
-                 (or (looking-at org-heading-regexp)
-                     (equal (buffer-name) org-agenda-buffer-name))
-                 (fboundp 'mac-ime-active-p)
-                 (mac-ime-active-p))
-        (mac-ime-deactivate))))
+                   (fboundp 'mac-ime-active-p)
+                   (mac-ime-active-p))
+          (mac-ime-deactivate))))
 
-  ;; カーソル移動で heading に留まった時にIMEをOFFにする
-  (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)
+    ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
+    ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
-  ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-  ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
+    ;; カーソル移動で heading に留まった時にIMEをOFFにする
+    (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii))
 
   (with-eval-after-load "hl-line"
     (defun my-working-text-face-on ()
@@ -1590,7 +1587,8 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
            '(ns-working-text-face nil))
         (custom-set-faces
          '(ns-working-text-face
-           ((((background dark)) :background "#594d5d" :underline "LightSlateBlue")
+           ((((background dark))
+             :background "#594d5d" :underline "LightSlateBlue")
             (t (:background "#fff0de" :underline "gray20")))))))
 
     (defun my-working-text-face-off ()
@@ -1609,16 +1607,12 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (custom-set-faces
      '(ns-marked-text-face
        ((t (:foreground "black"
-                        :background "light pink" :underline "OrangeRed2"))))
+                        :background "light pink"
+                        :underline "OrangeRed2"))))
      '(ns-unmarked-text-face
        ((t (:foreground "black"
-                        :background "light sky blue" :underline "royal blue"))))))
-
-  (defun my-ns-ime-restore ()
-    "Restore the last IME status changed in Emacs."
-    (if my-ime-last (my-ime-on) (my-ime-off)))
-  ;; (add-hook 'focus-in-hook #'my-ns-ime-restore)
-  )
+                        :background "light sky blue"
+                        :underline "royal blue")))))))
 #+end_src
 
 ** EMPビルド用設定                                                    :macOS:
@@ -2796,65 +2790,68 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 (when (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
-;;;###autoload
-(defun my-auto-view ()
-  "Open a file with `view-mode'."
-  (when (file-exists-p buffer-file-name)
-    (when (and my-auto-view-regexp
-	             (string-match my-auto-view-regexp buffer-file-name))
-      (view-mode 1))
-    (dolist (dir my-auto-view-dirs)
-      (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
-        (view-mode 1)))))
+(autoload 'my-auto-view "view" nil t)
 (add-hook 'find-file-hook #'my-auto-view)
 
-;;;###autoload
-(defun my-org-view-next-heading ()
-  (interactive)
-  (if (and (derived-mode-p 'org-mode)
-           (org-at-heading-p))
-      (org-next-visible-heading 1)
-    (next-line)))
-
-;;;###autoload
-(defun my-org-view-previous-heading ()
-  (interactive)
-  (if (and (derived-mode-p 'org-mode)
-           (org-at-heading-p))
-      (org-previous-visible-heading 1)
-    (previous-line)))
-
-;;;###autoload
-(defun my-view-tab ()
-  (interactive)
-  (if (and (derived-mode-p 'org-mode)
-           (or (org-at-heading-p)
-               (org-at-property-drawer-p)))
-      (let ((view-mode nil))
-        (org-cycle))
-    (when (require 'origami nil t)
-      (origami-toggle-node (current-buffer) (point)))))
-
-;;;###autoload
-(defun my-view-shifttab ()
-  (interactive)
-  (if (derived-mode-p 'org-mode)
-      (let ((view-mode nil))
-        (org-shifttab))
-    (when (require 'origami nil t)
-      (origami-toggle-all-nodes (current-buffer)))))
-
-;;;###autoload
-(defun my-unlock-view-mode ()
-  (when view-mode
-    (View-exit-and-edit)))
-
-;;;###autoload
-(defun my-view-exit ()
-  (interactive)
-  (if (use-region-p) (my-eval-region) (View-exit)))
-
 (with-eval-after-load "view"
+
+;;;###autoload
+  (defun my-auto-view ()
+    "Open a file with `view-mode'."
+    (when (file-exists-p buffer-file-name)
+      (when (and my-auto-view-regexp
+	               (string-match my-auto-view-regexp buffer-file-name))
+        (view-mode 1))
+      (dolist (dir my-auto-view-dirs)
+        (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+          (view-mode 1)))))
+
+;;;###autoload
+  (defun my-org-view-next-heading ()
+    (interactive)
+    (if (and (derived-mode-p 'org-mode)
+             (org-at-heading-p))
+        (org-next-visible-heading 1)
+      (next-line)))
+
+;;;###autoload
+  (defun my-org-view-previous-heading ()
+    (interactive)
+    (if (and (derived-mode-p 'org-mode)
+             (org-at-heading-p))
+        (org-previous-visible-heading 1)
+      (previous-line)))
+
+;;;###autoload
+  (defun my-view-tab ()
+    (interactive)
+    (if (and (derived-mode-p 'org-mode)
+             (or (org-at-heading-p)
+                 (org-at-property-drawer-p)))
+        (let ((view-mode nil))
+          (org-cycle))
+      (when (require 'origami nil t)
+        (origami-toggle-node (current-buffer) (point)))))
+
+;;;###autoload
+  (defun my-view-shifttab ()
+    (interactive)
+    (if (derived-mode-p 'org-mode)
+        (let ((view-mode nil))
+          (org-shifttab))
+      (when (require 'origami nil t)
+        (origami-toggle-all-nodes (current-buffer)))))
+
+;;;###autoload
+  (defun my-unlock-view-mode ()
+    (when view-mode
+      (View-exit-and-edit)))
+
+;;;###autoload
+  (defun my-view-exit ()
+    (interactive)
+    (if (use-region-p) (my-eval-region) (View-exit)))
+
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
@@ -3054,7 +3051,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(flyspell-mode-on flyspell-prog-mode flyspell-mode 
+       '(flyspell-mode-on flyspell-prog-mode flyspell-mode
                           my-flyspell-mode-on my-flyspell-prog-mode)
        "flyspell" nil t)
 
@@ -3421,10 +3418,12 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 
 =describe-number.el= を使うと，16進数表示や文字コードを確認できます．
 
-#+begin_src emacs-lisp :tangle late-init.el
+~math-bignum~ が ~calc.el~ から削除されたため，依存している [[https://github.com/d5884/yabin][yabin]] が正常動作しない．
+
+#+begin_src emacs-lisp :tangle no
 (autoload-if-found
  '(describe-number describe-number-at-point)
- "describe-number" nil t)
+ "describe-number" nil t) ;; FIXME
 #+end_src
 
 ** [emmet-mode.el] zencoding の後継                                     :web:
@@ -4187,7 +4186,6 @@ Call this function at updating `mode-line-mode'."
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(require 'all-the-icons nil t)
 (setq mode-line-modes
       (mapcar
        (lambda (entry)
@@ -4785,8 +4783,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 ;; `mode-line-mule-info' の文字エンコーディングの文字列表現を差し替える
 (setq-default mode-line-mule-info
-(cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
-               "%z" mode-line-mule-info :test 'equal))
+              (cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
+                             "%z" mode-line-mule-info :test 'equal))
 #+end_src
 
 ** [delight.el] モードラインのモード名を短縮する
@@ -4950,47 +4948,48 @@ version 28 で全角スペースに黒下線が付くので回避します．
              c-mode-common-hook nxml-mode-hook web-mode-hook))
     (add-hook hook #'git-gutter-mode))
 
-  (custom-set-variables
-   '(git-gutter:lighter ""))
-
-  (when (require 'git-gutter-fringe nil t)
+  (with-eval-after-load "git-gutter"
     (custom-set-variables
-     '(git-gutter-fr:side 'left-fringe))
+     '(git-gutter:lighter ""))
 
-    ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
-    ;; "!"
-    (eval '(fringe-helper-define 'git-gutter-fr:modified nil
-             "...XX..."
-             "...XX..."
-             "...XX..."
-             "...XX..."
-             "...XX..."
-             "........"
-             "...XX..."
-             "...XX..."))
-    ;; "+"
-    (eval '(fringe-helper-define 'git-gutter-fr:added nil
-             "........"
-             "...XX..."
-             "...XX..."
-             ".XXXXXX."
-             ".XXXXXX."
-             "...XX..."
-             "...XX..."
-             "........"))
-    ;; "-"
-    (eval '(fringe-helper-define 'git-gutter-fr:deleted nil
-             "........"
-             "........"
-             "........"
-             ".XXXXXX."
-             ".XXXXXX."
-             "........"
-             "........"
-             "........"))
-    (set-face-foreground 'git-gutter-fr:added    "#FF2600")
-    (set-face-foreground 'git-gutter-fr:modified "orange")
-    (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))
+    (when (require 'git-gutter-fringe nil t)
+      (custom-set-variables
+       '(git-gutter-fr:side 'left-fringe))
+
+      ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
+      ;; "!"
+      (eval '(fringe-helper-define 'git-gutter-fr:modified nil
+               "...XX..."
+               "...XX..."
+               "...XX..."
+               "...XX..."
+               "...XX..."
+               "........"
+               "...XX..."
+               "...XX..."))
+      ;; "+"
+      (eval '(fringe-helper-define 'git-gutter-fr:added nil
+               "........"
+               "...XX..."
+               "...XX..."
+               ".XXXXXX."
+               ".XXXXXX."
+               "...XX..."
+               "...XX..."
+               "........"))
+      ;; "-"
+      (eval '(fringe-helper-define 'git-gutter-fr:deleted nil
+               "........"
+               "........"
+               "........"
+               ".XXXXXX."
+               ".XXXXXX."
+               "........"
+               "........"
+               "........"))
+      (set-face-foreground 'git-gutter-fr:added    "#FF2600")
+      (set-face-foreground 'git-gutter-fr:modified "orange")
+      (set-face-foreground 'git-gutter-fr:deleted  "medium sea green"))))
 #+end_src
 
 
@@ -11155,6 +11154,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (add-hook 'org-mode-hook 'org-appear-mode)
 
   (with-eval-after-load "org-appear"
+    (defun my-toggle-org-show-emphasis-markers ()
+      (interactive)
+      (setq org-hide-emphasis-markers (not org-hide-emphasis-markers))
+      (font-lock-fontify-buffer))
+
     (setq org-hide-emphasis-markers t)
     (setq org-appear-delay 0.4)))
 #+end_src
@@ -13216,7 +13220,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
                 (lambda (str)
                   (concat (icons-in-terminal-faicon
                            "hand-o-right"
-                           :v-adjust -0.1 
+                           :v-adjust -0.1
                            :face 'my-ivy-arrow-visible
                            :height 0.8)
                           " " (ivy--add-face (concat str "\n")
@@ -13333,7 +13337,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 なお，Org Mode と組み合わせたい場合は，通知を =org-clock-in= と =org-clock-out= に連動させる [[https://github.com/lolownia/org-pomodoro][org-pomodoro.el]] があります．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found
        '(pomodoro:start)
        "pomodoro" nil t)
@@ -13446,7 +13450,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 各 interlval の数値を =setq= で後から変更する場合は，その直後に =pomodoro:activate-visual-work-sign= もしくは変更する interval に対応する同様の関数を実行してください．モードラインに変更が反映されます．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (with-eval-after-load "pomodoro"
   ;; 追加実装
   (defvar pomodoro:update-work-sign-interval 0.17) ;; work用表示間隔
@@ -13904,7 +13908,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     :group 'ivy
     :type '(list symbol))
 
-  (defcustom my-nocand-then-fzf-idle-time 0.8
+  (defcustom my-nocand-then-fzf-idle-time 2.0
     "Idle time for showing prompt."
     :group 'ivy
     :type 'float) ;; N[s] 無応答の時[y/n]を出す．

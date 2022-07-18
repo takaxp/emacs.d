@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-18 Mon 12:32 -->
+<!-- 2022-07-18 Mon 19:13 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -191,7 +191,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { }
+  .org-svg { width: 90%; }
 </style>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
@@ -2185,6 +2185,7 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq tab-width 8)</span>
   (<span style="color: #a020f0;">setq</span> indent-line-function 'lisp-indent-line))
 (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
+(add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 </pre>
 </div>
 </div>
@@ -2308,14 +2309,15 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
        '(ws-butler-mode ws-butler-global-mode)
        <span style="color: #8b2252;">"ws-butler"</span> nil t)
 
+  (<span style="color: #a020f0;">dolist</span> (hook '(emacs-lisp-mode-hook
+                  lisp-mode-hook perl-mode-hook c-mode-common-hook))
+    (add-hook hook #'ws-butler-mode))
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ws-butler"</span>
     (custom-set-variables
      '(ws-butler-global-exempt-modes
        (append '(org-mode empty-booting-mode change-log-mode epa-mode)
-                           ws-butler-global-exempt-modes))))
-
-  (<span style="color: #a020f0;">unless</span> noninteractive
-    (ws-butler-global-mode)))
+                           ws-butler-global-exempt-modes)))))
 </pre>
 </div>
 </div>
@@ -2403,49 +2405,54 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (memq window-system '(ns nil))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">toggle-input-method</span>
   (<span style="color: #a020f0;">declare-function</span> my-ns-org-heading-auto-ascii <span style="color: #8b2252;">"init"</span> nil)
-  (<span style="color: #a020f0;">declare-function</span> my-ns-ime-restore <span style="color: #8b2252;">"init"</span> nil)
   (<span style="color: #a020f0;">declare-function</span> my-ime-active-p <span style="color: #8b2252;">"init"</span> nil)
-
-  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>)
-      (<span style="color: #a020f0;">progn</span>
-        (global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
-        (global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns))
-    (global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'mac-ime-toggle)
-    (global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-ime-toggle)))
-
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (memq window-system '(ns nil))
-           (fboundp 'mac-get-current-input-source))
-
-  (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">"com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur</span>
-    (custom-set-variables
-     '(mac-default-input-source <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span>))
-    (mac-input-method-mode 1)
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME Conflict with migemo...</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">To fix this issue, you need to update migemo.el to support minor-mode.</span>
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (executable-find <span style="color: #8b2252;">"cmigemo"</span>)
-               (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">migemo</span> nil t))
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-isearch-ime-deactivate-sticky</span> ()
-        (<span style="color: #a020f0;">unless</span> (region-active-p)
-          (mac-ime-deactivate-sticky)))
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">see also activate-mark-hook, deactivate-mark-hook</span>
-      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
-      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
 
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-toggle-ime-ns</span> ()
     <span style="color: #8b2252;">"Toggle IME."</span>
     (<span style="color: #a020f0;">interactive</span>)
+    (message <span style="color: #8b2252;">"hoge"</span>)
     (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME </span>
-      (<span style="color: #a020f0;">progn</span>
-        (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
-        (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns))
-    (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'mac-ime-toggle)
-    (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-ime-toggle))
+  (<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-toggle)
+    (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-toggle-ime-ns</span> 'mac-ime-toggle)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
 
-  (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME </span>
+  (global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
+  (global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
+
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (memq window-system '(ns nil))
+             (fboundp 'mac-get-current-input-source))
+
+    (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">"com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur</span>
+      (custom-set-variables
+       '(mac-default-input-source <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span>))
+      (mac-input-method-mode 1)
+
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME Conflict with migemo...</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">To fix this issue, you need to update migemo.el to support minor-mode.</span>
+      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (executable-find <span style="color: #8b2252;">"cmigemo"</span>)
+                 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">migemo</span> nil t))
+        (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-isearch-ime-deactivate-sticky</span> ()
+          (<span style="color: #a020f0;">unless</span> (region-active-p)
+            (mac-ime-deactivate-sticky)))
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">see also activate-mark-hook, deactivate-mark-hook</span>
+        (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+        (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky))))
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+    (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.0"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+        (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
+          <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
+          (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (fboundp 'frame-focus-state)
+                                 (frame-focus-state)
+                     (eq major-mode 'org-mode)
+                     (boundp 'org-agenda-buffer-name)
+                     (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
+                         (equal (buffer-name) org-agenda-buffer-name))
+                     (my-ime-active-p))
+            (my-ime-off)))
       (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
         <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
         (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (fboundp 'frame-focus-state)
@@ -2454,25 +2461,15 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
                    (boundp 'org-agenda-buffer-name)
                    (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
                        (equal (buffer-name) org-agenda-buffer-name))
-                   (my-ime-active-p))
-          (my-ime-off)))
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
-      <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
-      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (fboundp 'frame-focus-state)
-                             (frame-focus-state)
-                 (eq major-mode 'org-mode)
-                 (boundp 'org-agenda-buffer-name)
-                 (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
-                     (equal (buffer-name) org-agenda-buffer-name))
-                 (fboundp 'mac-ime-active-p)
-                 (mac-ime-active-p))
-        (mac-ime-deactivate))))
+                   (fboundp 'mac-ime-active-p)
+                   (mac-ime-active-p))
+          (mac-ime-deactivate))))
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#30041;&#12414;&#12387;&#12383;&#26178;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
-  (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#26469;&#12383;&#12392;&#12365;&#12399;&#21363;&#24231;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)</span>
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#26469;&#12383;&#12392;&#12365;&#12399;&#21363;&#24231;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#30041;&#12414;&#12387;&#12383;&#26178;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
+    (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-working-text-face-on</span> ()
@@ -2482,7 +2479,8 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
            '(ns-working-text-face nil))
         (custom-set-faces
          '(ns-working-text-face
-           ((((background dark)) <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#594d5d"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"LightSlateBlue"</span>)
+           ((((background dark))
+             <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#594d5d"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"LightSlateBlue"</span>)
             (t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#fff0de"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"gray20"</span>)))))))
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-working-text-face-off</span> ()
@@ -2501,16 +2499,12 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (custom-set-faces
      '(ns-marked-text-face
        ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
-                        <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light pink"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"OrangeRed2"</span>))))
+                        <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light pink"</span>
+                        <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"OrangeRed2"</span>))))
      '(ns-unmarked-text-face
        ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
-                        <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light sky blue"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"royal blue"</span>))))))
-
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-ime-restore</span> ()
-    <span style="color: #8b2252;">"Restore the last IME status changed in Emacs."</span>
-    (<span style="color: #a020f0;">if</span> my-ime-last (my-ime-on) (my-ime-off)))
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'focus-in-hook #'my-ns-ime-restore)</span>
-  )
+                        <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light sky blue"</span>
+                        <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"royal blue"</span>)))))))
 </pre>
 </div>
 </div>
@@ -3907,65 +3901,68 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs <span style="color: #8b2252;">"c:/msys64/mingw64"</span>))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-auto-view</span> ()
-  <span style="color: #8b2252;">"Open a file with `</span><span style="color: #008b8b;">view-mode</span><span style="color: #8b2252;">'."</span>
-  (<span style="color: #a020f0;">when</span> (file-exists-p buffer-file-name)
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> my-auto-view-regexp
-                     (string-match my-auto-view-regexp buffer-file-name))
-      (view-mode 1))
-    (<span style="color: #a020f0;">dolist</span> (dir my-auto-view-dirs)
-      (<span style="color: #a020f0;">when</span> (eq 0 (string-match (expand-file-name dir) buffer-file-name))
-        (view-mode 1)))))
+(autoload 'my-auto-view <span style="color: #8b2252;">"view"</span> nil t)
 (add-hook 'find-file-hook #'my-auto-view)
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-next-heading</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
-           (org-at-heading-p))
-      (org-next-visible-heading 1)
-    (next-line)))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-previous-heading</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
-           (org-at-heading-p))
-      (org-previous-visible-heading 1)
-    (previous-line)))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-view-tab</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
-           (<span style="color: #a020f0;">or</span> (org-at-heading-p)
-               (org-at-property-drawer-p)))
-      (<span style="color: #a020f0;">let</span> ((view-mode nil))
-        (org-cycle))
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">origami</span> nil t)
-      (origami-toggle-node (current-buffer) (point)))))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-view-shifttab</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (derived-mode-p 'org-mode)
-      (<span style="color: #a020f0;">let</span> ((view-mode nil))
-        (org-shifttab))
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">origami</span> nil t)
-      (origami-toggle-all-nodes (current-buffer)))))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-unlock-view-mode</span> ()
-  (<span style="color: #a020f0;">when</span> view-mode
-    (View-exit-and-edit)))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-view-exit</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (use-region-p) (my-eval-region) (View-exit)))
-
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"view"</span>
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-auto-view</span> ()
+    <span style="color: #8b2252;">"Open a file with `</span><span style="color: #008b8b;">view-mode</span><span style="color: #8b2252;">'."</span>
+    (<span style="color: #a020f0;">when</span> (file-exists-p buffer-file-name)
+      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> my-auto-view-regexp
+                       (string-match my-auto-view-regexp buffer-file-name))
+        (view-mode 1))
+      (<span style="color: #a020f0;">dolist</span> (dir my-auto-view-dirs)
+        (<span style="color: #a020f0;">when</span> (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+          (view-mode 1)))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-next-heading</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
+             (org-at-heading-p))
+        (org-next-visible-heading 1)
+      (next-line)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-view-previous-heading</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
+             (org-at-heading-p))
+        (org-previous-visible-heading 1)
+      (previous-line)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-view-tab</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
+             (<span style="color: #a020f0;">or</span> (org-at-heading-p)
+                 (org-at-property-drawer-p)))
+        (<span style="color: #a020f0;">let</span> ((view-mode nil))
+          (org-cycle))
+      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">origami</span> nil t)
+        (origami-toggle-node (current-buffer) (point)))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-view-shifttab</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">if</span> (derived-mode-p 'org-mode)
+        (<span style="color: #a020f0;">let</span> ((view-mode nil))
+          (org-shifttab))
+      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">origami</span> nil t)
+        (origami-toggle-all-nodes (current-buffer)))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-unlock-view-mode</span> ()
+    (<span style="color: #a020f0;">when</span> view-mode
+      (View-exit-and-edit)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-view-exit</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">if</span> (use-region-p) (my-eval-region) (View-exit)))
+
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"i"</span>) 'View-exit-and-edit)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;SPC&gt;"</span>) 'ignore)
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;DEL&gt;"</span>) 'ignore)
@@ -4206,7 +4203,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(flyspell-mode-on flyspell-prog-mode flyspell-mode 
+       '(flyspell-mode-on flyspell-prog-mode flyspell-mode
                           my-flyspell-mode-on my-flyspell-prog-mode)
        <span style="color: #8b2252;">"flyspell"</span> nil t)
 
@@ -4626,10 +4623,14 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 <code>describe-number.el</code> を使うと，16進数表示や文字コードを確認できます．
 </p>
 
+<p>
+<code>math-bignum</code> が <code>calc.el</code> から削除されたため，依存している <a href="https://github.com/d5884/yabin">yabin</a> が正常動作しない．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(autoload-if-found
  '(describe-number describe-number-at-point)
- <span style="color: #8b2252;">"describe-number"</span> nil t)
+ <span style="color: #8b2252;">"describe-number"</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
 </pre>
 </div>
 </div>
@@ -5437,8 +5438,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
-(<span style="color: #a020f0;">setq</span> mode-line-modes
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> mode-line-modes
       (mapcar
        (<span style="color: #a020f0;">lambda</span> (entry)
          (<span style="color: #a020f0;">if</span> (equal entry <span style="color: #8b2252;">"%n"</span>)
@@ -6206,8 +6206,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">`</span><span style="color: #008b8b;">mode-line-mule-info</span><span style="color: #b22222;">' &#12398;&#25991;&#23383;&#12456;&#12531;&#12467;&#12540;&#12487;&#12451;&#12531;&#12464;&#12398;&#25991;&#23383;&#21015;&#34920;&#29694;&#12434;&#24046;&#12375;&#26367;&#12360;&#12427;</span>
 (<span style="color: #a020f0;">setq-default</span> mode-line-mule-info
-(cl-substitute '(<span style="color: #483d8b;">:eval</span> (my-buffer-coding-system-mnemonic))
-               <span style="color: #8b2252;">"%z"</span> mode-line-mule-info <span style="color: #483d8b;">:test</span> 'equal))
+              (cl-substitute '(<span style="color: #483d8b;">:eval</span> (my-buffer-coding-system-mnemonic))
+                             <span style="color: #8b2252;">"%z"</span> mode-line-mule-info <span style="color: #483d8b;">:test</span> 'equal))
 </pre>
 </div>
 </div>
@@ -6383,47 +6383,48 @@ version 28 で全角スペースに黒下線が付くので回避します．
              c-mode-common-hook nxml-mode-hook web-mode-hook))
     (add-hook hook #'git-gutter-mode))
 
-  (custom-set-variables
-   '(git-gutter:lighter <span style="color: #8b2252;">""</span>))
-
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">git-gutter-fringe</span> nil t)
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"git-gutter"</span>
     (custom-set-variables
-     '(git-gutter-fr:side 'left-fringe))
+     '(git-gutter:lighter <span style="color: #8b2252;">""</span>))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'fringe-helper nil t) ;; byte-compile &#26178;&#12395;&#26126;&#31034;&#30340;&#12395;&#25351;&#23450;&#12364;&#24517;&#35201;&#65294;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">"!"</span>
-    (eval '(fringe-helper-define 'git-gutter-fr:modified nil
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">"........"</span>
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">"...XX..."</span>))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">"+"</span>
-    (eval '(fringe-helper-define 'git-gutter-fr:added nil
-             <span style="color: #8b2252;">"........"</span>
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">".XXXXXX."</span>
-             <span style="color: #8b2252;">".XXXXXX."</span>
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">"...XX..."</span>
-             <span style="color: #8b2252;">"........"</span>))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">"-"</span>
-    (eval '(fringe-helper-define 'git-gutter-fr:deleted nil
-             <span style="color: #8b2252;">"........"</span>
-             <span style="color: #8b2252;">"........"</span>
-             <span style="color: #8b2252;">"........"</span>
-             <span style="color: #8b2252;">".XXXXXX."</span>
-             <span style="color: #8b2252;">".XXXXXX."</span>
-             <span style="color: #8b2252;">"........"</span>
-             <span style="color: #8b2252;">"........"</span>
-             <span style="color: #8b2252;">"........"</span>))
-    (set-face-foreground 'git-gutter-fr:added    <span style="color: #8b2252;">"#FF2600"</span>)
-    (set-face-foreground 'git-gutter-fr:modified <span style="color: #8b2252;">"orange"</span>)
-    (set-face-foreground 'git-gutter-fr:deleted  <span style="color: #8b2252;">"medium sea green"</span>)))
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">git-gutter-fringe</span> nil t)
+      (custom-set-variables
+       '(git-gutter-fr:side 'left-fringe))
+
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'fringe-helper nil t) ;; byte-compile &#26178;&#12395;&#26126;&#31034;&#30340;&#12395;&#25351;&#23450;&#12364;&#24517;&#35201;&#65294;</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">"!"</span>
+      (eval '(fringe-helper-define 'git-gutter-fr:modified nil
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">"........"</span>
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">"...XX..."</span>))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">"+"</span>
+      (eval '(fringe-helper-define 'git-gutter-fr:added nil
+               <span style="color: #8b2252;">"........"</span>
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">".XXXXXX."</span>
+               <span style="color: #8b2252;">".XXXXXX."</span>
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">"...XX..."</span>
+               <span style="color: #8b2252;">"........"</span>))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">"-"</span>
+      (eval '(fringe-helper-define 'git-gutter-fr:deleted nil
+               <span style="color: #8b2252;">"........"</span>
+               <span style="color: #8b2252;">"........"</span>
+               <span style="color: #8b2252;">"........"</span>
+               <span style="color: #8b2252;">".XXXXXX."</span>
+               <span style="color: #8b2252;">".XXXXXX."</span>
+               <span style="color: #8b2252;">"........"</span>
+               <span style="color: #8b2252;">"........"</span>
+               <span style="color: #8b2252;">"........"</span>))
+      (set-face-foreground 'git-gutter-fr:added    <span style="color: #8b2252;">"#FF2600"</span>)
+      (set-face-foreground 'git-gutter-fr:modified <span style="color: #8b2252;">"orange"</span>)
+      (set-face-foreground 'git-gutter-fr:deleted  <span style="color: #8b2252;">"medium sea green"</span>))))
 </pre>
 </div>
 
@@ -9550,9 +9551,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; <i>/ ここ
+  v; // ここ
   boost::timer t;
-  cout &lt;&lt; t; /</i> ここ
+  cout &lt;&lt; t; // ここ
   return 1;
 }
 </p>
@@ -12513,7 +12514,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org7a1fa2c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgde53042"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13081,6 +13082,11 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
   (add-hook 'org-mode-hook 'org-appear-mode)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-appear"</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-toggle-org-show-emphasis-markers</span> ()
+      (<span style="color: #a020f0;">interactive</span>)
+      (<span style="color: #a020f0;">setq</span> org-hide-emphasis-markers (not org-hide-emphasis-markers))
+      (font-lock-fontify-buffer))
+
     (<span style="color: #a020f0;">setq</span> org-hide-emphasis-markers t)
     (<span style="color: #a020f0;">setq</span> org-appear-delay 0.4)))
 </pre>
@@ -13412,7 +13418,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgc389ee7" class="figure">
+<div id="org9ad9509" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15337,7 +15343,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
                 (<span style="color: #a020f0;">lambda</span> (str)
                   (concat (icons-in-terminal-faicon
                            <span style="color: #8b2252;">"hand-o-right"</span>
-                           <span style="color: #483d8b;">:v-adjust</span> -0.1 
+                           <span style="color: #483d8b;">:v-adjust</span> -0.1
                            <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible
                            <span style="color: #483d8b;">:height</span> 0.8)
                           <span style="color: #8b2252;">" "</span> (ivy--add-face (concat str <span style="color: #8b2252;">"\n"</span>)
@@ -16081,7 +16087,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
     <span style="color: #483d8b;">:group</span> 'ivy
     <span style="color: #483d8b;">:type</span> '(list symbol))
 
-  (<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">my-nocand-then-fzf-idle-time</span> 0.8
+  (<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">my-nocand-then-fzf-idle-time</span> 2.0
     <span style="color: #8b2252;">"Idle time for showing prompt."</span>
     <span style="color: #483d8b;">:group</span> 'ivy
     <span style="color: #483d8b;">:type</span> 'float) <span style="color: #b22222;">;; </span><span style="color: #b22222;">N[s] &#28961;&#24540;&#31572;&#12398;&#26178;[y/n]&#12434;&#20986;&#12377;&#65294;</span>
@@ -16293,7 +16299,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-18 Mon 12:32</p>
+<p class="date">Created: 2022-07-18 Mon 19:13</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

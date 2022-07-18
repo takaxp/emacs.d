@@ -1,3 +1,29 @@
+(with-eval-after-load "org-crypt"
+  (require 'epa)
+  (when (version< "27.0" emacs-version)
+    ;; ミニバッファでパスワードを入力する
+    (setq epg-pinentry-mode 'loopback))
+  ;; (when (eq window-system 'w32)
+  ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
+  ;;   (setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs
+  ;; epg-gpg-home-directory が設定されていると，(epg-make-context nil t t) の戻り値に反映され，結果 epg-list-keys の戻り値が nil になり鍵をリストできなくなる．
+
+  (defun my-epg-check-configuration (config &optional minimum-version)
+    "Verify that a sufficient version of GnuPG is installed."
+    (let ((version (alist-get 'version config)))
+      (unless (stringp version)
+        (error "Undetermined version: %S" version))
+      ;; hack for w32
+      (when (eq window-system 'w32)
+        (setq version (or minimum-version
+                          epg-gpg-minimum-version)))
+      ;;
+      (unless (version<= (or minimum-version
+                             epg-gpg-minimum-version)
+                         version)
+        (error "Unsupported version: %s" version))))
+  (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
+
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
 (require 'late-init-autoloads nil t)
@@ -1878,6 +1904,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (add-hook 'org-mode-hook 'org-appear-mode)
 
   (with-eval-after-load "org-appear"
+    (defun my-toggle-org-show-emphasis-markers ()
+      (interactive)
+      (setq org-hide-emphasis-markers (not org-hide-emphasis-markers))
+      (font-lock-fontify-buffer))
+
     (setq org-hide-emphasis-markers t)
     (setq org-appear-delay 0.4)))
 

@@ -112,7 +112,9 @@
   (el-get-bundle "ludwigpacifici/modern-cpp-font-lock")
   (el-get-bundle "AdamNiederer/0xc")
   (el-get-bundle "uuid")
-  (el-get-bundle "netromdk/describe-number")
+  (progn
+    (el-get-bundle "d5884/yabin")
+    (el-get-bundle "netromdk/describe-number"))
   (el-get-bundle "flycheck")
   (el-get-bundle "flycheck-pos-tip")
   (el-get-bundle "ch1bo/flycheck-clang-tidy")

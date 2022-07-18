@@ -62,6 +62,7 @@
   ;; (setq tab-width 8)
   (setq indent-line-function 'lisp-indent-line))
 (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
+(add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 
 (setq vc-follow-symlinks t)
 
@@ -98,40 +99,15 @@
        '(ws-butler-mode ws-butler-global-mode)
        "ws-butler" nil t)
 
+  (dolist (hook '(emacs-lisp-mode-hook
+                  lisp-mode-hook perl-mode-hook c-mode-common-hook))
+    (add-hook hook #'ws-butler-mode))
+
   (with-eval-after-load "ws-butler"
     (custom-set-variables
      '(ws-butler-global-exempt-modes
        (append '(org-mode empty-booting-mode change-log-mode epa-mode)
-		           ws-butler-global-exempt-modes))))
-
-  (unless noninteractive
-    (ws-butler-global-mode)))
-
-(with-eval-after-load "org-crypt"
-  (require 'epa)
-  (when (version< "27.0" emacs-version)
-    ;; ミニバッファでパスワードを入力する
-    (setq epg-pinentry-mode 'loopback))
-  ;; (when (eq window-system 'w32)
-  ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
-  ;;   (setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs
-  ;; epg-gpg-home-directory が設定されていると，(epg-make-context nil t t) の戻り値に反映され，結果 epg-list-keys の戻り値が nil になり鍵をリストできなくなる．
-
-  (defun my-epg-check-configuration (config &optional minimum-version)
-    "Verify that a sufficient version of GnuPG is installed."
-    (let ((version (alist-get 'version config)))
-      (unless (stringp version)
-        (error "Undetermined version: %S" version))
-      ;; hack for w32
-      (when (eq window-system 'w32)
-        (setq version (or minimum-version
-                          epg-gpg-minimum-version)))
-      ;;
-      (unless (version<= (or minimum-version
-                             epg-gpg-minimum-version)
-                         version)
-        (error "Unsupported version: %s" version))))
-  (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
+		           ws-butler-global-exempt-modes)))))
 
 (with-eval-after-load "epa"
     ;; Suppress message when saving encrypted file (hoge.org.gpg)
@@ -144,49 +120,54 @@
 (when (memq window-system '(ns nil))
   ;; toggle-input-method
   (declare-function my-ns-org-heading-auto-ascii "init" nil)
-  (declare-function my-ns-ime-restore "init" nil)
   (declare-function my-ime-active-p "init" nil)
-
-  (if (version< emacs-version "27.0")
-      (progn
-        (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
-        (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns))
-    (global-set-key (kbd "M-SPC") 'mac-ime-toggle)
-    (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
-
-(when (and (memq window-system '(ns nil))
-           (fboundp 'mac-get-current-input-source))
-
-  (when (version< "27.0" emacs-version)
-    ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
-    (custom-set-variables
-     '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
-    (mac-input-method-mode 1)
-
-    ;; FIXME Conflict with migemo...
-    ;; To fix this issue, you need to update migemo.el to support minor-mode.
-    (when (and (executable-find "cmigemo")
-               (require 'migemo nil t))
-      (defun my-isearch-ime-deactivate-sticky ()
-        (unless (region-active-p)
-          (mac-ime-deactivate-sticky)))
-      ;; see also activate-mark-hook, deactivate-mark-hook
-      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
-      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
 
   (defun my-toggle-ime-ns ()
     "Toggle IME."
     (interactive)
+    (message "hoge")
     (if (my-ime-active-p) (my-ime-off) (my-ime-on)))
 
-  (if (version< emacs-version "27.0") ;; FIXME 
-      (progn
-        (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-        (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns))
-    (define-key isearch-mode-map (kbd "M-SPC") 'mac-ime-toggle)
-    (define-key isearch-mode-map (kbd "S-SPC") 'mac-ime-toggle))
+  (when (fboundp 'mac-ime-toggle)
+    (defalias 'my-toggle-ime-ns 'mac-ime-toggle)) ;; FIXME
 
-  (if (version< emacs-version "27.0") ;; FIXME 
+  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
+  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+
+  (when (and (memq window-system '(ns nil))
+             (fboundp 'mac-get-current-input-source))
+
+    (when (version< "27.0" emacs-version)
+      ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
+      (custom-set-variables
+       '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
+      (mac-input-method-mode 1)
+
+      ;; FIXME Conflict with migemo...
+      ;; To fix this issue, you need to update migemo.el to support minor-mode.
+      (when (and (executable-find "cmigemo")
+                 (require 'migemo nil t))
+        (defun my-isearch-ime-deactivate-sticky ()
+          (unless (region-active-p)
+            (mac-ime-deactivate-sticky)))
+        ;; see also activate-mark-hook, deactivate-mark-hook
+        (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+        (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky))))
+
+  (with-eval-after-load "org"
+    (if (version< emacs-version "27.0") ;; FIXME
+        (defun my-ns-org-heading-auto-ascii ()
+          "IME off, when the cursor on org headings."
+          (when (and (fboundp 'frame-focus-state)
+		                 (frame-focus-state)
+                     (eq major-mode 'org-mode)
+                     (boundp 'org-agenda-buffer-name)
+                     (or (looking-at org-heading-regexp)
+                         (equal (buffer-name) org-agenda-buffer-name))
+                     (my-ime-active-p))
+            (my-ime-off)))
       (defun my-ns-org-heading-auto-ascii ()
         "IME off, when the cursor on org headings."
         (when (and (fboundp 'frame-focus-state)
@@ -195,25 +176,15 @@
                    (boundp 'org-agenda-buffer-name)
                    (or (looking-at org-heading-regexp)
                        (equal (buffer-name) org-agenda-buffer-name))
-                   (my-ime-active-p))
-          (my-ime-off)))
-    (defun my-ns-org-heading-auto-ascii ()
-      "IME off, when the cursor on org headings."
-      (when (and (fboundp 'frame-focus-state)
-		             (frame-focus-state)
-                 (eq major-mode 'org-mode)
-                 (boundp 'org-agenda-buffer-name)
-                 (or (looking-at org-heading-regexp)
-                     (equal (buffer-name) org-agenda-buffer-name))
-                 (fboundp 'mac-ime-active-p)
-                 (mac-ime-active-p))
-        (mac-ime-deactivate))))
+                   (fboundp 'mac-ime-active-p)
+                   (mac-ime-active-p))
+          (mac-ime-deactivate))))
 
-  ;; カーソル移動で heading に留まった時にIMEをOFFにする
-  (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)
+    ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
+    ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
 
-  ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-  ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
+    ;; カーソル移動で heading に留まった時にIMEをOFFにする
+    (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii))
 
   (with-eval-after-load "hl-line"
     (defun my-working-text-face-on ()
@@ -223,7 +194,8 @@
            '(ns-working-text-face nil))
         (custom-set-faces
          '(ns-working-text-face
-           ((((background dark)) :background "#594d5d" :underline "LightSlateBlue")
+           ((((background dark))
+             :background "#594d5d" :underline "LightSlateBlue")
             (t (:background "#fff0de" :underline "gray20")))))))
 
     (defun my-working-text-face-off ()
@@ -242,16 +214,12 @@
     (custom-set-faces
      '(ns-marked-text-face
        ((t (:foreground "black"
-                        :background "light pink" :underline "OrangeRed2"))))
+                        :background "light pink"
+                        :underline "OrangeRed2"))))
      '(ns-unmarked-text-face
        ((t (:foreground "black"
-                        :background "light sky blue" :underline "royal blue"))))))
-
-  (defun my-ns-ime-restore ()
-    "Restore the last IME status changed in Emacs."
-    (if my-ime-last (my-ime-on) (my-ime-off)))
-  ;; (add-hook 'focus-in-hook #'my-ns-ime-restore)
-  )
+                        :background "light sky blue"
+                        :underline "royal blue")))))))
 
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
@@ -663,65 +631,68 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (when (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
-;;;###autoload
-(defun my-auto-view ()
-  "Open a file with `view-mode'."
-  (when (file-exists-p buffer-file-name)
-    (when (and my-auto-view-regexp
-	             (string-match my-auto-view-regexp buffer-file-name))
-      (view-mode 1))
-    (dolist (dir my-auto-view-dirs)
-      (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
-        (view-mode 1)))))
+(autoload 'my-auto-view "view" nil t)
 (add-hook 'find-file-hook #'my-auto-view)
 
-;;;###autoload
-(defun my-org-view-next-heading ()
-  (interactive)
-  (if (and (derived-mode-p 'org-mode)
-           (org-at-heading-p))
-      (org-next-visible-heading 1)
-    (next-line)))
-
-;;;###autoload
-(defun my-org-view-previous-heading ()
-  (interactive)
-  (if (and (derived-mode-p 'org-mode)
-           (org-at-heading-p))
-      (org-previous-visible-heading 1)
-    (previous-line)))
-
-;;;###autoload
-(defun my-view-tab ()
-  (interactive)
-  (if (and (derived-mode-p 'org-mode)
-           (or (org-at-heading-p)
-               (org-at-property-drawer-p)))
-      (let ((view-mode nil))
-        (org-cycle))
-    (when (require 'origami nil t)
-      (origami-toggle-node (current-buffer) (point)))))
-
-;;;###autoload
-(defun my-view-shifttab ()
-  (interactive)
-  (if (derived-mode-p 'org-mode)
-      (let ((view-mode nil))
-        (org-shifttab))
-    (when (require 'origami nil t)
-      (origami-toggle-all-nodes (current-buffer)))))
-
-;;;###autoload
-(defun my-unlock-view-mode ()
-  (when view-mode
-    (View-exit-and-edit)))
-
-;;;###autoload
-(defun my-view-exit ()
-  (interactive)
-  (if (use-region-p) (my-eval-region) (View-exit)))
-
 (with-eval-after-load "view"
+
+;;;###autoload
+  (defun my-auto-view ()
+    "Open a file with `view-mode'."
+    (when (file-exists-p buffer-file-name)
+      (when (and my-auto-view-regexp
+	               (string-match my-auto-view-regexp buffer-file-name))
+        (view-mode 1))
+      (dolist (dir my-auto-view-dirs)
+        (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+          (view-mode 1)))))
+
+;;;###autoload
+  (defun my-org-view-next-heading ()
+    (interactive)
+    (if (and (derived-mode-p 'org-mode)
+             (org-at-heading-p))
+        (org-next-visible-heading 1)
+      (next-line)))
+
+;;;###autoload
+  (defun my-org-view-previous-heading ()
+    (interactive)
+    (if (and (derived-mode-p 'org-mode)
+             (org-at-heading-p))
+        (org-previous-visible-heading 1)
+      (previous-line)))
+
+;;;###autoload
+  (defun my-view-tab ()
+    (interactive)
+    (if (and (derived-mode-p 'org-mode)
+             (or (org-at-heading-p)
+                 (org-at-property-drawer-p)))
+        (let ((view-mode nil))
+          (org-cycle))
+      (when (require 'origami nil t)
+        (origami-toggle-node (current-buffer) (point)))))
+
+;;;###autoload
+  (defun my-view-shifttab ()
+    (interactive)
+    (if (derived-mode-p 'org-mode)
+        (let ((view-mode nil))
+          (org-shifttab))
+      (when (require 'origami nil t)
+        (origami-toggle-all-nodes (current-buffer)))))
+
+;;;###autoload
+  (defun my-unlock-view-mode ()
+    (when view-mode
+      (View-exit-and-edit)))
+
+;;;###autoload
+  (defun my-view-exit ()
+    (interactive)
+    (if (use-region-p) (my-eval-region) (View-exit)))
+
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
@@ -858,7 +829,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       nil))))
 
 (when (autoload-if-found
-       '(flyspell-mode-on flyspell-prog-mode flyspell-mode 
+       '(flyspell-mode-on flyspell-prog-mode flyspell-mode
                           my-flyspell-mode-on my-flyspell-prog-mode)
        "flyspell" nil t)
 
@@ -1036,10 +1007,6 @@ This works also for other defined begin/end tokens to define the structure."
   (with-eval-after-load "osx-dictionary"
     (custom-set-variables
      '(osx-dictionary-dictionary-choice "英辞郎 第七版"))))
-
-(autoload-if-found
- '(describe-number describe-number-at-point)
- "describe-number" nil t)
 
 (if (executable-find "js-beautify")
     (when (autoload-if-found
@@ -1237,7 +1204,6 @@ Call this function at updating `mode-line-mode'."
   (when (eq my-selected-window-last (frame-selected-window))
     (my-modeline-face (buffer-narrowed-p))))
 
-(require 'all-the-icons nil t)
 (setq mode-line-modes
       (mapcar
        (lambda (entry)
@@ -1493,8 +1459,8 @@ Call this function at updating `mode-line-mode'."
 
 ;; `mode-line-mule-info' の文字エンコーディングの文字列表現を差し替える
 (setq-default mode-line-mule-info
-(cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
-               "%z" mode-line-mule-info :test 'equal))
+              (cl-substitute '(:eval (my-buffer-coding-system-mnemonic))
+                             "%z" mode-line-mule-info :test 'equal))
 
 (defun my-delight-activate ()
   (require 'delight nil t)
@@ -1592,47 +1558,48 @@ Call this function at updating `mode-line-mode'."
              c-mode-common-hook nxml-mode-hook web-mode-hook))
     (add-hook hook #'git-gutter-mode))
 
-  (custom-set-variables
-   '(git-gutter:lighter ""))
-
-  (when (require 'git-gutter-fringe nil t)
+  (with-eval-after-load "git-gutter"
     (custom-set-variables
-     '(git-gutter-fr:side 'left-fringe))
+     '(git-gutter:lighter ""))
 
-    ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
-    ;; "!"
-    (eval '(fringe-helper-define 'git-gutter-fr:modified nil
-             "...XX..."
-             "...XX..."
-             "...XX..."
-             "...XX..."
-             "...XX..."
-             "........"
-             "...XX..."
-             "...XX..."))
-    ;; "+"
-    (eval '(fringe-helper-define 'git-gutter-fr:added nil
-             "........"
-             "...XX..."
-             "...XX..."
-             ".XXXXXX."
-             ".XXXXXX."
-             "...XX..."
-             "...XX..."
-             "........"))
-    ;; "-"
-    (eval '(fringe-helper-define 'git-gutter-fr:deleted nil
-             "........"
-             "........"
-             "........"
-             ".XXXXXX."
-             ".XXXXXX."
-             "........"
-             "........"
-             "........"))
-    (set-face-foreground 'git-gutter-fr:added    "#FF2600")
-    (set-face-foreground 'git-gutter-fr:modified "orange")
-    (set-face-foreground 'git-gutter-fr:deleted  "medium sea green")))
+    (when (require 'git-gutter-fringe nil t)
+      (custom-set-variables
+       '(git-gutter-fr:side 'left-fringe))
+
+      ;; (require 'fringe-helper nil t) ;; byte-compile 時に明示的に指定が必要．
+      ;; "!"
+      (eval '(fringe-helper-define 'git-gutter-fr:modified nil
+               "...XX..."
+               "...XX..."
+               "...XX..."
+               "...XX..."
+               "...XX..."
+               "........"
+               "...XX..."
+               "...XX..."))
+      ;; "+"
+      (eval '(fringe-helper-define 'git-gutter-fr:added nil
+               "........"
+               "...XX..."
+               "...XX..."
+               ".XXXXXX."
+               ".XXXXXX."
+               "...XX..."
+               "...XX..."
+               "........"))
+      ;; "-"
+      (eval '(fringe-helper-define 'git-gutter-fr:deleted nil
+               "........"
+               "........"
+               "........"
+               ".XXXXXX."
+               ".XXXXXX."
+               "........"
+               "........"
+               "........"))
+      (set-face-foreground 'git-gutter-fr:added    "#FF2600")
+      (set-face-foreground 'git-gutter-fr:modified "orange")
+      (set-face-foreground 'git-gutter-fr:deleted  "medium sea green"))))
 
 (with-eval-after-load "calendar"
 
@@ -3660,7 +3627,7 @@ Uses `all-the-icons-material' to fetch the icon."
                 (lambda (str)
                   (concat (icons-in-terminal-faicon
                            "hand-o-right"
-                           :v-adjust -0.1 
+                           :v-adjust -0.1
                            :face 'my-ivy-arrow-visible
                            :height 0.8)
                           " " (ivy--add-face (concat str "\n")
@@ -3744,305 +3711,6 @@ Uses `all-the-icons-material' to fetch the icon."
         (org-yank)
         (when window-system
           (my-vhl-change-color))))))
-
-(when (autoload-if-found
-       '(pomodoro:start)
-       "pomodoro" nil t)
-
-  ;; (with-eval-after-load "postpone"
-  ;;   (when (and (not noninteractive)
-  ;;              (not (boundp 'pomodoro:timer)))
-  ;;     ;; 重複起動を回避
-  ;;     (pomodoro:start nil)))
-
-  (with-eval-after-load "pomodoro"
-    ;; 作業時間終了後に開くファイルを指定しない
-    (setq pomodoro:file nil)
-    ;; ●だけで表現する（残り時間表示なし）
-    (setq pomodoro:mode-line-time-display nil)
-    ;; ●の置き換え
-    (setq pomodoro:mode-line-work-sign ">>")
-    (setq pomodoro:mode-line-rest-sign "<<")
-    (setq pomodoro:mode-line-long-rest-sign "<>")
-    ;; 長い休憩に入るまでにポモドーロする回数
-    (setq pomodoro:iteration-for-long-rest 4)
-    ;; 作業時間関連
-    (setq pomodoro:work-time 25     ; 作業時間
-          pomodoro:rest-time 5      ; 休憩時間
-          pomodoro:long-rest-time 30 ; 長い休憩時間
-          pomodoro:max-iteration 16) ; ポモドーロする回数
-    ;; タイマーの表示をノーマルフェイスにする
-    (set-face-bold-p 'pomodoro:timer-face nil)
-    ;; 作業中（赤），休憩中（青），長い休憩中（緑）にする
-    (custom-set-faces
-     '(pomodoro:work-face
-       ((((background dark)) :foreground "#DB4C46" :bold t)
-        (t (:foreground "#A130C4" :bold t)))) ;; #8248c4 , #956dc4, #9d64c4
-     '(pomodoro:rest-face
-       ((((background dark)) :foreground "#3869FA" :bold t)
-        (t (:foreground "#203e6f" :bold t))))
-     '(pomodoro:long-rest-face
-       ((((background dark)) :foreground "#008890" :bold t)
-        (t (:foreground "#1c9b08" :bold t))))) ;; 00B800
-
-    (defun my-pomodoro-status ()
-      "Show the current `pomodoro' status in minibuffer when focus-in."
-      (interactive)
-      (when pomodoro:timer
-        (let ((message-log-max nil))
-          (message
-           (format "[%d/%s] %s to go "
-                   pomodoro:work-count
-                   pomodoro:max-iteration
-                   (pomodoro:time-to-string pomodoro:remainder-seconds))))))
-    (add-hook 'focus-in-hook #'my-pomodoro-status)
-
-    (defvar my-pomodoro-speak nil)
-    (defun my-toggle-pomodoro-speak ()
-      (interactive)
-      (setq my-pomodoro-speak (not my-pomodoro-speak)))
-
-    (when (memq window-system '(mac ns))
-      ;; Mac ユーザ向け．Kyokoさんに指示してもらう
-      (defvar pomodoro:with-speak nil)
-      (when pomodoro:with-speak
-        (add-hook 'pomodoro:finish-work-hook
-                  (lambda ()
-                    (let ((script
-                           (concat "say -v Kyoko "
-                                   (number-to-string
-                                    (floor pomodoro:rest-time))
-                                   "分間，休憩しろ")))
-                      (if my-pomodoro-speak
-                          (shell-command-to-string script)
-                        (message "%s" script)))))
-
-        (add-hook 'pomodoro:finish-rest-hook
-                  (lambda ()
-                    (let ((script
-                           (concat "say -v Kyoko "
-                                   (number-to-string
-                                    (floor pomodoro:work-time))
-                                   "分間，作業しろ")))
-                      (if my-pomodoro-speak
-                          (shell-command-to-string script)
-                        (message "%s" script)))))
-
-        (add-hook 'pomodoro:long-rest-hook
-                  (lambda ()
-                    (let ((script
-                           (concat "say -v Kyoko これから"
-                                   (number-to-string
-                                    (floor pomodoro:long-rest-time))
-                                   "分間の休憩です")))
-                      (if my-pomodoro-speak
-                          (shell-command-to-string script)
-                        (message "%s" script))))))
-
-      (declare-function my-pomodoro-notify "init" nil)
-      (defun my-pomodoro-notify ()
-        (my-desktop-notification
-         "Pomodoro"
-         (concat "三三 ﾍ(*ﾟ∇ﾟ)ﾉ   Go #"
-                 (format "%s" (1+ pomodoro:work-count))) nil "Glass"))
-      (add-hook 'pomodoro:finish-work-hook #'my-pomodoro-notify))))
-
-(with-eval-after-load "pomodoro"
-  ;; 追加実装
-  (defvar pomodoro:update-work-sign-interval 0.17) ;; work用表示間隔
-  (defvar pomodoro:update-rest-sign-interval 0.21) ;; rest用表示間隔
-  (defvar pomodoro:update-long-rest-sign-interval 0.36) ;; long-rest用表示間隔
-
-  (setq pomodoro:mode-line-work-sign-list
-        '("/  " "// " "///" " //" "  /" "   " "   "))
-  (setq pomodoro:mode-line-rest-sign-list
-        '(".  " ".. " "..." "..:" ".::" ":::" ":::"
-          "::." ":.." "..." " .." "  ." "   " "   "
-          ",  " ",, " ",,," ",,;" ",;;" ";;;" ";;;"
-          ";;," ";,," ",,," " ,," "  ," "   " "   "))
-  (setq pomodoro:mode-line-long-rest-sign-list
-        '("   " " | " "|||" "| |" "   "))
-
-  ;; Example.0
-  ;; (setq pomodoro:mode-line-work-sign-list
-  ;;       '("|  " "|| " "|||" " ||" "  |" "   " "   "
-  ;;         "  |" " ||" "|||" "|| " "|  " "   " "   "))
-  ;; (setq pomodoro:mode-line-rest-sign-list
-  ;;       '(".  " ".. " "..." " .." "  ." "   " "   "
-  ;;         "  ." " .." "..." ".. " ".  " "   " "   "))
-  ;; (setq pomodoro:mode-line-long-rest-sign-list
-  ;;       '("   " " | " "|||" "| |" "   "))
-
-  ;; Example.1
-  ;; (defvar pomodoro:mode-line-work-sign-list
-  ;;   '("▁" "▂" "▃" "▄" "▅" "▆" "▇" "▇" "▆" "▅" "▄" "▃" "▂" "▁" "▁" ))
-  ;; (defvar pomodoro:mode-line-rest-sign-list
-  ;;   pomodoro:mode-line-work-sign-list)
-  ;; (defvar pomodoro:mode-line-long-rest-sign-list
-  ;;   pomodoro:mode-line-work-sign-list)
-
-  ;; Example.2
-  ;; (defvar pomodoro:mode-line-work-sign-list
-  ;;   '(">   " ">>  " ">>> " ">>>>" " >>>" "  >>" "   >" "    "))
-  ;; (defvar pomodoro:mode-line-rest-sign-list
-  ;;   '("   <" "  <<" " <<<" "<<<<" "<<< " "<<  " "<   " "    "))
-  ;; (defvar pomodoro:mode-line-long-rest-sign-list
-  ;;   '("  <>  " " <<>> " "<<<>>>" "<<  >>" "<    >" "      "))
-
-  ;; Example.3
-  ;; (setq pomodoro:mode-line-work-sign-list
-  ;;       '("▂▁  ▁" "▃▂▁  " "▄▃▂▁ " "▅▄▃▂▁" "▆▅▄▃▂" "▇▆▅▄▃" "▇▇▆▅▄" "▆▇▇▆▅"
-  ;;         "▅▆▇▇▆" "▄▅▆▇▇" "▃▄▅▆▇" "▂▃▄▅▆" "▁▂▃▄▅" " ▁▂▃▄" "  ▁▂▃" "▁  ▁▂"))
-
-  ;; Example.4
-  ;; (defvar pomodoro:mode-line-work-sign-list
-  ;;   '("◤◢◤ ^-^; ◢◤◢"
-  ;;     "◤◢◤ ^-^  ◢◤◢"
-  ;;     "◤◢◤ ^-^  ◢◤◢"
-  ;;     "◤◢◤ ^-^  ◢◤◢"
-  ;;     "◤◢◤ ^-^; ◢◤◢"
-  ;;     "◤◢◤ ^-^; ◢◤◢"
-  ;;     "◢◤◢◤ ^-^; ◢◤"
-  ;;     "◤◢◤◢◤ ^-^; ◢"
-  ;;     "◢◤◢◤◢◤ ^-^; "
-  ;;     " ◢◤◢◤◢◤ ^-^;"
-  ;;     "; ◢◤◢◤◢◤ ^-^"
-  ;;     "^; ◢◤◢◤◢◤ ^-"
-  ;;     "-^; ◢◤◢◤◢◤ ^"
-  ;;     "^-^; ◢◤◢◤◢◤ "
-  ;;     " ^-^; ◢◤◢◤◢◤"
-  ;;     "◤ ^-^; ◢◤◢◤◢"
-  ;;     "◢◤ ^-^; ◢◤◢◤"));
-
-  ;; たなこふ氏: https://twitter.com/mattn_jp/status/987203614199263233
-  ;; (setq pomodoro:mode-line-work-sign-list
-  ;;   '("(´･_･`)´･_･`)"
-  ;;     " (´･_･`)_･`)  "
-  ;;     "  (´･_･`)`)   "
-  ;;     "  ((´･_･`)    "
-  ;;     " (´･(´･_･`)  "
-  ;;     " (´･_(´･_･`) "
-  ;;     "(´･_･`)´･_･`)"
-  ;;     " (´･_･`)_･`)  "
-  ;;     "  (´･_･`)`)   "
-  ;;     "  (´･_･`))    "
-  ;;     "   ((´･_･`)   "
-  ;;     "  (´･(´･_･`) "
-  ;;     " (´･_(´･_･`) "));
-
-  ;; 起動フラグ
-  (defvar my-pomodoro-visualize t)
-
-  ;; タイマーを記録
-  (defvar pomodoro:update-sign-timer nil)
-
-  ;; 初期状態を登録
-  (if my-pomodoro-visualize
-      (setq pomodoro:mode-line-work-sign
-            (car pomodoro:mode-line-work-sign-list))
-    (setq pomodoro:mode-line-work-sign "")
-    (setq pomodoro:mode-line-rest-sign "")
-    (setq pomodoro:mode-line-long-rest-sign ""))
-
-  ;; utilities
-  (defun pomodoro:list-rotate (sign-list)
-    (if (listp sign-list)
-        (append (cdr sign-list)
-                (list (car sign-list)))
-      sign-list))
-
-  (defun pomodoro:activate-visual-sign (sign interval)
-    (when (timerp pomodoro:update-sign-timer)
-      (cancel-timer pomodoro:update-sign-timer))
-    (setq pomodoro:update-sign-timer
-          (run-at-time t interval sign)))
-
-  (defun pomodoro:visualize-start ()
-    (setq my-pomodoro-visualize t)
-    (cond ((eq pomodoro:current-state 'rest)
-           (pomodoro:update-rest-sign)
-           (pomodoro:activate-visual-rest-sign))
-          ((eq pomodoro:current-state 'long-rest)
-           (pomodoro:update-long-rest-sign)
-           (pomodoro:activate-visual-long-rest-sign))
-          (t
-           (pomodoro:update-work-sign)
-           (pomodoro:activate-visual-work-sign))))
-
-  (defun pomodoro:visualize-stop ()
-    (setq my-pomodoro-visualize nil)
-    (setq pomodoro:mode-line-work-sign "")
-    (setq pomodoro:mode-line-rest-sign "")
-    (setq pomodoro:mode-line-long-rest-sign "")
-    (force-mode-line-update t)
-    (when (timerp pomodoro:update-sign-timer)
-      (cancel-timer pomodoro:update-sign-timer)))
-
-  (defun ad:pomodoro:start (f &rest minutes)
-    "Extensions to stop pomodoro and timers"
-    (interactive "P")
-    (pomodoro:visualize-start)
-    (apply f minutes))
-
-  (defun ad:pomodoro:stop (f &rest do-reset)
-    "Extensions to stop pomodoro and timers"
-    (interactive)
-    (pomodoro:visualize-stop)
-    (when (timerp pomodoro:timer)
-      (apply f do-reset)))
-
-  (when my-pomodoro-visualize
-    (advice-add 'pomodoro:start :around #'ad:pomodoro:start)
-    (advice-add 'pomodoro:stop :around #'ad:pomodoro:stop))
-
-  ;; work
-  (defun pomodoro:update-work-sign ()
-    "Update pomodoro work-sign on modeline."
-    (when my-pomodoro-visualize
-      (setq pomodoro:mode-line-work-sign
-            (car pomodoro:mode-line-work-sign-list))
-      (setq pomodoro:mode-line-work-sign-list
-            (pomodoro:list-rotate pomodoro:mode-line-work-sign-list))
-      (force-mode-line-update t)))
-
-  (defun pomodoro:activate-visual-work-sign ()
-    (pomodoro:activate-visual-sign
-     'pomodoro:update-work-sign pomodoro:update-work-sign-interval))
-
-  ;; rest
-  (defun pomodoro:update-rest-sign ()
-    "Update pomodoro rest-sign on modeline."
-    (when my-pomodoro-visualize
-      (setq pomodoro:mode-line-rest-sign
-            (car pomodoro:mode-line-rest-sign-list))
-      (setq pomodoro:mode-line-rest-sign-list
-            (pomodoro:list-rotate pomodoro:mode-line-rest-sign-list))
-      (force-mode-line-update t)))
-
-  (defun pomodoro:activate-visual-rest-sign ()
-    (pomodoro:activate-visual-sign
-     'pomodoro:update-rest-sign pomodoro:update-rest-sign-interval))
-
-  ;; long rest
-  (defun pomodoro:update-long-rest-sign ()
-    "Update pomodoro long-rest-sign on modeline."
-    (when my-pomodoro-visualize
-      (setq pomodoro:mode-line-long-rest-sign
-            (car pomodoro:mode-line-long-rest-sign-list))
-      (setq pomodoro:mode-line-long-rest-sign-list
-            (pomodoro:list-rotate pomodoro:mode-line-long-rest-sign-list))
-      (force-mode-line-update t)))
-
-  (defun pomodoro:activate-visual-long-rest-sign ()
-    (pomodoro:activate-visual-sign
-     'pomodoro:update-long-rest-sign pomodoro:update-long-rest-sign-interval))
-
-  ;; ステータスが切り替わる時に表示を入れ替える
-  (when my-pomodoro-visualize
-    (add-hook 'pomodoro:finish-rest-hook #'pomodoro:activate-visual-work-sign)
-    (add-hook 'pomodoro:finish-work-hook #'pomodoro:activate-visual-rest-sign)
-    (add-hook 'pomodoro:long-rest-hook
-              #'pomodoro:activate-visual-long-rest-sign)))
 
 (when (autoload-if-found
        '(my-google-this google-this google-this-word)
@@ -4168,7 +3836,7 @@ Uses `all-the-icons-material' to fetch the icon."
     :group 'ivy
     :type '(list symbol))
 
-  (defcustom my-nocand-then-fzf-idle-time 0.8
+  (defcustom my-nocand-then-fzf-idle-time 2.0
     "Idle time for showing prompt."
     :group 'ivy
     :type 'float) ;; N[s] 無応答の時[y/n]を出す．
