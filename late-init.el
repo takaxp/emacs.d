@@ -3448,6 +3448,71 @@ Uses `all-the-icons-material' to fetch the icon."
                       :background "white" :weight 'extra-bold
                       :inherit nil))
 
+(when (autoload-if-found
+       '(global-hl-todo-mode my-hl-todo-activate)
+       "hl-todo" nil t)
+
+  ;; (defun my-hl-todo-activate ()
+  ;;   (global-hl-todo-mode)
+  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
+  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
+
+  (global-hl-todo-mode) ;; FIXME
+
+  (with-eval-after-load "hl-todo"
+    (defun my-hl-todo-reload ()
+      (interactive)
+      (global-hl-todo-mode -1)
+      (global-hl-todo-mode))
+
+    (defun my-hl-todo-light-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#FF0000")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "SeaGreen")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "#3030FF")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
+      (my-hl-todo-reload))
+    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+
+    (defun my-hl-todo-dark-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#cc9393")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "#afd8af")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "DodgerBlue1")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
+      (my-hl-todo-reload))
+    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
+
 ;; (declare-function my-daylight-theme "init" nil)
 ;; (declare-function my-night-theme "init" nil)
 ;; (declare-function my-terminal-theme "init" nil)
@@ -3541,71 +3606,6 @@ Uses `all-the-icons-material' to fetch the icon."
 (my-theme)
 ;; (run-at-time "21:00" 86400 'my-theme)
 ;; (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
-
-(when (autoload-if-found
-       '(global-hl-todo-mode my-hl-todo-activate)
-       "hl-todo" nil t)
-
-  ;; (defun my-hl-todo-activate ()
-  ;;   (global-hl-todo-mode)
-  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
-  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
-
-  (global-hl-todo-mode) ;; FIXME
-
-  (with-eval-after-load "hl-todo"
-    (defun my-hl-todo-reload ()
-      (interactive)
-      (global-hl-todo-mode -1)
-      (global-hl-todo-mode))
-
-    (defun my-hl-todo-light-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#FF0000")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "SeaGreen")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "#3030FF")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
-    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
-
-    (defun my-hl-todo-dark-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#cc9393")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "#afd8af")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "DodgerBlue1")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
-    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
 
 (when (autoload-if-found
        '(rainbow-mode)

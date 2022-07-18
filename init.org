@@ -12860,6 +12860,81 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
              ))))
 #+end_src
 
+** [hl-todo.el] 特定キーワードの配色を変える
+   :PROPERTIES:
+   :CUSTOM_ID: org6d79c76a
+   :ID:       A7716C15-F465-4442-86DF-EFB0320F0248
+   :END:
+
+ - [[https://github.com/tarsius/hl-todo][hl-todo]] を導入すれば簡単にできます．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found
+       '(global-hl-todo-mode my-hl-todo-activate)
+       "hl-todo" nil t)
+
+  ;; (defun my-hl-todo-activate ()
+  ;;   (global-hl-todo-mode)
+  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
+  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
+
+  (global-hl-todo-mode) ;; FIXME
+
+  (with-eval-after-load "hl-todo"
+    (defun my-hl-todo-reload ()
+      (interactive)
+      (global-hl-todo-mode -1)
+      (global-hl-todo-mode))
+
+    (defun my-hl-todo-light-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#FF0000")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "SeaGreen")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "#3030FF")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
+      (my-hl-todo-reload))
+    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+
+    (defun my-hl-todo-dark-theme ()
+      (setq hl-todo-keyword-faces
+            '(("HOLD" . "#d0bf8f")
+              ("TODO" . "#cc9393")
+              ("NEXT" . "#dca3a3")
+              ("THEM" . "#dc8cc3")
+              ("PROG" . "#7cb8bb")
+              ("OKAY" . "#7cb8bb")
+              ("DONT" . "#5f7f5f")
+              ("FAIL" . "#8c5353")
+              ("DONE" . "#afd8af")
+              ("NOTE"   . "#d0bf8f")
+              ("KLUDGE" . "#d0bf8f")
+              ("HACK"   . "#d0bf8f")
+              ("TEMP"   . "#d0bf8f")
+              ("FIXME"  . "DodgerBlue1")
+              ("XXX+"   . "#cc9393")
+              ("\\?\\?\\?+" . "#cc9393")
+              ("" . "orange")
+              ("" . "red")
+              ("" . "Seagreen3")))
+      (my-hl-todo-reload))
+    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
+#+end_src
+
 ** 日中と夜中でテーマを切り替える
    :PROPERTIES:
    :CUSTOM_ID: org92d26c4b
@@ -12979,81 +13054,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 (my-theme)
 ;; (run-at-time "21:00" 86400 'my-theme)
 ;; (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
-#+end_src
-
-** [hl-todo.el] 特定キーワードの配色を変える
-   :PROPERTIES:
-   :CUSTOM_ID: org6d79c76a
-   :ID:       A7716C15-F465-4442-86DF-EFB0320F0248
-   :END:
-
- - [[https://github.com/tarsius/hl-todo][hl-todo]] を導入すれば簡単にできます．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(global-hl-todo-mode my-hl-todo-activate)
-       "hl-todo" nil t)
-
-  ;; (defun my-hl-todo-activate ()
-  ;;   (global-hl-todo-mode)
-  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
-  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
-
-  (global-hl-todo-mode) ;; FIXME
-
-  (with-eval-after-load "hl-todo"
-    (defun my-hl-todo-reload ()
-      (interactive)
-      (global-hl-todo-mode -1)
-      (global-hl-todo-mode))
-
-    (defun my-hl-todo-light-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#FF0000")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "SeaGreen")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "#3030FF")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
-    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
-
-    (defun my-hl-todo-dark-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#cc9393")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "#afd8af")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "DodgerBlue1")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
-    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
 #+end_src
 
 ** [rainbow-mode.el] 配色のリアルタイム確認

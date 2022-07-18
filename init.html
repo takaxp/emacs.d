@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-18 Mon 01:24 -->
+<!-- 2022-07-18 Mon 12:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -636,9 +636,9 @@
 <li><a href="#org2bcbc1db">12.7. 行間を制御する</a></li>
 <li><a href="#org372b184d">12.8. パッチをカラフルに表示する</a></li>
 <li><a href="#org009dc6e3">12.9. 背景を黒系色にする</a></li>
-<li><a href="#org92d26c4b">12.10. 日中と夜中でテーマを切り替える</a></li>
-<li><a href="#org7c97dce0">12.11. 時間帯を指定して起動時にテーマを切り替える</a></li>
-<li><a href="#org6d79c76a">12.12. [hl-todo.el] 特定キーワードの配色を変える</a></li>
+<li><a href="#org6d79c76a">12.10. [hl-todo.el] 特定キーワードの配色を変える</a></li>
+<li><a href="#org92d26c4b">12.11. 日中と夜中でテーマを切り替える</a></li>
+<li><a href="#org7c97dce0">12.12. 時間帯を指定して起動時にテーマを切り替える</a></li>
 <li><a href="#org9ce2fd45">12.13. [rainbow-mode.el] 配色のリアルタイム確認</a>
 <ul>
 <li><a href="#org19538af3">12.13.1. 色一覧</a></li>
@@ -12513,7 +12513,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgecbe248"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org7a1fa2c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13412,7 +13412,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org7eb1265" class="figure">
+<div id="orgc389ee7" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14948,8 +14948,85 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 </div>
 
+<div id="outline-container-org6d79c76a" class="outline-3">
+<h3 id="org6d79c76a"><span class="section-number-3">12.10.</span> [hl-todo.el] 特定キーワードの配色を変える</h3>
+<div class="outline-text-3" id="text-org6d79c76a">
+<ul class="org-ul">
+<li><a href="https://github.com/tarsius/hl-todo">hl-todo</a> を導入すれば簡単にできます．</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(global-hl-todo-mode my-hl-todo-activate)
+       <span style="color: #8b2252;">"hl-todo"</span> nil t)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-hl-todo-activate ()</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(global-hl-todo-mode)</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(remove-hook 'pre-command-hook #'my-hl-todo-activate))</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'pre-command-hook #'my-hl-todo-activate)</span>
+
+  (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-todo"</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-reload</span> ()
+      (<span style="color: #a020f0;">interactive</span>)
+      (global-hl-todo-mode -1)
+      (global-hl-todo-mode))
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-light-theme</span> ()
+      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
+            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#FF0000"</span>)
+              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
+              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
+              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
+              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
+              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"SeaGreen"</span>)
+              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"#3030FF"</span>)
+              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
+              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
+              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
+      (my-hl-todo-reload))
+    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-dark-theme</span> ()
+      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
+            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
+              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
+              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
+              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
+              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"#afd8af"</span>)
+              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"DodgerBlue1"</span>)
+              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
+              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
+              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
+      (my-hl-todo-reload))
+    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org92d26c4b" class="outline-3">
-<h3 id="org92d26c4b"><span class="section-number-3">12.10.</span> 日中と夜中でテーマを切り替える</h3>
+<h3 id="org92d26c4b"><span class="section-number-3">12.11.</span> 日中と夜中でテーマを切り替える</h3>
 <div class="outline-text-3" id="text-org92d26c4b">
 <p>
 私は使っていませんが，簡単にテーマを切り替えるためのパッケージ(<a href="https://github.com/valignatev/heaven-and-hell">heaven-and-hell</a>)も存在します．また， <a href="https://github.com/purcell/ns-auto-titlebar">ns-auto-titlebar.el</a> を使うことでも同様の効果が得られます．
@@ -15023,7 +15100,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </div>
 
 <div id="outline-container-org7c97dce0" class="outline-3">
-<h3 id="org7c97dce0"><span class="section-number-3">12.11.</span> 時間帯を指定して起動時にテーマを切り替える</h3>
+<h3 id="org7c97dce0"><span class="section-number-3">12.12.</span> 時間帯を指定して起動時にテーマを切り替える</h3>
 <div class="outline-text-3" id="text-org7c97dce0">
 <p>
 次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
@@ -15076,83 +15153,6 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 (my-theme)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "21:00" 86400 'my-theme)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink</span>
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org6d79c76a" class="outline-3">
-<h3 id="org6d79c76a"><span class="section-number-3">12.12.</span> [hl-todo.el] 特定キーワードの配色を変える</h3>
-<div class="outline-text-3" id="text-org6d79c76a">
-<ul class="org-ul">
-<li><a href="https://github.com/tarsius/hl-todo">hl-todo</a> を導入すれば簡単にできます．</li>
-</ul>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(global-hl-todo-mode my-hl-todo-activate)
-       <span style="color: #8b2252;">"hl-todo"</span> nil t)
-
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-hl-todo-activate ()</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(global-hl-todo-mode)</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(remove-hook 'pre-command-hook #'my-hl-todo-activate))</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'pre-command-hook #'my-hl-todo-activate)</span>
-
-  (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-todo"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-reload</span> ()
-      (<span style="color: #a020f0;">interactive</span>)
-      (global-hl-todo-mode -1)
-      (global-hl-todo-mode))
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-light-theme</span> ()
-      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#FF0000"</span>)
-              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
-              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
-              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
-              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
-              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"SeaGreen"</span>)
-              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"#3030FF"</span>)
-              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
-              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
-              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
-      (my-hl-todo-reload))
-    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-dark-theme</span> ()
-      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
-              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
-              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
-              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
-              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"#afd8af"</span>)
-              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"DodgerBlue1"</span>)
-              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
-              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
-              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
-      (my-hl-todo-reload))
-    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
 </pre>
 </div>
 </div>
@@ -16293,7 +16293,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-18 Mon 01:24</p>
+<p class="date">Created: 2022-07-18 Mon 12:32</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
