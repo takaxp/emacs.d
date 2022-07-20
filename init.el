@@ -2,7 +2,7 @@
 ;; Configurations for Emacs
 ;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
-(require 'utility-autoloads nil t)
+(require 'init-autoloads nil t)
 
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
@@ -518,7 +518,7 @@ The keybindings will be assigned only when Emacs runs in GUI."
      '(moom-verbose t))
     (moom-recommended-keybindings '(all wof))
     (moom-mode 1)
-    (my-font-config)))  ;; this could increase `postpone-init-time'.
+    (my-font-config)))  ;; this could increase `postpone-pre-init-time'.
 
 (when (autoload-if-found
        '(moom-font-increase

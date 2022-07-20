@@ -26,8 +26,6 @@
 
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
-(require 'late-init-autoloads nil t)
-(require 'utility-autoloads nil t)
 
 ;; テキストファイルを Org Mode で開きます．
 (push '("\\.txt$" . org-mode) auto-mode-alist)
@@ -1324,7 +1322,7 @@ also calls `beep' for an audible reminder."
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (or (not (require 'async nil t))
-              (my-native-comp-p)
+              (my-native-comp-p) ;; FIXME
               (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))

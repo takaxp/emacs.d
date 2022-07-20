@@ -61,6 +61,7 @@
 ;; Language, will override default-input-method
 (set-language-environment "Japanese")
 (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
+(set-locale-environment "ja_JP.UTF-8")
 
 ;; AppData\Roaming\.emacs.d\lisp 以下に各追加パッケージを配置すること
 ;; smartparens requires dash.el.

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-18 Mon 19:13 -->
+<!-- 2022-07-20 Wed 18:59 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -780,7 +780,7 @@ Then load the following at startup
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Configurations for Emacs</span>
 <span style="color: #b22222;">;;                                         </span><span style="color: #b22222;">Takaaki ISHIKAWA  <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a></span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">see also https://takaxp.github.io/init.html</span>
-(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">utility-autoloads</span> nil t)
+(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-autoloads</span> nil t)
 </pre>
 </div>
 </div>
@@ -1250,10 +1250,10 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">if</span> (not (locate-library <span style="color: #8b2252;">"postpone"</span>))
     (message <span style="color: #8b2252;">"postpone.el is NOT installed."</span>)
   (autoload 'postpone-kicker <span style="color: #8b2252;">"postpone"</span> nil t)
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">postpone-init-time</span> 0)
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">postpone-pre-init-time</span> 0)
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-postpone-kicker</span> ()
     (<span style="color: #a020f0;">interactive</span>)
-    (<span style="color: #a020f0;">when</span> (eq postpone-init-time 0)
+    (<span style="color: #a020f0;">when</span> (eq postpone-pre-init-time 0)
       (<span style="color: #a020f0;">unless</span> (memq this-command <span style="color: #b22222;">;; </span><span style="color: #b22222;">specify commands for exclusion</span>
                     '(self-insert-command
                       newline
@@ -1268,10 +1268,10 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
         (message <span style="color: #8b2252;">"Activating postponed packages..."</span>)
         (<span style="color: #a020f0;">let</span> ((t1 (current-time)))
           (postpone-kicker 'my-postpone-kicker)
-          (<span style="color: #a020f0;">setq</span> postpone-init-time (float-time
+          (<span style="color: #a020f0;">setq</span> postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
         (message <span style="color: #8b2252;">"Activating postponed packages...done (%.3f seconds)"</span>
-                 postpone-init-time))))
+                 postpone-pre-init-time))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#26368;&#21021;&#12398;&#12450;&#12463;&#12471;&#12519;&#12531;&#12391;&#12461;&#12483;&#12463;</span>
   (add-hook 'pre-command-hook #'my-postpone-kicker)
@@ -11943,7 +11943,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
       <span style="color: #8b2252;">"Update `</span><span style="color: #008b8b;">appt-time-mag-list</span><span style="color: #8b2252;">'.  Use `</span><span style="color: #008b8b;">async</span><span style="color: #8b2252;">' if possible."</span>
       (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (not (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t))
-              (my-native-comp-p)
+              (my-native-comp-p) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
               (not my-org-agenda-to-appt-async))
           (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
             (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"TODO"</span>))))
@@ -12514,7 +12514,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgde53042"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgbbfcbd9"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13418,7 +13418,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org9ad9509" class="figure">
+<div id="org16a2033" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14065,7 +14065,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
      '(moom-verbose t))
     (moom-recommended-keybindings '(all wof))
     (moom-mode 1)
-    (my-font-config)))  <span style="color: #b22222;">;; </span><span style="color: #b22222;">this could increase `</span><span style="color: #008b8b;">postpone-init-time</span><span style="color: #b22222;">'.</span>
+    (my-font-config)))  <span style="color: #b22222;">;; </span><span style="color: #b22222;">this could increase `</span><span style="color: #008b8b;">postpone-pre-init-time</span><span style="color: #b22222;">'.</span>
 
 (<span style="color: #a020f0;">when</span> (autoload-if-found
        '(moom-font-increase
@@ -16299,7 +16299,7 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-18 Mon 19:13</p>
+<p class="date">Created: 2022-07-20 Wed 18:59</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

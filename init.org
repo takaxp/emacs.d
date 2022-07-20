@@ -84,7 +84,7 @@ Then load the following at startup
 ;; Configurations for Emacs
 ;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
-(require 'utility-autoloads nil t)
+(require 'init-autoloads nil t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :exports none
@@ -489,10 +489,10 @@ This function is called directly from the C code."
 (if (not (locate-library "postpone"))
     (message "postpone.el is NOT installed.")
   (autoload 'postpone-kicker "postpone" nil t)
-  (defvar postpone-init-time 0)
+  (defvar postpone-pre-init-time 0)
   (defun my-postpone-kicker ()
     (interactive)
-    (when (eq postpone-init-time 0)
+    (when (eq postpone-pre-init-time 0)
       (unless (memq this-command ;; specify commands for exclusion
                     '(self-insert-command
                       newline
@@ -507,10 +507,10 @@ This function is called directly from the C code."
         (message "Activating postponed packages...")
         (let ((t1 (current-time)))
           (postpone-kicker 'my-postpone-kicker)
-          (setq postpone-init-time (float-time
+          (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
         (message "Activating postponed packages...done (%.3f seconds)"
-                 postpone-init-time))))
+                 postpone-pre-init-time))))
 
   ;; 起動後，最初のアクションでキック
   (add-hook 'pre-command-hook #'my-postpone-kicker)
@@ -4181,8 +4181,6 @@ Call this function at updating `mode-line-mode'."
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
-(require 'late-init-autoloads nil t)
-(require 'utility-autoloads nil t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -10097,7 +10095,7 @@ also calls `beep' for an audible reminder."
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (or (not (require 'async nil t))
-              (my-native-comp-p)
+              (my-native-comp-p) ;; FIXME
               (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
             (org-agenda-to-appt t '((headline "TODO"))))
@@ -12079,7 +12077,7 @@ The keybindings will be assigned only when Emacs runs in GUI."
      '(moom-verbose t))
     (moom-recommended-keybindings '(all wof))
     (moom-mode 1)
-    (my-font-config)))  ;; this could increase `postpone-init-time'.
+    (my-font-config)))  ;; this could increase `postpone-pre-init-time'.
 
 (when (autoload-if-found
        '(moom-font-increase

@@ -5,12 +5,6 @@
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 
-(with-eval-after-load "postpone"
-  (defun my-toggle-org-show-emphasis-markers ()
-    (interactive)
-    (setq org-hide-emphasis-markers (not org-hide-emphasis-markers))
-    (font-lock-fontify-buffer)))
-
 (with-eval-after-load "selected"
   (require 'moom nil t)
   (require 'transient nil t)
