@@ -972,7 +972,6 @@ will not be modified."
   (setq org-agenda-scheduled-leaders '("[S]" "S.%2dx:\t"))
   (setq org-agenda-deadline-leaders '("[D]" "In %3d d.:\t" "%2d d. ago:\t"))
 
-
   (with-eval-after-load "moom"
     (defvar my-org-tags-column org-tags-column)
     ;; Expand the frame width temporarily during org-agenda is activated.
@@ -1899,7 +1898,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
        '(org-appear-mode)
        "org-appear" nil t)
 
-  (add-hook 'org-mode-hook 'org-appear-mode)
+  (add-hook 'org-tree-slide-mode-hook 'org-appear-mode)
 
   (with-eval-after-load "org-appear"
     (defun my-toggle-org-show-emphasis-markers ()
@@ -1907,7 +1906,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (setq org-hide-emphasis-markers (not org-hide-emphasis-markers))
       (font-lock-fontify-buffer))
 
-    (setq org-hide-emphasis-markers t)
     (setq org-appear-delay 0.4)))
 
 (with-eval-after-load "ob-core"
@@ -2066,5 +2064,13 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (interactive)
       (org-attach-screenshot t (format-time-string
                                 "screenshot-%Y%m%d-%H%M%S.png")))))
+
+(with-eval-after-load "org-agenda"
+  (defun my-org-agenda (&optional _arg _org-keys _restriction)
+    (my-linespacing))
+  (advice-add 'org-agenda :after #'my-org-agenda)
+  (defun my-org-agenda-redo (&optional _all)
+    (my-linespacing))
+  (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
 
 (provide 'init-org)

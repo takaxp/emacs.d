@@ -91,7 +91,7 @@
   ;;   (add-hook 'after-init-hook #'benchmark-init/deactivate))
 
   (require 'init nil t)
-  (require 'utility-autoloads nil t) ;; 2[ms]
+  ;; (require 'utility-autoloads nil t) ;; 2[ms]
 
   (unless noninteractive
     ;; (require 'utility nil t) ;; 5[ms]

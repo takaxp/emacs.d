@@ -164,30 +164,10 @@ This function is called directly from the C code."
 (set-selection-coding-system 'utf-8-unix)
 (set-buffer-file-coding-system 'utf-8-unix)
 (setq locale-coding-system 'utf-8-unix)
-(when (eq system-type 'windows-nt)
-  (set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
-  (setq system-time-locale "C")) ;; format-time-string %a, not 日 but Sun
 
 (when (fboundp 'mac-add-key-passed-to-system)
   (setq default-input-method "macOS")
   (mac-add-key-passed-to-system 'shift))
-
-(when (eq system-type 'gnu/linux)
-  (global-set-key (kbd "<hiragana-katakana>") 'toggle-input-method)
-  (push "/usr/share/emacs/site-lisp/anthy" load-path)
-  (push "/usr/share/emacs/site-lisp/emacs-mozc" load-path)
-  (set-language-environment "Japanese")
-
-  (if (require 'mozc nil t)
-      (progn
-        (setq default-input-method "japanese-mozc")
-        (custom-set-variables
-         '(mozc-candidate-style 'overlay)))
-
-    (when (require 'anthy nil t) ;; sudo yum install emacs-anthy-el
-      ;; if get error
-      (load-file "/usr/share/emacs/site-lisp/anthy/leim-list.el")
-      (setq default-input-method 'japanese-anthy))))
 
 (when (eq system-type 'darwin)
   (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
@@ -247,20 +227,7 @@ This function is called directly from the C code."
   (set-face-attribute 'header-line nil
                       :inherit nil
                       :overline nil
-                      :underline nil)
-  )
-
-;; Disable to show the tool bar.
-(when (and (boundp 'early-init-file)
-	         (not early-init-file)
-	         (display-graphic-p))
-  (tool-bar-mode -1))
-
-(when (and (boundp 'early-init-file)
-	         (not early-init-file)
-	         (or (not (display-graphic-p))
-	             (eq system-type 'windows-nt)))
-  (menu-bar-mode -1))
+                      :underline nil))
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
@@ -382,25 +349,28 @@ This function is called directly from the C code."
   (interactive)
   (setq cursor-type (plist-get my-cur-type-ime :on))
   (set-cursor-color (plist-get my-cur-color-ime :on)))
+
 (defun my-ime-off-cursor ()
   (interactive)
   (setq cursor-type (plist-get my-cur-type-ime :off))
   (set-cursor-color (plist-get my-cur-color-ime :off)))
+
 (defun my-ime-invisible-cursor ()
   (interactive)
   (setq cursor-type (plist-get my-cur-type-ime :invisible)))
-(add-hook 'input-method-activate-hook #'my-ime-on-cursor)
-(add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
 (defun my-apply-cursor-config ()
   (interactive)
   (when (display-graphic-p)
 	  (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
-(add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
 
 ;; for init setup
 (setq-default cursor-type (plist-get my-cur-type-ime :on))
-(my-apply-cursor-config)
+(unless noninteractive
+  (add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
+  (my-apply-cursor-config))
+(add-hook 'input-method-activate-hook #'my-ime-on-cursor)
+(add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
 (declare-function my-font-config "init" nil)
 (defconst moom-autoloads
@@ -556,6 +526,9 @@ The keybindings will be assigned only when Emacs runs in GUI."
          "/System/Applications"
          "/System/Applications/Utilities"
          "/Applications/Microsoft Remote Desktop.localized")))))
+
+(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
+(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
 
 (my-tick-init-time "utility")
 (provide 'init)

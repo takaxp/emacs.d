@@ -17,7 +17,9 @@
 (tab-bar-mode -1)
 (tool-bar-mode -1)
 
-(setq gc-cons-threshold (* 64 1024 1024)) ;; 128MB
+(setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
+(with-eval-after-load "postpone"
+  (setq gc-cons-threshold (* 256 1024 1024)))
 ;; (setq garbage-collection-messages t)
 (defvar my-gc-last 0.0)
 (add-hook 'post-gc-hook
