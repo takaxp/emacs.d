@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-23 Sat 18:33 -->
+<!-- 2022-07-24 Sun 13:17 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -828,6 +828,12 @@ Then load the following at startup
 <span style="color: #b22222;">;;                                         </span><span style="color: #b22222;">Takaaki ISHIKAWA  <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a></span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">see also https://takaxp.github.io/init.html</span>
 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-autoloads</span> nil t)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">utility.el --- My utility.el -*- lexical-binding: t -*-</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">"my-" functions associated with my '</span><span style="color: #008b8b;">init.el</span><span style="color: #b22222;">'</span>
 </pre>
 </div>
 </div>
@@ -2393,6 +2399,27 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 <div id="outline-container-orge014847e" class="outline-3">
 <h3 id="orge014847e"><span class="section-number-3">3.22.</span> [epa.el] GPGを使う</h3>
 <div class="outline-text-3" id="text-orge014847e">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-private-conf-activate</span> ()
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p <span style="color: #8b2252;">"~/Dropbox/config/private.el.gpg"</span>)
+             (eq system-type 'darwin)
+             (not (boundp 'my-private-conf-loaded)))
+    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">ignore-errors</span>
+              (<span style="color: #a020f0;">if</span> shutup-p
+                  (shut-up (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t))
+                (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t)))
+      (<span style="color: #ff0000; font-weight: bold;">warn</span> <span style="color: #8b2252;">"GPG decryption error (private.el)"</span>)))
+  (remove-hook 'find-file-hook #'my-private-conf-activate))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">using both could load twice since find-file also kicks while loading the gpg.</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'find-file-hook #'my-private-conf-activate)</span>
+(run-with-idle-timer 2 nil #'my-private-conf-activate)
+</pre>
+</div>
+
 <p>
 <code>w32</code> の MSYS2 で gpg を使うと，バージョン情報が "2.2.19-unknown" などとなる．その状況で <code>epg-find-configuration</code> が呼ばれると，内部で生じるエラーが報告されず nil となり， <code>epg.el</code> が以下を報告する．
 </p>
@@ -2477,40 +2504,40 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-working-text-face-on</span> ()
-      (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> isearch-mode
-              (minibufferp))
-          (custom-set-faces
-           '(ns-working-text-face nil))
-        (custom-set-faces
-         '(ns-working-text-face
-           ((((background dark))
-             <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#594d5d"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"LightSlateBlue"</span>)
-            (t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#fff0de"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"gray20"</span>)))))))
+  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> isearch-mode
+          (minibufferp))
+      (custom-set-faces
+       '(ns-working-text-face nil))
+    (custom-set-faces
+     '(ns-working-text-face
+       ((((background dark))
+         <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#594d5d"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"LightSlateBlue"</span>)
+        (t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#fff0de"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"gray20"</span>)))))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-working-text-face-off</span> ()
-      (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> isearch-mode
-              (minibufferp))
-          (custom-set-faces
-           '(ns-working-text-face nil))
-        (custom-set-faces
-         '(ns-working-text-face
-           ((((background dark)) <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#484c5c"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"white"</span>)
-            (t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#DEEDFF"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"DarkOrchid3"</span>)))))))
+  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> isearch-mode
+          (minibufferp))
+      (custom-set-faces
+       '(ns-working-text-face nil))
+    (custom-set-faces
+     '(ns-working-text-face
+       ((((background dark)) <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#484c5c"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"white"</span>)
+        (t (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#DEEDFF"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"DarkOrchid3"</span>)))))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ns-org-heading-auto-ascii</span> ()
-      <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "%s" (frame-focus-state (selected-frame)))</span>
-      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> 
-             (fboundp 'frame-focus-state)
-                         (frame-focus-state)
-             (eq major-mode 'org-mode)
-             (boundp 'org-agenda-buffer-name)
-             (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
-                 (equal (buffer-name) org-agenda-buffer-name))
-             (my-ime-active-p))
-        (<span style="color: #a020f0;">if</span> (fboundp 'mac-ime-toggle) (mac-ime-deactivate) (my-ime-off) )))
+  <span style="color: #8b2252;">"IME off, when the cursor on org headings."</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "%s" (frame-focus-state (selected-frame)))</span>
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span>
+         (fboundp 'frame-focus-state)
+                     (frame-focus-state)
+         (eq major-mode 'org-mode)
+         (boundp 'org-agenda-buffer-name)
+         (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
+             (equal (buffer-name) org-agenda-buffer-name))
+         (my-ime-active-p))
+    (<span style="color: #a020f0;">if</span> (fboundp 'mac-ime-toggle) (mac-ime-deactivate) (my-ime-off) )))
 </pre>
 </div>
 
@@ -6723,6 +6750,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(autoload 'calendar-iso-from-absolute <span style="color: #8b2252;">"cal-iso"</span> nil t)
+(autoload 'calendar-absolute-from-gregorian <span style="color: #8b2252;">"calendar"</span> nil t)
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-get-week-number</span> ()
@@ -9686,11 +9714,14 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">eval-when-compile</span>
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dash</span>))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">counsel-flycheck-action</span> (obj <span style="color: #228b22;">&amp;rest</span> _)
-  (<span style="color: #a020f0;">-when-let*</span> ((<span style="color: #ff0000; font-weight: bold;">error</span> (get-text-property 0 'tabulated-list-id obj))
-               (pos (flycheck-error-pos error)) )
-    (goto-char (flycheck-error-pos error))))
+  (<span style="color: #a020f0;">-when-let*</span> ((err (get-text-property 0 'tabulated-list-id obj))
+               (pos (flycheck-error-pos err)) )
+    (goto-char (flycheck-error-pos err))))
 
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">counsel-flycheck-history</span> nil <span style="color: #8b2252;">"History for `</span><span style="color: #008b8b;">counsel-flycheck</span><span style="color: #8b2252;">'"</span>)
 
@@ -12834,7 +12865,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga101c22"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org994394d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13737,7 +13768,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgb8f914a" class="figure">
+<div id="orgc5b7ea4" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18043,7 +18074,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-23 Sat 18:33</p>
+<p class="date">Created: 2022-07-24 Sun 13:17</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -91,25 +91,16 @@
   ;;   (add-hook 'after-init-hook #'benchmark-init/deactivate))
 
   (require 'init nil t)
-  ;; (require 'utility-autoloads nil t) ;; 2[ms]
-
   (unless noninteractive
-    ;; (require 'utility nil t) ;; 5[ms]
     (with-eval-after-load "postpone"
       (when (and window-system
                  (require 'init-async nil t))
         (my-delete-old-backup 5)
         (when my-skip-check-autoload-file
           (my-find-missing-packages 10)))
-      (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
-                 (eq system-type 'darwin))
-        (unless (ignore-errors
-                  (if shutup-p
-                      (shut-up (require 'private "private.el.gpg" t))
-                    (require 'private "private.el.gpg" t)))
-          (warn "GPG decryption error (private.el)")))
       (require 'my-eshell nil t)
       (require 'my-mail nil t)))
+
   (when my-profiler-p
     (profiler-report)))
  ((eq my-boot-type 'debug)

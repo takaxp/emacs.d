@@ -1,3 +1,6 @@
+;; utility.el --- My utility.el -*- lexical-binding: t -*-
+;; "my-" functions associated with my 'init.el'
+
 ;;;###autoload
 (defun my-emacs-lisp-mode-conf ()
   ;; (setq indent-tabs-mode t)
@@ -9,6 +12,17 @@
   (when (eq major-mode 'org-mode)
     (org-cycle-hide-drawers 'all)))
 
+(defun my-private-conf-activate ()
+  (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
+             (eq system-type 'darwin)
+             (not (boundp 'my-private-conf-loaded)))
+    (unless (ignore-errors
+              (if shutup-p
+                  (shut-up (require 'private "private.el.gpg" t))
+                (require 'private "private.el.gpg" t)))
+      (warn "GPG decryption error (private.el)")))
+  (remove-hook 'find-file-hook #'my-private-conf-activate))
+
 ;;;###autoload
 (defun my-toggle-ime-ns ()
   "Toggle IME."
@@ -17,40 +31,40 @@
 
 ;;;###autoload
 (defun my-working-text-face-on ()
-      (if (or isearch-mode
-              (minibufferp))
-          (custom-set-faces
-           '(ns-working-text-face nil))
-        (custom-set-faces
-         '(ns-working-text-face
-           ((((background dark))
-             :background "#594d5d" :underline "LightSlateBlue")
-            (t (:background "#fff0de" :underline "gray20")))))))
+  (if (or isearch-mode
+          (minibufferp))
+      (custom-set-faces
+       '(ns-working-text-face nil))
+    (custom-set-faces
+     '(ns-working-text-face
+       ((((background dark))
+         :background "#594d5d" :underline "LightSlateBlue")
+        (t (:background "#fff0de" :underline "gray20")))))))
 
 ;;;###autoload
 (defun my-working-text-face-off ()
-      (if (or isearch-mode
-              (minibufferp))
-          (custom-set-faces
-           '(ns-working-text-face nil))
-        (custom-set-faces
-         '(ns-working-text-face
-           ((((background dark)) :background "#484c5c" :underline "white")
-            (t (:background "#DEEDFF" :underline "DarkOrchid3")))))))
+  (if (or isearch-mode
+          (minibufferp))
+      (custom-set-faces
+       '(ns-working-text-face nil))
+    (custom-set-faces
+     '(ns-working-text-face
+       ((((background dark)) :background "#484c5c" :underline "white")
+        (t (:background "#DEEDFF" :underline "DarkOrchid3")))))))
 
 ;;;###autoload
 (defun my-ns-org-heading-auto-ascii ()
-      "IME off, when the cursor on org headings."
-      ;; (message "%s" (frame-focus-state (selected-frame)))
-      (when (and 
-             (fboundp 'frame-focus-state)
-		         (frame-focus-state)
-             (eq major-mode 'org-mode)
-             (boundp 'org-agenda-buffer-name)
-             (or (looking-at org-heading-regexp)
-                 (equal (buffer-name) org-agenda-buffer-name))
-             (my-ime-active-p))
-        (if (fboundp 'mac-ime-toggle) (mac-ime-deactivate) (my-ime-off) )))
+  "IME off, when the cursor on org headings."
+  ;; (message "%s" (frame-focus-state (selected-frame)))
+  (when (and
+         (fboundp 'frame-focus-state)
+		     (frame-focus-state)
+         (eq major-mode 'org-mode)
+         (boundp 'org-agenda-buffer-name)
+         (or (looking-at org-heading-regexp)
+             (equal (buffer-name) org-agenda-buffer-name))
+         (my-ime-active-p))
+    (if (fboundp 'mac-ime-toggle) (mac-ime-deactivate) (my-ime-off) )))
 
 ;;;###autoload
 (defun my-bm-save-all ()
@@ -427,6 +441,7 @@
   (remove-hook 'find-file-hook #'my-delight-activate))
 
 (autoload 'calendar-iso-from-absolute "cal-iso" nil t)
+(autoload 'calendar-absolute-from-gregorian "calendar" nil t)
 
 ;;;###autoload
 (defun my-get-week-number ()
@@ -675,11 +690,14 @@ sorted.  FUNCTION must be a function of one argument."
         (t
          (auto-save-buffers))))
 
+(eval-when-compile
+  (require 'dash))
+
 ;;;###autoload
 (defun counsel-flycheck-action (obj &rest _)
-  (-when-let* ((error (get-text-property 0 'tabulated-list-id obj))
-               (pos (flycheck-error-pos error)) )
-    (goto-char (flycheck-error-pos error))))
+  (-when-let* ((err (get-text-property 0 'tabulated-list-id obj))
+               (pos (flycheck-error-pos err)) )
+    (goto-char (flycheck-error-pos err))))
 
 (defvar counsel-flycheck-history nil "History for `counsel-flycheck'")
 
