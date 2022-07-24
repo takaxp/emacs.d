@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-24 Sun 22:22 -->
+<!-- 2022-07-24 Sun 23:34 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -12904,7 +12904,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgedf25a2"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3b20d32"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13818,7 +13818,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgbb883f8" class="figure">
+<div id="orgb32a9f8" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15051,9 +15051,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-on-hline-hook</span> nil)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-enable</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME: having issues under utility.el</span>
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-enable</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">Hard to move this under utility.el</span>
       <span style="color: #8b2252;">"Enable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
-      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> hl-line-mode
+      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> hl-line-mode <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
                   (minibufferp)
                                     (memq major-mode my-hl-permanent-disabled))
               (hl-line-mode 1)))
@@ -18146,7 +18146,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-24 Sun 22:22</p>
+<p class="date">Created: 2022-07-24 Sun 23:34</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

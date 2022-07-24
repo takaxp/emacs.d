@@ -2308,9 +2308,9 @@ Uses `all-the-icons-material' to fetch the icon."
   (defvar my-ime-on-hline-hook nil)
 
   (with-eval-after-load "hl-line"
-    (defun my-hl-line-enable () ;; FIXME: having issues under utility.el
+    (defun my-hl-line-enable () ;; Hard to move this under utility.el
       "Enable `hl-line'."
-      (unless (or hl-line-mode
+      (unless (or hl-line-mode ;; FIXME
                   (minibufferp)
 			            (memq major-mode my-hl-permanent-disabled))
 	      (hl-line-mode 1)))
