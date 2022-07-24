@@ -88,9 +88,9 @@
        (append '(org-mode empty-booting-mode change-log-mode epa-mode)
 		           ws-butler-global-exempt-modes)))))
 
-;; using both could load twice since find-file also kicks while loading the gpg.
-;; (add-hook 'find-file-hook #'my-private-conf-activate)
-(run-with-idle-timer 2 nil #'my-private-conf-activate)
+(defvar my-private-conf-timer
+  (run-with-idle-timer 5 nil #'my-private-conf-activate))
+(add-hook 'find-file-hook #'my-private-conf-activate)
 
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)

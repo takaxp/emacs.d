@@ -14,6 +14,7 @@
 
 ;;;###autoload
 (defun my-private-conf-activate ()
+  (cancel-timer my-private-conf-timer)
   (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
              (eq system-type 'darwin)
              (not (boundp 'my-private-conf-loaded)))

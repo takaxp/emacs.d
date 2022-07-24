@@ -1470,6 +1470,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-private-conf-activate ()
+  (cancel-timer my-private-conf-timer)
   (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
              (eq system-type 'darwin)
              (not (boundp 'my-private-conf-loaded)))
@@ -1482,9 +1483,9 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-;; using both could load twice since find-file also kicks while loading the gpg.
-;; (add-hook 'find-file-hook #'my-private-conf-activate)
-(run-with-idle-timer 2 nil #'my-private-conf-activate)
+(defvar my-private-conf-timer
+  (run-with-idle-timer 5 nil #'my-private-conf-activate))
+(add-hook 'find-file-hook #'my-private-conf-activate)
 #+end_src
 
 =w32= の MSYS2 で gpg を使うと，バージョン情報が "2.2.19-unknown" などとなる．その状況で ~epg-find-configuration~ が呼ばれると，内部で生じるエラーが報告されず nil となり， ~epg.el~ が以下を報告する．
