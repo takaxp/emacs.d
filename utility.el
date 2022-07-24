@@ -1283,19 +1283,20 @@ sorted.  FUNCTION must be a function of one argument."
 ;;;###autoload
 (defun my-vhl-change-color ()
   (interactive)
-  (let ((next 0.2)
-        (reset 0.5)
-        (colors '("#F8D3D7" "#F2DAE1" "#EBE0EB" "#E5E7F5" "#DEEDFF")))
-    (dolist (color colors)
-      (run-at-time next nil
-                   'set-face-attribute
-                   'vhl/default-face
-                   nil :foreground "#FF3333" :background color)
-      (setq next (+ 0.05 next)))
-    (run-at-time reset nil 'vhl/clear-all))
-  (set-face-attribute 'vhl/default-face
-                      nil :foreground "#FF3333"
-                      :background "#FFCDCD"))
+  (when (boundp 'vhl/.hl-lst)
+    (let ((next 0.2)
+          (reset 0.5)
+          (colors '("#F8D3D7" "#F2DAE1" "#EBE0EB" "#E5E7F5" "#DEEDFF")))
+      (dolist (color colors)
+        (run-at-time next nil
+                     'set-face-attribute
+                     'vhl/default-face
+                     nil :foreground "#FF3333" :background color)
+        (setq next (+ 0.05 next)))
+      (run-at-time reset nil 'vhl/clear-all))
+    (set-face-attribute 'vhl/default-face
+                        nil :foreground "#FF3333"
+                        :background "#FFCDCD")))
 
 ;;;###autoload
 (defun my-yank (&optional ARG)

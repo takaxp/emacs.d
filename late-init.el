@@ -32,7 +32,7 @@
 
 (setq hscroll-margin 40)
 
-(setq confirm-kill-emacs 'y-or-n-p)
+(setq confirm-kill-emacs 'yes-or-no-p)
 
 (autoload-if-found
  '(el-get-version el-get-bundle
