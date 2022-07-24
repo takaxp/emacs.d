@@ -408,10 +408,10 @@ This function is called directly from the C code."
 OPTIONS is a list of moom API types.  If you want to set all recommemded
 keybindings, put the following code in your init.el.
  (with-eval-after-load \"moom\"
-   (moom-recommended-keybindings 'all))
-'all is identical to '(move fit expand fill font reset undo).
-If OPTIONS includes 'wof, then each binding is configured not to use fn key.
-If you give only '(reset) as the argument, then \\[moom-reset] is activated.
+   (moom-recommended-keybindings \='all))
+=\'all is identical to =\'(move fit expand fill font reset undo).
+If OPTIONS includes =\'wof, then each binding is configured not to use fn key.
+If you give only =\'(reset) as the argument, then \\[moom-reset] is activated.
 The keybindings will be assigned only when Emacs runs in GUI."
       (when window-system
         (when (memq 'all options)

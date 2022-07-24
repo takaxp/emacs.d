@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-24 Sun 16:26 -->
+<!-- 2022-07-24 Sun 22:22 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1094,6 +1094,12 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq byte-compile-warnings '(obsolete))</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress warning on cl.el loading</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-exclude-deprecated-packages</span> '(cl tls))
@@ -1308,6 +1314,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">postpone-pre-init-time</span> 0)
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-postpone-kicker</span> ()
     (<span style="color: #a020f0;">interactive</span>)
+    (cancel-timer my-pp-kicker-timer)
     (<span style="color: #a020f0;">when</span> (eq postpone-pre-init-time 0)
       (<span style="color: #a020f0;">unless</span> (memq this-command <span style="color: #b22222;">;; </span><span style="color: #b22222;">specify commands for exclusion</span>
                     '(self-insert-command
@@ -1324,15 +1331,15 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
         (<span style="color: #a020f0;">let</span> ((t1 (current-time)))
           (postpone-kicker 'my-postpone-kicker)
           (<span style="color: #a020f0;">setq</span> postpone-pre-init-time (float-time
-                                    (time-subtract (current-time) t1))))
+                                        (time-subtract (current-time) t1))))
         (message <span style="color: #8b2252;">"Activating postponed packages...done (%.3f seconds)"</span>
                  postpone-pre-init-time))))
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#26368;&#21021;&#12398;&#12450;&#12463;&#12471;&#12519;&#12531;&#12391;&#12461;&#12483;&#12463;</span>
-  (add-hook 'pre-command-hook #'my-postpone-kicker)
-
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;X&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
-  (run-with-idle-timer 8 nil #'my-postpone-kicker))
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pp-kicker-timer</span> (run-with-idle-timer 8 nil #'my-postpone-kicker))
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#26368;&#21021;&#12398;&#12450;&#12463;&#12471;&#12519;&#12531;&#12391;&#12461;&#12483;&#12463;</span>
+  (add-hook 'pre-command-hook #'my-postpone-kicker))
 </pre>
 </div>
 </div>
@@ -3194,13 +3201,20 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-centered-cursor-activate</span> () (centered-cursor-mode 1))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-centered-cursor-deactivate</span> () (centered-cursor-mode -1))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(centered-cursor-mode)
        <span style="color: #8b2252;">"centered-cursor-mode"</span> nil t)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">isearch &#12398;&#26178;&#12399;OFF&#12395;&#12377;&#12427;</span>
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-centered-cursor-activate</span> () (centered-cursor-mode 1))
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-centered-cursor-deactivate</span> () (centered-cursor-mode -1))
   (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
   (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate))
 </pre>
@@ -5026,6 +5040,11 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
                            (region-beginning) (region-end)))))
       (funcall region))))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-describe-selected-keymap</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (describe-keymap 'selected-keymap))
+
 </pre>
 </div>
 
@@ -5070,9 +5089,6 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       (define-key selected-keymap (kbd <span style="color: #8b2252;">"l"</span>) 'counsel-selected))
 
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">help-fns+</span> nil t)
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-describe-selected-keymap</span> ()
-        (<span style="color: #a020f0;">interactive</span>)
-        (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd <span style="color: #8b2252;">"H"</span>) #'my-describe-selected-keymap))))
 </pre>
 </div>
@@ -5553,20 +5569,14 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 <h3 id="org581a32ab"><span class="section-number-3">6.2.</span> <span class="todo TODO">TODO</span> モードラインの色をナローイングで変える</h3>
 <div class="outline-text-3" id="text-org581a32ab">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"#426EBB"</span> <span style="color: #8b2252;">"#FFFFFF"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">background, foreground</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-buffer-narrowed-last</span> nil)
-(make-local-variable 'my-buffer-narrowed-last)
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-selected-window-last</span> nil)
-(add-hook 'buffer-list-update-hook #'my-update-modeline-face)
-
-
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19979;&#35352;3&#12388;&#12434; utility.el &#12395;&#25345;&#12387;&#12390;&#12356;&#12367;&#26178;&#65292;&#35501;&#12415;&#36796;&#12415;&#12398;&#21839;&#38988;&#12364;&#20986;&#12427; FIXME</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-update-modeline-face</span> ()
   (<span style="color: #a020f0;">setq</span> my-selected-window-last (frame-selected-window))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- %s" my-selected-window-last)</span>
   (<span style="color: #a020f0;">unless</span> (minibufferp)
     (my-modeline-face (buffer-narrowed-p))))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-modeline-face</span> (buffer-narrowed)
   <span style="color: #8b2252;">"Update modeline color.</span>
 <span style="color: #8b2252;">If BUFFER-NARROWED is nil, then change the color to indicating `</span><span style="color: #008b8b;">widen</span><span style="color: #8b2252;">'.</span>
@@ -5584,11 +5594,22 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
                             ,(nth 1 my-narrow-modeline))))))
         (custom-set-faces '(mode-line ((t nil))))))))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-update-modeline-color</span> ()
   <span style="color: #8b2252;">"Update modeline face of the current selected window.</span>
 <span style="color: #8b2252;">Call this function at updating `</span><span style="color: #008b8b;">mode-line-mode</span><span style="color: #8b2252;">'."</span>
   (<span style="color: #a020f0;">when</span> (eq my-selected-window-last (frame-selected-window))
     (my-modeline-face (buffer-narrowed-p))))
+</pre>
+</div>
+
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-narrow-modeline</span> '(<span style="color: #8b2252;">"#426EBB"</span> <span style="color: #8b2252;">"#FFFFFF"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">background, foreground</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-buffer-narrowed-last</span> nil)
+(make-local-variable 'my-buffer-narrowed-last)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-selected-window-last</span> nil)
+(add-hook 'buffer-list-update-hook #'my-update-modeline-face)
 </pre>
 </div>
 </div>
@@ -7386,14 +7407,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 <h3 id="orga6eb6883"><span class="section-number-3">6.42.</span> <span class="todo TODO">TODO</span> [emacs-tree-sitter.el] tree-sitter でシンタックスハイライトする</h3>
 <div class="outline-text-3" id="text-orga6eb6883">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">let*</span> ((elp (expand-file-name
-             (concat <span style="color: #8b2252;">"~/.emacs.d/"</span> (format <span style="color: #8b2252;">"%s"</span> emacs-version) <span style="color: #8b2252;">"/el-get/"</span>)))
- (ets (concat elp <span style="color: #8b2252;">"emacs-tree-sitter/"</span>))
- (tsl (concat elp <span style="color: #8b2252;">"tree-sitter-langs/"</span>)))
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'load-path (concat ets "langs"))</span>
-  (add-to-list 'load-path (concat ets <span style="color: #8b2252;">"core"</span>))
-  (add-to-list 'load-path (concat ets <span style="color: #8b2252;">"lisp"</span>))
-  (add-to-list 'load-path tsl))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-enable-tree-sitter</span> ()
   (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">tree-sitter</span>)
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">tree-sitter</span>)
@@ -7402,6 +7416,19 @@ version 28 で全角スペースに黒下線が付くので回避します．
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">tree-sitter-query</span>)
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">tree-sitter-langs</span>))
   (tree-sitter-hl-mode))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">let*</span> ((elp (expand-file-name
+                   (concat <span style="color: #8b2252;">"~/.emacs.d/"</span> (format <span style="color: #8b2252;">"%s"</span> emacs-version) <span style="color: #8b2252;">"/el-get/"</span>)))
+       (ets (concat elp <span style="color: #8b2252;">"emacs-tree-sitter/"</span>))
+       (tsl (concat elp <span style="color: #8b2252;">"tree-sitter-langs/"</span>)))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'load-path (concat ets "langs"))</span>
+  (add-to-list 'load-path (concat ets <span style="color: #8b2252;">"core"</span>))
+  (add-to-list 'load-path (concat ets <span style="color: #8b2252;">"lisp"</span>))
+  (add-to-list 'load-path tsl))
+
 (<span style="color: #a020f0;">dolist</span> (hook '(js-mode-hook))
   (add-hook hook #'my-enable-tree-sitter))
 </pre>
@@ -7544,6 +7571,11 @@ version 28 で全角スペースに黒下線が付くので回避します．
   (<span style="color: #a020f0;">when</span> my-dimmer-mode
           (dimmer-mode 1)
           (dimmer-process-all)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-dimmer-update</span> ()
+        (<span style="color: #a020f0;">if</span> (frame-focus-state) (dimmer-on) (dimmer-off)))
+
 </pre>
 </div>
 
@@ -7566,8 +7598,6 @@ version 28 で全角スペースに黒下線が付くので回避します．
               (<span style="color: #a020f0;">progn</span>
                 (add-hook 'focus-out-hook #'dimmer-off)
                 (add-hook 'focus-in-hook #'dimmer-on))
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-dimmer-update</span> ()
-              (<span style="color: #a020f0;">if</span> (frame-focus-state) (dimmer-on) (dimmer-off)))
       (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function #'my-dimmer-update))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">for org-agenda</span>
@@ -11848,7 +11878,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;org buffer &#12434;&#35370;&#21839;&#12375;&#12390;&#65292;10&#31186;&#24453;&#12388;&#12392;&#65292;org-agenda &#12364;&#26377;&#21177;&#12395;&#12394;&#12427;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#30452;&#25509; org-agenda &#12434;&#21481;&#12367;&#22580;&#21512;&#12399;&#37325;&#12356;&#12414;&#12414;&#65288;&#12479;&#12452;&#12510;&#12540;&#36208;&#12387;&#12390;&#12418;&#12473;&#12523;&#12540;&#65289;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12428;&#12434; (with-eval-after-load "org") &#12398;&#20013;&#12395;&#32622;&#12367;&#12392;&#25391;&#12427;&#33310;&#12356;&#12364;&#22793;(2&#22238;&#23455;&#34892;)&#12395;&#12394;&#12427;</span>
-(run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-pb-timer</span>
+  (run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers))
 </pre>
 </div>
 
@@ -12873,7 +12904,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org1720b82"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgedf25a2"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13324,6 +13355,29 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-push-trello-card</span> () (<span style="color: #a020f0;">interactive</span>) (org-trello-sync-card))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-pull-trello-card</span> () (<span style="color: #a020f0;">interactive</span>) (org-trello-sync-card t))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-push-trello</span> () (<span style="color: #a020f0;">interactive</span>) (org-trello-sync-buffer))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-pull-trello</span> () (<span style="color: #a020f0;">interactive</span>) (org-trello-sync-buffer t))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-activate-org-trello</span> ()
+  (<span style="color: #a020f0;">let</span> ((filename (buffer-file-name (current-buffer))))
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> filename
+               (string= <span style="color: #8b2252;">"trello"</span> (file-name-extension filename))
+               (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-trello</span> nil t))
+      (org-trello-mode))))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">1. TODO/DOING/DONE &#12395; trello &#20596;&#12398;&#12459;&#12540;&#12489;&#12434;&#22793;&#12360;&#12390;&#12362;&#12367;&#65294;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">2. M-x org-trello-install-key-and-token</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">~/.emacs.d/.trello/&lt;account&gt;.el &#12364;&#20316;&#12425;&#12428;&#12427;</span>
@@ -13339,19 +13393,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
   (add-to-list 'auto-mode-alist '(<span style="color: #8b2252;">"\\.trello$"</span> . org-mode))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-activate-org-trello</span> ()
-      (<span style="color: #a020f0;">let</span> ((filename (buffer-file-name (current-buffer))))
-        (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> filename
-                   (string= <span style="color: #8b2252;">"trello"</span> (file-name-extension filename))
-                   (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-trello</span> nil t))
-          (org-trello-mode))))
-    (add-hook 'org-mode-hook #'my-activate-org-trello))
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-trello"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-push-trello-card</span> () (<span style="color: #a020f0;">interactive</span>) (org-trello-sync-card))
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-pull-trello-card</span> () (<span style="color: #a020f0;">interactive</span>) (org-trello-sync-card t))
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-push-trello</span> () (<span style="color: #a020f0;">interactive</span>) (org-trello-sync-buffer))
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-pull-trello</span> () (<span style="color: #a020f0;">interactive</span>) (org-trello-sync-buffer t))))
+    (add-hook 'org-mode-hook #'my-activate-org-trello)))
 </pre>
 </div>
 </div>
@@ -13776,7 +13818,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgf700bee" class="figure">
+<div id="orgbb883f8" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14357,10 +14399,10 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <span style="color: #8b2252;">OPTIONS is a list of moom API types.  If you want to set all recommemded</span>
 <span style="color: #8b2252;">keybindings, put the following code in your init.el.</span>
 <span style="color: #8b2252;"> (with-eval-after-load \"moom\"</span>
-<span style="color: #8b2252;">   (moom-recommended-keybindings 'all))</span>
-<span style="color: #8b2252;">'all is identical to '(move fit expand fill font reset undo).</span>
-<span style="color: #8b2252;">If OPTIONS includes 'wof, then each binding is configured not to use fn key.</span>
-<span style="color: #8b2252;">If you give only '(reset) as the argument, then \\[</span><span style="color: #008b8b;">moom-reset</span><span style="color: #8b2252;">] is activated.</span>
+<span style="color: #8b2252;">   (moom-recommended-keybindings </span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">='all))</span>
+<span style="color: #8b2252;">=</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'all is identical to =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'(move fit expand fill font reset undo).</span>
+<span style="color: #8b2252;">If OPTIONS includes =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'wof, then each binding is configured not to use fn key.</span>
+<span style="color: #8b2252;">If you give only =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'(reset) as the argument, then \\[</span><span style="color: #008b8b;">moom-reset</span><span style="color: #8b2252;">] is activated.</span>
 <span style="color: #8b2252;">The keybindings will be assigned only when Emacs runs in GUI."</span>
       (<span style="color: #a020f0;">when</span> window-system
         (<span style="color: #a020f0;">when</span> (memq 'all options)
@@ -14983,6 +15025,15 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
   (<span style="color: #a020f0;">let</span> ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
           (set-face-background hl-line-face (<span style="color: #a020f0;">if</span> dark <span style="color: #8b2252;">"#594d5d"</span> <span style="color: #8b2252;">"#fff0de"</span>)))
   (run-hooks 'my-ime-on-hline-hook))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-update</span> ()
+        (<span style="color: #a020f0;">if</span> (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-disable</span> ()
+  <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
+  (hl-line-mode -1))
 </pre>
 </div>
 
@@ -14991,7 +15042,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
        '(hl-line-mode my-hl-line-enable)
        <span style="color: #8b2252;">"hl-line"</span> nil t)
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)</span>
+  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-permanent-disabled</span> '(dired-mode vterm-mode)
     <span style="color: #8b2252;">"A list of major modes to disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>)
@@ -15000,16 +15051,10 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-on-hline-hook</span> nil)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">my-hl-line-disable &#12392; my-hl-line-enable &#12434; utility.el &#12395;&#25345;&#12387;&#12390;&#12356;&#12367;&#22580;&#21512;&#12399;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">hl-line-mode&#12398;&#35413;&#20385;&#31623;&#25152;&#12434;&#38306;&#25968;&#12395;&#32622;&#12365;&#25563;&#12360;&#12427;&#12394;&#12393;&#23550;&#31574;&#12364;&#24517;&#35201;</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-disable</span> ()
-      <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
-      (hl-line-mode -1))
-
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-enable</span> ()
+    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-enable</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME: having issues under utility.el</span>
       <span style="color: #8b2252;">"Enable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
       (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> hl-line-mode
-                              (minibufferp)
+                  (minibufferp)
                                     (memq major-mode my-hl-permanent-disabled))
               (hl-line-mode 1)))
 
@@ -15031,8 +15076,6 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
               (<span style="color: #a020f0;">progn</span>
                 (add-hook 'focus-in-hook #'my-hl-line-enable)
                 (add-hook 'focus-out-hook #'my-hl-line-disable))
-      (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-update</span> ()
-              (<span style="color: #a020f0;">if</span> (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
       (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:after</span> after-focus-change-function #'my-hl-line-update))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'minibuffer-setup-hook #'my-hl-line-disable)</span>
@@ -15719,6 +15762,47 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <h3 id="orge836aa4d"><span class="section-number-3">12.15.</span> [ivy.el] インターフェイスの配色</h3>
 <div class="outline-text-3" id="text-orge836aa4d">
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow-iit</span> (cands)
+  <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
+  (ivy--format-function-generic
+   (<span style="color: #a020f0;">lambda</span> (str)
+     (concat (icons-in-terminal-faicon
+              <span style="color: #8b2252;">"hand-o-right"</span>
+              <span style="color: #483d8b;">:v-adjust</span> -0.1
+              <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible
+              <span style="color: #483d8b;">:height</span> 0.8)
+             <span style="color: #8b2252;">" "</span> (ivy--add-face (concat str <span style="color: #8b2252;">"\n"</span>)
+                                'ivy-current-match)))
+   (<span style="color: #a020f0;">lambda</span> (str)
+     (concat (icons-in-terminal-faicon
+              <span style="color: #8b2252;">"hand-o-right"</span>
+              <span style="color: #483d8b;">:v-adjust</span> -0.1
+              <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible
+              <span style="color: #483d8b;">:height</span> 0.8)
+             <span style="color: #8b2252;">" "</span> (concat str <span style="color: #8b2252;">"\n"</span>)))
+   cands
+   <span style="color: #8b2252;">""</span>))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow-ati</span> (cands)
+  <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
+  (ivy--format-function-generic
+   (<span style="color: #a020f0;">lambda</span> (str)
+     (concat (all-the-icons-faicon
+              <span style="color: #8b2252;">"hand-o-right"</span>
+              <span style="color: #483d8b;">:v-adjust</span> -0.2 <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible)
+             <span style="color: #8b2252;">" "</span> (ivy--add-face str 'ivy-current-match)))
+   (<span style="color: #a020f0;">lambda</span> (str)
+     (concat (all-the-icons-faicon
+              <span style="color: #8b2252;">"hand-o-right"</span> <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible)
+             <span style="color: #8b2252;">" "</span> str))
+   cands
+   <span style="color: #8b2252;">"\n"</span>))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
   (custom-set-faces
    '(ivy-current-match
@@ -15760,47 +15844,14 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 
   (<span style="color: #a020f0;">if</span> window-system
       (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-             (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow</span> (cands)
-               <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
-               (ivy--format-function-generic
-                (<span style="color: #a020f0;">lambda</span> (str)
-                  (concat (icons-in-terminal-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span>
-                           <span style="color: #483d8b;">:v-adjust</span> -0.1
-                           <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible
-                           <span style="color: #483d8b;">:height</span> 0.8)
-                          <span style="color: #8b2252;">" "</span> (ivy--add-face (concat str <span style="color: #8b2252;">"\n"</span>)
-                                             'ivy-current-match)))
-                (<span style="color: #a020f0;">lambda</span> (str)
-                  (concat (icons-in-terminal-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span>
-                           <span style="color: #483d8b;">:v-adjust</span> -0.1
-                           <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible
-                           <span style="color: #483d8b;">:height</span> 0.8)
-                          <span style="color: #8b2252;">" "</span> (concat str <span style="color: #8b2252;">"\n"</span>)))
-                cands
-                <span style="color: #8b2252;">""</span>))
              (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
+                   '((t . my-ivy-format-function-arrow-iit))))
             ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
-             (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow</span> (cands)
-               <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
-               (ivy--format-function-generic
-                (<span style="color: #a020f0;">lambda</span> (str)
-                  (concat (all-the-icons-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span>
-                           <span style="color: #483d8b;">:v-adjust</span> -0.2 <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible)
-                          <span style="color: #8b2252;">" "</span> (ivy--add-face str 'ivy-current-match)))
-                (<span style="color: #a020f0;">lambda</span> (str)
-                  (concat (all-the-icons-faicon
-                           <span style="color: #8b2252;">"hand-o-right"</span> <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible)
-                          <span style="color: #8b2252;">" "</span> str))
-                cands
-                <span style="color: #8b2252;">"\n"</span>))
              (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
-            (t (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
-                     '((t . ivy-format-function-arrow)))))
+                   '((t . my-ivy-format-function-arrow-ati))))
+            (t
+             (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
+                   '((t . ivy-format-function-arrow)))))
     (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
 </pre>
 </div>
@@ -16516,6 +16567,22 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 <h3 id="org2adaf11c"><span class="section-number-3">13.12.</span> 検索語を変えずに counsel-fzf に接続する</h3>
 <div class="outline-text-3" id="text-org2adaf11c">
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-nocand-then-fzf-reset</span> ()
+  (<span style="color: #a020f0;">setq</span> my--nocand-then-fzf t))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-nocand-then-fzf</span> (prompt)
+  (<span style="color: #a020f0;">when</span> (= ivy--length 0)
+    (<span style="color: #a020f0;">if</span> (eq (read-char prompt) ?y) <span style="color: #b22222;">;; </span><span style="color: #b22222;">y-or-n-p is not applicable</span>
+        (ivy-exit-with-action
+         (<span style="color: #a020f0;">lambda</span> (_x)
+           (counsel-fzf ivy-text default-directory)))
+      (<span style="color: #a020f0;">setq</span> my--nocand-then-fzf nil))))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
 <span style="color: #b22222;">;;; </span><span style="color: #b22222;">auto fzf, 0&#20214;&#12498;&#12483;&#12488;&#12398;&#26178;&#65292;1&#22238;&#12384;&#12369;[y/n]&#12391; counsel-fzf &#12395;&#32331;&#12368;&#12363;&#21839;&#12358;</span>
   (<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">my-nocand-then-fzf-commands</span> '(counsel-recentf
@@ -16531,15 +16598,6 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
     <span style="color: #483d8b;">:type</span> 'float) <span style="color: #b22222;">;; </span><span style="color: #b22222;">N[s] &#28961;&#24540;&#31572;&#12398;&#26178;[y/n]&#12434;&#20986;&#12377;&#65294;</span>
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my--nocand-then-fzf</span> t)
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-nocand-then-fzf-reset</span> ()
-    (<span style="color: #a020f0;">setq</span> my--nocand-then-fzf t))
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-nocand-then-fzf</span> (prompt)
-    (<span style="color: #a020f0;">when</span> (= ivy--length 0)
-      (<span style="color: #a020f0;">if</span> (eq (read-char prompt) ?y) <span style="color: #b22222;">;; </span><span style="color: #b22222;">y-or-n-p is not applicable</span>
-          (ivy-exit-with-action
-           (<span style="color: #a020f0;">lambda</span> (_x)
-             (counsel-fzf ivy-text default-directory)))
-        (<span style="color: #a020f0;">setq</span> my--nocand-then-fzf nil))))
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:fzf:ivy--insert-prompt</span> ()
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> my--nocand-then-fzf
                (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)
@@ -18088,7 +18146,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-24 Sun 16:26</p>
+<p class="date">Created: 2022-07-24 Sun 22:22</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

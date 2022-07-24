@@ -275,8 +275,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
        "centered-cursor-mode" nil t)
 
   ;; isearch の時はOFFにする
-  (defun my-centered-cursor-activate () (centered-cursor-mode 1))
-  (defun my-centered-cursor-deactivate () (centered-cursor-mode -1))
   (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
   (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate))
 
@@ -857,9 +855,6 @@ This works also for other defined begin/end tokens to define the structure."
       (define-key selected-keymap (kbd "l") 'counsel-selected))
 
     (when (require 'help-fns+ nil t)
-      (defun my-describe-selected-keymap ()
-        (interactive)
-        (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))))
 
 (when (autoload-if-found
@@ -881,37 +876,6 @@ This works also for other defined begin/end tokens to define the structure."
 (make-local-variable 'my-buffer-narrowed-last)
 (defvar my-selected-window-last nil)
 (add-hook 'buffer-list-update-hook #'my-update-modeline-face)
-
-
-;; 下記3つを utility.el に持っていく時，読み込みの問題が出る FIXME
-(defun my-update-modeline-face ()
-  (setq my-selected-window-last (frame-selected-window))
-  ;; (message "--- %s" my-selected-window-last)
-  (unless (minibufferp)
-    (my-modeline-face (buffer-narrowed-p))))
-
-(defun my-modeline-face (buffer-narrowed)
-  "Update modeline color.
-If BUFFER-NARROWED is nil, then change the color to indicating `widen'.
-Otherwise, indicating narrowing."
-  (unless (eq my-buffer-narrowed-last
-              buffer-narrowed) ;; block unnecessary request
-    (setq my-buffer-narrowed-last buffer-narrowed)
-    ;; (message "--- %s %s %s" this-command last-command buffer-narrowed)
-    (when (not (memq this-command '(save-buffer))) ;; FIXME
-      (if buffer-narrowed
-          (custom-set-faces
-           `(mode-line ((t (:background
-                            ,(nth 0 my-narrow-modeline)
-                            :foreground
-                            ,(nth 1 my-narrow-modeline))))))
-        (custom-set-faces '(mode-line ((t nil))))))))
-
-(defun my-update-modeline-color ()
-  "Update modeline face of the current selected window.
-Call this function at updating `mode-line-mode'."
-  (when (eq my-selected-window-last (frame-selected-window))
-    (my-modeline-face (buffer-narrowed-p))))
 
 (setq mode-line-modes
       (mapcar
@@ -1461,21 +1425,14 @@ Call this function at updating `mode-line-mode'."
     (setq command-log-mode-window-size 60)))
 
 (let* ((elp (expand-file-name
-	     (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")))
- (ets (concat elp "emacs-tree-sitter/"))
- (tsl (concat elp "tree-sitter-langs/")))
+	           (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")))
+       (ets (concat elp "emacs-tree-sitter/"))
+       (tsl (concat elp "tree-sitter-langs/")))
   ;; (add-to-list 'load-path (concat ets "langs"))
   (add-to-list 'load-path (concat ets "core"))
   (add-to-list 'load-path (concat ets "lisp"))
   (add-to-list 'load-path tsl))
-(defun my-enable-tree-sitter ()
-  (unless (featurep 'tree-sitter)
-    (require 'tree-sitter)
-    (require 'tree-sitter-hl)
-    (require 'tree-sitter-debug)
-    (require 'tree-sitter-query)
-    (require 'tree-sitter-langs))
-  (tree-sitter-hl-mode))
+
 (dolist (hook '(js-mode-hook))
   (add-hook hook #'my-enable-tree-sitter))
 
@@ -1531,8 +1488,6 @@ Call this function at updating `mode-line-mode'."
 	      (progn
 	        (add-hook 'focus-out-hook #'dimmer-off)
 	        (add-hook 'focus-in-hook #'dimmer-on))
-      (defun my-dimmer-update ()
-	      (if (frame-focus-state) (dimmer-on) (dimmer-off)))
       (add-function :before after-focus-change-function #'my-dimmer-update))
 
     ;; for org-agenda
@@ -2066,7 +2021,8 @@ Call this function at updating `mode-line-mode'."
 ;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
-(run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers)
+(defvar my-org-agenda-pb-timer
+  (run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers))
 
 (with-eval-after-load "icons-in-terminal"
   (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
@@ -2093,19 +2049,7 @@ Call this function at updating `mode-line-mode'."
   (add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
 
   (with-eval-after-load "org"
-    (defun my-activate-org-trello ()
-      (let ((filename (buffer-file-name (current-buffer))))
-        (when (and filename
-                   (string= "trello" (file-name-extension filename))
-                   (require 'org-trello nil t))
-          (org-trello-mode))))
-    (add-hook 'org-mode-hook #'my-activate-org-trello))
-
-  (with-eval-after-load "org-trello"
-    (defun my-push-trello-card () (interactive) (org-trello-sync-card))
-    (defun my-pull-trello-card () (interactive) (org-trello-sync-card t))
-    (defun my-push-trello () (interactive) (org-trello-sync-buffer))
-    (defun my-pull-trello () (interactive) (org-trello-sync-buffer t))))
+    (add-hook 'org-mode-hook #'my-activate-org-trello)))
 
 (when (autoload-if-found
        '(org-recent-headings org-recent-headings-mode)
@@ -2355,7 +2299,7 @@ Uses `all-the-icons-material' to fetch the icon."
        '(hl-line-mode my-hl-line-enable)
        "hl-line" nil t)
 
-  ;; (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
+  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
 
   (defvar my-hl-permanent-disabled '(dired-mode vterm-mode)
     "A list of major modes to disable `hl-line'.")
@@ -2364,16 +2308,10 @@ Uses `all-the-icons-material' to fetch the icon."
   (defvar my-ime-on-hline-hook nil)
 
   (with-eval-after-load "hl-line"
-    ;; my-hl-line-disable と my-hl-line-enable を utility.el に持っていく場合は
-    ;; hl-line-modeの評価箇所を関数に置き換えるなど対策が必要
-    (defun my-hl-line-disable ()
-      "Disable `hl-line'."
-      (hl-line-mode -1))
-
-    (defun my-hl-line-enable ()
+    (defun my-hl-line-enable () ;; FIXME: having issues under utility.el
       "Enable `hl-line'."
       (unless (or hl-line-mode
-		              (minibufferp)
+                  (minibufferp)
 			            (memq major-mode my-hl-permanent-disabled))
 	      (hl-line-mode 1)))
 
@@ -2395,8 +2333,6 @@ Uses `all-the-icons-material' to fetch the icon."
 	      (progn
 	        (add-hook 'focus-in-hook #'my-hl-line-enable)
 	        (add-hook 'focus-out-hook #'my-hl-line-disable))
-      (defun my-hl-line-update ()
-	      (if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
       (add-function :after after-focus-change-function #'my-hl-line-update))
 
     ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
@@ -2506,47 +2442,14 @@ Uses `all-the-icons-material' to fetch the icon."
 
   (if window-system
       (cond ((require 'icons-in-terminal nil t)
-             (defun my-ivy-format-function-arrow (cands)
-               "Transform CANDS into a string for minibuffer."
-               (ivy--format-function-generic
-                (lambda (str)
-                  (concat (icons-in-terminal-faicon
-                           "hand-o-right"
-                           :v-adjust -0.1
-                           :face 'my-ivy-arrow-visible
-                           :height 0.8)
-                          " " (ivy--add-face (concat str "\n")
-                                             'ivy-current-match)))
-                (lambda (str)
-                  (concat (icons-in-terminal-faicon
-                           "hand-o-right"
-                           :v-adjust -0.1
-                           :face 'my-ivy-arrow-invisible
-                           :height 0.8)
-                          " " (concat str "\n")))
-                cands
-                ""))
              (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
+                   '((t . my-ivy-format-function-arrow-iit))))
             ((require 'all-the-icons nil t)
-             (defun my-ivy-format-function-arrow (cands)
-               "Transform CANDS into a string for minibuffer."
-               (ivy--format-function-generic
-                (lambda (str)
-                  (concat (all-the-icons-faicon
-                           "hand-o-right"
-                           :v-adjust -0.2 :face 'my-ivy-arrow-visible)
-                          " " (ivy--add-face str 'ivy-current-match)))
-                (lambda (str)
-                  (concat (all-the-icons-faicon
-                           "hand-o-right" :face 'my-ivy-arrow-invisible)
-                          " " str))
-                cands
-                "\n"))
              (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
-            (t (setq ivy-format-functions-alist
-                     '((t . ivy-format-function-arrow)))))
+                   '((t . my-ivy-format-function-arrow-ati))))
+            (t
+             (setq ivy-format-functions-alist
+                   '((t . ivy-format-function-arrow)))))
     (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
 
 (when (autoload-if-found
@@ -2689,15 +2592,6 @@ Uses `all-the-icons-material' to fetch the icon."
     :type 'float) ;; N[s] 無応答の時[y/n]を出す．
 
   (defvar my--nocand-then-fzf t)
-  (defun my-nocand-then-fzf-reset ()
-    (setq my--nocand-then-fzf t))
-  (defun my-nocand-then-fzf (prompt)
-    (when (= ivy--length 0)
-      (if (eq (read-char prompt) ?y) ;; y-or-n-p is not applicable
-          (ivy-exit-with-action
-           (lambda (_x)
-             (counsel-fzf ivy-text default-directory)))
-        (setq my--nocand-then-fzf nil))))
   (defun ad:fzf:ivy--insert-prompt ()
     (when (and my--nocand-then-fzf
                (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)

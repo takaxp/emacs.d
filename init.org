@@ -312,6 +312,11 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 特定のパッケージの deprecated メッセージを抑制します． =my-exclude-deprecated-packages= にパッケージを列挙します．以下は =cl= と =tls= の出力だけ抑制して他のパッケージの場合は表示します．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+
+#+end_src
+
 #+begin_src emacs-lisp :tangle yes
 ;; (setq byte-compile-warnings '(obsolete))
 ;; Suppress warning on cl.el loading
@@ -499,6 +504,7 @@ This function is called directly from the C code."
   (defvar postpone-pre-init-time 0)
   (defun my-postpone-kicker ()
     (interactive)
+    (cancel-timer my-pp-kicker-timer)
     (when (eq postpone-pre-init-time 0)
       (unless (memq this-command ;; specify commands for exclusion
                     '(self-insert-command
@@ -515,15 +521,15 @@ This function is called directly from the C code."
         (let ((t1 (current-time)))
           (postpone-kicker 'my-postpone-kicker)
           (setq postpone-pre-init-time (float-time
-                                    (time-subtract (current-time) t1))))
+                                        (time-subtract (current-time) t1))))
         (message "Activating postponed packages...done (%.3f seconds)"
                  postpone-pre-init-time))))
 
-  ;; 起動後，最初のアクションでキック
-  (add-hook 'pre-command-hook #'my-postpone-kicker)
-
   ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
-  (run-with-idle-timer 8 nil #'my-postpone-kicker))
+  (defvar my-pp-kicker-timer (run-with-idle-timer 8 nil #'my-postpone-kicker))
+
+  ;; 起動後，最初のアクションでキック
+  (add-hook 'pre-command-hook #'my-postpone-kicker))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :exports none
@@ -2155,14 +2161,20 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 
 =isearch-mode= の時だけ有効にしています．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-centered-cursor-activate () (centered-cursor-mode 1))
+
+;;;###autoload
+(defun my-centered-cursor-deactivate () (centered-cursor-mode -1))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(centered-cursor-mode)
        "centered-cursor-mode" nil t)
 
   ;; isearch の時はOFFにする
-  (defun my-centered-cursor-activate () (centered-cursor-mode 1))
-  (defun my-centered-cursor-deactivate () (centered-cursor-mode -1))
   (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
   (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate))
 #+end_src
@@ -3706,6 +3718,11 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
                            (region-beginning) (region-end)))))
       (funcall region))))
 
+;;;###autoload
+(defun my-describe-selected-keymap ()
+  (interactive)
+  (describe-keymap 'selected-keymap))
+
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -3749,9 +3766,6 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       (define-key selected-keymap (kbd "l") 'counsel-selected))
 
     (when (require 'help-fns+ nil t)
-      (defun my-describe-selected-keymap ()
-        (interactive)
-        (describe-keymap 'selected-keymap))
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))))
 #+end_src
 
@@ -4166,21 +4180,15 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
    :ID:       7E9DDA0D-7617-4E9F-B2D5-725B2DFC5FF2
    :END:
 
-#+begin_src emacs-lisp :tangle late-init.el
-(defvar my-narrow-modeline '("#426EBB" "#FFFFFF")) ;; background, foreground
-(defvar my-buffer-narrowed-last nil)
-(make-local-variable 'my-buffer-narrowed-last)
-(defvar my-selected-window-last nil)
-(add-hook 'buffer-list-update-hook #'my-update-modeline-face)
-
-
-;; 下記3つを utility.el に持っていく時，読み込みの問題が出る FIXME
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun my-update-modeline-face ()
   (setq my-selected-window-last (frame-selected-window))
   ;; (message "--- %s" my-selected-window-last)
   (unless (minibufferp)
     (my-modeline-face (buffer-narrowed-p))))
 
+;;;###autoload
 (defun my-modeline-face (buffer-narrowed)
   "Update modeline color.
 If BUFFER-NARROWED is nil, then change the color to indicating `widen'.
@@ -4198,11 +4206,21 @@ Otherwise, indicating narrowing."
                             ,(nth 1 my-narrow-modeline))))))
         (custom-set-faces '(mode-line ((t nil))))))))
 
+;;;###autoload
 (defun my-update-modeline-color ()
   "Update modeline face of the current selected window.
 Call this function at updating `mode-line-mode'."
   (when (eq my-selected-window-last (frame-selected-window))
     (my-modeline-face (buffer-narrowed-p))))
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle late-init.el
+(defvar my-narrow-modeline '("#426EBB" "#FFFFFF")) ;; background, foreground
+(defvar my-buffer-narrowed-last nil)
+(make-local-variable 'my-buffer-narrowed-last)
+(defvar my-selected-window-last nil)
+(add-hook 'buffer-list-update-hook #'my-update-modeline-face)
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports none
@@ -5807,15 +5825,8 @@ sorted.  FUNCTION must be a function of one argument."
    :CUSTOM_ID: orga6eb6883
    :END:
 
-#+begin_src emacs-lisp :tangle late-init.el
-(let* ((elp (expand-file-name
-	     (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")))
- (ets (concat elp "emacs-tree-sitter/"))
- (tsl (concat elp "tree-sitter-langs/")))
-  ;; (add-to-list 'load-path (concat ets "langs"))
-  (add-to-list 'load-path (concat ets "core"))
-  (add-to-list 'load-path (concat ets "lisp"))
-  (add-to-list 'load-path tsl))
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun my-enable-tree-sitter ()
   (unless (featurep 'tree-sitter)
     (require 'tree-sitter)
@@ -5824,6 +5835,18 @@ sorted.  FUNCTION must be a function of one argument."
     (require 'tree-sitter-query)
     (require 'tree-sitter-langs))
   (tree-sitter-hl-mode))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(let* ((elp (expand-file-name
+	           (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")))
+       (ets (concat elp "emacs-tree-sitter/"))
+       (tsl (concat elp "tree-sitter-langs/")))
+  ;; (add-to-list 'load-path (concat ets "langs"))
+  (add-to-list 'load-path (concat ets "core"))
+  (add-to-list 'load-path (concat ets "lisp"))
+  (add-to-list 'load-path tsl))
+
 (dolist (hook '(js-mode-hook))
   (add-hook hook #'my-enable-tree-sitter))
 #+end_src
@@ -5953,6 +5976,11 @@ sorted.  FUNCTION must be a function of one argument."
   (when my-dimmer-mode
 	  (dimmer-mode 1)
 	  (dimmer-process-all)))
+
+;;;###autoload
+(defun my-dimmer-update ()
+	(if (frame-focus-state) (dimmer-on) (dimmer-off)))
+
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -5974,8 +6002,6 @@ sorted.  FUNCTION must be a function of one argument."
 	      (progn
 	        (add-hook 'focus-out-hook #'dimmer-off)
 	        (add-hook 'focus-in-hook #'dimmer-on))
-      (defun my-dimmer-update ()
-	      (if (frame-focus-state) (dimmer-on) (dimmer-off)))
       (add-function :before after-focus-change-function #'my-dimmer-update))
 
     ;; for org-agenda
@@ -9914,7 +9940,8 @@ will not be modified."
 ;; 起動後，org buffer を訪問して，10秒待つと，org-agenda が有効になる
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
-(run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers)
+(defvar my-org-agenda-pb-timer
+  (run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -11299,6 +11326,28 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 落ち着いてEmacsを使う状況になたら， =pull= してバッファに反映します． =DONE= になったタスクや，別な org バッファで管理したいはタスクは， =org-refile= で移してしまえば良いです．そして，整理ができたら， =push= して，次のモバイル環境での編集に備えます．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-push-trello-card () (interactive) (org-trello-sync-card))
+
+;;;###autoload
+(defun my-pull-trello-card () (interactive) (org-trello-sync-card t))
+
+;;;###autoload
+(defun my-push-trello () (interactive) (org-trello-sync-buffer))
+
+;;;###autoload
+(defun my-pull-trello () (interactive) (org-trello-sync-buffer t))
+
+;;;###autoload
+(defun my-activate-org-trello ()
+  (let ((filename (buffer-file-name (current-buffer))))
+    (when (and filename
+               (string= "trello" (file-name-extension filename))
+               (require 'org-trello nil t))
+      (org-trello-mode))))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 ;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
 ;; 2. M-x org-trello-install-key-and-token
@@ -11315,19 +11364,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
 
   (with-eval-after-load "org"
-    (defun my-activate-org-trello ()
-      (let ((filename (buffer-file-name (current-buffer))))
-        (when (and filename
-                   (string= "trello" (file-name-extension filename))
-                   (require 'org-trello nil t))
-          (org-trello-mode))))
-    (add-hook 'org-mode-hook #'my-activate-org-trello))
-
-  (with-eval-after-load "org-trello"
-    (defun my-push-trello-card () (interactive) (org-trello-sync-card))
-    (defun my-pull-trello-card () (interactive) (org-trello-sync-card t))
-    (defun my-push-trello () (interactive) (org-trello-sync-buffer))
-    (defun my-pull-trello () (interactive) (org-trello-sync-buffer t))))
+    (add-hook 'org-mode-hook #'my-activate-org-trello)))
 #+end_src
 
 ** [ox.el] ディスパッチャを水平方向の分割画面に表示
@@ -12270,10 +12307,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 OPTIONS is a list of moom API types.  If you want to set all recommemded
 keybindings, put the following code in your init.el.
  (with-eval-after-load \"moom\"
-   (moom-recommended-keybindings 'all))
-'all is identical to '(move fit expand fill font reset undo).
-If OPTIONS includes 'wof, then each binding is configured not to use fn key.
-If you give only '(reset) as the argument, then \\[moom-reset] is activated.
+   (moom-recommended-keybindings \='all))
+=\'all is identical to =\'(move fit expand fill font reset undo).
+If OPTIONS includes =\'wof, then each binding is configured not to use fn key.
+If you give only =\'(reset) as the argument, then \\[moom-reset] is activated.
 The keybindings will be assigned only when Emacs runs in GUI."
       (when window-system
         (when (memq 'all options)
@@ -12837,6 +12874,15 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
 	  (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
   (run-hooks 'my-ime-on-hline-hook))
+
+;;;###autoload
+(defun my-hl-line-update ()
+	(if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
+
+;;;###autoload
+(defun my-hl-line-disable ()
+  "Disable `hl-line'."
+  (hl-line-mode -1))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -12844,7 +12890,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
        '(hl-line-mode my-hl-line-enable)
        "hl-line" nil t)
 
-  ;; (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
+  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
 
   (defvar my-hl-permanent-disabled '(dired-mode vterm-mode)
     "A list of major modes to disable `hl-line'.")
@@ -12853,16 +12899,10 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   (defvar my-ime-on-hline-hook nil)
 
   (with-eval-after-load "hl-line"
-    ;; my-hl-line-disable と my-hl-line-enable を utility.el に持っていく場合は
-    ;; hl-line-modeの評価箇所を関数に置き換えるなど対策が必要
-    (defun my-hl-line-disable ()
-      "Disable `hl-line'."
-      (hl-line-mode -1))
-
-    (defun my-hl-line-enable ()
+    (defun my-hl-line-enable () ;; FIXME: having issues under utility.el
       "Enable `hl-line'."
       (unless (or hl-line-mode
-		              (minibufferp)
+                  (minibufferp)
 			            (memq major-mode my-hl-permanent-disabled))
 	      (hl-line-mode 1)))
 
@@ -12884,8 +12924,6 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 	      (progn
 	        (add-hook 'focus-in-hook #'my-hl-line-enable)
 	        (add-hook 'focus-out-hook #'my-hl-line-disable))
-      (defun my-hl-line-update ()
-	      (if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
       (add-function :after after-focus-change-function #'my-hl-line-update))
 
     ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
@@ -13487,6 +13525,46 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
    :ID:       4E6C6C26-AEBB-48D7-8CEB-8769F48C5FB0
    :END:
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-ivy-format-function-arrow-iit (cands)
+  "Transform CANDS into a string for minibuffer."
+  (ivy--format-function-generic
+   (lambda (str)
+     (concat (icons-in-terminal-faicon
+              "hand-o-right"
+              :v-adjust -0.1
+              :face 'my-ivy-arrow-visible
+              :height 0.8)
+             " " (ivy--add-face (concat str "\n")
+                                'ivy-current-match)))
+   (lambda (str)
+     (concat (icons-in-terminal-faicon
+              "hand-o-right"
+              :v-adjust -0.1
+              :face 'my-ivy-arrow-invisible
+              :height 0.8)
+             " " (concat str "\n")))
+   cands
+   ""))
+
+;;;###autoload
+(defun my-ivy-format-function-arrow-ati (cands)
+  "Transform CANDS into a string for minibuffer."
+  (ivy--format-function-generic
+   (lambda (str)
+     (concat (all-the-icons-faicon
+              "hand-o-right"
+              :v-adjust -0.2 :face 'my-ivy-arrow-visible)
+             " " (ivy--add-face str 'ivy-current-match)))
+   (lambda (str)
+     (concat (all-the-icons-faicon
+              "hand-o-right" :face 'my-ivy-arrow-invisible)
+             " " str))
+   cands
+   "\n"))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "ivy"
   (custom-set-faces
@@ -13512,6 +13590,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ** [ivy.el] 選択行をアイコンで強調
    :PROPERTIES:
    :CUSTOM_ID: org4b927009
+   :ID:       BF891B19-EBEE-4FF2-8992-C5FD62C68FAB
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -13528,47 +13607,14 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
   (if window-system
       (cond ((require 'icons-in-terminal nil t)
-             (defun my-ivy-format-function-arrow (cands)
-               "Transform CANDS into a string for minibuffer."
-               (ivy--format-function-generic
-                (lambda (str)
-                  (concat (icons-in-terminal-faicon
-                           "hand-o-right"
-                           :v-adjust -0.1
-                           :face 'my-ivy-arrow-visible
-                           :height 0.8)
-                          " " (ivy--add-face (concat str "\n")
-                                             'ivy-current-match)))
-                (lambda (str)
-                  (concat (icons-in-terminal-faicon
-                           "hand-o-right"
-                           :v-adjust -0.1
-                           :face 'my-ivy-arrow-invisible
-                           :height 0.8)
-                          " " (concat str "\n")))
-                cands
-                ""))
              (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
+                   '((t . my-ivy-format-function-arrow-iit))))
             ((require 'all-the-icons nil t)
-             (defun my-ivy-format-function-arrow (cands)
-               "Transform CANDS into a string for minibuffer."
-               (ivy--format-function-generic
-                (lambda (str)
-                  (concat (all-the-icons-faicon
-                           "hand-o-right"
-                           :v-adjust -0.2 :face 'my-ivy-arrow-visible)
-                          " " (ivy--add-face str 'ivy-current-match)))
-                (lambda (str)
-                  (concat (all-the-icons-faicon
-                           "hand-o-right" :face 'my-ivy-arrow-invisible)
-                          " " str))
-                cands
-                "\n"))
              (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow))))
-            (t (setq ivy-format-functions-alist
-                     '((t . ivy-format-function-arrow)))))
+                   '((t . my-ivy-format-function-arrow-ati))))
+            (t
+             (setq ivy-format-functions-alist
+                   '((t . ivy-format-function-arrow)))))
     (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
 #+end_src
 
@@ -13649,6 +13695,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ** [pomodoro.el] ポモドーロの実践
    :PROPERTIES:
    :CUSTOM_ID: orgbfb695e1
+   :ID:       D85E62AE-D317-4EF2-8C66-3F20214B9435
    :END:
 
 [[https://twitter.com/syohex][@syohex]] さん謹製の [[https://github.com/syohex/emacs-utils/blob/master/pomodoro.el][pomodoro.el]] に少しカスタマイズしたおれおれ [[https://github.com/takaxp/emacs-utils/blob/master/pomodoro.el][pomodoro.el]] を使っています．以下のように設定すると，ポモドーロの残り時間は表示せず，アイコンだけをモードラインに表示できます．残り時間は =M-x pomodoro:mode-line-time-display-toggle= すれば，いつでも表示できます．
@@ -14225,6 +14272,21 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
    :CUSTOM_ID: org2adaf11c
    :END:
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-nocand-then-fzf-reset ()
+  (setq my--nocand-then-fzf t))
+
+;;;###autoload
+(defun my-nocand-then-fzf (prompt)
+  (when (= ivy--length 0)
+    (if (eq (read-char prompt) ?y) ;; y-or-n-p is not applicable
+        (ivy-exit-with-action
+         (lambda (_x)
+           (counsel-fzf ivy-text default-directory)))
+      (setq my--nocand-then-fzf nil))))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "counsel"
 ;;; auto fzf, 0件ヒットの時，1回だけ[y/n]で counsel-fzf に繋ぐか問う
@@ -14241,15 +14303,6 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     :type 'float) ;; N[s] 無応答の時[y/n]を出す．
 
   (defvar my--nocand-then-fzf t)
-  (defun my-nocand-then-fzf-reset ()
-    (setq my--nocand-then-fzf t))
-  (defun my-nocand-then-fzf (prompt)
-    (when (= ivy--length 0)
-      (if (eq (read-char prompt) ?y) ;; y-or-n-p is not applicable
-          (ivy-exit-with-action
-           (lambda (_x)
-             (counsel-fzf ivy-text default-directory)))
-        (setq my--nocand-then-fzf nil))))
   (defun ad:fzf:ivy--insert-prompt ()
     (when (and my--nocand-then-fzf
                (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)

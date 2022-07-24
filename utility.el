@@ -2,6 +2,8 @@
 ;; "my-" functions associated with my 'init.el'
 
 ;;;###autoload
+
+;;;###autoload
 (defun my-emacs-lisp-mode-conf ()
   ;; (setq indent-tabs-mode t)
   ;; (setq tab-width 8)
@@ -144,6 +146,12 @@
                           (bm-goto bookmark)
                           ))
               :sort t)))
+
+;;;###autoload
+(defun my-centered-cursor-activate () (centered-cursor-mode 1))
+
+;;;###autoload
+(defun my-centered-cursor-deactivate () (centered-cursor-mode -1))
 
 ;;;###autoload
 (defun my-smart-mark-activate ()
@@ -322,6 +330,43 @@
     (let ((region (intern (buffer-substring-no-properties
                            (region-beginning) (region-end)))))
       (funcall region))))
+
+;;;###autoload
+(defun my-describe-selected-keymap ()
+  (interactive)
+  (describe-keymap 'selected-keymap))
+
+;;;###autoload
+(defun my-update-modeline-face ()
+  (setq my-selected-window-last (frame-selected-window))
+  ;; (message "--- %s" my-selected-window-last)
+  (unless (minibufferp)
+    (my-modeline-face (buffer-narrowed-p))))
+
+;;;###autoload
+(defun my-modeline-face (buffer-narrowed)
+  "Update modeline color.
+If BUFFER-NARROWED is nil, then change the color to indicating `widen'.
+Otherwise, indicating narrowing."
+  (unless (eq my-buffer-narrowed-last
+              buffer-narrowed) ;; block unnecessary request
+    (setq my-buffer-narrowed-last buffer-narrowed)
+    ;; (message "--- %s %s %s" this-command last-command buffer-narrowed)
+    (when (not (memq this-command '(save-buffer))) ;; FIXME
+      (if buffer-narrowed
+          (custom-set-faces
+           `(mode-line ((t (:background
+                            ,(nth 0 my-narrow-modeline)
+                            :foreground
+                            ,(nth 1 my-narrow-modeline))))))
+        (custom-set-faces '(mode-line ((t nil))))))))
+
+;;;###autoload
+(defun my-update-modeline-color ()
+  "Update modeline face of the current selected window.
+Call this function at updating `mode-line-mode'."
+  (when (eq my-selected-window-last (frame-selected-window))
+    (my-modeline-face (buffer-narrowed-p))))
 
 ;;;###autoload
 (defun my-reload-mlscroll ()
@@ -602,6 +647,16 @@ sorted.  FUNCTION must be a function of one argument."
     (moom-delete-windows)))
 
 ;;;###autoload
+(defun my-enable-tree-sitter ()
+  (unless (featurep 'tree-sitter)
+    (require 'tree-sitter)
+    (require 'tree-sitter-hl)
+    (require 'tree-sitter-debug)
+    (require 'tree-sitter-query)
+    (require 'tree-sitter-langs))
+  (tree-sitter-hl-mode))
+
+;;;###autoload
 (defun my-toggle-dimmer ()
   (interactive)
   (if (setq my-dimmer-mode (not my-dimmer-mode))
@@ -622,6 +677,10 @@ sorted.  FUNCTION must be a function of one argument."
   (when my-dimmer-mode
 	  (dimmer-mode 1)
 	  (dimmer-process-all)))
+
+;;;###autoload
+(defun my-dimmer-update ()
+	(if (frame-focus-state) (dimmer-on) (dimmer-off)))
 
 ;;;###autoload
 (defun my-recentf-save-list-silence ()
@@ -802,6 +861,26 @@ sorted.  FUNCTION must be a function of one argument."
       (message "Building agenda buffers...done"))))
 
 ;;;###autoload
+(defun my-push-trello-card () (interactive) (org-trello-sync-card))
+
+;;;###autoload
+(defun my-pull-trello-card () (interactive) (org-trello-sync-card t))
+
+;;;###autoload
+(defun my-push-trello () (interactive) (org-trello-sync-buffer))
+
+;;;###autoload
+(defun my-pull-trello () (interactive) (org-trello-sync-buffer t))
+
+;;;###autoload
+(defun my-activate-org-trello ()
+  (let ((filename (buffer-file-name (current-buffer))))
+    (when (and filename
+               (string= "trello" (file-name-extension filename))
+               (require 'org-trello nil t))
+      (org-trello-mode))))
+
+;;;###autoload
 (defun my-ime-on ()
   (interactive)
   (if (fboundp 'mac-toggle-input-method)
@@ -892,6 +971,15 @@ sorted.  FUNCTION must be a function of one argument."
   (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
 	  (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
   (run-hooks 'my-ime-on-hline-hook))
+
+;;;###autoload
+(defun my-hl-line-update ()
+	(if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
+
+;;;###autoload
+(defun my-hl-line-disable ()
+  "Disable `hl-line'."
+  (hl-line-mode -1))
 
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
 ;; 2) Inconsolata, Migu 2M     : font-size=14,
@@ -1153,6 +1241,44 @@ sorted.  FUNCTION must be a function of one argument."
         (or (<= begin ct) (<= ct end))
       (and (<= begin ct) (<= ct end)))))
 
+;;;###autoload
+(defun my-ivy-format-function-arrow-iit (cands)
+  "Transform CANDS into a string for minibuffer."
+  (ivy--format-function-generic
+   (lambda (str)
+     (concat (icons-in-terminal-faicon
+              "hand-o-right"
+              :v-adjust -0.1
+              :face 'my-ivy-arrow-visible
+              :height 0.8)
+             " " (ivy--add-face (concat str "\n")
+                                'ivy-current-match)))
+   (lambda (str)
+     (concat (icons-in-terminal-faicon
+              "hand-o-right"
+              :v-adjust -0.1
+              :face 'my-ivy-arrow-invisible
+              :height 0.8)
+             " " (concat str "\n")))
+   cands
+   ""))
+
+;;;###autoload
+(defun my-ivy-format-function-arrow-ati (cands)
+  "Transform CANDS into a string for minibuffer."
+  (ivy--format-function-generic
+   (lambda (str)
+     (concat (all-the-icons-faicon
+              "hand-o-right"
+              :v-adjust -0.2 :face 'my-ivy-arrow-visible)
+             " " (ivy--add-face str 'ivy-current-match)))
+   (lambda (str)
+     (concat (all-the-icons-faicon
+              "hand-o-right" :face 'my-ivy-arrow-invisible)
+             " " str))
+   cands
+   "\n"))
+
 ;; ふわっとエフェクトの追加（ペースト時の色 => カーソル色 => 本来色）
 ;;;###autoload
 (defun my-vhl-change-color ()
@@ -1196,6 +1322,19 @@ sorted.  FUNCTION must be a function of one argument."
   (interactive)
   (dired gif-screencast-output-directory)
   (dired gif-screencast-screenshot-directory))
+
+;;;###autoload
+(defun my-nocand-then-fzf-reset ()
+  (setq my--nocand-then-fzf t))
+
+;;;###autoload
+(defun my-nocand-then-fzf (prompt)
+  (when (= ivy--length 0)
+    (if (eq (read-char prompt) ?y) ;; y-or-n-p is not applicable
+        (ivy-exit-with-action
+         (lambda (_x)
+           (counsel-fzf ivy-text default-directory)))
+      (setq my--nocand-then-fzf nil))))
 
 ;; https://en.wikipedia.org/wiki/Darwin_(operating_system)
 ;;;###autoload
