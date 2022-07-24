@@ -1468,6 +1468,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun my-private-conf-activate ()
   (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
              (eq system-type 'darwin)
@@ -1552,6 +1553,11 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
+(defun my-isearch-ime-deactivate-sticky ()
+  (unless (region-active-p)
+    (mac-ime-deactivate-sticky)))
+
+;;;###autoload
 (defun my-toggle-ime-ns ()
   "Toggle IME."
   (interactive)
@@ -1596,57 +1602,50 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (memq window-system '(ns nil))
-  ;; toggle-input-method
-  ;; (declare-function my-ns-org-heading-auto-ascii "init" nil)
-  ;; (declare-function my-ime-active-p "init" nil)
+  (when (memq window-system '(ns nil))
+    ;; toggle-input-method
+    ;; (declare-function my-ns-org-heading-auto-ascii "init" nil)
+    ;; (declare-function my-ime-active-p "init" nil)
 
-  (when (fboundp 'mac-ime-toggle)
-    (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
-    (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
+    (when (fboundp 'mac-ime-toggle)
+      (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
+      (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
 
-  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
-  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+    (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
+    (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
+    (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+    (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
 
-  (custom-set-faces
-   '(ns-marked-text-face
-     ((t (:foreground "black"
-                      :background "light pink" :underline "OrangeRed2"))))
-   '(ns-unmarked-text-face
-     ((t (:foreground "black"
-                      :background "light sky blue" :underline "royal blue")))))
+    (custom-set-faces
+     '(ns-marked-text-face
+       ((t (:foreground "black"
+			:background "light pink" :underline "OrangeRed2"))))
+     '(ns-unmarked-text-face
+       ((t (:foreground "black"
+			:background "light sky blue" :underline "royal blue")))))
 
-  (when (and (memq window-system '(ns nil))
-             (fboundp 'mac-get-current-input-source))
+    (when (and (memq window-system '(ns nil))
+	       (fboundp 'mac-get-current-input-source))
 
-    (when (version< "27.0" emacs-version)
-      ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
-      (custom-set-variables
-       '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
-      (mac-input-method-mode 1)
+      (when (version< "27.0" emacs-version)
+	;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
+	(custom-set-variables
+	 '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
+	(mac-input-method-mode 1)
 
-      ;; FIXME Conflict with migemo...
-      ;; To fix this issue, you need to update migemo.el to support minor-mode.
-      (when (and (executable-find "cmigemo")
-                 (require 'migemo nil t))
-        (defun my-isearch-ime-deactivate-sticky ()
-          (unless (region-active-p)
-            (mac-ime-deactivate-sticky)))
-        ;; see also activate-mark-hook, deactivate-mark-hook
-        (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
-        (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky))))
+	;; see also activate-mark-hook, deactivate-mark-hook
+	(add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+	(add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
 
-  (with-eval-after-load "org"
-    ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-    ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
-    ;; カーソル移動で heading に留まった時にIMEをOFFにする
-    (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii))
+    (with-eval-after-load "org"
+      ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
+      ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
+      ;; カーソル移動で heading に留まった時にIMEをOFFにする
+      (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii))
 
-  (with-eval-after-load "hl-line"
-    (add-hook 'input-method-activate-hook #'my-working-text-face-on)
-    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)))
+    (with-eval-after-load "hl-line"
+      (add-hook 'input-method-activate-hook #'my-working-text-face-on)
+      (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)))
 #+end_src
 
 ** EMPビルド用設定                                                    :macOS:
@@ -4934,7 +4933,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 以前は =diminish.el= を使用していましたが，ELPA配布のパッケージに移行しました．メジャーモードの短縮表示もマイナーモードの場合と同様に設定できます．この点で，設定がスッキリしました．
 
 #+begin_src emacs-lisp :tangle utility.el
-;;;###autolaod
+;;;###autoload
 (defun my-delight-activate ()
   (require 'delight nil t)
   (remove-hook 'find-file-hook #'my-delight-activate))
@@ -5009,29 +5008,36 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 以下は，[[http://www.kaoriya.net/software/cmigemo][cmigemo]] を使う設定です．正直なところ，それほどメリットを感じていません．
 
+#+begin_src emacs-lisp :tangle utility.el
+  ;;;###autoload
+  (defun my-migemo-activate ()
+    (when (and (locate-library "migemo");; overhead but should be checked here
+	       (executable-find "cmigemo")
+	       (require 'migemo nil t))
+      (add-hook 'isearch-mode-hook #'migemo-init))
+    (remove-hook 'find-file-hook #'my-migemo-activate))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
-(if (executable-find "cmigemo")
-    (when (autoload-if-found
-           '(migemo-init)
-           "migemo" nil t)
+(when (autoload-if-found
+       '(migemo-init)
+       "migemo" nil t)
 
-      (when (and (locate-library "migemo");; overhead but should be checked here
-                 (executable-find "cmigemo"))
-        (add-hook 'isearch-mode-hook #'migemo-init))
+  (add-hook 'find-file-hook #'my-migemo-activate)
 
-      (with-eval-after-load "migemo"
-        (custom-set-variables
-         '(completion-ignore-case t) ;; case-independent
-         '(migemo-command "cmigemo")
-         '(migemo-options '("-q" "--emacs" "-i" "\a"))
-         '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
-         '(migemo-user-dictionary nil)
-         '(migemo-regex-dictionary nil)
-         '(migemo-use-pattern-alist t)
-         '(migemo-use-frequent-pattern-alist t)
-         '(migemo-pattern-alist-length 1024)
-         '(migemo-coding-system 'utf-8-unix))))
-  (message "--- cmigemo is NOT installed."))
+  (with-eval-after-load "migemo"
+    (custom-set-variables
+     '(completion-ignore-case t) ;; case-independent
+     '(migemo-command "cmigemo")
+     '(migemo-options '("-q" "--emacs" "-i" "\a"))
+     '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
+     '(migemo-user-dictionary nil)
+     '(migemo-regex-dictionary nil)
+     '(migemo-use-pattern-alist t)
+     '(migemo-use-frequent-pattern-alist t)
+     '(migemo-pattern-alist-length 1024)
+     '(migemo-coding-system 'utf-8-unix))))
+
 #+end_src
 
 ** [git-gutter-fringe] 編集差分をフレーム端で視覚化
@@ -7271,8 +7277,8 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (require 'auto-save-buffers nil t)
-  (run-with-idle-timer 1.6 t #'my-auto-save-buffers))
+(autoload 'auto-save-buffers "auto-save-buffers" nil t)
+(run-with-idle-timer 1.6 t #'my-auto-save-buffers)
 #+end_src
 
 ** [session.el] 様々な履歴を保存し復元に利用する
@@ -15277,12 +15283,18 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 #+begin_src emacs-lisp :tangle utility.el
 (defvar my-garbage-collect-height max-mini-window-height)
+
+;;;###autoload
 (defun my-garbage-collect-activate ()
   (setq max-mini-window-height 16)
   (add-hook 'pre-command-hook #'my-garbage-collect-deactivate))
+
+;;;###autoload
 (defun my-garbage-collect-deactivate ()
   (setq max-mini-window-height my-garbage-collect-height)
   (remove-hook 'pre-command-hook #'my-garbage-collect-deactivate))
+
+;;;###autoload
 (defun my-garbage-collect ()
   "Run `garbage-collect' and print stats about memory usage."
   (interactive)

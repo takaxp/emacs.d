@@ -12,6 +12,7 @@
   (when (eq major-mode 'org-mode)
     (org-cycle-hide-drawers 'all)))
 
+;;;###autoload
 (defun my-private-conf-activate ()
   (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
              (eq system-type 'darwin)
@@ -22,6 +23,11 @@
                 (require 'private "private.el.gpg" t)))
       (warn "GPG decryption error (private.el)")))
   (remove-hook 'find-file-hook #'my-private-conf-activate))
+
+;;;###autoload
+(defun my-isearch-ime-deactivate-sticky ()
+  (unless (region-active-p)
+    (mac-ime-deactivate-sticky)))
 
 ;;;###autoload
 (defun my-toggle-ime-ns ()
@@ -435,10 +441,18 @@
         (format "%s %s%s" (my-mode-line-icon-for-file) name bom )
       (format "%s%s" name bom ))))
 
-;;;###autolaod
+;;;###autoload
 (defun my-delight-activate ()
   (require 'delight nil t)
   (remove-hook 'find-file-hook #'my-delight-activate))
+
+;;;###autoload
+(defun my-migemo-activate ()
+  (when (and (locate-library "migemo");; overhead but should be checked here
+	     (executable-find "cmigemo")
+	     (require 'migemo nil t))
+    (add-hook 'isearch-mode-hook #'migemo-init))
+  (remove-hook 'find-file-hook #'my-migemo-activate))
 
 (autoload 'calendar-iso-from-absolute "cal-iso" nil t)
 (autoload 'calendar-absolute-from-gregorian "calendar" nil t)
@@ -1747,12 +1761,18 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
       (goto-char pos))))
 
 (defvar my-garbage-collect-height max-mini-window-height)
+
+;;;###autoload
 (defun my-garbage-collect-activate ()
   (setq max-mini-window-height 16)
   (add-hook 'pre-command-hook #'my-garbage-collect-deactivate))
+
+;;;###autoload
 (defun my-garbage-collect-deactivate ()
   (setq max-mini-window-height my-garbage-collect-height)
   (remove-hook 'pre-command-hook #'my-garbage-collect-deactivate))
+
+;;;###autoload
 (defun my-garbage-collect ()
   "Run `garbage-collect' and print stats about memory usage."
   (interactive)

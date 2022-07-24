@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-24 Sun 13:17 -->
+<!-- 2022-07-24 Sun 15:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -2400,7 +2400,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 <h3 id="orge014847e"><span class="section-number-3">3.22.</span> [epa.el] GPGを使う</h3>
 <div class="outline-text-3" id="text-orge014847e">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-private-conf-activate</span> ()
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-private-conf-activate</span> ()
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p <span style="color: #8b2252;">"~/Dropbox/config/private.el.gpg"</span>)
              (eq system-type 'darwin)
              (not (boundp 'my-private-conf-loaded)))
@@ -2497,6 +2498,11 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-isearch-ime-deactivate-sticky</span> ()
+  (<span style="color: #a020f0;">unless</span> (region-active-p)
+    (mac-ime-deactivate-sticky)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-toggle-ime-ns</span> ()
   <span style="color: #8b2252;">"Toggle IME."</span>
   (<span style="color: #a020f0;">interactive</span>)
@@ -2573,16 +2579,9 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
        '(mac-default-input-source <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span>))
       (mac-input-method-mode 1)
 
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME Conflict with migemo...</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">To fix this issue, you need to update migemo.el to support minor-mode.</span>
-      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (executable-find <span style="color: #8b2252;">"cmigemo"</span>)
-                 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">migemo</span> nil t))
-        (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-isearch-ime-deactivate-sticky</span> ()
-          (<span style="color: #a020f0;">unless</span> (region-active-p)
-            (mac-ime-deactivate-sticky)))
-        <span style="color: #b22222;">;; </span><span style="color: #b22222;">see also activate-mark-hook, deactivate-mark-hook</span>
-        (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
-        (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky))))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">see also activate-mark-hook, deactivate-mark-hook</span>
+      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#26469;&#12383;&#12392;&#12365;&#12399;&#21363;&#24231;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
@@ -6436,7 +6435,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autolaod</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-delight-activate</span> ()
   (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">delight</span> nil t)
   (remove-hook 'find-file-hook #'my-delight-activate))
@@ -6518,28 +6517,36 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">if</span> (executable-find <span style="color: #8b2252;">"cmigemo"</span>)
-    (<span style="color: #a020f0;">when</span> (autoload-if-found
-           '(migemo-init)
-           <span style="color: #8b2252;">"migemo"</span> nil t)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-migemo-activate</span> ()
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (locate-library <span style="color: #8b2252;">"migemo"</span>)<span style="color: #b22222;">;; </span><span style="color: #b22222;">overhead but should be checked here</span>
+             (executable-find <span style="color: #8b2252;">"cmigemo"</span>)
+             (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">migemo</span> nil t))
+    (add-hook 'isearch-mode-hook #'migemo-init))
+  (remove-hook 'find-file-hook #'my-migemo-activate))
+</pre>
+</div>
 
-      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (locate-library <span style="color: #8b2252;">"migemo"</span>)<span style="color: #b22222;">;; </span><span style="color: #b22222;">overhead but should be checked here</span>
-                 (executable-find <span style="color: #8b2252;">"cmigemo"</span>))
-        (add-hook 'isearch-mode-hook #'migemo-init))
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(migemo-init)
+       <span style="color: #8b2252;">"migemo"</span> nil t)
 
-      (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"migemo"</span>
-        (custom-set-variables
-         '(completion-ignore-case t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">case-independent</span>
-         '(migemo-command <span style="color: #8b2252;">"cmigemo"</span>)
-         '(migemo-options '(<span style="color: #8b2252;">"-q"</span> <span style="color: #8b2252;">"--emacs"</span> <span style="color: #8b2252;">"-i"</span> <span style="color: #8b2252;">"\a"</span>))
-         '(migemo-dictionary <span style="color: #8b2252;">"/usr/local/share/migemo/utf-8/migemo-dict"</span>)
-         '(migemo-user-dictionary nil)
-         '(migemo-regex-dictionary nil)
-         '(migemo-use-pattern-alist t)
-         '(migemo-use-frequent-pattern-alist t)
-         '(migemo-pattern-alist-length 1024)
-         '(migemo-coding-system 'utf-8-unix))))
-  (message <span style="color: #8b2252;">"--- cmigemo is NOT installed."</span>))
+  (add-hook 'find-file-hook #'my-migemo-activate)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"migemo"</span>
+    (custom-set-variables
+     '(completion-ignore-case t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">case-independent</span>
+     '(migemo-command <span style="color: #8b2252;">"cmigemo"</span>)
+     '(migemo-options '(<span style="color: #8b2252;">"-q"</span> <span style="color: #8b2252;">"--emacs"</span> <span style="color: #8b2252;">"-i"</span> <span style="color: #8b2252;">"\a"</span>))
+     '(migemo-dictionary <span style="color: #8b2252;">"/usr/local/share/migemo/utf-8/migemo-dict"</span>)
+     '(migemo-user-dictionary nil)
+     '(migemo-regex-dictionary nil)
+     '(migemo-use-pattern-alist t)
+     '(migemo-use-frequent-pattern-alist t)
+     '(migemo-pattern-alist-length 1024)
+     '(migemo-coding-system 'utf-8-unix))))
+
 </pre>
 </div>
 </div>
@@ -8905,8 +8912,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">auto-save-buffers</span> nil t)
-  (run-with-idle-timer 1.6 t #'my-auto-save-buffers))
+<pre class="src src-emacs-lisp">(autoload 'auto-save-buffers <span style="color: #8b2252;">"auto-save-buffers"</span> nil t)
+(run-with-idle-timer 1.6 t #'my-auto-save-buffers)
 </pre>
 </div>
 </div>
@@ -12865,7 +12872,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org994394d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org25ed018"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13768,7 +13775,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgc5b7ea4" class="figure">
+<div id="orgec177bb" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -17603,12 +17610,18 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-garbage-collect-height</span> max-mini-window-height)
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-garbage-collect-activate</span> ()
   (<span style="color: #a020f0;">setq</span> max-mini-window-height 16)
   (add-hook 'pre-command-hook #'my-garbage-collect-deactivate))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-garbage-collect-deactivate</span> ()
   (<span style="color: #a020f0;">setq</span> max-mini-window-height my-garbage-collect-height)
   (remove-hook 'pre-command-hook #'my-garbage-collect-deactivate))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-garbage-collect</span> ()
   <span style="color: #8b2252;">"Run `</span><span style="color: #008b8b;">garbage-collect</span><span style="color: #8b2252;">' and print stats about memory usage."</span>
   (<span style="color: #a020f0;">interactive</span>)
@@ -18074,7 +18087,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-24 Sun 13:17</p>
+<p class="date">Created: 2022-07-24 Sun 15:58</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

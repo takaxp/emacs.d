@@ -117,13 +117,13 @@
   (custom-set-faces
    '(ns-marked-text-face
      ((t (:foreground "black"
-                      :background "light pink" :underline "OrangeRed2"))))
+		      :background "light pink" :underline "OrangeRed2"))))
    '(ns-unmarked-text-face
      ((t (:foreground "black"
-                      :background "light sky blue" :underline "royal blue")))))
+		      :background "light sky blue" :underline "royal blue")))))
 
   (when (and (memq window-system '(ns nil))
-             (fboundp 'mac-get-current-input-source))
+	     (fboundp 'mac-get-current-input-source))
 
     (when (version< "27.0" emacs-version)
       ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
@@ -131,16 +131,9 @@
        '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
       (mac-input-method-mode 1)
 
-      ;; FIXME Conflict with migemo...
-      ;; To fix this issue, you need to update migemo.el to support minor-mode.
-      (when (and (executable-find "cmigemo")
-                 (require 'migemo nil t))
-        (defun my-isearch-ime-deactivate-sticky ()
-          (unless (region-active-p)
-            (mac-ime-deactivate-sticky)))
-        ;; see also activate-mark-hook, deactivate-mark-hook
-        (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
-        (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky))))
+      ;; see also activate-mark-hook, deactivate-mark-hook
+      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
 
   (with-eval-after-load "org"
     ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
@@ -1143,28 +1136,24 @@ Call this function at updating `mode-line-mode'."
 	  (delight
 	   `((view-mode ,(concat " " (icons-in-terminal-faicon "lock")) "view")))))
 
-(if (executable-find "cmigemo")
-    (when (autoload-if-found
-           '(migemo-init)
-           "migemo" nil t)
+(when (autoload-if-found
+       '(migemo-init)
+       "migemo" nil t)
 
-      (when (and (locate-library "migemo");; overhead but should be checked here
-                 (executable-find "cmigemo"))
-        (add-hook 'isearch-mode-hook #'migemo-init))
+  (add-hook 'find-file-hook #'my-migemo-activate)
 
-      (with-eval-after-load "migemo"
-        (custom-set-variables
-         '(completion-ignore-case t) ;; case-independent
-         '(migemo-command "cmigemo")
-         '(migemo-options '("-q" "--emacs" "-i" "\a"))
-         '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
-         '(migemo-user-dictionary nil)
-         '(migemo-regex-dictionary nil)
-         '(migemo-use-pattern-alist t)
-         '(migemo-use-frequent-pattern-alist t)
-         '(migemo-pattern-alist-length 1024)
-         '(migemo-coding-system 'utf-8-unix))))
-  (message "--- cmigemo is NOT installed."))
+  (with-eval-after-load "migemo"
+    (custom-set-variables
+     '(completion-ignore-case t) ;; case-independent
+     '(migemo-command "cmigemo")
+     '(migemo-options '("-q" "--emacs" "-i" "\a"))
+     '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
+     '(migemo-user-dictionary nil)
+     '(migemo-regex-dictionary nil)
+     '(migemo-use-pattern-alist t)
+     '(migemo-use-frequent-pattern-alist t)
+     '(migemo-pattern-alist-length 1024)
+     '(migemo-coding-system 'utf-8-unix))))
 
 (eval-when-compile
   (require 'fringe-helper))
@@ -1684,8 +1673,8 @@ Call this function at updating `mode-line-mode'."
   (global-set-key (kbd "C-/") 'undo-fu-only-undo)
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 
-(when (require 'auto-save-buffers nil t)
-  (run-with-idle-timer 1.6 t #'my-auto-save-buffers))
+(autoload 'auto-save-buffers "auto-save-buffers" nil t)
+(run-with-idle-timer 1.6 t #'my-auto-save-buffers)
 
 (when (autoload-if-found
        '(neotree neotree-toggle)
