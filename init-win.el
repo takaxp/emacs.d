@@ -44,12 +44,16 @@
               (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
               (setq my-gc-last gc-elapsed)))
 
+;; Language, will override default-input-method
+(set-language-environment "Japanese")
+(set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
+(set-locale-environment "en_US.UTF-8")
+(setq system-time-locale "C") ;; format-time-string %a, not 日 but Sun
 (setq inhibit-default-init t)
 (setq initial-scratch-message nil
       initial-buffer-choice t ;; Starting from *scratch* buffer
       initial-major-mode 'fundamental-mode)
 (setq byte-compile-warnings '(obsolete))
-(setq system-time-locale "C") ;; format-time-string %a, not 日 but Sun
 (setq make-backup-files nil)
 (setq default-directory "~/")
 (setq truncate-line nil
@@ -57,11 +61,6 @@
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
-
-;; Language, will override default-input-method
-(set-language-environment "Japanese")
-(set-clipboard-coding-system 'utf-16le) ;; enable copy-and-paste correctly
-(set-locale-environment "ja_JP.UTF-8")
 
 ;; AppData\Roaming\.emacs.d\lisp 以下に各追加パッケージを配置すること
 ;; smartparens requires dash.el.
@@ -441,6 +440,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; google-this
 (autoload #'google-this "google-this" "google-this" t)
 (autoload #'my-google-this "google-this" "google-this" t)
+
+;; expand-region
+(autoload #'ad:er:mark-sexp "expand-region" nil t)
+(advice-add 'mark-sexp :around #'ad:er:mark-sexp)
 
 ;; Tree Sitter
 (let* ((elp (expand-file-name my-installed-packages-dir))
@@ -906,13 +909,12 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (with-eval-after-load "expand-region"
   (defun ad:er:mark-sexp (f &optional arg allow-extend)
-    "If the cursor is on a symbol, expand the region along the symbol."
-    (interactive "P\np")
-    (if (and (not (use-region-p))
-             (symbol-at-point))
-        (er/mark-symbol)
-      (funcall f arg allow-extend)))
-  (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
+  "If the cursor is on a symbol, expand the region along the symbol."
+  (interactive "P\np")
+  (if (and (not (use-region-p))
+           (symbol-at-point))
+      (er/mark-symbol)
+    (funcall f arg allow-extend))))
 
 (with-eval-after-load "epa"
   (setq epg-pinentry-mode 'loopback))
