@@ -532,7 +532,7 @@ Call this function at updating `mode-line-mode'."
                                         (length date))))))))))
 
 ;;;###autoload
-(defun my-elisp-eldoc (_callback)
+(defun my:elisp-eldoc (_callback)
   "Avoid hiding `hl-line' in `emacs-lisp-mode'."
   (when (fboundp 'my-hl-line-enable)
     (my-hl-line-enable)))
@@ -704,6 +704,20 @@ sorted.  FUNCTION must be a function of one argument."
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
   (eval `(with-ivy-window (find-file ,file))))
+
+;;;###autoload
+(defun ad:counsel-recentf ()
+  "Find a file on `recentf-list'."
+  (interactive)
+  (require 'recentf)
+  (recentf-mode)
+  (ivy-read "Recentf: "
+		        (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
+				                         (substring-no-properties x)))
+			              recentf-list)
+		        :action #'my-counsel-recentf-action
+		        :require-match t
+		        :caller 'counsel-recentf))
 
 (defvar my-cg-bookmark "c-g-point-last")
 ;;;###autoload
@@ -911,6 +925,19 @@ sorted.  FUNCTION must be a function of one argument."
 	  (my-ime-off)))
 
 ;;;###autoload
+(defun ad:make-frame (&optional _parameters)
+  (when (display-graphic-p)
+    (my-theme)
+    ;; (my-apply-cursor-config)
+    (setq-default cursor-type
+                  (if (my-ime-active-p)
+                      (plist-get my-cur-type-ime :on)
+                    (plist-get my-cur-type-ime :off)))
+    (when (and (require 'moom-font nil t)
+               (require 'moom nil t))
+      (moom-font-resize))))
+
+;;;###autoload
 (defun my-toggle-modeline-global ()
   (interactive)
   (setq my-toggle-modeline-global (not my-toggle-modeline-global))
@@ -950,6 +977,9 @@ sorted.  FUNCTION must be a function of one argument."
     (my-mode-line-on))
   (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
+(defun ad:winner:delete-window (&optional _window)
+  (message "Undo? M-x winner-undo or type \"C-x g\""))
+
 ;;;###autoload
 (defun my-delete-checkdoc-window ()
   (interactive)
@@ -957,6 +987,10 @@ sorted.  FUNCTION must be a function of one argument."
     (when checkdoc-window
       (delete-window checkdoc-window)))
   (checkdoc-minor-mode -1))
+
+(defun my-generic-x-activate ()
+  (require 'generic-x nil t)
+  (remove-hook 'find-file-hook #'my-generic-x-activate))
 
 ;;;###autoload
 (defun my-ime-off-hline ()
@@ -1097,57 +1131,57 @@ sorted.  FUNCTION must be a function of one argument."
 
 ;;;###autoload
 (defun my-hl-todo-reload ()
-      (interactive)
-      (global-hl-todo-mode -1)
-      (global-hl-todo-mode))
+  (interactive)
+  (global-hl-todo-mode -1)
+  (global-hl-todo-mode))
 
 ;;;###autoload
 (defun my-hl-todo-light-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#FF0000")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "SeaGreen")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "#3030FF")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
+  (setq hl-todo-keyword-faces
+        '(("HOLD" . "#d0bf8f")
+          ("TODO" . "#FF0000")
+          ("NEXT" . "#dca3a3")
+          ("THEM" . "#dc8cc3")
+          ("PROG" . "#7cb8bb")
+          ("OKAY" . "#7cb8bb")
+          ("DONT" . "#5f7f5f")
+          ("FAIL" . "#8c5353")
+          ("DONE" . "SeaGreen")
+          ("NOTE"   . "#d0bf8f")
+          ("KLUDGE" . "#d0bf8f")
+          ("HACK"   . "#d0bf8f")
+          ("TEMP"   . "#d0bf8f")
+          ("FIXME"  . "#3030FF")
+          ("XXX+"   . "#cc9393")
+          ("\\?\\?\\?+" . "#cc9393")
+          ("" . "orange")
+          ("" . "red")
+          ("" . "Seagreen3")))
+  (my-hl-todo-reload))
 
 ;;;###autoload
 (defun my-hl-todo-dark-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#cc9393")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "#afd8af")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "DodgerBlue1")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
+  (setq hl-todo-keyword-faces
+        '(("HOLD" . "#d0bf8f")
+          ("TODO" . "#cc9393")
+          ("NEXT" . "#dca3a3")
+          ("THEM" . "#dc8cc3")
+          ("PROG" . "#7cb8bb")
+          ("OKAY" . "#7cb8bb")
+          ("DONT" . "#5f7f5f")
+          ("FAIL" . "#8c5353")
+          ("DONE" . "#afd8af")
+          ("NOTE"   . "#d0bf8f")
+          ("KLUDGE" . "#d0bf8f")
+          ("HACK"   . "#d0bf8f")
+          ("TEMP"   . "#d0bf8f")
+          ("FIXME"  . "DodgerBlue1")
+          ("XXX+"   . "#cc9393")
+          ("\\?\\?\\?+" . "#cc9393")
+          ("" . "orange")
+          ("" . "red")
+          ("" . "Seagreen3")))
+  (my-hl-todo-reload))
 
 ;; (declare-function my-daylight-theme "init" nil)
 ;; (declare-function my-night-theme "init" nil)

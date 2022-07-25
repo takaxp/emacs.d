@@ -170,14 +170,17 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
            allow-extend))
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
 
-(with-eval-after-load "expand-region"
-    (defun ad:er:mark-sexp (f &optional arg allow-extend)
-      "If the cursor is on a symbol, expand the region along the symbol."
-      (interactive "P\np")
-      (if (and (not (use-region-p))
-               (symbol-at-point))
-          (er/mark-symbol)
-        (funcall f arg allow-extend)))
+(when (autoload-if-found
+       '(er/mark-symbol)
+       "expand-region" nil t)
+
+  (defun ad:er:mark-sexp (f &optional arg allow-extend)
+    "If the cursor is on a symbol, expand the region along the symbol."
+    (interactive "P\np")
+    (if (and (not (use-region-p))
+             (symbol-at-point))
+        (er/mark-symbol)
+      (funcall f arg allow-extend)))
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 
 ;; Scroll window on a line-by-line basis
@@ -1265,10 +1268,10 @@ This works also for other defined begin/end tokens to define the structure."
   (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
     (add-hook hook #'turn-on-eldoc-mode))
 
-  (advice-add 'elisp-eldoc-funcall :after #'my-elisp-eldoc)
-  (advice-add 'elisp-eldoc-var-docstring :after #'my-elisp-eldoc)
-
   (with-eval-after-load "eldoc"
+    (advice-add 'elisp-eldoc-funcall :after #'my:elisp-eldoc)
+    (advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)
+
     ;; for ivy-mode
     (defun ad:eldoc-message (f &optional string)
       (unless (active-minibuffer-window)
@@ -1556,22 +1559,7 @@ This works also for other defined begin/end tokens to define the structure."
     (let ((message-log-max nil))
       (recentf-mode 1)))
 
-  (when (autoload-if-found '(counsel-recentf) "counsel" nil t)
-    (global-set-key (kbd "C-M-r") 'counsel-recentf))
-
   (with-eval-after-load "counsel"
-    (defun ad:counsel-recentf ()
-      "Find a file on `recentf-list'."
-      (interactive)
-      (require 'recentf)
-      (recentf-mode)
-      (ivy-read "Recentf: "
-		            (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
-				                             (substring-no-properties x)))
-			                  recentf-list)
-		            :action #'my-counsel-recentf-action
-		            :require-match t
-		            :caller 'counsel-recentf))
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
@@ -2188,17 +2176,6 @@ This works also for other defined begin/end tokens to define the structure."
 ;; (declare-function my-font-config "init" nil)
 (global-set-key (kbd "M-`") 'other-frame)
 (with-eval-after-load "frame"
-  (defun ad:make-frame (&optional _parameters)
-    (when (display-graphic-p)
-      (my-theme)
-      ;; (my-apply-cursor-config)
-      (setq-default cursor-type
-                    (if (my-ime-active-p)
-                        (plist-get my-cur-type-ime :on)
-                      (plist-get my-cur-type-ime :off)))
-      (when (and (require 'moom-font nil t)
-                 (require 'moom nil t))
-        (moom-font-resize))))
   (advice-add 'make-frame :after #'ad:make-frame))
 
 (global-set-key (kbd "<f12>") 'my-toggle-mode-line)
@@ -2232,6 +2209,7 @@ This works also for other defined begin/end tokens to define the structure."
 (unless noninteractive
   (postpone-message "winner-mode")
   (when (require 'winner nil t)
+    (advice-add 'delete-window :after #'ad:winner:delete-window)
     (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
     (define-key winner-mode-map (kbd "C-(") 'winner-undo)
     (define-key winner-mode-map (kbd "C-)") 'winner-redo)
@@ -2293,7 +2271,7 @@ Uses `all-the-icons-material' to fetch the icon."
 (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
 
 (unless noninteractive
-  (require 'generic-x nil t))
+  (add-hook 'find-file-hook #'my-generic-x-activate))
 
 (when (autoload-if-found
        '(hl-line-mode my-hl-line-enable)

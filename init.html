@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-25 Mon 08:18 -->
+<!-- 2022-07-25 Mon 09:55 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -2865,6 +2865,10 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 <del>- <code>C-M-9</code> (my-mark-sexp) は，カーソル位置から逆方向に選択．</del> 以前は <code>my-mark-sexp</code> を定義して使っていましたが， <code>mark-sexp</code> を advice する方法に変えました．カーソルが行末だったり，後ろが空白文字の場合にのみ， <code>mark-sexp</code> に <code>-1</code> がわたるようにしました．
 </p>
 
+<p>
+<code>ad:er:mark-sexp</code> を設定することで， <code>C-M-SPC</code> 時にカーソル以下の単語を選択するようになります． <code>expand-region.el</code> の機能を使っています．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mark-sexp</span> (<span style="color: #228b22;">&amp;optional</span> arg)
   <span style="color: #8b2252;">"Move backward across one balanced expression and select it."</span>
@@ -2888,14 +2892,17 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
            allow-extend))
 (advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:mark-sexp)
 
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"expand-region"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:er:mark-sexp</span> (f <span style="color: #228b22;">&amp;optional</span> arg allow-extend)
-      <span style="color: #8b2252;">"If the cursor is on a symbol, expand the region along the symbol."</span>
-      (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P\np"</span>)
-      (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (not (use-region-p))
-               (symbol-at-point))
-          (er/mark-symbol)
-        (funcall f arg allow-extend)))
+(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(er/mark-symbol)
+       <span style="color: #8b2252;">"expand-region"</span> nil t)
+
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:er:mark-sexp</span> (f <span style="color: #228b22;">&amp;optional</span> arg allow-extend)
+    <span style="color: #8b2252;">"If the cursor is on a symbol, expand the region along the symbol."</span>
+    (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P\np"</span>)
+    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (not (use-region-p))
+             (symbol-at-point))
+        (er/mark-symbol)
+      (funcall f arg allow-extend)))
   (advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:er:mark-sexp))
 </pre>
 </div>
@@ -6967,7 +6974,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 <div class="outline-text-3" id="text-org402f1293">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-elisp-eldoc</span> (_callback)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:elisp-eldoc</span> (_callback)
   <span style="color: #8b2252;">"Avoid hiding `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">' in `</span><span style="color: #008b8b;">emacs-lisp-mode</span><span style="color: #8b2252;">'."</span>
   (<span style="color: #a020f0;">when</span> (fboundp 'my-hl-line-enable)
     (my-hl-line-enable)))
@@ -6982,10 +6989,10 @@ version 28 で全角スペースに黒下線が付くので回避します．
   (<span style="color: #a020f0;">dolist</span> (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
     (add-hook hook #'turn-on-eldoc-mode))
 
-  (advice-add 'elisp-eldoc-funcall <span style="color: #483d8b;">:after</span> #'my-elisp-eldoc)
-  (advice-add 'elisp-eldoc-var-docstring <span style="color: #483d8b;">:after</span> #'my-elisp-eldoc)
-
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"eldoc"</span>
+    (advice-add 'elisp-eldoc-funcall <span style="color: #483d8b;">:after</span> #'my:elisp-eldoc)
+    (advice-add 'elisp-eldoc-var-docstring <span style="color: #483d8b;">:after</span> #'my:elisp-eldoc)
+
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">for ivy-mode</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:eldoc-message</span> (f <span style="color: #228b22;">&amp;optional</span> string)
       (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
@@ -8512,6 +8519,26 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-counsel-recentf-action</span> (file)
   (eval `(<span style="color: #a020f0;">with-ivy-window</span> (find-file ,file))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:counsel-recentf</span> ()
+  <span style="color: #8b2252;">"Find a file on `</span><span style="color: #008b8b;">recentf-list</span><span style="color: #8b2252;">'."</span>
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">recentf</span>)
+  (recentf-mode)
+  (ivy-read <span style="color: #8b2252;">"Recentf: "</span>
+                        (mapcar (<span style="color: #a020f0;">lambda</span> (x) (abbreviate-file-name  <span style="color: #b22222;">;; </span><span style="color: #b22222;">~/</span>
+                                                         (substring-no-properties x)))
+                                      recentf-list)
+                        <span style="color: #483d8b;">:action</span> #'my-counsel-recentf-action
+                        <span style="color: #483d8b;">:require-match</span> t
+                        <span style="color: #483d8b;">:caller</span> 'counsel-recentf))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-recentf) <span style="color: #8b2252;">"counsel"</span> nil t)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-M-r"</span>) 'counsel-recentf))
 </pre>
 </div>
 
@@ -8545,22 +8572,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
     (<span style="color: #a020f0;">let</span> ((message-log-max nil))
       (recentf-mode 1)))
 
-  (<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-recentf) <span style="color: #8b2252;">"counsel"</span> nil t)
-    (global-set-key (kbd <span style="color: #8b2252;">"C-M-r"</span>) 'counsel-recentf))
-
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:counsel-recentf</span> ()
-      <span style="color: #8b2252;">"Find a file on `</span><span style="color: #008b8b;">recentf-list</span><span style="color: #8b2252;">'."</span>
-      (<span style="color: #a020f0;">interactive</span>)
-      (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">recentf</span>)
-      (recentf-mode)
-      (ivy-read <span style="color: #8b2252;">"Recentf: "</span>
-                            (mapcar (<span style="color: #a020f0;">lambda</span> (x) (abbreviate-file-name  <span style="color: #b22222;">;; </span><span style="color: #b22222;">~/</span>
-                                                             (substring-no-properties x)))
-                                          recentf-list)
-                            <span style="color: #483d8b;">:action</span> #'my-counsel-recentf-action
-                            <span style="color: #483d8b;">:require-match</span> t
-                            <span style="color: #483d8b;">:caller</span> 'counsel-recentf))
     (advice-add 'counsel-recentf <span style="color: #483d8b;">:override</span> #'ad:counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
@@ -12904,7 +12916,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org39ffe2a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org8999664"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13818,7 +13830,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org0868606" class="figure">
+<div id="orga2ac8ca" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14299,20 +14311,25 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:make-frame</span> (<span style="color: #228b22;">&amp;optional</span> _parameters)
+  (<span style="color: #a020f0;">when</span> (display-graphic-p)
+    (my-theme)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-apply-cursor-config)</span>
+    (<span style="color: #a020f0;">setq-default</span> cursor-type
+                  (<span style="color: #a020f0;">if</span> (my-ime-active-p)
+                      (plist-get my-cur-type-ime <span style="color: #483d8b;">:on</span>)
+                    (plist-get my-cur-type-ime <span style="color: #483d8b;">:off</span>)))
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">moom-font</span> nil t)
+               (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">moom</span> nil t))
+      (moom-font-resize))))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-font-config "init" nil)</span>
 (global-set-key (kbd <span style="color: #8b2252;">"M-`"</span>) 'other-frame)
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"frame"</span>
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:make-frame</span> (<span style="color: #228b22;">&amp;optional</span> _parameters)
-    (<span style="color: #a020f0;">when</span> (display-graphic-p)
-      (my-theme)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-apply-cursor-config)</span>
-      (<span style="color: #a020f0;">setq-default</span> cursor-type
-                    (<span style="color: #a020f0;">if</span> (my-ime-active-p)
-                        (plist-get my-cur-type-ime <span style="color: #483d8b;">:on</span>)
-                      (plist-get my-cur-type-ime <span style="color: #483d8b;">:off</span>)))
-      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">moom-font</span> nil t)
-                 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">moom</span> nil t))
-        (moom-font-resize))))
   (advice-add 'make-frame <span style="color: #483d8b;">:after</span> #'ad:make-frame))
 </pre>
 </div>
@@ -14609,9 +14626,16 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:winner:delete-window</span> (<span style="color: #228b22;">&amp;optional</span> _window)
+  (message <span style="color: #8b2252;">"Undo? M-x winner-undo or type \"C-x g\""</span>))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (postpone-message <span style="color: #8b2252;">"winner-mode"</span>)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">winner</span> nil t)
+    (advice-add 'delete-window <span style="color: #483d8b;">:after</span> #'ad:winner:delete-window)
     (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-x g"</span>) 'winner-undo)
     (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-("</span>) 'winner-undo)
     (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-)"</span>) 'winner-redo)
@@ -14991,8 +15015,15 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-generic-x-activate</span> ()
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">generic-x</span> nil t)
+  (remove-hook 'find-file-hook #'my-generic-x-activate))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">generic-x</span> nil t))
+  (add-hook 'find-file-hook #'my-generic-x-activate))
 </pre>
 </div>
 </div>
@@ -15414,57 +15445,57 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-reload</span> ()
-      (<span style="color: #a020f0;">interactive</span>)
-      (global-hl-todo-mode -1)
-      (global-hl-todo-mode))
+  (<span style="color: #a020f0;">interactive</span>)
+  (global-hl-todo-mode -1)
+  (global-hl-todo-mode))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-light-theme</span> ()
-      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#FF0000"</span>)
-              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
-              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
-              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
-              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
-              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"SeaGreen"</span>)
-              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"#3030FF"</span>)
-              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
-              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
-              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
-      (my-hl-todo-reload))
+  (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
+        '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#FF0000"</span>)
+          (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
+          (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
+          (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+          (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+          (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
+          (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
+          (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"SeaGreen"</span>)
+          (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"#3030FF"</span>)
+          (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
+          (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+          (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
+          (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
+          (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
+  (my-hl-todo-reload))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-dark-theme</span> ()
-      (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-            '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
-              (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
-              (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-              (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
-              (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
-              (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"#afd8af"</span>)
-              (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-              (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"DodgerBlue1"</span>)
-              (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-              (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
-              (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
-              (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
-      (my-hl-todo-reload))
+  (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
+        '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+          (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
+          (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
+          (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+          (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+          (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
+          (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
+          (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"#afd8af"</span>)
+          (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"DodgerBlue1"</span>)
+          (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
+          (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+          (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
+          (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
+          (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
+  (my-hl-todo-reload))
 </pre>
 </div>
 
@@ -18147,7 +18178,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-25 Mon 08:18</p>
+<p class="date">Created: 2022-07-25 Mon 09:55</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

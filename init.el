@@ -242,6 +242,9 @@ This function is called directly from the C code."
 
 (setq undo-outer-limit nil)
 
+(when (autoload-if-found '(counsel-recentf) "counsel" nil t)
+  (global-set-key (kbd "C-M-r") 'counsel-recentf))
+
 ;; *.~
 (setq make-backup-files nil)
 ;; .#*

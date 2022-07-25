@@ -1866,6 +1866,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 +- =C-M-9= (my-mark-sexp) は，カーソル位置から逆方向に選択．+ 以前は =my-mark-sexp= を定義して使っていましたが， =mark-sexp= を advice する方法に変えました．カーソルが行末だったり，後ろが空白文字の場合にのみ， =mark-sexp= に =-1= がわたるようにしました．
 
+=ad:er:mark-sexp= を設定することで， =C-M-SPC= 時にカーソル以下の単語を選択するようになります． =expand-region.el= の機能を使っています．
+
 #+begin_src emacs-lisp :tangle no
 (defun my-mark-sexp (&optional arg)
   "Move backward across one balanced expression and select it."
@@ -1888,14 +1890,17 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
            allow-extend))
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
 
-(with-eval-after-load "expand-region"
-    (defun ad:er:mark-sexp (f &optional arg allow-extend)
-      "If the cursor is on a symbol, expand the region along the symbol."
-      (interactive "P\np")
-      (if (and (not (use-region-p))
-               (symbol-at-point))
-          (er/mark-symbol)
-        (funcall f arg allow-extend)))
+(when (autoload-if-found
+       '(er/mark-symbol)
+       "expand-region" nil t)
+
+  (defun ad:er:mark-sexp (f &optional arg allow-extend)
+    "If the cursor is on a symbol, expand the region along the symbol."
+    (interactive "P\np")
+    (if (and (not (use-region-p))
+             (symbol-at-point))
+        (er/mark-symbol)
+      (funcall f arg allow-extend)))
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 #+end_src
 
@@ -2269,6 +2274,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 ** [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる
    :PROPERTIES:
    :CUSTOM_ID: org3901456e
+   :ID:       43FB12B2-2B8E-4796-8203-F681D9632E9F
    :END:
 
  - [[https://github.com/magnars/expand-region.el][magnars/expand-region.el: Emacs extension to increase selected region by semantic units.]]
@@ -5420,7 +5426,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-elisp-eldoc (_callback)
+(defun my:elisp-eldoc (_callback)
   "Avoid hiding `hl-line' in `emacs-lisp-mode'."
   (when (fboundp 'my-hl-line-enable)
     (my-hl-line-enable)))
@@ -5434,10 +5440,10 @@ version 28 で全角スペースに黒下線が付くので回避します．
   (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
     (add-hook hook #'turn-on-eldoc-mode))
 
-  (advice-add 'elisp-eldoc-funcall :after #'my-elisp-eldoc)
-  (advice-add 'elisp-eldoc-var-docstring :after #'my-elisp-eldoc)
-
   (with-eval-after-load "eldoc"
+    (advice-add 'elisp-eldoc-funcall :after #'my:elisp-eldoc)
+    (advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)
+
     ;; for ivy-mode
     (defun ad:eldoc-message (f &optional string)
       (unless (active-minibuffer-window)
@@ -6908,6 +6914,25 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
   (eval `(with-ivy-window (find-file ,file))))
+
+;;;###autoload
+(defun ad:counsel-recentf ()
+  "Find a file on `recentf-list'."
+  (interactive)
+  (require 'recentf)
+  (recentf-mode)
+  (ivy-read "Recentf: "
+		        (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
+				                         (substring-no-properties x)))
+			              recentf-list)
+		        :action #'my-counsel-recentf-action
+		        :require-match t
+		        :caller 'counsel-recentf))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(when (autoload-if-found '(counsel-recentf) "counsel" nil t)
+  (global-set-key (kbd "C-M-r") 'counsel-recentf))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -6940,22 +6965,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
     (let ((message-log-max nil))
       (recentf-mode 1)))
 
-  (when (autoload-if-found '(counsel-recentf) "counsel" nil t)
-    (global-set-key (kbd "C-M-r") 'counsel-recentf))
-
   (with-eval-after-load "counsel"
-    (defun ad:counsel-recentf ()
-      "Find a file on `recentf-list'."
-      (interactive)
-      (require 'recentf)
-      (recentf-mode)
-      (ivy-read "Recentf: "
-		            (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
-				                             (substring-no-properties x)))
-			                  recentf-list)
-		            :action #'my-counsel-recentf-action
-		            :require-match t
-		            :caller 'counsel-recentf))
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
@@ -12224,21 +12234,25 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 フレームを複数使う場合の設定です．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:make-frame (&optional _parameters)
+  (when (display-graphic-p)
+    (my-theme)
+    ;; (my-apply-cursor-config)
+    (setq-default cursor-type
+                  (if (my-ime-active-p)
+                      (plist-get my-cur-type-ime :on)
+                    (plist-get my-cur-type-ime :off)))
+    (when (and (require 'moom-font nil t)
+               (require 'moom nil t))
+      (moom-font-resize))))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 ;; (declare-function my-font-config "init" nil)
 (global-set-key (kbd "M-`") 'other-frame)
 (with-eval-after-load "frame"
-  (defun ad:make-frame (&optional _parameters)
-    (when (display-graphic-p)
-      (my-theme)
-      ;; (my-apply-cursor-config)
-      (setq-default cursor-type
-                    (if (my-ime-active-p)
-                        (plist-get my-cur-type-ime :on)
-                      (plist-get my-cur-type-ime :off)))
-      (when (and (require 'moom-font nil t)
-                 (require 'moom nil t))
-        (moom-font-resize))))
   (advice-add 'make-frame :after #'ad:make-frame))
 #+end_src
 
@@ -12504,10 +12518,16 @@ The keybindings will be assigned only when Emacs runs in GUI."
 
 ウィンドウ分割状況と各ウィンドウで表示していたバッファの履歴を辿ることができます． =winner-undo= で直前の状態に戻せます．例えば，誤って =C-x 0= で分割ウィンドウを閉じた時にも，即座に元の状態に戻すことが可能です．
 
+#+begin_src emacs-lisp :tangle utility.el
+(defun ad:winner:delete-window (&optional _window)
+  (message "Undo? M-x winner-undo or type \"C-x g\""))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
   (postpone-message "winner-mode")
   (when (require 'winner nil t)
+    (advice-add 'delete-window :after #'ad:winner:delete-window)
     (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
     (define-key winner-mode-map (kbd "C-(") 'winner-undo)
     (define-key winner-mode-map (kbd "C-)") 'winner-redo)
@@ -12843,9 +12863,15 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 =generic-x= を使うと， =/etc/hosts= や =/etc/apache2.conf= に色を付けられる．
 
+#+begin_src emacs-lisp :tangle utility.el
+(defun my-generic-x-activate ()
+  (require 'generic-x nil t)
+  (remove-hook 'find-file-hook #'my-generic-x-activate))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
-  (require 'generic-x nil t))
+  (add-hook 'find-file-hook #'my-generic-x-activate))
 #+end_src
 
 ** カーソル行に色をつける
@@ -13213,57 +13239,57 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-hl-todo-reload ()
-      (interactive)
-      (global-hl-todo-mode -1)
-      (global-hl-todo-mode))
+  (interactive)
+  (global-hl-todo-mode -1)
+  (global-hl-todo-mode))
 
 ;;;###autoload
 (defun my-hl-todo-light-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#FF0000")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "SeaGreen")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "#3030FF")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
+  (setq hl-todo-keyword-faces
+        '(("HOLD" . "#d0bf8f")
+          ("TODO" . "#FF0000")
+          ("NEXT" . "#dca3a3")
+          ("THEM" . "#dc8cc3")
+          ("PROG" . "#7cb8bb")
+          ("OKAY" . "#7cb8bb")
+          ("DONT" . "#5f7f5f")
+          ("FAIL" . "#8c5353")
+          ("DONE" . "SeaGreen")
+          ("NOTE"   . "#d0bf8f")
+          ("KLUDGE" . "#d0bf8f")
+          ("HACK"   . "#d0bf8f")
+          ("TEMP"   . "#d0bf8f")
+          ("FIXME"  . "#3030FF")
+          ("XXX+"   . "#cc9393")
+          ("\\?\\?\\?+" . "#cc9393")
+          ("" . "orange")
+          ("" . "red")
+          ("" . "Seagreen3")))
+  (my-hl-todo-reload))
 
 ;;;###autoload
 (defun my-hl-todo-dark-theme ()
-      (setq hl-todo-keyword-faces
-            '(("HOLD" . "#d0bf8f")
-              ("TODO" . "#cc9393")
-              ("NEXT" . "#dca3a3")
-              ("THEM" . "#dc8cc3")
-              ("PROG" . "#7cb8bb")
-              ("OKAY" . "#7cb8bb")
-              ("DONT" . "#5f7f5f")
-              ("FAIL" . "#8c5353")
-              ("DONE" . "#afd8af")
-              ("NOTE"   . "#d0bf8f")
-              ("KLUDGE" . "#d0bf8f")
-              ("HACK"   . "#d0bf8f")
-              ("TEMP"   . "#d0bf8f")
-              ("FIXME"  . "DodgerBlue1")
-              ("XXX+"   . "#cc9393")
-              ("\\?\\?\\?+" . "#cc9393")
-              ("" . "orange")
-              ("" . "red")
-              ("" . "Seagreen3")))
-      (my-hl-todo-reload))
+  (setq hl-todo-keyword-faces
+        '(("HOLD" . "#d0bf8f")
+          ("TODO" . "#cc9393")
+          ("NEXT" . "#dca3a3")
+          ("THEM" . "#dc8cc3")
+          ("PROG" . "#7cb8bb")
+          ("OKAY" . "#7cb8bb")
+          ("DONT" . "#5f7f5f")
+          ("FAIL" . "#8c5353")
+          ("DONE" . "#afd8af")
+          ("NOTE"   . "#d0bf8f")
+          ("KLUDGE" . "#d0bf8f")
+          ("HACK"   . "#d0bf8f")
+          ("TEMP"   . "#d0bf8f")
+          ("FIXME"  . "DodgerBlue1")
+          ("XXX+"   . "#cc9393")
+          ("\\?\\?\\?+" . "#cc9393")
+          ("" . "orange")
+          ("" . "red")
+          ("" . "Seagreen3")))
+  (my-hl-todo-reload))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
