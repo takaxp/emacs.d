@@ -1,6 +1,11 @@
 ;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
 
+;; (setq byte-compile-warnings '(obsolete))
+;; Suppress warning on cl.el loading
+(defvar my-exclude-deprecated-packages '(cl tls))
+(advice-add 'do-after-load-evaluation :override #'ad:do-after-load-evaluation)
+
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 ;; (eval-when-compile
 ;;   (require 'shut-up nil t))
@@ -94,10 +99,6 @@
 
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
-  (defun ad:epa-file-write-region (f start end file &optional append visit
-                                     lockname mustbenew)
-    (let ((message-log-max nil))
-      (funcall f start end file append visit lockname mustbenew)))
   (advice-add 'epa-file-write-region :around #'ad:epa-file-write-region))
 
 (when (memq window-system '(ns nil))
@@ -157,30 +158,10 @@
 (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 
-(defun ad:mark-sexp (f &optional arg allow-extend)
-  "Set mark ARG sexps from point.
-When the cursor is at the end of line or before a whitespace, set ARG -1."
-  (interactive "P\np")
-  (funcall f (if (and (not (bolp))
-                      (not (eq (preceding-char) ?\ ))
-                      (or (eolp)
-                          (eq (following-char) ?\ )
-                          (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
-                 -1 arg)
-           allow-extend))
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
-
 (when (autoload-if-found
        '(er/mark-symbol)
        "expand-region" nil t)
-
-  (defun ad:er:mark-sexp (f &optional arg allow-extend)
-    "If the cursor is on a symbol, expand the region along the symbol."
-    (interactive "P\np")
-    (if (and (not (use-region-p))
-             (symbol-at-point))
-        (er/mark-symbol)
-      (funcall f arg allow-extend)))
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 
 ;; Scroll window on a line-by-line basis
@@ -267,9 +248,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (add-hook 'after-revert-hook 'bm-buffer-restore)
       (add-hook 'kill-emacs-hook #'my-bm-save-all))
 
-    (defun ad:bm-show-mode ()
-      "Enable truncate mode when showing bm list."
-      (toggle-truncate-lines 1))
     (advice-add 'bm-show-mode :after #'ad:bm-show-mode)
     ))
 
@@ -289,36 +267,13 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
   (with-eval-after-load "smart-mark"
     (progn ;; C-M-SPC SPC SPC ... C-g の場合に正しくカーソルと元に戻す．
-      (defun ad:smart-mark-restore-cursor ()
-        "Restore cursor position saved just before mark."
-        (when smart-mark-point-before-mark
-          (when (> smart-mark-point-before-mark 1)
-            ;; To avoid to jump to the beginning of the buffer
-            (goto-char smart-mark-point-before-mark))
-          (setq smart-mark-point-before-mark nil)))
       (advice-add 'smart-mark-restore-cursor :override
                   #'ad:smart-mark-restore-cursor)
-
-      (defun ad:smart-mark-set-restore-before-mark (&rest _arg)
-        (unless (memq this-command
-                      '(er/expand-region er/mark-symbol er/contract-region))
-          (setq smart-mark-point-before-mark (point))))
       (advice-add 'smart-mark-set-restore-before-mark :override
                   #'ad:smart-mark-set-restore-before-mark)
 
       (when (require 'expand-region-core nil t)
-        (defun ad:er:keyboard-quit ()
-          (when (memq last-command '(er/expand-region er/contract-region))
-            (when smart-mark-point-before-mark
-              (goto-char smart-mark-point-before-mark))))
-        (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)
-
-        (defun ad:er:pre:keyboard-quit ()
-          (when (memq last-command '(er/expand-region er/contract-region))
-            (er/contract-region 0)
-            ;; (when (> smart-mark-point-before-mark 1) ;; FIXME
-            ;;   (goto-char smart-mark-point-before-mark))
-            )))
+        (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit))
       ;; (advice-add 'keyboard-quit :before #'ad:er:pre:keyboard-quit)
       )))
 ;; (defun my-smart-mark-activate () (smart-mark-mode 1))
@@ -364,10 +319,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
             (my-orgalist-activate)
             (setq tab-width 4)
             (setq left-margin 4)))
-
-(defun ad:add-change-log-entry-other-window ()
-  (when view-mode
-    (View-exit-and-edit)))
 
 (advice-add 'add-change-log-entry-other-window
             :before #'ad:add-change-log-entry-other-window)
@@ -479,8 +430,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (define-key view-mode-map (kbd "g") #'my-google-this)
   (define-key view-mode-map (kbd "<tab>") 'my-view-tab)
   (define-key view-mode-map (kbd "S-<tab>") 'my-view-shifttab)
-  (defun ad:view--enable () (my-mode-line-on))
-  (defun ad:view--disable () (my-mode-line-off))
   (unless my-toggle-modeline-global
     (advice-add 'view--enable :before #'ad:view--enable)
     (advice-add 'view--disable :before #'ad:view--disable)))
@@ -688,60 +637,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (with-eval-after-load "yatex"
   (put 'YaTeX-insert-braces 'begend-guide 2)
-
-  (defun ad:YaTeX-insert-begin-end (env region-mode)
-    "Insert \\begin{mode-name} and \\end{mode-name}.
-This works also for other defined begin/end tokens to define the structure."
-    (setq YaTeX-current-completion-type 'begin)
-    (let*((ccol (current-column)) beg beg2 exchange
-          (_arg region-mode)		;for old compatibility
-          (indent-column (+ ccol YaTeX-environment-indent))(_i 1) _func)
-      (if (and region-mode (> (point) (mark)))
-          (progn (exchange-point-and-mark)
-                 (setq exchange t
-                       ccol (current-column)
-                       indent-column (+ ccol YaTeX-environment-indent))))
-      ;;VER2 (insert "\\begin{" env "}" (YaTeX-addin env))
-      (setq beg (point))
-      (YaTeX-insert-struc 'begin env)
-      (setq beg2 (point))
-      (insert "\n")
-      (indent-to indent-column)
-      (save-excursion
-        ;;indent optional argument of \begin{env}, if any
-        (while (> (point-beginning-of-line) beg)
-          (skip-chars-forward "\\s " (point-end-of-line))
-          (indent-to indent-column)
-          (forward-line -1)))
-      (require 'yatexenv)
-      (if region-mode
-          ;;if region-mode, indent all text in the region
-          (save-excursion
-            (if (fboundp (intern-soft (concat "YaTeX-enclose-" env)))
-                (funcall (intern-soft (concat "YaTeX-enclose-" env))
-                         (point) (mark))
-              (while (< (progn (forward-line 1) (point)) (mark))
-                (if (eolp) nil
-                  (skip-chars-forward " \t\n")
-                  (indent-to indent-column))))))
-      (if region-mode (exchange-point-and-mark))
-      (indent-to ccol)
-      ;;VER2 (insert "\\end{" env "}\n")
-      (YaTeX-insert-struc 'end env)
-      (YaTeX-reindent ccol)
-      (if region-mode
-          (progn
-            (insert "\n")
-            (or exchange (exchange-point-and-mark)))
-        (goto-char beg2)
-        (YaTeX-intelligent-newline nil)
-        (YaTeX-indent-line))
-      (YaTeX-package-auto-usepackage env 'env)
-      (if YaTeX-current-position-register
-          (point-to-register YaTeX-current-position-register))))
-
-  (advice-add 'YaTeX-insert-begin-end
-              :override #'ad:YaTeX-insert-begin-end))
+  (advice-add 'YaTeX-insert-begin-end :override #'ad:YaTeX-insert-begin-end))
 
 (with-eval-after-load "yasnippet"
   (require 'ivy-yasnippet nil t))
@@ -919,9 +815,6 @@ This works also for other defined begin/end tokens to define the structure."
   (setcdr (assq 'vc-mode mode-line-format)
           '((:eval (my-mode-line-vc-mode-icon)))))
 
-(defun ad:split-window-below (&optional _size)
-  "An extention to switch to \*scratch\* buffer after splitting window."
-  (my-open-scratch))
 ;; (advice-add 'split-window-below :after #'ad:split-window-below)
 (global-set-key (kbd "C-M-s") #'my-open-scratch)
 
@@ -987,11 +880,6 @@ This works also for other defined begin/end tokens to define the structure."
     (set-face-background 'paren-face-match "#66CC66")
 
     ;; for ivy-mode, "Matches" と表示される関数との衝突をさける
-    (defun ad:mic-paren-highlight (f)
-      (if (active-minibuffer-window)
-          (let ((paren-display-message 'never))
-            (funcall f))
-        (funcall f)))
     (advice-add 'mic-paren-highlight :around #'ad:mic-paren-highlight)))
 
 ;; スペース
@@ -1005,14 +893,6 @@ This works also for other defined begin/end tokens to define the structure."
 ;; 半角スペース
 (defface my-face-b-3 '((t (:background "orange")))
   nil :group 'font-lock-highlighting-faces)
-
-(defun ad:font-lock-mode (&optional _ARG)
-  (unless (memq major-mode '(vterm-mode))
-    (font-lock-add-keywords major-mode
-                            ;; "[\t]+$" 行末のタブ
-                            '(("　" 0 'my-face-b-1 append)
-                              ("[ ]+$" 0 'my-face-b-3 append)
-                              ("[\t]+$" 0 'my-face-b-2 append)))))
 (advice-add 'font-lock-mode :before #'ad:font-lock-mode)
 
 ;;show EOF
@@ -1273,9 +1153,6 @@ This works also for other defined begin/end tokens to define the structure."
     (advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)
 
     ;; for ivy-mode
-    (defun ad:eldoc-message (f &optional string)
-      (unless (active-minibuffer-window)
-        (funcall f string)))
     (advice-add 'eldoc-message :around #'ad:eldoc-message)
 
     (custom-set-variables
@@ -1320,6 +1197,9 @@ This works also for other defined begin/end tokens to define the structure."
   (global-set-key (kbd "C-,") 'counsel-mark-ring)
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
   (global-set-key (kbd "C-c i r") 'ivy-resume)
+
+  (unless (fboundp 'seq-sort-by) ;; emacs25
+    (defalias 'seq-sort-by 'my-seq-sort-by))
 
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-,") 'counsel-mark-ring))
@@ -1447,15 +1327,6 @@ This works also for other defined begin/end tokens to define the structure."
   (global-set-key (kbd "M-s M-a") 'swiper-all-thing-at-point)
 
   (with-eval-after-load "swiper"
-    (defun ad:swiper-thing-at-point ()
-      "`swiper' with `ivy-thing-at-point'."
-      (interactive)
-      (let ((thing (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
-                       nil
-                     (ivy-thing-at-point))))
-        (when (use-region-p)
-          (deactivate-mark))
-        (swiper thing)))
     (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
 
 (when (eq system-type 'darwin)
@@ -1495,11 +1366,6 @@ This works also for other defined begin/end tokens to define the structure."
 
     ;; for org-agenda
     (add-hook 'org-agenda-mode-hook #'dimmer-permanent-off)
-    (defun ad:dimmer-org-agenda--quit (&optional _bury)
-      (when (fboundp 'dimmer-on)
-	      (setq my-dimmer-mode t)
-	      (dimmer-on)
-	      (redraw-frame)))
     (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
 
     ;; for swiper/helm-swoop
@@ -1641,32 +1507,7 @@ This works also for other defined begin/end tokens to define the structure."
 
     (defvar my-neo-activated nil) ;; fail save
     (defvar my-neo-adjusted-window-width (+ 3 neo-window-width))
-    (defun ad:neotree-show ()
-      "Extension to support change frame width when opening neotree."
-      (unless (neo-global--window-exists-p)
-        (when (and (require 'moom nil t)
-                   (not my-neo-activated))
-          (setq moom-frame-width-single
-                (+ moom-frame-width-single my-neo-adjusted-window-width))
-          (setq moom-frame-width-double
-                (+ moom-frame-width-double my-neo-adjusted-window-width)))
-        (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))
-        (setq my-neo-activated t)))
     (advice-add 'neotree-show :before #'ad:neotree-show)
-
-    (defun ad:neotree-hide ()
-      "Extension to support change frame width when closing neotree."
-      (when (neo-global--window-exists-p)
-        (when (and (require 'moom nil t)
-                   my-neo-activated)
-          (setq moom-frame-width-single
-                (- moom-frame-width-single my-neo-adjusted-window-width))
-          (setq moom-frame-width-double
-                (- moom-frame-width-double my-neo-adjusted-window-width)))
-        (set-frame-width nil (- (frame-width) my-neo-adjusted-window-width))
-        (when (> 80 (frame-width)) ;; fail safe
-          (set-frame-width nil 80))
-        (setq my-neo-activated nil)))
     (advice-add 'neotree-hide :before #'ad:neotree-hide)))
 
 (when (autoload-if-found
@@ -1681,8 +1522,6 @@ This works also for other defined begin/end tokens to define the structure."
   (global-set-key (kbd "<f1> @") 'helpful-at-point)
 
   (with-eval-after-load "helpful"
-    (defun ad:helpful-at-point ()
-      (deactivate-mark))
     (advice-add 'helpful-at-point :before #'ad:helpful-at-point)))
 
 (when (autoload-if-found
@@ -1697,12 +1536,6 @@ This works also for other defined begin/end tokens to define the structure."
        "keyfreq" nil t) ;; will require 'cl and 'gv (10-20[ms])
 
   (with-eval-after-load "keyfreq"
-    (defun ad:keyfreq-show ()
-      "Extension to make the buffer view-only."
-      (interactive)
-      (if shutup-p
-          (shut-up (view-buffer keyfreq-buffer))
-        (view-buffer keyfreq-buffer)))
     (advice-add 'keyfreq-show :after #'ad:keyfreq-show)
     ;; (define-key keyfreq-mode-map (kbd "q")
     ;;   (lambda () (interactive)
@@ -1729,13 +1562,6 @@ This works also for other defined begin/end tokens to define the structure."
 
 (with-eval-after-load "counsel"
   (require 'thingatpt nil t)
-  (defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
-    (apply f (or initial-input
-                 (and (not (thing-at-point-looking-at "^\\*+"))
-                      (ivy-thing-at-point)))
-           (unless current-prefix-arg
-             (or initial-directory default-directory))
-           extra-ag-args ag-prompt caller))
   (advice-add 'counsel-ag :around #'ad:counsel-ag)
 
   ;; 2文字でも検索が発動するようにする
@@ -1752,15 +1578,7 @@ This works also for other defined begin/end tokens to define the structure."
   (global-set-key (kbd "C-M-z") 'counsel-fzf)
 
   (with-eval-after-load "counsel"
-    (defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
-      (apply f (or initial-input
-                   (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
-                       nil
-                     (ivy-thing-at-point)))
-             (or initial-directory default-directory)
-             fzf-prompt))
     (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
-
     (ivy-add-actions
      'counsel-fzf
      '(("r" my-counsel-fzf-in-dir "search in directory")))))
@@ -1858,23 +1676,11 @@ This works also for other defined begin/end tokens to define the structure."
        "projectile" nil t)
 
   (with-eval-after-load "neotree"
-    ;; M-x helm-projectile-switch-project (C-c p p)
-    (setq projectile-switch-project-action 'neotree-projectile-action)
-
-    (defun ad:neotree-dir (path)
-      "Extension to change the frame width automatically."
-      (interactive "DDirectory: ")
-      (unless (neo-global--window-exists-p)
-        (neotree-show))
-      (neo-global--open-dir path)
-      (neo-global--select-window))
     ;; (advice-add 'neotree-dir :override #'ad:neotree-dir) ;; FIXME
-    )
+    ;; M-x helm-projectile-switch-project (C-c p p)
+    (setq projectile-switch-project-action 'neotree-projectile-action))
 
   (with-eval-after-load "projectile"
-    (defun ad:projectile-visit-project-tags-table ()
-      "Extensions to skip calling `visit-tags-table'."
-      nil)
     (advice-add 'projectile-visit-project-tags-table :override
                 #'ad:projectile-visit-project-tags-table)
 
@@ -1927,11 +1733,6 @@ This works also for other defined begin/end tokens to define the structure."
     (when (fboundp 'dimmer-off)
       (add-hook 'magit-status-mode-hook 'dimmer-off))
     (when (fboundp 'magit-mode-bury-buffer)
-      (defun ad:magit-mode-bury-buffer (&optional _bury)
-        (when (fboundp 'dimmer-on)
-          (setq my-dimmer-mode t)
-          (dimmer-on)
-          (redraw-frame)))
       (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
     (when (and (boundp 'magit-completing-read-function)
                (require 'ivy nil t))
@@ -1975,13 +1776,7 @@ This works also for other defined begin/end tokens to define the structure."
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode))
 
-  (defun ad:company-idle-begin (f buf win tick pos)
-    (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
-      (funcall f buf win tick pos)))
   (advice-add 'company-idle-begin :around #'ad:company-idle-begin)
-  (defun ad:company-pseudo-tooltip--ujofwd-on-timer (f command)
-    (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
-      (funcall f command)))
   ;; (advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around
   ;;             #'ad:company-pseudo-tooltip--ujofwd-on-timer)
 
@@ -2050,12 +1845,6 @@ This works also for other defined begin/end tokens to define the structure."
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
     (setf (alist-get 'org-recent-headings ivy-sort-functions-alist) nil)
 
-    (defun ad:org-recent-headings-activate ()
-      (interactive)
-      (when (require 'org-recent-headings nil t)
-        (org-recent-headings-mode 1) ;; one time activate
-        (advice-remove 'org-recent-headings
-                       #'ad:org-recent-headings-activate)))
     (advice-add 'org-recent-headings :before
                 #'ad:org-recent-headings-activate)
 
@@ -2180,12 +1969,6 @@ This works also for other defined begin/end tokens to define the structure."
 
 (global-set-key (kbd "<f12>") 'my-toggle-mode-line)
 (with-eval-after-load "moom"
-  (defun ad:moom-toggle-frame-maximized ()
-    (when (eq major-mode 'org-mode)
-      (org-redisplay-inline-images))
-    (when (and mode-line-format
-               (not my-toggle-modeline-global))
-      (my-mode-line-off)))
   (advice-add 'moom-toggle-frame-maximized
               :after #'ad:moom-toggle-frame-maximized))
 
@@ -2204,7 +1987,8 @@ This works also for other defined begin/end tokens to define the structure."
           t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
 
 ;; init
-(my-mode-line-off)
+(unless noninteractive
+  (my-mode-line-off))
 
 (unless noninteractive
   (postpone-message "winner-mode")
@@ -2227,11 +2011,6 @@ This works also for other defined begin/end tokens to define the structure."
     (shackle-mode 1)))
 
 (with-eval-after-load "checkdoc"
-  (defun ad:checkdoc ()
-    (interactive)
-    (define-key checkdoc-minor-mode-map (kbd "q") 'my-delete-checkdoc-window)
-    (define-key checkdoc-minor-mode-map (kbd "C-g") 'my-delete-checkdoc-window)
-    (checkdoc-minor-mode 1))
   (advice-add 'checkdoc :before #'ad:checkdoc))
 
 (with-eval-after-load "moom"
@@ -2247,21 +2026,7 @@ This works also for other defined begin/end tokens to define the structure."
                                             (* 2 (aref (font-info font) 2))))
                                 10)))
      '(doom-modeline-minor-modes t))
-    (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
-    (defun ad:doom-modeline-buffer-file-state-icon
-        (icon &optional text face height voffset)
-      "Displays an ICON with FACE, HEIGHT and VOFFSET.
-TEXT is the alternative if it is not applicable.
-Uses `all-the-icons-material' to fetch the icon."
-      (if doom-modeline-icon
-          (when icon
-            (doom-modeline-icon-material
-             icon
-             :face face
-             :height (or height 0.85) ;; 1.1
-             :v-adjust (or voffset -0.225))) ;; -0.225
-        (when text
-          (propertize text 'face face))))
+    ;; (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
     (advice-add 'doom-modeline-buffer-file-state-icon :override
                 #'ad:doom-modeline-buffer-file-state-icon)
     (size-indication-mode 1)
@@ -2512,34 +2277,11 @@ Uses `all-the-icons-material' to fetch the icon."
     ;; pre-redisplay-functions はやばい．
 
     ;; modification-hooks
-    (defun ad:gif-screencast ()
-      (dolist (hook gif-screencast-additional-normal-hooks)
-        (add-hook hook #'gif-screencast-capture)))
     (advice-add 'gif-screencast :after #'ad:gif-screencast)
-
-    (defun ad:gif-screencast-stop ()
-      (dolist (hook gif-screencast-additional-normal-hooks)
-        (remove-hook hook 'gif-screencast-capture)))
     (advice-add 'gif-screencast-stop :after #'ad:gif-screencast-stop)
-
-    (defun ad:gif-screencast-toggle-pause ()
-      (if (memq 'gif-screencast-capture (default-value 'pre-command-hook))
-          (dolist (hook gif-screencast-additional-normal-hooks)
-            (remove-hook hook 'gif-screencast-capture))
-        (dolist (hook gif-screencast-additional-normal-hooks)
-          (add-hook hook #'gif-screencast-capture))))
+    (advice-add 'gif-screencast-stop :before #'ad:gif-screencast-opendir)
     (advice-add 'gif-screencast-toggle-pause
-                :before #'ad:gif-screencast-toggle-pause)
-
-    (defun ad:gif-screencast-opendir ()
-      "Open the output directory when screencast is finished."
-      (if (not (eq system-type 'darwin))
-          (my-gif-screencast-opendir-dired)
-        (shell-command-to-string
-         (concat "open " gif-screencast-screenshot-directory))
-        (shell-command-to-string
-         (concat "open " gif-screencast-output-directory))))
-    (advice-add 'gif-screencast-stop :before #'ad:gif-screencast-opendir)))
+                :before #'ad:gif-screencast-toggle-pause)))
 
 (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
 ;; (global-set-key (kbd "<f12>") 'my-open-file-ring)
@@ -2570,18 +2312,6 @@ Uses `all-the-icons-material' to fetch the icon."
     :type 'float) ;; N[s] 無応答の時[y/n]を出す．
 
   (defvar my--nocand-then-fzf t)
-  (defun ad:fzf:ivy--insert-prompt ()
-    (when (and my--nocand-then-fzf
-               (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)
-               (= ivy--length 0))
-      (let* ((std-props
-              '(front-sticky t rear-nonsticky t field t read-only t))
-             (prompt (concat (my-pre-prompt-function)
-                             "Switch to Counsel-fzf? [y/n] ")))
-        (set-text-properties 0 (length prompt)
-                             `(face minibuffer-prompt ,@std-props) prompt)
-        (run-with-idle-timer my-nocand-then-fzf-idle-time
-                             nil #'my-nocand-then-fzf prompt))))
   (advice-add 'ivy--insert-prompt :before #'ad:fzf:ivy--insert-prompt)
   (add-hook 'minibuffer-setup-hook #'my-nocand-then-fzf-reset)
   (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))

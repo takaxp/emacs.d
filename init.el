@@ -47,53 +47,6 @@
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
-;; (setq byte-compile-warnings '(obsolete))
-;; Suppress warning on cl.el loading
-(defvar my-exclude-deprecated-packages '(cl tls))
-(defun ad:do-after-load-evaluation (abs-file)
-  "Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
-ABS-FILE, a string, should be the absolute true name of a file just loaded.
-This function is called directly from the C code."
-  ;; Run the relevant eval-after-load forms.
-  (dolist (a-l-element after-load-alist)
-    (when (and (stringp (car a-l-element))
-               (string-match-p (car a-l-element) abs-file))
-      ;; discard the file name regexp
-      (mapc #'funcall (cdr a-l-element))))
-  ;; Complain when the user uses obsolete files.
-  (when (string-match-p "/obsolete/[^/]*\\'" abs-file)
-    ;; Maybe we should just use display-warning?  This seems yucky...
-    (let* ((file (file-name-nondirectory abs-file))
-           (package (intern (substring file 0
-			                                 (string-match "\\.elc?\\>" file))
-                            obarray))
-           (msg (unless (memq package my-exclude-deprecated-packages)
-                  (format "Package %s is deprecated" package)))
-	         (fun (lambda (msg) (message "%s" msg))))
-      ;; Cribbed from cl--compiling-file.
-      (when (or (not (fboundp 'byte-compile-warning-enabled-p))
-                (byte-compile-warning-enabled-p 'obsolete package))
-        (cond
-	       ((and (boundp 'byte-compile--outbuffer)
-	             (bufferp (symbol-value 'byte-compile--outbuffer))
-	             (equal (buffer-name (symbol-value 'byte-compile--outbuffer))
-		                  " *Compiler Output*"))
-	        ;; Don't warn about obsolete files using other obsolete files.
-	        (unless (and (stringp byte-compile-current-file)
-		                   (string-match-p "/obsolete/[^/]*\\'"
-				                               (expand-file-name
-					                              byte-compile-current-file
-					                              byte-compile-root-dir)))
-	          (byte-compile-warn "%s" msg)))
-         ((and msg
-               noninteractive (funcall fun msg))) ;; No timer will be run!
-	       (t (when msg
-              (run-with-idle-timer 0 nil fun msg)))))))
-
-  ;; Finally, run any other hook.
-  (run-hook-with-args 'after-load-functions abs-file))
-(advice-add 'do-after-load-evaluation :override #'ad:do-after-load-evaluation)
-
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
 (defun my-load-package-p (file)

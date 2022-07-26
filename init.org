@@ -100,7 +100,7 @@ Then load the following at startup
 
 #+begin_src emacs-lisp :tangle utility.el
 ;; utility.el --- My utility.el -*- lexical-binding: t -*-
-;; "my-" functions associated with my 'init.el'
+;; "my-" and "ad:" functions associated with my 'init.el'
 #+end_src
 
 ** [early-init.el] early-init.el を使う
@@ -314,13 +314,6 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-;; (setq byte-compile-warnings '(obsolete))
-;; Suppress warning on cl.el loading
-(defvar my-exclude-deprecated-packages '(cl tls))
 (defun ad:do-after-load-evaluation (abs-file)
   "Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
 ABS-FILE, a string, should be the absolute true name of a file just loaded.
@@ -363,6 +356,12 @@ This function is called directly from the C code."
 
   ;; Finally, run any other hook.
   (run-hook-with-args 'after-load-functions abs-file))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+;; (setq byte-compile-warnings '(obsolete))
+;; Suppress warning on cl.el loading
+(defvar my-exclude-deprecated-packages '(cl tls))
 (advice-add 'do-after-load-evaluation :override #'ad:do-after-load-evaluation)
 #+end_src
 
@@ -1537,13 +1536,17 @@ GPG error: "no usable configuration," OpenPGP
 
 GPGで暗号化されたファイルを編集すると，保存時に暗号化していることを知らせる情報が Messages バッファに出力されます．頻度が低ければ特に気にならないかもしれませんが，自動的にバッファを保存する設定を施していると，Messages バッファが埋め尽くされてしまうので困ります． =epa-file-write-region= をハックして黙らせます．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:epa-file-write-region (f start end file &optional append visit
+                                   lockname mustbenew)
+  (let ((message-log-max nil))
+    (funcall f start end file append visit lockname mustbenew)))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
-  (defun ad:epa-file-write-region (f start end file &optional append visit
-                                     lockname mustbenew)
-    (let ((message-log-max nil))
-      (funcall f start end file append visit lockname mustbenew)))
   (advice-add 'epa-file-write-region :around #'ad:epa-file-write-region))
 #+end_src
 
@@ -1876,7 +1879,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 (global-set-key (kbd "C-M-9") #'my-mark-sexp)
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun ad:mark-sexp (f &optional arg allow-extend)
   "Set mark ARG sexps from point.
 When the cursor is at the end of line or before a whitespace, set ARG -1."
@@ -1888,19 +1892,22 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                           (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
                  -1 arg)
            allow-extend))
-(advice-add 'mark-sexp :around #'ad:mark-sexp)
 
+;;;###autoload
+(defun ad:er:mark-sexp (f &optional arg allow-extend)
+  "If the cursor is on a symbol, expand the region along the symbol."
+  (interactive "P\np")
+  (if (and (not (use-region-p))
+           (symbol-at-point))
+      (er/mark-symbol)
+    (funcall f arg allow-extend)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(advice-add 'mark-sexp :around #'ad:mark-sexp)
 (when (autoload-if-found
        '(er/mark-symbol)
        "expand-region" nil t)
-
-  (defun ad:er:mark-sexp (f &optional arg allow-extend)
-    "If the cursor is on a symbol, expand the region along the symbol."
-    (interactive "P\np")
-    (if (and (not (use-region-p))
-             (symbol-at-point))
-        (er/mark-symbol)
-      (funcall f arg allow-extend)))
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 #+end_src
 
@@ -2108,6 +2115,12 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
                           (bm-goto bookmark)
                           ))
               :sort t)))
+
+;;;###autoload
+(defun ad:bm-show-mode ()
+  "Enable truncate mode when showing bm list."
+  (toggle-truncate-lines 1))
+
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -2151,9 +2164,6 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
       (add-hook 'after-revert-hook 'bm-buffer-restore)
       (add-hook 'kill-emacs-hook #'my-bm-save-all))
 
-    (defun ad:bm-show-mode ()
-      "Enable truncate mode when showing bm list."
-      (toggle-truncate-lines 1))
     (advice-add 'bm-show-mode :after #'ad:bm-show-mode)
     ))
 #+end_src
@@ -2199,6 +2209,35 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 (defun my-smart-mark-activate ()
   (smart-mark-mode 1)
   (remove-hook 'find-file-hook #'my-smart-mark-activate))
+
+;;;###autoload
+(defun ad:smart-mark-restore-cursor ()
+  "Restore cursor position saved just before mark."
+  (when smart-mark-point-before-mark
+    (when (> smart-mark-point-before-mark 1)
+      ;; To avoid to jump to the beginning of the buffer
+      (goto-char smart-mark-point-before-mark))
+    (setq smart-mark-point-before-mark nil)))
+
+;;;###autoload
+(defun ad:smart-mark-set-restore-before-mark (&rest _arg)
+  (unless (memq this-command
+                '(er/expand-region er/mark-symbol er/contract-region))
+    (setq smart-mark-point-before-mark (point))))
+
+;;;###autoload
+(defun ad:er:keyboard-quit ()
+  (when (memq last-command '(er/expand-region er/contract-region))
+    (when smart-mark-point-before-mark
+      (goto-char smart-mark-point-before-mark))))
+
+;;;###autoload
+(defun ad:er:pre:keyboard-quit ()
+  (when (memq last-command '(er/expand-region er/contract-region))
+    (er/contract-region 0)
+    ;; (when (> smart-mark-point-before-mark 1) ;; FIXME
+    ;;   (goto-char smart-mark-point-before-mark))
+    ))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -2210,36 +2249,13 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 
   (with-eval-after-load "smart-mark"
     (progn ;; C-M-SPC SPC SPC ... C-g の場合に正しくカーソルと元に戻す．
-      (defun ad:smart-mark-restore-cursor ()
-        "Restore cursor position saved just before mark."
-        (when smart-mark-point-before-mark
-          (when (> smart-mark-point-before-mark 1)
-            ;; To avoid to jump to the beginning of the buffer
-            (goto-char smart-mark-point-before-mark))
-          (setq smart-mark-point-before-mark nil)))
       (advice-add 'smart-mark-restore-cursor :override
                   #'ad:smart-mark-restore-cursor)
-
-      (defun ad:smart-mark-set-restore-before-mark (&rest _arg)
-        (unless (memq this-command
-                      '(er/expand-region er/mark-symbol er/contract-region))
-          (setq smart-mark-point-before-mark (point))))
       (advice-add 'smart-mark-set-restore-before-mark :override
                   #'ad:smart-mark-set-restore-before-mark)
 
       (when (require 'expand-region-core nil t)
-        (defun ad:er:keyboard-quit ()
-          (when (memq last-command '(er/expand-region er/contract-region))
-            (when smart-mark-point-before-mark
-              (goto-char smart-mark-point-before-mark))))
-        (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit)
-
-        (defun ad:er:pre:keyboard-quit ()
-          (when (memq last-command '(er/expand-region er/contract-region))
-            (er/contract-region 0)
-            ;; (when (> smart-mark-point-before-mark 1) ;; FIXME
-            ;;   (goto-char smart-mark-point-before-mark))
-            )))
+        (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit))
       ;; (advice-add 'keyboard-quit :before #'ad:er:pre:keyboard-quit)
       )))
 ;; (defun my-smart-mark-activate () (smart-mark-mode 1))
@@ -2497,6 +2513,7 @@ Built-in の time-stamp.el を使う．
 ** 選択リージョンを使って検索
    :PROPERTIES:
    :CUSTOM_ID: orge62264fe
+   :ID:       F6ABF5A3-2344-42A6-93CC-6543D07764BF
    :END:
 
 検索語をミニバッファに入力するのが面倒なので，リージョンをそのまま検索語として利用します．
@@ -2539,6 +2556,11 @@ Built-in の time-stamp.el を使う．
 (defun my-orgalist-activate ()
   (when (require 'orgalist nil t)
     (orgalist-mode 1))) ;; originally orgstruct-mode
+
+;;;###autoload
+(defun ad:add-change-log-entry-other-window ()
+  (when view-mode
+    (View-exit-and-edit)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -2548,10 +2570,6 @@ Built-in の time-stamp.el を使う．
             (my-orgalist-activate)
             (setq tab-width 4)
             (setq left-margin 4)))
-
-(defun ad:add-change-log-entry-other-window ()
-  (when view-mode
-    (View-exit-and-edit)))
 
 (advice-add 'add-change-log-entry-other-window
             :before #'ad:add-change-log-entry-other-window)
@@ -2925,6 +2943,12 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 (defun my-view-exit ()
   (interactive)
   (if (use-region-p) (my-eval-region) (View-exit)))
+
+;;;###autoload
+(defun ad:view--enable () (my-mode-line-on))
+
+;;;###autoload
+(defun ad:view--disable () (my-mode-line-off))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -2956,8 +2980,6 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   (define-key view-mode-map (kbd "g") #'my-google-this)
   (define-key view-mode-map (kbd "<tab>") 'my-view-tab)
   (define-key view-mode-map (kbd "S-<tab>") 'my-view-shifttab)
-  (defun ad:view--enable () (my-mode-line-on))
-  (defun ad:view--disable () (my-mode-line-off))
   (unless my-toggle-modeline-global
     (advice-add 'view--enable :before #'ad:view--enable)
     (advice-add 'view--disable :before #'ad:view--disable)))
@@ -3324,63 +3346,64 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
 ショートカットの利用を強制するメッセージが出るので，抑制します．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:YaTeX-insert-begin-end (env region-mode)
+  "Insert \\begin{mode-name} and \\end{mode-name}.
+This works also for other defined begin/end tokens to define the structure."
+  (setq YaTeX-current-completion-type 'begin)
+  (let*((ccol (current-column)) beg beg2 exchange
+        (_arg region-mode)		;for old compatibility
+        (indent-column (+ ccol YaTeX-environment-indent))(_i 1) _func)
+    (if (and region-mode (> (point) (mark)))
+        (progn (exchange-point-and-mark)
+               (setq exchange t
+                     ccol (current-column)
+                     indent-column (+ ccol YaTeX-environment-indent))))
+    ;;VER2 (insert "\\begin{" env "}" (YaTeX-addin env))
+    (setq beg (point))
+    (YaTeX-insert-struc 'begin env)
+    (setq beg2 (point))
+    (insert "\n")
+    (indent-to indent-column)
+    (save-excursion
+      ;;indent optional argument of \begin{env}, if any
+      (while (> (point-beginning-of-line) beg)
+        (skip-chars-forward "\\s " (point-end-of-line))
+        (indent-to indent-column)
+        (forward-line -1)))
+    (require 'yatexenv)
+    (if region-mode
+        ;;if region-mode, indent all text in the region
+        (save-excursion
+          (if (fboundp (intern-soft (concat "YaTeX-enclose-" env)))
+              (funcall (intern-soft (concat "YaTeX-enclose-" env))
+                       (point) (mark))
+            (while (< (progn (forward-line 1) (point)) (mark))
+              (if (eolp) nil
+                (skip-chars-forward " \t\n")
+                (indent-to indent-column))))))
+    (if region-mode (exchange-point-and-mark))
+    (indent-to ccol)
+    ;;VER2 (insert "\\end{" env "}\n")
+    (YaTeX-insert-struc 'end env)
+    (YaTeX-reindent ccol)
+    (if region-mode
+        (progn
+          (insert "\n")
+          (or exchange (exchange-point-and-mark)))
+      (goto-char beg2)
+      (YaTeX-intelligent-newline nil)
+      (YaTeX-indent-line))
+    (YaTeX-package-auto-usepackage env 'env)
+    (if YaTeX-current-position-register
+        (point-to-register YaTeX-current-position-register))))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "yatex"
   (put 'YaTeX-insert-braces 'begend-guide 2)
-
-  (defun ad:YaTeX-insert-begin-end (env region-mode)
-    "Insert \\begin{mode-name} and \\end{mode-name}.
-This works also for other defined begin/end tokens to define the structure."
-    (setq YaTeX-current-completion-type 'begin)
-    (let*((ccol (current-column)) beg beg2 exchange
-          (_arg region-mode)		;for old compatibility
-          (indent-column (+ ccol YaTeX-environment-indent))(_i 1) _func)
-      (if (and region-mode (> (point) (mark)))
-          (progn (exchange-point-and-mark)
-                 (setq exchange t
-                       ccol (current-column)
-                       indent-column (+ ccol YaTeX-environment-indent))))
-      ;;VER2 (insert "\\begin{" env "}" (YaTeX-addin env))
-      (setq beg (point))
-      (YaTeX-insert-struc 'begin env)
-      (setq beg2 (point))
-      (insert "\n")
-      (indent-to indent-column)
-      (save-excursion
-        ;;indent optional argument of \begin{env}, if any
-        (while (> (point-beginning-of-line) beg)
-          (skip-chars-forward "\\s " (point-end-of-line))
-          (indent-to indent-column)
-          (forward-line -1)))
-      (require 'yatexenv)
-      (if region-mode
-          ;;if region-mode, indent all text in the region
-          (save-excursion
-            (if (fboundp (intern-soft (concat "YaTeX-enclose-" env)))
-                (funcall (intern-soft (concat "YaTeX-enclose-" env))
-                         (point) (mark))
-              (while (< (progn (forward-line 1) (point)) (mark))
-                (if (eolp) nil
-                  (skip-chars-forward " \t\n")
-                  (indent-to indent-column))))))
-      (if region-mode (exchange-point-and-mark))
-      (indent-to ccol)
-      ;;VER2 (insert "\\end{" env "}\n")
-      (YaTeX-insert-struc 'end env)
-      (YaTeX-reindent ccol)
-      (if region-mode
-          (progn
-            (insert "\n")
-            (or exchange (exchange-point-and-mark)))
-        (goto-char beg2)
-        (YaTeX-intelligent-newline nil)
-        (YaTeX-indent-line))
-      (YaTeX-package-auto-usepackage env 'env)
-      (if YaTeX-current-position-register
-          (point-to-register YaTeX-current-position-register))))
-
-  (advice-add 'YaTeX-insert-begin-end
-              :override #'ad:YaTeX-insert-begin-end))
+  (advice-add 'YaTeX-insert-begin-end :override #'ad:YaTeX-insert-begin-end))
 #+end_src
 
 ** [auxtex.el] AUCTEXでTex編集                                          :tex:
@@ -4498,12 +4521,14 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
   "Switch the current buffer to \*scratch\* buffer."
   (interactive)
   (switch-to-buffer "*scratch*"))
-#+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+;;;###autoload
 (defun ad:split-window-below (&optional _size)
   "An extention to switch to \*scratch\* buffer after splitting window."
   (my-open-scratch))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
 ;; (advice-add 'split-window-below :after #'ad:split-window-below)
 (global-set-key (kbd "C-M-s") #'my-open-scratch)
 #+end_src
@@ -4763,6 +4788,14 @@ Built-in の paren.el が利用できる．拡張版として [[http://www.emacs
 (defun my-mic-paren-activate ()
   (paren-activate)
   (remove-hook 'find-file-hook #'my-mic-paren-activate))
+
+;;;###autoload
+(defun ad:mic-paren-highlight (f)
+  (if (active-minibuffer-window)
+      (let ((paren-display-message 'never))
+        (funcall f)
+        paren-display-message)
+    (funcall f)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -4782,11 +4815,6 @@ Built-in の paren.el が利用できる．拡張版として [[http://www.emacs
     (set-face-background 'paren-face-match "#66CC66")
 
     ;; for ivy-mode, "Matches" と表示される関数との衝突をさける
-    (defun ad:mic-paren-highlight (f)
-      (if (active-minibuffer-window)
-          (let ((paren-display-message 'never))
-            (funcall f))
-        (funcall f)))
     (advice-add 'mic-paren-highlight :around #'ad:mic-paren-highlight)))
 #+end_src
 
@@ -4815,6 +4843,17 @@ paren.el の場合は以下の設定．
 
 英語で原稿を書く時に全角スペースが入っているを苦労するので，強調表示して編集中でも気づくようにします．また，行末のタブや半角スペースも無駄なので，入り込まないように強調しています．パッケージを使うと too much かなという印象があったので，個別の設定だけを使わせてもらっています．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:font-lock-mode (&optional _ARG)
+  (unless (memq major-mode '(vterm-mode))
+    (font-lock-add-keywords major-mode
+                            ;; "[\t]+$" 行末のタブ
+                            '(("　" 0 'my-face-b-1 append)
+                              ("[ ]+$" 0 'my-face-b-3 append)
+                              ("[\t]+$" 0 'my-face-b-2 append)))))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 ;; スペース
 (defface my-face-b-1
@@ -4827,14 +4866,6 @@ paren.el の場合は以下の設定．
 ;; 半角スペース
 (defface my-face-b-3 '((t (:background "orange")))
   nil :group 'font-lock-highlighting-faces)
-
-(defun ad:font-lock-mode (&optional _ARG)
-  (unless (memq major-mode '(vterm-mode))
-    (font-lock-add-keywords major-mode
-                            ;; "[\t]+$" 行末のタブ
-                            '(("　" 0 'my-face-b-1 append)
-                              ("[ ]+$" 0 'my-face-b-3 append)
-                              ("[\t]+$" 0 'my-face-b-2 append)))))
 (advice-add 'font-lock-mode :before #'ad:font-lock-mode)
 
 ;;show EOF
@@ -5430,6 +5461,11 @@ version 28 で全角スペースに黒下線が付くので回避します．
   "Avoid hiding `hl-line' in `emacs-lisp-mode'."
   (when (fboundp 'my-hl-line-enable)
     (my-hl-line-enable)))
+
+;;;###autoload
+(defun ad:eldoc-message (f &optional string)
+  (unless (active-minibuffer-window)
+    (funcall f string)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -5445,9 +5481,6 @@ version 28 で全角スペースに黒下線が付くので回避します．
     (advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)
 
     ;; for ivy-mode
-    (defun ad:eldoc-message (f &optional string)
-      (unless (active-minibuffer-window)
-        (funcall f string)))
     (advice-add 'eldoc-message :around #'ad:eldoc-message)
 
     (custom-set-variables
@@ -5546,16 +5579,16 @@ go get -v github.com/mdempsky/gocode
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
-(unless (fboundp 'seq-sort-by) ;; emacs25
-  (defun seq-sort-by (function pred sequence)
-    "Sort SEQUENCE using PRED as a comparison function.
+;;;###autoload
+(defun my-seq-sort-by (function pred sequence)
+  "Sort SEQUENCE using PRED as a comparison function.
 Elements of SEQUENCE are transformed by FUNCTION before being
 sorted.  FUNCTION must be a function of one argument."
-    (seq-sort (lambda (a b)
-                (funcall pred
-                         (funcall function a)
-                         (funcall function b)))
-              sequence)))
+  (seq-sort (lambda (a b)
+              (funcall pred
+                       (funcall function a)
+                       (funcall function b)))
+            sequence))
 
 ;;;###autoload
 (defun ivy--sort-by-len (name candidates)
@@ -5609,6 +5642,9 @@ sorted.  FUNCTION must be a function of one argument."
   (global-set-key (kbd "C-,") 'counsel-mark-ring)
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
   (global-set-key (kbd "C-c i r") 'ivy-resume)
+
+  (unless (fboundp 'seq-sort-by) ;; emacs25
+    (defalias 'seq-sort-by 'my-seq-sort-by))
 
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-,") 'counsel-mark-ring))
@@ -5862,6 +5898,19 @@ sorted.  FUNCTION must be a function of one argument."
    :CUSTOM_ID: orgf0e91c5a
    :END:
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:swiper-thing-at-point ()
+  "`swiper' with `ivy-thing-at-point'."
+  (interactive)
+  (let ((thing (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
+                   nil
+                 (ivy-thing-at-point))))
+    (when (use-region-p)
+      (deactivate-mark))
+    (swiper thing)))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(swiper-thing-at-point swiper-all-thing-at-point)
@@ -5871,15 +5920,6 @@ sorted.  FUNCTION must be a function of one argument."
   (global-set-key (kbd "M-s M-a") 'swiper-all-thing-at-point)
 
   (with-eval-after-load "swiper"
-    (defun ad:swiper-thing-at-point ()
-      "`swiper' with `ivy-thing-at-point'."
-      (interactive)
-      (let ((thing (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
-                       nil
-                     (ivy-thing-at-point))))
-        (when (use-region-p)
-          (deactivate-mark))
-        (swiper thing)))
     (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
 #+end_src
 ** TODO [all-the-icons-ivy] ivy インターフェイスでアイコンを表示する
@@ -5987,6 +6027,12 @@ sorted.  FUNCTION must be a function of one argument."
 (defun my-dimmer-update ()
 	(if (frame-focus-state) (dimmer-on) (dimmer-off)))
 
+;;;###autoload
+(defun ad:dimmer-org-agenda--quit (&optional _bury)
+  (when (fboundp 'dimmer-on)
+	  (setq my-dimmer-mode t)
+	  (dimmer-on)
+	  (redraw-frame)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -6012,11 +6058,6 @@ sorted.  FUNCTION must be a function of one argument."
 
     ;; for org-agenda
     (add-hook 'org-agenda-mode-hook #'dimmer-permanent-off)
-    (defun ad:dimmer-org-agenda--quit (&optional _bury)
-      (when (fboundp 'dimmer-on)
-	      (setq my-dimmer-mode t)
-	      (dimmer-on)
-	      (redraw-frame)))
     (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
 
     ;; for swiper/helm-swoop
@@ -7406,6 +7447,36 @@ http://www.emacswiki.org/emacs/EmacsSession
    :CUSTOM_ID: org92404bbd
    :END:
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:neotree-show ()
+  "Extension to support change frame width when opening neotree."
+  (unless (neo-global--window-exists-p)
+    (when (and (require 'moom nil t)
+               (not my-neo-activated))
+      (setq moom-frame-width-single
+            (+ moom-frame-width-single my-neo-adjusted-window-width))
+      (setq moom-frame-width-double
+            (+ moom-frame-width-double my-neo-adjusted-window-width)))
+    (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))
+    (setq my-neo-activated t)))
+
+;;;###autoload
+(defun ad:neotree-hide ()
+  "Extension to support change frame width when closing neotree."
+  (when (neo-global--window-exists-p)
+    (when (and (require 'moom nil t)
+               my-neo-activated)
+      (setq moom-frame-width-single
+            (- moom-frame-width-single my-neo-adjusted-window-width))
+      (setq moom-frame-width-double
+            (- moom-frame-width-double my-neo-adjusted-window-width)))
+    (set-frame-width nil (- (frame-width) my-neo-adjusted-window-width))
+    (when (> 80 (frame-width)) ;; fail safe
+      (set-frame-width nil 80))
+    (setq my-neo-activated nil)))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(neotree neotree-toggle)
@@ -7429,32 +7500,7 @@ http://www.emacswiki.org/emacs/EmacsSession
 
     (defvar my-neo-activated nil) ;; fail save
     (defvar my-neo-adjusted-window-width (+ 3 neo-window-width))
-    (defun ad:neotree-show ()
-      "Extension to support change frame width when opening neotree."
-      (unless (neo-global--window-exists-p)
-        (when (and (require 'moom nil t)
-                   (not my-neo-activated))
-          (setq moom-frame-width-single
-                (+ moom-frame-width-single my-neo-adjusted-window-width))
-          (setq moom-frame-width-double
-                (+ moom-frame-width-double my-neo-adjusted-window-width)))
-        (set-frame-width nil (+ (frame-width) my-neo-adjusted-window-width))
-        (setq my-neo-activated t)))
     (advice-add 'neotree-show :before #'ad:neotree-show)
-
-    (defun ad:neotree-hide ()
-      "Extension to support change frame width when closing neotree."
-      (when (neo-global--window-exists-p)
-        (when (and (require 'moom nil t)
-                   my-neo-activated)
-          (setq moom-frame-width-single
-                (- moom-frame-width-single my-neo-adjusted-window-width))
-          (setq moom-frame-width-double
-                (- moom-frame-width-double my-neo-adjusted-window-width)))
-        (set-frame-width nil (- (frame-width) my-neo-adjusted-window-width))
-        (when (> 80 (frame-width)) ;; fail safe
-          (set-frame-width nil 80))
-        (setq my-neo-activated nil)))
     (advice-add 'neotree-hide :before #'ad:neotree-hide)))
 #+end_src
 
@@ -7465,6 +7511,12 @@ http://www.emacswiki.org/emacs/EmacsSession
    :END:
 
 ヘルプの内容を見やすく構造化して表示してくれます．関数や変数のヘルプだけでなく，キーやマクロなども見やすく表示してくれます．
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:helpful-at-point ()
+  (deactivate-mark))
+#+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
@@ -7479,8 +7531,6 @@ http://www.emacswiki.org/emacs/EmacsSession
   (global-set-key (kbd "<f1> @") 'helpful-at-point)
 
   (with-eval-after-load "helpful"
-    (defun ad:helpful-at-point ()
-      (deactivate-mark))
     (advice-add 'helpful-at-point :before #'ad:helpful-at-point)))
 #+end_src
 
@@ -7504,9 +7554,20 @@ http://www.emacswiki.org/emacs/EmacsSession
 ** [keyfreq.el] コマンドログ
    :PROPERTIES:
    :CUSTOM_ID: org0d952d68
+   :ID:       73F39AF1-75F6-4E66-8534-D57B709142FF
    :END:
 
 発行しているコマンドの使用頻度を記録し確認できます．デフォルトで， =~/.emacs.keyfreq= に情報が記録されます．
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:keyfreq-show ()
+  "Extension to make the buffer view-only."
+  (interactive)
+  (if shutup-p
+      (shut-up (view-buffer keyfreq-buffer))
+    (view-buffer keyfreq-buffer)))
+#+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
@@ -7514,12 +7575,6 @@ http://www.emacswiki.org/emacs/EmacsSession
        "keyfreq" nil t) ;; will require 'cl and 'gv (10-20[ms])
 
   (with-eval-after-load "keyfreq"
-    (defun ad:keyfreq-show ()
-      "Extension to make the buffer view-only."
-      (interactive)
-      (if shutup-p
-          (shut-up (view-buffer keyfreq-buffer))
-        (view-buffer keyfreq-buffer)))
     (advice-add 'keyfreq-show :after #'ad:keyfreq-show)
     ;; (define-key keyfreq-mode-map (kbd "q")
     ;;   (lambda () (interactive)
@@ -7633,19 +7688,23 @@ the_silver_searcher @0.18.1 (textproc)
    :CUSTOM_ID: org29c7b6b7
    :END:
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
+  (apply f (or initial-input
+               (and (not (thing-at-point-looking-at "^\\*+"))
+                    (ivy-thing-at-point)))
+         (unless current-prefix-arg
+           (or initial-directory default-directory))
+         extra-ag-args ag-prompt caller))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(counsel-ag) "counsel" nil t)
   (global-set-key (kbd "C-M-f") 'counsel-ag))
 
 (with-eval-after-load "counsel"
   (require 'thingatpt nil t)
-  (defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
-    (apply f (or initial-input
-                 (and (not (thing-at-point-looking-at "^\\*+"))
-                      (ivy-thing-at-point)))
-           (unless current-prefix-arg
-             (or initial-directory default-directory))
-           extra-ag-args ag-prompt caller))
   (advice-add 'counsel-ag :around #'ad:counsel-ag)
 
   ;; 2文字でも検索が発動するようにする
@@ -7661,6 +7720,17 @@ the_silver_searcher @0.18.1 (textproc)
    :CUSTOM_ID: org24fd7b68
    :END:
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
+  (apply f (or initial-input
+               (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
+                   nil
+                 (ivy-thing-at-point)))
+         (or initial-directory default-directory)
+         fzf-prompt))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(counsel-fzf)
@@ -7669,15 +7739,7 @@ the_silver_searcher @0.18.1 (textproc)
   (global-set-key (kbd "C-M-z") 'counsel-fzf)
 
   (with-eval-after-load "counsel"
-    (defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
-      (apply f (or initial-input
-                   (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
-                       nil
-                     (ivy-thing-at-point)))
-             (or initial-directory default-directory)
-             fzf-prompt))
     (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
-
     (ivy-add-actions
      'counsel-fzf
      '(("r" my-counsel-fzf-in-dir "search in directory")))))
@@ -8362,6 +8424,20 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (setq projectile-keymap-prefix (kbd "C-c p"))
   (projectile-mode 1)
   (remove-hook 'find-file-hook #'my-projectile-activate))
+
+;;;###autoload
+(defun ad:neotree-dir (path)
+  "Extension to change the frame width automatically."
+  (interactive "DDirectory: ")
+  (unless (neo-global--window-exists-p)
+    (neotree-show))
+  (neo-global--open-dir path)
+  (neo-global--select-window))
+
+;;;###autoload
+(defun ad:projectile-visit-project-tags-table ()
+  "Extensions to skip calling `visit-tags-table'."
+  nil)
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -8370,23 +8446,11 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
        "projectile" nil t)
 
   (with-eval-after-load "neotree"
-    ;; M-x helm-projectile-switch-project (C-c p p)
-    (setq projectile-switch-project-action 'neotree-projectile-action)
-
-    (defun ad:neotree-dir (path)
-      "Extension to change the frame width automatically."
-      (interactive "DDirectory: ")
-      (unless (neo-global--window-exists-p)
-        (neotree-show))
-      (neo-global--open-dir path)
-      (neo-global--select-window))
     ;; (advice-add 'neotree-dir :override #'ad:neotree-dir) ;; FIXME
-    )
+    ;; M-x helm-projectile-switch-project (C-c p p)
+    (setq projectile-switch-project-action 'neotree-projectile-action))
 
   (with-eval-after-load "projectile"
-    (defun ad:projectile-visit-project-tags-table ()
-      "Extensions to skip calling `visit-tags-table'."
-      nil)
     (advice-add 'projectile-visit-project-tags-table :override
                 #'ad:projectile-visit-project-tags-table)
 
@@ -8448,6 +8512,15 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 
 Emacs の中で Git リポジトリを操作できます． =magit-repository-directories= を設定しておけば，管理しているリポジトリの一覧を表示できます． =helm= や =ivy= と連携していれば，絞り込みも簡単です．さらに， =M-x magit-list-repositories= を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:magit-mode-bury-buffer (&optional _bury)
+  (when (fboundp 'dimmer-on)
+    (setq my-dimmer-mode t)
+    (dimmer-on)
+    (redraw-frame)))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(magit-status ad:magit-mode-bury-buffer)
@@ -8459,11 +8532,6 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
     (when (fboundp 'dimmer-off)
       (add-hook 'magit-status-mode-hook 'dimmer-off))
     (when (fboundp 'magit-mode-bury-buffer)
-      (defun ad:magit-mode-bury-buffer (&optional _bury)
-        (when (fboundp 'dimmer-on)
-          (setq my-dimmer-mode t)
-          (dimmer-on)
-          (redraw-frame)))
       (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
     (when (and (boundp 'magit-completing-read-function)
                (require 'ivy nil t))
@@ -8585,6 +8653,16 @@ trim_trailing_whitespace = true
   (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
   (remove-hook 'org-mode-hook #'my-company-activate)
   (require 'company nil t))
+
+;;;###autoload
+(defun ad:company-idle-begin (f buf win tick pos)
+  (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
+    (funcall f buf win tick pos)))
+
+;;;###autoload
+(defun ad:company-pseudo-tooltip--ujofwd-on-timer (f command)
+  (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
+    (funcall f command)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -8615,13 +8693,7 @@ trim_trailing_whitespace = true
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode))
 
-  (defun ad:company-idle-begin (f buf win tick pos)
-    (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
-      (funcall f buf win tick pos)))
   (advice-add 'company-idle-begin :around #'ad:company-idle-begin)
-  (defun ad:company-pseudo-tooltip--ujofwd-on-timer (f command)
-    (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
-      (funcall f command)))
   ;; (advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around
   ;;             #'ad:company-pseudo-tooltip--ujofwd-on-timer)
 
@@ -11667,6 +11739,17 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    :ID:       ADCDC581-CC22-48B0-A1EB-606021AD39E2
    :END:
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:org-recent-headings-activate ()
+  (interactive)
+  (when (require 'org-recent-headings nil t)
+    (org-recent-headings-mode 1) ;; one time activate
+    (advice-remove 'org-recent-headings
+                   #'ad:org-recent-headings-activate)))
+#+end_src
+
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
        '(org-recent-headings org-recent-headings-mode)
@@ -11679,12 +11762,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
     (setf (alist-get 'org-recent-headings ivy-sort-functions-alist) nil)
 
-    (defun ad:org-recent-headings-activate ()
-      (interactive)
-      (when (require 'org-recent-headings nil t)
-        (org-recent-headings-mode 1) ;; one time activate
-        (advice-remove 'org-recent-headings
-                       #'ad:org-recent-headings-activate)))
     (advice-add 'org-recent-headings :before
                 #'ad:org-recent-headings-activate)
 
@@ -12476,18 +12553,18 @@ The keybindings will be assigned only when Emacs runs in GUI."
     (my-mode-line-on))
   (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
-
-#+end_src
-
-#+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
-(with-eval-after-load "moom"
-  (defun ad:moom-toggle-frame-maximized ()
+;;;###autoload
+(defun ad:moom-toggle-frame-maximized ()
     (when (eq major-mode 'org-mode)
       (org-redisplay-inline-images))
     (when (and mode-line-format
                (not my-toggle-modeline-global))
       (my-mode-line-off)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
+(with-eval-after-load "moom"
   (advice-add 'moom-toggle-frame-maximized
               :after #'ad:moom-toggle-frame-maximized))
 
@@ -12506,7 +12583,8 @@ The keybindings will be assigned only when Emacs runs in GUI."
           t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
 
 ;; init
-(my-mode-line-off)
+(unless noninteractive
+  (my-mode-line-off))
 #+end_src
 
 ** [winner.el] ウィンドウ構成の履歴を辿る
@@ -12519,6 +12597,7 @@ The keybindings will be assigned only when Emacs runs in GUI."
 ウィンドウ分割状況と各ウィンドウで表示していたバッファの履歴を辿ることができます． =winner-undo= で直前の状態に戻せます．例えば，誤って =C-x 0= で分割ウィンドウを閉じた時にも，即座に元の状態に戻すことが可能です．
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun ad:winner:delete-window (&optional _window)
   (message "Undo? M-x winner-undo or type \"C-x g\""))
 #+end_src
@@ -12575,15 +12654,17 @@ The keybindings will be assigned only when Emacs runs in GUI."
     (when checkdoc-window
       (delete-window checkdoc-window)))
   (checkdoc-minor-mode -1))
+
+;;;###autoload
+(defun ad:checkdoc ()
+  (interactive)
+  (define-key checkdoc-minor-mode-map (kbd "q") 'my-delete-checkdoc-window)
+  (define-key checkdoc-minor-mode-map (kbd "C-g") 'my-delete-checkdoc-window)
+  (checkdoc-minor-mode 1))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "checkdoc"
-  (defun ad:checkdoc ()
-    (interactive)
-    (define-key checkdoc-minor-mode-map (kbd "q") 'my-delete-checkdoc-window)
-    (define-key checkdoc-minor-mode-map (kbd "C-g") 'my-delete-checkdoc-window)
-    (checkdoc-minor-mode 1))
   (advice-add 'checkdoc :before #'ad:checkdoc))
 #+end_src
 
@@ -12593,6 +12674,24 @@ The keybindings will be assigned only when Emacs runs in GUI."
    :END:
 
  - [[https://github.com/seagle0128/doom-modeline][seagle0128/doom-modeline: A minimal and modern mode-line]]
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:doom-modeline-buffer-file-state-icon
+    (icon &optional text face height voffset)
+  "Displays an ICON with FACE, HEIGHT and VOFFSET.
+TEXT is the alternative if it is not applicable.
+Uses `all-the-icons-material' to fetch the icon."
+  (if doom-modeline-icon
+      (when icon
+        (doom-modeline-icon-material
+         icon
+         :face face
+         :height (or height 0.85) ;; 1.1
+         :v-adjust (or voffset -0.225))) ;; -0.225
+    (when text
+      (propertize text 'face face))))
+#+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "moom"
@@ -12608,21 +12707,7 @@ The keybindings will be assigned only when Emacs runs in GUI."
                                             (* 2 (aref (font-info font) 2))))
                                 10)))
      '(doom-modeline-minor-modes t))
-    (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
-    (defun ad:doom-modeline-buffer-file-state-icon
-        (icon &optional text face height voffset)
-      "Displays an ICON with FACE, HEIGHT and VOFFSET.
-TEXT is the alternative if it is not applicable.
-Uses `all-the-icons-material' to fetch the icon."
-      (if doom-modeline-icon
-          (when icon
-            (doom-modeline-icon-material
-             icon
-             :face face
-             :height (or height 0.85) ;; 1.1
-             :v-adjust (or voffset -0.225))) ;; -0.225
-        (when text
-          (propertize text 'face face))))
+    ;; (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
     (advice-add 'doom-modeline-buffer-file-state-icon :override
                 #'ad:doom-modeline-buffer-file-state-icon)
     (size-indication-mode 1)
@@ -12864,6 +12949,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 =generic-x= を使うと， =/etc/hosts= や =/etc/apache2.conf= に色を付けられる．
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun my-generic-x-activate ()
   (require 'generic-x nil t)
   (remove-hook 'find-file-hook #'my-generic-x-activate))
@@ -14193,6 +14279,34 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
   (interactive)
   (dired gif-screencast-output-directory)
   (dired gif-screencast-screenshot-directory))
+
+;;;###autoload
+(defun ad:gif-screencast ()
+  (dolist (hook gif-screencast-additional-normal-hooks)
+    (add-hook hook #'gif-screencast-capture)))
+
+;;;###autoload
+(defun ad:gif-screencast-stop ()
+  (dolist (hook gif-screencast-additional-normal-hooks)
+    (remove-hook hook 'gif-screencast-capture)))
+
+;;;###autoload
+(defun ad:gif-screencast-opendir ()
+  "Open the output directory when screencast is finished."
+  (if (not (eq system-type 'darwin))
+      (my-gif-screencast-opendir-dired)
+    (shell-command-to-string
+     (concat "open " gif-screencast-screenshot-directory))
+    (shell-command-to-string
+     (concat "open " gif-screencast-output-directory))))
+
+;;;###autoload
+(defun ad:gif-screencast-toggle-pause ()
+  (if (memq 'gif-screencast-capture (default-value 'pre-command-hook))
+      (dolist (hook gif-screencast-additional-normal-hooks)
+        (remove-hook hook 'gif-screencast-capture))
+    (dolist (hook gif-screencast-additional-normal-hooks)
+      (add-hook hook #'gif-screencast-capture))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -14228,34 +14342,11 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     ;; pre-redisplay-functions はやばい．
 
     ;; modification-hooks
-    (defun ad:gif-screencast ()
-      (dolist (hook gif-screencast-additional-normal-hooks)
-        (add-hook hook #'gif-screencast-capture)))
     (advice-add 'gif-screencast :after #'ad:gif-screencast)
-
-    (defun ad:gif-screencast-stop ()
-      (dolist (hook gif-screencast-additional-normal-hooks)
-        (remove-hook hook 'gif-screencast-capture)))
     (advice-add 'gif-screencast-stop :after #'ad:gif-screencast-stop)
-
-    (defun ad:gif-screencast-toggle-pause ()
-      (if (memq 'gif-screencast-capture (default-value 'pre-command-hook))
-          (dolist (hook gif-screencast-additional-normal-hooks)
-            (remove-hook hook 'gif-screencast-capture))
-        (dolist (hook gif-screencast-additional-normal-hooks)
-          (add-hook hook #'gif-screencast-capture))))
+    (advice-add 'gif-screencast-stop :before #'ad:gif-screencast-opendir)
     (advice-add 'gif-screencast-toggle-pause
-                :before #'ad:gif-screencast-toggle-pause)
-
-    (defun ad:gif-screencast-opendir ()
-      "Open the output directory when screencast is finished."
-      (if (not (eq system-type 'darwin))
-          (my-gif-screencast-opendir-dired)
-        (shell-command-to-string
-         (concat "open " gif-screencast-screenshot-directory))
-        (shell-command-to-string
-         (concat "open " gif-screencast-output-directory))))
-    (advice-add 'gif-screencast-stop :before #'ad:gif-screencast-opendir)))
+                :before #'ad:gif-screencast-toggle-pause)))
 #+end_src
 
 ** [utility.el] 自作してテスト中の便利関数群
@@ -14297,6 +14388,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 ** 検索語を変えずに counsel-fzf に接続する
    :PROPERTIES:
    :CUSTOM_ID: org2adaf11c
+   :ID:       4B92E3E2-4B7D-4F4B-99BB-2C8BE03B9A34
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -14312,6 +14404,20 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
          (lambda (_x)
            (counsel-fzf ivy-text default-directory)))
       (setq my--nocand-then-fzf nil))))
+
+;;;###autoload
+(defun ad:fzf:ivy--insert-prompt ()
+  (when (and my--nocand-then-fzf
+             (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)
+             (= ivy--length 0))
+    (let* ((std-props
+            '(front-sticky t rear-nonsticky t field t read-only t))
+           (prompt (concat (my-pre-prompt-function)
+                           "Switch to Counsel-fzf? [y/n] ")))
+      (set-text-properties 0 (length prompt)
+                           `(face minibuffer-prompt ,@std-props) prompt)
+      (run-with-idle-timer my-nocand-then-fzf-idle-time
+                           nil #'my-nocand-then-fzf prompt))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -14330,18 +14436,6 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     :type 'float) ;; N[s] 無応答の時[y/n]を出す．
 
   (defvar my--nocand-then-fzf t)
-  (defun ad:fzf:ivy--insert-prompt ()
-    (when (and my--nocand-then-fzf
-               (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)
-               (= ivy--length 0))
-      (let* ((std-props
-              '(front-sticky t rear-nonsticky t field t read-only t))
-             (prompt (concat (my-pre-prompt-function)
-                             "Switch to Counsel-fzf? [y/n] ")))
-        (set-text-properties 0 (length prompt)
-                             `(face minibuffer-prompt ,@std-props) prompt)
-        (run-with-idle-timer my-nocand-then-fzf-idle-time
-                             nil #'my-nocand-then-fzf prompt))))
   (advice-add 'ivy--insert-prompt :before #'ad:fzf:ivy--insert-prompt)
   (add-hook 'minibuffer-setup-hook #'my-nocand-then-fzf-reset)
   (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
@@ -14642,6 +14736,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
 ** ファイルに含まれるテーブルを使って定時にアラートを表示する
    :PROPERTIES:
    :CUSTOM_ID: orgb8c148ec
+   :ID:       4334A03C-14F8-4A5B-9392-FD771884625F
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -14668,10 +14763,10 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
       ((lines (read-line file)))
     (cancel-function-timers 'my-desktop-notify) ;; clear existing timers
     (while lines
-      (set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
+      (my--set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
       (setq lines (cdr lines)))))
 
-(defun set-alarm-from-line (line)
+(defun my--set-alarm-from-line (line)
   (let
       ((hour nil)
        (min nil)
@@ -14696,15 +14791,17 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
         (let ((s nil))
           (when (string-match "^\|\\s-*X\\s-*\|" line)
             (setq s 'sticky))
-          (set-notify-macos hour min action s))))))
+          (my--set-notify-macos hour min action s))))))
 
-(defun set-notify-macos (hour min action sticky)
+(defun my--set-notify-macos (hour min action sticky)
   "`alerter' is required."
   (run-at-time (format "%s:%s" hour min) nil
                'my-desktop-notify
                "macos" "Org Mode" hour min action sticky))
 
 (declare-function my-desktop-notification "init-org")
+
+;;;###autoload
 (defun my-desktop-notify (type title hour min action sticky)
   "An interface to `my-desktop-notification'."
   (cond
@@ -14712,6 +14809,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
     (my-desktop-notification
      title (format "%s:%s %s" hour min action) sticky))))
 
+;;;###autoload
 (defun read-line (file)
   "Make a list from a file, which is divided by LF code"
   (with-temp-buffer
@@ -14803,6 +14901,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで =org-decrypt-entry= するための空ツリーを書き込みます．
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun my-insert-empty-pgp-tree ()
   (interactive)
   (insert "** TODO hoge\n")
@@ -14817,14 +14916,15 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 下記の関数で生成したツリーの本体をメールで送信すれば，秘密鍵のある端末で復号できます．
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun my-insert-enc2me-pgp-tree ()
-    (interactive)
-    (insert "** TODO share with me\n")
-    (insert "   :PROPERTIES:\n")
-    (insert "   :CRYPTKEY: takaxp@ieee.org\n")
-    (insert "   :END:\n")
-    (insert "\n")
-    (forward-line -1))
+  (interactive)
+  (insert "** TODO share with me\n")
+  (insert "   :PROPERTIES:\n")
+  (insert "   :CRYPTKEY: takaxp@ieee.org\n")
+  (insert "   :END:\n")
+  (insert "\n")
+  (forward-line -1))
 #+end_src
 ** 議事録ひな形を書き入れる
    :PROPERTIES:
@@ -14917,7 +15017,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 
 #+begin_src emacs-lisp :tangle utility.el
 (defvar ox-icalendar-activate nil)
-    ;;;###autoload
+
+;;;###autoload
 (defun my-ox-icalendar-activate ()
   (setq ox-icalendar-activate (frame-focus-state)))
 (with-eval-after-load "org"
@@ -15030,6 +15131,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun my-backup (files &optional dropbox)
   "Backup a file to `Dropbox/backup' directory.
 If `dropbox' option is provided then the value is uased as a root directory."
@@ -15195,6 +15297,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
       (setq end (- end len))))
   (goto-char begin))
 
+;;;###autoload
 (defun my-org-toggle-checkbox (begin end)
   (interactive "r")
   (unless mark-active
@@ -15333,14 +15436,14 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 ;;;###autoload
 (defun my-replace-punctuation-to-normal ()
   (interactive)
-  (my-replace-punctuation 'normal))
+  (my--replace-punctuation 'normal))
 
 ;;;###autoload
 (defun my-replace-punctuation-to-scientific ()
   (interactive)
-  (my-replace-punctuation 'scientific))
+  (my--replace-punctuation 'scientific))
 
-(defun my-replace-punctuation (to)
+(defun my--replace-punctuation (to)
   (let ((pos (point))
         (source (cond ((eq to 'normal) "\\(，\\)\\|\\(．\\)")
                       ((eq to 'scientific) "\\(、\\)\\|\\(。\\)"))))
@@ -15487,15 +15590,18 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 ;;            (insert (format-time-string "[%Y-%m-%d]"))))
 ;;     (t (insert (format-time-string "%Y-%m-%d")))))
 
+;;;###autoload
 (defun insert-formatted-current-date ()
   "Insert a timestamp at the cursor position."
   (interactive)
   (insert (format-time-string "%Y-%m-%d")))
 
+;;;###autoload
 (defun insert-formatted-current-time ()
   (interactive)
   (insert (format-time-string "%H:%M")))
 
+;;;###autoload
 (defun insert-formatted-signature ()
   (interactive)
   (insert (concat (format-time-string "%Y-%m-%d") "  " user-full-name
