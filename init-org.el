@@ -1623,8 +1623,8 @@ also calls `beep' for an audible reminder."
        '(org-grep)
        "org-grep" nil t)
 
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-M-g") 'org-grep))
+  ;; (with-eval-after-load "postpone"
+  ;;   (global-set-key (kbd "C-M-g") 'org-grep))
 
   (with-eval-after-load "org-grep"
     (setq org-grep-extensions '(".org" ".org_archive"))

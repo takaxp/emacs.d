@@ -22,8 +22,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; swiper(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(when my-profiler-p
-  (profiler-start 'cpu+mem))
+(when my-profiler-p (profiler-start 'cpu+mem))
 ;; Suppress exporting of custom-set-variables (25.1 or later)
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (defun my-path-setter (path-list target-path)
@@ -99,10 +98,7 @@
         (when my-skip-check-autoload-file
           (my-find-missing-packages 10)))
       (require 'my-eshell nil t)
-      (require 'my-mail nil t)))
-
-  (when my-profiler-p
-    (profiler-report)))
+      (require 'my-mail nil t))))
  ((eq my-boot-type 'debug)
   (my-path-setter
    '("~/Dropbox/config")
@@ -174,3 +170,6 @@
                 (setq tab-width 8)
                 (setq indent-line-function 'lisp-indent-line)
                 )))
+
+(when my-profiler-p (profiler-report))
+;; end of init-env.el

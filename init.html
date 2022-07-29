@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-27 Wed 03:31 -->
+<!-- 2022-07-30 Sat 02:31 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -2555,7 +2555,8 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
          (<span style="color: #a020f0;">or</span> (looking-at org-heading-regexp)
              (equal (buffer-name) org-agenda-buffer-name))
          (my-ime-active-p))
-    (<span style="color: #a020f0;">if</span> (fboundp 'mac-ime-toggle) (mac-ime-deactivate) (my-ime-off) )))
+
+    (my-ime-off)))
 </pre>
 </div>
 
@@ -6269,10 +6270,15 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 Built-in の paren.el が利用できる．拡張版として <a href="http://www.emacswiki.org/emacs/mic-paren.el">mic-paren.el</a> があり，現在はこれを利用している．
 </p>
 
+<p>
+2022-07-29: emacs 28.1 になった頃から paren.el でもいい感じになっているので，しばらく様子見ます．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mic-paren-activate</span> ()
   (paren-activate)
+  (show-paren-mode -1)
   (remove-hook 'find-file-hook #'my-mic-paren-activate))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -7010,8 +7016,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:elisp-eldoc</span> (_callback)
   <span style="color: #8b2252;">"Avoid hiding `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">' in `</span><span style="color: #008b8b;">emacs-lisp-mode</span><span style="color: #8b2252;">'."</span>
-  (<span style="color: #a020f0;">when</span> (fboundp 'my-hl-line-enable)
-    (my-hl-line-enable)))
+  (<span style="color: #a020f0;">when</span> (fboundp 'hl-line-highlight)
+    (hl-line-highlight)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:eldoc-message</span> (f <span style="color: #228b22;">&amp;optional</span> string)
@@ -7030,7 +7036,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"eldoc"</span>
     (advice-add 'elisp-eldoc-funcall <span style="color: #483d8b;">:after</span> #'my:elisp-eldoc)
-    (advice-add 'elisp-eldoc-var-docstring <span style="color: #483d8b;">:after</span> #'my:elisp-eldoc)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)</span>
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">for ivy-mode</span>
     (advice-add 'eldoc-message <span style="color: #483d8b;">:around</span> #'ad:eldoc-message)
@@ -12997,7 +13003,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org2c07174"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org6492d88"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13092,8 +13098,8 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
        '(org-grep)
        <span style="color: #8b2252;">"org-grep"</span> nil t)
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
-    (global-set-key (kbd <span style="color: #8b2252;">"C-M-g"</span>) 'org-grep))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "postpone"</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(global-set-key (kbd "C-M-g") 'org-grep))</span>
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-grep"</span>
     (<span style="color: #a020f0;">setq</span> org-grep-extensions '(<span style="color: #8b2252;">".org"</span> <span style="color: #8b2252;">".org_archive"</span>))
@@ -13917,7 +13923,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org22f3225" class="figure">
+<div id="org1d4c243" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14266,20 +14272,16 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-on</span> ()
   (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (fboundp 'mac-toggle-input-method)
-            (<span style="color: #a020f0;">progn</span>
-              (mac-toggle-input-method t)
-              (run-hooks 'input-method-activate-hook))
-          (activate-input-method default-input-method))
+  (<span style="color: #a020f0;">if</span> (fboundp 'mac-ime-activate)
+      (mac-ime-activate)
+        (activate-input-method default-input-method))
   (<span style="color: #a020f0;">setq</span> my-ime-last t))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-off</span> ()
   (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (fboundp 'mac-toggle-input-method)
-            (<span style="color: #a020f0;">progn</span>
-              (mac-toggle-input-method nil)
-              (run-hooks 'input-method-deactivate-hook))
+  (<span style="color: #a020f0;">if</span> (fboundp 'mac-ime-deactivate)
+      (mac-ime-deactivate)
           (deactivate-input-method))
   (<span style="color: #a020f0;">setq</span> my-ime-last nil))
 
@@ -14296,8 +14298,31 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">cond</span>
- ((memq window-system '(ns x))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:find-file (FILENAME &amp;optional WILDCARDS)</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">"Extension to find-file as before-find-file-hook."</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "--- ad:findfile")</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(apply FILENAME WILDCARDS))</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add #'find-file :around #'ad:find-file)</span>
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12496;&#12483;&#12501;&#12449;&#20999;&#26367;&#26178;&#12395; input method &#12434;&#20999;&#12426;&#26367;&#12360;&#12427;</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "postpone"</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (and (fboundp 'mac-handle-input-method-change)</span>
+<span style="color: #b22222;">;;              </span><span style="color: #b22222;">(require 'cl nil t))</span>
+<span style="color: #b22222;">;;     </span><span style="color: #b22222;">(add-hook</span>
+<span style="color: #b22222;">;;      </span><span style="color: #b22222;">'post-command-hook</span>
+<span style="color: #b22222;">;;      </span><span style="color: #b22222;">(lexical-let ((previous-buffer nil))</span>
+<span style="color: #b22222;">;;        </span><span style="color: #b22222;">(message "Change IM %S -&gt; %S" previous-buffer (current-buffer))</span>
+<span style="color: #b22222;">;;        </span><span style="color: #b22222;">(lambda ()</span>
+<span style="color: #b22222;">;;            </span><span style="color: #b22222;">(unless (eq (current-buffer) previous-buffer)</span>
+<span style="color: #b22222;">;;              </span><span style="color: #b22222;">(when (bufferp previous-buffer)</span>
+<span style="color: #b22222;">;;                </span><span style="color: #b22222;">(mac-handle-input-method-change))</span>
+<span style="color: #b22222;">;;              </span><span style="color: #b22222;">(setq previous-buffer (current-buffer))))))))</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (memq window-system '(ns x))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12395;&#12450;&#12452;&#12467;&#12531;&#12434;&#20986;&#12377;</span>
   (make-face 'mode-line-ime-on-face)
   (set-face-attribute 'mode-line-ime-on-face
@@ -14333,32 +14358,13 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
               (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">For selected.el</span>
     (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
-    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
+    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
+</pre>
+</div>
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:find-file (FILENAME &amp;optional WILDCARDS)</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">"Extension to find-file as before-find-file-hook."</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "--- ad:findfile")</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(apply FILENAME WILDCARDS))</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add #'find-file :around #'ad:find-file)</span>
-
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12496;&#12483;&#12501;&#12449;&#20999;&#26367;&#26178;&#12395; input method &#12434;&#20999;&#12426;&#26367;&#12360;&#12427;</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "postpone"</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (and (fboundp 'mac-handle-input-method-change)</span>
-  <span style="color: #b22222;">;;              </span><span style="color: #b22222;">(require 'cl nil t))</span>
-  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(add-hook</span>
-  <span style="color: #b22222;">;;      </span><span style="color: #b22222;">'post-command-hook</span>
-  <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(lexical-let ((previous-buffer nil))</span>
-  <span style="color: #b22222;">;;        </span><span style="color: #b22222;">(message "Change IM %S -&gt; %S" previous-buffer (current-buffer))</span>
-  <span style="color: #b22222;">;;        </span><span style="color: #b22222;">(lambda ()</span>
-  <span style="color: #b22222;">;;            </span><span style="color: #b22222;">(unless (eq (current-buffer) previous-buffer)</span>
-  <span style="color: #b22222;">;;              </span><span style="color: #b22222;">(when (bufferp previous-buffer)</span>
-  <span style="color: #b22222;">;;                </span><span style="color: #b22222;">(mac-handle-input-method-change))</span>
-  <span style="color: #b22222;">;;              </span><span style="color: #b22222;">(setq previous-buffer (current-buffer))))))))</span>
-  )
-
- <span style="color: #b22222;">;; </span><span style="color: #b22222;">EMP: Emacs Mac Port</span>
- ((eq window-system 'mac)
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">EMP: Emacs Mac Port</span>
+(<span style="color: #a020f0;">when</span> (eq window-system 'mac)
   (<span style="color: #a020f0;">when</span> (fboundp 'mac-input-source)
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mac-keyboard-input-source</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">Need update</span>
             (<span style="color: #a020f0;">if</span> (string-match <span style="color: #8b2252;">"\\.Roman$"</span> (mac-input-source))
@@ -14383,8 +14389,6 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
             <span style="color: #b22222;">;;           </span><span style="color: #b22222;">#'my-mac-keyboard-input-source)</span>
             (<span style="color: #a020f0;">declare-function</span> my-mac-keyboard-input-source <span style="color: #8b2252;">"init"</span> nil)
             (my-mac-keyboard-input-source))))
-
- (t nil))
 </pre>
 </div>
 </div>
@@ -15162,6 +15166,24 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-disable</span> ()
   <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
   (hl-line-mode -1))
+
+(<span style="color: #a020f0;">eval-when-compile</span>
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hl-line</span>))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-activate</span> ()
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hl-line</span> nil t)
+  (remove-hook 'ah-after-move-cursor-hook #'my-hl-line-activate))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-enable</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">Hard to move this under utility.el</span>
+      <span style="color: #8b2252;">"Enable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
+      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> hl-line-mode
+                  (minibufferp)
+                                    (memq major-mode my-hl-permanent-disabled))
+              (hl-line-mode 1))
+      (<span style="color: #a020f0;">setq</span> my-hl-disabled-by-timer nil))
+
 </pre>
 </div>
 
@@ -15170,7 +15192,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
        '(hl-line-mode my-hl-line-enable)
        <span style="color: #8b2252;">"hl-line"</span> nil t)
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Tricky! Add `</span><span style="color: #008b8b;">my-hl-line-enable</span><span style="color: #b22222;">' before adding `</span><span style="color: #008b8b;">my-hl-line-activate</span><span style="color: #b22222;">'.</span>
   (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
+  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-activate)
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-permanent-disabled</span> '(dired-mode vterm-mode)
     <span style="color: #8b2252;">"A list of major modes to disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>)
@@ -15179,32 +15203,21 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-on-hline-hook</span> nil)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-enable</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">Hard to move this under utility.el</span>
-      <span style="color: #8b2252;">"Enable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
-      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> hl-line-mode <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-                  (minibufferp)
-                                    (memq major-mode my-hl-permanent-disabled))
-              (hl-line-mode 1)))
-
-    (<span style="color: #a020f0;">unless</span> (version&lt; emacs-version <span style="color: #8b2252;">"28.1"</span>)
-      (<span style="color: #a020f0;">setq</span> hl-line-sticky-flag nil))
+    (<span style="color: #a020f0;">setq</span> hl-line-sticky-flag t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21029;&#12454;&#12451;&#12531;&#12489;&#12454;&#12398;&#21516;&#12376;&#12496;&#12483;&#12501;&#12449;&#12391;&#12418;&#12495;&#12452;&#12521;&#12452;&#12488;&#12377;&#12427;</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (version&lt; emacs-version "28.1")</span>
+    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq hl-line-sticky-flag nil))</span>
 
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-active-period</span> 120
       <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">' after this period"</span>)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">init</span>
-    (<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-active-p)
-      (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
-                      (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
-              (<span style="color: #a020f0;">if</span> (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
+                (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
 
     (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 
-    (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
-              (<span style="color: #a020f0;">progn</span>
-                (add-hook 'focus-in-hook #'my-hl-line-enable)
-                (add-hook 'focus-out-hook #'my-hl-line-disable))
-      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:after</span> after-focus-change-function #'my-hl-line-update))
+    (<span style="color: #a020f0;">if</span> (boundp 'after-focus-change-function)
+        (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:after</span> after-focus-change-function #'my-hl-line-update)
+            (add-hook 'focus-in-hook #'my-hl-line-enable)
+            (add-hook 'focus-out-hook #'my-hl-line-disable))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'minibuffer-setup-hook #'my-hl-line-disable)</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'minibuffer-exit-hook #'my-hl-line-enable)</span>
@@ -18293,7 +18306,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-27 Wed 03:31</p>
+<p class="date">Created: 2022-07-30 Sat 02:31</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

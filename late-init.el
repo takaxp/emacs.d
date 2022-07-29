@@ -864,24 +864,6 @@
 (unless noninteractive
   (display-time-mode 1))
 
-(eval-when-compile
-  (require 'mic-paren nil t))
-
-(when (autoload-if-found
-       '(paren-activate)
-       "mic-paren" nil t)
-
-  (add-hook 'find-file-hook #'my-mic-paren-activate)
-
-  (with-eval-after-load "mic-paren"
-    (setq paren-sexp-mode nil)
-    (set-face-foreground 'paren-face-match "#FFFFFF")
-    ;; Deep blue: #6666CC, orange: #FFCC66
-    (set-face-background 'paren-face-match "#66CC66")
-
-    ;; for ivy-mode, "Matches" と表示される関数との衝突をさける
-    (advice-add 'mic-paren-highlight :around #'ad:mic-paren-highlight)))
-
 ;; スペース
 (defface my-face-b-1
   '((t (:background "gray" :bold t :underline "red")))
@@ -1150,7 +1132,7 @@
 
   (with-eval-after-load "eldoc"
     (advice-add 'elisp-eldoc-funcall :after #'my:elisp-eldoc)
-    (advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)
+    ;; (advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)
 
     ;; for ivy-mode
     (advice-add 'eldoc-message :around #'ad:eldoc-message)
@@ -1817,23 +1799,6 @@
                                          ("[-]" . "" ))) ;; 
   (add-hook 'org-mode-hook 'prettify-symbols-mode))
 
-;; 1. TODO/DOING/DONE に trello 側のカードを変えておく．
-;; 2. M-x org-trello-install-key-and-token
-;; ~/.emacs.d/.trello/<account>.el が作られる
-;; 3. M-x org-trello-install-board-metadata
-;; Trello 側の情報を基にして current-buffer にプロパティブロックが挿入される
-;; 4. C-u M-x org-trello-sync-buffer で pull
-;; 5. M-x org-trello-sync-buffer で push
-(when (autoload-if-found
-       '(my-push-trello my-pull-trello my-activate-org-trello)
-       "org-trello" nil t)
-
-  (defvar org-trello-current-prefix-keybinding nil) ;; To avoid an error
-  (add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
-
-  (with-eval-after-load "org"
-    (add-hook 'org-mode-hook #'my-activate-org-trello)))
-
 (when (autoload-if-found
        '(org-recent-headings org-recent-headings-mode)
        "org-recent-headings" nil t)
@@ -1872,8 +1837,7 @@
   ;;       (org-recent-headings))))
   )
 
-(cond
- ((memq window-system '(ns x))
+(when (memq window-system '(ns x))
   ;; モードラインにアイコンを出す
   (make-face 'mode-line-ime-on-face)
   (set-face-attribute 'mode-line-ime-on-face
@@ -1909,58 +1873,7 @@
 	      (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
     ;; For selected.el
     (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
-    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky))
-
-  ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
-  ;;   "Extension to find-file as before-find-file-hook."
-  ;;   (message "--- ad:findfile")
-  ;;   (apply FILENAME WILDCARDS))
-  ;; (advice-add #'find-file :around #'ad:find-file)
-
-  ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
-  ;; バッファ切替時に input method を切り替える
-  ;; (with-eval-after-load "postpone"
-  ;;   (when (and (fboundp 'mac-handle-input-method-change)
-  ;;              (require 'cl nil t))
-  ;;     (add-hook
-  ;;      'post-command-hook
-  ;;      (lexical-let ((previous-buffer nil))
-  ;;        (message "Change IM %S -> %S" previous-buffer (current-buffer))
-  ;;        (lambda ()
-  ;;            (unless (eq (current-buffer) previous-buffer)
-  ;;              (when (bufferp previous-buffer)
-  ;;                (mac-handle-input-method-change))
-  ;;              (setq previous-buffer (current-buffer))))))))
-  )
-
- ;; EMP: Emacs Mac Port
- ((eq window-system 'mac)
-  (when (fboundp 'mac-input-source)
-    (defun my-mac-keyboard-input-source () ;; Need update
-	    (if (string-match "\\.Roman$" (mac-input-source))
-	        (progn
-	          (setq cursor-type (plist-get my-cur-type-ime :off))
-	          (add-to-list 'default-frame-alist
-			                   `(cursor-type . ,(plist-get my-cur-type-ime :off)))
-	          (set-cursor-color (plist-get my-cur-color-ime :off)))
-	      (progn
-	        (setq cursor-type (plist-get my-cur-type-ime :on))
-	        (add-to-list 'default-frame-alist
-			                 `(cursor-type . ,(plist-get my-cur-type-ime :on)))
-	        (set-cursor-color (plist-get my-cur-color-ime :on)))))
-
-    (when (fboundp 'mac-auto-ascii-mode)
-	    ;; (mac-auto-ascii-mode 1)
-	    ;; IME ON/OFF でカーソルの種別や色を替える
-	    (add-hook 'mac-selected-keyboard-input-source-change-hook
-		            #'my-mac-keyboard-input-source)
-	    ;; IME ON の英語入力＋決定後でもカーソルの種別や色を替える
-	    ;; (add-hook 'mac-enabled-keyboard-input-sources-change-hook
-	    ;;           #'my-mac-keyboard-input-source)
-	    (declare-function my-mac-keyboard-input-source "init" nil)
-	    (my-mac-keyboard-input-source))))
-
- (t nil))
+    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
 
 ;; (declare-function my-font-config "init" nil)
 (global-set-key (kbd "M-`") 'other-frame)
@@ -2042,7 +1955,9 @@
        '(hl-line-mode my-hl-line-enable)
        "hl-line" nil t)
 
+  ;; Tricky! Add `my-hl-line-enable' before adding `my-hl-line-activate'.
   (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
+  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-activate)
 
   (defvar my-hl-permanent-disabled '(dired-mode vterm-mode)
     "A list of major modes to disable `hl-line'.")
@@ -2051,32 +1966,21 @@
   (defvar my-ime-on-hline-hook nil)
 
   (with-eval-after-load "hl-line"
-    (defun my-hl-line-enable () ;; Hard to move this under utility.el
-      "Enable `hl-line'."
-      (unless (or hl-line-mode ;; FIXME
-                  (minibufferp)
-			            (memq major-mode my-hl-permanent-disabled))
-	      (hl-line-mode 1)))
-
-    (unless (version< emacs-version "28.1")
-      (setq hl-line-sticky-flag nil))
+    (setq hl-line-sticky-flag t) ;; 別ウィンドウの同じバッファでもハイライトする
+    ;; (unless (version< emacs-version "28.1")
+    ;;   (setq hl-line-sticky-flag nil))
 
     (defvar my-hl-active-period 120
       "Disable `hl-line' after this period")
 
-    ;; init
-    (when (fboundp 'mac-ime-active-p)
-      (if (version< emacs-version "27.1")
-		      (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
-	      (if (mac-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))))
+		(if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
 
     (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 
-    (if (version< emacs-version "27.1")
-	      (progn
-	        (add-hook 'focus-in-hook #'my-hl-line-enable)
-	        (add-hook 'focus-out-hook #'my-hl-line-disable))
-      (add-function :after after-focus-change-function #'my-hl-line-update))
+    (if (boundp 'after-focus-change-function)
+        (add-function :after after-focus-change-function #'my-hl-line-update)
+	    (add-hook 'focus-in-hook #'my-hl-line-enable)
+	    (add-hook 'focus-out-hook #'my-hl-line-disable))
 
     ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
     ;; (add-hook 'minibuffer-exit-hook #'my-hl-line-enable)

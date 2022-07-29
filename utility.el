@@ -121,7 +121,8 @@ This function is called directly from the C code."
          (or (looking-at org-heading-regexp)
              (equal (buffer-name) org-agenda-buffer-name))
          (my-ime-active-p))
-    (if (fboundp 'mac-ime-toggle) (mac-ime-deactivate) (my-ime-off) )))
+
+    (my-ime-off)))
 
 ;;;###autoload
 (defun ad:mark-sexp (f &optional arg allow-extend)
@@ -614,6 +615,7 @@ Call this function at updating `mode-line-mode'."
 ;;;###autoload
 (defun my-mic-paren-activate ()
   (paren-activate)
+  (show-paren-mode -1)
   (remove-hook 'find-file-hook #'my-mic-paren-activate))
 
 ;;;###autoload
@@ -723,8 +725,8 @@ Call this function at updating `mode-line-mode'."
 ;;;###autoload
 (defun my:elisp-eldoc (_callback)
   "Avoid hiding `hl-line' in `emacs-lisp-mode'."
-  (when (fboundp 'my-hl-line-enable)
-    (my-hl-line-enable)))
+  (when (fboundp 'hl-line-highlight)
+    (hl-line-highlight)))
 
 ;;;###autoload
 (defun ad:eldoc-message (f &optional string)
@@ -1206,20 +1208,16 @@ sorted.  FUNCTION must be a function of one argument."
 ;;;###autoload
 (defun my-ime-on ()
   (interactive)
-  (if (fboundp 'mac-toggle-input-method)
-	    (progn
-	      (mac-toggle-input-method t)
-	      (run-hooks 'input-method-activate-hook))
-	  (activate-input-method default-input-method))
+  (if (fboundp 'mac-ime-activate)
+      (mac-ime-activate)
+   	(activate-input-method default-input-method))
   (setq my-ime-last t))
 
 ;;;###autoload
 (defun my-ime-off ()
   (interactive)
-  (if (fboundp 'mac-toggle-input-method)
-	    (progn
-	      (mac-toggle-input-method nil)
-	      (run-hooks 'input-method-deactivate-hook))
+  (if (fboundp 'mac-ime-deactivate)
+      (mac-ime-deactivate)
 	  (deactivate-input-method))
   (setq my-ime-last nil))
 
@@ -1356,6 +1354,23 @@ Uses `all-the-icons-material' to fetch the icon."
 (defun my-hl-line-disable ()
   "Disable `hl-line'."
   (hl-line-mode -1))
+
+(eval-when-compile
+  (require 'hl-line))
+
+;;;###autoload
+(defun my-hl-line-activate ()
+  (require 'hl-line nil t)
+  (remove-hook 'ah-after-move-cursor-hook #'my-hl-line-activate))
+
+;;;###autoload
+(defun my-hl-line-enable () ;; Hard to move this under utility.el
+      "Enable `hl-line'."
+      (unless (or hl-line-mode
+                  (minibufferp)
+			            (memq major-mode my-hl-permanent-disabled))
+	      (hl-line-mode 1))
+      (setq my-hl-disabled-by-timer nil))
 
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
 ;; 2) Inconsolata, Migu 2M     : font-size=14,
