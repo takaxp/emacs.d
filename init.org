@@ -87,6 +87,11 @@ Then load the following at startup
 (require 'init-autoloads nil t)
 #+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el :exports none
+;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
+(require 'init-autoloads nil t)
+#+end_src
+
 #+begin_src emacs-lisp :tangle yes :exports none
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
@@ -4317,11 +4322,6 @@ Call this function at updating `mode-line-mode'."
    :END:
 
 標準では「Narrow」と表示されますが，「N」に短縮します． =all-the-icons= を使って，画像に置き換えることも可能です．
-
-#+begin_src emacs-lisp :tangle init-org.el :exports none
-;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
-(require 'init-autoloads nil t)
-#+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (setq mode-line-modes

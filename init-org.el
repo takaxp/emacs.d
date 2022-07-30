@@ -1,3 +1,6 @@
+;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
+(require 'init-autoloads nil t)
+
 (with-eval-after-load "org-crypt"
   (require 'epa)
   (when (version< "27.0" emacs-version)
@@ -23,9 +26,6 @@
                          version)
         (error "Unsupported version: %s" version))))
   (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
-
-;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
-(require 'init-autoloads nil t)
 
 ;; テキストファイルを Org Mode で開きます．
 (push '("\\.txt$" . org-mode) auto-mode-alist)
