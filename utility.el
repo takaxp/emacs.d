@@ -1552,7 +1552,8 @@ Uses `all-the-icons-material' to fetch the icon."
   (when (require 'terminal-theme nil t)
     (mapc 'disable-theme custom-enabled-themes)
     (load-theme 'terminal t)
-    (plist-put my-cur-color-ime :on "#FF9300")))
+    (plist-put my-cur-color-ime :on "#FF9300")
+    (run-hooks 'my-dark-theme-hook)))
 
 ;;;###autoload
 (defun my-daylight-theme ()
