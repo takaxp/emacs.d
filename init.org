@@ -250,9 +250,9 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 ~early-init.el~ で設定すると高速起動に効果あり．
 
 #+begin_src emacs-lisp :tangle early-init.el
-(setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
-(with-eval-after-load "postpone"
-  (setq gc-cons-threshold (* 512 1024 1024)))
+(setq gc-cons-threshold (* 512 1024 1024)) ;; [MB]
+;; (with-eval-after-load "postpone"
+;;   (setq gc-cons-threshold (* 512 1024 1024)))
 ;; (setq garbage-collection-messages t)
 (defvar my-gc-last 0.0)
 (add-hook 'post-gc-hook
@@ -627,12 +627,7 @@ This function is called directly from the C code."
 
 #+begin_src emacs-lisp :tangle late-init.el
 (setq message-log-max 5000) ;; メッセージバッファの長さ
-;; (eval-when-compile
-;;   (require 'shut-up nil t))
 (defvar shutup-p nil)
-;;(setq shutup-p (require 'shut-up nil t))
-(setq shutup-p nil)
-;; (setq shutup-p (and (not (my-native-comp-p)) (require 'shut-up nil t)))
 #+end_src
 
 *** with-suppressed-message                                        :notinuse:
@@ -5097,7 +5092,6 @@ version 28 で全角スペースに黒下線が付くので回避します．
      '(migemo-use-frequent-pattern-alist t)
      '(migemo-pattern-alist-length 1024)
      '(migemo-coding-system 'utf-8-unix))))
-
 #+end_src
 
 ** [git-gutter-fringe] 編集差分をフレーム端で視覚化

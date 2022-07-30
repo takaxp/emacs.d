@@ -7,12 +7,7 @@
 (advice-add 'do-after-load-evaluation :override #'ad:do-after-load-evaluation)
 
 (setq message-log-max 5000) ;; メッセージバッファの長さ
-;; (eval-when-compile
-;;   (require 'shut-up nil t))
 (defvar shutup-p nil)
-;;(setq shutup-p (require 'shut-up nil t))
-(setq shutup-p nil)
-;; (setq shutup-p (and (not (my-native-comp-p)) (require 'shut-up nil t)))
 
 (setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)

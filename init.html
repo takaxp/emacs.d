@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-30 Sat 21:12 -->
+<!-- 2022-07-31 Sun 00:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -191,7 +191,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { width: 90%; }
+  .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
@@ -1009,9 +1009,9 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> gc-cons-threshold (* 16 1024 1024)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">[MB]</span>
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
-  (<span style="color: #a020f0;">setq</span> gc-cons-threshold (* 512 1024 1024)))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> gc-cons-threshold (* 512 1024 1024)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">[MB]</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "postpone"</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq gc-cons-threshold (* 512 1024 1024)))</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq garbage-collection-messages t)</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gc-last</span> 0.0)
 (add-hook 'post-gc-hook
@@ -1436,12 +1436,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> message-log-max 5000) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12513;&#12483;&#12475;&#12540;&#12472;&#12496;&#12483;&#12501;&#12449;&#12398;&#38263;&#12373;</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(eval-when-compile</span>
-<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'shut-up nil t))</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">shutup-p</span> nil)
-<span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq shutup-p (require 'shut-up nil t))</span>
-(<span style="color: #a020f0;">setq</span> shutup-p nil)
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq shutup-p (and (not (my-native-comp-p)) (require 'shut-up nil t)))</span>
 </pre>
 </div>
 </div>
@@ -6615,7 +6610,6 @@ version 28 で全角スペースに黒下線が付くので回避します．
      '(migemo-use-frequent-pattern-alist t)
      '(migemo-pattern-alist-length 1024)
      '(migemo-coding-system 'utf-8-unix))))
-
 </pre>
 </div>
 </div>
@@ -10001,9 +9995,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; // ここ
+  v; <i>/ ここ
   boost::timer t;
-  cout &lt;&lt; t; // ここ
+  cout &lt;&lt; t; /</i> ここ
   return 1;
 }
 </p>
@@ -13003,7 +12997,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org095296b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgd56783b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13923,7 +13917,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org809abbc" class="figure">
+<div id="org960e69c" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18310,7 +18304,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-30 Sat 21:12</p>
+<p class="date">Created: 2022-07-31 Sun 00:24</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
