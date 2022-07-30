@@ -686,8 +686,8 @@ Call this function at updating `mode-line-mode'."
 ;;;###autoload
 (defun my-migemo-activate ()
   (when (and (locate-library "migemo");; overhead but should be checked here
-	     (executable-find "cmigemo")
-	     (require 'migemo nil t))
+	           (executable-find "cmigemo")
+	           (require 'migemo nil t))
     (add-hook 'isearch-mode-hook #'migemo-init))
   (remove-hook 'find-file-hook #'my-migemo-activate))
 

@@ -624,6 +624,16 @@
             (message "Updated(%d): %s => %s" count prev new)))
         (message "Lower-cased %d matches" count)))))
 
+(with-eval-after-load "org"
+  ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
+  (defvar ns-default-notification-sound "Pop")
+
+  (defvar ns-alerter-command (concat (getenv "HOME") "/Dropbox/bin/alerter")
+    "Path to alerter command. see https://github.com/vjeantet/alerter")
+
+  (when (executable-find ns-alerter-command)
+    (setq org-show-notification-handler #'my-desktop-notification-handler)))
+
 (unless noninteractive
   (with-eval-after-load "org"
     (let ((file "~/Dropbox/org/db/daily.org"))

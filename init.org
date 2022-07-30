@@ -252,7 +252,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+begin_src emacs-lisp :tangle early-init.el
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 (with-eval-after-load "postpone"
-  (setq gc-cons-threshold (* 256 1024 1024)))
+  (setq gc-cons-threshold (* 512 1024 1024)))
 ;; (setq garbage-collection-messages t)
 (defvar my-gc-last 0.0)
 (add-hook 'post-gc-hook
@@ -2843,14 +2843,16 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
-(if (executable-find "cmake")
-    (when (autoload-if-found
-           '(cmake-mode)
-           "cmake-mode" nil t)
+(when (autoload-if-found
+       '(cmake-mode)
+       "cmake-mode" nil t)
 
-      (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
-      (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
-  (message "--- cmake is NOT installed."))
+  (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
+  (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))
+
+  (with-eval-after-load "cmake-mode"
+    (unless (executable-find "cmake")
+      (message "--- cmake is NOT installed."))))
 #+end_src
 
 ** logviewモード
@@ -3584,18 +3586,16 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 | CSS        | M-x web-beautify-css  |
 
 #+begin_src emacs-lisp :tangle late-init.el
-(if (executable-find "js-beautify")
-    (when (autoload-if-found
-           '(js2-mode)
-           "js2-mode" nil t)
-
-      (with-eval-after-load "js2-mode"
+(when (autoload-if-found
+       '(js2-mode)
+       "js2-mode" nil t)
+  (with-eval-after-load "js2-mode"
+    (if (executable-find "js-beautify")
         (when (require 'web-beautify nil t)
           (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))))
-
-  (message "--- js-beautify is NOT installed.")
-  (message "--- Note: npm -g install js-beautify"))
+          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))
+      (message "--- js-beautify is NOT installed.")
+      (message "--- Note: npm -g install js-beautify"))))
 #+end_src
 
 ** [smartparens.el] 対応するカッコの挿入をアシスト
@@ -4366,8 +4366,8 @@ Call this function at updating `mode-line-mode'."
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'mlscroll nil t)
   (custom-set-variables
-   '(mlscroll-in-color "#FFA07A") ;; light coral
-   '(mlscroll-out-color "#FFFFE0")
+   '(mlscroll-in-color "light coral") ;;  #FFA07A
+   '(mlscroll-out-color "#FFFFEF")
    '(mlscroll-width-chars 12))
   (mlscroll-mode 1)
 
@@ -5069,13 +5069,13 @@ version 28 で全角スペースに黒下線が付くので回避します．
 以下は，[[http://www.kaoriya.net/software/cmigemo][cmigemo]] を使う設定です．正直なところ，それほどメリットを感じていません．
 
 #+begin_src emacs-lisp :tangle utility.el
-  ;;;###autoload
-  (defun my-migemo-activate ()
-    (when (and (locate-library "migemo");; overhead but should be checked here
-	       (executable-find "cmigemo")
-	       (require 'migemo nil t))
-      (add-hook 'isearch-mode-hook #'migemo-init))
-    (remove-hook 'find-file-hook #'my-migemo-activate))
+;;;###autoload
+(defun my-migemo-activate ()
+  (when (and (locate-library "migemo");; overhead but should be checked here
+	           (executable-find "cmigemo")
+	           (require 'migemo nil t))
+    (add-hook 'isearch-mode-hook #'migemo-init))
+  (remove-hook 'find-file-hook #'my-migemo-activate))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -8301,28 +8301,30 @@ int main(){
 # brew install global --with-exuberant-ctags --with-pygments
 
 #+begin_src emacs-lisp :tangle late-init.el
-(if (not (executable-find "gtags"))
-    (message "--- global is NOT installed in this system.")
+(when (autoload-if-found
+       '(ggtags-mode)
+       "ggtags" nil t)
 
-  (when (autoload-if-found
-         '(ggtags-mode)
-         "ggtags" nil t)
+  (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
+    (add-hook hook (lambda () (ggtags-mode 1))))
 
-    (with-eval-after-load "ggtags"
-      ;; (setq ggtags-completing-read-function t) ;; nil for helm
-      (define-key ggtags-mode-map (kbd "M-]") nil))
+  (with-eval-after-load "ggtags"
+    (unless (executable-find "gtags")
+      (message "--- global is NOT installed in this system."))
 
-    (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
-      (add-hook hook (lambda () (ggtags-mode 1)))))
+    ;; (setq ggtags-completing-read-function t) ;; nil for helm
+    (define-key ggtags-mode-map (kbd "M-]") nil)))
 
-  (when (autoload-if-found
-         '(counsel-gtags-mode)
-         "counsel-gtags" nil t)
-    (dolist (hook '(c-mode-hook c++-mode-hook))
-      (add-hook hook 'counsel-gtags-mode))
-    (with-eval-after-load "counsel-gtags"
-      (custom-set-variables
-       '(counsel-gtags-update-interval-second 10)))))
+(when (autoload-if-found
+       '(counsel-gtags-mode)
+       "counsel-gtags" nil t)
+
+  (dolist (hook '(c-mode-hook c++-mode-hook))
+    (add-hook hook 'counsel-gtags-mode))
+
+  (with-eval-after-load "counsel-gtags"
+    (custom-set-variables
+     '(counsel-gtags-update-interval-second 10))))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -9594,17 +9596,15 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
   (my-desktop-notification "Message from org-mode" message t))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
-;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
-(defvar ns-default-notification-sound "Pop")
-
-(defvar ns-alerter-command
-  (executable-find (concat (getenv "HOME") "/Dropbox/bin/alerter"))
-  "Path to alerter command. see https://github.com/vjeantet/alerter")
-
-;; eval (org-notify "hoge") to test this setting
+#+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
-  (when ns-alerter-command
+  ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
+  (defvar ns-default-notification-sound "Pop")
+
+  (defvar ns-alerter-command (concat (getenv "HOME") "/Dropbox/bin/alerter")
+    "Path to alerter command. see https://github.com/vjeantet/alerter")
+
+  (when (executable-find ns-alerter-command)
     (setq org-show-notification-handler #'my-desktop-notification-handler)))
 #+end_src
 
@@ -13616,12 +13616,15 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   - Macintosh でもちゃんと使えます．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (and (executable-find "qt_color_picker")
-           (autoload-if-found
-            '(edit-color-stamp)
-            "edit-color-stamp" nil t))
+(when (autoload-if-found
+       '(edit-color-stamp)
+       "edit-color-stamp" nil t)
 
-  (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
+  (global-set-key (kbd "C-c f c p") 'edit-color-stamp)
+
+  (with-eval-after-load "edit-color-stamp"
+    (unless (executable-find "qt_color_picker")
+      (message "--- qt_color_picker is NOT installed."))))
 #+end_src
 
 （設定手順）

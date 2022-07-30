@@ -388,14 +388,16 @@
   (push '("\\.markdown$" . markdown-mode) auto-mode-alist)
   (push '("\\.md$" . markdown-mode) auto-mode-alist))
 
-(if (executable-find "cmake")
-    (when (autoload-if-found
-           '(cmake-mode)
-           "cmake-mode" nil t)
+(when (autoload-if-found
+       '(cmake-mode)
+       "cmake-mode" nil t)
 
-      (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
-      (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode)))
-  (message "--- cmake is NOT installed."))
+  (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
+  (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))
+
+  (with-eval-after-load "cmake-mode"
+    (unless (executable-find "cmake")
+      (message "--- cmake is NOT installed."))))
 
 (when (autoload-if-found
        '(logview-mode)
@@ -653,18 +655,16 @@
     (custom-set-variables
      '(osx-dictionary-dictionary-choice "英辞郎 第七版"))))
 
-(if (executable-find "js-beautify")
-    (when (autoload-if-found
-           '(js2-mode)
-           "js2-mode" nil t)
-
-      (with-eval-after-load "js2-mode"
+(when (autoload-if-found
+       '(js2-mode)
+       "js2-mode" nil t)
+  (with-eval-after-load "js2-mode"
+    (if (executable-find "js-beautify")
         (when (require 'web-beautify nil t)
           (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))))
-
-  (message "--- js-beautify is NOT installed.")
-  (message "--- Note: npm -g install js-beautify"))
+          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))
+      (message "--- js-beautify is NOT installed.")
+      (message "--- Note: npm -g install js-beautify"))))
 
 (when (autoload-if-found
        '(smartparens-global-mode turn-on-show-smartparens-mode)
@@ -794,8 +794,8 @@
 
 (when (require 'mlscroll nil t)
   (custom-set-variables
-   '(mlscroll-in-color "#FFA07A") ;; light coral
-   '(mlscroll-out-color "#FFFFE0")
+   '(mlscroll-in-color "light coral") ;;  #FFA07A
+   '(mlscroll-out-color "#FFFFEF")
    '(mlscroll-width-chars 12))
   (mlscroll-mode 1)
 
@@ -1616,28 +1616,30 @@
   (with-eval-after-load "gnuplot-mode"
     (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun)))
 
-(if (not (executable-find "gtags"))
-    (message "--- global is NOT installed in this system.")
+(when (autoload-if-found
+       '(ggtags-mode)
+       "ggtags" nil t)
 
-  (when (autoload-if-found
-         '(ggtags-mode)
-         "ggtags" nil t)
+  (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
+    (add-hook hook (lambda () (ggtags-mode 1))))
 
-    (with-eval-after-load "ggtags"
-      ;; (setq ggtags-completing-read-function t) ;; nil for helm
-      (define-key ggtags-mode-map (kbd "M-]") nil))
+  (with-eval-after-load "ggtags"
+    (unless (executable-find "gtags")
+      (message "--- global is NOT installed in this system."))
 
-    (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
-      (add-hook hook (lambda () (ggtags-mode 1)))))
+    ;; (setq ggtags-completing-read-function t) ;; nil for helm
+    (define-key ggtags-mode-map (kbd "M-]") nil)))
 
-  (when (autoload-if-found
-         '(counsel-gtags-mode)
-         "counsel-gtags" nil t)
-    (dolist (hook '(c-mode-hook c++-mode-hook))
-      (add-hook hook 'counsel-gtags-mode))
-    (with-eval-after-load "counsel-gtags"
-      (custom-set-variables
-       '(counsel-gtags-update-interval-second 10)))))
+(when (autoload-if-found
+       '(counsel-gtags-mode)
+       "counsel-gtags" nil t)
+
+  (dolist (hook '(c-mode-hook c++-mode-hook))
+    (add-hook hook 'counsel-gtags-mode))
+
+  (with-eval-after-load "counsel-gtags"
+    (custom-set-variables
+     '(counsel-gtags-update-interval-second 10))))
 
 (when (autoload-if-found
        '(0xc-convert 0xc-convert-point my-decimal-to-hex my-hex-to-decimal)
@@ -1767,18 +1769,6 @@
     (add-hook 'mac-ime-before-put-text-hook #'company-cancel)))
 
 (autoload-if-found '(vterm) "vterm"  nil t)
-
-;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
-(defvar ns-default-notification-sound "Pop")
-
-(defvar ns-alerter-command
-  (executable-find (concat (getenv "HOME") "/Dropbox/bin/alerter"))
-  "Path to alerter command. see https://github.com/vjeantet/alerter")
-
-;; eval (org-notify "hoge") to test this setting
-(with-eval-after-load "org"
-  (when ns-alerter-command
-    (setq org-show-notification-handler #'my-desktop-notification-handler)))
 
 ;; `org-agenda-prepare-buffers' は重い．agenda 実行時の最初に走るが，
 ;; 事前に走らせておくほうがいい．以下の例では，
@@ -2049,12 +2039,15 @@
   (dolist (hook '(emmet-mode-hook emacs-lisp-mode-hook org-mode-hook))
     (add-hook hook #'rainbow-mode)))
 
-(when (and (executable-find "qt_color_picker")
-           (autoload-if-found
-            '(edit-color-stamp)
-            "edit-color-stamp" nil t))
+(when (autoload-if-found
+       '(edit-color-stamp)
+       "edit-color-stamp" nil t)
 
-  (global-set-key (kbd "C-c f c p") 'edit-color-stamp))
+  (global-set-key (kbd "C-c f c p") 'edit-color-stamp)
+
+  (with-eval-after-load "edit-color-stamp"
+    (unless (executable-find "qt_color_picker")
+      (message "--- qt_color_picker is NOT installed."))))
 
 (with-eval-after-load "ivy"
   (custom-set-faces
