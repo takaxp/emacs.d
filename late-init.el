@@ -13,6 +13,7 @@
   (advice-add 'garbage-collect :around #'ad:garbage-collect)
 
   (with-eval-after-load "gcmh"
+    (setq gcmh-verbose t)
     (advice-add 'gcmh-idle-garbage-collect
                 :around #'ad:gcmh-idle-garbage-collect))
 

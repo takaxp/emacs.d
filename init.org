@@ -637,8 +637,9 @@ This function is called directly from the C code."
 ;;;###autoload
 (defun ad:garbage-collect (f)
   (unless my-gcmh-idlegc-p
-    (message "Garbage collecting...")
-    (message "Garbage collecting...done (%.3fs)" (gcmh-time (funcall f)))))
+    (message "[gcmh] Garbage collecting...")
+    (message "[gcmh] Garbage collecting...done (%.3fs)"
+             (gcmh-time (funcall f)))))
 
 ;;;###autolaod
 (defun ad:gcmh-idle-garbage-collect (f)
@@ -652,6 +653,7 @@ This function is called directly from the C code."
   (advice-add 'garbage-collect :around #'ad:garbage-collect)
 
   (with-eval-after-load "gcmh"
+    (setq gcmh-verbose t)
     (advice-add 'gcmh-idle-garbage-collect
                 :around #'ad:gcmh-idle-garbage-collect))
 
@@ -11092,7 +11094,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
   ;; (add-to-list 'org-modules 'org-mac-iCal)
   ;; (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
 
-  (autoload 'org-mac-grab-link "org-mac-link" nil t)
+  (autoload 'org-mac-link-get-link "org-mac-link" nil t)
   (define-key org-mode-map (kbd "C-c c") 'org-mac-link-get-link)
   (with-eval-after-load "org-mac-link"
     (require 'org-mac-iCal nil t)))
@@ -13143,10 +13145,10 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 | Windows | Inconsolata | メイリオ                  |
 | Linux   | Inconsolata | MigMix                    |
 
-  - http://d.hatena.ne.jp/setoryohei/20110117/1295336454
-  - [[http://users.teilar.gr/~g1951d/][Unicode Fonts for Ancient Scripts]]
+- http://d.hatena.ne.jp/setoryohei/20110117/1295336454
+- [[http://users.teilar.gr/~g1951d/][Unicode Fonts for Ancient Scripts]]
 
-~early-init.el~ で設定すると高速起動に効果あり（ =emacs-init-time= には表れない）
+遅延設定(postpone.el)にしたことで，体感レベルでGUI生成が高速化しました．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2

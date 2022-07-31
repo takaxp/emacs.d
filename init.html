@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-31 Sun 20:42 -->
+<!-- 2022-08-01 Mon 00:15 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1439,8 +1439,9 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:garbage-collect</span> (f)
   (<span style="color: #a020f0;">unless</span> my-gcmh-idlegc-p
-    (message <span style="color: #8b2252;">"Garbage collecting..."</span>)
-    (message <span style="color: #8b2252;">"Garbage collecting...done (%.3fs)"</span> (gcmh-time (funcall f)))))
+    (message <span style="color: #8b2252;">"[gcmh] Garbage collecting..."</span>)
+    (message <span style="color: #8b2252;">"[gcmh] Garbage collecting...done (%.3fs)"</span>
+             (gcmh-time (funcall f)))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autolaod</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:gcmh-idle-garbage-collect</span> (f)
@@ -1455,6 +1456,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
   (advice-add 'garbage-collect <span style="color: #483d8b;">:around</span> #'ad:garbage-collect)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"gcmh"</span>
+    (<span style="color: #a020f0;">setq</span> gcmh-verbose t)
     (advice-add 'gcmh-idle-garbage-collect
                 <span style="color: #483d8b;">:around</span> #'ad:gcmh-idle-garbage-collect))
 
@@ -13045,7 +13047,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org43bb3ff"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgedf63c4"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13106,7 +13108,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-modules 'org-mac-iCal)</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message</span>
 
-  (autoload 'org-mac-grab-link <span style="color: #8b2252;">"org-mac-link"</span> nil t)
+  (autoload 'org-mac-link-get-link <span style="color: #8b2252;">"org-mac-link"</span> nil t)
   (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c c"</span>) 'org-mac-link-get-link)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-mac-link"</span>
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-mac-iCal</span> nil t)))
@@ -13970,7 +13972,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgee9590e" class="figure">
+<div id="orgbd547d1" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15368,7 +15370,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </ul>
 
 <p>
-<code>early-init.el</code> で設定すると高速起動に効果あり（ <code>emacs-init-time</code> には表れない）
+遅延設定(postpone.el)にしたことで，体感レベルでGUI生成が高速化しました．
 </p>
 
 <div class="org-src-container">
@@ -18364,7 +18366,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-31 Sun 20:42</p>
+<p class="date">Created: 2022-08-01 Mon 00:15</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

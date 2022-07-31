@@ -1619,7 +1619,7 @@ also calls `beep' for an audible reminder."
   ;; (add-to-list 'org-modules 'org-mac-iCal)
   ;; (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
 
-  (autoload 'org-mac-grab-link "org-mac-link" nil t)
+  (autoload 'org-mac-link-get-link "org-mac-link" nil t)
   (define-key org-mode-map (kbd "C-c c") 'org-mac-link-get-link)
   (with-eval-after-load "org-mac-link"
     (require 'org-mac-iCal nil t)))
