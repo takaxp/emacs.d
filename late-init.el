@@ -971,7 +971,7 @@
 	   (projectile-mode nil "projectile")
 	   (selected-minor-mode nil "selected")
      (gcmh-mode nil "gcmh")))
-  
+
   ;; Override by icon
   (when (require 'icons-in-terminal nil t)
 	  (delight

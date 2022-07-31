@@ -636,13 +636,13 @@ This function is called directly from the C code."
 (defvar my-gcmh-idlegc-p nil)
 
 ;;;###autoload
-(defun ad:garbage-collect (f &rest _arg)
+(defun ad:garbage-collect (f)
   (unless my-gcmh-idlegc-p
 	  (message "Garbage collecting...")
     (message "Garbage collecting...done (%.3fs)" (gcmh-time (funcall f)))))
 
 ;;;###autolaod
-(defun my:gcmh-idle-garbage-collect (f &rest _arg)
+(defun my:gcmh-idle-garbage-collect (f)
   (let ((my-gcmh-idlegc-p t))
     (funcall f)))
 #+end_src
@@ -5088,7 +5088,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 	   (projectile-mode nil "projectile")
 	   (selected-minor-mode nil "selected")
      (gcmh-mode nil "gcmh")))
-  
+
   ;; Override by icon
   (when (require 'icons-in-terminal nil t)
 	  (delight
