@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-31 Sun 16:11 -->
+<!-- 2022-07-31 Sun 20:38 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -231,7 +231,7 @@
 <li><a href="#orga2859651">2.13. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.14. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.15. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#orge85fefc">2.16. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
+<li><a href="#orgdc071e4d">2.16. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
 <li><a href="#orgfca510d8">2.17. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
 <li><a href="#orgb6593164">2.17.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
@@ -1423,9 +1423,9 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orge85fefc" class="outline-3">
-<h3 id="orge85fefc"><span class="section-number-3">2.16.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
-<div class="outline-text-3" id="text-2-16">
+<div id="outline-container-orgdc071e4d" class="outline-3">
+<h3 id="orgdc071e4d"><span class="section-number-3">2.16.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
+<div class="outline-text-3" id="text-orgdc071e4d">
 <ul class="org-ul">
 <li><a href="https://gitlab.com/koral/gcmh">https://gitlab.com/koral/gcmh</a></li>
 </ul>
@@ -13045,7 +13045,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org7fcc1a6"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3930966"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13359,7 +13359,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-custom-id</span> ()
     <span style="color: #8b2252;">"Add \"CUSTOM_ID\" to the current tree if not assigned yet."</span>
     (<span style="color: #a020f0;">interactive</span>)
-    (my-org-custom-id-get t))
+    (my-org-custom-id-get (point) t))
 
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-get-custom-id</span> ()
     <span style="color: #8b2252;">"Return a part of UUID with an \"org\" prefix.</span>
@@ -13368,7 +13368,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
       (<span style="color: #a020f0;">when</span> (org-uuidgen-p id)
         (downcase (concat <span style="color: #8b2252;">"org"</span>  (substring (org-id-new <span style="color: #8b2252;">""</span>) 0 8))))))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-custom-id-get</span> (<span style="color: #228b22;">&amp;optional</span> create)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-custom-id-get</span> (<span style="color: #228b22;">&amp;optional</span> pom create)
     <span style="color: #8b2252;">"Get the CUSTOM_ID property of the entry at point-or-marker POM.</span>
 <span style="color: #8b2252;">If POM is nil, refer to the entry at point.  If the entry does</span>
 <span style="color: #8b2252;">not have an CUSTOM_ID, the function returns nil.  However, when</span>
@@ -13377,18 +13377,19 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 
 <span style="color: #8b2252;">See https://writequit.org/articles/emacs-org-mode-generate-ids.html"</span>
     (<span style="color: #a020f0;">interactive</span>)
-    (<span style="color: #a020f0;">let</span> ((id (org-entry-get nil <span style="color: #8b2252;">"CUSTOM_ID"</span>)))
-      (<span style="color: #a020f0;">cond</span>
-       ((<span style="color: #a020f0;">and</span> id (stringp id) (string-match <span style="color: #8b2252;">"\\S-"</span> id))
-        id)
-       (create
-        (<span style="color: #a020f0;">setq</span> id (my-get-custom-id))
-        (<span style="color: #a020f0;">unless</span> id
-          (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"Invalid ID"</span>))
-        (org-entry-put pom <span style="color: #8b2252;">"CUSTOM_ID"</span> id)
-        (message <span style="color: #8b2252;">"--- CUSTOM_ID assigned: %s"</span> id)
-        (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
-        id))))
+    (<span style="color: #a020f0;">org-with-point-at</span> pom
+      (<span style="color: #a020f0;">let</span> ((id (org-entry-get nil <span style="color: #8b2252;">"CUSTOM_ID"</span>)))
+        (<span style="color: #a020f0;">cond</span>
+         ((<span style="color: #a020f0;">and</span> id (stringp id) (string-match <span style="color: #8b2252;">"\\S-"</span> id))
+          id)
+         (create
+          (<span style="color: #a020f0;">setq</span> id (my-get-custom-id))
+          (<span style="color: #a020f0;">unless</span> id
+            (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"Invalid ID"</span>))
+          (org-entry-put pom <span style="color: #8b2252;">"CUSTOM_ID"</span> id)
+          (message <span style="color: #8b2252;">"--- CUSTOM_ID assigned: %s"</span> id)
+          (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
+          id)))))
 
   <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autoload</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-org-ids-to-headlines-in-file</span> ()
@@ -13404,7 +13405,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
       (goto-char (point-min))
       (<span style="color: #a020f0;">when</span> (re-search-forward <span style="color: #8b2252;">"^#\\+options:.*auto-id:t"</span> (point-max) t)
         (org-map-entries
-         (<span style="color: #a020f0;">lambda</span> () (my-org-custom-id-get 'create))))))
+         (<span style="color: #a020f0;">lambda</span> () (my-org-custom-id-get (point) 'create))))))
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">md-link-format</span> <span style="color: #8b2252;">"^!\\[</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">.+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">\\](</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">.+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">)$"</span>)
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-convert-md-link-to-html</span> ()
@@ -13969,7 +13970,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orge337f9c" class="figure">
+<div id="org652dbb8" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18363,7 +18364,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-31 Sun 16:11</p>
+<p class="date">Created: 2022-07-31 Sun 20:38</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
