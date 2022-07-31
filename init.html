@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-31 Sun 14:40 -->
+<!-- 2022-07-31 Sun 16:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -231,7 +231,7 @@
 <li><a href="#orga2859651">2.13. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.14. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.15. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#org19e7814">2.16. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
+<li><a href="#orge85fefc">2.16. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
 <li><a href="#orgfca510d8">2.17. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
 <li><a href="#orgb6593164">2.17.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
@@ -1010,9 +1010,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> gc-cons-threshold (* 512 1024 1024)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">[MB]</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "postpone"</span>
-<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq gc-cons-threshold (* 512 1024 1024)))</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> gc-cons-threshold (* 8 1024 1024)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">[MB]</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq garbage-collection-messages t)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defvar my-gc-last 0.0)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'post-gc-hook</span>
@@ -1425,8 +1423,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org19e7814" class="outline-3">
-<h3 id="org19e7814"><span class="section-number-3">2.16.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
+<div id="outline-container-orge85fefc" class="outline-3">
+<h3 id="orge85fefc"><span class="section-number-3">2.16.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
 <div class="outline-text-3" id="text-2-16">
 <ul class="org-ul">
 <li><a href="https://gitlab.com/koral/gcmh">https://gitlab.com/koral/gcmh</a></li>
@@ -1445,7 +1443,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
     (message <span style="color: #8b2252;">"Garbage collecting...done (%.3fs)"</span> (gcmh-time (funcall f)))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autolaod</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:gcmh-idle-garbage-collect</span> (f)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:gcmh-idle-garbage-collect</span> (f)
   (<span style="color: #a020f0;">let</span> ((my-gcmh-idlegc-p t))
     (funcall f)))
 </pre>
@@ -1458,7 +1456,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"gcmh"</span>
     (advice-add 'gcmh-idle-garbage-collect
-                <span style="color: #483d8b;">:around</span> #'my:gcmh-idle-garbage-collect))
+                <span style="color: #483d8b;">:around</span> #'ad:gcmh-idle-garbage-collect))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
     (gcmh-mode 1)))
@@ -13047,7 +13045,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org014050c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org7fcc1a6"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13619,6 +13617,15 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-toggle-org-show-emphasis-markers</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">setq</span> org-hide-emphasis-markers (not org-hide-emphasis-markers))
+  (font-lock-fontify-buffer))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(org-appear-mode)
        <span style="color: #8b2252;">"org-appear"</span> nil t)
@@ -13626,11 +13633,6 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
   (add-hook 'org-tree-slide-mode-hook 'org-appear-mode)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-appear"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-toggle-org-show-emphasis-markers</span> ()
-      (<span style="color: #a020f0;">interactive</span>)
-      (<span style="color: #a020f0;">setq</span> org-hide-emphasis-markers (not org-hide-emphasis-markers))
-      (font-lock-fontify-buffer))
-
     (<span style="color: #a020f0;">setq</span> org-appear-delay 0.4)))
 </pre>
 </div>
@@ -13967,7 +13969,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org82ec579" class="figure">
+<div id="orge337f9c" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18361,7 +18363,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-31 Sun 14:40</p>
+<p class="date">Created: 2022-07-31 Sun 16:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

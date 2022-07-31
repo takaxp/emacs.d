@@ -14,7 +14,7 @@
 
   (with-eval-after-load "gcmh"
     (advice-add 'gcmh-idle-garbage-collect
-                :around #'my:gcmh-idle-garbage-collect))
+                :around #'ad:gcmh-idle-garbage-collect))
 
   (unless noninteractive
     (gcmh-mode 1)))

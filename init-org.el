@@ -1911,11 +1911,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (add-hook 'org-tree-slide-mode-hook 'org-appear-mode)
 
   (with-eval-after-load "org-appear"
-    (defun my-toggle-org-show-emphasis-markers ()
-      (interactive)
-      (setq org-hide-emphasis-markers (not org-hide-emphasis-markers))
-      (font-lock-fontify-buffer))
-
     (setq org-appear-delay 0.4)))
 
 (with-eval-after-load "ob-core"
