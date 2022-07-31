@@ -20,8 +20,6 @@
   (setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; swiper(M-s M-s), bm(<f10>,C-<f10>), helm-locate(C-M-l), org-grep(C-M-g)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when my-profiler-p (profiler-start 'cpu+mem))
 ;; Suppress exporting of custom-set-variables (25.1 or later)
 (setq custom-file (locate-user-emacs-file "custom.el"))

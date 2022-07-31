@@ -47,8 +47,6 @@
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
-(setq save-silently t) ;; No need shut-up.el for saving files.
-
 (defun my-load-package-p (file)
   (let ((enabled t))
     (when (boundp 'my-loading-packages)
@@ -91,23 +89,6 @@
           exit-minibuffer))
   (run-with-idle-timer 8 nil #'postpone-pre))
 
-(defun future-time-p (time)
-  "Return non-nil if provided TIME formed of \"10:00\" is the future time."
-  (not (time-less-p
-        (apply 'encode-time
-               (let ((t1 (decode-time))
-                     (t2 (parse-time-string time)))
-                 (setf (nth 0 t1) 0)
-                 (setf (nth 1 t1) (nth 1 t2))
-                 (setf (nth 2 t1) (nth 2 t2))
-                 t1))
-        (current-time))))
-;; (when (future-time-p "10:00") (run-at-time...))
-
-(defun my-native-comp-p ()
-  (when (fboundp 'native-comp-available-p)
-    (native-comp-available-p)))
-
 (my-tick-init-time "startup")
 
 (prefer-coding-system 'utf-8-unix)
@@ -130,9 +111,6 @@
   (global-set-key [ns-drag-file] 'ns-find-file))
 (global-set-key [delete] 'delete-char)
 (global-set-key [kp-delete] 'delete-char)
-
-;; Limit the final word to a line break code (automatically correct)
-(setq require-final-newline t)
 
 (when (version< "27.0" emacs-version)
   (defun ad:find-file-read-args (f prompt mustmatch)
@@ -206,12 +184,6 @@
 (setq auto-save-list-file-prefix nil)
 
 (defun ad:find-file-noselect (_filename &optional _nowarn _rawfile _wildcards)
-  (unless (require 'init-dired nil t)
-    (user-error "init-dired.el doesn't exist"))
-  (advice-remove 'find-file-noselect #'ad:find-file-noselect)
-  (advice-remove 'dired #'ad:dired-activate))
-
-(defun ad:dired-activate (_dirname &optional _switches)
   (unless (require 'init-dired nil t)
     (user-error "init-dired.el doesn't exist"))
   (advice-remove 'find-file-noselect #'ad:find-file-noselect)
@@ -359,83 +331,8 @@
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; Trying... (2022-01-28)
-    (defun moom-recommended-keybindings (options)
-      "Apply pre defined keybindings.
-OPTIONS is a list of moom API types.  If you want to set all recommemded
-keybindings, put the following code in your init.el.
- (with-eval-after-load \"moom\"
-   (moom-recommended-keybindings \='all))
-=\'all is identical to =\'(move fit expand fill font reset undo).
-If OPTIONS includes =\'wof, then each binding is configured not to use fn key.
-If you give only =\'(reset) as the argument, then \\[moom-reset] is activated.
-The keybindings will be assigned only when Emacs runs in GUI."
-      (when window-system
-        (when (memq 'all options)
-          (if (memq 'wof options)
-              (setq options '(move fit expand fill font reset undo wof))
-            (setq options '(move fit expand fill font reset undo))))
-        (when (memq 'move options)
-          (define-key moom-mode-map (kbd "M-0") 'moom-move-frame)
-          (define-key moom-mode-map (kbd "M-1") 'moom-move-frame-left)
-          (define-key moom-mode-map (kbd "M-2") 'moom-move-frame-to-center)
-          (define-key moom-mode-map (kbd "M-3") 'moom-move-frame-right))
-        (when (memq 'fit options)
-          (cond ((memq 'wof options)
-                 (define-key moom-mode-map (kbd "C-c e l") 'moom-move-frame-to-edge-left)
-                 (define-key moom-mode-map (kbd "C-c e r") 'moom-move-frame-to-edge-right)
-                 (define-key moom-mode-map (kbd "C-c e t") 'moom-move-frame-to-edge-top)
-                 (define-key moom-mode-map (kbd "C-c e b") 'moom-move-frame-to-edge-bottom))
-                (t
-                 (define-key moom-mode-map (kbd "M-<f1>") 'moom-move-frame-to-edge-left)
-                 (define-key moom-mode-map (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
-                 (define-key moom-mode-map (kbd "<f1>") 'moom-move-frame-to-edge-top)
-                 (define-key moom-mode-map (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom))))
-        (define-key moom-mode-map (kbd "C-c f c l")
-          'moom-move-frame-to-centerline-from-left)
-        (define-key moom-mode-map (kbd "C-c f c r")
-          'moom-move-frame-to-centerline-from-right)
-        (define-key moom-mode-map (kbd "C-c f c t")
-          'moom-move-frame-to-centerline-from-top)
-        (define-key moom-mode-map (kbd "C-c f c b")
-          'moom-move-frame-to-centerline-from-bottom))
-      (when (memq 'expand options)
-        (cond ((memq 'wof options)
-               (define-key moom-mode-map (kbd "C-2") 'moom-cycle-frame-height))
-              (t
-               (define-key moom-mode-map (kbd "<f2>") 'moom-cycle-frame-height)))
-        (define-key moom-mode-map (kbd "C-c f s") 'moom-change-frame-width-single)
-        (define-key moom-mode-map (kbd "C-c f d") 'moom-change-frame-width-double)
-        (define-key moom-mode-map (kbd "C-c f S") 'moom-delete-windows)
-        (define-key moom-mode-map (kbd "C-c f D") 'moom-split-window)
-        (define-key moom-mode-map (kbd "C-c f a")
-          'moom-change-frame-width-half-again))
-      (when (memq 'fill options)
-        (define-key moom-mode-map (kbd "C-c f f t") 'moom-fill-top)
-        (define-key moom-mode-map (kbd "C-c f f b") 'moom-fill-bottom)
-        (define-key moom-mode-map (kbd "C-c f f l") 'moom-fill-left)
-        (define-key moom-mode-map (kbd "C-c f f r") 'moom-fill-right)
-        (define-key moom-mode-map (kbd "C-c f f 1") 'moom-fill-top-left)
-        (define-key moom-mode-map (kbd "C-c f f 2") 'moom-fill-top-right)
-        (define-key moom-mode-map (kbd "C-c f f 3") 'moom-fill-bottom-left)
-        (define-key moom-mode-map (kbd "C-c f f 4") 'moom-fill-bottom-right)
-        (define-key moom-mode-map (kbd "C-c f f m") 'moom-fill-band)
-        (define-key moom-mode-map (kbd "C-c f f w") 'moom-fill-width)
-        (define-key moom-mode-map (kbd "C-c f f h") 'moom-fill-height)
-        (cond ((memq 'wof options)
-               (define-key moom-mode-map (kbd "C-c f m") 'moom-toggle-frame-maximized))
-              (t
-               (define-key moom-mode-map (kbd "M-<f2>") 'moom-toggle-frame-maximized))))
-      (when (memq 'font options)
-        (define-key moom-mode-map (kbd "C--") 'moom-font-decrease)
-        (define-key moom-mode-map (kbd "C-=") 'moom-font-increase)
-        (define-key moom-mode-map (kbd "C-0") 'moom-font-size-reset))
-      (when (memq 'reset options)
-        (define-key moom-mode-map (kbd "C-c C-0") 'moom-reset))
-      (when (memq 'undo options)
-        (define-key moom-mode-map (kbd "C-c C-/") 'moom-undo))
-      (when (and moom-verbose
-                 options)
-        (message "[Moom] Key defined for APIs of %s." options)))
+    (advice-add 'moom-recommended-keybindings
+                :override #'ad:moom-recommended-keybindings)
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     (custom-set-variables

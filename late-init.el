@@ -6,8 +6,24 @@
 (defvar my-exclude-deprecated-packages '(cl tls))
 (advice-add 'do-after-load-evaluation :override #'ad:do-after-load-evaluation)
 
+(setq save-silently t) ;; No need shut-up.el for saving files.
+
+(when (autoload 'gcmh-mode "gcmh" nil t)
+
+  (advice-add 'garbage-collect :around #'ad:garbage-collect)
+
+  (with-eval-after-load "gcmh"
+    (advice-add 'gcmh-idle-garbage-collect
+                :around #'my:gcmh-idle-garbage-collect))
+
+  (unless noninteractive
+    (gcmh-mode 1)))
+
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 (defvar shutup-p nil)
+
+;; Limit the final word to a line break code (automatically correct)
+(setq require-final-newline t)
 
 (setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)
@@ -791,7 +807,7 @@
   (custom-set-variables
    '(mlscroll-in-color "light coral") ;;  #FFA07A
    '(mlscroll-out-color "#FFFFEF")
-   '(mlscroll-width-chars 12))
+   '(mlscroll-width-chars 10))
   (mlscroll-mode 1)
 
   (with-eval-after-load "moom"
@@ -953,8 +969,9 @@
 	   (fancy-narrow-mode nil "fancy-narrow")
 	   (smartparens-mode nil "smartparens")
 	   (projectile-mode nil "projectile")
-	   (selected-minor-mode nil "selected")))
-
+	   (selected-minor-mode nil "selected")
+     (gcmh-mode nil "gcmh")))
+  
   ;; Override by icon
   (when (require 'icons-in-terminal nil t)
 	  (delight

@@ -21,10 +21,10 @@
 ;; (with-eval-after-load "postpone"
 ;;   (setq gc-cons-threshold (* 512 1024 1024)))
 ;; (setq garbage-collection-messages t)
-(defvar my-gc-last 0.0)
-(add-hook 'post-gc-hook
-          #'(lambda ()
-              (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
-              (setq my-gc-last gc-elapsed)))
+;; (defvar my-gc-last 0.0)
+;; (add-hook 'post-gc-hook
+;;           #'(lambda ()
+;;               (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
+;;               (setq my-gc-last gc-elapsed)))
 
 (message "Loading %s...done" my-early-init)

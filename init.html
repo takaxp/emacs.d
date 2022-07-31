@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-07-31 Sun 01:12 -->
+<!-- 2022-07-31 Sun 14:25 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -231,20 +231,21 @@
 <li><a href="#orga2859651">2.13. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.14. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.15. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#orgfca510d8">2.16. [shut-up.el] Messages 出力を封じる（制御する）</a>
+<li><a href="#org8eb4d23">2.16. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
+<li><a href="#orgfca510d8">2.17. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
-<li><a href="#orgb6593164">2.16.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgb6593164">2.17.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
-<li><a href="#org5a18ac68">2.17. Native comp が使えるかを判定する</a></li>
-<li><a href="#orgb59612b6">2.18. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0b7d9710">2.19. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
+<li><a href="#org5a18ac68">2.18. Native comp が使えるかを判定する</a></li>
+<li><a href="#orgb59612b6">2.19. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0b7d9710">2.20. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
 <ul>
-<li><a href="#org42722212">2.19.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.19.2. マクロ版</a></li>
+<li><a href="#org42722212">2.20.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.20.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#orgcea06248">2.20. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
+<li><a href="#orgcea06248">2.21. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -1013,11 +1014,11 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "postpone"</span>
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq gc-cons-threshold (* 512 1024 1024)))</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq garbage-collection-messages t)</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gc-last</span> 0.0)
-(add-hook 'post-gc-hook
-          #'(<span style="color: #a020f0;">lambda</span> ()
-              (message <span style="color: #8b2252;">"GC! &gt; %.4f[sec]"</span> (- gc-elapsed my-gc-last))
-              (<span style="color: #a020f0;">setq</span> my-gc-last gc-elapsed)))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(defvar my-gc-last 0.0)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'post-gc-hook</span>
+<span style="color: #b22222;">;;           </span><span style="color: #b22222;">#'(lambda ()</span>
+<span style="color: #b22222;">;;               </span><span style="color: #b22222;">(message "GC! &gt; %.4f[sec]" (- gc-elapsed my-gc-last))</span>
+<span style="color: #b22222;">;;               </span><span style="color: #b22222;">(setq my-gc-last gc-elapsed)))</span>
 </pre>
 </div>
 </div>
@@ -1352,7 +1353,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">future-time-p</span> (time)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">'</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">future-time-p</span> (time)
   <span style="color: #8b2252;">"Return non-nil if provided TIME formed of \"10:00\" is the future time."</span>
   (not (time-less-p
         (apply 'encode-time
@@ -1423,8 +1425,50 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
+<div id="outline-container-org8eb4d23" class="outline-3">
+<h3 id="org8eb4d23"><span class="section-number-3">2.16.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
+<div class="outline-text-3" id="text-2-16">
+<ul class="org-ul">
+<li><a href="https://gitlab.com/koral/gcmh">https://gitlab.com/koral/gcmh</a></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">eval-when-compile</span>
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">gcmh</span>))
+
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-idlegc-p</span> nil)
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:garbage-collect</span> (f <span style="color: #228b22;">&amp;rest</span> _arg)
+  (<span style="color: #a020f0;">unless</span> my-gcmh-idlegc-p
+          (message <span style="color: #8b2252;">"Garbage collecting..."</span>)
+    (message <span style="color: #8b2252;">"Garbage collecting...done (%.3fs)"</span> (gcmh-time (funcall f)))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autolaod</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my:gcmh-idle-garbage-collect</span> (f <span style="color: #228b22;">&amp;rest</span> _arg)
+  (<span style="color: #a020f0;">let</span> ((my-gcmh-idlegc-p t))
+    (funcall f)))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload 'gcmh-mode <span style="color: #8b2252;">"gcmh"</span> nil t)
+
+  (advice-add 'garbage-collect <span style="color: #483d8b;">:around</span> #'ad:garbage-collect)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"gcmh"</span>
+    (advice-add 'gcmh-idle-garbage-collect
+                <span style="color: #483d8b;">:around</span> #'my:gcmh-idle-garbage-collect))
+
+  (<span style="color: #a020f0;">unless</span> noninteractive
+    (gcmh-mode 1)))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgfca510d8" class="outline-3">
-<h3 id="orgfca510d8"><span class="section-number-3">2.16.</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
+<h3 id="orgfca510d8"><span class="section-number-3">2.17.</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
 <div class="outline-text-3" id="text-orgfca510d8">
 <p>
 <code>shut-up.el</code> というマクロがあり，現在はそちらを使っています．非常に強力です．
@@ -1442,7 +1486,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb6593164" class="outline-4">
-<h4 id="orgb6593164"><span class="section-number-4">2.16.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
+<h4 id="orgb6593164"><span class="section-number-4">2.17.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
 <div class="outline-text-4" id="text-orgb6593164">
 <p>
 以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．
@@ -1465,10 +1509,11 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org5a18ac68" class="outline-3">
-<h3 id="org5a18ac68"><span class="section-number-3">2.17.</span> Native comp が使えるかを判定する</h3>
+<h3 id="org5a18ac68"><span class="section-number-3">2.18.</span> Native comp が使えるかを判定する</h3>
 <div class="outline-text-3" id="text-org5a18ac68">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-native-comp-p</span> ()
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-native-comp-p</span> ()
   (<span style="color: #a020f0;">when</span> (fboundp 'native-comp-available-p)
     (native-comp-available-p)))
 </pre>
@@ -1477,7 +1522,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.18.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.19.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a></li>
@@ -1497,7 +1542,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.19.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.20.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b>
@@ -1581,7 +1626,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.19.1.</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.20.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
@@ -1637,7 +1682,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.19.2.</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.20.2.</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
@@ -1672,7 +1717,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.20.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.21.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．
@@ -5692,7 +5737,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
   (custom-set-variables
    '(mlscroll-in-color <span style="color: #8b2252;">"light coral"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">#FFA07A</span>
    '(mlscroll-out-color <span style="color: #8b2252;">"#FFFFEF"</span>)
-   '(mlscroll-width-chars 12))
+   '(mlscroll-width-chars 10))
   (mlscroll-mode 1)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
@@ -6557,7 +6602,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
            (fancy-narrow-mode nil <span style="color: #8b2252;">"fancy-narrow"</span>)
            (smartparens-mode nil <span style="color: #8b2252;">"smartparens"</span>)
            (projectile-mode nil <span style="color: #8b2252;">"projectile"</span>)
-           (selected-minor-mode nil <span style="color: #8b2252;">"selected"</span>)))
+           (selected-minor-mode nil <span style="color: #8b2252;">"selected"</span>)
+     (gcmh-mode nil <span style="color: #8b2252;">"gcmh"</span>)))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Override by icon</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
@@ -8782,14 +8828,18 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
   (advice-remove 'find-file-noselect #'ad:find-file-noselect)
   (advice-remove 'dired #'ad:dired-activate))
 
+(advice-add 'find-file-noselect <span style="color: #483d8b;">:before</span> #'ad:find-file-noselect)
+(advice-add 'dired <span style="color: #483d8b;">:before</span> #'ad:dired-activate)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:dired-activate</span> (_dirname <span style="color: #228b22;">&amp;optional</span> _switches)
   (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-dired</span> nil t)
     (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"init-dired.el doesn't exist"</span>))
   (advice-remove 'find-file-noselect #'ad:find-file-noselect)
   (advice-remove 'dired #'ad:dired-activate))
-
-(advice-add 'find-file-noselect <span style="color: #483d8b;">:before</span> #'ad:find-file-noselect)
-(advice-add 'dired <span style="color: #483d8b;">:before</span> #'ad:dired-activate)
 </pre>
 </div>
 
@@ -12997,7 +13047,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgd58a682"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgc64cc5b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13917,7 +13967,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgfd89402" class="figure">
+<div id="org3c15438" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14465,6 +14515,88 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:moom-recommended-keybindings</span> (options)
+  <span style="color: #8b2252;">"Apply pre defined keybindings.</span>
+<span style="color: #8b2252;">OPTIONS is a list of moom API types.  If you want to set all recommemded</span>
+<span style="color: #8b2252;">keybindings, put the following code in your init.el.</span>
+<span style="color: #8b2252;"> (with-eval-after-load \"moom\"</span>
+<span style="color: #8b2252;">   (moom-recommended-keybindings </span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">='all))</span>
+<span style="color: #8b2252;">=</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'all is identical to =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'(move fit expand fill font reset undo).</span>
+<span style="color: #8b2252;">If OPTIONS includes =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'wof, then each binding is configured not to use fn key.</span>
+<span style="color: #8b2252;">If you give only =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'(reset) as the argument, then \\[</span><span style="color: #008b8b;">moom-reset</span><span style="color: #8b2252;">] is activated.</span>
+<span style="color: #8b2252;">The keybindings will be assigned only when Emacs runs in GUI."</span>
+  (<span style="color: #a020f0;">when</span> window-system
+    (<span style="color: #a020f0;">when</span> (memq 'all options)
+      (<span style="color: #a020f0;">if</span> (memq 'wof options)
+          (<span style="color: #a020f0;">setq</span> options '(move fit expand fill font reset undo wof))
+        (<span style="color: #a020f0;">setq</span> options '(move fit expand fill font reset undo))))
+    (<span style="color: #a020f0;">when</span> (memq 'move options)
+      (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-0"</span>) 'moom-move-frame)
+      (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-1"</span>) 'moom-move-frame-left)
+      (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-2"</span>) 'moom-move-frame-to-center)
+      (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-3"</span>) 'moom-move-frame-right))
+    (<span style="color: #a020f0;">when</span> (memq 'fit options)
+      (<span style="color: #a020f0;">cond</span> ((memq 'wof options)
+             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e l"</span>) 'moom-move-frame-to-edge-left)
+             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e r"</span>) 'moom-move-frame-to-edge-right)
+             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e t"</span>) 'moom-move-frame-to-edge-top)
+             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e b"</span>) 'moom-move-frame-to-edge-bottom))
+            (t
+             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-left)
+             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f3&gt;"</span>) 'moom-move-frame-to-edge-right)
+             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-top)
+             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"S-&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-bottom))))
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c l"</span>)
+      'moom-move-frame-to-centerline-from-left)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c r"</span>)
+      'moom-move-frame-to-centerline-from-right)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c t"</span>)
+      'moom-move-frame-to-centerline-from-top)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c b"</span>)
+      'moom-move-frame-to-centerline-from-bottom))
+  (<span style="color: #a020f0;">when</span> (memq 'expand options)
+    (<span style="color: #a020f0;">cond</span> ((memq 'wof options)
+           (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-2"</span>) 'moom-cycle-frame-height))
+          (t
+           (define-key moom-mode-map (kbd <span style="color: #8b2252;">"&lt;f2&gt;"</span>) 'moom-cycle-frame-height)))
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f s"</span>) 'moom-change-frame-width-single)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f d"</span>) 'moom-change-frame-width-double)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f S"</span>) 'moom-delete-windows)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f D"</span>) 'moom-split-window)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f a"</span>)
+      'moom-change-frame-width-half-again))
+  (<span style="color: #a020f0;">when</span> (memq 'fill options)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f t"</span>) 'moom-fill-top)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f b"</span>) 'moom-fill-bottom)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f l"</span>) 'moom-fill-left)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f r"</span>) 'moom-fill-right)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 1"</span>) 'moom-fill-top-left)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 2"</span>) 'moom-fill-top-right)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 3"</span>) 'moom-fill-bottom-left)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 4"</span>) 'moom-fill-bottom-right)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f m"</span>) 'moom-fill-band)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f w"</span>) 'moom-fill-width)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f h"</span>) 'moom-fill-height)
+    (<span style="color: #a020f0;">cond</span> ((memq 'wof options)
+           (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f m"</span>) 'moom-toggle-frame-maximized))
+          (t
+           (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f2&gt;"</span>) 'moom-toggle-frame-maximized))))
+  (<span style="color: #a020f0;">when</span> (memq 'font options)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C--"</span>) 'moom-font-decrease)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-="</span>) 'moom-font-increase)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-0"</span>) 'moom-font-size-reset))
+  (<span style="color: #a020f0;">when</span> (memq 'reset options)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c C-0"</span>) 'moom-reset))
+  (<span style="color: #a020f0;">when</span> (memq 'undo options)
+    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c C-/"</span>) 'moom-undo))
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> moom-verbose
+             options)
+    (message <span style="color: #8b2252;">"[Moom] Key defined for APIs of %s."</span> options)))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">declare-function</span> my-font-config <span style="color: #8b2252;">"init"</span> nil)
 (<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">moom-autoloads</span>
   '(moom-cycle-frame-height
@@ -14496,83 +14628,8 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 
     <span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Trying... (2022-01-28)</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">moom-recommended-keybindings</span> (options)
-      <span style="color: #8b2252;">"Apply pre defined keybindings.</span>
-<span style="color: #8b2252;">OPTIONS is a list of moom API types.  If you want to set all recommemded</span>
-<span style="color: #8b2252;">keybindings, put the following code in your init.el.</span>
-<span style="color: #8b2252;"> (with-eval-after-load \"moom\"</span>
-<span style="color: #8b2252;">   (moom-recommended-keybindings </span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">='all))</span>
-<span style="color: #8b2252;">=</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'all is identical to =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'(move fit expand fill font reset undo).</span>
-<span style="color: #8b2252;">If OPTIONS includes =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'wof, then each binding is configured not to use fn key.</span>
-<span style="color: #8b2252;">If you give only =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'(reset) as the argument, then \\[</span><span style="color: #008b8b;">moom-reset</span><span style="color: #8b2252;">] is activated.</span>
-<span style="color: #8b2252;">The keybindings will be assigned only when Emacs runs in GUI."</span>
-      (<span style="color: #a020f0;">when</span> window-system
-        (<span style="color: #a020f0;">when</span> (memq 'all options)
-          (<span style="color: #a020f0;">if</span> (memq 'wof options)
-              (<span style="color: #a020f0;">setq</span> options '(move fit expand fill font reset undo wof))
-            (<span style="color: #a020f0;">setq</span> options '(move fit expand fill font reset undo))))
-        (<span style="color: #a020f0;">when</span> (memq 'move options)
-          (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-0"</span>) 'moom-move-frame)
-          (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-1"</span>) 'moom-move-frame-left)
-          (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-2"</span>) 'moom-move-frame-to-center)
-          (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-3"</span>) 'moom-move-frame-right))
-        (<span style="color: #a020f0;">when</span> (memq 'fit options)
-          (<span style="color: #a020f0;">cond</span> ((memq 'wof options)
-                 (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e l"</span>) 'moom-move-frame-to-edge-left)
-                 (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e r"</span>) 'moom-move-frame-to-edge-right)
-                 (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e t"</span>) 'moom-move-frame-to-edge-top)
-                 (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e b"</span>) 'moom-move-frame-to-edge-bottom))
-                (t
-                 (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-left)
-                 (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f3&gt;"</span>) 'moom-move-frame-to-edge-right)
-                 (define-key moom-mode-map (kbd <span style="color: #8b2252;">"&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-top)
-                 (define-key moom-mode-map (kbd <span style="color: #8b2252;">"S-&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-bottom))))
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c l"</span>)
-          'moom-move-frame-to-centerline-from-left)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c r"</span>)
-          'moom-move-frame-to-centerline-from-right)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c t"</span>)
-          'moom-move-frame-to-centerline-from-top)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c b"</span>)
-          'moom-move-frame-to-centerline-from-bottom))
-      (<span style="color: #a020f0;">when</span> (memq 'expand options)
-        (<span style="color: #a020f0;">cond</span> ((memq 'wof options)
-               (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-2"</span>) 'moom-cycle-frame-height))
-              (t
-               (define-key moom-mode-map (kbd <span style="color: #8b2252;">"&lt;f2&gt;"</span>) 'moom-cycle-frame-height)))
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f s"</span>) 'moom-change-frame-width-single)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f d"</span>) 'moom-change-frame-width-double)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f S"</span>) 'moom-delete-windows)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f D"</span>) 'moom-split-window)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f a"</span>)
-          'moom-change-frame-width-half-again))
-      (<span style="color: #a020f0;">when</span> (memq 'fill options)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f t"</span>) 'moom-fill-top)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f b"</span>) 'moom-fill-bottom)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f l"</span>) 'moom-fill-left)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f r"</span>) 'moom-fill-right)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 1"</span>) 'moom-fill-top-left)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 2"</span>) 'moom-fill-top-right)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 3"</span>) 'moom-fill-bottom-left)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 4"</span>) 'moom-fill-bottom-right)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f m"</span>) 'moom-fill-band)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f w"</span>) 'moom-fill-width)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f h"</span>) 'moom-fill-height)
-        (<span style="color: #a020f0;">cond</span> ((memq 'wof options)
-               (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f m"</span>) 'moom-toggle-frame-maximized))
-              (t
-               (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f2&gt;"</span>) 'moom-toggle-frame-maximized))))
-      (<span style="color: #a020f0;">when</span> (memq 'font options)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C--"</span>) 'moom-font-decrease)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-="</span>) 'moom-font-increase)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-0"</span>) 'moom-font-size-reset))
-      (<span style="color: #a020f0;">when</span> (memq 'reset options)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c C-0"</span>) 'moom-reset))
-      (<span style="color: #a020f0;">when</span> (memq 'undo options)
-        (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c C-/"</span>) 'moom-undo))
-      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> moom-verbose
-                 options)
-        (message <span style="color: #8b2252;">"[Moom] Key defined for APIs of %s."</span> options)))
+    (advice-add 'moom-recommended-keybindings
+                <span style="color: #483d8b;">:override</span> #'ad:moom-recommended-keybindings)
     <span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
 
     (custom-set-variables
@@ -18304,7 +18361,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-07-31 Sun 01:12</p>
+<p class="date">Created: 2022-07-31 Sun 14:25</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
