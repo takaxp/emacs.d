@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-06 Sat 11:53 -->
+<!-- 2022-08-06 Sat 13:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1538,6 +1538,16 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-native-comp-p</span> ()
   (<span style="color: #a020f0;">when</span> (fboundp 'native-comp-available-p)
     (native-comp-available-p)))
+</pre>
+</div>
+
+<p>
+ついでに NativeComp のオプションを指定します．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"comp"</span>
+  (<span style="color: #a020f0;">setq</span> native-comp-async-query-on-exit t))
 </pre>
 </div>
 </div>
@@ -3223,7 +3233,6 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;f10&gt;"</span>) 'my-toggle-bm)
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;C-f10&gt;"</span>) 'my-bm-next)
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;S-f10&gt;"</span>) 'bm-show-all)
-  (advice-add 'bm-buffer-restore <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12499;&#12523;&#12488;&#12452;&#12531; bookmark &#12398;&#37197;&#33394;&#12434;&#28961;&#21177;&#12395;&#12377;&#12427;(as of 28.1)</span>
@@ -3236,6 +3245,8 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
     (global-set-key (kbd <span style="color: #8b2252;">"&lt;S-f10&gt;"</span>) 'counsel-bm))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"bm"</span>
+    (advice-add 'bm-repository-load <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
+
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq bm-annotation-width 30)</span>
     (<span style="color: #a020f0;">setq-default</span> bm-buffer-persistence t)
     (<span style="color: #a020f0;">setq</span> bm-restore-repository-on-load t)
@@ -13061,7 +13072,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgbb1b702"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org25cdeea"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13989,7 +14000,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org772b372" class="figure">
+<div id="orgdb75888" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18384,7 +18395,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-06 Sat 11:53</p>
+<p class="date">Created: 2022-08-06 Sat 13:08</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

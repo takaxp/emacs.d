@@ -725,6 +725,13 @@ This function is called directly from the C code."
     (native-comp-available-p)))
 #+end_src
 
+ついでに NativeComp のオプションを指定します．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "comp"
+  (setq native-comp-async-query-on-exit t))
+#+end_src
+
 ** [exec-path-from-shell.el] PATH設定をシェルから継承する          :notinuse:
    :PROPERTIES:
    :CUSTOM_ID: orgb59612b6
@@ -2182,7 +2189,6 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (global-set-key (kbd "<f10>") 'my-toggle-bm)
   (global-set-key (kbd "<C-f10>") 'my-bm-next)
   (global-set-key (kbd "<S-f10>") 'bm-show-all)
-  (advice-add 'bm-buffer-restore :around #'ad:suppress-message)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
@@ -2195,6 +2201,8 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     (global-set-key (kbd "<S-f10>") 'counsel-bm))
 
   (with-eval-after-load "bm"
+    (advice-add 'bm-repository-load :around #'ad:suppress-message)
+
     ;; (setq bm-annotation-width 30)
     (setq-default bm-buffer-persistence t)
     (setq bm-restore-repository-on-load t)

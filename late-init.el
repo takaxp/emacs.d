@@ -23,6 +23,9 @@
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 (defvar shutup-p nil)
 
+(with-eval-after-load "comp"
+  (setq native-comp-async-query-on-exit t))
+
 ;; Limit the final word to a line break code (automatically correct)
 (setq require-final-newline t)
 
@@ -229,7 +232,6 @@
   (global-set-key (kbd "<f10>") 'my-toggle-bm)
   (global-set-key (kbd "<C-f10>") 'my-bm-next)
   (global-set-key (kbd "<S-f10>") 'bm-show-all)
-  (advice-add 'bm-buffer-restore :around #'ad:suppress-message)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
@@ -242,6 +244,8 @@
     (global-set-key (kbd "<S-f10>") 'counsel-bm))
 
   (with-eval-after-load "bm"
+    (advice-add 'bm-repository-load :around #'ad:suppress-message)
+
     ;; (setq bm-annotation-width 30)
     (setq-default bm-buffer-persistence t)
     (setq bm-restore-repository-on-load t)
