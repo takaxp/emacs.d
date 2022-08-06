@@ -47,6 +47,15 @@
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
+(defun ad:suppress-message (f &rest arg)
+  (let ((inhibit-message t)
+        (message-log-max nil))
+    (apply f arg)))
+
+;; Suppress printing "Waiting for git..." from version.el
+(advice-add 'emacs-repository-branch-git :around #'ad:suppress-message)
+(advice-add 'emacs-repository-version-git :around #'ad:suppress-message)
+
 (defun my-load-package-p (file)
   (let ((enabled t))
     (when (boundp 'my-loading-packages)

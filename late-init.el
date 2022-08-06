@@ -13,7 +13,7 @@
   (advice-add 'garbage-collect :around #'ad:garbage-collect)
 
   (with-eval-after-load "gcmh"
-    (setq gcmh-verbose t)
+    (setq gcmh-verbose nil)
     (advice-add 'gcmh-idle-garbage-collect
                 :around #'ad:gcmh-idle-garbage-collect))
 
@@ -107,11 +107,10 @@
 
 (defvar my-private-conf-timer
   (run-with-idle-timer 5 nil #'my-private-conf-activate))
-(add-hook 'find-file-hook #'my-private-conf-activate)
 
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
-  (advice-add 'epa-file-write-region :around #'ad:epa-file-write-region))
+  (advice-add 'epa-file-write-region :around #'ad:suppress-message))
 
 (when (memq window-system '(ns nil))
   ;; toggle-input-method
@@ -230,6 +229,7 @@
   (global-set-key (kbd "<f10>") 'my-toggle-bm)
   (global-set-key (kbd "<C-f10>") 'my-bm-next)
   (global-set-key (kbd "<S-f10>") 'bm-show-all)
+  (advice-add 'bm-buffer-restore :around #'ad:suppress-message)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
@@ -260,8 +260,7 @@
       (add-hook 'after-revert-hook 'bm-buffer-restore)
       (add-hook 'kill-emacs-hook #'my-bm-save-all))
 
-    (advice-add 'bm-show-mode :after #'ad:bm-show-mode)
-    ))
+    (advice-add 'bm-show-mode :after #'ad:bm-show-mode)))
 
 (when (autoload-if-found
        '(centered-cursor-mode)
@@ -501,6 +500,8 @@
        '(ispell-region ispell-complete-word)
        "ispell" nil t)
 
+  (advice-add 'ispell-init-process :around #'ad:suppress-message)
+
   ;; Spell checking within a specified region
   (global-set-key (kbd "C-c f 7") 'ispell-region)
   ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
@@ -716,6 +717,8 @@
     (add-hook 'grugru-after-hook #'save-buffer)
     (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
     (grugru-define-on-major-mode 'org-mode 'word '("TODO" "DONE"))
+    (grugru-define-global 'word '("True" "False"))
+    (grugru-define-global 'word '("TRUE" "FALSE")) ;; FIXME
     (grugru-default-setup)
     (grugru-find-function-integration-mode 1)
     (grugru-highlight-mode 1)))
@@ -1431,6 +1434,7 @@
 ;; (add-hook 'after-init-hook #'recentf-mode))
 
 (when (require 'ah nil t)
+  (advice-add 'my-cg-bookmark :around #'ad:suppress-message)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 
 (with-eval-after-load "recentf"

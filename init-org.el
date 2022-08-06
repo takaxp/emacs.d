@@ -271,6 +271,8 @@
   (setq org-clock-in-resume t)
   (setq org-clock-persist-query-resume nil)
 
+  (advice-add 'org-clock-load :around #'ad:suppress-message)
+
   ;; 終了時に clock を止める．
   (defun my-org-clock-out-and-save-when-exit ()
     "Save buffers and stop clocking when kill emacs."
@@ -1202,33 +1204,30 @@ also calls `beep' for an audible reminder."
            (= (length mins) 1)
            (setq mins (car mins)
                  string (car string)))
-      (when (memq appt-display-format '(window echo)) ;; modified
-        (let ((time (format-time-string "%a %b %e "))
-              (err nil))
-          (condition-case err
-              (funcall appt-disp-window-function
-                       (if (listp mins)
-                           (mapcar 'number-to-string mins)
-                         (number-to-string mins))
-                       time string)
-            (wrong-type-argument
-             (if (not (listp mins))
-                 (signal (car err) (cdr err))
-               ;; suppress
-               ;; (message "Argtype error in `appt-disp-window-function' - update it for multiple appts?")
-               ;; Fallback to just displaying the first appt, as we used to.
-               (funcall appt-disp-window-function
-                        (number-to-string (car mins)) time
-                        (car string)))))
-          err))
-      (cond ((eq appt-display-format 'window)
+      (cond ((memq appt-display-format '(window echo)) ;; Modified
              ;; TODO use calendar-month-abbrev-array rather than %b?
+             (let ((time (format-time-string "%a %b %e ")))
+               (condition-case err
+                   (funcall appt-disp-window-function
+                            (if (listp mins)
+                                (mapcar #'number-to-string mins)
+                              (number-to-string mins))
+                            time string)
+                 (wrong-type-argument
+                  (if (not (listp mins))
+                      (signal (car err) (cdr err))
+                    (message "Argtype error in `appt-disp-window-function' - \
+update it for multiple appts?")
+                    ;; Fallback to just displaying the first appt, as we used to.
+                    (funcall appt-disp-window-function
+                             (number-to-string (car mins)) time
+                             (car string))))))
              (run-at-time (format "%d sec" appt-display-duration)
                           nil
                           appt-delete-window-function))
-            ((eq appt-display-format 'echo)
+            ((eq appt-display-format 'echo) ;; hidden
              (message "%s" (if (listp string)
-                               (mapconcat 'identity string "\n")
+                               (mapconcat #'identity string "\n")
                              string)))))
     (advice-add 'appt-display-message :override #'ad:appt-display-message)
 
@@ -1331,10 +1330,10 @@ also calls `beep' for an audible reminder."
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (or (not (require 'async nil t))
-              (my-native-comp-p) ;; FIXME
               (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
-            (org-agenda-to-appt t '((headline "TODO"))))
+            (org-agenda-to-appt t '((headline "TODO")))
+            (appt-check))
         (when force
           (setq my-org-agenda-to-appt-ready t))
         (if (not my-org-agenda-to-appt-ready)
@@ -1350,7 +1349,6 @@ also calls `beep' for an audible reminder."
               ;; Remove tags
               (let ((msgs appt-time-msg-list))
                 (setq appt-time-msg-list nil)
-                ;; (message "%s -- %s" (org-trim (substring (nth 1 msg) 0 match)) (nth 1 msg))
                 (dolist (msg msgs)
                   (add-to-list 'appt-time-msg-list
                                (let ((match (string-match

@@ -28,6 +28,10 @@
 ;; 上位ディレクトリへの移動
 (define-key dired-mode-map (kbd "u") 'dired-up-directory)
 
+(define-key dired-mode-map (kbd "C-M-p")
+  (lambda () (interactive) (other-window -1)))
+(define-key dired-mode-map (kbd "C-M-n")
+  (lambda () (interactive) (other-window 1)))
 
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired

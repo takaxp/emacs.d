@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-01 Mon 00:15 -->
+<!-- 2022-08-06 Sat 11:35 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -223,29 +223,30 @@
 <li><a href="#orga09727ae">2.5. 起動時間の計測</a></li>
 <li><a href="#org4c3e9f59">2.6. GCサイズの最適化</a></li>
 <li><a href="#orgc7901a57">2.7. Common Lisp を使う</a></li>
-<li><a href="#org8b967ce1">2.8. 警告の抑制</a></li>
-<li><a href="#org0ea7dbaf">2.9. エラー表示の抑制</a></li>
-<li><a href="#org8d718626">2.10. バッファの保存を静かにする</a></li>
-<li><a href="#org660ba5e8">2.11. [my-load-package-p] 設定の読み込みフラグを確認する</a></li>
-<li><a href="#orgc0921cdc">2.12. [autoload-if-found] 関数をリストで渡すautoload設定</a></li>
-<li><a href="#orga2859651">2.13. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
-<li><a href="#org124f13e2">2.14. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
-<li><a href="#org30c47759">2.15. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#orgdc071e4d">2.16. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
-<li><a href="#orgfca510d8">2.17. [shut-up.el] Messages 出力を封じる（制御する）</a>
+<li><a href="#org625e4ab2">2.8. メッセージの抑制</a></li>
+<li><a href="#org8b967ce1">2.9. 警告の抑制</a></li>
+<li><a href="#org0ea7dbaf">2.10. エラー表示の抑制</a></li>
+<li><a href="#org8d718626">2.11. バッファの保存を静かにする</a></li>
+<li><a href="#org660ba5e8">2.12. [my-load-package-p] 設定の読み込みフラグを確認する</a></li>
+<li><a href="#orgc0921cdc">2.13. [autoload-if-found] 関数をリストで渡すautoload設定</a></li>
+<li><a href="#orga2859651">2.14. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
+<li><a href="#org124f13e2">2.15. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
+<li><a href="#org30c47759">2.16. [library-p] load-path にライブラリがあるかを判定</a></li>
+<li><a href="#orgdc071e4d">2.17. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
+<li><a href="#orgfca510d8">2.18. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
-<li><a href="#orgb6593164">2.17.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgb6593164">2.18.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
-<li><a href="#org5a18ac68">2.18. Native comp が使えるかを判定する</a></li>
-<li><a href="#orgb59612b6">2.19. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0b7d9710">2.20. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
+<li><a href="#org5a18ac68">2.19. Native comp が使えるかを判定する</a></li>
+<li><a href="#orgb59612b6">2.20. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0b7d9710">2.21. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
 <ul>
-<li><a href="#org42722212">2.20.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.20.2. マクロ版</a></li>
+<li><a href="#org42722212">2.21.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.21.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#orgcea06248">2.21. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
+<li><a href="#orgcea06248">2.22. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -1068,8 +1069,29 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
+<div id="outline-container-org625e4ab2" class="outline-3">
+<h3 id="org625e4ab2"><span class="section-number-3">2.8.</span> メッセージの抑制</h3>
+<div class="outline-text-3" id="text-org625e4ab2">
+<p>
+メッセージバッファに "Waiting for git&#x2026;" が残るのを抑制します．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:suppress-message</span> (f <span style="color: #228b22;">&amp;rest</span> arg)
+  (<span style="color: #a020f0;">let</span> ((inhibit-message t)
+        (message-log-max nil))
+    (apply f arg)))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress printing "Waiting for git..." from version.el</span>
+(advice-add 'emacs-repository-branch-git <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
+(advice-add 'emacs-repository-version-git <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org8b967ce1" class="outline-3">
-<h3 id="org8b967ce1"><span class="section-number-3">2.8.</span> 警告の抑制</h3>
+<h3 id="org8b967ce1"><span class="section-number-3">2.9.</span> 警告の抑制</h3>
 <div class="outline-text-3" id="text-org8b967ce1">
 <p>
 起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， <code>.emacs</code> の上の方に書いておくとよいと思います．
@@ -1150,7 +1172,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org0ea7dbaf" class="outline-3">
-<h3 id="org0ea7dbaf"><span class="section-number-3">2.9.</span> エラー表示の抑制</h3>
+<h3 id="org0ea7dbaf"><span class="section-number-3">2.10.</span> エラー表示の抑制</h3>
 <div class="outline-text-3" id="text-org0ea7dbaf">
 <p>
 普段使いでは要らないので抑制します．
@@ -1164,7 +1186,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org8d718626" class="outline-3">
-<h3 id="org8d718626"><span class="section-number-3">2.10.</span> バッファの保存を静かにする</h3>
+<h3 id="org8d718626"><span class="section-number-3">2.11.</span> バッファの保存を静かにする</h3>
 <div class="outline-text-3" id="text-org8d718626">
 <p>
 ビルトインの <code>file.el</code> にある変数を使うと，バッファ保存時に表示されるメッセージが減り "Saving file &#x2026;" がメッセージバッファに記録されなくなります．バッファ保存時以外で，メッセージ出力を抑制したい場合は， <code>shut-up.el</code> が便利です．
@@ -1178,7 +1200,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org660ba5e8" class="outline-3">
-<h3 id="org660ba5e8"><span class="section-number-3">2.11.</span> [my-load-package-p] 設定の読み込みフラグを確認する</h3>
+<h3 id="org660ba5e8"><span class="section-number-3">2.12.</span> [my-load-package-p] 設定の読み込みフラグを確認する</h3>
 <div class="outline-text-3" id="text-org660ba5e8">
 <p>
 <code>autoload-if-found</code> のサポート関数です．
@@ -1207,7 +1229,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgc0921cdc" class="outline-3">
-<h3 id="orgc0921cdc"><span class="section-number-3">2.12.</span> [autoload-if-found] 関数をリストで渡すautoload設定</h3>
+<h3 id="orgc0921cdc"><span class="section-number-3">2.13.</span> [autoload-if-found] 関数をリストで渡すautoload設定</h3>
 <div class="outline-text-3" id="text-orgc0921cdc">
 <p>
 この <code>autoload-if-found</code> の初出は，<a href="http://www.sodan.org/~knagano/emacs/dotemacs.html">dot.emacs</a> です．
@@ -1291,7 +1313,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orga2859651" class="outline-3">
-<h3 id="orga2859651"><span class="section-number-3">2.13.</span> [postpone.el] Emacs起動してから使い始めるタイミングで実行する</h3>
+<h3 id="orga2859651"><span class="section-number-3">2.14.</span> [postpone.el] Emacs起動してから使い始めるタイミングで実行する</h3>
 <div class="outline-text-3" id="text-orga2859651">
 <ul class="org-ul">
 <li><a href="https://github.com/takaxp/postpone">takaxp/postpone: Call functions just one time at your first action in Emacs</a></li>
@@ -1344,7 +1366,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org124f13e2" class="outline-3">
-<h3 id="org124f13e2"><span class="section-number-3">2.14.</span> [future-time-p] 指定時刻が本日の未来の時刻かを判定</h3>
+<h3 id="org124f13e2"><span class="section-number-3">2.15.</span> [future-time-p] 指定時刻が本日の未来の時刻かを判定</h3>
 <div class="outline-text-3" id="text-org124f13e2">
 <p>
 今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． <code>run-at-time</code> が想定通りに動かず，起動時に <code>run-at-time</code> に登録した関数が走ってしまうので，この判定が <code>non-nil</code> の時だけタイマー登録します． <code>time</code> を <code>HH:MM</code> の書式で与えます．指定時刻と現在時刻が同じ場合は，過去とみなします．
@@ -1392,7 +1414,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org30c47759" class="outline-3">
-<h3 id="org30c47759"><span class="section-number-3">2.15.</span> [library-p] load-path にライブラリがあるかを判定</h3>
+<h3 id="org30c47759"><span class="section-number-3">2.16.</span> [library-p] load-path にライブラリがあるかを判定</h3>
 <div class="outline-text-3" id="text-org30c47759">
 <p>
 パッケージが <code>load-path</code> に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
@@ -1424,7 +1446,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgdc071e4d" class="outline-3">
-<h3 id="orgdc071e4d"><span class="section-number-3">2.16.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
+<h3 id="orgdc071e4d"><span class="section-number-3">2.17.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
 <div class="outline-text-3" id="text-orgdc071e4d">
 <ul class="org-ul">
 <li><a href="https://gitlab.com/koral/gcmh">https://gitlab.com/koral/gcmh</a></li>
@@ -1443,7 +1465,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
     (message <span style="color: #8b2252;">"[gcmh] Garbage collecting...done (%.3fs)"</span>
              (gcmh-time (funcall f)))))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autolaod</span>
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:gcmh-idle-garbage-collect</span> (f)
   (<span style="color: #a020f0;">let</span> ((my-gcmh-idlegc-p t))
     (funcall f)))
@@ -1456,7 +1478,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
   (advice-add 'garbage-collect <span style="color: #483d8b;">:around</span> #'ad:garbage-collect)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"gcmh"</span>
-    (<span style="color: #a020f0;">setq</span> gcmh-verbose t)
+    (<span style="color: #a020f0;">setq</span> gcmh-verbose nil)
     (advice-add 'gcmh-idle-garbage-collect
                 <span style="color: #483d8b;">:around</span> #'ad:gcmh-idle-garbage-collect))
 
@@ -1468,7 +1490,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgfca510d8" class="outline-3">
-<h3 id="orgfca510d8"><span class="section-number-3">2.17.</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
+<h3 id="orgfca510d8"><span class="section-number-3">2.18.</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
 <div class="outline-text-3" id="text-orgfca510d8">
 <p>
 <code>shut-up.el</code> というマクロがあり，現在はそちらを使っています．非常に強力です．
@@ -1486,7 +1508,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb6593164" class="outline-4">
-<h4 id="orgb6593164"><span class="section-number-4">2.17.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
+<h4 id="orgb6593164"><span class="section-number-4">2.18.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
 <div class="outline-text-4" id="text-orgb6593164">
 <p>
 以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．
@@ -1509,7 +1531,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org5a18ac68" class="outline-3">
-<h3 id="org5a18ac68"><span class="section-number-3">2.18.</span> Native comp が使えるかを判定する</h3>
+<h3 id="org5a18ac68"><span class="section-number-3">2.19.</span> Native comp が使えるかを判定する</h3>
 <div class="outline-text-3" id="text-org5a18ac68">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -1522,7 +1544,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.19.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.20.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a></li>
@@ -1542,7 +1564,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.20.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.21.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b>
@@ -1626,7 +1648,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.20.1.</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.21.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
@@ -1682,7 +1704,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.20.2.</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.21.2.</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
@@ -1717,7 +1739,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.21.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.22.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．
@@ -2452,19 +2474,14 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p <span style="color: #8b2252;">"~/Dropbox/config/private.el.gpg"</span>)
              (eq system-type 'darwin)
              (not (boundp 'my-private-conf-loaded)))
-    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">ignore-errors</span>
-              (<span style="color: #a020f0;">if</span> shutup-p
-                  (shut-up (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t))
-                (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t)))
-      (<span style="color: #ff0000; font-weight: bold;">warn</span> <span style="color: #8b2252;">"GPG decryption error (private.el)"</span>)))
-  (remove-hook 'find-file-hook #'my-private-conf-activate))
+    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">ignore-errors</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t))
+      (<span style="color: #ff0000; font-weight: bold;">warn</span> <span style="color: #8b2252;">"GPG decryption error (private.el)"</span>))))
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-private-conf-timer</span>
   (run-with-idle-timer 5 nil #'my-private-conf-activate))
-(add-hook 'find-file-hook #'my-private-conf-activate)
 </pre>
 </div>
 
@@ -2519,18 +2536,9 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:epa-file-write-region</span> (f start end file <span style="color: #228b22;">&amp;optional</span> append visit
-                                   lockname mustbenew)
-  (<span style="color: #a020f0;">let</span> ((message-log-max nil))
-    (funcall f start end file append visit lockname mustbenew)))
-</pre>
-</div>
-
-<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"epa"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress message when saving encrypted file (hoge.org.gpg)</span>
-  (advice-add 'epa-file-write-region <span style="color: #483d8b;">:around</span> #'ad:epa-file-write-region))
+  (advice-add 'epa-file-write-region <span style="color: #483d8b;">:around</span> #'ad:suppress-message))
 </pre>
 </div>
 </div>
@@ -3201,7 +3209,6 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:bm-show-mode</span> ()
   <span style="color: #8b2252;">"Enable truncate mode when showing bm list."</span>
   (toggle-truncate-lines 1))
-
 </pre>
 </div>
 
@@ -3216,6 +3223,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;f10&gt;"</span>) 'my-toggle-bm)
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;C-f10&gt;"</span>) 'my-bm-next)
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;S-f10&gt;"</span>) 'bm-show-all)
+  (advice-add 'bm-buffer-restore <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12499;&#12523;&#12488;&#12452;&#12531; bookmark &#12398;&#37197;&#33394;&#12434;&#28961;&#21177;&#12395;&#12377;&#12427;(as of 28.1)</span>
@@ -3246,8 +3254,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
       (add-hook 'after-revert-hook 'bm-buffer-restore)
       (add-hook 'kill-emacs-hook #'my-bm-save-all))
 
-    (advice-add 'bm-show-mode <span style="color: #483d8b;">:after</span> #'ad:bm-show-mode)
-    ))
+    (advice-add 'bm-show-mode <span style="color: #483d8b;">:after</span> #'ad:bm-show-mode)))
 </pre>
 </div>
 </div>
@@ -4356,6 +4363,8 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
        '(ispell-region ispell-complete-word)
        <span style="color: #8b2252;">"ispell"</span> nil t)
 
+  (advice-add 'ispell-init-process <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
+
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Spell checking within a specified region</span>
   (global-set-key (kbd <span style="color: #8b2252;">"C-c f 7"</span>) 'ispell-region)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#35036;&#23436;&#20505;&#35036;&#12398;&#34920;&#31034;&#65288;flyspell &#12364;&#20351;&#12360;&#12427;&#26178;&#12399;&#12381;&#12385;&#12425;&#12434;&#20778;&#20808;&#12375;&#12390; &lt;f7&gt; &#12395;&#12377;&#12427;&#65294;</span>
@@ -5015,6 +5024,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (add-hook 'grugru-after-hook #'save-buffer)
     (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
     (grugru-define-on-major-mode 'org-mode 'word '(<span style="color: #8b2252;">"TODO"</span> <span style="color: #8b2252;">"DONE"</span>))
+    (grugru-define-global 'word '(<span style="color: #8b2252;">"True"</span> <span style="color: #8b2252;">"False"</span>))
+    (grugru-define-global 'word '(<span style="color: #8b2252;">"TRUE"</span> <span style="color: #8b2252;">"FALSE"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
     (grugru-default-setup)
     (grugru-find-function-integration-mode 1)
     (grugru-highlight-mode 1)))
@@ -8704,6 +8715,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ah</span> nil t)
+  (advice-add 'my-cg-bookmark <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 </pre>
 </div>
@@ -8878,6 +8890,10 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19978;&#20301;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#12408;&#12398;&#31227;&#21205;</span>
 (define-key dired-mode-map (kbd <span style="color: #8b2252;">"u"</span>) 'dired-up-directory)
 
+(define-key dired-mode-map (kbd <span style="color: #8b2252;">"C-M-p"</span>)
+  (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
+(define-key dired-mode-map (kbd <span style="color: #8b2252;">"C-M-n"</span>)
+  (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/xuchunyang/emacs.d</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">type "!" or "X" in dired</span>
@@ -10997,6 +11013,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">setq</span> org-clock-in-resume t)
   (<span style="color: #a020f0;">setq</span> org-clock-persist-query-resume nil)
 
+  (advice-add 'org-clock-load <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
+
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#32066;&#20102;&#26178;&#12395; clock &#12434;&#27490;&#12417;&#12427;&#65294;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-clock-out-and-save-when-exit</span> ()
     <span style="color: #8b2252;">"Save buffers and stop clocking when kill emacs."</span>
@@ -12347,33 +12365,30 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
            (= (length mins) 1)
            (<span style="color: #a020f0;">setq</span> mins (car mins)
                  string (car string)))
-      (<span style="color: #a020f0;">when</span> (memq appt-display-format '(window echo)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">modified</span>
-        (<span style="color: #a020f0;">let</span> ((time (format-time-string <span style="color: #8b2252;">"%a %b %e "</span>))
-              (err nil))
-          (<span style="color: #a020f0;">condition-case</span> err
-              (funcall appt-disp-window-function
-                       (<span style="color: #a020f0;">if</span> (listp mins)
-                           (mapcar 'number-to-string mins)
-                         (number-to-string mins))
-                       time string)
-            (wrong-type-argument
-             (<span style="color: #a020f0;">if</span> (not (listp mins))
-                 (<span style="color: #ff0000; font-weight: bold;">signal</span> (car err) (cdr err))
-               <span style="color: #b22222;">;; </span><span style="color: #b22222;">suppress</span>
-               <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "Argtype error in `</span><span style="color: #008b8b;">appt-disp-window-function</span><span style="color: #b22222;">' - update it for multiple appts?")</span>
-               <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fallback to just displaying the first appt, as we used to.</span>
-               (funcall appt-disp-window-function
-                        (number-to-string (car mins)) time
-                        (car string)))))
-          err))
-      (<span style="color: #a020f0;">cond</span> ((eq appt-display-format 'window)
+      (<span style="color: #a020f0;">cond</span> ((memq appt-display-format '(window echo)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Modified</span>
              <span style="color: #b22222;">;; </span><span style="color: #b22222;">TODO use calendar-month-abbrev-array rather than %b?</span>
+             (<span style="color: #a020f0;">let</span> ((time (format-time-string <span style="color: #8b2252;">"%a %b %e "</span>)))
+               (<span style="color: #a020f0;">condition-case</span> err
+                   (funcall appt-disp-window-function
+                            (<span style="color: #a020f0;">if</span> (listp mins)
+                                (mapcar #'number-to-string mins)
+                              (number-to-string mins))
+                            time string)
+                 (wrong-type-argument
+                  (<span style="color: #a020f0;">if</span> (not (listp mins))
+                      (<span style="color: #ff0000; font-weight: bold;">signal</span> (car err) (cdr err))
+                    (message <span style="color: #8b2252;">"Argtype error in `</span><span style="color: #008b8b;">appt-disp-window-function</span><span style="color: #8b2252;">' - \</span>
+<span style="color: #8b2252;">update it for multiple appts?"</span>)
+                    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fallback to just displaying the first appt, as we used to.</span>
+                    (funcall appt-disp-window-function
+                             (number-to-string (car mins)) time
+                             (car string))))))
              (run-at-time (format <span style="color: #8b2252;">"%d sec"</span> appt-display-duration)
                           nil
                           appt-delete-window-function))
-            ((eq appt-display-format 'echo)
+            ((eq appt-display-format 'echo) <span style="color: #b22222;">;; </span><span style="color: #b22222;">hidden</span>
              (message <span style="color: #8b2252;">"%s"</span> (<span style="color: #a020f0;">if</span> (listp string)
-                               (mapconcat 'identity string <span style="color: #8b2252;">"\n"</span>)
+                               (mapconcat #'identity string <span style="color: #8b2252;">"\n"</span>)
                              string)))))
     (advice-add 'appt-display-message <span style="color: #483d8b;">:override</span> #'ad:appt-display-message)
 
@@ -12476,10 +12491,10 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
       <span style="color: #8b2252;">"Update `</span><span style="color: #008b8b;">appt-time-mag-list</span><span style="color: #8b2252;">'.  Use `</span><span style="color: #008b8b;">async</span><span style="color: #8b2252;">' if possible."</span>
       (<span style="color: #a020f0;">interactive</span>)
       (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (not (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t))
-              (my-native-comp-p) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
               (not my-org-agenda-to-appt-async))
           (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
-            (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"TODO"</span>))))
+            (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"TODO"</span>)))
+            (appt-check))
         (<span style="color: #a020f0;">when</span> force
           (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))
         (<span style="color: #a020f0;">if</span> (not my-org-agenda-to-appt-ready)
@@ -12495,7 +12510,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
               <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove tags</span>
               (<span style="color: #a020f0;">let</span> ((msgs appt-time-msg-list))
                 (<span style="color: #a020f0;">setq</span> appt-time-msg-list nil)
-                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "%s -- %s" (org-trim (substring (nth 1 msg) 0 match)) (nth 1 msg))</span>
                 (<span style="color: #a020f0;">dolist</span> (msg msgs)
                   (add-to-list 'appt-time-msg-list
                                (<span style="color: #a020f0;">let</span> ((match (string-match
@@ -13047,7 +13061,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgedf63c4"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgf88f539"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13972,7 +13986,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgbd547d1" class="figure">
+<div id="org05a71a3" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -17265,15 +17279,16 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-show-org-buffer</span> (file)
   <span style="color: #8b2252;">"Show an org-file on the current buffer."</span>
   (<span style="color: #a020f0;">interactive</span>)
-  (message <span style="color: #8b2252;">"%s"</span> file)
   (<span style="color: #a020f0;">let</span> ((tbuffer (get-buffer file))
-        (cbuffer (current-buffer)))
+        (cbuffer (current-buffer))
+        (message-log-max nil))
     (<span style="color: #a020f0;">if</span> tbuffer
         (switch-to-buffer tbuffer)
       (find-file (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/org/"</span> file)))
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (fboundp 'my-org-agenda-to-appt)
                (not (eq cbuffer tbuffer)))
-      (my-org-agenda-to-appt 'force))))
+      (my-org-agenda-to-appt 'force))
+    (message <span style="color: #8b2252;">"%s"</span> file)))
 </pre>
 </div>
 </div>
@@ -18366,7 +18381,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-01 Mon 00:15</p>
+<p class="date">Created: 2022-08-06 Sat 11:35</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

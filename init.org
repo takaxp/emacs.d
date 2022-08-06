@@ -296,6 +296,25 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
   (require 'init-eval nil t))
 #+end_src
 
+** メッセージの抑制
+   :PROPERTIES:
+   :CUSTOM_ID: org625e4ab2
+   :ID:       6162C1F8-B035-450F-B1F4-324B508EB711
+   :END:
+
+メッセージバッファに "Waiting for git..." が残るのを抑制します．
+
+#+begin_src emacs-lisp :tangle yes
+(defun ad:suppress-message (f &rest arg)
+  (let ((inhibit-message t)
+        (message-log-max nil))
+    (apply f arg)))
+
+;; Suppress printing "Waiting for git..." from version.el
+(advice-add 'emacs-repository-branch-git :around #'ad:suppress-message)
+(advice-add 'emacs-repository-version-git :around #'ad:suppress-message)
+#+end_src
+
 ** 警告の抑制
    :PROPERTIES:
    :CUSTOM_ID: org8b967ce1
@@ -641,7 +660,7 @@ This function is called directly from the C code."
     (message "[gcmh] Garbage collecting...done (%.3fs)"
              (gcmh-time (funcall f)))))
 
-;;;###autolaod
+;;;###autoload
 (defun ad:gcmh-idle-garbage-collect (f)
   (let ((my-gcmh-idlegc-p t))
     (funcall f)))
@@ -653,7 +672,7 @@ This function is called directly from the C code."
   (advice-add 'garbage-collect :around #'ad:garbage-collect)
 
   (with-eval-after-load "gcmh"
-    (setq gcmh-verbose t)
+    (setq gcmh-verbose nil)
     (advice-add 'gcmh-idle-garbage-collect
                 :around #'ad:gcmh-idle-garbage-collect))
 
@@ -1521,18 +1540,13 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
   (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
              (eq system-type 'darwin)
              (not (boundp 'my-private-conf-loaded)))
-    (unless (ignore-errors
-              (if shutup-p
-                  (shut-up (require 'private "private.el.gpg" t))
-                (require 'private "private.el.gpg" t)))
-      (warn "GPG decryption error (private.el)")))
-  (remove-hook 'find-file-hook #'my-private-conf-activate))
+    (unless (ignore-errors (require 'private "private.el.gpg" t))
+      (warn "GPG decryption error (private.el)"))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (defvar my-private-conf-timer
   (run-with-idle-timer 5 nil #'my-private-conf-activate))
-(add-hook 'find-file-hook #'my-private-conf-activate)
 #+end_src
 
 =w32= の MSYS2 で gpg を使うと，バージョン情報が "2.2.19-unknown" などとなる．その状況で ~epg-find-configuration~ が呼ばれると，内部で生じるエラーが報告されず nil となり， ~epg.el~ が以下を報告する．
@@ -1578,18 +1592,10 @@ GPG error: "no usable configuration," OpenPGP
 
 GPGで暗号化されたファイルを編集すると，保存時に暗号化していることを知らせる情報が Messages バッファに出力されます．頻度が低ければ特に気にならないかもしれませんが，自動的にバッファを保存する設定を施していると，Messages バッファが埋め尽くされてしまうので困ります． =epa-file-write-region= をハックして黙らせます．
 
-#+begin_src emacs-lisp :tangle utility.el
-;;;###autoload
-(defun ad:epa-file-write-region (f start end file &optional append visit
-                                   lockname mustbenew)
-  (let ((message-log-max nil))
-    (funcall f start end file append visit lockname mustbenew)))
-#+end_src
-
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
-  (advice-add 'epa-file-write-region :around #'ad:epa-file-write-region))
+  (advice-add 'epa-file-write-region :around #'ad:suppress-message))
 #+end_src
 
 ** NSビルド用設定                                                     :macOS:
@@ -2163,7 +2169,6 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 (defun ad:bm-show-mode ()
   "Enable truncate mode when showing bm list."
   (toggle-truncate-lines 1))
-
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -2177,6 +2182,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (global-set-key (kbd "<f10>") 'my-toggle-bm)
   (global-set-key (kbd "<C-f10>") 'my-bm-next)
   (global-set-key (kbd "<S-f10>") 'bm-show-all)
+  (advice-add 'bm-buffer-restore :around #'ad:suppress-message)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
@@ -2207,8 +2213,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
       (add-hook 'after-revert-hook 'bm-buffer-restore)
       (add-hook 'kill-emacs-hook #'my-bm-save-all))
 
-    (advice-add 'bm-show-mode :after #'ad:bm-show-mode)
-    ))
+    (advice-add 'bm-show-mode :after #'ad:bm-show-mode)))
 #+end_src
 
 ** [centered-cursor-mode.el] カーソル位置をバッファ中央に固定
@@ -3143,6 +3148,8 @@ lang en_US
        '(ispell-region ispell-complete-word)
        "ispell" nil t)
 
+  (advice-add 'ispell-init-process :around #'ad:suppress-message)
+
   ;; Spell checking within a specified region
   (global-set-key (kbd "C-c f 7") 'ispell-region)
   ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
@@ -3683,6 +3690,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 ** TODO [grugru.el] 所定のキーワードをサイクルさせる
    :PROPERTIES:
    :CUSTOM_ID: orgcbb87f41
+   :ID:       4B49FC5C-DE07-40F8-936D-943C18E0CD73
    :END:
 
 入力する候補が決まっているキーワード群について，それらをサイクルさせるようにするパッケージです．例えば， =nil=, =t= を高速に切り替えられるようになります．
@@ -3706,6 +3714,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (add-hook 'grugru-after-hook #'save-buffer)
     (add-hook 'ah-after-move-cursor-hook #'grugru--highlight-remove)
     (grugru-define-on-major-mode 'org-mode 'word '("TODO" "DONE"))
+    (grugru-define-global 'word '("True" "False"))
+    (grugru-define-global 'word '("TRUE" "FALSE")) ;; FIXME
     (grugru-default-setup)
     (grugru-find-function-integration-mode 1)
     (grugru-highlight-mode 1)))
@@ -7084,6 +7094,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'ah nil t)
+  (advice-add 'my-cg-bookmark :around #'ad:suppress-message)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 #+end_src
 
@@ -7239,6 +7250,10 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 ;; 上位ディレクトリへの移動
 (define-key dired-mode-map (kbd "u") 'dired-up-directory)
 
+(define-key dired-mode-map (kbd "C-M-p")
+  (lambda () (interactive) (other-window -1)))
+(define-key dired-mode-map (kbd "C-M-n")
+  (lambda () (interactive) (other-window 1)))
 
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired
@@ -9149,6 +9164,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (setq org-clock-in-resume t)
   (setq org-clock-persist-query-resume nil)
 
+  (advice-add 'org-clock-load :around #'ad:suppress-message)
+
   ;; 終了時に clock を止める．
   (defun my-org-clock-out-and-save-when-exit ()
     "Save buffers and stop clocking when kill emacs."
@@ -10380,33 +10397,30 @@ also calls `beep' for an audible reminder."
            (= (length mins) 1)
            (setq mins (car mins)
                  string (car string)))
-      (when (memq appt-display-format '(window echo)) ;; modified
-        (let ((time (format-time-string "%a %b %e "))
-              (err nil))
-          (condition-case err
-              (funcall appt-disp-window-function
-                       (if (listp mins)
-                           (mapcar 'number-to-string mins)
-                         (number-to-string mins))
-                       time string)
-            (wrong-type-argument
-             (if (not (listp mins))
-                 (signal (car err) (cdr err))
-               ;; suppress
-               ;; (message "Argtype error in `appt-disp-window-function' - update it for multiple appts?")
-               ;; Fallback to just displaying the first appt, as we used to.
-               (funcall appt-disp-window-function
-                        (number-to-string (car mins)) time
-                        (car string)))))
-          err))
-      (cond ((eq appt-display-format 'window)
+      (cond ((memq appt-display-format '(window echo)) ;; Modified
              ;; TODO use calendar-month-abbrev-array rather than %b?
+             (let ((time (format-time-string "%a %b %e ")))
+               (condition-case err
+                   (funcall appt-disp-window-function
+                            (if (listp mins)
+                                (mapcar #'number-to-string mins)
+                              (number-to-string mins))
+                            time string)
+                 (wrong-type-argument
+                  (if (not (listp mins))
+                      (signal (car err) (cdr err))
+                    (message "Argtype error in `appt-disp-window-function' - \
+update it for multiple appts?")
+                    ;; Fallback to just displaying the first appt, as we used to.
+                    (funcall appt-disp-window-function
+                             (number-to-string (car mins)) time
+                             (car string))))))
              (run-at-time (format "%d sec" appt-display-duration)
                           nil
                           appt-delete-window-function))
-            ((eq appt-display-format 'echo)
+            ((eq appt-display-format 'echo) ;; hidden
              (message "%s" (if (listp string)
-                               (mapconcat 'identity string "\n")
+                               (mapconcat #'identity string "\n")
                              string)))))
     (advice-add 'appt-display-message :override #'ad:appt-display-message)
 
@@ -10509,10 +10523,10 @@ also calls `beep' for an audible reminder."
       "Update `appt-time-mag-list'.  Use `async' if possible."
       (interactive)
       (if (or (not (require 'async nil t))
-              (my-native-comp-p) ;; FIXME
               (not my-org-agenda-to-appt-async))
           (unless (active-minibuffer-window)
-            (org-agenda-to-appt t '((headline "TODO"))))
+            (org-agenda-to-appt t '((headline "TODO")))
+            (appt-check))
         (when force
           (setq my-org-agenda-to-appt-ready t))
         (if (not my-org-agenda-to-appt-ready)
@@ -10528,7 +10542,6 @@ also calls `beep' for an audible reminder."
               ;; Remove tags
               (let ((msgs appt-time-msg-list))
                 (setq appt-time-msg-list nil)
-                ;; (message "%s -- %s" (org-trim (substring (nth 1 msg) 0 match)) (nth 1 msg))
                 (dolist (msg msgs)
                   (add-to-list 'appt-time-msg-list
                                (let ((match (string-match
@@ -14924,15 +14937,16 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 (defun my-show-org-buffer (file)
   "Show an org-file on the current buffer."
   (interactive)
-  (message "%s" file)
   (let ((tbuffer (get-buffer file))
-        (cbuffer (current-buffer)))
+        (cbuffer (current-buffer))
+        (message-log-max nil))
     (if tbuffer
         (switch-to-buffer tbuffer)
       (find-file (concat (getenv "SYNCROOT") "/org/" file)))
     (when (and (fboundp 'my-org-agenda-to-appt)
                (not (eq cbuffer tbuffer)))
-      (my-org-agenda-to-appt 'force))))
+      (my-org-agenda-to-appt 'force))
+    (message "%s" file)))
 #+end_src
 ** orgバッファにいつものヘッダを追加する
    :PROPERTIES:
