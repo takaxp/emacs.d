@@ -1319,10 +1319,15 @@ echo "--- done."
 
 #+begin_src emacs-lisp :tangle no
 ;; 28以前
-(update-file-autoloads (concat (getenv "HOME") "/.emacs.d/lisp/late-init.el") t (concat (getenv "HOME") "/.emacs.d/lisp/init-autoloads.el"))
+(update-file-autoloads
+ (concat (getenv "HOME") "/.emacs.d/lisp/late-init.el")
+ t
+ (concat (getenv "HOME") "/.emacs.d/lisp/init-autoloads.el"))
 
 ;; 29以降
-(loaddefs-generate (concat (getenv "HOME") "/.emacs.d/lisp/") (concat (getenv "HOME") "/.emacs.d/lisp/init-autoloads.el"))
+(loaddefs-generate
+ (concat (getenv "HOME") "/.emacs.d/lisp/")
+ (concat (getenv "HOME") "/.emacs.d/lisp/init-autoloads.el"))
 #+end_src
 
 *** [paradox.el] パッケージ選択画面の改善
