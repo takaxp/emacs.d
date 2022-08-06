@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-06 Sat 13:08 -->
+<!-- 2022-08-06 Sat 21:41 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -2222,6 +2222,19 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 <span style="color: #b22222;"># </span><span style="color: #b22222;">mv $SOURCEPATH/*.elc $HOME/.emacs.d</span>
 
 <span style="color: #483d8b;">echo</span> <span style="color: #8b2252;">"--- done."</span>
+</pre>
+</div>
+
+<p>
+なお，Emacs 29以降では， <code>update-file-autoloads</code> が使えなくなります．代わりに，指定ディレクトリに含まれる elisp ファイルに対して処理する <code>loaddefs-generate</code> を使います．定義先は， <code>loaddefs-gen.el</code> になります．引数が微妙に異なるので注意してください．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">28&#20197;&#21069;</span>
+(update-file-autoloads (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/.emacs.d/lisp/late-init.el"</span>) t (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/.emacs.d/lisp/init-autoloads.el"</span>))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">29&#20197;&#38477;</span>
+(loaddefs-generate (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/.emacs.d/lisp/"</span>) (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/.emacs.d/lisp/init-autoloads.el"</span>))
 </pre>
 </div>
 </div>
@@ -13072,7 +13085,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org25cdeea"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org4dd1ba3"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14000,7 +14013,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgdb75888" class="figure">
+<div id="orgb0cfe7b" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18395,7 +18408,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-06 Sat 13:08</p>
+<p class="date">Created: 2022-08-06 Sat 21:41</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

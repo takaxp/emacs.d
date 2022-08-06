@@ -1206,6 +1206,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 *** load-path を一箇所にして起動を高速化
     :PROPERTIES:
     :CUSTOM_ID: orgec66ea31
+    :ID:       920EE0D6-4DAB-4BD4-8DE9-D19B3CEE7503
     :END:
 
 Caskを使うと，個々のパッケージが独立にload-pathに設定されます．これにより依存関係がスッキリするわけですが，数が増えると起動時間が遅くなります．重いです．自分の例では，800[ms]のオーバーヘッドでした．これを避けるには，load-pathを一箇所に集約することが効きます．オーバーヘッドは約100[ms]まで削減できました．場合によっては依存関係に問題が生じる可能性がありますが，今のところは問題になっていません．
@@ -1312,6 +1313,16 @@ fi
 # mv $SOURCEPATH/*.elc $HOME/.emacs.d
 
 echo "--- done."
+#+end_src
+
+なお，Emacs 29以降では， =update-file-autoloads= が使えなくなります．代わりに，指定ディレクトリに含まれる elisp ファイルに対して処理する =loaddefs-generate= を使います．定義先は， =loaddefs-gen.el= になります．引数が微妙に異なるので注意してください．
+
+#+begin_src emacs-lisp :tangle no
+;; 28以前
+(update-file-autoloads (concat (getenv "HOME") "/.emacs.d/lisp/late-init.el") t (concat (getenv "HOME") "/.emacs.d/lisp/init-autoloads.el"))
+
+;; 29以降
+(loaddefs-generate (concat (getenv "HOME") "/.emacs.d/lisp/") (concat (getenv "HOME") "/.emacs.d/lisp/init-autoloads.el"))
 #+end_src
 
 *** [paradox.el] パッケージ選択画面の改善
