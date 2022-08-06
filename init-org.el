@@ -1744,6 +1744,9 @@ Note that this mechanism is still under consideration."
 ;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
     ))
 
+(eval-when-compile
+  (require 'org-macs)) ;; for org-with-point-at
+
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
     "Add \"CUSTOM_ID\" to the current tree if not assigned yet."

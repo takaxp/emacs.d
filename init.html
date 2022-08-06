@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-06 Sat 11:35 -->
+<!-- 2022-08-06 Sat 11:53 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -191,7 +191,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { }
+  .org-svg { width: 90%; }
 </style>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
@@ -10061,9 +10061,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; <i>/ ここ
+  v; // ここ
   boost::timer t;
-  cout &lt;&lt; t; /</i> ここ
+  cout &lt;&lt; t; // ここ
   return 1;
 }
 </p>
@@ -13061,7 +13061,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgf88f539"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgbb1b702"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13371,7 +13371,10 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">eval-when-compile</span>
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-macs</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">for org-with-point-at</span>
+
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-custom-id</span> ()
     <span style="color: #8b2252;">"Add \"CUSTOM_ID\" to the current tree if not assigned yet."</span>
     (<span style="color: #a020f0;">interactive</span>)
@@ -13986,7 +13989,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org05a71a3" class="figure">
+<div id="org772b372" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18381,7 +18384,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-06 Sat 11:35</p>
+<p class="date">Created: 2022-08-06 Sat 11:53</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

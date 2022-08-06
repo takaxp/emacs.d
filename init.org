@@ -11332,6 +11332,9 @@ Note that this mechanism is still under consideration."
 =my-add-org-ids-to-headlines-in-file= は，バッファの保存時点，或いは，HTMLエクスポートが走る直前のタイミングで自動実行させるのがスマートだが，当面は手動で運用する．
 
 #+begin_src emacs-lisp :tangle init-org.el
+(eval-when-compile
+  (require 'org-macs)) ;; for org-with-point-at
+
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
     "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
