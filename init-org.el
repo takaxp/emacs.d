@@ -402,6 +402,7 @@
 
   ;; done にして，apptを更新する
   (defun my-done-with-update-list ()
+    (interactive)
     (org-todo "DONE")
     (my-org-agenda-to-appt))
 
@@ -1001,8 +1002,6 @@ will not be modified."
     ;; (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit)
     )
 
-  (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt)
-
   ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
   (org-defkey org-agenda-mode-map [(tab)]
               (lambda () (interactive)
@@ -1229,6 +1228,7 @@ update it for multiple appts?")
              (message "%s" (if (listp string)
                                (mapconcat #'identity string "\n")
                              string)))))
+
     (advice-add 'appt-display-message :override #'ad:appt-display-message)
 
     (defun ad:appt-disp-window (min-to-app _new-time appt-msg)
@@ -1269,14 +1269,15 @@ update it for multiple appts?")
 
   (with-eval-after-load "org"
     ;; 定期的に更新する
-    (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
+    (run-with-idle-timer 300 t 'my-org-agenda-to-appt)
 
     ;; キャプチャ直後に更新
     (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
 
-    ;; アジェンダを開いたらアラームリストを更新
+    ;; アジェンダを開いたら・終了したらアラームリストを更新
     (unless noninteractive
-      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
+      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt)
+      (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt))
 
     ;; org-agenda-to-appt を非同期で使うための advice
     (defvar read-char-default-timeout 10)
@@ -1301,10 +1302,10 @@ update it for multiple appts?")
 
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
+    (defvar my-unlock-oata-timer
+      (run-with-idle-timer 5 t #'my-unlock-org-agenda-to-appt)) ;; FIXME
     (defun my-unlock-org-agenda-to-appt ()
-      (interactive)
-      (setq my-org-agenda-to-appt-ready t)
-      (my-org-agenda-to-appt))
+      (setq my-org-agenda-to-appt-ready t))
 
     (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
       (let ((msgs appt-time-msg-list))
@@ -1324,6 +1325,9 @@ update it for multiple appts?")
     (when (eq window-system 'w32)
       (message "--- my-org-agenda-to-appt-async was changed to nil for w32")
       (setq my-org-agenda-to-appt-async nil))
+
+    (when noninteractive
+      (setq my-org-agenda-to-appt-ready nil)) ;; FIXME
 
     ;; org-agenda の内容をアラームに登録する
     (defun my-org-agenda-to-appt (&optional force)
@@ -1346,6 +1350,7 @@ update it for multiple appts?")
               (require 'appt)
               (setq org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline "TODO")))
+              (appt-check) ;; remove past events
               ;; Remove tags
               (let ((msgs appt-time-msg-list))
                 (setq appt-time-msg-list nil)
@@ -1366,7 +1371,6 @@ update it for multiple appts?")
            (lambda (result)
              (setq appt-time-msg-list result) ;; nil means No event
              ;; (my-add-prop-to-appt-time-msg-list)
-             (appt-check) ;; remove past events
              (unless (active-minibuffer-window)
                (let ((cnt (length appt-time-msg-list)))
                  (if (eq cnt 0)
@@ -1425,6 +1429,12 @@ update it for multiple appts?")
   (advice-add 'org-sort-entries :after #'ad:org-sort-entries))
 
 (with-eval-after-load "ob-core"
+  ;; Suppress showing of "Indentation variables are now local."
+  (advice-add 'sh-make-vars-local :around #'ad:suppress-message)
+  ;; Suppress showing of "Setting up indent for shell type zsh" and
+  ;; Indentation setup for shell type zsh
+  ;; (advice-add 'sh-set-shell :around #'ad:suppress-message)
+
   (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-06 Sat 22:18 -->
+<!-- 2022-08-07 Sun 11:55 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -191,7 +191,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { width: 90%; }
+  .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
@@ -2508,8 +2508,9 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-private-conf-timer</span>
-  (run-with-idle-timer 5 nil #'my-private-conf-activate))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-private-conf-timer</span>
+    (run-with-idle-timer 3 nil #'my-private-conf-activate)))
 </pre>
 </div>
 
@@ -11203,6 +11204,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">done &#12395;&#12375;&#12390;&#65292;appt&#12434;&#26356;&#26032;&#12377;&#12427;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-done-with-update-list</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
     (org-todo <span style="color: #8b2252;">"DONE"</span>)
     (my-org-agenda-to-appt))
 
@@ -12147,8 +12149,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'org-agenda--quit :after #'ad:org-agenda--quit)</span>
     )
 
-  (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt)
-
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#31227;&#21205;&#30452;&#24460;&#12395;agenda&#12496;&#12483;&#12501;&#12449;&#12434;&#38281;&#12376;&#12427;&#65288;&#12484;&#12522;&#12540;&#12398;&#20869;&#23481;&#12399;SPACE&#12391;&#30906;&#35469;&#21487;&#65289;</span>
   (org-defkey org-agenda-mode-map [(tab)]
               (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
@@ -12419,6 +12419,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
              (message <span style="color: #8b2252;">"%s"</span> (<span style="color: #a020f0;">if</span> (listp string)
                                (mapconcat #'identity string <span style="color: #8b2252;">"\n"</span>)
                              string)))))
+
     (advice-add 'appt-display-message <span style="color: #483d8b;">:override</span> #'ad:appt-display-message)
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:appt-disp-window</span> (min-to-app _new-time appt-msg)
@@ -12459,14 +12460,15 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23450;&#26399;&#30340;&#12395;&#26356;&#26032;&#12377;&#12427;</span>
-    (run-with-idle-timer 500 t 'my-org-agenda-to-appt)
+    (run-with-idle-timer 300 t 'my-org-agenda-to-appt)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12461;&#12515;&#12503;&#12481;&#12515;&#30452;&#24460;&#12395;&#26356;&#26032;</span>
     (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#12434;&#38283;&#12356;&#12383;&#12425;&#12450;&#12521;&#12540;&#12512;&#12522;&#12473;&#12488;&#12434;&#26356;&#26032;</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#12434;&#38283;&#12356;&#12383;&#12425;&#12539;&#32066;&#20102;&#12375;&#12383;&#12425;&#12450;&#12521;&#12540;&#12512;&#12522;&#12473;&#12488;&#12434;&#26356;&#26032;</span>
     (<span style="color: #a020f0;">unless</span> noninteractive
-      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt))
+      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt)
+      (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda-to-appt &#12434;&#38750;&#21516;&#26399;&#12391;&#20351;&#12358;&#12383;&#12417;&#12398; advice</span>
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">read-char-default-timeout</span> 10)
@@ -12491,10 +12493,10 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#37325;&#35079;&#23455;&#34892;&#12398;&#25233;&#21046;&#29992;&#12501;&#12521;&#12464;</span>
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-ready</span> t)
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-unlock-oata-timer</span>
+      (run-with-idle-timer 5 t #'my-unlock-org-agenda-to-appt)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-unlock-org-agenda-to-appt</span> ()
-      (<span style="color: #a020f0;">interactive</span>)
-      (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t)
-      (my-org-agenda-to-appt))
+      (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-prop-to-appt-time-msg-list</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
       (<span style="color: #a020f0;">let</span> ((msgs appt-time-msg-list))
@@ -12514,6 +12516,9 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
     (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
       (message <span style="color: #8b2252;">"--- my-org-agenda-to-appt-async was changed to nil for w32"</span>)
       (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-async nil))
+
+    (<span style="color: #a020f0;">when</span> noninteractive
+      (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready nil)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12398;&#20869;&#23481;&#12434;&#12450;&#12521;&#12540;&#12512;&#12395;&#30331;&#37682;&#12377;&#12427;</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-to-appt</span> (<span style="color: #228b22;">&amp;optional</span> force)
@@ -12536,6 +12541,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
               (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">appt</span>)
               (<span style="color: #a020f0;">setq</span> org-agenda-files ',org-agenda-files)
               (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"TODO"</span>)))
+              (appt-check) <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove past events</span>
               <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove tags</span>
               (<span style="color: #a020f0;">let</span> ((msgs appt-time-msg-list))
                 (<span style="color: #a020f0;">setq</span> appt-time-msg-list nil)
@@ -12556,7 +12562,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
            (<span style="color: #a020f0;">lambda</span> (result)
              (<span style="color: #a020f0;">setq</span> appt-time-msg-list result) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil means No event</span>
              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-add-prop-to-appt-time-msg-list)</span>
-             (appt-check) <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove past events</span>
              (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
                (<span style="color: #a020f0;">let</span> ((cnt (length appt-time-msg-list)))
                  (<span style="color: #a020f0;">if</span> (eq cnt 0)
@@ -12631,6 +12636,12 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <div class="outline-text-3" id="text-org49ca5eb9">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ob-core"</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress showing of "Indentation variables are now local."</span>
+  (advice-add 'sh-make-vars-local <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress showing of "Setting up indent for shell type zsh" and</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Indentation setup for shell type zsh</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'sh-set-shell :around #'ad:suppress-message)</span>
+
   (<span style="color: #a020f0;">setq</span> org-edit-src-content-indentation 0)
   (<span style="color: #a020f0;">setq</span> org-src-fontify-natively t)
   (<span style="color: #a020f0;">setq</span> org-src-tab-acts-natively t)
@@ -13090,7 +13101,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org100d792"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org67a925a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14018,7 +14029,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org85c205b" class="figure">
+<div id="org621e890" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18413,7 +18424,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-06 Sat 22:18</p>
+<p class="date">Created: 2022-08-07 Sun 11:55</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

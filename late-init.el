@@ -108,8 +108,9 @@
        (append '(org-mode empty-booting-mode change-log-mode epa-mode)
 		           ws-butler-global-exempt-modes)))))
 
-(defvar my-private-conf-timer
-  (run-with-idle-timer 5 nil #'my-private-conf-activate))
+(unless noninteractive
+  (defvar my-private-conf-timer
+    (run-with-idle-timer 3 nil #'my-private-conf-activate)))
 
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
