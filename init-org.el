@@ -1163,12 +1163,8 @@ will not be modified."
               ad:appt-disp-window appt-check)
        "appt" nil t)
 
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
-    (run-at-time "20 sec" nil #'my-org-agenda-to-appt))
-
   (with-eval-after-load "appt"
-    (autoload 'my-org-agenda-to-appt "org" nil t)
+    (autoload 'my-org-agenda-to-appt "init-org" nil t)
 
     ;; モードラインに残り時間を表示しない
     (setq appt-display-mode-line nil)
@@ -1268,9 +1264,6 @@ update it for multiple appts?")
   ;;     (appt-activate 1)))
 
   (with-eval-after-load "org"
-    ;; 定期的に更新する
-    (run-with-idle-timer 300 t 'my-org-agenda-to-appt)
-
     ;; キャプチャ直後に更新
     (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
 
@@ -1302,10 +1295,6 @@ update it for multiple appts?")
 
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
-    (defvar my-unlock-oata-timer
-      (run-with-idle-timer 5 t #'my-unlock-org-agenda-to-appt)) ;; FIXME
-    (defun my-unlock-org-agenda-to-appt ()
-      (setq my-org-agenda-to-appt-ready t))
 
     (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
       (let ((msgs appt-time-msg-list))
@@ -1343,6 +1332,9 @@ update it for multiple appts?")
         (if (not my-org-agenda-to-appt-ready)
             (message "[appt] Locked")
           (setq my-org-agenda-to-appt-ready nil)
+          ;; (message "-------------------------")
+          ;; (message "parent: %s"
+          ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
           (async-start
            `(lambda ()
               (setq load-path ',load-path)
@@ -1368,16 +1360,19 @@ update it for multiple appts?")
                                  ) t))
                 ;; just for sure
                 (delq nil appt-time-msg-list)))
-           (lambda (result)
-             (setq appt-time-msg-list result) ;; nil means No event
-             ;; (my-add-prop-to-appt-time-msg-list)
-             (unless (active-minibuffer-window)
-               (let ((cnt (length appt-time-msg-list)))
-                 (if (eq cnt 0)
-                     (message "[async] No event to add")
-                   (message "[async] Added %d event%s for today"
-                            cnt (if (> cnt 1) "s" "")))))
-             (setq my-org-agenda-to-appt-ready t))))))))
+           `(lambda (result)
+              ;; (message "child: %s"
+              ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
+              (setq appt-time-msg-list result) ;; nil means No event
+              ;; (my-add-prop-to-appt-time-msg-list)
+              (unless (active-minibuffer-window)
+                (let ((cnt (length appt-time-msg-list)))
+                  (if (eq cnt 0)
+                      (message "[async] No event to add")
+                    (message "[async] Added %d event%s for today"
+                             cnt (if (> cnt 1) "s" "")))))
+              (setq my-org-agenda-to-appt-ready t))))))
+    ))
 
 (with-eval-after-load "org"
   ;; 履歴が生成されるのを抑制．
@@ -1433,7 +1428,7 @@ update it for multiple appts?")
   (advice-add 'sh-make-vars-local :around #'ad:suppress-message)
   ;; Suppress showing of "Setting up indent for shell type zsh" and
   ;; Indentation setup for shell type zsh
-  ;; (advice-add 'sh-set-shell :around #'ad:suppress-message)
+  (advice-add 'sh-set-shell :around #'ad:suppress-message)
 
   (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)

@@ -1801,6 +1801,11 @@
 (defvar my-org-agenda-pb-timer
   (run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers))
 
+(global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
+(run-at-time "20 sec" nil #'my-org-agenda-to-appt)
+;; (with-eval-after-load "org") 内で設定すると(何故か)複数回呼ばれてしまう．
+(run-with-idle-timer 300 t #'my-org-agenda-to-appt)
+
 (with-eval-after-load "icons-in-terminal"
   (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
                                          ("#+begin_src" . "▨")
@@ -1978,7 +1983,8 @@
   (defvar my-ime-on-hline-hook nil)
 
   (with-eval-after-load "hl-line"
-    (setq hl-line-sticky-flag t) ;; 別ウィンドウの同じバッファでもハイライトする
+    ;; 別ウィンドウの同じバッファでもハイライトする    
+    ;; (setq hl-line-sticky-flag t)
     ;; (unless (version< emacs-version "28.1")
     ;;   (setq hl-line-sticky-flag nil))
 

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-07 Sun 11:55 -->
+<!-- 2022-08-07 Sun 19:55 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -223,7 +223,7 @@
 <li><a href="#orga09727ae">2.5. 起動時間の計測</a></li>
 <li><a href="#org4c3e9f59">2.6. GCサイズの最適化</a></li>
 <li><a href="#orgc7901a57">2.7. Common Lisp を使う</a></li>
-<li><a href="#org625e4ab2">2.8. メッセージの抑制</a></li>
+<li><a href="#org625e4ab2">2.8. メッセージ出力の抑制</a></li>
 <li><a href="#org8b967ce1">2.9. 警告の抑制</a></li>
 <li><a href="#org0ea7dbaf">2.10. エラー表示の抑制</a></li>
 <li><a href="#org8d718626">2.11. バッファの保存を静かにする</a></li>
@@ -1070,10 +1070,10 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org625e4ab2" class="outline-3">
-<h3 id="org625e4ab2"><span class="section-number-3">2.8.</span> メッセージの抑制</h3>
+<h3 id="org625e4ab2"><span class="section-number-3">2.8.</span> メッセージ出力の抑制</h3>
 <div class="outline-text-3" id="text-org625e4ab2">
 <p>
-メッセージバッファに "Waiting for git&#x2026;" が残るのを抑制します．
+メッセージバッファに "Waiting for git&#x2026;" が残るのを抑制します．ミニバッファにも表示しないので，存在を完全に消せます．
 </p>
 
 <div class="org-src-container">
@@ -12349,17 +12349,21 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </ul>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c f 3"</span>) #'my-org-agenda-to-appt)
+(run-at-time <span style="color: #8b2252;">"20 sec"</span> nil #'my-org-agenda-to-appt)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "org") &#20869;&#12391;&#35373;&#23450;&#12377;&#12427;&#12392;(&#20309;&#25925;&#12363;)&#35079;&#25968;&#22238;&#21628;&#12400;&#12428;&#12390;&#12375;&#12414;&#12358;&#65294;</span>
+(run-with-idle-timer 300 t #'my-org-agenda-to-appt)
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(appt my-org-agenda-to-appt ad:appt-display-message
               ad:appt-disp-window appt-check)
        <span style="color: #8b2252;">"appt"</span> nil t)
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
-    (global-set-key (kbd <span style="color: #8b2252;">"C-c f 3"</span>) #'my-org-agenda-to-appt)
-    (run-at-time <span style="color: #8b2252;">"20 sec"</span> nil #'my-org-agenda-to-appt))
-
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"appt"</span>
-    (autoload 'my-org-agenda-to-appt <span style="color: #8b2252;">"org"</span> nil t)
+    (autoload 'my-org-agenda-to-appt <span style="color: #8b2252;">"init-org"</span> nil t)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12395;&#27531;&#12426;&#26178;&#38291;&#12434;&#34920;&#31034;&#12375;&#12394;&#12356;</span>
     (<span style="color: #a020f0;">setq</span> appt-display-mode-line nil)
@@ -12459,9 +12463,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(appt-activate 1)))</span>
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23450;&#26399;&#30340;&#12395;&#26356;&#26032;&#12377;&#12427;</span>
-    (run-with-idle-timer 300 t 'my-org-agenda-to-appt)
-
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12461;&#12515;&#12503;&#12481;&#12515;&#30452;&#24460;&#12395;&#26356;&#26032;</span>
     (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
 
@@ -12493,10 +12494,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#37325;&#35079;&#23455;&#34892;&#12398;&#25233;&#21046;&#29992;&#12501;&#12521;&#12464;</span>
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-ready</span> t)
-    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-unlock-oata-timer</span>
-      (run-with-idle-timer 5 t #'my-unlock-org-agenda-to-appt)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-unlock-org-agenda-to-appt</span> ()
-      (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-prop-to-appt-time-msg-list</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
       (<span style="color: #a020f0;">let</span> ((msgs appt-time-msg-list))
@@ -12534,6 +12531,9 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
         (<span style="color: #a020f0;">if</span> (not my-org-agenda-to-appt-ready)
             (message <span style="color: #8b2252;">"[appt] Locked"</span>)
           (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready nil)
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "-------------------------")</span>
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "parent: %s"</span>
+          <span style="color: #b22222;">;;          </span><span style="color: #b22222;">(format-time-string "%H:%M:%S.%3N" (current-time)))</span>
           (async-start
            `(<span style="color: #a020f0;">lambda</span> ()
               (<span style="color: #a020f0;">setq</span> load-path ',load-path)
@@ -12559,16 +12559,19 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                                  ) <span style="color: #ff0000; font-weight: bold;">t))</span>
                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">just for sure</span>
                 (delq nil appt-time-msg-list)))
-           (<span style="color: #a020f0;">lambda</span> (result)
-             (<span style="color: #a020f0;">setq</span> appt-time-msg-list result) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil means No event</span>
-             <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-add-prop-to-appt-time-msg-list)</span>
-             (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
-               (<span style="color: #a020f0;">let</span> ((cnt (length appt-time-msg-list)))
-                 (<span style="color: #a020f0;">if</span> (eq cnt 0)
-                     (message <span style="color: #8b2252;">"[async] No event to add"</span>)
-                   (message <span style="color: #8b2252;">"[async] Added %d event%s for today"</span>
-                            cnt (<span style="color: #a020f0;">if</span> (&gt; cnt 1) <span style="color: #8b2252;">"s"</span> <span style="color: #8b2252;">""</span>)))))
-             (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))))))))
+           `(<span style="color: #a020f0;">lambda</span> (result)
+              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "child: %s"</span>
+              <span style="color: #b22222;">;;          </span><span style="color: #b22222;">(format-time-string "%H:%M:%S.%3N" (current-time)))</span>
+              (<span style="color: #a020f0;">setq</span> appt-time-msg-list result) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil means No event</span>
+              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-add-prop-to-appt-time-msg-list)</span>
+              (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
+                (<span style="color: #a020f0;">let</span> ((cnt (length appt-time-msg-list)))
+                  (<span style="color: #a020f0;">if</span> (eq cnt 0)
+                      (message <span style="color: #8b2252;">"[async] No event to add"</span>)
+                    (message <span style="color: #8b2252;">"[async] Added %d event%s for today"</span>
+                             cnt (<span style="color: #a020f0;">if</span> (&gt; cnt 1) <span style="color: #8b2252;">"s"</span> <span style="color: #8b2252;">""</span>)))))
+              (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))))))
+    ))
 </pre>
 </div>
 </div>
@@ -12640,7 +12643,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   (advice-add 'sh-make-vars-local <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress showing of "Setting up indent for shell type zsh" and</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Indentation setup for shell type zsh</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'sh-set-shell :around #'ad:suppress-message)</span>
+  (advice-add 'sh-set-shell <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
 
   (<span style="color: #a020f0;">setq</span> org-edit-src-content-indentation 0)
   (<span style="color: #a020f0;">setq</span> org-src-fontify-natively t)
@@ -13101,7 +13104,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org67a925a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgf9db318"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14029,7 +14032,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org621e890" class="figure">
+<div id="orgb699570" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15316,7 +15319,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-on-hline-hook</span> nil)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
-    (<span style="color: #a020f0;">setq</span> hl-line-sticky-flag t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21029;&#12454;&#12451;&#12531;&#12489;&#12454;&#12398;&#21516;&#12376;&#12496;&#12483;&#12501;&#12449;&#12391;&#12418;&#12495;&#12452;&#12521;&#12452;&#12488;&#12377;&#12427;</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21029;&#12454;&#12451;&#12531;&#12489;&#12454;&#12398;&#21516;&#12376;&#12496;&#12483;&#12501;&#12449;&#12391;&#12418;&#12495;&#12452;&#12521;&#12452;&#12488;&#12377;&#12427;    </span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq hl-line-sticky-flag t)</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (version&lt; emacs-version "28.1")</span>
     <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq hl-line-sticky-flag nil))</span>
 
@@ -18424,7 +18428,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-07 Sun 11:55</p>
+<p class="date">Created: 2022-08-07 Sun 19:55</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

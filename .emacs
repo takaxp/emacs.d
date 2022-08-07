@@ -5,9 +5,6 @@
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 
-(with-eval-after-load "postpone"
-  (setq debug-on-error t))
-
 (with-eval-after-load "selected"
   (require 'moom nil t)
   (require 'transient nil t)

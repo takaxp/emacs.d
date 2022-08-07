@@ -296,13 +296,13 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
   (require 'init-eval nil t))
 #+end_src
 
-** メッセージの抑制
+** メッセージ出力の抑制
    :PROPERTIES:
    :CUSTOM_ID: org625e4ab2
    :ID:       6162C1F8-B035-450F-B1F4-324B508EB711
    :END:
 
-メッセージバッファに "Waiting for git..." が残るのを抑制します．
+メッセージバッファに "Waiting for git..." が残るのを抑制します．ミニバッファにも表示しないので，存在を完全に消せます．
 
 #+begin_src emacs-lisp :tangle yes
 (defun ad:suppress-message (f &rest arg)
@@ -10375,18 +10375,21 @@ will not be modified."
 
   - Growl や [[https://github.com/julienXX/terminal-notifier/releases][Terminal Notifier]] と連携していると，Emacsがバックグラウンドにあってもアラームに気づける．
 
+#+begin_src emacs-lisp :tangle late-init.el
+(global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
+(run-at-time "20 sec" nil #'my-org-agenda-to-appt)
+;; (with-eval-after-load "org") 内で設定すると(何故か)複数回呼ばれてしまう．
+(run-with-idle-timer 300 t #'my-org-agenda-to-appt)
+#+end_src
+
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found
        '(appt my-org-agenda-to-appt ad:appt-display-message
               ad:appt-disp-window appt-check)
        "appt" nil t)
 
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
-    (run-at-time "20 sec" nil #'my-org-agenda-to-appt))
-
   (with-eval-after-load "appt"
-    (autoload 'my-org-agenda-to-appt "org" nil t)
+    (autoload 'my-org-agenda-to-appt "init-org" nil t)
 
     ;; モードラインに残り時間を表示しない
     (setq appt-display-mode-line nil)
@@ -10486,9 +10489,6 @@ update it for multiple appts?")
   ;;     (appt-activate 1)))
 
   (with-eval-after-load "org"
-    ;; 定期的に更新する
-    (run-with-idle-timer 300 t 'my-org-agenda-to-appt)
-
     ;; キャプチャ直後に更新
     (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
 
@@ -10520,10 +10520,6 @@ update it for multiple appts?")
 
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
-    (defvar my-unlock-oata-timer
-      (run-with-idle-timer 5 t #'my-unlock-org-agenda-to-appt)) ;; FIXME
-    (defun my-unlock-org-agenda-to-appt ()
-      (setq my-org-agenda-to-appt-ready t))
 
     (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
       (let ((msgs appt-time-msg-list))
@@ -10561,6 +10557,9 @@ update it for multiple appts?")
         (if (not my-org-agenda-to-appt-ready)
             (message "[appt] Locked")
           (setq my-org-agenda-to-appt-ready nil)
+          ;; (message "-------------------------")
+          ;; (message "parent: %s"
+          ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
           (async-start
            `(lambda ()
               (setq load-path ',load-path)
@@ -10586,16 +10585,19 @@ update it for multiple appts?")
                                  ) t))
                 ;; just for sure
                 (delq nil appt-time-msg-list)))
-           (lambda (result)
-             (setq appt-time-msg-list result) ;; nil means No event
-             ;; (my-add-prop-to-appt-time-msg-list)
-             (unless (active-minibuffer-window)
-               (let ((cnt (length appt-time-msg-list)))
-                 (if (eq cnt 0)
-                     (message "[async] No event to add")
-                   (message "[async] Added %d event%s for today"
-                            cnt (if (> cnt 1) "s" "")))))
-             (setq my-org-agenda-to-appt-ready t))))))))
+           `(lambda (result)
+              ;; (message "child: %s"
+              ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
+              (setq appt-time-msg-list result) ;; nil means No event
+              ;; (my-add-prop-to-appt-time-msg-list)
+              (unless (active-minibuffer-window)
+                (let ((cnt (length appt-time-msg-list)))
+                  (if (eq cnt 0)
+                      (message "[async] No event to add")
+                    (message "[async] Added %d event%s for today"
+                             cnt (if (> cnt 1) "s" "")))))
+              (setq my-org-agenda-to-appt-ready t))))))
+    ))
 #+end_src
 
 ** [org-refile] orgツリーの高速移動
@@ -10669,7 +10671,7 @@ update it for multiple appts?")
   (advice-add 'sh-make-vars-local :around #'ad:suppress-message)
   ;; Suppress showing of "Setting up indent for shell type zsh" and
   ;; Indentation setup for shell type zsh
-  ;; (advice-add 'sh-set-shell :around #'ad:suppress-message)
+  (advice-add 'sh-set-shell :around #'ad:suppress-message)
 
   (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
@@ -13133,7 +13135,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   (defvar my-ime-on-hline-hook nil)
 
   (with-eval-after-load "hl-line"
-    (setq hl-line-sticky-flag t) ;; 別ウィンドウの同じバッファでもハイライトする
+    ;; 別ウィンドウの同じバッファでもハイライトする    
+    ;; (setq hl-line-sticky-flag t)
     ;; (unless (version< emacs-version "28.1")
     ;;   (setq hl-line-sticky-flag nil))
 
