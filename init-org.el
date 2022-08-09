@@ -35,8 +35,8 @@
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (global-set-key (kbd "C-M-o")
-			    (lambda () (interactive)
-			(my-show-org-buffer "next.org")))
+			          (lambda () (interactive)
+			            (my-show-org-buffer "next.org")))
 
 (global-set-key (kbd "C-c r") 'org-capture)
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -213,11 +213,11 @@
   ;; 空行のとき "<" をインデントさせない
   (defun ad:org-tempo-complete-tag (f &rest arg)
     (if (save-excursion
-		(beginning-of-line)
-		(looking-at "<"))
-	(let ((indent-line-function 'ignore))
-		(apply f arg))
-(apply f arg)))
+		      (beginning-of-line)
+		      (looking-at "<"))
+	      (let ((indent-line-function 'ignore))
+		      (apply f arg))
+      (apply f arg)))
   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 ;; (Thanks to @conao3)
 ;; but when using `flet', byte-compile will warn a malformed function
@@ -236,17 +236,17 @@
   (defun my-org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
-		 (name (cdr entry))
-		 (special nil)) ;; FIXED
-(tempo-define-template
- (format "org-%s" (replace-regexp-in-string " " "-" name))
- `(,(format "#+begin_%s%s" name (if special " " ""))
-	 ,(when special 'p) '> n '> ,(unless special 'p) n
-	 ,(format "#+end_%s" (car (split-string name " ")))
-	 >)
- key
- (format "Insert a %s block" name)
- 'org-tempo-tags)))
+		       (name (cdr entry))
+		       (special nil)) ;; FIXED
+      (tempo-define-template
+       (format "org-%s" (replace-regexp-in-string " " "-" name))
+       `(,(format "#+begin_%s%s" name (if special " " ""))
+	       ,(when special 'p) '> n '> ,(unless special 'p) n
+	       ,(format "#+end_%s" (car (split-string name " ")))
+	       >)
+       key
+       (format "Insert a %s block" name)
+       'org-tempo-tags)))
   ;; 更新
   (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
   ;; 反映
@@ -264,8 +264,8 @@
   (defun my-org-clock-out-and-save-when-exit ()
     "Save buffers and stop clocking when kill emacs."
     (when (org-clocking-p)
-(org-clock-out)
-(save-some-buffers t)))
+      (org-clock-out)
+      (save-some-buffers t)))
   ;; implemented in `org-onit.el'. No need to hook this.
   ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
   )

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-09 Tue 11:20 -->
+<!-- 2022-08-09 Tue 12:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4423,6 +4423,7 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
        '(ispell-region ispell-complete-word)
        <span style="color: #8b2252;">"ispell"</span> nil t)
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">This could hilde other messages from loading functions regarding org-mode.</span>
   (advice-add 'ispell-init-process <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Spell checking within a specified region</span>
@@ -10830,31 +10831,33 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-modules-activate</span> ()
-  (message <span style="color: #8b2252;">"Loading org-modules..."</span>)
-  (<span style="color: #a020f0;">setq</span> org-modules my-org-modules) <span style="color: #b22222;">;; </span><span style="color: #b22222;">revert to the original value</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#36861;&#21152;</span>
-  (add-to-list 'org-modules 'org-id)
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12434;&#35501;&#12435;&#12391;&#12375;&#12414;&#12358;&#12398;&#12391; org-mode &#38283;&#22987;&#26178;&#12395;&#12399;&#35501;&#12415;&#36796;&#12414;&#12379;&#12394;&#12356;</span>
-    (add-to-list 'org-modules 'org-habit)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">require org and org-agenda</span>
-  (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"9.1.4"</span> (org-version))
-    (add-to-list 'org-modules 'org-tempo))
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ol-bookmark</span> nil t)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">[[bookmark:hoge][hogehoge]] &#24418;&#24335;&#12398;&#12522;&#12531;&#12463;&#12434;&#26377;&#21177;&#21270;</span>
-    (add-to-list 'org-modules 'ol-bookmark)
-    (<span style="color: #a020f0;">setq</span> bookmark-save-flag 4) <span style="color: #b22222;">;; </span><span style="color: #b22222;">N&#22238; bookmark &#12434;&#25805;&#20316;&#12375;&#12383;&#12425;&#20445;&#23384;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">`</span><span style="color: #008b8b;">bookmark-default-file</span><span style="color: #b22222;">' &#12398;&#35501;&#12415;&#36796;&#12415;</span>
-    (bookmark-maybe-load-default-file))
+  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>)
+      (message <span style="color: #8b2252;">"org-modules are previously loaded."</span>)
+    (message <span style="color: #8b2252;">"Loading org-modules..."</span>)
+    (<span style="color: #a020f0;">setq</span> org-modules my-org-modules) <span style="color: #b22222;">;; </span><span style="color: #b22222;">revert to the original value</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#36861;&#21152;</span>
+    (add-to-list 'org-modules 'org-id)
+    (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12434;&#35501;&#12435;&#12391;&#12375;&#12414;&#12358;&#12398;&#12391; org-mode &#38283;&#22987;&#26178;&#12395;&#12399;&#35501;&#12415;&#36796;&#12414;&#12379;&#12394;&#12356;</span>
+      (add-to-list 'org-modules 'org-habit)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">require org and org-agenda</span>
+    (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"9.1.4"</span> (org-version))
+      (add-to-list 'org-modules 'org-tempo))
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ol-bookmark</span> nil t)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">[[bookmark:hoge][hogehoge]] &#24418;&#24335;&#12398;&#12522;&#12531;&#12463;&#12434;&#26377;&#21177;&#21270;</span>
+      (add-to-list 'org-modules 'ol-bookmark)
+      (<span style="color: #a020f0;">setq</span> bookmark-save-flag 4) <span style="color: #b22222;">;; </span><span style="color: #b22222;">N&#22238; bookmark &#12434;&#25805;&#20316;&#12375;&#12383;&#12425;&#20445;&#23384;</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">`</span><span style="color: #008b8b;">bookmark-default-file</span><span style="color: #b22222;">' &#12398;&#35501;&#12415;&#36796;&#12415;</span>
+      (bookmark-maybe-load-default-file))
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19981;&#24517;&#35201;&#12394;&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#35501;&#12415;&#36796;&#12415;&#12434;&#20572;&#27490;&#12377;&#12427;</span>
-  (delq 'ol-bbdb org-modules)
-  (delq 'ol-irc org-modules)
-  (delq 'ol-mhe org-modules)
-  (delq 'ol-docview org-modules)
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Reload</span>
-  (org-load-modules-maybe t)
-  (org-element-cache-reset 'all) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME use `</span><span style="color: #008b8b;">custom-set-variables</span><span style="color: #b22222;">'</span>
-  (message <span style="color: #8b2252;">"Loading org-modules...done"</span>))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19981;&#24517;&#35201;&#12394;&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#35501;&#12415;&#36796;&#12415;&#12434;&#20572;&#27490;&#12377;&#12427;</span>
+    (delq 'ol-bbdb org-modules)
+    (delq 'ol-irc org-modules)
+    (delq 'ol-mhe org-modules)
+    (delq 'ol-docview org-modules)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Reload</span>
+    (org-load-modules-maybe t)
+    (org-element-cache-reset 'all) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME use `</span><span style="color: #008b8b;">custom-set-variables</span><span style="color: #b22222;">'</span>
+    (message <span style="color: #8b2252;">"Loading org-modules...done"</span>)))
 </pre>
 </div>
 
@@ -10867,8 +10870,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
 (global-set-key (kbd <span style="color: #8b2252;">"C-M-o"</span>)
-                            (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
-                        (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>)))
+                                  (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
+                                    (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>)))
 
 (global-set-key (kbd <span style="color: #8b2252;">"C-c r"</span>) 'org-capture)
 (global-set-key (kbd <span style="color: #8b2252;">"C-c l"</span>) 'org-store-link)
@@ -11045,11 +11048,11 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#31354;&#34892;&#12398;&#12392;&#12365; "&lt;" &#12434;&#12452;&#12531;&#12487;&#12531;&#12488;&#12373;&#12379;&#12394;&#12356;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-tempo-complete-tag</span> (f <span style="color: #228b22;">&amp;rest</span> arg)
     (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">save-excursion</span>
-                (beginning-of-line)
-                (looking-at <span style="color: #8b2252;">"&lt;"</span>))
-        (<span style="color: #a020f0;">let</span> ((indent-line-function 'ignore))
-                (apply f arg))
-(apply f arg)))
+                      (beginning-of-line)
+                      (looking-at <span style="color: #8b2252;">"&lt;"</span>))
+              (<span style="color: #a020f0;">let</span> ((indent-line-function 'ignore))
+                      (apply f arg))
+      (apply f arg)))
   (advice-add 'org-tempo-complete-tag <span style="color: #483d8b;">:around</span> #'ad:org-tempo-complete-tag))
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(Thanks to @conao3)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">but when using `</span><span style="color: #008b8b;">flet</span><span style="color: #b22222;">', byte-compile will warn a malformed function</span>
@@ -11068,17 +11071,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-tempo-add-block</span> (entry)
     <span style="color: #8b2252;">"Add block entry from `</span><span style="color: #008b8b;">org-structure-template-alist</span><span style="color: #8b2252;">'."</span>
     (<span style="color: #a020f0;">let*</span> ((key (format <span style="color: #8b2252;">"&lt;%s"</span> (car entry)))
-                 (name (cdr entry))
-                 (special nil)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXED</span>
-(tempo-define-template
- (format <span style="color: #8b2252;">"org-%s"</span> (replace-regexp-in-string <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">"-"</span> name))
- `(,(format <span style="color: #8b2252;">"#+begin_%s%s"</span> name (<span style="color: #a020f0;">if</span> special <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">""</span>))
-         ,(<span style="color: #a020f0;">when</span> special 'p) '&gt; n '&gt; ,(<span style="color: #a020f0;">unless</span> special 'p) n
-         ,(format <span style="color: #8b2252;">"#+end_%s"</span> (car (split-string name <span style="color: #8b2252;">" "</span>)))
-         &gt;)
- key
- (format <span style="color: #8b2252;">"Insert a %s block"</span> name)
- 'org-tempo-tags)))
+                       (name (cdr entry))
+                       (special nil)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXED</span>
+      (tempo-define-template
+       (format <span style="color: #8b2252;">"org-%s"</span> (replace-regexp-in-string <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">"-"</span> name))
+       `(,(format <span style="color: #8b2252;">"#+begin_%s%s"</span> name (<span style="color: #a020f0;">if</span> special <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">""</span>))
+               ,(<span style="color: #a020f0;">when</span> special 'p) '&gt; n '&gt; ,(<span style="color: #a020f0;">unless</span> special 'p) n
+               ,(format <span style="color: #8b2252;">"#+end_%s"</span> (car (split-string name <span style="color: #8b2252;">" "</span>)))
+               &gt;)
+       key
+       (format <span style="color: #8b2252;">"Insert a %s block"</span> name)
+       'org-tempo-tags)))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#26356;&#26032;</span>
   (advice-add 'org-tempo-add-block <span style="color: #483d8b;">:override</span> #'my-org-tempo-add-block)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21453;&#26144;</span>
@@ -11096,8 +11099,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-clock-out-and-save-when-exit</span> ()
     <span style="color: #8b2252;">"Save buffers and stop clocking when kill emacs."</span>
     (<span style="color: #a020f0;">when</span> (org-clocking-p)
-(org-clock-out)
-(save-some-buffers t)))
+      (org-clock-out)
+      (save-some-buffers t)))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">implemented in `</span><span style="color: #008b8b;">org-onit.el</span><span style="color: #b22222;">'. No need to hook this.</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)</span>
   )
@@ -12104,6 +12107,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-prepare-buffers</span> ()
   (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-agenda</span>)
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-agenda</span> nil t)
+      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>) (my-org-modules-activate)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">ob-http</span>) (my-org-babel-load-activate)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
       (message <span style="color: #8b2252;">"Building agenda buffers..."</span>)
       (org-agenda-prepare-buffers org-agenda-files)
       (message <span style="color: #8b2252;">"Building agenda buffers...done"</span>))))
@@ -13166,7 +13171,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orge0e7fc9"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orge9d9cff"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14097,7 +14102,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orge3e8bc5" class="figure">
+<div id="org5a42111" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18499,7 +18504,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-09 Tue 11:20</p>
+<p class="date">Created: 2022-08-09 Tue 12:08</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -505,6 +505,7 @@
        '(ispell-region ispell-complete-word)
        "ispell" nil t)
 
+  ;; This could hilde other messages from loading functions regarding org-mode.
   (advice-add 'ispell-init-process :around #'ad:suppress-message)
 
   ;; Spell checking within a specified region

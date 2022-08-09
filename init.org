@@ -3204,6 +3204,7 @@ lang en_US
        '(ispell-region ispell-complete-word)
        "ispell" nil t)
 
+  ;; This could hilde other messages from loading functions regarding org-mode.
   (advice-add 'ispell-init-process :around #'ad:suppress-message)
 
   ;; Spell checking within a specified region
@@ -8977,31 +8978,33 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-org-modules-activate ()
-  (message "Loading org-modules...")
-  (setq org-modules my-org-modules) ;; revert to the original value
-  ;; モジュールの追加
-  (add-to-list 'org-modules 'org-id)
-  (with-eval-after-load "org-agenda"
-    ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
-    (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
-  (when (version< "9.1.4" (org-version))
-    (add-to-list 'org-modules 'org-tempo))
-  (when (require 'ol-bookmark nil t)
-    ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
-    (add-to-list 'org-modules 'ol-bookmark)
-    (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
-    ;; `bookmark-default-file' の読み込み
-    (bookmark-maybe-load-default-file))
+  (if (featurep 'org-id)
+      (message "org-modules are previously loaded.")
+    (message "Loading org-modules...")
+    (setq org-modules my-org-modules) ;; revert to the original value
+    ;; モジュールの追加
+    (add-to-list 'org-modules 'org-id)
+    (with-eval-after-load "org-agenda"
+      ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
+      (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
+    (when (version< "9.1.4" (org-version))
+      (add-to-list 'org-modules 'org-tempo))
+    (when (require 'ol-bookmark nil t)
+      ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
+      (add-to-list 'org-modules 'ol-bookmark)
+      (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
+      ;; `bookmark-default-file' の読み込み
+      (bookmark-maybe-load-default-file))
 
-  ;; 不必要なモジュールの読み込みを停止する
-  (delq 'ol-bbdb org-modules)
-  (delq 'ol-irc org-modules)
-  (delq 'ol-mhe org-modules)
-  (delq 'ol-docview org-modules)
-  ;; Reload
-  (org-load-modules-maybe t)
-  (org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
-  (message "Loading org-modules...done"))
+    ;; 不必要なモジュールの読み込みを停止する
+    (delq 'ol-bbdb org-modules)
+    (delq 'ol-irc org-modules)
+    (delq 'ol-mhe org-modules)
+    (delq 'ol-docview org-modules)
+    ;; Reload
+    (org-load-modules-maybe t)
+    (org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
+    (message "Loading org-modules...done")))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -9013,8 +9016,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (global-set-key (kbd "C-M-o")
-			    (lambda () (interactive)
-			(my-show-org-buffer "next.org")))
+			          (lambda () (interactive)
+			            (my-show-org-buffer "next.org")))
 
 (global-set-key (kbd "C-c r") 'org-capture)
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -9191,11 +9194,11 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; 空行のとき "<" をインデントさせない
   (defun ad:org-tempo-complete-tag (f &rest arg)
     (if (save-excursion
-		(beginning-of-line)
-		(looking-at "<"))
-	(let ((indent-line-function 'ignore))
-		(apply f arg))
-(apply f arg)))
+		      (beginning-of-line)
+		      (looking-at "<"))
+	      (let ((indent-line-function 'ignore))
+		      (apply f arg))
+      (apply f arg)))
   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 ;; (Thanks to @conao3)
 ;; but when using `flet', byte-compile will warn a malformed function
@@ -9214,17 +9217,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defun my-org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
-		 (name (cdr entry))
-		 (special nil)) ;; FIXED
-(tempo-define-template
- (format "org-%s" (replace-regexp-in-string " " "-" name))
- `(,(format "#+begin_%s%s" name (if special " " ""))
-	 ,(when special 'p) '> n '> ,(unless special 'p) n
-	 ,(format "#+end_%s" (car (split-string name " ")))
-	 >)
- key
- (format "Insert a %s block" name)
- 'org-tempo-tags)))
+		       (name (cdr entry))
+		       (special nil)) ;; FIXED
+      (tempo-define-template
+       (format "org-%s" (replace-regexp-in-string " " "-" name))
+       `(,(format "#+begin_%s%s" name (if special " " ""))
+	       ,(when special 'p) '> n '> ,(unless special 'p) n
+	       ,(format "#+end_%s" (car (split-string name " ")))
+	       >)
+       key
+       (format "Insert a %s block" name)
+       'org-tempo-tags)))
   ;; 更新
   (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
   ;; 反映
@@ -9242,8 +9245,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defun my-org-clock-out-and-save-when-exit ()
     "Save buffers and stop clocking when kill emacs."
     (when (org-clocking-p)
-(org-clock-out)
-(save-some-buffers t)))
+      (org-clock-out)
+      (save-some-buffers t)))
   ;; implemented in `org-onit.el'. No need to hook this.
   ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
   )
@@ -10144,6 +10147,8 @@ will not be modified."
 (defun my-org-agenda-prepare-buffers ()
   (unless (featurep 'org-agenda)
     (when (require 'org-agenda nil t)
+      (unless (featurep 'org-id) (my-org-modules-activate)) ;; FIXME
+      (unless (featurep 'ob-http) (my-org-babel-load-activate)) ;; FIXME
       (message "Building agenda buffers...")
       (org-agenda-prepare-buffers org-agenda-files)
       (message "Building agenda buffers...done"))))
