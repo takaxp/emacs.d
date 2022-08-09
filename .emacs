@@ -5,6 +5,27 @@
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 
+;; (profiler-start 'cpu)
+;; (setq my-suppress-message-p nil)
+;; (setq my-measure-exec-time-p t)
+(with-eval-after-load "postpone"
+  ;; (advice-add 'org-load-modules-maybe :around #'ad:measure-exec-time)
+  ;; (advice-add 'org-set-modules :around #'ad:measure-exec-time)
+  ;; (advice-add 'my-show-org-buffer :around #'ad:measure-exec-time)
+  ;; (advice-add 'my-org-babel-load-activate :around #'ad:measure-exec-time)
+  ;; (advice-add 'my-org-modules-activate :around #'ad:measure-exec-time)
+  ;; (advice-add 'my-private-conf-activate :around #'ad:measure-exec-time)
+  ;; (advice-add 'my-org-agenda-prepare-buffers :around #'ad:measure-exec-time)
+  )
+
+(defun my-hoge ()
+  (interactive)
+  (profiler-start 'cpu)
+  (my-show-org-buffer "next.org")
+  (profiler-report)
+  )
+;; (global-set-key (kbd "C-o") #'my-hoge)
+
 (with-eval-after-load "selected"
   (require 'moom nil t)
   (require 'transient nil t)

@@ -6,7 +6,8 @@
 
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
-  (require 'init-org nil t)) ;; loading all with-eval-after-load for Org
+  ;; only top-level setting will be loaded. This will not actually load `org' so settings in `with-eval-after-load' will not be loaded.
+  (require 'init-org nil t))
 
 (unless noninteractive
   (with-eval-after-load "org"
@@ -47,9 +48,12 @@
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
+(defvar my-suppress-message-p t)
 (defun ad:suppress-message (f &rest arg)
-  (let ((inhibit-message t)
-        (message-log-max nil))
+  (if my-suppress-message-p
+      (let ((inhibit-message t)
+            (message-log-max nil))
+        (apply f arg))
     (apply f arg)))
 
 ;; Suppress printing "Waiting for git..." from version.el
@@ -191,15 +195,6 @@
 (setq auto-save-default nil)
 ;; auto-save-list
 (setq auto-save-list-file-prefix nil)
-
-(defun ad:find-file-noselect (_filename &optional _nowarn _rawfile _wildcards)
-  (unless (require 'init-dired nil t)
-    (user-error "init-dired.el doesn't exist"))
-  (advice-remove 'find-file-noselect #'ad:find-file-noselect)
-  (advice-remove 'dired #'ad:dired-activate))
-
-(advice-add 'find-file-noselect :before #'ad:find-file-noselect)
-(advice-add 'dired :before #'ad:dired-activate)
 
 (when (autoload-if-found
        '(session-initialize)

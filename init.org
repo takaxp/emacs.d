@@ -95,7 +95,8 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle yes :exports none
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
-  (require 'init-org nil t)) ;; loading all with-eval-after-load for Org
+  ;; only top-level setting will be loaded. This will not actually load `org' so settings in `with-eval-after-load' will not be loaded.
+  (require 'init-org nil t))
 
 (unless noninteractive
   (with-eval-after-load "org"
@@ -244,6 +245,32 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
   (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
 #+end_src
 
+** 実行時間の計測
+   :PROPERTIES:
+   :CREATED:  [2022-08-08 Mon 13:45]
+   :ID:       BDB4D43E-1BD2-401A-9769-5430BF5DBB9A
+   :CUSTOM_ID: orgb459f5a2
+   :END:
+
+#+begin_src emacs-lisp :tangle utility.el
+(defvar my-measure-exec-time-p nil)
+(defun ad:measure-exec-time (f &rest arg)
+  (if my-measure-exec-time-p
+      (let ((inhibit-message nil)
+            (message-log-max 5000)
+            (begin (current-time)))
+        (apply f arg)
+        (message
+         (format "--- %.3f[ms] %S"
+                 (* 1000 (float-time (time-subtract (current-time) begin)))
+                 (if (byte-code-function-p f)
+                     nil ;; not includes closure
+                   f)))) ;; FIXME
+    (apply f arg)))
+;; An exapmle:
+;; (advice-add 'my-org-agenda-prepare-buffers :around #'ad:measure-exec-time)
+#+end_src
+
 ** GCサイズの最適化
    :PROPERTIES:
    :CUSTOM_ID: org4c3e9f59
@@ -305,9 +332,12 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 メッセージバッファに "Waiting for git..." が残るのを抑制します．ミニバッファにも表示しないので，存在を完全に消せます．
 
 #+begin_src emacs-lisp :tangle yes
+(defvar my-suppress-message-p t)
 (defun ad:suppress-message (f &rest arg)
-  (let ((inhibit-message t)
-        (message-log-max nil))
+  (if my-suppress-message-p
+      (let ((inhibit-message t)
+            (message-log-max nil))
+        (apply f arg))
     (apply f arg)))
 
 ;; Suppress printing "Waiting for git..." from version.el
@@ -7223,14 +7253,13 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
  - dired-du
  - helm-dired-history or ivy-dired-history
 
-#+begin_src emacs-lisp :tangle yes
-(defun ad:find-file-noselect (_filename &optional _nowarn _rawfile _wildcards)
-  (unless (require 'init-dired nil t)
-    (user-error "init-dired.el doesn't exist"))
-  (advice-remove 'find-file-noselect #'ad:find-file-noselect)
-  (advice-remove 'dired #'ad:dired-activate))
-
-(advice-add 'find-file-noselect :before #'ad:find-file-noselect)
+#+begin_src emacs-lisp :tangle late-init.el
+;; (defun ad:find-file-noselect (_filename &optional _nowarn _rawfile _wildcards)
+;;   (unless (require 'init-dired nil t)
+;;     (user-error "init-dired.el doesn't exist"))
+;;   (advice-remove 'find-file-noselect #'ad:find-file-noselect)
+;;   (advice-remove 'dired #'ad:dired-activate))
+;; (advice-add 'find-file-noselect :before #'ad:find-file-noselect)
 (advice-add 'dired :before #'ad:dired-activate)
 #+end_src
 
@@ -7239,7 +7268,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 (defun ad:dired-activate (_dirname &optional _switches)
   (unless (require 'init-dired nil t)
     (user-error "init-dired.el doesn't exist"))
-  (advice-remove 'find-file-noselect #'ad:find-file-noselect)
+  ;; (advice-remove 'find-file-noselect #'ad:find-file-noselect)
   (advice-remove 'dired #'ad:dired-activate))
 #+end_src
 
@@ -8945,38 +8974,11 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 =init-org.el= として書き出し，遅延読み込みしています．
 
-#+begin_src emacs-lisp :tangle init-org.el
-;; テキストファイルを Org Mode で開きます．
-(push '("\\.txt$" . org-mode) auto-mode-alist)
-
-;; Font lock を使う
-(add-hook 'org-mode-hook #'turn-on-font-lock)
-
-;; ホームポジション的な Orgファイルを一発で開きます．
-(global-set-key (kbd "C-M-o")
-                (lambda () (interactive)
-                  (my-show-org-buffer "next.org")))
-
-(global-set-key (kbd "C-c r") 'org-capture)
-(global-set-key (kbd "C-c l") 'org-store-link)
-(global-set-key (kbd "C-c a") 'org-agenda)
-
-(with-eval-after-load "org"
-  ;; タイトルを少し強調
-  (custom-set-faces
-   '(org-document-title ((t (:foreground "RoyalBlue1" :bold t :height 1.2))))
-   '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
-
-  ;; 関連モジュールの読み込み
-  (autoload 'org-eldoc-load "org-eldoc" nil t)
-  (defun my-org-eldoc-load ()
-    "Set up org-eldoc documentation function."
-    (interactive)
-    (add-function :before-until (local 'eldoc-documentation-function)
-                  #'org-eldoc-documentation-function))
-  (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
-  (add-hook 'org-mode-hook #'org-eldoc-load)
-
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-org-modules-activate ()
+  (message "Loading org-modules...")
+  (setq org-modules my-org-modules) ;; revert to the original value
   ;; モジュールの追加
   (add-to-list 'org-modules 'org-id)
   (with-eval-after-load "org-agenda"
@@ -8992,8 +8994,52 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (bookmark-maybe-load-default-file))
 
   ;; 不必要なモジュールの読み込みを停止する
-  (delq 'ol-gnus org-modules)
-  ;; (setq org-modules (delete 'org-bibtex org-modules))
+  (delq 'ol-bbdb org-modules)
+  (delq 'ol-irc org-modules)
+  (delq 'ol-mhe org-modules)
+  (delq 'ol-docview org-modules)
+  ;; Reload
+  (org-load-modules-maybe t)
+  (org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
+  (message "Loading org-modules...done"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+;; テキストファイルを Org Mode で開きます．
+(push '("\\.txt$" . org-mode) auto-mode-alist)
+
+;; Font lock を使う
+(add-hook 'org-mode-hook #'turn-on-font-lock)
+
+;; ホームポジション的な Orgファイルを一発で開きます．
+(global-set-key (kbd "C-M-o")
+			    (lambda () (interactive)
+			(my-show-org-buffer "next.org")))
+
+(global-set-key (kbd "C-c r") 'org-capture)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c a") 'org-agenda)
+
+(with-eval-after-load "org"
+  (defvar my-org-modules org-modules) ;; Tricky!!
+  ;; (setq org-modules-loaded t) ;; not a good way
+  (setq org-modules nil)
+  (run-with-idle-timer 11 nil #'my-org-modules-activate) ;; will take 350[ms]
+
+  ;; タイトルを少し強調
+  (custom-set-faces
+   '(org-document-title ((t (:foreground "RoyalBlue1" :bold t :height 1.2))))
+   '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
+
+  ;; 関連モジュールの読み込み
+  (autoload 'org-eldoc-load "org-eldoc" nil t)
+  (defun my-org-eldoc-load ()
+    "Set up org-eldoc documentation function."
+    (interactive)
+    (add-function :before-until (local 'eldoc-documentation-function)
+			            #'org-eldoc-documentation-function))
+  (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
+  (add-hook 'org-mode-hook #'org-eldoc-load)
 
   ;; org ファイルの集中管理
   (setq org-directory (concat (getenv "SYNCROOT") "/org/"))
@@ -9054,9 +9100,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
   (defun my-promote-todo-revision (state)
     (cond ((member state '("TODO")) "REV1")
-          ((member state '("REV1")) "REV2")
-          ((member state '("REV2")) "REV3")
-          (t state)))
+		      ((member state '("REV1")) "REV2")
+		      ((member state '("REV2")) "REV3")
+		      (t state)))
   ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
   ;; undo 時に reveal して表示を改善する
@@ -9086,18 +9132,18 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   ;; - を優先．親のブリッツ表示を継承させない
   (setq org-list-demote-modify-bullet
-        '(("+" . "-")
-          ("*" . "-")
-          ("1." . "-")
-          ("1)" . "-")
-          ("A)" . "-")
-          ("B)" . "-")
-          ("a)" . "-")
-          ("b)" . "-")
-          ("A." . "-")
-          ("B." . "-")
-          ("a." . "-")
-          ("b." . "-")))
+	      '(("+" . "-")
+		      ("*" . "-")
+		      ("1." . "-")
+		      ("1)" . "-")
+		      ("A)" . "-")
+		      ("B)" . "-")
+		      ("a)" . "-")
+		      ("b)" . "-")
+		      ("A." . "-")
+		      ("B." . "-")
+		      ("a." . "-")
+		      ("b." . "-")))
 
   ;; 完了したタスクの配色を変える
   ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
@@ -9114,7 +9160,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (save-excursion
       (beginning-of-line)
       (unless (looking-at-p org-drawer-regexp)
-        (org-cycle-hide-drawers 'subtree))))
+	      (org-cycle-hide-drawers 'subtree))))
   (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
   ;; CSV指定でテーブルを出力する．
@@ -9139,17 +9185,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 (with-eval-after-load "ox"
   (add-to-list 'org-modules 'ox-odt)
   (add-to-list 'org-modules 'ox-org)
-  (add-to-list 'org-modules 'ox-json))
+  (add-to-list 'org-modules 'ox-json)) ;; FIXME
 
 (with-eval-after-load "org-tempo"
   ;; 空行のとき "<" をインデントさせない
   (defun ad:org-tempo-complete-tag (f &rest arg)
     (if (save-excursion
-          (beginning-of-line)
-          (looking-at "<"))
-        (let ((indent-line-function 'ignore))
-          (apply f arg))
-      (apply f arg)))
+		(beginning-of-line)
+		(looking-at "<"))
+	(let ((indent-line-function 'ignore))
+		(apply f arg))
+(apply f arg)))
   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 ;; (Thanks to @conao3)
 ;; but when using `flet', byte-compile will warn a malformed function
@@ -9168,17 +9214,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defun my-org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
-           (name (cdr entry))
-           (special nil)) ;; FIXED
-      (tempo-define-template
-       (format "org-%s" (replace-regexp-in-string " " "-" name))
-       `(,(format "#+begin_%s%s" name (if special " " ""))
-         ,(when special 'p) '> n '> ,(unless special 'p) n
-         ,(format "#+end_%s" (car (split-string name " ")))
-         >)
-       key
-       (format "Insert a %s block" name)
-       'org-tempo-tags)))
+		 (name (cdr entry))
+		 (special nil)) ;; FIXED
+(tempo-define-template
+ (format "org-%s" (replace-regexp-in-string " " "-" name))
+ `(,(format "#+begin_%s%s" name (if special " " ""))
+	 ,(when special 'p) '> n '> ,(unless special 'p) n
+	 ,(format "#+end_%s" (car (split-string name " ")))
+	 >)
+ key
+ (format "Insert a %s block" name)
+ 'org-tempo-tags)))
   ;; 更新
   (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
   ;; 反映
@@ -9196,8 +9242,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defun my-org-clock-out-and-save-when-exit ()
     "Save buffers and stop clocking when kill emacs."
     (when (org-clocking-p)
-      (org-clock-out)
-      (save-some-buffers t)))
+(org-clock-out)
+(save-some-buffers t)))
   ;; implemented in `org-onit.el'. No need to hook this.
   ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
   )
@@ -10111,7 +10157,7 @@ will not be modified."
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
 (defvar my-org-agenda-pb-timer
-  (run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers))
+  (run-with-idle-timer 12 nil #'my-org-agenda-prepare-buffers))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -10383,15 +10429,71 @@ will not be modified."
 (run-with-idle-timer 300 t #'my-org-agenda-to-appt)
 #+end_src
 
+#+begin_src emacs-lisp :tangle utility.el
+;; org-agenda の内容をアラームに登録する
+
+;;;###autoload
+(defun my-org-agenda-to-appt (&optional force)
+  "Update `appt-time-mag-list'.  Use `async' if possible."
+  (interactive)
+  (if (or (not (require 'async nil t))
+          (not my-org-agenda-to-appt-async))
+      (unless (active-minibuffer-window)
+        (org-agenda-to-appt t '((headline "TODO")))
+        (appt-check))
+    (when force
+      (setq my-org-agenda-to-appt-ready t))
+    (if (not my-org-agenda-to-appt-ready)
+        (message "[appt] Locked")
+      (setq my-org-agenda-to-appt-ready nil)
+      ;; (message "-------------------------")
+      ;; (message "parent: %s"
+      ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
+      (async-start
+       `(lambda ()
+          (setq load-path ',load-path)
+          (require 'org-agenda)
+          (require 'appt)
+          (setq org-agenda-files ',org-agenda-files)
+          (org-agenda-to-appt t '((headline "TODO")))
+          (appt-check) ;; remove past events
+          ;; Remove tags
+          (let ((msgs appt-time-msg-list))
+            (setq appt-time-msg-list nil)
+            (dolist (msg msgs)
+              (add-to-list 'appt-time-msg-list
+                           (let ((match (string-match
+                                         org-tag-group-re (nth 1 msg))))
+                             (if match
+                                 (list (nth 0 msg)
+                                       (org-trim (substring-no-properties
+                                                  (nth 1 msg)
+                                                  0 match))
+                                       (nth 2 msg))
+                               msg)
+                             ) t))
+            ;; just for sure
+            (delq nil appt-time-msg-list)))
+       `(lambda (result)
+          ;; (message "child: %s"
+          ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
+          (setq appt-time-msg-list result) ;; nil means No event
+          ;; (my-add-prop-to-appt-time-msg-list)
+          (unless (active-minibuffer-window)
+            (let ((cnt (length appt-time-msg-list)))
+              (if (eq cnt 0)
+                  (message "[async] No event to add")
+                (message "[async] Added %d event%s for today"
+                         cnt (if (> cnt 1) "s" "")))))
+          (setq my-org-agenda-to-appt-ready t))))))
+#+end_src
+
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found
-       '(appt my-org-agenda-to-appt ad:appt-display-message
-              ad:appt-disp-window appt-check)
+       '(appt ad:appt-display-message ad:appt-disp-window appt-check)
        "appt" nil t)
 
   (with-eval-after-load "appt"
-    (autoload 'my-org-agenda-to-appt "init-org" nil t)
-
     ;; モードラインに残り時間を表示しない
     (setq appt-display-mode-line nil)
 
@@ -10521,7 +10623,6 @@ update it for multiple appts?")
 
     ;; 重複実行の抑制用フラグ
     (defvar my-org-agenda-to-appt-ready t)
-
     (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
       (let ((msgs appt-time-msg-list))
         (setq appt-time-msg-list nil)
@@ -10535,7 +10636,6 @@ update it for multiple appts?")
                        ) t)
         ;; just for sure
         (delq nil appt-time-msg-list)))
-
     (defvar my-org-agenda-to-appt-async t)
     (when (eq window-system 'w32)
       (message "--- my-org-agenda-to-appt-async was changed to nil for w32")
@@ -10543,61 +10643,6 @@ update it for multiple appts?")
 
     (when noninteractive
       (setq my-org-agenda-to-appt-ready nil)) ;; FIXME
-
-    ;; org-agenda の内容をアラームに登録する
-    (defun my-org-agenda-to-appt (&optional force)
-      "Update `appt-time-mag-list'.  Use `async' if possible."
-      (interactive)
-      (if (or (not (require 'async nil t))
-              (not my-org-agenda-to-appt-async))
-          (unless (active-minibuffer-window)
-            (org-agenda-to-appt t '((headline "TODO")))
-            (appt-check))
-        (when force
-          (setq my-org-agenda-to-appt-ready t))
-        (if (not my-org-agenda-to-appt-ready)
-            (message "[appt] Locked")
-          (setq my-org-agenda-to-appt-ready nil)
-          ;; (message "-------------------------")
-          ;; (message "parent: %s"
-          ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
-          (async-start
-           `(lambda ()
-              (setq load-path ',load-path)
-              (require 'org-agenda)
-              (require 'appt)
-              (setq org-agenda-files ',org-agenda-files)
-              (org-agenda-to-appt t '((headline "TODO")))
-              (appt-check) ;; remove past events
-              ;; Remove tags
-              (let ((msgs appt-time-msg-list))
-                (setq appt-time-msg-list nil)
-                (dolist (msg msgs)
-                  (add-to-list 'appt-time-msg-list
-                               (let ((match (string-match
-                                             org-tag-group-re (nth 1 msg))))
-                                 (if match
-                                     (list (nth 0 msg)
-                                           (org-trim (substring-no-properties
-                                                      (nth 1 msg)
-                                                      0 match))
-                                           (nth 2 msg))
-                                   msg)
-                                 ) t))
-                ;; just for sure
-                (delq nil appt-time-msg-list)))
-           `(lambda (result)
-              ;; (message "child: %s"
-              ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
-              (setq appt-time-msg-list result) ;; nil means No event
-              ;; (my-add-prop-to-appt-time-msg-list)
-              (unless (active-minibuffer-window)
-                (let ((cnt (length appt-time-msg-list)))
-                  (if (eq cnt 0)
-                      (message "[async] No event to add")
-                    (message "[async] Added %d event%s for today"
-                             cnt (if (> cnt 1) "s" "")))))
-              (setq my-org-agenda-to-appt-ready t))))))
     ))
 #+end_src
 
@@ -10666,12 +10711,46 @@ update it for multiple appts?")
    :ID:       544679A8-BD80-4239-8734-46762A93B580
    :END:
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-org-babel-load-activate ()
+  (if (featurep 'ob-http)
+      (message "ob-* language packages are previously loaded.")
+    (message "Loading ob-* language packages...")
+    (require 'ob-http nil t)
+    (require 'ob-gnuplot nil t)
+    (require 'ob-octave nil t)
+    (require 'ob-go nil t)
+    (require 'ob-async nil t)
+    (custom-set-variables ;; will call `org-babel-do-load-languages'
+     '(org-babel-load-languages '((emacs-lisp . t)
+                                  (dot . t)
+                                  (C . t)
+                                  (ditaa . t)
+                                  (perl . t)
+                                  (shell . t)
+                                  (latex . t)
+                                  (sqlite . t)
+                                  (R . t)
+                                  (python . t))))
+    (message "Loading ob-* language packages...done")))
+#+end_src
+
 #+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "org"
+  ;; will take 200[ms]
+  (run-with-idle-timer 10 nil #'my-org-babel-load-activate))
+
+(with-eval-after-load "ob-src"
+  ;; 実装済みの言語に好きな名前を紐付ける
+  (add-to-list 'org-src-lang-modes '("cs" . csharp))
+  (add-to-list 'org-src-lang-modes '("zsh" . sh)))
+
 (with-eval-after-load "ob-core"
   ;; Suppress showing of "Indentation variables are now local."
   (advice-add 'sh-make-vars-local :around #'ad:suppress-message)
   ;; Suppress showing of "Setting up indent for shell type zsh" and
-  ;; Indentation setup for shell type zsh
+  ;; "Indentation setup for shell type zsh"
   (advice-add 'sh-set-shell :around #'ad:suppress-message)
 
   (setq org-edit-src-content-indentation 0)
@@ -10680,34 +10759,14 @@ update it for multiple appts?")
   (setq org-confirm-babel-evaluate nil)
   (setq org-src-window-setup 'current-window)
   ;; org-src-window-setup (current-window, other-window, other-frame)
-  (require 'ob-http nil t)
-  (require 'ob-gnuplot nil t)
-  (require 'ob-octave nil t)
-  (require 'ob-go nil t)
 
   ;; ditta
   ;; (when (and (not noninteractive)
   ;;            (not (executable-find "ditaa")))
   ;;   (message "--- ditaa is NOT installed."))
 
-  ;; Add ":results output" after program name
-
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (dot . t)
-     (C . t)
-     (ditaa . t)
-     (perl . t)
-     (shell . t)
-     (latex . t)
-     (sqlite . t)
-     (R . t)
-     (python . t)))
-
-  ;; 実装済みの言語に好きな名前を紐付ける
-  (add-to-list 'org-src-lang-modes '("cs" . csharp))
-  (add-to-list 'org-src-lang-modes '("zsh" . sh)))
+  ;; (my-org-babel-load-activate)
+)
 #+end_src
 
 ** [org-babel] ソースブロックの入力キーをカスタマイズ
@@ -10735,7 +10794,7 @@ update it for multiple appts?")
 =org-src-block-faces=, =org-block-begin-line=, =org-block-end-line= をカスタマイズして，配色を変えます．さらに， =prettify-symbols-mode= を利用して =begin_src= と =end_src= の表示を別な文字列に変えます．
 
 #+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org"
+(with-eval-after-load "org-src"
   (defun my-org-src-block-face ()
     (setq org-src-block-faces
           (if (eq 'light (frame-parameter nil 'background-mode))
@@ -10748,8 +10807,8 @@ update it for multiple appts?")
               ("org" (:background "#383c4c" :extend t))
               ("html" (:background "#383c4c" :extend t)))))
     (font-lock-fontify-buffer))
+  ;; (my-org-src-block-face)
   (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
-  (my-org-src-block-face)
 
   (custom-set-faces
    ;; org-block が効かない(2021-04-13@9.4.4)，org-src-block-faces で対応
@@ -11650,11 +11709,12 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 ソースブロックを非同期に実行します．各ソースブロックで ~:async~ を指定するだけで，非同期になります． ただし， =ob-python= はすでに ~:async~ を予約しているので， =ob-async= のオプションと衝突しないように，処理対象から除外しておきます．
 
+~ob-async~ のロードは， =my-org-babel-load-activate= で実行します．
+
 #+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "ob-core"
-  (when (require 'ob-async nil t)
-    (custom-set-variables
-     '(ob-async-no-async-languages-alist '("ipython")))))
+(with-eval-after-load "ob-async"
+  (custom-set-variables
+   '(ob-async-no-async-languages-alist '("ipython"))))
 #+end_src
 
 ** TODO [org-tree-slide] BEGIN_SRCとEND_SRCを消して背景色を変える
@@ -13136,7 +13196,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   (defvar my-ime-on-hline-hook nil)
 
   (with-eval-after-load "hl-line"
-    ;; 別ウィンドウの同じバッファでもハイライトする    
+    ;; 別ウィンドウの同じバッファでもハイライトする
     ;; (setq hl-line-sticky-flag t)
     ;; (unless (version< emacs-version "28.1")
     ;;   (setq hl-line-sticky-flag nil))
@@ -13890,6 +13950,12 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (org-yank)
   (when window-system
     (my-vhl-change-color)))
+
+;;;###autoload
+(defun my-vhl-activate (&optional arg)
+  (require 'volatile-highlights nil t) ;; will take 40-50[ms]
+  (advice-remove 'my-yank #'my-vhl-activate)
+  arg)
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -13897,22 +13963,22 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
        '(volatile-highlights-mode my-vhl-change-color)
        "volatile-highlights" nil t)
 
-  (dolist (hook '(org-mode-hook emacs-lisp-mode-hook emmet-mode-hook))
-    (add-hook hook #'volatile-highlights-mode))
-
   (global-set-key (kbd "M-v") 'my-yank)
   (global-set-key (kbd "C-y") 'my-yank)
+
+  (when window-system
+    (advice-add 'my-yank :before #'my-vhl-activate))
 
   (with-eval-after-load "volatile-highlights"
     (set-face-attribute
      'vhl/default-face nil :foreground "#FF3333" :background "#FFCDCD")
-    (volatile-highlights-mode t)
+    (volatile-highlights-mode t))
 
-    (with-eval-after-load "vterm"
-      (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
+  (with-eval-after-load "vterm"
+    (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
 
-    (with-eval-after-load "org"
-      (define-key org-mode-map (kbd "C-y") 'my-org-yank))))
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-y") 'my-org-yank)))
 #+end_src
 
 * ユーティリティ関数

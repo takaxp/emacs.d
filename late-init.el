@@ -1463,6 +1463,14 @@
     (advice-add 'backup-each-save-compute-location :override
                 #'my-backup-each-save-compute-location)))
 
+;; (defun ad:find-file-noselect (_filename &optional _nowarn _rawfile _wildcards)
+;;   (unless (require 'init-dired nil t)
+;;     (user-error "init-dired.el doesn't exist"))
+;;   (advice-remove 'find-file-noselect #'ad:find-file-noselect)
+;;   (advice-remove 'dired #'ad:dired-activate))
+;; (advice-add 'find-file-noselect :before #'ad:find-file-noselect)
+(advice-add 'dired :before #'ad:dired-activate)
+
 (when (autoload-if-found
        '(dired-recent-open dired-recent-mode)
        "dired-recent" nil t)
@@ -1799,7 +1807,7 @@
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
 (defvar my-org-agenda-pb-timer
-  (run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers))
+  (run-with-idle-timer 12 nil #'my-org-agenda-prepare-buffers))
 
 (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
 (run-at-time "20 sec" nil #'my-org-agenda-to-appt)
@@ -1983,7 +1991,7 @@
   (defvar my-ime-on-hline-hook nil)
 
   (with-eval-after-load "hl-line"
-    ;; 別ウィンドウの同じバッファでもハイライトする    
+    ;; 別ウィンドウの同じバッファでもハイライトする
     ;; (setq hl-line-sticky-flag t)
     ;; (unless (version< emacs-version "28.1")
     ;;   (setq hl-line-sticky-flag nil))
@@ -2124,22 +2132,22 @@
        '(volatile-highlights-mode my-vhl-change-color)
        "volatile-highlights" nil t)
 
-  (dolist (hook '(org-mode-hook emacs-lisp-mode-hook emmet-mode-hook))
-    (add-hook hook #'volatile-highlights-mode))
-
   (global-set-key (kbd "M-v") 'my-yank)
   (global-set-key (kbd "C-y") 'my-yank)
+
+  (when window-system
+    (advice-add 'my-yank :before #'my-vhl-activate))
 
   (with-eval-after-load "volatile-highlights"
     (set-face-attribute
      'vhl/default-face nil :foreground "#FF3333" :background "#FFCDCD")
-    (volatile-highlights-mode t)
+    (volatile-highlights-mode t))
 
-    (with-eval-after-load "vterm"
-      (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
+  (with-eval-after-load "vterm"
+    (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
 
-    (with-eval-after-load "org"
-      (define-key org-mode-map (kbd "C-y") 'my-org-yank))))
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-y") 'my-org-yank)))
 
 (when (autoload-if-found
        '(my-google-this google-this google-this-word)
