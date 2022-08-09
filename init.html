@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-09 Tue 22:14 -->
+<!-- 2022-08-10 Wed 01:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -191,7 +191,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { }
+  .org-svg { width: 90%; }
 </style>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
@@ -8783,7 +8783,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ah</span> nil t)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ah"</span>
   (advice-add 'my-cg-bookmark <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 </pre>
@@ -12136,7 +12136,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#20316;&#25104;&#23550;&#35937;&#65288;&#25351;&#23450;&#12375;&#12394;&#12356;&#12392;agenda&#12364;&#29983;&#25104;&#12373;&#12428;&#12394;&#12356;&#65289;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12371;&#12434;&#38291;&#36949;&#12358;&#12392;&#65292;MobileOrg, iCal export &#12418;&#12358;&#12414;&#12367;&#12356;&#12363;&#12394;&#12356;</span>
   (<span style="color: #a020f0;">dolist</span> (file (mapcar
@@ -12426,6 +12426,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-to-appt</span> (<span style="color: #228b22;">&amp;optional</span> force)
   <span style="color: #8b2252;">"Update `</span><span style="color: #008b8b;">appt-time-mag-list</span><span style="color: #8b2252;">'.  Use `</span><span style="color: #008b8b;">async</span><span style="color: #8b2252;">' if possible."</span>
   (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org</span>)
+    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span>))
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (not (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t))
           (not my-org-agenda-to-appt-async))
       (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
@@ -12442,7 +12444,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
       (async-start
        `(<span style="color: #a020f0;">lambda</span> ()
           (<span style="color: #a020f0;">setq</span> load-path ',load-path)
-          (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-agenda</span>)
+          (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span>)
           (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">appt</span>)
           (<span style="color: #a020f0;">setq</span> org-agenda-files ',org-agenda-files)
           (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"TODO"</span>)))
@@ -13181,7 +13183,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org3ccfe1a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org12dd722"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14112,7 +14114,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org2f468d1" class="figure">
+<div id="org830b9b1" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14953,16 +14955,29 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">shackle</span> nil t)
-  (<span style="color: #a020f0;">setq</span> shackle-default-ratio 0.33)
-  (<span style="color: #a020f0;">setq</span> shackle-rules
-        '((<span style="color: #8b2252;">"*osx-dictionary*"</span> <span style="color: #483d8b;">:align</span> above <span style="color: #483d8b;">:popup</span> t)
-          (<span style="color: #8b2252;">"*wclock*"</span> <span style="color: #483d8b;">:align</span> above <span style="color: #483d8b;">:popup</span> t <span style="color: #483d8b;">:select</span> t)
-          (<span style="color: #8b2252;">"*Checkdoc Status*"</span> <span style="color: #483d8b;">:align</span> above <span style="color: #483d8b;">:popup</span> t <span style="color: #483d8b;">:noselect</span> t)
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">("*Help*" :align t :select 'above :popup t :size 0.3)</span>
-          ))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-shackle-activate</span> ()
+  (shackle-mode 1)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(remove-hook 'window-configuration-change-hook #'my-shackle-activate)</span>
+  (remove-hook 'find-file-hook #'my-shackle-activate))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
+       '(shackle-mode)
+       <span style="color: #8b2252;">"shackle"</span> nil t)
   (<span style="color: #a020f0;">unless</span> noninteractive
-    (shackle-mode 1)))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'window-configuration-change-hook #'my-shackle-activate)</span>
+    (add-hook 'find-file-hook #'my-shackle-activate))
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"shackle"</span>
+    (<span style="color: #a020f0;">setq</span> shackle-default-ratio 0.33)
+    (<span style="color: #a020f0;">setq</span> shackle-rules
+                '((<span style="color: #8b2252;">"*osx-dictionary*"</span> <span style="color: #483d8b;">:align</span> above <span style="color: #483d8b;">:popup</span> t)
+                  (<span style="color: #8b2252;">"*wclock*"</span> <span style="color: #483d8b;">:align</span> above <span style="color: #483d8b;">:popup</span> t <span style="color: #483d8b;">:select</span> t)
+                  <span style="color: #b22222;">;; </span><span style="color: #b22222;">("*Help*" :align t :select 'above :popup t :size 0.3)</span>
+                  (<span style="color: #8b2252;">"*Checkdoc Status*"</span> <span style="color: #483d8b;">:align</span> above <span style="color: #483d8b;">:popup</span> t <span style="color: #483d8b;">:noselect</span> t)))))
 </pre>
 </div>
 </div>
@@ -18517,7 +18532,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-09 Tue 22:14</p>
+<p class="date">Created: 2022-08-10 Wed 01:00</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

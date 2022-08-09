@@ -7189,7 +7189,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (require 'ah nil t)
+(with-eval-after-load "ah"
   (advice-add 'my-cg-bookmark :around #'ad:suppress-message)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 #+end_src
@@ -10205,7 +10205,7 @@ will not be modified."
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org-agenda"
+(with-eval-after-load "org"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (dolist (file (mapcar
@@ -10483,6 +10483,8 @@ will not be modified."
 (defun my-org-agenda-to-appt (&optional force)
   "Update `appt-time-mag-list'.  Use `async' if possible."
   (interactive)
+  (unless (featurep 'org)
+    (require 'org))
   (if (or (not (require 'async nil t))
           (not my-org-agenda-to-appt-async))
       (unless (active-minibuffer-window)
@@ -10499,7 +10501,7 @@ will not be modified."
       (async-start
        `(lambda ()
           (setq load-path ',load-path)
-          (require 'org-agenda)
+          (require 'org)
           (require 'appt)
           (setq org-agenda-files ',org-agenda-files)
           (org-agenda-to-appt t '((headline "TODO")))
@@ -12840,17 +12842,29 @@ The keybindings will be assigned only when Emacs runs in GUI."
  - バッファ名に正規表現を使う時は，regexpが必要．
  - org関連でディスパッチャとそれを経由するバッファは制御が効かない？
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-shackle-activate ()
+  (shackle-mode 1)
+  ;; (remove-hook 'window-configuration-change-hook #'my-shackle-activate)
+  (remove-hook 'find-file-hook #'my-shackle-activate))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
-(when (require 'shackle nil t)
-  (setq shackle-default-ratio 0.33)
-  (setq shackle-rules
-        '(("*osx-dictionary*" :align above :popup t)
-          ("*wclock*" :align above :popup t :select t)
-          ("*Checkdoc Status*" :align above :popup t :noselect t)
-          ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
-          ))
+(when (autoload-if-found
+       '(shackle-mode)
+       "shackle" nil t)
   (unless noninteractive
-    (shackle-mode 1)))
+    ;; (add-hook 'window-configuration-change-hook #'my-shackle-activate)
+    (add-hook 'find-file-hook #'my-shackle-activate))
+
+  (with-eval-after-load "shackle"
+    (setq shackle-default-ratio 0.33)
+    (setq shackle-rules
+	        '(("*osx-dictionary*" :align above :popup t)
+	          ("*wclock*" :align above :popup t :select t)
+	          ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
+	          ("*Checkdoc Status*" :align above :popup t :noselect t)))))
 #+end_src
 
 *** checkdoc.el 用の追加設定

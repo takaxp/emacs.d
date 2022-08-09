@@ -916,7 +916,7 @@ will not be modified."
              "** %? :%(get-current-date-tags):\n\n%U")
             ))))
 
-(with-eval-after-load "org-agenda"
+(with-eval-after-load "org"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (dolist (file (mapcar

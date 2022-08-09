@@ -1436,7 +1436,7 @@
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 
-(when (require 'ah nil t)
+(with-eval-after-load "ah"
   (advice-add 'my-cg-bookmark :around #'ad:suppress-message)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 
@@ -1938,16 +1938,20 @@
       (define-key winner-mode-map (kbd "C-)") 'winner-redo)
       (winner-mode 1))))
 
-(when (require 'shackle nil t)
-  (setq shackle-default-ratio 0.33)
-  (setq shackle-rules
-        '(("*osx-dictionary*" :align above :popup t)
-          ("*wclock*" :align above :popup t :select t)
-          ("*Checkdoc Status*" :align above :popup t :noselect t)
-          ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
-          ))
+(when (autoload-if-found
+       '(shackle-mode)
+       "shackle" nil t)
   (unless noninteractive
-    (shackle-mode 1)))
+    ;; (add-hook 'window-configuration-change-hook #'my-shackle-activate)
+    (add-hook 'find-file-hook #'my-shackle-activate))
+
+  (with-eval-after-load "shackle"
+    (setq shackle-default-ratio 0.33)
+    (setq shackle-rules
+	        '(("*osx-dictionary*" :align above :popup t)
+	          ("*wclock*" :align above :popup t :select t)
+	          ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
+	          ("*Checkdoc Status*" :align above :popup t :noselect t)))))
 
 (with-eval-after-load "checkdoc"
   (advice-add 'checkdoc :before #'ad:checkdoc))
