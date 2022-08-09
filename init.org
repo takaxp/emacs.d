@@ -329,7 +329,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
    :ID:       6162C1F8-B035-450F-B1F4-324B508EB711
    :END:
 
-メッセージバッファに "Waiting for git..." が残るのを抑制します．ミニバッファにも表示しないので，存在を完全に消せます．
+メッセージバッファに "Waiting for git..." が残るのを抑制します．ミニバッファにも表示しないので，存在を完全に消せます．非常に強力ですが，逆に，主に他の設定の読み込み順に起因して，意図しないところで別な関数が出力する（本来は出力させたい）メッセージも削除してしまう可能性があるので注意が必要です．
 
 #+begin_src emacs-lisp :tangle yes
 (defvar my-suppress-message-p t)
