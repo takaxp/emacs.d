@@ -916,7 +916,7 @@ will not be modified."
              "** %? :%(get-current-date-tags):\n\n%U")
             ))))
 
-(with-eval-after-load "org"
+(with-eval-after-load "org-agenda"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (dolist (file (mapcar
@@ -1149,6 +1149,8 @@ will not be modified."
        '(appt ad:appt-display-message ad:appt-disp-window appt-check)
        "appt" nil t)
 
+  (defvar my-org-agenda-to-appt-async t)
+
   (with-eval-after-load "appt"
     ;; モードラインに残り時間を表示しない
     (setq appt-display-mode-line nil)
@@ -1277,8 +1279,6 @@ update it for multiple appts?")
              (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
 
-    ;; 重複実行の抑制用フラグ
-    (defvar my-org-agenda-to-appt-ready t)
     (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
       (let ((msgs appt-time-msg-list))
         (setq appt-time-msg-list nil)
@@ -1292,7 +1292,6 @@ update it for multiple appts?")
                        ) t)
         ;; just for sure
         (delq nil appt-time-msg-list)))
-    (defvar my-org-agenda-to-appt-async t)
     (when (eq window-system 'w32)
       (message "--- my-org-agenda-to-appt-async was changed to nil for w32")
       (setq my-org-agenda-to-appt-async nil))

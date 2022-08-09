@@ -10,6 +10,10 @@
   (require 'init-org nil t))
 
 (unless noninteractive
+  (with-eval-after-load "utility"
+    (require 'postpone nil t)
+    (require 'init-org nil t))
+
   (with-eval-after-load "org"
     (require 'postpone nil t)
     (require 'init-org nil t)))
@@ -88,19 +92,48 @@
       (autoload f file docstring interactive type))
     t))
 
-(when (require 'postpone-pre nil t)
-  (setq postpone-pre-exclude
-        '(self-insert-command
-          newline
-		      forward-char
-		      backward-char
-          delete-char
-		      delete-backward-char
-          save-buffer
-          save-buffers-kill-terminal
-          electric-newline-and-maybe-indent
-          exit-minibuffer))
-  (run-with-idle-timer 8 nil #'postpone-pre))
+;; copy of postpone-pre.el -- begin
+(defvar postpone-pre-init-time nil
+  "A variable to store the duration of loading postponed packages.")
+
+(defcustom postpone-pre-exclude '(self-insert-command
+                                  save-buffers-kill-terminal
+                                  exit-minibuffer)
+  "A list of commands not to activate `postpone-mode'."
+  :type 'sexp
+  :group 'postpone)
+
+;;;###autoload
+(defun postpone-pre ()
+  (interactive)
+  (unless (or (memq this-command postpone-pre-exclude)
+              postpone-pre-init-time)
+    (message "Activating postponed packages...")
+    (let ((t1 (current-time)))
+      (postpone-kicker 'postpone-pre)
+      (setq postpone-pre-init-time (float-time
+                                    (time-subtract (current-time) t1))))
+    (message "Activating postponed packages...done (%.3f seconds)"
+             postpone-pre-init-time)))
+;; copy of postpone-pre.el -- end
+
+(if (not (locate-library "postpone"))
+    (error "postpone.el is NOT installed yet or cannot find it")
+  (autoload 'postpone-kicker "postpone" nil t)
+  (add-hook 'pre-command-hook #'postpone-pre))
+
+(setq postpone-pre-exclude
+      '(self-insert-command
+        newline
+		    forward-char
+		    backward-char
+        delete-char
+		    delete-backward-char
+        save-buffer
+        save-buffers-kill-terminal
+        electric-newline-and-maybe-indent
+        exit-minibuffer))
+(run-with-idle-timer 8 nil #'postpone-pre)
 
 (my-tick-init-time "startup")
 
@@ -161,17 +194,25 @@
 ;;  (setq visible-bell nil) ;; default=nil
 (setq ring-bell-function 'ignore)
 
-(when (require 'empty-booting nil t)
-  ;; (setq initial-buffer-choice t) ;; 引数付き起動すると画面分割される
-  (setq initial-scratch-message nil)
-  (setq initial-major-mode 'empty-booting-mode)
-  ;;  :underline "#203e6f"
-  (set-face-foreground 'header-line "#FFFFFF") ;; "#203e6f" #333333 "#FFFFFF"
-  (set-face-background 'header-line "#a46398") ;; "#ffb08c" "#7e59b5" ##5F7DB7
-  (set-face-attribute 'header-line nil
-                      :inherit nil
-                      :overline nil
-                      :underline nil))
+(defun empty-booting-mode ()
+  "Minimum mode for quick booting"
+  (interactive)
+  (setq mode-name "Empty")
+  (setq major-mode 'empty-booting-mode)
+  (setq header-line-format " No day is a good day.")
+  ;;  (setq buffer-mode-map (make-keymap))
+  ;;  (use-local-map buffer-mode-map)
+  (run-hooks 'empty-booting-hook))
+;; (setq initial-buffer-choice t) ;; 引数付き起動すると画面分割される
+(setq initial-scratch-message nil)
+(setq initial-major-mode 'empty-booting-mode)
+(set-face-foreground 'header-line "#FFFFFF") ;; "#203e6f" #333333 "#FFFFFF"
+(set-face-background 'header-line "#a46398") ;; "#ffb08c" "#7e59b5" ##5F7DB7
+(set-face-attribute 'header-line nil
+                    :inherit nil
+                    :overline nil
+                    :underline nil)
+(run-at-time "5 sec" 600 'my-empty-booting-header-line)
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)

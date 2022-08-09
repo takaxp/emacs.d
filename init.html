@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-09 Tue 12:30 -->
+<!-- 2022-08-09 Tue 22:14 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -6067,18 +6067,30 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 なお， <code>C-M-s</code> をスクラッチバッファを表示するために使用していますが，本来は，正規表現での検索(<code>isearch-forward-regexp</code>)に割り振られています．
 </p>
 
+<p>
+パッケージとして切り出された別ファイルにすると，そのファイルをロードすることも起動時のコストになるため，現在は下記を <code>init.el</code> 内に直接記述しています．
+</p>
+
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">empty-booting</span> nil t)
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq initial-buffer-choice t) ;; &#24341;&#25968;&#20184;&#12365;&#36215;&#21205;&#12377;&#12427;&#12392;&#30011;&#38754;&#20998;&#21106;&#12373;&#12428;&#12427;</span>
-  (<span style="color: #a020f0;">setq</span> initial-scratch-message nil)
-  (<span style="color: #a020f0;">setq</span> initial-major-mode 'empty-booting-mode)
-  <span style="color: #b22222;">;;  </span><span style="color: #b22222;">:underline "#203e6f"</span>
-  (set-face-foreground 'header-line <span style="color: #8b2252;">"#FFFFFF"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"#203e6f" #333333 "#FFFFFF"</span>
-  (set-face-background 'header-line <span style="color: #8b2252;">"#a46398"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"#ffb08c" "#7e59b5" ##5F7DB7</span>
-  (set-face-attribute 'header-line nil
-                      <span style="color: #483d8b;">:inherit</span> nil
-                      <span style="color: #483d8b;">:overline</span> nil
-                      <span style="color: #483d8b;">:underline</span> nil))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">empty-booting-mode</span> ()
+  <span style="color: #8b2252;">"Minimum mode for quick booting"</span>
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">setq</span> mode-name <span style="color: #8b2252;">"Empty"</span>)
+  (<span style="color: #a020f0;">setq</span> major-mode 'empty-booting-mode)
+  (<span style="color: #a020f0;">setq</span> header-line-format <span style="color: #8b2252;">" No day is a good day."</span>)
+  <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(setq buffer-mode-map (make-keymap))</span>
+  <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(use-local-map buffer-mode-map)</span>
+  (run-hooks 'empty-booting-hook))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq initial-buffer-choice t) ;; &#24341;&#25968;&#20184;&#12365;&#36215;&#21205;&#12377;&#12427;&#12392;&#30011;&#38754;&#20998;&#21106;&#12373;&#12428;&#12427;</span>
+(<span style="color: #a020f0;">setq</span> initial-scratch-message nil)
+(<span style="color: #a020f0;">setq</span> initial-major-mode 'empty-booting-mode)
+(set-face-foreground 'header-line <span style="color: #8b2252;">"#FFFFFF"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"#203e6f" #333333 "#FFFFFF"</span>
+(set-face-background 'header-line <span style="color: #8b2252;">"#a46398"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"#ffb08c" "#7e59b5" ##5F7DB7</span>
+(set-face-attribute 'header-line nil
+                    <span style="color: #483d8b;">:inherit</span> nil
+                    <span style="color: #483d8b;">:overline</span> nil
+                    <span style="color: #483d8b;">:underline</span> nil)
+(run-at-time <span style="color: #8b2252;">"5 sec"</span> 600 'my-empty-booting-header-line)
 </pre>
 </div>
 
@@ -6971,11 +6983,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">empty-booting</span> nil t)
-  (run-at-time <span style="color: #8b2252;">"5 sec"</span> 600 'my-empty-booting-header-line))
-
-(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(my-get-week-number)
        <span style="color: #8b2252;">"calendar"</span> nil t)
 
@@ -12128,7 +12136,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12472;&#12455;&#12531;&#12480;&#20316;&#25104;&#23550;&#35937;&#65288;&#25351;&#23450;&#12375;&#12394;&#12356;&#12392;agenda&#12364;&#29983;&#25104;&#12373;&#12428;&#12394;&#12356;&#65289;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12371;&#12434;&#38291;&#36949;&#12358;&#12392;&#65292;MobileOrg, iCal export &#12418;&#12358;&#12414;&#12367;&#12356;&#12363;&#12394;&#12356;</span>
   (<span style="color: #a020f0;">dolist</span> (file (mapcar
@@ -12411,6 +12419,9 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12398;&#20869;&#23481;&#12434;&#12450;&#12521;&#12540;&#12512;&#12395;&#30331;&#37682;&#12377;&#12427;</span>
 
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#37325;&#35079;&#23455;&#34892;&#12398;&#25233;&#21046;&#29992;&#12501;&#12521;&#12464;</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-ready</span> t)
+
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-to-appt</span> (<span style="color: #228b22;">&amp;optional</span> force)
   <span style="color: #8b2252;">"Update `</span><span style="color: #008b8b;">appt-time-mag-list</span><span style="color: #8b2252;">'.  Use `</span><span style="color: #008b8b;">async</span><span style="color: #8b2252;">' if possible."</span>
@@ -12472,6 +12483,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(appt ad:appt-display-message ad:appt-disp-window appt-check)
        <span style="color: #8b2252;">"appt"</span> nil t)
+
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-async</span> t)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"appt"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12395;&#27531;&#12426;&#26178;&#38291;&#12434;&#34920;&#31034;&#12375;&#12394;&#12356;</span>
@@ -12601,8 +12614,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
              (t (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"Abort"</span>)))))))
     (advice-add 'org-check-agenda-file <span style="color: #483d8b;">:override</span> #'ad:org-check-agenda-file)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#37325;&#35079;&#23455;&#34892;&#12398;&#25233;&#21046;&#29992;&#12501;&#12521;&#12464;</span>
-    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-ready</span> t)
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-prop-to-appt-time-msg-list</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
       (<span style="color: #a020f0;">let</span> ((msgs appt-time-msg-list))
         (<span style="color: #a020f0;">setq</span> appt-time-msg-list nil)
@@ -12616,7 +12627,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                        ) <span style="color: #ff0000; font-weight: bold;">t)</span>
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">just for sure</span>
         (delq nil appt-time-msg-list)))
-    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-async</span> t)
     (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
       (message <span style="color: #8b2252;">"--- my-org-agenda-to-appt-async was changed to nil for w32"</span>)
       (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-async nil))
@@ -13171,7 +13181,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org56bd7d0"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3ccfe1a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14102,7 +14112,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgfcea6c5" class="figure">
+<div id="org2f468d1" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14913,12 +14923,15 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (postpone-message <span style="color: #8b2252;">"winner-mode"</span>)
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">winner</span> nil t)
-    (advice-add 'delete-window <span style="color: #483d8b;">:after</span> #'ad:winner:delete-window)
-    (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-x g"</span>) 'winner-undo)
-    (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-("</span>) 'winner-undo)
-    (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-)"</span>) 'winner-redo)
-    (winner-mode 1)))
+
+  (<span style="color: #a020f0;">when</span> (autoload-if-found '(winner-undo) <span style="color: #8b2252;">"winner"</span> nil t)
+    (global-set-key (kbd <span style="color: #8b2252;">"C-x g"</span>) 'winner-undo)
+
+    (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"winner"</span>
+      (advice-add 'delete-window <span style="color: #483d8b;">:after</span> #'ad:winner:delete-window)
+      (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-("</span>) 'winner-undo)
+      (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-)"</span>) 'winner-redo)
+      (winner-mode 1))))
 </pre>
 </div>
 </div>
@@ -18504,7 +18517,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-09 Tue 12:30</p>
+<p class="date">Created: 2022-08-09 Tue 22:14</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

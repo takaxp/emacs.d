@@ -99,6 +99,10 @@ Then load the following at startup
   (require 'init-org nil t))
 
 (unless noninteractive
+  (with-eval-after-load "utility"
+    (require 'postpone nil t)
+    (require 'init-org nil t))
+
   (with-eval-after-load "org"
     (require 'postpone nil t)
     (require 'init-org nil t)))
@@ -584,19 +588,48 @@ This function is called directly from the C code."
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :exports none
-(when (require 'postpone-pre nil t)
-  (setq postpone-pre-exclude
-        '(self-insert-command
-          newline
-		      forward-char
-		      backward-char
-          delete-char
-		      delete-backward-char
-          save-buffer
-          save-buffers-kill-terminal
-          electric-newline-and-maybe-indent
-          exit-minibuffer))
-  (run-with-idle-timer 8 nil #'postpone-pre))
+;; copy of postpone-pre.el -- begin
+(defvar postpone-pre-init-time nil
+  "A variable to store the duration of loading postponed packages.")
+
+(defcustom postpone-pre-exclude '(self-insert-command
+                                  save-buffers-kill-terminal
+                                  exit-minibuffer)
+  "A list of commands not to activate `postpone-mode'."
+  :type 'sexp
+  :group 'postpone)
+
+;;;###autoload
+(defun postpone-pre ()
+  (interactive)
+  (unless (or (memq this-command postpone-pre-exclude)
+              postpone-pre-init-time)
+    (message "Activating postponed packages...")
+    (let ((t1 (current-time)))
+      (postpone-kicker 'postpone-pre)
+      (setq postpone-pre-init-time (float-time
+                                    (time-subtract (current-time) t1))))
+    (message "Activating postponed packages...done (%.3f seconds)"
+             postpone-pre-init-time)))
+;; copy of postpone-pre.el -- end
+
+(if (not (locate-library "postpone"))
+    (error "postpone.el is NOT installed yet or cannot find it")
+  (autoload 'postpone-kicker "postpone" nil t)
+  (add-hook 'pre-command-hook #'postpone-pre))
+
+(setq postpone-pre-exclude
+      '(self-insert-command
+        newline
+		    forward-char
+		    backward-char
+        delete-char
+		    delete-backward-char
+        save-buffer
+        save-buffers-kill-terminal
+        electric-newline-and-maybe-indent
+        exit-minibuffer))
+(run-with-idle-timer 8 nil #'postpone-pre)
 #+end_src
 
 ** [future-time-p] 指定時刻が本日の未来の時刻かを判定
@@ -4606,18 +4639,28 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 
 なお， =C-M-s= をスクラッチバッファを表示するために使用していますが，本来は，正規表現での検索(=isearch-forward-regexp=)に割り振られています．
 
+パッケージとして切り出された別ファイルにすると，そのファイルをロードすることも起動時のコストになるため，現在は下記を ~init.el~ 内に直接記述しています．
+
 #+begin_src emacs-lisp :tangle yes
-(when (require 'empty-booting nil t)
-  ;; (setq initial-buffer-choice t) ;; 引数付き起動すると画面分割される
-  (setq initial-scratch-message nil)
-  (setq initial-major-mode 'empty-booting-mode)
-  ;;  :underline "#203e6f"
-  (set-face-foreground 'header-line "#FFFFFF") ;; "#203e6f" #333333 "#FFFFFF"
-  (set-face-background 'header-line "#a46398") ;; "#ffb08c" "#7e59b5" ##5F7DB7
-  (set-face-attribute 'header-line nil
-                      :inherit nil
-                      :overline nil
-                      :underline nil))
+(defun empty-booting-mode ()
+  "Minimum mode for quick booting"
+  (interactive)
+  (setq mode-name "Empty")
+  (setq major-mode 'empty-booting-mode)
+  (setq header-line-format " No day is a good day.")
+  ;;  (setq buffer-mode-map (make-keymap))
+  ;;  (use-local-map buffer-mode-map)
+  (run-hooks 'empty-booting-hook))
+;; (setq initial-buffer-choice t) ;; 引数付き起動すると画面分割される
+(setq initial-scratch-message nil)
+(setq initial-major-mode 'empty-booting-mode)
+(set-face-foreground 'header-line "#FFFFFF") ;; "#203e6f" #333333 "#FFFFFF"
+(set-face-background 'header-line "#a46398") ;; "#ffb08c" "#7e59b5" ##5F7DB7
+(set-face-attribute 'header-line nil
+                    :inherit nil
+                    :overline nil
+                    :underline nil)
+(run-at-time "5 sec" 600 'my-empty-booting-header-line)
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -5432,10 +5475,6 @@ version 28 で全角スペースに黒下線が付くので回避します．
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-
-(when (require 'empty-booting nil t)
-  (run-at-time "5 sec" 600 'my-empty-booting-header-line))
-
 (when (autoload-if-found
        '(my-get-week-number)
        "calendar" nil t)
@@ -10166,7 +10205,7 @@ will not be modified."
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org"
+(with-eval-after-load "org-agenda"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
   (dolist (file (mapcar
@@ -10437,6 +10476,9 @@ will not be modified."
 #+begin_src emacs-lisp :tangle utility.el
 ;; org-agenda の内容をアラームに登録する
 
+;; 重複実行の抑制用フラグ
+(defvar my-org-agenda-to-appt-ready t)
+
 ;;;###autoload
 (defun my-org-agenda-to-appt (&optional force)
   "Update `appt-time-mag-list'.  Use `async' if possible."
@@ -10497,6 +10539,8 @@ will not be modified."
 (when (autoload-if-found
        '(appt ad:appt-display-message ad:appt-disp-window appt-check)
        "appt" nil t)
+
+  (defvar my-org-agenda-to-appt-async t)
 
   (with-eval-after-load "appt"
     ;; モードラインに残り時間を表示しない
@@ -10626,8 +10670,6 @@ update it for multiple appts?")
              (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
 
-    ;; 重複実行の抑制用フラグ
-    (defvar my-org-agenda-to-appt-ready t)
     (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
       (let ((msgs appt-time-msg-list))
         (setq appt-time-msg-list nil)
@@ -10641,7 +10683,6 @@ update it for multiple appts?")
                        ) t)
         ;; just for sure
         (delq nil appt-time-msg-list)))
-    (defvar my-org-agenda-to-appt-async t)
     (when (eq window-system 'w32)
       (message "--- my-org-agenda-to-appt-async was changed to nil for w32")
       (setq my-org-agenda-to-appt-async nil))
@@ -12775,12 +12816,15 @@ The keybindings will be assigned only when Emacs runs in GUI."
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
   (postpone-message "winner-mode")
-  (when (require 'winner nil t)
-    (advice-add 'delete-window :after #'ad:winner:delete-window)
-    (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
-    (define-key winner-mode-map (kbd "C-(") 'winner-undo)
-    (define-key winner-mode-map (kbd "C-)") 'winner-redo)
-    (winner-mode 1)))
+
+  (when (autoload-if-found '(winner-undo) "winner" nil t)
+    (global-set-key (kbd "C-x g") 'winner-undo)
+
+    (with-eval-after-load "winner"
+      (advice-add 'delete-window :after #'ad:winner:delete-window)
+      (define-key winner-mode-map (kbd "C-(") 'winner-undo)
+      (define-key winner-mode-map (kbd "C-)") 'winner-redo)
+      (winner-mode 1))))
 #+end_src
 
 ** TODO [shackle.el] ポップアップウィンドウの制御                   :Ongoing:

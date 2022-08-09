@@ -1078,9 +1078,6 @@
     (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
     (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend)))
 
-(when (require 'empty-booting nil t)
-  (run-at-time "5 sec" 600 'my-empty-booting-header-line))
-
 (when (autoload-if-found
        '(my-get-week-number)
        "calendar" nil t)
@@ -1931,12 +1928,15 @@
 
 (unless noninteractive
   (postpone-message "winner-mode")
-  (when (require 'winner nil t)
-    (advice-add 'delete-window :after #'ad:winner:delete-window)
-    (define-key winner-mode-map (kbd "C-x g") 'winner-undo)
-    (define-key winner-mode-map (kbd "C-(") 'winner-undo)
-    (define-key winner-mode-map (kbd "C-)") 'winner-redo)
-    (winner-mode 1)))
+
+  (when (autoload-if-found '(winner-undo) "winner" nil t)
+    (global-set-key (kbd "C-x g") 'winner-undo)
+
+    (with-eval-after-load "winner"
+      (advice-add 'delete-window :after #'ad:winner:delete-window)
+      (define-key winner-mode-map (kbd "C-(") 'winner-undo)
+      (define-key winner-mode-map (kbd "C-)") 'winner-redo)
+      (winner-mode 1))))
 
 (when (require 'shackle nil t)
   (setq shackle-default-ratio 0.33)

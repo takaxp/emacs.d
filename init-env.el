@@ -88,6 +88,7 @@
   ;;   (add-hook 'after-init-hook #'benchmark-init/deactivate))
 
   (require 'init nil t)
+
   (unless noninteractive
     (with-eval-after-load "postpone"
       (when (and window-system
@@ -117,6 +118,7 @@
   (load "~/.spacemacs.d/init.el" nil t))
  (t nil))
 
+(when my-profiler-p (profiler-report))
 (when (version< "28.0" emacs-version)
   ;; Native Compiling の最終のワーニング等をウィンドウに出さない
   (setq native-comp-async-report-warnings-errors nil)
@@ -169,5 +171,4 @@
                 (setq indent-line-function 'lisp-indent-line)
                 )))
 
-(when my-profiler-p (profiler-report))
 ;; end of init-env.el
