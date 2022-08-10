@@ -286,7 +286,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 ~early-init.el~ で設定すると高速起動に効果あり．
 
 #+begin_src emacs-lisp :tangle early-init.el
-(setq gc-cons-threshold (* 8 1024 1024)) ;; [MB]
+(setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 ;; (setq garbage-collection-messages t)
 ;; (defvar my-gc-last 0.0)
 ;; (add-hook 'post-gc-hook
@@ -727,6 +727,11 @@ This function is called directly from the C code."
 (defun ad:gcmh-idle-garbage-collect (f)
   (let ((my-gcmh-idlegc-p t))
     (funcall f)))
+
+;;;###autoload
+(defun my-gcmh-activate ()
+  (cancel-timer my-gcmh-timer)
+  (gcmh-mode 1))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -740,7 +745,7 @@ This function is called directly from the C code."
                 :around #'ad:gcmh-idle-garbage-collect))
 
   (unless noninteractive
-    (gcmh-mode 1)))
+    (defvar my-gcmh-timer (run-with-idle-timer 10 nil #'my-gcmh-activate))))
 #+end_src
 
 ** [shut-up.el] Messages 出力を封じる（制御する）
@@ -1634,7 +1639,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
   (defvar my-private-conf-timer
-    (run-with-idle-timer 3 nil #'my-private-conf-activate)))
+    (run-with-idle-timer 5 nil #'my-private-conf-activate)))
 #+end_src
 
 =w32= の MSYS2 で gpg を使うと，バージョン情報が "2.2.19-unknown" などとなる．その状況で ~epg-find-configuration~ が呼ばれると，内部で生じるエラーが報告されず nil となり， ~epg.el~ が以下を報告する．
@@ -3728,6 +3733,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 (when (autoload-if-found
        '(js2-mode)
        "js2-mode" nil t)
+
   (with-eval-after-load "js2-mode"
     (if (executable-find "js-beautify")
         (when (require 'web-beautify nil t)
@@ -5209,6 +5215,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 ** [migemo.el] ローマ字入力で日本語を検索する
    :PROPERTIES:
    :CUSTOM_ID: org74bad2de
+   :ID:       D4DF1A3F-80F3-44B0-A591-C89D466CA326
    :END:
 
  - http://0xcc.net/migemo/#download
@@ -5219,11 +5226,11 @@ version 28 で全角スペースに黒下線が付くので回避します．
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-migemo-activate ()
-  (when (and (locate-library "migemo");; overhead but should be checked here
-	           (executable-find "cmigemo")
+  (when (and (executable-find "cmigemo")
 	           (require 'migemo nil t))
-    (add-hook 'isearch-mode-hook #'migemo-init))
-  (remove-hook 'find-file-hook #'my-migemo-activate))
+    (add-hook 'isearch-mode-hook #'migemo-init)
+    (migemo-init))
+  (remove-hook 'isearch-mode-hook #'my-migemo-activate))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -5231,7 +5238,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
        '(migemo-init)
        "migemo" nil t)
 
-  (add-hook 'find-file-hook #'my-migemo-activate)
+  ;; Tricky!
+  (add-hook 'isearch-mode-hook #'my-migemo-activate)
 
   (with-eval-after-load "migemo"
     (custom-set-variables
@@ -5475,40 +5483,37 @@ version 28 で全角スペースに黒下線が付くので回避します．
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found
-       '(my-get-week-number)
-       "calendar" nil t)
+(with-eval-after-load "calendar"
+  (setq calendar-week-start-day 1)
+  (copy-face 'default 'calendar-iso-week-header-face)
+  (set-face-attribute 'calendar-iso-week-header-face nil
+                      :height 1.0 :foreground "#1010FF"
+                      :background (face-background 'default))
+  (setq calendar-intermonth-header
+        (propertize " w"
+                    'font-lock-face 'calendar-iso-week-header-face))
 
-  (with-eval-after-load "calendar"
-    (setq calendar-week-start-day 1)
-    (copy-face 'default 'calendar-iso-week-header-face)
-    (set-face-attribute 'calendar-iso-week-header-face nil
-                        :height 1.0 :foreground "#1010FF"
-                        :background (face-background 'default))
-    (setq calendar-intermonth-header
-          (propertize " w"
-                      'font-lock-face 'calendar-iso-week-header-face))
+  (copy-face font-lock-constant-face 'calendar-iso-week-face)
+  (set-face-attribute 'calendar-iso-week-face nil
+                      :height 1.0 :foreground "orange"
+                      :background (face-background 'default))
 
-    (copy-face font-lock-constant-face 'calendar-iso-week-face)
-    (set-face-attribute 'calendar-iso-week-face nil
-                        :height 1.0 :foreground "orange"
-                        :background (face-background 'default))
-
-    (setq calendar-intermonth-text
-          '(propertize
-            (format "%02d"
-                    (car
-                     (calendar-iso-from-absolute
-                      (+ (calendar-absolute-from-gregorian
-                          (list month day year))
-                         calendar-week-start-day
-                         ))))
-            'font-lock-face 'calendar-iso-week-face))))
+  (setq calendar-intermonth-text
+        '(propertize
+          (format "%02d"
+                  (car
+                   (calendar-iso-from-absolute
+                    (+ (calendar-absolute-from-gregorian
+                        (list month day year))
+                       calendar-week-start-day
+                       ))))
+          'font-lock-face 'calendar-iso-week-face)))
 #+end_src
 
 ** [which-key] キーバインドの選択肢をポップアップする
    :PROPERTIES:
    :CUSTOM_ID: orgc45b24d4
+   :ID:       25F7B866-B4B2-4489-8806-267429971ED6
    :END:
 
 =guide-key.el= の後発． =guide-key.el= の改良でもあり，ディスパッチャが見やすく，直感的でとても使いやすい．
@@ -5529,6 +5534,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 ** [highlight-symbol] 同じ名前のシンボルをハイライトする
    :PROPERTIES:
    :CUSTOM_ID: org467accb9
+   :ID:       C86EC6C1-85DA-470F-AC8B-6A9C802AC23F
    :END:
 
 一定時間が過ぎると，カーソル下のワードをバッファ内で検索し，ハイライトしてくれる．殺風景なバッファに動きが出て良い．また， =highlight-symbol-nav-mode= を使うと，シンボル間を =M-n/M-p= で移動できるので，毎度検索しなくてよい．
@@ -6180,6 +6186,11 @@ sorted.  FUNCTION must be a function of one argument."
 	  (setq my-dimmer-mode t)
 	  (dimmer-on)
 	  (redraw-frame)))
+
+;;;###autoload
+(defun my-dimmer-activate ()
+  (setq my-dimmer-mode (dimmer-mode 1))
+  (remove-hook 'window-configuration-change-hook #'my-dimmer-activate));; FIXME
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -6213,7 +6224,8 @@ sorted.  FUNCTION must be a function of one argument."
 
   (unless noninteractive
     (unless (version< "28.0" emacs-version)
-      (setq my-dimmer-mode (dimmer-mode 1)))))
+      ;; FIXME
+      (add-hook 'window-configuration-change-hook #'my-dimmer-activate))))
 #+end_src
 
 ** TODO [transient.el] コマンドディスパッチャを構築する
@@ -12854,6 +12866,7 @@ The keybindings will be assigned only when Emacs runs in GUI."
 (when (autoload-if-found
        '(shackle-mode)
        "shackle" nil t)
+
   (unless noninteractive
     ;; (add-hook 'window-configuration-change-hook #'my-shackle-activate)
     (add-hook 'find-file-hook #'my-shackle-activate))
@@ -13229,18 +13242,18 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 ;;;###autoload
 (defun my-hl-line-activate ()
-  (require 'hl-line nil t)
+  (when (require 'hl-line nil t)
+    (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable))
   (remove-hook 'ah-after-move-cursor-hook #'my-hl-line-activate))
 
 ;;;###autoload
 (defun my-hl-line-enable () ;; Hard to move this under utility.el
-      "Enable `hl-line'."
-      (unless (or hl-line-mode
-                  (minibufferp)
-			            (memq major-mode my-hl-permanent-disabled))
-	      (hl-line-mode 1))
-      (setq my-hl-disabled-by-timer nil))
-
+  "Enable `hl-line'."
+  (unless (or hl-line-mode
+              (minibufferp)
+			        (memq major-mode my-hl-permanent-disabled))
+	  (hl-line-mode 1))
+  (setq my-hl-disabled-by-timer nil))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -13248,8 +13261,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
        '(hl-line-mode my-hl-line-enable)
        "hl-line" nil t)
 
-  ;; Tricky! Add `my-hl-line-enable' before adding `my-hl-line-activate'.
-  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
+  ;; Tricky!
   (add-hook 'ah-after-move-cursor-hook #'my-hl-line-activate)
 
   (defvar my-hl-permanent-disabled '(dired-mode vterm-mode)
@@ -13614,23 +13626,21 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
           ("" . "red")
           ("" . "Seagreen3")))
   (my-hl-todo-reload))
+
+;;;###autoload
+(defun my-hl-todo-activate ()
+  (global-hl-todo-mode) ;; FIXME
+  (remove-hook 'find-file-hook #'my-hl-todo-activate))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(global-hl-todo-mode my-hl-todo-activate)
+       '(global-hl-todo-mode)
        "hl-todo" nil t)
 
-  ;; (defun my-hl-todo-activate ()
-  ;;   (global-hl-todo-mode)
-  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
-  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
-
-  (global-hl-todo-mode) ;; FIXME
-
-  (with-eval-after-load "hl-todo"
-    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
-    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
+  (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+  (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)
+  (add-hook 'find-file-hook #'my-hl-todo-activate))
 #+end_src
 
 ** 日中と夜中でテーマを切り替える

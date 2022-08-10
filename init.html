@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-10 Wed 01:00 -->
+<!-- 2022-08-10 Wed 23:01 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1037,7 +1037,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> gc-cons-threshold (* 8 1024 1024)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">[MB]</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> gc-cons-threshold (* 16 1024 1024)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">[MB]</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq garbage-collection-messages t)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defvar my-gc-last 0.0)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'post-gc-hook</span>
@@ -1498,6 +1498,11 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:gcmh-idle-garbage-collect</span> (f)
   (<span style="color: #a020f0;">let</span> ((my-gcmh-idlegc-p t))
     (funcall f)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-gcmh-activate</span> ()
+  (cancel-timer my-gcmh-timer)
+  (gcmh-mode 1))
 </pre>
 </div>
 
@@ -1512,7 +1517,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
                 <span style="color: #483d8b;">:around</span> #'ad:gcmh-idle-garbage-collect))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
-    (gcmh-mode 1)))
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-timer</span> (run-with-idle-timer 10 nil #'my-gcmh-activate))))
 </pre>
 </div>
 </div>
@@ -2540,7 +2545,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-private-conf-timer</span>
-    (run-with-idle-timer 3 nil #'my-private-conf-activate)))
+    (run-with-idle-timer 5 nil #'my-private-conf-activate)))
 </pre>
 </div>
 
@@ -5002,6 +5007,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(js2-mode)
        <span style="color: #8b2252;">"js2-mode"</span> nil t)
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"js2-mode"</span>
     (<span style="color: #a020f0;">if</span> (executable-find <span style="color: #8b2252;">"js-beautify"</span>)
         (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">web-beautify</span> nil t)
@@ -6713,11 +6719,11 @@ version 28 で全角スペースに黒下線が付くので回避します．
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-migemo-activate</span> ()
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (locate-library <span style="color: #8b2252;">"migemo"</span>)<span style="color: #b22222;">;; </span><span style="color: #b22222;">overhead but should be checked here</span>
-                   (executable-find <span style="color: #8b2252;">"cmigemo"</span>)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (executable-find <span style="color: #8b2252;">"cmigemo"</span>)
                    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">migemo</span> nil t))
-    (add-hook 'isearch-mode-hook #'migemo-init))
-  (remove-hook 'find-file-hook #'my-migemo-activate))
+    (add-hook 'isearch-mode-hook #'migemo-init)
+    (migemo-init))
+  (remove-hook 'isearch-mode-hook #'my-migemo-activate))
 </pre>
 </div>
 
@@ -6726,7 +6732,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
        '(migemo-init)
        <span style="color: #8b2252;">"migemo"</span> nil t)
 
-  (add-hook 'find-file-hook #'my-migemo-activate)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Tricky!</span>
+  (add-hook 'isearch-mode-hook #'my-migemo-activate)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"migemo"</span>
     (custom-set-variables
@@ -6983,35 +6990,31 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(my-get-week-number)
-       <span style="color: #8b2252;">"calendar"</span> nil t)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"calendar"</span>
+  (<span style="color: #a020f0;">setq</span> calendar-week-start-day 1)
+  (copy-face 'default 'calendar-iso-week-header-face)
+  (set-face-attribute 'calendar-iso-week-header-face nil
+                      <span style="color: #483d8b;">:height</span> 1.0 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#1010FF"</span>
+                      <span style="color: #483d8b;">:background</span> (face-background 'default))
+  (<span style="color: #a020f0;">setq</span> calendar-intermonth-header
+        (propertize <span style="color: #8b2252;">" w"</span>
+                    'font-lock-face 'calendar-iso-week-header-face))
 
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"calendar"</span>
-    (<span style="color: #a020f0;">setq</span> calendar-week-start-day 1)
-    (copy-face 'default 'calendar-iso-week-header-face)
-    (set-face-attribute 'calendar-iso-week-header-face nil
-                        <span style="color: #483d8b;">:height</span> 1.0 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#1010FF"</span>
-                        <span style="color: #483d8b;">:background</span> (face-background 'default))
-    (<span style="color: #a020f0;">setq</span> calendar-intermonth-header
-          (propertize <span style="color: #8b2252;">" w"</span>
-                      'font-lock-face 'calendar-iso-week-header-face))
+  (copy-face font-lock-constant-face 'calendar-iso-week-face)
+  (set-face-attribute 'calendar-iso-week-face nil
+                      <span style="color: #483d8b;">:height</span> 1.0 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span>
+                      <span style="color: #483d8b;">:background</span> (face-background 'default))
 
-    (copy-face font-lock-constant-face 'calendar-iso-week-face)
-    (set-face-attribute 'calendar-iso-week-face nil
-                        <span style="color: #483d8b;">:height</span> 1.0 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span>
-                        <span style="color: #483d8b;">:background</span> (face-background 'default))
-
-    (<span style="color: #a020f0;">setq</span> calendar-intermonth-text
-          '(propertize
-            (format <span style="color: #8b2252;">"%02d"</span>
-                    (car
-                     (calendar-iso-from-absolute
-                      (+ (calendar-absolute-from-gregorian
-                          (list month day year))
-                         calendar-week-start-day
-                         ))))
-            'font-lock-face 'calendar-iso-week-face))))
+  (<span style="color: #a020f0;">setq</span> calendar-intermonth-text
+        '(propertize
+          (format <span style="color: #8b2252;">"%02d"</span>
+                  (car
+                   (calendar-iso-from-absolute
+                    (+ (calendar-absolute-from-gregorian
+                        (list month day year))
+                       calendar-week-start-day
+                       ))))
+          'font-lock-face 'calendar-iso-week-face)))
 </pre>
 </div>
 </div>
@@ -7759,6 +7762,11 @@ version 28 で全角スペースに黒下線が付くので回避します．
           (<span style="color: #a020f0;">setq</span> my-dimmer-mode t)
           (dimmer-on)
           (redraw-frame)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-dimmer-activate</span> ()
+  (<span style="color: #a020f0;">setq</span> my-dimmer-mode (dimmer-mode 1))
+  (remove-hook 'window-configuration-change-hook #'my-dimmer-activate))<span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
 </pre>
 </div>
 
@@ -7793,7 +7801,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
   (<span style="color: #a020f0;">unless</span> noninteractive
     (<span style="color: #a020f0;">unless</span> (version&lt; <span style="color: #8b2252;">"28.0"</span> emacs-version)
-      (<span style="color: #a020f0;">setq</span> my-dimmer-mode (dimmer-mode 1)))))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+      (add-hook 'window-configuration-change-hook #'my-dimmer-activate))))
 </pre>
 </div>
 </div>
@@ -13183,7 +13192,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org12dd722"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org6de42b7"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14114,7 +14123,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org830b9b1" class="figure">
+<div id="orgd552109" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14967,6 +14976,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(shackle-mode)
        <span style="color: #8b2252;">"shackle"</span> nil t)
+
   (<span style="color: #a020f0;">unless</span> noninteractive
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'window-configuration-change-hook #'my-shackle-activate)</span>
     (add-hook 'find-file-hook #'my-shackle-activate))
@@ -15386,18 +15396,18 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-activate</span> ()
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hl-line</span> nil t)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hl-line</span> nil t)
+    (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable))
   (remove-hook 'ah-after-move-cursor-hook #'my-hl-line-activate))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-enable</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">Hard to move this under utility.el</span>
-      <span style="color: #8b2252;">"Enable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
-      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> hl-line-mode
-                  (minibufferp)
-                                    (memq major-mode my-hl-permanent-disabled))
-              (hl-line-mode 1))
-      (<span style="color: #a020f0;">setq</span> my-hl-disabled-by-timer nil))
-
+  <span style="color: #8b2252;">"Enable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
+  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> hl-line-mode
+              (minibufferp)
+                                (memq major-mode my-hl-permanent-disabled))
+          (hl-line-mode 1))
+  (<span style="color: #a020f0;">setq</span> my-hl-disabled-by-timer nil))
 </pre>
 </div>
 
@@ -15406,8 +15416,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
        '(hl-line-mode my-hl-line-enable)
        <span style="color: #8b2252;">"hl-line"</span> nil t)
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Tricky! Add `</span><span style="color: #008b8b;">my-hl-line-enable</span><span style="color: #b22222;">' before adding `</span><span style="color: #008b8b;">my-hl-line-activate</span><span style="color: #b22222;">'.</span>
-  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Tricky!</span>
   (add-hook 'ah-after-move-cursor-hook #'my-hl-line-activate)
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-hl-permanent-disabled</span> '(dired-mode vterm-mode)
@@ -15821,24 +15830,22 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
           (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
           (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
   (my-hl-todo-reload))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-activate</span> ()
+  (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+  (remove-hook 'find-file-hook #'my-hl-todo-activate))
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(global-hl-todo-mode my-hl-todo-activate)
+       '(global-hl-todo-mode)
        <span style="color: #8b2252;">"hl-todo"</span> nil t)
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-hl-todo-activate ()</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(global-hl-todo-mode)</span>
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(remove-hook 'pre-command-hook #'my-hl-todo-activate))</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'pre-command-hook #'my-hl-todo-activate)</span>
-
-  (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-todo"</span>
-    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
-    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
+  (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+  (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)
+  (add-hook 'find-file-hook #'my-hl-todo-activate))
 </pre>
 </div>
 </div>
@@ -18532,7 +18539,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-10 Wed 01:00</p>
+<p class="date">Created: 2022-08-10 Wed 23:01</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

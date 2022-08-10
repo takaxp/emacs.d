@@ -18,7 +18,7 @@
                 :around #'ad:gcmh-idle-garbage-collect))
 
   (unless noninteractive
-    (gcmh-mode 1)))
+    (defvar my-gcmh-timer (run-with-idle-timer 10 nil #'my-gcmh-activate))))
 
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 (defvar shutup-p nil)
@@ -110,7 +110,7 @@
 
 (unless noninteractive
   (defvar my-private-conf-timer
-    (run-with-idle-timer 3 nil #'my-private-conf-activate)))
+    (run-with-idle-timer 5 nil #'my-private-conf-activate)))
 
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
@@ -677,6 +677,7 @@
 (when (autoload-if-found
        '(js2-mode)
        "js2-mode" nil t)
+
   (with-eval-after-load "js2-mode"
     (if (executable-find "js-beautify")
         (when (require 'web-beautify nil t)
@@ -991,7 +992,8 @@
        '(migemo-init)
        "migemo" nil t)
 
-  (add-hook 'find-file-hook #'my-migemo-activate)
+  ;; Tricky!
+  (add-hook 'isearch-mode-hook #'my-migemo-activate)
 
   (with-eval-after-load "migemo"
     (custom-set-variables
@@ -1078,35 +1080,31 @@
     (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
     (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend)))
 
-(when (autoload-if-found
-       '(my-get-week-number)
-       "calendar" nil t)
+(with-eval-after-load "calendar"
+  (setq calendar-week-start-day 1)
+  (copy-face 'default 'calendar-iso-week-header-face)
+  (set-face-attribute 'calendar-iso-week-header-face nil
+                      :height 1.0 :foreground "#1010FF"
+                      :background (face-background 'default))
+  (setq calendar-intermonth-header
+        (propertize " w"
+                    'font-lock-face 'calendar-iso-week-header-face))
 
-  (with-eval-after-load "calendar"
-    (setq calendar-week-start-day 1)
-    (copy-face 'default 'calendar-iso-week-header-face)
-    (set-face-attribute 'calendar-iso-week-header-face nil
-                        :height 1.0 :foreground "#1010FF"
-                        :background (face-background 'default))
-    (setq calendar-intermonth-header
-          (propertize " w"
-                      'font-lock-face 'calendar-iso-week-header-face))
+  (copy-face font-lock-constant-face 'calendar-iso-week-face)
+  (set-face-attribute 'calendar-iso-week-face nil
+                      :height 1.0 :foreground "orange"
+                      :background (face-background 'default))
 
-    (copy-face font-lock-constant-face 'calendar-iso-week-face)
-    (set-face-attribute 'calendar-iso-week-face nil
-                        :height 1.0 :foreground "orange"
-                        :background (face-background 'default))
-
-    (setq calendar-intermonth-text
-          '(propertize
-            (format "%02d"
-                    (car
-                     (calendar-iso-from-absolute
-                      (+ (calendar-absolute-from-gregorian
-                          (list month day year))
-                         calendar-week-start-day
-                         ))))
-            'font-lock-face 'calendar-iso-week-face))))
+  (setq calendar-intermonth-text
+        '(propertize
+          (format "%02d"
+                  (car
+                   (calendar-iso-from-absolute
+                    (+ (calendar-absolute-from-gregorian
+                        (list month day year))
+                       calendar-week-start-day
+                       ))))
+          'font-lock-face 'calendar-iso-week-face)))
 
 (when (autoload-if-found
        '(which-key-mode)
@@ -1375,7 +1373,8 @@
 
   (unless noninteractive
     (unless (version< "28.0" emacs-version)
-      (setq my-dimmer-mode (dimmer-mode 1)))))
+      ;; FIXME
+      (add-hook 'window-configuration-change-hook #'my-dimmer-activate))))
 
 ;; この場合は，interactive モードで init-eval.el にある記述をロードするはだめ．
 (eval-when-compile
@@ -1941,6 +1940,7 @@
 (when (autoload-if-found
        '(shackle-mode)
        "shackle" nil t)
+
   (unless noninteractive
     ;; (add-hook 'window-configuration-change-hook #'my-shackle-activate)
     (add-hook 'find-file-hook #'my-shackle-activate))
@@ -1985,8 +1985,7 @@
        '(hl-line-mode my-hl-line-enable)
        "hl-line" nil t)
 
-  ;; Tricky! Add `my-hl-line-enable' before adding `my-hl-line-activate'.
-  (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable)
+  ;; Tricky!
   (add-hook 'ah-after-move-cursor-hook #'my-hl-line-activate)
 
   (defvar my-hl-permanent-disabled '(dired-mode vterm-mode)
@@ -2052,19 +2051,12 @@
                       :inherit nil))
 
 (when (autoload-if-found
-       '(global-hl-todo-mode my-hl-todo-activate)
+       '(global-hl-todo-mode)
        "hl-todo" nil t)
 
-  ;; (defun my-hl-todo-activate ()
-  ;;   (global-hl-todo-mode)
-  ;;   (remove-hook 'pre-command-hook #'my-hl-todo-activate))
-  ;; (add-hook 'pre-command-hook #'my-hl-todo-activate)
-
-  (global-hl-todo-mode) ;; FIXME
-
-  (with-eval-after-load "hl-todo"
-    (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
-    (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)))
+  (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
+  (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)
+  (add-hook 'find-file-hook #'my-hl-todo-activate))
 
 ;; (declare-function my-font-config "init" nil)
 ;; This may override or reset font setting
