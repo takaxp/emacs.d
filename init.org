@@ -90,6 +90,8 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
+(unless (featurep 'postpone)
+  (call-interactively 'postpone-pre))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :exports none
@@ -99,18 +101,15 @@ Then load the following at startup
   (require 'init-org nil t))
 
 (unless noninteractive
-  (with-eval-after-load "utility"
-    (require 'postpone nil t)
-    (require 'init-org nil t))
-
   (with-eval-after-load "org"
-    (require 'postpone nil t)
     (require 'init-org nil t)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
 ;; utility.el --- My utility.el -*- lexical-binding: t -*-
 ;; "my-" and "ad:" functions associated with my 'init.el'
+(unless (featurep 'postpone)
+  (call-interactively 'postpone-pre))
 #+end_src
 
 ** [early-init.el] early-init.el を使う
@@ -352,6 +351,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 ** 警告の抑制
    :PROPERTIES:
    :CUSTOM_ID: org8b967ce1
+   :ID:       ED1B0FD9-9A3D-4A4D-8D98-8D40334E57FC
    :END:
 
 起動時に警告が出てうっとうしい場合に使います．起動直後に呼ばれるように， =.emacs= の上の方に書いておくとよいと思います．
@@ -369,6 +369,46 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 特定のパッケージの deprecated メッセージを抑制します． =my-exclude-deprecated-packages= にパッケージを列挙します．以下は =cl= と =tls= の出力だけ抑制して他のパッケージの場合は表示します．
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:do-after-load-evaluation (abs-file)
+  "Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
+ABS-FILE, a string, should be the absolute true name of a file just loaded.
+This function is called directly from the C code."
+  ;; Run the relevant eval-after-load forms.
+  (dolist (a-l-element after-load-alist)
+    (when (and (stringp (car a-l-element))
+               (string-match-p (car a-l-element) abs-file))
+      ;; discard the file name regexp
+      (mapc #'funcall (cdr a-l-element))))
+  ;; Complain when the user uses obsolete files.
+  (when (string-match-p "/obsolete/[^/]*\\'" abs-file)
+    ;; Maybe we should just use display-warning?  This seems yucky...
+    (let* ((file (file-name-nondirectory abs-file))
+           (package (intern (substring file 0
+			               (string-match "\\.elc?\\>" file))
+                            obarray))
+           (msg (unless (memq package my-exclude-deprecated-packages)
+                  (format "Package %s is deprecated" package)))
+	   (fun (lambda (msg) (message "%s" msg))))
+      (when (or (not (fboundp 'byte-compile-warning-enabled-p))
+                (byte-compile-warning-enabled-p 'obsolete package))
+        (cond
+	 ((bound-and-true-p byte-compile-current-file)
+	  ;; Don't warn about obsolete files using other obsolete files.
+	  (unless (and (stringp byte-compile-current-file)
+		       (string-match-p "/obsolete/[^/]*\\'"
+				       (expand-file-name
+					byte-compile-current-file
+					byte-compile-root-dir)))
+	    (byte-compile-warn "%s" msg)))
+         (noninteractive (funcall fun msg)) ;; No timer will be run!
+	 (t (run-with-idle-timer 0 nil fun msg))))))
+
+  ;; Finally, run any other hook.
+  (run-hook-with-args 'after-load-functions abs-file))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :exports none
 ;;;###autoload
 (defun ad:do-after-load-evaluation (abs-file)
   "Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
@@ -552,43 +592,8 @@ This function is called directly from the C code."
 
 起動後，即座にEmacs終了するシーンでは， =postpone.el= に紐付けた設定が活性化すると無駄になります．それを回避するために， =this-command= の値を確認して，条件に合う場合だけ =postpone.el= が読み込まれる（結果的に紐付いている全ての設定が活性化する）ようにしています．
 
-#+begin_src emacs-lisp :tangle no
-(if (not (locate-library "postpone"))
-    (message "postpone.el is NOT installed.")
-  (autoload 'postpone-kicker "postpone" nil t)
-  (defvar postpone-pre-init-time 0)
-  (defun my-postpone-kicker ()
-    (interactive)
-    (cancel-timer my-pp-kicker-timer)
-    (when (eq postpone-pre-init-time 0)
-      (unless (memq this-command ;; specify commands for exclusion
-                    '(self-insert-command
-                      newline
-		                  forward-char
-		                  backward-char
-                      delete-char
-		                  delete-backward-char
-                      save-buffer
-                      save-buffers-kill-terminal
-                      electric-newline-and-maybe-indent
-                      exit-minibuffer))
-        (message "Activating postponed packages...")
-        (let ((t1 (current-time)))
-          (postpone-kicker 'my-postpone-kicker)
-          (setq postpone-pre-init-time (float-time
-                                        (time-subtract (current-time) t1))))
-        (message "Activating postponed packages...done (%.3f seconds)"
-                 postpone-pre-init-time))))
-
-  ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
-  (defvar my-pp-kicker-timer (run-with-idle-timer 8 nil #'my-postpone-kicker))
-
-  ;; 起動後，最初のアクションでキック
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes :exports none
-;; copy of postpone-pre.el -- begin
+#+begin_src emacs-lisp :tangle yes
+;; Copied from postpone-pre.el for speed up -- begin ;;;;;;;;;;;;;;;;;;;;;
 (defvar postpone-pre-init-time nil
   "A variable to store the duration of loading postponed packages.")
 
@@ -611,25 +616,27 @@ This function is called directly from the C code."
                                     (time-subtract (current-time) t1))))
     (message "Activating postponed packages...done (%.3f seconds)"
              postpone-pre-init-time)))
-;; copy of postpone-pre.el -- end
 
 (if (not (locate-library "postpone"))
     (error "postpone.el is NOT installed yet or cannot find it")
   (autoload 'postpone-kicker "postpone" nil t)
   (add-hook 'pre-command-hook #'postpone-pre))
+;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq postpone-pre-exclude
       '(self-insert-command
         newline
-		    forward-char
-		    backward-char
+        forward-char
+        backward-char
         delete-char
-		    delete-backward-char
+        delete-backward-char
         save-buffer
         save-buffers-kill-terminal
         electric-newline-and-maybe-indent
         exit-minibuffer))
-(run-with-idle-timer 8 nil #'postpone-pre)
+
+;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
+(defvar my-pp-kicker-timer (run-with-idle-timer 5 nil #'postpone-pre))
 #+end_src
 
 ** [future-time-p] 指定時刻が本日の未来の時刻かを判定
@@ -711,8 +718,9 @@ This function is called directly from the C code."
 - https://gitlab.com/koral/gcmh
 
 #+begin_src emacs-lisp :tangle utility.el
-(eval-when-compile
-  (require 'gcmh))
+;; (eval-when-compile
+;;   (message "Loading gcmh... %s" (featurep 'gcmh))
+;;   (require 'gcmh))
 
 (defvar my-gcmh-idlegc-p nil)
 
@@ -745,7 +753,8 @@ This function is called directly from the C code."
                 :around #'ad:gcmh-idle-garbage-collect))
 
   (unless noninteractive
-    (defvar my-gcmh-timer (run-with-idle-timer 10 nil #'my-gcmh-activate))))
+    (defvar my-gcmh-timer (run-with-idle-timer 10 nil #'my-gcmh-activate))
+))
 #+end_src
 
 ** [shut-up.el] Messages 出力を封じる（制御する）
@@ -1493,7 +1502,7 @@ echo "--- done."
 ;;;###autoload
 (defun my-emacs-lisp-mode-conf ()
   ;; (setq indent-tabs-mode t)
-  ;; (setq tab-width 8)
+  (setq tab-width 8)
   (setq indent-line-function 'lisp-indent-line))
 #+end_src
 
@@ -1628,7 +1637,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 ;;;###autoload
 (defun my-private-conf-activate ()
   (cancel-timer my-private-conf-timer)
-  (require 'epa)
+  ;; (require 'epa)
   (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
              (eq system-type 'darwin)
              (not (boundp 'my-private-conf-loaded)))
@@ -1639,7 +1648,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
   (defvar my-private-conf-timer
-    (run-with-idle-timer 5 nil #'my-private-conf-activate)))
+    (run-with-idle-timer 6 nil #'my-private-conf-activate)))
 #+end_src
 
 =w32= の MSYS2 で gpg を使うと，バージョン情報が "2.2.19-unknown" などとなる．その状況で ~epg-find-configuration~ が呼ばれると，内部で生じるエラーが報告されず nil となり， ~epg.el~ が以下を報告する．
@@ -2412,21 +2421,25 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
    :ID:       DB6C1841-0CF4-4FF4-A4F7-93D414FAA6DC
    :END:
 
-  - https://bitbucket.org/jpkotta/syntax-subword
+  - https://github.com/jpkotta/syntax-subword
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-syntax-subword-activate ()
-  (global-syntax-subword-mode 1)  
-  (remove-hook 'find-file-hook #'my-syntax-subword-activate))
+(defun my-syntax-subword-activate (&rest arg)
+  (unless (featurep 'syntax-subword)
+    (global-syntax-subword-mode 1))
+  (advice-remove 'forward-word #'my-syntax-subword-activate)
+  (advice-remove 'backword-word #'my-syntax-subword-activate)
+  arg)
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found
-       '(global-syntax-subword-mode)
+       '(global-syntax-subword-mode syntax-subword-mode)
        "syntax-subword" nil t)
 
-  (add-hook 'find-file-hook #'my-syntax-subword-activate))
+  (advice-add 'forward-word :before #'my-syntax-subword-activate)
+  (advice-add 'backword-word :before #'my-syntax-subword-activate))
 #+end_src
 
 ** [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる
@@ -4956,8 +4969,8 @@ Built-in の paren.el が利用できる．拡張版として [[http://www.emacs
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
-(eval-when-compile
-  (require 'mic-paren nil t))
+;; (eval-when-compile
+;;   (require 'mic-paren nil t))
 
 (when (autoload-if-found
        '(paren-activate)
@@ -5296,8 +5309,9 @@ version 28 で全角スペースに黒下線が付くので回避します．
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(eval-when-compile
-  (require 'fringe-helper))
+;; (eval-when-compile
+;;   (message "Loading fringe-helper...")
+;;   (require 'fringe-helper))
 
 (when (autoload-if-found
        '(git-gutter-mode)
@@ -5794,7 +5808,7 @@ sorted.  FUNCTION must be a function of one argument."
   (global-set-key (kbd "M-y") 'counsel-yank-pop)
   (global-set-key (kbd "C-,") 'counsel-mark-ring)
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
-  (global-set-key (kbd "C-c i r") 'ivy-resume)
+  (global-set-key (kbd "C-M-g") 'ivy-resume)
 
   (unless (fboundp 'seq-sort-by) ;; emacs25
     (defalias 'seq-sort-by 'my-seq-sort-by))
@@ -6252,8 +6266,9 @@ sorted.  FUNCTION must be a function of one argument."
 
 #+begin_src emacs-lisp :tangle late-init.el
 ;; この場合は，interactive モードで init-eval.el にある記述をロードするはだめ．
-(eval-when-compile
-  (require 'transient))
+;; (eval-when-compile
+;;   (message "Loading transient...")
+;;   (require 'transient))
 
 (with-eval-after-load "transient"
   (transient-define-prefix my-org-bullet-and-checkbox ()
@@ -7306,12 +7321,6 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
  - helm-dired-history or ivy-dired-history
 
 #+begin_src emacs-lisp :tangle late-init.el
-;; (defun ad:find-file-noselect (_filename &optional _nowarn _rawfile _wildcards)
-;;   (unless (require 'init-dired nil t)
-;;     (user-error "init-dired.el doesn't exist"))
-;;   (advice-remove 'find-file-noselect #'ad:find-file-noselect)
-;;   (advice-remove 'dired #'ad:dired-activate))
-;; (advice-add 'find-file-noselect :before #'ad:find-file-noselect)
 (advice-add 'dired :before #'ad:dired-activate)
 #+end_src
 
@@ -7320,11 +7329,10 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 (defun ad:dired-activate (_dirname &optional _switches)
   (unless (require 'init-dired nil t)
     (user-error "init-dired.el doesn't exist"))
-  ;; (advice-remove 'find-file-noselect #'ad:find-file-noselect)
   (advice-remove 'dired #'ad:dired-activate))
 #+end_src
 
-明示的に ~dired~ を呼ばなくても， ~ibuffer~ が ~dired~ を読み込むことがわかったので， ~dired~ に関係する以下の設定は， ~init-dired.el~ に分離しました．下記の設定は， =M-x dired= と =M-x find-file-noselect= を実行したタイミングで1回だけ読み込まれません．
+明示的に ~dired~ を呼ばなくても， ~ibuffer~ が ~dired~ を読み込むことがわかったので， ~dired~ に関係する以下の設定は， ~init-dired.el~ に分離しました．下記の設定は，最初に =M-x dired= を実行したタイミングで読み込みます．
 
 #+begin_src emacs-lisp :tangle init-dired.el
 (setq completion-ignored-extensions
@@ -7852,6 +7860,7 @@ the_silver_searcher @0.18.1 (textproc)
 ** [counsel-ag.el] 高速全文検索
    :PROPERTIES:
    :CUSTOM_ID: org29c7b6b7
+   :ID:       6D43DE49-9B60-4E7F-BF82-C301BA474EFD
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -8265,8 +8274,9 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
   - auto-complete より前に hook設定しておくと余計なエラーが出ないようです．
 
 #+begin_src emacs-lisp :tangle utility.el
-(eval-when-compile
-  (require 'dash))
+;; (eval-when-compile
+;;   (message "Loading dash...")
+;;   (require 'dash))
 
 ;;;###autoload
 (defun counsel-flycheck-action (obj &rest _)
@@ -8300,9 +8310,6 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(eval-when-compile
-  (require 'dash nil t))
-
 (when (autoload-if-found
        '(flycheck-mode)
        "flycheck" nil t)
@@ -8580,6 +8587,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 ** [projectile.el] ディレクトリ単位でファイル群をプロジェクト扱いする
    :PROPERTIES:
    :CUSTOM_ID: org7d18b489
+   :ID:       46D0445D-F11A-417F-95F4-30DDA8A8093D
    :END:
 
  - プロジェクト内に限定して検索をかける時に重宝する．
@@ -8606,6 +8614,17 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 (defun ad:projectile-visit-project-tags-table ()
   "Extensions to skip calling `visit-tags-table'."
   nil)
+
+;;;###autoload
+(defun my-counsel-projectile-ag ()
+  "Use `counsel-projectile-ag' in a projectile project except when `dired'.
+Otherwise, use `counsel-ag'."
+  (interactive)
+  (if (or (and (eq projectile-require-project-root 'prompt)
+               (not (projectile-project-p)))
+          (eq major-mode 'dired-mode))
+      (counsel-ag)
+    (counsel-projectile-ag)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -8654,6 +8673,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
       (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
       (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
       (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+      (define-key projectile-mode-map (kbd "C-M-f") 'my-counsel-projectile-ag)
       (counsel-projectile-mode 1)))
 
   (unless noninteractive
@@ -9078,7 +9098,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defvar my-org-modules org-modules) ;; Tricky!!
   ;; (setq org-modules-loaded t) ;; not a good way
   (setq org-modules nil)
-  (run-with-idle-timer 11 nil #'my-org-modules-activate) ;; will take 350[ms]
+  (run-with-idle-timer 8 nil #'my-org-modules-activate) ;; will take 350[ms]
 
   ;; タイトルを少し強調
   (custom-set-faces
@@ -10213,7 +10233,7 @@ will not be modified."
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
 (defvar my-org-agenda-pb-timer
-  (run-with-idle-timer 12 nil #'my-org-agenda-prepare-buffers))
+  (run-with-idle-timer 9 nil #'my-org-agenda-prepare-buffers))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -10775,8 +10795,8 @@ update it for multiple appts?")
 ;;;###autoload
 (defun my-org-babel-load-activate ()
   (if (featurep 'ob-http)
-      (message "ob-* language packages are previously loaded.")
-    (message "Loading ob-* language packages...")
+      (message "org-babel language packages are previously loaded.")
+    (message "Loading org-babel language packages...")
     (require 'ob-http nil t)
     (require 'ob-gnuplot nil t)
     (require 'ob-octave nil t)
@@ -10793,13 +10813,13 @@ update it for multiple appts?")
                                   (sqlite . t)
                                   (R . t)
                                   (python . t))))
-    (message "Loading ob-* language packages...done")))
+    (message "Loading org-babel language packages...done")))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
   ;; will take 200[ms]
-  (run-with-idle-timer 10 nil #'my-org-babel-load-activate))
+  (run-with-idle-timer 7 nil #'my-org-babel-load-activate))
 
 (with-eval-after-load "ob-src"
   ;; 実装済みの言語に好きな名前を紐付ける
@@ -11489,8 +11509,9 @@ Note that this mechanism is still under consideration."
 =my-add-org-ids-to-headlines-in-file= は，バッファの保存時点，或いは，HTMLエクスポートが走る直前のタイミングで自動実行させるのがスマートだが，当面は手動で運用する．
 
 #+begin_src emacs-lisp :tangle init-org.el
-(eval-when-compile
-  (require 'org-macs)) ;; for org-with-point-at
+;; (eval-when-compile
+;;   (message "Loading org-macs...")
+;;   (require 'org-macs)) ;; for org-with-point-at
 
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
@@ -12391,7 +12412,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (defun my-apply-cursor-config ()
   (interactive)
   (when (display-graphic-p)
-	  (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+    (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
 
 ;; for init setup
 (setq-default cursor-type (plist-get my-cur-type-ime :on))
@@ -12829,7 +12850,6 @@ The keybindings will be assigned only when Emacs runs in GUI."
 
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
-  (postpone-message "winner-mode")
 
   (when (autoload-if-found '(winner-undo) "winner" nil t)
     (global-set-key (kbd "C-x g") 'winner-undo)
@@ -13237,8 +13257,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   "Disable `hl-line'."
   (hl-line-mode -1))
 
-(eval-when-compile
-  (require 'hl-line))
+;; (eval-when-compile
+;;   (message "Loading hl-line...")
+;;   (require 'hl-line))
 
 ;;;###autoload
 (defun my-hl-line-activate ()

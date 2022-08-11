@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-10 Wed 23:01 -->
+<!-- 2022-08-12 Fri 00:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -837,6 +837,8 @@ Then load the following at startup
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">utility.el --- My utility.el -*- lexical-binding: t -*-</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">"my-" and "ad:" functions associated with my '</span><span style="color: #008b8b;">init.el</span><span style="color: #b22222;">'</span>
+(<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">postpone</span>)
+  (call-interactively 'postpone-pre))
 </pre>
 </div>
 </div>
@@ -1160,30 +1162,24 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Maybe we should just use display-warning?  This seems yucky...</span>
     (<span style="color: #a020f0;">let*</span> ((file (file-name-nondirectory abs-file))
            (package (intern (substring file 0
-                                                         (string-match <span style="color: #8b2252;">"\\.elc?\\&gt;"</span> file))
+                                       (string-match <span style="color: #8b2252;">"\\.elc?\\&gt;"</span> file))
                             obarray))
            (msg (<span style="color: #a020f0;">unless</span> (memq package my-exclude-deprecated-packages)
                   (format <span style="color: #8b2252;">"Package %s is deprecated"</span> package)))
-                 (fun (<span style="color: #a020f0;">lambda</span> (msg) (message <span style="color: #8b2252;">"%s"</span> msg))))
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Cribbed from cl--compiling-file.</span>
+           (fun (<span style="color: #a020f0;">lambda</span> (msg) (message <span style="color: #8b2252;">"%s"</span> msg))))
       (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">or</span> (not (fboundp 'byte-compile-warning-enabled-p))
                 (byte-compile-warning-enabled-p 'obsolete package))
         (<span style="color: #a020f0;">cond</span>
-               ((<span style="color: #a020f0;">and</span> (boundp 'byte-compile--outbuffer)
-                     (bufferp (symbol-value 'byte-compile--outbuffer))
-                     (equal (buffer-name (symbol-value 'byte-compile--outbuffer))
-                                  <span style="color: #8b2252;">" *Compiler Output*"</span>))
-                <span style="color: #b22222;">;; </span><span style="color: #b22222;">Don't warn about obsolete files using other obsolete files.</span>
-                (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">and</span> (stringp byte-compile-current-file)
-                                   (string-match-p <span style="color: #8b2252;">"/obsolete/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]*\\'"</span>
-                                                               (expand-file-name
-                                                                      byte-compile-current-file
-                                                                      byte-compile-root-dir)))
-                  (byte-compile-warn <span style="color: #8b2252;">"%s"</span> msg)))
-         ((<span style="color: #a020f0;">and</span> msg
-               noninteractive (funcall fun msg))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">No timer will be run!</span>
-               (t (<span style="color: #a020f0;">when</span> msg
-              (run-with-idle-timer 0 nil fun msg)))))))
+         ((<span style="color: #a020f0;">bound-and-true-p</span> byte-compile-current-file)
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">Don't warn about obsolete files using other obsolete files.</span>
+          (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">and</span> (stringp byte-compile-current-file)
+                       (string-match-p <span style="color: #8b2252;">"/obsolete/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]*\\'"</span>
+                                       (expand-file-name
+                                        byte-compile-current-file
+                                        byte-compile-root-dir)))
+            (byte-compile-warn <span style="color: #8b2252;">"%s"</span> msg)))
+         (noninteractive (funcall fun msg)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">No timer will be run!</span>
+         (t (run-with-idle-timer 0 nil fun msg))))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Finally, run any other hook.</span>
   (run-hook-with-args 'after-load-functions abs-file))
@@ -1357,38 +1353,50 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">if</span> (not (locate-library <span style="color: #8b2252;">"postpone"</span>))
-    (message <span style="color: #8b2252;">"postpone.el is NOT installed."</span>)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Copied from postpone-pre.el for speed up -- begin ;;;;;;;;;;;;;;;;;;;;;</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">postpone-pre-init-time</span> nil
+  <span style="color: #8b2252;">"A variable to store the duration of loading postponed packages."</span>)
+
+(<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">postpone-pre-exclude</span> '(self-insert-command
+                                  save-buffers-kill-terminal
+                                  exit-minibuffer)
+  <span style="color: #8b2252;">"A list of commands not to activate `</span><span style="color: #008b8b;">postpone-mode</span><span style="color: #8b2252;">'."</span>
+  <span style="color: #483d8b;">:type</span> 'sexp
+  <span style="color: #483d8b;">:group</span> 'postpone)
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">postpone-pre</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> (memq this-command postpone-pre-exclude)
+              postpone-pre-init-time)
+    (message <span style="color: #8b2252;">"Activating postponed packages..."</span>)
+    (<span style="color: #a020f0;">let</span> ((t1 (current-time)))
+      (postpone-kicker 'postpone-pre)
+      (<span style="color: #a020f0;">setq</span> postpone-pre-init-time (float-time
+                                    (time-subtract (current-time) t1))))
+    (message <span style="color: #8b2252;">"Activating postponed packages...done (%.3f seconds)"</span>
+             postpone-pre-init-time)))
+
+(<span style="color: #a020f0;">if</span> (not (locate-library <span style="color: #8b2252;">"postpone"</span>))
+    (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"postpone.el is NOT installed yet or cannot find it"</span>)
   (autoload 'postpone-kicker <span style="color: #8b2252;">"postpone"</span> nil t)
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">postpone-pre-init-time</span> 0)
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-postpone-kicker</span> ()
-    (<span style="color: #a020f0;">interactive</span>)
-    (cancel-timer my-pp-kicker-timer)
-    (<span style="color: #a020f0;">when</span> (eq postpone-pre-init-time 0)
-      (<span style="color: #a020f0;">unless</span> (memq this-command <span style="color: #b22222;">;; </span><span style="color: #b22222;">specify commands for exclusion</span>
-                    '(self-insert-command
-                      newline
-                                  forward-char
-                                  backward-char
-                      delete-char
-                                  delete-backward-char
-                      save-buffer
-                      save-buffers-kill-terminal
-                      electric-newline-and-maybe-indent
-                      exit-minibuffer))
-        (message <span style="color: #8b2252;">"Activating postponed packages..."</span>)
-        (<span style="color: #a020f0;">let</span> ((t1 (current-time)))
-          (postpone-kicker 'my-postpone-kicker)
-          (<span style="color: #a020f0;">setq</span> postpone-pre-init-time (float-time
-                                        (time-subtract (current-time) t1))))
-        (message <span style="color: #8b2252;">"Activating postponed packages...done (%.3f seconds)"</span>
-                 postpone-pre-init-time))))
+  (add-hook 'pre-command-hook #'postpone-pre))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;</span>
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;X&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pp-kicker-timer</span> (run-with-idle-timer 8 nil #'my-postpone-kicker))
+(<span style="color: #a020f0;">setq</span> postpone-pre-exclude
+      '(self-insert-command
+        newline
+        forward-char
+        backward-char
+        delete-char
+        delete-backward-char
+        save-buffer
+        save-buffers-kill-terminal
+        electric-newline-and-maybe-indent
+        exit-minibuffer))
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#26368;&#21021;&#12398;&#12450;&#12463;&#12471;&#12519;&#12531;&#12391;&#12461;&#12483;&#12463;</span>
-  (add-hook 'pre-command-hook #'my-postpone-kicker))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;X&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pp-kicker-timer</span> (run-with-idle-timer 5 nil #'postpone-pre))
 </pre>
 </div>
 </div>
@@ -1482,8 +1490,9 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">eval-when-compile</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">gcmh</span>))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(eval-when-compile</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "Loading gcmh... %s" (featurep 'gcmh))</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'gcmh))</span>
 
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-idlegc-p</span> nil)
 
@@ -1517,7 +1526,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
                 <span style="color: #483d8b;">:around</span> #'ad:gcmh-idle-garbage-collect))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
-    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-timer</span> (run-with-idle-timer 10 nil #'my-gcmh-activate))))
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-timer</span> (run-with-idle-timer 10 nil #'my-gcmh-activate))
+))
 </pre>
 </div>
 </div>
@@ -2382,7 +2392,7 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-emacs-lisp-mode-conf</span> ()
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq indent-tabs-mode t)</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq tab-width 8)</span>
+  (<span style="color: #a020f0;">setq</span> tab-width 8)
   (<span style="color: #a020f0;">setq</span> indent-line-function 'lisp-indent-line))
 </pre>
 </div>
@@ -2533,7 +2543,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-private-conf-activate</span> ()
   (cancel-timer my-private-conf-timer)
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">epa</span>)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'epa)</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p <span style="color: #8b2252;">"~/Dropbox/config/private.el.gpg"</span>)
              (eq system-type 'darwin)
              (not (boundp 'my-private-conf-loaded)))
@@ -2545,7 +2555,7 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-private-conf-timer</span>
-    (run-with-idle-timer 5 nil #'my-private-conf-activate)))
+    (run-with-idle-timer 6 nil #'my-private-conf-activate)))
 </pre>
 </div>
 
@@ -3433,23 +3443,27 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 <h3 id="orgf75f443a"><span class="section-number-3">4.13.</span> [syntax-subword.el] M-f で移動する位置をより密にする</h3>
 <div class="outline-text-3" id="text-orgf75f443a">
 <ul class="org-ul">
-<li><a href="https://bitbucket.org/jpkotta/syntax-subword">https://bitbucket.org/jpkotta/syntax-subword</a></li>
+<li><a href="https://github.com/jpkotta/syntax-subword">https://github.com/jpkotta/syntax-subword</a></li>
 </ul>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-syntax-subword-activate</span> ()
-  (global-syntax-subword-mode 1)  
-  (remove-hook 'find-file-hook #'my-syntax-subword-activate))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-syntax-subword-activate</span> (<span style="color: #228b22;">&amp;rest</span> arg)
+  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">syntax-subword</span>)
+    (global-syntax-subword-mode 1))
+  (advice-remove 'forward-word #'my-syntax-subword-activate)
+  (advice-remove 'backword-word #'my-syntax-subword-activate)
+  arg)
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
-       '(global-syntax-subword-mode)
+       '(global-syntax-subword-mode syntax-subword-mode)
        <span style="color: #8b2252;">"syntax-subword"</span> nil t)
 
-  (add-hook 'find-file-hook #'my-syntax-subword-activate))
+  (advice-add 'forward-word <span style="color: #483d8b;">:before</span> #'my-syntax-subword-activate)
+  (advice-add 'backword-word <span style="color: #483d8b;">:before</span> #'my-syntax-subword-activate))
 </pre>
 </div>
 </div>
@@ -6422,8 +6436,8 @@ Built-in の paren.el が利用できる．拡張版として <a href="http://ww
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">eval-when-compile</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">mic-paren</span> nil t))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(eval-when-compile</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'mic-paren nil t))</span>
 
 (<span style="color: #a020f0;">when</span> (autoload-if-found
        '(paren-activate)
@@ -6793,8 +6807,9 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">eval-when-compile</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">fringe-helper</span>))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(eval-when-compile</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "Loading fringe-helper...")</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'fringe-helper))</span>
 
 (<span style="color: #a020f0;">when</span> (autoload-if-found
        '(git-gutter-mode)
@@ -7334,7 +7349,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
   (global-set-key (kbd <span style="color: #8b2252;">"M-y"</span>) 'counsel-yank-pop)
   (global-set-key (kbd <span style="color: #8b2252;">"C-,"</span>) 'counsel-mark-ring)
   (global-set-key (kbd <span style="color: #8b2252;">"C-x C-b"</span>) 'counsel-ibuffer)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c i r"</span>) 'ivy-resume)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-M-g"</span>) 'ivy-resume)
 
   (<span style="color: #a020f0;">unless</span> (fboundp 'seq-sort-by) <span style="color: #b22222;">;; </span><span style="color: #b22222;">emacs25</span>
     (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">seq-sort-by</span> 'my-seq-sort-by))
@@ -7817,8 +7832,9 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12398;&#22580;&#21512;&#12399;&#65292;interactive &#12514;&#12540;&#12489;&#12391; init-eval.el &#12395;&#12354;&#12427;&#35352;&#36848;&#12434;&#12525;&#12540;&#12489;&#12377;&#12427;&#12399;&#12384;&#12417;&#65294;</span>
-(<span style="color: #a020f0;">eval-when-compile</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">transient</span>))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(eval-when-compile</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "Loading transient...")</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'transient))</span>
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"transient"</span>
   (transient-define-prefix my-org-bullet-and-checkbox ()
@@ -8912,13 +8928,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun ad:find-file-noselect (_filename &amp;optional _nowarn _rawfile _wildcards)</span>
-<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(unless (require 'init-dired nil t)</span>
-<span style="color: #b22222;">;;     </span><span style="color: #b22222;">(user-error "init-dired.el doesn't exist"))</span>
-<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(advice-remove 'find-file-noselect #'ad:find-file-noselect)</span>
-<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(advice-remove 'dired #'ad:dired-activate))</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'find-file-noselect :before #'ad:find-file-noselect)</span>
-(advice-add 'dired <span style="color: #483d8b;">:before</span> #'ad:dired-activate)
+<pre class="src src-emacs-lisp">(advice-add 'dired <span style="color: #483d8b;">:before</span> #'ad:dired-activate)
 </pre>
 </div>
 
@@ -8927,13 +8937,12 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:dired-activate</span> (_dirname <span style="color: #228b22;">&amp;optional</span> _switches)
   (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-dired</span> nil t)
     (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"init-dired.el doesn't exist"</span>))
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-remove 'find-file-noselect #'ad:find-file-noselect)</span>
   (advice-remove 'dired #'ad:dired-activate))
 </pre>
 </div>
 
 <p>
-明示的に <code>dired</code> を呼ばなくても， <code>ibuffer</code> が <code>dired</code> を読み込むことがわかったので， <code>dired</code> に関係する以下の設定は， <code>init-dired.el</code> に分離しました．下記の設定は， <code>M-x dired</code> と <code>M-x find-file-noselect</code> を実行したタイミングで1回だけ読み込まれません．
+明示的に <code>dired</code> を呼ばなくても， <code>ibuffer</code> が <code>dired</code> を読み込むことがわかったので， <code>dired</code> に関係する以下の設定は， <code>init-dired.el</code> に分離しました．下記の設定は，最初に <code>M-x dired</code> を実行したタイミングで読み込みます．
 </p>
 
 <div class="org-src-container">
@@ -9977,8 +9986,9 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">eval-when-compile</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dash</span>))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(eval-when-compile</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "Loading dash...")</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'dash))</span>
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">counsel-flycheck-action</span> (obj <span style="color: #228b22;">&amp;rest</span> _)
@@ -10013,10 +10023,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">eval-when-compile</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dash</span> nil t))
-
-(<span style="color: #a020f0;">when</span> (autoload-if-found
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found
        '(flycheck-mode)
        <span style="color: #8b2252;">"flycheck"</span> nil t)
 
@@ -10363,6 +10370,17 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:projectile-visit-project-tags-table</span> ()
   <span style="color: #8b2252;">"Extensions to skip calling `</span><span style="color: #008b8b;">visit-tags-table</span><span style="color: #8b2252;">'."</span>
   nil)
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-counsel-projectile-ag</span> ()
+  <span style="color: #8b2252;">"Use `</span><span style="color: #008b8b;">counsel-projectile-ag</span><span style="color: #8b2252;">' in a projectile project except when `</span><span style="color: #008b8b;">dired</span><span style="color: #8b2252;">'.</span>
+<span style="color: #8b2252;">Otherwise, use `</span><span style="color: #008b8b;">counsel-ag</span><span style="color: #8b2252;">'."</span>
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (<span style="color: #a020f0;">and</span> (eq projectile-require-project-root 'prompt)
+               (not (projectile-project-p)))
+          (eq major-mode 'dired-mode))
+      (counsel-ag)
+    (counsel-projectile-ag)))
 </pre>
 </div>
 
@@ -10412,6 +10430,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
       (<span style="color: #a020f0;">setq</span> counsel-projectile-sort-files t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#24403;&#35442;&#12503;&#12525;&#12472;&#12455;&#12463;&#12488;&#20869;&#12522;&#12473;&#12488;&#12434;&#12477;&#12540;&#12488;</span>
       (<span style="color: #a020f0;">setq</span> counsel-projectile-sort-projects t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12503;&#12525;&#12472;&#12455;&#12463;&#12488;&#12522;&#12473;&#12488;&#12434;&#12477;&#12540;&#12488;</span>
       (define-key projectile-mode-map (kbd <span style="color: #8b2252;">"C-c p"</span>) 'projectile-command-map)
+      (define-key projectile-mode-map (kbd <span style="color: #8b2252;">"C-M-f"</span>) 'my-counsel-projectile-ag)
       (counsel-projectile-mode 1)))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
@@ -10898,7 +10917,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-modules</span> org-modules) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Tricky!!</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-modules-loaded t) ;; not a good way</span>
   (<span style="color: #a020f0;">setq</span> org-modules nil)
-  (run-with-idle-timer 11 nil #'my-org-modules-activate) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 350[ms]</span>
+  (run-with-idle-timer 8 nil #'my-org-modules-activate) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 350[ms]</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12452;&#12488;&#12523;&#12434;&#23569;&#12375;&#24375;&#35519;</span>
   (custom-set-faces
@@ -12140,7 +12159,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#30452;&#25509; org-agenda &#12434;&#21481;&#12367;&#22580;&#21512;&#12399;&#37325;&#12356;&#12414;&#12414;&#65288;&#12479;&#12452;&#12510;&#12540;&#36208;&#12387;&#12390;&#12418;&#12473;&#12523;&#12540;&#65289;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12428;&#12434; (with-eval-after-load "org") &#12398;&#20013;&#12395;&#32622;&#12367;&#12392;&#25391;&#12427;&#33310;&#12356;&#12364;&#22793;(2&#22238;&#23455;&#34892;)&#12395;&#12394;&#12427;</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-pb-timer</span>
-  (run-with-idle-timer 12 nil #'my-org-agenda-prepare-buffers))
+  (run-with-idle-timer 9 nil #'my-org-agenda-prepare-buffers))
 </pre>
 </div>
 
@@ -12714,8 +12733,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-babel-load-activate</span> ()
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">ob-http</span>)
-      (message <span style="color: #8b2252;">"ob-* language packages are previously loaded."</span>)
-    (message <span style="color: #8b2252;">"Loading ob-* language packages..."</span>)
+      (message <span style="color: #8b2252;">"org-babel language packages are previously loaded."</span>)
+    (message <span style="color: #8b2252;">"Loading org-babel language packages..."</span>)
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-http</span> nil t)
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-gnuplot</span> nil t)
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-octave</span> nil t)
@@ -12732,14 +12751,14 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                                   (sqlite . t)
                                   (R . t)
                                   (python . t))))
-    (message <span style="color: #8b2252;">"Loading ob-* language packages...done"</span>)))
+    (message <span style="color: #8b2252;">"Loading org-babel language packages...done"</span>)))
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 200[ms]</span>
-  (run-with-idle-timer 10 nil #'my-org-babel-load-activate))
+  (run-with-idle-timer 7 nil #'my-org-babel-load-activate))
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ob-src"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23455;&#35013;&#28168;&#12415;&#12398;&#35328;&#35486;&#12395;&#22909;&#12365;&#12394;&#21517;&#21069;&#12434;&#32016;&#20184;&#12369;&#12427;</span>
@@ -13192,7 +13211,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org6de42b7"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org83f66ba"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13502,8 +13521,9 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">eval-when-compile</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-macs</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">for org-with-point-at</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(eval-when-compile</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "Loading org-macs...")</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'org-macs)) ;; for org-with-point-at</span>
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-add-custom-id</span> ()
@@ -14123,7 +14143,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgd552109" class="figure">
+<div id="org86f3184" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14456,7 +14476,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-apply-cursor-config</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">when</span> (display-graphic-p)
-          (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+    (<span style="color: #a020f0;">if</span> (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">for init setup</span>
 (<span style="color: #a020f0;">setq-default</span> cursor-type (plist-get my-cur-type-ime <span style="color: #483d8b;">:on</span>))
@@ -14933,7 +14953,6 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
-  (postpone-message <span style="color: #8b2252;">"winner-mode"</span>)
 
   (<span style="color: #a020f0;">when</span> (autoload-if-found '(winner-undo) <span style="color: #8b2252;">"winner"</span> nil t)
     (global-set-key (kbd <span style="color: #8b2252;">"C-x g"</span>) 'winner-undo)
@@ -15391,8 +15410,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
   <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">hl-line</span><span style="color: #8b2252;">'."</span>
   (hl-line-mode -1))
 
-(<span style="color: #a020f0;">eval-when-compile</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hl-line</span>))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(eval-when-compile</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "Loading hl-line...")</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'hl-line))</span>
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-line-activate</span> ()
@@ -18539,7 +18559,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-10 Wed 23:01</p>
+<p class="date">Created: 2022-08-12 Fri 00:32</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

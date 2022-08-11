@@ -125,7 +125,7 @@
   ;; define-obsolete-variable-alias の上書き補正
   (defmacro define-obsolete-variable-alias (obsolete-name
                                             current-name
-					                                  &optional when docstring)
+					    &optional when docstring)
     ""
     (declare (doc-string 4)
              (advertised-calling-convention
@@ -140,7 +140,7 @@
   ;; define-obsolete-function-alias の上書き補正
   (defmacro define-obsolete-function-alias (obsolete-name
                                             current-name
-					                                  &optional when docstring)
+					    &optional when docstring)
     ""
     (declare (doc-string 4)
              (advertised-calling-convention

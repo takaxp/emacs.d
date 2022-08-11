@@ -18,7 +18,8 @@
                 :around #'ad:gcmh-idle-garbage-collect))
 
   (unless noninteractive
-    (defvar my-gcmh-timer (run-with-idle-timer 10 nil #'my-gcmh-activate))))
+    (defvar my-gcmh-timer (run-with-idle-timer 10 nil #'my-gcmh-activate))
+))
 
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 (defvar shutup-p nil)
@@ -110,7 +111,7 @@
 
 (unless noninteractive
   (defvar my-private-conf-timer
-    (run-with-idle-timer 5 nil #'my-private-conf-activate)))
+    (run-with-idle-timer 6 nil #'my-private-conf-activate)))
 
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
@@ -298,10 +299,11 @@
 ;; (add-hook 'isearch-mode-end-hook #'my-smart-mark-activate)
 
 (when (autoload-if-found
-       '(global-syntax-subword-mode)
+       '(global-syntax-subword-mode syntax-subword-mode)
        "syntax-subword" nil t)
 
-  (add-hook 'find-file-hook #'my-syntax-subword-activate))
+  (advice-add 'forward-word :before #'my-syntax-subword-activate)
+  (advice-add 'backword-word :before #'my-syntax-subword-activate))
 
 (setq yank-excluded-properties t)
 
@@ -1008,8 +1010,9 @@
      '(migemo-pattern-alist-length 1024)
      '(migemo-coding-system 'utf-8-unix))))
 
-(eval-when-compile
-  (require 'fringe-helper))
+;; (eval-when-compile
+;;   (message "Loading fringe-helper...")
+;;   (require 'fringe-helper))
 
 (when (autoload-if-found
        '(git-gutter-mode)
@@ -1195,7 +1198,7 @@
   (global-set-key (kbd "M-y") 'counsel-yank-pop)
   (global-set-key (kbd "C-,") 'counsel-mark-ring)
   (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
-  (global-set-key (kbd "C-c i r") 'ivy-resume)
+  (global-set-key (kbd "C-M-g") 'ivy-resume)
 
   (unless (fboundp 'seq-sort-by) ;; emacs25
     (defalias 'seq-sort-by 'my-seq-sort-by))
@@ -1377,8 +1380,9 @@
       (add-hook 'window-configuration-change-hook #'my-dimmer-activate))))
 
 ;; この場合は，interactive モードで init-eval.el にある記述をロードするはだめ．
-(eval-when-compile
-  (require 'transient))
+;; (eval-when-compile
+;;   (message "Loading transient...")
+;;   (require 'transient))
 
 (with-eval-after-load "transient"
   (transient-define-prefix my-org-bullet-and-checkbox ()
@@ -1460,12 +1464,6 @@
     (advice-add 'backup-each-save-compute-location :override
                 #'my-backup-each-save-compute-location)))
 
-;; (defun ad:find-file-noselect (_filename &optional _nowarn _rawfile _wildcards)
-;;   (unless (require 'init-dired nil t)
-;;     (user-error "init-dired.el doesn't exist"))
-;;   (advice-remove 'find-file-noselect #'ad:find-file-noselect)
-;;   (advice-remove 'dired #'ad:dired-activate))
-;; (advice-add 'find-file-noselect :before #'ad:find-file-noselect)
 (advice-add 'dired :before #'ad:dired-activate)
 
 (when (autoload-if-found
@@ -1597,9 +1595,6 @@
 
 (autoload-if-found '(gist-mode) "gist" nil t)
 
-(eval-when-compile
-  (require 'dash nil t))
-
 (when (autoload-if-found
        '(flycheck-mode)
        "flycheck" nil t)
@@ -1727,6 +1722,7 @@
       (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
       (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
       (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+      (define-key projectile-mode-map (kbd "C-M-f") 'my-counsel-projectile-ag)
       (counsel-projectile-mode 1)))
 
   (unless noninteractive
@@ -1804,7 +1800,7 @@
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
 (defvar my-org-agenda-pb-timer
-  (run-with-idle-timer 12 nil #'my-org-agenda-prepare-buffers))
+  (run-with-idle-timer 9 nil #'my-org-agenda-prepare-buffers))
 
 (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
 (run-at-time "20 sec" nil #'my-org-agenda-to-appt)
@@ -1926,7 +1922,6 @@
   (my-mode-line-off))
 
 (unless noninteractive
-  (postpone-message "winner-mode")
 
   (when (autoload-if-found '(winner-undo) "winner" nil t)
     (global-set-key (kbd "C-x g") 'winner-undo)

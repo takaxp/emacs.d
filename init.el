@@ -10,12 +10,7 @@
   (require 'init-org nil t))
 
 (unless noninteractive
-  (with-eval-after-load "utility"
-    (require 'postpone nil t)
-    (require 'init-org nil t))
-
   (with-eval-after-load "org"
-    (require 'postpone nil t)
     (require 'init-org nil t)))
 
 (defconst my-before-load-init-time (current-time))
@@ -92,7 +87,7 @@
       (autoload f file docstring interactive type))
     t))
 
-;; copy of postpone-pre.el -- begin
+;; Copied from postpone-pre.el for speed up -- begin ;;;;;;;;;;;;;;;;;;;;;
 (defvar postpone-pre-init-time nil
   "A variable to store the duration of loading postponed packages.")
 
@@ -115,25 +110,27 @@
                                     (time-subtract (current-time) t1))))
     (message "Activating postponed packages...done (%.3f seconds)"
              postpone-pre-init-time)))
-;; copy of postpone-pre.el -- end
 
 (if (not (locate-library "postpone"))
     (error "postpone.el is NOT installed yet or cannot find it")
   (autoload 'postpone-kicker "postpone" nil t)
   (add-hook 'pre-command-hook #'postpone-pre))
+;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq postpone-pre-exclude
       '(self-insert-command
         newline
-		    forward-char
-		    backward-char
+        forward-char
+        backward-char
         delete-char
-		    delete-backward-char
+        delete-backward-char
         save-buffer
         save-buffers-kill-terminal
         electric-newline-and-maybe-indent
         exit-minibuffer))
-(run-with-idle-timer 8 nil #'postpone-pre)
+
+;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
+(defvar my-pp-kicker-timer (run-with-idle-timer 5 nil #'postpone-pre))
 
 (my-tick-init-time "startup")
 
@@ -335,7 +332,7 @@
 (defun my-apply-cursor-config ()
   (interactive)
   (when (display-graphic-p)
-	  (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
+    (if (my-ime-active-p) (my-ime-on-cursor) (my-ime-off-cursor))))
 
 ;; for init setup
 (setq-default cursor-type (plist-get my-cur-type-ime :on))
