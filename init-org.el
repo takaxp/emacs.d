@@ -283,10 +283,9 @@
 ;; C-c C-e i org-export-icalendar-this-file
 ;; C-c C-e I org-export-icalendar-all-agenda-files
 ;; C-c C-e c org-export-icalendar-all-combine-agenda-files
-(when (autoload-if-found
-       '(my-ox-icalendar my-async-ox-icalendar my-ox-icalendar-cleanup)
-       "ox-icalendar" nil t)
-
+(when (autoload-if-found '(my-ox-icalendar
+                           my-async-ox-icalendar my-ox-icalendar-cleanup)
+                         "ox-icalendar" nil t)
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-c f 1") 'my-ox-upload-icalendar))
 
@@ -657,12 +656,9 @@
       (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
       (org-timer-set-timer))))
 
-(when (autoload-if-found
-       '(org-mode my-load-echo-org-link)
-       "org" nil t)
-
+(when (autoload-if-found '(org-mode my-load-echo-org-link)
+                         "org" nil t)
   (add-hook 'org-mode-hook #'my-load-echo-org-link)
-
   (with-eval-after-load "org"
     (defun my-echo-org-link ()
       (when (org-in-regexp org-link-bracket-re 1)
@@ -806,10 +802,8 @@ The core part is extracted from `org-table-export'."
   (advice-add 'eldoc-print-current-symbol-info :around
               #'ad:eldoc-print-current-symbol-info))
 
-(when (autoload-if-found
-       '(org-capture)
-       "org-capture" nil t)
-
+(when (autoload-if-found '(org-capture)
+                         "org-capture" nil t)
   (with-eval-after-load "org"
     ;; キャプチャ時に作成日時をプロパティに入れる
     ;; Thanks to https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook
@@ -1076,14 +1070,12 @@ will not be modified."
               (lambda () (interactive)
                 (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
 
-(when (autoload-if-found
-       '(org-onit-toggle-doing
-         org-onit-mode
-         org-onit-toggle-auto org-clock-goto my-sparse-doing-tree
-         org-clock-goto org-onit-clock-in-when-unfold
-         org-onit-update-options)
-       "org-onit" nil t)
-
+(when (autoload-if-found '(org-onit-toggle-doing
+                           org-onit-mode
+                           org-onit-toggle-auto org-clock-goto
+                           my-sparse-doing-tree org-onit-clock-in-when-unfold
+                           org-clock-goto org-onit-update-options)
+                         "org-onit" nil t)
   (global-set-key (kbd "C-<f11>") 'org-clock-goto)
 
   (with-eval-after-load "org"
@@ -1137,22 +1129,18 @@ will not be modified."
                            org-mode-line-string))
             " - %b"))))
 
-(when (autoload-if-found
-	 '(orgbox-schedule orgbox-agenda-schedule)
-	 "orgbox" nil t)
-
+(when (autoload-if-found '(orgbox-schedule orgbox-agenda-schedule)
+	                 "orgbox" nil t)
   (with-eval-after-load "org"
     (org-defkey org-mode-map (kbd "C-c C-s") 'orgbox-schedule))
   (with-eval-after-load "org-agenda"
     (org-defkey org-agenda-mode-map (kbd "C-c C-s") 'orgbox-agenda-schedule)))
   ;; (require 'orgbox nil t)) ;; require org-agenda
 
-(when (autoload-if-found
-       '(appt ad:appt-display-message ad:appt-disp-window appt-check)
-       "appt" nil t)
-
+(when (autoload-if-found '(appt ad:appt-display-message
+                                ad:appt-disp-window appt-check)
+                         "appt" nil t)
   (defvar my-org-agenda-to-appt-async t)
-
   (with-eval-after-load "appt"
     ;; モードラインに残り時間を表示しない
     (setq appt-display-mode-line nil)
@@ -1421,10 +1409,8 @@ update it for multiple appts?")
    ;;    (t (:inherit org-block-begin-line))))
    ))
 
-(when (autoload-if-found
-       '(org-tree-slide-mode)
-       "org-tree-slide" nil t)
-
+(when (autoload-if-found '(org-tree-slide-mode)
+                         "org-tree-slide" nil t)
   (with-eval-after-load "postpone"
     (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
     (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle))
@@ -1447,10 +1433,8 @@ update it for multiple appts?")
     (add-hook 'org-tree-slide-stop-hook
               #'doom-modeline-update-buffer-file-state-icon)))
 
-(when (autoload-if-found
-       '(org-tree-slide-mode my-toggle-proportional-font)
-       "org-tree-slide" nil t)
-
+(when (autoload-if-found '(org-tree-slide-mode my-toggle-proportional-font)
+                         "org-tree-slide" nil t)
   (with-eval-after-load "org-tree-slide"
     (defcustom use-proportional-font nil
       "The status of FONT property"
@@ -1505,10 +1489,8 @@ update it for multiple appts?")
     (my-hide-org-meta-line)))
 (add-hook 'ah-after-enable-theme-hook #'my-update-org-meta-line)
 
-(when (autoload-if-found
-       '(ox-odt)
-       "ox-odt" nil t)
-
+(when (autoload-if-found '(ox-odt)
+                         "ox-odt" nil t)
   (with-eval-after-load "ox-odt"
     ;; (add-to-list 'org-odt-data-dir
     ;;              (concat (getenv "HOME") "/Dropbox/emacs.d/config/"))
@@ -1549,13 +1531,10 @@ update it for multiple appts?")
     (setq org-download-screenshot-method 'screencapture)
     (setq org-download-method 'attach)))
 
-(when (autoload-if-found
-       '(org-grep)
-       "org-grep" nil t)
-
+(when (autoload-if-found '(org-grep)
+                         "org-grep" nil t)
   ;; (with-eval-after-load "postpone"
   ;;   (global-set-key (kbd "C-M-g") 'org-grep))
-
   (with-eval-after-load "org-grep"
     (setq org-grep-extensions '(".org" ".org_archive"))
     (add-to-list 'org-grep-directories "~/.emacs.d")
@@ -1747,10 +1726,9 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
           (org-delete-property "ID"))))
     (message "--- done.")))
 
-(when (autoload-if-found
-       '(orglink-mode global-orglink-mode my-orglink-mode-activate)
-       "orglink" nil t)
-
+(when (autoload-if-found '(orglink-mode
+                           global-orglink-mode my-orglink-mode-activate)
+                         "orglink" nil t)
   (defun my-orglink-mode-activate ()
     (orglink-mode 1)
     (setq orglink-mode-lighter "")
@@ -1829,12 +1807,9 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (setq my-org-export-last-buffer nil)))
   (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
 
-(when (autoload-if-found
-       '(org-appear-mode)
-       "org-appear" nil t)
-
+(when (autoload-if-found '(org-appear-mode)
+                         "org-appear" nil t)
   (add-hook 'org-tree-slide-mode-hook 'org-appear-mode)
-
   (with-eval-after-load "org-appear"
     (setq org-appear-delay 0.4)))
 
@@ -1842,10 +1817,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (custom-set-variables
    '(ob-async-no-async-languages-alist '("ipython"))))
 
-(when (autoload-if-found
-       '(org-tree-slide-mode)
-       "org-tree-slide" nil t)
-
+(when (autoload-if-found '(org-tree-slide-mode)
+                         "org-tree-slide" nil t)
   (with-eval-after-load "org-tree-slide"
     ;; FIXME 複数のバッファで並行動作させるとおかしくなる．hide-lines の問題？
     ;; prettify-symbols で置き換えるほうが良い
@@ -1945,10 +1918,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                    (shell-command-to-string (shell-quote-argument cmd))
                    (message "%s" cmd)))))))
 
-(when (autoload-if-found
-       '(org-attach du-org-attachments)
-       "org-attach" nil t)
-
+(when (autoload-if-found '(org-attach du-org-attachments)
+                         "org-attach" nil t)
   (with-eval-after-load "org-attach"
     ;; org-insert-link で添付ファイルへのリンクをペーストできるようにする
     (setq org-attach-store-link-p t)
@@ -1971,21 +1942,17 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                        (concat "/usr/bin/du -sh "
                                org-attach-directory-absolute)))))))
 
-(when (autoload-if-found
-       '(orgnav-search-root)
-       "orgnav" nil t)
-
+(when (autoload-if-found '(orgnav-search-root)
+                         "orgnav" nil t)
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-c f n")
       (lambda () (interactive)
-          (orgnav-search-root 3 'orgnav--goto-action)))))
+        (orgnav-search-root 3 'orgnav--goto-action)))))
 
 (autoload-if-found '(toc-org-insert-toc) "toc-org" nil t)
 
-(when (autoload-if-found
-       '(org-attach-screenshot)
-       "org-attach-screenshot" nil t)
-
+(when (autoload-if-found '(org-attach-screenshot)
+                         "org-attach-screenshot" nil t)
   (with-eval-after-load "org-attach-screenshot"
     (when (executable-find "screencapture")
       (setq org-attach-screenshot-command-line "screencapture -w %f"))

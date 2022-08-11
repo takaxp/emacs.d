@@ -55,11 +55,10 @@
 
 (setq confirm-kill-emacs 'yes-or-no-p)
 
-(autoload-if-found
- '(el-get-version el-get-bundle
-   my-elget-list my-elget-reset-links
-   el-get-cd el-get-install el-get-remove el-get-update)
- "elget-config" nil t)
+(autoload-if-found '(el-get-version
+                     el-get-bundle my-elget-list my-elget-reset-links
+                     el-get-cd el-get-install el-get-remove el-get-update)
+                   "elget-config" nil t)
 
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
@@ -80,10 +79,8 @@
   (when (fboundp 'pixel-scroll-mode)
     (pixel-scroll-mode 1))) ;; 26.1
 
-(when (autoload-if-found
-       '(aggressive-indent-mode)
-       "aggressive-indent" nil t)
-
+(when (autoload-if-found '(aggressive-indent-mode)
+                         "aggressive-indent" nil t)
   (dolist (hook
            '(;; python-mode-hook
              ;; nxml-mode-hook
@@ -95,9 +92,8 @@
 
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
-(when (autoload-if-found
-       '(ws-butler-mode ws-butler-global-mode)
-       "ws-butler" nil t)
+(when (autoload-if-found '(ws-butler-mode ws-butler-global-mode)
+                         "ws-butler" nil t)
 
   (dolist (hook '(emacs-lisp-mode-hook
                   lisp-mode-hook perl-mode-hook c-mode-common-hook))
@@ -175,9 +171,8 @@
 (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
-(when (autoload-if-found
-       '(er/mark-symbol)
-       "expand-region" nil t)
+(when (autoload-if-found '(er/mark-symbol)
+                         "expand-region" nil t)
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
 
 ;; Scroll window on a line-by-line basis
@@ -198,9 +193,8 @@
   (unless noninteractive
     (ah-mode 1)))
 
-(when (autoload-if-found
-       '(smooth-scroll-mode)
-       "smooth-scroll" nil t)
+(when (autoload-if-found '(smooth-scroll-mode)
+                         "smooth-scroll" nil t)
 
   (with-eval-after-load "smooth-scroll"
     (custom-set-variables
@@ -224,10 +218,10 @@
     (setq bsv-max-height 5
           bsv-message-timeout 9)))
 
-(when (autoload-if-found
-       '(my-toggle-bm
-         my-bm-next bm-buffer-save bm-buffer-restore bm-buffer-save-all
-         bm-repository-save bm-repository-load counsel-bm)
+(when (autoload-if-found '(my-toggle-bm
+                           my-bm-next bm-buffer-save bm-buffer-restore
+                           bm-buffer-save-all bm-repository-save
+                           bm-repository-load counsel-bm)
        "bm" nil t)
 
   ;; ファイルオープン時にブックマークを復帰
@@ -268,17 +262,15 @@
 
     (advice-add 'bm-show-mode :after #'ad:bm-show-mode)))
 
-(when (autoload-if-found
-       '(centered-cursor-mode)
-       "centered-cursor-mode" nil t)
+(when (autoload-if-found '(centered-cursor-mode)
+                         "centered-cursor-mode" nil t)
 
   ;; isearch の時はOFFにする
   (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
   (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate))
 
-(when (autoload-if-found
-       '(smart-mark-mode)
-       "smart-mark" nil t)
+(when (autoload-if-found '(smart-mark-mode)
+                         "smart-mark" nil t)
 
   (add-hook 'find-file-hook #'my-smart-mark-activate)
 
@@ -298,9 +290,8 @@
 ;; (add-hook 'isearch-mode-hook #'my-smart-mark-dectivate)
 ;; (add-hook 'isearch-mode-end-hook #'my-smart-mark-activate)
 
-(when (autoload-if-found
-       '(global-syntax-subword-mode syntax-subword-mode)
-       "syntax-subword" nil t)
+(when (autoload-if-found '(global-syntax-subword-mode syntax-subword-mode)
+                         "syntax-subword" nil t)
 
   (advice-add 'forward-word :before #'my-syntax-subword-activate)
   (advice-add 'backword-word :before #'my-syntax-subword-activate))
@@ -341,9 +332,8 @@
 (advice-add 'add-change-log-entry-other-window
             :before #'ad:add-change-log-entry-other-window)
 
-(when (autoload-if-found
-       '(modern-c++-font-lock-mode)
-       "modern-cpp-font-lock" nil t)
+(when (autoload-if-found '(modern-c++-font-lock-mode)
+                         "modern-cpp-font-lock" nil t)
   (push '("\\.[hm]$" . c++-mode) auto-mode-alist)
   (add-hook 'c-mode-hook #'modern-c++-font-lock-mode)
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
@@ -362,54 +352,39 @@
             (setq nxml-child-indent 1)
             (setq nxml-attribute-indent 0)))
 
-(when (autoload-if-found
-       '(yaml-mode)
-       "yaml-mode" nil t)
-
+(when (autoload-if-found '(yaml-mode)
+                         "yaml-mode" nil t)
   (push '("\\.yml$" . yaml-mode) auto-mode-alist))
 
-(when (autoload-if-found
-       '(json-mode)
-       "json-mode" nil t)
-
+(when (autoload-if-found '(json-mode)
+                         "json-mode" nil t)
   (push '("\\.json$" . json-mode) auto-mode-alist)
-
   (with-eval-after-load "json-mode"
     (add-hook 'before-save-hook #'my-json-mode-beautify)
     (add-hook 'after-save-hook #'my-json-pretty-print-buffer)))
 
-(when (autoload-if-found
-       '(csv-mode)
-       "csv-mode" nil t)
-
+(when (autoload-if-found '(csv-mode)
+                         "csv-mode" nil t)
   (push '("\\.csv$" . csv-mode) auto-mode-alist))
 
 (autoload-if-found '(ascii-on ascii-off) "ascii" nil t)
 
-(when (autoload-if-found
-       '(cc-mode)
-       "cc-mode" nil t)
-
+(when (autoload-if-found '(cc-mode)
+                         "cc-mode" nil t)
   (push '("\\.pde$" . java-mode) auto-mode-alist) ;; Processing
   (push '("\\.java$" . java-mode) auto-mode-alist))
 
-(when (autoload-if-found
-       '(es-mode)
-       "es-mode" nil t)
-
+(when (autoload-if-found '(es-mode)
+                         "es-mode" nil t)
   (push '("\\.es$" . es-mode) auto-mode-alist))
 
-(when (autoload-if-found
-       '(markdown-mode)
-       "markdown-mode" nil t)
-
+(when (autoload-if-found '(markdown-mode)
+                         "markdown-mode" nil t)
   (push '("\\.markdown$" . markdown-mode) auto-mode-alist)
   (push '("\\.md$" . markdown-mode) auto-mode-alist))
 
-(when (autoload-if-found
-       '(cmake-mode)
-       "cmake-mode" nil t)
-
+(when (autoload-if-found '(cmake-mode)
+                         "cmake-mode" nil t)
   (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
   (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))
 
@@ -417,9 +392,8 @@
     (unless (executable-find "cmake")
       (message "--- cmake is NOT installed."))))
 
-(when (autoload-if-found
-       '(logview-mode)
-       "logview" nil t)
+(when (autoload-if-found '(logview-mode)
+                         "logview" nil t)
   (push '("\\.log$" . logview-mode) auto-mode-alist))
 
 ;; 特定の拡張子・ディレクトリ
@@ -454,10 +428,8 @@
     (advice-add 'view--enable :before #'ad:view--enable)
     (advice-add 'view--disable :before #'ad:view--disable)))
 
-(when (autoload-if-found
-       '(web-mode)
-       "web-mode" "web mode" t)
-
+(when (autoload-if-found '(web-mode)
+                         "web-mode" "web mode" t)
   ;; web-mode で開くファイルの拡張子を指定
   (push '("\\.phtml\\'" . web-mode) auto-mode-alist)
   (push '("\\.tpl\\.php\\'" . web-mode) auto-mode-alist)
@@ -492,21 +464,16 @@
 
 ;;(autoload 'po-mode "po-mode+" nil nil)
 ;;(autoload 'po-mode "po-mode" nil t)
-(when (autoload-if-found
-       '(po-mode)
-       "po-mode" nil t)
-
+(when (autoload-if-found '(po-mode)
+                         "po-mode" nil t)
   (push '("\\.po[tx]?\\'\\|\\.po\\$" . po-mode) auto-mode-alist))
 
-(when (autoload-if-found
-       '(go-mode) "go-mode" nil t)
-
+(when (autoload-if-found '(go-mode)
+                         "go-mode" nil t)
   (push '("\\.go\\'" . go-mode) auto-mode-alist))
 
-(when (autoload-if-found
-       '(ispell-region ispell-complete-word)
-       "ispell" nil t)
-
+(when (autoload-if-found '(ispell-region ispell-complete-word)
+                         "ispell" nil t)
   ;; This could hilde other messages from loading functions regarding org-mode.
   (advice-add 'ispell-init-process :around #'ad:suppress-message)
 
@@ -567,11 +534,10 @@
      (t
       nil))))
 
-(when (autoload-if-found
-       '(flyspell-mode-on flyspell-prog-mode flyspell-mode
-                          my-flyspell-mode-on my-flyspell-prog-mode)
-       "flyspell" nil t)
-
+(when (autoload-if-found '(flyspell-mode-on
+                           flyspell-prog-mode flyspell-mode
+                           my-flyspell-mode-on my-flyspell-prog-mode)
+                         "flyspell" nil t)
   (defvar major-mode-with-flyspell
     '(text-mode change-log-mode latex-mode yatex-mode
                 git-commit-mode org-mode))
@@ -623,15 +589,12 @@
 
 (autoload-if-found '(counsel-world-clock) "counsel-world-clock" nil t)
 
-(when (autoload-if-found
-       '(latex-math-preview-expression
-         latex-math-preview-insert-symbol
-         latex-math-preview-save-image-file
-         latex-math-preview-beamer-frame)
-       "latex-math-preview" nil t nil)
-
+(when (autoload-if-found '(latex-math-preview-expression
+                           latex-math-preview-insert-symbol
+                           latex-math-preview-save-image-file
+                           latex-math-preview-beamer-frame)
+                         "latex-math-preview" nil t nil)
   (global-set-key (kbd "<f6>") 'latex-math-preview-expression)
-
   (with-eval-after-load "latex-math-preview"
     (setq latex-math-preview-command-path-alist
           '((latex . "latex")
@@ -640,12 +603,9 @@
     (define-key latex-math-preview-expression-mode-map (kbd "<f6>")
       'latex-math-preview-delete-buffer)))
 
-(when (autoload-if-found
-       '(yatex-mode)
-       "yatex" "Yet Another LaTeX mode" t)
-
+(when (autoload-if-found '(yatex-mode)
+                         "yatex" "Yet Another LaTeX mode" t)
   (push '("\\.tex$" . yatex-mode) auto-mode-alist)
-
   ;; Disable auto line break
   (add-hook 'yatex-mode-hook
             (lambda ()
@@ -665,21 +625,17 @@
 (with-eval-after-load "yasnippet"
   (require 'ivy-yasnippet nil t))
 
-(when (autoload-if-found
-       '(osx-dictionary-search-pointer osx-dictionary-search-input)
-       "osx-dictionary" nil t)
-
+(when (autoload-if-found '(osx-dictionary-search-pointer
+                           osx-dictionary-search-input)
+                         "osx-dictionary" nil t)
   (global-set-key (kbd "C-M-w") #'osx-dictionary-search-pointer)
   (global-set-key (kbd "C-c f w") #'osx-dictionary-search-input)
-
   (with-eval-after-load "osx-dictionary"
     (custom-set-variables
      '(osx-dictionary-dictionary-choice "英辞郎 第七版"))))
 
-(when (autoload-if-found
-       '(js2-mode)
-       "js2-mode" nil t)
-
+(when (autoload-if-found '(js2-mode)
+                         "js2-mode" nil t)
   (with-eval-after-load "js2-mode"
     (if (executable-find "js-beautify")
         (when (require 'web-beautify nil t)
@@ -688,13 +644,11 @@
       (message "--- js-beautify is NOT installed.")
       (message "--- Note: npm -g install js-beautify"))))
 
-(when (autoload-if-found
-       '(smartparens-global-mode turn-on-show-smartparens-mode)
-       "smartparens" nil t)
-
+(when (autoload-if-found '(smartparens-global-mode
+                           turn-on-show-smartparens-mode)
+                         "smartparens" nil t)
   (add-hook 'yatex-mode-hook #'my-smartparens-mode)
   (add-hook 'org-mode-hook #'my-smartparens-mode)
-
   (with-eval-after-load "smartparens"
     (setq-default sp-highlight-pair-overlay nil)
     (setq-default sp-highlight-wrap-overlay nil)
@@ -710,12 +664,9 @@
     (sp-local-pair 'org-mode "_" "_")
     (sp-local-pair 'yatex-mode "$" "$")))
 
-(when (autoload-if-found
-       '(grugru-default grugru)
-       "grugru-default" nil t)
-
+(when (autoload-if-found '(grugru-default grugru)
+                         "grugru-default" nil t)
   (global-set-key (kbd "C-9") #'grugru)
-
   (with-eval-after-load "grugru-default"
     (custom-set-faces
      '(grugru-edit-completing-function #'ivy-completing-read)
@@ -732,18 +683,14 @@
     (grugru-find-function-integration-mode 1)
     (grugru-highlight-mode 1)))
 
-(autoload-if-found
- '(query-replace-from-region query-replace-regexp-from-region)
- "replace-from-region" nil t)
+(autoload-if-found '(query-replace-from-region query-replace-regexp-from-region)
+                   "replace-from-region" nil t)
 
 (autoload-if-found '(embark-act) "embark" nil t)
 
-(when (autoload-if-found
-       '(selected-global-mode)
-       "selected" nil t)
-
+(when (autoload-if-found '(selected-global-mode)
+                         "selected" nil t)
   (add-hook 'activate-mark-hook #'my-activate-selected)
-
   (with-eval-after-load "selected"
     (define-key selected-keymap (kbd "a") #'embark-act)
     (define-key selected-keymap (kbd ";") #'comment-dwim)
@@ -780,16 +727,12 @@
     (when (require 'help-fns+ nil t)
       (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))))
 
-(when (autoload-if-found
-       '(git-complete)
-       "git-complete" nil t)
-
+(when (autoload-if-found '(git-complete)
+                         "git-complete" nil t)
   (global-set-key (kbd "C-c f <tab>") 'git-complete))
 
-(when (autoload-if-found
-       '(bratex-config)
-       "bratex" nil t)
-
+(when (autoload-if-found '(bratex-config)
+                         "bratex" nil t)
   (add-hook 'yatex-mode-hook #'bratex-config))
 
 (setq echo-keystrokes 0.5)
@@ -850,12 +793,9 @@
 (unless noninteractive
   (line-number-mode 1))
 
-(when (autoload-if-found
-       '(my-toggle-display-line-numbers-mode)
-       "display-line-numbers" nil t)
-
+(when (autoload-if-found '(my-toggle-display-line-numbers-mode)
+                         "display-line-numbers" nil t)
   (global-set-key (kbd "C-<f12>") 'my-toggle-display-line-numbers-mode)
-
   (with-eval-after-load "hl-line"
     (my-update-display-line-numbers-face)
     (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
@@ -990,13 +930,10 @@
 	  (delight
 	   `((view-mode ,(concat " " (icons-in-terminal-faicon "lock")) "view")))))
 
-(when (autoload-if-found
-       '(migemo-init)
-       "migemo" nil t)
-
+(when (autoload-if-found '(migemo-init)
+                         "migemo" nil t)
   ;; Tricky!
   (add-hook 'isearch-mode-hook #'my-migemo-activate)
-
   (with-eval-after-load "migemo"
     (custom-set-variables
      '(completion-ignore-case t) ;; case-independent
@@ -1014,10 +951,8 @@
 ;;   (message "Loading fringe-helper...")
 ;;   (require 'fringe-helper))
 
-(when (autoload-if-found
-       '(git-gutter-mode)
-       "git-gutter" nil t)
-
+(when (autoload-if-found '(git-gutter-mode)
+                         "git-gutter" nil t)
   (dolist (hook
            '(emacs-lisp-mode-hook
              lisp-mode-hook perl-mode-hook python-mode-hook
@@ -1109,10 +1044,8 @@
                        ))))
           'font-lock-face 'calendar-iso-week-face)))
 
-(when (autoload-if-found
-       '(which-key-mode)
-       "which-key" nil t)
-
+(when (autoload-if-found '(which-key-mode)
+                         "which-key" nil t)
   (with-eval-after-load "which-key"
     (custom-set-variables
      '(which-key-idle-delay 1.0)))
@@ -1120,21 +1053,16 @@
   (unless noninteractive
     (which-key-mode 1)))
 
-(when (autoload-if-found
-       '(highlight-symbol-mode highlight-symbol-nav-mode)
-       "highlight-symbol" nil t)
-
+(when (autoload-if-found '(highlight-symbol-mode highlight-symbol-nav-mode)
+                         "highlight-symbol" nil t)
   (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook prog-mode-hook))
     (add-hook hook #'highlight-symbol-mode))
-
   (with-eval-after-load "highlight-symbol"
     (custom-set-variables
      '(highlight-symbol-idle-delay 0.5))))
 
-(when (autoload-if-found
-       '(icons-in-terminal-dired-mode)
-       "icons-in-terminal-dired" nil t)
-
+(when (autoload-if-found '(icons-in-terminal-dired-mode)
+                         "icons-in-terminal-dired" nil t)
   (with-eval-after-load "icons-in-terminal"
     (setq icons-in-terminal-scale-factor 1.0)))
 
@@ -1143,13 +1071,10 @@
       ((require 'all-the-icons nil t)
        (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
 
-(when (autoload-if-found
-       '(turn-on-eldoc-mode)
-       "eldoc" nil t)
-
+(when (autoload-if-found '(turn-on-eldoc-mode)
+                         "eldoc" nil t)
   (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
     (add-hook hook #'turn-on-eldoc-mode))
-
   (with-eval-after-load "eldoc"
     (advice-add 'elisp-eldoc-funcall :after #'my:elisp-eldoc)
     ;; (advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)
@@ -1162,16 +1087,13 @@
 
 (with-eval-after-load "go-mode"
   (if (executable-find "gocode")
-      (when (autoload-if-found
-             '(go-mode)
-             "go-eldoc" nil t)
+      (when (autoload-if-found '(go-mode)
+                               "go-eldoc" nil t)
         (add-hook 'go-mode-hook #'go-eldoc-setup))
     (message "--- gocode is NOT installed.")))
 
-(when (autoload-if-found
-       '(keypression-mode)
-       "keypression" nil t)
-
+(when (autoload-if-found '(keypression-mode)
+                         "keypression" nil t)
   (with-eval-after-load "keypression"
     (setq keypression-use-child-frame t)
     (setq keypression-frames-maxnum 3)
@@ -1190,10 +1112,8 @@
     ;; (keypression-mode 1) ;; To start, M-x keypression-mode
     ))
 
-(when (autoload-if-found
-       '(counsel-ibuffer counsel-M-x counsel-yank-pop)
-       "counsel" nil t)
-
+(when (autoload-if-found '(counsel-ibuffer counsel-M-x counsel-yank-pop)
+                         "counsel" nil t)
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (global-set-key (kbd "M-y") 'counsel-yank-pop)
   (global-set-key (kbd "C-,") 'counsel-mark-ring)
@@ -1262,10 +1182,8 @@
 (with-eval-after-load "ivy"
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
 
-(when (autoload-if-found
-       '(imenu-list)
-       "imenu-list" nil t)
-
+(when (autoload-if-found '(imenu-list)
+                         "imenu-list" nil t)
   (with-eval-after-load "imenu-list"
     (setq imenu-list-size 40)
     (setq imenu-list-position 'left)
@@ -1299,10 +1217,8 @@
              (require 'company-prescient nil t))
     (company-prescient-mode 1)))
 
-(when (autoload-if-found
-       '(command-log-mode global-command-log-mode)
-       "command-log-mode" nil t)
-
+(when (autoload-if-found '(command-log-mode global-command-log-mode)
+                         "command-log-mode" nil t)
   (with-eval-after-load "command-log-mode"
     (require 'keypression)
     (require 'moom)
@@ -1321,13 +1237,10 @@
 (dolist (hook '(js-mode-hook))
   (add-hook hook #'my-enable-tree-sitter))
 
-(when (autoload-if-found
-       '(swiper-thing-at-point swiper-all-thing-at-point)
-       "swiper" nil t)
-
+(when (autoload-if-found '(swiper-thing-at-point swiper-all-thing-at-point)
+                         "swiper" nil t)
   (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
   (global-set-key (kbd "M-s M-a") 'swiper-all-thing-at-point)
-
   (with-eval-after-load "swiper"
     (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
 
@@ -1346,14 +1259,12 @@
              (add-to-list 'all-the-icons-ivy-buffer-commands command))
            (all-the-icons-ivy-setup)))))
 
-(when (autoload-if-found
-       '(dimmer-mode dimmer-process-all dimmer-off dimmer-on
-				             my-toggle-dimmer dimmer-permanent-off
-				             ad:dimmer-org-agenda--quit)
-       "dimmer" nil t)
-
+(when (autoload-if-found '(dimmer-mode
+                           dimmer-process-all dimmer-off dimmer-on
+                           my-toggle-dimmer dimmer-permanent-off
+                           ad:dimmer-org-agenda--quit)
+                         "dimmer" nil t)
   (defvar my-dimmer-mode nil)
-
   (with-eval-after-load "dimmer"
     (custom-set-variables
      '(dimmer-exclusion-regexp
@@ -1361,9 +1272,9 @@
      '(dimmer-fraction 0.6))
 
     (if (version< emacs-version "27.1")
-	      (progn
-	        (add-hook 'focus-out-hook #'dimmer-off)
-	        (add-hook 'focus-in-hook #'dimmer-on))
+	(progn
+	  (add-hook 'focus-out-hook #'dimmer-off)
+	  (add-hook 'focus-in-hook #'dimmer-on))
       (add-function :before after-focus-change-function #'my-dimmer-update))
 
     ;; for org-agenda
@@ -1400,13 +1311,11 @@
 		  ("I" "insert" my-org-insert-bullet-and-checkbox)
 		  ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
 
-(when (autoload-if-found
-       '(rencetf-mode
-	       my-recentf-save-list-silence
-	       my-recentf-cleanup-silence
-	       recentf-open-files)
-       "recentf" nil t)
-
+(when (autoload-if-found '(rencetf-mode
+	                   my-recentf-save-list-silence
+	                   my-recentf-cleanup-silence
+	                   recentf-open-files)
+                         "recentf" nil t)
   (with-eval-after-load "recentf"
     (custom-set-variables
      '(recentf-max-saved-items 2000)
@@ -1414,16 +1323,16 @@
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
        '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
-	       "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+	 "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     (if (version< emacs-version "27.1")
-	      (progn
-	        (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-	        (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+	(progn
+	  (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+	  (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
       (add-function :before after-focus-change-function
-		                #'my-recentf-save-list-silence)
+		    #'my-recentf-save-list-silence)
       (add-function :before after-focus-change-function
-		                #'my-recentf-cleanup-silence)))
+		    #'my-recentf-cleanup-silence)))
 
   (unless noninteractive
     (let ((message-log-max nil))
@@ -1446,12 +1355,9 @@
 (with-eval-after-load "recentf"
   (run-with-idle-timer 180 t 'my-backup-recentf))
 
-(when (autoload-if-found
-       '(backup-each-save my-auto-backup)
-       "backup-each-save" nil t)
-
+(when (autoload-if-found '(backup-each-save my-auto-backup)
+                         "backup-each-save" nil t)
   (add-hook 'after-save-hook #'my-auto-backup)
-
   ;; %y-%m-%d_%M-%S で終わるファイルを本来のメジャーモードで開く
   (add-to-list 'auto-mode-alist '("-[0-9-]\\{8\\}_[0-9-]\\{5\\}$" nil t))
 
@@ -1466,12 +1372,9 @@
 
 (advice-add 'dired :before #'ad:dired-activate)
 
-(when (autoload-if-found
-       '(dired-recent-open dired-recent-mode)
-       "dired-recent" nil t)
-
+(when (autoload-if-found '(dired-recent-open dired-recent-mode)
+                         "dired-recent" nil t)
   (global-set-key (kbd "C-x C-d") 'dired-recent-open)
-
   (with-eval-after-load "dired-recent"
     ;; (require 'helm-config nil t)
     (dired-recent-mode 1)))
@@ -1482,22 +1385,17 @@
     (setq delete-by-moving-to-trash t)
     (osx-trash-setup)))
 
-(when (autoload-if-found
-       '(undo-fu-only-undo undo-fu-only-redo)
-       "undo-fu" nil t)
-
+(when (autoload-if-found '(undo-fu-only-undo undo-fu-only-redo)
+                         "undo-fu" nil t)
   (global-set-key (kbd "C-/") 'undo-fu-only-undo)
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 
 (autoload 'auto-save-buffers "auto-save-buffers" nil t)
 (run-with-idle-timer 1.6 t #'my-auto-save-buffers)
 
-(when (autoload-if-found
-       '(neotree neotree-toggle)
-       "neotree" nil t)
-
+(when (autoload-if-found '(neotree neotree-toggle)
+                         "neotree" nil t)
   (global-set-key (kbd "C-c n") #'neotree-toggle)
-
   (with-eval-after-load "neotree"
     (custom-set-variables
      '(neo-show-hidden-files t)
@@ -1517,31 +1415,25 @@
     (advice-add 'neotree-show :before #'ad:neotree-show)
     (advice-add 'neotree-hide :before #'ad:neotree-hide)))
 
-(when (autoload-if-found
-       '(helpful-key helpful-function helpful-variable helpful-at-point
-                     helpful-symbol)
-       "helpful" nil t)
-
+(when (autoload-if-found '(helpful-key
+                           helpful-function helpful-variable helpful-at-point
+                           helpful-symbol)
+                         "helpful" nil t)
   (global-set-key (kbd "<f1> k") 'helpful-key)
   (global-set-key (kbd "<f1> f") 'helpful-function)
   (global-set-key (kbd "<f1> v") 'helpful-variable)
   (global-set-key (kbd "<f1> m") 'helpful-macro)
   (global-set-key (kbd "<f1> @") 'helpful-at-point)
-
   (with-eval-after-load "helpful"
     (advice-add 'helpful-at-point :before #'ad:helpful-at-point)))
 
-(when (autoload-if-found
-       '(facecheck-at-point facecheck-mode)
-       "facecheck" nil t)
-
+(when (autoload-if-found '(facecheck-at-point facecheck-mode)
+                         "facecheck" nil t)
   (with-eval-after-load "facecheck"
     (facecheck-mode 1)))
 
-(when (autoload-if-found
-       '(keyfreq-mode keyfreq-autosave-mode ad:keyfreq-show)
-       "keyfreq" nil t) ;; will require 'cl and 'gv (10-20[ms])
-
+(when (autoload-if-found '(keyfreq-mode keyfreq-autosave-mode ad:keyfreq-show)
+                         "keyfreq" nil t) ;; will require 'cl and 'gv(10-20[ms])
   (with-eval-after-load "keyfreq"
     (advice-add 'keyfreq-show :after #'ad:keyfreq-show)
     ;; (define-key keyfreq-mode-map (kbd "q")
@@ -1551,39 +1443,33 @@
     (setq keyfreq-file
           (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.keyfreq")))
     (keyfreq-autosave-mode 1))
-
   (unless noninteractive
     (keyfreq-mode 1)))
 
-(when (autoload-if-found
-       '(disk-usage)
-       "disk-usage" nil t)
-
+(when (autoload-if-found '(disk-usage)
+                         "disk-usage" nil t)
   (with-eval-after-load "disk-usage"
     (when (eq system-type 'darwin)
       (custom-set-variables
        '(disk-usage-du-command "du")))))
 
-(when (autoload-if-found '(counsel-ag) "counsel" nil t)
-  (global-set-key (kbd "C-M-f") 'counsel-ag))
+(when (autoload-if-found '(counsel-ag)
+                         "counsel" nil t)
+  (global-set-key (kbd "C-M-f") 'counsel-ag)
+  (with-eval-after-load "counsel"
+    (require 'thingatpt nil t)
+    (advice-add 'counsel-ag :around #'ad:counsel-ag)
 
-(with-eval-after-load "counsel"
-  (require 'thingatpt nil t)
-  (advice-add 'counsel-ag :around #'ad:counsel-ag)
+    ;; 2文字でも検索が発動するようにする
+    (add-to-list 'ivy-more-chars-alist '(counsel-ag . 2))
 
-  ;; 2文字でも検索が発動するようにする
-  (add-to-list 'ivy-more-chars-alist '(counsel-ag . 2))
+    (ivy-add-actions
+     'counsel-ag
+     '(("r" my-counsel-ag-in-dir "search in directory")))))
 
-  (ivy-add-actions
-   'counsel-ag
-   '(("r" my-counsel-ag-in-dir "search in directory"))))
-
-(when (autoload-if-found
-       '(counsel-fzf)
-       "counsel" nil t)
-
+(when (autoload-if-found '(counsel-fzf)
+                         "counsel" nil t)
   (global-set-key (kbd "C-M-z") 'counsel-fzf)
-
   (with-eval-after-load "counsel"
     (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
     (ivy-add-actions
@@ -1595,10 +1481,8 @@
 
 (autoload-if-found '(gist-mode) "gist" nil t)
 
-(when (autoload-if-found
-       '(flycheck-mode)
-       "flycheck" nil t)
-
+(when (autoload-if-found '(flycheck-mode)
+                         "flycheck" nil t)
   (dolist (hook
            '(go-mode-hook
              js2-mode-hook
@@ -1623,10 +1507,8 @@
 ;; (flycheck-add-next-checker 'javascript-jshint
 ;; 'javascript-gjslint)
 
-(when (autoload-if-found
-       '(quickrun)
-       "quickrun" nil t)
-
+(when (autoload-if-found '(quickrun)
+                         "quickrun" nil t)
   (with-eval-after-load "go-mode"
     (define-key go-mode-map (kbd "<f5>") 'quickrun))
   (with-eval-after-load "c++-mode"
@@ -1638,10 +1520,8 @@
   (with-eval-after-load "gnuplot-mode"
     (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun)))
 
-(when (autoload-if-found
-       '(ggtags-mode)
-       "ggtags" nil t)
-
+(when (autoload-if-found '(ggtags-mode)
+                         "ggtags" nil t)
   (dolist (hook (list 'c-mode-common-hook 'python-mode-hook))
     (add-hook hook (lambda () (ggtags-mode 1))))
 
@@ -1652,21 +1532,18 @@
     ;; (setq ggtags-completing-read-function t) ;; nil for helm
     (define-key ggtags-mode-map (kbd "M-]") nil)))
 
-(when (autoload-if-found
-       '(counsel-gtags-mode)
-       "counsel-gtags" nil t)
-
+(when (autoload-if-found '(counsel-gtags-mode)
+                         "counsel-gtags" nil t)
   (dolist (hook '(c-mode-hook c++-mode-hook))
     (add-hook hook 'counsel-gtags-mode))
-
   (with-eval-after-load "counsel-gtags"
     (custom-set-variables
      '(counsel-gtags-update-interval-second 10))))
 
-(when (autoload-if-found
-       '(0xc-convert 0xc-convert-point my-decimal-to-hex my-hex-to-decimal)
+(when (autoload-if-found '(0xc-convert
+                           0xc-convert-point
+                           my-decimal-to-hex my-hex-to-decimal)
        "0xc" nil t)
-
   (global-set-key (kbd "C-c f h") '0xc-convert))
 
 (with-eval-after-load "hexl"
@@ -1677,10 +1554,8 @@
 
 (autoload-if-found '(package-lint-current-buffer) "package-lint" nil t)
 
-(when (autoload-if-found
-       '(projectile-mode)
-       "projectile" nil t)
-
+(when (autoload-if-found '(projectile-mode)
+                         "projectile" nil t)
   (with-eval-after-load "neotree"
     ;; (advice-add 'neotree-dir :override #'ad:neotree-dir) ;; FIXME
     ;; M-x helm-projectile-switch-project (C-c p p)
@@ -1730,12 +1605,9 @@
 
 (autoload-if-found '(relint-current-buffer) "relint" nil t)
 
-(when (autoload-if-found
-       '(magit-status ad:magit-mode-bury-buffer)
-       "magit" nil t)
-
+(when (autoload-if-found '(magit-status ad:magit-mode-bury-buffer)
+                         "magit" nil t)
   (global-set-key (kbd "C-c m") 'magit-status)
-
   (with-eval-after-load "magit"
     (when (fboundp 'dimmer-off)
       (add-hook 'magit-status-mode-hook 'dimmer-off))
@@ -1817,13 +1689,10 @@
                                          ("[-]" . "" ))) ;; 
   (add-hook 'org-mode-hook 'prettify-symbols-mode))
 
-(when (autoload-if-found
-       '(org-recent-headings org-recent-headings-mode)
-       "org-recent-headings" nil t)
-
+(when (autoload-if-found '(org-recent-headings org-recent-headings-mode)
+                         "org-recent-headings" nil t)
   ;; (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
   (global-set-key (kbd "C-M-h") 'org-recent-headings)
-
   (with-eval-after-load "org-recent-headings"
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
     (setf (alist-get 'org-recent-headings ivy-sort-functions-alist) nil)
@@ -1921,19 +1790,17 @@
   (my-mode-line-off))
 
 (unless noninteractive
-
-  (when (autoload-if-found '(winner-undo) "winner" nil t)
+  (when (autoload-if-found '(winner-undo)
+                           "winner" nil t)
     (global-set-key (kbd "C-x g") 'winner-undo)
-
     (with-eval-after-load "winner"
       (advice-add 'delete-window :after #'ad:winner:delete-window)
       (define-key winner-mode-map (kbd "C-(") 'winner-undo)
       (define-key winner-mode-map (kbd "C-)") 'winner-redo)
       (winner-mode 1))))
 
-(when (autoload-if-found
-       '(shackle-mode)
-       "shackle" nil t)
+(when (autoload-if-found '(shackle-mode)
+                         "shackle" nil t)
 
   (unless noninteractive
     ;; (add-hook 'window-configuration-change-hook #'my-shackle-activate)
@@ -1975,10 +1842,8 @@
 (unless noninteractive
   (add-hook 'find-file-hook #'my-generic-x-activate))
 
-(when (autoload-if-found
-       '(hl-line-mode my-hl-line-enable)
-       "hl-line" nil t)
-
+(when (autoload-if-found '(hl-line-mode my-hl-line-enable)
+                         "hl-line" nil t)
   ;; Tricky!
   (add-hook 'ah-after-move-cursor-hook #'my-hl-line-activate)
 
@@ -2044,10 +1909,8 @@
                       :background "white" :weight 'extra-bold
                       :inherit nil))
 
-(when (autoload-if-found
-       '(global-hl-todo-mode)
-       "hl-todo" nil t)
-
+(when (autoload-if-found '(global-hl-todo-mode)
+                         "hl-todo" nil t)
   (add-hook 'my-light-theme-hook #'my-hl-todo-light-theme)
   (add-hook 'my-dark-theme-hook #'my-hl-todo-dark-theme)
   (add-hook 'find-file-hook #'my-hl-todo-activate))
@@ -2059,19 +1922,14 @@
 ;; (run-at-time "21:00" 86400 'my-theme)
 ;; (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
 
-(when (autoload-if-found
-       '(rainbow-mode)
-       "rainbow-mode" nil t)
-
+(when (autoload-if-found '(rainbow-mode)
+                         "rainbow-mode" nil t)
   (dolist (hook '(emmet-mode-hook emacs-lisp-mode-hook org-mode-hook))
     (add-hook hook #'rainbow-mode)))
 
-(when (autoload-if-found
-       '(edit-color-stamp)
-       "edit-color-stamp" nil t)
-
+(when (autoload-if-found '(edit-color-stamp)
+                         "edit-color-stamp" nil t)
   (global-set-key (kbd "C-c f c p") 'edit-color-stamp)
-
   (with-eval-after-load "edit-color-stamp"
     (unless (executable-find "qt_color_picker")
       (message "--- qt_color_picker is NOT installed."))))
@@ -2119,13 +1977,10 @@
                    '((t . ivy-format-function-arrow)))))
     (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
 
-(when (autoload-if-found
-       '(volatile-highlights-mode my-vhl-change-color)
-       "volatile-highlights" nil t)
-
+(when (autoload-if-found '(volatile-highlights-mode my-vhl-change-color)
+                         "volatile-highlights" nil t)
   (global-set-key (kbd "M-v") 'my-yank)
   (global-set-key (kbd "C-y") 'my-yank)
-
   (when window-system
     (advice-add 'my-yank :before #'my-vhl-activate))
 
@@ -2140,39 +1995,29 @@
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-y") 'my-org-yank)))
 
-(when (autoload-if-found
-       '(my-google-this google-this google-this-word)
-       "google-this" nil t)
-
+(when (autoload-if-found '(my-google-this google-this google-this-word)
+                         "google-this" nil t)
   (global-set-key (kbd "C-c f g") 'my-google-this))
 
-(when (autoload-if-found
-       '(osx-lib-say osx-lib-say-region)
-       "osx-lib" nil t)
-
+(when (autoload-if-found '(osx-lib-say osx-lib-say-region)
+                         "osx-lib" nil t)
   (with-eval-after-load "osx-lib"
     (custom-set-variables
      '(osx-lib-say-ratio 100)
      '(osx-lib-say-voice "Samantha"))))
 
-(when (autoload-if-found
-       '(my-cmd-to-open-iterm2)
-       "utility" nil t)
-
+(when (autoload-if-found '(my-cmd-to-open-iterm2)
+                         "utility" nil t)
   (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2)
-
   (with-eval-after-load "flyspell"
     (define-key flyspell-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2))
-
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2)))
 
 (global-set-key (kbd "C-c f t") 'my-open-current-directory-in-terminal)
 
-(when (autoload-if-found
-       '(gif-screencast)
-       "gif-screencast" nil t)
-
+(when (autoload-if-found '(gif-screencast)
+                         "gif-screencast" nil t)
   (with-eval-after-load "gif-screencast"
     (setq gif-screencast-want-optimized nil)
     (setq gif-screencast-args '("-x"))
@@ -2212,10 +2057,8 @@
 ;;  (global-set-key (kbd "C-c t") 'my-date)
 (global-set-key (kbd "C-c f 4") 'my-window-resizer)
 
-(when (autoload-if-found
-       '(manage-minor-mode)
-       "manage-minor-mode" nil t)
-
+(when (autoload-if-found '(manage-minor-mode)
+                         "manage-minor-mode" nil t)
   (with-eval-after-load "manage-minor-mode"
     (define-key manage-minor-mode-map (kbd "q")
       (lambda () (interactive)
@@ -2240,10 +2083,8 @@
   (add-hook 'minibuffer-setup-hook #'my-nocand-then-fzf-reset)
   (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
 
-(when (autoload-if-found
-       '(elfeed elfeed-update elfeed-web-start)
-       "elfeed" nil t)
-
+(when (autoload-if-found '(elfeed elfeed-update elfeed-web-start)
+                         "elfeed" nil t)
   (with-eval-after-load "elfeed"
     (setq elfeed-db-directory "~/Dropbox/emacs.d/elfeed")
     (when (require 'elfeed-org nil t)

@@ -226,7 +226,8 @@
 
 (setq undo-outer-limit nil)
 
-(when (autoload-if-found '(counsel-recentf) "counsel" nil t)
+(when (autoload-if-found '(counsel-recentf)
+                         "counsel" nil t)
   (global-set-key (kbd "C-M-r") 'counsel-recentf))
 
 ;; *.~
@@ -236,13 +237,10 @@
 ;; auto-save-list
 (setq auto-save-list-file-prefix nil)
 
-(when (autoload-if-found
-       '(session-initialize)
-       "session" nil t)
-
+(when (autoload-if-found '(session-initialize)
+                         "session" nil t)
   (unless noninteractive
     (add-hook 'after-init-hook #'session-initialize))
-
   (with-eval-after-load "session"
     (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     (add-to-list 'session-globals-exclude 'org-mark-ring)
@@ -354,10 +352,8 @@
     moom-change-frame-width-single moom-change-frame-width-half-again
     moom-cycle-monitors))
 
-(when (autoload-if-found
-       moom-autoloads
-       "moom" nil t)
-
+(when (autoload-if-found moom-autoloads
+                         "moom" nil t)
   (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
   (global-set-key (kbd "C-!") 'moom-move-frame-to-edge-bottom)
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
@@ -386,14 +382,12 @@
     (moom-mode 1)
     (my-font-config)))  ;; this could increase `postpone-pre-init-time'.
 
-(when (autoload-if-found
-       '(moom-font-increase
-         moom-font-decrease moom-font-size-reset moom-font-resize)
-       "moom-font" nil t)
-
+(when (autoload-if-found '(moom-font-increase
+                           moom-font-decrease
+                           moom-font-size-reset moom-font-resize)
+                         "moom-font" nil t)
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
   (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
-
   (with-eval-after-load "moom-font"
     (custom-set-variables
      '(moom-scaling-gradient (/ (float 50) 30))
@@ -409,12 +403,9 @@
 
 (my-tick-init-time "font")
 
-(when (autoload-if-found
-       '(counsel-osx-app)
-       "counsel-osx-app" nil t)
-
+(when (autoload-if-found '(counsel-osx-app)
+                         "counsel-osx-app" nil t)
   (global-set-key (kbd "C-M-1") 'counsel-osx-app)
-
   (with-eval-after-load "counsel-osx-app"
     (custom-set-variables
      '(counsel-osx-app-location
