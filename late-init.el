@@ -1893,7 +1893,6 @@
     (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
     (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
 
-;; (declare-function my-font-config "init" nil)
 (global-set-key (kbd "M-`") 'other-frame)
 (with-eval-after-load "frame"
   (advice-add 'make-frame :after #'ad:make-frame))

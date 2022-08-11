@@ -617,10 +617,12 @@ This function is called directly from the C code."
     (message "Activating postponed packages...done (%.3f seconds)"
              postpone-pre-init-time)))
 
-(if (not (locate-library "postpone"))
-    (error "postpone.el is NOT installed yet or cannot find it")
-  (autoload 'postpone-kicker "postpone" nil t)
-  (add-hook 'pre-command-hook #'postpone-pre))
+;; (if (not (locate-library "postpone"))
+;;     (error "postpone.el is NOT installed yet or cannot find it")
+;;   (autoload 'postpone-kicker "postpone" nil t)
+;;   (add-hook 'pre-command-hook #'postpone-pre))
+(autoload 'postpone-kicker "postpone" nil t)
+(add-hook 'pre-command-hook #'postpone-pre)
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq postpone-pre-exclude
@@ -12567,7 +12569,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-;; (declare-function my-font-config "init" nil)
 (global-set-key (kbd "M-`") 'other-frame)
 (with-eval-after-load "frame"
   (advice-add 'make-frame :after #'ad:make-frame))
@@ -12683,7 +12684,6 @@ The keybindings will be assigned only when Emacs runs in GUI."
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :results none
-(declare-function my-font-config "init" nil)
 (defconst moom-autoloads
   '(moom-cycle-frame-height
     moom-move-frame-to-edge-top moom-move-frame my-frame-reset

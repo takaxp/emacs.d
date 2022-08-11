@@ -111,10 +111,12 @@
     (message "Activating postponed packages...done (%.3f seconds)"
              postpone-pre-init-time)))
 
-(if (not (locate-library "postpone"))
-    (error "postpone.el is NOT installed yet or cannot find it")
-  (autoload 'postpone-kicker "postpone" nil t)
-  (add-hook 'pre-command-hook #'postpone-pre))
+;; (if (not (locate-library "postpone"))
+;;     (error "postpone.el is NOT installed yet or cannot find it")
+;;   (autoload 'postpone-kicker "postpone" nil t)
+;;   (add-hook 'pre-command-hook #'postpone-pre))
+(autoload 'postpone-kicker "postpone" nil t)
+(add-hook 'pre-command-hook #'postpone-pre)
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq postpone-pre-exclude
@@ -342,7 +344,6 @@
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
 
-(declare-function my-font-config "init" nil)
 (defconst moom-autoloads
   '(moom-cycle-frame-height
     moom-move-frame-to-edge-top moom-move-frame my-frame-reset
