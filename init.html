@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-12 Fri 02:12 -->
+<!-- 2022-08-12 Fri 08:37 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4165,7 +4165,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
   <span style="color: #8b2252;">"Open a file with `</span><span style="color: #008b8b;">view-mode</span><span style="color: #8b2252;">'."</span>
   (<span style="color: #a020f0;">when</span> (file-exists-p buffer-file-name)
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> my-auto-view-regexp
-                     (string-match my-auto-view-regexp buffer-file-name))
+               (string-match my-auto-view-regexp buffer-file-name))
       (view-mode 1))
     (<span style="color: #a020f0;">dolist</span> (dir my-auto-view-dirs)
       (<span style="color: #a020f0;">when</span> (eq 0 (string-match (expand-file-name dir) buffer-file-name))
@@ -4222,12 +4222,19 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:view--disable</span> () (my-mode-line-off))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:switch-to-buffer</span> (<span style="color: #228b22;">&amp;rest</span> _arg)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (not view-mode)
+             (member (buffer-name) my-auto-view-buffers))
+    (view-mode 1)))
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#25313;&#24373;&#23376;&#12539;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-regexp</span> <span style="color: #8b2252;">"\\.el.gz$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.patch$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.xml$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.csv$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.emacs.d/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]+/el-get</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">config"</span>)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-buffers</span> '(<span style="color: #8b2252;">"*Messages*"</span>))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#65288;&#32118;&#23550;&#12497;&#12473;&#12539;&#12507;&#12540;&#12512;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#20197;&#19979;&#65289;</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-dirs</span> nil)
@@ -4238,6 +4245,8 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(autoload 'my-auto-view "view" nil t)</span>
 (add-hook 'find-file-hook #'my-auto-view)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">note: messages-buffer-mode-hook may not work</span>
+(advice-add 'switch-to-buffer <span style="color: #483d8b;">:after</span> #'ad:switch-to-buffer)
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"view"</span>
   (define-key view-mode-map (kbd <span style="color: #8b2252;">"i"</span>) 'View-exit-and-edit)
@@ -12967,7 +12976,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org30224f4"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgc02ea94"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13777,12 +13786,11 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(global-set-key (kbd "C-c f r") 'org-recent-headings-helm)</span>
   (global-set-key (kbd <span style="color: #8b2252;">"C-M-h"</span>) 'org-recent-headings)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-recent-headings"</span>
+    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ivy</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12487;&#12501;&#12457;&#12523;&#12488;&#12384;&#12392; `</span><span style="color: #008b8b;">ivy-string&lt;</span><span style="color: #b22222;">' &#12364;&#20351;&#12431;&#12428;&#12390;&#12375;&#12414;&#12356;&#65292;&#20351;&#29992;&#23653;&#27508;&#12364;&#21453;&#26144;&#12373;&#12428;&#12394;&#12356;&#65294;</span>
     (<span style="color: #a020f0;">setf</span> (alist-get 'org-recent-headings ivy-sort-functions-alist) nil)
-
     (advice-add 'org-recent-headings <span style="color: #483d8b;">:before</span>
                 #'ad:org-recent-headings-activate)
-
     (<span style="color: #a020f0;">setq</span> org-recent-headings-save-file <span style="color: #8b2252;">"~/.emacs.d/org-recent-headings.dat"</span>)
     (<span style="color: #a020f0;">setq</span> org-recent-headings-use-ids 'when-available)
     (<span style="color: #a020f0;">setq</span> org-recent-headings-show-entry-function
@@ -13876,7 +13884,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orga162bb7" class="figure">
+<div id="orgcbfca3d" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18236,7 +18244,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-12 Fri 02:12</p>
+<p class="date">Created: 2022-08-12 Fri 08:37</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

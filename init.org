@@ -3016,7 +3016,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   "Open a file with `view-mode'."
   (when (file-exists-p buffer-file-name)
     (when (and my-auto-view-regexp
-	             (string-match my-auto-view-regexp buffer-file-name))
+	       (string-match my-auto-view-regexp buffer-file-name))
       (view-mode 1))
     (dolist (dir my-auto-view-dirs)
       (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
@@ -3073,11 +3073,18 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 
 ;;;###autoload
 (defun ad:view--disable () (my-mode-line-off))
+
+;;;###autoload
+(defun ad:switch-to-buffer (&rest _arg)
+  (when (and (not view-mode)
+             (member (buffer-name) my-auto-view-buffers))
+    (view-mode 1)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 ;; 特定の拡張子・ディレクトリ
 (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
+(defvar my-auto-view-buffers '("*Messages*"))
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
@@ -3088,6 +3095,8 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 
 ;; (autoload 'my-auto-view "view" nil t)
 (add-hook 'find-file-hook #'my-auto-view)
+;; note: messages-buffer-mode-hook may not work
+(advice-add 'switch-to-buffer :after #'ad:switch-to-buffer)
 
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
@@ -11738,12 +11747,11 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   ;; (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
   (global-set-key (kbd "C-M-h") 'org-recent-headings)
   (with-eval-after-load "org-recent-headings"
+    (require 'ivy)
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
     (setf (alist-get 'org-recent-headings ivy-sort-functions-alist) nil)
-
     (advice-add 'org-recent-headings :before
                 #'ad:org-recent-headings-activate)
-
     (setq org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
     (setq org-recent-headings-use-ids 'when-available)
     (setq org-recent-headings-show-entry-function

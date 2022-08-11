@@ -398,6 +398,7 @@
 
 ;; 特定の拡張子・ディレクトリ
 (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
+(defvar my-auto-view-buffers '("*Messages*"))
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
 (defvar my-auto-view-dirs nil)
@@ -408,6 +409,8 @@
 
 ;; (autoload 'my-auto-view "view" nil t)
 (add-hook 'find-file-hook #'my-auto-view)
+;; note: messages-buffer-mode-hook may not work
+(advice-add 'switch-to-buffer :after #'ad:switch-to-buffer)
 
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
@@ -1694,12 +1697,11 @@
   ;; (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
   (global-set-key (kbd "C-M-h") 'org-recent-headings)
   (with-eval-after-load "org-recent-headings"
+    (require 'ivy)
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
     (setf (alist-get 'org-recent-headings ivy-sort-functions-alist) nil)
-
     (advice-add 'org-recent-headings :before
                 #'ad:org-recent-headings-activate)
-
     (setq org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
     (setq org-recent-headings-use-ids 'when-available)
     (setq org-recent-headings-show-entry-function
