@@ -59,7 +59,7 @@
     (interactive)
     (add-function :before-until (local 'eldoc-documentation-function)
 			            #'org-eldoc-documentation-function))
-  (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
+  ;; (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
 
   ;; org ファイルの集中管理

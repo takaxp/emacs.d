@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-12 Fri 12:48 -->
+<!-- 2022-08-12 Fri 21:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -10489,7 +10489,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </p>
 
 <p>
-<code>vterm</code> を使うには，macOS の場合は brew で libvterm をインストールします．
+macOS の場合は brew で libvterm をインストールすれば， <code>vterm</code> を使えます．
 </p>
 
 <ul class="org-ul">
@@ -10721,7 +10721,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (<span style="color: #a020f0;">interactive</span>)
     (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before-until</span> (local 'eldoc-documentation-function)
                                     #'org-eldoc-documentation-function))
-  (advice-add 'org-eldoc-load <span style="color: #483d8b;">:override</span> #'my-org-eldoc-load)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23569;&#12394;&#12367;&#12392;&#12418; org 9.5 &#12391;&#12399;&#21839;&#38988;&#12364;&#30330;&#29983;&#12375;&#12394;&#12367;&#12394;&#12387;&#12383;&#12398;&#12391;&#65292;advice &#20572;&#27490;&#65294;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'org-eldoc-load :override #'my-org-eldoc-load)</span>
   (add-hook 'org-mode-hook #'org-eldoc-load)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">org &#12501;&#12449;&#12452;&#12523;&#12398;&#38598;&#20013;&#31649;&#29702;</span>
@@ -11929,7 +11930,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-agenda</span> nil t)
       (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>) (my-org-modules-activate)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
       (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">ob-http</span>) (my-org-babel-load-activate)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-      (message <span style="color: #8b2252;">"Building agenda buffers..."</span>)
       (org-agenda-prepare-buffers org-agenda-files)
       (message <span style="color: #8b2252;">"Building agenda buffers...done"</span>))))
 </pre>
@@ -12979,7 +12979,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org4252ccf"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgba53f33"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13887,7 +13887,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgb433b95" class="figure">
+<div id="org76d9ed5" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18247,7 +18247,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-12 Fri 12:48</p>
+<p class="date">Created: 2022-08-12 Fri 21:57</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -8692,7 +8692,7 @@ trim_trailing_whitespace = true
 
 =vterm= を使うとバッファをターミナルとして使えます．通常では ~C-n/C-p~ でコマンド履歴を辿ってしまうので，実行結果などをコピーして別バッファに貼り付けたい場合は， =vterm-copy-mode= (C-c C-t) を使えばよいです．
 
-=vterm= を使うには，macOS の場合は brew で libvterm をインストールします．
+macOS の場合は brew で libvterm をインストールすれば， =vterm= を使えます．
 
 - https://github.com/akermu/emacs-libvterm
 
@@ -8902,7 +8902,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (interactive)
     (add-function :before-until (local 'eldoc-documentation-function)
 			            #'org-eldoc-documentation-function))
-  (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
+  ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
+  ;; (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
 
   ;; org ファイルの集中管理
@@ -10004,7 +10005,6 @@ will not be modified."
     (when (require 'org-agenda nil t)
       (unless (featurep 'org-id) (my-org-modules-activate)) ;; FIXME
       (unless (featurep 'ob-http) (my-org-babel-load-activate)) ;; FIXME
-      (message "Building agenda buffers...")
       (org-agenda-prepare-buffers org-agenda-files)
       (message "Building agenda buffers...done"))))
 #+end_src

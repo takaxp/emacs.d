@@ -11,7 +11,7 @@
 (defconst my-loading-packages nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
-(setq debug-on-error t
+(setq debug-on-error nil
       postpone-verbose nil
       my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}
@@ -93,9 +93,9 @@
     (with-eval-after-load "postpone"
       (when (and window-system
                  (require 'init-async nil t))
-        (my-delete-old-backup 20)
+        (my-delete-old-backup 3)
         (when my-skip-check-autoload-file
-          (my-find-missing-packages 25)))
+          (my-find-missing-packages 5)))
       (require 'my-eshell nil t)
       (require 'my-mail nil t))))
  ((eq my-boot-type 'debug)
