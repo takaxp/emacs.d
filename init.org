@@ -1638,15 +1638,20 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
   ;; (require 'epa)
   (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
              (eq system-type 'darwin)
-             (not (boundp 'my-private-conf-loaded)))
-    (unless (ignore-errors (require 'private "private.el.gpg" t))
-      (warn "GPG decryption error (private.el)"))))
+             (not (featurep 'private)))             
+    (require 'private "private.el.gpg" t)
+    ;; (unless (ignore-errors (require 'private "private.el.gpg" t))
+    ;;   (warn "GPG decryption error (private.el)"))
+    ))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
   (defvar my-private-conf-timer
-    (run-with-idle-timer 6 nil #'my-private-conf-activate)))
+    (run-with-idle-timer 6 nil #'my-private-conf-activate))
+  (when (version< "27.0" emacs-version)
+    ;; ミニバッファでパスワードを入力する
+    (setq epg-pinentry-mode 'loopback)))
 #+end_src
 
 =w32= の MSYS2 で gpg を使うと，バージョン情報が "2.2.19-unknown" などとなる．その状況で ~epg-find-configuration~ が呼ばれると，内部で生じるエラーが報告されず nil となり， ~epg.el~ が以下を報告する．
@@ -1659,10 +1664,6 @@ GPG error: "no usable configuration," OpenPGP
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org-crypt"
-  (require 'epa)
-  (when (version< "27.0" emacs-version)
-    ;; ミニバッファでパスワードを入力する
-    (setq epg-pinentry-mode 'loopback))
   ;; (when (eq window-system 'w32)
   ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
   ;;   (setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs
@@ -1682,7 +1683,8 @@ GPG error: "no usable configuration," OpenPGP
                              epg-gpg-minimum-version)
                          version)
         (error "Unsupported version: %s" version))))
-  (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
+  ;; (advice-add 'epg-check-configuration :override #'my-epg-check-configuration)
+)
 #+end_src
 ** [epa.el] GPGファイルの保存時のメッセージを停止する
    :PROPERTIES:
@@ -10339,7 +10341,8 @@ will not be modified."
           (setq appt-time-msg-list result) ;; nil means No event
           ;; (my-add-prop-to-appt-time-msg-list)
           (unless (active-minibuffer-window)
-            (let ((cnt (length appt-time-msg-list)))
+            (let ((cnt (length appt-time-msg-list))
+                  (message-log-max nil))
               (if (eq cnt 0)
                   (message "[async] No event to add")
                 (message "[async] Added %d event%s for today"

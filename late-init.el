@@ -107,7 +107,10 @@
 
 (unless noninteractive
   (defvar my-private-conf-timer
-    (run-with-idle-timer 6 nil #'my-private-conf-activate)))
+    (run-with-idle-timer 6 nil #'my-private-conf-activate))
+  (when (version< "27.0" emacs-version)
+    ;; ミニバッファでパスワードを入力する
+    (setq epg-pinentry-mode 'loopback)))
 
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)

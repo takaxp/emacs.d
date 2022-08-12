@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-12 Fri 08:37 -->
+<!-- 2022-08-12 Fri 12:48 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -2544,16 +2544,21 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'epa)</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p <span style="color: #8b2252;">"~/Dropbox/config/private.el.gpg"</span>)
              (eq system-type 'darwin)
-             (not (boundp 'my-private-conf-loaded)))
-    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">ignore-errors</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t))
-      (<span style="color: #ff0000; font-weight: bold;">warn</span> <span style="color: #8b2252;">"GPG decryption error (private.el)"</span>))))
+             (not (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">private</span>)))             
+    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (ignore-errors (require 'private "private.el.gpg" t))</span>
+    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(warn "GPG decryption error (private.el)"))</span>
+    ))
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-private-conf-timer</span>
-    (run-with-idle-timer 6 nil #'my-private-conf-activate)))
+    (run-with-idle-timer 6 nil #'my-private-conf-activate))
+  (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12511;&#12491;&#12496;&#12483;&#12501;&#12449;&#12391;&#12497;&#12473;&#12527;&#12540;&#12489;&#12434;&#20837;&#21147;&#12377;&#12427;</span>
+    (<span style="color: #a020f0;">setq</span> epg-pinentry-mode 'loopback)))
 </pre>
 </div>
 
@@ -2572,10 +2577,6 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-crypt"</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">epa</span>)
-  (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12511;&#12491;&#12496;&#12483;&#12501;&#12449;&#12391;&#12497;&#12473;&#12527;&#12540;&#12489;&#12434;&#20837;&#21147;&#12377;&#12427;</span>
-    (<span style="color: #a020f0;">setq</span> epg-pinentry-mode 'loopback))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (eq window-system 'w32)</span>
   <span style="color: #b22222;">;;   </span><span style="color: #b22222;">;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc</span>
   <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs</span>
@@ -2595,7 +2596,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
                              epg-gpg-minimum-version)
                          version)
         (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"Unsupported version: %s"</span> version))))
-  (advice-add 'epg-check-configuration <span style="color: #483d8b;">:override</span> #'my-epg-check-configuration))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'epg-check-configuration :override #'my-epg-check-configuration)</span>
+)
 </pre>
 </div>
 </div>
@@ -12278,7 +12280,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
           (<span style="color: #a020f0;">setq</span> appt-time-msg-list result) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil means No event</span>
           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-add-prop-to-appt-time-msg-list)</span>
           (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
-            (<span style="color: #a020f0;">let</span> ((cnt (length appt-time-msg-list)))
+            (<span style="color: #a020f0;">let</span> ((cnt (length appt-time-msg-list))
+                  (message-log-max nil))
               (<span style="color: #a020f0;">if</span> (eq cnt 0)
                   (message <span style="color: #8b2252;">"[async] No event to add"</span>)
                 (message <span style="color: #8b2252;">"[async] Added %d event%s for today"</span>
@@ -12976,7 +12979,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgc02ea94"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org4252ccf"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13884,7 +13887,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgcbfca3d" class="figure">
+<div id="orgb433b95" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18244,7 +18247,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-12 Fri 08:37</p>
+<p class="date">Created: 2022-08-12 Fri 12:48</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

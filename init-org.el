@@ -4,10 +4,6 @@
   (call-interactively 'postpone-pre))
 
 (with-eval-after-load "org-crypt"
-  (require 'epa)
-  (when (version< "27.0" emacs-version)
-    ;; ミニバッファでパスワードを入力する
-    (setq epg-pinentry-mode 'loopback))
   ;; (when (eq window-system 'w32)
   ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
   ;;   (setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs
@@ -27,7 +23,8 @@
                              epg-gpg-minimum-version)
                          version)
         (error "Unsupported version: %s" version))))
-  (advice-add 'epg-check-configuration :override #'my-epg-check-configuration))
+  ;; (advice-add 'epg-check-configuration :override #'my-epg-check-configuration)
+)
 
 ;; テキストファイルを Org Mode で開きます．
 (push '("\\.txt$" . org-mode) auto-mode-alist)

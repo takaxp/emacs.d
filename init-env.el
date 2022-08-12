@@ -93,9 +93,9 @@
     (with-eval-after-load "postpone"
       (when (and window-system
                  (require 'init-async nil t))
-        (my-delete-old-backup 5)
+        (my-delete-old-backup 20)
         (when my-skip-check-autoload-file
-          (my-find-missing-packages 10)))
+          (my-find-missing-packages 25)))
       (require 'my-eshell nil t)
       (require 'my-mail nil t))))
  ((eq my-boot-type 'debug)
