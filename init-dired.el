@@ -1,6 +1,6 @@
 (setq completion-ignored-extensions
       (append completion-ignored-extensions
-	            '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+	      '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
 
 ;; "dired-mode-map"
 ;; Use build-in `wdired-mode'.
@@ -28,31 +28,31 @@
 ;; 上位ディレクトリへの移動
 (define-key dired-mode-map (kbd "u") 'dired-up-directory)
 
-(define-key dired-mode-map (kbd "C-M-p")
-  (lambda () (interactive) (other-window -1)))
-(define-key dired-mode-map (kbd "C-M-n")
-  (lambda () (interactive) (other-window 1)))
+(define-key dired-mode-map
+  (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
+(define-key dired-mode-map
+  (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired
 (when (eq system-type 'darwin)
   (setq dired-guess-shell-alist-user
-	      (list
-	       (list (rx (and "."
-			                  (or
-			                   ;; Videos
-			                   "mp4" "avi" "mkv" "rmvb"
-			                   ;; Torrent
-			                   "torrent"
-			                   ;; PDF
-			                   "pdf"
-			                   ;; Image
-			                   "gif" "png" "jpg" "jpeg")
-			                  string-end)) "open"))))
+	(list
+	 (list (rx (and "."
+			(or
+			 ;; Videos
+			 "mp4" "avi" "mkv" "rmvb"
+			 ;; Torrent
+			 "torrent"
+			 ;; PDF
+			 "pdf"
+			 ;; Image
+			 "gif" "png" "jpg" "jpeg")
+			string-end)) "open"))))
 
 (when (and nil
            (require 'hydra nil t)
-	         (require 'dired-recent nil t))
+	   (require 'dired-recent nil t))
 
   ;; (define-key dired-mode-map "h" 'hydra-dired/body)
   ;; (define-key dired-mode-map "r" 'dired-recent-open)

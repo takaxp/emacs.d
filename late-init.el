@@ -1376,7 +1376,8 @@
     (advice-add 'backup-each-save-compute-location :override
                 #'my-backup-each-save-compute-location)))
 
-(advice-add 'dired :before #'ad:dired-activate)
+;; late-init.el
+(add-hook 'dired-mode-hook #'my-dired-activate)
 
 (when (autoload-if-found '(dired-recent-open dired-recent-mode)
                          "dired-recent" nil t)

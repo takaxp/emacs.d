@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-12 Fri 21:57 -->
+<!-- 2022-08-13 Sat 11:19 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -2544,11 +2544,9 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'epa)</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p <span style="color: #8b2252;">"~/Dropbox/config/private.el.gpg"</span>)
              (eq system-type 'darwin)
-             (not (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">private</span>)))             
-    (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (ignore-errors (require 'private "private.el.gpg" t))</span>
-    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(warn "GPG decryption error (private.el)"))</span>
-    ))
+             (not (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">private</span>)))
+    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">ignore-errors</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t))
+      (<span style="color: #ff0000; font-weight: bold;">warn</span> <span style="color: #8b2252;">"GPG decryption error (private.el)"</span>))))
 </pre>
 </div>
 
@@ -2596,8 +2594,9 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
                              epg-gpg-minimum-version)
                          version)
         (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"Unsupported version: %s"</span> version))))
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'epg-check-configuration :override #'my-epg-check-configuration)</span>
-)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'epg-check-configuration</span>
+  <span style="color: #b22222;">;;             </span><span style="color: #b22222;">:override #'my-epg-check-configuration)</span>
+  )
 </pre>
 </div>
 </div>
@@ -8779,16 +8778,16 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(advice-add 'dired <span style="color: #483d8b;">:before</span> #'ad:dired-activate)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(add-hook 'dired-mode-hook #'my-dired-activate)
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:dired-activate</span> (_dirname <span style="color: #228b22;">&amp;optional</span> _switches)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-dired-activate</span> ()
   (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-dired</span> nil t)
-    (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"init-dired.el doesn't exist"</span>))
-  (advice-remove 'dired #'ad:dired-activate))
+    (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"init-dired.el doesn't exist"</span>)))
 </pre>
 </div>
 
@@ -8799,7 +8798,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> completion-ignored-extensions
       (append completion-ignored-extensions
-                    '(<span style="color: #8b2252;">"./"</span> <span style="color: #8b2252;">"../"</span> <span style="color: #8b2252;">".xlsx"</span> <span style="color: #8b2252;">".docx"</span> <span style="color: #8b2252;">".pptx"</span> <span style="color: #8b2252;">".DS_Store"</span>)))
+              '(<span style="color: #8b2252;">"./"</span> <span style="color: #8b2252;">"../"</span> <span style="color: #8b2252;">".xlsx"</span> <span style="color: #8b2252;">".docx"</span> <span style="color: #8b2252;">".pptx"</span> <span style="color: #8b2252;">".DS_Store"</span>)))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">"dired-mode-map"</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Use build-in `</span><span style="color: #008b8b;">wdired-mode</span><span style="color: #b22222;">'.</span>
@@ -8827,31 +8826,31 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19978;&#20301;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#12408;&#12398;&#31227;&#21205;</span>
 (define-key dired-mode-map (kbd <span style="color: #8b2252;">"u"</span>) 'dired-up-directory)
 
-(define-key dired-mode-map (kbd <span style="color: #8b2252;">"C-M-p"</span>)
-  (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
-(define-key dired-mode-map (kbd <span style="color: #8b2252;">"C-M-n"</span>)
-  (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
+(define-key dired-mode-map
+  (kbd <span style="color: #8b2252;">"C-M-p"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
+(define-key dired-mode-map
+  (kbd <span style="color: #8b2252;">"C-M-n"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/xuchunyang/emacs.d</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">type "!" or "X" in dired</span>
 (<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
   (<span style="color: #a020f0;">setq</span> dired-guess-shell-alist-user
-              (list
-               (list (<span style="color: #a020f0;">rx</span> (<span style="color: #a020f0;">and</span> <span style="color: #8b2252;">"."</span>
-                                          (<span style="color: #a020f0;">or</span>
-                                           <span style="color: #b22222;">;; </span><span style="color: #b22222;">Videos</span>
-                                           <span style="color: #8b2252;">"mp4"</span> <span style="color: #8b2252;">"avi"</span> <span style="color: #8b2252;">"mkv"</span> <span style="color: #8b2252;">"rmvb"</span>
-                                           <span style="color: #b22222;">;; </span><span style="color: #b22222;">Torrent</span>
-                                           <span style="color: #8b2252;">"torrent"</span>
-                                           <span style="color: #b22222;">;; </span><span style="color: #b22222;">PDF</span>
-                                           <span style="color: #8b2252;">"pdf"</span>
-                                           <span style="color: #b22222;">;; </span><span style="color: #b22222;">Image</span>
-                                           <span style="color: #8b2252;">"gif"</span> <span style="color: #8b2252;">"png"</span> <span style="color: #8b2252;">"jpg"</span> <span style="color: #8b2252;">"jpeg"</span>)
-                                          string-end)) <span style="color: #ff0000; font-weight: bold;">"open"</span><span style="color: #ff0000; font-weight: bold;">))))</span>
+        (list
+         (list (<span style="color: #a020f0;">rx</span> (<span style="color: #a020f0;">and</span> <span style="color: #8b2252;">"."</span>
+                        (<span style="color: #a020f0;">or</span>
+                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">Videos</span>
+                         <span style="color: #8b2252;">"mp4"</span> <span style="color: #8b2252;">"avi"</span> <span style="color: #8b2252;">"mkv"</span> <span style="color: #8b2252;">"rmvb"</span>
+                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">Torrent</span>
+                         <span style="color: #8b2252;">"torrent"</span>
+                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">PDF</span>
+                         <span style="color: #8b2252;">"pdf"</span>
+                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">Image</span>
+                         <span style="color: #8b2252;">"gif"</span> <span style="color: #8b2252;">"png"</span> <span style="color: #8b2252;">"jpg"</span> <span style="color: #8b2252;">"jpeg"</span>)
+                        string-end)) <span style="color: #ff0000; font-weight: bold;">"open"</span><span style="color: #ff0000; font-weight: bold;">))))</span>
 
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> nil
            (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)
-                 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-recent</span> nil t))
+           (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-recent</span> nil t))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key dired-mode-map "h" 'hydra-dired/body)</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key dired-mode-map "r" 'dired-recent-open)</span>
@@ -12979,7 +12978,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgba53f33"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org39707b8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13887,7 +13886,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org76d9ed5" class="figure">
+<div id="org474db75" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18247,7 +18246,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-12 Fri 21:57</p>
+<p class="date">Created: 2022-08-13 Sat 11:19</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

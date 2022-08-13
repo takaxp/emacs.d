@@ -3,29 +3,6 @@
 (unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
 
-(with-eval-after-load "org-crypt"
-  ;; (when (eq window-system 'w32)
-  ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
-  ;;   (setq epg-gpg-home-directory ".gnupg")) ;; No need for zip downloaded Emacs
-  ;; epg-gpg-home-directory が設定されていると，(epg-make-context nil t t) の戻り値に反映され，結果 epg-list-keys の戻り値が nil になり鍵をリストできなくなる．
-
-  (defun my-epg-check-configuration (config &optional minimum-version)
-    "Verify that a sufficient version of GnuPG is installed."
-    (let ((version (alist-get 'version config)))
-      (unless (stringp version)
-        (error "Undetermined version: %S" version))
-      ;; hack for w32
-      (when (eq window-system 'w32)
-        (setq version (or minimum-version
-                          epg-gpg-minimum-version)))
-      ;;
-      (unless (version<= (or minimum-version
-                             epg-gpg-minimum-version)
-                         version)
-        (error "Unsupported version: %s" version))))
-  ;; (advice-add 'epg-check-configuration :override #'my-epg-check-configuration)
-)
-
 ;; テキストファイルを Org Mode で開きます．
 (push '("\\.txt$" . org-mode) auto-mode-alist)
 
@@ -59,6 +36,7 @@
     (interactive)
     (add-function :before-until (local 'eldoc-documentation-function)
 			            #'org-eldoc-documentation-function))
+  ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
   ;; (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
 

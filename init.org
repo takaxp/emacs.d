@@ -1638,11 +1638,9 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
   ;; (require 'epa)
   (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
              (eq system-type 'darwin)
-             (not (featurep 'private)))             
-    (require 'private "private.el.gpg" t)
-    ;; (unless (ignore-errors (require 'private "private.el.gpg" t))
-    ;;   (warn "GPG decryption error (private.el)"))
-    ))
+             (not (featurep 'private)))
+    (unless (ignore-errors (require 'private "private.el.gpg" t))
+      (warn "GPG decryption error (private.el)"))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -1662,7 +1660,7 @@ GPG error: "no usable configuration," OpenPGP
 
 しかし実際には， ~epg-find-configuration~ が ~epg-check-configuration~ のエラーを正しく処理していないのが原因であり，この関数のハックが必要となる．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle no
 (with-eval-after-load "org-crypt"
   ;; (when (eq window-system 'w32)
   ;;   ;; with export GNUPGHOME="/home/taka/.gnupg" in .bashrc
@@ -1683,8 +1681,9 @@ GPG error: "no usable configuration," OpenPGP
                              epg-gpg-minimum-version)
                          version)
         (error "Unsupported version: %s" version))))
-  ;; (advice-add 'epg-check-configuration :override #'my-epg-check-configuration)
-)
+  ;; (advice-add 'epg-check-configuration
+  ;;             :override #'my-epg-check-configuration)
+  )
 #+end_src
 ** [epa.el] GPGファイルの保存時のメッセージを停止する
    :PROPERTIES:
@@ -7172,15 +7171,15 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
  - helm-dired-history or ivy-dired-history
 
 #+begin_src emacs-lisp :tangle late-init.el
-(advice-add 'dired :before #'ad:dired-activate)
+;; late-init.el
+(add-hook 'dired-mode-hook #'my-dired-activate)
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:dired-activate (_dirname &optional _switches)
+(defun my-dired-activate ()
   (unless (require 'init-dired nil t)
-    (user-error "init-dired.el doesn't exist"))
-  (advice-remove 'dired #'ad:dired-activate))
+    (user-error "init-dired.el doesn't exist")))
 #+end_src
 
 明示的に ~dired~ を呼ばなくても， ~ibuffer~ が ~dired~ を読み込むことがわかったので， ~dired~ に関係する以下の設定は， ~init-dired.el~ に分離しました．下記の設定は，最初に =M-x dired= を実行したタイミングで読み込みます．
@@ -7188,7 +7187,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+begin_src emacs-lisp :tangle init-dired.el
 (setq completion-ignored-extensions
       (append completion-ignored-extensions
-	            '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+	      '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
 
 ;; "dired-mode-map"
 ;; Use build-in `wdired-mode'.
@@ -7216,31 +7215,31 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 ;; 上位ディレクトリへの移動
 (define-key dired-mode-map (kbd "u") 'dired-up-directory)
 
-(define-key dired-mode-map (kbd "C-M-p")
-  (lambda () (interactive) (other-window -1)))
-(define-key dired-mode-map (kbd "C-M-n")
-  (lambda () (interactive) (other-window 1)))
+(define-key dired-mode-map
+  (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
+(define-key dired-mode-map
+  (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired
 (when (eq system-type 'darwin)
   (setq dired-guess-shell-alist-user
-	      (list
-	       (list (rx (and "."
-			                  (or
-			                   ;; Videos
-			                   "mp4" "avi" "mkv" "rmvb"
-			                   ;; Torrent
-			                   "torrent"
-			                   ;; PDF
-			                   "pdf"
-			                   ;; Image
-			                   "gif" "png" "jpg" "jpeg")
-			                  string-end)) "open"))))
+	(list
+	 (list (rx (and "."
+			(or
+			 ;; Videos
+			 "mp4" "avi" "mkv" "rmvb"
+			 ;; Torrent
+			 "torrent"
+			 ;; PDF
+			 "pdf"
+			 ;; Image
+			 "gif" "png" "jpg" "jpeg")
+			string-end)) "open"))))
 
 (when (and nil
            (require 'hydra nil t)
-	         (require 'dired-recent nil t))
+	   (require 'dired-recent nil t))
 
   ;; (define-key dired-mode-map "h" 'hydra-dired/body)
   ;; (define-key dired-mode-map "r" 'dired-recent-open)
