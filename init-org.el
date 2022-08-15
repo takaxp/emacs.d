@@ -22,7 +22,8 @@
   (defvar my-org-modules org-modules) ;; Tricky!!
   ;; (setq org-modules-loaded t) ;; not a good way
   (setq org-modules nil)
-  (run-with-idle-timer 8 nil #'my-org-modules-activate) ;; will take 350[ms]
+  (run-with-idle-timer (+ 8 my-default-loading-delay)
+                       nil #'my-org-modules-activate) ;; will take 350[ms]
 
   ;; タイトルを少し強調
   (custom-set-faces
@@ -1316,7 +1317,8 @@ update it for multiple appts?")
 
 (with-eval-after-load "org"
   ;; will take 200[ms]
-  (run-with-idle-timer 7 nil #'my-org-babel-load-activate))
+  (run-with-idle-timer (+ 7 my-default-loading-delay)
+                       nil #'my-org-babel-load-activate))
 
 (with-eval-after-load "ob-src"
   ;; 実装済みの言語に好きな名前を紐付ける

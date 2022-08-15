@@ -18,8 +18,9 @@
                 :around #'ad:gcmh-idle-garbage-collect))
 
   (unless noninteractive
-    (defvar my-gcmh-timer (run-with-idle-timer 10 nil #'my-gcmh-activate))
-))
+    (defvar my-gcmh-timer
+      (run-with-idle-timer (+ 10 my-default-loading-delay)
+                           nil #'my-gcmh-activate))))
 
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 (defvar shutup-p nil)
@@ -107,7 +108,8 @@
 
 (unless noninteractive
   (defvar my-private-conf-timer
-    (run-with-idle-timer 6 nil #'my-private-conf-activate))
+    (run-with-idle-timer (+ 6 my-default-loading-delay)
+                         nil #'my-private-conf-activate))
   (when (version< "27.0" emacs-version)
     ;; ミニバッファでパスワードを入力する
     (setq epg-pinentry-mode 'loopback)))
@@ -1359,7 +1361,7 @@
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 
 (with-eval-after-load "recentf"
-  (run-with-idle-timer 180 t 'my-backup-recentf))
+  (run-with-idle-timer 60 t 'my-backup-recentf))
 
 (when (autoload-if-found '(backup-each-save my-auto-backup)
                          "backup-each-save" nil t)
@@ -1679,12 +1681,13 @@
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
 (defvar my-org-agenda-pb-timer
-  (run-with-idle-timer 9 nil #'my-org-agenda-prepare-buffers))
+  (run-with-idle-timer (+ 9 my-default-loading-delay)
+                       nil #'my-org-agenda-prepare-buffers))
 
 (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
 (run-at-time "20 sec" nil #'my-org-agenda-to-appt)
 ;; (with-eval-after-load "org") 内で設定すると(何故か)複数回呼ばれてしまう．
-(run-with-idle-timer 300 t #'my-org-agenda-to-appt)
+(run-with-idle-timer 180 t #'my-org-agenda-to-appt)
 
 (with-eval-after-load "icons-in-terminal"
   (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")

@@ -638,7 +638,8 @@ This function is called directly from the C code."
         exit-minibuffer))
 
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
-(defvar my-pp-kicker-timer (run-with-idle-timer 5 nil #'postpone-pre))
+(defvar my-pp-kicker-timer
+  (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
 #+end_src
 
 ** [future-time-p] 指定時刻が本日の未来の時刻かを判定
@@ -755,8 +756,9 @@ This function is called directly from the C code."
                 :around #'ad:gcmh-idle-garbage-collect))
 
   (unless noninteractive
-    (defvar my-gcmh-timer (run-with-idle-timer 10 nil #'my-gcmh-activate))
-))
+    (defvar my-gcmh-timer
+      (run-with-idle-timer (+ 10 my-default-loading-delay)
+                           nil #'my-gcmh-activate))))
 #+end_src
 
 ** [shut-up.el] Messages 出力を封じる（制御する）
@@ -1646,7 +1648,8 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
   (defvar my-private-conf-timer
-    (run-with-idle-timer 6 nil #'my-private-conf-activate))
+    (run-with-idle-timer (+ 6 my-default-loading-delay)
+                         nil #'my-private-conf-activate))
   (when (version< "27.0" emacs-version)
     ;; ミニバッファでパスワードを入力する
     (setq epg-pinentry-mode 'loopback)))
@@ -3839,7 +3842,10 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       (message "%s" (car kill-ring))
       (erase-buffer))
     ;; Jump to the end of the region
-    (goto-char (max (mark) (point)))
+    (let ((mk (mark)))
+      (if mk
+          (goto-char (max mk (point)))
+        (goto-char (point))))
     (deactivate-mark)))
 
 ;;;###autoload
@@ -7109,7 +7115,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "recentf"
-  (run-with-idle-timer 180 t 'my-backup-recentf))
+  (run-with-idle-timer 60 t 'my-backup-recentf))
 #+end_src
 
 ** [backup-each-save.el] クラッシュに備える                          :backup:
@@ -7728,7 +7734,7 @@ the_silver_searcher @0.18.1 (textproc)
                (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
                    nil
                  (ivy-thing-at-point)))
-         (or initial-directory default-directory)
+         (or initial-directory (funcall counsel-fzf-dir-function))
          fzf-prompt))
 #+end_src
 
@@ -8887,7 +8893,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defvar my-org-modules org-modules) ;; Tricky!!
   ;; (setq org-modules-loaded t) ;; not a good way
   (setq org-modules nil)
-  (run-with-idle-timer 8 nil #'my-org-modules-activate) ;; will take 350[ms]
+  (run-with-idle-timer (+ 8 my-default-loading-delay)
+                       nil #'my-org-modules-activate) ;; will take 350[ms]
 
   ;; タイトルを少し強調
   (custom-set-faces
@@ -10016,7 +10023,8 @@ will not be modified."
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
 (defvar my-org-agenda-pb-timer
-  (run-with-idle-timer 9 nil #'my-org-agenda-prepare-buffers))
+  (run-with-idle-timer (+ 9 my-default-loading-delay)
+                       nil #'my-org-agenda-prepare-buffers))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -10281,7 +10289,7 @@ will not be modified."
 (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
 (run-at-time "20 sec" nil #'my-org-agenda-to-appt)
 ;; (with-eval-after-load "org") 内で設定すると(何故か)複数回呼ばれてしまう．
-(run-with-idle-timer 300 t #'my-org-agenda-to-appt)
+(run-with-idle-timer 180 t #'my-org-agenda-to-appt)
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -10597,7 +10605,8 @@ update it for multiple appts?")
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
   ;; will take 200[ms]
-  (run-with-idle-timer 7 nil #'my-org-babel-load-activate))
+  (run-with-idle-timer (+ 7 my-default-loading-delay)
+                       nil #'my-org-babel-load-activate))
 
 (with-eval-after-load "ob-src"
   ;; 実装済みの言語に好きな名前を紐付ける
@@ -14820,6 +14829,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
 ** 引数のorgバッファを開く
    :PROPERTIES:
    :CUSTOM_ID: org31226d9e
+   :ID:       569C7BBC-70E7-4537-BBB1-70497628B2C7
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -14829,14 +14839,17 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
   (interactive)
   (let ((tbuffer (get-buffer file))
         (cbuffer (current-buffer))
+        (orgfile (concat (getenv "SYNCROOT") "/org/" file))
+        (afile (expand-file-name file))
         (message-log-max nil))
-    (if tbuffer
-        (switch-to-buffer tbuffer)
-      (find-file (concat (getenv "SYNCROOT") "/org/" file)))
     (when (and (fboundp 'my-org-agenda-to-appt)
                (not (eq cbuffer tbuffer)))
       (my-org-agenda-to-appt 'force))
-    (message "%s" file)))
+    (if (cond (tbuffer (switch-to-buffer tbuffer))
+              ((file-exists-p orgfile) (find-file orgfile))
+              ((file-exists-p afile) (find-file afile)))
+        (message "%s" file)
+      (message "No buffer or file is shown."))))
 #+end_src
 ** orgバッファにいつものヘッダを追加する
    :PROPERTIES:

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-13 Sat 11:19 -->
+<!-- 2022-08-15 Mon 16:06 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -191,7 +191,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { width: 90%; }
+  .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
@@ -1398,7 +1398,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
         exit-minibuffer))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;X&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pp-kicker-timer</span> (run-with-idle-timer 5 nil #'postpone-pre))
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pp-kicker-timer</span>
+  (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
 </pre>
 </div>
 </div>
@@ -1528,8 +1529,9 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
                 <span style="color: #483d8b;">:around</span> #'ad:gcmh-idle-garbage-collect))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
-    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-timer</span> (run-with-idle-timer 10 nil #'my-gcmh-activate))
-))
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-timer</span>
+      (run-with-idle-timer (+ 10 my-default-loading-delay)
+                           nil #'my-gcmh-activate))))
 </pre>
 </div>
 </div>
@@ -2553,7 +2555,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-private-conf-timer</span>
-    (run-with-idle-timer 6 nil #'my-private-conf-activate))
+    (run-with-idle-timer (+ 6 my-default-loading-delay)
+                         nil #'my-private-conf-activate))
   (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12511;&#12491;&#12496;&#12483;&#12501;&#12449;&#12391;&#12497;&#12473;&#12527;&#12540;&#12489;&#12434;&#20837;&#21147;&#12377;&#12427;</span>
     (<span style="color: #a020f0;">setq</span> epg-pinentry-mode 'loopback)))
@@ -5135,7 +5138,10 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       (message <span style="color: #8b2252;">"%s"</span> (car kill-ring))
       (erase-buffer))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Jump to the end of the region</span>
-    (goto-char (max (mark) (point)))
+    (<span style="color: #a020f0;">let</span> ((mk (mark)))
+      (<span style="color: #a020f0;">if</span> mk
+          (goto-char (max mk (point)))
+        (goto-char (point))))
     (deactivate-mark)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -8707,7 +8713,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"recentf"</span>
-  (run-with-idle-timer 180 t 'my-backup-recentf))
+  (run-with-idle-timer 60 t 'my-backup-recentf))
 </pre>
 </div>
 </div>
@@ -9398,7 +9404,7 @@ Boot                Endtime             Uptime       This emacs
                (<span style="color: #a020f0;">if</span> (thing-at-point-looking-at <span style="color: #8b2252;">"^\\*+"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">org heading &#12434;&#38500;&#22806;</span>
                    nil
                  (ivy-thing-at-point)))
-         (<span style="color: #a020f0;">or</span> initial-directory default-directory)
+         (<span style="color: #a020f0;">or</span> initial-directory (funcall counsel-fzf-dir-function))
          fzf-prompt))
 </pre>
 </div>
@@ -10706,7 +10712,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-modules</span> org-modules) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Tricky!!</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-modules-loaded t) ;; not a good way</span>
   (<span style="color: #a020f0;">setq</span> org-modules nil)
-  (run-with-idle-timer 8 nil #'my-org-modules-activate) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 350[ms]</span>
+  (run-with-idle-timer (+ 8 my-default-loading-delay)
+                       nil #'my-org-modules-activate) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 350[ms]</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12452;&#12488;&#12523;&#12434;&#23569;&#12375;&#24375;&#35519;</span>
   (custom-set-faces
@@ -11942,7 +11949,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#30452;&#25509; org-agenda &#12434;&#21481;&#12367;&#22580;&#21512;&#12399;&#37325;&#12356;&#12414;&#12414;&#65288;&#12479;&#12452;&#12510;&#12540;&#36208;&#12387;&#12390;&#12418;&#12473;&#12523;&#12540;&#65289;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12428;&#12434; (with-eval-after-load "org") &#12398;&#20013;&#12395;&#32622;&#12367;&#12392;&#25391;&#12427;&#33310;&#12356;&#12364;&#22793;(2&#22238;&#23455;&#34892;)&#12395;&#12394;&#12427;</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-pb-timer</span>
-  (run-with-idle-timer 9 nil #'my-org-agenda-prepare-buffers))
+  (run-with-idle-timer (+ 9 my-default-loading-delay)
+                       nil #'my-org-agenda-prepare-buffers))
 </pre>
 </div>
 
@@ -12219,7 +12227,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c f 3"</span>) #'my-org-agenda-to-appt)
 (run-at-time <span style="color: #8b2252;">"20 sec"</span> nil #'my-org-agenda-to-appt)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "org") &#20869;&#12391;&#35373;&#23450;&#12377;&#12427;&#12392;(&#20309;&#25925;&#12363;)&#35079;&#25968;&#22238;&#21628;&#12400;&#12428;&#12390;&#12375;&#12414;&#12358;&#65294;</span>
-(run-with-idle-timer 300 t #'my-org-agenda-to-appt)
+(run-with-idle-timer 180 t #'my-org-agenda-to-appt)
 </pre>
 </div>
 
@@ -12536,7 +12544,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 200[ms]</span>
-  (run-with-idle-timer 7 nil #'my-org-babel-load-activate))
+  (run-with-idle-timer (+ 7 my-default-loading-delay)
+                       nil #'my-org-babel-load-activate))
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ob-src"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23455;&#35013;&#28168;&#12415;&#12398;&#35328;&#35486;&#12395;&#22909;&#12365;&#12394;&#21517;&#21069;&#12434;&#32016;&#20184;&#12369;&#12427;</span>
@@ -12978,7 +12987,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org39707b8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org5c40def"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13886,7 +13895,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org474db75" class="figure">
+<div id="org79dfd5b" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -17147,14 +17156,17 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">let</span> ((tbuffer (get-buffer file))
         (cbuffer (current-buffer))
+        (orgfile (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/org/"</span> file))
+        (afile (expand-file-name file))
         (message-log-max nil))
-    (<span style="color: #a020f0;">if</span> tbuffer
-        (switch-to-buffer tbuffer)
-      (find-file (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/org/"</span> file)))
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (fboundp 'my-org-agenda-to-appt)
                (not (eq cbuffer tbuffer)))
       (my-org-agenda-to-appt 'force))
-    (message <span style="color: #8b2252;">"%s"</span> file)))
+    (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">cond</span> (tbuffer (switch-to-buffer tbuffer))
+              ((file-exists-p orgfile) (find-file orgfile))
+              ((file-exists-p afile) (find-file afile)))
+        (message <span style="color: #8b2252;">"%s"</span> file)
+      (message <span style="color: #8b2252;">"No buffer or file is shown."</span>))))
 </pre>
 </div>
 </div>
@@ -18246,7 +18258,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-13 Sat 11:19</p>
+<p class="date">Created: 2022-08-15 Mon 16:06</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
