@@ -9878,6 +9878,27 @@ org バッファのソースブロックにカーソルがある時には， =el
               #'ad:eldoc-print-current-symbol-info))
 #+end_src
 
+** 見出しの上で org-reveal する場合の挙動を変える
+   :PROPERTIES:
+   :CREATED:  [2022-08-15 Mon 22:29]
+   :ID:       E4CAA68A-925A-4B5D-BA76-3AE7916741DC
+   :CUSTOM_ID: org21a5771d
+   :END:
+
+通常の ~org-reveal~ は，ドロワを展開しませんが，カーソルが見出し上にある時に ~org-reveal~ (C-c C-r) を呼ぶ時に，ドロワを展開して内容を表示させるようにします．
+
+#+begin_src emacs-lisp :tangle utility.el
+(defun ad:org-reveal (f &optional siblings)
+  (interactive "P")
+  (if (org-at-heading-p)
+      (org-show-subtree)
+    (funcall f siblings)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+(advice-add 'org-reveal :around #'ad:org-reveal)
+#+end_src
+
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf
@@ -11213,6 +11234,31 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 
  - Org Mode でブログを書いて， [[https://gohugo.io/][Hugo]]で静的サイトに出力します．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-add-ox-hugo-lastmod ()
+  "Add `lastmod' property with the current time."
+  (interactive)
+  (org-set-property "EXPORT_HUGO_LASTMOD"
+                    (format-time-string "[%Y-%m-%d %a %H:%M]")))
+
+;;;###autoload
+(defun ad:ox-hugo:org-todo (&optional ARG)
+  "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
+  (when (and (equal (buffer-name) "imadenale.org")
+             ;; FIXME C-c C-t d に反応しない．speed command はOK．
+             (or (eq ARG 'done)
+                 (equal ARG "DONE")))
+    (org-hugo-export-wim-to-md)
+    (message "[ox-hugo] \"%s\" has been exported."
+             (nth 4 (org-heading-components)))
+    (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
+      (if (require 'async nil t)
+          (async-start
+           `(lambda () (shell-command-to-string ',command)))
+        (shell-command-to-string command)))))
+#+end_src
+
 #+begin_src emacs-lisp :tangle init-org.el
 ;; see https://ox-hugo.scripter.co/doc/deprecation-notices/#org-hugo-auto-export-feature-now-a-minor-mode
 ;; (with-eval-after-load "org"
@@ -11220,8 +11266,11 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 ;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
 ;;   (require 'ox-hugo-auto-export nil t))
 
-(with-eval-after-load "ox"
-  (when (require 'ox-hugo nil t)
+(when (autoload-if-found
+       '(org-hugo-export-wim-to-md)
+       "ox-hugo" nil t)
+
+  (with-eval-after-load "ox-hugo"
     (setq org-hugo-auto-set-lastmod nil) ;; see my-hugo-export-md
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
     ;; never copy files to under /static/ directory
@@ -11241,28 +11290,7 @@ Note that this mechanism is still under consideration."
                       (line-number-at-pos)))))
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
                 "#L" (format "%d" line) "][" alt "]]")))
-
-    (defun my-add-ox-hugo-lastmod ()
-      "Add `lastmod' property with the current time."
-      (interactive)
-      (org-set-property "EXPORT_HUGO_LASTMOD"
-                        (format-time-string "[%Y-%m-%d %a %H:%M]")))
-
-    (defun ad:ox-hugo:org-todo (&optional ARG)
-      "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
-      (when (and (equal (buffer-name) "imadenale.org")
-                 ;; FIXME C-c C-t d に反応しない．speed command はOK．
-                 (or (eq ARG 'done)
-                     (equal ARG "DONE")))
-        (org-hugo-export-wim-to-md)
-        (message "[ox-hugo] \"%s\" has been exported."
-                 (nth 4 (org-heading-components)))
-        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
-          (if (require 'async nil t)
-              (async-start
-               `(lambda () (shell-command-to-string ',command)))
-            (shell-command-to-string command)))))
-;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
+    ;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
     ))
 #+end_src
 
@@ -12093,7 +12121,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 	      (append
 	       '((top . 23)
 	         (left . 0)
-	         ;; (alpha . (100 90))
+	         (alpha . (100 95))
 	         ;; (vertical-scroll-bars . nil)
 	         ;; (internal-border-width . 20)
 	         ;; (outer-border-width . 20)

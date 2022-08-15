@@ -268,7 +268,7 @@
 	      (append
 	       '((top . 23)
 	         (left . 0)
-	         ;; (alpha . (100 90))
+	         (alpha . (100 95))
 	         ;; (vertical-scroll-bars . nil)
 	         ;; (internal-border-width . 20)
 	         ;; (outer-border-width . 20)

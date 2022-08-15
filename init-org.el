@@ -778,6 +778,8 @@ The core part is extracted from `org-table-export'."
   (advice-add 'eldoc-print-current-symbol-info :around
               #'ad:eldoc-print-current-symbol-info))
 
+(advice-add 'org-reveal :around #'ad:org-reveal)
+
 (when (autoload-if-found '(org-capture)
                          "org-capture" nil t)
   (with-eval-after-load "org"
@@ -1577,8 +1579,11 @@ update it for multiple appts?")
 ;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
 ;;   (require 'ox-hugo-auto-export nil t))
 
-(with-eval-after-load "ox"
-  (when (require 'ox-hugo nil t)
+(when (autoload-if-found
+       '(org-hugo-export-wim-to-md)
+       "ox-hugo" nil t)
+
+  (with-eval-after-load "ox-hugo"
     (setq org-hugo-auto-set-lastmod nil) ;; see my-hugo-export-md
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
     ;; never copy files to under /static/ directory
@@ -1598,28 +1603,7 @@ Note that this mechanism is still under consideration."
                       (line-number-at-pos)))))
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
                 "#L" (format "%d" line) "][" alt "]]")))
-
-    (defun my-add-ox-hugo-lastmod ()
-      "Add `lastmod' property with the current time."
-      (interactive)
-      (org-set-property "EXPORT_HUGO_LASTMOD"
-                        (format-time-string "[%Y-%m-%d %a %H:%M]")))
-
-    (defun ad:ox-hugo:org-todo (&optional ARG)
-      "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
-      (when (and (equal (buffer-name) "imadenale.org")
-                 ;; FIXME C-c C-t d に反応しない．speed command はOK．
-                 (or (eq ARG 'done)
-                     (equal ARG "DONE")))
-        (org-hugo-export-wim-to-md)
-        (message "[ox-hugo] \"%s\" has been exported."
-                 (nth 4 (org-heading-components)))
-        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
-          (if (require 'async nil t)
-              (async-start
-               `(lambda () (shell-command-to-string ',command)))
-            (shell-command-to-string command)))))
-;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
+    ;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
     ))
 
 ;; (eval-when-compile
