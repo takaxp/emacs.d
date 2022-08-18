@@ -5651,29 +5651,29 @@ go get -v github.com/mdempsky/gocode
 Elements of SEQUENCE are transformed by FUNCTION before being
 sorted.  FUNCTION must be a function of one argument."
   (seq-sort (lambda (a b)
-              (funcall pred
-                       (funcall function a)
-                       (funcall function b)))
-            sequence))
+	      (funcall pred
+		       (funcall function a)
+		       (funcall function b)))
+	    sequence))
 
 ;;;###autoload
 (defun ivy--sort-by-len (name candidates)
   "Sort CANDIDATES based on similarity of their length with NAME."
   (let ((name-len (length name))
-        (candidates-count (length candidates)))
+	(candidates-count (length candidates)))
     (if (< 500 candidates-count)
-        candidates
+	candidates
       (seq-sort-by #'length
-                   (lambda (a b)
-                     (< (abs (- name-len a))
-                        (abs (- name-len b))))
-                   candidates))))
+		   (lambda (a b)
+		     (< (abs (- name-len a))
+			(abs (- name-len b))))
+		   candidates))))
 
 ;;;###autoload
 (defun my-disable-counsel-find-file (&rest args)
   "Disable `counsel-find-file' and use the original `find-file' with ARGS."
   (let ((completing-read-function #'completing-read-default)
-        (completion-in-region-function #'completion--in-region))
+	(completion-in-region-function #'completion--in-region))
     (apply #'read-file-name-default args)))
 
 ;; Common actions for counsel-ag, counsel-fzf, and counsel-recentf
@@ -5687,15 +5687,35 @@ sorted.  FUNCTION must be a function of one argument."
 (defun my-counsel-fzf-in-dir (_arg)
   "Search again with new root directory."
   (counsel-fzf ivy-text
-               (read-directory-name
-                (concat (car (split-string counsel-fzf-cmd))
-                        " in directory: "))))
+	       (read-directory-name
+		(concat (car (split-string counsel-fzf-cmd))
+			" in directory: "))))
 
 ;;;###autoload
 (defun my-counsel-ag-in-dir (_arg)
   "Search again with new root directory."
   (let ((current-prefix-arg '(4)))
     (counsel-ag ivy-text nil ""))) ;; also disable extra-ag-args
+
+;;;###autoload
+(defun my-counsel-mark-ring ()
+  "Browse `mark-ring' interactively.
+Obeys `widen-automatically', which see."
+  (interactive)
+  (let* ((counsel--mark-ring-calling-point (point))
+	 (marks (copy-sequence mark-ring))
+	 (marks (delete-dups marks))
+	 (marks
+	  ;; mark-marker is empty?
+	  (if (equal (mark-marker) (make-marker))
+	      marks
+	    (cons (copy-marker (mark-marker)) marks)))
+	 (candidates (counsel-mark--get-candidates marks)))
+    (delete-dups candidates) ;; [added] remove duplicated lines
+    (if candidates
+	(counsel-mark--ivy-read "Mark: " candidates 'counsel-mark-ring)
+      (message "Mark ring is empty"))
+    counsel--mark-ring-calling-point)) ;; To avoid an warning on lexical val.
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -5717,6 +5737,10 @@ sorted.  FUNCTION must be a function of one argument."
     (define-key org-mode-map (kbd "C-,") 'counsel-mark-ring))
 
   (with-eval-after-load "ivy"
+    ;; 同一行に複数の mark がある場合，一つだけを候補として表示する．
+    ;; mark を正確に辿れなくなるが，当該行に移動できることを重視．
+    (advice-add 'counsel-mark-ring :override #'my-counsel-mark-ring)
+
     ;; counsel-mark-ring のリストをソートさせない
     (setf (alist-get 'counsel-mark-ring ivy-sort-functions-alist) nil)
 
@@ -9899,6 +9923,65 @@ org バッファのソースブロックにカーソルがある時には， =el
 (advice-add 'org-reveal :around #'ad:org-reveal)
 #+end_src
 
+** TODO org-emphasis-alist の各要素を個別に配色する
+   :PROPERTIES:
+   :CUSTOM_ID: org1bc48f7e
+   :ID:       FD9272C7-F687-48BF-AF7D-916C270ECD81
+   :END:
+
+下記で紹介されている設定を軽くカスタマイズして使用しています．
+
+- https://protesilaos.com/codelog/2022-01-05-custom-face-org-emphasis-alist/
+
+日本語を *入力* しています．
+日本語を _入力_ しています．
+日本語を /入力/ しています．
+日本語を +入力+ しています．
+日本語を =入力= しています．
+日本語を ~入力~ しています．
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "org"
+  (setq org-emphasis-alist
+        '(("*" my-org-emphasis-bold)
+          ("/" my-org-emphasis-italic)
+          ("_" my-org-emphasis-underline)
+          ("=" org-verbatim verbatim)
+          ("~" org-code verbatim)
+          ("+" my-org-emphasis-strike-through)))
+
+  (defface my-org-emphasis-bold
+    '((default :inherit bold)
+      (((class color) (min-colors 88) (background light))
+       :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
+    "My bold emphasis for Org.")
+
+  (defface my-org-emphasis-italic
+    '((default :inherit italic)
+      (((class color) (min-colors 88) (background light))
+       :foreground "#005e00" :background "#B4EAB4")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#44bc44"))
+    "My italic emphasis for Org.")
+
+  (defface my-org-emphasis-underline
+    '((default :inherit underline)
+      (((class color) (min-colors 88) (background light))
+       :foreground "#813e00")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#d0bc00"))
+    "My underline emphasis for Org.")
+
+  (defface my-org-emphasis-strike-through
+    '((((class color) (min-colors 88) (background light))
+       :strike-through "#972500" :foreground "#505050")
+      (((class color) (min-colors 88) (background dark))
+       :strike-through "#ef8b50" :foreground "#a8a8a8"))
+    "My strike-through emphasis for Org."))
+#+end_src
+
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf
@@ -11059,6 +11142,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
   (when (require 'org-crypt nil t)
+    (require 'epa)
     (setq org-crypt-key "") ;; <insert your key>
     ;; org-encrypt-entries の影響を受けるタグを指定
     (setq org-tags-exclude-from-inheritance (quote ("secret")))

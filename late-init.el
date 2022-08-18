@@ -1138,6 +1138,10 @@
     (define-key org-mode-map (kbd "C-,") 'counsel-mark-ring))
 
   (with-eval-after-load "ivy"
+    ;; 同一行に複数の mark がある場合，一つだけを候補として表示する．
+    ;; mark を正確に辿れなくなるが，当該行に移動できることを重視．
+    (advice-add 'counsel-mark-ring :override #'my-counsel-mark-ring)
+
     ;; counsel-mark-ring のリストをソートさせない
     (setf (alist-get 'counsel-mark-ring ivy-sort-functions-alist) nil)
 

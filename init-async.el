@@ -1,28 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Checking installed libraries
 ;; (benchmark-run 100 (my-async-locate-libraries '("org")))  ;; 2[ms]
-(defun my-async-locate-libraries1 (libraries)
-  "Check the library listed in `LIBRARIES'.
-This function could create many sub processes."
-  (message "Missing libraries in this system.")
-  (if (require 'async nil t)
-      (mapc (lambda (library)
-              (async-start
-               `(lambda ()
-                  (setq load-path ',load-path)
-                  (let ((path (locate-library ',library)))
-                    (if path
-                        ;;                        (format "[ OK ] %s" path)
-                        nil
-                      (format ">> %s (missing)" ',library))))
-               (lambda (result)
-                 (when result
-                   (message "%s" result)))))
-            (if (listp libraries)
-                libraries
-              (list libraries)))
-    (error "missing async.el"))
-  (message "done."))
 
 (defun my-async-locate-libraries (libraries &optional defer)
   "Check the library listed in `LIBRARIES'."

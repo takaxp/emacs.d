@@ -780,6 +780,46 @@ The core part is extracted from `org-table-export'."
 
 (advice-add 'org-reveal :around #'ad:org-reveal)
 
+(with-eval-after-load "org"
+  (setq org-emphasis-alist
+        '(("*" my-org-emphasis-bold)
+          ("/" my-org-emphasis-italic)
+          ("_" my-org-emphasis-underline)
+          ("=" org-verbatim verbatim)
+          ("~" org-code verbatim)
+          ("+" my-org-emphasis-strike-through)))
+
+  (defface my-org-emphasis-bold
+    '((default :inherit bold)
+      (((class color) (min-colors 88) (background light))
+       :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
+    "My bold emphasis for Org.")
+
+  (defface my-org-emphasis-italic
+    '((default :inherit italic)
+      (((class color) (min-colors 88) (background light))
+       :foreground "#005e00" :background "#B4EAB4")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#44bc44"))
+    "My italic emphasis for Org.")
+
+  (defface my-org-emphasis-underline
+    '((default :inherit underline)
+      (((class color) (min-colors 88) (background light))
+       :foreground "#813e00")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#d0bc00"))
+    "My underline emphasis for Org.")
+
+  (defface my-org-emphasis-strike-through
+    '((((class color) (min-colors 88) (background light))
+       :strike-through "#972500" :foreground "#505050")
+      (((class color) (min-colors 88) (background dark))
+       :strike-through "#ef8b50" :foreground "#a8a8a8"))
+    "My strike-through emphasis for Org."))
+
 (when (autoload-if-found '(org-capture)
                          "org-capture" nil t)
   (with-eval-after-load "org"
@@ -1490,6 +1530,7 @@ update it for multiple appts?")
 
 (with-eval-after-load "org"
   (when (require 'org-crypt nil t)
+    (require 'epa)
     (setq org-crypt-key "") ;; <insert your key>
     ;; org-encrypt-entries の影響を受けるタグを指定
     (setq org-tags-exclude-from-inheritance (quote ("secret")))
