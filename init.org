@@ -13912,6 +13912,86 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (define-key org-mode-map (kbd "C-y") 'my-org-yank)))
 #+end_src
 
+* 非同期実行
+  :PROPERTIES:
+  :CUSTOM_ID: org6794a918
+  :END:
+
+#+begin_src emacs-lisp :tangle init-async.el :exports none
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Checking installed libraries
+;; (benchmark-run 100 (my-async-locate-libraries '("org")))  ;; 2[ms]
+#+end_src
+
+** [async] パッケージのインストール状況を確認
+   :PROPERTIES:
+   :CUSTOM_ID: orgc4efbf8e
+   :END:
+
+#+begin_src emacs-lisp :tangle init-async.el
+;;;###autoload
+(defun my-async-locate-libraries (libraries &optional defer)
+  "Check the library listed in `LIBRARIES'."
+  (if (require 'async nil t)
+      (async-start
+       `(lambda ()
+          (sleep-for (or ',defer 10))
+          (setq load-path ',load-path)
+          (let ((alist nil))
+            (mapc (lambda (library)
+                    (let ((path (locate-library library)))
+                      (unless path
+                        (add-to-list 'alist (format "%s" library)))))
+                  (if (listp ',libraries)
+                      ',libraries
+                    (list ',libraries)))
+            alist))
+       (lambda (result)
+         (let ((inhibit-message nil)
+               (message-log-max 5000))
+           (if result
+               (unless (active-minibuffer-window)
+                 (let ((count 0))
+                   (dolist (r result)
+                     (setq count (1+ count))
+                     (message ">> %s (missing)" r))
+                   (message (concat (format "[async] %s package" count)
+                                    (if (> count 1) "s are" " is")
+                                    " NOT installed."))))
+             (message "[async] Checking packages installation...done")))))
+    (error "missing async.el")))
+
+;;;###autoload
+(defun my-find-missing-packages (&optional defer)
+  (interactive)
+  (my-async-locate-libraries my-required-libraries (or defer 0)))
+#+end_src
+
+** [async] 古いバックアップファイルを削除
+   :PROPERTIES:
+   :CUSTOM_ID: org9fefe803
+   :END:
+
+#+begin_src emacs-lisp :tangle init-async.el
+;;;###autoload
+(defun my-delete-old-backup (&optional defer)
+  (if (not (require 'async nil t)) ;; 5[ms]
+      (recursive-delete-backup-files 7)
+    (async-start ;; do not call this from byte compiled code directory
+     `(lambda ()
+        (sleep-for (or ',defer 5))
+        (when (load (concat (getenv "HOME") "/.emacs") t)
+          (recursive-delete-backup-files 7)
+          t))
+     (lambda (result)
+       (if result
+           (let ((inhibit-message nil)
+                 (message-log-max 5000))
+             (unless (eval '(active-minibuffer-window))
+               (message "[async] Deleting old backup files...done")))
+         (error "[async] Failed to delete backup files."))))))
+#+end_src
+
 * ユーティリティ関数
   :PROPERTIES:
   :CUSTOM_ID: orgb8e84b9a
@@ -16036,4 +16116,13 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 #+begin_src emacs-lisp :tangle utility.el :exports none
 (provide 'utility)
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-async.el :exports none
+(provide 'init-async)
+;; Local Variables:
+;; no-byte-compile: t
+;; coding: utf-8
+;; End:
+;;; init-async.el ends here
 #+end_src

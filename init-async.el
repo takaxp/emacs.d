@@ -2,6 +2,7 @@
 ;; Checking installed libraries
 ;; (benchmark-run 100 (my-async-locate-libraries '("org")))  ;; 2[ms]
 
+;;;###autoload
 (defun my-async-locate-libraries (libraries &optional defer)
   "Check the library listed in `LIBRARIES'."
   (if (require 'async nil t)
@@ -33,10 +34,12 @@
              (message "[async] Checking packages installation...done")))))
     (error "missing async.el")))
 
+;;;###autoload
 (defun my-find-missing-packages (&optional defer)
   (interactive)
   (my-async-locate-libraries my-required-libraries (or defer 0)))
 
+;;;###autoload
 (defun my-delete-old-backup (&optional defer)
   (if (not (require 'async nil t)) ;; 5[ms]
       (recursive-delete-backup-files 7)
