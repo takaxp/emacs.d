@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-19 Fri 10:20 -->
+<!-- 2022-08-20 Sat 14:16 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -5146,10 +5146,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       (message <span style="color: #8b2252;">"%s"</span> (car kill-ring))
       (erase-buffer))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Jump to the end of the region</span>
-    (<span style="color: #a020f0;">let</span> ((mk (mark)))
-      (<span style="color: #a020f0;">if</span> mk
-          (goto-char (max mk (point)))
-        (goto-char (point))))
+    (goto-char (max (<span style="color: #a020f0;">or</span> (mark) 0) (point)))
     (deactivate-mark)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -12762,6 +12759,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
   (<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist '(<span style="color: #b22222;">;;</span><span style="color: #b22222;">("#+begin_src" . "&#57986;")</span>
+                                         (<span style="color: #8b2252;">":PROPERTIES:"</span> . <span style="color: #8b2252;">"&#57798;"</span>)
+                                         (<span style="color: #8b2252;">":END:"</span> . <span style="color: #8b2252;">"&#57802;"</span>)
                                          (<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>)
                                          (<span style="color: #8b2252;">"#+end_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>)
                                          (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#57634;"</span>)
@@ -13107,7 +13106,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orge878204"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org48246f3"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14024,7 +14023,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgef6d0ab" class="figure">
+<div id="orgf8e7cf7" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16184,6 +16183,14 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <h3 id="orgc4efbf8e"><span class="section-number-3">13.1.</span> [async] パッケージのインストール状況を確認</h3>
 <div class="outline-text-3" id="text-orgc4efbf8e">
 <div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> window-system
+             (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-async</span> nil t))
+    (my-delete-old-backup 3)))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-async-locate-libraries</span> (libraries <span style="color: #228b22;">&amp;optional</span> defer)
   <span style="color: #8b2252;">"Check the library listed in `</span><span style="color: #008b8b;">LIBRARIES</span><span style="color: #8b2252;">'."</span>
@@ -16228,6 +16235,15 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div id="outline-container-org9fefe803" class="outline-3">
 <h3 id="org9fefe803"><span class="section-number-3">13.2.</span> [async] 古いバックアップファイルを削除</h3>
 <div class="outline-text-3" id="text-org9fefe803">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> window-system
+             (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-async</span> nil t))
+    (<span style="color: #a020f0;">when</span> my-skip-check-autoload-file <span style="color: #b22222;">;; </span><span style="color: #b22222;">see init-env.el</span>
+          (my-find-missing-packages 5))))
+</pre>
+</div>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-delete-old-backup</span> (<span style="color: #228b22;">&amp;optional</span> defer)
@@ -18464,7 +18480,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-19 Fri 10:20</p>
+<p class="date">Created: 2022-08-20 Sat 14:16</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

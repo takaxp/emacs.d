@@ -3842,10 +3842,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       (message "%s" (car kill-ring))
       (erase-buffer))
     ;; Jump to the end of the region
-    (let ((mk (mark)))
-      (if mk
-          (goto-char (max mk (point)))
-        (goto-char (point))))
+    (goto-char (max (or (mark) 0) (point)))
     (deactivate-mark)))
 
 ;;;###autoload
@@ -10802,6 +10799,8 @@ update it for multiple appts?")
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "icons-in-terminal"
   (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
+                                         (":PROPERTIES:" . "")
+                                         (":END:" . "")
                                          ("#+begin_src" . "▨")
                                          ("#+end_src" . "▨")
                                          ("#+RESULTS:" . "")
@@ -13928,6 +13927,13 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
    :CUSTOM_ID: orgc4efbf8e
    :END:
 
+#+begin_src emacs-lisp :tangle late-init.el
+(unless noninteractive
+  (when (and window-system
+             (require 'init-async nil t))
+    (my-delete-old-backup 3)))
+#+end_src
+
 #+begin_src emacs-lisp :tangle init-async.el
 ;;;###autoload
 (defun my-async-locate-libraries (libraries &optional defer)
@@ -13971,6 +13977,14 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
    :PROPERTIES:
    :CUSTOM_ID: org9fefe803
    :END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+(unless noninteractive
+  (when (and window-system
+             (require 'init-async nil t))
+    (when my-skip-check-autoload-file ;; see init-env.el
+          (my-find-missing-packages 5))))
+#+end_src
 
 #+begin_src emacs-lisp :tangle init-async.el
 ;;;###autoload

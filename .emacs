@@ -9,19 +9,13 @@
 ;; (setq my-suppress-message-p nil)
 ;; (setq my-measure-exec-time-p t)
 (with-eval-after-load "postpone"
-  ;; (defvar measure-exec-time-list '(my-show-org-buffer
-  ;;                                  my-org-babel-load-activate
-  ;;                                  my-org-modules-activate
-  ;;                                  my-private-conf-activate
-  ;;                                  my-org-agenda-prepare-buffers))
-  ;; (defmacro measure-exec-time ()
-  ;;   (dolist ((f measure-exec-time-list))
-  ;;     (advice-add f :around (concat "ad:" f))))
-  (advice-add 'my-show-org-buffer :around #'ad:measure-exec-time)
-  (advice-add 'my-org-babel-load-activate :around #'ad:measure-exec-time)
-  (advice-add 'my-org-modules-activate :around #'ad:measure-exec-time)
-  (advice-add 'my-private-conf-activate :around #'ad:measure-exec-time)
-  (advice-add 'my-org-agenda-prepare-buffers :around #'ad:measure-exec-time))
+  (defvar measure-exec-time-list '(my-show-org-buffer
+                                   my-org-babel-load-activate
+                                   my-org-modules-activate
+                                   my-private-conf-activate
+                                   my-org-agenda-prepare-buffers))
+  (dolist (f measure-exec-time-list)
+    (advice-add f :around #'ad:measure-exec-time)))
 
 (with-eval-after-load "selected"
   (require 'moom nil t)

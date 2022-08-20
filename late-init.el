@@ -1695,6 +1695,8 @@
 
 (with-eval-after-load "icons-in-terminal"
   (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
+                                         (":PROPERTIES:" . "")
+                                         (":END:" . "")
                                          ("#+begin_src" . "▨")
                                          ("#+end_src" . "▨")
                                          ("#+RESULTS:" . "")
@@ -2007,6 +2009,17 @@
 
   (with-eval-after-load "org"
     (define-key org-mode-map (kbd "C-y") 'my-org-yank)))
+
+(unless noninteractive
+  (when (and window-system
+             (require 'init-async nil t))
+    (my-delete-old-backup 3)))
+
+(unless noninteractive
+  (when (and window-system
+             (require 'init-async nil t))
+    (when my-skip-check-autoload-file ;; see init-env.el
+          (my-find-missing-packages 5))))
 
 (when (autoload-if-found '(my-google-this google-this google-this-word)
                          "google-this" nil t)
