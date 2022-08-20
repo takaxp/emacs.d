@@ -7,28 +7,23 @@
 
 ;; (profiler-start 'cpu)
 ;; (setq my-suppress-message-p nil)
-;; (setq my-measure-exec-time-p t)
-(with-eval-after-load "postpone"
-  (defvar measure-exec-time-list '(my-show-org-buffer
-                                   my-org-babel-load-activate
-                                   my-org-modules-activate
-                                   my-private-conf-activate
-                                   my-org-agenda-prepare-buffers))
-  (dolist (f measure-exec-time-list)
-    (advice-add f :around #'ad:measure-exec-time)))
+;; (setq measure-exec-time-list '(my-show-org-buffer
+;;                                my-org-babel-load-activate
+;;                                my-org-modules-activate
+;;                                my-private-conf-activate
+;;                                my-org-agenda-prepare-buffers))
 
 (with-eval-after-load "selected"
-  (require 'moom nil t)
-  (require 'transient nil t)
+  (require 'moom)
+  (require 'transient)
 
-  ;; "q" で transient を抜ける方法を提供する．
   (transient-define-prefix moom-transient-undo ()
     "Undo"
     :transient-suffix     'transient--do-stay
     :transient-non-suffix 'transient--do-warn
     ["Undo (type `C-g' to exit)"
-     [("u" "undo" moom-undo)]]
-    )
+     [("u" "undo" moom-undo)
+      ("q" "quit" transient-quit-all)]])
 
   (transient-define-prefix moom-dispatch ()
     "Command list of `moom'."
@@ -49,14 +44,14 @@
       ("f 3" "fill left" moom-fill-bottom-left)
       ("f 4" "fill right" moom-fill-bottom-right)]
      ["Fit"
-      ("M-<f1>" "edge left" moom-move-frame-to-edge-left)
-      ("M-<f3>" "edge right" moom-move-frame-to-edge-right)
-      ("<f1>", "edge top" moom-move-frame-to-edge-top)
-      ("S-<f1>", "edge bottom" moom-move-frame-to-edge-bottom)
-      ("cl" "center left" moom-move-frame-to-centerline-from-left)
-      ("cr" "center right" moom-move-frame-to-centerline-from-right)
-      ("ct" "center top" moom-move-frame-to-centerline-from-top)
-      ("cb" "center bottom" moom-move-frame-to-centerline-from-bottom)]]
+      ("e l" "edge left" moom-move-frame-to-edge-left)
+      ("e r" "edge right" moom-move-frame-to-edge-right)
+      ("e t", "edge top" moom-move-frame-to-edge-top)
+      ("e b", "edge bottom" moom-move-frame-to-edge-bottom)
+      ("c l" "center left" moom-move-frame-to-centerline-from-left)
+      ("c r" "center right" moom-move-frame-to-centerline-from-right)
+      ("c t" "center top" moom-move-frame-to-centerline-from-top)
+      ("c b" "center bottom" moom-move-frame-to-centerline-from-bottom)]]
     ;; moom-change-frame-width
     ;; moom-change-frame-height
     ["Filling region of a display"
@@ -72,8 +67,9 @@
       ("c f h" "height" moom-cycle-frame-height)]
      ["Utilities"
       ("r" "reset" moom-reset)
-      ("u" "undo" moom-undo)]]
-    ))
+      ("u" "undo" moom-undo)
+      ("q" "quit" transient-quit-all)]]))
+
 
 ;; Boot mode selection
 (cond

@@ -1,6 +1,10 @@
 ;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
 
+(defvar measure-exec-time-list nil)
+(dolist (f measure-exec-time-list)
+  (advice-add f :around #'ad:measure-exec-time))
+
 ;; (setq byte-compile-warnings '(obsolete))
 ;; Suppress warning on cl.el loading
 (defvar my-exclude-deprecated-packages '(cl tls))
@@ -1309,19 +1313,19 @@
 
 (with-eval-after-load "transient"
   (transient-define-prefix my-org-bullet-and-checkbox ()
-	  "Commands to handle bullet and checkbox"
-	  [["Bullet"
-		  ("i" "insert" my-org-insert-bullet)
-		  ("d" "delete" my-org-delete-bullet)]
-	   ["Checkbox"
-		  ("[" "insert" my-org-insert-checkbox-into-bullet)
-		  ("]" "delete" my-org-delete-checkbox-from-bullet)
-		  ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-		  ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-		  ]
-	   ["Bullet and Checkbox"
-		  ("I" "insert" my-org-insert-bullet-and-checkbox)
-		  ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+    "Commands to handle bullet and checkbox"
+    [["Bullet"
+      ("i" "insert" my-org-insert-bullet)
+      ("d" "delete" my-org-delete-bullet)]
+     ["Checkbox"
+      ("[" "insert" my-org-insert-checkbox-into-bullet)
+      ("]" "delete" my-org-delete-checkbox-from-bullet)
+      ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+      ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+      ]
+     ["Bullet and Checkbox"
+      ("I" "insert" my-org-insert-bullet-and-checkbox)
+      ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
 
 (when (autoload-if-found '(rencetf-mode
 	                   my-recentf-save-list-silence

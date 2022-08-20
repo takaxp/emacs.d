@@ -255,10 +255,17 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
    :CUSTOM_ID: orgb459f5a2
    :END:
 
+#+begin_src emacs-lisp :tangle late-init.el
+(defvar measure-exec-time-list nil)
+(dolist (f measure-exec-time-list)
+  (advice-add f :around #'ad:measure-exec-time))
+#+end_src
+
 #+begin_src emacs-lisp :tangle utility.el
-(defvar my-measure-exec-time-p nil)
+;;;###autoload
 (defun ad:measure-exec-time (f &rest arg)
-  (if my-measure-exec-time-p
+  "If `measure-exec-time-list' is non-nil, measure exe time for each function."
+  (if measure-exec-time-list
       (let ((inhibit-message nil)
             (message-log-max 5000)
             (begin (current-time)))
@@ -270,8 +277,6 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
                      nil ;; not includes closure
                    f)))) ;; FIXME
     (apply f arg)))
-;; An exapmle:
-;; (advice-add 'my-org-agenda-prepare-buffers :around #'ad:measure-exec-time)
 #+end_src
 
 ** GCサイズの最適化
@@ -6181,19 +6186,19 @@ Obeys `widen-automatically', which see."
 
 (with-eval-after-load "transient"
   (transient-define-prefix my-org-bullet-and-checkbox ()
-	  "Commands to handle bullet and checkbox"
-	  [["Bullet"
-		  ("i" "insert" my-org-insert-bullet)
-		  ("d" "delete" my-org-delete-bullet)]
-	   ["Checkbox"
-		  ("[" "insert" my-org-insert-checkbox-into-bullet)
-		  ("]" "delete" my-org-delete-checkbox-from-bullet)
-		  ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-		  ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-		  ]
-	   ["Bullet and Checkbox"
-		  ("I" "insert" my-org-insert-bullet-and-checkbox)
-		  ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+    "Commands to handle bullet and checkbox"
+    [["Bullet"
+      ("i" "insert" my-org-insert-bullet)
+      ("d" "delete" my-org-delete-bullet)]
+     ["Checkbox"
+      ("[" "insert" my-org-insert-checkbox-into-bullet)
+      ("]" "delete" my-org-delete-checkbox-from-bullet)
+      ;;("a" "toggle checkbox" my-org-toggle-checkbox)
+      ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
+      ]
+     ["Bullet and Checkbox"
+      ("I" "insert" my-org-insert-bullet-and-checkbox)
+      ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports none
