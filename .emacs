@@ -8,10 +8,11 @@
 ;; (profiler-start 'cpu)
 ;; (setq my-suppress-message-p nil)
 ;; (setq measure-exec-time-list '(my-show-org-buffer
+;;                                my-private-conf-activate
 ;;                                my-org-babel-load-activate
 ;;                                my-org-modules-activate
-;;                                my-private-conf-activate
-;;                                my-org-agenda-prepare-buffers))
+;;                                my-org-agenda-prepare-buffers
+;;                                ))
 
 (with-eval-after-load "selected"
   (require 'moom)
