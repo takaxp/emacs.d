@@ -14,28 +14,6 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
-(with-eval-after-load "postpone"
-  (require 'ivy)
-  (require 'counsel))
-(with-eval-after-load "counsel"
-  ;;   (defun counsel-colors--name-to-hex (name)
-  ;;     "Return hexadecimal RGB value of color with NAME.
-
-  ;; Return nil if NAME does not designate a valid color."
-  ;;     (let ((rgb (color-name-to-rgb name)))
-  ;;       (when rgb
-  ;;         (setq hoge rgb)
-  ;;         (add-to-list 'rgb 2 t)
-  ;;         (apply #'color-rgb-to-hex rgb))))
-
-  ;; (setq ivy-format-functions-alist
-  ;;       '((counsel-colors-emacs . counsel--colors-emacs-format-function)
-  ;;         (t . ivy-format-function-default)))
-
-  )
-
-
-
 (with-eval-after-load "moom"
   (when (require 'moom-transient nil t)
     ;; moom-print-keybindings (should be implemented)

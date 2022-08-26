@@ -1974,7 +1974,7 @@
      ((((class color) (background light)) :foreground "#439943" :underline t)
       (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
 
-(with-eval-after-load "ivy"
+(with-eval-after-load "counsel"
 ;;; 選択対象を "" にする (requires all-the-icons.el)
   (defface my-ivy-arrow-visible
     '((((class color) (background light)) :foreground "orange")
