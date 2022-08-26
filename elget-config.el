@@ -9,7 +9,7 @@
 
   ;; Fundamental (Under postpone.el)
   (el-get-bundle "takaxp/postpone")
-  (el-get-bundle "takaxp/moom")
+  (el-get-bundle "takaxp/moom" :branch "transient")
   (el-get-bundle "takaxp/ascii")
   (el-get-bundle "takaxp/help-fns-plus")
   (el-get-bundle "takaxp/dimmer.el") ;; to avoid downloding images
@@ -332,8 +332,8 @@
   (el-get-bundle "hide-lines")
   (el-get-bundle "kiennq/emacs-mini-modeline")
   (el-get-bundle "shrink-path"
-                 :type git
-                 :url "https://gitlab.com/bennya/shrink-path.el.git")
+    :type git
+    :url "https://gitlab.com/bennya/shrink-path.el.git")
   ;; System related
   ;; Frame and windows
   (el-get-bundle "tabbar")
@@ -364,7 +364,7 @@
   (el-get-bundle "ghub")
   (el-get-bundle "magit-popup")
   (el-get-bundle "magit/libegit2"
-                 :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
+    :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
 
   ;; with private recipe
   (dolist (recipe my-elget--private-recipes)

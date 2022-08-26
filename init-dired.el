@@ -27,6 +27,8 @@
 (define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
 ;; 上位ディレクトリへの移動
 (define-key dired-mode-map (kbd "u") 'dired-up-directory)
+;; Finder を使ったファイルオープン
+(define-key dired-mode-map (kbd "f") 'ns-open-file-using-panel)
 
 (define-key dired-mode-map
   (kbd "C-M-p") (lambda () (interactive) (other-window -1)))

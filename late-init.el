@@ -1700,6 +1700,7 @@
 (with-eval-after-load "icons-in-terminal"
   (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
                                          (":PROPERTIES:" . "")
+                                         (":LOGBOOK:" . "")
                                          (":END:" . "")
                                          ("#+begin_src" . "▨")
                                          ("#+end_src" . "▨")
@@ -1984,17 +1985,25 @@
       (((class color) (background dark)) :foreground "#31343F"))
     "Face used by Ivy for highlighting the invisible arrow.")
 
+  ;; Remove the default setting
+  (delete '(t . ivy-format-function-default) ivy-format-functions-alist)
+
   (if window-system
       (cond ((require 'icons-in-terminal nil t)
-             (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow-iit))))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-iit) t))
             ((require 'all-the-icons nil t)
-             (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow-ati))))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-ati) t))
             (t
-             (setq ivy-format-functions-alist
-                   '((t . ivy-format-function-arrow)))))
-    (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . ivy-format-function-arrow-line) t)))
+    (add-to-list
+     'ivy-format-functions-alist
+     '(t . ivy-format-function-arrow-line) t)))
 
 (when (autoload-if-found '(volatile-highlights-mode my-vhl-change-color)
                          "volatile-highlights" nil t)

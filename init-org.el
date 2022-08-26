@@ -57,7 +57,7 @@
   (setq org-log-into-drawer t)
 
   ;; indent を electric-indent-mode の振る舞いに合わせる
-  (setq org-adapt-indentation t)
+  ;; (setq org-adapt-indentation t) ;; t の場合，ドロアがインデントされる．
 
   ;; Set checksum program path for windows
   (when (eq window-system 'w32)

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-21 Sun 17:15 -->
+<!-- 2022-08-27 Sat 07:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1013,6 +1013,10 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <div id="outline-container-orgb459f5a2" class="outline-3">
 <h3 id="orgb459f5a2"><span class="section-number-3">2.6.</span> 実行時間の計測</h3>
 <div class="outline-text-3" id="text-orgb459f5a2">
+<p>
+計測したい関数を <code>measure-exec-time-list</code> にリストすることで，対象とする関数の実行時間を計測して <code>*Messages*</code> バッファに書き込みます．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">measure-exec-time-list</span> nil)
 (<span style="color: #a020f0;">dolist</span> (f measure-exec-time-list)
@@ -8866,6 +8870,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 (define-key dired-mode-map (kbd <span style="color: #8b2252;">"F"</span>) 'my-reveal-in-finder)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19978;&#20301;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#12408;&#12398;&#31227;&#21205;</span>
 (define-key dired-mode-map (kbd <span style="color: #8b2252;">"u"</span>) 'dired-up-directory)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">Finder &#12434;&#20351;&#12387;&#12383;&#12501;&#12449;&#12452;&#12523;&#12458;&#12540;&#12503;&#12531;</span>
+(define-key dired-mode-map (kbd <span style="color: #8b2252;">"f"</span>) 'ns-open-file-using-panel)
 
 (define-key dired-mode-map
   (kbd <span style="color: #8b2252;">"C-M-p"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
@@ -10782,7 +10788,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">setq</span> org-log-into-drawer t)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">indent &#12434; electric-indent-mode &#12398;&#25391;&#12427;&#33310;&#12356;&#12395;&#21512;&#12431;&#12379;&#12427;</span>
-  (<span style="color: #a020f0;">setq</span> org-adapt-indentation t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-adapt-indentation t) ;; t &#12398;&#22580;&#21512;&#65292;&#12489;&#12525;&#12450;&#12364;&#12452;&#12531;&#12487;&#12531;&#12488;&#12373;&#12428;&#12427;&#65294;</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Set checksum program path for windows</span>
   (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
@@ -12766,6 +12772,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
   (<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist '(<span style="color: #b22222;">;;</span><span style="color: #b22222;">("#+begin_src" . "&#57986;")</span>
                                          (<span style="color: #8b2252;">":PROPERTIES:"</span> . <span style="color: #8b2252;">"&#57798;"</span>)
+                                         (<span style="color: #8b2252;">":LOGBOOK:"</span> . <span style="color: #8b2252;">"&#57802;"</span>)
                                          (<span style="color: #8b2252;">":END:"</span> . <span style="color: #8b2252;">"&#57802;"</span>)
                                          (<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>)
                                          (<span style="color: #8b2252;">"#+end_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>)
@@ -13112,7 +13119,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgd016e0d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org1620e4a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14029,7 +14036,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org6ba5047" class="figure">
+<div id="org6fb9eec" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16091,17 +16098,25 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
       (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#31343F"</span>))
     <span style="color: #8b2252;">"Face used by Ivy for highlighting the invisible arrow."</span>)
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove the default setting</span>
+  (delete '(t . ivy-format-function-default) ivy-format-functions-alist)
+
   (<span style="color: #a020f0;">if</span> window-system
       (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-             (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow-iit))))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-iit) t))
             ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
-             (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow-ati))))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-ati) t))
             (t
-             (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist
-                   '((t . ivy-format-function-arrow)))))
-    (<span style="color: #a020f0;">setq</span> ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . ivy-format-function-arrow-line) t)))
+    (add-to-list
+     'ivy-format-functions-alist
+     '(t . ivy-format-function-arrow-line) t)))
 </pre>
 </div>
 </div>
@@ -18486,7 +18501,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-21 Sun 17:15</p>
+<p class="date">Created: 2022-08-27 Sat 07:08</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

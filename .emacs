@@ -14,63 +14,35 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
-(with-eval-after-load "selected"
-  (require 'moom)
-  (require 'transient)
+(with-eval-after-load "postpone"
+  (require 'ivy)
+  (require 'counsel))
+(with-eval-after-load "counsel"
+  ;;   (defun counsel-colors--name-to-hex (name)
+  ;;     "Return hexadecimal RGB value of color with NAME.
 
-  (transient-define-prefix moom-transient-undo ()
-    "Undo"
-    :transient-suffix     'transient--do-stay
-    :transient-non-suffix 'transient--do-warn
-    ["Undo (type `C-g' to exit)"
-     [("u" "undo" moom-undo)
-      ("q" "quit" transient-quit-all)]])
+  ;; Return nil if NAME does not designate a valid color."
+  ;;     (let ((rgb (color-name-to-rgb name)))
+  ;;       (when rgb
+  ;;         (setq hoge rgb)
+  ;;         (add-to-list 'rgb 2 t)
+  ;;         (apply #'color-rgb-to-hex rgb))))
 
-  (transient-define-prefix moom-dispatch ()
-    "Command list of `moom'."
-    :transient-suffix     'transient--do-stay
-    :transient-non-suffix 'transient--do-warn
-    [""
-     ["Fill screen"
-      ;; ("f s" "screen" moom-fill-screen)
-      ("f w" "width" moom-fill-width)
-      ("f h" "height" moom-fill-height)
-      ("f m" "band" moom-fill-band)
-      ("f t" "top" moom-fill-top)
-      ("f b" "bottom" moom-fill-bottom)
-      ("f l" "left" moom-fill-left)
-      ("f r" "right" moom-fill-right)
-      ("f 1" "fill top" moom-fill-top-left)
-      ("f 2" "fill bottom" moom-fill-top-right)
-      ("f 3" "fill left" moom-fill-bottom-left)
-      ("f 4" "fill right" moom-fill-bottom-right)]
-     ["Fit"
-      ("e l" "edge left" moom-move-frame-to-edge-left)
-      ("e r" "edge right" moom-move-frame-to-edge-right)
-      ("e t", "edge top" moom-move-frame-to-edge-top)
-      ("e b", "edge bottom" moom-move-frame-to-edge-bottom)
-      ("c l" "center left" moom-move-frame-to-centerline-from-left)
-      ("c r" "center right" moom-move-frame-to-centerline-from-right)
-      ("c t" "center top" moom-move-frame-to-centerline-from-top)
-      ("c b" "center bottom" moom-move-frame-to-centerline-from-bottom)]]
+  ;; (setq ivy-format-functions-alist
+  ;;       '((counsel-colors-emacs . counsel--colors-emacs-format-function)
+  ;;         (t . ivy-format-function-default)))
+
+  )
+
+
+
+(with-eval-after-load "moom"
+  (when (require 'moom-transient nil t)
+    ;; moom-print-keybindings (should be implemented)
     ;; moom-change-frame-width
     ;; moom-change-frame-height
-    ["Filling region of a display"
-     ["Move the frame"
-      ("0" "move top-left" moom-move-frame)
-      ("1" "move left" moom-move-frame-left)
-      ("2" "move center" moom-move-frame-to-center)
-      ("3" "move right" moom-move-frame-right)]
-     ["Expand"
-      ("c f s" "single" moom-change-frame-width-single) ;; disabled, why?
-      ("c f d" "double" moom-change-frame-width-double)
-      ("c f a" "3/2" moom-change-frame-width-half-again)
-      ("c f h" "height" moom-cycle-frame-height)]
-     ["Utilities"
-      ("r" "reset" moom-reset)
-      ("u" "undo" moom-undo)
-      ("q" "quit" transient-quit-all)]]))
-
+    (moom-transient-hide-cursor)
+    (define-key moom-mode-map (kbd "C-c d") #'moom-transient-dispatch)))
 
 ;; Boot mode selection
 (cond

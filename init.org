@@ -255,6 +255,8 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
    :CUSTOM_ID: orgb459f5a2
    :END:
 
+計測したい関数を =measure-exec-time-list= にリストすることで，対象とする関数の実行時間を計測して ~*Messages*~ バッファに書き込みます．
+
 #+begin_src emacs-lisp :tangle late-init.el
 (defvar measure-exec-time-list nil)
 (dolist (f measure-exec-time-list)
@@ -7246,6 +7248,8 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 (define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
 ;; 上位ディレクトリへの移動
 (define-key dired-mode-map (kbd "u") 'dired-up-directory)
+;; Finder を使ったファイルオープン
+(define-key dired-mode-map (kbd "f") 'ns-open-file-using-panel)
 
 (define-key dired-mode-map
   (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
@@ -8954,7 +8958,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (setq org-log-into-drawer t)
 
   ;; indent を electric-indent-mode の振る舞いに合わせる
-  (setq org-adapt-indentation t)
+  ;; (setq org-adapt-indentation t) ;; t の場合，ドロアがインデントされる．
 
   ;; Set checksum program path for windows
   (when (eq window-system 'w32)
@@ -10805,6 +10809,7 @@ update it for multiple appts?")
 (with-eval-after-load "icons-in-terminal"
   (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
                                          (":PROPERTIES:" . "")
+                                         (":LOGBOOK:" . "")
                                          (":END:" . "")
                                          ("#+begin_src" . "▨")
                                          ("#+end_src" . "▨")
@@ -13834,17 +13839,25 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
       (((class color) (background dark)) :foreground "#31343F"))
     "Face used by Ivy for highlighting the invisible arrow.")
 
+  ;; Remove the default setting
+  (delete '(t . ivy-format-function-default) ivy-format-functions-alist)
+
   (if window-system
       (cond ((require 'icons-in-terminal nil t)
-             (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow-iit))))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-iit) t))
             ((require 'all-the-icons nil t)
-             (setq ivy-format-functions-alist
-                   '((t . my-ivy-format-function-arrow-ati))))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-ati) t))
             (t
-             (setq ivy-format-functions-alist
-                   '((t . ivy-format-function-arrow)))))
-    (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . ivy-format-function-arrow-line) t)))
+    (add-to-list
+     'ivy-format-functions-alist
+     '(t . ivy-format-function-arrow-line) t)))
 #+end_src
 
 ** [volatile-highlights] コピペした領域を強調
