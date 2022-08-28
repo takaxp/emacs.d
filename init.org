@@ -1485,7 +1485,8 @@ echo "--- done."
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
-                     el-get-cd el-get-install el-get-remove el-get-update)
+                     el-get-cd el-get-remove el-get-update
+                     el-get-install el-get-reinstall)
                    "elget-config" nil t)
 #+end_src
 
@@ -5171,7 +5172,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
   (remove-hook 'isearch-mode-hook #'my-migemo-activate))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (when (autoload-if-found '(migemo-init)
                          "migemo" nil t)
   ;; Tricky!

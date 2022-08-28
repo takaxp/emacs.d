@@ -20,6 +20,7 @@
     ;; moom-change-frame-width
     ;; moom-change-frame-height
     (moom-transient-hide-cursor)
+    (advice-add 'moom-transient-dispatch :after #'my-ime-off)
     (define-key moom-mode-map (kbd "C-c d") #'moom-transient-dispatch)))
 
 ;; Boot mode selection

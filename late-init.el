@@ -62,7 +62,8 @@
 
 (autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
-                     el-get-cd el-get-install el-get-remove el-get-update)
+                     el-get-cd el-get-remove el-get-update
+                     el-get-install el-get-reinstall)
                    "elget-config" nil t)
 
 (setq-default tab-width 2)
@@ -941,23 +942,6 @@
   (when (require 'icons-in-terminal nil t)
 	  (delight
 	   `((view-mode ,(concat " " (icons-in-terminal-faicon "lock")) "view")))))
-
-(when (autoload-if-found '(migemo-init)
-                         "migemo" nil t)
-  ;; Tricky!
-  (add-hook 'isearch-mode-hook #'my-migemo-activate)
-  (with-eval-after-load "migemo"
-    (custom-set-variables
-     '(completion-ignore-case t) ;; case-independent
-     '(migemo-command "cmigemo")
-     '(migemo-options '("-q" "--emacs" "-i" "\a"))
-     '(migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
-     '(migemo-user-dictionary nil)
-     '(migemo-regex-dictionary nil)
-     '(migemo-use-pattern-alist t)
-     '(migemo-use-frequent-pattern-alist t)
-     '(migemo-pattern-alist-length 1024)
-     '(migemo-coding-system 'utf-8-unix))))
 
 ;; (eval-when-compile
 ;;   (message "Loading fringe-helper...")
