@@ -14,14 +14,9 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
-(with-eval-after-load "moom"
-  (when (require 'moom-transient nil t)
-    ;; moom-print-keybindings (should be implemented)
-    ;; moom-change-frame-width
-    ;; moom-change-frame-height
-    (moom-transient-hide-cursor)
-    (advice-add 'moom-transient-dispatch :after #'my-ime-off)
-    (define-key moom-mode-map (kbd "C-c d") #'moom-transient-dispatch)))
+(with-eval-after-load "moom-transient"
+
+  )
 
 ;; Boot mode selection
 (cond

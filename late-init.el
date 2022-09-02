@@ -780,7 +780,8 @@
   (mlscroll-mode 1)
 
   (with-eval-after-load "moom"
-    (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)))
+    (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)
+    (add-hook 'moom-after-reset-hook #'my-reload-mlscroll)))
 
 (with-eval-after-load "vc-hooks"
   (setcdr (assq 'vc-mode mode-line-format)

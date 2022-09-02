@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-08-28 Sun 14:09 -->
+<!-- 2022-09-03 Sat 02:17 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -5778,7 +5778,8 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
   (mlscroll-mode 1)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
-    (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)))
+    (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)
+    (add-hook 'moom-after-reset-hook #'my-reload-mlscroll)))
 </pre>
 </div>
 </div>
@@ -13121,7 +13122,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org457611f"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgede2bd9"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14038,7 +14039,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org4add8fd" class="figure">
+<div id="orgf276658" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14681,6 +14682,9 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
   (global-set-key (kbd <span style="color: #8b2252;">"M-2"</span>) 'moom-move-frame-to-center)
   (global-set-key (kbd <span style="color: #8b2252;">"M-9"</span>) 'moom-cycle-monitors)
 
+  (autoload 'moom-transient-dispatch <span style="color: #8b2252;">"moom-transient"</span> nil t)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-c o"</span>) #'moom-transient-dispatch)
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
     (add-hook 'moom-delete-window-hook #'dimmer-on)
@@ -14694,6 +14698,14 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
     (advice-add 'moom-recommended-keybindings
                 <span style="color: #483d8b;">:override</span> #'ad:moom-recommended-keybindings)
     <span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">moom-transient</span> nil t)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">moom-print-keybindings (should be implemented)</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">moom-change-frame-width</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">moom-change-frame-height</span>
+      (moom-transient-hide-cursor)
+      (advice-add 'moom-transient-dispatch <span style="color: #483d8b;">:after</span> #'my-ime-off) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+      (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c o"</span>) #'moom-transient-dispatch))    
 
     (custom-set-variables
      '(moom-command-with-centering nil)
@@ -18503,7 +18515,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-08-28 Sun 14:09</p>
+<p class="date">Created: 2022-09-03 Sat 02:17</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

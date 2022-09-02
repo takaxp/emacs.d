@@ -361,6 +361,9 @@
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-9") 'moom-cycle-monitors)
 
+  (autoload 'moom-transient-dispatch "moom-transient" nil t)
+  (global-set-key (kbd "C-c o") #'moom-transient-dispatch)
+
   (with-eval-after-load "moom"
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
     (add-hook 'moom-delete-window-hook #'dimmer-on)
@@ -374,6 +377,14 @@
     (advice-add 'moom-recommended-keybindings
                 :override #'ad:moom-recommended-keybindings)
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (when (require 'moom-transient nil t)
+      ;; moom-print-keybindings (should be implemented)
+      ;; moom-change-frame-width
+      ;; moom-change-frame-height
+      (moom-transient-hide-cursor)
+      (advice-add 'moom-transient-dispatch :after #'my-ime-off) ;; FIXME
+      (define-key moom-mode-map (kbd "C-c o") #'moom-transient-dispatch))    
 
     (custom-set-variables
      '(moom-command-with-centering nil)
