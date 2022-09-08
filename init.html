@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-09-03 Sat 02:17 -->
+<!-- 2022-09-08 Thu 20:42 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -3034,6 +3034,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P\np"</span>)
   (funcall f (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (not (bolp))
                       (not (eq (preceding-char) ?\ ))
+                      (not (memq (following-char) '(?\( ?\&lt; ?\[ ?\{)))
                       (<span style="color: #a020f0;">or</span> (eolp)
                           (eq (following-char) ?\ )
                           (memq (preceding-char) '(?\) ?\&gt; ?\] ?\}))))
@@ -3045,17 +3046,18 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   <span style="color: #8b2252;">"If the cursor is on a symbol, expand the region along the symbol."</span>
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P\np"</span>)
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (not (use-region-p))
-           (symbol-at-point))
+           (symbol-at-point)
+           (not (memq (following-char) '(?\( ?\&lt; ?\[ ?\{)))
+           (not (memq (preceding-char) '(?\) ?\&gt; ?\] ?\}))))
       (er/mark-symbol)
     (funcall f arg allow-extend)))
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:mark-sexp)
-(<span style="color: #a020f0;">when</span> (autoload-if-found '(er/mark-symbol)
-                         <span style="color: #8b2252;">"expand-region"</span> nil t)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(er/mark-symbol) <span style="color: #8b2252;">"expand-region"</span> nil t)
   (advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:er:mark-sexp))
+(advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:mark-sexp)
 </pre>
 </div>
 </div>
@@ -13122,7 +13124,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgede2bd9"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgd50be20"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14039,7 +14041,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgf276658" class="figure">
+<div id="orge7bb7e2" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15468,7 +15470,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
   (set-fontset-font nil 'japanese-jisx0212 spec)
   (set-fontset-font nil '(#x0080 . #x024F) spec)
   (set-fontset-font nil '(#x0370 . #x03FF) spec)
-  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
+  (set-fontset-font nil 'mule-unicode-0100-24ff spec)
+  (set-fontset-font t 'unicode spec nil 'prepend))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ascii-font-setter</span> (spec)
@@ -15861,7 +15864,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
             ((eq my-frame-appearance 'light)
              (my-daylight-theme))
             (t
-             (<span style="color: #a020f0;">let</span> ((night-time-in 23)
+             (<span style="color: #a020f0;">let</span> ((night-time-in 22)
                    (night-time-out 5))
                (<span style="color: #a020f0;">if</span> (my-night-time-p
                     (* night-time-in 60) (* night-time-out 60))
@@ -15894,9 +15897,9 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-font-config "init" nil)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">This may override or reset font setting</span>
 (<span style="color: #a020f0;">unless</span> noninteractive
-  (my-theme))
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "21:00" 86400 'my-theme)</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink</span>
+  (my-theme)
+  (run-at-time <span style="color: #8b2252;">"22:00"</span> 86400 'my-theme)
+  (run-at-time <span style="color: #8b2252;">"05:00"</span> 86400 'my-theme)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME: it makes frame blink</span>
 </pre>
 </div>
 </div>
@@ -18515,7 +18518,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-09-03 Sat 02:17</p>
+<p class="date">Created: 2022-09-08 Thu 20:42</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

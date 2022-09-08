@@ -10,12 +10,11 @@
 
 
 ;; packages used in utility.el for compiling without warning.
-(require 'gcmh)
-(require 'dash)
-(require 'fringe-helper)
-(require 'transient)
-(require 'org-macs)
-
+(require 'gcmh nil t)
+(require 'dash nil t)
+(require 'fringe-helper nil t)
+(require 'transient nil t)
+(require 'org-macs nil t)
 
 (provide 'init-eval)
 ;;; init-eval.el ends here

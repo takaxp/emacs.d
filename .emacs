@@ -18,6 +18,26 @@
 
   )
 
+(with-eval-after-load "postpone"
+  (defun mac-build-info ()
+    "Display build information in a buffer."
+    (interactive)
+    (switch-to-buffer (get-buffer-create "*Build info*"))
+    (setq tab-width 4)
+    (let ((buffer-read-only nil))
+      (erase-buffer)
+      (insert (format "GNU Emacs %s\nCommit:\t\t%s\nBranch:\t\t%s\n"
+                      emacs-version
+                      emacs-repository-version
+                      emacs-repository-branch))
+      (insert (format "System:\t\t%s\nDate:\t\t%s\n"
+                      system-configuration
+                      (format-time-string "%Y-%m-%d %T (%Z)" emacs-build-time)))
+      (insert (format "Patch:\t\t%s ns-inline.patch\n"
+                      (if (boundp 'mac-ime--cursor-type) "with" "without")))
+      (insert (format "Features:\t%s\n" system-configuration-features)))
+    (view-mode)))
+
 ;; Boot mode selection
 (cond
  (nil ;; minimal boot or DOOM Emacs (use toggle-doom.sh to switch)

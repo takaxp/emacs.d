@@ -36,8 +36,8 @@
 (defvar do-profile nil) ;; M-x profiler-report
 (when do-profile (profiler-start 'cpu))
 
-(setq debug-on-error nil)
-(setq gc-cons-threshold (* 32 1024 1024))
+(setq debug-on-error t)
+(setq gc-cons-threshold (* 256 1024 1024))
 (defvar my-gc-last 0.0)
 (add-hook 'post-gc-hook
           #'(lambda ()
@@ -172,6 +172,29 @@
   (global-set-key (kbd "M-SPC") 'my-toggle-ime)
   (global-set-key (kbd "S-SPC") 'my-toggle-ime)
 
+  ;; font config
+  (defun my-ja-font-setter (spec)
+    (set-fontset-font nil 'japanese-jisx0208 spec)
+    (set-fontset-font nil 'katakana-jisx0201 spec)
+    (set-fontset-font nil 'japanese-jisx0212 spec)
+    (set-fontset-font nil '(#x0080 . #x024F) spec)
+    (set-fontset-font nil '(#x0370 . #x03FF) spec)
+    (set-fontset-font nil 'mule-unicode-0100-24ff spec)
+    (set-fontset-font t 'unicode spec nil 'prepend))
+
+  (defun my-ascii-font-setter (spec)
+    (set-fontset-font nil 'ascii spec))
+
+  (let ((font-size 26)
+        (font-height 100)
+        (ascii-font "Inconsolata")
+        (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+    (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+    (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+    (my-ja-font-setter
+     (font-spec :family ja-font :size font-size :height font-height))
+    (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))
+
   ;; カーソル行の色
   (defvar my-ime-off-hline-hook nil)
   (defvar my-ime-on-hline-hook nil)
@@ -281,18 +304,17 @@
       ad-do-it))
 
   (defun ad:mark-sexp (f &optional arg allow-extend)
-    "If the cursor is on a symbol, expand the region along the symbol.
-Otherwise, set mark ARG sexps from point.
+    "Set mark ARG sexps from point.
 When the cursor is at the end of line or before a whitespace, set ARG -1."
     (interactive "P\np")
     (funcall f (if (and (not (bolp))
                         (not (eq (preceding-char) ?\ ))
+                        (not (memq (following-char) '(?\( ?\< ?\[ ?\{)))
                         (or (eolp)
                             (eq (following-char) ?\ )
                             (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
                    -1 arg)
              allow-extend))
-  (advice-add 'mark-sexp :around #'ad:mark-sexp)
 
   (defvar my-loaddefs-file (concat my-installed-packages-dir "loaddefs.el"))
   ;; (when (file-exists-p my-loaddefs-file)
@@ -361,10 +383,12 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (autoload #'moom-cycle-frame-height "moom" "Moom" t)
 (autoload #'moom-move-frame "moom" "Moom" t)
 (autoload #'moom-move-frame-to-center "moom" "Moom" t)
+(autoload #'moom-transient-dispatch "moom-transient" "moom dispatcher" t)
 (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
 (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
 (global-set-key (kbd "M-0") 'moom-move-frame)
 (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
+(global-set-key (kbd "C-c o") #'moom-transient-dispatch)
 
 ;; smartparens
 (autoload #'smartparens-global-mode "smartparens" "smartparens" t)
@@ -444,6 +468,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; expand-region
 (autoload #'ad:er:mark-sexp "expand-region" nil t)
 (advice-add 'mark-sexp :around #'ad:er:mark-sexp)
+(advice-add 'mark-sexp :around #'ad:mark-sexp)
 
 ;; Tree Sitter
 (let* ((elp (expand-file-name my-installed-packages-dir))
@@ -481,6 +506,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; org-appear
 (autoload 'org-appear-mode "org-appear" nil t)
 (add-hook 'org-mode-hook #'org-appear-mode)
+
+;; prettify-symbols-mode
+(add-hook 'org-mode-hook #'prettify-symbols-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
@@ -569,7 +597,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (setq smex-completion-method 'ivy))
 
   ;; 選択候補の先頭に矢印を入れる
-  (setq ivy-format-functions-alist '((t . ivy-format-function-arrow)))
+  (delete '(t . ivy-format-function-default) ivy-format-functions-alist)
+  (add-to-list 'ivy-format-functions-alist
+               '(t . ivy-format-function-arrow-line) t)
 
   (custom-set-faces
    '(ivy-current-match
@@ -909,12 +939,14 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (with-eval-after-load "expand-region"
   (defun ad:er:mark-sexp (f &optional arg allow-extend)
-  "If the cursor is on a symbol, expand the region along the symbol."
-  (interactive "P\np")
-  (if (and (not (use-region-p))
-           (symbol-at-point))
-      (er/mark-symbol)
-    (funcall f arg allow-extend))))
+    "If the cursor is on a symbol, expand the region along the symbol."
+    (interactive "P\np")
+    (if (and (not (use-region-p))
+             (symbol-at-point)
+             (not (memq (following-char) '(?\( ?\< ?\[ ?\{)))
+             (not (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
+        (er/mark-symbol)
+      (funcall f arg allow-extend))))
 
 (with-eval-after-load "epa"
   (setq epg-pinentry-mode 'loopback))
@@ -1087,7 +1119,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (with-eval-after-load "view"
   ;; 特定の拡張子・ディレクトリ
-  (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
+  (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.gpg$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
   ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
   (defvar my-auto-view-dirs nil)
   (add-to-list 'my-auto-view-dirs (expand-file-name my-installed-packages-dir))
@@ -1187,8 +1219,17 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
 
-  (add-to-list 'org-modules 'org-id)
   (delq 'ol-gnus org-modules)
+  (add-to-list 'org-modules 'org-id)
+  (when (version< "9.1.4" (org-version))
+    (add-to-list 'org-modules 'org-tempo))
+  (org-load-modules-maybe t)
+  (org-element-cache-reset 'all)
+
+  (add-to-list 'org-structure-template-alist
+               (if (version< "9.1.4" (org-version))
+                   '("S" . "src emacs-lisp")
+                 '("S" "#+begin_src emacs-lisp\n?\n#+end_src" "<src lang=\"emacs-lisp\">\n\n</src>")))
 
   (font-lock-add-keywords
    'org-mode
@@ -1278,9 +1319,9 @@ will not be modified."
 
   (let ((dir (expand-file-name org-directory)))
     (setq org-refile-targets
-          `((,(concat dir "next.org") :level . 1)
-            (,(concat dir "patent.org") :level . 1)
-            (,(concat dir "reports.org") :level . 1))))
+          `((,(concat dir "/next.org") :level . 1)
+            (,(concat dir "/patent.org") :level . 1)
+            (,(concat dir "/reports.org") :level . 1))))
 
   (defun do-org-update-statistics-cookies ()
     (interactive)
@@ -1433,10 +1474,6 @@ will not be modified."
                syntax-subword-mode)
           (call-interactively 'syntax-subword-backward)
         (backward-word)))))
-
-(with-eval-after-load "org"
-  (when (version< "9.1.4" (org-version))
-    (add-to-list 'org-modules 'org-tempo)))
 
 (with-eval-after-load "org"
   (setq org-todo-keyword-faces
@@ -1643,6 +1680,70 @@ will not be modified."
   (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
   ;; 反映
   (org-tempo-add-templates))
+
+(with-eval-after-load "org"
+  (setq-default prettify-symbols-alist '((":PROPERTIES:" . "»")
+                                         (":LOGBOOK:" . "›")
+                                         (":END:" . "›")
+                                         ("#+begin_src" . "▨")
+                                         ("#+end_src" . "▨")
+                                         ("[ ]" .  "☐")
+                                         ("[X]" . "☑" )
+                                         ("[-]" . "☒" )))
+
+  (setq org-emphasis-alist
+        '(("*" my-org-emphasis-bold)
+          ("/" my-org-emphasis-italic)
+          ("_" my-org-emphasis-underline)
+          ("=" org-verbatim verbatim)
+          ("~" org-code verbatim)
+          ("+" my-org-emphasis-strike-through)))
+
+  (defface my-org-emphasis-bold
+    '((default :inherit bold)
+      (((class color) (min-colors 88) (background light))
+       :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
+    "My bold emphasis for Org.")
+
+  (defface my-org-emphasis-italic
+    '((default :inherit italic)
+      (((class color) (min-colors 88) (background light))
+       :foreground "#005e00" :background "#B4EAB4")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#44bc44"))
+    "My italic emphasis for Org.")
+
+  (defface my-org-emphasis-underline
+    '((default :inherit underline)
+      (((class color) (min-colors 88) (background light))
+       :foreground "#813e00")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#d0bc00"))
+    "My underline emphasis for Org.")
+
+  (defface my-org-emphasis-strike-through
+    '((((class color) (min-colors 88) (background light))
+       :strike-through "#972500" :foreground "#505050")
+      (((class color) (min-colors 88) (background dark))
+       :strike-through "#ef8b50" :foreground "#a8a8a8"))
+    "My strike-through emphasis for Org."))
+
+(with-eval-after-load "ox-html"
+  (setq org-html-text-markup-alist
+        '((bold . "<b>%s</b>")
+          (code . "<code class=\"org-code\">%s</code>")
+          (italic . "<i>%s</i>")
+          (strike-through . "<del>%s</del>")
+          (underline . "<span class=\"org-underline\">%s</span>")
+          (verbatim . "<code class=\"org-verbatim\">%s</code>"))))
+
+(with-eval-after-load "dired"
+  (define-key dired-mode-map (kbd "C-M-p") (lambda ()
+                                             (interactive) (other-window -1)))
+  (define-key dired-mode-map (kbd "C-M-n") (lambda ()
+                                             (interactive) (other-window 1))))
 
 (when do-profile (profiler-stop))
 ;; End of init-win.el

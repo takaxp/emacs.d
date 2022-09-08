@@ -2048,6 +2048,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (interactive "P\np")
   (funcall f (if (and (not (bolp))
                       (not (eq (preceding-char) ?\ ))
+                      (not (memq (following-char) '(?\( ?\< ?\[ ?\{)))
                       (or (eolp)
                           (eq (following-char) ?\ )
                           (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
@@ -2059,16 +2060,17 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   "If the cursor is on a symbol, expand the region along the symbol."
   (interactive "P\np")
   (if (and (not (use-region-p))
-           (symbol-at-point))
+           (symbol-at-point)
+           (not (memq (following-char) '(?\( ?\< ?\[ ?\{)))
+           (not (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
       (er/mark-symbol)
     (funcall f arg allow-extend)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(advice-add 'mark-sexp :around #'ad:mark-sexp)
-(when (autoload-if-found '(er/mark-symbol)
-                         "expand-region" nil t)
+(when (autoload-if-found '(er/mark-symbol) "expand-region" nil t)
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
+(advice-add 'mark-sexp :around #'ad:mark-sexp)
 #+end_src
 
 ** スクロールを制御
@@ -13248,7 +13250,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
   (set-fontset-font nil 'japanese-jisx0212 spec)
   (set-fontset-font nil '(#x0080 . #x024F) spec)
   (set-fontset-font nil '(#x0370 . #x03FF) spec)
-  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
+  (set-fontset-font nil 'mule-unicode-0100-24ff spec)
+  (set-fontset-font t 'unicode spec nil 'prepend))
 
 ;;;###autoload
 (defun my-ascii-font-setter (spec)
@@ -13625,7 +13628,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
             ((eq my-frame-appearance 'light)
              (my-daylight-theme))
             (t
-             (let ((night-time-in 23)
+             (let ((night-time-in 22)
                    (night-time-out 5))
                (if (my-night-time-p
                     (* night-time-in 60) (* night-time-out 60))
@@ -13657,9 +13660,9 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ;; (declare-function my-font-config "init" nil)
 ;; This may override or reset font setting
 (unless noninteractive
-  (my-theme))
-;; (run-at-time "21:00" 86400 'my-theme)
-;; (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
+  (my-theme)
+  (run-at-time "22:00" 86400 'my-theme)
+  (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
 #+end_src
 
 ** [rainbow-mode.el] 配色のリアルタイム確認

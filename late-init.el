@@ -180,10 +180,10 @@
 (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 
-(advice-add 'mark-sexp :around #'ad:mark-sexp)
 (when (autoload-if-found '(er/mark-symbol)
                          "expand-region" nil t)
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
+(advice-add 'mark-sexp :around #'ad:mark-sexp)
 
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
@@ -1923,9 +1923,9 @@
 ;; (declare-function my-font-config "init" nil)
 ;; This may override or reset font setting
 (unless noninteractive
-  (my-theme))
-;; (run-at-time "21:00" 86400 'my-theme)
-;; (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
+  (my-theme)
+  (run-at-time "22:00" 86400 'my-theme)
+  (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
 
 (when (autoload-if-found '(rainbow-mode)
                          "rainbow-mode" nil t)
