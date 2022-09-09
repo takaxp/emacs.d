@@ -11,8 +11,8 @@
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (global-set-key (kbd "C-M-o")
-			          (lambda () (interactive)
-			            (my-show-org-buffer "next.org")))
+		(lambda () (interactive)
+		  (my-show-org-buffer "next.org")))
 
 (global-set-key (kbd "C-c r") 'org-capture)
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -22,8 +22,9 @@
   (defvar my-org-modules org-modules) ;; Tricky!!
   ;; (setq org-modules-loaded t) ;; not a good way
   (setq org-modules nil)
-  (run-with-idle-timer (+ 8 my-default-loading-delay)
-                       nil #'my-org-modules-activate) ;; will take 350[ms]
+  (unless noninteractive
+    (run-with-idle-timer (+ 8 my-default-loading-delay)
+                         nil #'my-org-modules-activate)) ;; will take 350[ms]
 
   ;; タイトルを少し強調
   (custom-set-faces
@@ -36,7 +37,7 @@
     "Set up org-eldoc documentation function."
     (interactive)
     (add-function :before-until (local 'eldoc-documentation-function)
-			            #'org-eldoc-documentation-function))
+		  #'org-eldoc-documentation-function))
   ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
   ;; (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
@@ -100,9 +101,9 @@
   ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
   (defun my-promote-todo-revision (state)
     (cond ((member state '("TODO")) "REV1")
-		      ((member state '("REV1")) "REV2")
-		      ((member state '("REV2")) "REV3")
-		      (t state)))
+	  ((member state '("REV1")) "REV2")
+	  ((member state '("REV2")) "REV3")
+	  (t state)))
   ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
   ;; undo 時に reveal して表示を改善する
@@ -132,18 +133,18 @@
 
   ;; - を優先．親のブリッツ表示を継承させない
   (setq org-list-demote-modify-bullet
-	      '(("+" . "-")
-		      ("*" . "-")
-		      ("1." . "-")
-		      ("1)" . "-")
-		      ("A)" . "-")
-		      ("B)" . "-")
-		      ("a)" . "-")
-		      ("b)" . "-")
-		      ("A." . "-")
-		      ("B." . "-")
-		      ("a." . "-")
-		      ("b." . "-")))
+	'(("+" . "-")
+	  ("*" . "-")
+	  ("1." . "-")
+	  ("1)" . "-")
+	  ("A)" . "-")
+	  ("B)" . "-")
+	  ("a)" . "-")
+	  ("b)" . "-")
+	  ("A." . "-")
+	  ("B." . "-")
+	  ("a." . "-")
+	  ("b." . "-")))
 
   ;; 完了したタスクの配色を変える
   ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
@@ -160,7 +161,7 @@
     (save-excursion
       (beginning-of-line)
       (unless (looking-at-p org-drawer-regexp)
-	      (org-cycle-hide-drawers 'subtree))))
+	(org-cycle-hide-drawers 'subtree))))
   (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
   ;; CSV指定でテーブルを出力する．
@@ -191,10 +192,10 @@
   ;; 空行のとき "<" をインデントさせない
   (defun ad:org-tempo-complete-tag (f &rest arg)
     (if (save-excursion
-		      (beginning-of-line)
-		      (looking-at "<"))
-	      (let ((indent-line-function 'ignore))
-		      (apply f arg))
+	  (beginning-of-line)
+	  (looking-at "<"))
+	(let ((indent-line-function 'ignore))
+	  (apply f arg))
       (apply f arg)))
   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 ;; (Thanks to @conao3)
@@ -214,14 +215,14 @@
   (defun my-org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
-		       (name (cdr entry))
-		       (special nil)) ;; FIXED
+	   (name (cdr entry))
+	   (special nil)) ;; FIXED
       (tempo-define-template
        (format "org-%s" (replace-regexp-in-string " " "-" name))
        `(,(format "#+begin_%s%s" name (if special " " ""))
-	       ,(when special 'p) '> n '> ,(unless special 'p) n
-	       ,(format "#+end_%s" (car (split-string name " ")))
-	       >)
+	 ,(when special 'p) '> n '> ,(unless special 'p) n
+	 ,(format "#+end_%s" (car (split-string name " ")))
+	 >)
        key
        (format "Insert a %s block" name)
        'org-tempo-tags)))
@@ -782,12 +783,18 @@ The core part is extracted from `org-table-export'."
 
 (with-eval-after-load "org"
   (custom-set-variables ;; call org-set-emph-re
-   '(org-emphasis-alist '(("*" my-org-emphasis-bold)
+   '(org-emphasis-alist '(("~" org-code verbatim)
+                          ("=" org-verbatim verbatim)
+                          ("*" my-org-emphasis-bold)
                           ("/" my-org-emphasis-italic)
                           ("_" my-org-emphasis-underline)
-                          ("=" org-verbatim verbatim)
-                          ("~" org-code verbatim)
                           ("+" my-org-emphasis-strike-through))))
+
+  (custom-set-faces
+   '(org-code
+     ((t (:foreground "#555555" :background "pink" :inherit shadow))))
+   '(org-verbatim
+     ((t (:foreground "red" :background "PeachPuff" :inherit shadow)))))
 
   (when (featurep 'org-extra-emphasis)
     (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'
@@ -1362,8 +1369,9 @@ update it for multiple appts?")
 
 (with-eval-after-load "org"
   ;; will take 200[ms]
-  (run-with-idle-timer (+ 7 my-default-loading-delay)
-                       nil #'my-org-babel-load-activate))
+  (unless noninteractive
+    (run-with-idle-timer (+ 7 my-default-loading-delay)
+                         nil #'my-org-babel-load-activate)))
 
 (with-eval-after-load "ob-src"
   ;; 実装済みの言語に好きな名前を紐付ける
@@ -1390,7 +1398,7 @@ update it for multiple appts?")
   ;;   (message "--- ditaa is NOT installed."))
 
   ;; (my-org-babel-load-activate)
-)
+  )
 
 (with-eval-after-load "org"
   (add-to-list 'org-structure-template-alist
@@ -1410,7 +1418,10 @@ update it for multiple appts?")
               ("conf" (:background "#383c4c" :extend t))
               ("org" (:background "#383c4c" :extend t))
               ("html" (:background "#383c4c" :extend t)))))
-    (font-lock-fontify-buffer))
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (derived-mode-p 'org-mode)
+          (font-lock-flush)))))
   ;; (my-org-src-block-face)
   (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
 

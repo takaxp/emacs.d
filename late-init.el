@@ -21,8 +21,8 @@
     (advice-add 'gcmh-idle-garbage-collect
                 :around #'ad:gcmh-idle-garbage-collect))
 
-  (unless noninteractive
-    (defvar my-gcmh-timer
+  (defvar my-gcmh-timer
+    (unless noninteractive
       (run-with-idle-timer (+ 10 my-default-loading-delay)
                            nil #'my-gcmh-activate))))
 
@@ -162,7 +162,8 @@
     ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
     ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
     ;; カーソル移動で heading に留まった時にIMEをOFFにする
-    (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii))
+    (unless noninteractive
+      (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)))
 
   (with-eval-after-load "hl-line"
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
@@ -1675,8 +1676,9 @@
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
 (defvar my-org-agenda-pb-timer
-  (run-with-idle-timer (+ 9 my-default-loading-delay)
-                       nil #'my-org-agenda-prepare-buffers))
+  (unless noninteractive
+    (run-with-idle-timer (+ 9 my-default-loading-delay)
+                         nil #'my-org-agenda-prepare-buffers)))
 
 (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
 (run-at-time "20 sec" nil #'my-org-agenda-to-appt)

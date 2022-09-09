@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-09-09 Fri 18:44 -->
+<!-- 2022-09-10 Sat 01:26 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -191,7 +191,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { width: 90%; }
+  .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
@@ -1418,7 +1418,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;X&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pp-kicker-timer</span>
-  (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
+  (<span style="color: #a020f0;">unless</span> noninteractive
+    (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
 </pre>
 </div>
 </div>
@@ -1547,8 +1548,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
     (advice-add 'gcmh-idle-garbage-collect
                 <span style="color: #483d8b;">:around</span> #'ad:gcmh-idle-garbage-collect))
 
-  (<span style="color: #a020f0;">unless</span> noninteractive
-    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-timer</span>
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-timer</span>
+    (<span style="color: #a020f0;">unless</span> noninteractive
       (run-with-idle-timer (+ 10 my-default-loading-delay)
                            nil #'my-gcmh-activate))))
 </pre>
@@ -2744,7 +2745,8 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#26469;&#12383;&#12392;&#12365;&#12399;&#21363;&#24231;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#30041;&#12414;&#12387;&#12383;&#26178;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
-    (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii))
+    (<span style="color: #a020f0;">unless</span> noninteractive
+      (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
@@ -10751,8 +10753,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
 (global-set-key (kbd <span style="color: #8b2252;">"C-M-o"</span>)
-                                  (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
-                                    (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>)))
+                (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
+                  (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>)))
 
 (global-set-key (kbd <span style="color: #8b2252;">"C-c r"</span>) 'org-capture)
 (global-set-key (kbd <span style="color: #8b2252;">"C-c l"</span>) 'org-store-link)
@@ -10762,8 +10764,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-modules</span> org-modules) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Tricky!!</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-modules-loaded t) ;; not a good way</span>
   (<span style="color: #a020f0;">setq</span> org-modules nil)
-  (run-with-idle-timer (+ 8 my-default-loading-delay)
-                       nil #'my-org-modules-activate) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 350[ms]</span>
+  (<span style="color: #a020f0;">unless</span> noninteractive
+    (run-with-idle-timer (+ 8 my-default-loading-delay)
+                         nil #'my-org-modules-activate)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 350[ms]</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12452;&#12488;&#12523;&#12434;&#23569;&#12375;&#24375;&#35519;</span>
   (custom-set-faces
@@ -10776,7 +10779,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     <span style="color: #8b2252;">"Set up org-eldoc documentation function."</span>
     (<span style="color: #a020f0;">interactive</span>)
     (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before-until</span> (local 'eldoc-documentation-function)
-                                    #'org-eldoc-documentation-function))
+                  #'org-eldoc-documentation-function))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23569;&#12394;&#12367;&#12392;&#12418; org 9.5 &#12391;&#12399;&#21839;&#38988;&#12364;&#30330;&#29983;&#12375;&#12394;&#12367;&#12394;&#12387;&#12383;&#12398;&#12391;&#65292;advice &#20572;&#27490;&#65294;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'org-eldoc-load :override #'my-org-eldoc-load)</span>
   (add-hook 'org-mode-hook #'org-eldoc-load)
@@ -10840,9 +10843,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-clock-out &#26178;&#12395;&#12473;&#12486;&#12540;&#12479;&#12473;&#12434;&#22793;&#12360;&#12427;&#65288;also configure org-todo-keywords&#65289;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-promote-todo-revision</span> (state)
     (<span style="color: #a020f0;">cond</span> ((member state '(<span style="color: #8b2252;">"TODO"</span>)) <span style="color: #8b2252;">"REV1"</span>)
-                      ((member state '(<span style="color: #8b2252;">"REV1"</span>)) <span style="color: #8b2252;">"REV2"</span>)
-                      ((member state '(<span style="color: #8b2252;">"REV2"</span>)) <span style="color: #8b2252;">"REV3"</span>)
-                      (t state)))
+          ((member state '(<span style="color: #8b2252;">"REV1"</span>)) <span style="color: #8b2252;">"REV2"</span>)
+          ((member state '(<span style="color: #8b2252;">"REV2"</span>)) <span style="color: #8b2252;">"REV3"</span>)
+          (t state)))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-clock-out-switch-to-state #'my-promote-todo-revision)</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">undo &#26178;&#12395; reveal &#12375;&#12390;&#34920;&#31034;&#12434;&#25913;&#21892;&#12377;&#12427;</span>
@@ -10872,18 +10875,18 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">- &#12434;&#20778;&#20808;&#65294;&#35242;&#12398;&#12502;&#12522;&#12483;&#12484;&#34920;&#31034;&#12434;&#32153;&#25215;&#12373;&#12379;&#12394;&#12356;</span>
   (<span style="color: #a020f0;">setq</span> org-list-demote-modify-bullet
-              '((<span style="color: #8b2252;">"+"</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"*"</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"1."</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"1)"</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"A)"</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"B)"</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"a)"</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"b)"</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"A."</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"B."</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"a."</span> . <span style="color: #8b2252;">"-"</span>)
-                      (<span style="color: #8b2252;">"b."</span> . <span style="color: #8b2252;">"-"</span>)))
+        '((<span style="color: #8b2252;">"+"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"*"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"1."</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"1)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"A)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"B)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"a)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"b)"</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"A."</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"B."</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"a."</span> . <span style="color: #8b2252;">"-"</span>)
+          (<span style="color: #8b2252;">"b."</span> . <span style="color: #8b2252;">"-"</span>)))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23436;&#20102;&#12375;&#12383;&#12479;&#12473;&#12463;&#12398;&#37197;&#33394;&#12434;&#22793;&#12360;&#12427;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html</span>
@@ -10900,7 +10903,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (<span style="color: #a020f0;">save-excursion</span>
       (beginning-of-line)
       (<span style="color: #a020f0;">unless</span> (looking-at-p org-drawer-regexp)
-              (org-cycle-hide-drawers 'subtree))))
+        (org-cycle-hide-drawers 'subtree))))
   (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">CSV&#25351;&#23450;&#12391;&#12486;&#12540;&#12502;&#12523;&#12434;&#20986;&#21147;&#12377;&#12427;&#65294;</span>
@@ -10931,10 +10934,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#31354;&#34892;&#12398;&#12392;&#12365; "&lt;" &#12434;&#12452;&#12531;&#12487;&#12531;&#12488;&#12373;&#12379;&#12394;&#12356;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-tempo-complete-tag</span> (f <span style="color: #228b22;">&amp;rest</span> arg)
     (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">save-excursion</span>
-                      (beginning-of-line)
-                      (looking-at <span style="color: #8b2252;">"&lt;"</span>))
-              (<span style="color: #a020f0;">let</span> ((indent-line-function 'ignore))
-                      (apply f arg))
+          (beginning-of-line)
+          (looking-at <span style="color: #8b2252;">"&lt;"</span>))
+        (<span style="color: #a020f0;">let</span> ((indent-line-function 'ignore))
+          (apply f arg))
       (apply f arg)))
   (advice-add 'org-tempo-complete-tag <span style="color: #483d8b;">:around</span> #'ad:org-tempo-complete-tag))
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(Thanks to @conao3)</span>
@@ -10954,14 +10957,14 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-tempo-add-block</span> (entry)
     <span style="color: #8b2252;">"Add block entry from `</span><span style="color: #008b8b;">org-structure-template-alist</span><span style="color: #8b2252;">'."</span>
     (<span style="color: #a020f0;">let*</span> ((key (format <span style="color: #8b2252;">"&lt;%s"</span> (car entry)))
-                       (name (cdr entry))
-                       (special nil)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXED</span>
+           (name (cdr entry))
+           (special nil)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXED</span>
       (tempo-define-template
        (format <span style="color: #8b2252;">"org-%s"</span> (replace-regexp-in-string <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">"-"</span> name))
        `(,(format <span style="color: #8b2252;">"#+begin_%s%s"</span> name (<span style="color: #a020f0;">if</span> special <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">""</span>))
-               ,(<span style="color: #a020f0;">when</span> special 'p) '&gt; n '&gt; ,(<span style="color: #a020f0;">unless</span> special 'p) n
-               ,(format <span style="color: #8b2252;">"#+end_%s"</span> (car (split-string name <span style="color: #8b2252;">" "</span>)))
-               &gt;)
+         ,(<span style="color: #a020f0;">when</span> special 'p) '&gt; n '&gt; ,(<span style="color: #a020f0;">unless</span> special 'p) n
+         ,(format <span style="color: #8b2252;">"#+end_%s"</span> (car (split-string name <span style="color: #8b2252;">" "</span>)))
+         &gt;)
        key
        (format <span style="color: #8b2252;">"Insert a %s block"</span> name)
        'org-tempo-tags)))
@@ -11900,12 +11903,18 @@ org バッファのソースブロックにカーソルがある時には， <co
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   (custom-set-variables <span style="color: #b22222;">;; </span><span style="color: #b22222;">call org-set-emph-re</span>
-   '(org-emphasis-alist '((<span style="color: #8b2252;">"*"</span> my-org-emphasis-bold)
+   '(org-emphasis-alist '((<span style="color: #8b2252;">"~"</span> org-code verbatim)
+                          (<span style="color: #8b2252;">"="</span> org-verbatim verbatim)
+                          (<span style="color: #8b2252;">"*"</span> my-org-emphasis-bold)
                           (<span style="color: #8b2252;">"/"</span> my-org-emphasis-italic)
                           (<span style="color: #8b2252;">"_"</span> my-org-emphasis-underline)
-                          (<span style="color: #8b2252;">"="</span> org-verbatim verbatim)
-                          (<span style="color: #8b2252;">"~"</span> org-code verbatim)
                           (<span style="color: #8b2252;">"+"</span> my-org-emphasis-strike-through))))
+
+  (custom-set-faces
+   '(org-code
+     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#555555"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"pink"</span> <span style="color: #483d8b;">:inherit</span> shadow))))
+   '(org-verbatim
+     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"red"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"PeachPuff"</span> <span style="color: #483d8b;">:inherit</span> shadow)))))
 
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-extra-emphasis</span>)
     (org-extra-emphasis-update)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">to apply configured `</span><span style="color: #008b8b;">org-emphasis-alist</span><span style="color: #b22222;">'</span>
@@ -12090,8 +12099,9 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;&#65292;&#30452;&#25509; org-agenda &#12434;&#21481;&#12367;&#22580;&#21512;&#12399;&#37325;&#12356;&#12414;&#12414;&#65288;&#12479;&#12452;&#12510;&#12540;&#36208;&#12387;&#12390;&#12418;&#12473;&#12523;&#12540;&#65289;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12428;&#12434; (with-eval-after-load "org") &#12398;&#20013;&#12395;&#32622;&#12367;&#12392;&#25391;&#12427;&#33310;&#12356;&#12364;&#22793;(2&#22238;&#23455;&#34892;)&#12395;&#12394;&#12427;</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-pb-timer</span>
-  (run-with-idle-timer (+ 9 my-default-loading-delay)
-                       nil #'my-org-agenda-prepare-buffers))
+  (<span style="color: #a020f0;">unless</span> noninteractive
+    (run-with-idle-timer (+ 9 my-default-loading-delay)
+                         nil #'my-org-agenda-prepare-buffers)))
 </pre>
 </div>
 
@@ -12685,8 +12695,9 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 200[ms]</span>
-  (run-with-idle-timer (+ 7 my-default-loading-delay)
-                       nil #'my-org-babel-load-activate))
+  (<span style="color: #a020f0;">unless</span> noninteractive
+    (run-with-idle-timer (+ 7 my-default-loading-delay)
+                         nil #'my-org-babel-load-activate)))
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ob-src"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23455;&#35013;&#28168;&#12415;&#12398;&#35328;&#35486;&#12395;&#22909;&#12365;&#12394;&#21517;&#21069;&#12434;&#32016;&#20184;&#12369;&#12427;</span>
@@ -12713,7 +12724,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "--- ditaa is NOT installed."))</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-org-babel-load-activate)</span>
-)
+  )
 </pre>
 </div>
 </div>
@@ -12757,7 +12768,10 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
               (<span style="color: #8b2252;">"conf"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t))
               (<span style="color: #8b2252;">"org"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t))
               (<span style="color: #8b2252;">"html"</span> (<span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#383c4c"</span> <span style="color: #483d8b;">:extend</span> t)))))
-    (font-lock-fontify-buffer))
+    (<span style="color: #a020f0;">dolist</span> (buffer (buffer-list))
+      (<span style="color: #a020f0;">with-current-buffer</span> buffer
+        (<span style="color: #a020f0;">when</span> (derived-mode-p 'org-mode)
+          (font-lock-flush)))))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-org-src-block-face)</span>
   (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
 
@@ -13131,7 +13145,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgff4afe0"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3dc8758"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13737,7 +13751,10 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-toggle-org-show-emphasis-markers</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">setq</span> org-hide-emphasis-markers (not org-hide-emphasis-markers))
-  (font-lock-fontify-buffer))
+  (<span style="color: #a020f0;">dolist</span> (buffer (buffer-list))
+    (<span style="color: #a020f0;">with-current-buffer</span> buffer
+      (<span style="color: #a020f0;">when</span> (derived-mode-p 'org-mode)
+        (font-lock-flush)))))
 </pre>
 </div>
 
@@ -14074,7 +14091,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org6a8f59b" class="figure">
+<div id="org2074f71" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15922,7 +15939,6 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
     (<span style="color: #a020f0;">if</span> (&gt; begin end)
         (<span style="color: #a020f0;">or</span> (&lt;= begin ct) (&lt;= ct end))
       (<span style="color: #a020f0;">and</span> (&lt;= begin ct) (&lt;= ct end)))))
-
 </pre>
 </div>
 
@@ -18551,7 +18567,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-09-09 Fri 18:44</p>
+<p class="date">Created: 2022-09-10 Sat 01:26</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

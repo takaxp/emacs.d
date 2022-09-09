@@ -133,7 +133,8 @@
 
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
 (defvar my-pp-kicker-timer
-  (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
+  (unless noninteractive
+    (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
 
 (my-tick-init-time "startup")
 

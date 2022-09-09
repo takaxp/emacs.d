@@ -646,7 +646,8 @@ This function is called directly from the C code."
 
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
 (defvar my-pp-kicker-timer
-  (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
+  (unless noninteractive
+    (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
 #+end_src
 
 ** [future-time-p] 指定時刻が本日の未来の時刻かを判定
@@ -762,8 +763,8 @@ This function is called directly from the C code."
     (advice-add 'gcmh-idle-garbage-collect
                 :around #'ad:gcmh-idle-garbage-collect))
 
-  (unless noninteractive
-    (defvar my-gcmh-timer
+  (defvar my-gcmh-timer
+    (unless noninteractive
       (run-with-idle-timer (+ 10 my-default-loading-delay)
                            nil #'my-gcmh-activate))))
 #+end_src
@@ -1773,50 +1774,51 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-  (when (memq window-system '(ns nil))
-    ;; toggle-input-method
-    ;; (declare-function my-ns-org-heading-auto-ascii "init" nil)
-    ;; (declare-function my-ime-active-p "init" nil)
+(when (memq window-system '(ns nil))
+  ;; toggle-input-method
+  ;; (declare-function my-ns-org-heading-auto-ascii "init" nil)
+  ;; (declare-function my-ime-active-p "init" nil)
 
-    (when (fboundp 'mac-ime-toggle)
-      (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
-      (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
+  (when (fboundp 'mac-ime-toggle)
+    (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
+    (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
 
-    (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
-    (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
-    (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-    (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
+  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
 
-    (custom-set-faces
-     '(ns-marked-text-face
-       ((t (:foreground "black"
-			:background "light pink" :underline "OrangeRed2"))))
-     '(ns-unmarked-text-face
-       ((t (:foreground "black"
-			:background "light sky blue" :underline "royal blue")))))
+  (custom-set-faces
+   '(ns-marked-text-face
+     ((t (:foreground "black"
+		      :background "light pink" :underline "OrangeRed2"))))
+   '(ns-unmarked-text-face
+     ((t (:foreground "black"
+		      :background "light sky blue" :underline "royal blue")))))
 
-    (when (and (memq window-system '(ns nil))
-	       (fboundp 'mac-get-current-input-source))
+  (when (and (memq window-system '(ns nil))
+	     (fboundp 'mac-get-current-input-source))
 
-      (when (version< "27.0" emacs-version)
-	;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
-	(custom-set-variables
-	 '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
-	(mac-input-method-mode 1)
+    (when (version< "27.0" emacs-version)
+      ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
+      (custom-set-variables
+       '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
+      (mac-input-method-mode 1)
 
-	;; see also activate-mark-hook, deactivate-mark-hook
-	(add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
-	(add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
+      ;; see also activate-mark-hook, deactivate-mark-hook
+      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
 
-    (with-eval-after-load "org"
-      ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-      ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
-      ;; カーソル移動で heading に留まった時にIMEをOFFにする
-      (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii))
+  (with-eval-after-load "org"
+    ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
+    ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
+    ;; カーソル移動で heading に留まった時にIMEをOFFにする
+    (unless noninteractive
+      (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)))
 
-    (with-eval-after-load "hl-line"
-      (add-hook 'input-method-activate-hook #'my-working-text-face-on)
-      (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)))
+  (with-eval-after-load "hl-line"
+    (add-hook 'input-method-activate-hook #'my-working-text-face-on)
+    (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)))
 #+end_src
 
 ** EMPビルド用設定                                                    :macOS:
@@ -8921,8 +8923,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (global-set-key (kbd "C-M-o")
-			          (lambda () (interactive)
-			            (my-show-org-buffer "next.org")))
+		(lambda () (interactive)
+		  (my-show-org-buffer "next.org")))
 
 (global-set-key (kbd "C-c r") 'org-capture)
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -8932,8 +8934,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defvar my-org-modules org-modules) ;; Tricky!!
   ;; (setq org-modules-loaded t) ;; not a good way
   (setq org-modules nil)
-  (run-with-idle-timer (+ 8 my-default-loading-delay)
-                       nil #'my-org-modules-activate) ;; will take 350[ms]
+  (unless noninteractive
+    (run-with-idle-timer (+ 8 my-default-loading-delay)
+                         nil #'my-org-modules-activate)) ;; will take 350[ms]
 
   ;; タイトルを少し強調
   (custom-set-faces
@@ -8946,7 +8949,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     "Set up org-eldoc documentation function."
     (interactive)
     (add-function :before-until (local 'eldoc-documentation-function)
-			            #'org-eldoc-documentation-function))
+		  #'org-eldoc-documentation-function))
   ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
   ;; (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
@@ -9010,9 +9013,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
   (defun my-promote-todo-revision (state)
     (cond ((member state '("TODO")) "REV1")
-		      ((member state '("REV1")) "REV2")
-		      ((member state '("REV2")) "REV3")
-		      (t state)))
+	  ((member state '("REV1")) "REV2")
+	  ((member state '("REV2")) "REV3")
+	  (t state)))
   ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
   ;; undo 時に reveal して表示を改善する
@@ -9042,18 +9045,18 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   ;; - を優先．親のブリッツ表示を継承させない
   (setq org-list-demote-modify-bullet
-	      '(("+" . "-")
-		      ("*" . "-")
-		      ("1." . "-")
-		      ("1)" . "-")
-		      ("A)" . "-")
-		      ("B)" . "-")
-		      ("a)" . "-")
-		      ("b)" . "-")
-		      ("A." . "-")
-		      ("B." . "-")
-		      ("a." . "-")
-		      ("b." . "-")))
+	'(("+" . "-")
+	  ("*" . "-")
+	  ("1." . "-")
+	  ("1)" . "-")
+	  ("A)" . "-")
+	  ("B)" . "-")
+	  ("a)" . "-")
+	  ("b)" . "-")
+	  ("A." . "-")
+	  ("B." . "-")
+	  ("a." . "-")
+	  ("b." . "-")))
 
   ;; 完了したタスクの配色を変える
   ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
@@ -9070,7 +9073,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (save-excursion
       (beginning-of-line)
       (unless (looking-at-p org-drawer-regexp)
-	      (org-cycle-hide-drawers 'subtree))))
+	(org-cycle-hide-drawers 'subtree))))
   (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
   ;; CSV指定でテーブルを出力する．
@@ -9101,10 +9104,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; 空行のとき "<" をインデントさせない
   (defun ad:org-tempo-complete-tag (f &rest arg)
     (if (save-excursion
-		      (beginning-of-line)
-		      (looking-at "<"))
-	      (let ((indent-line-function 'ignore))
-		      (apply f arg))
+	  (beginning-of-line)
+	  (looking-at "<"))
+	(let ((indent-line-function 'ignore))
+	  (apply f arg))
       (apply f arg)))
   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 ;; (Thanks to @conao3)
@@ -9124,14 +9127,14 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defun my-org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
-		       (name (cdr entry))
-		       (special nil)) ;; FIXED
+	   (name (cdr entry))
+	   (special nil)) ;; FIXED
       (tempo-define-template
        (format "org-%s" (replace-regexp-in-string " " "-" name))
        `(,(format "#+begin_%s%s" name (if special " " ""))
-	       ,(when special 'p) '> n '> ,(unless special 'p) n
-	       ,(format "#+end_%s" (car (split-string name " ")))
-	       >)
+	 ,(when special 'p) '> n '> ,(unless special 'p) n
+	 ,(format "#+end_%s" (car (split-string name " ")))
+	 >)
        key
        (format "Insert a %s block" name)
        'org-tempo-tags)))
@@ -9939,10 +9942,10 @@ org バッファのソースブロックにカーソルがある時には， =el
 #+end_src
 
 ** TODO org-emphasis-alist の各要素を個別に配色する
-   :PROPERTIES:
-   :CUSTOM_ID: org1bc48f7e
-   :ID:       FD9272C7-F687-48BF-AF7D-916C270ECD81
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org1bc48f7e
+:ID:       FD9272C7-F687-48BF-AF7D-916C270ECD81
+:END:
 
 下記で紹介されている設定を軽くカスタマイズして使用しています．
 
@@ -9958,12 +9961,18 @@ org バッファのソースブロックにカーソルがある時には， =el
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
   (custom-set-variables ;; call org-set-emph-re
-   '(org-emphasis-alist '(("*" my-org-emphasis-bold)
+   '(org-emphasis-alist '(("~" org-code verbatim)
+                          ("=" org-verbatim verbatim)
+                          ("*" my-org-emphasis-bold)
                           ("/" my-org-emphasis-italic)
                           ("_" my-org-emphasis-underline)
-                          ("=" org-verbatim verbatim)
-                          ("~" org-code verbatim)
                           ("+" my-org-emphasis-strike-through))))
+
+  (custom-set-faces
+   '(org-code
+     ((t (:foreground "#555555" :background "pink" :inherit shadow))))
+   '(org-verbatim
+     ((t (:foreground "red" :background "PeachPuff" :inherit shadow)))))
 
   (when (featurep 'org-extra-emphasis)
     (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'
@@ -10145,8 +10154,9 @@ will not be modified."
 ;; 起動後，直接 org-agenda を叩く場合は重いまま（タイマー走ってもスルー）
 ;; これを (with-eval-after-load "org") の中に置くと振る舞いが変(2回実行)になる
 (defvar my-org-agenda-pb-timer
-  (run-with-idle-timer (+ 9 my-default-loading-delay)
-                       nil #'my-org-agenda-prepare-buffers))
+  (unless noninteractive
+    (run-with-idle-timer (+ 9 my-default-loading-delay)
+                         nil #'my-org-agenda-prepare-buffers)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -10727,8 +10737,9 @@ update it for multiple appts?")
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
   ;; will take 200[ms]
-  (run-with-idle-timer (+ 7 my-default-loading-delay)
-                       nil #'my-org-babel-load-activate))
+  (unless noninteractive
+    (run-with-idle-timer (+ 7 my-default-loading-delay)
+                         nil #'my-org-babel-load-activate)))
 
 (with-eval-after-load "ob-src"
   ;; 実装済みの言語に好きな名前を紐付ける
@@ -10755,7 +10766,7 @@ update it for multiple appts?")
   ;;   (message "--- ditaa is NOT installed."))
 
   ;; (my-org-babel-load-activate)
-)
+  )
 #+end_src
 
 ** [org-babel] ソースブロックの入力キーをカスタマイズ
@@ -10795,7 +10806,10 @@ update it for multiple appts?")
               ("conf" (:background "#383c4c" :extend t))
               ("org" (:background "#383c4c" :extend t))
               ("html" (:background "#383c4c" :extend t)))))
-    (font-lock-fontify-buffer))
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (derived-mode-p 'org-mode)
+          (font-lock-flush)))))
   ;; (my-org-src-block-face)
   (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
 
@@ -11691,7 +11705,10 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (defun my-toggle-org-show-emphasis-markers ()
   (interactive)
   (setq org-hide-emphasis-markers (not org-hide-emphasis-markers))
-  (font-lock-fontify-buffer))
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (when (derived-mode-p 'org-mode)
+        (font-lock-flush)))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -13683,7 +13700,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (if (> begin end)
         (or (<= begin ct) (<= ct end))
       (and (<= begin ct) (<= ct end)))))
-
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
