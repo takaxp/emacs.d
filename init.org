@@ -2076,6 +2076,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ** スクロールを制御
    :PROPERTIES:
    :CUSTOM_ID: orgb8c57f30
+   :ID:       FB9E26DB-42E7-4C3A-AF48-A40F8C721F25
    :END:
 
 一行づつスクロールさせます．デフォルトではバッファの端でスクロールすると，半画面移動します．また，上下の端にカーソルがどのくらい近づいたらスクロールとみなすかも指定できます．
@@ -4614,7 +4615,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
                     :inherit nil
                     :overline nil
                     :underline nil)
-(run-at-time "5 sec" 600 'my-empty-booting-header-line)
+(unless noninteractive
+  (run-at-time "5 sec" 600 'my-empty-booting-header-line))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -5100,58 +5102,60 @@ version 28 で全角スペースに黒下線が付くので回避します．
 (with-eval-after-load "delight"
   (delight
    '(;; Major modes
-	   ;;     (c-mode "C" :major)
-	   ;;     (c++mode "C++" :major)
-	   (js2-mode "JS" :major)
-	   (csharp-mode "C#" :major)
-	   (prog-mode "Pr" :major)
-	   (emacs-lisp-mode "El" :major)
-	   (python-mode "Py" :major)
-	   (perl-mode "Pl" :major)
-	   (web-mode "W" :major)
-	   (change-log-mode "CLog" :major)
-	   (lisp-interaction-mode "Lisp" :major)
+     ;;     (c-mode "C" :major)
+     ;;     (c++mode "C++" :major)
+     (js2-mode "JS" :major)
+     (csharp-mode "C#" :major)
+     (prog-mode "Pr" :major)
+     (emacs-lisp-mode "El" :major)
+     (python-mode "Py" :major)
+     (perl-mode "Pl" :major)
+     (web-mode "W" :major)
+     (change-log-mode "CLog" :major)
+     (lisp-interaction-mode "Lisp" :major)
 
-	   ;; Shorten for minor modes
-	   (ggtags-mode " G" "ggtags")
-	   ;; (orgstruct-mode " OrgS" "org")
-	   (orgalist-mode " ol" "orgalist")
-	   (view-mode " V" "view")
-	   ;; Stop to display for minor modes
-	   (org-fancy-priorities-mode nil "org-fancy-priorities")
-	   (smooth-scroll-mode nil "smooth-scroll")
-	   (eldoc-mode nil "eldoc")
-	   (ivy-mode nil "ivy")
-	   (counsel-mode nil "counsel")
-	   (centered-cursor-mode nil "centered-cursor-mode")
-	   (volatile-highlights-mode nil "volatile-highlights")
-	   (aggressive-indent-mode nil "aggressive-indent")
-	   (all-the-icons-dired-mode nil "all-the-icons-dired")
-	   (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
-	   (yas-minor-mode nil "yasnippet")
-	   (auto-complete-mode nil "auto-complete")
-	   (company-mode nil "company")
-	   (ws-butler-mode nil "ws-butler")
-	   (isearch-mode nil "isearch")
-	   (auto-revert-mode nil "autorevert")
-	   (global-whitespace-mode nil "whitespace")
-	   (emmet-mode nil "emmet-mode")
-	   (abbrev-mode nil "abbrev")
-	   (doxymacs-mode nil "doxymacs")
-	   (editorconfig-mode nil "editorconfig")
-	   (rainbow-mode nil "rainbow-mode")
-	   (highlight-symbol-mode nil "highlight-symbol")
-	   (which-key-mode nil "which-key")
-	   (fancy-narrow-mode nil "fancy-narrow")
-	   (smartparens-mode nil "smartparens")
-	   (projectile-mode nil "projectile")
-	   (selected-minor-mode nil "selected")
+     ;; Shorten for minor modes
+     (ggtags-mode " G" "ggtags")
+     ;; (orgstruct-mode " OrgS" "org")
+     (orgalist-mode " ol" "orgalist")
+     (view-mode " V" "view")
+     ;; Stop to display for minor modes
+     (org-fancy-priorities-mode nil "org-fancy-priorities")
+     (smooth-scroll-mode nil "smooth-scroll")
+     (eldoc-mode nil "eldoc")
+     (ivy-mode nil "ivy")
+     (counsel-mode nil "counsel")
+     (centered-cursor-mode nil "centered-cursor-mode")
+     (volatile-highlights-mode nil "volatile-highlights")
+     (aggressive-indent-mode nil "aggressive-indent")
+     (all-the-icons-dired-mode nil "all-the-icons-dired")
+     (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
+     (yas-minor-mode nil "yasnippet")
+     (auto-complete-mode nil "auto-complete")
+     (company-mode nil "company")
+     (ws-butler-mode nil "ws-butler")
+     (isearch-mode nil "isearch")
+     (auto-revert-mode nil "autorevert")
+     (global-whitespace-mode nil "whitespace")
+     (emmet-mode nil "emmet-mode")
+     (abbrev-mode nil "abbrev")
+     (doxymacs-mode nil "doxymacs")
+     (editorconfig-mode nil "editorconfig")
+     (rainbow-mode nil "rainbow-mode")
+     (highlight-symbol-mode nil "highlight-symbol")
+     (which-key-mode nil "which-key")
+     (fancy-narrow-mode nil "fancy-narrow")
+     (smartparens-mode nil "smartparens")
+     (projectile-mode nil "projectile")
+     (selected-minor-mode nil "selected")
+     (skewer-html-mode nil "skewer-html")
+     (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
      (gcmh-mode nil "gcmh")))
 
   ;; Override by icon
   (when (require 'icons-in-terminal nil t)
-	  (delight
-	   `((view-mode ,(concat " " (icons-in-terminal-faicon "lock")) "view")))))
+    (delight
+     `((view-mode ,(concat " " (icons-in-terminal-faicon "lock")) "view")))))
 #+end_src
 
 ** [migemo.el] ローマ字入力で日本語を検索する
@@ -9953,13 +9957,16 @@ org バッファのソースブロックにカーソルがある時には， =el
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
-  (setq org-emphasis-alist
-        '(("*" my-org-emphasis-bold)
-          ("/" my-org-emphasis-italic)
-          ("_" my-org-emphasis-underline)
-          ("=" org-verbatim verbatim)
-          ("~" org-code verbatim)
-          ("+" my-org-emphasis-strike-through)))
+  (custom-set-variables ;; call org-set-emph-re
+   '(org-emphasis-alist '(("*" my-org-emphasis-bold)
+                          ("/" my-org-emphasis-italic)
+                          ("_" my-org-emphasis-underline)
+                          ("=" org-verbatim verbatim)
+                          ("~" org-code verbatim)
+                          ("+" my-org-emphasis-strike-through))))
+
+  (when (featurep 'org-extra-emphasis)
+    (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'
 
   (defface my-org-emphasis-bold
     '((default :inherit bold)
@@ -11409,6 +11416,15 @@ Note that this mechanism is still under consideration."
 ;;   (message "Loading org-macs...")
 ;;   (require 'org-macs)) ;; for org-with-point-at
 
+(with-eval-after-load "ox-html"
+  (setq org-html-text-markup-alist
+        '((bold . "<b>%s</b>")
+          (code . "<code class=\"org-code\">%s</code>")
+          (italic . "<i>%s</i>")
+          (strike-through . "<del>%s</del>")
+          (underline . "<span class=\"org-underline\">%s</span>")
+          (verbatim . "<code class=\"org-verbatim\">%s</code>"))))
+
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
     "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
@@ -11645,6 +11661,20 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (message "Copied: %s" my-org-export-last-buffer))
       (setq my-org-export-last-buffer nil)))
   (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
+#+end_src
+
+** TODO [org-extra-emphasis] 強調表現を拡張する
+:PROPERTIES:
+:CUSTOM_ID: orgd536a4cc
+:END:
+
+主にマーカー（黄色や赤色）を導入するために， org mode の強調表現を拡張します． ~!!~ で黄色マーキング， ~!@~ で文字色を赤色に変更できます．
+
+#+begin_src emacs-lisp :tangle init-org.el
+(autoload 'skewer-html-mode "skewer-html" nil t)
+(unless noninteractive
+  (add-hook 'org-mode-hook 'skewer-html-mode)
+  (autoload-if-found '(org-extra-emphasis-mode) "org-extra-emphasis" nil t))
 #+end_src
 
 ** TODO [org-appear.el] カーソルを置いた時だけマークアップを表示する

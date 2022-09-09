@@ -781,13 +781,16 @@ The core part is extracted from `org-table-export'."
 (advice-add 'org-reveal :around #'ad:org-reveal)
 
 (with-eval-after-load "org"
-  (setq org-emphasis-alist
-        '(("*" my-org-emphasis-bold)
-          ("/" my-org-emphasis-italic)
-          ("_" my-org-emphasis-underline)
-          ("=" org-verbatim verbatim)
-          ("~" org-code verbatim)
-          ("+" my-org-emphasis-strike-through)))
+  (custom-set-variables ;; call org-set-emph-re
+   '(org-emphasis-alist '(("*" my-org-emphasis-bold)
+                          ("/" my-org-emphasis-italic)
+                          ("_" my-org-emphasis-underline)
+                          ("=" org-verbatim verbatim)
+                          ("~" org-code verbatim)
+                          ("+" my-org-emphasis-strike-through))))
+
+  (when (featurep 'org-extra-emphasis)
+    (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'
 
   (defface my-org-emphasis-bold
     '((default :inherit bold)
@@ -1651,6 +1654,15 @@ Note that this mechanism is still under consideration."
 ;;   (message "Loading org-macs...")
 ;;   (require 'org-macs)) ;; for org-with-point-at
 
+(with-eval-after-load "ox-html"
+  (setq org-html-text-markup-alist
+        '((bold . "<b>%s</b>")
+          (code . "<code class=\"org-code\">%s</code>")
+          (italic . "<i>%s</i>")
+          (strike-through . "<del>%s</del>")
+          (underline . "<span class=\"org-underline\">%s</span>")
+          (verbatim . "<code class=\"org-verbatim\">%s</code>"))))
+
 (with-eval-after-load "org"
   (defun my-add-custom-id ()
     "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
@@ -1808,6 +1820,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (message "Copied: %s" my-org-export-last-buffer))
       (setq my-org-export-last-buffer nil)))
   (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
+
+(autoload 'skewer-html-mode "skewer-html" nil t)
+(unless noninteractive
+  (add-hook 'org-mode-hook 'skewer-html-mode)
+  (autoload-if-found '(org-extra-emphasis-mode) "org-extra-emphasis" nil t))
 
 (when (autoload-if-found '(org-appear-mode)
                          "org-appear" nil t)

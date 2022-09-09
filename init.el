@@ -212,7 +212,8 @@
                     :inherit nil
                     :overline nil
                     :underline nil)
-(run-at-time "5 sec" 600 'my-empty-booting-header-line)
+(unless noninteractive
+  (run-at-time "5 sec" 600 'my-empty-booting-header-line))
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
