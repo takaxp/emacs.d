@@ -374,16 +374,7 @@
     ;; (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
     ;; (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
 
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; Trying... (2022-01-28)
-    (advice-add 'moom-recommended-keybindings
-                :override #'ad:moom-recommended-keybindings)
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
     (when (require 'moom-transient nil t)
-      ;; moom-print-keybindings (should be implemented)
-      ;; moom-change-frame-width
-      ;; moom-change-frame-height
       (moom-transient-hide-cursor)
       (advice-add 'moom-transient-dispatch :after #'my-ime-off) ;; FIXME
       (define-key moom-mode-map (kbd "C-c o") #'moom-transient-dispatch))    

@@ -2070,9 +2070,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
+(advice-add 'mark-sexp :around #'ad:mark-sexp)
 (when (autoload-if-found '(er/mark-symbol) "expand-region" nil t)
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
-(advice-add 'mark-sexp :around #'ad:mark-sexp)
 #+end_src
 
 ** スクロールを制御
@@ -3750,6 +3750,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair "[" nil :actions :rem)
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'org-mode "~" "~")
+    (sp-local-pair 'org-mode "+" "+")
+    (sp-local-pair 'org-mode "/" "/")
+    (sp-local-pair 'org-mode "*" "*")
     ;; (sp-local-pair 'org-mode "[" "]")
     ;; (sp-local-pair 'org-mode "+" "+")
     (sp-local-pair 'org-mode "=" "=")
@@ -11714,9 +11717,10 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(org-appear-mode)
                          "org-appear" nil t)
-  (add-hook 'org-tree-slide-mode-hook 'org-appear-mode)
+  (setq org-hide-emphasis-markers t)
+  (add-hook 'org-mode-hook 'org-appear-mode)
   (with-eval-after-load "org-appear"
-    (setq org-appear-delay 0.4)))
+    (setq org-appear-trigger 'on-change))) ;; 編集中だけマークアップを表示できる
 #+end_src
 
 ** TODO [ob-async] ソースブロックの非同期実行
@@ -12521,87 +12525,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 =moom-autuloads= に必要なコマンドを +羅列していますが，+ =melpa= でインストールする場合は関係ありません．パッケージ内で autoload 指定してあります． =with-eval-after-load= の中だけを設定すれば十分です．
 
-#+begin_src emacs-lisp :tangle utility.el
-;;;###autoload
-(defun ad:moom-recommended-keybindings (options)
-  "Apply pre defined keybindings.
-OPTIONS is a list of moom API types.  If you want to set all recommemded
-keybindings, put the following code in your init.el.
- (with-eval-after-load \"moom\"
-   (moom-recommended-keybindings \='all))
-=\'all is identical to =\'(move fit expand fill font reset undo).
-If OPTIONS includes =\'wof, then each binding is configured not to use fn key.
-If you give only =\'(reset) as the argument, then \\[moom-reset] is activated.
-The keybindings will be assigned only when Emacs runs in GUI."
-  (when window-system
-    (when (memq 'all options)
-      (if (memq 'wof options)
-          (setq options '(move fit expand fill font reset undo wof))
-        (setq options '(move fit expand fill font reset undo))))
-    (when (memq 'move options)
-      (define-key moom-mode-map (kbd "M-0") 'moom-move-frame)
-      (define-key moom-mode-map (kbd "M-1") 'moom-move-frame-left)
-      (define-key moom-mode-map (kbd "M-2") 'moom-move-frame-to-center)
-      (define-key moom-mode-map (kbd "M-3") 'moom-move-frame-right))
-    (when (memq 'fit options)
-      (cond ((memq 'wof options)
-             (define-key moom-mode-map (kbd "C-c e l") 'moom-move-frame-to-edge-left)
-             (define-key moom-mode-map (kbd "C-c e r") 'moom-move-frame-to-edge-right)
-             (define-key moom-mode-map (kbd "C-c e t") 'moom-move-frame-to-edge-top)
-             (define-key moom-mode-map (kbd "C-c e b") 'moom-move-frame-to-edge-bottom))
-            (t
-             (define-key moom-mode-map (kbd "M-<f1>") 'moom-move-frame-to-edge-left)
-             (define-key moom-mode-map (kbd "M-<f3>") 'moom-move-frame-to-edge-right)
-             (define-key moom-mode-map (kbd "<f1>") 'moom-move-frame-to-edge-top)
-             (define-key moom-mode-map (kbd "S-<f1>") 'moom-move-frame-to-edge-bottom))))
-    (define-key moom-mode-map (kbd "C-c f c l")
-      'moom-move-frame-to-centerline-from-left)
-    (define-key moom-mode-map (kbd "C-c f c r")
-      'moom-move-frame-to-centerline-from-right)
-    (define-key moom-mode-map (kbd "C-c f c t")
-      'moom-move-frame-to-centerline-from-top)
-    (define-key moom-mode-map (kbd "C-c f c b")
-      'moom-move-frame-to-centerline-from-bottom))
-  (when (memq 'expand options)
-    (cond ((memq 'wof options)
-           (define-key moom-mode-map (kbd "C-2") 'moom-cycle-frame-height))
-          (t
-           (define-key moom-mode-map (kbd "<f2>") 'moom-cycle-frame-height)))
-    (define-key moom-mode-map (kbd "C-c f s") 'moom-change-frame-width-single)
-    (define-key moom-mode-map (kbd "C-c f d") 'moom-change-frame-width-double)
-    (define-key moom-mode-map (kbd "C-c f S") 'moom-delete-windows)
-    (define-key moom-mode-map (kbd "C-c f D") 'moom-split-window)
-    (define-key moom-mode-map (kbd "C-c f a")
-      'moom-change-frame-width-half-again))
-  (when (memq 'fill options)
-    (define-key moom-mode-map (kbd "C-c f f t") 'moom-fill-top)
-    (define-key moom-mode-map (kbd "C-c f f b") 'moom-fill-bottom)
-    (define-key moom-mode-map (kbd "C-c f f l") 'moom-fill-left)
-    (define-key moom-mode-map (kbd "C-c f f r") 'moom-fill-right)
-    (define-key moom-mode-map (kbd "C-c f f 1") 'moom-fill-top-left)
-    (define-key moom-mode-map (kbd "C-c f f 2") 'moom-fill-top-right)
-    (define-key moom-mode-map (kbd "C-c f f 3") 'moom-fill-bottom-left)
-    (define-key moom-mode-map (kbd "C-c f f 4") 'moom-fill-bottom-right)
-    (define-key moom-mode-map (kbd "C-c f f m") 'moom-fill-band)
-    (define-key moom-mode-map (kbd "C-c f f w") 'moom-fill-width)
-    (define-key moom-mode-map (kbd "C-c f f h") 'moom-fill-height)
-    (cond ((memq 'wof options)
-           (define-key moom-mode-map (kbd "C-c f m") 'moom-toggle-frame-maximized))
-          (t
-           (define-key moom-mode-map (kbd "M-<f2>") 'moom-toggle-frame-maximized))))
-  (when (memq 'font options)
-    (define-key moom-mode-map (kbd "C--") 'moom-font-decrease)
-    (define-key moom-mode-map (kbd "C-=") 'moom-font-increase)
-    (define-key moom-mode-map (kbd "C-0") 'moom-font-size-reset))
-  (when (memq 'reset options)
-    (define-key moom-mode-map (kbd "C-c C-0") 'moom-reset))
-  (when (memq 'undo options)
-    (define-key moom-mode-map (kbd "C-c C-/") 'moom-undo))
-  (when (and moom-verbose
-             options)
-    (message "[Moom] Key defined for APIs of %s." options)))
-#+end_src
-
 #+begin_src emacs-lisp :tangle yes :results none
 (defconst moom-autoloads
   '(moom-cycle-frame-height
@@ -12632,16 +12555,7 @@ The keybindings will be assigned only when Emacs runs in GUI."
     ;; (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
     ;; (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
 
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; Trying... (2022-01-28)
-    (advice-add 'moom-recommended-keybindings
-                :override #'ad:moom-recommended-keybindings)
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
     (when (require 'moom-transient nil t)
-      ;; moom-print-keybindings (should be implemented)
-      ;; moom-change-frame-width
-      ;; moom-change-frame-height
       (moom-transient-hide-cursor)
       (advice-add 'moom-transient-dispatch :after #'my-ime-off) ;; FIXME
       (define-key moom-mode-map (kbd "C-c o") #'moom-transient-dispatch))    
@@ -13686,11 +13600,12 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (unless noninteractive
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
-    (my-font-config)
+    (my-font-config (when (featurep 'moom-font) moom-font--size))
     (my-apply-cursor-config)
-    (when type
-      (moom-move-frame-to-edge-top)
-      (moom-fill-height))))
+    ;; (when type
+    ;;   (moom-move-frame-to-edge-top)
+    ;;   (moom-fill-height))
+    ))
 
 ;;;###autoload
 (defun my-night-time-p (begin end)

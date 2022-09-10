@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-09-10 Sat 01:26 -->
+<!-- 2022-09-10 Sat 13:16 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -3058,9 +3058,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(er/mark-symbol) <span style="color: #8b2252;">"expand-region"</span> nil t)
+<pre class="src src-emacs-lisp">(advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:mark-sexp)
+(<span style="color: #a020f0;">when</span> (autoload-if-found '(er/mark-symbol) <span style="color: #8b2252;">"expand-region"</span> nil t)
   (advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:er:mark-sexp))
-(advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:mark-sexp)
 </pre>
 </div>
 </div>
@@ -5039,6 +5039,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair <span style="color: #8b2252;">"["</span> nil <span style="color: #483d8b;">:actions</span> <span style="color: #483d8b;">:rem</span>)
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"$"</span> <span style="color: #8b2252;">"$"</span>)
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"~"</span> <span style="color: #8b2252;">"~"</span>)
+    (sp-local-pair 'org-mode <span style="color: #8b2252;">"+"</span> <span style="color: #8b2252;">"+"</span>)
+    (sp-local-pair 'org-mode <span style="color: #8b2252;">"/"</span> <span style="color: #8b2252;">"/"</span>)
+    (sp-local-pair 'org-mode <span style="color: #8b2252;">"*"</span> <span style="color: #8b2252;">"*"</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(sp-local-pair 'org-mode "[" "]")</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(sp-local-pair 'org-mode "+" "+")</span>
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"="</span> <span style="color: #8b2252;">"="</span>)
@@ -13145,7 +13148,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org3dc8758"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgbca5c3c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13761,9 +13764,10 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(org-appear-mode)
                          <span style="color: #8b2252;">"org-appear"</span> nil t)
-  (add-hook 'org-tree-slide-mode-hook 'org-appear-mode)
+  (<span style="color: #a020f0;">setq</span> org-hide-emphasis-markers t)
+  (add-hook 'org-mode-hook 'org-appear-mode)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-appear"</span>
-    (<span style="color: #a020f0;">setq</span> org-appear-delay 0.4)))
+    (<span style="color: #a020f0;">setq</span> org-appear-trigger 'on-change))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#32232;&#38598;&#20013;&#12384;&#12369;&#12510;&#12540;&#12463;&#12450;&#12483;&#12503;&#12434;&#34920;&#31034;&#12391;&#12365;&#12427;</span>
 </pre>
 </div>
 </div>
@@ -14091,7 +14095,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org2074f71" class="figure">
+<div id="org2f37c87" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14634,88 +14638,6 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:moom-recommended-keybindings</span> (options)
-  <span style="color: #8b2252;">"Apply pre defined keybindings.</span>
-<span style="color: #8b2252;">OPTIONS is a list of moom API types.  If you want to set all recommemded</span>
-<span style="color: #8b2252;">keybindings, put the following code in your init.el.</span>
-<span style="color: #8b2252;"> (with-eval-after-load \"moom\"</span>
-<span style="color: #8b2252;">   (moom-recommended-keybindings </span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">='all))</span>
-<span style="color: #8b2252;">=</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'all is identical to =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'(move fit expand fill font reset undo).</span>
-<span style="color: #8b2252;">If OPTIONS includes =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'wof, then each binding is configured not to use fn key.</span>
-<span style="color: #8b2252;">If you give only =</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">'(reset) as the argument, then \\[</span><span style="color: #008b8b;">moom-reset</span><span style="color: #8b2252;">] is activated.</span>
-<span style="color: #8b2252;">The keybindings will be assigned only when Emacs runs in GUI."</span>
-  (<span style="color: #a020f0;">when</span> window-system
-    (<span style="color: #a020f0;">when</span> (memq 'all options)
-      (<span style="color: #a020f0;">if</span> (memq 'wof options)
-          (<span style="color: #a020f0;">setq</span> options '(move fit expand fill font reset undo wof))
-        (<span style="color: #a020f0;">setq</span> options '(move fit expand fill font reset undo))))
-    (<span style="color: #a020f0;">when</span> (memq 'move options)
-      (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-0"</span>) 'moom-move-frame)
-      (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-1"</span>) 'moom-move-frame-left)
-      (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-2"</span>) 'moom-move-frame-to-center)
-      (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-3"</span>) 'moom-move-frame-right))
-    (<span style="color: #a020f0;">when</span> (memq 'fit options)
-      (<span style="color: #a020f0;">cond</span> ((memq 'wof options)
-             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e l"</span>) 'moom-move-frame-to-edge-left)
-             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e r"</span>) 'moom-move-frame-to-edge-right)
-             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e t"</span>) 'moom-move-frame-to-edge-top)
-             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c e b"</span>) 'moom-move-frame-to-edge-bottom))
-            (t
-             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-left)
-             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f3&gt;"</span>) 'moom-move-frame-to-edge-right)
-             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-top)
-             (define-key moom-mode-map (kbd <span style="color: #8b2252;">"S-&lt;f1&gt;"</span>) 'moom-move-frame-to-edge-bottom))))
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c l"</span>)
-      'moom-move-frame-to-centerline-from-left)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c r"</span>)
-      'moom-move-frame-to-centerline-from-right)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c t"</span>)
-      'moom-move-frame-to-centerline-from-top)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f c b"</span>)
-      'moom-move-frame-to-centerline-from-bottom))
-  (<span style="color: #a020f0;">when</span> (memq 'expand options)
-    (<span style="color: #a020f0;">cond</span> ((memq 'wof options)
-           (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-2"</span>) 'moom-cycle-frame-height))
-          (t
-           (define-key moom-mode-map (kbd <span style="color: #8b2252;">"&lt;f2&gt;"</span>) 'moom-cycle-frame-height)))
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f s"</span>) 'moom-change-frame-width-single)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f d"</span>) 'moom-change-frame-width-double)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f S"</span>) 'moom-delete-windows)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f D"</span>) 'moom-split-window)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f a"</span>)
-      'moom-change-frame-width-half-again))
-  (<span style="color: #a020f0;">when</span> (memq 'fill options)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f t"</span>) 'moom-fill-top)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f b"</span>) 'moom-fill-bottom)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f l"</span>) 'moom-fill-left)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f r"</span>) 'moom-fill-right)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 1"</span>) 'moom-fill-top-left)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 2"</span>) 'moom-fill-top-right)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 3"</span>) 'moom-fill-bottom-left)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f 4"</span>) 'moom-fill-bottom-right)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f m"</span>) 'moom-fill-band)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f w"</span>) 'moom-fill-width)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f f h"</span>) 'moom-fill-height)
-    (<span style="color: #a020f0;">cond</span> ((memq 'wof options)
-           (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c f m"</span>) 'moom-toggle-frame-maximized))
-          (t
-           (define-key moom-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f2&gt;"</span>) 'moom-toggle-frame-maximized))))
-  (<span style="color: #a020f0;">when</span> (memq 'font options)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C--"</span>) 'moom-font-decrease)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-="</span>) 'moom-font-increase)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-0"</span>) 'moom-font-size-reset))
-  (<span style="color: #a020f0;">when</span> (memq 'reset options)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c C-0"</span>) 'moom-reset))
-  (<span style="color: #a020f0;">when</span> (memq 'undo options)
-    (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c C-/"</span>) 'moom-undo))
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> moom-verbose
-             options)
-    (message <span style="color: #8b2252;">"[Moom] Key defined for APIs of %s."</span> options)))
-</pre>
-</div>
-
-<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">moom-autoloads</span>
   '(moom-cycle-frame-height
     moom-move-frame-to-edge-top moom-move-frame my-frame-reset
@@ -14745,16 +14667,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key moom-mode-map (kbd "C-c C-&lt;") 'moom-move-frame-to-edge-left)</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key moom-mode-map (kbd "C-c C-&gt;") 'moom-move-frame-to-edge-right)</span>
 
-    <span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Trying... (2022-01-28)</span>
-    (advice-add 'moom-recommended-keybindings
-                <span style="color: #483d8b;">:override</span> #'ad:moom-recommended-keybindings)
-    <span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
-
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">moom-transient</span> nil t)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">moom-print-keybindings (should be implemented)</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">moom-change-frame-width</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">moom-change-frame-height</span>
       (moom-transient-hide-cursor)
       (advice-add 'moom-transient-dispatch <span style="color: #483d8b;">:after</span> #'my-ime-off) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
       (define-key moom-mode-map (kbd <span style="color: #8b2252;">"C-c o"</span>) #'moom-transient-dispatch))    
@@ -15925,11 +15838,12 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
   (<span style="color: #a020f0;">unless</span> noninteractive
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove unintentional colored frame border</span>
     (select-frame-set-input-focus (selected-frame))
-    (my-font-config)
+    (my-font-config (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">moom-font</span>) moom-font--size))
     (my-apply-cursor-config)
-    (<span style="color: #a020f0;">when</span> type
-      (moom-move-frame-to-edge-top)
-      (moom-fill-height))))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when type</span>
+    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(moom-move-frame-to-edge-top)</span>
+    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(moom-fill-height))</span>
+    ))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-night-time-p</span> (begin end)
@@ -18567,7 +18481,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-09-10 Sat 01:26</p>
+<p class="date">Created: 2022-09-10 Sat 13:16</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

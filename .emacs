@@ -14,10 +14,6 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
-(with-eval-after-load "moom-transient"
-
-  )
-
 (with-eval-after-load "postpone"
   (defun mac-build-info ()
     "Display build information in a buffer."

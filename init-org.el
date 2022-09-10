@@ -1839,9 +1839,10 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 (when (autoload-if-found '(org-appear-mode)
                          "org-appear" nil t)
-  (add-hook 'org-tree-slide-mode-hook 'org-appear-mode)
+  (setq org-hide-emphasis-markers t)
+  (add-hook 'org-mode-hook 'org-appear-mode)
   (with-eval-after-load "org-appear"
-    (setq org-appear-delay 0.4)))
+    (setq org-appear-trigger 'on-change))) ;; 編集中だけマークアップを表示できる
 
 (with-eval-after-load "ob-async"
   (custom-set-variables

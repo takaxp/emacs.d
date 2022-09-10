@@ -181,9 +181,9 @@
 (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 
+(advice-add 'mark-sexp :around #'ad:mark-sexp)
 (when (autoload-if-found '(er/mark-symbol) "expand-region" nil t)
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
-(advice-add 'mark-sexp :around #'ad:mark-sexp)
 
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
@@ -671,6 +671,9 @@
     (sp-pair "[" nil :actions :rem)
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'org-mode "~" "~")
+    (sp-local-pair 'org-mode "+" "+")
+    (sp-local-pair 'org-mode "/" "/")
+    (sp-local-pair 'org-mode "*" "*")
     ;; (sp-local-pair 'org-mode "[" "]")
     ;; (sp-local-pair 'org-mode "+" "+")
     (sp-local-pair 'org-mode "=" "=")
