@@ -36,7 +36,7 @@
 (defvar do-profile nil) ;; M-x profiler-report
 (when do-profile (profiler-start 'cpu))
 
-(setq debug-on-error t)
+(setq debug-on-error nil)
 (setq gc-cons-threshold (* 256 1024 1024))
 (defvar my-gc-last 0.0)
 (add-hook 'post-gc-hook
@@ -467,8 +467,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 ;; expand-region
 (autoload #'ad:er:mark-sexp "expand-region" nil t)
-(advice-add 'mark-sexp :around #'ad:er:mark-sexp)
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
+(advice-add 'mark-sexp :around #'ad:er:mark-sexp)
 
 ;; Tree Sitter
 (let* ((elp (expand-file-name my-installed-packages-dir))
@@ -1320,8 +1320,7 @@ will not be modified."
   (let ((dir (expand-file-name org-directory)))
     (setq org-refile-targets
           `((,(concat dir "/next.org") :level . 1)
-            (,(concat dir "/patent.org") :level . 1)
-            (,(concat dir "/reports.org") :level . 1))))
+            (,(concat dir "/log.org") :level . 1))))
 
   (defun do-org-update-statistics-cookies ()
     (interactive)
@@ -1561,9 +1560,12 @@ will not be modified."
   (defun my-toggle-org-show-emphasis-markers ()
     (interactive)
     (setq org-hide-emphasis-markers (not org-hide-emphasis-markers))
-    (font-lock-fontify-buffer))
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (derived-mode-p 'org-mode)
+          (font-lock-flush)))))
   (setq org-hide-emphasis-markers t)
-  (setq org-appear-delay 0.4))
+  (setq org-appear-trigger 'on-change))
 
 (with-eval-after-load "org-agenda"
   ;; sorting strategy

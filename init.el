@@ -366,6 +366,10 @@
   (autoload 'moom-transient-dispatch "moom-transient" nil t)
   (global-set-key (kbd "C-c o") #'moom-transient-dispatch)
 
+  (with-eval-after-load "moom-transient"
+    (moom-transient-hide-cursor)
+    (advice-add 'moom-transient-dispatch :after #'my-ime-off)) ;; FIXME
+
   (with-eval-after-load "moom"
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
     (add-hook 'moom-delete-window-hook #'dimmer-on)
@@ -373,11 +377,6 @@
 
     ;; (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
     ;; (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
-
-    (when (require 'moom-transient nil t)
-      (moom-transient-hide-cursor)
-      (advice-add 'moom-transient-dispatch :after #'my-ime-off) ;; FIXME
-      (define-key moom-mode-map (kbd "C-c o") #'moom-transient-dispatch))    
 
     (custom-set-variables
      '(moom-command-with-centering nil)

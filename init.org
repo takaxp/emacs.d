@@ -11695,11 +11695,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 #+end_src
 
 ** TODO [org-appear.el] カーソルを置いた時だけマークアップを表示する
-   :PROPERTIES:
-   :CREATED:  [2022-07-16 Sat 13:44]
-   :ID:       C784FC45-76BF-4CB7-9E25-BBA53FDE569E
-   :CUSTOM_ID: orgf5d6500a
-   :END:
+:PROPERTIES:
+:CREATED:  [2022-07-16 Sat 13:44]
+:ID:       C784FC45-76BF-4CB7-9E25-BBA53FDE569E
+:CUSTOM_ID: orgf5d6500a
+:END:
 
 太字や強調表示など，所定の記号でマークアップすると face を変えられますが，通常時には記号を表示しないで，カーソルを置いた時だけ表示するようにできます．
 
@@ -12547,6 +12547,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (autoload 'moom-transient-dispatch "moom-transient" nil t)
   (global-set-key (kbd "C-c o") #'moom-transient-dispatch)
 
+  (with-eval-after-load "moom-transient"
+    (moom-transient-hide-cursor)
+    (advice-add 'moom-transient-dispatch :after #'my-ime-off)) ;; FIXME
+
   (with-eval-after-load "moom"
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
     (add-hook 'moom-delete-window-hook #'dimmer-on)
@@ -12554,11 +12558,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
     ;; (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
     ;; (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
-
-    (when (require 'moom-transient nil t)
-      (moom-transient-hide-cursor)
-      (advice-add 'moom-transient-dispatch :after #'my-ime-off) ;; FIXME
-      (define-key moom-mode-map (kbd "C-c o") #'moom-transient-dispatch))    
 
     (custom-set-variables
      '(moom-command-with-centering nil)
@@ -13578,23 +13577,18 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ;;;###autoload
 (defun my-theme (&optional type)
   (interactive "MType (light or dark): ")
-  (setq my-frame-appearance
-        (cond ((member type '("light" "l")) 'light)
-              ((member type '("dark" "d")) 'dark)
-              (t
-               my-frame-appearance)))
   (if (display-graphic-p)
-      (cond ((eq my-frame-appearance 'dark)
-             (my-night-theme))
-            ((eq my-frame-appearance 'light)
-             (my-daylight-theme))
-            (t
-             (let ((night-time-in 22)
-                   (night-time-out 5))
-               (if (my-night-time-p
-                    (* night-time-in 60) (* night-time-out 60))
-                   (my-night-theme)
-                 (my-daylight-theme)))))
+      (let ((theme (cond ((member type '("light" "l")) 'light)
+                         ((member type '("dark" "d")) 'dark)
+                         (t my-frame-appearance))))
+        (cond ((eq theme 'dark) (my-night-theme))
+              ((eq theme 'light) (my-daylight-theme))
+              (t (let ((night-time-in 22)
+                       (night-time-out 5))
+                   (if (my-night-time-p
+                        (* night-time-in 60) (* night-time-out 60))
+                       (my-night-theme)
+                     (my-daylight-theme))))))
     (my-terminal-theme))
 
   (unless noninteractive
