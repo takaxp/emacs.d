@@ -136,6 +136,108 @@
   (unless noninteractive
     (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
 
+(defun diary-entry-time (s)
+  "Return time at the beginning of the string S as a military-style integer.
+For example, returns 1325 for 1:25pm.
+
+Returns `diary-unknown-time' (default value -9999) if no time is recognized.
+The recognized forms are XXXX, X:XX, or XX:XX (military time), and XXam,
+XXAM, XXpm, XXPM, XX:XXam, XX:XXAM, XX:XXpm, or XX:XXPM.  A period (.) can
+be used instead of a colon (:) to separate the hour and minute parts."
+  (let (case-fold-search)
+    (cond ((string-match                ; military time
+            "\\`[ \t\n]*\\([0-9]?[0-9]\\)[:.]?\\([0-9][0-9]\\)\\(\\>\\|[^ap]\\)"
+            s)
+           (+ (* 100 (string-to-number (match-string 1 s)))
+              (string-to-number (match-string 2 s))))
+          ((string-match                ; hour only (XXam or XXpm)
+            "\\`[ \t\n]*\\([0-9]?[0-9]\\)\\([ap]\\)m\\>" s)
+           (+ (* 100 (% (string-to-number (match-string 1 s)) 12))
+              (if (equal ?a (downcase (aref s (match-beginning 2))))
+                  0 1200)))
+          ((string-match        ; hour and minute (XX:XXam or XX:XXpm)
+            "\\`[ \t\n]*\\([0-9]?[0-9]\\)[:.]\\([0-9][0-9]\\)\\([ap]\\)m\\>" s)
+           (+ (* 100 (% (string-to-number (match-string 1 s)) 12))
+              (string-to-number (match-string 2 s))
+              (if (equal ?a (downcase (aref s (match-beginning 3))))
+                  0 1200)))
+          (t diary-unknown-time))))
+
+(defun run-at-time (time repeat function &rest args)
+  "Perform an action at time TIME.
+Repeat the action every REPEAT seconds, if REPEAT is non-nil.
+REPEAT may be an integer or floating point number.
+TIME should be one of:
+
+- a string giving today's time like \"11:23pm\"
+  (the acceptable formats are HHMM, H:MM, HH:MM, HHam, HHAM,
+  HHpm, HHPM, HH:MMam, HH:MMAM, HH:MMpm, or HH:MMPM;
+  a period `.' can be used instead of a colon `:' to separate
+  the hour and minute parts);
+
+- a string giving a relative time like \"90\" or \"2 hours 35 minutes\"
+  (the acceptable forms are a number of seconds without units
+  or some combination of values using units in `timer-duration-words');
+
+- nil, meaning now;
+
+- a number of seconds from now;
+
+- a value from `encode-time';
+
+- or t (with non-nil REPEAT) meaning the next integral multiple
+  of REPEAT.  This is handy when you want the function to run at
+  a certain \"round\" number.  For instance, (run-at-time t 60 ...)
+  will run at 11:04:00, 11:05:00, etc.
+
+The action is to call FUNCTION with arguments ARGS.
+
+This function returns a timer object which you can use in
+`cancel-timer'."
+  (interactive "sRun at time: \nNRepeat interval: \naFunction: ")
+
+  (when (and repeat
+             (numberp repeat)
+             (< repeat 0))
+    (error "Invalid repetition interval"))
+
+  (let ((timer (timer-create)))
+    ;; Special case: nil means "now" and is useful when repeating.
+    (unless time
+      (setq time (current-time)))
+
+    ;; Special case: t means the next integral multiple of REPEAT.
+    (when (and (eq time t) repeat)
+      (setq time (timer-next-integral-multiple-of-time nil repeat))
+      (setf (timer--integral-multiple timer) t))
+
+    ;; Handle numbers as relative times in seconds.
+    (when (numberp time)
+      (setq time (timer-relative-time nil time)))
+
+    ;; Handle relative times like "2 hours 35 minutes".
+    (when (stringp time)
+      (when-let ((secs (timer-duration time)))
+	      (setq time (timer-relative-time nil secs))))
+
+    ;; Handle "11:23pm" and the like.  Interpret it as meaning today
+    ;; which admittedly is rather stupid if we have passed that time
+    ;; already.  (Though only Emacs hackers hack Emacs at that time.)
+    (when (stringp time)
+      (let ((hhmm (diary-entry-time time))
+	          (now (decode-time)))
+	      (when (>= hhmm 0)
+	        (setq time (encode-time 0 (% hhmm 100) (/ hhmm 100)
+                                  (decoded-time-day now)
+			                            (decoded-time-month now)
+                                  (decoded-time-year now)
+                                  (decoded-time-zone now))))))
+
+    (timer-set-time timer time repeat)
+    (timer-set-function timer function args)
+    (timer-activate timer)
+    timer))
+
 (my-tick-init-time "startup")
 
 (prefer-coding-system 'utf-8-unix)
@@ -267,39 +369,39 @@
 (cond
  ((memq window-system '(mac ns)) ;; for macOS
   (setq initial-frame-alist
-	      (append
-	       '((top . 23)
-	         (left . 0)
-	         (alpha . (100 95))
-	         ;; (vertical-scroll-bars . nil)
-	         ;; (internal-border-width . 20)
-	         ;; (outer-border-width . 20)
-	         ;; (ns-appearance . nil) ;; 26.1 {light, dark}
-	         (ns-transparent-titlebar . t)) ;; 26.1
-	       initial-frame-alist)))
+	(append
+	 '((alpha . (100 95))
+           ;; (top . 23)
+	   ;; (left . 0)
+	   ;; (vertical-scroll-bars . nil)
+	   ;; (internal-border-width . 20)
+	   ;; (outer-border-width . 20)
+	   ;; (ns-appearance . nil) ;; 26.1 {light, dark}
+	   (ns-transparent-titlebar . t)) ;; 26.1
+	 initial-frame-alist)))
 
  ((eq window-system 'x) ;; for Linux
   (setq initial-frame-alist
-	      (append
-	       '((vertical-scroll-bars . nil)
-	         (top . 0)
-	         (left . 0)
-	         (width . 80)
-	         (height . 38))
-	       initial-frame-alist)))
+	(append
+	 '((vertical-scroll-bars . nil)
+	   (top . 0)
+	   (left . 0)
+	   (width . 80)
+	   (height . 38))
+	 initial-frame-alist)))
 
  ((eq window-system nil)
   nil)
 
  (t ;; for Windows
   (setq initial-frame-alist
-	        (append
-	         '((vertical-scroll-bars . nil)
-	           (top . 0)
-	           (left . 0)
-	           (width . 80)
-	           (height . 26))
-	         initial-frame-alist))))
+	(append
+	 '((vertical-scroll-bars . nil)
+	   (top . 0)
+	   (left . 0)
+	   (width . 80)
+	   (height . 26))
+	 initial-frame-alist))))
 
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)

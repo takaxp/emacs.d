@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-09-12 Mon 12:19 -->
+<!-- 2022-09-18 Sun 21:39 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -191,7 +191,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { width: 90%; }
+  .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
 <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
@@ -233,21 +233,22 @@
 <li><a href="#orga2859651">2.15. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.16. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.17. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#orgdc071e4d">2.18. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
-<li><a href="#orgfca510d8">2.19. [shut-up.el] Messages 出力を封じる（制御する）</a>
+<li><a href="#org8edf377">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
+<li><a href="#orgdc071e4d">2.19. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
+<li><a href="#orgfca510d8">2.20. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
-<li><a href="#orgb6593164">2.19.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgb6593164">2.20.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
-<li><a href="#org5a18ac68">2.20. Native comp が使えるかを判定する</a></li>
-<li><a href="#orgb59612b6">2.21. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0b7d9710">2.22. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
+<li><a href="#org5a18ac68">2.21. Native comp が使えるかを判定する</a></li>
+<li><a href="#orgb59612b6">2.22. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0b7d9710">2.23. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
 <ul>
-<li><a href="#org42722212">2.22.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.22.2. マクロ版</a></li>
+<li><a href="#org42722212">2.23.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.23.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#orgcea06248">2.23. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
+<li><a href="#orgcea06248">2.24. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -1505,8 +1506,118 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
+<div id="outline-container-org8edf377" class="outline-3">
+<h3 id="org8edf377"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
+<div class="outline-text-3" id="text-2-18">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">diary-entry-time</span> (s)
+  <span style="color: #8b2252;">"Return time at the beginning of the string S as a military-style integer.</span>
+<span style="color: #8b2252;">For example, returns 1325 for 1:25pm.</span>
+
+<span style="color: #8b2252;">Returns `</span><span style="color: #008b8b;">diary-unknown-time</span><span style="color: #8b2252;">' (default value -9999) if no time is recognized.</span>
+<span style="color: #8b2252;">The recognized forms are XXXX, X:XX, or XX:XX (military time), and XXam,</span>
+<span style="color: #8b2252;">XXAM, XXpm, XXPM, XX:XXam, XX:XXAM, XX:XXpm, or XX:XXPM.  A period (.) can</span>
+<span style="color: #8b2252;">be used instead of a colon (:) to separate the hour and minute parts."</span>
+  (<span style="color: #a020f0;">let</span> (case-fold-search)
+    (<span style="color: #a020f0;">cond</span> ((string-match                <span style="color: #b22222;">; </span><span style="color: #b22222;">military time</span>
+            <span style="color: #8b2252;">"\\`[ \t\n]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]?[0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">[:.]?</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9][0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">\\&gt;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">ap]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
+            s)
+           (+ (* 100 (string-to-number (match-string 1 s)))
+              (string-to-number (match-string 2 s))))
+          ((string-match                <span style="color: #b22222;">; </span><span style="color: #b22222;">hour only (XXam or XXpm)</span>
+            <span style="color: #8b2252;">"\\`[ \t\n]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]?[0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[ap]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">m\\&gt;"</span> s)
+           (+ (* 100 (% (string-to-number (match-string 1 s)) 12))
+              (<span style="color: #a020f0;">if</span> (equal ?a (downcase (aref s (match-beginning 2))))
+                  0 1200)))
+          ((string-match        <span style="color: #b22222;">; </span><span style="color: #b22222;">hour and minute (XX:XXam or XX:XXpm)</span>
+            <span style="color: #8b2252;">"\\`[ \t\n]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]?[0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">[:.]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9][0-9]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[ap]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">m\\&gt;"</span> s)
+           (+ (* 100 (% (string-to-number (match-string 1 s)) 12))
+              (string-to-number (match-string 2 s))
+              (<span style="color: #a020f0;">if</span> (equal ?a (downcase (aref s (match-beginning 3))))
+                  0 1200)))
+          (t diary-unknown-time))))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">run-at-time</span> (time repeat function <span style="color: #228b22;">&amp;rest</span> args)
+  <span style="color: #8b2252;">"Perform an action at time TIME.</span>
+<span style="color: #8b2252;">Repeat the action every REPEAT seconds, if REPEAT is non-nil.</span>
+<span style="color: #8b2252;">REPEAT may be an integer or floating point number.</span>
+<span style="color: #8b2252;">TIME should be one of:</span>
+
+<span style="color: #8b2252;">- a string giving today's time like \"11:23pm\"</span>
+<span style="color: #8b2252;">  (the acceptable formats are HHMM, H:MM, HH:MM, HHam, HHAM,</span>
+<span style="color: #8b2252;">  HHpm, HHPM, HH:MMam, HH:MMAM, HH:MMpm, or HH:MMPM;</span>
+<span style="color: #8b2252;">  a period `</span><span style="color: #008b8b;">.</span><span style="color: #8b2252;">' can be used instead of a colon `</span><span style="color: #008b8b;">:</span><span style="color: #8b2252;">' to separate</span>
+<span style="color: #8b2252;">  the hour and minute parts);</span>
+
+<span style="color: #8b2252;">- a string giving a relative time like \"90\" or \"2 hours 35 minutes\"</span>
+<span style="color: #8b2252;">  (the acceptable forms are a number of seconds without units</span>
+<span style="color: #8b2252;">  or some combination of values using units in `</span><span style="color: #008b8b;">timer-duration-words</span><span style="color: #8b2252;">');</span>
+
+<span style="color: #8b2252;">- nil, meaning now;</span>
+
+<span style="color: #8b2252;">- a number of seconds from now;</span>
+
+<span style="color: #8b2252;">- a value from `</span><span style="color: #008b8b;">encode-time</span><span style="color: #8b2252;">';</span>
+
+<span style="color: #8b2252;">- or t (with non-nil REPEAT) meaning the next integral multiple</span>
+<span style="color: #8b2252;">  of REPEAT.  This is handy when you want the function to run at</span>
+<span style="color: #8b2252;">  a certain \"round\" number.  For instance, (run-at-time t 60 ...)</span>
+<span style="color: #8b2252;">  will run at 11:04:00, 11:05:00, etc.</span>
+
+<span style="color: #8b2252;">The action is to call FUNCTION with arguments ARGS.</span>
+
+<span style="color: #8b2252;">This function returns a timer object which you can use in</span>
+<span style="color: #8b2252;">`</span><span style="color: #008b8b;">cancel-timer</span><span style="color: #8b2252;">'."</span>
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"sRun at time: \nNRepeat interval: \naFunction: "</span>)
+
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> repeat
+             (numberp repeat)
+             (&lt; repeat 0))
+    (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"Invalid repetition interval"</span>))
+
+  (<span style="color: #a020f0;">let</span> ((timer (timer-create)))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Special case: nil means "now" and is useful when repeating.</span>
+    (<span style="color: #a020f0;">unless</span> time
+      (<span style="color: #a020f0;">setq</span> time (current-time)))
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Special case: t means the next integral multiple of REPEAT.</span>
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (eq time t) repeat)
+      (<span style="color: #a020f0;">setq</span> time (timer-next-integral-multiple-of-time nil repeat))
+      (<span style="color: #a020f0;">setf</span> (timer--integral-multiple timer) t))
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Handle numbers as relative times in seconds.</span>
+    (<span style="color: #a020f0;">when</span> (numberp time)
+      (<span style="color: #a020f0;">setq</span> time (timer-relative-time nil time)))
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Handle relative times like "2 hours 35 minutes".</span>
+    (<span style="color: #a020f0;">when</span> (stringp time)
+      (<span style="color: #a020f0;">when-let</span> ((secs (timer-duration time)))
+              (<span style="color: #a020f0;">setq</span> time (timer-relative-time nil secs))))
+
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Handle "11:23pm" and the like.  Interpret it as meaning today</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">which admittedly is rather stupid if we have passed that time</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">already.  (Though only Emacs hackers hack Emacs at that time.)</span>
+    (<span style="color: #a020f0;">when</span> (stringp time)
+      (<span style="color: #a020f0;">let</span> ((hhmm (diary-entry-time time))
+                  (now (decode-time)))
+              (<span style="color: #a020f0;">when</span> (&gt;= hhmm 0)
+                (<span style="color: #a020f0;">setq</span> time (encode-time 0 (% hhmm 100) (/ hhmm 100)
+                                  (decoded-time-day now)
+                                                    (decoded-time-month now)
+                                  (decoded-time-year now)
+                                  (decoded-time-zone now))))))
+
+    (timer-set-time timer time repeat)
+    (timer-set-function timer function args)
+    (timer-activate timer)
+    timer))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgdc071e4d" class="outline-3">
-<h3 id="orgdc071e4d"><span class="section-number-3">2.18.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
+<h3 id="orgdc071e4d"><span class="section-number-3">2.19.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
 <div class="outline-text-3" id="text-orgdc071e4d">
 <ul class="org-ul">
 <li><a href="https://gitlab.com/koral/gcmh">https://gitlab.com/koral/gcmh</a></li>
@@ -1558,7 +1669,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgfca510d8" class="outline-3">
-<h3 id="orgfca510d8"><span class="section-number-3">2.19.</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
+<h3 id="orgfca510d8"><span class="section-number-3">2.20.</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
 <div class="outline-text-3" id="text-orgfca510d8">
 <p>
 <code>shut-up.el</code> というマクロがあり，現在はそちらを使っています．非常に強力です．
@@ -1576,7 +1687,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb6593164" class="outline-4">
-<h4 id="orgb6593164"><span class="section-number-4">2.19.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
+<h4 id="orgb6593164"><span class="section-number-4">2.20.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
 <div class="outline-text-4" id="text-orgb6593164">
 <p>
 以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．
@@ -1599,7 +1710,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org5a18ac68" class="outline-3">
-<h3 id="org5a18ac68"><span class="section-number-3">2.20.</span> Native comp が使えるかを判定する</h3>
+<h3 id="org5a18ac68"><span class="section-number-3">2.21.</span> Native comp が使えるかを判定する</h3>
 <div class="outline-text-3" id="text-org5a18ac68">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -1622,7 +1733,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.21.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.22.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a></li>
@@ -1642,7 +1753,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.22.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.23.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b>
@@ -1726,7 +1837,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.22.1.</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.23.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
@@ -1782,7 +1893,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.22.2.</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.23.2.</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
@@ -1817,7 +1928,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.23.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.24.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．
@@ -4570,10 +4681,10 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq flyspell-large-region 200)</span>
     (set-face-attribute 'flyspell-duplicate nil
                         <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#EA5506"</span> <span style="color: #483d8b;">:bold</span> t
-                        <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:underline</span> t)
+                        <span style="color: #483d8b;">:background</span> 'unspecified <span style="color: #483d8b;">:underline</span> t)
     (set-face-attribute 'flyspell-incorrect nil
                         <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#BA2636"</span> <span style="color: #483d8b;">:bold</span> nil
-                        <span style="color: #483d8b;">:background</span> nil <span style="color: #483d8b;">:underline</span> t)
+                        <span style="color: #483d8b;">:background</span> 'unspecified <span style="color: #483d8b;">:underline</span> t)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">ispell-complete-word &#12398;&#12461;&#12540;&#12496;&#12452;&#12531;&#12489;&#12434;&#19978;&#26360;&#12365;</span>
     (global-set-key (kbd <span style="color: #8b2252;">"&lt;f7&gt;"</span>) 'flyspell-correct-at-point)
@@ -7215,7 +7326,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-seq-sort-by</span> (<span style="color: #a020f0;">function</span> pred sequence)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-seq-sort-by</span> (function pred sequence)
   <span style="color: #8b2252;">"Sort SEQUENCE using PRED as a comparison function.</span>
 <span style="color: #8b2252;">Elements of SEQUENCE are transformed by FUNCTION before being</span>
 <span style="color: #8b2252;">sorted.  FUNCTION must be a function of one argument."</span>
@@ -7778,7 +7889,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'transient))</span>
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"transient"</span>
-  (transient-define-prefix my-org-bullet-and-checkbox ()
+  (<span style="color: #a020f0;">transient-define-prefix</span> my-org-bullet-and-checkbox ()
     <span style="color: #8b2252;">"Commands to handle bullet and checkbox"</span>
     [[<span style="color: #8b2252;">"Bullet"</span>
       (<span style="color: #8b2252;">"i"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet)
@@ -8806,7 +8917,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                          <span style="color: #8b2252;">"backup-each-save"</span> nil t)
   (add-hook 'after-save-hook #'my-auto-backup)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">%y-%m-%d_%M-%S &#12391;&#32066;&#12431;&#12427;&#12501;&#12449;&#12452;&#12523;&#12434;&#26412;&#26469;&#12398;&#12513;&#12472;&#12515;&#12540;&#12514;&#12540;&#12489;&#12391;&#38283;&#12367;</span>
-  (add-to-list 'auto-mode-alist '(<span style="color: #8b2252;">"-[0-9-]\\{8\\}_[0-9-]\\{5\\}$"</span> nil t))
+  (add-to-list 'auto-mode-alist '(<span style="color: #8b2252;">"-[0-9-]\\{</span><span style="color: #a0522d;">8\\</span><span style="color: #8b2252;">}_[0-9-]\\{</span><span style="color: #a0522d;">5\\</span><span style="color: #8b2252;">}$"</span> nil t))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"backup-each-save"</span>
     (<span style="color: #a020f0;">setq</span> backup-each-save-mirror-location <span style="color: #8b2252;">"~/.emacs.d/backup"</span>)
@@ -12798,7 +12909,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
+<pre class="src src-emacs-lisp">(add-hook 'org-mode-hook 'prettify-symbols-mode)
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
   (<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist '(<span style="color: #b22222;">;;</span><span style="color: #b22222;">("#+begin_src" . "&#57986;")</span>
                                          (<span style="color: #8b2252;">":PROPERTIES:"</span> . <span style="color: #8b2252;">"&#57798;"</span>)
                                          (<span style="color: #8b2252;">":LOGBOOK:"</span> . <span style="color: #8b2252;">"&#57802;"</span>)
@@ -12808,8 +12920,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                                          (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#57634;"</span>)
                                          (<span style="color: #8b2252;">"[ ]"</span> .  <span style="color: #8b2252;">"&#57710;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9744; &#58940;</span>
                                          (<span style="color: #8b2252;">"[X]"</span> . <span style="color: #8b2252;">"&#57635;"</span> ) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9745; &#58939;</span>
-                                         (<span style="color: #8b2252;">"[-]"</span> . <span style="color: #8b2252;">"&#57864;"</span> ))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#59128;</span>
-  (add-hook 'org-mode-hook 'prettify-symbols-mode))
+                                         (<span style="color: #8b2252;">"[-]"</span> . <span style="color: #8b2252;">"&#57864;"</span> )))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#59128;</span>
 </pre>
 </div>
 </div>
@@ -13148,7 +13259,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org88f4292"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org68edee4"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14095,7 +14206,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org2f380d4" class="figure">
+<div id="org88c6135" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -14353,39 +14464,39 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">cond</span>
  ((memq window-system '(mac ns)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">for macOS</span>
   (<span style="color: #a020f0;">setq</span> initial-frame-alist
-              (append
-               '((top . 23)
-                 (left . 0)
-                 (alpha . (100 95))
-                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(vertical-scroll-bars . nil)</span>
-                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(internal-border-width . 20)</span>
-                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(outer-border-width . 20)</span>
-                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ns-appearance . nil) ;; 26.1 {light, dark}</span>
-                 (ns-transparent-titlebar . t)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">26.1</span>
-               initial-frame-alist)))
+        (append
+         '((alpha . (100 95))
+           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(top . 23)</span>
+           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(left . 0)</span>
+           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(vertical-scroll-bars . nil)</span>
+           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(internal-border-width . 20)</span>
+           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(outer-border-width . 20)</span>
+           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ns-appearance . nil) ;; 26.1 {light, dark}</span>
+           (ns-transparent-titlebar . t)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">26.1</span>
+         initial-frame-alist)))
 
  ((eq window-system 'x) <span style="color: #b22222;">;; </span><span style="color: #b22222;">for Linux</span>
   (<span style="color: #a020f0;">setq</span> initial-frame-alist
-              (append
-               '((vertical-scroll-bars . nil)
-                 (top . 0)
-                 (left . 0)
-                 (width . 80)
-                 (height . 38))
-               initial-frame-alist)))
+        (append
+         '((vertical-scroll-bars . nil)
+           (top . 0)
+           (left . 0)
+           (width . 80)
+           (height . 38))
+         initial-frame-alist)))
 
  ((eq window-system nil)
   nil)
 
  (t <span style="color: #b22222;">;; </span><span style="color: #b22222;">for Windows</span>
   (<span style="color: #a020f0;">setq</span> initial-frame-alist
-                (append
-                 '((vertical-scroll-bars . nil)
-                   (top . 0)
-                   (left . 0)
-                   (width . 80)
-                   (height . 26))
-                 initial-frame-alist))))
+        (append
+         '((vertical-scroll-bars . nil)
+           (top . 0)
+           (left . 0)
+           (width . 80)
+           (height . 26))
+         initial-frame-alist))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Apply the initial setting to default</span>
 (<span style="color: #a020f0;">setq</span> default-frame-alist initial-frame-alist)
@@ -15847,6 +15958,14 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
     (<span style="color: #a020f0;">if</span> (&gt; begin end)
         (<span style="color: #a020f0;">or</span> (&lt;= begin ct) (&lt;= ct end))
       (<span style="color: #a020f0;">and</span> (&lt;= begin ct) (&lt;= ct end)))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-update-theme-timers</span> () <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME: it makes frame blink</span>
+  (my-theme)
+  (<span style="color: #a020f0;">dolist</span> (triger '(1 5 9 14 18 22))
+    (<span style="color: #a020f0;">let</span> ((tm (format <span style="color: #8b2252;">"%02d:00"</span> triger)))
+      (<span style="color: #a020f0;">when</span> (future-time-p tm)
+        (run-at-time tm nil #'my-theme)))))
 </pre>
 </div>
 
@@ -15855,8 +15974,10 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">This may override or reset font setting</span>
 (<span style="color: #a020f0;">unless</span> noninteractive
   (my-theme)
-  (run-at-time <span style="color: #8b2252;">"22:00"</span> 86400 'my-theme)
-  (run-at-time <span style="color: #8b2252;">"05:00"</span> 86400 'my-theme)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME: it makes frame blink</span>
+  (run-at-time <span style="color: #8b2252;">"00:00"</span> 86400 #'my-update-theme-timers)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "05:00" 86400 'my-theme)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-at-time "23:00" 86400 'my-theme)</span>
+  ) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME: it makes frame blink</span>
 </pre>
 </div>
 </div>
@@ -18059,26 +18180,26 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">describe-timer</span> ()
   <span style="color: #8b2252;">"see http://masutaka.net/chalow/2009-12-05-1.html"</span>
   (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">let</span> ((tl timer-list)
-        (timer nil))
-    (pop-to-buffer (get-buffer-create <span style="color: #8b2252;">"*timer*"</span>))
-    (erase-buffer)
+  (pop-to-buffer (get-buffer-create <span style="color: #8b2252;">"*timer*"</span>))
+  (view-mode -1)
+  (erase-buffer)
+  (insert
+   (concat <span style="color: #8b2252;">"TIME           FUNCTION ("</span> (format <span style="color: #8b2252;">"%s "</span> (length timer-list)) <span style="color: #8b2252;">"timers)\n"</span>)
+   <span style="color: #8b2252;">"-------------- ----------------------\n"</span>)
+  (<span style="color: #a020f0;">dolist</span> (timer timer-list)
     (insert
-     <span style="color: #8b2252;">"TIME           FUNCTION\n"</span>
-     <span style="color: #8b2252;">"-------------- ----------------------\n"</span>)
-    (<span style="color: #a020f0;">while</span> tl
-      (<span style="color: #a020f0;">setq</span> timer (car tl))
-      (insert
-       (concat
-        (format-time-string <span style="color: #8b2252;">"%m/%d %T"</span>
-                            (list (aref timer 1)
-                                  (aref timer 2)
-                                  (aref timer 3)))
-        <span style="color: #8b2252;">" "</span>
-        (symbol-name (aref timer 5))
-        <span style="color: #8b2252;">"\n"</span>))
-      (<span style="color: #a020f0;">setq</span> tl (cdr tl)))
-    (read-only-mode 1)))
+     (concat
+      (format-time-string <span style="color: #8b2252;">"%m/%d %T"</span>
+                          (list (aref timer 1)
+                                (aref timer 2)
+                                (aref timer 3)))
+      <span style="color: #8b2252;">" "</span>
+      (<span style="color: #a020f0;">let</span> ((name (aref timer 5)))
+        (<span style="color: #a020f0;">if</span> (symbolp name)
+            (symbol-name name)
+          <span style="color: #8b2252;">"...undefined..."</span>))
+      <span style="color: #8b2252;">"\n"</span>)))
+  (view-mode 1))
 </pre>
 </div>
 </div>
@@ -18475,7 +18596,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-09-12 Mon 12:19</p>
+<p class="date">Created: 2022-09-18 Sun 21:39</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

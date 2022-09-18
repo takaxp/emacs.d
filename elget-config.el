@@ -156,8 +156,8 @@
   (el-get-bundle "kchenphy/counsel-world-clock")
   (el-get-bundle "syohex/emacs-counsel-gtags")
   ;;(el-get-bundle "asok/all-the-icons-ivy")
-  (el-get-bundle "raxod502/prescient.el" :name prescient)
-  (el-get-bundle "raxod502/ctrlf")
+  (el-get-bundle "radian-software/prescient.el" :name prescient)
+  (el-get-bundle "radian-software/ctrlf")
   (el-get-bundle "momomo5717/avy-migemo")
   (el-get-bundle "mkcms/ivy-yasnippet" :depends (dash swiper yasnippet))
   ;; require ~/.emacs.d/recipes/ivy.rcp

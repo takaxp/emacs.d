@@ -578,10 +578,10 @@
     ;; (setq flyspell-large-region 200)
     (set-face-attribute 'flyspell-duplicate nil
                         :foreground "#EA5506" :bold t
-                        :background nil :underline t)
+                        :background 'unspecified :underline t)
     (set-face-attribute 'flyspell-incorrect nil
                         :foreground "#BA2636" :bold nil
-                        :background nil :underline t)
+                        :background 'unspecified :underline t)
 
     ;; ispell-complete-word のキーバインドを上書き
     (global-set-key (kbd "<f7>") 'flyspell-correct-at-point)
@@ -1688,6 +1688,7 @@
 ;; (with-eval-after-load "org") 内で設定すると(何故か)複数回呼ばれてしまう．
 (run-with-idle-timer 180 t #'my-org-agenda-to-appt)
 
+(add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "icons-in-terminal"
   (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
                                          (":PROPERTIES:" . "")
@@ -1698,8 +1699,7 @@
                                          ("#+RESULTS:" . "")
                                          ("[ ]" .  "") ;; ☐ 
                                          ("[X]" . "" ) ;; ☑ 
-                                         ("[-]" . "" ))) ;; 
-  (add-hook 'org-mode-hook 'prettify-symbols-mode))
+                                         ("[-]" . "" )))) ;; 
 
 (when (autoload-if-found '(org-recent-headings org-recent-headings-mode)
                          "org-recent-headings" nil t)
@@ -1930,8 +1930,10 @@
 ;; This may override or reset font setting
 (unless noninteractive
   (my-theme)
-  (run-at-time "22:00" 86400 'my-theme)
-  (run-at-time "05:00" 86400 'my-theme)) ;; FIXME: it makes frame blink
+  (run-at-time "00:00" 86400 #'my-update-theme-timers)
+  ;; (run-at-time "05:00" 86400 'my-theme)
+  ;; (run-at-time "23:00" 86400 'my-theme)
+  ) ;; FIXME: it makes frame blink
 
 (when (autoload-if-found '(rainbow-mode)
                          "rainbow-mode" nil t)
