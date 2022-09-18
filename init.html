@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-09-18 Sun 21:39 -->
+<!-- 2022-09-18 Sun 21:50 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -233,7 +233,7 @@
 <li><a href="#orga2859651">2.15. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.16. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.17. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#org8edf377">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
+<li><a href="#orgd894924">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
 <li><a href="#orgdc071e4d">2.19. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
 <li><a href="#orgfca510d8">2.20. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
@@ -1506,9 +1506,13 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org8edf377" class="outline-3">
-<h3 id="org8edf377"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
+<div id="outline-container-orgd894924" class="outline-3">
+<h3 id="orgd894924"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
 <div class="outline-text-3" id="text-2-18">
+<p>
+<code>run-at-time</code> を使ったタイマー設定時に，時刻を文字列で指定すると， <code>diary-lib.el</code> を読み込み， <code>diary-entry-time</code> を使いますが，そのために起動時の時間を使うのはもったいないので， <code>diary-entry-time</code> だけを <code>init.el</code> に移植し， <code>run-at-time</code> をハックして <code>diary-lib.el</code> を読み込まないようにします．
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">diary-entry-time</span> (s)
   <span style="color: #8b2252;">"Return time at the beginning of the string S as a military-style integer.</span>
@@ -1598,6 +1602,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">which admittedly is rather stupid if we have passed that time</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">already.  (Though only Emacs hackers hack Emacs at that time.)</span>
     (<span style="color: #a020f0;">when</span> (stringp time)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'diary-lib) ;; *Modified*</span>
       (<span style="color: #a020f0;">let</span> ((hhmm (diary-entry-time time))
                   (now (decode-time)))
               (<span style="color: #a020f0;">when</span> (&gt;= hhmm 0)
@@ -13259,7 +13264,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org68edee4"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org1a96670"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14206,7 +14211,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org88c6135" class="figure">
+<div id="orgcab19ee" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18596,7 +18601,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2022-09-18 Sun 21:39</p>
+<p class="date">Created: 2022-09-18 Sun 21:50</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -720,6 +720,11 @@ This function is called directly from the C code."
 #+end_src
 
 ** run-at-time をハックして diary-lib.el の読み込みを抑制
+:PROPERTIES:
+:ID:       7EFD723A-FFF5-4106-A0B9-F5E58B2D598A
+:END:
+
+~run-at-time~ を使ったタイマー設定時に，時刻を文字列で指定すると， =diary-lib.el= を読み込み， ~diary-entry-time~ を使いますが，そのために起動時の時間を使うのはもったいないので， ~diary-entry-time~ だけを =init.el= に移植し， ~run-at-time~ をハックして =diary-lib.el= を読み込まないようにします．
 
 #+begin_src emacs-lisp :tangle yes
 (defun diary-entry-time (s)
@@ -810,6 +815,7 @@ This function returns a timer object which you can use in
     ;; which admittedly is rather stupid if we have passed that time
     ;; already.  (Though only Emacs hackers hack Emacs at that time.)
     (when (stringp time)
+      ;; (require 'diary-lib) ;; *Modified*
       (let ((hhmm (diary-entry-time time))
 	          (now (decode-time)))
 	      (when (>= hhmm 0)

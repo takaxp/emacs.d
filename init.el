@@ -224,6 +224,7 @@ This function returns a timer object which you can use in
     ;; which admittedly is rather stupid if we have passed that time
     ;; already.  (Though only Emacs hackers hack Emacs at that time.)
     (when (stringp time)
+      ;; (require 'diary-lib) ;; *Modified*
       (let ((hhmm (diary-entry-time time))
 	          (now (decode-time)))
 	      (when (>= hhmm 0)
