@@ -1905,15 +1905,15 @@
 
 (with-eval-after-load "diff-mode"
   (set-face-attribute 'diff-added nil
-                      :background nil :foreground "lime green"
+                      :background 'unspecified :foreground "lime green"
                       :weight 'normal)
 
   (set-face-attribute 'diff-removed nil
-                      :background nil :foreground "firebrick1"
+                      :background 'unspecified :foreground "firebrick1"
                       :weight 'normal)
 
   (set-face-attribute 'diff-file-header nil
-                      :background nil :weight 'extra-bold)
+                      :background 'unspecified :weight 'extra-bold)
 
   (set-face-attribute 'diff-hunk-header nil
                       :foreground "chocolate4"
