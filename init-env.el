@@ -1,7 +1,7 @@
 (defconst my-before-load-init-time (current-time)
   "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
 (defconst my-default-loading-delay 0)
-(defconst my-ad-require-p nil
+(defconst my-ad-require-p t
   "If non-nil, override `require' and `load' to show loading times.")
 (defconst my-profiler-p nil
   "If non-nil, use built-in profiler.el.")
@@ -92,8 +92,9 @@
 
   (unless noninteractive
     (with-eval-after-load "postpone"
-      (require 'my-eshell nil t)
-      (require 'my-mail nil t))))
+      (autoload 'mail "~/Dropbox/config/my-mail.el.gpg" nil t)
+      (require 'my-eshell nil t))))
+
  ((eq my-boot-type 'debug)
   (my-path-setter
    '("~/Dropbox/config")
