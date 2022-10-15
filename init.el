@@ -20,7 +20,7 @@
                 (time-subtract after-init-time my-before-load-init-time)))
         (time2 (float-time
                 (time-subtract (current-time) my-before-load-init-time))))
-    (message (concat "Loading init files: %.0f [msec], "
+    (message (concat "Loading init files: %4.0f [msec], "
                      "of which %.f [msec] for `after-init-hook'.")
              (* 1000 time1) (* 1000 (- time2 time1)))))
 
@@ -39,7 +39,7 @@
 
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
-  (message "Emacs booting time: %.0f [msec] = `emacs-init-time'."
+  (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
            (* 1000
               (float-time (time-subtract
                            after-init-time
@@ -471,6 +471,7 @@ This function returns a timer object which you can use in
 
   (with-eval-after-load "moom-transient"
     (moom-transient-hide-cursor)
+    (setq moom-transient-dispatch-sticky nil)
     (advice-add 'moom-transient-dispatch :after #'my-ime-off)) ;; FIXME
 
   (with-eval-after-load "moom"

@@ -106,9 +106,9 @@
   (set-face-background 'fringe (face-background 'default))
   (custom-set-faces ;; モードラインの配色
    '(mode-line
-     ((t (:background "#7D60AF" :foreground "#FFFFFF" :box nil :height 1.0))))
+     ((t (:background "#7D60AF" :foreground "#FFFFFF" :box nil :height 0.9))))
    '(mode-line-inactive
-     ((t (:background "#CCCCCC" :foreground "#FFFFFF" :box nil :height 1.0)))))
+     ((t (:background "#CCCCCC" :foreground "#FFFFFF" :box nil :height 0.9)))))
 
   ;; Basic key-binding
   (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
@@ -1700,6 +1700,15 @@ will not be modified."
           ("=" org-verbatim verbatim)
           ("~" org-code verbatim)
           ("+" my-org-emphasis-strike-through)))
+
+  (custom-set-faces
+   '(org-code
+     ((t (:foreground "#555555" :background "pink" :inherit shadow))))
+   '(org-verbatim
+     ((t (:foreground "red" :background "PeachPuff" :inherit shadow)))))
+
+  (when (featurep 'org-extra-emphasis)
+    (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'
 
   (defface my-org-emphasis-bold
     '((default :inherit bold)

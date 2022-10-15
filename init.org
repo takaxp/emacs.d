@@ -156,7 +156,7 @@ Then load the following at startup
                 (time-subtract after-init-time my-before-load-init-time)))
         (time2 (float-time
                 (time-subtract (current-time) my-before-load-init-time))))
-    (message (concat "Loading init files: %.0f [msec], "
+    (message (concat "Loading init files: %4.0f [msec], "
                      "of which %.f [msec] for `after-init-hook'.")
              (* 1000 time1) (* 1000 (- time2 time1)))))
 
@@ -216,7 +216,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+begin_src emacs-lisp :tangle yes
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
-  (message "Emacs booting time: %.0f [msec] = `emacs-init-time'."
+  (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
            (* 1000
               (float-time (time-subtract
                            after-init-time
@@ -3417,6 +3417,7 @@ lang en_US
 ** リアルタイムスペルチェック
    :PROPERTIES:
    :CUSTOM_ID: orgdd65fc08
+   :ID:       B4A5C2C6-6116-4E56-B2BA-7EEC2D7AEBE0
    :END:
 
 Built-in の [[http://www.emacswiki.org/emacs/FlySpell][flyspell.el]] を使います．flyspell は内部で =ispell= を読み込んでいるので，辞書機能自体はそちらの設定が使われます．
@@ -3860,15 +3861,15 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
-    (sp-local-pair 'org-mode "$" "$")
-    (sp-local-pair 'org-mode "~" "~")
-    (sp-local-pair 'org-mode "+" "+")
-    (sp-local-pair 'org-mode "/" "/")
-    (sp-local-pair 'org-mode "*" "*")
-    ;; (sp-local-pair 'org-mode "[" "]")
-    ;; (sp-local-pair 'org-mode "+" "+")
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "_" "_")
+    (sp-local-pair 'org-mode "$" "$")
+    (sp-local-pair 'org-mode "~" "~")
+    (sp-local-pair 'org-mode "[" "]")
+    ;;(sp-local-pair 'org-mode "+" "+")
+    ;; (sp-local-pair 'org-mode "/" "/")
+    ;; (sp-local-pair 'org-mode "*" "*")
+    ;; (sp-local-pair 'org-mode "+" "+")
     (sp-local-pair 'yatex-mode "$" "$")))
 #+end_src
 
@@ -12661,6 +12662,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
   (with-eval-after-load "moom-transient"
     (moom-transient-hide-cursor)
+    (setq moom-transient-dispatch-sticky nil)
     (advice-add 'moom-transient-dispatch :after #'my-ime-off)) ;; FIXME
 
   (with-eval-after-load "moom"
@@ -13725,7 +13727,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ;;;###autoload
 (defun my-update-theme-timers () ;; FIXME: it makes frame blink
   (my-theme)
-  (dolist (triger '(1 5 9 14 18 22))
+  (dolist (triger '(2 6 10 14 18 22))
     (let ((tm (format "%02d:00" triger)))
       (when (future-time-p tm)
         (run-at-time tm nil #'my-theme)))))
