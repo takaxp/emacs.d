@@ -14,6 +14,19 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
+(defun my-my-native-comp-packages-done ()
+  (message "Native Compilation...done"))
+
+(defun my-native-comp-packages ()
+  (interactive)
+  (add-hook 'native-comp-async-all-done-hook
+            #'my-my-native-comp-packages-done)
+  (let ((native-comp-async-jobs-number 8)
+        (native-comp-speed 3))
+    (message "Native Compilation...")
+    (native-compile-async "~/.emacs.d/29.0.50/el-get" 'recursively)))
+;; (remove-hook 'native-comp-async-all-done-hook #'my-my-native-comp-packages-done)
+
 ;; Boot mode selection
 (cond
  (nil ;; minimal boot or DOOM Emacs (use toggle-doom.sh to switch)
