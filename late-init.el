@@ -1690,16 +1690,15 @@
 
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "icons-in-terminal"
-  (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
-                                         (":PROPERTIES:" . "")
-                                         (":LOGBOOK:" . "")
-                                         (":END:" . "")
-                                         ("#+begin_src" . "▨")
+  (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;  »
+                                         (":LOGBOOK:" . "") ;;  ›
+                                         (":END:" . "") ;;  › 
+                                         ("#+begin_src" . "▨") ;; 
                                          ("#+end_src" . "▨")
                                          ("#+RESULTS:" . "")
                                          ("[ ]" .  "") ;; ☐ 
                                          ("[X]" . "" ) ;; ☑ 
-                                         ("[-]" . "" )))) ;; 
+                                         ("[-]" . "" )))) ;; ☒ 
 
 (when (autoload-if-found '(org-recent-headings org-recent-headings-mode)
                          "org-recent-headings" nil t)

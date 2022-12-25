@@ -2630,6 +2630,7 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
    CLOSED: [2018-09-23 Sun 15:19]
    :PROPERTIES:
    :CUSTOM_ID: orgd906e864
+   :ID:       EFFA10F9-8171-4934-AB7C-B9F736370CE7
    :END:
 
 現在のバッファと開いている全てのバッファのマークを辿ることができます．いま注目している位置が，マーク全体でどのあたりに位置するのかをミニバッファに表示してくれます．ツールバーを表示している場合は，マークを付けたり辿る用のボタンが追加されます． =global-mark-ring-max= を設定して，辿れるマークの数を拡張しておきます．
@@ -3329,6 +3330,7 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
 ** スペルチェック
    :PROPERTIES:
    :CUSTOM_ID: orge727dabc
+   :ID:       359D6BB0-0E17-4756-A26C-AF3FC61E6C8C
    :END:
 
 Built-in の ispell を使う．チェックエンジンは，aspell を利用する．そして， =hunspell= に移行した．
@@ -10902,10 +10904,10 @@ update it for multiple appts?")
 #+end_src
 
 ** [org-babel] ソースブロックの配色
-   :PROPERTIES:
-   :CUSTOM_ID: org556eb376
-   :ID:       1868BCF8-A93E-4E83-8684-5FEE3C9BD27B
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org556eb376
+:ID:       1868BCF8-A93E-4E83-8684-5FEE3C9BD27B
+:END:
 
 =org-src-block-faces=, =org-block-begin-line=, =org-block-end-line= をカスタマイズして，配色を変えます．さらに， =prettify-symbols-mode= を利用して =begin_src= と =end_src= の表示を別な文字列に変えます．
 
@@ -10950,16 +10952,15 @@ update it for multiple appts?")
 #+begin_src emacs-lisp :tangle late-init.el
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "icons-in-terminal"
-  (setq-default prettify-symbols-alist '(;;("#+begin_src" . "")
-                                         (":PROPERTIES:" . "")
-                                         (":LOGBOOK:" . "")
-                                         (":END:" . "")
-                                         ("#+begin_src" . "▨")
+  (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;  »
+                                         (":LOGBOOK:" . "") ;;  ›
+                                         (":END:" . "") ;;  › 
+                                         ("#+begin_src" . "▨") ;; 
                                          ("#+end_src" . "▨")
                                          ("#+RESULTS:" . "")
                                          ("[ ]" .  "") ;; ☐ 
                                          ("[X]" . "" ) ;; ☑ 
-                                         ("[-]" . "" )))) ;; 
+                                         ("[-]" . "" )))) ;; ☒  
 #+end_src
 
 ** [org-tree-slide] Org Modeでプレゼンテーション
@@ -11126,6 +11127,7 @@ update it for multiple appts?")
    :PROPERTIES:
    :CUSTOM_ID: org639ece0e
    :CREATED:  [2021-10-13 Wed 19:20]
+   :ID:       17E40DE8-CF1D-46FF-936B-3E6DD1A0B3CB
    :END:
 
 プレゼンテーション実行時に，制御コードが記述されている =#+ATTR_ORG= などの行を非表示（背景と同じ色）にします．

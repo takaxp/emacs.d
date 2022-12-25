@@ -103,6 +103,7 @@
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (display-time-mode 1)
+  (setq display-time-day-and-date t)
   (set-face-background 'fringe (face-background 'default))
   (custom-set-faces ;; モードラインの配色
    '(mode-line

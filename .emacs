@@ -14,6 +14,9 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
+;; (with-eval-after-load "org"
+;;   (require 'org-phscroll nil t))
+
 (defun my-my-native-comp-packages-done ()
   (message "Native Compilation...done"))
 
