@@ -2,6 +2,7 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
+;; .org
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 
@@ -13,6 +14,53 @@
 ;;                                my-org-modules-activate
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
+
+(with-eval-after-load "org"
+  (defun my-pin-subtree ()
+    "Pin the subtree with \"pin\" tag."
+    (interactive)
+    (save-excursion
+      (save-restriction
+        (unless (org-at-heading-p)
+          (org-previous-visible-heading 1))
+        (unless (org-before-first-heading-p)
+          (org-set-property "VISIBILITY" "children")
+          (org-toggle-tag "pin" 'on)
+          (message "Pinned")))))
+  (defun my-unpin-subtree ()
+    "Unpin the subtree with \"pin\" tag."
+    (interactive)
+    (save-excursion
+      (save-restriction
+        (unless (org-at-heading-p)
+          (org-previous-visible-heading 1))
+        (unless (org-before-first-heading-p)
+          (when (org-element-property :VISIBILITY (org-element-at-point))
+            (org-delete-property "VISIBILITY")
+            (org-toggle-tag "pin" 'off)
+            (message "Unpinned"))))))
+  (defun my-toggle-subtree-pin ()
+    "Toggle \"VISIBILITY\" of the current tree."
+    (interactive)
+    (save-excursion
+      (save-restriction
+        (unless (org-at-heading-p)
+          (org-previous-visible-heading 1))
+        (unless (org-before-first-heading-p)
+          (let ((element (org-element-at-point)))
+            (cond ((org-element-property :VISIBILITY element)
+                   (org-delete-property "VISIBILITY")
+                   (org-toggle-tag "pin" 'off)
+                   (message "Unpinned"))
+                  (t
+                   (org-set-property "VISIBILITY" "children")
+                   (org-toggle-tag "pin" 'on)
+                   (message "Pinned"))))))))
+
+  (defmacro org-assert-version ()
+    "Assert compile time and runtime version match."
+    t)
+  (advice-add 'org-assert-version :override #'ignore))
 
 ;; (with-eval-after-load "org"
 ;;   (require 'org-phscroll nil t))
