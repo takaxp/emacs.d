@@ -1,0 +1,10 @@
+(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
+(global-set-key (kbd "C-M-b") 'end-of-buffer)
+(global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
+(global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
+(global-set-key (kbd "M-=") 'count-words)
+(global-set-key (kbd "M-]") 'bs-cycle-next)
+(global-set-key (kbd "M-[") 'bs-cycle-previous)
+(global-set-key (kbd "C-c g") 'goto-line)
