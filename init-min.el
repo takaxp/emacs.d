@@ -8,3 +8,8 @@
 (global-set-key (kbd "M-]") 'bs-cycle-next)
 (global-set-key (kbd "M-[") 'bs-cycle-previous)
 (global-set-key (kbd "C-c g") 'goto-line)
+(defun my-open-scratch ()
+  "Switch the current buffer to \*scratch\* buffer."
+  (interactive)
+  (switch-to-buffer "*scratch*"))
+(global-set-key (kbd "C-M-s") #'my-open-scratch)
