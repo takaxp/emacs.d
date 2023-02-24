@@ -1,3 +1,6 @@
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq auto-save-list-file-prefix nil)
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)

@@ -130,6 +130,14 @@ Then load the following at startup
   (format "%searly-init.el" (expand-file-name user-emacs-directory)))
 
 (message "Loading %s..." my-early-init)
+(unless (getenv "LIBRARY_PATH")
+  (setenv "LIBRARY_PATH"
+          (string-join
+           '("/opt/homebrew/opt/gcc/lib/gcc/12"
+             "/opt/homebrew/opt/libgccjit/lib/gcc/12"
+             "/opt/homebrew/opt/gcc/lib/gcc/12/gcc/aarch64-apple-darwin22/12")
+           ":")))
+
 (setq package-enable-at-startup nil
       frame-inhibit-implied-resize t)
 (with-eval-after-load "moom"
@@ -139,6 +147,8 @@ Then load the following at startup
 (menu-bar-mode -1)
 (tab-bar-mode -1)
 (tool-bar-mode -1)
+
+(defvar my-boot-mode nil) ;; see .emacs
 #+end_src
 ** initファイルの読み込み時間計測
    :PROPERTIES:
@@ -1692,6 +1702,65 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
     (funcall f prompt mustmatch))
   (advice-add 'find-file-read-args :around #'ad:find-file-read-args))
 #+end_src
+
+** TODO git用の設定ファイル読み込み
+Emacs を高速に起動できれば，git のコミットメッセージを Emacs で編集できます．最低限の編集ができればよいので，通常は =emacs -nw -Q= あたりを =core.editor= に設定すると思いますが，それでも最低限の設定は加えておきたいものです．
+
+Eamcs 29からは， =--init-directory= オプションで =user-emacs-directory= を変更して，任意の場所にある =init.el= を指定して起動できます．なので，例えば，下記の設定を =init.el= に記述して =~/.emacs.d/min= 以下に配置する場合は，
+
+#+begin_src sh
+emacs -nw -Q --init-directory="$HOME/.emacs.d/min"
+#+end_src
+とすればOKです．
+
+ただ NativeComp の場合には， =${HOME}/.emacs.d/min= 以下に新たに =eln-cache= が生成されるので注意してください．
+
+#+begin_src emacs-lisp :tangle init-min.el
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq auto-save-list-file-prefix nil)
+(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
+(global-set-key (kbd "C-M-b") 'end-of-buffer)
+(global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
+(global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
+(global-set-key (kbd "M-=") 'count-words)
+(global-set-key (kbd "M-]") 'bs-cycle-next)
+(global-set-key (kbd "M-[") 'bs-cycle-previous)
+(global-set-key (kbd "C-c g") 'goto-line)
+(defun my-open-scratch ()
+  "Switch the current buffer to \*scratch\* buffer."
+  (interactive)
+  (switch-to-buffer "*scratch*"))
+(global-set-key (kbd "C-M-s") #'my-open-scratch)
+#+end_src
+
+なお上記を回避するには， =user-emacs-directory= を変更せずに， =min/init.el= をロードすれば良いです．私は =.emacs= で起動時に読み込む =init= 系ファイルを制御しているので，次のようにしています．事前に =early-init.el= のどこかに =(defvar my-boot-mode nil)= を入れておいてください．
+
+#+begin_src emacs-lisp :tangle no
+;; Boot mode selection
+(cond
+ ((eq my-boot-mode 'org) ;; To test the latest org
+  (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
+  (setq org-agenda-files '("~/Desktop/test/hoge.org")))
+ ((eq my-boot-mode 'min) ;; minimum
+  (load (concat user-emacs-directory "min/init.el"))) ;; ~/.emacs.d/min/init.el
+ ((eq my-boot-mode 'space) ;; Spacemacs
+  (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
+ (t ;; Normal mode. see also init-eval.el
+  (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
+#+end_src
+
+CLIからは，次のように呼び出します．
+
+#+begin_src emacs-lisp :tangle no
+emacs -nw -Q --eval="(setq my-boot-mode 'min)" -l ~/.emacs
+#+end_src
+
+このやり方の問題点は，バッチモードで起動するときに，別途 =(defvar my-boot-mode nil)= をしてくれる =.emacs= ではないファイルを読み込まないといけません．バッチモードでは =early-init.el= が読み込まれないためです．なので，上記のように =my-boot-mode= で切り替えるやり方は，あまりオススメしません．
+
+私の場合は，バッチモード用に専用の =init-eval.el= というファイルを読み込んで，この問題を回避しています．
 
 ** [aggressive-indent.el] 即時バッファ整形
    :PROPERTIES:

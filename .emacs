@@ -6,6 +6,8 @@
 ;; https://github.com/magit/transient/blob/master/docs/transient.org
 ;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
 
+(setenv "LD_LIBRARY_PATH" "/usr/lib:/opt/local/lib:/opt/homebrew/lib:/opt/intel/ipp/lib/intel64:/Users/taka/devel/icp/opencv/lib")
+
 ;; (profiler-start 'cpu)
 ;; (setq my-suppress-message-p nil)
 ;; (setq measure-exec-time-list '(my-show-org-buffer
@@ -15,7 +17,13 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
+(setq my-boot-mode nil)
+
 (with-eval-after-load "org"
+  ;; (setq epg-pinentry-mode nil)
+  (when (string= (system-name) "water.local")
+    (setq org-show-notification-handler nil))
+
   (defun my-pin-subtree ()
     "Pin the subtree with \"pin\" tag."
     (interactive)
@@ -90,10 +98,12 @@
     (mac-input-method-mode 1)
     (global-set-key (kbd "M-SPC") 'mac-ime-toggle)
     (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
- (nil ;; To test the latest org
+ ((eq my-boot-mode 'org) ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (setq org-agenda-files '("~/Desktop/test/hoge.org")))
- (nil ;; Spacemacs
+ ((eq my-boot-mode 'min) ;; minimum
+  (load (concat user-emacs-directory "min/init.el")))
+ ((eq my-boot-mode 'space) ;; Spacemacs
   (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
  (t ;; Normal mode. see also init-eval.el
   (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))

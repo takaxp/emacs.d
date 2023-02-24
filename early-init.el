@@ -7,6 +7,14 @@
   (format "%searly-init.el" (expand-file-name user-emacs-directory)))
 
 (message "Loading %s..." my-early-init)
+(unless (getenv "LIBRARY_PATH")
+  (setenv "LIBRARY_PATH"
+          (string-join
+           '("/opt/homebrew/opt/gcc/lib/gcc/12"
+             "/opt/homebrew/opt/libgccjit/lib/gcc/12"
+             "/opt/homebrew/opt/gcc/lib/gcc/12/gcc/aarch64-apple-darwin22/12")
+           ":")))
+
 (setq package-enable-at-startup nil
       frame-inhibit-implied-resize t)
 (with-eval-after-load "moom"
@@ -16,6 +24,8 @@
 (menu-bar-mode -1)
 (tab-bar-mode -1)
 (tool-bar-mode -1)
+
+(defvar my-boot-mode nil) ;; see .emacs
 
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 ;; (setq garbage-collection-messages t)

@@ -1,5 +1,7 @@
 ;; /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile ~/Dropbox/emacs.d/config/init.el
 
+(setq my-boot-mode nil)
+
 (setq gc-cons-threshold (* 256 1024 1024))
 (setq garbage-collection-messages t)
 (setq byte-compile-warnings
