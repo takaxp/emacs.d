@@ -98,12 +98,12 @@
     (mac-input-method-mode 1)
     (global-set-key (kbd "M-SPC") 'mac-ime-toggle)
     (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
- ((eq my-boot-mode 'org) ;; To test the latest org
+ (nil ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (setq org-agenda-files '("~/Desktop/test/hoge.org")))
- ((eq my-boot-mode 'min) ;; minimum
+ (nil ;; minimum
   (load (concat user-emacs-directory "min/init.el")))
- ((eq my-boot-mode 'space) ;; Spacemacs
+ (nil ;; Spacemacs
   (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
  (t ;; Normal mode. see also init-eval.el
   (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
