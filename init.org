@@ -1736,7 +1736,7 @@ emacs -nw -Q --init-directory="$HOME/.emacs.d/min"
 (global-set-key (kbd "C-M-s") #'my-open-scratch)
 #+end_src
 
-なお上記を回避するために， =user-emacs-directory= を変更せずに， =min/init.el= をロードすることもできます． =.emacs= で起動時に読み込む =init= 系ファイルを制御することになります．事前に =early-init.el= のどこかに =(defvar my-boot-mode nil)= を入れておいてください．非推奨です．
+なお上記を回避するために， =user-emacs-directory= を変更せずに， =min/init.el= をロードすることもできます．だだし，非推奨です． =.emacs= で起動時に読み込む =init= 系ファイルを制御することになります．事前に =early-init.el= のどこかに =(defvar my-boot-mode nil)= を入れておいてください．
 
 #+begin_src emacs-lisp :tangle no
 ;; Boot mode selection
