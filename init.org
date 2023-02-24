@@ -1704,12 +1704,15 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 #+end_src
 
 ** TODO git用の設定ファイル読み込み
+:PROPERTIES:
+:ID:       42DFA41F-4838-4A59-A29C-2A85443F5905
+:END:
 Emacs を高速に起動できれば，git のコミットメッセージを Emacs で編集できます．最低限の編集ができればよいので，通常は =emacs -nw -Q= あたりを =core.editor= に設定すると思いますが，それでも最低限の設定は加えておきたいものです．
 
 Eamcs 29からは， =--init-directory= オプションで =user-emacs-directory= を変更して，任意の場所にある =init.el= を指定して起動できます．なので，例えば，下記の設定を =init.el= に記述して =~/.emacs.d/min= 以下に配置する場合は，
 
 #+begin_src sh
-emacs -nw -Q --init-directory="$HOME/.emacs.d/min"
+emacs -nw --init-directory="$HOME/.emacs.d/min"
 #+end_src
 とすればOKです．
 
@@ -1755,7 +1758,7 @@ emacs -nw -Q --init-directory="$HOME/.emacs.d/min"
 CLIからは，次のように呼び出します．
 
 #+begin_src emacs-lisp :tangle no
-emacs -nw -Q --eval="(setq my-boot-mode 'min)" -l ~/.emacs
+emacs -nw --eval="(setq my-boot-mode 'min)" -l ~/.emacs
 #+end_src
 
 このやり方の問題点は，バッチモードで起動するときに，別途 =(defvar my-boot-mode nil)= をしてくれる =.emacs= ではないファイルを読み込まないといけません．バッチモードでは =early-init.el= が読み込まれないためです．なので，上記のように =my-boot-mode= で切り替えるやり方は，あまりオススメしません．
@@ -1832,7 +1835,7 @@ emacs -nw -Q --eval="(setq my-boot-mode 'min)" -l ~/.emacs
              (eq system-type 'darwin)
              (not (featurep 'private)))
     (unless (ignore-errors (require 'private "private.el.gpg" t))
-      (warn "GPG decryption error (private.el)"))))
+      (user-error "GPG decryption error (private.el)"))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -8322,7 +8325,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 
   - auto-complete より前に hook設定しておくと余計なエラーが出ないようです．
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle no
 ;; (eval-when-compile
 ;;   (message "Loading dash...")
 ;;   (require 'dash))
@@ -15500,6 +15503,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 ** 特定のファイルを Dropbox 以下にバックアップする
    :PROPERTIES:
    :CUSTOM_ID: org9731a19e
+   :ID:       6E7E4977-E144-4578-B222-C3AFF5E21BC6
    :END:
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -15508,22 +15512,19 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   "Backup a file to `Dropbox/backup' directory.
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
-  (let ((system (system-name))
-        (rootdir (or dropbox (getenv "SYNCROOT"))))
-    (if (and system
-             (stringp rootdir)
-             (file-directory-p (or rootdir (expand-file-name rootdir))))
+  (let ((dir (concat (expand-file-name (or dropbox (getenv "SYNCROOT"))) "/backup/" (system-name))))
+    (if (file-directory-p dir)
         (mapc
          (lambda (file)
            (if (and (stringp file)
                     (file-readable-p (or file (expand-file-name file))))
                (shell-command-to-string
-                (concat "cp -f " file " " rootdir "/backup/" system "/"))
+                (concat "cp -f " file " " dir "/"))
              (warn (format "--- backup failure: %s" file))))
          (if (listp files)
              files
            (list files)))
-      (user-error (format "--- backup-dir does not exist: %s" rootdir)))))
+      (user-error (format "--- backup-dir does not exist: %s" dir)))))
 #+end_src
 ** ゴミ箱を空にする                                                   :macOS:
    :PROPERTIES:

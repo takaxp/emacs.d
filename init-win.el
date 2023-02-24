@@ -70,7 +70,8 @@
     "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
-    "replace-from-region" "session" "helpful" "org-appear"))
+    "replace-from-region" "session" "helpful" "org-appear" "projectile"
+    "counsel-projectile"))
 
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
@@ -104,6 +105,7 @@
   (scroll-bar-mode -1)
   (display-time-mode 1)
   (setq display-time-day-and-date t)
+  (global-auto-revert-mode 1)
   (set-face-background 'fringe (face-background 'default))
   (custom-set-faces ;; モードラインの配色
    '(mode-line
@@ -279,7 +281,9 @@
     (shell-command-to-string "open ."))
   (defun my-open-hoge ()
     (interactive)
-    (find-file "u://org/next.org"))
+    (unless (featurep 'org)
+      (require 'org))
+    (find-file (concat org-directory "next.org")))
   (defun my-open-scratch ()
     "Switch the current buffer to \*scratch\* buffer."
     (interactive)
@@ -328,7 +332,19 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (mapc (lambda (package)
             (make-directory-autoloads
              (concat my-installed-packages-dir package) my-loaddefs-file))
-          my-installed-packages)))
+          my-installed-packages))
+
+  (defun my-time-stamp ()
+    (setq time-stamp-format
+          (if (eq major-mode 'org-mode)
+              "[%Y-%02m-%02d %3a %02H:%02M]" ;; "%04y"
+            "%Y-%02m-%02d"))
+    (if (boundp 'org-tree-slide-mode)
+        (unless org-tree-slide-mode
+          (time-stamp))
+      (time-stamp)))
+  (add-hook 'before-save-hook #'my-time-stamp))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part A: Scheduling of package loading
@@ -511,6 +527,15 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; prettify-symbols-mode
 (add-hook 'org-mode-hook #'prettify-symbols-mode)
 
+;; projectile
+(defun my-projectile-activate ()
+  (interactive)
+  (setq projectile-keymap-prefix (kbd "C-c p"))
+  (projectile-mode 1)
+  (remove-hook 'find-file-hook #'my-projectile-activate))
+(autoload 'projectile-mode "projectile" nil t)
+(add-hook 'find-file-hook #'my-projectile-activate)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -619,7 +644,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (((class color) (background dark)) :foreground "#7777ff" :underline t)))
    '(ivy-minibuffer-match-face-4
      ((((class color) (background light)) :foreground "#439943" :underline t)
-      (((class color) (background dark)) :foreground "#33bb33" :underline t)))))
+      (((class color) (background dark)) :foreground "#33bb33" :underline t))))
+
+  ;; activate
+  (ivy-mode 1))
 
 (with-eval-after-load "counsel-osx-app"
   (defun counsel-win-app-list ()
@@ -1188,6 +1216,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 ;; org mode
 (with-eval-after-load "org"
+  (setq org-directory "u:/org/")
+
   (add-hook 'org-mode-hook #'turn-on-font-lock)
   (custom-set-faces '(org-drawer ((t (:foreground "#999999"))))
                     '(org-verbatim ((t (:foreground "#FF0000")))))
@@ -1320,8 +1350,8 @@ will not be modified."
 
   (let ((dir (expand-file-name org-directory)))
     (setq org-refile-targets
-          `((,(concat dir "/next.org") :level . 1)
-            (,(concat dir "/log.org") :level . 1))))
+          `((,(concat dir "next.org") :level . 1)
+            (,(concat dir "log.org") :level . 1))))
 
   (defun do-org-update-statistics-cookies ()
     (interactive)
@@ -1756,6 +1786,53 @@ will not be modified."
                                              (interactive) (other-window -1)))
   (define-key dired-mode-map (kbd "C-M-n") (lambda ()
                                              (interactive) (other-window 1))))
+
+(with-eval-after-load "projectile"
+  (setq projectile-mode-line-lighter "")
+  (setq projectile-dynamic-mode-line nil)
+  (setq projectile-tags-command "gtags")
+  (setq projectile-tags-backend 'ggtags)
+  (setq projectile-tags-file-name "GTAGS")
+  (setq projectile-use-git-grep t)
+  (setq projectile-mode-line "")
+  (setq icon-title-format
+        (setq frame-title-format
+              '((:eval
+                 (let ((project-name (projectile-project-name)))
+                   (unless (string= "-" project-name)
+                     (format "(%s) - " project-name))))
+                "%b")))
+
+  ;; counsel-projectile
+  (when (require 'counsel-projectile nil t)
+    (defun my-counsel-projectile-ag ()
+      "Use `counsel-projectile-ag' in a projectile project except when `dired'.
+Otherwise, use `counsel-ag'."
+      (interactive)
+      (if (or (and (eq projectile-require-project-root 'prompt)
+                   (not (projectile-project-p)))
+              (eq major-mode 'dired-mode))
+          (counsel-ag)
+        (counsel-projectile-ag)))
+
+    (add-to-list 'counsel-projectile-switch-project-action
+                 '("z" my-counsel-fzf-in-default-dir
+                   "switch to fzf") t)
+    (add-to-list 'counsel-projectile-find-file-action
+                 '("z" my-counsel-fzf-in-default-dir
+                   "switch to fzf") t)
+
+    (setq projectile-completion-system 'ivy)
+    (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
+    (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    (define-key projectile-mode-map (kbd "C-M-f") 'my-counsel-projectile-ag)
+    (counsel-projectile-mode 1)))
+
+(with-eval-after-load "time-stamp"
+  (setq time-stamp-start "#\\+date:[ \t]*") ;; "Time-stamp:[ \t]+\\\\?[\"<]+"
+  (setq time-stamp-end "$") ;; "\\\\?[\">]"
+  (setq time-stamp-line-limit 10)) ;; def=8
 
 (when do-profile (profiler-stop))
 ;; End of init-win.el
