@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-02-26 Sun 21:29 -->
+<!-- 2023-02-26 Sun 21:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -233,7 +233,7 @@
 <li><a href="#orga2859651">2.15. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.16. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.17. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#org6fce686">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
+<li><a href="#orgea2bdb7">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
 <li><a href="#orgdc071e4d">2.19. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
 <li><a href="#orgfca510d8">2.20. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
@@ -279,7 +279,7 @@
 <li><a href="#orgc2257142">3.16. バッファが外部から編集された場合に自動で再読み込みする</a></li>
 <li><a href="#org4ea9e5f1">3.17. マウススクロールをピクセル単位にする</a></li>
 <li><a href="#org6a9f8b88">3.18. デフォルトディレクトリ</a></li>
-<li><a href="#org9e375d5">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
+<li><a href="#org84c2a87">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
 <li><a href="#orgb5cd55a9">3.20. [aggressive-indent.el] 即時バッファ整形</a></li>
 <li><a href="#org723e2b73">3.21. [uniquify.el] 同じバッファ名が開かれた場合に区別する</a></li>
 <li><a href="#org982c69d7">3.22. [ws-butler.el] 不要なスペースを自動除去</a></li>
@@ -1515,8 +1515,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org6fce686" class="outline-3">
-<h3 id="org6fce686"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
+<div id="outline-container-orgea2bdb7" class="outline-3">
+<h3 id="orgea2bdb7"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
 <div class="outline-text-3" id="text-2-18">
 <p>
 <code>run-at-time</code> を使ったタイマー設定時に，時刻を文字列で指定すると， <code>diary-lib.el</code> を読み込み， <code>diary-entry-time</code> を使いますが，そのために起動時の時間を使うのはもったいないので， <code>diary-entry-time</code> だけを <code>init.el</code> に移植し， <code>run-at-time</code> をハックして <code>diary-lib.el</code> を読み込まないようにします．
@@ -2620,8 +2620,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-org9e375d5" class="outline-3">
-<h3 id="org9e375d5"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
+<div id="outline-container-org84c2a87" class="outline-3">
+<h3 id="org84c2a87"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
 <div class="outline-text-3" id="text-3-19">
 <p>
 Emacs を高速に起動できれば，git のコミットメッセージを Emacs で編集できます．最低限の編集ができればよいので，通常は <code>emacs -nw -Q</code> あたりを <code>core.editor</code> に設定すると思いますが，それでも最低限の設定は加えておきたいものです．
@@ -13358,7 +13358,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org24f0374"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga9bfe32"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14305,7 +14305,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orga8e8d10" class="figure">
+<div id="orgbcb87e1" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18693,7 +18693,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-02-26 Sun 21:29</p>
+<p class="date">Created: 2023-02-26 Sun 21:32</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
