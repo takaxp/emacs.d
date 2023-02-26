@@ -147,8 +147,6 @@ Then load the following at startup
 (menu-bar-mode -1)
 (tab-bar-mode -1)
 (tool-bar-mode -1)
-
-(defvar my-boot-mode nil) ;; see .emacs
 #+end_src
 ** initファイルの読み込み時間計測
    :PROPERTIES:
@@ -9519,6 +9517,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defun my-org-replace-punc-in-tree ()
     "Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree."
     (interactive)
+    (unless (eq 'headline (car (org-element-at-point)))
+      (org-previous-visible-heading 1))
     (let* ((element (org-element-at-point))
            (begin (org-element-property :begin element))
            (end (org-element-property :end element)))
@@ -9561,7 +9561,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                 (outline-up-heading 1)
                 (setq filename
                       (concat (nth 4 (org-heading-components)) "/" filename))
-                (setq command (concat command " -e" (downcase filename)))))
+                (setq command (concat command " -e " (downcase filename)))))
+            (message "[hugo] %s" command)
             (if (require 'async nil t)
                 (progn
                   (message "%s\n[async] Uploading..." exported)
@@ -9571,7 +9572,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                       (message "%s\n[async] Uploading...%s"
                                ',exported (when result "done") ))))
               (message "%s\nUploading..." exported)
-              (shell-command-to-string command)
+              (message "%s" (shell-command-to-string command))
               (message "%s\nUploading...done" exported)))))))
 
   ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
@@ -13437,8 +13438,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
           (ja-font (or ja my-ja-font)))
       (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
       ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-      (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
+      (my-ja-font-setter (font-spec :family ja-font :size font-size))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))))
 
 ;;;###autoload
 (defun my-setup-font ()
@@ -13472,9 +13473,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
           (ascii-font "Inconsolata")
           (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
       (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter
        (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
    ((eq window-system 'x) ; for SuSE Linux 12.1

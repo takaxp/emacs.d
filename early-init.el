@@ -25,8 +25,6 @@
 (tab-bar-mode -1)
 (tool-bar-mode -1)
 
-(defvar my-boot-mode nil) ;; see .emacs
-
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 ;; (setq garbage-collection-messages t)
 ;; (defvar my-gc-last 0.0)

@@ -61,6 +61,7 @@
    "/Applications/qt_color_picker.app/Contents/MacOS/"
    "/usr/local/opt/imagemagick@6/bin")
  'exec-path)
+(setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
 (setenv "GOPATH" (concat (getenv "HOME") "/.go"))
 ;; you may want to use exec-path-from-shell.el.

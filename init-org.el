@@ -390,6 +390,8 @@
   (defun my-org-replace-punc-in-tree ()
     "Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree."
     (interactive)
+    (unless (eq 'headline (car (org-element-at-point)))
+      (org-previous-visible-heading 1))
     (let* ((element (org-element-at-point))
            (begin (org-element-property :begin element))
            (end (org-element-property :end element)))
@@ -432,7 +434,8 @@
                 (outline-up-heading 1)
                 (setq filename
                       (concat (nth 4 (org-heading-components)) "/" filename))
-                (setq command (concat command " -e" (downcase filename)))))
+                (setq command (concat command " -e " (downcase filename)))))
+            (message "[hugo] %s" command)
             (if (require 'async nil t)
                 (progn
                   (message "%s\n[async] Uploading..." exported)
@@ -442,7 +445,7 @@
                       (message "%s\n[async] Uploading...%s"
                                ',exported (when result "done") ))))
               (message "%s\nUploading..." exported)
-              (shell-command-to-string command)
+              (message "%s" (shell-command-to-string command))
               (message "%s\nUploading...done" exported)))))))
 
   ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-02-24 Fri 19:54 -->
+<!-- 2023-02-26 Sun 21:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -233,7 +233,7 @@
 <li><a href="#orga2859651">2.15. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.16. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.17. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#orgd211135">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
+<li><a href="#org6fce686">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
 <li><a href="#orgdc071e4d">2.19. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
 <li><a href="#orgfca510d8">2.20. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
@@ -279,7 +279,7 @@
 <li><a href="#orgc2257142">3.16. バッファが外部から編集された場合に自動で再読み込みする</a></li>
 <li><a href="#org4ea9e5f1">3.17. マウススクロールをピクセル単位にする</a></li>
 <li><a href="#org6a9f8b88">3.18. デフォルトディレクトリ</a></li>
-<li><a href="#org6bf8dbf">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
+<li><a href="#org9e375d5">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
 <li><a href="#orgb5cd55a9">3.20. [aggressive-indent.el] 即時バッファ整形</a></li>
 <li><a href="#org723e2b73">3.21. [uniquify.el] 同じバッファ名が開かれた場合に区別する</a></li>
 <li><a href="#org982c69d7">3.22. [ws-butler.el] 不要なスペースを自動除去</a></li>
@@ -889,8 +889,6 @@ Then load the following at startup
 (menu-bar-mode -1)
 (tab-bar-mode -1)
 (tool-bar-mode -1)
-
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-boot-mode</span> nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">see .emacs</span>
 </pre>
 </div>
 </div>
@@ -1517,8 +1515,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgd211135" class="outline-3">
-<h3 id="orgd211135"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
+<div id="outline-container-org6fce686" class="outline-3">
+<h3 id="org6fce686"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
 <div class="outline-text-3" id="text-2-18">
 <p>
 <code>run-at-time</code> を使ったタイマー設定時に，時刻を文字列で指定すると， <code>diary-lib.el</code> を読み込み， <code>diary-entry-time</code> を使いますが，そのために起動時の時間を使うのはもったいないので， <code>diary-entry-time</code> だけを <code>init.el</code> に移植し， <code>run-at-time</code> をハックして <code>diary-lib.el</code> を読み込まないようにします．
@@ -2622,8 +2620,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-org6bf8dbf" class="outline-3">
-<h3 id="org6bf8dbf"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
+<div id="outline-container-org9e375d5" class="outline-3">
+<h3 id="org9e375d5"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
 <div class="outline-text-3" id="text-3-19">
 <p>
 Emacs を高速に起動できれば，git のコミットメッセージを Emacs で編集できます．最低限の編集ができればよいので，通常は <code>emacs -nw -Q</code> あたりを <code>core.editor</code> に設定すると思いますが，それでも最低限の設定は加えておきたいものです．
@@ -10224,9 +10222,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; // ここ
+  v; <i>/ ここ
   boost::timer t;
-  cout &lt;&lt; t; // ここ
+  cout &lt;&lt; t; /</i> ここ
   return 1;
 }
 </p>
@@ -11375,6 +11373,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-replace-punc-in-tree</span> ()
     <span style="color: #8b2252;">"Replace \"&#65292;\" and \"&#65294;\" with \"&#12289;\" and \"&#12290;\" in an org tree."</span>
     (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">unless</span> (eq 'headline (car (org-element-at-point)))
+      (org-previous-visible-heading 1))
     (<span style="color: #a020f0;">let*</span> ((element (org-element-at-point))
            (begin (org-element-property <span style="color: #483d8b;">:begin</span> element))
            (end (org-element-property <span style="color: #483d8b;">:end</span> element)))
@@ -11417,7 +11417,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                 (outline-up-heading 1)
                 (<span style="color: #a020f0;">setq</span> filename
                       (concat (nth 4 (org-heading-components)) <span style="color: #8b2252;">"/"</span> filename))
-                (<span style="color: #a020f0;">setq</span> command (concat command <span style="color: #8b2252;">" -e"</span> (downcase filename)))))
+                (<span style="color: #a020f0;">setq</span> command (concat command <span style="color: #8b2252;">" -e "</span> (downcase filename)))))
+            (message <span style="color: #8b2252;">"[hugo] %s"</span> command)
             (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t)
                 (<span style="color: #a020f0;">progn</span>
                   (message <span style="color: #8b2252;">"%s\n[async] Uploading..."</span> exported)
@@ -11427,7 +11428,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                       (message <span style="color: #8b2252;">"%s\n[async] Uploading...%s"</span>
                                ',exported (<span style="color: #a020f0;">when</span> result <span style="color: #8b2252;">"done"</span>) ))))
               (message <span style="color: #8b2252;">"%s\nUploading..."</span> exported)
-              (shell-command-to-string command)
+              (message <span style="color: #8b2252;">"%s"</span> (shell-command-to-string command))
               (message <span style="color: #8b2252;">"%s\nUploading...done"</span> exported)))))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#32224;&#20999;&#12434;&#20170;&#26085;&#12395;&#12377;&#12427;&#65294;agenda &#12363;&#12425;&#36215;&#21205;&#12375;&#12383;&#12459;&#12524;&#12531;&#12480;&#12540;&#20869;&#12391;&#12399; "C-." &#12391;OK&#65288;&#27161;&#28310;&#65289;</span>
@@ -13357,7 +13358,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgb70d21d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org24f0374"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14304,7 +14305,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orga4897c8" class="figure">
+<div id="orga8e8d10" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15680,8 +15681,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
           (ja-font (<span style="color: #a020f0;">or</span> ja my-ja-font)))
       (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
       <span style="color: #b22222;">;;</span><span style="color: #b22222;">(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")</span>
-      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
-      (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size)))))
+      (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size))
+      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-setup-font</span> ()
@@ -15715,9 +15716,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
           (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
           (ja-font <span style="color: #8b2252;">"Migu 2M"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Meiryo UI, &#12513;&#12452;&#12522;&#12458;</span>
       (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
-      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
       (my-ja-font-setter
        (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
+      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
       (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
 
    ((eq window-system 'x) <span style="color: #b22222;">; </span><span style="color: #b22222;">for SuSE Linux 12.1</span>
@@ -18692,7 +18693,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-02-24 Fri 19:54</p>
+<p class="date">Created: 2023-02-26 Sun 21:29</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
