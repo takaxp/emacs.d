@@ -7577,11 +7577,14 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 #+end_src
 
-** TODO [super-save.el] 所定のタイミングでバッファを保存する
+** [super-save.el] 所定のタイミングでバッファを保存する
 :PROPERTIES:
 :CREATED:  [2023-03-12 Sun 13:50]
 :ID:       3ED2165E-77B1-4B37-980A-286015F3011B
 :END:
+
+- https://github.com/bbatsov/super-save
+
 長らく =auto-save-buffers.el= のお世話になってきましたが， =super-save.el= に乗り換えました． =super-save.el= は，カレントバッファを切り替えるなどの任意のトリガーでバッファを保存したり， =auto-save-buffers.el= がするように，アイドル時にバッファを保存できます．
 
 例外にするバッファ名を指定したり，特定の条件を満たしている場合に例外とするなどをカスタム変数で指定できるのが便利だと思います．
@@ -7616,7 +7619,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
     (super-save-mode 1)))
 #+end_src
 
-** DONE [auto-save-buffers.el] 一定間隔でバッファを保存する
+** DONE [auto-save-buffers.el] 一定間隔でバッファを保存する        :notinuse:
 CLOSED: [2023-03-12 Sun 13:50]
    :PROPERTIES:
    :CUSTOM_ID: orgb8c01946
