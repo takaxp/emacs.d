@@ -1398,25 +1398,6 @@
   (global-set-key (kbd "C-/") 'undo-fu-only-undo)
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 
-;;;###autoload
-(defun my-super-save-predicates-p ()
-  "Return nil, if the buffer should not be saved."
-  (not
-   (cond ((memq major-mode '(undo-tree-visualizer-mode diff-mode)) t)
-         ((when (eq major-mode 'org-mode)
-            ;; when activating org-capture
-            (or (bound-and-true-p org-capture-mode)
-                (and (fboundp 'org-entry-get)
-                     (equal "" (org-entry-get (point)
-                                              "EXPORT_FILE_NAME"))))) t)
-         ((let ((pt (point)))
-            ;; .gpg で半角スペースの後ろのブリッツでは自動保存しない．
-            ;; FIXME 半角スペース
-            (when (and (string-match ".gpg" (buffer-name))
-                       (not (eq pt 1))
-                       (not (eq pt (point-min))))
-              (string-match (buffer-substring (- pt 1) pt) " "))) t))))
-
 (when (require 'super-save nil t)
   (setq super-save-auto-save-when-idle t)
   (setq super-save-idle-duration 1.5)

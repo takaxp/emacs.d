@@ -7581,6 +7581,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 :PROPERTIES:
 :CREATED:  [2023-03-12 Sun 13:50]
 :ID:       3ED2165E-77B1-4B37-980A-286015F3011B
+:CUSTOM_ID: orgde08dbd8
 :END:
 
 - https://github.com/bbatsov/super-save
@@ -7589,7 +7590,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 
 例外にするバッファ名を指定したり，特定の条件を満たしている場合に例外とするなどをカスタム変数で指定できるのが便利だと思います．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-super-save-predicates-p ()
   "Return nil, if the buffer should not be saved."
@@ -7608,7 +7609,9 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
                        (not (eq pt 1))
                        (not (eq pt (point-min))))
               (string-match (buffer-substring (- pt 1) pt) " "))) t))))
+#+end_src
 
+#+begin_src emacs-lisp :tangle late-init.el
 (when (require 'super-save nil t)
   (setq super-save-auto-save-when-idle t)
   (setq super-save-idle-duration 1.5)

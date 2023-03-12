@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-03-12 Sun 14:05 -->
+<!-- 2023-03-12 Sun 14:23 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -233,7 +233,7 @@
 <li><a href="#orga2859651">2.15. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.16. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.17. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#org40a7db0">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
+<li><a href="#org596b343">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
 <li><a href="#orgdc071e4d">2.19. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
 <li><a href="#orgfca510d8">2.20. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
@@ -279,7 +279,7 @@
 <li><a href="#orgc2257142">3.16. バッファが外部から編集された場合に自動で再読み込みする</a></li>
 <li><a href="#org4ea9e5f1">3.17. マウススクロールをピクセル単位にする</a></li>
 <li><a href="#org6a9f8b88">3.18. デフォルトディレクトリ</a></li>
-<li><a href="#orgb148370">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
+<li><a href="#org16715fd">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
 <li><a href="#orgb5cd55a9">3.20. [aggressive-indent.el] 即時バッファ整形</a></li>
 <li><a href="#org723e2b73">3.21. [uniquify.el] 同じバッファ名が開かれた場合に区別する</a></li>
 <li><a href="#org982c69d7">3.22. [ws-butler.el] 不要なスペースを自動除去</a></li>
@@ -475,7 +475,7 @@
 <li><a href="#org7c53511f">8.9. [dired-recent.el] 訪問したディレクトリの履歴を取る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="dired">dired</span></span></a></li>
 <li><a href="#orga3cbefa8">8.10. [osx-trash] system-move-file-to-trash を有効にする</a></li>
 <li><a href="#org6e71b562">8.11. [undo-fu.el] シンプルな redo を提供してくる</a></li>
-<li><a href="#orge4ed4f7">8.12. [super-save.el] 所定のタイミングでバッファを保存する</a></li>
+<li><a href="#orgde08dbd8">8.12. [super-save.el] 所定のタイミングでバッファを保存する</a></li>
 <li><a href="#orgb8c01946">8.13. <span class="done DONE">DONE</span> [auto-save-buffers.el] 一定間隔でバッファを保存する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgab837e6a">8.14. [session.el] 様々な履歴を保存し復元に利用する</a></li>
 <li><a href="#org92404bbd">8.15. [neotree.el] ディレクトリ情報をツリー表示</a></li>
@@ -1516,8 +1516,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org40a7db0" class="outline-3">
-<h3 id="org40a7db0"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
+<div id="outline-container-org596b343" class="outline-3">
+<h3 id="org596b343"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
 <div class="outline-text-3" id="text-2-18">
 <p>
 <code>run-at-time</code> を使ったタイマー設定時に，時刻を文字列で指定すると， <code>diary-lib.el</code> を読み込み， <code>diary-entry-time</code> を使いますが，そのために起動時の時間を使うのはもったいないので， <code>diary-entry-time</code> だけを <code>init.el</code> に移植し， <code>run-at-time</code> をハックして <code>diary-lib.el</code> を読み込まないようにします．
@@ -2621,8 +2621,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-orgb148370" class="outline-3">
-<h3 id="orgb148370"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
+<div id="outline-container-org16715fd" class="outline-3">
+<h3 id="org16715fd"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
 <div class="outline-text-3" id="text-3-19">
 <p>
 Emacs を高速に起動できれば，git のコミットメッセージを Emacs で編集できます．最低限の編集ができればよいので，通常は <code>emacs -nw -Q</code> あたりを <code>core.editor</code> に設定すると思いますが，それでも最低限の設定は加えておきたいものです．
@@ -9234,9 +9234,9 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
-<div id="outline-container-orge4ed4f7" class="outline-3">
-<h3 id="orge4ed4f7"><span class="section-number-3">8.12.</span> [super-save.el] 所定のタイミングでバッファを保存する</h3>
-<div class="outline-text-3" id="text-8-12">
+<div id="outline-container-orgde08dbd8" class="outline-3">
+<h3 id="orgde08dbd8"><span class="section-number-3">8.12.</span> [super-save.el] 所定のタイミングでバッファを保存する</h3>
+<div class="outline-text-3" id="text-orgde08dbd8">
 <ul class="org-ul">
 <li><a href="https://github.com/bbatsov/super-save">https://github.com/bbatsov/super-save</a></li>
 </ul>
@@ -9268,8 +9268,11 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                        (not (eq pt 1))
                        (not (eq pt (point-min))))
               (string-match (buffer-substring (- pt 1) pt) <span style="color: #8b2252;">" "</span>))) <span style="color: #ff0000; font-weight: bold;">t))))</span>
+</pre>
+</div>
 
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">super-save</span> nil t)
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">super-save</span> nil t)
   (<span style="color: #a020f0;">setq</span> super-save-auto-save-when-idle t)
   (<span style="color: #a020f0;">setq</span> super-save-idle-duration 1.5)
   (<span style="color: #a020f0;">setq</span> super-save-exclude '(<span style="color: #8b2252;">"Org Src"</span>))
@@ -13413,7 +13416,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org560d8ce"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgd26f4d6"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14360,7 +14363,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgae5e664" class="figure">
+<div id="org170b921" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18748,7 +18751,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-03-12 Sun 14:05</p>
+<p class="date">Created: 2023-03-12 Sun 14:23</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
