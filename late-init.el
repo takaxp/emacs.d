@@ -942,7 +942,8 @@
      (selected-minor-mode nil "selected")
      (skewer-html-mode nil "skewer-html")
      (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
-     (gcmh-mode nil "gcmh")))
+     (gcmh-mode nil "gcmh")
+     (super-save-mode nil "super-save")))
 
   ;; Override by icon
   (when (require 'icons-in-terminal nil t)
@@ -1397,8 +1398,33 @@
   (global-set-key (kbd "C-/") 'undo-fu-only-undo)
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 
-(autoload 'auto-save-buffers "auto-save-buffers" nil t)
-(run-with-idle-timer 1.6 t #'my-auto-save-buffers)
+;;;###autoload
+(defun my-super-save-predicates-p ()
+  "Return nil, if the buffer should not be saved."
+  (not
+   (cond ((memq major-mode '(undo-tree-visualizer-mode diff-mode)) t)
+         ((when (eq major-mode 'org-mode)
+            ;; when activating org-capture
+            (or (bound-and-true-p org-capture-mode)
+                (and (fboundp 'org-entry-get)
+                     (equal "" (org-entry-get (point)
+                                              "EXPORT_FILE_NAME"))))) t)
+         ((let ((pt (point)))
+            ;; .gpg で半角スペースの後ろのブリッツでは自動保存しない．
+            ;; FIXME 半角スペース
+            (when (and (string-match ".gpg" (buffer-name))
+                       (not (eq pt 1))
+                       (not (eq pt (point-min))))
+              (string-match (buffer-substring (- pt 1) pt) " "))) t))))
+
+(when (require 'super-save nil t)
+  (setq super-save-auto-save-when-idle t)
+  (setq super-save-idle-duration 1.5)
+  (setq super-save-exclude '("Org Src"))
+  (add-to-list 'super-save-predicates
+               '(lambda () (my-super-save-predicates-p)) t)
+  (unless noninteractive
+    (super-save-mode 1)))
 
 (when (autoload-if-found '(neotree neotree-toggle)
                          "neotree" nil t)

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-02-26 Sun 21:32 -->
+<!-- 2023-03-12 Sun 14:04 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -233,7 +233,7 @@
 <li><a href="#orga2859651">2.15. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.16. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.17. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#orgea2bdb7">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
+<li><a href="#org1aebc4e">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
 <li><a href="#orgdc071e4d">2.19. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
 <li><a href="#orgfca510d8">2.20. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
@@ -279,7 +279,7 @@
 <li><a href="#orgc2257142">3.16. バッファが外部から編集された場合に自動で再読み込みする</a></li>
 <li><a href="#org4ea9e5f1">3.17. マウススクロールをピクセル単位にする</a></li>
 <li><a href="#org6a9f8b88">3.18. デフォルトディレクトリ</a></li>
-<li><a href="#org84c2a87">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
+<li><a href="#org35b0ff5">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
 <li><a href="#orgb5cd55a9">3.20. [aggressive-indent.el] 即時バッファ整形</a></li>
 <li><a href="#org723e2b73">3.21. [uniquify.el] 同じバッファ名が開かれた場合に区別する</a></li>
 <li><a href="#org982c69d7">3.22. [ws-butler.el] 不要なスペースを自動除去</a></li>
@@ -475,25 +475,26 @@
 <li><a href="#org7c53511f">8.9. [dired-recent.el] 訪問したディレクトリの履歴を取る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="dired">dired</span></span></a></li>
 <li><a href="#orga3cbefa8">8.10. [osx-trash] system-move-file-to-trash を有効にする</a></li>
 <li><a href="#org6e71b562">8.11. [undo-fu.el] シンプルな redo を提供してくる</a></li>
-<li><a href="#orgb8c01946">8.12. [auto-save-buffers.el] 一定間隔でバッファを保存する</a></li>
-<li><a href="#orgab837e6a">8.13. [session.el] 様々な履歴を保存し復元に利用する</a></li>
-<li><a href="#org92404bbd">8.14. [neotree.el] ディレクトリ情報をツリー表示</a></li>
-<li><a href="#orgf2d47943">8.15. [helpful.el] リッチなヘルプページ</a></li>
-<li><a href="#orgc08799d2">8.16. [facecheck.el] クリックしてfaceをチェック</a></li>
-<li><a href="#org0d952d68">8.17. [keyfreq.el] コマンドログ</a></li>
-<li><a href="#orged77c483">8.18. [disk-usage.el] ディスク利用率を調べる</a></li>
-<li><a href="#orgdd1e03ec">8.19. [uptimes.el] Emacsの起動時間を記録する</a></li>
-<li><a href="#orgfd3c67b9">8.20. [ag.el] 検索</a></li>
-<li><a href="#org29c7b6b7">8.21. [counsel-ag.el] 高速全文検索</a></li>
-<li><a href="#org24fd7b68">8.22. [counsel-fzf.el] 高速ファイル検索</a></li>
-<li><a href="#org694ee426">8.23. <span class="done DONE">DONE</span> [undo-propose] undo を編集不可モードで辿る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org82bd942f">8.24. <span class="done DONE">DONE</span> [undo-tree] 編集履歴をわかりやすくたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgc47c1e75">8.25. <span class="done DONE">DONE</span> [wakatime-mode.el] WakaTime を利用して作業記録する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgc470d5a3">8.26. <span class="done DONE">DONE</span> [backup-dir.el] バックアップファイルを一箇所に集める&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org8b2fe680">8.27. <span class="done DONE">DONE</span> バッファ保存時にバックアップファイルを生成する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgdba35c9f">8.28. <span class="done DONE">DONE</span> ミニバッファの履歴を保存しリストアする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgead91174">8.29. <span class="done DONE">DONE</span> Emacs終了時に開いていたバッファを起動時に復元する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org63e50e2c">8.30. <span class="done DONE">DONE</span> 深夜にバッファを自動整理する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org9821754">8.12. <span class="todo TODO">TODO</span> [super-save.el] 所定のタイミングでバッファを保存する</a></li>
+<li><a href="#orgb8c01946">8.13. <span class="done DONE">DONE</span> [auto-save-buffers.el] 一定間隔でバッファを保存する</a></li>
+<li><a href="#orgab837e6a">8.14. [session.el] 様々な履歴を保存し復元に利用する</a></li>
+<li><a href="#org92404bbd">8.15. [neotree.el] ディレクトリ情報をツリー表示</a></li>
+<li><a href="#orgf2d47943">8.16. [helpful.el] リッチなヘルプページ</a></li>
+<li><a href="#orgc08799d2">8.17. [facecheck.el] クリックしてfaceをチェック</a></li>
+<li><a href="#org0d952d68">8.18. [keyfreq.el] コマンドログ</a></li>
+<li><a href="#orged77c483">8.19. [disk-usage.el] ディスク利用率を調べる</a></li>
+<li><a href="#orgdd1e03ec">8.20. [uptimes.el] Emacsの起動時間を記録する</a></li>
+<li><a href="#orgfd3c67b9">8.21. [ag.el] 検索</a></li>
+<li><a href="#org29c7b6b7">8.22. [counsel-ag.el] 高速全文検索</a></li>
+<li><a href="#org24fd7b68">8.23. [counsel-fzf.el] 高速ファイル検索</a></li>
+<li><a href="#org694ee426">8.24. <span class="done DONE">DONE</span> [undo-propose] undo を編集不可モードで辿る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org82bd942f">8.25. <span class="done DONE">DONE</span> [undo-tree] 編集履歴をわかりやすくたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgc47c1e75">8.26. <span class="done DONE">DONE</span> [wakatime-mode.el] WakaTime を利用して作業記録する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgc470d5a3">8.27. <span class="done DONE">DONE</span> [backup-dir.el] バックアップファイルを一箇所に集める&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org8b2fe680">8.28. <span class="done DONE">DONE</span> バッファ保存時にバックアップファイルを生成する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgdba35c9f">8.29. <span class="done DONE">DONE</span> ミニバッファの履歴を保存しリストアする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgead91174">8.30. <span class="done DONE">DONE</span> Emacs終了時に開いていたバッファを起動時に復元する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org63e50e2c">8.31. <span class="done DONE">DONE</span> 深夜にバッファを自動整理する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
 <li><a href="#orgf1b8fa63">9. 開発サポート</a>
@@ -1515,8 +1516,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orgea2bdb7" class="outline-3">
-<h3 id="orgea2bdb7"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
+<div id="outline-container-org1aebc4e" class="outline-3">
+<h3 id="org1aebc4e"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
 <div class="outline-text-3" id="text-2-18">
 <p>
 <code>run-at-time</code> を使ったタイマー設定時に，時刻を文字列で指定すると， <code>diary-lib.el</code> を読み込み， <code>diary-entry-time</code> を使いますが，そのために起動時の時間を使うのはもったいないので， <code>diary-entry-time</code> だけを <code>init.el</code> に移植し， <code>run-at-time</code> をハックして <code>diary-lib.el</code> を読み込まないようにします．
@@ -2620,8 +2621,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-org84c2a87" class="outline-3">
-<h3 id="org84c2a87"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
+<div id="outline-container-org35b0ff5" class="outline-3">
+<h3 id="org35b0ff5"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
 <div class="outline-text-3" id="text-3-19">
 <p>
 Emacs を高速に起動できれば，git のコミットメッセージを Emacs で編集できます．最低限の編集ができればよいので，通常は <code>emacs -nw -Q</code> あたりを <code>core.editor</code> に設定すると思いますが，それでも最低限の設定は加えておきたいものです．
@@ -6864,7 +6865,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
      (selected-minor-mode nil <span style="color: #8b2252;">"selected"</span>)
      (skewer-html-mode nil <span style="color: #8b2252;">"skewer-html"</span>)
      (org-extra-emphasis-intraword-emphasis-mode nil <span style="color: #8b2252;">"org-extra-emphasis"</span>)
-     (gcmh-mode nil <span style="color: #8b2252;">"gcmh"</span>)))
+     (gcmh-mode nil <span style="color: #8b2252;">"gcmh"</span>)
+     (super-save-mode nil <span style="color: #8b2252;">"super-save"</span>)))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Override by icon</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
@@ -9116,8 +9118,11 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                          <span style="color: #b22222;">;; </span><span style="color: #b22222;">Image</span>
                          <span style="color: #8b2252;">"gif"</span> <span style="color: #8b2252;">"png"</span> <span style="color: #8b2252;">"jpg"</span> <span style="color: #8b2252;">"jpeg"</span>)
                         string-end)) <span style="color: #ff0000; font-weight: bold;">"open"</span><span style="color: #ff0000; font-weight: bold;">))))</span>
+</pre>
+</div>
 
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> nil
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> nil
            (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)
            (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-recent</span> nil t))
 
@@ -9126,7 +9131,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/abo-abo/hydra/wiki/Dired</span>
   (defhydra hydra-dired (<span style="color: #483d8b;">:hint</span> nil <span style="color: #483d8b;">:color</span> pink)
-    <span style="color: #8b2252;">"</span>
+            <span style="color: #8b2252;">"</span>
 <span style="color: #8b2252;">_+_ mkdir        _v_iew        _m_ark            _(_ details       _i_nsert-subdir</span>
 <span style="color: #8b2252;">_C_opy           View _O_ther  _U_nmark all      _)_ omit-mode</span>
 <span style="color: #8b2252;">_D_elete         _o_pen other  _u_nmark          _l_ redisplay     _w_ kill-subdir</span>
@@ -9136,43 +9141,43 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <span style="color: #8b2252;">_A_ find regexp  _Z_ compress  T - tag prefix</span>
 <span style="color: #8b2252;">_Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort</span>
 <span style="color: #8b2252;">"</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">("\\" dired-do-ispell)</span>
-    (<span style="color: #8b2252;">"("</span> dired-hide-details-mode)
-    (<span style="color: #8b2252;">")"</span> dired-omit-mode)
-    (<span style="color: #8b2252;">"+"</span> dired-create-directory)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">("=" diredp-ediff)         ;; smart diff</span>
-    (<span style="color: #8b2252;">"?"</span> dired-summary)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">("$" diredp-hide-subdir-nomove)</span>
-    (<span style="color: #8b2252;">"A"</span> dired-do-find-regexp)
-    (<span style="color: #8b2252;">"C"</span> dired-do-copy)        <span style="color: #b22222;">;; </span><span style="color: #b22222;">Copy all marked files</span>
-    (<span style="color: #8b2252;">"D"</span> dired-do-delete)
-    (<span style="color: #8b2252;">"E"</span> dired-mark-extension)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">("e" dired-ediff-files)</span>
-    (<span style="color: #8b2252;">"F"</span> dired-do-find-marked-files)
-    (<span style="color: #8b2252;">"G"</span> dired-do-chgrp)
-    (<span style="color: #8b2252;">"g"</span> revert-buffer)        <span style="color: #b22222;">;; </span><span style="color: #b22222;">read all directories again (refresh)</span>
-    (<span style="color: #8b2252;">"i"</span> dired-maybe-insert-subdir)
-    (<span style="color: #8b2252;">"l"</span> dired-do-redisplay)   <span style="color: #b22222;">;; </span><span style="color: #b22222;">relist the marked or singel directory</span>
-    (<span style="color: #8b2252;">"M"</span> dired-do-chmod)
-    (<span style="color: #8b2252;">"m"</span> dired-mark)
-    (<span style="color: #8b2252;">"O"</span> dired-display-file)
-    (<span style="color: #8b2252;">"o"</span> dired-find-file-other-window)
-    (<span style="color: #8b2252;">"Q"</span> dired-do-find-regexp-and-replace)
-    (<span style="color: #8b2252;">"R"</span> dired-do-rename)
-    (<span style="color: #8b2252;">"r"</span> dired-recent-open)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">("r" dired-do-rsynch)</span>
-    (<span style="color: #8b2252;">"S"</span> dired-do-symlink)
-    (<span style="color: #8b2252;">"s"</span> dired-sort-toggle-or-edit)
-    (<span style="color: #8b2252;">"t"</span> dired-toggle-marks)
-    (<span style="color: #8b2252;">"U"</span> dired-unmark-all-marks)
-    (<span style="color: #8b2252;">"u"</span> dired-unmark)
-    (<span style="color: #8b2252;">"v"</span> dired-view-file)      <span style="color: #b22222;">;; </span><span style="color: #b22222;">q to exit, s to search, = gets line #</span>
-    (<span style="color: #8b2252;">"w"</span> dired-kill-subdir)
-    (<span style="color: #8b2252;">"Y"</span> dired-do-relsymlink)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">("z" diredp-compress-this-file)</span>
-    (<span style="color: #8b2252;">"Z"</span> dired-do-compress)
-    (<span style="color: #8b2252;">"q"</span> nil)
-    (<span style="color: #8b2252;">"."</span> nil <span style="color: #483d8b;">:color</span> blue))
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">("\\" dired-do-ispell)</span>
+            (<span style="color: #8b2252;">"("</span> dired-hide-details-mode)
+            (<span style="color: #8b2252;">")"</span> dired-omit-mode)
+            (<span style="color: #8b2252;">"+"</span> dired-create-directory)
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">("=" diredp-ediff)         ;; smart diff</span>
+            (<span style="color: #8b2252;">"?"</span> dired-summary)
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">("$" diredp-hide-subdir-nomove)</span>
+            (<span style="color: #8b2252;">"A"</span> dired-do-find-regexp)
+            (<span style="color: #8b2252;">"C"</span> dired-do-copy)        <span style="color: #b22222;">;; </span><span style="color: #b22222;">Copy all marked files</span>
+            (<span style="color: #8b2252;">"D"</span> dired-do-delete)
+            (<span style="color: #8b2252;">"E"</span> dired-mark-extension)
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">("e" dired-ediff-files)</span>
+            (<span style="color: #8b2252;">"F"</span> dired-do-find-marked-files)
+            (<span style="color: #8b2252;">"G"</span> dired-do-chgrp)
+            (<span style="color: #8b2252;">"g"</span> revert-buffer)        <span style="color: #b22222;">;; </span><span style="color: #b22222;">read all directories again (refresh)</span>
+            (<span style="color: #8b2252;">"i"</span> dired-maybe-insert-subdir)
+            (<span style="color: #8b2252;">"l"</span> dired-do-redisplay)   <span style="color: #b22222;">;; </span><span style="color: #b22222;">relist the marked or singel directory</span>
+            (<span style="color: #8b2252;">"M"</span> dired-do-chmod)
+            (<span style="color: #8b2252;">"m"</span> dired-mark)
+            (<span style="color: #8b2252;">"O"</span> dired-display-file)
+            (<span style="color: #8b2252;">"o"</span> dired-find-file-other-window)
+            (<span style="color: #8b2252;">"Q"</span> dired-do-find-regexp-and-replace)
+            (<span style="color: #8b2252;">"R"</span> dired-do-rename)
+            (<span style="color: #8b2252;">"r"</span> dired-recent-open)
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">("r" dired-do-rsynch)</span>
+            (<span style="color: #8b2252;">"S"</span> dired-do-symlink)
+            (<span style="color: #8b2252;">"s"</span> dired-sort-toggle-or-edit)
+            (<span style="color: #8b2252;">"t"</span> dired-toggle-marks)
+            (<span style="color: #8b2252;">"U"</span> dired-unmark-all-marks)
+            (<span style="color: #8b2252;">"u"</span> dired-unmark)
+            (<span style="color: #8b2252;">"v"</span> dired-view-file)      <span style="color: #b22222;">;; </span><span style="color: #b22222;">q to exit, s to search, = gets line #</span>
+            (<span style="color: #8b2252;">"w"</span> dired-kill-subdir)
+            (<span style="color: #8b2252;">"Y"</span> dired-do-relsymlink)
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">("z" diredp-compress-this-file)</span>
+            (<span style="color: #8b2252;">"Z"</span> dired-do-compress)
+            (<span style="color: #8b2252;">"q"</span> nil)
+            (<span style="color: #8b2252;">"."</span> nil <span style="color: #483d8b;">:color</span> blue))
   )
 </pre>
 </div>
@@ -9229,8 +9234,52 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 </div>
 
+<div id="outline-container-org9821754" class="outline-3">
+<h3 id="org9821754"><span class="section-number-3">8.12.</span> <span class="todo TODO">TODO</span> [super-save.el] 所定のタイミングでバッファを保存する</h3>
+<div class="outline-text-3" id="text-8-12">
+<p>
+長らく <code>auto-save-buffers.el</code> のお世話になってきましたが， <code>super-save.el</code> に乗り換えました． <code>super-save.el</code> は，カレントバッファを切り替えるなどの任意のトリガーでバッファを保存したり， <code>auto-save-buffers.el</code> がするように，アイドル時にバッファを保存できます．
+</p>
+
+<p>
+例外にするバッファ名を指定したり，特定の条件を満たしている場合に例外とするなどをカスタム変数で指定できるのが便利だと思います．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-super-save-predicates-p</span> ()
+  <span style="color: #8b2252;">"Return nil, if the buffer should not be saved."</span>
+  (not
+   (<span style="color: #a020f0;">cond</span> ((memq major-mode '(undo-tree-visualizer-mode diff-mode)) t)
+         ((<span style="color: #a020f0;">when</span> (eq major-mode 'org-mode)
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">when activating org-capture</span>
+            (<span style="color: #a020f0;">or</span> (<span style="color: #a020f0;">bound-and-true-p</span> org-capture-mode)
+                (<span style="color: #a020f0;">and</span> (fboundp 'org-entry-get)
+                     (equal <span style="color: #8b2252;">""</span> (org-entry-get (point)
+                                              <span style="color: #8b2252;">"EXPORT_FILE_NAME"</span>))))) <span style="color: #ff0000; font-weight: bold;">t)</span>
+         ((<span style="color: #a020f0;">let</span> ((pt (point)))
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">.gpg &#12391;&#21322;&#35282;&#12473;&#12506;&#12540;&#12473;&#12398;&#24460;&#12429;&#12398;&#12502;&#12522;&#12483;&#12484;&#12391;&#12399;&#33258;&#21205;&#20445;&#23384;&#12375;&#12394;&#12356;&#65294;</span>
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME &#21322;&#35282;&#12473;&#12506;&#12540;&#12473;</span>
+            (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (string-match <span style="color: #8b2252;">".gpg"</span> (buffer-name))
+                       (not (eq pt 1))
+                       (not (eq pt (point-min))))
+              (string-match (buffer-substring (- pt 1) pt) <span style="color: #8b2252;">" "</span>))) <span style="color: #ff0000; font-weight: bold;">t))))</span>
+
+(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">super-save</span> nil t)
+  (<span style="color: #a020f0;">setq</span> super-save-auto-save-when-idle t)
+  (<span style="color: #a020f0;">setq</span> super-save-idle-duration 1.5)
+  (<span style="color: #a020f0;">setq</span> super-save-exclude '(<span style="color: #8b2252;">"Org Src"</span>))
+  (add-to-list 'super-save-predicates
+               '(lambda () (my-super-save-predicates-p)) t)
+  (<span style="color: #a020f0;">unless</span> noninteractive
+    (super-save-mode 1)))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgb8c01946" class="outline-3">
-<h3 id="orgb8c01946"><span class="section-number-3">8.12.</span> [auto-save-buffers.el] 一定間隔でバッファを保存する</h3>
+<h3 id="orgb8c01946"><span class="section-number-3">8.13.</span> <span class="done DONE">DONE</span> [auto-save-buffers.el] 一定間隔でバッファを保存する</h3>
 <div class="outline-text-3" id="text-orgb8c01946">
 <ul class="org-ul">
 <li><a href="http://0xcc.net/misc/auto-save/">http://0xcc.net/misc/auto-save/</a></li>
@@ -9241,7 +9290,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">utility.el</span>
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ox-hugo-auto-saving-p</span> ()
   (<span style="color: #a020f0;">when</span> (eq major-mode 'org-mode)
     (<span style="color: #a020f0;">or</span> (<span style="color: #a020f0;">bound-and-true-p</span> org-capture-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">when activating org-capture</span>
@@ -9266,7 +9316,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(autoload 'auto-save-buffers <span style="color: #8b2252;">"auto-save-buffers"</span> nil t)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(autoload 'auto-save-buffers <span style="color: #8b2252;">"auto-save-buffers"</span> nil t)
 (run-with-idle-timer 1.6 t #'my-auto-save-buffers)
 </pre>
 </div>
@@ -9274,7 +9325,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 
 <div id="outline-container-orgab837e6a" class="outline-3">
-<h3 id="orgab837e6a"><span class="section-number-3">8.13.</span> [session.el] 様々な履歴を保存し復元に利用する</h3>
+<h3 id="orgab837e6a"><span class="section-number-3">8.14.</span> [session.el] 様々な履歴を保存し復元に利用する</h3>
 <div class="outline-text-3" id="text-orgab837e6a">
 <p>
 <a href="http://emacs-session.sourceforge.net/">http://emacs-session.sourceforge.net/</a>
@@ -9371,7 +9422,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-org92404bbd" class="outline-3">
-<h3 id="org92404bbd"><span class="section-number-3">8.14.</span> [neotree.el] ディレクトリ情報をツリー表示</h3>
+<h3 id="org92404bbd"><span class="section-number-3">8.15.</span> [neotree.el] ディレクトリ情報をツリー表示</h3>
 <div class="outline-text-3" id="text-org92404bbd">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -9432,7 +9483,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-orgf2d47943" class="outline-3">
-<h3 id="orgf2d47943"><span class="section-number-3">8.15.</span> [helpful.el] リッチなヘルプページ</h3>
+<h3 id="orgf2d47943"><span class="section-number-3">8.16.</span> [helpful.el] リッチなヘルプページ</h3>
 <div class="outline-text-3" id="text-orgf2d47943">
 <p>
 ヘルプの内容を見やすく構造化して表示してくれます．関数や変数のヘルプだけでなく，キーやマクロなども見やすく表示してくれます．
@@ -9463,7 +9514,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-orgc08799d2" class="outline-3">
-<h3 id="orgc08799d2"><span class="section-number-3">8.16.</span> [facecheck.el] クリックしてfaceをチェック</h3>
+<h3 id="orgc08799d2"><span class="section-number-3">8.17.</span> [facecheck.el] クリックしてfaceをチェック</h3>
 <div class="outline-text-3" id="text-orgc08799d2">
 <p>
 マウスクリックでface情報を表示する．マイナーモードを有効にして使います．
@@ -9480,7 +9531,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-org0d952d68" class="outline-3">
-<h3 id="org0d952d68"><span class="section-number-3">8.17.</span> [keyfreq.el] コマンドログ</h3>
+<h3 id="org0d952d68"><span class="section-number-3">8.18.</span> [keyfreq.el] コマンドログ</h3>
 <div class="outline-text-3" id="text-org0d952d68">
 <p>
 発行しているコマンドの使用頻度を記録し確認できます．デフォルトで， <code>~/.emacs.keyfreq</code> に情報が記録されます．
@@ -9517,7 +9568,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-orged77c483" class="outline-3">
-<h3 id="orged77c483"><span class="section-number-3">8.18.</span> [disk-usage.el] ディスク利用率を調べる</h3>
+<h3 id="orged77c483"><span class="section-number-3">8.19.</span> [disk-usage.el] ディスク利用率を調べる</h3>
 <div class="outline-text-3" id="text-orged77c483">
 <p>
 <code>ncdu</code> コマンドのように，システムのディスク利用率を調べてバッファに一覧表示します．ただ，非同期に対応していないので，普通にシェルで <code>ncdu</code> コマンドを使う方が良い気がします．
@@ -9536,7 +9587,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </div>
 
 <div id="outline-container-orgdd1e03ec" class="outline-3">
-<h3 id="orgdd1e03ec"><span class="section-number-3">8.19.</span> [uptimes.el] Emacsの起動時間を記録する</h3>
+<h3 id="orgdd1e03ec"><span class="section-number-3">8.20.</span> [uptimes.el] Emacsの起動時間を記録する</h3>
 <div class="outline-text-3" id="text-orgdd1e03ec">
 <p>
 <a href="https://github.com/davep/uptimes.el">davep/uptimes.el: Uptime tracking system for emacs.</a> を使うと，過去数回の起動・稼働・終了履歴がわかります．
@@ -9576,7 +9627,7 @@ Boot                Endtime             Uptime       This emacs
 </div>
 
 <div id="outline-container-orgfd3c67b9" class="outline-3">
-<h3 id="orgfd3c67b9"><span class="section-number-3">8.20.</span> [ag.el] 検索</h3>
+<h3 id="orgfd3c67b9"><span class="section-number-3">8.21.</span> [ag.el] 検索</h3>
 <div class="outline-text-3" id="text-orgfd3c67b9">
 <p>
 検索には <code>The Silver Searcher</code> を使います．あらかじめインストールしておく必要があります．MacPorts の場合，the_silver_searcher の名称で頒布されています． <code>exec-path</code> に <code>/opt/local/bin</code> が含まれていることを確認してください．
@@ -9624,7 +9675,7 @@ Boot                Endtime             Uptime       This emacs
 </div>
 </div>
 <div id="outline-container-org29c7b6b7" class="outline-3">
-<h3 id="org29c7b6b7"><span class="section-number-3">8.21.</span> [counsel-ag.el] 高速全文検索</h3>
+<h3 id="org29c7b6b7"><span class="section-number-3">8.22.</span> [counsel-ag.el] 高速全文検索</h3>
 <div class="outline-text-3" id="text-org29c7b6b7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -9658,7 +9709,7 @@ Boot                Endtime             Uptime       This emacs
 </div>
 
 <div id="outline-container-org24fd7b68" class="outline-3">
-<h3 id="org24fd7b68"><span class="section-number-3">8.22.</span> [counsel-fzf.el] 高速ファイル検索</h3>
+<h3 id="org24fd7b68"><span class="section-number-3">8.23.</span> [counsel-fzf.el] 高速ファイル検索</h3>
 <div class="outline-text-3" id="text-org24fd7b68">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -9687,7 +9738,7 @@ Boot                Endtime             Uptime       This emacs
 </div>
 
 <div id="outline-container-org694ee426" class="outline-3">
-<h3 id="org694ee426"><span class="section-number-3">8.23.</span> <span class="done DONE">DONE</span> [undo-propose] undo を編集不可モードで辿る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org694ee426"><span class="section-number-3">8.24.</span> <span class="done DONE">DONE</span> [undo-propose] undo を編集不可モードで辿る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org694ee426">
 <p>
 最近は <b>undo-fu.el</b> を使っています．
@@ -9793,7 +9844,7 @@ Boot                Endtime             Uptime       This emacs
 </div>
 
 <div id="outline-container-org82bd942f" class="outline-3">
-<h3 id="org82bd942f"><span class="section-number-3">8.24.</span> <span class="done DONE">DONE</span> [undo-tree] 編集履歴をわかりやすくたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org82bd942f"><span class="section-number-3">8.25.</span> <span class="done DONE">DONE</span> [undo-tree] 編集履歴をわかりやすくたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org82bd942f">
 <p>
 最近は <b>undo-fu.el</b> を使っています．
@@ -9852,7 +9903,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 
 <div id="outline-container-orgc47c1e75" class="outline-3">
-<h3 id="orgc47c1e75"><span class="section-number-3">8.25.</span> <span class="done DONE">DONE</span> [wakatime-mode.el] WakaTime を利用して作業記録する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgc47c1e75"><span class="section-number-3">8.26.</span> <span class="done DONE">DONE</span> [wakatime-mode.el] WakaTime を利用して作業記録する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgc47c1e75">
 <ol class="org-ol">
 <li><a href="https://www.wakati.me/">https://www.wakati.me/</a>（API発行とログGUI表示）</li>
@@ -9877,7 +9928,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 
 <div id="outline-container-orgc470d5a3" class="outline-3">
-<h3 id="orgc470d5a3"><span class="section-number-3">8.26.</span> <span class="done DONE">DONE</span> [backup-dir.el] バックアップファイルを一箇所に集める&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgc470d5a3"><span class="section-number-3">8.27.</span> <span class="done DONE">DONE</span> [backup-dir.el] バックアップファイルを一箇所に集める&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgc470d5a3">
 <p>
 <code>backup-each-save</code> を使うようになりました．
@@ -9912,7 +9963,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 
 <div id="outline-container-org8b2fe680" class="outline-3">
-<h3 id="org8b2fe680"><span class="section-number-3">8.27.</span> <span class="done DONE">DONE</span> バッファ保存時にバックアップファイルを生成する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org8b2fe680"><span class="section-number-3">8.28.</span> <span class="done DONE">DONE</span> バッファ保存時にバックアップファイルを生成する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org8b2fe680">
 <p>
 バッファが保存されるとき，必ずバックアップを生成する．
@@ -9928,7 +9979,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 
 <div id="outline-container-orgdba35c9f" class="outline-3">
-<h3 id="orgdba35c9f"><span class="section-number-3">8.28.</span> <span class="done DONE">DONE</span> ミニバッファの履歴を保存しリストアする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgdba35c9f"><span class="section-number-3">8.29.</span> <span class="done DONE">DONE</span> ミニバッファの履歴を保存しリストアする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgdba35c9f">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">savehist</span> nil t)
@@ -9941,7 +9992,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 </div>
 
 <div id="outline-container-orgead91174" class="outline-3">
-<h3 id="orgead91174"><span class="section-number-3">8.29.</span> <span class="done DONE">DONE</span> Emacs終了時に開いていたバッファを起動時に復元する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgead91174"><span class="section-number-3">8.30.</span> <span class="done DONE">DONE</span> Emacs終了時に開いていたバッファを起動時に復元する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgead91174">
 <p>
 Built-in の <a href="http://www.emacswiki.org/emacs/DeskTop">desktop.el</a> を使う．
@@ -9964,7 +10015,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </div>
 
 <div id="outline-container-org63e50e2c" class="outline-3">
-<h3 id="org63e50e2c"><span class="section-number-3">8.30.</span> <span class="done DONE">DONE</span> 深夜にバッファを自動整理する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org63e50e2c"><span class="section-number-3">8.31.</span> <span class="done DONE">DONE</span> 深夜にバッファを自動整理する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org63e50e2c">
 <p>
 私は頻繁に再起動する派なので，使っていません．
@@ -10222,9 +10273,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; <i>/ ここ
+  v; // ここ
   boost::timer t;
-  cout &lt;&lt; t; /</i> ここ
+  cout &lt;&lt; t; // ここ
   return 1;
 }
 </p>
@@ -13358,7 +13409,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga9bfe32"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org26fe9ea"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14305,7 +14356,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgbcb87e1" class="figure">
+<div id="orgec69b32" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18693,7 +18744,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-02-26 Sun 21:32</p>
+<p class="date">Created: 2023-03-12 Sun 14:04</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

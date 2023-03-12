@@ -18,6 +18,35 @@
 ;;                                ))
 
 (with-eval-after-load "org"
+  (defun my-hugo-export-upload ()
+    "Export subtree for Hugo and upload the engty."
+    (when (member (buffer-name) '("imadenale.org" "archive.org"))
+      (if (not (org-entry-is-done-p))
+          (message "The state of the entry is not \"DONE\" yet.")
+        (my-org-replace-punc-in-tree)
+        (save-buffer)
+        (org-hugo-export-wim-to-md)
+        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
+              (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
+              (exported (format "[ox-hugo] \"%s\" has been exported."
+                                (nth 4 (org-heading-components)))))
+          (when filename
+            (save-excursion
+              (save-restriction
+                (outline-up-heading 1)
+                (setq filename
+                      (concat (nth 4 (org-heading-components)) "/" filename))
+                (setq command (concat command " -e " (downcase filename)))))
+            (message "%s\nUploading..." exported)
+            (message "--- %s" command)
+            ;; commad='/Users/taka/Dropbox/scripts/push-hugo.sh -e 2023/0301-macmini2018-transfer'
+            (message "%s" (shell-command-to-string command))
+            ;; (call-process "/Users/taka/Dropbox/scripts/push-hugo.sh"
+            ;;               nil
+            ;;               "-e"
+            ;;               (downcase filename))
+            (message "%s\nUploading...done" exported))))))
+
   ;; (setq epg-pinentry-mode nil)
   (when (string= (system-name) "water.local")
     (setq org-show-notification-handler nil))
@@ -124,3 +153,4 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
 ;;(advice-add 'epg--check-error-for-decrypt :override 'ignore)
+;; (package-initialize) ;; keep this here for previous versions

@@ -12,7 +12,7 @@
   (el-get-bundle "takaxp/moom")
   (el-get-bundle "takaxp/ascii")
   (el-get-bundle "takaxp/help-fns-plus")
-  (el-get-bundle "takaxp/dimmer.el" :name dimmer) ;; to avoid downloding images
+  (el-get-bundle "takaxp/dimmer.el") ;; to avoid downloding images
   (el-get-bundle "ws-butler")
   (el-get-bundle "takaxp/session")
   (el-get-bundle "which-key")
@@ -30,6 +30,7 @@
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "zk-phi/git-complete"))
   (el-get-bundle "oantolin/embark")
+  (el-get-bundle "bbatsov/super-save")
 
   ;; Org Mode
   (el-get-bundle "org-tree-slide" :branch "develop")

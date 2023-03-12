@@ -5340,7 +5340,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
      (selected-minor-mode nil "selected")
      (skewer-html-mode nil "skewer-html")
      (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
-     (gcmh-mode nil "gcmh")))
+     (gcmh-mode nil "gcmh")
+     (super-save-mode nil "super-save")))
 
   ;; Override by icon
   (when (require 'icons-in-terminal nil t)
@@ -7471,7 +7472,9 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 			 ;; Image
 			 "gif" "png" "jpg" "jpeg")
 			string-end)) "open"))))
+#+end_src
 
+#+begin_src emacs-lisp :tangle no
 (when (and nil
            (require 'hydra nil t)
 	   (require 'dired-recent nil t))
@@ -7481,7 +7484,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
   ;; https://github.com/abo-abo/hydra/wiki/Dired
   (defhydra hydra-dired (:hint nil :color pink)
-    "
+            "
 _+_ mkdir        _v_iew        _m_ark            _(_ details       _i_nsert-subdir
 _C_opy           View _O_ther  _U_nmark all      _)_ omit-mode
 _D_elete         _o_pen other  _u_nmark          _l_ redisplay     _w_ kill-subdir
@@ -7491,43 +7494,43 @@ _S_ymlink        ^ ^           _F_ind marked     _._ toggle hydra  _?_ summary
 _A_ find regexp  _Z_ compress  T - tag prefix
 _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 "
-    ;; ("\\" dired-do-ispell)
-    ("(" dired-hide-details-mode)
-    (")" dired-omit-mode)
-    ("+" dired-create-directory)
-    ;; ("=" diredp-ediff)         ;; smart diff
-    ("?" dired-summary)
-    ;; ("$" diredp-hide-subdir-nomove)
-    ("A" dired-do-find-regexp)
-    ("C" dired-do-copy)        ;; Copy all marked files
-    ("D" dired-do-delete)
-    ("E" dired-mark-extension)
-    ;; ("e" dired-ediff-files)
-    ("F" dired-do-find-marked-files)
-    ("G" dired-do-chgrp)
-    ("g" revert-buffer)        ;; read all directories again (refresh)
-    ("i" dired-maybe-insert-subdir)
-    ("l" dired-do-redisplay)   ;; relist the marked or singel directory
-    ("M" dired-do-chmod)
-    ("m" dired-mark)
-    ("O" dired-display-file)
-    ("o" dired-find-file-other-window)
-    ("Q" dired-do-find-regexp-and-replace)
-    ("R" dired-do-rename)
-    ("r" dired-recent-open)
-    ;; ("r" dired-do-rsynch)
-    ("S" dired-do-symlink)
-    ("s" dired-sort-toggle-or-edit)
-    ("t" dired-toggle-marks)
-    ("U" dired-unmark-all-marks)
-    ("u" dired-unmark)
-    ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
-    ("w" dired-kill-subdir)
-    ("Y" dired-do-relsymlink)
-    ;; ("z" diredp-compress-this-file)
-    ("Z" dired-do-compress)
-    ("q" nil)
-    ("." nil :color blue))
+            ;; ("\\" dired-do-ispell)
+            ("(" dired-hide-details-mode)
+            (")" dired-omit-mode)
+            ("+" dired-create-directory)
+            ;; ("=" diredp-ediff)         ;; smart diff
+            ("?" dired-summary)
+            ;; ("$" diredp-hide-subdir-nomove)
+            ("A" dired-do-find-regexp)
+            ("C" dired-do-copy)        ;; Copy all marked files
+            ("D" dired-do-delete)
+            ("E" dired-mark-extension)
+            ;; ("e" dired-ediff-files)
+            ("F" dired-do-find-marked-files)
+            ("G" dired-do-chgrp)
+            ("g" revert-buffer)        ;; read all directories again (refresh)
+            ("i" dired-maybe-insert-subdir)
+            ("l" dired-do-redisplay)   ;; relist the marked or singel directory
+            ("M" dired-do-chmod)
+            ("m" dired-mark)
+            ("O" dired-display-file)
+            ("o" dired-find-file-other-window)
+            ("Q" dired-do-find-regexp-and-replace)
+            ("R" dired-do-rename)
+            ("r" dired-recent-open)
+            ;; ("r" dired-do-rsynch)
+            ("S" dired-do-symlink)
+            ("s" dired-sort-toggle-or-edit)
+            ("t" dired-toggle-marks)
+            ("U" dired-unmark-all-marks)
+            ("u" dired-unmark)
+            ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
+            ("w" dired-kill-subdir)
+            ("Y" dired-do-relsymlink)
+            ;; ("z" diredp-compress-this-file)
+            ("Z" dired-do-compress)
+            ("q" nil)
+            ("." nil :color blue))
   )
 #+end_src
 
@@ -7574,7 +7577,47 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 #+end_src
 
-** [auto-save-buffers.el] 一定間隔でバッファを保存する
+** TODO [super-save.el] 所定のタイミングでバッファを保存する
+:PROPERTIES:
+:CREATED:  [2023-03-12 Sun 13:50]
+:ID:       3ED2165E-77B1-4B37-980A-286015F3011B
+:END:
+長らく =auto-save-buffers.el= のお世話になってきましたが， =super-save.el= に乗り換えました． =super-save.el= は，カレントバッファを切り替えるなどの任意のトリガーでバッファを保存したり， =auto-save-buffers.el= がするように，アイドル時にバッファを保存できます．
+
+例外にするバッファ名を指定したり，特定の条件を満たしている場合に例外とするなどをカスタム変数で指定できるのが便利だと思います．
+
+#+begin_src emacs-lisp :tangle late-init.el
+;;;###autoload
+(defun my-super-save-predicates-p ()
+  "Return nil, if the buffer should not be saved."
+  (not
+   (cond ((memq major-mode '(undo-tree-visualizer-mode diff-mode)) t)
+         ((when (eq major-mode 'org-mode)
+            ;; when activating org-capture
+            (or (bound-and-true-p org-capture-mode)
+                (and (fboundp 'org-entry-get)
+                     (equal "" (org-entry-get (point)
+                                              "EXPORT_FILE_NAME"))))) t)
+         ((let ((pt (point)))
+            ;; .gpg で半角スペースの後ろのブリッツでは自動保存しない．
+            ;; FIXME 半角スペース
+            (when (and (string-match ".gpg" (buffer-name))
+                       (not (eq pt 1))
+                       (not (eq pt (point-min))))
+              (string-match (buffer-substring (- pt 1) pt) " "))) t))))
+
+(when (require 'super-save nil t)
+  (setq super-save-auto-save-when-idle t)
+  (setq super-save-idle-duration 1.5)
+  (setq super-save-exclude '("Org Src"))
+  (add-to-list 'super-save-predicates
+               '(lambda () (my-super-save-predicates-p)) t)
+  (unless noninteractive
+    (super-save-mode 1)))
+#+end_src
+
+** DONE [auto-save-buffers.el] 一定間隔でバッファを保存する
+CLOSED: [2023-03-12 Sun 13:50]
    :PROPERTIES:
    :CUSTOM_ID: orgb8c01946
    :ID:       05CC85C8-311B-4855-8224-87B843F4EFE5
@@ -7584,7 +7627,8 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 
 同じ機能で比較的新しいパッケージに， [[https://github.com/ChillarAnand/real-auto-save][real-auto-save.el]] があります．ただ，私の場合は，以下のようなモードごとの制御がうまくできなかったので移行していません．
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle no
+;; utility.el
 ;;;###autoload
 (defun my-ox-hugo-auto-saving-p ()
   (when (eq major-mode 'org-mode)
@@ -7608,7 +7652,8 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
          (auto-save-buffers))))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (autoload 'auto-save-buffers "auto-save-buffers" nil t)
 (run-with-idle-timer 1.6 t #'my-auto-save-buffers)
 #+end_src
