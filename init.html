@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-03-12 Sun 14:23 -->
+<!-- 2023-03-13 Mon 21:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -233,7 +233,7 @@
 <li><a href="#orga2859651">2.15. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
 <li><a href="#org124f13e2">2.16. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
 <li><a href="#org30c47759">2.17. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#org596b343">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
+<li><a href="#orgbccec16">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
 <li><a href="#orgdc071e4d">2.19. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
 <li><a href="#orgfca510d8">2.20. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
@@ -279,7 +279,7 @@
 <li><a href="#orgc2257142">3.16. バッファが外部から編集された場合に自動で再読み込みする</a></li>
 <li><a href="#org4ea9e5f1">3.17. マウススクロールをピクセル単位にする</a></li>
 <li><a href="#org6a9f8b88">3.18. デフォルトディレクトリ</a></li>
-<li><a href="#org16715fd">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
+<li><a href="#org7d94664">3.19. <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</a></li>
 <li><a href="#orgb5cd55a9">3.20. [aggressive-indent.el] 即時バッファ整形</a></li>
 <li><a href="#org723e2b73">3.21. [uniquify.el] 同じバッファ名が開かれた場合に区別する</a></li>
 <li><a href="#org982c69d7">3.22. [ws-butler.el] 不要なスペースを自動除去</a></li>
@@ -873,13 +873,13 @@ Then load the following at startup
   (format <span style="color: #8b2252;">"%searly-init.el"</span> (expand-file-name user-emacs-directory)))
 
 (message <span style="color: #8b2252;">"Loading %s..."</span> my-early-init)
-(<span style="color: #a020f0;">unless</span> (getenv <span style="color: #8b2252;">"LIBRARY_PATH"</span>)
-  (setenv <span style="color: #8b2252;">"LIBRARY_PATH"</span>
-          (string-join
-           '(<span style="color: #8b2252;">"/opt/homebrew/opt/gcc/lib/gcc/12"</span>
-             <span style="color: #8b2252;">"/opt/homebrew/opt/libgccjit/lib/gcc/12"</span>
-             <span style="color: #8b2252;">"/opt/homebrew/opt/gcc/lib/gcc/12/gcc/aarch64-apple-darwin22/12"</span>)
-           <span style="color: #8b2252;">":"</span>)))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (getenv "LIBRARY_PATH")</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setenv "LIBRARY_PATH"</span>
+<span style="color: #b22222;">;;           </span><span style="color: #b22222;">(string-join</span>
+<span style="color: #b22222;">;;            </span><span style="color: #b22222;">'("/opt/homebrew/opt/gcc/lib/gcc/12"</span>
+<span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/libgccjit/lib/gcc/12"</span>
+<span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/gcc/lib/gcc/12/gcc/aarch64-apple-darwin22/12")</span>
+<span style="color: #b22222;">;;            </span><span style="color: #b22222;">":")))</span>
 
 (<span style="color: #a020f0;">setq</span> package-enable-at-startup nil
       frame-inhibit-implied-resize t)
@@ -1516,8 +1516,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-org596b343" class="outline-3">
-<h3 id="org596b343"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
+<div id="outline-container-orgbccec16" class="outline-3">
+<h3 id="orgbccec16"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
 <div class="outline-text-3" id="text-2-18">
 <p>
 <code>run-at-time</code> を使ったタイマー設定時に，時刻を文字列で指定すると， <code>diary-lib.el</code> を読み込み， <code>diary-entry-time</code> を使いますが，そのために起動時の時間を使うのはもったいないので， <code>diary-entry-time</code> だけを <code>init.el</code> に移植し， <code>run-at-time</code> をハックして <code>diary-lib.el</code> を読み込まないようにします．
@@ -2621,8 +2621,8 @@ Version 27 から <code>C-x C-f</code> のデフォルトが変わったよう�
 </div>
 </div>
 
-<div id="outline-container-org16715fd" class="outline-3">
-<h3 id="org16715fd"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
+<div id="outline-container-org7d94664" class="outline-3">
+<h3 id="org7d94664"><span class="section-number-3">3.19.</span> <span class="todo TODO">TODO</span> git用の設定ファイル読み込み</h3>
 <div class="outline-text-3" id="text-3-19">
 <p>
 Emacs を高速に起動できれば，git のコミットメッセージを Emacs で編集できます．最低限の編集ができればよいので，通常は <code>emacs -nw -Q</code> あたりを <code>core.editor</code> に設定すると思いますが，それでも最低限の設定は加えておきたいものです．
@@ -9249,6 +9249,10 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 例外にするバッファ名を指定したり，特定の条件を満たしている場合に例外とするなどをカスタム変数で指定できるのが便利だと思います．
 </p>
 
+<p>
+ただ， <code>org-agenda</code> のように別ファイルが直接更新された場合に，当該ファイルが自動保存されないので， <code>super-save-command</code> を <code>=my-super-save-buffers-command</code> で置き換えて使っています．このパッケージが本来持っているカレントバッファの変化に常時注目するという特徴が失われてしまいますけども&#x2026;
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-super-save-predicates-p</span> ()
@@ -9268,16 +9272,31 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                        (not (eq pt 1))
                        (not (eq pt (point-min))))
               (string-match (buffer-substring (- pt 1) pt) <span style="color: #8b2252;">" "</span>))) <span style="color: #ff0000; font-weight: bold;">t))))</span>
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-super-save-buffers-command</span> ()
+  <span style="color: #8b2252;">"Save the buffer if needed.</span>
+<span style="color: #8b2252;">see https://github.com/bbatsov/super-save/pull/20/files."</span>
+  (<span style="color: #a020f0;">save-excursion</span>
+    (<span style="color: #a020f0;">dolist</span> (buf (buffer-list))
+      (set-buffer buf)
+      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> buffer-file-name
+                 (buffer-modified-p (current-buffer))
+                 (file-writable-p buffer-file-name)
+                 (<span style="color: #a020f0;">if</span> (file-remote-p buffer-file-name)
+                     super-save-remote-files t))
+        (save-buffer)))))
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">super-save</span> nil t)
   (<span style="color: #a020f0;">setq</span> super-save-auto-save-when-idle t)
-  (<span style="color: #a020f0;">setq</span> super-save-idle-duration 1.5)
+  (<span style="color: #a020f0;">setq</span> super-save-idle-duration 5)
   (<span style="color: #a020f0;">setq</span> super-save-exclude '(<span style="color: #8b2252;">"Org Src"</span>))
   (add-to-list 'super-save-predicates
                '(lambda () (my-super-save-predicates-p)) t)
+  (advice-add 'super-save-command <span style="color: #483d8b;">:override</span> #'my-super-save-buffers-command)
   (<span style="color: #a020f0;">unless</span> noninteractive
     (super-save-mode 1)))
 </pre>
@@ -13416,7 +13435,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgd26f4d6"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgd943620"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14363,7 +14382,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org170b921" class="figure">
+<div id="org5321b1e" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18751,7 +18770,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-03-12 Sun 14:23</p>
+<p class="date">Created: 2023-03-13 Mon 21:00</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

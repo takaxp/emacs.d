@@ -1400,10 +1400,11 @@
 
 (when (require 'super-save nil t)
   (setq super-save-auto-save-when-idle t)
-  (setq super-save-idle-duration 1.5)
+  (setq super-save-idle-duration 5)
   (setq super-save-exclude '("Org Src"))
   (add-to-list 'super-save-predicates
                '(lambda () (my-super-save-predicates-p)) t)
+  (advice-add 'super-save-command :override #'my-super-save-buffers-command)
   (unless noninteractive
     (super-save-mode 1)))
 

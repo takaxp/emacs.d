@@ -130,13 +130,13 @@ Then load the following at startup
   (format "%searly-init.el" (expand-file-name user-emacs-directory)))
 
 (message "Loading %s..." my-early-init)
-(unless (getenv "LIBRARY_PATH")
-  (setenv "LIBRARY_PATH"
-          (string-join
-           '("/opt/homebrew/opt/gcc/lib/gcc/12"
-             "/opt/homebrew/opt/libgccjit/lib/gcc/12"
-             "/opt/homebrew/opt/gcc/lib/gcc/12/gcc/aarch64-apple-darwin22/12")
-           ":")))
+;; (unless (getenv "LIBRARY_PATH")
+;;   (setenv "LIBRARY_PATH"
+;;           (string-join
+;;            '("/opt/homebrew/opt/gcc/lib/gcc/12"
+;;              "/opt/homebrew/opt/libgccjit/lib/gcc/12"
+;;              "/opt/homebrew/opt/gcc/lib/gcc/12/gcc/aarch64-apple-darwin22/12")
+;;            ":")))
 
 (setq package-enable-at-startup nil
       frame-inhibit-implied-resize t)
@@ -7590,6 +7590,8 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 
 例外にするバッファ名を指定したり，特定の条件を満たしている場合に例外とするなどをカスタム変数で指定できるのが便利だと思います．
 
+ただ， ~org-agenda~ のように別ファイルが直接更新された場合に，当該ファイルが自動保存されないので， =super-save-command= を ==my-super-save-buffers-command= で置き換えて使っています．このパッケージが本来持っているカレントバッファの変化に常時注目するという特徴が失われてしまいますけども...
+
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-super-save-predicates-p ()
@@ -7609,15 +7611,30 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
                        (not (eq pt 1))
                        (not (eq pt (point-min))))
               (string-match (buffer-substring (- pt 1) pt) " "))) t))))
+
+;;;###autoload
+(defun my-super-save-buffers-command ()
+  "Save the buffer if needed.
+see https://github.com/bbatsov/super-save/pull/20/files."
+  (save-excursion
+    (dolist (buf (buffer-list))
+      (set-buffer buf)
+      (when (and buffer-file-name
+                 (buffer-modified-p (current-buffer))
+                 (file-writable-p buffer-file-name)
+                 (if (file-remote-p buffer-file-name)
+                     super-save-remote-files t))
+        (save-buffer)))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (require 'super-save nil t)
   (setq super-save-auto-save-when-idle t)
-  (setq super-save-idle-duration 1.5)
+  (setq super-save-idle-duration 5)
   (setq super-save-exclude '("Org Src"))
   (add-to-list 'super-save-predicates
                '(lambda () (my-super-save-predicates-p)) t)
+  (advice-add 'super-save-command :override #'my-super-save-buffers-command)
   (unless noninteractive
     (super-save-mode 1)))
 #+end_src

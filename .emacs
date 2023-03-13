@@ -2,11 +2,6 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-;; .org
-;; https://github.com/magit/transient/blob/master/docs/transient.org
-;; https://github.com/magit/transient/wiki/Developer-Quick-Start-Guide
-
-(setenv "LD_LIBRARY_PATH" "/usr/lib:/opt/local/lib:/opt/homebrew/lib:/opt/intel/ipp/lib/intel64:/Users/taka/devel/icp/opencv/lib")
 
 ;; (profiler-start 'cpu)
 ;; (setq my-suppress-message-p nil)
