@@ -730,6 +730,7 @@ This function is called directly from the C code."
 ** run-at-time をハックして diary-lib.el の読み込みを抑制
 :PROPERTIES:
 :ID:       7EFD723A-FFF5-4106-A0B9-F5E58B2D598A
+:CUSTOM_ID: orgb75ac2db
 :END:
 
 ~run-at-time~ を使ったタイマー設定時に，時刻を文字列で指定すると， =diary-lib.el= を読み込み， ~diary-entry-time~ を使いますが，そのために起動時の時間を使うのはもったいないので， ~diary-entry-time~ だけを =init.el= に移植し， ~run-at-time~ をハックして =diary-lib.el= を読み込まないようにします．
@@ -1704,6 +1705,7 @@ Version 27 から =C-x C-f= のデフォルトが変わったようなので， 
 ** TODO git用の設定ファイル読み込み
 :PROPERTIES:
 :ID:       42DFA41F-4838-4A59-A29C-2A85443F5905
+:CUSTOM_ID: org5dd2a9d7
 :END:
 Emacs を高速に起動できれば，git のコミットメッセージを Emacs で編集できます．最低限の編集ができればよいので，通常は =emacs -nw -Q= あたりを =core.editor= に設定すると思いますが，それでも最低限の設定は加えておきたいものです．
 
@@ -11685,10 +11687,6 @@ Note that this mechanism is still under consideration."
 =my-add-org-ids-to-headlines-in-file= は，バッファの保存時点，或いは，HTMLエクスポートが走る直前のタイミングで自動実行させるのがスマートだが，当面は手動で運用する．
 
 #+begin_src emacs-lisp :tangle init-org.el
-;; (eval-when-compile
-;;   (message "Loading org-macs...")
-;;   (require 'org-macs)) ;; for org-with-point-at
-
 (with-eval-after-load "ox-html"
   (setq org-html-text-markup-alist
         '((bold . "<b>%s</b>")
@@ -11711,28 +11709,26 @@ e.g. \"org3ca6ef0c\"."
       (when (org-uuidgen-p id)
         (downcase (concat "org"  (substring (org-id-new "") 0 8))))))
 
-  (defun my-org-custom-id-get (&optional pom create)
+  (defun my-org-custom-id-get (pom &optional create)
     "Get the CUSTOM_ID property of the entry at point-or-marker POM.
-If POM is nil, refer to the entry at point.  If the entry does
-not have an CUSTOM_ID, the function returns nil.  However, when
-CREATE is non nil, create a CUSTOM_ID if none is present
+If the entry does not have an CUSTOM_ID, the function returns nil.
+However, when CREATE is non nil, create a CUSTOM_ID if none is present
 already.  In any case, the CUSTOM_ID of the entry is returned.
 
 See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (interactive)
-    (org-with-point-at pom
-      (let ((id (org-entry-get nil "CUSTOM_ID")))
-        (cond
-         ((and id (stringp id) (string-match "\\S-" id))
-          id)
-         (create
-          (setq id (my-get-custom-id))
-          (unless id
-            (error "Invalid ID"))
-          (org-entry-put pom "CUSTOM_ID" id)
-          (message "--- CUSTOM_ID assigned: %s" id)
-          (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
-          id)))))
+    (let ((id (org-entry-get nil "CUSTOM_ID")))
+      (cond
+       ((and id (stringp id) (string-match "\\S-" id))
+        id)
+       (create
+        (setq id (my-get-custom-id))
+        (unless id
+          (error "Invalid ID"))
+        (org-entry-put pom "CUSTOM_ID" id)
+        (message "--- CUSTOM_ID assigned: %s" id)
+        (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
+        id))))
 
   ;;;###autoload
   (defun my-add-org-ids-to-headlines-in-file ()
