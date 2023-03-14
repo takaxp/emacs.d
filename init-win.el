@@ -55,6 +55,8 @@
       initial-major-mode 'fundamental-mode)
 (setq byte-compile-warnings '(obsolete))
 (setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq auto-save-list-file-prefix nil)
 (setq default-directory "~/")
 (setq truncate-line nil
       truncate-partial-width-windows nil)
@@ -71,7 +73,7 @@
     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
     "replace-from-region" "session" "helpful" "org-appear" "projectile"
-    "counsel-projectile"))
+    "counsel-projectile" "super-save"))
 
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
@@ -535,6 +537,15 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (remove-hook 'find-file-hook #'my-projectile-activate))
 (autoload 'projectile-mode "projectile" nil t)
 (add-hook 'find-file-hook #'my-projectile-activate)
+
+;; super-save
+(defun my-super-save-activate ()
+  (interactive)
+  (super-save-mode 1)
+  (remove-hook 'find-file-hook #'my-super-save-activate))
+(autoload 'super-save-mode "super-save" nil t)
+(add-hook 'find-file-hook #'my-super-save-activate)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
@@ -1833,6 +1844,10 @@ Otherwise, use `counsel-ag'."
   (setq time-stamp-start "#\\+date:[ \t]*") ;; "Time-stamp:[ \t]+\\\\?[\"<]+"
   (setq time-stamp-end "$") ;; "\\\\?[\">]"
   (setq time-stamp-line-limit 10)) ;; def=8
+
+(with-eval-after-load "super-save"
+  (setq super-save-idle-duration 60)
+  (setq super-save-auto-save-when-idle t))
 
 (when do-profile (profiler-stop))
 ;; End of init-win.el
