@@ -362,6 +362,7 @@
   (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
+  (add-to-list 'org-speed-commands '("l" my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
 
@@ -458,7 +459,23 @@
                           (format "<%s%s"
                                   today
                                   (substring date 11 (string-width date)))
-                        (format "<%s>" today)))))))
+                        (format "<%s>" today))))))
+
+  ;; 現在のツリーを畳んでから同じレベルの最後の要素として移動する
+  (defun my-org-move-subtree-to-the-last ()
+    "Move the current heading to the last one of the same level."
+    (interactive)
+    (let ((cnt 0) beg)
+      (org-back-to-heading)
+      (outline-hide-subtree)
+      (setq beg (point))
+      (while (and (funcall 'org-get-next-sibling)
+                  (looking-at org-outline-regexp))
+        (setq cnt (1+ cnt)))
+      (goto-char beg)
+      (when (> cnt 0)
+        (org-move-subtree-down cnt)
+        (goto-char beg)))))
 
 (with-eval-after-load "org"
   ;; Font lock を使う
@@ -1664,10 +1681,6 @@ Note that this mechanism is still under consideration."
     ;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
     ))
 
-;; (eval-when-compile
-;;   (message "Loading org-macs...")
-;;   (require 'org-macs)) ;; for org-with-point-at
-
 (with-eval-after-load "ox-html"
   (setq org-html-text-markup-alist
         '((bold . "<b>%s</b>")
@@ -1690,28 +1703,26 @@ e.g. \"org3ca6ef0c\"."
       (when (org-uuidgen-p id)
         (downcase (concat "org"  (substring (org-id-new "") 0 8))))))
 
-  (defun my-org-custom-id-get (&optional pom create)
+  (defun my-org-custom-id-get (pom &optional create)
     "Get the CUSTOM_ID property of the entry at point-or-marker POM.
-If POM is nil, refer to the entry at point.  If the entry does
-not have an CUSTOM_ID, the function returns nil.  However, when
-CREATE is non nil, create a CUSTOM_ID if none is present
+If the entry does not have an CUSTOM_ID, the function returns nil.
+However, when CREATE is non nil, create a CUSTOM_ID if none is present
 already.  In any case, the CUSTOM_ID of the entry is returned.
 
 See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (interactive)
-    (org-with-point-at pom
-      (let ((id (org-entry-get nil "CUSTOM_ID")))
-        (cond
-         ((and id (stringp id) (string-match "\\S-" id))
-          id)
-         (create
-          (setq id (my-get-custom-id))
-          (unless id
-            (error "Invalid ID"))
-          (org-entry-put pom "CUSTOM_ID" id)
-          (message "--- CUSTOM_ID assigned: %s" id)
-          (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
-          id)))))
+    (let ((id (org-entry-get nil "CUSTOM_ID")))
+      (cond
+       ((and id (stringp id) (string-match "\\S-" id))
+        id)
+       (create
+        (setq id (my-get-custom-id))
+        (unless id
+          (error "Invalid ID"))
+        (org-entry-put pom "CUSTOM_ID" id)
+        (message "--- CUSTOM_ID assigned: %s" id)
+        (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
+        id))))
 
   ;;;###autoload
   (defun my-add-org-ids-to-headlines-in-file ()
