@@ -16,13 +16,19 @@
 (defconst my-before-load-init-time (current-time))
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
-  (let ((time1 (float-time
-                (time-subtract after-init-time my-before-load-init-time)))
-        (time2 (float-time
-                (time-subtract (current-time) my-before-load-init-time))))
-    (message (concat "Loading init files: %4.0f [msec], "
-                     "of which %.f [msec] for `after-init-hook'.")
-             (* 1000 time1) (* 1000 (- time2 time1)))))
+  (let ((t-init-files (time-subtract after-init-time my-before-load-init-time))
+        (t-after-init (time-subtract (current-time) after-init-time))
+        (t-others (time-subtract my-before-load-init-time before-init-time))
+        (t-early-init (time-subtract my-early-end my-early-start)))
+    (message (concat
+              "  Loading init files: %4.0f [msec]\n"
+              "  Loading early-init: %4.0f [msec]\n"
+              "  Others(GUI etc.):   %4.0f [msec] (includes `before-init-hook')\n"
+              "(`after-init-hook': %4.0f [msec])")
+             (* 1000 (float-time t-init-files))
+             (* 1000 (float-time t-early-init))
+             (* 1000 (- (float-time t-others) (float-time t-early-init)))
+             (* 1000 (float-time t-after-init)))))
 
 (add-hook 'after-init-hook #'my-load-init-time t)
 

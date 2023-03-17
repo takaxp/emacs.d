@@ -1,12 +1,13 @@
 ;; (message "--- Window system (ns mac) %s, display-graphic-p %s, File %s" window-system (display-graphic-p) early-init-file)
 ;; References:
 ;; https://raw.githubusercontent.com/hlissner/doom-emacs/develop/early-init.el
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar my-early-start (current-time))
 (defvar my-early-init
   (format "%searly-init.el" (expand-file-name user-emacs-directory)))
 
 (message "Loading %s..." my-early-init)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (unless (getenv "LIBRARY_PATH")
 ;;   (setenv "LIBRARY_PATH"
 ;;           (string-join
@@ -33,4 +34,5 @@
 ;;               (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
 ;;               (setq my-gc-last gc-elapsed)))
 
+(defvar my-early-end (current-time))
 (message "Loading %s...done" my-early-init)

@@ -362,7 +362,7 @@
   (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
-  (add-to-list 'org-speed-commands '("l" my-org-move-subtree-to-the-last))
+  (add-to-list 'org-speed-commands '("z" my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
 
@@ -391,8 +391,7 @@
   (defun my-org-replace-punc-in-tree ()
     "Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree."
     (interactive)
-    (unless (eq 'headline (car (org-element-at-point)))
-      (org-previous-visible-heading 1))
+    (org-back-to-heading t)
     (let* ((element (org-element-at-point))
            (begin (org-element-property :begin element))
            (end (org-element-property :end element)))
@@ -1673,8 +1672,7 @@ macro, e.g. {{{srclink}}}.
 Note that this mechanism is still under consideration."
       (let ((line (save-excursion
                     (save-restriction
-                      (unless (org-at-heading-p)
-                        (org-previous-visible-heading 1))
+                      (org-back-to-heading t)
                       (line-number-at-pos)))))
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
                 "#L" (format "%d" line) "][" alt "]]")))

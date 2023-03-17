@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-03-15 Wed 22:42 -->
+<!-- 2023-03-17 Fri 20:06 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -867,12 +867,13 @@ Then load the following at startup
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- Window system (ns mac) %s, display-graphic-p %s, File %s" window-system (display-graphic-p) early-init-file)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">References:</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://raw.githubusercontent.com/hlissner/doom-emacs/develop/early-init.el</span>
-
-<span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-start</span> (current-time))
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-init</span>
   (format <span style="color: #8b2252;">"%searly-init.el"</span> (expand-file-name user-emacs-directory)))
 
 (message <span style="color: #8b2252;">"Loading %s..."</span> my-early-init)
+
+<span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (getenv "LIBRARY_PATH")</span>
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setenv "LIBRARY_PATH"</span>
 <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(string-join</span>
@@ -894,6 +895,7 @@ Then load the following at startup
 </div>
 </div>
 </div>
+
 <div id="outline-container-org3c4d5a7a" class="outline-3">
 <h3 id="org3c4d5a7a"><span class="section-number-3">2.4.</span> initファイルの読み込み時間計測</h3>
 <div class="outline-text-3" id="text-org3c4d5a7a">
@@ -905,13 +907,19 @@ Then load the following at startup
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-before-load-init-time</span> (current-time))
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-load-init-time</span> ()
   <span style="color: #8b2252;">"Loading time of user init files including time for `</span><span style="color: #008b8b;">after-init-hook</span><span style="color: #8b2252;">'."</span>
-  (<span style="color: #a020f0;">let</span> ((time1 (float-time
-                (time-subtract after-init-time my-before-load-init-time)))
-        (time2 (float-time
-                (time-subtract (current-time) my-before-load-init-time))))
-    (message (concat <span style="color: #8b2252;">"Loading init files: %4.0f [msec], "</span>
-                     <span style="color: #8b2252;">"of which %.f [msec] for `</span><span style="color: #008b8b;">after-init-hook</span><span style="color: #8b2252;">'."</span>)
-             (* 1000 time1) (* 1000 (- time2 time1)))))
+  (<span style="color: #a020f0;">let</span> ((t-init-files (time-subtract after-init-time my-before-load-init-time))
+        (t-after-init (time-subtract (current-time) after-init-time))
+        (t-others (time-subtract my-before-load-init-time before-init-time))
+        (t-early-init (time-subtract my-early-end my-early-start)))
+    (message (concat
+              <span style="color: #8b2252;">"  Loading init files: %4.0f [msec]\n"</span>
+              <span style="color: #8b2252;">"  Loading early-init: %4.0f [msec]\n"</span>
+              <span style="color: #8b2252;">"  Others(GUI etc.):   %4.0f [msec] (includes `</span><span style="color: #008b8b;">before-init-hook</span><span style="color: #8b2252;">')\n"</span>
+              <span style="color: #8b2252;">"(`</span><span style="color: #008b8b;">after-init-hook</span><span style="color: #8b2252;">': %4.0f [msec])"</span>)
+             (* 1000 (float-time t-init-files))
+             (* 1000 (float-time t-early-init))
+             (* 1000 (- (float-time t-others) (float-time t-early-init)))
+             (* 1000 (float-time t-after-init)))))
 
 (add-hook 'after-init-hook #'my-load-init-time t)
 
@@ -947,9 +955,10 @@ Emacsは，以下の順番で起動します．
 
 <ol class="org-ol">
 <li>Set before-init-time = (current-time) and Set after-init-time = nil</li>
-<li>Initializes the window</li>
-<li>Run before-init-hook</li>
 <li>Set my-before-load-init-time = (current-time) =&gt; 独自変数で計測</li>
+<li>Load early-init.el</li>
+<li>Run before-init-hook</li>
+<li>Run frame-initialize</li>
 <li>Load user's init files</li>
 <li>Set after-init-time = (current-time)</li>
 <li>Run after-init-hook</li>
@@ -11422,7 +11431,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"H"</span> my-hugo-export-upload))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"."</span> my-org-deadline-today))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"!"</span> my-org-default-property))
-  (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"l"</span> my-org-move-subtree-to-the-last))
+  (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"z"</span> my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
                '(<span style="color: #8b2252;">"$"</span> call-interactively 'org-archive-subtree))
 
@@ -11451,8 +11460,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-replace-punc-in-tree</span> ()
     <span style="color: #8b2252;">"Replace \"&#65292;\" and \"&#65294;\" with \"&#12289;\" and \"&#12290;\" in an org tree."</span>
     (<span style="color: #a020f0;">interactive</span>)
-    (<span style="color: #a020f0;">unless</span> (eq 'headline (car (org-element-at-point)))
-      (org-previous-visible-heading 1))
+    (org-back-to-heading t)
     (<span style="color: #a020f0;">let*</span> ((element (org-element-at-point))
            (begin (org-element-property <span style="color: #483d8b;">:begin</span> element))
            (end (org-element-property <span style="color: #483d8b;">:end</span> element)))
@@ -13452,7 +13460,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgb5aec0e"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org70d7e4c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -13737,8 +13745,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 <span style="color: #8b2252;">Note that this mechanism is still under consideration."</span>
       (<span style="color: #a020f0;">let</span> ((line (<span style="color: #a020f0;">save-excursion</span>
                     (<span style="color: #a020f0;">save-restriction</span>
-                      (<span style="color: #a020f0;">unless</span> (org-at-heading-p)
-                        (org-previous-visible-heading 1))
+                      (org-back-to-heading t)
                       (line-number-at-pos)))))
         (concat <span style="color: #8b2252;">"[["</span> uri (file-name-nondirectory (buffer-file-name))
                 <span style="color: #8b2252;">"#L"</span> (format <span style="color: #8b2252;">"%d"</span> line) <span style="color: #8b2252;">"]["</span> alt <span style="color: #8b2252;">"]]"</span>)))
@@ -14393,7 +14400,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org346bbb5" class="figure">
+<div id="org578ab4e" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18781,7 +18788,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-03-15 Wed 22:42</p>
+<p class="date">Created: 2023-03-17 Fri 20:06</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
