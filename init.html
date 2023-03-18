@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-03-17 Fri 20:06 -->
+<!-- 2023-03-18 Sat 16:33 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -955,18 +955,18 @@ Emacsは，以下の順番で起動します．
 
 <ol class="org-ol">
 <li>Set before-init-time = (current-time) and Set after-init-time = nil</li>
-<li>Set my-before-load-init-time = (current-time) =&gt; 独自変数で計測</li>
 <li>Load early-init.el</li>
 <li>Run before-init-hook</li>
 <li>Run frame-initialize</li>
-<li>Load user's init files</li>
+<li>Set my-before-load-init-time = (current-time) =&gt; 独自変数で計測</li>
+<li>Load user's init files (.emacs, init.el, etc&#x2026;)</li>
 <li>Set after-init-time = (current-time)</li>
 <li>Run after-init-hook</li>
 <li>Run emacs-startup-hook</li>
 </ol>
 
 <p>
-<code>emacs-init-time</code> は，GUI生成と，GUI関連elの読み込み， <code>before-init-hook</code> で実行する関数の実行時間，およびユーザ定義のinitファイル群の読み込み時間の合計値となる．
+<code>emacs-init-time</code> は，GUI生成と，GUI関連elの読み込み， <code>before-init-hook</code> で実行する関数の実行時間，およびearly-init.elとユーザ定義のinitファイル群の読み込み時間の合計値となる．
 </p>
 
 <p>
@@ -978,7 +978,7 @@ Emacsは，以下の順番で起動します．
 </p>
 
 <p>
-一方， <code>my-before-load-init-time</code> と <code>after-init-time</code> を使って計算する算出する起動時間には，GUI生成とGUI関連elの読み込み，before-init-hook にある関数の実行が含まれていない．
+一方， <code>my-before-load-init-time</code> と <code>after-init-time</code> を使って計算する算出する起動時間には，GUI生成とGUI関連elの読み込み，early-init.elの読み込み，after-init-hook と before-init-hook にある関数の実行が含まれていない．
 </p>
 
 <p>
@@ -13460,7 +13460,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org70d7e4c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org277f52c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14400,7 +14400,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org578ab4e" class="figure">
+<div id="orga75c118" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18788,7 +18788,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-03-17 Fri 20:06</p>
+<p class="date">Created: 2023-03-18 Sat 16:33</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

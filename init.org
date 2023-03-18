@@ -204,22 +204,22 @@ Then load the following at startup
 Emacsは，以下の順番で起動します．
 
 1. Set before-init-time = (current-time) and Set after-init-time = nil
-2. Set my-before-load-init-time = (current-time) => 独自変数で計測
-3. Load early-init.el
-4. Run before-init-hook
-5. Run frame-initialize
-6. Load user's init files
+2. Load early-init.el
+3. Run before-init-hook
+4. Run frame-initialize
+5. Set my-before-load-init-time = (current-time) => 独自変数で計測
+6. Load user's init files (.emacs, init.el, etc...)
 7. Set after-init-time = (current-time)
 8. Run after-init-hook
 9. Run emacs-startup-hook
 
-=emacs-init-time= は，GUI生成と，GUI関連elの読み込み， =before-init-hook= で実行する関数の実行時間，およびユーザ定義のinitファイル群の読み込み時間の合計値となる．
+=emacs-init-time= は，GUI生成と，GUI関連elの読み込み， =before-init-hook= で実行する関数の実行時間，およびearly-init.elとユーザ定義のinitファイル群の読み込み時間の合計値となる．
 
 すでに =after-init-time= で時間計測が完了しているので，その後に続く =after-init-hook= と =emacs-startup-hook= に登録された関数の実行時間は =emacs-init-time= の値に含まれない．
 
 より端的に言えば， =emacs-init-time= = =before-init-time= - =after-init-time= である．
 
-一方， =my-before-load-init-time= と =after-init-time= を使って計算する算出する起動時間には，GUI生成とGUI関連elの読み込み，before-init-hook にある関数の実行が含まれていない．
+一方， =my-before-load-init-time= と =after-init-time= を使って計算する算出する起動時間には，GUI生成とGUI関連elの読み込み，early-init.elの読み込み，after-init-hook と before-init-hook にある関数の実行が含まれていない．
 
 see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Summary.html][Startup Summary - GNU Emacs Lisp Reference Manual]]
 
