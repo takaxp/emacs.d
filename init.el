@@ -21,7 +21,7 @@
         (t-others (time-subtract my-before-load-init-time before-init-time))
         (t-early-init (time-subtract my-early-end my-early-start)))
     (message (concat
-              "  Loading init files: %4.0f [msec]\n"
+              " yv Loading init files: %4.0f [msec]\n"
               "  Loading early-init: %4.0f [msec]\n"
               "  Others(GUI etc.):   %4.0f [msec] (includes `before-init-hook')\n"
               "(`after-init-hook': %4.0f [msec])")
