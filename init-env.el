@@ -12,6 +12,8 @@
 (defconst my-loading-packages nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, use packages installed via el-get.")
+(defvar my-secure-boot nil ;; When t, 'postpone and 'session are disabled.
+  "Ensure to start Emacs.")
 (setq debug-on-error nil
       postpone-verbose nil
       my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}

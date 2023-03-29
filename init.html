@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-03-19 Sun 22:11 -->
+<!-- 2023-03-29 Wed 14:05 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -849,7 +849,7 @@ Then load the following at startup
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">utility.el --- My utility.el -*- lexical-binding: t -*-</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">"my-" and "ad:" functions associated with my '</span><span style="color: #008b8b;">init.el</span><span style="color: #b22222;">'</span>
-(<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">postpone</span>)
+(<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">postpone</span>) my-secure-boot)
   (call-interactively 'postpone-pre))
 </pre>
 </div>
@@ -1421,7 +1421,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(autoload 'postpone-kicker "postpone" nil t)</span>
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(add-hook 'pre-command-hook #'postpone-pre))</span>
 (autoload 'postpone-kicker <span style="color: #8b2252;">"postpone"</span> nil t)
-(add-hook 'pre-command-hook #'postpone-pre)
+(<span style="color: #a020f0;">unless</span> my-secure-boot
+  (add-hook 'pre-command-hook #'postpone-pre))
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;</span>
 
 (<span style="color: #a020f0;">setq</span> postpone-pre-exclude
@@ -1438,7 +1439,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;X&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pp-kicker-timer</span>
-  (<span style="color: #a020f0;">unless</span> noninteractive
+  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> noninteractive my-secure-boot)
     (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
 </pre>
 </div>
@@ -9397,7 +9398,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 <pre class="src src-emacs-lisp">
 (<span style="color: #a020f0;">when</span> (autoload-if-found '(session-initialize)
                          <span style="color: #8b2252;">"session"</span> nil t)
-  (<span style="color: #a020f0;">unless</span> noninteractive
+  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> noninteractive my-secure-boot)
     (add-hook 'after-init-hook #'session-initialize))
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"session"</span>
     (add-to-list 'session-globals-include 'ivy-dired-history-variable)
@@ -10308,9 +10309,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; // ここ
+  v; <i>/ ここ
   boost::timer t;
-  cout &lt;&lt; t; // ここ
+  cout &lt;&lt; t; /</i> ここ
   return 1;
 }
 </p>
@@ -11431,7 +11432,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"H"</span> my-hugo-export-upload))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"."</span> my-org-deadline-today))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"!"</span> my-org-default-property))
-  (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"0"</span> my-org-move-subtree-to-the-last))
+  (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"x"</span> my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
                '(<span style="color: #8b2252;">"$"</span> call-interactively 'org-archive-subtree))
 
@@ -13460,7 +13461,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org0597eda"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org7cdd14d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14400,7 +14401,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgc4f9df0" class="figure">
+<div id="org5272b0a" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18788,7 +18789,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-03-19 Sun 22:11</p>
+<p class="date">Created: 2023-03-29 Wed 14:05</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

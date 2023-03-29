@@ -90,7 +90,7 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
-(unless (featurep 'postpone)
+(unless (or (featurep 'postpone) my-secure-boot)
   (call-interactively 'postpone-pre))
 #+end_src
 
@@ -108,7 +108,7 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle utility.el
 ;; utility.el --- My utility.el -*- lexical-binding: t -*-
 ;; "my-" and "ad:" functions associated with my 'init.el'
-(unless (featurep 'postpone)
+(unless (or (featurep 'postpone) my-secure-boot)
   (call-interactively 'postpone-pre))
 #+end_src
 
@@ -647,7 +647,8 @@ This function is called directly from the C code."
 ;;   (autoload 'postpone-kicker "postpone" nil t)
 ;;   (add-hook 'pre-command-hook #'postpone-pre))
 (autoload 'postpone-kicker "postpone" nil t)
-(add-hook 'pre-command-hook #'postpone-pre)
+(unless my-secure-boot
+  (add-hook 'pre-command-hook #'postpone-pre))
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq postpone-pre-exclude
@@ -664,7 +665,7 @@ This function is called directly from the C code."
 
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
 (defvar my-pp-kicker-timer
-  (unless noninteractive
+  (unless (or noninteractive my-secure-boot)
     (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
 #+end_src
 
@@ -7720,7 +7721,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
-  (unless noninteractive
+  (unless (or noninteractive my-secure-boot)
     (add-hook 'after-init-hook #'session-initialize))
   (with-eval-after-load "session"
     (add-to-list 'session-globals-include 'ivy-dired-history-variable)
@@ -9569,7 +9570,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
-  (add-to-list 'org-speed-commands '("0" my-org-move-subtree-to-the-last))
+  (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
 

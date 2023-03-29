@@ -1,6 +1,6 @@
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
-(unless (featurep 'postpone)
+(unless (or (featurep 'postpone) my-secure-boot)
   (call-interactively 'postpone-pre))
 
 ;; テキストファイルを Org Mode で開きます．
@@ -362,7 +362,7 @@
   (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
-  (add-to-list 'org-speed-commands '("0" my-org-move-subtree-to-the-last))
+  (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
 

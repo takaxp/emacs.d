@@ -21,7 +21,7 @@
         (t-others (time-subtract my-before-load-init-time before-init-time))
         (t-early-init (time-subtract my-early-end my-early-start)))
     (message (concat
-              " yv Loading init files: %4.0f [msec]\n"
+              "  Loading init files: %4.0f [msec]\n"
               "  Loading early-init: %4.0f [msec]\n"
               "  Others(GUI etc.):   %4.0f [msec] (includes `before-init-hook')\n"
               "(`after-init-hook': %4.0f [msec])")
@@ -122,7 +122,8 @@
 ;;   (autoload 'postpone-kicker "postpone" nil t)
 ;;   (add-hook 'pre-command-hook #'postpone-pre))
 (autoload 'postpone-kicker "postpone" nil t)
-(add-hook 'pre-command-hook #'postpone-pre)
+(unless my-secure-boot
+  (add-hook 'pre-command-hook #'postpone-pre))
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq postpone-pre-exclude
@@ -139,7 +140,7 @@
 
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
 (defvar my-pp-kicker-timer
-  (unless noninteractive
+  (unless (or noninteractive my-secure-boot)
     (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
 
 (defun diary-entry-time (s)
@@ -351,7 +352,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
-  (unless noninteractive
+  (unless (or noninteractive my-secure-boot)
     (add-hook 'after-init-hook #'session-initialize))
   (with-eval-after-load "session"
     (add-to-list 'session-globals-include 'ivy-dired-history-variable)
