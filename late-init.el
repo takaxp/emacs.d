@@ -124,18 +124,6 @@
   (advice-add 'epa-file-write-region :around #'ad:suppress-message))
 
 (when (memq window-system '(ns nil))
-  ;; toggle-input-method
-  ;; (declare-function my-ns-org-heading-auto-ascii "init" nil)
-  ;; (declare-function my-ime-active-p "init" nil)
-
-  (when (fboundp 'mac-ime-toggle)
-    (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
-    (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
-
-  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
-  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
 
   (custom-set-faces
    '(ns-marked-text-face
@@ -169,18 +157,6 @@
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
     (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)))
 
-(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-(global-set-key (kbd "C-M-b") 'end-of-buffer)
-;; Backward page scrolling instead of M-v
-(global-set-key (kbd "C-t") 'scroll-down)
-;; Frontward page scrolling instead of C-v
-;; (global-set-key (kbd "M-n") 'scroll-up)
-;; Move cursor to a specific line
-(global-set-key (kbd "C-c g") 'goto-line)
-
-(global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
-(global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
-
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
 (when (autoload-if-found '(er/mark-symbol) "expand-region" nil t)
   (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
@@ -213,10 +189,6 @@
 
   (unless noninteractive
     (smooth-scroll-mode t)))
-
-(global-set-key (kbd "M-]") 'bs-cycle-next)
-(when (display-graphic-p)
-  (global-set-key (kbd "M-[") 'bs-cycle-previous))
 
 (with-eval-after-load "bs"
   (custom-set-variables
@@ -598,8 +570,6 @@
     (add-hook 'input-method-activate-hook #'my-flyspell-off)
     (add-hook 'input-method-deactivate-hook #'my-flyspell-on)))
 
-(global-set-key (kbd "M-=") 'count-words)
-
 (autoload-if-found '(counsel-world-clock) "counsel-world-clock" nil t)
 
 (when (autoload-if-found '(latex-math-preview-expression
@@ -798,9 +768,6 @@
   (set-face-attribute 'mode-line-vc-modified-face nil :foreground "#EEAFAF")
   (setcdr (assq 'vc-mode mode-line-format)
           '((:eval (my-mode-line-vc-mode-icon)))))
-
-;; (advice-add 'split-window-below :after #'ad:split-window-below)
-(global-set-key (kbd "C-M-s") #'my-open-scratch)
 
 (unless (display-graphic-p)
   ;; ターミナルの縦分割線をUTF-8できれいに描く
@@ -1117,6 +1084,7 @@
 
 (when (autoload-if-found '(counsel-ibuffer counsel-M-x counsel-yank-pop)
                          "counsel" nil t)
+
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (global-set-key (kbd "M-y") 'counsel-yank-pop)
   (global-set-key (kbd "C-,") 'counsel-mark-ring)
@@ -1490,9 +1458,6 @@
     (ivy-add-actions
      'counsel-fzf
      '(("r" my-counsel-fzf-in-dir "search in directory")))))
-
-(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
-(global-set-key (kbd "C-c c") 'compile)
 
 (autoload-if-found '(gist-mode) "gist" nil t)
 
@@ -1898,7 +1863,6 @@
 (setq blink-cursor-interval 0.2)
 (setq blink-cursor-delay 30)
 (unless noninteractive
-  (postpone-message "blink-cursor-mode")
   (blink-cursor-mode 1))
 
 (my-setup-font)

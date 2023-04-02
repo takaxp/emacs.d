@@ -1,6 +1,6 @@
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
-(unless (or (featurep 'postpone) my-secure-boot)
+(unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
 
 ;; テキストファイルを Org Mode で開きます．
@@ -8,11 +8,6 @@
 
 ;; Font lock を使う
 (add-hook 'org-mode-hook #'turn-on-font-lock)
-
-;; ホームポジション的な Orgファイルを一発で開きます．
-(global-set-key (kbd "C-M-o")
-		(lambda () (interactive)
-		  (my-show-org-buffer "next.org")))
 
 (global-set-key (kbd "C-c r") 'org-capture)
 (global-set-key (kbd "C-c l") 'org-store-link)

@@ -107,7 +107,8 @@
 ;;;###autoload
 (defun postpone-pre ()
   (interactive)
-  (unless (or (memq this-command postpone-pre-exclude)
+  (unless (or my-secure-boot
+              (memq this-command postpone-pre-exclude)
               postpone-pre-init-time)
     (message "Activating postponed packages...")
     (let ((t1 (current-time)))
@@ -122,8 +123,7 @@
 ;;   (autoload 'postpone-kicker "postpone" nil t)
 ;;   (add-hook 'pre-command-hook #'postpone-pre))
 (autoload 'postpone-kicker "postpone" nil t)
-(unless my-secure-boot
-  (add-hook 'pre-command-hook #'postpone-pre))
+(add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq postpone-pre-exclude
@@ -276,11 +276,37 @@ This function returns a timer object which you can use in
     (funcall f prompt mustmatch))
   (advice-add 'find-file-read-args :around #'ad:find-file-read-args))
 
+(global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
+(global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
+(define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+(define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+(when (fboundp 'mac-ime-toggle)
+  (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
+  (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
+
 (my-tick-init-time "core")
+
+(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
+(global-set-key (kbd "C-M-b") 'end-of-buffer)
+;; Backward page scrolling instead of M-v
+(global-set-key (kbd "C-t") 'scroll-down)
+;; Frontward page scrolling instead of C-v
+;; (global-set-key (kbd "M-n") 'scroll-up)
+;; Move cursor to a specific line
+(global-set-key (kbd "C-c g") 'goto-line)
+
+(global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
+(global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+
+(global-set-key (kbd "M-]") 'bs-cycle-next)
+(when (display-graphic-p)
+  (global-set-key (kbd "M-[") 'bs-cycle-previous))
 
 (my-tick-init-time "point")
 
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+
+(global-set-key (kbd "M-=") 'count-words)
 
 (my-tick-init-time "editing")
 
@@ -325,6 +351,9 @@ This function returns a timer object which you can use in
                     :underline nil)
 (unless noninteractive
   (run-at-time "5 sec" 600 'my-empty-booting-header-line))
+
+;; (advice-add 'split-window-below :after #'ad:split-window-below)
+(global-set-key (kbd "C-M-s") #'my-open-scratch)
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
@@ -371,6 +400,12 @@ This function returns a timer object which you can use in
     (setq session-undo-check -1)))
 
 (my-tick-init-time "history")
+
+(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
+(global-set-key (kbd "C-c c") 'compile)
+
+;; ホームポジション的な Orgファイルを一発で開きます．
+(global-set-key (kbd "C-M-o") #'my-open-default-org-file)
 
 (my-tick-init-time "development")
 

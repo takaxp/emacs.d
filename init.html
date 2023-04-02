@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-03-29 Wed 20:27 -->
+<!-- 2023-04-02 Sun 11:15 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -849,7 +849,7 @@ Then load the following at startup
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">utility.el --- My utility.el -*- lexical-binding: t -*-</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">"my-" and "ad:" functions associated with my '</span><span style="color: #008b8b;">init.el</span><span style="color: #b22222;">'</span>
-(<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">postpone</span>) my-secure-boot)
+(<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">postpone</span>)
   (call-interactively 'postpone-pre))
 </pre>
 </div>
@@ -1406,7 +1406,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">postpone-pre</span> ()
   (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> (memq this-command postpone-pre-exclude)
+  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> my-secure-boot
+              (memq this-command postpone-pre-exclude)
               postpone-pre-init-time)
     (message <span style="color: #8b2252;">"Activating postponed packages..."</span>)
     (<span style="color: #a020f0;">let</span> ((t1 (current-time)))
@@ -1421,8 +1422,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(autoload 'postpone-kicker "postpone" nil t)</span>
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(add-hook 'pre-command-hook #'postpone-pre))</span>
 (autoload 'postpone-kicker <span style="color: #8b2252;">"postpone"</span> nil t)
-(<span style="color: #a020f0;">unless</span> my-secure-boot
-  (add-hook 'pre-command-hook #'postpone-pre))
+(add-hook 'pre-command-hook #'postpone-pre) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will be removed in postpone.el.</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;</span>
 
 (<span style="color: #a020f0;">setq</span> postpone-pre-exclude
@@ -2925,19 +2925,18 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
+(global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
+(define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
+(define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
+(<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-toggle)
+  (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-toggle-ime-ns</span> 'mac-ime-toggle)
+  (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-ime-active-p</span> 'mac-ime-active-p)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (memq window-system '(ns nil))
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">toggle-input-method</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-ns-org-heading-auto-ascii "init" nil)</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(declare-function my-ime-active-p "init" nil)</span>
-
-  (<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-toggle)
-    (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-toggle-ime-ns</span> 'mac-ime-toggle)
-    (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-ime-active-p</span> 'mac-ime-active-p)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-
-  (global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
-  (global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
 
   (custom-set-faces
    '(ns-marked-text-face
@@ -3423,8 +3422,11 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 <pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"M-]"</span>) 'bs-cycle-next)
 (<span style="color: #a020f0;">when</span> (display-graphic-p)
   (global-set-key (kbd <span style="color: #8b2252;">"M-["</span>) 'bs-cycle-previous))
+</pre>
+</div>
 
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"bs"</span>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"bs"</span>
   (custom-set-variables
    '(bs-cycle-configuration-name <span style="color: #8b2252;">"files-and-scratch"</span>)
    '(bs-max-window-height 10))
@@ -7511,6 +7513,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-ibuffer counsel-M-x counsel-yank-pop)
                          <span style="color: #8b2252;">"counsel"</span> nil t)
+
   (global-set-key (kbd <span style="color: #8b2252;">"M-x"</span>) 'counsel-M-x)
   (global-set-key (kbd <span style="color: #8b2252;">"M-y"</span>) 'counsel-yank-pop)
   (global-set-key (kbd <span style="color: #8b2252;">"C-,"</span>) 'counsel-mark-ring)
@@ -10043,7 +10046,6 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">desktop</span> nil t)
     (<span style="color: #a020f0;">setq</span> desktop-files-not-to-save <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^/tmp</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^/var</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^/ssh:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>)
     (<span style="color: #a020f0;">unless</span> noninteractive
-      (postpone-message <span style="color: #8b2252;">"desktop"</span>)
       (desktop-save-mode 1))))
 </pre>
 </div>
@@ -11039,6 +11041,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (org-load-modules-maybe t)
     (org-element-cache-reset 'all) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME use `</span><span style="color: #008b8b;">custom-set-variables</span><span style="color: #b22222;">'</span>
     (message <span style="color: #8b2252;">"Loading org-modules...done"</span>)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-open-default-org-file</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
+(global-set-key (kbd <span style="color: #8b2252;">"C-M-o"</span>) #'my-open-default-org-file)
 </pre>
 </div>
 
@@ -11048,11 +11061,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Font lock &#12434;&#20351;&#12358;</span>
 (add-hook 'org-mode-hook #'turn-on-font-lock)
-
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-o"</span>)
-                (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
-                  (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>)))
 
 (global-set-key (kbd <span style="color: #8b2252;">"C-c r"</span>) 'org-capture)
 (global-set-key (kbd <span style="color: #8b2252;">"C-c l"</span>) 'org-store-link)
@@ -13461,7 +13469,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgcd3a22f"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org0d69033"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14401,7 +14409,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgccaf11b" class="figure">
+<div id="org5508b87" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15653,7 +15661,6 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 (<span style="color: #a020f0;">setq</span> blink-cursor-interval 0.2)
 (<span style="color: #a020f0;">setq</span> blink-cursor-delay 30)
 (<span style="color: #a020f0;">unless</span> noninteractive
-  (postpone-message <span style="color: #8b2252;">"blink-cursor-mode"</span>)
   (blink-cursor-mode 1))
 </pre>
 </div>
@@ -18789,7 +18796,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-03-29 Wed 20:27</p>
+<p class="date">Created: 2023-04-02 Sun 11:15</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -90,7 +90,7 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (require 'init-autoloads nil t)
-(unless (or (featurep 'postpone) my-secure-boot)
+(unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
 #+end_src
 
@@ -108,7 +108,7 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle utility.el
 ;; utility.el --- My utility.el -*- lexical-binding: t -*-
 ;; "my-" and "ad:" functions associated with my 'init.el'
-(unless (or (featurep 'postpone) my-secure-boot)
+(unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
 #+end_src
 
@@ -632,7 +632,8 @@ This function is called directly from the C code."
 ;;;###autoload
 (defun postpone-pre ()
   (interactive)
-  (unless (or (memq this-command postpone-pre-exclude)
+  (unless (or my-secure-boot
+              (memq this-command postpone-pre-exclude)
               postpone-pre-init-time)
     (message "Activating postponed packages...")
     (let ((t1 (current-time)))
@@ -647,8 +648,7 @@ This function is called directly from the C code."
 ;;   (autoload 'postpone-kicker "postpone" nil t)
 ;;   (add-hook 'pre-command-hook #'postpone-pre))
 (autoload 'postpone-kicker "postpone" nil t)
-(unless my-secure-boot
-  (add-hook 'pre-command-hook #'postpone-pre))
+(add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq postpone-pre-exclude
@@ -1968,20 +1968,18 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (my-ime-off)))
 #+end_src
 
+#+begin_src emacs-lisp :tangle yes
+(global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
+(global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
+(define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
+(define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+(when (fboundp 'mac-ime-toggle)
+  (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
+  (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (memq window-system '(ns nil))
-  ;; toggle-input-method
-  ;; (declare-function my-ns-org-heading-auto-ascii "init" nil)
-  ;; (declare-function my-ime-active-p "init" nil)
-
-  (when (fboundp 'mac-ime-toggle)
-    (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
-    (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
-
-  (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
-  (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-  (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
 
   (custom-set-faces
    '(ns-marked-text-face
@@ -2192,7 +2190,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 先頭に移動，最終行に移動，ページ単位の進む，ページ単位の戻る，行数を指定して移動．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
 (global-set-key (kbd "C-M-b") 'end-of-buffer)
 ;; Backward page scrolling instead of M-v
@@ -2211,7 +2209,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 =C-c o= でもいいですが，ワンアクションで移動できるようが楽です．次のように双方向で使えるように設定しています．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 #+end_src
@@ -2376,11 +2374,13 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 
  - https://github.com/takaxp/bsv
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "M-]") 'bs-cycle-next)
 (when (display-graphic-p)
   (global-set-key (kbd "M-[") 'bs-cycle-previous))
+#+end_src
 
+#+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "bs"
   (custom-set-variables
    '(bs-cycle-configuration-name "files-and-scratch")
@@ -3592,13 +3592,13 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
 ビルドインの simple.el に十分な機能なのがある．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "M-=") 'count-words)
 #+end_src
 
 以前は，[[http://www.emacswiki.org/emacs/WordCount][word-count.el]] を使用していた．
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found '(word-count-mode)
                          "word-count" "Minor mode to count words." t)
   (global-set-key (kbd "M-=") 'word-count-mode))
@@ -4835,7 +4835,7 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
   (my-open-scratch))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle yes
 ;; (advice-add 'split-window-below :after #'ad:split-window-below)
 (global-set-key (kbd "C-M-s") #'my-open-scratch)
 #+end_src
@@ -5938,6 +5938,7 @@ Obeys `widen-automatically', which see."
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(counsel-ibuffer counsel-M-x counsel-yank-pop)
                          "counsel" nil t)
+
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (global-set-key (kbd "M-y") 'counsel-yank-pop)
   (global-set-key (kbd "C-,") 'counsel-mark-ring)
@@ -8306,7 +8307,6 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
   (when (require 'desktop nil t)
     (setq desktop-files-not-to-save "\\(^/tmp\\|^/var\\|^/ssh:\\)")
     (unless noninteractive
-      (postpone-message "desktop")
       (desktop-save-mode 1))))
 #+end_src
 
@@ -8343,7 +8343,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 
 コメントアウトとコンパイルをすぐ呼べるようにします．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle yes
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
 (global-set-key (kbd "C-c c") 'compile)
 #+end_src
@@ -9181,6 +9181,16 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (org-load-modules-maybe t)
     (org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
     (message "Loading org-modules...done")))
+
+;;;###autoload
+(defun my-open-default-org-file ()
+  (interactive)
+  (my-show-org-buffer "next.org"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;; ホームポジション的な Orgファイルを一発で開きます．
+(global-set-key (kbd "C-M-o") #'my-open-default-org-file)
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -9189,11 +9199,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 ;; Font lock を使う
 (add-hook 'org-mode-hook #'turn-on-font-lock)
-
-;; ホームポジション的な Orgファイルを一発で開きます．
-(global-set-key (kbd "C-M-o")
-		(lambda () (interactive)
-		  (my-show-org-buffer "next.org")))
 
 (global-set-key (kbd "C-c r") 'org-capture)
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -13443,7 +13448,6 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 (setq blink-cursor-interval 0.2)
 (setq blink-cursor-delay 30)
 (unless noninteractive
-  (postpone-message "blink-cursor-mode")
   (blink-cursor-mode 1))
 #+end_src
 
