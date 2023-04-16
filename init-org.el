@@ -168,6 +168,7 @@
     (interactive)
     (message "Update statistics...")
     (do-org-update-statistics-cookies)
+    (save-buffer)
     (message "Update statistics...done"))
   (define-key org-mode-map (kbd "C-c f 2")
     'my-do-org-update-staistics-cookies)
