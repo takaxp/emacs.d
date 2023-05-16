@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-04-16 Sun 16:30 -->
+<!-- 2023-05-16 Tue 16:07 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -10311,9 +10311,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; // ここ
+  v; <i>/ ここ
   boost::timer t;
-  cout &lt;&lt; t; // ここ
+  cout &lt;&lt; t; /</i> ここ
   return 1;
 }
 </p>
@@ -11014,7 +11014,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-modules-activate</span> ()
-  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>)
+  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-tempo</span>)
+           (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>))
       (message <span style="color: #8b2252;">"org-modules are previously loaded."</span>)
     (message <span style="color: #8b2252;">"Loading org-modules..."</span>)
     (<span style="color: #a020f0;">setq</span> org-modules my-org-modules) <span style="color: #b22222;">;; </span><span style="color: #b22222;">revert to the original value</span>
@@ -12410,7 +12411,9 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-prepare-buffers</span> ()
   (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-agenda</span>)
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-agenda</span> nil t)
-      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>) (my-org-modules-activate)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+      (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>)
+                   (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-tempo</span>))
+        (my-org-modules-activate)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
       (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">ob-http</span>) (my-org-babel-load-activate)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
       (org-agenda-prepare-buffers org-agenda-files)
       (message <span style="color: #8b2252;">"Building agenda buffers...done"</span>))))
@@ -13470,7 +13473,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgbf121a8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgfcdcc40"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14410,7 +14413,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org3e6edbe" class="figure">
+<div id="orgd24f115" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18797,7 +18800,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-04-16 Sun 16:30</p>
+<p class="date">Created: 2023-05-16 Tue 16:07</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
