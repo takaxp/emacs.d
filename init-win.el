@@ -55,6 +55,8 @@
       initial-major-mode 'fundamental-mode)
 (setq byte-compile-warnings '(obsolete))
 (setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq auto-save-list-file-prefix nil)
 (setq default-directory "~/")
 (setq truncate-line nil
       truncate-partial-width-windows nil)
@@ -71,7 +73,7 @@
     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
     "replace-from-region" "session" "helpful" "org-appear" "projectile"
-    "counsel-projectile"))
+    "counsel-projectile" "super-save"))
 
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
@@ -535,6 +537,15 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (remove-hook 'find-file-hook #'my-projectile-activate))
 (autoload 'projectile-mode "projectile" nil t)
 (add-hook 'find-file-hook #'my-projectile-activate)
+
+;; super-save
+(defun my-super-save-activate ()
+  (interactive)
+  (super-save-mode 1)
+  (remove-hook 'find-file-hook #'my-super-save-activate))
+(autoload 'super-save-mode "super-save" nil t)
+(add-hook 'find-file-hook #'my-super-save-activate)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
@@ -1247,6 +1258,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                '("D" my-org-todo-complete-no-repeat "DONE"))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
+  (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
+
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
 
@@ -1267,6 +1280,22 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
    `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
       1 'org-headline-done prepend))
    'append)
+
+  ;; 同じレベルの最後に送ります
+  (defun my-org-move-subtree-to-the-last ()
+    "Move the current heading to the last one of the same level."
+    (interactive)
+    (let ((cnt 0) beg)
+      (org-back-to-heading)
+      (outline-hide-subtree)
+      (setq beg (point))
+      (while (and (funcall 'org-get-next-sibling)
+                  (looking-at org-outline-regexp))
+        (setq cnt (1+ cnt)))
+      (goto-char beg)
+      (when (> cnt 0)
+        (org-move-subtree-down cnt)
+        (goto-char beg))))
 
   ;; 周期タクスを終了させます．
   (defun my-org-todo-complete-no-repeat (&optional ARG)
@@ -1353,14 +1382,13 @@ will not be modified."
           `((,(concat dir "next.org") :level . 1)
             (,(concat dir "log.org") :level . 1))))
 
-  (defun do-org-update-statistics-cookies ()
-    (interactive)
-    (org-update-statistics-cookies 'all))
-
   (defun my-do-org-update-staistics-cookies ()
     (interactive)
     (message "Update statistics...")
-    (do-org-update-statistics-cookies)
+    (org-update-statistics-cookies 'all)
+    (let ((inhibit-message t)
+          (message-log-max nil))
+      (save-buffer))
     (message "Update statistics...done"))
 
   (define-key org-mode-map (kbd "C-c f 2")
@@ -1833,6 +1861,10 @@ Otherwise, use `counsel-ag'."
   (setq time-stamp-start "#\\+date:[ \t]*") ;; "Time-stamp:[ \t]+\\\\?[\"<]+"
   (setq time-stamp-end "$") ;; "\\\\?[\">]"
   (setq time-stamp-line-limit 10)) ;; def=8
+
+(with-eval-after-load "super-save"
+  (setq super-save-idle-duration 5)
+  (setq super-save-auto-save-when-idle t))
 
 (when do-profile (profiler-stop))
 ;; End of init-win.el
