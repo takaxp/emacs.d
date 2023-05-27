@@ -379,7 +379,7 @@
   (push '("\\.log$" . logview-mode) auto-mode-alist))
 
 ;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.gpg$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
 (defvar my-auto-view-buffers '("*Messages*"))
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）

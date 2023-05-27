@@ -1906,6 +1906,28 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
   (advice-add 'epa-file-write-region :around #'ad:suppress-message))
 #+end_src
 
+** GPGファイルを一定時間後にロックする
+:PROPERTIES:
+:ID:       16236645-D16A-4F16-92D4-77D3EB4915B3
+:CUSTOM_ID: org6ff409ba
+:END:
+
+次の例では， ~secret.org.gpg~ が開かれていて，1分間操作しなかったら安全のためバッファを閉じます．
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autolaod
+(defun my-lock-secret-buffer (&optional file)
+  (when (and (stringp file)
+             (buffer-live-p (get-buffer file)))
+    (kill-buffer file)
+    (let ((message-log-max nil))
+      (message "--- %s is locked." file))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init.el
+(run-with-idle-timer 60 t #'my-lock-secret-buffer "secret.org.gpg")
+#+end_src
+
 ** NSビルド用設定                                                     :macOS:
    :PROPERTIES:
    :CUSTOM_ID: orge44eded5
@@ -3296,7 +3318,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 
 #+begin_src emacs-lisp :tangle late-init.el
 ;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
+(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.gpg$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
 (defvar my-auto-view-buffers '("*Messages*"))
 
 ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
@@ -9356,14 +9378,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (interactive)
     (org-table-export nil "orgtbl-to-csv"))
 
+  ;; すべてのチェックボックスの cookies を更新する
   (defun my-do-org-update-staistics-cookies ()
     (interactive)
     (message "Update statistics...")
-    (do-org-update-statistics-cookies)
-    (save-buffer)
+    (org-update-statistics-cookies 'all)
+    (let ((inhibit-message t)
+          (message-log-max nil))
+      (save-buffer))
     (message "Update statistics...done"))
-  (define-key org-mode-map (kbd "C-c f 2")
-    'my-do-org-update-staistics-cookies)
+
+  (define-key org-mode-map (kbd "C-c f 2") 'my-do-org-update-staistics-cookies)
 
   ;; C-c & が yasnippet にオーバーライドされているのを張り替える
   (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
@@ -9789,6 +9814,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 ** TODOキーワードのカスタマイズ
    :PROPERTIES:
    :CUSTOM_ID: orgdec24da2
+   :ID:       CC4C8F99-F039-4F09-B515-40257CDAA60A
    :END:
 
 キーワードには日本語も使えます．
@@ -9810,12 +9836,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
   ;; block-update-time
   (defun org-dblock-write:block-update-time (params)
     (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
-      (insert "" (format-time-string fmt (current-time)))))
-
-  ;; すべてのチェックボックスの cookies を更新する
-  (defun do-org-update-statistics-cookies ()
-    (interactive)
-    (org-update-statistics-cookies 'all)))
+      (insert "" (format-time-string fmt (current-time))))))
 #+end_src
 
 ** ImageMagick を使って様々な画像をインライン表示する
@@ -10265,9 +10286,9 @@ org バッファのソースブロックにカーソルがある時には， =el
 
   (custom-set-faces
    '(org-code
-     ((t (:foreground "#555555" :background "pink" :inherit shadow))))
+     ((t (:foreground "red" :background "pink" :inherit shadow))))
    '(org-verbatim
-     ((t (:foreground "red" :background "PeachPuff" :inherit shadow)))))
+     ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
 
   (when (featurep 'org-extra-emphasis)
     (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-05-16 Tue 16:07 -->
+<!-- 2023-05-27 Sat 14:27 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -285,8 +285,9 @@
 <li><a href="#org982c69d7">3.22. [ws-butler.el] 不要なスペースを自動除去</a></li>
 <li><a href="#orge014847e">3.23. [epa.el] GPGを使う</a></li>
 <li><a href="#orgedc5d7af">3.24. [epa.el] GPGファイルの保存時のメッセージを停止する</a></li>
-<li><a href="#orge44eded5">3.25. NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
-<li><a href="#org53a63301">3.26. EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
+<li><a href="#org6ff409ba">3.25. GPGファイルを一定時間後にロックする</a></li>
+<li><a href="#orge44eded5">3.26. NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
+<li><a href="#org53a63301">3.27. EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org35f3bbc9">4. カーソル移動</a>
@@ -2860,8 +2861,33 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 </div>
 
+<div id="outline-container-org6ff409ba" class="outline-3">
+<h3 id="org6ff409ba"><span class="section-number-3">3.25.</span> GPGファイルを一定時間後にロックする</h3>
+<div class="outline-text-3" id="text-org6ff409ba">
+<p>
+次の例では， <code>secret.org.gpg</code> が開かれていて，1分間操作しなかったら安全のためバッファを閉じます．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autolaod</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-lock-secret-buffer</span> (<span style="color: #228b22;">&amp;optional</span> file)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (stringp file)
+             (buffer-live-p (get-buffer file)))
+    (kill-buffer file)
+    (<span style="color: #a020f0;">let</span> ((message-log-max nil))
+      (message <span style="color: #8b2252;">"--- %s is locked."</span> file))))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(run-with-idle-timer 60 t #'my-lock-secret-buffer <span style="color: #8b2252;">"secret.org.gpg"</span>)
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orge44eded5" class="outline-3">
-<h3 id="orge44eded5"><span class="section-number-3">3.25.</span> NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
+<h3 id="orge44eded5"><span class="section-number-3">3.26.</span> NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-orge44eded5">
 <p>
 インラインパッチの適用が前提の設定です． <code>M-SPC/S-SPC</code> で日本語IMEのON/OFFができるようになります．インラインパッチの情報はリンク先にあります．
@@ -2975,7 +3001,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 
 <div id="outline-container-org53a63301" class="outline-3">
-<h3 id="org53a63301"><span class="section-number-3">3.26.</span> EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
+<h3 id="org53a63301"><span class="section-number-3">3.27.</span> EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-org53a63301">
 <p>
 NSビルド版で生じた日本語入力時のチラつきを避けるために，EMP版ビルドに(一時期)浮気しました．以下はその時にNSビルドの振る舞いに近づけるためにがんばった設定です．詳細な情報は，リンク先の記事にあります．
@@ -4482,7 +4508,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#25313;&#24373;&#23376;&#12539;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-regexp</span> <span style="color: #8b2252;">"\\.el.gz$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.patch$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.xml$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.csv$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.emacs.d/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]+/el-get</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">config"</span>)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-regexp</span> <span style="color: #8b2252;">"\\.el.gz$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.patch$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.xml$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.gpg$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.csv$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.emacs.d/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]+/el-get</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">config"</span>)
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-buffers</span> '(<span style="color: #8b2252;">"*Messages*"</span>))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29305;&#23450;&#12398;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#65288;&#32118;&#23550;&#12497;&#12473;&#12539;&#12507;&#12540;&#12512;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#20197;&#19979;&#65289;</span>
@@ -10311,9 +10337,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; <i>/ ここ
+  v; // ここ
   boost::timer t;
-  cout &lt;&lt; t; /</i> ここ
+  cout &lt;&lt; t; // ここ
   return 1;
 }
 </p>
@@ -11218,14 +11244,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (<span style="color: #a020f0;">interactive</span>)
     (org-table-export nil <span style="color: #8b2252;">"orgtbl-to-csv"</span>))
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12377;&#12409;&#12390;&#12398;&#12481;&#12455;&#12483;&#12463;&#12508;&#12483;&#12463;&#12473;&#12398; cookies &#12434;&#26356;&#26032;&#12377;&#12427;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-do-org-update-staistics-cookies</span> ()
     (<span style="color: #a020f0;">interactive</span>)
     (message <span style="color: #8b2252;">"Update statistics..."</span>)
-    (do-org-update-statistics-cookies)
-    (save-buffer)
+    (org-update-statistics-cookies 'all)
+    (<span style="color: #a020f0;">let</span> ((inhibit-message t)
+          (message-log-max nil))
+      (save-buffer))
     (message <span style="color: #8b2252;">"Update statistics...done"</span>))
-  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c f 2"</span>)
-    'my-do-org-update-staistics-cookies)
+
+  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c f 2"</span>) 'my-do-org-update-staistics-cookies)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-c &amp; &#12364; yasnippet &#12395;&#12458;&#12540;&#12496;&#12540;&#12521;&#12452;&#12489;&#12373;&#12428;&#12390;&#12356;&#12427;&#12398;&#12434;&#24373;&#12426;&#26367;&#12360;&#12427;</span>
   (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c 4"</span>) 'org-mark-ring-goto)
@@ -11681,12 +11710,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">block-update-time</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">org-dblock-write:block-update-time</span> (params)
     (<span style="color: #a020f0;">let</span> ((fmt (<span style="color: #a020f0;">or</span> (plist-get params <span style="color: #483d8b;">:format</span>) <span style="color: #8b2252;">"%Y-%m-%d"</span>)))
-      (insert <span style="color: #8b2252;">""</span> (format-time-string fmt (current-time)))))
-
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12377;&#12409;&#12390;&#12398;&#12481;&#12455;&#12483;&#12463;&#12508;&#12483;&#12463;&#12473;&#12398; cookies &#12434;&#26356;&#26032;&#12377;&#12427;</span>
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">do-org-update-statistics-cookies</span> ()
-    (<span style="color: #a020f0;">interactive</span>)
-    (org-update-statistics-cookies 'all)))
+      (insert <span style="color: #8b2252;">""</span> (format-time-string fmt (current-time))))))
 </pre>
 </div>
 </div>
@@ -12239,9 +12263,9 @@ org バッファのソースブロックにカーソルがある時には， <co
 
   (custom-set-faces
    '(org-code
-     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#555555"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"pink"</span> <span style="color: #483d8b;">:inherit</span> shadow))))
+     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"red"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"pink"</span> <span style="color: #483d8b;">:inherit</span> shadow))))
    '(org-verbatim
-     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"red"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"PeachPuff"</span> <span style="color: #483d8b;">:inherit</span> shadow)))))
+     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#ff6059"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"PeachPuff"</span> <span style="color: #483d8b;">:inherit</span> shadow)))))
 
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-extra-emphasis</span>)
     (org-extra-emphasis-update)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">to apply configured `</span><span style="color: #008b8b;">org-emphasis-alist</span><span style="color: #b22222;">'</span>
@@ -13473,7 +13497,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgfcdcc40"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org05a13df"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14413,7 +14437,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgd24f115" class="figure">
+<div id="org5014f2e" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18800,7 +18824,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-05-16 Tue 16:07</p>
+<p class="date">Created: 2023-05-27 Sat 14:27</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

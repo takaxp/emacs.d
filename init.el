@@ -276,6 +276,8 @@ This function returns a timer object which you can use in
     (funcall f prompt mustmatch))
   (advice-add 'find-file-read-args :around #'ad:find-file-read-args))
 
+(run-with-idle-timer 60 t #'my-lock-secret-buffer "secret.org.gpg")
+
 (global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
 (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
 (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)

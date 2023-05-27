@@ -164,14 +164,17 @@
     (interactive)
     (org-table-export nil "orgtbl-to-csv"))
 
+  ;; すべてのチェックボックスの cookies を更新する
   (defun my-do-org-update-staistics-cookies ()
     (interactive)
     (message "Update statistics...")
-    (do-org-update-statistics-cookies)
-    (save-buffer)
+    (org-update-statistics-cookies 'all)
+    (let ((inhibit-message t)
+          (message-log-max nil))
+      (save-buffer))
     (message "Update statistics...done"))
-  (define-key org-mode-map (kbd "C-c f 2")
-    'my-do-org-update-staistics-cookies)
+
+  (define-key org-mode-map (kbd "C-c f 2") 'my-do-org-update-staistics-cookies)
 
   ;; C-c & が yasnippet にオーバーライドされているのを張り替える
   (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
@@ -573,12 +576,7 @@
   ;; block-update-time
   (defun org-dblock-write:block-update-time (params)
     (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
-      (insert "" (format-time-string fmt (current-time)))))
-
-  ;; すべてのチェックボックスの cookies を更新する
-  (defun do-org-update-statistics-cookies ()
-    (interactive)
-    (org-update-statistics-cookies 'all)))
+      (insert "" (format-time-string fmt (current-time))))))
 
 (with-eval-after-load "org"
   (setq org-image-actual-width '(256))
@@ -807,9 +805,9 @@ The core part is extracted from `org-table-export'."
 
   (custom-set-faces
    '(org-code
-     ((t (:foreground "#555555" :background "pink" :inherit shadow))))
+     ((t (:foreground "red" :background "pink" :inherit shadow))))
    '(org-verbatim
-     ((t (:foreground "red" :background "PeachPuff" :inherit shadow)))))
+     ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
 
   (when (featurep 'org-extra-emphasis)
     (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'
