@@ -3972,12 +3972,11 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-local-pair 'org-mode "_" "_")
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'org-mode "~" "~")
-    (sp-local-pair 'org-mode "[" "]")
+    (sp-local-pair 'org-mode "[" "]" :actions '(wrap)) ;; 選択時のみ有効
     ;;(sp-local-pair 'org-mode "+" "+")
     ;; (sp-local-pair 'org-mode "/" "/")
     ;; (sp-local-pair 'org-mode "*" "*")
-    ;; (sp-local-pair 'org-mode "+" "+")
-    (sp-local-pair 'yatex-mode "$" "$")))
+    (sp-local-pair 'yatex-mode "$" "$" :actions '(wrap))))
 #+end_src
 
 ** TODO [grugru.el] 所定のキーワードをサイクルさせる
@@ -16048,6 +16047,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 ** 日付などを簡単に挿入する
    :PROPERTIES:
    :CUSTOM_ID: org81ca01d1
+   :ID:       24F07A8D-CC57-45C8-B164-89ECFFD6DDE6
    :END:
 
  - hydra に移行しました．

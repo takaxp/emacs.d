@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-05-27 Sat 14:27 -->
+<!-- 2023-05-30 Tue 14:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -5288,12 +5288,11 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"_"</span> <span style="color: #8b2252;">"_"</span>)
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"$"</span> <span style="color: #8b2252;">"$"</span>)
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"~"</span> <span style="color: #8b2252;">"~"</span>)
-    (sp-local-pair 'org-mode <span style="color: #8b2252;">"["</span> <span style="color: #8b2252;">"]"</span>)
+    (sp-local-pair 'org-mode <span style="color: #8b2252;">"["</span> <span style="color: #8b2252;">"]"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;</span>
     <span style="color: #b22222;">;;</span><span style="color: #b22222;">(sp-local-pair 'org-mode "+" "+")</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(sp-local-pair 'org-mode "/" "/")</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(sp-local-pair 'org-mode "*" "*")</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(sp-local-pair 'org-mode "+" "+")</span>
-    (sp-local-pair 'yatex-mode <span style="color: #8b2252;">"$"</span> <span style="color: #8b2252;">"$"</span>)))
+    (sp-local-pair 'yatex-mode <span style="color: #8b2252;">"$"</span> <span style="color: #8b2252;">"$"</span> <span style="color: #483d8b;">:actions</span> '(wrap))))
 </pre>
 </div>
 </div>
@@ -10337,9 +10336,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; // ここ
+  v; <i>/ ここ
   boost::timer t;
-  cout &lt;&lt; t; // ここ
+  cout &lt;&lt; t; /</i> ここ
   return 1;
 }
 </p>
@@ -13497,7 +13496,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org05a13df"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org132bda3"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14437,7 +14436,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org5014f2e" class="figure">
+<div id="orge113060" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18824,7 +18823,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-05-27 Sat 14:27</p>
+<p class="date">Created: 2023-05-30 Tue 14:29</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -643,7 +643,7 @@
     (sp-local-pair 'org-mode "_" "_")
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'org-mode "~" "~")
-    (sp-local-pair 'org-mode "[" "]")
+    (sp-local-pair 'org-mode "[" "]" :actions '(wrap))
     ;;(sp-local-pair 'org-mode "+" "+")
     ;; (sp-local-pair 'org-mode "/" "/")
     ;; (sp-local-pair 'org-mode "*" "*")

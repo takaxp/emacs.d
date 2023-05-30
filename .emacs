@@ -91,9 +91,9 @@
                    (org-toggle-tag "pin" 'on)
                    (message "Pinned"))))))))
 
-  (defmacro org-assert-version ()
-    "Assert compile time and runtime version match."
-    t)
+  ;; (defmacro org-assert-version ()
+  ;;   "Assert compile time and runtime version match."
+  ;;   t)
   (advice-add 'org-assert-version :override #'ignore))
 
 ;; (with-eval-after-load "org"
