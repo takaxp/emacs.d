@@ -643,12 +643,11 @@
     (sp-local-pair 'org-mode "_" "_")
     (sp-local-pair 'org-mode "$" "$")
     (sp-local-pair 'org-mode "~" "~")
-    (sp-local-pair 'org-mode "[" "]" :actions '(wrap))
+    (sp-local-pair 'org-mode "[" "]" :actions '(wrap)) ;; 選択時のみ有効
     ;;(sp-local-pair 'org-mode "+" "+")
     ;; (sp-local-pair 'org-mode "/" "/")
     ;; (sp-local-pair 'org-mode "*" "*")
-    ;; (sp-local-pair 'org-mode "+" "+")
-    (sp-local-pair 'yatex-mode "$" "$")))
+    (sp-local-pair 'yatex-mode "$" "$" :actions '(wrap))))
 
 (when (autoload-if-found '(grugru-default grugru)
                          "grugru-default" nil t)
