@@ -1299,6 +1299,11 @@
        '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
 	 "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
+    ;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
+    (when (eq system-type 'darwin)
+      (setq directory-abbrev-alist
+            '(("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox"))))
+
     (if (version< emacs-version "27.1")
 	(progn
 	  (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
