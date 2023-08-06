@@ -4858,7 +4858,9 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 
 #+begin_src emacs-lisp :tangle yes
 ;; (advice-add 'split-window-below :after #'ad:split-window-below)
-(global-set-key (kbd "C-M-s") #'my-open-scratch)
+(if (< emacs-major-version 29)
+    (global-set-key (kbd "C-M-s") #'my-open-scratch)
+  (global-set-key (kbd "C-M-s") #'scratch-buffer))
 #+end_src
 
 =session.el= や =desktop.el= を使っていても，いつも =*scratch*= バッファを表示する．そうじゃないと安心できない人向け．
@@ -5068,12 +5070,12 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 #+end_src
 
 ** 行番号の表示制限を拡張する
-   :PROPERTIES:
-   :CUSTOM_ID: org19cbc9b3
-   :ID:       6A4DAAB4-5B9C-4ABC-AE75-3F73809B634E
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org19cbc9b3
+:ID:       6A4DAAB4-5B9C-4ABC-AE75-3F73809B634E
+:END:
 
-デフォルトだと200桁までしか把握しないので，いつも表示されるように拡張します．
+デフォルトだと200桁までしかモードラインに表示されないので，それ以上の行数であっても，行数がいつも表示されるように拡張します．
 
 さらにモードラインの表示をちょっとリッチにします．
 
@@ -7291,6 +7293,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
     ;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
     (when (eq system-type 'darwin)
+      ;; Dropbox のエイリアスを展開されないようにする
       (setq directory-abbrev-alist
             '(("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox"))))
 
@@ -9942,16 +9945,16 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 ;;;###autoload
 (defun my-desktop-notification (title message &optional sticky sound timeout)
   "Show a message by `alerter' command."
-  (if ns-alerter-command
-      (start-process
-       "notification" "*notification*"
-       ns-alerter-command
-       "-title" title
-       "-message" message
-       "-sender" "org.gnu.Emacs"
-       "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
-       "-sound" (or sound ns-default-notification-sound))
-    (message "--- ns-alerter-command is %s." ns-alerter-command)))
+  (if (equal ns-alerter-command "")
+      (message "--- ns-alerter-command is \"%s\"." ns-alerter-command)
+    (start-process
+     "notification" "*notification*"
+     ns-alerter-command
+     "-title" title
+     "-message" message
+     "-sender" "org.gnu.Emacs"
+     "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
+     "-sound" (or sound ns-default-notification-sound))))
 
 ;;;###autoload
 (defun my-desktop-notification-handler (message)

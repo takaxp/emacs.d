@@ -1301,6 +1301,7 @@
 
     ;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
     (when (eq system-type 'darwin)
+      ;; Dropbox のエイリアスを展開されないようにする
       (setq directory-abbrev-alist
             '(("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox"))))
 

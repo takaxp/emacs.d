@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-06-18 Sun 14:09 -->
+<!-- 2023-08-06 Sun 14:41 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -6329,7 +6329,9 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'split-window-below :after #'ad:split-window-below)</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-s"</span>) #'my-open-scratch)
+(<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 29)
+    (global-set-key (kbd <span style="color: #8b2252;">"C-M-s"</span>) #'my-open-scratch)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-M-s"</span>) #'scratch-buffer))
 </pre>
 </div>
 
@@ -6569,7 +6571,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 <h3 id="org19cbc9b3"><span class="section-number-3">6.18.</span> 行番号の表示制限を拡張する</h3>
 <div class="outline-text-3" id="text-org19cbc9b3">
 <p>
-デフォルトだと200桁までしか把握しないので，いつも表示されるように拡張します．
+デフォルトだと200桁までしかモードラインに表示されないので，それ以上の行数であっても，行数がいつも表示されるように拡張します．
 </p>
 
 <p>
@@ -8917,6 +8919,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">see https://github.com/mattfidler/EmacsPortable.App/issues/7</span>
     (<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Dropbox &#12398;&#12456;&#12452;&#12522;&#12450;&#12473;&#12434;&#23637;&#38283;&#12373;&#12428;&#12394;&#12356;&#12424;&#12358;&#12395;&#12377;&#12427;</span>
       (<span style="color: #a020f0;">setq</span> directory-abbrev-alist
             '((<span style="color: #8b2252;">"\\`~/Library/CloudStorage/Dropbox"</span> . <span style="color: #8b2252;">"~/Dropbox"</span>))))
 
@@ -11908,16 +11911,16 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-desktop-notification</span> (title message <span style="color: #228b22;">&amp;optional</span> sticky sound timeout)
   <span style="color: #8b2252;">"Show a message by `</span><span style="color: #008b8b;">alerter</span><span style="color: #8b2252;">' command."</span>
-  (<span style="color: #a020f0;">if</span> ns-alerter-command
-      (start-process
-       <span style="color: #8b2252;">"notification"</span> <span style="color: #8b2252;">"*notification*"</span>
-       ns-alerter-command
-       <span style="color: #8b2252;">"-title"</span> title
-       <span style="color: #8b2252;">"-message"</span> message
-       <span style="color: #8b2252;">"-sender"</span> <span style="color: #8b2252;">"org.gnu.Emacs"</span>
-       <span style="color: #8b2252;">"-timeout"</span> (format <span style="color: #8b2252;">"%s"</span> (<span style="color: #a020f0;">if</span> sticky 0 (<span style="color: #a020f0;">or</span> timeout 7)))
-       <span style="color: #8b2252;">"-sound"</span> (<span style="color: #a020f0;">or</span> sound ns-default-notification-sound))
-    (message <span style="color: #8b2252;">"--- ns-alerter-command is %s."</span> ns-alerter-command)))
+  (<span style="color: #a020f0;">if</span> (equal ns-alerter-command <span style="color: #8b2252;">""</span>)
+      (message <span style="color: #8b2252;">"--- ns-alerter-command is \"%s\"."</span> ns-alerter-command)
+    (start-process
+     <span style="color: #8b2252;">"notification"</span> <span style="color: #8b2252;">"*notification*"</span>
+     ns-alerter-command
+     <span style="color: #8b2252;">"-title"</span> title
+     <span style="color: #8b2252;">"-message"</span> message
+     <span style="color: #8b2252;">"-sender"</span> <span style="color: #8b2252;">"org.gnu.Emacs"</span>
+     <span style="color: #8b2252;">"-timeout"</span> (format <span style="color: #8b2252;">"%s"</span> (<span style="color: #a020f0;">if</span> sticky 0 (<span style="color: #a020f0;">or</span> timeout 7)))
+     <span style="color: #8b2252;">"-sound"</span> (<span style="color: #a020f0;">or</span> sound ns-default-notification-sound))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-desktop-notification-handler</span> (message)
@@ -13501,7 +13504,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgde2704f"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org8a8cee9"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14441,7 +14444,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org914d43b" class="figure">
+<div id="orgff4bf6a" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18828,7 +18831,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-06-18 Sun 14:09</p>
+<p class="date">Created: 2023-08-06 Sun 14:41</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

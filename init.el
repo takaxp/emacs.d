@@ -355,7 +355,9 @@ This function returns a timer object which you can use in
   (run-at-time "5 sec" 600 'my-empty-booting-header-line))
 
 ;; (advice-add 'split-window-below :after #'ad:split-window-below)
-(global-set-key (kbd "C-M-s") #'my-open-scratch)
+(if (< emacs-major-version 29)
+    (global-set-key (kbd "C-M-s") #'my-open-scratch)
+  (global-set-key (kbd "C-M-s") #'scratch-buffer))
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)

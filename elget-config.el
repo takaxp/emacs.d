@@ -60,9 +60,7 @@
   (el-get-bundle "tarsius/orglink")
   (el-get-bundle "Fuco1/org-pretty-table")
   (unless (eq system-type 'windows-nt)
-    (el-get-bundle "org-emms"
-                   :type git
-                   :url "https://gitlab.com/jagrg/org-emms.git")
+    (el-get-bundle "org-emms")
     (el-get-bundle "org-trello"))
   (el-get-bundle "xenodium/company-org-block")
   (el-get-bundle "emacsmirror/org-contrib")
@@ -223,7 +221,7 @@
                  :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
   (el-get-bundle "ideasman42/emacs-undo-fu"
                  :type git
-                 :url "https://gitlab.com/ideasman42/emacs-undo-fu.git")
+                 :url "https://codeberg.org/ideasman42/emacs-undo-fu.git")
   (el-get-bundle "zk-phi/gitmole")
   (el-get-bundle "chuntaro/emacs-keypression" :name keypression)
   (el-get-bundle "lewang/command-log-mode")

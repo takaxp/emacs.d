@@ -13,6 +13,8 @@
 ;;                                ))
 
 (with-eval-after-load "org"
+  (setq ns-alerter-command "")
+
   ;; outline-flag-region and backline
   (when (require 'backline nil t)
     (advice-add 'outline-flag-region :after 'backline-update))
@@ -101,16 +103,16 @@
 
 (defun my-my-native-comp-packages-done ()
   (message "Native Compilation...done"))
+(add-hook 'native-comp-async-all-done-hook #'my-my-native-comp-packages-done)
 
-(defun my-native-comp-packages ()
-  (interactive)
-  (add-hook 'native-comp-async-all-done-hook
-            #'my-my-native-comp-packages-done)
-  (let ((native-comp-async-jobs-number 8)
-        (native-comp-speed 3))
-    (message "Native Compilation...")
-    (native-compile-async "~/.emacs.d/29.0.50/el-get" 'recursively)))
-;; (remove-hook 'native-comp-async-all-done-hook #'my-my-native-comp-packages-done)
+;; (defun my-native-comp-packages ()
+;;   (interactive)
+;;   (add-hook 'native-comp-async-all-done-hook
+;;             #'my-my-native-comp-packages-done)
+;;   (let ((native-comp-async-jobs-number 8)
+;;         (native-comp-speed 3))
+;;     (message "Native Compilation...")
+;;     (native-compile-async "~/.emacs.d/29.0.50/el-get" 'recursively)))
 
 ;; Boot mode selection
 (cond
