@@ -13,6 +13,13 @@
 ;;                                ))
 
 (with-eval-after-load "org"
+
+  ;; https://twitter.com/takaxp/status/1692423091757236622
+  (defun my-recenter-top-bottom-top ()
+    (recenter-top-bottom 'top))
+  (add-hook 'org-agenda-after-show-hook #'my-recenter-top-bottom-top)
+
+  ;; to avoid an error in Ventura due to lacking of an alerter command.
   (setq ns-alerter-command "")
 
   ;; outline-flag-region and backline
