@@ -13,12 +13,6 @@
 ;;                                ))
 
 (with-eval-after-load "org"
-
-  ;; https://twitter.com/takaxp/status/1692423091757236622
-  (defun my-recenter-top-bottom-top ()
-    (recenter-top-bottom 'top))
-  (add-hook 'org-agenda-after-show-hook #'my-recenter-top-bottom-top)
-
   ;; to avoid an error in Ventura due to lacking of an alerter command.
   (setq ns-alerter-command "")
 
@@ -135,6 +129,7 @@
     (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
  (nil ;; To test the latest org
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
+  (add-to-list 'load-path (expand-file-name "~/devel/git/org-tree-slide"))
   (setq org-agenda-files '("~/Desktop/test/hoge.org")))
  (nil ;; minimum
   (load (concat user-emacs-directory "min/init.el")))

@@ -1365,6 +1365,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 ** C-x C-c で容易にEmacsを終了させないように質問する
    :PROPERTIES:
    :CUSTOM_ID: org68d1750d
+   :ID:       28BCD6BE-3EFA-4D5A-9A11-9D3C36E4968A
    :END:
 
 =y-or-n-p= もしくは =yes-or-no-p= を指定するだけです．
@@ -7285,7 +7286,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   (with-eval-after-load "recentf"
     (custom-set-variables
      '(recentf-max-saved-items 2000)
-     '(recentf-save-file (expand-file-name "~/.emacs.d/recentf"))
+     '(recentf-save-file (expand-file-name "~/.emacs.d/_recentf"))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
        '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
@@ -10332,6 +10333,56 @@ org バッファのソースブロックにカーソルがある時には， =el
     "My strike-through emphasis for Org."))
 #+end_src
 
+** 現在のアイテムをリストの最初・最後に移す
+:PROPERTIES:
+:ID:       29069B7F-5A31-419D-B4B4-1F38FAC1BB92
+:CUSTOM_ID: org6c2ed02c
+:END:
+
+下記の設定では， =C-c M-n= でリストの末尾に， =C-c M-p= でリストの先頭に，現在のファイルを移します．カーソルは，移動せさせずに，元の場所に留めます．
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "org"
+  (define-key org-mode-map (kbd "C-c M-n") #'my-org-move-item-end)
+  (define-key org-mode-map (kbd "C-c M-p") #'my-org-move-item-begin))
+#+end_src
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-org-move-item-begin ()
+  "Move the current item to the beginning of the list."
+  (interactive)
+  (unless (org-at-item-p) (error "Not at an item"))
+  (let* ((col (current-column))
+         (item (point-at-bol))
+         (struct (org-list-struct))
+         (prevs (org-list-prevs-alist struct))
+         (prev-item (org-list-get-prev-item (point-at-bol) struct prevs)))
+    (unless prev-item
+      (user-error "Cannot move this item further up"))
+    (setq struct (org-list-send-item item 'begin struct))
+    (goto-char item)
+    (org-list-write-struct struct (org-list-parents-alist struct))
+    (org-move-to-column col)))
+
+;;;###autoload
+(defun my-org-move-item-end ()
+  "Move the current item to the end of the list."
+  (interactive)
+  (unless (org-at-item-p) (error "Not at an item"))
+  (let* ((col (current-column))
+         (item (point-at-bol))
+         (struct (org-list-struct))
+         (prevs (org-list-prevs-alist struct))
+         (next-item (org-list-get-next-item (point-at-bol) struct prevs)))
+    (unless next-item
+      (user-error "Cannot move this item further down"))
+    (setq struct (org-list-send-item item 'end struct))
+    (goto-char item)
+    (org-list-write-struct struct (org-list-parents-alist struct))
+    (org-move-to-column col)))
+#+end_src
+
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf
@@ -10469,6 +10520,11 @@ will not be modified."
       (unless (featurep 'ob-http) (my-org-babel-load-activate)) ;; FIXME
       (org-agenda-prepare-buffers org-agenda-files)
       (message "Building agenda buffers...done"))))
+
+;;;###autoload
+(defun my-recenter-top-bottom-top ()
+  "Recenter the current line to the top of window."
+  (set-window-start (get-buffer-window) (line-beginning-position)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -10564,6 +10620,9 @@ will not be modified."
                 (org-agenda-goto)
                 (with-current-buffer "*Org Agenda*"
                   (org-agenda-quit))))
+
+  ;; agenda アイテムの内容を別バッファに表示する時に，内容の全体を表示する
+  (add-hook 'org-agenda-after-show-hook #'my-recenter-top-bottom-top)
 
   (custom-set-faces
    ;; '(org-agenda-clocking ((t (:background "#300020"))))

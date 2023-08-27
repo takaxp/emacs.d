@@ -843,6 +843,10 @@ The core part is extracted from `org-table-export'."
        :strike-through "#ef8b50" :foreground "#a8a8a8"))
     "My strike-through emphasis for Org."))
 
+(with-eval-after-load "org"
+  (define-key org-mode-map (kbd "C-c M-n") #'my-org-move-item-end)
+  (define-key org-mode-map (kbd "C-c M-p") #'my-org-move-item-begin))
+
 (when (autoload-if-found '(org-capture)
                          "org-capture" nil t)
   (with-eval-after-load "org"
@@ -1032,6 +1036,9 @@ will not be modified."
                 (org-agenda-goto)
                 (with-current-buffer "*Org Agenda*"
                   (org-agenda-quit))))
+
+  ;; agenda アイテムの内容を別バッファに表示する時に，内容の全体を表示する
+  (add-hook 'org-agenda-after-show-hook #'my-recenter-top-bottom-top)
 
   (custom-set-faces
    ;; '(org-agenda-clocking ((t (:background "#300020"))))
