@@ -63,6 +63,7 @@
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
+(setq line-number-display-limit-width 100000)
 
 ;; AppData\Roaming\.emacs.d\lisp 以下に各追加パッケージを配置すること
 ;; smartparens requires dash.el.
@@ -729,8 +730,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (when (require 'moom-font nil t)
     (moom-font-ja "Migu 2M")
     (moom-font-ascii "Inconsolata")
-    (moom-font-resize 24)
-    ))
+    (moom-font-resize 24)))
 
 (with-eval-after-load "smartparens"
   (setq-default sp-highlight-pair-overlay nil)
@@ -1562,6 +1562,42 @@ will not be modified."
         (backward-word)))))
 
 (with-eval-after-load "org"
+  (define-key org-mode-map (kbd "C-c M-n") #'my-org-move-item-end)
+  (define-key org-mode-map (kbd "C-c M-p") #'my-org-move-item-begin)
+
+  (defun my-org-move-item-begin ()
+    "Move the current item to the beginning of the list."
+    (interactive)
+    (unless (org-at-item-p) (error "Not at an item"))
+    (let* ((col (current-column))
+           (item (point-at-bol))
+           (struct (org-list-struct))
+           (prevs (org-list-prevs-alist struct))
+           (prev-item (org-list-get-prev-item (point-at-bol) struct prevs)))
+      (unless prev-item
+        (user-error "Cannot move this item further up"))
+      (setq struct (org-list-send-item item 'begin struct))
+      (goto-char item)
+      (org-list-write-struct struct (org-list-parents-alist struct))
+      (org-move-to-column col)))
+
+  (defun my-org-move-item-end ()
+    "Move the current item to the end of the list."
+    (interactive)
+    (unless (org-at-item-p) (error "Not at an item"))
+    (let* ((col (current-column))
+           (item (point-at-bol))
+           (struct (org-list-struct))
+           (prevs (org-list-prevs-alist struct))
+           (next-item (org-list-get-next-item (point-at-bol) struct prevs)))
+      (unless next-item
+        (user-error "Cannot move this item further down"))
+      (setq struct (org-list-send-item item 'end struct))
+      (goto-char item)
+      (org-list-write-struct struct (org-list-parents-alist struct))
+      (org-move-to-column col))))
+
+(with-eval-after-load "org"
   (setq org-todo-keyword-faces
         '(("FOCUS"    :foreground "#FF0000" :background "#FFCC66")
           ("BUG"      :foreground "#FF0000" :background "#FFCC66")
@@ -1738,7 +1774,13 @@ will not be modified."
   (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done)
 
   ;; org-agenda の表示高さを 50% に固定する
-  (setq org-agenda-window-frame-fractions '(0.5 . 0.5)))
+  (setq org-agenda-window-frame-fractions '(0.5 . 0.5))
+
+  ;; agenda アイテムの内容を別バッファに表示する時に，内容の全体を表示する
+  (add-hook 'org-agenda-after-show-hook #'my-recenter-top-bottom-top)
+  (defun my-recenter-top-bottom-top ()
+    "Recenter the current line to the top of window."
+    (set-window-start (get-buffer-window) (line-beginning-position))))
 
 (with-eval-after-load "org-tempo"
   ;; 空行のとき "<" をインデントさせない
