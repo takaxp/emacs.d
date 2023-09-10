@@ -7352,6 +7352,136 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 #+end_src
 
+** 開いているバッファのcopy/rename/deleteと別アプリでの表示
+:PROPERTIES:
+:CUSTOM_ID: orgb2530c3e
+:END:
+- https://github.com/bbatsov/crux
+
+=curx.el= から次の関数を拝借しています．
+
+1. M-x crux-copy-file-preserve-attributes
+2. M-x crux-rename-file-and-buffer
+3. M-x crux-delete-file-and-buffer
+4. M-x crux-open-with
+   - diredでは， =C-c C-o= で呼べるように設定
+
+#+begin_src emacs-lisp emacs-lisp :tangle yes
+(with-eval-after-load "dired"
+  (define-key dired-mode-map (kbd "C-c C-o") 'crux-open-with))
+#+end_src
+
+#+begin_src emacs-lisp emacs-lisp :tangle utility.el
+;;;###autoload
+(defun crux-copy-file-preserve-attributes (visit)
+  "[curx.el]
+Copy the current file-visiting buffer's file to a destination.
+
+This function prompts for the new file's location and copies it
+similar to cp -p. If the new location is a directory, and the
+directory does not exist, this function confirms with the user
+whether it should be created. A directory must end in a slash
+like `copy-file' expects. If the destination is a directory and
+already has a file named as the origin file, offers to
+overwrite.
+
+If the current buffer is not a file-visiting file or the
+destination is a non-existent directory but the user has elected
+to not created it, nothing will be done.
+
+When invoke with C-u, the newly created file will be visited.
+"
+  (interactive "p")
+  (let ((current-file (buffer-file-name)))
+    (when current-file
+      (let* ((new-file (read-file-name "Copy file to: "))
+             (abs-path (expand-file-name new-file))
+             (create-dir-prompt "%s is a non-existent directory, create it? ")
+             (is-dir? (string-match "/" abs-path (1- (length abs-path))))
+             (dir-missing? (and is-dir? (not (file-exists-p abs-path))))
+             (create-dir? (and is-dir?
+                               dir-missing?
+                               (y-or-n-p
+                                (format create-dir-prompt new-file))))
+             (destination (concat (file-name-directory abs-path)
+                                  (file-name-nondirectory current-file))))
+        (unless (and is-dir? dir-missing? (not create-dir?))
+          (when (and is-dir? dir-missing? create-dir?)
+            (make-directory abs-path))
+          (condition-case nil
+              (progn
+                (copy-file current-file abs-path nil t t t)
+                (message "Wrote %s" destination)
+                (when visit
+                  (find-file-other-window destination)))
+            (file-already-exists
+             (when (y-or-n-p (format "%s already exists, overwrite? " destination))
+               (copy-file current-file abs-path t t t t)
+               (message "Wrote %s" destination)
+               (when visit
+                 (find-file-other-window destination))))))))))
+
+;;;###autoload
+(defun crux-rename-file-and-buffer ()
+  "[curx.el]
+Rename current buffer and if the buffer is visiting a file, rename it too."
+  (interactive)
+  (when-let* ((filename (buffer-file-name))
+              (new-name (or (read-file-name "New name: " (file-name-directory filename) nil 'confirm)))
+              (containing-dir (file-name-directory new-name)))
+    ;; make sure the current buffer is saved and backed by some file
+    (when (or (buffer-modified-p) (not (file-exists-p filename)))
+      (if (y-or-n-p "Can't move file before saving it.  Would you like to save it now?")
+          (save-buffer)))
+    (if (get-file-buffer new-name)
+        (message "There already exists a buffer named %s" new-name)
+      (progn
+        (make-directory containing-dir t)
+        (cond
+         ((vc-backend filename)
+          ;; vc-rename-file seems not able to cope with remote filenames?
+          (let ((vc-filename (if (tramp-tramp-file-p filename) (tramp-file-local-name filename) filename))
+                (vc-new-name (if (tramp-tramp-file-p new-name) (tramp-file-local-name filename) new-name)))
+            (vc-rename-file vc-filename vc-new-name)))
+         (t
+          (rename-file filename new-name t)
+          (set-visited-file-name new-name t t)))))))
+
+;;;###autoload
+(defun crux-delete-file-and-buffer ()
+  "[curx.el]
+Kill the current buffer and deletes the file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (when filename
+      (if (vc-backend filename)
+          (vc-delete-file filename)
+        (when (y-or-n-p (format "Are you sure you want to delete %s? " filename))
+          (delete-file filename delete-by-moving-to-trash)
+          (message "Deleted file %s" filename)
+          (kill-buffer))))))
+
+;;;###autoload
+(defun crux-open-with (arg)
+  "[curx.el]
+Open visited file in default external program.
+When in dired mode, open file under the cursor.
+
+With a prefix ARG always prompt for command to use."
+  (interactive "P")
+  (let* ((current-file-name
+          (if (derived-mode-p 'dired-mode)
+              (dired-get-file-for-visit)
+            buffer-file-name))
+         (open (pcase system-type
+                 (`darwin "open")
+                 ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
+         (program (if (or arg (not open))
+                      (read-shell-command "Open current file with: ")
+                    open)))
+    (call-process program nil 0 nil current-file-name)))
+#+end_src
+
 ** バッファ保存時にバックアップを生成させない                        :backup:
    :PROPERTIES:
    :CUSTOM_ID: org300e8f70
@@ -7438,6 +7568,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 ** [dired] ファイラのサポートツール                                   :dired:
    :PROPERTIES:
    :CUSTOM_ID: orge2f78ad3
+   :ID:       65232A5E-8598-4810-8835-6CE855CEB3A6
    :END:
 
 =dired.el= をリッチに使うツール群です．
