@@ -1339,9 +1339,6 @@ update it for multiple appts?")
     ))
 
 (with-eval-after-load "org"
-  ;; 履歴が生成されるのを抑制．
-  ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
-
   ;; リファイル先でサブディレクトリを指定するために一部フルパス化
   (let ((dir (expand-file-name org-directory)))
     (setq org-refile-targets
@@ -1356,6 +1353,8 @@ update it for multiple appts?")
             (,(concat dir "db/english.org") :level . 1)
             (,(concat dir "db/money.org") :level . 1))))
 
+  ;; 不要な履歴が生成されるのを抑制し，常に最新を保つ．
+  ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
   (defun ad:org-refile (f &optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
     (save-excursion

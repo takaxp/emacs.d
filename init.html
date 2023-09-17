@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-09-10 Sun 16:48 -->
+<!-- 2023-09-17 Sun 22:03 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -9008,8 +9008,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </ol>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired"</span>
-  (define-key dired-mode-map (kbd <span style="color: #8b2252;">"C-c C-o"</span>) 'crux-open-with))
+<pre class="src src-emacs-lisp">(define-key dired-mode-map (kbd <span style="color: #8b2252;">"C-c C-o"</span>) 'crux-open-with)
 </pre>
 </div>
 
@@ -9238,6 +9237,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
 (add-hook 'dired-mode-hook #'my-dired-activate)
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired"</span>
+  (<span style="color: #a020f0;">setq</span> dired-listing-switches <span style="color: #8b2252;">"-lha"</span>))
 </pre>
 </div>
 
@@ -9377,7 +9378,10 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <h3 id="org7c53511f"><span class="section-number-3">8.10.</span> [dired-recent.el] 訪問したディレクトリの履歴を取る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="dired">dired</span></span></h3>
 <div class="outline-text-3" id="text-org7c53511f">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(dired-recent-open dired-recent-mode)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired"</span>
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-recent</span> nil t))
+
+(<span style="color: #a020f0;">when</span> (autoload-if-found '(dired-recent-open dired-recent-mode)
                          <span style="color: #8b2252;">"dired-recent"</span> nil t)
   (global-set-key (kbd <span style="color: #8b2252;">"C-x C-d"</span>) 'dired-recent-open)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired-recent"</span>
@@ -10621,7 +10625,8 @@ int main(){
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hexl"</span>
+<pre class="src src-emacs-lisp">(add-hook 'hexl-mode-hook 'view-mode)
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hexl"</span>
   (custom-set-variables
    '(hexl-bits 8)))
 </pre>
@@ -13175,9 +13180,6 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <div class="outline-text-3" id="text-orgf5236175">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#23653;&#27508;&#12364;&#29983;&#25104;&#12373;&#12428;&#12427;&#12398;&#12434;&#25233;&#21046;&#65294;</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">[2/3]&#12398;&#12424;&#12358;&#12394;&#23436;&#20102;&#25968;&#12364;&#35211;&#20986;&#12375;&#12395;&#12354;&#12427;&#26178;&#12395;&#36578;&#36865;&#20808;&#20505;&#35036;&#12364;&#37325;&#35079;&#34920;&#31034;&#12373;&#12428;&#12427;&#12383;&#12417;&#65294;</span>
-
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12522;&#12501;&#12449;&#12452;&#12523;&#20808;&#12391;&#12469;&#12502;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#12434;&#25351;&#23450;&#12377;&#12427;&#12383;&#12417;&#12395;&#19968;&#37096;&#12501;&#12523;&#12497;&#12473;&#21270;</span>
   (<span style="color: #a020f0;">let</span> ((dir (expand-file-name org-directory)))
     (<span style="color: #a020f0;">setq</span> org-refile-targets
@@ -13192,6 +13194,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
             (,(concat dir <span style="color: #8b2252;">"db/english.org"</span>) <span style="color: #483d8b;">:level</span> . 1)
             (,(concat dir <span style="color: #8b2252;">"db/money.org"</span>) <span style="color: #483d8b;">:level</span> . 1))))
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19981;&#35201;&#12394;&#23653;&#27508;&#12364;&#29983;&#25104;&#12373;&#12428;&#12427;&#12398;&#12434;&#25233;&#21046;&#12375;&#65292;&#24120;&#12395;&#26368;&#26032;&#12434;&#20445;&#12388;&#65294;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">[2/3]&#12398;&#12424;&#12358;&#12394;&#23436;&#20102;&#25968;&#12364;&#35211;&#20986;&#12375;&#12395;&#12354;&#12427;&#26178;&#12395;&#36578;&#36865;&#20808;&#20505;&#35036;&#12364;&#37325;&#35079;&#34920;&#31034;&#12373;&#12428;&#12427;&#12383;&#12417;&#65294;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-refile</span> (f <span style="color: #228b22;">&amp;optional</span> arg default-buffer rfloc msg)
     <span style="color: #8b2252;">"Extension to support keeping org-refile-history empty."</span>
     (<span style="color: #a020f0;">save-excursion</span>
@@ -13708,7 +13712,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgcffadb7"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgd6c9de1"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14648,7 +14652,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgd52d5b5" class="figure">
+<div id="org8d301f5" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19035,7 +19039,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-09-10 Sun 16:48</p>
+<p class="date">Created: 2023-09-17 Sun 22:03</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -7366,9 +7366,8 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 4. M-x crux-open-with
    - diredでは， =C-c C-o= で呼べるように設定
 
-#+begin_src emacs-lisp emacs-lisp :tangle yes
-(with-eval-after-load "dired"
-  (define-key dired-mode-map (kbd "C-c C-o") 'crux-open-with))
+#+begin_src emacs-lisp emacs-lisp :tangle init-dired.el
+(define-key dired-mode-map (kbd "C-c C-o") 'crux-open-with)
 #+end_src
 
 #+begin_src emacs-lisp emacs-lisp :tangle utility.el
@@ -7582,6 +7581,8 @@ With a prefix ARG always prompt for command to use."
 #+begin_src emacs-lisp :tangle late-init.el
 ;; late-init.el
 (add-hook 'dired-mode-hook #'my-dired-activate)
+(with-eval-after-load "dired"
+  (setq dired-listing-switches "-lha"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -7715,6 +7716,9 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "dired"
+  (require 'dired-recent nil t))
+
 (when (autoload-if-found '(dired-recent-open dired-recent-mode)
                          "dired-recent" nil t)
   (global-set-key (kbd "C-x C-d") 'dired-recent-open)
@@ -8821,6 +8825,7 @@ int main(){
   - [[https://ayatakesi.github.io/emacs/24.5/Editing-Binary-Files.html][GNU Emacs Manual(Japanese Translation): Editing Binary Files]]
 
 #+begin_src emacs-lisp :tangle late-init.el
+(add-hook 'hexl-mode-hook 'view-mode)
 (with-eval-after-load "hexl"
   (custom-set-variables
    '(hexl-bits 8)))
@@ -11169,9 +11174,6 @@ update it for multiple appts?")
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
-  ;; 履歴が生成されるのを抑制．
-  ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
-
   ;; リファイル先でサブディレクトリを指定するために一部フルパス化
   (let ((dir (expand-file-name org-directory)))
     (setq org-refile-targets
@@ -11186,6 +11188,8 @@ update it for multiple appts?")
             (,(concat dir "db/english.org") :level . 1)
             (,(concat dir "db/money.org") :level . 1))))
 
+  ;; 不要な履歴が生成されるのを抑制し，常に最新を保つ．
+  ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
   (defun ad:org-refile (f &optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
     (save-excursion

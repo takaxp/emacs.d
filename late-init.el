@@ -1352,6 +1352,11 @@
 
 ;; late-init.el
 (add-hook 'dired-mode-hook #'my-dired-activate)
+(with-eval-after-load "dired"
+  (setq dired-listing-switches "-lha"))
+
+(with-eval-after-load "dired"
+  (require 'dired-recent nil t))
 
 (when (autoload-if-found '(dired-recent-open dired-recent-mode)
                          "dired-recent" nil t)
@@ -1531,6 +1536,7 @@
        "0xc" nil t)
   (global-set-key (kbd "C-c f h") '0xc-convert))
 
+(add-hook 'hexl-mode-hook 'view-mode)
 (with-eval-after-load "hexl"
   (custom-set-variables
    '(hexl-bits 8)))

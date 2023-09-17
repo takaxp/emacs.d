@@ -1,3 +1,5 @@
+(define-key dired-mode-map (kbd "C-c C-o") 'crux-open-with)
+
 (setq completion-ignored-extensions
       (append completion-ignored-extensions
 	      '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))

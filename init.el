@@ -376,9 +376,6 @@ This function returns a timer object which you can use in
                          "counsel" nil t)
   (global-set-key (kbd "C-M-r") 'counsel-recentf))
 
-(with-eval-after-load "dired"
-  (define-key dired-mode-map (kbd "C-c C-o") 'crux-open-with))
-
 ;; *.~
 (setq make-backup-files nil)
 ;; .#*
