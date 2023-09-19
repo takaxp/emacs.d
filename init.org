@@ -16492,6 +16492,29 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
       '(free-vars unresolved callargs redefine obsolete noruntime
 		  cl-functions interactive-only make-local))
 #+end_src
+** 開いているファイルをすべて閉じる
+:PROPERTIES:
+:CUSTOM_ID: org8065c996
+:ID:       068CE256-5356-4E07-B037-29A1FEFF79F8
+:END:
+
+ファイルと dired で開いているディレクトリのバッファを閉じます．
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-kill-all-file-buffers ()
+  "Kill all buffers visiting files."
+  (interactive)
+  (dolist (buffer (buffer-list))
+    (when (or (and (buffer-live-p buffer)
+                   (buffer-file-name buffer))
+              (and (switch-to-buffer buffer)
+                   (eq major-mode 'dired-mode)
+                   (file-directory-p (dired-current-directory))))
+      (kill-buffer buffer)))
+  (scratch-buffer))
+#+end_src
+
 ** [window-resizer.el] 分割したウィンドウサイズを変更する
    :PROPERTIES:
    :CUSTOM_ID: org32ff042a
