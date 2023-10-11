@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-09-19 Tue 16:53 -->
+<!-- 2023-10-11 Wed 09:35 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -241,14 +241,15 @@
 </ul>
 </li>
 <li><a href="#org5a18ac68">2.21. Native comp が使えるかを判定する</a></li>
-<li><a href="#orgb59612b6">2.22. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0b7d9710">2.23. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
+<li><a href="#org65713cda">2.22. Native comp がコンパイルした後にメッセージを表示する</a></li>
+<li><a href="#orgb59612b6">2.23. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0b7d9710">2.24. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
 <ul>
-<li><a href="#org42722212">2.23.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.23.2. マクロ版</a></li>
+<li><a href="#org42722212">2.24.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.24.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#orgcea06248">2.24. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
+<li><a href="#orgcea06248">2.25. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -914,7 +915,8 @@ Then load the following at startup
   (<span style="color: #a020f0;">let</span> ((t-init-files (time-subtract after-init-time my-before-load-init-time))
         (t-after-init (time-subtract (current-time) after-init-time))
         (t-others (time-subtract my-before-load-init-time before-init-time))
-        (t-early-init (time-subtract my-early-end my-early-start)))
+        (t-early-init (time-subtract my-early-end my-early-start))
+        (inhibit-message t))
     (message (concat
               <span style="color: #8b2252;">"  Loading init files: %4.0f [msec]\n"</span>
               <span style="color: #8b2252;">"  Loading early-init: %4.0f [msec]\n"</span>
@@ -1002,11 +1004,12 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-emacs-init-time</span> ()
   <span style="color: #8b2252;">"Emacs booting time in msec."</span>
-  (message <span style="color: #8b2252;">"Emacs booting time: %4.0f [msec] = `</span><span style="color: #008b8b;">emacs-init-time</span><span style="color: #8b2252;">'."</span>
-           (* 1000
-              (float-time (time-subtract
-                           after-init-time
-                           before-init-time)))))
+  (<span style="color: #a020f0;">let</span> ((inhibit-message t))
+    (message <span style="color: #8b2252;">"Emacs booting time: %4.0f [msec] = `</span><span style="color: #008b8b;">emacs-init-time</span><span style="color: #8b2252;">'."</span>
+             (* 1000
+                (float-time (time-subtract
+                             after-init-time
+                             before-init-time))))))
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 </pre>
@@ -1761,8 +1764,20 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
+<div id="outline-container-org65713cda" class="outline-3">
+<h3 id="org65713cda"><span class="section-number-3">2.22.</span> Native comp がコンパイルした後にメッセージを表示する</h3>
+<div class="outline-text-3" id="text-org65713cda">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-my-native-comp-packages-done</span> ()
+  (message <span style="color: #8b2252;">"Native Compilation...done"</span>))
+(add-hook 'native-comp-async-all-done-hook #'my-my-native-comp-packages-done)
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.22.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.23.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a></li>
@@ -1782,7 +1797,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.23.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.24.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b>
@@ -1866,7 +1881,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.23.1.</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.24.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
@@ -1922,7 +1937,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.23.2.</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.24.2.</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
@@ -1957,7 +1972,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.24.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.25.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．
@@ -13713,7 +13728,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org71d9d6a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga35a248"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14653,7 +14668,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgd587cb9" class="figure">
+<div id="org1b98527" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19065,7 +19080,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-09-19 Tue 16:53</p>
+<p class="date">Created: 2023-10-11 Wed 09:35</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

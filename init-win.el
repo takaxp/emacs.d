@@ -7,7 +7,7 @@
 ;; Note: all local and private settings should be configured in the .emacs.
 ;; runemacs.exe is extracted from a distributed zip package from
 ;;             https://ftp.jaist.ac.jp/pub/GNU/emacs/windows/
-;;                                                    Last update: 2022-07-12
+;;                                                    Last update: 2023-09-16
 (when nil
   ;; advice of load function
   (defadvice load (around require-benchmark activate)
@@ -74,7 +74,7 @@
     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
     "replace-from-region" "session" "helpful" "org-appear" "projectile"
-    "counsel-projectile" "super-save"))
+    "counsel-projectile" "super-save" "org-tree-slide"))
 
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
@@ -295,6 +295,18 @@
     "Insert a timestamp at the cursor position."
     (interactive)
     (insert (format-time-string "%Y-%m-%d")))
+  (defun my-kill-all-file-buffers ()
+    "Kill all buffers visiting files and directories."
+    (interactive)
+    (dolist (buffer (buffer-list))
+      (when (or (and (buffer-live-p buffer)
+                     (buffer-file-name buffer))
+                (and (switch-to-buffer buffer)
+                     (eq major-mode 'dired-mode)
+                     (file-directory-p (dired-current-directory))))
+        (kill-buffer buffer)))
+    (scratch-buffer))
+  (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers)
 
   ;; isearch with a selected reagion
   (defadvice isearch-mode
@@ -547,6 +559,11 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (autoload 'super-save-mode "super-save" nil t)
 (add-hook 'find-file-hook #'my-super-save-activate)
 
+;; org-tree-slide
+(global-set-key (kbd "<f8>") 'org-tree-slide-mode)
+(global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+(autoload 'org-tree-slide-mode "org-tree-slide" nil t)
+
 ;; emacsclientw
 (when (require 'server nil t)
   (server-force-delete)
@@ -731,6 +748,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (moom-font-ja "Migu 2M")
     (moom-font-ascii "Inconsolata")
     (moom-font-resize 24)))
+
+(with-eval-after-load "moom-transient"
+  (moom-transient-hide-cursor)
+  (setq moom-transient-dispatch-sticky nil))
 
 (with-eval-after-load "smartparens"
   (setq-default sp-highlight-pair-overlay nil)
@@ -1562,6 +1583,40 @@ will not be modified."
         (backward-word)))))
 
 (with-eval-after-load "org"
+  ;; 不要な履歴が生成されるのを抑制し，常に最新を保つ．
+  ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
+  (defun ad:org-refile (f &optional arg default-buffer rfloc msg)
+    "Extension to support keeping org-refile-history empty."
+    (save-excursion
+      (save-restriction
+        (let ((l (org-outline-level))
+              (b (buffer-name)))
+          (apply f arg default-buffer rfloc msg)
+          (if (> l (org-outline-level))
+              (outline-backward-same-level 1)
+            (outline-up-heading 1))
+          (org-update-statistics-cookies nil) ;; Update in source
+          ;; (org-sort-entries nil ?O)
+          (org-refile-goto-last-stored)
+          (org-update-parent-todo-statistics) ;; Update in destination
+          (outline-up-heading 1)
+          (org-sort-entries nil ?o)
+          (unless (equal b (buffer-name))
+            (switch-to-buffer b)))
+        (setq org-refile-history nil)
+        (org-refile-cache-clear))))
+  (advice-add 'org-refile :around #'ad:org-refile)
+
+  (defun ad:org-sort-entries (&optional _with-case _sorting-type
+                                        _getkey-func _compare-func
+                                        _property _interactive?)
+    (outline-hide-subtree)
+    (org-show-hidden-entry)
+    (org-show-children)
+    (org-cycle-hide-drawers 'children))
+  (advice-add 'org-sort-entries :after #'ad:org-sort-entries))
+
+(with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-c M-n") #'my-org-move-item-end)
   (define-key org-mode-map (kbd "C-c M-p") #'my-org-move-item-begin)
 
@@ -1935,6 +1990,18 @@ Otherwise, use `counsel-ag'."
 (with-eval-after-load "super-save"
   (setq super-save-idle-duration 5)
   (setq super-save-auto-save-when-idle t))
+
+(with-eval-after-load "org-tree-slide"
+  ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
+  (define-key org-tree-slide-mode-map (kbd "<f9>")
+              'org-tree-slide-move-previous-tree)
+  (define-key org-tree-slide-mode-map (kbd "<f10>")
+              'org-tree-slide-move-next-tree)
+  (unless noninteractive
+    (org-tree-slide-narrowing-control-profile))
+  (setq org-tree-slide-modeline-display 'outside)
+  (setq org-tree-slide-skip-outline-level 5)
+  (setq org-tree-slide-skip-done nil))
 
 (when do-profile (profiler-stop))
 ;; End of init-win.el

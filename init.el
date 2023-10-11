@@ -19,7 +19,8 @@
   (let ((t-init-files (time-subtract after-init-time my-before-load-init-time))
         (t-after-init (time-subtract (current-time) after-init-time))
         (t-others (time-subtract my-before-load-init-time before-init-time))
-        (t-early-init (time-subtract my-early-end my-early-start)))
+        (t-early-init (time-subtract my-early-end my-early-start))
+        (inhibit-message t))
     (message (concat
               "  Loading init files: %4.0f [msec]\n"
               "  Loading early-init: %4.0f [msec]\n"
@@ -45,11 +46,12 @@
 
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
-  (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
-           (* 1000
-              (float-time (time-subtract
-                           after-init-time
-                           before-init-time)))))
+  (let ((inhibit-message t))
+    (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
+             (* 1000
+                (float-time (time-subtract
+                             after-init-time
+                             before-init-time))))))
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
