@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-10-11 Wed 09:35 -->
+<!-- 2023-10-29 Sun 09:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -11642,6 +11642,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"H"</span> my-hugo-export-upload))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"."</span> my-org-deadline-today))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"!"</span> my-org-default-property))
+  (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"y"</span> my-org-yank))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"x"</span> my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
                '(<span style="color: #8b2252;">"$"</span> call-interactively 'org-archive-subtree))
@@ -13728,7 +13729,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga35a248"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org988ac74"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14668,7 +14669,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org1b98527" class="figure">
+<div id="org40788a9" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16724,6 +16725,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-vhl-activate</span> (<span style="color: #228b22;">&amp;optional</span> arg)
   (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">volatile-highlights</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 40-50[ms]</span>
   (advice-remove 'my-yank #'my-vhl-activate)
+  (advice-remove 'my-org-yank #'my-vhl-activate)
   arg)
 </pre>
 </div>
@@ -16734,7 +16736,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
   (global-set-key (kbd <span style="color: #8b2252;">"M-v"</span>) 'my-yank)
   (global-set-key (kbd <span style="color: #8b2252;">"C-y"</span>) 'my-yank)
   (<span style="color: #a020f0;">when</span> window-system
-    (advice-add 'my-yank <span style="color: #483d8b;">:before</span> #'my-vhl-activate))
+    (advice-add 'my-yank <span style="color: #483d8b;">:before</span> #'my-vhl-activate)
+    (advice-add 'my-org-yank <span style="color: #483d8b;">:before</span> #'my-vhl-activate))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"volatile-highlights"</span>
     (set-face-attribute
@@ -19080,7 +19083,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-10-11 Wed 09:35</p>
+<p class="date">Created: 2023-10-29 Sun 09:58</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

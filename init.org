@@ -9761,6 +9761,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
+  (add-to-list 'org-speed-commands '("y" my-org-yank))
   (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
@@ -14413,6 +14414,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 (defun my-vhl-activate (&optional arg)
   (require 'volatile-highlights nil t) ;; will take 40-50[ms]
   (advice-remove 'my-yank #'my-vhl-activate)
+  (advice-remove 'my-org-yank #'my-vhl-activate)
   arg)
 #+end_src
 
@@ -14422,7 +14424,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (global-set-key (kbd "M-v") 'my-yank)
   (global-set-key (kbd "C-y") 'my-yank)
   (when window-system
-    (advice-add 'my-yank :before #'my-vhl-activate))
+    (advice-add 'my-yank :before #'my-vhl-activate)
+    (advice-add 'my-org-yank :before #'my-vhl-activate))
 
   (with-eval-after-load "volatile-highlights"
     (set-face-attribute

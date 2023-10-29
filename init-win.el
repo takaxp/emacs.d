@@ -8,6 +8,7 @@
 ;; runemacs.exe is extracted from a distributed zip package from
 ;;             https://ftp.jaist.ac.jp/pub/GNU/emacs/windows/
 ;;                                                    Last update: 2023-09-16
+
 (when nil
   ;; advice of load function
   (defadvice load (around require-benchmark activate)
@@ -74,7 +75,8 @@
     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
     "replace-from-region" "session" "helpful" "org-appear" "projectile"
-    "counsel-projectile" "super-save" "org-tree-slide"))
+    "counsel-projectile" "super-save" "org-tree-slide"
+    "org-mode/lisp" "org-contrib/lisp"))
 
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
@@ -1307,6 +1309,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
                '("D" my-org-todo-complete-no-repeat "DONE"))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
+  (add-to-list 'org-speed-commands '("y" my-org-yank))
   (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
 
   (setq org-log-done 'time)
@@ -1988,7 +1991,7 @@ Otherwise, use `counsel-ag'."
   (setq time-stamp-line-limit 10)) ;; def=8
 
 (with-eval-after-load "super-save"
-  (setq super-save-idle-duration 5)
+  (setq super-save-idle-duration 60)
   (setq super-save-auto-save-when-idle t))
 
 (with-eval-after-load "org-tree-slide"

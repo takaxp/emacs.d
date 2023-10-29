@@ -1989,7 +1989,8 @@
   (global-set-key (kbd "M-v") 'my-yank)
   (global-set-key (kbd "C-y") 'my-yank)
   (when window-system
-    (advice-add 'my-yank :before #'my-vhl-activate))
+    (advice-add 'my-yank :before #'my-vhl-activate)
+    (advice-add 'my-org-yank :before #'my-vhl-activate))
 
   (with-eval-after-load "volatile-highlights"
     (set-face-attribute

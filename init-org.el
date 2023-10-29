@@ -361,6 +361,7 @@
   (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
+  (add-to-list 'org-speed-commands '("y" my-org-yank))
   (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
                '("$" call-interactively 'org-archive-subtree))
