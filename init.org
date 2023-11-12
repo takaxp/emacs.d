@@ -3571,8 +3571,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(flyspell-mode-on
-                           flyspell-prog-mode flyspell-mode
-                           my-flyspell-mode-on my-flyspell-prog-mode)
+                           flyspell-prog-mode flyspell-mode my-flyspell-on)
                          "flyspell" nil t)
   (defvar major-mode-with-flyspell
     '(text-mode change-log-mode latex-mode yatex-mode
@@ -3592,7 +3591,6 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     (add-hook (intern (format "%s-hook" hook)) #'flyspell-prog-mode))
 
   (with-eval-after-load "flyspell"
-
     ;; C-; をオーバーライド
     (define-key flyspell-mode-map (kbd "C-;") 'comment-dwim)
     (setq flyspell-duplicate-distance 0)
@@ -5646,6 +5644,12 @@ version 28 で全角スペースに黒下線が付くので回避します．
              (list (string-to-number (format-time-string "%m"))
                    (string-to-number (format-time-string "%d"))
                    (string-to-number (format-time-string "%y"))))))))
+
+;;;###autoload
+(defun my-week-number ()
+  "Show the current week number."
+  (interactive)
+  (message "Week: %s" (my-get-week-number)))
 
 ;;;###autoload
 (defun my-empty-booting-header-line ()

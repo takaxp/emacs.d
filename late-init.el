@@ -524,8 +524,7 @@
       nil))))
 
 (when (autoload-if-found '(flyspell-mode-on
-                           flyspell-prog-mode flyspell-mode
-                           my-flyspell-mode-on my-flyspell-prog-mode)
+                           flyspell-prog-mode flyspell-mode my-flyspell-on)
                          "flyspell" nil t)
   (defvar major-mode-with-flyspell
     '(text-mode change-log-mode latex-mode yatex-mode
@@ -545,7 +544,6 @@
     (add-hook (intern (format "%s-hook" hook)) #'flyspell-prog-mode))
 
   (with-eval-after-load "flyspell"
-
     ;; C-; をオーバーライド
     (define-key flyspell-mode-map (kbd "C-;") 'comment-dwim)
     (setq flyspell-duplicate-distance 0)

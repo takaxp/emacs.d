@@ -15,8 +15,6 @@
 (with-eval-after-load "org"
   ;; to avoid an error in Ventura due to lacking of an alerter command.
   (setq ns-alerter-command "")
-  ;; (when (string= (system-name) "water.local")
-  ;;   (setq org-show-notification-handler nil))
 
   ;; outline-flag-region and backline
   (when (require 'backline nil t)

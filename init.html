@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-10-29 Sun 09:58 -->
+<!-- 2023-11-12 Sun 09:02 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4805,8 +4805,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(flyspell-mode-on
-                           flyspell-prog-mode flyspell-mode
-                           my-flyspell-mode-on my-flyspell-prog-mode)
+                           flyspell-prog-mode flyspell-mode my-flyspell-on)
                          <span style="color: #8b2252;">"flyspell"</span> nil t)
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">major-mode-with-flyspell</span>
     '(text-mode change-log-mode latex-mode yatex-mode
@@ -4826,7 +4825,6 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
     (add-hook (intern (format <span style="color: #8b2252;">"%s-hook"</span> hook)) #'flyspell-prog-mode))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
-
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-; &#12434;&#12458;&#12540;&#12496;&#12540;&#12521;&#12452;&#12489;</span>
     (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-;"</span>) 'comment-dwim)
     (<span style="color: #a020f0;">setq</span> flyspell-duplicate-distance 0)
@@ -7194,6 +7192,12 @@ version 28 で全角スペースに黒下線が付くので回避します．
              (list (string-to-number (format-time-string <span style="color: #8b2252;">"%m"</span>))
                    (string-to-number (format-time-string <span style="color: #8b2252;">"%d"</span>))
                    (string-to-number (format-time-string <span style="color: #8b2252;">"%y"</span>))))))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-week-number</span> ()
+  <span style="color: #8b2252;">"Show the current week number."</span>
+  (<span style="color: #a020f0;">interactive</span>)
+  (message <span style="color: #8b2252;">"Week: %s"</span> (my-get-week-number)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-empty-booting-header-line</span> ()
@@ -13729,7 +13733,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org988ac74"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org99ee07d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14669,7 +14673,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org40788a9" class="figure">
+<div id="org0f3cb9e" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19083,7 +19087,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-10-29 Sun 09:58</p>
+<p class="date">Created: 2023-11-12 Sun 09:02</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
