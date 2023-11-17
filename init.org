@@ -5108,7 +5108,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 
 #+begin_src emacs-lisp :tangle late-init.el :exports yes
 ;; Show clock in in the mode line
-(setq display-time-format "%H:%M") ;; %y%m%d. ;; "%H%M.%S"
+(setq display-time-format "%H:%M w%V") ;; %y%m%d. ;; "%H%M.%S"
 (setq display-time-interval 1)
 (setq display-time-default-load-average nil)
 (unless noninteractive
@@ -5649,7 +5649,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 (defun my-week-number ()
   "Show the current week number."
   (interactive)
-  (message "Week: %s" (my-get-week-number)))
+  (message "w%s" (my-get-week-number)))
 
 ;;;###autoload
 (defun my-empty-booting-header-line ()

@@ -807,7 +807,7 @@
         `(,(icons-in-terminal-material "edit") "%3l")))
 
 ;; Show clock in in the mode line
-(setq display-time-format "%H:%M") ;; %y%m%d. ;; "%H%M.%S"
+(setq display-time-format "%H:%M w%V") ;; %y%m%d. ;; "%H%M.%S"
 (setq display-time-interval 1)
 (setq display-time-default-load-average nil)
 (unless noninteractive
