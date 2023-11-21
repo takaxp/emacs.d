@@ -75,7 +75,7 @@
     "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
     "replace-from-region" "session" "helpful" "org-appear" "projectile"
-    "counsel-projectile" "super-save" "org-tree-slide"
+    "counsel-projectile" "super-save" "org-tree-slide" "delight.el"
     "org-mode/lisp" "org-contrib/lisp"))
 
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
@@ -108,7 +108,11 @@
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  (display-time-mode 1)
+  (progn
+    (setq display-time-format "%H:%M w%V")
+    (setq display-time-interval 1)
+    (setq display-time-default-load-average nil)
+    (display-time-mode 1))
   (setq display-time-day-and-date t)
   (global-auto-revert-mode 1)
   (set-face-background 'fringe (face-background 'default))
@@ -565,6 +569,12 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
 (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
 (autoload 'org-tree-slide-mode "org-tree-slide" nil t)
+
+;; delight
+(defun my-delight-activate ()
+  (require 'delight nil t)
+  (remove-hook 'find-file-hook #'my-delight-activate))
+(add-hook 'find-file-hook #'my-delight-activate)
 
 ;; emacsclientw
 (when (require 'server nil t)
@@ -2005,6 +2015,41 @@ Otherwise, use `counsel-ag'."
   (setq org-tree-slide-modeline-display 'outside)
   (setq org-tree-slide-skip-outline-level 5)
   (setq org-tree-slide-skip-done nil))
+
+(with-eval-after-load "delight"
+  (delight
+   '(;; Major modes
+     ;;     (c-mode "C" :major)
+     ;;     (c++mode "C++" :major)
+     (js2-mode "JS" :major)
+     (csharp-mode "C#" :major)
+     (prog-mode "Pr" :major)
+     (emacs-lisp-mode "El" :major)
+     (python-mode "Py" :major)
+     (perl-mode "Pl" :major)
+     (web-mode "W" :major)
+     (change-log-mode "CLog" :major)
+     (lisp-interaction-mode "Lisp" :major)
+
+     ;; Shorten for minor modes
+     (ggtags-mode " G" "ggtags")
+     (orgalist-mode " ol" "orgalist")
+     (view-mode " V" "view")
+     ;; Stop to display for minor modes
+     (eldoc-mode nil "eldoc")
+     (ivy-mode nil "ivy")
+     (counsel-mode nil "counsel")
+     (volatile-highlights-mode nil "volatile-highlights")
+     (company-mode nil "company")
+     (isearch-mode nil "isearch")
+     (auto-revert-mode nil "autorevert")
+     (abbrev-mode nil "abbrev")
+     (highlight-symbol-mode nil "highlight-symbol")
+     (smartparens-mode nil "smartparens")
+     (projectile-mode nil "projectile")
+     (selected-minor-mode nil "selected")
+     (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
+     (super-save-mode nil "super-save"))))
 
 (when do-profile (profiler-stop))
 ;; End of init-win.el
