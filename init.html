@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-11-23 Thu 14:38 -->
+<!-- 2023-11-23 Thu 15:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -4714,8 +4714,6 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
   (global-set-key (kbd <span style="color: #8b2252;">"&lt;f7&gt;"</span>) 'ispell-word)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ispell"</span>
-    (message <span style="color: #8b2252;">"-- Loading config for ispell."</span>)
-    (<span style="color: #a020f0;">setq</span> ispell-encoding8-command t)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">for English and Japanese mixed</span>
     (add-to-list 'ispell-skip-region-alist '(<span style="color: #8b2252;">"[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\000-\377]+"</span>))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">http://endlessparentheses.com/ispell-and-org-mode.html</span>
@@ -4723,6 +4721,7 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
     (add-to-list 'ispell-skip-region-alist '(<span style="color: #8b2252;">"~"</span> <span style="color: #8b2252;">"~"</span>))
     (add-to-list 'ispell-skip-region-alist '(<span style="color: #8b2252;">"="</span> <span style="color: #8b2252;">"="</span>))
     (add-to-list 'ispell-skip-region-alist '(org-property-drawer-re))
+    (<span style="color: #a020f0;">setq</span> ispell-encoding8-command t)
 
     (<span style="color: #a020f0;">cond</span>
      ((executable-find <span style="color: #8b2252;">"hunspell"</span>)
@@ -4747,8 +4746,7 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">Not regal way, but it's OK (usually ispell-local-dictionary-alist)</span>
 
       (<span style="color: #a020f0;">setq</span> ispell-personal-dictionary
-            (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/.hunspell.en.dic"</span>))
-      (message <span style="color: #8b2252;">"--- hunspell loaded."</span>))
+            (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/hunspell.en.dic"</span>)))
 
      ((executable-find <span style="color: #8b2252;">"aspell"</span>)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- aspell loaded.")</span>
@@ -13736,7 +13734,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orge9c18b7"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgdfe7bdb"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14676,7 +14674,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org1abd5d8" class="figure">
+<div id="orgc3d737e" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19090,7 +19088,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2023-11-23 Thu 14:38</p>
+<p class="date">Created: 2023-11-23 Thu 15:32</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

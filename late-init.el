@@ -472,8 +472,6 @@
   (global-set-key (kbd "<f7>") 'ispell-word)
 
   (with-eval-after-load "ispell"
-    (message "-- Loading config for ispell.")
-    (setq ispell-encoding8-command t)
     ;; for English and Japanese mixed
     (add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
     ;; http://endlessparentheses.com/ispell-and-org-mode.html
@@ -481,6 +479,7 @@
     (add-to-list 'ispell-skip-region-alist '("~" "~"))
     (add-to-list 'ispell-skip-region-alist '("=" "="))
     (add-to-list 'ispell-skip-region-alist '(org-property-drawer-re))
+    (setq ispell-encoding8-command t)
 
     (cond
      ((executable-find "hunspell")
@@ -505,8 +504,7 @@
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
       (setq ispell-personal-dictionary
-            (concat (getenv "SYNCROOT") "/emacs.d/.hunspell.en.dic"))
-      (message "--- hunspell loaded."))
+            (concat (getenv "SYNCROOT") "/emacs.d/hunspell.en.dic")))
 
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
