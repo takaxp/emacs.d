@@ -472,6 +472,7 @@
   (global-set-key (kbd "<f7>") 'ispell-word)
 
   (with-eval-after-load "ispell"
+    (message "-- Loading config for ispell.")
     (setq ispell-encoding8-command t)
     ;; for English and Japanese mixed
     (add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
@@ -483,8 +484,8 @@
 
     (cond
      ((executable-find "hunspell")
-      (setenv "LC_ALL" "en_US")
-      ;; (message "--- hunspell loaded.")
+      ;; (setenv "LC_ALL" "en_US") ;; Don't use this line.
+      ;; (setq ispell-extra-args '("--lang=en_US"))
       ;; (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
       (setenv "DICPATH" (concat (getenv "SYNCROOT") "/emacs.d/hunspell/dict-en"))
       (setq ispell-local-dictionary-alist
@@ -504,7 +505,8 @@
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
       (setq ispell-personal-dictionary
-            (concat (getenv "SYNCROOT") "/emacs.d/.hunspell.en.dic")))
+            (concat (getenv "SYNCROOT") "/emacs.d/.hunspell.en.dic"))
+      (message "--- hunspell loaded."))
 
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")

@@ -3473,6 +3473,7 @@ lang en_US
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
+
 (when (autoload-if-found '(ispell-region ispell-complete-word)
                          "ispell" nil t)
   ;; This could hilde other messages from loading functions regarding org-mode.
@@ -3484,6 +3485,7 @@ lang en_US
   (global-set-key (kbd "<f7>") 'ispell-word)
 
   (with-eval-after-load "ispell"
+    (message "-- Loading config for ispell.")
     (setq ispell-encoding8-command t)
     ;; for English and Japanese mixed
     (add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
@@ -3495,8 +3497,8 @@ lang en_US
 
     (cond
      ((executable-find "hunspell")
-      (setenv "LC_ALL" "en_US")
-      ;; (message "--- hunspell loaded.")
+      ;; (setenv "LC_ALL" "en_US") ;; Don't use this line.
+      ;; (setq ispell-extra-args '("--lang=en_US"))
       ;; (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
       (setenv "DICPATH" (concat (getenv "SYNCROOT") "/emacs.d/hunspell/dict-en"))
       (setq ispell-local-dictionary-alist
@@ -3516,7 +3518,8 @@ lang en_US
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
       (setq ispell-personal-dictionary
-            (concat (getenv "SYNCROOT") "/emacs.d/.hunspell.en.dic")))
+            (concat (getenv "SYNCROOT") "/emacs.d/.hunspell.en.dic"))
+      (message "--- hunspell loaded."))
 
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
@@ -10102,8 +10105,8 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 ;;;###autoload
 (defun my-desktop-notification (title message &optional sticky sound timeout)
   "Show a message by `alerter' command."
-  (if (equal ns-alerter-command "")
-      (message "--- ns-alerter-command is \"%s\"." ns-alerter-command)
+  (if (equal ns-alerter-command (or "" nil))
+      (message "--- ns-alerter-command is nil.")
     (start-process
      "notification" "*notification*"
      ns-alerter-command
