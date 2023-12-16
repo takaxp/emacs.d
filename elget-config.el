@@ -69,8 +69,8 @@
   (el-get-bundle "emacsmirror/org-contrib")
   (el-get-bundle "awth13/org-appear")
   (el-get-bundle "org-mac-link"
-    :type git
-    :url "https://gitlab.com/aimebertrand/org-mac-link.git")
+                 :type git
+                 :url "https://gitlab.com/aimebertrand/org-mac-link.git")
   (progn
     (el-get-bundle "persist")
     (el-get-bundle "ichernyshovvv/org-timeblock"))
@@ -95,8 +95,8 @@
   ;; Major modes
   ;; download zip since python-mode git repository is extremely huge
   (el-get-bundle "python-mode"
-    :type http-zip
-    :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
+                 :type http-zip
+                 :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
   (el-get-bundle "yaml-mode")
   (el-get-bundle "json-mode")
   (el-get-bundle "emacsmirror/csv-mode")
@@ -111,8 +111,8 @@
   (progn ;; pass
     (el-get-bundle "NicolasPetton/pass")
     (el-get-bundle "password-store"
-      :type http
-      :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
+                   :type http
+                   :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
     (el-get-bundle "ecraven/ivy-pass")) ;; requires password-store.el
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "emacsmirror/yatex"))
@@ -223,17 +223,18 @@
   (el-get-bundle "emacsmirror/rainbow-mode")
   (el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))
   (el-get-bundle "disk-usage"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
+                 :type git
+                 :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
   (el-get-bundle "ideasman42/emacs-undo-fu"
-    :type git
-    :url "https://codeberg.org/ideasman42/emacs-undo-fu.git")
+                 :type git
+                 :url "https://codeberg.org/ideasman42/emacs-undo-fu.git")
   (el-get-bundle "zk-phi/gitmole")
   (el-get-bundle "chuntaro/emacs-keypression" :name keypression)
   (el-get-bundle "lewang/command-log-mode")
   (el-get-bundle "tarsius/outline-minor-faces")
   (el-get-bundle "tarsius/backline")
   (el-get-bundle "jdtsmith/mlscroll")
+  (el-get-bundle "emacs-vs/rainbow-csv")
 
   ;; System related
   (el-get-bundle "Fuco1/dired-hacks")
@@ -242,8 +243,8 @@
   (el-get-bundle "neotree")
   (el-get-bundle "find-file-in-project")
   (el-get-bundle "gcmh"
-    :type git
-    :url "https://gitlab.com/koral/gcmh.git")
+                 :type git
+                 :url "https://gitlab.com/koral/gcmh.git")
 
   ;; Frame and windows
   (el-get-bundle "popwin")
@@ -253,8 +254,8 @@
   (el-get-bundle "rubikitch/replace-from-region")
   (el-get-bundle "quickrun")
   (el-get-bundle "latex-math-preview"
-    :type git
-    :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
+                 :type git
+                 :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
   (el-get-bundle "sbrisard/bratex")
   (el-get-bundle "zhangkaiyulw/smart-mark")
   (el-get-bundle "emacsmirror/syntax-subword")
@@ -262,8 +263,8 @@
   (el-get-bundle "phikal/compat.el" :name compat)
   (el-get-bundle "magit/transient")
   (el-get-bundle "conao3/transient-dwim.el"
-    :name transient-dwim
-    :depends (transient))
+                 :name transient-dwim
+                 :depends (transient))
 
   ;; Applications
   (el-get-bundle "ag")
@@ -271,8 +272,8 @@
   (el-get-bundle "japanese-holidays")
   (el-get-bundle "pdf-tools")
   (el-get-bundle "gif-screencast"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
+                 :type git
+                 :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
   (el-get-bundle "jorgenschaefer/circe")
   (when (memq system-type '(darwin windows-nt))
     (el-get-bundle "d12frosted/counsel-osx-app"))

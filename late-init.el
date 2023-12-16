@@ -911,7 +911,8 @@
      (skewer-html-mode nil "skewer-html")
      (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
      (gcmh-mode nil "gcmh")
-     (super-save-mode nil "super-save")))
+     (super-save-mode nil "super-save")
+     (rainbow-csv-mode nil "rainbow-csv")))
 
   ;; Override by icon
   (when (require 'icons-in-terminal nil t)
@@ -1286,6 +1287,9 @@
      ["Bullet and Checkbox"
       ("I" "insert" my-org-insert-bullet-and-checkbox)
       ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
+
+(when (autoload-if-found '(rainbow-csv-mode) "rainbow-csv" nil t)
+  (add-hook 'csv-mode-hook 'rainbow-csv-mode))
 
 (when (autoload-if-found '(rencetf-mode
 	                   my-recentf-save-list-silence

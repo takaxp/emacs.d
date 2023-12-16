@@ -16,10 +16,6 @@
   ;; to avoid an error in Ventura due to lacking of an alerter command.
   (setq ns-alerter-command "")
 
-  ;; outline-flag-region and backline
-  (when (require 'backline nil t)
-    (advice-add 'outline-flag-region :after 'backline-update))
-
   (defun my-hugo-export-upload ()
     "Export subtree for Hugo and upload the engty."
     (when (member (buffer-name) '("imadenale.org" "archive.org"))
