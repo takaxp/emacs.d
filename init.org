@@ -7292,7 +7292,10 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
-  (eval `(with-ivy-window (find-file ,file))))
+  (cond ((string-match "\\.numbers$" file)
+         (eval `(with-ivy-window (org-open-file ,file))))
+        (t
+         (eval `(with-ivy-window (find-file ,file))))))
 
 ;;;###autoload
 (defun ad:counsel-recentf ()
