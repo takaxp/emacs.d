@@ -2,6 +2,8 @@
 (setq auto-save-default nil)
 (setq auto-save-list-file-prefix nil)
 (setq line-number-display-limit-width 100000)
+(setq confirm-kill-emacs 'yes-or-no-p)
+
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)  ;; M-<
 (global-set-key (kbd "C-M-b") 'end-of-buffer) ;; M->
