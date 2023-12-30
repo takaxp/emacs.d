@@ -25,7 +25,7 @@
 ;; cd ${HOME}/.emacs.d
 ;; git clone --depth 1 https://github.com/jrblevin/markdown-mode.git
 (add-to-list 'load-path "~/.emacs.d/markdown-mode")
-(require 'markdown-mode nil t)
+(autoload 'markdown-mode "markdown-mode" nil t)
 
 ;; view-mode
 (add-hook 'find-file-hook #'view-mode)
@@ -68,3 +68,25 @@
     (when (derived-mode-p 'org-mode)
       (let ((view-mode nil))
         (org-shifttab)))))
+
+(with-eval-after-load "org"
+  (add-hook 'org-mode-hook #'turn-on-font-lock)
+  (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+  (setq org-startup-truncated nil)
+  (setq org-hide-leading-stars t)
+
+  (defun my-org-hide-drawers ()
+    "Hide all drawers in an org tree."
+    (interactive)
+    (save-excursion
+      (beginning-of-line)
+      (unless (looking-at-p org-drawer-regexp)
+        (org-cycle-hide-drawers 'subtree)))))
+
+(with-eval-after-load "dired"
+  (define-key dired-mode-map (kbd "u") 'dired-up-directory)
+  (define-key dired-mode-map
+              (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
+  (define-key dired-mode-map
+              (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+  (setq dired-listing-switches "-lha"))
