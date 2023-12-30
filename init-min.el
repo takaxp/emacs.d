@@ -26,6 +26,7 @@
 ;; git clone --depth 1 https://github.com/jrblevin/markdown-mode.git
 (add-to-list 'load-path "~/.emacs.d/markdown-mode")
 (autoload 'markdown-mode "markdown-mode" nil t)
+(push '("\\.md$" . markdown-mode) auto-mode-alist)
 
 ;; view-mode
 (add-hook 'find-file-hook #'view-mode)
