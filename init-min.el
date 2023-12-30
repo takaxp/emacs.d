@@ -26,31 +26,11 @@
 (require 'markdown-mode nil t)
 
 ;; view-mode
-(add-hook 'find-file-hook #'my-auto-view)
-;; 特定の拡張子・ディレクトリ
-(defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.gpg$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
-;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
-(defvar my-auto-view-dirs nil)
-;; (add-to-list 'my-auto-view-dirs (expand-file-name my-installed-packages-dir))
+(add-hook 'find-file-hook #'view-mode)
 
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
-  (define-key view-mode-map (kbd "e") 'my-view-exit)
   (define-key view-mode-map (kbd "f") 'forward-char)
   (define-key view-mode-map (kbd "b") 'backward-char))
-
-(defun my-view-exit ()
-  (interactive)
-  (if (use-region-p) (my-eval-region) (View-exit)))
-
-(defun my-auto-view ()
-  "Open a file with `view-mode'."
-  (when (file-exists-p buffer-file-name)
-    (when (and my-auto-view-regexp
-	       (string-match my-auto-view-regexp buffer-file-name))
-      (view-mode 1))
-    (dolist (dir my-auto-view-dirs)
-      (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
-        (view-mode 1)))))
