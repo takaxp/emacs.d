@@ -2,7 +2,7 @@
 (setq auto-save-default nil)
 (setq auto-save-list-file-prefix nil)
 (setq line-number-display-limit-width 100000)
-(setq confirm-kill-emacs 'yes-or-no-p)
+(setq confirm-kill-emacs 'y-or-n-p)
 
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
 (global-set-key (kbd "C-M-t") 'beginning-of-buffer)  ;; M-<
@@ -30,7 +30,6 @@
 
 ;; view-mode
 (add-hook 'find-file-hook #'view-mode)
-
 (with-eval-after-load "view"
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
@@ -48,14 +47,12 @@
              (org-at-heading-p))
         (org-next-visible-heading 1)
       (next-line)))
-
   (defun my-org-view-previous-heading ()
     (interactive)
     (if (and (derived-mode-p 'org-mode)
              (org-at-heading-p))
         (org-previous-visible-heading 1)
       (previous-line)))
-
   (defun my-view-tab ()
     (interactive)
     (when (and (derived-mode-p 'org-mode)
@@ -63,7 +60,6 @@
                    (org-at-property-drawer-p)))
       (let ((view-mode nil))
         (org-cycle))))
-
   (defun my-view-shifttab ()
     (interactive)
     (when (derived-mode-p 'org-mode)
