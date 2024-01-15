@@ -60,6 +60,7 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 ** Spacemacs
   :PROPERTIES:
   :CUSTOM_ID: orgdb94bf6d
+  :ID:       19E8C588-9798-4FED-867E-84DB32E4B1ED
   :END:
  - [[https://www.spacemacs.org/][Spacemacs: Emacs advanced Kit focused on Evil]]
 
@@ -8491,6 +8492,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
    CLOSED: [2018-09-23 Sun 22:30]
    :PROPERTIES:
    :CUSTOM_ID: orgdba35c9f
+   :ID:       A8800E74-B468-459A-B04E-F9B3B65FCFD2
    :END:
 
 #+begin_src emacs-lisp :tangle no
@@ -13989,6 +13991,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 ;;;###autoload
 (defun my-hl-todo-light-theme ()
+  (setq hl-todo-exclude-modes nil) ;; also apply to a case when org-mode
   (setq hl-todo-keyword-faces
         '(("HOLD" . "#d0bf8f")
           ("TODO" . "#FF0000")

@@ -156,7 +156,7 @@
     (save-excursion
       (beginning-of-line)
       (unless (looking-at-p org-drawer-regexp)
-	(org-cycle-hide-drawers 'subtree))))
+        (org-cycle-hide-drawers 'subtree))))
   (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
   ;; CSV指定でテーブルを出力する．
@@ -478,7 +478,7 @@
 
 (with-eval-after-load "org"
   ;; Font lock を使う
-  (global-font-lock-mode 1)
+  ;; (global-font-lock-mode 1) ;; see org-mode-hook
 
   ;; ウィンドウの端で折り返す
   (setq org-startup-truncated nil)
