@@ -24,6 +24,8 @@
 ;;   ;;     (eval `(with-ivy-window (find-file ,file)))))
 ;;   )
 
+
+
 (with-eval-after-load "org"
   ;; to avoid an error in Ventura due to lacking of an alerter command.
   (setq ns-alerter-command "")
@@ -137,7 +139,8 @@
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-tree-slide"))
   (setq org-agenda-files '("~/Desktop/test/hoge.org")))
- (nil ;; minimum
+ (t ;; minimum
+  (add-to-list 'load-path (concat user-emacs-directory "min"))
   (load (concat user-emacs-directory "min/init.el")))
  (nil ;; Spacemacs
   (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
@@ -163,3 +166,6 @@
 ;; To decrypt old sub trees
 ;;(advice-add 'epg--check-error-for-decrypt :override 'ignore)
 ;; (package-initialize) ;; keep this here for previous versions
+
+
+(require 'org-tree-slide)
