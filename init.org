@@ -1746,12 +1746,16 @@ emacs -nw --init-directory="$HOME/.emacs.d/min"
 ただ NativeComp の場合には， =${HOME}/.emacs.d/min= 以下に新たに =eln-cache= が生成されるので注意してください．
 
 #+begin_src emacs-lisp :tangle init-min.el
+(add-to-list 'load-path (concat user-emacs-directory "min"))
 (setq make-backup-files nil)
 (setq auto-save-default nil)
 (setq auto-save-list-file-prefix nil)
+(setq line-number-display-limit-width 100000)
+(setq vc-follow-symlinks t)
+(setq confirm-kill-emacs 'y-or-n-p)
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
-(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-(global-set-key (kbd "C-M-b") 'end-of-buffer)
+(global-set-key (kbd "C-M-t") 'beginning-of-buffer) ;; M-<
+(global-set-key (kbd "C-M-b") 'end-of-buffer) ;; M->
 (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
@@ -1764,6 +1768,14 @@ emacs -nw --init-directory="$HOME/.emacs.d/min"
   (interactive)
   (switch-to-buffer "*scratch*"))
 (global-set-key (kbd "C-M-s") #'my-open-scratch)
+(when (eq system-type 'darwin)
+  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
+  (when (boundp 'ns-alternate-modifier) (setq ns-alternate-modifier 'super))
+  (when (boundp 'ns-pop-up-frames) (setq ns-pop-up-frames nil))
+  (global-set-key (kbd "M-v") 'yank)
+  (global-set-key [ns-drag-file] 'ns-find-file))
+(global-set-key [delete] 'delete-char)
+(global-set-key [kp-delete] 'delete-char)
 #+end_src
 
 なお上記を回避するために， =user-emacs-directory= を変更せずに， =min/init.el= をロードすることもできます．だだし，非推奨です． =.emacs= で起動時に読み込む =init= 系ファイルを制御することになります．事前に =early-init.el= のどこかに =(defvar my-boot-mode nil)= を入れておいてください．
@@ -16562,6 +16574,11 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
                    (file-directory-p (dired-current-directory))))
       (kill-buffer buffer)))
   (scratch-buffer))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers)
+(global-set-key (kbd "C-c C-x") #'save-buffers-kill-emacs)
 #+end_src
 
 ** [window-resizer.el] 分割したウィンドウサイズを変更する

@@ -2116,4 +2116,7 @@
     (when (require 'elfeed-web nil t)
       (setq elfeed-web-data-root (concat my-elget-package-dir "/web")))))
 
+(global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers)
+(global-set-key (kbd "C-c C-x") #'save-buffers-kill-emacs)
+
 (provide 'late-init)

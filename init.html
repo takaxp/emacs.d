@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-01-15 Mon 09:03 -->
+<!-- 2024-01-18 Thu 20:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -2675,12 +2675,16 @@ Eamcs 29からは， <code>--init-directory</code> オプションで <code>user
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> make-backup-files nil)
+<pre class="src src-emacs-lisp">(add-to-list 'load-path (concat user-emacs-directory <span style="color: #8b2252;">"min"</span>))
+(<span style="color: #a020f0;">setq</span> make-backup-files nil)
 (<span style="color: #a020f0;">setq</span> auto-save-default nil)
 (<span style="color: #a020f0;">setq</span> auto-save-list-file-prefix nil)
+(<span style="color: #a020f0;">setq</span> line-number-display-limit-width 100000)
+(<span style="color: #a020f0;">setq</span> vc-follow-symlinks t)
+(<span style="color: #a020f0;">setq</span> confirm-kill-emacs 'y-or-n-p)
 (global-set-key (kbd <span style="color: #8b2252;">"RET"</span>) 'electric-newline-and-maybe-indent)
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-t"</span>) 'beginning-of-buffer)
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-b"</span>) 'end-of-buffer)
+(global-set-key (kbd <span style="color: #8b2252;">"C-M-t"</span>) 'beginning-of-buffer) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-&lt;</span>
+(global-set-key (kbd <span style="color: #8b2252;">"C-M-b"</span>) 'end-of-buffer) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-&gt;</span>
 (global-set-key (kbd <span style="color: #8b2252;">"C-M-p"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
 (global-set-key (kbd <span style="color: #8b2252;">"C-M-n"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
 (global-set-key (kbd <span style="color: #8b2252;">"C-;"</span>) 'comment-dwim) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-; is the defualt</span>
@@ -2693,6 +2697,14 @@ Eamcs 29からは， <code>--init-directory</code> オプションで <code>user
   (<span style="color: #a020f0;">interactive</span>)
   (switch-to-buffer <span style="color: #8b2252;">"*scratch*"</span>))
 (global-set-key (kbd <span style="color: #8b2252;">"C-M-s"</span>) #'my-open-scratch)
+(<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
+  (<span style="color: #a020f0;">when</span> (boundp 'ns-command-modifier) (<span style="color: #a020f0;">setq</span> ns-command-modifier 'meta))
+  (<span style="color: #a020f0;">when</span> (boundp 'ns-alternate-modifier) (<span style="color: #a020f0;">setq</span> ns-alternate-modifier 'super))
+  (<span style="color: #a020f0;">when</span> (boundp 'ns-pop-up-frames) (<span style="color: #a020f0;">setq</span> ns-pop-up-frames nil))
+  (global-set-key (kbd <span style="color: #8b2252;">"M-v"</span>) 'yank)
+  (global-set-key [ns-drag-file] 'ns-find-file))
+(global-set-key [delete] 'delete-char)
+(global-set-key [kp-delete] 'delete-char)
 </pre>
 </div>
 
@@ -13754,7 +13766,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org2836ab0"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga66b355"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14694,7 +14706,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org7b82a98" class="figure">
+<div id="orgbd3b360" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18962,6 +18974,12 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (scratch-buffer))
 </pre>
 </div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-x C-c"</span>) #'my-kill-all-file-buffers)
+(global-set-key (kbd <span style="color: #8b2252;">"C-c C-x"</span>) #'save-buffers-kill-emacs)
+</pre>
+</div>
 </div>
 </div>
 
@@ -19109,7 +19127,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-01-15 Mon 09:03</p>
+<p class="date">Created: 2024-01-18 Thu 20:20</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
