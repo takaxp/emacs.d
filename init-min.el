@@ -1,9 +1,13 @@
+(add-to-list 'load-path (concat user-emacs-directory "min"))
 (setq make-backup-files nil)
 (setq auto-save-default nil)
 (setq auto-save-list-file-prefix nil)
+(setq line-number-display-limit-width 100000)
+(setq vc-follow-symlinks t)
+(setq confirm-kill-emacs 'y-or-n-p)
 (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
-(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-(global-set-key (kbd "C-M-b") 'end-of-buffer)
+(global-set-key (kbd "C-M-t") 'beginning-of-buffer) ;; M-<
+(global-set-key (kbd "C-M-b") 'end-of-buffer) ;; M->
 (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
 (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
@@ -16,3 +20,11 @@
   (interactive)
   (switch-to-buffer "*scratch*"))
 (global-set-key (kbd "C-M-s") #'my-open-scratch)
+(when (eq system-type 'darwin)
+  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
+  (when (boundp 'ns-alternate-modifier) (setq ns-alternate-modifier 'super))
+  (when (boundp 'ns-pop-up-frames) (setq ns-pop-up-frames nil))
+  (global-set-key (kbd "M-v") 'yank)
+  (global-set-key [ns-drag-file] 'ns-find-file))
+(global-set-key [delete] 'delete-char)
+(global-set-key [kp-delete] 'delete-char)

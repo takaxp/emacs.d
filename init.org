@@ -1385,7 +1385,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 =y-or-n-p= もしくは =yes-or-no-p= を指定するだけです．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (setq confirm-kill-emacs 'yes-or-no-p)
 #+end_src
 
@@ -1403,6 +1403,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 
 (global-set-key (kbd "C-x C-c") 'confirm-save-buffers-kill-emacs)
 #+end_src
+
 
 ** パッケージ管理
    :PROPERTIES:
@@ -16559,7 +16560,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 :ID:       068CE256-5356-4E07-B037-29A1FEFF79F8
 :END:
 
-訪れたファイルと dired で開いているディレクトリのバッファを閉じます．その後，スクラッチバッファを表示します．
+訪れたファイルと dired で開いているディレクトリのバッファを閉じます．その後，スクラッチバッファを表示します．さらに， ~C-x C-c~ に紐づけて，終了を，バッファを閉じる動作に入れ替えます．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -16573,14 +16574,32 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
                    (eq major-mode 'dired-mode)
                    (file-directory-p (dired-current-directory))))
       (kill-buffer buffer)))
-  (scratch-buffer))
+  (delete-windows-on)
+  (scratch-buffer)
+  (message "Quit Emacs? -> \"C-c C-x\""))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers)
-(global-set-key (kbd "C-c C-x") #'save-buffers-kill-emacs)
 #+end_src
 
+** スクラッチバッファを表示している場合にだけ終了可能にする
+:PROPERTIES:
+:CUSTOM_ID: org21c1e9c4
+:ID:       17C4B266-D240-450C-848F-38A9BE36239B
+:END:
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-kill-emacs-when-scratch-buffer ()
+  (interactive)
+  (when (equal "*scratch*" (buffer-name))
+    (save-buffers-kill-emacs)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(global-set-key (kbd "C-c C-x") #'my-kill-emacs-when-scratch-buffer)
+#+end_src
 ** [window-resizer.el] 分割したウィンドウサイズを変更する
    :PROPERTIES:
    :CUSTOM_ID: org32ff042a

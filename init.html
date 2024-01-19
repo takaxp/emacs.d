@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-01-18 Thu 20:20 -->
+<!-- 2024-01-20 Sat 00:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -732,13 +732,14 @@
 <li><a href="#org1a1d73ca">14.54. UUID をファイル名にして所定のディレクトリにコピー／移動</a></li>
 <li><a href="#orgbdeca93a">14.55. byte-compile の警告を抑制する</a></li>
 <li><a href="#org8065c996">14.56. 開いているファイルをすべて閉じる</a></li>
-<li><a href="#org32ff042a">14.57. [window-resizer.el] 分割したウィンドウサイズを変更する</a></li>
-<li><a href="#org54f46ec1">14.58. [idle-requie]</a></li>
-<li><a href="#org22e29aa4">14.59. [pdf-preview]</a></li>
-<li><a href="#orge6a31c57">14.60. [EasyPG]</a></li>
-<li><a href="#org1495619c">14.61. [eblook]</a></li>
-<li><a href="#org13d9d76f">14.62. [iBuffer]</a></li>
-<li><a href="#orgafde656e">14.63. キーバインド</a></li>
+<li><a href="#org21c1e9c4">14.57. スクラッチバッファを表示している場合にだけ終了可能にする</a></li>
+<li><a href="#org32ff042a">14.58. [window-resizer.el] 分割したウィンドウサイズを変更する</a></li>
+<li><a href="#org54f46ec1">14.59. [idle-requie]</a></li>
+<li><a href="#org22e29aa4">14.60. [pdf-preview]</a></li>
+<li><a href="#orge6a31c57">14.61. [EasyPG]</a></li>
+<li><a href="#org1495619c">14.62. [eblook]</a></li>
+<li><a href="#org13d9d76f">14.63. [iBuffer]</a></li>
+<li><a href="#orgafde656e">14.64. キーバインド</a></li>
 </ul>
 </li>
 <li><a href="#org362fb2dc">15. おわりに</a></li>
@@ -2283,6 +2284,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 </div>
 </div>
 </div>
+
 
 <div id="outline-container-orgd7b8f4e2" class="outline-3">
 <h3 id="orgd7b8f4e2"><span class="section-number-3">3.13.</span> パッケージ管理</h3>
@@ -13766,7 +13768,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga66b355"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgfe376fa"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14706,7 +14708,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgbd3b360" class="figure">
+<div id="org50beadf" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18956,7 +18958,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h3 id="org8065c996"><span class="section-number-3">14.56.</span> 開いているファイルをすべて閉じる</h3>
 <div class="outline-text-3" id="text-org8065c996">
 <p>
-訪れたファイルと dired で開いているディレクトリのバッファを閉じます．その後，スクラッチバッファを表示します．
+訪れたファイルと dired で開いているディレクトリのバッファを閉じます．その後，スクラッチバッファを表示します．さらに， <code>C-x C-c</code> に紐づけて，終了を，バッファを閉じる動作に入れ替えます．
 </p>
 
 <div class="org-src-container">
@@ -18971,20 +18973,39 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
                    (eq major-mode 'dired-mode)
                    (file-directory-p (dired-current-directory))))
       (kill-buffer buffer)))
-  (scratch-buffer))
+  (delete-windows-on)
+  (scratch-buffer)
+  (message <span style="color: #8b2252;">"Quit Emacs? -&gt; \"C-c C-x\""</span>))
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-x C-c"</span>) #'my-kill-all-file-buffers)
-(global-set-key (kbd <span style="color: #8b2252;">"C-c C-x"</span>) #'save-buffers-kill-emacs)
 </pre>
 </div>
 </div>
 </div>
 
+<div id="outline-container-org21c1e9c4" class="outline-3">
+<h3 id="org21c1e9c4"><span class="section-number-3">14.57.</span> スクラッチバッファを表示している場合にだけ終了可能にする</h3>
+<div class="outline-text-3" id="text-org21c1e9c4">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-kill-emacs-when-scratch-buffer</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">when</span> (equal <span style="color: #8b2252;">"*scratch*"</span> (buffer-name))
+    (save-buffers-kill-emacs)))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c C-x"</span>) #'my-kill-emacs-when-scratch-buffer)
+</pre>
+</div>
+</div>
+</div>
 <div id="outline-container-org32ff042a" class="outline-3">
-<h3 id="org32ff042a"><span class="section-number-3">14.57.</span> [window-resizer.el] 分割したウィンドウサイズを変更する</h3>
+<h3 id="org32ff042a"><span class="section-number-3">14.58.</span> [window-resizer.el] 分割したウィンドウサイズを変更する</h3>
 <div class="outline-text-3" id="text-org32ff042a">
 <p>
 <a href="http://d.hatena.ne.jp/khiker/20100119/window_resize">http://d.hatena.ne.jp/khiker/20100119/window_resize</a>
@@ -19044,7 +19065,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-org54f46ec1" class="outline-3">
-<h3 id="org54f46ec1"><span class="section-number-3">14.58.</span> [idle-requie]</h3>
+<h3 id="org54f46ec1"><span class="section-number-3">14.59.</span> [idle-requie]</h3>
 <div class="outline-text-3" id="text-org54f46ec1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">idle-require</span>)
@@ -19054,7 +19075,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-org22e29aa4" class="outline-3">
-<h3 id="org22e29aa4"><span class="section-number-3">14.59.</span> [pdf-preview]</h3>
+<h3 id="org22e29aa4"><span class="section-number-3">14.60.</span> [pdf-preview]</h3>
 <div class="outline-text-3" id="text-org22e29aa4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">pdf-preview</span>)
@@ -19063,7 +19084,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-orge6a31c57" class="outline-3">
-<h3 id="orge6a31c57"><span class="section-number-3">14.60.</span> [EasyPG]</h3>
+<h3 id="orge6a31c57"><span class="section-number-3">14.61.</span> [EasyPG]</h3>
 <div class="outline-text-3" id="text-orge6a31c57">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">epa-setup</span> nil t)
@@ -19073,7 +19094,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-org1495619c" class="outline-3">
-<h3 id="org1495619c"><span class="section-number-3">14.61.</span> [eblook]</h3>
+<h3 id="org1495619c"><span class="section-number-3">14.62.</span> [eblook]</h3>
 <div class="outline-text-3" id="text-org1495619c">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">eblook</span>
@@ -19089,7 +19110,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-org13d9d76f" class="outline-3">
-<h3 id="org13d9d76f"><span class="section-number-3">14.62.</span> [iBuffer]</h3>
+<h3 id="org13d9d76f"><span class="section-number-3">14.63.</span> [iBuffer]</h3>
 <div class="outline-text-3" id="text-org13d9d76f">
 <p>
 iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
@@ -19102,7 +19123,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 </div>
 <div id="outline-container-orgafde656e" class="outline-3">
-<h3 id="orgafde656e"><span class="section-number-3">14.63.</span> キーバインド</h3>
+<h3 id="orgafde656e"><span class="section-number-3">14.64.</span> キーバインド</h3>
 <div class="outline-text-3" id="text-orgafde656e">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Multiple combination</span>
@@ -19127,7 +19148,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-01-18 Thu 20:20</p>
+<p class="date">Created: 2024-01-20 Sat 00:08</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

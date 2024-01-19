@@ -62,8 +62,6 @@
 
 (setq hscroll-margin 40)
 
-(setq confirm-kill-emacs 'yes-or-no-p)
-
 (autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
                      el-get-cd el-get-remove el-get-update
@@ -2117,6 +2115,7 @@
       (setq elfeed-web-data-root (concat my-elget-package-dir "/web")))))
 
 (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers)
-(global-set-key (kbd "C-c C-x") #'save-buffers-kill-emacs)
+
+(global-set-key (kbd "C-c C-x") #'my-kill-emacs-when-scratch-buffer)
 
 (provide 'late-init)
