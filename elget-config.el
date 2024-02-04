@@ -63,7 +63,9 @@
   (el-get-bundle "tarsius/orglink")
   (el-get-bundle "Fuco1/org-pretty-table")
   (unless (eq system-type 'windows-nt)
-    (el-get-bundle "org-emms")
+    (el-get-bundle "org-emms"
+                   :type git
+                   :url "https://git.sr.ht/~jagrg/org-emms")
     (el-get-bundle "org-trello"))
   (el-get-bundle "xenodium/company-org-block")
   (el-get-bundle "emacsmirror/org-contrib")

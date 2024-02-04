@@ -4001,13 +4001,14 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
     (sp-local-pair 'org-mode "=" "=")
-    (sp-local-pair 'org-mode "_" "_")
     (sp-local-pair 'org-mode "$" "$")
-    (sp-local-pair 'org-mode "~" "~")
+    (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
+    (sp-local-pair 'org-mode "_" "_" :actions '(wrap)) ;; 選択時のみ有効
+    (sp-local-pair 'org-mode "~" "~" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "[" "]" :actions '(wrap)) ;; 選択時のみ有効
-    ;;(sp-local-pair 'org-mode "+" "+")
-    ;; (sp-local-pair 'org-mode "/" "/")
-    ;; (sp-local-pair 'org-mode "*" "*")
+    (sp-local-pair 'org-mode "+" "+" :actions '(wrap)) ;; 選択時のみ有効
+    (sp-local-pair 'org-mode "/" "/" :actions '(wrap)) ;; 選択時のみ有効
+    (sp-local-pair 'org-mode "*" "*" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'yatex-mode "$" "$" :actions '(wrap))))
 #+end_src
 
@@ -5619,22 +5620,22 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 ビルドインの =holidays= と， =japanese-holidays= を使います．土日祝日に色を着けます．土曜日と日曜祝日で異なる配色にできます．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (with-eval-after-load "calendar"
-
-  (add-hook 'calendar-today-visible-hook #'calendar-mark-today)
-
   (when (require 'japanese-holidays nil t)
     (setq calendar-holidays
           (append japanese-holidays
                   holiday-local-holidays holiday-other-holidays))
     (setq calendar-mark-holidays-flag t)
     (setq mark-holidays-in-calendar t)
-    (setq japanese-holiday-weekend-marker
-          '(holiday nil nil nil nil nil japanese-holiday-saturday))
-    (setq japanese-holiday-weekend '(0 6))
+    ;; (setq japanese-holiday-weekend-marker
+    ;;       '(holiday nil nil nil nil nil japanese-holiday-saturday))
+    ;; (setq japanese-holiday-weekend '(0 6))
     (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
-    (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend)))
+    (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend))
+
+  (add-hook 'calendar-today-visible-hook #'calendar-mark-today))
 #+end_src
 
 ** [calendar.el] カレンダーで週番号を表示する

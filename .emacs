@@ -12,17 +12,8 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
-;; (add-to-list 'org-file-apps '("\\.numbers\\'" . default))
-;; (with-eval-after-load "ivy"
-;;   ;;
-;;   (defun my-counsel-recentf-action (file)
-;;     (eval `(with-ivy-window (org-open-file ,file))))
-
-;;   ;; (defun my-counsel-recentf-action (file)
-;;   ;;   (if (string-match "\\.numbers$" file)
-;;   ;;       (org-open-file file)
-;;   ;;     (eval `(with-ivy-window (find-file ,file)))))
-;;   )
+(with-eval-after-load "calendar"
+  (add-hook 'calendar-today-visible-hook #'my-hl-line-enable))
 
 (with-eval-after-load "org"
   ;; to avoid an error in Ventura due to lacking of an alerter command.
