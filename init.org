@@ -2055,7 +2055,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
   (with-eval-after-load "org"
     ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-    ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
+    ;; (add-hook 'ah-after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
     ;; カーソル移動で heading に留まった時にIMEをOFFにする
     (unless noninteractive
       (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)))
@@ -5620,8 +5620,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 ビルドインの =holidays= と， =japanese-holidays= を使います．土日祝日に色を着けます．土曜日と日曜祝日で異なる配色にできます．
 
-#+begin_src emacs-lisp :tangle no
-;; late-init.el
+#+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "calendar"
   (when (require 'japanese-holidays nil t)
     (setq calendar-holidays
@@ -5635,7 +5634,11 @@ version 28 で全角スペースに黒下線が付くので回避します．
     (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
     (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend))
 
-  (add-hook 'calendar-today-visible-hook #'calendar-mark-today))
+  (add-hook 'calendar-today-visible-hook #'calendar-mark-today)
+  ;; hl-line を有効化
+  ;; (add-hook 'calendar-today-visible-hook #'my-hl-line-enable)
+  ;; (add-hook 'calendar-today-invisible-hook #'my-hl-line-enable)
+)
 #+end_src
 
 ** [calendar.el] カレンダーで週番号を表示する
@@ -10745,7 +10748,7 @@ will not be modified."
                    (concat (getenv "SYNCROOT") "/org/" arg))
                  '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                    "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                   "org2ja.org" "itr.org")))
+                   "org2ja.org" "itr.org" "db/books.org")))
     (when (file-exists-p (expand-file-name file))
       (add-to-list 'org-agenda-files file 'append)))
   (when (eq system-type 'windows-nt) ;; FIXME
@@ -12912,7 +12915,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ;; for init setup
 (setq-default cursor-type (plist-get my-cur-type-ime :on))
 (unless noninteractive
-  (add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
+  ;; (2024-02-05) org から calendar を呼ぶときにカーソルが残ってしまうので，しばらく下記のhookを停止する
+  ;; (add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
   (my-apply-cursor-config))
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
@@ -12988,10 +12992,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (declare-function my-ime-on "init" nil)
   (declare-function my-ime-off "init" nil)
   (declare-function my-ime-active-p "init" nil)
-
-  ;; for private patch
-  (when (boundp 'mac-ime-cursor-type)
-    (setq mac-ime-cursor-type (plist-get my-cur-type-ime :on)))
 
   (defvar my-ime-last (my-ime-active-p))
   (defvar my-ime-before-action nil)

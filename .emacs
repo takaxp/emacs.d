@@ -12,8 +12,14 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
+(autoload 'org-eval-in-calendar "org" nil t)
+
 (with-eval-after-load "calendar"
-  (add-hook 'calendar-today-visible-hook #'my-hl-line-enable))
+  (defun my-calendar-mark-selected ()
+    (org-eval-in-calendar '(setq cursor-type nil) t))
+  (add-hook 'calendar-today-visible-hook #'my-calendar-mark-selected)
+  (add-hook 'calendar-move-hook #'my-calendar-mark-selected))
+
 
 (with-eval-after-load "org"
   ;; to avoid an error in Ventura due to lacking of an alerter command.

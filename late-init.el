@@ -150,7 +150,7 @@
 
   (with-eval-after-load "org"
     ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
-    ;; (add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
+    ;; (add-hook 'ah-after-move-cursor-hook #'my-ns-org-heading-auto-ascii)
     ;; カーソル移動で heading に留まった時にIMEをOFFにする
     (unless noninteractive
       (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)))
@@ -974,6 +974,25 @@
       (set-face-foreground 'git-gutter-fr:deleted  "medium sea green"))))
 
 (with-eval-after-load "calendar"
+  (when (require 'japanese-holidays nil t)
+    (setq calendar-holidays
+          (append japanese-holidays
+                  holiday-local-holidays holiday-other-holidays))
+    (setq calendar-mark-holidays-flag t)
+    (setq mark-holidays-in-calendar t)
+    ;; (setq japanese-holiday-weekend-marker
+    ;;       '(holiday nil nil nil nil nil japanese-holiday-saturday))
+    ;; (setq japanese-holiday-weekend '(0 6))
+    (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
+    (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend))
+
+  (add-hook 'calendar-today-visible-hook #'calendar-mark-today)
+  ;; hl-line を有効化
+  ;; (add-hook 'calendar-today-visible-hook #'my-hl-line-enable)
+  ;; (add-hook 'calendar-today-invisible-hook #'my-hl-line-enable)
+)
+
+(with-eval-after-load "calendar"
   (setq calendar-week-start-day 1)
   (copy-face 'default 'calendar-iso-week-header-face)
   (set-face-attribute 'calendar-iso-week-header-face nil
@@ -1725,10 +1744,6 @@
   (declare-function my-ime-on "init" nil)
   (declare-function my-ime-off "init" nil)
   (declare-function my-ime-active-p "init" nil)
-
-  ;; for private patch
-  (when (boundp 'mac-ime-cursor-type)
-    (setq mac-ime-cursor-type (plist-get my-cur-type-ime :on)))
 
   (defvar my-ime-last (my-ime-active-p))
   (defvar my-ime-before-action nil)

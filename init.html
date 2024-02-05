@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-02-04 Sun 23:08 -->
+<!-- 2024-02-06 Tue 08:16 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -3020,7 +3020,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#26469;&#12383;&#12392;&#12365;&#12399;&#21363;&#24231;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-move-cursor-hook #'my-ns-org-heading-auto-ascii)</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'ah-after-move-cursor-hook #'my-ns-org-heading-auto-ascii)</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#31227;&#21205;&#12391; heading &#12395;&#30041;&#12414;&#12387;&#12383;&#26178;&#12395;IME&#12434;OFF&#12395;&#12377;&#12427;</span>
     (<span style="color: #a020f0;">unless</span> noninteractive
       (run-with-idle-timer 0.2 t #'my-ns-org-heading-auto-ascii)))
@@ -7160,8 +7160,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"calendar"</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"calendar"</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">japanese-holidays</span> nil t)
     (<span style="color: #a020f0;">setq</span> calendar-holidays
           (append japanese-holidays
@@ -7174,7 +7173,11 @@ version 28 で全角スペースに黒下線が付くので回避します．
     (add-hook 'calendar-today-visible-hook #'japanese-holiday-mark-weekend)
     (add-hook 'calendar-today-invisible-hook #'japanese-holiday-mark-weekend))
 
-  (add-hook 'calendar-today-visible-hook #'calendar-mark-today))
+  (add-hook 'calendar-today-visible-hook #'calendar-mark-today)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">hl-line &#12434;&#26377;&#21177;&#21270;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'calendar-today-visible-hook #'my-hl-line-enable)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'calendar-today-invisible-hook #'my-hl-line-enable)</span>
+)
 </pre>
 </div>
 </div>
@@ -12737,7 +12740,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                    (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/org/"</span> arg))
                  '(<span style="color: #8b2252;">"org-ical.org"</span> <span style="color: #8b2252;">"next.org"</span> <span style="color: #8b2252;">"db/cooking.org"</span> <span style="color: #8b2252;">"minutes/wg1.org"</span>
                    <span style="color: #8b2252;">"db/daily.org"</span> <span style="color: #8b2252;">"db/trigger.org"</span>  <span style="color: #8b2252;">"academic.org"</span> <span style="color: #8b2252;">"tr/work.org"</span>
-                   <span style="color: #8b2252;">"org2ja.org"</span> <span style="color: #8b2252;">"itr.org"</span>)))
+                   <span style="color: #8b2252;">"org2ja.org"</span> <span style="color: #8b2252;">"itr.org"</span> <span style="color: #8b2252;">"db/books.org"</span>)))
     (<span style="color: #a020f0;">when</span> (file-exists-p (expand-file-name file))
       (add-to-list 'org-agenda-files file 'append)))
   (<span style="color: #a020f0;">when</span> (eq system-type 'windows-nt) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
@@ -13769,7 +13772,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org0a7a67d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3777039"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14709,7 +14712,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org900158f" class="figure">
+<div id="orgcd9d49b" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15043,7 +15046,8 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">for init setup</span>
 (<span style="color: #a020f0;">setq-default</span> cursor-type (plist-get my-cur-type-ime <span style="color: #483d8b;">:on</span>))
 (<span style="color: #a020f0;">unless</span> noninteractive
-  (add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(2024-02-05) org &#12363;&#12425; calendar &#12434;&#21628;&#12406;&#12392;&#12365;&#12395;&#12459;&#12540;&#12477;&#12523;&#12364;&#27531;&#12387;&#12390;&#12375;&#12414;&#12358;&#12398;&#12391;&#65292;&#12375;&#12400;&#12425;&#12367;&#19979;&#35352;&#12398;hook&#12434;&#20572;&#27490;&#12377;&#12427;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'buffer-list-update-hook #'my-apply-cursor-config)</span>
   (my-apply-cursor-config))
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)
@@ -15122,10 +15126,6 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
   (<span style="color: #a020f0;">declare-function</span> my-ime-on <span style="color: #8b2252;">"init"</span> nil)
   (<span style="color: #a020f0;">declare-function</span> my-ime-off <span style="color: #8b2252;">"init"</span> nil)
   (<span style="color: #a020f0;">declare-function</span> my-ime-active-p <span style="color: #8b2252;">"init"</span> nil)
-
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">for private patch</span>
-  (<span style="color: #a020f0;">when</span> (boundp 'mac-ime-cursor-type)
-    (<span style="color: #a020f0;">setq</span> mac-ime-cursor-type (plist-get my-cur-type-ime <span style="color: #483d8b;">:on</span>)))
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-last</span> (my-ime-active-p))
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-before-action</span> nil)
@@ -19149,7 +19149,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-02-04 Sun 23:08</p>
+<p class="date">Created: 2024-02-06 Tue 08:16</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

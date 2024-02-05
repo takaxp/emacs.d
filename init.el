@@ -491,7 +491,8 @@ This function returns a timer object which you can use in
 ;; for init setup
 (setq-default cursor-type (plist-get my-cur-type-ime :on))
 (unless noninteractive
-  (add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
+  ;; (2024-02-05) org から calendar を呼ぶときにカーソルが残ってしまうので，しばらく下記のhookを停止する
+  ;; (add-hook 'buffer-list-update-hook #'my-apply-cursor-config)
   (my-apply-cursor-config))
 (add-hook 'input-method-activate-hook #'my-ime-on-cursor)
 (add-hook 'input-method-deactivate-hook #'my-ime-off-cursor)

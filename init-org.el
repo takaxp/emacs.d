@@ -966,7 +966,7 @@ will not be modified."
                    (concat (getenv "SYNCROOT") "/org/" arg))
                  '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                    "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                   "org2ja.org" "itr.org")))
+                   "org2ja.org" "itr.org" "db/books.org")))
     (when (file-exists-p (expand-file-name file))
       (add-to-list 'org-agenda-files file 'append)))
   (when (eq system-type 'windows-nt) ;; FIXME
