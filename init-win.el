@@ -581,6 +581,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (server-force-delete)
   (server-start))
 
+;; calendar
+(autoload 'org-eval-in-calendar "org" nil t)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1030,6 +1033,11 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (setq epg-pinentry-mode 'loopback))
 
 (with-eval-after-load "calendar"
+  (defun my-calendar-mark-selected ()
+    (org-eval-in-calendar '(setq cursor-type nil) t))
+  (add-hook 'calendar-today-visible-hook #'my-calendar-mark-selected)
+  (add-hook 'calendar-move-hook #'my-calendar-mark-selected)
+
   (when (require 'japanese-holidays nil t)
     (setq calendar-holidays
           (append japanese-holidays
@@ -2001,7 +2009,8 @@ Otherwise, use `counsel-ag'."
   (setq time-stamp-line-limit 10)) ;; def=8
 
 (with-eval-after-load "super-save"
-  (setq super-save-idle-duration 60)
+  (setq super-save-triggers '(switch-to-buffer))
+  (setq super-save-idle-duration 15)
   (setq super-save-auto-save-when-idle t))
 
 (with-eval-after-load "org-tree-slide"
