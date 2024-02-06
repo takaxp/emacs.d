@@ -359,6 +359,7 @@
   ;; (add-to-list 'org-speed-commands '("N" org-shiftmetadown))
   ;; (add-to-list 'org-speed-commands '("P" org-shiftmetaup))
   (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
+  (add-to-list 'org-speed-commands '("E" my-export-subtree-as-html))
   (add-to-list 'org-speed-commands '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
   (add-to-list 'org-speed-commands '("y" my-org-yank))
@@ -447,6 +448,13 @@
               (message "%s\nUploading..." exported)
               (message "%s" (shell-command-to-string command))
               (message "%s\nUploading...done" exported)))))))
+
+  ;; カーソル位置のサブツリーをデスクトップにHTMLエクスポートする
+  (defun my-export-subtree-as-html ()
+    (interactive)
+    (let ((file "~/Desktop/note.html"))
+      (org-export-to-file 'html file nil t)
+      (org-open-file file)))
 
   ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
   (defun my-org-deadline-today ()
