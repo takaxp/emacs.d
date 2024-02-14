@@ -641,6 +641,7 @@
     (sp-pair "[" nil :actions :rem)
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "$" "$")
+    (sp-local-pair 'org-mode "'" "'" :actions '(wrap))
     (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "_" "_" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "~" "~" :actions '(wrap)) ;; 選択時のみ有効
