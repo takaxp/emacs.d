@@ -625,7 +625,8 @@
           (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
           (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))
       (message "--- js-beautify is NOT installed.")
-      (message "--- Note: npm -g install js-beautify"))))
+      (message "--- Note: brew install node")
+      (message "---       npm -g install js-beautify"))))
 
 (when (autoload-if-found '(smartparens-global-mode
                            turn-on-show-smartparens-mode)

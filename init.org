@@ -2902,7 +2902,7 @@ Built-in の time-stamp.el を使う．
 (defun my-time-stamp ()
   (setq time-stamp-format
         (if (eq major-mode 'org-mode)
-            "[%Y-%02m-%02d %3a %02H:%02M]" ;; "%04y"
+            "[%Y-%02m-%02d %3a]" ;; "%04y %02H:%02M"
           "%Y-%02m-%02d"))
   (if (boundp 'org-tree-slide-mode)
       (unless org-tree-slide-mode
@@ -3968,7 +3968,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
           (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
           (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))
       (message "--- js-beautify is NOT installed.")
-      (message "--- Note: npm -g install js-beautify"))))
+      (message "--- Note: brew install node")
+      (message "---       npm -g install js-beautify"))))
 #+end_src
 
 ** [smartparens.el] 対応するカッコの挿入をアシスト

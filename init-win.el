@@ -775,13 +775,17 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (sp-pair "`" nil :actions :rem)
   (sp-pair "'" nil :actions :rem)
   (sp-pair "[" nil :actions :rem)
-  (sp-local-pair 'org-mode "$" "$")
-  (sp-local-pair 'org-mode "~" "~")
-  ;; (sp-local-pair 'org-mode "[" "]")
-  ;; (sp-local-pair 'org-mode "+" "+")
   (sp-local-pair 'org-mode "=" "=")
-  (sp-local-pair 'org-mode "_" "_")
-  (sp-local-pair 'yatex-mode "$" "$"))
+  (sp-local-pair 'org-mode "$" "$")
+  (sp-local-pair 'org-mode "'" "'" :actions '(wrap))
+  (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
+  (sp-local-pair 'org-mode "_" "_" :actions '(wrap)) ;; 選択時のみ有効
+  (sp-local-pair 'org-mode "~" "~" :actions '(wrap)) ;; 選択時のみ有効
+  (sp-local-pair 'org-mode "[" "]" :actions '(wrap)) ;; 選択時のみ有効
+  (sp-local-pair 'org-mode "+" "+" :actions '(wrap)) ;; 選択時のみ有効
+  (sp-local-pair 'org-mode "/" "/" :actions '(wrap)) ;; 選択時のみ有効
+  (sp-local-pair 'org-mode "*" "*" :actions '(wrap)) ;; 選択時のみ有効
+  (sp-local-pair 'yatex-mode "$" "$" :actions '(wrap)))
 
 (with-eval-after-load "selected"
   (defvar my-eval-result "*eval-result*")
