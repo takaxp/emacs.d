@@ -22,9 +22,6 @@
 
 
 (with-eval-after-load "org"
-  ;; to avoid an error in Ventura due to lacking of an alerter command.
-  (setq ns-alerter-command "")
-
   (defun my-hugo-export-upload ()
     "Export subtree for Hugo and upload the engty."
     (when (member (buffer-name) '("imadenale.org" "archive.org"))

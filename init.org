@@ -9918,6 +9918,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                         (format "<%s>" today))))))
 
   ;; 現在のツリーを畳んでから同じレベルの最後の要素として移動する
+  (defcustom my-org-move-subtree-to-the-last-after-hook nil""
+    :type 'hook :group 'org)
   (defun my-org-move-subtree-to-the-last ()
     "Move the current heading to the last one of the same level."
     (interactive)
@@ -9931,7 +9933,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (goto-char beg)
       (when (> cnt 0)
         (org-move-subtree-down cnt)
-        (goto-char beg)))))
+        (goto-char beg)))
+    (run-hooks 'my-org-move-subtree-to-the-last-after-hook)))
 #+end_src
 
 ** face 関連
@@ -10155,8 +10158,10 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 ;;;###autoload
 (defun my-desktop-notification (title message &optional sticky sound timeout)
   "Show a message by `alerter' command."
-  (if (equal ns-alerter-command (or "" nil))
-      (message "--- ns-alerter-command is nil.")
+  (if (eq ns-alerter-command 'script)
+      (ns-do-applescript
+       (format "display notification \"%s\" with title \"%s\""
+               title message))
     (start-process
      "notification" "*notification*"
      ns-alerter-command
@@ -10178,8 +10183,11 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
   (defvar ns-alerter-command (concat (getenv "HOME") "/Dropbox/bin/alerter")
     "Path to alerter command. see https://github.com/vjeantet/alerter")
-
-  (when (executable-find ns-alerter-command)
+  (setq ns-alerter-command 'script) ;; the alerter is not work for now(2024-02-18).
+  (unless ns-alerter-command
+    (setq ns-alerter-command "")) ;; FIXME
+  (when (or (eq ns-alerter-command 'script)
+	    (executable-find ns-alerter-command))
     (setq org-show-notification-handler #'my-desktop-notification-handler)))
 #+end_src
 
@@ -10213,6 +10221,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 ** カウントダウンタイマー
    :PROPERTIES:
    :CUSTOM_ID: org49e5d185
+   :ID:       D1079801-83D9-470B-A9D6-E10FAFA44471
    :END:
 
 =M-x my-countdown-timer= で呼び出します．ちょっと時間を測りたい時に使っています．
@@ -10220,8 +10229,8 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
   (defun my-countdown-timer-notify ()
-    (when mode-line-format
-      (my-mode-line-off))
+    ;; (when mode-line-format
+    ;;   (my-mode-line-off))
     (when ns-alerter-command
       (setq org-show-notification-handler #'my-desktop-notification-handler))
     (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
@@ -10231,12 +10240,13 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
   (defalias 'run-timer 'my-countdown-timer)
   (defun my-countdown-timer ()
     (interactive)
-    (unless mode-line-format
-      (my-mode-line-on))
+    ;; (unless mode-line-format
+    ;;   (my-mode-line-on))
     (when (eq org-show-notification-handler #'my-desktop-notification-handler)
       (setq org-show-notification-handler nil))
     (with-temp-buffer
       (org-mode)
+      (insert "* Countdown")
       (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
       (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
       (org-timer-set-timer))))

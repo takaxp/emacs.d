@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-02-16 Fri 18:24 -->
+<!-- 2024-02-18 Sun 10:17 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -10552,9 +10552,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; // ここ
+  v; <i>/ ここ
   boost::timer t;
-  cout &lt;&lt; t; // ここ
+  cout &lt;&lt; t; /</i> ここ
   return 1;
 }
 </p>
@@ -11795,6 +11795,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                         (format <span style="color: #8b2252;">"&lt;%s&gt;"</span> today))))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29694;&#22312;&#12398;&#12484;&#12522;&#12540;&#12434;&#30067;&#12435;&#12391;&#12363;&#12425;&#21516;&#12376;&#12524;&#12505;&#12523;&#12398;&#26368;&#24460;&#12398;&#35201;&#32032;&#12392;&#12375;&#12390;&#31227;&#21205;&#12377;&#12427;</span>
+  (<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">my-org-move-subtree-to-the-last-after-hook</span> nil<span style="color: #8b2252;">""</span>
+    <span style="color: #483d8b;">:type</span> 'hook <span style="color: #483d8b;">:group</span> 'org)
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-move-subtree-to-the-last</span> ()
     <span style="color: #8b2252;">"Move the current heading to the last one of the same level."</span>
     (<span style="color: #a020f0;">interactive</span>)
@@ -11808,7 +11810,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (goto-char beg)
       (<span style="color: #a020f0;">when</span> (&gt; cnt 0)
         (org-move-subtree-down cnt)
-        (goto-char beg)))))
+        (goto-char beg)))
+    (run-hooks 'my-org-move-subtree-to-the-last-after-hook)))
 </pre>
 </div>
 </div>
@@ -12129,8 +12132,10 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-desktop-notification</span> (title message <span style="color: #228b22;">&amp;optional</span> sticky sound timeout)
   <span style="color: #8b2252;">"Show a message by `</span><span style="color: #008b8b;">alerter</span><span style="color: #8b2252;">' command."</span>
-  (<span style="color: #a020f0;">if</span> (equal ns-alerter-command (<span style="color: #a020f0;">or</span> <span style="color: #8b2252;">""</span> nil))
-      (message <span style="color: #8b2252;">"--- ns-alerter-command is nil."</span>)
+  (<span style="color: #a020f0;">if</span> (eq ns-alerter-command 'script)
+      (ns-do-applescript
+       (format <span style="color: #8b2252;">"display notification \"%s\" with title \"%s\""</span>
+               title message))
     (start-process
      <span style="color: #8b2252;">"notification"</span> <span style="color: #8b2252;">"*notification*"</span>
      ns-alerter-command
@@ -12153,8 +12158,11 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">ns-alerter-command</span> (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/Dropbox/bin/alerter"</span>)
     <span style="color: #8b2252;">"Path to alerter command. see https://github.com/vjeantet/alerter"</span>)
-
-  (<span style="color: #a020f0;">when</span> (executable-find ns-alerter-command)
+  (<span style="color: #a020f0;">setq</span> ns-alerter-command 'script) <span style="color: #b22222;">;; </span><span style="color: #b22222;">the alerter is not work for now(2024-02-18).</span>
+  (<span style="color: #a020f0;">unless</span> ns-alerter-command
+    (<span style="color: #a020f0;">setq</span> ns-alerter-command <span style="color: #8b2252;">""</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">or</span> (eq ns-alerter-command 'script)
+            (executable-find ns-alerter-command))
     (<span style="color: #a020f0;">setq</span> org-show-notification-handler #'my-desktop-notification-handler)))
 </pre>
 </div>
@@ -12211,8 +12219,8 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-countdown-timer-notify</span> ()
-    (<span style="color: #a020f0;">when</span> mode-line-format
-      (my-mode-line-off))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when mode-line-format</span>
+    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(my-mode-line-off))</span>
     (<span style="color: #a020f0;">when</span> ns-alerter-command
       (<span style="color: #a020f0;">setq</span> org-show-notification-handler #'my-desktop-notification-handler))
     (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
@@ -12222,12 +12230,13 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
   (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">run-timer</span> 'my-countdown-timer)
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-countdown-timer</span> ()
     (<span style="color: #a020f0;">interactive</span>)
-    (<span style="color: #a020f0;">unless</span> mode-line-format
-      (my-mode-line-on))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless mode-line-format</span>
+    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(my-mode-line-on))</span>
     (<span style="color: #a020f0;">when</span> (eq org-show-notification-handler #'my-desktop-notification-handler)
       (<span style="color: #a020f0;">setq</span> org-show-notification-handler nil))
     (<span style="color: #a020f0;">with-temp-buffer</span>
       (org-mode)
+      (insert <span style="color: #8b2252;">"* Countdown"</span>)
       (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
       (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
       (org-timer-set-timer))))
@@ -13782,7 +13791,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgcd62ba1"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgfbd52d6"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14722,7 +14731,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org7eb07d1" class="figure">
+<div id="org21ea675" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19159,7 +19168,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-02-16 Fri 18:24</p>
+<p class="date">Created: 2024-02-18 Sun 10:17</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

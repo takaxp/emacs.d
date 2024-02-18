@@ -14,7 +14,7 @@
   "If version number is provided, use packages installed via el-get.")
 (defvar my-secure-boot nil
   "Ensure to start Emacs.") ;; If non-nil, postpone and session are disabled.
-(setq debug-on-error nil
+(setq debug-on-error t
       postpone-verbose nil
       my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
       my-frame-appearance nil ;; {nil, 'dark, 'light}

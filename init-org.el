@@ -469,6 +469,8 @@
                         (format "<%s>" today))))))
 
   ;; 現在のツリーを畳んでから同じレベルの最後の要素として移動する
+  (defcustom my-org-move-subtree-to-the-last-after-hook nil""
+    :type 'hook :group 'org)
   (defun my-org-move-subtree-to-the-last ()
     "Move the current heading to the last one of the same level."
     (interactive)
@@ -482,7 +484,8 @@
       (goto-char beg)
       (when (> cnt 0)
         (org-move-subtree-down cnt)
-        (goto-char beg)))))
+        (goto-char beg)))
+    (run-hooks 'my-org-move-subtree-to-the-last-after-hook)))
 
 (with-eval-after-load "org"
   ;; Font lock を使う
@@ -620,8 +623,11 @@
 
   (defvar ns-alerter-command (concat (getenv "HOME") "/Dropbox/bin/alerter")
     "Path to alerter command. see https://github.com/vjeantet/alerter")
-
-  (when (executable-find ns-alerter-command)
+  (setq ns-alerter-command 'script) ;; the alerter is not work for now(2024-02-18).
+  (unless ns-alerter-command
+    (setq ns-alerter-command "")) ;; FIXME
+  (when (or (eq ns-alerter-command 'script)
+	    (executable-find ns-alerter-command))
     (setq org-show-notification-handler #'my-desktop-notification-handler)))
 
 (unless noninteractive
@@ -634,8 +640,8 @@
 
 (with-eval-after-load "org"
   (defun my-countdown-timer-notify ()
-    (when mode-line-format
-      (my-mode-line-off))
+    ;; (when mode-line-format
+    ;;   (my-mode-line-off))
     (when ns-alerter-command
       (setq org-show-notification-handler #'my-desktop-notification-handler))
     (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
@@ -645,12 +651,13 @@
   (defalias 'run-timer 'my-countdown-timer)
   (defun my-countdown-timer ()
     (interactive)
-    (unless mode-line-format
-      (my-mode-line-on))
+    ;; (unless mode-line-format
+    ;;   (my-mode-line-on))
     (when (eq org-show-notification-handler #'my-desktop-notification-handler)
       (setq org-show-notification-handler nil))
     (with-temp-buffer
       (org-mode)
+      (insert "* Countdown")
       (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
       (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
       (org-timer-set-timer))))
