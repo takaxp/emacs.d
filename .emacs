@@ -12,48 +12,11 @@
 ;;                                my-org-agenda-prepare-buffers
 ;;                                ))
 
-(autoload 'org-eval-in-calendar "org" nil t)
-
-(with-eval-after-load "calendar"
-  (defun my-calendar-mark-selected ()
-    (org-eval-in-calendar '(setq cursor-type nil) t))
-  (add-hook 'calendar-today-visible-hook #'my-calendar-mark-selected)
-  (add-hook 'calendar-move-hook #'my-calendar-mark-selected))
-
-
 (with-eval-after-load "org"
-  (defun my-hugo-export-upload ()
-    "Export subtree for Hugo and upload the engty."
-    (when (member (buffer-name) '("imadenale.org" "archive.org"))
-      (if (not (org-entry-is-done-p))
-          (message "The state of the entry is not \"DONE\" yet.")
-        (my-org-replace-punc-in-tree)
-        (save-buffer)
-        (org-hugo-export-wim-to-md)
-        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
-              (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
-              (exported (format "[ox-hugo] \"%s\" has been exported."
-                                (nth 4 (org-heading-components)))))
-          (when filename
-            (save-excursion
-              (save-restriction
-                (outline-up-heading 1)
-                (setq filename
-                      (concat (nth 4 (org-heading-components)) "/" filename))
-                (setq command (concat command " -e " (downcase filename)))))
-            (message "%s\nUploading..." exported)
-            (message "--- %s" command)
-            ;; commad='/Users/taka/Dropbox/scripts/push-hugo.sh -e 2023/0301-macmini2018-transfer'
-            (message "%s" (shell-command-to-string command))
-            ;; (call-process "/Users/taka/Dropbox/scripts/push-hugo.sh"
-            ;;               nil
-            ;;               "-e"
-            ;;               (downcase filename))
-            (message "%s\nUploading...done" exported))))))
+  (advice-add 'org-assert-version :override #'ignore)
+  ;; (require 'org-phscroll nil t)
 
-  ;; (setq epg-pinentry-mode nil)
-
-  (defun my-pin-subtree ()
+  (defun my-org-pin-subtree ()
     "Pin the subtree with \"pin\" tag."
     (interactive)
     (save-excursion
@@ -64,7 +27,7 @@
           (org-set-property "VISIBILITY" "children")
           (org-toggle-tag "pin" 'on)
           (message "Pinned")))))
-  (defun my-unpin-subtree ()
+  (defun my-org-unpin-subtree ()
     "Unpin the subtree with \"pin\" tag."
     (interactive)
     (save-excursion
@@ -76,7 +39,7 @@
             (org-delete-property "VISIBILITY")
             (org-toggle-tag "pin" 'off)
             (message "Unpinned"))))))
-  (defun my-toggle-subtree-pin ()
+  (defun my-toggle-org-pin-subtree ()
     "Toggle \"VISIBILITY\" of the current tree."
     (interactive)
     (save-excursion
@@ -93,27 +56,7 @@
                    (org-set-property "VISIBILITY" "children")
                    (org-toggle-tag "pin" 'on)
                    (message "Pinned"))))))))
-
-  ;; (defmacro org-assert-version ()
-  ;;   "Assert compile time and runtime version match."
-  ;;   t)
-  (advice-add 'org-assert-version :override #'ignore))
-
-;; (with-eval-after-load "org"
-;;   (require 'org-phscroll nil t))
-
-(defun my-my-native-comp-packages-done ()
-  (message "Native Compilation...done"))
-(add-hook 'native-comp-async-all-done-hook #'my-my-native-comp-packages-done)
-
-;; (defun my-native-comp-packages ()
-;;   (interactive)
-;;   (add-hook 'native-comp-async-all-done-hook
-;;             #'my-my-native-comp-packages-done)
-;;   (let ((native-comp-async-jobs-number 8)
-;;         (native-comp-speed 3))
-;;     (message "Native Compilation...")
-;;     (native-compile-async "~/.emacs.d/29.0.50/el-get" 'recursively)))
+  )
 
 ;; Boot mode selection
 (cond
@@ -150,10 +93,7 @@
   ;;(profiler-report)
   )
 
-;; (require 'postpone)
-;; (my-show-org-buffer "next.org")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
-;;(advice-add 'epg--check-error-for-decrypt :override 'ignore)
-;; (package-initialize) ;; keep this here for previous versions
+;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)
+;; (package-initialize) ;; keep this line here for previous versions

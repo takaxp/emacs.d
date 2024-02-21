@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-02-18 Sun 10:17 -->
+<!-- 2024-02-21 Wed 12:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -242,14 +242,15 @@
 </li>
 <li><a href="#org5a18ac68">2.21. Native comp が使えるかを判定する</a></li>
 <li><a href="#org65713cda">2.22. Native comp がコンパイルした後にメッセージを表示する</a></li>
-<li><a href="#orgb59612b6">2.23. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0b7d9710">2.24. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
+<li><a href="#orgfd894e86">2.23. elget パッケージ群を native comp する</a></li>
+<li><a href="#orgb59612b6">2.24. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0b7d9710">2.25. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
 <ul>
-<li><a href="#org42722212">2.24.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.24.2. マクロ版</a></li>
+<li><a href="#org42722212">2.25.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.25.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#orgcea06248">2.25. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
+<li><a href="#orgcea06248">2.26. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -422,37 +423,38 @@
 <li><a href="#org6332fe92">6.26. [git-gutter-fringe] 編集差分をフレーム端で視覚化</a></li>
 <li><a href="#orgd6308db6">6.27. [japanese-holidays] カレンダーをカラフルにする</a></li>
 <li><a href="#org12f72886">6.28. [calendar.el] カレンダーで週番号を表示する</a></li>
-<li><a href="#orgc45b24d4">6.29. [which-key] キーバインドの選択肢をポップアップする</a></li>
-<li><a href="#org467accb9">6.30. [highlight-symbol] 同じ名前のシンボルをハイライトする</a></li>
-<li><a href="#org962224ff">6.31. [all-the-icons.el] フォントでアイコン表示</a></li>
-<li><a href="#orgd92b50db">6.32. [all-the-icons-dired] dired でアイコンを表示</a></li>
-<li><a href="#org402f1293">6.33. [eldoc.el] コンテクストに応じてヘルプを表示</a></li>
-<li><a href="#org138fda77">6.34. [go-eldoc.el] Go用の eldoc</a></li>
-<li><a href="#org7cab354d">6.35. [keycast.el] 入力しているキーとコマンドをモードラインに表示</a></li>
-<li><a href="#org8af73f26">6.36. [keypression.el] 入力しているキーとコマンドを任意の場所に表示</a></li>
-<li><a href="#orgfa7d126f">6.37. [ivy.el] 続々・何でも絞り込みインターフェイス</a></li>
-<li><a href="#org9c962eaf">6.38. [ivy.el] プロンプトをカスタマイズ</a></li>
-<li><a href="#org45b3667a">6.39. [imenu-list.el] サイドバー的にファイル内容の目次要素を表示</a></li>
-<li><a href="#org29951da5">6.40. [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）</a></li>
-<li><a href="#orga3715560">6.41. [command-log-mode.el] 発行したコマンドの履歴をバッファに表示する</a></li>
-<li><a href="#orga6eb6883">6.42. <span class="todo TODO">TODO</span> [emacs-tree-sitter.el] tree-sitter でシンタックスハイライトする</a></li>
-<li><a href="#orgf0e91c5a">6.43. <span class="todo TODO">TODO</span> [swiper.el] 文字列探索とプレビューを同時に行う</a></li>
-<li><a href="#org3d431f2e">6.44. <span class="todo TODO">TODO</span> [all-the-icons-ivy] ivy インターフェイスでアイコンを表示する</a></li>
-<li><a href="#org5eaeb687">6.45. <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</a></li>
-<li><a href="#org7270262d">6.46. <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</a></li>
-<li><a href="#org8ba0784e">6.47. <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</a></li>
-<li><a href="#orgdef403ec">6.48. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
-<li><a href="#orgefc58e0a">6.49. <span class="todo TODO">TODO</span> [rainbow-csv.el] CSVファイルをリッチな配色で表示する</a></li>
-<li><a href="#org1e701627">6.50. <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org56d8bf9d">6.51. <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgc00267d7">6.52. <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org205dbe20">6.53. <span class="done DONE">DONE</span> [mode-icons] 使用中のモード表示をアイコンで代替&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org6e56a94f">6.54. <span class="done DONE">DONE</span> [stock-ticker] 株価をモードラインに表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0ed58559">6.55. <span class="done DONE">DONE</span> [zlc.el] find-file バッファを zsh ライクにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org5cc37356">6.56. <span class="done DONE">DONE</span> [stripe-buffer.el] テーブルの色をストライプにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org62c6f085">6.57. <span class="done DONE">DONE</span> [guide-key] キーバインドの選択肢をポップアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgdf971702">6.58. <span class="done DONE">DONE</span> [anything.el] 何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org83eaaf3a">6.59. <span class="done DONE">DONE</span> [diminish.el] モードラインのモード名を短くする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgb7af527b">6.29. [calendar.el] カレンダーでカーソル下を強調表示</a></li>
+<li><a href="#orgc45b24d4">6.30. [which-key] キーバインドの選択肢をポップアップする</a></li>
+<li><a href="#org467accb9">6.31. [highlight-symbol] 同じ名前のシンボルをハイライトする</a></li>
+<li><a href="#org962224ff">6.32. [all-the-icons.el] フォントでアイコン表示</a></li>
+<li><a href="#orgd92b50db">6.33. [all-the-icons-dired] dired でアイコンを表示</a></li>
+<li><a href="#org402f1293">6.34. [eldoc.el] コンテクストに応じてヘルプを表示</a></li>
+<li><a href="#org138fda77">6.35. [go-eldoc.el] Go用の eldoc</a></li>
+<li><a href="#org7cab354d">6.36. [keycast.el] 入力しているキーとコマンドをモードラインに表示</a></li>
+<li><a href="#org8af73f26">6.37. [keypression.el] 入力しているキーとコマンドを任意の場所に表示</a></li>
+<li><a href="#orgfa7d126f">6.38. [ivy.el] 続々・何でも絞り込みインターフェイス</a></li>
+<li><a href="#org9c962eaf">6.39. [ivy.el] プロンプトをカスタマイズ</a></li>
+<li><a href="#org45b3667a">6.40. [imenu-list.el] サイドバー的にファイル内容の目次要素を表示</a></li>
+<li><a href="#org29951da5">6.41. [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）</a></li>
+<li><a href="#orga3715560">6.42. [command-log-mode.el] 発行したコマンドの履歴をバッファに表示する</a></li>
+<li><a href="#orga6eb6883">6.43. <span class="todo TODO">TODO</span> [emacs-tree-sitter.el] tree-sitter でシンタックスハイライトする</a></li>
+<li><a href="#orgf0e91c5a">6.44. <span class="todo TODO">TODO</span> [swiper.el] 文字列探索とプレビューを同時に行う</a></li>
+<li><a href="#org3d431f2e">6.45. <span class="todo TODO">TODO</span> [all-the-icons-ivy] ivy インターフェイスでアイコンを表示する</a></li>
+<li><a href="#org5eaeb687">6.46. <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</a></li>
+<li><a href="#org7270262d">6.47. <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</a></li>
+<li><a href="#org8ba0784e">6.48. <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</a></li>
+<li><a href="#orgdef403ec">6.49. <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</a></li>
+<li><a href="#orgefc58e0a">6.50. <span class="todo TODO">TODO</span> [rainbow-csv.el] CSVファイルをリッチな配色で表示する</a></li>
+<li><a href="#org1e701627">6.51. <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org56d8bf9d">6.52. <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgc00267d7">6.53. <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org205dbe20">6.54. <span class="done DONE">DONE</span> [mode-icons] 使用中のモード表示をアイコンで代替&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org6e56a94f">6.55. <span class="done DONE">DONE</span> [stock-ticker] 株価をモードラインに表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0ed58559">6.56. <span class="done DONE">DONE</span> [zlc.el] find-file バッファを zsh ライクにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org5cc37356">6.57. <span class="done DONE">DONE</span> [stripe-buffer.el] テーブルの色をストライプにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org62c6f085">6.58. <span class="done DONE">DONE</span> [guide-key] キーバインドの選択肢をポップアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgdf971702">6.59. <span class="done DONE">DONE</span> [anything.el] 何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org83eaaf3a">6.60. <span class="done DONE">DONE</span> [diminish.el] モードラインのモード名を短くする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org9ff300b4">7. メディアサポート</a>
@@ -1760,7 +1762,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"comp"</span>
-  (<span style="color: #a020f0;">setq</span> native-comp-async-query-on-exit t))
+  (<span style="color: #a020f0;">setq</span> native-comp-async-query-on-exit t)
+  (<span style="color: #a020f0;">setf</span> comp-num-cpus (max 1 (- (num-processors) 2))))
 </pre>
 </div>
 </div>
@@ -1770,16 +1773,30 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <h3 id="org65713cda"><span class="section-number-3">2.22.</span> Native comp がコンパイルした後にメッセージを表示する</h3>
 <div class="outline-text-3" id="text-org65713cda">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-my-native-comp-packages-done</span> ()
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-native-comp-packages-done</span> ()
   (message <span style="color: #8b2252;">"Native Compilation...done"</span>))
-(add-hook 'native-comp-async-all-done-hook #'my-my-native-comp-packages-done)
+(add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgfd894e86" class="outline-3">
+<h3 id="orgfd894e86"><span class="section-number-3">2.23.</span> elget パッケージ群を native comp する</h3>
+<div class="outline-text-3" id="text-orgfd894e86">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-elget-nativecomp-all-packages</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (native-compile-async (format <span style="color: #8b2252;">"~/.emacs.d/%s/el-get"</span> emacs-version)
+                        'recursively))
 </pre>
 </div>
 </div>
 </div>
 
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.23.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.24.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a></li>
@@ -1799,7 +1816,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.24.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.25.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b>
@@ -1883,7 +1900,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.24.1.</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.25.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
@@ -1939,7 +1956,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.24.2.</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.25.2.</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
@@ -1974,7 +1991,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.25.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.26.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．
@@ -7272,8 +7289,31 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 </div>
 
+<div id="outline-container-orgb7af527b" class="outline-3">
+<h3 id="orgb7af527b"><span class="section-number-3">6.29.</span> [calendar.el] カレンダーでカーソル下を強調表示</h3>
+<div class="outline-text-3" id="text-orgb7af527b">
+<p>
+org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の日付を強調表示します．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(autoload 'org-eval-in-calendar <span style="color: #8b2252;">"org"</span> nil t)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"calendar"</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-calendar-mark-selected</span> ()
+    (org-eval-in-calendar '(setq cursor-type nil) t))
+  (add-hook 'calendar-today-visible-hook #'my-calendar-mark-selected)
+  (add-hook 'calendar-move-hook #'my-calendar-mark-selected))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgc45b24d4" class="outline-3">
-<h3 id="orgc45b24d4"><span class="section-number-3">6.29.</span> [which-key] キーバインドの選択肢をポップアップする</h3>
+<h3 id="orgc45b24d4"><span class="section-number-3">6.30.</span> [which-key] キーバインドの選択肢をポップアップする</h3>
 <div class="outline-text-3" id="text-orgc45b24d4">
 <p>
 <code>guide-key.el</code> の後発． <code>guide-key.el</code> の改良でもあり，ディスパッチャが見やすく，直感的でとても使いやすい．
@@ -7294,7 +7334,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org467accb9" class="outline-3">
-<h3 id="org467accb9"><span class="section-number-3">6.30.</span> [highlight-symbol] 同じ名前のシンボルをハイライトする</h3>
+<h3 id="org467accb9"><span class="section-number-3">6.31.</span> [highlight-symbol] 同じ名前のシンボルをハイライトする</h3>
 <div class="outline-text-3" id="text-org467accb9">
 <p>
 一定時間が過ぎると，カーソル下のワードをバッファ内で検索し，ハイライトしてくれる．殺風景なバッファに動きが出て良い．また， <code>highlight-symbol-nav-mode</code> を使うと，シンボル間を <code>M-n/M-p</code> で移動できるので，毎度検索しなくてよい．
@@ -7314,7 +7354,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org962224ff" class="outline-3">
-<h3 id="org962224ff"><span class="section-number-3">6.31.</span> [all-the-icons.el] フォントでアイコン表示</h3>
+<h3 id="org962224ff"><span class="section-number-3">6.32.</span> [all-the-icons.el] フォントでアイコン表示</h3>
 <div class="outline-text-3" id="text-org962224ff">
 <p>
 <code>all-the-icons.el</code> を使うと，バッファ内やモードライン，ミニバッファでアイコンを表示できるようになります．
@@ -7335,7 +7375,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-orgd92b50db" class="outline-3">
-<h3 id="orgd92b50db"><span class="section-number-3">6.32.</span> [all-the-icons-dired] dired でアイコンを表示</h3>
+<h3 id="orgd92b50db"><span class="section-number-3">6.33.</span> [all-the-icons-dired] dired でアイコンを表示</h3>
 <div class="outline-text-3" id="text-orgd92b50db">
 <p>
 <code>dired</code> で，ファイルのアイコンを表示します． <code>all-the-icons</code> をインストール後に， <code>M-x all-the-icons-install-fonts</code> を忘れずに実行する必要があります． <code>neotree</code> の設定は別セクションに記載しています．
@@ -7377,7 +7417,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org402f1293" class="outline-3">
-<h3 id="org402f1293"><span class="section-number-3">6.33.</span> [eldoc.el] コンテクストに応じてヘルプを表示</h3>
+<h3 id="org402f1293"><span class="section-number-3">6.34.</span> [eldoc.el] コンテクストに応じてヘルプを表示</h3>
 <div class="outline-text-3" id="text-org402f1293">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -7413,7 +7453,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org138fda77" class="outline-3">
-<h3 id="org138fda77"><span class="section-number-3">6.34.</span> [go-eldoc.el] Go用の eldoc</h3>
+<h3 id="org138fda77"><span class="section-number-3">6.35.</span> [go-eldoc.el] Go用の eldoc</h3>
 <div class="outline-text-3" id="text-org138fda77">
 <div class="org-src-container">
 <pre class="src src-go">go get -v github.com/mdempsky/gocode
@@ -7433,7 +7473,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org7cab354d" class="outline-3">
-<h3 id="org7cab354d"><span class="section-number-3">6.35.</span> [keycast.el] 入力しているキーとコマンドをモードラインに表示</h3>
+<h3 id="org7cab354d"><span class="section-number-3">6.36.</span> [keycast.el] 入力しているキーとコマンドをモードラインに表示</h3>
 <div class="outline-text-3" id="text-org7cab354d">
 <ul class="org-ul">
 <li>入力した文字や発行したコマンドキーをモードラインに表示．コマンドの名前もリアルタイムに表示される．</li>
@@ -7449,7 +7489,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org8af73f26" class="outline-3">
-<h3 id="org8af73f26"><span class="section-number-3">6.36.</span> [keypression.el] 入力しているキーとコマンドを任意の場所に表示</h3>
+<h3 id="org8af73f26"><span class="section-number-3">6.37.</span> [keypression.el] 入力しているキーとコマンドを任意の場所に表示</h3>
 <div class="outline-text-3" id="text-org8af73f26">
 <ul class="org-ul">
 <li><code>keycast.el</code> は表示がモードラインに限定されますが， <code>keypression.el</code> は任意の場所に入力状況を表示できます．一般的なキーキャストアプリとほぼ同じ振る舞いになります．</li>
@@ -7481,7 +7521,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-orgfa7d126f" class="outline-3">
-<h3 id="orgfa7d126f"><span class="section-number-3">6.37.</span> [ivy.el] 続々・何でも絞り込みインターフェイス</h3>
+<h3 id="orgfa7d126f"><span class="section-number-3">6.38.</span> [ivy.el] 続々・何でも絞り込みインターフェイス</h3>
 <div class="outline-text-3" id="text-orgfa7d126f">
 <p>
 <code>helm</code> から <code>ivy</code> に乗り換えました．移行話は Qiita で（長編）記事にしました．
@@ -7659,7 +7699,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org9c962eaf" class="outline-3">
-<h3 id="org9c962eaf"><span class="section-number-3">6.38.</span> [ivy.el] プロンプトをカスタマイズ</h3>
+<h3 id="org9c962eaf"><span class="section-number-3">6.39.</span> [ivy.el] プロンプトをカスタマイズ</h3>
 <div class="outline-text-3" id="text-org9c962eaf">
 <p>
 <code>ivy-pre-prompt-function</code> に文字列を返す任意の関数を与えると，プロンプトの前を修飾できます．好みの情報を出力しましょう．
@@ -7697,7 +7737,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org45b3667a" class="outline-3">
-<h3 id="org45b3667a"><span class="section-number-3">6.39.</span> [imenu-list.el] サイドバー的にファイル内容の目次要素を表示</h3>
+<h3 id="org45b3667a"><span class="section-number-3">6.40.</span> [imenu-list.el] サイドバー的にファイル内容の目次要素を表示</h3>
 <div class="outline-text-3" id="text-org45b3667a">
 <ul class="org-ul">
 <li><a href="https://github.com/takaxp/imenu-list">takaxp/imenu-list: Emacs plugin to show the current buffer's imenu entries in a seperate buffer</a></li>
@@ -7751,7 +7791,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org29951da5" class="outline-3">
-<h3 id="org29951da5"><span class="section-number-3">6.40.</span> [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）</h3>
+<h3 id="org29951da5"><span class="section-number-3">6.41.</span> [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）</h3>
 <div class="outline-text-3" id="text-org29951da5">
 <p>
 コマンド履歴を保存．コマンドのイニシャル入力を可能にする．
@@ -7786,7 +7826,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-orga3715560" class="outline-3">
-<h3 id="orga3715560"><span class="section-number-3">6.41.</span> [command-log-mode.el] 発行したコマンドの履歴をバッファに表示する</h3>
+<h3 id="orga3715560"><span class="section-number-3">6.42.</span> [command-log-mode.el] 発行したコマンドの履歴をバッファに表示する</h3>
 <div class="outline-text-3" id="text-orga3715560">
 <p>
 入力したコマンドの履歴をバッファに表示してくれます．Emacsのバッファを表示しながらお話する時に便利です．
@@ -7835,7 +7875,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 </div>
 <div id="outline-container-orga6eb6883" class="outline-3">
-<h3 id="orga6eb6883"><span class="section-number-3">6.42.</span> <span class="todo TODO">TODO</span> [emacs-tree-sitter.el] tree-sitter でシンタックスハイライトする</h3>
+<h3 id="orga6eb6883"><span class="section-number-3">6.43.</span> <span class="todo TODO">TODO</span> [emacs-tree-sitter.el] tree-sitter でシンタックスハイライトする</h3>
 <div class="outline-text-3" id="text-orga6eb6883">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -7868,7 +7908,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-orgf0e91c5a" class="outline-3">
-<h3 id="orgf0e91c5a"><span class="section-number-3">6.43.</span> <span class="todo TODO">TODO</span> [swiper.el] 文字列探索とプレビューを同時に行う</h3>
+<h3 id="orgf0e91c5a"><span class="section-number-3">6.44.</span> <span class="todo TODO">TODO</span> [swiper.el] 文字列探索とプレビューを同時に行う</h3>
 <div class="outline-text-3" id="text-orgf0e91c5a">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -7896,7 +7936,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 </div>
 <div id="outline-container-org3d431f2e" class="outline-3">
-<h3 id="org3d431f2e"><span class="section-number-3">6.44.</span> <span class="todo TODO">TODO</span> [all-the-icons-ivy] ivy インターフェイスでアイコンを表示する</h3>
+<h3 id="org3d431f2e"><span class="section-number-3">6.45.</span> <span class="todo TODO">TODO</span> [all-the-icons-ivy] ivy インターフェイスでアイコンを表示する</h3>
 <div class="outline-text-3" id="text-org3d431f2e">
 <ul class="org-ul">
 <li><a href="https://github.com/asok/all-the-icons-ivy">https://github.com/asok/all-the-icons-ivy</a></li>
@@ -7923,7 +7963,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org5eaeb687" class="outline-3">
-<h3 id="org5eaeb687"><span class="section-number-3">6.45.</span> <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</h3>
+<h3 id="org5eaeb687"><span class="section-number-3">6.46.</span> <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</h3>
 <div class="outline-text-3" id="text-org5eaeb687">
 <p>
 複数のカッコが重なる言語では，カッコの対応関係がひと目で理解し難い場合があります． <code>rainbow-delimiters</code> を使うと，対応するカッコを七色に色付けして見やすくできます．デフォルトだと色がパステル調で薄いので，パラメータを追加して調整します．
@@ -7954,7 +7994,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org7270262d" class="outline-3">
-<h3 id="org7270262d"><span class="section-number-3">6.46.</span> <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</h3>
+<h3 id="org7270262d"><span class="section-number-3">6.47.</span> <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</h3>
 <div class="outline-text-3" id="text-org7270262d">
 <p>
 <code>yascroll</code> を使います．
@@ -7980,7 +8020,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org8ba0784e" class="outline-3">
-<h3 id="org8ba0784e"><span class="section-number-3">6.47.</span> <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</h3>
+<h3 id="org8ba0784e"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</h3>
 <div class="outline-text-3" id="text-org8ba0784e">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -8060,7 +8100,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-orgdef403ec" class="outline-3">
-<h3 id="orgdef403ec"><span class="section-number-3">6.48.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
+<h3 id="orgdef403ec"><span class="section-number-3">6.49.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
 <div class="outline-text-3" id="text-orgdef403ec">
 <p>
 <code>autoload-if-found</code> を使ういつもの設定では正しく動作しないので， <code>eval-when-compile</code> を使用して require しています．
@@ -8093,7 +8133,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-orgefc58e0a" class="outline-3">
-<h3 id="orgefc58e0a"><span class="section-number-3">6.49.</span> <span class="todo TODO">TODO</span> [rainbow-csv.el] CSVファイルをリッチな配色で表示する</h3>
+<h3 id="orgefc58e0a"><span class="section-number-3">6.50.</span> <span class="todo TODO">TODO</span> [rainbow-csv.el] CSVファイルをリッチな配色で表示する</h3>
 <div class="outline-text-3" id="text-orgefc58e0a">
 <p>
 <a href="https://github.com/emacs-vs/rainbow-csv">https://github.com/emacs-vs/rainbow-csv</a>
@@ -8108,7 +8148,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org1e701627" class="outline-3">
-<h3 id="org1e701627"><span class="section-number-3">6.50.</span> <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org1e701627"><span class="section-number-3">6.51.</span> <span class="done DONE">DONE</span> [hydra.el] コマンドディスパッチャを構築する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org1e701627">
 <ul class="org-ul">
 <li><a href="https://www.wisdomandwonder.com/article/10763/emacsorg-mode-hydra-to-insert-timestamps">(Emacs+Org-Mode) Hydra To Insert Timestamps | Wisdom and Wonder</a></li>
@@ -8204,7 +8244,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 </div>
 
 <div id="outline-container-org56d8bf9d" class="outline-3">
-<h3 id="org56d8bf9d"><span class="section-number-3">6.51.</span> <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org56d8bf9d"><span class="section-number-3">6.52.</span> <span class="done DONE">DONE</span> [helm.el] 続・何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org56d8bf9d">
 <p>
 ivyに移行しました．
@@ -8315,7 +8355,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-orgc00267d7" class="outline-3">
-<h3 id="orgc00267d7"><span class="section-number-3">6.52.</span> <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgc00267d7"><span class="section-number-3">6.53.</span> <span class="done DONE">DONE</span> バッテリー情報をモードラインに表示する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgc00267d7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Show battery information on the mode line.</span>
@@ -8326,7 +8366,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org205dbe20" class="outline-3">
-<h3 id="org205dbe20"><span class="section-number-3">6.53.</span> <span class="done DONE">DONE</span> [mode-icons] 使用中のモード表示をアイコンで代替&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org205dbe20"><span class="section-number-3">6.54.</span> <span class="done DONE">DONE</span> [mode-icons] 使用中のモード表示をアイコンで代替&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org205dbe20">
 <p>
 しばらく使ってみたが，統一感が失われるので使用停止中．
@@ -8344,7 +8384,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org6e56a94f" class="outline-3">
-<h3 id="org6e56a94f"><span class="section-number-3">6.54.</span> <span class="done DONE">DONE</span> [stock-ticker] 株価をモードラインに表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org6e56a94f"><span class="section-number-3">6.55.</span> <span class="done DONE">DONE</span> [stock-ticker] 株価をモードラインに表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org6e56a94f">
 <p>
 季節が過ぎ去りました．不使用です．
@@ -8403,7 +8443,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org0ed58559" class="outline-3">
-<h3 id="org0ed58559"><span class="section-number-3">6.55.</span> <span class="done DONE">DONE</span> [zlc.el] find-file バッファを zsh ライクにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0ed58559"><span class="section-number-3">6.56.</span> <span class="done DONE">DONE</span> [zlc.el] find-file バッファを zsh ライクにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0ed58559">
 <p>
 ファイル選択を zsh ライクに変更できます．しっくりこないので不使用．
@@ -8431,7 +8471,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org5cc37356" class="outline-3">
-<h3 id="org5cc37356"><span class="section-number-3">6.56.</span> <span class="done DONE">DONE</span> [stripe-buffer.el] テーブルの色をストライプにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org5cc37356"><span class="section-number-3">6.57.</span> <span class="done DONE">DONE</span> [stripe-buffer.el] テーブルの色をストライプにする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org5cc37356">
 <p>
 <a href="https://github.com/sabof/stripe-buffer/blob/master/stripe-buffer.el">stripe-buffer.el</a>を使います．重くツリーが多いOrgバッファだと激重になる可能性があります．
@@ -8447,7 +8487,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org62c6f085" class="outline-3">
-<h3 id="org62c6f085"><span class="section-number-3">6.57.</span> <span class="done DONE">DONE</span> [guide-key] キーバインドの選択肢をポップアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org62c6f085"><span class="section-number-3">6.58.</span> <span class="done DONE">DONE</span> [guide-key] キーバインドの選択肢をポップアップする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org62c6f085">
 <p>
 <code>which-key</code> に移行しました．
@@ -8480,7 +8520,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-orgdf971702" class="outline-3">
-<h3 id="orgdf971702"><span class="section-number-3">6.58.</span> <span class="done DONE">DONE</span> [anything.el] 何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgdf971702"><span class="section-number-3">6.59.</span> <span class="done DONE">DONE</span> [anything.el] 何でも絞り込みインターフェイス&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgdf971702">
 <ul class="org-ul">
 <li>helm に移行しました．</li>
@@ -8557,7 +8597,7 @@ ivyに移行しました．
 </div>
 
 <div id="outline-container-org83eaaf3a" class="outline-3">
-<h3 id="org83eaaf3a"><span class="section-number-3">6.59.</span> <span class="done DONE">DONE</span> [diminish.el] モードラインのモード名を短くする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org83eaaf3a"><span class="section-number-3">6.60.</span> <span class="done DONE">DONE</span> [diminish.el] モードラインのモード名を短くする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org83eaaf3a">
 <p>
 以前は自作したパッケージを使っていましたが，不具合も多く，調べると <code>diminish.el</code> という素晴らしいパッケージがあったので移行しました．これはマイナーモードの短縮表示なので，メジャーモードは個別にフックで <code>mode-name</code> を書き換えて対応します． <code>use-package.el</code> を使っていると依存関係から自動的にインストールされます．
@@ -10552,9 +10592,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; <i>/ ここ
+  v; // ここ
   boost::timer t;
-  cout &lt;&lt; t; /</i> ここ
+  cout &lt;&lt; t; // ここ
   return 1;
 }
 </p>
@@ -13791,7 +13831,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgfbd52d6"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orge0ba0c0"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14731,7 +14771,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org21ea675" class="figure">
+<div id="orgf06a7e7" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19168,7 +19208,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-02-18 Sun 10:17</p>
+<p class="date">Created: 2024-02-21 Wed 12:58</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

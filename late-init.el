@@ -30,11 +30,12 @@
 (defvar shutup-p nil)
 
 (with-eval-after-load "comp"
-  (setq native-comp-async-query-on-exit t))
+  (setq native-comp-async-query-on-exit t)
+  (setf comp-num-cpus (max 1 (- (num-processors) 2))))
 
-(defun my-my-native-comp-packages-done ()
+(defun my-native-comp-packages-done ()
   (message "Native Compilation...done"))
-(add-hook 'native-comp-async-all-done-hook #'my-my-native-comp-packages-done)
+(add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done)
 
 ;; Limit the final word to a line break code (automatically correct)
 (setq require-final-newline t)
@@ -1019,6 +1020,12 @@
                        calendar-week-start-day
                        ))))
           'font-lock-face 'calendar-iso-week-face)))
+
+(with-eval-after-load "calendar"
+  (defun my-calendar-mark-selected ()
+    (org-eval-in-calendar '(setq cursor-type nil) t))
+  (add-hook 'calendar-today-visible-hook #'my-calendar-mark-selected)
+  (add-hook 'calendar-move-hook #'my-calendar-mark-selected))
 
 (when (autoload-if-found '(which-key-mode)
                          "which-key" nil t)

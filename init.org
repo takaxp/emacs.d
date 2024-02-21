@@ -953,7 +953,8 @@ This function returns a timer object which you can use in
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "comp"
-  (setq native-comp-async-query-on-exit t))
+  (setq native-comp-async-query-on-exit t)
+  (setf comp-num-cpus (max 1 (- (num-processors) 2))))
 #+end_src
 
 ** Native comp がコンパイルした後にメッセージを表示する
@@ -963,9 +964,23 @@ This function returns a timer object which you can use in
 :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
-(defun my-my-native-comp-packages-done ()
+(defun my-native-comp-packages-done ()
   (message "Native Compilation...done"))
-(add-hook 'native-comp-async-all-done-hook #'my-my-native-comp-packages-done)
+(add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done)
+#+end_src
+
+** elget パッケージ群を native comp する
+:PROPERTIES:
+:ID:       9C9A3126-543D-4923-8C0E-9FF36679989A
+:CUSTOM_ID: orgfd894e86
+:END:
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-elget-nativecomp-all-packages ()
+  (interactive)
+  (native-compile-async (format "~/.emacs.d/%s/el-get" emacs-version)
+                        'recursively))
 #+end_src
 
 ** [exec-path-from-shell.el] PATH設定をシェルから継承する          :notinuse:
@@ -2215,9 +2230,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 #+end_src
 
 * カーソル移動
-  :PROPERTIES:
-  :CUSTOM_ID: org35f3bbc9
-  :END:
+:PROPERTIES:
+:CUSTOM_ID: org35f3bbc9
+:END:
 #+begin_src emacs-lisp :tangle yes :exports none
 (my-tick-init-time "core")
 #+end_src
@@ -5721,6 +5736,26 @@ version 28 で全角スペースに黒下線が付くので回避します．
                        calendar-week-start-day
                        ))))
           'font-lock-face 'calendar-iso-week-face)))
+#+end_src
+
+** [calendar.el] カレンダーでカーソル下を強調表示
+:PROPERTIES:
+:ID:       D9B196F5-8B5C-4D05-A805-5D3E1BADE3CE
+:CUSTOM_ID: orgb7af527b
+:END:
+
+org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を強調表示します．
+
+#+begin_src emacs-lisp :tangle yes
+(autoload 'org-eval-in-calendar "org" nil t)
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "calendar"
+  (defun my-calendar-mark-selected ()
+    (org-eval-in-calendar '(setq cursor-type nil) t))
+  (add-hook 'calendar-today-visible-hook #'my-calendar-mark-selected)
+  (add-hook 'calendar-move-hook #'my-calendar-mark-selected))
 #+end_src
 
 ** [which-key] キーバインドの選択肢をポップアップする
@@ -9935,6 +9970,42 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (org-move-subtree-down cnt)
         (goto-char beg)))
     (run-hooks 'my-org-move-subtree-to-the-last-after-hook)))
+#+end_src
+
+*** COMMENT for debugging
+:PROPERTIES:
+:ID:       FD9DA6AE-6971-4E97-8C72-50E6AADBD0FB
+:END:
+
+#+begin_src emacs-lisp :tangle no :exports no
+(defun my-hugo-export-upload ()
+    "Export subtree for Hugo and upload the entry."
+    (when (member (buffer-name) '("imadenale.org" "archive.org"))
+      (if (not (org-entry-is-done-p))
+          (message "The state of the entry is not \"DONE\" yet.")
+        (my-org-replace-punc-in-tree)
+        (save-buffer)
+        (org-hugo-export-wim-to-md)
+        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
+              (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
+              (exported (format "[ox-hugo] \"%s\" has been exported."
+                                (nth 4 (org-heading-components)))))
+          (when filename
+            (save-excursion
+              (save-restriction
+                (outline-up-heading 1)
+                (setq filename
+                      (concat (nth 4 (org-heading-components)) "/" filename))
+                (setq command (concat command " -e " (downcase filename)))))
+            (message "%s\nUploading..." exported)
+            (message "--- %s" command)
+            ;; commad='/Users/taka/Dropbox/scripts/push-hugo.sh -e 2023/0301-macmini2018-transfer'
+            (message "%s" (shell-command-to-string command))
+            ;; (call-process "/Users/taka/Dropbox/scripts/push-hugo.sh"
+            ;;               nil
+            ;;               "-e"
+            ;;               (downcase filename))
+            (message "%s\nUploading...done" exported))))))
 #+end_src
 
 ** face 関連

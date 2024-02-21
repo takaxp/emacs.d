@@ -366,6 +366,8 @@ This function returns a timer object which you can use in
 
 (setq inhibit-default-init t)
 
+(autoload 'org-eval-in-calendar "org" nil t)
+
 (my-tick-init-time "presentation")
 
 (my-tick-init-time "media")
