@@ -23,6 +23,13 @@
   (setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (setq my-suppress-message-p nil)
+;; (setq measure-exec-time-list '(my-show-org-buffer
+;;                                my-private-conf-activate
+;;                                my-org-babel-load-activate
+;;                                my-org-modules-activate
+;;                                my-org-agenda-prepare-buffers
+;;                                ))
 (when my-profiler-p (profiler-start 'cpu+mem))
 ;; Suppress exporting of custom-set-variables (25.1 or later)
 (setq custom-file (locate-user-emacs-file "custom.el"))

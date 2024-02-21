@@ -808,7 +808,8 @@ The core part is extracted from `org-table-export'."
   (advice-add 'eldoc-print-current-symbol-info :around
               #'ad:eldoc-print-current-symbol-info))
 
-(advice-add 'org-reveal :around #'ad:org-reveal)
+(with-eval-after-load "org"
+  (advice-add 'org-reveal :around #'ad:org-reveal))
 
 (with-eval-after-load "org"
   (custom-set-variables ;; call org-set-emph-re
@@ -1479,16 +1480,16 @@ update it for multiple appts?")
 
 (when (autoload-if-found '(org-tree-slide-mode)
                          "org-tree-slide" nil t)
-  (with-eval-after-load "postpone"
-    (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-    (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle))
+
+  (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
+  (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
 
   (with-eval-after-load "org-tree-slide"
     ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
     (define-key org-tree-slide-mode-map (kbd "<f9>")
-      'org-tree-slide-move-previous-tree)
+                'org-tree-slide-move-previous-tree)
     (define-key org-tree-slide-mode-map (kbd "<f10>")
-      'org-tree-slide-move-next-tree)
+                'org-tree-slide-move-next-tree)
     (unless noninteractive
       (org-tree-slide-narrowing-control-profile))
     (setq org-tree-slide-modeline-display 'outside)
@@ -1602,8 +1603,7 @@ update it for multiple appts?")
 
 (when (autoload-if-found '(org-grep)
                          "org-grep" nil t)
-  ;; (with-eval-after-load "postpone"
-  ;;   (global-set-key (kbd "C-M-g") 'org-grep))
+  ;;   (global-set-key (kbd "C-M-g") 'org-grep)
   (with-eval-after-load "org-grep"
     (setq org-grep-extensions '(".org" ".org_archive"))
     (add-to-list 'org-grep-directories "~/.emacs.d")

@@ -2,16 +2,6 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-
-;; (profiler-start 'cpu)
-;; (setq my-suppress-message-p nil)
-;; (setq measure-exec-time-list '(my-show-org-buffer
-;;                                my-private-conf-activate
-;;                                my-org-babel-load-activate
-;;                                my-org-modules-activate
-;;                                my-org-agenda-prepare-buffers
-;;                                ))
-
 (with-eval-after-load "org"
   (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)
@@ -81,7 +71,6 @@
  (t ;; Normal mode. see also init-eval.el
   (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (with-eval-after-load "postpone"
   ;; At least in Big Sur, this setting shall be used with side car for moom.el.
   ;; Without side car in Big Sur, the following setting is also correct.
@@ -89,10 +78,7 @@
 
   ;; (when (string= "Big Sur" (macos-name (macos-version)))
   ;;   (setq moom--common-margin '(0 0 0 0)))
-
-  ;;(profiler-report)
   )
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
 ;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)

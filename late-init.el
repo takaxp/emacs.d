@@ -12,19 +12,17 @@
 
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
-(when (autoload 'gcmh-mode "gcmh" nil t)
-
-  (advice-add 'garbage-collect :around #'ad:garbage-collect)
-
-  (with-eval-after-load "gcmh"
-    (setq gcmh-verbose nil)
-    (advice-add 'gcmh-idle-garbage-collect
-                :around #'ad:gcmh-idle-garbage-collect))
-
+(when (autoload-if-found '(gcmh-mode) "gcmh" nil t)
   (defvar my-gcmh-timer
     (unless noninteractive
       (run-with-idle-timer (+ 10 my-default-loading-delay)
-                           nil #'my-gcmh-activate))))
+                           nil #'my-gcmh-activate)))
+
+  (with-eval-after-load "gcmh"
+    (setq gcmh-verbose nil)
+    (advice-add 'garbage-collect :around #'ad:garbage-collect)
+    (advice-add 'gcmh-idle-garbage-collect
+                :around #'ad:gcmh-idle-garbage-collect)))
 
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 (defvar shutup-p nil)
@@ -33,8 +31,6 @@
   (setq native-comp-async-query-on-exit t)
   (setf comp-num-cpus (max 1 (- (num-processors) 2))))
 
-(defun my-native-comp-packages-done ()
-  (message "Native Compilation...done"))
 (add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done)
 
 ;; Limit the final word to a line break code (automatically correct)
@@ -78,7 +74,7 @@
 (setq vc-follow-symlinks t)
 
 (unless noninteractive
-  (global-auto-revert-mode 1)
+  (add-hook 'find-file-hook #'my-auto-revert-activate)
   ;; revert されるのが org バッファのとき，自動的にドロワをたたむ
   ;; カーソルが (point-max) に移動してしまう場合は非推奨
   (with-eval-after-load "org"
@@ -162,7 +158,8 @@
 
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
 (when (autoload-if-found '(er/mark-symbol) "expand-region" nil t)
-  (advice-add 'mark-sexp :around #'ad:er:mark-sexp))
+  (with-eval-after-load "expand-region"
+    (advice-add 'mark-sexp :around #'ad:er:mark-sexp)))
 
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
@@ -314,8 +311,9 @@
             (setq tab-width 4)
             (setq left-margin 4)))
 
-(advice-add 'add-change-log-entry-other-window
-            :before #'ad:add-change-log-entry-other-window)
+(with-eval-after-load "add-log"
+  (advice-add 'add-change-log-entry-other-window
+              :before #'ad:add-change-log-entry-other-window))
 
 (when (autoload-if-found '(modern-c++-font-lock-mode)
                          "modern-cpp-font-lock" nil t)
@@ -394,10 +392,11 @@
 
 ;; (autoload 'my-auto-view "view" nil t)
 (add-hook 'find-file-hook #'my-auto-view)
-;; note: messages-buffer-mode-hook may not work
-(advice-add 'switch-to-buffer :after #'ad:switch-to-buffer)
 
 (with-eval-after-load "view"
+  ;; note: messages-buffer-mode-hook may not work
+  (advice-add 'switch-to-buffer :after #'ad:switch-to-buffer)
+
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
   (define-key view-mode-map (kbd "<SPC>") 'ignore)
   (define-key view-mode-map (kbd "<DEL>") 'ignore)
@@ -759,18 +758,17 @@
     (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)
     (add-hook 'moom-after-reset-hook #'my-reload-mlscroll)))
 
-(with-eval-after-load "vc-hooks"
-  (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval (replace-regexp-in-string "^ Git" "" vc-mode)))))
-
 (with-eval-after-load "icons-in-terminal"
   ;; 変更がアリ時は赤アイコン，そうでない時に緑アイコンをモードラインに表示
   (make-face 'mode-line-vc-normal-face)
   (make-face 'mode-line-vc-modified-face)
   (set-face-attribute 'mode-line-vc-normal-face nil :foreground "#AFFFAF")
-  (set-face-attribute 'mode-line-vc-modified-face nil :foreground "#EEAFAF")
-  (setcdr (assq 'vc-mode mode-line-format)
-          '((:eval (my-mode-line-vc-mode-icon)))))
+  (set-face-attribute 'mode-line-vc-modified-face nil :foreground "#EEAFAF"))
+
+(with-eval-after-load "bindings" ;; "bindings"
+  (let ((vc (assq 'vc-mode mode-line-format)))
+    ;; (message "--- %s" vc)
+    (when vc (setcdr vc '((:eval (my-mode-line-vc-mode-icon)))))))
 
 (unless (display-graphic-p)
   ;; ターミナルの縦分割線をUTF-8できれいに描く
@@ -839,8 +837,8 @@
 ;; (add-hook 'find-file-hook #'set-buffer-end-mark)
 
 (unless (version< emacs-version "28.0")
-    ;; 全角スペース"　"にデフォルトで黒下線が付くのを回避する
-    (setq nobreak-char-display nil))
+  ;; 全角スペース"　"にデフォルトで黒下線が付くのを回避する
+  (setq nobreak-char-display nil))
 
 ;; 改行文字の文字列表現
 (set 'eol-mnemonic-dos "CRLF")
@@ -1022,8 +1020,6 @@
           'font-lock-face 'calendar-iso-week-face)))
 
 (with-eval-after-load "calendar"
-  (defun my-calendar-mark-selected ()
-    (org-eval-in-calendar '(setq cursor-type nil) t))
   (add-hook 'calendar-today-visible-hook #'my-calendar-mark-selected)
   (add-hook 'calendar-move-hook #'my-calendar-mark-selected))
 
@@ -1323,17 +1319,17 @@
             '(("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox"))))
 
     (if (version< emacs-version "27.1")
-	(progn
-	  (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-	  (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+        (progn
+          (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+          (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
       (add-function :before after-focus-change-function
 		    #'my-recentf-save-list-silence)
       (add-function :before after-focus-change-function
-		    #'my-recentf-cleanup-silence)))
+		    #'my-recentf-cleanup-silence))
 
-  (unless noninteractive
-    (let ((message-log-max nil))
-      (recentf-mode 1)))
+    (unless noninteractive
+      (let ((message-log-max nil))
+        (recentf-mode 1))))
 
   (with-eval-after-load "counsel"
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
@@ -1393,15 +1389,15 @@
   (global-set-key (kbd "C-/") 'undo-fu-only-undo)
   (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
 
-(when (require 'super-save nil t)
-  (setq super-save-auto-save-when-idle t)
-  (setq super-save-idle-duration 5)
-  (setq super-save-exclude '("Org Src"))
-  (add-to-list 'super-save-predicates
-               '(lambda () (my-super-save-predicates-p)) t)
-  (advice-add 'super-save-command :override #'my-super-save-buffers-command)
-  (unless noninteractive
-    (super-save-mode 1)))
+(when (autoload-if-found '(super-save-mode) "super-save" nil t)
+  (add-hook 'find-file-hook #'my-super-save-activate)
+  (with-eval-after-load "super-save"
+    (setq super-save-auto-save-when-idle t)
+    (setq super-save-idle-duration 5)
+    (setq super-save-exclude '("Org Src"))
+    (add-to-list 'super-save-predicates
+                 '(lambda () (my-super-save-predicates-p)) t)
+    (advice-add 'super-save-command :override #'my-super-save-buffers-command)))
 
 (when (autoload-if-found '(neotree neotree-toggle)
                          "neotree" nil t)
@@ -1889,7 +1885,7 @@
 (unless noninteractive
   (blink-cursor-mode 1))
 
-(my-setup-font)
+(my-setup-font) ;; this requires utility.el
 
 ;; set-default で global 指定すると，ミニバッファの message で制御不能になる
 ;; propertize で拡大できるが，global の値以下に縮小できなくなる．
@@ -2021,7 +2017,7 @@
   (when (and window-system
              (require 'init-async nil t))
     (when my-skip-check-autoload-file ;; see init-env.el
-          (my-find-missing-packages 5))))
+      (my-find-missing-packages 5))))
 
 (when (autoload-if-found '(my-google-this google-this google-this-word)
                          "google-this" nil t)
