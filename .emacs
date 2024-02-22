@@ -2,9 +2,11 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
+
+
 (with-eval-after-load "org"
-  (advice-add 'org-assert-version :override #'ignore)
-  ;; (require 'org-phscroll nil t)
+  ;; (advice-add 'org-assert-version :override #'ignore)
+  (require 'org-phscroll nil t)
 
   (defun my-org-pin-subtree ()
     "Pin the subtree with \"pin\" tag."
@@ -17,6 +19,7 @@
           (org-set-property "VISIBILITY" "children")
           (org-toggle-tag "pin" 'on)
           (message "Pinned")))))
+
   (defun my-org-unpin-subtree ()
     "Unpin the subtree with \"pin\" tag."
     (interactive)
@@ -29,6 +32,7 @@
             (org-delete-property "VISIBILITY")
             (org-toggle-tag "pin" 'off)
             (message "Unpinned"))))))
+
   (defun my-toggle-org-pin-subtree ()
     "Toggle \"VISIBILITY\" of the current tree."
     (interactive)
@@ -50,7 +54,8 @@
 
 ;; Boot mode selection
 (cond
- (nil ;; minimal boot or DOOM Emacs (use toggle-doom.sh to switch)
+ ;; minimal boot or DOOM Emacs (use toggle-doom.sh to switch)
+ (nil
   (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
   (when (and (memq window-system '(ns mac))
              (fboundp 'mac-get-current-input-source))
@@ -60,16 +65,18 @@
     (mac-input-method-mode 1)
     (global-set-key (kbd "M-SPC") 'mac-ime-toggle)
     (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
- (nil ;; To test the latest org
+ ;; To test the latest org
+ (nil
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-tree-slide"))
   (setq org-agenda-files '("~/Desktop/test/hoge.org")))
- (nil ;; minimum
-  (load (concat user-emacs-directory "min/init.el")))
- (nil ;; Spacemacs
-  (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
- (t ;; Normal mode. see also init-eval.el
-  (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
+ ;; minimum
+ (nil (load (concat user-emacs-directory "min/init.el")))
+ ;; Spacemacs
+ (nil (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
+ ;; Normal mode. see also init-eval.el
+ (t (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (with-eval-after-load "postpone"
   ;; At least in Big Sur, this setting shall be used with side car for moom.el.

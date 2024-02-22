@@ -31,7 +31,8 @@
   (setq native-comp-async-query-on-exit t)
   (setf comp-num-cpus (max 1 (- (num-processors) 2))))
 
-(add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done)
+(with-eval-after-load "comp"
+  (add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done))
 
 ;; Limit the final word to a line break code (automatically correct)
 (setq require-final-newline t)
@@ -68,8 +69,9 @@
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
-(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
-(add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
+(with-eval-after-load "emacs-lisp-mode"
+  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
+  (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock))
 
 (setq vc-follow-symlinks t)
 
@@ -132,18 +134,17 @@
      ((t (:foreground "black"
 		      :background "light sky blue" :underline "royal blue")))))
 
-  (when (and (memq window-system '(ns nil))
-	     (fboundp 'mac-get-current-input-source))
+  (when (and (fboundp 'mac-get-current-input-source)
+             (version< "27.0" emacs-version))
+    ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
+    (custom-set-variables
+     '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
+    (unless noninteractive
+      (mac-input-method-mode 1))
 
-    (when (version< "27.0" emacs-version)
-      ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
-      (custom-set-variables
-       '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
-      (mac-input-method-mode 1)
-
-      ;; see also activate-mark-hook, deactivate-mark-hook
-      (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
-      (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky)))
+    ;; see also activate-mark-hook, deactivate-mark-hook
+    (add-hook 'isearch-mode-hook #'my-isearch-ime-deactivate-sticky)
+    (add-hook 'isearch-mode-end-hook #'mac-ime-activate-sticky))
 
   (with-eval-after-load "org"
     ;; カーソル移動で heading に来たときは即座にIMEをOFFにする
@@ -174,9 +175,9 @@
 (setq mark-ring-max 32)
 (setq global-mark-ring-max 64)
 
-(when (require 'ah nil t)
-  (setq ah-lighter "")
-  (unless noninteractive
+(unless noninteractive
+  (when (require 'ah nil t)
+    (setq ah-lighter "")
     (ah-mode 1)))
 
 (when (autoload-if-found '(smooth-scroll-mode)
@@ -247,9 +248,10 @@
 (when (autoload-if-found '(centered-cursor-mode)
                          "centered-cursor-mode" nil t)
 
-  ;; isearch の時はOFFにする
-  (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
-  (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate))
+  (with-eval-after-load "isearch"
+    ;; isearch の時はOFFにする
+    (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
+    (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate)))
 
 (when (autoload-if-found '(smart-mark-mode)
                          "smart-mark" nil t)
@@ -287,31 +289,20 @@
   (setq time-stamp-end "$") ;; "\\\\?[\">]"
   (setq time-stamp-line-limit 10)) ;; def=8
 
-(defadvice isearch-mode
-    (around isearch-mode-default-string
-            (forward &optional regexp op-fun recursive-edit word-p) activate)
-  (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
-      (progn
-        (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
-        (deactivate-mark)
-        ad-do-it
-        (if (not forward)
-            (isearch-repeat-backward)
-          (goto-char (mark))
-          (isearch-repeat-forward)))
-    ad-do-it))
+(with-eval-after-load "isearch"
+  (advice-add 'isearch-mode :around #'ad:isearch-mode)
 
-;; C-g を isearch-exit に割り当てて途中中断とする．（カーソルを留めておきたい）カーソルを検索開始時点の場所に戻すには，別途 counsel-mark-ring を使う
-(define-key isearch-mode-map (kbd "C-g") 'isearch-exit)
-
-(add-hook 'change-log-mode-hook
-          (lambda ()
-            (view-mode 1)
-            (my-orgalist-activate)
-            (setq tab-width 4)
-            (setq left-margin 4)))
+  ;; C-g を isearch-exit に割り当てて途中中断とする．（カーソルを留めておきたい）カーソルを検索開始時点の場所に戻すには，別途 counsel-mark-ring を使う
+  (define-key isearch-mode-map (kbd "C-g") 'isearch-exit))
 
 (with-eval-after-load "add-log"
+  (add-hook 'change-log-mode-hook
+            (lambda ()
+              (view-mode 1)
+              (my-orgalist-activate)
+              (setq tab-width 4)
+              (setq left-margin 4)))
+
   (advice-add 'add-change-log-entry-other-window
               :before #'ad:add-change-log-entry-other-window))
 
@@ -461,8 +452,6 @@
 
 (when (autoload-if-found '(ispell-region ispell-complete-word)
                          "ispell" nil t)
-  ;; This could hilde other messages from loading functions regarding org-mode.
-  (advice-add 'ispell-init-process :around #'ad:suppress-message)
 
   ;; Spell checking within a specified region
   (global-set-key (kbd "C-c f 7") 'ispell-region)
@@ -470,6 +459,9 @@
   (global-set-key (kbd "<f7>") 'ispell-word)
 
   (with-eval-after-load "ispell"
+    ;; This could hild other messages from loading functions regarding org-mode.
+    (advice-add 'ispell-init-process :around #'ad:suppress-message)
+
     ;; for English and Japanese mixed
     (add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
     ;; http://endlessparentheses.com/ispell-and-org-mode.html
@@ -589,12 +581,13 @@
 (when (autoload-if-found '(yatex-mode)
                          "yatex" "Yet Another LaTeX mode" t)
   (push '("\\.tex$" . yatex-mode) auto-mode-alist)
-  ;; Disable auto line break
-  (add-hook 'yatex-mode-hook
-            (lambda ()
-              (setq auto-fill-function nil)))
 
   (with-eval-after-load "yatex"
+    ;; Disable auto line break
+    (add-hook 'yatex-mode-hook
+              (lambda ()
+                (setq auto-fill-function nil)))
+
     ;; 1=Shift JIS, 2=JIS, 3=EUC, 4=UTF-8
     ;; (setq YaTeX-kanji-code nil)
     (modify-coding-system-alist 'file "\\.tex$'" 'utf-8)
@@ -752,7 +745,8 @@
    '(mlscroll-in-color "light coral") ;;  #FFA07A
    '(mlscroll-out-color "#FFFFEF")
    '(mlscroll-width-chars 10))
-  (mlscroll-mode 1)
+  (unless noninteractive
+    (mlscroll-mode 1))
 
   (with-eval-after-load "moom"
     (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)
@@ -825,16 +819,6 @@
 (defface my-face-b-3 '((t (:background "orange")))
   nil :group 'font-lock-highlighting-faces)
 (advice-add 'font-lock-mode :before #'ad:font-lock-mode)
-
-;;show EOF
-;; (defun set-buffer-end-mark()
-;;   (let ((overlay (make-overlay (point-max) (point-max))))
-;;     (overlay-put overlay 'before-string #("[EOF]" 0 5 (face highlight)))
-;;     (overlay-put overlay 'insert-behind-hooks
-;;                  '((lambda (overlay after beg end &optional len)
-;;                      (when after
-;;                        (move-overlay overlay (point-max) (point-max))))))))
-;; (add-hook 'find-file-hook #'set-buffer-end-mark)
 
 (unless (version< emacs-version "28.0")
   ;; 全角スペース"　"にデフォルトで黒下線が付くのを回避する
@@ -1549,8 +1533,8 @@
        "0xc" nil t)
   (global-set-key (kbd "C-c f h") '0xc-convert))
 
-(add-hook 'hexl-mode-hook 'view-mode)
 (with-eval-after-load "hexl"
+  (add-hook 'hexl-mode-hook 'view-mode)
   (custom-set-variables
    '(hexl-bits 8)))
 
@@ -1689,7 +1673,7 @@
 (with-eval-after-load "icons-in-terminal"
   (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;  »
                                          (":LOGBOOK:" . "") ;;  ›
-                                         (":END:" . "") ;;  › 
+                                         (":END:" . "") ;;  ›
                                          ("#+begin_src" . "▨") ;; 
                                          ("#+end_src" . "▨")
                                          ("#+RESULTS:" . "")
@@ -1781,12 +1765,7 @@
 (unless (display-graphic-p)
   (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
 
-(add-hook 'find-file-hook
-          (lambda () (unless my-toggle-modeline-global
-                       (if shutup-p
-                           (shut-up (my-mode-line-off))
-                         (my-mode-line-off))))
-          t) ;; 他の設定（olivetti.elなど）とぶつかるので最後に追加
+(add-hook 'find-file-hook #'my-modeline-activate 100)
 
 ;; init
 (unless noninteractive
@@ -1839,8 +1818,9 @@
     (size-indication-mode 1)
     (doom-modeline-mode 1)))
 
-(set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
-(set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC")
+(with-eval-after-load "emacs-lisp-mode"
+  (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")
+  (set-face-foreground 'font-lock-regexp-grouping-construct "#9966CC"))
 
 (unless noninteractive
   (add-hook 'find-file-hook #'my-generic-x-activate))

@@ -87,10 +87,10 @@
 (defun autoload-if-found (functions file &optional docstring interactive type)
   "set autoload iff. FILE has found."
   (when (boundp 'my-required-libraries)
-    (add-to-list 'my-required-libraries file))
+    (add-to-list 'my-required-libraries file)) ;; collect packages TBC later
   (when (or my-skip-check-autoload-file
             (and (my-load-package-p file)
-                 (locate-library file)))
+                 (locate-library file))) ;; takes time here
     (dolist (f functions)
       (autoload f file docstring interactive type))
     t))

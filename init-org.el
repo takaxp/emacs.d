@@ -153,7 +153,7 @@
   (defun my-org-hide-drawers ()
     "Hide all drawers in an org tree."
     (interactive)
-    (save-excursion
+    (save-mark-and-excursion
       (beginning-of-line)
       (unless (looking-at-p org-drawer-regexp)
         (org-cycle-hide-drawers 'subtree))))
