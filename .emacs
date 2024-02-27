@@ -2,11 +2,9 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
-
-
 (with-eval-after-load "org"
   ;; (advice-add 'org-assert-version :override #'ignore)
-  (require 'org-phscroll nil t)
+  ;; (require 'org-phscroll nil t)
 
   (defun my-org-pin-subtree ()
     "Pin the subtree with \"pin\" tag."
@@ -77,15 +75,6 @@
  ;; Normal mode. see also init-eval.el
  (t (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(with-eval-after-load "postpone"
-  ;; At least in Big Sur, this setting shall be used with side car for moom.el.
-  ;; Without side car in Big Sur, the following setting is also correct.
-  ;; Then what about other macOSs?
-
-  ;; (when (string= "Big Sur" (macos-name (macos-version)))
-  ;;   (setq moom--common-margin '(0 0 0 0)))
-  )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; To decrypt old sub trees
 ;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)

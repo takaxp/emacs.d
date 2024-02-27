@@ -1688,6 +1688,7 @@ echo "--- done."
 ** ファイルリンクを辿る時に確認のメッセージを出さない
    :PROPERTIES:
    :CUSTOM_ID: orgfc7cc004
+   :ID:       8D0CCC51-4288-4CE4-BC26-054CCAD54FD8
    :END:
 
 そのまま辿ってファイルオープンします．
@@ -4034,8 +4035,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
     (sp-local-pair 'org-mode "=" "=")
-    (sp-local-pair 'org-mode "$" "$")
-    (sp-local-pair 'org-mode "'" "'" :actions '(wrap))
+    (sp-local-pair 'org-mode "$" "$" :actions '(wrap)) ;; 選択時のみ有効
+    (sp-local-pair 'org-mode "'" "'" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "_" "_" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "~" "~" :actions '(wrap)) ;; 選択時のみ有効
@@ -4761,6 +4762,7 @@ Call this function at updating `mode-line-mode'."
 ** モードラインの節約（VC-mode編）
    :PROPERTIES:
    :CUSTOM_ID: org5fd3a668
+   :ID:       D5F61278-F01E-4C46-8211-6EB7D5866183
    :END:
 
 定形で表示されている =Git= をアイコン化します．
@@ -7365,7 +7367,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
-  (cond ((string-match "\\.numbers$" file)
+  (cond ((string-match "\\.numbers$\\|\\.xlsx$" file)
          (eval `(with-ivy-window (org-open-file ,file))))
         (t
          (eval `(with-ivy-window (find-file ,file))))))
@@ -7383,12 +7385,6 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 		        :action #'my-counsel-recentf-action
 		        :require-match t
 		        :caller 'counsel-recentf))
-
-;;;###autoload
-(defun my-recentf-activate ()
-  
-  )
-
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -7399,45 +7395,47 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(rencetf-mode
-	                   my-recentf-save-list-silence
-	                   my-recentf-cleanup-silence
-	                   recentf-open-files)
-                         "recentf" nil t)
+			   my-recentf-save-list-silence
+			   my-recentf-cleanup-silence
+			   recentf-open-files)
+			 "recentf" nil t)
   (with-eval-after-load "recentf"
     (custom-set-variables
      '(recentf-max-saved-items 2000)
      '(recentf-save-file (expand-file-name "~/.emacs.d/_recentf"))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
-       '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
+ '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
 	 "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     ;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
     (when (eq system-type 'darwin)
-      ;; Dropbox のエイリアスを展開されないようにする
-      (setq directory-abbrev-alist
-            '(("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox"))))
+;; Dropbox のエイリアスを展開されないようにする
+(setq directory-abbrev-alist
+	    '(("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox"))))
 
     (if (version< emacs-version "27.1")
-        (progn
-          (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-          (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
-      (add-function :before after-focus-change-function
+	(progn
+	  (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+	  (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+(add-function :before after-focus-change-function
 		    #'my-recentf-save-list-silence)
-      (add-function :before after-focus-change-function
+(add-function :before after-focus-change-function
 		    #'my-recentf-cleanup-silence))
 
     (unless noninteractive
-      (let ((message-log-max nil))
-        (recentf-mode 1))))
+(let ((message-log-max nil))
+	(if (equal system-name "water.local")
+	    (recentf-mode 1)
+	  (message "--- recentf is not activated in %s" system-name)))))
 
   (with-eval-after-load "counsel"
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
      '(("g" my-counsel-ag-in-dir "switch to ag")
-       ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
-       ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)")))))
+ ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
+ ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)")))))
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 #+end_src
@@ -10001,6 +9999,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 *** COMMENT for debugging
 :PROPERTIES:
 :ID:       FD9DA6AE-6971-4E97-8C72-50E6AADBD0FB
+:CUSTOM_ID: org7f299532
 :END:
 
 #+begin_src emacs-lisp :tangle no :exports no
@@ -14118,6 +14117,11 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
+(defun my-hl-todo-activate ()
+  (global-hl-todo-mode) ;; FIXME
+  (remove-hook 'find-file-hook #'my-hl-todo-activate))
+
+;;;###autoload
 (defun my-hl-todo-reload ()
   (interactive)
   (global-hl-todo-mode -1)
@@ -14127,8 +14131,9 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 (defun my-hl-todo-light-theme ()
   (setq hl-todo-exclude-modes nil) ;; also apply to a case when org-mode
   (setq hl-todo-keyword-faces
-        '(("HOLD" . "#d0bf8f")
-          ("TODO" . "#FF0000")
+        `(("TODO" . ,(face-attribute 'org-todo :foreground))
+          ("DONE" . ,(face-attribute 'org-done :foreground))
+          ("HOLD" . "#d0bf8f")
           ("NEXT" . "#dca3a3")
           ("THEM" . "#dc8cc3")
           ("PROG" . "#7cb8bb")
@@ -14151,15 +14156,15 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ;;;###autoload
 (defun my-hl-todo-dark-theme ()
   (setq hl-todo-keyword-faces
-        '(("HOLD" . "#d0bf8f")
-          ("TODO" . "#cc9393")
+        '(("TODO" . ,(face-attribute 'org-todo :foreground))
+          ("DONE" . ,(face-attribute 'org-done :foreground))
+          ("HOLD" . "#d0bf8f")
           ("NEXT" . "#dca3a3")
           ("THEM" . "#dc8cc3")
           ("PROG" . "#7cb8bb")
           ("OKAY" . "#7cb8bb")
           ("DONT" . "#5f7f5f")
           ("FAIL" . "#8c5353")
-          ("DONE" . "#afd8af")
           ("NOTE"   . "#d0bf8f")
           ("KLUDGE" . "#d0bf8f")
           ("HACK"   . "#d0bf8f")
@@ -14171,11 +14176,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
           ("" . "red")
           ("" . "Seagreen3")))
   (my-hl-todo-reload))
-
-;;;###autoload
-(defun my-hl-todo-activate ()
-  (global-hl-todo-mode) ;; FIXME
-  (remove-hook 'find-file-hook #'my-hl-todo-activate))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el

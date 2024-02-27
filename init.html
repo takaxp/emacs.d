@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-02-22 Thu 10:39 -->
+<!-- 2024-02-27 Tue 17:21 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -5354,8 +5354,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair <span style="color: #8b2252;">"'"</span> nil <span style="color: #483d8b;">:actions</span> <span style="color: #483d8b;">:rem</span>)
     (sp-pair <span style="color: #8b2252;">"["</span> nil <span style="color: #483d8b;">:actions</span> <span style="color: #483d8b;">:rem</span>)
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"="</span> <span style="color: #8b2252;">"="</span>)
-    (sp-local-pair 'org-mode <span style="color: #8b2252;">"$"</span> <span style="color: #8b2252;">"$"</span>)
-    (sp-local-pair 'org-mode <span style="color: #8b2252;">"'"</span> <span style="color: #8b2252;">"'"</span> <span style="color: #483d8b;">:actions</span> '(wrap))
+    (sp-local-pair 'org-mode <span style="color: #8b2252;">"$"</span> <span style="color: #8b2252;">"$"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;</span>
+    (sp-local-pair 'org-mode <span style="color: #8b2252;">"'"</span> <span style="color: #8b2252;">"'"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;</span>
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"&lt;"</span> <span style="color: #8b2252;">"&gt;"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;</span>
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"_"</span> <span style="color: #8b2252;">"_"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;</span>
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"~"</span> <span style="color: #8b2252;">"~"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;</span>
@@ -9001,7 +9001,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-counsel-recentf-action</span> (file)
-  (<span style="color: #a020f0;">cond</span> ((string-match <span style="color: #8b2252;">"\\.numbers$"</span> file)
+  (<span style="color: #a020f0;">cond</span> ((string-match <span style="color: #8b2252;">"\\.numbers$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.xlsx$"</span> file)
          (eval `(with-ivy-window (org-open-file ,file))))
         (t
          (eval `(with-ivy-window (find-file ,file))))))
@@ -9019,12 +9019,6 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                         <span style="color: #483d8b;">:action</span> #'my-counsel-recentf-action
                         <span style="color: #483d8b;">:require-match</span> t
                         <span style="color: #483d8b;">:caller</span> 'counsel-recentf))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-recentf-activate</span> ()
-
-  )
-
 </pre>
 </div>
 
@@ -9047,35 +9041,37 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
      '(recentf-save-file (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/_recentf"</span>))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
-       '(<span style="color: #8b2252;">".recentf"</span> <span style="color: #8b2252;">"bookmarks"</span> <span style="color: #8b2252;">"org-recent-headings.dat"</span> <span style="color: #8b2252;">"^/tmp\\.*"</span>
+ '(<span style="color: #8b2252;">".recentf"</span> <span style="color: #8b2252;">"bookmarks"</span> <span style="color: #8b2252;">"org-recent-headings.dat"</span> <span style="color: #8b2252;">"^/tmp\\.*"</span>
          <span style="color: #8b2252;">"^/private\\.*"</span> <span style="color: #8b2252;">"^/var/folders\\.*"</span> <span style="color: #8b2252;">"/TAGS$"</span>)))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">see https://github.com/mattfidler/EmacsPortable.App/issues/7</span>
     (<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Dropbox &#12398;&#12456;&#12452;&#12522;&#12450;&#12473;&#12434;&#23637;&#38283;&#12373;&#12428;&#12394;&#12356;&#12424;&#12358;&#12395;&#12377;&#12427;</span>
-      (<span style="color: #a020f0;">setq</span> directory-abbrev-alist
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">Dropbox &#12398;&#12456;&#12452;&#12522;&#12450;&#12473;&#12434;&#23637;&#38283;&#12373;&#12428;&#12394;&#12356;&#12424;&#12358;&#12395;&#12377;&#12427;</span>
+(<span style="color: #a020f0;">setq</span> directory-abbrev-alist
             '((<span style="color: #8b2252;">"\\`~/Library/CloudStorage/Dropbox"</span> . <span style="color: #8b2252;">"~/Dropbox"</span>))))
 
     (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
         (<span style="color: #a020f0;">progn</span>
           (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
           (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
-      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
+(<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
                     #'my-recentf-save-list-silence)
-      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
+(<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
                     #'my-recentf-cleanup-silence))
 
     (<span style="color: #a020f0;">unless</span> noninteractive
-      (<span style="color: #a020f0;">let</span> ((message-log-max nil))
-        (recentf-mode 1))))
+(<span style="color: #a020f0;">let</span> ((message-log-max nil))
+        (<span style="color: #a020f0;">if</span> (equal system-name <span style="color: #8b2252;">"water.local"</span>)
+            (recentf-mode 1)
+          (message <span style="color: #8b2252;">"--- recentf is not activated in %s"</span> system-name)))))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
     (advice-add 'counsel-recentf <span style="color: #483d8b;">:override</span> #'ad:counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
      '((<span style="color: #8b2252;">"g"</span> my-counsel-ag-in-dir <span style="color: #8b2252;">"switch to ag"</span>)
-       (<span style="color: #8b2252;">"r"</span> my-counsel-fzf-in-dir <span style="color: #8b2252;">"switch to fzf (in dir.)"</span>)
-       (<span style="color: #8b2252;">"z"</span> my-counsel-fzf-in-default-dir <span style="color: #8b2252;">"switch to fzf (default)"</span>)))))
+ (<span style="color: #8b2252;">"r"</span> my-counsel-fzf-in-dir <span style="color: #8b2252;">"switch to fzf (in dir.)"</span>)
+ (<span style="color: #8b2252;">"z"</span> my-counsel-fzf-in-default-dir <span style="color: #8b2252;">"switch to fzf (default)"</span>)))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-init-hook #'recentf-mode))</span>
 </pre>
@@ -13865,7 +13861,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org71662b0"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgcca1d32"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14804,7 +14800,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org6d43ac7" class="figure">
+<div id="org3ebb68c" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16362,6 +16358,11 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-activate</span> ()
+  (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+  (remove-hook 'find-file-hook #'my-hl-todo-activate))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-reload</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (global-hl-todo-mode -1)
@@ -16371,8 +16372,9 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-light-theme</span> ()
   (<span style="color: #a020f0;">setq</span> hl-todo-exclude-modes nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">also apply to a case when org-mode</span>
   (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-        '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-          (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#FF0000"</span>)
+        `((<span style="color: #8b2252;">"TODO"</span> . ,(face-attribute 'org-todo <span style="color: #483d8b;">:foreground</span>))
+          (<span style="color: #8b2252;">"DONE"</span> . ,(face-attribute 'org-done <span style="color: #483d8b;">:foreground</span>))
+          (<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
           (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
           (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
           (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
@@ -16395,15 +16397,15 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-dark-theme</span> ()
   (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-        '((<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-          (<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+        '((<span style="color: #8b2252;">"TODO"</span> . ,(face-attribute 'org-todo <span style="color: #483d8b;">:foreground</span>))
+          (<span style="color: #8b2252;">"DONE"</span> . ,(face-attribute 'org-done <span style="color: #483d8b;">:foreground</span>))
+          (<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
           (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
           (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
           (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
           (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
           (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
           (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
-          (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"#afd8af"</span>)
           (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
           (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
           (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
@@ -16415,11 +16417,6 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
           (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
           (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
   (my-hl-todo-reload))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-activate</span> ()
-  (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-  (remove-hook 'find-file-hook #'my-hl-todo-activate))
 </pre>
 </div>
 
@@ -19244,7 +19241,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-02-22 Thu 10:39</p>
+<p class="date">Created: 2024-02-27 Tue 17:21</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
