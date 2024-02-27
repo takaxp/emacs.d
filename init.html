@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-02-27 Tue 19:58 -->
+<!-- 2024-02-28 Wed 07:21 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -11579,14 +11579,14 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-tempo-add-block</span> (entry)
     <span style="color: #8b2252;">"Add block entry from `</span><span style="color: #008b8b;">org-structure-template-alist</span><span style="color: #8b2252;">'."</span>
     (<span style="color: #a020f0;">let*</span> ((key (format <span style="color: #8b2252;">"&lt;%s"</span> (car entry)))
-           (name (cdr entry))
-           (special nil)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXED</span>
+                 (name (cdr entry))
+                 (special nil)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXED</span>
       (tempo-define-template
        (format <span style="color: #8b2252;">"org-%s"</span> (replace-regexp-in-string <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">"-"</span> name))
        `(,(format <span style="color: #8b2252;">"#+begin_%s%s"</span> name (<span style="color: #a020f0;">if</span> special <span style="color: #8b2252;">" "</span> <span style="color: #8b2252;">""</span>))
-         ,(<span style="color: #a020f0;">when</span> special 'p) '&gt; n '&gt; ,(<span style="color: #a020f0;">unless</span> special 'p) n
-         ,(format <span style="color: #8b2252;">"#+end_%s"</span> (car (split-string name <span style="color: #8b2252;">" "</span>)))
-         &gt;)
+               ,(<span style="color: #a020f0;">when</span> special 'p) '&gt; n '&gt; ,(<span style="color: #a020f0;">unless</span> special 'p) n
+               ,(format <span style="color: #8b2252;">"#+end_%s"</span> (car (split-string name <span style="color: #8b2252;">" "</span>)))'
+               &gt;)
        key
        (format <span style="color: #8b2252;">"Insert a %s block"</span> name)
        'org-tempo-tags)))
@@ -13861,7 +13861,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org450c306"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgfdf9070"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14800,7 +14800,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgc3bc00d" class="figure">
+<div id="orge435b51" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16359,7 +16359,6 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-activate</span> ()
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Getting org-todo face</span>
   (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
   (remove-hook 'find-file-hook #'my-hl-todo-activate))
 
@@ -16371,11 +16370,10 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-light-theme</span> ()
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Getting org-todo face</span>
   (<span style="color: #a020f0;">setq</span> hl-todo-exclude-modes nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">also apply to a case when org-mode</span>
   (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-        `((<span style="color: #8b2252;">"TODO"</span> . ,(face-attribute 'org-todo <span style="color: #483d8b;">:foreground</span>))
-          (<span style="color: #8b2252;">"DONE"</span> . ,(face-attribute 'org-done <span style="color: #483d8b;">:foreground</span>))
+        '((<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"Red1"</span>)
+          (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"ForestGreen"</span>)
           (<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
           (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
           (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
@@ -16398,10 +16396,9 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-dark-theme</span> ()
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Getting org-todo face</span>
   (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-        '((<span style="color: #8b2252;">"TODO"</span> . ,(face-attribute 'org-todo <span style="color: #483d8b;">:foreground</span>))
-          (<span style="color: #8b2252;">"DONE"</span> . ,(face-attribute 'org-done <span style="color: #483d8b;">:foreground</span>))
+        '((<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"Red1"</span>)
+          (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"ForestGreen"</span>)
           (<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
           (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
           (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
@@ -19076,7 +19073,8 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-x C-c"</span>) #'my-kill-all-file-buffers)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (display-graphic-p)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-x C-c"</span>) #'my-kill-all-file-buffers))
 </pre>
 </div>
 </div>
@@ -19244,7 +19242,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-02-27 Tue 19:58</p>
+<p class="date">Created: 2024-02-28 Wed 07:21</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

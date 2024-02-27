@@ -2101,7 +2101,8 @@
     (when (require 'elfeed-web nil t)
       (setq elfeed-web-data-root (concat my-elget-package-dir "/web")))))
 
-(global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers)
+(when (display-graphic-p)
+  (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers))
 
 (global-set-key (kbd "C-c C-x") #'my-kill-emacs-when-scratch-buffer)
 

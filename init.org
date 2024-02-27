@@ -9695,14 +9695,14 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defun my-org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
-	   (name (cdr entry))
-	   (special nil)) ;; FIXED
+	         (name (cdr entry))
+	         (special nil)) ;; FIXED
       (tempo-define-template
        (format "org-%s" (replace-regexp-in-string " " "-" name))
        `(,(format "#+begin_%s%s" name (if special " " ""))
-	 ,(when special 'p) '> n '> ,(unless special 'p) n
-	 ,(format "#+end_%s" (car (split-string name " ")))
-	 >)
+	       ,(when special 'p) '> n '> ,(unless special 'p) n
+	       ,(format "#+end_%s" (car (split-string name " ")))'
+	       >)
        key
        (format "Insert a %s block" name)
        'org-tempo-tags)))
@@ -14118,7 +14118,6 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-hl-todo-activate ()
-  (require 'org) ;; Getting org-todo face
   (global-hl-todo-mode) ;; FIXME
   (remove-hook 'find-file-hook #'my-hl-todo-activate))
 
@@ -14130,11 +14129,10 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 ;;;###autoload
 (defun my-hl-todo-light-theme ()
-  (require 'org) ;; Getting org-todo face
   (setq hl-todo-exclude-modes nil) ;; also apply to a case when org-mode
   (setq hl-todo-keyword-faces
-	`(("TODO" . ,(face-attribute 'org-todo :foreground))
-	  ("DONE" . ,(face-attribute 'org-done :foreground))
+	'(("TODO" . "Red1")
+	  ("DONE" . "ForestGreen")
 	  ("HOLD" . "#d0bf8f")
 	  ("NEXT" . "#dca3a3")
 	  ("THEM" . "#dc8cc3")
@@ -14157,10 +14155,9 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 ;;;###autoload
 (defun my-hl-todo-dark-theme ()
-  (require 'org) ;; Getting org-todo face
   (setq hl-todo-keyword-faces
-	'(("TODO" . ,(face-attribute 'org-todo :foreground))
-	  ("DONE" . ,(face-attribute 'org-done :foreground))
+	'(("TODO" . "Red1")
+	  ("DONE" . "ForestGreen")
 	  ("HOLD" . "#d0bf8f")
 	  ("NEXT" . "#dca3a3")
 	  ("THEM" . "#dc8cc3")
@@ -16561,6 +16558,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 ** Auto-install をセットアップする                                 :obsolete:
    :PROPERTIES:
    :CUSTOM_ID: org481e7f96
+   :ID:       4F5EB97A-DC5A-4A96-9E2E-B952FBC282A9
    :END:
 
 いつも auto-install を使うわけではないので，必要時に =init-auto-install= を実行してパラメータを設定してから auto-install でパッケージを取得するようにしています．cask+pallet 環境に移行してからは使っていません．
@@ -16704,7 +16702,8 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers)
+(when (display-graphic-p)
+  (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers))
 #+end_src
 
 ** スクラッチバッファを表示している場合にだけ終了可能にする

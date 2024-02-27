@@ -2,6 +2,43 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
+;;;###autoload
+(defun my-corfu-disable-in-minibuffer ()
+  (corfu-mode -1))
+
+(with-eval-after-load "late-init"
+
+  (when (autoload-if-found '(corfu-mode) "corfu" nil t)
+    (add-hook 'emacs-lisp-mode-hook #'corfu-mode))
+
+  (with-eval-after-load "corfu"
+    (require 'company)
+    (company-prescient-mode -1)
+    (global-company-mode -1)
+
+    (add-hook 'find-file-hook #'my-corfu-disable-in-minibuffer)
+
+    (custom-set-variables
+     '(corfu-count 5)
+     '(corfu-on-exact-match nil)
+     '(corfu-auto-prefix 2)
+     '(corfu-auto-delay 0.2)
+     '(corfu-auto t))
+
+    (when (require 'corfu-prescient nil t)
+      (corfu-prescient-mode 1))
+
+    (when (require 'org-block-capf nil t)
+      (setq org-block-capf-edit-style 'inline)
+      (setq org-block-capf-auto-indent nil)
+      (add-hook 'org-mode-hook
+                #'org-block-capf-add-to-completion-at-point-functions))
+
+    (when (require 'kind-icon nil t)
+      (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+
+    ))
+
 (with-eval-after-load "org"
   ;; (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)

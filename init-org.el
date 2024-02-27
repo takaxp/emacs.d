@@ -214,14 +214,14 @@
   (defun my-org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
-	   (name (cdr entry))
-	   (special nil)) ;; FIXED
+	         (name (cdr entry))
+	         (special nil)) ;; FIXED
       (tempo-define-template
        (format "org-%s" (replace-regexp-in-string " " "-" name))
        `(,(format "#+begin_%s%s" name (if special " " ""))
-	 ,(when special 'p) '> n '> ,(unless special 'p) n
-	 ,(format "#+end_%s" (car (split-string name " ")))
-	 >)
+	       ,(when special 'p) '> n '> ,(unless special 'p) n
+	       ,(format "#+end_%s" (car (split-string name " ")))'
+	       >)
        key
        (format "Insert a %s block" name)
        'org-tempo-tags)))
