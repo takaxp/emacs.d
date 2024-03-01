@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-03-01 Fri 15:35 -->
+<!-- 2024-03-01 Fri 17:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1213,24 +1213,24 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Maybe we should just use display-warning?  This seems yucky...</span>
     (<span style="color: #a020f0;">let*</span> ((file (file-name-nondirectory abs-file))
            (package (intern (substring file 0
-                                       (string-match <span style="color: #8b2252;">"\\.elc?\\&gt;"</span> file))
+                                                         (string-match <span style="color: #8b2252;">"\\.elc?\\&gt;"</span> file))
                             obarray))
            (msg (<span style="color: #a020f0;">unless</span> (memq package my-exclude-deprecated-packages)
                   (format <span style="color: #8b2252;">"Package %s is deprecated"</span> package)))
-           (fun (<span style="color: #a020f0;">lambda</span> (msg) (message <span style="color: #8b2252;">"%s"</span> msg))))
+                 (fun (<span style="color: #a020f0;">lambda</span> (msg) (message <span style="color: #8b2252;">"%s"</span> msg))))
       (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">or</span> (not (fboundp 'byte-compile-warning-enabled-p))
                 (byte-compile-warning-enabled-p 'obsolete package))
         (<span style="color: #a020f0;">cond</span>
-         ((<span style="color: #a020f0;">bound-and-true-p</span> byte-compile-current-file)
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">Don't warn about obsolete files using other obsolete files.</span>
-          (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">and</span> (stringp byte-compile-current-file)
-                       (string-match-p <span style="color: #8b2252;">"/obsolete/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]*\\'"</span>
-                                       (expand-file-name
-                                        byte-compile-current-file
-                                        byte-compile-root-dir)))
-            (byte-compile-warn <span style="color: #8b2252;">"%s"</span> msg)))
+               ((<span style="color: #a020f0;">bound-and-true-p</span> byte-compile-current-file)
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">Don't warn about obsolete files using other obsolete files.</span>
+                (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">and</span> (stringp byte-compile-current-file)
+                                   (string-match-p <span style="color: #8b2252;">"/obsolete/[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">/]*\\'"</span>
+                                                               (expand-file-name
+                                                                      byte-compile-current-file
+                                                                      byte-compile-root-dir)))
+                  (byte-compile-warn <span style="color: #8b2252;">"%s"</span> msg)))
          (noninteractive (funcall fun msg)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">No timer will be run!</span>
-         (t (run-with-idle-timer 0 nil fun msg))))))
+               (t (run-with-idle-timer 0 nil fun msg))))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Finally, run any other hook.</span>
   (run-hook-with-args 'after-load-functions abs-file))
@@ -9048,47 +9048,50 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(rencetf-mode
-                           my-recentf-save-list-silence
-                           my-recentf-cleanup-silence
-                           recentf-open-files)
-                         <span style="color: #8b2252;">"recentf"</span> nil t)
+                                             my-recentf-save-list-silence
+                                             my-recentf-cleanup-silence
+                                             recentf-open-files)
+                                           <span style="color: #8b2252;">"recentf"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"recentf"</span>
     (custom-set-variables
      '(recentf-max-saved-items 2000)
      '(recentf-save-file (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/_recentf"</span>))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
- '(<span style="color: #8b2252;">".recentf"</span> <span style="color: #8b2252;">"bookmarks"</span> <span style="color: #8b2252;">"org-recent-headings.dat"</span> <span style="color: #8b2252;">"^/tmp\\.*"</span>
-         <span style="color: #8b2252;">"^/private\\.*"</span> <span style="color: #8b2252;">"^/var/folders\\.*"</span> <span style="color: #8b2252;">"/TAGS$"</span>)))
+       '(<span style="color: #8b2252;">".recentf"</span> <span style="color: #8b2252;">"bookmarks"</span> <span style="color: #8b2252;">"org-recent-headings.dat"</span> <span style="color: #8b2252;">"^/tmp\\.*"</span>
+               <span style="color: #8b2252;">"^/private\\.*"</span> <span style="color: #8b2252;">"^/var/folders\\.*"</span> <span style="color: #8b2252;">"/TAGS$"</span>)))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">see https://github.com/mattfidler/EmacsPortable.App/issues/7</span>
     (<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">Dropbox &#12398;&#12456;&#12452;&#12522;&#12450;&#12473;&#12434;&#23637;&#38283;&#12373;&#12428;&#12394;&#12356;&#12424;&#12358;&#12395;&#12377;&#12427;</span>
-(<span style="color: #a020f0;">setq</span> directory-abbrev-alist
-            '((<span style="color: #8b2252;">"\\`~/Library/CloudStorage/Dropbox"</span> . <span style="color: #8b2252;">"~/Dropbox"</span>))))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Dropbox &#12398;&#12456;&#12452;&#12522;&#12450;&#12473;&#12434;&#23637;&#38283;&#12373;&#12428;&#12394;&#12356;&#12424;&#12358;&#12395;&#12377;&#12427;</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">find-file &#12391;&#12398;&#34920;&#31034;&#12418;&#30701;&#32302;&#12373;&#12428;&#12427;&#65294;</span>
+      (<span style="color: #a020f0;">let</span> ((provider (expand-file-name <span style="color: #8b2252;">"~/Library/CloudStorage"</span>)))
+        (<span style="color: #a020f0;">setq</span> directory-abbrev-alist
+                    `((,(concat <span style="color: #8b2252;">"\\`"</span> provider <span style="color: #8b2252;">"/Dropbox"</span>) . <span style="color: #8b2252;">"~/Dropbox"</span>)))))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox")</span>
 
     (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
-        (<span style="color: #a020f0;">progn</span>
-          (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-          (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
-(<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
-                    #'my-recentf-save-list-silence)
-(<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
-                    #'my-recentf-cleanup-silence))
+              (<span style="color: #a020f0;">progn</span>
+                (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+                (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
+                                #'my-recentf-save-list-silence)
+      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
+                                #'my-recentf-cleanup-silence))
 
     (<span style="color: #a020f0;">unless</span> noninteractive
-(<span style="color: #a020f0;">let</span> ((message-log-max nil))
-        (<span style="color: #a020f0;">if</span> (equal (system-name) <span style="color: #8b2252;">"water.local"</span>)
-            (recentf-mode 1)
-          (message <span style="color: #8b2252;">"--- recentf is not activated in %s"</span> system-name)))))
+      (<span style="color: #a020f0;">let</span> ((message-log-max nil))
+              (<span style="color: #a020f0;">if</span> (equal (system-name) <span style="color: #8b2252;">"water.local"</span>)
+                  (recentf-mode 1)
+                (message <span style="color: #8b2252;">"--- recentf is not activated in %s"</span> system-name)))))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
     (advice-add 'counsel-recentf <span style="color: #483d8b;">:override</span> #'ad:counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
      '((<span style="color: #8b2252;">"g"</span> my-counsel-ag-in-dir <span style="color: #8b2252;">"switch to ag"</span>)
- (<span style="color: #8b2252;">"r"</span> my-counsel-fzf-in-dir <span style="color: #8b2252;">"switch to fzf (in dir.)"</span>)
- (<span style="color: #8b2252;">"z"</span> my-counsel-fzf-in-default-dir <span style="color: #8b2252;">"switch to fzf (default)"</span>)))))
+       (<span style="color: #8b2252;">"r"</span> my-counsel-fzf-in-dir <span style="color: #8b2252;">"switch to fzf (in dir.)"</span>)
+       (<span style="color: #8b2252;">"z"</span> my-counsel-fzf-in-default-dir <span style="color: #8b2252;">"switch to fzf (default)"</span>)))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'after-init-hook #'recentf-mode))</span>
 </pre>
@@ -13966,7 +13969,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org023fc60"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org0c9aa4c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14905,7 +14908,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgac7aaf8" class="figure">
+<div id="orgaac5e7b" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19347,7 +19350,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-03-01 Fri 15:35</p>
+<p class="date">Created: 2024-03-01 Fri 17:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

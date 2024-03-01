@@ -413,24 +413,24 @@ This function is called directly from the C code."
     ;; Maybe we should just use display-warning?  This seems yucky...
     (let* ((file (file-name-nondirectory abs-file))
            (package (intern (substring file 0
-			               (string-match "\\.elc?\\>" file))
+			                                 (string-match "\\.elc?\\>" file))
                             obarray))
            (msg (unless (memq package my-exclude-deprecated-packages)
                   (format "Package %s is deprecated" package)))
-	   (fun (lambda (msg) (message "%s" msg))))
+	         (fun (lambda (msg) (message "%s" msg))))
       (when (or (not (fboundp 'byte-compile-warning-enabled-p))
                 (byte-compile-warning-enabled-p 'obsolete package))
         (cond
-	 ((bound-and-true-p byte-compile-current-file)
-	  ;; Don't warn about obsolete files using other obsolete files.
-	  (unless (and (stringp byte-compile-current-file)
-		       (string-match-p "/obsolete/[^/]*\\'"
-				       (expand-file-name
-					byte-compile-current-file
-					byte-compile-root-dir)))
-	    (byte-compile-warn "%s" msg)))
+	       ((bound-and-true-p byte-compile-current-file)
+	        ;; Don't warn about obsolete files using other obsolete files.
+	        (unless (and (stringp byte-compile-current-file)
+		                   (string-match-p "/obsolete/[^/]*\\'"
+				                               (expand-file-name
+					                              byte-compile-current-file
+					                              byte-compile-root-dir)))
+	          (byte-compile-warn "%s" msg)))
          (noninteractive (funcall fun msg)) ;; No timer will be run!
-	 (t (run-with-idle-timer 0 nil fun msg))))))
+	       (t (run-with-idle-timer 0 nil fun msg))))))
 
   ;; Finally, run any other hook.
   (run-hook-with-args 'after-load-functions abs-file))
@@ -7411,47 +7411,50 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(rencetf-mode
-			   my-recentf-save-list-silence
-			   my-recentf-cleanup-silence
-			   recentf-open-files)
-			 "recentf" nil t)
+			                     my-recentf-save-list-silence
+			                     my-recentf-cleanup-silence
+			                     recentf-open-files)
+			                   "recentf" nil t)
   (with-eval-after-load "recentf"
     (custom-set-variables
      '(recentf-max-saved-items 2000)
      '(recentf-save-file (expand-file-name "~/.emacs.d/_recentf"))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
- '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
-	 "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+       '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
+	       "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     ;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
     (when (eq system-type 'darwin)
-;; Dropbox のエイリアスを展開されないようにする
-(setq directory-abbrev-alist
-	    '(("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox"))))
+      ;; Dropbox のエイリアスを展開されないようにする
+      ;; find-file での表示も短縮される．
+      (let ((provider (expand-file-name "~/Library/CloudStorage")))
+        (setq directory-abbrev-alist
+	            `((,(concat "\\`" provider "/Dropbox") . "~/Dropbox")))))
+    ;; ("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox")
 
     (if (version< emacs-version "27.1")
-	(progn
-	  (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-	  (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
-(add-function :before after-focus-change-function
-		    #'my-recentf-save-list-silence)
-(add-function :before after-focus-change-function
-		    #'my-recentf-cleanup-silence))
+	      (progn
+	        (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+	        (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+      (add-function :before after-focus-change-function
+		                #'my-recentf-save-list-silence)
+      (add-function :before after-focus-change-function
+		                #'my-recentf-cleanup-silence))
 
     (unless noninteractive
-(let ((message-log-max nil))
-	(if (equal (system-name) "water.local")
-	    (recentf-mode 1)
-	  (message "--- recentf is not activated in %s" system-name)))))
+      (let ((message-log-max nil))
+	      (if (equal (system-name) "water.local")
+	          (recentf-mode 1)
+	        (message "--- recentf is not activated in %s" system-name)))))
 
   (with-eval-after-load "counsel"
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
      '(("g" my-counsel-ag-in-dir "switch to ag")
- ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
- ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)")))))
+       ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
+       ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)")))))
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 #+end_src
