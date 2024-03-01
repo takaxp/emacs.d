@@ -274,13 +274,19 @@
 ;; (add-hook 'isearch-mode-hook #'my-smart-mark-dectivate)
 ;; (add-hook 'isearch-mode-end-hook #'my-smart-mark-activate)
 
-(when (autoload-if-found '(global-syntax-subword-mode syntax-subword-mode)
+(when (autoload-if-found '(global-syntax-subword-mode
+                           syntax-subword-backward-kill
+                           syntax-subword-mode syntax-subword-kill)
                          "syntax-subword" nil t)
 
   (advice-add 'forward-word :before #'my-syntax-subword-activate)
-  (advice-add 'backword-word :before #'my-syntax-subword-activate)
-  ;; C-<backspace> で，削除領域をコピーしない．
-  (advice-add 'syntax-subword-kill :override #'ad:syntax-subword-kill))
+  (advice-add 'backward-word :before #'my-syntax-subword-activate)
+
+  (global-set-key (kbd "C-<backspace>") #'syntax-subword-backward-kill)
+
+  (with-eval-after-load "syntax-subword"
+    ;; C-<backspace> で，削除領域をコピーしない．
+    (advice-add 'syntax-subword-kill :override #'ad:syntax-subword-kill)))
 
 (setq yank-excluded-properties t)
 

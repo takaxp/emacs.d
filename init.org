@@ -2712,7 +2712,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (unless (featurep 'syntax-subword)
     (global-syntax-subword-mode 1))
   (advice-remove 'forward-word #'my-syntax-subword-activate)
-  (advice-remove 'backword-word #'my-syntax-subword-activate)
+  (advice-remove 'backward-word #'my-syntax-subword-activate)
   arg)
 
 ;;;###autoload
@@ -2725,13 +2725,19 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found '(global-syntax-subword-mode syntax-subword-mode)
+(when (autoload-if-found '(global-syntax-subword-mode
+                           syntax-subword-backward-kill
+                           syntax-subword-mode syntax-subword-kill)
                          "syntax-subword" nil t)
 
   (advice-add 'forward-word :before #'my-syntax-subword-activate)
-  (advice-add 'backword-word :before #'my-syntax-subword-activate)
-  ;; C-<backspace> で，削除領域をコピーしない．
-  (advice-add 'syntax-subword-kill :override #'ad:syntax-subword-kill))
+  (advice-add 'backward-word :before #'my-syntax-subword-activate)
+
+  (global-set-key (kbd "C-<backspace>") #'syntax-subword-backward-kill)
+
+  (with-eval-after-load "syntax-subword"
+    ;; C-<backspace> で，削除領域をコピーしない．
+    (advice-add 'syntax-subword-kill :override #'ad:syntax-subword-kill)))
 #+end_src
 
 ** [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる

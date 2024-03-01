@@ -2,6 +2,7 @@
 ;;                                          https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
+
 (with-eval-after-load "org"
   ;; (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)
