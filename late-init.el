@@ -157,10 +157,9 @@
     (add-hook 'input-method-activate-hook #'my-working-text-face-on)
     (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)))
 
+(autoload-if-found '(er/mark-symbol) "expand-region" nil t)
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
-(when (autoload-if-found '(er/mark-symbol) "expand-region" nil t)
-  (with-eval-after-load "expand-region"
-    (advice-add 'mark-sexp :around #'ad:er:mark-sexp)))
+(advice-add 'mark-sexp :around #'ad:er:mark-sexp)
 
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)

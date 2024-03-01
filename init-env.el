@@ -133,7 +133,7 @@
   ;; define-obsolete-variable-alias の上書き補正
   (defmacro define-obsolete-variable-alias (obsolete-name
                                             current-name
-					    &optional when docstring)
+					                                  &optional when docstring)
     ""
     (declare (doc-string 4)
              (advertised-calling-convention
@@ -148,7 +148,7 @@
   ;; define-obsolete-function-alias の上書き補正
   (defmacro define-obsolete-function-alias (obsolete-name
                                             current-name
-					    &optional when docstring)
+					                                  &optional when docstring)
     ""
     (declare (doc-string 4)
              (advertised-calling-convention
@@ -167,6 +167,7 @@
 ;; (advice-add 'package--ensure-init-file :override
 ;;             #'ad:package--ensure-init-file))
 
+;; To check closing sequence
 ;; (my-kill-emacs-hook-show)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; diff を取る前に tabify スペースをタブに変換する．今は全てスペース置換中．

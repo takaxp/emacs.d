@@ -2338,10 +2338,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
+(autoload-if-found '(er/mark-symbol) "expand-region" nil t)
 (advice-add 'mark-sexp :around #'ad:mark-sexp)
-(when (autoload-if-found '(er/mark-symbol) "expand-region" nil t)
-  (with-eval-after-load "expand-region"
-    (advice-add 'mark-sexp :around #'ad:er:mark-sexp)))
+(advice-add 'mark-sexp :around #'ad:er:mark-sexp)
 #+end_src
 
 ** スクロールを制御

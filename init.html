@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-03-01 Fri 17:45 -->
+<!-- 2024-03-01 Fri 18:22 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -3362,10 +3362,9 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:mark-sexp)
-(<span style="color: #a020f0;">when</span> (autoload-if-found '(er/mark-symbol) <span style="color: #8b2252;">"expand-region"</span> nil t)
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"expand-region"</span>
-    (advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:er:mark-sexp)))
+<pre class="src src-emacs-lisp">(autoload-if-found '(er/mark-symbol) <span style="color: #8b2252;">"expand-region"</span> nil t)
+(advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:mark-sexp)
+(advice-add 'mark-sexp <span style="color: #483d8b;">:around</span> #'ad:er:mark-sexp)
 </pre>
 </div>
 </div>
@@ -13970,7 +13969,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgb1e693d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgcd4e347"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14909,7 +14908,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgf37f00d" class="figure">
+<div id="org6d15ceb" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19351,7 +19350,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-03-01 Fri 17:45</p>
+<p class="date">Created: 2024-03-01 Fri 18:22</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
