@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-02-28 Wed 07:21 -->
+<!-- 2024-03-01 Fri 13:07 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -532,9 +532,10 @@
 <li><a href="#org4e23f079">9.21. <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</a></li>
 <li><a href="#org9547f772">9.22. <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</a></li>
 <li><a href="#orgea32afad">9.23. <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</a></li>
-<li><a href="#orgdd272f8c">9.24. <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</a></li>
-<li><a href="#org09687b9c">9.25. <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#orgcde881ad">9.26. <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgefd79180">9.24. <span class="todo TODO">TODO</span> [corfu.el] 続・自動補完機能</a></li>
+<li><a href="#orgdd272f8c">9.25. <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</a></li>
+<li><a href="#org09687b9c">9.26. <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgcde881ad">9.27. <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org47616d05">10. Org Mode</a>
@@ -3784,6 +3785,14 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
   (advice-remove 'forward-word #'my-syntax-subword-activate)
   (advice-remove 'backword-word #'my-syntax-subword-activate)
   arg)
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:syntax-subword-kill</span> (<span style="color: #228b22;">&amp;optional</span> n)
+  <span style="color: #8b2252;">"Replace `</span><span style="color: #008b8b;">kill-region</span><span style="color: #8b2252;">' with `</span><span style="color: #008b8b;">delete-region</span><span style="color: #8b2252;">'."</span>
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"^p"</span>)
+  (<span style="color: #a020f0;">let</span> ((beg (point))
+        (end (<span style="color: #a020f0;">save-excursion</span> (syntax-subword-forward n) (point))))
+    (delete-region beg end)))
 </pre>
 </div>
 
@@ -3792,7 +3801,9 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
                          <span style="color: #8b2252;">"syntax-subword"</span> nil t)
 
   (advice-add 'forward-word <span style="color: #483d8b;">:before</span> #'my-syntax-subword-activate)
-  (advice-add 'backword-word <span style="color: #483d8b;">:before</span> #'my-syntax-subword-activate))
+  (advice-add 'backword-word <span style="color: #483d8b;">:before</span> #'my-syntax-subword-activate)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-&lt;backspace&gt; &#12391;&#65292;&#21066;&#38500;&#38936;&#22495;&#12434;&#12467;&#12500;&#12540;&#12375;&#12394;&#12356;&#65294;</span>
+  (advice-add 'syntax-subword-kill <span style="color: #483d8b;">:override</span> #'ad:syntax-subword-kill))
 </pre>
 </div>
 </div>
@@ -5345,7 +5356,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
                            turn-on-show-smartparens-mode)
                          <span style="color: #8b2252;">"smartparens"</span> nil t)
   (add-hook 'yatex-mode-hook #'my-smartparens-mode)
-  (add-hook 'org-mode-hook #'my-smartparens-mode)
+  (add-hook 'org-mode-hook #'my-smartparens-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME use activate()?</span>
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"smartparens"</span>
     (<span style="color: #a020f0;">setq-default</span> sp-highlight-pair-overlay nil)
     (<span style="color: #a020f0;">setq-default</span> sp-highlight-wrap-overlay nil)
@@ -7605,7 +7616,7 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-disable-counsel-find-file</span> (<span style="color: #228b22;">&amp;rest</span> args)
   <span style="color: #8b2252;">"Disable `</span><span style="color: #008b8b;">counsel-find-file</span><span style="color: #8b2252;">' and use the original `</span><span style="color: #008b8b;">find-file</span><span style="color: #8b2252;">' with ARGS."</span>
   (<span style="color: #a020f0;">let</span> ((completing-read-function #'completing-read-default)
-        (completion-in-region-function #'completion--in-region))
+              (completion-in-region-function #'completion--in-region))
     (apply #'read-file-name-default args)))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Common actions for counsel-ag, counsel-fzf, and counsel-recentf</span>
@@ -9061,7 +9072,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
     (<span style="color: #a020f0;">unless</span> noninteractive
 (<span style="color: #a020f0;">let</span> ((message-log-max nil))
-        (<span style="color: #a020f0;">if</span> (equal system-name <span style="color: #8b2252;">"water.local"</span>)
+        (<span style="color: #a020f0;">if</span> (equal (system-name) <span style="color: #8b2252;">"water.local"</span>)
             (recentf-mode 1)
           (message <span style="color: #8b2252;">"--- recentf is not activated in %s"</span> system-name)))))
 
@@ -10622,9 +10633,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; // ここ
+  v; <i>/ ここ
   boost::timer t;
-  cout &lt;&lt; t; // ここ
+  cout &lt;&lt; t; /</i> ここ
   return 1;
 }
 </p>
@@ -11092,7 +11103,8 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">utility.el</span>
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-company-activate</span> ()
   (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
   (remove-hook 'org-mode-hook #'my-company-activate)
@@ -11111,7 +11123,8 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(add-hook 'emacs-lisp-mode-hook #'my-company-activate)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
+(add-hook 'emacs-lisp-mode-hook #'my-company-activate)
 (add-hook 'org-mode-hook #'my-company-activate)
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"company"</span>
@@ -11149,8 +11162,91 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 </div>
+<div id="outline-container-orgefd79180" class="outline-3">
+<h3 id="orgefd79180"><span class="section-number-3">9.24.</span> <span class="todo TODO">TODO</span> [corfu.el] 続・自動補完機能</h3>
+<div class="outline-text-3" id="text-orgefd79180">
+<p>
+<code>company</code> から <code>corfu</code> に移行してみます．関連して， <code>corfu-prescient.el</code>, <code>kind-icon.el</code>, <code>cape.el</code>, <code>org-block-capf.el</code> も追加して追加います．一般的には， <code>orderless.el</code> も同時に使うようですが，まだ利点が理解できていません．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:minibuffer-complete</span> (f)
+  <span style="color: #8b2252;">"Enforce to use `</span><span style="color: #008b8b;">completion--in-region</span><span style="color: #8b2252;">' when completing in minibuffer."</span>
+  (<span style="color: #a020f0;">let</span> ((completion-in-region-function #'completion--in-region))
+    (funcall f)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-load-cape-modules-for-org</span> ()
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">1st: begin_src emacs-lisp..end_src &#20869;&#12391;elisp&#12434;&#35036;&#23436;&#21487;&#33021;&#12395;&#12377;&#12427;&#65294;</span>
+  (add-hook 'completion-at-point-functions #'cape-elisp-block -2 'local)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">2nd: &#12471;&#12473;&#12486;&#12512;&#12398;&#12501;&#12449;&#12452;&#12523;&#12497;&#12473;&#12434;&#35036;&#23436;&#21487;&#33021;&#12395;&#12377;&#12427;</span>
+  (add-hook 'completion-at-point-functions #'cape-file -1 'local)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">3rd: &#36766;&#26360; FIXME should be done by manually?</span>
+  (add-hook 'completion-at-point-functions #'cape-dict nil 'local))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-corfu-insert-separator</span> (ARG)
+  <span style="color: #8b2252;">"Use C-SPC to insert the separator."</span>
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
+  (<span style="color: #a020f0;">if</span> (corfu--continue-p) <span style="color: #b22222;">;; </span><span style="color: #b22222;">(&gt; corfu--total 0)</span>
+      (insert corfu-separator)
+    (set-mark-command ARG)))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(corfu-mode) <span style="color: #8b2252;">"corfu"</span> nil t)
+  (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
+  (add-hook 'org-mode-hook #'corfu-mode)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"corfu"</span>
+    (custom-set-variables
+     <span style="color: #b22222;">;; </span><span style="color: #b22222;">'(corfu-auto-prefix 2)</span>
+     '(corfu-count 5)
+     '(corfu-auto-delay 0.5)
+     '(corfu-auto t))
+
+    (define-key corfu-mode-map (kbd <span style="color: #8b2252;">"C-SPC"</span>) #'corfu-insert-separator)
+
+    (advice-add 'corfu-insert-separator <span style="color: #483d8b;">:override</span> #'my-corfu-insert-separator)
+
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">corfu-prescient</span> nil t)
+      (corfu-prescient-mode 1))
+
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">kind-icon</span> nil t)
+      (<span style="color: #a020f0;">setq</span> kind-icon-default-face 'corfu-default)
+      (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))))
+</pre>
+</div>
+
+<p>
+;; my-load-cape-modules-for-org は，org-block-capfの関数より hook の先頭に配置される．hook に入った要素は先頭から順番に評価されるので，結果，capeモジュールの方が completion-at-point-functionsの末尾側に配置されることになり（重み指定をしなければ），最終的に org-block-capfが先に評価され補完がcapeモジュールよりも先に走ることになる．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(org-block-capf-add-to-completion-at-point-functions)
+                         <span style="color: #8b2252;">"org-block-capf"</span> nil t)
+  (add-hook 'org-mode-hook
+            #'org-block-capf-add-to-completion-at-point-functions -1)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-block-capf"</span>
+    (<span style="color: #a020f0;">setq</span> org-block-capf-edit-style 'inline)
+    (<span style="color: #a020f0;">setq</span> org-block-capf-auto-indent nil)))
+
+(<span style="color: #a020f0;">when</span> (autoload-if-found '(cape-elisp-block cape-file cape-dict)
+                         <span style="color: #8b2252;">"cape"</span> nil t)
+  (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"cape"</span>
+    (advice-add 'minibuffer-complete <span style="color: #483d8b;">:around</span> #'ad:minibuffer-complete)))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgdd272f8c" class="outline-3">
-<h3 id="orgdd272f8c"><span class="section-number-3">9.24.</span> <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</h3>
+<h3 id="orgdd272f8c"><span class="section-number-3">9.25.</span> <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</h3>
 <div class="outline-text-3" id="text-orgdd272f8c">
 <p>
 <code>vterm</code> を使うとバッファをターミナルとして使えます．通常では <code>C-n/C-p</code> でコマンド履歴を辿ってしまうので，実行結果などをコピーして別バッファに貼り付けたい場合は， <code>vterm-copy-mode</code> (C-c C-t) を使えばよいです．
@@ -11171,7 +11267,7 @@ macOS の場合は brew で libvterm をインストールすれば， <code>vte
 </div>
 </div>
 <div id="outline-container-org09687b9c" class="outline-3">
-<h3 id="org09687b9c"><span class="section-number-3">9.25.</span> <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org09687b9c"><span class="section-number-3">9.26.</span> <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org09687b9c">
 <p>
 <a href="http://cx4a.org/software/auto-complete/manual.ja.html">http://cx4a.org/software/auto-complete/manual.ja.html</a>
@@ -11275,7 +11371,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
 </div>
 
 <div id="outline-container-orgcde881ad" class="outline-3">
-<h3 id="orgcde881ad"><span class="section-number-3">9.26.</span> <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgcde881ad"><span class="section-number-3">9.27.</span> <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgcde881ad">
 <ul class="org-ul">
 <li><a href="http://www.emacswiki.org/emacs/hideshowvis.el">http://www.emacswiki.org/emacs/hideshowvis.el</a></li>
@@ -11325,6 +11421,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-modules-activate</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-tempo</span>)
            (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>))
       (message <span style="color: #8b2252;">"org-modules are previously loaded."</span>)
@@ -11357,7 +11454,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-open-default-org-file</span> ()
   (<span style="color: #a020f0;">interactive</span>)
-  (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>))
+  (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-hooks 'org-mode-hook) ;; FIXME</span>
+)
 </pre>
 </div>
 
@@ -13861,7 +13960,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgfdf9070"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org0c05c91"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14800,7 +14899,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orge435b51" class="figure">
+<div id="org425bb30" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19242,7 +19341,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-02-28 Wed 07:21</p>
+<p class="date">Created: 2024-03-01 Fri 13:07</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

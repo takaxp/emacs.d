@@ -278,7 +278,9 @@
                          "syntax-subword" nil t)
 
   (advice-add 'forward-word :before #'my-syntax-subword-activate)
-  (advice-add 'backword-word :before #'my-syntax-subword-activate))
+  (advice-add 'backword-word :before #'my-syntax-subword-activate)
+  ;; C-<backspace> で，削除領域をコピーしない．
+  (advice-add 'syntax-subword-kill :override #'ad:syntax-subword-kill))
 
 (setq yank-excluded-properties t)
 
@@ -625,7 +627,7 @@
                            turn-on-show-smartparens-mode)
                          "smartparens" nil t)
   (add-hook 'yatex-mode-hook #'my-smartparens-mode)
-  (add-hook 'org-mode-hook #'my-smartparens-mode)
+  (add-hook 'org-mode-hook #'my-smartparens-mode) ;; FIXME use activate()?
   (with-eval-after-load "smartparens"
     (setq-default sp-highlight-pair-overlay nil)
     (setq-default sp-highlight-wrap-overlay nil)
@@ -1313,7 +1315,7 @@
 
     (unless noninteractive
 (let ((message-log-max nil))
-	(if (equal system-name "water.local")
+	(if (equal (system-name) "water.local")
 	    (recentf-mode 1)
 	  (message "--- recentf is not activated in %s" system-name)))))
 
@@ -1618,40 +1620,43 @@
 
 (autoload-if-found '(format-all-mode) "format-all" nil t)
 
-(add-hook 'emacs-lisp-mode-hook #'my-company-activate)
-(add-hook 'org-mode-hook #'my-company-activate)
+(when (autoload-if-found '(corfu-mode) "corfu" nil t)
+  (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
+  (add-hook 'org-mode-hook #'corfu-mode)
 
-(with-eval-after-load "company"
-  (define-key company-active-map (kbd "C-n") 'company-select-next)
-  (define-key company-active-map (kbd "C-p") 'company-select-previous)
-  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
-  (define-key company-search-map (kbd "C-n") 'company-select-next)
-  (define-key company-search-map (kbd "C-p") 'company-select-previous)
-  ;; To complete file path, move `company-files' to the fist item of the list
-  (delq 'company-files company-backends)
+  (with-eval-after-load "corfu"
+    (custom-set-variables
+     ;; '(corfu-auto-prefix 2)
+     '(corfu-count 5)
+     '(corfu-auto-delay 0.5)
+     '(corfu-auto t))
 
-  (add-to-list 'company-backends 'company-files)
-  (when (require 'company-org-block nil t)
-    (setq company-org-block-edit-style 'inline) ;; 'auto, 'prompt, or 'inline
-    (setq company-org-block-auto-indent nil)
-    (add-to-list 'company-backends 'company-org-block))
+    (define-key corfu-mode-map (kbd "C-SPC") #'corfu-insert-separator)
 
-  ;; 補完候補に番号を表示
-  (setq company-show-numbers t)
-  ;; 補完候補を出すまでの猶予
-  (setq company-idle-delay 0.8)
-  (setq company-tooltip-idle-delay 0.8)
-  (global-company-mode)
-  (when (require 'company-quickhelp nil t)
-    (company-quickhelp-mode))
+    (advice-add 'corfu-insert-separator :override #'my-corfu-insert-separator)
 
-  (advice-add 'company-idle-begin :around #'ad:company-idle-begin)
-  ;; (advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around
-  ;;             #'ad:company-pseudo-tooltip--ujofwd-on-timer)
+    (when (require 'corfu-prescient nil t)
+      (corfu-prescient-mode 1))
 
-  (when (boundp 'mac-ime-before-put-text-hook)
-    ;; 補完候補が表示されたタイミングで入力を続けたら，補完候補を消す．
-    (add-hook 'mac-ime-before-put-text-hook #'company-cancel)))
+    (when (require 'kind-icon nil t)
+      (setq kind-icon-default-face 'corfu-default)
+      (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))))
+
+(when (autoload-if-found '(org-block-capf-add-to-completion-at-point-functions)
+                         "org-block-capf" nil t)
+  (add-hook 'org-mode-hook
+            #'org-block-capf-add-to-completion-at-point-functions -1)
+
+  (with-eval-after-load "org-block-capf"
+    (setq org-block-capf-edit-style 'inline)
+    (setq org-block-capf-auto-indent nil)))
+
+(when (autoload-if-found '(cape-elisp-block cape-file cape-dict)
+                         "cape" nil t)
+  (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2)
+
+  (with-eval-after-load "cape"
+    (advice-add 'minibuffer-complete :around #'ad:minibuffer-complete)))
 
 (autoload-if-found '(vterm) "vterm"  nil t)
 

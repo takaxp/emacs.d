@@ -29,14 +29,14 @@
   (el-get-bundle "emacsmirror/centered-cursor-mode")
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "zk-phi/git-complete"))
-  ;;(el-get-bundle "embark")
+  ;;(el-get-bundle "oantolin/embark")
   ;;(el-get-bundle "consult")
   ;;(el-get-bundle "vertico")
   (el-get-bundle "minad/corfu")
   (el-get-bundle "xenodium/org-block-capf")
   (el-get-bundle "minad/cape")
   (el-get-bundle "jdtsmith/kind-icon")  ;; requires svg-lib
-  ;;(el-get-bundle "orderless")
+  (el-get-bundle "oantolin/orderless")
   (el-get-bundle "bbatsov/super-save")
   (el-get-bundle "bbatsov/crux")
 

@@ -2714,6 +2714,14 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (advice-remove 'forward-word #'my-syntax-subword-activate)
   (advice-remove 'backword-word #'my-syntax-subword-activate)
   arg)
+
+;;;###autoload
+(defun ad:syntax-subword-kill (&optional n)
+  "Replace `kill-region' with `delete-region'."
+  (interactive "^p")
+  (let ((beg (point))
+        (end (save-excursion (syntax-subword-forward n) (point))))
+    (delete-region beg end)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -2721,7 +2729,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
                          "syntax-subword" nil t)
 
   (advice-add 'forward-word :before #'my-syntax-subword-activate)
-  (advice-add 'backword-word :before #'my-syntax-subword-activate))
+  (advice-add 'backword-word :before #'my-syntax-subword-activate)
+  ;; C-<backspace> で，削除領域をコピーしない．
+  (advice-add 'syntax-subword-kill :override #'ad:syntax-subword-kill))
 #+end_src
 
 ** [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる
@@ -4026,7 +4036,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
                            turn-on-show-smartparens-mode)
                          "smartparens" nil t)
   (add-hook 'yatex-mode-hook #'my-smartparens-mode)
-  (add-hook 'org-mode-hook #'my-smartparens-mode)
+  (add-hook 'org-mode-hook #'my-smartparens-mode) ;; FIXME use activate()?
   (with-eval-after-load "smartparens"
     (setq-default sp-highlight-pair-overlay nil)
     (setq-default sp-highlight-wrap-overlay nil)
@@ -6017,7 +6027,7 @@ sorted.  FUNCTION must be a function of one argument."
 (defun my-disable-counsel-find-file (&rest args)
   "Disable `counsel-find-file' and use the original `find-file' with ARGS."
   (let ((completing-read-function #'completing-read-default)
-	(completion-in-region-function #'completion--in-region))
+	      (completion-in-region-function #'completion--in-region))
     (apply #'read-file-name-default args)))
 
 ;; Common actions for counsel-ag, counsel-fzf, and counsel-recentf
@@ -7425,7 +7435,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
     (unless noninteractive
 (let ((message-log-max nil))
-	(if (equal system-name "water.local")
+	(if (equal (system-name) "water.local")
 	    (recentf-mode 1)
 	  (message "--- recentf is not activated in %s" system-name)))))
 
@@ -9233,7 +9243,8 @@ trim_trailing_whitespace = true
 
 =company-org-block= は，http://xenodium.com/emacs-org-block-company-completion/ で公開されている情報でしたが，パッケージ化されて，[[https://melpa.org/#/company-org-block][MELPA]]から入手できるようになりました．
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle no
+;; utility.el
 ;;;###autoload
 (defun my-company-activate ()
   (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
@@ -9251,7 +9262,8 @@ trim_trailing_whitespace = true
     (funcall f command)))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (add-hook 'emacs-lisp-mode-hook #'my-company-activate)
 (add-hook 'org-mode-hook #'my-company-activate)
 
@@ -9287,6 +9299,86 @@ trim_trailing_whitespace = true
     ;; 補完候補が表示されたタイミングで入力を続けたら，補完候補を消す．
     (add-hook 'mac-ime-before-put-text-hook #'company-cancel)))
 #+end_src
+** TODO [corfu.el] 続・自動補完機能
+:PROPERTIES:
+:CREATED:  [2024-03-01 Fri 11:40]
+:ID:       CE9FDB71-0A1F-4EAE-A815-3190A6F88AF1
+:CUSTOM_ID: orgefd79180
+:END:
+
+=company= から =corfu= に移行してみます．関連して， =corfu-prescient.el=, =kind-icon.el=, =cape.el=, =org-block-capf.el= も追加して追加います．一般的には， =orderless.el= も同時に使うようですが，まだ利点が理解できていません．
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun ad:minibuffer-complete (f)
+  "Enforce to use `completion--in-region' when completing in minibuffer."
+  (let ((completion-in-region-function #'completion--in-region))
+    (funcall f)))
+
+;;;###autoload
+(defun my-load-cape-modules-for-org ()
+  ;; 1st: begin_src emacs-lisp..end_src 内でelispを補完可能にする．
+  (add-hook 'completion-at-point-functions #'cape-elisp-block -2 'local)
+  ;; 2nd: システムのファイルパスを補完可能にする
+  (add-hook 'completion-at-point-functions #'cape-file -1 'local)
+  ;; 3rd: 辞書 FIXME should be done by manually?
+  (add-hook 'completion-at-point-functions #'cape-dict nil 'local))
+
+;;;###autoload
+(defun my-corfu-insert-separator (ARG)
+  "Use C-SPC to insert the separator."
+  (interactive "P")
+  (if (corfu--continue-p) ;; (> corfu--total 0)
+      (insert corfu-separator)
+    (set-mark-command ARG)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found '(corfu-mode) "corfu" nil t)
+  (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
+  (add-hook 'org-mode-hook #'corfu-mode)
+
+  (with-eval-after-load "corfu"
+    (custom-set-variables
+     ;; '(corfu-auto-prefix 2)
+     '(corfu-count 5)
+     '(corfu-auto-delay 0.5)
+     '(corfu-auto t))
+
+    (define-key corfu-mode-map (kbd "C-SPC") #'corfu-insert-separator)
+
+    (advice-add 'corfu-insert-separator :override #'my-corfu-insert-separator)
+
+    (when (require 'corfu-prescient nil t)
+      (corfu-prescient-mode 1))
+
+    (when (require 'kind-icon nil t)
+      (setq kind-icon-default-face 'corfu-default)
+      (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))))
+#+end_src
+
+# org-block-capf を cape の前に org-mode-hook に登録add-hook モジュールの前に読み込むことで，completion-at-point-functions には，org-block-capf がリストの先頭周辺，capeがリストの末尾周辺されます．ただし，capeのモジュールのウチ， cape-elisp-block と cape-file の重みパラメータを，マイナスの値（例えば，-2, -1）を与えて add-hook することで，org-block-capfよりも先頭側に配置できます．
+
+  ;; my-load-cape-modules-for-org は，org-block-capfの関数より hook の先頭に配置される．hook に入った要素は先頭から順番に評価されるので，結果，capeモジュールの方が completion-at-point-functionsの末尾側に配置されることになり（重み指定をしなければ），最終的に org-block-capfが先に評価され補完がcapeモジュールよりも先に走ることになる．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found '(org-block-capf-add-to-completion-at-point-functions)
+                         "org-block-capf" nil t)
+  (add-hook 'org-mode-hook
+            #'org-block-capf-add-to-completion-at-point-functions -1)
+
+  (with-eval-after-load "org-block-capf"
+    (setq org-block-capf-edit-style 'inline)
+    (setq org-block-capf-auto-indent nil)))
+
+(when (autoload-if-found '(cape-elisp-block cape-file cape-dict)
+                         "cape" nil t)
+  (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2)
+
+  (with-eval-after-load "cape"
+    (advice-add 'minibuffer-complete :around #'ad:minibuffer-complete)))
+#+end_src
+
 ** TODO [vterm.el] vterm を使う
    :PROPERTIES:
    :CREATED:  [2022-07-14 Thu 22:44]
@@ -9443,6 +9535,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-org-modules-activate ()
+  (interactive)
   (if (and (featurep 'org-tempo)
            (featurep 'org-id))
       (message "org-modules are previously loaded.")
@@ -9475,7 +9568,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 ;;;###autoload
 (defun my-open-default-org-file ()
   (interactive)
-  (my-show-org-buffer "next.org"))
+  (my-show-org-buffer "next.org")
+  ;; (run-hooks 'org-mode-hook) ;; FIXME
+)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
