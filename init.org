@@ -1743,7 +1743,7 @@ echo "--- done."
    :ID:       C3A575DD-411C-48A8-B9A1-F84F115F1534
    :END:
 
-Version 27 から =C-x C-f= のデフォルトが変わったようなので， =~/= に矯正する．
+Version 27 から起動直後の =C-x C-f= のデフォルトが変わったようなので， =~/= に矯正する．
 
 #+begin_src emacs-lisp :tangle yes
 (when (version< "27.0" emacs-version)
@@ -9372,7 +9372,7 @@ trim_trailing_whitespace = true
 
 # org-block-capf を cape の前に org-mode-hook に登録add-hook モジュールの前に読み込むことで，completion-at-point-functions には，org-block-capf がリストの先頭周辺，capeがリストの末尾周辺されます．ただし，capeのモジュールのウチ， cape-elisp-block と cape-file の重みパラメータを，マイナスの値（例えば，-2, -1）を与えて add-hook することで，org-block-capfよりも先頭側に配置できます．
 
-  ;; my-load-cape-modules-for-org は，org-block-capfの関数より hook の先頭に配置される．hook に入った要素は先頭から順番に評価されるので，結果，capeモジュールの方が completion-at-point-functionsの末尾側に配置されることになり（重み指定をしなければ），最終的に org-block-capfが先に評価され補完がcapeモジュールよりも先に走ることになる．
+# my-load-cape-modules-for-org は，org-block-capfの関数より hook の先頭に配置される．hook に入った要素は先頭から順番に評価されるので，結果，capeモジュールの方が completion-at-point-functionsの末尾側に配置されることになり（重み指定をしなければ），最終的に org-block-capfが先に評価され補完がcapeモジュールよりも先に走ることになる．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(org-block-capf-add-to-completion-at-point-functions)
