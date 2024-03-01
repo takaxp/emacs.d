@@ -1291,10 +1291,10 @@
   (add-hook 'csv-mode-hook 'rainbow-csv-mode))
 
 (when (autoload-if-found '(rencetf-mode
-			                     my-recentf-save-list-silence
-			                     my-recentf-cleanup-silence
-			                     recentf-open-files)
-			                   "recentf" nil t)
+					                 my-recentf-save-list-silence
+					                 my-recentf-cleanup-silence
+					                 recentf-open-files)
+					               "recentf" nil t)
   (with-eval-after-load "recentf"
     (custom-set-variables
      '(recentf-max-saved-items 2000)
@@ -1308,25 +1308,24 @@
     (when (eq system-type 'darwin)
       ;; Dropbox のエイリアスを展開されないようにする
       ;; find-file での表示も短縮される．
-      (let ((provider (expand-file-name "~/Library/CloudStorage")))
+      (let ((provider (expand-file-name "~/Library/CloudStorage/")))
         (setq directory-abbrev-alist
-	            `((,(concat "\\`" provider "/Dropbox") . "~/Dropbox")))))
-    ;; ("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox")
+	            `((,(concat "\\`" provider "Dropbox") . "~/Dropbox")))))
 
     (if (version< emacs-version "27.1")
 	      (progn
-	        (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-	        (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+		      (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+		      (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
       (add-function :before after-focus-change-function
-		                #'my-recentf-save-list-silence)
+				            #'my-recentf-save-list-silence)
       (add-function :before after-focus-change-function
-		                #'my-recentf-cleanup-silence))
+				            #'my-recentf-cleanup-silence))
 
     (unless noninteractive
       (let ((message-log-max nil))
 	      (if (equal (system-name) "water.local")
-	          (recentf-mode 1)
-	        (message "--- recentf is not activated in %s" system-name)))))
+		        (recentf-mode 1)
+		      (message "--- recentf is not activated in %s" system-name)))))
 
   (with-eval-after-load "counsel"
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
@@ -1632,6 +1631,7 @@
 (when (autoload-if-found '(corfu-mode) "corfu" nil t)
   (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
   (add-hook 'org-mode-hook #'corfu-mode)
+  (add-hook 'minibuffer-setup-hook #'my-advice-minibuffer-complete)
 
   (with-eval-after-load "corfu"
     (custom-set-variables
@@ -1662,10 +1662,7 @@
 
 (when (autoload-if-found '(cape-elisp-block cape-file cape-dict)
                          "cape" nil t)
-  (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2)
-
-  (with-eval-after-load "cape"
-    (advice-add 'minibuffer-complete :around #'ad:minibuffer-complete)))
+  (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2))
 
 (autoload-if-found '(vterm) "vterm"  nil t)
 

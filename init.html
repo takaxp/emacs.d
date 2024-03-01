@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-03-01 Fri 17:11 -->
+<!-- 2024-03-01 Fri 17:45 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -9048,10 +9048,10 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(rencetf-mode
-                                             my-recentf-save-list-silence
-                                             my-recentf-cleanup-silence
-                                             recentf-open-files)
-                                           <span style="color: #8b2252;">"recentf"</span> nil t)
+                                                         my-recentf-save-list-silence
+                                                         my-recentf-cleanup-silence
+                                                         recentf-open-files)
+                                                       <span style="color: #8b2252;">"recentf"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"recentf"</span>
     (custom-set-variables
      '(recentf-max-saved-items 2000)
@@ -9065,25 +9065,24 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
     (<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">Dropbox &#12398;&#12456;&#12452;&#12522;&#12450;&#12473;&#12434;&#23637;&#38283;&#12373;&#12428;&#12394;&#12356;&#12424;&#12358;&#12395;&#12377;&#12427;</span>
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">find-file &#12391;&#12398;&#34920;&#31034;&#12418;&#30701;&#32302;&#12373;&#12428;&#12427;&#65294;</span>
-      (<span style="color: #a020f0;">let</span> ((provider (expand-file-name <span style="color: #8b2252;">"~/Library/CloudStorage"</span>)))
+      (<span style="color: #a020f0;">let</span> ((provider (expand-file-name <span style="color: #8b2252;">"~/Library/CloudStorage/"</span>)))
         (<span style="color: #a020f0;">setq</span> directory-abbrev-alist
-                    `((,(concat <span style="color: #8b2252;">"\\`"</span> provider <span style="color: #8b2252;">"/Dropbox"</span>) . <span style="color: #8b2252;">"~/Dropbox"</span>)))))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">("\\`~/Library/CloudStorage/Dropbox" . "~/Dropbox")</span>
+                    `((,(concat <span style="color: #8b2252;">"\\`"</span> provider <span style="color: #8b2252;">"Dropbox"</span>) . <span style="color: #8b2252;">"~/Dropbox"</span>)))))
 
     (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
               (<span style="color: #a020f0;">progn</span>
-                (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-                (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+                      (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+                      (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
       (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
-                                #'my-recentf-save-list-silence)
+                                            #'my-recentf-save-list-silence)
       (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
-                                #'my-recentf-cleanup-silence))
+                                            #'my-recentf-cleanup-silence))
 
     (<span style="color: #a020f0;">unless</span> noninteractive
       (<span style="color: #a020f0;">let</span> ((message-log-max nil))
               (<span style="color: #a020f0;">if</span> (equal (system-name) <span style="color: #8b2252;">"water.local"</span>)
-                  (recentf-mode 1)
-                (message <span style="color: #8b2252;">"--- recentf is not activated in %s"</span> system-name)))))
+                        (recentf-mode 1)
+                      (message <span style="color: #8b2252;">"--- recentf is not activated in %s"</span> system-name)))))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
     (advice-add 'counsel-recentf <span style="color: #483d8b;">:override</span> #'ad:counsel-recentf)
@@ -11186,6 +11185,11 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
     (funcall f)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-advice-minibuffer-complete</span> ()
+  (advice-add 'minibuffer-complete <span style="color: #483d8b;">:around</span> #'ad:minibuffer-complete)
+  (remove-hook 'minibuffer-setup-hook #'my-advice-minibuffer-complete))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-load-cape-modules-for-org</span> ()
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">1st: begin_src emacs-lisp..end_src &#20869;&#12391;elisp&#12434;&#35036;&#23436;&#21487;&#33021;&#12395;&#12377;&#12427;&#65294;</span>
   (add-hook 'completion-at-point-functions #'cape-elisp-block -2 'local)
@@ -11208,6 +11212,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(corfu-mode) <span style="color: #8b2252;">"corfu"</span> nil t)
   (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
   (add-hook 'org-mode-hook #'corfu-mode)
+  (add-hook 'minibuffer-setup-hook #'my-advice-minibuffer-complete)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"corfu"</span>
     (custom-set-variables
@@ -11245,15 +11250,11 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 
 (<span style="color: #a020f0;">when</span> (autoload-if-found '(cape-elisp-block cape-file cape-dict)
                          <span style="color: #8b2252;">"cape"</span> nil t)
-  (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2)
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"cape"</span>
-    (advice-add 'minibuffer-complete <span style="color: #483d8b;">:around</span> #'ad:minibuffer-complete)))
+  (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2))
 </pre>
 </div>
 </div>
 </div>
-
 <div id="outline-container-orgdd272f8c" class="outline-3">
 <h3 id="orgdd272f8c"><span class="section-number-3">9.25.</span> <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</h3>
 <div class="outline-text-3" id="text-orgdd272f8c">
@@ -13969,7 +13970,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org0c9aa4c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgb1e693d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14908,7 +14909,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgaac5e7b" class="figure">
+<div id="orgf37f00d" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19350,7 +19351,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-03-01 Fri 17:11</p>
+<p class="date">Created: 2024-03-01 Fri 17:45</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
