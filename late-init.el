@@ -1663,6 +1663,11 @@
                          "cape" nil t)
   (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2))
 
+(unless (display-graphic-p)
+  (when (autoload-if-found '(corfu-terminal-mode) "corfu-terminal" nil t)
+    (add-hook 'emacs-lisp-mode-hook #'corfu-terminal-mode)
+    (add-hook 'org-mode-hook #'corfu-terminal-mode)))
+
 (autoload-if-found '(vterm) "vterm"  nil t)
 
 ;; `org-agenda-prepare-buffers' は重い．agenda 実行時の最初に走るが，

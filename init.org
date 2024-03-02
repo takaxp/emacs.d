@@ -9388,6 +9388,16 @@ trim_trailing_whitespace = true
                          "cape" nil t)
   (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2))
 #+end_src
+
+ターミナルで使用するには =corfu-terminal-mode= が必要になります．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(unless (display-graphic-p)
+  (when (autoload-if-found '(corfu-terminal-mode) "corfu-terminal" nil t)
+    (add-hook 'emacs-lisp-mode-hook #'corfu-terminal-mode)
+    (add-hook 'org-mode-hook #'corfu-terminal-mode)))
+#+end_src
+
 ** TODO [vterm.el] vterm を使う
    :PROPERTIES:
    :CREATED:  [2022-07-14 Thu 22:44]
