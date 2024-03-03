@@ -1629,6 +1629,7 @@
   (with-eval-after-load "corfu"
     (custom-set-variables
      ;; '(corfu-auto-prefix 2)
+     '(corfu-min-width 20)
      '(corfu-count 5)
      '(corfu-auto-delay 0.5)
      '(corfu-auto t))
