@@ -2,12 +2,14 @@
 ;; This initialize file should be loaded first in w32 environment.
 ;; Each setting could be overwritten in .emacs, see AppData/Roming/.emacs.
 ;; And the .emacs will contain, for insetance,
-;; 1. Set (load "u:/.emacs.d/init-win.el") in the first line.
-;; 2. Overwrite "PATH" and #'counsel-win-app-list in the .emacs if needed.
+;; 1. Set my-local-directory in the first line.
+;; 2. Set (load (concat my-local-directory "org/config/init-win.el")) in the second line.
+;; 3. Overwrite "PATH" and #'counsel-win-app-list in the .emacs if needed.
+;; 4. additional packages will be installed to my-installed-packages-dir
 ;; Note: all local and private settings should be configured in the .emacs.
 ;; runemacs.exe is extracted from a distributed zip package from
 ;;             https://ftp.jaist.ac.jp/pub/GNU/emacs/windows/
-;;                                                    Last update: 2023-09-16
+;;                                                    Last update: 2024-02-29
 
 (when nil
   ;; advice of load function
@@ -34,8 +36,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar do-profile nil) ;; M-x profiler-report
-(when do-profile (profiler-start 'cpu))
+(defvar do-profile nil) ;; M-x profiler-report to see the result
+(when do-profile (profiler-start 'cpu+mem))
 
 (setq debug-on-error nil)
 (setq gc-cons-threshold (* 256 1024 1024))
@@ -76,7 +78,7 @@
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
     "replace-from-region" "session" "helpful" "org-appear" "projectile"
     "counsel-projectile" "super-save" "org-tree-slide" "delight.el"
-    "org-mode/lisp" "org-contrib/lisp"))
+    "org-mode/lisp" "org-contrib/lisp" "corfu" "prescient.el" "kind-icon"))
 
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
@@ -301,8 +303,9 @@
     "Insert a timestamp at the cursor position."
     (interactive)
     (insert (format-time-string "%Y-%m-%d")))
+
   (defun my-kill-all-file-buffers ()
-    "Kill all buffers visiting files and directories."
+    "Kill all buffers visiting files."
     (interactive)
     (dolist (buffer (buffer-list))
       (when (or (and (buffer-live-p buffer)
@@ -311,8 +314,18 @@
                      (eq major-mode 'dired-mode)
                      (file-directory-p (dired-current-directory))))
         (kill-buffer buffer)))
-    (scratch-buffer))
-  (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers)
+    (delete-windows-on)
+    (scratch-buffer)
+    (message "Quit Emacs? (C-c C-x)"))
+
+  (when (display-graphic-p)
+    (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers))
+
+  (defun my-kill-emacs-when-scratch-buffer ()
+    (interactive)
+    (when (equal "*scratch*" (buffer-name))
+      (save-buffers-kill-emacs)))
+  (global-set-key (kbd "C-c C-x") #'my-kill-emacs-when-scratch-buffer)
 
   ;; isearch with a selected reagion
   (defadvice isearch-mode
@@ -366,7 +379,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
       (time-stamp)))
   (add-hook 'before-save-hook #'my-time-stamp))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part A: Scheduling of package loading
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -377,18 +389,18 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (remove-hook 'find-file-hook #'my-activate-auto-revert))
 (add-hook 'find-file-hook #'my-activate-auto-revert)
 
-;; tr-ime: IME パッチモジュールの読み込み 200[ms]
+;; tr-ime: IME パッチモジュールの読み込み about 200[ms]
 (defun my-activate-tr-ime ()
   (when (and (eq window-system 'w32)
              (string= module-file-suffix ".dll")
              (not (fboundp 'ime-get-mode)))
     (require 'tr-ime nil t))
-  (remove-hook 'pre-command-hook #'my-activate-tr-ime))
-(add-hook 'pre-command-hook #'my-activate-tr-ime)
+  (remove-hook 'find-file-hooks #'my-activate-tr-ime))
+(add-hook 'find-file-hook #'my-activate-tr-ime)
 
 ;; session
 (autoload #'session-initialize "session" "session" t)
-(add-hook 'after-init-hook #'session-initialize)
+(add-hook 'after-init-hook #'session-initialize -10)
 
 ;; recentf
 (defun my-activate-recentf ()
@@ -577,12 +589,15 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (add-hook 'find-file-hook #'my-delight-activate)
 
 ;; emacsclientw
-(when (require 'server nil t)
-  (server-force-delete)
-  (server-start))
+(defun my-emacsclient-activate ()
+  (when (require 'server nil t)
+    (server-force-delete)
+    (server-start)))
+(add-hook 'after-init-hook #'my-emacsclient-activate)
 
-;; calendar
-(autoload 'org-eval-in-calendar "org" nil t)
+;; corfu
+(autoload 'corfu-mode "corfu" nil t)
+(add-hook 'emacs-lisp-mode-hook #'corfu-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
@@ -613,7 +628,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (setq session-set-file-name-exclude-regexp
         "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
   ;; Change save point of session.el
-  (setq session-save-file (expand-file-name "u:/.emacs.d/.session"))
+  (setq session-save-file
+        (expand-file-name (concat my-home-directory ".emacs.d/.session")))
   (setq session-initialize '(de-saveplace session keys menus places)
         session-globals-include '((kill-ring 100)
                                   (session-file-alist 100 t)
@@ -626,7 +642,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 (with-eval-after-load "recentf"
   (custom-set-variables
    '(recentf-max-saved-items 2000)
-   '(recentf-save-file (expand-file-name "u:/.emacs.d/recentf"))
+   '(recentf-save-file
+     (expand-file-name (concat my-home-directory ".emacs.d/recentf")))
    '(recentf-auto-cleanup 'never)
    '(recentf-exclude
      '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
@@ -775,17 +792,13 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (sp-pair "`" nil :actions :rem)
   (sp-pair "'" nil :actions :rem)
   (sp-pair "[" nil :actions :rem)
-  (sp-local-pair 'org-mode "=" "=")
   (sp-local-pair 'org-mode "$" "$")
-  (sp-local-pair 'org-mode "'" "'" :actions '(wrap))
-  (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
-  (sp-local-pair 'org-mode "_" "_" :actions '(wrap)) ;; 選択時のみ有効
-  (sp-local-pair 'org-mode "~" "~" :actions '(wrap)) ;; 選択時のみ有効
-  (sp-local-pair 'org-mode "[" "]" :actions '(wrap)) ;; 選択時のみ有効
-  (sp-local-pair 'org-mode "+" "+" :actions '(wrap)) ;; 選択時のみ有効
-  (sp-local-pair 'org-mode "/" "/" :actions '(wrap)) ;; 選択時のみ有効
-  (sp-local-pair 'org-mode "*" "*" :actions '(wrap)) ;; 選択時のみ有効
-  (sp-local-pair 'yatex-mode "$" "$" :actions '(wrap)))
+  (sp-local-pair 'org-mode "~" "~")
+  ;; (sp-local-pair 'org-mode "[" "]")
+  ;; (sp-local-pair 'org-mode "+" "+")
+  (sp-local-pair 'org-mode "=" "=")
+  (sp-local-pair 'org-mode "_" "_")
+  (sp-local-pair 'yatex-mode "$" "$"))
 
 (with-eval-after-load "selected"
   (defvar my-eval-result "*eval-result*")
@@ -839,6 +852,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (global-hl-todo-mode))
 
   (defun my-hl-todo-light-theme ()
+    (setq hl-todo-exclude-modes nil)
     (setq hl-todo-keyword-faces
           '(("HOLD" . "#d0bf8f")
             ("TODO" . "#FF0000")
@@ -931,7 +945,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   ;; (setq bm-toggle-buffer-persistence t)
   (setq bm-buffer-persistence t)
   (setq bm-persistent-face 'bm-face)
-  (setq bm-repository-file (expand-file-name "u:/.emacs.d/.bm-repository"))
+  (setq bm-repository-file
+        (expand-file-name (concat my-home-directory ".emacs.d/.bm-repository")))
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
   (setq bookmark-fontify nil)
   ;; ビルトイン bookmark がfringeに出すマークを無効にする(as of 28.1)
@@ -1037,11 +1052,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (setq epg-pinentry-mode 'loopback))
 
 (with-eval-after-load "calendar"
-  (defun my-calendar-mark-selected ()
-    (org-eval-in-calendar '(setq cursor-type nil) t))
-  (add-hook 'calendar-today-visible-hook #'my-calendar-mark-selected)
-  (add-hook 'calendar-move-hook #'my-calendar-mark-selected)
-
   (when (require 'japanese-holidays nil t)
     (setq calendar-holidays
           (append japanese-holidays
@@ -1212,6 +1222,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.gpg$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
   ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
   (defvar my-auto-view-dirs nil)
+  (add-to-list 'my-auto-view-dirs (concat my-home-directory ".emacs.d"))
   (add-to-list 'my-auto-view-dirs (expand-file-name my-installed-packages-dir))
 
   (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
@@ -1277,7 +1288,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 ;; org mode
 (with-eval-after-load "org"
-  (setq org-directory "u:/org/")
+  (setq org-directory (concat my-local-directory "org/"))
 
   (add-hook 'org-mode-hook #'turn-on-font-lock)
   (custom-set-faces '(org-drawer ((t (:foreground "#999999"))))
@@ -1531,7 +1542,7 @@ will not be modified."
     (insert "\n")
     (forward-line -1))
 
-  (remove-hook 'org-tab-first-hook 'my-org-hide-drawers) ;; error on v9.4
+  ;; (remove-hook 'org-tab-first-hook 'my-org-hide-drawers) ;; error on v9.4
 
   (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
   (org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
@@ -2013,8 +2024,7 @@ Otherwise, use `counsel-ag'."
   (setq time-stamp-line-limit 10)) ;; def=8
 
 (with-eval-after-load "super-save"
-  (setq super-save-triggers '(switch-to-buffer))
-  (setq super-save-idle-duration 15)
+  (setq super-save-idle-duration 60)
   (setq super-save-auto-save-when-idle t))
 
 (with-eval-after-load "org-tree-slide"
@@ -2063,6 +2073,29 @@ Otherwise, use `counsel-ag'."
      (selected-minor-mode nil "selected")
      (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
      (super-save-mode nil "super-save"))))
+
+(with-eval-after-load "corfu"
+  (custom-set-variables
+   ;; '(corfu-auto-prefix 2)
+   '(corfu-min-width 20)
+   '(corfu-count 5)
+   '(corfu-auto-delay 0.5)
+   '(corfu-auto t))
+
+  (define-key corfu-mode-map (kbd "C-SPC") #'corfu-insert-separator)
+
+  (defun my-corfu-insert-separator (ARG)
+    (interactive "P")
+    (if (corfu--continue-p)
+        (insert corfu-separator)
+      (set-mark-command ARG)))
+  (advice-add 'corfu-insert-separator :override #'my-corfu-insert-separator)
+
+  (when (require 'corfu-prescient nil t)
+    (corfu-prescient-mode 1))
+
+  (when (require 'kind-icon nil t)
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)))
 
 (when do-profile (profiler-stop))
 ;; End of init-win.el
