@@ -86,6 +86,8 @@
   (when (fboundp 'pixel-scroll-mode)
     (pixel-scroll-mode 1))) ;; 26.1
 
+(add-hook 'find-file-hook #'my-shorten-default-directory 1)
+
 (when (autoload-if-found '(aggressive-indent-mode)
                          "aggressive-indent" nil t)
   (dolist (hook
@@ -1303,14 +1305,6 @@
        '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
 	       "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
-    ;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
-    (when (eq system-type 'darwin)
-      ;; Dropbox のエイリアスを展開されないようにする
-      ;; find-file での表示も短縮される．
-      (let ((provider (expand-file-name "~/Library/CloudStorage/")))
-        (setq directory-abbrev-alist
-	            `((,(concat "\\`" provider "Dropbox") . "~/Dropbox")))))
-
     (if (version< emacs-version "27.1")
 	      (progn
 		      (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
@@ -1665,6 +1659,7 @@
 
 (unless (display-graphic-p)
   (when (autoload-if-found '(corfu-terminal-mode) "corfu-terminal" nil t)
+    (defvar corfu-terminal-mode nil) ;; To suppress showing a warning
     (add-hook 'emacs-lisp-mode-hook #'corfu-terminal-mode)
     (add-hook 'org-mode-hook #'corfu-terminal-mode)))
 
@@ -1782,7 +1777,7 @@
 (unless (display-graphic-p)
   (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
 
-(add-hook 'find-file-hook #'my-modeline-activate 100)
+(add-hook 'find-file-hook #'my-modeline-activate 1)
 
 ;; init
 (unless noninteractive

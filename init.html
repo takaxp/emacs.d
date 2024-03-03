@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-03-02 Sat 14:33 -->
+<!-- 2024-03-03 Sun 11:19 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -532,7 +532,7 @@
 <li><a href="#org4e23f079">9.21. <span class="todo TODO">TODO</span> [rmsbolt.el] アセンブリをバッファにリアルタイム表示</a></li>
 <li><a href="#org9547f772">9.22. <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</a></li>
 <li><a href="#orgea32afad">9.23. <span class="todo TODO">TODO</span> [company.el] 続・自動補完機能</a></li>
-<li><a href="#orgefd79180">9.24. <span class="todo TODO">TODO</span> [corfu.el] 続・自動補完機能</a></li>
+<li><a href="#orgefd79180">9.24. <span class="todo TODO">TODO</span> [corfu.el] 続々・自動補完機能</a></li>
 <li><a href="#orgdd272f8c">9.25. <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</a></li>
 <li><a href="#org09687b9c">9.26. <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 <li><a href="#orgcde881ad">9.27. <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
@@ -1466,7 +1466,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">'</span>
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">future-time-p</span> (time)
   <span style="color: #8b2252;">"Return non-nil if provided TIME formed of \"10:00\" is the future time."</span>
   (not (time-less-p
@@ -2676,6 +2676,20 @@ Version 27 から起動直後の <code>C-x C-f</code> のデフォルトが変�
         (<span style="color: #a020f0;">setq</span> default-directory <span style="color: #8b2252;">"~/"</span>))
       (funcall f prompt mustmatch))
     (advice-add 'find-file-read-args <span style="color: #483d8b;">:around</span> #'ad:find-file-read-args)))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">see also a configuration of `</span><span style="color: #008b8b;">directory-abbrev-alist</span><span style="color: #b22222;">'</span>
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-shorten-default-directory</span> ()
+  <span style="color: #8b2252;">"Enforce to replace \"/home/...\" with \"~/\"."</span>
+  (<span style="color: #a020f0;">setq</span> default-directory (abbreviate-file-name default-directory)))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(add-hook 'find-file-hook #'my-shorten-default-directory 1)
 </pre>
 </div>
 </div>
@@ -9042,6 +9056,14 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-recentf)
                          <span style="color: #8b2252;">"counsel"</span> nil t)
   (global-set-key (kbd <span style="color: #8b2252;">"C-M-r"</span>) 'counsel-recentf))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">see https://github.com/mattfidler/EmacsPortable.App/issues/7</span>
+(<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Dropbox &#12398;&#12456;&#12452;&#12522;&#12450;&#12473;&#12434;&#23637;&#38283;&#12373;&#12428;&#12394;&#12356;&#12424;&#12358;&#12395;&#12377;&#12427;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">find-file &#12391;&#12398;&#34920;&#31034;&#12418;&#30701;&#32302;&#12373;&#12428;&#12427;&#65294;</span>
+  (<span style="color: #a020f0;">let</span> ((provider (expand-file-name <span style="color: #8b2252;">"~/Library/CloudStorage/"</span>)))
+    (<span style="color: #a020f0;">setq</span> directory-abbrev-alist
+                `((,(concat <span style="color: #8b2252;">"\\`"</span> provider <span style="color: #8b2252;">"Dropbox"</span>) . <span style="color: #8b2252;">"~/Dropbox"</span>)))))
 </pre>
 </div>
 
@@ -9059,14 +9081,6 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
      '(recentf-exclude
        '(<span style="color: #8b2252;">".recentf"</span> <span style="color: #8b2252;">"bookmarks"</span> <span style="color: #8b2252;">"org-recent-headings.dat"</span> <span style="color: #8b2252;">"^/tmp\\.*"</span>
                <span style="color: #8b2252;">"^/private\\.*"</span> <span style="color: #8b2252;">"^/var/folders\\.*"</span> <span style="color: #8b2252;">"/TAGS$"</span>)))
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">see https://github.com/mattfidler/EmacsPortable.App/issues/7</span>
-    (<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Dropbox &#12398;&#12456;&#12452;&#12522;&#12450;&#12473;&#12434;&#23637;&#38283;&#12373;&#12428;&#12394;&#12356;&#12424;&#12358;&#12395;&#12377;&#12427;</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">find-file &#12391;&#12398;&#34920;&#31034;&#12418;&#30701;&#32302;&#12373;&#12428;&#12427;&#65294;</span>
-      (<span style="color: #a020f0;">let</span> ((provider (expand-file-name <span style="color: #8b2252;">"~/Library/CloudStorage/"</span>)))
-        (<span style="color: #a020f0;">setq</span> directory-abbrev-alist
-                    `((,(concat <span style="color: #8b2252;">"\\`"</span> provider <span style="color: #8b2252;">"Dropbox"</span>) . <span style="color: #8b2252;">"~/Dropbox"</span>)))))
 
     (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
               (<span style="color: #a020f0;">progn</span>
@@ -11170,7 +11184,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 </div>
 </div>
 <div id="outline-container-orgefd79180" class="outline-3">
-<h3 id="orgefd79180"><span class="section-number-3">9.24.</span> <span class="todo TODO">TODO</span> [corfu.el] 続・自動補完機能</h3>
+<h3 id="orgefd79180"><span class="section-number-3">9.24.</span> <span class="todo TODO">TODO</span> [corfu.el] 続々・自動補完機能</h3>
 <div class="outline-text-3" id="text-orgefd79180">
 <p>
 <code>company</code> から <code>corfu</code> に移行してみます．関連して， <code>corfu-prescient.el</code>, <code>kind-icon.el</code>, <code>cape.el</code>, <code>org-block-capf.el</code> も追加しています．一般的には， <code>orderless.el</code> も同時に使うようですが，まだ利点が理解できていません．
@@ -11256,6 +11270,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> (display-graphic-p)
   (<span style="color: #a020f0;">when</span> (autoload-if-found '(corfu-terminal-mode) <span style="color: #8b2252;">"corfu-terminal"</span> nil t)
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">corfu-terminal-mode</span> nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">To suppress showing a warning</span>
     (add-hook 'emacs-lisp-mode-hook #'corfu-terminal-mode)
     (add-hook 'org-mode-hook #'corfu-terminal-mode)))
 </pre>
@@ -13978,7 +13993,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org54a57b9"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org714e45f"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14917,7 +14932,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org76ab0a7" class="figure">
+<div id="org97c9d94" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15391,9 +15406,10 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:make-frame</span> (<span style="color: #228b22;">&amp;optional</span> _parameters)
-  (<span style="color: #a020f0;">when</span> (display-graphic-p)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (display-graphic-p)
+             (called-interactively-p 'interactive))
+    (message <span style="color: #8b2252;">"--- Creating a frame."</span>)
     (my-theme)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-apply-cursor-config)</span>
     (<span style="color: #a020f0;">setq-default</span> cursor-type
                   (<span style="color: #a020f0;">if</span> (my-ime-active-p)
                       (plist-get my-cur-type-ime <span style="color: #483d8b;">:on</span>)
@@ -15606,7 +15622,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 (<span style="color: #a020f0;">unless</span> (display-graphic-p)
   (<span style="color: #a020f0;">setq</span> my-toggle-modeline-global t)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Enforce modeline in Terminal</span>
 
-(add-hook 'find-file-hook #'my-modeline-activate 100)
+(add-hook 'find-file-hook #'my-modeline-activate 1)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">init</span>
 (<span style="color: #a020f0;">unless</span> noninteractive
@@ -18135,6 +18151,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
             (<span style="color: #a020f0;">setq</span> s 'sticky))
           (my--set-notify-macos hour min action s))))))
 
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--set-notify-macos</span> (hour min action sticky)
   <span style="color: #8b2252;">"`</span><span style="color: #008b8b;">alerter</span><span style="color: #8b2252;">' is required."</span>
   (run-at-time (format <span style="color: #8b2252;">"%s:%s"</span> hour min) nil
@@ -19359,7 +19376,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-03-02 Sat 14:33</p>
+<p class="date">Created: 2024-03-03 Sun 11:19</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

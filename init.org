@@ -681,7 +681,7 @@ This function is called directly from the C code."
 今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． =run-at-time= が想定通りに動かず，起動時に =run-at-time= に登録した関数が走ってしまうので，この判定が =non-nil= の時だけタイマー登録します． =time= を ~HH:MM~ の書式で与えます．指定時刻と現在時刻が同じ場合は，過去とみなします．
 
 #+begin_src emacs-lisp :tangle utility.el
-;;;###autoload'
+;;;###autoload
 (defun future-time-p (time)
   "Return non-nil if provided TIME formed of \"10:00\" is the future time."
   (not (time-less-p
@@ -1753,6 +1753,18 @@ Version 27 から起動直後の =C-x C-f= のデフォルトが変わったよ�
         (setq default-directory "~/"))
       (funcall f prompt mustmatch))
     (advice-add 'find-file-read-args :around #'ad:find-file-read-args)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle utility.el
+;; see also a configuration of `directory-abbrev-alist'
+;;;###autoload
+(defun my-shorten-default-directory ()
+  "Enforce to replace \"/home/...\" with \"~/\"."
+  (setq default-directory (abbreviate-file-name default-directory)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(add-hook 'find-file-hook #'my-shorten-default-directory 1)
 #+end_src
 
 ** TODO git用の設定ファイル読み込み
@@ -7406,6 +7418,14 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 (when (autoload-if-found '(counsel-recentf)
                          "counsel" nil t)
   (global-set-key (kbd "C-M-r") 'counsel-recentf))
+
+;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
+(when (eq system-type 'darwin)
+  ;; Dropbox のエイリアスを展開されないようにする
+  ;; find-file での表示も短縮される．
+  (let ((provider (expand-file-name "~/Library/CloudStorage/")))
+    (setq directory-abbrev-alist
+	        `((,(concat "\\`" provider "Dropbox") . "~/Dropbox")))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -7422,14 +7442,6 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
      '(recentf-exclude
        '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
 	       "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
-
-    ;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
-    (when (eq system-type 'darwin)
-      ;; Dropbox のエイリアスを展開されないようにする
-      ;; find-file での表示も短縮される．
-      (let ((provider (expand-file-name "~/Library/CloudStorage/")))
-        (setq directory-abbrev-alist
-	            `((,(concat "\\`" provider "Dropbox") . "~/Dropbox")))))
 
     (if (version< emacs-version "27.1")
 	      (progn
@@ -9306,7 +9318,7 @@ trim_trailing_whitespace = true
     ;; 補完候補が表示されたタイミングで入力を続けたら，補完候補を消す．
     (add-hook 'mac-ime-before-put-text-hook #'company-cancel)))
 #+end_src
-** TODO [corfu.el] 続・自動補完機能
+** TODO [corfu.el] 続々・自動補完機能
 :PROPERTIES:
 :CREATED:  [2024-03-01 Fri 11:40]
 :ID:       CE9FDB71-0A1F-4EAE-A815-3190A6F88AF1
@@ -9394,6 +9406,7 @@ trim_trailing_whitespace = true
 #+begin_src emacs-lisp :tangle late-init.el
 (unless (display-graphic-p)
   (when (autoload-if-found '(corfu-terminal-mode) "corfu-terminal" nil t)
+    (defvar corfu-terminal-mode nil) ;; To suppress showing a warning
     (add-hook 'emacs-lisp-mode-hook #'corfu-terminal-mode)
     (add-hook 'org-mode-hook #'corfu-terminal-mode)))
 #+end_src
@@ -13279,9 +13292,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun ad:make-frame (&optional _parameters)
-  (when (display-graphic-p)
+  (when (and (display-graphic-p)
+             (called-interactively-p 'interactive))
+    (message "--- Creating a frame.")
     (my-theme)
-    ;; (my-apply-cursor-config)
     (setq-default cursor-type
                   (if (my-ime-active-p)
                       (plist-get my-cur-type-ime :on)
@@ -13469,7 +13483,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (unless (display-graphic-p)
   (setq my-toggle-modeline-global t)) ;; Enforce modeline in Terminal
 
-(add-hook 'find-file-hook #'my-modeline-activate 100)
+(add-hook 'find-file-hook #'my-modeline-activate 1)
 
 ;; init
 (unless noninteractive
@@ -15782,6 +15796,7 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
             (setq s 'sticky))
           (my--set-notify-macos hour min action s))))))
 
+;;;###autoload
 (defun my--set-notify-macos (hour min action sticky)
   "`alerter' is required."
   (run-at-time (format "%s:%s" hour min) nil

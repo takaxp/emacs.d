@@ -381,6 +381,14 @@ This function returns a timer object which you can use in
                          "counsel" nil t)
   (global-set-key (kbd "C-M-r") 'counsel-recentf))
 
+;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
+(when (eq system-type 'darwin)
+  ;; Dropbox のエイリアスを展開されないようにする
+  ;; find-file での表示も短縮される．
+  (let ((provider (expand-file-name "~/Library/CloudStorage/")))
+    (setq directory-abbrev-alist
+	        `((,(concat "\\`" provider "Dropbox") . "~/Dropbox")))))
+
 ;; *.~
 (setq make-backup-files nil)
 ;; .#*
