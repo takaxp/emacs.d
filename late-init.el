@@ -1120,6 +1120,7 @@
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+    (setq ivy-count-format "%d|%d ")
     ;; (setq ivy-truncate-lines nil) ;; 選択候補も折り返されてしまう．
     ;; (setq ivy-wrap t)
     (ivy-mode 1))
