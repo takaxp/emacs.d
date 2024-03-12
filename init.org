@@ -1422,7 +1422,6 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 (global-set-key (kbd "C-x C-c") 'confirm-save-buffers-kill-emacs)
 #+end_src
 
-
 ** パッケージ管理
    :PROPERTIES:
    :CUSTOM_ID: orgd7b8f4e2
@@ -12013,6 +12012,39 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
     (setq org-crypt-disable-auto-save 'nil)))
 #+end_src
 
+** [org-crypt] ツリーを復号して中身を取り出す
+:PROPERTIES:
+:CUSTOM_ID: orgee20748e
+:ID:       A18CA9BB-23E5-499E-B395-40940139D1E4
+:END:
+
+#+begin_src emacs-lisp :tangle utility.el
+(defvar my-org-delete-saved-item-timer nil)
+
+;;;###autoload
+(defun my-delete-last-saved-string ()
+  (setq kill-ring (cdr kill-ring)))
+
+;;;###autoload
+(defun my-get-content-with-decrypt ()
+  (interactive)
+  (if (not (org-at-encrypted-entry-p))
+      (echo "--- Do nothing, the subtree is NOT encrypted.")
+    (outline-hide-subtree)
+    (org-decrypt-entry)
+    (unless (org-at-heading-p)
+      (org-back-to-heading))
+    (org-end-of-meta-data t)
+    (kill-ring-save (point)
+                    (org-element-property :end (org-element-at-point)))
+    (org-encrypt-entry)
+    (when (timerp my-org-delete-saved-item-timer)
+      (cancel-timer my-org-delete-saved-item-timer))
+    ;; FIXME should also run cancel-timer when yank only one time.
+    (setq my-org-delete-saved-item-timer
+          (run-with-timer 5 nil #'my-delete-last-saved-string))))
+#+end_src
+
 ** [org-mac-link] 外部アプリから情報を取る
    :PROPERTIES:
    :CUSTOM_ID: org01951291
@@ -14065,6 +14097,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
     (let ((font-size (or size my-font-size))
           (ascii-font (or ascii my-ascii-font))
           (ja-font (or ja my-ja-font)))
+      ;; (set-fontset-font t '(#Xe000 . #Xf8ff) "nerd-icons")
       (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
       ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
       (my-ja-font-setter (font-spec :family ja-font :size font-size))
@@ -14748,6 +14781,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ** [async] パッケージのインストール状況を確認
    :PROPERTIES:
    :CUSTOM_ID: orgc4efbf8e
+   :ID:       B18FC810-1CB5-4962-98AA-3BBF6612173D
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -14778,16 +14812,15 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
        (lambda (result)
          (let ((inhibit-message nil)
                (message-log-max 5000))
-           (if result
-               (unless (active-minibuffer-window)
-                 (let ((count 0))
-                   (dolist (r result)
-                     (setq count (1+ count))
-                     (message ">> %s (missing)" r))
-                   (message (concat (format "[async] %s package" count)
-                                    (if (> count 1) "s are" " is")
-                                    " NOT installed."))))
-             (message "[async] Checking packages installation...done")))))
+           (when result
+             (unless (active-minibuffer-window)
+               (let ((count 0))
+                 (dolist (r result)
+                   (setq count (1+ count))
+                   (message ">> %s (missing)" r))
+                 (message (concat (format "[async] %s package" count)
+                                  (if (> count 1) "s are" " is")
+                                  " NOT installed."))))))))
     (error "missing async.el")))
 
 ;;;###autoload
@@ -15811,7 +15844,8 @@ Finder で開きたいだけならば， =M-!= でミニバッファに =open .=
 (defun my-desktop-notify (type title hour min action sticky)
   "An interface to `my-desktop-notification'."
   (cond
-   ((string= type "macos")
+   ((and (display-graphic-p)
+         (string= type "macos"))
     (my-desktop-notification
      title (format "%s:%s %s" hour min action) sticky))))
 

@@ -22,16 +22,15 @@
        (lambda (result)
          (let ((inhibit-message nil)
                (message-log-max 5000))
-           (if result
-               (unless (active-minibuffer-window)
-                 (let ((count 0))
-                   (dolist (r result)
-                     (setq count (1+ count))
-                     (message ">> %s (missing)" r))
-                   (message (concat (format "[async] %s package" count)
-                                    (if (> count 1) "s are" " is")
-                                    " NOT installed."))))
-             (message "[async] Checking packages installation...done")))))
+           (when result
+             (unless (active-minibuffer-window)
+               (let ((count 0))
+                 (dolist (r result)
+                   (setq count (1+ count))
+                   (message ">> %s (missing)" r))
+                 (message (concat (format "[async] %s package" count)
+                                  (if (> count 1) "s are" " is")
+                                  " NOT installed."))))))))
     (error "missing async.el")))
 
 ;;;###autoload
