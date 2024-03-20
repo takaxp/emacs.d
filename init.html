@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-03-12 Tue 11:34 -->
+<!-- 2024-03-20 Wed 10:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1688,7 +1688,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(gcmh-mode) <span style="color: #8b2252;">"gcmh"</span> nil t)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(gcmh-time gcmh-mode) <span style="color: #8b2252;">"gcmh"</span> nil t)
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-gcmh-timer</span>
     (<span style="color: #a020f0;">unless</span> noninteractive
       (run-with-idle-timer (+ 10 my-default-loading-delay)
@@ -13995,7 +13995,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org12ff05f"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org69ef67d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14056,7 +14056,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">if</span> (not (org-at-encrypted-entry-p))
       (echo <span style="color: #8b2252;">"--- Do nothing, the subtree is NOT encrypted."</span>)
-    (outline-hide-subtree)
+    (outline-hide-subtree) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
     (org-decrypt-entry)
     (<span style="color: #a020f0;">unless</span> (org-at-heading-p)
       (org-back-to-heading))
@@ -14064,6 +14064,11 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
     (kill-ring-save (point)
                     (org-element-property <span style="color: #483d8b;">:end</span> (org-element-at-point)))
     (org-encrypt-entry)
+    (outline-hide-subtree) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+    (org-back-to-heading)
+    (<span style="color: #a020f0;">if</span> (org-at-encrypted-entry-p)
+        (message <span style="color: #8b2252;">"--- secured."</span>)
+      (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"Not secured"</span>))
     (<span style="color: #a020f0;">when</span> (timerp my-org-delete-saved-item-timer)
       (cancel-timer my-org-delete-saved-item-timer))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME should also run cancel-timer when yank only one time.</span>
@@ -14967,7 +14972,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgb3634bc" class="figure">
+<div id="orgff1697f" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19412,7 +19417,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-03-12 Tue 11:34</p>
+<p class="date">Created: 2024-03-20 Wed 10:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
