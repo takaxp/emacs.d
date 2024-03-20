@@ -12,7 +12,7 @@
 
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
-(when (autoload-if-found '(gcmh-mode) "gcmh" nil t)
+(when (autoload-if-found '(gcmh-time gcmh-mode) "gcmh" nil t)
   (defvar my-gcmh-timer
     (unless noninteractive
       (run-with-idle-timer (+ 10 my-default-loading-delay)

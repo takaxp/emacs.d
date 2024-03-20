@@ -889,7 +889,7 @@ This function returns a timer object which you can use in
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found '(gcmh-mode) "gcmh" nil t)
+(when (autoload-if-found '(gcmh-time gcmh-mode) "gcmh" nil t)
   (defvar my-gcmh-timer
     (unless noninteractive
       (run-with-idle-timer (+ 10 my-default-loading-delay)
@@ -12030,7 +12030,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
   (interactive)
   (if (not (org-at-encrypted-entry-p))
       (echo "--- Do nothing, the subtree is NOT encrypted.")
-    (outline-hide-subtree)
+    (outline-hide-subtree) ;; FIXME
     (org-decrypt-entry)
     (unless (org-at-heading-p)
       (org-back-to-heading))
@@ -12038,6 +12038,11 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
     (kill-ring-save (point)
                     (org-element-property :end (org-element-at-point)))
     (org-encrypt-entry)
+    (outline-hide-subtree) ;; FIXME
+    (org-back-to-heading)
+    (if (org-at-encrypted-entry-p)
+        (message "--- secured.")
+      (error "Not secured"))
     (when (timerp my-org-delete-saved-item-timer)
       (cancel-timer my-org-delete-saved-item-timer))
     ;; FIXME should also run cancel-timer when yank only one time.

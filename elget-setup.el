@@ -49,4 +49,3 @@
 
 (provide 'elget-setup)
 ;;; elget-setup.el ends here
-

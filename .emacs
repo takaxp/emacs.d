@@ -3,6 +3,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+;; (setenv "LIBRARY_PATH"
+;;         (string-join
+;;          '("/opt/homebrew/opt/gcc/lib/gcc/13"
+;;            "/opt/homebrew/opt/libgccjit/lib/gcc/13"
+;;            "/opt/homebrew/opt/gcc/lib/gcc/11/gcc/aarch64-apple-darwin23/13") ":"))
+
+;; "/opt/homebrew/opt/gcc/lib/gcc/11/gcc/x86_64-apple-darwin20/11.2.0") ":"))
+
 ;; (with-eval-after-load "nerd-icons"
 ;;   ;;  
 ;;   (nerd-icons-octicon "nf-oct-fold")
