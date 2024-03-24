@@ -11,9 +11,9 @@
 ;; (unless (getenv "LIBRARY_PATH")
 ;;   (setenv "LIBRARY_PATH"
 ;;           (string-join
-;;            '("/opt/homebrew/opt/gcc/lib/gcc/12"
-;;              "/opt/homebrew/opt/libgccjit/lib/gcc/12"
-;;              "/opt/homebrew/opt/gcc/lib/gcc/12/gcc/aarch64-apple-darwin22/12")
+;;            '("/opt/homebrew/opt/gcc/lib/gcc/13"
+;;              "/opt/homebrew/opt/libgccjit/lib/gcc/13"
+;;              "/opt/homebrew/opt/gcc/lib/gcc/13/gcc/aarch64-apple-darwin23/13")
 ;;            ":")))
 
 (setq package-enable-at-startup nil

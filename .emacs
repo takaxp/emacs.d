@@ -3,13 +3,42 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-;; (setenv "LIBRARY_PATH"
-;;         (string-join
-;;          '("/opt/homebrew/opt/gcc/lib/gcc/13"
-;;            "/opt/homebrew/opt/libgccjit/lib/gcc/13"
-;;            "/opt/homebrew/opt/gcc/lib/gcc/11/gcc/aarch64-apple-darwin23/13") ":"))
-
-;; "/opt/homebrew/opt/gcc/lib/gcc/11/gcc/x86_64-apple-darwin20/11.2.0") ":"))
+(defun my-hugo-export-upload ()
+  "Export subtree for Hugo and upload the engty."
+  (when (member (buffer-name) '("imadenale.org" "archive.org"))
+    (if (not (org-entry-is-done-p))
+        (message "The state of the entry is not \"DONE\" yet.")
+      (my-org-replace-punc-in-tree)
+      (save-buffer)
+      ;; (let ((outfile (org-hugo-export-wim-to-md)))
+      ;;   (sit-for 2)
+      ;;   (when (and outfile
+      ;;              (file-exists-p outfile))
+      ;;     (switch-to-buffer
+      ;;      (find-file-noselect outfile)
+      ;;      (my-org-replace-punc-in-buffer))))
+      (org-hugo-export-wim-to-md)
+      (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
+            (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
+            (exported (format "[ox-hugo] \"%s\" has been exported."
+                              (nth 4 (org-heading-components)))))
+        (when filename
+          ;; (when (file-exists-p (concat outfile ".md"))
+          ;;   (switch-to-buffer
+          ;;    (find-file-noselect (concat outfile ".md"))
+          ;;    (my-org-replace-punc-in-buffer)
+          ;;    (save-buffer)))
+          (save-excursion
+            (save-restriction
+              (outline-up-heading 1)
+              (setq filename
+                    (concat (nth 4 (org-heading-components)) "/" filename))
+              (setq command (concat command " -e " (downcase filename)))))
+          (message "[hugo] %s" command)
+          (message "%s\nUploading..." exported)
+          (message "%s" (shell-command-to-string command))
+          (message "%s" command)
+          (message "%s\nUploading...done" exported))))))
 
 ;; (with-eval-after-load "nerd-icons"
 ;;   ;;  
@@ -38,7 +67,6 @@
 (with-eval-after-load "icons-in-terminal"
   ;;  
   )
-
 
 (with-eval-after-load "org"
   ;; (advice-add 'org-assert-version :override #'ignore)
