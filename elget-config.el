@@ -157,7 +157,9 @@
     (el-get-bundle "Wilfred/helpful"))
   (el-get-bundle "gonewest818/elisp-lint")
   (el-get-bundle "purcell/package-lint")
-  (el-get-bundle "AdamNiederer/cov")
+  (progn
+    (el-get-bundle "AdamNiederer/elquery")
+    (el-get-bundle "AdamNiederer/cov"))
   (el-get-bundle "ggtags")
   (el-get-bundle "dedi/gxref") ;; emacs 25.1 or later
   (el-get-bundle "clang-format")
@@ -305,6 +307,9 @@
 
   ;; Log
   (el-get-bundle "davep/uptimes.el" :name "uptimes")
+
+  ;; Terminal
+  (el-get-bundle "szermatt/mistty")
 
   ;; Under consideration
   ;; (my-elget-bundles1)
@@ -477,6 +482,7 @@
               (my-elget-load-and-sync)
               (my-elget-update-packages (reverse ',target-packages))
               ;; FIXME ^^^^^^^^^^^ could destroy packages. Check .loaddefs.el
+              (my-elget-nativecomp-all-packages)
               el-get-status-file))
          (lambda (result)
            (message "[async] %s" result))))
@@ -508,6 +514,12 @@
          (concat "export SYSTEMTYPE=\"darwin\" &&"
                  " ~/Dropbox/emacs.d/bin/el-get.sh -r"))
     (message "[el-get] Link updated")))
+
+;;;###autoload
+(defun my-elget-nativecomp-all-packages ()
+  (interactive)
+  (native-compile-async (format "~/.emacs.d/%s/el-get" emacs-version)
+                        'recursively))
 
 ;; for noninteractive
 (defun my-elget-load-and-sync ()

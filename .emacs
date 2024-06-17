@@ -3,42 +3,43 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-(defun my-hugo-export-upload ()
-  "Export subtree for Hugo and upload the engty."
-  (when (member (buffer-name) '("imadenale.org" "archive.org"))
-    (if (not (org-entry-is-done-p))
-        (message "The state of the entry is not \"DONE\" yet.")
-      (my-org-replace-punc-in-tree)
-      (save-buffer)
-      ;; (let ((outfile (org-hugo-export-wim-to-md)))
-      ;;   (sit-for 2)
-      ;;   (when (and outfile
-      ;;              (file-exists-p outfile))
-      ;;     (switch-to-buffer
-      ;;      (find-file-noselect outfile)
-      ;;      (my-org-replace-punc-in-buffer))))
-      (org-hugo-export-wim-to-md)
-      (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
-            (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
-            (exported (format "[ox-hugo] \"%s\" has been exported."
-                              (nth 4 (org-heading-components)))))
-        (when filename
-          ;; (when (file-exists-p (concat outfile ".md"))
-          ;;   (switch-to-buffer
-          ;;    (find-file-noselect (concat outfile ".md"))
-          ;;    (my-org-replace-punc-in-buffer)
-          ;;    (save-buffer)))
-          (save-excursion
-            (save-restriction
-              (outline-up-heading 1)
-              (setq filename
-                    (concat (nth 4 (org-heading-components)) "/" filename))
-              (setq command (concat command " -e " (downcase filename)))))
-          (message "[hugo] %s" command)
-          (message "%s\nUploading..." exported)
-          (message "%s" (shell-command-to-string command))
-          (message "%s" command)
-          (message "%s\nUploading...done" exported))))))
+(with-eval-after-load "el-get-byte-compile"
+
+  (defun el-get-byte-compile-file (el &optional warnings)
+    "Byte compile the EL file, and skips unnecessary compilation.
+
+Specifically, if the compiled elc file already exists and is
+newer, then compilation is skipped."
+    (let ((elc (concat (file-name-sans-extension el) ".elc"))
+          (byte-compile-warnings warnings)
+          ;; Byte-compile runs emacs-lisp-mode-hook; disable it
+          emacs-lisp-mode-hook)
+      (when (or (not (file-exists-p elc))
+                (not (file-newer-than-file-p elc el)))
+        (when (file-exists-p elc)
+          ;; Delete the old elc to make sure that if the compilation fails to
+          ;; generate a new one, there will be no discrepancy between them.
+          (delete-file elc))
+        (condition-case err
+            (progn
+              (message "--- Compiling...%s" el)
+              (byte-compile-file el)
+              (native-compile el)
+              )
+          ((debug error) ;; catch-all, allow for debugging
+           (message "%S" (error-message-string err)))))))
+
+  )
+
+
+
+;; (unless (getenv "LIBRARY_PATH")
+;;   (setenv "LIBRARY_PATH"
+;;           (string-join
+;;            '("/opt/homebrew/opt/gcc/lib/gcc/13"
+;;              "/opt/homebrew/opt/libgccjit/lib/gcc/13"
+;;              "/opt/homebrew/opt/gcc/lib/gcc/13/gcc/aarch64-apple-darwin23/13")
+;;            ":")))
 
 ;; (with-eval-after-load "nerd-icons"
 ;;   ;;  

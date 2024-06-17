@@ -978,8 +978,8 @@ This function returns a timer object which you can use in
 :CUSTOM_ID: orgfd894e86
 :END:
 
-#+begin_src emacs-lisp :tangle utility.el
-;;;###autoload
+#+begin_src emacs-lisp :tangle no
+2;;;###autoload
 (defun my-elget-nativecomp-all-packages ()
   (interactive)
   (native-compile-async (format "~/.emacs.d/%s/el-get" emacs-version)
@@ -1653,7 +1653,8 @@ echo "--- done."
 (autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
                      el-get-cd el-get-remove el-get-update
-                     el-get-install el-get-reinstall)
+                     el-get-install el-get-reinstall
+                     my-elget-nativecomp-all-packages)
                    "elget-config" nil t)
 #+end_src
 
@@ -6125,7 +6126,7 @@ Obeys `widen-automatically', which see."
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
-    (setq ivy-count-format "%d|%d ")
+    (setq ivy-count-format "%d.%d ")
     ;; (setq ivy-truncate-lines nil) ;; 選択候補も折り返されてしまう．
     ;; (setq ivy-wrap t)
     (ivy-mode 1))
@@ -6316,6 +6317,7 @@ Obeys `widen-automatically', which see."
     (require 'keypression)
     (require 'moom)
     ;; (setq command-log-mode-window-font-size 0)
+    (setq command-log-mode-key-binding-open-log nil)
     (setq command-log-mode-window-size 60)))
 #+end_src
 ** TODO [emacs-tree-sitter.el] tree-sitter でシンタックスハイライトする
@@ -9361,6 +9363,7 @@ trim_trailing_whitespace = true
 (when (autoload-if-found '(corfu-mode) "corfu" nil t)
   (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
   (add-hook 'org-mode-hook #'corfu-mode)
+  (add-hook 'sh-mode #'corfu-mode)
   (add-hook 'minibuffer-setup-hook #'my-advice-minibuffer-complete)
 
   (with-eval-after-load "corfu"
@@ -10081,7 +10084,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                    `(lambda () (shell-command-to-string ',command))
                    `(lambda (result)
                       (message "%s\n[async] Uploading...%s"
-                               ',exported (when result "done") ))))
+                               ',exported (when result "done"))
+                      (message "[log] %s" result))))
               (message "%s\nUploading..." exported)
               (message "%s" (shell-command-to-string command))
               (message "%s\nUploading...done" exported)))))))
@@ -13397,6 +13401,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-9") 'moom-cycle-monitors)
+  (global-set-key (kbd "C-c f f m") 'moom-fill-band)
 
   (autoload 'moom-transient-dispatch "moom-transient" nil t)
   (global-set-key (kbd "C-c o") #'moom-transient-dispatch)

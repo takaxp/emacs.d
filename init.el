@@ -525,6 +525,7 @@ This function returns a timer object which you can use in
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-9") 'moom-cycle-monitors)
+  (global-set-key (kbd "C-c f f m") 'moom-fill-band)
 
   (autoload 'moom-transient-dispatch "moom-transient" nil t)
   (global-set-key (kbd "C-c o") #'moom-transient-dispatch)

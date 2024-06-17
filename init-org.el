@@ -445,7 +445,8 @@
                    `(lambda () (shell-command-to-string ',command))
                    `(lambda (result)
                       (message "%s\n[async] Uploading...%s"
-                               ',exported (when result "done") ))))
+                               ',exported (when result "done"))
+                      (message "[log] %s" result))))
               (message "%s\nUploading..." exported)
               (message "%s" (shell-command-to-string command))
               (message "%s\nUploading...done" exported)))))))

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-03-24 Sun 21:36 -->
+<!-- 2024-06-17 Mon 12:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1791,7 +1791,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <h3 id="orgfd894e86"><span class="section-number-3">2.23.</span> elget パッケージ群を native comp する</h3>
 <div class="outline-text-3" id="text-orgfd894e86">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+<pre class="src src-emacs-lisp">2<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-elget-nativecomp-all-packages</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (native-compile-async (format <span style="color: #8b2252;">"~/.emacs.d/%s/el-get"</span> emacs-version)
@@ -2563,7 +2563,8 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 <pre class="src src-emacs-lisp">(autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
                      el-get-cd el-get-remove el-get-update
-                     el-get-install el-get-reinstall)
+                     el-get-install el-get-reinstall
+                     my-elget-nativecomp-all-packages)
                    <span style="color: #8b2252;">"elget-config"</span> nil t)
 </pre>
 </div>
@@ -7718,7 +7719,7 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">setq</span> enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd <span style="color: #8b2252;">"&lt;escape&gt;"</span>) 'minibuffer-keyboard-quit)
-    (<span style="color: #a020f0;">setq</span> ivy-count-format <span style="color: #8b2252;">"%d|%d "</span>)
+    (<span style="color: #a020f0;">setq</span> ivy-count-format <span style="color: #8b2252;">"%d.%d "</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq ivy-truncate-lines nil) ;; &#36984;&#25246;&#20505;&#35036;&#12418;&#25240;&#12426;&#36820;&#12373;&#12428;&#12390;&#12375;&#12414;&#12358;&#65294;</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq ivy-wrap t)</span>
     (ivy-mode 1))
@@ -7929,6 +7930,7 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">keypression</span>)
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">moom</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq command-log-mode-window-font-size 0)</span>
+    (<span style="color: #a020f0;">setq</span> command-log-mode-key-binding-open-log nil)
     (<span style="color: #a020f0;">setq</span> command-log-mode-window-size 60)))
 </pre>
 </div>
@@ -11226,6 +11228,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(corfu-mode) <span style="color: #8b2252;">"corfu"</span> nil t)
   (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
   (add-hook 'org-mode-hook #'corfu-mode)
+  (add-hook 'sh-mode #'corfu-mode)
   (add-hook 'minibuffer-setup-hook #'my-advice-minibuffer-complete)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"corfu"</span>
@@ -11974,7 +11977,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                    `(<span style="color: #a020f0;">lambda</span> () (shell-command-to-string ',command))
                    `(<span style="color: #a020f0;">lambda</span> (result)
                       (message <span style="color: #8b2252;">"%s\n[async] Uploading...%s"</span>
-                               ',exported (<span style="color: #a020f0;">when</span> result <span style="color: #8b2252;">"done"</span>) ))))
+                               ',exported (<span style="color: #a020f0;">when</span> result <span style="color: #8b2252;">"done"</span>))
+                      (message <span style="color: #8b2252;">"[log] %s"</span> result))))
               (message <span style="color: #8b2252;">"%s\nUploading..."</span> exported)
               (message <span style="color: #8b2252;">"%s"</span> (shell-command-to-string command))
               (message <span style="color: #8b2252;">"%s\nUploading...done"</span> exported)))))))
@@ -13996,7 +14000,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgc6c7449"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org1dc5d40"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14973,7 +14977,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgcd4d456" class="figure">
+<div id="orgee7e286" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15531,6 +15535,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
   (global-set-key (kbd <span style="color: #8b2252;">"C-2"</span>) 'moom-cycle-frame-height)
   (global-set-key (kbd <span style="color: #8b2252;">"M-2"</span>) 'moom-move-frame-to-center)
   (global-set-key (kbd <span style="color: #8b2252;">"M-9"</span>) 'moom-cycle-monitors)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-c f f m"</span>) 'moom-fill-band)
 
   (autoload 'moom-transient-dispatch <span style="color: #8b2252;">"moom-transient"</span> nil t)
   (global-set-key (kbd <span style="color: #8b2252;">"C-c o"</span>) #'moom-transient-dispatch)
@@ -19418,7 +19423,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-03-24 Sun 21:36</p>
+<p class="date">Created: 2024-06-17 Mon 12:20</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

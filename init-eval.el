@@ -10,6 +10,12 @@
 ;; (setq byte-compile-warnings '(not obsolete))
 (setq ad-redefinition-action 'accept)
 
+;; For batch-mode (FIXME)
+;; バッチモードで native comp する時に，("/Users/taka/.emacs.d/eln-cache/" "/Applications/Emacs.app/Contents/Frameworks/native-lisp/") のうち，後者のパスが使われないようにする．
+(when (and noninteractive
+           (boundp 'native-comp-eln-load-path))
+  (setq native-comp-eln-load-path
+        (list (expand-file-name "eln-cache/" user-emacs-directory))))
 
 ;; packages used in utility.el for compiling without warning.
 (require 'gcmh nil t)

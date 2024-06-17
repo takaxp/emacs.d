@@ -63,7 +63,8 @@
 (autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
                      el-get-cd el-get-remove el-get-update
-                     el-get-install el-get-reinstall)
+                     el-get-install el-get-reinstall
+                     my-elget-nativecomp-all-packages)
                    "elget-config" nil t)
 
 (setq-default tab-width 2)
@@ -1120,7 +1121,7 @@
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
     (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
-    (setq ivy-count-format "%d|%d ")
+    (setq ivy-count-format "%d.%d ")
     ;; (setq ivy-truncate-lines nil) ;; 選択候補も折り返されてしまう．
     ;; (setq ivy-wrap t)
     (ivy-mode 1))
@@ -1201,6 +1202,7 @@
     (require 'keypression)
     (require 'moom)
     ;; (setq command-log-mode-window-font-size 0)
+    (setq command-log-mode-key-binding-open-log nil)
     (setq command-log-mode-window-size 60)))
 
 (let* ((elp (expand-file-name
@@ -1625,6 +1627,7 @@
 (when (autoload-if-found '(corfu-mode) "corfu" nil t)
   (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
   (add-hook 'org-mode-hook #'corfu-mode)
+  (add-hook 'sh-mode #'corfu-mode)
   (add-hook 'minibuffer-setup-hook #'my-advice-minibuffer-complete)
 
   (with-eval-after-load "corfu"
