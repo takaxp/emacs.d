@@ -75,10 +75,10 @@ Then load the following at startup
 #+end_src
 
 ** init.el のヘッダ
-   :PROPERTIES:
-   :CUSTOM_ID: org2db575a1
-   :ID:       27B3BE38-1E7D-42B6-966A-189F6551BC1C
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org2db575a1
+:ID:       27B3BE38-1E7D-42B6-966A-189F6551BC1C
+:END:
 
 #+begin_src emacs-lisp :tangle yes
 ;; init.el --- My init.el -*- lexical-binding: t -*-
@@ -750,6 +750,7 @@ This function is called directly from the C code."
 ~run-at-time~ を使ったタイマー設定時に，時刻を文字列で指定すると， =diary-lib.el= を読み込み， ~diary-entry-time~ を使いますが，そのために起動時の時間を使うのはもったいないので， ~diary-entry-time~ だけを =init.el= に移植し， ~run-at-time~ をハックして =diary-lib.el= を読み込まないようにします．
 
 #+begin_src emacs-lisp :tangle yes
+;; originally defined in `diary-lib.el'
 (defun diary-entry-time (s)
   "Return time at the beginning of the string S as a military-style integer.
 For example, returns 1325 for 1:25pm.
@@ -777,6 +778,7 @@ be used instead of a colon (:) to separate the hour and minute parts."
                   0 1200)))
           (t diary-unknown-time))))
 
+;; Avoid to load diary-lib to use `diary-entry-time'
 (defun run-at-time (time repeat function &rest args)
   "Perform an action at time TIME.
 Repeat the action every REPEAT seconds, if REPEAT is non-nil.
@@ -2061,7 +2063,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
 (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
 (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
-(when (fboundp 'mac-ime-toggle)
+(when (fboundp 'mac-ime-toggle) ;; using ns-inline-patch
   (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
   (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
 #+end_src
@@ -8039,7 +8041,6 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 - https://github.com/takaxp/session
 
 #+begin_src emacs-lisp :tangle yes
-
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
   (unless (or noninteractive my-secure-boot)
@@ -8050,8 +8051,8 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
     (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
     (setq session-save-file
-          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
-    (setq session-initialize '(de-saveplace session keys menus places)
+          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session"))
+          session-initialize '(de-saveplace session keys menus places)
           session-globals-include '((kill-ring 100)
                                     (session-file-alist 100 t)
                                     (file-name-history 200)
@@ -8659,6 +8660,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 ** 便利キーバインド
    :PROPERTIES:
    :CUSTOM_ID: org9f988c12
+   :ID:       4A3AA3CE-4CF7-4A90-A145-8BEC2FECF22C
    :END:
 
 コメントアウトとコンパイルをすぐ呼べるようにします．
@@ -8871,6 +8873,7 @@ int main(){
 *** References
     :PROPERTIES:
     :CUSTOM_ID: org3d08c27d
+    :ID:       9D1FB87B-FE32-4612-B1DF-EB51B7AFD8FA
     :END:
 
   - http://d.hatena.ne.jp/kenbell1988/20120428/1335609313
@@ -10792,8 +10795,8 @@ org バッファのソースブロックにカーソルがある時には， =el
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-c M-n") #'my-org-move-item-end)
-  (define-key org-mode-map (kbd "C-c M-p") #'my-org-move-item-begin))
+  (define-key org-mode-map (kbd "C-c x") #'my-org-move-item-end)
+  (define-key org-mode-map (kbd "C-c X") #'my-org-move-item-begin))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -11272,7 +11275,8 @@ will not be modified."
   (if (or (not (require 'async nil t))
           (not my-org-agenda-to-appt-async))
       (unless (active-minibuffer-window)
-        (org-agenda-to-appt t '((headline "TODO")))
+        ;; (org-agenda-to-appt t '((headline "TODO")))
+        (org-agenda-to-appt t)
         (appt-check))
     (when force
       (setq my-org-agenda-to-appt-ready t))
@@ -11288,7 +11292,8 @@ will not be modified."
           (require 'org)
           (require 'appt)
           (setq org-agenda-files ',org-agenda-files)
-          (org-agenda-to-appt t '((headline "TODO")))
+          ;; (org-agenda-to-appt t '((headline "TODO")))
+          (org-agenda-to-appt t)
           (appt-check) ;; remove past events
           ;; Remove tags
           (let ((msgs appt-time-msg-list))
@@ -13416,9 +13421,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (add-hook 'moom-delete-window-hook #'dimmer-on)
     (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
 
-    ;; (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
-    ;; (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
-
     (custom-set-variables
      '(moom-command-with-centering nil)
      '(moom-lighter "M")
@@ -15307,8 +15309,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     (custom-set-variables
      '(counsel-osx-app-location
        '("/Applications" "/Applications/Utilities"
-         "/System/Applications"
-         "/System/Applications/Utilities"
+         "/System/Applications" "/System/Applications/Utilities"
          "/Applications/Microsoft Remote Desktop.localized")))))
 #+end_src
 
@@ -16071,7 +16072,8 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 
 orgバッファからカレンダーを生成し，外部サーバに投げます．また，MobileOrgに最新情報を流しています．
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle none
+;; utility.el
 (defvar ox-icalendar-activate nil)
 
 ;;;###autoload

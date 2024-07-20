@@ -9,7 +9,7 @@
 ;; Note: all local and private settings should be configured in the .emacs.
 ;; runemacs.exe is extracted from a distributed zip package from
 ;;             https://ftp.jaist.ac.jp/pub/GNU/emacs/windows/
-;;                                                    Last update: 2024-02-29
+;;                                                    Last update: 2024-07-29
 
 (when nil
   ;; advice of load function
@@ -40,11 +40,12 @@
 (when do-profile (profiler-start 'cpu+mem))
 
 (setq debug-on-error nil)
-(setq gc-cons-threshold (* 256 1024 1024))
+(setq gc-cons-threshold (* 512 1024 1024))
 (defvar my-gc-last 0.0)
 (add-hook 'post-gc-hook
           #'(lambda ()
-              (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
+              (message "GC! > %.4f[sec] (No: %d)"
+                       (- gc-elapsed my-gc-last) gcs-done)
               (setq my-gc-last gc-elapsed)))
 
 ;; Language, will override default-input-method
@@ -71,14 +72,15 @@
 ;; AppData\Roaming\.emacs.d\lisp 以下に各追加パッケージを配置すること
 ;; smartparens requires dash.el.
 (defvar my-installed-packages
-  '("dash.el" "compat.el" "smex" "elisp-refs" "s.el" "f.el"
+  '("dash.el" "compat" "smex" "elisp-refs" "s.el" "f.el"
     "moom" "swiper" "selected" "expand-region.el" "counsel-osx-app"
     "smartparens" "emacs-htmlize" "emacs-undo-fu" "transient" "bsv"
-    "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module"
+    "japanese-holidays" "highlight-symbol.el" "tr-emacs-ime-module/lisp"
     "emacs-google-this" "volatile-highlights.el" "hl-todo" "bm"
     "replace-from-region" "session" "helpful" "org-appear" "projectile"
     "counsel-projectile" "super-save" "org-tree-slide" "delight.el"
-    "org-mode/lisp" "org-contrib/lisp" "corfu" "prescient.el" "kind-icon"))
+    "org-mode/lisp" "org-contrib/lisp" "corfu" "prescient.el" "kind-icon"
+    "vc-defer" "markdown-mode"))
 
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
@@ -377,7 +379,77 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
         (unless org-tree-slide-mode
           (time-stamp))
       (time-stamp)))
-  (add-hook 'before-save-hook #'my-time-stamp))
+  (add-hook 'before-save-hook #'my-time-stamp)
+
+  (defvar w32-alerter-command nil)
+  (defun my-desktop-notification-handler (message)
+    (my-desktop-notification "Emacs" message))
+
+  (defun my-org-agenda-to-appt (&optional _force)
+    "Update `appt-time-mag-list'.  Use `async' if possible."
+    (interactive)
+    (unless (featurep 'org)
+      (require 'org))
+    (unless (active-minibuffer-window)
+      (org-agenda-to-appt t)
+      (appt-check)))
+
+  (defun my-desktop-notification (title message &optional sticky sound timeout)
+    "Show a message by `alerter' command."
+    (start-process
+     "notification" "*notification*" "python.exe" w32-alerter-command
+     "--title" title "--message" message
+     "--sticky" (if sticky "True" "False")))
+
+  ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
+  ;; Need review
+  (defun ad:appt-display-message (string mins)
+    "Display a reminder about an appointment.
+The string STRING describes the appointment, due in integer MINS minutes.
+The arguments may also be lists, where each element relates to a
+separate appointment.  The variable `appt-display-format' controls
+the format of the visible reminder.  If `appt-audible' is non-nil,
+also calls `beep' for an audible reminder."
+    (if appt-audible (beep 1))
+    ;; Backwards compatibility: avoid passing lists to a-d-w-f if not necessary.
+    (and (listp mins)
+         (= (length mins) 1)
+         (setq mins (car mins)
+               string (car string)))
+    (cond ((memq appt-display-format '(window echo)) ;; Modified
+           ;; TODO use calendar-month-abbrev-array rather than %b?
+           (let ((time (format-time-string "%a %b %e ")))
+             (condition-case err
+                 (funcall appt-disp-window-function
+                          (if (listp mins)
+                              (mapcar #'number-to-string mins)
+                            (number-to-string mins))
+                          time string)
+               (wrong-type-argument
+                (if (not (listp mins))
+                    (signal (car err) (cdr err))
+                  (message "Argtype error in `appt-disp-window-function' - \
+update it for multiple appts?")
+                  ;; Fallback to just displaying the first appt, as we used to.
+                  (funcall appt-disp-window-function
+                           (number-to-string (car mins)) time
+                           (car string))))))
+           (run-at-time (format "%d sec" appt-display-duration)
+                        nil
+                        appt-delete-window-function))
+          ((eq appt-display-format 'echo) ;; hidden
+           (message "%s" (if (listp string)
+                             (mapconcat #'identity string "\n")
+                           string)))))
+
+  (defun ad:appt-disp-window (min-to-app _new-time appt-msg)
+    "Extension to support appt-disp-window."
+    (if (string= min-to-app "0")
+        (my-desktop-notification "### Expired! ###" appt-msg t "Glass")
+      (my-desktop-notification
+       (concat "in " min-to-app " min.") appt-msg nil "Tink")))
+
+  (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part A: Scheduling of package loading
@@ -598,6 +670,18 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 ;; corfu
 (autoload 'corfu-mode "corfu" nil t)
 (add-hook 'emacs-lisp-mode-hook #'corfu-mode)
+
+;; (setq vc-handled-backends nil) ;; vc-mode is too heavy in w32 environment
+;; vc-defer
+(defun my-vc-defer-activate ()
+  (require 'vc-defer nil t)
+  (vc-defer-mode)
+  (remove-hook 'pre-command-hook #'my-vc-defer-activate))
+(add-hook 'pre-command-hook #'my-vc-defer-activate)
+
+;; markdown-mode
+(autoload 'markdown-mode "markdown-mode" nil t)
+(push '("\\.md$" . markdown-mode) auto-mode-alist)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
@@ -1219,7 +1303,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 (with-eval-after-load "view"
   ;; 特定の拡張子・ディレクトリ
-  (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.gpg$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
+  (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.md$\\|\\.gpg$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
   ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
   (defvar my-auto-view-dirs nil)
   (add-to-list 'my-auto-view-dirs (concat my-home-directory ".emacs.d"))
@@ -1653,8 +1737,8 @@ will not be modified."
   (advice-add 'org-sort-entries :after #'ad:org-sort-entries))
 
 (with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-c M-n") #'my-org-move-item-end)
-  (define-key org-mode-map (kbd "C-c M-p") #'my-org-move-item-begin)
+  (define-key org-mode-map (kbd "C-c x") #'my-org-move-item-end)
+  (define-key org-mode-map (kbd "C-c X") #'my-org-move-item-begin)
 
   (defun my-org-move-item-begin ()
     "Move the current item to the beginning of the list."
@@ -1761,14 +1845,14 @@ will not be modified."
      ((((background dark)) (:foreground "#CC3333" :weight bold))
       (t (:foreground "#669966" :weight bold))))))
 
-(with-eval-after-load "org"
-  (defun my-org-agenda-prepare-buffers ()
-    (unless (featurep 'org-agenda)
-      (when (require 'org-agenda nil t)
-        (message "Building agenda buffers...")
-        (org-agenda-prepare-buffers org-agenda-files)
-        (message "Building agenda buffers...done"))))
-  (run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers))
+(run-with-idle-timer 10 nil #'my-org-agenda-prepare-buffers)
+(defun my-org-agenda-prepare-buffers ()
+  (require 'org)
+  (unless (featurep 'org-agenda)
+    (when (require 'org-agenda nil t)
+      (message "Building agenda buffers...")
+      (org-agenda-prepare-buffers org-agenda-files)
+      (message "Building agenda buffers...done"))))
 
 (with-eval-after-load "org-appear"
   (defun my-toggle-org-show-emphasis-markers ()
@@ -2072,7 +2156,8 @@ Otherwise, use `counsel-ag'."
      (projectile-mode nil "projectile")
      (selected-minor-mode nil "selected")
      (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
-     (super-save-mode nil "super-save"))))
+     (super-save-mode nil "super-save")
+     (vc-defer-mode nil "vc-defer"))))
 
 (with-eval-after-load "corfu"
   (custom-set-variables
@@ -2096,6 +2181,39 @@ Otherwise, use `counsel-ag'."
 
   (when (require 'kind-icon nil t)
     (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)))
+
+(with-eval-after-load "vc-defer"
+  ;; (advice-add 'save-buffer :around 'vc-defer--defer-around)
+  (add-to-list 'vc-defer-backends 'Git))
+
+(with-eval-after-load "appt"
+  (setq appt-display-mode-line nil) ;; モードラインに残り時間を表示しない
+  (setq appt-display-format 'echo)  ;; window を フレーム内に表示する
+  (setq appt-display-duration 5)    ;; window を継続表示する時間[s]
+  (setq appt-audible nil)           ;; ビープ音の有無
+  (setq appt-message-warning-time 10)  ;; 何分前から警告表示を開始するか[m]
+  (setq appt-display-interval 1)  ;; 警告表示開始から何分毎にリマインドするか[m]
+
+  ;; advices
+  (advice-add 'appt-display-message :override #'ad:appt-display-message)
+  (cond
+   ((eq appt-display-format 'echo)
+    (setq appt-disp-window-function 'ad:appt-disp-window))
+   ((eq appt-display-format 'window)
+    (advice-add 'appt-disp-window :before #'ad:appt-disp-window))))
+
+(with-eval-after-load "org"
+  (setq org-show-notification-handler #'my-desktop-notification-handler)
+
+  ;; Trigers
+  (run-at-time "20 sec" nil #'my-org-agenda-to-appt)
+  (run-with-idle-timer 180 t #'my-org-agenda-to-appt)
+  (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
+  (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt)
+  (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt)
+
+  (when (require 'appt nil t)
+    (my-org-agenda-to-appt)))
 
 (when do-profile (profiler-stop))
 ;; End of init-win.el

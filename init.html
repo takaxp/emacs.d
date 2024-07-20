@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-06-17 Mon 12:20 -->
+<!-- 2024-07-20 Sat 21:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1547,7 +1547,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">diary-entry-time</span> (s)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">originally defined in `</span><span style="color: #008b8b;">diary-lib.el</span><span style="color: #b22222;">'</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">diary-entry-time</span> (s)
   <span style="color: #8b2252;">"Return time at the beginning of the string S as a military-style integer.</span>
 <span style="color: #8b2252;">For example, returns 1325 for 1:25pm.</span>
 
@@ -1574,6 +1575,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
                   0 1200)))
           (t diary-unknown-time))))
 
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">Avoid to load diary-lib to use `</span><span style="color: #008b8b;">diary-entry-time</span><span style="color: #b22222;">'</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">run-at-time</span> (time repeat function <span style="color: #228b22;">&amp;rest</span> args)
   <span style="color: #8b2252;">"Perform an action at time TIME.</span>
 <span style="color: #8b2252;">Repeat the action every REPEAT seconds, if REPEAT is non-nil.</span>
@@ -3031,7 +3033,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 (global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
 (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
 (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
-(<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-toggle)
+(<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-toggle) <span style="color: #b22222;">;; </span><span style="color: #b22222;">using ns-inline-patch</span>
   (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-toggle-ime-ns</span> 'mac-ime-toggle)
   (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-ime-active-p</span> 'mac-ime-active-p)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
 </pre>
@@ -9745,8 +9747,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">
-(<span style="color: #a020f0;">when</span> (autoload-if-found '(session-initialize)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(session-initialize)
                          <span style="color: #8b2252;">"session"</span> nil t)
   (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> noninteractive my-secure-boot)
     (add-hook 'after-init-hook #'session-initialize))
@@ -9756,8 +9757,8 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
     (<span style="color: #a020f0;">setq</span> session-set-file-name-exclude-regexp <span style="color: #8b2252;">"[/\\]\\.overview</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[/\\]\\.session</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">News[/\\]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[/\\]COMMIT_EDITMSG"</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Change save point of session.el</span>
     (<span style="color: #a020f0;">setq</span> session-save-file
-          (expand-file-name (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/.session"</span>)))
-    (<span style="color: #a020f0;">setq</span> session-initialize '(de-saveplace session keys menus places)
+          (expand-file-name (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/.session"</span>))
+          session-initialize '(de-saveplace session keys menus places)
           session-globals-include '((kill-ring 100)
                                     (session-file-alist 100 t)
                                     (file-name-history 200)
@@ -12757,8 +12758,8 @@ org バッファのソースブロックにカーソルがある時には， <co
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c M-n"</span>) #'my-org-move-item-end)
-  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c M-p"</span>) #'my-org-move-item-begin))
+  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c x"</span>) #'my-org-move-item-end)
+  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c X"</span>) #'my-org-move-item-begin))
 </pre>
 </div>
 
@@ -13254,7 +13255,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (not (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t))
           (not my-org-agenda-to-appt-async))
       (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
-        (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"TODO"</span>)))
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-agenda-to-appt t '((headline "TODO")))</span>
+        (org-agenda-to-appt t)
         (appt-check))
     (<span style="color: #a020f0;">when</span> force
       (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))
@@ -13270,7 +13272,8 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
           (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span>)
           (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">appt</span>)
           (<span style="color: #a020f0;">setq</span> org-agenda-files ',org-agenda-files)
-          (org-agenda-to-appt t '((headline <span style="color: #8b2252;">"TODO"</span>)))
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-agenda-to-appt t '((headline "TODO")))</span>
+          (org-agenda-to-appt t)
           (appt-check) <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove past events</span>
           <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove tags</span>
           (<span style="color: #a020f0;">let</span> ((msgs appt-time-msg-list))
@@ -14000,7 +14003,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org1dc5d40"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgbdb5209"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14977,7 +14980,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgee7e286" class="figure">
+<div id="org749cf88" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15549,9 +15552,6 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
     (add-hook 'moom-split-window-hook #'dimmer-permanent-off)
     (add-hook 'moom-delete-window-hook #'dimmer-on)
     (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
-
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key moom-mode-map (kbd "C-c C-&lt;") 'moom-move-frame-to-edge-left)</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key moom-mode-map (kbd "C-c C-&gt;") 'moom-move-frame-to-edge-right)</span>
 
     (custom-set-variables
      '(moom-command-with-centering nil)
@@ -17623,8 +17623,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
     (custom-set-variables
      '(counsel-osx-app-location
        '(<span style="color: #8b2252;">"/Applications"</span> <span style="color: #8b2252;">"/Applications/Utilities"</span>
-         <span style="color: #8b2252;">"/System/Applications"</span>
-         <span style="color: #8b2252;">"/System/Applications/Utilities"</span>
+         <span style="color: #8b2252;">"/System/Applications"</span> <span style="color: #8b2252;">"/System/Applications/Utilities"</span>
          <span style="color: #8b2252;">"/Applications/Microsoft Remote Desktop.localized"</span>)))))
 </pre>
 </div>
@@ -18447,7 +18446,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">ox-icalendar-activate</span> nil)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">utility.el</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">ox-icalendar-activate</span> nil)
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ox-icalendar-activate</span> ()
@@ -19423,7 +19423,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-06-17 Mon 12:20</p>
+<p class="date">Created: 2024-07-20 Sat 21:08</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

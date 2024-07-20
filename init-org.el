@@ -863,8 +863,8 @@ The core part is extracted from `org-table-export'."
     "My strike-through emphasis for Org."))
 
 (with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-c M-n") #'my-org-move-item-end)
-  (define-key org-mode-map (kbd "C-c M-p") #'my-org-move-item-begin))
+  (define-key org-mode-map (kbd "C-c x") #'my-org-move-item-end)
+  (define-key org-mode-map (kbd "C-c X") #'my-org-move-item-begin))
 
 (when (autoload-if-found '(org-capture)
                          "org-capture" nil t)

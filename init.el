@@ -145,6 +145,7 @@
   (unless (or noninteractive my-secure-boot)
     (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
 
+;; originally defined in `diary-lib.el'
 (defun diary-entry-time (s)
   "Return time at the beginning of the string S as a military-style integer.
 For example, returns 1325 for 1:25pm.
@@ -172,6 +173,7 @@ be used instead of a colon (:) to separate the hour and minute parts."
                   0 1200)))
           (t diary-unknown-time))))
 
+;; Avoid to load diary-lib to use `diary-entry-time'
 (defun run-at-time (time repeat function &rest args)
   "Perform an action at time TIME.
 Repeat the action every REPEAT seconds, if REPEAT is non-nil.
@@ -285,7 +287,7 @@ This function returns a timer object which you can use in
 (global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
 (define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
 (define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
-(when (fboundp 'mac-ime-toggle)
+(when (fboundp 'mac-ime-toggle) ;; using ns-inline-patch
   (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
   (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
 
@@ -406,8 +408,8 @@ This function returns a timer object which you can use in
     (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
     (setq session-save-file
-          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
-    (setq session-initialize '(de-saveplace session keys menus places)
+          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session"))
+          session-initialize '(de-saveplace session keys menus places)
           session-globals-include '((kill-ring 100)
                                     (session-file-alist 100 t)
                                     (file-name-history 200)
@@ -540,9 +542,6 @@ This function returns a timer object which you can use in
     (add-hook 'moom-delete-window-hook #'dimmer-on)
     (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
 
-    ;; (define-key moom-mode-map (kbd "C-c C-<") 'moom-move-frame-to-edge-left)
-    ;; (define-key moom-mode-map (kbd "C-c C->") 'moom-move-frame-to-edge-right)
-
     (custom-set-variables
      '(moom-command-with-centering nil)
      '(moom-lighter "M")
@@ -579,8 +578,7 @@ This function returns a timer object which you can use in
     (custom-set-variables
      '(counsel-osx-app-location
        '("/Applications" "/Applications/Utilities"
-         "/System/Applications"
-         "/System/Applications/Utilities"
+         "/System/Applications" "/System/Applications/Utilities"
          "/Applications/Microsoft Remote Desktop.localized")))))
 
 (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
