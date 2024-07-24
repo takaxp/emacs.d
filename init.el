@@ -117,8 +117,8 @@
       (postpone-kicker 'postpone-pre)
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message "Activating postponed packages...done (%.3f seconds)"
-             postpone-pre-init-time)))
+    (message "Activating postponed packages...done (%4.0f [msec])"
+             (* postpone-pre-init-time 100))))
 
 (autoload 'postpone-kicker "postpone" nil t)
 (add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.

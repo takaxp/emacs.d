@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-07-24 水 23:30 -->
+<!-- 2024-07-25 木 00:15 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -209,7 +209,11 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgda9120c8">1. はじめに</a></li>
+<li><a href="#orgda9120c8">1. はじめに</a>
+<ul>
+<li><a href="#orgb456a2e">1.1. ファイルサイズ</a></li>
+</ul>
+</li>
 <li><a href="#org2a411a2e">2. 起動設定</a>
 <ul>
 <li><a href="#orgdb94bf6d">2.1. Spacemacs</a></li>
@@ -817,6 +821,63 @@
 </tr>
 </tbody>
 </table>
+</div>
+
+<div id="outline-container-orgb456a2e" class="outline-3">
+<h3 id="orgb456a2e"><span class="section-number-3">1.1.</span> ファイルサイズ</h3>
+<div class="outline-text-3" id="text-1-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption class="t-above"><span class="table-number">Table 2:</span> 設定ファイル名と行数(2024-07-25)</caption>
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">ファイル名</th>
+<th scope="col" class="org-right">行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">init.el</td>
+<td class="org-right">448</td>
+</tr>
+
+<tr>
+<td class="org-left">init-autoloads.el</td>
+<td class="org-right">843</td>
+</tr>
+
+<tr>
+<td class="org-left">early-init.el</td>
+<td class="org-right">98</td>
+</tr>
+
+<tr>
+<td class="org-left">late-init.el</td>
+<td class="org-right">2251</td>
+</tr>
+
+<tr>
+<td class="org-left">init-org.el</td>
+<td class="org-right">2033</td>
+</tr>
+
+<tr>
+<td class="org-left">init-dired.el</td>
+<td class="org-right">57</td>
+</tr>
+
+<tr>
+<td class="org-left">utility.el</td>
+<td class="org-right">3102</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 
@@ -1550,8 +1611,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
       (postpone-kicker 'postpone-pre)
       (<span style="color: #a020f0;">setq</span> postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message <span style="color: #8b2252;">"Activating postponed packages...done (%.3f seconds)"</span>
-             postpone-pre-init-time)))
+    (message <span style="color: #8b2252;">"Activating postponed packages...done (%4.0f [msec])"</span>
+             (* postpone-pre-init-time 100))))
 
 (autoload 'postpone-kicker <span style="color: #8b2252;">"postpone"</span> nil t)
 (add-hook 'pre-command-hook #'postpone-pre) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will be removed in postpone.el.</span>
@@ -14131,7 +14192,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org85f614a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org9d6d829"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15108,7 +15169,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgca9d2f0" class="figure">
+<div id="org6b9fcdd" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16386,7 +16447,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 </p>
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 2:</span> 環境別の使用フォント</caption>
+<caption class="t-above"><span class="table-number">Table 3:</span> 環境別の使用フォント</caption>
 
 <colgroup>
 <col  class="org-left" />
@@ -19555,7 +19616,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-07-24 水 23:30</p>
+<p class="date">Created: 2024-07-25 木 00:15</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

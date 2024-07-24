@@ -32,6 +32,19 @@
 | init-dired.el     | ユーザアクションの発生後に読み込まれるdired関連の設定群 |
 | utility.el        | 独自実装した関数群を集約                                |
 
+** ファイルサイズ
+
+#+caption: 設定ファイル名と行数(2024-07-25)
+| ファイル名        | 行数 |
+|-------------------+------|
+| init.el           |  448 |
+| init-autoloads.el |  843 |
+| early-init.el     |   98 |
+| late-init.el      | 2251 |
+| init-org.el       | 2033 |
+| init-dired.el     |   57 |
+| utility.el        | 3102 |
+
 * 起動設定
   :PROPERTIES:
   :CUSTOM_ID: org2a411a2e
@@ -721,8 +734,8 @@ This function is called directly from the C code."
       (postpone-kicker 'postpone-pre)
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message "Activating postponed packages...done (%.3f seconds)"
-             postpone-pre-init-time)))
+    (message "Activating postponed packages...done (%4.0f [msec])"
+             (* postpone-pre-init-time 100))))
 
 (autoload 'postpone-kicker "postpone" nil t)
 (add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.
