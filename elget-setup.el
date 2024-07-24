@@ -4,6 +4,7 @@
 (defvar my-elget--private-recipes nil "Used for mainly non shallow recipes")
 (defvar my-elget--private-recipe-dirs '("~/.emacs.d/recipes"))
 
+;;;###autoload
 (defun my-elget-setup ()
   ;; Install all packages to this directory
   (setq el-get-dir

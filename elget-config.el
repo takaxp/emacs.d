@@ -4,6 +4,7 @@
 ;; call my-elget-load-and-sync
 (require 'elget-setup)
 
+;;;###autoload
 (defmacro my-elget-bundles ()
   "List of packages."
 
@@ -420,6 +421,7 @@
 ;; End of package list
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;###autoload
 (defun my-elget-private-recipe-p (recipe)
   (let ((result nil))
     (dolist (dir my-elget--private-recipe-dirs)
@@ -427,13 +429,14 @@
         (setq result t)))
     result))
 
-;;;###audoload
+;;;###autoload
 (defun my-elget-update-org ()
   (interactive)
   (when (shell-command-to-string
          (concat "~/Dropbox/emacs.d/bin/el-get.sh -g tag"))
     (message "[el-get] Org mode updated")))
 
+;;;###autoload
 (defun my-elget-update-packages (packages &optional current total)
   (unless (eq (or current 0) 0)
     (message (make-string 80 ?-))
@@ -447,6 +450,7 @@
       (message "[%3d/%3d] update: %s"
                (+ index (or current 0)) (or total 0) package))))
 
+;;;###autoload
 (defun my-elget-update-progress (&optional threads)
   "Update packages only for batch-mode."
   (unless noninteractive
@@ -491,6 +495,7 @@
       (setq index (+ index (length target-packages)))
       (setq packages (butlast packages unit)))))
 
+;;;###autoload
 (defun my-elget-remove-package (package)
   "Remove PACKAGE."
   (let ((pos (string-match "[^/]+$" package)))
@@ -507,7 +512,7 @@
       (message "(%3d) %s" index package))
     (message "[el-get] %s packages (installed)" (length packages))))
 
-;;;###audoload
+;;;###autoload
 (defun my-elget-reset-links ()
   (interactive)
   (when (shell-command-to-string
@@ -522,6 +527,7 @@
                         'recursively))
 
 ;; for noninteractive
+;;;###autoload
 (defun my-elget-load-and-sync ()
   (my-elget-setup)
   (unless my-elget-initialize
