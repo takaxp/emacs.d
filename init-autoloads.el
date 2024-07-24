@@ -19,13 +19,35 @@
 
 ;;; Generated autoloads from elget-config.el
 
+(autoload 'my-elget-bundles "elget-config" "\
+List of packages." nil t)
+(autoload 'my-elget-private-recipe-p "elget-config" "\
+
+
+(fn RECIPE)")
+(autoload 'my-elget-update-org "elget-config" nil t)
+(autoload 'my-elget-update-packages "elget-config" "\
+
+
+(fn PACKAGES &optional CURRENT TOTAL)")
+(autoload 'my-elget-update-progress "elget-config" "\
+Update packages only for batch-mode.
+
+(fn &optional THREADS)")
+(autoload 'my-elget-remove-package "elget-config" "\
+Remove PACKAGE.
+
+(fn PACKAGE)")
 (autoload 'my-elget-list "elget-config" nil t)
+(autoload 'my-elget-reset-links "elget-config" nil t)
 (autoload 'my-elget-nativecomp-all-packages "elget-config" nil t)
-(register-definition-prefixes "elget-config" '("my-elget-"))
+(autoload 'my-elget-load-and-sync "elget-config")
+(register-definition-prefixes "elget-config" '("my-elget-bundles"))
 
 
 ;;; Generated autoloads from elget-setup.el
 
+(autoload 'my-elget-setup "elget-setup")
 (register-definition-prefixes "elget-setup" '("my-elget-"))
 
 
