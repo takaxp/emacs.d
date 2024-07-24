@@ -3,7 +3,7 @@
 ;; https://raw.githubusercontent.com/hlissner/doom-emacs/develop/early-init.el
 (defvar my-early-start (current-time))
 (defvar my-early-init
-  (format "%searly-init.el" (expand-file-name user-emacs-directory)))
+  (format "%slisp/early-init.el" (expand-file-name user-emacs-directory)))
 
 (message "Loading %s..." my-early-init)
 

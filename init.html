@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-07-24 Wed 13:06 -->
+<!-- 2024-07-24 水 16:04 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -228,29 +228,30 @@
 <li><a href="#org8b967ce1">2.10. 警告の抑制</a></li>
 <li><a href="#org0ea7dbaf">2.11. エラー表示の抑制</a></li>
 <li><a href="#org8d718626">2.12. バッファの保存を静かにする</a></li>
-<li><a href="#org660ba5e8">2.13. [my-load-package-p] 設定の読み込みフラグを確認する</a></li>
-<li><a href="#orgc0921cdc">2.14. [autoload-if-found] 関数をリストで渡すautoload設定</a></li>
-<li><a href="#orga2859651">2.15. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
-<li><a href="#org124f13e2">2.16. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
-<li><a href="#org30c47759">2.17. [library-p] load-path にライブラリがあるかを判定</a></li>
-<li><a href="#orgb75ac2db">2.18. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
-<li><a href="#orgdc071e4d">2.19. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
-<li><a href="#orgfca510d8">2.20. [shut-up.el] Messages 出力を封じる（制御する）</a>
+<li><a href="#org54dabde8">2.13. 環境設定</a></li>
+<li><a href="#org660ba5e8">2.14. [my-load-package-p] 設定の読み込みフラグを確認する</a></li>
+<li><a href="#orgc0921cdc">2.15. [autoload-if-found] 関数をリストで渡すautoload設定</a></li>
+<li><a href="#orga2859651">2.16. [postpone.el] Emacs起動してから使い始めるタイミングで実行する</a></li>
+<li><a href="#org124f13e2">2.17. [future-time-p] 指定時刻が本日の未来の時刻かを判定</a></li>
+<li><a href="#org30c47759">2.18. [library-p] load-path にライブラリがあるかを判定</a></li>
+<li><a href="#orgb75ac2db">2.19. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
+<li><a href="#orgdc071e4d">2.20. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
+<li><a href="#orgfca510d8">2.21. [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
-<li><a href="#orgb6593164">2.20.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#orgb6593164">2.21.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
 </ul>
 </li>
-<li><a href="#org5a18ac68">2.21. Native comp が使えるかを判定する</a></li>
-<li><a href="#org65713cda">2.22. Native comp がコンパイルした後にメッセージを表示する</a></li>
-<li><a href="#orgfd894e86">2.23. elget パッケージ群を native comp する</a></li>
-<li><a href="#orgb59612b6">2.24. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
-<li><a href="#org0b7d9710">2.25. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
+<li><a href="#org5a18ac68">2.22. Native comp が使えるかを判定する</a></li>
+<li><a href="#org65713cda">2.23. Native comp がコンパイルした後にメッセージを表示する</a></li>
+<li><a href="#orgfd894e86">2.24. elget パッケージ群を native comp する</a></li>
+<li><a href="#orgb59612b6">2.25. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a></li>
+<li><a href="#org0b7d9710">2.26. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></a>
 <ul>
-<li><a href="#org42722212">2.25.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.25.2. マクロ版</a></li>
+<li><a href="#org42722212">2.26.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.26.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#orgcea06248">2.26. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
+<li><a href="#orgcea06248">2.27. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -757,7 +758,7 @@
 <ul class="org-ul">
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.org">init.org</a> から次の設定ファイルを生成しています
 <ul class="org-ul">
-<li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/early-init.el">early-init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">late-init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/init-org.el">init-org.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/utility.el">utility.el</a></li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/early-init.el">early-init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">late-init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/init-org.el">init-org.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/init-dired.el">init-dired.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/utility.el">utility.el</a></li>
 </ul></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.org">init.org</a> から <a href="https://takaxp.github.io/init.html">init.html</a> をエクスポートしています．</li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-autoloads.el">init-autoload.el</a> は，late-init.el と utility.el から生成しています．</li>
@@ -806,6 +807,11 @@
 </tr>
 
 <tr>
+<td class="org-left">init-dired.el</td>
+<td class="org-left">ユーザアクションの発生後に読み込まれるdired関連の設定群</td>
+</tr>
+
+<tr>
 <td class="org-left">utility.el</td>
 <td class="org-left">独自実装した関数群を集約</td>
 </tr>
@@ -829,7 +835,6 @@
 <li><code>.emacs</code> の読み込み</li>
 <li><code>init-env.el</code> の読み込み</li>
 <li><code>init.el</code> の読み込み</li>
-<li><code>init-async.el</code> の読み込み</li>
 <li><code>late-init.el</code> の読み込み</li>
 </ol>
 
@@ -846,10 +851,6 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 </p>
 
 <p>
-<code>init-async.el</code> は，起動時に非同期で実行する関数を格納していますが，バイトコンパイルすると動作が怪しいので， <code>init.el</code> に格納せず分離しています． <code>async.el</code> 依存です．
-</p>
-
-<p>
 <code>late-init.el</code> には，ほぼすべての独自作成した関数群を格納しています．各関数は <code>autoload</code> 指定していて，別途生成する <code>init-autoload.el</code> に関数と記述のあるファイルの対応関係が示され， <code>init.el</code> の冒頭で読み込みます．起動時にすべての独自関数全体を直接読まなくて済むため，高速化に繋がります．
 </p>
 
@@ -863,7 +864,6 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-env.el">emacs.d/init-env.el at master · takaxp/emacs.d</a></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">emacs.d/init.el at master · takaxp/emacs.d</a></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">emacs.d/late-init.el at master · takaxp/emacs.d</a></li>
-<li><a href="https://github.com/takaxp/emacs.d/blob/master/init-async.el">emacs.d/init-async.el at master · takaxp/emacs.d</a></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-eval.el">emacs.d/init-eval.el at master · takaxp/emacs.d</a></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-ad.el">emacs.d/init-ad.el at master · takaxp/emacs.d</a></li>
 </ul>
@@ -932,7 +932,7 @@ Then load the following at startup
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://raw.githubusercontent.com/hlissner/doom-emacs/develop/early-init.el</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-start</span> (current-time))
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-init</span>
-  (format <span style="color: #8b2252;">"%searly-init.el"</span> (expand-file-name user-emacs-directory)))
+  (format <span style="color: #8b2252;">"%slisp/early-init.el"</span> (expand-file-name user-emacs-directory)))
 
 (message <span style="color: #8b2252;">"Loading %s..."</span> my-early-init)
 
@@ -1328,8 +1328,77 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
+<div id="outline-container-org54dabde8" class="outline-3">
+<h3 id="org54dabde8"><span class="section-number-3">2.13.</span> 環境設定</h3>
+<div class="outline-text-3" id="text-org54dabde8">
+<p>
+<code>el-get</code> でインストールしているパッケージ群と，個別管理している org-mode を使えるようにパスを通します．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Build and check `</span><span style="color: #008b8b;">my-package-dir</span><span style="color: #b22222;">'</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-package-dir</span> nil)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-use-el-get</span> emacs-version <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil</span>
+  <span style="color: #8b2252;">"If version number is provided, use packages installed via el-get."</span>)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-package-dir</span> (format <span style="color: #8b2252;">"~/.emacs.d/%s/packages"</span> my-use-el-get))
+(<span style="color: #a020f0;">when</span> my-use-el-get
+  (<span style="color: #a020f0;">setq</span> my-package-dir my-elget-package-dir))
+(<span style="color: #a020f0;">unless</span> (file-directory-p my-package-dir)
+  (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"%s does NOT exist. Run setup script first"</span> my-package-dir))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-path-setter</span> (path-list target-path)
+  <span style="color: #8b2252;">"Utility function to set PATH-LIST to TARGET-PATH."</span>
+  (<span style="color: #a020f0;">dolist</span> (x path-list)
+    (add-to-list target-path (file-name-as-directory x))))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(1) theme-path</span>
+(my-path-setter
+ `(,my-package-dir <span style="color: #8b2252;">"~/.emacs.d/lisp"</span>) 'custom-theme-load-path)
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(2) exec-path</span>
+(my-path-setter
+ `(<span style="color: #8b2252;">"/usr/bin"</span> <span style="color: #8b2252;">"/usr/local/bin"</span> <span style="color: #8b2252;">"/opt/homebrew/bin"</span>
+   ,(expand-file-name <span style="color: #8b2252;">"~/.cask/bin"</span>)
+   ,(expand-file-name <span style="color: #8b2252;">"~/devel/git/tern/bin"</span>)
+   ,(expand-file-name <span style="color: #8b2252;">"~/.go/bin"</span>)
+   ,(expand-file-name <span style="color: #8b2252;">"~/Dropbox/emacs.d/bin"</span>)
+   ,(expand-file-name <span style="color: #8b2252;">"~/Dropbox/scripts"</span>)
+   <span style="color: #8b2252;">"/usr/local/opt/llvm/bin"</span>
+   <span style="color: #8b2252;">"C:/cygwin64/bin"</span> <span style="color: #8b2252;">"C:/msys64/usr/bin"</span> <span style="color: #8b2252;">"C:/msys64/mingw64/bin"</span>
+   <span style="color: #8b2252;">"/Applications/UpTex.app/teTeX/bin"</span>
+   <span style="color: #8b2252;">"/Applications/UpTeX.app/Contents/Resources/TEX/texbin"</span>
+   <span style="color: #8b2252;">"/Applications/LibreOffice.app/Contents/MacOS/"</span>
+   <span style="color: #8b2252;">"/Applications/qt_color_picker.app/Contents/MacOS/"</span>
+   <span style="color: #8b2252;">"/usr/local/opt/imagemagick@6/bin"</span>)
+ 'exec-path)
+
+(setenv <span style="color: #8b2252;">"PATH"</span> (concat <span style="color: #8b2252;">"/opt/homebrew/bin:"</span> (getenv <span style="color: #8b2252;">"PATH"</span>)))
+(setenv <span style="color: #8b2252;">"PATH"</span> (concat <span style="color: #8b2252;">"/usr/local/bin:"</span> (getenv <span style="color: #8b2252;">"PATH"</span>)))
+(setenv <span style="color: #8b2252;">"GOPATH"</span> (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/.go"</span>))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">you may want to use exec-path-from-shell.el.</span>
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#25313;&#24373;&#12497;&#12483;&#12465;&#12540;&#12472;&#12395;&#12497;&#12473;&#12434;&#36890;&#12377;</span>
+(<span style="color: #a020f0;">let*</span> ((g <span style="color: #8b2252;">"~/devel/git/"</span>)
+       (od <span style="color: #8b2252;">"org-mode"</span>)
+       (l `(<span style="color: #8b2252;">"~/Dropbox/config"</span>
+            <span style="color: #8b2252;">"~/.emacs.d/lisp"</span>
+            ,my-package-dir <span style="color: #b22222;">;; </span><span style="color: #b22222;">may include a path to org</span>
+            ,(concat g od <span style="color: #8b2252;">"/lisp"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">override the path to org</span>
+            ,(concat g od <span style="color: #8b2252;">"/contrib/lisp"</span>)
+            )))
+  (my-path-setter l 'load-path))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'use-package nil t) ;; 24[ms]</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'leaf nil t) ;; 2[ms]</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (require 'benchmark-init nil t)</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(add-hook 'after-init-hook #'benchmark-init/deactivate))</span>
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org660ba5e8" class="outline-3">
-<h3 id="org660ba5e8"><span class="section-number-3">2.13.</span> [my-load-package-p] 設定の読み込みフラグを確認する</h3>
+<h3 id="org660ba5e8"><span class="section-number-3">2.14.</span> [my-load-package-p] 設定の読み込みフラグを確認する</h3>
 <div class="outline-text-3" id="text-org660ba5e8">
 <p>
 <code>autoload-if-found</code> のサポート関数です．
@@ -1358,7 +1427,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgc0921cdc" class="outline-3">
-<h3 id="orgc0921cdc"><span class="section-number-3">2.14.</span> [autoload-if-found] 関数をリストで渡すautoload設定</h3>
+<h3 id="orgc0921cdc"><span class="section-number-3">2.15.</span> [autoload-if-found] 関数をリストで渡すautoload設定</h3>
 <div class="outline-text-3" id="text-orgc0921cdc">
 <p>
 この <code>autoload-if-found</code> の初出は，<a href="http://www.sodan.org/~knagano/emacs/dotemacs.html">dot.emacs</a> です．
@@ -1442,7 +1511,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orga2859651" class="outline-3">
-<h3 id="orga2859651"><span class="section-number-3">2.15.</span> [postpone.el] Emacs起動してから使い始めるタイミングで実行する</h3>
+<h3 id="orga2859651"><span class="section-number-3">2.16.</span> [postpone.el] Emacs起動してから使い始めるタイミングで実行する</h3>
 <div class="outline-text-3" id="text-orga2859651">
 <ul class="org-ul">
 <li><a href="https://github.com/takaxp/postpone">takaxp/postpone: Call functions just one time at your first action in Emacs</a></li>
@@ -1507,7 +1576,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org124f13e2" class="outline-3">
-<h3 id="org124f13e2"><span class="section-number-3">2.16.</span> [future-time-p] 指定時刻が本日の未来の時刻かを判定</h3>
+<h3 id="org124f13e2"><span class="section-number-3">2.17.</span> [future-time-p] 指定時刻が本日の未来の時刻かを判定</h3>
 <div class="outline-text-3" id="text-org124f13e2">
 <p>
 今日の時刻に限定して，指定時刻が過去の時間かどうかを判定します． <code>run-at-time</code> が想定通りに動かず，起動時に <code>run-at-time</code> に登録した関数が走ってしまうので，この判定が <code>non-nil</code> の時だけタイマー登録します． <code>time</code> を <code>HH:MM</code> の書式で与えます．指定時刻と現在時刻が同じ場合は，過去とみなします．
@@ -1555,7 +1624,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org30c47759" class="outline-3">
-<h3 id="org30c47759"><span class="section-number-3">2.17.</span> [library-p] load-path にライブラリがあるかを判定</h3>
+<h3 id="org30c47759"><span class="section-number-3">2.18.</span> [library-p] load-path にライブラリがあるかを判定</h3>
 <div class="outline-text-3" id="text-org30c47759">
 <p>
 パッケージが <code>load-path</code> に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
@@ -1587,7 +1656,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb75ac2db" class="outline-3">
-<h3 id="orgb75ac2db"><span class="section-number-3">2.18.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
+<h3 id="orgb75ac2db"><span class="section-number-3">2.19.</span> run-at-time をハックして diary-lib.el の読み込みを抑制</h3>
 <div class="outline-text-3" id="text-orgb75ac2db">
 <p>
 <code>run-at-time</code> を使ったタイマー設定時に，時刻を文字列で指定すると， <code>diary-lib.el</code> を読み込み， <code>diary-entry-time</code> を使いますが，そのために起動時の時間を使うのはもったいないので， <code>diary-entry-time</code> だけを <code>init.el</code> に移植し， <code>run-at-time</code> をハックして <code>diary-lib.el</code> を読み込まないようにします．
@@ -1704,7 +1773,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgdc071e4d" class="outline-3">
-<h3 id="orgdc071e4d"><span class="section-number-3">2.19.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
+<h3 id="orgdc071e4d"><span class="section-number-3">2.20.</span> <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</h3>
 <div class="outline-text-3" id="text-orgdc071e4d">
 <ul class="org-ul">
 <li><a href="https://gitlab.com/koral/gcmh">https://gitlab.com/koral/gcmh</a></li>
@@ -1754,7 +1823,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgfca510d8" class="outline-3">
-<h3 id="orgfca510d8"><span class="section-number-3">2.20.</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
+<h3 id="orgfca510d8"><span class="section-number-3">2.21.</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
 <div class="outline-text-3" id="text-orgfca510d8">
 <p>
 <code>shut-up.el</code> というマクロがあり，現在はそちらを使っています．非常に強力です．
@@ -1772,7 +1841,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb6593164" class="outline-4">
-<h4 id="orgb6593164"><span class="section-number-4">2.20.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
+<h4 id="orgb6593164"><span class="section-number-4">2.21.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h4>
 <div class="outline-text-4" id="text-orgb6593164">
 <p>
 以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．
@@ -1795,7 +1864,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org5a18ac68" class="outline-3">
-<h3 id="org5a18ac68"><span class="section-number-3">2.21.</span> Native comp が使えるかを判定する</h3>
+<h3 id="org5a18ac68"><span class="section-number-3">2.22.</span> Native comp が使えるかを判定する</h3>
 <div class="outline-text-3" id="text-org5a18ac68">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -1819,7 +1888,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org65713cda" class="outline-3">
-<h3 id="org65713cda"><span class="section-number-3">2.22.</span> Native comp がコンパイルした後にメッセージを表示する</h3>
+<h3 id="org65713cda"><span class="section-number-3">2.23.</span> Native comp がコンパイルした後にメッセージを表示する</h3>
 <div class="outline-text-3" id="text-org65713cda">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -1837,7 +1906,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgfd894e86" class="outline-3">
-<h3 id="orgfd894e86"><span class="section-number-3">2.23.</span> elget パッケージ群を native comp する</h3>
+<h3 id="orgfd894e86"><span class="section-number-3">2.24.</span> elget パッケージ群を native comp する</h3>
 <div class="outline-text-3" id="text-orgfd894e86">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">2<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autoload</span>
@@ -1851,7 +1920,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.24.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.25.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a></li>
@@ -1871,7 +1940,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.25.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.26.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="notinuse">notinuse</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b>
@@ -1955,7 +2024,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.25.1.</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.26.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
@@ -2011,7 +2080,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.25.2.</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.26.2.</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
@@ -2046,7 +2115,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.26.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.27.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．
@@ -4134,7 +4203,7 @@ Built-in の time-stamp.el を使う．
 </p>
 
 <p>
-バッファの保存時にタイムスタンプを記録する．以下の設定では，バッファの先頭から10行以内に，"#+date:" があると，"#+date: 2011-12-31" のようにタイムスタンプが記録される．Org Mode 用には "<span class="timestamp-wrapper"><span class="timestamp">[2018-10-08 Mon 10:00]</span></span>" のような形式でタイムスタンプを記録するようにしている．
+バッファの保存時にタイムスタンプを記録する．以下の設定では，バッファの先頭から10行以内に，"#+date:" があると，"#+date: 2011-12-31" のようにタイムスタンプが記録される．Org Mode 用には "<span class="timestamp-wrapper"><span class="timestamp">[2018-10-08 月 10:00]</span></span>" のような形式でタイムスタンプを記録するようにしている．
 </p>
 
 <p>
@@ -12433,7 +12502,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2018-03-19 Mon]</span></span>: alerter に統一しました．
+<span class="timestamp-wrapper"><span class="timestamp">[2018-03-19 月]</span></span>: alerter に統一しました．
 </p>
 
 <p>
@@ -14050,7 +14119,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org13f71b8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org9f771b3"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15027,7 +15096,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org64a8e60" class="figure">
+<div id="org123128a" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -17126,13 +17195,18 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> window-system
-             (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-async</span> nil t))
-    (my-delete-old-backup 3)))
+             my-skip-check-autoload-file) <span style="color: #b22222;">;; </span><span style="color: #b22222;">see init-env.el</span>
+    (my-find-missing-packages 5)))
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-find-missing-packages</span> (<span style="color: #228b22;">&amp;optional</span> defer)
+  (<span style="color: #a020f0;">interactive</span>)
+  (my-async-locate-libraries my-required-libraries (<span style="color: #a020f0;">or</span> defer 0)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-async-locate-libraries</span> (libraries <span style="color: #228b22;">&amp;optional</span> defer)
   <span style="color: #8b2252;">"Check the library listed in `</span><span style="color: #008b8b;">LIBRARIES</span><span style="color: #8b2252;">'."</span>
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t)
@@ -17162,11 +17236,6 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
                                   (<span style="color: #a020f0;">if</span> (&gt; count 1) <span style="color: #8b2252;">"s are"</span> <span style="color: #8b2252;">" is"</span>)
                                   <span style="color: #8b2252;">" NOT installed."</span>))))))))
     (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"missing async.el"</span>)))
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-find-missing-packages</span> (<span style="color: #228b22;">&amp;optional</span> defer)
-  (<span style="color: #a020f0;">interactive</span>)
-  (my-async-locate-libraries my-required-libraries (<span style="color: #a020f0;">or</span> defer 0)))
 </pre>
 </div>
 </div>
@@ -17177,10 +17246,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="outline-text-3" id="text-org9fefe803">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> window-system
-             (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-async</span> nil t))
-    (<span style="color: #a020f0;">when</span> my-skip-check-autoload-file <span style="color: #b22222;">;; </span><span style="color: #b22222;">see init-env.el</span>
-      (my-find-missing-packages 5))))
+  (<span style="color: #a020f0;">when</span> window-system
+    (my-delete-old-backup 3)))
 </pre>
 </div>
 
@@ -17193,6 +17260,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
      `(<span style="color: #a020f0;">lambda</span> ()
         (sleep-for (<span style="color: #a020f0;">or</span> ',defer 5))
         (<span style="color: #a020f0;">when</span> (load (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/.emacs"</span>) t)
+          (<span style="color: #a020f0;">setq</span> load-path ',load-path)
+          (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-autoloads</span>)
           (recursive-delete-backup-files 7)
           t))
      (<span style="color: #a020f0;">lambda</span> (result)
@@ -19470,7 +19539,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-07-24 Wed 13:06</p>
+<p class="date">Created: 2024-07-24 水 16:04</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
