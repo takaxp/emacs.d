@@ -1,11 +1,6 @@
 ;; (message "--- Window system (ns mac) %s, display-graphic-p %s, File %s" window-system (display-graphic-p) early-init-file)
 ;; References:
 ;; https://raw.githubusercontent.com/hlissner/doom-emacs/develop/early-init.el
-(defvar my-early-start (current-time))
-(defvar my-early-init
-  (format "%slisp/early-init.el" (expand-file-name user-emacs-directory)))
-
-(message "Loading %s..." my-early-init)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (unless (getenv "LIBRARY_PATH")
@@ -16,15 +11,22 @@
 ;;              "/opt/homebrew/opt/gcc/lib/gcc/13/gcc/aarch64-apple-darwin23/13")
 ;;            ":")))
 
-(setq package-enable-at-startup nil
-      frame-inhibit-implied-resize t)
-(with-eval-after-load "moom"
-  (setq frame-inhibit-implied-resize nil))
+(unless noninteractive
+  (defvar my-early-start (current-time))
+  (defvar my-early-init
+    (format "%slisp/early-init.el" (expand-file-name user-emacs-directory)))
 
-(set-scroll-bar-mode nil)
-(menu-bar-mode -1)
-(tab-bar-mode -1)
-(tool-bar-mode -1)
+  (message "Loading %s..." my-early-init)
+
+  (setq package-enable-at-startup nil
+        frame-inhibit-implied-resize t)
+  (with-eval-after-load "moom"
+    (setq frame-inhibit-implied-resize nil))
+
+  (set-scroll-bar-mode nil)
+  (menu-bar-mode -1)
+  (tab-bar-mode -1)
+  (tool-bar-mode -1))
 
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 ;; (setq garbage-collection-messages t)
@@ -91,5 +93,6 @@
 ;; (when (require 'benchmark-init nil t)
 ;;   (add-hook 'after-init-hook #'benchmark-init/deactivate))
 
-(defvar my-early-end (current-time))
-(message "Loading %s...done" my-early-init)
+(unless noninteractive
+  (defvar my-early-end (current-time))
+  (message "Loading %s...done" my-early-init))

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-07-24 水 16:05 -->
+<!-- 2024-07-24 水 16:22 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -930,11 +930,6 @@ Then load the following at startup
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- Window system (ns mac) %s, display-graphic-p %s, File %s" window-system (display-graphic-p) early-init-file)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">References:</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://raw.githubusercontent.com/hlissner/doom-emacs/develop/early-init.el</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-start</span> (current-time))
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-init</span>
-  (format <span style="color: #8b2252;">"%slisp/early-init.el"</span> (expand-file-name user-emacs-directory)))
-
-(message <span style="color: #8b2252;">"Loading %s..."</span> my-early-init)
 
 <span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (getenv "LIBRARY_PATH")</span>
@@ -945,15 +940,22 @@ Then load the following at startup
 <span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/gcc/lib/gcc/13/gcc/aarch64-apple-darwin23/13")</span>
 <span style="color: #b22222;">;;            </span><span style="color: #b22222;">":")))</span>
 
-(<span style="color: #a020f0;">setq</span> package-enable-at-startup nil
-      frame-inhibit-implied-resize t)
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
-  (<span style="color: #a020f0;">setq</span> frame-inhibit-implied-resize nil))
+(<span style="color: #a020f0;">unless</span> noninteractive
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-start</span> (current-time))
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-init</span>
+    (format <span style="color: #8b2252;">"%slisp/early-init.el"</span> (expand-file-name user-emacs-directory)))
 
-(set-scroll-bar-mode nil)
-(menu-bar-mode -1)
-(tab-bar-mode -1)
-(tool-bar-mode -1)
+  (message <span style="color: #8b2252;">"Loading %s..."</span> my-early-init)
+
+  (<span style="color: #a020f0;">setq</span> package-enable-at-startup nil
+        frame-inhibit-implied-resize t)
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
+    (<span style="color: #a020f0;">setq</span> frame-inhibit-implied-resize nil))
+
+  (set-scroll-bar-mode nil)
+  (menu-bar-mode -1)
+  (tab-bar-mode -1)
+  (tool-bar-mode -1))
 </pre>
 </div>
 </div>
@@ -14119,7 +14121,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org39c8996"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgf7bf3d5"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15096,7 +15098,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgc848140" class="figure">
+<div id="org9485642" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19539,7 +19541,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-07-24 水 16:05</p>
+<p class="date">Created: 2024-07-24 水 16:22</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
