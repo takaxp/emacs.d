@@ -46,6 +46,8 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 
 =init-async.el= は，起動時に非同期で実行する関数を格納していますが，バイトコンパイルすると動作が怪しいので， =init.el= に格納せず分離しています． =async.el= 依存です．
 
+=late-init.el= には，ほぼすべての独自作成した関数群を格納しています．各関数は ~autoload~ 指定していて，別途生成する =init-autoload.el= に関数と記述のあるファイルの対応関係が示され， =init.el= の冒頭で読み込みます．起動時にすべての独自関数全体を直接読まなくて済むため，高速化に繋がります．
+
 これ以外に，バッチモードでバイトコンパイルするための =init-eval.el= も使います．このファイルには，バイトコンパイル時だけ必要なパッケージを列挙しています．
 
 - [[https://github.com/takaxp/emacs.d/blob/master/.emacs][emacs.d/.emacs at master · takaxp/emacs.d]]
@@ -151,6 +153,50 @@ Then load the following at startup
 (tool-bar-mode -1)
 #+end_src
 
+** 起動時間の計測
+   :PROPERTIES:
+   :CUSTOM_ID: orga09727ae
+   :ID:       09C2EFDD-9279-4BA6-9364-BFE4CD5C7A07
+   :END:
+
+=M-x emacs-init-time= を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えて表示を変えます．元ネタは[[http://d.hatena.ne.jp/sugyan/20120120/1327037494][すぎゃーんメモ]]からです．感謝．
+
+#+begin_src emacs-lisp :tangle yes
+(defun my-emacs-init-time ()
+  "Emacs booting time in msec."
+  (let ((inhibit-message t))
+    (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
+             (* 1000
+                (float-time (time-subtract
+                             after-init-time
+                             before-init-time))))))
+
+(add-hook 'after-init-hook #'my-emacs-init-time)
+#+end_src
+
+ついでに， =%.1f= で出力されるいつもの =emacs-init-time= をハック．ただ最新の emacs では，デフォルトで細かい小数点以下表示に変更されているので不要です．
+
+#+begin_src emacs-lisp :tangle late-init.el :exports none
+;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
+(require 'init-autoloads nil t)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(with-eval-after-load "time"
+  (defun ad:emacs-init-time ()
+    "Return a string giving the duration of the Emacs initialization."
+    (interactive)
+    (let ((str
+           (format "%.3f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))))
+      (if (called-interactively-p 'interactive)
+          (message "%s" str)
+        str)))
+
+  (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
+#+end_src
+
 ** initファイルの読み込み時間計測
    :PROPERTIES:
    :CUSTOM_ID: org3c4d5a7a
@@ -225,51 +271,7 @@ Emacsは，以下の順番で起動します．
 
 see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Summary.html][Startup Summary - GNU Emacs Lisp Reference Manual]]
 
-** 起動時間の計測
-   :PROPERTIES:
-   :CUSTOM_ID: orga09727ae
-   :ID:       09C2EFDD-9279-4BA6-9364-BFE4CD5C7A07
-   :END:
-
-=M-x emacs-init-time= を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えて表示を変えます．元ネタは[[http://d.hatena.ne.jp/sugyan/20120120/1327037494][すぎゃーんメモ]]からです．感謝．
-
-#+begin_src emacs-lisp :tangle yes
-(defun my-emacs-init-time ()
-  "Emacs booting time in msec."
-  (let ((inhibit-message t))
-    (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
-             (* 1000
-                (float-time (time-subtract
-                             after-init-time
-                             before-init-time))))))
-
-(add-hook 'after-init-hook #'my-emacs-init-time)
-#+end_src
-
-ついでに， =%.1f= で出力されるいつもの =emacs-init-time= をハック．ただ最新の emacs では，デフォルトで細かい小数点以下表示に変更されているので不要です．
-
-#+begin_src emacs-lisp :tangle late-init.el :exports none
-;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
-(require 'init-autoloads nil t)
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-(with-eval-after-load "time"
-  (defun ad:emacs-init-time ()
-    "Return a string giving the duration of the Emacs initialization."
-    (interactive)
-    (let ((str
-           (format "%.3f seconds"
-                   (float-time
-                    (time-subtract after-init-time before-init-time)))))
-      (if (called-interactively-p 'interactive)
-          (message "%s" str)
-        str)))
-
-  (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
-#+end_src
-
-** 実行時間の計測
+** 実行時間の個別計測
    :PROPERTIES:
    :CREATED:  [2022-08-08 Mon 13:45]
    :ID:       BDB4D43E-1BD2-401A-9769-5430BF5DBB9A
@@ -646,10 +648,6 @@ This function is called directly from the C code."
     (message "Activating postponed packages...done (%.3f seconds)"
              postpone-pre-init-time)))
 
-;; (if (not (locate-library "postpone"))
-;;     (error "postpone.el is NOT installed yet or cannot find it")
-;;   (autoload 'postpone-kicker "postpone" nil t)
-;;   (add-hook 'pre-command-hook #'postpone-pre))
 (autoload 'postpone-kicker "postpone" nil t)
 (add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
@@ -667,9 +665,8 @@ This function is called directly from the C code."
         exit-minibuffer))
 
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
-(defvar my-pp-kicker-timer
-  (unless (or noninteractive my-secure-boot)
-    (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
+(unless (or noninteractive my-secure-boot)
+  (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
 #+end_src
 
 ** [future-time-p] 指定時刻が本日の未来の時刻かを判定
@@ -13406,7 +13403,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-9") 'moom-cycle-monitors)
-  (global-set-key (kbd "C-c f f m") 'moom-fill-band)
+  (global-set-key (kbd "C-c f m") 'moom-fill-band)
 
   (autoload 'moom-transient-dispatch "moom-transient" nil t)
   (global-set-key (kbd "C-c o") #'moom-transient-dispatch)

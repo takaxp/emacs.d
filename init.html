@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-07-20 Sat 21:08 -->
+<!-- 2024-07-24 Wed 10:21 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -215,13 +215,13 @@
 <li><a href="#orgdb94bf6d">2.1. Spacemacs</a></li>
 <li><a href="#org2db575a1">2.2. init.el のヘッダ</a></li>
 <li><a href="#org43b7d78e">2.3. [early-init.el] early-init.el を使う</a></li>
-<li><a href="#org3c4d5a7a">2.4. initファイルの読み込み時間計測</a>
+<li><a href="#orga09727ae">2.4. 起動時間の計測</a></li>
+<li><a href="#org3c4d5a7a">2.5. initファイルの読み込み時間計測</a>
 <ul>
-<li><a href="#org715ba410">2.4.1. Emacs 起動時の呼び出し順</a></li>
+<li><a href="#org715ba410">2.5.1. Emacs 起動時の呼び出し順</a></li>
 </ul>
 </li>
-<li><a href="#orga09727ae">2.5. 起動時間の計測</a></li>
-<li><a href="#orgb459f5a2">2.6. 実行時間の計測</a></li>
+<li><a href="#orgb459f5a2">2.6. 実行時間の個別計測</a></li>
 <li><a href="#org4c3e9f59">2.7. GCサイズの最適化</a></li>
 <li><a href="#orgc7901a57">2.8. Common Lisp を使う</a></li>
 <li><a href="#org625e4ab2">2.9. メッセージ出力の抑制</a></li>
@@ -802,6 +802,10 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 </p>
 
 <p>
+<code>late-init.el</code> には，ほぼすべての独自作成した関数群を格納しています．各関数は <code>autoload</code> 指定していて，別途生成する <code>init-autoload.el</code> に関数と記述のあるファイルの対応関係が示され， <code>init.el</code> の冒頭で読み込みます．起動時にすべての独自関数全体を直接読まなくて済むため，高速化に繋がります．
+</p>
+
+<p>
 これ以外に，バッチモードでバイトコンパイルするための <code>init-eval.el</code> も使います．このファイルには，バイトコンパイル時だけ必要なパッケージを列挙しています．
 </p>
 
@@ -907,8 +911,52 @@ Then load the following at startup
 </div>
 </div>
 
+<div id="outline-container-orga09727ae" class="outline-3">
+<h3 id="orga09727ae"><span class="section-number-3">2.4.</span> 起動時間の計測</h3>
+<div class="outline-text-3" id="text-orga09727ae">
+<p>
+<code>M-x emacs-init-time</code> を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えて表示を変えます．元ネタは<a href="http://d.hatena.ne.jp/sugyan/20120120/1327037494">すぎゃーんメモ</a>からです．感謝．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-emacs-init-time</span> ()
+  <span style="color: #8b2252;">"Emacs booting time in msec."</span>
+  (<span style="color: #a020f0;">let</span> ((inhibit-message t))
+    (message <span style="color: #8b2252;">"Emacs booting time: %4.0f [msec] = `</span><span style="color: #008b8b;">emacs-init-time</span><span style="color: #8b2252;">'."</span>
+             (* 1000
+                (float-time (time-subtract
+                             after-init-time
+                             before-init-time))))))
+
+(add-hook 'after-init-hook #'my-emacs-init-time)
+</pre>
+</div>
+
+<p>
+ついでに， <code>%.1f</code> で出力されるいつもの <code>emacs-init-time</code> をハック．ただ最新の emacs では，デフォルトで細かい小数点以下表示に変更されているので不要です．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"time"</span>
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:emacs-init-time</span> ()
+    <span style="color: #8b2252;">"Return a string giving the duration of the Emacs initialization."</span>
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">let</span> ((str
+           (format <span style="color: #8b2252;">"%.3f seconds"</span>
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))))
+      (<span style="color: #a020f0;">if</span> (called-interactively-p 'interactive)
+          (message <span style="color: #8b2252;">"%s"</span> str)
+        str)))
+
+  (advice-add 'emacs-init-time <span style="color: #483d8b;">:override</span> #'ad:emacs-init-time))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org3c4d5a7a" class="outline-3">
-<h3 id="org3c4d5a7a"><span class="section-number-3">2.4.</span> initファイルの読み込み時間計測</h3>
+<h3 id="org3c4d5a7a"><span class="section-number-3">2.5.</span> initファイルの読み込み時間計測</h3>
 <div class="outline-text-3" id="text-org3c4d5a7a">
 <p>
 次の関数を <code>init.el</code> の最初に記載して，オプション付きで <code>after-init-hook</code> に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する <code>emacs-init-time</code> の派生関数とは違い， <code>after-init-hook</code> で実行される処理の時間もわかります．ただ，ほかの処理も微妙に入るので，あくまで目安です．
@@ -959,7 +1007,7 @@ Then load the following at startup
 </div>
 
 <div id="outline-container-org715ba410" class="outline-4">
-<h4 id="org715ba410"><span class="section-number-4">2.4.1.</span> Emacs 起動時の呼び出し順</h4>
+<h4 id="org715ba410"><span class="section-number-4">2.5.1.</span> Emacs 起動時の呼び出し順</h4>
 <div class="outline-text-4" id="text-org715ba410">
 <p>
 Emacsは，以下の順番で起動します．
@@ -1000,52 +1048,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 
-<div id="outline-container-orga09727ae" class="outline-3">
-<h3 id="orga09727ae"><span class="section-number-3">2.5.</span> 起動時間の計測</h3>
-<div class="outline-text-3" id="text-orga09727ae">
-<p>
-<code>M-x emacs-init-time</code> を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えて表示を変えます．元ネタは<a href="http://d.hatena.ne.jp/sugyan/20120120/1327037494">すぎゃーんメモ</a>からです．感謝．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-emacs-init-time</span> ()
-  <span style="color: #8b2252;">"Emacs booting time in msec."</span>
-  (<span style="color: #a020f0;">let</span> ((inhibit-message t))
-    (message <span style="color: #8b2252;">"Emacs booting time: %4.0f [msec] = `</span><span style="color: #008b8b;">emacs-init-time</span><span style="color: #8b2252;">'."</span>
-             (* 1000
-                (float-time (time-subtract
-                             after-init-time
-                             before-init-time))))))
-
-(add-hook 'after-init-hook #'my-emacs-init-time)
-</pre>
-</div>
-
-<p>
-ついでに， <code>%.1f</code> で出力されるいつもの <code>emacs-init-time</code> をハック．ただ最新の emacs では，デフォルトで細かい小数点以下表示に変更されているので不要です．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"time"</span>
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:emacs-init-time</span> ()
-    <span style="color: #8b2252;">"Return a string giving the duration of the Emacs initialization."</span>
-    (<span style="color: #a020f0;">interactive</span>)
-    (<span style="color: #a020f0;">let</span> ((str
-           (format <span style="color: #8b2252;">"%.3f seconds"</span>
-                   (float-time
-                    (time-subtract after-init-time before-init-time)))))
-      (<span style="color: #a020f0;">if</span> (called-interactively-p 'interactive)
-          (message <span style="color: #8b2252;">"%s"</span> str)
-        str)))
-
-  (advice-add 'emacs-init-time <span style="color: #483d8b;">:override</span> #'ad:emacs-init-time))
-</pre>
-</div>
-</div>
-</div>
-
 <div id="outline-container-orgb459f5a2" class="outline-3">
-<h3 id="orgb459f5a2"><span class="section-number-3">2.6.</span> 実行時間の計測</h3>
+<h3 id="orgb459f5a2"><span class="section-number-3">2.6.</span> 実行時間の個別計測</h3>
 <div class="outline-text-3" id="text-orgb459f5a2">
 <p>
 計測したい関数を <code>measure-exec-time-list</code> にリストすることで，対象とする関数の実行時間を計測して <code>*Messages*</code> バッファに書き込みます．
@@ -1430,10 +1434,6 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
     (message <span style="color: #8b2252;">"Activating postponed packages...done (%.3f seconds)"</span>
              postpone-pre-init-time)))
 
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(if (not (locate-library "postpone"))</span>
-<span style="color: #b22222;">;;     </span><span style="color: #b22222;">(error "postpone.el is NOT installed yet or cannot find it")</span>
-<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(autoload 'postpone-kicker "postpone" nil t)</span>
-<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(add-hook 'pre-command-hook #'postpone-pre))</span>
 (autoload 'postpone-kicker <span style="color: #8b2252;">"postpone"</span> nil t)
 (add-hook 'pre-command-hook #'postpone-pre) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will be removed in postpone.el.</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;</span>
@@ -1451,9 +1451,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
         exit-minibuffer))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;X&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pp-kicker-timer</span>
-  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> noninteractive my-secure-boot)
-    (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
+(<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> noninteractive my-secure-boot)
+  (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
 </pre>
 </div>
 </div>
@@ -14003,7 +14002,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgbdb5209"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgc190b0c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14980,7 +14979,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org749cf88" class="figure">
+<div id="org5c3c08d" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15538,7 +15537,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
   (global-set-key (kbd <span style="color: #8b2252;">"C-2"</span>) 'moom-cycle-frame-height)
   (global-set-key (kbd <span style="color: #8b2252;">"M-2"</span>) 'moom-move-frame-to-center)
   (global-set-key (kbd <span style="color: #8b2252;">"M-9"</span>) 'moom-cycle-monitors)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f f m"</span>) 'moom-fill-band)
+  (global-set-key (kbd <span style="color: #8b2252;">"C-c f m"</span>) 'moom-fill-band)
 
   (autoload 'moom-transient-dispatch <span style="color: #8b2252;">"moom-transient"</span> nil t)
   (global-set-key (kbd <span style="color: #8b2252;">"C-c o"</span>) #'moom-transient-dispatch)
@@ -19423,7 +19422,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-07-20 Sat 21:08</p>
+<p class="date">Created: 2024-07-24 Wed 10:21</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

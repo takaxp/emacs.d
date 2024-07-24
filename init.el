@@ -13,6 +13,17 @@
   (with-eval-after-load "org"
     (require 'init-org nil t)))
 
+(defun my-emacs-init-time ()
+  "Emacs booting time in msec."
+  (let ((inhibit-message t))
+    (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
+             (* 1000
+                (float-time (time-subtract
+                             after-init-time
+                             before-init-time))))))
+
+(add-hook 'after-init-hook #'my-emacs-init-time)
+
 (defconst my-before-load-init-time (current-time))
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
@@ -43,17 +54,6 @@
                         (time-subtract ctime my-tick-previous-time)))
                msg)
       (setq my-tick-previous-time ctime))))
-
-(defun my-emacs-init-time ()
-  "Emacs booting time in msec."
-  (let ((inhibit-message t))
-    (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
-             (* 1000
-                (float-time (time-subtract
-                             after-init-time
-                             before-init-time))))))
-
-(add-hook 'after-init-hook #'my-emacs-init-time)
 
 (defvar my-suppress-message-p t)
 (defun ad:suppress-message (f &rest arg)
@@ -120,10 +120,6 @@
     (message "Activating postponed packages...done (%.3f seconds)"
              postpone-pre-init-time)))
 
-;; (if (not (locate-library "postpone"))
-;;     (error "postpone.el is NOT installed yet or cannot find it")
-;;   (autoload 'postpone-kicker "postpone" nil t)
-;;   (add-hook 'pre-command-hook #'postpone-pre))
 (autoload 'postpone-kicker "postpone" nil t)
 (add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
@@ -141,9 +137,8 @@
         exit-minibuffer))
 
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
-(defvar my-pp-kicker-timer
-  (unless (or noninteractive my-secure-boot)
-    (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre)))
+(unless (or noninteractive my-secure-boot)
+  (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
 
 ;; originally defined in `diary-lib.el'
 (defun diary-entry-time (s)
@@ -527,7 +522,7 @@ This function returns a timer object which you can use in
   (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
   (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
   (global-set-key (kbd "M-9") 'moom-cycle-monitors)
-  (global-set-key (kbd "C-c f f m") 'moom-fill-band)
+  (global-set-key (kbd "C-c f m") 'moom-fill-band)
 
   (autoload 'moom-transient-dispatch "moom-transient" nil t)
   (global-set-key (kbd "C-c o") #'moom-transient-dispatch)
