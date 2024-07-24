@@ -22,28 +22,16 @@
 - =obsolete= タグのある設定は，個人的に不使用になったものです．
 
 #+caption: 設定ファイル名と役割
-| ファイル名        | 役割                                                    |
-|-------------------+---------------------------------------------------------|
-| init.el           | 起動時に読み込まれる設定群                              |
-| init-autoloads.el | 起動時に読み込まれる定義群                              |
-| early-init.el     | init.elより前に読み込まれる設定群                       |
-| late-init.el      | ユーザアクションの発生後に読み込まれる設定群            |
-| init-org.el       | ユーザアクションの発生後に読み込まれるorg-modeの設定群  |
-| init-dired.el     | ユーザアクションの発生後に読み込まれるdired関連の設定群 |
-| utility.el        | 独自実装した関数群を集約                                |
-
-** ファイルサイズ
-
-#+caption: 設定ファイル名と行数(2024-07-25)
-| ファイル名        | 行数 |
-|-------------------+------|
-| init.el           |  448 |
-| init-autoloads.el |  843 |
-| early-init.el     |   98 |
-| late-init.el      | 2251 |
-| init-org.el       | 2033 |
-| init-dired.el     |   57 |
-| utility.el        | 3102 |
+|                   |      | <12>                                                    |
+| ファイル名        | 行数 | 役割                                                    |
+|-------------------+------+---------------------------------------------------------|
+| init.el           |  448 | 起動時に読み込まれる設定群                              |
+| init-autoloads.el |  843 | 起動時に読み込まれる定義群                              |
+| early-init.el     |   98 | init.elより前に読み込まれる設定群                       |
+| late-init.el      | 2251 | ユーザアクションの発生後に読み込まれる設定群            |
+| init-org.el       | 2033 | ユーザアクションの発生後に読み込まれるorg-modeの設定群  |
+| init-dired.el     |   57 | ユーザアクションの発生後に読み込まれるdired関連の設定群 |
+| utility.el        | 3102 | 独自実装した関数群を集約                                |
 
 * 起動設定
   :PROPERTIES:
@@ -71,12 +59,12 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 これ以外に，バッチモードでバイトコンパイルするための =init-eval.el= も使います．このファイルには，バイトコンパイル時だけ必要なパッケージを列挙しています．
 
 - [[https://github.com/takaxp/emacs.d/blob/master/.emacs][emacs.d/.emacs at master · takaxp/emacs.d]]
-- [[https://github.com/takaxp/emacs.d/blob/master/elget-config.el][emacs.d/elget-config.el at master · takaxp/emacs.d]]
-- [[https://github.com/takaxp/emacs.d/blob/master/init-env.el][emacs.d/init-env.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init.el][emacs.d/init.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/late-init.el][emacs.d/late-init.el at master · takaxp/emacs.d]]
-- [[https://github.com/takaxp/emacs.d/blob/master/init-eval.el][emacs.d/init-eval.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/elget-config.el][emacs.d/elget-config.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/init-env.el][emacs.d/init-env.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init-ad.el][emacs.d/init-ad.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/init-eval.el][emacs.d/init-eval.el at master · takaxp/emacs.d]]
 
 ** Spacemacs
   :PROPERTIES:
