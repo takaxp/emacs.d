@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-07-24 Wed 10:21 -->
+<!-- 2024-07-24 Wed 12:13 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -755,13 +755,50 @@
 <h2 id="orgda9120c8"><span class="section-number-2">1.</span> はじめに</h2>
 <div class="outline-text-2" id="text-orgda9120c8">
 <ul class="org-ul">
-<li><a href="https://github.com/takaxp/emacs.d/blob/master/init.org">init.org</a> から <a href="https://github.com/takaxp/emacs.d/blob/master/init.el">init.el</a>，<a href="https://takaxp.github.io/init.html">init.html</a>，<a href="https://github.com/takaxp/emacs.d/raw/master/init.pdf">init.pdf</a>，<a href="https://github.com/takaxp/emacs.d/raw/master/init.odt">init.odt</a> を生成しています．</li>
-<li>一部の関数定義を <a href="https://github.com/takaxp/emacs.d/blob/master/utility.el">utility.el</a> に分離しています．</li>
-<li>Org Modeに関する設定は， <a href="https://github.com/takaxp/emacs.d/blob/master/init-org.el">init-org.el</a> に分離しています．</li>
-<li><a href="https://github.com/takaxp/postpone">postpone.el</a> で遅延読み込みするパッケージを，<a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">late-init.el</a> に分離しています．</li>
-<li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">init.el</a> 本体は，<a href="https://github.com/takaxp/emacs.d/">GitHub</a> に公開しています．</li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/init.org">init.org</a> から次の設定ファイルを生成しています
+<ul class="org-ul">
+<li><p>
+<a href="https://github.com/takaxp/emacs.d/blob/master/init.el">init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/early-init.el">early-init.el</a>, <a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">late-init.el</a>, <a href="https://github.com/takaxp/emacs.d/blob/master/init-org.el">init-org.el</a>, <a href="https://github.com/takaxp/emacs.d/blob/master/utility.el">utility.el</a>
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">init.el</td>
+<td class="org-left">起動時に読み込まれる設定群</td>
+</tr>
+
+<tr>
+<td class="org-left">early-init.el</td>
+<td class="org-left">init.elより前に読み込まれる設定群</td>
+</tr>
+
+<tr>
+<td class="org-left">late-init.el</td>
+<td class="org-left">ユーザアクションの発生後に読み込まれる設定群</td>
+</tr>
+
+<tr>
+<td class="org-left">init-org.el</td>
+<td class="org-left">ユーザアクションの発生後に読み込まれるorg-modeの設定群</td>
+</tr>
+
+<tr>
+<td class="org-left">utility.el</td>
+<td class="org-left">独自関数群を集約したファイル</td>
+</tr>
+</tbody>
+</table></li>
+</ul></li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/init.org">init.org</a> から <a href="https://takaxp.github.io/init.html">init.html</a> をエクスポートしています．</li>
 <li>コピペだけで動かなかった場合は，気軽に <a href="https://twitter.com/takaxp">@takaxp</a> までご意見をどうぞ．</li>
-<li><code>notinuse</code> タグのある設定は，あくまで個人的に不使用になったものです．</li>
+<li><code>notinuse</code> タグのある設定は，個人的に不使用になったものです．</li>
 </ul>
 </div>
 </div>
@@ -14002,7 +14039,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgc190b0c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org977b069"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14979,7 +15016,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org5c3c08d" class="figure">
+<div id="orgdd69c6a" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19422,7 +19459,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-07-24 Wed 10:21</p>
+<p class="date">Created: 2024-07-24 Wed 12:13</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
