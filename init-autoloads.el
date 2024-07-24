@@ -54,7 +54,7 @@ Remove PACKAGE.
 ;;; Generated autoloads from init.el
 
 (autoload 'postpone-pre "init" nil t)
-(register-definition-prefixes "init" '("ad:suppress-message" "autoload-if-found" "diary-entry-time" "empty-booting-mode" "moom-autoloads" "my-" "postpone-pre-" "run-at-time"))
+(register-definition-prefixes "init" '("ad:suppress-message" "autoload-if-found" "empty-booting-mode" "moom-autoloads" "my-" "postpone-pre-"))
 
 
 ;;; Generated autoloads from init-dired.el
@@ -69,7 +69,7 @@ Remove PACKAGE.
 
 ;;; Generated autoloads from late-init.el
 
-(register-definition-prefixes "late-init" '("measure-exec-time-list" "my-" "right-curly-arrow" "shutup-p"))
+(register-definition-prefixes "late-init" '("diary-entry-time" "measure-exec-time-list" "my-" "right-curly-arrow" "run-at-time" "shutup-p"))
 
 
 ;;; Generated autoloads from my-debug.el

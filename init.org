@@ -225,7 +225,7 @@ Then load the following at startup
     (message (concat
               "  Loading init files: %4.0f [msec]\n"
               "  Loading early-init: %4.0f [msec]\n"
-              "  Others(GUI etc.):   %4.0f [msec] (includes `before-init-hook')\n"
+              "  Others(GUI etc.):   %4.0f [msec] includes `before-init-hook'\n"
               "(`after-init-hook': %4.0f [msec])")
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
@@ -766,6 +766,8 @@ This function is called directly from the C code."
                  (setf (nth 2 t1) (nth 2 t2))
                  t1))
         (current-time))))
+
+;; For instance,
 ;; (when (future-time-p "10:00") (run-at-time...))
 #+end_src
 
@@ -822,7 +824,9 @@ This function is called directly from the C code."
 
 ~run-at-time~ を使ったタイマー設定時に，時刻を文字列で指定すると， =diary-lib.el= を読み込み， ~diary-entry-time~ を使いますが，そのために起動時の時間を使うのはもったいないので， ~diary-entry-time~ だけを =init.el= に移植し， ~run-at-time~ をハックして =diary-lib.el= を読み込まないようにします．
 
-#+begin_src emacs-lisp :tangle yes
+=init.el= で ~run-at-time~ を使用する設定を記述すると，下記の設定を init.el に書く必要があるので， =init.el= では ~run-with-idle-timer~ を使うようにします．
+
+#+begin_src emacs-lisp :tangle late-init.el
 ;; originally defined in `diary-lib.el'
 (defun diary-entry-time (s)
   "Return time at the beginning of the string S as a military-style integer.
@@ -5007,8 +5011,11 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
                     :inherit nil
                     :overline nil
                     :underline nil)
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
-  (run-at-time "5 sec" 600 'my-empty-booting-header-line))
+  (my-empty-booting-header-line)) ;; Update header of scratch buffer
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -7415,7 +7422,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
   :ID:       5A3E0805-61A5-4CFC-9B73-A76DB860E640
   :END:
 #+begin_src emacs-lisp :tangle yes :exports none
-(my-tick-init-time "media")
+;; (my-tick-init-time "media")
 #+end_src
 ** 履歴サイズを大きくする
    :PROPERTIES:
@@ -14951,7 +14958,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   :END:
 
 #+begin_src emacs-lisp :tangle yes :exports none
-(my-tick-init-time "font")
+;; (my-tick-init-time "font")
 #+end_src
 
 ** [pomodoro.el] ポモドーロの実践
@@ -17097,7 +17104,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 以上が，私の =init.el= とその説明です．
 
 #+begin_src emacs-lisp :tangle yes :exports none
-(my-tick-init-time "utility")
+;; (my-tick-init-time "utility")
 (provide 'init)
 #+end_src
 

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-07-24 水 22:07 -->
+<!-- 2024-07-24 水 23:26 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1024,7 +1024,7 @@ Then load the following at startup
     (message (concat
               <span style="color: #8b2252;">"  Loading init files: %4.0f [msec]\n"</span>
               <span style="color: #8b2252;">"  Loading early-init: %4.0f [msec]\n"</span>
-              <span style="color: #8b2252;">"  Others(GUI etc.):   %4.0f [msec] (includes `</span><span style="color: #008b8b;">before-init-hook</span><span style="color: #8b2252;">')\n"</span>
+              <span style="color: #8b2252;">"  Others(GUI etc.):   %4.0f [msec] includes `</span><span style="color: #008b8b;">before-init-hook</span><span style="color: #8b2252;">'\n"</span>
               <span style="color: #8b2252;">"(`</span><span style="color: #008b8b;">after-init-hook</span><span style="color: #8b2252;">': %4.0f [msec])"</span>)
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
@@ -1597,6 +1597,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
                  (<span style="color: #a020f0;">setf</span> (nth 2 t1) (nth 2 t2))
                  t1))
         (current-time))))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">For instance,</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (future-time-p "10:00") (run-at-time...))</span>
 </pre>
 </div>
@@ -1662,6 +1664,10 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <div class="outline-text-3" id="text-orgb75ac2db">
 <p>
 <code>run-at-time</code> を使ったタイマー設定時に，時刻を文字列で指定すると， <code>diary-lib.el</code> を読み込み， <code>diary-entry-time</code> を使いますが，そのために起動時の時間を使うのはもったいないので， <code>diary-entry-time</code> だけを <code>init.el</code> に移植し， <code>run-at-time</code> をハックして <code>diary-lib.el</code> を読み込まないようにします．
+</p>
+
+<p>
+<code>init.el</code> で <code>run-at-time</code> を使用する設定を記述すると，下記の設定を init.el に書く必要があるので， <code>init.el</code> では <code>run-with-idle-timer</code> を使うようにします．
 </p>
 
 <div class="org-src-container">
@@ -6530,8 +6536,12 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
                     <span style="color: #483d8b;">:inherit</span> nil
                     <span style="color: #483d8b;">:overline</span> nil
                     <span style="color: #483d8b;">:underline</span> nil)
-(<span style="color: #a020f0;">unless</span> noninteractive
-  (run-at-time <span style="color: #8b2252;">"5 sec"</span> 600 'my-empty-booting-header-line))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
+  (my-empty-booting-header-line)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Update header of scratch buffer</span>
 </pre>
 </div>
 
@@ -14121,7 +14131,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org1bf4a35"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org36207b8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15098,7 +15108,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orge42136d" class="figure">
+<div id="org3079a04" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19545,7 +19555,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-07-24 水 22:07</p>
+<p class="date">Created: 2024-07-24 水 23:26</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
