@@ -426,46 +426,42 @@ This function returns a timer object which you can use in
 (cond
  ((memq window-system '(mac ns)) ;; for macOS
   (setq initial-frame-alist
-	(append
-	 '((alpha . (100 95))
+	      (append
+	       '((alpha . (100 95))
            ;; (top . 23)
-	   ;; (left . 0)
-	   ;; (vertical-scroll-bars . nil)
-	   ;; (internal-border-width . 20)
-	   ;; (outer-border-width . 20)
-	   ;; (ns-appearance . nil) ;; 26.1 {light, dark}
-	   (ns-transparent-titlebar . t)) ;; 26.1
-	 initial-frame-alist)))
+	         ;; (left . 0)
+	         ;; (vertical-scroll-bars . nil)
+	         ;; (internal-border-width . 20)
+	         ;; (outer-border-width . 20)
+	         ;; (ns-appearance . nil) ;; 26.1 {light, dark}
+	         (ns-transparent-titlebar . t)) ;; 26.1
+	       initial-frame-alist)))
 
  ((eq window-system 'x) ;; for Linux
   (setq initial-frame-alist
-	(append
-	 '((vertical-scroll-bars . nil)
-	   (top . 0)
-	   (left . 0)
-	   (width . 80)
-	   (height . 38))
-	 initial-frame-alist)))
+	      (append
+	       '((vertical-scroll-bars . nil)
+	         (top . 0)
+	         (left . 0)
+	         (width . 80)
+	         (height . 38))
+	       initial-frame-alist)))
 
  ((eq window-system nil)
   nil)
 
  (t ;; for Windows
   (setq initial-frame-alist
-	(append
-	 '((vertical-scroll-bars . nil)
-	   (top . 0)
-	   (left . 0)
-	   (width . 80)
-	   (height . 26))
-	 initial-frame-alist))))
+	      (append
+	       '((vertical-scroll-bars . nil)
+	         (top . 0)
+	         (left . 0)
+	         (width . 80)
+	         (height . 26))
+	       initial-frame-alist))))
 
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)
-(with-eval-after-load "postpone"
-  (set-face-foreground 'vertical-border (face-foreground 'default))
-  (set-face-background 'vertical-border (face-background 'default)))
-;;(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 (set-face-background 'fringe "#FFFFFF") ;; 10-20[ms]
 
 ;; カーソルの色
@@ -487,10 +483,6 @@ This function returns a timer object which you can use in
   (setq cursor-type (plist-get my-cur-type-ime :off))
   (set-cursor-color (plist-get my-cur-color-ime :off)))
 
-(defun my-ime-invisible-cursor ()
-  (interactive)
-  (setq cursor-type (plist-get my-cur-type-ime :invisible)))
-
 (defun my-apply-cursor-config ()
   (interactive)
   (when (display-graphic-p)
@@ -507,13 +499,10 @@ This function returns a timer object which you can use in
 
 (defconst moom-autoloads
   '(moom-cycle-frame-height
-    moom-move-frame-to-edge-top moom-move-frame my-frame-reset
-    moom-toggle-frame-maximized moom-move-frame-to-edge-right
-    moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
-    moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
-    moom-change-frame-width moom-change-frame-width-double
-    moom-change-frame-width-single moom-change-frame-width-half-again
-    moom-cycle-monitors))
+    moom-move-frame-right moom-move-frame-left moom-move-frame
+    moom-move-frame-to-edge-top moom-move-frame-to-edge-bottom
+    my-frame-reset moom-move-frame-to-center
+    moom-fill-band moom-cycle-monitors))
 
 (when (autoload-if-found moom-autoloads
                          "moom" nil t)
@@ -543,24 +532,7 @@ This function returns a timer object which you can use in
      '(moom-verbose t))
     (moom-recommended-keybindings '(all wof))
     (moom-mode 1)
-    (my-font-config)))  ;; this could increase `postpone-pre-init-time'.
-
-(when (autoload-if-found '(moom-font-increase
-                           moom-font-decrease
-                           moom-font-size-reset moom-font-resize)
-                         "moom-font" nil t)
-  (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
-  (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
-  (with-eval-after-load "moom-font"
-    (custom-set-variables
-     '(moom-scaling-gradient (/ (float 50) 30))
-     '(moom-font-table
-       '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
-         (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
-         (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
-         (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
-         (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
-         (9 5) (8 5) (7 4) (6 4) (5 3))))))
+    (my-font-config))) ;; this could increase `postpone-pre-init-time'.
 
 (my-tick-init-time "frame and window")
 

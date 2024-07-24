@@ -16,7 +16,7 @@
 
 - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から次の設定ファイルを生成しています
   - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://github.com/takaxp/emacs.d/blob/master/early-init.el][early-init.el]]，[[https://github.com/takaxp/emacs.d/blob/master/late-init.el][late-init.el]]，[[https://github.com/takaxp/emacs.d/blob/master/init-org.el][init-org.el]]，[[https://github.com/takaxp/emacs.d/blob/master/init-dired.el][init-dired.el]]，[[https://github.com/takaxp/emacs.d/blob/master/utility.el][utility.el]]
-- [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://takaxp.github.io/init.html][init.html]] をエクスポートしています．
+- [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から本ウェブページである [[https://takaxp.github.io/init.html][init.html]] をエクスポートしています．
 - [[https://github.com/takaxp/emacs.d/blob/master/init-autoloads.el][init-autoload.el]] は，late-init.el と utility.el から生成しています．
 - コピペだけで動かなかった場合は，気軽に [[https://twitter.com/takaxp][@takaxp]] までご意見をどうぞ．
 - =notinuse= タグのある設定は，個人的に不使用になったものです．
@@ -13205,47 +13205,49 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (cond
  ((memq window-system '(mac ns)) ;; for macOS
   (setq initial-frame-alist
-	(append
-	 '((alpha . (100 95))
+	      (append
+	       '((alpha . (100 95))
            ;; (top . 23)
-	   ;; (left . 0)
-	   ;; (vertical-scroll-bars . nil)
-	   ;; (internal-border-width . 20)
-	   ;; (outer-border-width . 20)
-	   ;; (ns-appearance . nil) ;; 26.1 {light, dark}
-	   (ns-transparent-titlebar . t)) ;; 26.1
-	 initial-frame-alist)))
+	         ;; (left . 0)
+	         ;; (vertical-scroll-bars . nil)
+	         ;; (internal-border-width . 20)
+	         ;; (outer-border-width . 20)
+	         ;; (ns-appearance . nil) ;; 26.1 {light, dark}
+	         (ns-transparent-titlebar . t)) ;; 26.1
+	       initial-frame-alist)))
 
  ((eq window-system 'x) ;; for Linux
   (setq initial-frame-alist
-	(append
-	 '((vertical-scroll-bars . nil)
-	   (top . 0)
-	   (left . 0)
-	   (width . 80)
-	   (height . 38))
-	 initial-frame-alist)))
+	      (append
+	       '((vertical-scroll-bars . nil)
+	         (top . 0)
+	         (left . 0)
+	         (width . 80)
+	         (height . 38))
+	       initial-frame-alist)))
 
  ((eq window-system nil)
   nil)
 
  (t ;; for Windows
   (setq initial-frame-alist
-	(append
-	 '((vertical-scroll-bars . nil)
-	   (top . 0)
-	   (left . 0)
-	   (width . 80)
-	   (height . 26))
-	 initial-frame-alist))))
+	      (append
+	       '((vertical-scroll-bars . nil)
+	         (top . 0)
+	         (left . 0)
+	         (width . 80)
+	         (height . 26))
+	       initial-frame-alist))))
 
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)
-(with-eval-after-load "postpone"
-  (set-face-foreground 'vertical-border (face-foreground 'default))
-  (set-face-background 'vertical-border (face-background 'default)))
-;;(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 (set-face-background 'fringe "#FFFFFF") ;; 10-20[ms]
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(set-face-foreground 'vertical-border (face-foreground 'default))
+(set-face-background 'vertical-border (face-background 'default))
+;;(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -13268,10 +13270,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (setq cursor-type (plist-get my-cur-type-ime :off))
   (set-cursor-color (plist-get my-cur-color-ime :off)))
 
-(defun my-ime-invisible-cursor ()
-  (interactive)
-  (setq cursor-type (plist-get my-cur-type-ime :invisible)))
-
 (defun my-apply-cursor-config ()
   (interactive)
   (when (display-graphic-p)
@@ -13288,6 +13286,11 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-ime-invisible-cursor ()
+  (interactive)
+  (setq cursor-type (plist-get my-cur-type-ime :invisible)))
+
 ;;;###autoload
 (defun my-ime-on ()
   (interactive)
@@ -13461,16 +13464,13 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 =moom-autuloads= に必要なコマンドを +羅列していますが，+ =melpa= でインストールする場合は関係ありません．パッケージ内で autoload 指定してあります． =with-eval-after-load= の中だけを設定すれば十分です．
 
-#+begin_src emacs-lisp :tangle yes :results none
+#+begin_src emacs-lisp :tangle yes
 (defconst moom-autoloads
   '(moom-cycle-frame-height
-    moom-move-frame-to-edge-top moom-move-frame my-frame-reset
-    moom-toggle-frame-maximized moom-move-frame-to-edge-right
-    moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
-    moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
-    moom-change-frame-width moom-change-frame-width-double
-    moom-change-frame-width-single moom-change-frame-width-half-again
-    moom-cycle-monitors))
+    moom-move-frame-right moom-move-frame-left moom-move-frame
+    moom-move-frame-to-edge-top moom-move-frame-to-edge-bottom
+    my-frame-reset moom-move-frame-to-center
+    moom-fill-band moom-cycle-monitors))
 
 (when (autoload-if-found moom-autoloads
                          "moom" nil t)
@@ -13500,8 +13500,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
      '(moom-verbose t))
     (moom-recommended-keybindings '(all wof))
     (moom-mode 1)
-    (my-font-config)))  ;; this could increase `postpone-pre-init-time'.
+    (my-font-config))) ;; this could increase `postpone-pre-init-time'.
+#+end_src
 
+#+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(moom-font-increase
                            moom-font-decrease
                            moom-font-size-reset moom-font-resize)

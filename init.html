@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-07-24 水 16:46 -->
+<!-- 2024-07-24 水 22:07 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -760,7 +760,7 @@
 <ul class="org-ul">
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/early-init.el">early-init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">late-init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/init-org.el">init-org.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/init-dired.el">init-dired.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/utility.el">utility.el</a></li>
 </ul></li>
-<li><a href="https://github.com/takaxp/emacs.d/blob/master/init.org">init.org</a> から <a href="https://takaxp.github.io/init.html">init.html</a> をエクスポートしています．</li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/init.org">init.org</a> から本ウェブページである <a href="https://takaxp.github.io/init.html">init.html</a> をエクスポートしています．</li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-autoloads.el">init-autoload.el</a> は，late-init.el と utility.el から生成しています．</li>
 <li>コピペだけで動かなかった場合は，気軽に <a href="https://twitter.com/takaxp">@takaxp</a> までご意見をどうぞ．</li>
 <li><code>notinuse</code> タグのある設定は，個人的に不使用になったものです．</li>
@@ -14121,7 +14121,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org10e204d"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org1bf4a35"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15098,7 +15098,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org23c04a1" class="figure">
+<div id="orge42136d" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15356,47 +15356,50 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">cond</span>
  ((memq window-system '(mac ns)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">for macOS</span>
   (<span style="color: #a020f0;">setq</span> initial-frame-alist
-        (append
-         '((alpha . (100 95))
+              (append
+               '((alpha . (100 95))
            <span style="color: #b22222;">;; </span><span style="color: #b22222;">(top . 23)</span>
-           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(left . 0)</span>
-           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(vertical-scroll-bars . nil)</span>
-           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(internal-border-width . 20)</span>
-           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(outer-border-width . 20)</span>
-           <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ns-appearance . nil) ;; 26.1 {light, dark}</span>
-           (ns-transparent-titlebar . t)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">26.1</span>
-         initial-frame-alist)))
+                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(left . 0)</span>
+                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(vertical-scroll-bars . nil)</span>
+                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(internal-border-width . 20)</span>
+                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(outer-border-width . 20)</span>
+                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ns-appearance . nil) ;; 26.1 {light, dark}</span>
+                 (ns-transparent-titlebar . t)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">26.1</span>
+               initial-frame-alist)))
 
  ((eq window-system 'x) <span style="color: #b22222;">;; </span><span style="color: #b22222;">for Linux</span>
   (<span style="color: #a020f0;">setq</span> initial-frame-alist
-        (append
-         '((vertical-scroll-bars . nil)
-           (top . 0)
-           (left . 0)
-           (width . 80)
-           (height . 38))
-         initial-frame-alist)))
+              (append
+               '((vertical-scroll-bars . nil)
+                 (top . 0)
+                 (left . 0)
+                 (width . 80)
+                 (height . 38))
+               initial-frame-alist)))
 
  ((eq window-system nil)
   nil)
 
  (t <span style="color: #b22222;">;; </span><span style="color: #b22222;">for Windows</span>
   (<span style="color: #a020f0;">setq</span> initial-frame-alist
-        (append
-         '((vertical-scroll-bars . nil)
-           (top . 0)
-           (left . 0)
-           (width . 80)
-           (height . 26))
-         initial-frame-alist))))
+              (append
+               '((vertical-scroll-bars . nil)
+                 (top . 0)
+                 (left . 0)
+                 (width . 80)
+                 (height . 26))
+               initial-frame-alist))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Apply the initial setting to default</span>
 (<span style="color: #a020f0;">setq</span> default-frame-alist initial-frame-alist)
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"postpone"</span>
-  (set-face-foreground 'vertical-border (face-foreground 'default))
-  (set-face-background 'vertical-border (face-background 'default)))
-<span style="color: #b22222;">;;</span><span style="color: #b22222;">(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]</span>
 (set-face-background 'fringe <span style="color: #8b2252;">"#FFFFFF"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">10-20[ms]</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(set-face-foreground 'vertical-border (face-foreground 'default))
+(set-face-background 'vertical-border (face-background 'default))
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]</span>
 </pre>
 </div>
 
@@ -15420,10 +15423,6 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
   (<span style="color: #a020f0;">setq</span> cursor-type (plist-get my-cur-type-ime <span style="color: #483d8b;">:off</span>))
   (set-cursor-color (plist-get my-cur-color-ime <span style="color: #483d8b;">:off</span>)))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-invisible-cursor</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">setq</span> cursor-type (plist-get my-cur-type-ime <span style="color: #483d8b;">:invisible</span>)))
-
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-apply-cursor-config</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">when</span> (display-graphic-p)
@@ -15442,6 +15441,11 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-invisible-cursor</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">setq</span> cursor-type (plist-get my-cur-type-ime <span style="color: #483d8b;">:invisible</span>)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ime-on</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">if</span> (fboundp 'mac-ime-activate)
@@ -15641,13 +15645,10 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">moom-autoloads</span>
   '(moom-cycle-frame-height
-    moom-move-frame-to-edge-top moom-move-frame my-frame-reset
-    moom-toggle-frame-maximized moom-move-frame-to-edge-right
-    moom-move-frame-to-center moom-move-frame-right moom-move-frame-left
-    moom-fill-display-band moom-move-frame-to-edge-right moom-fill-band
-    moom-change-frame-width moom-change-frame-width-double
-    moom-change-frame-width-single moom-change-frame-width-half-again
-    moom-cycle-monitors))
+    moom-move-frame-right moom-move-frame-left moom-move-frame
+    moom-move-frame-to-edge-top moom-move-frame-to-edge-bottom
+    my-frame-reset moom-move-frame-to-center
+    moom-fill-band moom-cycle-monitors))
 
 (<span style="color: #a020f0;">when</span> (autoload-if-found moom-autoloads
                          <span style="color: #8b2252;">"moom"</span> nil t)
@@ -15677,9 +15678,12 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
      '(moom-verbose t))
     (moom-recommended-keybindings '(all wof))
     (moom-mode 1)
-    (my-font-config)))  <span style="color: #b22222;">;; </span><span style="color: #b22222;">this could increase `</span><span style="color: #008b8b;">postpone-pre-init-time</span><span style="color: #b22222;">'.</span>
+    (my-font-config))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">this could increase `</span><span style="color: #008b8b;">postpone-pre-init-time</span><span style="color: #b22222;">'.</span>
+</pre>
+</div>
 
-(<span style="color: #a020f0;">when</span> (autoload-if-found '(moom-font-increase
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(moom-font-increase
                            moom-font-decrease
                            moom-font-size-reset moom-font-resize)
                          <span style="color: #8b2252;">"moom-font"</span> nil t)
@@ -19541,7 +19545,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-07-24 水 16:46</p>
+<p class="date">Created: 2024-07-24 水 22:07</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

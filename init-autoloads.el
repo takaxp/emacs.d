@@ -568,6 +568,7 @@ Export subtree for Hugo if the TODO status in ARG is changing to DONE.
 (autoload 'my-activate-org-trello "utility")
 (autoload 'my-toggle-org-show-emphasis-markers "utility" nil t)
 (autoload 'ad:org-recent-headings-activate "utility" nil t)
+(autoload 'my-ime-invisible-cursor "utility" nil t)
 (autoload 'my-ime-on "utility" nil t)
 (autoload 'my-ime-off "utility" nil t)
 (autoload 'my-ime-on-sticky "utility")
