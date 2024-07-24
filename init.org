@@ -17,6 +17,7 @@
 - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から次の設定ファイルを生成しています
   - [[https://github.com/takaxp/emacs.d/blob/master/init.el][init.el]]，[[https://github.com/takaxp/emacs.d/blob/master/early-init.el][early-init.el]]，[[https://github.com/takaxp/emacs.d/blob/master/late-init.el][late-init.el]]，[[https://github.com/takaxp/emacs.d/blob/master/init-org.el][init-org.el]]，[[https://github.com/takaxp/emacs.d/blob/master/utility.el][utility.el]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init.org][init.org]] から [[https://takaxp.github.io/init.html][init.html]] をエクスポートしています．
+- [[https://github.com/takaxp/emacs.d/blob/master/init-autoloads.el][init-autoload.el]] は，late-init.el と utility.el から生成しています．
 - コピペだけで動かなかった場合は，気軽に [[https://twitter.com/takaxp][@takaxp]] までご意見をどうぞ．
 - =notinuse= タグのある設定は，個人的に不使用になったものです．
 
@@ -24,12 +25,11 @@
 | ファイル名        | 役割                                                   |
 |-------------------+--------------------------------------------------------|
 | init.el           | 起動時に読み込まれる設定群                             |
+| init-autoloads.el | 起動時に読み込まれる設定群                             |
 | early-init.el     | init.elより前に読み込まれる設定群                      |
 | late-init.el      | ユーザアクションの発生後に読み込まれる設定群           |
 | init-org.el       | ユーザアクションの発生後に読み込まれるorg-modeの設定群 |
 | utility.el        | 独自実装した関数群を集約                               |
-
-更に，late-init.el と utility.el から， init-autoload.el を生成して起動時に読み込みます．
 
 * 起動設定
   :PROPERTIES:

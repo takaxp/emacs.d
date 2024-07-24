@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-07-24 Wed 12:38 -->
+<!-- 2024-07-24 Wed 12:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -760,6 +760,7 @@
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/early-init.el">early-init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">late-init.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/init-org.el">init-org.el</a>，<a href="https://github.com/takaxp/emacs.d/blob/master/utility.el">utility.el</a></li>
 </ul></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.org">init.org</a> から <a href="https://takaxp.github.io/init.html">init.html</a> をエクスポートしています．</li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/init-autoloads.el">init-autoload.el</a> は，late-init.el と utility.el から生成しています．</li>
 <li>コピペだけで動かなかった場合は，気軽に <a href="https://twitter.com/takaxp">@takaxp</a> までご意見をどうぞ．</li>
 <li><code>notinuse</code> タグのある設定は，個人的に不使用になったものです．</li>
 </ul>
@@ -785,6 +786,11 @@
 </tr>
 
 <tr>
+<td class="org-left">init-autoloads.el</td>
+<td class="org-left">起動時に読み込まれる設定群</td>
+</tr>
+
+<tr>
 <td class="org-left">early-init.el</td>
 <td class="org-left">init.elより前に読み込まれる設定群</td>
 </tr>
@@ -805,10 +811,6 @@
 </tr>
 </tbody>
 </table>
-
-<p>
-更に，late-init.el と utility.el から， init-autoload.el を生成して起動時に読み込みます．
-</p>
 </div>
 </div>
 
@@ -14048,7 +14050,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org8f64e7e"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org48c8c59"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15025,7 +15027,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org0727652" class="figure">
+<div id="org7693729" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19468,7 +19470,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-07-24 Wed 12:38</p>
+<p class="date">Created: 2024-07-24 Wed 12:46</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
