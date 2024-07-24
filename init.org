@@ -15765,7 +15765,9 @@ init.el読書会が毎週土曜日の23時に開催されています．作業�
 (defun macos-name (version)
   "Return macOS name according to the VERSION number."
   (if (stringp version)
-      (cond ((version<= "21.0" version) "Monterey")
+      (cond ((version<= "23.0" version) "Sonoma")
+	          ((version<= "22.0" version) "Ventura")
+	          ((version<= "21.0" version) "Monterey")
 	          ((version<= "20.0" version) "Big Sur")
 	          ((version<= "19.0" version) "Catalina")
 	          ((version<= "18.0" version) "Mojave")
