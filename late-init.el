@@ -2007,14 +2007,12 @@
 
 (unless noninteractive
   (when (and window-system
-             (require 'init-async nil t))
-    (my-delete-old-backup 3)))
+             my-skip-check-autoload-file) ;; see init-env.el
+    (my-find-missing-packages 5)))
 
 (unless noninteractive
-  (when (and window-system
-             (require 'init-async nil t))
-    (when my-skip-check-autoload-file ;; see init-env.el
-      (my-find-missing-packages 5))))
+  (when window-system
+    (my-delete-old-backup 3)))
 
 (when (autoload-if-found '(my-google-this google-this google-this-word)
                          "google-this" nil t)

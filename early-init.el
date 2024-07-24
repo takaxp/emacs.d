@@ -34,5 +34,62 @@
 ;;               (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
 ;;               (setq my-gc-last gc-elapsed)))
 
+;; Build and check `my-package-dir'
+(defvar my-package-dir nil)
+(defvar my-use-el-get emacs-version ;; nil
+  "If version number is provided, use packages installed via el-get.")
+(defvar my-elget-package-dir (format "~/.emacs.d/%s/packages" my-use-el-get))
+(when my-use-el-get
+  (setq my-package-dir my-elget-package-dir))
+(unless (file-directory-p my-package-dir)
+  (user-error "%s does NOT exist. Run setup script first" my-package-dir))
+
+(defun my-path-setter (path-list target-path)
+  "Utility function to set PATH-LIST to TARGET-PATH."
+  (dolist (x path-list)
+    (add-to-list target-path (file-name-as-directory x))))
+
+;; (1) theme-path
+(my-path-setter
+ `(,my-package-dir "~/.emacs.d/lisp") 'custom-theme-load-path)
+
+;; (2) exec-path
+(my-path-setter
+ `("/usr/bin" "/usr/local/bin" "/opt/homebrew/bin"
+   ,(expand-file-name "~/.cask/bin")
+   ,(expand-file-name "~/devel/git/tern/bin")
+   ,(expand-file-name "~/.go/bin")
+   ,(expand-file-name "~/Dropbox/emacs.d/bin")
+   ,(expand-file-name "~/Dropbox/scripts")
+   "/usr/local/opt/llvm/bin"
+   "C:/cygwin64/bin" "C:/msys64/usr/bin" "C:/msys64/mingw64/bin"
+   "/Applications/UpTex.app/teTeX/bin"
+   "/Applications/UpTeX.app/Contents/Resources/TEX/texbin"
+   "/Applications/LibreOffice.app/Contents/MacOS/"
+   "/Applications/qt_color_picker.app/Contents/MacOS/"
+   "/usr/local/opt/imagemagick@6/bin")
+ 'exec-path)
+
+(setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
+(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+(setenv "GOPATH" (concat (getenv "HOME") "/.go"))
+;; you may want to use exec-path-from-shell.el.
+
+;; 拡張パッケージにパスを通す
+(let* ((g "~/devel/git/")
+       (od "org-mode")
+       (l `("~/Dropbox/config"
+            "~/.emacs.d/lisp"
+            ,my-package-dir ;; may include a path to org
+            ,(concat g od "/lisp") ;; override the path to org
+            ,(concat g od "/contrib/lisp")
+            )))
+  (my-path-setter l 'load-path))
+
+;; (require 'use-package nil t) ;; 24[ms]
+;; (require 'leaf nil t) ;; 2[ms]
+;; (when (require 'benchmark-init nil t)
+;;   (add-hook 'after-init-hook #'benchmark-init/deactivate))
+
 (defvar my-early-end (current-time))
 (message "Loading %s...done" my-early-init)

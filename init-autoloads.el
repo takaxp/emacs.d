@@ -35,22 +35,6 @@
 (register-definition-prefixes "init" '("ad:suppress-message" "autoload-if-found" "diary-entry-time" "empty-booting-mode" "moom-autoloads" "my-" "postpone-pre-" "run-at-time"))
 
 
-;;; Generated autoloads from init-async.el
-
-(autoload 'my-async-locate-libraries "init-async" "\
-Check the library listed in `LIBRARIES'.
-
-(fn LIBRARIES &optional DEFER)")
-(autoload 'my-find-missing-packages "init-async" "\
-
-
-(fn &optional DEFER)" t)
-(autoload 'my-delete-old-backup "init-async" "\
-
-
-(fn &optional DEFER)")
-
-
 ;;; Generated autoloads from init-dired.el
 
 (register-definition-prefixes "init-dired" '("my-reveal-in-finder"))
@@ -657,6 +641,18 @@ Transform CANDS into a string for minibuffer.
 
 
 (fn &optional ARG)")
+(autoload 'my-find-missing-packages "utility" "\
+
+
+(fn &optional DEFER)" t)
+(autoload 'my-async-locate-libraries "utility" "\
+Check the library listed in `LIBRARIES'.
+
+(fn LIBRARIES &optional DEFER)")
+(autoload 'my-delete-old-backup "utility" "\
+
+
+(fn &optional DEFER)")
 (autoload 'my-google-this "utility" nil t)
 (autoload 'my-gif-screencast-opendir-dired "utility" "\
 Open directories for screenshots and generated GIFs by Dired." t)

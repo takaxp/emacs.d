@@ -3,36 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-(with-eval-after-load "el-get-byte-compile"
-
-  (defun el-get-byte-compile-file (el &optional warnings)
-    "Byte compile the EL file, and skips unnecessary compilation.
-
-Specifically, if the compiled elc file already exists and is
-newer, then compilation is skipped."
-    (let ((elc (concat (file-name-sans-extension el) ".elc"))
-          (byte-compile-warnings warnings)
-          ;; Byte-compile runs emacs-lisp-mode-hook; disable it
-          emacs-lisp-mode-hook)
-      (when (or (not (file-exists-p elc))
-                (not (file-newer-than-file-p elc el)))
-        (when (file-exists-p elc)
-          ;; Delete the old elc to make sure that if the compilation fails to
-          ;; generate a new one, there will be no discrepancy between them.
-          (delete-file elc))
-        (condition-case err
-            (progn
-              (message "--- Compiling...%s" el)
-              (byte-compile-file el)
-              (native-compile el)
-              )
-          ((debug error) ;; catch-all, allow for debugging
-           (message "%S" (error-message-string err)))))))
-
-  )
-
-
-
 ;; (unless (getenv "LIBRARY_PATH")
 ;;   (setenv "LIBRARY_PATH"
 ;;           (string-join
