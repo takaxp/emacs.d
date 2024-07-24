@@ -17,11 +17,6 @@
 (register-definition-prefixes "dump-theme" '("my-"))
 
 
-;;; Generated autoloads from early-init.el
-
-(register-definition-prefixes "early-init" '("my-"))
-
-
 ;;; Generated autoloads from elget-config.el
 
 (autoload 'my-elget-bundles "elget-config" "\

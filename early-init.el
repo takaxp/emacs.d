@@ -14,7 +14,7 @@
 (unless noninteractive
   (defvar my-early-start (current-time))
   (defvar my-early-init
-    (format "%slisp/early-init.el" (expand-file-name user-emacs-directory)))
+    (format "%searly-init.el" (expand-file-name user-emacs-directory)))
 
   (message "Loading %s..." my-early-init)
 
