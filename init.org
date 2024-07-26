@@ -174,7 +174,7 @@ Then load the following at startup
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (let ((inhibit-message t))
-    (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
+    (message "Emacs booting time: %5.1f [msec] = `emacs-init-time'."
              (* 1000
                 (float-time (time-subtract
                              after-init-time
@@ -224,10 +224,10 @@ Then load the following at startup
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              "  Loading init files: %4.0f [msec]\n"
-              "  Loading early-init: %4.0f [msec]\n"
-              "  Others(GUI etc.):   %4.0f [msec] includes `before-init-hook'\n"
-              "(`after-init-hook': %4.0f [msec])")
+              "  Loading init files: %5.1f [msec]\n"
+              "  Loading early-init: %5.1f [msec]\n"
+              "  Others(GUI etc.):   %5.1f [msec] includes `before-init-hook'\n"
+              "(`after-init-hook': %5.1f [msec])")
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
@@ -240,7 +240,7 @@ Then load the following at startup
   "Tick boot sequence at loading MSG."
   (when my-loading-profile-p
     (let ((ctime (current-time)))
-      (message "---- %5.2f[ms] %s"
+      (message "---- %5.1f[ms] %s"
                (* 1000 (float-time
                         (time-subtract ctime my-tick-previous-time)))
                msg)
@@ -590,6 +590,17 @@ This function is called directly from the C code."
 ;;   (add-hook 'after-init-hook #'benchmark-init/deactivate))
 #+end_src
 
+** 後方互換設定
+:PROPERTIES:
+:ID:       DC518E61-447F-4496-8642-DE09C67E49E4
+:CUSTOM_ID: org7f89b479
+:END:
+
+#+begin_src emacs-lisp :tangle yes
+(when (version< emacs-version "29.0")
+  (load "~/Dropbox/emacs.d/config/init-compat.el" nil t))
+#+end_src
+
 ** [my-load-package-p] 設定の読み込みフラグを確認する
 :PROPERTIES:
 :CUSTOM_ID: org660ba5e8
@@ -722,8 +733,8 @@ This function is called directly from the C code."
       (postpone-kicker 'postpone-pre)
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message "Activating postponed packages...done (%4.0f [msec])"
-             (* postpone-pre-init-time 100))))
+    (message "Activating postponed packages...done ( %5.1f [msec])"
+             (* postpone-pre-init-time 1000))))
 
 (autoload 'postpone-kicker "postpone" nil t)
 (add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.
@@ -1033,6 +1044,18 @@ This function returns a timer object which you can use in
 (with-eval-after-load "comp"
   (setq native-comp-async-query-on-exit t)
   (setf comp-num-cpus (max 1 (- (num-processors) 2))))
+#+end_src
+
+** Native comp の警告を非表示にする
+:PROPERTIES:
+:CUSTOM_ID: org81081865
+:END:
+
+ Native comp 実行時に大量に表示される警告を非表示にします．
+
+#+begin_src emacs-lisp :tangle yes
+;; Native Compiling の最終のワーニング等をウィンドウに出さない
+(setq native-comp-async-report-warnings-errors nil)
 #+end_src
 
 ** Native comp がコンパイルした後にメッセージを表示する
@@ -13494,7 +13517,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
   (with-eval-after-load "moom-transient"
     (moom-transient-hide-cursor)
-    (setq moom-transient-dispatch-sticky nil)
+    (setopt moom-transient-dispatch-sticky nil)
     (advice-add 'moom-transient-dispatch :after #'my-ime-off)) ;; FIXME
 
   (with-eval-after-load "moom"
@@ -13502,10 +13525,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (add-hook 'moom-delete-window-hook #'dimmer-on)
     (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
 
-    (custom-set-variables
-     '(moom-command-with-centering nil)
-     '(moom-lighter "M")
-     '(moom-verbose t))
+    (setopt moom-command-with-centering nil
+            moom-lighter "M"
+            moom-verbose t)
     (moom-recommended-keybindings '(all wof))
     (moom-mode 1)
     (my-font-config))) ;; this could increase `postpone-pre-init-time'.
@@ -13519,15 +13541,14 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
   (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
   (with-eval-after-load "moom-font"
-    (custom-set-variables
-     '(moom-scaling-gradient (/ (float 50) 30))
-     '(moom-font-table
-       '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
-         (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
-         (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
-         (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
-         (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
-         (9 5) (8 5) (7 4) (6 4) (5 3))))))
+    (setopt moom-scaling-gradient (/ (float 50) 30))
+    (setopt moom-font-table
+            '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
+              (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
+              (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
+              (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
+              (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
+              (9 5) (8 5) (7 4) (6 4) (5 3)))))
 #+end_src
 
 *** 最大化時にモードラインを消す
@@ -15384,11 +15405,10 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
                          "counsel-osx-app" nil t)
   (global-set-key (kbd "C-M-1") 'counsel-osx-app)
   (with-eval-after-load "counsel-osx-app"
-    (custom-set-variables
-     '(counsel-osx-app-location
-       '("/Applications" "/Applications/Utilities"
-         "/System/Applications" "/System/Applications/Utilities"
-         "/Applications/Microsoft Remote Desktop.localized")))))
+    (setq counsel-osx-app-location
+          '("/Applications" "/Applications/Utilities"
+            "/System/Applications" "/System/Applications/Utilities"
+            "/Applications/Microsoft Remote Desktop.localized"))))
 #+end_src
 
 ** カレントバッファのあるディレクトリをターミナルで表示
@@ -16317,7 +16337,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
 (defun my-kill-emacs ()
     (switch-to-buffer "*Messages*")
     (message "3: %s" kill-emacs-hook)
-    (y-or-n-p "Sure? "))
+    (y-or-n-p "..."))
 
 ;;;###autoload
 (defun my-kill-emacs-hook-show ()

@@ -16,7 +16,7 @@
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (let ((inhibit-message t))
-    (message "Emacs booting time: %4.0f [msec] = `emacs-init-time'."
+    (message "Emacs booting time: %5.1f [msec] = `emacs-init-time'."
              (* 1000
                 (float-time (time-subtract
                              after-init-time
@@ -33,10 +33,10 @@
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              "  Loading init files: %4.0f [msec]\n"
-              "  Loading early-init: %4.0f [msec]\n"
-              "  Others(GUI etc.):   %4.0f [msec] includes `before-init-hook'\n"
-              "(`after-init-hook': %4.0f [msec])")
+              "  Loading init files: %5.1f [msec]\n"
+              "  Loading early-init: %5.1f [msec]\n"
+              "  Others(GUI etc.):   %5.1f [msec] includes `before-init-hook'\n"
+              "(`after-init-hook': %5.1f [msec])")
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
@@ -49,7 +49,7 @@
   "Tick boot sequence at loading MSG."
   (when my-loading-profile-p
     (let ((ctime (current-time)))
-      (message "---- %5.2f[ms] %s"
+      (message "---- %5.1f[ms] %s"
                (* 1000 (float-time
                         (time-subtract ctime my-tick-previous-time)))
                msg)
@@ -66,6 +66,9 @@
 ;; Suppress printing "Waiting for git..." from version.el
 (advice-add 'emacs-repository-branch-git :around #'ad:suppress-message)
 (advice-add 'emacs-repository-version-git :around #'ad:suppress-message)
+
+(when (version< emacs-version "29.0")
+  (load "~/Dropbox/emacs.d/config/init-compat.el" nil t))
 
 (defun my-load-package-p (file)
   (let ((enabled t))
@@ -117,8 +120,8 @@
       (postpone-kicker 'postpone-pre)
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message "Activating postponed packages...done (%4.0f [msec])"
-             (* postpone-pre-init-time 100))))
+    (message "Activating postponed packages...done ( %5.1f [msec])"
+             (* postpone-pre-init-time 1000))))
 
 (autoload 'postpone-kicker "postpone" nil t)
 (add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.
@@ -139,6 +142,9 @@
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
 (unless (or noninteractive my-secure-boot)
   (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
+
+;; Native Compiling の最終のワーニング等をウィンドウに出さない
+(setq native-comp-async-report-warnings-errors nil)
 
 (my-tick-init-time "startup")
 
@@ -411,7 +417,7 @@
 
   (with-eval-after-load "moom-transient"
     (moom-transient-hide-cursor)
-    (setq moom-transient-dispatch-sticky nil)
+    (setopt moom-transient-dispatch-sticky nil)
     (advice-add 'moom-transient-dispatch :after #'my-ime-off)) ;; FIXME
 
   (with-eval-after-load "moom"
@@ -419,10 +425,9 @@
     (add-hook 'moom-delete-window-hook #'dimmer-on)
     (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
 
-    (custom-set-variables
-     '(moom-command-with-centering nil)
-     '(moom-lighter "M")
-     '(moom-verbose t))
+    (setopt moom-command-with-centering nil
+            moom-lighter "M"
+            moom-verbose t)
     (moom-recommended-keybindings '(all wof))
     (moom-mode 1)
     (my-font-config))) ;; this could increase `postpone-pre-init-time'.
@@ -435,11 +440,10 @@
                          "counsel-osx-app" nil t)
   (global-set-key (kbd "C-M-1") 'counsel-osx-app)
   (with-eval-after-load "counsel-osx-app"
-    (custom-set-variables
-     '(counsel-osx-app-location
-       '("/Applications" "/Applications/Utilities"
-         "/System/Applications" "/System/Applications/Utilities"
-         "/Applications/Microsoft Remote Desktop.localized")))))
+    (setq counsel-osx-app-location
+          '("/Applications" "/Applications/Utilities"
+            "/System/Applications" "/System/Applications/Utilities"
+            "/Applications/Microsoft Remote Desktop.localized"))))
 
 (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
 (global-set-key (kbd "C-c 9") 'insert-formatted-current-time)

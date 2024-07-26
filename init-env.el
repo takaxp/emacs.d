@@ -1,6 +1,6 @@
 (defconst my-before-load-init-time (current-time)
   "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
-(defconst my-default-loading-delay 0)
+(defconst my-default-loading-delay 6)
 (defconst my-ad-require-p nil
   "If non-nil, override `require' and `load' to show loading times.")
 (defconst my-profiler-p nil
@@ -64,36 +64,6 @@
  (t nil))
 
 (when my-profiler-p (profiler-report))
-(if (version< emacs-version "28.0")
-    (load "~/Dropbox/emacs.d/config/init-compat.el" nil t)
-  ;; Native Compiling の最終のワーニング等をウィンドウに出さない
-  (setq native-comp-async-report-warnings-errors nil)
-  ;; define-obsolete-variable-alias の上書き補正
-  (defmacro define-obsolete-variable-alias (obsolete-name
-                                            current-name
-					                                  &optional when docstring)
-    ""
-    (declare (doc-string 4)
-             (advertised-calling-convention
-              (obsolete-name current-name when &optional docstring) "23.1"))
-    `(progn
-       (defvaralias ,obsolete-name ,current-name ,docstring)
-       (dolist (prop '(saved-value saved-variable-comment))
-         (and (get ,obsolete-name prop)
-              (null (get ,current-name prop))
-              (put ,current-name prop (get ,obsolete-name prop))))
-       (make-obsolete-variable ,obsolete-name ,current-name ,when)))
-  ;; define-obsolete-function-alias の上書き補正
-  (defmacro define-obsolete-function-alias (obsolete-name
-                                            current-name
-					                                  &optional when docstring)
-    ""
-    (declare (doc-string 4)
-             (advertised-calling-convention
-              (obsolete-name current-name when &optional docstring) "23.1"))
-    `(progn
-       (defalias ,obsolete-name ,current-name ,docstring)
-       (make-obsolete ,obsolete-name ,current-name ,when))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hide package.el, could be removed
@@ -106,7 +76,8 @@
 ;;             #'ad:package--ensure-init-file))
 
 ;; To check closing sequence
-;; (my-kill-emacs-hook-show)
+;; (when (require 'init-autoloads nil t)
+;;   (my-kill-emacs-hook-show))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; diff を取る前に tabify スペースをタブに変換する．今は全てスペース置換中．
 ;; この設定でファイルを一度編集後に，M-x tabify しないとだめ．

@@ -62,3 +62,31 @@
   (defmacro when-let (spec &rest body)
     (declare (indent 1) (debug if-let))
     (list 'if-let spec (macroexp-progn body))))
+
+(when (version< emacs-version "29.0")
+  ;; define-obsolete-variable-alias の上書き補正
+  (defmacro define-obsolete-variable-alias (obsolete-name
+                                            current-name
+					                                  &optional when docstring)
+    ""
+    (declare (doc-string 4)
+             (advertised-calling-convention
+              (obsolete-name current-name when &optional docstring) "23.1"))
+    `(progn
+       (defvaralias ,obsolete-name ,current-name ,docstring)
+       (dolist (prop '(saved-value saved-variable-comment))
+         (and (get ,obsolete-name prop)
+              (null (get ,current-name prop))
+              (put ,current-name prop (get ,obsolete-name prop))))
+       (make-obsolete-variable ,obsolete-name ,current-name ,when)))
+  ;; define-obsolete-function-alias の上書き補正
+  (defmacro define-obsolete-function-alias (obsolete-name
+                                            current-name
+					                                  &optional when docstring)
+    ""
+    (declare (doc-string 4)
+             (advertised-calling-convention
+              (obsolete-name current-name when &optional docstring) "23.1"))
+    `(progn
+       (defalias ,obsolete-name ,current-name ,docstring)
+       (make-obsolete ,obsolete-name ,current-name ,when))))

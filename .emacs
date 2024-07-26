@@ -3,37 +3,29 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-;; (unless (getenv "LIBRARY_PATH")
-;;   (setenv "LIBRARY_PATH"
-;;           (string-join
-;;            '("/opt/homebrew/opt/gcc/lib/gcc/13"
-;;              "/opt/homebrew/opt/libgccjit/lib/gcc/13"
-;;              "/opt/homebrew/opt/gcc/lib/gcc/13/gcc/aarch64-apple-darwin23/13")
-;;            ":")))
+(with-eval-after-load "nerd-icons"
+  ;; ;;  
+  ;; (nerd-icons-octicon "nf-oct-fold")
 
-;; (with-eval-after-load "nerd-icons"
-;;   ;;  
-;;   (nerd-icons-octicon "nf-oct-fold")
-
-;;   (setq mode-line-modes
-;;         (mapcar
-;;          (lambda (entry)
-;;            (if (equal entry "%n")
-;;                '(:eval (progn
-;;                          ;; org が widen を乱発するのでこちらをトリガーにする．
-;;                          ;; 色の変更
-;;                          (my-update-modeline-color)
-;;                          ;; "Narrow" を "N" に短縮表示
-;;                          (if (and (buffer-narrowed-p)
-;;                                   (fboundp 'nerd-icons-octicon))
-;;                              (concat " " (nerd-icons-octicon
-;;                                           "nf-oct-fold" :v-adjust 0.0)) "")))
-;;              entry))
-;;          mode-line-modes))
-;;   (setq mode-line-position-line-format
-;;         `(,(nerd-icons-mdicon "nf-md-square_edit_outline") "%3l"))
-;; ;;  󰤌
-;;   )
+  ;; (setq mode-line-modes
+  ;;       (mapcar
+  ;;        (lambda (entry)
+  ;;          (if (equal entry "%n")
+  ;;              '(:eval (progn
+  ;;                        ;; org が widen を乱発するのでこちらをトリガーにする．
+  ;;                        ;; 色の変更
+  ;;                        (my-update-modeline-color)
+  ;;                        ;; "Narrow" を "N" に短縮表示
+  ;;                        (if (and (buffer-narrowed-p)
+  ;;                                 (fboundp 'nerd-icons-octicon))
+  ;;                            (concat " " (nerd-icons-octicon
+  ;;                                         "nf-oct-fold" :v-adjust 0.0)) "")))
+  ;;            entry))
+  ;;        mode-line-modes))
+  ;; (setq mode-line-position-line-format
+  ;;       `(,(nerd-icons-mdicon "nf-md-square_edit_outline") "%3l"))
+  ;; ;;  󰤌
+  )
 
 (with-eval-after-load "icons-in-terminal"
   ;;  
@@ -87,6 +79,7 @@
                    (message "Pinned"))))))))
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot mode selection
 (cond
  ;; minimal boot or DOOM Emacs (use toggle-doom.sh to switch)
@@ -100,19 +93,21 @@
     (mac-input-method-mode 1)
     (global-set-key (kbd "M-SPC") 'mac-ime-toggle)
     (global-set-key (kbd "S-SPC") 'mac-ime-toggle)))
+
  ;; To test the latest org
  (nil
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-tree-slide"))
   (setq org-agenda-files '("~/Desktop/test/hoge.org")))
+
  ;; minimum
  (nil (load (concat user-emacs-directory "min/init.el")))
+
  ;; Spacemacs
  (nil (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
+
  ;; Normal mode. see also init-eval.el
  (t (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; To decrypt old sub trees
-;; (advice-add 'epg--check-error-for-decrypt :override 'ignore)
-;; (package-initialize) ;; keep this line here for previous versions
+;; (package-initialize) ;; do not delete this line here for previous versions

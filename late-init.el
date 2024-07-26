@@ -1889,15 +1889,14 @@ This function returns a timer object which you can use in
   (add-hook 'moom-font-after-resize-hook #'moom-move-frame-to-edge-top)
   (add-hook 'moom-font-after-resize-hook #'moom-fill-height)
   (with-eval-after-load "moom-font"
-    (custom-set-variables
-     '(moom-scaling-gradient (/ (float 50) 30))
-     '(moom-font-table
-       '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
-         (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
-         (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
-         (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
-         (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
-         (9 5) (8 5) (7 4) (6 4) (5 3))))))
+    (setopt moom-scaling-gradient (/ (float 50) 30))
+    (setopt moom-font-table
+            '((50 30) (49 29) (48 29) (47 28) (46 28) (45 27) (44 26) (43 26)
+              (42 25) (41 25) (40 24) (39 23) (38 23) (37 22) (36 22) (35 21)
+              (34 20) (33 20) (32 19) (31 19) (30 18) (29 17) (28 17) (27 16)
+              (26 16) (25 15) (24 14) (23 14) (22 13) (21 13) (20 12) (19 11)
+              (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
+              (9 5) (8 5) (7 4) (6 4) (5 3)))))
 
 (global-set-key (kbd "<f12>") 'my-toggle-mode-line)
 (with-eval-after-load "moom"
