@@ -1,5 +1,25 @@
 ;; utility.el --- My utility.el -*- lexical-binding: t -*-
 ;; "my-" and "ad:" functions associated with my 'init.el'
+(unless (featurep 'postpone)
+  (call-interactively 'postpone-pre))
+(unless noninteractive
+  (defvar my-utility-start (current-time)))
+
+;;;###autoload
+(defun ad:measure-exec-time (f &rest arg)
+  "If `measure-exec-time-list' is non-nil, measure exe time for each function."
+  (if measure-exec-time-list
+      (let ((inhibit-message nil)
+            (message-log-max 5000)
+            (begin (current-time)))
+        (apply f arg)
+        (message
+         (format "--- %.3f[ms] %S"
+                 (* 1000 (float-time (time-subtract (current-time) begin)))
+                 (if (byte-code-function-p f)
+                     nil ;; not includes closure
+                   f)))) ;; FIXME
+    (apply f arg)))
 
 ;;;###autoload
 (defun ad:do-after-load-evaluation (abs-file)
@@ -22,14 +42,10 @@ This function is called directly from the C code."
            (msg (unless (memq package my-exclude-deprecated-packages)
                   (format "Package %s is deprecated" package)))
 	         (fun (lambda (msg) (message "%s" msg))))
-      ;; Cribbed from cl--compiling-file.
       (when (or (not (fboundp 'byte-compile-warning-enabled-p))
                 (byte-compile-warning-enabled-p 'obsolete package))
         (cond
-	       ((and (boundp 'byte-compile--outbuffer)
-	             (bufferp (symbol-value 'byte-compile--outbuffer))
-	             (equal (buffer-name (symbol-value 'byte-compile--outbuffer))
-		                  " *Compiler Output*"))
+	       ((bound-and-true-p byte-compile-current-file)
 	        ;; Don't warn about obsolete files using other obsolete files.
 	        (unless (and (stringp byte-compile-current-file)
 		                   (string-match-p "/obsolete/[^/]*\\'"
@@ -37,18 +53,64 @@ This function is called directly from the C code."
 					                              byte-compile-current-file
 					                              byte-compile-root-dir)))
 	          (byte-compile-warn "%s" msg)))
-         ((and msg
-               noninteractive (funcall fun msg))) ;; No timer will be run!
-	       (t (when msg
-              (run-with-idle-timer 0 nil fun msg)))))))
+         (noninteractive (funcall fun msg)) ;; No timer will be run!
+	       (t (run-with-idle-timer 0 nil fun msg))))))
 
   ;; Finally, run any other hook.
   (run-hook-with-args 'after-load-functions abs-file))
 
 ;;;###autoload
+(defun future-time-p (time)
+  "Return non-nil if provided TIME formed of \"10:00\" is the future time."
+  (not (time-less-p
+        (apply 'encode-time
+               (let ((t1 (decode-time))
+                     (t2 (parse-time-string time)))
+                 (setf (nth 0 t1) 0)
+                 (setf (nth 1 t1) (nth 1 t2))
+                 (setf (nth 2 t1) (nth 2 t2))
+                 t1))
+        (current-time))))
+
+;; For instance,
+;; (when (future-time-p "10:00") (run-at-time...))
+
+;; (eval-when-compile
+;;   (message "Loading gcmh... %s" (featurep 'gcmh))
+;;   (require 'gcmh))
+
+(defvar my-gcmh-idlegc-p nil)
+
+;;;###autoload
+(defun ad:garbage-collect (f)
+  (unless my-gcmh-idlegc-p
+    (message "[gcmh] Garbage collecting...")
+    (message "[gcmh] Garbage collecting...done (%.3fs)"
+             (gcmh-time (funcall f)))))
+
+;;;###autoload
+(defun ad:gcmh-idle-garbage-collect (f)
+  (let ((my-gcmh-idlegc-p t))
+    (funcall f)))
+
+;;;###autoload
+(defun my-gcmh-activate ()
+  (cancel-timer my-gcmh-timer)
+  (gcmh-mode 1))
+
+;;;###autoload
+(defun my-native-comp-p ()
+  (when (fboundp 'native-comp-available-p)
+    (native-comp-available-p)))
+
+;;;###autoload
+(defun my-native-comp-packages-done ()
+  (message "Native Compilation...done"))
+
+;;;###autoload
 (defun my-emacs-lisp-mode-conf ()
   ;; (setq indent-tabs-mode t)
-  ;; (setq tab-width 8)
+  (setq tab-width 8)
   (setq indent-line-function 'lisp-indent-line))
 
 ;;;###autoload
@@ -57,23 +119,33 @@ This function is called directly from the C code."
     (org-cycle-hide-drawers 'all)))
 
 ;;;###autoload
-(defun my-private-conf-activate ()
-  (cancel-timer my-private-conf-timer)
-  (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
-             (eq system-type 'darwin)
-             (not (boundp 'my-private-conf-loaded)))
-    (unless (ignore-errors
-              (if shutup-p
-                  (shut-up (require 'private "private.el.gpg" t))
-                (require 'private "private.el.gpg" t)))
-      (warn "GPG decryption error (private.el)")))
-  (remove-hook 'find-file-hook #'my-private-conf-activate))
+(defun my-auto-revert-activate ()
+  (global-auto-revert-mode 1)
+  (remove-hook 'find-file-hook #'my-auto-revert-activate))
+
+;; see also a configuration of `directory-abbrev-alist'
+;;;###autoload
+(defun my-shorten-default-directory ()
+  "Enforce to replace \"/home/...\" with \"~/\"."
+  (setq default-directory (abbreviate-file-name default-directory)))
 
 ;;;###autoload
-(defun ad:epa-file-write-region (f start end file &optional append visit
-                                   lockname mustbenew)
-  (let ((message-log-max nil))
-    (funcall f start end file append visit lockname mustbenew)))
+(defun my-private-conf-activate ()
+  (cancel-timer my-private-conf-timer)
+  ;; (require 'epa)
+  (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
+             (eq system-type 'darwin)
+             (not (featurep 'private)))
+    (unless (ignore-errors (require 'private "private.el.gpg" t))
+      (user-error "GPG decryption error (private.el)"))))
+
+;;;###autolaod
+(defun my-lock-secret-buffer (&optional file)
+  (when (and (stringp file)
+             (buffer-live-p (get-buffer file)))
+    (kill-buffer file)
+    (let ((message-log-max nil))
+      (message "--- %s is locked." file))))
 
 ;;;###autoload
 (defun my-isearch-ime-deactivate-sticky ()
@@ -131,6 +203,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (interactive "P\np")
   (funcall f (if (and (not (bolp))
                       (not (eq (preceding-char) ?\ ))
+                      (not (memq (following-char) '(?\( ?\< ?\[ ?\{)))
                       (or (eolp)
                           (eq (following-char) ?\ )
                           (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
@@ -142,7 +215,9 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   "If the cursor is on a symbol, expand the region along the symbol."
   (interactive "P\np")
   (if (and (not (use-region-p))
-           (symbol-at-point))
+           (symbol-at-point)
+           (not (memq (following-char) '(?\( ?\< ?\[ ?\{)))
+           (not (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
       (er/mark-symbol)
     (funcall f arg allow-extend)))
 
@@ -264,20 +339,45 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     ))
 
 ;;;###autoload
-(defun my-syntax-subword-activate ()
-  (global-syntax-subword-mode 1)  
-  (remove-hook 'find-file-hook #'my-syntax-subword-activate))
+(defun my-syntax-subword-activate (&rest arg)
+  (unless (featurep 'syntax-subword)
+    (global-syntax-subword-mode 1))
+  (advice-remove 'forward-word #'my-syntax-subword-activate)
+  (advice-remove 'backward-word #'my-syntax-subword-activate)
+  arg)
+
+;;;###autoload
+(defun ad:syntax-subword-kill (&optional n)
+  "Replace `kill-region' with `delete-region'."
+  (interactive "^p")
+  (let ((beg (point))
+        (end (save-excursion (syntax-subword-forward n) (point))))
+    (delete-region beg end)))
 
 ;;;###autoload
 (defun my-time-stamp ()
   (setq time-stamp-format
         (if (eq major-mode 'org-mode)
-            "[%Y-%02m-%02d %3a %02H:%02M]" ;; "%04y"
+            "[%Y-%02m-%02d %3a]" ;; "%04y %02H:%02M"
           "%Y-%02m-%02d"))
   (if (boundp 'org-tree-slide-mode)
       (unless org-tree-slide-mode
         (time-stamp))
     (time-stamp)))
+
+;;;###autoload
+(defun ad:isearch-mode (f forward &optional regexp op-fun recursive-edit
+                          regexp-function)
+  (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
+      (progn
+        (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
+        (deactivate-mark)
+        (funcall f forward regexp op-fun recursive-edit regexp-function)
+        (if (not forward)
+            (isearch-repeat-backward)
+          (goto-char (mark))
+          (isearch-repeat-forward)))
+    (funcall f forward regexp op-fun recursive-edit regexp-function)))
 
 ;;;###autoload
 (defun my-orgalist-activate ()
@@ -311,7 +411,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   "Open a file with `view-mode'."
   (when (file-exists-p buffer-file-name)
     (when (and my-auto-view-regexp
-	             (string-match my-auto-view-regexp buffer-file-name))
+	       (string-match my-auto-view-regexp buffer-file-name))
       (view-mode 1))
     (dolist (dir my-auto-view-dirs)
       (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
@@ -368,6 +468,12 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 ;;;###autoload
 (defun ad:view--disable () (my-mode-line-off))
+
+;;;###autoload
+(defun ad:switch-to-buffer (&rest _arg)
+  (when (and (not view-mode)
+             (member (buffer-name) my-auto-view-buffers))
+    (view-mode 1)))
 
 ;;;###autoload
 (defun my-web-indent-fold ()
@@ -488,7 +594,7 @@ This works also for other defined begin/end tokens to define the structure."
       (message "%s" (car kill-ring))
       (erase-buffer))
     ;; Jump to the end of the region
-    (goto-char (max (mark) (point)))
+    (goto-char (max (or (mark) 0) (point)))
     (deactivate-mark)))
 
 ;;;###autoload
@@ -685,11 +791,11 @@ Call this function at updating `mode-line-mode'."
 
 ;;;###autoload
 (defun my-migemo-activate ()
-  (when (and (locate-library "migemo");; overhead but should be checked here
-	           (executable-find "cmigemo")
+  (when (and (executable-find "cmigemo")
 	           (require 'migemo nil t))
-    (add-hook 'isearch-mode-hook #'migemo-init))
-  (remove-hook 'find-file-hook #'my-migemo-activate))
+    (add-hook 'isearch-mode-hook #'migemo-init)
+    (migemo-init))
+  (remove-hook 'isearch-mode-hook #'my-migemo-activate))
 
 (autoload 'calendar-iso-from-absolute "cal-iso" nil t)
 (autoload 'calendar-absolute-from-gregorian "calendar" nil t)
@@ -704,6 +810,12 @@ Call this function at updating `mode-line-mode'."
              (list (string-to-number (format-time-string "%m"))
                    (string-to-number (format-time-string "%d"))
                    (string-to-number (format-time-string "%y"))))))))
+
+;;;###autoload
+(defun my-week-number ()
+  "Show the current week number."
+  (interactive)
+  (message "w%s" (my-get-week-number)))
 
 ;;;###autoload
 (defun my-empty-booting-header-line ()
@@ -723,6 +835,10 @@ Call this function at updating `mode-line-mode'."
                                         (length date))))))))))
 
 ;;;###autoload
+(defun my-calendar-mark-selected ()
+  (org-eval-in-calendar '(setq cursor-type nil) t))
+
+;;;###autoload
 (defun my:elisp-eldoc (_callback)
   "Avoid hiding `hl-line' in `emacs-lisp-mode'."
   (when (fboundp 'hl-line-highlight)
@@ -739,29 +855,29 @@ Call this function at updating `mode-line-mode'."
 Elements of SEQUENCE are transformed by FUNCTION before being
 sorted.  FUNCTION must be a function of one argument."
   (seq-sort (lambda (a b)
-              (funcall pred
-                       (funcall function a)
-                       (funcall function b)))
-            sequence))
+	      (funcall pred
+		       (funcall function a)
+		       (funcall function b)))
+	    sequence))
 
 ;;;###autoload
 (defun ivy--sort-by-len (name candidates)
   "Sort CANDIDATES based on similarity of their length with NAME."
   (let ((name-len (length name))
-        (candidates-count (length candidates)))
+	(candidates-count (length candidates)))
     (if (< 500 candidates-count)
-        candidates
+	candidates
       (seq-sort-by #'length
-                   (lambda (a b)
-                     (< (abs (- name-len a))
-                        (abs (- name-len b))))
-                   candidates))))
+		   (lambda (a b)
+		     (< (abs (- name-len a))
+			(abs (- name-len b))))
+		   candidates))))
 
 ;;;###autoload
 (defun my-disable-counsel-find-file (&rest args)
   "Disable `counsel-find-file' and use the original `find-file' with ARGS."
   (let ((completing-read-function #'completing-read-default)
-        (completion-in-region-function #'completion--in-region))
+	      (completion-in-region-function #'completion--in-region))
     (apply #'read-file-name-default args)))
 
 ;; Common actions for counsel-ag, counsel-fzf, and counsel-recentf
@@ -775,15 +891,35 @@ sorted.  FUNCTION must be a function of one argument."
 (defun my-counsel-fzf-in-dir (_arg)
   "Search again with new root directory."
   (counsel-fzf ivy-text
-               (read-directory-name
-                (concat (car (split-string counsel-fzf-cmd))
-                        " in directory: "))))
+	       (read-directory-name
+		(concat (car (split-string counsel-fzf-cmd))
+			" in directory: "))))
 
 ;;;###autoload
 (defun my-counsel-ag-in-dir (_arg)
   "Search again with new root directory."
   (let ((current-prefix-arg '(4)))
     (counsel-ag ivy-text nil ""))) ;; also disable extra-ag-args
+
+;;;###autoload
+(defun my-counsel-mark-ring ()
+  "Browse `mark-ring' interactively.
+Obeys `widen-automatically', which see."
+  (interactive)
+  (let* ((counsel--mark-ring-calling-point (point))
+	 (marks (copy-sequence mark-ring))
+	 (marks (delete-dups marks))
+	 (marks
+	  ;; mark-marker is empty?
+	  (if (equal (mark-marker) (make-marker))
+	      marks
+	    (cons (copy-marker (mark-marker)) marks)))
+	 (candidates (counsel-mark--get-candidates marks)))
+    (delete-dups candidates) ;; [added] remove duplicated lines
+    (if candidates
+	(counsel-mark--ivy-read "Mark: " candidates 'counsel-mark-ring)
+      (message "Mark ring is empty"))
+    counsel--mark-ring-calling-point)) ;; To avoid an warning on lexical val.
 
 ;;;###autoload
 (defun my-pre-prompt-function ()
@@ -897,6 +1033,11 @@ sorted.  FUNCTION must be a function of one argument."
 	  (redraw-frame)))
 
 ;;;###autoload
+(defun my-dimmer-activate ()
+  (setq my-dimmer-mode (dimmer-mode 1))
+  (remove-hook 'window-configuration-change-hook #'my-dimmer-activate));; FIXME
+
+;;;###autoload
 (defun my-recentf-save-list-silence ()
   (interactive)
   (if shutup-p
@@ -917,7 +1058,10 @@ sorted.  FUNCTION must be a function of one argument."
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
-  (eval `(with-ivy-window (find-file ,file))))
+  (cond ((string-match "\\.numbers$\\|\\.xlsx$" file)
+         (eval `(with-ivy-window (org-open-file ,file))))
+        (t
+         (eval `(with-ivy-window (find-file ,file))))))
 
 ;;;###autoload
 (defun ad:counsel-recentf ()
@@ -945,11 +1089,119 @@ sorted.  FUNCTION must be a function of one argument."
     (save-buffer)))
 
 ;;;###autoload
+(defun crux-copy-file-preserve-attributes (visit)
+  "[curx.el]
+Copy the current file-visiting buffer's file to a destination.
+
+This function prompts for the new file's location and copies it
+similar to cp -p. If the new location is a directory, and the
+directory does not exist, this function confirms with the user
+whether it should be created. A directory must end in a slash
+like `copy-file' expects. If the destination is a directory and
+already has a file named as the origin file, offers to
+overwrite.
+
+If the current buffer is not a file-visiting file or the
+destination is a non-existent directory but the user has elected
+to not created it, nothing will be done.
+
+When invoke with C-u, the newly created file will be visited.
+"
+  (interactive "p")
+  (let ((current-file (buffer-file-name)))
+    (when current-file
+      (let* ((new-file (read-file-name "Copy file to: "))
+             (abs-path (expand-file-name new-file))
+             (create-dir-prompt "%s is a non-existent directory, create it? ")
+             (is-dir? (string-match "/" abs-path (1- (length abs-path))))
+             (dir-missing? (and is-dir? (not (file-exists-p abs-path))))
+             (create-dir? (and is-dir?
+                               dir-missing?
+                               (y-or-n-p
+                                (format create-dir-prompt new-file))))
+             (destination (concat (file-name-directory abs-path)
+                                  (file-name-nondirectory current-file))))
+        (unless (and is-dir? dir-missing? (not create-dir?))
+          (when (and is-dir? dir-missing? create-dir?)
+            (make-directory abs-path))
+          (condition-case nil
+              (progn
+                (copy-file current-file abs-path nil t t t)
+                (message "Wrote %s" destination)
+                (when visit
+                  (find-file-other-window destination)))
+            (file-already-exists
+             (when (y-or-n-p (format "%s already exists, overwrite? " destination))
+               (copy-file current-file abs-path t t t t)
+               (message "Wrote %s" destination)
+               (when visit
+                 (find-file-other-window destination))))))))))
+
+;;;###autoload
+(defun crux-rename-file-and-buffer ()
+  "[curx.el]
+Rename current buffer and if the buffer is visiting a file, rename it too."
+  (interactive)
+  (when-let* ((filename (buffer-file-name))
+              (new-name (or (read-file-name "New name: " (file-name-directory filename) nil 'confirm)))
+              (containing-dir (file-name-directory new-name)))
+    ;; make sure the current buffer is saved and backed by some file
+    (when (or (buffer-modified-p) (not (file-exists-p filename)))
+      (if (y-or-n-p "Can't move file before saving it.  Would you like to save it now?")
+          (save-buffer)))
+    (if (get-file-buffer new-name)
+        (message "There already exists a buffer named %s" new-name)
+      (progn
+        (make-directory containing-dir t)
+        (cond
+         ((vc-backend filename)
+          ;; vc-rename-file seems not able to cope with remote filenames?
+          (let ((vc-filename (if (tramp-tramp-file-p filename) (tramp-file-local-name filename) filename))
+                (vc-new-name (if (tramp-tramp-file-p new-name) (tramp-file-local-name filename) new-name)))
+            (vc-rename-file vc-filename vc-new-name)))
+         (t
+          (rename-file filename new-name t)
+          (set-visited-file-name new-name t t)))))))
+
+;;;###autoload
+(defun crux-delete-file-and-buffer ()
+  "[curx.el]
+Kill the current buffer and deletes the file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (when filename
+      (if (vc-backend filename)
+          (vc-delete-file filename)
+        (when (y-or-n-p (format "Are you sure you want to delete %s? " filename))
+          (delete-file filename delete-by-moving-to-trash)
+          (message "Deleted file %s" filename)
+          (kill-buffer))))))
+
+;;;###autoload
+(defun crux-open-with (arg)
+  "[curx.el]
+Open visited file in default external program.
+When in dired mode, open file under the cursor.
+
+With a prefix ARG always prompt for command to use."
+  (interactive "P")
+  (let* ((current-file-name
+          (if (derived-mode-p 'dired-mode)
+              (dired-get-file-for-visit)
+            buffer-file-name))
+         (open (pcase system-type
+                 (`darwin "open")
+                 ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
+         (program (if (or arg (not open))
+                      (read-shell-command "Open current file with: ")
+                    open)))
+    (call-process program nil 0 nil current-file-name)))
+
+;;;###autoload
 (defun my-backup-recentf ()
   (interactive)
-  (when (require 'utility nil t)
-    (my-backup recentf-save-file) ;; "~/.emacs.d/recentf"
-    (my-backup (expand-file-name "~/.histfile"))))
+  (my-backup recentf-save-file) ;; "~/.emacs.d/recentf"
+  (my-backup (expand-file-name "~/.histfile")))
 
 ;;;###autoload
 (defun my-auto-backup ()
@@ -971,26 +1223,48 @@ sorted.  FUNCTION must be a function of one argument."
             (format-time-string backup-each-save-time-format))))
 
 ;;;###autoload
-(defun my-ox-hugo-auto-saving-p ()
-  (when (eq major-mode 'org-mode)
-    (or (bound-and-true-p org-capture-mode) ;; when activating org-capture
-        (and (fboundp 'org-entry-get)
-             (equal "" (org-entry-get (point) "EXPORT_FILE_NAME"))))))
+(defun my-dired-activate ()
+  (unless (require 'init-dired nil t)
+    (user-error "init-dired.el doesn't exist")))
 
 ;;;###autoload
-(defun my-auto-save-buffers ()
-  (cond ((memq major-mode '(undo-tree-visualizer-mode diff-mode)) nil)
-        ((string-match "Org Src" (buffer-name)) nil)
-        ((let ((pt (point)))
-           ;; .gpg で半角スペースの後ろのブリッツでは自動保存しない．FIXME 半角スペース
-           (when (and (string-match ".gpg" (buffer-name))
-                      (not (eq pt 1))
-                      (not (eq pt (point-min))))
-             (string-match (buffer-substring (- pt 1) pt) " ")))
-         nil)
-        ((my-ox-hugo-auto-saving-p) nil)
-        (t
-         (auto-save-buffers))))
+(defun my-super-save-predicates-p ()
+  "Return nil, if the buffer should not be saved."
+  (not
+   (cond ((memq major-mode '(undo-tree-visualizer-mode diff-mode)) t)
+         ((when (eq major-mode 'org-mode)
+            ;; when activating org-capture
+            (or (bound-and-true-p org-capture-mode)
+                (and (fboundp 'org-entry-get)
+                     (equal "" (org-entry-get (point)
+                                              "EXPORT_FILE_NAME"))))) t)
+         ((let ((pt (point)))
+            ;; .gpg で半角スペースの後ろのブリッツでは自動保存しない．
+            ;; FIXME 半角スペース
+            (when (and (string-match ".gpg" (buffer-name))
+                       (not (eq pt 1))
+                       (not (eq pt (point-min))))
+              (string-match (buffer-substring (- pt 1) pt) " "))) t))))
+
+;;;###autoload
+(defun my-super-save-buffers-command ()
+  "Save the buffer if needed.
+see https://github.com/bbatsov/super-save/pull/20/files."
+  (save-mark-and-excursion
+    (dolist (buf (buffer-list))
+      (set-buffer buf)
+      (when (and buffer-file-name
+                 (buffer-modified-p (current-buffer))
+                 (file-writable-p buffer-file-name)
+                 (if (file-remote-p buffer-file-name)
+                     super-save-remote-files t))
+        (save-buffer)))))
+
+;;;###autoload
+(defun my-super-save-activate ()
+  (unless noninteractive
+    (super-save-mode 1))
+  (remove-hook 'find-file-hook #'my-super-save-activate))
 
 ;;;###autoload
 (defun ad:neotree-show ()
@@ -1047,41 +1321,8 @@ sorted.  FUNCTION must be a function of one argument."
                (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
                    nil
                  (ivy-thing-at-point)))
-         (or initial-directory default-directory)
+         (or initial-directory (funcall counsel-fzf-dir-function))
          fzf-prompt))
-
-(eval-when-compile
-  (require 'dash))
-
-;;;###autoload
-(defun counsel-flycheck-action (obj &rest _)
-  (-when-let* ((err (get-text-property 0 'tabulated-list-id obj))
-               (pos (flycheck-error-pos err)) )
-    (goto-char (flycheck-error-pos err))))
-
-(defvar counsel-flycheck-history nil "History for `counsel-flycheck'")
-
-;;;###autoload
-(defun counsel-flycheck ()
-  (interactive)
-  (if (not (bound-and-true-p flycheck-mode))
-      (message "Flycheck mode is not available or enabled")
-    (ivy-read "Error: "
-              (let ((source-buffer (current-buffer)))
-                (with-current-buffer
-                    (or (get-buffer flycheck-error-list-buffer)
-                        (progn
-                          (with-current-buffer
-                              (get-buffer-create flycheck-error-list-buffer)
-                            (flycheck-error-list-mode)
-                            (current-buffer))))
-                  (flycheck-error-list-set-source source-buffer)
-                  (flycheck-error-list-reset-filter)
-                  (revert-buffer t t t)
-                  (split-string (buffer-string) "\n" t " *")))
-              :action 'counsel-flycheck-action ;; (lambda (s &rest _))
-              :history 'counsel-flycheck-history
-              :caller 'counsel-flycheck)))
 
 ;;;###autoload
 (defun my-decimal-to-hex ()
@@ -1120,6 +1361,17 @@ sorted.  FUNCTION must be a function of one argument."
   nil)
 
 ;;;###autoload
+(defun my-counsel-projectile-ag ()
+  "Use `counsel-projectile-ag' in a projectile project except when `dired'.
+Otherwise, use `counsel-ag'."
+  (interactive)
+  (if (or (and (eq projectile-require-project-root 'prompt)
+               (not (projectile-project-p)))
+          (eq major-mode 'dired-mode))
+      (counsel-ag)
+    (counsel-projectile-ag)))
+
+;;;###autoload
 (defun ad:magit-mode-bury-buffer (&optional _bury)
   (when (fboundp 'dimmer-on)
     (setq my-dimmer-mode t)
@@ -1136,46 +1388,288 @@ sorted.  FUNCTION must be a function of one argument."
   (remove-hook 'find-file-hook #'my-editorconfig-activate))
 
 ;;;###autoload
-(defun my-company-activate ()
-  (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
-  (remove-hook 'org-mode-hook #'my-company-activate)
-  (require 'company nil t))
+(defun ad:minibuffer-complete (f)
+  "Enforce to use `completion--in-region' when completing in minibuffer."
+  (let ((completion-in-region-function #'completion--in-region))
+    (funcall f)))
 
 ;;;###autoload
-(defun ad:company-idle-begin (f buf win tick pos)
-  (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
-    (funcall f buf win tick pos)))
+(defun my-advice-minibuffer-complete ()
+  (advice-add 'minibuffer-complete :around #'ad:minibuffer-complete)
+  (remove-hook 'minibuffer-setup-hook #'my-advice-minibuffer-complete))
 
 ;;;###autoload
-(defun ad:company-pseudo-tooltip--ujofwd-on-timer (f command)
-  (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
-    (funcall f command)))
+(defun my-load-cape-modules-for-org ()
+  ;; 1st: begin_src emacs-lisp..end_src 内でelispを補完可能にする．
+  (add-hook 'completion-at-point-functions #'cape-elisp-block -2 'local)
+  ;; 2nd: システムのファイルパスを補完可能にする
+  (add-hook 'completion-at-point-functions #'cape-file -1 'local)
+  ;; 3rd: 辞書 FIXME should be done by manually?
+  (add-hook 'completion-at-point-functions #'cape-dict nil 'local))
+
+;;;###autoload
+(defun my-corfu-insert-separator (ARG)
+  "Use C-SPC to insert the separator."
+  (interactive "P")
+  (if (corfu--continue-p) ;; (> corfu--total 0)
+      (insert corfu-separator)
+    (set-mark-command ARG)))
+
+;;;###autoload
+(defun my-org-modules-activate ()
+  (interactive)
+  (if (and (featurep 'org-tempo)
+           (featurep 'org-id))
+      (message "org-modules are previously loaded.")
+    (message "Loading org-modules...")
+    (setq org-modules my-org-modules) ;; revert to the original value
+    ;; モジュールの追加
+    (add-to-list 'org-modules 'org-id)
+    (with-eval-after-load "org-agenda"
+      ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
+      (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
+    (when (version< "9.1.4" (org-version))
+      (add-to-list 'org-modules 'org-tempo))
+    (when (require 'ol-bookmark nil t)
+      ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
+      (add-to-list 'org-modules 'ol-bookmark)
+      (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
+      ;; `bookmark-default-file' の読み込み
+      (bookmark-maybe-load-default-file))
+
+    ;; 不必要なモジュールの読み込みを停止する
+    (delq 'ol-bbdb org-modules)
+    (delq 'ol-irc org-modules)
+    (delq 'ol-mhe org-modules)
+    (delq 'ol-docview org-modules)
+    ;; Reload
+    (org-load-modules-maybe t)
+    (org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
+    (message "Loading org-modules...done")))
+
+;;;###autoload
+(defun my-open-default-org-file ()
+  (interactive)
+  (my-show-org-buffer "next.org")
+  ;; (run-hooks 'org-mode-hook) ;; FIXME
+)
 
 ;;;###autoload
 (defun my-desktop-notification (title message &optional sticky sound timeout)
   "Show a message by `alerter' command."
-  (if ns-alerter-command
-      (start-process
-       "notification" "*notification*"
-       ns-alerter-command
-       "-title" title
-       "-message" message
-       "-sender" "org.gnu.Emacs"
-       "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
-       "-sound" (or sound ns-default-notification-sound))
-    (message "--- ns-alerter-command is %s." ns-alerter-command)))
+  (if (eq ns-alerter-command 'script)
+      (ns-do-applescript
+       (format "display notification \"%s\" with title \"%s\""
+               title message))
+    (start-process
+     "notification" "*notification*"
+     ns-alerter-command
+     "-title" title
+     "-message" message
+     "-sender" "org.gnu.Emacs"
+     "-timeout" (format "%s" (if sticky 0 (or timeout 7)))
+     "-sound" (or sound ns-default-notification-sound))))
 
 ;;;###autoload
 (defun my-desktop-notification-handler (message)
   (my-desktop-notification "Message from org-mode" message t))
 
+(defun ad:org-reveal (f &optional siblings)
+  (interactive "P")
+  (if (org-at-heading-p)
+      (org-show-subtree)
+    (funcall f siblings)))
+
+;;;###autoload
+(defun my-org-move-item-begin ()
+  "Move the current item to the beginning of the list."
+  (interactive)
+  (unless (org-at-item-p) (error "Not at an item"))
+  (let* ((col (current-column))
+         (item (point-at-bol))
+         (struct (org-list-struct))
+         (prevs (org-list-prevs-alist struct))
+         (prev-item (org-list-get-prev-item (point-at-bol) struct prevs)))
+    (unless prev-item
+      (user-error "Cannot move this item further up"))
+    (setq struct (org-list-send-item item 'begin struct))
+    (goto-char item)
+    (org-list-write-struct struct (org-list-parents-alist struct))
+    (org-move-to-column col)))
+
+;;;###autoload
+(defun my-org-move-item-end ()
+  "Move the current item to the end of the list."
+  (interactive)
+  (unless (org-at-item-p) (error "Not at an item"))
+  (let* ((col (current-column))
+         (item (point-at-bol))
+         (struct (org-list-struct))
+         (prevs (org-list-prevs-alist struct))
+         (next-item (org-list-get-next-item (point-at-bol) struct prevs)))
+    (unless next-item
+      (user-error "Cannot move this item further down"))
+    (setq struct (org-list-send-item item 'end struct))
+    (goto-char item)
+    (org-list-write-struct struct (org-list-parents-alist struct))
+    (org-move-to-column col)))
+
 ;;;###autoload
 (defun my-org-agenda-prepare-buffers ()
   (unless (featurep 'org-agenda)
     (when (require 'org-agenda nil t)
-      (message "Building agenda buffers...")
+      (unless (and (featurep 'org-id)
+                   (featurep 'org-tempo))
+        (my-org-modules-activate)) ;; FIXME
+      (unless (featurep 'ob-http) (my-org-babel-load-activate)) ;; FIXME
       (org-agenda-prepare-buffers org-agenda-files)
       (message "Building agenda buffers...done"))))
+
+;;;###autoload
+(defun my-recenter-top-bottom-top ()
+  "Recenter the current line to the top of window."
+  (set-window-start (get-buffer-window) (line-beginning-position)))
+
+;; org-agenda の内容をアラームに登録する
+
+;; 重複実行の抑制用フラグ
+(defvar my-org-agenda-to-appt-ready t)
+
+;;;###autoload
+(defun my-org-agenda-to-appt (&optional force)
+  "Update `appt-time-mag-list'.  Use `async' if possible."
+  (interactive)
+  (unless (featurep 'org)
+    (require 'org))
+  (if (or (not (require 'async nil t))
+          (not my-org-agenda-to-appt-async))
+      (unless (active-minibuffer-window)
+        ;; (org-agenda-to-appt t '((headline "TODO")))
+        (org-agenda-to-appt t)
+        (appt-check))
+    (when force
+      (setq my-org-agenda-to-appt-ready t))
+    (if (not my-org-agenda-to-appt-ready)
+        (message "[appt] Locked")
+      (setq my-org-agenda-to-appt-ready nil)
+      ;; (message "-------------------------")
+      ;; (message "parent: %s"
+      ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
+      (async-start
+       `(lambda ()
+          (setq load-path ',load-path)
+          (require 'org)
+          (require 'appt)
+          (setq org-agenda-files ',org-agenda-files)
+          ;; (org-agenda-to-appt t '((headline "TODO")))
+          (org-agenda-to-appt t)
+          (appt-check) ;; remove past events
+          ;; Remove tags
+          (let ((msgs appt-time-msg-list))
+            (setq appt-time-msg-list nil)
+            (dolist (msg msgs)
+              (add-to-list 'appt-time-msg-list
+                           (let ((match (string-match
+                                         org-tag-group-re (nth 1 msg))))
+                             (if match
+                                 (list (nth 0 msg)
+                                       (org-trim (substring-no-properties
+                                                  (nth 1 msg)
+                                                  0 match))
+                                       (nth 2 msg))
+                               msg)
+                             ) t))
+            ;; just for sure
+            (delq nil appt-time-msg-list)))
+       `(lambda (result)
+          ;; (message "child: %s"
+          ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
+          (setq appt-time-msg-list result) ;; nil means No event
+          ;; (my-add-prop-to-appt-time-msg-list)
+          (unless (active-minibuffer-window)
+            (let ((cnt (length appt-time-msg-list))
+                  (message-log-max nil))
+              (if (eq cnt 0)
+                  (message "[async] No event to add")
+                (message "[async] Added %d event%s for today"
+                         cnt (if (> cnt 1) "s" "")))))
+          (setq my-org-agenda-to-appt-ready t))))))
+
+;;;###autoload
+(defun my-org-babel-load-activate ()
+  (if (featurep 'ob-http)
+      (message "org-babel language packages are previously loaded.")
+    (message "Loading org-babel language packages...")
+    (require 'ob-http nil t)
+    (require 'ob-gnuplot nil t)
+    (require 'ob-octave nil t)
+    (require 'ob-go nil t)
+    (require 'ob-async nil t)
+    (custom-set-variables ;; will call `org-babel-do-load-languages'
+     '(org-babel-load-languages '((emacs-lisp . t)
+                                  (dot . t)
+                                  (C . t)
+                                  (ditaa . t)
+                                  (perl . t)
+                                  (shell . t)
+                                  (latex . t)
+                                  (sqlite . t)
+                                  (R . t)
+                                  (python . t))))
+    (message "Loading org-babel language packages...done")))
+
+(defvar my-org-delete-saved-item-timer nil)
+
+;;;###autoload
+(defun my-delete-last-saved-string ()
+  (setq kill-ring (cdr kill-ring)))
+
+;;;###autoload
+(defun my-get-content-with-decrypt ()
+  (interactive)
+  (if (not (org-at-encrypted-entry-p))
+      (echo "--- Do nothing, the subtree is NOT encrypted.")
+    (outline-hide-subtree) ;; FIXME
+    (org-decrypt-entry)
+    (unless (org-at-heading-p)
+      (org-back-to-heading))
+    (org-end-of-meta-data t)
+    (kill-ring-save (point)
+                    (org-element-property :end (org-element-at-point)))
+    (org-encrypt-entry)
+    (outline-hide-subtree) ;; FIXME
+    (org-back-to-heading)
+    (if (org-at-encrypted-entry-p)
+        (message "--- secured.")
+      (error "Not secured"))
+    (when (timerp my-org-delete-saved-item-timer)
+      (cancel-timer my-org-delete-saved-item-timer))
+    ;; FIXME should also run cancel-timer when yank only one time.
+    (setq my-org-delete-saved-item-timer
+          (run-with-timer 5 nil #'my-delete-last-saved-string))))
+
+;;;###autoload
+(defun my-add-ox-hugo-lastmod ()
+  "Add `lastmod' property with the current time."
+  (interactive)
+  (org-set-property "EXPORT_HUGO_LASTMOD"
+                    (format-time-string "[%Y-%m-%d %a %H:%M]")))
+
+;;;###autoload
+(defun ad:ox-hugo:org-todo (&optional ARG)
+  "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
+  (when (and (equal (buffer-name) "imadenale.org")
+             ;; FIXME C-c C-t d に反応しない．speed command はOK．
+             (or (eq ARG 'done)
+                 (equal ARG "DONE")))
+    (org-hugo-export-wim-to-md)
+    (message "[ox-hugo] \"%s\" has been exported."
+             (nth 4 (org-heading-components)))
+    (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
+      (if (require 'async nil t)
+          (async-start
+           `(lambda () (shell-command-to-string ',command)))
+        (shell-command-to-string command)))))
 
 ;;;###autoload
 (defun my-push-trello-card () (interactive) (org-trello-sync-card))
@@ -1198,12 +1692,26 @@ sorted.  FUNCTION must be a function of one argument."
       (org-trello-mode))))
 
 ;;;###autoload
+(defun my-toggle-org-show-emphasis-markers ()
+  (interactive)
+  (setq org-hide-emphasis-markers (not org-hide-emphasis-markers))
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (when (derived-mode-p 'org-mode)
+        (font-lock-flush)))))
+
+;;;###autoload
 (defun ad:org-recent-headings-activate ()
   (interactive)
   (when (require 'org-recent-headings nil t)
     (org-recent-headings-mode 1) ;; one time activate
     (advice-remove 'org-recent-headings
                    #'ad:org-recent-headings-activate)))
+
+;;;###autoload
+(defun my-ime-invisible-cursor ()
+  (interactive)
+  (setq cursor-type (plist-get my-cur-type-ime :invisible)))
 
 ;;;###autoload
 (defun my-ime-on ()
@@ -1233,9 +1741,10 @@ sorted.  FUNCTION must be a function of one argument."
 
 ;;;###autoload
 (defun ad:make-frame (&optional _parameters)
-  (when (display-graphic-p)
+  (when (and (display-graphic-p)
+             (called-interactively-p 'interactive))
+    (message "--- Creating a frame.")
     (my-theme)
-    ;; (my-apply-cursor-config)
     (setq-default cursor-type
                   (if (my-ime-active-p)
                       (plist-get my-cur-type-ime :on)
@@ -1286,15 +1795,28 @@ sorted.  FUNCTION must be a function of one argument."
 
 ;;;###autoload
 (defun ad:moom-toggle-frame-maximized ()
-    (when (eq major-mode 'org-mode)
-      (org-redisplay-inline-images))
-    (when (and mode-line-format
-               (not my-toggle-modeline-global))
-      (my-mode-line-off)))
+  (when (eq major-mode 'org-mode)
+    (org-redisplay-inline-images))
+  (when (and mode-line-format
+             (not my-toggle-modeline-global))
+    (my-mode-line-off)))
+
+;;;###autoload
+(defun my-modeline-activate ()
+  (unless my-toggle-modeline-global
+    (if shutup-p
+        (shut-up (my-mode-line-off))
+      (my-mode-line-off))))
 
 ;;;###autoload
 (defun ad:winner:delete-window (&optional _window)
   (message "Undo? M-x winner-undo or type \"C-x g\""))
+
+;;;###autoload
+(defun my-shackle-activate ()
+  (shackle-mode 1)
+  ;; (remove-hook 'window-configuration-change-hook #'my-shackle-activate)
+  (remove-hook 'find-file-hook #'my-shackle-activate))
 
 ;;;###autoload
 (defun my-delete-checkdoc-window ()
@@ -1355,22 +1877,24 @@ Uses `all-the-icons-material' to fetch the icon."
   "Disable `hl-line'."
   (hl-line-mode -1))
 
-(eval-when-compile
-  (require 'hl-line))
+;; (eval-when-compile
+;;   (message "Loading hl-line...")
+;;   (require 'hl-line))
 
 ;;;###autoload
 (defun my-hl-line-activate ()
-  (require 'hl-line nil t)
+  (when (require 'hl-line nil t)
+    (add-hook 'ah-after-move-cursor-hook #'my-hl-line-enable))
   (remove-hook 'ah-after-move-cursor-hook #'my-hl-line-activate))
 
 ;;;###autoload
 (defun my-hl-line-enable () ;; Hard to move this under utility.el
-      "Enable `hl-line'."
-      (unless (or hl-line-mode
-                  (minibufferp)
-			            (memq major-mode my-hl-permanent-disabled))
-	      (hl-line-mode 1))
-      (setq my-hl-disabled-by-timer nil))
+  "Enable `hl-line'."
+  (unless (or hl-line-mode
+              (minibufferp)
+			        (memq major-mode my-hl-permanent-disabled))
+	  (hl-line-mode 1))
+  (setq my-hl-disabled-by-timer nil))
 
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
 ;; 2) Inconsolata, Migu 2M     : font-size=14,
@@ -1388,7 +1912,8 @@ Uses `all-the-icons-material' to fetch the icon."
   (set-fontset-font nil 'japanese-jisx0212 spec)
   (set-fontset-font nil '(#x0080 . #x024F) spec)
   (set-fontset-font nil '(#x0370 . #x03FF) spec)
-  (set-fontset-font nil 'mule-unicode-0100-24ff spec))
+  (set-fontset-font nil 'mule-unicode-0100-24ff spec)
+  (set-fontset-font t 'unicode spec nil 'prepend))
 
 ;;;###autoload
 (defun my-ascii-font-setter (spec)
@@ -1423,10 +1948,11 @@ Uses `all-the-icons-material' to fetch the icon."
     (let ((font-size (or size my-font-size))
           (ascii-font (or ascii my-ascii-font))
           (ja-font (or ja my-ja-font)))
+      ;; (set-fontset-font t '(#Xe000 . #Xf8ff) "nerd-icons")
       (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
       ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-      (my-ja-font-setter (font-spec :family ja-font :size font-size)))))
+      (my-ja-font-setter (font-spec :family ja-font :size font-size))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))))
 
 ;;;###autoload
 (defun my-setup-font ()
@@ -1460,9 +1986,9 @@ Uses `all-the-icons-material' to fetch the icon."
           (ascii-font "Inconsolata")
           (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
       (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (my-ja-font-setter
        (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
       (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
    ((eq window-system 'x) ; for SuSE Linux 12.1
@@ -1487,6 +2013,11 @@ Uses `all-the-icons-material' to fetch the icon."
     (setq-local line-spacing 2)))
 
 ;;;###autoload
+(defun my-hl-todo-activate ()
+  (global-hl-todo-mode) ;; FIXME
+  (remove-hook 'find-file-hook #'my-hl-todo-activate))
+
+;;;###autoload
 (defun my-hl-todo-reload ()
   (interactive)
   (global-hl-todo-mode -1)
@@ -1494,50 +2025,52 @@ Uses `all-the-icons-material' to fetch the icon."
 
 ;;;###autoload
 (defun my-hl-todo-light-theme ()
+  (setq hl-todo-exclude-modes nil) ;; also apply to a case when org-mode
   (setq hl-todo-keyword-faces
-        '(("HOLD" . "#d0bf8f")
-          ("TODO" . "#FF0000")
-          ("NEXT" . "#dca3a3")
-          ("THEM" . "#dc8cc3")
-          ("PROG" . "#7cb8bb")
-          ("OKAY" . "#7cb8bb")
-          ("DONT" . "#5f7f5f")
-          ("FAIL" . "#8c5353")
-          ("DONE" . "SeaGreen")
-          ("NOTE"   . "#d0bf8f")
-          ("KLUDGE" . "#d0bf8f")
-          ("HACK"   . "#d0bf8f")
-          ("TEMP"   . "#d0bf8f")
-          ("FIXME"  . "#3030FF")
-          ("XXX+"   . "#cc9393")
-          ("\\?\\?\\?+" . "#cc9393")
-          ("" . "orange")
-          ("" . "red")
-          ("" . "Seagreen3")))
+	'(("TODO" . "Red1")
+	  ("DONE" . "ForestGreen")
+	  ("HOLD" . "#d0bf8f")
+	  ("NEXT" . "#dca3a3")
+	  ("THEM" . "#dc8cc3")
+	  ("PROG" . "#7cb8bb")
+	  ("OKAY" . "#7cb8bb")
+	  ("DONT" . "#5f7f5f")
+	  ("FAIL" . "#8c5353")
+	  ("DONE" . "SeaGreen")
+	  ("NOTE"   . "#d0bf8f")
+	  ("KLUDGE" . "#d0bf8f")
+	  ("HACK"   . "#d0bf8f")
+	  ("TEMP"   . "#d0bf8f")
+	  ("FIXME"  . "#3030FF")
+	  ("XXX+"   . "#cc9393")
+	  ("\\?\\?\\?+" . "#cc9393")
+	  ("" . "orange")
+	  ("" . "red")
+	  ("" . "Seagreen3")))
   (my-hl-todo-reload))
 
 ;;;###autoload
 (defun my-hl-todo-dark-theme ()
   (setq hl-todo-keyword-faces
-        '(("HOLD" . "#d0bf8f")
-          ("TODO" . "#cc9393")
-          ("NEXT" . "#dca3a3")
-          ("THEM" . "#dc8cc3")
-          ("PROG" . "#7cb8bb")
-          ("OKAY" . "#7cb8bb")
-          ("DONT" . "#5f7f5f")
-          ("FAIL" . "#8c5353")
-          ("DONE" . "#afd8af")
-          ("NOTE"   . "#d0bf8f")
-          ("KLUDGE" . "#d0bf8f")
-          ("HACK"   . "#d0bf8f")
-          ("TEMP"   . "#d0bf8f")
-          ("FIXME"  . "DodgerBlue1")
-          ("XXX+"   . "#cc9393")
-          ("\\?\\?\\?+" . "#cc9393")
-          ("" . "orange")
-          ("" . "red")
-          ("" . "Seagreen3")))
+	'(("TODO" . "Red1")
+	  ("DONE" . "ForestGreen")
+	  ("HOLD" . "#d0bf8f")
+	  ("NEXT" . "#dca3a3")
+	  ("THEM" . "#dc8cc3")
+	  ("PROG" . "#7cb8bb")
+	  ("OKAY" . "#7cb8bb")
+	  ("DONT" . "#5f7f5f")
+	  ("FAIL" . "#8c5353")
+	  ("NOTE"   . "#d0bf8f")
+	  ("KLUDGE" . "#d0bf8f")
+	  ("HACK"   . "#d0bf8f")
+	  ("TEMP"   . "#d0bf8f")
+	  ("FIXME"  . "DodgerBlue1")
+	  ("XXX+"   . "#cc9393")
+	  ("\\?\\?\\?+" . "#cc9393")
+	  ("" . "orange")
+	  ("" . "red")
+	  ("" . "Seagreen3")))
   (my-hl-todo-reload))
 
 ;; (declare-function my-daylight-theme "init" nil)
@@ -1596,33 +2129,29 @@ Uses `all-the-icons-material' to fetch the icon."
 ;;;###autoload
 (defun my-theme (&optional type)
   (interactive "MType (light or dark): ")
-  (setq my-frame-appearance
-        (cond ((member type '("light" "l")) 'light)
-              ((member type '("dark" "d")) 'dark)
-              (t
-               my-frame-appearance)))
   (if (display-graphic-p)
-      (cond ((eq my-frame-appearance 'dark)
-             (my-night-theme))
-            ((eq my-frame-appearance 'light)
-             (my-daylight-theme))
-            (t
-             (let ((night-time-in 23)
-                   (night-time-out 5))
-               (if (my-night-time-p
-                    (* night-time-in 60) (* night-time-out 60))
-                   (my-night-theme)
-                 (my-daylight-theme)))))
+      (let ((theme (cond ((member type '("light" "l")) 'light)
+                         ((member type '("dark" "d")) 'dark)
+                         (t my-frame-appearance))))
+        (cond ((eq theme 'dark) (my-night-theme))
+              ((eq theme 'light) (my-daylight-theme))
+              (t (let ((night-time-in 22)
+                       (night-time-out 5))
+                   (if (my-night-time-p
+                        (* night-time-in 60) (* night-time-out 60))
+                       (my-night-theme)
+                     (my-daylight-theme))))))
     (my-terminal-theme))
 
   (unless noninteractive
     ;; remove unintentional colored frame border
     (select-frame-set-input-focus (selected-frame))
-    (my-font-config)
+    (my-font-config (when (featurep 'moom-font) moom-font--size))
     (my-apply-cursor-config)
-    (when type
-      (moom-move-frame-to-edge-top)
-      (moom-fill-height))))
+    ;; (when type
+    ;;   (moom-move-frame-to-edge-top)
+    ;;   (moom-fill-height))
+    ))
 
 ;;;###autoload
 (defun my-night-time-p (begin end)
@@ -1632,6 +2161,14 @@ Uses `all-the-icons-material' to fetch the icon."
     (if (> begin end)
         (or (<= begin ct) (<= ct end))
       (and (<= begin ct) (<= ct end)))))
+
+;;;###autoload
+(defun my-update-theme-timers () ;; FIXME: it makes frame blink
+  (my-theme)
+  (dolist (triger '(2 6 10 14 18 22))
+    (let ((tm (format "%02d:00" triger)))
+      (when (future-time-p tm)
+        (run-at-time tm nil #'my-theme)))))
 
 ;;;###autoload
 (defun my-ivy-format-function-arrow-iit (cands)
@@ -1705,6 +2242,69 @@ Uses `all-the-icons-material' to fetch the icon."
     (my-vhl-change-color)))
 
 ;;;###autoload
+(defun my-vhl-activate (&optional arg)
+  (require 'volatile-highlights nil t) ;; will take 40-50[ms]
+  (advice-remove 'my-yank #'my-vhl-activate)
+  (advice-remove 'my-org-yank #'my-vhl-activate)
+  arg)
+
+;;;###autoload
+(defun my-find-missing-packages (&optional defer)
+  (interactive)
+  (my-async-locate-libraries my-required-libraries (or defer 0)))
+
+;;;###autoload
+(defun my-async-locate-libraries (libraries &optional defer)
+  "Check the library listed in `LIBRARIES'."
+  (if (require 'async nil t)
+      (async-start
+       `(lambda ()
+          (sleep-for (or ',defer 10))
+          (setq load-path ',load-path)
+          (let ((alist nil))
+            (mapc (lambda (library)
+                    (let ((path (locate-library library)))
+                      (unless path
+                        (add-to-list 'alist (format "%s" library)))))
+                  (if (listp ',libraries)
+                      ',libraries
+                    (list ',libraries)))
+            alist))
+       (lambda (result)
+         (let ((inhibit-message nil)
+               (message-log-max 5000))
+           (when result
+             (unless (active-minibuffer-window)
+               (let ((count 0))
+                 (dolist (r result)
+                   (setq count (1+ count))
+                   (message ">> %s (missing)" r))
+                 (message (concat (format "[async] %s package" count)
+                                  (if (> count 1) "s are" " is")
+                                  " NOT installed."))))))))
+    (error "missing async.el")))
+
+;;;###autoload
+(defun my-delete-old-backup (&optional defer)
+  (if (not (require 'async nil t)) ;; 5[ms]
+      (recursive-delete-backup-files 7)
+    (async-start ;; do not call this from byte compiled code directory
+     `(lambda ()
+        (sleep-for (or ',defer 5))
+        (when (load (concat (getenv "HOME") "/.emacs") t)
+          (setq load-path ',load-path)
+          (require 'init-autoloads)
+          (recursive-delete-backup-files 7)
+          t))
+     (lambda (result)
+       (if result
+           (let ((inhibit-message nil)
+                 (message-log-max 5000))
+             (unless (eval '(active-minibuffer-window))
+               (message "[async] Deleting old backup files...done")))
+         (error "[async] Failed to delete backup files."))))))
+
+;;;###autoload
 (defun my-google-this ()
   (interactive)
   (google-this (current-word) t))
@@ -1776,7 +2376,9 @@ Uses `all-the-icons-material' to fetch the icon."
 (defun macos-name (version)
   "Return macOS name according to the VERSION number."
   (if (stringp version)
-      (cond ((version<= "21.0" version) "Monterey")
+      (cond ((version<= "23.0" version) "Sonoma")
+	          ((version<= "22.0" version) "Ventura")
+	          ((version<= "21.0" version) "Monterey")
 	          ((version<= "20.0" version) "Big Sur")
 	          ((version<= "19.0" version) "Catalina")
 	          ((version<= "18.0" version) "Mojave")
@@ -1902,6 +2504,7 @@ Uses `all-the-icons-material' to fetch the icon."
             (setq s 'sticky))
           (my--set-notify-macos hour min action s))))))
 
+;;;###autoload
 (defun my--set-notify-macos (hour min action sticky)
   "`alerter' is required."
   (run-at-time (format "%s:%s" hour min) nil
@@ -1914,7 +2517,8 @@ Uses `all-the-icons-material' to fetch the icon."
 (defun my-desktop-notify (type title hour min action sticky)
   "An interface to `my-desktop-notification'."
   (cond
-   ((string= type "macos")
+   ((and (display-graphic-p)
+         (string= type "macos"))
     (my-desktop-notification
      title (format "%s:%s %s" hour min action) sticky))))
 
@@ -1952,15 +2556,19 @@ Uses `all-the-icons-material' to fetch the icon."
 (defun my-show-org-buffer (file)
   "Show an org-file on the current buffer."
   (interactive)
-  (message "%s" file)
   (let ((tbuffer (get-buffer file))
-        (cbuffer (current-buffer)))
-    (if tbuffer
-        (switch-to-buffer tbuffer)
-      (find-file (concat (getenv "SYNCROOT") "/org/" file)))
+        (cbuffer (current-buffer))
+        (orgfile (concat (getenv "SYNCROOT") "/org/" file))
+        (afile (expand-file-name file))
+        (message-log-max nil))
     (when (and (fboundp 'my-org-agenda-to-appt)
                (not (eq cbuffer tbuffer)))
-      (my-org-agenda-to-appt 'force))))
+      (my-org-agenda-to-appt 'force))
+    (if (cond (tbuffer (switch-to-buffer tbuffer))
+              ((file-exists-p orgfile) (find-file orgfile))
+              ((file-exists-p afile) (find-file afile)))
+        (message "%s" file)
+      (message "No buffer or file is shown."))))
 
 (declare-function org-end-of-line "org")
 
@@ -2025,30 +2633,8 @@ Uses `all-the-icons-material' to fetch the icon."
            (message "%s" string)))
         (t "0")))
 
-(defvar ox-icalendar-activate nil)
-
-;;;###autoload
-(defun my-ox-icalendar-activate ()
-  (setq ox-icalendar-activate (frame-focus-state)))
-(with-eval-after-load "org"
-  (when (eq system-type 'ns)
-    (run-with-idle-timer 180 t 'my-reload-ical-export)
-    ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
-    (add-function :after after-focus-change-function
-                  #'my-ox-icalendar-activate)))
-
-(declare-function my-ox-upload-icalendar "init.org")
-;;;###autoload
-(defun my-reload-ical-export ()
-  "Export org files as an iCal format file"
-  (interactive)
-  (when (and (string= major-mode 'org-mode)
-             ox-icalendar-activate)
-    (my-ox-upload-icalendar)))
-
-(when (autoload-if-found
-       '(browse-url)
-       "browse-url" nil t)
+(when (autoload-if-found '(browse-url)
+                         "browse-url" nil t)
   (with-eval-after-load "browse-url"
     (cond
      ((eq window-system 'ns)
@@ -2112,22 +2698,19 @@ Uses `all-the-icons-material' to fetch the icon."
   "Backup a file to `Dropbox/backup' directory.
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
-  (let ((system (system-name))
-        (rootdir (or dropbox (getenv "SYNCROOT"))))
-    (if (and system
-             (stringp rootdir)
-             (file-directory-p (or rootdir (expand-file-name rootdir))))
+  (let ((dir (concat (expand-file-name (or dropbox (getenv "SYNCROOT"))) "/backup/" (system-name))))
+    (if (file-directory-p dir)
         (mapc
          (lambda (file)
            (if (and (stringp file)
                     (file-readable-p (or file (expand-file-name file))))
                (shell-command-to-string
-                (concat "cp -f " file " " rootdir "/backup/" system "/"))
+                (concat "cp -f " file " " dir "/"))
              (warn (format "--- backup failure: %s" file))))
          (if (listp files)
              files
            (list files)))
-      (user-error (format "--- backup-dir does not exist: %s" rootdir)))))
+      (user-error (format "--- backup-dir does not exist: %s" dir)))))
 
 ;;;###autoload
 (defun mac:delete-files-in-trash-bin ()
@@ -2146,7 +2729,7 @@ If `dropbox' option is provided then the value is uased as a root directory."
 (defun my-kill-emacs ()
     (switch-to-buffer "*Messages*")
     (message "3: %s" kill-emacs-hook)
-    (y-or-n-p "Sure? "))
+    (y-or-n-p "..."))
 
 ;;;###autoload
 (defun my-kill-emacs-hook-show ()
@@ -2401,26 +2984,26 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun describe-timer ()
   "see http://masutaka.net/chalow/2009-12-05-1.html"
   (interactive)
-  (let ((tl timer-list)
-        (timer nil))
-    (pop-to-buffer (get-buffer-create "*timer*"))
-    (erase-buffer)
+  (pop-to-buffer (get-buffer-create "*timer*"))
+  (view-mode -1)
+  (erase-buffer)
+  (insert
+   (concat "TIME           FUNCTION (" (format "%s " (length timer-list)) "timers)\n")
+   "-------------- ----------------------\n")
+  (dolist (timer timer-list)
     (insert
-     "TIME           FUNCTION\n"
-     "-------------- ----------------------\n")
-    (while tl
-      (setq timer (car tl))
-      (insert
-       (concat
-        (format-time-string "%m/%d %T"
-                            (list (aref timer 1)
-                                  (aref timer 2)
-                                  (aref timer 3)))
-        " "
-        (symbol-name (aref timer 5))
-        "\n"))
-      (setq tl (cdr tl)))
-    (read-only-mode 1)))
+     (concat
+      (format-time-string "%m/%d %T"
+                          (list (aref timer 1)
+                                (aref timer 2)
+                                (aref timer 3)))
+      " "
+      (let ((name (aref timer 5)))
+        (if (symbolp name)
+            (symbol-name name)
+          "...undefined..."))
+      "\n")))
+  (view-mode 1))
 
 ;; (defun insert-formatted-current-date (arg)
 ;;   "Insert a timestamp at the cursor position. C-u will add [] brackets."
@@ -2462,6 +3045,27 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
           (t (message "There is NOT such a file.")))))
 
 ;;;###autoload
+(defun my-kill-all-file-buffers ()
+  "Kill all buffers visiting files."
+  (interactive)
+  (dolist (buffer (buffer-list))
+    (when (or (and (buffer-live-p buffer)
+                   (buffer-file-name buffer))
+              (and (switch-to-buffer buffer)
+                   (eq major-mode 'dired-mode)
+                   (file-directory-p (dired-current-directory))))
+      (kill-buffer buffer)))
+  (delete-windows-on)
+  (scratch-buffer)
+  (message "Quit Emacs? (C-c C-x)"))
+
+;;;###autoload
+(defun my-kill-emacs-when-scratch-buffer ()
+  (interactive)
+  (when (equal "*scratch*" (buffer-name))
+    (save-buffers-kill-emacs)))
+
+;;;###autoload
 (defun my-window-resizer ()
   "Control separated window size and position.
    Type {j,k,l,m} to adjust windows size."
@@ -2499,4 +3103,11 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
                (message "Quit")
                (throw 'end-flag t)))))))
 
+(unless noninteractive
+  (let ((inhibit-message t))
+    (message "Loading utility.el...done (%5.1f [msec])"
+             (* 1000
+                (float-time (time-subtract
+                             (current-time)
+                             my-utility-start))))))
 (provide 'utility)
