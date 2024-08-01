@@ -99,6 +99,7 @@ Then load the following at startup
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
+(defvar my-init-org-start (current-time))
 (require 'init-autoloads nil t)
 (unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
@@ -120,6 +121,8 @@ Then load the following at startup
 ;; "my-" and "ad:" functions associated with my 'init.el'
 (unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
+(unless noninteractive
+  (defvar my-utility-start (current-time)))
 #+end_src
 
 ** [early-init.el] early-init.el を使う
@@ -187,6 +190,7 @@ Then load the following at startup
 
 #+begin_src emacs-lisp :tangle late-init.el :exports none
 ;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
+(defvar my-late-init-start (current-time))
 (require 'init-autoloads nil t)
 #+end_src
 
@@ -17136,6 +17140,13 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
+(unless noninteractive
+  (let ((inhibit-message t))
+    (message "Loading init-org.el...done (%5.1f [msec])"
+             (* 1000
+                (float-time (time-subtract
+                             (current-time)
+                             my-init-org-start))))))
 (provide 'init-org)
 #+end_src
 
@@ -17144,6 +17155,13 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el :exports none
+(unless noninteractive
+  (let ((inhibit-message t))
+    (message "Loading late-init.el...done (%5.1f [msec])"
+             (* 1000
+                (float-time (time-subtract
+                             (current-time)
+                             my-late-init-start))))))
 (provide 'late-init)
 #+end_src
 
@@ -17154,5 +17172,12 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el :exports none
+(unless noninteractive
+  (let ((inhibit-message t))
+    (message "Loading utility.el...done (%5.1f [msec])"
+             (* 1000
+                (float-time (time-subtract
+                             (current-time)
+                             my-utility-start))))))
 (provide 'utility)
 #+end_src

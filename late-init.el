@@ -1,4 +1,5 @@
 ;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
+(defvar my-late-init-start (current-time))
 (require 'init-autoloads nil t)
 
 (defvar measure-exec-time-list nil)
@@ -2243,4 +2244,11 @@ This function returns a timer object which you can use in
 
 (global-set-key (kbd "C-c C-x") #'my-kill-emacs-when-scratch-buffer)
 
+(unless noninteractive
+  (let ((inhibit-message t))
+    (message "Loading late-init.el...done (%5.1f [msec])"
+             (* 1000
+                (float-time (time-subtract
+                             (current-time)
+                             my-late-init-start))))))
 (provide 'late-init)

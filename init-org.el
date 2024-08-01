@@ -1,4 +1,5 @@
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
+(defvar my-init-org-start (current-time))
 (require 'init-autoloads nil t)
 (unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
@@ -2030,4 +2031,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (my-linespacing))
   (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
 
+(unless noninteractive
+  (let ((inhibit-message t))
+    (message "Loading init-org.el...done (%5.1f [msec])"
+             (* 1000
+                (float-time (time-subtract
+                             (current-time)
+                             my-init-org-start))))))
 (provide 'init-org)
