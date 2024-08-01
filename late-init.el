@@ -427,10 +427,6 @@ This function returns a timer object which you can use in
   (add-hook 'c-mode-hook #'modern-c++-font-lock-mode)
   (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
 
-(with-eval-after-load "info"
-  (add-to-list 'Info-additional-directory-list
-               (expand-file-name "~/devel/mygit/org-ja/work/")))
-
 (add-hook 'nxml-mode-hook
           (lambda ()
             (define-key nxml-mode-map "\r" 'newline-and-indent)

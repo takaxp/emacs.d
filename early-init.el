@@ -46,6 +46,10 @@
 (unless (file-directory-p my-package-dir)
   (user-error "%s does NOT exist. Run setup script first" my-package-dir))
 
+;; setenv "SYNCROOT"
+(unless (getenv "SYNCROOT")
+  (setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" )))
+
 (defun my-path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."
   (dolist (x path-list)

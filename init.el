@@ -24,7 +24,8 @@
 
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
-(defconst my-before-load-init-time (current-time))
+(defconst my-before-load-init-time (current-time)
+  "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
   (let ((t-init-files (time-subtract after-init-time my-before-load-init-time))
@@ -366,7 +367,6 @@
 ;; カーソルの色
 (defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
 (defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2) :invisible nil))
-(defvar my-ime-last nil)
 
 (if (fboundp 'mac-ime-active-p)
     (defalias 'my-ime-active-p 'mac-ime-active-p)

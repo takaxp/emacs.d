@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-07-26 金 22:19 -->
+<!-- 2024-08-01 木 16:41 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1025,7 +1025,8 @@ Then load the following at startup
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-before-load-init-time</span> (current-time))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-before-load-init-time</span> (current-time)
+  <span style="color: #8b2252;">"Starting point to calculate Emacs booting time.  see `</span><span style="color: #008b8b;">my-load-init-time</span><span style="color: #8b2252;">'."</span>)
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-load-init-time</span> ()
   <span style="color: #8b2252;">"Loading time of user init files including time for `</span><span style="color: #008b8b;">after-init-hook</span><span style="color: #8b2252;">'."</span>
   (<span style="color: #a020f0;">let</span> ((t-init-files (time-subtract after-init-time my-before-load-init-time))
@@ -1359,6 +1360,10 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
   (<span style="color: #a020f0;">setq</span> my-package-dir my-elget-package-dir))
 (<span style="color: #a020f0;">unless</span> (file-directory-p my-package-dir)
   (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"%s does NOT exist. Run setup script first"</span> my-package-dir))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">setenv "SYNCROOT"</span>
+(<span style="color: #a020f0;">unless</span> (getenv <span style="color: #8b2252;">"SYNCROOT"</span>)
+  (setenv <span style="color: #8b2252;">"SYNCROOT"</span> (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/Dropbox"</span> )))
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-path-setter</span> (path-list target-path)
   <span style="color: #8b2252;">"Utility function to set PATH-LIST to TARGET-PATH."</span>
@@ -10824,9 +10829,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; <i>/ ここ
+  v; // ここ
   boost::timer t;
-  cout &lt;&lt; t; /</i> ここ
+  cout &lt;&lt; t; // ここ
   return 1;
 }
 </p>
@@ -14169,7 +14174,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org5b46ec2"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org24857ff"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15146,7 +15151,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org871b075" class="figure">
+<div id="org2723e20" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15455,7 +15460,6 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#12398;&#33394;</span>
 (<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-cur-color-ime</span> '(<span style="color: #483d8b;">:on</span> <span style="color: #8b2252;">"#FF9300"</span> <span style="color: #483d8b;">:off</span> <span style="color: #8b2252;">"#91C3FF"</span>))
 (<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-cur-type-ime</span> '(<span style="color: #483d8b;">:on</span> (bar . 2) <span style="color: #483d8b;">:off</span> (bar . 2) <span style="color: #483d8b;">:invisible</span> nil))
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-last</span> nil)
 
 (<span style="color: #a020f0;">if</span> (fboundp 'mac-ime-active-p)
     (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-ime-active-p</span> 'mac-ime-active-p)
@@ -19592,7 +19596,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-07-26 金 22:19</p>
+<p class="date">Created: 2024-08-01 木 16:41</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

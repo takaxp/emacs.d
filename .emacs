@@ -100,6 +100,15 @@
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-tree-slide"))
   (setq org-agenda-files '("~/Desktop/test/hoge.org")))
 
+ ;; Debug
+ (nil
+  (add-to-list 'load-path (expand-file-name "~/Dropbox/config"))
+  (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
+  (add-to-list 'load-path
+               (expand-file-name "~/devel/git/org-mode/contrib/lisp"))
+  (add-to-list 'load-path my-package-dir) ;; defined in early-init.el
+  (require 'my-debug))
+
  ;; minimum
  (nil (load (concat user-emacs-directory "min/init.el")))
 

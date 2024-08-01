@@ -215,7 +215,8 @@ Then load the following at startup
 次の関数を =init.el= の最初に記載して，オプション付きで =after-init-hook= に追加します．すると，initファイルの読み込み時間を計測できます（GUIのフレーム生成を含まない）．別途設定する =emacs-init-time= の派生関数とは違い， =after-init-hook= で実行される処理の時間もわかります．ただ，ほかの処理も微妙に入るので，あくまで目安です．
 
 #+begin_src emacs-lisp :tangle yes
-(defconst my-before-load-init-time (current-time))
+(defconst my-before-load-init-time (current-time)
+  "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
   (let ((t-init-files (time-subtract after-init-time my-before-load-init-time))
@@ -541,6 +542,10 @@ This function is called directly from the C code."
   (setq my-package-dir my-elget-package-dir))
 (unless (file-directory-p my-package-dir)
   (user-error "%s does NOT exist. Run setup script first" my-package-dir))
+
+;; setenv "SYNCROOT"
+(unless (getenv "SYNCROOT")
+  (setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" )))
 
 (defun my-path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."
@@ -2105,8 +2110,8 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
 インラインパッチの適用が前提の設定です． =M-SPC/S-SPC= で日本語IMEのON/OFFができるようになります．インラインパッチの情報はリンク先にあります．
 
-  - [[http://qiita.com/takaxp/items/e07bb286d80fa9dd8e05][emacs-25.2 をインラインパッチをあてて使う（OSX） - Qiita]]
-  - [[https://gist.github.com/takaxp/3314a153f6d02d82ef1833638d338ecf][An inline-patch for Emacs-25.2]]
+- [[http://qiita.com/takaxp/items/e07bb286d80fa9dd8e05][emacs-25.2 をインラインパッチをあてて使う（OSX） - Qiita]]
+- [[https://gist.github.com/takaxp/3314a153f6d02d82ef1833638d338ecf][An inline-patch for Emacs-25.2]]
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -3204,7 +3209,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   (info (format "(org-ja)%s" (or node ""))))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (with-eval-after-load "info"
   (add-to-list 'Info-additional-directory-list
                (expand-file-name "~/devel/mygit/org-ja/work/")))
@@ -13285,7 +13290,6 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ;; カーソルの色
 (defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
 (defconst my-cur-type-ime '(:on (bar . 2) :off (bar . 2) :invisible nil))
-(defvar my-ime-last nil)
 
 (if (fboundp 'mac-ime-active-p)
     (defalias 'my-ime-active-p 'mac-ime-active-p)
