@@ -4,7 +4,7 @@
 (defconst my-profiler-p nil
   "If non-nil, use built-in profiler.el.")
 (defconst my-loading-profile-p nil
-  "If non-nil, show tick while booting.  Do not use `my-profiler-p' with this.")
+  "If non-nil, show tick while booting. Do not use `my-profiler-p' with this.")
 (defconst my-loading-packages nil)
 (defvar my-secure-boot nil
   "Ensure to start Emacs.") ;; If non-nil, postpone and session are disabled.
@@ -17,11 +17,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (setq my-suppress-message-p nil)
 ;; (setq measure-exec-time-list '(my-show-org-buffer
-;;                                my-private-conf-activate
-;;                                my-org-babel-load-activate
-;;                                my-org-modules-activate
-;;                                my-org-agenda-prepare-buffers
-;;                                ))
+;; 			       my-private-conf-activate
+;; 			       my-org-babel-load-activate
+;; 			       my-org-modules-activate
+;; 			       my-org-agenda-prepare-buffers
+;; 			       ))
 (when my-profiler-p (profiler-start 'cpu+mem))
 ;; Suppress exporting of custom-set-variables (25.1 or later)
 (setq custom-file (locate-user-emacs-file "custom.el"))
@@ -45,20 +45,10 @@
 ;; (defun ad:package--ensure-init-file ()
 ;;   (setq package--init-file-ensured t))
 ;; (advice-add 'package--ensure-init-file :override
-;;             #'ad:package--ensure-init-file))
+;;	       #'ad:package--ensure-init-file))
 
 ;; To check closing sequence
 ;; (when (require 'init-autoloads nil t)
 ;;   (my-kill-emacs-hook-show))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; diff を取る前に tabify スペースをタブに変換する．今は全てスペース置換中．
-;; この設定でファイルを一度編集後に，M-x tabify しないとだめ．
-(when nil
-  (add-hook 'emacs-lisp-mode-hook
-            #'(lambda ()
-                (setq indent-tabs-mode t)
-                (setq tab-width 8)
-                (setq indent-line-function 'lisp-indent-line))))
 
 ;; end of init-env.el

@@ -109,8 +109,8 @@ This function is called directly from the C code."
 
 ;;;###autoload
 (defun my-emacs-lisp-mode-conf ()
-  ;; (setq indent-tabs-mode t)
-  (setq tab-width 8)
+  (setq-local indent-tabs-mode t)
+  (setq-local tab-width 8)
   (setq indent-line-function 'lisp-indent-line))
 
 ;;;###autoload
@@ -3065,6 +3065,34 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (when (equal "*scratch*" (buffer-name))
     (save-buffers-kill-emacs)))
 
+(defun my-format-emacs-lisp-buffer ()
+	(interactive)
+	(when (eq major-mode 'emacs-lisp-mode)
+		(setq-local indent-line-function 'lisp-indent-line)
+		(setq-local tab-width 8)
+		(setq-local indent-tabs-mode t)
+		;; (setq-local tab-width 2)
+		;; (setq-local indent-tabs-mode nil)
+		(save-excursion
+			(save-restriction
+	      (widen)
+	      (untabify (point-min) (point-max))
+	      (tabify (point-min) (point-max))
+	      (indent-region (point-min) (point-max))))))
+
+(defun my-format-emacs-lisp-in-org-buffer ()
+	(interactive)
+	(when (eq major-mode 'emacs-lisp-mode)
+		(setq-local indent-line-function 'org-indent-line)
+		(setq-local tab-width 2)
+		(setq-local indent-tabs-mode nil)
+		(save-excursion
+			(save-restriction
+			  (widen)
+	      (untabify (point-min) (point-max))
+	      (tabify (point-min) (point-max))
+	      (indent-region (point-min) (point-max))))))
+
 ;;;###autoload
 (defun my-window-resizer ()
   "Control separated window size and position.
@@ -3105,7 +3133,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading utility.el...done (%5.1f [msec])"
+    (message "Loading utility.el...done (%5.1f [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-08-01 木 23:07 -->
+<!-- 2024-08-02 金 17:44 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -740,13 +740,14 @@
 <li><a href="#orgbdeca93a">14.55. byte-compile の警告を抑制する</a></li>
 <li><a href="#org8065c996">14.56. 開いているファイルをすべて閉じる</a></li>
 <li><a href="#org21c1e9c4">14.57. スクラッチバッファを表示している場合にだけ終了可能にする</a></li>
-<li><a href="#org32ff042a">14.58. [window-resizer.el] 分割したウィンドウサイズを変更する</a></li>
-<li><a href="#org54f46ec1">14.59. [idle-requie]</a></li>
-<li><a href="#org22e29aa4">14.60. [pdf-preview]</a></li>
-<li><a href="#orge6a31c57">14.61. [EasyPG]</a></li>
-<li><a href="#org1495619c">14.62. [eblook]</a></li>
-<li><a href="#org13d9d76f">14.63. [iBuffer]</a></li>
-<li><a href="#orgafde656e">14.64. キーバインド</a></li>
+<li><a href="#orgfa252a98">14.58. <span class="todo TODO">TODO</span> emacs-lisp のコードをフォーマットする</a></li>
+<li><a href="#org32ff042a">14.59. [window-resizer.el] 分割したウィンドウサイズを変更する</a></li>
+<li><a href="#org54f46ec1">14.60. [idle-requie]</a></li>
+<li><a href="#org22e29aa4">14.61. [pdf-preview]</a></li>
+<li><a href="#orge6a31c57">14.62. [EasyPG]</a></li>
+<li><a href="#org1495619c">14.63. [eblook]</a></li>
+<li><a href="#org13d9d76f">14.64. [iBuffer]</a></li>
+<li><a href="#orgafde656e">14.65. キーバインド</a></li>
 </ul>
 </li>
 <li><a href="#org362fb2dc">15. おわりに</a></li>
@@ -986,7 +987,7 @@ Then load the following at startup
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-emacs-init-time</span> ()
   <span style="color: #8b2252;">"Emacs booting time in msec."</span>
   (<span style="color: #a020f0;">let</span> ((inhibit-message t))
-    (message <span style="color: #8b2252;">"Emacs booting time: %5.1f [msec] = `</span><span style="color: #008b8b;">emacs-init-time</span><span style="color: #8b2252;">'."</span>
+    (message <span style="color: #8b2252;">"Emacs booting time: %5.1f [ms] = `</span><span style="color: #008b8b;">emacs-init-time</span><span style="color: #8b2252;">'."</span>
              (* 1000
                 (float-time (time-subtract
                              after-init-time
@@ -1037,10 +1038,10 @@ Then load the following at startup
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              <span style="color: #8b2252;">"  Loading init files: %5.1f [msec]\n"</span>
-              <span style="color: #8b2252;">"  Loading early-init: %5.1f [msec]\n"</span>
-              <span style="color: #8b2252;">"  Others(GUI etc.):   %5.1f [msec] includes `</span><span style="color: #008b8b;">before-init-hook</span><span style="color: #8b2252;">'\n"</span>
-              <span style="color: #8b2252;">"(`</span><span style="color: #008b8b;">after-init-hook</span><span style="color: #8b2252;">': %5.1f [msec])"</span>)
+              <span style="color: #8b2252;">"  Loading init files: %5.1f [ms]\n"</span>
+              <span style="color: #8b2252;">"  Loading early-init: %5.1f [ms]\n"</span>
+              <span style="color: #8b2252;">"  Others(GUI etc.):   %5.1f [ms] includes `</span><span style="color: #008b8b;">before-init-hook</span><span style="color: #8b2252;">'\n"</span>
+              <span style="color: #8b2252;">"(`</span><span style="color: #008b8b;">after-init-hook</span><span style="color: #8b2252;">': %5.1f [ms])"</span>)
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
@@ -1580,7 +1581,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
       (postpone-kicker 'postpone-pre)
       (<span style="color: #a020f0;">setq</span> postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message <span style="color: #8b2252;">"Activating postponed packages...done ( %5.1f [msec])"</span>
+    (message <span style="color: #8b2252;">"Activating postponed packages...done ( %5.1f [ms])"</span>
              (* postpone-pre-init-time 1000))))
 
 (autoload 'postpone-kicker <span style="color: #8b2252;">"postpone"</span> nil t)
@@ -2758,17 +2759,16 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq-default</span> tab-width 2)
 (<span style="color: #a020f0;">setq-default</span> indent-tabs-mode nil)
 (<span style="color: #a020f0;">setq</span> indent-line-function 'insert-tab)
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"emacs-lisp-mode"</span>
-  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
-  (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock))
+(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
+(add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 </pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-emacs-lisp-mode-conf</span> ()
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq indent-tabs-mode t)</span>
-  (<span style="color: #a020f0;">setq</span> tab-width 8)
+  (<span style="color: #a020f0;">setq-local</span> indent-tabs-mode t)
+  (<span style="color: #a020f0;">setq-local</span> tab-width 8)
   (<span style="color: #a020f0;">setq</span> indent-line-function 'lisp-indent-line))
 </pre>
 </div>
@@ -14176,7 +14176,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orge9fbc00"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3d9f670"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15153,7 +15153,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org3210e2f" class="figure">
+<div id="org1d867ff" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19454,8 +19454,47 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 </div>
 </div>
+<div id="outline-container-orgfa252a98" class="outline-3">
+<h3 id="orgfa252a98"><span class="section-number-3">14.58.</span> <span class="todo TODO">TODO</span> emacs-lisp のコードをフォーマットする</h3>
+<div class="outline-text-3" id="text-orgfa252a98">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-format-emacs-lisp-buffer</span> ()
+        (<span style="color: #a020f0;">interactive</span>)
+        (<span style="color: #a020f0;">when</span> (eq major-mode 'emacs-lisp-mode)
+                (<span style="color: #a020f0;">setq-local</span> indent-line-function 'lisp-indent-line)
+                (<span style="color: #a020f0;">setq-local</span> tab-width 8)
+                (<span style="color: #a020f0;">setq-local</span> indent-tabs-mode t)
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq-local tab-width 2)</span>
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq-local indent-tabs-mode nil)</span>
+                (<span style="color: #a020f0;">save-excursion</span>
+                        (<span style="color: #a020f0;">save-restriction</span>
+              (widen)
+              (untabify (point-min) (point-max))
+              (tabify (point-min) (point-max))
+              (indent-region (point-min) (point-max))))))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-format-emacs-lisp-in-org-buffer</span> ()
+        (<span style="color: #a020f0;">interactive</span>)
+        (<span style="color: #a020f0;">when</span> (eq major-mode 'emacs-lisp-mode)
+                (<span style="color: #a020f0;">setq-local</span> indent-line-function 'org-indent-line)
+                (<span style="color: #a020f0;">setq-local</span> tab-width 2)
+                (<span style="color: #a020f0;">setq-local</span> indent-tabs-mode nil)
+                (<span style="color: #a020f0;">save-excursion</span>
+                        (<span style="color: #a020f0;">save-restriction</span>
+                          (widen)
+              (untabify (point-min) (point-max))
+              (tabify (point-min) (point-max))
+              (indent-region (point-min) (point-max))))))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org32ff042a" class="outline-3">
-<h3 id="org32ff042a"><span class="section-number-3">14.58.</span> [window-resizer.el] 分割したウィンドウサイズを変更する</h3>
+<h3 id="org32ff042a"><span class="section-number-3">14.59.</span> [window-resizer.el] 分割したウィンドウサイズを変更する</h3>
 <div class="outline-text-3" id="text-org32ff042a">
 <p>
 <a href="http://d.hatena.ne.jp/khiker/20100119/window_resize">http://d.hatena.ne.jp/khiker/20100119/window_resize</a>
@@ -19515,7 +19554,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-org54f46ec1" class="outline-3">
-<h3 id="org54f46ec1"><span class="section-number-3">14.59.</span> [idle-requie]</h3>
+<h3 id="org54f46ec1"><span class="section-number-3">14.60.</span> [idle-requie]</h3>
 <div class="outline-text-3" id="text-org54f46ec1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">idle-require</span>)
@@ -19525,7 +19564,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-org22e29aa4" class="outline-3">
-<h3 id="org22e29aa4"><span class="section-number-3">14.60.</span> [pdf-preview]</h3>
+<h3 id="org22e29aa4"><span class="section-number-3">14.61.</span> [pdf-preview]</h3>
 <div class="outline-text-3" id="text-org22e29aa4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">pdf-preview</span>)
@@ -19534,7 +19573,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-orge6a31c57" class="outline-3">
-<h3 id="orge6a31c57"><span class="section-number-3">14.61.</span> [EasyPG]</h3>
+<h3 id="orge6a31c57"><span class="section-number-3">14.62.</span> [EasyPG]</h3>
 <div class="outline-text-3" id="text-orge6a31c57">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">epa-setup</span> nil t)
@@ -19544,7 +19583,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-org1495619c" class="outline-3">
-<h3 id="org1495619c"><span class="section-number-3">14.62.</span> [eblook]</h3>
+<h3 id="org1495619c"><span class="section-number-3">14.63.</span> [eblook]</h3>
 <div class="outline-text-3" id="text-org1495619c">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">eblook</span>
@@ -19560,7 +19599,7 @@ utility.el:333:23:Warning: `<span style="color: #008b8b;">last-command-char</spa
 </div>
 </div>
 <div id="outline-container-org13d9d76f" class="outline-3">
-<h3 id="org13d9d76f"><span class="section-number-3">14.63.</span> [iBuffer]</h3>
+<h3 id="org13d9d76f"><span class="section-number-3">14.64.</span> [iBuffer]</h3>
 <div class="outline-text-3" id="text-org13d9d76f">
 <p>
 iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
@@ -19573,7 +19612,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 </div>
 <div id="outline-container-orgafde656e" class="outline-3">
-<h3 id="orgafde656e"><span class="section-number-3">14.64.</span> キーバインド</h3>
+<h3 id="orgafde656e"><span class="section-number-3">14.65.</span> キーバインド</h3>
 <div class="outline-text-3" id="text-orgafde656e">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Multiple combination</span>
@@ -19598,7 +19637,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-08-01 木 23:07</p>
+<p class="date">Created: 2024-08-02 金 17:44</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

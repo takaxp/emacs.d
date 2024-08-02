@@ -177,7 +177,7 @@ Then load the following at startup
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (let ((inhibit-message t))
-    (message "Emacs booting time: %5.1f [msec] = `emacs-init-time'."
+    (message "Emacs booting time: %5.1f [ms] = `emacs-init-time'."
              (* 1000
                 (float-time (time-subtract
                              after-init-time
@@ -229,10 +229,10 @@ Then load the following at startup
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              "  Loading init files: %5.1f [msec]\n"
-              "  Loading early-init: %5.1f [msec]\n"
-              "  Others(GUI etc.):   %5.1f [msec] includes `before-init-hook'\n"
-              "(`after-init-hook': %5.1f [msec])")
+              "  Loading init files: %5.1f [ms]\n"
+              "  Loading early-init: %5.1f [ms]\n"
+              "  Others(GUI etc.):   %5.1f [ms] includes `before-init-hook'\n"
+              "(`after-init-hook': %5.1f [ms])")
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
@@ -742,7 +742,7 @@ This function is called directly from the C code."
       (postpone-kicker 'postpone-pre)
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message "Activating postponed packages...done ( %5.1f [msec])"
+    (message "Activating postponed packages...done ( %5.1f [ms])"
              (* postpone-pre-init-time 1000))))
 
 (autoload 'postpone-kicker "postpone" nil t)
@@ -1784,16 +1784,15 @@ echo "--- done."
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
-(with-eval-after-load "emacs-lisp-mode"
-  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
-  (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock))
+(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
+(add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-emacs-lisp-mode-conf ()
-  ;; (setq indent-tabs-mode t)
-  (setq tab-width 8)
+  (setq-local indent-tabs-mode t)
+  (setq-local tab-width 8)
   (setq indent-line-function 'lisp-indent-line))
 #+end_src
 
@@ -17009,6 +17008,43 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+begin_src emacs-lisp :tangle late-init.el
 (global-set-key (kbd "C-c C-x") #'my-kill-emacs-when-scratch-buffer)
 #+end_src
+** TODO emacs-lisp のコードをフォーマットする
+:PROPERTIES:
+:CUSTOM_ID: orgfa252a98
+:END:
+
+#+begin_src emacs-lisp :tangle utility.el
+(defun my-format-emacs-lisp-buffer ()
+	(interactive)
+	(when (eq major-mode 'emacs-lisp-mode)
+		(setq-local indent-line-function 'lisp-indent-line)
+		(setq-local tab-width 8)
+		(setq-local indent-tabs-mode t)
+		;; (setq-local tab-width 2)
+		;; (setq-local indent-tabs-mode nil)
+		(save-excursion
+			(save-restriction
+	      (widen)
+	      (untabify (point-min) (point-max))
+	      (tabify (point-min) (point-max))
+	      (indent-region (point-min) (point-max))))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle utility.el
+(defun my-format-emacs-lisp-in-org-buffer ()
+	(interactive)
+	(when (eq major-mode 'emacs-lisp-mode)
+		(setq-local indent-line-function 'org-indent-line)
+		(setq-local tab-width 2)
+		(setq-local indent-tabs-mode nil)
+		(save-excursion
+			(save-restriction
+			  (widen)
+	      (untabify (point-min) (point-max))
+	      (tabify (point-min) (point-max))
+	      (indent-region (point-min) (point-max))))))
+#+end_src
+
 ** [window-resizer.el] 分割したウィンドウサイズを変更する
    :PROPERTIES:
    :CUSTOM_ID: org32ff042a
@@ -17142,7 +17178,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading init-org.el...done (%5.1f [msec])"
+    (message "Loading init-org.el...done (%5.1f [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)
@@ -17157,7 +17193,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+begin_src emacs-lisp :tangle late-init.el :exports none
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading late-init.el...done (%5.1f [msec])"
+    (message "Loading late-init.el...done (%5.1f [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)
@@ -17174,7 +17210,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+begin_src emacs-lisp :tangle utility.el :exports none
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading utility.el...done (%5.1f [msec])"
+    (message "Loading utility.el...done (%5.1f [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)

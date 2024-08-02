@@ -176,9 +176,8 @@ This function returns a timer object which you can use in
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
-(with-eval-after-load "emacs-lisp-mode"
-  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
-  (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock))
+(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
+(add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 
 (setq vc-follow-symlinks t)
 
@@ -2246,7 +2245,7 @@ This function returns a timer object which you can use in
 
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading late-init.el...done (%5.1f [msec])"
+    (message "Loading late-init.el...done (%5.1f [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)

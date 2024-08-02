@@ -16,7 +16,7 @@
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (let ((inhibit-message t))
-    (message "Emacs booting time: %5.1f [msec] = `emacs-init-time'."
+    (message "Emacs booting time: %5.1f [ms] = `emacs-init-time'."
              (* 1000
                 (float-time (time-subtract
                              after-init-time
@@ -34,10 +34,10 @@
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              "  Loading init files: %5.1f [msec]\n"
-              "  Loading early-init: %5.1f [msec]\n"
-              "  Others(GUI etc.):   %5.1f [msec] includes `before-init-hook'\n"
-              "(`after-init-hook': %5.1f [msec])")
+              "  Loading init files: %5.1f [ms]\n"
+              "  Loading early-init: %5.1f [ms]\n"
+              "  Others(GUI etc.):   %5.1f [ms] includes `before-init-hook'\n"
+              "(`after-init-hook': %5.1f [ms])")
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
@@ -121,7 +121,7 @@
       (postpone-kicker 'postpone-pre)
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message "Activating postponed packages...done ( %5.1f [msec])"
+    (message "Activating postponed packages...done ( %5.1f [ms])"
              (* postpone-pre-init-time 1000))))
 
 (autoload 'postpone-kicker "postpone" nil t)
