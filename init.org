@@ -92,9 +92,12 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle yes
 ;; init.el --- My init.el -*- lexical-binding: t -*-
 ;; Configurations for Emacs
-;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
+;;																				 Takaaki ISHIKAWA	 <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
 (require 'init-autoloads nil t)
+(when (and (boundp my-profiler-p)
+		       my-profiler-p)
+	(profiler-start 'cpu+mem))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
@@ -583,6 +586,7 @@ This function is called directly from the C code."
 ;; you may want to use exec-path-from-shell.el.
 
 ;; 拡張パッケージにパスを通す
+;; M-x list-load-path-shadows
 (let* ((g "~/devel/git/")
        (od "org-mode")
        (l `("~/Dropbox/config"
@@ -1082,6 +1086,16 @@ This function returns a timer object which you can use in
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "comp"
   (add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done))
+#+end_src
+
+** custom.el の指定
+:PROPERTIES:
+:CUSTOM_ID: orgb6d21621
+:END:
+
+#+begin_src emacs-lisp :tangle yes
+;; Suppress exporting of custom-set-variables (25.1 or later)
+(setq custom-file (locate-user-emacs-file "custom.el"))
 #+end_src
 
 ** elget パッケージ群を native comp する
@@ -2083,6 +2097,13 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
   (advice-add 'epa-file-write-region :around #'ad:suppress-message))
 #+end_src
 
+** メール設定の読み込み
+:PROPERTIES:
+:CUSTOM_ID: org083f6170
+:END:
+#+begin_src emacs-lisp :tangle late-init.el
+(autoload 'mail "~/Dropbox/config/my-mail.el.gpg" nil t)
+#+end_src
 ** GPGファイルを一定時間後にロックする
 :PROPERTIES:
 :ID:       16236645-D16A-4F16-92D4-77D3EB4915B3
@@ -17172,6 +17193,10 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 #+begin_src emacs-lisp :tangle yes :exports none
 ;; (my-tick-init-time "utility")
+(when (and (boundp my-profiler-p)
+		       my-profiler-p)
+	(profiler-report))
+
 (provide 'init)
 #+end_src
 

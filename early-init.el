@@ -82,6 +82,7 @@
 ;; you may want to use exec-path-from-shell.el.
 
 ;; 拡張パッケージにパスを通す
+;; M-x list-load-path-shadows
 (let* ((g "~/devel/git/")
        (od "org-mode")
        (l `("~/Dropbox/config"

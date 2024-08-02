@@ -1,8 +1,11 @@
 ;; init.el --- My init.el -*- lexical-binding: t -*-
 ;; Configurations for Emacs
-;;                                         Takaaki ISHIKAWA  <takaxp@ieee.org>
+;;																				 Takaaki ISHIKAWA	 <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
 (require 'init-autoloads nil t)
+(when (and (boundp my-profiler-p)
+		       my-profiler-p)
+	(profiler-start 'cpu+mem))
 
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
@@ -146,6 +149,9 @@
 
 ;; Native Compiling の最終のワーニング等をウィンドウに出さない
 (setq native-comp-async-report-warnings-errors nil)
+
+;; Suppress exporting of custom-set-variables (25.1 or later)
+(setq custom-file (locate-user-emacs-file "custom.el"))
 
 (my-tick-init-time "startup")
 
@@ -449,4 +455,8 @@
 (global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
 
 ;; (my-tick-init-time "utility")
+(when (and (boundp my-profiler-p)
+		       my-profiler-p)
+	(profiler-report))
+
 (provide 'init)

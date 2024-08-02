@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-08-02 金 17:44 -->
+<!-- 2024-08-03 土 08:09 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -245,15 +245,16 @@
 <li><a href="#org5a18ac68">2.23. Native comp が使えるかを判定する</a></li>
 <li><a href="#org81081865">2.24. Native comp の警告を非表示にする</a></li>
 <li><a href="#org65713cda">2.25. Native comp がコンパイルした後にメッセージを表示する</a></li>
-<li><a href="#orgfd894e86">2.26. elget パッケージ群を native comp する</a></li>
-<li><a href="#orgb59612b6">2.27. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org0b7d9710">2.28. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
+<li><a href="#orgb6d21621">2.26. custom.el の指定</a></li>
+<li><a href="#orgfd894e86">2.27. elget パッケージ群を native comp する</a></li>
+<li><a href="#orgb59612b6">2.28. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org0b7d9710">2.29. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
 <ul>
-<li><a href="#org42722212">2.28.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.28.2. マクロ版</a></li>
+<li><a href="#org42722212">2.29.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.29.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#orgcea06248">2.29. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
+<li><a href="#orgcea06248">2.30. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -290,9 +291,10 @@
 <li><a href="#org982c69d7">3.22. [ws-butler.el] 不要なスペースを自動除去</a></li>
 <li><a href="#orge014847e">3.23. [epa.el] GPGを使う</a></li>
 <li><a href="#orgedc5d7af">3.24. [epa.el] GPGファイルの保存時のメッセージを停止する</a></li>
-<li><a href="#org6ff409ba">3.25. GPGファイルを一定時間後にロックする</a></li>
-<li><a href="#orge44eded5">3.26. NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
-<li><a href="#org53a63301">3.27. EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
+<li><a href="#org083f6170">3.25. メール設定の読み込み</a></li>
+<li><a href="#org6ff409ba">3.26. GPGファイルを一定時間後にロックする</a></li>
+<li><a href="#orge44eded5">3.27. NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
+<li><a href="#org53a63301">3.28. EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org35f3bbc9">4. カーソル移動</a>
@@ -916,9 +918,12 @@ Then load the following at startup
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">init.el --- My init.el -*- lexical-binding: t -*-</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Configurations for Emacs</span>
-<span style="color: #b22222;">;;                                         </span><span style="color: #b22222;">Takaaki ISHIKAWA  <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a></span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                               Takaaki ISHIKAWA        <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a></span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">see also https://takaxp.github.io/init.html</span>
 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-autoloads</span> nil t)
+(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (boundp my-profiler-p)
+                       my-profiler-p)
+        (profiler-start 'cpu+mem))
 </pre>
 </div>
 
@@ -1400,6 +1405,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">you may want to use exec-path-from-shell.el.</span>
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#25313;&#24373;&#12497;&#12483;&#12465;&#12540;&#12472;&#12395;&#12497;&#12473;&#12434;&#36890;&#12377;</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">M-x list-load-path-shadows</span>
 (<span style="color: #a020f0;">let*</span> ((g <span style="color: #8b2252;">"~/devel/git/"</span>)
        (od <span style="color: #8b2252;">"org-mode"</span>)
        (l `(<span style="color: #8b2252;">"~/Dropbox/config"</span>
@@ -1959,8 +1965,19 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 
+<div id="outline-container-orgb6d21621" class="outline-3">
+<h3 id="orgb6d21621"><span class="section-number-3">2.26.</span> custom.el の指定</h3>
+<div class="outline-text-3" id="text-orgb6d21621">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress exporting of custom-set-variables (25.1 or later)</span>
+(<span style="color: #a020f0;">setq</span> custom-file (locate-user-emacs-file <span style="color: #8b2252;">"custom.el"</span>))
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgfd894e86" class="outline-3">
-<h3 id="orgfd894e86"><span class="section-number-3">2.26.</span> elget パッケージ群を native comp する</h3>
+<h3 id="orgfd894e86"><span class="section-number-3">2.27.</span> elget パッケージ群を native comp する</h3>
 <div class="outline-text-3" id="text-orgfd894e86">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">2<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autoload</span>
@@ -1974,7 +1991,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.27.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.28.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a></li>
@@ -1994,7 +2011,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.28.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.29.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b>
@@ -2078,7 +2095,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.28.1.</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.29.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
@@ -2134,7 +2151,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.28.2.</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.29.2.</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
@@ -2169,7 +2186,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.29.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.30.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．
@@ -3108,8 +3125,17 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 </div>
 
+<div id="outline-container-org083f6170" class="outline-3">
+<h3 id="org083f6170"><span class="section-number-3">3.25.</span> メール設定の読み込み</h3>
+<div class="outline-text-3" id="text-org083f6170">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(autoload 'mail <span style="color: #8b2252;">"~/Dropbox/config/my-mail.el.gpg"</span> nil t)
+</pre>
+</div>
+</div>
+</div>
 <div id="outline-container-org6ff409ba" class="outline-3">
-<h3 id="org6ff409ba"><span class="section-number-3">3.25.</span> GPGファイルを一定時間後にロックする</h3>
+<h3 id="org6ff409ba"><span class="section-number-3">3.26.</span> GPGファイルを一定時間後にロックする</h3>
 <div class="outline-text-3" id="text-org6ff409ba">
 <p>
 次の例では， <code>secret.org.gpg</code> が開かれていて，1分間操作しなかったら安全のためバッファを閉じます．
@@ -3134,7 +3160,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 
 <div id="outline-container-orge44eded5" class="outline-3">
-<h3 id="orge44eded5"><span class="section-number-3">3.26.</span> NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
+<h3 id="orge44eded5"><span class="section-number-3">3.27.</span> NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-orge44eded5">
 <p>
 インラインパッチの適用が前提の設定です． <code>M-SPC/S-SPC</code> で日本語IMEのON/OFFができるようになります．インラインパッチの情報はリンク先にあります．
@@ -3247,7 +3273,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 
 <div id="outline-container-org53a63301" class="outline-3">
-<h3 id="org53a63301"><span class="section-number-3">3.27.</span> EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
+<h3 id="org53a63301"><span class="section-number-3">3.28.</span> EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-org53a63301">
 <p>
 NSビルド版で生じた日本語入力時のチラつきを避けるために，EMP版ビルドに(一時期)浮気しました．以下はその時にNSビルドの振る舞いに近づけるためにがんばった設定です．詳細な情報は，リンク先の記事にあります．
@@ -14176,7 +14202,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org3d9f670"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org6255c5b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15153,7 +15179,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org1d867ff" class="figure">
+<div id="org2766946" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19637,7 +19663,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-08-02 金 17:44</p>
+<p class="date">Created: 2024-08-03 土 08:09</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

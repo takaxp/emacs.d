@@ -232,6 +232,8 @@ This function returns a timer object which you can use in
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
   (advice-add 'epa-file-write-region :around #'ad:suppress-message))
 
+(autoload 'mail "~/Dropbox/config/my-mail.el.gpg" nil t)
+
 (when (memq window-system '(ns nil))
 
   (custom-set-faces
