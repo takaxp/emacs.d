@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-08-03 土 08:09 -->
+<!-- 2024-08-13 火 21:34 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -848,13 +848,12 @@
 
 <ol class="org-ol">
 <li><code>.emacs</code> の読み込み</li>
-<li><code>init-env.el</code> の読み込み</li>
 <li><code>init.el</code> の読み込み</li>
 <li><code>late-init.el</code> の読み込み</li>
 </ol>
 
 <p>
-<code>.emacs</code> は，基本的に <code>init-env.el</code> を読み込むだけです．ただ，ちょっとしたコードを試したい時は， <code>.emacs</code> に書いてしまいます．気に入ったら， <code>init.el</code> に移します．
+<code>.emacs</code> では，起動の仕方を選択します．また，すぐ消すような実験的なコードを記載しています．気に入ったら， <code>init.el</code> に移します．
 </p>
 
 <p>
@@ -862,7 +861,7 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 </p>
 
 <p>
-<code>init-env.el</code> には，パスの設定，起動時間計測のためのフラグ群，パッケージ管理用の補助関数を設定しています．そして， <code>init-env.el</code> の最後に <code>init.el</code> を <code>require</code> しています．
+<code>early-init.el</code> には，パスの設定，起動時間計測のためのフラグ群，パッケージ管理用の補助関数を設定しています．
 </p>
 
 <p>
@@ -878,7 +877,6 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">emacs.d/init.el at master · takaxp/emacs.d</a></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">emacs.d/late-init.el at master · takaxp/emacs.d</a></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/elget-config.el">emacs.d/elget-config.el at master · takaxp/emacs.d</a></li>
-<li><a href="https://github.com/takaxp/emacs.d/blob/master/init-env.el">emacs.d/init-env.el at master · takaxp/emacs.d</a></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-ad.el">emacs.d/init-ad.el at master · takaxp/emacs.d</a></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-eval.el">emacs.d/init-eval.el at master · takaxp/emacs.d</a></li>
 </ul>
@@ -924,6 +922,9 @@ Then load the following at startup
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (boundp my-profiler-p)
                        my-profiler-p)
         (profiler-start 'cpu+mem))
+(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (boundp my-profiler-p)
+                       my-ad-require-p)
+        (load <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/init-ad.el"</span> nil t))
 </pre>
 </div>
 
@@ -955,9 +956,9 @@ Then load the following at startup
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (getenv "LIBRARY_PATH")</span>
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setenv "LIBRARY_PATH"</span>
 <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(string-join</span>
-<span style="color: #b22222;">;;            </span><span style="color: #b22222;">'("/opt/homebrew/opt/gcc/lib/gcc/13"</span>
-<span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/libgccjit/lib/gcc/13"</span>
-<span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/gcc/lib/gcc/13/gcc/aarch64-apple-darwin23/13")</span>
+<span style="color: #b22222;">;;            </span><span style="color: #b22222;">'("/opt/homebrew/opt/gcc/lib/gcc/14"</span>
+<span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/libgccjit/lib/gcc/14"</span>
+<span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")</span>
 <span style="color: #b22222;">;;            </span><span style="color: #b22222;">":")))</span>
 
 (<span style="color: #a020f0;">unless</span> noninteractive
@@ -992,7 +993,7 @@ Then load the following at startup
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-emacs-init-time</span> ()
   <span style="color: #8b2252;">"Emacs booting time in msec."</span>
   (<span style="color: #a020f0;">let</span> ((inhibit-message t))
-    (message <span style="color: #8b2252;">"Emacs booting time: %5.1f [ms] = `</span><span style="color: #008b8b;">emacs-init-time</span><span style="color: #8b2252;">'."</span>
+    (message <span style="color: #8b2252;">"Emacs booting time: %4d [ms] = `</span><span style="color: #008b8b;">emacs-init-time</span><span style="color: #8b2252;">'."</span>
              (* 1000
                 (float-time (time-subtract
                              after-init-time
@@ -1043,10 +1044,10 @@ Then load the following at startup
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              <span style="color: #8b2252;">"  Loading init files: %5.1f [ms]\n"</span>
-              <span style="color: #8b2252;">"  Loading early-init: %5.1f [ms]\n"</span>
-              <span style="color: #8b2252;">"  Others(GUI etc.):   %5.1f [ms] includes `</span><span style="color: #008b8b;">before-init-hook</span><span style="color: #8b2252;">'\n"</span>
-              <span style="color: #8b2252;">"(`</span><span style="color: #008b8b;">after-init-hook</span><span style="color: #8b2252;">': %5.1f [ms])"</span>)
+              <span style="color: #8b2252;">"  Loading init files: %4d [ms]\n"</span>
+              <span style="color: #8b2252;">"  Loading early-init: %4d [ms]\n"</span>
+              <span style="color: #8b2252;">"  Others(GUI etc.):   %4d [ms] includes `</span><span style="color: #008b8b;">before-init-hook</span><span style="color: #8b2252;">'\n"</span>
+              <span style="color: #8b2252;">"(`</span><span style="color: #008b8b;">after-init-hook</span><span style="color: #8b2252;">': %4d [ms])"</span>)
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
@@ -1059,7 +1060,7 @@ Then load the following at startup
   <span style="color: #8b2252;">"Tick boot sequence at loading MSG."</span>
   (<span style="color: #a020f0;">when</span> my-loading-profile-p
     (<span style="color: #a020f0;">let</span> ((ctime (current-time)))
-      (message <span style="color: #8b2252;">"---- %5.1f[ms] %s"</span>
+      (message <span style="color: #8b2252;">"---- %4d[ms] %s"</span>
                (* 1000 (float-time
                         (time-subtract ctime my-tick-previous-time)))
                msg)
@@ -1444,14 +1445,14 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <p>
-<code>my-loading-packages</code> 変数に，設定を無視するパッケージを記述しておくと， <code>autoload-if-found</code> 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． <code>autoload-if-found</code> は本来の実装ではなく， <code>my-loading-packages</code> を参照するように手を加えています．
+<code>my-disabled-packages</code> 変数に，設定を無視するパッケージを記述しておくと， <code>autoload-if-found</code> 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． <code>autoload-if-found</code> は本来の実装ではなく， <code>my-disabled-packages</code> を参照するように手を加えています．
 </p>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-load-package-p</span> (file)
   (<span style="color: #a020f0;">let</span> ((enabled t))
-    (<span style="color: #a020f0;">when</span> (boundp 'my-loading-packages)
-      (<span style="color: #a020f0;">dolist</span> (package my-loading-packages)
+    (<span style="color: #a020f0;">when</span> (boundp 'my-disabled-packages)
+      (<span style="color: #a020f0;">dolist</span> (package my-disabled-packages)
         (<span style="color: #a020f0;">let</span> ((name (car package))
               (flag (cdr package)))
           (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (stringp name)
@@ -1478,7 +1479,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-skip-check-autoload-file</span> t)
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-loading-packages)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-required-libraries</span> nil)
+(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-disabled-packages)
   (<span style="color: #a020f0;">setq</span> my-skip-check-autoload-file nil))
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">autoload-if-found</span> (functions file <span style="color: #228b22;">&amp;optional</span> docstring interactive type)
@@ -1587,7 +1589,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
       (postpone-kicker 'postpone-pre)
       (<span style="color: #a020f0;">setq</span> postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message <span style="color: #8b2252;">"Activating postponed packages...done ( %5.1f [ms])"</span>
+    (message <span style="color: #8b2252;">"Activating postponed packages...done ( %4d [ms])"</span>
              (* postpone-pre-init-time 1000))))
 
 (autoload 'postpone-kicker <span style="color: #8b2252;">"postpone"</span> nil t)
@@ -1607,6 +1609,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
         exit-minibuffer))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36215;&#21205;&#24460;X&#31186;&#20309;&#12418;&#12375;&#12394;&#12356;&#22580;&#21512;&#12399;&#33258;&#21205;&#12391;&#12461;&#12483;&#12463; (related to setting on org-agenda)</span>
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-default-loading-delay</span> 5) <span style="color: #b22222;">;; </span><span style="color: #b22222;">[s]</span>
 (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> noninteractive my-secure-boot)
   (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
 </pre>
@@ -2098,15 +2101,15 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 <h4 id="org42722212"><span class="section-number-4">2.29.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
-関数版にリスト <code>my-loading-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
+関数版にリスト <code>my-disabled-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
 </p>
 
 <p>
-ただ問題点として，最後の引数に入れる関数がバイトコンパイル時に展開されないようで，出来上がったバイトコードが高速化に寄与しているのか不明です．簡易的な実験ではだいぶ差があるようで，最近は <code>autoload-if-found</code> ， <code>with-eval-after-load</code> ， <code>eval-when-compile</code> の組み合わせで設定を書いて，遅延ロードと高速読み込みを実現しています． <code>my-loading-packages</code> は <code>autoload-if-found</code> に組み込みました．
+ただ問題点として，最後の引数に入れる関数がバイトコンパイル時に展開されないようで，出来上がったバイトコードが高速化に寄与しているのか不明です．簡易的な実験ではだいぶ差があるようで，最近は <code>autoload-if-found</code> ， <code>with-eval-after-load</code> ， <code>eval-when-compile</code> の組み合わせで設定を書いて，遅延ロードと高速読み込みを実現しています． <code>my-disabled-packages</code> は <code>autoload-if-found</code> に組み込みました．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> my-loading-packages <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36861;&#21152;&#12373;&#12428;&#12390;&#12356;&#12394;&#12356;&#22580;&#21512;&#12399;&#27161;&#28310;&#12391;&#35501;&#12415;&#36796;&#12416;</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> my-disabled-packages <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36861;&#21152;&#12373;&#12428;&#12390;&#12356;&#12394;&#12356;&#22580;&#21512;&#12399;&#27161;&#28310;&#12391;&#35501;&#12415;&#36796;&#12416;</span>
       '((<span style="color: #8b2252;">"web-mode"</span> . nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#35501;&#12415;&#36796;&#12414;&#12394;&#12356;</span>
         (<span style="color: #8b2252;">"org"</span> . t))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#35501;&#12415;&#36796;&#12416;</span>
 </pre>
@@ -2126,8 +2129,8 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
   (<span style="color: #a020f0;">let</span> ((enabled t)
         (package nil))
     (message <span style="color: #8b2252;">"--- %s"</span> file)
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-loading-packages)
-      (<span style="color: #a020f0;">dolist</span> (package my-loading-packages)
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-disabled-packages)
+      (<span style="color: #a020f0;">dolist</span> (package my-disabled-packages)
         (<span style="color: #a020f0;">let</span> ((name (car package))
               (flag (cdr package)))
           (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (stringp name) (equal file name))
@@ -2956,7 +2959,7 @@ Eamcs 29からは， <code>--init-directory</code> オプションで <code>user
  ((eq my-boot-mode 'space) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Spacemacs</span>
   (load (concat (<span style="color: #a020f0;">setq</span> user-emacs-directory <span style="color: #8b2252;">"~/.spacemacs.d/"</span>) <span style="color: #8b2252;">"init.el"</span>)))
  (t <span style="color: #b22222;">;; </span><span style="color: #b22222;">Normal mode. see also init-eval.el</span>
-  (load <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/init-env.el"</span> nil t)))
+  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init</span> nilt )))
 </pre>
 </div>
 
@@ -14202,7 +14205,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org6255c5b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgfd0d46a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15179,7 +15182,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org2766946" class="figure">
+<div id="org1ccda27" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16897,7 +16900,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-frame-appearance</span> nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">{nil, 'dark, 'light} see init-env.el</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-frame-appearance</span> nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">{nil, 'dark, 'light}</span>
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-theme</span> (<span style="color: #228b22;">&amp;optional</span> type)
@@ -17279,7 +17282,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> window-system
-             my-skip-check-autoload-file) <span style="color: #b22222;">;; </span><span style="color: #b22222;">see init-env.el</span>
+             my-skip-check-autoload-file)
     (my-find-missing-packages 5)))
 </pre>
 </div>
@@ -19663,7 +19666,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-08-03 土 08:09</p>
+<p class="date">Created: 2024-08-13 火 21:34</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
