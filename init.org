@@ -44,15 +44,14 @@
 普通は =init.el= に様々な設定をEmacsに読ませますが，私は諸事情から次のようにブートシーケンスを制御しています．
 
 1. =.emacs= の読み込み
-2. =init-env.el= の読み込み
-3. =init.el= の読み込み
-4. =late-init.el= の読み込み
+2. =init.el= の読み込み
+3. =late-init.el= の読み込み
 
-=.emacs= は，基本的に =init-env.el= を読み込むだけです．ただ，ちょっとしたコードを試したい時は， =.emacs= に書いてしまいます．気に入ったら， =init.el= に移します．
+=.emacs= では，起動の仕方を選択します．また，すぐ消すような実験的なコードを記載しています．気に入ったら， =init.el= に移します．
 
 Org Mode の設定がかなり肥大化したため， =init-org.el= として分離して，遅延読み込みの対象にしています．設定ファイルの分離は， =.el= ファイルを ~tangle~ する時に自動的に実行されるように設定しています． =postpone.el= で遅延読み込みさせる設定を， =late-init.el= に分離しています．
 
-=init-env.el= には，パスの設定，起動時間計測のためのフラグ群，パッケージ管理用の補助関数を設定しています．そして， =init-env.el= の最後に =init.el= を =require= しています．
+=early-init.el= には，パスの設定，起動時間計測のためのフラグ群，パッケージ管理用の補助関数を設定しています．
 
 =late-init.el= には，ほぼすべての独自作成した関数群を格納しています．各関数は ~autoload~ 指定していて，別途生成する =init-autoload.el= に関数と記述のあるファイルの対応関係が示され， =init.el= の冒頭で読み込みます．起動時にすべての独自関数全体を直接読まなくて済むため，高速化に繋がります．
 
@@ -62,7 +61,6 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 - [[https://github.com/takaxp/emacs.d/blob/master/init.el][emacs.d/init.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/late-init.el][emacs.d/late-init.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/elget-config.el][emacs.d/elget-config.el at master · takaxp/emacs.d]]
-- [[https://github.com/takaxp/emacs.d/blob/master/init-env.el][emacs.d/init-env.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init-ad.el][emacs.d/init-ad.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init-eval.el][emacs.d/init-eval.el at master · takaxp/emacs.d]]
 
@@ -98,6 +96,9 @@ Then load the following at startup
 (when (and (boundp my-profiler-p)
 		       my-profiler-p)
 	(profiler-start 'cpu+mem))
+(when (and (boundp my-profiler-p)
+		       my-ad-require-p)
+	(load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
@@ -145,9 +146,9 @@ Then load the following at startup
 ;; (unless (getenv "LIBRARY_PATH")
 ;;   (setenv "LIBRARY_PATH"
 ;;           (string-join
-;;            '("/opt/homebrew/opt/gcc/lib/gcc/13"
-;;              "/opt/homebrew/opt/libgccjit/lib/gcc/13"
-;;              "/opt/homebrew/opt/gcc/lib/gcc/13/gcc/aarch64-apple-darwin23/13")
+;;            '("/opt/homebrew/opt/gcc/lib/gcc/14"
+;;              "/opt/homebrew/opt/libgccjit/lib/gcc/14"
+;;              "/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")
 ;;            ":")))
 
 (unless noninteractive
@@ -180,7 +181,7 @@ Then load the following at startup
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (let ((inhibit-message t))
-    (message "Emacs booting time: %5.1f [ms] = `emacs-init-time'."
+    (message "Emacs booting time: %4d [ms] = `emacs-init-time'."
              (* 1000
                 (float-time (time-subtract
                              after-init-time
@@ -232,10 +233,10 @@ Then load the following at startup
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              "  Loading init files: %5.1f [ms]\n"
-              "  Loading early-init: %5.1f [ms]\n"
-              "  Others(GUI etc.):   %5.1f [ms] includes `before-init-hook'\n"
-              "(`after-init-hook': %5.1f [ms])")
+              "  Loading init files: %4d [ms]\n"
+              "  Loading early-init: %4d [ms]\n"
+              "  Others(GUI etc.):   %4d [ms] includes `before-init-hook'\n"
+              "(`after-init-hook': %4d [ms])")
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
@@ -248,7 +249,7 @@ Then load the following at startup
   "Tick boot sequence at loading MSG."
   (when my-loading-profile-p
     (let ((ctime (current-time)))
-      (message "---- %5.1f[ms] %s"
+      (message "---- %4d[ms] %s"
                (* 1000 (float-time
                         (time-subtract ctime my-tick-previous-time)))
                msg)
@@ -622,13 +623,13 @@ This function is called directly from the C code."
 
 =autoload-if-found= のサポート関数です．
 
-=my-loading-packages= 変数に，設定を無視するパッケージを記述しておくと， =autoload-if-found= 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． =autoload-if-found= は本来の実装ではなく， =my-loading-packages= を参照するように手を加えています．
+=my-disabled-packages= 変数に，設定を無視するパッケージを記述しておくと， =autoload-if-found= 内でそれらを読み込まないようにします．読み込まなかったパッケージは，Messages バッファにそのことを報告します． =autoload-if-found= は本来の実装ではなく， =my-disabled-packages= を参照するように手を加えています．
 
 #+begin_src emacs-lisp :tangle yes
 (defun my-load-package-p (file)
   (let ((enabled t))
-    (when (boundp 'my-loading-packages)
-      (dolist (package my-loading-packages)
+    (when (boundp 'my-disabled-packages)
+      (dolist (package my-disabled-packages)
         (let ((name (car package))
               (flag (cdr package)))
           (when (and (stringp name)
@@ -651,7 +652,8 @@ This function is called directly from the C code."
 
 #+begin_src emacs-lisp :tangle yes
 (defvar my-skip-check-autoload-file t)
-(when (bound-and-true-p my-loading-packages)
+(defvar my-required-libraries nil)
+(when (bound-and-true-p my-disabled-packages)
   (setq my-skip-check-autoload-file nil))
 
 (defun autoload-if-found (functions file &optional docstring interactive type)
@@ -746,7 +748,7 @@ This function is called directly from the C code."
       (postpone-kicker 'postpone-pre)
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message "Activating postponed packages...done ( %5.1f [ms])"
+    (message "Activating postponed packages...done ( %4d [ms])"
              (* postpone-pre-init-time 1000))))
 
 (autoload 'postpone-kicker "postpone" nil t)
@@ -766,6 +768,7 @@ This function is called directly from the C code."
         exit-minibuffer))
 
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
+(defvar my-default-loading-delay 5) ;; [s]
 (unless (or noninteractive my-secure-boot)
   (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
 #+end_src
@@ -1200,12 +1203,12 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
     :CUSTOM_ID: org42722212
     :END:
 
-関数版にリスト =my-loading-packages= を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． =eval-after-atoload-if-found= を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
+関数版にリスト =my-disabled-packages= を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． =eval-after-atoload-if-found= を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
 
-ただ問題点として，最後の引数に入れる関数がバイトコンパイル時に展開されないようで，出来上がったバイトコードが高速化に寄与しているのか不明です．簡易的な実験ではだいぶ差があるようで，最近は =autoload-if-found= ， =with-eval-after-load= ， =eval-when-compile= の組み合わせで設定を書いて，遅延ロードと高速読み込みを実現しています． =my-loading-packages= は =autoload-if-found= に組み込みました．
+ただ問題点として，最後の引数に入れる関数がバイトコンパイル時に展開されないようで，出来上がったバイトコードが高速化に寄与しているのか不明です．簡易的な実験ではだいぶ差があるようで，最近は =autoload-if-found= ， =with-eval-after-load= ， =eval-when-compile= の組み合わせで設定を書いて，遅延ロードと高速読み込みを実現しています． =my-disabled-packages= は =autoload-if-found= に組み込みました．
 
 #+begin_src emacs-lisp :tangle no :exports yes
-(setq my-loading-packages ;; 追加されていない場合は標準で読み込む
+(setq my-disabled-packages ;; 追加されていない場合は標準で読み込む
       '(("web-mode" . nil) ;; 読み込まない
         ("org" . t))) ;; 読み込む
 #+end_src
@@ -1222,8 +1225,8 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
   (let ((enabled t)
         (package nil))
     (message "--- %s" file)
-    (when (bound-and-true-p my-loading-packages)
-      (dolist (package my-loading-packages)
+    (when (bound-and-true-p my-disabled-packages)
+      (dolist (package my-disabled-packages)
         (let ((name (car package))
               (flag (cdr package)))
           (when (and (stringp name) (equal file name))
@@ -1954,7 +1957,7 @@ emacs -nw --init-directory="$HOME/.emacs.d/min"
  ((eq my-boot-mode 'space) ;; Spacemacs
   (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
  (t ;; Normal mode. see also init-eval.el
-  (load "~/Dropbox/emacs.d/config/init-env.el" nil t)))
+  (require 'init nilt )))
 #+end_src
 
 CLIからは，次のように呼び出します．
@@ -14571,7 +14574,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 次の例では，19時から翌日の朝5時までの間に夜用のテーマを使っています．
 
 #+begin_src emacs-lisp :tangle utility.el
-(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light} see init-env.el
+(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
 
 ;;;###autoload
 (defun my-theme (&optional type)
@@ -14926,7 +14929,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
   (when (and window-system
-             my-skip-check-autoload-file) ;; see init-env.el
+             my-skip-check-autoload-file)
     (my-find-missing-packages 5)))
 #+end_src
 
@@ -17203,7 +17206,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading init-org.el...done (%5.1f [ms])"
+    (message "Loading init-org.el...done (%4d [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)
@@ -17218,7 +17221,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+begin_src emacs-lisp :tangle late-init.el :exports none
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading late-init.el...done (%5.1f [ms])"
+    (message "Loading late-init.el...done (%4d [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)
@@ -17235,7 +17238,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+begin_src emacs-lisp :tangle utility.el :exports none
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading utility.el...done (%5.1f [ms])"
+    (message "Loading utility.el...done (%4d [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)

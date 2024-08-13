@@ -2033,7 +2033,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading init-org.el...done (%5.1f [ms])"
+    (message "Loading init-org.el...done (%4d [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)

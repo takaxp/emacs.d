@@ -6,6 +6,9 @@
 (when (and (boundp my-profiler-p)
 		       my-profiler-p)
 	(profiler-start 'cpu+mem))
+(when (and (boundp my-profiler-p)
+		       my-ad-require-p)
+	(load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
 
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
@@ -19,7 +22,7 @@
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (let ((inhibit-message t))
-    (message "Emacs booting time: %5.1f [ms] = `emacs-init-time'."
+    (message "Emacs booting time: %4d [ms] = `emacs-init-time'."
              (* 1000
                 (float-time (time-subtract
                              after-init-time
@@ -37,10 +40,10 @@
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              "  Loading init files: %5.1f [ms]\n"
-              "  Loading early-init: %5.1f [ms]\n"
-              "  Others(GUI etc.):   %5.1f [ms] includes `before-init-hook'\n"
-              "(`after-init-hook': %5.1f [ms])")
+              "  Loading init files: %4d [ms]\n"
+              "  Loading early-init: %4d [ms]\n"
+              "  Others(GUI etc.):   %4d [ms] includes `before-init-hook'\n"
+              "(`after-init-hook': %4d [ms])")
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
@@ -53,7 +56,7 @@
   "Tick boot sequence at loading MSG."
   (when my-loading-profile-p
     (let ((ctime (current-time)))
-      (message "---- %5.1f[ms] %s"
+      (message "---- %4d[ms] %s"
                (* 1000 (float-time
                         (time-subtract ctime my-tick-previous-time)))
                msg)
@@ -76,8 +79,8 @@
 
 (defun my-load-package-p (file)
   (let ((enabled t))
-    (when (boundp 'my-loading-packages)
-      (dolist (package my-loading-packages)
+    (when (boundp 'my-disabled-packages)
+      (dolist (package my-disabled-packages)
         (let ((name (car package))
               (flag (cdr package)))
           (when (and (stringp name)
@@ -88,7 +91,8 @@
     enabled))
 
 (defvar my-skip-check-autoload-file t)
-(when (bound-and-true-p my-loading-packages)
+(defvar my-required-libraries nil)
+(when (bound-and-true-p my-disabled-packages)
   (setq my-skip-check-autoload-file nil))
 
 (defun autoload-if-found (functions file &optional docstring interactive type)
@@ -124,7 +128,7 @@
       (postpone-kicker 'postpone-pre)
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
-    (message "Activating postponed packages...done ( %5.1f [ms])"
+    (message "Activating postponed packages...done ( %4d [ms])"
              (* postpone-pre-init-time 1000))))
 
 (autoload 'postpone-kicker "postpone" nil t)
@@ -144,6 +148,7 @@
         exit-minibuffer))
 
 ;; 起動後X秒何もしない場合は自動でキック (related to setting on org-agenda)
+(defvar my-default-loading-delay 5) ;; [s]
 (unless (or noninteractive my-secure-boot)
   (run-with-idle-timer (+ 5 my-default-loading-delay) nil #'postpone-pre))
 

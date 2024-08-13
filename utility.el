@@ -2124,7 +2124,7 @@ Uses `all-the-icons-material' to fetch the icon."
                                    (ns-appearance . dark)))
     (run-hooks 'my-dark-theme-hook)))
 
-(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light} see init-env.el
+(defvar my-frame-appearance nil) ;; {nil, 'dark, 'light}
 
 ;;;###autoload
 (defun my-theme (&optional type)
@@ -3133,7 +3133,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading utility.el...done (%5.1f [ms])"
+    (message "Loading utility.el...done (%4d [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)

@@ -2133,7 +2133,7 @@ This function returns a timer object which you can use in
 
 (unless noninteractive
   (when (and window-system
-             my-skip-check-autoload-file) ;; see init-env.el
+             my-skip-check-autoload-file)
     (my-find-missing-packages 5)))
 
 (unless noninteractive
@@ -2247,7 +2247,7 @@ This function returns a timer object which you can use in
 
 (unless noninteractive
   (let ((inhibit-message t))
-    (message "Loading late-init.el...done (%5.1f [ms])"
+    (message "Loading late-init.el...done (%4d [ms])"
              (* 1000
                 (float-time (time-subtract
                              (current-time)
