@@ -10,9 +10,9 @@
 ;; Font lock を使う
 (add-hook 'org-mode-hook #'turn-on-font-lock)
 
-(global-set-key (kbd "C-c r") 'org-capture)
-(global-set-key (kbd "C-c l") 'org-store-link)
-(global-set-key (kbd "C-c a") 'org-agenda)
+(keymap-global-set "C-c r" 'org-capture)
+(keymap-global-set "C-c l" 'org-store-link)
+(keymap-global-set "C-c a" 'org-agenda)
 
 (with-eval-after-load "org"
   (defvar my-org-modules org-modules) ;; Tricky!!
@@ -175,10 +175,10 @@
       (save-buffer))
     (message "Update statistics...done"))
 
-  (define-key org-mode-map (kbd "C-c f 2") 'my-do-org-update-staistics-cookies)
+  (keymap-set org-mode-map "C-c f 2" 'my-do-org-update-staistics-cookies)
 
   ;; C-c & が yasnippet にオーバーライドされているのを張り替える
-  (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
+  (keymap-set org-mode-map "C-c 4" 'org-mark-ring-goto)
 
   ;; (org-transpose-element) が割り当てられているので取り返す．
   (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
@@ -264,7 +264,7 @@
                            my-async-ox-icalendar my-ox-icalendar-cleanup)
                          "ox-icalendar" nil t)
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c f 1") 'my-ox-upload-icalendar))
+    (keymap-set org-mode-map "C-c f 1" 'my-ox-upload-icalendar))
 
   (with-eval-after-load "ox-icalendar"
     (defvar org-ical-file-in-orz-server nil) ;; see private.el
@@ -761,7 +761,7 @@
   "Copy converted table."
   (interactive)
   (let ((format (or format
-                    (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                    (org-entry-get (point) "<tab>LE_EXPORT_FORMAT" t)
                     org-table-export-default-format)))
     (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
 	      (let ((transform (intern (match-string 1 format)))
@@ -773,17 +773,17 @@
 	          (with-temp-buffer
 		          (insert (funcall transform table params) "\n")
               (clipboard-kill-ring-save (point-min) (point-max)))))
-      (user-error "TABLE_EXPORT_FORMAT invalid"))))
+      (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
 
 (defun my-org-table-convert-to (&optional format)
   "Convert a table to FORMAT.
 If FORMAT is nil, it is set equal to a property value specified
-by \"TABLE_EXPORT_FORMAT\" or `org-table-export-default-format'.
+by \"<tab>LE_EXPORT_FORMAT\" or `org-table-export-default-format'.
 Converted table is copied to kill ring for further use.
 The core part is extracted from `org-table-export'."
   (interactive)
   (let ((format (or format
-                    (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                    (org-entry-get (point) "<tab>LE_EXPORT_FORMAT" t)
                     org-table-export-default-format)))
     (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
 	      (let ((transform (intern (match-string 1 format)))
@@ -797,7 +797,7 @@ The core part is extracted from `org-table-export'."
 	            (insert (funcall transform table params))
 	            (clipboard-kill-ring-save begin (point))
               (insert "\n"))))
-      (user-error "TABLE_EXPORT_FORMAT invalid"))))
+      (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
 
 (with-eval-after-load "eldoc"
   (defvar my-eldoc-disable-in-org-block nil)
@@ -864,8 +864,8 @@ The core part is extracted from `org-table-export'."
     "My strike-through emphasis for Org."))
 
 (with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-c x") #'my-org-move-item-end)
-  (define-key org-mode-map (kbd "C-c X") #'my-org-move-item-begin))
+  (keymap-set org-mode-map "C-c x" #'my-org-move-item-end)
+  (keymap-set org-mode-map "C-c X" #'my-org-move-item-begin))
 
 (when (autoload-if-found '(org-capture)
                          "org-capture" nil t)
@@ -1144,13 +1144,13 @@ will not be modified."
                            my-sparse-doing-tree org-onit-clock-in-when-unfold
                            org-clock-goto org-onit-update-options)
                          "org-onit" nil t)
-  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
+  (keymap-global-set "C-<f11>" 'org-clock-goto)
 
   (with-eval-after-load "org"
     (add-hook 'org-cycle-hook #'org-onit-clock-in-when-unfold)
-    (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
-    (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
-    (define-key org-mode-map (kbd "S-<f11>") 'org-onit-goto-anchor)
+    (keymap-set org-mode-map "<f11>" 'org-onit-toggle-doing)
+    (keymap-set org-mode-map "M-<f11>" 'org-onit-toggle-auto)
+    (keymap-set org-mode-map "S-<f11>" 'org-onit-goto-anchor)
 
     (defun my-sparse-doing-tree ()
       (interactive)
@@ -1484,14 +1484,14 @@ update it for multiple appts?")
 (when (autoload-if-found '(org-tree-slide-mode)
                          "org-tree-slide" nil t)
 
-  (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-  (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+  (keymap-global-set "<f8>" 'org-tree-slide-mode)
+  (keymap-global-set "S-<f8>" 'org-tree-slide-skip-done-toggle)
 
   (with-eval-after-load "org-tree-slide"
     ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
-    (define-key org-tree-slide-mode-map (kbd "<f9>")
+    (keymap-set org-tree-slide-mode-map "<f9>"
                 'org-tree-slide-move-previous-tree)
-    (define-key org-tree-slide-mode-map (kbd "<f10>")
+    (keymap-set org-tree-slide-mode-map "<f10>"
                 'org-tree-slide-move-next-tree)
     (unless noninteractive
       (org-tree-slide-narrowing-control-profile))
@@ -1595,7 +1595,7 @@ update it for multiple appts?")
   ;; (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
 
   (autoload 'org-mac-link-get-link "org-mac-link" nil t)
-  (define-key org-mode-map (kbd "C-c c") 'org-mac-link-get-link)
+  (keymap-set org-mode-map "C-c c" 'org-mac-link-get-link)
   (with-eval-after-load "org-mac-link"
     (require 'org-mac-iCal nil t)))
 
@@ -1606,7 +1606,7 @@ update it for multiple appts?")
 
 (when (autoload-if-found '(org-grep)
                          "org-grep" nil t)
-  ;;   (global-set-key (kbd "C-M-g") 'org-grep)
+  ;;   (keymap-global-set "C-M-g" 'org-grep)
   (with-eval-after-load "org-grep"
     (setq org-grep-extensions '(".org" ".org_archive"))
     (add-to-list 'org-grep-directories "~/.emacs.d")
@@ -1798,8 +1798,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (with-eval-after-load "orglink"
     (delq 'angle orglink-activate-links)
-    (define-key orglink-mouse-map (kbd "C-c C-o") 'org-open-at-point-global)
-    (define-key orglink-mouse-map (kbd "C-c C-l") 'org-insert-link)))
+    (keymap-set orglink-mouse-map "C-c C-o" 'org-open-at-point-global)
+    (keymap-set orglink-mouse-map "C-c C-l" 'org-insert-link)))
 
 ;; (add-to-list 'orglink-activate-in-modes 'c++-mode)
 ;; (add-to-list 'orglink-activate-in-modes 'c-mode)
@@ -2007,7 +2007,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (when (autoload-if-found '(orgnav-search-root)
                          "orgnav" nil t)
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c f n")
+    (keymap-set org-mode-map "C-c f n"
       (lambda () (interactive)
         (orgnav-search-root 3 'orgnav--goto-action)))))
 

@@ -1829,8 +1829,8 @@ Otherwise, use `counsel-ag'."
 ;;;###autoload
 (defun ad:checkdoc ()
   (interactive)
-  (define-key checkdoc-minor-mode-map (kbd "q") 'my-delete-checkdoc-window)
-  (define-key checkdoc-minor-mode-map (kbd "C-g") 'my-delete-checkdoc-window)
+  (keymap-set checkdoc-minor-mode-map "q" 'my-delete-checkdoc-window)
+  (keymap-set checkdoc-minor-mode-map "C-g" 'my-delete-checkdoc-window)
   (checkdoc-minor-mode 1))
 
 ;;;###autoload

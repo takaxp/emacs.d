@@ -684,7 +684,7 @@ This function is called directly from the C code."
   ;; (1) パッケージが存在すれば， Emacs 起動時に読み込む設定群
   (push '("\\.hoge$" . package-name-mode) auto-mode-alist)
   (add-hook 'after-init-hook #'f1)
-  (global-set-key (kbd "r") 'f2)
+  (keymap-global-set "r" 'f2)
   (autoload-if-found '(hoge1 hoge2) "hoge" nil t)
 
   ;; (2) 遅延読み込みする設定群
@@ -692,7 +692,7 @@ This function is called directly from the C code."
   (with-eval-after-load "package-name"
     (setq v1 t)
     (setq v2 nil)
-    (define-key package-name-map (kbd "q") 'f1))
+    (keymap-set package-name-map "q" 'f1))
 
   ;; 関連するパッケージの遅延ロード
   (with-eval-after-load "package-name2"
@@ -1182,12 +1182,12 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
          (setq cycle-buffer-show-length 12)
          (setq cycle-buffer-show-format '(" < %s >" . " %s"))
          ;; パッケージのキーアサインはこちら
-         ;; (define-key xxx-map (kbd "q") 'hoge)
+         ;; (keymap-set xxx-map "q" 'hoge)
          ))
   ;; グローバルはこちら
-  (global-set-key (kbd "M-]") 'cycle-buffer)
+  (keymap-global-set "M-]" 'cycle-buffer)
   (when (display-graphic-p)
-    (global-set-key (kbd "M-[") 'cycle-buffer-backward))
+    (keymap-global-set "M-[" 'cycle-buffer-backward))
   ;; パッケージに紐付いたフックはこちらへ
   ;; (add-hook 'xxx-hook #'hogehoge)
   ;;
@@ -1363,7 +1363,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
 
 #+begin_src emacs-lisp :tangle no
 (when (eq system-type 'gnu/linux)
-  (global-set-key (kbd "<hiragana-katakana>") 'toggle-input-method)
+  (keymap-global-set "<hiragana-katakana>" 'toggle-input-method)
   (push "/usr/share/emacs/site-lisp/anthy" load-path)
   (push "/usr/share/emacs/site-lisp/emacs-mozc" load-path)
   (set-language-environment "Japanese")
@@ -1397,10 +1397,10 @@ NSビルド用のインラインパッチを適用している場合に使いま
   (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
   (when (boundp 'ns-alternate-modifier) (setq ns-alternate-modifier 'super))
   (when (boundp 'ns-pop-up-frames) (setq ns-pop-up-frames nil))
-  (global-set-key (kbd "M-v") 'yank)
-  (global-set-key [ns-drag-file] 'ns-find-file))
-(global-set-key [delete] 'delete-char)
-(global-set-key [kp-delete] 'delete-char)
+  (keymap-global-set "M-v" 'yank)
+  (keymap-global-set "<ns-drag-file>" 'ns-find-file))
+(keymap-global-set "<delete>" 'delete-char)
+(keymap-global-set "<kp-delete>" 'delete-char)
 #+end_src
 
 ** ナローイングするか
@@ -1548,7 +1548,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
          (when (yes-or-no-p "Are you sure to quit Emacs now? ")
            (save-buffers-kill-emacs)))))
 
-(global-set-key (kbd "C-x C-c") 'confirm-save-buffers-kill-emacs)
+(keymap-global-set "C-x C-c" 'confirm-save-buffers-kill-emacs)
 #+end_src
 
 ** パッケージ管理
@@ -1919,29 +1919,29 @@ emacs -nw --init-directory="$HOME/.emacs.d/min"
 (setq line-number-display-limit-width 100000)
 (setq vc-follow-symlinks t)
 (setq confirm-kill-emacs 'y-or-n-p)
-(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
-(global-set-key (kbd "C-M-t") 'beginning-of-buffer) ;; M-<
-(global-set-key (kbd "C-M-b") 'end-of-buffer) ;; M->
-(global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
-(global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
-(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
-(global-set-key (kbd "M-=") 'count-words)
-(global-set-key (kbd "M-]") 'bs-cycle-next)
-(global-set-key (kbd "M-[") 'bs-cycle-previous)
-(global-set-key (kbd "C-c g") 'goto-line)
+(keymap-global-set "RET" 'electric-newline-and-maybe-indent)
+(keymap-global-set "C-M-t" 'beginning-of-buffer) ;; M-<
+(keymap-global-set "C-M-b" 'end-of-buffer) ;; M->
+(keymap-global-set "C-M-p" (lambda () (interactive) (other-window -1)))
+(keymap-global-set "C-M-n" (lambda () (interactive) (other-window 1)))
+(keymap-global-set "C-;" 'comment-dwim) ;; M-; is the defualt
+(keymap-global-set "M-=" 'count-words)
+(keymap-global-set "M-]" 'bs-cycle-next)
+(keymap-global-set "M-[" 'bs-cycle-previous)
+(keymap-global-set "C-c g" 'goto-line)
 (defun my-open-scratch ()
   "Switch the current buffer to \*scratch\* buffer."
   (interactive)
   (switch-to-buffer "*scratch*"))
-(global-set-key (kbd "C-M-s") #'my-open-scratch)
+(keymap-global-set "C-M-s" #'my-open-scratch)
 (when (eq system-type 'darwin)
   (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
   (when (boundp 'ns-alternate-modifier) (setq ns-alternate-modifier 'super))
   (when (boundp 'ns-pop-up-frames) (setq ns-pop-up-frames nil))
-  (global-set-key (kbd "M-v") 'yank)
-  (global-set-key [ns-drag-file] 'ns-find-file))
-(global-set-key [delete] 'delete-char)
-(global-set-key [kp-delete] 'delete-char)
+  (keymap-global-set (kbd "M-v") 'yank)
+  (keymap-global-set "<ns-drag-file>" 'ns-find-file))
+(keymap-global-set "<delete>" 'delete-char)
+(keymap-global-set "<kp-delete>" 'delete-char)
 #+end_src
 
 なお上記を回避するために， =user-emacs-directory= を変更せずに， =min/init.el= をロードすることもできます．だだし，非推奨です． =.emacs= で起動時に読み込む =init= 系ファイルを制御することになります．事前に =early-init.el= のどこかに =(defvar my-boot-mode nil)= を入れておいてください．
@@ -2192,10 +2192,10 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
-(global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
-(define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-(define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+(keymap-global-set "M-SPC" 'my-toggle-ime-ns)
+(keymap-global-set "S-SPC" 'my-toggle-ime-ns)
+;; (keymap-set isearch-mode-map "M-SPC" 'my-toggle-ime-ns)
+;; (keymap-set isearch-mode-map "S-SPC" 'my-toggle-ime-ns)
 (when (fboundp 'mac-ime-toggle) ;; using ns-inline-patch
   (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
   (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
@@ -2248,8 +2248,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 #+begin_src emacs-lisp :tangle no :exports yes
 (when (eq window-system 'mac)
-  (global-set-key (kbd "M-SPC") 'mac-win-toggle-ime)
-  (global-set-key (kbd "S-SPC") 'mac-win-toggle-ime)
+  (keymap-global-set "M-SPC" 'mac-win-toggle-ime)
+  (keymap-global-set "S-SPC" 'mac-win-toggle-ime)
   (declare-function mac-win-save-last-ime-status "init" nil)
   (declare-function ad:mac-auto-ascii-setup-input-source "init" nil)
   (declare-function mac-win-restore-ime "init" nil)
@@ -2363,8 +2363,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
                    ".Roman" ".base")))))
 
   ;; isearch 中にIMEを切り替えると，[I-Search] の表示が消える．
-  ;; (define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)
-  (define-key isearch-mode-map (kbd "S-SPC") 'mac-win-toggle-ime)
+  ;; (keymap-set isearch-mode-map "M-SPC" 'mac-win-toggle-ime)
+  (keymap-set isearch-mode-map "S-SPC" 'mac-win-toggle-ime)
 
   (when (boundp 'mac-win-ime-cursor-type) ;; Need update
     (setq mac-win-ime-cursor-type (plist-get my-cur-type-ime :on)))
@@ -2413,14 +2413,14 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 先頭に移動，最終行に移動，ページ単位の進む，ページ単位の戻る，行数を指定して移動．
 
 #+begin_src emacs-lisp :tangle yes
-(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-(global-set-key (kbd "C-M-b") 'end-of-buffer)
+(keymap-global-set "C-M-t" 'beginning-of-buffer)
+(keymap-global-set "C-M-b" 'end-of-buffer)
 ;; Backward page scrolling instead of M-v
-(global-set-key (kbd "C-t") 'scroll-down)
+(keymap-global-set "C-t" 'scroll-down)
 ;; Frontward page scrolling instead of C-v
-;; (global-set-key (kbd "M-n") 'scroll-up)
+;; (keymap-global-set "M-n" 'scroll-up)
 ;; Move cursor to a specific line
-(global-set-key (kbd "C-c g") 'goto-line)
+(keymap-global-set "C-c g" 'goto-line)
 #+end_src
 
 ** バッファ間のカーソル移動
@@ -2432,8 +2432,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 =C-c o= でもいいですが，ワンアクションで移動できるようが楽です．次のように双方向で使えるように設定しています．
 
 #+begin_src emacs-lisp :tangle yes
-(global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
-(global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+(keymap-global-set "C-M-p" (lambda () (interactive) (other-window -1)))
+(keymap-global-set "C-M-n" (lambda () (interactive) (other-window 1)))
 #+end_src
 
 ** 対応するカッコを選択（逆方向）
@@ -2454,7 +2454,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   "Move backward across one balanced expression and select it."
   (interactive)
   (mark-sexp (or arg -1)))
-(global-set-key (kbd "C-M-9") #'my-mark-sexp)
+(keymap-global-set "C-M-9" #'my-mark-sexp)
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -2597,9 +2597,9 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
  - https://github.com/takaxp/bsv
 
 #+begin_src emacs-lisp :tangle yes
-(global-set-key (kbd "M-]") 'bs-cycle-next)
+(keymap-global-set "M-]" 'bs-cycle-next)
 (when (display-graphic-p)
-  (global-set-key (kbd "M-[") 'bs-cycle-previous))
+  (keymap-global-set "M-[" 'bs-cycle-previous))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -2711,9 +2711,9 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
        "bm" nil t)
 
   ;; ファイルオープン時にブックマークを復帰
-  (global-set-key (kbd "<f10>") 'my-toggle-bm)
-  (global-set-key (kbd "<C-f10>") 'my-bm-next)
-  (global-set-key (kbd "<S-f10>") 'bm-show-all)
+  (keymap-global-set "<f10>" 'my-toggle-bm)
+  (keymap-global-set "C-<f10>" 'my-bm-next)
+  (keymap-global-set "S-<f10>" 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
@@ -2723,7 +2723,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (setq bookmark-set-fringe-mark nil)
 
   (with-eval-after-load "ivy"
-    (global-set-key (kbd "<S-f10>") 'counsel-bm))
+    (keymap-global-set "S-<f10>" 'counsel-bm))
 
   (with-eval-after-load "bm"
     (advice-add 'bm-repository-load :around #'ad:suppress-message)
@@ -2879,7 +2879,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (advice-add 'forward-word :before #'my-syntax-subword-activate)
   (advice-add 'backward-word :before #'my-syntax-subword-activate)
 
-  (global-set-key (kbd "C-<backspace>") #'syntax-subword-backward-kill)
+  (keymap-global-set "C-<backspace>" #'syntax-subword-backward-kill)
 
   (with-eval-after-load "syntax-subword"
     ;; C-<backspace> で，削除領域をコピーしない．
@@ -2901,7 +2901,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load "selected"
   (when (require 'expand-region nil t)
-    (define-key selected-keymap (kbd "SPC") #'er/expand-region)))
+    (keymap-set selected-keymap "SPC" #'er/expand-region)))
 #+end_src
 
 ** DONE [goto-chg.el] 編集箇所を簡単に辿る                         :obsolete:
@@ -2916,12 +2916,12 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 (when (autoload-if-found '(goto-last-change goto-last-change-reverse)
                          "goto-chg" nil t)
 
-  (global-set-key (kbd "C-,") 'goto-last-change)
-  (global-set-key (kbd "C-.") 'goto-last-change-reverse)
+  (keymap-global-set "C-," 'goto-last-change)
+  (keymap-global-set "C-." 'goto-last-change-reverse)
 
   (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-,") 'goto-last-change)
-    (define-key flyspell-mode-map (kbd "C-.") 'goto-last-change-reverse)))
+    (keymap-set flyspell-mode-map "C-," 'goto-last-change)
+    (keymap-set flyspell-mode-map "C-." 'goto-last-change-reverse)))
 #+end_src
 
 ** DONE [cycle-buffer.el] カレントバッファの表示切り替え           :obsolete:
@@ -2938,8 +2938,8 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 (when (autoload-if-found '(cycle-buffer cycle-buffer-backward)
                          "cycle-buffer" nil t)
 
-  (global-set-key (kbd "M-]") 'cycle-buffer)
-  (global-set-key (kbd "M-[") 'cycle-buffer-backward)
+  (keymap-global-set "M-]" 'cycle-buffer)
+  (keymap-global-set "M-[" 'cycle-buffer-backward)
 
   (with-eval-after-load "cycle-buffer"
     (custom-set-variables
@@ -2970,11 +2970,11 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
     (setq global-mark-ring-max 64)
     (setq back-button-local-forward-keystrokes '("<f10>"))
     (setq back-button-global-forward-keystrokes '("C-<f10>"))
-    (define-key back-button-mode-map
-                (kbd (car back-button-local-forward-keystrokes))
+    (keymap-set back-button-mode-map
+                (car back-button-local-forward-keystrokes)
                 'back-button-local-forward)
-    (define-key back-button-mode-map
-                (kbd (car back-button-global-forward-keystrokes))
+    (keymap-set back-button-mode-map
+                (car back-button-global-forward-keystrokes)
                 'back-button-global-forward)
     (setq back-button-mode-lighter nil)
     (setq back-button-index-timeout 0))
@@ -2994,9 +2994,9 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 #+begin_src emacs-lisp :tangle no
 (when (require 'point-undo nil t)
   ;; [point-undo.el] Move the cursor to the previous position
-  (global-set-key (kbd "<f7>") 'point-undo)
+  (keymap-global-set "<f7>" 'point-undo)
   ;; [point-undo.el] Redo of point-undo
-  (global-set-key (kbd "S-<f7>") 'point-redo))
+  (keymap-global-set "S-<f7>" 'point-redo))
 #+end_src
 
 ** DONE [SmoothScroll.el] カーソル固定でスクロールする             :obsolete:
@@ -3016,8 +3016,8 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
 (when (autoload-if-found '(scroll-one-up scroll-one-down)
                          "smoothscroll" nil t)
 
-  (global-set-key (kbd "s-<up>") 'scroll-one-down)
-  (global-set-key (kbd "s-<down>") 'scroll-one-up))
+  (keymap-global-set "s-<up>" 'scroll-one-down)
+  (keymap-global-set "s-<down>" 'scroll-one-up))
 #+end_src
 
 * 編集サポート
@@ -3035,7 +3035,7 @@ https://github.com/pglotov/EmacsScripts/blob/master/SmoothScroll.el
 好みの問題ですかね．標準では =C-j= が当てられています．
 
 #+begin_src emacs-lisp :tangle yes
-(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+(keymap-global-set "RET" 'electric-newline-and-maybe-indent)
 #+end_src
 
 ** Yank時に装飾を取る
@@ -3136,7 +3136,7 @@ Built-in の time-stamp.el を使う．
   (advice-add 'isearch-mode :around #'ad:isearch-mode)
 
   ;; C-g を isearch-exit に割り当てて途中中断とする．（カーソルを留めておきたい）カーソルを検索開始時点の場所に戻すには，別途 counsel-mark-ring を使う
-  (define-key isearch-mode-map (kbd "C-g") 'isearch-exit))
+  (keymap-set isearch-mode-map "C-g" 'isearch-exit))
 #+end_src
 
 ** ChangeLog モード
@@ -3183,7 +3183,7 @@ Built-in の time-stamp.el を使う．
 
 http://d.hatena.ne.jp/NeoCat/20080211
 
-とは言っても，Org-modeを知ってから =.txt= もテキストモードで開かなくなったので，ほぼ無意味な設定となりました．しかも， =nxml-mode= で =TAB= が効かなくなる現象が起きているので，以下の設定はしない方がよさげ．
+とは言っても，Org-modeを知ってから =.txt= もテキストモードで開かなくなったので，ほぼ無意味な設定となりました．しかも， =nxml-mode= で =<tab>= が効かなくなる現象が起きているので，以下の設定はしない方がよさげ．
 
 #+begin_src emacs-lisp :tangle no
 (add-hook 'text-mode-hook
@@ -3263,7 +3263,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+begin_src emacs-lisp :tangle late-init.el
 (add-hook 'nxml-mode-hook
           (lambda ()
-            (define-key nxml-mode-map "\r" 'newline-and-indent)
+            (keymap-set nxml-mode-map "RET" 'newline-and-indent)
             (auto-fill-mode -1)
             (setq indent-tabs-mode t)
             (setq nxml-slash-auto-complete-flag t)
@@ -3559,20 +3559,20 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   ;; note: messages-buffer-mode-hook may not work
   (advice-add 'switch-to-buffer :after #'ad:switch-to-buffer)
 
-  (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
-  (define-key view-mode-map (kbd "<SPC>") 'ignore)
-  (define-key view-mode-map (kbd "<DEL>") 'ignore)
-  (define-key view-mode-map (kbd "S-SPC") 'mac-ime-toggle)
-  (define-key view-mode-map (kbd "e") 'my-view-exit)
+  (keymap-set view-mode-map "i" 'View-exit-and-edit)
+  (keymap-set view-mode-map "SPC" 'ignore)
+  (keymap-set view-mode-map "<delete>" 'ignore)
+  (keymap-set view-mode-map "S-SPC" 'mac-ime-toggle)
+  (keymap-set view-mode-map "e" 'my-view-exit)
   (when (require 'helpful nil t)
-    (define-key view-mode-map (kbd "h") 'helpful-at-point))
-  (define-key view-mode-map (kbd "f") 'forward-char)
-  (define-key view-mode-map (kbd "b") 'backward-char)
-  (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
-  (define-key view-mode-map (kbd "p") 'my-org-view-previous-heading)
-  (define-key view-mode-map (kbd "g") #'my-google-this)
-  (define-key view-mode-map (kbd "<tab>") 'my-view-tab)
-  (define-key view-mode-map (kbd "S-<tab>") 'my-view-shifttab)
+    (keymap-set view-mode-map "h" 'helpful-at-point))
+  (keymap-set view-mode-map "f" 'forward-char)
+  (keymap-set view-mode-map "b" 'backward-char)
+  (keymap-set view-mode-map "n" 'my-org-view-next-heading)
+  (keymap-set view-mode-map "p" 'my-org-view-previous-heading)
+  (keymap-set view-mode-map "g" #'my-google-this)
+  (keymap-set view-mode-map "<tab>" 'my-view-tab)
+  (keymap-set view-mode-map "S-<tab>" 'my-view-shifttab)
   (unless my-toggle-modeline-global
     (advice-add 'view--enable :before #'ad:view--enable)
     (advice-add 'view--disable :before #'ad:view--disable)))
@@ -3608,7 +3608,7 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
   (push '("\\.html?\\'" . web-mode) auto-mode-alist)
 
   (with-eval-after-load "web-mode"
-    (define-key web-mode-map (kbd "S-<tab>") 'my-web-indent-fold)
+    (keymap-set web-mode-map "S-<tab>" 'my-web-indent-fold)
 
     ;; indent
     (setq web-mode-markup-indent-offset 1)
@@ -3688,9 +3688,9 @@ lang en_US
                          "ispell" nil t)
 
   ;; Spell checking within a specified region
-  (global-set-key (kbd "C-c f 7") 'ispell-region)
+  (keymap-global-set "C-c f 7" 'ispell-region)
   ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
-  (global-set-key (kbd "<f7>") 'ispell-word)
+  (keymap-global-set "<f7>" 'ispell-word)
 
   (with-eval-after-load "ispell"
     ;; This could hild other messages from loading functions regarding org-mode.
@@ -3804,7 +3804,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
   (with-eval-after-load "flyspell"
     ;; C-; をオーバーライド
-    (define-key flyspell-mode-map (kbd "C-;") 'comment-dwim)
+    (keymap-set flyspell-mode-map "C-;" 'comment-dwim)
     (setq flyspell-duplicate-distance 0)
     ;; (setq flyspell-mode-line-string " F")
     (setq flyspell-mode-line-string "")
@@ -3817,7 +3817,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
                         :background 'unspecified :underline t)
 
     ;; ispell-complete-word のキーバインドを上書き
-    (global-set-key (kbd "<f7>") 'flyspell-correct-at-point)
+    (keymap-global-set "<f7>" 'flyspell-correct-at-point)
 
     ;; ivy を用いる
     (when (require 'flyspell-correct-ivy nil t)
@@ -3840,7 +3840,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 ビルドインの simple.el に十分な機能なのがある．
 
 #+begin_src emacs-lisp :tangle yes
-(global-set-key (kbd "M-=") 'count-words)
+(keymap-global-set "M-=" 'count-words)
 #+end_src
 
 以前は，[[http://www.emacswiki.org/emacs/WordCount][word-count.el]] を使用していた．
@@ -3848,12 +3848,13 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 #+begin_src emacs-lisp :tangle no
 (when (autoload-if-found '(word-count-mode)
                          "word-count" "Minor mode to count words." t)
-  (global-set-key (kbd "M-=") 'word-count-mode))
+  (keymap-global-set "M-=" 'word-count-mode))
 #+end_src
 
 ** 世界時計を使う
    :PROPERTIES:
    :CUSTOM_ID: org863cfc2a
+   :ID:       FC3F2298-FD98-4F00-8ED4-5BB255864A71
    :END:
 
 =M-x display-time-world= で表示されます．次の設定を施して， =shackle.el= と組み合わせれば，表示後に =q= 押下でウィンドウを閉じてカーソルを元のバッファに戻せます．
@@ -3862,7 +3863,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load "time"
-  (define-key display-time-world-mode-map "q" 'delete-window))
+  (keymap-set display-time-world-mode-map "q" 'delete-window))
 #+end_src
 
 =tz= の値は，システム内部 =/usr/share/zoneinfo= を見るか，[[https://en.wikipedia.org/wiki/List_of_tz_database_time_zones][公開情報]]から確認できます．
@@ -3893,13 +3894,13 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
                            latex-math-preview-save-image-file
                            latex-math-preview-beamer-frame)
                          "latex-math-preview" nil t nil)
-  (global-set-key (kbd "<f6>") 'latex-math-preview-expression)
+  (keymap-global-set "<f6>" 'latex-math-preview-expression)
   (with-eval-after-load "latex-math-preview"
     (setq latex-math-preview-command-path-alist
           '((latex . "latex")
             (dvipng . "dvipng")
             (dvips . "dvips")))
-    (define-key latex-math-preview-expression-mode-map (kbd "<f6>")
+    (keymap-set latex-math-preview-expression-mode-map "<f6>"
       'latex-math-preview-delete-buffer)))
 #+end_src
 
@@ -3923,8 +3924,8 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     ;; 1=Shift JIS, 2=JIS, 3=EUC, 4=UTF-8
     ;; (setq YaTeX-kanji-code nil)
     (modify-coding-system-alist 'file "\\.tex$'" 'utf-8)
-    (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
-    (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp)))
+    (keymap-set YaTeX-mode-map "C-M-SPC" 'mark-sexp)
+    (keymap-set YaTeX-mode-map "C-M-@" 'mark-sexp)))
 #+end_src
 
 ショートカットの利用を強制するメッセージが出るので，抑制します．
@@ -4023,7 +4024,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 [[http://orgmode.org/manual/Conflicts.html][Org-modeとの衝突を避ける]]
 
-↑のサイトで紹介されている回避策とは異なり，新たな =my-yas-expand= を作ることで，orgバッファのソースブロック中で =TAB= 押下してもエラーを受けないようにしました．ソースコードは =C-c '= で開く別バッファで編集します．
+↑のサイトで紹介されている回避策とは異なり，新たな =my-yas-expand= を作ることで，orgバッファのソースブロック中で =<tab>= 押下してもエラーを受けないようにしました．ソースコードは =C-c '= で開く別バッファで編集します．
 
 ↑どうやら[[https://github.com/joaotavora/yasnippet/commit/0041efedf9f06bfe427d36547f7c4a73ab7405ba][本家で対応]]がなされたようです． =my-yas-expand= なしで所望の動作になりました．ありがたや，ありがたや．
 
@@ -4068,7 +4069,7 @@ This works also for other defined begin/end tokens to define the structure."
                           (org-src-edit-buffer-p))))
            (org-cycle))
           (t (yas-expand field))))
-  (define-key yas-minor-mode-map (kbd "<tab>") 'my-yas-expand))
+  (keymap-set yas-minor-mode-map "<tab>" 'my-yas-expand))
 #+end_src
 
 *** [ivy-yasnippet.el] yasnippet.el の ivy インターフェイス
@@ -4095,8 +4096,8 @@ This works also for other defined begin/end tokens to define the structure."
 (when (autoload-if-found '(osx-dictionary-search-pointer
                            osx-dictionary-search-input)
                          "osx-dictionary" nil t)
-  (global-set-key (kbd "C-M-w") #'osx-dictionary-search-pointer)
-  (global-set-key (kbd "C-c f w") #'osx-dictionary-search-input)
+  (keymap-global-set "C-M-w" #'osx-dictionary-search-pointer)
+  (keymap-global-set "C-c f w" #'osx-dictionary-search-input)
   (with-eval-after-load "osx-dictionary"
     (custom-set-variables
      '(osx-dictionary-dictionary-choice "英辞郎 第七版"))))
@@ -4146,6 +4147,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 ** [web-beautify.el] ソースコード整形                                   :web:
    :PROPERTIES:
    :CUSTOM_ID: orgc885e502
+   :ID:       88A45F3A-9372-4662-8F18-364B18083160
    :END:
 
 ソースコードを読みやすい表示に整形します．バッファの自動時に自動で整形を実施するには， =after-save-hook= を使えばOKですね．
@@ -4160,8 +4162,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
   (with-eval-after-load "js2-mode"
     (if (executable-find "js-beautify")
         (when (require 'web-beautify nil t)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))
+          (keymap-set js2-mode-map "C-c b" 'web-beautify-js)
+          (keymap-set js2-mode-map "C-c b" 'web-beautify-css))
       (message "--- js-beautify is NOT installed.")
       (message "--- Note: brew install node")
       (message "---       npm -g install js-beautify"))))
@@ -4222,7 +4224,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(grugru-default grugru)
                          "grugru-default" nil t)
-  (global-set-key (kbd "C-9") #'grugru)
+  (keymap-global-set "C-9" #'grugru)
   (with-eval-after-load "grugru-default"
     (custom-set-faces
      '(grugru-edit-completing-function #'ivy-completing-read)
@@ -4330,22 +4332,22 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
                          "selected" nil t)
   (add-hook 'activate-mark-hook #'my-activate-selected)
   (with-eval-after-load "selected"
-    (define-key selected-keymap (kbd "a") #'embark-act)
-    (define-key selected-keymap (kbd ";") #'comment-dwim)
-    (define-key selected-keymap (kbd "e") #'my-eval-region)
-    (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
-    ;; (define-key selected-keymap (kbd "=") #'count-words-region)
+    (keymap-set selected-keymap "a" #'embark-act)
+    (keymap-set selected-keymap ";" #'comment-dwim)
+    (keymap-set selected-keymap "e" #'my-eval-region)
+    (keymap-set selected-keymap "E" #'my-eval-region-as-function)
+    ;; (keymap-set selected-keymap "=" #'count-words-region)
     (when (require 'helpful nil t)
-      (define-key selected-keymap (kbd "h") #'helpful-at-point)
-      (define-key selected-keymap (kbd "v") #'my-helpful-variable))
-    (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
-    (define-key selected-keymap (kbd "d") #'osx-dictionary-search-pointer)
-    (define-key selected-keymap (kbd "5") #'query-replace-from-region)
-    (define-key selected-keymap (kbd "g") #'my-google-this)
-    (define-key selected-keymap (kbd "s") #'osx-lib-say-region)
-    (define-key selected-keymap (kbd "q") #'selected-off)
-    (define-key selected-keymap (kbd "x") #'my-hex-to-decimal)
-    (define-key selected-keymap (kbd "X") #'my-decimal-to-hex)
+      (keymap-set selected-keymap "h" #'helpful-at-point)
+      (keymap-set selected-keymap "v" #'my-helpful-variable))
+    (keymap-set selected-keymap "w" #'osx-dictionary-search-pointer)
+    (keymap-set selected-keymap "d" #'osx-dictionary-search-pointer)
+    (keymap-set selected-keymap "5" #'query-replace-from-region)
+    (keymap-set selected-keymap "g" #'my-google-this)
+    (keymap-set selected-keymap "s" #'osx-lib-say-region)
+    (keymap-set selected-keymap "q" #'selected-off)
+    (keymap-set selected-keymap "x" #'my-hex-to-decimal)
+    (keymap-set selected-keymap "X" #'my-decimal-to-hex)
 
     ;; (defun my-eval-region ()
     ;;   (interactive)
@@ -4353,17 +4355,17 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     ;;     (eval-region (region-beginning) (region-end) t)))
 
     (setq selected-org-mode-map (make-sparse-keymap))
-    (define-key selected-org-mode-map (kbd "t") #'org-toggle-checkbox)
-    (define-key selected-org-mode-map (kbd "-") #'my-org-bullet-and-checkbox)
+    (keymap-set selected-org-mode-map "t" #'org-toggle-checkbox)
+    (keymap-set selected-org-mode-map "-" #'my-org-bullet-and-checkbox)
 
     (when (require 'expand-region nil t)
-      (define-key selected-keymap (kbd "SPC") #'er/expand-region))
+      (keymap-set selected-keymap "SPC" #'er/expand-region))
 
     (when (require 'counsel-selected nil t)
-      (define-key selected-keymap (kbd "l") 'counsel-selected))
+      (keymap-set selected-keymap "l" 'counsel-selected))
 
     (when (require 'help-fns+ nil t)
-      (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))))
+      (keymap-set selected-keymap "H" #'my-describe-selected-keymap))))
 #+end_src
 
 ** [helm-selected.el] selecte.el のアクション候補を絞り込み
@@ -4378,7 +4380,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 (with-eval-after-load "selected"
   (when (autoload-if-found '(helm-selected)
                            "helm-selected" nil t)
-    (define-key selected-keymap (kbd "h") 'helm-selected)))
+    (keymap-set selected-keymap "h" 'helm-selected)))
 #+end_src
 
 ** [counsel-selected.el] 続・selected.el のアクション候補絞り込み
@@ -4394,7 +4396,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 (with-eval-after-load "selected"
   (when (autoload-if-found '(counsel-selected)
                            "counsel-selected" nil t)
-    (define-key selected-keymap (kbd "l") 'counsel-selected)))
+    (keymap-set selected-keymap "l" 'counsel-selected)))
 #+end_src
 
 ** TODO [multiple-cursors.el] 指定箇所を同時編集
@@ -4413,7 +4415,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
                            mc/edit-lines
                            hydra-multi-cursors/body)
                          "multiple-cursors" nil t)
-  (global-set-key (kbd "C-c h m") #'hydra-multi-cursors/body)
+  (keymap-global-set "C-c h m" #'hydra-multi-cursors/body)
   (with-eval-after-load "multiple-cursors"
     (when (require 'hydra nil t)
       ;; see https://github.com/abo-abo/hydra/wiki/multiple-cursors
@@ -4469,7 +4471,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(git-complete)
                          "git-complete" nil t)
-  (global-set-key (kbd "C-c f <tab>") 'git-complete))
+  (keymap-global-set "C-c f <tab>" 'git-complete))
 #+end_src
 
 ** TODO [tiny.el] 連番入力をサポート
@@ -4566,7 +4568,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 (setq lookup-default-dictionary-options
       '((:stemmer .  stem-english)))
 (setq lookup-use-kakasi nil)
-(global-set-key (kbd "<f6>") 'lookup-word)
+(keymap-global-set "<f6>" 'lookup-word)
 
 ;;; lookup for dictionary (require EB Library, eblook, and lookup.el)
 ;; package download: http://sourceforge.net/projects/lookup
@@ -4604,13 +4606,14 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
   (with-eval-after-load "cacoo"
     (require 'cacoo-plugins))
 
-  (global-set-key (kbd "M--") 'toggle-cacoo-minor-mode))
+  (keymap-global-set "M--" 'toggle-cacoo-minor-mode))
 #+end_src
 
 ** DONE [zencoding-mode] HTML編集の高速化                          :obsolete:
    CLOSED: [2018-09-23 Sun 15:19]
    :PROPERTIES:
    :CUSTOM_ID: org56cbbb36
+   :ID:       BA929F56-3B6B-4400-A17E-075174D9396A
    :END:
 
 zencoding でタグ打ちを効率化します．今は emmet-mode を使います．
@@ -4621,8 +4624,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 (when (autoload-if-found '(zencoding-mode zencoding-expand-line)
                          "zencoding-mode" "Zen-coding" t)
   (with-eval-after-load "zencoding-mode"
-    (define-key zencoding-mode-keymap
-      (kbd "M-<return>") 'zencoding-expand-line))
+    (keymap-set zencoding-mode-keymap "M-<return>" 'zencoding-expand-line))
   (add-hook 'sgml-mode-hook #'zencoding-mode)
   (add-hook 'html-mode-hook #'zencoding-mode)
   (add-hook 'web-mode-hook #'zencoding-mode))
@@ -4654,9 +4656,9 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
           '((sdicf-client "~/Dropbox/Dic/EIJIRO6/WAEI-128.sdic"))))
 
   ;; カーソルの位置の英単語の意味を調べる
-  (global-set-key (kbd "C-M-w") 'sdic-describe-word-at-point)
+  (keymap-global-set "C-M-w" 'sdic-describe-word-at-point)
   ;; ミニバッファに英単語を入れて英辞郎を使う
-  (global-set-key (kbd "C-c w") 'sdic-describe-word))
+  (keymap-global-set "C-c w" 'sdic-describe-word))
 #+end_src
 
 ** DONE [dictionary.app] macOSのdictionary.appでCOBUILD5をひく     :obsolete:
@@ -4735,7 +4737,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 (when (autoload-if-found '(dict-app-search)
                          "dict-app" nil t)
   ;; カーソルの位置の英単語の意味を調べる
-  (global-set-key (kbd "C-M-w") 'dict-app-search))
+  (keymap-global-set "C-M-w" 'dict-app-search))
 #+end_src
 
 * 表示サポート
@@ -5090,8 +5092,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 #+begin_src emacs-lisp :tangle yes
 ;; (advice-add 'split-window-below :after #'ad:split-window-below)
 (if (< emacs-major-version 29)
-    (global-set-key (kbd "C-M-s") #'my-open-scratch)
-  (global-set-key (kbd "C-M-s") #'scratch-buffer))
+    (keymap-global-set "C-M-s" #'my-open-scratch)
+  (keymap-global-set "C-M-s" #'scratch-buffer))
 #+end_src
 
 =session.el= や =desktop.el= を使っていても，いつも =*scratch*= バッファを表示する．そうじゃないと安心できない人向け．
@@ -5280,7 +5282,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(my-toggle-display-line-numbers-mode)
                          "display-line-numbers" nil t)
-  (global-set-key (kbd "C-<f12>") 'my-toggle-display-line-numbers-mode)
+  (keymap-global-set "C-<f12>" 'my-toggle-display-line-numbers-mode)
   (with-eval-after-load "hl-line"
     (my-update-display-line-numbers-face)
     (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
@@ -6231,20 +6233,20 @@ Obeys `widen-automatically', which see."
 (when (autoload-if-found '(counsel-ibuffer counsel-M-x counsel-yank-pop)
                          "counsel" nil t)
 
-  (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "M-y") 'counsel-yank-pop)
-  (global-set-key (kbd "C-,") 'counsel-mark-ring)
-  (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
-  (global-set-key (kbd "C-M-g") 'ivy-resume)
+  (keymap-global-set "M-x" 'counsel-M-x)
+  (keymap-global-set "M-y" 'counsel-yank-pop)
+  (keymap-global-set "C-," 'counsel-mark-ring)
+  (keymap-global-set "C-x C-b" 'counsel-ibuffer)
+  (keymap-global-set "C-M-g" 'ivy-resume)
 
   (unless (fboundp 'seq-sort-by) ;; emacs25
     (defalias 'seq-sort-by 'my-seq-sort-by))
 
   (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-,") 'counsel-mark-ring))
+    (keymap-set flyspell-mode-map "C-," 'counsel-mark-ring))
 
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-,") 'counsel-mark-ring))
+    (keymap-set org-mode-map "C-," 'counsel-mark-ring))
 
   (with-eval-after-load "ivy"
     ;; 同一行に複数の mark がある場合，一つだけを候補として表示する．
@@ -6255,15 +6257,15 @@ Obeys `widen-automatically', which see."
     (setf (alist-get 'counsel-mark-ring ivy-sort-functions-alist) nil)
 
     ;; M-o を ivy-dispatching-done-hydra に割り当てる．
-    ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
+    ;; (keymap-set ivy-minibuffer-map "M-o" 'ivy-dispatching-done-hydra)
     ;; ivy-dispatching-done を使う．
-    ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done)
+    ;; (keymap-set ivy-minibuffer-map "M-o" 'ivy-dispatching-done)
     (setq ivy-read-action-function #'ivy-hydra-read-action)
 
     (setq ivy-use-virtual-buffers nil)
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
-    (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+    (keymap-set ivy-minibuffer-map "<escape>" 'minibuffer-keyboard-quit)
     (setq ivy-count-format "%d.%d ")
     ;; (setq ivy-truncate-lines nil) ;; 選択候補も折り返されてしまう．
     ;; (setq ivy-wrap t)
@@ -6290,7 +6292,8 @@ Obeys `widen-automatically', which see."
     ;; Disable counsel-find-file
     ;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
     (setq read-file-name-function #'my-disable-counsel-find-file)
-    (define-key counsel-mode-map [remap find-file]  nil)
+    ;; (define-key counsel-mode-map [remap find-file]  nil) ;; TODO
+    ;; (keymap-substitute counsel-mode-map 'find-file nil) ;; FIXME
 
     ;; オリジナルを非インタラクティブ化（上書きで可．advice不可）
     (when (require 'find-func nil t)
@@ -6510,8 +6513,8 @@ Obeys `widen-automatically', which see."
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(swiper-thing-at-point swiper-all-thing-at-point)
                          "swiper" nil t)
-  (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
-  (global-set-key (kbd "M-s M-a") 'swiper-all-thing-at-point)
+  (keymap-global-set "M-s M-s" 'swiper-thing-at-point)
+  (keymap-global-set "M-s M-a" 'swiper-all-thing-at-point)
   (with-eval-after-load "swiper"
     (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
 #+end_src
@@ -6804,11 +6807,11 @@ https://github.com/emacs-vs/rainbow-csv
 ;; late-init.el
 (when (autoload-if-found '(hydra-timestamp/body help/insert-datestamp)
                          "hydra" nil t)
-  (global-set-key (kbd "C-c h t") #'hydra-timestamp/body)
-  (global-set-key (kbd "C-c 0") #'help/insert-datestamp)
+  (keymap-global-set "C-c h t" #'hydra-timestamp/body)
+  (keymap-global-set "C-c 0" #'help/insert-datestamp)
   (with-eval-after-load "hydra"
     (require 'org nil t)
-    (global-set-key (kbd "C-c )") #'help/insert-currenttime)
+    (keymap-global-set "C-c )" #'help/insert-currenttime)
     (custom-set-faces
      '(hydra-face-blue
        ((((background light))
@@ -6910,7 +6913,7 @@ ivyに移行しました．
 #+begin_src emacs-lisp :tangle no
 (when (autoload-if-found '(helm-swoop)
                          "helm-swoop" nil t)
-  (global-set-key (kbd "M-s M-s") 'helm-swoop)
+  (keymap-global-set "M-s M-s" 'helm-swoop)
 
   (with-eval-after-load "helm-swoop"
     (require 'helm-config nil t)
@@ -6930,14 +6933,14 @@ ivyに移行しました．
                            helm-locate helm-descbinds
                            helm-occur helm-flycheck helm-bookmarks)
                          "helm-config" nil t)
-  (global-set-key (kbd "C-x C-b") 'helm-buffers-list)
-  (global-set-key (kbd "C-M-r") 'helm-recentf)
-  (global-set-key (kbd "M-x") 'helm-M-x)
+  (keymap-global-set "C-x C-b" 'helm-buffers-list)
+  (keymap-global-set "C-M-r" 'helm-recentf)
+  (keymap-global-set "M-x" 'helm-M-x)
 
-  (global-set-key (kbd "C-M-l") 'helm-locate)
-  (global-set-key (kbd "C-c f b") 'helm-bookmarks)
-  (global-set-key (kbd "C-c o") 'helm-occur)
-  (global-set-key (kbd "C-h d") 'helm-descbinds)
+  (keymap-global-set "C-M-l" 'helm-locate)
+  (keymap-global-set "C-c f b" 'helm-bookmarks)
+  (keymap-global-set "C-c o" 'helm-occur)
+  (keymap-global-set "C-h d" 'helm-descbinds)
 '
   (with-eval-after-load "projectile"
     (when (require 'helm-projectile nil t)
@@ -6948,10 +6951,10 @@ ivyに移行しました．
 
   (with-eval-after-load "helm-config"
     ;; (when (require 'helm-files nil t)
-    ;;   (define-key helm-find-files-map
-    ;;     (kbd "<tab>") 'helm-execute-persistent-action)
-    ;;   (define-key helm-read-file-map
-    ;;     (kbd "<tab>") 'helm-execute-persistent-action))
+    ;;   (keymap-set helm-find-files-map
+    ;;     "<tab>" 'helm-execute-persistent-action)
+    ;;   (keymap-set helm-read-file-map
+    ;;     "<tab>" 'helm-execute-persistent-action))
 
     (when (memq window-system '(mac ns))
       (setq helm-locate-command "mdfind -name %s %s"))
@@ -7064,6 +7067,7 @@ ivyに移行しました．
    CLOSED: [2018-09-23 Sun 17:18]
    :PROPERTIES:
    :CUSTOM_ID: org0ed58559
+   :ID:       AD43D73F-42A7-48BA-B4B9-03DC083A27E1
    :END:
 
 ファイル選択を zsh ライクに変更できます．しっくりこないので不使用．
@@ -7076,12 +7080,12 @@ ivyに移行しました．
   ;;    (setq zlc-select-completion-immediately t)
   (let ((map minibuffer-local-map))
     ;; like menu select
-    (define-key map (kbd "C-n") 'zlc-select-next-vertical)
-    (define-key map (kbd "C-p") 'zlc-select-previous-vertical)
-    (define-key map (kbd "C-f") 'zlc-select-next)
-    (define-key map (kbd "C-b") 'zlc-select-previous)
+    (keymap-set map "C-n" 'zlc-select-next-vertical)
+    (keymap-set map "C-p" 'zlc-select-previous-vertical)
+    (keymap-set map "C-f" 'zlc-select-next)
+    (keymap-set map "C-b" 'zlc-select-previous)
     ;; reset selection
-    (define-key map (kbd "C-c") 'zlc-reset))
+    (keymap-set map "C-c" 'zlc-reset))
 
   (zlc-mode 1))
 #+end_src
@@ -7194,11 +7198,11 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
 
   ;; Show ibuffer powered by anything
   ;;  (with-eval-after-load "anything-startup"
-  (global-set-key (kbd "M-x") 'anything-M-x)
-  (global-set-key (kbd "C-c o") 'anything-c-moccur-occur-by-moccur)
-  (global-set-key (kbd "C-M-r") 'my-anything)
-  (global-set-key (kbd "C-M-s") 'my-anything-spotlight)
-  (global-set-key (kbd "C-x C-b") 'my-anything-buffer))
+  (keymap-global-set "M-x" 'anything-M-x)
+  (keymap-global-set "C-c o" 'anything-c-moccur-occur-by-moccur)
+  (keymap-global-set "C-M-r" 'my-anything)
+  (keymap-global-set "C-M-s" 'my-anything-spotlight)
+  (keymap-global-set "C-x C-b" 'my-anything-buffer))
 #+end_src
 
 ** DONE [diminish.el] モードラインのモード名を短くする             :obsolete:
@@ -7281,12 +7285,12 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
                            emms-play-playlist emms-play-directory my-play-bgm
                            emms-next emms-previous emms-stop emms-pause)
                          "emms" nil t)
-  (global-set-key (kbd "C-c e b") 'my-play-bgm)
+  (keymap-global-set "C-c e b" 'my-play-bgm)
   (let ((base "C-c e "))
-    (global-set-key (kbd (concat base "n")) 'emms-next)
-    (global-set-key (kbd (concat base "p")) 'emms-previous)
-    (global-set-key (kbd (concat base "s")) 'emms-stop)
-    (global-set-key (kbd (concat base "SPC")) 'emms-pause))
+    (keymap-global-set (concat base "n") 'emms-next)
+    (keymap-global-set (concat base "p") 'emms-previous)
+    (keymap-global-set (concat base "s") 'emms-stop)
+    (keymap-global-set (concat base "SPC") 'emms-pause))
 
   (with-eval-after-load "emms-mode-line"
     (defun ad:emms-mode-line-playlist-current ()
@@ -7350,7 +7354,7 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
           ;;     (call-process-shell-command cmd nil nil nil))
           ;;   (setq emms-player-mpv-ontop nil))
 
-          ;; (global-set-key (kbd "C-c e t") 'emms-player-mpv-toggle-ontop)
+          ;; (keymap-global-set "C-c e t" 'emms-player-mpv-toggle-ontop)
           )
 
       (message "--- mpv is NOT installed."))))
@@ -7557,7 +7561,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found '(counsel-recentf)
                          "counsel" nil t)
-  (global-set-key (kbd "C-M-r") 'counsel-recentf))
+  (keymap-global-set "C-M-r" 'counsel-recentf))
 
 ;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
 (when (eq system-type 'darwin)
@@ -7642,6 +7646,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 ** 開いているバッファのcopy/rename/deleteと別アプリでの表示
 :PROPERTIES:
 :CUSTOM_ID: orgb2530c3e
+:ID:       EBF4C2E9-DE00-4C21-85F0-115CDD949BD1
 :END:
 - https://github.com/bbatsov/crux
 
@@ -7654,7 +7659,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
    - diredでは， =C-c C-o= で呼べるように設定
 
 #+begin_src emacs-lisp emacs-lisp :tangle init-dired.el
-(define-key dired-mode-map (kbd "C-c C-o") 'crux-open-with)
+(keymap-set dired-mode-map "C-c C-o" 'crux-open-with)
 #+end_src
 
 #+begin_src emacs-lisp emacs-lisp :tangle utility.el
@@ -7887,18 +7892,18 @@ With a prefix ARG always prompt for command to use."
 
 ;; "dired-mode-map"
 ;; Use build-in `wdired-mode'.
-;; (define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)
+;; (keymap-set dired-mode-map "R" 'wdired-change-to-wdired-mode)
 ;; http://elpa.gnu.org/packages/gited.html
 (when (require 'gited nil t)
-  (define-key dired-mode-map (kbd "C-x C-g") 'gited-list-branches))
+  (keymap-set dired-mode-map "C-x C-g" 'gited-list-branches))
 ;; https://github.com/Fuco1/dired-hacks
 (when (require 'dired-narrow nil t)
-  (define-key dired-mode-map (kbd "/") 'dired-narrow))
+  (keymap-set dired-mode-map "/" 'dired-narrow))
 (require 'dired-du nil t)
 (when (require 'ivy-dired-history nil t)
   ;; ivy-dired-history-variable は，session.el で明示的に管理中．
   ;; check session-globals-include
-  (define-key dired-mode-map "," 'dired))
+  (keymap-set dired-mode-map "," 'dired))
 (declare-function dired-extra-startup "dired-x")
 (when (require 'dired-x nil t)
   (dired-extra-startup))
@@ -7907,16 +7912,14 @@ With a prefix ARG always prompt for command to use."
   (interactive)
   (shell-command-to-string "open ."))
 ;; dired-x を読み込んだあとじゃないとだめ
-(define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
+(keymap-set dired-mode-map "F" 'my-reveal-in-finder)
 ;; 上位ディレクトリへの移動
-(define-key dired-mode-map (kbd "u") 'dired-up-directory)
+(keymap-set dired-mode-map "u" 'dired-up-directory)
 ;; Finder を使ったファイルオープン
-(define-key dired-mode-map (kbd "f") 'ns-open-file-using-panel)
+(keymap-set dired-mode-map "f" 'ns-open-file-using-panel)
 
-(define-key dired-mode-map
-  (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
-(define-key dired-mode-map
-  (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+(keymap-set dired-mode-map "C-M-p" (lambda () (interactive) (other-window -1)))
+(keymap-set dired-mode-map "C-M-n" (lambda () (interactive) (other-window 1)))
 
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired
@@ -7941,8 +7944,8 @@ With a prefix ARG always prompt for command to use."
            (require 'hydra nil t)
 	   (require 'dired-recent nil t))
 
-  ;; (define-key dired-mode-map "h" 'hydra-dired/body)
-  ;; (define-key dired-mode-map "r" 'dired-recent-open)
+  ;; (keymap-set dired-mode-map "h" 'hydra-dired/body)
+  ;; (keymap-set dired-mode-map "r" 'dired-recent-open)
 
   ;; https://github.com/abo-abo/hydra/wiki/Dired
   (defhydra hydra-dired (:hint nil :color pink)
@@ -8007,7 +8010,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 
 (when (autoload-if-found '(dired-recent-open dired-recent-mode)
                          "dired-recent" nil t)
-  (global-set-key (kbd "C-x C-d") 'dired-recent-open)
+  (keymap-global-set "C-x C-d" 'dired-recent-open)
   (with-eval-after-load "dired-recent"
     ;; (require 'helm-config nil t)
     (dired-recent-mode 1)))
@@ -8039,8 +8042,8 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(undo-fu-only-undo undo-fu-only-redo)
                          "undo-fu" nil t)
-  (global-set-key (kbd "C-/") 'undo-fu-only-undo)
-  (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
+  (keymap-global-set "C-/" 'undo-fu-only-undo)
+  (keymap-global-set "C-M-/" 'undo-fu-only-redo))
 #+end_src
 
 ** [super-save.el] 所定のタイミングでバッファを保存する
@@ -8268,7 +8271,7 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(neotree neotree-toggle)
                          "neotree" nil t)
-  (global-set-key (kbd "C-c n") #'neotree-toggle)
+  (keymap-global-set "C-c n" #'neotree-toggle)
   (with-eval-after-load "neotree"
     (custom-set-variables
      '(neo-show-hidden-files t)
@@ -8308,11 +8311,11 @@ http://www.emacswiki.org/emacs/EmacsSession
                            helpful-function helpful-variable helpful-at-point
                            helpful-symbol)
                          "helpful" nil t)
-  (global-set-key (kbd "<f1> k") 'helpful-key)
-  (global-set-key (kbd "<f1> f") 'helpful-function)
-  (global-set-key (kbd "<f1> v") 'helpful-variable)
-  (global-set-key (kbd "<f1> m") 'helpful-macro)
-  (global-set-key (kbd "<f1> @") 'helpful-at-point)
+  (keymap-global-set "<f1> k" 'helpful-key)
+  (keymap-global-set "<f1> f" 'helpful-function)
+  (keymap-global-set "<f1> v" 'helpful-variable)
+  (keymap-global-set "<f1> m" 'helpful-macro)
+  (keymap-global-set "<f1> @" 'helpful-at-point)
   (with-eval-after-load "helpful"
     (advice-add 'helpful-at-point :before #'ad:helpful-at-point)))
 #+end_src
@@ -8355,7 +8358,7 @@ http://www.emacswiki.org/emacs/EmacsSession
                          "keyfreq" nil t) ;; will require 'cl and 'gv(10-20[ms])
   (with-eval-after-load "keyfreq"
     (advice-add 'keyfreq-show :after #'ad:keyfreq-show)
-    ;; (define-key keyfreq-mode-map (kbd "q")
+    ;; (keymap-set keyfreq-mode-map "q"
     ;;   (lambda () (interactive)
     ;;       (when (string= (buffer-name) keyfreq-buffer)
     ;;         (kill-buffer-and-window))))
@@ -8438,7 +8441,7 @@ the_silver_searcher @0.18.1 (textproc)
     (when (autoload-if-found '(my-ag ag)
                              "ag" nil t)
       (autoload-if-found '(helm-ag) "helm-ag" nil t)
-      (global-set-key (kbd "C-M-f") 'my-ag)
+      (keymap-global-set "C-M-f" 'my-ag)
 
       (with-eval-after-load "ag"
         (custom-set-variables
@@ -8447,7 +8450,7 @@ the_silver_searcher @0.18.1 (textproc)
          '(ag-reuse-window nil))	;; nil: 結果を選択時に別ウィンドウに結果を出す
 
         ;; q でウィンドウを抜ける
-        ;; (define-key ag-mode-map (kbd "q") 'delete-window)
+        ;; (keymap-set ag-mode-map "q" 'delete-window)
         (defun my-ag ()
           "Switch to search result."
           (interactive)
@@ -8477,7 +8480,7 @@ the_silver_searcher @0.18.1 (textproc)
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(counsel-ag)
                          "counsel" nil t)
-  (global-set-key (kbd "C-M-f") 'counsel-ag)
+  (keymap-global-set "C-M-f" 'counsel-ag)
   (with-eval-after-load "counsel"
     (require 'thingatpt nil t)
     (advice-add 'counsel-ag :around #'ad:counsel-ag)
@@ -8509,7 +8512,7 @@ the_silver_searcher @0.18.1 (textproc)
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(counsel-fzf)
                          "counsel" nil t)
-  (global-set-key (kbd "C-M-z") 'counsel-fzf)
+  (keymap-global-set "C-M-z" 'counsel-fzf)
   (with-eval-after-load "counsel"
     (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
     (ivy-add-actions
@@ -8546,7 +8549,7 @@ the_silver_searcher @0.18.1 (textproc)
         (undo)
       (undo-propose)))
 
-  (global-set-key (kbd "C-/") 'my-undo-propose)
+  (keymap-global-set "C-/" 'my-undo-propose)
 
   ;; located here intended to share this command with `undo-tree'
   (defun my-org-reveal-and-focus (&optional _arg)
@@ -8568,8 +8571,8 @@ the_silver_searcher @0.18.1 (textproc)
     (add-hook 'undo-propose-entry-hook #'undo) ;; immediate undo
     (undo-propose-wrap redo)
 
-    (define-key undo-propose-mode-map (kbd "/") 'undo)
-    (define-key undo-propose-mode-map (kbd "q") 'undo-propose-cancel)
+    (keymap-set undo-propose-mode-map "/" 'undo)
+    (keymap-set undo-propose-mode-map "q" 'undo-propose-cancel)
     (advice-add 'undo-propose-commit :after #'my-org-reveal-and-focus)
     (advice-add 'undo-propose-squash-commit :after #'my-org-reveal-and-focus)
 
@@ -8586,12 +8589,12 @@ the_silver_searcher @0.18.1 (textproc)
       (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
     (add-hook 'undo-propose-done-hook #'my-undo-propose-autocommit-off)
 
-    ;; SPC and RET in `undo-propose-mode' will commit changes.
+    ;; SPC and <return> in `undo-propose-mode' will commit changes.
     ;; Additionally, the commands will be executed.
-    (define-key undo-propose-mode-map (kbd "SPC") 'undo-propose-commit)
-    (define-key undo-propose-mode-map (kbd "RET") 'undo-propose-commit)
+    (keymap-set undo-propose-mode-map "SPC" 'undo-propose-commit)
+    (keymap-set undo-propose-mode-map "RET" 'undo-propose-commit)
     (defun my-undo-propose-key-through ()
-      "Through SPC and RET."
+      "Through SPC and <return>."
       (let ((command (this-command-keys)))
         (cond ((equal (kbd "SPC") command)
                (insert " "))
@@ -8628,7 +8631,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 ;; late-init.el
 (when (autoload-if-found '(my-undo-tree-visualize)
                          "undo-tree" nil t)
-  (global-set-key (kbd "C-x u") 'my-undo-tree-visualize)
+  (keymap-global-set "C-x u" 'my-undo-tree-visualize)
   (with-eval-after-load "undo-tree"
     ;; (global-undo-tree-mode)
     (setq undo-tree-mode-lighter nil) ;; モードライン領域を節約
@@ -8647,7 +8650,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
           (setq my-undo-tree-active t)))
       (undo-tree-visualize))
 
-    (define-key undo-tree-map (kbd "C-x u") 'my-undo-tree-visualize)
+    (keymap-set undo-tree-map "C-x u" 'my-undo-tree-visualize)
 
     (defun my-undo-tree-visualizer-quit ()
       (interactive)
@@ -8662,7 +8665,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
         (set-frame-width nil 80))
       (undo-tree-mode -1))
 
-    (define-key undo-tree-visualizer-mode-map (kbd "q")
+    (keymap-set undo-tree-visualizer-mode-map "q"
       'my-undo-tree-visualizer-quit))
 
   (advice-add 'undo-tree-undo-1 :after #'my-org-reveal-and-focus)
@@ -8732,8 +8735,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
 #+begin_src emacs-lisp :tangle no
 ;; Backup the buffer whenever the buffer is saved
-(global-set-key (kbd "C-x C-s")
-                (lambda () (interactive) (save-buffer 16)))
+(keymap-global-set "C-x C-s" (lambda () (interactive) (save-buffer 16)))
 #+end_src
 
 ** DONE ミニバッファの履歴を保存しリストアする                     :obsolete:
@@ -8802,8 +8804,8 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 コメントアウトとコンパイルをすぐ呼べるようにします．
 
 #+begin_src emacs-lisp :tangle yes
-(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
-(global-set-key (kbd "C-c c") 'compile)
+(keymap-global-set "C-;" 'comment-dwim) ;; M-; is the defualt
+(keymap-global-set "C-c c" 'compile)
 #+end_src
 
 ** [gist.el] Gist インターフェイス
@@ -8837,7 +8839,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
               (lambda ()
                   (when (memq major-mode '(c-mode c++-mode))
                     (doxymacs-font-lock))))
-    (define-key doxymacs-mode-map (kbd "C-c C-s") 'ff-find-other-file)))
+    (keymap-set doxymacs-mode-map "C-c C-s" 'ff-find-other-file)))
 #+end_src
 
 ** [matlab.el] Matlab用の設定
@@ -8945,9 +8947,8 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
     (add-hook hook #'origami-mode))
 
   (with-eval-after-load "origami"
-    (define-key origami-mode-map (kbd "C-t") #'origami-toggle-node)
-    (define-key origami-mode-map (kbd "C-u C-t")
-      #'origami-toggle-all-nodes)))
+    (keymap-set origami-mode-map "C-t" #'origami-toggle-node)
+    (keymap-set origami-mode-map "C-u C-t" #'origami-toggle-all-nodes)))
 #+end_src
 
 ** [auto-complete-clang.el] オムニ補完
@@ -9029,15 +9030,15 @@ int main(){
 (when (autoload-if-found '(quickrun)
                          "quickrun" nil t)
   (with-eval-after-load "go-mode"
-    (define-key go-mode-map (kbd "<f5>") 'quickrun))
+    (keymap-set go-mode-map "<f5>" 'quickrun))
   (with-eval-after-load "c++-mode"
-    (define-key c++-mode-map (kbd "<f5>") 'quickrun))
+    (keymap-set c++-mode-map "<f5>" 'quickrun))
   (with-eval-after-load "python-mode"
-    (define-key python-mode-map (kbd "<f5>") 'quickrun))
+    (keymap-set python-mode-map "<f5>" 'quickrun))
   (with-eval-after-load "perl-mode"
-    (define-key perl-mode-map (kbd "<f5>") 'quickrun))
+    (keymap-set perl-mode-map "<f5>" 'quickrun))
   (with-eval-after-load "gnuplot-mode"
-    (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun)))
+    (keymap-set gnuplot-mode-map "<f5>" 'quickrun)))
 #+end_src
 
 ** [ggtags.el] タグジャンプ
@@ -9061,7 +9062,7 @@ int main(){
       (message "--- global is NOT installed in this system."))
 
     ;; (setq ggtags-completing-read-function t) ;; nil for helm
-    (define-key ggtags-mode-map (kbd "M-]") nil)))
+    (keymap-set ggtags-mode-map "M-]" nil)))
 
 (when (autoload-if-found '(counsel-gtags-mode)
                          "counsel-gtags" nil t)
@@ -9106,7 +9107,7 @@ int main(){
                            0xc-convert-point
                            my-decimal-to-hex my-hex-to-decimal)
        "0xc" nil t)
-  (global-set-key (kbd "C-c f h") '0xc-convert))
+  (keymap-global-set "C-c f h" '0xc-convert))
 #+end_src
 
 ** [hexl.el] バイナリファイルを開く
@@ -9244,8 +9245,8 @@ Otherwise, use `counsel-ag'."
       (setq projectile-completion-system 'ivy)
       (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
       (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
-      (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-      (define-key projectile-mode-map (kbd "C-M-f") 'my-counsel-projectile-ag)
+      (keymap-set projectile-mode-map "C-c p" 'projectile-command-map)
+      (keymap-set projectile-mode-map "C-M-f" 'my-counsel-projectile-ag)
       (counsel-projectile-mode 1)))
 
   (unless noninteractive
@@ -9284,7 +9285,7 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(magit-status ad:magit-mode-bury-buffer)
                          "magit" nil t)
-  (global-set-key (kbd "C-c m") 'magit-status)
+  (keymap-global-set "C-c m" 'magit-status)
   (with-eval-after-load "magit"
     (when (fboundp 'dimmer-off)
       (add-hook 'magit-status-mode-hook 'dimmer-off))
@@ -9373,7 +9374,7 @@ trim_trailing_whitespace = true
 
 #+begin_src emacs-lisp :tangle no
 (when (require 'emr nil t)
-  (define-key prog-mode-map (kbd "M-RET") 'emr-show-refactor-menu)
+  (keymap-set prog-mode-map "M-<return>" 'emr-show-refactor-menu)
   (emr-initialize))
 #+end_src
 
@@ -9428,11 +9429,11 @@ trim_trailing_whitespace = true
 (add-hook 'org-mode-hook #'my-company-activate)
 
 (with-eval-after-load "company"
-  (define-key company-active-map (kbd "C-n") 'company-select-next)
-  (define-key company-active-map (kbd "C-p") 'company-select-previous)
-  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
-  (define-key company-search-map (kbd "C-n") 'company-select-next)
-  (define-key company-search-map (kbd "C-p") 'company-select-previous)
+  (keymap-set company-active-map "C-n" 'company-select-next)
+  (keymap-set company-active-map "C-p" 'company-select-previous)
+  (keymap-set company-active-map "<tab>" 'company-complete-selection)
+  (keymap-set company-search-map "C-n" 'company-select-next)
+  (keymap-set company-search-map "C-p" 'company-select-previous)
   ;; To complete file path, move `company-files' to the fist item of the list
   (delq 'company-files company-backends)
 
@@ -9513,7 +9514,7 @@ trim_trailing_whitespace = true
      '(corfu-auto-delay 0.5)
      '(corfu-auto t))
 
-    (define-key corfu-mode-map (kbd "C-SPC") #'corfu-insert-separator)
+    (keymap-set corfu-mode-map "C-SPC" #'corfu-insert-separator)
 
     (advice-add 'corfu-insert-separator :override #'my-corfu-insert-separator)
 
@@ -9582,9 +9583,9 @@ http://cx4a.org/software/auto-complete/manual.ja.html
   - 辞書データを使う（ =ac-dictionary-directories= ）
   - auto-complete.el, auto-complete-config.el, fuzzy.el, popup.el を使う．
   - [[http://cx4a.org/software/auto-complete/manual.ja.html][日本語マニュアル]]
-  - ac-auto-start を 4 にしておけば，3文字までは TAB を yasnippet に渡せる．
+  - ac-auto-start を 4 にしておけば，3文字までは <tab> を yasnippet に渡せる．
 
-Org-mode ユーザにとって =TAB= は非常に重要なコマンド．そこに =auto-complete= と =yasnippet= が =TAB= を奪いに来るので，住み分けが重要になる．=ac-auto-start= を=4=にすると，<s=TAB= によるソースブロックの短縮入力を =yasnippet= で実行できる（この目的だけならば=3=を指定してもいい）．<sys などと4文字入力すると，=auto-complete= が動いて <system> などを補完してくれる．もちろん，見出しで =TAB= を押すときには，ツリーの表示／非表示の切り替えになる．
+Org-mode ユーザにとって =<tab>= は非常に重要なコマンド．そこに =auto-complete= と =yasnippet= が =<tab>= を奪いに来るので，住み分けが重要になる．=ac-auto-start= を=4=にすると，<s=<tab>= によるソースブロックの短縮入力を =yasnippet= で実行できる（この目的だけならば=3=を指定してもいい）．<sys などと4文字入力すると，=auto-complete= が動いて <system> などを補完してくれる．もちろん，見出しで =<tab>= を押すときには，ツリーの表示／非表示の切り替えになる．
 
 情報源については，[[http://cx4a.org/software/auto-complete/manual.ja.html#.E6.A8.99.E6.BA.96.E6.83.85.E5.A0.B1.E6.BA.90][オンラインマニュアル]]を参照のこと．
 
@@ -9620,7 +9621,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
     ;; history
     (setq ac-comphist-file "~/Dropbox/config/ac-comphist.dat")
-    ;; n文字以上で補完表示する（"<s TAB" の場合 yasnippet が呼ばれる）
+    ;; n文字以上で補完表示する（"<s <tab>" の場合 yasnippet が呼ばれる）
     (setq ac-auto-start 4)
     ;; n秒後にメニューを表示
     (setq ac-auto-show-menu 2.0)
@@ -9630,10 +9631,10 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     (setq ac-quick-help-height 10)
     ;; C-n/C-p でメニューをたどる
     (setq ac-use-menu-map t)
-    ;; TAB で補完（org-mode でも効くようにする）
-    (define-key ac-completing-map [tab] 'ac-complete)
+    ;; <tab> で補完（org-mode でも効くようにする）
+    (keymap-set ac-completing-map "<tab>" 'ac-complete)
     ;; RET での補完を禁止
-    (define-key ac-completing-map "\r" nil)
+    (keymap-set ac-completing-map "RET" nil)
     ;; 補完メニューの表示精度を高める
     (setq popup-use-optimized-column-computation nil)
     ;;(setq ac-candidate-max 10)
@@ -9687,8 +9688,8 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
                              (hideshowvis-enable))))
 
     (with-eval-after-load "hideshowvis"
-      (define-key hideshowvis-mode-map (kbd "C-(") 'hs-hide-block)
-      (define-key hideshowvis-mode-map (kbd "C-)") 'hs-show-block))))
+      (keymap-set hideshowvis-mode-map "C-(" 'hs-hide-block)
+      (keymap-set hideshowvis-mode-map "C-)" 'hs-show-block))))
                                                                              #+end_src
 
 * Org Mode
@@ -9750,7 +9751,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 #+begin_src emacs-lisp :tangle yes
 ;; ホームポジション的な Orgファイルを一発で開きます．
-(global-set-key (kbd "C-M-o") #'my-open-default-org-file)
+(keymap-global-set "C-M-o" #'my-open-default-org-file)
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -9760,9 +9761,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 ;; Font lock を使う
 (add-hook 'org-mode-hook #'turn-on-font-lock)
 
-(global-set-key (kbd "C-c r") 'org-capture)
-(global-set-key (kbd "C-c l") 'org-store-link)
-(global-set-key (kbd "C-c a") 'org-agenda)
+(keymap-global-set "C-c r" 'org-capture)
+(keymap-global-set "C-c l" 'org-store-link)
+(keymap-global-set "C-c a" 'org-agenda)
 
 (with-eval-after-load "org"
   (defvar my-org-modules org-modules) ;; Tricky!!
@@ -9925,10 +9926,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (save-buffer))
     (message "Update statistics...done"))
 
-  (define-key org-mode-map (kbd "C-c f 2") 'my-do-org-update-staistics-cookies)
+  (keymap-set org-mode-map "C-c f 2" 'my-do-org-update-staistics-cookies)
 
   ;; C-c & が yasnippet にオーバーライドされているのを張り替える
-  (define-key org-mode-map (kbd "C-c 4") 'org-mark-ring-goto)
+  (keymap-set org-mode-map "C-c 4" 'org-mark-ring-goto)
 
   ;; (org-transpose-element) が割り当てられているので取り返す．
   (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
@@ -10031,7 +10032,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                            my-async-ox-icalendar my-ox-icalendar-cleanup)
                          "ox-icalendar" nil t)
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c f 1") 'my-ox-upload-icalendar))
+    (keymap-set org-mode-map "C-c f 1" 'my-ox-upload-icalendar))
 
   (with-eval-after-load "ox-icalendar"
     (defvar org-ical-file-in-orz-server nil) ;; see private.el
@@ -10770,7 +10771,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
    "Copy converted table."
    (interactive)
    (let ((format (or format
-                     (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                     (org-entry-get (point) "<tab>LE_EXPORT_FORMAT" t)
                      org-table-export-default-format)))
      (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
 	       (let ((transform (intern (match-string 1 format)))
@@ -10782,17 +10783,17 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 	           (with-temp-buffer
 		           (insert (funcall transform table params) "\n")
                (clipboard-kill-ring-save (point-min) (point-max)))))
-       (user-error "TABLE_EXPORT_FORMAT invalid"))))
+       (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
 
  (defun my-org-table-convert-to (&optional format)
    "Convert a table to FORMAT.
  If FORMAT is nil, it is set equal to a property value specified
- by \"TABLE_EXPORT_FORMAT\" or `org-table-export-default-format'.
+ by \"<tab>LE_EXPORT_FORMAT\" or `org-table-export-default-format'.
  Converted table is copied to kill ring for further use.
  The core part is extracted from `org-table-export'."
    (interactive)
    (let ((format (or format
-                     (org-entry-get (point) "TABLE_EXPORT_FORMAT" t)
+                     (org-entry-get (point) "<tab>LE_EXPORT_FORMAT" t)
                      org-table-export-default-format)))
      (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
 	       (let ((transform (intern (match-string 1 format)))
@@ -10806,7 +10807,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 	             (insert (funcall transform table params))
 	             (clipboard-kill-ring-save begin (point))
                (insert "\n"))))
-       (user-error "TABLE_EXPORT_FORMAT invalid"))))
+       (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
  #+end_src
 ** ソースブロック内で eldoc の発動を抑制する
    :PROPERTIES:
@@ -10931,8 +10932,8 @@ org バッファのソースブロックにカーソルがある時には， =el
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-c x") #'my-org-move-item-end)
-  (define-key org-mode-map (kbd "C-c X") #'my-org-move-item-begin))
+  (keymap-set org-mode-map "C-c x" #'my-org-move-item-end)
+  (keymap-set org-mode-map "C-c X" #'my-org-move-item-begin))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -11310,13 +11311,13 @@ will not be modified."
                            my-sparse-doing-tree org-onit-clock-in-when-unfold
                            org-clock-goto org-onit-update-options)
                          "org-onit" nil t)
-  (global-set-key (kbd "C-<f11>") 'org-clock-goto)
+  (keymap-global-set "C-<f11>" 'org-clock-goto)
 
   (with-eval-after-load "org"
     (add-hook 'org-cycle-hook #'org-onit-clock-in-when-unfold)
-    (define-key org-mode-map (kbd "<f11>") 'org-onit-toggle-doing)
-    (define-key org-mode-map (kbd "M-<f11>") 'org-onit-toggle-auto)
-    (define-key org-mode-map (kbd "S-<f11>") 'org-onit-goto-anchor)
+    (keymap-set org-mode-map "<f11>" 'org-onit-toggle-doing)
+    (keymap-set org-mode-map "M-<f11>" 'org-onit-toggle-auto)
+    (keymap-set org-mode-map "S-<f11>" 'org-onit-goto-anchor)
 
     (defun my-sparse-doing-tree ()
       (interactive)
@@ -11390,7 +11391,7 @@ will not be modified."
   - Growl や [[https://github.com/julienXX/terminal-notifier/releases][Terminal Notifier]] と連携していると，Emacsがバックグラウンドにあってもアラームに気づける．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
+(keymap-global-set "C-c f 3" #'my-org-agenda-to-appt)
 (run-at-time "20 sec" nil #'my-org-agenda-to-appt)
 ;; (with-eval-after-load "org") 内で設定すると(何故か)複数回呼ばれてしまう．
 (run-with-idle-timer 180 t #'my-org-agenda-to-appt)
@@ -11748,7 +11749,7 @@ update it for multiple appts?")
    :ID:       1CF7B7AE-5878-485E-9124-C8A4128BA573
    :END:
 
-ソースブロックを入力するときは， <+ =TAB= でテンプレートを高速に入力できます．しかし，利用する言語までは指定できないので，特定の内容について対応するコマンドを割り当てて起きます．以下の例を設定として追加すると， <S+ =TAB= で =emacs-lisp= を， <C+ =TAB= でコメントブロックを指定できます．
+ソースブロックを入力するときは， <+ =<tab>= でテンプレートを高速に入力できます．しかし，利用する言語までは指定できないので，特定の内容について対応するコマンドを割り当てて起きます．以下の例を設定として追加すると， <S+ =<tab>= で =emacs-lisp= を， <C+ =<tab>= でコメントブロックを指定できます．
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
@@ -11832,14 +11833,14 @@ update it for multiple appts?")
 (when (autoload-if-found '(org-tree-slide-mode)
                          "org-tree-slide" nil t)
 
-  (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-  (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+  (keymap-global-set "<f8>" 'org-tree-slide-mode)
+  (keymap-global-set "S-<f8>" 'org-tree-slide-skip-done-toggle)
 
   (with-eval-after-load "org-tree-slide"
     ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
-    (define-key org-tree-slide-mode-map (kbd "<f9>")
+    (keymap-set org-tree-slide-mode-map "<f9>"
                 'org-tree-slide-move-previous-tree)
-    (define-key org-tree-slide-mode-map (kbd "<f10>")
+    (keymap-set org-tree-slide-mode-map "<f10>"
                 'org-tree-slide-move-next-tree)
     (unless noninteractive
       (org-tree-slide-narrowing-control-profile))
@@ -12027,7 +12028,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 (when (autoload-if-found '(my-cfw-open-org-calendar cfw:open-org-calendar)
                          "calfw-org" "Rich calendar for org-mode" t)
 
-  (global-set-key (kbd "C-c f c w") 'my-cfw-open-org-calendar)
+  (keymap-global-set "C-c f c w" 'my-cfw-open-org-calendar)
   (with-eval-after-load "calfw-org"
     ;; icalendar との連結
     (custom-set-variables
@@ -12061,8 +12062,8 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
       (cfw:navi-goto-date
        (cfw:emacs-to-calendar (org-read-date nil 'to-time))))
 
-    (define-key cfw:calendar-mode-map (kbd "j") 'cfw:org-goto-date)
-    (define-key cfw:org-schedule-map (kbd "q") 'my-cfw-burry-buffer)))
+    (keymap-set cfw:calendar-mode-map "j" 'cfw:org-goto-date)
+    (keymap-set cfw:org-schedule-map "q" 'my-cfw-burry-buffer)))
 
 ;;         (add-hook 'window-configuration-change-hook #'cfw:resize-calendar)
 ;; (defun cfw:resize-calendar ()
@@ -12212,7 +12213,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
   ;; (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
 
   (autoload 'org-mac-link-get-link "org-mac-link" nil t)
-  (define-key org-mode-map (kbd "C-c c") 'org-mac-link-get-link)
+  (keymap-set org-mode-map "C-c c" 'org-mac-link-get-link)
   (with-eval-after-load "org-mac-link"
     (require 'org-mac-iCal nil t)))
 #+end_src
@@ -12240,7 +12241,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(org-grep)
                          "org-grep" nil t)
-  ;;   (global-set-key (kbd "C-M-g") 'org-grep)
+  ;;   (keymap-global-set "C-M-g" 'org-grep)
   (with-eval-after-load "org-grep"
     (setq org-grep-extensions '(".org" ".org_archive"))
     (add-to-list 'org-grep-directories "~/.emacs.d")
@@ -12299,7 +12300,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
 (when (autoload-if-found '(org-dashboard-display)
                          "org-dashboard" nil t)
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c f y") 'org-dashboard-display)))
+    (keymap-set org-mode-map "C-c f y" 'org-dashboard-display)))
 #+end_src
 
 ** [org-clock-today] 今日の総作業時間をモードラインに表示
@@ -12557,8 +12558,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
   (with-eval-after-load "orglink"
     (delq 'angle orglink-activate-links)
-    (define-key orglink-mouse-map (kbd "C-c C-o") 'org-open-at-point-global)
-    (define-key orglink-mouse-map (kbd "C-c C-l") 'org-insert-link)))
+    (keymap-set orglink-mouse-map "C-c C-o" 'org-open-at-point-global)
+    (keymap-set orglink-mouse-map "C-c C-l" 'org-insert-link)))
 
 ;; (add-to-list 'orglink-activate-in-modes 'c++-mode)
 ;; (add-to-list 'orglink-activate-in-modes 'c-mode)
@@ -12933,8 +12934,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(org-recent-headings org-recent-headings-mode)
                          "org-recent-headings" nil t)
-  ;; (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
-  (global-set-key (kbd "C-M-h") 'org-recent-headings)
+  ;; (keymap-global-set "C-c f r" 'org-recent-headings-helm)
+  (keymap-global-set "C-M-h" 'org-recent-headings)
   (with-eval-after-load "org-recent-headings"
     (require 'ivy)
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
@@ -12975,7 +12976,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (when (autoload-if-found '(orgnav-search-root)
                          "orgnav" nil t)
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c f n")
+    (keymap-set org-mode-map "C-c f n"
       (lambda () (interactive)
         (orgnav-search-root 3 'orgnav--goto-action)))))
 #+end_src
@@ -13493,7 +13494,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "M-`") 'other-frame)
+(keymap-global-set "M-`" 'other-frame)
 (with-eval-after-load "frame"
   (advice-add 'make-frame :after #'ad:make-frame))
 #+end_src
@@ -13536,15 +13537,15 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 (when (autoload-if-found moom-autoloads
                          "moom" nil t)
-  (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
-  (global-set-key (kbd "C-!") 'moom-move-frame-to-edge-bottom)
-  (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
-  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-  (global-set-key (kbd "M-9") 'moom-cycle-monitors)
-  (global-set-key (kbd "C-c f m") 'moom-fill-band)
+  (keymap-global-set "C-1" 'moom-move-frame-to-edge-top)
+  (keymap-global-set "C-!" 'moom-move-frame-to-edge-bottom)
+  (keymap-global-set "C-2" 'moom-cycle-frame-height)
+  (keymap-global-set "M-2" 'moom-move-frame-to-center)
+  (keymap-global-set "M-9" 'moom-cycle-monitors)
+  (keymap-global-set "C-c f m" 'moom-fill-band)
 
   (autoload 'moom-transient-dispatch "moom-transient" nil t)
-  (global-set-key (kbd "C-c o") #'moom-transient-dispatch)
+  (keymap-global-set "C-c o" #'moom-transient-dispatch)
 
   (with-eval-after-load "moom-transient"
     (moom-transient-hide-cursor)
@@ -13653,7 +13654,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
+(keymap-global-set "<f12>" 'my-toggle-mode-line)
 (with-eval-after-load "moom"
   (advice-add 'moom-toggle-frame-maximized
               :after #'ad:moom-toggle-frame-maximized))
@@ -13691,11 +13692,11 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (unless noninteractive
   (when (autoload-if-found '(winner-undo)
                            "winner" nil t)
-    (global-set-key (kbd "C-x g") 'winner-undo)
+    (keymap-global-set "C-x g" 'winner-undo)
     (with-eval-after-load "winner"
       (advice-add 'delete-window :after #'ad:winner:delete-window)
-      (define-key winner-mode-map (kbd "C-(") 'winner-undo)
-      (define-key winner-mode-map (kbd "C-)") 'winner-redo)
+      (keymap-set winner-mode-map "C-(" 'winner-undo)
+      (keymap-set winner-mode-map "C-)" 'winner-redo)
       (winner-mode 1))))
 #+end_src
 
@@ -13756,8 +13757,8 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ;;;###autoload
 (defun ad:checkdoc ()
   (interactive)
-  (define-key checkdoc-minor-mode-map (kbd "q") 'my-delete-checkdoc-window)
-  (define-key checkdoc-minor-mode-map (kbd "C-g") 'my-delete-checkdoc-window)
+  (keymap-set checkdoc-minor-mode-map "q" 'my-delete-checkdoc-window)
+  (keymap-set checkdoc-minor-mode-map "C-g" 'my-delete-checkdoc-window)
   (checkdoc-minor-mode 1))
 #+end_src
 
@@ -13870,10 +13871,10 @@ Uses `all-the-icons-material' to fetch the icon."
                          "frame-ctr-e2wm" nil t)
   ;; Set the frame width single size
   ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
-  (global-set-key (kbd "C-x -") 'change-frame-single-window)
+  (keymap-global-set "C-x -" 'change-frame-single-window)
   ;; Set the frame width double size
   ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
-  (global-set-key (kbd "C-x =") 'change-frame-double-window))
+  (keymap-global-set "C-x =" 'change-frame-double-window))
 #+end_src
 
 ** [tabbar-ruler] バッファをタブ切り替え可能に                     :obsolete:
@@ -14713,7 +14714,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(edit-color-stamp)
                          "edit-color-stamp" nil t)
-  (global-set-key (kbd "C-c f c p") 'edit-color-stamp)
+  (keymap-global-set "C-c f c p" 'edit-color-stamp)
   (with-eval-after-load "edit-color-stamp"
     (unless (executable-find "qt_color_picker")
       (message "--- qt_color_picker is NOT installed."))))
@@ -14897,8 +14898,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(volatile-highlights-mode my-vhl-change-color)
                          "volatile-highlights" nil t)
-  (global-set-key (kbd "M-v") 'my-yank)
-  (global-set-key (kbd "C-y") 'my-yank)
+  (keymap-global-set "M-v" 'my-yank)
+  (keymap-global-set "C-y" 'my-yank)
   (when window-system
     (advice-add 'my-yank :before #'my-vhl-activate)
     (advice-add 'my-org-yank :before #'my-vhl-activate))
@@ -14909,10 +14910,10 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (volatile-highlights-mode t))
 
   (with-eval-after-load "vterm"
-    (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
+    (keymap-set vterm-mode-map "C-y" 'vterm-yank))
 
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-y") 'my-org-yank)))
+    (keymap-set org-mode-map "C-y" 'my-org-yank)))
 #+end_src
 
 * 非同期実行
@@ -15355,7 +15356,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(my-google-this google-this google-this-word)
                          "google-this" nil t)
-  (global-set-key (kbd "C-c f g") 'my-google-this))
+  (keymap-global-set "C-c f g" 'my-google-this))
 #+end_src
 
 ** [multi-term.el] ターミナル
@@ -15416,11 +15417,11 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(my-cmd-to-open-iterm2)
                          "utility" nil t)
-  (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2)
+  (keymap-global-set "C-M-i" #'my-cmd-to-open-iterm2)
   (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2))
+    (keymap-set flyspell-mode-map "C-M-i" #'my-cmd-to-open-iterm2))
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2)))
+    (keymap-set org-mode-map "C-M-i" #'my-cmd-to-open-iterm2)))
 #+end_src
 
 ** [counsel-osx-app.el] macOSのアプリケーションを呼び出す             :macOS:
@@ -15434,7 +15435,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 #+begin_src emacs-lisp :tangle init.el
 (when (autoload-if-found '(counsel-osx-app)
                          "counsel-osx-app" nil t)
-  (global-set-key (kbd "C-M-1") 'counsel-osx-app)
+  (keymap-global-set "C-M-1" 'counsel-osx-app)
   (with-eval-after-load "counsel-osx-app"
     (setq counsel-osx-app-location
           '("/Applications" "/Applications/Utilities"
@@ -15448,7 +15449,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "C-c f t") 'my-open-current-directory-in-terminal)
+(keymap-global-set "C-c f t" 'my-open-current-directory-in-terminal)
 #+end_src
 
 ** [gif-screencast.el] ユーザアクションのたびにスクショを取る
@@ -15510,9 +15511,8 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     (setq gif-screencast-capture-format "ppm")
 
     ;; Start... M-x gif-screencast
-    (define-key gif-screencast-mode-map (kbd "<f5>") 'gif-screencast-stop)
-    (define-key gif-screencast-mode-map (kbd "S-<f5>")
-      'gif-screencast-toggle-pause)
+    (keymap-set gif-screencast-mode-map "<f5>" 'gif-screencast-stop)
+    (keymap-set gif-screencast-mode-map "S-<f5>" 'gif-screencast-toggle-pause)
 
     ;; 拡張
     (defcustom gif-screencast-additional-normal-hooks '()
@@ -15549,10 +15549,10 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 なお， =C-M--= は本来， =negative-argument= に割り振られています．
 
 #+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
-;; (global-set-key (kbd "<f12>") 'my-open-file-ring)
-;;  (global-set-key (kbd "C-c t") 'my-date)
-(global-set-key (kbd "C-c f 4") 'my-window-resizer)
+(keymap-global-set "C-M--" 'my-cycle-bullet-at-heading)
+;; (keymap-global-set "<f12>" 'my-open-file-ring)
+;;  (keymap-global-set "C-c t" 'my-date)
+(keymap-global-set "C-c f 4" 'my-window-resizer)
 #+end_src
 
 ** [manage-minor-mode.el] マイナーモードの視覚的な管理
@@ -15568,7 +15568,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 (when (autoload-if-found '(manage-minor-mode)
                          "manage-minor-mode" nil t)
   (with-eval-after-load "manage-minor-mode"
-    (define-key manage-minor-mode-map (kbd "q")
+    (keymap-set manage-minor-mode-map "q"
       (lambda () (interactive)
           (delete-window (get-buffer-window "*manage-minor-mode*"))))))
 #+end_src
@@ -15676,9 +15676,9 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 #+begin_src emacs-lisp :tangle no
 (if (not (executable-find "pass"))
     (message "--- pass is NOT installed.")
-  ;; (global-set-key (kbd "C-c f p") 'helm-pass)
+  ;; (keymap-global-set "C-c f p" 'helm-pass)
   ;; (autoload-if-found '(helm-pass) "helm-pass" nil t)
-  (global-set-key (kbd "C-c f p") 'ivy-pass)
+  (keymap-global-set "C-c f p" 'ivy-pass)
   (autoload-if-found '(ivy-pass) "ivy-pass" nil t))
 #+end_src
 
@@ -16802,8 +16802,8 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
     :END:
 
 #+begin_src emacs-lisp :tangle yes
-(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
-(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
+(keymap-global-set "C-c 0" 'insert-formatted-current-date)
+(keymap-global-set "C-c 9" 'insert-formatted-current-time)
 #+end_src
 ** XHTMLを利用したガントチャート生成                               :obsolete:
    :PROPERTIES:
@@ -17012,7 +17012,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (display-graphic-p)
-  (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers))
+  (keymap-global-set "C-x C-c" #'my-kill-all-file-buffers))
 #+end_src
 
 ** スクラッチバッファを表示している場合にだけ終了可能にする
@@ -17030,7 +17030,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(global-set-key (kbd "C-c C-x") #'my-kill-emacs-when-scratch-buffer)
+(keymap-global-set "C-c C-x" #'my-kill-emacs-when-scratch-buffer)
 #+end_src
 ** TODO emacs-lisp のコードをフォーマットする
 :PROPERTIES:
@@ -17181,10 +17181,10 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+begin_src emacs-lisp :tangle no
 ;; Multiple combination
 ; Editing with a rectangle region
-(global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
-(global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
-(global-set-key (kbd "C-x r C-w") 'rm-kill-region)
-(global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
+(keymap-global-set "C-x r C-SPC" 'rm-set-mark)
+(keymap-global-set "C-x r C-x" 'rm-exchange-point-and-mark)
+(keymap-global-set "C-x r C-w" 'rm-kill-region)
+(keymap-global-set "C-x r M-w" 'rm-kill-ring-save)
 #+end_src
 * おわりに
 :PROPERTIES:

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-08-13 火 21:34 -->
+<!-- 2024-08-14 水 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1514,7 +1514,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(1) &#12497;&#12483;&#12465;&#12540;&#12472;&#12364;&#23384;&#22312;&#12377;&#12428;&#12400;&#65292; Emacs &#36215;&#21205;&#26178;&#12395;&#35501;&#12415;&#36796;&#12416;&#35373;&#23450;&#32676;</span>
   (<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"\\.hoge$"</span> . package-name-mode) auto-mode-alist)
   (add-hook 'after-init-hook #'f1)
-  (global-set-key (kbd <span style="color: #8b2252;">"r"</span>) 'f2)
+  (keymap-global-set <span style="color: #8b2252;">"r"</span> 'f2)
   (autoload-if-found '(hoge1 hoge2) <span style="color: #8b2252;">"hoge"</span> nil t)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(2) &#36933;&#24310;&#35501;&#12415;&#36796;&#12415;&#12377;&#12427;&#35373;&#23450;&#32676;</span>
@@ -1522,7 +1522,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"package-name"</span>
     (<span style="color: #a020f0;">setq</span> v1 t)
     (<span style="color: #a020f0;">setq</span> v2 nil)
-    (define-key package-name-map (kbd <span style="color: #8b2252;">"q"</span>) 'f1))
+    (keymap-set package-name-map <span style="color: #8b2252;">"q"</span> 'f1))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#38306;&#36899;&#12377;&#12427;&#12497;&#12483;&#12465;&#12540;&#12472;&#12398;&#36933;&#24310;&#12525;&#12540;&#12489;</span>
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"package-name2"</span>
@@ -2077,12 +2077,12 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
          (<span style="color: #a020f0;">setq</span> cycle-buffer-show-length 12)
          (<span style="color: #a020f0;">setq</span> cycle-buffer-show-format '(<span style="color: #8b2252;">" &lt; %s &gt;"</span> . <span style="color: #8b2252;">" %s"</span>))
          <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12497;&#12483;&#12465;&#12540;&#12472;&#12398;&#12461;&#12540;&#12450;&#12469;&#12452;&#12531;&#12399;&#12371;&#12385;&#12425;</span>
-         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key xxx-map (kbd "q") 'hoge)</span>
+         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set xxx-map "q" 'hoge)</span>
          ))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12464;&#12525;&#12540;&#12496;&#12523;&#12399;&#12371;&#12385;&#12425;</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"M-]"</span>) 'cycle-buffer)
+  (keymap-global-set <span style="color: #8b2252;">"M-]"</span> 'cycle-buffer)
   (<span style="color: #a020f0;">when</span> (display-graphic-p)
-    (global-set-key (kbd <span style="color: #8b2252;">"M-["</span>) 'cycle-buffer-backward))
+    (keymap-global-set <span style="color: #8b2252;">"M-["</span> 'cycle-buffer-backward))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12497;&#12483;&#12465;&#12540;&#12472;&#12395;&#32016;&#20184;&#12356;&#12383;&#12501;&#12483;&#12463;&#12399;&#12371;&#12385;&#12425;&#12408;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'xxx-hook #'hogehoge)</span>
   <span style="color: #b22222;">;;</span>
@@ -2278,7 +2278,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (eq system-type 'gnu/linux)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;hiragana-katakana&gt;"</span>) 'toggle-input-method)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;hiragana-katakana&gt;"</span> 'toggle-input-method)
   (<span style="color: #a020f0;">push</span> <span style="color: #8b2252;">"/usr/share/emacs/site-lisp/anthy"</span> load-path)
   (<span style="color: #a020f0;">push</span> <span style="color: #8b2252;">"/usr/share/emacs/site-lisp/emacs-mozc"</span> load-path)
   (set-language-environment <span style="color: #8b2252;">"Japanese"</span>)
@@ -2316,10 +2316,10 @@ NSビルド用のインラインパッチを適用している場合に使いま
   (<span style="color: #a020f0;">when</span> (boundp 'ns-command-modifier) (<span style="color: #a020f0;">setq</span> ns-command-modifier 'meta))
   (<span style="color: #a020f0;">when</span> (boundp 'ns-alternate-modifier) (<span style="color: #a020f0;">setq</span> ns-alternate-modifier 'super))
   (<span style="color: #a020f0;">when</span> (boundp 'ns-pop-up-frames) (<span style="color: #a020f0;">setq</span> ns-pop-up-frames nil))
-  (global-set-key (kbd <span style="color: #8b2252;">"M-v"</span>) 'yank)
-  (global-set-key [ns-drag-file] 'ns-find-file))
-(global-set-key [delete] 'delete-char)
-(global-set-key [kp-delete] 'delete-char)
+  (keymap-global-set <span style="color: #8b2252;">"M-v"</span> 'yank)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;ns-drag-file&gt;"</span> 'ns-find-file))
+(keymap-global-set <span style="color: #8b2252;">"&lt;delete&gt;"</span> 'delete-char)
+(keymap-global-set <span style="color: #8b2252;">"&lt;kp-delete&gt;"</span> 'delete-char)
 </pre>
 </div>
 </div>
@@ -2494,7 +2494,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
          (<span style="color: #a020f0;">when</span> (yes-or-no-p <span style="color: #8b2252;">"Are you sure to quit Emacs now? "</span>)
            (save-buffers-kill-emacs)))))
 
-(global-set-key (kbd <span style="color: #8b2252;">"C-x C-c"</span>) 'confirm-save-buffers-kill-emacs)
+(keymap-global-set <span style="color: #8b2252;">"C-x C-c"</span> 'confirm-save-buffers-kill-emacs)
 </pre>
 </div>
 </div>
@@ -2918,29 +2918,29 @@ Eamcs 29からは， <code>--init-directory</code> オプションで <code>user
 (<span style="color: #a020f0;">setq</span> line-number-display-limit-width 100000)
 (<span style="color: #a020f0;">setq</span> vc-follow-symlinks t)
 (<span style="color: #a020f0;">setq</span> confirm-kill-emacs 'y-or-n-p)
-(global-set-key (kbd <span style="color: #8b2252;">"RET"</span>) 'electric-newline-and-maybe-indent)
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-t"</span>) 'beginning-of-buffer) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-&lt;</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-b"</span>) 'end-of-buffer) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-&gt;</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-p"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-n"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
-(global-set-key (kbd <span style="color: #8b2252;">"C-;"</span>) 'comment-dwim) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-; is the defualt</span>
-(global-set-key (kbd <span style="color: #8b2252;">"M-="</span>) 'count-words)
-(global-set-key (kbd <span style="color: #8b2252;">"M-]"</span>) 'bs-cycle-next)
-(global-set-key (kbd <span style="color: #8b2252;">"M-["</span>) 'bs-cycle-previous)
-(global-set-key (kbd <span style="color: #8b2252;">"C-c g"</span>) 'goto-line)
+(keymap-global-set <span style="color: #8b2252;">"RET"</span> 'electric-newline-and-maybe-indent)
+(keymap-global-set <span style="color: #8b2252;">"C-M-t"</span> 'beginning-of-buffer) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-&lt;</span>
+(keymap-global-set <span style="color: #8b2252;">"C-M-b"</span> 'end-of-buffer) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-&gt;</span>
+(keymap-global-set <span style="color: #8b2252;">"C-M-p"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
+(keymap-global-set <span style="color: #8b2252;">"C-M-n"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
+(keymap-global-set <span style="color: #8b2252;">"C-;"</span> 'comment-dwim) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-; is the defualt</span>
+(keymap-global-set <span style="color: #8b2252;">"M-="</span> 'count-words)
+(keymap-global-set <span style="color: #8b2252;">"M-]"</span> 'bs-cycle-next)
+(keymap-global-set <span style="color: #8b2252;">"M-["</span> 'bs-cycle-previous)
+(keymap-global-set <span style="color: #8b2252;">"C-c g"</span> 'goto-line)
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-open-scratch</span> ()
   <span style="color: #8b2252;">"Switch the current buffer to </span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">*scratch</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">* buffer."</span>
   (<span style="color: #a020f0;">interactive</span>)
   (switch-to-buffer <span style="color: #8b2252;">"*scratch*"</span>))
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-s"</span>) #'my-open-scratch)
+(keymap-global-set <span style="color: #8b2252;">"C-M-s"</span> #'my-open-scratch)
 (<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
   (<span style="color: #a020f0;">when</span> (boundp 'ns-command-modifier) (<span style="color: #a020f0;">setq</span> ns-command-modifier 'meta))
   (<span style="color: #a020f0;">when</span> (boundp 'ns-alternate-modifier) (<span style="color: #a020f0;">setq</span> ns-alternate-modifier 'super))
   (<span style="color: #a020f0;">when</span> (boundp 'ns-pop-up-frames) (<span style="color: #a020f0;">setq</span> ns-pop-up-frames nil))
-  (global-set-key (kbd <span style="color: #8b2252;">"M-v"</span>) 'yank)
-  (global-set-key [ns-drag-file] 'ns-find-file))
-(global-set-key [delete] 'delete-char)
-(global-set-key [kp-delete] 'delete-char)
+  (keymap-global-set (kbd <span style="color: #8b2252;">"M-v"</span>) 'yank)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;ns-drag-file&gt;"</span> 'ns-find-file))
+(keymap-global-set <span style="color: #8b2252;">"&lt;delete&gt;"</span> 'delete-char)
+(keymap-global-set <span style="color: #8b2252;">"&lt;kp-delete&gt;"</span> 'delete-char)
 </pre>
 </div>
 
@@ -3227,10 +3227,10 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
-(global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
-(define-key isearch-mode-map (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'my-toggle-ime-ns)
-(define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'my-toggle-ime-ns)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"M-SPC"</span> 'my-toggle-ime-ns)
+(keymap-global-set <span style="color: #8b2252;">"S-SPC"</span> 'my-toggle-ime-ns)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set isearch-mode-map "M-SPC" 'my-toggle-ime-ns)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set isearch-mode-map "S-SPC" 'my-toggle-ime-ns)</span>
 (<span style="color: #a020f0;">when</span> (fboundp 'mac-ime-toggle) <span style="color: #b22222;">;; </span><span style="color: #b22222;">using ns-inline-patch</span>
   (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-toggle-ime-ns</span> 'mac-ime-toggle)
   (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">my-ime-active-p</span> 'mac-ime-active-p)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
@@ -3288,8 +3288,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (eq window-system 'mac)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-SPC"</span>) 'mac-win-toggle-ime)
-  (global-set-key (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-win-toggle-ime)
+  (keymap-global-set <span style="color: #8b2252;">"M-SPC"</span> 'mac-win-toggle-ime)
+  (keymap-global-set <span style="color: #8b2252;">"S-SPC"</span> 'mac-win-toggle-ime)
   (<span style="color: #a020f0;">declare-function</span> mac-win-save-last-ime-status <span style="color: #8b2252;">"init"</span> nil)
   (<span style="color: #a020f0;">declare-function</span> ad:mac-auto-ascii-setup-input-source <span style="color: #8b2252;">"init"</span> nil)
   (<span style="color: #a020f0;">declare-function</span> mac-win-restore-ime <span style="color: #8b2252;">"init"</span> nil)
@@ -3403,8 +3403,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
                    <span style="color: #8b2252;">".Roman"</span> <span style="color: #8b2252;">".base"</span>)))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">isearch &#20013;&#12395;IME&#12434;&#20999;&#12426;&#26367;&#12360;&#12427;&#12392;&#65292;[I-Search] &#12398;&#34920;&#31034;&#12364;&#28040;&#12360;&#12427;&#65294;</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key isearch-mode-map (kbd "M-SPC") 'mac-win-toggle-ime)</span>
-  (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-win-toggle-ime)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set isearch-mode-map "M-SPC" 'mac-win-toggle-ime)</span>
+  (keymap-set isearch-mode-map <span style="color: #8b2252;">"S-SPC"</span> 'mac-win-toggle-ime)
 
   (<span style="color: #a020f0;">when</span> (boundp 'mac-win-ime-cursor-type) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Need update</span>
     (<span style="color: #a020f0;">setq</span> mac-win-ime-cursor-type (plist-get my-cur-type-ime <span style="color: #483d8b;">:on</span>)))
@@ -3495,14 +3495,14 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-M-t"</span>) 'beginning-of-buffer)
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-b"</span>) 'end-of-buffer)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"C-M-t"</span> 'beginning-of-buffer)
+(keymap-global-set <span style="color: #8b2252;">"C-M-b"</span> 'end-of-buffer)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Backward page scrolling instead of M-v</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-t"</span>) 'scroll-down)
+(keymap-global-set <span style="color: #8b2252;">"C-t"</span> 'scroll-down)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Frontward page scrolling instead of C-v</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(global-set-key (kbd "M-n") 'scroll-up)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-global-set "M-n" 'scroll-up)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Move cursor to a specific line</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-c g"</span>) 'goto-line)
+(keymap-global-set <span style="color: #8b2252;">"C-c g"</span> 'goto-line)
 </pre>
 </div>
 </div>
@@ -3516,8 +3516,8 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-M-p"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-n"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"C-M-p"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
+(keymap-global-set <span style="color: #8b2252;">"C-M-n"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
 </pre>
 </div>
 </div>
@@ -3544,7 +3544,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   <span style="color: #8b2252;">"Move backward across one balanced expression and select it."</span>
   (<span style="color: #a020f0;">interactive</span>)
   (mark-sexp (<span style="color: #a020f0;">or</span> arg -1)))
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-9"</span>) #'my-mark-sexp)
+(keymap-global-set <span style="color: #8b2252;">"C-M-9"</span> #'my-mark-sexp)
 </pre>
 </div>
 
@@ -3720,9 +3720,9 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"M-]"</span>) 'bs-cycle-next)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"M-]"</span> 'bs-cycle-next)
 (<span style="color: #a020f0;">when</span> (display-graphic-p)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-["</span>) 'bs-cycle-previous))
+  (keymap-global-set <span style="color: #8b2252;">"M-["</span> 'bs-cycle-previous))
 </pre>
 </div>
 
@@ -3840,9 +3840,9 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
        <span style="color: #8b2252;">"bm"</span> nil t)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12501;&#12449;&#12452;&#12523;&#12458;&#12540;&#12503;&#12531;&#26178;&#12395;&#12502;&#12483;&#12463;&#12510;&#12540;&#12463;&#12434;&#24489;&#24112;</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f10&gt;"</span>) 'my-toggle-bm)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;C-f10&gt;"</span>) 'my-bm-next)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;S-f10&gt;"</span>) 'bm-show-all)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f10&gt;"</span> 'my-toggle-bm)
+  (keymap-global-set <span style="color: #8b2252;">"C-&lt;f10&gt;"</span> 'my-bm-next)
+  (keymap-global-set <span style="color: #8b2252;">"S-&lt;f10&gt;"</span> 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12499;&#12523;&#12488;&#12452;&#12531; bookmark &#12398;&#37197;&#33394;&#12434;&#28961;&#21177;&#12395;&#12377;&#12427;(as of 28.1)</span>
@@ -3852,7 +3852,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
   (<span style="color: #a020f0;">setq</span> bookmark-set-fringe-mark nil)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
-    (global-set-key (kbd <span style="color: #8b2252;">"&lt;S-f10&gt;"</span>) 'counsel-bm))
+    (keymap-global-set <span style="color: #8b2252;">"S-&lt;f10&gt;"</span> 'counsel-bm))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"bm"</span>
     (advice-add 'bm-repository-load <span style="color: #483d8b;">:around</span> #'ad:suppress-message)
@@ -4019,7 +4019,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
   (advice-add 'forward-word <span style="color: #483d8b;">:before</span> #'my-syntax-subword-activate)
   (advice-add 'backward-word <span style="color: #483d8b;">:before</span> #'my-syntax-subword-activate)
 
-  (global-set-key (kbd <span style="color: #8b2252;">"C-&lt;backspace&gt;"</span>) #'syntax-subword-backward-kill)
+  (keymap-global-set <span style="color: #8b2252;">"C-&lt;backspace&gt;"</span> #'syntax-subword-backward-kill)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"syntax-subword"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-&lt;backspace&gt; &#12391;&#65292;&#21066;&#38500;&#38936;&#22495;&#12434;&#12467;&#12500;&#12540;&#12375;&#12394;&#12356;&#65294;</span>
@@ -4047,7 +4047,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"selected"</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region</span> nil t)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"SPC"</span>) #'er/expand-region)))
+    (keymap-set selected-keymap <span style="color: #8b2252;">"SPC"</span> #'er/expand-region)))
 </pre>
 </div>
 </div>
@@ -4064,12 +4064,12 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(goto-last-change goto-last-change-reverse)
                          <span style="color: #8b2252;">"goto-chg"</span> nil t)
 
-  (global-set-key (kbd <span style="color: #8b2252;">"C-,"</span>) 'goto-last-change)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-."</span>) 'goto-last-change-reverse)
+  (keymap-global-set <span style="color: #8b2252;">"C-,"</span> 'goto-last-change)
+  (keymap-global-set <span style="color: #8b2252;">"C-."</span> 'goto-last-change-reverse)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
-    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'goto-last-change)
-    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-."</span>) 'goto-last-change-reverse)))
+    (keymap-set flyspell-mode-map <span style="color: #8b2252;">"C-,"</span> 'goto-last-change)
+    (keymap-set flyspell-mode-map <span style="color: #8b2252;">"C-."</span> 'goto-last-change-reverse)))
 </pre>
 </div>
 </div>
@@ -4090,8 +4090,8 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(cycle-buffer cycle-buffer-backward)
                          <span style="color: #8b2252;">"cycle-buffer"</span> nil t)
 
-  (global-set-key (kbd <span style="color: #8b2252;">"M-]"</span>) 'cycle-buffer)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-["</span>) 'cycle-buffer-backward)
+  (keymap-global-set <span style="color: #8b2252;">"M-]"</span> 'cycle-buffer)
+  (keymap-global-set <span style="color: #8b2252;">"M-["</span> 'cycle-buffer-backward)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"cycle-buffer"</span>
     (custom-set-variables
@@ -4127,11 +4127,11 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
     (<span style="color: #a020f0;">setq</span> global-mark-ring-max 64)
     (<span style="color: #a020f0;">setq</span> back-button-local-forward-keystrokes '(<span style="color: #8b2252;">"&lt;f10&gt;"</span>))
     (<span style="color: #a020f0;">setq</span> back-button-global-forward-keystrokes '(<span style="color: #8b2252;">"C-&lt;f10&gt;"</span>))
-    (define-key back-button-mode-map
-                (kbd (car back-button-local-forward-keystrokes))
+    (keymap-set back-button-mode-map
+                (car back-button-local-forward-keystrokes)
                 'back-button-local-forward)
-    (define-key back-button-mode-map
-                (kbd (car back-button-global-forward-keystrokes))
+    (keymap-set back-button-mode-map
+                (car back-button-global-forward-keystrokes)
                 'back-button-global-forward)
     (<span style="color: #a020f0;">setq</span> back-button-mode-lighter nil)
     (<span style="color: #a020f0;">setq</span> back-button-index-timeout 0))
@@ -4153,9 +4153,9 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">point-undo</span> nil t)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">[point-undo.el] Move the cursor to the previous position</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f7&gt;"</span>) 'point-undo)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f7&gt;"</span> 'point-undo)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">[point-undo.el] Redo of point-undo</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"S-&lt;f7&gt;"</span>) 'point-redo))
+  (keymap-global-set <span style="color: #8b2252;">"S-&lt;f7&gt;"</span> 'point-redo))
 </pre>
 </div>
 </div>
@@ -4181,8 +4181,8 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(scroll-one-up scroll-one-down)
                          <span style="color: #8b2252;">"smoothscroll"</span> nil t)
 
-  (global-set-key (kbd <span style="color: #8b2252;">"s-&lt;up&gt;"</span>) 'scroll-one-down)
-  (global-set-key (kbd <span style="color: #8b2252;">"s-&lt;down&gt;"</span>) 'scroll-one-up))
+  (keymap-global-set <span style="color: #8b2252;">"s-&lt;up&gt;"</span> 'scroll-one-down)
+  (keymap-global-set <span style="color: #8b2252;">"s-&lt;down&gt;"</span> 'scroll-one-up))
 </pre>
 </div>
 </div>
@@ -4201,7 +4201,7 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"RET"</span>) 'electric-newline-and-maybe-indent)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"RET"</span> 'electric-newline-and-maybe-indent)
 </pre>
 </div>
 </div>
@@ -4351,7 +4351,7 @@ Built-in の time-stamp.el を使う．
   (advice-add 'isearch-mode <span style="color: #483d8b;">:around</span> #'ad:isearch-mode)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-g &#12434; isearch-exit &#12395;&#21106;&#12426;&#24403;&#12390;&#12390;&#36884;&#20013;&#20013;&#26029;&#12392;&#12377;&#12427;&#65294;&#65288;&#12459;&#12540;&#12477;&#12523;&#12434;&#30041;&#12417;&#12390;&#12362;&#12365;&#12383;&#12356;&#65289;&#12459;&#12540;&#12477;&#12523;&#12434;&#26908;&#32034;&#38283;&#22987;&#26178;&#28857;&#12398;&#22580;&#25152;&#12395;&#25147;&#12377;&#12395;&#12399;&#65292;&#21029;&#36884; counsel-mark-ring &#12434;&#20351;&#12358;</span>
-  (define-key isearch-mode-map (kbd <span style="color: #8b2252;">"C-g"</span>) 'isearch-exit))
+  (keymap-set isearch-mode-map <span style="color: #8b2252;">"C-g"</span> 'isearch-exit))
 </pre>
 </div>
 </div>
@@ -4404,7 +4404,7 @@ Built-in の time-stamp.el を使う．
 </p>
 
 <p>
-とは言っても，Org-modeを知ってから <code>.txt</code> もテキストモードで開かなくなったので，ほぼ無意味な設定となりました．しかも， <code>nxml-mode</code> で <code>TAB</code> が効かなくなる現象が起きているので，以下の設定はしない方がよさげ．
+とは言っても，Org-modeを知ってから <code>.txt</code> もテキストモードで開かなくなったので，ほぼ無意味な設定となりました．しかも， <code>nxml-mode</code> で <code>&lt;tab&gt;</code> が効かなくなる現象が起きているので，以下の設定はしない方がよさげ．
 </p>
 
 <div class="org-src-container">
@@ -4493,7 +4493,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(add-hook 'nxml-mode-hook
           (<span style="color: #a020f0;">lambda</span> ()
-            (define-key nxml-mode-map <span style="color: #8b2252;">"\r"</span> 'newline-and-indent)
+            (keymap-set nxml-mode-map <span style="color: #8b2252;">"RET"</span> 'newline-and-indent)
             (auto-fill-mode -1)
             (<span style="color: #a020f0;">setq</span> indent-tabs-mode t)
             (<span style="color: #a020f0;">setq</span> nxml-slash-auto-complete-flag t)
@@ -4822,20 +4822,20 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">note: messages-buffer-mode-hook may not work</span>
   (advice-add 'switch-to-buffer <span style="color: #483d8b;">:after</span> #'ad:switch-to-buffer)
 
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"i"</span>) 'View-exit-and-edit)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;SPC&gt;"</span>) 'ignore)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;DEL&gt;"</span>) 'ignore)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"S-SPC"</span>) 'mac-ime-toggle)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"e"</span>) 'my-view-exit)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"i"</span> 'View-exit-and-edit)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"SPC"</span> 'ignore)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"&lt;delete&gt;"</span> 'ignore)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"S-SPC"</span> 'mac-ime-toggle)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"e"</span> 'my-view-exit)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">helpful</span> nil t)
-    (define-key view-mode-map (kbd <span style="color: #8b2252;">"h"</span>) 'helpful-at-point))
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"f"</span>) 'forward-char)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"b"</span>) 'backward-char)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"n"</span>) 'my-org-view-next-heading)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"p"</span>) 'my-org-view-previous-heading)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"g"</span>) #'my-google-this)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"&lt;tab&gt;"</span>) 'my-view-tab)
-  (define-key view-mode-map (kbd <span style="color: #8b2252;">"S-&lt;tab&gt;"</span>) 'my-view-shifttab)
+    (keymap-set view-mode-map <span style="color: #8b2252;">"h"</span> 'helpful-at-point))
+  (keymap-set view-mode-map <span style="color: #8b2252;">"f"</span> 'forward-char)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"b"</span> 'backward-char)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"n"</span> 'my-org-view-next-heading)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"p"</span> 'my-org-view-previous-heading)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"g"</span> #'my-google-this)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"&lt;tab&gt;"</span> 'my-view-tab)
+  (keymap-set view-mode-map <span style="color: #8b2252;">"S-&lt;tab&gt;"</span> 'my-view-shifttab)
   (<span style="color: #a020f0;">unless</span> my-toggle-modeline-global
     (advice-add 'view--enable <span style="color: #483d8b;">:before</span> #'ad:view--enable)
     (advice-add 'view--disable <span style="color: #483d8b;">:before</span> #'ad:view--disable)))
@@ -4875,7 +4875,7 @@ HTML編集をするなら <a href="http://web-mode.org/">web-mode</a> がお勧�
   (<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"\\.html?\\'"</span> . web-mode) auto-mode-alist)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"web-mode"</span>
-    (define-key web-mode-map (kbd <span style="color: #8b2252;">"S-&lt;tab&gt;"</span>) 'my-web-indent-fold)
+    (keymap-set web-mode-map <span style="color: #8b2252;">"S-&lt;tab&gt;"</span> 'my-web-indent-fold)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">indent</span>
     (<span style="color: #a020f0;">setq</span> web-mode-markup-indent-offset 1)
@@ -4987,9 +4987,9 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
                          <span style="color: #8b2252;">"ispell"</span> nil t)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Spell checking within a specified region</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f 7"</span>) 'ispell-region)
+  (keymap-global-set <span style="color: #8b2252;">"C-c f 7"</span> 'ispell-region)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#35036;&#23436;&#20505;&#35036;&#12398;&#34920;&#31034;&#65288;flyspell &#12364;&#20351;&#12360;&#12427;&#26178;&#12399;&#12381;&#12385;&#12425;&#12434;&#20778;&#20808;&#12375;&#12390; &lt;f7&gt; &#12395;&#12377;&#12427;&#65294;</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f7&gt;"</span>) 'ispell-word)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f7&gt;"</span> 'ispell-word)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ispell"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">This could hild other messages from loading functions regarding org-mode.</span>
@@ -5108,7 +5108,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-; &#12434;&#12458;&#12540;&#12496;&#12540;&#12521;&#12452;&#12489;</span>
-    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-;"</span>) 'comment-dwim)
+    (keymap-set flyspell-mode-map <span style="color: #8b2252;">"C-;"</span> 'comment-dwim)
     (<span style="color: #a020f0;">setq</span> flyspell-duplicate-distance 0)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq flyspell-mode-line-string " F")</span>
     (<span style="color: #a020f0;">setq</span> flyspell-mode-line-string <span style="color: #8b2252;">""</span>)
@@ -5121,7 +5121,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
                         <span style="color: #483d8b;">:background</span> 'unspecified <span style="color: #483d8b;">:underline</span> t)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">ispell-complete-word &#12398;&#12461;&#12540;&#12496;&#12452;&#12531;&#12489;&#12434;&#19978;&#26360;&#12365;</span>
-    (global-set-key (kbd <span style="color: #8b2252;">"&lt;f7&gt;"</span>) 'flyspell-correct-at-point)
+    (keymap-global-set <span style="color: #8b2252;">"&lt;f7&gt;"</span> 'flyspell-correct-at-point)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">ivy &#12434;&#29992;&#12356;&#12427;</span>
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">flyspell-correct-ivy</span> nil t)
@@ -5147,7 +5147,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"M-="</span>) 'count-words)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"M-="</span> 'count-words)
 </pre>
 </div>
 
@@ -5158,7 +5158,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(word-count-mode)
                          <span style="color: #8b2252;">"word-count"</span> <span style="color: #8b2252;">"Minor mode to count words."</span> t)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-="</span>) 'word-count-mode))
+  (keymap-global-set <span style="color: #8b2252;">"M-="</span> 'word-count-mode))
 </pre>
 </div>
 </div>
@@ -5177,7 +5177,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"time"</span>
-  (define-key display-time-world-mode-map <span style="color: #8b2252;">"q"</span> 'delete-window))
+  (keymap-set display-time-world-mode-map <span style="color: #8b2252;">"q"</span> 'delete-window))
 </pre>
 </div>
 
@@ -5216,13 +5216,13 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
                            latex-math-preview-save-image-file
                            latex-math-preview-beamer-frame)
                          <span style="color: #8b2252;">"latex-math-preview"</span> nil t nil)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f6&gt;"</span>) 'latex-math-preview-expression)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f6&gt;"</span> 'latex-math-preview-expression)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"latex-math-preview"</span>
     (<span style="color: #a020f0;">setq</span> latex-math-preview-command-path-alist
           '((latex . <span style="color: #8b2252;">"latex"</span>)
             (dvipng . <span style="color: #8b2252;">"dvipng"</span>)
             (dvips . <span style="color: #8b2252;">"dvips"</span>)))
-    (define-key latex-math-preview-expression-mode-map (kbd <span style="color: #8b2252;">"&lt;f6&gt;"</span>)
+    (keymap-set latex-math-preview-expression-mode-map <span style="color: #8b2252;">"&lt;f6&gt;"</span>
       'latex-math-preview-delete-buffer)))
 </pre>
 </div>
@@ -5246,8 +5246,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">1=Shift JIS, 2=JIS, 3=EUC, 4=UTF-8</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq YaTeX-kanji-code nil)</span>
     (modify-coding-system-alist 'file <span style="color: #8b2252;">"\\.tex$'"</span> 'utf-8)
-    (define-key YaTeX-mode-map (kbd <span style="color: #8b2252;">"C-M-SPC"</span>) 'mark-sexp)
-    (define-key YaTeX-mode-map (kbd <span style="color: #8b2252;">"C-M-@"</span>) 'mark-sexp)))
+    (keymap-set YaTeX-mode-map <span style="color: #8b2252;">"C-M-SPC"</span> 'mark-sexp)
+    (keymap-set YaTeX-mode-map <span style="color: #8b2252;">"C-M-@"</span> 'mark-sexp)))
 </pre>
 </div>
 
@@ -5361,7 +5361,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 </p>
 
 <p>
-↑のサイトで紹介されている回避策とは異なり，新たな <code>my-yas-expand</code> を作ることで，orgバッファのソースブロック中で <code>TAB</code> 押下してもエラーを受けないようにしました．ソースコードは <code>C-c '</code> で開く別バッファで編集します．
+↑のサイトで紹介されている回避策とは異なり，新たな <code>my-yas-expand</code> を作ることで，orgバッファのソースブロック中で <code>&lt;tab&gt;</code> 押下してもエラーを受けないようにしました．ソースコードは <code>C-c '</code> で開く別バッファで編集します．
 </p>
 
 <p>
@@ -5412,7 +5412,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
                           (org-src-edit-buffer-p))))
            (org-cycle))
           (t (yas-expand field))))
-  (define-key yas-minor-mode-map (kbd <span style="color: #8b2252;">"&lt;tab&gt;"</span>) 'my-yas-expand))
+  (keymap-set yas-minor-mode-map <span style="color: #8b2252;">"&lt;tab&gt;"</span> 'my-yas-expand))
 </pre>
 </div>
 </div>
@@ -5444,8 +5444,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/FlySpell">flyspell.el</a> �
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(osx-dictionary-search-pointer
                            osx-dictionary-search-input)
                          <span style="color: #8b2252;">"osx-dictionary"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-w"</span>) #'osx-dictionary-search-pointer)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f w"</span>) #'osx-dictionary-search-input)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-w"</span> #'osx-dictionary-search-pointer)
+  (keymap-global-set <span style="color: #8b2252;">"C-c f w"</span> #'osx-dictionary-search-input)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"osx-dictionary"</span>
     (custom-set-variables
      '(osx-dictionary-dictionary-choice <span style="color: #8b2252;">"&#33521;&#36766;&#37070; &#31532;&#19971;&#29256;"</span>))))
@@ -5545,8 +5545,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"js2-mode"</span>
     (<span style="color: #a020f0;">if</span> (executable-find <span style="color: #8b2252;">"js-beautify"</span>)
         (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">web-beautify</span> nil t)
-          (define-key js2-mode-map (kbd <span style="color: #8b2252;">"C-c b"</span>) 'web-beautify-js)
-          (define-key js2-mode-map (kbd <span style="color: #8b2252;">"C-c b"</span>) 'web-beautify-css))
+          (keymap-set js2-mode-map <span style="color: #8b2252;">"C-c b"</span> 'web-beautify-js)
+          (keymap-set js2-mode-map <span style="color: #8b2252;">"C-c b"</span> 'web-beautify-css))
       (message <span style="color: #8b2252;">"--- js-beautify is NOT installed."</span>)
       (message <span style="color: #8b2252;">"--- Note: brew install node"</span>)
       (message <span style="color: #8b2252;">"---       npm -g install js-beautify"</span>))))
@@ -5614,7 +5614,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(grugru-default grugru)
                          <span style="color: #8b2252;">"grugru-default"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-9"</span>) #'grugru)
+  (keymap-global-set <span style="color: #8b2252;">"C-9"</span> #'grugru)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"grugru-default"</span>
     (custom-set-faces
      '(grugru-edit-completing-function #'ivy-completing-read)
@@ -5737,22 +5737,22 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
                          <span style="color: #8b2252;">"selected"</span> nil t)
   (add-hook 'activate-mark-hook #'my-activate-selected)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"selected"</span>
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"a"</span>) #'embark-act)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">";"</span>) #'comment-dwim)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"e"</span>) #'my-eval-region)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"E"</span>) #'my-eval-region-as-function)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key selected-keymap (kbd "=") #'count-words-region)</span>
+    (keymap-set selected-keymap <span style="color: #8b2252;">"a"</span> #'embark-act)
+    (keymap-set selected-keymap <span style="color: #8b2252;">";"</span> #'comment-dwim)
+    (keymap-set selected-keymap <span style="color: #8b2252;">"e"</span> #'my-eval-region)
+    (keymap-set selected-keymap <span style="color: #8b2252;">"E"</span> #'my-eval-region-as-function)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set selected-keymap "=" #'count-words-region)</span>
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">helpful</span> nil t)
-      (define-key selected-keymap (kbd <span style="color: #8b2252;">"h"</span>) #'helpful-at-point)
-      (define-key selected-keymap (kbd <span style="color: #8b2252;">"v"</span>) #'my-helpful-variable))
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"w"</span>) #'osx-dictionary-search-pointer)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"d"</span>) #'osx-dictionary-search-pointer)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"5"</span>) #'query-replace-from-region)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"g"</span>) #'my-google-this)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"s"</span>) #'osx-lib-say-region)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"q"</span>) #'selected-off)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"x"</span>) #'my-hex-to-decimal)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"X"</span>) #'my-decimal-to-hex)
+      (keymap-set selected-keymap <span style="color: #8b2252;">"h"</span> #'helpful-at-point)
+      (keymap-set selected-keymap <span style="color: #8b2252;">"v"</span> #'my-helpful-variable))
+    (keymap-set selected-keymap <span style="color: #8b2252;">"w"</span> #'osx-dictionary-search-pointer)
+    (keymap-set selected-keymap <span style="color: #8b2252;">"d"</span> #'osx-dictionary-search-pointer)
+    (keymap-set selected-keymap <span style="color: #8b2252;">"5"</span> #'query-replace-from-region)
+    (keymap-set selected-keymap <span style="color: #8b2252;">"g"</span> #'my-google-this)
+    (keymap-set selected-keymap <span style="color: #8b2252;">"s"</span> #'osx-lib-say-region)
+    (keymap-set selected-keymap <span style="color: #8b2252;">"q"</span> #'selected-off)
+    (keymap-set selected-keymap <span style="color: #8b2252;">"x"</span> #'my-hex-to-decimal)
+    (keymap-set selected-keymap <span style="color: #8b2252;">"X"</span> #'my-decimal-to-hex)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my-eval-region ()</span>
     <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(interactive)</span>
@@ -5760,17 +5760,17 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(eval-region (region-beginning) (region-end) t)))</span>
 
     (<span style="color: #a020f0;">setq</span> selected-org-mode-map (make-sparse-keymap))
-    (define-key selected-org-mode-map (kbd <span style="color: #8b2252;">"t"</span>) #'org-toggle-checkbox)
-    (define-key selected-org-mode-map (kbd <span style="color: #8b2252;">"-"</span>) #'my-org-bullet-and-checkbox)
+    (keymap-set selected-org-mode-map <span style="color: #8b2252;">"t"</span> #'org-toggle-checkbox)
+    (keymap-set selected-org-mode-map <span style="color: #8b2252;">"-"</span> #'my-org-bullet-and-checkbox)
 
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region</span> nil t)
-      (define-key selected-keymap (kbd <span style="color: #8b2252;">"SPC"</span>) #'er/expand-region))
+      (keymap-set selected-keymap <span style="color: #8b2252;">"SPC"</span> #'er/expand-region))
 
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">counsel-selected</span> nil t)
-      (define-key selected-keymap (kbd <span style="color: #8b2252;">"l"</span>) 'counsel-selected))
+      (keymap-set selected-keymap <span style="color: #8b2252;">"l"</span> 'counsel-selected))
 
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">help-fns+</span> nil t)
-      (define-key selected-keymap (kbd <span style="color: #8b2252;">"H"</span>) #'my-describe-selected-keymap))))
+      (keymap-set selected-keymap <span style="color: #8b2252;">"H"</span> #'my-describe-selected-keymap))))
 </pre>
 </div>
 </div>
@@ -5788,7 +5788,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"selected"</span>
   (<span style="color: #a020f0;">when</span> (autoload-if-found '(helm-selected)
                            <span style="color: #8b2252;">"helm-selected"</span> nil t)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"h"</span>) 'helm-selected)))
+    (keymap-set selected-keymap <span style="color: #8b2252;">"h"</span> 'helm-selected)))
 </pre>
 </div>
 </div>
@@ -5809,7 +5809,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"selected"</span>
   (<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-selected)
                            <span style="color: #8b2252;">"counsel-selected"</span> nil t)
-    (define-key selected-keymap (kbd <span style="color: #8b2252;">"l"</span>) 'counsel-selected)))
+    (keymap-set selected-keymap <span style="color: #8b2252;">"l"</span> 'counsel-selected)))
 </pre>
 </div>
 </div>
@@ -5829,7 +5829,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
                            mc/edit-lines
                            hydra-multi-cursors/body)
                          <span style="color: #8b2252;">"multiple-cursors"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c h m"</span>) #'hydra-multi-cursors/body)
+  (keymap-global-set <span style="color: #8b2252;">"C-c h m"</span> #'hydra-multi-cursors/body)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"multiple-cursors"</span>
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">see https://github.com/abo-abo/hydra/wiki/multiple-cursors</span>
@@ -5891,7 +5891,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(git-complete)
                          <span style="color: #8b2252;">"git-complete"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f &lt;tab&gt;"</span>) 'git-complete))
+  (keymap-global-set <span style="color: #8b2252;">"C-c f &lt;tab&gt;"</span> 'git-complete))
 </pre>
 </div>
 </div>
@@ -6000,7 +6000,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 (<span style="color: #a020f0;">setq</span> lookup-default-dictionary-options
       '((<span style="color: #483d8b;">:stemmer</span> .  stem-english)))
 (<span style="color: #a020f0;">setq</span> lookup-use-kakasi nil)
-(global-set-key (kbd <span style="color: #8b2252;">"&lt;f6&gt;"</span>) 'lookup-word)
+(keymap-global-set <span style="color: #8b2252;">"&lt;f6&gt;"</span> 'lookup-word)
 
 <span style="color: #b22222;">;;; </span><span style="color: #b22222;">lookup for dictionary (require EB Library, eblook, and lookup.el)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">package download: http://sourceforge.net/projects/lookup</span>
@@ -6040,7 +6040,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"cacoo"</span>
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">cacoo-plugins</span>))
 
-  (global-set-key (kbd <span style="color: #8b2252;">"M--"</span>) 'toggle-cacoo-minor-mode))
+  (keymap-global-set <span style="color: #8b2252;">"M--"</span> 'toggle-cacoo-minor-mode))
 </pre>
 </div>
 </div>
@@ -6061,8 +6061,7 @@ zencoding でタグ打ちを効率化します．今は emmet-mode を使いま�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(zencoding-mode zencoding-expand-line)
                          <span style="color: #8b2252;">"zencoding-mode"</span> <span style="color: #8b2252;">"Zen-coding"</span> t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"zencoding-mode"</span>
-    (define-key zencoding-mode-keymap
-      (kbd <span style="color: #8b2252;">"M-&lt;return&gt;"</span>) 'zencoding-expand-line))
+    (keymap-set zencoding-mode-keymap <span style="color: #8b2252;">"M-&lt;return&gt;"</span> 'zencoding-expand-line))
   (add-hook 'sgml-mode-hook #'zencoding-mode)
   (add-hook 'html-mode-hook #'zencoding-mode)
   (add-hook 'web-mode-hook #'zencoding-mode))
@@ -6100,9 +6099,9 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
           '((sdicf-client <span style="color: #8b2252;">"~/Dropbox/Dic/EIJIRO6/WAEI-128.sdic"</span>))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#12398;&#20301;&#32622;&#12398;&#33521;&#21336;&#35486;&#12398;&#24847;&#21619;&#12434;&#35519;&#12409;&#12427;</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-w"</span>) 'sdic-describe-word-at-point)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-w"</span> 'sdic-describe-word-at-point)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12511;&#12491;&#12496;&#12483;&#12501;&#12449;&#12395;&#33521;&#21336;&#35486;&#12434;&#20837;&#12428;&#12390;&#33521;&#36766;&#37070;&#12434;&#20351;&#12358;</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c w"</span>) 'sdic-describe-word))
+  (keymap-global-set <span style="color: #8b2252;">"C-c w"</span> 'sdic-describe-word))
 </pre>
 </div>
 </div>
@@ -6205,7 +6204,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(dict-app-search)
                          <span style="color: #8b2252;">"dict-app"</span> nil t)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#12398;&#20301;&#32622;&#12398;&#33521;&#21336;&#35486;&#12398;&#24847;&#21619;&#12434;&#35519;&#12409;&#12427;</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-w"</span>) 'dict-app-search))
+  (keymap-global-set <span style="color: #8b2252;">"C-M-w"</span> 'dict-app-search))
 </pre>
 </div>
 </div>
@@ -6636,8 +6635,8 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(advice-add 'split-window-below :after #'ad:split-window-below)</span>
 (<span style="color: #a020f0;">if</span> (&lt; emacs-major-version 29)
-    (global-set-key (kbd <span style="color: #8b2252;">"C-M-s"</span>) #'my-open-scratch)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-s"</span>) #'scratch-buffer))
+    (keymap-global-set <span style="color: #8b2252;">"C-M-s"</span> #'my-open-scratch)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-s"</span> #'scratch-buffer))
 </pre>
 </div>
 
@@ -6850,7 +6849,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(my-toggle-display-line-numbers-mode)
                          <span style="color: #8b2252;">"display-line-numbers"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-&lt;f12&gt;"</span>) 'my-toggle-display-line-numbers-mode)
+  (keymap-global-set <span style="color: #8b2252;">"C-&lt;f12&gt;"</span> 'my-toggle-display-line-numbers-mode)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hl-line"</span>
     (my-update-display-line-numbers-face)
     (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
@@ -7890,20 +7889,20 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-ibuffer counsel-M-x counsel-yank-pop)
                          <span style="color: #8b2252;">"counsel"</span> nil t)
 
-  (global-set-key (kbd <span style="color: #8b2252;">"M-x"</span>) 'counsel-M-x)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-y"</span>) 'counsel-yank-pop)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-,"</span>) 'counsel-mark-ring)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-x C-b"</span>) 'counsel-ibuffer)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-g"</span>) 'ivy-resume)
+  (keymap-global-set <span style="color: #8b2252;">"M-x"</span> 'counsel-M-x)
+  (keymap-global-set <span style="color: #8b2252;">"M-y"</span> 'counsel-yank-pop)
+  (keymap-global-set <span style="color: #8b2252;">"C-,"</span> 'counsel-mark-ring)
+  (keymap-global-set <span style="color: #8b2252;">"C-x C-b"</span> 'counsel-ibuffer)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-g"</span> 'ivy-resume)
 
   (<span style="color: #a020f0;">unless</span> (fboundp 'seq-sort-by) <span style="color: #b22222;">;; </span><span style="color: #b22222;">emacs25</span>
     (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">seq-sort-by</span> 'my-seq-sort-by))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
-    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'counsel-mark-ring))
+    (keymap-set flyspell-mode-map <span style="color: #8b2252;">"C-,"</span> 'counsel-mark-ring))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-,"</span>) 'counsel-mark-ring))
+    (keymap-set org-mode-map <span style="color: #8b2252;">"C-,"</span> 'counsel-mark-ring))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#21516;&#19968;&#34892;&#12395;&#35079;&#25968;&#12398; mark &#12364;&#12354;&#12427;&#22580;&#21512;&#65292;&#19968;&#12388;&#12384;&#12369;&#12434;&#20505;&#35036;&#12392;&#12375;&#12390;&#34920;&#31034;&#12377;&#12427;&#65294;</span>
@@ -7914,15 +7913,15 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
     (<span style="color: #a020f0;">setf</span> (alist-get 'counsel-mark-ring ivy-sort-functions-alist) nil)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-o &#12434; ivy-dispatching-done-hydra &#12395;&#21106;&#12426;&#24403;&#12390;&#12427;&#65294;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set ivy-minibuffer-map "M-o" 'ivy-dispatching-done-hydra)</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">ivy-dispatching-done &#12434;&#20351;&#12358;&#65294;</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done)</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set ivy-minibuffer-map "M-o" 'ivy-dispatching-done)</span>
     (<span style="color: #a020f0;">setq</span> ivy-read-action-function #'ivy-hydra-read-action)
 
     (<span style="color: #a020f0;">setq</span> ivy-use-virtual-buffers nil)
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">setq</span> enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
-    (define-key ivy-minibuffer-map (kbd <span style="color: #8b2252;">"&lt;escape&gt;"</span>) 'minibuffer-keyboard-quit)
+    (keymap-set ivy-minibuffer-map <span style="color: #8b2252;">"&lt;escape&gt;"</span> 'minibuffer-keyboard-quit)
     (<span style="color: #a020f0;">setq</span> ivy-count-format <span style="color: #8b2252;">"%d.%d "</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq ivy-truncate-lines nil) ;; &#36984;&#25246;&#20505;&#35036;&#12418;&#25240;&#12426;&#36820;&#12373;&#12428;&#12390;&#12375;&#12414;&#12358;&#65294;</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq ivy-wrap t)</span>
@@ -7949,7 +7948,8 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Disable counsel-find-file</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file</span>
     (<span style="color: #a020f0;">setq</span> read-file-name-function #'my-disable-counsel-find-file)
-    (define-key counsel-mode-map [remap find-file]  nil)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key counsel-mode-map [remap find-file]  nil) ;; TODO</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-substitute counsel-mode-map 'find-file nil) ;; FIXME</span>
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12458;&#12522;&#12472;&#12490;&#12523;&#12434;&#38750;&#12452;&#12531;&#12479;&#12521;&#12463;&#12486;&#12451;&#12502;&#21270;&#65288;&#19978;&#26360;&#12365;&#12391;&#21487;&#65294;advice&#19981;&#21487;&#65289;</span>
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">find-func</span> nil t)
@@ -8193,8 +8193,8 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(swiper-thing-at-point swiper-all-thing-at-point)
                          <span style="color: #8b2252;">"swiper"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-s M-s"</span>) 'swiper-thing-at-point)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-s M-a"</span>) 'swiper-all-thing-at-point)
+  (keymap-global-set <span style="color: #8b2252;">"M-s M-s"</span> 'swiper-thing-at-point)
+  (keymap-global-set <span style="color: #8b2252;">"M-s M-a"</span> 'swiper-all-thing-at-point)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"swiper"</span>
     (advice-add 'swiper-thing-at-point <span style="color: #483d8b;">:override</span> #'ad:swiper-thing-at-point)))
 </pre>
@@ -8428,11 +8428,11 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
 (<span style="color: #a020f0;">when</span> (autoload-if-found '(hydra-timestamp/body help/insert-datestamp)
                          <span style="color: #8b2252;">"hydra"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c h t"</span>) #'hydra-timestamp/body)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c 0"</span>) #'help/insert-datestamp)
+  (keymap-global-set <span style="color: #8b2252;">"C-c h t"</span> #'hydra-timestamp/body)
+  (keymap-global-set <span style="color: #8b2252;">"C-c 0"</span> #'help/insert-datestamp)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hydra"</span>
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span> nil t)
-    (global-set-key (kbd <span style="color: #8b2252;">"C-c )"</span>) #'help/insert-currenttime)
+    (keymap-global-set <span style="color: #8b2252;">"C-c )"</span> #'help/insert-currenttime)
     (custom-set-faces
      '(hydra-face-blue
        ((((background light))
@@ -8542,7 +8542,7 @@ ivyに移行しました．
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(helm-swoop)
                          <span style="color: #8b2252;">"helm-swoop"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-s M-s"</span>) 'helm-swoop)
+  (keymap-global-set <span style="color: #8b2252;">"M-s M-s"</span> 'helm-swoop)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"helm-swoop"</span>
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">helm-config</span> nil t)
@@ -8562,14 +8562,14 @@ ivyに移行しました．
                            helm-locate helm-descbinds
                            helm-occur helm-flycheck helm-bookmarks)
                          <span style="color: #8b2252;">"helm-config"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-x C-b"</span>) 'helm-buffers-list)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-r"</span>) 'helm-recentf)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-x"</span>) 'helm-M-x)
+  (keymap-global-set <span style="color: #8b2252;">"C-x C-b"</span> 'helm-buffers-list)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-r"</span> 'helm-recentf)
+  (keymap-global-set <span style="color: #8b2252;">"M-x"</span> 'helm-M-x)
 
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-l"</span>) 'helm-locate)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f b"</span>) 'helm-bookmarks)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c o"</span>) 'helm-occur)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-h d"</span>) 'helm-descbinds)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-l"</span> 'helm-locate)
+  (keymap-global-set <span style="color: #8b2252;">"C-c f b"</span> 'helm-bookmarks)
+  (keymap-global-set <span style="color: #8b2252;">"C-c o"</span> 'helm-occur)
+  (keymap-global-set <span style="color: #8b2252;">"C-h d"</span> 'helm-descbinds)
 '
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"projectile"</span>
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">helm-projectile</span> nil t)
@@ -8580,10 +8580,10 @@ ivyに移行しました．
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"helm-config"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (require 'helm-files nil t)</span>
-    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(define-key helm-find-files-map</span>
-    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(kbd "&lt;tab&gt;") 'helm-execute-persistent-action)</span>
-    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(define-key helm-read-file-map</span>
-    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(kbd "&lt;tab&gt;") 'helm-execute-persistent-action))</span>
+    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(keymap-set helm-find-files-map</span>
+    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">"&lt;tab&gt;" 'helm-execute-persistent-action)</span>
+    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(keymap-set helm-read-file-map</span>
+    <span style="color: #b22222;">;;     </span><span style="color: #b22222;">"&lt;tab&gt;" 'helm-execute-persistent-action))</span>
 
     (<span style="color: #a020f0;">when</span> (memq window-system '(mac ns))
       (<span style="color: #a020f0;">setq</span> helm-locate-command <span style="color: #8b2252;">"mdfind -name %s %s"</span>))
@@ -8720,12 +8720,12 @@ ivyに移行しました．
   <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setq zlc-select-completion-immediately t)</span>
   (<span style="color: #a020f0;">let</span> ((map minibuffer-local-map))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">like menu select</span>
-    (define-key map (kbd <span style="color: #8b2252;">"C-n"</span>) 'zlc-select-next-vertical)
-    (define-key map (kbd <span style="color: #8b2252;">"C-p"</span>) 'zlc-select-previous-vertical)
-    (define-key map (kbd <span style="color: #8b2252;">"C-f"</span>) 'zlc-select-next)
-    (define-key map (kbd <span style="color: #8b2252;">"C-b"</span>) 'zlc-select-previous)
+    (keymap-set map <span style="color: #8b2252;">"C-n"</span> 'zlc-select-next-vertical)
+    (keymap-set map <span style="color: #8b2252;">"C-p"</span> 'zlc-select-previous-vertical)
+    (keymap-set map <span style="color: #8b2252;">"C-f"</span> 'zlc-select-next)
+    (keymap-set map <span style="color: #8b2252;">"C-b"</span> 'zlc-select-previous)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">reset selection</span>
-    (define-key map (kbd <span style="color: #8b2252;">"C-c"</span>) 'zlc-reset))
+    (keymap-set map <span style="color: #8b2252;">"C-c"</span> 'zlc-reset))
 
   (zlc-mode 1))
 </pre>
@@ -8848,11 +8848,11 @@ ivyに移行しました．
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Show ibuffer powered by anything</span>
   <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(with-eval-after-load "anything-startup"</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"M-x"</span>) 'anything-M-x)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c o"</span>) 'anything-c-moccur-occur-by-moccur)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-r"</span>) 'my-anything)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-s"</span>) 'my-anything-spotlight)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-x C-b"</span>) 'my-anything-buffer))
+  (keymap-global-set <span style="color: #8b2252;">"M-x"</span> 'anything-M-x)
+  (keymap-global-set <span style="color: #8b2252;">"C-c o"</span> 'anything-c-moccur-occur-by-moccur)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-r"</span> 'my-anything)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-s"</span> 'my-anything-spotlight)
+  (keymap-global-set <span style="color: #8b2252;">"C-x C-b"</span> 'my-anything-buffer))
 </pre>
 </div>
 </div>
@@ -8941,12 +8941,12 @@ ivyに移行しました．
                            emms-play-playlist emms-play-directory my-play-bgm
                            emms-next emms-previous emms-stop emms-pause)
                          <span style="color: #8b2252;">"emms"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c e b"</span>) 'my-play-bgm)
+  (keymap-global-set <span style="color: #8b2252;">"C-c e b"</span> 'my-play-bgm)
   (<span style="color: #a020f0;">let</span> ((base <span style="color: #8b2252;">"C-c e "</span>))
-    (global-set-key (kbd (concat base <span style="color: #8b2252;">"n"</span>)) 'emms-next)
-    (global-set-key (kbd (concat base <span style="color: #8b2252;">"p"</span>)) 'emms-previous)
-    (global-set-key (kbd (concat base <span style="color: #8b2252;">"s"</span>)) 'emms-stop)
-    (global-set-key (kbd (concat base <span style="color: #8b2252;">"SPC"</span>)) 'emms-pause))
+    (keymap-global-set (concat base <span style="color: #8b2252;">"n"</span>) 'emms-next)
+    (keymap-global-set (concat base <span style="color: #8b2252;">"p"</span>) 'emms-previous)
+    (keymap-global-set (concat base <span style="color: #8b2252;">"s"</span>) 'emms-stop)
+    (keymap-global-set (concat base <span style="color: #8b2252;">"SPC"</span>) 'emms-pause))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"emms-mode-line"</span>
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:emms-mode-line-playlist-current</span> ()
@@ -9010,7 +9010,7 @@ ivyに移行しました．
           <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(call-process-shell-command cmd nil nil nil))</span>
           <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq emms-player-mpv-ontop nil))</span>
 
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(global-set-key (kbd "C-c e t") 'emms-player-mpv-toggle-ontop)</span>
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-global-set "C-c e t" 'emms-player-mpv-toggle-ontop)</span>
           )
 
       (message <span style="color: #8b2252;">"--- mpv is NOT installed."</span>))))
@@ -9262,7 +9262,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-recentf)
                          <span style="color: #8b2252;">"counsel"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-r"</span>) 'counsel-recentf))
+  (keymap-global-set <span style="color: #8b2252;">"C-M-r"</span> 'counsel-recentf))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">see https://github.com/mattfidler/EmacsPortable.App/issues/7</span>
 (<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
@@ -9374,7 +9374,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </ol>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(define-key dired-mode-map (kbd <span style="color: #8b2252;">"C-c C-o"</span>) 'crux-open-with)
+<pre class="src src-emacs-lisp">(keymap-set dired-mode-map <span style="color: #8b2252;">"C-c C-o"</span> 'crux-open-with)
 </pre>
 </div>
 
@@ -9626,18 +9626,18 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">"dired-mode-map"</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Use build-in `</span><span style="color: #008b8b;">wdired-mode</span><span style="color: #b22222;">'.</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set dired-mode-map "R" 'wdired-change-to-wdired-mode)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">http://elpa.gnu.org/packages/gited.html</span>
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">gited</span> nil t)
-  (define-key dired-mode-map (kbd <span style="color: #8b2252;">"C-x C-g"</span>) 'gited-list-branches))
+  (keymap-set dired-mode-map <span style="color: #8b2252;">"C-x C-g"</span> 'gited-list-branches))
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/Fuco1/dired-hacks</span>
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-narrow</span> nil t)
-  (define-key dired-mode-map (kbd <span style="color: #8b2252;">"/"</span>) 'dired-narrow))
+  (keymap-set dired-mode-map <span style="color: #8b2252;">"/"</span> 'dired-narrow))
 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-du</span> nil t)
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ivy-dired-history</span> nil t)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">ivy-dired-history-variable &#12399;&#65292;session.el &#12391;&#26126;&#31034;&#30340;&#12395;&#31649;&#29702;&#20013;&#65294;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">check session-globals-include</span>
-  (define-key dired-mode-map <span style="color: #8b2252;">","</span> 'dired))
+  (keymap-set dired-mode-map <span style="color: #8b2252;">","</span> 'dired))
 (<span style="color: #a020f0;">declare-function</span> dired-extra-startup <span style="color: #8b2252;">"dired-x"</span>)
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-x</span> nil t)
   (dired-extra-startup))
@@ -9646,16 +9646,14 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
   (<span style="color: #a020f0;">interactive</span>)
   (shell-command-to-string <span style="color: #8b2252;">"open ."</span>))
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">dired-x &#12434;&#35501;&#12415;&#36796;&#12435;&#12384;&#12354;&#12392;&#12376;&#12419;&#12394;&#12356;&#12392;&#12384;&#12417;</span>
-(define-key dired-mode-map (kbd <span style="color: #8b2252;">"F"</span>) 'my-reveal-in-finder)
+(keymap-set dired-mode-map <span style="color: #8b2252;">"F"</span> 'my-reveal-in-finder)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19978;&#20301;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#12408;&#12398;&#31227;&#21205;</span>
-(define-key dired-mode-map (kbd <span style="color: #8b2252;">"u"</span>) 'dired-up-directory)
+(keymap-set dired-mode-map <span style="color: #8b2252;">"u"</span> 'dired-up-directory)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Finder &#12434;&#20351;&#12387;&#12383;&#12501;&#12449;&#12452;&#12523;&#12458;&#12540;&#12503;&#12531;</span>
-(define-key dired-mode-map (kbd <span style="color: #8b2252;">"f"</span>) 'ns-open-file-using-panel)
+(keymap-set dired-mode-map <span style="color: #8b2252;">"f"</span> 'ns-open-file-using-panel)
 
-(define-key dired-mode-map
-  (kbd <span style="color: #8b2252;">"C-M-p"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
-(define-key dired-mode-map
-  (kbd <span style="color: #8b2252;">"C-M-n"</span>) (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
+(keymap-set dired-mode-map <span style="color: #8b2252;">"C-M-p"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
+(keymap-set dired-mode-map <span style="color: #8b2252;">"C-M-n"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/xuchunyang/emacs.d</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">type "!" or "X" in dired</span>
@@ -9681,8 +9679,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
            (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">hydra</span> nil t)
            (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-recent</span> nil t))
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key dired-mode-map "h" 'hydra-dired/body)</span>
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key dired-mode-map "r" 'dired-recent-open)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set dired-mode-map "h" 'hydra-dired/body)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set dired-mode-map "r" 'dired-recent-open)</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/abo-abo/hydra/wiki/Dired</span>
   (defhydra hydra-dired (<span style="color: #483d8b;">:hint</span> nil <span style="color: #483d8b;">:color</span> pink)
@@ -9748,7 +9746,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 (<span style="color: #a020f0;">when</span> (autoload-if-found '(dired-recent-open dired-recent-mode)
                          <span style="color: #8b2252;">"dired-recent"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-x C-d"</span>) 'dired-recent-open)
+  (keymap-global-set <span style="color: #8b2252;">"C-x C-d"</span> 'dired-recent-open)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired-recent"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'helm-config nil t)</span>
     (dired-recent-mode 1)))
@@ -9785,8 +9783,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(undo-fu-only-undo undo-fu-only-redo)
                          <span style="color: #8b2252;">"undo-fu"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-/"</span>) 'undo-fu-only-undo)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-/"</span>) 'undo-fu-only-redo))
+  (keymap-global-set <span style="color: #8b2252;">"C-/"</span> 'undo-fu-only-undo)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-/"</span> 'undo-fu-only-redo))
 </pre>
 </div>
 </div>
@@ -10047,7 +10045,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(neotree neotree-toggle)
                          <span style="color: #8b2252;">"neotree"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c n"</span>) #'neotree-toggle)
+  (keymap-global-set <span style="color: #8b2252;">"C-c n"</span> #'neotree-toggle)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"neotree"</span>
     (custom-set-variables
      '(neo-show-hidden-files t)
@@ -10090,11 +10088,11 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
                            helpful-function helpful-variable helpful-at-point
                            helpful-symbol)
                          <span style="color: #8b2252;">"helpful"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f1&gt; k"</span>) 'helpful-key)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f1&gt; f"</span>) 'helpful-function)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f1&gt; v"</span>) 'helpful-variable)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f1&gt; m"</span>) 'helpful-macro)
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f1&gt; @"</span>) 'helpful-at-point)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f1&gt; k"</span> 'helpful-key)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f1&gt; f"</span> 'helpful-function)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f1&gt; v"</span> 'helpful-variable)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f1&gt; m"</span> 'helpful-macro)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f1&gt; @"</span> 'helpful-at-point)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"helpful"</span>
     (advice-add 'helpful-at-point <span style="color: #483d8b;">:before</span> #'ad:helpful-at-point)))
 </pre>
@@ -10142,7 +10140,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
                          <span style="color: #8b2252;">"keyfreq"</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will require 'cl and 'gv(10-20[ms])</span>
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"keyfreq"</span>
     (advice-add 'keyfreq-show <span style="color: #483d8b;">:after</span> #'ad:keyfreq-show)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key keyfreq-mode-map (kbd "q")</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set keyfreq-mode-map "q"</span>
     <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(lambda () (interactive)</span>
     <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(when (string= (buffer-name) keyfreq-buffer)</span>
     <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(kill-buffer-and-window))))</span>
@@ -10241,7 +10239,7 @@ Boot                Endtime             Uptime       This emacs
     (<span style="color: #a020f0;">when</span> (autoload-if-found '(my-ag ag)
                              <span style="color: #8b2252;">"ag"</span> nil t)
       (autoload-if-found '(helm-ag) <span style="color: #8b2252;">"helm-ag"</span> nil t)
-      (global-set-key (kbd <span style="color: #8b2252;">"C-M-f"</span>) 'my-ag)
+      (keymap-global-set <span style="color: #8b2252;">"C-M-f"</span> 'my-ag)
 
       (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ag"</span>
         (custom-set-variables
@@ -10250,7 +10248,7 @@ Boot                Endtime             Uptime       This emacs
          '(ag-reuse-window nil))        <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil: &#32080;&#26524;&#12434;&#36984;&#25246;&#26178;&#12395;&#21029;&#12454;&#12451;&#12531;&#12489;&#12454;&#12395;&#32080;&#26524;&#12434;&#20986;&#12377;</span>
 
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">q &#12391;&#12454;&#12451;&#12531;&#12489;&#12454;&#12434;&#25244;&#12369;&#12427;</span>
-        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(define-key ag-mode-map (kbd "q") 'delete-window)</span>
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-set ag-mode-map "q" 'delete-window)</span>
         (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ag</span> ()
           <span style="color: #8b2252;">"Switch to search result."</span>
           (<span style="color: #a020f0;">interactive</span>)
@@ -10281,7 +10279,7 @@ Boot                Endtime             Uptime       This emacs
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-ag)
                          <span style="color: #8b2252;">"counsel"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-f"</span>) 'counsel-ag)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-f"</span> 'counsel-ag)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">thingatpt</span> nil t)
     (advice-add 'counsel-ag <span style="color: #483d8b;">:around</span> #'ad:counsel-ag)
@@ -10315,7 +10313,7 @@ Boot                Endtime             Uptime       This emacs
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-fzf)
                          <span style="color: #8b2252;">"counsel"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-z"</span>) 'counsel-fzf)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-z"</span> 'counsel-fzf)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
     (advice-add 'counsel-fzf <span style="color: #483d8b;">:around</span> #'ad:counsel-fzf)
     (ivy-add-actions
@@ -10361,7 +10359,7 @@ Boot                Endtime             Uptime       This emacs
         (undo)
       (undo-propose)))
 
-  (global-set-key (kbd <span style="color: #8b2252;">"C-/"</span>) 'my-undo-propose)
+  (keymap-global-set <span style="color: #8b2252;">"C-/"</span> 'my-undo-propose)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">located here intended to share this command with `</span><span style="color: #008b8b;">undo-tree</span><span style="color: #b22222;">'</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-reveal-and-focus</span> (<span style="color: #228b22;">&amp;optional</span> _arg)
@@ -10383,8 +10381,8 @@ Boot                Endtime             Uptime       This emacs
     (add-hook 'undo-propose-entry-hook #'undo) <span style="color: #b22222;">;; </span><span style="color: #b22222;">immediate undo</span>
     (undo-propose-wrap redo)
 
-    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"/"</span>) 'undo)
-    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"q"</span>) 'undo-propose-cancel)
+    (keymap-set undo-propose-mode-map <span style="color: #8b2252;">"/"</span> 'undo)
+    (keymap-set undo-propose-mode-map <span style="color: #8b2252;">"q"</span> 'undo-propose-cancel)
     (advice-add 'undo-propose-commit <span style="color: #483d8b;">:after</span> #'my-org-reveal-and-focus)
     (advice-add 'undo-propose-squash-commit <span style="color: #483d8b;">:after</span> #'my-org-reveal-and-focus)
 
@@ -10401,12 +10399,12 @@ Boot                Endtime             Uptime       This emacs
       (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
     (add-hook 'undo-propose-done-hook #'my-undo-propose-autocommit-off)
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">SPC and RET in `</span><span style="color: #008b8b;">undo-propose-mode</span><span style="color: #b22222;">' will commit changes.</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">SPC and &lt;return&gt; in `</span><span style="color: #008b8b;">undo-propose-mode</span><span style="color: #b22222;">' will commit changes.</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Additionally, the commands will be executed.</span>
-    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"SPC"</span>) 'undo-propose-commit)
-    (define-key undo-propose-mode-map (kbd <span style="color: #8b2252;">"RET"</span>) 'undo-propose-commit)
+    (keymap-set undo-propose-mode-map <span style="color: #8b2252;">"SPC"</span> 'undo-propose-commit)
+    (keymap-set undo-propose-mode-map <span style="color: #8b2252;">"RET"</span> 'undo-propose-commit)
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-propose-key-through</span> ()
-      <span style="color: #8b2252;">"Through SPC and RET."</span>
+      <span style="color: #8b2252;">"Through SPC and &lt;return&gt;."</span>
       (<span style="color: #a020f0;">let</span> ((command (this-command-keys)))
         (<span style="color: #a020f0;">cond</span> ((equal (kbd <span style="color: #8b2252;">"SPC"</span>) command)
                (insert <span style="color: #8b2252;">" "</span>))
@@ -10447,7 +10445,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el</span>
 (<span style="color: #a020f0;">when</span> (autoload-if-found '(my-undo-tree-visualize)
                          <span style="color: #8b2252;">"undo-tree"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-x u"</span>) 'my-undo-tree-visualize)
+  (keymap-global-set <span style="color: #8b2252;">"C-x u"</span> 'my-undo-tree-visualize)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"undo-tree"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(global-undo-tree-mode)</span>
     (<span style="color: #a020f0;">setq</span> undo-tree-mode-lighter nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#38936;&#22495;&#12434;&#31680;&#32004;</span>
@@ -10466,7 +10464,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
           (<span style="color: #a020f0;">setq</span> my-undo-tree-active t)))
       (undo-tree-visualize))
 
-    (define-key undo-tree-map (kbd <span style="color: #8b2252;">"C-x u"</span>) 'my-undo-tree-visualize)
+    (keymap-set undo-tree-map <span style="color: #8b2252;">"C-x u"</span> 'my-undo-tree-visualize)
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-undo-tree-visualizer-quit</span> ()
       (<span style="color: #a020f0;">interactive</span>)
@@ -10481,7 +10479,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
         (set-frame-width nil 80))
       (undo-tree-mode -1))
 
-    (define-key undo-tree-visualizer-mode-map (kbd <span style="color: #8b2252;">"q"</span>)
+    (keymap-set undo-tree-visualizer-mode-map <span style="color: #8b2252;">"q"</span>
       'my-undo-tree-visualizer-quit))
 
   (advice-add 'undo-tree-undo-1 <span style="color: #483d8b;">:after</span> #'my-org-reveal-and-focus)
@@ -10560,8 +10558,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Backup the buffer whenever the buffer is saved</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-x C-s"</span>)
-                (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (save-buffer 16)))
+(keymap-global-set <span style="color: #8b2252;">"C-x C-s"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (save-buffer 16)))
 </pre>
 </div>
 </div>
@@ -10637,8 +10634,8 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-;"</span>) 'comment-dwim) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-; is the defualt</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-c c"</span>) 'compile)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"C-;"</span> 'comment-dwim) <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-; is the defualt</span>
+(keymap-global-set <span style="color: #8b2252;">"C-c c"</span> 'compile)
 </pre>
 </div>
 </div>
@@ -10679,7 +10676,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
               (<span style="color: #a020f0;">lambda</span> ()
                   (<span style="color: #a020f0;">when</span> (memq major-mode '(c-mode c++-mode))
                     (doxymacs-font-lock))))
-    (define-key doxymacs-mode-map (kbd <span style="color: #8b2252;">"C-c C-s"</span>) 'ff-find-other-file)))
+    (keymap-set doxymacs-mode-map <span style="color: #8b2252;">"C-c C-s"</span> 'ff-find-other-file)))
 </pre>
 </div>
 </div>
@@ -10793,9 +10790,8 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
     (add-hook hook #'origami-mode))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"origami"</span>
-    (define-key origami-mode-map (kbd <span style="color: #8b2252;">"C-t"</span>) #'origami-toggle-node)
-    (define-key origami-mode-map (kbd <span style="color: #8b2252;">"C-u C-t"</span>)
-      #'origami-toggle-all-nodes)))
+    (keymap-set origami-mode-map <span style="color: #8b2252;">"C-t"</span> #'origami-toggle-node)
+    (keymap-set origami-mode-map <span style="color: #8b2252;">"C-u C-t"</span> #'origami-toggle-all-nodes)))
 </pre>
 </div>
 </div>
@@ -10894,15 +10890,15 @@ int main(){
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(quickrun)
                          <span style="color: #8b2252;">"quickrun"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"go-mode"</span>
-    (define-key go-mode-map (kbd <span style="color: #8b2252;">"&lt;f5&gt;"</span>) 'quickrun))
+    (keymap-set go-mode-map <span style="color: #8b2252;">"&lt;f5&gt;"</span> 'quickrun))
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"c++-mode"</span>
-    (define-key c++-mode-map (kbd <span style="color: #8b2252;">"&lt;f5&gt;"</span>) 'quickrun))
+    (keymap-set c++-mode-map <span style="color: #8b2252;">"&lt;f5&gt;"</span> 'quickrun))
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"python-mode"</span>
-    (define-key python-mode-map (kbd <span style="color: #8b2252;">"&lt;f5&gt;"</span>) 'quickrun))
+    (keymap-set python-mode-map <span style="color: #8b2252;">"&lt;f5&gt;"</span> 'quickrun))
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"perl-mode"</span>
-    (define-key perl-mode-map (kbd <span style="color: #8b2252;">"&lt;f5&gt;"</span>) 'quickrun))
+    (keymap-set perl-mode-map <span style="color: #8b2252;">"&lt;f5&gt;"</span> 'quickrun))
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"gnuplot-mode"</span>
-    (define-key gnuplot-mode-map (kbd <span style="color: #8b2252;">"&lt;f5&gt;"</span>) 'quickrun)))
+    (keymap-set gnuplot-mode-map <span style="color: #8b2252;">"&lt;f5&gt;"</span> 'quickrun)))
 </pre>
 </div>
 </div>
@@ -10926,7 +10922,7 @@ int main(){
       (message <span style="color: #8b2252;">"--- global is NOT installed in this system."</span>))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq ggtags-completing-read-function t) ;; nil for helm</span>
-    (define-key ggtags-mode-map (kbd <span style="color: #8b2252;">"M-]"</span>) nil)))
+    (keymap-set ggtags-mode-map <span style="color: #8b2252;">"M-]"</span> nil)))
 
 (<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-gtags-mode)
                          <span style="color: #8b2252;">"counsel-gtags"</span> nil t)
@@ -10976,7 +10972,7 @@ int main(){
                            0xc-convert-point
                            my-decimal-to-hex my-hex-to-decimal)
        <span style="color: #8b2252;">"0xc"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f h"</span>) '0xc-convert))
+  (keymap-global-set <span style="color: #8b2252;">"C-c f h"</span> '0xc-convert))
 </pre>
 </div>
 </div>
@@ -11133,8 +11129,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
       (<span style="color: #a020f0;">setq</span> projectile-completion-system 'ivy)
       (<span style="color: #a020f0;">setq</span> counsel-projectile-sort-files t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#24403;&#35442;&#12503;&#12525;&#12472;&#12455;&#12463;&#12488;&#20869;&#12522;&#12473;&#12488;&#12434;&#12477;&#12540;&#12488;</span>
       (<span style="color: #a020f0;">setq</span> counsel-projectile-sort-projects t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12503;&#12525;&#12472;&#12455;&#12463;&#12488;&#12522;&#12473;&#12488;&#12434;&#12477;&#12540;&#12488;</span>
-      (define-key projectile-mode-map (kbd <span style="color: #8b2252;">"C-c p"</span>) 'projectile-command-map)
-      (define-key projectile-mode-map (kbd <span style="color: #8b2252;">"C-M-f"</span>) 'my-counsel-projectile-ag)
+      (keymap-set projectile-mode-map <span style="color: #8b2252;">"C-c p"</span> 'projectile-command-map)
+      (keymap-set projectile-mode-map <span style="color: #8b2252;">"C-M-f"</span> 'my-counsel-projectile-ag)
       (counsel-projectile-mode 1)))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
@@ -11182,7 +11178,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(magit-status ad:magit-mode-bury-buffer)
                          <span style="color: #8b2252;">"magit"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c m"</span>) 'magit-status)
+  (keymap-global-set <span style="color: #8b2252;">"C-c m"</span> 'magit-status)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"magit"</span>
     (<span style="color: #a020f0;">when</span> (fboundp 'dimmer-off)
       (add-hook 'magit-status-mode-hook 'dimmer-off))
@@ -11288,7 +11284,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 <div class="outline-text-3" id="text-orgac7d24d7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">emr</span> nil t)
-  (define-key prog-mode-map (kbd <span style="color: #8b2252;">"M-RET"</span>) 'emr-show-refactor-menu)
+  (keymap-set prog-mode-map <span style="color: #8b2252;">"M-&lt;return&gt;"</span> 'emr-show-refactor-menu)
   (emr-initialize))
 </pre>
 </div>
@@ -11355,11 +11351,11 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
 (add-hook 'org-mode-hook #'my-company-activate)
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"company"</span>
-  (define-key company-active-map (kbd <span style="color: #8b2252;">"C-n"</span>) 'company-select-next)
-  (define-key company-active-map (kbd <span style="color: #8b2252;">"C-p"</span>) 'company-select-previous)
-  (define-key company-active-map (kbd <span style="color: #8b2252;">"&lt;tab&gt;"</span>) 'company-complete-selection)
-  (define-key company-search-map (kbd <span style="color: #8b2252;">"C-n"</span>) 'company-select-next)
-  (define-key company-search-map (kbd <span style="color: #8b2252;">"C-p"</span>) 'company-select-previous)
+  (keymap-set company-active-map <span style="color: #8b2252;">"C-n"</span> 'company-select-next)
+  (keymap-set company-active-map <span style="color: #8b2252;">"C-p"</span> 'company-select-previous)
+  (keymap-set company-active-map <span style="color: #8b2252;">"&lt;tab&gt;"</span> 'company-complete-selection)
+  (keymap-set company-search-map <span style="color: #8b2252;">"C-n"</span> 'company-select-next)
+  (keymap-set company-search-map <span style="color: #8b2252;">"C-p"</span> 'company-select-previous)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">To complete file path, move `</span><span style="color: #008b8b;">company-files</span><span style="color: #b22222;">' to the fist item of the list</span>
   (delq 'company-files company-backends)
 
@@ -11442,7 +11438,7 @@ Emacs の中で Git リポジトリを操作できます． <code>magit-reposito
      '(corfu-auto-delay 0.5)
      '(corfu-auto t))
 
-    (define-key corfu-mode-map (kbd <span style="color: #8b2252;">"C-SPC"</span>) #'corfu-insert-separator)
+    (keymap-set corfu-mode-map <span style="color: #8b2252;">"C-SPC"</span> #'corfu-insert-separator)
 
     (advice-add 'corfu-insert-separator <span style="color: #483d8b;">:override</span> #'my-corfu-insert-separator)
 
@@ -11518,11 +11514,11 @@ macOS の場合は brew で libvterm をインストールすれば， <code>vte
 <li>辞書データを使う（ <code>ac-dictionary-directories</code> ）</li>
 <li>auto-complete.el, auto-complete-config.el, fuzzy.el, popup.el を使う．</li>
 <li><a href="http://cx4a.org/software/auto-complete/manual.ja.html">日本語マニュアル</a></li>
-<li>ac-auto-start を 4 にしておけば，3文字までは TAB を yasnippet に渡せる．</li>
+<li>ac-auto-start を 4 にしておけば，3文字までは &lt;tab&gt; を yasnippet に渡せる．</li>
 </ul>
 
 <p>
-Org-mode ユーザにとって <code>TAB</code> は非常に重要なコマンド．そこに <code>auto-complete</code> と <code>yasnippet</code> が <code>TAB</code> を奪いに来るので，住み分けが重要になる．=ac-auto-start= を=4=にすると，&lt;s=TAB= によるソースブロックの短縮入力を <code>yasnippet</code> で実行できる（この目的だけならば=3=を指定してもいい）．&lt;sys などと4文字入力すると，=auto-complete= が動いて &lt;system&gt; などを補完してくれる．もちろん，見出しで <code>TAB</code> を押すときには，ツリーの表示／非表示の切り替えになる．
+Org-mode ユーザにとって <code>&lt;tab&gt;</code> は非常に重要なコマンド．そこに <code>auto-complete</code> と <code>yasnippet</code> が <code>&lt;tab&gt;</code> を奪いに来るので，住み分けが重要になる．=ac-auto-start= を=4=にすると，&lt;s=&lt;tab&gt;= によるソースブロックの短縮入力を <code>yasnippet</code> で実行できる（この目的だけならば=3=を指定してもいい）．&lt;sys などと4文字入力すると，=auto-complete= が動いて &lt;system&gt; などを補完してくれる．もちろん，見出しで <code>&lt;tab&gt;</code> を押すときには，ツリーの表示／非表示の切り替えになる．
 </p>
 
 <p>
@@ -11563,7 +11559,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     (add-to-list 'ac-dictionary-directories <span style="color: #8b2252;">"~/.emacs.d/ac-dict"</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">history</span>
     (<span style="color: #a020f0;">setq</span> ac-comphist-file <span style="color: #8b2252;">"~/Dropbox/config/ac-comphist.dat"</span>)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">n&#25991;&#23383;&#20197;&#19978;&#12391;&#35036;&#23436;&#34920;&#31034;&#12377;&#12427;&#65288;"&lt;s TAB" &#12398;&#22580;&#21512; yasnippet &#12364;&#21628;&#12400;&#12428;&#12427;&#65289;</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">n&#25991;&#23383;&#20197;&#19978;&#12391;&#35036;&#23436;&#34920;&#31034;&#12377;&#12427;&#65288;"&lt;s &lt;tab&gt;" &#12398;&#22580;&#21512; yasnippet &#12364;&#21628;&#12400;&#12428;&#12427;&#65289;</span>
     (<span style="color: #a020f0;">setq</span> ac-auto-start 4)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">n&#31186;&#24460;&#12395;&#12513;&#12491;&#12517;&#12540;&#12434;&#34920;&#31034;</span>
     (<span style="color: #a020f0;">setq</span> ac-auto-show-menu 2.0)
@@ -11573,10 +11569,10 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     (<span style="color: #a020f0;">setq</span> ac-quick-help-height 10)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-n/C-p &#12391;&#12513;&#12491;&#12517;&#12540;&#12434;&#12383;&#12393;&#12427;</span>
     (<span style="color: #a020f0;">setq</span> ac-use-menu-map t)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">TAB &#12391;&#35036;&#23436;&#65288;org-mode &#12391;&#12418;&#21177;&#12367;&#12424;&#12358;&#12395;&#12377;&#12427;&#65289;</span>
-    (define-key ac-completing-map [tab] 'ac-complete)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&lt;tab&gt; &#12391;&#35036;&#23436;&#65288;org-mode &#12391;&#12418;&#21177;&#12367;&#12424;&#12358;&#12395;&#12377;&#12427;&#65289;</span>
+    (keymap-set ac-completing-map <span style="color: #8b2252;">"&lt;tab&gt;"</span> 'ac-complete)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">RET &#12391;&#12398;&#35036;&#23436;&#12434;&#31105;&#27490;</span>
-    (define-key ac-completing-map <span style="color: #8b2252;">"\r"</span> nil)
+    (keymap-set ac-completing-map <span style="color: #8b2252;">"RET"</span> nil)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#35036;&#23436;&#12513;&#12491;&#12517;&#12540;&#12398;&#34920;&#31034;&#31934;&#24230;&#12434;&#39640;&#12417;&#12427;</span>
     (<span style="color: #a020f0;">setq</span> popup-use-optimized-column-computation nil)
     <span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq ac-candidate-max 10)</span>
@@ -11632,8 +11628,8 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
                              (hideshowvis-enable))))
 
     (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"hideshowvis"</span>
-      (define-key hideshowvis-mode-map (kbd <span style="color: #8b2252;">"C-("</span>) 'hs-hide-block)
-      (define-key hideshowvis-mode-map (kbd <span style="color: #8b2252;">"C-)"</span>) 'hs-show-block))))
+      (keymap-set hideshowvis-mode-map <span style="color: #8b2252;">"C-("</span> 'hs-hide-block)
+      (keymap-set hideshowvis-mode-map <span style="color: #8b2252;">"C-)"</span> 'hs-show-block))))
 </pre>
 </div>
 </div>
@@ -11703,7 +11699,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-M-o"</span>) #'my-open-default-org-file)
+(keymap-global-set <span style="color: #8b2252;">"C-M-o"</span> #'my-open-default-org-file)
 </pre>
 </div>
 
@@ -11714,9 +11710,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Font lock &#12434;&#20351;&#12358;</span>
 (add-hook 'org-mode-hook #'turn-on-font-lock)
 
-(global-set-key (kbd <span style="color: #8b2252;">"C-c r"</span>) 'org-capture)
-(global-set-key (kbd <span style="color: #8b2252;">"C-c l"</span>) 'org-store-link)
-(global-set-key (kbd <span style="color: #8b2252;">"C-c a"</span>) 'org-agenda)
+(keymap-global-set <span style="color: #8b2252;">"C-c r"</span> 'org-capture)
+(keymap-global-set <span style="color: #8b2252;">"C-c l"</span> 'org-store-link)
+(keymap-global-set <span style="color: #8b2252;">"C-c a"</span> 'org-agenda)
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-modules</span> org-modules) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Tricky!!</span>
@@ -11879,10 +11875,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (save-buffer))
     (message <span style="color: #8b2252;">"Update statistics...done"</span>))
 
-  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c f 2"</span>) 'my-do-org-update-staistics-cookies)
+  (keymap-set org-mode-map <span style="color: #8b2252;">"C-c f 2"</span> 'my-do-org-update-staistics-cookies)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-c &amp; &#12364; yasnippet &#12395;&#12458;&#12540;&#12496;&#12540;&#12521;&#12452;&#12489;&#12373;&#12428;&#12390;&#12356;&#12427;&#12398;&#12434;&#24373;&#12426;&#26367;&#12360;&#12427;</span>
-  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c 4"</span>) 'org-mark-ring-goto)
+  (keymap-set org-mode-map <span style="color: #8b2252;">"C-c 4"</span> 'org-mark-ring-goto)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-transpose-element) &#12364;&#21106;&#12426;&#24403;&#12390;&#12425;&#12428;&#12390;&#12356;&#12427;&#12398;&#12391;&#21462;&#12426;&#36820;&#12377;&#65294;</span>
   (org-defkey org-mode-map <span style="color: #8b2252;">"\C-\M-t"</span> 'beginning-of-buffer))
@@ -11986,7 +11982,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                            my-async-ox-icalendar my-ox-icalendar-cleanup)
                          <span style="color: #8b2252;">"ox-icalendar"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c f 1"</span>) 'my-ox-upload-icalendar))
+    (keymap-set org-mode-map <span style="color: #8b2252;">"C-c f 1"</span> 'my-ox-upload-icalendar))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ox-icalendar"</span>
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">org-ical-file-in-orz-server</span> nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">see private.el</span>
@@ -12788,7 +12784,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
   <span style="color: #8b2252;">"Copy converted table."</span>
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">let</span> ((format (<span style="color: #a020f0;">or</span> format
-                    (org-entry-get (point) <span style="color: #8b2252;">"TABLE_EXPORT_FORMAT"</span> t)
+                    (org-entry-get (point) <span style="color: #8b2252;">"&lt;tab&gt;LE_EXPORT_FORMAT"</span> t)
                     org-table-export-default-format)))
     (<span style="color: #a020f0;">if</span> (string-match <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> \t\r\n]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;"> +.*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?"</span> format)
               (<span style="color: #a020f0;">let</span> ((transform (intern (match-string 1 format)))
@@ -12800,17 +12796,17 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
                   (<span style="color: #a020f0;">with-temp-buffer</span>
                           (insert (funcall transform table params) <span style="color: #8b2252;">"\n"</span>)
               (clipboard-kill-ring-save (point-min) (point-max)))))
-      (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"TABLE_EXPORT_FORMAT invalid"</span>))))
+      (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"&lt;tab&gt;LE_EXPORT_FORMAT invalid"</span>))))
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-table-convert-to</span> (<span style="color: #228b22;">&amp;optional</span> format)
   <span style="color: #8b2252;">"Convert a table to FORMAT.</span>
 <span style="color: #8b2252;">If FORMAT is nil, it is set equal to a property value specified</span>
-<span style="color: #8b2252;">by \"TABLE_EXPORT_FORMAT\" or `</span><span style="color: #008b8b;">org-table-export-default-format</span><span style="color: #8b2252;">'.</span>
+<span style="color: #8b2252;">by \"&lt;tab&gt;LE_EXPORT_FORMAT\" or `</span><span style="color: #008b8b;">org-table-export-default-format</span><span style="color: #8b2252;">'.</span>
 <span style="color: #8b2252;">Converted table is copied to kill ring for further use.</span>
 <span style="color: #8b2252;">The core part is extracted from `</span><span style="color: #008b8b;">org-table-export</span><span style="color: #8b2252;">'."</span>
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">let</span> ((format (<span style="color: #a020f0;">or</span> format
-                    (org-entry-get (point) <span style="color: #8b2252;">"TABLE_EXPORT_FORMAT"</span> t)
+                    (org-entry-get (point) <span style="color: #8b2252;">"&lt;tab&gt;LE_EXPORT_FORMAT"</span> t)
                     org-table-export-default-format)))
     (<span style="color: #a020f0;">if</span> (string-match <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;"> \t\r\n]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;"> +.*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?"</span> format)
               (<span style="color: #a020f0;">let</span> ((transform (intern (match-string 1 format)))
@@ -12824,7 +12820,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
                     (insert (funcall transform table params))
                     (clipboard-kill-ring-save begin (point))
               (insert <span style="color: #8b2252;">"\n"</span>))))
-      (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"TABLE_EXPORT_FORMAT invalid"</span>))))
+      (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"&lt;tab&gt;LE_EXPORT_FORMAT invalid"</span>))))
 </pre>
 </div>
 </div>
@@ -12960,8 +12956,8 @@ org バッファのソースブロックにカーソルがある時には， <co
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c x"</span>) #'my-org-move-item-end)
-  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c X"</span>) #'my-org-move-item-begin))
+  (keymap-set org-mode-map <span style="color: #8b2252;">"C-c x"</span> #'my-org-move-item-end)
+  (keymap-set org-mode-map <span style="color: #8b2252;">"C-c X"</span> #'my-org-move-item-begin))
 </pre>
 </div>
 
@@ -13350,13 +13346,13 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                            my-sparse-doing-tree org-onit-clock-in-when-unfold
                            org-clock-goto org-onit-update-options)
                          <span style="color: #8b2252;">"org-onit"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-&lt;f11&gt;"</span>) 'org-clock-goto)
+  (keymap-global-set <span style="color: #8b2252;">"C-&lt;f11&gt;"</span> 'org-clock-goto)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
     (add-hook 'org-cycle-hook #'org-onit-clock-in-when-unfold)
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"&lt;f11&gt;"</span>) 'org-onit-toggle-doing)
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"M-&lt;f11&gt;"</span>) 'org-onit-toggle-auto)
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"S-&lt;f11&gt;"</span>) 'org-onit-goto-anchor)
+    (keymap-set org-mode-map <span style="color: #8b2252;">"&lt;f11&gt;"</span> 'org-onit-toggle-doing)
+    (keymap-set org-mode-map <span style="color: #8b2252;">"M-&lt;f11&gt;"</span> 'org-onit-toggle-auto)
+    (keymap-set org-mode-map <span style="color: #8b2252;">"S-&lt;f11&gt;"</span> 'org-onit-goto-anchor)
 
     (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-sparse-doing-tree</span> ()
       (<span style="color: #a020f0;">interactive</span>)
@@ -13435,7 +13431,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c f 3"</span>) #'my-org-agenda-to-appt)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"C-c f 3"</span> #'my-org-agenda-to-appt)
 (run-at-time <span style="color: #8b2252;">"20 sec"</span> nil #'my-org-agenda-to-appt)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "org") &#20869;&#12391;&#35373;&#23450;&#12377;&#12427;&#12392;(&#20309;&#25925;&#12363;)&#35079;&#25968;&#22238;&#21628;&#12400;&#12428;&#12390;&#12375;&#12414;&#12358;&#65294;</span>
 (run-with-idle-timer 180 t #'my-org-agenda-to-appt)
@@ -13795,7 +13791,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <h3 id="orgc0ed68a2"><span class="section-number-3">10.27.</span> [org-babel] ソースブロックの入力キーをカスタマイズ</h3>
 <div class="outline-text-3" id="text-orgc0ed68a2">
 <p>
-ソースブロックを入力するときは， &lt;+ <code>TAB</code> でテンプレートを高速に入力できます．しかし，利用する言語までは指定できないので，特定の内容について対応するコマンドを割り当てて起きます．以下の例を設定として追加すると， &lt;S+ <code>TAB</code> で <code>emacs-lisp</code> を， &lt;C+ <code>TAB</code> でコメントブロックを指定できます．
+ソースブロックを入力するときは， &lt;+ <code>&lt;tab&gt;</code> でテンプレートを高速に入力できます．しかし，利用する言語までは指定できないので，特定の内容について対応するコマンドを割り当てて起きます．以下の例を設定として追加すると， &lt;S+ <code>&lt;tab&gt;</code> で <code>emacs-lisp</code> を， &lt;C+ <code>&lt;tab&gt;</code> でコメントブロックを指定できます．
 </p>
 
 <div class="org-src-container">
@@ -13887,14 +13883,14 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(org-tree-slide-mode)
                          <span style="color: #8b2252;">"org-tree-slide"</span> nil t)
 
-  (global-set-key (kbd <span style="color: #8b2252;">"&lt;f8&gt;"</span>) 'org-tree-slide-mode)
-  (global-set-key (kbd <span style="color: #8b2252;">"S-&lt;f8&gt;"</span>) 'org-tree-slide-skip-done-toggle)
+  (keymap-global-set <span style="color: #8b2252;">"&lt;f8&gt;"</span> 'org-tree-slide-mode)
+  (keymap-global-set <span style="color: #8b2252;">"S-&lt;f8&gt;"</span> 'org-tree-slide-skip-done-toggle)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-tree-slide"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&lt;f8&gt;/&lt;f9&gt;/&lt;f10&gt;/&lt;f11&gt; are assigned to control org-tree-slide</span>
-    (define-key org-tree-slide-mode-map (kbd <span style="color: #8b2252;">"&lt;f9&gt;"</span>)
+    (keymap-set org-tree-slide-mode-map <span style="color: #8b2252;">"&lt;f9&gt;"</span>
                 'org-tree-slide-move-previous-tree)
-    (define-key org-tree-slide-mode-map (kbd <span style="color: #8b2252;">"&lt;f10&gt;"</span>)
+    (keymap-set org-tree-slide-mode-map <span style="color: #8b2252;">"&lt;f10&gt;"</span>
                 'org-tree-slide-move-next-tree)
     (<span style="color: #a020f0;">unless</span> noninteractive
       (org-tree-slide-narrowing-control-profile))
@@ -14101,7 +14097,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 (<span style="color: #a020f0;">when</span> (autoload-if-found '(my-cfw-open-org-calendar cfw:open-org-calendar)
                          <span style="color: #8b2252;">"calfw-org"</span> <span style="color: #8b2252;">"Rich calendar for org-mode"</span> t)
 
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f c w"</span>) 'my-cfw-open-org-calendar)
+  (keymap-global-set <span style="color: #8b2252;">"C-c f c w"</span> 'my-cfw-open-org-calendar)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"calfw-org"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">icalendar &#12392;&#12398;&#36899;&#32080;</span>
     (custom-set-variables
@@ -14135,8 +14131,8 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
       (cfw:navi-goto-date
        (cfw:emacs-to-calendar (org-read-date nil 'to-time))))
 
-    (define-key cfw:calendar-mode-map (kbd <span style="color: #8b2252;">"j"</span>) 'cfw:org-goto-date)
-    (define-key cfw:org-schedule-map (kbd <span style="color: #8b2252;">"q"</span>) 'my-cfw-burry-buffer)))
+    (keymap-set cfw:calendar-mode-map <span style="color: #8b2252;">"j"</span> 'cfw:org-goto-date)
+    (keymap-set cfw:org-schedule-map <span style="color: #8b2252;">"q"</span> 'my-cfw-burry-buffer)))
 
 <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(add-hook 'window-configuration-change-hook #'cfw:resize-calendar)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun cfw:resize-calendar ()</span>
@@ -14205,7 +14201,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgfd0d46a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org242530f"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14306,7 +14302,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message</span>
 
   (autoload 'org-mac-link-get-link <span style="color: #8b2252;">"org-mac-link"</span> nil t)
-  (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c c"</span>) 'org-mac-link-get-link)
+  (keymap-set org-mode-map <span style="color: #8b2252;">"C-c c"</span> 'org-mac-link-get-link)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-mac-link"</span>
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org-mac-iCal</span> nil t)))
 </pre>
@@ -14337,7 +14333,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(org-grep)
                          <span style="color: #8b2252;">"org-grep"</span> nil t)
-  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(global-set-key (kbd "C-M-g") 'org-grep)</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(keymap-global-set "C-M-g" 'org-grep)</span>
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-grep"</span>
     (<span style="color: #a020f0;">setq</span> org-grep-extensions '(<span style="color: #8b2252;">".org"</span> <span style="color: #8b2252;">".org_archive"</span>))
     (add-to-list 'org-grep-directories <span style="color: #8b2252;">"~/.emacs.d"</span>)
@@ -14404,7 +14400,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 (<span style="color: #a020f0;">when</span> (autoload-if-found '(org-dashboard-display)
                          <span style="color: #8b2252;">"org-dashboard"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c f y"</span>) 'org-dashboard-display)))
+    (keymap-set org-mode-map <span style="color: #8b2252;">"C-c f y"</span> 'org-dashboard-display)))
 </pre>
 </div>
 </div>
@@ -14678,8 +14674,8 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"orglink"</span>
     (delq 'angle orglink-activate-links)
-    (define-key orglink-mouse-map (kbd <span style="color: #8b2252;">"C-c C-o"</span>) 'org-open-at-point-global)
-    (define-key orglink-mouse-map (kbd <span style="color: #8b2252;">"C-c C-l"</span>) 'org-insert-link)))
+    (keymap-set orglink-mouse-map <span style="color: #8b2252;">"C-c C-o"</span> 'org-open-at-point-global)
+    (keymap-set orglink-mouse-map <span style="color: #8b2252;">"C-c C-l"</span> 'org-insert-link)))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'orglink-activate-in-modes 'c++-mode)</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'orglink-activate-in-modes 'c-mode)</span>
@@ -15081,8 +15077,8 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(org-recent-headings org-recent-headings-mode)
                          <span style="color: #8b2252;">"org-recent-headings"</span> nil t)
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(global-set-key (kbd "C-c f r") 'org-recent-headings-helm)</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-h"</span>) 'org-recent-headings)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-global-set "C-c f r" 'org-recent-headings-helm)</span>
+  (keymap-global-set <span style="color: #8b2252;">"C-M-h"</span> 'org-recent-headings)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-recent-headings"</span>
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ivy</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12487;&#12501;&#12457;&#12523;&#12488;&#12384;&#12392; `</span><span style="color: #008b8b;">ivy-string&lt;</span><span style="color: #b22222;">' &#12364;&#20351;&#12431;&#12428;&#12390;&#12375;&#12414;&#12356;&#65292;&#20351;&#29992;&#23653;&#27508;&#12364;&#21453;&#26144;&#12373;&#12428;&#12394;&#12356;&#65294;</span>
@@ -15124,7 +15120,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(orgnav-search-root)
                          <span style="color: #8b2252;">"orgnav"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-c f n"</span>)
+    (keymap-set org-mode-map <span style="color: #8b2252;">"C-c f n"</span>
       (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
         (orgnav-search-root 3 'orgnav--goto-action)))))
 </pre>
@@ -15182,7 +15178,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org1ccda27" class="figure">
+<div id="orgb1f81e3" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15674,7 +15670,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"M-`"</span>) 'other-frame)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"M-`"</span> 'other-frame)
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"frame"</span>
   (advice-add 'make-frame <span style="color: #483d8b;">:after</span> #'ad:make-frame))
 </pre>
@@ -15735,15 +15731,15 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 
 (<span style="color: #a020f0;">when</span> (autoload-if-found moom-autoloads
                          <span style="color: #8b2252;">"moom"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-1"</span>) 'moom-move-frame-to-edge-top)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-!"</span>) 'moom-move-frame-to-edge-bottom)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-2"</span>) 'moom-cycle-frame-height)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-2"</span>) 'moom-move-frame-to-center)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-9"</span>) 'moom-cycle-monitors)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f m"</span>) 'moom-fill-band)
+  (keymap-global-set <span style="color: #8b2252;">"C-1"</span> 'moom-move-frame-to-edge-top)
+  (keymap-global-set <span style="color: #8b2252;">"C-!"</span> 'moom-move-frame-to-edge-bottom)
+  (keymap-global-set <span style="color: #8b2252;">"C-2"</span> 'moom-cycle-frame-height)
+  (keymap-global-set <span style="color: #8b2252;">"M-2"</span> 'moom-move-frame-to-center)
+  (keymap-global-set <span style="color: #8b2252;">"M-9"</span> 'moom-cycle-monitors)
+  (keymap-global-set <span style="color: #8b2252;">"C-c f m"</span> 'moom-fill-band)
 
   (autoload 'moom-transient-dispatch <span style="color: #8b2252;">"moom-transient"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c o"</span>) #'moom-transient-dispatch)
+  (keymap-global-set <span style="color: #8b2252;">"C-c o"</span> #'moom-transient-dispatch)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom-transient"</span>
     (moom-transient-hide-cursor)
@@ -15859,7 +15855,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"&lt;f12&gt;"</span>) 'my-toggle-mode-line)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"&lt;f12&gt;"</span> 'my-toggle-mode-line)
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
   (advice-add 'moom-toggle-frame-maximized
               <span style="color: #483d8b;">:after</span> #'ad:moom-toggle-frame-maximized))
@@ -15904,11 +15900,11 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">when</span> (autoload-if-found '(winner-undo)
                            <span style="color: #8b2252;">"winner"</span> nil t)
-    (global-set-key (kbd <span style="color: #8b2252;">"C-x g"</span>) 'winner-undo)
+    (keymap-global-set <span style="color: #8b2252;">"C-x g"</span> 'winner-undo)
     (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"winner"</span>
       (advice-add 'delete-window <span style="color: #483d8b;">:after</span> #'ad:winner:delete-window)
-      (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-("</span>) 'winner-undo)
-      (define-key winner-mode-map (kbd <span style="color: #8b2252;">"C-)"</span>) 'winner-redo)
+      (keymap-set winner-mode-map <span style="color: #8b2252;">"C-("</span> 'winner-undo)
+      (keymap-set winner-mode-map <span style="color: #8b2252;">"C-)"</span> 'winner-redo)
       (winner-mode 1))))
 </pre>
 </div>
@@ -15977,8 +15973,8 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:checkdoc</span> ()
   (<span style="color: #a020f0;">interactive</span>)
-  (define-key checkdoc-minor-mode-map (kbd <span style="color: #8b2252;">"q"</span>) 'my-delete-checkdoc-window)
-  (define-key checkdoc-minor-mode-map (kbd <span style="color: #8b2252;">"C-g"</span>) 'my-delete-checkdoc-window)
+  (keymap-set checkdoc-minor-mode-map <span style="color: #8b2252;">"q"</span> 'my-delete-checkdoc-window)
+  (keymap-set checkdoc-minor-mode-map <span style="color: #8b2252;">"C-g"</span> 'my-delete-checkdoc-window)
   (checkdoc-minor-mode 1))
 </pre>
 </div>
@@ -16102,10 +16098,10 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
                          <span style="color: #8b2252;">"frame-ctr-e2wm"</span> nil t)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Set the frame width single size</span>
   <span style="color: #b22222;">;;  </span><span style="color: #b22222;">C-u C-x - =&gt; e2wm OFF, single size width and double height, move center</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"C-x -"</span>) 'change-frame-single-window)
+  (keymap-global-set <span style="color: #8b2252;">"C-x -"</span> 'change-frame-single-window)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Set the frame width double size</span>
   <span style="color: #b22222;">;;  </span><span style="color: #b22222;">C-u C-x = =&gt; e2wm ON, double size width and height, move to the center</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"C-x ="</span>) 'change-frame-double-window))
+  (keymap-global-set <span style="color: #8b2252;">"C-x ="</span> 'change-frame-double-window))
 </pre>
 </div>
 </div>
@@ -17051,7 +17047,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(edit-color-stamp)
                          <span style="color: #8b2252;">"edit-color-stamp"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f c p"</span>) 'edit-color-stamp)
+  (keymap-global-set <span style="color: #8b2252;">"C-c f c p"</span> 'edit-color-stamp)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"edit-color-stamp"</span>
     (<span style="color: #a020f0;">unless</span> (executable-find <span style="color: #8b2252;">"qt_color_picker"</span>)
       (message <span style="color: #8b2252;">"--- qt_color_picker is NOT installed."</span>))))
@@ -17249,8 +17245,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(volatile-highlights-mode my-vhl-change-color)
                          <span style="color: #8b2252;">"volatile-highlights"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"M-v"</span>) 'my-yank)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-y"</span>) 'my-yank)
+  (keymap-global-set <span style="color: #8b2252;">"M-v"</span> 'my-yank)
+  (keymap-global-set <span style="color: #8b2252;">"C-y"</span> 'my-yank)
   (<span style="color: #a020f0;">when</span> window-system
     (advice-add 'my-yank <span style="color: #483d8b;">:before</span> #'my-vhl-activate)
     (advice-add 'my-org-yank <span style="color: #483d8b;">:before</span> #'my-vhl-activate))
@@ -17261,10 +17257,10 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
     (volatile-highlights-mode t))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"vterm"</span>
-    (define-key vterm-mode-map (kbd <span style="color: #8b2252;">"C-y"</span>) 'vterm-yank))
+    (keymap-set vterm-mode-map <span style="color: #8b2252;">"C-y"</span> 'vterm-yank))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-y"</span>) 'my-org-yank)))
+    (keymap-set org-mode-map <span style="color: #8b2252;">"C-y"</span> 'my-org-yank)))
 </pre>
 </div>
 </div>
@@ -17724,7 +17720,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(my-google-this google-this google-this-word)
                          <span style="color: #8b2252;">"google-this"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f g"</span>) 'my-google-this))
+  (keymap-global-set <span style="color: #8b2252;">"C-c f g"</span> 'my-google-this))
 </pre>
 </div>
 </div>
@@ -17801,11 +17797,11 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(my-cmd-to-open-iterm2)
                          <span style="color: #8b2252;">"utility"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-i"</span>) #'my-cmd-to-open-iterm2)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-i"</span> #'my-cmd-to-open-iterm2)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"flyspell"</span>
-    (define-key flyspell-mode-map (kbd <span style="color: #8b2252;">"C-M-i"</span>) #'my-cmd-to-open-iterm2))
+    (keymap-set flyspell-mode-map <span style="color: #8b2252;">"C-M-i"</span> #'my-cmd-to-open-iterm2))
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    (define-key org-mode-map (kbd <span style="color: #8b2252;">"C-M-i"</span>) #'my-cmd-to-open-iterm2)))
+    (keymap-set org-mode-map <span style="color: #8b2252;">"C-M-i"</span> #'my-cmd-to-open-iterm2)))
 </pre>
 </div>
 </div>
@@ -17821,7 +17817,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-osx-app)
                          <span style="color: #8b2252;">"counsel-osx-app"</span> nil t)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-M-1"</span>) 'counsel-osx-app)
+  (keymap-global-set <span style="color: #8b2252;">"C-M-1"</span> 'counsel-osx-app)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel-osx-app"</span>
     (<span style="color: #a020f0;">setq</span> counsel-osx-app-location
           '(<span style="color: #8b2252;">"/Applications"</span> <span style="color: #8b2252;">"/Applications/Utilities"</span>
@@ -17836,7 +17832,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 <h3 id="org32e35e60"><span class="section-number-3">14.8.</span> カレントバッファのあるディレクトリをターミナルで表示</h3>
 <div class="outline-text-3" id="text-org32e35e60">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c f t"</span>) 'my-open-current-directory-in-terminal)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"C-c f t"</span> 'my-open-current-directory-in-terminal)
 </pre>
 </div>
 </div>
@@ -17908,9 +17904,8 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
     (<span style="color: #a020f0;">setq</span> gif-screencast-capture-format <span style="color: #8b2252;">"ppm"</span>)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Start... M-x gif-screencast</span>
-    (define-key gif-screencast-mode-map (kbd <span style="color: #8b2252;">"&lt;f5&gt;"</span>) 'gif-screencast-stop)
-    (define-key gif-screencast-mode-map (kbd <span style="color: #8b2252;">"S-&lt;f5&gt;"</span>)
-      'gif-screencast-toggle-pause)
+    (keymap-set gif-screencast-mode-map <span style="color: #8b2252;">"&lt;f5&gt;"</span> 'gif-screencast-stop)
+    (keymap-set gif-screencast-mode-map <span style="color: #8b2252;">"S-&lt;f5&gt;"</span> 'gif-screencast-toggle-pause)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#25313;&#24373;</span>
     (<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">gif-screencast-additional-normal-hooks</span> '()
@@ -17952,10 +17947,10 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-M--"</span>) 'my-cycle-bullet-at-heading)
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(global-set-key (kbd "&lt;f12&gt;") 'my-open-file-ring)</span>
-<span style="color: #b22222;">;;  </span><span style="color: #b22222;">(global-set-key (kbd "C-c t") 'my-date)</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-c f 4"</span>) 'my-window-resizer)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"C-M--"</span> 'my-cycle-bullet-at-heading)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-global-set "&lt;f12&gt;" 'my-open-file-ring)</span>
+<span style="color: #b22222;">;;  </span><span style="color: #b22222;">(keymap-global-set "C-c t" 'my-date)</span>
+(keymap-global-set <span style="color: #8b2252;">"C-c f 4"</span> 'my-window-resizer)
 </pre>
 </div>
 </div>
@@ -17976,7 +17971,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(manage-minor-mode)
                          <span style="color: #8b2252;">"manage-minor-mode"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"manage-minor-mode"</span>
-    (define-key manage-minor-mode-map (kbd <span style="color: #8b2252;">"q"</span>)
+    (keymap-set manage-minor-mode-map <span style="color: #8b2252;">"q"</span>
       (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>)
           (delete-window (get-buffer-window <span style="color: #8b2252;">"*manage-minor-mode*"</span>))))))
 </pre>
@@ -18087,9 +18082,9 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">if</span> (not (executable-find <span style="color: #8b2252;">"pass"</span>))
     (message <span style="color: #8b2252;">"--- pass is NOT installed."</span>)
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(global-set-key (kbd "C-c f p") 'helm-pass)</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(keymap-global-set "C-c f p" 'helm-pass)</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(autoload-if-found '(helm-pass) "helm-pass" nil t)</span>
-  (global-set-key (kbd <span style="color: #8b2252;">"C-c f p"</span>) 'ivy-pass)
+  (keymap-global-set <span style="color: #8b2252;">"C-c f p"</span> 'ivy-pass)
   (autoload-if-found '(ivy-pass) <span style="color: #8b2252;">"ivy-pass"</span> nil t))
 </pre>
 </div>
@@ -19230,8 +19225,8 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h4 id="org74fab35b"><span class="section-number-4">14.49.1.</span> キーバインド</h4>
 <div class="outline-text-4" id="text-org74fab35b">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c 0"</span>) 'insert-formatted-current-date)
-(global-set-key (kbd <span style="color: #8b2252;">"C-c 9"</span>) 'insert-formatted-current-time)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"C-c 0"</span> 'insert-formatted-current-date)
+(keymap-global-set <span style="color: #8b2252;">"C-c 9"</span> 'insert-formatted-current-time)
 </pre>
 </div>
 </div>
@@ -19459,7 +19454,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (display-graphic-p)
-  (global-set-key (kbd <span style="color: #8b2252;">"C-x C-c"</span>) #'my-kill-all-file-buffers))
+  (keymap-global-set <span style="color: #8b2252;">"C-x C-c"</span> #'my-kill-all-file-buffers))
 </pre>
 </div>
 </div>
@@ -19478,7 +19473,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #8b2252;">"C-c C-x"</span>) #'my-kill-emacs-when-scratch-buffer)
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"C-c C-x"</span> #'my-kill-emacs-when-scratch-buffer)
 </pre>
 </div>
 </div>
@@ -19646,10 +19641,10 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Multiple combination</span>
 <span style="color: #b22222;">; </span><span style="color: #b22222;">Editing with a rectangle region</span>
-(global-set-key (kbd <span style="color: #8b2252;">"C-x r C-SPC"</span>) 'rm-set-mark)
-(global-set-key (kbd <span style="color: #8b2252;">"C-x r C-x"</span>) 'rm-exchange-point-and-mark)
-(global-set-key (kbd <span style="color: #8b2252;">"C-x r C-w"</span>) 'rm-kill-region)
-(global-set-key (kbd <span style="color: #8b2252;">"C-x r M-w"</span>) 'rm-kill-ring-save)
+(keymap-global-set <span style="color: #8b2252;">"C-x r C-SPC"</span> 'rm-set-mark)
+(keymap-global-set <span style="color: #8b2252;">"C-x r C-x"</span> 'rm-exchange-point-and-mark)
+(keymap-global-set <span style="color: #8b2252;">"C-x r C-w"</span> 'rm-kill-region)
+(keymap-global-set <span style="color: #8b2252;">"C-x r M-w"</span> 'rm-kill-ring-save)
 </pre>
 </div>
 </div>
@@ -19666,7 +19661,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-08-13 火 21:34</p>
+<p class="date">Created: 2024-08-14 水 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

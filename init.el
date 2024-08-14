@@ -176,10 +176,10 @@
   (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
   (when (boundp 'ns-alternate-modifier) (setq ns-alternate-modifier 'super))
   (when (boundp 'ns-pop-up-frames) (setq ns-pop-up-frames nil))
-  (global-set-key (kbd "M-v") 'yank)
-  (global-set-key [ns-drag-file] 'ns-find-file))
-(global-set-key [delete] 'delete-char)
-(global-set-key [kp-delete] 'delete-char)
+  (keymap-global-set "M-v" 'yank)
+  (keymap-global-set "<ns-drag-file>" 'ns-find-file))
+(keymap-global-set "<delete>" 'delete-char)
+(keymap-global-set "<kp-delete>" 'delete-char)
 
 (when (version< "27.0" emacs-version)
   (with-eval-after-load "files"
@@ -191,37 +191,37 @@
 
 (run-with-idle-timer 60 t #'my-lock-secret-buffer "secret.org.gpg")
 
-(global-set-key (kbd "M-SPC") 'my-toggle-ime-ns)
-(global-set-key (kbd "S-SPC") 'my-toggle-ime-ns)
-(define-key isearch-mode-map (kbd "M-SPC") 'my-toggle-ime-ns)
-(define-key isearch-mode-map (kbd "S-SPC") 'my-toggle-ime-ns)
+(keymap-global-set "M-SPC" 'my-toggle-ime-ns)
+(keymap-global-set "S-SPC" 'my-toggle-ime-ns)
+;; (keymap-set isearch-mode-map "M-SPC" 'my-toggle-ime-ns)
+;; (keymap-set isearch-mode-map "S-SPC" 'my-toggle-ime-ns)
 (when (fboundp 'mac-ime-toggle) ;; using ns-inline-patch
   (defalias 'my-toggle-ime-ns 'mac-ime-toggle)
   (defalias 'my-ime-active-p 'mac-ime-active-p)) ;; FIXME
 
 (my-tick-init-time "core")
 
-(global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-(global-set-key (kbd "C-M-b") 'end-of-buffer)
+(keymap-global-set "C-M-t" 'beginning-of-buffer)
+(keymap-global-set "C-M-b" 'end-of-buffer)
 ;; Backward page scrolling instead of M-v
-(global-set-key (kbd "C-t") 'scroll-down)
+(keymap-global-set "C-t" 'scroll-down)
 ;; Frontward page scrolling instead of C-v
-;; (global-set-key (kbd "M-n") 'scroll-up)
+;; (keymap-global-set "M-n" 'scroll-up)
 ;; Move cursor to a specific line
-(global-set-key (kbd "C-c g") 'goto-line)
+(keymap-global-set "C-c g" 'goto-line)
 
-(global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
-(global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+(keymap-global-set "C-M-p" (lambda () (interactive) (other-window -1)))
+(keymap-global-set "C-M-n" (lambda () (interactive) (other-window 1)))
 
-(global-set-key (kbd "M-]") 'bs-cycle-next)
+(keymap-global-set "M-]" 'bs-cycle-next)
 (when (display-graphic-p)
-  (global-set-key (kbd "M-[") 'bs-cycle-previous))
+  (keymap-global-set "M-[" 'bs-cycle-previous))
 
 (my-tick-init-time "point")
 
-(global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
+(keymap-global-set "RET" 'electric-newline-and-maybe-indent)
 
-(global-set-key (kbd "M-=") 'count-words)
+(keymap-global-set "M-=" 'count-words)
 
 (my-tick-init-time "editing")
 
@@ -267,8 +267,8 @@
 
 ;; (advice-add 'split-window-below :after #'ad:split-window-below)
 (if (< emacs-major-version 29)
-    (global-set-key (kbd "C-M-s") #'my-open-scratch)
-  (global-set-key (kbd "C-M-s") #'scratch-buffer))
+    (keymap-global-set "C-M-s" #'my-open-scratch)
+  (keymap-global-set "C-M-s" #'scratch-buffer))
 
 ;; Disable to show the splash window at startup
 (setq inhibit-startup-screen t)
@@ -287,7 +287,7 @@
 
 (when (autoload-if-found '(counsel-recentf)
                          "counsel" nil t)
-  (global-set-key (kbd "C-M-r") 'counsel-recentf))
+  (keymap-global-set "C-M-r" 'counsel-recentf))
 
 ;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
 (when (eq system-type 'darwin)
@@ -326,11 +326,11 @@
 
 (my-tick-init-time "history")
 
-(global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
-(global-set-key (kbd "C-c c") 'compile)
+(keymap-global-set "C-;" 'comment-dwim) ;; M-; is the defualt
+(keymap-global-set "C-c c" 'compile)
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
-(global-set-key (kbd "C-M-o") #'my-open-default-org-file)
+(keymap-global-set "C-M-o" #'my-open-default-org-file)
 
 (my-tick-init-time "development")
 
@@ -416,15 +416,15 @@
 
 (when (autoload-if-found moom-autoloads
                          "moom" nil t)
-  (global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
-  (global-set-key (kbd "C-!") 'moom-move-frame-to-edge-bottom)
-  (global-set-key (kbd "C-2") 'moom-cycle-frame-height)
-  (global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-  (global-set-key (kbd "M-9") 'moom-cycle-monitors)
-  (global-set-key (kbd "C-c f m") 'moom-fill-band)
+  (keymap-global-set "C-1" 'moom-move-frame-to-edge-top)
+  (keymap-global-set "C-!" 'moom-move-frame-to-edge-bottom)
+  (keymap-global-set "C-2" 'moom-cycle-frame-height)
+  (keymap-global-set "M-2" 'moom-move-frame-to-center)
+  (keymap-global-set "M-9" 'moom-cycle-monitors)
+  (keymap-global-set "C-c f m" 'moom-fill-band)
 
   (autoload 'moom-transient-dispatch "moom-transient" nil t)
-  (global-set-key (kbd "C-c o") #'moom-transient-dispatch)
+  (keymap-global-set "C-c o" #'moom-transient-dispatch)
 
   (with-eval-after-load "moom-transient"
     (moom-transient-hide-cursor)
@@ -449,15 +449,15 @@
 
 (when (autoload-if-found '(counsel-osx-app)
                          "counsel-osx-app" nil t)
-  (global-set-key (kbd "C-M-1") 'counsel-osx-app)
+  (keymap-global-set "C-M-1" 'counsel-osx-app)
   (with-eval-after-load "counsel-osx-app"
     (setq counsel-osx-app-location
           '("/Applications" "/Applications/Utilities"
             "/System/Applications" "/System/Applications/Utilities"
             "/Applications/Microsoft Remote Desktop.localized"))))
 
-(global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
-(global-set-key (kbd "C-c 9") 'insert-formatted-current-time)
+(keymap-global-set "C-c 0" 'insert-formatted-current-date)
+(keymap-global-set "C-c 9" 'insert-formatted-current-time)
 
 ;; (my-tick-init-time "utility")
 (when (and (boundp my-profiler-p)

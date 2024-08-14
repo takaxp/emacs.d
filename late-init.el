@@ -317,9 +317,9 @@ This function returns a timer object which you can use in
        "bm" nil t)
 
   ;; ファイルオープン時にブックマークを復帰
-  (global-set-key (kbd "<f10>") 'my-toggle-bm)
-  (global-set-key (kbd "<C-f10>") 'my-bm-next)
-  (global-set-key (kbd "<S-f10>") 'bm-show-all)
+  (keymap-global-set "<f10>" 'my-toggle-bm)
+  (keymap-global-set "C-<f10>" 'my-bm-next)
+  (keymap-global-set "S-<f10>" 'bm-show-all)
   (add-hook 'find-file-hook #'bm-buffer-restore)
 
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
@@ -329,7 +329,7 @@ This function returns a timer object which you can use in
   (setq bookmark-set-fringe-mark nil)
 
   (with-eval-after-load "ivy"
-    (global-set-key (kbd "<S-f10>") 'counsel-bm))
+    (keymap-global-set "S-<f10>" 'counsel-bm))
 
   (with-eval-after-load "bm"
     (advice-add 'bm-repository-load :around #'ad:suppress-message)
@@ -391,7 +391,7 @@ This function returns a timer object which you can use in
   (advice-add 'forward-word :before #'my-syntax-subword-activate)
   (advice-add 'backward-word :before #'my-syntax-subword-activate)
 
-  (global-set-key (kbd "C-<backspace>") #'syntax-subword-backward-kill)
+  (keymap-global-set "C-<backspace>" #'syntax-subword-backward-kill)
 
   (with-eval-after-load "syntax-subword"
     ;; C-<backspace> で，削除領域をコピーしない．
@@ -410,7 +410,7 @@ This function returns a timer object which you can use in
   (advice-add 'isearch-mode :around #'ad:isearch-mode)
 
   ;; C-g を isearch-exit に割り当てて途中中断とする．（カーソルを留めておきたい）カーソルを検索開始時点の場所に戻すには，別途 counsel-mark-ring を使う
-  (define-key isearch-mode-map (kbd "C-g") 'isearch-exit))
+  (keymap-set isearch-mode-map "C-g" 'isearch-exit))
 
 (with-eval-after-load "add-log"
   (add-hook 'change-log-mode-hook
@@ -431,7 +431,7 @@ This function returns a timer object which you can use in
 
 (add-hook 'nxml-mode-hook
           (lambda ()
-            (define-key nxml-mode-map "\r" 'newline-and-indent)
+            (keymap-set nxml-mode-map "RET" 'newline-and-indent)
             (auto-fill-mode -1)
             (setq indent-tabs-mode t)
             (setq nxml-slash-auto-complete-flag t)
@@ -501,20 +501,20 @@ This function returns a timer object which you can use in
   ;; note: messages-buffer-mode-hook may not work
   (advice-add 'switch-to-buffer :after #'ad:switch-to-buffer)
 
-  (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
-  (define-key view-mode-map (kbd "<SPC>") 'ignore)
-  (define-key view-mode-map (kbd "<DEL>") 'ignore)
-  (define-key view-mode-map (kbd "S-SPC") 'mac-ime-toggle)
-  (define-key view-mode-map (kbd "e") 'my-view-exit)
+  (keymap-set view-mode-map "i" 'View-exit-and-edit)
+  (keymap-set view-mode-map "SPC" 'ignore)
+  (keymap-set view-mode-map "<delete>" 'ignore)
+  (keymap-set view-mode-map "S-SPC" 'mac-ime-toggle)
+  (keymap-set view-mode-map "e" 'my-view-exit)
   (when (require 'helpful nil t)
-    (define-key view-mode-map (kbd "h") 'helpful-at-point))
-  (define-key view-mode-map (kbd "f") 'forward-char)
-  (define-key view-mode-map (kbd "b") 'backward-char)
-  (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
-  (define-key view-mode-map (kbd "p") 'my-org-view-previous-heading)
-  (define-key view-mode-map (kbd "g") #'my-google-this)
-  (define-key view-mode-map (kbd "<tab>") 'my-view-tab)
-  (define-key view-mode-map (kbd "S-<tab>") 'my-view-shifttab)
+    (keymap-set view-mode-map "h" 'helpful-at-point))
+  (keymap-set view-mode-map "f" 'forward-char)
+  (keymap-set view-mode-map "b" 'backward-char)
+  (keymap-set view-mode-map "n" 'my-org-view-next-heading)
+  (keymap-set view-mode-map "p" 'my-org-view-previous-heading)
+  (keymap-set view-mode-map "g" #'my-google-this)
+  (keymap-set view-mode-map "<tab>" 'my-view-tab)
+  (keymap-set view-mode-map "S-<tab>" 'my-view-shifttab)
   (unless my-toggle-modeline-global
     (advice-add 'view--enable :before #'ad:view--enable)
     (advice-add 'view--disable :before #'ad:view--disable)))
@@ -532,7 +532,7 @@ This function returns a timer object which you can use in
   (push '("\\.html?\\'" . web-mode) auto-mode-alist)
 
   (with-eval-after-load "web-mode"
-    (define-key web-mode-map (kbd "S-<tab>") 'my-web-indent-fold)
+    (keymap-set web-mode-map "S-<tab>" 'my-web-indent-fold)
 
     ;; indent
     (setq web-mode-markup-indent-offset 1)
@@ -567,9 +567,9 @@ This function returns a timer object which you can use in
                          "ispell" nil t)
 
   ;; Spell checking within a specified region
-  (global-set-key (kbd "C-c f 7") 'ispell-region)
+  (keymap-global-set "C-c f 7" 'ispell-region)
   ;; 補完候補の表示（flyspell が使える時はそちらを優先して <f7> にする．
-  (global-set-key (kbd "<f7>") 'ispell-word)
+  (keymap-global-set "<f7>" 'ispell-word)
 
   (with-eval-after-load "ispell"
     ;; This could hild other messages from loading functions regarding org-mode.
@@ -648,7 +648,7 @@ This function returns a timer object which you can use in
 
   (with-eval-after-load "flyspell"
     ;; C-; をオーバーライド
-    (define-key flyspell-mode-map (kbd "C-;") 'comment-dwim)
+    (keymap-set flyspell-mode-map "C-;" 'comment-dwim)
     (setq flyspell-duplicate-distance 0)
     ;; (setq flyspell-mode-line-string " F")
     (setq flyspell-mode-line-string "")
@@ -661,7 +661,7 @@ This function returns a timer object which you can use in
                         :background 'unspecified :underline t)
 
     ;; ispell-complete-word のキーバインドを上書き
-    (global-set-key (kbd "<f7>") 'flyspell-correct-at-point)
+    (keymap-global-set "<f7>" 'flyspell-correct-at-point)
 
     ;; ivy を用いる
     (when (require 'flyspell-correct-ivy nil t)
@@ -682,13 +682,13 @@ This function returns a timer object which you can use in
                            latex-math-preview-save-image-file
                            latex-math-preview-beamer-frame)
                          "latex-math-preview" nil t nil)
-  (global-set-key (kbd "<f6>") 'latex-math-preview-expression)
+  (keymap-global-set "<f6>" 'latex-math-preview-expression)
   (with-eval-after-load "latex-math-preview"
     (setq latex-math-preview-command-path-alist
           '((latex . "latex")
             (dvipng . "dvipng")
             (dvips . "dvips")))
-    (define-key latex-math-preview-expression-mode-map (kbd "<f6>")
+    (keymap-set latex-math-preview-expression-mode-map "<f6>"
       'latex-math-preview-delete-buffer)))
 
 (when (autoload-if-found '(yatex-mode)
@@ -704,8 +704,8 @@ This function returns a timer object which you can use in
     ;; 1=Shift JIS, 2=JIS, 3=EUC, 4=UTF-8
     ;; (setq YaTeX-kanji-code nil)
     (modify-coding-system-alist 'file "\\.tex$'" 'utf-8)
-    (define-key YaTeX-mode-map (kbd "C-M-SPC") 'mark-sexp)
-    (define-key YaTeX-mode-map (kbd "C-M-@") 'mark-sexp)))
+    (keymap-set YaTeX-mode-map "C-M-SPC" 'mark-sexp)
+    (keymap-set YaTeX-mode-map "C-M-@" 'mark-sexp)))
 
 (with-eval-after-load "yatex"
   (put 'YaTeX-insert-braces 'begend-guide 2)
@@ -717,8 +717,8 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(osx-dictionary-search-pointer
                            osx-dictionary-search-input)
                          "osx-dictionary" nil t)
-  (global-set-key (kbd "C-M-w") #'osx-dictionary-search-pointer)
-  (global-set-key (kbd "C-c f w") #'osx-dictionary-search-input)
+  (keymap-global-set "C-M-w" #'osx-dictionary-search-pointer)
+  (keymap-global-set "C-c f w" #'osx-dictionary-search-input)
   (with-eval-after-load "osx-dictionary"
     (custom-set-variables
      '(osx-dictionary-dictionary-choice "英辞郎 第七版"))))
@@ -728,8 +728,8 @@ This function returns a timer object which you can use in
   (with-eval-after-load "js2-mode"
     (if (executable-find "js-beautify")
         (when (require 'web-beautify nil t)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-js)
-          (define-key js2-mode-map (kbd "C-c b") 'web-beautify-css))
+          (keymap-set js2-mode-map "C-c b" 'web-beautify-js)
+          (keymap-set js2-mode-map "C-c b" 'web-beautify-css))
       (message "--- js-beautify is NOT installed.")
       (message "--- Note: brew install node")
       (message "---       npm -g install js-beautify"))))
@@ -760,7 +760,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(grugru-default grugru)
                          "grugru-default" nil t)
-  (global-set-key (kbd "C-9") #'grugru)
+  (keymap-global-set "C-9" #'grugru)
   (with-eval-after-load "grugru-default"
     (custom-set-faces
      '(grugru-edit-completing-function #'ivy-completing-read)
@@ -786,22 +786,22 @@ This function returns a timer object which you can use in
                          "selected" nil t)
   (add-hook 'activate-mark-hook #'my-activate-selected)
   (with-eval-after-load "selected"
-    (define-key selected-keymap (kbd "a") #'embark-act)
-    (define-key selected-keymap (kbd ";") #'comment-dwim)
-    (define-key selected-keymap (kbd "e") #'my-eval-region)
-    (define-key selected-keymap (kbd "E") #'my-eval-region-as-function)
-    ;; (define-key selected-keymap (kbd "=") #'count-words-region)
+    (keymap-set selected-keymap "a" #'embark-act)
+    (keymap-set selected-keymap ";" #'comment-dwim)
+    (keymap-set selected-keymap "e" #'my-eval-region)
+    (keymap-set selected-keymap "E" #'my-eval-region-as-function)
+    ;; (keymap-set selected-keymap "=" #'count-words-region)
     (when (require 'helpful nil t)
-      (define-key selected-keymap (kbd "h") #'helpful-at-point)
-      (define-key selected-keymap (kbd "v") #'my-helpful-variable))
-    (define-key selected-keymap (kbd "w") #'osx-dictionary-search-pointer)
-    (define-key selected-keymap (kbd "d") #'osx-dictionary-search-pointer)
-    (define-key selected-keymap (kbd "5") #'query-replace-from-region)
-    (define-key selected-keymap (kbd "g") #'my-google-this)
-    (define-key selected-keymap (kbd "s") #'osx-lib-say-region)
-    (define-key selected-keymap (kbd "q") #'selected-off)
-    (define-key selected-keymap (kbd "x") #'my-hex-to-decimal)
-    (define-key selected-keymap (kbd "X") #'my-decimal-to-hex)
+      (keymap-set selected-keymap "h" #'helpful-at-point)
+      (keymap-set selected-keymap "v" #'my-helpful-variable))
+    (keymap-set selected-keymap "w" #'osx-dictionary-search-pointer)
+    (keymap-set selected-keymap "d" #'osx-dictionary-search-pointer)
+    (keymap-set selected-keymap "5" #'query-replace-from-region)
+    (keymap-set selected-keymap "g" #'my-google-this)
+    (keymap-set selected-keymap "s" #'osx-lib-say-region)
+    (keymap-set selected-keymap "q" #'selected-off)
+    (keymap-set selected-keymap "x" #'my-hex-to-decimal)
+    (keymap-set selected-keymap "X" #'my-decimal-to-hex)
 
     ;; (defun my-eval-region ()
     ;;   (interactive)
@@ -809,21 +809,21 @@ This function returns a timer object which you can use in
     ;;     (eval-region (region-beginning) (region-end) t)))
 
     (setq selected-org-mode-map (make-sparse-keymap))
-    (define-key selected-org-mode-map (kbd "t") #'org-toggle-checkbox)
-    (define-key selected-org-mode-map (kbd "-") #'my-org-bullet-and-checkbox)
+    (keymap-set selected-org-mode-map "t" #'org-toggle-checkbox)
+    (keymap-set selected-org-mode-map "-" #'my-org-bullet-and-checkbox)
 
     (when (require 'expand-region nil t)
-      (define-key selected-keymap (kbd "SPC") #'er/expand-region))
+      (keymap-set selected-keymap "SPC" #'er/expand-region))
 
     (when (require 'counsel-selected nil t)
-      (define-key selected-keymap (kbd "l") 'counsel-selected))
+      (keymap-set selected-keymap "l" 'counsel-selected))
 
     (when (require 'help-fns+ nil t)
-      (define-key selected-keymap (kbd "H") #'my-describe-selected-keymap))))
+      (keymap-set selected-keymap "H" #'my-describe-selected-keymap))))
 
 (when (autoload-if-found '(git-complete)
                          "git-complete" nil t)
-  (global-set-key (kbd "C-c f <tab>") 'git-complete))
+  (keymap-global-set "C-c f <tab>" 'git-complete))
 
 (when (autoload-if-found '(bratex-config)
                          "bratex" nil t)
@@ -890,7 +890,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(my-toggle-display-line-numbers-mode)
                          "display-line-numbers" nil t)
-  (global-set-key (kbd "C-<f12>") 'my-toggle-display-line-numbers-mode)
+  (keymap-global-set "C-<f12>" 'my-toggle-display-line-numbers-mode)
   (with-eval-after-load "hl-line"
     (my-update-display-line-numbers-face)
     (add-hook 'my-ime-off-hline-hook #'my-update-display-line-numbers-face)
@@ -1194,20 +1194,20 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(counsel-ibuffer counsel-M-x counsel-yank-pop)
                          "counsel" nil t)
 
-  (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "M-y") 'counsel-yank-pop)
-  (global-set-key (kbd "C-,") 'counsel-mark-ring)
-  (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
-  (global-set-key (kbd "C-M-g") 'ivy-resume)
+  (keymap-global-set "M-x" 'counsel-M-x)
+  (keymap-global-set "M-y" 'counsel-yank-pop)
+  (keymap-global-set "C-," 'counsel-mark-ring)
+  (keymap-global-set "C-x C-b" 'counsel-ibuffer)
+  (keymap-global-set "C-M-g" 'ivy-resume)
 
   (unless (fboundp 'seq-sort-by) ;; emacs25
     (defalias 'seq-sort-by 'my-seq-sort-by))
 
   (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-,") 'counsel-mark-ring))
+    (keymap-set flyspell-mode-map "C-," 'counsel-mark-ring))
 
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-,") 'counsel-mark-ring))
+    (keymap-set org-mode-map "C-," 'counsel-mark-ring))
 
   (with-eval-after-load "ivy"
     ;; 同一行に複数の mark がある場合，一つだけを候補として表示する．
@@ -1218,15 +1218,15 @@ This function returns a timer object which you can use in
     (setf (alist-get 'counsel-mark-ring ivy-sort-functions-alist) nil)
 
     ;; M-o を ivy-dispatching-done-hydra に割り当てる．
-    ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
+    ;; (keymap-set ivy-minibuffer-map "M-o" 'ivy-dispatching-done-hydra)
     ;; ivy-dispatching-done を使う．
-    ;; (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done)
+    ;; (keymap-set ivy-minibuffer-map "M-o" 'ivy-dispatching-done)
     (setq ivy-read-action-function #'ivy-hydra-read-action)
 
     (setq ivy-use-virtual-buffers nil)
     (when (setq enable-recursive-minibuffers t)
       (minibuffer-depth-indicate-mode 1))
-    (define-key ivy-minibuffer-map (kbd "<escape>") 'minibuffer-keyboard-quit)
+    (keymap-set ivy-minibuffer-map "<escape>" 'minibuffer-keyboard-quit)
     (setq ivy-count-format "%d.%d ")
     ;; (setq ivy-truncate-lines nil) ;; 選択候補も折り返されてしまう．
     ;; (setq ivy-wrap t)
@@ -1253,7 +1253,8 @@ This function returns a timer object which you can use in
     ;; Disable counsel-find-file
     ;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
     (setq read-file-name-function #'my-disable-counsel-find-file)
-    (define-key counsel-mode-map [remap find-file]  nil)
+    ;; (define-key counsel-mode-map [remap find-file]  nil) ;; TODO
+    ;; (keymap-substitute counsel-mode-map 'find-file nil) ;; FIXME
 
     ;; オリジナルを非インタラクティブ化（上書きで可．advice不可）
     (when (require 'find-func nil t)
@@ -1325,8 +1326,8 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(swiper-thing-at-point swiper-all-thing-at-point)
                          "swiper" nil t)
-  (global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
-  (global-set-key (kbd "M-s M-a") 'swiper-all-thing-at-point)
+  (keymap-global-set "M-s M-s" 'swiper-thing-at-point)
+  (keymap-global-set "M-s M-a" 'swiper-all-thing-at-point)
   (with-eval-after-load "swiper"
     (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
 
@@ -1471,7 +1472,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(dired-recent-open dired-recent-mode)
                          "dired-recent" nil t)
-  (global-set-key (kbd "C-x C-d") 'dired-recent-open)
+  (keymap-global-set "C-x C-d" 'dired-recent-open)
   (with-eval-after-load "dired-recent"
     ;; (require 'helm-config nil t)
     (dired-recent-mode 1)))
@@ -1484,8 +1485,8 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(undo-fu-only-undo undo-fu-only-redo)
                          "undo-fu" nil t)
-  (global-set-key (kbd "C-/") 'undo-fu-only-undo)
-  (global-set-key (kbd "C-M-/") 'undo-fu-only-redo))
+  (keymap-global-set "C-/" 'undo-fu-only-undo)
+  (keymap-global-set "C-M-/" 'undo-fu-only-redo))
 
 (when (autoload-if-found '(super-save-mode) "super-save" nil t)
   (add-hook 'find-file-hook #'my-super-save-activate)
@@ -1499,7 +1500,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(neotree neotree-toggle)
                          "neotree" nil t)
-  (global-set-key (kbd "C-c n") #'neotree-toggle)
+  (keymap-global-set "C-c n" #'neotree-toggle)
   (with-eval-after-load "neotree"
     (custom-set-variables
      '(neo-show-hidden-files t)
@@ -1523,11 +1524,11 @@ This function returns a timer object which you can use in
                            helpful-function helpful-variable helpful-at-point
                            helpful-symbol)
                          "helpful" nil t)
-  (global-set-key (kbd "<f1> k") 'helpful-key)
-  (global-set-key (kbd "<f1> f") 'helpful-function)
-  (global-set-key (kbd "<f1> v") 'helpful-variable)
-  (global-set-key (kbd "<f1> m") 'helpful-macro)
-  (global-set-key (kbd "<f1> @") 'helpful-at-point)
+  (keymap-global-set "<f1> k" 'helpful-key)
+  (keymap-global-set "<f1> f" 'helpful-function)
+  (keymap-global-set "<f1> v" 'helpful-variable)
+  (keymap-global-set "<f1> m" 'helpful-macro)
+  (keymap-global-set "<f1> @" 'helpful-at-point)
   (with-eval-after-load "helpful"
     (advice-add 'helpful-at-point :before #'ad:helpful-at-point)))
 
@@ -1540,7 +1541,7 @@ This function returns a timer object which you can use in
                          "keyfreq" nil t) ;; will require 'cl and 'gv(10-20[ms])
   (with-eval-after-load "keyfreq"
     (advice-add 'keyfreq-show :after #'ad:keyfreq-show)
-    ;; (define-key keyfreq-mode-map (kbd "q")
+    ;; (keymap-set keyfreq-mode-map "q"
     ;;   (lambda () (interactive)
     ;;       (when (string= (buffer-name) keyfreq-buffer)
     ;;         (kill-buffer-and-window))))
@@ -1559,7 +1560,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(counsel-ag)
                          "counsel" nil t)
-  (global-set-key (kbd "C-M-f") 'counsel-ag)
+  (keymap-global-set "C-M-f" 'counsel-ag)
   (with-eval-after-load "counsel"
     (require 'thingatpt nil t)
     (advice-add 'counsel-ag :around #'ad:counsel-ag)
@@ -1573,7 +1574,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(counsel-fzf)
                          "counsel" nil t)
-  (global-set-key (kbd "C-M-z") 'counsel-fzf)
+  (keymap-global-set "C-M-z" 'counsel-fzf)
   (with-eval-after-load "counsel"
     (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
     (ivy-add-actions
@@ -1611,15 +1612,15 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(quickrun)
                          "quickrun" nil t)
   (with-eval-after-load "go-mode"
-    (define-key go-mode-map (kbd "<f5>") 'quickrun))
+    (keymap-set go-mode-map "<f5>" 'quickrun))
   (with-eval-after-load "c++-mode"
-    (define-key c++-mode-map (kbd "<f5>") 'quickrun))
+    (keymap-set c++-mode-map "<f5>" 'quickrun))
   (with-eval-after-load "python-mode"
-    (define-key python-mode-map (kbd "<f5>") 'quickrun))
+    (keymap-set python-mode-map "<f5>" 'quickrun))
   (with-eval-after-load "perl-mode"
-    (define-key perl-mode-map (kbd "<f5>") 'quickrun))
+    (keymap-set perl-mode-map "<f5>" 'quickrun))
   (with-eval-after-load "gnuplot-mode"
-    (define-key gnuplot-mode-map (kbd "<f5>") 'quickrun)))
+    (keymap-set gnuplot-mode-map "<f5>" 'quickrun)))
 
 (when (autoload-if-found '(ggtags-mode)
                          "ggtags" nil t)
@@ -1631,7 +1632,7 @@ This function returns a timer object which you can use in
       (message "--- global is NOT installed in this system."))
 
     ;; (setq ggtags-completing-read-function t) ;; nil for helm
-    (define-key ggtags-mode-map (kbd "M-]") nil)))
+    (keymap-set ggtags-mode-map "M-]" nil)))
 
 (when (autoload-if-found '(counsel-gtags-mode)
                          "counsel-gtags" nil t)
@@ -1645,7 +1646,7 @@ This function returns a timer object which you can use in
                            0xc-convert-point
                            my-decimal-to-hex my-hex-to-decimal)
        "0xc" nil t)
-  (global-set-key (kbd "C-c f h") '0xc-convert))
+  (keymap-global-set "C-c f h" '0xc-convert))
 
 (with-eval-after-load "hexl"
   (add-hook 'hexl-mode-hook 'view-mode)
@@ -1698,8 +1699,8 @@ This function returns a timer object which you can use in
       (setq projectile-completion-system 'ivy)
       (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
       (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
-      (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-      (define-key projectile-mode-map (kbd "C-M-f") 'my-counsel-projectile-ag)
+      (keymap-set projectile-mode-map "C-c p" 'projectile-command-map)
+      (keymap-set projectile-mode-map "C-M-f" 'my-counsel-projectile-ag)
       (counsel-projectile-mode 1)))
 
   (unless noninteractive
@@ -1709,7 +1710,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(magit-status ad:magit-mode-bury-buffer)
                          "magit" nil t)
-  (global-set-key (kbd "C-c m") 'magit-status)
+  (keymap-global-set "C-c m" 'magit-status)
   (with-eval-after-load "magit"
     (when (fboundp 'dimmer-off)
       (add-hook 'magit-status-mode-hook 'dimmer-off))
@@ -1744,7 +1745,7 @@ This function returns a timer object which you can use in
      '(corfu-auto-delay 0.5)
      '(corfu-auto t))
 
-    (define-key corfu-mode-map (kbd "C-SPC") #'corfu-insert-separator)
+    (keymap-set corfu-mode-map "C-SPC" #'corfu-insert-separator)
 
     (advice-add 'corfu-insert-separator :override #'my-corfu-insert-separator)
 
@@ -1787,7 +1788,7 @@ This function returns a timer object which you can use in
     (run-with-idle-timer (+ 9 my-default-loading-delay)
                          nil #'my-org-agenda-prepare-buffers)))
 
-(global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt)
+(keymap-global-set "C-c f 3" #'my-org-agenda-to-appt)
 (run-at-time "20 sec" nil #'my-org-agenda-to-appt)
 ;; (with-eval-after-load "org") 内で設定すると(何故か)複数回呼ばれてしまう．
 (run-with-idle-timer 180 t #'my-org-agenda-to-appt)
@@ -1806,8 +1807,8 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(org-recent-headings org-recent-headings-mode)
                          "org-recent-headings" nil t)
-  ;; (global-set-key (kbd "C-c f r") 'org-recent-headings-helm)
-  (global-set-key (kbd "C-M-h") 'org-recent-headings)
+  ;; (keymap-global-set "C-c f r" 'org-recent-headings-helm)
+  (keymap-global-set "C-M-h" 'org-recent-headings)
   (with-eval-after-load "org-recent-headings"
     (require 'ivy)
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
@@ -1876,7 +1877,7 @@ This function returns a timer object which you can use in
     (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
     (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
 
-(global-set-key (kbd "M-`") 'other-frame)
+(keymap-global-set "M-`" 'other-frame)
 (with-eval-after-load "frame"
   (advice-add 'make-frame :after #'ad:make-frame))
 
@@ -1896,7 +1897,7 @@ This function returns a timer object which you can use in
               (18 11) (17 10) (16 10) (15 9) (14 8) (13 8) (12 7) (11 7) (10 6)
               (9 5) (8 5) (7 4) (6 4) (5 3)))))
 
-(global-set-key (kbd "<f12>") 'my-toggle-mode-line)
+(keymap-global-set "<f12>" 'my-toggle-mode-line)
 (with-eval-after-load "moom"
   (advice-add 'moom-toggle-frame-maximized
               :after #'ad:moom-toggle-frame-maximized))
@@ -1917,11 +1918,11 @@ This function returns a timer object which you can use in
 (unless noninteractive
   (when (autoload-if-found '(winner-undo)
                            "winner" nil t)
-    (global-set-key (kbd "C-x g") 'winner-undo)
+    (keymap-global-set "C-x g" 'winner-undo)
     (with-eval-after-load "winner"
       (advice-add 'delete-window :after #'ad:winner:delete-window)
-      (define-key winner-mode-map (kbd "C-(") 'winner-undo)
-      (define-key winner-mode-map (kbd "C-)") 'winner-redo)
+      (keymap-set winner-mode-map "C-(" 'winner-undo)
+      (keymap-set winner-mode-map "C-)" 'winner-redo)
       (winner-mode 1))))
 
 (when (autoload-if-found '(shackle-mode)
@@ -2056,7 +2057,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(edit-color-stamp)
                          "edit-color-stamp" nil t)
-  (global-set-key (kbd "C-c f c p") 'edit-color-stamp)
+  (keymap-global-set "C-c f c p" 'edit-color-stamp)
   (with-eval-after-load "edit-color-stamp"
     (unless (executable-find "qt_color_picker")
       (message "--- qt_color_picker is NOT installed."))))
@@ -2114,8 +2115,8 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(volatile-highlights-mode my-vhl-change-color)
                          "volatile-highlights" nil t)
-  (global-set-key (kbd "M-v") 'my-yank)
-  (global-set-key (kbd "C-y") 'my-yank)
+  (keymap-global-set "M-v" 'my-yank)
+  (keymap-global-set "C-y" 'my-yank)
   (when window-system
     (advice-add 'my-yank :before #'my-vhl-activate)
     (advice-add 'my-org-yank :before #'my-vhl-activate))
@@ -2126,10 +2127,10 @@ This function returns a timer object which you can use in
     (volatile-highlights-mode t))
 
   (with-eval-after-load "vterm"
-    (define-key vterm-mode-map (kbd "C-y") 'vterm-yank))
+    (keymap-set vterm-mode-map "C-y" 'vterm-yank))
 
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-y") 'my-org-yank)))
+    (keymap-set org-mode-map "C-y" 'my-org-yank)))
 
 (unless noninteractive
   (when (and window-system
@@ -2142,7 +2143,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(my-google-this google-this google-this-word)
                          "google-this" nil t)
-  (global-set-key (kbd "C-c f g") 'my-google-this))
+  (keymap-global-set "C-c f g" 'my-google-this))
 
 (when (autoload-if-found '(osx-lib-say osx-lib-say-region)
                          "osx-lib" nil t)
@@ -2153,13 +2154,13 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(my-cmd-to-open-iterm2)
                          "utility" nil t)
-  (global-set-key (kbd "C-M-i") #'my-cmd-to-open-iterm2)
+  (keymap-global-set "C-M-i" #'my-cmd-to-open-iterm2)
   (with-eval-after-load "flyspell"
-    (define-key flyspell-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2))
+    (keymap-set flyspell-mode-map "C-M-i" #'my-cmd-to-open-iterm2))
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-M-i") #'my-cmd-to-open-iterm2)))
+    (keymap-set org-mode-map "C-M-i" #'my-cmd-to-open-iterm2)))
 
-(global-set-key (kbd "C-c f t") 'my-open-current-directory-in-terminal)
+(keymap-global-set "C-c f t" 'my-open-current-directory-in-terminal)
 
 (when (autoload-if-found '(gif-screencast)
                          "gif-screencast" nil t)
@@ -2169,9 +2170,8 @@ This function returns a timer object which you can use in
     (setq gif-screencast-capture-format "ppm")
 
     ;; Start... M-x gif-screencast
-    (define-key gif-screencast-mode-map (kbd "<f5>") 'gif-screencast-stop)
-    (define-key gif-screencast-mode-map (kbd "S-<f5>")
-      'gif-screencast-toggle-pause)
+    (keymap-set gif-screencast-mode-map "<f5>" 'gif-screencast-stop)
+    (keymap-set gif-screencast-mode-map "S-<f5>" 'gif-screencast-toggle-pause)
 
     ;; 拡張
     (defcustom gif-screencast-additional-normal-hooks '()
@@ -2197,15 +2197,15 @@ This function returns a timer object which you can use in
     (advice-add 'gif-screencast-toggle-pause
                 :before #'ad:gif-screencast-toggle-pause)))
 
-(global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
-;; (global-set-key (kbd "<f12>") 'my-open-file-ring)
-;;  (global-set-key (kbd "C-c t") 'my-date)
-(global-set-key (kbd "C-c f 4") 'my-window-resizer)
+(keymap-global-set "C-M--" 'my-cycle-bullet-at-heading)
+;; (keymap-global-set "<f12>" 'my-open-file-ring)
+;;  (keymap-global-set "C-c t" 'my-date)
+(keymap-global-set "C-c f 4" 'my-window-resizer)
 
 (when (autoload-if-found '(manage-minor-mode)
                          "manage-minor-mode" nil t)
   (with-eval-after-load "manage-minor-mode"
-    (define-key manage-minor-mode-map (kbd "q")
+    (keymap-set manage-minor-mode-map "q"
       (lambda () (interactive)
           (delete-window (get-buffer-window "*manage-minor-mode*"))))))
 
@@ -2241,9 +2241,9 @@ This function returns a timer object which you can use in
       (setq elfeed-web-data-root (concat my-elget-package-dir "/web")))))
 
 (when (display-graphic-p)
-  (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers))
+  (keymap-global-set "C-x C-c" #'my-kill-all-file-buffers))
 
-(global-set-key (kbd "C-c C-x") #'my-kill-emacs-when-scratch-buffer)
+(keymap-global-set "C-c C-x" #'my-kill-emacs-when-scratch-buffer)
 
 (unless noninteractive
   (let ((inhibit-message t))

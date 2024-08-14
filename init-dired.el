@@ -1,4 +1,4 @@
-(define-key dired-mode-map (kbd "C-c C-o") 'crux-open-with)
+(keymap-set dired-mode-map "C-c C-o" 'crux-open-with)
 
 (setq completion-ignored-extensions
       (append completion-ignored-extensions
@@ -6,18 +6,18 @@
 
 ;; "dired-mode-map"
 ;; Use build-in `wdired-mode'.
-;; (define-key dired-mode-map (kbd "R") 'wdired-change-to-wdired-mode)
+;; (keymap-set dired-mode-map "R" 'wdired-change-to-wdired-mode)
 ;; http://elpa.gnu.org/packages/gited.html
 (when (require 'gited nil t)
-  (define-key dired-mode-map (kbd "C-x C-g") 'gited-list-branches))
+  (keymap-set dired-mode-map "C-x C-g" 'gited-list-branches))
 ;; https://github.com/Fuco1/dired-hacks
 (when (require 'dired-narrow nil t)
-  (define-key dired-mode-map (kbd "/") 'dired-narrow))
+  (keymap-set dired-mode-map "/" 'dired-narrow))
 (require 'dired-du nil t)
 (when (require 'ivy-dired-history nil t)
   ;; ivy-dired-history-variable は，session.el で明示的に管理中．
   ;; check session-globals-include
-  (define-key dired-mode-map "," 'dired))
+  (keymap-set dired-mode-map "," 'dired))
 (declare-function dired-extra-startup "dired-x")
 (when (require 'dired-x nil t)
   (dired-extra-startup))
@@ -26,16 +26,14 @@
   (interactive)
   (shell-command-to-string "open ."))
 ;; dired-x を読み込んだあとじゃないとだめ
-(define-key dired-mode-map (kbd "F") 'my-reveal-in-finder)
+(keymap-set dired-mode-map "F" 'my-reveal-in-finder)
 ;; 上位ディレクトリへの移動
-(define-key dired-mode-map (kbd "u") 'dired-up-directory)
+(keymap-set dired-mode-map "u" 'dired-up-directory)
 ;; Finder を使ったファイルオープン
-(define-key dired-mode-map (kbd "f") 'ns-open-file-using-panel)
+(keymap-set dired-mode-map "f" 'ns-open-file-using-panel)
 
-(define-key dired-mode-map
-  (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
-(define-key dired-mode-map
-  (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
+(keymap-set dired-mode-map "C-M-p" (lambda () (interactive) (other-window -1)))
+(keymap-set dired-mode-map "C-M-n" (lambda () (interactive) (other-window 1)))
 
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired
