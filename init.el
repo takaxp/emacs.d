@@ -31,36 +31,37 @@
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
 (defconst my-before-load-init-time (current-time)
-  "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
+	"Starting point to calculate Emacs booting time.	see `my-load-init-time'.")
 (defun my-load-init-time ()
-  "Loading time of user init files including time for `after-init-hook'."
-  (let ((t-init-files (time-subtract after-init-time my-before-load-init-time))
-        (t-after-init (time-subtract (current-time) after-init-time))
-        (t-others (time-subtract my-before-load-init-time before-init-time))
-        (t-early-init (time-subtract my-early-end my-early-start))
-        (inhibit-message t))
-    (message (concat
-              "  Loading init files: %4d [ms]\n"
-              "  Loading early-init: %4d [ms]\n"
-              "  Others(GUI etc.):   %4d [ms] includes `before-init-hook'\n"
-              "(`after-init-hook': %4d [ms])")
-             (* 1000 (float-time t-init-files))
-             (* 1000 (float-time t-early-init))
-             (* 1000 (- (float-time t-others) (float-time t-early-init)))
-             (* 1000 (float-time t-after-init)))))
+	"Loading time of user init files including time for `after-init-hook'."
+	(let ((t-init-files (time-subtract after-init-time my-before-load-init-time))
+				(t-after-init (time-subtract (current-time) after-init-time))
+				(t-others (time-subtract my-before-load-init-time before-init-time))
+				(t-early-init (time-subtract my-early-end my-early-start))
+				(inhibit-message t))
+		(message (concat
+							"	 Loading init files: %4d [ms]\n"
+							"	 Loading early-init: %4d [ms]\n"
+							"	 Others(GUI etc.):	 %4d [ms] includes `before-init-hook'\n"
+							"(`after-init-hook': %4d [ms])")
+						 (* 1000 (float-time t-init-files))
+						 (* 1000 (float-time t-early-init))
+						 (* 1000 (- (float-time t-others) (float-time t-early-init)))
+						 (* 1000 (float-time t-after-init)))))
 
 (add-hook 'after-init-hook #'my-load-init-time t)
 
 (defvar my-tick-previous-time my-before-load-init-time)
 (defun my-tick-init-time (msg)
-  "Tick boot sequence at loading MSG."
-  (when my-loading-profile-p
-    (let ((ctime (current-time)))
-      (message "---- %4d[ms] %s"
-               (* 1000 (float-time
-                        (time-subtract ctime my-tick-previous-time)))
-               msg)
-      (setq my-tick-previous-time ctime))))
+	"Tick boot sequence at loading MSG."
+	(when (and my-loading-profile-p
+			       (not my-profiler-p))
+		(let ((ctime (current-time)))
+			(message "---- %4d[ms] %s"
+							 (* 1000 (float-time
+												(time-subtract ctime my-tick-previous-time)))
+							 msg)
+			(setq my-tick-previous-time ctime))))
 
 (defvar my-suppress-message-p t)
 (defun ad:suppress-message (f &rest arg)

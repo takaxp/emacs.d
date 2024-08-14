@@ -81,6 +81,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot mode selection
+;; Note: `load-path' and `exec-path' are both configured in early-init.el
 (cond
  ;; minimal boot or DOOM Emacs (use toggle-doom.sh to switch)
  (nil
@@ -120,7 +121,7 @@
   (setq debug-on-error nil
 	postpone-verbose nil
 	my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
-	my-frame-appearance nil ;; {nil, 'dark, 'light}
+	my-frame-appearance nil     ;; {nil, 'dark, 'light}
 	my-skip-check-autoload-file t)
 
   (defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))
@@ -129,8 +130,7 @@
   (defvar my-profiler-p nil
     "If non-nil, use built-in profiler.el.")
   (defvar my-loading-profile-p nil
-    "If non-nil, show ticks while booting.
-Do not use `my-profiler-p' with this.")
+    "If non-nil, show ticks while booting.")
   (defvar my-secure-boot nil
     "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
 

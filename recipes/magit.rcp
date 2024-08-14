@@ -5,7 +5,7 @@
        :pkgname "magit/magit"
        :shallow nil
        :branch "main"
-       :checkout "tags/v3.3.0"
+       :checkout "tags/v4.0.0"
        :minimum-emacs-version "25.1"
        :depends (dash transient with-editor compat)
        :info "Documentation"
@@ -15,8 +15,7 @@
        ;; handle compilation and autoloads on its own.  Create an
        ;; empty autoloads file because magit.el explicitly checks for
        ;; a file of that name.
-       :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "docs")
-                ("touch" "lisp/magit-autoloads.el"))
+       :build `(("make" ,(format "EMACSBIN=%s" el-get-emacs) "lisp"))
        :build/berkeley-unix `(("gmake" ,(format "EMACSBIN=%s" el-get-emacs) "docs")
                               ("touch" "lisp/magit-autoloads.el"))
        ;; assume windows lacks make and makeinfo

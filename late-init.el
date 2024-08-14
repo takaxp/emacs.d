@@ -2245,11 +2245,12 @@ This function returns a timer object which you can use in
 
 (keymap-global-set "C-c C-x" #'my-kill-emacs-when-scratch-buffer)
 
-(unless noninteractive
-  (let ((inhibit-message t))
-    (message "Loading late-init.el...done (%4d [ms])"
-             (* 1000
-                (float-time (time-subtract
-                             (current-time)
-                             my-late-init-start))))))
+(when nil
+  (unless noninteractive
+    (let ((inhibit-message t))
+      (message "Loading late-init.el...done (%4d [ms])"
+	       (* 1000
+		  (float-time (time-subtract
+			       (current-time)
+			       my-late-init-start)))))))
 (provide 'late-init)

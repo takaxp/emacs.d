@@ -2031,11 +2031,12 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (my-linespacing))
   (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
 
-(unless noninteractive
-  (let ((inhibit-message t))
-    (message "Loading init-org.el...done (%4d [ms])"
-             (* 1000
-                (float-time (time-subtract
-                             (current-time)
-                             my-init-org-start))))))
+(when nil
+  (unless noninteractive
+    (let ((inhibit-message t))
+      (message "Loading init-org.el...done (%4d [ms])"
+	       (* 1000
+		  (float-time (time-subtract
+			       (current-time)
+			       my-init-org-start)))))))
 (provide 'init-org)

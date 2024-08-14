@@ -3131,11 +3131,12 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
                (message "Quit")
                (throw 'end-flag t)))))))
 
-(unless noninteractive
-  (let ((inhibit-message t))
-    (message "Loading utility.el...done (%4d [ms])"
-             (* 1000
-                (float-time (time-subtract
-                             (current-time)
-                             my-utility-start))))))
+(when nil
+  (unless noninteractive
+    (let ((inhibit-message t))
+      (message "Loading utility.el...done (%4d [ms])"
+	       (* 1000
+		  (float-time (time-subtract
+			       (current-time)
+			       my-utility-start)))))))
 (provide 'utility)
