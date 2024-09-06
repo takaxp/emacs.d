@@ -1492,7 +1492,7 @@ This function returns a timer object which you can use in
   (add-hook 'find-file-hook #'my-super-save-activate)
   (with-eval-after-load "super-save"
     (setq super-save-auto-save-when-idle t)
-    (setq super-save-idle-duration 5)
+    (setq super-save-idle-duration 1.6)
     (setq super-save-exclude '("Org Src"))
     (add-to-list 'super-save-predicates
                  '(lambda () (my-super-save-predicates-p)) t)

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-08-15 木 07:15 -->
+<!-- 2024-09-06 金 21:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1414,7 +1414,6 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
        (l `(<span style="color: #8b2252;">"~/Dropbox/config"</span>
             <span style="color: #8b2252;">"~/.emacs.d/lisp"</span>
             ,my-package-dir <span style="color: #b22222;">;; </span><span style="color: #b22222;">may include a path to org</span>
-            <span style="color: #b22222;">;; </span><span style="color: #b22222;">,(concat my-package-dir "/lisp") ;; include magit-autoload.el</span>
             ,(concat g od <span style="color: #8b2252;">"/lisp"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">override the path to org</span>
             ,(concat g od <span style="color: #8b2252;">"/contrib/lisp"</span>)
             )))
@@ -9859,7 +9858,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
   (add-hook 'find-file-hook #'my-super-save-activate)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"super-save"</span>
     (<span style="color: #a020f0;">setq</span> super-save-auto-save-when-idle t)
-    (<span style="color: #a020f0;">setq</span> super-save-idle-duration 5)
+    (<span style="color: #a020f0;">setq</span> super-save-idle-duration 1.6)
     (<span style="color: #a020f0;">setq</span> super-save-exclude '(<span style="color: #8b2252;">"Org Src"</span>))
     (add-to-list 'super-save-predicates
                  '(lambda () (my-super-save-predicates-p)) t)
@@ -14204,7 +14203,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org581747f"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org2fa6e5e"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15181,7 +15180,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orga4df29c" class="figure">
+<div id="orgf792723" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19664,7 +19663,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-08-15 木 07:15</p>
+<p class="date">Created: 2024-09-06 金 21:47</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

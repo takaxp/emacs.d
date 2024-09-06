@@ -595,7 +595,6 @@ This function is called directly from the C code."
        (l `("~/Dropbox/config"
             "~/.emacs.d/lisp"
             ,my-package-dir ;; may include a path to org
-            ;; ,(concat my-package-dir "/lisp") ;; include magit-autoload.el
             ,(concat g od "/lisp") ;; override the path to org
             ,(concat g od "/contrib/lisp")
             )))
@@ -8110,7 +8109,7 @@ see https://github.com/bbatsov/super-save/pull/20/files."
   (add-hook 'find-file-hook #'my-super-save-activate)
   (with-eval-after-load "super-save"
     (setq super-save-auto-save-when-idle t)
-    (setq super-save-idle-duration 5)
+    (setq super-save-idle-duration 1.6)
     (setq super-save-exclude '("Org Src"))
     (add-to-list 'super-save-predicates
                  '(lambda () (my-super-save-predicates-p)) t)

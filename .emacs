@@ -3,6 +3,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+(with-eval-after-load "colorful-mode"
+  )
+
 (with-eval-after-load "nerd-icons"
   ;; ;;  
   ;; (nerd-icons-octicon "nf-oct-fold")
@@ -112,6 +115,9 @@
 
  ;; minimum
  (nil (load (concat user-emacs-directory "min/init.el")))
+
+ ;; configured with use-package (TRIAL)
+ (nil (load (concat user-emacs-directory "use-init.el")))
 
  ;; Spacemacs
  (nil (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))

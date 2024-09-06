@@ -89,7 +89,6 @@
        (l `("~/Dropbox/config"
             "~/.emacs.d/lisp"
             ,my-package-dir ;; may include a path to org
-            ;; ,(concat my-package-dir "/lisp") ;; include magit-autoload.el
             ,(concat g od "/lisp") ;; override the path to org
             ,(concat g od "/contrib/lisp")
             )))

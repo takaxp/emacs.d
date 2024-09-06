@@ -240,6 +240,7 @@
   (el-get-bundle "rougier/svg-tag-mode")
   (el-get-bundle "bm")
   (el-get-bundle "emacsmirror/rainbow-mode")
+  (el-get-bundle "DevelopmentCool2449/colorful-mode")
   (el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))
   (el-get-bundle "disk-usage"
                  :type git
