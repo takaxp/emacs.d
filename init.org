@@ -7561,6 +7561,11 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
+(with-eval-after-load "recentf"
+  (message "Loading recentf...done")
+  (custom-set-variables
+   '(recentf-auto-cleanup 'never)))
+
 (when (autoload-if-found '(counsel-recentf)
                          "counsel" nil t)
   (keymap-global-set "C-M-r" 'counsel-recentf))
@@ -7661,6 +7666,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
    - diredでは， =C-c C-o= で呼べるように設定
 
 #+begin_src emacs-lisp emacs-lisp :tangle init-dired.el
+;; init-dired.el --- config for dired-mode -*- lexical-binding: t -*-
 (keymap-set dired-mode-map "C-c C-o" 'crux-open-with)
 #+end_src
 
@@ -10636,21 +10642,22 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(org-mode my-load-echo-org-link)
-                         "org" nil t)
-  (add-hook 'org-mode-hook #'my-load-echo-org-link)
-  (with-eval-after-load "org"
-    (defun my-echo-org-link ()
-      (when (org-in-regexp org-link-bracket-re 1)
-        (let ((link "Link:")
-              (msg (org-link-unescape (match-string-no-properties 1))))
-          (put-text-property 0 (length link) 'face 'minibuffer-prompt link)
-          (eldoc-message (format "%s %s" link msg)))))
+			                   "org" nil t)
+	(add-hook 'org-mode-hook #'my-load-echo-org-link)
+	(with-eval-after-load "org"
+		(defvar my-org-link-prompt "Link:")
+		(defun my-echo-org-link ()
+			(when (org-in-regexp org-link-bracket-re 1)
+	      (let ((l (length my-org-link-prompt))
+				      (msg (org-link-unescape (match-string-no-properties 1))))
+		      (put-text-property 0 l 'face 'minibuffer-prompt my-org-link-prompt)
+		      (eldoc-message (format "%s %s" my-org-link-prompt msg)))))
 
-    (defun my-load-echo-org-link ()
-      (add-function :before-until (local 'eldoc-documentation-function)
-                    #'my-echo-org-link)
-      ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
-      )))
+		(defun my-load-echo-org-link ()
+			(add-function :before-until (local 'eldoc-documentation-function)
+				            #'my-echo-org-link)
+			;; (setq-local eldoc-documentation-function #'my-echo-org-link)
+			)))
 #+end_src
 
 ** TODO HHKBで矢印を使わないように設定する
@@ -10874,54 +10881,54 @@ org バッファのソースブロックにカーソルがある時には， =el
 日本語を ~入力~ しています．
 
 #+begin_src emacs-lisp :tangle init-org.el
+(defface my-org-emphasis-bold
+	'((default :inherit bold)
+		(((class color) (min-colors 88) (background light))
+		 :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
+		(((class color) (min-colors 88) (background dark))
+		 :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
+	"My bold emphasis for Org.")
+
+(defface my-org-emphasis-italic
+	'((default :inherit italic)
+		(((class color) (min-colors 88) (background light))
+		 :foreground "#005e00" :background "#B4EAB4")
+		(((class color) (min-colors 88) (background dark))
+		 :foreground "#44bc44"))
+	"My italic emphasis for Org.")
+
+(defface my-org-emphasis-underline
+	'((default :inherit underline)
+		(((class color) (min-colors 88) (background light))
+		 :foreground "#813e00")
+		(((class color) (min-colors 88) (background dark))
+		 :foreground "#d0bc00"))
+	"My underline emphasis for Org.")
+
+(defface my-org-emphasis-strike-through
+	'((((class color) (min-colors 88) (background light))
+		 :strike-through "#972500" :foreground "#505050")
+		(((class color) (min-colors 88) (background dark))
+		 :strike-through "#ef8b50" :foreground "#a8a8a8"))
+	"My strike-through emphasis for Org.")
+
 (with-eval-after-load "org"
-  (custom-set-variables ;; call org-set-emph-re
-   '(org-emphasis-alist '(("~" org-code verbatim)
-                          ("=" org-verbatim verbatim)
-                          ("*" my-org-emphasis-bold)
-                          ("/" my-org-emphasis-italic)
-                          ("_" my-org-emphasis-underline)
-                          ("+" my-org-emphasis-strike-through))))
+	(custom-set-variables ;; call org-set-emph-re
+	 '(org-emphasis-alist '(("~" org-code verbatim)
+				                  ("=" org-verbatim verbatim)
+				                  ("*" my-org-emphasis-bold)
+				                  ("/" my-org-emphasis-italic)
+				                  ("_" my-org-emphasis-underline)
+				                  ("+" my-org-emphasis-strike-through))))
 
-  (custom-set-faces
-   '(org-code
-     ((t (:foreground "red" :background "pink" :inherit shadow))))
-   '(org-verbatim
-     ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
+	(custom-set-faces
+	 '(org-code
+		 ((t (:foreground "red" :background "pink" :inherit shadow))))
+	 '(org-verbatim
+		 ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
 
-  (when (featurep 'org-extra-emphasis)
-    (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'
-
-  (defface my-org-emphasis-bold
-    '((default :inherit bold)
-      (((class color) (min-colors 88) (background light))
-       :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
-      (((class color) (min-colors 88) (background dark))
-       :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
-    "My bold emphasis for Org.")
-
-  (defface my-org-emphasis-italic
-    '((default :inherit italic)
-      (((class color) (min-colors 88) (background light))
-       :foreground "#005e00" :background "#B4EAB4")
-      (((class color) (min-colors 88) (background dark))
-       :foreground "#44bc44"))
-    "My italic emphasis for Org.")
-
-  (defface my-org-emphasis-underline
-    '((default :inherit underline)
-      (((class color) (min-colors 88) (background light))
-       :foreground "#813e00")
-      (((class color) (min-colors 88) (background dark))
-       :foreground "#d0bc00"))
-    "My underline emphasis for Org.")
-
-  (defface my-org-emphasis-strike-through
-    '((((class color) (min-colors 88) (background light))
-       :strike-through "#972500" :foreground "#505050")
-      (((class color) (min-colors 88) (background dark))
-       :strike-through "#ef8b50" :foreground "#a8a8a8"))
-    "My strike-through emphasis for Org."))
+	(when (featurep 'org-extra-emphasis)
+		(org-extra-emphasis-update))) ;; to apply configured `org-emphasis-alist'
 #+end_src
 
 ** 現在のアイテムをリストの最初・最後に移す
@@ -13098,6 +13105,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    CLOSED: [2018-09-24 Mon 14:21]
    :PROPERTIES:
    :CUSTOM_ID: orgfb20898b
+   :ID:       E3E22F9A-F0B8-43FB-B764-DC1AF884E0EF
    :END:
 
 =org-set-generic-type= を使うことで，エクスポート機能を好みに拡張できる．contrib の中の =org-export-generic.el= が必要なので注意する．
@@ -14815,16 +14823,17 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "counsel"
 ;;; 選択対象を "" にする (requires all-the-icons.el)
-  (defface my-ivy-arrow-visible
-    '((((class color) (background light)) :foreground "orange")
-      (((class color) (background dark)) :foreground "#EE6363"))
-    "Face used by Ivy for highlighting the arrow.")
-  (defface my-ivy-arrow-invisible
-    '((((class color) (background light)) :foreground "#FFFFFF")
-      (((class color) (background dark)) :foreground "#31343F"))
-    "Face used by Ivy for highlighting the invisible arrow.")
+(defface my-ivy-arrow-visible
+  '((((class color) (background light)) :foreground "orange")
+    (((class color) (background dark)) :foreground "#EE6363"))
+  "Face used by Ivy for highlighting the arrow.")
+(defface my-ivy-arrow-invisible
+  '((((class color) (background light)) :foreground "#FFFFFF")
+    (((class color) (background dark)) :foreground "#31343F"))
+  "Face used by Ivy for highlighting the invisible arrow.")
+
+(with-eval-after-load "counsel"
 
   ;; Remove the default setting
   (delete '(t . ivy-format-function-default) ivy-format-functions-alist)

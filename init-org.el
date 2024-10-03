@@ -666,21 +666,22 @@
       (org-timer-set-timer))))
 
 (when (autoload-if-found '(org-mode my-load-echo-org-link)
-                         "org" nil t)
-  (add-hook 'org-mode-hook #'my-load-echo-org-link)
-  (with-eval-after-load "org"
-    (defun my-echo-org-link ()
-      (when (org-in-regexp org-link-bracket-re 1)
-        (let ((link "Link:")
-              (msg (org-link-unescape (match-string-no-properties 1))))
-          (put-text-property 0 (length link) 'face 'minibuffer-prompt link)
-          (eldoc-message (format "%s %s" link msg)))))
+			                   "org" nil t)
+	(add-hook 'org-mode-hook #'my-load-echo-org-link)
+	(with-eval-after-load "org"
+		(defvar my-org-link-prompt "Link:")
+		(defun my-echo-org-link ()
+			(when (org-in-regexp org-link-bracket-re 1)
+	      (let ((l (length my-org-link-prompt))
+				      (msg (org-link-unescape (match-string-no-properties 1))))
+		      (put-text-property 0 l 'face 'minibuffer-prompt my-org-link-prompt)
+		      (eldoc-message (format "%s %s" my-org-link-prompt msg)))))
 
-    (defun my-load-echo-org-link ()
-      (add-function :before-until (local 'eldoc-documentation-function)
-                    #'my-echo-org-link)
-      ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
-      )))
+		(defun my-load-echo-org-link ()
+			(add-function :before-until (local 'eldoc-documentation-function)
+				            #'my-echo-org-link)
+			;; (setq-local eldoc-documentation-function #'my-echo-org-link)
+			)))
 
 (with-eval-after-load "org"
   (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
@@ -814,54 +815,54 @@ The core part is extracted from `org-table-export'."
 (with-eval-after-load "org"
   (advice-add 'org-reveal :around #'ad:org-reveal))
 
+(defface my-org-emphasis-bold
+	'((default :inherit bold)
+		(((class color) (min-colors 88) (background light))
+		 :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
+		(((class color) (min-colors 88) (background dark))
+		 :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
+	"My bold emphasis for Org.")
+
+(defface my-org-emphasis-italic
+	'((default :inherit italic)
+		(((class color) (min-colors 88) (background light))
+		 :foreground "#005e00" :background "#B4EAB4")
+		(((class color) (min-colors 88) (background dark))
+		 :foreground "#44bc44"))
+	"My italic emphasis for Org.")
+
+(defface my-org-emphasis-underline
+	'((default :inherit underline)
+		(((class color) (min-colors 88) (background light))
+		 :foreground "#813e00")
+		(((class color) (min-colors 88) (background dark))
+		 :foreground "#d0bc00"))
+	"My underline emphasis for Org.")
+
+(defface my-org-emphasis-strike-through
+	'((((class color) (min-colors 88) (background light))
+		 :strike-through "#972500" :foreground "#505050")
+		(((class color) (min-colors 88) (background dark))
+		 :strike-through "#ef8b50" :foreground "#a8a8a8"))
+	"My strike-through emphasis for Org.")
+
 (with-eval-after-load "org"
-  (custom-set-variables ;; call org-set-emph-re
-   '(org-emphasis-alist '(("~" org-code verbatim)
-                          ("=" org-verbatim verbatim)
-                          ("*" my-org-emphasis-bold)
-                          ("/" my-org-emphasis-italic)
-                          ("_" my-org-emphasis-underline)
-                          ("+" my-org-emphasis-strike-through))))
+	(custom-set-variables ;; call org-set-emph-re
+	 '(org-emphasis-alist '(("~" org-code verbatim)
+				                  ("=" org-verbatim verbatim)
+				                  ("*" my-org-emphasis-bold)
+				                  ("/" my-org-emphasis-italic)
+				                  ("_" my-org-emphasis-underline)
+				                  ("+" my-org-emphasis-strike-through))))
 
-  (custom-set-faces
-   '(org-code
-     ((t (:foreground "red" :background "pink" :inherit shadow))))
-   '(org-verbatim
-     ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
+	(custom-set-faces
+	 '(org-code
+		 ((t (:foreground "red" :background "pink" :inherit shadow))))
+	 '(org-verbatim
+		 ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
 
-  (when (featurep 'org-extra-emphasis)
-    (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'
-
-  (defface my-org-emphasis-bold
-    '((default :inherit bold)
-      (((class color) (min-colors 88) (background light))
-       :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
-      (((class color) (min-colors 88) (background dark))
-       :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
-    "My bold emphasis for Org.")
-
-  (defface my-org-emphasis-italic
-    '((default :inherit italic)
-      (((class color) (min-colors 88) (background light))
-       :foreground "#005e00" :background "#B4EAB4")
-      (((class color) (min-colors 88) (background dark))
-       :foreground "#44bc44"))
-    "My italic emphasis for Org.")
-
-  (defface my-org-emphasis-underline
-    '((default :inherit underline)
-      (((class color) (min-colors 88) (background light))
-       :foreground "#813e00")
-      (((class color) (min-colors 88) (background dark))
-       :foreground "#d0bc00"))
-    "My underline emphasis for Org.")
-
-  (defface my-org-emphasis-strike-through
-    '((((class color) (min-colors 88) (background light))
-       :strike-through "#972500" :foreground "#505050")
-      (((class color) (min-colors 88) (background dark))
-       :strike-through "#ef8b50" :foreground "#a8a8a8"))
-    "My strike-through emphasis for Org."))
+	(when (featurep 'org-extra-emphasis)
+		(org-extra-emphasis-update))) ;; to apply configured `org-emphasis-alist'
 
 (with-eval-after-load "org"
   (keymap-set org-mode-map "C-c x" #'my-org-move-item-end)

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-09-06 金 21:47 -->
+<!-- 2024-10-04 金 01:27 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -8380,7 +8380,7 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'transient))</span>
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"transient"</span>
-  (<span style="color: #a020f0;">transient-define-prefix</span> my-org-bullet-and-checkbox ()
+  (transient-define-prefix my-org-bullet-and-checkbox ()
     <span style="color: #8b2252;">"Commands to handle bullet and checkbox"</span>
     [[<span style="color: #8b2252;">"Bullet"</span>
       (<span style="color: #8b2252;">"i"</span> <span style="color: #8b2252;">"insert"</span> my-org-insert-bullet)
@@ -9262,7 +9262,12 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-recentf)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"recentf"</span>
+  (message <span style="color: #8b2252;">"Loading recentf...done"</span>)
+  (custom-set-variables
+   '(recentf-auto-cleanup 'never)))
+
+(<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-recentf)
                          <span style="color: #8b2252;">"counsel"</span> nil t)
   (keymap-global-set <span style="color: #8b2252;">"C-M-r"</span> 'counsel-recentf))
 
@@ -9376,7 +9381,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </ol>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(keymap-set dired-mode-map <span style="color: #8b2252;">"C-c C-o"</span> 'crux-open-with)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">init-dired.el --- config for dired-mode -*- lexical-binding: t -*-</span>
+(keymap-set dired-mode-map <span style="color: #8b2252;">"C-c C-o"</span> 'crux-open-with)
 </pre>
 </div>
 
@@ -12667,21 +12673,22 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(org-mode my-load-echo-org-link)
-                         <span style="color: #8b2252;">"org"</span> nil t)
-  (add-hook 'org-mode-hook #'my-load-echo-org-link)
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-echo-org-link</span> ()
-      (<span style="color: #a020f0;">when</span> (org-in-regexp org-link-bracket-re 1)
-        (<span style="color: #a020f0;">let</span> ((link <span style="color: #8b2252;">"Link:"</span>)
-              (msg (org-link-unescape (match-string-no-properties 1))))
-          (put-text-property 0 (length link) 'face 'minibuffer-prompt link)
-          (eldoc-message (format <span style="color: #8b2252;">"%s %s"</span> link msg)))))
+                                           <span style="color: #8b2252;">"org"</span> nil t)
+        (add-hook 'org-mode-hook #'my-load-echo-org-link)
+        (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+                (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-link-prompt</span> <span style="color: #8b2252;">"Link:"</span>)
+                (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-echo-org-link</span> ()
+                        (<span style="color: #a020f0;">when</span> (org-in-regexp org-link-bracket-re 1)
+              (<span style="color: #a020f0;">let</span> ((l (length my-org-link-prompt))
+                                      (msg (org-link-unescape (match-string-no-properties 1))))
+                      (put-text-property 0 l 'face 'minibuffer-prompt my-org-link-prompt)
+                      (eldoc-message (format <span style="color: #8b2252;">"%s %s"</span> my-org-link-prompt msg)))))
 
-    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-load-echo-org-link</span> ()
-      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before-until</span> (local 'eldoc-documentation-function)
-                    #'my-echo-org-link)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq-local eldoc-documentation-function #'my-echo-org-link)</span>
-      )))
+                (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-load-echo-org-link</span> ()
+                        (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before-until</span> (local 'eldoc-documentation-function)
+                                            #'my-echo-org-link)
+                        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq-local eldoc-documentation-function #'my-echo-org-link)</span>
+                        )))
 </pre>
 </div>
 </div>
@@ -12896,54 +12903,54 @@ org バッファのソースブロックにカーソルがある時には， <co
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
-  (custom-set-variables <span style="color: #b22222;">;; </span><span style="color: #b22222;">call org-set-emph-re</span>
-   '(org-emphasis-alist '((<span style="color: #8b2252;">"~"</span> org-code verbatim)
-                          (<span style="color: #8b2252;">"="</span> org-verbatim verbatim)
-                          (<span style="color: #8b2252;">"*"</span> my-org-emphasis-bold)
-                          (<span style="color: #8b2252;">"/"</span> my-org-emphasis-italic)
-                          (<span style="color: #8b2252;">"_"</span> my-org-emphasis-underline)
-                          (<span style="color: #8b2252;">"+"</span> my-org-emphasis-strike-through))))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-bold</span>
+        '((default <span style="color: #483d8b;">:inherit</span> bold)
+                (((class color) (min-colors 88) (background light))
+                 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#5b5caf"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#e6ebfa"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">#a60000 #4E4F97 #c7e9fa</span>
+                (((class color) (min-colors 88) (background dark))
+                 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#99B2FF"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">#ff8059 #BCBCDB #6666D6 #879EE2</span>
+        <span style="color: #8b2252;">"My bold emphasis for Org."</span>)
 
-  (custom-set-faces
-   '(org-code
-     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"red"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"pink"</span> <span style="color: #483d8b;">:inherit</span> shadow))))
-   '(org-verbatim
-     ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#ff6059"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"PeachPuff"</span> <span style="color: #483d8b;">:inherit</span> shadow)))))
+(<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-italic</span>
+        '((default <span style="color: #483d8b;">:inherit</span> italic)
+                (((class color) (min-colors 88) (background light))
+                 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#005e00"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#B4EAB4"</span>)
+                (((class color) (min-colors 88) (background dark))
+                 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#44bc44"</span>))
+        <span style="color: #8b2252;">"My italic emphasis for Org."</span>)
 
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-extra-emphasis</span>)
-    (org-extra-emphasis-update)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">to apply configured `</span><span style="color: #008b8b;">org-emphasis-alist</span><span style="color: #b22222;">'</span>
+(<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-underline</span>
+        '((default <span style="color: #483d8b;">:inherit</span> underline)
+                (((class color) (min-colors 88) (background light))
+                 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#813e00"</span>)
+                (((class color) (min-colors 88) (background dark))
+                 <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#d0bc00"</span>))
+        <span style="color: #8b2252;">"My underline emphasis for Org."</span>)
 
-  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-bold</span>
-    '((default <span style="color: #483d8b;">:inherit</span> bold)
-      (((class color) (min-colors 88) (background light))
-       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#5b5caf"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#e6ebfa"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">#a60000 #4E4F97 #c7e9fa</span>
-      (((class color) (min-colors 88) (background dark))
-       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#99B2FF"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">#ff8059 #BCBCDB #6666D6 #879EE2</span>
-    <span style="color: #8b2252;">"My bold emphasis for Org."</span>)
+(<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-strike-through</span>
+        '((((class color) (min-colors 88) (background light))
+                 <span style="color: #483d8b;">:strike-through</span> <span style="color: #8b2252;">"#972500"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#505050"</span>)
+                (((class color) (min-colors 88) (background dark))
+                 <span style="color: #483d8b;">:strike-through</span> <span style="color: #8b2252;">"#ef8b50"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#a8a8a8"</span>))
+        <span style="color: #8b2252;">"My strike-through emphasis for Org."</span>)
 
-  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-italic</span>
-    '((default <span style="color: #483d8b;">:inherit</span> italic)
-      (((class color) (min-colors 88) (background light))
-       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#005e00"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#B4EAB4"</span>)
-      (((class color) (min-colors 88) (background dark))
-       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#44bc44"</span>))
-    <span style="color: #8b2252;">"My italic emphasis for Org."</span>)
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
+        (custom-set-variables <span style="color: #b22222;">;; </span><span style="color: #b22222;">call org-set-emph-re</span>
+         '(org-emphasis-alist '((<span style="color: #8b2252;">"~"</span> org-code verbatim)
+                                                  (<span style="color: #8b2252;">"="</span> org-verbatim verbatim)
+                                                  (<span style="color: #8b2252;">"*"</span> my-org-emphasis-bold)
+                                                  (<span style="color: #8b2252;">"/"</span> my-org-emphasis-italic)
+                                                  (<span style="color: #8b2252;">"_"</span> my-org-emphasis-underline)
+                                                  (<span style="color: #8b2252;">"+"</span> my-org-emphasis-strike-through))))
 
-  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-underline</span>
-    '((default <span style="color: #483d8b;">:inherit</span> underline)
-      (((class color) (min-colors 88) (background light))
-       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#813e00"</span>)
-      (((class color) (min-colors 88) (background dark))
-       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#d0bc00"</span>))
-    <span style="color: #8b2252;">"My underline emphasis for Org."</span>)
+        (custom-set-faces
+         '(org-code
+                 ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"red"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"pink"</span> <span style="color: #483d8b;">:inherit</span> shadow))))
+         '(org-verbatim
+                 ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#ff6059"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"PeachPuff"</span> <span style="color: #483d8b;">:inherit</span> shadow)))))
 
-  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-strike-through</span>
-    '((((class color) (min-colors 88) (background light))
-       <span style="color: #483d8b;">:strike-through</span> <span style="color: #8b2252;">"#972500"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#505050"</span>)
-      (((class color) (min-colors 88) (background dark))
-       <span style="color: #483d8b;">:strike-through</span> <span style="color: #8b2252;">"#ef8b50"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#a8a8a8"</span>))
-    <span style="color: #8b2252;">"My strike-through emphasis for Org."</span>))
+        (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-extra-emphasis</span>)
+                (org-extra-emphasis-update))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">to apply configured `</span><span style="color: #008b8b;">org-emphasis-alist</span><span style="color: #b22222;">'</span>
 </pre>
 </div>
 </div>
@@ -14203,7 +14210,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org2fa6e5e"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgc330b25"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15180,7 +15187,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgf792723" class="figure">
+<div id="orgf51ecec" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -17159,16 +17166,17 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <h3 id="org4b927009"><span class="section-number-3">12.16.</span> [ivy.el] 選択行をアイコンで強調</h3>
 <div class="outline-text-3" id="text-org4b927009">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
-<span style="color: #b22222;">;;; </span><span style="color: #b22222;">&#36984;&#25246;&#23550;&#35937;&#12434; "" &#12395;&#12377;&#12427; (requires all-the-icons.el)</span>
-  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-visible</span>
-    '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span>)
-      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#EE6363"</span>))
-    <span style="color: #8b2252;">"Face used by Ivy for highlighting the arrow."</span>)
-  (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-invisible</span>
-    '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>)
-      (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#31343F"</span>))
-    <span style="color: #8b2252;">"Face used by Ivy for highlighting the invisible arrow."</span>)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;; </span><span style="color: #b22222;">&#36984;&#25246;&#23550;&#35937;&#12434; "" &#12395;&#12377;&#12427; (requires all-the-icons.el)</span>
+(<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-visible</span>
+  '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span>)
+    (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#EE6363"</span>))
+  <span style="color: #8b2252;">"Face used by Ivy for highlighting the arrow."</span>)
+(<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-invisible</span>
+  '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>)
+    (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#31343F"</span>))
+  <span style="color: #8b2252;">"Face used by Ivy for highlighting the invisible arrow."</span>)
+
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove the default setting</span>
   (delete '(t . ivy-format-function-default) ivy-format-functions-alist)
@@ -19663,7 +19671,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-09-06 金 21:47</p>
+<p class="date">Created: 2024-10-04 金 01:27</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

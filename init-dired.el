@@ -1,3 +1,4 @@
+;; init-dired.el --- config for dired-mode -*- lexical-binding: t -*-
 (keymap-set dired-mode-map "C-c C-o" 'crux-open-with)
 
 (setq completion-ignored-extensions

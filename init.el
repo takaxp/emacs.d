@@ -286,6 +286,11 @@
 
 (setq undo-outer-limit nil)
 
+(with-eval-after-load "recentf"
+  (message "Loading recentf...done")
+  (custom-set-variables
+   '(recentf-auto-cleanup 'never)))
+
 (when (autoload-if-found '(counsel-recentf)
                          "counsel" nil t)
   (keymap-global-set "C-M-r" 'counsel-recentf))
