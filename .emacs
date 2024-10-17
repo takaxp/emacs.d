@@ -3,6 +3,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
+(with-eval-after-load "org-agenda"
+  (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done)
+  (org-defkey org-agenda-mode-map "D" 'my-org-todo-complete-no-repeat))
+
 (with-eval-after-load "colorful-mode"
   )
 

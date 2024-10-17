@@ -2027,7 +2027,7 @@ Uses `all-the-icons-material' to fetch the icon."
 (defun my-hl-todo-light-theme ()
   (setq hl-todo-exclude-modes nil) ;; also apply to a case when org-mode
   (setq hl-todo-keyword-faces
-	'(("TODO" . "Red1")
+	'(("TODO" . "red1")
 	  ("DONE" . "ForestGreen")
 	  ("HOLD" . "#d0bf8f")
 	  ("NEXT" . "#dca3a3")
@@ -2052,7 +2052,7 @@ Uses `all-the-icons-material' to fetch the icon."
 ;;;###autoload
 (defun my-hl-todo-dark-theme ()
   (setq hl-todo-keyword-faces
-	'(("TODO" . "Red1")
+	'(("TODO" . "red1")
 	  ("DONE" . "ForestGreen")
 	  ("HOLD" . "#d0bf8f")
 	  ("NEXT" . "#dca3a3")
