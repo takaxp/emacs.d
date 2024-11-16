@@ -5824,9 +5824,10 @@ version 28 で全角スペースに黒下線が付くので回避します．
    :ID:       6F15F77F-9F8D-4921-9434-28BF014852DA
    :END:
 
-ビルドインの =holidays= と， =japanese-holidays= を使います．土日祝日に色を着けます．土曜日と日曜祝日で異なる配色にできます．
+ビルドインの =holidays= と， =japanese-holidays= を使って，土日祝日に配色します．土曜日と日曜祝日で異なる配色にできます．
 
 #+begin_src emacs-lisp :tangle late-init.el
+(keymap-global-set "M-c" #'calendar)
 (with-eval-after-load "calendar"
   (when (require 'japanese-holidays nil t)
     (setq calendar-holidays

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-10-17 木 16:18 -->
+<!-- 2024-11-16 土 09:18 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -7435,11 +7435,12 @@ version 28 で全角スペースに黒下線が付くので回避します．
 <h3 id="orgd6308db6"><span class="section-number-3">6.27.</span> [japanese-holidays] カレンダーをカラフルにする</h3>
 <div class="outline-text-3" id="text-orgd6308db6">
 <p>
-ビルドインの <code>holidays</code> と， <code>japanese-holidays</code> を使います．土日祝日に色を着けます．土曜日と日曜祝日で異なる配色にできます．
+ビルドインの <code>holidays</code> と， <code>japanese-holidays</code> を使って，土日祝日に配色します．土曜日と日曜祝日で異なる配色にできます．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"calendar"</span>
+<pre class="src src-emacs-lisp">(keymap-global-set <span style="color: #8b2252;">"M-c"</span> #'calendar)
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"calendar"</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">japanese-holidays</span> nil t)
     (<span style="color: #a020f0;">setq</span> calendar-holidays
           (append japanese-holidays
@@ -14214,7 +14215,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org2deb7f5"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgecd40ba"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15191,7 +15192,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgece91af" class="figure">
+<div id="orgaa82946" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19675,7 +19676,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2024-10-17 木 16:18</p>
+<p class="date">Created: 2024-11-16 土 09:18</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
