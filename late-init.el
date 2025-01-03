@@ -1074,6 +1074,7 @@ This function returns a timer object which you can use in
       (set-face-foreground 'git-gutter-fr:modified "orange")
       (set-face-foreground 'git-gutter-fr:deleted  "medium sea green"))))
 
+(keymap-global-set "M-c" #'calendar)
 (with-eval-after-load "calendar"
   (when (require 'japanese-holidays nil t)
     (setq calendar-holidays
