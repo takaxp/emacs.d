@@ -1195,6 +1195,7 @@ With a prefix ARG always prompt for command to use."
          (program (if (or arg (not open))
                       (read-shell-command "Open current file with: ")
                     open)))
+    (recentf-add-file current-file-name)
     (call-process program nil 0 nil current-file-name)))
 
 ;;;###autoload
@@ -1417,42 +1418,48 @@ Otherwise, use `counsel-ag'."
 
 ;;;###autoload
 (defun my-org-modules-activate ()
-  (interactive)
-  (if (and (featurep 'org-tempo)
-           (featurep 'org-id))
-      (message "org-modules are previously loaded.")
-    (message "Loading org-modules...")
-    (setq org-modules my-org-modules) ;; revert to the original value
-    ;; モジュールの追加
-    (add-to-list 'org-modules 'org-id)
-    (with-eval-after-load "org-agenda"
-      ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
-      (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
-    (when (version< "9.1.4" (org-version))
-      (add-to-list 'org-modules 'org-tempo))
-    (when (require 'ol-bookmark nil t)
-      ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
-      (add-to-list 'org-modules 'ol-bookmark)
-      (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
-      ;; `bookmark-default-file' の読み込み
-      (bookmark-maybe-load-default-file))
+	(interactive)
+	(if (and (featurep 'org-tempo)
+		       (featurep 'org-id))
+			(message "org-modules are previously loaded.")
+		(message "Loading org-modules...")
+		(setq org-modules my-org-modules) ;; revert to the original value
+		;; モジュールの追加
+		(add-to-list 'org-modules 'org-id)
+		(with-eval-after-load "org-agenda"
+			;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
+			(add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
+		(when (version< "9.1.4" (org-version))
+			(add-to-list 'org-modules 'org-tempo))
+		(when (require 'ol-bookmark nil t)
+			;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
+			(add-to-list 'org-modules 'ol-bookmark)
+			(setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
+			;; `bookmark-default-file' の読み込み
+			(bookmark-maybe-load-default-file))
 
-    ;; 不必要なモジュールの読み込みを停止する
-    (delq 'ol-bbdb org-modules)
-    (delq 'ol-irc org-modules)
-    (delq 'ol-mhe org-modules)
-    (delq 'ol-docview org-modules)
-    ;; Reload
-    (org-load-modules-maybe t)
-    (org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
-    (message "Loading org-modules...done")))
+		;; 不必要なモジュールの読み込みを停止する
+		(delq 'ol-bbdb org-modules)
+		(delq 'ol-irc org-modules)
+		(delq 'ol-mhe org-modules)
+		(delq 'ol-docview org-modules)
+		;; Reload
+		(org-load-modules-maybe t)
+		(org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
+		(message "Loading org-modules...done")))
 
 ;;;###autoload
 (defun my-open-default-org-file ()
-  (interactive)
-  (my-show-org-buffer "next.org")
-  ;; (run-hooks 'org-mode-hook) ;; FIXME
-)
+	(interactive)
+	(my-show-org-buffer "next.org"))
+;; (run-hooks 'org-mode-hook) ;; FIXME
+
+;;;###autoload
+(defun my-org-last-repeat (&optional _arg)
+	(when (and (org-get-repeat)
+			       (org-entry-is-todo-p))
+		(org-entry-put nil "LAST_REPEAT" (format-time-string
+							                        (org-time-stamp-format t t)))))
 
 ;;;###autoload
 (defun my-desktop-notification (title message &optional sticky sound timeout)

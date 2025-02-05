@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-01-03 金 16:13 -->
+<!-- 2025-02-05 水 22:26 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -9286,7 +9286,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(rencetf-mode
                                                          my-recentf-save-list-silence
                                                          my-recentf-cleanup-silence
-                                                         recentf-open-files)
+                                                         recentf-open-files recentf-add-file)
                                                        <span style="color: #8b2252;">"recentf"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"recentf"</span>
     (custom-set-variables
@@ -9495,6 +9495,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
          (program (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> arg (not open))
                       (read-shell-command <span style="color: #8b2252;">"Open current file with: "</span>)
                     open)))
+    (recentf-add-file current-file-name)
     (call-process program nil 0 nil current-file-name)))
 </pre>
 </div>
@@ -11667,42 +11668,48 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-modules-activate</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-tempo</span>)
-           (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>))
-      (message <span style="color: #8b2252;">"org-modules are previously loaded."</span>)
-    (message <span style="color: #8b2252;">"Loading org-modules..."</span>)
-    (<span style="color: #a020f0;">setq</span> org-modules my-org-modules) <span style="color: #b22222;">;; </span><span style="color: #b22222;">revert to the original value</span>
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#36861;&#21152;</span>
-    (add-to-list 'org-modules 'org-id)
-    (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12434;&#35501;&#12435;&#12391;&#12375;&#12414;&#12358;&#12398;&#12391; org-mode &#38283;&#22987;&#26178;&#12395;&#12399;&#35501;&#12415;&#36796;&#12414;&#12379;&#12394;&#12356;</span>
-      (add-to-list 'org-modules 'org-habit)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">require org and org-agenda</span>
-    (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"9.1.4"</span> (org-version))
-      (add-to-list 'org-modules 'org-tempo))
-    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ol-bookmark</span> nil t)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">[[bookmark:hoge][hogehoge]] &#24418;&#24335;&#12398;&#12522;&#12531;&#12463;&#12434;&#26377;&#21177;&#21270;</span>
-      (add-to-list 'org-modules 'ol-bookmark)
-      (<span style="color: #a020f0;">setq</span> bookmark-save-flag 4) <span style="color: #b22222;">;; </span><span style="color: #b22222;">N&#22238; bookmark &#12434;&#25805;&#20316;&#12375;&#12383;&#12425;&#20445;&#23384;</span>
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">`</span><span style="color: #008b8b;">bookmark-default-file</span><span style="color: #b22222;">' &#12398;&#35501;&#12415;&#36796;&#12415;</span>
-      (bookmark-maybe-load-default-file))
+        (<span style="color: #a020f0;">interactive</span>)
+        (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-tempo</span>)
+                       (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org-id</span>))
+                        (message <span style="color: #8b2252;">"org-modules are previously loaded."</span>)
+                (message <span style="color: #8b2252;">"Loading org-modules..."</span>)
+                (<span style="color: #a020f0;">setq</span> org-modules my-org-modules) <span style="color: #b22222;">;; </span><span style="color: #b22222;">revert to the original value</span>
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#36861;&#21152;</span>
+                (add-to-list 'org-modules 'org-id)
+                (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-agenda"</span>
+                        <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12434;&#35501;&#12435;&#12391;&#12375;&#12414;&#12358;&#12398;&#12391; org-mode &#38283;&#22987;&#26178;&#12395;&#12399;&#35501;&#12415;&#36796;&#12414;&#12379;&#12394;&#12356;</span>
+                        (add-to-list 'org-modules 'org-habit)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">require org and org-agenda</span>
+                (<span style="color: #a020f0;">when</span> (version&lt; <span style="color: #8b2252;">"9.1.4"</span> (org-version))
+                        (add-to-list 'org-modules 'org-tempo))
+                (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ol-bookmark</span> nil t)
+                        <span style="color: #b22222;">;; </span><span style="color: #b22222;">[[bookmark:hoge][hogehoge]] &#24418;&#24335;&#12398;&#12522;&#12531;&#12463;&#12434;&#26377;&#21177;&#21270;</span>
+                        (add-to-list 'org-modules 'ol-bookmark)
+                        (<span style="color: #a020f0;">setq</span> bookmark-save-flag 4) <span style="color: #b22222;">;; </span><span style="color: #b22222;">N&#22238; bookmark &#12434;&#25805;&#20316;&#12375;&#12383;&#12425;&#20445;&#23384;</span>
+                        <span style="color: #b22222;">;; </span><span style="color: #b22222;">`</span><span style="color: #008b8b;">bookmark-default-file</span><span style="color: #b22222;">' &#12398;&#35501;&#12415;&#36796;&#12415;</span>
+                        (bookmark-maybe-load-default-file))
 
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19981;&#24517;&#35201;&#12394;&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#35501;&#12415;&#36796;&#12415;&#12434;&#20572;&#27490;&#12377;&#12427;</span>
-    (delq 'ol-bbdb org-modules)
-    (delq 'ol-irc org-modules)
-    (delq 'ol-mhe org-modules)
-    (delq 'ol-docview org-modules)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Reload</span>
-    (org-load-modules-maybe t)
-    (org-element-cache-reset 'all) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME use `</span><span style="color: #008b8b;">custom-set-variables</span><span style="color: #b22222;">'</span>
-    (message <span style="color: #8b2252;">"Loading org-modules...done"</span>)))
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19981;&#24517;&#35201;&#12394;&#12514;&#12472;&#12517;&#12540;&#12523;&#12398;&#35501;&#12415;&#36796;&#12415;&#12434;&#20572;&#27490;&#12377;&#12427;</span>
+                (delq 'ol-bbdb org-modules)
+                (delq 'ol-irc org-modules)
+                (delq 'ol-mhe org-modules)
+                (delq 'ol-docview org-modules)
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">Reload</span>
+                (org-load-modules-maybe t)
+                (org-element-cache-reset 'all) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME use `</span><span style="color: #008b8b;">custom-set-variables</span><span style="color: #b22222;">'</span>
+                (message <span style="color: #8b2252;">"Loading org-modules...done"</span>)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-open-default-org-file</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>)
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-hooks 'org-mode-hook) ;; FIXME</span>
-)
+        (<span style="color: #a020f0;">interactive</span>)
+        (my-show-org-buffer <span style="color: #8b2252;">"next.org"</span>))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(run-hooks 'org-mode-hook) ;; FIXME</span>
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-last-repeat</span> (<span style="color: #228b22;">&amp;optional</span> _arg)
+        (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (org-get-repeat)
+                               (org-entry-is-todo-p))
+                (org-entry-put nil <span style="color: #8b2252;">"LAST_REPEAT"</span> (format-time-string
+                                                                                (org-time-stamp-format t t)))))
 </pre>
 </div>
 
@@ -11761,6 +11768,12 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12525;&#12464;&#12434;&#12489;&#12525;&#12450;&#12540;&#12395;&#20837;&#12428;&#12427;</span>
   (<span style="color: #a020f0;">setq</span> org-log-into-drawer t)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12473;&#12463;&#32368;&#12426;&#36820;&#12375;&#26178;&#12395;&#12525;&#12464;&#12434;&#27531;&#12373;&#12394;&#12356;</span>
+  (<span style="color: #a020f0;">setq</span> org-log-repeat nil)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12479;&#12473;&#12463;&#32368;&#12426;&#36820;&#12375;&#26178;&#12395;&#12525;&#12464;&#12434;&#27531;&#12373;&#12394;&#12356;&#12364;&#65292;LAST_REPEAT &#12399;&#35352;&#37682;&#12377;&#12427;&#65294;</span>
+  (advice-add 'org-todo <span style="color: #483d8b;">:after</span> #'my-org-last-repeat)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">indent &#12434; electric-indent-mode &#12398;&#25391;&#12427;&#33310;&#12356;&#12395;&#21512;&#12431;&#12379;&#12427;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-adapt-indentation t) ;; t &#12398;&#22580;&#21512;&#65292;&#12489;&#12525;&#12450;&#12364;&#12452;&#12531;&#12487;&#12531;&#12488;&#12373;&#12428;&#12427;&#65294;</span>
@@ -12285,6 +12298,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           (<span style="color: #8b2252;">"Report"</span>      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#66CC66"</span>)
           (<span style="color: #8b2252;">"Background"</span>  <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#66CC99"</span>)
           (<span style="color: #8b2252;">"Chore"</span>       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6699CC"</span>)
+          (<span style="color: #8b2252;">"Remind"</span>      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6699CC"</span>)
           (<span style="color: #8b2252;">"project"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6666CC"</span>)
           (<span style="color: #8b2252;">"read"</span>        <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6666CC"</span>)
           (<span style="color: #8b2252;">"book"</span>        <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6666CC"</span>)
@@ -14215,7 +14229,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga309031"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org66dc009"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15192,7 +15206,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org5739e8a" class="figure">
+<div id="org5d47434" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19676,7 +19690,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-01-03 金 16:13</p>
+<p class="date">Created: 2025-02-05 水 22:26</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

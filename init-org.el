@@ -53,6 +53,12 @@
   ;; ログをドロアーに入れる
   (setq org-log-into-drawer t)
 
+  ;; タスク繰り返し時にログを残さない
+  (setq org-log-repeat nil)
+
+  ;; タスク繰り返し時にログを残さないが，LAST_REPEAT は記録する．
+  (advice-add 'org-todo :after #'my-org-last-repeat)
+
   ;; indent を electric-indent-mode の振る舞いに合わせる
   ;; (setq org-adapt-indentation t) ;; t の場合，ドロアがインデントされる．
 
@@ -534,6 +540,7 @@
           ("Report"      :foreground "#66CC66")
           ("Background"  :foreground "#66CC99")
           ("Chore"       :foreground "#6699CC")
+          ("Remind"      :foreground "#6699CC")
           ("project"     :foreground "#6666CC")
           ("read"        :foreground "#6666CC")
           ("book"        :foreground "#6666CC")

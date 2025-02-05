@@ -1405,7 +1405,7 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(rencetf-mode
 					                 my-recentf-save-list-silence
 					                 my-recentf-cleanup-silence
-					                 recentf-open-files)
+					                 recentf-open-files recentf-add-file)
 					               "recentf" nil t)
   (with-eval-after-load "recentf"
     (custom-set-variables

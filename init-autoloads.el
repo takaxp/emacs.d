@@ -533,6 +533,10 @@ Use C-SPC to insert the separator.
 (fn ARG)" t)
 (autoload 'my-org-modules-activate "utility" nil t)
 (autoload 'my-open-default-org-file "utility" nil t)
+(autoload 'my-org-last-repeat "utility" "\
+
+
+(fn &optional ARG)")
 (autoload 'my-desktop-notification "utility" "\
 Show a message by `alerter' command.
 
