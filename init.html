@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-02-05 水 22:26 -->
+<!-- 2025-02-10 月 10:39 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -12108,7 +12108,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"d"</span> my-done-with-update-list))
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-speed-commands '("S" call-interactively 'widen))</span>
         (add-to-list 'org-speed-commands
-                                                         '(<span style="color: #8b2252;">"D"</span> my-org-todo-complete-no-repeat <span style="color: #8b2252;">"DONE"</span>))
+                                       '(<span style="color: #8b2252;">"D"</span> my-org-todo-complete-no-repeat <span style="color: #8b2252;">"DONE"</span>))
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-speed-commands '("N" org-shiftmetadown))</span>
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-speed-commands '("P" org-shiftmetaup))</span>
         (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"H"</span> my-hugo-export-upload))
@@ -12119,7 +12119,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"y"</span> my-org-yank))
         (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"x"</span> my-org-move-subtree-to-the-last))
         (add-to-list 'org-speed-commands
-                                                         '(<span style="color: #8b2252;">"$"</span> call-interactively 'org-archive-subtree))
+                                       '(<span style="color: #8b2252;">"$"</span> call-interactively 'org-archive-subtree))
 
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">done &#12395;&#12375;&#12390;&#65292;appt&#12434;&#26356;&#26032;&#12377;&#12427;</span>
         (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-done-with-update-list</span> ()
@@ -12142,69 +12142,69 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                 (goto-char (point-min))
                 (<span style="color: #a020f0;">while</span> (re-search-forward <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65292;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65294;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> nil <span style="color: #483d8b;">:noerror</span>)
                         (<span style="color: #a020f0;">let</span> ((w (match-string-no-properties 0)))
-                                (<span style="color: #a020f0;">cond</span> ((equal w <span style="color: #8b2252;">"&#65292;"</span>) (replace-match <span style="color: #8b2252;">"&#12289;"</span>))
-                                                        ((equal w <span style="color: #8b2252;">"&#65294;"</span>) (replace-match <span style="color: #8b2252;">"&#12290;"</span>))))))
+              (<span style="color: #a020f0;">cond</span> ((equal w <span style="color: #8b2252;">"&#65292;"</span>) (replace-match <span style="color: #8b2252;">"&#12289;"</span>))
+                                      ((equal w <span style="color: #8b2252;">"&#65294;"</span>) (replace-match <span style="color: #8b2252;">"&#12290;"</span>))))))
 
         (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-replace-punc-in-tree</span> ()
                 <span style="color: #8b2252;">"Replace \"&#65292;\" and \"&#65294;\" with \"&#12289;\" and \"&#12290;\" in an org tree."</span>
                 (<span style="color: #a020f0;">interactive</span>)
                 (org-back-to-heading t)
                 (<span style="color: #a020f0;">let*</span> ((element (org-element-at-point))
-                                         (begin (org-element-property <span style="color: #483d8b;">:begin</span> element))
-                                         (end (org-element-property <span style="color: #483d8b;">:end</span> element)))
+                       (begin (org-element-property <span style="color: #483d8b;">:begin</span> element))
+                       (end (org-element-property <span style="color: #483d8b;">:end</span> element)))
                         (<span style="color: #a020f0;">when</span> (eq (org-element-type element) 'headline)
-                                (goto-char begin)
-                                (<span style="color: #a020f0;">while</span> (re-search-forward <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65292;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65294;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> end <span style="color: #483d8b;">:noerror</span>)
-                                        (<span style="color: #a020f0;">let</span> ((w (match-string-no-properties 0)))
-                                                (<span style="color: #a020f0;">cond</span> ((equal w <span style="color: #8b2252;">"&#65292;"</span>) (replace-match <span style="color: #8b2252;">"&#12289;"</span>))
-                                                                        ((equal w <span style="color: #8b2252;">"&#65294;"</span>) (replace-match <span style="color: #8b2252;">"&#12290;"</span>)))))
-                                (goto-char begin))))
+              (goto-char begin)
+              (<span style="color: #a020f0;">while</span> (re-search-forward <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65292;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">&#65294;</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> end <span style="color: #483d8b;">:noerror</span>)
+                      (<span style="color: #a020f0;">let</span> ((w (match-string-no-properties 0)))
+                              (<span style="color: #a020f0;">cond</span> ((equal w <span style="color: #8b2252;">"&#65292;"</span>) (replace-match <span style="color: #8b2252;">"&#12289;"</span>))
+                                    ((equal w <span style="color: #8b2252;">"&#65294;"</span>) (replace-match <span style="color: #8b2252;">"&#12290;"</span>)))))
+              (goto-char begin))))
 
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">Hugo &#12398;&#35352;&#20107;&#12434;&#26360;&#12365;&#20986;&#12375;&amp;&#12450;&#12483;&#12503;&#12525;&#12540;&#12489;</span>
         (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hugo-export-upload</span> ()
                 <span style="color: #8b2252;">"Export subtree for Hugo and upload the engty."</span>
                 (<span style="color: #a020f0;">when</span> (member (buffer-name) '(<span style="color: #8b2252;">"imadenale.org"</span> <span style="color: #8b2252;">"archive.org"</span>))
                         (<span style="color: #a020f0;">if</span> (not (org-entry-is-done-p))
-                                        (message <span style="color: #8b2252;">"The state of the entry is not \"DONE\" yet."</span>)
-                                (my-org-replace-punc-in-tree)
-                                (save-buffer)
-                                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(let ((outfile (org-hugo-export-wim-to-md)))</span>
-                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">       (sit-for 2)</span>
-                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">       (when (and outfile</span>
-                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                      (file-exists-p outfile))</span>
-                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">               (switch-to-buffer</span>
-                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">                      (find-file-noselect outfile)</span>
-                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">                      (my-org-replace-punc-in-buffer))))</span>
-                                (org-hugo-export-wim-to-md)
-                                (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/Dropbox/scripts/push-hugo.sh"</span>)
-                                                        (filename (org-entry-get (point) <span style="color: #8b2252;">"EXPORT_FILE_NAME"</span>))
-                                                        (exported (format <span style="color: #8b2252;">"[ox-hugo] \"%s\" has been exported."</span>
-                                                                                                                                (nth 4 (org-heading-components)))))
-                                        (<span style="color: #a020f0;">when</span> filename
-                                                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (file-exists-p (concat outfile ".md"))</span>
-                                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">       (switch-to-buffer</span>
-                                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">              (find-file-noselect (concat outfile ".md"))</span>
-                                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">              (my-org-replace-punc-in-buffer)</span>
-                                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">              (save-buffer)))</span>
-                                                (<span style="color: #a020f0;">save-excursion</span>
-                                                        (<span style="color: #a020f0;">save-restriction</span>
-                                                                (outline-up-heading 1)
-                                                                (<span style="color: #a020f0;">setq</span> filename
-                                                                                        (concat (nth 4 (org-heading-components)) <span style="color: #8b2252;">"/"</span> filename))
-                                                                (<span style="color: #a020f0;">setq</span> command (concat command <span style="color: #8b2252;">" -e "</span> (downcase filename)))))
-                                                (message <span style="color: #8b2252;">"[hugo] %s"</span> command)
-                                                (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t)
-                                                                (<span style="color: #a020f0;">progn</span>
-                                                                        (message <span style="color: #8b2252;">"%s\n[async] Uploading..."</span> exported)
-                                                                        (async-start
-                                                                         `(<span style="color: #a020f0;">lambda</span> () (shell-command-to-string ',command))
-                                                                         `(<span style="color: #a020f0;">lambda</span> (result)
-                                                                                        (message <span style="color: #8b2252;">"%s\n[async] Uploading...%s"</span>
-                                                                                                                         ',exported (<span style="color: #a020f0;">when</span> result <span style="color: #8b2252;">"done"</span>))
-                                                                                        (message <span style="color: #8b2252;">"[log] %s"</span> result))))
-                                                        (message <span style="color: #8b2252;">"%s\nUploading..."</span> exported)
-                                                        (message <span style="color: #8b2252;">"%s"</span> (shell-command-to-string command))
-                                                        (message <span style="color: #8b2252;">"%s\nUploading...done"</span> exported)))))))
+                      (message <span style="color: #8b2252;">"The state of the entry is not \"DONE\" yet."</span>)
+              (my-org-replace-punc-in-tree)
+              (save-buffer)
+              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(let ((outfile (org-hugo-export-wim-to-md)))</span>
+              <span style="color: #b22222;">;;</span><span style="color: #b22222;">         (sit-for 2)</span>
+              <span style="color: #b22222;">;;</span><span style="color: #b22222;">         (when (and outfile</span>
+              <span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                        (file-exists-p outfile))</span>
+              <span style="color: #b22222;">;;</span><span style="color: #b22222;">                 (switch-to-buffer</span>
+              <span style="color: #b22222;">;;</span><span style="color: #b22222;">                        (find-file-noselect outfile)</span>
+              <span style="color: #b22222;">;;</span><span style="color: #b22222;">                        (my-org-replace-punc-in-buffer))))</span>
+              (org-hugo-export-wim-to-md)
+              (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/Dropbox/scripts/push-hugo.sh"</span>)
+                                      (filename (org-entry-get (point) <span style="color: #8b2252;">"EXPORT_FILE_NAME"</span>))
+                                      (exported (format <span style="color: #8b2252;">"[ox-hugo] \"%s\" has been exported."</span>
+                                                        (nth 4 (org-heading-components)))))
+                      (<span style="color: #a020f0;">when</span> filename
+                              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (file-exists-p (concat outfile ".md"))</span>
+                              <span style="color: #b22222;">;;</span><span style="color: #b22222;">         (switch-to-buffer</span>
+                              <span style="color: #b22222;">;;</span><span style="color: #b22222;">                (find-file-noselect (concat outfile ".md"))</span>
+                              <span style="color: #b22222;">;;</span><span style="color: #b22222;">                (my-org-replace-punc-in-buffer)</span>
+                              <span style="color: #b22222;">;;</span><span style="color: #b22222;">                (save-buffer)))</span>
+                              (<span style="color: #a020f0;">save-excursion</span>
+                                      (<span style="color: #a020f0;">save-restriction</span>
+                            (outline-up-heading 1)
+                            (<span style="color: #a020f0;">setq</span> filename
+                                                    (concat (nth 4 (org-heading-components)) <span style="color: #8b2252;">"/"</span> filename))
+                            (<span style="color: #a020f0;">setq</span> command (concat command <span style="color: #8b2252;">" -e "</span> (downcase filename)))))
+                              (message <span style="color: #8b2252;">"[hugo] %s"</span> command)
+                              (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t)
+                            (<span style="color: #a020f0;">progn</span>
+                                    (message <span style="color: #8b2252;">"%s\n[async] Uploading..."</span> exported)
+                                    (async-start
+                                     `(<span style="color: #a020f0;">lambda</span> () (shell-command-to-string ',command))
+                                     `(<span style="color: #a020f0;">lambda</span> (result)
+                                                    (message <span style="color: #8b2252;">"%s\n[async] Uploading...%s"</span>
+                                                                   ',exported (<span style="color: #a020f0;">when</span> result <span style="color: #8b2252;">"done"</span>))
+                                                    (message <span style="color: #8b2252;">"[log] %s"</span> result))))
+                                      (message <span style="color: #8b2252;">"%s\nUploading..."</span> exported)
+                                      (message <span style="color: #8b2252;">"%s"</span> (shell-command-to-string command))
+                                      (message <span style="color: #8b2252;">"%s\nUploading...done"</span> exported)))))))
 
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12459;&#12540;&#12477;&#12523;&#20301;&#32622;&#12398;&#12469;&#12502;&#12484;&#12522;&#12540;&#12434;&#12487;&#12473;&#12463;&#12488;&#12483;&#12503;&#12395;HTML&#12456;&#12463;&#12473;&#12509;&#12540;&#12488;&#12377;&#12427;</span>
         (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-export-subtree-as-html</span> ()
@@ -12217,13 +12217,13 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-deadline-today</span> ()
                 (<span style="color: #a020f0;">when</span> (org-entry-is-todo-p)
                         (<span style="color: #a020f0;">let</span> ((date (org-entry-get (point) <span style="color: #8b2252;">"DEADLINE"</span>))
-                                                (today (format-time-string <span style="color: #8b2252;">"%F"</span>)))
-                                (org-deadline 'deadline
-                                                                                        (<span style="color: #a020f0;">if</span> date
-                                                                                                        (format <span style="color: #8b2252;">"&lt;%s%s"</span>
-                                                                                                                                        today
-                                                                                                                                        (substring date 11 (string-width date)))
-                                                                                                (format <span style="color: #8b2252;">"&lt;%s&gt;"</span> today))))))
+                              (today (format-time-string <span style="color: #8b2252;">"%F"</span>)))
+              (org-deadline 'deadline
+                                                    (<span style="color: #a020f0;">if</span> date
+                                                  (format <span style="color: #8b2252;">"&lt;%s%s"</span>
+                                                                today
+                                                                (substring date 11 (string-width date)))
+                                          (format <span style="color: #8b2252;">"&lt;%s&gt;"</span> today))))))
 
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#29694;&#22312;&#12398;&#12484;&#12522;&#12540;&#12434;&#30067;&#12435;&#12391;&#12363;&#12425;&#21516;&#12376;&#12524;&#12505;&#12523;&#12398;&#26368;&#24460;&#12398;&#35201;&#32032;&#12392;&#12375;&#12390;&#31227;&#21205;&#12377;&#12427;</span>
         (<span style="color: #a020f0;">defcustom</span> <span style="color: #a0522d;">my-org-move-subtree-to-the-last-after-hook</span> nil<span style="color: #8b2252;">""</span>
@@ -12236,13 +12236,26 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                         (outline-hide-subtree)
                         (<span style="color: #a020f0;">setq</span> beg (point))
                         (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (funcall 'org-get-next-sibling)
-                                                                        (looking-at org-outline-regexp))
-                                (<span style="color: #a020f0;">setq</span> cnt (1+ cnt)))
+                                    (looking-at org-outline-regexp))
+              (<span style="color: #a020f0;">setq</span> cnt (1+ cnt)))
                         (goto-char beg)
                         (<span style="color: #a020f0;">when</span> (&gt; cnt 0)
-                                (org-move-subtree-down cnt)
-                                (goto-char beg)))
-                (run-hooks 'my-org-move-subtree-to-the-last-after-hook)))
+              (org-move-subtree-down cnt)
+              (goto-char beg)))
+                (run-hooks 'my-org-move-subtree-to-the-last-after-hook))
+
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">"k" &#12391;&#12484;&#12522;&#12540;&#12434;&#12459;&#12483;&#12488;&#12377;&#12427;&#26178;&#12395;&#65292;&#32113;&#35336;&#24773;&#22577;&#12434;&#26356;&#26032;&#12377;&#12427;</span>
+        (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-k-update-todo-statistics</span> (<span style="color: #228b22;">&amp;optional</span> _arg)
+                (org-update-statistics-cookies nil)
+                (org-update-parent-todo-statistics))
+        (advice-add 'org-cut-subtree <span style="color: #483d8b;">:after</span> #'my-k-update-current-subtree-todo-statistics)
+
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">"y" &#12391;&#12484;&#12522;&#12540;&#12434;&#12506;&#12540;&#12473;&#12488;&#12377;&#12427;&#26178;&#12395;&#65292;&#32113;&#35336;&#24773;&#22577;&#12434;&#26356;&#26032;&#12377;&#12427;</span>
+        (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-y-update-todo-statistics</span> (<span style="color: #228b22;">&amp;optional</span> _arg)
+                (org-previous-visible-heading 1)
+                (my-k-update-todo-statistics)
+                (org-next-visible-heading 1))
+        (advice-add 'org-yank <span style="color: #483d8b;">:after</span> #'my-y-update-current-subtree-todo-statistics))
 </pre>
 </div>
 </div>
@@ -14229,7 +14242,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org66dc009"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orge7ee3cd"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15206,7 +15219,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org5d47434" class="figure">
+<div id="org0df5ae0" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19690,7 +19703,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-02-05 水 22:26</p>
+<p class="date">Created: 2025-02-10 月 10:39</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
