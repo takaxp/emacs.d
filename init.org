@@ -10296,14 +10296,14 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 	(defun my-k-update-todo-statistics (&optional _arg)
 		(org-update-statistics-cookies nil)
 		(org-update-parent-todo-statistics))
-	(advice-add 'org-cut-subtree :after #'my-k-update-current-subtree-todo-statistics)
+	(advice-add 'org-cut-subtree :after #'my-k-update-todo-statistics)
 
 	;; "y" でツリーをペーストする時に，統計情報を更新する
 	(defun my-y-update-todo-statistics (&optional _arg)
 		(org-previous-visible-heading 1)
 		(my-k-update-todo-statistics)
 		(org-next-visible-heading 1))
-	(advice-add 'org-yank :after #'my-y-update-current-subtree-todo-statistics))
+	(advice-add 'org-yank :after #'my-y-update-todo-statistics))
 #+end_src
 
 *** COMMENT for debugging
