@@ -573,7 +573,7 @@ This function is called directly from the C code."
    ,(expand-file-name "~/devel/git/tern/bin")
    ,(expand-file-name "~/.go/bin")
    ,(expand-file-name "~/Dropbox/emacs.d/bin")
-   ,(expand-file-name "~/Dropbox/scripts")
+   ,(expand-file-name "~/Dropbox/local/scripts")
    "/usr/local/opt/llvm/bin"
    "C:/cygwin64/bin" "C:/msys64/usr/bin" "C:/msys64/mingw64/bin"
    "/Applications/UpTex.app/teTeX/bin"
@@ -10224,7 +10224,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 	;;			(find-file-noselect outfile)
 	;;			(my-org-replace-punc-in-buffer))))
 	(org-hugo-export-wim-to-md)
-	(let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
+	(let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
 	      (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
 	      (exported (format "[ox-hugo] \"%s\" has been exported."
 				(nth 4 (org-heading-components)))))
@@ -10302,7 +10302,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (if not-last-subtree-p
 	  (org-update-parent-todo-statistics)
 	(org-previous-visible-heading 1)
-	(org-update-statistics-cookies nil)
+	;; (org-update-statistics-cookies nil)
 	(org-update-parent-todo-statistics)
 	(org-next-visible-heading 1))))
   (advice-add 'org-cut-subtree :around #'my-k-update-todo-statistics)
@@ -10337,7 +10337,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (my-org-replace-punc-in-tree)
         (save-buffer)
         (org-hugo-export-wim-to-md)
-        (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
+        (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
               (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
               (exported (format "[ox-hugo] \"%s\" has been exported."
                                 (nth 4 (org-heading-components)))))
@@ -10350,9 +10350,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                 (setq command (concat command " -e " (downcase filename)))))
             (message "%s\nUploading..." exported)
             (message "--- %s" command)
-            ;; commad='/Users/taka/Dropbox/scripts/push-hugo.sh -e 2023/0301-macmini2018-transfer'
+            ;; commad='/Users/taka/Dropbox/local/scripts/push-hugo.sh -e 2023/0301-macmini2018-transfer'
             (message "%s" (shell-command-to-string command))
-            ;; (call-process "/Users/taka/Dropbox/scripts/push-hugo.sh"
+            ;; (call-process "/Users/taka/Dropbox/local/scripts/push-hugo.sh"
             ;;               nil
             ;;               "-e"
             ;;               (downcase filename))
@@ -12439,7 +12439,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
     (org-hugo-export-wim-to-md)
     (message "[ox-hugo] \"%s\" has been exported."
              (nth 4 (org-heading-components)))
-    (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
+    (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh"))
       (if (require 'async nil t)
           (async-start
            `(lambda () (shell-command-to-string ',command)))
@@ -16964,7 +16964,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
            (kill-new
             (shell-command-to-string
              (concat "cat " buffer-file-name "| perl "
-                     (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
+                     (expand-file-name "~/Dropbox/local/scripts/org2dokuwiki.pl"))))
            (minibuffer-message "Copying %s ... done" buffer-file-name))
           (t (message "There is NOT such a file.")))))
 #+end_src
@@ -16988,6 +16988,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 ** UUID をファイル名にして所定のディレクトリにコピー／移動
    :PROPERTIES:
    :CUSTOM_ID: org1a1d73ca
+   :ID:       9AF3DB91-0AFC-4AA8-9927-FC0229E2DDE0
    :END:
 
   - すでに org-attach が存在するので用途が微妙に．．．

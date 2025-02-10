@@ -3,27 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-;; (with-eval-after-load "org"
-
-;;   ;; "y" でツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
-;;   (defun my-y-update-todo-statistics (&optional _arg)
-;;     (when (and (org-kill-is-subtree-p)
-;; 	       (or (bolp)
-;; 		   (and (looking-at "[ \t]*$")
-;; 			(string-match
-;; 			 "\\`\\*+\\'"
-;; 			 (buffer-substring (point-at-bol) (point))))))
-;;       (org-previous-visible-heading 1)
-;;       (org-update-statistics-cookies nil)
-;;       (org-update-parent-todo-statistics)
-;;       (org-next-visible-heading 1)))
-;;   (advice-add 'org-yank :after #'my-y-update-todo-statistics)
-
-;;   )
-
-(with-eval-after-load "colorful-mode"
-  )
-
 (with-eval-after-load "nerd-icons"
   ;; ;;  
   ;; (nerd-icons-octicon "nf-oct-fold")

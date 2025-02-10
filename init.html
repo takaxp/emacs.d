@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-02-10 月 14:39 -->
+<!-- 2025-02-10 月 22:10 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1392,7 +1392,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
    ,(expand-file-name <span style="color: #8b2252;">"~/devel/git/tern/bin"</span>)
    ,(expand-file-name <span style="color: #8b2252;">"~/.go/bin"</span>)
    ,(expand-file-name <span style="color: #8b2252;">"~/Dropbox/emacs.d/bin"</span>)
-   ,(expand-file-name <span style="color: #8b2252;">"~/Dropbox/scripts"</span>)
+   ,(expand-file-name <span style="color: #8b2252;">"~/Dropbox/local/scripts"</span>)
    <span style="color: #8b2252;">"/usr/local/opt/llvm/bin"</span>
    <span style="color: #8b2252;">"C:/cygwin64/bin"</span> <span style="color: #8b2252;">"C:/msys64/usr/bin"</span> <span style="color: #8b2252;">"C:/msys64/mingw64/bin"</span>
    <span style="color: #8b2252;">"/Applications/UpTex.app/teTeX/bin"</span>
@@ -12176,7 +12176,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         <span style="color: #b22222;">;;</span><span style="color: #b22222;">                      (find-file-noselect outfile)</span>
         <span style="color: #b22222;">;;</span><span style="color: #b22222;">                      (my-org-replace-punc-in-buffer))))</span>
         (org-hugo-export-wim-to-md)
-        (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/Dropbox/scripts/push-hugo.sh"</span>)
+        (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/Dropbox/local/scripts/push-hugo.sh"</span>)
               (filename (org-entry-get (point) <span style="color: #8b2252;">"EXPORT_FILE_NAME"</span>))
               (exported (format <span style="color: #8b2252;">"[ox-hugo] \"%s\" has been exported."</span>
                                 (nth 4 (org-heading-components)))))
@@ -12254,7 +12254,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (<span style="color: #a020f0;">if</span> not-last-subtree-p
           (org-update-parent-todo-statistics)
         (org-previous-visible-heading 1)
-        (org-update-statistics-cookies nil)
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-update-statistics-cookies nil)</span>
         (org-update-parent-todo-statistics)
         (org-next-visible-heading 1))))
   (advice-add 'org-cut-subtree <span style="color: #483d8b;">:around</span> #'my-k-update-todo-statistics)
@@ -14258,7 +14258,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org3789a5b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org3172d49"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14546,7 +14546,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
     (org-hugo-export-wim-to-md)
     (message <span style="color: #8b2252;">"[ox-hugo] \"%s\" has been exported."</span>
              (nth 4 (org-heading-components)))
-    (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/Dropbox/scripts/push-hugo.sh"</span>))
+    (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/Dropbox/local/scripts/push-hugo.sh"</span>))
       (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t)
           (async-start
            `(<span style="color: #a020f0;">lambda</span> () (shell-command-to-string ',command)))
@@ -15235,7 +15235,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org4027d80" class="figure">
+<div id="org05d3a7c" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19395,7 +19395,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
            (kill-new
             (shell-command-to-string
              (concat <span style="color: #8b2252;">"cat "</span> buffer-file-name <span style="color: #8b2252;">"| perl "</span>
-                     (expand-file-name <span style="color: #8b2252;">"~/Dropbox/scripts/org2dokuwiki.pl"</span>))))
+                     (expand-file-name <span style="color: #8b2252;">"~/Dropbox/local/scripts/org2dokuwiki.pl"</span>))))
            (minibuffer-message <span style="color: #8b2252;">"Copying %s ... done"</span> buffer-file-name))
           (t (message <span style="color: #8b2252;">"There is NOT such a file."</span>)))))
 </pre>
@@ -19719,7 +19719,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-02-10 月 14:39</p>
+<p class="date">Created: 2025-02-10 月 22:10</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

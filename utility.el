@@ -1672,7 +1672,7 @@ Otherwise, use `counsel-ag'."
     (org-hugo-export-wim-to-md)
     (message "[ox-hugo] \"%s\" has been exported."
              (nth 4 (org-heading-components)))
-    (let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh"))
+    (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh"))
       (if (require 'async nil t)
           (async-start
            `(lambda () (shell-command-to-string ',command)))
@@ -3047,7 +3047,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
            (kill-new
             (shell-command-to-string
              (concat "cat " buffer-file-name "| perl "
-                     (expand-file-name "~/Dropbox/scripts/org2dokuwiki.pl"))))
+                     (expand-file-name "~/Dropbox/local/scripts/org2dokuwiki.pl"))))
            (minibuffer-message "Copying %s ... done" buffer-file-name))
           (t (message "There is NOT such a file.")))))
 

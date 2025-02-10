@@ -430,7 +430,7 @@
 	;;			(find-file-noselect outfile)
 	;;			(my-org-replace-punc-in-buffer))))
 	(org-hugo-export-wim-to-md)
-	(let ((command "/Users/taka/Dropbox/scripts/push-hugo.sh")
+	(let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
 	      (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
 	      (exported (format "[ox-hugo] \"%s\" has been exported."
 				(nth 4 (org-heading-components)))))
@@ -508,7 +508,7 @@
       (if not-last-subtree-p
 	  (org-update-parent-todo-statistics)
 	(org-previous-visible-heading 1)
-	(org-update-statistics-cookies nil)
+	;; (org-update-statistics-cookies nil)
 	(org-update-parent-todo-statistics)
 	(org-next-visible-heading 1))))
   (advice-add 'org-cut-subtree :around #'my-k-update-todo-statistics)
