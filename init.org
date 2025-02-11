@@ -2128,7 +2128,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 #+end_src
 
 #+begin_src emacs-lisp :tangle init.el
-(run-with-idle-timer 60 t #'my-lock-secret-buffer "secret.org.gpg")
+(run-with-idle-timer 300 t #'my-lock-secret-buffer "secret.org.gpg")
 #+end_src
 
 ** NSビルド用設定                                                     :macOS:
@@ -7658,7 +7658,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 :END:
 - https://github.com/bbatsov/crux
 
-=curx.el= から次の関数を拝借しています．
+=crux.el= から次の関数を拝借しています．
 
 1. M-x crux-copy-file-preserve-attributes
 2. M-x crux-rename-file-and-buffer
@@ -7674,7 +7674,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+begin_src emacs-lisp emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun crux-copy-file-preserve-attributes (visit)
-  "[curx.el]
+  "[crux.el]
 Copy the current file-visiting buffer's file to a destination.
 
 This function prompts for the new file's location and copies it
@@ -7723,7 +7723,7 @@ When invoke with C-u, the newly created file will be visited.
 
 ;;;###autoload
 (defun crux-rename-file-and-buffer ()
-  "[curx.el]
+  "[crux.el]
 Rename current buffer and if the buffer is visiting a file, rename it too."
   (interactive)
   (when-let* ((filename (buffer-file-name))
@@ -7749,7 +7749,7 @@ Rename current buffer and if the buffer is visiting a file, rename it too."
 
 ;;;###autoload
 (defun crux-delete-file-and-buffer ()
-  "[curx.el]
+  "[crux.el]
 Kill the current buffer and deletes the file it is visiting."
   (interactive)
   (let ((filename (buffer-file-name)))
@@ -7763,7 +7763,7 @@ Kill the current buffer and deletes the file it is visiting."
 
 ;;;###autoload
 (defun crux-open-with (arg)
-  "[curx.el]
+  "[crux.el]
 Open visited file in default external program.
 When in dired mode, open file under the cursor.
 
@@ -7779,7 +7779,7 @@ With a prefix ARG always prompt for command to use."
          (program (if (or arg (not open))
                       (read-shell-command "Open current file with: ")
                     open)))
-    (recentf-add-file current-file-name)
+    (recentf-add-file current-file-name) ;; Add the file to list of recentf
     (call-process program nil 0 nil current-file-name)))
 #+end_src
 

@@ -190,7 +190,7 @@
       (funcall f prompt mustmatch))
     (advice-add 'find-file-read-args :around #'ad:find-file-read-args)))
 
-(run-with-idle-timer 60 t #'my-lock-secret-buffer "secret.org.gpg")
+(run-with-idle-timer 300 t #'my-lock-secret-buffer "secret.org.gpg")
 
 (keymap-global-set "M-SPC" 'my-toggle-ime-ns)
 (keymap-global-set "S-SPC" 'my-toggle-ime-ns)

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-02-10 月 23:43 -->
+<!-- 2025-02-11 火 11:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -3158,7 +3158,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(run-with-idle-timer 60 t #'my-lock-secret-buffer <span style="color: #8b2252;">"secret.org.gpg"</span>)
+<pre class="src src-emacs-lisp">(run-with-idle-timer 300 t #'my-lock-secret-buffer <span style="color: #8b2252;">"secret.org.gpg"</span>)
 </pre>
 </div>
 </div>
@@ -9368,7 +9368,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 </ul>
 
 <p>
-<code>curx.el</code> から次の関数を拝借しています．
+<code>crux.el</code> から次の関数を拝借しています．
 </p>
 
 <ol class="org-ol">
@@ -9390,7 +9390,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">crux-copy-file-preserve-attributes</span> (visit)
-  <span style="color: #8b2252;">"[curx.el]</span>
+  <span style="color: #8b2252;">"[crux.el]</span>
 <span style="color: #8b2252;">Copy the current file-visiting buffer's file to a destination.</span>
 
 <span style="color: #8b2252;">This function prompts for the new file's location and copies it</span>
@@ -9439,7 +9439,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">crux-rename-file-and-buffer</span> ()
-  <span style="color: #8b2252;">"[curx.el]</span>
+  <span style="color: #8b2252;">"[crux.el]</span>
 <span style="color: #8b2252;">Rename current buffer and if the buffer is visiting a file, rename it too."</span>
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">when-let*</span> ((filename (buffer-file-name))
@@ -9465,7 +9465,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">crux-delete-file-and-buffer</span> ()
-  <span style="color: #8b2252;">"[curx.el]</span>
+  <span style="color: #8b2252;">"[crux.el]</span>
 <span style="color: #8b2252;">Kill the current buffer and deletes the file it is visiting."</span>
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">let</span> ((filename (buffer-file-name)))
@@ -9479,7 +9479,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">crux-open-with</span> (arg)
-  <span style="color: #8b2252;">"[curx.el]</span>
+  <span style="color: #8b2252;">"[crux.el]</span>
 <span style="color: #8b2252;">Open visited file in default external program.</span>
 <span style="color: #8b2252;">When in dired mode, open file under the cursor.</span>
 
@@ -9495,7 +9495,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
          (program (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> arg (not open))
                       (read-shell-command <span style="color: #8b2252;">"Open current file with: "</span>)
                     open)))
-    (recentf-add-file current-file-name)
+    (recentf-add-file current-file-name) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Add the file to list of recentf</span>
     (call-process program nil 0 nil current-file-name)))
 </pre>
 </div>
@@ -14258,7 +14258,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org5cd23e8"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org13b47ff"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15235,7 +15235,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgbf5f4b5" class="figure">
+<div id="org7aaeb55" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19719,7 +19719,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-02-10 月 23:43</p>
+<p class="date">Created: 2025-02-11 火 11:54</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
