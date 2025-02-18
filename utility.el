@@ -3153,30 +3153,30 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 
 ;;;###autoload
 (defun my-format-emacs-lisp-buffer ()
-	(interactive)
-	(when (eq major-mode 'emacs-lisp-mode)
-		(setq-local indent-line-function 'lisp-indent-line)
-		(setq-local tab-width 8)
-		(setq-local indent-tabs-mode t)
-		(save-excursion
-			(save-restriction
-	      (widen)
-	      (untabify (point-min) (point-max))
-	      (tabify (point-min) (point-max))
-	      (indent-region (point-min) (point-max))))))
+  (interactive)
+  (when (eq major-mode 'emacs-lisp-mode)
+    (setq-local indent-line-function 'lisp-indent-line)
+    (setq-local tab-width 8)
+    (setq-local indent-tabs-mode t)
+    (save-excursion
+      (save-restriction
+        (widen)
+        (untabify (point-min) (point-max))
+        (tabify (point-min) (point-max))
+        (indent-region (point-min) (point-max))))))
 
 ;;;###autoload
 (defun my-format-emacs-lisp-for-org-buffer ()
-	(interactive)
-	(when (eq major-mode 'emacs-lisp-mode)
-		(setq-local indent-line-function 'org-indent-line)
-		(setq-local tab-width 2)
-		(setq-local indent-tabs-mode nil)
-		(save-excursion
-			(save-restriction
-			  (widen)
-	      (untabify (point-min) (point-max))
-	      (indent-region (point-min) (point-max))))))
+  (interactive)
+  (when (eq major-mode 'emacs-lisp-mode)
+    (setq-local indent-line-function 'org-indent-line)
+    (setq-local tab-width 2)
+    (setq-local indent-tabs-mode nil)
+    (save-excursion
+      (save-restriction
+        (widen)
+        (untabify (point-min) (point-max))
+        (indent-region (point-min) (point-max))))))
 
 ;;;###autoload
 (defun my-window-resizer ()
