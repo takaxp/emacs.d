@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-02-18 火 12:46 -->
+<!-- 2025-02-18 火 15:09 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -14358,7 +14358,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org9bc3eac"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org9a072f2"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15335,7 +15335,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org4bfc5e0" class="figure">
+<div id="orgda4a5df" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -16663,8 +16663,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">2) Inconsolata, Migu 2M               : font-size=14,</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">3) Inconsolata, Hiragino              : font-size=14, -apple-hiragino=1.0</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">2) Inconsolata, Migu 2M     : font-size=14,</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0</span>
 (<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-font-size</span> 12)
 (<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-ja-font</span> <span style="color: #8b2252;">"Migu 2M"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Hiragino Maru Gothic Pro"</span>
 (<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-ascii-font</span> <span style="color: #8b2252;">"Monaco"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Inconsolata", Monaco</span>
@@ -16673,125 +16673,125 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ja-font-setter</span> (spec)
-        (set-fontset-font nil 'japanese-jisx0208 spec)
-        (set-fontset-font nil 'katakana-jisx0201 spec)
-        (set-fontset-font nil 'japanese-jisx0212 spec)
-        (set-fontset-font nil '(#x0080 . #x024F) spec)
-        (set-fontset-font nil '(#x0370 . #x03FF) spec)
-        (set-fontset-font nil 'mule-unicode-0100-24ff spec)
-        (set-fontset-font t 'unicode spec nil 'prepend))
+  (set-fontset-font nil 'japanese-jisx0208 spec)
+  (set-fontset-font nil 'katakana-jisx0201 spec)
+  (set-fontset-font nil 'japanese-jisx0212 spec)
+  (set-fontset-font nil '(#x0080 . #x024F) spec)
+  (set-fontset-font nil '(#x0370 . #x03FF) spec)
+  (set-fontset-font nil 'mule-unicode-0100-24ff spec)
+  (set-fontset-font t 'unicode spec nil 'prepend))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ascii-font-setter</span> (spec)
-        (set-fontset-font nil 'ascii spec))
+  (set-fontset-font nil 'ascii spec))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-unicode-font-setter</span> (spec)
-        (set-fontset-font t 'unicode spec nil 'prepend))
+  (set-fontset-font t 'unicode spec nil 'prepend))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-font-icons-setter</span> ()
-        (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-mdicon-family)))
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-faicon-family)))
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-octicon-family)))
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-devicon-family)))
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-wicon-family))))
-              ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-faicon-family)))
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-fileicon-family)))
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-material-family)))
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-octicon-family)))
-               (my-unicode-font-setter
-                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-wicon-family))))))
+  (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-mdicon-family)))
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-faicon-family)))
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-octicon-family)))
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-devicon-family)))
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-wicon-family))))
+        ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-faicon-family)))
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-fileicon-family)))
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-material-family)))
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-octicon-family)))
+         (my-unicode-font-setter
+          (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-wicon-family))))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-font-config</span> (<span style="color: #228b22;">&amp;optional</span> size ascii ja)
-        <span style="color: #8b2252;">"Font config.</span>
+  <span style="color: #8b2252;">"Font config.</span>
 <span style="color: #8b2252;">- SIZE: font size for ASCII and Japanese (default: 12)</span>
 <span style="color: #8b2252;">- ASCII: ascii font family (default: \"Monaco\")</span>
 <span style="color: #8b2252;">- JA: Japanese font family (default: \"Migu 2M\")</span>
 <span style="color: #8b2252;">"</span>
-        (<span style="color: #a020f0;">when</span> (memq window-system '(mac ns))
-                (<span style="color: #a020f0;">let</span> ((font-size (<span style="color: #a020f0;">or</span> size my-font-size))
-                      (ascii-font (<span style="color: #a020f0;">or</span> ascii my-ascii-font))
-                      (ja-font (<span style="color: #a020f0;">or</span> ja my-ja-font)))
-                        (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
-                               <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/ryanoasis/nerd-fonts/wiki/Glyph-Sets-and-Code-Points</span>
-                               <span style="color: #b22222;">;; </span><span style="color: #b22222;">Material Design Icons (f0001-f1af0)</span>
-                               (set-fontset-font t '(#Xf0001 . #Xf1af0) <span style="color: #8b2252;">"Symbols Nerd Font Mono"</span>)
-                               (set-fontset-font t '(#X2300 . #X2bff) <span style="color: #8b2252;">"Symbols Nerd Font Mono"</span>)
-                               (set-fontset-font t '(#Xe000 . #Xf5ff) <span style="color: #8b2252;">"Symbols Nerd Font Mono"</span>)
-                               <span style="color: #b22222;">;; </span><span style="color: #b22222;">(set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")</span>
-                               )
-                              ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-                               (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>))
-                              ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
-                               (set-fontset-font t '(#Xe0a0 . #Xeea0) <span style="color: #8b2252;">"all-the-icons"</span>)))
-                        (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size))
-                        (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))))
+  (<span style="color: #a020f0;">when</span> (memq window-system '(mac ns))
+    (<span style="color: #a020f0;">let</span> ((font-size (<span style="color: #a020f0;">or</span> size my-font-size))
+          (ascii-font (<span style="color: #a020f0;">or</span> ascii my-ascii-font))
+          (ja-font (<span style="color: #a020f0;">or</span> ja my-ja-font)))
+      (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
+             <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/ryanoasis/nerd-fonts/wiki/Glyph-Sets-and-Code-Points</span>
+             <span style="color: #b22222;">;; </span><span style="color: #b22222;">Material Design Icons (f0001-f1af0)</span>
+             (set-fontset-font t '(#Xf0001 . #Xf1af0) <span style="color: #8b2252;">"Symbols Nerd Font Mono"</span>)
+             (set-fontset-font t '(#X2300 . #X2bff) <span style="color: #8b2252;">"Symbols Nerd Font Mono"</span>)
+             (set-fontset-font t '(#Xe000 . #Xf5ff) <span style="color: #8b2252;">"Symbols Nerd Font Mono"</span>)
+             <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#57723; (hand-o-right in icons-in-terminal)</span>
+             (set-fontset-font t '(#Xe17b . #Xe17b) <span style="color: #8b2252;">"icons-in-terminal"</span>))
+            ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+             (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>))
+            ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
+             (set-fontset-font t '(#Xe0a0 . #Xeea0) <span style="color: #8b2252;">"all-the-icons"</span>)))
+      (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size))
+      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-setup-font</span> ()
-        (<span style="color: #a020f0;">cond</span>
-         <span style="color: #b22222;">;; </span><span style="color: #b22222;">CocoaEmacs</span>
-         ((memq window-system '(mac ns))
-                (<span style="color: #a020f0;">when</span> (&gt;= emacs-major-version 23)
+  (<span style="color: #a020f0;">cond</span>
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">CocoaEmacs</span>
+   ((memq window-system '(mac ns))
+    (<span style="color: #a020f0;">when</span> (&gt;= emacs-major-version 23)
 
-                        <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fix ratio provided by set-face-attribute for fonts display</span>
-                        (<span style="color: #a020f0;">setq</span> face-font-rescale-alist
-                              '((<span style="color: #8b2252;">"^-apple-hiragino.*"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
-                                      (<span style="color: #8b2252;">".*Migu.*"</span> . 1.2)
-                                      (<span style="color: #8b2252;">".*Ricty.*"</span> . 1.0)
-                                      (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0)
-                                      (<span style="color: #8b2252;">".*osaka-bold.*"</span> . 1.0)           <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
-                                      (<span style="color: #8b2252;">".*osaka-medium.*"</span> . 1.0)         <span style="color: #b22222;">; </span><span style="color: #b22222;">1.0</span>
-                                      (<span style="color: #8b2252;">".*courier-bold-.*-mac-roman"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
-                                      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco cy-bold-.*-mac-cyrillic" . 1.0)</span>
-                                      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9</span>
-                                      (<span style="color: #8b2252;">"-cdac$"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.3</span>
-         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-font-config) ;; see `</span><span style="color: #008b8b;">my-theme</span><span style="color: #b22222;">'</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fix ratio provided by set-face-attribute for fonts display</span>
+      (<span style="color: #a020f0;">setq</span> face-font-rescale-alist
+            '((<span style="color: #8b2252;">"^-apple-hiragino.*"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
+              (<span style="color: #8b2252;">".*Migu.*"</span> . 1.2)
+              (<span style="color: #8b2252;">".*Ricty.*"</span> . 1.0)
+              (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0)
+              (<span style="color: #8b2252;">".*osaka-bold.*"</span> . 1.0)     <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
+              (<span style="color: #8b2252;">".*osaka-medium.*"</span> . 1.0)   <span style="color: #b22222;">; </span><span style="color: #b22222;">1.0</span>
+              (<span style="color: #8b2252;">".*courier-bold-.*-mac-roman"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
+              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco cy-bold-.*-mac-cyrillic" . 1.0)</span>
+              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9</span>
+              (<span style="color: #8b2252;">"-cdac$"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.3</span>
+   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-font-config) ;; see `</span><span style="color: #008b8b;">my-theme</span><span style="color: #b22222;">'</span>
 
-         ((eq window-system 'ns)
-                <span style="color: #b22222;">;; </span><span style="color: #b22222;">Anti aliasing with Quartz 2D</span>
-                (<span style="color: #a020f0;">when</span> (boundp 'mac-allow-anti-aliasing)
-                        (<span style="color: #a020f0;">setq</span> mac-allow-anti-aliasing t)))
+   ((eq window-system 'ns)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Anti aliasing with Quartz 2D</span>
+    (<span style="color: #a020f0;">when</span> (boundp 'mac-allow-anti-aliasing)
+      (<span style="color: #a020f0;">setq</span> mac-allow-anti-aliasing t)))
 
-         ((eq window-system 'w32) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Windows</span>
-                (<span style="color: #a020f0;">let</span> ((font-size 14)
-                      (font-height 100)
-                      (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
-                      (ja-font <span style="color: #8b2252;">"Migu 2M"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Meiryo UI, &#12513;&#12452;&#12522;&#12458;</span>
-                        (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
-                        (my-ja-font-setter
-                         (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
-                        (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
-                        (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
+   ((eq window-system 'w32) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Windows</span>
+    (<span style="color: #a020f0;">let</span> ((font-size 14)
+          (font-height 100)
+          (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
+          (ja-font <span style="color: #8b2252;">"Migu 2M"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Meiryo UI, &#12513;&#12452;&#12522;&#12458;</span>
+      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+      (my-ja-font-setter
+       (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
+      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
+      (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
 
-         ((eq window-system 'x) <span style="color: #b22222;">; </span><span style="color: #b22222;">for SuSE Linux 12.1</span>
-                (<span style="color: #a020f0;">let</span>
-              ((font-size 14)
-               (font-height 100)
-               (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
-               <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ja-font "MigMix 1M")</span>
-               (ja-font <span style="color: #8b2252;">"Migu 2M"</span>))
-                        (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
-                        (my-ja-font-setter
-                         (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
-                        (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))
-                (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Migu.*"</span> . 2.0)
-                                                                        (<span style="color: #8b2252;">".*MigMix.*"</span> . 2.0)
-                                                                        (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
-        )
+   ((eq window-system 'x) <span style="color: #b22222;">; </span><span style="color: #b22222;">for SuSE Linux 12.1</span>
+    (<span style="color: #a020f0;">let</span>
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
+         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ja-font "MigMix 1M")</span>
+         (ja-font <span style="color: #8b2252;">"Migu 2M"</span>))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+      (my-ja-font-setter
+       (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
+      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))
+    (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Migu.*"</span> . 2.0)
+                                    (<span style="color: #8b2252;">".*MigMix.*"</span> . 2.0)
+                                    (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
+  )
 </pre>
 </div>
 
@@ -19878,7 +19878,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-02-18 火 12:46</p>
+<p class="date">Created: 2025-02-18 火 15:09</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

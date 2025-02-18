@@ -14358,8 +14358,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 #+begin_src emacs-lisp :tangle utility.el
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
-;; 2) Inconsolata, Migu 2M		 : font-size=14,
-;; 3) Inconsolata, Hiragino		 : font-size=14, -apple-hiragino=1.0
+;; 2) Inconsolata, Migu 2M     : font-size=14,
+;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
 (defconst my-font-size 12)
 (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
 (defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
@@ -14368,125 +14368,125 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 ;;;###autoload
 (defun my-ja-font-setter (spec)
-	(set-fontset-font nil 'japanese-jisx0208 spec)
-	(set-fontset-font nil 'katakana-jisx0201 spec)
-	(set-fontset-font nil 'japanese-jisx0212 spec)
-	(set-fontset-font nil '(#x0080 . #x024F) spec)
-	(set-fontset-font nil '(#x0370 . #x03FF) spec)
-	(set-fontset-font nil 'mule-unicode-0100-24ff spec)
-	(set-fontset-font t 'unicode spec nil 'prepend))
+  (set-fontset-font nil 'japanese-jisx0208 spec)
+  (set-fontset-font nil 'katakana-jisx0201 spec)
+  (set-fontset-font nil 'japanese-jisx0212 spec)
+  (set-fontset-font nil '(#x0080 . #x024F) spec)
+  (set-fontset-font nil '(#x0370 . #x03FF) spec)
+  (set-fontset-font nil 'mule-unicode-0100-24ff spec)
+  (set-fontset-font t 'unicode spec nil 'prepend))
 
 ;;;###autoload
 (defun my-ascii-font-setter (spec)
-	(set-fontset-font nil 'ascii spec))
+  (set-fontset-font nil 'ascii spec))
 
 ;;;###autoload
 (defun my-unicode-font-setter (spec)
-	(set-fontset-font t 'unicode spec nil 'prepend))
+  (set-fontset-font t 'unicode spec nil 'prepend))
 
 ;;;###autoload
 (defun my-font-icons-setter ()
-	(cond ((require 'nerd-icons nil t)
-	       (my-unicode-font-setter
-		      (font-spec :family (nerd-icons-mdicon-family)))
-	       (my-unicode-font-setter
-		      (font-spec :family (nerd-icons-faicon-family)))
-	       (my-unicode-font-setter
-		      (font-spec :family (nerd-icons-octicon-family)))
-	       (my-unicode-font-setter
-		      (font-spec :family (nerd-icons-devicon-family)))
-	       (my-unicode-font-setter
-		      (font-spec :family (nerd-icons-wicon-family))))
-	      ((require 'icons-in-terminal nil t)
-	       (my-unicode-font-setter
-		      (font-spec :family (icons-in-terminal-faicon-family)))
-	       (my-unicode-font-setter
-		      (font-spec :family (icons-in-terminal-fileicon-family)))
-	       (my-unicode-font-setter
-		      (font-spec :family (icons-in-terminal-material-family)))
-	       (my-unicode-font-setter
-		      (font-spec :family (icons-in-terminal-octicon-family)))
-	       (my-unicode-font-setter
-		      (font-spec :family (icons-in-terminal-wicon-family))))))
+  (cond ((require 'nerd-icons nil t)
+         (my-unicode-font-setter
+          (font-spec :family (nerd-icons-mdicon-family)))
+         (my-unicode-font-setter
+          (font-spec :family (nerd-icons-faicon-family)))
+         (my-unicode-font-setter
+          (font-spec :family (nerd-icons-octicon-family)))
+         (my-unicode-font-setter
+          (font-spec :family (nerd-icons-devicon-family)))
+         (my-unicode-font-setter
+          (font-spec :family (nerd-icons-wicon-family))))
+        ((require 'icons-in-terminal nil t)
+         (my-unicode-font-setter
+          (font-spec :family (icons-in-terminal-faicon-family)))
+         (my-unicode-font-setter
+          (font-spec :family (icons-in-terminal-fileicon-family)))
+         (my-unicode-font-setter
+          (font-spec :family (icons-in-terminal-material-family)))
+         (my-unicode-font-setter
+          (font-spec :family (icons-in-terminal-octicon-family)))
+         (my-unicode-font-setter
+          (font-spec :family (icons-in-terminal-wicon-family))))))
 
 ;;;###autoload
 (defun my-font-config (&optional size ascii ja)
-	"Font config.
+  "Font config.
 - SIZE: font size for ASCII and Japanese (default: 12)
 - ASCII: ascii font family (default: \"Monaco\")
 - JA: Japanese font family (default: \"Migu 2M\")
 "
-	(when (memq window-system '(mac ns))
-		(let ((font-size (or size my-font-size))
-		      (ascii-font (or ascii my-ascii-font))
-		      (ja-font (or ja my-ja-font)))
-			(cond ((require 'nerd-icons nil t)
-			       ;; https://github.com/ryanoasis/nerd-fonts/wiki/Glyph-Sets-and-Code-Points
-			       ;; Material Design Icons (f0001-f1af0)
-			       (set-fontset-font t '(#Xf0001 . #Xf1af0) "Symbols Nerd Font Mono")
-			       (set-fontset-font t '(#X2300 . #X2bff) "Symbols Nerd Font Mono")
-			       (set-fontset-font t '(#Xe000 . #Xf5ff) "Symbols Nerd Font Mono")
-			       ;; (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-			       )
-			      ((require 'icons-in-terminal nil t)
-			       (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal"))
-			      ((require 'all-the-icons nil t)
-			       (set-fontset-font t '(#Xe0a0 . #Xeea0) "all-the-icons")))
-			(my-ja-font-setter (font-spec :family ja-font :size font-size))
-			(my-ascii-font-setter (font-spec :family ascii-font :size font-size)))))
+  (when (memq window-system '(mac ns))
+    (let ((font-size (or size my-font-size))
+          (ascii-font (or ascii my-ascii-font))
+          (ja-font (or ja my-ja-font)))
+      (cond ((require 'nerd-icons nil t)
+             ;; https://github.com/ryanoasis/nerd-fonts/wiki/Glyph-Sets-and-Code-Points
+             ;; Material Design Icons (f0001-f1af0)
+             (set-fontset-font t '(#Xf0001 . #Xf1af0) "Symbols Nerd Font Mono")
+             (set-fontset-font t '(#X2300 . #X2bff) "Symbols Nerd Font Mono")
+             (set-fontset-font t '(#Xe000 . #Xf5ff) "Symbols Nerd Font Mono")
+             ;;  (hand-o-right in icons-in-terminal)
+             (set-fontset-font t '(#Xe17b . #Xe17b) "icons-in-terminal"))
+            ((require 'icons-in-terminal nil t)
+             (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal"))
+            ((require 'all-the-icons nil t)
+             (set-fontset-font t '(#Xe0a0 . #Xeea0) "all-the-icons")))
+      (my-ja-font-setter (font-spec :family ja-font :size font-size))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))))
 
 ;;;###autoload
 (defun my-setup-font ()
-	(cond
-	 ;; CocoaEmacs
-	 ((memq window-system '(mac ns))
-		(when (>= emacs-major-version 23)
+  (cond
+   ;; CocoaEmacs
+   ((memq window-system '(mac ns))
+    (when (>= emacs-major-version 23)
 
-			;; Fix ratio provided by set-face-attribute for fonts display
-			(setq face-font-rescale-alist
-			      '(("^-apple-hiragino.*" . 1.0) ; 1.2
-				      (".*Migu.*" . 1.2)
-				      (".*Ricty.*" . 1.0)
-				      (".*Inconsolata.*" . 1.0)
-				      (".*osaka-bold.*" . 1.0)		 ; 1.2
-				      (".*osaka-medium.*" . 1.0)	 ; 1.0
-				      (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-				      ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-				      ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-				      ("-cdac$" . 1.0))))) ; 1.3
-	 ;; (my-font-config) ;; see `my-theme'
+      ;; Fix ratio provided by set-face-attribute for fonts display
+      (setq face-font-rescale-alist
+            '(("^-apple-hiragino.*" . 1.0) ; 1.2
+              (".*Migu.*" . 1.2)
+              (".*Ricty.*" . 1.0)
+              (".*Inconsolata.*" . 1.0)
+              (".*osaka-bold.*" . 1.0)     ; 1.2
+              (".*osaka-medium.*" . 1.0)   ; 1.0
+              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+              ("-cdac$" . 1.0))))) ; 1.3
+   ;; (my-font-config) ;; see `my-theme'
 
-	 ((eq window-system 'ns)
-		;; Anti aliasing with Quartz 2D
-		(when (boundp 'mac-allow-anti-aliasing)
-			(setq mac-allow-anti-aliasing t)))
+   ((eq window-system 'ns)
+    ;; Anti aliasing with Quartz 2D
+    (when (boundp 'mac-allow-anti-aliasing)
+      (setq mac-allow-anti-aliasing t)))
 
-	 ((eq window-system 'w32) ;; Windows
-		(let ((font-size 14)
-		      (font-height 100)
-		      (ascii-font "Inconsolata")
-		      (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
-			(set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-			(my-ja-font-setter
-			 (font-spec :family ja-font :size font-size :height font-height))
-			(my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-			(setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
+   ((eq window-system 'w32) ;; Windows
+    (let ((font-size 14)
+          (font-height 100)
+          (ascii-font "Inconsolata")
+          (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+      (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
-	 ((eq window-system 'x) ; for SuSE Linux 12.1
-		(let
-	      ((font-size 14)
-	       (font-height 100)
-	       (ascii-font "Inconsolata")
-	       ;; (ja-font "MigMix 1M")
-	       (ja-font "Migu 2M"))
-			(set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-			(my-ja-font-setter
-			 (font-spec :family ja-font :size font-size :height font-height))
-			(my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
-		(setq face-font-rescale-alist '((".*Migu.*" . 2.0)
-						                        (".*MigMix.*" . 2.0)
-						                        (".*Inconsolata.*" . 1.0))))) ; 0.9
-	)
+   ((eq window-system 'x) ; for SuSE Linux 12.1
+    (let
+        ((font-size 14)
+         (font-height 100)
+         (ascii-font "Inconsolata")
+         ;; (ja-font "MigMix 1M")
+         (ja-font "Migu 2M"))
+      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+      (my-ja-font-setter
+       (font-spec :family ja-font :size font-size :height font-height))
+      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
+    (setq face-font-rescale-alist '((".*Migu.*" . 2.0)
+                                    (".*MigMix.*" . 2.0)
+                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
+  )
 #+end_src
 
 #+RESULTS:
