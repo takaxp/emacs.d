@@ -1578,6 +1578,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 *** Cask のセットアップ
     :PROPERTIES:
     :CUSTOM_ID: org02669d67
+    :ID:       2EE1AF5B-C077-4547-A856-7DDEAB9CEFFC
     :END:
 
  以下は自分用のメモです．
@@ -1807,7 +1808,7 @@ echo "--- done."
 (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 #+end_src
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp
 ;;;###autoload
 (defun my-emacs-lisp-mode-conf ()
   (setq-local indent-tabs-mode t)
@@ -2115,7 +2116,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 :CUSTOM_ID: org6ff409ba
 :END:
 
-次の例では， ~secret.org.gpg~ が開かれていて，1分間操作しなかったら安全のためバッファを閉じます．
+次の例では， ~secret.org.gpg~ が開かれていて，一定時間，操作しなかったら安全のためバッファを閉じます．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autolaod
@@ -2128,7 +2129,28 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 #+end_src
 
 #+begin_src emacs-lisp :tangle init.el
-(run-with-idle-timer 300 t #'my-lock-secret-buffer "secret.org.gpg")
+(defvar my-secret-org-file "secret.org.gpg")
+(defvar my-secret-autolock-time 60)
+(defvar my-secret-close-timer
+  (run-with-idle-timer my-secret-autolock-time
+		       t #'my-lock-secret-buffer my-secret-org-file))
+#+end_src
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-start-autolock-secret-buffer ()
+	(interactive)
+	(my-stop-autolock-secret-buffer)
+	(setq my-secret-close-timer
+	      (run-with-idle-timer
+	       my-secret-autolock-time t
+	       #'my-lock-secret-buffer my-secret-org-file)))
+
+;;;###autoload
+(defun my-stop-autolock-secret-buffer ()
+	(interactive)
+	(when (timerp my-secret-close-timer)
+		(cancel-timer my-secret-close-timer)))
 #+end_src
 
 ** NSビルド用設定                                                     :macOS:
@@ -4878,20 +4900,21 @@ Call this function at updating `mode-line-mode'."
 
 #+begin_src emacs-lisp :tangle late-init.el
 (setq mode-line-modes
-      (mapcar
-       (lambda (entry)
-         (if (equal entry "%n")
-             '(:eval (progn
-                       ;; org が widen を乱発するのでこちらをトリガーにする．
-                       ;; 色の変更
-                       (my-update-modeline-color)
-                       ;; "Narrow" を "N" に短縮表示
-                       (if (and (buffer-narrowed-p)
-                                (fboundp 'icons-in-terminal-octicon))
-                           (concat " " (icons-in-terminal-octicon
-                                        "fold" :v-adjust 0.0)) "")))
-           entry))
-       mode-line-modes))
+			(mapcar
+			 (lambda (entry)
+				 (if (equal entry "%n")
+						 '(:eval (progn
+											 ;; org が widen を乱発するのでこちらをトリガーにする．
+											 ;; 色の変更
+											 (my-update-modeline-color)
+											 ;; "Narrow" を "N" に短縮表示
+					             ;; icons-in-terminal-octicon, "fold"
+											 (if (and (buffer-narrowed-p)
+																(fboundp 'nerd-icons-octicon))
+													 (concat " " (nerd-icons-octicon
+																				"nf-oct-fold" :v-adjust 0.0)) "")))
+					 entry))
+			 mode-line-modes))
 #+end_src
 
 ** TODO [mlscroll.el] モードラインにバッファ内表示位置をバー形式で表示
@@ -4935,7 +4958,15 @@ Call this function at updating `mode-line-mode'."
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-mode-line-vc-mode-icon ()
+(defun my-mode-line-vc-mode-nerd-icons ()
+  (if (string-match "^ Git:" vc-mode) ;; nf-oct-git_branch
+      (replace-regexp-in-string
+       "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
+    (replace-regexp-in-string
+     "^ Git-" (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))
+
+;;;###autoload
+(defun my-mode-line-vc-mode-icons-in-terminal ()
   (if (string-match "^ Git:" vc-mode)
       (replace-regexp-in-string
        "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
@@ -4944,7 +4975,7 @@ Call this function at updating `mode-line-mode'."
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "icons-in-terminal"
+(with-eval-after-load "nerd-icons"
   ;; 変更がアリ時は赤アイコン，そうでない時に緑アイコンをモードラインに表示
   (make-face 'mode-line-vc-normal-face)
   (make-face 'mode-line-vc-modified-face)
@@ -4954,7 +4985,7 @@ Call this function at updating `mode-line-mode'."
 (with-eval-after-load "bindings" ;; "bindings"
   (let ((vc (assq 'vc-mode mode-line-format)))
     ;; (message "--- %s" vc)
-    (when vc (setcdr vc '((:eval (my-mode-line-vc-mode-icon)))))))
+    (when vc (setcdr vc '((:eval (my-mode-line-vc-mode-nerd-icons)))))))
 #+end_src
 
 ** モードラインの色をカスタマイズする
@@ -5318,9 +5349,13 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 (setq line-number-display-limit-width 100000)
 
 ;; モードラインの行数表示の前にアイコンを追加
-(with-eval-after-load "icons-in-terminal"
+(with-eval-after-load "nerd-icons"
   (setq mode-line-position-line-format
-        `(,(icons-in-terminal-material "edit") "%3l")))
+        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") "%3l")))
+
+;; (with-eval-after-load "icons-in-terminal"
+;;   (setq mode-line-position-line-format
+;;         `(,(icons-in-terminal-material "edit") "%3l")))
 #+end_src
 
 ** 時刻をモードラインに表示する
@@ -5485,44 +5520,54 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 ;;;###autoload
 (defun my-coding-system-name-mnemonic (coding-system)
-  (let* ((base (coding-system-base coding-system))
-         (name (symbol-name base)))
-    (cond ((string-prefix-p "utf-8" name) "U8")
-          ((string-prefix-p "utf-16" name) "U16")
-          ((string-prefix-p "utf-7" name) "U7")
-          ((string-prefix-p "japanese-shift-jis" name) "SJIS")
-          ((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
-          ((string-match "japanese-iso-8bit" name) "EUC")
-          (t "???"))))
+	(let* ((base (coding-system-base coding-system))
+				 (name (symbol-name base)))
+		(cond ((string-prefix-p "utf-8" name) "U8")
+					((string-prefix-p "utf-16" name) "U16")
+					((string-prefix-p "utf-7" name) "U7")
+					((string-prefix-p "japanese-shift-jis" name) "SJIS")
+					((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
+					((string-match "japanese-iso-8bit" name) "EUC")
+					(t "???"))))
 
 ;;;###autoload
 (defun my-coding-system-bom-mnemonic (coding-system)
-  (let ((name (symbol-name coding-system)))
-    (cond ((string-match "be-with-signature" name) "[BE]")
-          ((string-match "le-with-signature" name) "[LE]")
-          ((string-match "-with-signature" name) "[BOM]")
-          (t ""))))
+	(let ((name (symbol-name coding-system)))
+		(cond ((string-match "be-with-signature" name) "[BE]")
+					((string-match "le-with-signature" name) "[LE]")
+					((string-match "-with-signature" name) "[BOM]")
+					(t ""))))
 
 ;;;###autoload
-(defun my-mode-line-icon-lock ()
-  (if view-mode
-      (concat (icons-in-terminal-faicon
-               "lock" :face '(:foreground "#FF0000")) " ") ""))
+(defun my-mode-line-icon-lock-icons-in-terminal ()
+	(if view-mode
+			(concat (icons-in-terminal-faicon
+							 "lock" :face '(:foreground "#FF0000")) " ") ""))
+
+;;;###autoload
+(defun my-mode-line-icon-lock-nerd-icons ()
+	(if view-mode
+			(concat (nerd-icons-mdicon
+							 "nf-md-file_lock" :face '(:foreground "#FF0000")) " ") ""))
 
 ;;;###autoload
 (defun my-mode-line-icon-for-file ()
-  (icons-in-terminal-icon-for-file
-   (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
+	(cond ((require 'nerd-icons nil t)
+		     (nerd-icons-icon-for-file
+		      (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
+	      ((require 'icons-in-terminal nil t)
+		     (icons-in-terminal-icon-for-file
+		      (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))))
 
 ;;;###autoload
 (defun my-buffer-coding-system-mnemonic ()
-  "Return a mnemonic for `buffer-file-coding-system'."
-  (let* ((code buffer-file-coding-system)
-         (name (my-coding-system-name-mnemonic code))
-         (bom (my-coding-system-bom-mnemonic code)))
-    (if (version< emacs-version "29.0")
-        (format "%s %s%s" (my-mode-line-icon-for-file) name bom )
-      (format "%s%s" name bom ))))
+	"Return a mnemonic for `buffer-file-coding-system'."
+	(let* ((code buffer-file-coding-system)
+				 (name (my-coding-system-name-mnemonic code))
+				 (bom (my-coding-system-bom-mnemonic code)))
+		(if (version< emacs-version "29.0")
+				(format "%s %s%s" (my-mode-line-icon-for-file) name bom )
+			(format "%s%s" name bom ))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -5565,64 +5610,70 @@ version 28 で全角スペースに黒下線が付くので回避します．
 (add-hook 'find-file-hook #'my-delight-activate)
 
 (with-eval-after-load "delight"
-  (delight
-   '(;; Major modes
-     ;;     (c-mode "C" :major)
-     ;;     (c++mode "C++" :major)
-     (js2-mode "JS" :major)
-     (csharp-mode "C#" :major)
-     (prog-mode "Pr" :major)
-     (emacs-lisp-mode "El" :major)
-     (python-mode "Py" :major)
-     (perl-mode "Pl" :major)
-     (web-mode "W" :major)
-     (change-log-mode "CLog" :major)
-     (lisp-interaction-mode "Lisp" :major)
+	(delight
+	 '(;; Major modes
+		 ;;			(c-mode "C" :major)
+		 ;;			(c++mode "C++" :major)
+		 (js2-mode "JS" :major)
+		 (csharp-mode "C#" :major)
+		 (prog-mode "Pr" :major)
+		 (emacs-lisp-mode "El" :major)
+		 (python-mode "Py" :major)
+		 (perl-mode "Pl" :major)
+		 (web-mode "W" :major)
+		 (change-log-mode "CLog" :major)
+		 (lisp-interaction-mode "Lisp" :major)
 
-     ;; Shorten for minor modes
-     (ggtags-mode " G" "ggtags")
-     ;; (orgstruct-mode " OrgS" "org")
-     (orgalist-mode " ol" "orgalist")
-     (view-mode " V" "view")
-     ;; Stop to display for minor modes
-     (org-fancy-priorities-mode nil "org-fancy-priorities")
-     (smooth-scroll-mode nil "smooth-scroll")
-     (eldoc-mode nil "eldoc")
-     (ivy-mode nil "ivy")
-     (counsel-mode nil "counsel")
-     (centered-cursor-mode nil "centered-cursor-mode")
-     (volatile-highlights-mode nil "volatile-highlights")
-     (aggressive-indent-mode nil "aggressive-indent")
-     (all-the-icons-dired-mode nil "all-the-icons-dired")
-     (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
-     (yas-minor-mode nil "yasnippet")
-     (auto-complete-mode nil "auto-complete")
-     (company-mode nil "company")
-     (ws-butler-mode nil "ws-butler")
-     (isearch-mode nil "isearch")
-     (auto-revert-mode nil "autorevert")
-     (global-whitespace-mode nil "whitespace")
-     (emmet-mode nil "emmet-mode")
-     (abbrev-mode nil "abbrev")
-     (doxymacs-mode nil "doxymacs")
-     (editorconfig-mode nil "editorconfig")
-     (rainbow-mode nil "rainbow-mode")
-     (highlight-symbol-mode nil "highlight-symbol")
-     (which-key-mode nil "which-key")
-     (fancy-narrow-mode nil "fancy-narrow")
-     (smartparens-mode nil "smartparens")
-     (projectile-mode nil "projectile")
-     (selected-minor-mode nil "selected")
-     (skewer-html-mode nil "skewer-html")
-     (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
-     (gcmh-mode nil "gcmh")
-     (super-save-mode nil "super-save")
-     (rainbow-csv-mode nil "rainbow-csv")))
+		 ;; Shorten for minor modes
+		 (ggtags-mode " G" "ggtags")
+		 ;; (orgstruct-mode " OrgS" "org")
+		 (orgalist-mode " ol" "orgalist")
+		 (view-mode " V" "view")
+		 ;; Stop to display for minor modes
+		 (org-fancy-priorities-mode nil "org-fancy-priorities")
+		 (smooth-scroll-mode nil "smooth-scroll")
+		 (eldoc-mode nil "eldoc")
+		 (ivy-mode nil "ivy")
+		 (counsel-mode nil "counsel")
+		 (centered-cursor-mode nil "centered-cursor-mode")
+		 (volatile-highlights-mode nil "volatile-highlights")
+		 (aggressive-indent-mode nil "aggressive-indent")
+		 (all-the-icons-dired-mode nil "all-the-icons-dired")
+		 (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
+		 (nerd-icons-dired-mode nil "nerd-icons-dired")
+		 (yas-minor-mode nil "yasnippet")
+		 (auto-complete-mode nil "auto-complete")
+		 (company-mode nil "company")
+		 (ws-butler-mode nil "ws-butler")
+		 (isearch-mode nil "isearch")
+		 (auto-revert-mode nil "autorevert")
+		 (global-whitespace-mode nil "whitespace")
+		 (emmet-mode nil "emmet-mode")
+		 (abbrev-mode nil "abbrev")
+		 (doxymacs-mode nil "doxymacs")
+		 (editorconfig-mode nil "editorconfig")
+		 (rainbow-mode nil "rainbow-mode")
+		 (highlight-symbol-mode nil "highlight-symbol")
+		 (which-key-mode nil "which-key")
+		 (fancy-narrow-mode nil "fancy-narrow")
+		 (smartparens-mode nil "smartparens")
+		 (projectile-mode nil "projectile")
+		 (selected-minor-mode nil "selected")
+		 (skewer-html-mode nil "skewer-html")
+		 (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
+		 (gcmh-mode nil "gcmh")
+		 (super-save-mode nil "super-save")
+		 (rainbow-csv-mode nil "rainbow-csv")))
 
-  ;; Override by icon
-  (when (require 'icons-in-terminal nil t)
-    (delight
-     `((view-mode ,(concat " " (icons-in-terminal-faicon "lock")) "view")))))
+	;; Override by icon
+	(cond ((require 'nerd-icons nil t)
+		     (delight
+		      `((view-mode ,(concat " " (nerd-icons-mdicon "nf-md-file_lock"))
+			                 "view"))))
+	      ((require 'icons-in-terminal nil t)
+		     (delight
+		      `((view-mode ,(concat " " (icons-in-terminal-faicon "lock"))
+					             "view"))))))
 #+end_src
 
 ** [migemo.el] ローマ字入力で日本語を検索する
@@ -6025,12 +6076,16 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found '(icons-in-terminal-dired-mode)
-                         "icons-in-terminal-dired" nil t)
-  (with-eval-after-load "icons-in-terminal"
-    (setq icons-in-terminal-scale-factor 1.0)))
+;; (when (autoload-if-found '(icons-in-terminal-dired-mode)
+;;                          "icons-in-terminal-dired" nil t)
+;;   (with-eval-after-load "icons-in-terminal"
+;;     (setq icons-in-terminal-scale-factor 1.0)))
 
-(cond ((require 'icons-in-terminal nil t)
+(autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired-mode" nil t)
+
+(cond ((require 'nerd-icons-dired nil t)
+       (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+      ((require 'icons-in-terminal nil t)
        (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
       ((require 'all-the-icons nil t)
        (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
@@ -6318,22 +6373,24 @@ Obeys `widen-automatically', which see."
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-pre-prompt-function ()
-  (cond (window-system
-         (format "%s%s "
-                 (if my-toggle-modeline-global "" ;; FIXME
-                   (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                 (cond ((require 'icons-in-terminal nil t)
-                        (icons-in-terminal-material "playlist_add_check"))
-                       ((require 'all-the-icons nil t)
-                        (all-the-icons-material "playlist_add_check"))
-                       (t ""))))
-        ;; ((eq system-type 'windows-nt)
-        ;;  (format "%s%s "
-        ;;          (if my-toggle-modeline-global "" ;; FIXME
-        ;;            (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-        ;;          ">>"))
-        (t
-         (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
+	(cond (window-system
+				 (format "%s%s "
+								 (if my-toggle-modeline-global "" ;; FIXME
+									 (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+								 (cond ((require 'nerd-icons nil t)
+			                  (nerd-icons-mdicon "nf-md-playlist_check"))
+											 ((require 'icons-in-terminal nil t)
+												(icons-in-terminal-material "playlist_add_check"))
+											 ((require 'all-the-icons nil t)
+												(all-the-icons-material "playlist_add_check"))
+											 (t ""))))
+				;; ((eq system-type 'windows-nt)
+				;;	(format "%s%s "
+				;;					(if my-toggle-modeline-global "" ;; FIXME
+				;;						(concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+				;;					">>"))
+				(t
+				 (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -6521,28 +6578,58 @@ Obeys `widen-automatically', which see."
   (with-eval-after-load "swiper"
     (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
 #+end_src
-** TODO [all-the-icons-ivy] ivy インターフェイスでアイコンを表示する
+** TODO [nerd-icons-ivy-rich] ivy インターフェイスでアイコンを表示する
    :PROPERTIES:
    :CUSTOM_ID: org3d431f2e
    :END:
 
- - https://github.com/asok/all-the-icons-ivy
+- https://github.com/seagle0128/nerd-icons-ivy-rich
+- https://github.com/takaxp/icons-in-terminal-ivy
+- https://github.com/asok/all-the-icons-ivy
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-update-nerd-icons-ivy-rich-display-transformers-list (command config)
+  (if (plist-get nerd-icons-ivy-rich-display-transformers-list command)
+      (plist-put nerd-icons-ivy-rich-display-transformers-list
+		 command config)
+    (user-error "`%s' is not listed in `nerd-icons-ivy-rich-display-transformers-list'." command)))
+#+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (eq system-type 'darwin)
   (with-eval-after-load "ivy"
-    (cond ((and (require 'icons-in-terminal nil t) ;; safeguard
-                (require 'icons-in-terminal-ivy nil t))
-           (dolist (command '(counsel-projectile-switch-project
-                              counsel-ibuffer))
-             (add-to-list 'icons-in-terminal-ivy-buffer-commands command))
-           (icons-in-terminal-ivy-setup))
-          ((and (require 'all-the-icons nil t) ;; safeguard
-                (require 'all-the-icons-ivy nil t))
-           (dolist (command '(counsel-projectile-switch-project
-                              counsel-ibuffer))
-             (add-to-list 'all-the-icons-ivy-buffer-commands command))
-           (all-the-icons-ivy-setup)))))
+    (cond ((and (require 'nerd-icons nil t) ;; safeguard
+		(require 'ivy-rich nil t)
+		(require 'nerd-icons-ivy-rich nil t))
+	   (nerd-icons-ivy-rich-mode 1)
+	   (ivy-rich-mode 1))
+	  ((and (require 'icons-in-terminal nil t) ;; safeguard
+		(require 'icons-in-terminal-ivy nil t))
+	   (dolist (command '(counsel-projectile-switch-project
+			      counsel-ibuffer))
+	     (add-to-list 'icons-in-terminal-ivy-buffer-commands command))
+	   (icons-in-terminal-ivy-setup))
+	  ((and (require 'all-the-icons nil t) ;; safeguard
+		(require 'all-the-icons-ivy nil t))
+	   (dolist (command '(counsel-projectile-switch-project
+			      counsel-ibuffer))
+	     (add-to-list 'all-the-icons-ivy-buffer-commands command))
+	   (all-the-icons-ivy-setup))))
+
+  (with-eval-after-load "nerd-icons-ivy-rich"
+    (my-update-nerd-icons-ivy-rich-display-transformers-list
+     'counsel-recentf
+     '(:columns
+       ((nerd-icons-ivy-rich-file-icon)
+        (nerd-icons-ivy-rich-file-name) ;; (:width 0.8)
+        ;; (nerd-icons-ivy-rich-file-id (:width 15 :face nerd-icons-ivy-rich-file-owner-face :align right))
+        ;; (nerd-icons-ivy-rich-file-modes (:width 12))
+        ;; (nerd-icons-ivy-rich-file-size (:width 7 :face nerd-icons-ivy-rich-size-face))
+        ;; (ivy-rich-file-last-modified-time (:face nerd-icons-ivy-rich-time-face))
+	)
+       :delimiter " "))
+    ))
 #+end_src
 
 ** TODO [rainbow-delimiters.el] 対応するカッコに色を付ける
@@ -11864,16 +11951,28 @@ update it for multiple appts?")
 
 #+begin_src emacs-lisp :tangle late-init.el
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
-(with-eval-after-load "icons-in-terminal"
-  (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;  »
-                                         (":LOGBOOK:" . "") ;;  ›
-                                         (":END:" . "") ;;  ›
-                                         ("#+begin_src" . "▨") ;; 
-                                         ("#+end_src" . "▨")
-                                         ("#+RESULTS:" . "")
-                                         ("[ ]" .  "") ;; ☐ 
-                                         ("[X]" . "" ) ;; ☑ 
-                                         ("[-]" . "" )))) ;; ☒ 
+(with-eval-after-load "nerd-icons"
+	(setq-default prettify-symbols-alist
+		            '((":PROPERTIES:" . "»") ;;	 » ;; nf-fa-angle_double_right  
+									(":LOGBOOK:" . "›") ;;	› ;; nf-fa-angle_right  
+									(":END:" . "›") ;;	› 
+									("#+begin_src" . "▨") ;;  ▨
+									("#+end_src" . "▨") ;; ▨
+									("#+RESULTS:" . "") ;; nf-fa-share_square 
+									("[ ]" .	"󰄱") ;; ☐  ;; nf-md-checkbox_blank_outline 󰄱
+									("[X]" . "󰄵" ) ;; ☑  ;; nf-md-checkbox_marked_outline 󰄵
+									("[-]" . "󰄗" )))) ;; nf-md-checkbox_blank_badge_outline 󰄗
+
+;; (with-eval-after-load "icons-in-terminal"
+;;	 (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;	 »
+;;																					(":LOGBOOK:" . "") ;;	›
+;;																					(":END:" . "") ;;	›
+;;																					("#+begin_src" . "▨") ;; 
+;;																					("#+end_src" . "▨")
+;;																					("#+RESULTS:" . "")
+;;																					("[ ]" .	"") ;; ☐ 
+;;																					("[X]" . "" ) ;; ☑ 
+;;																					("[-]" . "" )))) ;; ☒ 
 #+end_src
 
 ** [org-tree-slide] Org Modeでプレゼンテーション
@@ -13464,38 +13563,44 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (memq window-system '(ns x))
-  ;; モードラインにアイコンを出す
-  (make-face 'mode-line-ime-on-face)
-  (set-face-attribute 'mode-line-ime-on-face
-                      nil :foreground (plist-get my-cur-color-ime :on))
-  (when (fboundp 'mac-set-input-method-parameter)
-    (mac-set-input-method-parameter
-     "com.google.inputmethod.Japanese.base" 'title
-     (concat
-	    (if (require 'icons-in-terminal nil t)
-          (icons-in-terminal-octicon "keyboard"
-                                     :v-adjust 0.0
-                                     :face 'mode-line-ime-on-face)
-        "") " "))) ;; FIXME (the color is NOT changed, patch is wrong?)
+	;; モードラインにアイコンを出す
+	(make-face 'mode-line-ime-on-face)
+	(set-face-attribute 'mode-line-ime-on-face
+					            nil :foreground (plist-get my-cur-color-ime :on))
+	(when (fboundp 'mac-set-input-method-parameter)
+		(mac-set-input-method-parameter
+		 "com.google.inputmethod.Japanese.base" 'title
+		 (concat
+			(cond ((require 'nerd-icons nil t)
+			       ;; (nerd-icons-octicon "nf-oct-typography"
+			       ;;					:face 'mode-line-ime-on-face)
+			       (nerd-icons-mdicon "nf-md-ideogram_cjk"
+				                         :face 'mode-line-ime-on-face))
+			      ((require 'icons-in-terminal nil t)
+			       (icons-in-terminal-octicon "keyboard"
+					                              :v-adjust 0.0
+					                              :face 'mode-line-ime-on-face))
+			      (t ""))
+			" "))) ;; FIXME (the color is NOT changed, patch is wrong?)
 
-  (declare-function my-ime-on "init" nil)
-  (declare-function my-ime-off "init" nil)
-  (declare-function my-ime-active-p "init" nil)
+	(declare-function my-ime-on "init" nil)
+	(declare-function my-ime-off "init" nil)
+	(declare-function my-ime-active-p "init" nil)
 
-  (defvar my-ime-last (my-ime-active-p))
-  (defvar my-ime-before-action nil)
+	(defvar my-ime-last (my-ime-active-p))
+	(defvar my-ime-before-action nil)
 
-  (if (not (fboundp 'mac-ime-active-p))
-	    (progn
+	(if (not (fboundp 'mac-ime-active-p))
+			(progn
 	      ;; For selected.el
 	      (add-hook 'activate-mark-hook #'my-ime-off-sticky)
 	      (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
 	      ;; 「M-x あ」対策
 	      (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
 	      (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
-    ;; For selected.el
-    (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
-    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
+		;; For selected.el
+		(add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
+		(add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -14253,8 +14358,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 #+begin_src emacs-lisp :tangle utility.el
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
-;; 2) Inconsolata, Migu 2M     : font-size=14,
-;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
+;; 2) Inconsolata, Migu 2M		 : font-size=14,
+;; 3) Inconsolata, Hiragino		 : font-size=14, -apple-hiragino=1.0
 (defconst my-font-size 12)
 (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
 (defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
@@ -14263,106 +14368,129 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 
 ;;;###autoload
 (defun my-ja-font-setter (spec)
-  (set-fontset-font nil 'japanese-jisx0208 spec)
-  (set-fontset-font nil 'katakana-jisx0201 spec)
-  (set-fontset-font nil 'japanese-jisx0212 spec)
-  (set-fontset-font nil '(#x0080 . #x024F) spec)
-  (set-fontset-font nil '(#x0370 . #x03FF) spec)
-  (set-fontset-font nil 'mule-unicode-0100-24ff spec)
-  (set-fontset-font t 'unicode spec nil 'prepend))
+	(set-fontset-font nil 'japanese-jisx0208 spec)
+	(set-fontset-font nil 'katakana-jisx0201 spec)
+	(set-fontset-font nil 'japanese-jisx0212 spec)
+	(set-fontset-font nil '(#x0080 . #x024F) spec)
+	(set-fontset-font nil '(#x0370 . #x03FF) spec)
+	(set-fontset-font nil 'mule-unicode-0100-24ff spec)
+	(set-fontset-font t 'unicode spec nil 'prepend))
 
 ;;;###autoload
 (defun my-ascii-font-setter (spec)
-  (set-fontset-font nil 'ascii spec))
+	(set-fontset-font nil 'ascii spec))
 
 ;;;###autoload
 (defun my-unicode-font-setter (spec)
-  (set-fontset-font t 'unicode spec nil 'prepend))
+	(set-fontset-font t 'unicode spec nil 'prepend))
 
 ;;;###autoload
-(defun my-all-the-icons-setter ()
-  (when (require 'icons-in-terminal nil t)
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-faicon-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-fileicon-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-material-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-octicon-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-wicon-family)))))
+(defun my-font-icons-setter ()
+	(cond ((require 'nerd-icons nil t)
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-mdicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-faicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-octicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-devicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-wicon-family))))
+	      ((require 'icons-in-terminal nil t)
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-faicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-fileicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-material-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-octicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-wicon-family))))))
 
 ;;;###autoload
 (defun my-font-config (&optional size ascii ja)
-  "Font config.
+	"Font config.
 - SIZE: font size for ASCII and Japanese (default: 12)
 - ASCII: ascii font family (default: \"Monaco\")
 - JA: Japanese font family (default: \"Migu 2M\")
 "
-  (when (memq window-system '(mac ns))
-    (let ((font-size (or size my-font-size))
-          (ascii-font (or ascii my-ascii-font))
-          (ja-font (or ja my-ja-font)))
-      ;; (set-fontset-font t '(#Xe000 . #Xf8ff) "nerd-icons")
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
-      (my-ja-font-setter (font-spec :family ja-font :size font-size))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))))
+	(when (memq window-system '(mac ns))
+		(let ((font-size (or size my-font-size))
+		      (ascii-font (or ascii my-ascii-font))
+		      (ja-font (or ja my-ja-font)))
+			(cond ((require 'nerd-icons nil t)
+			       ;; https://github.com/ryanoasis/nerd-fonts/wiki/Glyph-Sets-and-Code-Points
+			       ;; Material Design Icons (f0001-f1af0)
+			       (set-fontset-font t '(#Xf0001 . #Xf1af0) "Symbols Nerd Font Mono")
+			       (set-fontset-font t '(#X2300 . #X2bff) "Symbols Nerd Font Mono")
+			       (set-fontset-font t '(#Xe000 . #Xf5ff) "Symbols Nerd Font Mono")
+			       ;; (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+			       )
+			      ((require 'icons-in-terminal nil t)
+			       (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal"))
+			      ((require 'all-the-icons nil t)
+			       (set-fontset-font t '(#Xe0a0 . #Xeea0) "all-the-icons")))
+			(my-ja-font-setter (font-spec :family ja-font :size font-size))
+			(my-ascii-font-setter (font-spec :family ascii-font :size font-size)))))
 
 ;;;###autoload
 (defun my-setup-font ()
-  (cond
-   ;; CocoaEmacs
-   ((memq window-system '(mac ns))
-    (when (>= emacs-major-version 23)
+	(cond
+	 ;; CocoaEmacs
+	 ((memq window-system '(mac ns))
+		(when (>= emacs-major-version 23)
 
-      ;; Fix ratio provided by set-face-attribute for fonts display
-      (setq face-font-rescale-alist
-            '(("^-apple-hiragino.*" . 1.0) ; 1.2
-              (".*Migu.*" . 1.2)
-              (".*Ricty.*" . 1.0)
-              (".*Inconsolata.*" . 1.0)
-              (".*osaka-bold.*" . 1.0)     ; 1.2
-              (".*osaka-medium.*" . 1.0)   ; 1.0
-              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-              ("-cdac$" . 1.0))))) ; 1.3
-   ;; (my-font-config) ;; see `my-theme'
+			;; Fix ratio provided by set-face-attribute for fonts display
+			(setq face-font-rescale-alist
+			      '(("^-apple-hiragino.*" . 1.0) ; 1.2
+				      (".*Migu.*" . 1.2)
+				      (".*Ricty.*" . 1.0)
+				      (".*Inconsolata.*" . 1.0)
+				      (".*osaka-bold.*" . 1.0)		 ; 1.2
+				      (".*osaka-medium.*" . 1.0)	 ; 1.0
+				      (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+				      ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+				      ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+				      ("-cdac$" . 1.0))))) ; 1.3
+	 ;; (my-font-config) ;; see `my-theme'
 
-   ((eq window-system 'ns)
-    ;; Anti aliasing with Quartz 2D
-    (when (boundp 'mac-allow-anti-aliasing)
-      (setq mac-allow-anti-aliasing t)))
+	 ((eq window-system 'ns)
+		;; Anti aliasing with Quartz 2D
+		(when (boundp 'mac-allow-anti-aliasing)
+			(setq mac-allow-anti-aliasing t)))
 
-   ((eq window-system 'w32) ;; Windows
-    (let ((font-size 14)
-          (font-height 100)
-          (ascii-font "Inconsolata")
-          (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-      (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
+	 ((eq window-system 'w32) ;; Windows
+		(let ((font-size 14)
+		      (font-height 100)
+		      (ascii-font "Inconsolata")
+		      (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+			(set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+			(my-ja-font-setter
+			 (font-spec :family ja-font :size font-size :height font-height))
+			(my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+			(setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
-   ((eq window-system 'x) ; for SuSE Linux 12.1
-    (let
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font "Inconsolata")
-         ;; (ja-font "MigMix 1M")
-         (ja-font "Migu 2M"))
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
-    (setq face-font-rescale-alist '((".*Migu.*" . 2.0)
-                                    (".*MigMix.*" . 2.0)
-                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
-  )
+	 ((eq window-system 'x) ; for SuSE Linux 12.1
+		(let
+	      ((font-size 14)
+	       (font-height 100)
+	       (ascii-font "Inconsolata")
+	       ;; (ja-font "MigMix 1M")
+	       (ja-font "Migu 2M"))
+			(set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+			(my-ja-font-setter
+			 (font-spec :family ja-font :size font-size :height font-height))
+			(my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
+		(setq face-font-rescale-alist '((".*Migu.*" . 2.0)
+						                        (".*MigMix.*" . 2.0)
+						                        (".*Inconsolata.*" . 1.0))))) ; 0.9
+	)
 #+end_src
+
+#+RESULTS:
+: my-setup-font
 
 #+begin_src emacs-lisp :tangle late-init.el
 (my-setup-font) ;; this requires utility.el
@@ -14804,6 +14932,29 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
+(defun my-ivy-format-function-arrow-ni (cands)
+  "Transform CANDS into a string for minibuffer."
+  (ivy--format-function-generic
+   (lambda (str)
+      ;; nf-fa-hand-point_right, nf-fa-hand_o_right
+     (concat (nerd-icons-faicon
+              "nf-fa-hand_o_right"
+              :v-adjust -0.1
+              :face 'my-ivy-arrow-visible
+              :height 0.8)
+             " " (ivy--add-face (concat str "\n")
+                                'ivy-current-match)))
+   (lambda (str)
+     (concat (nerd-icons-faicon
+              "nf-fa-hand_o_right"
+              :v-adjust -0.1
+              :face 'my-ivy-arrow-invisible
+              :height 0.8)
+             " " (concat str "\n")))
+   cands
+   ""))
+
+;;;###autoload
 (defun my-ivy-format-function-arrow-iit (cands)
   "Transform CANDS into a string for minibuffer."
   (ivy--format-function-generic
@@ -14873,13 +15024,13 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle late-init.el
 ;;; 選択対象を "" にする (requires all-the-icons.el)
 (defface my-ivy-arrow-visible
-  '((((class color) (background light)) :foreground "orange")
-    (((class color) (background dark)) :foreground "#EE6363"))
-  "Face used by Ivy for highlighting the arrow.")
+	'((((class color) (background light)) :foreground "orange")
+		(((class color) (background dark)) :foreground "#EE6363"))
+	"Face used by Ivy for highlighting the arrow.")
 (defface my-ivy-arrow-invisible
-  '((((class color) (background light)) :foreground "#FFFFFF")
-    (((class color) (background dark)) :foreground "#31343F"))
-  "Face used by Ivy for highlighting the invisible arrow.")
+	'((((class color) (background light)) :foreground "#FFFFFF")
+		(((class color) (background dark)) :foreground "#31343F"))
+	"Face used by Ivy for highlighting the invisible arrow.")
 
 (with-eval-after-load "counsel"
 
@@ -14888,17 +15039,21 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
   (if window-system
       (cond ((require 'icons-in-terminal nil t)
-             (add-to-list
-              'ivy-format-functions-alist
-              '(t . my-ivy-format-function-arrow-iit) t))
-            ((require 'all-the-icons nil t)
-             (add-to-list
-              'ivy-format-functions-alist
-              '(t . my-ivy-format-function-arrow-ati) t))
-            (t
-             (add-to-list
-              'ivy-format-functions-alist
-              '(t . ivy-format-function-arrow-line) t)))
+	     (add-to-list
+	      'ivy-format-functions-alist
+	      '(t . my-ivy-format-function-arrow-iit) t))
+	    ((require 'nerd-icons nil t)
+	     (add-to-list
+	      'ivy-format-functions-alist
+	      '(t . my-ivy-format-function-arrow-ni) t))
+	    ((require 'all-the-icons nil t)
+	     (add-to-list
+	      'ivy-format-functions-alist
+	      '(t . my-ivy-format-function-arrow-ati) t))
+	    (t
+	     (add-to-list
+	      'ivy-format-functions-alist
+	      '(t . ivy-format-function-arrow-line) t)))
     (add-to-list
      'ivy-format-functions-alist
      '(t . ivy-format-function-arrow-line) t)))
@@ -17095,38 +17250,45 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 ** TODO emacs-lisp のコードをフォーマットする
 :PROPERTIES:
 :CUSTOM_ID: orgfa252a98
+:ID:       00A4E984-DF44-452F-9A33-A19132C694D7
 :END:
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun my-format-emacs-lisp-buffer ()
-	(interactive)
-	(when (eq major-mode 'emacs-lisp-mode)
-		(setq-local indent-line-function 'lisp-indent-line)
-		(setq-local tab-width 8)
-		(setq-local indent-tabs-mode t)
-		;; (setq-local tab-width 2)
-		;; (setq-local indent-tabs-mode nil)
-		(save-excursion
-			(save-restriction
-	      (widen)
-	      (untabify (point-min) (point-max))
-	      (tabify (point-min) (point-max))
-	      (indent-region (point-min) (point-max))))))
+  (interactive)
+  (when (eq major-mode 'emacs-lisp-mode)
+    (setq-local indent-line-function 'lisp-indent-line)
+    (setq-local tab-width 8)
+    (setq-local indent-tabs-mode t)
+    (save-excursion
+      (save-restriction
+        (widen)
+        (untabify (point-min) (point-max))
+        (tabify (point-min) (point-max))
+        (indent-region (point-min) (point-max))))))
+
+;;;###autoload
+(defun my-format-emacs-lisp-for-org-buffer ()
+  (interactive)
+  (when (eq major-mode 'emacs-lisp-mode)
+    (setq-local indent-line-function 'org-indent-line)
+    (setq-local tab-width 2)
+    (setq-local indent-tabs-mode nil)
+    (save-excursion
+      (save-restriction
+        (widen)
+        (untabify (point-min) (point-max))
+        (indent-region (point-min) (point-max))))))
 #+end_src
 
-#+begin_src emacs-lisp :tangle utility.el
-(defun my-format-emacs-lisp-in-org-buffer ()
-	(interactive)
-	(when (eq major-mode 'emacs-lisp-mode)
-		(setq-local indent-line-function 'org-indent-line)
-		(setq-local tab-width 2)
-		(setq-local indent-tabs-mode nil)
-		(save-excursion
-			(save-restriction
-			  (widen)
-	      (untabify (point-min) (point-max))
-	      (tabify (point-min) (point-max))
-	      (indent-region (point-min) (point-max))))))
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "org-src"
+  ;; tab-width=8, indent-tabs-mode=t
+  (advice-add 'org-edit-special :after #'my-format-emacs-lisp-buffer)
+  ;; tab-width=2, indent-tabs-mode=nil
+  (advice-add 'org-edit-src-abort :before #'my-format-emacs-lisp-for-org-buffer)
+  (advice-add 'org-edit-src-exit :before #'my-format-emacs-lisp-for-org-buffer))
 #+end_src
 
 ** [window-resizer.el] 分割したウィンドウサイズを変更する

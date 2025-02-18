@@ -2072,6 +2072,13 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (my-linespacing))
   (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
 
+(with-eval-after-load "org-src"
+  ;; tab-width=8, indent-tabs-mode=t
+  (advice-add 'org-edit-special :after #'my-format-emacs-lisp-buffer)
+  ;; tab-width=2, indent-tabs-mode=nil
+  (advice-add 'org-edit-src-abort :before #'my-format-emacs-lisp-for-org-buffer)
+  (advice-add 'org-edit-src-exit :before #'my-format-emacs-lisp-for-org-buffer))
+
 (when nil
   (unless noninteractive
     (let ((inhibit-message t))

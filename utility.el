@@ -108,12 +108,6 @@ This function is called directly from the C code."
   (message "Native Compilation...done"))
 
 ;;;###autoload
-(defun my-emacs-lisp-mode-conf ()
-  (setq-local indent-tabs-mode t)
-  (setq-local tab-width 8)
-  (setq indent-line-function 'lisp-indent-line))
-
-;;;###autoload
 (defun my-org-hide-drawers-all ()
   (when (eq major-mode 'org-mode)
     (org-cycle-hide-drawers 'all)))
@@ -146,6 +140,21 @@ This function is called directly from the C code."
     (kill-buffer file)
     (let ((message-log-max nil))
       (message "--- %s is locked." file))))
+
+;;;###autoload
+(defun my-start-autolock-secret-buffer ()
+	(interactive)
+	(my-stop-autolock-secret-buffer)
+	(setq my-secret-close-timer
+	      (run-with-idle-timer
+	       my-secret-autolock-time t
+	       #'my-lock-secret-buffer my-secret-org-file)))
+
+;;;###autoload
+(defun my-stop-autolock-secret-buffer ()
+	(interactive)
+	(when (timerp my-secret-close-timer)
+		(cancel-timer my-secret-close-timer)))
 
 ;;;###autoload
 (defun my-isearch-ime-deactivate-sticky ()
@@ -649,7 +658,15 @@ Call this function at updating `mode-line-mode'."
   (mlscroll-mode 1))
 
 ;;;###autoload
-(defun my-mode-line-vc-mode-icon ()
+(defun my-mode-line-vc-mode-nerd-icons ()
+  (if (string-match "^ Git:" vc-mode) ;; nf-oct-git_branch
+      (replace-regexp-in-string
+       "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
+    (replace-regexp-in-string
+     "^ Git-" (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))
+
+;;;###autoload
+(defun my-mode-line-vc-mode-icons-in-terminal ()
   (if (string-match "^ Git:" vc-mode)
       (replace-regexp-in-string
        "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
@@ -745,44 +762,54 @@ Call this function at updating `mode-line-mode'."
 
 ;;;###autoload
 (defun my-coding-system-name-mnemonic (coding-system)
-  (let* ((base (coding-system-base coding-system))
-         (name (symbol-name base)))
-    (cond ((string-prefix-p "utf-8" name) "U8")
-          ((string-prefix-p "utf-16" name) "U16")
-          ((string-prefix-p "utf-7" name) "U7")
-          ((string-prefix-p "japanese-shift-jis" name) "SJIS")
-          ((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
-          ((string-match "japanese-iso-8bit" name) "EUC")
-          (t "???"))))
+	(let* ((base (coding-system-base coding-system))
+				 (name (symbol-name base)))
+		(cond ((string-prefix-p "utf-8" name) "U8")
+					((string-prefix-p "utf-16" name) "U16")
+					((string-prefix-p "utf-7" name) "U7")
+					((string-prefix-p "japanese-shift-jis" name) "SJIS")
+					((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
+					((string-match "japanese-iso-8bit" name) "EUC")
+					(t "???"))))
 
 ;;;###autoload
 (defun my-coding-system-bom-mnemonic (coding-system)
-  (let ((name (symbol-name coding-system)))
-    (cond ((string-match "be-with-signature" name) "[BE]")
-          ((string-match "le-with-signature" name) "[LE]")
-          ((string-match "-with-signature" name) "[BOM]")
-          (t ""))))
+	(let ((name (symbol-name coding-system)))
+		(cond ((string-match "be-with-signature" name) "[BE]")
+					((string-match "le-with-signature" name) "[LE]")
+					((string-match "-with-signature" name) "[BOM]")
+					(t ""))))
 
 ;;;###autoload
-(defun my-mode-line-icon-lock ()
-  (if view-mode
-      (concat (icons-in-terminal-faicon
-               "lock" :face '(:foreground "#FF0000")) " ") ""))
+(defun my-mode-line-icon-lock-icons-in-terminal ()
+	(if view-mode
+			(concat (icons-in-terminal-faicon
+							 "lock" :face '(:foreground "#FF0000")) " ") ""))
+
+;;;###autoload
+(defun my-mode-line-icon-lock-nerd-icons ()
+	(if view-mode
+			(concat (nerd-icons-mdicon
+							 "nf-md-file_lock" :face '(:foreground "#FF0000")) " ") ""))
 
 ;;;###autoload
 (defun my-mode-line-icon-for-file ()
-  (icons-in-terminal-icon-for-file
-   (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
+	(cond ((require 'nerd-icons nil t)
+		     (nerd-icons-icon-for-file
+		      (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
+	      ((require 'icons-in-terminal nil t)
+		     (icons-in-terminal-icon-for-file
+		      (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))))
 
 ;;;###autoload
 (defun my-buffer-coding-system-mnemonic ()
-  "Return a mnemonic for `buffer-file-coding-system'."
-  (let* ((code buffer-file-coding-system)
-         (name (my-coding-system-name-mnemonic code))
-         (bom (my-coding-system-bom-mnemonic code)))
-    (if (version< emacs-version "29.0")
-        (format "%s %s%s" (my-mode-line-icon-for-file) name bom )
-      (format "%s%s" name bom ))))
+	"Return a mnemonic for `buffer-file-coding-system'."
+	(let* ((code buffer-file-coding-system)
+				 (name (my-coding-system-name-mnemonic code))
+				 (bom (my-coding-system-bom-mnemonic code)))
+		(if (version< emacs-version "29.0")
+				(format "%s %s%s" (my-mode-line-icon-for-file) name bom )
+			(format "%s%s" name bom ))))
 
 ;;;###autoload
 (defun my-delight-activate ()
@@ -923,22 +950,24 @@ Obeys `widen-automatically', which see."
 
 ;;;###autoload
 (defun my-pre-prompt-function ()
-  (cond (window-system
-         (format "%s%s "
-                 (if my-toggle-modeline-global "" ;; FIXME
-                   (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-                 (cond ((require 'icons-in-terminal nil t)
-                        (icons-in-terminal-material "playlist_add_check"))
-                       ((require 'all-the-icons nil t)
-                        (all-the-icons-material "playlist_add_check"))
-                       (t ""))))
-        ;; ((eq system-type 'windows-nt)
-        ;;  (format "%s%s "
-        ;;          (if my-toggle-modeline-global "" ;; FIXME
-        ;;            (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-        ;;          ">>"))
-        (t
-         (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
+	(cond (window-system
+				 (format "%s%s "
+								 (if my-toggle-modeline-global "" ;; FIXME
+									 (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+								 (cond ((require 'nerd-icons nil t)
+			                  (nerd-icons-mdicon "nf-md-playlist_check"))
+											 ((require 'icons-in-terminal nil t)
+												(icons-in-terminal-material "playlist_add_check"))
+											 ((require 'all-the-icons nil t)
+												(all-the-icons-material "playlist_add_check"))
+											 (t ""))))
+				;; ((eq system-type 'windows-nt)
+				;;	(format "%s%s "
+				;;					(if my-toggle-modeline-global "" ;; FIXME
+				;;						(concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+				;;					">>"))
+				(t
+				 (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
 
 ;;;###autoload
 (defun my-truncate-lines-activate ()
@@ -998,6 +1027,13 @@ Obeys `widen-automatically', which see."
     (when (use-region-p)
       (deactivate-mark))
     (swiper thing)))
+
+;;;###autoload
+(defun my-update-nerd-icons-ivy-rich-display-transformers-list (command config)
+  (if (plist-get nerd-icons-ivy-rich-display-transformers-list command)
+      (plist-put nerd-icons-ivy-rich-display-transformers-list
+		 command config)
+    (user-error "`%s' is not listed in `nerd-icons-ivy-rich-display-transformers-list'." command)))
 
 ;;;###autoload
 (defun my-toggle-dimmer ()
@@ -1090,7 +1126,7 @@ Obeys `widen-automatically', which see."
 
 ;;;###autoload
 (defun crux-copy-file-preserve-attributes (visit)
-  "[curx.el]
+  "[crux.el]
 Copy the current file-visiting buffer's file to a destination.
 
 This function prompts for the new file's location and copies it
@@ -1139,7 +1175,7 @@ When invoke with C-u, the newly created file will be visited.
 
 ;;;###autoload
 (defun crux-rename-file-and-buffer ()
-  "[curx.el]
+  "[crux.el]
 Rename current buffer and if the buffer is visiting a file, rename it too."
   (interactive)
   (when-let* ((filename (buffer-file-name))
@@ -1165,7 +1201,7 @@ Rename current buffer and if the buffer is visiting a file, rename it too."
 
 ;;;###autoload
 (defun crux-delete-file-and-buffer ()
-  "[curx.el]
+  "[crux.el]
 Kill the current buffer and deletes the file it is visiting."
   (interactive)
   (let ((filename (buffer-file-name)))
@@ -1179,7 +1215,7 @@ Kill the current buffer and deletes the file it is visiting."
 
 ;;;###autoload
 (defun crux-open-with (arg)
-  "[curx.el]
+  "[crux.el]
 Open visited file in default external program.
 When in dired mode, open file under the cursor.
 
@@ -1195,7 +1231,7 @@ With a prefix ARG always prompt for command to use."
          (program (if (or arg (not open))
                       (read-shell-command "Open current file with: ")
                     open)))
-    (recentf-add-file current-file-name)
+    (recentf-add-file current-file-name) ;; Add the file to list of recentf
     (call-process program nil 0 nil current-file-name)))
 
 ;;;###autoload
@@ -1904,8 +1940,8 @@ Uses `all-the-icons-material' to fetch the icon."
   (setq my-hl-disabled-by-timer nil))
 
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
-;; 2) Inconsolata, Migu 2M     : font-size=14,
-;; 3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0
+;; 2) Inconsolata, Migu 2M		 : font-size=14,
+;; 3) Inconsolata, Hiragino		 : font-size=14, -apple-hiragino=1.0
 (defconst my-font-size 12)
 (defconst my-ja-font "Migu 2M") ;; "Hiragino Maru Gothic Pro"
 (defconst my-ascii-font "Monaco") ;; "Inconsolata", Monaco
@@ -1914,105 +1950,125 @@ Uses `all-the-icons-material' to fetch the icon."
 
 ;;;###autoload
 (defun my-ja-font-setter (spec)
-  (set-fontset-font nil 'japanese-jisx0208 spec)
-  (set-fontset-font nil 'katakana-jisx0201 spec)
-  (set-fontset-font nil 'japanese-jisx0212 spec)
-  (set-fontset-font nil '(#x0080 . #x024F) spec)
-  (set-fontset-font nil '(#x0370 . #x03FF) spec)
-  (set-fontset-font nil 'mule-unicode-0100-24ff spec)
-  (set-fontset-font t 'unicode spec nil 'prepend))
+	(set-fontset-font nil 'japanese-jisx0208 spec)
+	(set-fontset-font nil 'katakana-jisx0201 spec)
+	(set-fontset-font nil 'japanese-jisx0212 spec)
+	(set-fontset-font nil '(#x0080 . #x024F) spec)
+	(set-fontset-font nil '(#x0370 . #x03FF) spec)
+	(set-fontset-font nil 'mule-unicode-0100-24ff spec)
+	(set-fontset-font t 'unicode spec nil 'prepend))
 
 ;;;###autoload
 (defun my-ascii-font-setter (spec)
-  (set-fontset-font nil 'ascii spec))
+	(set-fontset-font nil 'ascii spec))
 
 ;;;###autoload
 (defun my-unicode-font-setter (spec)
-  (set-fontset-font t 'unicode spec nil 'prepend))
+	(set-fontset-font t 'unicode spec nil 'prepend))
 
 ;;;###autoload
-(defun my-all-the-icons-setter ()
-  (when (require 'icons-in-terminal nil t)
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-faicon-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-fileicon-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-material-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-octicon-family)))
-    (my-unicode-font-setter
-     (font-spec :family (icons-in-terminal-wicon-family)))))
+(defun my-font-icons-setter ()
+	(cond ((require 'nerd-icons nil t)
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-mdicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-faicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-octicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-devicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (nerd-icons-wicon-family))))
+	      ((require 'icons-in-terminal nil t)
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-faicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-fileicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-material-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-octicon-family)))
+	       (my-unicode-font-setter
+		      (font-spec :family (icons-in-terminal-wicon-family))))))
 
 ;;;###autoload
 (defun my-font-config (&optional size ascii ja)
-  "Font config.
+	"Font config.
 - SIZE: font size for ASCII and Japanese (default: 12)
 - ASCII: ascii font family (default: \"Monaco\")
 - JA: Japanese font family (default: \"Migu 2M\")
 "
-  (when (memq window-system '(mac ns))
-    (let ((font-size (or size my-font-size))
-          (ascii-font (or ascii my-ascii-font))
-          (ja-font (or ja my-ja-font)))
-      ;; (set-fontset-font t '(#Xe000 . #Xf8ff) "nerd-icons")
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      ;;(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")
-      (my-ja-font-setter (font-spec :family ja-font :size font-size))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))))
+	(when (memq window-system '(mac ns))
+		(let ((font-size (or size my-font-size))
+		      (ascii-font (or ascii my-ascii-font))
+		      (ja-font (or ja my-ja-font)))
+			(cond ((require 'nerd-icons nil t)
+			       ;; https://github.com/ryanoasis/nerd-fonts/wiki/Glyph-Sets-and-Code-Points
+			       ;; Material Design Icons (f0001-f1af0)
+			       (set-fontset-font t '(#Xf0001 . #Xf1af0) "Symbols Nerd Font Mono")
+			       (set-fontset-font t '(#X2300 . #X2bff) "Symbols Nerd Font Mono")
+			       (set-fontset-font t '(#Xe000 . #Xf5ff) "Symbols Nerd Font Mono")
+			       ;; (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+			       )
+			      ((require 'icons-in-terminal nil t)
+			       (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal"))
+			      ((require 'all-the-icons nil t)
+			       (set-fontset-font t '(#Xe0a0 . #Xeea0) "all-the-icons")))
+			(my-ja-font-setter (font-spec :family ja-font :size font-size))
+			(my-ascii-font-setter (font-spec :family ascii-font :size font-size)))))
 
 ;;;###autoload
 (defun my-setup-font ()
-  (cond
-   ;; CocoaEmacs
-   ((memq window-system '(mac ns))
-    (when (>= emacs-major-version 23)
+	(cond
+	 ;; CocoaEmacs
+	 ((memq window-system '(mac ns))
+		(when (>= emacs-major-version 23)
 
-      ;; Fix ratio provided by set-face-attribute for fonts display
-      (setq face-font-rescale-alist
-            '(("^-apple-hiragino.*" . 1.0) ; 1.2
-              (".*Migu.*" . 1.2)
-              (".*Ricty.*" . 1.0)
-              (".*Inconsolata.*" . 1.0)
-              (".*osaka-bold.*" . 1.0)     ; 1.2
-              (".*osaka-medium.*" . 1.0)   ; 1.0
-              (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
-              ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
-              ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
-              ("-cdac$" . 1.0))))) ; 1.3
-   ;; (my-font-config) ;; see `my-theme'
+			;; Fix ratio provided by set-face-attribute for fonts display
+			(setq face-font-rescale-alist
+			      '(("^-apple-hiragino.*" . 1.0) ; 1.2
+				      (".*Migu.*" . 1.2)
+				      (".*Ricty.*" . 1.0)
+				      (".*Inconsolata.*" . 1.0)
+				      (".*osaka-bold.*" . 1.0)		 ; 1.2
+				      (".*osaka-medium.*" . 1.0)	 ; 1.0
+				      (".*courier-bold-.*-mac-roman" . 1.0) ; 0.9
+				      ;; (".*monaco cy-bold-.*-mac-cyrillic" . 1.0)
+				      ;; (".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9
+				      ("-cdac$" . 1.0))))) ; 1.3
+	 ;; (my-font-config) ;; see `my-theme'
 
-   ((eq window-system 'ns)
-    ;; Anti aliasing with Quartz 2D
-    (when (boundp 'mac-allow-anti-aliasing)
-      (setq mac-allow-anti-aliasing t)))
+	 ((eq window-system 'ns)
+		;; Anti aliasing with Quartz 2D
+		(when (boundp 'mac-allow-anti-aliasing)
+			(setq mac-allow-anti-aliasing t)))
 
-   ((eq window-system 'w32) ;; Windows
-    (let ((font-size 14)
-          (font-height 100)
-          (ascii-font "Inconsolata")
-          (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
-      (setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
+	 ((eq window-system 'w32) ;; Windows
+		(let ((font-size 14)
+		      (font-height 100)
+		      (ascii-font "Inconsolata")
+		      (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+			(set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+			(my-ja-font-setter
+			 (font-spec :family ja-font :size font-size :height font-height))
+			(my-ascii-font-setter (font-spec :family ascii-font :size font-size))
+			(setq face-font-rescale-alist '((".*Inconsolata.*" . 1.0))))) ; 0.9
 
-   ((eq window-system 'x) ; for SuSE Linux 12.1
-    (let
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font "Inconsolata")
-         ;; (ja-font "MigMix 1M")
-         (ja-font "Migu 2M"))
-      (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
-      (my-ja-font-setter
-       (font-spec :family ja-font :size font-size :height font-height))
-      (my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
-    (setq face-font-rescale-alist '((".*Migu.*" . 2.0)
-                                    (".*MigMix.*" . 2.0)
-                                    (".*Inconsolata.*" . 1.0))))) ; 0.9
-  )
+	 ((eq window-system 'x) ; for SuSE Linux 12.1
+		(let
+	      ((font-size 14)
+	       (font-height 100)
+	       (ascii-font "Inconsolata")
+	       ;; (ja-font "MigMix 1M")
+	       (ja-font "Migu 2M"))
+			(set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+			(my-ja-font-setter
+			 (font-spec :family ja-font :size font-size :height font-height))
+			(my-ascii-font-setter (font-spec :family ascii-font :size font-size)))
+		(setq face-font-rescale-alist '((".*Migu.*" . 2.0)
+						                        (".*MigMix.*" . 2.0)
+						                        (".*Inconsolata.*" . 1.0))))) ; 0.9
+	)
 
 ;;;###autoload
 (defun my-linespacing ()
@@ -2176,6 +2232,29 @@ Uses `all-the-icons-material' to fetch the icon."
     (let ((tm (format "%02d:00" triger)))
       (when (future-time-p tm)
         (run-at-time tm nil #'my-theme)))))
+
+;;;###autoload
+(defun my-ivy-format-function-arrow-ni (cands)
+  "Transform CANDS into a string for minibuffer."
+  (ivy--format-function-generic
+   (lambda (str)
+      ;; nf-fa-hand-point_right, nf-fa-hand_o_right
+     (concat (nerd-icons-faicon
+              "nf-fa-hand_o_right"
+              :v-adjust -0.1
+              :face 'my-ivy-arrow-visible
+              :height 0.8)
+             " " (ivy--add-face (concat str "\n")
+                                'ivy-current-match)))
+   (lambda (str)
+     (concat (nerd-icons-faicon
+              "nf-fa-hand_o_right"
+              :v-adjust -0.1
+              :face 'my-ivy-arrow-invisible
+              :height 0.8)
+             " " (concat str "\n")))
+   cands
+   ""))
 
 ;;;###autoload
 (defun my-ivy-format-function-arrow-iit (cands)
@@ -3072,14 +3151,13 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (when (equal "*scratch*" (buffer-name))
     (save-buffers-kill-emacs)))
 
+;;;###autoload
 (defun my-format-emacs-lisp-buffer ()
 	(interactive)
 	(when (eq major-mode 'emacs-lisp-mode)
 		(setq-local indent-line-function 'lisp-indent-line)
 		(setq-local tab-width 8)
 		(setq-local indent-tabs-mode t)
-		;; (setq-local tab-width 2)
-		;; (setq-local indent-tabs-mode nil)
 		(save-excursion
 			(save-restriction
 	      (widen)
@@ -3087,7 +3165,8 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 	      (tabify (point-min) (point-max))
 	      (indent-region (point-min) (point-max))))))
 
-(defun my-format-emacs-lisp-in-org-buffer ()
+;;;###autoload
+(defun my-format-emacs-lisp-for-org-buffer ()
 	(interactive)
 	(when (eq major-mode 'emacs-lisp-mode)
 		(setq-local indent-line-function 'org-indent-line)
@@ -3097,7 +3176,6 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 			(save-restriction
 			  (widen)
 	      (untabify (point-min) (point-max))
-	      (tabify (point-min) (point-max))
 	      (indent-region (point-min) (point-max))))))
 
 ;;;###autoload

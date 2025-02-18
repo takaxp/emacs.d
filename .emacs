@@ -3,33 +3,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                              TODO/DONE/FIXME
 
-(with-eval-after-load "nerd-icons"
-  ;; ;;  
-  ;; (nerd-icons-octicon "nf-oct-fold")
 
-  ;; (setq mode-line-modes
-  ;;       (mapcar
-  ;;        (lambda (entry)
-  ;;          (if (equal entry "%n")
-  ;;              '(:eval (progn
-  ;;                        ;; org が widen を乱発するのでこちらをトリガーにする．
-  ;;                        ;; 色の変更
-  ;;                        (my-update-modeline-color)
-  ;;                        ;; "Narrow" を "N" に短縮表示
-  ;;                        (if (and (buffer-narrowed-p)
-  ;;                                 (fboundp 'nerd-icons-octicon))
-  ;;                            (concat " " (nerd-icons-octicon
-  ;;                                         "nf-oct-fold" :v-adjust 0.0)) "")))
-  ;;            entry))
-  ;;        mode-line-modes))
-  ;; (setq mode-line-position-line-format
-  ;;       `(,(nerd-icons-mdicon "nf-md-square_edit_outline") "%3l"))
-  ;; ;;  󰤌
-  )
 
-(with-eval-after-load "icons-in-terminal"
-  ;;  
-  )
+(assoc 'a '(
+	    a
+	    (:columns)
+	    b
+	    (:columns)
+	    )
+       )
+
 
 (with-eval-after-load "org"
   ;; (advice-add 'org-assert-version :override #'ignore)

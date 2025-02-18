@@ -219,12 +219,13 @@ Return non-nil if provided TIME formed of \"10:00\" is the future time.
 (autoload 'my-gcmh-activate "utility")
 (autoload 'my-native-comp-p "utility")
 (autoload 'my-native-comp-packages-done "utility")
-(autoload 'my-emacs-lisp-mode-conf "utility")
 (autoload 'my-org-hide-drawers-all "utility")
 (autoload 'my-auto-revert-activate "utility")
 (autoload 'my-shorten-default-directory "utility" "\
 Enforce to replace \"/home/...\" with \"~/\".")
 (autoload 'my-private-conf-activate "utility")
+(autoload 'my-start-autolock-secret-buffer "utility" nil t)
+(autoload 'my-stop-autolock-secret-buffer "utility" nil t)
 (autoload 'my-isearch-ime-deactivate-sticky "utility")
 (autoload 'my-toggle-ime-ns "utility" "\
 Toggle IME." t)
@@ -329,7 +330,8 @@ Otherwise, indicating narrowing.
 Update modeline face of the current selected window.
 Call this function at updating `mode-line-mode'.")
 (autoload 'my-reload-mlscroll "utility")
-(autoload 'my-mode-line-vc-mode-icon "utility")
+(autoload 'my-mode-line-vc-mode-nerd-icons "utility")
+(autoload 'my-mode-line-vc-mode-icons-in-terminal "utility")
 (autoload 'my-open-scratch "utility" "\
 Switch the current buffer to *scratch* buffer." t)
 (autoload 'ad:split-window-below "utility" "\
@@ -362,7 +364,8 @@ Toggle variable `global-display-line-numbers-mode'." t)
 
 
 (fn CODING-SYSTEM)")
-(autoload 'my-mode-line-icon-lock "utility")
+(autoload 'my-mode-line-icon-lock-icons-in-terminal "utility")
+(autoload 'my-mode-line-icon-lock-nerd-icons "utility")
 (autoload 'my-mode-line-icon-for-file "utility")
 (autoload 'my-buffer-coding-system-mnemonic "utility" "\
 Return a mnemonic for `buffer-file-coding-system'.")
@@ -423,6 +426,10 @@ Shrink frame width by `moom-change-frame-width'.")
 (autoload 'my-enable-tree-sitter "utility")
 (autoload 'ad:swiper-thing-at-point "utility" "\
 `swiper' with `ivy-thing-at-point'." t)
+(autoload 'my-update-nerd-icons-ivy-rich-display-transformers-list "utility" "\
+
+
+(fn COMMAND CONFIG)")
 (autoload 'my-toggle-dimmer "utility" nil t)
 (autoload 'dimmer-permanent-off "utility")
 (autoload 'dimmer-off "utility")
@@ -443,7 +450,7 @@ Shrink frame width by `moom-change-frame-width'.")
 Find a file on `recentf-list'." t)
 (autoload 'my-cg-bookmark "utility")
 (autoload 'crux-copy-file-preserve-attributes "utility" "\
-[curx.el]
+[crux.el]
 Copy the current file-visiting buffer's file to a destination.
 
 This function prompts for the new file's location and copies it
@@ -462,13 +469,13 @@ When invoke with C-u, the newly created file will be visited.
 
 (fn VISIT)" t)
 (autoload 'crux-rename-file-and-buffer "utility" "\
-[curx.el]
+[crux.el]
 Rename current buffer and if the buffer is visiting a file, rename it too." t)
 (autoload 'crux-delete-file-and-buffer "utility" "\
-[curx.el]
+[crux.el]
 Kill the current buffer and deletes the file it is visiting." t)
 (autoload 'crux-open-with "utility" "\
-[curx.el]
+[crux.el]
 Open visited file in default external program.
 When in dired mode, open file under the cursor.
 
@@ -624,7 +631,7 @@ Enable `hl-line'.")
 
 
 (fn SPEC)")
-(autoload 'my-all-the-icons-setter "utility")
+(autoload 'my-font-icons-setter "utility")
 (autoload 'my-font-config "utility" "\
 Font config.
 - SIZE: font size for ASCII and Japanese (default: 12)
@@ -650,6 +657,10 @@ Font config.
 
 (fn BEGIN END)")
 (autoload 'my-update-theme-timers "utility")
+(autoload 'my-ivy-format-function-arrow-ni "utility" "\
+Transform CANDS into a string for minibuffer.
+
+(fn CANDS)")
 (autoload 'my-ivy-format-function-arrow-iit "utility" "\
 Transform CANDS into a string for minibuffer.
 
@@ -820,6 +831,8 @@ Convert the current org-file to dokuwiki text, and copy it to kill-ring." t)
 (autoload 'my-kill-all-file-buffers "utility" "\
 Kill all buffers visiting files." t)
 (autoload 'my-kill-emacs-when-scratch-buffer "utility" nil t)
+(autoload 'my-format-emacs-lisp-buffer "utility" nil t)
+(autoload 'my-format-emacs-lisp-for-org-buffer "utility" nil t)
 (autoload 'my-window-resizer "utility" "\
 Control separated window size and position.
    Type {j,k,l,m} to adjust windows size." t)

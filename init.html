@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-02-11 火 11:54 -->
+<!-- 2025-02-18 火 12:12 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -444,7 +444,7 @@
 <li><a href="#orga3715560">6.42. [command-log-mode.el] 発行したコマンドの履歴をバッファに表示する</a></li>
 <li><a href="#orga6eb6883">6.43. <span class="todo TODO">TODO</span> [emacs-tree-sitter.el] tree-sitter でシンタックスハイライトする</a></li>
 <li><a href="#orgf0e91c5a">6.44. <span class="todo TODO">TODO</span> [swiper.el] 文字列探索とプレビューを同時に行う</a></li>
-<li><a href="#org3d431f2e">6.45. <span class="todo TODO">TODO</span> [all-the-icons-ivy] ivy インターフェイスでアイコンを表示する</a></li>
+<li><a href="#org3d431f2e">6.45. <span class="todo TODO">TODO</span> [nerd-icons-ivy-rich] ivy インターフェイスでアイコンを表示する</a></li>
 <li><a href="#org5eaeb687">6.46. <span class="todo TODO">TODO</span> [rainbow-delimiters.el] 対応するカッコに色を付ける</a></li>
 <li><a href="#org7270262d">6.47. <span class="todo TODO">TODO</span> [yascroll.el] フリンジにスクロールバーを出す</a></li>
 <li><a href="#org8ba0784e">6.48. <span class="todo TODO">TODO</span> [dimmer.el] 現在のバッファ以外の輝度を落とす</a></li>
@@ -3143,7 +3143,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 <h3 id="org6ff409ba"><span class="section-number-3">3.26.</span> GPGファイルを一定時間後にロックする</h3>
 <div class="outline-text-3" id="text-org6ff409ba">
 <p>
-次の例では， <code>secret.org.gpg</code> が開かれていて，1分間操作しなかったら安全のためバッファを閉じます．
+次の例では， <code>secret.org.gpg</code> が開かれていて，一定時間，操作しなかったら安全のためバッファを閉じます．
 </p>
 
 <div class="org-src-container">
@@ -3158,7 +3158,29 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(run-with-idle-timer 300 t #'my-lock-secret-buffer <span style="color: #8b2252;">"secret.org.gpg"</span>)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-secret-org-file</span> <span style="color: #8b2252;">"secret.org.gpg"</span>)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-secret-autolock-time</span> 60)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-secret-close-timer</span>
+  (run-with-idle-timer my-secret-autolock-time
+                       t #'my-lock-secret-buffer my-secret-org-file))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-start-autolock-secret-buffer</span> ()
+        (<span style="color: #a020f0;">interactive</span>)
+        (my-stop-autolock-secret-buffer)
+        (<span style="color: #a020f0;">setq</span> my-secret-close-timer
+              (run-with-idle-timer
+               my-secret-autolock-time t
+               #'my-lock-secret-buffer my-secret-org-file)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-stop-autolock-secret-buffer</span> ()
+        (<span style="color: #a020f0;">interactive</span>)
+        (<span style="color: #a020f0;">when</span> (timerp my-secret-close-timer)
+                (cancel-timer my-secret-close-timer)))
 </pre>
 </div>
 </div>
@@ -6291,20 +6313,21 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> mode-line-modes
-      (mapcar
-       (<span style="color: #a020f0;">lambda</span> (entry)
-         (<span style="color: #a020f0;">if</span> (equal entry <span style="color: #8b2252;">"%n"</span>)
-             '(<span style="color: #483d8b;">:eval</span> (<span style="color: #a020f0;">progn</span>
-                       <span style="color: #b22222;">;; </span><span style="color: #b22222;">org &#12364; widen &#12434;&#20081;&#30330;&#12377;&#12427;&#12398;&#12391;&#12371;&#12385;&#12425;&#12434;&#12488;&#12522;&#12460;&#12540;&#12395;&#12377;&#12427;&#65294;</span>
-                       <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#33394;&#12398;&#22793;&#26356;</span>
-                       (my-update-modeline-color)
-                       <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Narrow" &#12434; "N" &#12395;&#30701;&#32302;&#34920;&#31034;</span>
-                       (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (buffer-narrowed-p)
-                                (fboundp 'icons-in-terminal-octicon))
-                           (concat <span style="color: #8b2252;">" "</span> (icons-in-terminal-octicon
-                                        <span style="color: #8b2252;">"fold"</span> <span style="color: #483d8b;">:v-adjust</span> 0.0)) <span style="color: #ff0000; font-weight: bold;">""</span><span style="color: #ff0000; font-weight: bold;">)))</span>
-           entry))
-       mode-line-modes))
+                        (mapcar
+                         (<span style="color: #a020f0;">lambda</span> (entry)
+                                 (<span style="color: #a020f0;">if</span> (equal entry <span style="color: #8b2252;">"%n"</span>)
+                                                 '(<span style="color: #483d8b;">:eval</span> (<span style="color: #a020f0;">progn</span>
+                                                                                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">org &#12364; widen &#12434;&#20081;&#30330;&#12377;&#12427;&#12398;&#12391;&#12371;&#12385;&#12425;&#12434;&#12488;&#12522;&#12460;&#12540;&#12395;&#12377;&#12427;&#65294;</span>
+                                                                                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#33394;&#12398;&#22793;&#26356;</span>
+                                                                                         (my-update-modeline-color)
+                                                                                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Narrow" &#12434; "N" &#12395;&#30701;&#32302;&#34920;&#31034;</span>
+                                                     <span style="color: #b22222;">;; </span><span style="color: #b22222;">icons-in-terminal-octicon, "fold"</span>
+                                                                                         (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (buffer-narrowed-p)
+                                                                                                                                (fboundp 'nerd-icons-octicon))
+                                                                                                         (concat <span style="color: #8b2252;">" "</span> (nerd-icons-octicon
+                                                                                                                                                                <span style="color: #8b2252;">"nf-oct-fold"</span> <span style="color: #483d8b;">:v-adjust</span> 0.0)) <span style="color: #ff0000; font-weight: bold;">""</span><span style="color: #ff0000; font-weight: bold;">)))</span>
+                                         entry))
+                         mode-line-modes))
 </pre>
 </div>
 </div>
@@ -6352,7 +6375,15 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-vc-mode-icon</span> ()
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-vc-mode-nerd-icons</span> ()
+  (<span style="color: #a020f0;">if</span> (string-match <span style="color: #8b2252;">"^ Git:"</span> vc-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-oct-git_branch</span>
+      (replace-regexp-in-string
+       <span style="color: #8b2252;">"^ Git:"</span> (propertize <span style="color: #8b2252;">" &#62488;"</span> 'face 'mode-line-vc-modified-face) vc-mode)
+    (replace-regexp-in-string
+     <span style="color: #8b2252;">"^ Git-"</span> (propertize <span style="color: #8b2252;">" &#62488;"</span> 'face 'mode-line-vc-normal-face) vc-mode)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-vc-mode-icons-in-terminal</span> ()
   (<span style="color: #a020f0;">if</span> (string-match <span style="color: #8b2252;">"^ Git:"</span> vc-mode)
       (replace-regexp-in-string
        <span style="color: #8b2252;">"^ Git:"</span> (propertize <span style="color: #8b2252;">" &#57370;"</span> 'face 'mode-line-vc-modified-face) vc-mode)
@@ -6362,7 +6393,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"nerd-icons"</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#22793;&#26356;&#12364;&#12450;&#12522;&#26178;&#12399;&#36196;&#12450;&#12452;&#12467;&#12531;&#65292;&#12381;&#12358;&#12391;&#12394;&#12356;&#26178;&#12395;&#32209;&#12450;&#12452;&#12467;&#12531;&#12434;&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12395;&#34920;&#31034;</span>
   (make-face 'mode-line-vc-normal-face)
   (make-face 'mode-line-vc-modified-face)
@@ -6372,7 +6403,7 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"bindings"</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">"bindings"</span>
   (<span style="color: #a020f0;">let</span> ((vc (assq 'vc-mode mode-line-format)))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- %s" vc)</span>
-    (<span style="color: #a020f0;">when</span> vc (setcdr vc '((<span style="color: #483d8b;">:eval</span> (my-mode-line-vc-mode-icon)))))))
+    (<span style="color: #a020f0;">when</span> vc (setcdr vc '((<span style="color: #483d8b;">:eval</span> (my-mode-line-vc-mode-nerd-icons)))))))
 </pre>
 </div>
 </div>
@@ -6889,9 +6920,13 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> line-number-display-limit-width 100000)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12398;&#34892;&#25968;&#34920;&#31034;&#12398;&#21069;&#12395;&#12450;&#12452;&#12467;&#12531;&#12434;&#36861;&#21152;</span>
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"nerd-icons"</span>
   (<span style="color: #a020f0;">setq</span> mode-line-position-line-format
-        `(,(icons-in-terminal-material <span style="color: #8b2252;">"edit"</span>) <span style="color: #8b2252;">"%3l"</span>)))
+        `(,(nerd-icons-faicon <span style="color: #8b2252;">"nf-fa-pencil_square_o"</span>) <span style="color: #8b2252;">"%3l"</span>)))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "icons-in-terminal"</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq mode-line-position-line-format</span>
+<span style="color: #b22222;">;;         </span><span style="color: #b22222;">`(,(icons-in-terminal-material "edit") "%3l")))</span>
 </pre>
 </div>
 </div>
@@ -7080,44 +7115,54 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-coding-system-name-mnemonic</span> (coding-system)
-  (<span style="color: #a020f0;">let*</span> ((base (coding-system-base coding-system))
-         (name (symbol-name base)))
-    (<span style="color: #a020f0;">cond</span> ((string-prefix-p <span style="color: #8b2252;">"utf-8"</span> name) <span style="color: #8b2252;">"U8"</span>)
-          ((string-prefix-p <span style="color: #8b2252;">"utf-16"</span> name) <span style="color: #8b2252;">"U16"</span>)
-          ((string-prefix-p <span style="color: #8b2252;">"utf-7"</span> name) <span style="color: #8b2252;">"U7"</span>)
-          ((string-prefix-p <span style="color: #8b2252;">"japanese-shift-jis"</span> name) <span style="color: #8b2252;">"SJIS"</span>)
-          ((string-match <span style="color: #8b2252;">"cp</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> name) (match-string 1 name))
-          ((string-match <span style="color: #8b2252;">"japanese-iso-8bit"</span> name) <span style="color: #8b2252;">"EUC"</span>)
-          (t <span style="color: #8b2252;">"???"</span>))))
+        (<span style="color: #a020f0;">let*</span> ((base (coding-system-base coding-system))
+                                 (name (symbol-name base)))
+                (<span style="color: #a020f0;">cond</span> ((string-prefix-p <span style="color: #8b2252;">"utf-8"</span> name) <span style="color: #8b2252;">"U8"</span>)
+                                        ((string-prefix-p <span style="color: #8b2252;">"utf-16"</span> name) <span style="color: #8b2252;">"U16"</span>)
+                                        ((string-prefix-p <span style="color: #8b2252;">"utf-7"</span> name) <span style="color: #8b2252;">"U7"</span>)
+                                        ((string-prefix-p <span style="color: #8b2252;">"japanese-shift-jis"</span> name) <span style="color: #8b2252;">"SJIS"</span>)
+                                        ((string-match <span style="color: #8b2252;">"cp</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> name) (match-string 1 name))
+                                        ((string-match <span style="color: #8b2252;">"japanese-iso-8bit"</span> name) <span style="color: #8b2252;">"EUC"</span>)
+                                        (t <span style="color: #8b2252;">"???"</span>))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-coding-system-bom-mnemonic</span> (coding-system)
-  (<span style="color: #a020f0;">let</span> ((name (symbol-name coding-system)))
-    (<span style="color: #a020f0;">cond</span> ((string-match <span style="color: #8b2252;">"be-with-signature"</span> name) <span style="color: #8b2252;">"[BE]"</span>)
-          ((string-match <span style="color: #8b2252;">"le-with-signature"</span> name) <span style="color: #8b2252;">"[LE]"</span>)
-          ((string-match <span style="color: #8b2252;">"-with-signature"</span> name) <span style="color: #8b2252;">"[BOM]"</span>)
-          (t <span style="color: #8b2252;">""</span>))))
+        (<span style="color: #a020f0;">let</span> ((name (symbol-name coding-system)))
+                (<span style="color: #a020f0;">cond</span> ((string-match <span style="color: #8b2252;">"be-with-signature"</span> name) <span style="color: #8b2252;">"[BE]"</span>)
+                                        ((string-match <span style="color: #8b2252;">"le-with-signature"</span> name) <span style="color: #8b2252;">"[LE]"</span>)
+                                        ((string-match <span style="color: #8b2252;">"-with-signature"</span> name) <span style="color: #8b2252;">"[BOM]"</span>)
+                                        (t <span style="color: #8b2252;">""</span>))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-icon-lock</span> ()
-  (<span style="color: #a020f0;">if</span> view-mode
-      (concat (icons-in-terminal-faicon
-               <span style="color: #8b2252;">"lock"</span> <span style="color: #483d8b;">:face</span> '(<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF0000"</span>)) <span style="color: #ff0000; font-weight: bold;">" "</span><span style="color: #ff0000; font-weight: bold;">) </span><span style="color: #ff0000; font-weight: bold;">""</span><span style="color: #ff0000; font-weight: bold;">))</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-icon-lock-icons-in-terminal</span> ()
+        (<span style="color: #a020f0;">if</span> view-mode
+                        (concat (icons-in-terminal-faicon
+                                                         <span style="color: #8b2252;">"lock"</span> <span style="color: #483d8b;">:face</span> '(<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF0000"</span>)) <span style="color: #ff0000; font-weight: bold;">" "</span><span style="color: #ff0000; font-weight: bold;">) </span><span style="color: #ff0000; font-weight: bold;">""</span><span style="color: #ff0000; font-weight: bold;">))</span>
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-icon-lock-nerd-icons</span> ()
+        (<span style="color: #a020f0;">if</span> view-mode
+                        (concat (nerd-icons-mdicon
+                                                         <span style="color: #8b2252;">"nf-md-file_lock"</span> <span style="color: #483d8b;">:face</span> '(<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF0000"</span>)) <span style="color: #ff0000; font-weight: bold;">" "</span><span style="color: #ff0000; font-weight: bold;">) </span><span style="color: #ff0000; font-weight: bold;">""</span><span style="color: #ff0000; font-weight: bold;">))</span>
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-icon-for-file</span> ()
-  (icons-in-terminal-icon-for-file
-   (buffer-name) <span style="color: #483d8b;">:v-adjust</span> 0.03 <span style="color: #483d8b;">:face</span> 'mode-line-file-icon-face))
+        (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
+                     (nerd-icons-icon-for-file
+                      (buffer-name) <span style="color: #483d8b;">:v-adjust</span> 0.03 <span style="color: #483d8b;">:face</span> 'mode-line-file-icon-face))
+              ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+                     (icons-in-terminal-icon-for-file
+                      (buffer-name) <span style="color: #483d8b;">:v-adjust</span> 0.03 <span style="color: #483d8b;">:face</span> 'mode-line-file-icon-face))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-buffer-coding-system-mnemonic</span> ()
-  <span style="color: #8b2252;">"Return a mnemonic for `</span><span style="color: #008b8b;">buffer-file-coding-system</span><span style="color: #8b2252;">'."</span>
-  (<span style="color: #a020f0;">let*</span> ((code buffer-file-coding-system)
-         (name (my-coding-system-name-mnemonic code))
-         (bom (my-coding-system-bom-mnemonic code)))
-    (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"29.0"</span>)
-        (format <span style="color: #8b2252;">"%s %s%s"</span> (my-mode-line-icon-for-file) name bom )
-      (format <span style="color: #8b2252;">"%s%s"</span> name bom ))))
+        <span style="color: #8b2252;">"Return a mnemonic for `</span><span style="color: #008b8b;">buffer-file-coding-system</span><span style="color: #8b2252;">'."</span>
+        (<span style="color: #a020f0;">let*</span> ((code buffer-file-coding-system)
+                                 (name (my-coding-system-name-mnemonic code))
+                                 (bom (my-coding-system-bom-mnemonic code)))
+                (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"29.0"</span>)
+                                (format <span style="color: #8b2252;">"%s %s%s"</span> (my-mode-line-icon-for-file) name bom )
+                        (format <span style="color: #8b2252;">"%s%s"</span> name bom ))))
 </pre>
 </div>
 
@@ -7166,64 +7211,70 @@ version 28 で全角スペースに黒下線が付くので回避します．
 <pre class="src src-emacs-lisp">(add-hook 'find-file-hook #'my-delight-activate)
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"delight"</span>
-  (delight
-   '(<span style="color: #b22222;">;; </span><span style="color: #b22222;">Major modes</span>
-     <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(c-mode "C" :major)</span>
-     <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(c++mode "C++" :major)</span>
-     (js2-mode <span style="color: #8b2252;">"JS"</span> <span style="color: #483d8b;">:major</span>)
-     (csharp-mode <span style="color: #8b2252;">"C#"</span> <span style="color: #483d8b;">:major</span>)
-     (prog-mode <span style="color: #8b2252;">"Pr"</span> <span style="color: #483d8b;">:major</span>)
-     (emacs-lisp-mode <span style="color: #8b2252;">"El"</span> <span style="color: #483d8b;">:major</span>)
-     (python-mode <span style="color: #8b2252;">"Py"</span> <span style="color: #483d8b;">:major</span>)
-     (perl-mode <span style="color: #8b2252;">"Pl"</span> <span style="color: #483d8b;">:major</span>)
-     (web-mode <span style="color: #8b2252;">"W"</span> <span style="color: #483d8b;">:major</span>)
-     (change-log-mode <span style="color: #8b2252;">"CLog"</span> <span style="color: #483d8b;">:major</span>)
-     (lisp-interaction-mode <span style="color: #8b2252;">"Lisp"</span> <span style="color: #483d8b;">:major</span>)
+        (delight
+         '(<span style="color: #b22222;">;; </span><span style="color: #b22222;">Major modes</span>
+                 <span style="color: #b22222;">;;</span><span style="color: #b22222;">                     (c-mode "C" :major)</span>
+                 <span style="color: #b22222;">;;</span><span style="color: #b22222;">                     (c++mode "C++" :major)</span>
+                 (js2-mode <span style="color: #8b2252;">"JS"</span> <span style="color: #483d8b;">:major</span>)
+                 (csharp-mode <span style="color: #8b2252;">"C#"</span> <span style="color: #483d8b;">:major</span>)
+                 (prog-mode <span style="color: #8b2252;">"Pr"</span> <span style="color: #483d8b;">:major</span>)
+                 (emacs-lisp-mode <span style="color: #8b2252;">"El"</span> <span style="color: #483d8b;">:major</span>)
+                 (python-mode <span style="color: #8b2252;">"Py"</span> <span style="color: #483d8b;">:major</span>)
+                 (perl-mode <span style="color: #8b2252;">"Pl"</span> <span style="color: #483d8b;">:major</span>)
+                 (web-mode <span style="color: #8b2252;">"W"</span> <span style="color: #483d8b;">:major</span>)
+                 (change-log-mode <span style="color: #8b2252;">"CLog"</span> <span style="color: #483d8b;">:major</span>)
+                 (lisp-interaction-mode <span style="color: #8b2252;">"Lisp"</span> <span style="color: #483d8b;">:major</span>)
 
-     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Shorten for minor modes</span>
-     (ggtags-mode <span style="color: #8b2252;">" G"</span> <span style="color: #8b2252;">"ggtags"</span>)
-     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(orgstruct-mode " OrgS" "org")</span>
-     (orgalist-mode <span style="color: #8b2252;">" ol"</span> <span style="color: #8b2252;">"orgalist"</span>)
-     (view-mode <span style="color: #8b2252;">" V"</span> <span style="color: #8b2252;">"view"</span>)
-     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Stop to display for minor modes</span>
-     (org-fancy-priorities-mode nil <span style="color: #8b2252;">"org-fancy-priorities"</span>)
-     (smooth-scroll-mode nil <span style="color: #8b2252;">"smooth-scroll"</span>)
-     (eldoc-mode nil <span style="color: #8b2252;">"eldoc"</span>)
-     (ivy-mode nil <span style="color: #8b2252;">"ivy"</span>)
-     (counsel-mode nil <span style="color: #8b2252;">"counsel"</span>)
-     (centered-cursor-mode nil <span style="color: #8b2252;">"centered-cursor-mode"</span>)
-     (volatile-highlights-mode nil <span style="color: #8b2252;">"volatile-highlights"</span>)
-     (aggressive-indent-mode nil <span style="color: #8b2252;">"aggressive-indent"</span>)
-     (all-the-icons-dired-mode nil <span style="color: #8b2252;">"all-the-icons-dired"</span>)
-     (icons-in-terminal-dired-mode nil <span style="color: #8b2252;">"icons-in-terminal-dired"</span>)
-     (yas-minor-mode nil <span style="color: #8b2252;">"yasnippet"</span>)
-     (auto-complete-mode nil <span style="color: #8b2252;">"auto-complete"</span>)
-     (company-mode nil <span style="color: #8b2252;">"company"</span>)
-     (ws-butler-mode nil <span style="color: #8b2252;">"ws-butler"</span>)
-     (isearch-mode nil <span style="color: #8b2252;">"isearch"</span>)
-     (auto-revert-mode nil <span style="color: #8b2252;">"autorevert"</span>)
-     (global-whitespace-mode nil <span style="color: #8b2252;">"whitespace"</span>)
-     (emmet-mode nil <span style="color: #8b2252;">"emmet-mode"</span>)
-     (abbrev-mode nil <span style="color: #8b2252;">"abbrev"</span>)
-     (doxymacs-mode nil <span style="color: #8b2252;">"doxymacs"</span>)
-     (editorconfig-mode nil <span style="color: #8b2252;">"editorconfig"</span>)
-     (rainbow-mode nil <span style="color: #8b2252;">"rainbow-mode"</span>)
-     (highlight-symbol-mode nil <span style="color: #8b2252;">"highlight-symbol"</span>)
-     (which-key-mode nil <span style="color: #8b2252;">"which-key"</span>)
-     (fancy-narrow-mode nil <span style="color: #8b2252;">"fancy-narrow"</span>)
-     (smartparens-mode nil <span style="color: #8b2252;">"smartparens"</span>)
-     (projectile-mode nil <span style="color: #8b2252;">"projectile"</span>)
-     (selected-minor-mode nil <span style="color: #8b2252;">"selected"</span>)
-     (skewer-html-mode nil <span style="color: #8b2252;">"skewer-html"</span>)
-     (org-extra-emphasis-intraword-emphasis-mode nil <span style="color: #8b2252;">"org-extra-emphasis"</span>)
-     (gcmh-mode nil <span style="color: #8b2252;">"gcmh"</span>)
-     (super-save-mode nil <span style="color: #8b2252;">"super-save"</span>)
-     (rainbow-csv-mode nil <span style="color: #8b2252;">"rainbow-csv"</span>)))
+                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Shorten for minor modes</span>
+                 (ggtags-mode <span style="color: #8b2252;">" G"</span> <span style="color: #8b2252;">"ggtags"</span>)
+                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(orgstruct-mode " OrgS" "org")</span>
+                 (orgalist-mode <span style="color: #8b2252;">" ol"</span> <span style="color: #8b2252;">"orgalist"</span>)
+                 (view-mode <span style="color: #8b2252;">" V"</span> <span style="color: #8b2252;">"view"</span>)
+                 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Stop to display for minor modes</span>
+                 (org-fancy-priorities-mode nil <span style="color: #8b2252;">"org-fancy-priorities"</span>)
+                 (smooth-scroll-mode nil <span style="color: #8b2252;">"smooth-scroll"</span>)
+                 (eldoc-mode nil <span style="color: #8b2252;">"eldoc"</span>)
+                 (ivy-mode nil <span style="color: #8b2252;">"ivy"</span>)
+                 (counsel-mode nil <span style="color: #8b2252;">"counsel"</span>)
+                 (centered-cursor-mode nil <span style="color: #8b2252;">"centered-cursor-mode"</span>)
+                 (volatile-highlights-mode nil <span style="color: #8b2252;">"volatile-highlights"</span>)
+                 (aggressive-indent-mode nil <span style="color: #8b2252;">"aggressive-indent"</span>)
+                 (all-the-icons-dired-mode nil <span style="color: #8b2252;">"all-the-icons-dired"</span>)
+                 (icons-in-terminal-dired-mode nil <span style="color: #8b2252;">"icons-in-terminal-dired"</span>)
+                 (nerd-icons-dired-mode nil <span style="color: #8b2252;">"nerd-icons-dired"</span>)
+                 (yas-minor-mode nil <span style="color: #8b2252;">"yasnippet"</span>)
+                 (auto-complete-mode nil <span style="color: #8b2252;">"auto-complete"</span>)
+                 (company-mode nil <span style="color: #8b2252;">"company"</span>)
+                 (ws-butler-mode nil <span style="color: #8b2252;">"ws-butler"</span>)
+                 (isearch-mode nil <span style="color: #8b2252;">"isearch"</span>)
+                 (auto-revert-mode nil <span style="color: #8b2252;">"autorevert"</span>)
+                 (global-whitespace-mode nil <span style="color: #8b2252;">"whitespace"</span>)
+                 (emmet-mode nil <span style="color: #8b2252;">"emmet-mode"</span>)
+                 (abbrev-mode nil <span style="color: #8b2252;">"abbrev"</span>)
+                 (doxymacs-mode nil <span style="color: #8b2252;">"doxymacs"</span>)
+                 (editorconfig-mode nil <span style="color: #8b2252;">"editorconfig"</span>)
+                 (rainbow-mode nil <span style="color: #8b2252;">"rainbow-mode"</span>)
+                 (highlight-symbol-mode nil <span style="color: #8b2252;">"highlight-symbol"</span>)
+                 (which-key-mode nil <span style="color: #8b2252;">"which-key"</span>)
+                 (fancy-narrow-mode nil <span style="color: #8b2252;">"fancy-narrow"</span>)
+                 (smartparens-mode nil <span style="color: #8b2252;">"smartparens"</span>)
+                 (projectile-mode nil <span style="color: #8b2252;">"projectile"</span>)
+                 (selected-minor-mode nil <span style="color: #8b2252;">"selected"</span>)
+                 (skewer-html-mode nil <span style="color: #8b2252;">"skewer-html"</span>)
+                 (org-extra-emphasis-intraword-emphasis-mode nil <span style="color: #8b2252;">"org-extra-emphasis"</span>)
+                 (gcmh-mode nil <span style="color: #8b2252;">"gcmh"</span>)
+                 (super-save-mode nil <span style="color: #8b2252;">"super-save"</span>)
+                 (rainbow-csv-mode nil <span style="color: #8b2252;">"rainbow-csv"</span>)))
 
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">Override by icon</span>
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-    (delight
-     `((view-mode ,(concat <span style="color: #8b2252;">" "</span> (icons-in-terminal-faicon <span style="color: #8b2252;">"lock"</span>)) <span style="color: #8b2252;">"view"</span>)))))
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">Override by icon</span>
+        (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
+                     (delight
+                      `((view-mode ,(concat <span style="color: #8b2252;">" "</span> (nerd-icons-mdicon <span style="color: #8b2252;">"nf-md-file_lock"</span>))
+                                         <span style="color: #8b2252;">"view"</span>))))
+              ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+                     (delight
+                      `((view-mode ,(concat <span style="color: #8b2252;">" "</span> (icons-in-terminal-faicon <span style="color: #8b2252;">"lock"</span>))
+                                                     <span style="color: #8b2252;">"view"</span>))))))
 </pre>
 </div>
 </div>
@@ -7668,12 +7719,16 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(icons-in-terminal-dired-mode)
-                         <span style="color: #8b2252;">"icons-in-terminal-dired"</span> nil t)
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
-    (<span style="color: #a020f0;">setq</span> icons-in-terminal-scale-factor 1.0)))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (autoload-if-found '(icons-in-terminal-dired-mode)</span>
+<span style="color: #b22222;">;;                          </span><span style="color: #b22222;">"icons-in-terminal-dired" nil t)</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(with-eval-after-load "icons-in-terminal"</span>
+<span style="color: #b22222;">;;     </span><span style="color: #b22222;">(setq icons-in-terminal-scale-factor 1.0)))</span>
 
-(<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+(autoload-if-found '(nerd-icons-dired-mode) <span style="color: #8b2252;">"nerd-icons-dired-mode"</span> nil t)
+
+(<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons-dired</span> nil t)
+       (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+      ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
        (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
       ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
        (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
@@ -7976,22 +8031,24 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-pre-prompt-function</span> ()
-  (<span style="color: #a020f0;">cond</span> (window-system
-         (format <span style="color: #8b2252;">"%s%s "</span>
-                 (<span style="color: #a020f0;">if</span> my-toggle-modeline-global <span style="color: #8b2252;">""</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
-                   (concat (make-string (frame-width) ?\x5F) <span style="color: #8b2252;">"\n"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"__"</span>
-                 (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-                        (icons-in-terminal-material <span style="color: #8b2252;">"playlist_add_check"</span>))
-                       ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
-                        (all-the-icons-material <span style="color: #8b2252;">"playlist_add_check"</span>))
-                       (t <span style="color: #8b2252;">""</span>))))
-        <span style="color: #b22222;">;; </span><span style="color: #b22222;">((eq system-type 'windows-nt)</span>
-        <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(format "%s%s "</span>
-        <span style="color: #b22222;">;;          </span><span style="color: #b22222;">(if my-toggle-modeline-global "" ;; FIXME</span>
-        <span style="color: #b22222;">;;            </span><span style="color: #b22222;">(concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"</span>
-        <span style="color: #b22222;">;;          </span><span style="color: #b22222;">"&gt;&gt;"))</span>
-        (t
-         (format <span style="color: #8b2252;">"%s\n"</span> (make-string (1- (frame-width)) ?\x2D)))))
+        (<span style="color: #a020f0;">cond</span> (window-system
+                                 (format <span style="color: #8b2252;">"%s%s "</span>
+                                                                 (<span style="color: #a020f0;">if</span> my-toggle-modeline-global <span style="color: #8b2252;">""</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME</span>
+                                                                         (concat (make-string (frame-width) ?\x5F) <span style="color: #8b2252;">"\n"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"__"</span>
+                                                                 (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
+                                          (nerd-icons-mdicon <span style="color: #8b2252;">"nf-md-playlist_check"</span>))
+                                                                                         ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+                                                                                                (icons-in-terminal-material <span style="color: #8b2252;">"playlist_add_check"</span>))
+                                                                                         ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
+                                                                                                (all-the-icons-material <span style="color: #8b2252;">"playlist_add_check"</span>))
+                                                                                         (t <span style="color: #8b2252;">""</span>))))
+                                <span style="color: #b22222;">;; </span><span style="color: #b22222;">((eq system-type 'windows-nt)</span>
+                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">      (format "%s%s "</span>
+                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">                                      (if my-toggle-modeline-global "" ;; FIXME</span>
+                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">                                              (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"</span>
+                                <span style="color: #b22222;">;;</span><span style="color: #b22222;">                                      "&gt;&gt;"))</span>
+                                (t
+                                 (format <span style="color: #8b2252;">"%s\n"</span> (make-string (1- (frame-width)) ?\x2D)))))
 </pre>
 </div>
 
@@ -8205,16 +8262,33 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 </div>
 </div>
 <div id="outline-container-org3d431f2e" class="outline-3">
-<h3 id="org3d431f2e"><span class="section-number-3">6.45.</span> <span class="todo TODO">TODO</span> [all-the-icons-ivy] ivy インターフェイスでアイコンを表示する</h3>
+<h3 id="org3d431f2e"><span class="section-number-3">6.45.</span> <span class="todo TODO">TODO</span> [nerd-icons-ivy-rich] ivy インターフェイスでアイコンを表示する</h3>
 <div class="outline-text-3" id="text-org3d431f2e">
 <ul class="org-ul">
+<li><a href="https://github.com/seagle0128/nerd-icons-ivy-rich">https://github.com/seagle0128/nerd-icons-ivy-rich</a></li>
+<li><a href="https://github.com/takaxp/icons-in-terminal-ivy">https://github.com/takaxp/icons-in-terminal-ivy</a></li>
 <li><a href="https://github.com/asok/all-the-icons-ivy">https://github.com/asok/all-the-icons-ivy</a></li>
 </ul>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-update-nerd-icons-ivy-rich-display-transformers-list</span> (command config)
+  (<span style="color: #a020f0;">if</span> (plist-get nerd-icons-ivy-rich-display-transformers-list command)
+      (plist-put nerd-icons-ivy-rich-display-transformers-list
+                 command config)
+    (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"`</span><span style="color: #008b8b;">%s</span><span style="color: #8b2252;">' is not listed in `</span><span style="color: #008b8b;">nerd-icons-ivy-rich-display-transformers-list</span><span style="color: #8b2252;">'."</span> command)))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
-    (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">safeguard</span>
+    (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">safeguard</span>
+                (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ivy-rich</span> nil t)
+                (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons-ivy-rich</span> nil t))
+           (nerd-icons-ivy-rich-mode 1)
+           (ivy-rich-mode 1))
+          ((<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">safeguard</span>
                 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal-ivy</span> nil t))
            (<span style="color: #a020f0;">dolist</span> (command '(counsel-projectile-switch-project
                               counsel-ibuffer))
@@ -8225,7 +8299,21 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
            (<span style="color: #a020f0;">dolist</span> (command '(counsel-projectile-switch-project
                               counsel-ibuffer))
              (add-to-list 'all-the-icons-ivy-buffer-commands command))
-           (all-the-icons-ivy-setup)))))
+           (all-the-icons-ivy-setup))))
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"nerd-icons-ivy-rich"</span>
+    (my-update-nerd-icons-ivy-rich-display-transformers-list
+     'counsel-recentf
+     '(<span style="color: #483d8b;">:columns</span>
+       ((nerd-icons-ivy-rich-file-icon)
+        (nerd-icons-ivy-rich-file-name) <span style="color: #b22222;">;; </span><span style="color: #b22222;">(:width 0.8)</span>
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(nerd-icons-ivy-rich-file-id (:width 15 :face nerd-icons-ivy-rich-file-owner-face :align right))</span>
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(nerd-icons-ivy-rich-file-modes (:width 12))</span>
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(nerd-icons-ivy-rich-file-size (:width 7 :face nerd-icons-ivy-rich-size-face))</span>
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ivy-rich-file-last-modified-time (:face nerd-icons-ivy-rich-time-face))</span>
+        )
+       <span style="color: #483d8b;">:delimiter</span> <span style="color: #8b2252;">" "</span>))
+    ))
 </pre>
 </div>
 </div>
@@ -10866,9 +10954,9 @@ C++バッファでメソッドを補完対象とする．try-catch を使って�
 <p>
 int main(){
   std::vector&lt;int&gt; v;
-  v; // ここ
+  v; <i>/ ここ
   boost::timer t;
-  cout &lt;&lt; t; // ここ
+  cout &lt;&lt; t; /</i> ここ
   return 1;
 }
 </p>
@@ -13910,16 +13998,28 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(add-hook 'org-mode-hook 'prettify-symbols-mode)
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"icons-in-terminal"</span>
-  (<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist '((<span style="color: #8b2252;">":PROPERTIES:"</span> . <span style="color: #8b2252;">"&#57798;"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">&#187;</span>
-                                         (<span style="color: #8b2252;">":LOGBOOK:"</span> . <span style="color: #8b2252;">"&#57802;"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">&#8250;</span>
-                                         (<span style="color: #8b2252;">":END:"</span> . <span style="color: #8b2252;">"&#57802;"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">&#8250;</span>
-                                         (<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#57986;</span>
-                                         (<span style="color: #8b2252;">"#+end_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>)
-                                         (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#57634;"</span>)
-                                         (<span style="color: #8b2252;">"[ ]"</span> .  <span style="color: #8b2252;">"&#57710;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9744; &#58940;</span>
-                                         (<span style="color: #8b2252;">"[X]"</span> . <span style="color: #8b2252;">"&#57635;"</span> ) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9745; &#58939;</span>
-                                         (<span style="color: #8b2252;">"[-]"</span> . <span style="color: #8b2252;">"&#57864;"</span> )))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9746; &#59128;</span>
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"nerd-icons"</span>
+        (<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist
+                            '((<span style="color: #8b2252;">":PROPERTIES:"</span> . <span style="color: #8b2252;">"&#187;"</span>) <span style="color: #b22222;">;;</span><span style="color: #b22222;">  &#187; ;; nf-fa-angle_double_right &#61697; &#62681;</span>
+                                                                        (<span style="color: #8b2252;">":LOGBOOK:"</span> . <span style="color: #8b2252;">"&#8250;"</span>) <span style="color: #b22222;">;;</span><span style="color: #b22222;">  &#8250; ;; nf-fa-angle_right &#61701; &#62682;</span>
+                                                                        (<span style="color: #8b2252;">":END:"</span> . <span style="color: #8b2252;">"&#8250;"</span>) <span style="color: #b22222;">;;</span><span style="color: #b22222;">      &#8250; &#62682;</span>
+                                                                        (<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#57986; &#9640;</span>
+                                                                        (<span style="color: #8b2252;">"#+end_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9640;</span>
+                                                                        (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#61773;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-fa-share_square &#61773;</span>
+                                                                        (<span style="color: #8b2252;">"[ ]"</span> .        <span style="color: #8b2252;">"&#983345;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9744; &#58940; ;; nf-md-checkbox_blank_outline &#983345;</span>
+                                                                        (<span style="color: #8b2252;">"[X]"</span> . <span style="color: #8b2252;">"&#983349;"</span> ) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9745; &#58939; ;; nf-md-checkbox_marked_outline &#983349;</span>
+                                                                        (<span style="color: #8b2252;">"[-]"</span> . <span style="color: #8b2252;">"&#983319;"</span> )))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-md-checkbox_blank_badge_outline &#983319;</span>
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "icons-in-terminal"</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">       (setq-default prettify-symbols-alist '((":PROPERTIES:" . "&#57798;") ;;        &#187;</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                                      (":LOGBOOK:" . "&#57802;") ;;  &#8250;</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                                      (":END:" . "&#57802;") ;;      &#8250;</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                                      ("#+begin_src" . "&#9640;") ;; &#57986;</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                                      ("#+end_src" . "&#9640;")</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                                      ("#+RESULTS:" . "&#57634;")</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                                      ("[ ]" .        "&#57710;") ;; &#9744; &#58940;</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                                      ("[X]" . "&#57635;" ) ;; &#9745; &#58939;</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                                      ("[-]" . "&#57864;" )))) ;; &#9746; &#59128;</span>
 </pre>
 </div>
 </div>
@@ -14258,7 +14358,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org13b47ff"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgfb11429"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15235,7 +15335,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org7aaeb55" class="figure">
+<div id="orgc19814a" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15635,38 +15735,44 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (memq window-system '(ns x))
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12395;&#12450;&#12452;&#12467;&#12531;&#12434;&#20986;&#12377;</span>
-  (make-face 'mode-line-ime-on-face)
-  (set-face-attribute 'mode-line-ime-on-face
-                      nil <span style="color: #483d8b;">:foreground</span> (plist-get my-cur-color-ime <span style="color: #483d8b;">:on</span>))
-  (<span style="color: #a020f0;">when</span> (fboundp 'mac-set-input-method-parameter)
-    (mac-set-input-method-parameter
-     <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span> 'title
-     (concat
-            (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-          (icons-in-terminal-octicon <span style="color: #8b2252;">"keyboard"</span>
-                                     <span style="color: #483d8b;">:v-adjust</span> 0.0
-                                     <span style="color: #483d8b;">:face</span> 'mode-line-ime-on-face)
-        <span style="color: #8b2252;">""</span>) <span style="color: #ff0000; font-weight: bold;">" "</span><span style="color: #ff0000; font-weight: bold;">))) </span><span style="color: #ff0000; font-weight: bold;">;; </span><span style="color: #ff0000; font-weight: bold;">FIXME (the color is NOT changed, patch is wrong?)</span>
+        <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12395;&#12450;&#12452;&#12467;&#12531;&#12434;&#20986;&#12377;</span>
+        (make-face 'mode-line-ime-on-face)
+        (set-face-attribute 'mode-line-ime-on-face
+                                                    nil <span style="color: #483d8b;">:foreground</span> (plist-get my-cur-color-ime <span style="color: #483d8b;">:on</span>))
+        (<span style="color: #a020f0;">when</span> (fboundp 'mac-set-input-method-parameter)
+                (mac-set-input-method-parameter
+                 <span style="color: #8b2252;">"com.google.inputmethod.Japanese.base"</span> 'title
+                 (concat
+                        (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
+                               <span style="color: #b22222;">;; </span><span style="color: #b22222;">(nerd-icons-octicon "nf-oct-typography"</span>
+                               <span style="color: #b22222;">;;</span><span style="color: #b22222;">                                       :face 'mode-line-ime-on-face)</span>
+                               (nerd-icons-mdicon <span style="color: #8b2252;">"nf-md-ideogram_cjk"</span>
+                                                         <span style="color: #483d8b;">:face</span> 'mode-line-ime-on-face))
+                              ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+                               (icons-in-terminal-octicon <span style="color: #8b2252;">"keyboard"</span>
+                                                                      <span style="color: #483d8b;">:v-adjust</span> 0.0
+                                                                      <span style="color: #483d8b;">:face</span> 'mode-line-ime-on-face))
+                              (t <span style="color: #8b2252;">""</span>))
+                        <span style="color: #8b2252;">" "</span>))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME (the color is NOT changed, patch is wrong?)</span>
 
-  (<span style="color: #a020f0;">declare-function</span> my-ime-on <span style="color: #8b2252;">"init"</span> nil)
-  (<span style="color: #a020f0;">declare-function</span> my-ime-off <span style="color: #8b2252;">"init"</span> nil)
-  (<span style="color: #a020f0;">declare-function</span> my-ime-active-p <span style="color: #8b2252;">"init"</span> nil)
+        (<span style="color: #a020f0;">declare-function</span> my-ime-on <span style="color: #8b2252;">"init"</span> nil)
+        (<span style="color: #a020f0;">declare-function</span> my-ime-off <span style="color: #8b2252;">"init"</span> nil)
+        (<span style="color: #a020f0;">declare-function</span> my-ime-active-p <span style="color: #8b2252;">"init"</span> nil)
 
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-last</span> (my-ime-active-p))
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-before-action</span> nil)
+        (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-last</span> (my-ime-active-p))
+        (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-ime-before-action</span> nil)
 
-  (<span style="color: #a020f0;">if</span> (not (fboundp 'mac-ime-active-p))
-            (<span style="color: #a020f0;">progn</span>
+        (<span style="color: #a020f0;">if</span> (not (fboundp 'mac-ime-active-p))
+                        (<span style="color: #a020f0;">progn</span>
               <span style="color: #b22222;">;; </span><span style="color: #b22222;">For selected.el</span>
               (add-hook 'activate-mark-hook #'my-ime-off-sticky)
               (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
               <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12300;M-x &#12354;&#12301;&#23550;&#31574;</span>
               (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
               (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">For selected.el</span>
-    (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
-    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">For selected.el</span>
+                (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
+                (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
 </pre>
 </div>
 
@@ -16557,8 +16663,8 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">2) Inconsolata, Migu 2M     : font-size=14,</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">3) Inconsolata, Hiragino    : font-size=14, -apple-hiragino=1.0</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">2) Inconsolata, Migu 2M               : font-size=14,</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">3) Inconsolata, Hiragino              : font-size=14, -apple-hiragino=1.0</span>
 (<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-font-size</span> 12)
 (<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-ja-font</span> <span style="color: #8b2252;">"Migu 2M"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Hiragino Maru Gothic Pro"</span>
 (<span style="color: #a020f0;">defconst</span> <span style="color: #a0522d;">my-ascii-font</span> <span style="color: #8b2252;">"Monaco"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Inconsolata", Monaco</span>
@@ -16567,105 +16673,125 @@ Emacs Lisp で正規表現入力をサポートするツールには， <code>M-
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ja-font-setter</span> (spec)
-  (set-fontset-font nil 'japanese-jisx0208 spec)
-  (set-fontset-font nil 'katakana-jisx0201 spec)
-  (set-fontset-font nil 'japanese-jisx0212 spec)
-  (set-fontset-font nil '(#x0080 . #x024F) spec)
-  (set-fontset-font nil '(#x0370 . #x03FF) spec)
-  (set-fontset-font nil 'mule-unicode-0100-24ff spec)
-  (set-fontset-font t 'unicode spec nil 'prepend))
+        (set-fontset-font nil 'japanese-jisx0208 spec)
+        (set-fontset-font nil 'katakana-jisx0201 spec)
+        (set-fontset-font nil 'japanese-jisx0212 spec)
+        (set-fontset-font nil '(#x0080 . #x024F) spec)
+        (set-fontset-font nil '(#x0370 . #x03FF) spec)
+        (set-fontset-font nil 'mule-unicode-0100-24ff spec)
+        (set-fontset-font t 'unicode spec nil 'prepend))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ascii-font-setter</span> (spec)
-  (set-fontset-font nil 'ascii spec))
+        (set-fontset-font nil 'ascii spec))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-unicode-font-setter</span> (spec)
-  (set-fontset-font t 'unicode spec nil 'prepend))
+        (set-fontset-font t 'unicode spec nil 'prepend))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-all-the-icons-setter</span> ()
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-faicon-family)))
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-fileicon-family)))
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-material-family)))
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-octicon-family)))
-    (my-unicode-font-setter
-     (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-wicon-family)))))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-font-icons-setter</span> ()
+        (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-mdicon-family)))
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-faicon-family)))
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-octicon-family)))
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-devicon-family)))
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (nerd-icons-wicon-family))))
+              ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-faicon-family)))
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-fileicon-family)))
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-material-family)))
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-octicon-family)))
+               (my-unicode-font-setter
+                      (font-spec <span style="color: #483d8b;">:family</span> (icons-in-terminal-wicon-family))))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-font-config</span> (<span style="color: #228b22;">&amp;optional</span> size ascii ja)
-  <span style="color: #8b2252;">"Font config.</span>
+        <span style="color: #8b2252;">"Font config.</span>
 <span style="color: #8b2252;">- SIZE: font size for ASCII and Japanese (default: 12)</span>
 <span style="color: #8b2252;">- ASCII: ascii font family (default: \"Monaco\")</span>
 <span style="color: #8b2252;">- JA: Japanese font family (default: \"Migu 2M\")</span>
 <span style="color: #8b2252;">"</span>
-  (<span style="color: #a020f0;">when</span> (memq window-system '(mac ns))
-    (<span style="color: #a020f0;">let</span> ((font-size (<span style="color: #a020f0;">or</span> size my-font-size))
-          (ascii-font (<span style="color: #a020f0;">or</span> ascii my-ascii-font))
-          (ja-font (<span style="color: #a020f0;">or</span> ja my-ja-font)))
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(set-fontset-font t '(#Xe000 . #Xf8ff) "nerd-icons")</span>
-      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
-      <span style="color: #b22222;">;;</span><span style="color: #b22222;">(set-fontset-font t '(#Xe0a0 . #Xeea0) "icons-in-terminal")</span>
-      (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size))
-      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))))
+        (<span style="color: #a020f0;">when</span> (memq window-system '(mac ns))
+                (<span style="color: #a020f0;">let</span> ((font-size (<span style="color: #a020f0;">or</span> size my-font-size))
+                      (ascii-font (<span style="color: #a020f0;">or</span> ascii my-ascii-font))
+                      (ja-font (<span style="color: #a020f0;">or</span> ja my-ja-font)))
+                        (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
+                               <span style="color: #b22222;">;; </span><span style="color: #b22222;">https://github.com/ryanoasis/nerd-fonts/wiki/Glyph-Sets-and-Code-Points</span>
+                               <span style="color: #b22222;">;; </span><span style="color: #b22222;">Material Design Icons (f0001-f1af0)</span>
+                               (set-fontset-font t '(#Xf0001 . #Xf1af0) <span style="color: #8b2252;">"Symbols Nerd Font Mono"</span>)
+                               (set-fontset-font t '(#X2300 . #X2bff) <span style="color: #8b2252;">"Symbols Nerd Font Mono"</span>)
+                               (set-fontset-font t '(#Xe000 . #Xf5ff) <span style="color: #8b2252;">"Symbols Nerd Font Mono"</span>)
+                               <span style="color: #b22222;">;; </span><span style="color: #b22222;">(set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")</span>
+                               )
+                              ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+                               (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>))
+                              ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
+                               (set-fontset-font t '(#Xe0a0 . #Xeea0) <span style="color: #8b2252;">"all-the-icons"</span>)))
+                        (my-ja-font-setter (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size))
+                        (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-setup-font</span> ()
-  (<span style="color: #a020f0;">cond</span>
-   <span style="color: #b22222;">;; </span><span style="color: #b22222;">CocoaEmacs</span>
-   ((memq window-system '(mac ns))
-    (<span style="color: #a020f0;">when</span> (&gt;= emacs-major-version 23)
+        (<span style="color: #a020f0;">cond</span>
+         <span style="color: #b22222;">;; </span><span style="color: #b22222;">CocoaEmacs</span>
+         ((memq window-system '(mac ns))
+                (<span style="color: #a020f0;">when</span> (&gt;= emacs-major-version 23)
 
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fix ratio provided by set-face-attribute for fonts display</span>
-      (<span style="color: #a020f0;">setq</span> face-font-rescale-alist
-            '((<span style="color: #8b2252;">"^-apple-hiragino.*"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
-              (<span style="color: #8b2252;">".*Migu.*"</span> . 1.2)
-              (<span style="color: #8b2252;">".*Ricty.*"</span> . 1.0)
-              (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0)
-              (<span style="color: #8b2252;">".*osaka-bold.*"</span> . 1.0)     <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
-              (<span style="color: #8b2252;">".*osaka-medium.*"</span> . 1.0)   <span style="color: #b22222;">; </span><span style="color: #b22222;">1.0</span>
-              (<span style="color: #8b2252;">".*courier-bold-.*-mac-roman"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
-              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco cy-bold-.*-mac-cyrillic" . 1.0)</span>
-              <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9</span>
-              (<span style="color: #8b2252;">"-cdac$"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.3</span>
-   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-font-config) ;; see `</span><span style="color: #008b8b;">my-theme</span><span style="color: #b22222;">'</span>
+                        <span style="color: #b22222;">;; </span><span style="color: #b22222;">Fix ratio provided by set-face-attribute for fonts display</span>
+                        (<span style="color: #a020f0;">setq</span> face-font-rescale-alist
+                              '((<span style="color: #8b2252;">"^-apple-hiragino.*"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
+                                      (<span style="color: #8b2252;">".*Migu.*"</span> . 1.2)
+                                      (<span style="color: #8b2252;">".*Ricty.*"</span> . 1.0)
+                                      (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0)
+                                      (<span style="color: #8b2252;">".*osaka-bold.*"</span> . 1.0)           <span style="color: #b22222;">; </span><span style="color: #b22222;">1.2</span>
+                                      (<span style="color: #8b2252;">".*osaka-medium.*"</span> . 1.0)         <span style="color: #b22222;">; </span><span style="color: #b22222;">1.0</span>
+                                      (<span style="color: #8b2252;">".*courier-bold-.*-mac-roman"</span> . 1.0) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
+                                      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco cy-bold-.*-mac-cyrillic" . 1.0)</span>
+                                      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(".*monaco-bold-.*-mac-roman" . 1.0) ; 0.9</span>
+                                      (<span style="color: #8b2252;">"-cdac$"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">1.3</span>
+         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-font-config) ;; see `</span><span style="color: #008b8b;">my-theme</span><span style="color: #b22222;">'</span>
 
-   ((eq window-system 'ns)
-    <span style="color: #b22222;">;; </span><span style="color: #b22222;">Anti aliasing with Quartz 2D</span>
-    (<span style="color: #a020f0;">when</span> (boundp 'mac-allow-anti-aliasing)
-      (<span style="color: #a020f0;">setq</span> mac-allow-anti-aliasing t)))
+         ((eq window-system 'ns)
+                <span style="color: #b22222;">;; </span><span style="color: #b22222;">Anti aliasing with Quartz 2D</span>
+                (<span style="color: #a020f0;">when</span> (boundp 'mac-allow-anti-aliasing)
+                        (<span style="color: #a020f0;">setq</span> mac-allow-anti-aliasing t)))
 
-   ((eq window-system 'w32) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Windows</span>
-    (<span style="color: #a020f0;">let</span> ((font-size 14)
-          (font-height 100)
-          (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
-          (ja-font <span style="color: #8b2252;">"Migu 2M"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Meiryo UI, &#12513;&#12452;&#12522;&#12458;</span>
-      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
-      (my-ja-font-setter
-       (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
-      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
-      (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
+         ((eq window-system 'w32) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Windows</span>
+                (<span style="color: #a020f0;">let</span> ((font-size 14)
+                      (font-height 100)
+                      (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
+                      (ja-font <span style="color: #8b2252;">"Migu 2M"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Meiryo UI, &#12513;&#12452;&#12522;&#12458;</span>
+                        (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+                        (my-ja-font-setter
+                         (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
+                        (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size))
+                        (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
 
-   ((eq window-system 'x) <span style="color: #b22222;">; </span><span style="color: #b22222;">for SuSE Linux 12.1</span>
-    (<span style="color: #a020f0;">let</span>
-        ((font-size 14)
-         (font-height 100)
-         (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
-         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ja-font "MigMix 1M")</span>
-         (ja-font <span style="color: #8b2252;">"Migu 2M"</span>))
-      (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
-      (my-ja-font-setter
-       (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
-      (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))
-    (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Migu.*"</span> . 2.0)
-                                    (<span style="color: #8b2252;">".*MigMix.*"</span> . 2.0)
-                                    (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
-  )
+         ((eq window-system 'x) <span style="color: #b22222;">; </span><span style="color: #b22222;">for SuSE Linux 12.1</span>
+                (<span style="color: #a020f0;">let</span>
+              ((font-size 14)
+               (font-height 100)
+               (ascii-font <span style="color: #8b2252;">"Inconsolata"</span>)
+               <span style="color: #b22222;">;; </span><span style="color: #b22222;">(ja-font "MigMix 1M")</span>
+               (ja-font <span style="color: #8b2252;">"Migu 2M"</span>))
+                        (set-fontset-font t '(#Xe000 . #Xf8ff) <span style="color: #8b2252;">"icons-in-terminal"</span>)
+                        (my-ja-font-setter
+                         (font-spec <span style="color: #483d8b;">:family</span> ja-font <span style="color: #483d8b;">:size</span> font-size <span style="color: #483d8b;">:height</span> font-height))
+                        (my-ascii-font-setter (font-spec <span style="color: #483d8b;">:family</span> ascii-font <span style="color: #483d8b;">:size</span> font-size)))
+                (<span style="color: #a020f0;">setq</span> face-font-rescale-alist '((<span style="color: #8b2252;">".*Migu.*"</span> . 2.0)
+                                                                        (<span style="color: #8b2252;">".*MigMix.*"</span> . 2.0)
+                                                                        (<span style="color: #8b2252;">".*Inconsolata.*"</span> . 1.0))))) <span style="color: #b22222;">; </span><span style="color: #b22222;">0.9</span>
+        )
 </pre>
 </div>
 
@@ -17146,6 +17272,29 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="outline-text-3" id="text-orge836aa4d">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow-ni</span> (cands)
+  <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
+  (ivy--format-function-generic
+   (<span style="color: #a020f0;">lambda</span> (str)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-fa-hand-point_right, nf-fa-hand_o_right</span>
+     (concat (nerd-icons-faicon
+              <span style="color: #8b2252;">"nf-fa-hand_o_right"</span>
+              <span style="color: #483d8b;">:v-adjust</span> -0.1
+              <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-visible
+              <span style="color: #483d8b;">:height</span> 0.8)
+             <span style="color: #8b2252;">" "</span> (ivy--add-face (concat str <span style="color: #8b2252;">"\n"</span>)
+                                'ivy-current-match)))
+   (<span style="color: #a020f0;">lambda</span> (str)
+     (concat (nerd-icons-faicon
+              <span style="color: #8b2252;">"nf-fa-hand_o_right"</span>
+              <span style="color: #483d8b;">:v-adjust</span> -0.1
+              <span style="color: #483d8b;">:face</span> 'my-ivy-arrow-invisible
+              <span style="color: #483d8b;">:height</span> 0.8)
+             <span style="color: #8b2252;">" "</span> (concat str <span style="color: #8b2252;">"\n"</span>)))
+   cands
+   <span style="color: #8b2252;">""</span>))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-ivy-format-function-arrow-iit</span> (cands)
   <span style="color: #8b2252;">"Transform CANDS into a string for minibuffer."</span>
   (ivy--format-function-generic
@@ -17216,13 +17365,13 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;; </span><span style="color: #b22222;">&#36984;&#25246;&#23550;&#35937;&#12434; "" &#12395;&#12377;&#12427; (requires all-the-icons.el)</span>
 (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-visible</span>
-  '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span>)
-    (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#EE6363"</span>))
-  <span style="color: #8b2252;">"Face used by Ivy for highlighting the arrow."</span>)
+        '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span>)
+                (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#EE6363"</span>))
+        <span style="color: #8b2252;">"Face used by Ivy for highlighting the arrow."</span>)
 (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-invisible</span>
-  '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>)
-    (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#31343F"</span>))
-  <span style="color: #8b2252;">"Face used by Ivy for highlighting the invisible arrow."</span>)
+        '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>)
+                (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#31343F"</span>))
+        <span style="color: #8b2252;">"Face used by Ivy for highlighting the invisible arrow."</span>)
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
 
@@ -17234,6 +17383,10 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
              (add-to-list
               'ivy-format-functions-alist
               '(t . my-ivy-format-function-arrow-iit) t))
+            ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons</span> nil t)
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-ni) t))
             ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
              (add-to-list
               'ivy-format-functions-alist
@@ -19540,36 +19693,42 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 <h3 id="orgfa252a98"><span class="section-number-3">14.58.</span> <span class="todo TODO">TODO</span> emacs-lisp のコードをフォーマットする</h3>
 <div class="outline-text-3" id="text-orgfa252a98">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-format-emacs-lisp-buffer</span> ()
-        (<span style="color: #a020f0;">interactive</span>)
-        (<span style="color: #a020f0;">when</span> (eq major-mode 'emacs-lisp-mode)
-                (<span style="color: #a020f0;">setq-local</span> indent-line-function 'lisp-indent-line)
-                (<span style="color: #a020f0;">setq-local</span> tab-width 8)
-                (<span style="color: #a020f0;">setq-local</span> indent-tabs-mode t)
-                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq-local tab-width 2)</span>
-                <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq-local indent-tabs-mode nil)</span>
-                (<span style="color: #a020f0;">save-excursion</span>
-                        (<span style="color: #a020f0;">save-restriction</span>
-              (widen)
-              (untabify (point-min) (point-max))
-              (tabify (point-min) (point-max))
-              (indent-region (point-min) (point-max))))))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-format-emacs-lisp-buffer</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">when</span> (eq major-mode 'emacs-lisp-mode)
+    (<span style="color: #a020f0;">setq-local</span> indent-line-function 'lisp-indent-line)
+    (<span style="color: #a020f0;">setq-local</span> tab-width 8)
+    (<span style="color: #a020f0;">setq-local</span> indent-tabs-mode t)
+    (<span style="color: #a020f0;">save-excursion</span>
+      (<span style="color: #a020f0;">save-restriction</span>
+        (widen)
+        (untabify (point-min) (point-max))
+        (tabify (point-min) (point-max))
+        (indent-region (point-min) (point-max))))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-format-emacs-lisp-for-org-buffer</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">when</span> (eq major-mode 'emacs-lisp-mode)
+    (<span style="color: #a020f0;">setq-local</span> indent-line-function 'org-indent-line)
+    (<span style="color: #a020f0;">setq-local</span> tab-width 2)
+    (<span style="color: #a020f0;">setq-local</span> indent-tabs-mode nil)
+    (<span style="color: #a020f0;">save-excursion</span>
+      (<span style="color: #a020f0;">save-restriction</span>
+        (widen)
+        (untabify (point-min) (point-max))
+        (indent-region (point-min) (point-max))))))
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-format-emacs-lisp-in-org-buffer</span> ()
-        (<span style="color: #a020f0;">interactive</span>)
-        (<span style="color: #a020f0;">when</span> (eq major-mode 'emacs-lisp-mode)
-                (<span style="color: #a020f0;">setq-local</span> indent-line-function 'org-indent-line)
-                (<span style="color: #a020f0;">setq-local</span> tab-width 2)
-                (<span style="color: #a020f0;">setq-local</span> indent-tabs-mode nil)
-                (<span style="color: #a020f0;">save-excursion</span>
-                        (<span style="color: #a020f0;">save-restriction</span>
-                          (widen)
-              (untabify (point-min) (point-max))
-              (tabify (point-min) (point-max))
-              (indent-region (point-min) (point-max))))))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-src"</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">tab-width=8, indent-tabs-mode=t</span>
+  (advice-add 'org-edit-special <span style="color: #483d8b;">:after</span> #'my-format-emacs-lisp-buffer)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">tab-width=2, indent-tabs-mode=nil</span>
+  (advice-add 'org-edit-src-abort <span style="color: #483d8b;">:before</span> #'my-format-emacs-lisp-for-org-buffer)
+  (advice-add 'org-edit-src-exit <span style="color: #483d8b;">:before</span> #'my-format-emacs-lisp-for-org-buffer))
 </pre>
 </div>
 </div>
@@ -19719,7 +19878,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-02-11 火 11:54</p>
+<p class="date">Created: 2025-02-18 火 12:12</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

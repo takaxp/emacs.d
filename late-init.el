@@ -838,20 +838,21 @@ This function returns a timer object which you can use in
 (add-hook 'buffer-list-update-hook #'my-update-modeline-face)
 
 (setq mode-line-modes
-      (mapcar
-       (lambda (entry)
-         (if (equal entry "%n")
-             '(:eval (progn
-                       ;; org が widen を乱発するのでこちらをトリガーにする．
-                       ;; 色の変更
-                       (my-update-modeline-color)
-                       ;; "Narrow" を "N" に短縮表示
-                       (if (and (buffer-narrowed-p)
-                                (fboundp 'icons-in-terminal-octicon))
-                           (concat " " (icons-in-terminal-octicon
-                                        "fold" :v-adjust 0.0)) "")))
-           entry))
-       mode-line-modes))
+			(mapcar
+			 (lambda (entry)
+				 (if (equal entry "%n")
+						 '(:eval (progn
+											 ;; org が widen を乱発するのでこちらをトリガーにする．
+											 ;; 色の変更
+											 (my-update-modeline-color)
+											 ;; "Narrow" を "N" に短縮表示
+					             ;; icons-in-terminal-octicon, "fold"
+											 (if (and (buffer-narrowed-p)
+																(fboundp 'nerd-icons-octicon))
+													 (concat " " (nerd-icons-octicon
+																				"nf-oct-fold" :v-adjust 0.0)) "")))
+					 entry))
+			 mode-line-modes))
 
 (when (require 'mlscroll nil t)
   (custom-set-variables
@@ -865,7 +866,7 @@ This function returns a timer object which you can use in
     (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)
     (add-hook 'moom-after-reset-hook #'my-reload-mlscroll)))
 
-(with-eval-after-load "icons-in-terminal"
+(with-eval-after-load "nerd-icons"
   ;; 変更がアリ時は赤アイコン，そうでない時に緑アイコンをモードラインに表示
   (make-face 'mode-line-vc-normal-face)
   (make-face 'mode-line-vc-modified-face)
@@ -875,7 +876,7 @@ This function returns a timer object which you can use in
 (with-eval-after-load "bindings" ;; "bindings"
   (let ((vc (assq 'vc-mode mode-line-format)))
     ;; (message "--- %s" vc)
-    (when vc (setcdr vc '((:eval (my-mode-line-vc-mode-icon)))))))
+    (when vc (setcdr vc '((:eval (my-mode-line-vc-mode-nerd-icons)))))))
 
 (unless noninteractive
   (my-empty-booting-header-line)) ;; Update header of scratch buffer
@@ -912,9 +913,13 @@ This function returns a timer object which you can use in
 (setq line-number-display-limit-width 100000)
 
 ;; モードラインの行数表示の前にアイコンを追加
-(with-eval-after-load "icons-in-terminal"
+(with-eval-after-load "nerd-icons"
   (setq mode-line-position-line-format
-        `(,(icons-in-terminal-material "edit") "%3l")))
+        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") "%3l")))
+
+;; (with-eval-after-load "icons-in-terminal"
+;;   (setq mode-line-position-line-format
+;;         `(,(icons-in-terminal-material "edit") "%3l")))
 
 ;; Show clock in in the mode line
 (setq display-time-format "%H:%M w%V") ;; %y%m%d. ;; "%H%M.%S"
@@ -960,64 +965,70 @@ This function returns a timer object which you can use in
 (add-hook 'find-file-hook #'my-delight-activate)
 
 (with-eval-after-load "delight"
-  (delight
-   '(;; Major modes
-     ;;     (c-mode "C" :major)
-     ;;     (c++mode "C++" :major)
-     (js2-mode "JS" :major)
-     (csharp-mode "C#" :major)
-     (prog-mode "Pr" :major)
-     (emacs-lisp-mode "El" :major)
-     (python-mode "Py" :major)
-     (perl-mode "Pl" :major)
-     (web-mode "W" :major)
-     (change-log-mode "CLog" :major)
-     (lisp-interaction-mode "Lisp" :major)
+	(delight
+	 '(;; Major modes
+		 ;;			(c-mode "C" :major)
+		 ;;			(c++mode "C++" :major)
+		 (js2-mode "JS" :major)
+		 (csharp-mode "C#" :major)
+		 (prog-mode "Pr" :major)
+		 (emacs-lisp-mode "El" :major)
+		 (python-mode "Py" :major)
+		 (perl-mode "Pl" :major)
+		 (web-mode "W" :major)
+		 (change-log-mode "CLog" :major)
+		 (lisp-interaction-mode "Lisp" :major)
 
-     ;; Shorten for minor modes
-     (ggtags-mode " G" "ggtags")
-     ;; (orgstruct-mode " OrgS" "org")
-     (orgalist-mode " ol" "orgalist")
-     (view-mode " V" "view")
-     ;; Stop to display for minor modes
-     (org-fancy-priorities-mode nil "org-fancy-priorities")
-     (smooth-scroll-mode nil "smooth-scroll")
-     (eldoc-mode nil "eldoc")
-     (ivy-mode nil "ivy")
-     (counsel-mode nil "counsel")
-     (centered-cursor-mode nil "centered-cursor-mode")
-     (volatile-highlights-mode nil "volatile-highlights")
-     (aggressive-indent-mode nil "aggressive-indent")
-     (all-the-icons-dired-mode nil "all-the-icons-dired")
-     (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
-     (yas-minor-mode nil "yasnippet")
-     (auto-complete-mode nil "auto-complete")
-     (company-mode nil "company")
-     (ws-butler-mode nil "ws-butler")
-     (isearch-mode nil "isearch")
-     (auto-revert-mode nil "autorevert")
-     (global-whitespace-mode nil "whitespace")
-     (emmet-mode nil "emmet-mode")
-     (abbrev-mode nil "abbrev")
-     (doxymacs-mode nil "doxymacs")
-     (editorconfig-mode nil "editorconfig")
-     (rainbow-mode nil "rainbow-mode")
-     (highlight-symbol-mode nil "highlight-symbol")
-     (which-key-mode nil "which-key")
-     (fancy-narrow-mode nil "fancy-narrow")
-     (smartparens-mode nil "smartparens")
-     (projectile-mode nil "projectile")
-     (selected-minor-mode nil "selected")
-     (skewer-html-mode nil "skewer-html")
-     (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
-     (gcmh-mode nil "gcmh")
-     (super-save-mode nil "super-save")
-     (rainbow-csv-mode nil "rainbow-csv")))
+		 ;; Shorten for minor modes
+		 (ggtags-mode " G" "ggtags")
+		 ;; (orgstruct-mode " OrgS" "org")
+		 (orgalist-mode " ol" "orgalist")
+		 (view-mode " V" "view")
+		 ;; Stop to display for minor modes
+		 (org-fancy-priorities-mode nil "org-fancy-priorities")
+		 (smooth-scroll-mode nil "smooth-scroll")
+		 (eldoc-mode nil "eldoc")
+		 (ivy-mode nil "ivy")
+		 (counsel-mode nil "counsel")
+		 (centered-cursor-mode nil "centered-cursor-mode")
+		 (volatile-highlights-mode nil "volatile-highlights")
+		 (aggressive-indent-mode nil "aggressive-indent")
+		 (all-the-icons-dired-mode nil "all-the-icons-dired")
+		 (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
+		 (nerd-icons-dired-mode nil "nerd-icons-dired")
+		 (yas-minor-mode nil "yasnippet")
+		 (auto-complete-mode nil "auto-complete")
+		 (company-mode nil "company")
+		 (ws-butler-mode nil "ws-butler")
+		 (isearch-mode nil "isearch")
+		 (auto-revert-mode nil "autorevert")
+		 (global-whitespace-mode nil "whitespace")
+		 (emmet-mode nil "emmet-mode")
+		 (abbrev-mode nil "abbrev")
+		 (doxymacs-mode nil "doxymacs")
+		 (editorconfig-mode nil "editorconfig")
+		 (rainbow-mode nil "rainbow-mode")
+		 (highlight-symbol-mode nil "highlight-symbol")
+		 (which-key-mode nil "which-key")
+		 (fancy-narrow-mode nil "fancy-narrow")
+		 (smartparens-mode nil "smartparens")
+		 (projectile-mode nil "projectile")
+		 (selected-minor-mode nil "selected")
+		 (skewer-html-mode nil "skewer-html")
+		 (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
+		 (gcmh-mode nil "gcmh")
+		 (super-save-mode nil "super-save")
+		 (rainbow-csv-mode nil "rainbow-csv")))
 
-  ;; Override by icon
-  (when (require 'icons-in-terminal nil t)
-    (delight
-     `((view-mode ,(concat " " (icons-in-terminal-faicon "lock")) "view")))))
+	;; Override by icon
+	(cond ((require 'nerd-icons nil t)
+		     (delight
+		      `((view-mode ,(concat " " (nerd-icons-mdicon "nf-md-file_lock"))
+			                 "view"))))
+	      ((require 'icons-in-terminal nil t)
+		     (delight
+		      `((view-mode ,(concat " " (icons-in-terminal-faicon "lock"))
+					             "view"))))))
 
 ;; (eval-when-compile
 ;;   (message "Loading fringe-helper...")
@@ -1141,12 +1152,16 @@ This function returns a timer object which you can use in
     (custom-set-variables
      '(highlight-symbol-idle-delay 0.5))))
 
-(when (autoload-if-found '(icons-in-terminal-dired-mode)
-                         "icons-in-terminal-dired" nil t)
-  (with-eval-after-load "icons-in-terminal"
-    (setq icons-in-terminal-scale-factor 1.0)))
+;; (when (autoload-if-found '(icons-in-terminal-dired-mode)
+;;                          "icons-in-terminal-dired" nil t)
+;;   (with-eval-after-load "icons-in-terminal"
+;;     (setq icons-in-terminal-scale-factor 1.0)))
 
-(cond ((require 'icons-in-terminal nil t)
+(autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired-mode" nil t)
+
+(cond ((require 'nerd-icons-dired nil t)
+       (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+      ((require 'icons-in-terminal nil t)
        (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
       ((require 'all-the-icons nil t)
        (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
@@ -1334,18 +1349,37 @@ This function returns a timer object which you can use in
 
 (when (eq system-type 'darwin)
   (with-eval-after-load "ivy"
-    (cond ((and (require 'icons-in-terminal nil t) ;; safeguard
-                (require 'icons-in-terminal-ivy nil t))
-           (dolist (command '(counsel-projectile-switch-project
-                              counsel-ibuffer))
-             (add-to-list 'icons-in-terminal-ivy-buffer-commands command))
-           (icons-in-terminal-ivy-setup))
-          ((and (require 'all-the-icons nil t) ;; safeguard
-                (require 'all-the-icons-ivy nil t))
-           (dolist (command '(counsel-projectile-switch-project
-                              counsel-ibuffer))
-             (add-to-list 'all-the-icons-ivy-buffer-commands command))
-           (all-the-icons-ivy-setup)))))
+    (cond ((and (require 'nerd-icons nil t) ;; safeguard
+		(require 'ivy-rich nil t)
+		(require 'nerd-icons-ivy-rich nil t))
+	   (nerd-icons-ivy-rich-mode 1)
+	   (ivy-rich-mode 1))
+	  ((and (require 'icons-in-terminal nil t) ;; safeguard
+		(require 'icons-in-terminal-ivy nil t))
+	   (dolist (command '(counsel-projectile-switch-project
+			      counsel-ibuffer))
+	     (add-to-list 'icons-in-terminal-ivy-buffer-commands command))
+	   (icons-in-terminal-ivy-setup))
+	  ((and (require 'all-the-icons nil t) ;; safeguard
+		(require 'all-the-icons-ivy nil t))
+	   (dolist (command '(counsel-projectile-switch-project
+			      counsel-ibuffer))
+	     (add-to-list 'all-the-icons-ivy-buffer-commands command))
+	   (all-the-icons-ivy-setup))))
+
+  (with-eval-after-load "nerd-icons-ivy-rich"
+    (my-update-nerd-icons-ivy-rich-display-transformers-list
+     'counsel-recentf
+     '(:columns
+       ((nerd-icons-ivy-rich-file-icon)
+        (nerd-icons-ivy-rich-file-name) ;; (:width 0.8)
+        ;; (nerd-icons-ivy-rich-file-id (:width 15 :face nerd-icons-ivy-rich-file-owner-face :align right))
+        ;; (nerd-icons-ivy-rich-file-modes (:width 12))
+        ;; (nerd-icons-ivy-rich-file-size (:width 7 :face nerd-icons-ivy-rich-size-face))
+        ;; (ivy-rich-file-last-modified-time (:face nerd-icons-ivy-rich-time-face))
+	)
+       :delimiter " "))
+    ))
 
 (when (autoload-if-found '(dimmer-mode
                            dimmer-process-all dimmer-off dimmer-on
@@ -1795,16 +1829,28 @@ This function returns a timer object which you can use in
 (run-with-idle-timer 180 t #'my-org-agenda-to-appt)
 
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
-(with-eval-after-load "icons-in-terminal"
-  (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;  »
-                                         (":LOGBOOK:" . "") ;;  ›
-                                         (":END:" . "") ;;  ›
-                                         ("#+begin_src" . "▨") ;; 
-                                         ("#+end_src" . "▨")
-                                         ("#+RESULTS:" . "")
-                                         ("[ ]" .  "") ;; ☐ 
-                                         ("[X]" . "" ) ;; ☑ 
-                                         ("[-]" . "" )))) ;; ☒ 
+(with-eval-after-load "nerd-icons"
+	(setq-default prettify-symbols-alist
+		            '((":PROPERTIES:" . "»") ;;	 » ;; nf-fa-angle_double_right  
+									(":LOGBOOK:" . "›") ;;	› ;; nf-fa-angle_right  
+									(":END:" . "›") ;;	› 
+									("#+begin_src" . "▨") ;;  ▨
+									("#+end_src" . "▨") ;; ▨
+									("#+RESULTS:" . "") ;; nf-fa-share_square 
+									("[ ]" .	"󰄱") ;; ☐  ;; nf-md-checkbox_blank_outline 󰄱
+									("[X]" . "󰄵" ) ;; ☑  ;; nf-md-checkbox_marked_outline 󰄵
+									("[-]" . "󰄗" )))) ;; nf-md-checkbox_blank_badge_outline 󰄗
+
+;; (with-eval-after-load "icons-in-terminal"
+;;	 (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;	 »
+;;																					(":LOGBOOK:" . "") ;;	›
+;;																					(":END:" . "") ;;	›
+;;																					("#+begin_src" . "▨") ;; 
+;;																					("#+end_src" . "▨")
+;;																					("#+RESULTS:" . "")
+;;																					("[ ]" .	"") ;; ☐ 
+;;																					("[X]" . "" ) ;; ☑ 
+;;																					("[-]" . "" )))) ;; ☒ 
 
 (when (autoload-if-found '(org-recent-headings org-recent-headings-mode)
                          "org-recent-headings" nil t)
@@ -1845,38 +1891,44 @@ This function returns a timer object which you can use in
 ;;(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 
 (when (memq window-system '(ns x))
-  ;; モードラインにアイコンを出す
-  (make-face 'mode-line-ime-on-face)
-  (set-face-attribute 'mode-line-ime-on-face
-                      nil :foreground (plist-get my-cur-color-ime :on))
-  (when (fboundp 'mac-set-input-method-parameter)
-    (mac-set-input-method-parameter
-     "com.google.inputmethod.Japanese.base" 'title
-     (concat
-	    (if (require 'icons-in-terminal nil t)
-          (icons-in-terminal-octicon "keyboard"
-                                     :v-adjust 0.0
-                                     :face 'mode-line-ime-on-face)
-        "") " "))) ;; FIXME (the color is NOT changed, patch is wrong?)
+	;; モードラインにアイコンを出す
+	(make-face 'mode-line-ime-on-face)
+	(set-face-attribute 'mode-line-ime-on-face
+					            nil :foreground (plist-get my-cur-color-ime :on))
+	(when (fboundp 'mac-set-input-method-parameter)
+		(mac-set-input-method-parameter
+		 "com.google.inputmethod.Japanese.base" 'title
+		 (concat
+			(cond ((require 'nerd-icons nil t)
+			       ;; (nerd-icons-octicon "nf-oct-typography"
+			       ;;					:face 'mode-line-ime-on-face)
+			       (nerd-icons-mdicon "nf-md-ideogram_cjk"
+				                         :face 'mode-line-ime-on-face))
+			      ((require 'icons-in-terminal nil t)
+			       (icons-in-terminal-octicon "keyboard"
+					                              :v-adjust 0.0
+					                              :face 'mode-line-ime-on-face))
+			      (t ""))
+			" "))) ;; FIXME (the color is NOT changed, patch is wrong?)
 
-  (declare-function my-ime-on "init" nil)
-  (declare-function my-ime-off "init" nil)
-  (declare-function my-ime-active-p "init" nil)
+	(declare-function my-ime-on "init" nil)
+	(declare-function my-ime-off "init" nil)
+	(declare-function my-ime-active-p "init" nil)
 
-  (defvar my-ime-last (my-ime-active-p))
-  (defvar my-ime-before-action nil)
+	(defvar my-ime-last (my-ime-active-p))
+	(defvar my-ime-before-action nil)
 
-  (if (not (fboundp 'mac-ime-active-p))
-	    (progn
+	(if (not (fboundp 'mac-ime-active-p))
+			(progn
 	      ;; For selected.el
 	      (add-hook 'activate-mark-hook #'my-ime-off-sticky)
 	      (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
 	      ;; 「M-x あ」対策
 	      (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
 	      (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
-    ;; For selected.el
-    (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
-    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
+		;; For selected.el
+		(add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
+		(add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
 
 (keymap-global-set "M-`" 'other-frame)
 (with-eval-after-load "frame"
@@ -2085,13 +2137,13 @@ This function returns a timer object which you can use in
 
 ;;; 選択対象を "" にする (requires all-the-icons.el)
 (defface my-ivy-arrow-visible
-  '((((class color) (background light)) :foreground "orange")
-    (((class color) (background dark)) :foreground "#EE6363"))
-  "Face used by Ivy for highlighting the arrow.")
+	'((((class color) (background light)) :foreground "orange")
+		(((class color) (background dark)) :foreground "#EE6363"))
+	"Face used by Ivy for highlighting the arrow.")
 (defface my-ivy-arrow-invisible
-  '((((class color) (background light)) :foreground "#FFFFFF")
-    (((class color) (background dark)) :foreground "#31343F"))
-  "Face used by Ivy for highlighting the invisible arrow.")
+	'((((class color) (background light)) :foreground "#FFFFFF")
+		(((class color) (background dark)) :foreground "#31343F"))
+	"Face used by Ivy for highlighting the invisible arrow.")
 
 (with-eval-after-load "counsel"
 
@@ -2100,17 +2152,21 @@ This function returns a timer object which you can use in
 
   (if window-system
       (cond ((require 'icons-in-terminal nil t)
-             (add-to-list
-              'ivy-format-functions-alist
-              '(t . my-ivy-format-function-arrow-iit) t))
-            ((require 'all-the-icons nil t)
-             (add-to-list
-              'ivy-format-functions-alist
-              '(t . my-ivy-format-function-arrow-ati) t))
-            (t
-             (add-to-list
-              'ivy-format-functions-alist
-              '(t . ivy-format-function-arrow-line) t)))
+	     (add-to-list
+	      'ivy-format-functions-alist
+	      '(t . my-ivy-format-function-arrow-iit) t))
+	    ((require 'nerd-icons nil t)
+	     (add-to-list
+	      'ivy-format-functions-alist
+	      '(t . my-ivy-format-function-arrow-ni) t))
+	    ((require 'all-the-icons nil t)
+	     (add-to-list
+	      'ivy-format-functions-alist
+	      '(t . my-ivy-format-function-arrow-ati) t))
+	    (t
+	     (add-to-list
+	      'ivy-format-functions-alist
+	      '(t . ivy-format-function-arrow-line) t)))
     (add-to-list
      'ivy-format-functions-alist
      '(t . ivy-format-function-arrow-line) t)))
