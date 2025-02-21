@@ -1,18 +1,10 @@
-;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
-;;                                          https://takaxp.github.io/init.html
+;;					    Takaaki ISHIKAWA <takaxp@ieee.org>
+;;					    https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;                                                              TODO/DONE/FIXME
+;;								TODO/DONE/FIXME
 
-
-
-(assoc 'a '(
-	    a
-	    (:columns)
-	    b
-	    (:columns)
-	    )
-       )
-
+(with-eval-after-load "org-tempo"
+  )
 
 (with-eval-after-load "org"
   ;; (advice-add 'org-assert-version :override #'ignore)
@@ -23,43 +15,43 @@
     (interactive)
     (save-excursion
       (save-restriction
-        (unless (org-at-heading-p)
-          (org-previous-visible-heading 1))
-        (unless (org-before-first-heading-p)
-          (org-set-property "VISIBILITY" "children")
-          (org-toggle-tag "pin" 'on)
-          (message "Pinned")))))
+	(unless (org-at-heading-p)
+	  (org-previous-visible-heading 1))
+	(unless (org-before-first-heading-p)
+	  (org-set-property "VISIBILITY" "children")
+	  (org-toggle-tag "pin" 'on)
+	  (message "Pinned")))))
 
   (defun my-org-unpin-subtree ()
     "Unpin the subtree with \"pin\" tag."
     (interactive)
     (save-excursion
       (save-restriction
-        (unless (org-at-heading-p)
-          (org-previous-visible-heading 1))
-        (unless (org-before-first-heading-p)
-          (when (org-element-property :VISIBILITY (org-element-at-point))
-            (org-delete-property "VISIBILITY")
-            (org-toggle-tag "pin" 'off)
-            (message "Unpinned"))))))
+	(unless (org-at-heading-p)
+	  (org-previous-visible-heading 1))
+	(unless (org-before-first-heading-p)
+	  (when (org-element-property :VISIBILITY (org-element-at-point))
+	    (org-delete-property "VISIBILITY")
+	    (org-toggle-tag "pin" 'off)
+	    (message "Unpinned"))))))
 
   (defun my-toggle-org-pin-subtree ()
     "Toggle \"VISIBILITY\" of the current tree."
     (interactive)
     (save-excursion
       (save-restriction
-        (unless (org-at-heading-p)
-          (org-previous-visible-heading 1))
-        (unless (org-before-first-heading-p)
-          (let ((element (org-element-at-point)))
-            (cond ((org-element-property :VISIBILITY element)
-                   (org-delete-property "VISIBILITY")
-                   (org-toggle-tag "pin" 'off)
-                   (message "Unpinned"))
-                  (t
-                   (org-set-property "VISIBILITY" "children")
-                   (org-toggle-tag "pin" 'on)
-                   (message "Pinned"))))))))
+	(unless (org-at-heading-p)
+	  (org-previous-visible-heading 1))
+	(unless (org-before-first-heading-p)
+	  (let ((element (org-element-at-point)))
+	    (cond ((org-element-property :VISIBILITY element)
+		   (org-delete-property "VISIBILITY")
+		   (org-toggle-tag "pin" 'off)
+		   (message "Unpinned"))
+		  (t
+		   (org-set-property "VISIBILITY" "children")
+		   (org-toggle-tag "pin" 'on)
+		   (message "Pinned"))))))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -70,7 +62,7 @@
  (nil
   (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
   (when (and (memq window-system '(ns mac))
-             (fboundp 'mac-get-current-input-source))
+	     (fboundp 'mac-get-current-input-source))
     ;; "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese" for Big Sur
     (custom-set-variables
      '(mac-default-input-source "com.google.inputmethod.Japanese.base"))
@@ -89,7 +81,7 @@
   (add-to-list 'load-path (expand-file-name "~/Dropbox/config"))
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (add-to-list 'load-path
-               (expand-file-name "~/devel/git/org-mode/contrib/lisp"))
+	       (expand-file-name "~/devel/git/org-mode/contrib/lisp"))
   (add-to-list 'load-path my-package-dir) ;; defined in early-init.el
   (require 'my-debug))
 
@@ -107,7 +99,7 @@
   (setq debug-on-error nil
 	postpone-verbose nil
 	my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
-	my-frame-appearance nil     ;; {nil, 'dark, 'light}
+	my-frame-appearance nil	    ;; {nil, 'dark, 'light}
 	my-skip-check-autoload-file t)
 
   (defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))
@@ -121,11 +113,11 @@
     "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
 
   ;; (setq measure-exec-time-list '(my-show-org-buffer
-  ;; 			       my-private-conf-activate
-  ;; 			       my-org-babel-load-activate
-  ;; 			       my-org-modules-activate
-  ;; 			       my-org-agenda-prepare-buffers
-  ;; 			       ))
+  ;;			       my-private-conf-activate
+  ;;			       my-org-babel-load-activate
+  ;;			       my-org-modules-activate
+  ;;			       my-org-agenda-prepare-buffers
+  ;;			       ))
   ;; (require 'my-eshell nil t)
 
   (require 'init nil t)))

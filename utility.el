@@ -492,6 +492,12 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (indent-for-tab-command))
 
 ;;;###autoload
+(defun my-emacs-lisp-mode-conf ()
+  (setq-local indent-tabs-mode t)
+  (setq-local tab-width 8)
+  (setq indent-line-function 'lisp-indent-line))
+
+;;;###autoload
 (defun my-flyspell-ignore-nonascii (beg end _info)
   "incorrect判定をASCIIに限定"
   (string-match "[^!-~]" (buffer-substring beg end)))
@@ -955,7 +961,7 @@ Obeys `widen-automatically', which see."
 								 (if my-toggle-modeline-global "" ;; FIXME
 									 (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
 								 (cond ((require 'nerd-icons nil t)
-			                  (nerd-icons-mdicon "nf-md-playlist_check"))
+			                  (nerd-icons-mdicon "nf-md-playlist_check")) ;; 󰗇
 											 ((require 'icons-in-terminal nil t)
 												(icons-in-terminal-material "playlist_add_check"))
 											 ((require 'all-the-icons nil t)
@@ -1030,9 +1036,11 @@ Obeys `widen-automatically', which see."
 
 ;;;###autoload
 (defun my-update-nerd-icons-ivy-rich-display-transformers-list (command config)
+  "If update config during a session, call `nerd-icons-ivy-rich-reload'
+  to enable the config."
   (if (plist-get nerd-icons-ivy-rich-display-transformers-list command)
       (plist-put nerd-icons-ivy-rich-display-transformers-list
-		 command config)
+                 command config)
     (user-error "`%s' is not listed in `nerd-icons-ivy-rich-display-transformers-list'." command)))
 
 ;;;###autoload
@@ -1454,48 +1462,54 @@ Otherwise, use `counsel-ag'."
 
 ;;;###autoload
 (defun my-org-modules-activate ()
-	(interactive)
-	(if (and (featurep 'org-tempo)
-		       (featurep 'org-id))
-			(message "org-modules are previously loaded.")
-		(message "Loading org-modules...")
-		(setq org-modules my-org-modules) ;; revert to the original value
-		;; モジュールの追加
-		(add-to-list 'org-modules 'org-id)
-		(with-eval-after-load "org-agenda"
-			;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
-			(add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
-		(when (version< "9.1.4" (org-version))
-			(add-to-list 'org-modules 'org-tempo))
-		(when (require 'ol-bookmark nil t)
-			;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
-			(add-to-list 'org-modules 'ol-bookmark)
-			(setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
-			;; `bookmark-default-file' の読み込み
-			(bookmark-maybe-load-default-file))
+  (interactive)
+  (if (and (featurep 'org-tempo)
+           (featurep 'org-id))
+      (message "org-modules are previously loaded.")
+    (message "Loading org-modules...")
+    (setq org-modules my-org-modules) ;; revert to the original value
+    ;; モジュールの追加
+    (add-to-list 'org-modules 'org-id)
+    (with-eval-after-load "org-agenda"
+      ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
+      (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
+    (when (version< "9.1.4" (org-version))
+      (add-to-list 'org-modules 'org-tempo))
+    (when (require 'ol-bookmark nil t)
+      ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
+      (add-to-list 'org-modules 'ol-bookmark)
+      (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
+      ;; `bookmark-default-file' の読み込み
+      (bookmark-maybe-load-default-file))
 
-		;; 不必要なモジュールの読み込みを停止する
-		(delq 'ol-bbdb org-modules)
-		(delq 'ol-irc org-modules)
-		(delq 'ol-mhe org-modules)
-		(delq 'ol-docview org-modules)
-		;; Reload
-		(org-load-modules-maybe t)
-		(org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
-		(message "Loading org-modules...done")))
+    ;; 不必要なモジュールの読み込みを停止する
+    (delq 'ol-bbdb org-modules)
+    (delq 'ol-irc org-modules)
+    (delq 'ol-mhe org-modules)
+    (delq 'ol-docview org-modules)
+    ;; Reload
+    (org-load-modules-maybe t)
+    (org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
+    (message "Loading org-modules...done")))
 
 ;;;###autoload
 (defun my-open-default-org-file ()
-	(interactive)
-	(my-show-org-buffer "next.org"))
+  (interactive)
+  (my-show-org-buffer "next.org"))
 ;; (run-hooks 'org-mode-hook) ;; FIXME
 
 ;;;###autoload
 (defun my-org-last-repeat (&optional _arg)
-	(when (and (org-get-repeat)
-			       (org-entry-is-todo-p))
-		(org-entry-put nil "LAST_REPEAT" (format-time-string
-							                        (org-time-stamp-format t t)))))
+  (when (and (org-get-repeat)
+             (org-entry-is-todo-p))
+    (org-entry-put nil "LAST_REPEAT" (format-time-string
+                                      (org-time-stamp-format t t)))))
+
+;;;###autoload
+(defun ad:org-modules-activate ()
+  (interactive)
+  (my-org-modules-activate)
+  (advice-remove 'org-cycle #'ad:org-modules-activate))
 
 ;;;###autoload
 (defun my-desktop-notification (title message &optional sticky sound timeout)
@@ -3155,9 +3169,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun my-format-emacs-lisp-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
-    (setq-local indent-line-function 'lisp-indent-line)
-    (setq-local tab-width 8)
-    (setq-local indent-tabs-mode t)
+    (my-emacs-lisp-mode-conf)
     (save-excursion
       (save-restriction
         (widen)

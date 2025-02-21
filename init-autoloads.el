@@ -302,6 +302,7 @@ Open a file with `view-mode'.")
 
 (fn &rest ARG)")
 (autoload 'my-web-indent-fold "utility" nil t)
+(autoload 'my-emacs-lisp-mode-conf "utility")
 (autoload 'my-flyspell-ignore-nonascii "utility" "\
 incorrect判定をASCIIに限定
 
@@ -427,7 +428,8 @@ Shrink frame width by `moom-change-frame-width'.")
 (autoload 'ad:swiper-thing-at-point "utility" "\
 `swiper' with `ivy-thing-at-point'." t)
 (autoload 'my-update-nerd-icons-ivy-rich-display-transformers-list "utility" "\
-
+If update config during a session, call `nerd-icons-ivy-rich-reload'
+  to enable the config.
 
 (fn COMMAND CONFIG)")
 (autoload 'my-toggle-dimmer "utility" nil t)
@@ -544,6 +546,7 @@ Use C-SPC to insert the separator.
 
 
 (fn &optional ARG)")
+(autoload 'ad:org-modules-activate "utility" nil t)
 (autoload 'my-desktop-notification "utility" "\
 Show a message by `alerter' command.
 

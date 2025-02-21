@@ -1808,14 +1808,6 @@ echo "--- done."
 (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 #+end_src
 
-#+begin_src emacs-lisp
-;;;###autoload
-(defun my-emacs-lisp-mode-conf ()
-  (setq-local indent-tabs-mode t)
-  (setq-local tab-width 8)
-  (setq indent-line-function 'lisp-indent-line))
-#+end_src
-
 ** ファイルリンクを辿る時に確認のメッセージを出さない
    :PROPERTIES:
    :CUSTOM_ID: orgfc7cc004
@@ -3671,14 +3663,35 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
 #+end_src
 
 ** Goモード
-   :PROPERTIES:
-   :CUSTOM_ID: org58f62c66
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org58f62c66
+:END:
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(go-mode)
                          "go-mode" nil t)
   (push '("\\.go\\'" . go-mode) auto-mode-alist))
+#+end_src
+
+** EmacsLispモード
+:PROPERTIES:
+:CUSTOM_ID: org0d655d3d
+:ID:       7F209A91-ADB1-41C2-A6FD-996E6FD6CF37
+:END:
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-emacs-lisp-mode-conf ()
+  (setq-local indent-tabs-mode t)
+  (setq-local tab-width 8)
+  (setq indent-line-function 'lisp-indent-line))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found '(emacs-lisp-mode)
+                         "emacs-lisp-mode" nil t)
+  (push '("\\.el\\'" . emacs-lisp-mode) auto-mode-alist)
+  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf))
 #+end_src
 
 ** スペルチェック
@@ -4896,7 +4909,7 @@ Call this function at updating `mode-line-mode'."
    :ID:       FB252972-149C-4A79-8D10-459DA717F9F7
    :END:
 
-標準では「Narrow」と表示されますが，「N」に短縮します． =all-the-icons= を使って，画像に置き換えることも可能です．
+標準では「Narrow」と表示されますが，「N」に短縮します． =nerd-icons= などを使って，画像に置き換えることも可能です．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (setq mode-line-modes
@@ -5351,7 +5364,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 ;; モードラインの行数表示の前にアイコンを追加
 (with-eval-after-load "nerd-icons"
   (setq mode-line-position-line-format
-        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") "%3l")))
+        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") "%3l"))) ;; 
 
 ;; (with-eval-after-load "icons-in-terminal"
 ;;   (setq mode-line-position-line-format
@@ -6076,10 +6089,10 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-;; (when (autoload-if-found '(icons-in-terminal-dired-mode)
-;;                          "icons-in-terminal-dired" nil t)
-;;   (with-eval-after-load "icons-in-terminal"
-;;     (setq icons-in-terminal-scale-factor 1.0)))
+(when (autoload-if-found '(icons-in-terminal-dired-mode)
+                         "icons-in-terminal-dired" nil t)
+  (with-eval-after-load "icons-in-terminal"
+    (setq icons-in-terminal-scale-factor 1.0)))
 
 (autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired-mode" nil t)
 
@@ -6378,7 +6391,7 @@ Obeys `widen-automatically', which see."
 								 (if my-toggle-modeline-global "" ;; FIXME
 									 (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
 								 (cond ((require 'nerd-icons nil t)
-			                  (nerd-icons-mdicon "nf-md-playlist_check"))
+			                  (nerd-icons-mdicon "nf-md-playlist_check")) ;; 󰗇
 											 ((require 'icons-in-terminal nil t)
 												(icons-in-terminal-material "playlist_add_check"))
 											 ((require 'all-the-icons nil t)
@@ -6581,6 +6594,7 @@ Obeys `widen-automatically', which see."
 ** TODO [nerd-icons-ivy-rich] ivy インターフェイスでアイコンを表示する
    :PROPERTIES:
    :CUSTOM_ID: org3d431f2e
+   :ID:       26368131-1315-4345-9CD4-A552DEAD3E9B
    :END:
 
 - https://github.com/seagle0128/nerd-icons-ivy-rich
@@ -6590,9 +6604,11 @@ Obeys `widen-automatically', which see."
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-update-nerd-icons-ivy-rich-display-transformers-list (command config)
+  "If update config during a session, call `nerd-icons-ivy-rich-reload'
+  to enable the config."
   (if (plist-get nerd-icons-ivy-rich-display-transformers-list command)
       (plist-put nerd-icons-ivy-rich-display-transformers-list
-		 command config)
+                 command config)
     (user-error "`%s' is not listed in `nerd-icons-ivy-rich-display-transformers-list'." command)))
 #+end_src
 
@@ -6600,24 +6616,31 @@ Obeys `widen-automatically', which see."
 (when (eq system-type 'darwin)
   (with-eval-after-load "ivy"
     (cond ((and (require 'nerd-icons nil t) ;; safeguard
-		(require 'ivy-rich nil t)
-		(require 'nerd-icons-ivy-rich nil t))
-	   (nerd-icons-ivy-rich-mode 1)
-	   (ivy-rich-mode 1))
-	  ((and (require 'icons-in-terminal nil t) ;; safeguard
-		(require 'icons-in-terminal-ivy nil t))
-	   (dolist (command '(counsel-projectile-switch-project
-			      counsel-ibuffer))
-	     (add-to-list 'icons-in-terminal-ivy-buffer-commands command))
-	   (icons-in-terminal-ivy-setup))
-	  ((and (require 'all-the-icons nil t) ;; safeguard
-		(require 'all-the-icons-ivy nil t))
-	   (dolist (command '(counsel-projectile-switch-project
-			      counsel-ibuffer))
-	     (add-to-list 'all-the-icons-ivy-buffer-commands command))
-	   (all-the-icons-ivy-setup))))
+                (require 'ivy-rich nil t)
+                (require 'nerd-icons-ivy-rich nil t))
+           (nerd-icons-ivy-rich-mode 1)
+           (ivy-rich-mode 1))
+          ((and (require 'icons-in-terminal nil t) ;; safeguard
+                (require 'icons-in-terminal-ivy nil t))
+           (dolist (command '(counsel-projectile-switch-project
+                              counsel-ibuffer))
+             (add-to-list 'icons-in-terminal-ivy-buffer-commands command))
+           (icons-in-terminal-ivy-setup))
+          ((and (require 'all-the-icons nil t) ;; safeguard
+                (require 'all-the-icons-ivy nil t))
+           (dolist (command '(counsel-projectile-switch-project
+                              counsel-ibuffer))
+             (add-to-list 'all-the-icons-ivy-buffer-commands command))
+           (all-the-icons-ivy-setup))))
 
   (with-eval-after-load "nerd-icons-ivy-rich"
+    (my-update-nerd-icons-ivy-rich-display-transformers-list
+     'counsel-M-x
+     '(:columns
+       ((nerd-icons-ivy-rich-function-icon)
+        (counsel-M-x-transformer (:width 0.5))
+        (ivy-rich-counsel-function-docstring (:face nerd-icons-ivy-rich-doc-face)))))
+
     (my-update-nerd-icons-ivy-rich-display-transformers-list
      'counsel-recentf
      '(:columns
@@ -6627,9 +6650,14 @@ Obeys `widen-automatically', which see."
         ;; (nerd-icons-ivy-rich-file-modes (:width 12))
         ;; (nerd-icons-ivy-rich-file-size (:width 7 :face nerd-icons-ivy-rich-size-face))
         ;; (ivy-rich-file-last-modified-time (:face nerd-icons-ivy-rich-time-face))
-	)
-       :delimiter " "))
-    ))
+        )
+       :delimiter " ")))
+
+  (with-eval-after-load "counsel"
+    ;; just in case, for surely applying the config.
+    (when (and (require 'nerd-icons nil t)
+               (require 'ivy-rich nil t))
+      (nerd-icons-ivy-rich-reload))))
 #+end_src
 
 ** TODO [rainbow-delimiters.el] 対応するカッコに色を付ける
@@ -9808,51 +9836,60 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-org-modules-activate ()
-	(interactive)
-	(if (and (featurep 'org-tempo)
-		       (featurep 'org-id))
-			(message "org-modules are previously loaded.")
-		(message "Loading org-modules...")
-		(setq org-modules my-org-modules) ;; revert to the original value
-		;; モジュールの追加
-		(add-to-list 'org-modules 'org-id)
-		(with-eval-after-load "org-agenda"
-			;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
-			(add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
-		(when (version< "9.1.4" (org-version))
-			(add-to-list 'org-modules 'org-tempo))
-		(when (require 'ol-bookmark nil t)
-			;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
-			(add-to-list 'org-modules 'ol-bookmark)
-			(setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
-			;; `bookmark-default-file' の読み込み
-			(bookmark-maybe-load-default-file))
+  (interactive)
+  (if (and (featurep 'org-tempo)
+           (featurep 'org-id))
+      (message "org-modules are previously loaded.")
+    (message "Loading org-modules...")
+    (setq org-modules my-org-modules) ;; revert to the original value
+    ;; モジュールの追加
+    (add-to-list 'org-modules 'org-id)
+    (with-eval-after-load "org-agenda"
+      ;; org-agenda を読んでしまうので org-mode 開始時には読み込ませない
+      (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
+    (when (version< "9.1.4" (org-version))
+      (add-to-list 'org-modules 'org-tempo))
+    (when (require 'ol-bookmark nil t)
+      ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
+      (add-to-list 'org-modules 'ol-bookmark)
+      (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
+      ;; `bookmark-default-file' の読み込み
+      (bookmark-maybe-load-default-file))
 
-		;; 不必要なモジュールの読み込みを停止する
-		(delq 'ol-bbdb org-modules)
-		(delq 'ol-irc org-modules)
-		(delq 'ol-mhe org-modules)
-		(delq 'ol-docview org-modules)
-		;; Reload
-		(org-load-modules-maybe t)
-		(org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
-		(message "Loading org-modules...done")))
+    ;; 不必要なモジュールの読み込みを停止する
+    (delq 'ol-bbdb org-modules)
+    (delq 'ol-irc org-modules)
+    (delq 'ol-mhe org-modules)
+    (delq 'ol-docview org-modules)
+    ;; Reload
+    (org-load-modules-maybe t)
+    (org-element-cache-reset 'all) ;; FIXME use `custom-set-variables'
+    (message "Loading org-modules...done")))
 
 ;;;###autoload
 (defun my-open-default-org-file ()
-	(interactive)
-	(my-show-org-buffer "next.org"))
+  (interactive)
+  (my-show-org-buffer "next.org"))
 ;; (run-hooks 'org-mode-hook) ;; FIXME
 
 ;;;###autoload
 (defun my-org-last-repeat (&optional _arg)
-	(when (and (org-get-repeat)
-			       (org-entry-is-todo-p))
-		(org-entry-put nil "LAST_REPEAT" (format-time-string
-							                        (org-time-stamp-format t t)))))
+  (when (and (org-get-repeat)
+             (org-entry-is-todo-p))
+    (org-entry-put nil "LAST_REPEAT" (format-time-string
+                                      (org-time-stamp-format t t)))))
+
+;;;###autoload
+(defun ad:org-modules-activate ()
+  (interactive)
+  (my-org-modules-activate)
+  (advice-remove 'org-cycle #'ad:org-modules-activate))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
+;; org-tempo を org-modules で読み込む前に TAB 押下で展開する場合の対処
+(advice-add 'org-cycle :before #'ad:org-modules-activate)
+
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
 #+end_src
@@ -9887,7 +9924,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     "Set up org-eldoc documentation function."
     (interactive)
     (add-function :before-until (local 'eldoc-documentation-function)
-		  #'org-eldoc-documentation-function))
+                  #'org-eldoc-documentation-function))
   ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
   ;; (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
@@ -9957,9 +9994,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
   (defun my-promote-todo-revision (state)
     (cond ((member state '("TODO")) "REV1")
-	  ((member state '("REV1")) "REV2")
-	  ((member state '("REV2")) "REV3")
-	  (t state)))
+          ((member state '("REV1")) "REV2")
+          ((member state '("REV2")) "REV3")
+          (t state)))
   ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
   ;; undo 時に reveal して表示を改善する
@@ -9989,18 +10026,18 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   ;; - を優先．親のブリッツ表示を継承させない
   (setq org-list-demote-modify-bullet
-	'(("+" . "-")
-	  ("*" . "-")
-	  ("1." . "-")
-	  ("1)" . "-")
-	  ("A)" . "-")
-	  ("B)" . "-")
-	  ("a)" . "-")
-	  ("b)" . "-")
-	  ("A." . "-")
-	  ("B." . "-")
-	  ("a." . "-")
-	  ("b." . "-")))
+        '(("+" . "-")
+          ("*" . "-")
+          ("1." . "-")
+          ("1)" . "-")
+          ("A)" . "-")
+          ("B)" . "-")
+          ("a)" . "-")
+          ("b)" . "-")
+          ("A." . "-")
+          ("B." . "-")
+          ("a." . "-")
+          ("b." . "-")))
 
   ;; 完了したタスクの配色を変える
   ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
@@ -10052,10 +10089,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; 空行のとき "<" をインデントさせない
   (defun ad:org-tempo-complete-tag (f &rest arg)
     (if (save-excursion
-	  (beginning-of-line)
-	  (looking-at "<"))
-	(let ((indent-line-function 'ignore))
-	  (apply f arg))
+          (beginning-of-line)
+          (looking-at "<"))
+        (let ((indent-line-function 'ignore))
+          (apply f arg))
       (apply f arg)))
   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 ;; (Thanks to @conao3)
@@ -10075,14 +10112,14 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (defun my-org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
-	         (name (cdr entry))
-	         (special nil)) ;; FIXED
+           (name (cdr entry))
+           (special nil)) ;; FIXED
       (tempo-define-template
        (format "org-%s" (replace-regexp-in-string " " "-" name))
        `(,(format "#+begin_%s%s" name (if special " " ""))
-	       ,(when special 'p) '> n '> ,(unless special 'p) n
-	       ,(format "#+end_%s" (car (split-string name " ")))'
-	       >)
+         ,(when special 'p) '> n '> ,(unless special 'p) n
+         ,(format "#+end_%s" (car (split-string name " ")))'
+         >)
        key
        (format "Insert a %s block" name)
        'org-tempo-tags)))
@@ -11952,27 +11989,27 @@ update it for multiple appts?")
 #+begin_src emacs-lisp :tangle late-init.el
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "nerd-icons"
-	(setq-default prettify-symbols-alist
-		            '((":PROPERTIES:" . "»") ;;	 » ;; nf-fa-angle_double_right  
-									(":LOGBOOK:" . "›") ;;	› ;; nf-fa-angle_right  
-									(":END:" . "›") ;;	› 
-									("#+begin_src" . "▨") ;;  ▨
-									("#+end_src" . "▨") ;; ▨
-									("#+RESULTS:" . "") ;; nf-fa-share_square 
-									("[ ]" .	"󰄱") ;; ☐  ;; nf-md-checkbox_blank_outline 󰄱
-									("[X]" . "󰄵" ) ;; ☑  ;; nf-md-checkbox_marked_outline 󰄵
-									("[-]" . "󰄗" )))) ;; nf-md-checkbox_blank_badge_outline 󰄗
+  (setq-default prettify-symbols-alist
+                '((":PROPERTIES:" . "»") ;;  » ;; nf-fa-angle_double_right  
+                  (":LOGBOOK:" . "›") ;;  › ;; nf-fa-angle_right  
+                  (":END:" . "›") ;;  › 
+                  ("#+begin_src" . "▨") ;;  ▨
+                  ("#+end_src" . "▨") ;; ▨
+                  ("#+RESULTS:" . "") ;; nf-fa-share_square 
+                  ("[ ]" .  "󰄱") ;; ☐  ;; nf-md-checkbox_blank_outline 󰄱
+                  ("[X]" . "󰄵" ) ;; ☑  ;; nf-md-checkbox_marked_outline 󰄵
+                  ("[-]" . "󰄗" )))) ;; nf-md-checkbox_blank_badge_outline 󰄗
 
 ;; (with-eval-after-load "icons-in-terminal"
-;;	 (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;	 »
-;;																					(":LOGBOOK:" . "") ;;	›
-;;																					(":END:" . "") ;;	›
-;;																					("#+begin_src" . "▨") ;; 
-;;																					("#+end_src" . "▨")
-;;																					("#+RESULTS:" . "")
-;;																					("[ ]" .	"") ;; ☐ 
-;;																					("[X]" . "" ) ;; ☑ 
-;;																					("[-]" . "" )))) ;; ☒ 
+;;   (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;  »
+;;       (":LOGBOOK:" . "") ;; ›
+;;       (":END:" . "") ;; ›
+;;       ("#+begin_src" . "▨") ;; 
+;;       ("#+end_src" . "▨")
+;;       ("#+RESULTS:" . "")
+;;       ("[ ]" . "") ;; ☐ 
+;;       ("[X]" . "" ) ;; ☑ 
+;;       ("[-]" . "" )))) ;; ☒ 
 #+end_src
 
 ** [org-tree-slide] Org Modeでプレゼンテーション
@@ -13574,7 +13611,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 			(cond ((require 'nerd-icons nil t)
 			       ;; (nerd-icons-octicon "nf-oct-typography"
 			       ;;					:face 'mode-line-ime-on-face)
-			       (nerd-icons-mdicon "nf-md-ideogram_cjk"
+			       (nerd-icons-mdicon "nf-md-ideogram_cjk_variant" ;; IME
 				                         :face 'mode-line-ime-on-face))
 			      ((require 'icons-in-terminal nil t)
 			       (icons-in-terminal-octicon "keyboard"
@@ -15024,13 +15061,13 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle late-init.el
 ;;; 選択対象を "" にする (requires all-the-icons.el)
 (defface my-ivy-arrow-visible
-	'((((class color) (background light)) :foreground "orange")
-		(((class color) (background dark)) :foreground "#EE6363"))
-	"Face used by Ivy for highlighting the arrow.")
+  '((((class color) (background light)) :foreground "orange")
+    (((class color) (background dark)) :foreground "#EE6363"))
+  "Face used by Ivy for highlighting the arrow.")
 (defface my-ivy-arrow-invisible
-	'((((class color) (background light)) :foreground "#FFFFFF")
-		(((class color) (background dark)) :foreground "#31343F"))
-	"Face used by Ivy for highlighting the invisible arrow.")
+  '((((class color) (background light)) :foreground "#FFFFFF")
+    (((class color) (background dark)) :foreground "#31343F"))
+  "Face used by Ivy for highlighting the invisible arrow.")
 
 (with-eval-after-load "counsel"
 
@@ -15039,21 +15076,21 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
   (if window-system
       (cond ((require 'icons-in-terminal nil t)
-	     (add-to-list
-	      'ivy-format-functions-alist
-	      '(t . my-ivy-format-function-arrow-iit) t))
-	    ((require 'nerd-icons nil t)
-	     (add-to-list
-	      'ivy-format-functions-alist
-	      '(t . my-ivy-format-function-arrow-ni) t))
-	    ((require 'all-the-icons nil t)
-	     (add-to-list
-	      'ivy-format-functions-alist
-	      '(t . my-ivy-format-function-arrow-ati) t))
-	    (t
-	     (add-to-list
-	      'ivy-format-functions-alist
-	      '(t . ivy-format-function-arrow-line) t)))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-iit) t))
+            ((require 'nerd-icons nil t)
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-ni) t))
+            ((require 'all-the-icons nil t)
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-ati) t))
+            (t
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . ivy-format-function-arrow-line) t)))
     (add-to-list
      'ivy-format-functions-alist
      '(t . ivy-format-function-arrow-line) t)))
@@ -17258,9 +17295,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 (defun my-format-emacs-lisp-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
-    (setq-local indent-line-function 'lisp-indent-line)
-    (setq-local tab-width 8)
-    (setq-local indent-tabs-mode t)
+    (my-emacs-lisp-mode-conf)
     (save-excursion
       (save-restriction
         (widen)

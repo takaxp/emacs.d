@@ -563,6 +563,11 @@ This function returns a timer object which you can use in
                          "go-mode" nil t)
   (push '("\\.go\\'" . go-mode) auto-mode-alist))
 
+(when (autoload-if-found '(emacs-lisp-mode)
+                         "emacs-lisp-mode" nil t)
+  (push '("\\.el\\'" . emacs-lisp-mode) auto-mode-alist)
+  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf))
+
 (when (autoload-if-found '(ispell-region ispell-complete-word)
                          "ispell" nil t)
 
@@ -915,7 +920,7 @@ This function returns a timer object which you can use in
 ;; モードラインの行数表示の前にアイコンを追加
 (with-eval-after-load "nerd-icons"
   (setq mode-line-position-line-format
-        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") "%3l")))
+        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") "%3l"))) ;; 
 
 ;; (with-eval-after-load "icons-in-terminal"
 ;;   (setq mode-line-position-line-format
@@ -1152,10 +1157,10 @@ This function returns a timer object which you can use in
     (custom-set-variables
      '(highlight-symbol-idle-delay 0.5))))
 
-;; (when (autoload-if-found '(icons-in-terminal-dired-mode)
-;;                          "icons-in-terminal-dired" nil t)
-;;   (with-eval-after-load "icons-in-terminal"
-;;     (setq icons-in-terminal-scale-factor 1.0)))
+(when (autoload-if-found '(icons-in-terminal-dired-mode)
+                         "icons-in-terminal-dired" nil t)
+  (with-eval-after-load "icons-in-terminal"
+    (setq icons-in-terminal-scale-factor 1.0)))
 
 (autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired-mode" nil t)
 
@@ -1350,24 +1355,31 @@ This function returns a timer object which you can use in
 (when (eq system-type 'darwin)
   (with-eval-after-load "ivy"
     (cond ((and (require 'nerd-icons nil t) ;; safeguard
-		(require 'ivy-rich nil t)
-		(require 'nerd-icons-ivy-rich nil t))
-	   (nerd-icons-ivy-rich-mode 1)
-	   (ivy-rich-mode 1))
-	  ((and (require 'icons-in-terminal nil t) ;; safeguard
-		(require 'icons-in-terminal-ivy nil t))
-	   (dolist (command '(counsel-projectile-switch-project
-			      counsel-ibuffer))
-	     (add-to-list 'icons-in-terminal-ivy-buffer-commands command))
-	   (icons-in-terminal-ivy-setup))
-	  ((and (require 'all-the-icons nil t) ;; safeguard
-		(require 'all-the-icons-ivy nil t))
-	   (dolist (command '(counsel-projectile-switch-project
-			      counsel-ibuffer))
-	     (add-to-list 'all-the-icons-ivy-buffer-commands command))
-	   (all-the-icons-ivy-setup))))
+                (require 'ivy-rich nil t)
+                (require 'nerd-icons-ivy-rich nil t))
+           (nerd-icons-ivy-rich-mode 1)
+           (ivy-rich-mode 1))
+          ((and (require 'icons-in-terminal nil t) ;; safeguard
+                (require 'icons-in-terminal-ivy nil t))
+           (dolist (command '(counsel-projectile-switch-project
+                              counsel-ibuffer))
+             (add-to-list 'icons-in-terminal-ivy-buffer-commands command))
+           (icons-in-terminal-ivy-setup))
+          ((and (require 'all-the-icons nil t) ;; safeguard
+                (require 'all-the-icons-ivy nil t))
+           (dolist (command '(counsel-projectile-switch-project
+                              counsel-ibuffer))
+             (add-to-list 'all-the-icons-ivy-buffer-commands command))
+           (all-the-icons-ivy-setup))))
 
   (with-eval-after-load "nerd-icons-ivy-rich"
+    (my-update-nerd-icons-ivy-rich-display-transformers-list
+     'counsel-M-x
+     '(:columns
+       ((nerd-icons-ivy-rich-function-icon)
+        (counsel-M-x-transformer (:width 0.5))
+        (ivy-rich-counsel-function-docstring (:face nerd-icons-ivy-rich-doc-face)))))
+
     (my-update-nerd-icons-ivy-rich-display-transformers-list
      'counsel-recentf
      '(:columns
@@ -1377,9 +1389,14 @@ This function returns a timer object which you can use in
         ;; (nerd-icons-ivy-rich-file-modes (:width 12))
         ;; (nerd-icons-ivy-rich-file-size (:width 7 :face nerd-icons-ivy-rich-size-face))
         ;; (ivy-rich-file-last-modified-time (:face nerd-icons-ivy-rich-time-face))
-	)
-       :delimiter " "))
-    ))
+        )
+       :delimiter " ")))
+
+  (with-eval-after-load "counsel"
+    ;; just in case, for surely applying the config.
+    (when (and (require 'nerd-icons nil t)
+               (require 'ivy-rich nil t))
+      (nerd-icons-ivy-rich-reload))))
 
 (when (autoload-if-found '(dimmer-mode
                            dimmer-process-all dimmer-off dimmer-on
@@ -1902,7 +1919,7 @@ This function returns a timer object which you can use in
 			(cond ((require 'nerd-icons nil t)
 			       ;; (nerd-icons-octicon "nf-oct-typography"
 			       ;;					:face 'mode-line-ime-on-face)
-			       (nerd-icons-mdicon "nf-md-ideogram_cjk"
+			       (nerd-icons-mdicon "nf-md-ideogram_cjk_variant" ;; IME
 				                         :face 'mode-line-ime-on-face))
 			      ((require 'icons-in-terminal nil t)
 			       (icons-in-terminal-octicon "keyboard"
@@ -2137,13 +2154,13 @@ This function returns a timer object which you can use in
 
 ;;; 選択対象を "" にする (requires all-the-icons.el)
 (defface my-ivy-arrow-visible
-	'((((class color) (background light)) :foreground "orange")
-		(((class color) (background dark)) :foreground "#EE6363"))
-	"Face used by Ivy for highlighting the arrow.")
+  '((((class color) (background light)) :foreground "orange")
+    (((class color) (background dark)) :foreground "#EE6363"))
+  "Face used by Ivy for highlighting the arrow.")
 (defface my-ivy-arrow-invisible
-	'((((class color) (background light)) :foreground "#FFFFFF")
-		(((class color) (background dark)) :foreground "#31343F"))
-	"Face used by Ivy for highlighting the invisible arrow.")
+  '((((class color) (background light)) :foreground "#FFFFFF")
+    (((class color) (background dark)) :foreground "#31343F"))
+  "Face used by Ivy for highlighting the invisible arrow.")
 
 (with-eval-after-load "counsel"
 
@@ -2152,21 +2169,21 @@ This function returns a timer object which you can use in
 
   (if window-system
       (cond ((require 'icons-in-terminal nil t)
-	     (add-to-list
-	      'ivy-format-functions-alist
-	      '(t . my-ivy-format-function-arrow-iit) t))
-	    ((require 'nerd-icons nil t)
-	     (add-to-list
-	      'ivy-format-functions-alist
-	      '(t . my-ivy-format-function-arrow-ni) t))
-	    ((require 'all-the-icons nil t)
-	     (add-to-list
-	      'ivy-format-functions-alist
-	      '(t . my-ivy-format-function-arrow-ati) t))
-	    (t
-	     (add-to-list
-	      'ivy-format-functions-alist
-	      '(t . ivy-format-function-arrow-line) t)))
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-iit) t))
+            ((require 'nerd-icons nil t)
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-ni) t))
+            ((require 'all-the-icons nil t)
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . my-ivy-format-function-arrow-ati) t))
+            (t
+             (add-to-list
+              'ivy-format-functions-alist
+              '(t . ivy-format-function-arrow-line) t)))
     (add-to-list
      'ivy-format-functions-alist
      '(t . ivy-format-function-arrow-line) t)))

@@ -33,7 +33,7 @@
     "Set up org-eldoc documentation function."
     (interactive)
     (add-function :before-until (local 'eldoc-documentation-function)
-		  #'org-eldoc-documentation-function))
+                  #'org-eldoc-documentation-function))
   ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
   ;; (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
@@ -103,9 +103,9 @@
   ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
   (defun my-promote-todo-revision (state)
     (cond ((member state '("TODO")) "REV1")
-	  ((member state '("REV1")) "REV2")
-	  ((member state '("REV2")) "REV3")
-	  (t state)))
+          ((member state '("REV1")) "REV2")
+          ((member state '("REV2")) "REV3")
+          (t state)))
   ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
   ;; undo 時に reveal して表示を改善する
@@ -135,18 +135,18 @@
 
   ;; - を優先．親のブリッツ表示を継承させない
   (setq org-list-demote-modify-bullet
-	'(("+" . "-")
-	  ("*" . "-")
-	  ("1." . "-")
-	  ("1)" . "-")
-	  ("A)" . "-")
-	  ("B)" . "-")
-	  ("a)" . "-")
-	  ("b)" . "-")
-	  ("A." . "-")
-	  ("B." . "-")
-	  ("a." . "-")
-	  ("b." . "-")))
+        '(("+" . "-")
+          ("*" . "-")
+          ("1." . "-")
+          ("1)" . "-")
+          ("A)" . "-")
+          ("B)" . "-")
+          ("a)" . "-")
+          ("b)" . "-")
+          ("A." . "-")
+          ("B." . "-")
+          ("a." . "-")
+          ("b." . "-")))
 
   ;; 完了したタスクの配色を変える
   ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
@@ -198,10 +198,10 @@
   ;; 空行のとき "<" をインデントさせない
   (defun ad:org-tempo-complete-tag (f &rest arg)
     (if (save-excursion
-	  (beginning-of-line)
-	  (looking-at "<"))
-	(let ((indent-line-function 'ignore))
-	  (apply f arg))
+          (beginning-of-line)
+          (looking-at "<"))
+        (let ((indent-line-function 'ignore))
+          (apply f arg))
       (apply f arg)))
   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
 ;; (Thanks to @conao3)
@@ -221,14 +221,14 @@
   (defun my-org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
-	         (name (cdr entry))
-	         (special nil)) ;; FIXED
+           (name (cdr entry))
+           (special nil)) ;; FIXED
       (tempo-define-template
        (format "org-%s" (replace-regexp-in-string " " "-" name))
        `(,(format "#+begin_%s%s" name (if special " " ""))
-	       ,(when special 'p) '> n '> ,(unless special 'p) n
-	       ,(format "#+end_%s" (car (split-string name " ")))'
-	       >)
+         ,(when special 'p) '> n '> ,(unless special 'p) n
+         ,(format "#+end_%s" (car (split-string name " ")))'
+         >)
        key
        (format "Insert a %s block" name)
        'org-tempo-tags)))

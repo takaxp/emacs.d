@@ -193,6 +193,7 @@
   (el-get-bundle "abo-abo/smex")
   (el-get-bundle "franburstall/ivy-emms")
   (el-get-bundle "ROCKTAKEY/grugru")
+  (el-get-bundle "Yevgnen/ivy-rich")
 
   ;; macOS support
   (when (eq system-type 'darwin)
@@ -360,8 +361,6 @@
   ;; Package management
   (el-get-bundle "use-package")
   (el-get-bundle "conao3/leaf.el" :name leaf)
-  ;; ivy modules
-  (el-get-bundle "Yevgnen/ivy-rich")
   ;; macOS support
   ;; Editing support
   (el-get-bundle "tiny")

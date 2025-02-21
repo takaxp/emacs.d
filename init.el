@@ -339,6 +339,9 @@
 (keymap-global-set "C-;" 'comment-dwim) ;; M-; is the defualt
 (keymap-global-set "C-c c" 'compile)
 
+;; org-tempo を org-modules で読み込む前に TAB 押下で展開する場合の対処
+(advice-add 'org-cycle :before #'ad:org-modules-activate)
+
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
 
