@@ -492,7 +492,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (indent-for-tab-command))
 
 ;;;###autoload
-(defun my-emacs-lisp-mode-conf ()
+(defun my-emacs-lisp-mode-indent-conf ()
   (setq-local indent-tabs-mode t)
   (setq-local tab-width 8)
   (setq indent-line-function 'lisp-indent-line))
@@ -1506,7 +1506,7 @@ Otherwise, use `counsel-ag'."
                                       (org-time-stamp-format t t)))))
 
 ;;;###autoload
-(defun ad:org-modules-activate ()
+(defun ad:org-modules-activate (&optional _arg)
   (interactive)
   (my-org-modules-activate)
   (advice-remove 'org-cycle #'ad:org-modules-activate))
@@ -3169,7 +3169,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun my-format-emacs-lisp-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
-    (my-emacs-lisp-mode-conf)
+    (my-emacs-lisp-mode-indent-conf)
     (save-excursion
       (save-restriction
         (widen)
@@ -3181,9 +3181,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun my-format-emacs-lisp-for-org-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
-    (setq-local indent-line-function 'org-indent-line)
-    (setq-local tab-width 2)
-    (setq-local indent-tabs-mode nil)
+    (my-org-mode-indent-conf)
     (save-excursion
       (save-restriction
         (widen)

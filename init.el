@@ -345,6 +345,13 @@
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
 
+;;;###autoload
+(defun my-org-mode-indent-conf ()
+  (setq-local indent-tabs-mode nil)
+  (setq-local tab-width 8)
+  (setq indent-line-function 'org-indent-line))
+(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
+
 (my-tick-init-time "development")
 
 (cond

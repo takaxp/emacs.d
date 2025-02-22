@@ -111,7 +111,7 @@
   (setq debug-on-error nil
 	postpone-verbose nil
 	my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
-	my-frame-appearance nil			;; {nil, 'dark, 'light}
+	my-frame-appearance nil     ;; {nil, 'dark, 'light}
 	my-skip-check-autoload-file t)
 
   (defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))

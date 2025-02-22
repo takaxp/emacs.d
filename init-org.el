@@ -4,7 +4,7 @@
 (unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
 
-;; テキストファイルを Org Mode で開きます．
+;; テキストファイルを Org Mode で開く．
 (push '("\\.txt$" . org-mode) auto-mode-alist)
 
 ;; Font lock を使う
@@ -802,14 +802,14 @@
                     (org-entry-get (point) "<tab>LE_EXPORT_FORMAT" t)
                     org-table-export-default-format)))
     (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
-	      (let ((transform (intern (match-string 1 format)))
-	            (params (and (match-end 2)
-			                     (read (concat "(" (match-string 2 format) ")"))))
-	            (table (org-table-to-lisp)))
+	       (let ((transform (intern (match-string 1 format)))
+	             (params (and (match-end 2)
+			                      (read (concat "(" (match-string 2 format) ")"))))
+	             (table (org-table-to-lisp)))
           (if (not (org-at-table-p))
               (user-error "The cursor is not at a table")
-	          (with-temp-buffer
-		          (insert (funcall transform table params) "\n")
+	           (with-temp-buffer
+		           (insert (funcall transform table params) "\n")
               (clipboard-kill-ring-save (point-min) (point-max)))))
       (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
 
@@ -824,16 +824,16 @@ The core part is extracted from `org-table-export'."
                     (org-entry-get (point) "<tab>LE_EXPORT_FORMAT" t)
                     org-table-export-default-format)))
     (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
-	      (let ((transform (intern (match-string 1 format)))
-	            (params (and (match-end 2)
-			                     (read (concat "(" (match-string 2 format) ")"))))
-	            (table (org-table-to-lisp)))
+	       (let ((transform (intern (match-string 1 format)))
+	             (params (and (match-end 2)
+			                      (read (concat "(" (match-string 2 format) ")"))))
+	             (table (org-table-to-lisp)))
           (if (not (org-at-table-p))
               (user-error "The cursor is not at a table")
-	          (kill-region (org-table-begin) (org-table-end))
-	          (let ((begin (point)))
-	            (insert (funcall transform table params))
-	            (clipboard-kill-ring-save begin (point))
+	           (kill-region (org-table-begin) (org-table-end))
+	           (let ((begin (point)))
+	             (insert (funcall transform table params))
+	             (clipboard-kill-ring-save begin (point))
               (insert "\n"))))
       (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
 

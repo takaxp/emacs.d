@@ -1804,7 +1804,7 @@ echo "--- done."
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
-(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
+(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-indent-conf)
 (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 #+end_src
 
@@ -3681,7 +3681,7 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-emacs-lisp-mode-conf ()
+(defun my-emacs-lisp-mode-indent-conf ()
   (setq-local indent-tabs-mode t)
   (setq-local tab-width 8)
   (setq indent-line-function 'lisp-indent-line))
@@ -3691,7 +3691,7 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
 (when (autoload-if-found '(emacs-lisp-mode)
                          "elisp-mode" nil t)
   (push '("\\.el\\'" . emacs-lisp-mode) auto-mode-alist)
-  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf))
+  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-indent-conf))
 #+end_src
 
 ** スペルチェック
@@ -6364,7 +6364,8 @@ Obeys `widen-automatically', which see."
     ;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
     (setq read-file-name-function #'my-disable-counsel-find-file)
     ;; (define-key counsel-mode-map [remap find-file]  nil) ;; TODO
-    ;; (keymap-substitute counsel-mode-map 'find-file nil) ;; FIXME
+    ;;;; (keymap-substitute counsel-mode-map 'find-file nil) ;; FIXME
+    ;; (substitute-key-definition 'find-file nil counsel-mode-map) ;; FIXME
 
     ;; オリジナルを非インタラクティブ化（上書きで可．advice不可）
     (when (require 'find-func nil t)
@@ -9880,7 +9881,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                                       (org-time-stamp-format t t)))))
 
 ;;;###autoload
-(defun ad:org-modules-activate ()
+(defun ad:org-modules-activate (&optional _arg)
   (interactive)
   (my-org-modules-activate)
   (advice-remove 'org-cycle #'ad:org-modules-activate))
@@ -9892,10 +9893,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
+
+;;;###autoload
+(defun my-org-mode-indent-conf ()
+  (setq-local indent-tabs-mode nil)
+  (setq-local tab-width 8)
+  (setq indent-line-function 'org-indent-line))
+(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
-;; テキストファイルを Org Mode で開きます．
+;; テキストファイルを Org Mode で開く．
 (push '("\\.txt$" . org-mode) auto-mode-alist)
 
 ;; Font lock を使う
@@ -17293,7 +17301,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 (defun my-format-emacs-lisp-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
-    (my-emacs-lisp-mode-conf)
+    (my-emacs-lisp-mode-indent-conf)
     (save-excursion
       (save-restriction
         (widen)
@@ -17305,9 +17313,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 (defun my-format-emacs-lisp-for-org-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
-    (setq-local indent-line-function 'org-indent-line)
-    (setq-local tab-width 2)
-    (setq-local indent-tabs-mode nil)
+    (my-org-mode-indent-conf)
     (save-excursion
       (save-restriction
         (widen)

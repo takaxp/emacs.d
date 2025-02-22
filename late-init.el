@@ -176,7 +176,7 @@ This function returns a timer object which you can use in
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
-(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf)
+(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-indent-conf)
 (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 
 (setq vc-follow-symlinks t)
@@ -566,7 +566,7 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(emacs-lisp-mode)
                          "elisp-mode" nil t)
   (push '("\\.el\\'" . emacs-lisp-mode) auto-mode-alist)
-  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf))
+  (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-indent-conf))
 
 (when (autoload-if-found '(ispell-region ispell-complete-word)
                          "ispell" nil t)
@@ -1275,7 +1275,8 @@ This function returns a timer object which you can use in
     ;; https://emacs.stackexchange.com/questions/45929/disable-ivy-for-find-file
     (setq read-file-name-function #'my-disable-counsel-find-file)
     ;; (define-key counsel-mode-map [remap find-file]  nil) ;; TODO
-    ;; (keymap-substitute counsel-mode-map 'find-file nil) ;; FIXME
+    ;;;; (keymap-substitute counsel-mode-map 'find-file nil) ;; FIXME
+    ;; (substitute-key-definition 'find-file nil counsel-mode-map) ;; FIXME
 
     ;; オリジナルを非インタラクティブ化（上書きで可．advice不可）
     (when (require 'find-func nil t)

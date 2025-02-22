@@ -54,6 +54,7 @@ Remove PACKAGE.
 ;;; Generated autoloads from init.el
 
 (autoload 'postpone-pre "init" nil t)
+(autoload 'my-org-mode-indent-conf "init")
 (register-definition-prefixes "init" '("ad:suppress-message" "autoload-if-found" "empty-booting-mode" "moom-autoloads" "my-" "postpone-pre-"))
 
 
@@ -302,7 +303,7 @@ Open a file with `view-mode'.")
 
 (fn &rest ARG)")
 (autoload 'my-web-indent-fold "utility" nil t)
-(autoload 'my-emacs-lisp-mode-conf "utility")
+(autoload 'my-emacs-lisp-mode-indent-conf "utility")
 (autoload 'my-flyspell-ignore-nonascii "utility" "\
 incorrect判定をASCIIに限定
 
@@ -546,7 +547,10 @@ Use C-SPC to insert the separator.
 
 
 (fn &optional ARG)")
-(autoload 'ad:org-modules-activate "utility" nil t)
+(autoload 'ad:org-modules-activate "utility" "\
+
+
+(fn &optional ARG)" t)
 (autoload 'my-desktop-notification "utility" "\
 Show a message by `alerter' command.
 
