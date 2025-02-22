@@ -352,180 +352,178 @@
          (concat "rm -rf " org-icalendar-combined-agenda-file))))))
 
 (with-eval-after-load "org"
-	(setq org-use-speed-commands t)
+  (setq org-use-speed-commands t)
 
-	(when (version< (org-version) "9.4.6")
-		(defvaralias 'org-speed-commands 'org-speed-commands-user))
+  (when (version< (org-version) "9.4.6")
+    (defvaralias 'org-speed-commands 'org-speed-commands-user))
 
-	;; "C"(org-shifttab) をオーバーライド
-	(add-to-list 'org-speed-commands '("C" org-copy-subtree))
-	(add-to-list 'org-speed-commands '("d" my-done-with-update-list))
-	;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
-	(add-to-list 'org-speed-commands
-				       '("D" my-org-todo-complete-no-repeat "DONE"))
-	;; (add-to-list 'org-speed-commands '("N" org-shiftmetadown))
-	;; (add-to-list 'org-speed-commands '("P" org-shiftmetaup))
-	(add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
-	(add-to-list 'org-speed-commands '("h" org-hugo-export-wim-to-md))
-	(add-to-list 'org-speed-commands '("E" my-export-subtree-as-html))
-	(add-to-list 'org-speed-commands '("." my-org-deadline-today))
-	(add-to-list 'org-speed-commands '("!" my-org-default-property))
-	(add-to-list 'org-speed-commands '("y" my-org-yank))
-	(add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
-	(add-to-list 'org-speed-commands
-				       '("$" call-interactively 'org-archive-subtree))
+  ;; "C"(org-shifttab) をオーバーライド
+  (add-to-list 'org-speed-commands '("C" org-copy-subtree))
+  (add-to-list 'org-speed-commands '("d" my-done-with-update-list))
+  ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
+  (add-to-list 'org-speed-commands
+               '("D" my-org-todo-complete-no-repeat "DONE"))
+  ;; (add-to-list 'org-speed-commands '("N" org-shiftmetadown))
+  ;; (add-to-list 'org-speed-commands '("P" org-shiftmetaup))
+  (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
+  (add-to-list 'org-speed-commands '("h" org-hugo-export-wim-to-md))
+  (add-to-list 'org-speed-commands '("E" my-export-subtree-as-html))
+  (add-to-list 'org-speed-commands '("." my-org-deadline-today))
+  (add-to-list 'org-speed-commands '("!" my-org-default-property))
+  (add-to-list 'org-speed-commands '("y" my-org-yank))
+  (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
+  (add-to-list 'org-speed-commands
+               '("$" call-interactively 'org-archive-subtree))
 
-	;; done にして，apptを更新する
-	(defun my-done-with-update-list ()
-		(interactive)
-		(org-todo "DONE")
-		(my-org-agenda-to-appt))
+  ;; done にして，apptを更新する
+  (defun my-done-with-update-list ()
+    (interactive)
+    (org-todo "DONE")
+    (my-org-agenda-to-appt))
 
-	;; 周期タクスを終了させます．
-	(defun my-org-todo-complete-no-repeat (&optional ARG)
-		(interactive "P")
-		(when (org-get-repeat)
-			(org-cancel-repeater))
-		(if (eq (current-buffer) org-agenda-buffer)
-	      (org-agenda-todo ARG)
-			(org-todo ARG)))
+  ;; 周期タクスを終了させます．
+  (defun my-org-todo-complete-no-repeat (&optional ARG)
+    (interactive "P")
+    (when (org-get-repeat)
+      (org-cancel-repeater))
+    (if (eq (current-buffer) org-agenda-buffer)
+        (org-agenda-todo ARG)
+      (org-todo ARG)))
 
-	(defun my-org-replace-punc-in-buffer ()
-		"Replace \"，\" and \"．\" with \"、\" and \"。\" in a buffer."
-		(interactive)
-		(goto-char (point-min))
-		(while (re-search-forward "\\(，\\)\\|\\(．\\)" nil :noerror)
-			(let ((w (match-string-no-properties 0)))
-	      (cond ((equal w "，") (replace-match "、"))
-				      ((equal w "．") (replace-match "。"))))))
+  (defun my-org-replace-punc-in-buffer ()
+    "Replace \"，\" and \"．\" with \"、\" and \"。\" in a buffer."
+    (interactive)
+    (goto-char (point-min))
+    (while (re-search-forward "\\(，\\)\\|\\(．\\)" nil :noerror)
+      (let ((w (match-string-no-properties 0)))
+        (cond ((equal w "，") (replace-match "、"))
+              ((equal w "．") (replace-match "。"))))))
 
-	(defun my-org-replace-punc-in-tree ()
-		"Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree."
-		(interactive)
-		(org-back-to-heading t)
-		(let* ((element (org-element-at-point))
-		       (begin (org-element-property :begin element))
-		       (end (org-element-property :end element)))
-			(when (eq (org-element-type element) 'headline)
-	      (goto-char begin)
-	      (while (re-search-forward "\\(，\\)\\|\\(．\\)" end :noerror)
-		      (let ((w (match-string-no-properties 0)))
-			      (cond ((equal w "，") (replace-match "、"))
-			            ((equal w "．") (replace-match "。")))))
-	      (goto-char begin))))
+  (defun my-org-replace-punc-in-tree ()
+    "Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree."
+    (interactive)
+    (org-back-to-heading t)
+    (let* ((element (org-element-at-point))
+           (begin (org-element-property :begin element))
+           (end (org-element-property :end element)))
+      (when (eq (org-element-type element) 'headline)
+        (goto-char begin)
+        (while (re-search-forward "\\(，\\)\\|\\(．\\)" end :noerror)
+          (let ((w (match-string-no-properties 0)))
+            (cond ((equal w "，") (replace-match "、"))
+                  ((equal w "．") (replace-match "。")))))
+        (goto-char begin))))
 
-	;; Hugo の記事を書き出し&アップロード
-	(defun my-hugo-export-upload ()
-		"Export subtree for Hugo and upload the engty."
-		(when (member (buffer-name) '("imadenale.org" "archive.org"))
-			(if (not (org-entry-is-done-p))
-		      (message "The state of the entry is not \"DONE\" yet.")
-	      (my-org-replace-punc-in-tree)
-	      (save-buffer)
-	      ;; (let ((outfile (org-hugo-export-wim-to-md)))
-	      ;;	 (sit-for 2)
-	      ;;	 (when (and outfile
-	      ;;							(file-exists-p outfile))
-	      ;;		 (switch-to-buffer
-	      ;;			(find-file-noselect outfile)
-	      ;;			(my-org-replace-punc-in-buffer))))
-	      (org-hugo-export-wim-to-md)
-	      (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
-				      (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
-				      (exported (format "[ox-hugo] \"%s\" has been exported."
-				                        (nth 4 (org-heading-components)))))
-		      (when filename
-			      ;; (when (file-exists-p (concat outfile ".md"))
-			      ;;	 (switch-to-buffer
-			      ;;		(find-file-noselect (concat outfile ".md"))
-			      ;;		(my-org-replace-punc-in-buffer)
-			      ;;		(save-buffer)))
-			      (save-excursion
-				      (save-restriction
-		            (outline-up-heading 1)
-		            (setq filename
-					            (concat (nth 4 (org-heading-components)) "/" filename))
-		            (setq command (concat command " -e " (downcase filename)))))
-			      (message "[hugo] %s" command)
-			      (if (require 'async nil t)
-		            (progn
-			            (message "%s\n[async] Uploading..." exported)
-			            (async-start
-			             `(lambda () (shell-command-to-string ',command))
-			             `(lambda (result)
-					            (message "%s\n[async] Uploading...%s"
-						                   ',exported (when result "done"))
-					            (message "[log] %s" result))))
-				      (message "%s\nUploading..." exported)
-				      (message "%s" (shell-command-to-string command))
-				      (message "%s\nUploading...done" exported)))))))
+  ;; Hugo の記事を書き出し&アップロード
+  (defun my-hugo-export-upload ()
+    "Export subtree for Hugo and upload the engty."
+    (when (member (buffer-name) '("imadenale.org" "archive.org"))
+      (if (not (org-entry-is-done-p))
+          (message "The state of the entry is not \"DONE\" yet.")
+        (my-org-replace-punc-in-tree)
+        (save-buffer)
+        ;; (let ((outfile (org-hugo-export-wim-to-md)))
+        ;;   (sit-for 2)
+        ;;   (when (and outfile
+        ;;    (file-exists-p outfile))
+        ;;     (switch-to-buffer
+        ;;  (find-file-noselect outfile)
+        ;;  (my-org-replace-punc-in-buffer))))
+        (org-hugo-export-wim-to-md)
+        (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
+              (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
+              (exported (format "[ox-hugo] \"%s\" has been exported."
+                                (nth 4 (org-heading-components)))))
+          (when filename
+            ;; (when (file-exists-p (concat outfile ".md"))
+            ;;   (switch-to-buffer
+            ;;    (find-file-noselect (concat outfile ".md"))
+            ;;    (my-org-replace-punc-in-buffer)
+            ;;    (save-buffer)))
+            (save-excursion
+              (save-restriction
+                (outline-up-heading 1)
+                (setq filename
+                      (concat (nth 4 (org-heading-components)) "/" filename))
+                (setq command (concat command " -e " (downcase filename)))))
+            (message "[hugo] %s" command)
+            (if (require 'async nil t)
+                (progn
+                  (message "%s\n[async] Uploading..." exported)
+                  (async-start
+                   `(lambda () (shell-command-to-string ',command))
+                   `(lambda (result)
+                      (message "%s\n[async] Uploading...%s"
+                               ',exported (when result "done"))
+                      (message "[log] %s" result))))
+              (message "%s\nUploading..." exported)
+              (message "%s" (shell-command-to-string command))
+              (message "%s\nUploading...done" exported)))))))
 
-	;; カーソル位置のサブツリーをデスクトップにHTMLエクスポートする
-	(defun my-export-subtree-as-html ()
-		(interactive)
-		(let ((file "~/Desktop/note.html"))
-			(org-export-to-file 'html file nil t)
-			(org-open-file file)))
+  ;; カーソル位置のサブツリーをデスクトップにHTMLエクスポートする
+  (defun my-export-subtree-as-html ()
+    (interactive)
+    (let ((file "~/Desktop/note.html"))
+      (org-export-to-file 'html file nil t)
+      (org-open-file file)))
 
-	;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
-	(defun my-org-deadline-today ()
-		(when (org-entry-is-todo-p)
-			(let ((date (org-entry-get (point) "DEADLINE"))
-			      (today (format-time-string "%F")))
-	      (org-deadline 'deadline
-					            (if date
-				                  (format "<%s%s"
-					                        today
-					                        (substring date 11 (string-width date)))
-			                  (format "<%s>" today))))))
+  ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
+  (defun my-org-deadline-today ()
+    (when (org-entry-is-todo-p)
+      (let ((date (org-entry-get (point) "DEADLINE"))
+            (today (format-time-string "%F")))
+        (org-deadline 'deadline
+                      (if date
+                          (format "<%s%s"
+                                  today
+                                  (substring date 11 (string-width date)))
+                        (format "<%s>" today))))))
 
-	;; 現在のツリーを畳んでから同じレベルの最後の要素として移動する
-	(defcustom my-org-move-subtree-to-the-last-after-hook nil""
-		:type 'hook :group 'org)
-	(defun my-org-move-subtree-to-the-last ()
-		"Move the current heading to the last one of the same level."
-		(interactive)
-		(let ((cnt 0) beg)
-			(org-back-to-heading)
-			(outline-hide-subtree)
-			(setq beg (point))
-			(while (and (funcall 'org-get-next-sibling)
-			            (looking-at org-outline-regexp))
-	      (setq cnt (1+ cnt)))
-			(goto-char beg)
-			(when (> cnt 0)
-	      (org-move-subtree-down cnt)
-	      (goto-char beg)))
-		(run-hooks 'my-org-move-subtree-to-the-last-after-hook))
+  ;; 現在のツリーを畳んでから同じレベルの最後の要素として移動する
+  (defcustom my-org-move-subtree-to-the-last-after-hook nil""
+    :type 'hook :group 'org)
+  (defun my-org-move-subtree-to-the-last ()
+    "Move the current heading to the last one of the same level."
+    (interactive)
+    (let ((cnt 0) beg)
+      (org-back-to-heading)
+      (outline-hide-subtree)
+      (setq beg (point))
+      (while (and (funcall 'org-get-next-sibling)
+                  (looking-at org-outline-regexp))
+        (setq cnt (1+ cnt)))
+      (goto-char beg)
+      (when (> cnt 0)
+        (org-move-subtree-down cnt)
+        (goto-char beg)))
+    (run-hooks 'my-org-move-subtree-to-the-last-after-hook))
 
-	;; "k" でツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
-	(defun my-k-update-todo-statistics (f &rest n)
-		(org-update-statistics-cookies nil)
-		(let ((p (point))
-		      (not-last-subtree-p (funcall 'org-get-next-sibling)))
-			(goto-char p)
-			(apply f n)
-			(if not-last-subtree-p
-		      (org-update-parent-todo-statistics)
-	      (org-previous-visible-heading 1)
-	      ;; (org-update-statistics-cookies nil)
-	      (org-update-parent-todo-statistics)
-	      (org-next-visible-heading 1))))
-	(advice-add 'org-cut-subtree :around #'my-k-update-todo-statistics)
+  ;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
+  (defun my-kill-update-todo-statistics (_b _d &optional _arg)
+    (when (org-kill-is-subtree-p)
+      (save-excursion
+        (save-restriction
+          (unless (eq 1 (point))
+            (backward-char 1))
+          (ignore-errors (outline-up-heading 1))
+          (org-update-statistics-cookies nil)
+          (org-update-parent-todo-statistics)
+          ;; (org-element-cache-refresh)          
+          ))))
+  (advice-add 'kill-region :after #'my-kill-update-todo-statistics)
 
-	;; "y" でツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
-	(defun my-y-update-todo-statistics (&optional _arg)
-		(when (and (org-kill-is-subtree-p)
-				       (or (bolp)
-			             (and (looking-at "[ \t]*$")
-			                  (string-match
-			                   "\\`\\*+\\'"
-			                   (buffer-substring (point-at-bol) (point))))))
-			(org-previous-visible-heading 1)
-			(org-update-statistics-cookies nil)
-			(org-update-parent-todo-statistics)
-			(org-next-visible-heading 1)))
-	(advice-add 'org-yank :after #'my-y-update-todo-statistics))
+  ;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
+  (defun my-yank-update-todo-statistics (&optional _arg)
+    (when (org-kill-is-subtree-p)
+      (save-excursion
+        (save-restriction
+          (unless (eq 1 (point))
+            (backward-char 1))
+          (org-update-statistics-cookies nil)
+          (org-update-parent-todo-statistics)
+          ;; (org-element-cache-refresh)          
+          ))))
+  (advice-add 'org-yank :after #'my-yank-update-todo-statistics))
 
 (with-eval-after-load "org"
   ;; Font lock を使う

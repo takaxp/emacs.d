@@ -3,10 +3,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;								TODO/DONE/FIXME
 
-(with-eval-after-load "org-tempo"
-  )
-
 (with-eval-after-load "org"
+  ;; (setq debug-on-error t)
+  ;; (advice-add 'org-cycle :around #'ad:org-cycle-src-block)
+  ;; (advice-remove 'org-cycle #'ad:org-cycle-src-block)
+  (defun ad:org-cycle-src-block (f &rest arg)
+    (if (org-in-src-block-p)
+	(progn
+	  (indent-for-tab-command)
+	  )
+      ;; (message "--- hoge") ;;       (indent-for-tab-command)
+      (apply f arg)))
+
+  ;; (defun my-iftc (&optional _arg)
+  ;;   (error "stop"))
+  ;; (advice-add 'indent-for-tab-command :after #'my-iftc)
+
   ;; (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)
 
@@ -99,7 +111,7 @@
   (setq debug-on-error nil
 	postpone-verbose nil
 	my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
-	my-frame-appearance nil	    ;; {nil, 'dark, 'light}
+	my-frame-appearance nil			;; {nil, 'dark, 'light}
 	my-skip-check-autoload-file t)
 
   (defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))
@@ -110,14 +122,14 @@
   (defvar my-loading-profile-p nil
     "If non-nil, show ticks while booting.")
   (defvar my-secure-boot nil
-    "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
+    "Ensure to start Emacs.	 If non-nil, postpone and session are disabled.")
 
   ;; (setq measure-exec-time-list '(my-show-org-buffer
-  ;;			       my-private-conf-activate
-  ;;			       my-org-babel-load-activate
-  ;;			       my-org-modules-activate
-  ;;			       my-org-agenda-prepare-buffers
-  ;;			       ))
+  ;;						 my-private-conf-activate
+  ;;						 my-org-babel-load-activate
+  ;;						 my-org-modules-activate
+  ;;						 my-org-agenda-prepare-buffers
+  ;;						 ))
   ;; (require 'my-eshell nil t)
 
   (require 'init nil t)))

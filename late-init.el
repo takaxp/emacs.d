@@ -564,7 +564,7 @@ This function returns a timer object which you can use in
   (push '("\\.go\\'" . go-mode) auto-mode-alist))
 
 (when (autoload-if-found '(emacs-lisp-mode)
-                         "emacs-lisp-mode" nil t)
+                         "elisp-mode" nil t)
   (push '("\\.el\\'" . emacs-lisp-mode) auto-mode-alist)
   (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-conf))
 
@@ -1162,7 +1162,7 @@ This function returns a timer object which you can use in
   (with-eval-after-load "icons-in-terminal"
     (setq icons-in-terminal-scale-factor 1.0)))
 
-(autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired-mode" nil t)
+(autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired" nil t)
 
 (cond ((require 'nerd-icons-dired nil t)
        (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
@@ -1847,27 +1847,27 @@ This function returns a timer object which you can use in
 
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "nerd-icons"
-	(setq-default prettify-symbols-alist
-		            '((":PROPERTIES:" . "»") ;;	 » ;; nf-fa-angle_double_right  
-									(":LOGBOOK:" . "›") ;;	› ;; nf-fa-angle_right  
-									(":END:" . "›") ;;	› 
-									("#+begin_src" . "▨") ;;  ▨
-									("#+end_src" . "▨") ;; ▨
-									("#+RESULTS:" . "") ;; nf-fa-share_square 
-									("[ ]" .	"󰄱") ;; ☐  ;; nf-md-checkbox_blank_outline 󰄱
-									("[X]" . "󰄵" ) ;; ☑  ;; nf-md-checkbox_marked_outline 󰄵
-									("[-]" . "󰄗" )))) ;; nf-md-checkbox_blank_badge_outline 󰄗
+  (setq-default prettify-symbols-alist
+                '((":PROPERTIES:" . "»") ;;  » ;; nf-fa-angle_double_right  
+                  (":LOGBOOK:" . "›") ;;  › ;; nf-fa-angle_right  
+                  (":END:" . "›") ;;  › 
+                  ("#+begin_src" . "▨") ;;  ▨
+                  ("#+end_src" . "▨") ;; ▨
+                  ("#+RESULTS:" . "") ;; nf-fa-share_square 
+                  ("[ ]" .  "󰄱") ;; ☐  ;; nf-md-checkbox_blank_outline 󰄱
+                  ("[X]" . "󰄵" ) ;; ☑  ;; nf-md-checkbox_marked_outline 󰄵
+                  ("[-]" . "󰄗" )))) ;; nf-md-checkbox_blank_badge_outline 󰄗
 
 ;; (with-eval-after-load "icons-in-terminal"
-;;	 (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;	 »
-;;																					(":LOGBOOK:" . "") ;;	›
-;;																					(":END:" . "") ;;	›
-;;																					("#+begin_src" . "▨") ;; 
-;;																					("#+end_src" . "▨")
-;;																					("#+RESULTS:" . "")
-;;																					("[ ]" .	"") ;; ☐ 
-;;																					("[X]" . "" ) ;; ☑ 
-;;																					("[-]" . "" )))) ;; ☒ 
+;;   (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;  »
+;;       (":LOGBOOK:" . "") ;; ›
+;;       (":END:" . "") ;; ›
+;;       ("#+begin_src" . "▨") ;; 
+;;       ("#+end_src" . "▨")
+;;       ("#+RESULTS:" . "")
+;;       ("[ ]" . "") ;; ☐ 
+;;       ("[X]" . "" ) ;; ☑ 
+;;       ("[-]" . "" )))) ;; ☒ 
 
 (when (autoload-if-found '(org-recent-headings org-recent-headings-mode)
                          "org-recent-headings" nil t)
