@@ -3,11 +3,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;								TODO/DONE/FIXME
 
-(with-eval-after-load "org"
-  (setq org-element-use-cache nil)
-  (setq org-element-cache-persistent nil)
-  (org-element-cache-reset t)
-  (add-hook 'find-file-hook #'org-element-cache-reset))
+;; (with-eval-after-load "org"
+;;   (setq org-element-use-cache nil)
+;;   (setq org-element-cache-persistent nil)
+;;   (org-element-cache-reset t)
+;;   (add-hook 'find-file-hook #'org-element-cache-reset))
 
 (with-eval-after-load "org"
   ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/tree/etc/ORG-NEWS#n570
@@ -30,7 +30,6 @@
 	   (while (search-forward "\t" bound t)
 	     (replace-match repl)))))))
 
-  ;; (setq debug-on-error t)
   ;; (advice-add 'org-cycle :around #'ad:org-cycle-src-block)
   ;; (advice-remove 'org-cycle #'ad:org-cycle-src-block)
   (defun ad:org-cycle-src-block (f &rest arg)
@@ -148,7 +147,7 @@
   (defvar my-loading-profile-p nil
     "If non-nil, show ticks while booting.")
   (defvar my-secure-boot nil
-    "Ensure to start Emacs.	 If non-nil, postpone and session are disabled.")
+    "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
 
   ;; (setq measure-exec-time-list '(my-show-org-buffer
   ;;						 my-private-conf-activate

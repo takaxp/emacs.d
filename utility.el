@@ -37,24 +37,24 @@ This function is called directly from the C code."
     ;; Maybe we should just use display-warning?  This seems yucky...
     (let* ((file (file-name-nondirectory abs-file))
            (package (intern (substring file 0
-			                                 (string-match "\\.elc?\\>" file))
+                                       (string-match "\\.elc?\\>" file))
                             obarray))
            (msg (unless (memq package my-exclude-deprecated-packages)
                   (format "Package %s is deprecated" package)))
-	         (fun (lambda (msg) (message "%s" msg))))
+           (fun (lambda (msg) (message "%s" msg))))
       (when (or (not (fboundp 'byte-compile-warning-enabled-p))
                 (byte-compile-warning-enabled-p 'obsolete package))
         (cond
-	       ((bound-and-true-p byte-compile-current-file)
-	        ;; Don't warn about obsolete files using other obsolete files.
-	        (unless (and (stringp byte-compile-current-file)
-		                   (string-match-p "/obsolete/[^/]*\\'"
-				                               (expand-file-name
-					                              byte-compile-current-file
-					                              byte-compile-root-dir)))
-	          (byte-compile-warn "%s" msg)))
+         ((bound-and-true-p byte-compile-current-file)
+          ;; Don't warn about obsolete files using other obsolete files.
+          (unless (and (stringp byte-compile-current-file)
+                       (string-match-p "/obsolete/[^/]*\\'"
+                                       (expand-file-name
+                                        byte-compile-current-file
+                                        byte-compile-root-dir)))
+            (byte-compile-warn "%s" msg)))
          (noninteractive (funcall fun msg)) ;; No timer will be run!
-	       (t (run-with-idle-timer 0 nil fun msg))))))
+         (t (run-with-idle-timer 0 nil fun msg))))))
 
   ;; Finally, run any other hook.
   (run-hook-with-args 'after-load-functions abs-file))
@@ -143,18 +143,18 @@ This function is called directly from the C code."
 
 ;;;###autoload
 (defun my-start-autolock-secret-buffer ()
-	(interactive)
-	(my-stop-autolock-secret-buffer)
-	(setq my-secret-close-timer
-	      (run-with-idle-timer
-	       my-secret-autolock-time t
-	       #'my-lock-secret-buffer my-secret-org-file)))
+  (interactive)
+  (my-stop-autolock-secret-buffer)
+  (setq my-secret-close-timer
+        (run-with-idle-timer
+         my-secret-autolock-time t
+         #'my-lock-secret-buffer my-secret-org-file)))
 
 ;;;###autoload
 (defun my-stop-autolock-secret-buffer ()
-	(interactive)
-	(when (timerp my-secret-close-timer)
-		(cancel-timer my-secret-close-timer)))
+  (interactive)
+  (when (timerp my-secret-close-timer)
+    (cancel-timer my-secret-close-timer)))
 
 ;;;###autoload
 (defun my-isearch-ime-deactivate-sticky ()
@@ -196,7 +196,7 @@ This function is called directly from the C code."
   ;; (message "%s" (frame-focus-state (selected-frame)))
   (when (and
          (fboundp 'frame-focus-state)
-		     (frame-focus-state)
+         (frame-focus-state)
          (eq major-mode 'org-mode)
          (boundp 'org-agenda-buffer-name)
          (or (looking-at org-heading-regexp)
@@ -420,7 +420,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   "Open a file with `view-mode'."
   (when (file-exists-p buffer-file-name)
     (when (and my-auto-view-regexp
-	       (string-match my-auto-view-regexp buffer-file-name))
+         (string-match my-auto-view-regexp buffer-file-name))
       (view-mode 1))
     (dolist (dir my-auto-view-dirs)
       (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
@@ -493,6 +493,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 ;;;###autoload
 (defun my-emacs-lisp-mode-indent-conf ()
+  (interactive)
   (setq-local indent-tabs-mode t)
   (setq-local tab-width 8)
   (setq indent-line-function 'lisp-indent-line))
@@ -694,8 +695,8 @@ Call this function at updating `mode-line-mode'."
 (defun my-change-window-divider ()
   (interactive)
   (let ((display-table (or buffer-display-table
-			                     standard-display-table
-			                     (make-display-table))))
+                           standard-display-table
+                           (make-display-table))))
     (set-display-table-slot display-table 5 ?│)
     (set-window-display-table (selected-window) display-table)))
 
@@ -768,54 +769,54 @@ Call this function at updating `mode-line-mode'."
 
 ;;;###autoload
 (defun my-coding-system-name-mnemonic (coding-system)
-	(let* ((base (coding-system-base coding-system))
-				 (name (symbol-name base)))
-		(cond ((string-prefix-p "utf-8" name) "U8")
-					((string-prefix-p "utf-16" name) "U16")
-					((string-prefix-p "utf-7" name) "U7")
-					((string-prefix-p "japanese-shift-jis" name) "SJIS")
-					((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
-					((string-match "japanese-iso-8bit" name) "EUC")
-					(t "???"))))
+  (let* ((base (coding-system-base coding-system))
+         (name (symbol-name base)))
+    (cond ((string-prefix-p "utf-8" name) "U8")
+          ((string-prefix-p "utf-16" name) "U16")
+          ((string-prefix-p "utf-7" name) "U7")
+          ((string-prefix-p "japanese-shift-jis" name) "SJIS")
+          ((string-match "cp\\([0-9]+\\)" name) (match-string 1 name))
+          ((string-match "japanese-iso-8bit" name) "EUC")
+          (t "???"))))
 
 ;;;###autoload
 (defun my-coding-system-bom-mnemonic (coding-system)
-	(let ((name (symbol-name coding-system)))
-		(cond ((string-match "be-with-signature" name) "[BE]")
-					((string-match "le-with-signature" name) "[LE]")
-					((string-match "-with-signature" name) "[BOM]")
-					(t ""))))
+  (let ((name (symbol-name coding-system)))
+    (cond ((string-match "be-with-signature" name) "[BE]")
+          ((string-match "le-with-signature" name) "[LE]")
+          ((string-match "-with-signature" name) "[BOM]")
+          (t ""))))
 
 ;;;###autoload
 (defun my-mode-line-icon-lock-icons-in-terminal ()
-	(if view-mode
-			(concat (icons-in-terminal-faicon
-							 "lock" :face '(:foreground "#FF0000")) " ") ""))
+  (if view-mode
+      (concat (icons-in-terminal-faicon
+               "lock" :face '(:foreground "#FF0000")) " ") ""))
 
 ;;;###autoload
 (defun my-mode-line-icon-lock-nerd-icons ()
-	(if view-mode
-			(concat (nerd-icons-mdicon
-							 "nf-md-file_lock" :face '(:foreground "#FF0000")) " ") ""))
+  (if view-mode
+      (concat (nerd-icons-mdicon
+               "nf-md-file_lock" :face '(:foreground "#FF0000")) " ") ""))
 
 ;;;###autoload
 (defun my-mode-line-icon-for-file ()
-	(cond ((require 'nerd-icons nil t)
-		     (nerd-icons-icon-for-file
-		      (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
-	      ((require 'icons-in-terminal nil t)
-		     (icons-in-terminal-icon-for-file
-		      (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))))
+  (cond ((require 'nerd-icons nil t)
+         (nerd-icons-icon-for-file
+          (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))
+        ((require 'icons-in-terminal nil t)
+         (icons-in-terminal-icon-for-file
+          (buffer-name) :v-adjust 0.03 :face 'mode-line-file-icon-face))))
 
 ;;;###autoload
 (defun my-buffer-coding-system-mnemonic ()
-	"Return a mnemonic for `buffer-file-coding-system'."
-	(let* ((code buffer-file-coding-system)
-				 (name (my-coding-system-name-mnemonic code))
-				 (bom (my-coding-system-bom-mnemonic code)))
-		(if (version< emacs-version "29.0")
-				(format "%s %s%s" (my-mode-line-icon-for-file) name bom )
-			(format "%s%s" name bom ))))
+  "Return a mnemonic for `buffer-file-coding-system'."
+  (let* ((code buffer-file-coding-system)
+         (name (my-coding-system-name-mnemonic code))
+         (bom (my-coding-system-bom-mnemonic code)))
+    (if (version< emacs-version "29.0")
+        (format "%s %s%s" (my-mode-line-icon-for-file) name bom )
+      (format "%s%s" name bom ))))
 
 ;;;###autoload
 (defun my-delight-activate ()
@@ -825,7 +826,7 @@ Call this function at updating `mode-line-mode'."
 ;;;###autoload
 (defun my-migemo-activate ()
   (when (and (executable-find "cmigemo")
-	           (require 'migemo nil t))
+             (require 'migemo nil t))
     (add-hook 'isearch-mode-hook #'migemo-init)
     (migemo-init))
   (remove-hook 'isearch-mode-hook #'my-migemo-activate))
@@ -888,29 +889,29 @@ Call this function at updating `mode-line-mode'."
 Elements of SEQUENCE are transformed by FUNCTION before being
 sorted.  FUNCTION must be a function of one argument."
   (seq-sort (lambda (a b)
-	      (funcall pred
-		       (funcall function a)
-		       (funcall function b)))
-	    sequence))
+        (funcall pred
+           (funcall function a)
+           (funcall function b)))
+      sequence))
 
 ;;;###autoload
 (defun ivy--sort-by-len (name candidates)
   "Sort CANDIDATES based on similarity of their length with NAME."
   (let ((name-len (length name))
-	(candidates-count (length candidates)))
+  (candidates-count (length candidates)))
     (if (< 500 candidates-count)
-	candidates
+  candidates
       (seq-sort-by #'length
-		   (lambda (a b)
-		     (< (abs (- name-len a))
-			(abs (- name-len b))))
-		   candidates))))
+       (lambda (a b)
+         (< (abs (- name-len a))
+      (abs (- name-len b))))
+       candidates))))
 
 ;;;###autoload
 (defun my-disable-counsel-find-file (&rest args)
   "Disable `counsel-find-file' and use the original `find-file' with ARGS."
   (let ((completing-read-function #'completing-read-default)
-	      (completion-in-region-function #'completion--in-region))
+        (completion-in-region-function #'completion--in-region))
     (apply #'read-file-name-default args)))
 
 ;; Common actions for counsel-ag, counsel-fzf, and counsel-recentf
@@ -924,9 +925,9 @@ sorted.  FUNCTION must be a function of one argument."
 (defun my-counsel-fzf-in-dir (_arg)
   "Search again with new root directory."
   (counsel-fzf ivy-text
-	       (read-directory-name
-		(concat (car (split-string counsel-fzf-cmd))
-			" in directory: "))))
+         (read-directory-name
+    (concat (car (split-string counsel-fzf-cmd))
+      " in directory: "))))
 
 ;;;###autoload
 (defun my-counsel-ag-in-dir (_arg)
@@ -940,40 +941,40 @@ sorted.  FUNCTION must be a function of one argument."
 Obeys `widen-automatically', which see."
   (interactive)
   (let* ((counsel--mark-ring-calling-point (point))
-	 (marks (copy-sequence mark-ring))
-	 (marks (delete-dups marks))
-	 (marks
-	  ;; mark-marker is empty?
-	  (if (equal (mark-marker) (make-marker))
-	      marks
-	    (cons (copy-marker (mark-marker)) marks)))
-	 (candidates (counsel-mark--get-candidates marks)))
+   (marks (copy-sequence mark-ring))
+   (marks (delete-dups marks))
+   (marks
+    ;; mark-marker is empty?
+    (if (equal (mark-marker) (make-marker))
+        marks
+      (cons (copy-marker (mark-marker)) marks)))
+   (candidates (counsel-mark--get-candidates marks)))
     (delete-dups candidates) ;; [added] remove duplicated lines
     (if candidates
-	(counsel-mark--ivy-read "Mark: " candidates 'counsel-mark-ring)
+  (counsel-mark--ivy-read "Mark: " candidates 'counsel-mark-ring)
       (message "Mark ring is empty"))
     counsel--mark-ring-calling-point)) ;; To avoid an warning on lexical val.
 
 ;;;###autoload
 (defun my-pre-prompt-function ()
-	(cond (window-system
-				 (format "%s%s "
-								 (if my-toggle-modeline-global "" ;; FIXME
-									 (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-								 (cond ((require 'nerd-icons nil t)
-			                  (nerd-icons-mdicon "nf-md-playlist_check")) ;; 󰗇
-											 ((require 'icons-in-terminal nil t)
-												(icons-in-terminal-material "playlist_add_check"))
-											 ((require 'all-the-icons nil t)
-												(all-the-icons-material "playlist_add_check"))
-											 (t ""))))
-				;; ((eq system-type 'windows-nt)
-				;;	(format "%s%s "
-				;;					(if my-toggle-modeline-global "" ;; FIXME
-				;;						(concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-				;;					">>"))
-				(t
-				 (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
+  (cond (window-system
+         (format "%s%s "
+                 (if my-toggle-modeline-global "" ;; FIXME
+                   (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+                 (cond ((require 'nerd-icons nil t)
+                        (nerd-icons-mdicon "nf-md-playlist_check")) ;; 󰗇
+                       ((require 'icons-in-terminal nil t)
+                        (icons-in-terminal-material "playlist_add_check"))
+                       ((require 'all-the-icons nil t)
+                        (all-the-icons-material "playlist_add_check"))
+                       (t ""))))
+        ;; ((eq system-type 'windows-nt)
+        ;;	(format "%s%s "
+        ;;					(if my-toggle-modeline-global "" ;; FIXME
+        ;;						(concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+        ;;					">>"))
+        (t
+         (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
 
 ;;;###autoload
 (defun my-truncate-lines-activate ()
@@ -1047,7 +1048,7 @@ Obeys `widen-automatically', which see."
 (defun my-toggle-dimmer ()
   (interactive)
   (if (setq my-dimmer-mode (not my-dimmer-mode))
-		  (dimmer-on) (dimmer-off)))
+      (dimmer-on) (dimmer-off)))
 
 ;;;###autoload
 (defun dimmer-permanent-off ()
@@ -1062,19 +1063,19 @@ Obeys `widen-automatically', which see."
 ;;;###autoload
 (defun dimmer-on ()
   (when my-dimmer-mode
-	  (dimmer-mode 1)
-	  (dimmer-process-all)))
+    (dimmer-mode 1)
+    (dimmer-process-all)))
 
 ;;;###autoload
 (defun my-dimmer-update ()
-	(if (frame-focus-state) (dimmer-on) (dimmer-off)))
+  (if (frame-focus-state) (dimmer-on) (dimmer-off)))
 
 ;;;###autoload
 (defun ad:dimmer-org-agenda--quit (&optional _bury)
   (when (fboundp 'dimmer-on)
-	  (setq my-dimmer-mode t)
-	  (dimmer-on)
-	  (redraw-frame)))
+    (setq my-dimmer-mode t)
+    (dimmer-on)
+    (redraw-frame)))
 
 ;;;###autoload
 (defun my-dimmer-activate ()
@@ -1085,20 +1086,20 @@ Obeys `widen-automatically', which see."
 (defun my-recentf-save-list-silence ()
   (interactive)
   (if shutup-p
-	    (shut-up (recentf-save-list))
-	  (let ((message-log-max nil))
-	    (recentf-save-list)))
+      (shut-up (recentf-save-list))
+    (let ((message-log-max nil))
+      (recentf-save-list)))
   (message ""))
 
 ;;;###autoload
 (defun my-recentf-cleanup-silence ()
   (interactive)
   (when (file-exists-p "/Volumes/orzHDn")
-	  (if shutup-p
-	      (shut-up (recentf-cleanup))
-	    (let ((message-log-max nil))
-	      (recentf-cleanup)))
-	  (message "")))
+    (if shutup-p
+        (shut-up (recentf-cleanup))
+      (let ((message-log-max nil))
+        (recentf-cleanup)))
+    (message "")))
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
@@ -1114,12 +1115,12 @@ Obeys `widen-automatically', which see."
   (require 'recentf)
   (recentf-mode)
   (ivy-read "Recentf: "
-		        (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
-				                         (substring-no-properties x)))
-			              recentf-list)
-		        :action #'my-counsel-recentf-action
-		        :require-match t
-		        :caller 'counsel-recentf))
+            (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
+                                 (substring-no-properties x)))
+                    recentf-list)
+            :action #'my-counsel-recentf-action
+            :require-match t
+            :caller 'counsel-recentf))
 
 (defvar my-cg-bookmark "c-g-point-last")
 ;;;###autoload
@@ -1496,7 +1497,6 @@ Otherwise, use `counsel-ag'."
 (defun my-open-default-org-file ()
   (interactive)
   (my-show-org-buffer "next.org"))
-;; (run-hooks 'org-mode-hook) ;; FIXME
 
 ;;;###autoload
 (defun my-org-last-repeat (&optional _arg)
@@ -1775,7 +1775,7 @@ Otherwise, use `counsel-ag'."
   (interactive)
   (if (fboundp 'mac-ime-activate)
       (mac-ime-activate)
-   	(activate-input-method default-input-method))
+     (activate-input-method default-input-method))
   (setq my-ime-last t))
 
 ;;;###autoload
@@ -1783,18 +1783,18 @@ Otherwise, use `counsel-ag'."
   (interactive)
   (if (fboundp 'mac-ime-deactivate)
       (mac-ime-deactivate)
-	  (deactivate-input-method))
+    (deactivate-input-method))
   (setq my-ime-last nil))
 
 ;;;###autoload
 (defun my-ime-on-sticky ()
   (when my-ime-before-action
-	  (my-ime-on)))
+    (my-ime-on)))
 
 ;;;###autoload
 (defun my-ime-off-sticky ()
   (when (setq my-ime-before-action (my-ime-active-p))
-	  (my-ime-off)))
+    (my-ime-off)))
 
 ;;;###autoload
 (defun ad:make-frame (&optional _parameters)
@@ -1915,19 +1915,19 @@ Uses `all-the-icons-material' to fetch the icon."
 (defun my-ime-off-hline ()
   (my-hl-line-enable)
   (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-	  (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
+    (set-face-background hl-line-face (if dark "#484c5c" "#DEEDFF")))
   (run-hooks 'my-ime-off-hline-hook))
 
 ;;;###autoload
 (defun my-ime-on-hline ()
   (my-hl-line-enable)
   (let ((dark (eq (frame-parameter nil 'background-mode) 'dark)))
-	  (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
+    (set-face-background hl-line-face (if dark "#594d5d" "#fff0de")))
   (run-hooks 'my-ime-on-hline-hook))
 
 ;;;###autoload
 (defun my-hl-line-update ()
-	(if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
+  (if (frame-focus-state) (my-hl-line-enable) (my-hl-line-disable)))
 
 ;;;###autoload
 (defun my-hl-line-disable ()
@@ -1949,8 +1949,8 @@ Uses `all-the-icons-material' to fetch the icon."
   "Enable `hl-line'."
   (unless (or hl-line-mode
               (minibufferp)
-			        (memq major-mode my-hl-permanent-disabled))
-	  (hl-line-mode 1))
+              (memq major-mode my-hl-permanent-disabled))
+    (hl-line-mode 1))
   (setq my-hl-disabled-by-timer nil))
 
 ;; 1) Monaco, Hiragino/Migu 2M : font-size=12, -apple-hiragino=1.2
@@ -2104,50 +2104,50 @@ Uses `all-the-icons-material' to fetch the icon."
 (defun my-hl-todo-light-theme ()
   (setq hl-todo-exclude-modes nil) ;; also apply to a case when org-mode
   (setq hl-todo-keyword-faces
-	'(("TODO" . "red1")
-	  ("DONE" . "ForestGreen")
-	  ("HOLD" . "#d0bf8f")
-	  ("NEXT" . "#dca3a3")
-	  ("THEM" . "#dc8cc3")
-	  ("PROG" . "#7cb8bb")
-	  ("OKAY" . "#7cb8bb")
-	  ("DONT" . "#5f7f5f")
-	  ("FAIL" . "#8c5353")
-	  ("DONE" . "SeaGreen")
-	  ("NOTE"   . "#d0bf8f")
-	  ("KLUDGE" . "#d0bf8f")
-	  ("HACK"   . "#d0bf8f")
-	  ("TEMP"   . "#d0bf8f")
-	  ("FIXME"  . "#3030FF")
-	  ("XXX+"   . "#cc9393")
-	  ("\\?\\?\\?+" . "#cc9393")
-	  ("" . "orange")
-	  ("" . "red")
-	  ("" . "Seagreen3")))
+  '(("TODO" . "red1")
+    ("DONE" . "ForestGreen")
+    ("HOLD" . "#d0bf8f")
+    ("NEXT" . "#dca3a3")
+    ("THEM" . "#dc8cc3")
+    ("PROG" . "#7cb8bb")
+    ("OKAY" . "#7cb8bb")
+    ("DONT" . "#5f7f5f")
+    ("FAIL" . "#8c5353")
+    ("DONE" . "SeaGreen")
+    ("NOTE"   . "#d0bf8f")
+    ("KLUDGE" . "#d0bf8f")
+    ("HACK"   . "#d0bf8f")
+    ("TEMP"   . "#d0bf8f")
+    ("FIXME"  . "#3030FF")
+    ("XXX+"   . "#cc9393")
+    ("\\?\\?\\?+" . "#cc9393")
+    ("" . "orange")
+    ("" . "red")
+    ("" . "Seagreen3")))
   (my-hl-todo-reload))
 
 ;;;###autoload
 (defun my-hl-todo-dark-theme ()
   (setq hl-todo-keyword-faces
-	'(("TODO" . "red1")
-	  ("DONE" . "ForestGreen")
-	  ("HOLD" . "#d0bf8f")
-	  ("NEXT" . "#dca3a3")
-	  ("THEM" . "#dc8cc3")
-	  ("PROG" . "#7cb8bb")
-	  ("OKAY" . "#7cb8bb")
-	  ("DONT" . "#5f7f5f")
-	  ("FAIL" . "#8c5353")
-	  ("NOTE"   . "#d0bf8f")
-	  ("KLUDGE" . "#d0bf8f")
-	  ("HACK"   . "#d0bf8f")
-	  ("TEMP"   . "#d0bf8f")
-	  ("FIXME"  . "DodgerBlue1")
-	  ("XXX+"   . "#cc9393")
-	  ("\\?\\?\\?+" . "#cc9393")
-	  ("" . "orange")
-	  ("" . "red")
-	  ("" . "Seagreen3")))
+  '(("TODO" . "red1")
+    ("DONE" . "ForestGreen")
+    ("HOLD" . "#d0bf8f")
+    ("NEXT" . "#dca3a3")
+    ("THEM" . "#dc8cc3")
+    ("PROG" . "#7cb8bb")
+    ("OKAY" . "#7cb8bb")
+    ("DONT" . "#5f7f5f")
+    ("FAIL" . "#8c5353")
+    ("NOTE"   . "#d0bf8f")
+    ("KLUDGE" . "#d0bf8f")
+    ("HACK"   . "#d0bf8f")
+    ("TEMP"   . "#d0bf8f")
+    ("FIXME"  . "DodgerBlue1")
+    ("XXX+"   . "#cc9393")
+    ("\\?\\?\\?+" . "#cc9393")
+    ("" . "orange")
+    ("" . "red")
+    ("" . "Seagreen3")))
   (my-hl-todo-reload))
 
 ;; (declare-function my-daylight-theme "init" nil)
@@ -2477,30 +2477,30 @@ Uses `all-the-icons-material' to fetch the icon."
   "Return macOS name according to the VERSION number."
   (if (stringp version)
       (cond ((version<= "23.0" version) "Sonoma")
-	          ((version<= "22.0" version) "Ventura")
-	          ((version<= "21.0" version) "Monterey")
-	          ((version<= "20.0" version) "Big Sur")
-	          ((version<= "19.0" version) "Catalina")
-	          ((version<= "18.0" version) "Mojave")
-	          ((version<= "17.0" version) "High Sierra")
-	          ((version<= "16.0" version) "Sierra")
-	          ((version<= "15.0" version) "El Capitan")
-	          ((version<= "14.0" version) "Yosemite")
-	          ((version<= "13.0" version) "Mavericks")
-	          ((version<= "12.0" version) "Mountain Lion")
-	          ((version<= "11.0" version) "Lion")
-	          ((version<= "10.0" version) "Snow Leopard")
-	          ((version<= "9.0" version) "Leopard")
-	          ((version<= "8.0" version) "Tiger")
-	          ((version<= "7.0" version) "Panther")
-	          (t "undefined"))
+            ((version<= "22.0" version) "Ventura")
+            ((version<= "21.0" version) "Monterey")
+            ((version<= "20.0" version) "Big Sur")
+            ((version<= "19.0" version) "Catalina")
+            ((version<= "18.0" version) "Mojave")
+            ((version<= "17.0" version) "High Sierra")
+            ((version<= "16.0" version) "Sierra")
+            ((version<= "15.0" version) "El Capitan")
+            ((version<= "14.0" version) "Yosemite")
+            ((version<= "13.0" version) "Mavericks")
+            ((version<= "12.0" version) "Mountain Lion")
+            ((version<= "11.0" version) "Lion")
+            ((version<= "10.0" version) "Snow Leopard")
+            ((version<= "9.0" version) "Leopard")
+            ((version<= "8.0" version) "Tiger")
+            ((version<= "7.0" version) "Panther")
+            (t "undefined"))
     nil))
 
 ;;;###autoload
 (defun macos-version ()
   (let ((macos-type-version (nth 2 (split-string system-configuration "-"))))
-		(string-match "darwin\\(.*\\)" macos-type-version)
-		(match-string 1 macos-type-version)))
+    (string-match "darwin\\(.*\\)" macos-type-version)
+    (match-string 1 macos-type-version)))
 
 ;;;###autoload
 (defun my-cmd-to-open-iterm2 (&optional arg)
@@ -2660,14 +2660,15 @@ Uses `all-the-icons-material' to fetch the icon."
         (cbuffer (current-buffer))
         (orgfile (concat (getenv "SYNCROOT") "/org/" file))
         (afile (expand-file-name file))
-        (message-log-max nil))
+        ;; (message-log-max nil)
+        )
     (when (and (fboundp 'my-org-agenda-to-appt)
                (not (eq cbuffer tbuffer)))
       (my-org-agenda-to-appt 'force))
     (if (cond (tbuffer (switch-to-buffer tbuffer))
               ((file-exists-p orgfile) (find-file orgfile))
               ((file-exists-p afile) (find-file afile)))
-        (message "%s" file)
+          (message "%s" file)
       (message "No buffer or file is shown."))))
 
 (declare-function org-end-of-line "org")
@@ -3230,8 +3231,8 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (unless noninteractive
     (let ((inhibit-message t))
       (message "Loading utility.el...done (%4d [ms])"
-	       (* 1000
-		  (float-time (time-subtract
-			       (current-time)
-			       my-utility-start)))))))
+         (* 1000
+      (float-time (time-subtract
+             (current-time)
+             my-utility-start)))))))
 (provide 'utility)

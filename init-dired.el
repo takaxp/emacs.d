@@ -3,7 +3,7 @@
 
 (setq completion-ignored-extensions
       (append completion-ignored-extensions
-	      '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+        '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
 
 ;; "dired-mode-map"
 ;; Use build-in `wdired-mode'.
@@ -40,17 +40,17 @@
 ;; type "!" or "X" in dired
 (when (eq system-type 'darwin)
   (setq dired-guess-shell-alist-user
-	(list
-	 (list (rx (and "."
-			(or
-			 ;; Videos
-			 "mp4" "avi" "mkv" "rmvb"
-			 ;; Torrent
-			 "torrent"
-			 ;; PDF
-			 "pdf"
-			 ;; Image
-			 "gif" "png" "jpg" "jpeg")
-			string-end)) "open"))))
+  (list
+   (list (rx (and "."
+      (or
+       ;; Videos
+       "mp4" "avi" "mkv" "rmvb"
+       ;; Torrent
+       "torrent"
+       ;; PDF
+       "pdf"
+       ;; Image
+       "gif" "png" "jpg" "jpeg")
+      string-end)) "open"))))
 
 (provide 'init-dired)

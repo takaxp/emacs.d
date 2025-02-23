@@ -137,7 +137,7 @@
   ;; Development
   (el-get-bundle "gregsexton/origami.el" :name origami)
   (el-get-bundle "yasnippet")
-  (el-get-bundle "editorconfig")
+  ;; (el-get-bundle "editorconfig") ;; integrated to Emacs 30.1
   (el-get-bundle "ludwigpacifici/modern-cpp-font-lock")
   (el-get-bundle "AdamNiederer/0xc")
   (el-get-bundle "uuid")

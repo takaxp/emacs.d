@@ -97,7 +97,7 @@ This function returns a timer object which you can use in
     ;; Handle relative times like "2 hours 35 minutes".
     (when (stringp time)
       (when-let ((secs (timer-duration time)))
-	      (setq time (timer-relative-time nil secs))))
+        (setq time (timer-relative-time nil secs))))
 
     ;; Handle "11:23pm" and the like.  Interpret it as meaning today
     ;; which admittedly is rather stupid if we have passed that time
@@ -105,11 +105,11 @@ This function returns a timer object which you can use in
     (when (stringp time)
       ;; (require 'diary-lib) ;; *Modified*
       (let ((hhmm (diary-entry-time time))
-	          (now (decode-time)))
-	      (when (>= hhmm 0)
-	        (setq time (encode-time 0 (% hhmm 100) (/ hhmm 100)
+            (now (decode-time)))
+        (when (>= hhmm 0)
+          (setq time (encode-time 0 (% hhmm 100) (/ hhmm 100)
                                   (decoded-time-day now)
-			                            (decoded-time-month now)
+                                  (decoded-time-month now)
                                   (decoded-time-year now)
                                   (decoded-time-zone now))))))
 
@@ -176,7 +176,6 @@ This function returns a timer object which you can use in
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
-(add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-indent-conf)
 (add-hook 'emacs-lisp-mode-hook #'turn-on-font-lock)
 
 (setq vc-follow-symlinks t)
@@ -218,7 +217,7 @@ This function returns a timer object which you can use in
     (custom-set-variables
      '(ws-butler-global-exempt-modes
        (append '(org-mode empty-booting-mode change-log-mode epa-mode)
-		           ws-butler-global-exempt-modes)))))
+               ws-butler-global-exempt-modes)))))
 
 (unless noninteractive
   (defvar my-private-conf-timer
@@ -239,10 +238,10 @@ This function returns a timer object which you can use in
   (custom-set-faces
    '(ns-marked-text-face
      ((t (:foreground "black"
-		      :background "light pink" :underline "OrangeRed2"))))
+          :background "light pink" :underline "OrangeRed2"))))
    '(ns-unmarked-text-face
      ((t (:foreground "black"
-		      :background "light sky blue" :underline "royal blue")))))
+          :background "light sky blue" :underline "royal blue")))))
 
   (when (and (fboundp 'mac-get-current-input-source)
              (version< "27.0" emacs-version))
@@ -565,7 +564,7 @@ This function returns a timer object which you can use in
 
 (when (autoload-if-found '(emacs-lisp-mode)
                          "elisp-mode" nil t)
-  (push '("\\.el\\'" . emacs-lisp-mode) auto-mode-alist)
+  ;; (push '("\\.el\\'" . emacs-lisp-mode) auto-mode-alist)
   (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-indent-conf))
 
 (when (autoload-if-found '(ispell-region ispell-complete-word)
@@ -843,21 +842,21 @@ This function returns a timer object which you can use in
 (add-hook 'buffer-list-update-hook #'my-update-modeline-face)
 
 (setq mode-line-modes
-			(mapcar
-			 (lambda (entry)
-				 (if (equal entry "%n")
-						 '(:eval (progn
-											 ;; org が widen を乱発するのでこちらをトリガーにする．
-											 ;; 色の変更
-											 (my-update-modeline-color)
-											 ;; "Narrow" を "N" に短縮表示
-					             ;; icons-in-terminal-octicon, "fold"
-											 (if (and (buffer-narrowed-p)
-																(fboundp 'nerd-icons-octicon))
-													 (concat " " (nerd-icons-octicon
-																				"nf-oct-fold" :v-adjust 0.0)) "")))
-					 entry))
-			 mode-line-modes))
+      (mapcar
+       (lambda (entry)
+         (if (equal entry "%n")
+             '(:eval (progn
+                       ;; org が widen を乱発するのでこちらをトリガーにする．
+                       ;; 色の変更
+                       (my-update-modeline-color)
+                       ;; "Narrow" を "N" に短縮表示
+                       ;; icons-in-terminal-octicon, "fold"
+                       (if (and (buffer-narrowed-p)
+                                (fboundp 'nerd-icons-octicon))
+                           (concat " " (nerd-icons-octicon
+                                        "nf-oct-fold" :v-adjust 0.0)) "")))
+           entry))
+       mode-line-modes))
 
 (when (require 'mlscroll nil t)
   (custom-set-variables
@@ -970,70 +969,70 @@ This function returns a timer object which you can use in
 (add-hook 'find-file-hook #'my-delight-activate)
 
 (with-eval-after-load "delight"
-	(delight
-	 '(;; Major modes
-		 ;;			(c-mode "C" :major)
-		 ;;			(c++mode "C++" :major)
-		 (js2-mode "JS" :major)
-		 (csharp-mode "C#" :major)
-		 (prog-mode "Pr" :major)
-		 (emacs-lisp-mode "El" :major)
-		 (python-mode "Py" :major)
-		 (perl-mode "Pl" :major)
-		 (web-mode "W" :major)
-		 (change-log-mode "CLog" :major)
-		 (lisp-interaction-mode "Lisp" :major)
+  (delight
+   '(;; Major modes
+     ;;			(c-mode "C" :major)
+     ;;			(c++mode "C++" :major)
+     (js2-mode "JS" :major)
+     (csharp-mode "C#" :major)
+     (prog-mode "Pr" :major)
+     (emacs-lisp-mode "El" :major)
+     (python-mode "Py" :major)
+     (perl-mode "Pl" :major)
+     (web-mode "W" :major)
+     (change-log-mode "CLog" :major)
+     (lisp-interaction-mode "Lisp" :major)
 
-		 ;; Shorten for minor modes
-		 (ggtags-mode " G" "ggtags")
-		 ;; (orgstruct-mode " OrgS" "org")
-		 (orgalist-mode " ol" "orgalist")
-		 (view-mode " V" "view")
-		 ;; Stop to display for minor modes
-		 (org-fancy-priorities-mode nil "org-fancy-priorities")
-		 (smooth-scroll-mode nil "smooth-scroll")
-		 (eldoc-mode nil "eldoc")
-		 (ivy-mode nil "ivy")
-		 (counsel-mode nil "counsel")
-		 (centered-cursor-mode nil "centered-cursor-mode")
-		 (volatile-highlights-mode nil "volatile-highlights")
-		 (aggressive-indent-mode nil "aggressive-indent")
-		 (all-the-icons-dired-mode nil "all-the-icons-dired")
-		 (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
-		 (nerd-icons-dired-mode nil "nerd-icons-dired")
-		 (yas-minor-mode nil "yasnippet")
-		 (auto-complete-mode nil "auto-complete")
-		 (company-mode nil "company")
-		 (ws-butler-mode nil "ws-butler")
-		 (isearch-mode nil "isearch")
-		 (auto-revert-mode nil "autorevert")
-		 (global-whitespace-mode nil "whitespace")
-		 (emmet-mode nil "emmet-mode")
-		 (abbrev-mode nil "abbrev")
-		 (doxymacs-mode nil "doxymacs")
-		 (editorconfig-mode nil "editorconfig")
-		 (rainbow-mode nil "rainbow-mode")
-		 (highlight-symbol-mode nil "highlight-symbol")
-		 (which-key-mode nil "which-key")
-		 (fancy-narrow-mode nil "fancy-narrow")
-		 (smartparens-mode nil "smartparens")
-		 (projectile-mode nil "projectile")
-		 (selected-minor-mode nil "selected")
-		 (skewer-html-mode nil "skewer-html")
-		 (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
-		 (gcmh-mode nil "gcmh")
-		 (super-save-mode nil "super-save")
-		 (rainbow-csv-mode nil "rainbow-csv")))
+     ;; Shorten for minor modes
+     (ggtags-mode " G" "ggtags")
+     ;; (orgstruct-mode " OrgS" "org")
+     (orgalist-mode " ol" "orgalist")
+     (view-mode " V" "view")
+     ;; Stop to display for minor modes
+     (org-fancy-priorities-mode nil "org-fancy-priorities")
+     (smooth-scroll-mode nil "smooth-scroll")
+     (eldoc-mode nil "eldoc")
+     (ivy-mode nil "ivy")
+     (counsel-mode nil "counsel")
+     (centered-cursor-mode nil "centered-cursor-mode")
+     (volatile-highlights-mode nil "volatile-highlights")
+     (aggressive-indent-mode nil "aggressive-indent")
+     (all-the-icons-dired-mode nil "all-the-icons-dired")
+     (icons-in-terminal-dired-mode nil "icons-in-terminal-dired")
+     (nerd-icons-dired-mode nil "nerd-icons-dired")
+     (yas-minor-mode nil "yasnippet")
+     (auto-complete-mode nil "auto-complete")
+     (company-mode nil "company")
+     (ws-butler-mode nil "ws-butler")
+     (isearch-mode nil "isearch")
+     (auto-revert-mode nil "autorevert")
+     (global-whitespace-mode nil "whitespace")
+     (emmet-mode nil "emmet-mode")
+     (abbrev-mode nil "abbrev")
+     (doxymacs-mode nil "doxymacs")
+     (editorconfig-mode nil "editorconfig")
+     (rainbow-mode nil "rainbow-mode")
+     (highlight-symbol-mode nil "highlight-symbol")
+     (which-key-mode nil "which-key")
+     (fancy-narrow-mode nil "fancy-narrow")
+     (smartparens-mode nil "smartparens")
+     (projectile-mode nil "projectile")
+     (selected-minor-mode nil "selected")
+     (skewer-html-mode nil "skewer-html")
+     (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
+     (gcmh-mode nil "gcmh")
+     (super-save-mode nil "super-save")
+     (rainbow-csv-mode nil "rainbow-csv")))
 
-	;; Override by icon
-	(cond ((require 'nerd-icons nil t)
-		     (delight
-		      `((view-mode ,(concat " " (nerd-icons-mdicon "nf-md-file_lock"))
-			                 "view"))))
-	      ((require 'icons-in-terminal nil t)
-		     (delight
-		      `((view-mode ,(concat " " (icons-in-terminal-faicon "lock"))
-					             "view"))))))
+  ;; Override by icon
+  (cond ((require 'nerd-icons nil t)
+         (delight
+          `((view-mode ,(concat " " (nerd-icons-mdicon "nf-md-file_lock"))
+                       "view"))))
+        ((require 'icons-in-terminal nil t)
+         (delight
+          `((view-mode ,(concat " " (icons-in-terminal-faicon "lock"))
+                       "view"))))))
 
 ;; (eval-when-compile
 ;;   (message "Loading fringe-helper...")
@@ -1335,7 +1334,7 @@ This function returns a timer object which you can use in
     (setq command-log-mode-window-size 60)))
 
 (let* ((elp (expand-file-name
-	           (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")))
+             (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")))
        (ets (concat elp "emacs-tree-sitter/"))
        (tsl (concat elp "tree-sitter-langs/")))
   ;; (add-to-list 'load-path (concat ets "langs"))
@@ -1397,7 +1396,8 @@ This function returns a timer object which you can use in
     ;; just in case, for surely applying the config.
     (when (and (require 'nerd-icons nil t)
                (require 'ivy-rich nil t))
-      (nerd-icons-ivy-rich-reload))))
+      (let ((message-log-max nil))
+        (nerd-icons-ivy-rich-reload)))))
 
 (when (autoload-if-found '(dimmer-mode
                            dimmer-process-all dimmer-off dimmer-on
@@ -1412,9 +1412,9 @@ This function returns a timer object which you can use in
      '(dimmer-fraction 0.6))
 
     (if (version< emacs-version "27.1")
-	(progn
-	  (add-hook 'focus-out-hook #'dimmer-off)
-	  (add-hook 'focus-in-hook #'dimmer-on))
+  (progn
+    (add-hook 'focus-out-hook #'dimmer-off)
+    (add-hook 'focus-in-hook #'dimmer-on))
       (add-function :before after-focus-change-function #'my-dimmer-update))
 
     ;; for org-agenda
@@ -1455,10 +1455,10 @@ This function returns a timer object which you can use in
   (add-hook 'csv-mode-hook 'rainbow-csv-mode))
 
 (when (autoload-if-found '(rencetf-mode
-					                 my-recentf-save-list-silence
-					                 my-recentf-cleanup-silence
-					                 recentf-open-files recentf-add-file)
-					               "recentf" nil t)
+                           my-recentf-save-list-silence
+                           my-recentf-cleanup-silence
+                           recentf-open-files recentf-add-file)
+                         "recentf" nil t)
   (with-eval-after-load "recentf"
     (custom-set-variables
      '(recentf-max-saved-items 2000)
@@ -1466,22 +1466,22 @@ This function returns a timer object which you can use in
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
        '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
-	       "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+         "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     (if (version< emacs-version "27.1")
-	      (progn
-		      (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-		      (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+        (progn
+          (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+          (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
       (add-function :before after-focus-change-function
-				            #'my-recentf-save-list-silence)
+                    #'my-recentf-save-list-silence)
       (add-function :before after-focus-change-function
-				            #'my-recentf-cleanup-silence))
+                    #'my-recentf-cleanup-silence))
 
     (unless noninteractive
       (let ((message-log-max nil))
-	      (if (equal (system-name) "water.local")
-		        (recentf-mode 1)
-		      (message "--- recentf is not activated in %s" system-name)))))
+        (if (equal (system-name) "water.local")
+            (recentf-mode 1)
+          (message "--- recentf is not activated in %s" system-name)))))
 
   (with-eval-after-load "counsel"
     (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
@@ -1909,44 +1909,44 @@ This function returns a timer object which you can use in
 ;;(set-face-background 'fringe (face-background 'default)) ;; 10-20[ms]
 
 (when (memq window-system '(ns x))
-	;; モードラインにアイコンを出す
-	(make-face 'mode-line-ime-on-face)
-	(set-face-attribute 'mode-line-ime-on-face
-					            nil :foreground (plist-get my-cur-color-ime :on))
-	(when (fboundp 'mac-set-input-method-parameter)
-		(mac-set-input-method-parameter
-		 "com.google.inputmethod.Japanese.base" 'title
-		 (concat
-			(cond ((require 'nerd-icons nil t)
-			       ;; (nerd-icons-octicon "nf-oct-typography"
-			       ;;					:face 'mode-line-ime-on-face)
-			       (nerd-icons-mdicon "nf-md-ideogram_cjk_variant" ;; IME
-				                         :face 'mode-line-ime-on-face))
-			      ((require 'icons-in-terminal nil t)
-			       (icons-in-terminal-octicon "keyboard"
-					                              :v-adjust 0.0
-					                              :face 'mode-line-ime-on-face))
-			      (t ""))
-			" "))) ;; FIXME (the color is NOT changed, patch is wrong?)
+  ;; モードラインにアイコンを出す
+  (make-face 'mode-line-ime-on-face)
+  (set-face-attribute 'mode-line-ime-on-face
+                      nil :foreground (plist-get my-cur-color-ime :on))
+  (when (fboundp 'mac-set-input-method-parameter)
+    (mac-set-input-method-parameter
+     "com.google.inputmethod.Japanese.base" 'title
+     (concat
+      (cond ((require 'nerd-icons nil t)
+             ;; (nerd-icons-octicon "nf-oct-typography"
+             ;;					:face 'mode-line-ime-on-face)
+             (nerd-icons-mdicon "nf-md-ideogram_cjk_variant" ;; IME
+                                 :face 'mode-line-ime-on-face))
+            ((require 'icons-in-terminal nil t)
+             (icons-in-terminal-octicon "keyboard"
+                                        :v-adjust 0.0
+                                        :face 'mode-line-ime-on-face))
+            (t ""))
+      " "))) ;; FIXME (the color is NOT changed, patch is wrong?)
 
-	(declare-function my-ime-on "init" nil)
-	(declare-function my-ime-off "init" nil)
-	(declare-function my-ime-active-p "init" nil)
+  (declare-function my-ime-on "init" nil)
+  (declare-function my-ime-off "init" nil)
+  (declare-function my-ime-active-p "init" nil)
 
-	(defvar my-ime-last (my-ime-active-p))
-	(defvar my-ime-before-action nil)
+  (defvar my-ime-last (my-ime-active-p))
+  (defvar my-ime-before-action nil)
 
-	(if (not (fboundp 'mac-ime-active-p))
-			(progn
-	      ;; For selected.el
-	      (add-hook 'activate-mark-hook #'my-ime-off-sticky)
-	      (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-	      ;; 「M-x あ」対策
-	      (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
-	      (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
-		;; For selected.el
-		(add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
-		(add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
+  (if (not (fboundp 'mac-ime-active-p))
+      (progn
+        ;; For selected.el
+        (add-hook 'activate-mark-hook #'my-ime-off-sticky)
+        (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
+        ;; 「M-x あ」対策
+        (add-hook 'minibuffer-setup-hook #'my-ime-off-sticky)
+        (add-hook 'minibuffer-exit-hook #'my-ime-on-sticky))
+    ;; For selected.el
+    (add-hook 'activate-mark-hook #'mac-ime-deactivate-sticky)
+    (add-hook 'deactivate-mark-hook #'mac-ime-activate-sticky)))
 
 (keymap-global-set "M-`" 'other-frame)
 (with-eval-after-load "frame"
@@ -2006,10 +2006,10 @@ This function returns a timer object which you can use in
   (with-eval-after-load "shackle"
     (setq shackle-default-ratio 0.33)
     (setq shackle-rules
-	        '(("*osx-dictionary*" :align above :popup t)
-	          ("*wclock*" :align above :popup t :select t)
-	          ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
-	          ("*Checkdoc Status*" :align above :popup t :noselect t)))))
+          '(("*osx-dictionary*" :align above :popup t)
+            ("*wclock*" :align above :popup t :select t)
+            ;; ("*Help*" :align t :select 'above :popup t :size 0.3)
+            ("*Checkdoc Status*" :align above :popup t :noselect t)))))
 
 (with-eval-after-load "checkdoc"
   (advice-add 'checkdoc :before #'ad:checkdoc))
@@ -2060,14 +2060,14 @@ This function returns a timer object which you can use in
     (defvar my-hl-active-period 120
       "Disable `hl-line' after this period")
 
-		(if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
+    (if (my-ime-active-p) (my-ime-on-hline) (my-ime-off-hline))
 
     (run-with-idle-timer my-hl-active-period t #'my-hl-line-disable)
 
     (if (boundp 'after-focus-change-function)
         (add-function :after after-focus-change-function #'my-hl-line-update)
-	    (add-hook 'focus-in-hook #'my-hl-line-enable)
-	    (add-hook 'focus-out-hook #'my-hl-line-disable))
+      (add-hook 'focus-in-hook #'my-hl-line-enable)
+      (add-hook 'focus-out-hook #'my-hl-line-disable))
 
     ;; (add-hook 'minibuffer-setup-hook #'my-hl-line-disable)
     ;; (add-hook 'minibuffer-exit-hook #'my-hl-line-enable)
@@ -2325,8 +2325,8 @@ This function returns a timer object which you can use in
   (unless noninteractive
     (let ((inhibit-message t))
       (message "Loading late-init.el...done (%4d [ms])"
-	       (* 1000
-		  (float-time (time-subtract
-			       (current-time)
-			       my-late-init-start)))))))
+         (* 1000
+      (float-time (time-subtract
+             (current-time)
+             my-late-init-start)))))))
 (provide 'late-init)

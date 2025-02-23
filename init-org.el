@@ -667,7 +667,7 @@
   (unless ns-alerter-command
     (setq ns-alerter-command "")) ;; FIXME
   (when (or (eq ns-alerter-command 'script)
-	    (executable-find ns-alerter-command))
+      (executable-find ns-alerter-command))
     (setq org-show-notification-handler #'my-desktop-notification-handler)))
 
 (unless noninteractive
@@ -703,22 +703,22 @@
       (org-timer-set-timer))))
 
 (when (autoload-if-found '(org-mode my-load-echo-org-link)
-			                   "org" nil t)
-	(add-hook 'org-mode-hook #'my-load-echo-org-link)
-	(with-eval-after-load "org"
-		(defvar my-org-link-prompt "Link:")
-		(defun my-echo-org-link ()
-			(when (org-in-regexp org-link-bracket-re 1)
-	      (let ((l (length my-org-link-prompt))
-				      (msg (org-link-unescape (match-string-no-properties 1))))
-		      (put-text-property 0 l 'face 'minibuffer-prompt my-org-link-prompt)
-		      (eldoc-message (format "%s %s" my-org-link-prompt msg)))))
+                         "org" nil t)
+  (add-hook 'org-mode-hook #'my-load-echo-org-link)
+  (with-eval-after-load "org"
+    (defvar my-org-link-prompt "Link:")
+    (defun my-echo-org-link ()
+      (when (org-in-regexp org-link-bracket-re 1)
+        (let ((l (length my-org-link-prompt))
+              (msg (org-link-unescape (match-string-no-properties 1))))
+          (put-text-property 0 l 'face 'minibuffer-prompt my-org-link-prompt)
+          (eldoc-message (format "%s %s" my-org-link-prompt msg)))))
 
-		(defun my-load-echo-org-link ()
-			(add-function :before-until (local 'eldoc-documentation-function)
-				            #'my-echo-org-link)
-			;; (setq-local eldoc-documentation-function #'my-echo-org-link)
-			)))
+    (defun my-load-echo-org-link ()
+      (add-function :before-until (local 'eldoc-documentation-function)
+                    #'my-echo-org-link)
+      ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
+      )))
 
 (with-eval-after-load "org"
   (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
@@ -741,25 +741,25 @@
   "Move item or subtree down, otherwise `scroll-up'."
   (interactive)
   (cond ((org-at-item-p)
-	       (call-interactively 'org-move-item-down))
-	      ((or (looking-at org-heading-regexp)
+         (call-interactively 'org-move-item-down))
+        ((or (looking-at org-heading-regexp)
              (and (org-at-heading-p) (eolp)))
-	       (call-interactively 'org-move-subtree-down))
+         (call-interactively 'org-move-subtree-down))
         ((org-at-table-p)
          (call-interactively 'org-table-move-row))
-	      (t nil))) ;; (call-interactively 'scroll-up)
+        (t nil))) ;; (call-interactively 'scroll-up)
 
 (defun my-org-meta-next ()
   "Move item or subtree up, otherwise `scroll-down'."
   (interactive)
   (cond ((org-at-item-p)
-	       (call-interactively 'org-move-item-up))
-	      ((or (looking-at org-heading-regexp)
+         (call-interactively 'org-move-item-up))
+        ((or (looking-at org-heading-regexp)
              (and (org-at-heading-p) (eolp)))
-	       (call-interactively 'org-move-subtree-up))
+         (call-interactively 'org-move-subtree-up))
         ((org-at-table-p)
          (org-call-with-arg 'org-table-move-row 'up))
-	      (t nil))) ;; (call-interactively 'scroll-down))))
+        (t nil))) ;; (call-interactively 'scroll-down))))
 
 (defvar my-org-promote-demote-independently nil)
 (defun my-inherit-struct-p ()
@@ -802,14 +802,14 @@
                     (org-entry-get (point) "<tab>LE_EXPORT_FORMAT" t)
                     org-table-export-default-format)))
     (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
-	      (let ((transform (intern (match-string 1 format)))
-	            (params (and (match-end 2)
-			                     (read (concat "(" (match-string 2 format) ")"))))
-	            (table (org-table-to-lisp)))
+        (let ((transform (intern (match-string 1 format)))
+              (params (and (match-end 2)
+                           (read (concat "(" (match-string 2 format) ")"))))
+              (table (org-table-to-lisp)))
           (if (not (org-at-table-p))
               (user-error "The cursor is not at a table")
-	          (with-temp-buffer
-		          (insert (funcall transform table params) "\n")
+            (with-temp-buffer
+              (insert (funcall transform table params) "\n")
               (clipboard-kill-ring-save (point-min) (point-max)))))
       (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
 
@@ -824,16 +824,16 @@ The core part is extracted from `org-table-export'."
                     (org-entry-get (point) "<tab>LE_EXPORT_FORMAT" t)
                     org-table-export-default-format)))
     (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
-	      (let ((transform (intern (match-string 1 format)))
-	            (params (and (match-end 2)
-			                     (read (concat "(" (match-string 2 format) ")"))))
-	            (table (org-table-to-lisp)))
+        (let ((transform (intern (match-string 1 format)))
+              (params (and (match-end 2)
+                           (read (concat "(" (match-string 2 format) ")"))))
+              (table (org-table-to-lisp)))
           (if (not (org-at-table-p))
               (user-error "The cursor is not at a table")
-	          (kill-region (org-table-begin) (org-table-end))
-	          (let ((begin (point)))
-	            (insert (funcall transform table params))
-	            (clipboard-kill-ring-save begin (point))
+            (kill-region (org-table-begin) (org-table-end))
+            (let ((begin (point)))
+              (insert (funcall transform table params))
+              (clipboard-kill-ring-save begin (point))
               (insert "\n"))))
       (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
 
@@ -853,53 +853,53 @@ The core part is extracted from `org-table-export'."
   (advice-add 'org-reveal :around #'ad:org-reveal))
 
 (defface my-org-emphasis-bold
-	'((default :inherit bold)
-		(((class color) (min-colors 88) (background light))
-		 :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
-		(((class color) (min-colors 88) (background dark))
-		 :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
-	"My bold emphasis for Org.")
+  '((default :inherit bold)
+    (((class color) (min-colors 88) (background light))
+     :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
+    (((class color) (min-colors 88) (background dark))
+     :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
+  "My bold emphasis for Org.")
 
 (defface my-org-emphasis-italic
-	'((default :inherit italic)
-		(((class color) (min-colors 88) (background light))
-		 :foreground "#005e00" :background "#B4EAB4")
-		(((class color) (min-colors 88) (background dark))
-		 :foreground "#44bc44"))
-	"My italic emphasis for Org.")
+  '((default :inherit italic)
+    (((class color) (min-colors 88) (background light))
+     :foreground "#005e00" :background "#B4EAB4")
+    (((class color) (min-colors 88) (background dark))
+     :foreground "#44bc44"))
+  "My italic emphasis for Org.")
 
 (defface my-org-emphasis-underline
-	'((default :inherit underline)
-		(((class color) (min-colors 88) (background light))
-		 :foreground "#813e00")
-		(((class color) (min-colors 88) (background dark))
-		 :foreground "#d0bc00"))
-	"My underline emphasis for Org.")
+  '((default :inherit underline)
+    (((class color) (min-colors 88) (background light))
+     :foreground "#813e00")
+    (((class color) (min-colors 88) (background dark))
+     :foreground "#d0bc00"))
+  "My underline emphasis for Org.")
 
 (defface my-org-emphasis-strike-through
-	'((((class color) (min-colors 88) (background light))
-		 :strike-through "#972500" :foreground "#505050")
-		(((class color) (min-colors 88) (background dark))
-		 :strike-through "#ef8b50" :foreground "#a8a8a8"))
-	"My strike-through emphasis for Org.")
+  '((((class color) (min-colors 88) (background light))
+     :strike-through "#972500" :foreground "#505050")
+    (((class color) (min-colors 88) (background dark))
+     :strike-through "#ef8b50" :foreground "#a8a8a8"))
+  "My strike-through emphasis for Org.")
 
 (with-eval-after-load "org"
-	(custom-set-variables ;; call org-set-emph-re
-	 '(org-emphasis-alist '(("~" org-code verbatim)
-				                  ("=" org-verbatim verbatim)
-				                  ("*" my-org-emphasis-bold)
-				                  ("/" my-org-emphasis-italic)
-				                  ("_" my-org-emphasis-underline)
-				                  ("+" my-org-emphasis-strike-through))))
+  (custom-set-variables ;; call org-set-emph-re
+   '(org-emphasis-alist '(("~" org-code verbatim)
+                          ("=" org-verbatim verbatim)
+                          ("*" my-org-emphasis-bold)
+                          ("/" my-org-emphasis-italic)
+                          ("_" my-org-emphasis-underline)
+                          ("+" my-org-emphasis-strike-through))))
 
-	(custom-set-faces
-	 '(org-code
-		 ((t (:foreground "red" :background "pink" :inherit shadow))))
-	 '(org-verbatim
-		 ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
+  (custom-set-faces
+   '(org-code
+     ((t (:foreground "red" :background "pink" :inherit shadow))))
+   '(org-verbatim
+     ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
 
-	(when (featurep 'org-extra-emphasis)
-		(org-extra-emphasis-update))) ;; to apply configured `org-emphasis-alist'
+  (when (featurep 'org-extra-emphasis)
+    (org-extra-emphasis-update))) ;; to apply configured `org-emphasis-alist'
 
 (with-eval-after-load "org"
   (keymap-set org-mode-map "C-c x" #'my-org-move-item-end)
@@ -1237,7 +1237,7 @@ will not be modified."
             " - %b"))))
 
 (when (autoload-if-found '(orgbox-schedule orgbox-agenda-schedule)
-	                 "orgbox" nil t)
+                   "orgbox" nil t)
   (with-eval-after-load "org"
     (org-defkey org-mode-map (kbd "C-c C-s") 'orgbox-schedule))
   (with-eval-after-load "org-agenda"
@@ -1367,12 +1367,12 @@ update it for multiple appts?")
       (let ((read-char-default-timeout 0)) ;; not nil
         (unless (file-exists-p file)
           (message "Non-existent agenda file %s.  [R]emove from list or [A]bort?"
-	                 (abbreviate-file-name file))
+                   (abbreviate-file-name file))
           (let ((r (downcase (or (read-char-exclusive) ?r))))
             (cond
              ((equal r ?r)
-	            (org-remove-file file)
-	            (throw 'nextfile t))
+              (org-remove-file file)
+              (throw 'nextfile t))
              (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
 
@@ -1579,7 +1579,7 @@ update it for multiple appts?")
   (interactive)
   (setq my-hide-org-meta-line-p t)
   (set-face-attribute 'org-meta-line nil
-			                :foreground (face-attribute 'default :background)))
+                      :foreground (face-attribute 'default :background)))
 (defun my-show-org-meta-line ()
   (interactive)
   (setq my-hide-org-meta-line-p nil)
@@ -1588,7 +1588,7 @@ update it for multiple appts?")
 (defun my-toggle-org-meta-line ()
   (interactive)
   (if my-hide-org-meta-line-p
-	    (my-show-org-meta-line) (my-hide-org-meta-line)))
+      (my-show-org-meta-line) (my-hide-org-meta-line)))
 
 (add-hook 'org-tree-slide-play-hook #'my-hide-org-meta-line)
 (add-hook 'org-tree-slide-stop-hook #'my-show-org-meta-line)
@@ -2081,8 +2081,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (unless noninteractive
     (let ((inhibit-message t))
       (message "Loading init-org.el...done (%4d [ms])"
-	       (* 1000
-		  (float-time (time-subtract
-			       (current-time)
-			       my-init-org-start)))))))
+         (* 1000
+      (float-time (time-subtract
+             (current-time)
+             my-init-org-start)))))))
 (provide 'init-org)

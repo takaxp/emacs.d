@@ -4,11 +4,11 @@
 ;; see also https://takaxp.github.io/init.html
 (require 'init-autoloads nil t)
 (when (and (boundp my-profiler-p)
-		       my-profiler-p)
-	(profiler-start 'cpu+mem))
+           my-profiler-p)
+  (profiler-start 'cpu+mem))
 (when (and (boundp my-profiler-p)
-		       my-ad-require-p)
-	(load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
+           my-ad-require-p)
+  (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
 
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
@@ -31,37 +31,37 @@
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
 (defconst my-before-load-init-time (current-time)
-	"Starting point to calculate Emacs booting time.	see `my-load-init-time'.")
+  "Starting point to calculate Emacs booting time.      see `my-load-init-time'.")
 (defun my-load-init-time ()
-	"Loading time of user init files including time for `after-init-hook'."
-	(let ((t-init-files (time-subtract after-init-time my-before-load-init-time))
-				(t-after-init (time-subtract (current-time) after-init-time))
-				(t-others (time-subtract my-before-load-init-time before-init-time))
-				(t-early-init (time-subtract my-early-end my-early-start))
-				(inhibit-message t))
-		(message (concat
-							"	 Loading init files: %4d [ms]\n"
-							"	 Loading early-init: %4d [ms]\n"
-							"	 Others(GUI etc.):	 %4d [ms] includes `before-init-hook'\n"
-							"(`after-init-hook': %4d [ms])")
-						 (* 1000 (float-time t-init-files))
-						 (* 1000 (float-time t-early-init))
-						 (* 1000 (- (float-time t-others) (float-time t-early-init)))
-						 (* 1000 (float-time t-after-init)))))
+  "Loading time of user init files including time for `after-init-hook'."
+  (let ((t-init-files (time-subtract after-init-time my-before-load-init-time))
+        (t-after-init (time-subtract (current-time) after-init-time))
+        (t-others (time-subtract my-before-load-init-time before-init-time))
+        (t-early-init (time-subtract my-early-end my-early-start))
+        (inhibit-message t))
+    (message (concat
+              "  Loading init files: %4d [ms]\n"
+              "  Loading early-init: %4d [ms]\n"
+              "  Others(GUI etc.):       %4d [ms] includes `before-init-hook'\n"
+              "(`after-init-hook': %4d [ms])")
+             (* 1000 (float-time t-init-files))
+             (* 1000 (float-time t-early-init))
+             (* 1000 (- (float-time t-others) (float-time t-early-init)))
+             (* 1000 (float-time t-after-init)))))
 
 (add-hook 'after-init-hook #'my-load-init-time t)
 
 (defvar my-tick-previous-time my-before-load-init-time)
 (defun my-tick-init-time (msg)
-	"Tick boot sequence at loading MSG."
-	(when (and my-loading-profile-p
-			       (not my-profiler-p))
-		(let ((ctime (current-time)))
-			(message "---- %4d[ms] %s"
-							 (* 1000 (float-time
-												(time-subtract ctime my-tick-previous-time)))
-							 msg)
-			(setq my-tick-previous-time ctime))))
+  "Tick boot sequence at loading MSG."
+  (when (and my-loading-profile-p
+             (not my-profiler-p))
+    (let ((ctime (current-time)))
+      (message "---- %4d[ms] %s"
+               (* 1000 (float-time
+                        (time-subtract ctime my-tick-previous-time)))
+               msg)
+      (setq my-tick-previous-time ctime))))
 
 (defvar my-suppress-message-p t)
 (defun ad:suppress-message (f &rest arg)
@@ -194,7 +194,7 @@
 (defvar my-secret-autolock-time 60)
 (defvar my-secret-close-timer
   (run-with-idle-timer my-secret-autolock-time
-		       t #'my-lock-secret-buffer my-secret-org-file))
+           t #'my-lock-secret-buffer my-secret-org-file))
 
 (keymap-global-set "M-SPC" 'my-toggle-ime-ns)
 (keymap-global-set "S-SPC" 'my-toggle-ime-ns)
@@ -305,7 +305,7 @@
   ;; find-file での表示も短縮される．
   (let ((provider (expand-file-name "~/Library/CloudStorage/")))
     (setq directory-abbrev-alist
-	        `((,(concat "\\`" provider "Dropbox") . "~/Dropbox")))))
+          `((,(concat "\\`" provider "Dropbox") . "~/Dropbox")))))
 
 ;; *.~
 (setq make-backup-files nil)
@@ -316,7 +316,8 @@
 
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
-  (unless (or noninteractive my-secure-boot)
+  (if (or noninteractive my-secure-boot)
+      (message "--- session.el is not loaded for secure booting")
     (add-hook 'after-init-hook #'session-initialize))
   (with-eval-after-load "session"
     (add-to-list 'session-globals-include 'ivy-dired-history-variable)
@@ -326,6 +327,7 @@
     (setq session-save-file
           (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session"))
           session-initialize '(de-saveplace session keys menus places)
+          ;; session-locals-include nil
           session-globals-include '((kill-ring 100)
                                     (session-file-alist 100 t)
                                     (file-name-history 200)
@@ -347,49 +349,50 @@
 
 ;;;###autoload
 (defun my-org-mode-indent-conf ()
+  (interactive)
   (setq-local indent-tabs-mode nil)
   (setq-local tab-width 8)
   (setq indent-line-function 'org-indent-line))
-(add-hook 'org-mode-hook #'my-org-mode-indent-conf )
+(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
 
 (my-tick-init-time "development")
 
 (cond
  ((memq window-system '(mac ns)) ;; for macOS
   (setq initial-frame-alist
-	      (append
-	       '((alpha . (100 95))
+        (append
+         '((alpha . (100 95))
            ;; (top . 23)
-	         ;; (left . 0)
-	         ;; (vertical-scroll-bars . nil)
-	         ;; (internal-border-width . 20)
-	         ;; (outer-border-width . 20)
-	         ;; (ns-appearance . nil) ;; 26.1 {light, dark}
-	         (ns-transparent-titlebar . t)) ;; 26.1
-	       initial-frame-alist)))
+           ;; (left . 0)
+           ;; (vertical-scroll-bars . nil)
+           ;; (internal-border-width . 20)
+           ;; (outer-border-width . 20)
+           ;; (ns-appearance . nil) ;; 26.1 {light, dark}
+           (ns-transparent-titlebar . t)) ;; 26.1
+         initial-frame-alist)))
 
  ((eq window-system 'x) ;; for Linux
   (setq initial-frame-alist
-	      (append
-	       '((vertical-scroll-bars . nil)
-	         (top . 0)
-	         (left . 0)
-	         (width . 80)
-	         (height . 38))
-	       initial-frame-alist)))
+        (append
+         '((vertical-scroll-bars . nil)
+           (top . 0)
+           (left . 0)
+           (width . 80)
+           (height . 38))
+         initial-frame-alist)))
 
  ((eq window-system nil)
   nil)
 
  (t ;; for Windows
   (setq initial-frame-alist
-	      (append
-	       '((vertical-scroll-bars . nil)
-	         (top . 0)
-	         (left . 0)
-	         (width . 80)
-	         (height . 26))
-	       initial-frame-alist))))
+        (append
+         '((vertical-scroll-bars . nil)
+           (top . 0)
+           (left . 0)
+           (width . 80)
+           (height . 26))
+         initial-frame-alist))))
 
 ;; Apply the initial setting to default
 (setq default-frame-alist initial-frame-alist)
@@ -481,7 +484,7 @@
 
 ;; (my-tick-init-time "utility")
 (when (and (boundp my-profiler-p)
-		       my-profiler-p)
-	(profiler-report))
+           my-profiler-p)
+  (profiler-report))
 
 (provide 'init)
