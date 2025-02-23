@@ -350,7 +350,7 @@
   (setq-local indent-tabs-mode nil)
   (setq-local tab-width 8)
   (setq indent-line-function 'org-indent-line))
-(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
+(add-hook 'org-mode-hook #'my-org-mode-indent-conf )
 
 (my-tick-init-time "development")
 

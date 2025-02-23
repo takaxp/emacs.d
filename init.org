@@ -9899,7 +9899,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (setq-local indent-tabs-mode nil)
   (setq-local tab-width 8)
   (setq indent-line-function 'org-indent-line))
-(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
+(add-hook 'org-mode-hook #'my-org-mode-indent-conf )
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -10434,7 +10434,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
           (ignore-errors (outline-up-heading 1))
           (org-update-statistics-cookies nil)
           (org-update-parent-todo-statistics)
-          ;; (org-element-cache-refresh)          
+          ;; (org-element-cache-refresh)
           ))))
   (advice-add 'kill-region :after #'my-kill-update-todo-statistics)
 
@@ -10447,7 +10447,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
             (backward-char 1))
           (org-update-statistics-cookies nil)
           (org-update-parent-todo-statistics)
-          ;; (org-element-cache-refresh)          
+          ;; (org-element-cache-refresh)
           ))))
   (advice-add 'org-yank :after #'my-yank-update-todo-statistics))
 #+end_src
