@@ -2,13 +2,6 @@
 ;;					    https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;								TODO/DONE/FIXME
-
-;; (with-eval-after-load "org"
-;;   (setq org-element-use-cache nil)
-;;   (setq org-element-cache-persistent nil)
-;;   (org-element-cache-reset t)
-;;   (add-hook 'find-file-hook #'org-element-cache-reset))
-
 (with-eval-after-load "org"
   ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/tree/etc/ORG-NEWS#n570
   ;; https://list.orgmode.org/orgmode/8734y5d2gs.fsf@localhost/
@@ -32,17 +25,11 @@
 
   ;; (advice-add 'org-cycle :around #'ad:org-cycle-src-block)
   ;; (advice-remove 'org-cycle #'ad:org-cycle-src-block)
-  (defun ad:org-cycle-src-block (f &rest arg)
-    (if (org-in-src-block-p)
-	(progn
-	  (indent-for-tab-command)
-	  )
-      ;; (message "--- hoge") ;;       (indent-for-tab-command)
-      (apply f arg)))
+  ;; (defun ad:org-cycle-src-block (f &rest arg)
+  ;;   (if (org-in-src-block-p)
+  ;; 	(indent-for-tab-command)
+  ;;     (apply f arg)))
 
-  ;; (defun my-iftc (&optional _arg)
-  ;;   (error "stop"))
-  ;; (advice-add 'indent-for-tab-command :after #'my-iftc)
 
   ;; (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)
@@ -149,12 +136,13 @@
   (defvar my-secure-boot nil
     "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
 
-  ;; (setq measure-exec-time-list '(my-show-org-buffer
-  ;;						 my-private-conf-activate
-  ;;						 my-org-babel-load-activate
-  ;;						 my-org-modules-activate
-  ;;						 my-org-agenda-prepare-buffers
-  ;;						 ))
+  ;; (setq measure-exec-time-list
+  ;; 	'(my-show-org-buffer
+  ;; 	  my-private-conf-activate
+  ;; 	  my-org-babel-load-activate
+  ;; 	  my-org-modules-activate
+  ;; 	  my-org-agenda-prepare-buffers
+  ;; 	  ))
   ;; (require 'my-eshell nil t)
 
   (require 'init nil t)))

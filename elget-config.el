@@ -119,7 +119,7 @@
   (el-get-bundle "emacsmirror/csv-mode")
   (el-get-bundle "es-mode")
   (el-get-bundle "markdown-mode")
-  (el-get-bundle "po-mode")
+  (el-get-bundle "emacsmirror/po-mode")
   (el-get-bundle "gnuplot-mode")
   (el-get-bundle "cmake-mode")
   (el-get-bundle "php-mode")
