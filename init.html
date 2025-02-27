@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-02-25 火 19:44 -->
+<!-- 2025-02-28 金 01:10 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -254,7 +254,8 @@
 <li><a href="#org1498f6ce">2.29.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#orgcea06248">2.30. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
+<li><a href="#orgdb356e99">2.30. loadとrequireの実行時間を計測</a></li>
+<li><a href="#orgcea06248">2.31. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -2155,8 +2156,32 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 </div>
+<div id="outline-container-orgdb356e99" class="outline-3">
+<h3 id="orgdb356e99"><span class="section-number-3">2.30.</span> loadとrequireの実行時間を計測</h3>
+<div class="outline-text-3" id="text-orgdb356e99">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-minimum-time-to-print</span> 0.5)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-print-loading-time</span> (f <span style="color: #228b22;">&amp;rest</span> args)
+  (<span style="color: #a020f0;">let*</span> ((before (current-time))
+         (result (apply f args))
+         (after (current-time))
+         (file-or-feature (car args))
+         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
+                  (/ (- (nth 2 after) (nth 2 before)) 1000.0))))
+    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> (memq file-or-feature '(cl-lib macroexp))
+                (&gt; my-minimum-time-to-print time))
+      (message <span style="color: #8b2252;">"--- %04d [ms]: %s%s"</span> time
+               (<span style="color: #a020f0;">if</span> (equal (subr-name f) <span style="color: #8b2252;">"load"</span>) <span style="color: #8b2252;">"(loading) "</span> <span style="color: #8b2252;">""</span>)
+               file-or-feature))
+    result))
+(advice-add 'load <span style="color: #483d8b;">:around</span> #'my-print-loading-time)
+(advice-add 'require <span style="color: #483d8b;">:around</span> #'my-print-loading-time)
+</pre>
+</div>
+</div>
+</div>
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.30.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.31.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．
@@ -10161,13 +10186,13 @@ Boot                Endtime             Uptime       This emacs
 <div class="outline-text-3" id="text-org29c7b6b7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:counsel-ag</span> (f <span style="color: #228b22;">&amp;optional</span> initial-input initial-directory extra-ag-args ag-prompt caller)
-  (apply f (<span style="color: #a020f0;">or</span> initial-input
-               (<span style="color: #a020f0;">and</span> (not (thing-at-point-looking-at <span style="color: #8b2252;">"^\\*+"</span>))
-                    (ivy-thing-at-point)))
-         (<span style="color: #a020f0;">unless</span> current-prefix-arg
-           (<span style="color: #a020f0;">or</span> initial-directory default-directory))
-         extra-ag-args ag-prompt caller))
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:counsel-ag</span> (f <span style="color: #228b22;">&amp;optional</span> initial-input initial-directory extra-ag-args ag-prompt <span style="color: #228b22;">&amp;key</span> caller)
+  (funcall f (<span style="color: #a020f0;">or</span> initial-input
+                 (<span style="color: #a020f0;">and</span> (not (thing-at-point-looking-at <span style="color: #8b2252;">"^\\*+"</span>))
+                      (ivy-thing-at-point)))
+           (<span style="color: #a020f0;">unless</span> current-prefix-arg
+             (<span style="color: #a020f0;">or</span> initial-directory default-directory))
+           extra-ag-args ag-prompt caller))
 </pre>
 </div>
 
@@ -10195,7 +10220,7 @@ Boot                Endtime             Uptime       This emacs
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:counsel-fzf</span> (f <span style="color: #228b22;">&amp;optional</span> initial-input initial-directory fzf-prompt)
-  (apply f (<span style="color: #a020f0;">or</span> initial-input
+  (funcall f (<span style="color: #a020f0;">or</span> initial-input
                (<span style="color: #a020f0;">if</span> (thing-at-point-looking-at <span style="color: #8b2252;">"^\\*+"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">org heading &#12434;&#38500;&#22806;</span>
                    nil
                  (ivy-thing-at-point)))
@@ -11705,7 +11730,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#38750;&#34920;&#31034;&#29366;&#24907;&#12398;&#38936;&#22495;&#12408;&#12398;&#26360;&#12365;&#36796;&#12415;&#12434;&#38450;&#12368;</span>
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">"Editing in invisible areas is prohibited, make them visible first"</span>
   (<span style="color: #a020f0;">setq</span> org-catch-invisible-edits 'show-and-error)
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-return</span> (f <span style="color: #228b22;">&amp;optional</span> arg)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad:org-return</span> (f <span style="color: #228b22;">&amp;rest</span> arg)
     <span style="color: #8b2252;">"An extension for checking invisible editing when you hit the enter."</span>
     (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
     (org-check-before-invisible-edit 'insert)
@@ -12109,16 +12134,15 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12484;&#12522;&#12540;&#12434;&#12459;&#12483;&#12488;&#12377;&#12427;&#26178;&#12395;&#65292;&#12459;&#12524;&#12531;&#12488;&#12469;&#12502;&#12484;&#12522;&#12540;&#12392;&#35242;&#12398;&#32113;&#35336;&#24773;&#22577;&#12434;&#26356;&#26032;&#12377;&#12427;</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-kill-update-todo-statistics</span> (_b _d <span style="color: #228b22;">&amp;optional</span> _arg)
-    (<span style="color: #a020f0;">when</span> (org-kill-is-subtree-p)
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (derived-mode-p 'org-mode)
+               (org-kill-is-subtree-p))
       (<span style="color: #a020f0;">save-excursion</span>
         (<span style="color: #a020f0;">save-restriction</span>
           (<span style="color: #a020f0;">unless</span> (eq 1 (point))
             (backward-char 1))
           (<span style="color: #a020f0;">ignore-errors</span> (outline-up-heading 1))
           (org-update-statistics-cookies nil)
-          (org-update-parent-todo-statistics)
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-element-cache-refresh)</span>
-          ))))
+          (org-update-parent-todo-statistics)))))
   (advice-add 'kill-region <span style="color: #483d8b;">:after</span> #'my-kill-update-todo-statistics)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12484;&#12522;&#12540;&#12434;&#12506;&#12540;&#12473;&#12488;&#12377;&#12427;&#26178;&#12395;&#65292;&#12459;&#12524;&#12531;&#12488;&#12469;&#12502;&#12484;&#12522;&#12540;&#12392;&#35242;&#12398;&#32113;&#35336;&#24773;&#22577;&#12434;&#26356;&#26032;&#12377;&#12427;</span>
@@ -13589,7 +13613,7 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
       (<span style="color: #a020f0;">save-restriction</span>
         (<span style="color: #a020f0;">let</span> ((l (org-outline-level))
               (b (buffer-name)))
-          (apply f arg default-buffer rfloc msg)
+          (funcall f arg default-buffer rfloc msg)
           (<span style="color: #a020f0;">if</span> (&gt; l (org-outline-level))
               (outline-backward-same-level 1)
             (outline-up-heading 1))
@@ -13750,7 +13774,10 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
 <pre class="src src-emacs-lisp">(add-hook 'org-mode-hook 'prettify-symbols-mode)
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"nerd-icons"</span>
   (<span style="color: #a020f0;">setq-default</span> prettify-symbols-alist
-                '((<span style="color: #8b2252;">":PROPERTIES:"</span> . <span style="color: #8b2252;">"&#187;"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">&#187; ;; nf-fa-angle_double_right &#61697; &#62681;</span>
+                '((<span style="color: #8b2252;">"CLOSED:"</span> . <span style="color: #8b2252;">"&#989904;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-md-timer_check</span>
+                  (<span style="color: #8b2252;">"SCHEDULED:"</span> . <span style="color: #8b2252;">"&#989918;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-md-timer_pause</span>
+                  (<span style="color: #8b2252;">"DEADLINE:"</span> . <span style="color: #8b2252;">"&#989920;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-md-timer_play</span>
+                  (<span style="color: #8b2252;">":PROPERTIES:"</span> . <span style="color: #8b2252;">"&#187;"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">&#187; ;; nf-fa-angle_double_right &#61697; &#62681;</span>
                   (<span style="color: #8b2252;">":LOGBOOK:"</span> . <span style="color: #8b2252;">"&#8250;"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">&#8250; ;; nf-fa-angle_right &#61701; &#62682;</span>
                   (<span style="color: #8b2252;">":END:"</span> . <span style="color: #8b2252;">"&#8250;"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">&#8250; &#62682;</span>
                   (<span style="color: #8b2252;">"#+begin_src"</span> . <span style="color: #8b2252;">"&#9640;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#57986; &#9640;</span>
@@ -13758,7 +13785,9 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
                   (<span style="color: #8b2252;">"#+RESULTS:"</span> . <span style="color: #8b2252;">"&#61773;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-fa-share_square &#61773;</span>
                   (<span style="color: #8b2252;">"[ ]"</span> .  <span style="color: #8b2252;">"&#983345;"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9744; &#58940; ;; nf-md-checkbox_blank_outline &#983345;</span>
                   (<span style="color: #8b2252;">"[X]"</span> . <span style="color: #8b2252;">"&#983349;"</span> ) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#9745; &#58939; ;; nf-md-checkbox_marked_outline &#983349;</span>
-                  (<span style="color: #8b2252;">"[-]"</span> . <span style="color: #8b2252;">"&#983319;"</span> )))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-md-checkbox_blank_badge_outline &#983319;</span>
+                  (<span style="color: #8b2252;">"[-]"</span> . <span style="color: #8b2252;">"&#985174; "</span> ))))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#985174; ;; nf-md-checkbox_intermediate</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#983319; ;; nf-md-checkbox_blank_badge_outline</span>
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "icons-in-terminal"</span>
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq-default prettify-symbols-alist '((":PROPERTIES:" . "&#57798;") ;;  &#187;</span>
@@ -14099,7 +14128,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org427a092"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org101c3fe"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14647,7 +14676,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
     (<span style="color: #a020f0;">when</span> this-command
       (remove-hook 'post-command-hook #'my-org-export--post-processing)))
 
-  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-export-dispatch</span> (f ARG)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-export-dispatch</span> (f <span style="color: #228b22;">&amp;optional</span> ARG)
     (<span style="color: #a020f0;">cond</span>
      (org-export-dispatch-use-expert-ui
       nil)
@@ -14661,12 +14690,12 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
     (<span style="color: #a020f0;">when</span> my-org-export-after-hook
       (add-hook 'post-command-hook #'my-org-export--post-processing))
     (run-hooks 'my-org-export-before-hook)
-    (apply f ARG))
+    (funcall f ARG))
   (advice-add 'org-export-dispatch <span style="color: #483d8b;">:around</span> #'my-org-export-dispatch)
 
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-export-insert-default-template</span> (f <span style="color: #228b22;">&amp;optional</span> backend subtreep)
     (<span style="color: #a020f0;">let</span> ((this-command nil))
-      (apply f backend subtreep)))
+      (funcall f backend subtreep)))
   (advice-add 'org-export-insert-default-template <span style="color: #483d8b;">:around</span>
               #'my-org-export-insert-default-template)
 
@@ -15047,7 +15076,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org4859361" class="figure">
+<div id="orgfe8ac96" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19522,7 +19551,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-02-25 火 19:44</p>
+<p class="date">Created: 2025-02-28 金 01:10</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

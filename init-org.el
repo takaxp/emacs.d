@@ -123,7 +123,7 @@
   ;; 非表示状態の領域への書き込みを防ぐ
   ;; "Editing in invisible areas is prohibited, make them visible first"
   (setq org-catch-invisible-edits 'show-and-error)
-  (defun ad:org-return (f &optional arg)
+  (defun ad:org-return (f &rest arg)
     "An extension for checking invisible editing when you hit the enter."
     (interactive "P")
     (org-check-before-invisible-edit 'insert)
@@ -500,16 +500,15 @@
 
   ;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
   (defun my-kill-update-todo-statistics (_b _d &optional _arg)
-    (when (org-kill-is-subtree-p)
+    (when (and (derived-mode-p 'org-mode)
+               (org-kill-is-subtree-p))
       (save-excursion
         (save-restriction
           (unless (eq 1 (point))
             (backward-char 1))
           (ignore-errors (outline-up-heading 1))
           (org-update-statistics-cookies nil)
-          (org-update-parent-todo-statistics)
-          ;; (org-element-cache-refresh)
-          ))))
+          (org-update-parent-todo-statistics)))))
   (advice-add 'kill-region :after #'my-kill-update-todo-statistics)
 
   ;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
@@ -1420,7 +1419,7 @@ update it for multiple appts?")
       (save-restriction
         (let ((l (org-outline-level))
               (b (buffer-name)))
-          (apply f arg default-buffer rfloc msg)
+          (funcall f arg default-buffer rfloc msg)
           (if (> l (org-outline-level))
               (outline-backward-same-level 1)
             (outline-up-heading 1))
@@ -1862,7 +1861,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (when this-command
       (remove-hook 'post-command-hook #'my-org-export--post-processing)))
 
-  (defun my-org-export-dispatch (f ARG)
+  (defun my-org-export-dispatch (f &optional ARG)
     (cond
      (org-export-dispatch-use-expert-ui
       nil)
@@ -1876,12 +1875,12 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (when my-org-export-after-hook
       (add-hook 'post-command-hook #'my-org-export--post-processing))
     (run-hooks 'my-org-export-before-hook)
-    (apply f ARG))
+    (funcall f ARG))
   (advice-add 'org-export-dispatch :around #'my-org-export-dispatch)
 
   (defun my-org-export-insert-default-template (f &optional backend subtreep)
     (let ((this-command nil))
-      (apply f backend subtreep)))
+      (funcall f backend subtreep)))
   (advice-add 'org-export-insert-default-template :around
               #'my-org-export-insert-default-template)
 

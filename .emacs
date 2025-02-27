@@ -2,6 +2,7 @@
 ;;					    https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;								TODO/DONE/FIXME
+
 (with-eval-after-load "org"
   ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/tree/etc/ORG-NEWS#n570
   ;; https://list.orgmode.org/orgmode/8734y5d2gs.fsf@localhost/

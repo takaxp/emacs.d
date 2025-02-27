@@ -1277,6 +1277,58 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
        t)))
 #+end_src
 
+** loadとrequireの実行時間を計測
+:PROPERTIES:
+:CUSTOM_ID: orgdb356e99
+:ID:       388BE124-F7F0-473D-9471-1C4AC1F293B3
+:END:
+
+#+begin_src emacs-lisp :tangle init-ad.el
+(defvar my-minimum-time-to-print 0.5)
+(defun my-print-loading-time (f &rest args)
+  (let* ((before (current-time))
+         (result (apply f args))
+         (after (current-time))
+         (file-or-feature (car args))
+         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
+                  (/ (- (nth 2 after) (nth 2 before)) 1000.0))))
+    (unless (or (memq file-or-feature '(cl-lib macroexp))
+                (> my-minimum-time-to-print time))
+      (message "--- %04d [ms]: %s%s" time
+               (if (equal (subr-name f) "load") "(loading) " "")
+               file-or-feature))
+    result))
+(advice-add 'load :around #'my-print-loading-time)
+(advice-add 'require :around #'my-print-loading-time)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :exports none
+;; advice of load function
+(defadvice load (around load-benchmark activate)
+  (let* ((before (current-time))
+         (result ad-do-it)
+         (after  (current-time))
+         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
+                  (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
+         (arg (ad-get-arg 0)))
+    (message "--- %04d [ms]: (loading) %s" time arg)))
+
+;; advice of require function
+(defadvice require (around require-benchmark activate)
+  "http://memo.sugyan.com/entry/20120105/1325756767"
+  (let* ((before (current-time))
+         (result ad-do-it)
+         (after  (current-time))
+         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
+                  (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
+         (arg (ad-get-arg 0)))
+    (unless (or (memq arg '(cl-lib macroexp))
+                (> 0.1 time))
+      (message "--- %04d [ms]: %s" time arg))))
+
+(provide 'init-ad)
+#+end_src
+
 ** DONE [window-focus-p] フォーカス判定
    CLOSED: [2020-06-04 Thu 08:00]
    :PROPERTIES:
@@ -8597,13 +8649,13 @@ the_silver_searcher @0.18.1 (textproc)
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
-  (apply f (or initial-input
-               (and (not (thing-at-point-looking-at "^\\*+"))
-                    (ivy-thing-at-point)))
-         (unless current-prefix-arg
-           (or initial-directory default-directory))
-         extra-ag-args ag-prompt caller))
+(defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt &key caller)
+  (funcall f (or initial-input
+                 (and (not (thing-at-point-looking-at "^\\*+"))
+                      (ivy-thing-at-point)))
+           (unless current-prefix-arg
+             (or initial-directory default-directory))
+           extra-ag-args ag-prompt caller))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -8630,7 +8682,7 @@ the_silver_searcher @0.18.1 (textproc)
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
-  (apply f (or initial-input
+  (funcall f (or initial-input
                (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
                    nil
                  (ivy-thing-at-point)))
@@ -10025,7 +10077,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; 非表示状態の領域への書き込みを防ぐ
   ;; "Editing in invisible areas is prohibited, make them visible first"
   (setq org-catch-invisible-edits 'show-and-error)
-  (defun ad:org-return (f &optional arg)
+  (defun ad:org-return (f &rest arg)
     "An extension for checking invisible editing when you hit the enter."
     (interactive "P")
     (org-check-before-invisible-edit 'insert)
@@ -10429,16 +10481,15 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   ;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
   (defun my-kill-update-todo-statistics (_b _d &optional _arg)
-    (when (org-kill-is-subtree-p)
+    (when (and (derived-mode-p 'org-mode)
+               (org-kill-is-subtree-p))
       (save-excursion
         (save-restriction
           (unless (eq 1 (point))
             (backward-char 1))
           (ignore-errors (outline-up-heading 1))
           (org-update-statistics-cookies nil)
-          (org-update-parent-todo-statistics)
-          ;; (org-element-cache-refresh)
-          ))))
+          (org-update-parent-todo-statistics)))))
   (advice-add 'kill-region :after #'my-kill-update-todo-statistics)
 
   ;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
@@ -11841,7 +11892,7 @@ update it for multiple appts?")
       (save-restriction
         (let ((l (org-outline-level))
               (b (buffer-name)))
-          (apply f arg default-buffer rfloc msg)
+          (funcall f arg default-buffer rfloc msg)
           (if (> l (org-outline-level))
               (outline-backward-same-level 1)
             (outline-up-heading 1))
@@ -11999,7 +12050,10 @@ update it for multiple appts?")
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "nerd-icons"
   (setq-default prettify-symbols-alist
-                '((":PROPERTIES:" . "»") ;;  » ;; nf-fa-angle_double_right  
+                '(("CLOSED:" . "󱫐") ;; nf-md-timer_check
+                  ("SCHEDULED:" . "󱫞") ;; nf-md-timer_pause
+                  ("DEADLINE:" . "󱫠") ;; nf-md-timer_play
+                  (":PROPERTIES:" . "»") ;;  » ;; nf-fa-angle_double_right  
                   (":LOGBOOK:" . "›") ;;  › ;; nf-fa-angle_right  
                   (":END:" . "›") ;;  › 
                   ("#+begin_src" . "▨") ;;  ▨
@@ -12007,7 +12061,9 @@ update it for multiple appts?")
                   ("#+RESULTS:" . "") ;; nf-fa-share_square 
                   ("[ ]" .  "󰄱") ;; ☐  ;; nf-md-checkbox_blank_outline 󰄱
                   ("[X]" . "󰄵" ) ;; ☑  ;; nf-md-checkbox_marked_outline 󰄵
-                  ("[-]" . "󰄗" )))) ;; nf-md-checkbox_blank_badge_outline 󰄗
+                  ("[-]" . "󰡖 " ))))
+;; 󰡖 ;; nf-md-checkbox_intermediate
+;; 󰄗 ;; nf-md-checkbox_blank_badge_outline
 
 ;; (with-eval-after-load "icons-in-terminal"
 ;;   (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;  »
@@ -12842,7 +12898,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (when this-command
       (remove-hook 'post-command-hook #'my-org-export--post-processing)))
 
-  (defun my-org-export-dispatch (f ARG)
+  (defun my-org-export-dispatch (f &optional ARG)
     (cond
      (org-export-dispatch-use-expert-ui
       nil)
@@ -12856,12 +12912,12 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (when my-org-export-after-hook
       (add-hook 'post-command-hook #'my-org-export--post-processing))
     (run-hooks 'my-org-export-before-hook)
-    (apply f ARG))
+    (funcall f ARG))
   (advice-add 'org-export-dispatch :around #'my-org-export-dispatch)
 
   (defun my-org-export-insert-default-template (f &optional backend subtreep)
     (let ((this-command nil))
-      (apply f backend subtreep)))
+      (funcall f backend subtreep)))
   (advice-add 'org-export-insert-default-template :around
               #'my-org-export-insert-default-template)
 
@@ -17513,3 +17569,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
              my-utility-start)))))))
 (provide 'utility)
 #+end_src
+#+begin_src emacs-lisp :tangle init-ad.el :exports none
+(provide 'init-ad)
+#+end_src
+

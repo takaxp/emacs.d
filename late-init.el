@@ -1849,7 +1849,10 @@ This function returns a timer object which you can use in
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "nerd-icons"
   (setq-default prettify-symbols-alist
-                '((":PROPERTIES:" . "»") ;;  » ;; nf-fa-angle_double_right  
+                '(("CLOSED:" . "󱫐") ;; nf-md-timer_check
+                  ("SCHEDULED:" . "󱫞") ;; nf-md-timer_pause
+                  ("DEADLINE:" . "󱫠") ;; nf-md-timer_play
+                  (":PROPERTIES:" . "»") ;;  » ;; nf-fa-angle_double_right  
                   (":LOGBOOK:" . "›") ;;  › ;; nf-fa-angle_right  
                   (":END:" . "›") ;;  › 
                   ("#+begin_src" . "▨") ;;  ▨
@@ -1857,7 +1860,9 @@ This function returns a timer object which you can use in
                   ("#+RESULTS:" . "") ;; nf-fa-share_square 
                   ("[ ]" .  "󰄱") ;; ☐  ;; nf-md-checkbox_blank_outline 󰄱
                   ("[X]" . "󰄵" ) ;; ☑  ;; nf-md-checkbox_marked_outline 󰄵
-                  ("[-]" . "󰄗" )))) ;; nf-md-checkbox_blank_badge_outline 󰄗
+                  ("[-]" . "󰡖 " ))))
+;; 󰡖 ;; nf-md-checkbox_intermediate
+;; 󰄗 ;; nf-md-checkbox_blank_badge_outline
 
 ;; (with-eval-after-load "icons-in-terminal"
 ;;   (setq-default prettify-symbols-alist '((":PROPERTIES:" . "") ;;  »

@@ -1353,17 +1353,17 @@ see https://github.com/bbatsov/super-save/pull/20/files."
     (view-buffer keyfreq-buffer)))
 
 ;;;###autoload
-(defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
-  (apply f (or initial-input
-               (and (not (thing-at-point-looking-at "^\\*+"))
-                    (ivy-thing-at-point)))
-         (unless current-prefix-arg
-           (or initial-directory default-directory))
-         extra-ag-args ag-prompt caller))
+(defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt &key caller)
+  (funcall f (or initial-input
+                 (and (not (thing-at-point-looking-at "^\\*+"))
+                      (ivy-thing-at-point)))
+           (unless current-prefix-arg
+             (or initial-directory default-directory))
+           extra-ag-args ag-prompt caller))
 
 ;;;###autoload
 (defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
-  (apply f (or initial-input
+  (funcall f (or initial-input
                (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
                    nil
                  (ivy-thing-at-point)))

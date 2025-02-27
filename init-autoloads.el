@@ -508,7 +508,7 @@ Extension to make the buffer view-only." t)
 (autoload 'ad:counsel-ag "utility" "\
 
 
-(fn F &optional INITIAL-INPUT INITIAL-DIRECTORY EXTRA-AG-ARGS AG-PROMPT CALLER)")
+(fn F &optional INITIAL-INPUT INITIAL-DIRECTORY EXTRA-AG-ARGS AG-PROMPT &key CALLER)")
 (autoload 'ad:counsel-fzf "utility" "\
 
 
