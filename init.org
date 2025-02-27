@@ -1286,6 +1286,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 #+begin_src emacs-lisp :tangle init-ad.el
 (defvar my-minimum-time-to-print 0.5)
 (defun my-print-loading-time (f &rest args)
+  "https://memo.sugyan.com/entry/20120105/1325756767"
   (let* ((before (current-time))
          (result (apply f args))
          (after (current-time))
