@@ -260,7 +260,7 @@ Then load the following at startup
 
 =after-init-hook= の値をチェックして， =my-load-init-time= が最後に配置されていることに留意します．以下は， =after-init-hook= の値の例です．
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (session-initialize recentf-mode my-emacs-init-time my-load-init-time)
 #+end_src
 
@@ -1209,7 +1209,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 
 ただ問題点として，最後の引数に入れる関数がバイトコンパイル時に展開されないようで，出来上がったバイトコードが高速化に寄与しているのか不明です．簡易的な実験ではだいぶ差があるようで，最近は =autoload-if-found= ， =with-eval-after-load= ， =eval-when-compile= の組み合わせで設定を書いて，遅延ロードと高速読み込みを実現しています． =my-disabled-packages= は =autoload-if-found= に組み込みました．
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (setq my-disabled-packages ;; 追加されていない場合は標準で読み込む
       '(("web-mode" . nil) ;; 読み込まない
         ("org" . t))) ;; 読み込む
@@ -1657,7 +1657,7 @@ Caskを使うと，個々のパッケージが独立にload-pathに設定され�
 
 =M-x lis-packges= を使って新しいパッケージをインストールする時だけ，以下のフラグを nil に書き換えてEmacsを起動します． =load-path-setter= は独自関数です（普通に =add-to-list= で追加するのと同じです）
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (defconst cask-package-dir
   (format "~/.emacs.d/.cask/package/%s" emacs-version))
 (if t
@@ -2314,7 +2314,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
   - [[http://qiita.com/takaxp/items/a86ee2aacb27c7c3a902][Emacs 25.1/25.2 を EMP版で快適に使う - Qiita]]
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (when (eq window-system 'mac)
   (keymap-global-set "M-SPC" 'mac-win-toggle-ime)
   (keymap-global-set "S-SPC" 'mac-win-toggle-ime)
@@ -2574,7 +2574,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 scroll-margin を指定すると，カーソルがウィンドウの端から離れた状態でスクロールされます．
 
-#+begin_src emacs-lisp :tangle late-init.el :exports yes
+#+begin_src emacs-lisp :tangle late-init.el :exports code
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
 (setq scroll-step 1)
@@ -4182,7 +4182,7 @@ This works also for other defined begin/end tokens to define the structure."
 
 =osx-dictionary= なるパッケージが存在します．さくさくと高速に動作します．なお， =C-M-w= は，本来，削除文字の連結(=append-next-kill=)にアサインされています．
 
-#+begin_src emacs-lisp :tangle late-init.el :exports yes
+#+begin_src emacs-lisp :tangle late-init.el :exports code
 (when (autoload-if-found '(osx-dictionary-search-pointer
                            osx-dictionary-search-input)
                          "osx-dictionary" nil t)
@@ -4763,7 +4763,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 
  以下の関数を準備します．
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (defun dictionary ()
   "dictionary.app"
   (interactive)
@@ -4823,7 +4823,7 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 
     マイナーモード化した dict-app を使う場合は以下のようにします．sdic を使っている人は，sdic 用の設定と衝突しないように気をつけます．
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (when (autoload-if-found '(dict-app-search)
                          "dict-app" nil t)
   ;; カーソルの位置の英単語の意味を調べる
@@ -5429,7 +5429,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
    :CUSTOM_ID: org5117762c
    :END:
 
-#+begin_src emacs-lisp :tangle late-init.el :exports yes
+#+begin_src emacs-lisp :tangle late-init.el :exports code
 ;; Show clock in in the mode line
 (setq display-time-format "%H:%M w%V") ;; %y%m%d. ;; "%H%M.%S"
 (setq display-time-interval 1)
@@ -5566,7 +5566,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 以下の設定では，ウィンドウ以下にバッファが続いているかを表す矢印と，続いていないことを示すカギカッコをフリンジに表示します．
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (setq-default indicate-buffer-boundaries
               '((top . nil) (bottom . right) (down . left)))
 #+end_src
@@ -6130,7 +6130,7 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 
 =font-lock-mode= が無効の場合に，意図しないアイコンが表示されることがあります．
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (when (autoload-if-found '(all-the-icons-dired-mode
                            ad:all-the-icons-dired--display)
        "all-the-icons-dired" nil t)
@@ -8866,7 +8866,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 
 利用開始前に，ログ表示サイトでルールをカスタマイズしておくとよい．例えば，拡張子が =.org= なファイルの場合，言語設定を =Text= にする，という具合に．すると，グラフ表示がわかりやすくなる．
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (when (require 'wakatime-mode nil t)
   (setq wakatime-api-key "<insert your own api key>")
   (setq wakatime-cli-path "/Users/taka/Dropbox/emacs.d/bin/wakatime-cli.py")
@@ -13312,7 +13312,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 ブリッツの入力や削除を Microsoft Word 的にします．意外と馴染まなかったので不使用です．
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 (when (autoload-if-found '(org-autolist-mode)
                          "org-autolist" nil t)
   (add-hook 'org-mode-hook (lambda () (org-autolist-mode))))
@@ -13641,7 +13641,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (my-ime-off)))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no :exports yes
+#+begin_src emacs-lisp :tangle no :exports code
 ;; (defun ad:find-file (FILENAME &optional WILDCARDS)
 ;;   "Extension to find-file as before-find-file-hook."
 ;;   (message "--- ad:findfile")
