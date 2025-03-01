@@ -10491,6 +10491,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
           (ignore-errors (outline-up-heading 1))
           (org-update-statistics-cookies nil)
           (org-update-parent-todo-statistics)))))
+  ;; kill時に[0/0]の色が変わるのが気になる場合は，volatile-highlights ロード後に
+  ;; kill-region から vhl/.advice-callback-fn/.make-vhl-on-kill-region を
+  ;; advice-remove する．
   (advice-add 'kill-region :after #'my-kill-update-todo-statistics)
 
   ;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
@@ -15207,6 +15210,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 ;;;###autoload
 (defun my-vhl-activate (&optional arg)
   (require 'volatile-highlights nil t) ;; will take 40-50[ms]
+  (advice-remove 'kill-region
+                 #'vhl/.advice-callback-fn/.make-vhl-on-kill-region)
   (advice-remove 'my-yank #'my-vhl-activate)
   (advice-remove 'my-org-yank #'my-vhl-activate)
   arg)

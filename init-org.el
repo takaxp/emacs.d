@@ -509,6 +509,9 @@
           (ignore-errors (outline-up-heading 1))
           (org-update-statistics-cookies nil)
           (org-update-parent-todo-statistics)))))
+  ;; kill時に[0/0]の色が変わるのが気になる場合は，volatile-highlights ロード後に
+  ;; kill-region から vhl/.advice-callback-fn/.make-vhl-on-kill-region を
+  ;; advice-remove する．
   (advice-add 'kill-region :after #'my-kill-update-todo-statistics)
 
   ;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する

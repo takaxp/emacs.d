@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-02-28 金 01:49 -->
+<!-- 2025-03-01 土 14:03 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -12144,6 +12144,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
           (<span style="color: #a020f0;">ignore-errors</span> (outline-up-heading 1))
           (org-update-statistics-cookies nil)
           (org-update-parent-todo-statistics)))))
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">kill&#26178;&#12395;[0/0]&#12398;&#33394;&#12364;&#22793;&#12431;&#12427;&#12398;&#12364;&#27671;&#12395;&#12394;&#12427;&#22580;&#21512;&#12399;&#65292;volatile-highlights &#12525;&#12540;&#12489;&#24460;&#12395;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">kill-region &#12363;&#12425; vhl/.advice-callback-fn/.make-vhl-on-kill-region &#12434;</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">advice-remove &#12377;&#12427;&#65294;</span>
   (advice-add 'kill-region <span style="color: #483d8b;">:after</span> #'my-kill-update-todo-statistics)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12484;&#12522;&#12540;&#12434;&#12506;&#12540;&#12473;&#12488;&#12377;&#12427;&#26178;&#12395;&#65292;&#12459;&#12524;&#12531;&#12488;&#12469;&#12502;&#12484;&#12522;&#12540;&#12392;&#35242;&#12398;&#32113;&#35336;&#24773;&#22577;&#12434;&#26356;&#26032;&#12377;&#12427;</span>
@@ -14129,7 +14132,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgbc12562"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgf4a0eca"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15077,7 +15080,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgebefe14" class="figure">
+<div id="orgff1f8c7" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -17152,6 +17155,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-vhl-activate</span> (<span style="color: #228b22;">&amp;optional</span> arg)
   (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">volatile-highlights</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will take 40-50[ms]</span>
+  (advice-remove 'kill-region
+                 #'vhl/.advice-callback-fn/.make-vhl-on-kill-region)
   (advice-remove 'my-yank #'my-vhl-activate)
   (advice-remove 'my-org-yank #'my-vhl-activate)
   arg)
@@ -19552,7 +19557,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-02-28 金 01:49</p>
+<p class="date">Created: 2025-03-01 土 14:03</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

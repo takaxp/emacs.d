@@ -2344,6 +2344,8 @@ Uses `all-the-icons-material' to fetch the icon."
 ;;;###autoload
 (defun my-vhl-activate (&optional arg)
   (require 'volatile-highlights nil t) ;; will take 40-50[ms]
+  (advice-remove 'kill-region
+                 #'vhl/.advice-callback-fn/.make-vhl-on-kill-region)
   (advice-remove 'my-yank #'my-vhl-activate)
   (advice-remove 'my-org-yank #'my-vhl-activate)
   arg)
