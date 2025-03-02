@@ -10507,7 +10507,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
           (org-update-parent-todo-statistics)
           ;; (org-element-cache-refresh)
           ))))
-  (advice-add 'org-yank :after #'my--yank-update-todo-statistics))
+  (advice-add 'org-yank :after #'my--yank-update-todo-statistics)
+
+  ;; アーカイブする前に narrowing を解く
+  (advice-add 'org-archive-subtree :before #'widen))
 #+end_src
 
 *** COMMENT for debugging

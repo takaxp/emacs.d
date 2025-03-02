@@ -525,7 +525,10 @@
           (org-update-parent-todo-statistics)
           ;; (org-element-cache-refresh)
           ))))
-  (advice-add 'org-yank :after #'my--yank-update-todo-statistics))
+  (advice-add 'org-yank :after #'my--yank-update-todo-statistics)
+
+  ;; アーカイブする前に narrowing を解く
+  (advice-add 'org-archive-subtree :before #'widen))
 
 (with-eval-after-load "org"
   ;; Font lock を使う
