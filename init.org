@@ -8650,13 +8650,13 @@ the_silver_searcher @0.18.1 (textproc)
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my--counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt &key caller)
-  (funcall f (or initial-input
-                 (and (not (thing-at-point-looking-at "^\\*+"))
-                      (ivy-thing-at-point)))
-           (unless current-prefix-arg
-             (or initial-directory default-directory))
-           extra-ag-args ag-prompt caller))
+(defun my--counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
+  (apply f (or initial-input
+               (and (not (thing-at-point-looking-at "^\\*+"))
+                    (ivy-thing-at-point)))
+         (unless current-prefix-arg
+           (or initial-directory default-directory))
+         extra-ag-args ag-prompt caller))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
