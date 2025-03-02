@@ -236,7 +236,7 @@ Then load the following at startup
     (message (concat
               "  Loading init files: %4d [ms]\n"
               "  Loading early-init: %4d [ms]\n"
-              "  Others(GUI etc.):       %4d [ms] includes `before-init-hook'\n"
+              "  Others(GUI etc.):   %4d [ms] includes `before-init-hook'\n"
               "(`after-init-hook': %4d [ms])")
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
@@ -12054,9 +12054,9 @@ update it for multiple appts?")
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "nerd-icons"
   (setq-default prettify-symbols-alist
-                '(("CLOSED:" . "󱫐") ;; nf-md-timer_check
-                  ("SCHEDULED:" . "󱫞") ;; nf-md-timer_pause
-                  ("DEADLINE:" . "󱫠") ;; nf-md-timer_play
+                '(("CLOSED:" . "󱫫") ;; nf-md-timer_stop_outline
+                  ("SCHEDULED:" . "󰅕") ;; nf-md-clock_start
+                  ("DEADLINE:" . "󰅑") ;; nf-md-clock_end
                   (":PROPERTIES:" . "»") ;;  » ;; nf-fa-angle_double_right  
                   (":LOGBOOK:" . "›") ;;  › ;; nf-fa-angle_right  
                   (":END:" . "›") ;;  › 

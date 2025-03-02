@@ -42,7 +42,7 @@
     (message (concat
               "  Loading init files: %4d [ms]\n"
               "  Loading early-init: %4d [ms]\n"
-              "  Others(GUI etc.):       %4d [ms] includes `before-init-hook'\n"
+              "  Others(GUI etc.):   %4d [ms] includes `before-init-hook'\n"
               "(`after-init-hook': %4d [ms])")
              (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))

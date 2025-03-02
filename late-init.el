@@ -1849,9 +1849,9 @@ This function returns a timer object which you can use in
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "nerd-icons"
   (setq-default prettify-symbols-alist
-                '(("CLOSED:" . "󱫐") ;; nf-md-timer_check
-                  ("SCHEDULED:" . "󱫞") ;; nf-md-timer_pause
-                  ("DEADLINE:" . "󱫠") ;; nf-md-timer_play
+                '(("CLOSED:" . "󱫫") ;; nf-md-timer_stop_outline
+                  ("SCHEDULED:" . "󰅕") ;; nf-md-clock_start
+                  ("DEADLINE:" . "󰅑") ;; nf-md-clock_end
                   (":PROPERTIES:" . "»") ;;  » ;; nf-fa-angle_double_right  
                   (":LOGBOOK:" . "›") ;;  › ;; nf-fa-angle_right  
                   (":END:" . "›") ;;  › 
