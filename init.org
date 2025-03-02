@@ -201,7 +201,7 @@ Then load the following at startup
 
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load "time"
-  (defun ad:emacs-init-time ()
+  (defun my--emacs-init-time ()
     "Return a string giving the duration of the Emacs initialization."
     (interactive)
     (let ((str
@@ -212,7 +212,7 @@ Then load the following at startup
           (message "%s" str)
         str)))
 
-  (advice-add 'emacs-init-time :override #'ad:emacs-init-time))
+  (advice-add 'emacs-init-time :override #'my--emacs-init-time))
 #+end_src
 
 ** initファイルの読み込み時間計測
@@ -303,12 +303,12 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+begin_src emacs-lisp :tangle late-init.el
 (defvar measure-exec-time-list nil)
 (dolist (f measure-exec-time-list)
-  (advice-add f :around #'ad:measure-exec-time))
+  (advice-add f :around #'my--measure-exec-time))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:measure-exec-time (f &rest arg)
+(defun my--measure-exec-time (f &rest arg)
   "If `measure-exec-time-list' is non-nil, measure exe time for each function."
   (if measure-exec-time-list
       (let ((inhibit-message nil)
@@ -386,7 +386,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 #+begin_src emacs-lisp :tangle yes
 (defvar my-suppress-message-p t)
-(defun ad:suppress-message (f &rest arg)
+(defun my--suppress-message (f &rest arg)
   (if my-suppress-message-p
       (let ((inhibit-message t)
             (message-log-max nil))
@@ -394,8 +394,8 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
     (apply f arg)))
 
 ;; Suppress printing "Waiting for git..." from version.el
-(advice-add 'emacs-repository-branch-git :around #'ad:suppress-message)
-(advice-add 'emacs-repository-version-git :around #'ad:suppress-message)
+(advice-add 'emacs-repository-branch-git :around #'my--suppress-message)
+(advice-add 'emacs-repository-version-git :around #'my--suppress-message)
 #+end_src
 
 ** 警告の抑制
@@ -420,7 +420,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:do-after-load-evaluation (abs-file)
+(defun my--do-after-load-evaluation (abs-file)
   "Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
 ABS-FILE, a string, should be the absolute true name of a file just loaded.
 This function is called directly from the C code."
@@ -460,7 +460,7 @@ This function is called directly from the C code."
 
 #+begin_src emacs-lisp :tangle no :exports none
 ;;;###autoload
-(defun ad:do-after-load-evaluation (abs-file)
+(defun my--do-after-load-evaluation (abs-file)
   "Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
 ABS-FILE, a string, should be the absolute true name of a file just loaded.
 This function is called directly from the C code."
@@ -508,7 +508,7 @@ This function is called directly from the C code."
 ;; (setq byte-compile-warnings '(obsolete))
 ;; Suppress warning on cl.el loading
 (defvar my-exclude-deprecated-packages '(cl tls))
-(advice-add 'do-after-load-evaluation :override #'ad:do-after-load-evaluation)
+(advice-add 'do-after-load-evaluation :override #'my--do-after-load-evaluation)
 #+end_src
 
 ** エラー表示の抑制
@@ -980,14 +980,14 @@ This function returns a timer object which you can use in
 (defvar my-gcmh-idlegc-p nil)
 
 ;;;###autoload
-(defun ad:garbage-collect (f)
+(defun my--garbage-collect (f)
   (unless my-gcmh-idlegc-p
     (message "[gcmh] Garbage collecting...")
     (message "[gcmh] Garbage collecting...done (%.3fs)"
              (gcmh-time (funcall f)))))
 
 ;;;###autoload
-(defun ad:gcmh-idle-garbage-collect (f)
+(defun my--gcmh-idle-garbage-collect (f)
   (let ((my-gcmh-idlegc-p t))
     (funcall f)))
 
@@ -1006,9 +1006,9 @@ This function returns a timer object which you can use in
 
   (with-eval-after-load "gcmh"
     (setq gcmh-verbose nil)
-    (advice-add 'garbage-collect :around #'ad:garbage-collect)
+    (advice-add 'garbage-collect :around #'my--garbage-collect)
     (advice-add 'gcmh-idle-garbage-collect
-                :around #'ad:gcmh-idle-garbage-collect)))
+                :around #'my--gcmh-idle-garbage-collect)))
 #+end_src
 
 ** [shut-up.el] Messages 出力を封じる（制御する）
@@ -1285,7 +1285,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 
 #+begin_src emacs-lisp :tangle init-ad.el
 (defvar my-minimum-time-to-print 0.5)
-(defun my-print-loading-time (f &rest args)
+(defun my--print-loading-time (f &rest args)
   "https://memo.sugyan.com/entry/20120105/1325756767"
   (let* ((before (current-time))
          (result (apply f args))
@@ -1299,8 +1299,8 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
                (if (equal (subr-name f) "load") "(loading) " "")
                file-or-feature))
     result))
-(advice-add 'load :around #'my-print-loading-time)
-(advice-add 'require :around #'my-print-loading-time)
+(advice-add 'load :around #'my--print-loading-time)
+(advice-add 'require :around #'my--print-loading-time)
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports none
@@ -1562,10 +1562,10 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 ;; late-init.el
 (when (eq window-system 'ns)
   ;; NS版でスクロール後に表示が消えるのを回避（ただしちらつく）
-  (defun ad:scroll (_ARG)
+  (defun my--scroll (_ARG)
     (redraw-display))
-  (advice-add 'scroll-up :after #'ad:scroll)
-  (advice-add 'scroll-down :after #'ad:scroll))
+  (advice-add 'scroll-up :after #'my--scroll)
+  (advice-add 'scroll-down :after #'my--scroll))
 #+end_src
 
 ** 水平方向の自動スクロール調整
@@ -1813,10 +1813,10 @@ echo "--- done."
                 (require 'cask "~/.cask/cask.el" t))
         (setq load-path (cask-load-path (cask-initialize))))))
 
-  (defun advice:paradox-quit-and-close (_kill)
+  (defun my--paradox-quit-and-close (_kill)
     (my-reset-load-path))
   (advice-add 'paradox-quit-and-close :after
-              #'advice:paradox-quit-and-close)
+              #'my--paradox-quit-and-close)
 
   (custom-set-variables
    '(paradox-github-token t))
@@ -1923,11 +1923,11 @@ Version 27 から起動直後の =C-x C-f= のデフォルトが変わったよ�
 #+begin_src emacs-lisp :tangle yes
 (when (version< "27.0" emacs-version)
   (with-eval-after-load "files"
-    (defun ad:find-file-read-args (f prompt mustmatch)
+    (defun my--find-file-read-args (f prompt mustmatch)
       (when (equal default-directory "/")
         (setq default-directory "~/"))
       (funcall f prompt mustmatch))
-    (advice-add 'find-file-read-args :around #'ad:find-file-read-args)))
+    (advice-add 'find-file-read-args :around #'my--find-file-read-args)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -2144,7 +2144,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
-  (advice-add 'epa-file-write-region :around #'ad:suppress-message))
+  (advice-add 'epa-file-write-region :around #'my--suppress-message))
 #+end_src
 
 ** メール設定の読み込み
@@ -2319,7 +2319,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
   (keymap-global-set "M-SPC" 'mac-win-toggle-ime)
   (keymap-global-set "S-SPC" 'mac-win-toggle-ime)
   (declare-function mac-win-save-last-ime-status "init" nil)
-  (declare-function ad:mac-auto-ascii-setup-input-source "init" nil)
+  (declare-function my--mac-auto-ascii-setup-input-source "init" nil)
   (declare-function mac-win-restore-ime "init" nil)
   (declare-function mac-win-restore-ime-target-commands "init" nil))
 
@@ -2343,11 +2343,11 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
       (mac-select-input-source
        "com.google.inputmethod.Japanese.base")))
 
-  (defun ad:mac-auto-ascii-setup-input-source (&optional _prompt)
+  (defun my--mac-auto-ascii-setup-input-source (&optional _prompt)
     "Extension to store IME status"
     (mac-win-save-last-ime-status))
   (advice-add 'mac-auto-ascii-setup-input-source :before
-              #'ad:mac-auto-ascii-setup-input-source)
+              #'my--mac-auto-ascii-setup-input-source)
 
   (defvar mac-win-target-commands
     '(find-file save-buffer other-window delete-window split-window))
@@ -2515,7 +2515,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 +- =C-M-9= (my-mark-sexp) は，カーソル位置から逆方向に選択．+ 以前は =my-mark-sexp= を定義して使っていましたが， =mark-sexp= を advice する方法に変えました．カーソルが行末だったり，後ろが空白文字の場合にのみ， =mark-sexp= に =-1= がわたるようにしました．
 
-=ad:er:mark-sexp= を設定することで， =C-M-SPC= 時にカーソル以下の単語を選択するようになります． =expand-region.el= の機能を使っています．
+=my--er:mark-sexp= を設定することで， =C-M-SPC= 時にカーソル以下の単語を選択するようになります． =expand-region.el= の機能を使っています．
 
 #+begin_src emacs-lisp :tangle no
 (defun my-mark-sexp (&optional arg)
@@ -2527,7 +2527,7 @@ NSビルド版で生じた日本語入力時のチラつきを避けるために
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:mark-sexp (f &optional arg allow-extend)
+(defun my--mark-sexp (f &optional arg allow-extend)
   "Set mark ARG sexps from point.
 When the cursor is at the end of line or before a whitespace, set ARG -1."
   (interactive "P\np")
@@ -2541,7 +2541,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
            allow-extend))
 
 ;;;###autoload
-(defun ad:er:mark-sexp (f &optional arg allow-extend)
+(defun my--er:mark-sexp (f &optional arg allow-extend)
   "If the cursor is on a symbol, expand the region along the symbol."
   (interactive "P\np")
   (if (and (not (use-region-p))
@@ -2554,8 +2554,8 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(er/mark-symbol) "expand-region" nil t)
-(advice-add 'mark-sexp :around #'ad:mark-sexp)
-(advice-add 'mark-sexp :around #'ad:er:mark-sexp)
+(advice-add 'mark-sexp :around #'my--mark-sexp)
+(advice-add 'mark-sexp :around #'my--er:mark-sexp)
 #+end_src
 
 ** スクロールを制御
@@ -2766,7 +2766,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
               :sort t)))
 
 ;;;###autoload
-(defun ad:bm-show-mode ()
+(defun my--bm-show-mode ()
   "Enable truncate mode when showing bm list."
   (toggle-truncate-lines 1))
 #+end_src
@@ -2794,7 +2794,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     (keymap-global-set "S-<f10>" 'counsel-bm))
 
   (with-eval-after-load "bm"
-    (advice-add 'bm-repository-load :around #'ad:suppress-message)
+    (advice-add 'bm-repository-load :around #'my--suppress-message)
 
     ;; (setq bm-annotation-width 30)
     (setq-default bm-buffer-persistence t)
@@ -2814,7 +2814,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
       (add-hook 'after-revert-hook 'bm-buffer-restore)
       (add-hook 'kill-emacs-hook #'my-bm-save-all))
 
-    (advice-add 'bm-show-mode :after #'ad:bm-show-mode)))
+    (advice-add 'bm-show-mode :after #'my--bm-show-mode)))
 #+end_src
 
 ** [centered-cursor-mode.el] カーソル位置をバッファ中央に固定
@@ -2860,7 +2860,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (remove-hook 'find-file-hook #'my-smart-mark-activate))
 
 ;;;###autoload
-(defun ad:smart-mark-restore-cursor ()
+(defun my--smart-mark-restore-cursor ()
   "Restore cursor position saved just before mark."
   (when smart-mark-point-before-mark
     (when (> smart-mark-point-before-mark 1)
@@ -2869,19 +2869,19 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     (setq smart-mark-point-before-mark nil)))
 
 ;;;###autoload
-(defun ad:smart-mark-set-restore-before-mark (&rest _arg)
+(defun my--smart-mark-set-restore-before-mark (&rest _arg)
   (unless (memq this-command
                 '(er/expand-region er/mark-symbol er/contract-region))
     (setq smart-mark-point-before-mark (point))))
 
 ;;;###autoload
-(defun ad:er:keyboard-quit ()
+(defun my--er:keyboard-quit ()
   (when (memq last-command '(er/expand-region er/contract-region))
     (when smart-mark-point-before-mark
       (goto-char smart-mark-point-before-mark))))
 
 ;;;###autoload
-(defun ad:er:pre:keyboard-quit ()
+(defun my--er:pre:keyboard-quit ()
   (when (memq last-command '(er/expand-region er/contract-region))
     (er/contract-region 0)
     ;; (when (> smart-mark-point-before-mark 1) ;; FIXME
@@ -2898,13 +2898,13 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
   (with-eval-after-load "smart-mark"
     (progn ;; C-M-SPC SPC SPC ... C-g の場合に正しくカーソルと元に戻す．
       (advice-add 'smart-mark-restore-cursor :override
-                  #'ad:smart-mark-restore-cursor)
+                  #'my--smart-mark-restore-cursor)
       (advice-add 'smart-mark-set-restore-before-mark :override
-                  #'ad:smart-mark-set-restore-before-mark)
+                  #'my--smart-mark-set-restore-before-mark)
 
       (when (require 'expand-region-core nil t)
-        (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit))
-      ;; (advice-add 'keyboard-quit :before #'ad:er:pre:keyboard-quit)
+        (advice-add 'keyboard-quit :after #'my--er:keyboard-quit))
+      ;; (advice-add 'keyboard-quit :before #'my--er:pre:keyboard-quit)
       )))
 ;; (defun my-smart-mark-activate () (smart-mark-mode 1))
 ;; (defun my-smart-mark-dectivate () (smart-mark-mode -1))
@@ -2922,15 +2922,15 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-syntax-subword-activate (&rest arg)
+(defun my--syntax-subword-activate (&rest arg)
   (unless (featurep 'syntax-subword)
     (global-syntax-subword-mode 1))
-  (advice-remove 'forward-word #'my-syntax-subword-activate)
-  (advice-remove 'backward-word #'my-syntax-subword-activate)
+  (advice-remove 'forward-word #'my--syntax-subword-activate)
+  (advice-remove 'backward-word #'my--syntax-subword-activate)
   arg)
 
 ;;;###autoload
-(defun ad:syntax-subword-kill (&optional n)
+(defun my--syntax-subword-kill (&optional n)
   "Replace `kill-region' with `delete-region'."
   (interactive "^p")
   (let ((beg (point))
@@ -2944,14 +2944,14 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
                            syntax-subword-mode syntax-subword-kill)
                          "syntax-subword" nil t)
 
-  (advice-add 'forward-word :before #'my-syntax-subword-activate)
-  (advice-add 'backward-word :before #'my-syntax-subword-activate)
+  (advice-add 'forward-word :before #'my--syntax-subword-activate)
+  (advice-add 'backward-word :before #'my--syntax-subword-activate)
 
   (keymap-global-set "C-<backspace>" #'syntax-subword-backward-kill)
 
   (with-eval-after-load "syntax-subword"
     ;; C-<backspace> で，削除領域をコピーしない．
-    (advice-add 'syntax-subword-kill :override #'ad:syntax-subword-kill)))
+    (advice-add 'syntax-subword-kill :override #'my--syntax-subword-kill)))
 #+end_src
 
 ** [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる
@@ -3185,7 +3185,7 @@ Built-in の time-stamp.el を使う．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:isearch-mode (f forward &optional regexp op-fun recursive-edit
+(defun my--isearch-mode (f forward &optional regexp op-fun recursive-edit
                           regexp-function)
   (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
       (progn
@@ -3201,7 +3201,7 @@ Built-in の time-stamp.el を使う．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "isearch"
-  (advice-add 'isearch-mode :around #'ad:isearch-mode)
+  (advice-add 'isearch-mode :around #'my--isearch-mode)
 
   ;; C-g を isearch-exit に割り当てて途中中断とする．（カーソルを留めておきたい）カーソルを検索開始時点の場所に戻すには，別途 counsel-mark-ring を使う
   (keymap-set isearch-mode-map "C-g" 'isearch-exit))
@@ -3226,7 +3226,7 @@ Built-in の time-stamp.el を使う．
     (orgalist-mode 1))) ;; originally orgstruct-mode
 
 ;;;###autoload
-(defun ad:add-change-log-entry-other-window ()
+(defun my--add-change-log-entry-other-window ()
   (when view-mode
     (View-exit-and-edit)))
 #+end_src
@@ -3241,7 +3241,7 @@ Built-in の time-stamp.el を使う．
               (setq left-margin 4)))
 
   (advice-add 'add-change-log-entry-other-window
-              :before #'ad:add-change-log-entry-other-window))
+              :before #'my--add-change-log-entry-other-window))
 #+end_src
 
 ** テキストモード
@@ -3596,13 +3596,13 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   (if (use-region-p) (my-eval-region) (View-exit)))
 
 ;;;###autoload
-(defun ad:view--enable () (my-mode-line-on))
+(defun my--view--enable () (my-mode-line-on))
 
 ;;;###autoload
-(defun ad:view--disable () (my-mode-line-off))
+(defun my--view--disable () (my-mode-line-off))
 
 ;;;###autoload
-(defun ad:switch-to-buffer (&rest _arg)
+(defun my--switch-to-buffer (&rest _arg)
   (when (and (not view-mode)
              (member (buffer-name) my-auto-view-buffers))
     (view-mode 1)))
@@ -3625,7 +3625,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 
 (with-eval-after-load "view"
   ;; note: messages-buffer-mode-hook may not work
-  (advice-add 'switch-to-buffer :after #'ad:switch-to-buffer)
+  (advice-add 'switch-to-buffer :after #'my--switch-to-buffer)
 
   (keymap-set view-mode-map "i" 'View-exit-and-edit)
   (keymap-set view-mode-map "SPC" 'ignore)
@@ -3642,8 +3642,8 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   (keymap-set view-mode-map "<tab>" 'my-view-tab)
   (keymap-set view-mode-map "S-<tab>" 'my-view-shifttab)
   (unless my-toggle-modeline-global
-    (advice-add 'view--enable :before #'ad:view--enable)
-    (advice-add 'view--disable :before #'ad:view--disable)))
+    (advice-add 'view--enable :before #'my--view--enable)
+    (advice-add 'view--disable :before #'my--view--disable)))
 #+end_src
 
 ** Web/HTMLモード                                                       :web:
@@ -3784,7 +3784,7 @@ lang en_US
 
   (with-eval-after-load "ispell"
     ;; This could hild other messages from loading functions regarding org-mode.
-    (advice-add 'ispell-init-process :around #'ad:suppress-message)
+    (advice-add 'ispell-init-process :around #'my--suppress-message)
 
     ;; for English and Japanese mixed
     (add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
@@ -4022,7 +4022,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:YaTeX-insert-begin-end (env region-mode)
+(defun my--YaTeX-insert-begin-end (env region-mode)
   "Insert \\begin{mode-name} and \\end{mode-name}.
 This works also for other defined begin/end tokens to define the structure."
   (setq YaTeX-current-completion-type 'begin)
@@ -4077,7 +4077,7 @@ This works also for other defined begin/end tokens to define the structure."
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "yatex"
   (put 'YaTeX-insert-braces 'begend-guide 2)
-  (advice-add 'YaTeX-insert-begin-end :override #'ad:YaTeX-insert-begin-end))
+  (advice-add 'YaTeX-insert-begin-end :override #'my--YaTeX-insert-begin-end))
 #+end_src
 
 ** [auxtex.el] AUCTEXでTex編集                                          :tex:
@@ -4899,12 +4899,12 @@ Call this function at updating `mode-line-mode'."
 
 #+begin_src emacs-lisp :tangle no :exports none
 (with-eval-after-load "org"
-  (defun ad-org-toggle-narrow-to-subtree ()
+  (defun my--org-toggle-narrow-to-subtree ()
     "Show message when switching narrowing and widen in `org-mode'."
     (let ((narrowed (buffer-narrowed-p)))
       (minibuffer-message "%s" (if narrowed "narrow" "widen"))))
   (advice-add 'org-toggle-narrow-to-subtree
-              :after #'ad-org-toggle-narrow-to-subtree))
+              :after #'my--org-toggle-narrow-to-subtree))
 #+end_src
 
 *** COMMENT 分析1
@@ -4935,13 +4935,13 @@ Call this function at updating `mode-line-mode'."
 #+begin_src emacs-lisp
 ;; メッセージバッファの表示位置を強制的に最新に固定する
 ;; https://stackoverflow.com/questions/4682033/in-emacs-can-i-set-up-the-messages-buffer-so-that-it-tails
-;; (defun message-buffer-goto-end-of-buffer (&rest args)
+;; (defun my--message-buffer-goto-end-of-buffer (&rest args)
 ;;   (let* ((win (get-buffer-window "*Messages*"))
 ;;          (buf (and win (window-buffer win))))
 ;;     (and win (not (equal (current-buffer) buf))
 ;;          (set-window-point
 ;;           win (with-current-buffer buf (point-max))))))
-;; (advice-add 'message :after 'message-buffer-goto-end-of-buffer)
+;; (advice-add 'message :after #'my--message-buffer-goto-end-of-buffer)
 #+end_src
 
 #+begin_src emacs-lisp 
@@ -5183,13 +5183,13 @@ visibl-bell を使うと，操作ミスで発生するビープ音を，視覚�
   (switch-to-buffer "*scratch*"))
 
 ;;;###autoload
-(defun ad:split-window-below (&optional _size)
+(defun my--split-window-below (&optional _size)
   "An extention to switch to \*scratch\* buffer after splitting window."
   (my-open-scratch))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-;; (advice-add 'split-window-below :after #'ad:split-window-below)
+;; (advice-add 'split-window-below :after #'my--split-window-below)
 (if (< emacs-major-version 29)
     (keymap-global-set "C-M-s" #'my-open-scratch)
   (keymap-global-set "C-M-s" #'scratch-buffer))
@@ -5456,7 +5456,7 @@ Built-in の paren.el が利用できる．拡張版として [[http://www.emacs
   (remove-hook 'find-file-hook #'my-mic-paren-activate))
 
 ;;;###autoload
-(defun ad:mic-paren-highlight (f)
+(defun my--mic-paren-highlight (f)
   (if (active-minibuffer-window)
       (let ((paren-display-message 'never))
         (funcall f)
@@ -5478,7 +5478,7 @@ Built-in の paren.el が利用できる．拡張版として [[http://www.emacs
     (set-face-background 'paren-face-match "#66CC66")
 
     ;; for ivy-mode, "Matches" と表示される関数との衝突をさける
-    (advice-add 'mic-paren-highlight :around #'ad:mic-paren-highlight)))
+    (advice-add 'mic-paren-highlight :around #'my--mic-paren-highlight)))
 #+end_src
 
 paren.el の場合は以下の設定．
@@ -5508,7 +5508,7 @@ paren.el の場合は以下の設定．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:font-lock-mode (&optional _ARG)
+(defun my--font-lock-mode (&optional _ARG)
   (unless (memq major-mode '(vterm-mode))
     (font-lock-add-keywords major-mode
                             ;; "[\t]+$" 行末のタブ
@@ -5529,7 +5529,7 @@ paren.el の場合は以下の設定．
 ;; 半角スペース
 (defface my-face-b-3 '((t (:background "orange")))
   nil :group 'font-lock-highlighting-faces)
-(advice-add 'font-lock-mode :before #'ad:font-lock-mode)
+(advice-add 'font-lock-mode :before #'my--font-lock-mode)
 
 #+end_src
 
@@ -6132,7 +6132,7 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 
 #+begin_src emacs-lisp :tangle no :exports code
 (when (autoload-if-found '(all-the-icons-dired-mode
-                           ad:all-the-icons-dired--display)
+                           my--all-the-icons-dired--display)
        "all-the-icons-dired" nil t)
   (with-eval-after-load "all-the-icons"
     (setq all-the-icons-scale-factor 1.0)
@@ -6165,13 +6165,13 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my:elisp-eldoc (_callback)
+(defun my--elisp-eldoc (_callback)
   "Avoid hiding `hl-line' in `emacs-lisp-mode'."
   (when (fboundp 'hl-line-highlight)
     (hl-line-highlight)))
 
 ;;;###autoload
-(defun ad:eldoc-message (f &optional string)
+(defun my--eldoc-message (f &optional string)
   (unless (active-minibuffer-window)
     (funcall f string)))
 #+end_src
@@ -6182,11 +6182,11 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
   (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
     (add-hook hook #'turn-on-eldoc-mode))
   (with-eval-after-load "eldoc"
-    (advice-add 'elisp-eldoc-funcall :after #'my:elisp-eldoc)
-    ;; (advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)
+    (advice-add 'elisp-eldoc-funcall :after #'my--elisp-eldoc)
+    ;; (advice-add 'elisp-eldoc-var-docstring :after #'my--elisp-eldoc)
 
     ;; for ivy-mode
-    (advice-add 'eldoc-message :around #'ad:eldoc-message)
+    (advice-add 'eldoc-message :around #'my--eldoc-message)
 
     (custom-set-variables
      '(eldoc-idle-delay 1.0))))
@@ -6270,11 +6270,11 @@ go get -v github.com/mdempsky/gocode
 
   ;; ivy-dispatching-done-hydra was depreciated in ivy 0.13
   ;; (with-eval-after-load "ivy-hydra"
-  ;;   (defun ad:ivy-dispatching-done-hydra (f)
+  ;;   (defun my--ivy-dispatching-done-hydra (f)
   ;;     (when (> ivy--length 0)
   ;;       (funcall f)))
   ;;   (advice-add 'ivy-dispatching-done-hydra
-  ;;               :around #'ad:ivy-dispatching-done-hydra))
+  ;;               :around #'my--ivy-dispatching-done-hydra))
   )
 
 #+end_src
@@ -6333,7 +6333,7 @@ sorted.  FUNCTION must be a function of one argument."
     (counsel-ag ivy-text nil ""))) ;; also disable extra-ag-args
 
 ;;;###autoload
-(defun my-counsel-mark-ring ()
+(defun my--counsel-mark-ring ()
   "Browse `mark-ring' interactively.
 Obeys `widen-automatically', which see."
   (interactive)
@@ -6375,7 +6375,7 @@ Obeys `widen-automatically', which see."
   (with-eval-after-load "ivy"
     ;; 同一行に複数の mark がある場合，一つだけを候補として表示する．
     ;; mark を正確に辿れなくなるが，当該行に移動できることを重視．
-    (advice-add 'counsel-mark-ring :override #'my-counsel-mark-ring)
+    (advice-add 'counsel-mark-ring :override #'my--counsel-mark-ring)
 
     ;; counsel-mark-ring のリストをソートさせない
     (setf (alist-get 'counsel-mark-ring ivy-sort-functions-alist) nil)
@@ -6479,19 +6479,19 @@ Obeys `widen-automatically', which see."
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-truncate-lines-activate ()
+(defun my--truncate-lines-activate ()
   "Truncate lines on `imenu-list' buffer."
   (toggle-truncate-lines 1))
 
 ;;;###autoload
-(defun my-imenu-list-update ()
+(defun my--imenu-list-update ()
   "Expand frame width by `moom-change-frame-width'."
   (when (and (memq imenu-list-position '(right left))
              (not (get-buffer-window imenu-list-buffer-name t)))
     (moom-change-frame-width (+ (frame-width) imenu-list-size))))
 
 ;;;###autoload
-(defun my-imenu-list-quit-window ()
+(defun my--imenu-list-quit-window ()
   "Shrink frame width by `moom-change-frame-width'."
   (when (and (memq imenu-list-position '(right left))
              (not (get-buffer-window imenu-list-buffer-name t)))
@@ -6505,11 +6505,11 @@ Obeys `widen-automatically', which see."
     (setq imenu-list-size 40)
     (setq imenu-list-position 'left)
 
-    (add-hook 'imenu-list-major-mode-hook #'my-truncate-lines-activate)
+    (add-hook 'imenu-list-major-mode-hook #'my--truncate-lines-activate)
 
     (when (require 'moom nil t)
-      (add-hook 'imenu-list-update-hook #'my-imenu-list-update)
-      (advice-add 'imenu-list-quit-window :after #'my-imenu-list-quit-window))))
+      (add-hook 'imenu-list-update-hook #'my--imenu-list-update)
+      (advice-add 'imenu-list-quit-window :after #'my--imenu-list-quit-window))))
 #+end_src
 
 ** [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）
@@ -6626,7 +6626,7 @@ Obeys `widen-automatically', which see."
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:swiper-thing-at-point ()
+(defun my--swiper-thing-at-point ()
   "`swiper' with `ivy-thing-at-point'."
   (interactive)
   (let ((thing (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
@@ -6643,7 +6643,7 @@ Obeys `widen-automatically', which see."
   (keymap-global-set "M-s M-s" 'swiper-thing-at-point)
   (keymap-global-set "M-s M-a" 'swiper-all-thing-at-point)
   (with-eval-after-load "swiper"
-    (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
+    (advice-add 'swiper-thing-at-point :override #'my--swiper-thing-at-point)))
 #+end_src
 ** TODO [nerd-icons-ivy-rich] ivy インターフェイスでアイコンを表示する
    :PROPERTIES:
@@ -6796,7 +6796,7 @@ Obeys `widen-automatically', which see."
   (if (frame-focus-state) (dimmer-on) (dimmer-off)))
 
 ;;;###autoload
-(defun ad:dimmer-org-agenda--quit (&optional _bury)
+(defun my--dimmer-org-agenda--quit (&optional _bury)
   (when (fboundp 'dimmer-on)
     (setq my-dimmer-mode t)
     (dimmer-on)
@@ -6812,7 +6812,7 @@ Obeys `widen-automatically', which see."
 (when (autoload-if-found '(dimmer-mode
                            dimmer-process-all dimmer-off dimmer-on
                            my-toggle-dimmer dimmer-permanent-off
-                           ad:dimmer-org-agenda--quit)
+                           my--dimmer-org-agenda--quit)
                          "dimmer" nil t)
   (defvar my-dimmer-mode nil)
   (with-eval-after-load "dimmer"
@@ -6829,7 +6829,7 @@ Obeys `widen-automatically', which see."
 
     ;; for org-agenda
     (add-hook 'org-agenda-mode-hook #'dimmer-permanent-off)
-    (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
+    (advice-add 'org-agenda--quit :after #'my--dimmer-org-agenda--quit)
 
     ;; for swiper/helm-swoop
     (add-hook 'minibuffer-setup-hook #'dimmer-off)
@@ -7466,25 +7466,25 @@ http://d.hatena.ne.jp/IMAKADO/20080724/1216882563
     (keymap-global-set (concat base "SPC") 'emms-pause))
 
   (with-eval-after-load "emms-mode-line"
-    (defun ad:emms-mode-line-playlist-current ()
+    (defun my--emms-mode-line-playlist-current ()
       "Display filename in mode-line, not full-path."
       (format emms-mode-line-format
               (file-name-nondirectory
                (emms-track-description
                 (emms-playlist-current-selected-track)))))
     (advice-add 'emms-mode-line-playlist-current :override
-                #'ad:emms-mode-line-playlist-current))
+                #'my--emms-mode-line-playlist-current))
 
   (with-eval-after-load "emms-mode-line-icon"
     (setq emms-mode-line-format "%s")
-    (defun ad:emms-mode-line-icon-function ()
+    (defun my--emms-mode-line-icon-function ()
       "Replace the default musical note icon with a Unicode character."
       (concat " "
               emms-mode-line-icon-before-format
               "♪"
               (emms-mode-line-playlist-current)))
     (advice-add 'emms-mode-line-icon-function :override
-                #'ad:emms-mode-line-icon-function))
+                #'my--emms-mode-line-icon-function))
 
   (with-eval-after-load "emms"
     (when (require 'emms-setup nil t)
@@ -7717,7 +7717,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
          (eval `(with-ivy-window (find-file ,file))))))
 
 ;;;###autoload
-(defun ad:counsel-recentf ()
+(defun my--counsel-recentf ()
   "Find a file on `recentf-list'."
   (interactive)
   (require 'recentf)
@@ -7781,7 +7781,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
           (message "--- recentf is not activated in %s" system-name)))))
 
   (with-eval-after-load "counsel"
-    (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
+    (advice-add 'counsel-recentf :override #'my--counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
      '(("g" my-counsel-ag-in-dir "switch to ag")
@@ -7817,7 +7817,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "ah"
-  (advice-add 'my-cg-bookmark :around #'ad:suppress-message)
+  (advice-add 'my-cg-bookmark :around #'my--suppress-message)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 #+end_src
 
@@ -8004,7 +8004,7 @@ With a prefix ARG always prompt for command to use."
     (backup-each-save)))
 
 ;;;###autoload
-(defun my-backup-each-save-compute-location (filename)
+(defun my--backup-each-save-compute-location (filename)
   (let* ((containing-dir (file-name-directory filename))
          (basename (file-name-nondirectory filename))
          (backup-container
@@ -8032,7 +8032,7 @@ With a prefix ARG always prompt for command to use."
 
   (when (eq window-system 'w32)
     (advice-add 'backup-each-save-compute-location :override
-                #'my-backup-each-save-compute-location)))
+                #'my--backup-each-save-compute-location)))
 #+end_src
 
 ** [dired] ファイラのサポートツール                                   :dired:
@@ -8239,7 +8239,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 
 例外にするバッファ名を指定したり，特定の条件を満たしている場合に例外とするなどをカスタム変数で指定できるのが便利だと思います．
 
-ただ， ~org-agenda~ のように別ファイルが直接更新された場合に，当該ファイルが自動保存されないので， =super-save-command= を =my-super-save-buffers-command= で置き換えて使っています．このパッケージが本来持っているカレントバッファの変化に常時注目するという特徴が失われてしまいますけども...
+ただ， ~org-agenda~ のように別ファイルが直接更新された場合に，当該ファイルが自動保存されないので， =super-save-command= を =my--super-save-buffers-command= で置き換えて使っています．このパッケージが本来持っているカレントバッファの変化に常時注目するという特徴が失われてしまいますけども...
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -8262,7 +8262,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
               (string-match (buffer-substring (- pt 1) pt) " "))) t))))
 
 ;;;###autoload
-(defun my-super-save-buffers-command ()
+(defun my--super-save-buffers-command ()
   "Save the buffer if needed.
 see https://github.com/bbatsov/super-save/pull/20/files."
   (save-mark-and-excursion
@@ -8291,7 +8291,7 @@ see https://github.com/bbatsov/super-save/pull/20/files."
     (setq super-save-exclude '("Org Src"))
     (add-to-list 'super-save-predicates
                  '(lambda () (my-super-save-predicates-p)) t)
-    (advice-add 'super-save-command :override #'my-super-save-buffers-command)))
+    (advice-add 'super-save-command :override #'my--super-save-buffers-command)))
 #+end_src
 
 ** DONE [auto-save-buffers.el] 一定間隔でバッファを保存する        :obsolete:
@@ -8422,7 +8422,7 @@ http://www.emacswiki.org/emacs/EmacsSession
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:neotree-show ()
+(defun my--neotree-show ()
   "Extension to support change frame width when opening neotree."
   (unless (neo-global--window-exists-p)
     (when (and (require 'moom nil t)
@@ -8435,7 +8435,7 @@ http://www.emacswiki.org/emacs/EmacsSession
     (setq my-neo-activated t)))
 
 ;;;###autoload
-(defun ad:neotree-hide ()
+(defun my--neotree-hide ()
   "Extension to support change frame width when closing neotree."
   (when (neo-global--window-exists-p)
     (when (and (require 'moom nil t)
@@ -8470,8 +8470,8 @@ http://www.emacswiki.org/emacs/EmacsSession
 
     (defvar my-neo-activated nil) ;; fail save
     (defvar my-neo-adjusted-window-width (+ 3 neo-window-width))
-    (advice-add 'neotree-show :before #'ad:neotree-show)
-    (advice-add 'neotree-hide :before #'ad:neotree-hide)))
+    (advice-add 'neotree-show :before #'my--neotree-show)
+    (advice-add 'neotree-hide :before #'my--neotree-hide)))
 #+end_src
 
 ** [helpful.el] リッチなヘルプページ
@@ -8484,7 +8484,7 @@ http://www.emacswiki.org/emacs/EmacsSession
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:helpful-at-point ()
+(defun my--helpful-at-point ()
   (deactivate-mark))
 #+end_src
 
@@ -8499,7 +8499,7 @@ http://www.emacswiki.org/emacs/EmacsSession
   (keymap-global-set "<f1> m" 'helpful-macro)
   (keymap-global-set "<f1> @" 'helpful-at-point)
   (with-eval-after-load "helpful"
-    (advice-add 'helpful-at-point :before #'ad:helpful-at-point)))
+    (advice-add 'helpful-at-point :before #'my--helpful-at-point)))
 #+end_src
 
 ** [facecheck.el] クリックしてfaceをチェック
@@ -8527,7 +8527,7 @@ http://www.emacswiki.org/emacs/EmacsSession
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:keyfreq-show ()
+(defun my--keyfreq-show ()
   "Extension to make the buffer view-only."
   (interactive)
   (if shutup-p
@@ -8536,10 +8536,10 @@ http://www.emacswiki.org/emacs/EmacsSession
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found '(keyfreq-mode keyfreq-autosave-mode ad:keyfreq-show)
+(when (autoload-if-found '(keyfreq-mode keyfreq-autosave-mode my--keyfreq-show)
                          "keyfreq" nil t) ;; will require 'cl and 'gv(10-20[ms])
   (with-eval-after-load "keyfreq"
-    (advice-add 'keyfreq-show :after #'ad:keyfreq-show)
+    (advice-add 'keyfreq-show :after #'my--keyfreq-show)
     ;; (keymap-set keyfreq-mode-map "q"
     ;;   (lambda () (interactive)
     ;;       (when (string= (buffer-name) keyfreq-buffer)
@@ -8650,7 +8650,7 @@ the_silver_searcher @0.18.1 (textproc)
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt &key caller)
+(defun my--counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt &key caller)
   (funcall f (or initial-input
                  (and (not (thing-at-point-looking-at "^\\*+"))
                       (ivy-thing-at-point)))
@@ -8665,7 +8665,7 @@ the_silver_searcher @0.18.1 (textproc)
   (keymap-global-set "C-M-f" 'counsel-ag)
   (with-eval-after-load "counsel"
     (require 'thingatpt nil t)
-    (advice-add 'counsel-ag :around #'ad:counsel-ag)
+    (advice-add 'counsel-ag :around #'my--counsel-ag)
 
     ;; 2文字でも検索が発動するようにする
     (add-to-list 'ivy-more-chars-alist '(counsel-ag . 2))
@@ -8682,7 +8682,7 @@ the_silver_searcher @0.18.1 (textproc)
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
+(defun my--counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
   (funcall f (or initial-input
                (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
                    nil
@@ -8696,7 +8696,7 @@ the_silver_searcher @0.18.1 (textproc)
                          "counsel" nil t)
   (keymap-global-set "C-M-z" 'counsel-fzf)
   (with-eval-after-load "counsel"
-    (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
+    (advice-add 'counsel-fzf :around #'my--counsel-fzf)
     (ivy-add-actions
      'counsel-fzf
      '(("r" my-counsel-fzf-in-dir "search in directory")))))
@@ -8734,7 +8734,7 @@ the_silver_searcher @0.18.1 (textproc)
   (keymap-global-set "C-/" 'my-undo-propose)
 
   ;; located here intended to share this command with `undo-tree'
-  (defun my-org-reveal-and-focus (&optional _arg)
+  (defun my--org-reveal-and-focus (&optional _arg)
     "Reveal a heading and focus on the content."
     (when (eq major-mode 'org-mode)
       (org-overview)
@@ -8744,7 +8744,7 @@ the_silver_searcher @0.18.1 (textproc)
         (org-show-entry)
         (show-children)
         (org-show-siblings))))
-  (advice-add 'undo :after #'my-org-reveal-and-focus)
+  (advice-add 'undo :after #'my--org-reveal-and-focus)
 
   (eval-when-compile
     (require 'undo-propose nil t)) ;; for `undo-propose-wrap'
@@ -8755,17 +8755,17 @@ the_silver_searcher @0.18.1 (textproc)
 
     (keymap-set undo-propose-mode-map "/" 'undo)
     (keymap-set undo-propose-mode-map "q" 'undo-propose-cancel)
-    (advice-add 'undo-propose-commit :after #'my-org-reveal-and-focus)
-    (advice-add 'undo-propose-squash-commit :after #'my-org-reveal-and-focus)
+    (advice-add 'undo-propose-commit :after #'my--org-reveal-and-focus)
+    (advice-add 'undo-propose-squash-commit :after #'my--org-reveal-and-focus)
 
     ;; Moving coursor in `undo-propose-mode' will also commit changes.
     (defun my-undo-propose-commit ()
       (when undo-propose-mode
         (undo-propose-commit)))
 
-    (defun my-undo-propose-autocommit-on ()
+    (defun my--undo-propose-autocommit-on ()
       (add-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
-    (advice-add 'undo-propose :after #'my-undo-propose-autocommit-on)
+    (advice-add 'undo-propose :after #'my--undo-propose-autocommit-on)
 
     (defun my-undo-propose-autocommit-off ()
       (remove-hook 'ah-after-move-cursor-hook 'my-undo-propose-commit))
@@ -8775,14 +8775,14 @@ the_silver_searcher @0.18.1 (textproc)
     ;; Additionally, the commands will be executed.
     (keymap-set undo-propose-mode-map "SPC" 'undo-propose-commit)
     (keymap-set undo-propose-mode-map "RET" 'undo-propose-commit)
-    (defun my-undo-propose-key-through ()
+    (defun my--undo-propose-key-through ()
       "Through SPC and <return>."
       (let ((command (this-command-keys)))
         (cond ((equal (kbd "SPC") command)
                (insert " "))
               ((equal (kbd "RET") command)
                (electric-newline-and-maybe-indent)))))
-    (advice-add 'undo-propose-commit :after #'my-undo-propose-key-through)
+    (advice-add 'undo-propose-commit :after #'my--undo-propose-key-through)
 
     (defvar my-undo-propose-modeline '("#FF5d5d" "#FFFFFF"))
     (defun my-undo-propose-mode-line ()
@@ -8850,8 +8850,8 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
     (keymap-set undo-tree-visualizer-mode-map "q"
       'my-undo-tree-visualizer-quit))
 
-  (advice-add 'undo-tree-undo-1 :after #'my-org-reveal-and-focus)
-  (advice-add 'undo-tree-redo-1 :after #'my-org-reveal-and-focus))
+  (advice-add 'undo-tree-undo-1 :after #'my--org-reveal-and-focus)
+  (advice-add 'undo-tree-redo-1 :after #'my--org-reveal-and-focus))
 #+end_src
 
 ** DONE [wakatime-mode.el] WakaTime を利用して作業記録する         :obsolete:
@@ -9359,7 +9359,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (remove-hook 'find-file-hook #'my-projectile-activate))
 
 ;;;###autoload
-(defun ad:neotree-dir (path)
+(defun my--neotree-dir (path)
   "Extension to change the frame width automatically."
   (interactive "DDirectory: ")
   (unless (neo-global--window-exists-p)
@@ -9368,7 +9368,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   (neo-global--select-window))
 
 ;;;###autoload
-(defun ad:projectile-visit-project-tags-table ()
+(defun my--projectile-visit-project-tags-table ()
   "Extensions to skip calling `visit-tags-table'."
   nil)
 
@@ -9388,13 +9388,13 @@ Otherwise, use `counsel-ag'."
 (when (autoload-if-found '(projectile-mode)
                          "projectile" nil t)
   (with-eval-after-load "neotree"
-    ;; (advice-add 'neotree-dir :override #'ad:neotree-dir) ;; FIXME
+    ;; (advice-add 'neotree-dir :override #'my--neotree-dir) ;; FIXME
     ;; M-x helm-projectile-switch-project (C-c p p)
     (setq projectile-switch-project-action 'neotree-projectile-action))
 
   (with-eval-after-load "projectile"
     (advice-add 'projectile-visit-project-tags-table :override
-                #'ad:projectile-visit-project-tags-table)
+                #'my--projectile-visit-project-tags-table)
 
     (setq projectile-mode-line-lighter "")
     (setq projectile-dynamic-mode-line nil)
@@ -9457,7 +9457,7 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:magit-mode-bury-buffer (&optional _bury)
+(defun my--magit-mode-bury-buffer (&optional _bury)
   (when (fboundp 'dimmer-on)
     (setq my-dimmer-mode t)
     (dimmer-on)
@@ -9465,14 +9465,14 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found '(magit-status ad:magit-mode-bury-buffer)
+(when (autoload-if-found '(magit-status my--magit-mode-bury-buffer)
                          "magit" nil t)
   (keymap-global-set "C-c m" 'magit-status)
   (with-eval-after-load "magit"
     (when (fboundp 'dimmer-off)
       (add-hook 'magit-status-mode-hook 'dimmer-off))
     (when (fboundp 'magit-mode-bury-buffer)
-      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
+      (advice-add 'magit-mode-bury-buffer :before #'my--magit-mode-bury-buffer))
     (when (and (boundp 'magit-completing-read-function)
                (require 'ivy nil t))
       ;; ivy を使う
@@ -9595,12 +9595,12 @@ trim_trailing_whitespace = true
   (require 'company nil t))
 
 ;;;###autoload
-(defun ad:company-idle-begin (f buf win tick pos)
+(defun my--company-idle-begin (f buf win tick pos)
   (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
     (funcall f buf win tick pos)))
 
 ;;;###autoload
-(defun ad:company-pseudo-tooltip--ujofwd-on-timer (f command)
+(defun my--company-pseudo-tooltip--ujofwd-on-timer (f command)
   (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
     (funcall f command)))
 #+end_src
@@ -9634,9 +9634,9 @@ trim_trailing_whitespace = true
   (when (require 'company-quickhelp nil t)
     (company-quickhelp-mode))
 
-  (advice-add 'company-idle-begin :around #'ad:company-idle-begin)
+  (advice-add 'company-idle-begin :around #'my--company-idle-begin)
   ;; (advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around
-  ;;             #'ad:company-pseudo-tooltip--ujofwd-on-timer)
+  ;;             #'my--company-pseudo-tooltip--ujofwd-on-timer)
 
   (when (boundp 'mac-ime-before-put-text-hook)
     ;; 補完候補が表示されたタイミングで入力を続けたら，補完候補を消す．
@@ -9653,14 +9653,14 @@ trim_trailing_whitespace = true
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:minibuffer-complete (f)
+(defun my--minibuffer-complete (f)
   "Enforce to use `completion--in-region' when completing in minibuffer."
   (let ((completion-in-region-function #'completion--in-region))
     (funcall f)))
 
 ;;;###autoload
 (defun my-advice-minibuffer-complete ()
-  (advice-add 'minibuffer-complete :around #'ad:minibuffer-complete)
+  (advice-add 'minibuffer-complete :around #'my--minibuffer-complete)
   (remove-hook 'minibuffer-setup-hook #'my-advice-minibuffer-complete))
 
 ;;;###autoload
@@ -9673,7 +9673,7 @@ trim_trailing_whitespace = true
   (add-hook 'completion-at-point-functions #'cape-dict nil 'local))
 
 ;;;###autoload
-(defun my-corfu-insert-separator (ARG)
+(defun my--corfu-insert-separator (ARG)
   "Use C-SPC to insert the separator."
   (interactive "P")
   (if (corfu--continue-p) ;; (> corfu--total 0)
@@ -9698,7 +9698,7 @@ trim_trailing_whitespace = true
 
     (keymap-set corfu-mode-map "C-SPC" #'corfu-insert-separator)
 
-    (advice-add 'corfu-insert-separator :override #'my-corfu-insert-separator)
+    (advice-add 'corfu-insert-separator :override #'my--corfu-insert-separator)
 
     (when (require 'corfu-prescient nil t)
       (corfu-prescient-mode 1))
@@ -9929,22 +9929,22 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (my-show-org-buffer "next.org"))
 
 ;;;###autoload
-(defun my-org-last-repeat (&optional _arg)
+(defun my--org-last-repeat (&optional _arg)
   (when (and (org-get-repeat)
              (org-entry-is-todo-p))
     (org-entry-put nil "LAST_REPEAT" (format-time-string
                                       (org-time-stamp-format t t)))))
 
 ;;;###autoload
-(defun ad:org-modules-activate (&optional _arg)
+(defun my--org-modules-activate (&optional _arg)
   (interactive)
   (my-org-modules-activate)
-  (advice-remove 'org-cycle #'ad:org-modules-activate))
+  (advice-remove 'org-cycle #'my--org-modules-activate))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
 ;; org-tempo を org-modules で読み込む前に TAB 押下で展開する場合の対処
-(advice-add 'org-cycle :before #'ad:org-modules-activate)
+(advice-add 'org-cycle :before #'my--org-modules-activate)
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
@@ -9984,13 +9984,13 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   ;; 関連モジュールの読み込み
   (autoload 'org-eldoc-load "org-eldoc" nil t)
-  (defun my-org-eldoc-load ()
+  (defun my--org-eldoc-load ()
     "Set up org-eldoc documentation function."
     (interactive)
     (add-function :before-until (local 'eldoc-documentation-function)
                   #'org-eldoc-documentation-function))
   ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
-  ;; (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
+  ;; (advice-add 'org-eldoc-load :override #'my--org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
 
   ;; org ファイルの集中管理
@@ -10012,7 +10012,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (setq org-log-repeat nil)
 
   ;; タスク繰り返し時にログを残さないが，LAST_REPEAT は記録する．
-  (advice-add 'org-todo :after #'my-org-last-repeat)
+  (advice-add 'org-todo :after #'my--org-last-repeat)
 
   ;; indent を electric-indent-mode の振る舞いに合わせる
   ;; (setq org-adapt-indentation t) ;; t の場合，ドロアがインデントされる．
@@ -10064,7 +10064,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
   ;; undo 時に reveal して表示を改善する
-  ;; (defun ad:org:undo (&optional _ARG)
+  ;; (defun my--org:undo (&optional _ARG)
   ;;   (when (and (eq major-mode 'org-mode)
   ;;              (not (org-before-first-heading-p)))
   ;;     (org-overview)
@@ -10073,17 +10073,17 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;;     (org-show-entry)
   ;;     (show-children)
   ;;     (org-show-siblings)))
-  ;; (advice-add 'undo :after #'ad:org:undo)
+  ;; (advice-add 'undo :after #'my--org:undo)
 
   ;; 非表示状態の領域への書き込みを防ぐ
   ;; "Editing in invisible areas is prohibited, make them visible first"
   (setq org-catch-invisible-edits 'show-and-error)
-  (defun ad:org-return (f &rest arg)
+  (defun my--org-return (f &rest arg)
     "An extension for checking invisible editing when you hit the enter."
     (interactive "P")
     (org-check-before-invisible-edit 'insert)
     (apply f arg))
-  (advice-add 'org-return :around #'ad:org-return)
+  (advice-add 'org-return :around #'my--org-return)
 
   ;; ブリッツにアルファベットを使う
   (setq org-list-allow-alphabetical t)
@@ -10151,29 +10151,29 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 (with-eval-after-load "org-tempo"
   ;; 空行のとき "<" をインデントさせない
-  (defun ad:org-tempo-complete-tag (f &rest arg)
+  (defun my--org-tempo-complete-tag (f &rest arg)
     (if (save-excursion
           (beginning-of-line)
           (looking-at "<"))
         (let ((indent-line-function 'ignore))
           (apply f arg))
       (apply f arg)))
-  (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+  (advice-add 'org-tempo-complete-tag :around #'my--org-tempo-complete-tag))
 ;; (Thanks to @conao3)
 ;; but when using `flet', byte-compile will warn a malformed function
 ;; and using `cl-flet' will not provide us the expected result...
 ;; (when (require 'cl-lib nil t)
-;;   (defun ad:org-tempo-complete-tag (f &rest arg)
+;;   (defun my--org-tempo-complete-tag (f &rest arg)
 ;;     (if (save-excursion
 ;;           (beginning-of-line)
 ;;           (looking-at "<"))
 ;;         (cl-flet ((indent-according-to-mode () #'ignore))
 ;;           (apply f arg))
 ;;       (apply f arg)))
-;;   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+;;   (advice-add 'org-tempo-complete-tag :around #'my--org-tempo-complete-tag))
 
 (with-eval-after-load "org-tempo"
-  (defun my-org-tempo-add-block (entry)
+  (defun my--org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
            (name (cdr entry))
@@ -10188,7 +10188,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
        (format "Insert a %s block" name)
        'org-tempo-tags)))
   ;; 更新
-  (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
+  (advice-add 'org-tempo-add-block :override #'my--org-tempo-add-block)
   ;; 反映
   (org-tempo-add-templates))
 
@@ -10198,7 +10198,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (setq org-clock-in-resume t)
   (setq org-clock-persist-query-resume nil)
 
-  (advice-add 'org-clock-load :around #'ad:suppress-message)
+  (advice-add 'org-clock-load :around #'my--suppress-message)
 
   ;; 終了時に clock を止める．
   (defun my-org-clock-out-and-save-when-exit ()
@@ -10212,9 +10212,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 (with-eval-after-load "org-table"
   ;; エコー表示前に保存する
-  (defun ad:org-table-field-info (_arg)
+  (defun my--org-table-field-info (_arg)
     (save-buffer))
-  (advice-add 'org-table-field-info :before #'ad:org-table-field-info))
+  (advice-add 'org-table-field-info :before #'my--org-table-field-info))
 #+end_src
 
 ** contribution を使う
@@ -10481,7 +10481,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
     (run-hooks 'my-org-move-subtree-to-the-last-after-hook))
 
   ;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
-  (defun my-kill-update-todo-statistics (_b _d &optional _arg)
+  (defun my--kill-update-todo-statistics (_b _d &optional _arg)
     (when (and (derived-mode-p 'org-mode)
                (org-kill-is-subtree-p))
       (save-excursion
@@ -10494,10 +10494,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; kill時に[0/0]の色が変わるのが気になる場合は，volatile-highlights ロード後に
   ;; kill-region から vhl/.advice-callback-fn/.make-vhl-on-kill-region を
   ;; advice-remove する．
-  (advice-add 'kill-region :after #'my-kill-update-todo-statistics)
+  (advice-add 'kill-region :after #'my--kill-update-todo-statistics)
 
   ;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
-  (defun my-yank-update-todo-statistics (&optional _arg)
+  (defun my--yank-update-todo-statistics (&optional _arg)
     (when (org-kill-is-subtree-p)
       (save-excursion
         (save-restriction
@@ -10507,7 +10507,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
           (org-update-parent-todo-statistics)
           ;; (org-element-cache-refresh)
           ))))
-  (advice-add 'org-yank :after #'my-yank-update-todo-statistics))
+  (advice-add 'org-yank :after #'my--yank-update-todo-statistics))
 #+end_src
 
 *** COMMENT for debugging
@@ -10757,7 +10757,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 | pomodoro    | nil    | Glass     | my-pomodoro-notify              |
 | org-notify  | t      | default   | my-desktop-notification-handler |
 | daily.org   | select | default   | my-desktop-notify               |
-| appt        | select | Glass/Pop | ad:appt-disp-window             |
+| appt        | select | Glass/Pop | my--appt-disp-window             |
 
 |             | Note                     |
 |-------------+--------------------------|
@@ -11065,7 +11065,7 @@ org バッファのソースブロックにカーソルがある時には， =el
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "eldoc"
   (defvar my-eldoc-disable-in-org-block nil)
-  (defun ad:eldoc-print-current-symbol-info (f &optional interactive)
+  (defun my--eldoc-print-current-symbol-info (f &optional interactive)
     "Run `eldoc' when the cursor is NOT located in org source block."
     (interactive '(t))
     (unless (or my-eldoc-disable-in-org-block
@@ -11073,7 +11073,7 @@ org バッファのソースブロックにカーソルがある時には， =el
                      (eq (car (org-element-at-point)) 'src-block)))
       (funcall f interactive)))
   (advice-add 'eldoc-print-current-symbol-info :around
-              #'ad:eldoc-print-current-symbol-info))
+              #'my--eldoc-print-current-symbol-info))
 #+end_src
 
 ** 見出しの上で org-reveal する場合の挙動を変える
@@ -11086,7 +11086,7 @@ org バッファのソースブロックにカーソルがある時には， =el
 通常の ~org-reveal~ は，ドロワを展開しませんが，カーソルが見出し上にある時に ~org-reveal~ (C-c C-r) を呼ぶ時に，ドロワを展開して内容を表示させるようにします．
 
 #+begin_src emacs-lisp :tangle utility.el
-(defun ad:org-reveal (f &optional siblings)
+(defun my--org-reveal (f &optional siblings)
   (interactive "P")
   (if (org-at-heading-p)
       (org-show-subtree)
@@ -11095,7 +11095,7 @@ org バッファのソースブロックにカーソルがある時には， =el
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
-  (advice-add 'org-reveal :around #'ad:org-reveal))
+  (advice-add 'org-reveal :around #'my--org-reveal))
 #+end_src
 
 ** TODO org-emphasis-alist の各要素を個別に配色する
@@ -11252,10 +11252,10 @@ will not be modified."
         (unless (or field (equal "" field))
           (org-set-property created now)
           (org-cycle-hide-drawers 'children))))
-    (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
+    (defun my--org-insert-todo-heading (_arg &optional _force-heading)
       (unless (org-at-item-checkbox-p)
         (my-org-default-property)))
-    (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading))
+    (advice-add 'org-insert-todo-heading :after #'my--org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"
     (defun my-toggle-org-block-visibility ()
@@ -11440,11 +11440,11 @@ will not be modified."
         (moom-change-frame-width width)))
     ;; (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
 
-    (defun ad:org-agenda--quit (&optional _bury)
+    (defun my--org-agenda--quit (&optional _bury)
       (setq org-tags-column my-org-tags-column)
       ;; (org-align-tags t)
       (moom-change-frame-width))
-    ;; (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit)
+    ;; (advice-add 'org-agenda--quit :after #'my--org-agenda--quit)
     )
 
   ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
@@ -11710,8 +11710,8 @@ will not be modified."
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
-(when (autoload-if-found '(appt ad:appt-display-message
-                                ad:appt-disp-window appt-check)
+(when (autoload-if-found '(appt my--appt-display-message
+                                my--appt-disp-window appt-check)
                          "appt" nil t)
   (defvar my-org-agenda-to-appt-async t)
   (with-eval-after-load "appt"
@@ -11735,7 +11735,7 @@ will not be modified."
 
     ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
     ;; Need review
-    (defun ad:appt-display-message (string mins)
+    (defun my--appt-display-message (string mins)
       "Display a reminder about an appointment.
 The string STRING describes the appointment, due in integer MINS minutes.
 The arguments may also be lists, where each element relates to a
@@ -11774,9 +11774,9 @@ update it for multiple appts?")
                                (mapconcat #'identity string "\n")
                              string)))))
 
-    (advice-add 'appt-display-message :override #'ad:appt-display-message)
+    (advice-add 'appt-display-message :override #'my--appt-display-message)
 
-    (defun ad:appt-disp-window (min-to-app _new-time appt-msg)
+    (defun my--appt-disp-window (min-to-app _new-time appt-msg)
       "Extension to support appt-disp-window."
       (if (string= min-to-app "0")
           (my-desktop-notification "### Expired! ###" appt-msg t "Glass")
@@ -11784,9 +11784,9 @@ update it for multiple appts?")
          (concat "in " min-to-app " min.") appt-msg nil "Tink")))
     (cond
      ((eq appt-display-format 'echo)
-      (setq appt-disp-window-function 'ad:appt-disp-window))
+      (setq appt-disp-window-function 'my--appt-disp-window))
      ((eq appt-display-format 'window)
-      (advice-add 'appt-disp-window :before #'ad:appt-disp-window))))
+      (advice-add 'appt-disp-window :before #'my--appt-disp-window))))
 
   (with-eval-after-load "ivy"
     (defvar counsel-appt-time-msg-list nil)
@@ -11823,12 +11823,12 @@ update it for multiple appts?")
 
     ;; org-agenda-to-appt を非同期で使うための advice
     (defvar read-char-default-timeout 10)
-    (defun ad:read-char-exclusive (f &optional PROMPT INHERIT-INPUT-METHOD SECONDS)
+    (defun my--read-char-exclusive (f &optional PROMPT INHERIT-INPUT-METHOD SECONDS)
       (funcall f PROMPT INHERIT-INPUT-METHOD
                (or SECONDS read-char-default-timeout)))
-    (advice-add 'read-char-exclusive :around #'ad:read-char-exclusive)
+    (advice-add 'read-char-exclusive :around #'my--read-char-exclusive)
 
-    (defun ad:org-check-agenda-file (file)
+    (defun my--org-check-agenda-file (file)
       "Make sure FILE exists.  If not, ask user what to do."
       (let ((read-char-default-timeout 0)) ;; not nil
         (unless (file-exists-p file)
@@ -11840,7 +11840,7 @@ update it for multiple appts?")
               (org-remove-file file)
               (throw 'nextfile t))
              (t (user-error "Abort")))))))
-    (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
+    (advice-add 'org-check-agenda-file :override #'my--org-check-agenda-file)
 
     (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
       (let ((msgs appt-time-msg-list))
@@ -11890,7 +11890,7 @@ update it for multiple appts?")
 
   ;; 不要な履歴が生成されるのを抑制し，常に最新を保つ．
   ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
-  (defun ad:org-refile (f &optional arg default-buffer rfloc msg)
+  (defun my--org-refile (f &optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
     (save-excursion
       (save-restriction
@@ -11910,16 +11910,16 @@ update it for multiple appts?")
             (switch-to-buffer b)))
         (setq org-refile-history nil)
         (org-refile-cache-clear))))
-  (advice-add 'org-refile :around #'ad:org-refile)
+  (advice-add 'org-refile :around #'my--org-refile)
 
-  (defun ad:org-sort-entries (&optional _with-case _sorting-type
+  (defun my--org-sort-entries (&optional _with-case _sorting-type
                                         _getkey-func _compare-func
                                         _property _interactive?)
     (outline-hide-subtree)
     (org-show-hidden-entry)
     (org-show-children)
     (org-cycle-hide-drawers 'children))
-  (advice-add 'org-sort-entries :after #'ad:org-sort-entries))
+  (advice-add 'org-sort-entries :after #'my--org-sort-entries))
 #+end_src
 
 ** [org-babel] Orgバッファでソースコードを扱う
@@ -11967,10 +11967,10 @@ update it for multiple appts?")
 
 (with-eval-after-load "ob-core"
   ;; Suppress showing of "Indentation variables are now local."
-  (advice-add 'sh-make-vars-local :around #'ad:suppress-message)
+  (advice-add 'sh-make-vars-local :around #'my--suppress-message)
   ;; Suppress showing of "Setting up indent for shell type zsh" and
   ;; "Indentation setup for shell type zsh"
-  (advice-add 'sh-set-shell :around #'ad:suppress-message)
+  (advice-add 'sh-set-shell :around #'my--suppress-message)
 
   (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
@@ -12510,10 +12510,10 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
     (add-to-list 'org-grep-directories "~/.emacs.d/.cask/package")
 
     ;; "q"押下の挙動を調整
-    (defun ad:org-grep-quit ()
+    (defun my--org-grep-quit ()
       (interactive)
       (delete-window))
-    (advice-add 'org-grep-quit :override #'ad:org-grep-quit)
+    (advice-add 'org-grep-quit :override #'my--org-grep-quit)
 
     ;; for macOS
     (when (memq window-system '(mac ns))
@@ -12589,12 +12589,12 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
         (message "Past %s" clocked-item)))))
 
 (with-eval-after-load "org-clock"
-  (defun ad:org-clock-sum-today (&optional headline-filter)
+  (defun my--org-clock-sum-today (&optional headline-filter)
     "Sum the times for each subtree for today."
     (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
       (org-clock-sum (car range) (cadr range)
                      headline-filter :org-clock-minutes-today)))
-  (advice-add 'org-clock-sum-today :override #'ad:org-clock-sum-today)
+  (advice-add 'org-clock-sum-today :override #'my--org-clock-sum-today)
 
   ;; using folked package
   (when (require 'org-clock-today nil t)
@@ -12635,7 +12635,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
                     (format-time-string "[%Y-%m-%d %a %H:%M]")))
 
 ;;;###autoload
-(defun ad:ox-hugo:org-todo (&optional ARG)
+(defun my--ox-hugo:org-todo (&optional ARG)
   "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
   (when (and (equal (buffer-name) "imadenale.org")
              ;; FIXME C-c C-t d に反応しない．speed command はOK．
@@ -12681,7 +12681,7 @@ Note that this mechanism is still under consideration."
                       (line-number-at-pos)))))
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
                 "#L" (format "%d" line) "][" alt "]]")))
-    ;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
+    ;;    (advice-add 'org-todo :after #'my--ox-hugo:org-todo)
     ))
 #+end_src
 
@@ -12902,7 +12902,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (when this-command
       (remove-hook 'post-command-hook #'my-org-export--post-processing)))
 
-  (defun my-org-export-dispatch (f &optional ARG)
+  (defun my--org-export-dispatch (f &optional ARG)
     (cond
      (org-export-dispatch-use-expert-ui
       nil)
@@ -12917,20 +12917,20 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (add-hook 'post-command-hook #'my-org-export--post-processing))
     (run-hooks 'my-org-export-before-hook)
     (funcall f ARG))
-  (advice-add 'org-export-dispatch :around #'my-org-export-dispatch)
+  (advice-add 'org-export-dispatch :around #'my--org-export-dispatch)
 
-  (defun my-org-export-insert-default-template (f &optional backend subtreep)
+  (defun my--org-export-insert-default-template (f &optional backend subtreep)
     (let ((this-command nil))
       (funcall f backend subtreep)))
   (advice-add 'org-export-insert-default-template :around
-              #'my-org-export-insert-default-template)
+              #'my--org-export-insert-default-template)
 
-  (defun my-org-export-to-buffer (_backend
+  (defun my--org-export-to-buffer (_backend
                                   buffer
                                   &optional _async _subtreep _visible-only
                                   _body-only _ext-plist _post-process)
     (setq my-org-export-last-buffer buffer))
-  (advice-add 'org-export-to-buffer :after #'my-org-export-to-buffer)
+  (advice-add 'org-export-to-buffer :after #'my--org-export-to-buffer)
 
   (defun my-copy-exported-buffer ()
     (interactive)
@@ -13028,16 +13028,16 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (add-hook 'org-tree-slide-play-hook #'my-hide-headers)
       (add-hook 'org-tree-slide-stop-hook #'my-show-headers)
 
-      ;; (defun ad:org-edit-src-code (&optional code edit-buffer-name)
-      (defun ad:org-edit-src-code ()
+      ;; (defun my--org-edit-src-code (&optional code edit-buffer-name)
+      (defun my--org-edit-src-code ()
         (interactive)
         (my-show-headers))
-      (advice-add 'org-edit-src-code :before #'ad:org-edit-src-code)
+      (advice-add 'org-edit-src-code :before #'my--org-edit-src-code)
       ;; Block 外で呼ばれると，my-show-headers が呼ばれてしまう
-      (defun ad:org-edit-src-exit ()
+      (defun my--org-edit-src-exit ()
         (interactive)
         (my-hide-headers))
-      (advice-add 'org-edit-src-exit :after #'ad:org-edit-src-exit))))
+      (advice-add 'org-edit-src-exit :after #'my--org-edit-src-exit))))
 #+end_src
 
 ** TODO [org-fstree] ディレクトリ構造を読み取る
@@ -13185,12 +13185,12 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:org-recent-headings-activate ()
+(defun my--org-recent-headings-activate ()
   (interactive)
   (when (require 'org-recent-headings nil t)
     (org-recent-headings-mode 1) ;; one time activate
     (advice-remove 'org-recent-headings
-                   #'ad:org-recent-headings-activate)))
+                   #'my--org-recent-headings-activate)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -13203,7 +13203,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
     (setf (alist-get 'org-recent-headings ivy-sort-functions-alist) nil)
     (advice-add 'org-recent-headings :before
-                #'ad:org-recent-headings-activate)
+                #'my--org-recent-headings-activate)
     (setq org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
     (setq org-recent-headings-use-ids 'when-available)
     (setq org-recent-headings-show-entry-function
@@ -13645,11 +13645,11 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports code
-;; (defun ad:find-file (FILENAME &optional WILDCARDS)
+;; (defun my--find-file (FILENAME &optional WILDCARDS)
 ;;   "Extension to find-file as before-find-file-hook."
-;;   (message "--- ad:findfile")
+;;   (message "--- my--findfile")
 ;;   (apply FILENAME WILDCARDS))
-;; (advice-add #'find-file :around #'ad:find-file)
+;; (advice-add #'find-file :around #'my--find-file)
 
 ;; http://tezfm.blogspot.jp/2009/11/cocoa-emacs.html
 ;; バッファ切替時に input method を切り替える
@@ -13748,7 +13748,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:make-frame (&optional _parameters)
+(defun my--make-frame (&optional _parameters)
   (when (and (display-graphic-p)
              (called-interactively-p 'interactive))
     (message "--- Creating a frame.")
@@ -13765,7 +13765,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+begin_src emacs-lisp :tangle late-init.el
 (keymap-global-set "M-`" 'other-frame)
 (with-eval-after-load "frame"
-  (advice-add 'make-frame :after #'ad:make-frame))
+  (advice-add 'make-frame :after #'my--make-frame))
 #+end_src
 
 ** [moom.el] キーボードでフレームの場所を移す
@@ -13906,7 +13906,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
 ;;;###autoload
-(defun ad:moom-toggle-frame-maximized ()
+(defun my--moom-toggle-frame-maximized ()
   (when (eq major-mode 'org-mode)
     (org-redisplay-inline-images))
   (when (and mode-line-format
@@ -13926,7 +13926,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 (keymap-global-set "<f12>" 'my-toggle-mode-line)
 (with-eval-after-load "moom"
   (advice-add 'moom-toggle-frame-maximized
-              :after #'ad:moom-toggle-frame-maximized))
+              :after #'my--moom-toggle-frame-maximized))
 
 ;; (make-variable-buffer-local 'my-mode-line-format)
 (defvar-local my-mode-line-format nil)
@@ -13953,7 +13953,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:winner:delete-window (&optional _window)
+(defun my--winner:delete-window (&optional _window)
   (message "Undo? M-x winner-undo or type \"C-x g\""))
 #+end_src
 
@@ -13963,7 +13963,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
                            "winner" nil t)
     (keymap-global-set "C-x g" 'winner-undo)
     (with-eval-after-load "winner"
-      (advice-add 'delete-window :after #'ad:winner:delete-window)
+      (advice-add 'delete-window :after #'my--winner:delete-window)
       (keymap-set winner-mode-map "C-(" 'winner-undo)
       (keymap-set winner-mode-map "C-)" 'winner-redo)
       (winner-mode 1))))
@@ -14024,7 +14024,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   (checkdoc-minor-mode -1))
 
 ;;;###autoload
-(defun ad:checkdoc ()
+(defun my--checkdoc ()
   (interactive)
   (keymap-set checkdoc-minor-mode-map "q" 'my-delete-checkdoc-window)
   (keymap-set checkdoc-minor-mode-map "C-g" 'my-delete-checkdoc-window)
@@ -14033,7 +14033,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "checkdoc"
-  (advice-add 'checkdoc :before #'ad:checkdoc))
+  (advice-add 'checkdoc :before #'my--checkdoc))
 #+end_src
 
 ** TODO [doom-modeline.el] モードラインをリッチにする
@@ -14045,7 +14045,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun ad:doom-modeline-buffer-file-state-icon
+(defun my--doom-modeline-buffer-file-state-icon
     (icon &optional text face height voffset)
   "Displays an ICON with FACE, HEIGHT and VOFFSET.
 TEXT is the alternative if it is not applicable.
@@ -14075,9 +14075,9 @@ Uses `all-the-icons-material' to fetch the icon."
                                             (* 2 (aref (font-info font) 2))))
                                 10)))
      '(doom-modeline-minor-modes t))
-    ;; (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
+    ;; (declare-function my--doom-modeline-buffer-file-state-icon "init" nil)
     (advice-add 'doom-modeline-buffer-file-state-icon :override
-                #'ad:doom-modeline-buffer-file-state-icon)
+                #'my--doom-modeline-buffer-file-state-icon)
     (size-indication-mode 1)
     (doom-modeline-mode 1)))
 #+end_src
@@ -14266,19 +14266,19 @@ Uses `all-the-icons-material' to fetch the icon."
   (when (require 'olivetti nil t)
     (setq olivetti-lighter nil)
     (setq-default olivetti-body-width 80)
-    (defun ad:turn-on-olivetti-mode ()
+    (defun my--turn-on-olivetti-mode ()
       "Disable `visual-line-mode'."
       (unless moom--maximized
         (olivetti-mode -1))
       (visual-line-mode -1))
-    (advice-add 'turn-on-olivetti-mode :after #'ad:turn-on-olivetti-mode)
+    (advice-add 'turn-on-olivetti-mode :after #'my--turn-on-olivetti-mode)
     (add-hook 'find-file-hook #'turn-on-olivetti-mode)
-    (defun ad:olivetti:moom-toggle-frame-maximized ()
+    (defun my--olivetti:moom-toggle-frame-maximized ()
       (if moom--maximized
           (turn-on-olivetti-mode)
         (olivetti-mode -1)))
     (advice-add 'moom-toggle-frame-maximized :after
-                #'ad:olivetti:moom-toggle-frame-maximized)))
+                #'my--olivetti:moom-toggle-frame-maximized)))
 #+end_src
 
 * フォント／配色関連
@@ -14647,12 +14647,12 @@ Linux では次のように処理するだけでよく，意外と簡単．
 
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org-agenda"
-  (defun my-org-agenda (&optional _arg _org-keys _restriction)
+  (defun my--org-agenda (&optional _arg _org-keys _restriction)
     (my-linespacing))
-  (advice-add 'org-agenda :after #'my-org-agenda)
-  (defun my-org-agenda-redo (&optional _all)
+  (advice-add 'org-agenda :after #'my--org-agenda)
+  (defun my--org-agenda-redo (&optional _all)
     (my-linespacing))
-  (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
+  (advice-add 'org-agenda-redo :after #'my--org-agenda-redo))
 #+end_src
 
 *** COMMENT 分析
@@ -15208,12 +15208,12 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (my-vhl-change-color)))
 
 ;;;###autoload
-(defun my-vhl-activate (&optional arg)
+(defun my--vhl-activate (&optional arg)
   (require 'volatile-highlights nil t) ;; will take 40-50[ms]
   (advice-remove 'kill-region
                  #'vhl/.advice-callback-fn/.make-vhl-on-kill-region)
-  (advice-remove 'my-yank #'my-vhl-activate)
-  (advice-remove 'my-org-yank #'my-vhl-activate)
+  (advice-remove 'my-yank #'my--vhl-activate)
+  (advice-remove 'my-org-yank #'my--vhl-activate)
   arg)
 #+end_src
 
@@ -15223,8 +15223,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (keymap-global-set "M-v" 'my-yank)
   (keymap-global-set "C-y" 'my-yank)
   (when window-system
-    (advice-add 'my-yank :before #'my-vhl-activate)
-    (advice-add 'my-org-yank :before #'my-vhl-activate))
+    (advice-add 'my-yank :before #'my--vhl-activate)
+    (advice-add 'my-org-yank :before #'my--vhl-activate))
 
   (with-eval-after-load "volatile-highlights"
     (set-face-attribute
@@ -15594,13 +15594,13 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (when (timerp pomodoro:update-sign-timer)
       (cancel-timer pomodoro:update-sign-timer)))
 
-  (defun ad:pomodoro:start (f &rest minutes)
+  (defun my--pomodoro:start (f &rest minutes)
     "Extensions to stop pomodoro and timers"
     (interactive "P")
     (pomodoro:visualize-start)
     (apply f minutes))
 
-  (defun ad:pomodoro:stop (f &rest do-reset)
+  (defun my--pomodoro:stop (f &rest do-reset)
     "Extensions to stop pomodoro and timers"
     (interactive)
     (pomodoro:visualize-stop)
@@ -15608,8 +15608,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
       (apply f do-reset)))
 
   (when my-pomodoro-visualize
-    (advice-add 'pomodoro:start :around #'ad:pomodoro:start)
-    (advice-add 'pomodoro:stop :around #'ad:pomodoro:stop))
+    (advice-add 'pomodoro:start :around #'my--pomodoro:start)
+    (advice-add 'pomodoro:stop :around #'my--pomodoro:stop))
 
   ;; work
   (defun pomodoro:update-work-sign ()
@@ -15796,17 +15796,17 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
   (dired gif-screencast-screenshot-directory))
 
 ;;;###autoload
-(defun ad:gif-screencast ()
+(defun my--gif-screencast ()
   (dolist (hook gif-screencast-additional-normal-hooks)
     (add-hook hook #'gif-screencast-capture)))
 
 ;;;###autoload
-(defun ad:gif-screencast-stop ()
+(defun my--gif-screencast-stop ()
   (dolist (hook gif-screencast-additional-normal-hooks)
     (remove-hook hook 'gif-screencast-capture)))
 
 ;;;###autoload
-(defun ad:gif-screencast-opendir ()
+(defun my--gif-screencast-opendir ()
   "Open the output directory when screencast is finished."
   (if (not (eq system-type 'darwin))
       (my-gif-screencast-opendir-dired)
@@ -15816,7 +15816,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
      (concat "open " gif-screencast-output-directory))))
 
 ;;;###autoload
-(defun ad:gif-screencast-toggle-pause ()
+(defun my--gif-screencast-toggle-pause ()
   (if (memq 'gif-screencast-capture (default-value 'pre-command-hook))
       (dolist (hook gif-screencast-additional-normal-hooks)
         (remove-hook hook 'gif-screencast-capture))
@@ -15854,11 +15854,11 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     ;; pre-redisplay-functions はやばい．
 
     ;; modification-hooks
-    (advice-add 'gif-screencast :after #'ad:gif-screencast)
-    (advice-add 'gif-screencast-stop :after #'ad:gif-screencast-stop)
-    (advice-add 'gif-screencast-stop :before #'ad:gif-screencast-opendir)
+    (advice-add 'gif-screencast :after #'my--gif-screencast)
+    (advice-add 'gif-screencast-stop :after #'my--gif-screencast-stop)
+    (advice-add 'gif-screencast-stop :before #'my--gif-screencast-opendir)
     (advice-add 'gif-screencast-toggle-pause
-                :before #'ad:gif-screencast-toggle-pause)))
+                :before #'my--gif-screencast-toggle-pause)))
 #+end_src
 
 ** [utility.el] 自作してテスト中の便利関数群
@@ -15916,7 +15916,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
       (setq my--nocand-then-fzf nil))))
 
 ;;;###autoload
-(defun ad:fzf:ivy--insert-prompt ()
+(defun my--fzf:ivy--insert-prompt ()
   (when (and my--nocand-then-fzf
              (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)
              (= ivy--length 0))
@@ -15946,7 +15946,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
     :type 'float) ;; N[s] 無応答の時[y/n]を出す．
 
   (defvar my--nocand-then-fzf t)
-  (advice-add 'ivy--insert-prompt :before #'ad:fzf:ivy--insert-prompt)
+  (advice-add 'ivy--insert-prompt :before #'my--fzf:ivy--insert-prompt)
   (add-hook 'minibuffer-setup-hook #'my-nocand-then-fzf-reset)
   (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
 #+end_src
@@ -16027,14 +16027,14 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 ;; last-init.efl
 (when (autoload-if-found '(network-watch-mode
                            network-watch-active-p
-                           ad:network-watch-update-lighter)
+                           my--network-watch-update-lighter)
                          "network-watch" nil t)
   (with-eval-after-load "network-watch"
-    (defun ad:network-watch-update-lighter ()
+    (defun my--network-watch-update-lighter ()
       "Return a mode lighter reflecting the current network state."
       (unless (network-watch-active-p) " NW↓"))
     (advice-add 'network-watch-update-lighter
-                :override #'ad:network-watch-update-lighter))
+                :override #'my--network-watch-update-lighter))
 
   (unless noninteractive
     (if shutup-p
@@ -17364,7 +17364,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-format-emacs-lisp-buffer ()
+(defun my--format-emacs-lisp-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
     (my-emacs-lisp-mode-indent-conf)
@@ -17376,7 +17376,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
         (indent-region (point-min) (point-max))))))
 
 ;;;###autoload
-(defun my-format-emacs-lisp-for-org-buffer ()
+(defun my--format-emacs-lisp-for-org-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
     (my-org-mode-indent-conf)
@@ -17390,10 +17390,12 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org-src"
   ;; tab-width=8, indent-tabs-mode=t
-  (advice-add 'org-edit-special :after #'my-format-emacs-lisp-buffer)
+  (advice-add 'org-edit-special :after #'my--format-emacs-lisp-buffer)
   ;; tab-width=2, indent-tabs-mode=nil
-  (advice-add 'org-edit-src-abort :before #'my-format-emacs-lisp-for-org-buffer)
-  (advice-add 'org-edit-src-exit :before #'my-format-emacs-lisp-for-org-buffer))
+  (advice-add 'org-edit-src-abort :before
+              #'my--format-emacs-lisp-for-org-buffer)
+  (advice-add 'org-edit-src-exit :before
+              #'my--format-emacs-lisp-for-org-buffer))
 #+end_src
 
 ** [window-resizer.el] 分割したウィンドウサイズを変更する

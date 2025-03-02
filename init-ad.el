@@ -1,5 +1,5 @@
 (defvar my-minimum-time-to-print 0.5)
-(defun my-print-loading-time (f &rest args)
+(defun my--print-loading-time (f &rest args)
   "https://memo.sugyan.com/entry/20120105/1325756767"
   (let* ((before (current-time))
          (result (apply f args))
@@ -13,7 +13,7 @@
                (if (equal (subr-name f) "load") "(loading) " "")
                file-or-feature))
     result))
-(advice-add 'load :around #'my-print-loading-time)
-(advice-add 'require :around #'my-print-loading-time)
+(advice-add 'load :around #'my--print-loading-time)
+(advice-add 'require :around #'my--print-loading-time)
 
 (provide 'init-ad)

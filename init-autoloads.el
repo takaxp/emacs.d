@@ -55,7 +55,7 @@ Remove PACKAGE.
 
 (autoload 'postpone-pre "init" nil t)
 (autoload 'my-org-mode-indent-conf "init" nil t)
-(register-definition-prefixes "init" '("ad:suppress-message" "autoload-if-found" "empty-booting-mode" "moom-autoloads" "my-" "postpone-pre-"))
+(register-definition-prefixes "init" '("autoload-if-found" "empty-booting-mode" "moom-autoloads" "my-" "postpone-pre-"))
 
 
 ;;; Generated autoloads from init-dired.el
@@ -195,11 +195,11 @@ Uninitialize tr-ime features.")
 
 ;;; Generated autoloads from utility.el
 
-(autoload 'ad:measure-exec-time "utility" "\
+(autoload 'my--measure-exec-time "utility" "\
 If `measure-exec-time-list' is non-nil, measure exe time for each function.
 
 (fn F &rest ARG)")
-(autoload 'ad:do-after-load-evaluation "utility" "\
+(autoload 'my--do-after-load-evaluation "utility" "\
 Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
 ABS-FILE, a string, should be the absolute true name of a file just loaded.
 This function is called directly from the C code.
@@ -209,11 +209,11 @@ This function is called directly from the C code.
 Return non-nil if provided TIME formed of \"10:00\" is the future time.
 
 (fn TIME)")
-(autoload 'ad:garbage-collect "utility" "\
+(autoload 'my--garbage-collect "utility" "\
 
 
 (fn F)")
-(autoload 'ad:gcmh-idle-garbage-collect "utility" "\
+(autoload 'my--gcmh-idle-garbage-collect "utility" "\
 
 
 (fn F)")
@@ -234,12 +234,12 @@ Toggle IME." t)
 (autoload 'my-working-text-face-off "utility")
 (autoload 'my-ns-org-heading-auto-ascii "utility" "\
 IME off, when the cursor on org headings.")
-(autoload 'ad:mark-sexp "utility" "\
+(autoload 'my--mark-sexp "utility" "\
 Set mark ARG sexps from point.
 When the cursor is at the end of line or before a whitespace, set ARG -1.
 
 (fn F &optional ARG ALLOW-EXTEND)" t)
-(autoload 'ad:er:mark-sexp "utility" "\
+(autoload 'my--er:mark-sexp "utility" "\
 If the cursor is on a symbol, expand the region along the symbol.
 
 (fn F &optional ARG ALLOW-EXTEND)" t)
@@ -253,34 +253,34 @@ bm-next with org-mode" t)
 
 (fn BOOKMARK-OVERLAYS)")
 (autoload 'counsel-bm "utility" nil t)
-(autoload 'ad:bm-show-mode "utility" "\
+(autoload 'my--bm-show-mode "utility" "\
 Enable truncate mode when showing bm list.")
 (autoload 'my-centered-cursor-activate "utility")
 (autoload 'my-centered-cursor-deactivate "utility")
 (autoload 'my-smart-mark-activate "utility")
-(autoload 'ad:smart-mark-restore-cursor "utility" "\
+(autoload 'my--smart-mark-restore-cursor "utility" "\
 Restore cursor position saved just before mark.")
-(autoload 'ad:smart-mark-set-restore-before-mark "utility" "\
+(autoload 'my--smart-mark-set-restore-before-mark "utility" "\
 
 
 (fn &rest ARG)")
-(autoload 'ad:er:keyboard-quit "utility")
-(autoload 'ad:er:pre:keyboard-quit "utility")
-(autoload 'my-syntax-subword-activate "utility" "\
+(autoload 'my--er:keyboard-quit "utility")
+(autoload 'my--er:pre:keyboard-quit "utility")
+(autoload 'my--syntax-subword-activate "utility" "\
 
 
 (fn &rest ARG)")
-(autoload 'ad:syntax-subword-kill "utility" "\
+(autoload 'my--syntax-subword-kill "utility" "\
 Replace `kill-region' with `delete-region'.
 
 (fn &optional N)" t)
 (autoload 'my-time-stamp "utility")
-(autoload 'ad:isearch-mode "utility" "\
+(autoload 'my--isearch-mode "utility" "\
 
 
 (fn F FORWARD &optional REGEXP OP-FUN RECURSIVE-EDIT REGEXP-FUNCTION)")
 (autoload 'my-orgalist-activate "utility")
-(autoload 'ad:add-change-log-entry-other-window "utility")
+(autoload 'my--add-change-log-entry-other-window "utility")
 (autoload 'org-info-ja "utility" "\
 (Japanese) Read documentation for Org-mode in the info system.
     With optional NODE, go directly to that node.
@@ -296,9 +296,9 @@ Open a file with `view-mode'.")
 (autoload 'my-view-shifttab "utility" nil t)
 (autoload 'my-unlock-view-mode "utility")
 (autoload 'my-view-exit "utility" nil t)
-(autoload 'ad:view--enable "utility")
-(autoload 'ad:view--disable "utility")
-(autoload 'ad:switch-to-buffer "utility" "\
+(autoload 'my--view--enable "utility")
+(autoload 'my--view--disable "utility")
+(autoload 'my--switch-to-buffer "utility" "\
 
 
 (fn &rest ARG)")
@@ -310,7 +310,7 @@ incorrect判定をASCIIに限定
 (fn BEG END INFO)")
 (autoload 'my-flyspell-on "utility")
 (autoload 'my-flyspell-off "utility")
-(autoload 'ad:YaTeX-insert-begin-end "utility" "\
+(autoload 'my--YaTeX-insert-begin-end "utility" "\
 Insert \\begin{mode-name} and \\end{mode-name}.
 This works also for other defined begin/end tokens to define the structure.
 
@@ -336,7 +336,7 @@ Call this function at updating `mode-line-mode'.")
 (autoload 'my-mode-line-vc-mode-icons-in-terminal "utility")
 (autoload 'my-open-scratch "utility" "\
 Switch the current buffer to *scratch* buffer." t)
-(autoload 'ad:split-window-below "utility" "\
+(autoload 'my--split-window-below "utility" "\
 An extention to switch to *scratch* buffer after splitting window.
 
 (fn &optional SIZE)")
@@ -350,11 +350,11 @@ Trun off `display-line-numbers'." t)
 (autoload 'my-toggle-display-line-numbers-mode "utility" "\
 Toggle variable `global-display-line-numbers-mode'." t)
 (autoload 'my-mic-paren-activate "utility")
-(autoload 'ad:mic-paren-highlight "utility" "\
+(autoload 'my--mic-paren-highlight "utility" "\
 
 
 (fn F)")
-(autoload 'ad:font-lock-mode "utility" "\
+(autoload 'my--font-lock-mode "utility" "\
 
 
 (fn &optional ARG)")
@@ -379,11 +379,11 @@ Return the current week number.")
 Show the current week number." t)
 (autoload 'my-empty-booting-header-line "utility")
 (autoload 'my-calendar-mark-selected "utility")
-(autoload 'my:elisp-eldoc "utility" "\
+(autoload 'my--elisp-eldoc "utility" "\
 Avoid hiding `hl-line' in `emacs-lisp-mode'.
 
 (fn CALLBACK)")
-(autoload 'ad:eldoc-message "utility" "\
+(autoload 'my--eldoc-message "utility" "\
 
 
 (fn F &optional STRING)")
@@ -413,20 +413,20 @@ Search again with new root directory.
 Search again with new root directory.
 
 (fn ARG)")
-(autoload 'my-counsel-mark-ring "utility" "\
+(autoload 'my--counsel-mark-ring "utility" "\
 Browse `mark-ring' interactively.
 Obeys `widen-automatically', which see." t)
 (autoload 'my-pre-prompt-function "utility")
-(autoload 'my-truncate-lines-activate "utility" "\
+(autoload 'my--truncate-lines-activate "utility" "\
 Truncate lines on `imenu-list' buffer.")
-(autoload 'my-imenu-list-update "utility" "\
+(autoload 'my--imenu-list-update "utility" "\
 Expand frame width by `moom-change-frame-width'.")
-(autoload 'my-imenu-list-quit-window "utility" "\
+(autoload 'my--imenu-list-quit-window "utility" "\
 Shrink frame width by `moom-change-frame-width'.")
 (autoload 'my-command-log-mode-activate "utility" nil t)
 (autoload 'my-command-log-mode-deactivate "utility" nil t)
 (autoload 'my-enable-tree-sitter "utility")
-(autoload 'ad:swiper-thing-at-point "utility" "\
+(autoload 'my--swiper-thing-at-point "utility" "\
 `swiper' with `ivy-thing-at-point'." t)
 (autoload 'my-update-nerd-icons-ivy-rich-display-transformers-list "utility" "\
 If update config during a session, call `nerd-icons-ivy-rich-reload'
@@ -438,7 +438,7 @@ If update config during a session, call `nerd-icons-ivy-rich-reload'
 (autoload 'dimmer-off "utility")
 (autoload 'dimmer-on "utility")
 (autoload 'my-dimmer-update "utility")
-(autoload 'ad:dimmer-org-agenda--quit "utility" "\
+(autoload 'my--dimmer-org-agenda--quit "utility" "\
 
 
 (fn &optional BURY)")
@@ -449,7 +449,7 @@ If update config during a session, call `nerd-icons-ivy-rich-reload'
 
 
 (fn FILE)")
-(autoload 'ad:counsel-recentf "utility" "\
+(autoload 'my--counsel-recentf "utility" "\
 Find a file on `recentf-list'." t)
 (autoload 'my-cg-bookmark "utility")
 (autoload 'crux-copy-file-preserve-attributes "utility" "\
@@ -487,29 +487,29 @@ With a prefix ARG always prompt for command to use.
 (fn ARG)" t)
 (autoload 'my-backup-recentf "utility" nil t)
 (autoload 'my-auto-backup "utility")
-(autoload 'my-backup-each-save-compute-location "utility" "\
+(autoload 'my--backup-each-save-compute-location "utility" "\
 
 
 (fn FILENAME)")
 (autoload 'my-dired-activate "utility")
 (autoload 'my-super-save-predicates-p "utility" "\
 Return nil, if the buffer should not be saved.")
-(autoload 'my-super-save-buffers-command "utility" "\
+(autoload 'my--super-save-buffers-command "utility" "\
 Save the buffer if needed.
 see https://github.com/bbatsov/super-save/pull/20/files.")
 (autoload 'my-super-save-activate "utility")
-(autoload 'ad:neotree-show "utility" "\
+(autoload 'my--neotree-show "utility" "\
 Extension to support change frame width when opening neotree.")
-(autoload 'ad:neotree-hide "utility" "\
+(autoload 'my--neotree-hide "utility" "\
 Extension to support change frame width when closing neotree.")
-(autoload 'ad:helpful-at-point "utility")
-(autoload 'ad:keyfreq-show "utility" "\
+(autoload 'my--helpful-at-point "utility")
+(autoload 'my--keyfreq-show "utility" "\
 Extension to make the buffer view-only." t)
-(autoload 'ad:counsel-ag "utility" "\
+(autoload 'my--counsel-ag "utility" "\
 
 
 (fn F &optional INITIAL-INPUT INITIAL-DIRECTORY EXTRA-AG-ARGS AG-PROMPT &key CALLER)")
-(autoload 'ad:counsel-fzf "utility" "\
+(autoload 'my--counsel-fzf "utility" "\
 
 
 (fn F &optional INITIAL-INPUT INITIAL-DIRECTORY FZF-PROMPT)")
@@ -517,37 +517,37 @@ Extension to make the buffer view-only." t)
 (autoload 'my-hex-to-decimal "utility" nil t)
 (autoload 'my-uuid-string "utility" nil t)
 (autoload 'my-projectile-activate "utility" nil t)
-(autoload 'ad:neotree-dir "utility" "\
+(autoload 'my--neotree-dir "utility" "\
 Extension to change the frame width automatically.
 
 (fn PATH)" t)
-(autoload 'ad:projectile-visit-project-tags-table "utility" "\
+(autoload 'my--projectile-visit-project-tags-table "utility" "\
 Extensions to skip calling `visit-tags-table'.")
 (autoload 'my-counsel-projectile-ag "utility" "\
 Use `counsel-projectile-ag' in a projectile project except when `dired'.
 Otherwise, use `counsel-ag'." t)
-(autoload 'ad:magit-mode-bury-buffer "utility" "\
+(autoload 'my--magit-mode-bury-buffer "utility" "\
 
 
 (fn &optional BURY)")
 (autoload 'my-editorconfig-activate "utility")
-(autoload 'ad:minibuffer-complete "utility" "\
+(autoload 'my--minibuffer-complete "utility" "\
 Enforce to use `completion--in-region' when completing in minibuffer.
 
 (fn F)")
 (autoload 'my-advice-minibuffer-complete "utility")
 (autoload 'my-load-cape-modules-for-org "utility")
-(autoload 'my-corfu-insert-separator "utility" "\
+(autoload 'my--corfu-insert-separator "utility" "\
 Use C-SPC to insert the separator.
 
 (fn ARG)" t)
 (autoload 'my-org-modules-activate "utility" nil t)
 (autoload 'my-open-default-org-file "utility" nil t)
-(autoload 'my-org-last-repeat "utility" "\
+(autoload 'my--org-last-repeat "utility" "\
 
 
 (fn &optional ARG)")
-(autoload 'ad:org-modules-activate "utility" "\
+(autoload 'my--org-modules-activate "utility" "\
 
 
 (fn &optional ARG)" t)
@@ -575,7 +575,7 @@ Update `appt-time-mag-list'.  Use `async' if possible.
 (autoload 'my-get-content-with-decrypt "utility" nil t)
 (autoload 'my-add-ox-hugo-lastmod "utility" "\
 Add `lastmod' property with the current time." t)
-(autoload 'ad:ox-hugo:org-todo "utility" "\
+(autoload 'my--ox-hugo:org-todo "utility" "\
 Export subtree for Hugo if the TODO status in ARG is changing to DONE.
 
 (fn &optional ARG)")
@@ -585,13 +585,13 @@ Export subtree for Hugo if the TODO status in ARG is changing to DONE.
 (autoload 'my-pull-trello "utility" nil t)
 (autoload 'my-activate-org-trello "utility")
 (autoload 'my-toggle-org-show-emphasis-markers "utility" nil t)
-(autoload 'ad:org-recent-headings-activate "utility" nil t)
+(autoload 'my--org-recent-headings-activate "utility" nil t)
 (autoload 'my-ime-invisible-cursor "utility" nil t)
 (autoload 'my-ime-on "utility" nil t)
 (autoload 'my-ime-off "utility" nil t)
 (autoload 'my-ime-on-sticky "utility")
 (autoload 'my-ime-off-sticky "utility")
-(autoload 'ad:make-frame "utility" "\
+(autoload 'my--make-frame "utility" "\
 
 
 (fn &optional PARAMETERS)")
@@ -602,16 +602,16 @@ Turn off mode line.")
 Turn on mode line.")
 (autoload 'my-toggle-mode-line "utility" "\
 Toggle mode line." t)
-(autoload 'ad:moom-toggle-frame-maximized "utility")
+(autoload 'my--moom-toggle-frame-maximized "utility")
 (autoload 'my-modeline-activate "utility")
-(autoload 'ad:winner:delete-window "utility" "\
+(autoload 'my--winner:delete-window "utility" "\
 
 
 (fn &optional WINDOW)")
 (autoload 'my-shackle-activate "utility")
 (autoload 'my-delete-checkdoc-window "utility" nil t)
-(autoload 'ad:checkdoc "utility" nil t)
-(autoload 'ad:doom-modeline-buffer-file-state-icon "utility" "\
+(autoload 'my--checkdoc "utility" nil t)
+(autoload 'my--doom-modeline-buffer-file-state-icon "utility" "\
 Displays an ICON with FACE, HEIGHT and VOFFSET.
 TEXT is the alternative if it is not applicable.
 Uses `all-the-icons-material' to fetch the icon.
@@ -682,7 +682,7 @@ Transform CANDS into a string for minibuffer.
 
 (fn &optional ARG)" t)
 (autoload 'my-org-yank "utility" nil t)
-(autoload 'my-vhl-activate "utility" "\
+(autoload 'my--vhl-activate "utility" "\
 
 
 (fn &optional ARG)")
@@ -701,17 +701,17 @@ Check the library listed in `LIBRARIES'.
 (autoload 'my-google-this "utility" nil t)
 (autoload 'my-gif-screencast-opendir-dired "utility" "\
 Open directories for screenshots and generated GIFs by Dired." t)
-(autoload 'ad:gif-screencast "utility")
-(autoload 'ad:gif-screencast-stop "utility")
-(autoload 'ad:gif-screencast-opendir "utility" "\
+(autoload 'my--gif-screencast "utility")
+(autoload 'my--gif-screencast-stop "utility")
+(autoload 'my--gif-screencast-opendir "utility" "\
 Open the output directory when screencast is finished.")
-(autoload 'ad:gif-screencast-toggle-pause "utility")
+(autoload 'my--gif-screencast-toggle-pause "utility")
 (autoload 'my-nocand-then-fzf-reset "utility")
 (autoload 'my-nocand-then-fzf "utility" "\
 
 
 (fn PROMPT)")
-(autoload 'ad:fzf:ivy--insert-prompt "utility")
+(autoload 'my--fzf:ivy--insert-prompt "utility")
 (autoload 'macos-name "utility" "\
 Return macOS name according to the VERSION number.
 
@@ -838,12 +838,12 @@ Convert the current org-file to dokuwiki text, and copy it to kill-ring." t)
 (autoload 'my-kill-all-file-buffers "utility" "\
 Kill all buffers visiting files." t)
 (autoload 'my-kill-emacs-when-scratch-buffer "utility" nil t)
-(autoload 'my-format-emacs-lisp-buffer "utility" nil t)
-(autoload 'my-format-emacs-lisp-for-org-buffer "utility" nil t)
+(autoload 'my--format-emacs-lisp-buffer "utility" nil t)
+(autoload 'my--format-emacs-lisp-for-org-buffer "utility" nil t)
 (autoload 'my-window-resizer "utility" "\
 Control separated window size and position.
    Type {j,k,l,m} to adjust windows size." t)
-(register-definition-prefixes "utility" '("ad:org-reveal" "my-" "open-current-directory-console-program"))
+(register-definition-prefixes "utility" '("my-" "open-current-directory-console-program"))
 
 
 ;;; Generated autoloads from w32-ime.el

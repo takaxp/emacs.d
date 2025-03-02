@@ -64,7 +64,7 @@
       (setq my-tick-previous-time ctime))))
 
 (defvar my-suppress-message-p t)
-(defun ad:suppress-message (f &rest arg)
+(defun my--suppress-message (f &rest arg)
   (if my-suppress-message-p
       (let ((inhibit-message t)
             (message-log-max nil))
@@ -72,8 +72,8 @@
     (apply f arg)))
 
 ;; Suppress printing "Waiting for git..." from version.el
-(advice-add 'emacs-repository-branch-git :around #'ad:suppress-message)
-(advice-add 'emacs-repository-version-git :around #'ad:suppress-message)
+(advice-add 'emacs-repository-branch-git :around #'my--suppress-message)
+(advice-add 'emacs-repository-version-git :around #'my--suppress-message)
 
 (when (version< emacs-version "29.0")
   (load "~/Dropbox/emacs.d/config/init-compat.el" nil t))
@@ -184,11 +184,11 @@
 
 (when (version< "27.0" emacs-version)
   (with-eval-after-load "files"
-    (defun ad:find-file-read-args (f prompt mustmatch)
+    (defun my--find-file-read-args (f prompt mustmatch)
       (when (equal default-directory "/")
         (setq default-directory "~/"))
       (funcall f prompt mustmatch))
-    (advice-add 'find-file-read-args :around #'ad:find-file-read-args)))
+    (advice-add 'find-file-read-args :around #'my--find-file-read-args)))
 
 (defvar my-secret-org-file "secret.org.gpg")
 (defvar my-secret-autolock-time 60)
@@ -270,7 +270,7 @@
                     :overline nil
                     :underline nil)
 
-;; (advice-add 'split-window-below :after #'ad:split-window-below)
+;; (advice-add 'split-window-below :after #'my--split-window-below)
 (if (< emacs-major-version 29)
     (keymap-global-set "C-M-s" #'my-open-scratch)
   (keymap-global-set "C-M-s" #'scratch-buffer))
@@ -342,7 +342,7 @@
 (keymap-global-set "C-c c" 'compile)
 
 ;; org-tempo を org-modules で読み込む前に TAB 押下で展開する場合の対処
-(advice-add 'org-cycle :before #'ad:org-modules-activate)
+(advice-add 'org-cycle :before #'my--org-modules-activate)
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)

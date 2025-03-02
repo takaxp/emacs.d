@@ -29,13 +29,13 @@
 
   ;; 関連モジュールの読み込み
   (autoload 'org-eldoc-load "org-eldoc" nil t)
-  (defun my-org-eldoc-load ()
+  (defun my--org-eldoc-load ()
     "Set up org-eldoc documentation function."
     (interactive)
     (add-function :before-until (local 'eldoc-documentation-function)
                   #'org-eldoc-documentation-function))
   ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
-  ;; (advice-add 'org-eldoc-load :override #'my-org-eldoc-load)
+  ;; (advice-add 'org-eldoc-load :override #'my--org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
 
   ;; org ファイルの集中管理
@@ -57,7 +57,7 @@
   (setq org-log-repeat nil)
 
   ;; タスク繰り返し時にログを残さないが，LAST_REPEAT は記録する．
-  (advice-add 'org-todo :after #'my-org-last-repeat)
+  (advice-add 'org-todo :after #'my--org-last-repeat)
 
   ;; indent を electric-indent-mode の振る舞いに合わせる
   ;; (setq org-adapt-indentation t) ;; t の場合，ドロアがインデントされる．
@@ -109,7 +109,7 @@
   ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
   ;; undo 時に reveal して表示を改善する
-  ;; (defun ad:org:undo (&optional _ARG)
+  ;; (defun my--org:undo (&optional _ARG)
   ;;   (when (and (eq major-mode 'org-mode)
   ;;              (not (org-before-first-heading-p)))
   ;;     (org-overview)
@@ -118,17 +118,17 @@
   ;;     (org-show-entry)
   ;;     (show-children)
   ;;     (org-show-siblings)))
-  ;; (advice-add 'undo :after #'ad:org:undo)
+  ;; (advice-add 'undo :after #'my--org:undo)
 
   ;; 非表示状態の領域への書き込みを防ぐ
   ;; "Editing in invisible areas is prohibited, make them visible first"
   (setq org-catch-invisible-edits 'show-and-error)
-  (defun ad:org-return (f &rest arg)
+  (defun my--org-return (f &rest arg)
     "An extension for checking invisible editing when you hit the enter."
     (interactive "P")
     (org-check-before-invisible-edit 'insert)
     (apply f arg))
-  (advice-add 'org-return :around #'ad:org-return)
+  (advice-add 'org-return :around #'my--org-return)
 
   ;; ブリッツにアルファベットを使う
   (setq org-list-allow-alphabetical t)
@@ -196,29 +196,29 @@
 
 (with-eval-after-load "org-tempo"
   ;; 空行のとき "<" をインデントさせない
-  (defun ad:org-tempo-complete-tag (f &rest arg)
+  (defun my--org-tempo-complete-tag (f &rest arg)
     (if (save-excursion
           (beginning-of-line)
           (looking-at "<"))
         (let ((indent-line-function 'ignore))
           (apply f arg))
       (apply f arg)))
-  (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+  (advice-add 'org-tempo-complete-tag :around #'my--org-tempo-complete-tag))
 ;; (Thanks to @conao3)
 ;; but when using `flet', byte-compile will warn a malformed function
 ;; and using `cl-flet' will not provide us the expected result...
 ;; (when (require 'cl-lib nil t)
-;;   (defun ad:org-tempo-complete-tag (f &rest arg)
+;;   (defun my--org-tempo-complete-tag (f &rest arg)
 ;;     (if (save-excursion
 ;;           (beginning-of-line)
 ;;           (looking-at "<"))
 ;;         (cl-flet ((indent-according-to-mode () #'ignore))
 ;;           (apply f arg))
 ;;       (apply f arg)))
-;;   (advice-add 'org-tempo-complete-tag :around #'ad:org-tempo-complete-tag))
+;;   (advice-add 'org-tempo-complete-tag :around #'my--org-tempo-complete-tag))
 
 (with-eval-after-load "org-tempo"
-  (defun my-org-tempo-add-block (entry)
+  (defun my--org-tempo-add-block (entry)
     "Add block entry from `org-structure-template-alist'."
     (let* ((key (format "<%s" (car entry)))
            (name (cdr entry))
@@ -233,7 +233,7 @@
        (format "Insert a %s block" name)
        'org-tempo-tags)))
   ;; 更新
-  (advice-add 'org-tempo-add-block :override #'my-org-tempo-add-block)
+  (advice-add 'org-tempo-add-block :override #'my--org-tempo-add-block)
   ;; 反映
   (org-tempo-add-templates))
 
@@ -243,7 +243,7 @@
   (setq org-clock-in-resume t)
   (setq org-clock-persist-query-resume nil)
 
-  (advice-add 'org-clock-load :around #'ad:suppress-message)
+  (advice-add 'org-clock-load :around #'my--suppress-message)
 
   ;; 終了時に clock を止める．
   (defun my-org-clock-out-and-save-when-exit ()
@@ -257,9 +257,9 @@
 
 (with-eval-after-load "org-table"
   ;; エコー表示前に保存する
-  (defun ad:org-table-field-info (_arg)
+  (defun my--org-table-field-info (_arg)
     (save-buffer))
-  (advice-add 'org-table-field-info :before #'ad:org-table-field-info))
+  (advice-add 'org-table-field-info :before #'my--org-table-field-info))
 
 ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
 ;; default = ~/org.ics
@@ -499,7 +499,7 @@
     (run-hooks 'my-org-move-subtree-to-the-last-after-hook))
 
   ;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
-  (defun my-kill-update-todo-statistics (_b _d &optional _arg)
+  (defun my--kill-update-todo-statistics (_b _d &optional _arg)
     (when (and (derived-mode-p 'org-mode)
                (org-kill-is-subtree-p))
       (save-excursion
@@ -512,10 +512,10 @@
   ;; kill時に[0/0]の色が変わるのが気になる場合は，volatile-highlights ロード後に
   ;; kill-region から vhl/.advice-callback-fn/.make-vhl-on-kill-region を
   ;; advice-remove する．
-  (advice-add 'kill-region :after #'my-kill-update-todo-statistics)
+  (advice-add 'kill-region :after #'my--kill-update-todo-statistics)
 
   ;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
-  (defun my-yank-update-todo-statistics (&optional _arg)
+  (defun my--yank-update-todo-statistics (&optional _arg)
     (when (org-kill-is-subtree-p)
       (save-excursion
         (save-restriction
@@ -525,7 +525,7 @@
           (org-update-parent-todo-statistics)
           ;; (org-element-cache-refresh)
           ))))
-  (advice-add 'org-yank :after #'my-yank-update-todo-statistics))
+  (advice-add 'org-yank :after #'my--yank-update-todo-statistics))
 
 (with-eval-after-load "org"
   ;; Font lock を使う
@@ -841,7 +841,7 @@ The core part is extracted from `org-table-export'."
 
 (with-eval-after-load "eldoc"
   (defvar my-eldoc-disable-in-org-block nil)
-  (defun ad:eldoc-print-current-symbol-info (f &optional interactive)
+  (defun my--eldoc-print-current-symbol-info (f &optional interactive)
     "Run `eldoc' when the cursor is NOT located in org source block."
     (interactive '(t))
     (unless (or my-eldoc-disable-in-org-block
@@ -849,10 +849,10 @@ The core part is extracted from `org-table-export'."
                      (eq (car (org-element-at-point)) 'src-block)))
       (funcall f interactive)))
   (advice-add 'eldoc-print-current-symbol-info :around
-              #'ad:eldoc-print-current-symbol-info))
+              #'my--eldoc-print-current-symbol-info))
 
 (with-eval-after-load "org"
-  (advice-add 'org-reveal :around #'ad:org-reveal))
+  (advice-add 'org-reveal :around #'my--org-reveal))
 
 (defface my-org-emphasis-bold
   '((default :inherit bold)
@@ -934,10 +934,10 @@ will not be modified."
         (unless (or field (equal "" field))
           (org-set-property created now)
           (org-cycle-hide-drawers 'children))))
-    (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
+    (defun my--org-insert-todo-heading (_arg &optional _force-heading)
       (unless (org-at-item-checkbox-p)
         (my-org-default-property)))
-    (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading))
+    (advice-add 'org-insert-todo-heading :after #'my--org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"
     (defun my-toggle-org-block-visibility ()
@@ -1083,11 +1083,11 @@ will not be modified."
         (moom-change-frame-width width)))
     ;; (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
 
-    (defun ad:org-agenda--quit (&optional _bury)
+    (defun my--org-agenda--quit (&optional _bury)
       (setq org-tags-column my-org-tags-column)
       ;; (org-align-tags t)
       (moom-change-frame-width))
-    ;; (advice-add 'org-agenda--quit :after #'ad:org-agenda--quit)
+    ;; (advice-add 'org-agenda--quit :after #'my--org-agenda--quit)
     )
 
   ;; 移動直後にagendaバッファを閉じる（ツリーの内容はSPACEで確認可）
@@ -1246,8 +1246,8 @@ will not be modified."
     (org-defkey org-agenda-mode-map (kbd "C-c C-s") 'orgbox-agenda-schedule)))
   ;; (require 'orgbox nil t)) ;; require org-agenda
 
-(when (autoload-if-found '(appt ad:appt-display-message
-                                ad:appt-disp-window appt-check)
+(when (autoload-if-found '(appt my--appt-display-message
+                                my--appt-disp-window appt-check)
                          "appt" nil t)
   (defvar my-org-agenda-to-appt-async t)
   (with-eval-after-load "appt"
@@ -1271,7 +1271,7 @@ will not be modified."
 
     ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
     ;; Need review
-    (defun ad:appt-display-message (string mins)
+    (defun my--appt-display-message (string mins)
       "Display a reminder about an appointment.
 The string STRING describes the appointment, due in integer MINS minutes.
 The arguments may also be lists, where each element relates to a
@@ -1310,9 +1310,9 @@ update it for multiple appts?")
                                (mapconcat #'identity string "\n")
                              string)))))
 
-    (advice-add 'appt-display-message :override #'ad:appt-display-message)
+    (advice-add 'appt-display-message :override #'my--appt-display-message)
 
-    (defun ad:appt-disp-window (min-to-app _new-time appt-msg)
+    (defun my--appt-disp-window (min-to-app _new-time appt-msg)
       "Extension to support appt-disp-window."
       (if (string= min-to-app "0")
           (my-desktop-notification "### Expired! ###" appt-msg t "Glass")
@@ -1320,9 +1320,9 @@ update it for multiple appts?")
          (concat "in " min-to-app " min.") appt-msg nil "Tink")))
     (cond
      ((eq appt-display-format 'echo)
-      (setq appt-disp-window-function 'ad:appt-disp-window))
+      (setq appt-disp-window-function 'my--appt-disp-window))
      ((eq appt-display-format 'window)
-      (advice-add 'appt-disp-window :before #'ad:appt-disp-window))))
+      (advice-add 'appt-disp-window :before #'my--appt-disp-window))))
 
   (with-eval-after-load "ivy"
     (defvar counsel-appt-time-msg-list nil)
@@ -1359,12 +1359,12 @@ update it for multiple appts?")
 
     ;; org-agenda-to-appt を非同期で使うための advice
     (defvar read-char-default-timeout 10)
-    (defun ad:read-char-exclusive (f &optional PROMPT INHERIT-INPUT-METHOD SECONDS)
+    (defun my--read-char-exclusive (f &optional PROMPT INHERIT-INPUT-METHOD SECONDS)
       (funcall f PROMPT INHERIT-INPUT-METHOD
                (or SECONDS read-char-default-timeout)))
-    (advice-add 'read-char-exclusive :around #'ad:read-char-exclusive)
+    (advice-add 'read-char-exclusive :around #'my--read-char-exclusive)
 
-    (defun ad:org-check-agenda-file (file)
+    (defun my--org-check-agenda-file (file)
       "Make sure FILE exists.  If not, ask user what to do."
       (let ((read-char-default-timeout 0)) ;; not nil
         (unless (file-exists-p file)
@@ -1376,7 +1376,7 @@ update it for multiple appts?")
               (org-remove-file file)
               (throw 'nextfile t))
              (t (user-error "Abort")))))))
-    (advice-add 'org-check-agenda-file :override #'ad:org-check-agenda-file)
+    (advice-add 'org-check-agenda-file :override #'my--org-check-agenda-file)
 
     (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
       (let ((msgs appt-time-msg-list))
@@ -1416,7 +1416,7 @@ update it for multiple appts?")
 
   ;; 不要な履歴が生成されるのを抑制し，常に最新を保つ．
   ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
-  (defun ad:org-refile (f &optional arg default-buffer rfloc msg)
+  (defun my--org-refile (f &optional arg default-buffer rfloc msg)
     "Extension to support keeping org-refile-history empty."
     (save-excursion
       (save-restriction
@@ -1436,16 +1436,16 @@ update it for multiple appts?")
             (switch-to-buffer b)))
         (setq org-refile-history nil)
         (org-refile-cache-clear))))
-  (advice-add 'org-refile :around #'ad:org-refile)
+  (advice-add 'org-refile :around #'my--org-refile)
 
-  (defun ad:org-sort-entries (&optional _with-case _sorting-type
+  (defun my--org-sort-entries (&optional _with-case _sorting-type
                                         _getkey-func _compare-func
                                         _property _interactive?)
     (outline-hide-subtree)
     (org-show-hidden-entry)
     (org-show-children)
     (org-cycle-hide-drawers 'children))
-  (advice-add 'org-sort-entries :after #'ad:org-sort-entries))
+  (advice-add 'org-sort-entries :after #'my--org-sort-entries))
 
 (with-eval-after-load "org"
   ;; will take 200[ms]
@@ -1460,10 +1460,10 @@ update it for multiple appts?")
 
 (with-eval-after-load "ob-core"
   ;; Suppress showing of "Indentation variables are now local."
-  (advice-add 'sh-make-vars-local :around #'ad:suppress-message)
+  (advice-add 'sh-make-vars-local :around #'my--suppress-message)
   ;; Suppress showing of "Setting up indent for shell type zsh" and
   ;; "Indentation setup for shell type zsh"
-  (advice-add 'sh-set-shell :around #'ad:suppress-message)
+  (advice-add 'sh-set-shell :around #'my--suppress-message)
 
   (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
@@ -1654,10 +1654,10 @@ update it for multiple appts?")
     (add-to-list 'org-grep-directories "~/.emacs.d/.cask/package")
 
     ;; "q"押下の挙動を調整
-    (defun ad:org-grep-quit ()
+    (defun my--org-grep-quit ()
       (interactive)
       (delete-window))
-    (advice-add 'org-grep-quit :override #'ad:org-grep-quit)
+    (advice-add 'org-grep-quit :override #'my--org-grep-quit)
 
     ;; for macOS
     (when (memq window-system '(mac ns))
@@ -1694,12 +1694,12 @@ update it for multiple appts?")
         (message "Past %s" clocked-item)))))
 
 (with-eval-after-load "org-clock"
-  (defun ad:org-clock-sum-today (&optional headline-filter)
+  (defun my--org-clock-sum-today (&optional headline-filter)
     "Sum the times for each subtree for today."
     (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
       (org-clock-sum (car range) (cadr range)
                      headline-filter :org-clock-minutes-today)))
-  (advice-add 'org-clock-sum-today :override #'ad:org-clock-sum-today)
+  (advice-add 'org-clock-sum-today :override #'my--org-clock-sum-today)
 
   ;; using folked package
   (when (require 'org-clock-today nil t)
@@ -1736,7 +1736,7 @@ Note that this mechanism is still under consideration."
                       (line-number-at-pos)))))
         (concat "[[" uri (file-name-nondirectory (buffer-file-name))
                 "#L" (format "%d" line) "][" alt "]]")))
-    ;;    (advice-add 'org-todo :after #'ad:ox-hugo:org-todo)
+    ;;    (advice-add 'org-todo :after #'my--ox-hugo:org-todo)
     ))
 
 (with-eval-after-load "ox-html"
@@ -1864,7 +1864,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     (when this-command
       (remove-hook 'post-command-hook #'my-org-export--post-processing)))
 
-  (defun my-org-export-dispatch (f &optional ARG)
+  (defun my--org-export-dispatch (f &optional ARG)
     (cond
      (org-export-dispatch-use-expert-ui
       nil)
@@ -1879,20 +1879,20 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (add-hook 'post-command-hook #'my-org-export--post-processing))
     (run-hooks 'my-org-export-before-hook)
     (funcall f ARG))
-  (advice-add 'org-export-dispatch :around #'my-org-export-dispatch)
+  (advice-add 'org-export-dispatch :around #'my--org-export-dispatch)
 
-  (defun my-org-export-insert-default-template (f &optional backend subtreep)
+  (defun my--org-export-insert-default-template (f &optional backend subtreep)
     (let ((this-command nil))
       (funcall f backend subtreep)))
   (advice-add 'org-export-insert-default-template :around
-              #'my-org-export-insert-default-template)
+              #'my--org-export-insert-default-template)
 
-  (defun my-org-export-to-buffer (_backend
+  (defun my--org-export-to-buffer (_backend
                                   buffer
                                   &optional _async _subtreep _visible-only
                                   _body-only _ext-plist _post-process)
     (setq my-org-export-last-buffer buffer))
-  (advice-add 'org-export-to-buffer :after #'my-org-export-to-buffer)
+  (advice-add 'org-export-to-buffer :after #'my--org-export-to-buffer)
 
   (defun my-copy-exported-buffer ()
     (interactive)
@@ -1939,16 +1939,16 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (add-hook 'org-tree-slide-play-hook #'my-hide-headers)
       (add-hook 'org-tree-slide-stop-hook #'my-show-headers)
 
-      ;; (defun ad:org-edit-src-code (&optional code edit-buffer-name)
-      (defun ad:org-edit-src-code ()
+      ;; (defun my--org-edit-src-code (&optional code edit-buffer-name)
+      (defun my--org-edit-src-code ()
         (interactive)
         (my-show-headers))
-      (advice-add 'org-edit-src-code :before #'ad:org-edit-src-code)
+      (advice-add 'org-edit-src-code :before #'my--org-edit-src-code)
       ;; Block 外で呼ばれると，my-show-headers が呼ばれてしまう
-      (defun ad:org-edit-src-exit ()
+      (defun my--org-edit-src-exit ()
         (interactive)
         (my-hide-headers))
-      (advice-add 'org-edit-src-exit :after #'ad:org-edit-src-exit))))
+      (advice-add 'org-edit-src-exit :after #'my--org-edit-src-exit))))
 
 (with-eval-after-load "ox"
   ;; (setq org-export-default-language "ja")
@@ -2065,19 +2065,21 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                                 "screenshot-%Y%m%d-%H%M%S.png")))))
 
 (with-eval-after-load "org-agenda"
-  (defun my-org-agenda (&optional _arg _org-keys _restriction)
+  (defun my--org-agenda (&optional _arg _org-keys _restriction)
     (my-linespacing))
-  (advice-add 'org-agenda :after #'my-org-agenda)
-  (defun my-org-agenda-redo (&optional _all)
+  (advice-add 'org-agenda :after #'my--org-agenda)
+  (defun my--org-agenda-redo (&optional _all)
     (my-linespacing))
-  (advice-add 'org-agenda-redo :after #'my-org-agenda-redo))
+  (advice-add 'org-agenda-redo :after #'my--org-agenda-redo))
 
 (with-eval-after-load "org-src"
   ;; tab-width=8, indent-tabs-mode=t
-  (advice-add 'org-edit-special :after #'my-format-emacs-lisp-buffer)
+  (advice-add 'org-edit-special :after #'my--format-emacs-lisp-buffer)
   ;; tab-width=2, indent-tabs-mode=nil
-  (advice-add 'org-edit-src-abort :before #'my-format-emacs-lisp-for-org-buffer)
-  (advice-add 'org-edit-src-exit :before #'my-format-emacs-lisp-for-org-buffer))
+  (advice-add 'org-edit-src-abort :before
+              #'my--format-emacs-lisp-for-org-buffer)
+  (advice-add 'org-edit-src-exit :before
+              #'my--format-emacs-lisp-for-org-buffer))
 
 (when nil
   (unless noninteractive

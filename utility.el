@@ -6,7 +6,7 @@
   (defvar my-utility-start (current-time)))
 
 ;;;###autoload
-(defun ad:measure-exec-time (f &rest arg)
+(defun my--measure-exec-time (f &rest arg)
   "If `measure-exec-time-list' is non-nil, measure exe time for each function."
   (if measure-exec-time-list
       (let ((inhibit-message nil)
@@ -22,7 +22,7 @@
     (apply f arg)))
 
 ;;;###autoload
-(defun ad:do-after-load-evaluation (abs-file)
+(defun my--do-after-load-evaluation (abs-file)
   "Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
 ABS-FILE, a string, should be the absolute true name of a file just loaded.
 This function is called directly from the C code."
@@ -82,14 +82,14 @@ This function is called directly from the C code."
 (defvar my-gcmh-idlegc-p nil)
 
 ;;;###autoload
-(defun ad:garbage-collect (f)
+(defun my--garbage-collect (f)
   (unless my-gcmh-idlegc-p
     (message "[gcmh] Garbage collecting...")
     (message "[gcmh] Garbage collecting...done (%.3fs)"
              (gcmh-time (funcall f)))))
 
 ;;;###autoload
-(defun ad:gcmh-idle-garbage-collect (f)
+(defun my--gcmh-idle-garbage-collect (f)
   (let ((my-gcmh-idlegc-p t))
     (funcall f)))
 
@@ -206,7 +206,7 @@ This function is called directly from the C code."
     (my-ime-off)))
 
 ;;;###autoload
-(defun ad:mark-sexp (f &optional arg allow-extend)
+(defun my--mark-sexp (f &optional arg allow-extend)
   "Set mark ARG sexps from point.
 When the cursor is at the end of line or before a whitespace, set ARG -1."
   (interactive "P\np")
@@ -220,7 +220,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
            allow-extend))
 
 ;;;###autoload
-(defun ad:er:mark-sexp (f &optional arg allow-extend)
+(defun my--er:mark-sexp (f &optional arg allow-extend)
   "If the cursor is on a symbol, expand the region along the symbol."
   (interactive "P\np")
   (if (and (not (use-region-p))
@@ -303,7 +303,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
               :sort t)))
 
 ;;;###autoload
-(defun ad:bm-show-mode ()
+(defun my--bm-show-mode ()
   "Enable truncate mode when showing bm list."
   (toggle-truncate-lines 1))
 
@@ -319,7 +319,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (remove-hook 'find-file-hook #'my-smart-mark-activate))
 
 ;;;###autoload
-(defun ad:smart-mark-restore-cursor ()
+(defun my--smart-mark-restore-cursor ()
   "Restore cursor position saved just before mark."
   (when smart-mark-point-before-mark
     (when (> smart-mark-point-before-mark 1)
@@ -328,19 +328,19 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (setq smart-mark-point-before-mark nil)))
 
 ;;;###autoload
-(defun ad:smart-mark-set-restore-before-mark (&rest _arg)
+(defun my--smart-mark-set-restore-before-mark (&rest _arg)
   (unless (memq this-command
                 '(er/expand-region er/mark-symbol er/contract-region))
     (setq smart-mark-point-before-mark (point))))
 
 ;;;###autoload
-(defun ad:er:keyboard-quit ()
+(defun my--er:keyboard-quit ()
   (when (memq last-command '(er/expand-region er/contract-region))
     (when smart-mark-point-before-mark
       (goto-char smart-mark-point-before-mark))))
 
 ;;;###autoload
-(defun ad:er:pre:keyboard-quit ()
+(defun my--er:pre:keyboard-quit ()
   (when (memq last-command '(er/expand-region er/contract-region))
     (er/contract-region 0)
     ;; (when (> smart-mark-point-before-mark 1) ;; FIXME
@@ -348,15 +348,15 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     ))
 
 ;;;###autoload
-(defun my-syntax-subword-activate (&rest arg)
+(defun my--syntax-subword-activate (&rest arg)
   (unless (featurep 'syntax-subword)
     (global-syntax-subword-mode 1))
-  (advice-remove 'forward-word #'my-syntax-subword-activate)
-  (advice-remove 'backward-word #'my-syntax-subword-activate)
+  (advice-remove 'forward-word #'my--syntax-subword-activate)
+  (advice-remove 'backward-word #'my--syntax-subword-activate)
   arg)
 
 ;;;###autoload
-(defun ad:syntax-subword-kill (&optional n)
+(defun my--syntax-subword-kill (&optional n)
   "Replace `kill-region' with `delete-region'."
   (interactive "^p")
   (let ((beg (point))
@@ -375,7 +375,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (time-stamp)))
 
 ;;;###autoload
-(defun ad:isearch-mode (f forward &optional regexp op-fun recursive-edit
+(defun my--isearch-mode (f forward &optional regexp op-fun recursive-edit
                           regexp-function)
   (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
       (progn
@@ -394,7 +394,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (orgalist-mode 1))) ;; originally orgstruct-mode
 
 ;;;###autoload
-(defun ad:add-change-log-entry-other-window ()
+(defun my--add-change-log-entry-other-window ()
   (when view-mode
     (View-exit-and-edit)))
 
@@ -473,13 +473,13 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (if (use-region-p) (my-eval-region) (View-exit)))
 
 ;;;###autoload
-(defun ad:view--enable () (my-mode-line-on))
+(defun my--view--enable () (my-mode-line-on))
 
 ;;;###autoload
-(defun ad:view--disable () (my-mode-line-off))
+(defun my--view--disable () (my-mode-line-off))
 
 ;;;###autoload
-(defun ad:switch-to-buffer (&rest _arg)
+(defun my--switch-to-buffer (&rest _arg)
   (when (and (not view-mode)
              (member (buffer-name) my-auto-view-buffers))
     (view-mode 1)))
@@ -520,7 +520,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (turn-off-flyspell)))
 
 ;;;###autoload
-(defun ad:YaTeX-insert-begin-end (env region-mode)
+(defun my--YaTeX-insert-begin-end (env region-mode)
   "Insert \\begin{mode-name} and \\end{mode-name}.
 This works also for other defined begin/end tokens to define the structure."
   (setq YaTeX-current-completion-type 'begin)
@@ -687,7 +687,7 @@ Call this function at updating `mode-line-mode'."
   (switch-to-buffer "*scratch*"))
 
 ;;;###autoload
-(defun ad:split-window-below (&optional _size)
+(defun my--split-window-below (&optional _size)
   "An extention to switch to \*scratch\* buffer after splitting window."
   (my-open-scratch))
 
@@ -749,7 +749,7 @@ Call this function at updating `mode-line-mode'."
   (remove-hook 'find-file-hook #'my-mic-paren-activate))
 
 ;;;###autoload
-(defun ad:mic-paren-highlight (f)
+(defun my--mic-paren-highlight (f)
   (if (active-minibuffer-window)
       (let ((paren-display-message 'never))
         (funcall f)
@@ -757,7 +757,7 @@ Call this function at updating `mode-line-mode'."
     (funcall f)))
 
 ;;;###autoload
-(defun ad:font-lock-mode (&optional _ARG)
+(defun my--font-lock-mode (&optional _ARG)
   (unless (memq major-mode '(vterm-mode))
     (font-lock-add-keywords major-mode
                             ;; "[\t]+$" 行末のタブ
@@ -873,13 +873,13 @@ Call this function at updating `mode-line-mode'."
   (org-eval-in-calendar '(setq cursor-type nil) t))
 
 ;;;###autoload
-(defun my:elisp-eldoc (_callback)
+(defun my--elisp-eldoc (_callback)
   "Avoid hiding `hl-line' in `emacs-lisp-mode'."
   (when (fboundp 'hl-line-highlight)
     (hl-line-highlight)))
 
 ;;;###autoload
-(defun ad:eldoc-message (f &optional string)
+(defun my--eldoc-message (f &optional string)
   (unless (active-minibuffer-window)
     (funcall f string)))
 
@@ -936,7 +936,7 @@ sorted.  FUNCTION must be a function of one argument."
     (counsel-ag ivy-text nil ""))) ;; also disable extra-ag-args
 
 ;;;###autoload
-(defun my-counsel-mark-ring ()
+(defun my--counsel-mark-ring ()
   "Browse `mark-ring' interactively.
 Obeys `widen-automatically', which see."
   (interactive)
@@ -977,19 +977,19 @@ Obeys `widen-automatically', which see."
          (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
 
 ;;;###autoload
-(defun my-truncate-lines-activate ()
+(defun my--truncate-lines-activate ()
   "Truncate lines on `imenu-list' buffer."
   (toggle-truncate-lines 1))
 
 ;;;###autoload
-(defun my-imenu-list-update ()
+(defun my--imenu-list-update ()
   "Expand frame width by `moom-change-frame-width'."
   (when (and (memq imenu-list-position '(right left))
              (not (get-buffer-window imenu-list-buffer-name t)))
     (moom-change-frame-width (+ (frame-width) imenu-list-size))))
 
 ;;;###autoload
-(defun my-imenu-list-quit-window ()
+(defun my--imenu-list-quit-window ()
   "Shrink frame width by `moom-change-frame-width'."
   (when (and (memq imenu-list-position '(right left))
              (not (get-buffer-window imenu-list-buffer-name t)))
@@ -1025,7 +1025,7 @@ Obeys `widen-automatically', which see."
   (tree-sitter-hl-mode))
 
 ;;;###autoload
-(defun ad:swiper-thing-at-point ()
+(defun my--swiper-thing-at-point ()
   "`swiper' with `ivy-thing-at-point'."
   (interactive)
   (let ((thing (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
@@ -1071,7 +1071,7 @@ Obeys `widen-automatically', which see."
   (if (frame-focus-state) (dimmer-on) (dimmer-off)))
 
 ;;;###autoload
-(defun ad:dimmer-org-agenda--quit (&optional _bury)
+(defun my--dimmer-org-agenda--quit (&optional _bury)
   (when (fboundp 'dimmer-on)
     (setq my-dimmer-mode t)
     (dimmer-on)
@@ -1109,7 +1109,7 @@ Obeys `widen-automatically', which see."
          (eval `(with-ivy-window (find-file ,file))))))
 
 ;;;###autoload
-(defun ad:counsel-recentf ()
+(defun my--counsel-recentf ()
   "Find a file on `recentf-list'."
   (interactive)
   (require 'recentf)
@@ -1255,7 +1255,7 @@ With a prefix ARG always prompt for command to use."
     (backup-each-save)))
 
 ;;;###autoload
-(defun my-backup-each-save-compute-location (filename)
+(defun my--backup-each-save-compute-location (filename)
   (let* ((containing-dir (file-name-directory filename))
          (basename (file-name-nondirectory filename))
          (backup-container
@@ -1293,7 +1293,7 @@ With a prefix ARG always prompt for command to use."
               (string-match (buffer-substring (- pt 1) pt) " "))) t))))
 
 ;;;###autoload
-(defun my-super-save-buffers-command ()
+(defun my--super-save-buffers-command ()
   "Save the buffer if needed.
 see https://github.com/bbatsov/super-save/pull/20/files."
   (save-mark-and-excursion
@@ -1313,7 +1313,7 @@ see https://github.com/bbatsov/super-save/pull/20/files."
   (remove-hook 'find-file-hook #'my-super-save-activate))
 
 ;;;###autoload
-(defun ad:neotree-show ()
+(defun my--neotree-show ()
   "Extension to support change frame width when opening neotree."
   (unless (neo-global--window-exists-p)
     (when (and (require 'moom nil t)
@@ -1326,7 +1326,7 @@ see https://github.com/bbatsov/super-save/pull/20/files."
     (setq my-neo-activated t)))
 
 ;;;###autoload
-(defun ad:neotree-hide ()
+(defun my--neotree-hide ()
   "Extension to support change frame width when closing neotree."
   (when (neo-global--window-exists-p)
     (when (and (require 'moom nil t)
@@ -1341,11 +1341,11 @@ see https://github.com/bbatsov/super-save/pull/20/files."
     (setq my-neo-activated nil)))
 
 ;;;###autoload
-(defun ad:helpful-at-point ()
+(defun my--helpful-at-point ()
   (deactivate-mark))
 
 ;;;###autoload
-(defun ad:keyfreq-show ()
+(defun my--keyfreq-show ()
   "Extension to make the buffer view-only."
   (interactive)
   (if shutup-p
@@ -1353,7 +1353,7 @@ see https://github.com/bbatsov/super-save/pull/20/files."
     (view-buffer keyfreq-buffer)))
 
 ;;;###autoload
-(defun ad:counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt &key caller)
+(defun my--counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt &key caller)
   (funcall f (or initial-input
                  (and (not (thing-at-point-looking-at "^\\*+"))
                       (ivy-thing-at-point)))
@@ -1362,7 +1362,7 @@ see https://github.com/bbatsov/super-save/pull/20/files."
            extra-ag-args ag-prompt caller))
 
 ;;;###autoload
-(defun ad:counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
+(defun my--counsel-fzf (f &optional initial-input initial-directory fzf-prompt)
   (funcall f (or initial-input
                (if (thing-at-point-looking-at "^\\*+") ;; org heading を除外
                    nil
@@ -1393,7 +1393,7 @@ see https://github.com/bbatsov/super-save/pull/20/files."
   (remove-hook 'find-file-hook #'my-projectile-activate))
 
 ;;;###autoload
-(defun ad:neotree-dir (path)
+(defun my--neotree-dir (path)
   "Extension to change the frame width automatically."
   (interactive "DDirectory: ")
   (unless (neo-global--window-exists-p)
@@ -1402,7 +1402,7 @@ see https://github.com/bbatsov/super-save/pull/20/files."
   (neo-global--select-window))
 
 ;;;###autoload
-(defun ad:projectile-visit-project-tags-table ()
+(defun my--projectile-visit-project-tags-table ()
   "Extensions to skip calling `visit-tags-table'."
   nil)
 
@@ -1418,7 +1418,7 @@ Otherwise, use `counsel-ag'."
     (counsel-projectile-ag)))
 
 ;;;###autoload
-(defun ad:magit-mode-bury-buffer (&optional _bury)
+(defun my--magit-mode-bury-buffer (&optional _bury)
   (when (fboundp 'dimmer-on)
     (setq my-dimmer-mode t)
     (dimmer-on)
@@ -1434,14 +1434,14 @@ Otherwise, use `counsel-ag'."
   (remove-hook 'find-file-hook #'my-editorconfig-activate))
 
 ;;;###autoload
-(defun ad:minibuffer-complete (f)
+(defun my--minibuffer-complete (f)
   "Enforce to use `completion--in-region' when completing in minibuffer."
   (let ((completion-in-region-function #'completion--in-region))
     (funcall f)))
 
 ;;;###autoload
 (defun my-advice-minibuffer-complete ()
-  (advice-add 'minibuffer-complete :around #'ad:minibuffer-complete)
+  (advice-add 'minibuffer-complete :around #'my--minibuffer-complete)
   (remove-hook 'minibuffer-setup-hook #'my-advice-minibuffer-complete))
 
 ;;;###autoload
@@ -1454,7 +1454,7 @@ Otherwise, use `counsel-ag'."
   (add-hook 'completion-at-point-functions #'cape-dict nil 'local))
 
 ;;;###autoload
-(defun my-corfu-insert-separator (ARG)
+(defun my--corfu-insert-separator (ARG)
   "Use C-SPC to insert the separator."
   (interactive "P")
   (if (corfu--continue-p) ;; (> corfu--total 0)
@@ -1499,17 +1499,17 @@ Otherwise, use `counsel-ag'."
   (my-show-org-buffer "next.org"))
 
 ;;;###autoload
-(defun my-org-last-repeat (&optional _arg)
+(defun my--org-last-repeat (&optional _arg)
   (when (and (org-get-repeat)
              (org-entry-is-todo-p))
     (org-entry-put nil "LAST_REPEAT" (format-time-string
                                       (org-time-stamp-format t t)))))
 
 ;;;###autoload
-(defun ad:org-modules-activate (&optional _arg)
+(defun my--org-modules-activate (&optional _arg)
   (interactive)
   (my-org-modules-activate)
-  (advice-remove 'org-cycle #'ad:org-modules-activate))
+  (advice-remove 'org-cycle #'my--org-modules-activate))
 
 ;;;###autoload
 (defun my-desktop-notification (title message &optional sticky sound timeout)
@@ -1531,7 +1531,7 @@ Otherwise, use `counsel-ag'."
 (defun my-desktop-notification-handler (message)
   (my-desktop-notification "Message from org-mode" message t))
 
-(defun ad:org-reveal (f &optional siblings)
+(defun my--org-reveal (f &optional siblings)
   (interactive "P")
   (if (org-at-heading-p)
       (org-show-subtree)
@@ -1713,7 +1713,7 @@ Otherwise, use `counsel-ag'."
                     (format-time-string "[%Y-%m-%d %a %H:%M]")))
 
 ;;;###autoload
-(defun ad:ox-hugo:org-todo (&optional ARG)
+(defun my--ox-hugo:org-todo (&optional ARG)
   "Export subtree for Hugo if the TODO status in ARG is changing to DONE."
   (when (and (equal (buffer-name) "imadenale.org")
              ;; FIXME C-c C-t d に反応しない．speed command はOK．
@@ -1758,12 +1758,12 @@ Otherwise, use `counsel-ag'."
         (font-lock-flush)))))
 
 ;;;###autoload
-(defun ad:org-recent-headings-activate ()
+(defun my--org-recent-headings-activate ()
   (interactive)
   (when (require 'org-recent-headings nil t)
     (org-recent-headings-mode 1) ;; one time activate
     (advice-remove 'org-recent-headings
-                   #'ad:org-recent-headings-activate)))
+                   #'my--org-recent-headings-activate)))
 
 ;;;###autoload
 (defun my-ime-invisible-cursor ()
@@ -1797,7 +1797,7 @@ Otherwise, use `counsel-ag'."
     (my-ime-off)))
 
 ;;;###autoload
-(defun ad:make-frame (&optional _parameters)
+(defun my--make-frame (&optional _parameters)
   (when (and (display-graphic-p)
              (called-interactively-p 'interactive))
     (message "--- Creating a frame.")
@@ -1851,7 +1851,7 @@ Otherwise, use `counsel-ag'."
   (message "%s" (if mode-line-format "( ╹ ◡╹)ｂ ON !" "( ╹ ^╹)ｐ OFF!")))
 
 ;;;###autoload
-(defun ad:moom-toggle-frame-maximized ()
+(defun my--moom-toggle-frame-maximized ()
   (when (eq major-mode 'org-mode)
     (org-redisplay-inline-images))
   (when (and mode-line-format
@@ -1866,7 +1866,7 @@ Otherwise, use `counsel-ag'."
       (my-mode-line-off))))
 
 ;;;###autoload
-(defun ad:winner:delete-window (&optional _window)
+(defun my--winner:delete-window (&optional _window)
   (message "Undo? M-x winner-undo or type \"C-x g\""))
 
 ;;;###autoload
@@ -1884,14 +1884,14 @@ Otherwise, use `counsel-ag'."
   (checkdoc-minor-mode -1))
 
 ;;;###autoload
-(defun ad:checkdoc ()
+(defun my--checkdoc ()
   (interactive)
   (keymap-set checkdoc-minor-mode-map "q" 'my-delete-checkdoc-window)
   (keymap-set checkdoc-minor-mode-map "C-g" 'my-delete-checkdoc-window)
   (checkdoc-minor-mode 1))
 
 ;;;###autoload
-(defun ad:doom-modeline-buffer-file-state-icon
+(defun my--doom-modeline-buffer-file-state-icon
     (icon &optional text face height voffset)
   "Displays an ICON with FACE, HEIGHT and VOFFSET.
 TEXT is the alternative if it is not applicable.
@@ -2342,12 +2342,12 @@ Uses `all-the-icons-material' to fetch the icon."
     (my-vhl-change-color)))
 
 ;;;###autoload
-(defun my-vhl-activate (&optional arg)
+(defun my--vhl-activate (&optional arg)
   (require 'volatile-highlights nil t) ;; will take 40-50[ms]
   (advice-remove 'kill-region
                  #'vhl/.advice-callback-fn/.make-vhl-on-kill-region)
-  (advice-remove 'my-yank #'my-vhl-activate)
-  (advice-remove 'my-org-yank #'my-vhl-activate)
+  (advice-remove 'my-yank #'my--vhl-activate)
+  (advice-remove 'my-org-yank #'my--vhl-activate)
   arg)
 
 ;;;###autoload
@@ -2419,17 +2419,17 @@ Uses `all-the-icons-material' to fetch the icon."
   (dired gif-screencast-screenshot-directory))
 
 ;;;###autoload
-(defun ad:gif-screencast ()
+(defun my--gif-screencast ()
   (dolist (hook gif-screencast-additional-normal-hooks)
     (add-hook hook #'gif-screencast-capture)))
 
 ;;;###autoload
-(defun ad:gif-screencast-stop ()
+(defun my--gif-screencast-stop ()
   (dolist (hook gif-screencast-additional-normal-hooks)
     (remove-hook hook 'gif-screencast-capture)))
 
 ;;;###autoload
-(defun ad:gif-screencast-opendir ()
+(defun my--gif-screencast-opendir ()
   "Open the output directory when screencast is finished."
   (if (not (eq system-type 'darwin))
       (my-gif-screencast-opendir-dired)
@@ -2439,7 +2439,7 @@ Uses `all-the-icons-material' to fetch the icon."
      (concat "open " gif-screencast-output-directory))))
 
 ;;;###autoload
-(defun ad:gif-screencast-toggle-pause ()
+(defun my--gif-screencast-toggle-pause ()
   (if (memq 'gif-screencast-capture (default-value 'pre-command-hook))
       (dolist (hook gif-screencast-additional-normal-hooks)
         (remove-hook hook 'gif-screencast-capture))
@@ -2460,7 +2460,7 @@ Uses `all-the-icons-material' to fetch the icon."
       (setq my--nocand-then-fzf nil))))
 
 ;;;###autoload
-(defun ad:fzf:ivy--insert-prompt ()
+(defun my--fzf:ivy--insert-prompt ()
   (when (and my--nocand-then-fzf
              (memq (ivy-state-caller ivy-last) my-nocand-then-fzf-commands)
              (= ivy--length 0))
@@ -3169,7 +3169,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
     (save-buffers-kill-emacs)))
 
 ;;;###autoload
-(defun my-format-emacs-lisp-buffer ()
+(defun my--format-emacs-lisp-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
     (my-emacs-lisp-mode-indent-conf)
@@ -3181,7 +3181,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
         (indent-region (point-min) (point-max))))))
 
 ;;;###autoload
-(defun my-format-emacs-lisp-for-org-buffer ()
+(defun my--format-emacs-lisp-for-org-buffer ()
   (interactive)
   (when (eq major-mode 'emacs-lisp-mode)
     (my-org-mode-indent-conf)

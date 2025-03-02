@@ -4,12 +4,12 @@
 
 (defvar measure-exec-time-list nil)
 (dolist (f measure-exec-time-list)
-  (advice-add f :around #'ad:measure-exec-time))
+  (advice-add f :around #'my--measure-exec-time))
 
 ;; (setq byte-compile-warnings '(obsolete))
 ;; Suppress warning on cl.el loading
 (defvar my-exclude-deprecated-packages '(cl tls))
-(advice-add 'do-after-load-evaluation :override #'ad:do-after-load-evaluation)
+(advice-add 'do-after-load-evaluation :override #'my--do-after-load-evaluation)
 
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
@@ -126,9 +126,9 @@ This function returns a timer object which you can use in
 
   (with-eval-after-load "gcmh"
     (setq gcmh-verbose nil)
-    (advice-add 'garbage-collect :around #'ad:garbage-collect)
+    (advice-add 'garbage-collect :around #'my--garbage-collect)
     (advice-add 'gcmh-idle-garbage-collect
-                :around #'ad:gcmh-idle-garbage-collect)))
+                :around #'my--gcmh-idle-garbage-collect)))
 
 (setq message-log-max 5000) ;; メッセージバッファの長さ
 (defvar shutup-p nil)
@@ -229,7 +229,7 @@ This function returns a timer object which you can use in
 
 (with-eval-after-load "epa"
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
-  (advice-add 'epa-file-write-region :around #'ad:suppress-message))
+  (advice-add 'epa-file-write-region :around #'my--suppress-message))
 
 (autoload 'mail "~/Dropbox/config/my-mail.el.gpg" nil t)
 
@@ -267,8 +267,8 @@ This function returns a timer object which you can use in
     (add-hook 'input-method-deactivate-hook #'my-working-text-face-off)))
 
 (autoload-if-found '(er/mark-symbol) "expand-region" nil t)
-(advice-add 'mark-sexp :around #'ad:mark-sexp)
-(advice-add 'mark-sexp :around #'ad:er:mark-sexp)
+(advice-add 'mark-sexp :around #'my--mark-sexp)
+(advice-add 'mark-sexp :around #'my--er:mark-sexp)
 
 ;; Scroll window on a line-by-line basis
 (setq scroll-conservatively 1000)
@@ -331,7 +331,7 @@ This function returns a timer object which you can use in
     (keymap-global-set "S-<f10>" 'counsel-bm))
 
   (with-eval-after-load "bm"
-    (advice-add 'bm-repository-load :around #'ad:suppress-message)
+    (advice-add 'bm-repository-load :around #'my--suppress-message)
 
     ;; (setq bm-annotation-width 30)
     (setq-default bm-buffer-persistence t)
@@ -351,7 +351,7 @@ This function returns a timer object which you can use in
       (add-hook 'after-revert-hook 'bm-buffer-restore)
       (add-hook 'kill-emacs-hook #'my-bm-save-all))
 
-    (advice-add 'bm-show-mode :after #'ad:bm-show-mode)))
+    (advice-add 'bm-show-mode :after #'my--bm-show-mode)))
 
 (when (autoload-if-found '(centered-cursor-mode)
                          "centered-cursor-mode" nil t)
@@ -369,13 +369,13 @@ This function returns a timer object which you can use in
   (with-eval-after-load "smart-mark"
     (progn ;; C-M-SPC SPC SPC ... C-g の場合に正しくカーソルと元に戻す．
       (advice-add 'smart-mark-restore-cursor :override
-                  #'ad:smart-mark-restore-cursor)
+                  #'my--smart-mark-restore-cursor)
       (advice-add 'smart-mark-set-restore-before-mark :override
-                  #'ad:smart-mark-set-restore-before-mark)
+                  #'my--smart-mark-set-restore-before-mark)
 
       (when (require 'expand-region-core nil t)
-        (advice-add 'keyboard-quit :after #'ad:er:keyboard-quit))
-      ;; (advice-add 'keyboard-quit :before #'ad:er:pre:keyboard-quit)
+        (advice-add 'keyboard-quit :after #'my--er:keyboard-quit))
+      ;; (advice-add 'keyboard-quit :before #'my--er:pre:keyboard-quit)
       )))
 ;; (defun my-smart-mark-activate () (smart-mark-mode 1))
 ;; (defun my-smart-mark-dectivate () (smart-mark-mode -1))
@@ -387,14 +387,14 @@ This function returns a timer object which you can use in
                            syntax-subword-mode syntax-subword-kill)
                          "syntax-subword" nil t)
 
-  (advice-add 'forward-word :before #'my-syntax-subword-activate)
-  (advice-add 'backward-word :before #'my-syntax-subword-activate)
+  (advice-add 'forward-word :before #'my--syntax-subword-activate)
+  (advice-add 'backward-word :before #'my--syntax-subword-activate)
 
   (keymap-global-set "C-<backspace>" #'syntax-subword-backward-kill)
 
   (with-eval-after-load "syntax-subword"
     ;; C-<backspace> で，削除領域をコピーしない．
-    (advice-add 'syntax-subword-kill :override #'ad:syntax-subword-kill)))
+    (advice-add 'syntax-subword-kill :override #'my--syntax-subword-kill)))
 
 (setq yank-excluded-properties t)
 
@@ -406,7 +406,7 @@ This function returns a timer object which you can use in
   (setq time-stamp-line-limit 10)) ;; def=8
 
 (with-eval-after-load "isearch"
-  (advice-add 'isearch-mode :around #'ad:isearch-mode)
+  (advice-add 'isearch-mode :around #'my--isearch-mode)
 
   ;; C-g を isearch-exit に割り当てて途中中断とする．（カーソルを留めておきたい）カーソルを検索開始時点の場所に戻すには，別途 counsel-mark-ring を使う
   (keymap-set isearch-mode-map "C-g" 'isearch-exit))
@@ -420,7 +420,7 @@ This function returns a timer object which you can use in
               (setq left-margin 4)))
 
   (advice-add 'add-change-log-entry-other-window
-              :before #'ad:add-change-log-entry-other-window))
+              :before #'my--add-change-log-entry-other-window))
 
 (when (autoload-if-found '(modern-c++-font-lock-mode)
                          "modern-cpp-font-lock" nil t)
@@ -498,7 +498,7 @@ This function returns a timer object which you can use in
 
 (with-eval-after-load "view"
   ;; note: messages-buffer-mode-hook may not work
-  (advice-add 'switch-to-buffer :after #'ad:switch-to-buffer)
+  (advice-add 'switch-to-buffer :after #'my--switch-to-buffer)
 
   (keymap-set view-mode-map "i" 'View-exit-and-edit)
   (keymap-set view-mode-map "SPC" 'ignore)
@@ -515,8 +515,8 @@ This function returns a timer object which you can use in
   (keymap-set view-mode-map "<tab>" 'my-view-tab)
   (keymap-set view-mode-map "S-<tab>" 'my-view-shifttab)
   (unless my-toggle-modeline-global
-    (advice-add 'view--enable :before #'ad:view--enable)
-    (advice-add 'view--disable :before #'ad:view--disable)))
+    (advice-add 'view--enable :before #'my--view--enable)
+    (advice-add 'view--disable :before #'my--view--disable)))
 
 (when (autoload-if-found '(web-mode)
                          "web-mode" "web mode" t)
@@ -577,7 +577,7 @@ This function returns a timer object which you can use in
 
   (with-eval-after-load "ispell"
     ;; This could hild other messages from loading functions regarding org-mode.
-    (advice-add 'ispell-init-process :around #'ad:suppress-message)
+    (advice-add 'ispell-init-process :around #'my--suppress-message)
 
     ;; for English and Japanese mixed
     (add-to-list 'ispell-skip-region-alist '("[^\000-\377]+"))
@@ -713,7 +713,7 @@ This function returns a timer object which you can use in
 
 (with-eval-after-load "yatex"
   (put 'YaTeX-insert-braces 'begend-guide 2)
-  (advice-add 'YaTeX-insert-begin-end :override #'ad:YaTeX-insert-begin-end))
+  (advice-add 'YaTeX-insert-begin-end :override #'my--YaTeX-insert-begin-end))
 
 (with-eval-after-load "yasnippet"
   (require 'ivy-yasnippet nil t))
@@ -943,7 +943,7 @@ This function returns a timer object which you can use in
 ;; 半角スペース
 (defface my-face-b-3 '((t (:background "orange")))
   nil :group 'font-lock-highlighting-faces)
-(advice-add 'font-lock-mode :before #'ad:font-lock-mode)
+(advice-add 'font-lock-mode :before #'my--font-lock-mode)
 
 (unless (version< emacs-version "28.0")
   ;; 全角スペース"　"にデフォルトで黒下線が付くのを回避する
@@ -1175,11 +1175,11 @@ This function returns a timer object which you can use in
   (dolist (hook '(emacs-lisp-mode-hook org-mode-hook c-mode-common-hook))
     (add-hook hook #'turn-on-eldoc-mode))
   (with-eval-after-load "eldoc"
-    (advice-add 'elisp-eldoc-funcall :after #'my:elisp-eldoc)
-    ;; (advice-add 'elisp-eldoc-var-docstring :after #'my:elisp-eldoc)
+    (advice-add 'elisp-eldoc-funcall :after #'my--elisp-eldoc)
+    ;; (advice-add 'elisp-eldoc-var-docstring :after #'my--elisp-eldoc)
 
     ;; for ivy-mode
-    (advice-add 'eldoc-message :around #'ad:eldoc-message)
+    (advice-add 'eldoc-message :around #'my--eldoc-message)
 
     (custom-set-variables
      '(eldoc-idle-delay 1.0))))
@@ -1232,7 +1232,7 @@ This function returns a timer object which you can use in
   (with-eval-after-load "ivy"
     ;; 同一行に複数の mark がある場合，一つだけを候補として表示する．
     ;; mark を正確に辿れなくなるが，当該行に移動できることを重視．
-    (advice-add 'counsel-mark-ring :override #'my-counsel-mark-ring)
+    (advice-add 'counsel-mark-ring :override #'my--counsel-mark-ring)
 
     ;; counsel-mark-ring のリストをソートさせない
     (setf (alist-get 'counsel-mark-ring ivy-sort-functions-alist) nil)
@@ -1295,11 +1295,11 @@ This function returns a timer object which you can use in
     (setq imenu-list-size 40)
     (setq imenu-list-position 'left)
 
-    (add-hook 'imenu-list-major-mode-hook #'my-truncate-lines-activate)
+    (add-hook 'imenu-list-major-mode-hook #'my--truncate-lines-activate)
 
     (when (require 'moom nil t)
-      (add-hook 'imenu-list-update-hook #'my-imenu-list-update)
-      (advice-add 'imenu-list-quit-window :after #'my-imenu-list-quit-window))))
+      (add-hook 'imenu-list-update-hook #'my--imenu-list-update)
+      (advice-add 'imenu-list-quit-window :after #'my--imenu-list-quit-window))))
 
 (with-eval-after-load "prescient"
   (setq prescient-aggressive-file-save t) ;; Merged!
@@ -1350,7 +1350,7 @@ This function returns a timer object which you can use in
   (keymap-global-set "M-s M-s" 'swiper-thing-at-point)
   (keymap-global-set "M-s M-a" 'swiper-all-thing-at-point)
   (with-eval-after-load "swiper"
-    (advice-add 'swiper-thing-at-point :override #'ad:swiper-thing-at-point)))
+    (advice-add 'swiper-thing-at-point :override #'my--swiper-thing-at-point)))
 
 (when (eq system-type 'darwin)
   (with-eval-after-load "ivy"
@@ -1402,7 +1402,7 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(dimmer-mode
                            dimmer-process-all dimmer-off dimmer-on
                            my-toggle-dimmer dimmer-permanent-off
-                           ad:dimmer-org-agenda--quit)
+                           my--dimmer-org-agenda--quit)
                          "dimmer" nil t)
   (defvar my-dimmer-mode nil)
   (with-eval-after-load "dimmer"
@@ -1419,7 +1419,7 @@ This function returns a timer object which you can use in
 
     ;; for org-agenda
     (add-hook 'org-agenda-mode-hook #'dimmer-permanent-off)
-    (advice-add 'org-agenda--quit :after #'ad:dimmer-org-agenda--quit)
+    (advice-add 'org-agenda--quit :after #'my--dimmer-org-agenda--quit)
 
     ;; for swiper/helm-swoop
     (add-hook 'minibuffer-setup-hook #'dimmer-off)
@@ -1484,7 +1484,7 @@ This function returns a timer object which you can use in
           (message "--- recentf is not activated in %s" system-name)))))
 
   (with-eval-after-load "counsel"
-    (advice-add 'counsel-recentf :override #'ad:counsel-recentf)
+    (advice-add 'counsel-recentf :override #'my--counsel-recentf)
     (ivy-add-actions
      'counsel-recentf
      '(("g" my-counsel-ag-in-dir "switch to ag")
@@ -1494,7 +1494,7 @@ This function returns a timer object which you can use in
 ;; (add-hook 'after-init-hook #'recentf-mode))
 
 (with-eval-after-load "ah"
-  (advice-add 'my-cg-bookmark :around #'ad:suppress-message)
+  (advice-add 'my-cg-bookmark :around #'my--suppress-message)
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 
 (with-eval-after-load "recentf"
@@ -1513,7 +1513,7 @@ This function returns a timer object which you can use in
 
   (when (eq window-system 'w32)
     (advice-add 'backup-each-save-compute-location :override
-                #'my-backup-each-save-compute-location)))
+                #'my--backup-each-save-compute-location)))
 
 ;; late-init.el
 (add-hook 'dired-mode-hook #'my-dired-activate)
@@ -1549,7 +1549,7 @@ This function returns a timer object which you can use in
     (setq super-save-exclude '("Org Src"))
     (add-to-list 'super-save-predicates
                  '(lambda () (my-super-save-predicates-p)) t)
-    (advice-add 'super-save-command :override #'my-super-save-buffers-command)))
+    (advice-add 'super-save-command :override #'my--super-save-buffers-command)))
 
 (when (autoload-if-found '(neotree neotree-toggle)
                          "neotree" nil t)
@@ -1570,8 +1570,8 @@ This function returns a timer object which you can use in
 
     (defvar my-neo-activated nil) ;; fail save
     (defvar my-neo-adjusted-window-width (+ 3 neo-window-width))
-    (advice-add 'neotree-show :before #'ad:neotree-show)
-    (advice-add 'neotree-hide :before #'ad:neotree-hide)))
+    (advice-add 'neotree-show :before #'my--neotree-show)
+    (advice-add 'neotree-hide :before #'my--neotree-hide)))
 
 (when (autoload-if-found '(helpful-key
                            helpful-function helpful-variable helpful-at-point
@@ -1583,17 +1583,17 @@ This function returns a timer object which you can use in
   (keymap-global-set "<f1> m" 'helpful-macro)
   (keymap-global-set "<f1> @" 'helpful-at-point)
   (with-eval-after-load "helpful"
-    (advice-add 'helpful-at-point :before #'ad:helpful-at-point)))
+    (advice-add 'helpful-at-point :before #'my--helpful-at-point)))
 
 (when (autoload-if-found '(facecheck-at-point facecheck-mode)
                          "facecheck" nil t)
   (with-eval-after-load "facecheck"
     (facecheck-mode 1)))
 
-(when (autoload-if-found '(keyfreq-mode keyfreq-autosave-mode ad:keyfreq-show)
+(when (autoload-if-found '(keyfreq-mode keyfreq-autosave-mode my--keyfreq-show)
                          "keyfreq" nil t) ;; will require 'cl and 'gv(10-20[ms])
   (with-eval-after-load "keyfreq"
-    (advice-add 'keyfreq-show :after #'ad:keyfreq-show)
+    (advice-add 'keyfreq-show :after #'my--keyfreq-show)
     ;; (keymap-set keyfreq-mode-map "q"
     ;;   (lambda () (interactive)
     ;;       (when (string= (buffer-name) keyfreq-buffer)
@@ -1616,7 +1616,7 @@ This function returns a timer object which you can use in
   (keymap-global-set "C-M-f" 'counsel-ag)
   (with-eval-after-load "counsel"
     (require 'thingatpt nil t)
-    (advice-add 'counsel-ag :around #'ad:counsel-ag)
+    (advice-add 'counsel-ag :around #'my--counsel-ag)
 
     ;; 2文字でも検索が発動するようにする
     (add-to-list 'ivy-more-chars-alist '(counsel-ag . 2))
@@ -1629,7 +1629,7 @@ This function returns a timer object which you can use in
                          "counsel" nil t)
   (keymap-global-set "C-M-z" 'counsel-fzf)
   (with-eval-after-load "counsel"
-    (advice-add 'counsel-fzf :around #'ad:counsel-fzf)
+    (advice-add 'counsel-fzf :around #'my--counsel-fzf)
     (ivy-add-actions
      'counsel-fzf
      '(("r" my-counsel-fzf-in-dir "search in directory")))))
@@ -1713,13 +1713,13 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(projectile-mode)
                          "projectile" nil t)
   (with-eval-after-load "neotree"
-    ;; (advice-add 'neotree-dir :override #'ad:neotree-dir) ;; FIXME
+    ;; (advice-add 'neotree-dir :override #'my--neotree-dir) ;; FIXME
     ;; M-x helm-projectile-switch-project (C-c p p)
     (setq projectile-switch-project-action 'neotree-projectile-action))
 
   (with-eval-after-load "projectile"
     (advice-add 'projectile-visit-project-tags-table :override
-                #'ad:projectile-visit-project-tags-table)
+                #'my--projectile-visit-project-tags-table)
 
     (setq projectile-mode-line-lighter "")
     (setq projectile-dynamic-mode-line nil)
@@ -1761,14 +1761,14 @@ This function returns a timer object which you can use in
 
 (autoload-if-found '(relint-current-buffer) "relint" nil t)
 
-(when (autoload-if-found '(magit-status ad:magit-mode-bury-buffer)
+(when (autoload-if-found '(magit-status my--magit-mode-bury-buffer)
                          "magit" nil t)
   (keymap-global-set "C-c m" 'magit-status)
   (with-eval-after-load "magit"
     (when (fboundp 'dimmer-off)
       (add-hook 'magit-status-mode-hook 'dimmer-off))
     (when (fboundp 'magit-mode-bury-buffer)
-      (advice-add 'magit-mode-bury-buffer :before #'ad:magit-mode-bury-buffer))
+      (advice-add 'magit-mode-bury-buffer :before #'my--magit-mode-bury-buffer))
     (when (and (boundp 'magit-completing-read-function)
                (require 'ivy nil t))
       ;; ivy を使う
@@ -1800,7 +1800,7 @@ This function returns a timer object which you can use in
 
     (keymap-set corfu-mode-map "C-SPC" #'corfu-insert-separator)
 
-    (advice-add 'corfu-insert-separator :override #'my-corfu-insert-separator)
+    (advice-add 'corfu-insert-separator :override #'my--corfu-insert-separator)
 
     (when (require 'corfu-prescient nil t)
       (corfu-prescient-mode 1))
@@ -1884,7 +1884,7 @@ This function returns a timer object which you can use in
     ;; デフォルトだと `ivy-string<' が使われてしまい，使用履歴が反映されない．
     (setf (alist-get 'org-recent-headings ivy-sort-functions-alist) nil)
     (advice-add 'org-recent-headings :before
-                #'ad:org-recent-headings-activate)
+                #'my--org-recent-headings-activate)
     (setq org-recent-headings-save-file "~/.emacs.d/org-recent-headings.dat")
     (setq org-recent-headings-use-ids 'when-available)
     (setq org-recent-headings-show-entry-function
@@ -1955,7 +1955,7 @@ This function returns a timer object which you can use in
 
 (keymap-global-set "M-`" 'other-frame)
 (with-eval-after-load "frame"
-  (advice-add 'make-frame :after #'ad:make-frame))
+  (advice-add 'make-frame :after #'my--make-frame))
 
 (when (autoload-if-found '(moom-font-increase
                            moom-font-decrease
@@ -1976,7 +1976,7 @@ This function returns a timer object which you can use in
 (keymap-global-set "<f12>" 'my-toggle-mode-line)
 (with-eval-after-load "moom"
   (advice-add 'moom-toggle-frame-maximized
-              :after #'ad:moom-toggle-frame-maximized))
+              :after #'my--moom-toggle-frame-maximized))
 
 ;; (make-variable-buffer-local 'my-mode-line-format)
 (defvar-local my-mode-line-format nil)
@@ -1996,7 +1996,7 @@ This function returns a timer object which you can use in
                            "winner" nil t)
     (keymap-global-set "C-x g" 'winner-undo)
     (with-eval-after-load "winner"
-      (advice-add 'delete-window :after #'ad:winner:delete-window)
+      (advice-add 'delete-window :after #'my--winner:delete-window)
       (keymap-set winner-mode-map "C-(" 'winner-undo)
       (keymap-set winner-mode-map "C-)" 'winner-redo)
       (winner-mode 1))))
@@ -2017,7 +2017,7 @@ This function returns a timer object which you can use in
             ("*Checkdoc Status*" :align above :popup t :noselect t)))))
 
 (with-eval-after-load "checkdoc"
-  (advice-add 'checkdoc :before #'ad:checkdoc))
+  (advice-add 'checkdoc :before #'my--checkdoc))
 
 (with-eval-after-load "moom"
   (when (and (not noninteractive)
@@ -2032,9 +2032,9 @@ This function returns a timer object which you can use in
                                             (* 2 (aref (font-info font) 2))))
                                 10)))
      '(doom-modeline-minor-modes t))
-    ;; (declare-function ad:doom-modeline-buffer-file-state-icon "init" nil)
+    ;; (declare-function my--doom-modeline-buffer-file-state-icon "init" nil)
     (advice-add 'doom-modeline-buffer-file-state-icon :override
-                #'ad:doom-modeline-buffer-file-state-icon)
+                #'my--doom-modeline-buffer-file-state-icon)
     (size-indication-mode 1)
     (doom-modeline-mode 1)))
 
@@ -2199,8 +2199,8 @@ This function returns a timer object which you can use in
   (keymap-global-set "M-v" 'my-yank)
   (keymap-global-set "C-y" 'my-yank)
   (when window-system
-    (advice-add 'my-yank :before #'my-vhl-activate)
-    (advice-add 'my-org-yank :before #'my-vhl-activate))
+    (advice-add 'my-yank :before #'my--vhl-activate)
+    (advice-add 'my-org-yank :before #'my--vhl-activate))
 
   (with-eval-after-load "volatile-highlights"
     (set-face-attribute
@@ -2272,11 +2272,11 @@ This function returns a timer object which you can use in
     ;; pre-redisplay-functions はやばい．
 
     ;; modification-hooks
-    (advice-add 'gif-screencast :after #'ad:gif-screencast)
-    (advice-add 'gif-screencast-stop :after #'ad:gif-screencast-stop)
-    (advice-add 'gif-screencast-stop :before #'ad:gif-screencast-opendir)
+    (advice-add 'gif-screencast :after #'my--gif-screencast)
+    (advice-add 'gif-screencast-stop :after #'my--gif-screencast-stop)
+    (advice-add 'gif-screencast-stop :before #'my--gif-screencast-opendir)
     (advice-add 'gif-screencast-toggle-pause
-                :before #'ad:gif-screencast-toggle-pause)))
+                :before #'my--gif-screencast-toggle-pause)))
 
 (keymap-global-set "C-M--" 'my-cycle-bullet-at-heading)
 ;; (keymap-global-set "<f12>" 'my-open-file-ring)
@@ -2305,7 +2305,7 @@ This function returns a timer object which you can use in
     :type 'float) ;; N[s] 無応答の時[y/n]を出す．
 
   (defvar my--nocand-then-fzf t)
-  (advice-add 'ivy--insert-prompt :before #'ad:fzf:ivy--insert-prompt)
+  (advice-add 'ivy--insert-prompt :before #'my--fzf:ivy--insert-prompt)
   (add-hook 'minibuffer-setup-hook #'my-nocand-then-fzf-reset)
   (add-hook 'minibuffer-exit-hook #'my-nocand-then-fzf-reset))
 
