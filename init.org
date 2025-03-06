@@ -90,7 +90,7 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle yes
 ;; init.el --- My init.el -*- lexical-binding: t -*-
 ;; Configurations for Emacs
-;;																				 Takaaki ISHIKAWA	 <takaxp@ieee.org>
+;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
 (require 'init-autoloads nil t)
 (when (and (boundp my-profiler-p)
@@ -148,9 +148,9 @@ Then load the following at startup
 ;;           (string-join
 ;;            '("/opt/homebrew/opt/gcc/lib/gcc/14"
 ;;              "/opt/homebrew/opt/libgccjit/lib/gcc/14"
-;;              "/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")
+;;              "/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin24/14")
 ;;            ":")))
-;; for Intel mac user, replace "aarch64-apple-darwin23" with "x86_64-apple-darwin23".
+;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
 
 (unless noninteractive
   (defvar my-early-start (current-time))
@@ -1103,18 +1103,65 @@ This function returns a timer object which you can use in
 (setq custom-file (locate-user-emacs-file "custom.el"))
 #+end_src
 
-** elget パッケージ群を native comp する
+** elget パッケージを native comp する
 :PROPERTIES:
 :ID:       9C9A3126-543D-4923-8C0E-9FF36679989A
 :CUSTOM_ID: orgfd894e86
 :END:
 
-#+begin_src emacs-lisp :tangle no
-2;;;###autoload
-(defun my-elget-nativecomp-all-packages ()
+#+begin_src emacs-lisp :tangle utility.el
+(defvar my-elget-delete-eln-file-packages nil)
+(add-to-list 'my-elget-delete-eln-file-packages 'org-appear)
+
+;;;###autoload
+(defun my-open-current-eln-dir ()
   (interactive)
-  (native-compile-async (format "~/.emacs.d/%s/el-get" emacs-version)
-                        'recursively))
+  (call-process "open" nil 0 nil
+                (concat (car (butlast native-comp-eln-load-path))
+                        comp-native-version-dir)))
+
+;;;###autoload
+(defun my-elget-regenerate-eln-file ()
+  (interactive)
+  (dolist (package-name my-elget-delete-eln-file-packages)
+    (my-elget-nativecomp-package package-name)))
+
+;;;###autoload
+(defun my-delete-eln-file (package-name)
+  "note: see `native-compile-prune-cache'"
+  (dolist (dir (butlast native-comp-eln-load-path))
+    (let ((pkg (if (symbolp package-name)
+                   (symbol-name package-name)
+                 package-name)))
+      (dolist (eln (directory-files
+                    (concat dir comp-native-version-dir)
+                    t (concat "^" pkg ".+\\.eln$")))
+        (when (file-writable-p eln)
+          (delete-file eln)
+          (message "Deleting: %s" eln))))))
+
+;;;###autoload
+(defun my-elget-nativecomp-package (&optional package-name non-force)
+  (interactive)
+  (when (or (or package-name
+                non-force)
+            (y-or-n-p "All eln files will be regenerated. Sure?"))
+    (let* ((native-comp-always-compile (not non-force))
+           (package-name (if package-name
+                             (if (symbolp package-name)
+                                 (symbol-name package-name)
+                               package-name)
+                           ""))
+           (pkg (format "~/.emacs.d/%s/el-get/%s"
+                        emacs-version
+                        package-name)))
+      (when native-comp-always-compile
+        (my-delete-eln-file package-name))
+      (if (locate-library package-name)
+          (progn
+            (native-compile-async pkg 'recursively)
+            (message "Native Compilation...%s" pkg))
+        (user-error "skip %s: doesn't exist, may not be installed" pkg)))))
 #+end_src
 
 ** [exec-path-from-shell.el] PATH設定をシェルから継承する          :obsolete:

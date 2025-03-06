@@ -2,37 +2,33 @@
 ;; This initialize file should be loaded first in w32 environment.
 ;; Each setting could be overwritten in .emacs, see AppData/Roming/.emacs.
 ;; And the .emacs will contain, for insetance,
-;; 1. Set my-local-directory in the first line.
-;; 2. Set (load (concat my-local-directory "org/config/init-win.el")) in the second line.
+;; 1. Set my-dir-local in the first line.
+;; 2. Set (load (concat my-dir-local "org/config/init-win.el")) in the second line.
 ;; 3. Overwrite "PATH" and #'counsel-win-app-list in the .emacs if needed.
 ;; 4. additional packages will be installed to my-installed-packages-dir
 ;; Note: all local and private settings should be configured in the .emacs.
 ;; runemacs.exe is extracted from a distributed zip package from
 ;;             https://ftp.jaist.ac.jp/pub/GNU/emacs/windows/
-;;                                                    Last update: 2024-07-29
+;;                                                    Last update: 2025-03-02
 
 (when nil
-  ;; advice of load function
-  (defadvice load (around require-benchmark activate)
+  (defvar my-minimum-time-to-print 0.5)
+  (defun my-print-loading-time (f &rest args)
+    "https://memo.sugyan.com/entry/20120105/1325756767"
     (let* ((before (current-time))
-           (result ad-do-it)
-           (after  (current-time))
+           (result (apply f args))
+           (after (current-time))
+           (file-or-feature (car args))
            (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
-                    (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
-           (arg (ad-get-arg 0)))
-      (message "--- %04d [ms]: (loading) %s" time arg)))
-  ;; advice of require function
-  (defadvice require (around require-benchmark activate)
-    "http://memo.sugyan.com/entry/20120105/1325756767"
-    (let* ((before (current-time))
-           (result ad-do-it)
-           (after  (current-time))
-           (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
-                    (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
-           (arg (ad-get-arg 0)))
-      (unless (or (memq arg '(cl-lib macroexp))
-                  (> 0.1 time))
-        (message "--- %04d [ms]: %s" time arg)))))
+                    (/ (- (nth 2 after) (nth 2 before)) 1000.0))))
+      (unless (or (memq file-or-feature '(cl-lib macroexp))
+                  (> my-minimum-time-to-print time))
+        (message "--- %04d [ms]: %s%s" time
+                 (if (equal (subr-name f) "load") "(loading) " "")
+                 file-or-feature))
+      result))
+  (advice-add 'load :around #'my-print-loading-time)
+  (advice-add 'require :around #'my-print-loading-time))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -64,7 +60,7 @@
 (setq default-directory "~/")
 (setq truncate-line nil
       truncate-partial-width-windows nil)
-(setq-default tab-width 2)
+(setq-default tab-width 8)
 (setq-default indent-tabs-mode nil)
 (setq indent-line-function 'insert-tab)
 (setq line-number-display-limit-width 100000)
@@ -80,7 +76,8 @@
     "replace-from-region" "session" "helpful" "org-appear" "projectile"
     "counsel-projectile" "super-save" "org-tree-slide" "delight.el"
     "org-mode/lisp" "org-contrib/lisp" "corfu" "prescient.el" "kind-icon"
-    "vc-defer" "markdown-mode"))
+    "vc-defer" "markdown-mode" "elisp-tree-sitter/lisp"
+    "elisp-tree-sitter/core" "nerd-icons.el"))
 
 (defvar my-installed-packages-dir "~/.emacs.d/lisp/")
 (let ((default-directory (expand-file-name my-installed-packages-dir)))
@@ -127,18 +124,21 @@
      ((t (:background "#CCCCCC" :foreground "#FFFFFF" :box nil :height 0.9)))))
 
   ;; Basic key-binding
-  (global-set-key (kbd "C-;") 'comment-dwim) ;; M-; is the defualt
-  (global-set-key (kbd "C-c g") 'goto-line)
-  (global-set-key (kbd "C-c c") 'compile)
-  (global-set-key (kbd "C-M-t") 'beginning-of-buffer)
-  (global-set-key (kbd "C-M-b") 'end-of-buffer)
-  (global-set-key (kbd "C-M-p") (lambda () (interactive) (other-window -1)))
-  (global-set-key (kbd "C-M-n") (lambda () (interactive) (other-window 1)))
-  (global-set-key (kbd "M-v") 'yank)
-  (global-set-key (kbd "C-t") 'scroll-down)
-  (global-set-key (kbd "M-=") 'count-words)
-  (global-set-key (kbd "RET") 'electric-newline-and-maybe-indent)
-  (global-set-key (kbd "C-c a") 'org-agenda)
+  (keymap-global-set "C-;" 'comment-dwim) ;; M-; is the defualt
+  (keymap-global-set "C-c g" 'goto-line)
+  (keymap-global-set "C-c c" 'compile)
+  (keymap-global-set "C-M-t" 'beginning-of-buffer)
+  (keymap-global-set "C-M-b" 'end-of-buffer)
+  (keymap-global-set "C-M-p" (lambda () (interactive) (other-window -1)))
+  (keymap-global-set "C-M-n" (lambda () (interactive) (other-window 1)))
+  (keymap-global-set "M-c" 'calendar)
+  (keymap-global-set "M-v" 'yank)
+  (keymap-global-set "C-t" 'scroll-down)
+  (keymap-global-set "M-=" 'count-words)
+  (keymap-global-set "RET" 'electric-newline-and-maybe-indent)
+  (keymap-global-set "C-c a" 'org-agenda)
+  (keymap-global-set "C-c l" 'org-store-link)
+  (keymap-global-set "C-c r" 'org-capture)
 
   (setq scroll-conservatively 1000)
   (setq scroll-step 1)
@@ -185,8 +185,8 @@
       (my-ime-off)))
   (add-hook 'activate-mark-hook #'my-ime-off-sticky)
   (add-hook 'deactivate-mark-hook #'my-ime-on-sticky)
-  (global-set-key (kbd "M-SPC") 'my-toggle-ime)
-  (global-set-key (kbd "S-SPC") 'my-toggle-ime)
+  (keymap-global-set "M-SPC" 'my-toggle-ime)
+  (keymap-global-set "S-SPC" 'my-toggle-ime)
 
   ;; font config
   (defun my-ja-font-setter (spec)
@@ -202,10 +202,13 @@
     (set-fontset-font nil 'ascii spec))
 
   (let ((font-size 26)
-        (font-height 100)
-        (ascii-font "Inconsolata")
-        (ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
-    (set-fontset-font t '(#Xe000 . #Xf8ff) "icons-in-terminal")
+	(font-height 100)
+	(ascii-font "Inconsolata")
+	(ja-font "Migu 2M")) ;; Meiryo UI, メイリオ
+    (when (require 'nerd-icons nil t)
+      (set-fontset-font t '(#Xf0001 . #Xf1af0) "Symbols Nerd Font Mono")
+      (set-fontset-font t '(#X2300 . #X2bff) "Symbols Nerd Font Mono")
+      (set-fontset-font t '(#Xe000 . #Xf5ff) "Symbols Nerd Font Mono"))
     (my-ascii-font-setter (font-spec :family ascii-font :size font-size))
     (my-ja-font-setter
      (font-spec :family ja-font :size font-size :height font-height))
@@ -234,8 +237,8 @@
   (defun my-hl-line-enable ()
     "Enable `hl-line'."
     (unless (or hl-line-mode
-                (minibufferp)
-                (memq major-mode my-hl-permanent-disabled))
+		(minibufferp)
+		(memq major-mode my-hl-permanent-disabled))
       (hl-line-mode 1)))
   (global-hl-line-mode)
 
@@ -243,7 +246,7 @@
   (defconst my-cur-color-ime '(:on "#FF9300" :off "#91C3FF"))
   (defconst my-cur-type-ime '(:on (bar . 4) :off (bar . 4) :invisible nil))
   (setq-default cursor-type (if (my-ime-active-p)
-                                (plist-get my-cur-type-ime :on)
+				(plist-get my-cur-type-ime :on)
                               (plist-get my-cur-type-ime :off)))
   (defun my-ime-on-cursor ()
     (interactive)
@@ -278,15 +281,15 @@
       (font-lock-add-keywords major-mode
                               ;; "[\t]+$" 行末のタブ
                               '(("　" 0 'my-face-b-1 append)
-                                ("[ ]+$" 0 'my-face-b-3 append)
-                                ("[\t]+$" 0 'my-face-b-2 append)))))
+				("[ ]+$" 0 'my-face-b-3 append)
+				("[\t]+$" 0 'my-face-b-2 append)))))
   (advice-add 'font-lock-mode :before #'ad:font-lock-mode)
 
   ;; Utilities
-  (global-set-key (kbd "C-M-<return>") #'my-open-w32-explore)
-  (global-set-key (kbd "C-M-o") 'my-open-hoge)
-  (global-set-key (kbd "C-M-s") #'my-open-scratch)
-  (global-set-key (kbd "C-c 0") 'insert-formatted-current-date)
+  (keymap-global-set "C-M-<return>" #'my-open-w32-explore)
+  (keymap-global-set "C-M-o" 'my-open-hoge)
+  (keymap-global-set "C-M-s" #'my-open-scratch)
+  (keymap-global-set "C-c 0" 'insert-formatted-current-date)
 
   (defun my-open-w32-explore ()
     (interactive)
@@ -312,46 +315,45 @@
     (dolist (buffer (buffer-list))
       (when (or (and (buffer-live-p buffer)
                      (buffer-file-name buffer))
-                (and (switch-to-buffer buffer)
+		(and (switch-to-buffer buffer)
                      (eq major-mode 'dired-mode)
                      (file-directory-p (dired-current-directory))))
-        (kill-buffer buffer)))
+	(kill-buffer buffer)))
     (delete-windows-on)
     (scratch-buffer)
     (message "Quit Emacs? (C-c C-x)"))
 
   (when (display-graphic-p)
-    (global-set-key (kbd "C-x C-c") #'my-kill-all-file-buffers))
+    (keymap-global-set "C-x C-c" #'my-kill-all-file-buffers))
 
   (defun my-kill-emacs-when-scratch-buffer ()
     (interactive)
     (when (equal "*scratch*" (buffer-name))
       (save-buffers-kill-emacs)))
-  (global-set-key (kbd "C-c C-x") #'my-kill-emacs-when-scratch-buffer)
+  (keymap-global-set "C-c C-x" #'my-kill-emacs-when-scratch-buffer)
 
   ;; isearch with a selected reagion
-  (defadvice isearch-mode
-      (around isearch-mode-default-string
-              (forward &optional regexp op-fun recursive-edit word-p) activate)
+  (defun my--isearch-mode (f forward &optional regexp op-fun recursive-edit
+                             regexp-function)
     (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
         (progn
           (isearch-update-ring (buffer-substring-no-properties (mark) (point)))
           (deactivate-mark)
-          ad-do-it
+          (funcall f forward regexp op-fun recursive-edit regexp-function)
           (if (not forward)
               (isearch-repeat-backward)
             (goto-char (mark))
             (isearch-repeat-forward)))
-      ad-do-it))
+      (funcall f forward regexp op-fun recursive-edit regexp-function)))
 
   (defun ad:mark-sexp (f &optional arg allow-extend)
     "Set mark ARG sexps from point.
 When the cursor is at the end of line or before a whitespace, set ARG -1."
     (interactive "P\np")
     (funcall f (if (and (not (bolp))
-                        (not (eq (preceding-char) ?\ ))
-                        (not (memq (following-char) '(?\( ?\< ?\[ ?\{)))
-                        (or (eolp)
+			(not (eq (preceding-char) ?\ ))
+			(not (memq (following-char) '(?\( ?\< ?\[ ?\{)))
+			(or (eolp)
                             (eq (following-char) ?\ )
                             (memq (preceding-char) '(?\) ?\> ?\] ?\}))))
                    -1 arg)
@@ -364,7 +366,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (interactive)
     (unless (file-exists-p my-loaddefs-file)
       (with-temp-buffer
-        (write-file my-loaddefs-file)))
+	(write-file my-loaddefs-file)))
     (mapc (lambda (package)
             (make-directory-autoloads
              (concat my-installed-packages-dir package) my-loaddefs-file))
@@ -376,7 +378,7 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
               "[%Y-%02m-%02d %3a %02H:%02M]" ;; "%04y"
             "%Y-%02m-%02d"))
     (if (boundp 'org-tree-slide-mode)
-        (unless org-tree-slide-mode
+	(unless org-tree-slide-mode
           (time-stamp))
       (time-stamp)))
   (add-hook 'before-save-hook #'my-time-stamp)
@@ -413,20 +415,20 @@ also calls `beep' for an audible reminder."
     (if appt-audible (beep 1))
     ;; Backwards compatibility: avoid passing lists to a-d-w-f if not necessary.
     (and (listp mins)
-         (= (length mins) 1)
-         (setq mins (car mins)
+	 (= (length mins) 1)
+	 (setq mins (car mins)
                string (car string)))
     (cond ((memq appt-display-format '(window echo)) ;; Modified
            ;; TODO use calendar-month-abbrev-array rather than %b?
            (let ((time (format-time-string "%a %b %e ")))
              (condition-case err
-                 (funcall appt-disp-window-function
+		 (funcall appt-disp-window-function
                           (if (listp mins)
                               (mapcar #'number-to-string mins)
                             (number-to-string mins))
                           time string)
                (wrong-type-argument
-                (if (not (listp mins))
+		(if (not (listp mins))
                     (signal (car err) (cdr err))
                   (message "Argtype error in `appt-disp-window-function' - \
 update it for multiple appts?")
@@ -435,8 +437,8 @@ update it for multiple appts?")
                            (number-to-string (car mins)) time
                            (car string))))))
            (run-at-time (format "%d sec" appt-display-duration)
-                        nil
-                        appt-delete-window-function))
+			nil
+			appt-delete-window-function))
           ((eq appt-display-format 'echo) ;; hidden
            (message "%s" (if (listp string)
                              (mapconcat #'identity string "\n")
@@ -445,15 +447,27 @@ update it for multiple appts?")
   (defun ad:appt-disp-window (min-to-app _new-time appt-msg)
     "Extension to support appt-disp-window."
     (if (string= min-to-app "0")
-        (my-desktop-notification "### Expired! ###" appt-msg t "Glass")
+	(my-desktop-notification "### Expired! ###" appt-msg t "Glass")
       (my-desktop-notification
        (concat "in " min-to-app " min.") appt-msg nil "Tink")))
 
-  (global-set-key (kbd "C-c f 3") #'my-org-agenda-to-appt))
+  (keymap-global-set "C-c f 3" #'my-org-agenda-to-appt)
+
+  (defun ad:kill-word (&optional n)
+    "Replace `kill-region' with `delete-region'."
+    (interactive "^p")
+    (let ((beg (point))
+          (end (save-excursion (forward-word n) (point))))
+      (delete-region beg end)))
+
+  (advice-add 'kill-word :override #'ad:kill-word))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part A: Scheduling of package loading
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; org
+(push '("\\.txt$" . org-mode) auto-mode-alist)
 
 ;; auto-revert
 (defun my-activate-auto-revert ()
@@ -489,28 +503,30 @@ update it for multiple appts?")
 (autoload #'counsel-ibuffer "ivy" "ivy,counsel,swiper" t)
 (autoload #'swiper-thing-at-point "ivy" "ivy,counsel,swiper" t)
 (autoload #'counsel-osx-app "counsel-osx-app" "Application Launcher" t)
-(global-set-key (kbd "M-x") 'counsel-M-x)
-(global-set-key (kbd "C-M-f") 'counsel-ag)
-(global-set-key (kbd "C-M-r") 'counsel-recentf)
-(global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
-(global-set-key (kbd "M-s M-s") 'swiper-thing-at-point)
-(global-set-key (kbd "C-M-1") 'counsel-osx-app)
+(keymap-global-set "M-x" 'counsel-M-x)
+(keymap-global-set "C-M-f" 'counsel-ag)
+(keymap-global-set "C-M-r" 'counsel-recentf)
+(keymap-global-set "C-x C-b" 'counsel-ibuffer)
+(keymap-global-set "M-s M-s" 'swiper-thing-at-point)
+(keymap-global-set "C-M-1" 'counsel-osx-app)
 
 ;; bs with bsv.el
-(global-set-key (kbd "M-]") 'bs-cycle-next)
-(global-set-key (kbd "M-[") 'bs-cycle-previous)
+(keymap-global-set "M-]" 'bs-cycle-next)
+(keymap-global-set "M-[" 'bs-cycle-previous)
 
 ;; moom
 (autoload #'moom-move-frame-to-edge-top "moom" "Moom" t)
 (autoload #'moom-cycle-frame-height "moom" "Moom" t)
 (autoload #'moom-move-frame "moom" "Moom" t)
 (autoload #'moom-move-frame-to-center "moom" "Moom" t)
+(autoload #'moom-fill-band "moom" "Moom" t)
 (autoload #'moom-transient-dispatch "moom-transient" "moom dispatcher" t)
-(global-set-key (kbd "C-1") 'moom-move-frame-to-edge-top)
-(global-set-key (kbd "C-2") 'moom-cycle-frame-height)
-(global-set-key (kbd "M-0") 'moom-move-frame)
-(global-set-key (kbd "M-2") 'moom-move-frame-to-center)
-(global-set-key (kbd "C-c o") #'moom-transient-dispatch)
+(keymap-global-set "C-1" 'moom-move-frame-to-edge-top)
+(keymap-global-set "C-2" 'moom-cycle-frame-height)
+(keymap-global-set "M-0" 'moom-move-frame)
+(keymap-global-set "M-2" 'moom-move-frame-to-center)
+(keymap-global-set "C-c f m" #'moom-fill-band)
+(keymap-global-set "C-c o" #'moom-transient-dispatch)
 
 ;; smartparens
 (autoload #'smartparens-global-mode "smartparens" "smartparens" t)
@@ -536,11 +552,11 @@ update it for multiple appts?")
 (autoload 'helpful-function "helpful" "Help" t)
 (autoload 'helpful-variable "helpful" "Help" t)
 (autoload 'helpful-macro "helpful" "Help" t)
-(global-set-key (kbd "<f1> @") 'helpful-at-point)
-(global-set-key (kbd "<f1> k") 'helpful-key)
-(global-set-key (kbd "<f1> f") 'helpful-function)
-(global-set-key (kbd "<f1> v") 'helpful-variable)
-(global-set-key (kbd "<f1> m") 'helpful-macro)
+(keymap-global-set "<f1> @" 'helpful-at-point)
+(keymap-global-set "<f1> k" 'helpful-key)
+(keymap-global-set "<f1> f" 'helpful-function)
+(keymap-global-set "<f1> v" 'helpful-variable)
+(keymap-global-set "<f1> m" 'helpful-macro)
 
 ;; hl-todo (depends on compat.el)
 (autoload #'global-hl-todo-mode "hl-todo" "hl-todo" t)
@@ -578,9 +594,9 @@ update it for multiple appts?")
 (autoload #'my-bm-next "bm" "bm" t)
 (autoload #'bm-buffer-restore "bm" "bm" t)
 (autoload #'counsel-bm "bm" "bm" t)
-(global-set-key (kbd "<f10>") 'my-toggle-bm)
-(global-set-key (kbd "<C-f10>") 'my-bm-next)
-(global-set-key (kbd "<S-f10>") 'bm-show-all)
+(keymap-global-set "<f10>" 'my-toggle-bm)
+(keymap-global-set "C-<f10>" 'my-bm-next)
+(keymap-global-set "S-<f10>" 'bm-show-all)
 (add-hook 'find-file-hook #'bm-buffer-restore)
 
 ;; google-this
@@ -613,13 +629,13 @@ update it for multiple appts?")
 
 ;; replace-from-region
 (autoload #'query-replace-from-region "replace-from-region" nil t)
-(global-set-key (kbd "M-%") 'query-replace-from-region)
+(keymap-global-set "M-%" 'query-replace-from-region)
 
 ;; Undo-fu
 (autoload #'undo-fu-only-undo "undo-fu" "Undo" t)
 (autoload #'undo-fu-only-redo "undo-fu" "Undo" t)
-(global-set-key (kbd "C-/") 'undo-fu-only-undo)
-(global-set-key (kbd "C-M-/") 'undo-fu-only-redo)
+(keymap-global-set "C-/" 'undo-fu-only-undo)
+(keymap-global-set "C-M-/" 'undo-fu-only-redo)
 
 ;; view
 (autoload #'my-auto-view "view" "view mode" t)
@@ -650,8 +666,8 @@ update it for multiple appts?")
 (add-hook 'find-file-hook #'my-super-save-activate)
 
 ;; org-tree-slide
-(global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-(global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+(keymap-global-set "<f8>" 'org-tree-slide-mode)
+(keymap-global-set "S-<f8>" 'org-tree-slide-skip-done-toggle)
 (autoload 'org-tree-slide-mode "org-tree-slide" nil t)
 
 ;; delight
@@ -683,9 +699,14 @@ update it for multiple appts?")
 (autoload 'markdown-mode "markdown-mode" nil t)
 (push '("\\.md$" . markdown-mode) auto-mode-alist)
 
+;; nerd-icons
+(autoload 'nerd-icons "nerd-icons" nil t)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Part B: Configurations for each package
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(with-eval-after-load "isearch"
+  (advice-add 'isearch-mode :around #'my--isearch-mode))
 
 (with-eval-after-load "tr-ime"
   (tr-ime-advanced-initialize)
@@ -713,7 +734,7 @@ update it for multiple appts?")
         "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
   ;; Change save point of session.el
   (setq session-save-file
-        (expand-file-name (concat my-home-directory ".emacs.d/.session")))
+        (expand-file-name (concat my-dir-home ".emacs.d/.session")))
   (setq session-initialize '(de-saveplace session keys menus places)
         session-globals-include '((kill-ring 100)
                                   (session-file-alist 100 t)
@@ -727,7 +748,7 @@ update it for multiple appts?")
   (custom-set-variables
    '(recentf-max-saved-items 2000)
    '(recentf-save-file
-     (expand-file-name (concat my-home-directory ".emacs.d/recentf")))
+     (expand-file-name (concat my-dir-home ".emacs.d/recentf")))
    '(recentf-auto-cleanup 'never)
    '(recentf-exclude
      '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
@@ -750,13 +771,13 @@ update it for multiple appts?")
 (with-eval-after-load "ivy"
   (require 'swiper)
   (require 'counsel)
-  (global-set-key (kbd "M-y") 'counsel-yank-pop)
-  (global-set-key (kbd "C-,") 'counsel-mark-ring)
-  (global-set-key (kbd "C-c i r") 'ivy-resume)
-  (global-set-key (kbd "<S-f10>") 'counsel-bm)
+  (keymap-global-set "M-y" 'counsel-yank-pop)
+  (keymap-global-set "C-," 'counsel-mark-ring)
+  (keymap-global-set "C-c i r" 'ivy-resume)
+  (keymap-global-set "S-<f10>" 'counsel-bm)
 
   (setq ivy-initial-inputs-alist
-        '((org-agenda-refile . "^")
+	'((org-agenda-refile . "^")
           (org-capture-refile . "^")
           (counsel-describe-function . "^")
           (counsel-describe-variable . "^")
@@ -854,6 +875,7 @@ update it for multiple appts?")
 
 (with-eval-after-load "moom"
   (moom-recommended-keybindings 'all)
+  (setq moom-user-margin '(0 0 0 6))
   (setq moom-lighter "M")
   (setq moom-verbose t)
   (setq moom-font-ja-scale 1.0)
@@ -863,7 +885,7 @@ update it for multiple appts?")
   (when (require 'moom-font nil t)
     (moom-font-ja "Migu 2M")
     (moom-font-ascii "Inconsolata")
-    (moom-font-resize 24)))
+    (moom-font-resize 16)))
 
 (with-eval-after-load "moom-transient"
   (moom-transient-hide-cursor)
@@ -904,17 +926,17 @@ update it for multiple appts?")
       (goto-char (max (mark) (point)))
       (deactivate-mark)))
   (setq selected-org-mode-map (make-sparse-keymap))
-  (define-key selected-org-mode-map (kbd "t") #'org-toggle-checkbox)
-  (define-key selected-org-mode-map (kbd "-") #'my-org-bullet-and-checkbox)
-  (define-key selected-keymap (kbd "5") #'query-replace-from-region)
-  (define-key selected-keymap (kbd ";") #'comment-dwim)
-  (define-key selected-keymap (kbd "e") #'my-eval-region)
-  (define-key selected-keymap (kbd "g") #'my-google-this)
+  (keymap-set selected-org-mode-map "t" #'org-toggle-checkbox)
+  (keymap-set selected-org-mode-map "-" #'my-org-bullet-and-checkbox)
+  (keymap-set selected-keymap "5" #'query-replace-from-region)
+  (keymap-set selected-keymap ";" #'comment-dwim)
+  (keymap-set selected-keymap "e" #'my-eval-region)
+  (keymap-set selected-keymap "g" #'my-google-this)
   (when (require 'helpful nil t)
-    (define-key selected-keymap (kbd "h") #'helpful-at-point)
-    (define-key selected-keymap (kbd "v") #'my-helpful-variable))
+    (keymap-set selected-keymap "h" #'helpful-at-point)
+    (keymap-set selected-keymap "v" #'my-helpful-variable))
   (when (require 'expand-region nil t)
-    (define-key selected-keymap (kbd "SPC") #'er/expand-region)))
+    (keymap-set selected-keymap "SPC" #'er/expand-region)))
 
 ;; helpful
 (with-eval-after-load "helpful"
@@ -964,6 +986,8 @@ update it for multiple appts?")
   (set-face-attribute
    'vhl/default-face nil :foreground "#FF3333" :background "#FFCDCD")
   (volatile-highlights-mode t)
+  (advice-remove 'kill-region
+                   #'vhl/.advice-callback-fn/.make-vhl-on-kill-region)
 
   ;; ふわっとエフェクトの追加（ペースト時の色 => カーソル色 => 本来色）
   (defun my-vhl-change-color ()
@@ -987,16 +1011,16 @@ update it for multiple appts?")
     (yank ARG)
     (when window-system
       (my-vhl-change-color)))
-  (global-set-key (kbd "M-v") 'my-yank)
-  (global-set-key (kbd "C-y") 'my-yank)
+  (keymap-global-set "M-v" 'my-yank)
+  (keymap-global-set "C-y" 'my-yank)
 
   (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-y") 'my-org-yank)
+    (keymap-set org-mode-map "C-y" 'my-org-yank)
     (defun my-org-yank ()
       (interactive)
       (org-yank)
       (when window-system
-        (my-vhl-change-color)))))
+	(my-vhl-change-color)))))
 
 (with-eval-after-load "eldoc"
   ;; for ivy-mode
@@ -1030,7 +1054,7 @@ update it for multiple appts?")
   (setq bm-buffer-persistence t)
   (setq bm-persistent-face 'bm-face)
   (setq bm-repository-file
-        (expand-file-name (concat my-home-directory ".emacs.d/.bm-repository")))
+        (expand-file-name (concat my-dir-home ".emacs.d/.bm-repository")))
   ;; ビルトイン bookmark の配色を無効にする(as of 28.1)
   (setq bookmark-fontify nil)
   ;; ビルトイン bookmark がfringeに出すマークを無効にする(as of 28.1)
@@ -1306,23 +1330,23 @@ update it for multiple appts?")
   (defvar my-auto-view-regexp "\\.el.gz$\\|\\.patch$\\|\\.xml$\\|\\.md$\\|\\.gpg$\\|\\.csv$\\|\\.emacs.d/[^/]+/el-get\\|config")
   ;; 特定のディレクトリ（絶対パス・ホームディレクトリ以下）
   (defvar my-auto-view-dirs nil)
-  (add-to-list 'my-auto-view-dirs (concat my-home-directory ".emacs.d"))
+  (add-to-list 'my-auto-view-dirs (concat my-dir-home ".emacs.d"))
   (add-to-list 'my-auto-view-dirs (expand-file-name my-installed-packages-dir))
 
-  (define-key view-mode-map (kbd "i") 'View-exit-and-edit)
-  (define-key view-mode-map (kbd "<SPC>") 'ignore)
-  (define-key view-mode-map (kbd "<DEL>") 'ignore)
-  (define-key view-mode-map (kbd "S-SPC") 'mac-ime-toggle)
-  (define-key view-mode-map (kbd "e") 'my-view-exit)
+  (keymap-set view-mode-map "i" 'View-exit-and-edit)
+  (keymap-set view-mode-map "<SPC>" 'ignore)
+  (keymap-set view-mode-map "<DEL>" 'ignore)
+  (keymap-set view-mode-map "S-SPC" 'mac-ime-toggle)
+  (keymap-set view-mode-map "e" 'my-view-exit)
   (when (require 'helpful nil t)
-    (define-key view-mode-map (kbd "h") 'helpful-at-point))
-  (define-key view-mode-map (kbd "f") 'forward-char)
-  (define-key view-mode-map (kbd "b") 'backward-char)
-  (define-key view-mode-map (kbd "n") 'my-org-view-next-heading)
-  (define-key view-mode-map (kbd "p") 'my-org-view-previous-heading)
-  (define-key view-mode-map (kbd "g") #'my-google-this)
-  (define-key view-mode-map (kbd "<tab>") 'my-view-tab)
-  (define-key view-mode-map (kbd "S-<tab>") 'my-view-shifttab)
+    (keymap-set view-mode-map "h" 'helpful-at-point))
+  (keymap-set view-mode-map "f" 'forward-char)
+  (keymap-set view-mode-map "b" 'backward-char)
+  (keymap-set view-mode-map "n" 'my-org-view-next-heading)
+  (keymap-set view-mode-map "p" 'my-org-view-previous-heading)
+  (keymap-set view-mode-map "g" #'my-google-this)
+  (keymap-set view-mode-map "<tab>" 'my-view-tab)
+  (keymap-set view-mode-map "S-<tab>" 'my-view-shifttab)
 
   (defun my-view-exit ()
     (interactive)
@@ -1332,38 +1356,38 @@ update it for multiple appts?")
     "Open a file with `view-mode'."
     (when (file-exists-p buffer-file-name)
       (when (and my-auto-view-regexp
-	               (string-match my-auto-view-regexp buffer-file-name))
-        (view-mode 1))
+		 (string-match my-auto-view-regexp buffer-file-name))
+	(view-mode 1))
       (dolist (dir my-auto-view-dirs)
-        (when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
+	(when (eq 0 (string-match (expand-file-name dir) buffer-file-name))
           (view-mode 1)))))
 
   (defun my-org-view-next-heading ()
     (interactive)
     (if (and (derived-mode-p 'org-mode)
              (org-at-heading-p))
-        (org-next-visible-heading 1)
+	(org-next-visible-heading 1)
       (next-line)))
 
   (defun my-org-view-previous-heading ()
     (interactive)
     (if (and (derived-mode-p 'org-mode)
              (org-at-heading-p))
-        (org-previous-visible-heading 1)
+	(org-previous-visible-heading 1)
       (previous-line)))
 
   (defun my-view-tab ()
     (interactive)
     (if (and (derived-mode-p 'org-mode)
              (or (org-at-heading-p)
-                 (org-at-property-drawer-p)))
-        (let ((view-mode nil))
+		 (org-at-property-drawer-p)))
+	(let ((view-mode nil))
           (org-cycle))))
 
   (defun my-view-shifttab ()
     (interactive)
     (if (derived-mode-p 'org-mode)
-        (let ((view-mode nil))
+	(let ((view-mode nil))
           (org-shifttab))))
 
   (defun my-unlock-view-mode ()
@@ -1372,7 +1396,7 @@ update it for multiple appts?")
 
 ;; org mode
 (with-eval-after-load "org"
-  (setq org-directory (concat my-local-directory "org/"))
+  (setq org-directory (concat my-dir-local "org/"))
 
   (add-hook 'org-mode-hook #'turn-on-font-lock)
   (custom-set-faces '(org-drawer ((t (:foreground "#999999"))))
@@ -1417,7 +1441,7 @@ update it for multiple appts?")
         org-adapt-indentation nil
         org-tags-column -76
         org-list-allow-alphabetical t)
-  (define-key org-mode-map (kbd "C-M-t") 'beginning-of-buffer)
+  (keymap-set org-mode-map "C-M-t" 'beginning-of-buffer)
 
   (when (version< (org-version) "9.4.6")
     (defvaralias 'org-speed-commands 'org-speed-commands-user))
@@ -1429,6 +1453,7 @@ update it for multiple appts?")
   (add-to-list 'org-speed-commands '("y" my-org-yank))
   (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
 
+  (setq org-log-repeat nil)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
 
@@ -1473,14 +1498,46 @@ update it for multiple appts?")
       (org-cancel-repeater))
     (org-todo ARG))
 
+  ;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
+  (defun my-kill-update-todo-statistics (_b _d &optional _arg)
+    (when (and (derived-mode-p 'org-mode)
+               (org-kill-is-subtree-p))
+      (save-excursion
+        (save-restriction
+          (unless (eq 1 (point))
+            (backward-char 1))
+          (ignore-errors (outline-up-heading 1))
+          (org-update-statistics-cookies nil)
+          (org-update-parent-todo-statistics)
+          ;; (org-element-cache-refresh)
+          ))))
+  (advice-add 'kill-region :after #'my-kill-update-todo-statistics)
+
+  ;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
+  (defun my-yank-update-todo-statistics (&optional _arg)
+    (when (and (derived-mode-p 'org-mode)
+               (org-kill-is-subtree-p))
+      (save-excursion
+        (save-restriction
+          (unless (eq 1 (point))
+            (backward-char 1))
+          (org-update-statistics-cookies nil)
+          (org-update-parent-todo-statistics)
+          ;; (org-element-cache-refresh)
+          ))))
+  (advice-add 'org-yank :after #'my-yank-update-todo-statistics)
+
+  (defvar my-org-created-property-name "CREATED"
+    "The name of the org-mode property.
+This user property stores the creation date of the entry")
+
   (defun my-org-default-property ()
     "Set the creation date and org-id."
     (interactive)
     (my-org-set-created-property)
     (org-id-get-create))
-  (defvar my-org-created-property-name "CREATED"
-    "The name of the org-mode property.
-This user property stores the creation date of the entry")
+  (add-hook 'org-capture-before-finalize-hook #'my-org-default-property)
+
   (defun my-org-set-created-property (&optional active NAME)
     "Set a property on the entry giving the creation time.
 
@@ -1494,12 +1551,12 @@ will not be modified."
            (field (org-entry-get (point) created nil)))
       (unless (or field (equal "" field))
         (org-set-property created now)
-        (org-cycle-hide-drawers 'children))))
+        (org-cycle-hide-drawers 'children)))) ;; FIXME not work for win32
+
   (defun ad:org-insert-todo-heading (_arg &optional _force-heading)
     (unless (org-at-item-checkbox-p)
       (my-org-default-property)))
   (advice-add 'org-insert-todo-heading :after #'ad:org-insert-todo-heading)
-  (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
   (setq org-list-demote-modify-bullet
         '(("+" . "-")
@@ -1537,7 +1594,7 @@ will not be modified."
            (concat "\\(^[ \t]*\\)") point-at-eol t)
           (replace-match (concat "\\1" bullet) nil nil))
          (t nil)))))
-  (global-set-key (kbd "C-M--") 'my-cycle-bullet-at-heading)
+  (keymap-global-set "C-M--" 'my-cycle-bullet-at-heading)
 
   (defun ad:org-return (f &optional arg)
     "An extension for checking invisible editing when you hit the enter."
@@ -1560,8 +1617,7 @@ will not be modified."
       (save-buffer))
     (message "Update statistics...done"))
 
-  (define-key org-mode-map (kbd "C-c f 2")
-    'my-do-org-update-staistics-cookies)
+  (keymap-set org-mode-map "C-c f 2" 'my-do-org-update-staistics-cookies)
 
   ;; M-x calendar
   (with-eval-after-load "org-keys"
@@ -1603,7 +1659,7 @@ will not be modified."
   (defun my-org-heading-auto-ascii ()
     "IME off, when the cursor on org headings."
     (when (and (fboundp 'frame-focus-state)
-		           (frame-focus-state)
+	       (frame-focus-state)
                (eq major-mode 'org-mode)
                (boundp 'org-agenda-buffer-name)
                (or (looking-at org-heading-regexp)
@@ -1737,8 +1793,8 @@ will not be modified."
   (advice-add 'org-sort-entries :after #'ad:org-sort-entries))
 
 (with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-c x") #'my-org-move-item-end)
-  (define-key org-mode-map (kbd "C-c X") #'my-org-move-item-begin)
+  (keymap-set org-mode-map "C-c x" #'my-org-move-item-end)
+  (keymap-set org-mode-map "C-c X" #'my-org-move-item-begin)
 
   (defun my-org-move-item-begin ()
     "Move the current item to the beginning of the list."
@@ -1750,7 +1806,7 @@ will not be modified."
            (prevs (org-list-prevs-alist struct))
            (prev-item (org-list-get-prev-item (point-at-bol) struct prevs)))
       (unless prev-item
-        (user-error "Cannot move this item further up"))
+	(user-error "Cannot move this item further up"))
       (setq struct (org-list-send-item item 'begin struct))
       (goto-char item)
       (org-list-write-struct struct (org-list-parents-alist struct))
@@ -1766,7 +1822,7 @@ will not be modified."
            (prevs (org-list-prevs-alist struct))
            (next-item (org-list-get-next-item (point-at-bol) struct prevs)))
       (unless next-item
-        (user-error "Cannot move this item further down"))
+	(user-error "Cannot move this item further down"))
       (setq struct (org-list-send-item item 'end struct))
       (goto-char item)
       (org-list-write-struct struct (org-list-parents-alist struct))
@@ -1988,14 +2044,21 @@ will not be modified."
   (org-tempo-add-templates))
 
 (with-eval-after-load "org"
-  (setq-default prettify-symbols-alist '((":PROPERTIES:" . "»")
-                                         (":LOGBOOK:" . "›")
-                                         (":END:" . "›")
-                                         ("#+begin_src" . "▨")
-                                         ("#+end_src" . "▨")
-                                         ("[ ]" .  "☐")
-                                         ("[X]" . "☑" )
-                                         ("[-]" . "☒" )))
+  (setq-default prettify-symbols-alist
+                '(("CLOSED:" . "󱫫") ;; nf-md-timer_stop_outline
+                  ("SCHEDULED:" . "󰅕") ;; nf-md-clock_start
+                  ("DEADLINE:" . "󰅑") ;; nf-md-clock_end
+                  ;; ("CLOSED:" . "󱫐")
+                  ;; ("DEADLINE:" . "󱫠")
+                  ;; ("SCHEDULED:" . "󱫞")
+                  (":PROPERTIES:" . "»")
+                  (":LOGBOOK:" . "›")
+                  (":END:" . "›")
+                  ("#+begin_src" . "▨")
+                  ("#+end_src" . "▨")
+                  ("[ ]" .  "󰄱") ;;  ☐
+                  ("[X]" . "󰄵" ) ;; ☑
+                  ("[-]" . "󰡖" ))) ;; ☒ 󰄗
 
   (setq org-emphasis-alist
         '(("*" my-org-emphasis-bold)
@@ -2055,10 +2118,10 @@ will not be modified."
           (verbatim . "<code class=\"org-verbatim\">%s</code>"))))
 
 (with-eval-after-load "dired"
-  (define-key dired-mode-map (kbd "C-M-p") (lambda ()
-                                             (interactive) (other-window -1)))
-  (define-key dired-mode-map (kbd "C-M-n") (lambda ()
-                                             (interactive) (other-window 1))))
+  (keymap-set dired-mode-map "C-M-p" (lambda ()
+                                       (interactive) (other-window -1)))
+  (keymap-set dired-mode-map "C-M-n" (lambda ()
+                                       (interactive) (other-window 1))))
 
 (with-eval-after-load "projectile"
   (setq projectile-mode-line-lighter "")
@@ -2098,8 +2161,8 @@ Otherwise, use `counsel-ag'."
     (setq projectile-completion-system 'ivy)
     (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
     (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
-    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-    (define-key projectile-mode-map (kbd "C-M-f") 'my-counsel-projectile-ag)
+    (keymap-set projectile-mode-map "C-c p" 'projectile-command-map)
+    (keymap-set projectile-mode-map "C-M-f" 'my-counsel-projectile-ag)
     (counsel-projectile-mode 1)))
 
 (with-eval-after-load "time-stamp"
@@ -2113,10 +2176,8 @@ Otherwise, use `counsel-ag'."
 
 (with-eval-after-load "org-tree-slide"
   ;; <f8>/<f9>/<f10>/<f11> are assigned to control org-tree-slide
-  (define-key org-tree-slide-mode-map (kbd "<f9>")
-              'org-tree-slide-move-previous-tree)
-  (define-key org-tree-slide-mode-map (kbd "<f10>")
-              'org-tree-slide-move-next-tree)
+  (keymap-set org-tree-slide-mode-map "<f9>" 'org-tree-slide-move-previous-tree)
+  (keymap-set org-tree-slide-mode-map "<f10>" 'org-tree-slide-move-next-tree)
   (unless noninteractive
     (org-tree-slide-narrowing-control-profile))
   (setq org-tree-slide-modeline-display 'outside)
@@ -2167,7 +2228,7 @@ Otherwise, use `counsel-ag'."
    '(corfu-auto-delay 0.5)
    '(corfu-auto t))
 
-  (define-key corfu-mode-map (kbd "C-SPC") #'corfu-insert-separator)
+  (keymap-set corfu-mode-map "C-SPC" #'corfu-insert-separator)
 
   (defun my-corfu-insert-separator (ARG)
     (interactive "P")
@@ -2214,6 +2275,17 @@ Otherwise, use `counsel-ag'."
 
   (when (require 'appt nil t)
     (my-org-agenda-to-appt)))
+
+(with-eval-after-load "org-capture"
+  (setq org-default-notes-file (concat org-directory "next.org"))
+  (setq org-capture-templates
+        `(("t" "TODO 項目を INBOX に貼り付ける" entry
+           (file+headline ,org-default-notes-file "INBOX") "** TODO %?\n")
+          ("d" "Doingタグ付きのタスクをInboxに投げる" entry
+           (file+headline ,org-default-notes-file "INBOX")
+           "** TODO %? :Doing:\n  - \n"
+           :clock-in t
+           :clock-keep t))))
 
 (when do-profile (profiler-stop))
 ;; End of init-win.el

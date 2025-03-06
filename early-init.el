@@ -8,9 +8,9 @@
 ;;           (string-join
 ;;            '("/opt/homebrew/opt/gcc/lib/gcc/14"
 ;;              "/opt/homebrew/opt/libgccjit/lib/gcc/14"
-;;              "/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")
+;;              "/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin24/14")
 ;;            ":")))
-;; for Intel mac user, replace "aarch64-apple-darwin23" with "x86_64-apple-darwin23".
+;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
 
 (unless noninteractive
   (defvar my-early-start (current-time))

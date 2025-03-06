@@ -41,6 +41,9 @@ Remove PACKAGE.
 (autoload 'my-elget-list "elget-config" nil t)
 (autoload 'my-elget-reset-links "elget-config" nil t)
 (autoload 'my-elget-nativecomp-all-packages "elget-config" nil t)
+(autoload 'my-elget-nativecomp-prune-current-cache "elget-config" "\
+Remove .eln files that are applicable to the current Emacs invocation.
+see `native-compile-prune-cache'." t)
 (autoload 'my-elget-load-and-sync "elget-config")
 (register-definition-prefixes "elget-config" '("my-elget-bundles"))
 
@@ -220,6 +223,16 @@ Return non-nil if provided TIME formed of \"10:00\" is the future time.
 (autoload 'my-gcmh-activate "utility")
 (autoload 'my-native-comp-p "utility")
 (autoload 'my-native-comp-packages-done "utility")
+(autoload 'my-open-current-eln-dir "utility" nil t)
+(autoload 'my-elget-regenerate-eln-file "utility" nil t)
+(autoload 'my-delete-eln-file "utility" "\
+note: see `native-compile-prune-cache'
+
+(fn PACKAGE-NAME)")
+(autoload 'my-elget-nativecomp-package "utility" "\
+
+
+(fn &optional PACKAGE-NAME NON-FORCE)" t)
 (autoload 'my-org-hide-drawers-all "utility")
 (autoload 'my-auto-revert-activate "utility")
 (autoload 'my-shorten-default-directory "utility" "\

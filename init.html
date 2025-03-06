@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-03-03 月 00:11 -->
+<!-- 2025-03-07 金 08:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -246,7 +246,7 @@
 <li><a href="#org81081865">2.24. Native comp の警告を非表示にする</a></li>
 <li><a href="#org65713cda">2.25. Native comp がコンパイルした後にメッセージを表示する</a></li>
 <li><a href="#orgb6d21621">2.26. custom.el の指定</a></li>
-<li><a href="#orgfd894e86">2.27. elget パッケージ群を native comp する</a></li>
+<li><a href="#orgfd894e86">2.27. elget パッケージを native comp する</a></li>
 <li><a href="#orgb59612b6">2.28. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
 <li><a href="#org0b7d9710">2.29. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
 <ul>
@@ -914,7 +914,7 @@ Then load the following at startup
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">init.el --- My init.el -*- lexical-binding: t -*-</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Configurations for Emacs</span>
-<span style="color: #b22222;">;;</span><span style="color: #b22222;">                                                                                                                                                               Takaaki ISHIKAWA        <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a></span>
+<span style="color: #b22222;">;;                                          </span><span style="color: #b22222;">Takaaki ISHIKAWA <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a></span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">see also https://takaxp.github.io/init.html</span>
 (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-autoloads</span> nil t)
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (boundp my-profiler-p)
@@ -955,9 +955,9 @@ Then load the following at startup
 <span style="color: #b22222;">;;           </span><span style="color: #b22222;">(string-join</span>
 <span style="color: #b22222;">;;            </span><span style="color: #b22222;">'("/opt/homebrew/opt/gcc/lib/gcc/14"</span>
 <span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/libgccjit/lib/gcc/14"</span>
-<span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")</span>
+<span style="color: #b22222;">;;              </span><span style="color: #b22222;">"/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin24/14")</span>
 <span style="color: #b22222;">;;            </span><span style="color: #b22222;">":")))</span>
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">for Intel mac user, replace "aarch64-apple-darwin23" with "x86_64-apple-darwin23".</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".</span>
 
 (<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-start</span> (current-time))
@@ -1953,14 +1953,61 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-orgfd894e86" class="outline-3">
-<h3 id="orgfd894e86"><span class="section-number-3">2.27.</span> elget パッケージ群を native comp する</h3>
+<h3 id="orgfd894e86"><span class="section-number-3">2.27.</span> elget パッケージを native comp する</h3>
 <div class="outline-text-3" id="text-orgfd894e86">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">2<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-elget-nativecomp-all-packages</span> ()
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-delete-eln-file-packages</span> nil)
+(add-to-list 'my-elget-delete-eln-file-packages 'org-appear)
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-open-current-eln-dir</span> ()
   (<span style="color: #a020f0;">interactive</span>)
-  (native-compile-async (format <span style="color: #8b2252;">"~/.emacs.d/%s/el-get"</span> emacs-version)
-                        'recursively))
+  (call-process <span style="color: #8b2252;">"open"</span> nil 0 nil
+                (concat (car (butlast native-comp-eln-load-path))
+                        comp-native-version-dir)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-elget-regenerate-eln-file</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">dolist</span> (package-name my-elget-delete-eln-file-packages)
+    (my-elget-nativecomp-package package-name)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-delete-eln-file</span> (package-name)
+  <span style="color: #8b2252;">"note: see `</span><span style="color: #008b8b;">native-compile-prune-cache</span><span style="color: #8b2252;">'"</span>
+  (<span style="color: #a020f0;">dolist</span> (dir (butlast native-comp-eln-load-path))
+    (<span style="color: #a020f0;">let</span> ((pkg (<span style="color: #a020f0;">if</span> (symbolp package-name)
+                   (symbol-name package-name)
+                 package-name)))
+      (<span style="color: #a020f0;">dolist</span> (eln (directory-files
+                    (concat dir comp-native-version-dir)
+                    t (concat <span style="color: #8b2252;">"^"</span> pkg <span style="color: #8b2252;">".+\\.eln$"</span>)))
+        (<span style="color: #a020f0;">when</span> (file-writable-p eln)
+          (delete-file eln)
+          (message <span style="color: #8b2252;">"Deleting: %s"</span> eln))))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-elget-nativecomp-package</span> (<span style="color: #228b22;">&amp;optional</span> package-name non-force)
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">or</span> (<span style="color: #a020f0;">or</span> package-name
+                non-force)
+            (y-or-n-p <span style="color: #8b2252;">"All eln files will be regenerated. Sure?"</span>))
+    (<span style="color: #a020f0;">let*</span> ((native-comp-always-compile (not non-force))
+           (package-name (<span style="color: #a020f0;">if</span> package-name
+                             (<span style="color: #a020f0;">if</span> (symbolp package-name)
+                                 (symbol-name package-name)
+                               package-name)
+                           <span style="color: #8b2252;">""</span>))
+           (pkg (format <span style="color: #8b2252;">"~/.emacs.d/%s/el-get/%s"</span>
+                        emacs-version
+                        package-name)))
+      (<span style="color: #a020f0;">when</span> native-comp-always-compile
+        (my-delete-eln-file package-name))
+      (<span style="color: #a020f0;">if</span> (locate-library package-name)
+          (<span style="color: #a020f0;">progn</span>
+            (native-compile-async pkg 'recursively)
+            (message <span style="color: #8b2252;">"Native Compilation...%s"</span> pkg))
+        (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"skip %s: doesn't exist, may not be installed"</span> pkg)))))
 </pre>
 </div>
 </div>
@@ -14135,7 +14182,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga4b29ca"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgbe5337c"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15083,7 +15130,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org87d7c26" class="figure">
+<div id="orgdc08398" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19562,7 +19609,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-03-03 月 00:11</p>
+<p class="date">Created: 2025-03-07 金 08:54</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -1,6 +1,6 @@
 ;; init.el --- My init.el -*- lexical-binding: t -*-
 ;; Configurations for Emacs
-;;																				 Takaaki ISHIKAWA	 <takaxp@ieee.org>
+;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
 (require 'init-autoloads nil t)
 (when (and (boundp my-profiler-p)
