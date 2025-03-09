@@ -3,12 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;								TODO/DONE/FIXME
 
-;; (setenv "LIBRARY_PATH"
-;;         (string-join
-;;          '("/opt/homebrew/opt/gcc/lib/gcc/14"
-;;            "/opt/homebrew/opt/libgccjit/lib/gcc/14"
-;;            "/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin24/14")
-;;          ":"))
 (with-eval-after-load "org"
   ;; https://git.savannah.gnu.org/cgit/emacs/org-mode.git/tree/etc/ORG-NEWS#n570
   ;; https://list.orgmode.org/orgmode/8734y5d2gs.fsf@localhost/
