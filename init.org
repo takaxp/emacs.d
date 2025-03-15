@@ -8413,18 +8413,19 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
       (message "--- session.el is not loaded for secure booting")
     (add-hook 'after-init-hook #'session-initialize))
   (with-eval-after-load "session"
-    (add-to-list 'session-globals-include 'ivy-dired-history-variable)
-    (add-to-list 'session-globals-exclude 'org-mark-ring)
+    ;; (add-to-list 'session-globals-include 'ivy-dired-history-variable)
+    ;; (add-to-list 'session-globals-exclude 'org-mark-ring)
     (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
     (setq session-save-file
           (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session"))
           session-initialize '(de-saveplace session keys menus places)
           ;; session-locals-include nil
-          session-globals-include '((kill-ring 100)
+          session-globals-include '(ivy-dired-history-variable
+                                    org-mark-ring
+                                    (kill-ring 100)
                                     (session-file-alist 100 t)
-                                    (file-name-history 200)
-                                    ivy-dired-history-variable
+                                    ;; (file-name-history 200)
                                     search-ring
                                     regexp-search-ring))
     (setq session-undo-check -1)))

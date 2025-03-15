@@ -45,7 +45,7 @@ Remove PACKAGE.
 Remove .eln files that are applicable to the current Emacs invocation.
 see `native-compile-prune-cache'." t)
 (autoload 'my-elget-load-and-sync "elget-config")
-(register-definition-prefixes "elget-config" '("my-elget-bundles"))
+(register-definition-prefixes "elget-config" '("my-elget-bundles-"))
 
 
 ;;; Generated autoloads from elget-setup.el

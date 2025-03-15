@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-03-09 日 16:41 -->
+<!-- 2025-03-16 日 00:07 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -9926,18 +9926,19 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
       (message <span style="color: #8b2252;">"--- session.el is not loaded for secure booting"</span>)
     (add-hook 'after-init-hook #'session-initialize))
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"session"</span>
-    (add-to-list 'session-globals-include 'ivy-dired-history-variable)
-    (add-to-list 'session-globals-exclude 'org-mark-ring)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'session-globals-include 'ivy-dired-history-variable)</span>
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'session-globals-exclude 'org-mark-ring)</span>
     (<span style="color: #a020f0;">setq</span> session-set-file-name-exclude-regexp <span style="color: #8b2252;">"[/\\]\\.overview</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[/\\]\\.session</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">News[/\\]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[/\\]COMMIT_EDITMSG"</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Change save point of session.el</span>
     (<span style="color: #a020f0;">setq</span> session-save-file
           (expand-file-name (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/.session"</span>))
           session-initialize '(de-saveplace session keys menus places)
           <span style="color: #b22222;">;; </span><span style="color: #b22222;">session-locals-include nil</span>
-          session-globals-include '((kill-ring 100)
+          session-globals-include '(ivy-dired-history-variable
+                                    org-mark-ring
+                                    (kill-ring 100)
                                     (session-file-alist 100 t)
-                                    (file-name-history 200)
-                                    ivy-dired-history-variable
+                                    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(file-name-history 200)</span>
                                     search-ring
                                     regexp-search-ring))
     (<span style="color: #a020f0;">setq</span> session-undo-check -1)))
@@ -14182,7 +14183,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga544097"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org79d23cf"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15130,7 +15131,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org0175c57" class="figure">
+<div id="org4e85d7e" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19609,7 +19610,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-03-09 日 16:41</p>
+<p class="date">Created: 2025-03-16 日 00:07</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

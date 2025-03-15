@@ -14,8 +14,8 @@
   (el-get-bundle "takaxp/ascii")
   (el-get-bundle "takaxp/help-fns-plus")
   (el-get-bundle "takaxp/dimmer.el") ;; to avoid downloding images
-  (el-get-bundle "ws-butler")
   (el-get-bundle "takaxp/session")
+  (el-get-bundle "ws-butler")
   (el-get-bundle "which-key")
   (el-get-bundle "aggressive-indent")
   (el-get-bundle "dacap/keyfreq")
@@ -24,31 +24,29 @@
   (el-get-bundle "emacsattic/mic-paren")
   (el-get-bundle "Kungsgeten/selected.el" :name selected)
   (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)
-  ;;(el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
   (el-get-bundle "tarsius/hl-todo")
-  (el-get-bundle "syohex/emacs-utils")
   (el-get-bundle "emacsmirror/centered-cursor-mode")
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "zk-phi/git-complete"))
   (el-get-bundle "oantolin/embark")
-  ;;(el-get-bundle "consult")
-  ;;(el-get-bundle "vertico")
   (el-get-bundle "minad/corfu")
-  (el-get-bundle "popon"
-		 :type git
-		 :url "https://codeberg.org/akib/emacs-popon")
-  (el-get-bundle "corfu-terminal"
-		 :type git
-		 :url "https://codeberg.org/akib/emacs-corfu-terminal"
-		 :depends (popon))
-  (el-get-bundle "xenodium/org-block-capf")
-  (el-get-bundle "minad/cape")
-  (el-get-bundle "jdtsmith/kind-icon")  ;; requires svg-lib
-  (el-get-bundle "oantolin/orderless")
+  (progn
+    (el-get-bundle "popon"
+		   :type git
+		   :url "https://codeberg.org/akib/emacs-popon")
+    (el-get-bundle "corfu-terminal"
+		   :type git
+		   :url "https://codeberg.org/akib/emacs-corfu-terminal"
+		   :depends (popon))
+    (el-get-bundle "xenodium/org-block-capf")
+    (el-get-bundle "jdtsmith/kind-icon")  ;; requires svg-lib
+    (el-get-bundle "minad/cape")
+    (el-get-bundle "oantolin/orderless"))
   (el-get-bundle "bbatsov/super-save")
   (el-get-bundle "bbatsov/crux")
 
   ;; Org Mode
+  (el-get-bundle "emacsmirror/org-contrib")
   ;;(el-get-bundle "org-tree-slide" :branch "develop")
   (el-get-bundle "org-tree-slide")
   (el-get-bundle "takaxp/org-onit")
@@ -60,7 +58,6 @@
   (el-get-bundle "orgbox")
   (el-get-bundle "yjwen/org-reveal" :name ox-reveal)
   (el-get-bundle "hniksic/emacs-htmlize")
-  ;; (el-get-bundle "emacsorphanage/org-grep")
   (el-get-bundle "pinard/org-grep")
   (el-get-bundle "alphapapa/org-web-tools")
   (progn
@@ -77,13 +74,7 @@
   (el-get-bundle "emacsmirror/orgalist")
   (el-get-bundle "tarsius/orglink")
   (el-get-bundle "Fuco1/org-pretty-table")
-  (unless (eq system-type 'windows-nt)
-    (el-get-bundle "org-emms"
-		   :type git
-		   :url "https://git.sr.ht/~jagrg/org-emms")
-    (el-get-bundle "org-trello"))
   (el-get-bundle "xenodium/company-org-block")
-  (el-get-bundle "emacsmirror/org-contrib")
   (el-get-bundle "awth13/org-appear")
   (el-get-bundle "org-mac-link"
 		 :type git
@@ -114,12 +105,12 @@
   (el-get-bundle "python-mode"
 		 :type http-zip
 		 :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
+  (el-get-bundle "emacsmirror/csv-mode")
+  (el-get-bundle "emacsmirror/po-mode")
   (el-get-bundle "yaml-mode")
   (el-get-bundle "json-mode")
-  (el-get-bundle "emacsmirror/csv-mode")
   (el-get-bundle "es-mode")
   (el-get-bundle "markdown-mode")
-  (el-get-bundle "emacsmirror/po-mode")
   (el-get-bundle "gnuplot-mode")
   (el-get-bundle "cmake-mode")
   (el-get-bundle "php-mode")
@@ -137,7 +128,6 @@
   ;; Development
   (el-get-bundle "gregsexton/origami.el" :name origami)
   (el-get-bundle "yasnippet")
-  ;; (el-get-bundle "editorconfig") ;; integrated to Emacs 30.1
   (el-get-bundle "ludwigpacifici/modern-cpp-font-lock")
   (el-get-bundle "AdamNiederer/0xc")
   (el-get-bundle "uuid")
@@ -183,7 +173,6 @@
   (el-get-bundle "ericdanan/counsel-projectile")
   (el-get-bundle "kchenphy/counsel-world-clock")
   (el-get-bundle "syohex/emacs-counsel-gtags")
-  ;;(el-get-bundle "asok/all-the-icons-ivy")
   (el-get-bundle "radian-software/prescient.el" :name prescient)
   (el-get-bundle "radian-software/ctrlf")
   (el-get-bundle "momomo5717/avy-migemo")
@@ -191,7 +180,6 @@
   ;; require ~/.emacs.d/recipes/ivy.rcp
   (el-get-bundle "akirak/ivy-omni-org")
   (el-get-bundle "abo-abo/smex")
-  ;; (el-get-bundle "DarwinAwardWinner/amx")
   (el-get-bundle "franburstall/ivy-emms")
   (el-get-bundle "ROCKTAKEY/grugru")
   (el-get-bundle "Yevgnen/ivy-rich")
@@ -204,9 +192,7 @@
 
   ;; Editing support
   (el-get-bundle "d12frosted/flyspell-correct")
-  (el-get-bundle "company-mode/company-mode")
   (el-get-bundle "magnars/expand-region.el" :name expand-region)
-  (el-get-bundle "expez/company-quickhelp")
   (progn ;; skewer
     (el-get-bundle "skewer-mode")
     (el-get-bundle "auto-complete")) ;; require 'skewer
@@ -227,13 +213,6 @@
   (el-get-bundle "smartparens")
   (el-get-bundle "cask/shut-up")
   (el-get-bundle "emacsmirror/delight") ;; or diminish
-  ;;(el-get-bundle "domtronn/all-the-icons.el" :name all-the-icons)
-  ;;(el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
-  ;;(el-get-bundle "sebastiencs/icons-in-terminal")
-  ;;(el-get-bundle "seagle0128/icons-in-terminal.el" :name icons-in-terminal)
-  (el-get-bundle "takaxp/icons-in-terminal.el" :name icons-in-terminal)
-  (el-get-bundle "takaxp/icons-in-terminal-dired" :depends (icons-in-terminal))
-  (el-get-bundle "takaxp/icons-in-terminal-ivy")
   (el-get-bundle "manage-minor-mode")
   (el-get-bundle "syohex/emacs-git-gutter" :name git-gutter)
   (el-get-bundle "git-gutter-fringe")
@@ -306,8 +285,9 @@
     (el-get-bundle "d12frosted/counsel-osx-app"))
   (el-get-bundle "skeeto/elfeed")
   (el-get-bundle "remyhonig/elfeed-org")
-  (el-get-bundle "vterm")
   (el-get-bundle "sabof/edit-color-stamp")
+  (unless (eq system-type 'windows-nt)
+    (el-get-bundle "vterm"))
 
   ;; Log
   (el-get-bundle "davep/uptimes.el" :name "uptimes")
@@ -316,11 +296,16 @@
   (el-get-bundle "szermatt/mistty")
 
   ;; Under consideration
-  ;; (my-elget-bundles1)
+  ;; (my-elget-bundles-trying)
   )
 
-(defmacro my-elget-bundles1 ()
+(defmacro my-elget-bundles-trying ()
   "List of packages under consideration."
+
+  (el-get-bundle "consult")
+  (el-get-bundle "vertico")
+
+
   (el-get-bundle "tumashu/ivy-posframe") ;; require swiper
   (el-get-bundle "yanghaoxie/which-key-posframe" :depends (posframe))
   (el-get-bundle "sebastiencs/company-box")
@@ -335,8 +320,13 @@
   (el-get-bundle "dakra/statusbar.el" :name "statusbar")
   )
 
-(defmacro my-elget-bundles2 ()
+(defmacro my-elget-bundles-not-install ()
   "List of packages, not to be installed."
+
+  ;; Fundamental (Under postpone.el)
+  (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
+  (el-get-bundle "syohex/emacs-utils")
+
 
   ;; Org Mode
   (el-get-bundle "emacsmirror/org-edna")
@@ -348,6 +338,11 @@
   (el-get-bundle "harrybournis/org-fancy-priorities")
   (el-get-bundle "poporg")
   (el-get-bundle "Fuco1/org-clock-budget")
+  (unless (eq system-type 'windows-nt)
+    (el-get-bundle "org-emms"
+		   :type git
+		   :url "https://git.sr.ht/~jagrg/org-emms")
+    (el-get-bundle "org-trello"))
   ;; Org Mode - ox
   (el-get-bundle "ox-pandoc")
   (el-get-bundle "jkitchin/ox-ipynb")
@@ -359,15 +354,36 @@
   ;; Development
   (el-get-bundle "emacsmirror/rmsbolt")
   (el-get-bundle "bug-hunter")
+  (el-get-bundle "editorconfig") ;; integrated to Emacs 30.1
   ;; Package management
   (el-get-bundle "use-package")
   (el-get-bundle "conao3/leaf.el" :name leaf)
+
+  ;; ivy modules
+  (el-get-bundle "asok/all-the-icons-ivy")
+  (el-get-bundle "DarwinAwardWinner/amx")
+
+
+
+
+
+
+
   ;; macOS support
   ;; Editing support
+  (el-get-bundle "company-mode/company-mode")
+  (el-get-bundle "expez/company-quickhelp")
   (el-get-bundle "tiny")
   (el-get-bundle "magnars/multiple-cursors.el" :name multiple-cursors)
   (el-get-bundle "sabof/edit-color-stamp")
   ;; Visualize
+  (el-get-bundle "domtronn/all-the-icons.el" :name all-the-icons)
+  (el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
+  (el-get-bundle "sebastiencs/icons-in-terminal")
+  (el-get-bundle "seagle0128/icons-in-terminal.el" :name icons-in-terminal)
+  (el-get-bundle "takaxp/icons-in-terminal.el" :name icons-in-terminal)
+  (el-get-bundle "takaxp/icons-in-terminal-dired" :depends (icons-in-terminal))
+  (el-get-bundle "takaxp/icons-in-terminal-ivy")
   (el-get-bundle "kawabata/rot47")
   (el-get-bundle "fancy-narrow")
   (el-get-bundle "back-button")
@@ -404,6 +420,7 @@
 
   ;; Resolve Magit dependency
   (el-get-bundle "ghub")
+  (el-get-bundle "llama")
   (el-get-bundle "emacs-compat/compat")
   (el-get-bundle "magit-popup")
   (el-get-bundle "magit/transient")
