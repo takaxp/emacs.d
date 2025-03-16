@@ -971,8 +971,8 @@ This function returns a timer object which you can use in
 (with-eval-after-load "delight"
   (delight
    '(;; Major modes
-     ;;			(c-mode "C" :major)
-     ;;			(c++mode "C++" :major)
+     ;;                 (c-mode "C" :major)
+     ;;                 (c++mode "C++" :major)
      (js2-mode "JS" :major)
      (csharp-mode "C#" :major)
      (prog-mode "Pr" :major)
@@ -1156,11 +1156,6 @@ This function returns a timer object which you can use in
     (custom-set-variables
      '(highlight-symbol-idle-delay 0.5))))
 
-(when (autoload-if-found '(icons-in-terminal-dired-mode)
-                         "icons-in-terminal-dired" nil t)
-  (with-eval-after-load "icons-in-terminal"
-    (setq icons-in-terminal-scale-factor 1.0)))
-
 (autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired" nil t)
 
 (cond ((require 'nerd-icons-dired nil t)
@@ -1183,13 +1178,6 @@ This function returns a timer object which you can use in
 
     (custom-set-variables
      '(eldoc-idle-delay 1.0))))
-
-(with-eval-after-load "go-mode"
-  (if (executable-find "gocode")
-      (when (autoload-if-found '(go-mode)
-                               "go-eldoc" nil t)
-        (add-hook 'go-mode-hook #'go-eldoc-setup))
-    (message "--- gocode is NOT installed.")))
 
 (when (autoload-if-found '(keypression-mode)
                          "keypression" nil t)

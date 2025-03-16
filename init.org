@@ -5725,8 +5725,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
 (with-eval-after-load "delight"
   (delight
    '(;; Major modes
-     ;;			(c-mode "C" :major)
-     ;;			(c++mode "C++" :major)
+     ;; (c-mode "C" :major)
+     ;; (c++mode "C++" :major)
      (js2-mode "JS" :major)
      (csharp-mode "C#" :major)
      (prog-mode "Pr" :major)
@@ -6188,12 +6188,22 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
                    :height 1.0 :v-adjust -0.1))))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found '(icons-in-terminal-dired-mode)
                          "icons-in-terminal-dired" nil t)
   (with-eval-after-load "icons-in-terminal"
     (setq icons-in-terminal-scale-factor 1.0)))
+#+end_src
 
+** [nerd-icons-dired] フォントでアイコン表示
+:PROPERTIES:
+:CUSTOM_ID: org56cec11f
+:ID:       5BA90015-E059-46CC-8BCD-F7C9B51FE9ED
+:END:
+
+~dired~ でフォントアイコンを使うためのパッケージです．
+
+#+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired" nil t)
 
 (cond ((require 'nerd-icons-dired nil t)
@@ -6249,7 +6259,7 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 go get -v github.com/mdempsky/gocode
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (with-eval-after-load "go-mode"
   (if (executable-find "gocode")
       (when (autoload-if-found '(go-mode)
