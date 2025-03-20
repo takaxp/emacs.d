@@ -4,7 +4,7 @@
 ;;								TODO/DONE/FIXME
 
 (with-eval-after-load "org"
-  (advice-add 'org-assert-version :override #'ignore)
+  ;; (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)
 
   (defun my-org-pin-subtree ()

@@ -528,7 +528,27 @@
   (advice-add 'org-yank :after #'my--yank-update-todo-statistics)
 
   ;; アーカイブする前に narrowing を解く
-  (advice-add 'org-archive-subtree :before #'widen))
+  (advice-add 'org-archive-subtree :before #'widen)
+
+  ;; narrowing+編集開始時に領域の最後に改行を置く FIXME
+  (defun my--ensure-newline-end (&rest _arg)
+    (when (buffer-narrowed-p)
+      (save-excursion
+        (goto-char (point-max))
+        (unless (bolp)
+          (newline))))
+    (advice-remove 'next-line #'my--ensure-newline-end))
+
+  (defun my--newline-narrowed-end-of-buffer (&optional _arg)
+    (when (and (buffer-narrowed-p)
+               (not (bolp)))
+      (newline))
+    (advice-remove 'end-of-buffer #'my--newline-narrowed-end-of-buffer))
+
+  (defun my--add-newline-narrowed-end ()
+    (advice-add 'next-line :before #'my--ensure-newline-end)
+    (advice-add 'end-of-buffer :after #'my--newline-narrowed-end-of-buffer))
+  (advice-add 'org-narrow-to-subtree :before #'my--add-newline-narrowed-end))
 
 (with-eval-after-load "org"
   ;; Font lock を使う
@@ -1046,7 +1066,7 @@ will not be modified."
   (setq org-agenda-span 'day)
 
   ;; アジェンダに警告を表示する期間
-  (setq org-deadline-warning-days 0)
+  (setq org-deadline-warning-days 2)
 
   ;; 時間幅が明示的に指定されない場合のデフォルト値（分指定）
   (setq org-agenda-default-appointment-duration 60)
