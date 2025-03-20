@@ -20,17 +20,18 @@
   (el-get-bundle "aggressive-indent")
   (el-get-bundle "dacap/keyfreq")
   (el-get-bundle "conornash/backup-each-save")
+  (el-get-bundle "bbatsov/super-save")
+  (el-get-bundle "bbatsov/crux")
   (el-get-bundle "jwiegley/emacs-async")
-  (el-get-bundle "emacsattic/mic-paren")
   (el-get-bundle "Kungsgeten/selected.el" :name selected)
   (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)
   (el-get-bundle "tarsius/hl-todo")
   (el-get-bundle "emacsmirror/centered-cursor-mode")
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "zk-phi/git-complete"))
-  (el-get-bundle "oantolin/embark")
-  (el-get-bundle "minad/corfu")
   (progn
+    (el-get-bundle "oantolin/embark")
+    (el-get-bundle "minad/corfu")
     (el-get-bundle "popon"
 		   :type git
 		   :url "https://codeberg.org/akib/emacs-popon")
@@ -42,16 +43,14 @@
     (el-get-bundle "jdtsmith/kind-icon")  ;; requires svg-lib
     (el-get-bundle "minad/cape")
     (el-get-bundle "oantolin/orderless"))
-  (el-get-bundle "bbatsov/super-save")
-  (el-get-bundle "bbatsov/crux")
 
   ;; Org Mode
-  (el-get-bundle "emacsmirror/org-contrib")
-  ;;(el-get-bundle "org-tree-slide" :branch "develop")
-  (el-get-bundle "org-tree-slide")
   (el-get-bundle "takaxp/org-onit")
   (el-get-bundle "takaxp/org-plist")
   (el-get-bundle "takaxp/org-bookmark-heading")
+  (el-get-bundle "emacsmirror/org-contrib")
+  ;;(el-get-bundle "org-tree-slide" :branch "develop")
+  (el-get-bundle "org-tree-slide")
   (el-get-bundle "org-download")
   (el-get-bundle "org-bullets")
   (el-get-bundle "misohena/phscroll")
@@ -146,7 +145,6 @@
     (el-get-bundle "Wilfred/loop.el")
     (el-get-bundle "Wilfred/elisp-refs")
     (el-get-bundle "Wilfred/helpful"))
-  (el-get-bundle "gonewest818/elisp-lint")
   (el-get-bundle "purcell/package-lint")
   (progn
     (el-get-bundle "AdamNiederer/elquery")
@@ -236,6 +234,8 @@
   (el-get-bundle "tarsius/backline")
   (el-get-bundle "jdtsmith/mlscroll")
   (el-get-bundle "emacs-vs/rainbow-csv")
+  ;; icons-in-terminal
+  (el-get-bundle "seagle0128/icons-in-terminal.el" :name icons-in-terminal)
   (progn ;; Nerd-icons
     (el-get-bundle "rainstormstudio/nerd-icons.el" :name nerd-icons)
     (el-get-bundle "rainstormstudio/nerd-icons-dired")
@@ -305,7 +305,7 @@
   (el-get-bundle "consult")
   (el-get-bundle "vertico")
 
-
+  (el-get-bundle "gonewest818/elisp-lint")
   (el-get-bundle "tumashu/ivy-posframe") ;; require swiper
   (el-get-bundle "yanghaoxie/which-key-posframe" :depends (posframe))
   (el-get-bundle "sebastiencs/company-box")
@@ -324,9 +324,8 @@
   "List of packages, not to be installed."
 
   ;; Fundamental (Under postpone.el)
-  (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
   (el-get-bundle "syohex/emacs-utils")
-
+  (el-get-bundle "emacsattic/mic-paren")
 
   ;; Org Mode
   (el-get-bundle "emacsmirror/org-edna")
@@ -363,12 +362,6 @@
   (el-get-bundle "asok/all-the-icons-ivy")
   (el-get-bundle "DarwinAwardWinner/amx")
 
-
-
-
-
-
-
   ;; macOS support
   ;; Editing support
   (el-get-bundle "company-mode/company-mode")
@@ -379,9 +372,10 @@
   ;; Visualize
   (el-get-bundle "domtronn/all-the-icons.el" :name all-the-icons)
   (el-get-bundle "jtbm37/all-the-icons-dired" :depends (all-the-icons))
-  (el-get-bundle "sebastiencs/icons-in-terminal")
-  (el-get-bundle "seagle0128/icons-in-terminal.el" :name icons-in-terminal)
-  (el-get-bundle "takaxp/icons-in-terminal.el" :name icons-in-terminal)
+  (progn ;; icons-in-terminal
+    (el-get-bundle "emacsmirror/font-lock-plus" :name font-lock+)
+    ;;  (el-get-bundle "sebastiencs/icons-in-terminal")
+    (el-get-bundle "takaxp/icons-in-terminal.el" :name icons-in-terminal))
   (el-get-bundle "takaxp/icons-in-terminal-dired" :depends (icons-in-terminal))
   (el-get-bundle "takaxp/icons-in-terminal-ivy")
   (el-get-bundle "kawabata/rot47")

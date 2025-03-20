@@ -357,7 +357,7 @@ This function returns a timer object which you can use in
                          "centered-cursor-mode" nil t)
 
   (with-eval-after-load "isearch"
-    ;; isearch の時はOFFにする
+    ;; isearch 実行時のみ有効化
     (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
     (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate)))
 

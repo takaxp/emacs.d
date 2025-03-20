@@ -2865,10 +2865,10 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 #+end_src
 
 ** [centered-cursor-mode.el] カーソル位置をバッファ中央に固定
-   :PROPERTIES:
-   :CUSTOM_ID: orgfa2bad61
-   :ID:       E149895C-4FA9-43B3-B772-3ED5ABC268F5
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgfa2bad61
+:ID:       E149895C-4FA9-43B3-B772-3ED5ABC268F5
+:END:
 
 =isearch-mode= の時だけ有効にしています．
 
@@ -2885,7 +2885,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
                          "centered-cursor-mode" nil t)
 
   (with-eval-after-load "isearch"
-    ;; isearch の時はOFFにする
+    ;; isearch 実行時のみ有効化
     (add-hook 'isearch-mode-hook #'my-centered-cursor-activate)
     (add-hook 'isearch-mode-end-hook #'my-centered-cursor-deactivate)))
 #+end_src
@@ -5495,7 +5495,7 @@ Built-in の paren.el が利用できる．拡張版として [[http://www.emacs
 
 2022-07-29: emacs 28.1 になった頃から paren.el でもいい感じになっているので，しばらく様子見ます．
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle no
 ;;;###autoload
 (defun my-mic-paren-activate ()
   (paren-activate)
@@ -9102,7 +9102,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
    :ID:       0A7A8647-9796-4C64-8E47-0414C2C07A7A
    :END:
 
-  - auto-complete より前に hook設定しておくと余計なエラーが出ないようです．
+- auto-complete より前に hook設定しておくと余計なエラーが出ないようです．
 
 #+begin_src emacs-lisp :tangle no
 ;; (eval-when-compile
