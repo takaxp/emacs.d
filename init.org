@@ -546,8 +546,9 @@ This function is called directly from the C code."
 ;; Build and check `my-package-dir'
 (defvar my-package-dir nil)
 (defvar my-use-el-get emacs-version ;; nil
-  "If version number is provided, use packages installed via el-get.")
-(defvar my-elget-package-dir (format "~/.emacs.d/%s/packages" my-use-el-get))
+  "If version number is provided, Emacs uses packages installed via el-get.")
+(defvar my-elget-package-dir
+  (format (expand-file-name "~/.emacs.d/%s/packages") my-use-el-get))
 (when my-use-el-get
   (setq my-package-dir my-elget-package-dir))
 (unless (file-directory-p my-package-dir)
@@ -564,7 +565,8 @@ This function is called directly from the C code."
 
 ;; (1) theme-path
 (my-path-setter
- `(,my-package-dir "~/.emacs.d/lisp") 'custom-theme-load-path)
+ `(,my-package-dir ,(expand-file-name "~/.emacs.d/lisp"))
+ 'custom-theme-load-path)
 
 ;; (2) exec-path
 (my-path-setter
@@ -590,14 +592,13 @@ This function is called directly from the C code."
 
 ;; 拡張パッケージにパスを通す
 ;; M-x list-load-path-shadows
-(let* ((g "~/devel/git/")
+(let* ((g (expand-file-name "~/devel/git/"))
        (od "org-mode")
-       (l `("~/Dropbox/config"
-            "~/.emacs.d/lisp"
+       (l `(,(expand-file-name "~/Dropbox/config")
+            ,(expand-file-name "~/.emacs.d/lisp")
             ,my-package-dir ;; may include a path to org
             ,(concat g od "/lisp") ;; override the path to org
-            ,(concat g od "/contrib/lisp")
-            )))
+            ,(concat g od "/contrib/lisp"))))
   (my-path-setter l 'load-path))
 
 ;; (require 'use-package nil t) ;; 24[ms]
@@ -6285,6 +6286,7 @@ go get -v github.com/mdempsky/gocode
 ** [keypression.el] 入力しているキーとコマンドを任意の場所に表示
    :PROPERTIES:
    :CUSTOM_ID: org8af73f26
+   :ID:       58DBA946-A6E9-4C85-BFF1-41B9142C9B8F
    :END:
 
  - =keycast.el= は表示がモードラインに限定されますが， =keypression.el= は任意の場所に入力状況を表示できます．一般的なキーキャストアプリとほぼ同じ振る舞いになります．
@@ -10408,6 +10410,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands '("h" org-hugo-export-wim-to-md))
   (add-to-list 'org-speed-commands '("E" my-export-subtree-as-html))
+  (add-to-list 'org-speed-commands '("P" my-toggle-org-pin-subtree))
   (add-to-list 'org-speed-commands '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
   (add-to-list 'org-speed-commands '("y" my-org-yank))
@@ -10562,13 +10565,31 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
           (unless (eq 1 (point))
             (backward-char 1))
           (org-update-statistics-cookies nil)
-          (org-update-parent-todo-statistics)
-          ;; (org-element-cache-refresh)
-          ))))
+          (org-update-parent-todo-statistics)))))
   (advice-add 'org-yank :after #'my--yank-update-todo-statistics)
 
   ;; アーカイブする前に narrowing を解く
   (advice-add 'org-archive-subtree :before #'widen)
+
+  ;; バッファ表示時に指定のツリーのコンテンツを展開表示する(Toggle)
+  (defvar my-org-pin-tag "pin")
+  (defun my-toggle-org-pin-subtree ()
+    "Toggle \"VISIBILITY\" of the current tree."
+    (interactive)
+    (save-excursion
+      (save-restriction
+        (unless (org-at-heading-p)
+          (org-previous-visible-heading 1))
+        (unless (org-before-first-heading-p)
+          (let ((element (org-element-at-point)))
+            (cond ((org-element-property :VISIBILITY element)
+                   (org-delete-property "VISIBILITY")
+                   (org-toggle-tag my-org-pin-tag 'off)
+                   (message "Unpinned"))
+                  (t
+                   (org-set-property "VISIBILITY" "children")
+                   (org-toggle-tag my-org-pin-tag 'on)
+                   (message "Pinned"))))))))
 
   ;; narrowing+編集開始時に領域の最後に改行を置く FIXME
   (defun my--ensure-newline-end (&rest _arg)
@@ -11597,7 +11618,19 @@ will not be modified."
   (org-defkey org-agenda-mode-map "D" 'my-org-todo-complete-no-repeat)
 
   ;; org-agenda の表示高さを 50% に固定する
-  (setq org-agenda-window-frame-fractions '(0.5 . 0.5)))
+  (setq org-agenda-window-frame-fractions '(0.5 . 0.5))
+
+  ;; ;; Distinguish Repeated Tasks in Org Agenda
+  ;; ;; https://whhone.com/posts/org-agenda-repeated-tasks/
+  ;; (defun my--org-agenda-repeater ()
+  ;;   "The repeater shown in org-agenda-prefix for agenda."
+  ;;   (if (org-before-first-heading-p)
+  ;;       "-------"  ; fill the time grid
+  ;;     (format "%5s: " (or (org-get-repeat) ""))))
+  ;; ;; Add `my/org-agenda-repeater' to the agenda prefix.
+  ;; (setcdr (assoc 'agenda org-agenda-prefix-format)
+  ;;         " %i %-12:c%?-12t%s%(my--org-agenda-repeater)")
+  )
 
 ;; M-x calendar の動作に近づける．なお today への移動は，"C-." で可能．
 (with-eval-after-load "org-keys"

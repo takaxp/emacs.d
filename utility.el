@@ -796,20 +796,6 @@ Call this function at updating `mode-line-mode'."
     (user-error "The display-line-numbers is NOT supported")))
 
 ;;;###autoload
-(defun my-mic-paren-activate ()
-  (paren-activate)
-  (show-paren-mode -1)
-  (remove-hook 'find-file-hook #'my-mic-paren-activate))
-
-;;;###autoload
-(defun my--mic-paren-highlight (f)
-  (if (active-minibuffer-window)
-      (let ((paren-display-message 'never))
-        (funcall f)
-        paren-display-message)
-    (funcall f)))
-
-;;;###autoload
 (defun my--font-lock-mode (&optional _ARG)
   (unless (memq major-mode '(vterm-mode))
     (font-lock-add-keywords major-mode

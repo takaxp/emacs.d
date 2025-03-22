@@ -4,51 +4,8 @@
 ;;								TODO/DONE/FIXME
 
 (with-eval-after-load "org"
-  (advice-add 'org-assert-version :override #'ignore)
+  ;; (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)
-
-  (defun my-org-pin-subtree ()
-    "Pin the subtree with \"pin\" tag."
-    (interactive)
-    (save-excursion
-      (save-restriction
-	(unless (org-at-heading-p)
-	  (org-previous-visible-heading 1))
-	(unless (org-before-first-heading-p)
-	  (org-set-property "VISIBILITY" "children")
-	  (org-toggle-tag "pin" 'on)
-	  (message "Pinned")))))
-
-  (defun my-org-unpin-subtree ()
-    "Unpin the subtree with \"pin\" tag."
-    (interactive)
-    (save-excursion
-      (save-restriction
-	(unless (org-at-heading-p)
-	  (org-previous-visible-heading 1))
-	(unless (org-before-first-heading-p)
-	  (when (org-element-property :VISIBILITY (org-element-at-point))
-	    (org-delete-property "VISIBILITY")
-	    (org-toggle-tag "pin" 'off)
-	    (message "Unpinned"))))))
-
-  (defun my-toggle-org-pin-subtree ()
-    "Toggle \"VISIBILITY\" of the current tree."
-    (interactive)
-    (save-excursion
-      (save-restriction
-	(unless (org-at-heading-p)
-	  (org-previous-visible-heading 1))
-	(unless (org-before-first-heading-p)
-	  (let ((element (org-element-at-point)))
-	    (cond ((org-element-property :VISIBILITY element)
-		   (org-delete-property "VISIBILITY")
-		   (org-toggle-tag "pin" 'off)
-		   (message "Unpinned"))
-		  (t
-		   (org-set-property "VISIBILITY" "children")
-		   (org-toggle-tag "pin" 'on)
-		   (message "Pinned"))))))))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

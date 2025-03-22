@@ -40,8 +40,9 @@
 ;; Build and check `my-package-dir'
 (defvar my-package-dir nil)
 (defvar my-use-el-get emacs-version ;; nil
-  "If version number is provided, use packages installed via el-get.")
-(defvar my-elget-package-dir (format "~/.emacs.d/%s/packages" my-use-el-get))
+  "If version number is provided, Emacs uses packages installed via el-get.")
+(defvar my-elget-package-dir
+  (format (expand-file-name "~/.emacs.d/%s/packages") my-use-el-get))
 (when my-use-el-get
   (setq my-package-dir my-elget-package-dir))
 (unless (file-directory-p my-package-dir)
@@ -58,7 +59,8 @@
 
 ;; (1) theme-path
 (my-path-setter
- `(,my-package-dir "~/.emacs.d/lisp") 'custom-theme-load-path)
+ `(,my-package-dir ,(expand-file-name "~/.emacs.d/lisp"))
+ 'custom-theme-load-path)
 
 ;; (2) exec-path
 (my-path-setter
@@ -84,14 +86,13 @@
 
 ;; 拡張パッケージにパスを通す
 ;; M-x list-load-path-shadows
-(let* ((g "~/devel/git/")
+(let* ((g (expand-file-name "~/devel/git/"))
        (od "org-mode")
-       (l `("~/Dropbox/config"
-            "~/.emacs.d/lisp"
+       (l `(,(expand-file-name "~/Dropbox/config")
+            ,(expand-file-name "~/.emacs.d/lisp")
             ,my-package-dir ;; may include a path to org
             ,(concat g od "/lisp") ;; override the path to org
-            ,(concat g od "/contrib/lisp")
-            )))
+            ,(concat g od "/contrib/lisp"))))
   (my-path-setter l 'load-path))
 
 ;; (require 'use-package nil t) ;; 24[ms]

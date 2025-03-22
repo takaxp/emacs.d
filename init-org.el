@@ -522,9 +522,7 @@
           (unless (eq 1 (point))
             (backward-char 1))
           (org-update-statistics-cookies nil)
-          (org-update-parent-todo-statistics)
-          ;; (org-element-cache-refresh)
-          ))))
+          (org-update-parent-todo-statistics)))))
   (advice-add 'org-yank :after #'my--yank-update-todo-statistics)
 
   ;; アーカイブする前に narrowing を解く
@@ -1182,7 +1180,19 @@ will not be modified."
   (org-defkey org-agenda-mode-map "D" 'my-org-todo-complete-no-repeat)
 
   ;; org-agenda の表示高さを 50% に固定する
-  (setq org-agenda-window-frame-fractions '(0.5 . 0.5)))
+  (setq org-agenda-window-frame-fractions '(0.5 . 0.5))
+
+  ;; ;; Distinguish Repeated Tasks in Org Agenda
+  ;; ;; https://whhone.com/posts/org-agenda-repeated-tasks/
+  ;; (defun my--org-agenda-repeater ()
+  ;;   "The repeater shown in org-agenda-prefix for agenda."
+  ;;   (if (org-before-first-heading-p)
+  ;;       "-------"  ; fill the time grid
+  ;;     (format "%5s: " (or (org-get-repeat) ""))))
+  ;; ;; Add `my/org-agenda-repeater' to the agenda prefix.
+  ;; (setcdr (assoc 'agenda org-agenda-prefix-format)
+  ;;         " %i %-12:c%?-12t%s%(my--org-agenda-repeater)")
+  )
 
 ;; M-x calendar の動作に近づける．なお today への移動は，"C-." で可能．
 (with-eval-after-load "org-keys"

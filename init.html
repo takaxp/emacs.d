@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-03-20 木 16:32 -->
+<!-- 2025-03-22 土 20:38 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -1352,8 +1352,9 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Build and check `</span><span style="color: #008b8b;">my-package-dir</span><span style="color: #b22222;">'</span>
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-package-dir</span> nil)
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-use-el-get</span> emacs-version <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil</span>
-  <span style="color: #8b2252;">"If version number is provided, use packages installed via el-get."</span>)
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-package-dir</span> (format <span style="color: #8b2252;">"~/.emacs.d/%s/packages"</span> my-use-el-get))
+  <span style="color: #8b2252;">"If version number is provided, Emacs uses packages installed via el-get."</span>)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-package-dir</span>
+  (format (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/%s/packages"</span>) my-use-el-get))
 (<span style="color: #a020f0;">when</span> my-use-el-get
   (<span style="color: #a020f0;">setq</span> my-package-dir my-elget-package-dir))
 (<span style="color: #a020f0;">unless</span> (file-directory-p my-package-dir)
@@ -1370,7 +1371,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(1) theme-path</span>
 (my-path-setter
- `(,my-package-dir <span style="color: #8b2252;">"~/.emacs.d/lisp"</span>) 'custom-theme-load-path)
+ `(,my-package-dir ,(expand-file-name <span style="color: #8b2252;">"~/.emacs.d/lisp"</span>))
+ 'custom-theme-load-path)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(2) exec-path</span>
 (my-path-setter
@@ -1396,14 +1398,13 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#25313;&#24373;&#12497;&#12483;&#12465;&#12540;&#12472;&#12395;&#12497;&#12473;&#12434;&#36890;&#12377;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-x list-load-path-shadows</span>
-(<span style="color: #a020f0;">let*</span> ((g <span style="color: #8b2252;">"~/devel/git/"</span>)
+(<span style="color: #a020f0;">let*</span> ((g (expand-file-name <span style="color: #8b2252;">"~/devel/git/"</span>))
        (od <span style="color: #8b2252;">"org-mode"</span>)
-       (l `(<span style="color: #8b2252;">"~/Dropbox/config"</span>
-            <span style="color: #8b2252;">"~/.emacs.d/lisp"</span>
+       (l `(,(expand-file-name <span style="color: #8b2252;">"~/Dropbox/config"</span>)
+            ,(expand-file-name <span style="color: #8b2252;">"~/.emacs.d/lisp"</span>)
             ,my-package-dir <span style="color: #b22222;">;; </span><span style="color: #b22222;">may include a path to org</span>
             ,(concat g od <span style="color: #8b2252;">"/lisp"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">override the path to org</span>
-            ,(concat g od <span style="color: #8b2252;">"/contrib/lisp"</span>)
-            )))
+            ,(concat g od <span style="color: #8b2252;">"/contrib/lisp"</span>))))
   (my-path-setter l 'load-path))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'use-package nil t) ;; 24[ms]</span>
@@ -12063,6 +12064,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"H"</span> my-hugo-export-upload))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"h"</span> org-hugo-export-wim-to-md))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"E"</span> my-export-subtree-as-html))
+  (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"P"</span> my-toggle-org-pin-subtree))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"."</span> my-org-deadline-today))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"!"</span> my-org-default-property))
   (add-to-list 'org-speed-commands '(<span style="color: #8b2252;">"y"</span> my-org-yank))
@@ -12217,13 +12219,31 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
           (<span style="color: #a020f0;">unless</span> (eq 1 (point))
             (backward-char 1))
           (org-update-statistics-cookies nil)
-          (org-update-parent-todo-statistics)
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-element-cache-refresh)</span>
-          ))))
+          (org-update-parent-todo-statistics)))))
   (advice-add 'org-yank <span style="color: #483d8b;">:after</span> #'my--yank-update-todo-statistics)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12540;&#12459;&#12452;&#12502;&#12377;&#12427;&#21069;&#12395; narrowing &#12434;&#35299;&#12367;</span>
   (advice-add 'org-archive-subtree <span style="color: #483d8b;">:before</span> #'widen)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12496;&#12483;&#12501;&#12449;&#34920;&#31034;&#26178;&#12395;&#25351;&#23450;&#12398;&#12484;&#12522;&#12540;&#12398;&#12467;&#12531;&#12486;&#12531;&#12484;&#12434;&#23637;&#38283;&#34920;&#31034;&#12377;&#12427;(Toggle)</span>
+  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-pin-tag</span> <span style="color: #8b2252;">"pin"</span>)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-toggle-org-pin-subtree</span> ()
+    <span style="color: #8b2252;">"Toggle \"VISIBILITY\" of the current tree."</span>
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">save-excursion</span>
+      (<span style="color: #a020f0;">save-restriction</span>
+        (<span style="color: #a020f0;">unless</span> (org-at-heading-p)
+          (org-previous-visible-heading 1))
+        (<span style="color: #a020f0;">unless</span> (org-before-first-heading-p)
+          (<span style="color: #a020f0;">let</span> ((element (org-element-at-point)))
+            (<span style="color: #a020f0;">cond</span> ((org-element-property <span style="color: #483d8b;">:VISIBILITY</span> element)
+                   (org-delete-property <span style="color: #8b2252;">"VISIBILITY"</span>)
+                   (org-toggle-tag my-org-pin-tag 'off)
+                   (message <span style="color: #8b2252;">"Unpinned"</span>))
+                  (t
+                   (org-set-property <span style="color: #8b2252;">"VISIBILITY"</span> <span style="color: #8b2252;">"children"</span>)
+                   (org-toggle-tag my-org-pin-tag 'on)
+                   (message <span style="color: #8b2252;">"Pinned"</span>))))))))
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">narrowing+&#32232;&#38598;&#38283;&#22987;&#26178;&#12395;&#38936;&#22495;&#12398;&#26368;&#24460;&#12395;&#25913;&#34892;&#12434;&#32622;&#12367; FIXME</span>
   (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--ensure-newline-end</span> (<span style="color: #228b22;">&amp;rest</span> _arg)
@@ -13313,7 +13333,19 @@ Emacs を起動している限り，いつでもどこでもメモを記録で�
   (org-defkey org-agenda-mode-map <span style="color: #8b2252;">"D"</span> 'my-org-todo-complete-no-repeat)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda &#12398;&#34920;&#31034;&#39640;&#12373;&#12434; 50% &#12395;&#22266;&#23450;&#12377;&#12427;</span>
-  (<span style="color: #a020f0;">setq</span> org-agenda-window-frame-fractions '(0.5 . 0.5)))
+  (<span style="color: #a020f0;">setq</span> org-agenda-window-frame-fractions '(0.5 . 0.5))
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">;; Distinguish Repeated Tasks in Org Agenda</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">;; https://whhone.com/posts/org-agenda-repeated-tasks/</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun my--org-agenda-repeater ()</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">"The repeater shown in org-agenda-prefix for agenda."</span>
+  <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(if (org-before-first-heading-p)</span>
+  <span style="color: #b22222;">;;       </span><span style="color: #b22222;">"-------"  ; fill the time grid</span>
+  <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(format "%5s: " (or (org-get-repeat) ""))))</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">;; Add `</span><span style="color: #008b8b;">my/org-agenda-repeater</span><span style="color: #b22222;">' to the agenda prefix.</span>
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setcdr (assoc 'agenda org-agenda-prefix-format)</span>
+  <span style="color: #b22222;">;;         </span><span style="color: #b22222;">" %i %-12:c%?-12t%s%(my--org-agenda-repeater)")</span>
+  )
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-x calendar &#12398;&#21205;&#20316;&#12395;&#36817;&#12389;&#12369;&#12427;&#65294;&#12394;&#12362; today &#12408;&#12398;&#31227;&#21205;&#12399;&#65292;"C-." &#12391;&#21487;&#33021;&#65294;</span>
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-keys"</span>
@@ -14215,7 +14247,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org7799bda"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga2349ef"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15163,7 +15195,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org4f06e46" class="figure">
+<div id="org4a77001" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19642,7 +19674,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-03-20 木 16:32</p>
+<p class="date">Created: 2025-03-22 土 20:38</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
