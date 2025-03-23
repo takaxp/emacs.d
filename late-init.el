@@ -2209,10 +2209,7 @@ This function returns a timer object which you can use in
 
 (unless noninteractive
   (when window-system
-    (my-delete-old-backup 5)
-    ;; (run-with-idle-timer (+ 20 my-default-loading-delay)
-    ;;                      nil #'my-delete-old-backup)
-    ))
+    (my-delete-old-backup 5)))
 
 (when (autoload-if-found '(my-google-this google-this google-this-word)
                          "google-this" nil t)
@@ -2319,10 +2316,11 @@ This function returns a timer object which you can use in
 (keymap-global-set "C-c C-x" #'my-kill-emacs-when-scratch-buffer)
 
 (unless noninteractive
-  (let ((inhibit-message t))
-    (message "Loading late-init.el...done (%4d [ms])"
-             (* 1000
-                (float-time (time-subtract
-                             (current-time)
-                             my-late-init-start))))))
+  (when nil
+    (let ((inhibit-message t))
+      (message "Loading late-init.el...done (%4d [ms])"
+               (* 1000
+                  (float-time (time-subtract
+                               (current-time)
+                               my-late-init-start)))))))
 (provide 'late-init)

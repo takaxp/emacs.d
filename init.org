@@ -15532,10 +15532,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
   (when window-system
-    (my-delete-old-backup 5)
-    ;; (run-with-idle-timer (+ 20 my-default-loading-delay)
-    ;;                      nil #'my-delete-old-backup)
-    ))
+    (my-delete-old-backup 5)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -17764,12 +17761,13 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 (unless noninteractive
-  (let ((inhibit-message t))
-    (message "Loading init-org.el...done (%4d [ms])"
-             (* 1000
-                (float-time (time-subtract
-                             (current-time)
-                             my-init-org-start))))))
+  (when nil
+    (let ((inhibit-message t))
+      (message "Loading init-org.el...done (%4d [ms])"
+               (* 1000
+                  (float-time (time-subtract
+                               (current-time)
+                               my-init-org-start)))))))
 (provide 'init-org)
 #+end_src
 
@@ -17779,12 +17777,13 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 #+begin_src emacs-lisp :tangle late-init.el :exports none
 (unless noninteractive
-  (let ((inhibit-message t))
-    (message "Loading late-init.el...done (%4d [ms])"
-             (* 1000
-                (float-time (time-subtract
-                             (current-time)
-                             my-late-init-start))))))
+  (when nil
+    (let ((inhibit-message t))
+      (message "Loading late-init.el...done (%4d [ms])"
+               (* 1000
+                  (float-time (time-subtract
+                               (current-time)
+                               my-late-init-start)))))))
 (provide 'late-init)
 #+end_src
 
@@ -17796,12 +17795,13 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 #+begin_src emacs-lisp :tangle utility.el :exports none
 (unless noninteractive
-  (let ((inhibit-message t))
-    (message "Loading utility.el...done (%4d [ms])"
-             (* 1000
-                (float-time (time-subtract
-                             (current-time)
-                             my-utility-start))))))
+  (when nil
+    (let ((inhibit-message t))
+      (message "Loading utility.el...done (%4d [ms])"
+               (* 1000
+                  (float-time (time-subtract
+                               (current-time)
+                               my-utility-start)))))))
 (provide 'utility)
 #+end_src
 
