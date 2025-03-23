@@ -25,13 +25,14 @@
 | ファイル名        | 役割                                              | 行数 |
 |-------------------+---------------------------------------------------+------|
 |                   | <45>                                              |      |
-| init.el           | 起動時に読み込む設定群                            |  448 |
-| init-autoloads.el | 起動時に読み込む定義群                            |  843 |
-| early-init.el     | init.elより前に読み込む設定群                     |   98 |
-| late-init.el      | 最初のユーザアクションで読み込む設定群            | 2251 |
-| init-org.el       | 最初のユーザアクションで読み込むorg-modeの設定群  | 2033 |
-| init-dired.el     | 最初のユーザアクションで読み込むdired関連の設定群 |   57 |
-| utility.el        | 独自実装の関数群を集約                            | 3102 |
+| init.el           | 起動時に読み込む設定群                            |  491 |
+| init-autoloads.el | 起動時に読み込む定義群                            |  880 |
+| early-init.el     | init.elより前に読み込む設定群                     |  105 |
+| late-init.el      | 最初のユーザアクションで読み込む設定群            | 2325 |
+| init-org.el       | 最初のユーザアクションで読み込むorg-modeの設定群  | 2146 |
+| init-dired.el     | 最初のユーザアクションで読み込むdired関連の設定群 |   56 |
+| utility.el        | 独自実装の関数群を集約                            | 3279 |
+| init-ad.el        | 起動時に特殊な advice を適用する設定群            |   19 |
 
 * 起動設定
   :PROPERTIES:
@@ -92,7 +93,6 @@ Then load the following at startup
 ;; Configurations for Emacs
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
-(require 'init-autoloads nil t)
 (when (and (boundp my-profiler-p)
            my-profiler-p)
   (profiler-start 'cpu+mem))
@@ -104,7 +104,6 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (defvar my-init-org-start (current-time))
-(require 'init-autoloads nil t)
 (unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
 #+end_src
@@ -196,7 +195,6 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle late-init.el :exports none
 ;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
 (defvar my-late-init-start (current-time))
-(require 'init-autoloads nil t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -17675,6 +17673,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 #+begin_src emacs-lisp :tangle early-init.el :exports none
+;; early-init.el の最後に生成済みの autoloads を読み込む
+(require 'init-autoloads nil t)
 (unless noninteractive
   (defvar my-early-end (current-time))
   (message "Loading %s...done" my-early-init))

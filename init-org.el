@@ -1,6 +1,5 @@
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (defvar my-init-org-start (current-time))
-(require 'init-autoloads nil t)
 (unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
 

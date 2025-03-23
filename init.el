@@ -2,7 +2,6 @@
 ;; Configurations for Emacs
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
-(require 'init-autoloads nil t)
 (when (and (boundp my-profiler-p)
            my-profiler-p)
   (profiler-start 'cpu+mem))

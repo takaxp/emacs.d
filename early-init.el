@@ -100,6 +100,7 @@
 ;; (when (require 'benchmark-init nil t)
 ;;   (add-hook 'after-init-hook #'benchmark-init/deactivate))
 
+(require 'init-autoloads nil t)
 (unless noninteractive
   (defvar my-early-end (current-time))
   (message "Loading %s...done" my-early-init))

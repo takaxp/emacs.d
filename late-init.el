@@ -1,6 +1,5 @@
 ;; late-init.el --- My config with postpone.el -*- lexical-binding: t -*-
 (defvar my-late-init-start (current-time))
-(require 'init-autoloads nil t)
 
 (defvar measure-exec-time-list nil)
 (dolist (f measure-exec-time-list)
