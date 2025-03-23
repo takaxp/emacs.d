@@ -1570,6 +1570,7 @@ Otherwise, use `counsel-ag'."
 (defun my-desktop-notification-handler (message)
   (my-desktop-notification "Message from org-mode" message t))
 
+;;;###autoload
 (defun my--org-reveal (f &optional siblings)
   (interactive "P")
   (if (org-at-heading-p)
@@ -2432,9 +2433,9 @@ Uses `all-the-icons-material' to fetch the icon."
     (async-start ;; do not call this from byte compiled code directory
      `(lambda ()
         (sleep-for (or ',defer 5))
-        (when (load (concat (getenv "HOME") "/.emacs") t)
-          (setq load-path ',load-path)
-          (require 'init-autoloads)
+        (setq load-path ',load-path)
+        (when (and (load (concat (getenv "HOME") "/.emacs") t)
+                   (require 'init nil t)) ;; FIXME
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)
@@ -2517,7 +2518,8 @@ Uses `all-the-icons-material' to fetch the icon."
 (defun macos-name (version)
   "Return macOS name according to the VERSION number."
   (if (stringp version)
-      (cond ((version<= "23.0" version) "Sonoma")
+      (cond ((version<= "24.0" version) "Sequoia")
+            ((version<= "23.0" version) "Sonoma")
             ((version<= "22.0" version) "Ventura")
             ((version<= "21.0" version) "Monterey")
             ((version<= "20.0" version) "Big Sur")
@@ -2599,6 +2601,7 @@ Uses `all-the-icons-material' to fetch the icon."
     (when (string= bname "daily.org")
       (my-set-alarms-from-file (concat "~/Dropbox/org/db/" bname)))))
 
+;;;###autoload
 (defun my-set-alarms-from-file (file)
   "Make alarms from org-mode tables. If you have an org-mode file
      with tables with the following format:
@@ -2618,6 +2621,7 @@ Uses `all-the-icons-material' to fetch the icon."
       (my--set-alarm-from-line (decode-coding-string (car lines) 'utf-8))
       (setq lines (cdr lines)))))
 
+;;;###autoload
 (defun my--set-alarm-from-line (line)
   (let
       ((hour nil)
@@ -3053,6 +3057,7 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (interactive)
   (my--replace-punctuation 'scientific))
 
+;;;###autoload
 (defun my--replace-punctuation (to)
   (let ((pos (point))
         (source (cond ((eq to 'normal) "\\(，\\)\\|\\(．\\)")
@@ -3174,19 +3179,6 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
                   "  <" user-mail-address ">")))
 
 ;;;###autoload
-(defun org2dokuwiki-cp-kill-ring ()
-  "Convert the current org-file to dokuwiki text, and copy it to kill-ring."
-  (interactive)
-  (when (eq major-mode 'org-mode)
-    (cond (buffer-file-name
-           (kill-new
-            (shell-command-to-string
-             (concat "cat " buffer-file-name "| perl "
-                     (expand-file-name "~/Dropbox/local/scripts/org2dokuwiki.pl"))))
-           (minibuffer-message "Copying %s ... done" buffer-file-name))
-          (t (message "There is NOT such a file.")))))
-
-;;;###autoload
 (defun my-kill-all-file-buffers ()
   "Kill all buffers visiting files."
   (interactive)
@@ -3268,12 +3260,11 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
                (message "Quit")
                (throw 'end-flag t)))))))
 
-(when nil
-  (unless noninteractive
-    (let ((inhibit-message t))
-      (message "Loading utility.el...done (%4d [ms])"
-         (* 1000
-      (float-time (time-subtract
-             (current-time)
-             my-utility-start)))))))
+(unless noninteractive
+  (let ((inhibit-message t))
+    (message "Loading utility.el...done (%4d [ms])"
+             (* 1000
+                (float-time (time-subtract
+                             (current-time)
+                             my-utility-start))))))
 (provide 'utility)

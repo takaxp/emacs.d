@@ -22,6 +22,8 @@
 (declare-function dired-extra-startup "dired-x")
 (when (require 'dired-x nil t)
   (dired-extra-startup))
+
+;;;###autoload
 (defun my-reveal-in-finder ()
   "Reveal the current buffer in Finder."
   (interactive)

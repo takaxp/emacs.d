@@ -13,6 +13,7 @@
 (setq save-silently t) ;; No need shut-up.el for saving files.
 
 ;; originally defined in `diary-lib.el'
+;;;###autoload
 (defun diary-entry-time (s)
   "Return time at the beginning of the string S as a military-style integer.
 For example, returns 1325 for 1:25pm.
@@ -41,6 +42,7 @@ be used instead of a colon (:) to separate the hour and minute parts."
           (t diary-unknown-time))))
 
 ;; Avoid to load diary-lib to use `diary-entry-time'
+;;;###autoload
 (defun run-at-time (time repeat function &rest args)
   "Perform an action at time TIME.
 Repeat the action every REPEAT seconds, if REPEAT is non-nil.
@@ -2207,7 +2209,10 @@ This function returns a timer object which you can use in
 
 (unless noninteractive
   (when window-system
-    (my-delete-old-backup 3)))
+    (my-delete-old-backup 5)
+    ;; (run-with-idle-timer (+ 20 my-default-loading-delay)
+    ;;                      nil #'my-delete-old-backup)
+    ))
 
 (when (autoload-if-found '(my-google-this google-this google-this-word)
                          "google-this" nil t)
@@ -2313,12 +2318,11 @@ This function returns a timer object which you can use in
 
 (keymap-global-set "C-c C-x" #'my-kill-emacs-when-scratch-buffer)
 
-(when nil
-  (unless noninteractive
-    (let ((inhibit-message t))
-      (message "Loading late-init.el...done (%4d [ms])"
-         (* 1000
-      (float-time (time-subtract
-             (current-time)
-             my-late-init-start)))))))
+(unless noninteractive
+  (let ((inhibit-message t))
+    (message "Loading late-init.el...done (%4d [ms])"
+             (* 1000
+                (float-time (time-subtract
+                             (current-time)
+                             my-late-init-start))))))
 (provide 'late-init)

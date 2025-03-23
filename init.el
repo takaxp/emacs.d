@@ -2,6 +2,7 @@
 ;; Configurations for Emacs
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
+(require 'init-autoloads nil t) ;; 生成済みの autoloads を読み込む
 (when (and (boundp my-profiler-p)
            my-profiler-p)
   (profiler-start 'cpu+mem))
@@ -30,7 +31,7 @@
 (add-hook 'after-init-hook #'my-emacs-init-time)
 
 (defconst my-before-load-init-time (current-time)
-  "Starting point to calculate Emacs booting time.      see `my-load-init-time'.")
+  "Starting point to calculate Emacs booting time.  see `my-load-init-time'.")
 (defun my-load-init-time ()
   "Loading time of user init files including time for `after-init-hook'."
   (let ((t-init-files (time-subtract after-init-time my-before-load-init-time))
@@ -117,7 +118,6 @@
   :type 'sexp
   :group 'postpone)
 
-;;;###autoload
 (defun postpone-pre ()
   (interactive)
   (unless (or my-secure-boot

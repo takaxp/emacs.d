@@ -156,6 +156,7 @@
    'append)
 
   ;; プロパティ等を自動的閉じる．
+  ;;;###autoload
   (defun my-org-hide-drawers ()
     "Hide all drawers in an org tree."
     (interactive)
@@ -166,11 +167,13 @@
   (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
   ;; CSV指定でテーブルを出力する．
+  ;;;###autoload
   (defun my-org-table-export ()
     (interactive)
     (org-table-export nil "orgtbl-to-csv"))
 
   ;; すべてのチェックボックスの cookies を更新する
+  ;;;###autoload
   (defun my-do-org-update-staistics-cookies ()
     (interactive)
     (message "Update statistics...")
@@ -292,63 +295,67 @@
 
     ;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
     ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
-    (setq org-icalendar-use-deadline '(event-if-todo))
+    (setq org-icalendar-use-deadline '(event-if-todo))))
 
-    (defun my-ox-upload-icalendar ()
-      (interactive)
-      (when (and org-ical-file-in-orz-server
-                 (eq system-type 'darwin))
-        (if (require 'async nil t)
-            (my-async-ox-icalendar)
-          (my-ox-icalendar))))
+;;;###autoload
+(defun my-ox-upload-icalendar ()
+  (interactive)
+  (when (and org-ical-file-in-orz-server
+             (eq system-type 'darwin))
+    (if (require 'async nil t)
+        (my-async-ox-icalendar)
+      (my-ox-icalendar))))
 
-    (defun my-ox-icalendar ()
-      (let ((message-log-max nil)
-            (org-agenda-files '("~/Dropbox/org/org-ical.org")))
-        ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
-        (org-icalendar-combine-agenda-files))
-      ;; 自サーバにアップロード
-      (message "Uploading...")
-      (if (eq 0 (shell-command
-                 (concat "scp -o ConnectTimeout=5 "
-                         org-icalendar-combined-agenda-file " "
-                         org-ical-file-in-orz-server)))
-          (message "Uploading...done")
-        (message "Uploading...miss!"))
-      (my-ox-icalendar-cleanup))
+;;;###autoload
+(defun my-ox-icalendar ()
+  (let ((message-log-max nil)
+        (org-agenda-files '("~/Dropbox/org/org-ical.org")))
+    ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
+    (org-icalendar-combine-agenda-files))
+  ;; 自サーバにアップロード
+  (message "Uploading...")
+  (if (eq 0 (shell-command
+             (concat "scp -o ConnectTimeout=5 "
+                     org-icalendar-combined-agenda-file " "
+                     org-ical-file-in-orz-server)))
+      (message "Uploading...done")
+    (message "Uploading...miss!"))
+  (my-ox-icalendar-cleanup))
 
-    (defun my-async-ox-icalendar ()
-      (message "[async] Uploading...")
-      (async-start
-       `(lambda ()
-          (when (and (load "~/.emacs" nil t)
-                     (load "~/.emacs.d/lisp/init-org.el" nil t)
-                     (require 'org nil t)
-                     (require 'org-agenda nil t))
-            (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
-            (if (file-exists-p
-                 (expand-file-name org-icalendar-combined-agenda-file))
-                1
-              (let ((ical (org-icalendar-combine-agenda-files))
-                    (result (shell-command
-                             (concat "scp -o ConnectTimeout=5 "
-                                     ',org-icalendar-combined-agenda-file " "
-                                     ',org-ical-file-in-orz-server))))
-                (my-ox-icalendar-cleanup)
-                result))))
-       (lambda (result)
-         (unless (active-minibuffer-window)
-           (message (format "[async] Uploading...%s"
-                            (cond ((eq result 0) "done")
-                                  ((eq result 1) "skipped")
-                                  (t "miss!"))))))))
-
-    (defun my-ox-icalendar-cleanup ()
-      (interactive)
-      (when (file-exists-p
+;;;###autoload
+(defun my-async-ox-icalendar ()
+  (message "[async] Uploading...")
+  (async-start
+   `(lambda ()
+      (when (and (load "~/.emacs" nil t)
+                 (load "~/.emacs.d/lisp/init-org.el" nil t)
+                 (require 'org nil t)
+                 (require 'org-agenda nil t))
+        (setq org-agenda-files '("~/Dropbox/org/org-ical.org"))
+        (if (file-exists-p
              (expand-file-name org-icalendar-combined-agenda-file))
-        (shell-command-to-string
-         (concat "rm -rf " org-icalendar-combined-agenda-file))))))
+            1
+          (let ((ical (org-icalendar-combine-agenda-files))
+                (result (shell-command
+                         (concat "scp -o ConnectTimeout=5 "
+                                 ',org-icalendar-combined-agenda-file " "
+                                 ',org-ical-file-in-orz-server))))
+            (my-ox-icalendar-cleanup)
+            result))))
+   (lambda (result)
+     (unless (active-minibuffer-window)
+       (message (format "[async] Uploading...%s"
+                        (cond ((eq result 0) "done")
+                              ((eq result 1) "skipped")
+                              (t "miss!"))))))))
+
+;;;###autoload
+(defun my-ox-icalendar-cleanup ()
+  (interactive)
+  (when (file-exists-p
+         (expand-file-name org-icalendar-combined-agenda-file))
+    (shell-command-to-string
+     (concat "rm -rf " org-icalendar-combined-agenda-file))))
 
 (with-eval-after-load "org"
   (setq org-use-speed-commands t)
@@ -373,200 +380,214 @@
   (add-to-list 'org-speed-commands '("y" my-org-yank))
   (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
   (add-to-list 'org-speed-commands
-               '("$" call-interactively 'org-archive-subtree))
+               '("$" call-interactively 'org-archive-subtree)))
 
-  ;; done にして，apptを更新する
-  (defun my-done-with-update-list ()
-    (interactive)
-    (org-todo "DONE")
-    (my-org-agenda-to-appt))
+;; done にして，apptを更新する
+;;;###autoload
+(defun my-done-with-update-list ()
+  (interactive)
+  (org-todo "DONE")
+  (my-org-agenda-to-appt))
 
-  ;; 周期タクスを終了させます．
-  (defun my-org-todo-complete-no-repeat (&optional ARG)
-    (interactive "P")
-    (when (org-get-repeat)
-      (org-cancel-repeater))
-    (if (eq (current-buffer) org-agenda-buffer)
-        (org-agenda-todo ARG)
-      (org-todo ARG)))
+;; 周期タクスを終了させます．
+;;;###autoload
+(defun my-org-todo-complete-no-repeat (&optional ARG)
+  (interactive "P")
+  (when (org-get-repeat)
+    (org-cancel-repeater))
+  (if (eq (current-buffer) org-agenda-buffer)
+      (org-agenda-todo ARG)
+    (org-todo ARG)))
 
-  (defun my-org-replace-punc-in-buffer ()
-    "Replace \"，\" and \"．\" with \"、\" and \"。\" in a buffer."
-    (interactive)
-    (goto-char (point-min))
-    (while (re-search-forward "\\(，\\)\\|\\(．\\)" nil :noerror)
-      (let ((w (match-string-no-properties 0)))
-        (cond ((equal w "，") (replace-match "、"))
-              ((equal w "．") (replace-match "。"))))))
+;;;###autoload
+(defun my-org-replace-punc-in-buffer ()
+  "Replace \"，\" and \"．\" with \"、\" and \"。\" in a buffer."
+  (interactive)
+  (goto-char (point-min))
+  (while (re-search-forward "\\(，\\)\\|\\(．\\)" nil :noerror)
+    (let ((w (match-string-no-properties 0)))
+      (cond ((equal w "，") (replace-match "、"))
+            ((equal w "．") (replace-match "。"))))))
 
-  (defun my-org-replace-punc-in-tree ()
-    "Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree."
-    (interactive)
-    (org-back-to-heading t)
-    (let* ((element (org-element-at-point))
-           (begin (org-element-property :begin element))
-           (end (org-element-property :end element)))
-      (when (eq (org-element-type element) 'headline)
-        (goto-char begin)
-        (while (re-search-forward "\\(，\\)\\|\\(．\\)" end :noerror)
-          (let ((w (match-string-no-properties 0)))
-            (cond ((equal w "，") (replace-match "、"))
-                  ((equal w "．") (replace-match "。")))))
-        (goto-char begin))))
+;;;###autoload
+(defun my-org-replace-punc-in-tree ()
+  "Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree."
+  (interactive)
+  (org-back-to-heading t)
+  (let* ((element (org-element-at-point))
+         (begin (org-element-property :begin element))
+         (end (org-element-property :end element)))
+    (when (eq (org-element-type element) 'headline)
+      (goto-char begin)
+      (while (re-search-forward "\\(，\\)\\|\\(．\\)" end :noerror)
+        (let ((w (match-string-no-properties 0)))
+          (cond ((equal w "，") (replace-match "、"))
+                ((equal w "．") (replace-match "。")))))
+      (goto-char begin))))
 
-  ;; Hugo の記事を書き出し&アップロード
-  (defun my-hugo-export-upload ()
-    "Export subtree for Hugo and upload the engty."
-    (when (member (buffer-name) '("imadenale.org" "archive.org"))
-      (if (not (org-entry-is-done-p))
-          (message "The state of the entry is not \"DONE\" yet.")
-        (my-org-replace-punc-in-tree)
-        (save-buffer)
-        ;; (let ((outfile (org-hugo-export-wim-to-md)))
-        ;;   (sit-for 2)
-        ;;   (when (and outfile
-        ;;    (file-exists-p outfile))
-        ;;     (switch-to-buffer
-        ;;  (find-file-noselect outfile)
-        ;;  (my-org-replace-punc-in-buffer))))
-        (org-hugo-export-wim-to-md)
-        (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
-              (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
-              (exported (format "[ox-hugo] \"%s\" has been exported."
-                                (nth 4 (org-heading-components)))))
-          (when filename
-            ;; (when (file-exists-p (concat outfile ".md"))
-            ;;   (switch-to-buffer
-            ;;    (find-file-noselect (concat outfile ".md"))
-            ;;    (my-org-replace-punc-in-buffer)
-            ;;    (save-buffer)))
-            (save-excursion
-              (save-restriction
-                (outline-up-heading 1)
-                (setq filename
-                      (concat (nth 4 (org-heading-components)) "/" filename))
-                (setq command (concat command " -e " (downcase filename)))))
-            (message "[hugo] %s" command)
-            (if (require 'async nil t)
-                (progn
-                  (message "%s\n[async] Uploading..." exported)
-                  (async-start
-                   `(lambda () (shell-command-to-string ',command))
-                   `(lambda (result)
-                      (message "%s\n[async] Uploading...%s"
-                               ',exported (when result "done"))
-                      (message "[log] %s" result))))
-              (message "%s\nUploading..." exported)
-              (message "%s" (shell-command-to-string command))
-              (message "%s\nUploading...done" exported)))))))
+;; Hugo の記事を書き出し&アップロード
+;;;###autoload
+(defun my-hugo-export-upload ()
+  "Export subtree for Hugo and upload the engty."
+  (when (member (buffer-name) '("imadenale.org" "archive.org"))
+    (if (not (org-entry-is-done-p))
+        (message "The state of the entry is not \"DONE\" yet.")
+      (my-org-replace-punc-in-tree)
+      (save-buffer)
+      ;; (let ((outfile (org-hugo-export-wim-to-md)))
+      ;;   (sit-for 2)
+      ;;   (when (and outfile
+      ;;    (file-exists-p outfile))
+      ;;     (switch-to-buffer
+      ;;  (find-file-noselect outfile)
+      ;;  (my-org-replace-punc-in-buffer))))
+      (org-hugo-export-wim-to-md)
+      (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
+            (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
+            (exported (format "[ox-hugo] \"%s\" has been exported."
+                              (nth 4 (org-heading-components)))))
+        (when filename
+          ;; (when (file-exists-p (concat outfile ".md"))
+          ;;   (switch-to-buffer
+          ;;    (find-file-noselect (concat outfile ".md"))
+          ;;    (my-org-replace-punc-in-buffer)
+          ;;    (save-buffer)))
+          (save-excursion
+            (save-restriction
+              (outline-up-heading 1)
+              (setq filename
+                    (concat (nth 4 (org-heading-components)) "/" filename))
+              (setq command (concat command " -e " (downcase filename)))))
+          (message "[hugo] %s" command)
+          (if (require 'async nil t)
+              (progn
+                (message "%s\n[async] Uploading..." exported)
+                (async-start
+                 `(lambda () (shell-command-to-string ',command))
+                 `(lambda (result)
+                    (message "%s\n[async] Uploading...%s"
+                             ',exported (when result "done"))
+                    (message "[log] %s" result))))
+            (message "%s\nUploading..." exported)
+            (message "%s" (shell-command-to-string command))
+            (message "%s\nUploading...done" exported)))))))
 
-  ;; カーソル位置のサブツリーをデスクトップにHTMLエクスポートする
-  (defun my-export-subtree-as-html ()
-    (interactive)
-    (let ((file "~/Desktop/note.html"))
-      (org-export-to-file 'html file nil t)
-      (org-open-file file)))
+;; カーソル位置のサブツリーをデスクトップにHTMLエクスポートする
+;;;###autoload
+(defun my-export-subtree-as-html ()
+  (interactive)
+  (let ((file "~/Desktop/note.html"))
+    (org-export-to-file 'html file nil t)
+    (org-open-file file)))
 
-  ;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
-  (defun my-org-deadline-today ()
-    (when (org-entry-is-todo-p)
-      (let ((date (org-entry-get (point) "DEADLINE"))
-            (today (format-time-string "%F")))
-        (org-deadline 'deadline
-                      (if date
-                          (format "<%s%s"
-                                  today
-                                  (substring date 11 (string-width date)))
-                        (format "<%s>" today))))))
+;; 締切を今日にする．agenda から起動したカレンダー内では "C-." でOK（標準）
+;;;###autoload
+(defun my-org-deadline-today ()
+  (when (org-entry-is-todo-p)
+    (let ((date (org-entry-get (point) "DEADLINE"))
+          (today (format-time-string "%F")))
+      (org-deadline 'deadline
+                    (if date
+                        (format "<%s%s"
+                                today
+                                (substring date 11 (string-width date)))
+                      (format "<%s>" today))))))
 
-  ;; 現在のツリーを畳んでから同じレベルの最後の要素として移動する
-  (defcustom my-org-move-subtree-to-the-last-after-hook nil""
-    :type 'hook :group 'org)
-  (defun my-org-move-subtree-to-the-last ()
-    "Move the current heading to the last one of the same level."
-    (interactive)
-    (let ((cnt 0) beg)
-      (org-back-to-heading)
-      (outline-hide-subtree)
-      (setq beg (point))
-      (while (and (funcall 'org-get-next-sibling)
-                  (looking-at org-outline-regexp))
-        (setq cnt (1+ cnt)))
-      (goto-char beg)
-      (when (> cnt 0)
-        (org-move-subtree-down cnt)
-        (goto-char beg)))
-    (run-hooks 'my-org-move-subtree-to-the-last-after-hook))
+;; 現在のツリーを畳んでから同じレベルの最後の要素として移動する
+(defcustom my-org-move-subtree-to-the-last-after-hook nil""
+  :type 'hook :group 'org)
+;;;###autoload
+(defun my-org-move-subtree-to-the-last ()
+  "Move the current heading to the last one of the same level."
+  (interactive)
+  (let ((cnt 0) beg)
+    (org-back-to-heading)
+    (outline-hide-subtree)
+    (setq beg (point))
+    (while (and (funcall 'org-get-next-sibling)
+                (looking-at org-outline-regexp))
+      (setq cnt (1+ cnt)))
+    (goto-char beg)
+    (when (> cnt 0)
+      (org-move-subtree-down cnt)
+      (goto-char beg)))
+  (run-hooks 'my-org-move-subtree-to-the-last-after-hook))
 
-  ;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
-  (defun my--kill-update-todo-statistics (_b _d &optional _arg)
-    (when (and (derived-mode-p 'org-mode)
-               (org-kill-is-subtree-p))
-      (save-excursion
-        (save-restriction
-          (unless (eq 1 (point))
-            (backward-char 1))
-          (ignore-errors (outline-up-heading 1))
-          (org-update-statistics-cookies nil)
-          (org-update-parent-todo-statistics)))))
-  ;; kill時に[0/0]の色が変わるのが気になる場合は，volatile-highlights ロード後に
-  ;; kill-region から vhl/.advice-callback-fn/.make-vhl-on-kill-region を
-  ;; advice-remove する．
-  (advice-add 'kill-region :after #'my--kill-update-todo-statistics)
-
-  ;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
-  (defun my--yank-update-todo-statistics (&optional _arg)
-    (when (org-kill-is-subtree-p)
-      (save-excursion
-        (save-restriction
-          (unless (eq 1 (point))
-            (backward-char 1))
-          (org-update-statistics-cookies nil)
-          (org-update-parent-todo-statistics)))))
-  (advice-add 'org-yank :after #'my--yank-update-todo-statistics)
-
-  ;; アーカイブする前に narrowing を解く
-  (advice-add 'org-archive-subtree :before #'widen)
-
-  ;; バッファ表示時に指定のツリーのコンテンツを展開表示する(Toggle)
-  (defvar my-org-pin-tag "pin")
-  (defun my-toggle-org-pin-subtree ()
-    "Toggle \"VISIBILITY\" of the current tree."
-    (interactive)
+;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
+;;;###autoload
+(defun my--kill-update-todo-statistics (_b _d &optional _arg)
+  (when (and (derived-mode-p 'org-mode)
+             (org-kill-is-subtree-p))
     (save-excursion
       (save-restriction
-        (unless (org-at-heading-p)
-          (org-previous-visible-heading 1))
-        (unless (org-before-first-heading-p)
-          (let ((element (org-element-at-point)))
-            (cond ((org-element-property :VISIBILITY element)
-                   (org-delete-property "VISIBILITY")
-                   (org-toggle-tag my-org-pin-tag 'off)
-                   (message "Unpinned"))
-                  (t
-                   (org-set-property "VISIBILITY" "children")
-                   (org-toggle-tag my-org-pin-tag 'on)
-                   (message "Pinned"))))))))
+        (unless (eq 1 (point))
+          (backward-char 1))
+        (ignore-errors (outline-up-heading 1))
+        (org-update-statistics-cookies nil)
+        (org-update-parent-todo-statistics)))))
+;; kill時に[0/0]の色が変わるのが気になる場合は，volatile-highlights ロード後に
+;; kill-region から vhl/.advice-callback-fn/.make-vhl-on-kill-region を
+;; advice-remove する．
+(advice-add 'kill-region :after #'my--kill-update-todo-statistics)
 
-  ;; narrowing+編集開始時に領域の最後に改行を置く FIXME
-  (defun my--ensure-newline-end (&rest _arg)
-    (when (buffer-narrowed-p)
-      (save-excursion
-        (goto-char (point-max))
-        (unless (bolp)
-          (newline))))
-    (advice-remove 'next-line #'my--ensure-newline-end))
+;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
+;;;###autoload
+(defun my--yank-update-todo-statistics (&optional _arg)
+  (when (org-kill-is-subtree-p)
+    (save-excursion
+      (save-restriction
+        (unless (eq 1 (point))
+          (backward-char 1))
+        (org-update-statistics-cookies nil)
+        (org-update-parent-todo-statistics)))))
+(advice-add 'org-yank :after #'my--yank-update-todo-statistics)
 
-  (defun my--newline-narrowed-end-of-buffer (&optional _arg)
-    (when (and (buffer-narrowed-p)
-               (not (bolp)))
-      (newline))
-    (advice-remove 'end-of-buffer #'my--newline-narrowed-end-of-buffer))
+;; アーカイブする前に narrowing を解く
+(advice-add 'org-archive-subtree :before #'widen)
 
-  (defun my--add-newline-narrowed-end ()
-    (advice-add 'next-line :before #'my--ensure-newline-end)
-    (advice-add 'end-of-buffer :after #'my--newline-narrowed-end-of-buffer))
-  (advice-add 'org-narrow-to-subtree :before #'my--add-newline-narrowed-end))
+;; バッファ表示時に指定のツリーのコンテンツを展開表示する(Toggle)
+(defvar my-org-pin-tag "pin")
+;;;###autoload
+(defun my-toggle-org-pin-subtree ()
+  "Toggle \"VISIBILITY\" of the current tree."
+  (interactive)
+  (save-excursion
+    (save-restriction
+      (unless (org-at-heading-p)
+        (org-previous-visible-heading 1))
+      (unless (org-before-first-heading-p)
+        (let ((element (org-element-at-point)))
+          (cond ((org-element-property :VISIBILITY element)
+                 (org-delete-property "VISIBILITY")
+                 (org-toggle-tag my-org-pin-tag 'off)
+                 (message "Unpinned"))
+                (t
+                 (org-set-property "VISIBILITY" "children")
+                 (org-toggle-tag my-org-pin-tag 'on)
+                 (message "Pinned"))))))))
+
+;; narrowing+編集開始時に領域の最後に改行を置く FIXME
+;;;###autoload
+(defun my--ensure-newline-end (&rest _arg)
+  (when (buffer-narrowed-p)
+    (save-excursion
+      (goto-char (point-max))
+      (unless (bolp)
+        (newline))))
+  (advice-remove 'next-line #'my--ensure-newline-end))
+
+;;;###autoload
+(defun my--newline-narrowed-end-of-buffer (&optional _arg)
+  (when (and (buffer-narrowed-p)
+             (not (bolp)))
+    (newline))
+  (advice-remove 'end-of-buffer #'my--newline-narrowed-end-of-buffer))
+
+;;;###autoload
+(defun my--add-newline-narrowed-end ()
+  (advice-add 'next-line :before #'my--ensure-newline-end)
+  (advice-add 'end-of-buffer :after #'my--newline-narrowed-end-of-buffer))
+(advice-add 'org-narrow-to-subtree :before #'my--add-newline-narrowed-end)
 
 (with-eval-after-load "org"
   ;; Font lock を使う
@@ -666,12 +687,13 @@
   (setq org-hierarchical-todo-statistics nil)
 
   ;; Global counting of checked TODO items
-  (setq org-hierarchical-checkbox-statistics nil)
+  (setq org-hierarchical-checkbox-statistics nil))
 
-  ;; block-update-time
-  (defun org-dblock-write:block-update-time (params)
-    (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
-      (insert "" (format-time-string fmt (current-time))))))
+;; ;;;###autoload
+;; (defun org-dblock-write:block-update-time (params)
+;;   "block-update-time"
+;;   (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
+;;     (i'nsert "" (format-time-string fmt (current-time)))))
 
 (with-eval-after-load "org"
   (setq org-image-actual-width '(256))
@@ -682,23 +704,23 @@
 
 (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist)
 
-(with-eval-after-load "org"
-  (defun my-lowercase-org-keywords ()
-    "Lower case Org keywords and block identifiers."
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      (let ((case-fold-search nil)
-            (count 0))
-        (while (re-search-forward
-                "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)"
-                nil :noerror)
-          (setq count (1+ count))
-          (let* ((prev (match-string-no-properties 1))
-                 (new (downcase prev)))
-            (replace-match new :fixedcase nil nil 1)
-            (message "Updated(%d): %s => %s" count prev new)))
-        (message "Lower-cased %d matches" count)))))
+;;;###autoload
+(defun my-lowercase-org-keywords ()
+  "Lower case Org keywords and block identifiers."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((case-fold-search nil)
+          (count 0))
+      (while (re-search-forward
+              "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)"
+              nil :noerror)
+        (setq count (1+ count))
+        (let* ((prev (match-string-no-properties 1))
+               (new (downcase prev)))
+          (replace-match new :fixedcase nil nil 1)
+          (message "Updated(%d): %s => %s" count prev new)))
+      (message "Lower-cased %d matches" count))))
 
 (with-eval-after-load "org"
   ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
@@ -721,47 +743,53 @@
         (my-set-alarms-from-file file) ;; init
         (add-hook 'after-save-hook #'my-update-alarms-from-file))))) ;; update
 
-(with-eval-after-load "org"
-  (defun my-countdown-timer-notify ()
-    ;; (when mode-line-format
-    ;;   (my-mode-line-off))
-    (when ns-alerter-command
-      (setq org-show-notification-handler #'my-desktop-notification-handler))
-    (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
-    (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
-    (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
+;;;###autoload
+(defun my-countdown-timer-notify ()
+  ;; (when mode-line-format
+  ;;     (my-mode-line-off))
+  (when ns-alerter-command
+    (setq org-show-notification-handler #'my-desktop-notification-handler))
+  (remove-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+  (remove-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
+  (my-desktop-notification "### Expired! ###" "Time is up!" t "Glass"))
 
-  (defalias 'run-timer 'my-countdown-timer)
-  (defun my-countdown-timer ()
-    (interactive)
-    ;; (unless mode-line-format
-    ;;   (my-mode-line-on))
-    (when (eq org-show-notification-handler #'my-desktop-notification-handler)
-      (setq org-show-notification-handler nil))
-    (with-temp-buffer
-      (org-mode)
-      (insert "* Countdown")
-      (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
-      (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
-      (org-timer-set-timer))))
+;;;###autoload
+(defun my-countdown-timer ()
+  (interactive)
+  ;; (unless mode-line-format
+  ;;     (my-mode-line-on))
+  (when (eq org-show-notification-handler #'my-desktop-notification-handler)
+    (setq org-show-notification-handler nil))
+  (with-temp-buffer
+    (org-mode)
+    (insert "* Countdown")
+    (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
+    (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
+    (org-timer-set-timer)))
+
+(defalias 'run-timer 'my-countdown-timer)
 
 (when (autoload-if-found '(org-mode my-load-echo-org-link)
                          "org" nil t)
   (add-hook 'org-mode-hook #'my-load-echo-org-link)
-  (with-eval-after-load "org"
-    (defvar my-org-link-prompt "Link:")
-    (defun my-echo-org-link ()
-      (when (org-in-regexp org-link-bracket-re 1)
-        (let ((l (length my-org-link-prompt))
-              (msg (org-link-unescape (match-string-no-properties 1))))
-          (put-text-property 0 l 'face 'minibuffer-prompt my-org-link-prompt)
-          (eldoc-message (format "%s %s" my-org-link-prompt msg)))))
 
-    (defun my-load-echo-org-link ()
-      (add-function :before-until (local 'eldoc-documentation-function)
-                    #'my-echo-org-link)
-      ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
-      )))
+  (with-eval-after-load "org"
+    (defvar my-org-link-prompt "Link:")))
+
+;;;###autoload
+(defun my-echo-org-link ()
+  (when (org-in-regexp org-link-bracket-re 1)
+    (let ((l (length my-org-link-prompt))
+          (msg (org-link-unescape (match-string-no-properties 1))))
+      (put-text-property 0 l 'face 'minibuffer-prompt my-org-link-prompt)
+      (eldoc-message (format "%s %s" my-org-link-prompt msg)))))
+
+;;;###autoload
+(defun my-load-echo-org-link ()
+  (add-function :before-until (local 'eldoc-documentation-function)
+                #'my-echo-org-link)
+  ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
+  )
 
 (with-eval-after-load "org"
   (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
@@ -769,17 +797,20 @@
   (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
   (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward))
 
+;;;###autoload
 (defun my-org-item-has-child-p ()
   "Return t, if the item has at least a child item."
   (save-excursion
     (beginning-of-line)
     (org-list-has-child-p (point) (org-list-struct))))
 
+;;;###autoload
 (defun my-org-heading-has-child-p ()
   "Return t, if the heading has at least a child heading."
   (save-excursion
     (org-goto-first-child)))
 
+;;;###autoload
 (defun my-org-meta-previous ()
   "Move item or subtree down, otherwise `scroll-up'."
   (interactive)
@@ -792,6 +823,7 @@
          (call-interactively 'org-table-move-row))
         (t nil))) ;; (call-interactively 'scroll-up)
 
+;;;###autoload
 (defun my-org-meta-next ()
   "Move item or subtree up, otherwise `scroll-down'."
   (interactive)
@@ -805,10 +837,12 @@
         (t nil))) ;; (call-interactively 'scroll-down))))
 
 (defvar my-org-promote-demote-independently nil)
+;;;###autoload
 (defun my-inherit-struct-p ()
   (and (not my-org-promote-demote-independently)
        (or (my-org-item-has-child-p) (my-org-heading-has-child-p))))
 
+;;;###autoload
 (defun my-org-at-meta-fb-p ()
   "Return t, if the cursor stay at item, heading, or table."
   (or (org-at-item-p)
@@ -816,6 +850,7 @@
       (and (org-at-heading-p) (eolp))
       (org-at-table-p)))
 
+;;;###autoload
 (defun my-org-meta-forward ()
   (interactive)
   (if (my-org-at-meta-fb-p)
@@ -827,6 +862,7 @@
         (call-interactively 'syntax-subword-forward)
       (forward-word))))
 
+;;;###autoload
 (defun my-org-meta-backward ()
   (interactive)
   (if (my-org-at-meta-fb-p)
@@ -838,6 +874,7 @@
         (call-interactively 'syntax-subword-backward)
       (backward-word))))
 
+;;;###autoload
 (defun my-org-table-copy-as (&optional format)
   "Copy converted table."
   (interactive)
@@ -856,12 +893,13 @@
               (clipboard-kill-ring-save (point-min) (point-max)))))
       (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
 
+;;;###autoload
 (defun my-org-table-convert-to (&optional format)
   "Convert a table to FORMAT.
-If FORMAT is nil, it is set equal to a property value specified
-by \"<tab>LE_EXPORT_FORMAT\" or `org-table-export-default-format'.
-Converted table is copied to kill ring for further use.
-The core part is extracted from `org-table-export'."
+ If FORMAT is nil, it is set equal to a property value specified
+ by \"<tab>LE_EXPORT_FORMAT\" or `org-table-export-default-format'.
+ Converted table is copied to kill ring for further use.
+ The core part is extracted from `org-table-export'."
   (interactive)
   (let ((format (or format
                     (org-entry-get (point) "<tab>LE_EXPORT_FORMAT" t)
@@ -882,15 +920,17 @@ The core part is extracted from `org-table-export'."
 
 (with-eval-after-load "eldoc"
   (defvar my-eldoc-disable-in-org-block nil)
-  (defun my--eldoc-print-current-symbol-info (f &optional interactive)
-    "Run `eldoc' when the cursor is NOT located in org source block."
-    (interactive '(t))
-    (unless (or my-eldoc-disable-in-org-block
-                (and (eq major-mode 'org-mode)
-                     (eq (car (org-element-at-point)) 'src-block)))
-      (funcall f interactive)))
   (advice-add 'eldoc-print-current-symbol-info :around
               #'my--eldoc-print-current-symbol-info))
+
+;;;###autoload
+(defun my--eldoc-print-current-symbol-info (f &optional interactive)
+  "Run `eldoc' when the cursor is NOT located in org source block."
+  (interactive '(t))
+  (unless (or my-eldoc-disable-in-org-block
+              (and (eq major-mode 'org-mode)
+                   (eq (car (org-element-at-point)) 'src-block)))
+    (funcall f interactive)))
 
 (with-eval-after-load "org"
   (advice-add 'org-reveal :around #'my--org-reveal))
@@ -953,41 +993,12 @@ The core part is extracted from `org-table-export'."
   (with-eval-after-load "org"
     ;; キャプチャ時に作成日時をプロパティに入れる
     ;; Thanks to https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook
-    (defun my-org-default-property ()
-      "Set the creation date and org-id."
-      (interactive)
-      (my-org-set-created-property)
-      (org-id-get-create))
     (defvar my-org-created-property-name "CREATED"
       "The name of the org-mode property.
 This user property stores the creation date of the entry")
-    (defun my-org-set-created-property (&optional active NAME)
-      "Set a property on the entry giving the creation time.
-
-By default the property is called CREATED. If given the `NAME'
-argument will be used instead. If the property already exists, it
-will not be modified."
-      (interactive)
-      (let* ((created (or NAME my-org-created-property-name))
-             (fmt (if active "<%s>" "[%s]"))
-             (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
-             (field (org-entry-get (point) created nil)))
-        (unless (or field (equal "" field))
-          (org-set-property created now)
-          (org-cycle-hide-drawers 'children))))
-    (defun my--org-insert-todo-heading (_arg &optional _force-heading)
-      (unless (org-at-item-checkbox-p)
-        (my-org-default-property)))
     (advice-add 'org-insert-todo-heading :after #'my--org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"
-    (defun my-toggle-org-block-visibility ()
-      "Testing..."
-      (interactive)
-      (when (looking-at org-drawer-regexp)
-        (org-flag-drawer		; toggle block visibility
-         (not (get-char-property (match-end 0) 'invisible)))))
-
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
     ;; 2010-06-13 の形式では，タグとして認識されない
@@ -1058,6 +1069,42 @@ will not be modified."
              "** %? :%(get-current-date-tags):\n\n%U")
             ))))
 
+;;;###autoload
+(defun my-toggle-org-block-visibility ()
+  "Testing..."
+  (interactive)
+  (when (looking-at org-drawer-regexp)
+    (org-flag-drawer          ; toggle block visibility
+     (not (get-char-property (match-end 0) 'invisible)))))
+
+;;;###autoload
+(defun my--org-insert-todo-heading (_arg &optional _force-heading)
+  (unless (org-at-item-checkbox-p)
+    (my-org-default-property)))
+
+;;;###autoload
+(defun my-org-default-property ()
+  "Set the creation date and org-id."
+  (interactive)
+  (my-org-set-created-property)
+  (org-id-get-create))
+
+;;;###autoload
+(defun my-org-set-created-property (&optional active NAME)
+  "Set a property on the entry giving the creation time.
+
+By default the property is called CREATED. If given the `NAME'
+argument will be used instead. If the property already exists, it
+will not be modified."
+  (interactive)
+  (let* ((created (or NAME my-org-created-property-name))
+         (fmt (if active "<%s>" "[%s]"))
+         (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
+         (field (org-entry-get (point) created nil)))
+    (unless (or field (equal "" field))
+      (org-set-property created now)
+      (org-cycle-hide-drawers 'children))))
+
 (with-eval-after-load "org"
   ;; アジェンダ作成対象（指定しないとagendaが生成されない）
   ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
@@ -1116,18 +1163,7 @@ will not be modified."
 
   (with-eval-after-load "moom"
     (defvar my-org-tags-column org-tags-column)
-    ;; Expand the frame width temporarily during org-agenda is activated.
-    (defun my-agenda-frame-width ()
-      (let ((width (floor (* 1.2 moom-frame-width-single))))
-        (setq org-tags-column (- org-tags-column (- width 80)))
-        ;; (org-align-tags t)
-        (moom-change-frame-width width)))
     ;; (add-hook 'org-agenda-mode-hook #'my-agenda-frame-width)
-
-    (defun my--org-agenda--quit (&optional _bury)
-      (setq org-tags-column my-org-tags-column)
-      ;; (org-align-tags t)
-      (moom-change-frame-width))
     ;; (advice-add 'org-agenda--quit :after #'my--org-agenda--quit)
     )
 
@@ -1155,47 +1191,13 @@ will not be modified."
   ;; 所定の時刻に強制的にAgendaを表示
   (defvar my-org-agenda-auto-popup-list
     '("01:00" "11:00" "14:00" "17:00" "20:00" "23:00"))
-  (defun my-popup-agenda ()
-    (interactive)
-    (let ((status use-dialog-box))
-      (setq use-dialog-box nil)
-      (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
-        (org-agenda-list))
-      (message "")
-      (setq use-dialog-box status)))
-  (defun my-popup-agenda-set-timers ()
-    (interactive)
-    (cancel-function-timers 'my-popup-agenda)
-    (dolist (triger my-org-agenda-auto-popup-list)
-      (when (future-time-p triger)
-        (run-at-time triger nil 'my-popup-agenda))))
   (my-popup-agenda-set-timers)
   (run-at-time "24:00" nil 'my-popup-agenda-set-timers)
-
-  ;; ついでに calendar.app も定期的に強制起動する
-  (defun my-popup-calendar ()
-    (interactive)
-    (if (and (eq system-type 'darwin)
-             (frame-focus-state))
-        (shell-command-to-string "open -a calendar.app")
-      (message "--- input focus is currently OUT.")))
-
-  (defun my-popup-calendar-set-timers ()
-    (interactive)
-    (cancel-function-timers 'my-popup-calendar)
-    (dolist (triger my-org-agenda-auto-popup-list)
-      (when (future-time-p triger)
-        (run-at-time triger nil 'my-popup-calendar))))
 
   (when (memq window-system '(mac ns))
     (my-popup-calendar-set-timers)
     (run-at-time "24:00" nil 'my-popup-calendar-set-timers))
 
-  ;; org-agenda でも "d" 押下で "DONE" にする
-  (defun my-org-agenda-done ()
-    (interactive)
-    (org-agenda-todo "DONE")
-    (my-org-agenda-to-appt)) ;; call with async
   (org-defkey org-agenda-mode-map "d" 'my-org-agenda-done)
   (org-defkey org-agenda-mode-map "D" 'my-org-todo-complete-no-repeat)
 
@@ -1232,6 +1234,62 @@ will not be modified."
               (lambda () (interactive)
                 (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
 
+;; Expand the frame width temporarily during org-agenda is activated.
+;;;###autoload
+(defun my-agenda-frame-width ()
+  (let ((width (floor (* 1.2 moom-frame-width-single))))
+    (setq org-tags-column (- org-tags-column (- width 80)))
+    ;; (org-align-tags t)
+    (moom-change-frame-width width)))
+
+;;;###autoload
+(defun my--org-agenda--quit (&optional _bury)
+  (setq org-tags-column my-org-tags-column)
+  ;; (org-align-tags t)
+  (moom-change-frame-width))
+
+;;;###autoload
+(defun my-popup-agenda ()
+  (interactive)
+  (let ((status use-dialog-box))
+    (setq use-dialog-box nil)
+    (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
+      (org-agenda-list))
+    (message "")
+    (setq use-dialog-box status)))
+
+;;;###autoload
+(defun my-popup-agenda-set-timers ()
+  (interactive)
+  (cancel-function-timers 'my-popup-agenda)
+  (dolist (triger my-org-agenda-auto-popup-list)
+    (when (future-time-p triger)
+      (run-at-time triger nil 'my-popup-agenda))))
+
+;; ついでに calendar.app も定期的に強制起動する
+;;;###autoload
+(defun my-popup-calendar ()
+  (interactive)
+  (if (and (eq system-type 'darwin)
+           (frame-focus-state))
+      (shell-command-to-string "open -a calendar.app")
+    (message "--- input focus is currently OUT.")))
+
+;;;###autoload
+(defun my-popup-calendar-set-timers ()
+  (interactive)
+  (cancel-function-timers 'my-popup-calendar)
+  (dolist (triger my-org-agenda-auto-popup-list)
+    (when (future-time-p triger)
+      (run-at-time triger nil 'my-popup-calendar))))
+
+;; org-agenda でも "d" 押下で "DONE" にする
+;;;###autoload
+(defun my-org-agenda-done ()
+  (interactive)
+  (org-agenda-todo "DONE")
+  (my-org-agenda-to-appt)) ;; call with async
+
 (when (autoload-if-found '(org-onit-toggle-doing
                            org-onit-mode
                            org-onit-toggle-auto org-clock-goto
@@ -1244,11 +1302,7 @@ will not be modified."
     (add-hook 'org-cycle-hook #'org-onit-clock-in-when-unfold)
     (keymap-set org-mode-map "<f11>" 'org-onit-toggle-doing)
     (keymap-set org-mode-map "M-<f11>" 'org-onit-toggle-auto)
-    (keymap-set org-mode-map "S-<f11>" 'org-onit-goto-anchor)
-
-    (defun my-sparse-doing-tree ()
-      (interactive)
-      (org-tags-view nil org-onit-tag)))
+    (keymap-set org-mode-map "S-<f11>" 'org-onit-goto-anchor))
 
   (with-eval-after-load "org-onit"
     (autoload-if-found '(org-bookmark-jump org-bookmark-make-record)
@@ -1259,20 +1313,7 @@ will not be modified."
      '(org-onit-basic-options '(:wakeup nil :nostate doing :unfold nil))))
 
   (with-eval-after-load "org-clock"
-    (defun my-onit-reveal ()
-      ;; (widen)
-      (org-overview)
-      (org-reveal)
-      (org-cycle-hide-drawers 'all)
-      (org-show-entry)
-      (show-children)
-      (org-show-siblings))
     (add-hook 'org-onit-after-jump-hook #'my-onit-reveal)
-
-    (defun my-clear-undo-list ()
-      (when (and (fboundp 'org-clocking-p)
-                 (org-clocking-p))
-        (setq buffer-undo-list nil)))
     (add-hook 'org-clock-in-hook #'my-clear-undo-list) ;; for testing...
 
     (setq org-clock-clocked-in-display 'frame-title) ;; or 'both
@@ -1291,6 +1332,27 @@ will not be modified."
                            org-mode-line-string))
             " - %b"))))
 
+;;;###autoload
+(defun my-sparse-doing-tree ()
+      (interactive)
+      (org-tags-view nil org-onit-tag))
+
+;;;###autoload
+(defun my-clear-undo-list ()
+      (when (and (fboundp 'org-clocking-p)
+                 (org-clocking-p))
+        (setq buffer-undo-list nil)))
+
+;;;###autoload
+(defun my-onit-reveal ()
+      ;; (widen)
+      (org-overview)
+      (org-reveal)
+      (org-cycle-hide-drawers 'all)
+      (org-show-entry)
+      (show-children)
+      (org-show-siblings))
+
 (when (autoload-if-found '(orgbox-schedule orgbox-agenda-schedule)
                    "orgbox" nil t)
   (with-eval-after-load "org"
@@ -1299,9 +1361,116 @@ will not be modified."
     (org-defkey org-agenda-mode-map (kbd "C-c C-s") 'orgbox-agenda-schedule)))
   ;; (require 'orgbox nil t)) ;; require org-agenda
 
+;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
+;; Need review
+;;;###autoload
+(defun my--appt-display-message (string mins)
+  "Display a reminder about an appointment.
+The string STRING describes the appointment, due in integer MINS minutes.
+The arguments may also be lists, where each element relates to a
+separate appointment.  The variable `appt-display-format' controls
+the format of the visible reminder.  If `appt-audible' is non-nil,
+also calls `beep' for an audible reminder."
+  (if appt-audible (beep 1))
+  ;; Backwards compatibility: avoid passing lists to a-d-w-f if not necessary.
+  (and (listp mins)
+       (= (length mins) 1)
+       (setq mins (car mins)
+             string (car string)))
+  (cond ((memq appt-display-format '(window echo)) ;; Modified
+         ;; TODO use calendar-month-abbrev-array rather than %b?
+         (let ((time (format-time-string "%a %b %e ")))
+           (condition-case err
+               (funcall appt-disp-window-function
+                        (if (listp mins)
+                            (mapcar #'number-to-string mins)
+                          (number-to-string mins))
+                        time string)
+             (wrong-type-argument
+              (if (not (listp mins))
+                  (signal (car err) (cdr err))
+                (message "Argtype error in `appt-disp-window-function' - \
+update it for multiple appts?")
+                ;; Fallback to just displaying the first appt, as we used to.
+                (funcall appt-disp-window-function
+                         (number-to-string (car mins)) time
+                         (car string))))))
+         (run-at-time (format "%d sec" appt-display-duration)
+                      nil
+                      appt-delete-window-function))
+        ((eq appt-display-format 'echo) ;; hidden
+         (message "%s" (if (listp string)
+                           (mapconcat #'identity string "\n")
+                         string)))))
+
+;;;###autoload
+(defun my--appt-disp-window (min-to-app _new-time appt-msg)
+  "Extension to support appt-disp-window."
+  (if (string= min-to-app "0")
+      (my-desktop-notification "### Expired! ###" appt-msg t "Glass")
+    (my-desktop-notification
+     (concat "in " min-to-app " min.") appt-msg nil "Tink")))
+
+;;;###autoload
+(defun counsel-appt-list ()
+  "Create a list of appt."
+  (setq counsel-appt-time-msg-list nil)
+  (when (boundp 'appt-time-msg-list)
+    (dolist (msg appt-time-msg-list)
+      (when msg
+        (add-to-list 'counsel-appt-time-msg-list
+                     (substring-no-properties (nth 1 msg)) t))))
+  counsel-appt-time-msg-list)
+
+;;;###autoload
+(defun counsel-appt ()
+  "List active appt."
+  (interactive)
+  (ivy-read "Appt: "
+            (counsel-appt-list)
+            :require-match t
+            :caller 'counsel-appt))
+
+(defvar read-char-default-timeout 10)
+
+;;;###autoload
+(defun my--read-char-exclusive (f &optional PROMPT INHERIT-INPUT-METHOD SECONDS)
+  (funcall f PROMPT INHERIT-INPUT-METHOD
+           (or SECONDS read-char-default-timeout)))
+
+;;;###autoload
+(defun my--org-check-agenda-file (file)
+  "Make sure FILE exists.  If not, ask user what to do."
+  (let ((read-char-default-timeout 0)) ;; not nil
+    (unless (file-exists-p file)
+      (message "Non-existent agenda file %s.  [R]emove from list or [A]bort?"
+               (abbreviate-file-name file))
+      (let ((r (downcase (or (read-char-exclusive) ?r))))
+        (cond
+         ((equal r ?r)
+          (org-remove-file file)
+          (throw 'nextfile t))
+         (t (user-error "Abort")))))))
+
+;;;###autoload
+(defun my-add-prop-to-appt-time-msg-list () ;; FIXME
+  (let ((msgs appt-time-msg-list))
+    (setq appt-time-msg-list nil)
+    (dolist (msg msgs)
+      (add-to-list 'appt-time-msg-list
+                   (list (nth 0 msg)
+                         (let ((str (nth 1 msg)))
+                           (add-text-properties 6 10 '(org-heading t) str)
+                           str)
+                         (nth 2 msg))
+                   ) t)
+    ;; just for sure
+    (delq nil appt-time-msg-list)))
+
 (when (autoload-if-found '(appt my--appt-display-message
                                 my--appt-disp-window appt-check)
                          "appt" nil t)
+
   (defvar my-org-agenda-to-appt-async t)
   (with-eval-after-load "appt"
     ;; モードラインに残り時間を表示しない
@@ -1322,55 +1491,8 @@ will not be modified."
     ;; 警告表示開始から何分ごとにリマインドするか[m]
     (setq appt-display-interval 1)
 
-    ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
-    ;; Need review
-    (defun my--appt-display-message (string mins)
-      "Display a reminder about an appointment.
-The string STRING describes the appointment, due in integer MINS minutes.
-The arguments may also be lists, where each element relates to a
-separate appointment.  The variable `appt-display-format' controls
-the format of the visible reminder.  If `appt-audible' is non-nil,
-also calls `beep' for an audible reminder."
-      (if appt-audible (beep 1))
-      ;; Backwards compatibility: avoid passing lists to a-d-w-f if not necessary.
-      (and (listp mins)
-           (= (length mins) 1)
-           (setq mins (car mins)
-                 string (car string)))
-      (cond ((memq appt-display-format '(window echo)) ;; Modified
-             ;; TODO use calendar-month-abbrev-array rather than %b?
-             (let ((time (format-time-string "%a %b %e ")))
-               (condition-case err
-                   (funcall appt-disp-window-function
-                            (if (listp mins)
-                                (mapcar #'number-to-string mins)
-                              (number-to-string mins))
-                            time string)
-                 (wrong-type-argument
-                  (if (not (listp mins))
-                      (signal (car err) (cdr err))
-                    (message "Argtype error in `appt-disp-window-function' - \
-update it for multiple appts?")
-                    ;; Fallback to just displaying the first appt, as we used to.
-                    (funcall appt-disp-window-function
-                             (number-to-string (car mins)) time
-                             (car string))))))
-             (run-at-time (format "%d sec" appt-display-duration)
-                          nil
-                          appt-delete-window-function))
-            ((eq appt-display-format 'echo) ;; hidden
-             (message "%s" (if (listp string)
-                               (mapconcat #'identity string "\n")
-                             string)))))
-
     (advice-add 'appt-display-message :override #'my--appt-display-message)
-
-    (defun my--appt-disp-window (min-to-app _new-time appt-msg)
-      "Extension to support appt-disp-window."
-      (if (string= min-to-app "0")
-          (my-desktop-notification "### Expired! ###" appt-msg t "Glass")
-        (my-desktop-notification
-         (concat "in " min-to-app " min.") appt-msg nil "Tink")))
+    
     (cond
      ((eq appt-display-format 'echo)
       (setq appt-disp-window-function 'my--appt-disp-window))
@@ -1378,24 +1500,7 @@ update it for multiple appts?")
       (advice-add 'appt-disp-window :before #'my--appt-disp-window))))
 
   (with-eval-after-load "ivy"
-    (defvar counsel-appt-time-msg-list nil)
-    (defun counsel-appt-list ()
-      "Create a list of appt."
-      (setq counsel-appt-time-msg-list nil)
-      (when (boundp 'appt-time-msg-list)
-        (dolist (msg appt-time-msg-list)
-          (when msg
-            (add-to-list 'counsel-appt-time-msg-list
-                         (substring-no-properties (nth 1 msg)) t))))
-      counsel-appt-time-msg-list)
-
-    (defun counsel-appt ()
-      "List active appt."
-      (interactive)
-      (ivy-read "Appt: "
-                (counsel-appt-list)
-                :require-match t
-                :caller 'counsel-appt)))
+    (defvar counsel-appt-time-msg-list nil))
 
   ;; (with-eval-after-load "org-agenda"
   ;;   (unless noninteractive
@@ -1411,39 +1516,9 @@ update it for multiple appts?")
       (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt))
 
     ;; org-agenda-to-appt を非同期で使うための advice
-    (defvar read-char-default-timeout 10)
-    (defun my--read-char-exclusive (f &optional PROMPT INHERIT-INPUT-METHOD SECONDS)
-      (funcall f PROMPT INHERIT-INPUT-METHOD
-               (or SECONDS read-char-default-timeout)))
     (advice-add 'read-char-exclusive :around #'my--read-char-exclusive)
-
-    (defun my--org-check-agenda-file (file)
-      "Make sure FILE exists.  If not, ask user what to do."
-      (let ((read-char-default-timeout 0)) ;; not nil
-        (unless (file-exists-p file)
-          (message "Non-existent agenda file %s.  [R]emove from list or [A]bort?"
-                   (abbreviate-file-name file))
-          (let ((r (downcase (or (read-char-exclusive) ?r))))
-            (cond
-             ((equal r ?r)
-              (org-remove-file file)
-              (throw 'nextfile t))
-             (t (user-error "Abort")))))))
     (advice-add 'org-check-agenda-file :override #'my--org-check-agenda-file)
 
-    (defun my-add-prop-to-appt-time-msg-list () ;; FIXME
-      (let ((msgs appt-time-msg-list))
-        (setq appt-time-msg-list nil)
-        (dolist (msg msgs)
-          (add-to-list 'appt-time-msg-list
-                       (list (nth 0 msg)
-                             (let ((str (nth 1 msg)))
-                               (add-text-properties 6 10 '(org-heading t) str)
-                               str)
-                             (nth 2 msg))
-                       ) t)
-        ;; just for sure
-        (delq nil appt-time-msg-list)))
     (when (eq window-system 'w32)
       (message "--- my-org-agenda-to-appt-async was changed to nil for w32")
       (setq my-org-agenda-to-appt-async nil))
@@ -1451,6 +1526,37 @@ update it for multiple appts?")
     (when noninteractive
       (setq my-org-agenda-to-appt-ready nil)) ;; FIXME
     ))
+
+;;;###autoload
+(defun my--org-refile (f &optional arg default-buffer rfloc msg)
+  "Extension to support keeping org-refile-history empty."
+  (save-excursion
+    (save-restriction
+      (let ((l (org-outline-level))
+            (b (buffer-name)))
+        (funcall f arg default-buffer rfloc msg)
+        (if (> l (org-outline-level))
+            (outline-backward-same-level 1)
+          (outline-up-heading 1))
+        (org-update-statistics-cookies nil) ;; Update in source
+        ;; (org-sort-entries nil ?O)
+        (org-refile-goto-last-stored)
+        (org-update-parent-todo-statistics) ;; Update in destination
+        (outline-up-heading 1)
+        (org-sort-entries nil ?o)
+        (unless (equal b (buffer-name))
+          (switch-to-buffer b)))
+      (setq org-refile-history nil)
+      (org-refile-cache-clear))))
+
+;;;###autoload
+(defun my--org-sort-entries (&optional _with-case _sorting-type
+                                       _getkey-func _compare-func
+                                       _property _interactive?)
+  (outline-hide-subtree)
+  (org-show-hidden-entry)
+  (org-show-children)
+  (org-cycle-hide-drawers 'children))
 
 (with-eval-after-load "org"
   ;; リファイル先でサブディレクトリを指定するために一部フルパス化
@@ -1469,35 +1575,7 @@ update it for multiple appts?")
 
   ;; 不要な履歴が生成されるのを抑制し，常に最新を保つ．
   ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
-  (defun my--org-refile (f &optional arg default-buffer rfloc msg)
-    "Extension to support keeping org-refile-history empty."
-    (save-excursion
-      (save-restriction
-        (let ((l (org-outline-level))
-              (b (buffer-name)))
-          (funcall f arg default-buffer rfloc msg)
-          (if (> l (org-outline-level))
-              (outline-backward-same-level 1)
-            (outline-up-heading 1))
-          (org-update-statistics-cookies nil) ;; Update in source
-          ;; (org-sort-entries nil ?O)
-          (org-refile-goto-last-stored)
-          (org-update-parent-todo-statistics) ;; Update in destination
-          (outline-up-heading 1)
-          (org-sort-entries nil ?o)
-          (unless (equal b (buffer-name))
-            (switch-to-buffer b)))
-        (setq org-refile-history nil)
-        (org-refile-cache-clear))))
   (advice-add 'org-refile :around #'my--org-refile)
-
-  (defun my--org-sort-entries (&optional _with-case _sorting-type
-                                        _getkey-func _compare-func
-                                        _property _interactive?)
-    (outline-hide-subtree)
-    (org-show-hidden-entry)
-    (org-show-children)
-    (org-cycle-hide-drawers 'children))
   (advice-add 'org-sort-entries :after #'my--org-sort-entries))
 
 (with-eval-after-load "org"
@@ -1539,22 +1617,24 @@ update it for multiple appts?")
                    '("S" . "src emacs-lisp")
                  '("S" "#+begin_src emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
 
+;;;###autoload
+(defun my-org-src-block-face ()
+  (setq org-src-block-faces
+        (if (eq 'light (frame-parameter nil 'background-mode))
+            '(("emacs-lisp" (:background "#F9F9F9" :extend t))
+              ("conf" (:background "#F9F9F9" :extend t))
+              ("org" (:background "#F9F9F9" :extend t))
+              ("html" (:background "#F9F9F9" :extend t)))
+          '(("emacs-lisp" (:background "#383c4c" :extend t))
+            ("conf" (:background "#383c4c" :extend t))
+            ("org" (:background "#383c4c" :extend t))
+            ("html" (:background "#383c4c" :extend t)))))
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (when (derived-mode-p 'org-mode)
+        (font-lock-flush)))))
+
 (with-eval-after-load "org-src"
-  (defun my-org-src-block-face ()
-    (setq org-src-block-faces
-          (if (eq 'light (frame-parameter nil 'background-mode))
-              '(("emacs-lisp" (:background "#F9F9F9" :extend t))
-                ("conf" (:background "#F9F9F9" :extend t))
-                ("org" (:background "#F9F9F9" :extend t))
-                ("html" (:background "#F9F9F9" :extend t)))
-            '(("emacs-lisp" (:background "#383c4c" :extend t))
-              ("conf" (:background "#383c4c" :extend t))
-              ("org" (:background "#383c4c" :extend t))
-              ("html" (:background "#383c4c" :extend t)))))
-    (dolist (buffer (buffer-list))
-      (with-current-buffer buffer
-        (when (derived-mode-p 'org-mode)
-          (font-lock-flush)))))
   ;; (my-org-src-block-face)
   (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
 
@@ -1599,6 +1679,14 @@ update it for multiple appts?")
     (add-hook 'org-tree-slide-stop-hook
               #'doom-modeline-update-buffer-file-state-icon)))
 
+;;;###autoload
+(defun my-toggle-proportional-font ()
+  (interactive)
+  (setq use-proportional-font (not use-proportional-font))
+  (if use-proportional-font
+      (org-entry-put nil "FONT" "PROPORTIONAL")
+    (org-delete-property "FONT")))
+
 (when (autoload-if-found '(org-tree-slide-mode my-toggle-proportional-font)
                          "org-tree-slide" nil t)
   (with-eval-after-load "org-tree-slide"
@@ -1612,34 +1700,31 @@ update it for multiple appts?")
                         ;; :family "Comic Sans MS"
                         :height 125)
 
-    (defun my-toggle-proportional-font ()
-      (interactive)
-      (setq use-proportional-font (not use-proportional-font))
-      (if use-proportional-font
-          (org-entry-put nil "FONT" "PROPORTIONAL")
-        (org-delete-property "FONT")))
-
     (add-hook 'org-tree-slide-before-narrow-hook
               (lambda ()
-                  (if (equal "PROPORTIONAL"
-                             (org-entry-get-with-inheritance "FONT"))
-                      (buffer-face-set 'variable-pitch)
-                    (buffer-face-mode 0))))
+                (if (equal "PROPORTIONAL"
+                           (org-entry-get-with-inheritance "FONT"))
+                    (buffer-face-set 'variable-pitch)
+                  (buffer-face-mode 0))))
     (add-hook 'org-tree-slide-stop-hook
               (lambda ()
-                  (buffer-face-mode 0)))))
+                (buffer-face-mode 0)))))
 
 (defvar my-hide-org-meta-line-p nil)
+;;;###autoload
 (defun my-hide-org-meta-line ()
   (interactive)
   (setq my-hide-org-meta-line-p t)
   (set-face-attribute 'org-meta-line nil
                       :foreground (face-attribute 'default :background)))
+
+;;;###autoload
 (defun my-show-org-meta-line ()
   (interactive)
   (setq my-hide-org-meta-line-p nil)
   (set-face-attribute 'org-meta-line nil :foreground nil))
 
+;;;###autoload
 (defun my-toggle-org-meta-line ()
   (interactive)
   (if my-hide-org-meta-line-p
@@ -1649,6 +1734,7 @@ update it for multiple appts?")
 (add-hook 'org-tree-slide-stop-hook #'my-show-org-meta-line)
 
 ;; Option
+;;;###autoload
 (defun my-update-org-meta-line ()
   (interactive)
   (when my-hide-org-meta-line-p
@@ -1707,51 +1793,36 @@ update it for multiple appts?")
     (add-to-list 'org-grep-directories "~/.emacs.d/.cask/package")
 
     ;; "q"押下の挙動を調整
-    (defun my--org-grep-quit ()
-      (interactive)
-      (delete-window))
-    (advice-add 'org-grep-quit :override #'my--org-grep-quit)
+    (advice-add 'org-grep-quit :override #'my--org-grep-quit)))
 
-    ;; for macOS
-    (when (memq window-system '(mac ns))
-      (defun org-grep-from-org-shell-command (regexp)
-        (if org-grep-directories
-            (concat "find -E "
-                    (if org-grep-directories
-                        (mapconcat #'identity org-grep-directories " ")
-                      org-directory)
-                    (and org-grep-extensions
-                         (concat " -regex '.*("
-                                 (mapconcat #'regexp-quote org-grep-extensions
-                                            "|")
-                                 ")$'"))
-                    " -print0 | xargs -0 grep " org-grep-grep-options
-                    " -n -- " (shell-quote-argument regexp))
-          ":")))))
+;;;###autoload
+(defun my--org-grep-quit ()
+  (interactive)
+  (delete-window))
+
+;;;###autoload
+(defun org-grep-from-org-shell-command (regexp)
+  "Only for macOS"
+  (if org-grep-directories
+      (concat "find -E "
+              (if org-grep-directories
+                  (mapconcat #'identity org-grep-directories " ")
+                org-directory)
+              (and org-grep-extensions
+                   (concat " -regex '.*("
+                           (mapconcat #'regexp-quote org-grep-extensions
+                                      "|")
+                           ")$'"))
+              " -print0 | xargs -0 grep " org-grep-grep-options
+              " -n -- " (shell-quote-argument regexp))
+    ":"))
 
 (with-eval-after-load "ox"
   (when (and (require 'ox-reveal nil t)
              (version< "9.1.4" (org-version)))
     (setq org-reveal-note-key-char ?n)))
 
-(with-eval-after-load "org-clock-today"
-  (defun my-print-working-clocks ()
-    (interactive)
-    (let ((clocked-item (org-duration-from-minutes
-                         (org-clock-get-clocked-time))))
-      (if org-clock-today-mode
-          (message "Today Subtree %s Total %s | Past %s"
-                   org-clock-today--buffer-time
-                   org-clock-today--subtree-time
-                   clocked-item)
-        (message "Past %s" clocked-item)))))
-
 (with-eval-after-load "org-clock"
-  (defun my--org-clock-sum-today (&optional headline-filter)
-    "Sum the times for each subtree for today."
-    (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
-      (org-clock-sum (car range) (cadr range)
-                     headline-filter :org-clock-minutes-today)))
   (advice-add 'org-clock-sum-today :override #'my--org-clock-sum-today)
 
   ;; using folked package
@@ -1760,11 +1831,46 @@ update it for multiple appts?")
       (setq org-clock-today-count-subtree t)
       (org-clock-today-mode 1))))
 
+;;;###autoload
+(defun my-print-working-clocks ()
+  "for org-clock-today"
+  (interactive)
+  (let ((clocked-item (org-duration-from-minutes
+                       (org-clock-get-clocked-time))))
+    (if org-clock-today-mode
+        (message "Today Subtree %s Total %s | Past %s"
+                 org-clock-today--buffer-time
+                 org-clock-today--subtree-time
+                 clocked-item)
+      (message "Past %s" clocked-item))))
+
+;;;###autoload
+(defun my--org-clock-sum-today (&optional headline-filter)
+  "Sum the times for each subtree for today."
+  (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
+    (org-clock-sum (car range) (cadr range)
+                   headline-filter :org-clock-minutes-today)))
+
 ;; see https://ox-hugo.scripter.co/doc/deprecation-notices/#org-hugo-auto-export-feature-now-a-minor-mode
 ;; (with-eval-after-load "org"
 ;; No need for latest ox-hugo
 ;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
 ;;   (require 'ox-hugo-auto-export nil t))
+
+;; see https://pxaka.tokyo/blog/2018/a-link-to-the-original-org-source-file
+;;;###autoload
+(defun org-hugo-get-link-to-orgfile (uri alt)
+  "Return a formatted link to the original Org file.
+To insert the formatted into an org buffer for Hugo, use an appropriate
+macro, e.g. {{{srclink}}}.
+
+Note that this mechanism is still under consideration."
+  (let ((line (save-excursion
+                (save-restriction
+                  (org-back-to-heading t)
+                  (line-number-at-pos)))))
+    (concat "[[" uri (file-name-nondirectory (buffer-file-name))
+            "#L" (format "%d" line) "][" alt "]]")))
 
 (when (autoload-if-found
        '(org-hugo-export-wim-to-md)
@@ -1775,20 +1881,6 @@ update it for multiple appts?")
     (setq org-hugo-suppress-lastmod-period 86400.0) ;; 1 day
     ;; never copy files to under /static/ directory
     (setq org-hugo-external-file-extensions-allowed-for-copying nil)
-
-    ;; see https://pxaka.tokyo/blog/2018/a-link-to-the-original-org-source-file
-    (defun org-hugo-get-link-to-orgfile (uri alt)
-      "Return a formatted link to the original Org file.
-To insert the formatted into an org buffer for Hugo, use an appropriate
-macro, e.g. {{{srclink}}}.
-
-Note that this mechanism is still under consideration."
-      (let ((line (save-excursion
-                    (save-restriction
-                      (org-back-to-heading t)
-                      (line-number-at-pos)))))
-        (concat "[[" uri (file-name-nondirectory (buffer-file-name))
-                "#L" (format "%d" line) "][" alt "]]")))
     ;;    (advice-add 'org-todo :after #'my--ox-hugo:org-todo)
     ))
 
@@ -1802,57 +1894,62 @@ Note that this mechanism is still under consideration."
           (verbatim . "<code class=\"org-verbatim\">%s</code>"))))
 
 (with-eval-after-load "org"
-  (defun my-add-custom-id ()
-    "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
-    (interactive)
-    (my-org-custom-id-get (point) t))
+  (defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$"))
 
-  (defun my-get-custom-id ()
-    "Return a part of UUID with an \"org\" prefix.
+;;;###autoload
+(defun my-add-custom-id ()
+  "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
+  (interactive)
+  (my-org-custom-id-get (point) t))
+
+;;;###autoload
+(defun my-get-custom-id ()
+  "Return a part of UUID with an \"org\" prefix.
 e.g. \"org3ca6ef0c\"."
-    (let* ((id (org-id-new "")))
-      (when (org-uuidgen-p id)
-        (downcase (concat "org"  (substring (org-id-new "") 0 8))))))
+  (let* ((id (org-id-new "")))
+    (when (org-uuidgen-p id)
+      (downcase (concat "org"  (substring (org-id-new "") 0 8))))))
 
-  (defun my-org-custom-id-get (pom &optional create)
-    "Get the CUSTOM_ID property of the entry at point-or-marker POM.
+;;;###autoload
+(defun my-org-custom-id-get (pom &optional create)
+  "Get the CUSTOM_ID property of the entry at point-or-marker POM.
 If the entry does not have an CUSTOM_ID, the function returns nil.
 However, when CREATE is non nil, create a CUSTOM_ID if none is present
 already.  In any case, the CUSTOM_ID of the entry is returned.
 
 See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
-    (interactive)
-    (let ((id (org-entry-get nil "CUSTOM_ID")))
-      (cond
-       ((and id (stringp id) (string-match "\\S-" id))
-        id)
-       (create
-        (setq id (my-get-custom-id))
-        (unless id
-          (error "Invalid ID"))
-        (org-entry-put pom "CUSTOM_ID" id)
-        (message "--- CUSTOM_ID assigned: %s" id)
-        (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
-        id))))
+  (interactive)
+  (let ((id (org-entry-get nil "CUSTOM_ID")))
+    (cond
+     ((and id (stringp id) (string-match "\\S-" id))
+      id)
+     (create
+      (setq id (my-get-custom-id))
+      (unless id
+        (error "Invalid ID"))
+      (org-entry-put pom "CUSTOM_ID" id)
+      (message "--- CUSTOM_ID assigned: %s" id)
+      (org-id-add-location id (buffer-file-name (buffer-base-buffer)))
+      id))))
 
-  ;;;###autoload
-  (defun my-add-org-ids-to-headlines-in-file ()
-    "Add CUSTOM_ID properties to all headlines in the current file.
+;;;###autoload
+(defun my-add-org-ids-to-headlines-in-file ()
+  "Add CUSTOM_ID properties to all headlines in the current file.
 Which do not already have one.  Only adds ids if the
 `auto-id' option is set to `t' in the file somewhere. ie,
 #+options: auto-id:t
 
 See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
-    (interactive)
-    (save-excursion
-      (widen)
-      (goto-char (point-min))
-      (when (re-search-forward "^#\\+options:.*auto-id:t" (point-max) t)
-        (org-map-entries
-         (lambda () (my-org-custom-id-get (point) 'create))))))
+  (interactive)
+  (save-excursion
+    (widen)
+    (goto-char (point-min))
+    (when (re-search-forward "^#\\+options:.*auto-id:t" (point-max) t)
+      (org-map-entries
+       (lambda () (my-org-custom-id-get (point) 'create))))))
 
-  (defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$")
-  (defun my-convert-md-link-to-html ()
+;;;###autoload
+(defun my-convert-md-link-to-html ()
     (interactive)
     (goto-char (point-min))
     (while (re-search-forward md-link-format nil :noerror)
@@ -1862,30 +1959,32 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
              (new (concat "<p><img src=\"" src "\" alt=\"" alt "\" /></p>")))
         (replace-match new)
         (message "====\ninput:\t%s\noutput:\t%s" prev new)))
-    (message "--- done.")))
+    (message "--- done."))
 
-(with-eval-after-load "org"
-  (defun my-delete-all-id-in-file ()
-    (interactive)
-    (goto-char 1)
-    (while (not (eq (point) (point-max)))
-      (org-next-visible-heading 1)
-      (let ((id (org-entry-get (point) "ID")))
-        (when id
-          (message "ID: %s" id)
-          (org-delete-property "ID"))))
-    (message "--- done.")))
+;;;###autoload
+(defun my-delete-all-id-in-file ()
+  (interactive)
+  (goto-char 1)
+  (while (not (eq (point) (point-max)))
+    (org-next-visible-heading 1)
+    (let ((id (org-entry-get (point) "ID")))
+      (when id
+        (message "ID: %s" id)
+        (org-delete-property "ID"))))
+  (message "--- done."))
+
+;;;###autoload
+(defun my-orglink-mode-activate ()
+  (orglink-mode 1)
+  (setq orglink-mode-lighter "")
+  ;; バッファローカルに色つけを消す
+  (face-remap-add-relative 'org-link
+                           :underline nil
+                           :inherit font-lock-comment-delimiter-face))
 
 (when (autoload-if-found '(orglink-mode
                            global-orglink-mode my-orglink-mode-activate)
                          "orglink" nil t)
-  (defun my-orglink-mode-activate ()
-    (orglink-mode 1)
-    (setq orglink-mode-lighter "")
-    ;; バッファローカルに色つけを消す
-    (face-remap-add-relative 'org-link
-                             :underline nil
-                             :inherit font-lock-comment-delimiter-face))
 
   (dolist (hook '(emacs-lisp-mode-hook c-mode-common-hook yatex-mode))
     (add-hook hook #'my-orglink-mode-activate))
@@ -1904,58 +2003,63 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (defvar my-org-export-before-hook nil)
   (defvar my-org-export-after-hook nil)
   (defvar my-org-export-last-buffer nil)
-
-  (defun my-org-export--post-processing ()
-    (when (eq this-command 'org-export-dispatch)
-      (let ((moom-verbose nil))
-        (run-hooks 'my-org-export-after-hook)
-        moom-verbose) ;; to avoid a warning on lexical variable
-      (remove-hook 'my-org-export-before-hook 'moom-split-window)
-      (remove-hook 'my-org-export-before-hook 'split-window-horizontally)
-      (remove-hook 'my-org-export-after-hook 'moom-delete-windows)
-      (remove-hook 'my-org-export-after-hook 'delete-window))
-    (when this-command
-      (remove-hook 'post-command-hook #'my-org-export--post-processing)))
-
-  (defun my--org-export-dispatch (f &optional ARG)
-    (cond
-     (org-export-dispatch-use-expert-ui
-      nil)
-     ((eq (frame-width) 80)
-      (when (require 'moom nil t)
-        (add-hook 'my-org-export-before-hook 'moom-split-window)
-        (add-hook 'my-org-export-after-hook 'moom-delete-windows)))
-     ((> (frame-width) 160)
-      (add-hook 'my-org-export-before-hook 'split-window-horizontally)
-      (add-hook 'my-org-export-after-hook 'delete-window)))
-    (when my-org-export-after-hook
-      (add-hook 'post-command-hook #'my-org-export--post-processing))
-    (run-hooks 'my-org-export-before-hook)
-    (funcall f ARG))
   (advice-add 'org-export-dispatch :around #'my--org-export-dispatch)
-
-  (defun my--org-export-insert-default-template (f &optional backend subtreep)
-    (let ((this-command nil))
-      (funcall f backend subtreep)))
   (advice-add 'org-export-insert-default-template :around
               #'my--org-export-insert-default-template)
-
-  (defun my--org-export-to-buffer (_backend
-                                  buffer
-                                  &optional _async _subtreep _visible-only
-                                  _body-only _ext-plist _post-process)
-    (setq my-org-export-last-buffer buffer))
   (advice-add 'org-export-to-buffer :after #'my--org-export-to-buffer)
-
-  (defun my-copy-exported-buffer ()
-    (interactive)
-    (when my-org-export-last-buffer
-      (with-current-buffer my-org-export-last-buffer
-        (mark-whole-buffer)
-        (kill-ring-save (point-min) (point-max))
-        (message "Copied: %s" my-org-export-last-buffer))
-      (setq my-org-export-last-buffer nil)))
   (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
+
+;;;###autoload
+(defun my-org-export--post-processing ()
+  (when (eq this-command 'org-export-dispatch)
+    (let ((moom-verbose nil))
+      (run-hooks 'my-org-export-after-hook)
+      moom-verbose) ;; to avoid a warning on lexical variable
+    (remove-hook 'my-org-export-before-hook 'moom-split-window)
+    (remove-hook 'my-org-export-before-hook 'split-window-horizontally)
+    (remove-hook 'my-org-export-after-hook 'moom-delete-windows)
+    (remove-hook 'my-org-export-after-hook 'delete-window))
+  (when this-command
+    (remove-hook 'post-command-hook #'my-org-export--post-processing)))
+
+;;;###autoload
+(defun my--org-export-dispatch (f &optional ARG)
+  (cond
+   (org-export-dispatch-use-expert-ui
+    nil)
+   ((eq (frame-width) 80)
+    (when (require 'moom nil t)
+      (add-hook 'my-org-export-before-hook 'moom-split-window)
+      (add-hook 'my-org-export-after-hook 'moom-delete-windows)))
+   ((> (frame-width) 160)
+    (add-hook 'my-org-export-before-hook 'split-window-horizontally)
+    (add-hook 'my-org-export-after-hook 'delete-window)))
+  (when my-org-export-after-hook
+    (add-hook 'post-command-hook #'my-org-export--post-processing))
+  (run-hooks 'my-org-export-before-hook)
+  (funcall f ARG))
+
+;;;###autoload
+(defun my--org-export-insert-default-template (f &optional backend subtreep)
+  (let ((this-command nil))
+    (funcall f backend subtreep)))
+
+;;;###autoload
+(defun my--org-export-to-buffer (_backend
+                                 buffer
+                                 &optional _async _subtreep _visible-only
+                                 _body-only _ext-plist _post-process)
+  (setq my-org-export-last-buffer buffer))
+
+;;;###autoload
+(defun my-copy-exported-buffer ()
+  (interactive)
+  (when my-org-export-last-buffer
+    (with-current-buffer my-org-export-last-buffer
+      (mark-whole-buffer)
+      (kill-ring-save (point-min) (point-max))
+      (message "Copied: %s" my-org-export-last-buffer))
+    (setq my-org-export-last-buffer nil)))
 
 (autoload 'skewer-html-mode "skewer-html" nil t)
 (unless noninteractive
@@ -1980,28 +2084,36 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     ;; prettify-symbols で置き換えるほうが良い
     (when (and nil (require 'hide-lines nil t))
       (defvar my-org-src-block-faces nil)
-      (defun my-show-headers ()
-        (setq org-src-block-faces 'my-org-src-block-faces)
-        (hide-lines-show-all))
-      (defun my-hide-headers ()
-        (setq my-org-src-block-faces 'org-src-block-faces)
-        (setq org-src-block-faces
-              '(("emacs-lisp" (:background "cornsilk"))))
-        (hide-lines-matching "#\\+BEGIN_SRC")
-        (hide-lines-matching "#\\+END_SRC"))
       (add-hook 'org-tree-slide-play-hook #'my-hide-headers)
       (add-hook 'org-tree-slide-stop-hook #'my-show-headers)
 
       ;; (defun my--org-edit-src-code (&optional code edit-buffer-name)
-      (defun my--org-edit-src-code ()
-        (interactive)
-        (my-show-headers))
       (advice-add 'org-edit-src-code :before #'my--org-edit-src-code)
       ;; Block 外で呼ばれると，my-show-headers が呼ばれてしまう
-      (defun my--org-edit-src-exit ()
-        (interactive)
-        (my-hide-headers))
       (advice-add 'org-edit-src-exit :after #'my--org-edit-src-exit))))
+
+;;;###autoload
+(defun my-show-headers ()
+  (setq org-src-block-faces 'my-org-src-block-faces)
+  (hide-lines-show-all))
+
+;;;###autoload
+(defun my-hide-headers ()
+  (setq my-org-src-block-faces 'org-src-block-faces)
+  (setq org-src-block-faces
+        '(("emacs-lisp" (:background "cornsilk"))))
+  (hide-lines-matching "#\\+BEGIN_SRC")
+  (hide-lines-matching "#\\+END_SRC"))
+
+;;;###autoload
+(defun my--org-edit-src-code ()
+  (interactive)
+  (my-show-headers))
+
+;;;###autoload
+(defun my--org-edit-src-exit ()
+  (interactive)
+  (my-hide-headers))
 
 (with-eval-after-load "ox"
   ;; (setq org-export-default-language "ja")
@@ -2018,49 +2130,52 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
     :group 'org-mac-link
     :type 'boolean)
 
-  (defun org-mac-papers-insert-frontmost-paper-link ()
-    (interactive)
-    (let ((result (org-mac-papers-get-frontmost-paper-link)))
-      (if result
-          (insert result)
-        (message "Please open Papers.app and select a paper."))))
-
-  (defun org-mac-papers-get-frontmost-paper-link ()
-    (interactive)
-    (message "Applescript: Getting Papers link...")
-    (let ((result (org-as-mac-papers-get-paper-link)))
-      (if (or (eq result nil) (string= result ""))
-          nil
-        (org-mac-paste-applescript-links result))))
-
-  (defun org-as-mac-papers-get-paper-link ()
-    (do-applescript
-     (concat
-      "if application \"Papers\" is running then\n"
-      "	tell application \"Papers\" to activate\n"
-      "	delay 0.3\n"
-      "	set the clipboard to \"\"\n"
-      "	tell application \"System Events\" to tell process \"Papers\"\n"
-      "		keystroke \"l\" using {command down, shift down}\n"
-      "	end tell\n"
-      "	delay 0.2\n"
-      "	set aLink to the clipboard\n"
-      "	tell application \"System Events\" to tell process \"Papers\"\n"
-      ;; "		keystroke \"c\" using {command down, alt down\}\n"
-      "		keystroke \"m\" using {command down, option down\}\n"
-      "	end tell\n"
-      "	delay 0.2\n"
-      "	set aName to the clipboard\n"
-      "	tell application \"Emacs\" to activate\n"
-      "	return (get aLink) & \"::split::\" & (get aName) as string\n"
-      "else\n"
-      "	return\n"
-      "end if\n")))
-
   (when (boundp 'org-mac-link-descriptors)
     (add-to-list 'org-mac-link-descriptors
                  `("P" "apers" org-mac-papers-insert-frontmost-paper-link
                    ,org-mac-grab-Papers-app-p) t)))
+
+;;;###autoload
+(defun org-mac-papers-insert-frontmost-paper-link ()
+  (interactive)
+  (let ((result (org-mac-papers-get-frontmost-paper-link)))
+    (if result
+        (insert result)
+      (message "Please open Papers.app and select a paper."))))
+
+;;;###autoload
+(defun org-mac-papers-get-frontmost-paper-link ()
+  (interactive)
+  (message "Applescript: Getting Papers link...")
+  (let ((result (org-as-mac-papers-get-paper-link)))
+    (if (or (eq result nil) (string= result ""))
+        nil
+      (org-mac-paste-applescript-links result))))
+
+;;;###autoload
+(defun org-as-mac-papers-get-paper-link ()
+  (do-applescript
+   (concat
+    "if application \"Papers\" is running then\n"
+    " tell application \"Papers\" to activate\n"
+    " delay 0.3\n"
+    " set the clipboard to \"\"\n"
+    " tell application \"System Events\" to tell process \"Papers\"\n"
+    "           keystroke \"l\" using {command down, shift down}\n"
+    " end tell\n"
+    " delay 0.2\n"
+    " set aLink to the clipboard\n"
+    " tell application \"System Events\" to tell process \"Papers\"\n"
+    ;; "                keystroke \"c\" using {command down, alt down\}\n"
+    "           keystroke \"m\" using {command down, option down\}\n"
+    " end tell\n"
+    " delay 0.2\n"
+    " set aName to the clipboard\n"
+    " tell application \"Emacs\" to activate\n"
+    " return (get aLink) & \"::split::\" & (get aName) as string\n"
+    "else\n"
+    " return\n"
+    "end if\n")))
 
 (with-eval-after-load "org"
   (when (eq system-type 'darwin)
@@ -2073,6 +2188,15 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
                  (let ((cmd (concat "open papers3:" path)))
                    (shell-command-to-string (shell-quote-argument cmd))
                    (message "%s" cmd)))))))
+
+;;;###autoload
+(defun du-org-attachments ()
+  "Show directory size for org-attachments."
+  (interactive)
+  (message "--- %s"
+           (chomp (shell-command-to-string
+                   (concat "/usr/bin/du -sh "
+                           org-attach-directory-absolute)))))
 
 (when (autoload-if-found '(org-attach du-org-attachments)
                          "org-attach" nil t)
@@ -2088,15 +2212,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (concat (getenv "SYNCROOT")
               "/org/"
               (when (boundp 'org-attach-directory)
-                "data/")))
-
-    (defun du-org-attachments ()
-      "Show directory size for org-attachments."
-      (interactive)
-      (message "--- %s"
-               (chomp (shell-command-to-string
-                       (concat "/usr/bin/du -sh "
-                               org-attach-directory-absolute)))))))
+                "data/")))))
 
 (when (autoload-if-found '(orgnav-search-root)
                          "orgnav" nil t)
@@ -2107,22 +2223,28 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 (autoload-if-found '(toc-org-insert-toc) "toc-org" nil t)
 
+;;;###autoload
+(defun my-org-attach-screenshot ()
+  (interactive)
+  (org-attach-screenshot t (format-time-string
+                            "screenshot-%Y%m%d-%H%M%S.png")))
+
 (when (autoload-if-found '(org-attach-screenshot)
                          "org-attach-screenshot" nil t)
   (with-eval-after-load "org-attach-screenshot"
     (when (executable-find "screencapture")
-      (setq org-attach-screenshot-command-line "screencapture -w %f"))
-    (defun my-org-attach-screenshot ()
-      (interactive)
-      (org-attach-screenshot t (format-time-string
-                                "screenshot-%Y%m%d-%H%M%S.png")))))
+      (setq org-attach-screenshot-command-line "screencapture -w %f"))))
+
+;;;###autoload
+(defun my--org-agenda (&optional _arg _org-keys _restriction)
+  (my-linespacing))
+
+;;;###autoload
+(defun my--org-agenda-redo (&optional _all)
+  (my-linespacing))
 
 (with-eval-after-load "org-agenda"
-  (defun my--org-agenda (&optional _arg _org-keys _restriction)
-    (my-linespacing))
   (advice-add 'org-agenda :after #'my--org-agenda)
-  (defun my--org-agenda-redo (&optional _all)
-    (my-linespacing))
   (advice-add 'org-agenda-redo :after #'my--org-agenda-redo))
 
 (with-eval-after-load "org-src"
@@ -2134,12 +2256,11 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (advice-add 'org-edit-src-exit :before
               #'my--format-emacs-lisp-for-org-buffer))
 
-(when nil
-  (unless noninteractive
-    (let ((inhibit-message t))
-      (message "Loading init-org.el...done (%4d [ms])"
-         (* 1000
-      (float-time (time-subtract
-             (current-time)
-             my-init-org-start)))))))
+(unless noninteractive
+  (let ((inhibit-message t))
+    (message "Loading init-org.el...done (%4d [ms])"
+             (* 1000
+                (float-time (time-subtract
+                             (current-time)
+                             my-init-org-start))))))
 (provide 'init-org)
