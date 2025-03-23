@@ -368,6 +368,7 @@
   (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
   (add-to-list 'org-speed-commands '("h" org-hugo-export-wim-to-md))
   (add-to-list 'org-speed-commands '("E" my-export-subtree-as-html))
+  (add-to-list 'org-speed-commands '("P" my-toggle-org-pin-subtree))
   (add-to-list 'org-speed-commands '("." my-org-deadline-today))
   (add-to-list 'org-speed-commands '("!" my-org-default-property))
   (add-to-list 'org-speed-commands '("y" my-org-yank))
@@ -527,6 +528,26 @@
 
   ;; アーカイブする前に narrowing を解く
   (advice-add 'org-archive-subtree :before #'widen)
+
+  ;; バッファ表示時に指定のツリーのコンテンツを展開表示する(Toggle)
+  (defvar my-org-pin-tag "pin")
+  (defun my-toggle-org-pin-subtree ()
+    "Toggle \"VISIBILITY\" of the current tree."
+    (interactive)
+    (save-excursion
+      (save-restriction
+        (unless (org-at-heading-p)
+          (org-previous-visible-heading 1))
+        (unless (org-before-first-heading-p)
+          (let ((element (org-element-at-point)))
+            (cond ((org-element-property :VISIBILITY element)
+                   (org-delete-property "VISIBILITY")
+                   (org-toggle-tag my-org-pin-tag 'off)
+                   (message "Unpinned"))
+                  (t
+                   (org-set-property "VISIBILITY" "children")
+                   (org-toggle-tag my-org-pin-tag 'on)
+                   (message "Pinned"))))))))
 
   ;; narrowing+編集開始時に領域の最後に改行を置く FIXME
   (defun my--ensure-newline-end (&rest _arg)
