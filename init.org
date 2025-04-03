@@ -94,12 +94,16 @@ Then load the following at startup
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
 (require 'init-autoloads nil t) ;; 生成済みの autoloads を読み込む
+(defun my--safe-load (file)
+  (if (file-exists-p file)
+      (load file nil t)
+    (message "--- Missing %s" (expand-file-name file))))
 (when (and (boundp my-profiler-p)
            my-profiler-p)
   (profiler-start 'cpu+mem))
-(when (and (boundp my-profiler-p)
+(when (and (boundp my-ad-require-p)
            my-ad-require-p)
-  (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
+  (my--safe-load "~/Dropbox/emacs.d/config/init-ad.el"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
@@ -168,6 +172,9 @@ Then load the following at startup
   (menu-bar-mode -1)
   (tab-bar-mode -1)
   (tool-bar-mode -1))
+
+;; setenv "SYNCROOT"
+(setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" ))
 #+end_src
 
 ** 起動時間の計測
@@ -233,12 +240,12 @@ Then load the following at startup
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              "  Loading init files: %4d [ms]\n"
               "  Loading early-init: %4d [ms]\n"
+              "  Loading init files: %4d [ms]\n"
               "  Others(GUI etc.):   %4d [ms] includes `before-init-hook'\n"
               "(`after-init-hook': %4d [ms])")
-             (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
+             (* 1000 (float-time t-init-files))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
              (* 1000 (float-time t-after-init)))))
 
@@ -553,10 +560,6 @@ This function is called directly from the C code."
 (unless (file-directory-p my-package-dir)
   (user-error "%s does NOT exist. Run setup script first" my-package-dir))
 
-;; setenv "SYNCROOT"
-(unless (getenv "SYNCROOT")
-  (setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" )))
-
 (defun my-path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."
   (dolist (x path-list)
@@ -591,14 +594,13 @@ This function is called directly from the C code."
 
 ;; 拡張パッケージにパスを通す
 ;; M-x list-load-path-shadows
-(let* ((g (expand-file-name "~/devel/git/"))
-       (od "org-mode")
-       (l `(,(expand-file-name "~/Dropbox/config")
-            ,(expand-file-name "~/.emacs.d/lisp")
-            ,my-package-dir ;; may include a path to org
-            ,(concat g od "/lisp") ;; override the path to org
-            ,(concat g od "/contrib/lisp"))))
-  (my-path-setter l 'load-path))
+(let* ((git-path (expand-file-name "~/devel/git/"))
+       (orgpath "org-mode")
+       (pl `(,(expand-file-name "~/.emacs.d/lisp")
+             ,my-package-dir ;; may include a path to org
+             ,(concat git-path orgpath "/lisp") ;; override the path to org
+             ,(concat git-path orgpath "/contrib/lisp"))))
+  (my-path-setter pl 'load-path))
 
 ;; (require 'use-package nil t) ;; 24[ms]
 ;; (require 'leaf nil t) ;; 2[ms]
@@ -614,7 +616,7 @@ This function is called directly from the C code."
 
 #+begin_src emacs-lisp :tangle yes
 (when (version< emacs-version "29.0")
-  (load "~/Dropbox/emacs.d/config/init-compat.el" nil t))
+  (my--safe-load "~/Dropbox/emacs.d/config/init-compat.el"))
 #+end_src
 
 ** [my-load-package-p] 設定の読み込みフラグを確認する
@@ -7711,7 +7713,7 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
   :ID:       5A3E0805-61A5-4CFC-9B73-A76DB860E640
   :END:
 #+begin_src emacs-lisp :tangle yes :exports none
-;; (my-tick-init-time "media")
+(my-tick-init-time "media")
 #+end_src
 ** 履歴サイズを大きくする
    :PROPERTIES:
@@ -7758,12 +7760,11 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 ;;;###autoload
 (defun my-recentf-cleanup-silence ()
   (interactive)
-  (when (file-exists-p "/Volumes/orzHDn")
-    (if shutup-p
-        (shut-up (recentf-cleanup))
-      (let ((message-log-max nil))
-        (recentf-cleanup)))
-    (message "")))
+  (if shutup-p
+      (shut-up (recentf-cleanup))
+    (let ((message-log-max nil))
+      (recentf-cleanup)))
+  (message ""))
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
@@ -7776,8 +7777,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 (defun my--counsel-recentf ()
   "Find a file on `recentf-list'."
   (interactive)
-  (require 'recentf)
-  (recentf-mode)
+  (unless recentf-mode (recentf-mode 1))
   (ivy-read "Recentf: "
             (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
                                  (substring-no-properties x)))
@@ -7788,30 +7788,13 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(with-eval-after-load "recentf"
-  (message "Loading recentf...done")
-  (custom-set-variables
-   '(recentf-auto-cleanup 'never)))
-
-(when (autoload-if-found '(counsel-recentf)
-                         "counsel" nil t)
-  (keymap-global-set "C-M-r" 'counsel-recentf))
-
-;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
-(when (eq system-type 'darwin)
-  ;; Dropbox のエイリアスを展開されないようにする
-  ;; find-file での表示も短縮される．
-  (let ((provider (expand-file-name "~/Library/CloudStorage/")))
-    (setq directory-abbrev-alist
-          `((,(concat "\\`" provider "Dropbox") . "~/Dropbox")))))
-#+end_src
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found '(rencetf-mode
-                           my-recentf-save-list-silence
-                           my-recentf-cleanup-silence
+(when (autoload-if-found '(recentf-save-list
+                           recentf-cleanup
                            recentf-open-files recentf-add-file)
-                         "recentf" nil t)
+                         "recentf" nil t) ;; see recentf.el
+
+  (advice-add 'recentf-save-list :around #'my--suppress-message)
+
   (with-eval-after-load "recentf"
     (custom-set-variables
      '(recentf-max-saved-items 2000)
@@ -7830,19 +7813,34 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
       (add-function :before after-focus-change-function
                     #'my-recentf-cleanup-silence))
 
-    (unless noninteractive
-      (let ((message-log-max nil))
-        (if (equal (system-name) "water.local")
-            (recentf-mode 1)
-          (message "--- recentf is not activated in %s" system-name)))))
+    (recentf-mode 1))
 
-  (with-eval-after-load "counsel"
-    (advice-add 'counsel-recentf :override #'my--counsel-recentf)
-    (ivy-add-actions
-     'counsel-recentf
-     '(("g" my-counsel-ag-in-dir "switch to ag")
-       ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
-       ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)")))))
+  ;; (add-hook 'find-file-hook #'recentf-save-list)
+  (unless noninteractive
+    (run-with-idle-timer 10 t #'recentf-save-list)))
+
+
+(when (autoload-if-found '(counsel-recentf)
+                         "counsel" nil t)
+  (keymap-global-set "C-M-r" 'counsel-recentf))
+
+;; see https://github.com/mattfidler/EmacsPortable.App/issues/7
+(when (eq system-type 'darwin)
+  ;; Dropbox のエイリアスを展開されないようにする
+  ;; find-file での表示も短縮される．
+  (let ((provider (expand-file-name "~/Library/CloudStorage/")))
+    (setq directory-abbrev-alist
+          `((,(concat "\\`" provider "Dropbox") . "~/Dropbox")))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "counsel"
+  (advice-add 'counsel-recentf :override #'my--counsel-recentf)
+  (ivy-add-actions
+   'counsel-recentf
+   '(("g" my-counsel-ag-in-dir "switch to ag")
+     ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
+     ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)"))))
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 #+end_src
@@ -7952,26 +7950,28 @@ When invoke with C-u, the newly created file will be visited.
   "[crux.el]
 Rename current buffer and if the buffer is visiting a file, rename it too."
   (interactive)
-  (when-let* ((filename (buffer-file-name))
-              (new-name (or (read-file-name "New name: " (file-name-directory filename) nil 'confirm)))
-              (containing-dir (file-name-directory new-name)))
-    ;; make sure the current buffer is saved and backed by some file
-    (when (or (buffer-modified-p) (not (file-exists-p filename)))
-      (if (y-or-n-p "Can't move file before saving it.  Would you like to save it now?")
-          (save-buffer)))
-    (if (get-file-buffer new-name)
-        (message "There already exists a buffer named %s" new-name)
-      (progn
-        (make-directory containing-dir t)
-        (cond
-         ((vc-backend filename)
-          ;; vc-rename-file seems not able to cope with remote filenames?
-          (let ((vc-filename (if (tramp-tramp-file-p filename) (tramp-file-local-name filename) filename))
-                (vc-new-name (if (tramp-tramp-file-p new-name) (tramp-file-local-name filename) new-name)))
-            (vc-rename-file vc-filename vc-new-name)))
-         (t
-          (rename-file filename new-name t)
-          (set-visited-file-name new-name t t)))))))
+  ;; Not using `when-let*' to avoid showing a warning in emacs 27
+  (let* ((filename (buffer-file-name))
+         (new-name (or (read-file-name "New name: " (file-name-directory filename) nil 'confirm)))
+         (containing-dir (file-name-directory new-name)))
+    (when containing-dir
+      ;; make sure the current buffer is saved and backed by some file
+      (when (or (buffer-modified-p) (not (file-exists-p filename)))
+        (if (y-or-n-p "Can't move file before saving it.  Would you like to save it now?")
+            (save-buffer)))
+      (if (get-file-buffer new-name)
+          (message "There already exists a buffer named %s" new-name)
+        (progn
+          (make-directory containing-dir t)
+          (cond
+           ((vc-backend filename)
+            ;; vc-rename-file seems not able to cope with remote filenames?
+            (let ((vc-filename (if (tramp-tramp-file-p filename) (tramp-file-local-name filename) filename))
+                  (vc-new-name (if (tramp-tramp-file-p new-name) (tramp-file-local-name filename) new-name)))
+              (vc-rename-file vc-filename vc-new-name)))
+           (t
+            (rename-file filename new-name t)
+            (set-visited-file-name new-name t t))))))))
 
 ;;;###autoload
 (defun crux-delete-file-and-buffer ()
@@ -8037,7 +8037,7 @@ With a prefix ARG always prompt for command to use."
 ;;;###autoload
 (defun my-backup-recentf ()
   (interactive)
-  (my-backup recentf-save-file) ;; "~/.emacs.d/recentf"
+  (my-backup recentf-save-file) ;; "~/.emacs.d/_recentf"
   (my-backup (expand-file-name "~/.histfile")))
 #+end_src
 
@@ -8418,17 +8418,23 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 #+begin_src emacs-lisp :tangle yes
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
-  (if (or noninteractive my-secure-boot)
+  (defvar my-session-save-file
+    (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
+  (if my-secure-boot
       (message "--- session.el is not loaded for secure booting")
-    (add-hook 'after-init-hook #'session-initialize))
+    (unless noninteractive
+      (if (file-exists-p my-session-save-file)
+          (add-hook 'after-init-hook #'session-initialize)
+        (message "--- Missing %s" my-session-save-file))))
+
   (with-eval-after-load "session"
     ;; (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     ;; (add-to-list 'session-globals-exclude 'org-mark-ring)
     (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
-    (setq session-save-file
-          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session"))
-          session-initialize '(de-saveplace session keys menus places)
+    ;; (setq session-save-file
+    ;;       (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
+    (setq session-initialize '(de-saveplace session keys menus places)
           ;; session-locals-include nil
           session-globals-include '(ivy-dired-history-variable
                                     org-mark-ring
@@ -15563,7 +15569,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   :END:
 
 #+begin_src emacs-lisp :tangle yes :exports none
-;; (my-tick-init-time "font")
+(my-tick-init-time "font")
 #+end_src
 
 ** [pomodoro.el] ポモドーロの実践
@@ -16868,10 +16874,10 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   (replace-regexp-in-string "[\n\r]+$" "" str))
 #+end_src
 ** 特定のファイルを Dropbox 以下にバックアップする
-   :PROPERTIES:
-   :CUSTOM_ID: org9731a19e
-   :ID:       6E7E4977-E144-4578-B222-C3AFF5E21BC6
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org9731a19e
+:ID:       6E7E4977-E144-4578-B222-C3AFF5E21BC6
+:END:
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -16879,7 +16885,9 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   "Backup a file to `Dropbox/backup' directory.
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
-  (let ((dir (concat (expand-file-name (or dropbox (getenv "SYNCROOT"))) "/backup/" (system-name))))
+  (let ((dir (concat (expand-file-name
+                      (or dropbox (getenv "SYNCROOT")))
+                     "/backup/" (system-name))))
     (if (file-directory-p dir)
         (mapc
          (lambda (file)
@@ -17557,7 +17565,8 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
                    (file-directory-p (dired-current-directory))))
       (kill-buffer buffer)))
   (delete-windows-on)
-  (scratch-buffer)
+  ;;  (scratch-buffer) is available after 29.1
+  (pop-to-buffer-same-window (get-scratch-buffer-create))
   (message "Quit Emacs? (C-c C-x)"))
 #+end_src
 
@@ -17583,6 +17592,21 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+begin_src emacs-lisp :tangle late-init.el
 (keymap-global-set "C-c C-x" #'my-kill-emacs-when-scratch-buffer)
 #+end_src
+** TODO Message バッファにログを記録する
+:PROPERTIES:
+:CUSTOM_ID: orgd96d80bf
+:ID:       45962DF0-6072-4C6C-A8CF-B18C34893999
+:END:
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-print-message (&optional message)
+  (let ((inhibit-message nil)
+        (message-log-max 5000))
+    (message "[%s] %s" (format-time-string "%H:%M:%S" (current-time))
+             (or message "..."))))
+#+end_src
+
 ** TODO emacs-lisp のコードをフォーマットする
 :PROPERTIES:
 :CUSTOM_ID: orgfa252a98
@@ -17751,7 +17775,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 以上が，私の =init.el= とその説明です．
 
 #+begin_src emacs-lisp :tangle yes :exports none
-;; (my-tick-init-time "utility")
+(my-tick-init-time "utility")
 (when (and (boundp my-profiler-p)
            my-profiler-p)
   (profiler-report))

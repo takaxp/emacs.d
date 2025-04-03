@@ -29,6 +29,9 @@
   (tab-bar-mode -1)
   (tool-bar-mode -1))
 
+;; setenv "SYNCROOT"
+(setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" ))
+
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 ;; (setq garbage-collection-messages t)
 ;; (defvar my-gc-last 0.0)
@@ -47,10 +50,6 @@
   (setq my-package-dir my-elget-package-dir))
 (unless (file-directory-p my-package-dir)
   (user-error "%s does NOT exist. Run setup script first" my-package-dir))
-
-;; setenv "SYNCROOT"
-(unless (getenv "SYNCROOT")
-  (setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" )))
 
 (defun my-path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."
@@ -86,14 +85,13 @@
 
 ;; 拡張パッケージにパスを通す
 ;; M-x list-load-path-shadows
-(let* ((g (expand-file-name "~/devel/git/"))
-       (od "org-mode")
-       (l `(,(expand-file-name "~/Dropbox/config")
-            ,(expand-file-name "~/.emacs.d/lisp")
-            ,my-package-dir ;; may include a path to org
-            ,(concat g od "/lisp") ;; override the path to org
-            ,(concat g od "/contrib/lisp"))))
-  (my-path-setter l 'load-path))
+(let* ((git-path (expand-file-name "~/devel/git/"))
+       (orgpath "org-mode")
+       (pl `(,(expand-file-name "~/.emacs.d/lisp")
+             ,my-package-dir ;; may include a path to org
+             ,(concat git-path orgpath "/lisp") ;; override the path to org
+             ,(concat git-path orgpath "/contrib/lisp"))))
+  (my-path-setter pl 'load-path))
 
 ;; (require 'use-package nil t) ;; 24[ms]
 ;; (require 'leaf nil t) ;; 2[ms]

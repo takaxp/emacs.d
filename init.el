@@ -3,12 +3,16 @@
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
 (require 'init-autoloads nil t) ;; 生成済みの autoloads を読み込む
+(defun my--safe-load (file)
+  (if (file-exists-p file)
+      (load file nil t)
+    (message "--- Missing %s" (expand-file-name file))))
 (when (and (boundp my-profiler-p)
            my-profiler-p)
   (profiler-start 'cpu+mem))
-(when (and (boundp my-profiler-p)
+(when (and (boundp my-ad-require-p)
            my-ad-require-p)
-  (load "~/Dropbox/emacs.d/config/init-ad.el" nil t))
+  (my--safe-load "~/Dropbox/emacs.d/config/init-ad.el"))
 
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
@@ -40,12 +44,12 @@
         (t-early-init (time-subtract my-early-end my-early-start))
         (inhibit-message t))
     (message (concat
-              "  Loading init files: %4d [ms]\n"
               "  Loading early-init: %4d [ms]\n"
+              "  Loading init files: %4d [ms]\n"
               "  Others(GUI etc.):   %4d [ms] includes `before-init-hook'\n"
               "(`after-init-hook': %4d [ms])")
-             (* 1000 (float-time t-init-files))
              (* 1000 (float-time t-early-init))
+             (* 1000 (float-time t-init-files))
              (* 1000 (- (float-time t-others) (float-time t-early-init)))
              (* 1000 (float-time t-after-init)))))
 
@@ -76,7 +80,7 @@
 (advice-add 'emacs-repository-version-git :around #'my--suppress-message)
 
 (when (version< emacs-version "29.0")
-  (load "~/Dropbox/emacs.d/config/init-compat.el" nil t))
+  (my--safe-load "~/Dropbox/emacs.d/config/init-compat.el"))
 
 (defun my-load-package-p (file)
   (let ((enabled t))
@@ -283,16 +287,43 @@
 
 (my-tick-init-time "presentation")
 
-;; (my-tick-init-time "media")
+(my-tick-init-time "media")
 
 (setq history-length 2000)
 
 (setq undo-outer-limit nil)
 
-(with-eval-after-load "recentf"
-  (message "Loading recentf...done")
-  (custom-set-variables
-   '(recentf-auto-cleanup 'never)))
+(when (autoload-if-found '(recentf-save-list
+                           recentf-cleanup
+                           recentf-open-files recentf-add-file)
+                         "recentf" nil t) ;; see recentf.el
+
+  (advice-add 'recentf-save-list :around #'my--suppress-message)
+
+  (with-eval-after-load "recentf"
+    (custom-set-variables
+     '(recentf-max-saved-items 2000)
+     '(recentf-save-file (expand-file-name "~/.emacs.d/_recentf"))
+     '(recentf-auto-cleanup 'never)
+     '(recentf-exclude
+       '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
+         "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
+
+    (if (version< emacs-version "27.1")
+        (progn
+          (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
+          (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+      (add-function :before after-focus-change-function
+                    #'my-recentf-save-list-silence)
+      (add-function :before after-focus-change-function
+                    #'my-recentf-cleanup-silence))
+
+    (recentf-mode 1))
+
+  ;; (add-hook 'find-file-hook #'recentf-save-list)
+  (unless noninteractive
+    (run-with-idle-timer 10 t #'recentf-save-list)))
+
 
 (when (autoload-if-found '(counsel-recentf)
                          "counsel" nil t)
@@ -315,17 +346,23 @@
 
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
-  (if (or noninteractive my-secure-boot)
+  (defvar my-session-save-file
+    (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
+  (if my-secure-boot
       (message "--- session.el is not loaded for secure booting")
-    (add-hook 'after-init-hook #'session-initialize))
+    (unless noninteractive
+      (if (file-exists-p my-session-save-file)
+          (add-hook 'after-init-hook #'session-initialize)
+        (message "--- Missing %s" my-session-save-file))))
+
   (with-eval-after-load "session"
     ;; (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     ;; (add-to-list 'session-globals-exclude 'org-mark-ring)
     (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
-    (setq session-save-file
-          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session"))
-          session-initialize '(de-saveplace session keys menus places)
+    ;; (setq session-save-file
+    ;;       (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
+    (setq session-initialize '(de-saveplace session keys menus places)
           ;; session-locals-include nil
           session-globals-include '(ivy-dired-history-variable
                                     org-mark-ring
@@ -468,7 +505,7 @@
 
 (my-tick-init-time "frame and window")
 
-;; (my-tick-init-time "font")
+(my-tick-init-time "font")
 
 (when (autoload-if-found '(counsel-osx-app)
                          "counsel-osx-app" nil t)
@@ -482,7 +519,7 @@
 (keymap-global-set "C-c 0" 'insert-formatted-current-date)
 (keymap-global-set "C-c 9" 'insert-formatted-current-time)
 
-;; (my-tick-init-time "utility")
+(my-tick-init-time "utility")
 (when (and (boundp my-profiler-p)
            my-profiler-p)
   (profiler-report))

@@ -8,6 +8,21 @@
   ;; (require 'org-phscroll nil t)
   )
 
+(with-eval-after-load "recentf"
+  (defun my-recentf-cleanup-silence ()
+    (interactive)
+    (my-print-message "recentf cleanup silence")
+    (my-print-message `("max:" ,recentf-max-saved-items))
+    (my-print-message `("file:" ,recentf-save-file))
+    (my-print-message `("items:" ,(length recentf-list)))
+    (if shutup-p
+	(shut-up (recentf-cleanup))
+      (let ((message-log-max nil))
+	(recentf-cleanup)))
+    ;; (message "")
+    ))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot mode selection
 ;; Note: `load-path' and `exec-path' are both configured in early-init.el
@@ -74,7 +89,6 @@
   ;; 	  my-org-agenda-prepare-buffers
   ;; 	  ))
   ;; (require 'my-eshell nil t)
-
   (require 'init nil t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1133,12 +1133,11 @@ Obeys `widen-automatically', which see."
 ;;;###autoload
 (defun my-recentf-cleanup-silence ()
   (interactive)
-  (when (file-exists-p "/Volumes/orzHDn")
-    (if shutup-p
-        (shut-up (recentf-cleanup))
-      (let ((message-log-max nil))
-        (recentf-cleanup)))
-    (message "")))
+  (if shutup-p
+      (shut-up (recentf-cleanup))
+    (let ((message-log-max nil))
+      (recentf-cleanup)))
+  (message ""))
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
@@ -1151,8 +1150,7 @@ Obeys `widen-automatically', which see."
 (defun my--counsel-recentf ()
   "Find a file on `recentf-list'."
   (interactive)
-  (require 'recentf)
-  (recentf-mode)
+  (unless recentf-mode (recentf-mode 1))
   (ivy-read "Recentf: "
             (mapcar (lambda (x) (abbreviate-file-name  ;; ~/
                                  (substring-no-properties x)))
@@ -1226,26 +1224,28 @@ When invoke with C-u, the newly created file will be visited.
   "[crux.el]
 Rename current buffer and if the buffer is visiting a file, rename it too."
   (interactive)
-  (when-let* ((filename (buffer-file-name))
-              (new-name (or (read-file-name "New name: " (file-name-directory filename) nil 'confirm)))
-              (containing-dir (file-name-directory new-name)))
-    ;; make sure the current buffer is saved and backed by some file
-    (when (or (buffer-modified-p) (not (file-exists-p filename)))
-      (if (y-or-n-p "Can't move file before saving it.  Would you like to save it now?")
-          (save-buffer)))
-    (if (get-file-buffer new-name)
-        (message "There already exists a buffer named %s" new-name)
-      (progn
-        (make-directory containing-dir t)
-        (cond
-         ((vc-backend filename)
-          ;; vc-rename-file seems not able to cope with remote filenames?
-          (let ((vc-filename (if (tramp-tramp-file-p filename) (tramp-file-local-name filename) filename))
-                (vc-new-name (if (tramp-tramp-file-p new-name) (tramp-file-local-name filename) new-name)))
-            (vc-rename-file vc-filename vc-new-name)))
-         (t
-          (rename-file filename new-name t)
-          (set-visited-file-name new-name t t)))))))
+  ;; Not using `when-let*' to avoid showing a warning in emacs 27
+  (let* ((filename (buffer-file-name))
+         (new-name (or (read-file-name "New name: " (file-name-directory filename) nil 'confirm)))
+         (containing-dir (file-name-directory new-name)))
+    (when containing-dir
+      ;; make sure the current buffer is saved and backed by some file
+      (when (or (buffer-modified-p) (not (file-exists-p filename)))
+        (if (y-or-n-p "Can't move file before saving it.  Would you like to save it now?")
+            (save-buffer)))
+      (if (get-file-buffer new-name)
+          (message "There already exists a buffer named %s" new-name)
+        (progn
+          (make-directory containing-dir t)
+          (cond
+           ((vc-backend filename)
+            ;; vc-rename-file seems not able to cope with remote filenames?
+            (let ((vc-filename (if (tramp-tramp-file-p filename) (tramp-file-local-name filename) filename))
+                  (vc-new-name (if (tramp-tramp-file-p new-name) (tramp-file-local-name filename) new-name)))
+              (vc-rename-file vc-filename vc-new-name)))
+           (t
+            (rename-file filename new-name t)
+            (set-visited-file-name new-name t t))))))))
 
 ;;;###autoload
 (defun crux-delete-file-and-buffer ()
@@ -1285,7 +1285,7 @@ With a prefix ARG always prompt for command to use."
 ;;;###autoload
 (defun my-backup-recentf ()
   (interactive)
-  (my-backup recentf-save-file) ;; "~/.emacs.d/recentf"
+  (my-backup recentf-save-file) ;; "~/.emacs.d/_recentf"
   (my-backup (expand-file-name "~/.histfile")))
 
 ;;;###autoload
@@ -2844,7 +2844,9 @@ Uses `all-the-icons-material' to fetch the icon."
   "Backup a file to `Dropbox/backup' directory.
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
-  (let ((dir (concat (expand-file-name (or dropbox (getenv "SYNCROOT"))) "/backup/" (system-name))))
+  (let ((dir (concat (expand-file-name
+                      (or dropbox (getenv "SYNCROOT")))
+                     "/backup/" (system-name))))
     (if (file-directory-p dir)
         (mapc
          (lambda (file)
@@ -3190,7 +3192,8 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
                    (file-directory-p (dired-current-directory))))
       (kill-buffer buffer)))
   (delete-windows-on)
-  (scratch-buffer)
+  ;;  (scratch-buffer) is available after 29.1
+  (pop-to-buffer-same-window (get-scratch-buffer-create))
   (message "Quit Emacs? (C-c C-x)"))
 
 ;;;###autoload
@@ -3198,6 +3201,13 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (interactive)
   (when (equal "*scratch*" (buffer-name))
     (save-buffers-kill-emacs)))
+
+;;;###autoload
+(defun my-print-message (&optional message)
+  (let ((inhibit-message nil)
+        (message-log-max 5000))
+    (message "[%s] %s" (format-time-string "%H:%M:%S" (current-time))
+             (or message "..."))))
 
 ;;;###autoload
 (defun my--format-emacs-lisp-buffer ()

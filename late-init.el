@@ -1443,42 +1443,13 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(rainbow-csv-mode) "rainbow-csv" nil t)
   (add-hook 'csv-mode-hook 'rainbow-csv-mode))
 
-(when (autoload-if-found '(rencetf-mode
-                           my-recentf-save-list-silence
-                           my-recentf-cleanup-silence
-                           recentf-open-files recentf-add-file)
-                         "recentf" nil t)
-  (with-eval-after-load "recentf"
-    (custom-set-variables
-     '(recentf-max-saved-items 2000)
-     '(recentf-save-file (expand-file-name "~/.emacs.d/_recentf"))
-     '(recentf-auto-cleanup 'never)
-     '(recentf-exclude
-       '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
-         "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
-
-    (if (version< emacs-version "27.1")
-        (progn
-          (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
-          (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
-      (add-function :before after-focus-change-function
-                    #'my-recentf-save-list-silence)
-      (add-function :before after-focus-change-function
-                    #'my-recentf-cleanup-silence))
-
-    (unless noninteractive
-      (let ((message-log-max nil))
-        (if (equal (system-name) "water.local")
-            (recentf-mode 1)
-          (message "--- recentf is not activated in %s" system-name)))))
-
-  (with-eval-after-load "counsel"
-    (advice-add 'counsel-recentf :override #'my--counsel-recentf)
-    (ivy-add-actions
-     'counsel-recentf
-     '(("g" my-counsel-ag-in-dir "switch to ag")
-       ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
-       ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)")))))
+(with-eval-after-load "counsel"
+  (advice-add 'counsel-recentf :override #'my--counsel-recentf)
+  (ivy-add-actions
+   'counsel-recentf
+   '(("g" my-counsel-ag-in-dir "switch to ag")
+     ("r" my-counsel-fzf-in-dir "switch to fzf (in dir.)")
+     ("z" my-counsel-fzf-in-default-dir "switch to fzf (default)"))))
 
 ;; (add-hook 'after-init-hook #'recentf-mode))
 

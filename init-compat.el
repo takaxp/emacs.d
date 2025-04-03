@@ -64,10 +64,14 @@
     (list 'if-let spec (macroexp-progn body))))
 
 (when (version< emacs-version "29.0")
+  ;; setopt を init.el で使う．別途 keymap.el を load-path に配置すること．
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
+  (require 'keymap)
+
   ;; define-obsolete-variable-alias の上書き補正
   (defmacro define-obsolete-variable-alias (obsolete-name
                                             current-name
-					                                  &optional when docstring)
+					    &optional when docstring)
     ""
     (declare (doc-string 4)
              (advertised-calling-convention
@@ -75,14 +79,14 @@
     `(progn
        (defvaralias ,obsolete-name ,current-name ,docstring)
        (dolist (prop '(saved-value saved-variable-comment))
-         (and (get ,obsolete-name prop)
+	 (and (get ,obsolete-name prop)
               (null (get ,current-name prop))
               (put ,current-name prop (get ,obsolete-name prop))))
        (make-obsolete-variable ,obsolete-name ,current-name ,when)))
   ;; define-obsolete-function-alias の上書き補正
   (defmacro define-obsolete-function-alias (obsolete-name
                                             current-name
-					                                  &optional when docstring)
+					    &optional when docstring)
     ""
     (declare (doc-string 4)
              (advertised-calling-convention
