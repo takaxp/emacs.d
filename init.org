@@ -98,12 +98,15 @@ Then load the following at startup
   (if (file-exists-p file)
       (load file nil t)
     (message "--- Missing %s" (expand-file-name file))))
-(when (and (boundp my-profiler-p)
-           my-profiler-p)
+(when (bound-and-true-p my-profiler-p)
   (profiler-start 'cpu+mem))
-(when (and (boundp my-ad-require-p)
-           my-ad-require-p)
+(when (bound-and-true-p my-ad-require-p)
   (my--safe-load "~/Dropbox/emacs.d/config/init-ad.el"))
+
+(defgroup my nil
+  "User variables."
+  :group 'convenience)
+
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
@@ -117,7 +120,8 @@ Then load the following at startup
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
   ;; only top-level setting will be loaded. This will not actually load `org' so settings in `with-eval-after-load' will not be loaded.
-  (require 'init-org nil t))
+  ;; (require 'init-org nil t)
+  )
 
 (unless noninteractive
   (with-eval-after-load "org"
@@ -391,8 +395,11 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 メッセージバッファに "Waiting for git..." が残るのを抑制します．ミニバッファにも表示しないので，存在を完全に消せます．非常に強力ですが，逆に，主に他の設定の読み込み順に起因して，意図しないところで別な関数が出力する（本来は出力させたい）メッセージも削除してしまう可能性があるので注意が必要です．
 
 #+begin_src emacs-lisp :tangle yes
+(setq message-log-max 5000) ;; メッセージバッファの長さ
+
 (defvar my-suppress-message-p t)
 (defun my--suppress-message (f &rest arg)
+  "Suppress messages in minibuffer and \*Messages\* buffer."
   (if my-suppress-message-p
       (let ((inhibit-message t)
             (message-log-max nil))
@@ -584,7 +591,7 @@ This function is called directly from the C code."
    "/Applications/UpTeX.app/Contents/Resources/TEX/texbin"
    "/Applications/LibreOffice.app/Contents/MacOS/"
    "/Applications/qt_color_picker.app/Contents/MacOS/"
-   "/usr/local/opt/imagemagick@6/bin")
+   "/opt/homebrew/opt/imagemagick@6/bin")
  'exec-path)
 
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
@@ -592,16 +599,18 @@ This function is called directly from the C code."
 (setenv "GOPATH" (concat (getenv "HOME") "/.go"))
 ;; you may want to use exec-path-from-shell.el.
 
-;; 拡張パッケージにパスを通す
+;; (3) load-path, 拡張パッケージにパスを通す
 ;; M-x list-load-path-shadows
 (let* ((git-path (expand-file-name "~/devel/git/"))
-       (orgpath "org-mode")
+       (org-path "org-mode")
        (pl `(,(expand-file-name "~/.emacs.d/lisp")
              ,my-package-dir ;; may include a path to org
-             ,(concat git-path orgpath "/lisp") ;; override the path to org
-             ,(concat git-path orgpath "/contrib/lisp"))))
+             ,(concat git-path org-path "/lisp") ;; override the path to org
+             ,(concat git-path org-path "/contrib/lisp"))))
   (my-path-setter pl 'load-path))
+#+end_src
 
+#+begin_src emacs-lisp :tangle no
 ;; (require 'use-package nil t) ;; 24[ms]
 ;; (require 'leaf nil t) ;; 2[ms]
 ;; (when (require 'benchmark-init nil t)
@@ -748,13 +757,14 @@ This function is called directly from the C code."
               postpone-pre-init-time)
     (message "Activating postponed packages...")
     (let ((t1 (current-time)))
-      (postpone-kicker 'postpone-pre)
+      (when (require 'postpone nil t)
+        (postpone-kicker 'postpone-pre))
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
     (message "Activating postponed packages...done ( %4d [ms])"
              (* postpone-pre-init-time 1000))))
 
-(autoload 'postpone-kicker "postpone" nil t)
+;; (autoload 'postpone-kicker "postpone" nil t)
 (add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1012,39 +1022,6 @@ This function returns a timer object which you can use in
     (advice-add 'garbage-collect :around #'my--garbage-collect)
     (advice-add 'gcmh-idle-garbage-collect
                 :around #'my--gcmh-idle-garbage-collect)))
-#+end_src
-
-** [shut-up.el] Messages 出力を封じる（制御する）
-   :PROPERTIES:
-   :CUSTOM_ID: orgfca510d8
-   :ID:       C1B4615C-E675-4763-943A-29CE63031911
-   :END:
-
-=shut-up.el= というマクロがあり，現在はそちらを使っています．非常に強力です．
-
- - [[https://github.com/cask/shut-up][cask/shut-up: Emacs, shut up would you!]]
-
-#+begin_src emacs-lisp :tangle late-init.el
-(setq message-log-max 5000) ;; メッセージバッファの長さ
-(defvar shutup-p nil)
-#+end_src
-
-*** with-suppressed-message                                        :obsolete:
-    :PROPERTIES:
-    :CUSTOM_ID: orgb6593164
-    :ID:       46A3C575-A29C-4289-AF1B-F1BF58071D97
-    :END:
-
-以下はそれ以前のアプローチ． =recentf-save-list= を =find-file-hook= にぶら下げていますが，そのままだと =org-agenda= の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． =message-log-max= で制御できるのがすごい．
-
-  - [[http://qiita.com/itiut@github/items/d917eafd6ab255629346][Emacs - エコーエリアや *Messages* バッファにメッセージを表示させたくない - Qiita]]
-
-#+begin_src emacs-lisp :tangle no
-(defmacro with-suppressed-message (&rest body)
-  "Suppress new messages temporarily in the echo area and the `*Messages*' buffer while BODY is evaluated."
-  (declare (indent 0))
-  (let ((message-log-max nil))
-    `(with-temp-message (or (current-message) "") ,@body)))
 #+end_src
 
 ** Native comp が使えるかを判定する
@@ -1380,6 +1357,41 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 (provide 'init-ad)
 #+end_src
 
+** DONE [shut-up.el] Messages 出力を封じる（制御する）
+CLOSED: [2025-04-04 Fri 03:15]
+   :PROPERTIES:
+   :CUSTOM_ID: orgfca510d8
+   :ID:       C1B4615C-E675-4763-943A-29CE63031911
+   :END:
+
+Note: =my--suppress-message= と save-silently で十分制御可能になったので，使わなくなりました．
+
+=shut-up.el= というマクロがあり，現在はそちらを使っています．非常に強力です．
+
+ - [[https://github.com/cask/shut-up][cask/shut-up: Emacs, shut up would you!]]
+
+#+begin_src emacs-lisp :tangle no
+(defvar shutup-p nil)
+#+end_src
+
+*** with-suppressed-message                                        :obsolete:
+    :PROPERTIES:
+    :CUSTOM_ID: orgb6593164
+    :ID:       46A3C575-A29C-4289-AF1B-F1BF58071D97
+    :END:
+
+以下はそれ以前のアプローチ． =recentf-save-list= を =find-file-hook= にぶら下げていますが，そのままだと =org-agenda= の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． =message-log-max= で制御できるのがすごい．
+
+  - [[http://qiita.com/itiut@github/items/d917eafd6ab255629346][Emacs - エコーエリアや *Messages* バッファにメッセージを表示させたくない - Qiita]]
+
+#+begin_src emacs-lisp :tangle no
+(defmacro with-suppressed-message (&rest body)
+  "Suppress new messages temporarily in the echo area and the `*Messages*' buffer while BODY is evaluated."
+  (declare (indent 0))
+  (let ((message-log-max nil))
+    `(with-temp-message (or (current-message) "") ,@body)))
+#+end_src
+
 ** DONE [window-focus-p] フォーカス判定
    CLOSED: [2020-06-04 Thu 08:00]
    :PROPERTIES:
@@ -1461,6 +1473,7 @@ NSビルド用のインラインパッチを適用している場合に使いま
   - Emacs25.2用は[[https://gist.github.com/takaxp/3314a153f6d02d82ef1833638d338ecf][こちら]]．
 
 #+begin_src emacs-lisp :tangle yes
+;; ns-inline-patch
 (when (fboundp 'mac-add-key-passed-to-system)
   (setq default-input-method "macOS")
   (mac-add-key-passed-to-system 'shift))
@@ -1956,10 +1969,17 @@ echo "--- done."
    :CUSTOM_ID: org4ea9e5f1
    :END:
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-pixel-scroll-activate (_event &optional _arg)
+  (when (fboundp 'pixel-scroll-mode)
+    (pixel-scroll-mode 1))
+  (advice-remove 'mwheel-scroll #'my-pixel-scroll-activate)) ;; 26.1
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (unless noninteractive
-  (when (fboundp 'pixel-scroll-mode)
-    (pixel-scroll-mode 1))) ;; 26.1
+  (advice-add 'mwheel-scroll :before #'my-pixel-scroll-activate))
 #+end_src
 
 ** デフォルトディレクトリ
@@ -2325,10 +2345,10 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
   (custom-set-faces
    '(ns-marked-text-face
      ((t (:foreground "black"
-          :background "light pink" :underline "OrangeRed2"))))
+                      :background "light pink" :underline "OrangeRed2"))))
    '(ns-unmarked-text-face
      ((t (:foreground "black"
-          :background "light sky blue" :underline "royal blue")))))
+                      :background "light sky blue" :underline "royal blue")))))
 
   (when (and (fboundp 'mac-get-current-input-source)
              (version< "27.0" emacs-version))
@@ -2680,26 +2700,6 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
     (ah-mode 1)))
 #+end_src
 
-** [smooth-scroll.el] 滑らかなスクロール
-   :PROPERTIES:
-   :CUSTOM_ID: orgc62cc9bf
-   :END:
-
-良い感じです．スススっとスクロールします．最初にスクロールする時にパッケージを読み込みます．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(when (autoload-if-found '(smooth-scroll-mode)
-                         "smooth-scroll" nil t)
-
-  (with-eval-after-load "smooth-scroll"
-    (custom-set-variables
-     '(smooth-scroll/vscroll-step-size 6)
-     '(smooth-scroll/hscroll-step-size 6)))
-
-  (unless noninteractive
-    (smooth-scroll-mode t)))
-#+end_src
-
 ** [bs.el] 続・カレントバッファの表示切り替え
    :PROPERTIES:
    :CUSTOM_ID: org768c06a0
@@ -3020,6 +3020,29 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
 (with-eval-after-load "selected"
   (when (require 'expand-region nil t)
     (keymap-set selected-keymap "SPC" #'er/expand-region)))
+#+end_src
+
+** DONE [smooth-scroll.el] 滑らかなスクロール
+CLOSED: [2025-04-04 Fri 20:48]
+   :PROPERTIES:
+   :CUSTOM_ID: orgc62cc9bf
+   :END:
+
+NOTE: 使わなくなりました．
+
+良い感じです．スススっとスクロールします．
+
+#+begin_src emacs-lisp :tangle no
+(when (autoload-if-found '(smooth-scroll-mode)
+                         "smooth-scroll" nil t)
+
+  (with-eval-after-load "smooth-scroll"
+    (custom-set-variables
+     '(smooth-scroll/vscroll-step-size 6)
+     '(smooth-scroll/hscroll-step-size 6)))
+
+  (unless noninteractive
+    (smooth-scroll-mode t)))
 #+end_src
 
 ** DONE [goto-chg.el] 編集箇所を簡単に辿る                         :obsolete:
@@ -3859,11 +3882,9 @@ lang en_US
       (setq ispell-local-dictionary "en_US")
       (setq ispell-dictionary ispell-local-dictionary)
       (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
-      (if shutup-p
-          ;; 必要．しかも ispell-program-name 指定の前で．
-          ;; ただし，ispell-local-dictionary-alist の後で．
-          (shut-up (ispell-change-dictionary "en_US" t))
-        (ispell-change-dictionary "en_US" t))
+      ;; 必要．しかも ispell-program-name 指定の前で．
+      ;; ただし，ispell-local-dictionary-alist の後で．
+      (ispell-change-dictionary "en_US" t)
       (setq-default ispell-program-name (executable-find "hunspell"))
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
@@ -5048,20 +5069,26 @@ Call this function at updating `mode-line-mode'."
   (mlscroll-mode -1)
   (setq mlscroll-border (ceiling (/ moom-font--size 4.0)))
   (mlscroll-mode 1))
+
+;;;###autoload
+(defun my-mlscroll-activate ()
+  (mlscroll-mode 1)
+  (remove-hook 'find-file-hook #'my-mlscroll-activate))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
-(when (require 'mlscroll nil t)
-  (custom-set-variables
-   '(mlscroll-in-color "light coral") ;;  #FFA07A
-   '(mlscroll-out-color "#FFFFEF")
-   '(mlscroll-width-chars 10))
-  (unless noninteractive
-    (mlscroll-mode 1))
+(when (autoload-if-found '(mlscroll-mode) "mlscroll" nil t)
+  (with-eval-after-load "mlscroll"
+    (custom-set-variables
+     '(mlscroll-in-color "light coral") ;;  #FFA07A
+     '(mlscroll-out-color "#FFFFEF")
+     '(mlscroll-width-chars 10)))
 
   (with-eval-after-load "moom"
     (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)
     (add-hook 'moom-after-reset-hook #'my-reload-mlscroll)))
+
+(add-hook 'find-file-hook #'my-mlscroll-activate)
 #+end_src
 
 ** モードラインの節約（VC-mode編）
@@ -5113,23 +5140,19 @@ Call this function at updating `mode-line-mode'."
 配色は定期的に変えています．
 
 #+begin_src emacs-lisp :tangle yes
-(if (not (display-graphic-p))
-    (progn ;; Terminal
-      (set-face-foreground 'mode-line "#96CBFE")
-      (set-face-background 'mode-line "#21252B"))
-
-  ;; mode-line
-  (set-face-attribute 'mode-line nil
-                      :foreground "#FFFFFF"
-                      :background "#a46398"
-                      ;; :overline "#9d5446"
-                      :box nil)
-  ;; mode-line-inactive
-  (set-face-attribute 'mode-line-inactive nil
-                      :foreground "#FFFFFF"
-                      :background "#c8a1b7"
-                      ;; :overline "#FFFFFF"
-                      :box nil))
+;; will be overwritten by loading theme
+(cond ((display-graphic-p)
+       (set-face-attribute 'mode-line nil
+                           :foreground "#FFFFFF"
+                           :background "#a46398"
+                           :box nil)
+       (set-face-attribute 'mode-line-inactive nil
+                           :foreground "#FFFFFF"
+                           :background "#c8a1b7"
+                           :box nil))
+      (t ;; Terminal
+       (set-face-foreground 'mode-line "#96CBFE")
+       (set-face-background 'mode-line "#21252B")))
 #+end_src
 
 *** 色セット例
@@ -5358,7 +5381,7 @@ see https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_wi
    :CUSTOM_ID: org8d729190
    :END:
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 ;; Show line number in the mode line.
 (unless noninteractive
   (line-number-mode 1))
@@ -5484,6 +5507,9 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 (setq display-time-format "%H:%M w%V") ;; %y%m%d. ;; "%H%M.%S"
 (setq display-time-interval 1)
 (setq display-time-default-load-average nil)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
 (unless noninteractive
   (display-time-mode 1))
 #+end_src
@@ -6124,6 +6150,11 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 
 =guide-key.el= の後発． =guide-key.el= の改良でもあり，ディスパッチャが見やすく，直感的でとても使いやすい．
 
+#+begin_src emacs-lisp :tangle utility.el
+(defun my-which-key-activate ()
+  (which-key-mode 1))
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(which-key-mode)
                          "which-key" nil t)
@@ -6132,7 +6163,7 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
      '(which-key-idle-delay 1.0)))
 
   (unless noninteractive
-    (which-key-mode 1)))
+    (run-with-idle-timer 5 nil #'my-which-key-activate)))
 #+end_src
 
 ** [highlight-symbol] 同じ名前のシンボルをハイライトする
@@ -6206,12 +6237,13 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired" nil t)
 
-(cond ((require 'nerd-icons-dired nil t)
-       (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
-      ((require 'icons-in-terminal nil t)
-       (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
-      ((require 'all-the-icons nil t)
-       (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
+(with-eval-after-load "dired"
+  (cond ((require 'nerd-icons-dired nil t)
+         (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+        ((require 'icons-in-terminal nil t)
+         (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
+        ((require 'all-the-icons nil t)
+         (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))))
 #+end_src
 
 ** [eldoc.el] コンテクストに応じてヘルプを表示
@@ -6581,8 +6613,7 @@ Obeys `widen-automatically', which see."
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "prescient"
   (setq prescient-aggressive-file-save t) ;; Merged!
-  (setq prescient-save-file
-        (expand-file-name "~/.emacs.d/prescient-save.el"))
+  (setq prescient-save-file (expand-file-name "~/.emacs.d/prescient-save.el"))
   (prescient-persist-mode 1))
 
 (with-eval-after-load "ivy"
@@ -7751,19 +7782,15 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 ;;;###autoload
 (defun my-recentf-save-list-silence ()
   (interactive)
-  (if shutup-p
-      (shut-up (recentf-save-list))
-    (let ((message-log-max nil))
-      (recentf-save-list)))
+  (let ((message-log-max nil))
+    (recentf-save-list))
   (message ""))
 
 ;;;###autoload
 (defun my-recentf-cleanup-silence ()
   (interactive)
-  (if shutup-p
-      (shut-up (recentf-cleanup))
-    (let ((message-log-max nil))
-      (recentf-cleanup)))
+  (let ((message-log-max nil))
+    (recentf-cleanup))
   (message ""))
 
 ;;;###autoload
@@ -7801,7 +7828,7 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
      '(recentf-save-file (expand-file-name "~/.emacs.d/_recentf"))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
-       '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
+       '("_recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
          "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     (if (version< emacs-version "27.1")
@@ -7818,7 +7845,6 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
   ;; (add-hook 'find-file-hook #'recentf-save-list)
   (unless noninteractive
     (run-with-idle-timer 10 t #'recentf-save-list)))
-
 
 (when (autoload-if-found '(counsel-recentf)
                          "counsel" nil t)
@@ -8240,6 +8266,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 ** [dired-recent.el] 訪問したディレクトリの履歴を取る                 :dired:
    :PROPERTIES:
    :CUSTOM_ID: org7c53511f
+   :ID:       4A30428D-51B2-43F9-9CC2-FF7F5ECAD9C4
    :END:
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -8430,7 +8457,8 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
   (with-eval-after-load "session"
     ;; (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     ;; (add-to-list 'session-globals-exclude 'org-mark-ring)
-    (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
+    (setq session-set-file-name-exclude-regexp
+          "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
     ;; (setq session-save-file
     ;;       (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
@@ -8593,9 +8621,7 @@ http://www.emacswiki.org/emacs/EmacsSession
 (defun my--keyfreq-show ()
   "Extension to make the buffer view-only."
   (interactive)
-  (if shutup-p
-      (shut-up (view-buffer keyfreq-buffer))
-    (view-buffer keyfreq-buffer)))
+  (view-buffer keyfreq-buffer))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -9998,6 +10024,13 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (interactive)
   (my-org-modules-activate)
   (advice-remove 'org-cycle #'my--org-modules-activate))
+
+;;;###autoload
+(defun my-org-mode-indent-conf ()
+  (interactive)
+  (setq-local indent-tabs-mode nil)
+  (setq-local tab-width 8)
+  (setq indent-line-function 'org-indent-line))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -10006,17 +10039,11 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
-
-;;;###autoload
-(defun my-org-mode-indent-conf ()
-  (interactive)
-  (setq-local indent-tabs-mode nil)
-  (setq-local tab-width 8)
-  (setq indent-line-function 'org-indent-line))
-(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
+(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
+
 ;; テキストファイルを Org Mode で開く．
 (push '("\\.txt$" . org-mode) auto-mode-alist)
 
@@ -11263,7 +11290,8 @@ org バッファのソースブロックにカーソルがある時には， =el
      :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
     (((class color) (min-colors 88) (background dark))
      :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
-  "My bold emphasis for Org.")
+  "My bold emphasis for Org."
+  :group 'my)
 
 (defface my-org-emphasis-italic
   '((default :inherit italic)
@@ -11271,7 +11299,8 @@ org バッファのソースブロックにカーソルがある時には， =el
      :foreground "#005e00" :background "#B4EAB4")
     (((class color) (min-colors 88) (background dark))
      :foreground "#44bc44"))
-  "My italic emphasis for Org.")
+  "My italic emphasis for Org."
+  :group 'my)
 
 (defface my-org-emphasis-underline
   '((default :inherit underline)
@@ -11279,14 +11308,16 @@ org バッファのソースブロックにカーソルがある時には， =el
      :foreground "#813e00")
     (((class color) (min-colors 88) (background dark))
      :foreground "#d0bc00"))
-  "My underline emphasis for Org.")
+  "My underline emphasis for Org."
+  :group 'my)
 
 (defface my-org-emphasis-strike-through
   '((((class color) (min-colors 88) (background light))
      :strike-through "#972500" :foreground "#505050")
     (((class color) (min-colors 88) (background dark))
      :strike-through "#ef8b50" :foreground "#a8a8a8"))
-  "My strike-through emphasis for Org.")
+  "My strike-through emphasis for Org."
+  :group 'my)
 
 (with-eval-after-load "org"
   (custom-set-variables ;; call org-set-emph-re
@@ -14147,10 +14178,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ;;;###autoload
 (defun my-modeline-activate ()
   (unless my-toggle-modeline-global
-    (if shutup-p
-        (shut-up (my-mode-line-off))
-      (my-mode-line-off))))
-
+    (my-mode-line-off)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -15367,11 +15395,13 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 (defface my-ivy-arrow-visible
   '((((class color) (background light)) :foreground "orange")
     (((class color) (background dark)) :foreground "#EE6363"))
-  "Face used by Ivy for highlighting the arrow.")
+  "Face used by Ivy for highlighting the arrow."
+  :group 'my)
 (defface my-ivy-arrow-invisible
   '((((class color) (background light)) :foreground "#FFFFFF")
     (((class color) (background dark)) :foreground "#31343F"))
-  "Face used by Ivy for highlighting the invisible arrow.")
+  "Face used by Ivy for highlighting the invisible arrow."
+  :group 'my)
 
 (with-eval-after-load "counsel"
 
@@ -16272,9 +16302,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
                 :override #'my--network-watch-update-lighter))
 
   (unless noninteractive
-    (if shutup-p
-        (shut-up (network-watch-mode 1))
-      (network-watch-mode 1))))
+    (network-watch-mode 1)))
 #+end_src
 
 ** TODO [circe.el] IRCにログインする
@@ -17776,10 +17804,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 
 #+begin_src emacs-lisp :tangle yes :exports none
 (my-tick-init-time "utility")
-(when (and (boundp my-profiler-p)
-           my-profiler-p)
-  (profiler-report))
-
+;; (when (bound-and-true-p my-profiler-p)
+;;   (profiler-report))
 (provide 'init)
 #+end_src
 
@@ -17818,14 +17844,19 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el :exports none
-(unless noninteractive
-  (when nil
-    (let ((inhibit-message t))
-      (message "Loading utility.el...done (%4d [ms])"
-               (* 1000
-                  (float-time (time-subtract
-                               (current-time)
-                               my-utility-start)))))))
+(defvar my-utility-end (current-time))
+;;;###autoload
+(defun my-print-utility-time ()
+  (interactive)
+  (message "Loading utility.el...done (%4d [ms])"
+           (* 1000
+              (float-time (time-subtract
+                           my-utility-end
+                           my-utility-start)))))
+
+(when (bound-and-true-p my-profiler-p)
+  (profiler-report))
+
 (provide 'utility)
 #+end_src
 

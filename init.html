@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-04-03 木 21:25 -->
+<!-- 2025-04-04 金 21:52 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -237,24 +237,24 @@
 <li><a href="#org30c47759">2.19. [library-p] load-path にライブラリがあるかを判定</a></li>
 <li><a href="#orgb75ac2db">2.20. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
 <li><a href="#orgdc071e4d">2.21. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
-<li><a href="#orgfca510d8">2.22. [shut-up.el] Messages 出力を封じる（制御する）</a>
+<li><a href="#org5a18ac68">2.22. Native comp が使えるかを判定する</a></li>
+<li><a href="#org81081865">2.23. Native comp の警告を非表示にする</a></li>
+<li><a href="#org65713cda">2.24. Native comp がコンパイルした後にメッセージを表示する</a></li>
+<li><a href="#orgb6d21621">2.25. custom.el の指定</a></li>
+<li><a href="#orgfd894e86">2.26. elget パッケージを native comp する</a></li>
+<li><a href="#orgb59612b6">2.27. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org0b7d9710">2.28. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
 <ul>
-<li><a href="#orgb6593164">2.22.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org42722212">2.28.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.28.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#org5a18ac68">2.23. Native comp が使えるかを判定する</a></li>
-<li><a href="#org81081865">2.24. Native comp の警告を非表示にする</a></li>
-<li><a href="#org65713cda">2.25. Native comp がコンパイルした後にメッセージを表示する</a></li>
-<li><a href="#orgb6d21621">2.26. custom.el の指定</a></li>
-<li><a href="#orgfd894e86">2.27. elget パッケージを native comp する</a></li>
-<li><a href="#orgb59612b6">2.28. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org0b7d9710">2.29. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
+<li><a href="#orgdb356e99">2.29. loadとrequireの実行時間を計測</a></li>
+<li><a href="#orgfca510d8">2.30. <span class="done DONE">DONE</span> [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
-<li><a href="#org42722212">2.29.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.29.2. マクロ版</a></li>
+<li><a href="#orgb6593164">2.30.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
 </ul>
 </li>
-<li><a href="#orgdb356e99">2.30. loadとrequireの実行時間を計測</a></li>
 <li><a href="#orgcea06248">2.31. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
@@ -307,13 +307,13 @@
 <li><a href="#org5f40f030">4.5. スクロールで表示を重複させる行数</a></li>
 <li><a href="#org9811c7e8">4.6. マーク箇所を遡る</a></li>
 <li><a href="#org7ea97f70">4.7. [ah.el] カーソル移動に反応するフック</a></li>
-<li><a href="#orgc62cc9bf">4.8. [smooth-scroll.el] 滑らかなスクロール</a></li>
-<li><a href="#org768c06a0">4.9. [bs.el] 続・カレントバッファの表示切り替え</a></li>
-<li><a href="#orgd5942d14">4.10. [bm.el] カーソル位置をブックマークして追う</a></li>
-<li><a href="#orgfa2bad61">4.11. [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</a></li>
-<li><a href="#orgadf36a14">4.12. [smart-mark] C-g後に元の場所へカーソルを戻す</a></li>
-<li><a href="#orgf75f443a">4.13. [syntax-subword.el] M-f で移動する位置をより密にする</a></li>
-<li><a href="#org3901456e">4.14. [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</a></li>
+<li><a href="#org768c06a0">4.8. [bs.el] 続・カレントバッファの表示切り替え</a></li>
+<li><a href="#orgd5942d14">4.9. [bm.el] カーソル位置をブックマークして追う</a></li>
+<li><a href="#orgfa2bad61">4.10. [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</a></li>
+<li><a href="#orgadf36a14">4.11. [smart-mark] C-g後に元の場所へカーソルを戻す</a></li>
+<li><a href="#orgf75f443a">4.12. [syntax-subword.el] M-f で移動する位置をより密にする</a></li>
+<li><a href="#org3901456e">4.13. [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</a></li>
+<li><a href="#orgc62cc9bf">4.14. <span class="done DONE">DONE</span> [smooth-scroll.el] 滑らかなスクロール</a></li>
 <li><a href="#org8435eae2">4.15. <span class="done DONE">DONE</span> [goto-chg.el] 編集箇所を簡単に辿る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
 <li><a href="#org27e3241e">4.16. <span class="done DONE">DONE</span> [cycle-buffer.el] カレントバッファの表示切り替え&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
 <li><a href="#orgd906e864">4.17. <span class="done DONE">DONE</span> [back-button] マークをたどる&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
@@ -929,12 +929,15 @@ Then load the following at startup
   (<span style="color: #a020f0;">if</span> (file-exists-p file)
       (load file nil t)
     (message <span style="color: #8b2252;">"--- Missing %s"</span> (expand-file-name file))))
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (boundp my-profiler-p)
-           my-profiler-p)
+(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-profiler-p)
   (profiler-start 'cpu+mem))
-(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (boundp my-ad-require-p)
-           my-ad-require-p)
+(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-ad-require-p)
   (my--safe-load <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/init-ad.el"</span>))
+
+(<span style="color: #a020f0;">defgroup</span> <span style="color: #228b22;">my</span> nil
+  <span style="color: #8b2252;">"User variables."</span>
+  <span style="color: #483d8b;">:group</span> 'convenience)
+
 </pre>
 </div>
 
@@ -1240,8 +1243,11 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-suppress-message-p</span> t)
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> message-log-max 5000) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12513;&#12483;&#12475;&#12540;&#12472;&#12496;&#12483;&#12501;&#12449;&#12398;&#38263;&#12373;</span>
+
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-suppress-message-p</span> t)
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--suppress-message</span> (f <span style="color: #228b22;">&amp;rest</span> arg)
+  <span style="color: #8b2252;">"Suppress messages in minibuffer and </span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">*Messages</span><span style="color: #ff0000; font-weight: bold;">\</span><span style="color: #8b2252;">* buffer."</span>
   (<span style="color: #a020f0;">if</span> my-suppress-message-p
       (<span style="color: #a020f0;">let</span> ((inhibit-message t)
             (message-log-max nil))
@@ -1398,7 +1404,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
    <span style="color: #8b2252;">"/Applications/UpTeX.app/Contents/Resources/TEX/texbin"</span>
    <span style="color: #8b2252;">"/Applications/LibreOffice.app/Contents/MacOS/"</span>
    <span style="color: #8b2252;">"/Applications/qt_color_picker.app/Contents/MacOS/"</span>
-   <span style="color: #8b2252;">"/usr/local/opt/imagemagick@6/bin"</span>)
+   <span style="color: #8b2252;">"/opt/homebrew/opt/imagemagick@6/bin"</span>)
  'exec-path)
 
 (setenv <span style="color: #8b2252;">"PATH"</span> (concat <span style="color: #8b2252;">"/opt/homebrew/bin:"</span> (getenv <span style="color: #8b2252;">"PATH"</span>)))
@@ -1406,17 +1412,20 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 (setenv <span style="color: #8b2252;">"GOPATH"</span> (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/.go"</span>))
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">you may want to use exec-path-from-shell.el.</span>
 
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#25313;&#24373;&#12497;&#12483;&#12465;&#12540;&#12472;&#12395;&#12497;&#12473;&#12434;&#36890;&#12377;</span>
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(3) load-path, &#25313;&#24373;&#12497;&#12483;&#12465;&#12540;&#12472;&#12395;&#12497;&#12473;&#12434;&#36890;&#12377;</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">M-x list-load-path-shadows</span>
 (<span style="color: #a020f0;">let*</span> ((git-path (expand-file-name <span style="color: #8b2252;">"~/devel/git/"</span>))
-       (orgpath <span style="color: #8b2252;">"org-mode"</span>)
+       (org-path <span style="color: #8b2252;">"org-mode"</span>)
        (pl `(,(expand-file-name <span style="color: #8b2252;">"~/.emacs.d/lisp"</span>)
              ,my-package-dir <span style="color: #b22222;">;; </span><span style="color: #b22222;">may include a path to org</span>
-             ,(concat git-path orgpath <span style="color: #8b2252;">"/lisp"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">override the path to org</span>
-             ,(concat git-path orgpath <span style="color: #8b2252;">"/contrib/lisp"</span>))))
+             ,(concat git-path org-path <span style="color: #8b2252;">"/lisp"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">override the path to org</span>
+             ,(concat git-path org-path <span style="color: #8b2252;">"/contrib/lisp"</span>))))
   (my-path-setter pl 'load-path))
+</pre>
+</div>
 
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'use-package nil t) ;; 24[ms]</span>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'use-package nil t) ;; 24[ms]</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'leaf nil t) ;; 2[ms]</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (require 'benchmark-init nil t)</span>
 <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(add-hook 'after-init-hook #'benchmark-init/deactivate))</span>
@@ -1580,13 +1589,14 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
               postpone-pre-init-time)
     (message <span style="color: #8b2252;">"Activating postponed packages..."</span>)
     (<span style="color: #a020f0;">let</span> ((t1 (current-time)))
-      (postpone-kicker 'postpone-pre)
+      (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">postpone</span> nil t)
+        (postpone-kicker 'postpone-pre))
       (<span style="color: #a020f0;">setq</span> postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
     (message <span style="color: #8b2252;">"Activating postponed packages...done ( %4d [ms])"</span>
              (* postpone-pre-init-time 1000))))
 
-(autoload 'postpone-kicker <span style="color: #8b2252;">"postpone"</span> nil t)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(autoload 'postpone-kicker "postpone" nil t)</span>
 (add-hook 'pre-command-hook #'postpone-pre) <span style="color: #b22222;">;; </span><span style="color: #b22222;">will be removed in postpone.el.</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;</span>
 
@@ -1861,47 +1871,8 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 </div>
-<div id="outline-container-orgfca510d8" class="outline-3">
-<h3 id="orgfca510d8"><span class="section-number-3">2.22.</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
-<div class="outline-text-3" id="text-orgfca510d8">
-<p>
-<code>shut-up.el</code> というマクロがあり，現在はそちらを使っています．非常に強力です．
-</p>
-
-<ul class="org-ul">
-<li><a href="https://github.com/cask/shut-up">cask/shut-up: Emacs, shut up would you!</a></li>
-</ul>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">setq</span> message-log-max 5000) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12513;&#12483;&#12475;&#12540;&#12472;&#12496;&#12483;&#12501;&#12449;&#12398;&#38263;&#12373;</span>
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">shutup-p</span> nil)
-</pre>
-</div>
-</div>
-<div id="outline-container-orgb6593164" class="outline-4">
-<h4 id="orgb6593164"><span class="section-number-4">2.22.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h4>
-<div class="outline-text-4" id="text-orgb6593164">
-<p>
-以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．
-</p>
-
-<ul class="org-ul">
-<li><a href="http://qiita.com/itiut@github/items/d917eafd6ab255629346">Emacs - エコーエリアや <b>Messages</b> バッファにメッセージを表示させたくない - Qiita</a></li>
-</ul>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defmacro</span> <span style="color: #0000ff;">with-suppressed-message</span> (<span style="color: #228b22;">&amp;rest</span> body)
-  <span style="color: #8b2252;">"Suppress new messages temporarily in the echo area and the `</span><span style="color: #008b8b;">*Messages*</span><span style="color: #8b2252;">' buffer while BODY is evaluated."</span>
-  (<span style="color: #a020f0;">declare</span> (indent 0))
-  (<span style="color: #a020f0;">let</span> ((message-log-max nil))
-    `(<span style="color: #a020f0;">with-temp-message</span> (<span style="color: #a020f0;">or</span> (current-message) <span style="color: #8b2252;">""</span>) ,@body)))
-</pre>
-</div>
-</div>
-</div>
-</div>
 <div id="outline-container-org5a18ac68" class="outline-3">
-<h3 id="org5a18ac68"><span class="section-number-3">2.23.</span> Native comp が使えるかを判定する</h3>
+<h3 id="org5a18ac68"><span class="section-number-3">2.22.</span> Native comp が使えるかを判定する</h3>
 <div class="outline-text-3" id="text-org5a18ac68">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -1924,7 +1895,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </div>
 </div>
 <div id="outline-container-org81081865" class="outline-3">
-<h3 id="org81081865"><span class="section-number-3">2.24.</span> Native comp の警告を非表示にする</h3>
+<h3 id="org81081865"><span class="section-number-3">2.23.</span> Native comp の警告を非表示にする</h3>
 <div class="outline-text-3" id="text-org81081865">
 <p>
 Native comp 実行時に大量に表示される警告を非表示にします．
@@ -1938,7 +1909,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-org65713cda" class="outline-3">
-<h3 id="org65713cda"><span class="section-number-3">2.25.</span> Native comp がコンパイルした後にメッセージを表示する</h3>
+<h3 id="org65713cda"><span class="section-number-3">2.24.</span> Native comp がコンパイルした後にメッセージを表示する</h3>
 <div class="outline-text-3" id="text-org65713cda">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -1955,7 +1926,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-orgb6d21621" class="outline-3">
-<h3 id="orgb6d21621"><span class="section-number-3">2.26.</span> custom.el の指定</h3>
+<h3 id="orgb6d21621"><span class="section-number-3">2.25.</span> custom.el の指定</h3>
 <div class="outline-text-3" id="text-orgb6d21621">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress exporting of custom-set-variables (25.1 or later)</span>
@@ -1965,7 +1936,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-orgfd894e86" class="outline-3">
-<h3 id="orgfd894e86"><span class="section-number-3">2.27.</span> elget パッケージを native comp する</h3>
+<h3 id="orgfd894e86"><span class="section-number-3">2.26.</span> elget パッケージを native comp する</h3>
 <div class="outline-text-3" id="text-orgfd894e86">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-delete-eln-file-packages</span> nil)
@@ -2025,7 +1996,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.28.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.27.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a></li>
@@ -2044,7 +2015,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.29.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.28.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b>
@@ -2127,7 +2098,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </p>
 </div>
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.29.1.</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.28.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-disabled-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
@@ -2182,7 +2153,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.29.2.</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.28.2.</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
@@ -2216,7 +2187,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 <div id="outline-container-orgdb356e99" class="outline-3">
-<h3 id="orgdb356e99"><span class="section-number-3">2.30.</span> loadとrequireの実行時間を計測</h3>
+<h3 id="orgdb356e99"><span class="section-number-3">2.29.</span> loadとrequireの実行時間を計測</h3>
 <div class="outline-text-3" id="text-orgdb356e99">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-minimum-time-to-print</span> 0.5)
@@ -2237,6 +2208,48 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 (advice-add 'load <span style="color: #483d8b;">:around</span> #'my--print-loading-time)
 (advice-add 'require <span style="color: #483d8b;">:around</span> #'my--print-loading-time)
 </pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfca510d8" class="outline-3">
+<h3 id="orgfca510d8"><span class="section-number-3">2.30.</span> <span class="done DONE">DONE</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
+<div class="outline-text-3" id="text-orgfca510d8">
+<p>
+Note: <code>my--suppress-message</code> と save-silently で十分制御可能になったので，使わなくなりました．
+</p>
+
+<p>
+<code>shut-up.el</code> というマクロがあり，現在はそちらを使っています．非常に強力です．
+</p>
+
+<ul class="org-ul">
+<li><a href="https://github.com/cask/shut-up">cask/shut-up: Emacs, shut up would you!</a></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">shutup-p</span> nil)
+</pre>
+</div>
+</div>
+<div id="outline-container-orgb6593164" class="outline-4">
+<h4 id="orgb6593164"><span class="section-number-4">2.30.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h4>
+<div class="outline-text-4" id="text-orgb6593164">
+<p>
+以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．
+</p>
+
+<ul class="org-ul">
+<li><a href="http://qiita.com/itiut@github/items/d917eafd6ab255629346">Emacs - エコーエリアや <b>Messages</b> バッファにメッセージを表示させたくない - Qiita</a></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defmacro</span> <span style="color: #0000ff;">with-suppressed-message</span> (<span style="color: #228b22;">&amp;rest</span> body)
+  <span style="color: #8b2252;">"Suppress new messages temporarily in the echo area and the `</span><span style="color: #008b8b;">*Messages*</span><span style="color: #8b2252;">' buffer while BODY is evaluated."</span>
+  (<span style="color: #a020f0;">declare</span> (indent 0))
+  (<span style="color: #a020f0;">let</span> ((message-log-max nil))
+    `(<span style="color: #a020f0;">with-temp-message</span> (<span style="color: #a020f0;">or</span> (current-message) <span style="color: #8b2252;">""</span>) ,@body)))
+</pre>
+</div>
 </div>
 </div>
 </div>
@@ -2319,7 +2332,8 @@ NSビルド用のインラインパッチを適用している場合に使いま
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (fboundp 'mac-add-key-passed-to-system)
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">ns-inline-patch</span>
+(<span style="color: #a020f0;">when</span> (fboundp 'mac-add-key-passed-to-system)
   (<span style="color: #a020f0;">setq</span> default-input-method <span style="color: #8b2252;">"macOS"</span>)
   (mac-add-key-passed-to-system 'shift))
 </pre>
@@ -2864,9 +2878,17 @@ $<span style="color: #a0522d;">EMACS</span> -Q --batch --eval=<span style="color
 <h3 id="org4ea9e5f1"><span class="section-number-3">3.17.</span> マウススクロールをピクセル単位にする</h3>
 <div class="outline-text-3" id="text-org4ea9e5f1">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-pixel-scroll-activate</span> (_event <span style="color: #228b22;">&amp;optional</span> _arg)
   (<span style="color: #a020f0;">when</span> (fboundp 'pixel-scroll-mode)
-    (pixel-scroll-mode 1))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">26.1</span>
+    (pixel-scroll-mode 1))
+  (advice-remove 'mwheel-scroll #'my-pixel-scroll-activate)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">26.1</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
+  (advice-add 'mwheel-scroll <span style="color: #483d8b;">:before</span> #'my-pixel-scroll-activate))
 </pre>
 </div>
 </div>
@@ -3276,10 +3298,10 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
   (custom-set-faces
    '(ns-marked-text-face
      ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
-          <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light pink"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"OrangeRed2"</span>))))
+                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light pink"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"OrangeRed2"</span>))))
    '(ns-unmarked-text-face
      ((t (<span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"black"</span>
-          <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light sky blue"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"royal blue"</span>)))))
+                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"light sky blue"</span> <span style="color: #483d8b;">:underline</span> <span style="color: #8b2252;">"royal blue"</span>)))))
 
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (fboundp 'mac-get-current-input-source)
              (version&lt; <span style="color: #8b2252;">"27.0"</span> emacs-version))
@@ -3700,30 +3722,8 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 </div>
-<div id="outline-container-orgc62cc9bf" class="outline-3">
-<h3 id="orgc62cc9bf"><span class="section-number-3">4.8.</span> [smooth-scroll.el] 滑らかなスクロール</h3>
-<div class="outline-text-3" id="text-orgc62cc9bf">
-<p>
-良い感じです．スススっとスクロールします．最初にスクロールする時にパッケージを読み込みます．
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(smooth-scroll-mode)
-                         <span style="color: #8b2252;">"smooth-scroll"</span> nil t)
-
-  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"smooth-scroll"</span>
-    (custom-set-variables
-     '(smooth-scroll/vscroll-step-size 6)
-     '(smooth-scroll/hscroll-step-size 6)))
-
-  (<span style="color: #a020f0;">unless</span> noninteractive
-    (smooth-scroll-mode t)))
-</pre>
-</div>
-</div>
-</div>
 <div id="outline-container-org768c06a0" class="outline-3">
-<h3 id="org768c06a0"><span class="section-number-3">4.9.</span> [bs.el] 続・カレントバッファの表示切り替え</h3>
+<h3 id="org768c06a0"><span class="section-number-3">4.8.</span> [bs.el] 続・カレントバッファの表示切り替え</h3>
 <div class="outline-text-3" id="text-org768c06a0">
 <p>
 古くから <code>cycle-buffer</code> がありますが，基本機能だけで満足するようになったので，ビルトインの <code>bs.el</code> に移行しました． <code>bs-cycle-next</code> あるいは <code>bs-cycle-previous</code> でバッファを切り替えられます．
@@ -3763,7 +3763,7 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 </div>
 </div>
 <div id="outline-container-orgd5942d14" class="outline-3">
-<h3 id="orgd5942d14"><span class="section-number-3">4.10.</span> [bm.el] カーソル位置をブックマークして追う</h3>
+<h3 id="orgd5942d14"><span class="section-number-3">4.9.</span> [bm.el] カーソル位置をブックマークして追う</h3>
 <div class="outline-text-3" id="text-orgd5942d14">
 <p>
 <a href="https://github.com/joodland/bm">bm.el</a>は，カーソル位置をブックマークしておくためのツールです． <code>point-undo</code> と比較して，ユーザが明示的に位置を保存でき，見た目にも使いやすいです．以下の例では， <code>org-mode</code> のツリー内にブックマークがある時にも，上手い具合に表示ができるように調整してあります．カーソル移動は，順方向（ <code>bm-next</code> ）にだけ使っています．
@@ -3902,7 +3902,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 <div id="outline-container-orgfa2bad61" class="outline-3">
-<h3 id="orgfa2bad61"><span class="section-number-3">4.11.</span> [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</h3>
+<h3 id="orgfa2bad61"><span class="section-number-3">4.10.</span> [centered-cursor-mode.el] カーソル位置をバッファ中央に固定</h3>
 <div class="outline-text-3" id="text-orgfa2bad61">
 <p>
 <code>isearch-mode</code> の時だけ有効にしています．
@@ -3930,7 +3930,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 <div id="outline-container-orgadf36a14" class="outline-3">
-<h3 id="orgadf36a14"><span class="section-number-3">4.12.</span> [smart-mark] C-g後に元の場所へカーソルを戻す</h3>
+<h3 id="orgadf36a14"><span class="section-number-3">4.11.</span> [smart-mark] C-g後に元の場所へカーソルを戻す</h3>
 <div class="outline-text-3" id="text-orgadf36a14">
 <p>
 すぐわかる例は， <code>C-x h</code> で全選択して何もせず， <code>C-g</code> する場合です．通常だとバッファの先頭にカーソルが置き去りにされますが， <code>smart-mark</code> を使うと，全選択を実行した時の位置に自動的に戻してくれます．
@@ -4003,7 +4003,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 <div id="outline-container-orgf75f443a" class="outline-3">
-<h3 id="orgf75f443a"><span class="section-number-3">4.13.</span> [syntax-subword.el] M-f で移動する位置をより密にする</h3>
+<h3 id="orgf75f443a"><span class="section-number-3">4.12.</span> [syntax-subword.el] M-f で移動する位置をより密にする</h3>
 <div class="outline-text-3" id="text-orgf75f443a">
 <ul class="org-ul">
 <li><a href="https://github.com/jpkotta/syntax-subword">https://github.com/jpkotta/syntax-subword</a></li>
@@ -4047,7 +4047,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 </div>
 </div>
 <div id="outline-container-org3901456e" class="outline-3">
-<h3 id="org3901456e"><span class="section-number-3">4.14.</span> [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</h3>
+<h3 id="org3901456e"><span class="section-number-3">4.13.</span> [expand-region.el] カーソル箇所を起点に選択範囲を賢く広げる</h3>
 <div class="outline-text-3" id="text-org3901456e">
 <ul class="org-ul">
 <li><a href="https://github.com/magnars/expand-region.el">magnars/expand-region.el: Emacs extension to increase selected region by semantic units.</a></li>
@@ -4065,6 +4065,32 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"selected"</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">expand-region</span> nil t)
     (keymap-set selected-keymap <span style="color: #8b2252;">"SPC"</span> #'er/expand-region)))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc62cc9bf" class="outline-3">
+<h3 id="orgc62cc9bf"><span class="section-number-3">4.14.</span> <span class="done DONE">DONE</span> [smooth-scroll.el] 滑らかなスクロール</h3>
+<div class="outline-text-3" id="text-orgc62cc9bf">
+<p>
+NOTE: 使わなくなりました．
+</p>
+
+<p>
+良い感じです．スススっとスクロールします．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(smooth-scroll-mode)
+                         <span style="color: #8b2252;">"smooth-scroll"</span> nil t)
+
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"smooth-scroll"</span>
+    (custom-set-variables
+     '(smooth-scroll/vscroll-step-size 6)
+     '(smooth-scroll/hscroll-step-size 6)))
+
+  (<span style="color: #a020f0;">unless</span> noninteractive
+    (smooth-scroll-mode t)))
 </pre>
 </div>
 </div>
@@ -5024,11 +5050,9 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
       (<span style="color: #a020f0;">setq</span> ispell-local-dictionary <span style="color: #8b2252;">"en_US"</span>)
       (<span style="color: #a020f0;">setq</span> ispell-dictionary ispell-local-dictionary)
       (<span style="color: #a020f0;">setq</span> ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
-      (<span style="color: #a020f0;">if</span> shutup-p
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#24517;&#35201;&#65294;&#12375;&#12363;&#12418; ispell-program-name &#25351;&#23450;&#12398;&#21069;&#12391;&#65294;</span>
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12383;&#12384;&#12375;&#65292;ispell-local-dictionary-alist &#12398;&#24460;&#12391;&#65294;</span>
-          (shut-up (ispell-change-dictionary <span style="color: #8b2252;">"en_US"</span> t))
-        (ispell-change-dictionary <span style="color: #8b2252;">"en_US"</span> t))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#24517;&#35201;&#65294;&#12375;&#12363;&#12418; ispell-program-name &#25351;&#23450;&#12398;&#21069;&#12391;&#65294;</span>
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12383;&#12384;&#12375;&#65292;ispell-local-dictionary-alist &#12398;&#24460;&#12391;&#65294;</span>
+      (ispell-change-dictionary <span style="color: #8b2252;">"en_US"</span> t)
       (<span style="color: #a020f0;">setq-default</span> ispell-program-name (executable-find <span style="color: #8b2252;">"hunspell"</span>))
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">Not regal way, but it's OK (usually ispell-local-dictionary-alist)</span>
 
@@ -6292,21 +6316,27 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
   (mlscroll-mode -1)
   (<span style="color: #a020f0;">setq</span> mlscroll-border (ceiling (/ moom-font--size 4.0)))
   (mlscroll-mode 1))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mlscroll-activate</span> ()
+  (mlscroll-mode 1)
+  (remove-hook 'find-file-hook #'my-mlscroll-activate))
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">mlscroll</span> nil t)
-  (custom-set-variables
-   '(mlscroll-in-color <span style="color: #8b2252;">"light coral"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">#FFA07A</span>
-   '(mlscroll-out-color <span style="color: #8b2252;">"#FFFFEF"</span>)
-   '(mlscroll-width-chars 10))
-  (<span style="color: #a020f0;">unless</span> noninteractive
-    (mlscroll-mode 1))
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(mlscroll-mode) <span style="color: #8b2252;">"mlscroll"</span> nil t)
+  (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"mlscroll"</span>
+    (custom-set-variables
+     '(mlscroll-in-color <span style="color: #8b2252;">"light coral"</span>) <span style="color: #b22222;">;;  </span><span style="color: #b22222;">#FFA07A</span>
+     '(mlscroll-out-color <span style="color: #8b2252;">"#FFFFEF"</span>)
+     '(mlscroll-width-chars 10)))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"moom"</span>
     (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)
     (add-hook 'moom-after-reset-hook #'my-reload-mlscroll)))
+
+(add-hook 'find-file-hook #'my-mlscroll-activate)
 </pre>
 </div>
 </div>
@@ -6361,23 +6391,19 @@ OS標準の辞書アプリ（dictionary.app）を経由して，バッファにC
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">if</span> (not (display-graphic-p))
-    (<span style="color: #a020f0;">progn</span> <span style="color: #b22222;">;; </span><span style="color: #b22222;">Terminal</span>
-      (set-face-foreground 'mode-line <span style="color: #8b2252;">"#96CBFE"</span>)
-      (set-face-background 'mode-line <span style="color: #8b2252;">"#21252B"</span>))
-
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">mode-line</span>
-  (set-face-attribute 'mode-line nil
-                      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>
-                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#a46398"</span>
-                      <span style="color: #b22222;">;; </span><span style="color: #b22222;">:overline "#9d5446"</span>
-                      <span style="color: #483d8b;">:box</span> nil)
-  <span style="color: #b22222;">;; </span><span style="color: #b22222;">mode-line-inactive</span>
-  (set-face-attribute 'mode-line-inactive nil
-                      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>
-                      <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#c8a1b7"</span>
-                      <span style="color: #b22222;">;; </span><span style="color: #b22222;">:overline "#FFFFFF"</span>
-                      <span style="color: #483d8b;">:box</span> nil))
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">will be overwritten by loading theme</span>
+(<span style="color: #a020f0;">cond</span> ((display-graphic-p)
+       (set-face-attribute 'mode-line nil
+                           <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>
+                           <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#a46398"</span>
+                           <span style="color: #483d8b;">:box</span> nil)
+       (set-face-attribute 'mode-line-inactive nil
+                           <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>
+                           <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#c8a1b7"</span>
+                           <span style="color: #483d8b;">:box</span> nil))
+      (t <span style="color: #b22222;">;; </span><span style="color: #b22222;">Terminal</span>
+       (set-face-foreground 'mode-line <span style="color: #8b2252;">"#96CBFE"</span>)
+       (set-face-background 'mode-line <span style="color: #8b2252;">"#21252B"</span>)))
 </pre>
 </div>
 </div>
@@ -6870,7 +6896,11 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 (<span style="color: #a020f0;">setq</span> display-time-format <span style="color: #8b2252;">"%H:%M w%V"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">%y%m%d. ;; "%H%M.%S"</span>
 (<span style="color: #a020f0;">setq</span> display-time-interval 1)
 (<span style="color: #a020f0;">setq</span> display-time-default-load-average nil)
-(<span style="color: #a020f0;">unless</span> noninteractive
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">unless</span> noninteractive
   (display-time-mode 1))
 </pre>
 </div>
@@ -7552,6 +7582,12 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-which-key-activate</span> ()
+  (which-key-mode 1))
+</pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(which-key-mode)
                          <span style="color: #8b2252;">"which-key"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"which-key"</span>
@@ -7559,7 +7595,7 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
      '(which-key-idle-delay 1.0)))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
-    (which-key-mode 1)))
+    (run-with-idle-timer 5 nil #'my-which-key-activate)))
 </pre>
 </div>
 </div>
@@ -7649,12 +7685,13 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(autoload-if-found '(nerd-icons-dired-mode) <span style="color: #8b2252;">"nerd-icons-dired"</span> nil t)
 
-(<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons-dired</span> nil t)
-       (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
-      ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-       (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
-      ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
-       (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
+(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired"</span>
+  (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons-dired</span> nil t)
+         (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+        ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+         (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
+        ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
+         (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))))
 </pre>
 </div>
 </div>
@@ -8041,8 +8078,7 @@ org-mode の <code>org-eval-in-calendar</code> を使って，カーソル下の
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"prescient"</span>
   (<span style="color: #a020f0;">setq</span> prescient-aggressive-file-save t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">Merged!</span>
-  (<span style="color: #a020f0;">setq</span> prescient-save-file
-        (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/prescient-save.el"</span>))
+  (<span style="color: #a020f0;">setq</span> prescient-save-file (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/prescient-save.el"</span>))
   (prescient-persist-mode 1))
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
@@ -9218,19 +9254,15 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-recentf-save-list-silence</span> ()
   (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> shutup-p
-      (shut-up (recentf-save-list))
-    (<span style="color: #a020f0;">let</span> ((message-log-max nil))
-      (recentf-save-list)))
+  (<span style="color: #a020f0;">let</span> ((message-log-max nil))
+    (recentf-save-list))
   (message <span style="color: #8b2252;">""</span>))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-recentf-cleanup-silence</span> ()
   (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> shutup-p
-      (shut-up (recentf-cleanup))
-    (<span style="color: #a020f0;">let</span> ((message-log-max nil))
-      (recentf-cleanup)))
+  (<span style="color: #a020f0;">let</span> ((message-log-max nil))
+    (recentf-cleanup))
   (message <span style="color: #8b2252;">""</span>))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
@@ -9269,7 +9301,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
      '(recentf-save-file (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/_recentf"</span>))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
-       '(<span style="color: #8b2252;">".recentf"</span> <span style="color: #8b2252;">"bookmarks"</span> <span style="color: #8b2252;">"org-recent-headings.dat"</span> <span style="color: #8b2252;">"^/tmp\\.*"</span>
+       '(<span style="color: #8b2252;">"_recentf"</span> <span style="color: #8b2252;">"bookmarks"</span> <span style="color: #8b2252;">"org-recent-headings.dat"</span> <span style="color: #8b2252;">"^/tmp\\.*"</span>
          <span style="color: #8b2252;">"^/private\\.*"</span> <span style="color: #8b2252;">"^/var/folders\\.*"</span> <span style="color: #8b2252;">"/TAGS$"</span>)))
 
     (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
@@ -9286,7 +9318,6 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-hook 'find-file-hook #'recentf-save-list)</span>
   (<span style="color: #a020f0;">unless</span> noninteractive
     (run-with-idle-timer 10 t #'recentf-save-list)))
-
 
 (<span style="color: #a020f0;">when</span> (autoload-if-found '(counsel-recentf)
                          <span style="color: #8b2252;">"counsel"</span> nil t)
@@ -9567,7 +9598,7 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
                          <span style="color: #8b2252;">"backup-each-save"</span> nil t)
   (add-hook 'after-save-hook #'my-auto-backup)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">%y-%m-%d_%M-%S &#12391;&#32066;&#12431;&#12427;&#12501;&#12449;&#12452;&#12523;&#12434;&#26412;&#26469;&#12398;&#12513;&#12472;&#12515;&#12540;&#12514;&#12540;&#12489;&#12391;&#38283;&#12367;</span>
-  (add-to-list 'auto-mode-alist '(<span style="color: #8b2252;">"-[0-9-]\\{</span><span style="color: #a0522d;">8\\</span><span style="color: #8b2252;">}_[0-9-]\\{</span><span style="color: #a0522d;">5\\</span><span style="color: #8b2252;">}$"</span> nil t))
+  (add-to-list 'auto-mode-alist '(<span style="color: #8b2252;">"-[0-9-]\\{8\\}_[0-9-]\\{5\\}$"</span> nil t))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"backup-each-save"</span>
     (<span style="color: #a020f0;">setq</span> backup-each-save-mirror-location <span style="color: #8b2252;">"~/.emacs.d/backup"</span>)
@@ -9952,7 +9983,8 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"session"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'session-globals-include 'ivy-dired-history-variable)</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'session-globals-exclude 'org-mark-ring)</span>
-    (<span style="color: #a020f0;">setq</span> session-set-file-name-exclude-regexp <span style="color: #8b2252;">"[/\\]\\.overview</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[/\\]\\.session</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">News[/\\]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[/\\]COMMIT_EDITMSG"</span>)
+    (<span style="color: #a020f0;">setq</span> session-set-file-name-exclude-regexp
+          <span style="color: #8b2252;">"[/\\]\\.overview</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[/\\]\\.session</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">News[/\\]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[/\\]COMMIT_EDITMSG"</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">Change save point of session.el</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq session-save-file</span>
     <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))</span>
@@ -10125,9 +10157,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--keyfreq-show</span> ()
   <span style="color: #8b2252;">"Extension to make the buffer view-only."</span>
   (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">if</span> shutup-p
-      (shut-up (view-buffer keyfreq-buffer))
-    (view-buffer keyfreq-buffer)))
+  (view-buffer keyfreq-buffer))
 </pre>
 </div>
 
@@ -11658,6 +11688,13 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (<span style="color: #a020f0;">interactive</span>)
   (my-org-modules-activate)
   (advice-remove 'org-cycle #'my--org-modules-activate))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-mode-indent-conf</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">setq-local</span> indent-tabs-mode nil)
+  (<span style="color: #a020f0;">setq-local</span> tab-width 8)
+  (<span style="color: #a020f0;">setq</span> indent-line-function 'org-indent-line))
 </pre>
 </div>
 
@@ -11667,19 +11704,13 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12365;&#12414;&#12377;&#65294;</span>
 (keymap-global-set <span style="color: #8b2252;">"C-M-o"</span> #'my-open-default-org-file)
-
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-mode-indent-conf</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">setq-local</span> indent-tabs-mode nil)
-  (<span style="color: #a020f0;">setq-local</span> tab-width 8)
-  (<span style="color: #a020f0;">setq</span> indent-line-function 'org-indent-line))
-(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12486;&#12461;&#12473;&#12488;&#12501;&#12449;&#12452;&#12523;&#12434; Org Mode &#12391;&#38283;&#12367;&#65294;</span>
+<pre class="src src-emacs-lisp">(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12486;&#12461;&#12473;&#12488;&#12501;&#12449;&#12452;&#12523;&#12434; Org Mode &#12391;&#38283;&#12367;&#65294;</span>
 (<span style="color: #a020f0;">push</span> '(<span style="color: #8b2252;">"\\.txt$"</span> . org-mode) auto-mode-alist)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">Font lock &#12434;&#20351;&#12358;</span>
@@ -12982,7 +13013,8 @@ org バッファのソースブロックにカーソルがある時には， <co
      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#5b5caf"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#e6ebfa"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">#a60000 #4E4F97 #c7e9fa</span>
     (((class color) (min-colors 88) (background dark))
      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#99B2FF"</span>)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">#ff8059 #BCBCDB #6666D6 #879EE2</span>
-  <span style="color: #8b2252;">"My bold emphasis for Org."</span>)
+  <span style="color: #8b2252;">"My bold emphasis for Org."</span>
+  <span style="color: #483d8b;">:group</span> 'my)
 
 (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-italic</span>
   '((default <span style="color: #483d8b;">:inherit</span> italic)
@@ -12990,7 +13022,8 @@ org バッファのソースブロックにカーソルがある時には， <co
      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#005e00"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#B4EAB4"</span>)
     (((class color) (min-colors 88) (background dark))
      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#44bc44"</span>))
-  <span style="color: #8b2252;">"My italic emphasis for Org."</span>)
+  <span style="color: #8b2252;">"My italic emphasis for Org."</span>
+  <span style="color: #483d8b;">:group</span> 'my)
 
 (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-underline</span>
   '((default <span style="color: #483d8b;">:inherit</span> underline)
@@ -12998,14 +13031,16 @@ org バッファのソースブロックにカーソルがある時には， <co
      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#813e00"</span>)
     (((class color) (min-colors 88) (background dark))
      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#d0bc00"</span>))
-  <span style="color: #8b2252;">"My underline emphasis for Org."</span>)
+  <span style="color: #8b2252;">"My underline emphasis for Org."</span>
+  <span style="color: #483d8b;">:group</span> 'my)
 
 (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-org-emphasis-strike-through</span>
   '((((class color) (min-colors 88) (background light))
      <span style="color: #483d8b;">:strike-through</span> <span style="color: #8b2252;">"#972500"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#505050"</span>)
     (((class color) (min-colors 88) (background dark))
      <span style="color: #483d8b;">:strike-through</span> <span style="color: #8b2252;">"#ef8b50"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#a8a8a8"</span>))
-  <span style="color: #8b2252;">"My strike-through emphasis for Org."</span>)
+  <span style="color: #8b2252;">"My strike-through emphasis for Org."</span>
+  <span style="color: #483d8b;">:group</span> 'my)
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org"</span>
   (custom-set-variables <span style="color: #b22222;">;; </span><span style="color: #b22222;">call org-set-emph-re</span>
@@ -14340,7 +14375,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org3ce8a3e"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga65530b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15318,7 +15353,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orge54001d" class="figure">
+<div id="org7c079f5" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -15987,10 +16022,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-modeline-activate</span> ()
   (<span style="color: #a020f0;">unless</span> my-toggle-modeline-global
-    (<span style="color: #a020f0;">if</span> shutup-p
-        (shut-up (my-mode-line-off))
-      (my-mode-line-off))))
-
+    (my-mode-line-off)))
 </pre>
 </div>
 
@@ -17320,11 +17352,13 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-visible</span>
   '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"orange"</span>)
     (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#EE6363"</span>))
-  <span style="color: #8b2252;">"Face used by Ivy for highlighting the arrow."</span>)
+  <span style="color: #8b2252;">"Face used by Ivy for highlighting the arrow."</span>
+  <span style="color: #483d8b;">:group</span> 'my)
 (<span style="color: #a020f0;">defface</span> <span style="color: #a0522d;">my-ivy-arrow-invisible</span>
   '((((class color) (background light)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span>)
     (((class color) (background dark)) <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#31343F"</span>))
-  <span style="color: #8b2252;">"Face used by Ivy for highlighting the invisible arrow."</span>)
+  <span style="color: #8b2252;">"Face used by Ivy for highlighting the invisible arrow."</span>
+  <span style="color: #483d8b;">:group</span> 'my)
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"counsel"</span>
 
@@ -18275,9 +18309,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
                 <span style="color: #483d8b;">:override</span> #'my--network-watch-update-lighter))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
-    (<span style="color: #a020f0;">if</span> shutup-p
-        (shut-up (network-watch-mode 1))
-      (network-watch-mode 1))))
+    (network-watch-mode 1)))
 </pre>
 </div>
 </div>
@@ -19049,7 +19081,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>)
 
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-bullet-with-checkbox-re</span>
-  (concat my-org-bullet-re <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>))
+  (concat my-org-bullet-re <span style="color: #8b2252;">"\\[.\\][ \t]+"</span>))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span>
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-insert-bullet</span> (begin end)
@@ -19076,7 +19108,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (goto-char begin)
   (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward
                <span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> end t)
-              (not (looking-at <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>)))
+              (not (looking-at <span style="color: #8b2252;">"\\[.\\][ \t]+"</span>)))
     (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
       (replace-match <span style="color: #8b2252;">""</span> nil nil)
       (<span style="color: #a020f0;">setq</span> end (- end len))))
@@ -19104,7 +19136,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
          (len (string-width checkbox)))
     (goto-char begin)
     (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward my-org-bullet-re end t)
-                (not (looking-at <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>)))
+                (not (looking-at <span style="color: #8b2252;">"\\[.\\][ \t]+"</span>)))
       (replace-match (concat <span style="color: #8b2252;">"\\1"</span> checkbox) nil nil)
       (<span style="color: #a020f0;">setq</span> end (+ end len)))
     (goto-char begin)))
@@ -19821,7 +19853,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-04-03 木 21:25</p>
+<p class="date">Created: 2025-04-04 金 21:52</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

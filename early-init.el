@@ -75,7 +75,7 @@
    "/Applications/UpTeX.app/Contents/Resources/TEX/texbin"
    "/Applications/LibreOffice.app/Contents/MacOS/"
    "/Applications/qt_color_picker.app/Contents/MacOS/"
-   "/usr/local/opt/imagemagick@6/bin")
+   "/opt/homebrew/opt/imagemagick@6/bin")
  'exec-path)
 
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
@@ -83,20 +83,15 @@
 (setenv "GOPATH" (concat (getenv "HOME") "/.go"))
 ;; you may want to use exec-path-from-shell.el.
 
-;; 拡張パッケージにパスを通す
+;; (3) load-path, 拡張パッケージにパスを通す
 ;; M-x list-load-path-shadows
 (let* ((git-path (expand-file-name "~/devel/git/"))
-       (orgpath "org-mode")
+       (org-path "org-mode")
        (pl `(,(expand-file-name "~/.emacs.d/lisp")
              ,my-package-dir ;; may include a path to org
-             ,(concat git-path orgpath "/lisp") ;; override the path to org
-             ,(concat git-path orgpath "/contrib/lisp"))))
+             ,(concat git-path org-path "/lisp") ;; override the path to org
+             ,(concat git-path org-path "/contrib/lisp"))))
   (my-path-setter pl 'load-path))
-
-;; (require 'use-package nil t) ;; 24[ms]
-;; (require 'leaf nil t) ;; 2[ms]
-;; (when (require 'benchmark-init nil t)
-;;   (add-hook 'after-init-hook #'benchmark-init/deactivate))
 
 (unless noninteractive
   (defvar my-early-end (current-time))

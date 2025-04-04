@@ -15,13 +15,10 @@
     (my-print-message `("max:" ,recentf-max-saved-items))
     (my-print-message `("file:" ,recentf-save-file))
     (my-print-message `("items:" ,(length recentf-list)))
-    (if shutup-p
-	(shut-up (recentf-cleanup))
-      (let ((message-log-max nil))
-	(recentf-cleanup)))
+    (let ((message-log-max nil))
+      (recentf-cleanup))
     ;; (message "")
     ))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot mode selection

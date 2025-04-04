@@ -7,17 +7,20 @@
   (if (file-exists-p file)
       (load file nil t)
     (message "--- Missing %s" (expand-file-name file))))
-(when (and (boundp my-profiler-p)
-           my-profiler-p)
+(when (bound-and-true-p my-profiler-p)
   (profiler-start 'cpu+mem))
-(when (and (boundp my-ad-require-p)
-           my-ad-require-p)
+(when (bound-and-true-p my-ad-require-p)
   (my--safe-load "~/Dropbox/emacs.d/config/init-ad.el"))
+
+(defgroup my nil
+  "User variables."
+  :group 'convenience)
 
 (with-eval-after-load "postpone"
   (require 'late-init nil t)
   ;; only top-level setting will be loaded. This will not actually load `org' so settings in `with-eval-after-load' will not be loaded.
-  (require 'init-org nil t))
+  ;; (require 'init-org nil t)
+  )
 
 (unless noninteractive
   (with-eval-after-load "org"
@@ -67,8 +70,11 @@
                msg)
       (setq my-tick-previous-time ctime))))
 
+(setq message-log-max 5000) ;; メッセージバッファの長さ
+
 (defvar my-suppress-message-p t)
 (defun my--suppress-message (f &rest arg)
+  "Suppress messages in minibuffer and \*Messages\* buffer."
   (if my-suppress-message-p
       (let ((inhibit-message t)
             (message-log-max nil))
@@ -129,13 +135,14 @@
               postpone-pre-init-time)
     (message "Activating postponed packages...")
     (let ((t1 (current-time)))
-      (postpone-kicker 'postpone-pre)
+      (when (require 'postpone nil t)
+        (postpone-kicker 'postpone-pre))
       (setq postpone-pre-init-time (float-time
                                     (time-subtract (current-time) t1))))
     (message "Activating postponed packages...done ( %4d [ms])"
              (* postpone-pre-init-time 1000))))
 
-(autoload 'postpone-kicker "postpone" nil t)
+;; (autoload 'postpone-kicker "postpone" nil t)
 (add-hook 'pre-command-hook #'postpone-pre) ;; will be removed in postpone.el.
 ;; Copied from postpone-pre.el for speed up -- end ;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -172,6 +179,7 @@
 (set-buffer-file-coding-system 'utf-8-unix)
 (setq locale-coding-system 'utf-8-unix)
 
+;; ns-inline-patch
 (when (fboundp 'mac-add-key-passed-to-system)
   (setq default-input-method "macOS")
   (mac-add-key-passed-to-system 'shift))
@@ -233,23 +241,19 @@
 
 (my-tick-init-time "editing")
 
-(if (not (display-graphic-p))
-    (progn ;; Terminal
-      (set-face-foreground 'mode-line "#96CBFE")
-      (set-face-background 'mode-line "#21252B"))
-
-  ;; mode-line
-  (set-face-attribute 'mode-line nil
-                      :foreground "#FFFFFF"
-                      :background "#a46398"
-                      ;; :overline "#9d5446"
-                      :box nil)
-  ;; mode-line-inactive
-  (set-face-attribute 'mode-line-inactive nil
-                      :foreground "#FFFFFF"
-                      :background "#c8a1b7"
-                      ;; :overline "#FFFFFF"
-                      :box nil))
+;; will be overwritten by loading theme
+(cond ((display-graphic-p)
+       (set-face-attribute 'mode-line nil
+                           :foreground "#FFFFFF"
+                           :background "#a46398"
+                           :box nil)
+       (set-face-attribute 'mode-line-inactive nil
+                           :foreground "#FFFFFF"
+                           :background "#c8a1b7"
+                           :box nil))
+      (t ;; Terminal
+       (set-face-foreground 'mode-line "#96CBFE")
+       (set-face-background 'mode-line "#21252B")))
 
 ;;  (setq visible-bell nil) ;; default=nil
 (setq ring-bell-function 'ignore)
@@ -306,7 +310,7 @@
      '(recentf-save-file (expand-file-name "~/.emacs.d/_recentf"))
      '(recentf-auto-cleanup 'never)
      '(recentf-exclude
-       '(".recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
+       '("_recentf" "bookmarks" "org-recent-headings.dat" "^/tmp\\.*"
          "^/private\\.*" "^/var/folders\\.*" "/TAGS$")))
 
     (if (version< emacs-version "27.1")
@@ -323,7 +327,6 @@
   ;; (add-hook 'find-file-hook #'recentf-save-list)
   (unless noninteractive
     (run-with-idle-timer 10 t #'recentf-save-list)))
-
 
 (when (autoload-if-found '(counsel-recentf)
                          "counsel" nil t)
@@ -358,7 +361,8 @@
   (with-eval-after-load "session"
     ;; (add-to-list 'session-globals-include 'ivy-dired-history-variable)
     ;; (add-to-list 'session-globals-exclude 'org-mark-ring)
-    (setq session-set-file-name-exclude-regexp "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
+    (setq session-set-file-name-exclude-regexp
+          "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
     ;; (setq session-save-file
     ;;       (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
@@ -383,14 +387,6 @@
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
-
-;;;###autoload
-(defun my-org-mode-indent-conf ()
-  (interactive)
-  (setq-local indent-tabs-mode nil)
-  (setq-local tab-width 8)
-  (setq indent-line-function 'org-indent-line))
-(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
 
 (my-tick-init-time "development")
 
@@ -520,8 +516,6 @@
 (keymap-global-set "C-c 9" 'insert-formatted-current-time)
 
 (my-tick-init-time "utility")
-(when (and (boundp my-profiler-p)
-           my-profiler-p)
-  (profiler-report))
-
+;; (when (bound-and-true-p my-profiler-p)
+;;   (profiler-report))
 (provide 'init)

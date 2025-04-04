@@ -170,6 +170,12 @@ This function is called directly from the C code."
   (global-auto-revert-mode 1)
   (remove-hook 'find-file-hook #'my-auto-revert-activate))
 
+;;;###autoload
+(defun my-pixel-scroll-activate (_event &optional _arg)
+  (when (fboundp 'pixel-scroll-mode)
+    (pixel-scroll-mode 1))
+  (advice-remove 'mwheel-scroll #'my-pixel-scroll-activate)) ;; 26.1
+
 ;; see also a configuration of `directory-abbrev-alist'
 ;;;###autoload
 (defun my-shorten-default-directory ()
@@ -718,6 +724,11 @@ Call this function at updating `mode-line-mode'."
   (mlscroll-mode 1))
 
 ;;;###autoload
+(defun my-mlscroll-activate ()
+  (mlscroll-mode 1)
+  (remove-hook 'find-file-hook #'my-mlscroll-activate))
+
+;;;###autoload
 (defun my-mode-line-vc-mode-nerd-icons ()
   (if (string-match "^ Git:" vc-mode) ;; nf-oct-git_branch
       (replace-regexp-in-string
@@ -910,6 +921,9 @@ Call this function at updating `mode-line-mode'."
 ;;;###autoload
 (defun my-calendar-mark-selected ()
   (org-eval-in-calendar '(setq cursor-type nil) t))
+
+(defun my-which-key-activate ()
+  (which-key-mode 1))
 
 ;;;###autoload
 (defun my--elisp-eldoc (_callback)
@@ -1124,19 +1138,15 @@ Obeys `widen-automatically', which see."
 ;;;###autoload
 (defun my-recentf-save-list-silence ()
   (interactive)
-  (if shutup-p
-      (shut-up (recentf-save-list))
-    (let ((message-log-max nil))
-      (recentf-save-list)))
+  (let ((message-log-max nil))
+    (recentf-save-list))
   (message ""))
 
 ;;;###autoload
 (defun my-recentf-cleanup-silence ()
   (interactive)
-  (if shutup-p
-      (shut-up (recentf-cleanup))
-    (let ((message-log-max nil))
-      (recentf-cleanup)))
+  (let ((message-log-max nil))
+    (recentf-cleanup))
   (message ""))
 
 ;;;###autoload
@@ -1387,9 +1397,7 @@ see https://github.com/bbatsov/super-save/pull/20/files."
 (defun my--keyfreq-show ()
   "Extension to make the buffer view-only."
   (interactive)
-  (if shutup-p
-      (shut-up (view-buffer keyfreq-buffer))
-    (view-buffer keyfreq-buffer)))
+  (view-buffer keyfreq-buffer))
 
 ;;;###autoload
 (defun my--counsel-ag (f &optional initial-input initial-directory extra-ag-args ag-prompt caller)
@@ -1549,6 +1557,13 @@ Otherwise, use `counsel-ag'."
   (interactive)
   (my-org-modules-activate)
   (advice-remove 'org-cycle #'my--org-modules-activate))
+
+;;;###autoload
+(defun my-org-mode-indent-conf ()
+  (interactive)
+  (setq-local indent-tabs-mode nil)
+  (setq-local tab-width 8)
+  (setq indent-line-function 'org-indent-line))
 
 ;;;###autoload
 (defun my-desktop-notification (title message &optional sticky sound timeout)
@@ -1901,9 +1916,7 @@ Otherwise, use `counsel-ag'."
 ;;;###autoload
 (defun my-modeline-activate ()
   (unless my-toggle-modeline-global
-    (if shutup-p
-        (shut-up (my-mode-line-off))
-      (my-mode-line-off))))
+    (my-mode-line-off)))
 
 ;;;###autoload
 (defun my--winner:delete-window (&optional _window)
@@ -3270,12 +3283,17 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
                (message "Quit")
                (throw 'end-flag t)))))))
 
-(unless noninteractive
-  (when nil
-    (let ((inhibit-message t))
-      (message "Loading utility.el...done (%4d [ms])"
-               (* 1000
-                  (float-time (time-subtract
-                               (current-time)
-                               my-utility-start)))))))
+(defvar my-utility-end (current-time))
+;;;###autoload
+(defun my-print-utility-time ()
+  (interactive)
+  (message "Loading utility.el...done (%4d [ms])"
+           (* 1000
+              (float-time (time-subtract
+                           my-utility-end
+                           my-utility-start)))))
+
+(when (bound-and-true-p my-profiler-p)
+  (profiler-report))
+
 (provide 'utility)

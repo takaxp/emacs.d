@@ -131,9 +131,6 @@ This function returns a timer object which you can use in
     (advice-add 'gcmh-idle-garbage-collect
                 :around #'my--gcmh-idle-garbage-collect)))
 
-(setq message-log-max 5000) ;; メッセージバッファの長さ
-(defvar shutup-p nil)
-
 (with-eval-after-load "comp"
   (setq native-comp-async-query-on-exit t)
   (setf comp-num-cpus (max 1 (- (num-processors) 2))))
@@ -189,8 +186,7 @@ This function returns a timer object which you can use in
     (add-hook 'after-revert-hook 'my-org-hide-drawers-all)))
 
 (unless noninteractive
-  (when (fboundp 'pixel-scroll-mode)
-    (pixel-scroll-mode 1))) ;; 26.1
+  (advice-add 'mwheel-scroll :before #'my-pixel-scroll-activate))
 
 (add-hook 'find-file-hook #'my-shorten-default-directory 1)
 
@@ -239,10 +235,10 @@ This function returns a timer object which you can use in
   (custom-set-faces
    '(ns-marked-text-face
      ((t (:foreground "black"
-          :background "light pink" :underline "OrangeRed2"))))
+                      :background "light pink" :underline "OrangeRed2"))))
    '(ns-unmarked-text-face
      ((t (:foreground "black"
-          :background "light sky blue" :underline "royal blue")))))
+                      :background "light sky blue" :underline "royal blue")))))
 
   (when (and (fboundp 'mac-get-current-input-source)
              (version< "27.0" emacs-version))
@@ -288,17 +284,6 @@ This function returns a timer object which you can use in
   (when (require 'ah nil t)
     (setq ah-lighter "")
     (ah-mode 1)))
-
-(when (autoload-if-found '(smooth-scroll-mode)
-                         "smooth-scroll" nil t)
-
-  (with-eval-after-load "smooth-scroll"
-    (custom-set-variables
-     '(smooth-scroll/vscroll-step-size 6)
-     '(smooth-scroll/hscroll-step-size 6)))
-
-  (unless noninteractive
-    (smooth-scroll-mode t)))
 
 (with-eval-after-load "bs"
   (custom-set-variables
@@ -603,11 +588,9 @@ This function returns a timer object which you can use in
       (setq ispell-local-dictionary "en_US")
       (setq ispell-dictionary ispell-local-dictionary)
       (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)
-      (if shutup-p
-          ;; 必要．しかも ispell-program-name 指定の前で．
-          ;; ただし，ispell-local-dictionary-alist の後で．
-          (shut-up (ispell-change-dictionary "en_US" t))
-        (ispell-change-dictionary "en_US" t))
+      ;; 必要．しかも ispell-program-name 指定の前で．
+      ;; ただし，ispell-local-dictionary-alist の後で．
+      (ispell-change-dictionary "en_US" t)
       (setq-default ispell-program-name (executable-find "hunspell"))
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
@@ -859,17 +842,18 @@ This function returns a timer object which you can use in
            entry))
        mode-line-modes))
 
-(when (require 'mlscroll nil t)
-  (custom-set-variables
-   '(mlscroll-in-color "light coral") ;;  #FFA07A
-   '(mlscroll-out-color "#FFFFEF")
-   '(mlscroll-width-chars 10))
-  (unless noninteractive
-    (mlscroll-mode 1))
+(when (autoload-if-found '(mlscroll-mode) "mlscroll" nil t)
+  (with-eval-after-load "mlscroll"
+    (custom-set-variables
+     '(mlscroll-in-color "light coral") ;;  #FFA07A
+     '(mlscroll-out-color "#FFFFEF")
+     '(mlscroll-width-chars 10)))
 
   (with-eval-after-load "moom"
     (add-hook 'moom-font-after-resize-hook #'my-reload-mlscroll)
     (add-hook 'moom-after-reset-hook #'my-reload-mlscroll)))
+
+(add-hook 'find-file-hook #'my-mlscroll-activate)
 
 (with-eval-after-load "nerd-icons"
   ;; 変更がアリ時は赤アイコン，そうでない時に緑アイコンをモードラインに表示
@@ -889,10 +873,6 @@ This function returns a timer object which you can use in
 (unless (display-graphic-p)
   ;; ターミナルの縦分割線をUTF-8できれいに描く
   (add-hook 'window-configuration-change-hook 'my-change-window-divider))
-
-;; Show line number in the mode line.
-(unless noninteractive
-  (line-number-mode 1))
 
 (when (autoload-if-found '(my-toggle-display-line-numbers-mode)
                          "display-line-numbers" nil t)
@@ -930,8 +910,6 @@ This function returns a timer object which you can use in
 (setq display-time-format "%H:%M w%V") ;; %y%m%d. ;; "%H%M.%S"
 (setq display-time-interval 1)
 (setq display-time-default-load-average nil)
-(unless noninteractive
-  (display-time-mode 1))
 
 ;; スペース
 (defface my-face-b-1
@@ -1147,7 +1125,7 @@ This function returns a timer object which you can use in
      '(which-key-idle-delay 1.0)))
 
   (unless noninteractive
-    (which-key-mode 1)))
+    (run-with-idle-timer 5 nil #'my-which-key-activate)))
 
 (when (autoload-if-found '(highlight-symbol-mode highlight-symbol-nav-mode)
                          "highlight-symbol" nil t)
@@ -1159,12 +1137,13 @@ This function returns a timer object which you can use in
 
 (autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired" nil t)
 
-(cond ((require 'nerd-icons-dired nil t)
-       (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
-      ((require 'icons-in-terminal nil t)
-       (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
-      ((require 'all-the-icons nil t)
-       (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
+(with-eval-after-load "dired"
+  (cond ((require 'nerd-icons-dired nil t)
+         (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+        ((require 'icons-in-terminal nil t)
+         (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
+        ((require 'all-the-icons nil t)
+         (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))))
 
 (when (autoload-if-found '(turn-on-eldoc-mode)
                          "eldoc" nil t)
@@ -1292,8 +1271,7 @@ This function returns a timer object which you can use in
 
 (with-eval-after-load "prescient"
   (setq prescient-aggressive-file-save t) ;; Merged!
-  (setq prescient-save-file
-        (expand-file-name "~/.emacs.d/prescient-save.el"))
+  (setq prescient-save-file (expand-file-name "~/.emacs.d/prescient-save.el"))
   (prescient-persist-mode 1))
 
 (with-eval-after-load "ivy"
@@ -2122,11 +2100,13 @@ This function returns a timer object which you can use in
 (defface my-ivy-arrow-visible
   '((((class color) (background light)) :foreground "orange")
     (((class color) (background dark)) :foreground "#EE6363"))
-  "Face used by Ivy for highlighting the arrow.")
+  "Face used by Ivy for highlighting the arrow."
+  :group 'my)
 (defface my-ivy-arrow-invisible
   '((((class color) (background light)) :foreground "#FFFFFF")
     (((class color) (background dark)) :foreground "#31343F"))
-  "Face used by Ivy for highlighting the invisible arrow.")
+  "Face used by Ivy for highlighting the invisible arrow."
+  :group 'my)
 
 (with-eval-after-load "counsel"
 

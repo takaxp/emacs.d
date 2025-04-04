@@ -3,6 +3,8 @@
 (unless (featurep 'postpone)
   (call-interactively 'postpone-pre))
 
+(add-hook 'org-mode-hook #'my-org-mode-indent-conf)
+
 ;; テキストファイルを Org Mode で開く．
 (push '("\\.txt$" . org-mode) auto-mode-alist)
 
@@ -941,7 +943,8 @@
      :foreground "#5b5caf" :background "#e6ebfa") ;; #a60000 #4E4F97 #c7e9fa
     (((class color) (min-colors 88) (background dark))
      :foreground "#99B2FF")) ;; #ff8059 #BCBCDB #6666D6 #879EE2
-  "My bold emphasis for Org.")
+  "My bold emphasis for Org."
+  :group 'my)
 
 (defface my-org-emphasis-italic
   '((default :inherit italic)
@@ -949,7 +952,8 @@
      :foreground "#005e00" :background "#B4EAB4")
     (((class color) (min-colors 88) (background dark))
      :foreground "#44bc44"))
-  "My italic emphasis for Org.")
+  "My italic emphasis for Org."
+  :group 'my)
 
 (defface my-org-emphasis-underline
   '((default :inherit underline)
@@ -957,14 +961,16 @@
      :foreground "#813e00")
     (((class color) (min-colors 88) (background dark))
      :foreground "#d0bc00"))
-  "My underline emphasis for Org.")
+  "My underline emphasis for Org."
+  :group 'my)
 
 (defface my-org-emphasis-strike-through
   '((((class color) (min-colors 88) (background light))
      :strike-through "#972500" :foreground "#505050")
     (((class color) (min-colors 88) (background dark))
      :strike-through "#ef8b50" :foreground "#a8a8a8"))
-  "My strike-through emphasis for Org.")
+  "My strike-through emphasis for Org."
+  :group 'my)
 
 (with-eval-after-load "org"
   (custom-set-variables ;; call org-set-emph-re
