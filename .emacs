@@ -78,13 +78,13 @@
   (defvar my-secure-boot nil
     "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
 
-  ;; (setq measure-exec-time-list
-  ;; 	'(my-show-org-buffer
-  ;; 	  my-private-conf-activate
-  ;; 	  my-org-babel-load-activate
-  ;; 	  my-org-modules-activate
-  ;; 	  my-org-agenda-prepare-buffers
-  ;; 	  ))
+  (setq measure-exec-time-list '(
+				 my-private-conf-activate
+				 my-org-babel-load-activate
+				 my-org-modules-activate
+				 my-org-agenda-prepare-buffers
+				 ;; my-show-org-buffer
+				 ))
   ;; (require 'my-eshell nil t)
   (require 'init nil t)))
 

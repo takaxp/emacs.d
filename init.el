@@ -3,24 +3,25 @@
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
 (require 'init-autoloads nil t) ;; 生成済みの autoloads を読み込む
+(defgroup my nil
+  "User variables."
+  :group 'convenience)
+
 (defun my--safe-load (file)
+  "Load FILE with checking its existence."
   (if (file-exists-p file)
       (load file nil t)
     (message "--- Missing %s" (expand-file-name file))))
+
 (when (bound-and-true-p my-profiler-p)
   (profiler-start 'cpu+mem))
 (when (bound-and-true-p my-ad-require-p)
   (my--safe-load "~/Dropbox/emacs.d/config/init-ad.el"))
 
-(defgroup my nil
-  "User variables."
-  :group 'convenience)
-
 (with-eval-after-load "postpone"
-  (require 'late-init nil t)
   ;; only top-level setting will be loaded. This will not actually load `org' so settings in `with-eval-after-load' will not be loaded.
   ;; (require 'init-org nil t)
-  )
+  (require 'late-init nil t))
 
 (unless noninteractive
   (with-eval-after-load "org"
@@ -387,6 +388,8 @@
 
 ;; ホームポジション的な Orgファイルを一発で開きます．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
+
+(defalias 'run-timer 'my-countdown-timer)
 
 (my-tick-init-time "development")
 

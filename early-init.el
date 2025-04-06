@@ -1,17 +1,6 @@
-;; (message "--- Window system (ns mac) %s, display-graphic-p %s, File %s" window-system (display-graphic-p) early-init-file)
-;; References:
-;; https://raw.githubusercontent.com/hlissner/doom-emacs/develop/early-init.el
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (unless (getenv "LIBRARY_PATH")
-;;   (setenv "LIBRARY_PATH"
-;;           (string-join
-;;            '("/opt/homebrew/opt/gcc/lib/gcc/14"
-;;              "/opt/homebrew/opt/libgccjit/lib/gcc/14"
-;;              "/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin24/14")
-;;            ":")))
-;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
-
+;; early-init.el --- My early-init.el -*- lexical-binding: t -*-
+;; Configurations for Emacs
+;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 (unless noninteractive
   (defvar my-early-start (current-time))
   (defvar my-early-init
@@ -33,14 +22,7 @@
 (setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" ))
 
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
-;; (setq garbage-collection-messages t)
-;; (defvar my-gc-last 0.0)
-;; (add-hook 'post-gc-hook
-;;           #'(lambda ()
-;;               (message "GC! > %.4f[sec]" (- gc-elapsed my-gc-last))
-;;               (setq my-gc-last gc-elapsed)))
 
-;; Build and check `my-package-dir'
 (defvar my-package-dir nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, Emacs uses packages installed via el-get.")
@@ -56,12 +38,22 @@
   (dolist (x path-list)
     (add-to-list target-path (file-name-as-directory x))))
 
-;; (1) theme-path
+;; (1) load-path
+;; M-x list-load-path-shadows
+(let* ((git-path (expand-file-name "~/devel/git/"))
+       (org-path "org-mode")
+       (pl `(,(expand-file-name "~/.emacs.d/lisp")
+             ,my-package-dir ;; may include a path to org
+             ,(concat git-path org-path "/lisp") ;; override the path to org
+             ,(concat git-path org-path "/contrib/lisp"))))
+  (my-path-setter pl 'load-path))
+
+;; (2) theme-path
 (my-path-setter
  `(,my-package-dir ,(expand-file-name "~/.emacs.d/lisp"))
  'custom-theme-load-path)
 
-;; (2) exec-path
+;; (3) exec-path
 (my-path-setter
  `("/usr/bin" "/usr/local/bin" "/opt/homebrew/bin"
    ,(expand-file-name "~/.cask/bin")
@@ -78,20 +70,10 @@
    "/opt/homebrew/opt/imagemagick@6/bin")
  'exec-path)
 
+;; you may want to use exec-path-from-shell.el.
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
 (setenv "GOPATH" (concat (getenv "HOME") "/.go"))
-;; you may want to use exec-path-from-shell.el.
-
-;; (3) load-path, 拡張パッケージにパスを通す
-;; M-x list-load-path-shadows
-(let* ((git-path (expand-file-name "~/devel/git/"))
-       (org-path "org-mode")
-       (pl `(,(expand-file-name "~/.emacs.d/lisp")
-             ,my-package-dir ;; may include a path to org
-             ,(concat git-path org-path "/lisp") ;; override the path to org
-             ,(concat git-path org-path "/contrib/lisp"))))
-  (my-path-setter pl 'load-path))
 
 (unless noninteractive
   (defvar my-early-end (current-time))

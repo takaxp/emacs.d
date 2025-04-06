@@ -1322,8 +1322,8 @@ This function returns a timer object which you can use in
 (when (eq system-type 'darwin)
   (with-eval-after-load "ivy"
     (cond ((and (require 'nerd-icons nil t) ;; safeguard
-                (require 'ivy-rich nil t)
-                (require 'nerd-icons-ivy-rich nil t))
+                (require 'nerd-icons-ivy-rich nil t)
+                (require 'ivy-rich nil t))
            (nerd-icons-ivy-rich-mode 1)
            (ivy-rich-mode 1))
           ((and (require 'icons-in-terminal nil t) ;; safeguard
@@ -1345,7 +1345,8 @@ This function returns a timer object which you can use in
      '(:columns
        ((nerd-icons-ivy-rich-function-icon)
         (counsel-M-x-transformer (:width 0.5))
-        (ivy-rich-counsel-function-docstring (:face nerd-icons-ivy-rich-doc-face)))))
+        (ivy-rich-counsel-function-docstring
+         (:face nerd-icons-ivy-rich-doc-face)))))
 
     (my-update-nerd-icons-ivy-rich-display-transformers-list
      'counsel-recentf
@@ -2266,12 +2267,13 @@ This function returns a timer object which you can use in
 
 (keymap-global-set "C-c C-x" #'my-kill-emacs-when-scratch-buffer)
 
-(unless noninteractive
-  (when nil
-    (let ((inhibit-message t))
-      (message "Loading late-init.el...done (%4d [ms])"
-               (* 1000
-                  (float-time (time-subtract
-                               (current-time)
-                               my-late-init-start)))))))
+(defvar my-late-init-end (current-time))
+(defun my-emacs-late-init-time ()
+  (interactive)
+  (let ((inhibit-message t))
+    (message "Loading late-init.el...done (%4d [ms])"
+             (* 1000
+                (float-time (time-subtract
+                             my-late-init-end
+                             my-late-init-start))))))
 (provide 'late-init)

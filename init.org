@@ -94,19 +94,20 @@ Then load the following at startup
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;; see also https://takaxp.github.io/init.html
 (require 'init-autoloads nil t) ;; 生成済みの autoloads を読み込む
-(defun my--safe-load (file)
-  (if (file-exists-p file)
-      (load file nil t)
-    (message "--- Missing %s" (expand-file-name file))))
-(when (bound-and-true-p my-profiler-p)
-  (profiler-start 'cpu+mem))
-(when (bound-and-true-p my-ad-require-p)
-  (my--safe-load "~/Dropbox/emacs.d/config/init-ad.el"))
-
 (defgroup my nil
   "User variables."
   :group 'convenience)
 
+(defun my--safe-load (file)
+  "Load FILE with checking its existence."
+  (if (file-exists-p file)
+      (load file nil t)
+    (message "--- Missing %s" (expand-file-name file))))
+
+(when (bound-and-true-p my-profiler-p)
+  (profiler-start 'cpu+mem))
+(when (bound-and-true-p my-ad-require-p)
+  (my--safe-load "~/Dropbox/emacs.d/config/init-ad.el"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
@@ -118,10 +119,9 @@ Then load the following at startup
 
 #+begin_src emacs-lisp :tangle yes :exports none
 (with-eval-after-load "postpone"
-  (require 'late-init nil t)
   ;; only top-level setting will be loaded. This will not actually load `org' so settings in `with-eval-after-load' will not be loaded.
   ;; (require 'init-org nil t)
-  )
+  (require 'late-init nil t))
 
 (unless noninteractive
   (with-eval-after-load "org"
@@ -145,11 +145,8 @@ Then load the following at startup
 
 ~early-init.el~ の読み込み時には， =(display-graphic-p)= と =window-system= が共に =nil= に設定されるので要注意です．
 
-#+begin_src emacs-lisp :tangle early-init.el
-;; (message "--- Window system (ns mac) %s, display-graphic-p %s, File %s" window-system (display-graphic-p) early-init-file)
-;; References:
-;; https://raw.githubusercontent.com/hlissner/doom-emacs/develop/early-init.el
-
+#+begin_src emacs-lisp :tangle no
+;; early-init.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (unless (getenv "LIBRARY_PATH")
 ;;   (setenv "LIBRARY_PATH"
@@ -159,7 +156,12 @@ Then load the following at startup
 ;;              "/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin24/14")
 ;;            ":")))
 ;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
+#+end_src
 
+#+begin_src emacs-lisp :tangle early-init.el
+;; early-init.el --- My early-init.el -*- lexical-binding: t -*-
+;; Configurations for Emacs
+;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 (unless noninteractive
   (defvar my-early-start (current-time))
   (defvar my-early-init
@@ -317,6 +319,8 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
+(defvar my-logging-time-buffer (generate-new-buffer "*Logging*"))
+
 ;;;###autoload
 (defun my--measure-exec-time (f &rest arg)
   "If `measure-exec-time-list' is non-nil, measure exe time for each function."
@@ -325,12 +329,14 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
             (message-log-max 5000)
             (begin (current-time)))
         (apply f arg)
-        (message
-         (format "--- %.3f[ms] %S"
-                 (* 1000 (float-time (time-subtract (current-time) begin)))
-                 (if (byte-code-function-p f)
-                     nil ;; not includes closure
-                   f)))) ;; FIXME
+        (with-current-buffer (get-buffer-create my-logging-time-buffer)
+          (end-of-buffer)
+          (insert
+           (format "%6.1f[ms] %S\n"
+                   (* 1000 (float-time (time-subtract (current-time) begin)))
+                   (if (byte-code-function-p f)
+                       nil ;; excludes closure
+                     f))))) ;; FIXME
     (apply f arg)))
 #+end_src
 
@@ -346,6 +352,9 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 #+begin_src emacs-lisp :tangle early-init.el
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
 ;; (setq garbage-collection-messages t)
 ;; (defvar my-gc-last 0.0)
 ;; (add-hook 'post-gc-hook
@@ -556,7 +565,6 @@ This function is called directly from the C code."
 =el-get= でインストールしているパッケージ群と，個別管理している org-mode を使えるようにパスを通します．
 
 #+begin_src emacs-lisp :tangle early-init.el
-;; Build and check `my-package-dir'
 (defvar my-package-dir nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, Emacs uses packages installed via el-get.")
@@ -572,12 +580,22 @@ This function is called directly from the C code."
   (dolist (x path-list)
     (add-to-list target-path (file-name-as-directory x))))
 
-;; (1) theme-path
+;; (1) load-path
+;; M-x list-load-path-shadows
+(let* ((git-path (expand-file-name "~/devel/git/"))
+       (org-path "org-mode")
+       (pl `(,(expand-file-name "~/.emacs.d/lisp")
+             ,my-package-dir ;; may include a path to org
+             ,(concat git-path org-path "/lisp") ;; override the path to org
+             ,(concat git-path org-path "/contrib/lisp"))))
+  (my-path-setter pl 'load-path))
+
+;; (2) theme-path
 (my-path-setter
  `(,my-package-dir ,(expand-file-name "~/.emacs.d/lisp"))
  'custom-theme-load-path)
 
-;; (2) exec-path
+;; (3) exec-path
 (my-path-setter
  `("/usr/bin" "/usr/local/bin" "/opt/homebrew/bin"
    ,(expand-file-name "~/.cask/bin")
@@ -594,20 +612,10 @@ This function is called directly from the C code."
    "/opt/homebrew/opt/imagemagick@6/bin")
  'exec-path)
 
+;; you may want to use exec-path-from-shell.el.
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
 (setenv "GOPATH" (concat (getenv "HOME") "/.go"))
-;; you may want to use exec-path-from-shell.el.
-
-;; (3) load-path, 拡張パッケージにパスを通す
-;; M-x list-load-path-shadows
-(let* ((git-path (expand-file-name "~/devel/git/"))
-       (org-path "org-mode")
-       (pl `(,(expand-file-name "~/.emacs.d/lisp")
-             ,my-package-dir ;; may include a path to org
-             ,(concat git-path org-path "/lisp") ;; override the path to org
-             ,(concat git-path org-path "/contrib/lisp"))))
-  (my-path-setter pl 'load-path))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -1404,7 +1412,6 @@ Note: =my--suppress-message= と save-silently で十分制御可能になった
 (2020-06-04) =frame-focus-state= という標準関数がありました．
 
 #+begin_src emacs-lisp :tangle no
-;;;###autoload
 (defun window-focus-p ()
   (frame-parameter (selected-frame) 'last-focus-update)))
 #+end_src
@@ -2233,7 +2240,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 次の例では， ~secret.org.gpg~ が開かれていて，一定時間，操作しなかったら安全のためバッファを閉じます．
 
 #+begin_src emacs-lisp :tangle utility.el
-;;;###autolaod
+;;;###autoload
 (defun my-lock-secret-buffer (&optional file)
   (when (and (stringp file)
              (buffer-live-p (get-buffer file)))
@@ -6151,6 +6158,7 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 =guide-key.el= の後発． =guide-key.el= の改良でもあり，ディスパッチャが見やすく，直感的でとても使いやすい．
 
 #+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
 (defun my-which-key-activate ()
   (which-key-mode 1))
 #+end_src
@@ -6759,8 +6767,8 @@ Obeys `widen-automatically', which see."
 (when (eq system-type 'darwin)
   (with-eval-after-load "ivy"
     (cond ((and (require 'nerd-icons nil t) ;; safeguard
-                (require 'ivy-rich nil t)
-                (require 'nerd-icons-ivy-rich nil t))
+                (require 'nerd-icons-ivy-rich nil t)
+                (require 'ivy-rich nil t))
            (nerd-icons-ivy-rich-mode 1)
            (ivy-rich-mode 1))
           ((and (require 'icons-in-terminal nil t) ;; safeguard
@@ -6782,7 +6790,8 @@ Obeys `widen-automatically', which see."
      '(:columns
        ((nerd-icons-ivy-rich-function-icon)
         (counsel-M-x-transformer (:width 0.5))
-        (ivy-rich-counsel-function-docstring (:face nerd-icons-ivy-rich-doc-face)))))
+        (ivy-rich-counsel-function-docstring
+         (:face nerd-icons-ivy-rich-doc-face)))))
 
     (my-update-nerd-icons-ivy-rich-display-transformers-list
      'counsel-recentf
@@ -10041,6 +10050,94 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
 #+end_src
 
+#+begin_src emacs-lisp :tangle no
+;;;###autoload
+(defun my--org-eldoc-load ()
+  "Set up org-eldoc documentation function."
+  (interactive)
+  (add-function :before-until (local 'eldoc-documentation-function)
+                #'org-eldoc-documentation-function))
+
+;;;###autoload
+(defun my-promote-todo-revision (state)
+  (cond ((member state '("TODO")) "REV1")
+        ((member state '("REV1")) "REV2")
+        ((member state '("REV2")) "REV3")
+        (t state)))
+
+#+end_src
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my--org-return (f &rest arg)
+  "An extension for checking invisible editing when you hit the enter."
+  (interactive "P")
+  (org-check-before-invisible-edit 'insert)
+  (apply f arg))
+
+;;;###autoload
+(defun my-org-hide-drawers ()
+  "Hide all drawers in an org tree."
+  (interactive)
+  (save-mark-and-excursion
+    (beginning-of-line)
+    (unless (looking-at-p org-drawer-regexp)
+      (org-cycle-hide-drawers 'subtree))))
+
+;;;###autoload
+(defun my-org-table-export ()
+  "Export a table as csv format."
+  (interactive)
+  (org-table-export nil "orgtbl-to-csv"))
+
+;;;###autoload
+(defun my-do-org-update-staistics-cookies ()
+  "Update cookies for all checkboxes in an org buffer."
+  (interactive)
+  (message "Update statistics...")
+  (org-update-statistics-cookies 'all)
+  (let ((inhibit-message t)
+        (message-log-max nil))
+    (save-buffer))
+  (message "Update statistics...done"))
+
+;;;###autoload
+(defun my--org-tempo-complete-tag (f &rest arg)
+  (if (save-excursion
+        (beginning-of-line)
+        (looking-at "<"))
+      (let ((indent-line-function 'ignore))
+        (apply f arg))
+    (apply f arg)))
+
+;;;###autoload
+(defun my--org-tempo-add-block (entry)
+  "Add block entry from `org-structure-template-alist'."
+  (let* ((key (format "<%s" (car entry)))
+         (name (cdr entry))
+         (special nil)) ;; FIXED
+    (tempo-define-template
+     (format "org-%s" (replace-regexp-in-string " " "-" name))
+     `(,(format "#+begin_%s%s" name (if special " " ""))
+       ,(when special 'p) '> n '> ,(unless special 'p) n
+       ,(format "#+end_%s" (car (split-string name " ")))'
+       >)
+     key
+     (format "Insert a %s block" name)
+     'org-tempo-tags)))
+
+;;;###autoload
+(defun my-org-clock-out-and-save-when-exit ()
+  "Save buffers and stop clocking when kill emacs."
+  (when (org-clocking-p)
+    (org-clock-out)
+    (save-some-buffers t)))
+
+;;;###autoload
+(defun my--org-table-field-info (_arg)
+  (save-buffer))
+#+end_src
+
 #+begin_src emacs-lisp :tangle init-org.el
 (add-hook 'org-mode-hook #'my-org-mode-indent-conf)
 
@@ -10069,11 +10166,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
   ;; 関連モジュールの読み込み
   (autoload 'org-eldoc-load "org-eldoc" nil t)
-  (defun my--org-eldoc-load ()
-    "Set up org-eldoc documentation function."
-    (interactive)
-    (add-function :before-until (local 'eldoc-documentation-function)
-                  #'org-eldoc-documentation-function))
+  
   ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
   ;; (advice-add 'org-eldoc-load :override #'my--org-eldoc-load)
   (add-hook 'org-mode-hook #'org-eldoc-load)
@@ -10141,11 +10234,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (org-clock-persistence-insinuate)
 
   ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
-  (defun my-promote-todo-revision (state)
-    (cond ((member state '("TODO")) "REV1")
-          ((member state '("REV1")) "REV2")
-          ((member state '("REV2")) "REV3")
-          (t state)))
   ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
   ;; undo 時に reveal して表示を改善する
@@ -10163,11 +10251,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; 非表示状態の領域への書き込みを防ぐ
   ;; "Editing in invisible areas is prohibited, make them visible first"
   (setq org-catch-invisible-edits 'show-and-error)
-  (defun my--org-return (f &rest arg)
-    "An extension for checking invisible editing when you hit the enter."
-    (interactive "P")
-    (org-check-before-invisible-edit 'insert)
-    (apply f arg))
   (advice-add 'org-return :around #'my--org-return)
 
   ;; ブリッツにアルファベットを使う
@@ -10197,32 +10280,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
    'append)
 
   ;; プロパティ等を自動的閉じる．
-  ;;;###autoload
-  (defun my-org-hide-drawers ()
-    "Hide all drawers in an org tree."
-    (interactive)
-    (save-mark-and-excursion
-      (beginning-of-line)
-      (unless (looking-at-p org-drawer-regexp)
-        (org-cycle-hide-drawers 'subtree))))
   (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
-
-  ;; CSV指定でテーブルを出力する．
-  ;;;###autoload
-  (defun my-org-table-export ()
-    (interactive)
-    (org-table-export nil "orgtbl-to-csv"))
-
-  ;; すべてのチェックボックスの cookies を更新する
-  ;;;###autoload
-  (defun my-do-org-update-staistics-cookies ()
-    (interactive)
-    (message "Update statistics...")
-    (org-update-statistics-cookies 'all)
-    (let ((inhibit-message t)
-          (message-log-max nil))
-      (save-buffer))
-    (message "Update statistics...done"))
 
   (keymap-set org-mode-map "C-c f 2" 'my-do-org-update-staistics-cookies)
 
@@ -10239,14 +10297,8 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 (with-eval-after-load "org-tempo"
   ;; 空行のとき "<" をインデントさせない
-  (defun my--org-tempo-complete-tag (f &rest arg)
-    (if (save-excursion
-          (beginning-of-line)
-          (looking-at "<"))
-        (let ((indent-line-function 'ignore))
-          (apply f arg))
-      (apply f arg)))
   (advice-add 'org-tempo-complete-tag :around #'my--org-tempo-complete-tag))
+
 ;; (Thanks to @conao3)
 ;; but when using `flet', byte-compile will warn a malformed function
 ;; and using `cl-flet' will not provide us the expected result...
@@ -10261,20 +10313,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 ;;   (advice-add 'org-tempo-complete-tag :around #'my--org-tempo-complete-tag))
 
 (with-eval-after-load "org-tempo"
-  (defun my--org-tempo-add-block (entry)
-    "Add block entry from `org-structure-template-alist'."
-    (let* ((key (format "<%s" (car entry)))
-           (name (cdr entry))
-           (special nil)) ;; FIXED
-      (tempo-define-template
-       (format "org-%s" (replace-regexp-in-string " " "-" name))
-       `(,(format "#+begin_%s%s" name (if special " " ""))
-         ,(when special 'p) '> n '> ,(unless special 'p) n
-         ,(format "#+end_%s" (car (split-string name " ")))'
-         >)
-       key
-       (format "Insert a %s block" name)
-       'org-tempo-tags)))
   ;; 更新
   (advice-add 'org-tempo-add-block :override #'my--org-tempo-add-block)
   ;; 反映
@@ -10282,26 +10320,19 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 (with-eval-after-load "org-clock"
   ;; nil or 'history ならば，org-onit が org-clock-out を実行する．
-  (setq org-clock-persist 'history) ;; {nil, t, 'clock, 'history}
-  (setq org-clock-in-resume t)
-  (setq org-clock-persist-query-resume nil)
+  (setq org-clock-persist 'history ;; {nil, t, 'clock, 'history}
+        org-clock-in-resume t
+        org-clock-persist-query-resume nil)
 
   (advice-add 'org-clock-load :around #'my--suppress-message)
 
   ;; 終了時に clock を止める．
-  (defun my-org-clock-out-and-save-when-exit ()
-    "Save buffers and stop clocking when kill emacs."
-    (when (org-clocking-p)
-      (org-clock-out)
-      (save-some-buffers t)))
   ;; implemented in `org-onit.el'. No need to hook this.
   ;; (add-hook 'kill-emacs-hook #'my-org-clock-out-and-save-when-exit)
   )
 
 (with-eval-after-load "org-table"
   ;; エコー表示前に保存する
-  (defun my--org-table-field-info (_arg)
-    (save-buffer))
   (advice-add 'org-table-field-info :before #'my--org-table-field-info))
 #+end_src
 
@@ -10320,41 +10351,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
    :ID:       0CA19632-E3F9-4152-B883-C0992E306D0D
    :END:
 
-#+begin_src emacs-lisp :tangle init-org.el
-;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
-;; default = ~/org.ics
-;; C-c C-e i org-export-icalendar-this-file
-;; C-c C-e I org-export-icalendar-all-agenda-files
-;; C-c C-e c org-export-icalendar-all-combine-agenda-files
-(when (autoload-if-found '(my-ox-icalendar
-                           my-async-ox-icalendar my-ox-icalendar-cleanup)
-                         "ox-icalendar" nil t)
-  (with-eval-after-load "org"
-    (keymap-set org-mode-map "C-c f 1" 'my-ox-upload-icalendar))
-
-  (with-eval-after-load "ox-icalendar"
-    (defvar org-ical-file-in-orz-server nil) ;; see private.el
-
-    ;; 生成するカレンダーファイルを指定
-    ;; 以下の設定では，このファイルを一時ファイルとして使う（削除する）
-    (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
-
-    ;; iCal の説明文
-    (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
-
-    ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
-    (setq org-icalendar-timezone "Asia/Tokyo")
-
-    ;; DONE になった TODO はアジェンダから除外する
-    (setq org-icalendar-include-todo t)
-
-    ;; 通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない
-    (setq org-icalendar-use-scheduled '(event-if-todo))
-
-    ;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
-    ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
-    (setq org-icalendar-use-deadline '(event-if-todo))))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-ox-upload-icalendar ()
   (interactive)
@@ -10369,6 +10366,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (let ((message-log-max nil)
         (org-agenda-files '("~/Dropbox/org/org-ical.org")))
     ;; org-icalendar-export-to-ics を使うとクリップボードが荒れる
+    (length org-agenda-files) ;;; FIXME to avild "unsed lexical variables"
     (org-icalendar-combine-agenda-files))
   ;; 自サーバにアップロード
   (message "Uploading...")
@@ -10416,6 +10414,42 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
      (concat "rm -rf " org-icalendar-combined-agenda-file))))
 #+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
+;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
+;; default = ~/org.ics
+;; C-c C-e i org-export-icalendar-this-file
+;; C-c C-e I org-export-icalendar-all-agenda-files
+;; C-c C-e c org-export-icalendar-all-combine-agenda-files
+(when (autoload-if-found '(my-ox-icalendar
+                           my-async-ox-icalendar my-ox-icalendar-cleanup)
+                         "ox-icalendar" nil t)
+  (with-eval-after-load "org"
+    (keymap-set org-mode-map "C-c f 1" 'my-ox-upload-icalendar))
+
+  (with-eval-after-load "ox-icalendar"
+    (defvar org-ical-file-in-orz-server nil) ;; see private.el
+
+    ;; 生成するカレンダーファイルを指定
+    ;; 以下の設定では，このファイルを一時ファイルとして使う（削除する）
+    (setq org-icalendar-combined-agenda-file "~/Desktop/org-ical.ics")
+
+    ;; iCal の説明文
+    (setq org-icalendar-combined-description "OrgModeのスケジュール出力")
+
+    ;; カレンダーに適切なタイムゾーンを設定する（google 用には nil が必要）
+    (setq org-icalendar-timezone "Asia/Tokyo")
+
+    ;; DONE になった TODO はアジェンダから除外する
+    (setq org-icalendar-include-todo t)
+
+    ;; 通常は，<>--<> で区間付き予定をつくる．非改行入力で日付がNoteに入らない
+    (setq org-icalendar-use-scheduled '(event-if-todo))
+
+    ;; DL 付きで終日予定にする：締め切り日（スタンプで時間を指定しないこと）
+    ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
+    (setq org-icalendar-use-deadline '(event-if-todo))))
+#+end_src
+
 ** スピードコマンド
    :PROPERTIES:
    :CUSTOM_ID: org739cd53d
@@ -10424,32 +10458,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
    :END:
 慣れてくると Org Mode の通常キーバインドでは満足できなくなります．コンテクストに応じて適切なキーバインドを設定するのが Emacs の醍醐味ですから，そういう欲求が出てきたらスピーコマンドの出番です．シングルキーで各ツリーのステータスを変更したり，任意のコマンドを呼び出せます．
 
-#+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org"
-  (setq org-use-speed-commands t)
-
-  (when (version< (org-version) "9.4.6")
-    (defvaralias 'org-speed-commands 'org-speed-commands-user))
-
-  ;; "C"(org-shifttab) をオーバーライド
-  (add-to-list 'org-speed-commands '("C" org-copy-subtree))
-  (add-to-list 'org-speed-commands '("d" my-done-with-update-list))
-  ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
-  (add-to-list 'org-speed-commands
-               '("D" my-org-todo-complete-no-repeat "DONE"))
-  ;; (add-to-list 'org-speed-commands '("N" org-shiftmetadown))
-  ;; (add-to-list 'org-speed-commands '("P" org-shiftmetaup))
-  (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
-  (add-to-list 'org-speed-commands '("h" org-hugo-export-wim-to-md))
-  (add-to-list 'org-speed-commands '("E" my-export-subtree-as-html))
-  (add-to-list 'org-speed-commands '("P" my-toggle-org-pin-subtree))
-  (add-to-list 'org-speed-commands '("." my-org-deadline-today))
-  (add-to-list 'org-speed-commands '("!" my-org-default-property))
-  (add-to-list 'org-speed-commands '("y" my-org-yank))
-  (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
-  (add-to-list 'org-speed-commands
-               '("$" call-interactively 'org-archive-subtree)))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;; done にして，apptを更新する
 ;;;###autoload
 (defun my-done-with-update-list ()
@@ -10561,9 +10570,12 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                                 (substring date 11 (string-width date)))
                       (format "<%s>" today))))))
 
+
 ;; 現在のツリーを畳んでから同じレベルの最後の要素として移動する
-(defcustom my-org-move-subtree-to-the-last-after-hook nil""
+(defcustom my-org-move-subtree-to-the-last-after-hook nil
+  ""
   :type 'hook :group 'org)
+
 ;;;###autoload
 (defun my-org-move-subtree-to-the-last ()
   "Move the current heading to the last one of the same level."
@@ -10581,7 +10593,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (goto-char beg)))
   (run-hooks 'my-org-move-subtree-to-the-last-after-hook))
 
-;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
 ;;;###autoload
 (defun my--kill-update-todo-statistics (_b _d &optional _arg)
   (when (and (derived-mode-p 'org-mode)
@@ -10593,12 +10604,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (ignore-errors (outline-up-heading 1))
         (org-update-statistics-cookies nil)
         (org-update-parent-todo-statistics)))))
-;; kill時に[0/0]の色が変わるのが気になる場合は，volatile-highlights ロード後に
-;; kill-region から vhl/.advice-callback-fn/.make-vhl-on-kill-region を
-;; advice-remove する．
-(advice-add 'kill-region :after #'my--kill-update-todo-statistics)
 
-;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
 ;;;###autoload
 (defun my--yank-update-todo-statistics (&optional _arg)
   (when (org-kill-is-subtree-p)
@@ -10608,13 +10614,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
           (backward-char 1))
         (org-update-statistics-cookies nil)
         (org-update-parent-todo-statistics)))))
-(advice-add 'org-yank :after #'my--yank-update-todo-statistics)
 
-;; アーカイブする前に narrowing を解く
-(advice-add 'org-archive-subtree :before #'widen)
-
-;; バッファ表示時に指定のツリーのコンテンツを展開表示する(Toggle)
-(defvar my-org-pin-tag "pin")
 ;;;###autoload
 (defun my-toggle-org-pin-subtree ()
   "Toggle \"VISIBILITY\" of the current tree."
@@ -10634,7 +10634,6 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                  (org-toggle-tag my-org-pin-tag 'on)
                  (message "Pinned"))))))))
 
-;; narrowing+編集開始時に領域の最後に改行を置く FIXME
 ;;;###autoload
 (defun my--ensure-newline-end (&rest _arg)
   (when (buffer-narrowed-p)
@@ -10655,6 +10654,52 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 (defun my--add-newline-narrowed-end ()
   (advice-add 'next-line :before #'my--ensure-newline-end)
   (advice-add 'end-of-buffer :after #'my--newline-narrowed-end-of-buffer))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "org"
+  (setq org-use-speed-commands t)
+
+  (when (version< (org-version) "9.4.6")
+    (defvaralias 'org-speed-commands 'org-speed-commands-user))
+
+  ;; "C"(org-shifttab) をオーバーライド
+  (add-to-list 'org-speed-commands '("C" org-copy-subtree))
+  (add-to-list 'org-speed-commands '("d" my-done-with-update-list))
+  ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
+  (add-to-list 'org-speed-commands
+               '("D" my-org-todo-complete-no-repeat "DONE"))
+  ;; (add-to-list 'org-speed-commands '("N" org-shiftmetadown))
+  ;; (add-to-list 'org-speed-commands '("P" org-shiftmetaup))
+  (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
+  (add-to-list 'org-speed-commands '("h" org-hugo-export-wim-to-md))
+  (add-to-list 'org-speed-commands '("E" my-export-subtree-as-html))
+  (add-to-list 'org-speed-commands '("P" my-toggle-org-pin-subtree))
+  (add-to-list 'org-speed-commands '("." my-org-deadline-today))
+  (add-to-list 'org-speed-commands '("!" my-org-default-property))
+  (add-to-list 'org-speed-commands '("y" my-org-yank))
+  (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
+  (add-to-list 'org-speed-commands
+               '("$" call-interactively 'org-archive-subtree)))
+
+
+
+;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
+;; kill時に[0/0]の色が変わるのが気になる場合は，volatile-highlights ロード後に
+;; kill-region から vhl/.advice-callback-fn/.make-vhl-on-kill-region を
+;; advice-remove する．
+(advice-add 'kill-region :after #'my--kill-update-todo-statistics)
+
+;; ツリーをペーストする時に，カレントサブツリーと親の統計情報を更新する
+(advice-add 'org-yank :after #'my--yank-update-todo-statistics)
+
+;; アーカイブする前に narrowing を解く
+(advice-add 'org-archive-subtree :before #'widen)
+
+;; バッファ表示時に指定のツリーのコンテンツを展開表示する(Toggle)
+(defvar my-org-pin-tag "pin")
+
+;; narrowing+編集開始時に領域の最後に改行を置く FIXME
 (advice-add 'org-narrow-to-subtree :before #'my--add-newline-narrowed-end)
 #+end_src
 
@@ -10864,11 +10909,12 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 ** ソースブロック等の大文字記述を一括で小文字に変える
    :PROPERTIES:
    :CUSTOM_ID: org907cb9db
+   :ID:       7A855A71-B807-43B3-AF8C-096AE2F644D6
    :END:
 
 https://scripter.co/org-keywords-lower-case/ で紹介されている関数を，ログ出力部分だけ加筆して使っています．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-lowercase-org-keywords ()
   "Lower case Org keywords and block identifiers."
@@ -10987,7 +11033,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
 =M-x my-countdown-timer= で呼び出します．ちょっと時間を測りたい時に使っています．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-countdown-timer-notify ()
   ;; (when mode-line-format
@@ -11011,7 +11057,9 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
     (add-hook 'org-timer-done-hook #'my-countdown-timer-notify)
     (add-hook 'org-timer-stop-hook #'my-countdown-timer-notify)
     (org-timer-set-timer)))
+#+end_src
 
+#+begin_src emacs-lisp :tangle yes
 (defalias 'run-timer 'my-countdown-timer)
 #+end_src
 
@@ -11026,14 +11074,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
  - [[https://pxaka.tokyo/blog/2019/a7ef3cd5-df52-2004-db2b-03d36ef48555/][リンクの内容をeldocで表示 - imadenale]]
 
-#+begin_src emacs-lisp :tangle init-org.el
-(when (autoload-if-found '(org-mode my-load-echo-org-link)
-                         "org" nil t)
-  (add-hook 'org-mode-hook #'my-load-echo-org-link)
-
-  (with-eval-after-load "org"
-    (defvar my-org-link-prompt "Link:")))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-echo-org-link ()
   (when (org-in-regexp org-link-bracket-re 1)
@@ -11048,6 +11089,15 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
                 #'my-echo-org-link)
   ;; (setq-local eldoc-documentation-function #'my-echo-org-link)
   )
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+(when (autoload-if-found '(org-mode my-load-echo-org-link)
+                         "org" nil t)
+  (add-hook 'org-mode-hook #'my-load-echo-org-link)
+
+  (with-eval-after-load "org"
+    (defvar my-org-link-prompt "Link:")))
 #+end_src
 
 ** TODO HHKBで矢印を使わないように設定する
@@ -11078,13 +11128,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 ;; item 行にカーソルがある時，heading の★マークにカーソルがある時
 #+end_comment
 
-#+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org"
-  (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
-  (org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
-  (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
-  (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-org-item-has-child-p ()
   "Return t, if the item has at least a child item."
@@ -11124,7 +11168,6 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
          (org-call-with-arg 'org-table-move-row 'up))
         (t nil))) ;; (call-interactively 'scroll-down))))
 
-(defvar my-org-promote-demote-independently nil)
 ;;;###autoload
 (defun my-inherit-struct-p ()
   (and (not my-org-promote-demote-independently)
@@ -11163,6 +11206,16 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
       (backward-word))))
 #+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "org"
+  (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
+  (org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
+  (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
+  (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward))
+
+(defvar my-org-promote-demote-independently nil)
+#+end_src
+
 ** orgmode のテーブルを csv に変換する
    :PROPERTIES:
    :CREATED:  [2021-04-04 Sun 21:32]
@@ -11173,7 +11226,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
  =M-x org-table-to-format= を呼び出すとデフォルトでカンマ区切りに変換してくれます．さらにその情報をコピペできるようにクリップボードに流し込みます．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-org-table-copy-as (&optional format)
   "Copy converted table."
@@ -11227,12 +11280,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 
 org バッファのソースブロックにカーソルがある時には， =eldoc= が発動しないようにします．
 
-#+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "eldoc"
-  (defvar my-eldoc-disable-in-org-block nil)
-  (advice-add 'eldoc-print-current-symbol-info :around
-              #'my--eldoc-print-current-symbol-info))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my--eldoc-print-current-symbol-info (f &optional interactive)
   "Run `eldoc' when the cursor is NOT located in org source block."
@@ -11241,6 +11289,13 @@ org バッファのソースブロックにカーソルがある時には， =el
               (and (eq major-mode 'org-mode)
                    (eq (car (org-element-at-point)) 'src-block)))
     (funcall f interactive)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "eldoc"
+  (defvar my-eldoc-disable-in-org-block nil)
+  (advice-add 'eldoc-print-current-symbol-info :around
+              #'my--eldoc-print-current-symbol-info))
 #+end_src
 
 ** 見出しの上で org-reveal する場合の挙動を変える
@@ -11396,6 +11451,44 @@ org バッファのソースブロックにカーソルがある時には， =el
 
 Emacs を起動している限り，いつでもどこでもメモを記録できます．
 
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-toggle-org-block-visibility ()
+  "Testing..."
+  (interactive)
+  (when (looking-at org-drawer-regexp)
+    (org-flag-drawer          ; toggle block visibility
+     (not (get-char-property (match-end 0) 'invisible)))))
+
+;;;###autoload
+(defun my--org-insert-todo-heading (_arg &optional _force-heading)
+  (unless (org-at-item-checkbox-p)
+    (my-org-default-property)))
+
+;;;###autoload
+(defun my-org-default-property ()
+  "Set the creation date and org-id."
+  (interactive)
+  (my-org-set-created-property)
+  (org-id-get-create))
+
+;;;###autoload
+(defun my-org-set-created-property (&optional active NAME)
+  "Set a property on the entry giving the creation time.
+
+By default the property is called CREATED. If given the `NAME'
+argument will be used instead. If the property already exists, it
+will not be modified."
+  (interactive)
+  (let* ((created (or NAME my-org-created-property-name))
+         (fmt (if active "<%s>" "[%s]"))
+         (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
+         (field (org-entry-get (point) created nil)))
+    (unless (or field (equal "" field))
+      (org-set-property created now)
+      (org-cycle-hide-drawers 'children))))
+#+end_src
+
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(org-capture)
                          "org-capture" nil t)
@@ -11477,42 +11570,6 @@ This user property stores the creation date of the entry")
              entry (file+headline ,org-capture-english-file "GRAMMER")
              "** %? :%(get-current-date-tags):\n\n%U")
             ))))
-
-;;;###autoload
-(defun my-toggle-org-block-visibility ()
-  "Testing..."
-  (interactive)
-  (when (looking-at org-drawer-regexp)
-    (org-flag-drawer          ; toggle block visibility
-     (not (get-char-property (match-end 0) 'invisible)))))
-
-;;;###autoload
-(defun my--org-insert-todo-heading (_arg &optional _force-heading)
-  (unless (org-at-item-checkbox-p)
-    (my-org-default-property)))
-
-;;;###autoload
-(defun my-org-default-property ()
-  "Set the creation date and org-id."
-  (interactive)
-  (my-org-set-created-property)
-  (org-id-get-create))
-
-;;;###autoload
-(defun my-org-set-created-property (&optional active NAME)
-  "Set a property on the entry giving the creation time.
-
-By default the property is called CREATED. If given the `NAME'
-argument will be used instead. If the property already exists, it
-will not be modified."
-  (interactive)
-  (let* ((created (or NAME my-org-created-property-name))
-         (fmt (if active "<%s>" "[%s]"))
-         (now (format fmt (format-time-string "%Y-%m-%d %a %H:%M")))
-         (field (org-entry-get (point) created nil)))
-    (unless (or field (equal "" field))
-      (org-set-property created now)
-      (org-cycle-hide-drawers 'children))))
 #+end_src
 
 ** [org-agenda] タスク／予定管理
@@ -11537,6 +11594,62 @@ will not be modified."
 (defun my-recenter-top-bottom-top ()
   "Recenter the current line to the top of window."
   (set-window-start (get-buffer-window) (line-beginning-position)))
+
+;; Expand the frame width temporarily during org-agenda is activated.
+;;;###autoload
+(defun my-agenda-frame-width ()
+  (let ((width (floor (* 1.2 moom-frame-width-single))))
+    (setq org-tags-column (- org-tags-column (- width 80)))
+    ;; (org-align-tags t)
+    (moom-change-frame-width width)))
+
+;;;###autoload
+(defun my--org-agenda--quit (&optional _bury)
+  (setq org-tags-column my-org-tags-column)
+  ;; (org-align-tags t)
+  (moom-change-frame-width))
+
+;;;###autoload
+(defun my-popup-agenda ()
+  (interactive)
+  (let ((status use-dialog-box))
+    (setq use-dialog-box nil)
+    (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
+      (org-agenda-list))
+    (message "")
+    (setq use-dialog-box status)))
+
+;;;###autoload
+(defun my-popup-agenda-set-timers ()
+  (interactive)
+  (cancel-function-timers 'my-popup-agenda)
+  (dolist (triger my-org-agenda-auto-popup-list)
+    (when (future-time-p triger)
+      (run-at-time triger nil 'my-popup-agenda))))
+
+;; ついでに calendar.app も定期的に強制起動する
+;;;###autoload
+(defun my-popup-calendar ()
+  (interactive)
+  (if (and (eq system-type 'darwin)
+           (frame-focus-state))
+      (shell-command-to-string "open -a calendar.app")
+    (message "--- input focus is currently OUT.")))
+
+;;;###autoload
+(defun my-popup-calendar-set-timers ()
+  (interactive)
+  (cancel-function-timers 'my-popup-calendar)
+  (dolist (triger my-org-agenda-auto-popup-list)
+    (when (future-time-p triger)
+      (run-at-time triger nil 'my-popup-calendar))))
+
+;; org-agenda でも "d" 押下で "DONE" にする
+;;;###autoload
+(defun my-org-agenda-done ()
+  (interactive)
+  (org-agenda-todo "DONE")
+  (my-org-agenda-to-appt)) ;; call with async
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -11681,62 +11794,6 @@ will not be modified."
   (org-defkey org-read-date-minibuffer-local-map (kbd "q")
               (lambda () (interactive)
                 (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
-
-;; Expand the frame width temporarily during org-agenda is activated.
-;;;###autoload
-(defun my-agenda-frame-width ()
-  (let ((width (floor (* 1.2 moom-frame-width-single))))
-    (setq org-tags-column (- org-tags-column (- width 80)))
-    ;; (org-align-tags t)
-    (moom-change-frame-width width)))
-
-;;;###autoload
-(defun my--org-agenda--quit (&optional _bury)
-  (setq org-tags-column my-org-tags-column)
-  ;; (org-align-tags t)
-  (moom-change-frame-width))
-
-;;;###autoload
-(defun my-popup-agenda ()
-  (interactive)
-  (let ((status use-dialog-box))
-    (setq use-dialog-box nil)
-    (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
-      (org-agenda-list))
-    (message "")
-    (setq use-dialog-box status)))
-
-;;;###autoload
-(defun my-popup-agenda-set-timers ()
-  (interactive)
-  (cancel-function-timers 'my-popup-agenda)
-  (dolist (triger my-org-agenda-auto-popup-list)
-    (when (future-time-p triger)
-      (run-at-time triger nil 'my-popup-agenda))))
-
-;; ついでに calendar.app も定期的に強制起動する
-;;;###autoload
-(defun my-popup-calendar ()
-  (interactive)
-  (if (and (eq system-type 'darwin)
-           (frame-focus-state))
-      (shell-command-to-string "open -a calendar.app")
-    (message "--- input focus is currently OUT.")))
-
-;;;###autoload
-(defun my-popup-calendar-set-timers ()
-  (interactive)
-  (cancel-function-timers 'my-popup-calendar)
-  (dolist (triger my-org-agenda-auto-popup-list)
-    (when (future-time-p triger)
-      (run-at-time triger nil 'my-popup-calendar))))
-
-;; org-agenda でも "d" 押下で "DONE" にする
-;;;###autoload
-(defun my-org-agenda-done ()
-  (interactive)
-  (org-agenda-todo "DONE")
-  (my-org-agenda-to-appt)) ;; call with async
 #+end_src
 
 入門者にとって =org-agenda= は簡単ではないので，無理に使わなくて良いと思います．Org Modeの動作に十分慣れたら戻ってくる程度で十分です．
@@ -11750,6 +11807,29 @@ will not be modified."
 =org-onit.el= を導入すると，タグを付けるタイミングで自動的に =org-clock-in= します．タグを取れば =org-clock-out= が実行されるようになります．
 
  - https://github.com/takaxp/org-onit
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-sparse-doing-tree ()
+  (interactive)
+  (org-tags-view nil org-onit-tag))
+
+;;;###autoload
+(defun my-clear-undo-list ()
+  (when (and (fboundp 'org-clocking-p)
+             (org-clocking-p))
+    (setq buffer-undo-list nil)))
+
+;;;###autoload
+(defun my-onit-reveal ()
+  ;; (widen)
+  (org-overview)
+  (org-reveal)
+  (org-cycle-hide-drawers 'all)
+  (org-show-entry)
+  (show-children)
+  (org-show-siblings))
+#+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(org-onit-toggle-doing
@@ -11793,27 +11873,6 @@ will not be modified."
                            (org-onit-get-sign)
                            org-mode-line-string))
             " - %b"))))
-
-;;;###autoload
-(defun my-sparse-doing-tree ()
-      (interactive)
-      (org-tags-view nil org-onit-tag))
-
-;;;###autoload
-(defun my-clear-undo-list ()
-      (when (and (fboundp 'org-clocking-p)
-                 (org-clocking-p))
-        (setq buffer-undo-list nil)))
-
-;;;###autoload
-(defun my-onit-reveal ()
-      ;; (widen)
-      (org-overview)
-      (org-reveal)
-      (org-cycle-hide-drawers 'all)
-      (org-show-entry)
-      (show-children)
-      (org-show-siblings))
 #+end_src
 
 ** [orgbox.el] スケジュール追加のわかりやすい入力
@@ -11913,9 +11972,7 @@ will not be modified."
                 (message "[async] Added %d event%s for today"
                          cnt (if (> cnt 1) "s" "")))))
           (setq my-org-agenda-to-appt-ready t))))))
-#+end_src
 
-#+begin_src emacs-lisp :tangle init-org.el
 ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
 ;; Need review
 ;;;###autoload
@@ -12021,7 +12078,9 @@ update it for multiple appts?")
                    ) t)
     ;; just for sure
     (delq nil appt-time-msg-list)))
+#+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(appt my--appt-display-message
                                 my--appt-disp-window appt-check)
                          "appt" nil t)
@@ -12091,7 +12150,7 @@ update it for multiple appts?")
 
 # BUG サブツリーが一つもない場所に refile すると [0/1] などに更新されない... 
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my--org-refile (f &optional arg default-buffer rfloc msg)
   "Extension to support keeping org-refile-history empty."
@@ -12122,7 +12181,9 @@ update it for multiple appts?")
   (org-show-hidden-entry)
   (org-show-children)
   (org-cycle-hide-drawers 'children))
+#+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org"
   ;; リファイル先でサブディレクトリを指定するために一部フルパス化
   (let ((dir (expand-file-name org-directory)))
@@ -12234,7 +12295,7 @@ update it for multiple appts?")
 
 =org-src-block-faces=, =org-block-begin-line=, =org-block-end-line= をカスタマイズして，配色を変えます．さらに， =prettify-symbols-mode= を利用して =begin_src= と =end_src= の表示を別な文字列に変えます．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-org-src-block-face ()
   (setq org-src-block-faces
@@ -12251,7 +12312,9 @@ update it for multiple appts?")
     (with-current-buffer buffer
       (when (derived-mode-p 'org-mode)
         (font-lock-flush)))))
+#+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
 (with-eval-after-load "org-src"
   ;; (my-org-src-block-face)
   (add-hook 'ah-after-enable-theme-hook #'my-org-src-block-face)
@@ -12330,9 +12393,9 @@ update it for multiple appts?")
                 'org-tree-slide-move-next-tree)
     (unless noninteractive
       (org-tree-slide-narrowing-control-profile))
-    (setq org-tree-slide-modeline-display 'outside)
-    (setq org-tree-slide-skip-outline-level 5)
-    (setq org-tree-slide-skip-done nil)))
+    (setopt org-tree-slide-modeline-display 'outside
+            org-tree-slide-skip-outline-level 5
+            org-tree-slide-skip-done nil)))
 #+end_src
 
 ~Doing~ タグのトグルに =f11= を割り当てたので，コンテンツモードへの切り替えは，異なるキーバインドに変更．
@@ -12414,11 +12477,12 @@ update it for multiple appts?")
 ** [org-tree-slide] 特定のツリーをプロポーショナルフォントで表示する
    :PROPERTIES:
    :CUSTOM_ID: orga7162e8c
+   :ID:       309E7806-03D5-473E-8A5D-1B456607BB12
    :END:
 
 ツリーのプロパティに，プロポーショナルで表示するか否かの制御フラグを加えます．ツリーにフォーカス時に ~PROPORTIONAL~ 指定がプロパティにあると，そのツリーを動的にプロポーショナルフォントでレンダリングします．変更は下位ツリーの全てに継承しています．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-toggle-proportional-font ()
   (interactive)
@@ -12426,7 +12490,9 @@ update it for multiple appts?")
   (if use-proportional-font
       (org-entry-put nil "FONT" "PROPORTIONAL")
     (org-delete-property "FONT")))
+#+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(org-tree-slide-mode my-toggle-proportional-font)
                          "org-tree-slide" nil t)
   (with-eval-after-load "org-tree-slide"
@@ -12475,8 +12541,7 @@ update it for multiple appts?")
 
 プレゼンテーション実行時に，制御コードが記述されている =#+ATTR_ORG= などの行を非表示（背景と同じ色）にします．
 
-#+begin_src emacs-lisp :tangle init-org.el
-(defvar my-hide-org-meta-line-p nil)
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-hide-org-meta-line ()
   (interactive)
@@ -12496,15 +12561,18 @@ update it for multiple appts?")
   (if my-hide-org-meta-line-p
       (my-show-org-meta-line) (my-hide-org-meta-line)))
 
-(add-hook 'org-tree-slide-play-hook #'my-hide-org-meta-line)
-(add-hook 'org-tree-slide-stop-hook #'my-show-org-meta-line)
-
 ;; Option
 ;;;###autoload
 (defun my-update-org-meta-line ()
   (interactive)
   (when my-hide-org-meta-line-p
     (my-hide-org-meta-line)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+(defvar my-hide-org-meta-line-p nil)
+(add-hook 'org-tree-slide-play-hook #'my-hide-org-meta-line)
+(add-hook 'org-tree-slide-stop-hook #'my-show-org-meta-line)
 (add-hook 'ah-after-enable-theme-hook #'my-update-org-meta-line)
 #+end_src
 
@@ -12730,18 +12798,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
    :ID:       ED6ED943-8A56-4A12-881C-608796CCC8AF
    :END:
 
-#+begin_src emacs-lisp :tangle init-org.el
-(when (autoload-if-found '(org-grep)
-                         "org-grep" nil t)
-  ;;   (keymap-global-set "C-M-g" 'org-grep)
-  (with-eval-after-load "org-grep"
-    (setq org-grep-extensions '(".org" ".org_archive"))
-    (add-to-list 'org-grep-directories "~/.emacs.d")
-    (add-to-list 'org-grep-directories "~/.emacs.d/.cask/package")
-
-    ;; "q"押下の挙動を調整
-    (advice-add 'org-grep-quit :override #'my--org-grep-quit)))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my--org-grep-quit ()
   (interactive)
@@ -12763,6 +12820,19 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
               " -print0 | xargs -0 grep " org-grep-grep-options
               " -n -- " (shell-quote-argument regexp))
     ":"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+(when (autoload-if-found '(org-grep)
+                         "org-grep" nil t)
+  ;;   (keymap-global-set "C-M-g" 'org-grep)
+  (with-eval-after-load "org-grep"
+    (setq org-grep-extensions '(".org" ".org_archive"))
+    (add-to-list 'org-grep-directories "~/.emacs.d")
+    (add-to-list 'org-grep-directories "~/.emacs.d/.cask/package")
+
+    ;; "q"押下の挙動を調整
+    (advice-add 'org-grep-quit :override #'my--org-grep-quit)))
 #+end_src
 
 ** [ox-reveal] ナイスなHTML5プレゼンテーション出力
@@ -12807,16 +12877,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
   - clock が動いている時だけモードラインに合計値が表示される
   - [[https://github.com/mallt/org-clock-today-mode][mallt/org-clock-today-mode: Emacs minor mode to show the total clocked time of the current day in the mode line]]
 
-#+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "org-clock"
-  (advice-add 'org-clock-sum-today :override #'my--org-clock-sum-today)
-
-  ;; using folked package
-  (when (require 'org-clock-today nil t)
-    (unless noninteractive
-      (setq org-clock-today-count-subtree t)
-      (org-clock-today-mode 1))))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-print-working-clocks ()
   "for org-clock-today"
@@ -12836,6 +12897,17 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
   (let ((range (org-clock-special-range 'today nil t))) ;; TZ考慮
     (org-clock-sum (car range) (cadr range)
                    headline-filter :org-clock-minutes-today)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "org-clock"
+  (advice-add 'org-clock-sum-today :override #'my--org-clock-sum-today)
+
+  ;; using folked package
+  (when (require 'org-clock-today nil t)
+    (unless noninteractive
+      (setq org-clock-today-count-subtree t)
+      (org-clock-today-mode 1))))
 #+end_src
 
 ** [org-random-todo] ランダムにタスクを選ぶ
@@ -12884,16 +12956,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
           (async-start
            `(lambda () (shell-command-to-string ',command)))
         (shell-command-to-string command)))))
-#+end_src
 
-#+begin_src emacs-lisp :tangle init-org.el
-;; see https://ox-hugo.scripter.co/doc/deprecation-notices/#org-hugo-auto-export-feature-now-a-minor-mode
-;; (with-eval-after-load "org"
-;; No need for latest ox-hugo
-;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
-;;   (require 'ox-hugo-auto-export nil t))
-
-;; see https://pxaka.tokyo/blog/2018/a-link-to-the-original-org-source-file
 ;;;###autoload
 (defun org-hugo-get-link-to-orgfile (uri alt)
   "Return a formatted link to the original Org file.
@@ -12907,7 +12970,16 @@ Note that this mechanism is still under consideration."
                   (line-number-at-pos)))))
     (concat "[[" uri (file-name-nondirectory (buffer-file-name))
             "#L" (format "%d" line) "][" alt "]]")))
+#+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
+;; see https://ox-hugo.scripter.co/doc/deprecation-notices/#org-hugo-auto-export-feature-now-a-minor-mode
+;; (with-eval-after-load "org"
+;; No need for latest ox-hugo
+;;   ;; Require ox-hugo-auto-export.el explictly before loading ox-hugo.el
+;;   (require 'ox-hugo-auto-export nil t))
+
+;; see https://pxaka.tokyo/blog/2018/a-link-to-the-original-org-source-file
 (when (autoload-if-found
        '(org-hugo-export-wim-to-md)
        "ox-hugo" nil t)
@@ -12933,19 +13005,7 @@ Note that this mechanism is still under consideration."
 
 =my-add-org-ids-to-headlines-in-file= は，バッファの保存時点，或いは，HTMLエクスポートが走る直前のタイミングで自動実行させるのがスマートだが，当面は手動で運用する．
 
-#+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "ox-html"
-  (setq org-html-text-markup-alist
-        '((bold . "<b>%s</b>")
-          (code . "<code class=\"org-code\">%s</code>")
-          (italic . "<i>%s</i>")
-          (strike-through . "<del>%s</del>")
-          (underline . "<span class=\"org-underline\">%s</span>")
-          (verbatim . "<code class=\"org-verbatim\">%s</code>"))))
-
-(with-eval-after-load "org"
-  (defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$"))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-add-custom-id ()
   "Add \"CUSTOM_ID\" to the current tree if not assigned yet."
@@ -13000,20 +13060,31 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 ;;;###autoload
 (defun my-convert-md-link-to-html ()
-    (interactive)
-    (goto-char (point-min))
-    (while (re-search-forward md-link-format nil :noerror)
-      (let* ((prev (match-string-no-properties 0))
-             (alt (match-string-no-properties 1))
-             (src (match-string-no-properties 2))
-             (new (concat "<p><img src=\"" src "\" alt=\"" alt "\" /></p>")))
-        (replace-match new)
-        (message "====\ninput:\t%s\noutput:\t%s" prev new)))
-    (message "--- done."))
+  (interactive)
+  (goto-char (point-min))
+  (while (re-search-forward md-link-format nil :noerror)
+    (let* ((prev (match-string-no-properties 0))
+           (alt (match-string-no-properties 1))
+           (src (match-string-no-properties 2))
+           (new (concat "<p><img src=\"" src "\" alt=\"" alt "\" /></p>")))
+      (replace-match new)
+      (message "====\ninput:\t%s\noutput:\t%s" prev new)))
+  (message "--- done."))
 #+end_src
 
-#+RESULTS:
-: my-convert-md-link-to-html
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "ox-html"
+  (setq org-html-text-markup-alist
+        '((bold . "<b>%s</b>")
+          (code . "<code class=\"org-code\">%s</code>")
+          (italic . "<i>%s</i>")
+          (strike-through . "<del>%s</del>")
+          (underline . "<span class=\"org-underline\">%s</span>")
+          (verbatim . "<code class=\"org-verbatim\">%s</code>"))))
+
+(with-eval-after-load "org"
+  (defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$"))
+#+end_src
 
 ** [org-id.el] プロパティに ID を入れる
    :PROPERTIES:
@@ -13022,7 +13093,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 =org.el= に付属している =org-id.el= を使うと，各 heading のプロパティにユニークな id を付与できます．また， =org-clock-in= で工数計測を開始すると，自動的に付与されます．しかし， heading を不用意にコピペすると，id が重複するので，それらを削除するユーティリティを準備しました．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-delete-all-id-in-file ()
   (interactive)
@@ -13044,7 +13115,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 指定したモードのバッファで， =org mode= と同じリンク機能を使えるようにします．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-orglink-mode-activate ()
   (orglink-mode 1)
@@ -13053,7 +13124,9 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (face-remap-add-relative 'org-link
                            :underline nil
                            :inherit font-lock-comment-delimiter-face))
+#+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(orglink-mode
                            global-orglink-mode my-orglink-mode-activate)
                          "orglink" nil t)
@@ -13127,17 +13200,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
  - [[https://qiita.com/takaxp/items/017ccc4655877b827551][orgエクスポータのディスパッチャを水平分割画面に表示する - Qiita]]
 
-#+begin_src emacs-lisp :tangle init-org.el
-(with-eval-after-load "ox"
-  (defvar my-org-export-before-hook nil)
-  (defvar my-org-export-after-hook nil)
-  (defvar my-org-export-last-buffer nil)
-  (advice-add 'org-export-dispatch :around #'my--org-export-dispatch)
-  (advice-add 'org-export-insert-default-template :around
-              #'my--org-export-insert-default-template)
-  (advice-add 'org-export-to-buffer :after #'my--org-export-to-buffer)
-  (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-org-export--post-processing ()
   (when (eq this-command 'org-export-dispatch)
@@ -13189,6 +13252,18 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (kill-ring-save (point-min) (point-max))
       (message "Copied: %s" my-org-export-last-buffer))
     (setq my-org-export-last-buffer nil)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+(with-eval-after-load "ox"
+  (defvar my-org-export-before-hook nil)
+  (defvar my-org-export-after-hook nil)
+  (defvar my-org-export-last-buffer nil)
+  (advice-add 'org-export-dispatch :around #'my--org-export-dispatch)
+  (advice-add 'org-export-insert-default-template :around
+              #'my--org-export-insert-default-template)
+  (advice-add 'org-export-to-buffer :after #'my--org-export-to-buffer)
+  (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
 #+end_src
 
 ** TODO [org-extra-emphasis] 強調表現を拡張する
@@ -13256,22 +13331,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 =hide-lines.el= を使うことで，プレゼン時に =BEGIN_SRC= と =ENC_SRC= を非表示にしてすっきりさせます．さらに，ソースブロックの背景色を変えます（以下の例では， =emacs-lisp= を言語で指定している場合に限定）．
 
-#+begin_src emacs-lisp :tangle init-org.el
-(when (autoload-if-found '(org-tree-slide-mode)
-                         "org-tree-slide" nil t)
-  (with-eval-after-load "org-tree-slide"
-    ;; FIXME 複数のバッファで並行動作させるとおかしくなる．hide-lines の問題？
-    ;; prettify-symbols で置き換えるほうが良い
-    (when (and nil (require 'hide-lines nil t))
-      (defvar my-org-src-block-faces nil)
-      (add-hook 'org-tree-slide-play-hook #'my-hide-headers)
-      (add-hook 'org-tree-slide-stop-hook #'my-show-headers)
-
-      ;; (defun my--org-edit-src-code (&optional code edit-buffer-name)
-      (advice-add 'org-edit-src-code :before #'my--org-edit-src-code)
-      ;; Block 外で呼ばれると，my-show-headers が呼ばれてしまう
-      (advice-add 'org-edit-src-exit :after #'my--org-edit-src-exit))))
-
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-show-headers ()
   (setq org-src-block-faces 'my-org-src-block-faces)
@@ -13294,6 +13354,23 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 (defun my--org-edit-src-exit ()
   (interactive)
   (my-hide-headers))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-org.el
+(when (autoload-if-found '(org-tree-slide-mode)
+                         "org-tree-slide" nil t)
+  (with-eval-after-load "org-tree-slide"
+    ;; FIXME 複数のバッファで並行動作させるとおかしくなる．hide-lines の問題？
+    ;; prettify-symbols で置き換えるほうが良い
+    (when (and nil (require 'hide-lines nil t))
+      (defvar my-org-src-block-faces nil)
+      (add-hook 'org-tree-slide-play-hook #'my-hide-headers)
+      (add-hook 'org-tree-slide-stop-hook #'my-show-headers)
+
+      ;; (defun my--org-edit-src-code (&optional code edit-buffer-name)
+      (advice-add 'org-edit-src-code :before #'my--org-edit-src-code)
+      ;; Block 外で呼ばれると，my-show-headers が呼ばれてしまう
+      (advice-add 'org-edit-src-exit :after #'my--org-edit-src-exit))))
 #+end_src
 
 ** TODO [org-fstree] ディレクトリ構造を読み取る
@@ -13328,7 +13405,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
    :ID:       503D9DB1-CE41-4832-B9B8-68ACA1930BB8
    :END:
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle no
 (with-eval-after-load "org-mac-link"
   (defcustom org-mac-grab-Papers-app-p t
     "Add menu option [P]apers to grab links from the Papers.app."
@@ -13410,7 +13487,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    :CUSTOM_ID: orgd14388c1
    :END:
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun du-org-attachments ()
   "Show directory size for org-attachments."
@@ -13419,7 +13496,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
            (chomp (shell-command-to-string
                    (concat "/usr/bin/du -sh "
                            org-attach-directory-absolute)))))
+#+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(org-attach du-org-attachments)
                          "org-attach" nil t)
   (with-eval-after-load "org-attach"
@@ -13555,13 +13634,15 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
   - [X] Emacs バッファを抜いてキャプチャする方法
   - [X] Emacs だけキャプチャする方法
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-org-attach-screenshot ()
   (interactive)
   (org-attach-screenshot t (format-time-string
                             "screenshot-%Y%m%d-%H%M%S.png")))
+#+end_src
 
+#+begin_src emacs-lisp :tangle init-org.el
 (when (autoload-if-found '(org-attach-screenshot)
                          "org-attach-screenshot" nil t)
   (with-eval-after-load "org-attach-screenshot"
@@ -14893,6 +14974,14 @@ Linux では次のように処理するだけでよく，意外と簡単．
 (defun my-linespacing ()
   (unless (minibufferp)
     (setq-local line-spacing 2)))
+
+;;;###autoload
+(defun my--org-agenda (&optional _arg _org-keys _restriction)
+  (my-linespacing))
+
+;;;###autoload
+(defun my--org-agenda-redo (&optional _all)
+  (my-linespacing))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -14905,14 +14994,6 @@ Linux では次のように処理するだけでよく，意外と簡単．
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
-;;;###autoload
-(defun my--org-agenda (&optional _arg _org-keys _restriction)
-  (my-linespacing))
-
-;;;###autoload
-(defun my--org-agenda-redo (&optional _all)
-  (my-linespacing))
-
 (with-eval-after-load "org-agenda"
   (advice-add 'org-agenda :after #'my--org-agenda)
   (advice-add 'org-agenda-redo :after #'my--org-agenda-redo))
@@ -17810,14 +17891,15 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
-(unless noninteractive
-  (when nil
-    (let ((inhibit-message t))
-      (message "Loading init-org.el...done (%4d [ms])"
-               (* 1000
-                  (float-time (time-subtract
-                               (current-time)
-                               my-init-org-start)))))))
+(defvar my-init-org-end (current-time))
+(defun my-emacs-init-org-time ()
+  (interactive)
+  (let ((inhibit-message t))
+    (message "Loading init-org.el...done (%4d [ms])"
+             (* 1000
+                (float-time (time-subtract
+                             my-init-org-end
+                             my-init-org-start))))))
 (provide 'init-org)
 #+end_src
 
@@ -17826,14 +17908,15 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el :exports none
-(unless noninteractive
-  (when nil
-    (let ((inhibit-message t))
-      (message "Loading late-init.el...done (%4d [ms])"
-               (* 1000
-                  (float-time (time-subtract
-                               (current-time)
-                               my-late-init-start)))))))
+(defvar my-late-init-end (current-time))
+(defun my-emacs-late-init-time ()
+  (interactive)
+  (let ((inhibit-message t))
+    (message "Loading late-init.el...done (%4d [ms])"
+             (* 1000
+                (float-time (time-subtract
+                             my-late-init-end
+                             my-late-init-start))))))
 (provide 'late-init)
 #+end_src
 
