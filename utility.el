@@ -139,7 +139,7 @@ This function is called directly from the C code."
                     t (concat "^" pkg ".+\\.eln$")))
         (when (file-writable-p eln)
           (delete-file eln)
-          (message "Deleting: %s" eln))))))
+          (message "Deleting...%s" eln))))))
 
 ;;;###autoload
 (defun my-elget-nativecomp-package (&optional package-name non-force)
@@ -1095,7 +1095,7 @@ Obeys `widen-automatically', which see."
 
 ;;;###autoload
 (defun my-update-nerd-icons-ivy-rich-display-transformers-list (command config)
-  "If update config during a session, call `nerd-icons-ivy-rich-reload'
+  "If update config in a session, call `nerd-icons-ivy-rich-reload'
   to enable the config."
   (if (plist-get nerd-icons-ivy-rich-display-transformers-list command)
       (plist-put nerd-icons-ivy-rich-display-transformers-list

@@ -1126,7 +1126,7 @@ This function returns a timer object which you can use in
                     t (concat "^" pkg ".+\\.eln$")))
         (when (file-writable-p eln)
           (delete-file eln)
-          (message "Deleting: %s" eln))))))
+          (message "Deleting...%s" eln))))))
 
 ;;;###autoload
 (defun my-elget-nativecomp-package (&optional package-name non-force)
@@ -6755,7 +6755,7 @@ Obeys `widen-automatically', which see."
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-update-nerd-icons-ivy-rich-display-transformers-list (command config)
-  "If update config during a session, call `nerd-icons-ivy-rich-reload'
+  "If update config in a session, call `nerd-icons-ivy-rich-reload'
   to enable the config."
   (if (plist-get nerd-icons-ivy-rich-display-transformers-list command)
       (plist-put nerd-icons-ivy-rich-display-transformers-list
@@ -8436,12 +8436,12 @@ CLOSED: [2023-03-12 Sun 13:50]
 
 [[http://emacs-session.sourceforge.net/]]
 
-  - 入力履歴の保持（検索語，表示したバッファ履歴）
-  - 保存時のカーソル位置の保持
-  - キルリングの保持
-  - 変更が加えられたファイル履歴の保持
-  - =session-initialize= の呼び出しタイミングに注意．前回終了時の状況を保存しているため，他のパッケージの初期化が終った後に呼び出すと，パッケージが想定している初期化を上書きしてしまい，不安定になる． =after-init-hook= 推奨．
- - [ ] =M-x session-save-session=
+- 入力履歴の保持（検索語，表示したバッファ履歴）
+- 保存時のカーソル位置の保持
+- キルリングの保持
+- 変更が加えられたファイル履歴の保持
+- =session-initialize= の呼び出しタイミングに注意．前回終了時の状況を保存しているため，他のパッケージの初期化が終った後に呼び出すと，パッケージが想定している初期化を上書きしてしまい，不安定になる． =after-init-hook= 推奨．
+- [ ] =M-x session-save-session=
 
 session-undo-check を指定していると，保存時ではなくバッファを閉じるときの状態を保持する．
 
