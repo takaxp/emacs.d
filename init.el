@@ -513,6 +513,7 @@
     (setq counsel-osx-app-location
           '("/Applications" "/Applications/Utilities"
             "/System/Applications" "/System/Applications/Utilities"
+            "/System/Library/CoreServices/Applications"
             "/Applications/Microsoft Remote Desktop.localized"))))
 
 (keymap-global-set "C-c 0" 'insert-formatted-current-date)
