@@ -16,7 +16,7 @@
             (begin (current-time)))
         (apply f arg)
         (with-current-buffer (get-buffer-create my-logging-time-buffer)
-          (end-of-buffer)
+          (goto-char (point-max))
           (insert
            (format "%6.1f[ms] %S\n"
                    (* 1000 (float-time (time-subtract (current-time) begin)))

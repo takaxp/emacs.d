@@ -1,7 +1,14 @@
-;;					    Takaaki ISHIKAWA <takaxp@ieee.org>
+;; -*- lexical-binding: t; -*-
+;;					    Takaaki ISHIKAWA <takaxp@ieee.org>  
 ;;					    https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;								TODO/DONE/FIXME
+
+;; (setq debug-on-error t)
+;; (defun my-push-mark (&optional _l _n _a)
+;;   (error "...push-mark"))
+;; (advice-add 'push-mark :after #'my-push-mark)
+;; (ah-mode -1)
 
 (with-eval-after-load "org"
   ;; (advice-add 'org-assert-version :override #'ignore)
