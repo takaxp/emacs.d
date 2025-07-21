@@ -1,14 +1,8 @@
 ;; -*- lexical-binding: t; -*-
-;;					    Takaaki ISHIKAWA <takaxp@ieee.org>  
+;;					    Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;					    https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;								TODO/DONE/FIXME
-
-;; (setq debug-on-error t)
-;; (defun my-push-mark (&optional _l _n _a)
-;;   (error "...push-mark"))
-;; (advice-add 'push-mark :after #'my-push-mark)
-;; (ah-mode -1)
 
 (with-eval-after-load "org"
   ;; (advice-add 'org-assert-version :override #'ignore)
@@ -22,9 +16,7 @@
     (my-print-message `("i/m" ,(length recentf-list) "/" ,recentf-max-saved-items))
     (my-print-message `("file:" ,recentf-save-file))
     (let ((message-log-max nil))
-      (recentf-cleanup))
-    ;; (message "")
-    ))
+      (recentf-cleanup))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot mode selection

@@ -1097,6 +1097,8 @@ This function returns a timer object which you can use in
 :CUSTOM_ID: orgfd894e86
 :END:
 
+# see also elget-config.el.
+
 #+begin_src emacs-lisp :tangle utility.el
 (defvar my-elget-delete-eln-file-packages nil)
 (add-to-list 'my-elget-delete-eln-file-packages 'org-appear)
@@ -1113,43 +1115,6 @@ This function returns a timer object which you can use in
   (interactive)
   (dolist (package-name my-elget-delete-eln-file-packages)
     (my-elget-nativecomp-package package-name)))
-
-;;;###autoload
-(defun my-delete-eln-file (package-name)
-  "note: see `native-compile-prune-cache'"
-  (dolist (dir (butlast native-comp-eln-load-path))
-    (let ((pkg (if (symbolp package-name)
-                   (symbol-name package-name)
-                 package-name)))
-      (dolist (eln (directory-files
-                    (concat dir comp-native-version-dir)
-                    t (concat "^" pkg ".+\\.eln$")))
-        (when (file-writable-p eln)
-          (delete-file eln)
-          (message "Deleting...%s" eln))))))
-
-;;;###autoload
-(defun my-elget-nativecomp-package (&optional package-name non-force)
-  (interactive)
-  (when (or (or package-name
-                non-force)
-            (y-or-n-p "All eln files will be regenerated. Sure?"))
-    (let* ((native-comp-always-compile (not non-force))
-           (package-name (if package-name
-                             (if (symbolp package-name)
-                                 (symbol-name package-name)
-                               package-name)
-                           ""))
-           (pkg (format "~/.emacs.d/%s/el-get/%s"
-                        emacs-version
-                        package-name)))
-      (when native-comp-always-compile
-        (my-delete-eln-file package-name))
-      (if (locate-library package-name)
-          (progn
-            (native-compile-async pkg 'recursively)
-            (message "Native Compilation...%s" pkg))
-        (user-error "skip %s: doesn't exist, may not be installed" pkg)))))
 #+end_src
 
 ** [exec-path-from-shell.el] PATH設定をシェルから継承する          :obsolete:
@@ -1908,8 +1873,7 @@ echo "--- done."
 (autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
                      el-get-cd el-get-remove el-get-update
-                     el-get-install el-get-reinstall
-                     my-elget-nativecomp-all-packages)
+                     el-get-install el-get-reinstall)
                    "elget-config" nil t)
 #+end_src
 
@@ -2677,6 +2641,18 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 #+begin_src emacs-lisp :tangle late-init.el
 ;; Scroll window on a page-by-page basis with N line overlapping
 (setq next-screen-context-lines 10)
+#+end_src
+
+** カーソル行を表示領域の一番上に移動させる
+:PROPERTIES:
+:CUSTOM_ID: orge6f03204
+:ID:       19B702EB-1DD5-4F11-A70A-ED6CA85FB1A3
+:END:
+
+=recenter-top-bottom= (C-l) は，デフォルトでは押下のたびに現在行をウィンドウの中央，最下部，最上部の順で移動させる機能ですが，最初に押下するときにウィンドウの最上部に移動するように設定します．ウィンドウの中心に現在行を置くよりも，カーソル行より下に存在する内容でウィンドウを満たして読み進めたい場合にオススメの設定です．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(setq recenter-positions '(top middle bottom))
 #+end_src
 
 ** マーク箇所を遡る
@@ -6967,6 +6943,7 @@ Obeys `widen-automatically', which see."
 ;;   (message "Loading transient...")
 ;;   (require 'transient))
 
+(autoload 'my-org-bullet-and-checkbox "transient" nil t)
 (with-eval-after-load "transient"
   (transient-define-prefix my-org-bullet-and-checkbox ()
     "Commands to handle bullet and checkbox"

@@ -865,6 +865,1529 @@ Control separated window size and position.
 Initialize w32-ime.el.")
 (register-definition-prefixes "w32-ime" '("w32-ime-"))
 
+;;;### (autoloads nil "early-init" "early-init.el" (0 0 0 0))
+;;; Generated autoloads from early-init.el
+
+(register-definition-prefixes "early-init" '("my-"))
+
+;;;***
+
+;;;### (autoloads nil "elget-config" "elget-config.el" (0 0 0 0))
+;;; Generated autoloads from elget-config.el
+
+(autoload 'my-elget-bundles "elget-config" "\
+List of packages." nil t)
+
+(autoload 'my-elget-private-recipe-p "elget-config" "\
+
+
+\(fn RECIPE)")
+
+(autoload 'my-elget-update-org "elget-config" nil t)
+
+(autoload 'my-elget-update-packages "elget-config" "\
+
+
+\(fn PACKAGES &optional CURRENT TOTAL)")
+
+(autoload 'my-elget-update-progress "elget-config" "\
+Update packages only for batch-mode.
+
+\(fn &optional THREADS)")
+
+(autoload 'my-elget-remove-package "elget-config" "\
+Remove PACKAGE.
+
+\(fn PACKAGE)")
+
+(autoload 'my-elget-list "elget-config" nil t)
+
+(autoload 'my-elget-reset-links "elget-config" nil t)
+
+(autoload 'my-elget-nativecomp-package "elget-config" "\
+Remove .eln files and regenerated
+
+\(fn &optional PACKAGE-NAME NON-FORCE)" t)
+
+(autoload 'my-elget-nativecomp-prune-current-cache "elget-config" "\
+Remove all .eln files that are applicable to the current Emacs invocation.
+see `native-compile-prune-cache'." t)
+
+(autoload 'my-elget-load-and-sync "elget-config")
+
+(register-definition-prefixes "elget-config" '("my-"))
+
+;;;***
+
+;;;### (autoloads nil "elget-setup" "elget-setup.el" (0 0 0 0))
+;;; Generated autoloads from elget-setup.el
+
+(autoload 'my-elget-setup "elget-setup")
+
+(register-definition-prefixes "elget-setup" '("my-elget-"))
+
+;;;***
+
+;;;### (autoloads nil "init" "init.el" (0 0 0 0))
+;;; Generated autoloads from init.el
+
+(register-definition-prefixes "init" '("autoload-if-found" "empty-booting-mode" "moom-autoloads" "my-" "postpone-pre" "run-timer"))
+
+;;;***
+
+;;;### (autoloads nil "init-ad" "init-ad.el" (0 0 0 0))
+;;; Generated autoloads from init-ad.el
+
+(register-definition-prefixes "init-ad" '("my-"))
+
+;;;***
+
+;;;### (autoloads nil "init-dired" "init-dired.el" (0 0 0 0))
+;;; Generated autoloads from init-dired.el
+
+(autoload 'my-reveal-in-finder "init-dired" "\
+Reveal the current buffer in Finder." t)
+
+;;;***
+
+;;;### (autoloads nil "init-min" "init-min.el" (0 0 0 0))
+;;; Generated autoloads from init-min.el
+
+(register-definition-prefixes "init-min" '("my-open-scratch"))
+
+;;;***
+
+;;;### (autoloads nil "init-org" "init-org.el" (0 0 0 0))
+;;; Generated autoloads from init-org.el
+
+(register-definition-prefixes "init-org" '("my-"))
+
+;;;***
+
+;;;### (autoloads nil "init-win" "init-win.el" (0 0 0 0))
+;;; Generated autoloads from init-win.el
+
+(register-definition-prefixes "init-win" '("do-profile" "my-"))
+
+;;;***
+
+;;;### (autoloads nil "keymap" "keymap.el" (0 0 0 0))
+;;; Generated autoloads from keymap.el
+
+(register-definition-prefixes "keymap" '("define-keymap" "defvar-keymap" "key" "make-non-key-event"))
+
+;;;***
+
+;;;### (autoloads nil "late-init" "late-init.el" (0 0 0 0))
+;;; Generated autoloads from late-init.el
+
+(autoload 'diary-entry-time "late-init" "\
+Return time at the beginning of the string S as a military-style integer.
+For example, returns 1325 for 1:25pm.
+
+Returns `diary-unknown-time' (default value -9999) if no time is recognized.
+The recognized forms are XXXX, X:XX, or XX:XX (military time), and XXam,
+XXAM, XXpm, XXPM, XX:XXam, XX:XXAM, XX:XXpm, or XX:XXPM.  A period (.) can
+be used instead of a colon (:) to separate the hour and minute parts.
+
+\(fn S)")
+
+(autoload 'run-at-time "late-init" "\
+Perform an action at time TIME.
+Repeat the action every REPEAT seconds, if REPEAT is non-nil.
+REPEAT may be an integer or floating point number.
+TIME should be one of:
+
+- a string giving today's time like \"11:23pm\"
+  (the acceptable formats are HHMM, H:MM, HH:MM, HHam, HHAM,
+  HHpm, HHPM, HH:MMam, HH:MMAM, HH:MMpm, or HH:MMPM;
+  a period `.' can be used instead of a colon `:' to separate
+  the hour and minute parts);
+
+- a string giving a relative time like \"90\" or \"2 hours 35 minutes\"
+  (the acceptable forms are a number of seconds without units
+  or some combination of values using units in `timer-duration-words');
+
+- nil, meaning now;
+
+- a number of seconds from now;
+
+- a value from `encode-time';
+
+- or t (with non-nil REPEAT) meaning the next integral multiple
+  of REPEAT.  This is handy when you want the function to run at
+  a certain \"round\" number.  For instance, (run-at-time t 60 ...)
+  will run at 11:04:00, 11:05:00, etc.
+
+The action is to call FUNCTION with arguments ARGS.
+
+This function returns a timer object which you can use in
+`cancel-timer'.
+
+\(fn TIME REPEAT FUNCTION &rest ARGS)" t)
+
+(register-definition-prefixes "late-init" '("measure-exec-time-list" "my-" "right-curly-arrow"))
+
+;;;***
+
+;;;### (autoloads nil "my-debug" "my-debug.el" (0 0 0 0))
+;;; Generated autoloads from my-debug.el
+
+(register-definition-prefixes "my-debug" '("echo-area-bell"))
+
+;;;***
+
+;;;### (autoloads nil "my-test" "my-test.el" (0 0 0 0))
+;;; Generated autoloads from my-test.el
+
+(register-definition-prefixes "my-test" '("key-logging-" "kill-region-or-backward-kill-word" "my-"))
+
+;;;***
+
+;;;### (autoloads nil "tangle" "tangle.el" (0 0 0 0))
+;;; Generated autoloads from tangle.el
+
+(register-definition-prefixes "tangle" '("my-tangle-org-file"))
+
+;;;***
+
+;;;### (autoloads nil "utility" "utility.el" (0 0 0 0))
+;;; Generated autoloads from utility.el
+
+(autoload 'my--measure-exec-time "utility" "\
+If `measure-exec-time-list' is non-nil, measure exe time for each function.
+
+\(fn F &rest ARG)")
+
+(autoload 'my--do-after-load-evaluation "utility" "\
+Evaluate all `eval-after-load' forms, if any, for ABS-FILE.
+ABS-FILE, a string, should be the absolute true name of a file just loaded.
+This function is called directly from the C code.
+
+\(fn ABS-FILE)")
+
+(autoload 'future-time-p "utility" "\
+Return non-nil if provided TIME formed of \"10:00\" is the future time.
+
+\(fn TIME)")
+
+(autoload 'my--garbage-collect "utility" "\
+
+
+\(fn F)")
+
+(autoload 'my--gcmh-idle-garbage-collect "utility" "\
+
+
+\(fn F)")
+
+(autoload 'my-gcmh-activate "utility")
+
+(autoload 'my-native-comp-p "utility")
+
+(autoload 'my-native-comp-packages-done "utility")
+
+(autoload 'my-open-current-eln-dir "utility" nil t)
+
+(autoload 'my-elget-regenerate-eln-file "utility" nil t)
+
+(autoload 'my-org-hide-drawers-all "utility")
+
+(autoload 'my-auto-revert-activate "utility")
+
+(autoload 'my-pixel-scroll-activate "utility" "\
+
+
+\(fn EVENT &optional ARG)")
+
+(autoload 'my-shorten-default-directory "utility" "\
+Enforce to replace \"/home/...\" with \"~/\".")
+
+(autoload 'my-private-conf-activate "utility")
+
+(autoload 'my-lock-secret-buffer "utility" "\
+
+
+\(fn &optional FILE)")
+
+(autoload 'my-start-autolock-secret-buffer "utility" nil t)
+
+(autoload 'my-stop-autolock-secret-buffer "utility" nil t)
+
+(autoload 'my-isearch-ime-deactivate-sticky "utility")
+
+(autoload 'my-toggle-ime-ns "utility" "\
+Toggle IME." t)
+
+(autoload 'my-working-text-face-on "utility")
+
+(autoload 'my-working-text-face-off "utility")
+
+(autoload 'my-ns-org-heading-auto-ascii "utility" "\
+IME off, when the cursor on org headings.")
+
+(autoload 'my--mark-sexp "utility" "\
+Set mark ARG sexps from point.
+When the cursor is at the end of line or before a whitespace, set ARG -1.
+
+\(fn F &optional ARG ALLOW-EXTEND)" t)
+
+(autoload 'my--er:mark-sexp "utility" "\
+If the cursor is on a symbol, expand the region along the symbol.
+
+\(fn F &optional ARG ALLOW-EXTEND)" t)
+
+(autoload 'my-bm-save-all "utility")
+
+(autoload 'my-toggle-bm "utility" "\
+bm-toggle with updating history" t)
+
+(autoload 'my-bm-next "utility" "\
+bm-next with org-mode" t)
+
+(autoload 'counsel-bm-get-list "utility" "\
+
+
+\(fn BOOKMARK-OVERLAYS)")
+
+(autoload 'counsel-bm "utility" nil t)
+
+(autoload 'my--bm-show-mode "utility" "\
+Enable truncate mode when showing bm list.")
+
+(autoload 'my-centered-cursor-activate "utility")
+
+(autoload 'my-centered-cursor-deactivate "utility")
+
+(autoload 'my-smart-mark-activate "utility")
+
+(autoload 'my--smart-mark-restore-cursor "utility" "\
+Restore cursor position saved just before mark.")
+
+(autoload 'my--smart-mark-set-restore-before-mark "utility" "\
+
+
+\(fn &rest ARG)")
+
+(autoload 'my--er:keyboard-quit "utility")
+
+(autoload 'my--er:pre:keyboard-quit "utility")
+
+(autoload 'my--syntax-subword-activate "utility" "\
+
+
+\(fn &rest ARG)")
+
+(autoload 'my--syntax-subword-kill "utility" "\
+Replace `kill-region' with `delete-region'.
+
+\(fn &optional N)" t)
+
+(autoload 'my-time-stamp "utility")
+
+(autoload 'my--isearch-mode "utility" "\
+
+
+\(fn F FORWARD &optional REGEXP OP-FUN RECURSIVE-EDIT REGEXP-FUNCTION)")
+
+(autoload 'my-orgalist-activate "utility")
+
+(autoload 'my--add-change-log-entry-other-window "utility")
+
+(autoload 'org-info-ja "utility" "\
+(Japanese) Read documentation for Org-mode in the info system.
+    With optional NODE, go directly to that node.
+
+\(fn &optional NODE)" t)
+
+(autoload 'my-json-mode-beautify "utility")
+
+(autoload 'my-json-pretty-print-buffer "utility")
+
+(autoload 'my-auto-view "utility" "\
+Open a file with `view-mode'.")
+
+(autoload 'my-org-view-next-heading "utility" nil t)
+
+(autoload 'my-org-view-previous-heading "utility" nil t)
+
+(autoload 'my-view-tab "utility" nil t)
+
+(autoload 'my-view-shifttab "utility" nil t)
+
+(autoload 'my-unlock-view-mode "utility")
+
+(autoload 'my-view-exit "utility" nil t)
+
+(autoload 'my--view--enable "utility")
+
+(autoload 'my--view--disable "utility")
+
+(autoload 'my--switch-to-buffer "utility" "\
+
+
+\(fn &rest ARG)")
+
+(autoload 'my-web-indent-fold "utility" nil t)
+
+(autoload 'my-emacs-lisp-mode-indent-conf "utility" nil t)
+
+(autoload 'my-flyspell-ignore-nonascii "utility" "\
+incorrect判定をASCIIに限定
+
+\(fn BEG END INFO)")
+
+(autoload 'my-flyspell-on "utility")
+
+(autoload 'my-flyspell-off "utility")
+
+(autoload 'my--YaTeX-insert-begin-end "utility" "\
+Insert \\begin{mode-name} and \\end{mode-name}.
+This works also for other defined begin/end tokens to define the structure.
+
+\(fn ENV REGION-MODE)")
+
+(autoload 'my-smartparens-mode "utility")
+
+(autoload 'my-activate-selected "utility")
+
+(autoload 'my-helpful-variable "utility" nil t)
+
+(autoload 'my-eval-region "utility" nil t)
+
+(autoload 'my-eval-region-as-function "utility" nil t)
+
+(autoload 'my-describe-selected-keymap "utility" nil t)
+
+(autoload 'my-update-modeline-face "utility")
+
+(autoload 'my-modeline-face "utility" "\
+Update modeline color.
+If BUFFER-NARROWED is nil, then change the color to indicating `widen'.
+Otherwise, indicating narrowing.
+
+\(fn BUFFER-NARROWED)")
+
+(autoload 'my-update-modeline-color "utility" "\
+Update modeline face of the current selected window.
+Call this function at updating `mode-line-mode'.")
+
+(autoload 'my-reload-mlscroll "utility")
+
+(autoload 'my-mlscroll-activate "utility")
+
+(autoload 'my-mode-line-vc-mode-nerd-icons "utility")
+
+(autoload 'my-mode-line-vc-mode-icons-in-terminal "utility")
+
+(autoload 'my-open-scratch "utility" "\
+Switch the current buffer to *scratch* buffer." t)
+
+(autoload 'my--split-window-below "utility" "\
+An extention to switch to *scratch* buffer after splitting window.
+
+\(fn &optional SIZE)")
+
+(autoload 'my-change-window-divider "utility" nil t)
+
+(autoload 'my-update-display-line-numbers-face "utility")
+
+(autoload 'my-display-line-numbers-width "utility")
+
+(autoload 'my-display-line-numbers-mode-on "utility" "\
+Trun on `display-line-numbers'." t)
+
+(autoload 'my-display-line-numbers-mode-off "utility" "\
+Trun off `display-line-numbers'." t)
+
+(autoload 'my-toggle-display-line-numbers-mode "utility" "\
+Toggle variable `global-display-line-numbers-mode'." t)
+
+(autoload 'my--font-lock-mode "utility" "\
+
+
+\(fn &optional ARG)")
+
+(autoload 'my-coding-system-name-mnemonic "utility" "\
+
+
+\(fn CODING-SYSTEM)")
+
+(autoload 'my-coding-system-bom-mnemonic "utility" "\
+
+
+\(fn CODING-SYSTEM)")
+
+(autoload 'my-mode-line-icon-lock-icons-in-terminal "utility")
+
+(autoload 'my-mode-line-icon-lock-nerd-icons "utility")
+
+(autoload 'my-mode-line-icon-for-file "utility")
+
+(autoload 'my-buffer-coding-system-mnemonic "utility" "\
+Return a mnemonic for `buffer-file-coding-system'.")
+
+(autoload 'my-delight-activate "utility")
+
+(autoload 'my-migemo-activate "utility")
+
+(autoload 'my-get-week-number "utility" "\
+Return the current week number.")
+
+(autoload 'my-week-number "utility" "\
+Show the current week number." t)
+
+(autoload 'my-empty-booting-header-line "utility")
+
+(autoload 'my-calendar-mark-selected "utility")
+
+(autoload 'my-which-key-activate "utility")
+
+(autoload 'my--elisp-eldoc "utility" "\
+Avoid hiding `hl-line' in `emacs-lisp-mode'.
+
+\(fn CALLBACK)")
+
+(autoload 'my--eldoc-message "utility" "\
+
+
+\(fn F &optional STRING)")
+
+(autoload 'my-seq-sort-by "utility" "\
+Sort SEQUENCE using PRED as a comparison function.
+Elements of SEQUENCE are transformed by FUNCTION before being
+sorted.  FUNCTION must be a function of one argument.
+
+\(fn FUNCTION PRED SEQUENCE)")
+
+(autoload 'ivy--sort-by-len "utility" "\
+Sort CANDIDATES based on similarity of their length with NAME.
+
+\(fn NAME CANDIDATES)")
+
+(autoload 'my-disable-counsel-find-file "utility" "\
+Disable `counsel-find-file' and use the original `find-file' with ARGS.
+
+\(fn &rest ARGS)")
+
+(autoload 'my-counsel-fzf-in-default-dir "utility" "\
+Search the current directory with fzf.
+
+\(fn ARG)")
+
+(autoload 'my-counsel-fzf-in-dir "utility" "\
+Search again with new root directory.
+
+\(fn ARG)")
+
+(autoload 'my-counsel-ag-in-dir "utility" "\
+Search again with new root directory.
+
+\(fn ARG)")
+
+(autoload 'my--counsel-mark-ring "utility" "\
+Browse `mark-ring' interactively.
+Obeys `widen-automatically', which see." t)
+
+(autoload 'my-pre-prompt-function "utility")
+
+(autoload 'my--truncate-lines-activate "utility" "\
+Truncate lines on `imenu-list' buffer.")
+
+(autoload 'my--imenu-list-update "utility" "\
+Expand frame width by `moom-change-frame-width'.")
+
+(autoload 'my--imenu-list-quit-window "utility" "\
+Shrink frame width by `moom-change-frame-width'.")
+
+(autoload 'my-command-log-mode-activate "utility" nil t)
+
+(autoload 'my-command-log-mode-deactivate "utility" nil t)
+
+(autoload 'my-enable-tree-sitter "utility")
+
+(autoload 'my--swiper-thing-at-point "utility" "\
+`swiper' with `ivy-thing-at-point'." t)
+
+(autoload 'my-update-nerd-icons-ivy-rich-display-transformers-list "utility" "\
+If update config in a session, call `nerd-icons-ivy-rich-reload'
+  to enable the config.
+
+\(fn COMMAND CONFIG)")
+
+(autoload 'my-toggle-dimmer "utility" nil t)
+
+(autoload 'dimmer-permanent-off "utility")
+
+(autoload 'dimmer-off "utility")
+
+(autoload 'dimmer-on "utility")
+
+(autoload 'my-dimmer-update "utility")
+
+(autoload 'my--dimmer-org-agenda--quit "utility" "\
+
+
+\(fn &optional BURY)")
+
+(autoload 'my-dimmer-activate "utility")
+
+(autoload 'my-recentf-save-list-silence "utility" nil t)
+
+(autoload 'my-recentf-cleanup-silence "utility" nil t)
+
+(autoload 'my-counsel-recentf-action "utility" "\
+
+
+\(fn FILE)")
+
+(autoload 'my--counsel-recentf "utility" "\
+Find a file on `recentf-list'." t)
+
+(autoload 'my-cg-bookmark "utility")
+
+(autoload 'crux-copy-file-preserve-attributes "utility" "\
+[crux.el]
+Copy the current file-visiting buffer's file to a destination.
+
+This function prompts for the new file's location and copies it
+similar to cp -p. If the new location is a directory, and the
+directory does not exist, this function confirms with the user
+whether it should be created. A directory must end in a slash
+like `copy-file' expects. If the destination is a directory and
+already has a file named as the origin file, offers to
+overwrite.
+
+If the current buffer is not a file-visiting file or the
+destination is a non-existent directory but the user has elected
+to not created it, nothing will be done.
+
+When invoke with C-u, the newly created file will be visited.
+
+\(fn VISIT)" t)
+
+(autoload 'crux-rename-file-and-buffer "utility" "\
+[crux.el]
+Rename current buffer and if the buffer is visiting a file, rename it too." t)
+
+(autoload 'crux-delete-file-and-buffer "utility" "\
+[crux.el]
+Kill the current buffer and deletes the file it is visiting." t)
+
+(autoload 'crux-open-with "utility" "\
+[crux.el]
+Open visited file in default external program.
+When in dired mode, open file under the cursor.
+
+With a prefix ARG always prompt for command to use.
+
+\(fn ARG)" t)
+
+(autoload 'my-backup-recentf "utility" nil t)
+
+(autoload 'my-auto-backup "utility")
+
+(autoload 'my--backup-each-save-compute-location "utility" "\
+
+
+\(fn FILENAME)")
+
+(autoload 'my-dired-activate "utility")
+
+(autoload 'my-super-save-predicates-p "utility" "\
+Return nil, if the buffer should not be saved.")
+
+(autoload 'my--super-save-buffers-command "utility" "\
+Save the buffer if needed.
+see https://github.com/bbatsov/super-save/pull/20/files.")
+
+(autoload 'my-super-save-activate "utility")
+
+(autoload 'my--neotree-show "utility" "\
+Extension to support change frame width when opening neotree.")
+
+(autoload 'my--neotree-hide "utility" "\
+Extension to support change frame width when closing neotree.")
+
+(autoload 'my--helpful-at-point "utility")
+
+(autoload 'my--keyfreq-show "utility" "\
+Extension to make the buffer view-only." t)
+
+(autoload 'my--counsel-ag "utility" "\
+
+
+\(fn F &optional INITIAL-INPUT INITIAL-DIRECTORY EXTRA-AG-ARGS AG-PROMPT CALLER)")
+
+(autoload 'my--counsel-fzf "utility" "\
+
+
+\(fn F &optional INITIAL-INPUT INITIAL-DIRECTORY FZF-PROMPT)")
+
+(autoload 'my-decimal-to-hex "utility" nil t)
+
+(autoload 'my-hex-to-decimal "utility" nil t)
+
+(autoload 'my-uuid-string "utility" nil t)
+
+(autoload 'my-projectile-activate "utility" nil t)
+
+(autoload 'my--neotree-dir "utility" "\
+Extension to change the frame width automatically.
+
+\(fn PATH)" t)
+
+(autoload 'my--projectile-visit-project-tags-table "utility" "\
+Extensions to skip calling `visit-tags-table'.")
+
+(autoload 'my-counsel-projectile-ag "utility" "\
+Use `counsel-projectile-ag' in a projectile project except when `dired'.
+Otherwise, use `counsel-ag'." t)
+
+(autoload 'my--magit-mode-bury-buffer "utility" "\
+
+
+\(fn &optional BURY)")
+
+(autoload 'my-editorconfig-activate "utility")
+
+(autoload 'my--minibuffer-complete "utility" "\
+Enforce to use `completion--in-region' when completing in minibuffer.
+
+\(fn F)")
+
+(autoload 'my-advice-minibuffer-complete "utility")
+
+(autoload 'my-load-cape-modules-for-org "utility")
+
+(autoload 'my--corfu-insert-separator "utility" "\
+Use C-SPC to insert the separator.
+
+\(fn ARG)" t)
+
+(autoload 'my-org-modules-activate "utility" nil t)
+
+(autoload 'my-open-default-org-file "utility" nil t)
+
+(autoload 'my--org-last-repeat "utility" "\
+
+
+\(fn &optional ARG)")
+
+(autoload 'my--org-modules-activate "utility" "\
+
+
+\(fn &optional ARG)" t)
+
+(autoload 'my-org-mode-indent-conf "utility" nil t)
+
+(autoload 'my--org-return "utility" "\
+An extension for checking invisible editing when you hit the enter.
+
+\(fn F &rest ARG)" t)
+
+(autoload 'my-org-hide-drawers "utility" "\
+Hide all drawers in an org tree." t)
+
+(autoload 'my-org-table-export "utility" "\
+Export a table as csv format." t)
+
+(autoload 'my-do-org-update-staistics-cookies "utility" "\
+Update cookies for all checkboxes in an org buffer." t)
+
+(autoload 'my--org-tempo-complete-tag "utility" "\
+
+
+\(fn F &rest ARG)")
+
+(autoload 'my--org-tempo-add-block "utility" "\
+Add block entry from `org-structure-template-alist'.
+
+\(fn ENTRY)")
+
+(autoload 'my-org-clock-out-and-save-when-exit "utility" "\
+Save buffers and stop clocking when kill emacs.")
+
+(autoload 'my--org-table-field-info "utility" "\
+
+
+\(fn ARG)")
+
+(autoload 'my-ox-upload-icalendar "utility" nil t)
+
+(autoload 'my-ox-icalendar "utility")
+
+(autoload 'my-async-ox-icalendar "utility")
+
+(autoload 'my-ox-icalendar-cleanup "utility" nil t)
+
+(autoload 'my-done-with-update-list "utility" nil t)
+
+(autoload 'my-org-todo-complete-no-repeat "utility" "\
+
+
+\(fn &optional ARG)" t)
+
+(autoload 'my-org-replace-punc-in-buffer "utility" "\
+Replace \"，\" and \"．\" with \"、\" and \"。\" in a buffer." t)
+
+(autoload 'my-org-replace-punc-in-tree "utility" "\
+Replace \"，\" and \"．\" with \"、\" and \"。\" in an org tree." t)
+
+(autoload 'my-hugo-export-upload "utility" "\
+Export subtree for Hugo and upload the engty.")
+
+(autoload 'my-export-subtree-as-html "utility" nil t)
+
+(autoload 'my-org-deadline-today "utility")
+
+(autoload 'my-org-move-subtree-to-the-last "utility" "\
+Move the current heading to the last one of the same level." t)
+
+(autoload 'my--kill-update-todo-statistics "utility" "\
+
+
+\(fn B D &optional ARG)")
+
+(autoload 'my--yank-update-todo-statistics "utility" "\
+
+
+\(fn &optional ARG)")
+
+(autoload 'my-toggle-org-pin-subtree "utility" "\
+Toggle \"VISIBILITY\" of the current tree." t)
+
+(autoload 'my--ensure-newline-end "utility" "\
+
+
+\(fn &rest ARG)")
+
+(autoload 'my--newline-narrowed-end-of-buffer "utility" "\
+
+
+\(fn &optional ARG)")
+
+(autoload 'my--add-newline-narrowed-end "utility")
+
+(autoload 'my-lowercase-org-keywords "utility" "\
+Lower case Org keywords and block identifiers." t)
+
+(autoload 'my-desktop-notification "utility" "\
+Show a message by `alerter' command.
+
+\(fn TITLE MESSAGE &optional STICKY SOUND TIMEOUT)")
+
+(autoload 'my-desktop-notification-handler "utility" "\
+
+
+\(fn MESSAGE)")
+
+(autoload 'my-countdown-timer-notify "utility")
+
+(autoload 'my-countdown-timer "utility" nil t)
+
+(autoload 'my-echo-org-link "utility")
+
+(autoload 'my-load-echo-org-link "utility")
+
+(autoload 'my-org-item-has-child-p "utility" "\
+Return t, if the item has at least a child item.")
+
+(autoload 'my-org-heading-has-child-p "utility" "\
+Return t, if the heading has at least a child heading.")
+
+(autoload 'my-org-meta-previous "utility" "\
+Move item or subtree down, otherwise `scroll-up'." t)
+
+(autoload 'my-org-meta-next "utility" "\
+Move item or subtree up, otherwise `scroll-down'." t)
+
+(autoload 'my-inherit-struct-p "utility")
+
+(autoload 'my-org-at-meta-fb-p "utility" "\
+Return t, if the cursor stay at item, heading, or table.")
+
+(autoload 'my-org-meta-forward "utility" nil t)
+
+(autoload 'my-org-meta-backward "utility" nil t)
+
+(autoload 'my-org-table-copy-as "utility" "\
+Copy converted table.
+
+\(fn &optional FORMAT)" t)
+
+(autoload 'my-org-table-convert-to "utility" "\
+Convert a table to FORMAT.
+ If FORMAT is nil, it is set equal to a property value specified
+ by \"<tab>LE_EXPORT_FORMAT\" or `org-table-export-default-format'.
+ Converted table is copied to kill ring for further use.
+ The core part is extracted from `org-table-export'.
+
+\(fn &optional FORMAT)" t)
+
+(autoload 'my--eldoc-print-current-symbol-info "utility" "\
+Run `eldoc' when the cursor is NOT located in org source block.
+
+\(fn F &optional INTERACTIVE)" t)
+
+(autoload 'my--org-reveal "utility" "\
+
+
+\(fn F &optional SIBLINGS)" t)
+
+(autoload 'my-org-move-item-begin "utility" "\
+Move the current item to the beginning of the list." t)
+
+(autoload 'my-org-move-item-end "utility" "\
+Move the current item to the end of the list." t)
+
+(autoload 'my-toggle-org-block-visibility "utility" "\
+Testing..." t)
+
+(autoload 'my--org-insert-todo-heading "utility" "\
+
+
+\(fn ARG &optional FORCE-HEADING)")
+
+(autoload 'my-org-default-property "utility" "\
+Set the creation date and org-id." t)
+
+(autoload 'my-org-set-created-property "utility" "\
+Set a property on the entry giving the creation time.
+
+By default the property is called CREATED. If given the `NAME'
+argument will be used instead. If the property already exists, it
+will not be modified.
+
+\(fn &optional ACTIVE NAME)" t)
+
+(autoload 'my-org-agenda-prepare-buffers "utility")
+
+(autoload 'my-recenter-top-bottom-top "utility" "\
+Recenter the current line to the top of window.")
+
+(autoload 'my-agenda-frame-width "utility")
+
+(autoload 'my--org-agenda--quit "utility" "\
+
+
+\(fn &optional BURY)")
+
+(autoload 'my-popup-agenda "utility" nil t)
+
+(autoload 'my-popup-agenda-set-timers "utility" nil t)
+
+(autoload 'my-popup-calendar "utility" nil t)
+
+(autoload 'my-popup-calendar-set-timers "utility" nil t)
+
+(autoload 'my-org-agenda-done "utility" nil t)
+
+(autoload 'my-sparse-doing-tree "utility" nil t)
+
+(autoload 'my-clear-undo-list "utility")
+
+(autoload 'my-onit-reveal "utility")
+
+(autoload 'my-org-agenda-to-appt "utility" "\
+Update `appt-time-mag-list'.  Use `async' if possible.
+
+\(fn &optional FORCE)" t)
+
+(autoload 'my--appt-display-message "utility" "\
+Display a reminder about an appointment.
+The string STRING describes the appointment, due in integer MINS minutes.
+The arguments may also be lists, where each element relates to a
+separate appointment.  The variable `appt-display-format' controls
+the format of the visible reminder.  If `appt-audible' is non-nil,
+also calls `beep' for an audible reminder.
+
+\(fn STRING MINS)")
+
+(autoload 'my--appt-disp-window "utility" "\
+Extension to support appt-disp-window.
+
+\(fn MIN-TO-APP NEW-TIME APPT-MSG)")
+
+(autoload 'counsel-appt-list "utility" "\
+Create a list of appt.")
+
+(autoload 'counsel-appt "utility" "\
+List active appt." t)
+
+(autoload 'my--read-char-exclusive "utility" "\
+
+
+\(fn F &optional PROMPT INHERIT-INPUT-METHOD SECONDS)")
+
+(autoload 'my--org-check-agenda-file "utility" "\
+Make sure FILE exists.  If not, ask user what to do.
+
+\(fn FILE)")
+
+(autoload 'my-add-prop-to-appt-time-msg-list "utility")
+
+(autoload 'my--org-refile "utility" "\
+Extension to support keeping org-refile-history empty.
+
+\(fn F &optional ARG DEFAULT-BUFFER RFLOC MSG)")
+
+(autoload 'my--org-sort-entries "utility" "\
+
+
+\(fn &optional WITH-CASE SORTING-TYPE GETKEY-FUNC COMPARE-FUNC PROPERTY INTERACTIVE?)")
+
+(autoload 'my-org-babel-load-activate "utility")
+
+(autoload 'my-org-src-block-face "utility")
+
+(autoload 'my-toggle-proportional-font "utility" nil t)
+
+(autoload 'my-hide-org-meta-line "utility" nil t)
+
+(autoload 'my-show-org-meta-line "utility" nil t)
+
+(autoload 'my-toggle-org-meta-line "utility" nil t)
+
+(autoload 'my-update-org-meta-line "utility" nil t)
+
+(autoload 'my-delete-last-saved-string "utility")
+
+(autoload 'my-get-content-with-decrypt "utility" nil t)
+
+(autoload 'my--org-grep-quit "utility" nil t)
+
+(autoload 'org-grep-from-org-shell-command "utility" "\
+Only for macOS
+
+\(fn REGEXP)")
+
+(autoload 'my-print-working-clocks "utility" "\
+for org-clock-today" t)
+
+(autoload 'my--org-clock-sum-today "utility" "\
+Sum the times for each subtree for today.
+
+\(fn &optional HEADLINE-FILTER)")
+
+(autoload 'my-add-ox-hugo-lastmod "utility" "\
+Add `lastmod' property with the current time." t)
+
+(autoload 'my--ox-hugo:org-todo "utility" "\
+Export subtree for Hugo if the TODO status in ARG is changing to DONE.
+
+\(fn &optional ARG)")
+
+(autoload 'org-hugo-get-link-to-orgfile "utility" "\
+Return a formatted link to the original Org file.
+To insert the formatted into an org buffer for Hugo, use an appropriate
+macro, e.g. {{{srclink}}}.
+
+Note that this mechanism is still under consideration.
+
+\(fn URI ALT)")
+
+(autoload 'my-add-custom-id "utility" "\
+Add \"CUSTOM_ID\" to the current tree if not assigned yet." t)
+
+(autoload 'my-get-custom-id "utility" "\
+Return a part of UUID with an \"org\" prefix.
+e.g. \"org3ca6ef0c\".")
+
+(autoload 'my-org-custom-id-get "utility" "\
+Get the CUSTOM_ID property of the entry at point-or-marker POM.
+If the entry does not have an CUSTOM_ID, the function returns nil.
+However, when CREATE is non nil, create a CUSTOM_ID if none is present
+already.  In any case, the CUSTOM_ID of the entry is returned.
+
+See https://writequit.org/articles/emacs-org-mode-generate-ids.html
+
+\(fn POM &optional CREATE)" t)
+
+(autoload 'my-add-org-ids-to-headlines-in-file "utility" "\
+Add CUSTOM_ID properties to all headlines in the current file.
+Which do not already have one.  Only adds ids if the
+`auto-id' option is set to `t' in the file somewhere. ie,
+#+options: auto-id:t
+
+See https://writequit.org/articles/emacs-org-mode-generate-ids.html" t)
+
+(autoload 'my-convert-md-link-to-html "utility" nil t)
+
+(autoload 'my-delete-all-id-in-file "utility" nil t)
+
+(autoload 'my-orglink-mode-activate "utility")
+
+(autoload 'my-push-trello-card "utility" nil t)
+
+(autoload 'my-pull-trello-card "utility" nil t)
+
+(autoload 'my-push-trello "utility" nil t)
+
+(autoload 'my-pull-trello "utility" nil t)
+
+(autoload 'my-activate-org-trello "utility")
+
+(autoload 'my-org-export--post-processing "utility")
+
+(autoload 'my--org-export-dispatch "utility" "\
+
+
+\(fn F &optional ARG)")
+
+(autoload 'my--org-export-insert-default-template "utility" "\
+
+
+\(fn F &optional BACKEND SUBTREEP)")
+
+(autoload 'my--org-export-to-buffer "utility" "\
+
+
+\(fn BACKEND BUFFER &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST POST-PROCESS)")
+
+(autoload 'my-copy-exported-buffer "utility" nil t)
+
+(autoload 'my-toggle-org-show-emphasis-markers "utility" nil t)
+
+(autoload 'my-show-headers "utility")
+
+(autoload 'my-hide-headers "utility")
+
+(autoload 'my--org-edit-src-code "utility" nil t)
+
+(autoload 'my--org-edit-src-exit "utility" nil t)
+
+(autoload 'du-org-attachments "utility" "\
+Show directory size for org-attachments." t)
+
+(autoload 'my--org-recent-headings-activate "utility" nil t)
+
+(autoload 'my-org-attach-screenshot "utility" nil t)
+
+(autoload 'my-ime-invisible-cursor "utility" nil t)
+
+(autoload 'my-ime-on "utility" nil t)
+
+(autoload 'my-ime-off "utility" nil t)
+
+(autoload 'my-ime-on-sticky "utility")
+
+(autoload 'my-ime-off-sticky "utility")
+
+(autoload 'my--make-frame "utility" "\
+
+
+\(fn &optional PARAMETERS)")
+
+(autoload 'my-toggle-modeline-global "utility" nil t)
+
+(autoload 'my-mode-line-off "utility" "\
+Turn off mode line.")
+
+(autoload 'my-mode-line-on "utility" "\
+Turn on mode line.")
+
+(autoload 'my-toggle-mode-line "utility" "\
+Toggle mode line." t)
+
+(autoload 'my--moom-toggle-frame-maximized "utility")
+
+(autoload 'my-modeline-activate "utility")
+
+(autoload 'my--winner:delete-window "utility" "\
+
+
+\(fn &optional WINDOW)")
+
+(autoload 'my-shackle-activate "utility")
+
+(autoload 'my-delete-checkdoc-window "utility" nil t)
+
+(autoload 'my--checkdoc "utility" nil t)
+
+(autoload 'my--doom-modeline-buffer-file-state-icon "utility" "\
+Displays an ICON with FACE, HEIGHT and VOFFSET.
+TEXT is the alternative if it is not applicable.
+Uses `all-the-icons-material' to fetch the icon.
+
+\(fn ICON &optional TEXT FACE HEIGHT VOFFSET)")
+
+(autoload 'my-generic-x-activate "utility")
+
+(autoload 'my-ime-off-hline "utility")
+
+(autoload 'my-ime-on-hline "utility")
+
+(autoload 'my-hl-line-update "utility")
+
+(autoload 'my-hl-line-disable "utility" "\
+Disable `hl-line'.")
+
+(autoload 'my-hl-line-activate "utility")
+
+(autoload 'my-hl-line-enable "utility" "\
+Enable `hl-line'.")
+
+(autoload 'my-ja-font-setter "utility" "\
+
+
+\(fn SPEC)")
+
+(autoload 'my-ascii-font-setter "utility" "\
+
+
+\(fn SPEC)")
+
+(autoload 'my-unicode-font-setter "utility" "\
+
+
+\(fn SPEC)")
+
+(autoload 'my-font-icons-setter "utility")
+
+(autoload 'my-font-config "utility" "\
+Font config.
+- SIZE: font size for ASCII and Japanese (default: 12)
+- ASCII: ascii font family (default: \"Monaco\")
+- JA: Japanese font family (default: \"Migu 2M\")
+
+\(fn &optional SIZE ASCII JA)")
+
+(autoload 'my-setup-font "utility")
+
+(autoload 'my-linespacing "utility")
+
+(autoload 'my--org-agenda "utility" "\
+
+
+\(fn &optional ARG ORG-KEYS RESTRICTION)")
+
+(autoload 'my--org-agenda-redo "utility" "\
+
+
+\(fn &optional ALL)")
+
+(autoload 'my-hl-todo-activate "utility")
+
+(autoload 'my-hl-todo-reload "utility" nil t)
+
+(autoload 'my-hl-todo-light-theme "utility")
+
+(autoload 'my-hl-todo-dark-theme "utility")
+
+(autoload 'my-terminal-theme "utility" nil t)
+
+(autoload 'my-daylight-theme "utility")
+
+(autoload 'my-night-theme "utility")
+
+(autoload 'my-theme "utility" "\
+
+
+\(fn &optional TYPE)" t)
+
+(autoload 'my-night-time-p "utility" "\
+
+
+\(fn BEGIN END)")
+
+(autoload 'my-update-theme-timers "utility")
+
+(autoload 'my-ivy-format-function-arrow-ni "utility" "\
+Transform CANDS into a string for minibuffer.
+
+\(fn CANDS)")
+
+(autoload 'my-ivy-format-function-arrow-iit "utility" "\
+Transform CANDS into a string for minibuffer.
+
+\(fn CANDS)")
+
+(autoload 'my-ivy-format-function-arrow-ati "utility" "\
+Transform CANDS into a string for minibuffer.
+
+\(fn CANDS)")
+
+(autoload 'my-vhl-change-color "utility" nil t)
+
+(autoload 'my-yank "utility" "\
+
+
+\(fn &optional ARG)" t)
+
+(autoload 'my-org-yank "utility" nil t)
+
+(autoload 'my--vhl-activate "utility" "\
+
+
+\(fn &optional ARG)")
+
+(autoload 'my-find-missing-packages "utility" "\
+
+
+\(fn &optional DEFER)" t)
+
+(autoload 'my-async-locate-libraries "utility" "\
+Check the library listed in `LIBRARIES'.
+
+\(fn LIBRARIES &optional DEFER)")
+
+(autoload 'my-delete-old-backup "utility" "\
+
+
+\(fn &optional DEFER)")
+
+(autoload 'my-google-this "utility" nil t)
+
+(autoload 'my-gif-screencast-opendir-dired "utility" "\
+Open directories for screenshots and generated GIFs by Dired." t)
+
+(autoload 'my--gif-screencast "utility")
+
+(autoload 'my--gif-screencast-stop "utility")
+
+(autoload 'my--gif-screencast-opendir "utility" "\
+Open the output directory when screencast is finished.")
+
+(autoload 'my--gif-screencast-toggle-pause "utility")
+
+(autoload 'my-nocand-then-fzf-reset "utility")
+
+(autoload 'my-nocand-then-fzf "utility" "\
+
+
+\(fn PROMPT)")
+
+(autoload 'my--fzf:ivy--insert-prompt "utility")
+
+(autoload 'macos-name "utility" "\
+Return macOS name according to the VERSION number.
+
+\(fn VERSION)")
+
+(autoload 'macos-version "utility")
+
+(autoload 'my-cmd-to-open-iterm2 "utility" "\
+
+
+\(fn &optional ARG)" t)
+
+(autoload 'my-kyoko-mad-mode-toggle "utility" nil t)
+
+(autoload 'my-kyoko-mad "utility" nil t)
+
+(autoload 'my-open-current-directory-in-terminal "utility" "\
+ Open Current Directory for macOS
+  0) Put this function in your .emacs
+  1) M-x open-current-directory
+  2) Terminal will open automatically
+  3) Type M-v to paste and move to a path to the current directory in Emacs" t)
+
+(autoload 'my-update-alarms-from-file "utility" nil t)
+
+(autoload 'my-set-alarms-from-file "utility" "\
+Make alarms from org-mode tables. If you have an org-mode file
+     with tables with the following format:
+     |------+-------+--------------------|
+     | Flag |  Time | Content            |
+     |------+-------+--------------------|
+     |      | 07:00 | Wakeup             |
+     |      |       | Read papers        |
+     | X    | 12:00 | Clean up your desk |
+     When it is 7:00 and 12:00, Growl notify with a message which is specified
+     content column from the table. \"Read papers\" will be ignored.
+     \"Clean up your desk\" will be shown by sticky mode
+
+\(fn FILE)")
+
+(autoload 'my--set-alarm-from-line "utility" "\
+
+
+\(fn LINE)")
+
+(autoload 'my--set-notify-macos "utility" "\
+`alerter' is required.
+
+\(fn HOUR MIN ACTION STICKY)")
+
+(autoload 'my-desktop-notify "utility" "\
+An interface to `my-desktop-notification'.
+
+\(fn TYPE TITLE HOUR MIN ACTION STICKY)")
+
+(autoload 'read-line "utility" "\
+Make a list from a file, which is divided by LF code
+
+\(fn FILE)")
+
+(autoload 'my-make-file-ring "utility" "\
+
+
+\(fn FILES)")
+
+(autoload 'my-open-file-ring "utility" nil t)
+
+(autoload 'my-show-org-buffer "utility" "\
+Show an org-file on the current buffer.
+
+\(fn FILE)" t)
+
+(autoload 'insert-org-file-header-template "utility" nil t)
+
+(autoload 'my-insert-empty-pgp-tree "utility" nil t)
+
+(autoload 'my-insert-enc2me-pgp-tree "utility" nil t)
+
+(autoload 'insert-minutes-template "utility" nil t)
+
+(autoload 'my-get-random-string "utility" "\
+Get a string contain the length digit number with random selection
+
+\(fn LENGTH)" t)
+
+(autoload 'recursive-delete-backup-files "utility" "\
+
+
+\(fn DAYS)")
+
+(autoload 'delete-backup-files "utility" "\
+Delete backup files created in yesterday.
+  > find ~/.emacs.d/backup -type f -name '*YY-MM-DD_*' -print0 | xargs -0
+
+\(fn &optional DAY-SHIFT)" t)
+
+(autoload 'chomp "utility" "\
+Chomp leading and tailing whitespace from STR.
+
+\(fn STR)")
+
+(autoload 'my-backup "utility" "\
+Backup a file to `Dropbox/backup' directory.
+If `dropbox' option is provided then the value is uased as a root directory.
+
+\(fn FILES &optional DROPBOX)" t)
+
+(autoload 'mac:delete-files-in-trash-bin "utility" nil t)
+
+(autoload 'my-kill-emacs "utility")
+
+(autoload 'my-kill-emacs-hook-show "utility" "\
+Test Emacs killing sequence.")
+
+(autoload 'my-setup-package-el "utility" "\
+Setting up for installing packages via built-in package.el.
+Downloaded packages will be stored under ~/.eamcs.d/elpa.")
+
+(autoload 'my-eval-org-buffer "utility" "\
+Load init.org/utility.org and tangle init.el/utility.el." t)
+
+(autoload 'my-org-insert-bullet "utility" "\
+
+
+\(fn BEGIN END)" t)
+
+(autoload 'my-org-delete-bullet "utility" "\
+
+
+\(fn BEGIN END)" t)
+
+(autoload 'my-org-toggle-checkbox "utility" "\
+
+
+\(fn BEGIN END)" t)
+
+(autoload 'my-org-insert-checkbox-into-bullet "utility" "\
+
+
+\(fn BEGIN END)" t)
+
+(autoload 'my-org-delete-checkbox-from-bullet "utility" "\
+
+
+\(fn BEGIN END)" t)
+
+(autoload 'my-org-insert-bullet-and-checkbox "utility" "\
+
+
+\(fn BEGIN END)" t)
+
+(autoload 'my-org-delete-bullet-and-checkbox "utility" "\
+
+
+\(fn BEGIN END)" t)
+
+(autoload 'my-cycle-bullet-at-heading "utility" "\
+Add a bullet of \" - \" if the line is NOT a bullet line.
+
+\(fn ARG)" t)
+
+(autoload 'my-replace-punctuation-to-normal "utility" nil t)
+
+(autoload 'my-replace-punctuation-to-scientific "utility" nil t)
+
+(autoload 'my--replace-punctuation "utility" "\
+
+
+\(fn TO)")
+
+(autoload 'my-garbage-collect-activate "utility")
+
+(autoload 'my-garbage-collect-deactivate "utility")
+
+(autoload 'my-garbage-collect "utility" "\
+Run `garbage-collect' and print stats about memory usage." t)
+
+(autoload 'count-words-buffer "utility" "\
+Count the number of words in the current buffer" t)
+
+(autoload 'do-test-applescript "utility" nil t)
+
+(autoload 'describe-timer "utility" "\
+see http://masutaka.net/chalow/2009-12-05-1.html" t)
+
+(autoload 'insert-formatted-current-date "utility" "\
+Insert a timestamp at the cursor position." t)
+
+(autoload 'insert-formatted-current-time "utility" nil t)
+
+(autoload 'insert-formatted-signature "utility" nil t)
+
+(autoload 'my-kill-all-file-buffers "utility" "\
+Kill all buffers visiting files." t)
+
+(autoload 'my-kill-emacs-when-scratch-buffer "utility" nil t)
+
+(autoload 'my-print-message "utility" "\
+
+
+\(fn &optional MESSAGE)")
+
+(autoload 'my--format-emacs-lisp-buffer "utility" nil t)
+
+(autoload 'my--format-emacs-lisp-for-org-buffer "utility" nil t)
+
+(autoload 'my-window-resizer "utility" "\
+Control separated window size and position.
+   Type {j,k,l,m} to adjust windows size." t)
+
+(autoload 'my-print-utility-time "utility" nil t)
+
+(register-definition-prefixes "utility" '("my-" "open-current-directory-console-program" "read-char-default-timeout"))
+
+;;;***
+
+;;;### (autoloads nil "version" "version.el" (0 0 0 0))
+;;; Generated autoloads from version.el
+
+(register-definition-prefixes "version" '("my:emacs-"))
+
+;;;***
+
+;;;### (autoloads nil nil ("init-compat.el" "init-eval.el" "last-init.el"
+;;;;;;  "my-eshell.el" "prescient-save.el" "subdirs.el") (0 0 0 0))
+
+;;;***
+
 ;;; End of scraped data
 
 (provide 'init-autoloads)

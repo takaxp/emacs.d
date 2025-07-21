@@ -128,43 +128,6 @@ This function is called directly from the C code."
     (my-elget-nativecomp-package package-name)))
 
 ;;;###autoload
-(defun my-delete-eln-file (package-name)
-  "note: see `native-compile-prune-cache'"
-  (dolist (dir (butlast native-comp-eln-load-path))
-    (let ((pkg (if (symbolp package-name)
-                   (symbol-name package-name)
-                 package-name)))
-      (dolist (eln (directory-files
-                    (concat dir comp-native-version-dir)
-                    t (concat "^" pkg ".+\\.eln$")))
-        (when (file-writable-p eln)
-          (delete-file eln)
-          (message "Deleting...%s" eln))))))
-
-;;;###autoload
-(defun my-elget-nativecomp-package (&optional package-name non-force)
-  (interactive)
-  (when (or (or package-name
-                non-force)
-            (y-or-n-p "All eln files will be regenerated. Sure?"))
-    (let* ((native-comp-always-compile (not non-force))
-           (package-name (if package-name
-                             (if (symbolp package-name)
-                                 (symbol-name package-name)
-                               package-name)
-                           ""))
-           (pkg (format "~/.emacs.d/%s/el-get/%s"
-                        emacs-version
-                        package-name)))
-      (when native-comp-always-compile
-        (my-delete-eln-file package-name))
-      (if (locate-library package-name)
-          (progn
-            (native-compile-async pkg 'recursively)
-            (message "Native Compilation...%s" pkg))
-        (user-error "skip %s: doesn't exist, may not be installed" pkg)))))
-
-;;;###autoload
 (defun my-org-hide-drawers-all ()
   (when (eq major-mode 'org-mode)
     (org-cycle-hide-drawers 'all)))

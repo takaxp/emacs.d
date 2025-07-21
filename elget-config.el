@@ -33,12 +33,12 @@
     (el-get-bundle "oantolin/embark")
     (el-get-bundle "minad/corfu")
     (el-get-bundle "popon"
-      :type git
-      :url "https://codeberg.org/akib/emacs-popon")
+		   :type git
+		   :url "https://codeberg.org/akib/emacs-popon")
     (el-get-bundle "corfu-terminal"
-      :type git
-      :url "https://codeberg.org/akib/emacs-corfu-terminal"
-      :depends (popon))
+		   :type git
+		   :url "https://codeberg.org/akib/emacs-corfu-terminal"
+		   :depends (popon))
     (el-get-bundle "xenodium/org-block-capf")
     (el-get-bundle "jdtsmith/kind-icon")  ;; requires svg-lib
     (el-get-bundle "minad/cape")
@@ -76,8 +76,8 @@
   (el-get-bundle "xenodium/company-org-block")
   (el-get-bundle "awth13/org-appear")
   (el-get-bundle "org-mac-link"
-    :type git
-    :url "https://gitlab.com/aimebertrand/org-mac-link.git")
+		 :type git
+		 :url "https://gitlab.com/aimebertrand/org-mac-link.git")
   (progn
     (el-get-bundle "persist")
     (el-get-bundle "ichernyshovvv/org-timeblock"))
@@ -102,8 +102,8 @@
   ;; Major modes
   ;; download zip since python-mode git repository is extremely huge
   (el-get-bundle "python-mode"
-    :type http-zip
-    :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
+		 :type http-zip
+		 :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
   (el-get-bundle "emacsmirror/csv-mode")
   (el-get-bundle "emacsmirror/po-mode")
   (el-get-bundle "yaml-mode")
@@ -118,8 +118,8 @@
   (progn ;; pass
     (el-get-bundle "NicolasPetton/pass")
     (el-get-bundle "password-store"
-      :type http
-      :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
+		   :type http
+		   :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
     (el-get-bundle "ecraven/ivy-pass")) ;; requires password-store.el
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "emacsmirror/yatex"))
@@ -222,11 +222,11 @@
   (el-get-bundle "DevelopmentCool2449/colorful-mode")
   (el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))
   (el-get-bundle "disk-usage"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
+		 :type git
+		 :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
   (el-get-bundle "ideasman42/emacs-undo-fu"
-    :type git
-    :url "https://codeberg.org/ideasman42/emacs-undo-fu.git")
+		 :type git
+		 :url "https://codeberg.org/ideasman42/emacs-undo-fu.git")
   (el-get-bundle "zk-phi/gitmole")
   (el-get-bundle "chuntaro/emacs-keypression" :name keypression)
   (el-get-bundle "lewang/command-log-mode")
@@ -249,8 +249,8 @@
   (el-get-bundle "neotree")
   (el-get-bundle "find-file-in-project")
   (el-get-bundle "gcmh"
-    :type git
-    :url "https://gitlab.com/koral/gcmh.git")
+		 :type git
+		 :url "https://gitlab.com/koral/gcmh.git")
 
   ;; Frame and windows
   (el-get-bundle "popwin")
@@ -260,8 +260,8 @@
   (el-get-bundle "rubikitch/replace-from-region")
   (el-get-bundle "quickrun")
   (el-get-bundle "latex-math-preview"
-    :type git
-    :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
+		 :type git
+		 :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
   (el-get-bundle "sbrisard/bratex")
   (el-get-bundle "zhangkaiyulw/smart-mark")
   (el-get-bundle "emacsmirror/syntax-subword")
@@ -269,8 +269,8 @@
   ;; (el-get-bundle "phikal/compat.el" :name compat)
   ;; (el-get-bundle "magit/transient")
   (el-get-bundle "conao3/transient-dwim.el"
-    :name transient-dwim
-    :depends (transient))
+		 :name transient-dwim
+		 :depends (transient))
 
   ;; Applications
   (el-get-bundle "ag")
@@ -278,8 +278,8 @@
   (el-get-bundle "japanese-holidays")
   (el-get-bundle "pdf-tools")
   (el-get-bundle "gif-screencast"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
+		 :type git
+		 :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
   (el-get-bundle "jorgenschaefer/circe")
   (when (memq system-type '(darwin windows-nt))
     (el-get-bundle "d12frosted/counsel-osx-app"))
@@ -288,6 +288,7 @@
   (el-get-bundle "sabof/edit-color-stamp")
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "vterm"))
+  (el-get-bundle "karthink/gptel")
 
   ;; Log
   (el-get-bundle "davep/uptimes.el" :name "uptimes")
@@ -467,7 +468,6 @@
   "Update packages only for batch-mode."
   (unless noninteractive
     (user-error "This method is intended to use in batch-mode"))
-
   (my-elget-load-and-sync)
   (let* ((packages
           (reverse (el-get-list-package-names-with-status "installed")))
@@ -476,36 +476,10 @@
          (index 0))
     (while packages
       (setq target-packages (nthcdr (- (length packages) unit) packages))
-      (when my-elget--verbose
-        (message "------------------------------------------")
-        (message "remaining: %s" (length packages))
-        (message "target: %s"  (length target-packages))
-        (message "------------------------------------------"))
-      ;; update all with new thread
-      (when (and (require 'async nil t)
-                 nil)
-        (async-start
-         `(lambda ()
-            (when (load "~/Dropbox/emacs.d/config/elget-config.el" nil t)
-              (setq el-get-status-file
-                    (concat (file-name-as-directory ,el-get-dir)
-                            (format ".status-%s-%s.el"
-                                    (- (length ',packages)
-                                       (length ',target-packages))
-                                    (1- (length ',packages)))))
-              (setq el-get-sources ',el-get-sources)
-              (setq el-get-default-process-sync t)
-              (my-elget-load-and-sync)
-              (my-elget-update-packages (reverse ',target-packages))
-              ;; FIXME ^^^^^^^^^^^ could destroy packages. Check .loaddefs.el
-              (my-elget-nativecomp-all-packages)
-              el-get-status-file))
-         (lambda (result)
-           (message "[async] %s" result))))
-
       (my-elget-update-packages (reverse target-packages) index total)
       (setq index (+ index (length target-packages)))
-      (setq packages (butlast packages unit)))))
+      (setq packages (butlast packages unit))))
+  (my-elget-nativecomp-prune-current-cache))
 
 ;;;###autoload
 (defun my-elget-remove-package (package)
@@ -532,15 +506,43 @@
                  " ~/Dropbox/emacs.d/bin/el-get.sh -r"))
     (message "[el-get] Link updated")))
 
+(defun my--elget-delete-eln-file (package-name)
+  "note: see `native-compile-prune-cache'"
+  (when package-name
+    (dolist (dir (butlast native-comp-eln-load-path))
+      (let ((pkg (if (symbolp package-name)
+                     (symbol-name package-name)
+                   package-name)))
+	(dolist (eln (directory-files
+                      (concat dir comp-native-version-dir)
+                      t (concat "^" pkg ".+\\.eln$")))
+          (when (file-writable-p eln)
+            (delete-file eln)
+            (message "Deleting...%s" eln)))))))
+
 ;;;###autoload
-(defun my-elget-nativecomp-all-packages ()
+(defun my-elget-nativecomp-package (&optional package-name non-force)
+  "Remove .eln files and regenerated"
   (interactive)
-  (native-compile-async (format "~/.emacs.d/%s/el-get" emacs-version)
-                        'recursively))
+  (unless (and package-name
+	       (not (locate-library package-name)))
+    (let* ((native-comp-always-compile (not non-force))
+	   (package-name (if package-name
+			     (if (symbolp package-name)
+                                 (symbol-name package-name)
+			       package-name)
+			   ""))
+	   (dir-or-pkg (format "~/.emacs.d/%s/el-get/%s"
+			       emacs-version
+			       package-name)))
+      (when native-comp-always-compile
+	(my--elget-delete-eln-file package-name))
+      (message "--- %s" dir-or-pkg)
+      (native-compile-async dir-or-pkg 'recursively)))) ;; not activated in batch-mode.
 
 ;;;###autoload
 (defun my-elget-nativecomp-prune-current-cache ()
-  "Remove .eln files that are applicable to the current Emacs invocation.
+  "Remove all .eln files that are applicable to the current Emacs invocation.
 see `native-compile-prune-cache'."
   (interactive)
   (unless (featurep 'native-compile)

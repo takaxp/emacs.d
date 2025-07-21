@@ -167,8 +167,7 @@ This function returns a timer object which you can use in
 (autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
                      el-get-cd el-get-remove el-get-update
-                     el-get-install el-get-reinstall
-                     my-elget-nativecomp-all-packages)
+                     el-get-install el-get-reinstall)
                    "elget-config" nil t)
 
 (setq-default tab-width 2)
@@ -275,6 +274,8 @@ This function returns a timer object which you can use in
 
 ;; Scroll window on a page-by-page basis with N line overlapping
 (setq next-screen-context-lines 10)
+
+(setq recenter-positions '(top middle bottom))
 
 (setq set-mark-command-repeat-pop t)
 (setq mark-ring-max 32)
@@ -1403,6 +1404,7 @@ This function returns a timer object which you can use in
 ;;   (message "Loading transient...")
 ;;   (require 'transient))
 
+(autoload 'my-org-bullet-and-checkbox "transient" nil t)
 (with-eval-after-load "transient"
   (transient-define-prefix my-org-bullet-and-checkbox ()
     "Commands to handle bullet and checkbox"
