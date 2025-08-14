@@ -227,7 +227,7 @@ This function returns a timer object which you can use in
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
   (advice-add 'epa-file-write-region :around #'my--suppress-message))
 
-(autoload 'mail "~/Dropbox/config/my-mail.el.gpg" nil t)
+(autoload 'mail "${HOME}/.local/config/my-mail.el.gpg" nil t)
 
 (when (memq window-system '(ns nil))
 
@@ -300,7 +300,7 @@ This function returns a timer object which you can use in
                            my-bm-next bm-buffer-save bm-buffer-restore
                            bm-buffer-save-all bm-repository-save
                            bm-repository-load counsel-bm)
-       "bm" nil t)
+                         "bm" nil t)
 
   ;; ファイルオープン時にブックマークを復帰
   (keymap-global-set "<f10>" 'my-toggle-bm)
@@ -329,7 +329,7 @@ This function returns a timer object which you can use in
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
           (expand-file-name
-           (concat (getenv "SYNCROOT") "/emacs.d/.bm-repository")))
+           (concat (getenv "SYNCROOT") "/usr/emacs.d/.bm-repository")))
 
     (unless noninteractive
       (bm-repository-load)
@@ -580,7 +580,7 @@ This function returns a timer object which you can use in
       ;; (setenv "LC_ALL" "en_US") ;; Don't use this line.
       ;; (setq ispell-extra-args '("--lang=en_US"))
       ;; (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
-      (setenv "DICPATH" (concat (getenv "SYNCROOT") "/emacs.d/hunspell/dict-en"))
+      (setenv "DICPATH" (concat (getenv "SYNCROOT") "/usr/emacs.d/hunspell/dict-en"))
       (setq ispell-local-dictionary-alist
             '(("ja_JP" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
                ("-d" "en_US") nil utf-8)
@@ -596,7 +596,7 @@ This function returns a timer object which you can use in
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
       (setq ispell-personal-dictionary
-            (concat (getenv "SYNCROOT") "/emacs.d/hunspell.en.dic")))
+            (concat (getenv "SYNCROOT") "/usr/emacs.d/hunspell.en.dic")))
 
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
@@ -611,7 +611,7 @@ This function returns a timer object which you can use in
             '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
                    ("-d" "en" "--encoding=utf-8") nil utf-8)))
       (setq ispell-personal-dictionary
-            (concat (getenv "SYNCROOT") "/emacs.d/config/aspell.en.pws")))
+            (concat (getenv "SYNCROOT") "/usr/emacs.d/config/aspell.en.pws")))
      (t
       nil))))
 
@@ -735,10 +735,11 @@ This function returns a timer object which you can use in
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
+    (sp-pair "<" ">")
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "$" "$" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "'" "'" :actions '(wrap)) ;; 選択時のみ有効
-    (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
+;;    (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "_" "_" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "~" "~" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "[" "]" :actions '(wrap)) ;; 選択時のみ有効
@@ -1540,7 +1541,7 @@ This function returns a timer object which you can use in
     ;;       (when (string= (buffer-name) keyfreq-buffer)
     ;;         (kill-buffer-and-window))))
     (setq keyfreq-file
-          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.keyfreq")))
+          (expand-file-name (concat (getenv "SYNCROOT") "/usr/emacs.d/.keyfreq")))
     (keyfreq-autosave-mode 1))
   (unless noninteractive
     (keyfreq-mode 1)))
@@ -2255,7 +2256,7 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(elfeed elfeed-update elfeed-web-start)
                          "elfeed" nil t)
   (with-eval-after-load "elfeed"
-    (setq elfeed-db-directory "~/Dropbox/emacs.d/elfeed")
+    (setq elfeed-db-directory "~/Dropbox/usr/emacs.d/elfeed")
     (when (require 'elfeed-org nil t)
       (elfeed-org)
       (setq rmh-elfeed-org-files (list "~/Dropbox/org/elfeed.org")))

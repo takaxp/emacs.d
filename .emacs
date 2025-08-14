@@ -12,9 +12,7 @@
 (with-eval-after-load "recentf"
   (defun my-recentf-cleanup-silence ()
     (interactive)
-    (my-print-message "recentf cleanup silence")
-    (my-print-message `("i/m" ,(length recentf-list) "/" ,recentf-max-saved-items))
-    (my-print-message `("file:" ,recentf-save-file))
+    (my-print-message `("<recentf> i/m" ,(length recentf-list) "/" ,recentf-max-saved-items))
     (let ((message-log-max nil))
       (recentf-cleanup))))
 
@@ -42,7 +40,7 @@
 
  ;; Debug
  (nil
-  (add-to-list 'load-path (expand-file-name "~/Dropbox/config"))
+  (add-to-list 'load-path (expand-file-name "~/.local/config"))
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (add-to-list 'load-path
 	       (expand-file-name "~/devel/git/org-mode/contrib/lisp"))

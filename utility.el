@@ -153,7 +153,7 @@ This function is called directly from the C code."
 (defun my-private-conf-activate ()
   (cancel-timer my-private-conf-timer)
   ;; (require 'epa)
-  (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
+  (when (and (file-exists-p "${HOME}/.local/config/private.el.gpg")
              (eq system-type 'darwin)
              (not (featurep 'private)))
     (unless (ignore-errors (require 'private "private.el.gpg" t))
@@ -1119,6 +1119,8 @@ Obeys `widen-automatically', which see."
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
+  "Open FILE with an associated application.
+Configure variable `org-file-apps' to open FILE with Word/Excel/PowerPoint."
   (cond ((string-match "\\.numbers$\\|\\.xlsx$" file)
          (eval `(with-ivy-window (org-open-file ,file))))
         (t
@@ -1138,15 +1140,17 @@ Obeys `widen-automatically', which see."
             :caller 'counsel-recentf))
 
 (defvar my-cg-bookmark "c-g-point-last")
+
 ;;;###autoload
 (defun my-cg-bookmark ()
-  (push-mark)
   (when (and buffer-file-name
              (eq major-mode 'org-mode)
              (not (org-before-first-heading-p))
              (> (org-current-level) 1)) ;; レベル1の heading を除外
+    (org-id-get-create)
     (bookmark-set my-cg-bookmark)
-    (save-buffer)))
+    (save-buffer))
+  (push-mark))
 
 ;;;###autoload
 (defun crux-copy-file-preserve-attributes (visit)
@@ -1723,7 +1727,7 @@ Otherwise, use `counsel-ag'."
       ;;  (find-file-noselect outfile)
       ;;  (my-org-replace-punc-in-buffer))))
       (org-hugo-export-wim-to-md)
-      (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
+      (let ((command "/Users/taka/.local/scripts/push-hugo.sh")
             (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
             (exported (format "[ox-hugo] \"%s\" has been exported."
                               (nth 4 (org-heading-components)))))
@@ -2600,7 +2604,7 @@ update it for multiple appts?")
     (org-hugo-export-wim-to-md)
     (message "[ox-hugo] \"%s\" has been exported."
              (nth 4 (org-heading-components)))
-    (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh"))
+    (let ((command "/Users/taka/.local/scripts/push-hugo.sh"))
       (if (require 'async nil t)
           (async-start
            `(lambda () (shell-command-to-string ',command)))
@@ -3719,7 +3723,7 @@ Uses `all-the-icons-material' to fetch the icon."
  '("~/Dropbox/org/tr/work.org" "~/Dropbox/org/db/daily.org"
    "~/Dropbox/org/minutes/wg1.org" "~/Dropbox/org/tr/work.org"
    "~/Dropbox/org/academic.org" "~/Dropbox/org/org2ja.org"
-   "~/Dropbox/org/db/article.org" "~/Dropbox/emacs.d/config/init.org"))
+   "~/Dropbox/org/db/article.org" "~/Dropbox/usr/emacs.d/config/init.org"))
 
 ;;;###autoload
 (defun my-open-file-ring ()
@@ -3879,7 +3883,7 @@ Uses `all-the-icons-material' to fetch the icon."
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
   (let ((dir (concat (expand-file-name
-                      (or dropbox (getenv "SYNCROOT")))
+                      (or dropbox (concat (getenv "SYNCROOT") "/usr")))
                      "/backup/" (system-name))))
     (if (file-directory-p dir)
         (mapc

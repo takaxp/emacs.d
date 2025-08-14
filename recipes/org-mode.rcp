@@ -15,7 +15,7 @@
                 ("git" "stash" "clear")
                 ("git" "clone" "https://git.sr.ht/~bzg/org-contrib" "contrib")
                 ("cp" "/Users/taka/devel/git/org-mode/patch/local.mk" ".")
-                ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/patch/patch/org-element.patch")
+;;                ("patch" "-p1" "-i" "/Users/taka/devel/git/org-mode/patch/patch/org-element.patch")
                 ("make" ,(concat "EMACS=" (shell-quote-argument el-get-emacs)) "compile" "autoloads"))
        :load-path ("." "contrib/lisp" "lisp")
        :load ("lisp/org-loaddefs.el"))

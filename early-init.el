@@ -59,8 +59,8 @@
    ,(expand-file-name "~/.cask/bin")
    ,(expand-file-name "~/devel/git/tern/bin")
    ,(expand-file-name "~/.go/bin")
-   ,(expand-file-name "~/Dropbox/emacs.d/bin")
-   ,(expand-file-name "~/Dropbox/local/scripts")
+   ,(expand-file-name "~/Dropbox/usr/emacs.d/bin")
+   ,(expand-file-name "~/.local/scripts")
    "/usr/local/opt/llvm/bin"
    "C:/cygwin64/bin" "C:/msys64/usr/bin" "C:/msys64/mingw64/bin"
    "/Applications/UpTex.app/teTeX/bin"

@@ -152,7 +152,12 @@
   (keymap-set org-mode-map "C-c 4" 'org-mark-ring-goto)
 
   ;; (org-transpose-element) が割り当てられているので取り返す．
-  (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
+  (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
+
+  ;; C-c C-o でファイルを開くとき，外部アプリケーションで開く
+  (add-to-list 'org-file-apps '("\\.xlsx\\'" . default))
+  (add-to-list 'org-file-apps '("\\.docx\\'" . default))
+  (add-to-list 'org-file-apps '("\\.pptx\\'" . default)))
 
 (with-eval-after-load "ox"
   (add-to-list 'org-modules 'ox-odt)
@@ -304,7 +309,7 @@
           ("ICAL"     :foreground "#33CC66")
           ("APPROVED" :foreground "#66CC66")
           ("QUESTION" :foreground "#FF0000")
-          ("WAIT"     :foreground "#CCCCCC" :background "#666666")
+          ("WAIT"     :foreground "#333333" :background "#CCCCCC")
           ("MAIL"     :foreground "#CC3300" :background "#FFEE99")
           ("PLAN"     :foreground "#FF6600")
           ("PLAN2"    :foreground "#FFFFFF" :background "#FF6600")
@@ -319,6 +324,7 @@
           ("Bug"         :foreground "#FF0000")
           ("Report"      :foreground "#66CC66")
           ("Background"  :foreground "#66CC99")
+          ("Meeting"     :foreground "#66CC99")
           ("Chore"       :foreground "#6699CC")
           ("Remind"      :foreground "#6699CC")
           ("project"     :foreground "#6666CC")
@@ -950,11 +956,11 @@ This user property stores the creation date of the entry")
                          "ox-odt" nil t)
   (with-eval-after-load "ox-odt"
     ;; (add-to-list 'org-odt-data-dir
-    ;;              (concat (getenv "HOME") "/Dropbox/emacs.d/config/"))
+    ;;              (concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/"))
     (setq org-odt-styles-file
-          (concat (getenv "SYNCROOT") "/emacs.d/config/style.odt"))
+          (concat (getenv "SYNCROOT") "/usr/emacs.d/config/style.odt"))
     ;; (setq org-odt-content-template-file
-    ;;       (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
+    ;;       (concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/style.ott"))
     (setq org-odt-preferred-output-format "pdf") ;; docx
     ;; ;; ox-odt.el の 自作パッチの変数（DOCSTRINGが記述されていない）
     ;; (setq org-odt-apply-custom-punctuation t)

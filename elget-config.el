@@ -446,7 +446,7 @@
 (defun my-elget-update-org ()
   (interactive)
   (when (shell-command-to-string
-         (concat "~/Dropbox/emacs.d/bin/el-get.sh -g tag"))
+         (concat "~/Dropbox/usr/emacs.d/bin/el-get.sh -g tag"))
     (message "[el-get] Org mode updated")))
 
 ;;;###autoload
@@ -503,7 +503,7 @@
   (interactive)
   (when (shell-command-to-string
          (concat "export SYSTEMTYPE=\"darwin\" &&"
-                 " ~/Dropbox/emacs.d/bin/el-get.sh -r"))
+                 " ~/Dropbox/usr/emacs.d/bin/el-get.sh -r"))
     (message "[el-get] Link updated")))
 
 (defun my--elget-delete-eln-file (package-name)

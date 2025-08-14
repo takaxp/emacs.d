@@ -16,7 +16,7 @@
 (when (bound-and-true-p my-profiler-p)
   (profiler-start 'cpu+mem))
 (when (bound-and-true-p my-ad-require-p)
-  (my--safe-load "~/Dropbox/emacs.d/config/init-ad.el"))
+  (my--safe-load "~/Dropbox/usr/emacs.d/config/init-ad.el"))
 
 (with-eval-after-load "postpone"
   ;; only top-level setting will be loaded. This will not actually load `org' so settings in `with-eval-after-load' will not be loaded.
@@ -87,7 +87,7 @@
 (advice-add 'emacs-repository-version-git :around #'my--suppress-message)
 
 (when (version< emacs-version "29.0")
-  (my--safe-load "~/Dropbox/emacs.d/config/init-compat.el"))
+  (my--safe-load "~/Dropbox/usr/emacs.d/config/init-compat.el"))
 
 (defun my-load-package-p (file)
   (let ((enabled t))
@@ -351,7 +351,7 @@
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
   (defvar my-session-save-file
-    (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
+    (expand-file-name (concat (getenv "SYNCROOT") "/usr/emacs.d/.session")))
   (if my-secure-boot
       (message "--- session.el is not loaded for secure booting")
     (unless noninteractive

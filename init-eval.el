@@ -1,4 +1,4 @@
-;; /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile ~/Dropbox/emacs.d/config/init.el
+;; /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/usr/emacs.d/config/init-eval.el -batch -f batch-byte-compile ~/Dropbox/usr/emacs.d/config/init.el
 
 (setq my-boot-mode nil)
 

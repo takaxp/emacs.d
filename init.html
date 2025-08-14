@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-07-28 月 14:13 -->
+<!-- 2025-08-14 木 19:09 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -905,7 +905,7 @@ Org Mode の設定がかなり肥大化したため， <code>init-org.el</code> 
 （Setup手順）
 </p>
 <ol class="org-ol">
-<li>ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/</li>
+<li>ln -s ~/Dropbox/usr/emacs.d/config/.spacemacs ~/</li>
 <li>git clone <a href="https://github.com/syl20bnr/spacemacs">https://github.com/syl20bnr/spacemacs</a> ~/.spacemacs.d</li>
 </ol>
 <p>
@@ -939,7 +939,7 @@ Then load the following at startup
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-profiler-p)
   (profiler-start 'cpu+mem))
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-ad-require-p)
-  (my--safe-load <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/init-ad.el"</span>))
+  (my--safe-load <span style="color: #8b2252;">"~/Dropbox/usr/emacs.d/config/init-ad.el"</span>))
 </pre>
 </div>
 
@@ -1229,7 +1229,7 @@ see also <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Star
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">/Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done ~/Dropbox/emacs.d/config/init.el
+<pre class="src src-sh">/Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/usr/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done ~/Dropbox/usr/emacs.d/config/init.el
 </pre>
 </div>
 
@@ -1418,8 +1418,8 @@ This function is called directly from the C code."</span>
    ,(expand-file-name <span style="color: #8b2252;">"~/.cask/bin"</span>)
    ,(expand-file-name <span style="color: #8b2252;">"~/devel/git/tern/bin"</span>)
    ,(expand-file-name <span style="color: #8b2252;">"~/.go/bin"</span>)
-   ,(expand-file-name <span style="color: #8b2252;">"~/Dropbox/emacs.d/bin"</span>)
-   ,(expand-file-name <span style="color: #8b2252;">"~/Dropbox/local/scripts"</span>)
+   ,(expand-file-name <span style="color: #8b2252;">"~/Dropbox/usr/emacs.d/bin"</span>)
+   ,(expand-file-name <span style="color: #8b2252;">"~/.local/scripts"</span>)
    <span style="color: #8b2252;">"/usr/local/opt/llvm/bin"</span>
    <span style="color: #8b2252;">"C:/cygwin64/bin"</span> <span style="color: #8b2252;">"C:/msys64/usr/bin"</span> <span style="color: #8b2252;">"C:/msys64/mingw64/bin"</span>
    <span style="color: #8b2252;">"/Applications/UpTex.app/teTeX/bin"</span>
@@ -1450,7 +1450,7 @@ This function is called directly from the C code."</span>
 <div class="outline-text-3" id="text-org7f89b479">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (version&lt; emacs-version <span style="color: #8b2252;">"29.0"</span>)
-  (my--safe-load <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/init-compat.el"</span>))
+  (my--safe-load <span style="color: #8b2252;">"~/Dropbox/usr/emacs.d/config/init-compat.el"</span>))
 </pre>
 </div>
 </div>
@@ -2607,7 +2607,7 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
 <pre class="src src-sh"><span style="color: #b22222;">#</span><span style="color: #b22222;">!/bin/</span><span style="color: #a020f0;">sh</span><span style="color: #b22222;">
 </span>
 <span style="color: #a0522d;">LOADPATH</span>=$<span style="color: #a0522d;">HOME</span>/.emacs.d/lisp
-<span style="color: #a0522d;">SOURCEPATH</span>=$<span style="color: #a0522d;">HOME</span>/Dropbox/emacs.d
+<span style="color: #a0522d;">SOURCEPATH</span>=$<span style="color: #a0522d;">HOME</span>/Dropbox/usr/emacs.d
 <span style="color: #a0522d;">EVALWCOMPILE</span>=<span style="color: #8b2252;">"$SOURCEPATH/config/init-eval.el"</span>
 
 <span style="color: #a020f0;">while </span><span style="color: #483d8b;">getopts</span> t:hd opt
@@ -2653,8 +2653,8 @@ h)
         <span style="color: #a0522d;">EMACS</span>=<span style="color: #8b2252;">'/Applications/Emacs.app/Contents/MacOS/Emacs'</span>
     <span style="color: #a020f0;">fi</span>
 <span style="color: #a020f0;">fi</span>
-<span style="color: #b22222;"># </span><span style="color: #b22222;">$EMACS -l ~/.emacs --script ~/Dropbox/config/tangle.el
-</span>$<span style="color: #a0522d;">EMACS</span> -q --script ~/Dropbox/config/tangle.el
+<span style="color: #b22222;"># </span><span style="color: #b22222;">$EMACS -l ~/.emacs --script ${HOME}/.local/config/tangle.el
+</span>$<span style="color: #a0522d;">EMACS</span> -q --script ${<span style="color: #a0522d;">HOME</span>}/.local/config/tangle.el
 
 <span style="color: #483d8b;">echo</span> <span style="color: #8b2252;">"--- Starting batch-byte-compiles with GNU Emacs ($TARGETV)."</span>
 
@@ -2678,7 +2678,7 @@ $<span style="color: #a0522d;">COMMAND</span> $<span style="color: #a0522d;">LOA
 <span style="color: #a020f0;">fi</span>
 
 <span style="color: #b22222;"># </span><span style="color: #b22222;">raw
-</span><span style="color: #b22222;"># </span><span style="color: #b22222;">/Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done
+</span><span style="color: #b22222;"># </span><span style="color: #b22222;">/Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/usr/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done
 </span>
 <span style="color: #b22222;"># </span><span style="color: #b22222;">mv $SOURCEPATH/config/init.elc $HOME/.emacs.d
 </span><span style="color: #b22222;"># </span><span style="color: #b22222;">mv $SOURCEPATH/config/utility.elc $HOME/.emacs.d
@@ -3060,7 +3060,7 @@ CLIからは，次のように呼び出します．
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-private-conf-activate</span> ()
   (cancel-timer my-private-conf-timer)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'epa)
-</span>  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p <span style="color: #8b2252;">"~/Dropbox/config/private.el.gpg"</span>)
+</span>  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p <span style="color: #8b2252;">"${HOME}/.local/config/private.el.gpg"</span>)
              (eq system-type 'darwin)
              (not (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">private</span>)))
     (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">ignore-errors</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t))
@@ -3139,7 +3139,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 <h3 id="org083f6170"><span class="section-number-3">3.25.</span> メール設定の読み込み</h3>
 <div class="outline-text-3" id="text-org083f6170">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(autoload 'mail <span style="color: #8b2252;">"~/Dropbox/config/my-mail.el.gpg"</span> nil t)
+<pre class="src src-emacs-lisp">(autoload 'mail <span style="color: #8b2252;">"${HOME}/.local/config/my-mail.el.gpg"</span> nil t)
 </pre>
 </div>
 </div>
@@ -3844,7 +3844,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
                            my-bm-next bm-buffer-save bm-buffer-restore
                            bm-buffer-save-all bm-repository-save
                            bm-repository-load counsel-bm)
-       <span style="color: #8b2252;">"bm"</span> nil t)
+                         <span style="color: #8b2252;">"bm"</span> nil t)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12501;&#12449;&#12452;&#12523;&#12458;&#12540;&#12503;&#12531;&#26178;&#12395;&#12502;&#12483;&#12463;&#12510;&#12540;&#12463;&#12434;&#24489;&#24112;
 </span>  (keymap-global-set <span style="color: #8b2252;">"&lt;f10&gt;"</span> 'my-toggle-bm)
@@ -3873,7 +3873,7 @@ org-mode との連携には， <a href="https://github.com/alphapapa/org-bookmar
     (<span style="color: #a020f0;">setq</span> bm-persistent-face 'bm-face)
     (<span style="color: #a020f0;">setq</span> bm-repository-file
           (expand-file-name
-           (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/.bm-repository"</span>)))
+           (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr/emacs.d/.bm-repository"</span>)))
 
     (<span style="color: #a020f0;">unless</span> noninteractive
       (bm-repository-load)
@@ -5027,7 +5027,7 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setenv "LC_ALL" "en_US") ;; Don't use this line.
 </span>      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq ispell-extra-args '("--lang=en_US"))
 </span>      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
-</span>      (setenv <span style="color: #8b2252;">"DICPATH"</span> (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/hunspell/dict-en"</span>))
+</span>      (setenv <span style="color: #8b2252;">"DICPATH"</span> (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr/emacs.d/hunspell/dict-en"</span>))
       (<span style="color: #a020f0;">setq</span> ispell-local-dictionary-alist
             '((<span style="color: #8b2252;">"ja_JP"</span> <span style="color: #8b2252;">"[[:alpha:]]"</span> <span style="color: #8b2252;">"[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">[:alpha:]]"</span> <span style="color: #8b2252;">"[']"</span> nil
                (<span style="color: #8b2252;">"-d"</span> <span style="color: #8b2252;">"en_US"</span>) nil utf-8)
@@ -5043,7 +5043,7 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 </span>
       (<span style="color: #a020f0;">setq</span> ispell-personal-dictionary
-            (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/hunspell.en.dic"</span>)))
+            (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr/emacs.d/hunspell.en.dic"</span>)))
 
      ((executable-find <span style="color: #8b2252;">"aspell"</span>)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- aspell loaded.")
@@ -5058,7 +5058,7 @@ Built-in の ispell を使う．チェックエンジンは，aspell を利用�
             '((nil <span style="color: #8b2252;">"[a-zA-Z]"</span> <span style="color: #8b2252;">"[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">a-zA-Z]"</span> <span style="color: #8b2252;">"'"</span> t
                    (<span style="color: #8b2252;">"-d"</span> <span style="color: #8b2252;">"en"</span> <span style="color: #8b2252;">"--encoding=utf-8"</span>) nil utf-8)))
       (<span style="color: #a020f0;">setq</span> ispell-personal-dictionary
-            (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/config/aspell.en.pws"</span>)))
+            (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr/emacs.d/config/aspell.en.pws"</span>)))
      (t
       nil))))
 </pre>
@@ -5387,7 +5387,7 @@ This works also for other defined begin/end tokens to define the structure."</sp
     (add-hook hook #'yas-minor-mode))
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"yasnippet"</span>
     (<span style="color: #a020f0;">setq</span> yas-verbosity 2)
-    (<span style="color: #a020f0;">setq</span> yas-snippet-dirs `(,(concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/yas-dict"</span>)))
+    (<span style="color: #a020f0;">setq</span> yas-snippet-dirs `(,(concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr/emacs.d/yas-dict"</span>)))
     (<span style="color: #a020f0;">unless</span> noninteractive
       (yas-global-mode 1))))
 </pre>
@@ -5586,10 +5586,11 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair <span style="color: #8b2252;">"`"</span> nil <span style="color: #483d8b;">:actions</span> <span style="color: #483d8b;">:rem</span>)
     (sp-pair <span style="color: #8b2252;">"'"</span> nil <span style="color: #483d8b;">:actions</span> <span style="color: #483d8b;">:rem</span>)
     (sp-pair <span style="color: #8b2252;">"["</span> nil <span style="color: #483d8b;">:actions</span> <span style="color: #483d8b;">:rem</span>)
+    (sp-pair <span style="color: #8b2252;">"&lt;"</span> <span style="color: #8b2252;">"&gt;"</span>)
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"="</span> <span style="color: #8b2252;">"="</span>)
     (sp-local-pair 'org-mode <span style="color: #8b2252;">"$"</span> <span style="color: #8b2252;">"$"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;
 </span>    (sp-local-pair 'org-mode <span style="color: #8b2252;">"'"</span> <span style="color: #8b2252;">"'"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;
-</span>    (sp-local-pair 'org-mode <span style="color: #8b2252;">"&lt;"</span> <span style="color: #8b2252;">"&gt;"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;
+</span><span style="color: #b22222;">;;    </span><span style="color: #b22222;">(sp-local-pair 'org-mode "&lt;" "&gt;" :actions '(wrap)) ;; &#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;
 </span>    (sp-local-pair 'org-mode <span style="color: #8b2252;">"_"</span> <span style="color: #8b2252;">"_"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;
 </span>    (sp-local-pair 'org-mode <span style="color: #8b2252;">"~"</span> <span style="color: #8b2252;">"~"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;
 </span>    (sp-local-pair 'org-mode <span style="color: #8b2252;">"["</span> <span style="color: #8b2252;">"]"</span> <span style="color: #483d8b;">:actions</span> '(wrap)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36984;&#25246;&#26178;&#12398;&#12415;&#26377;&#21177;
@@ -9256,6 +9257,8 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-counsel-recentf-action</span> (file)
+  <span style="color: #8b2252;">"Open FILE with an associated application.
+Configure variable `</span><span style="color: #008b8b;">org-file-apps</span><span style="color: #8b2252;">' to open FILE with Word/Excel/PowerPoint."</span>
   (<span style="color: #a020f0;">cond</span> ((string-match <span style="color: #8b2252;">"\\.numbers$</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">\\.xlsx$"</span> file)
          (eval `(with-ivy-window (org-open-file ,file))))
         (t
@@ -9349,15 +9352,17 @@ recentf-auto-cleanup を <code>'mode</code> などにすると起動時にファ
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-cg-bookmark</span> <span style="color: #8b2252;">"c-g-point-last"</span>)
+
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cg-bookmark</span> ()
-  (push-mark)
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> buffer-file-name
              (eq major-mode 'org-mode)
              (not (org-before-first-heading-p))
              (&gt; (org-current-level) 1)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12524;&#12505;&#12523;1&#12398; heading &#12434;&#38500;&#22806;
-</span>    (bookmark-set my-cg-bookmark)
-    (save-buffer)))
+</span>    (org-id-get-create)
+    (bookmark-set my-cg-bookmark)
+    (save-buffer))
+  (push-mark))
 </pre>
 </div>
 
@@ -9959,7 +9964,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(session-initialize)
                          <span style="color: #8b2252;">"session"</span> nil t)
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-session-save-file</span>
-    (expand-file-name (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/.session"</span>)))
+    (expand-file-name (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr/emacs.d/.session"</span>)))
   (<span style="color: #a020f0;">if</span> my-secure-boot
       (message <span style="color: #8b2252;">"--- session.el is not loaded for secure booting"</span>)
     (<span style="color: #a020f0;">unless</span> noninteractive
@@ -10158,7 +10163,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 </span>    <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(when (string= (buffer-name) keyfreq-buffer)
 </span>    <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(kill-buffer-and-window))))
 </span>    (<span style="color: #a020f0;">setq</span> keyfreq-file
-          (expand-file-name (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/.keyfreq"</span>)))
+          (expand-file-name (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr/emacs.d/.keyfreq"</span>)))
     (keyfreq-autosave-mode 1))
   (<span style="color: #a020f0;">unless</span> noninteractive
     (keyfreq-mode 1)))
@@ -10511,7 +10516,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">wakatime-mode</span> nil t)
   (<span style="color: #a020f0;">setq</span> wakatime-api-key <span style="color: #8b2252;">"&lt;insert your own api key&gt;"</span>)
-  (<span style="color: #a020f0;">setq</span> wakatime-cli-path <span style="color: #8b2252;">"/Users/taka/Dropbox/emacs.d/bin/wakatime-cli.py"</span>)
+  (<span style="color: #a020f0;">setq</span> wakatime-cli-path <span style="color: #8b2252;">"/Users/taka/Dropbox/usr/emacs.d/bin/wakatime-cli.py"</span>)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12377;&#12409;&#12390;&#12398;&#12496;&#12483;&#12501;&#12449;&#12391;&#35370;&#21839;&#26178;&#12395;&#35352;&#37682;&#12434;&#38283;&#22987;
 </span>  <span style="color: #b22222;">;; </span><span style="color: #b22222;">(global-wakatime-mode)
 </span>    )
@@ -10573,7 +10578,7 @@ Undoのツリーが表示され，履歴をたどれます． <code>C-x u</code>
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">savehist</span> nil t)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12498;&#12473;&#12488;&#12522;&#12501;&#12449;&#12452;&#12523;&#12434;&#26126;&#31034;&#30340;&#12395;&#25351;&#23450;
-</span>  (<span style="color: #a020f0;">setq</span> savehist-file <span style="color: #8b2252;">"~/Dropbox/emacs.d/.history"</span>)
+</span>  (<span style="color: #a020f0;">setq</span> savehist-file <span style="color: #8b2252;">"~/Dropbox/usr/emacs.d/.history"</span>)
   (savehist-mode 1))
 </pre>
 </div>
@@ -11530,7 +11535,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36766;&#26360;
 </span>    (add-to-list 'ac-dictionary-directories <span style="color: #8b2252;">"~/.emacs.d/ac-dict"</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">history
-</span>    (<span style="color: #a020f0;">setq</span> ac-comphist-file <span style="color: #8b2252;">"~/Dropbox/config/ac-comphist.dat"</span>)
+</span>    (<span style="color: #a020f0;">setq</span> ac-comphist-file <span style="color: #8b2252;">"${HOME}/.local/config/ac-comphist.dat"</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">n&#25991;&#23383;&#20197;&#19978;&#12391;&#35036;&#23436;&#34920;&#31034;&#12377;&#12427;&#65288;"&lt;s &lt;tab&gt;" &#12398;&#22580;&#21512; yasnippet &#12364;&#21628;&#12400;&#12428;&#12427;&#65289;
 </span>    (<span style="color: #a020f0;">setq</span> ac-auto-start 4)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">n&#31186;&#24460;&#12395;&#12513;&#12491;&#12517;&#12540;&#12434;&#34920;&#31034;
@@ -11934,7 +11939,12 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 </span>  (keymap-set org-mode-map <span style="color: #8b2252;">"C-c 4"</span> 'org-mark-ring-goto)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-transpose-element) &#12364;&#21106;&#12426;&#24403;&#12390;&#12425;&#12428;&#12390;&#12356;&#12427;&#12398;&#12391;&#21462;&#12426;&#36820;&#12377;&#65294;
-</span>  (org-defkey org-mode-map <span style="color: #8b2252;">"\C-\M-t"</span> 'beginning-of-buffer))
+</span>  (org-defkey org-mode-map <span style="color: #8b2252;">"\C-\M-t"</span> 'beginning-of-buffer)
+
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-c C-o &#12391;&#12501;&#12449;&#12452;&#12523;&#12434;&#38283;&#12367;&#12392;&#12365;&#65292;&#22806;&#37096;&#12450;&#12503;&#12522;&#12465;&#12540;&#12471;&#12519;&#12531;&#12391;&#38283;&#12367;
+</span>  (add-to-list 'org-file-apps '(<span style="color: #8b2252;">"\\.xlsx\\'"</span> . default))
+  (add-to-list 'org-file-apps '(<span style="color: #8b2252;">"\\.docx\\'"</span> . default))
+  (add-to-list 'org-file-apps '(<span style="color: #8b2252;">"\\.pptx\\'"</span> . default)))
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ox"</span>
   (add-to-list 'org-modules 'ox-odt)
@@ -12166,7 +12176,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 </span>      <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(find-file-noselect outfile)
 </span>      <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(my-org-replace-punc-in-buffer))))
 </span>      (org-hugo-export-wim-to-md)
-      (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/Dropbox/local/scripts/push-hugo.sh"</span>)
+      (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/.local/scripts/push-hugo.sh"</span>)
             (filename (org-entry-get (point) <span style="color: #8b2252;">"EXPORT_FILE_NAME"</span>))
             (exported (format <span style="color: #8b2252;">"[ox-hugo] \"%s\" has been exported."</span>
                               (nth 4 (org-heading-components)))))
@@ -12387,7 +12397,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           (<span style="color: #8b2252;">"ICAL"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#33CC66"</span>)
           (<span style="color: #8b2252;">"APPROVED"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#66CC66"</span>)
           (<span style="color: #8b2252;">"QUESTION"</span> <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF0000"</span>)
-          (<span style="color: #8b2252;">"WAIT"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CCCCCC"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#666666"</span>)
+          (<span style="color: #8b2252;">"WAIT"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#333333"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#CCCCCC"</span>)
           (<span style="color: #8b2252;">"MAIL"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#CC3300"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#FFEE99"</span>)
           (<span style="color: #8b2252;">"PLAN"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF6600"</span>)
           (<span style="color: #8b2252;">"PLAN2"</span>    <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FFFFFF"</span> <span style="color: #483d8b;">:background</span> <span style="color: #8b2252;">"#FF6600"</span>)
@@ -12402,6 +12412,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           (<span style="color: #8b2252;">"Bug"</span>         <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#FF0000"</span>)
           (<span style="color: #8b2252;">"Report"</span>      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#66CC66"</span>)
           (<span style="color: #8b2252;">"Background"</span>  <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#66CC99"</span>)
+          (<span style="color: #8b2252;">"Meeting"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#66CC99"</span>)
           (<span style="color: #8b2252;">"Chore"</span>       <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6699CC"</span>)
           (<span style="color: #8b2252;">"Remind"</span>      <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6699CC"</span>)
           (<span style="color: #8b2252;">"project"</span>     <span style="color: #483d8b;">:foreground</span> <span style="color: #8b2252;">"#6666CC"</span>)
@@ -14395,11 +14406,11 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
                          <span style="color: #8b2252;">"ox-odt"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ox-odt"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(add-to-list 'org-odt-data-dir
-</span>    <span style="color: #b22222;">;;              </span><span style="color: #b22222;">(concat (getenv "HOME") "/Dropbox/emacs.d/config/"))
+</span>    <span style="color: #b22222;">;;              </span><span style="color: #b22222;">(concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/"))
 </span>    (<span style="color: #a020f0;">setq</span> org-odt-styles-file
-          (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/emacs.d/config/style.odt"</span>))
+          (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr/emacs.d/config/style.odt"</span>))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-odt-content-template-file
-</span>    <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
+</span>    <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/style.ott"))
 </span>    (<span style="color: #a020f0;">setq</span> org-odt-preferred-output-format <span style="color: #8b2252;">"pdf"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">docx
 </span>    <span style="color: #b22222;">;; </span><span style="color: #b22222;">;; ox-odt.el &#12398; &#33258;&#20316;&#12497;&#12483;&#12481;&#12398;&#22793;&#25968;&#65288;DOCSTRING&#12364;&#35352;&#36848;&#12373;&#12428;&#12390;&#12356;&#12394;&#12356;&#65289;
 </span>    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq org-odt-apply-custom-punctuation t)
@@ -14433,7 +14444,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgf5823af"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org377315a"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -14722,7 +14733,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
     (org-hugo-export-wim-to-md)
     (message <span style="color: #8b2252;">"[ox-hugo] \"%s\" has been exported."</span>
              (nth 4 (org-heading-components)))
-    (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/Dropbox/local/scripts/push-hugo.sh"</span>))
+    (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/.local/scripts/push-hugo.sh"</span>))
       (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t)
           (async-start
            `(<span style="color: #a020f0;">lambda</span> () (shell-command-to-string ',command)))
@@ -15432,7 +15443,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org8d72d9f" class="figure">
+<div id="org8364406" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -18319,7 +18330,7 @@ Emacs から OS のアプリケーションを呼び出します． <code>Ivy/Co
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">when</span> (autoload-if-found '(elfeed elfeed-update elfeed-web-start)
                          <span style="color: #8b2252;">"elfeed"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"elfeed"</span>
-    (<span style="color: #a020f0;">setq</span> elfeed-db-directory <span style="color: #8b2252;">"~/Dropbox/emacs.d/elfeed"</span>)
+    (<span style="color: #a020f0;">setq</span> elfeed-db-directory <span style="color: #8b2252;">"~/Dropbox/usr/emacs.d/elfeed"</span>)
     (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">elfeed-org</span> nil t)
       (elfeed-org)
       (<span style="color: #a020f0;">setq</span> rmh-elfeed-org-files (list <span style="color: #8b2252;">"~/Dropbox/org/elfeed.org"</span>)))
@@ -18705,7 +18716,7 @@ Finder で開きたいだけならば， <code>M-!</code> でミニバッファ�
  '(<span style="color: #8b2252;">"~/Dropbox/org/tr/work.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/db/daily.org"</span>
    <span style="color: #8b2252;">"~/Dropbox/org/minutes/wg1.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/tr/work.org"</span>
    <span style="color: #8b2252;">"~/Dropbox/org/academic.org"</span> <span style="color: #8b2252;">"~/Dropbox/org/org2ja.org"</span>
-   <span style="color: #8b2252;">"~/Dropbox/org/db/article.org"</span> <span style="color: #8b2252;">"~/Dropbox/emacs.d/config/init.org"</span>))
+   <span style="color: #8b2252;">"~/Dropbox/org/db/article.org"</span> <span style="color: #8b2252;">"~/Dropbox/usr/emacs.d/config/init.org"</span>))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-open-file-ring</span> ()
@@ -19029,7 +19040,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 If `</span><span style="color: #008b8b;">dropbox</span><span style="color: #8b2252;">' option is provided then the value is uased as a root directory."</span>
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
   (<span style="color: #a020f0;">let</span> ((dir (concat (expand-file-name
-                      (<span style="color: #a020f0;">or</span> dropbox (getenv <span style="color: #8b2252;">"SYNCROOT"</span>)))
+                      (<span style="color: #a020f0;">or</span> dropbox (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr"</span>)))
                      <span style="color: #8b2252;">"/backup/"</span> (system-name))))
     (<span style="color: #a020f0;">if</span> (file-directory-p dir)
         (mapc
@@ -19596,7 +19607,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
            (kill-new
             (shell-command-to-string
              (concat <span style="color: #8b2252;">"cat "</span> buffer-file-name <span style="color: #8b2252;">"| perl "</span>
-                     (expand-file-name <span style="color: #8b2252;">"~/Dropbox/local/scripts/org2dokuwiki.pl"</span>))))
+                     (expand-file-name <span style="color: #8b2252;">"~/.local/scripts/org2dokuwiki.pl"</span>))))
            (minibuffer-message <span style="color: #8b2252;">"Copying %s ... done"</span> buffer-file-name))
           (t (message <span style="color: #8b2252;">"There is NOT such a file."</span>)))))
 </pre>
@@ -19936,7 +19947,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-07-28 月 14:13</p>
+<p class="date">Created: 2025-08-14 木 19:09</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -75,7 +75,7 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 たまに使いたくなるので，起動時に読み込む =init.el= を変えるだけで Spacemacs を読み込めるようにしています．
 
 （Setup手順）
-1. ln -s ~/Dropbox/emacs.d/config/.spacemacs ~/
+1. ln -s ~/Dropbox/usr/emacs.d/config/.spacemacs ~/
 2. git clone https://github.com/syl20bnr/spacemacs ~/.spacemacs.d
 Then load the following at startup
 #+begin_src emacs-lisp :tangle no
@@ -107,7 +107,7 @@ Then load the following at startup
 (when (bound-and-true-p my-profiler-p)
   (profiler-start 'cpu+mem))
 (when (bound-and-true-p my-ad-require-p)
-  (my--safe-load "~/Dropbox/emacs.d/config/init-ad.el"))
+  (my--safe-load "~/Dropbox/usr/emacs.d/config/init-ad.el"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
@@ -383,7 +383,7 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 例えば， =init.el= のコンパイルを次のようにします．
 
 #+begin_src sh
-/Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done ~/Dropbox/emacs.d/config/init.el
+/Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/usr/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done ~/Dropbox/usr/emacs.d/config/init.el
 #+end_src
 
 これなら =init.el= に =eval-when-compile= を書くのと同じに見えますが，そうしてしまうと，バイトコンパイルしない状態の =init.el= を読み込む場合に， =eval-when-compile= の中身が起動のたびにすべて実行されてしまいます．もちろん起動が重くなります．
@@ -601,8 +601,8 @@ This function is called directly from the C code."
    ,(expand-file-name "~/.cask/bin")
    ,(expand-file-name "~/devel/git/tern/bin")
    ,(expand-file-name "~/.go/bin")
-   ,(expand-file-name "~/Dropbox/emacs.d/bin")
-   ,(expand-file-name "~/Dropbox/local/scripts")
+   ,(expand-file-name "~/Dropbox/usr/emacs.d/bin")
+   ,(expand-file-name "~/.local/scripts")
    "/usr/local/opt/llvm/bin"
    "C:/cygwin64/bin" "C:/msys64/usr/bin" "C:/msys64/mingw64/bin"
    "/Applications/UpTex.app/teTeX/bin"
@@ -633,7 +633,7 @@ This function is called directly from the C code."
 
 #+begin_src emacs-lisp :tangle yes
 (when (version< emacs-version "29.0")
-  (my--safe-load "~/Dropbox/emacs.d/config/init-compat.el"))
+  (my--safe-load "~/Dropbox/usr/emacs.d/config/init-compat.el"))
 #+end_src
 
 ** [my-load-package-p] 設定の読み込みフラグを確認する
@@ -1710,7 +1710,7 @@ Cask で新しいパッケージを導入したり，既存のパッケージを
 #!/bin/sh
 
 LOADPATH=$HOME/.emacs.d/lisp
-SOURCEPATH=$HOME/Dropbox/emacs.d
+SOURCEPATH=$HOME/Dropbox/usr/emacs.d
 EVALWCOMPILE="$SOURCEPATH/config/init-eval.el"
 
 while getopts t:hd opt
@@ -1756,8 +1756,8 @@ if [ $HOSTTYPE = "intel-mac" ]; then
         EMACS='/Applications/Emacs.app/Contents/MacOS/Emacs'
     fi
 fi
-# $EMACS -l ~/.emacs --script ~/Dropbox/config/tangle.el
-$EMACS -q --script ~/Dropbox/config/tangle.el
+# $EMACS -l ~/.emacs --script ${HOME}/.local/config/tangle.el
+$EMACS -q --script ${HOME}/.local/config/tangle.el
 
 echo "--- Starting batch-byte-compiles with GNU Emacs ($TARGETV)."
 
@@ -1781,7 +1781,7 @@ if [ ! -f "$LOADPATH/utility-autoloads.el" ]; then
 fi
 
 # raw
-# /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done
+# /Applications/Emacs.app/Contents/MacOS/Emacs -l ~/.emacs -l ~/Dropbox/usr/emacs.d/config/init-eval.el -batch -f batch-byte-compile-if-not-done
 
 # mv $SOURCEPATH/config/init.elc $HOME/.emacs.d
 # mv $SOURCEPATH/config/utility.elc $HOME/.emacs.d
@@ -2124,7 +2124,7 @@ emacs -nw --eval="(setq my-boot-mode 'min)" -l ~/.emacs
 (defun my-private-conf-activate ()
   (cancel-timer my-private-conf-timer)
   ;; (require 'epa)
-  (when (and (file-exists-p "~/Dropbox/config/private.el.gpg")
+  (when (and (file-exists-p "${HOME}/.local/config/private.el.gpg")
              (eq system-type 'darwin)
              (not (featurep 'private)))
     (unless (ignore-errors (require 'private "private.el.gpg" t))
@@ -2193,7 +2193,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 :CUSTOM_ID: org083f6170
 :END:
 #+begin_src emacs-lisp :tangle late-init.el
-(autoload 'mail "~/Dropbox/config/my-mail.el.gpg" nil t)
+(autoload 'mail "${HOME}/.local/config/my-mail.el.gpg" nil t)
 #+end_src
 ** GPGファイルを一定時間後にロックする
 :PROPERTIES:
@@ -2809,7 +2809,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
                            my-bm-next bm-buffer-save bm-buffer-restore
                            bm-buffer-save-all bm-repository-save
                            bm-repository-load counsel-bm)
-       "bm" nil t)
+                         "bm" nil t)
 
   ;; ファイルオープン時にブックマークを復帰
   (keymap-global-set "<f10>" 'my-toggle-bm)
@@ -2838,7 +2838,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
           (expand-file-name
-           (concat (getenv "SYNCROOT") "/emacs.d/.bm-repository")))
+           (concat (getenv "SYNCROOT") "/usr/emacs.d/.bm-repository")))
 
     (unless noninteractive
       (bm-repository-load)
@@ -3856,7 +3856,7 @@ lang en_US
       ;; (setenv "LC_ALL" "en_US") ;; Don't use this line.
       ;; (setq ispell-extra-args '("--lang=en_US"))
       ;; (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
-      (setenv "DICPATH" (concat (getenv "SYNCROOT") "/emacs.d/hunspell/dict-en"))
+      (setenv "DICPATH" (concat (getenv "SYNCROOT") "/usr/emacs.d/hunspell/dict-en"))
       (setq ispell-local-dictionary-alist
             '(("ja_JP" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
                ("-d" "en_US") nil utf-8)
@@ -3872,7 +3872,7 @@ lang en_US
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
       (setq ispell-personal-dictionary
-            (concat (getenv "SYNCROOT") "/emacs.d/hunspell.en.dic")))
+            (concat (getenv "SYNCROOT") "/usr/emacs.d/hunspell.en.dic")))
 
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
@@ -3887,7 +3887,7 @@ lang en_US
             '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
                    ("-d" "en" "--encoding=utf-8") nil utf-8)))
       (setq ispell-personal-dictionary
-            (concat (getenv "SYNCROOT") "/emacs.d/config/aspell.en.pws")))
+            (concat (getenv "SYNCROOT") "/usr/emacs.d/config/aspell.en.pws")))
      (t
       nil))))
 #+end_src
@@ -4183,7 +4183,7 @@ This works also for other defined begin/end tokens to define the structure."
     (add-hook hook #'yas-minor-mode))
   (with-eval-after-load "yasnippet"
     (setq yas-verbosity 2)
-    (setq yas-snippet-dirs `(,(concat (getenv "SYNCROOT") "/emacs.d/yas-dict")))
+    (setq yas-snippet-dirs `(,(concat (getenv "SYNCROOT") "/usr/emacs.d/yas-dict")))
     (unless noninteractive
       (yas-global-mode 1))))
 #+end_src
@@ -4342,10 +4342,11 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
+    (sp-pair "<" ">")
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "$" "$" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "'" "'" :actions '(wrap)) ;; 選択時のみ有効
-    (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
+;;    (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "_" "_" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "~" "~" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "[" "]" :actions '(wrap)) ;; 選択時のみ有効
@@ -7781,6 +7782,8 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
+  "Open FILE with an associated application.
+Configure variable `org-file-apps' to open FILE with Word/Excel/PowerPoint."
   (cond ((string-match "\\.numbers$\\|\\.xlsx$" file)
          (eval `(with-ivy-window (org-open-file ,file))))
         (t
@@ -7870,15 +7873,17 @@ recentf-auto-cleanup を ='mode= などにすると起動時にファイルの�
 
 #+begin_src emacs-lisp :tangle utility.el
 (defvar my-cg-bookmark "c-g-point-last")
+
 ;;;###autoload
 (defun my-cg-bookmark ()
-  (push-mark)
   (when (and buffer-file-name
              (eq major-mode 'org-mode)
              (not (org-before-first-heading-p))
              (> (org-current-level) 1)) ;; レベル1の heading を除外
+    (org-id-get-create)
     (bookmark-set my-cg-bookmark)
-    (save-buffer)))
+    (save-buffer))
+  (push-mark))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -8432,7 +8437,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
   (defvar my-session-save-file
-    (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
+    (expand-file-name (concat (getenv "SYNCROOT") "/usr/emacs.d/.session")))
   (if my-secure-boot
       (message "--- session.el is not loaded for secure booting")
     (unless noninteractive
@@ -8620,7 +8625,7 @@ http://www.emacswiki.org/emacs/EmacsSession
     ;;       (when (string= (buffer-name) keyfreq-buffer)
     ;;         (kill-buffer-and-window))))
     (setq keyfreq-file
-          (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.keyfreq")))
+          (expand-file-name (concat (getenv "SYNCROOT") "/usr/emacs.d/.keyfreq")))
     (keyfreq-autosave-mode 1))
   (unless noninteractive
     (keyfreq-mode 1)))
@@ -8944,7 +8949,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 #+begin_src emacs-lisp :tangle no :exports code
 (when (require 'wakatime-mode nil t)
   (setq wakatime-api-key "<insert your own api key>")
-  (setq wakatime-cli-path "/Users/taka/Dropbox/emacs.d/bin/wakatime-cli.py")
+  (setq wakatime-cli-path "/Users/taka/Dropbox/usr/emacs.d/bin/wakatime-cli.py")
   ;; すべてのバッファで訪問時に記録を開始
   ;; (global-wakatime-mode)
     )
@@ -9005,7 +9010,7 @@ Undoのツリーが表示され，履歴をたどれます． =C-x u= と =q= �
 #+begin_src emacs-lisp :tangle no
 (when (require 'savehist nil t)
   ;; ヒストリファイルを明示的に指定
-  (setq savehist-file "~/Dropbox/emacs.d/.history")
+  (setq savehist-file "~/Dropbox/usr/emacs.d/.history")
   (savehist-mode 1))
 #+end_src
 
@@ -9872,7 +9877,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     ;; 辞書
     (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
     ;; history
-    (setq ac-comphist-file "~/Dropbox/config/ac-comphist.dat")
+    (setq ac-comphist-file "${HOME}/.local/config/ac-comphist.dat")
     ;; n文字以上で補完表示する（"<s <tab>" の場合 yasnippet が呼ばれる）
     (setq ac-auto-start 4)
     ;; n秒後にメニューを表示
@@ -10265,7 +10270,12 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (keymap-set org-mode-map "C-c 4" 'org-mark-ring-goto)
 
   ;; (org-transpose-element) が割り当てられているので取り返す．
-  (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer))
+  (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
+
+  ;; C-c C-o でファイルを開くとき，外部アプリケーションで開く
+  (add-to-list 'org-file-apps '("\\.xlsx\\'" . default))
+  (add-to-list 'org-file-apps '("\\.docx\\'" . default))
+  (add-to-list 'org-file-apps '("\\.pptx\\'" . default)))
 
 (with-eval-after-load "ox"
   (add-to-list 'org-modules 'ox-odt)
@@ -10496,7 +10506,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       ;;  (find-file-noselect outfile)
       ;;  (my-org-replace-punc-in-buffer))))
       (org-hugo-export-wim-to-md)
-      (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
+      (let ((command "/Users/taka/.local/scripts/push-hugo.sh")
             (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
             (exported (format "[ox-hugo] \"%s\" has been exported."
                               (nth 4 (org-heading-components)))))
@@ -10695,7 +10705,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
         (my-org-replace-punc-in-tree)
         (save-buffer)
         (org-hugo-export-wim-to-md)
-        (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh")
+        (let ((command "/Users/taka/.local/scripts/push-hugo.sh")
               (filename (org-entry-get (point) "EXPORT_FILE_NAME"))
               (exported (format "[ox-hugo] \"%s\" has been exported."
                                 (nth 4 (org-heading-components)))))
@@ -10708,9 +10718,9 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
                 (setq command (concat command " -e " (downcase filename)))))
             (message "%s\nUploading..." exported)
             (message "--- %s" command)
-            ;; commad='/Users/taka/Dropbox/local/scripts/push-hugo.sh -e 2023/0301-macmini2018-transfer'
+            ;; commad='/Users/taka/.local/scripts/push-hugo.sh -e 2023/0301-macmini2018-transfer'
             (message "%s" (shell-command-to-string command))
-            ;; (call-process "/Users/taka/Dropbox/local/scripts/push-hugo.sh"
+            ;; (call-process "/Users/taka/.local/scripts/push-hugo.sh"
             ;;               nil
             ;;               "-e"
             ;;               (downcase filename))
@@ -10751,7 +10761,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           ("ICAL"     :foreground "#33CC66")
           ("APPROVED" :foreground "#66CC66")
           ("QUESTION" :foreground "#FF0000")
-          ("WAIT"     :foreground "#CCCCCC" :background "#666666")
+          ("WAIT"     :foreground "#333333" :background "#CCCCCC")
           ("MAIL"     :foreground "#CC3300" :background "#FFEE99")
           ("PLAN"     :foreground "#FF6600")
           ("PLAN2"    :foreground "#FFFFFF" :background "#FF6600")
@@ -10766,6 +10776,7 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
           ("Bug"         :foreground "#FF0000")
           ("Report"      :foreground "#66CC66")
           ("Background"  :foreground "#66CC99")
+          ("Meeting"     :foreground "#66CC99")
           ("Chore"       :foreground "#6699CC")
           ("Remind"      :foreground "#6699CC")
           ("project"     :foreground "#6666CC")
@@ -12629,11 +12640,11 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
                          "ox-odt" nil t)
   (with-eval-after-load "ox-odt"
     ;; (add-to-list 'org-odt-data-dir
-    ;;              (concat (getenv "HOME") "/Dropbox/emacs.d/config/"))
+    ;;              (concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/"))
     (setq org-odt-styles-file
-          (concat (getenv "SYNCROOT") "/emacs.d/config/style.odt"))
+          (concat (getenv "SYNCROOT") "/usr/emacs.d/config/style.odt"))
     ;; (setq org-odt-content-template-file
-    ;;       (concat (getenv "HOME") "/Dropbox/emacs.d/config/style.ott"))
+    ;;       (concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/style.ott"))
     (setq org-odt-preferred-output-format "pdf") ;; docx
     ;; ;; ox-odt.el の 自作パッチの変数（DOCSTRINGが記述されていない）
     ;; (setq org-odt-apply-custom-punctuation t)
@@ -12928,7 +12939,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
     (org-hugo-export-wim-to-md)
     (message "[ox-hugo] \"%s\" has been exported."
              (nth 4 (org-heading-components)))
-    (let ((command "/Users/taka/Dropbox/local/scripts/push-hugo.sh"))
+    (let ((command "/Users/taka/.local/scripts/push-hugo.sh"))
       (if (require 'async nil t)
           (async-start
            `(lambda () (shell-command-to-string ',command)))
@@ -16297,7 +16308,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 (when (autoload-if-found '(elfeed elfeed-update elfeed-web-start)
                          "elfeed" nil t)
   (with-eval-after-load "elfeed"
-    (setq elfeed-db-directory "~/Dropbox/emacs.d/elfeed")
+    (setq elfeed-db-directory "~/Dropbox/usr/emacs.d/elfeed")
     (when (require 'elfeed-org nil t)
       (elfeed-org)
       (setq rmh-elfeed-org-files (list "~/Dropbox/org/elfeed.org")))
@@ -16667,7 +16678,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
  '("~/Dropbox/org/tr/work.org" "~/Dropbox/org/db/daily.org"
    "~/Dropbox/org/minutes/wg1.org" "~/Dropbox/org/tr/work.org"
    "~/Dropbox/org/academic.org" "~/Dropbox/org/org2ja.org"
-   "~/Dropbox/org/db/article.org" "~/Dropbox/emacs.d/config/init.org"))
+   "~/Dropbox/org/db/article.org" "~/Dropbox/usr/emacs.d/config/init.org"))
 
 ;;;###autoload
 (defun my-open-file-ring ()
@@ -16973,7 +16984,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
   (let ((dir (concat (expand-file-name
-                      (or dropbox (getenv "SYNCROOT")))
+                      (or dropbox (concat (getenv "SYNCROOT") "/usr")))
                      "/backup/" (system-name))))
     (if (file-directory-p dir)
         (mapc
@@ -17551,7 +17562,7 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
            (kill-new
             (shell-command-to-string
              (concat "cat " buffer-file-name "| perl "
-                     (expand-file-name "~/Dropbox/local/scripts/org2dokuwiki.pl"))))
+                     (expand-file-name "~/.local/scripts/org2dokuwiki.pl"))))
            (minibuffer-message "Copying %s ... done" buffer-file-name))
           (t (message "There is NOT such a file.")))))
 #+end_src
