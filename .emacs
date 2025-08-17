@@ -12,7 +12,8 @@
 (with-eval-after-load "recentf"
   (defun my-recentf-cleanup-silence ()
     (interactive)
-    (my-print-message `("<recentf> i/m" ,(length recentf-list) "/" ,recentf-max-saved-items))
+    (my-print-message `("<recentf> i/m" ,(length recentf-list)
+			"/" ,recentf-max-saved-items))
     (let ((message-log-max nil))
       (recentf-cleanup))))
 

@@ -1,3 +1,13 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(unless (getenv "LIBRARY_PATH")
+  (setenv "LIBRARY_PATH"
+          (string-join
+           '("/opt/homebrew/opt/gcc/lib/gcc/15"
+             "/opt/homebrew/opt/libgccjit/lib/gcc/15"
+             "/opt/homebrew/opt/gcc/lib/gcc/15/gcc/aarch64-apple-darwin24/15")
+          ":")))
+;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
+
 ;; early-init.el --- My early-init.el -*- lexical-binding: t -*-
 ;; Configurations for Emacs
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>

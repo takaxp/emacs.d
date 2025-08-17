@@ -145,16 +145,15 @@ Then load the following at startup
 
 ~early-init.el~ の読み込み時には， =(display-graphic-p)= と =window-system= が共に =nil= に設定されるので要注意です．
 
-#+begin_src emacs-lisp :tangle no
-;; early-init.el
+#+begin_src emacs-lisp :tangle early-init.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (unless (getenv "LIBRARY_PATH")
-;;   (setenv "LIBRARY_PATH"
-;;           (string-join
-;;            '("/opt/homebrew/opt/gcc/lib/gcc/14"
-;;              "/opt/homebrew/opt/libgccjit/lib/gcc/14"
-;;              "/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin24/14")
-;;            ":")))
+(unless (getenv "LIBRARY_PATH")
+  (setenv "LIBRARY_PATH"
+          (string-join
+           '("/opt/homebrew/opt/gcc/lib/gcc/15"
+             "/opt/homebrew/opt/libgccjit/lib/gcc/15"
+             "/opt/homebrew/opt/gcc/lib/gcc/15/gcc/aarch64-apple-darwin24/15")
+          ":")))
 ;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
 #+end_src
 
