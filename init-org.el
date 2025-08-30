@@ -41,6 +41,10 @@
   ;; org-store-link で heading に自動的に挿入される id を使う
   (setq org-id-link-to-org-use-id t)
 
+  ;; ..org-id-locations の格納先
+  (setq org-id-locations-file
+        (concat (getenv "SYNCROOT") "/usr/emacs.d/.org-id-locations"))
+
   ;; アーカイブファイルの名称を指定
   (setq org-archive-location "%s_archive::")
 

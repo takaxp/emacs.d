@@ -909,9 +909,12 @@ This function returns a timer object which you can use in
 ;;         `(,(icons-in-terminal-material "edit") "%3l")))
 
 ;; Show clock in in the mode line
-(setq display-time-format "%H:%M w%V") ;; %y%m%d. ;; "%H%M.%S"
+(setq display-time-format "w%V %H:%M") ;; %y%m%d. ;; "%H%M.%S"
 (setq display-time-interval 1)
 (setq display-time-default-load-average nil)
+
+(unless noninteractive
+  (display-time-mode 1))
 
 ;; スペース
 (defface my-face-b-1

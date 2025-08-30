@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-08-17 日 15:38 -->
+<!-- 2025-08-30 土 23:12 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -6879,7 +6879,7 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code>displa
 <div class="outline-text-3" id="text-org5117762c">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Show clock in in the mode line
-</span>(<span style="color: #a020f0;">setq</span> display-time-format <span style="color: #8b2252;">"%H:%M w%V"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">%y%m%d. ;; "%H%M.%S"
+</span>(<span style="color: #a020f0;">setq</span> display-time-format <span style="color: #8b2252;">"w%V %H:%M"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">%y%m%d. ;; "%H%M.%S"
 </span>(<span style="color: #a020f0;">setq</span> display-time-interval 1)
 (<span style="color: #a020f0;">setq</span> display-time-default-load-average nil)
 </pre>
@@ -11827,6 +11827,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-store-link &#12391; heading &#12395;&#33258;&#21205;&#30340;&#12395;&#25407;&#20837;&#12373;&#12428;&#12427; id &#12434;&#20351;&#12358;
 </span>  (<span style="color: #a020f0;">setq</span> org-id-link-to-org-use-id t)
 
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">..org-id-locations &#12398;&#26684;&#32013;&#20808;
+</span>  (<span style="color: #a020f0;">setq</span> org-id-locations-file
+        (concat (getenv <span style="color: #8b2252;">"SYNCROOT"</span>) <span style="color: #8b2252;">"/usr/emacs.d/.org-id-locations"</span>))
+
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12450;&#12540;&#12459;&#12452;&#12502;&#12501;&#12449;&#12452;&#12523;&#12398;&#21517;&#31216;&#12434;&#25351;&#23450;
 </span>  (<span style="color: #a020f0;">setq</span> org-archive-location <span style="color: #8b2252;">"%s_archive::"</span>)
 
@@ -14443,7 +14447,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org24d8b09"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org7848d4b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15442,7 +15446,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org5024293" class="figure">
+<div id="orgbbca53c" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19946,7 +19950,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-08-17 日 15:38</p>
+<p class="date">Created: 2025-08-30 土 23:12</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
