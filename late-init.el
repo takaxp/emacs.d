@@ -229,6 +229,13 @@ This function returns a timer object which you can use in
 
 (autoload 'mail "${HOME}/.local/config/my-mail.el.gpg" nil t)
 
+;;;###autoload
+(defun my-sleep-macos ()
+  "Sleep macOS."
+  (interactive)
+  (when (eq system-type 'darwin)
+    (shell-command "pmset sleepnow")))
+
 (when (memq window-system '(ns nil))
 
   (custom-set-faces

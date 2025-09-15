@@ -2238,6 +2238,21 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
     (cancel-timer my-secret-close-timer)))
 #+end_src
 
+** macOSをスリープする                                                :macOS:
+:PROPERTIES:
+:CUSTOM_ID: org7679eba6
+:ID:       267729B5-321F-4147-B8ED-72B8606A4C4D
+:END:
+
+#+begin_src emacs-lisp :tangle late-init.el
+;;;###autoload
+(defun my-sleep-macos ()
+  "Sleep macOS."
+  (interactive)
+  (when (eq system-type 'darwin)
+    (shell-command "pmset sleepnow")))
+#+end_src
+
 ** NSビルド用設定                                                     :macOS:
    :PROPERTIES:
    :CUSTOM_ID: orge44eded5

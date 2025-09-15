@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-08-30 土 23:12 -->
+<!-- 2025-09-15 月 13:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -294,8 +294,9 @@
 <li><a href="#orgedc5d7af">3.24. [epa.el] GPGファイルの保存時のメッセージを停止する</a></li>
 <li><a href="#org083f6170">3.25. メール設定の読み込み</a></li>
 <li><a href="#org6ff409ba">3.26. GPGファイルを一定時間後にロックする</a></li>
-<li><a href="#orge44eded5">3.27. NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
-<li><a href="#org53a63301">3.28. EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
+<li><a href="#org7679eba6">3.27. macOSをスリープする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
+<li><a href="#orge44eded5">3.28. NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
+<li><a href="#org53a63301">3.29. EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org35f3bbc9">4. カーソル移動</a>
@@ -3189,8 +3190,22 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 </div>
 </div>
+<div id="outline-container-org7679eba6" class="outline-3">
+<h3 id="org7679eba6"><span class="section-number-3">3.27.</span> macOSをスリープする&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
+<div class="outline-text-3" id="text-org7679eba6">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-sleep-macos</span> ()
+  <span style="color: #8b2252;">"Sleep macOS."</span>
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
+    (shell-command <span style="color: #8b2252;">"pmset sleepnow"</span>)))
+</pre>
+</div>
+</div>
+</div>
 <div id="outline-container-orge44eded5" class="outline-3">
-<h3 id="orge44eded5"><span class="section-number-3">3.27.</span> NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
+<h3 id="orge44eded5"><span class="section-number-3">3.28.</span> NSビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-orge44eded5">
 <p>
 インラインパッチの適用が前提の設定です． <code>M-SPC/S-SPC</code> で日本語IMEのON/OFFができるようになります．インラインパッチの情報はリンク先にあります．
@@ -3302,7 +3317,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 </div>
 </div>
 <div id="outline-container-org53a63301" class="outline-3">
-<h3 id="org53a63301"><span class="section-number-3">3.28.</span> EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
+<h3 id="org53a63301"><span class="section-number-3">3.29.</span> EMPビルド用設定&#xa0;&#xa0;&#xa0;<span class="tag"><span class="macOS">macOS</span></span></h3>
 <div class="outline-text-3" id="text-org53a63301">
 <p>
 NSビルド版で生じた日本語入力時のチラつきを避けるために，EMP版ビルドに(一時期)浮気しました．以下はその時にNSビルドの振る舞いに近づけるためにがんばった設定です．詳細な情報は，リンク先の記事にあります．
@@ -14447,7 +14462,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org7848d4b"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org1260fc2"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15446,7 +15461,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="orgbbca53c" class="figure">
+<div id="orgb3f030f" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -19950,7 +19965,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-08-30 土 23:12</p>
+<p class="date">Created: 2025-09-15 月 13:57</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
