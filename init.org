@@ -1,4 +1,3 @@
-# 
 #+title:    Configurations for GNU Emacs
 #+author:   Takaaki Ishikawa
 #+email:    takaxp@ieee.org
@@ -12780,7 +12779,11 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
   ;; (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
 
   (autoload 'org-mac-link-get-link "org-mac-link" nil t)
-  (keymap-set org-mode-map "C-c c" 'org-mac-link-get-link)
+  (defun my-disable-org-mac-link-get-link ()
+    (interactive)
+    (message "As of 2025-10-18, `org-mac-link-get-link' is not working on Tahoe"))
+  ;; (keymap-set org-mode-map "C-c c" 'org-mac-link-get-link)
+  (keymap-set org-mode-map "C-c c" 'my-disable-org-mac-link-get-link)
   (with-eval-after-load "org-mac-link"
     (require 'org-mac-iCal nil t)))
 #+end_src

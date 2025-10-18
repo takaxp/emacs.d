@@ -5,6 +5,8 @@
 ;;								TODO/DONE/FIXME
 
 (with-eval-after-load "org"
+  (keymap-set org-mode-map "C-c c" 'ignore)
+
   ;; (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)
   )
