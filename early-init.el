@@ -1,3 +1,6 @@
+;; early-init.el --- My early-init.el -*- lexical-binding: t -*-
+;; Configurations for Emacs
+;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (unless (getenv "LIBRARY_PATH")
   (setenv "LIBRARY_PATH"
@@ -8,9 +11,6 @@
           ":")))
 ;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
 
-;; early-init.el --- My early-init.el -*- lexical-binding: t -*-
-;; Configurations for Emacs
-;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 (unless noninteractive
   (defvar my-early-start (current-time))
   (defvar my-early-init

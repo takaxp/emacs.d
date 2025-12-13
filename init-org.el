@@ -611,7 +611,7 @@ This user property stores the creation date of the entry")
   (setq org-agenda-span 'day)
 
   ;; アジェンダに警告を表示する期間
-  (setq org-deadline-warning-days 2)
+  (setq org-deadline-warning-days 8)
 
   ;; 時間幅が明示的に指定されない場合のデフォルト値（分指定）
   (setq org-agenda-default-appointment-duration 60)
@@ -990,7 +990,11 @@ This user property stores the creation date of the entry")
   ;; (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
 
   (autoload 'org-mac-link-get-link "org-mac-link" nil t)
-  (keymap-set org-mode-map "C-c c" 'org-mac-link-get-link)
+  (defun my-disable-org-mac-link-get-link ()
+    (interactive)
+    (message "As of 2025-10-18, `org-mac-link-get-link' is not working on Tahoe"))
+  ;; (keymap-set org-mode-map "C-c c" 'org-mac-link-get-link)
+  (keymap-set org-mode-map "C-c c" 'my-disable-org-mac-link-get-link)
   (with-eval-after-load "org-mac-link"
     (require 'org-mac-iCal nil t)))
 

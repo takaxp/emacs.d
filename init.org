@@ -146,6 +146,9 @@ Then load the following at startup
 ~early-init.el~ の読み込み時には， =(display-graphic-p)= と =window-system= が共に =nil= に設定されるので要注意です．
 
 #+begin_src emacs-lisp :tangle early-init.el
+;; early-init.el --- My early-init.el -*- lexical-binding: t -*-
+;; Configurations for Emacs
+;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (unless (getenv "LIBRARY_PATH")
   (setenv "LIBRARY_PATH"
@@ -158,9 +161,6 @@ Then load the following at startup
 #+end_src
 
 #+begin_src emacs-lisp :tangle early-init.el
-;; early-init.el --- My early-init.el -*- lexical-binding: t -*-
-;; Configurations for Emacs
-;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 (unless noninteractive
   (defvar my-early-start (current-time))
   (defvar my-early-init
@@ -11698,7 +11698,7 @@ This user property stores the creation date of the entry")
   (setq org-agenda-span 'day)
 
   ;; アジェンダに警告を表示する期間
-  (setq org-deadline-warning-days 2)
+  (setq org-deadline-warning-days 8)
 
   ;; 時間幅が明示的に指定されない場合のデフォルト値（分指定）
   (setq org-agenda-default-appointment-duration 60)

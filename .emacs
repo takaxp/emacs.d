@@ -7,6 +7,16 @@
 (with-eval-after-load "org"
   (keymap-set org-mode-map "C-c c" 'ignore)
 
+  ;; org-agenda	に表示される deadline の配色
+  ;; org-deadline-warning-days =8 の時，{1.0, 0.75, 0.0}ならば，
+  ;; In 1-2 day が紫で，In 3-8 day が白
+  ;;
+  (setq org-agenda-deadline-faces
+	'((1.0 . org-imminent-deadline) ;; '((t :inherit org-warning))
+	  (0.75 . org-upcoming-deadline) ;; (:foreground "red")
+	  (0.0 . org-upcoming-distant-deadline))) ;; '((t :inherit org-default))
+
+
   ;; (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)
   )
