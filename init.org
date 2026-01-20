@@ -6541,10 +6541,10 @@ Obeys `widen-automatically', which see."
                         (all-the-icons-material "playlist_add_check"))
                        (t ""))))
         ;; ((eq system-type 'windows-nt)
-        ;;	(format "%s%s "
-        ;;					(if my-toggle-modeline-global "" ;; FIXME
-        ;;						(concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-        ;;					">>"))
+        ;;  (format "%s%s "
+        ;;       (if my-toggle-modeline-global "" ;; FIXME
+        ;;         (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+        ;;       ">>"))
         (t
          (format "%s\n" (make-string (1- (frame-width)) ?\x2D)))))
 #+end_src
@@ -10087,7 +10087,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (org-table-export nil "orgtbl-to-csv"))
 
 ;;;###autoload
-(defun my-do-org-update-staistics-cookies ()
+(defun my-do-org-update-statistics-cookies ()
   "Update cookies for all checkboxes in an org buffer."
   (interactive)
   (message "Update statistics...")
@@ -10282,7 +10282,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   ;; プロパティ等を自動的閉じる．
   (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
-  (keymap-set org-mode-map "C-c f 2" 'my-do-org-update-staistics-cookies)
+  (keymap-set org-mode-map "C-c f 2" 'my-do-org-update-statistics-cookies)
 
   ;; C-c & が yasnippet にオーバーライドされているのを張り替える
   (keymap-set org-mode-map "C-c 4" 'org-mark-ring-goto)
@@ -15071,11 +15071,12 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
    :ID:       A7716C15-F465-4442-86DF-EFB0320F0248
    :END:
 
- - [[https://github.com/tarsius/hl-todo][hl-todo]] を導入すれば簡単にできます．
+- [[https://github.com/tarsius/hl-todo][hl-todo]] を導入すれば簡単にできます．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-hl-todo-activate ()
+  (setq hl-todo-keyword-delimiters 'word)
   (global-hl-todo-mode) ;; FIXME
   (remove-hook 'find-file-hook #'my-hl-todo-activate))
 
@@ -15089,50 +15090,50 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 (defun my-hl-todo-light-theme ()
   (setq hl-todo-exclude-modes nil) ;; also apply to a case when org-mode
   (setq hl-todo-keyword-faces
-  '(("TODO" . "red1")
-    ("DONE" . "ForestGreen")
-    ("HOLD" . "#d0bf8f")
-    ("NEXT" . "#dca3a3")
-    ("THEM" . "#dc8cc3")
-    ("PROG" . "#7cb8bb")
-    ("OKAY" . "#7cb8bb")
-    ("DONT" . "#5f7f5f")
-    ("FAIL" . "#8c5353")
-    ("DONE" . "SeaGreen")
-    ("NOTE"   . "#d0bf8f")
-    ("KLUDGE" . "#d0bf8f")
-    ("HACK"   . "#d0bf8f")
-    ("TEMP"   . "#d0bf8f")
-    ("FIXME"  . "#3030FF")
-    ("XXX+"   . "#cc9393")
-    ("\\?\\?\\?+" . "#cc9393")
-    ("" . "orange")
-    ("" . "red")
-    ("" . "Seagreen3")))
+        '(("TODO" . "red1")
+          ("DONE" . "ForestGreen")
+          ("HOLD" . "#d0bf8f")
+          ("NEXT" . "#dca3a3")
+          ("THEM" . "#dc8cc3")
+          ("PROG" . "#7cb8bb")
+          ("OKAY" . "#7cb8bb")
+          ("DONT" . "#5f7f5f")
+          ("FAIL" . "#8c5353")
+          ("DONE" . "SeaGreen")
+          ("NOTE"   . "#d0bf8f")
+          ("KLUDGE" . "#d0bf8f")
+          ("HACK"   . "#d0bf8f")
+          ("TEMP"   . "#d0bf8f")
+          ("FIXME"  . "#3030FF")
+          ("XXX+"   . "#cc9393")
+          ("\\?\\?\\?+" . "#cc9393")
+          ("" . "orange")
+          ("" . "red")
+          ("" . "Seagreen3")))
   (my-hl-todo-reload))
 
 ;;;###autoload
 (defun my-hl-todo-dark-theme ()
   (setq hl-todo-keyword-faces
-  '(("TODO" . "red1")
-    ("DONE" . "ForestGreen")
-    ("HOLD" . "#d0bf8f")
-    ("NEXT" . "#dca3a3")
-    ("THEM" . "#dc8cc3")
-    ("PROG" . "#7cb8bb")
-    ("OKAY" . "#7cb8bb")
-    ("DONT" . "#5f7f5f")
-    ("FAIL" . "#8c5353")
-    ("NOTE"   . "#d0bf8f")
-    ("KLUDGE" . "#d0bf8f")
-    ("HACK"   . "#d0bf8f")
-    ("TEMP"   . "#d0bf8f")
-    ("FIXME"  . "DodgerBlue1")
-    ("XXX+"   . "#cc9393")
-    ("\\?\\?\\?+" . "#cc9393")
-    ("" . "orange")
-    ("" . "red")
-    ("" . "Seagreen3")))
+        '(("TODO" . "red1")
+          ("DONE" . "ForestGreen")
+          ("HOLD" . "#d0bf8f")
+          ("NEXT" . "#dca3a3")
+          ("THEM" . "#dc8cc3")
+          ("PROG" . "#7cb8bb")
+          ("OKAY" . "#7cb8bb")
+          ("DONT" . "#5f7f5f")
+          ("FAIL" . "#8c5353")
+          ("NOTE"   . "#d0bf8f")
+          ("KLUDGE" . "#d0bf8f")
+          ("HACK"   . "#d0bf8f")
+          ("TEMP"   . "#d0bf8f")
+          ("FIXME"  . "DodgerBlue1")
+          ("XXX+"   . "#cc9393")
+          ("\\?\\?\\?+" . "#cc9393")
+          ("" . "orange")
+          ("" . "red")
+          ("" . "Seagreen3")))
   (my-hl-todo-reload))
 #+end_src
 

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-12-13 土 15:38 -->
+<!-- 2026-01-21 水 00:41 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -8000,10 +8000,10 @@ Obeys `</span><span style="color: #008b8b;">widen-automatically</span><span styl
                         (all-the-icons-material <span style="color: #8b2252;">"playlist_add_check"</span>))
                        (t <span style="color: #8b2252;">""</span>))))
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">((eq system-type 'windows-nt)
-</span>        <span style="color: #b22222;">;;</span><span style="color: #b22222;">      (format "%s%s "
-</span>        <span style="color: #b22222;">;;</span><span style="color: #b22222;">                                      (if my-toggle-modeline-global "" ;; FIXME
-</span>        <span style="color: #b22222;">;;</span><span style="color: #b22222;">                                              (concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
-</span>        <span style="color: #b22222;">;;</span><span style="color: #b22222;">                                      "&gt;&gt;"))
+</span>        <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(format "%s%s "
+</span>        <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(if my-toggle-modeline-global "" ;; FIXME
+</span>        <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(concat (make-string (frame-width) ?\x5F) "\n")) ;; "__"
+</span>        <span style="color: #b22222;">;;       </span><span style="color: #b22222;">"&gt;&gt;"))
 </span>        (t
          (format <span style="color: #8b2252;">"%s\n"</span> (make-string (1- (frame-width)) ?\x2D)))))
 </pre>
@@ -11755,7 +11755,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   (org-table-export nil <span style="color: #8b2252;">"orgtbl-to-csv"</span>))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-do-org-update-staistics-cookies</span> ()
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-do-org-update-statistics-cookies</span> ()
   <span style="color: #8b2252;">"Update cookies for all checkboxes in an org buffer."</span>
   (<span style="color: #a020f0;">interactive</span>)
   (message <span style="color: #8b2252;">"Update statistics..."</span>)
@@ -11951,7 +11951,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12503;&#12525;&#12497;&#12486;&#12451;&#31561;&#12434;&#33258;&#21205;&#30340;&#38281;&#12376;&#12427;&#65294;
 </span>  (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
-  (keymap-set org-mode-map <span style="color: #8b2252;">"C-c f 2"</span> 'my-do-org-update-staistics-cookies)
+  (keymap-set org-mode-map <span style="color: #8b2252;">"C-c f 2"</span> 'my-do-org-update-statistics-cookies)
 
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">C-c &amp; &#12364; yasnippet &#12395;&#12458;&#12540;&#12496;&#12540;&#12521;&#12452;&#12489;&#12373;&#12428;&#12390;&#12356;&#12427;&#12398;&#12434;&#24373;&#12426;&#26367;&#12360;&#12427;
 </span>  (keymap-set org-mode-map <span style="color: #8b2252;">"C-c 4"</span> 'org-mark-ring-goto)
@@ -14462,7 +14462,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgb57ec57"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org8cbfdc0"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15465,7 +15465,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org9e8d790" class="figure">
+<div id="org7aaabc0" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -17028,6 +17028,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-activate</span> ()
+  (<span style="color: #a020f0;">setq</span> hl-todo-keyword-delimiters 'word)
   (global-hl-todo-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME
 </span>  (remove-hook 'find-file-hook #'my-hl-todo-activate))
 
@@ -17041,50 +17042,50 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-light-theme</span> ()
   (<span style="color: #a020f0;">setq</span> hl-todo-exclude-modes nil) <span style="color: #b22222;">;; </span><span style="color: #b22222;">also apply to a case when org-mode
 </span>  (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-  '((<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"red1"</span>)
-    (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"ForestGreen"</span>)
-    (<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
-    (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
-    (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-    (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-    (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
-    (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
-    (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"SeaGreen"</span>)
-    (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"#3030FF"</span>)
-    (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
-    (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-    (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
-    (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
-    (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
+        '((<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"red1"</span>)
+          (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"ForestGreen"</span>)
+          (<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
+          (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
+          (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+          (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+          (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
+          (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
+          (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"SeaGreen"</span>)
+          (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"#3030FF"</span>)
+          (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
+          (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+          (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
+          (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
+          (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
   (my-hl-todo-reload))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-hl-todo-dark-theme</span> ()
   (<span style="color: #a020f0;">setq</span> hl-todo-keyword-faces
-  '((<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"red1"</span>)
-    (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"ForestGreen"</span>)
-    (<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
-    (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
-    (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-    (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
-    (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
-    (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
-    (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
-    (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"DodgerBlue1"</span>)
-    (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
-    (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
-    (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
-    (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
-    (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
+        '((<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"red1"</span>)
+          (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"ForestGreen"</span>)
+          (<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
+          (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
+          (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+          (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
+          (<span style="color: #8b2252;">"DONT"</span> . <span style="color: #8b2252;">"#5f7f5f"</span>)
+          (<span style="color: #8b2252;">"FAIL"</span> . <span style="color: #8b2252;">"#8c5353"</span>)
+          (<span style="color: #8b2252;">"NOTE"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"KLUDGE"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"HACK"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"TEMP"</span>   . <span style="color: #8b2252;">"#d0bf8f"</span>)
+          (<span style="color: #8b2252;">"FIXME"</span>  . <span style="color: #8b2252;">"DodgerBlue1"</span>)
+          (<span style="color: #8b2252;">"XXX+"</span>   . <span style="color: #8b2252;">"#cc9393"</span>)
+          (<span style="color: #8b2252;">"\\?\\?\\?+"</span> . <span style="color: #8b2252;">"#cc9393"</span>)
+          (<span style="color: #8b2252;">"<i class="far fa-hand-point-right"></i>"</span> . <span style="color: #8b2252;">"orange"</span>)
+          (<span style="color: #8b2252;">"&#61576;"</span> . <span style="color: #8b2252;">"red"</span>)
+          (<span style="color: #8b2252;">"&#61575;"</span> . <span style="color: #8b2252;">"Seagreen3"</span>)))
   (my-hl-todo-reload))
 </pre>
 </div>
@@ -19969,7 +19970,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2025-12-13 土 15:38</p>
+<p class="date">Created: 2026-01-21 水 00:41</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

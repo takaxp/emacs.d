@@ -2,7 +2,7 @@
 ;;					    Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;					    https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;								TODO/DONE/FIXME
+;;                                                             TODO/DONE/FIXME
 
 (with-eval-after-load "org"
   (keymap-set org-mode-map "C-c c" 'ignore)
@@ -19,6 +19,16 @@
 
   ;; (advice-add 'org-assert-version :override #'ignore)
   ;; (require 'org-phscroll nil t)
+
+  ;; M-x my-toggle-org-pin-subtree
+  (defun my-revisit-current-file ()
+    ;; プロパティにフラグ設定がある場合に常にコンテンツ表示する
+    (interactive)
+    (let ((cb buffer-file-name))
+      (kill-buffer (current-buffer))
+      ;; (sleep-for 1)
+      (find-file cb)))
+
   )
 
 (with-eval-after-load "recentf"
