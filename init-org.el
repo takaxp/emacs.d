@@ -150,7 +150,7 @@
   ;; プロパティ等を自動的閉じる．
   (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
-  (keymap-set org-mode-map "C-c f 2" 'my-do-org-update-staistics-cookies)
+  (keymap-set org-mode-map "C-c f 2" 'my-do-org-update-statistics-cookies)
 
   ;; C-c & が yasnippet にオーバーライドされているのを張り替える
   (keymap-set org-mode-map "C-c 4" 'org-mark-ring-goto)

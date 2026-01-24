@@ -1560,7 +1560,7 @@ Otherwise, use `counsel-ag'."
   (org-table-export nil "orgtbl-to-csv"))
 
 ;;;###autoload
-(defun my-do-org-update-staistics-cookies ()
+(defun my-do-org-update-statistics-cookies ()
   "Update cookies for all checkboxes in an org buffer."
   (interactive)
   (message "Update statistics...")

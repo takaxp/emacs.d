@@ -7,6 +7,35 @@
 (with-eval-after-load "org"
   (keymap-set org-mode-map "C-c c" 'ignore)
 
+  (defun my-org-reset-state-buffer ()
+    (interactive)
+    (if (not (y-or-n-p (message "[!] All org-id in this buffer will be changed. Sure?[y/n]")))
+	(message "--- terminated")
+      (beginning-of-buffer)
+      (org-map-entries
+       (lambda ()
+	 (when (org-entry-is-done-p) (org-todo "TODO"))
+	 (org-id-get-create t)
+	 (org-reset-checkbox-state-subtree))
+       nil nil 'archive 'comment)
+      (org-update-statistics-cookies 'all)
+      (org-cycle-content 2)
+      (message "--- status is reset.")))
+
+  (defun my-org-reset-state-subturee ()
+    (interactive)
+    (if (org-before-first-heading-p)
+	(my-org-reset-state-buffer)
+      (org-map-entries
+       (lambda () (when (org-entry-is-done-p) (org-todo "TODO")))
+       nil 'tree 'archive 'comment)
+      (org-reset-checkbox-state-subtree)
+      (org-update-statistics-cookies nil)
+      (org-fold-hide-subtree)
+      (org-fold-show-children)
+      (message "--- status is reset.")))
+
+
   ;; org-agenda	に表示される deadline の配色
   ;; org-deadline-warning-days =8 の時，{1.0, 0.75, 0.0}ならば，
   ;; In 1-2 day が紫で，In 3-8 day が白
