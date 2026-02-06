@@ -4,8 +4,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                             TODO/DONE/FIXME
 
+(defun mac-toggle-input-method (&optional arg)
+  "Function to toggle input method on macOS."
+  (if arg
+      (progn
+        ;; (make-local-variable 'input-method-function)
+        (make-variable-buffer-local 'input-method-function)
+        (setq deactivate-current-input-method-function 'mac-toggle-input-method)
+        (setq input-method-function nil)
+        (setq describe-current-input-method-function nil)
+        (mac-toggle-input-source t))
+    (kill-local-variable 'input-method-function)
+    (setq describe-current-input-method-function nil)
+    (mac-toggle-input-source nil)))
+
+
 (with-eval-after-load "org"
-  (keymap-set org-mode-map "C-c c" 'ignore)
+  ;; (keymap-set org-mode-map "C-c c" 'ignore)
 
   (defun my-org-reset-state-buffer ()
     (interactive)
@@ -37,7 +52,7 @@
 
 
   ;; org-agenda	に表示される deadline の配色
-  ;; org-deadline-warning-days =8 の時，{1.0, 0.75, 0.0}ならば，
+  ;; org-deadline-warning-days =8 の時で，第一変数が {1.0, 0.75, 0.0}ならば，
   ;; In 1-2 day が紫で，In 3-8 day が白
   ;;
   (setq org-agenda-deadline-faces

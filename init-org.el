@@ -343,6 +343,7 @@
           ("Template"    :foreground "#66CC66")
           ("Repeat"      :foreground "#CC9999") ; for interval tasks
           ("Mag"         :foreground "#9966CC")
+          ("pin"         :foreground "#FF0000")
           ("buy"         :foreground "#9966CC")
           ("pay"         :foreground "#CC6699")
           ("try"         :foreground "#FF3366")
