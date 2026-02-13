@@ -15,153 +15,153 @@
 (keymap-global-set "C-c l" 'org-store-link)
 (keymap-global-set "C-c a" 'org-agenda)
 
-(with-eval-after-load "org"
-  (defvar my-org-modules org-modules) ;; Tricky!!
-  ;; (setq org-modules-loaded t) ;; not a good way
-  (setq org-modules nil)
-  (unless noninteractive
-    (run-with-idle-timer (+ 8 my-default-loading-delay)
-                         nil #'my-org-modules-activate)) ;; will take 350[ms]
+(defvar my-org-modules org-modules) ;; Tricky!!
+;; (setq org-modules-loaded t) ;; not a good way
+(setq org-modules nil)
+(unless noninteractive
+  (run-with-idle-timer (+ 8 my-default-loading-delay)
+                       nil #'my-org-modules-activate)) ;; will take 350[ms]
 
-  ;; タイトルを少し強調
-  (custom-set-faces
-   '(org-document-title ((t (:foreground "RoyalBlue1" :bold t :height 1.2))))
-   '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
+;; タイトルを少し強調
+(custom-set-faces
+ '(org-document-title ((t (:foreground "RoyalBlue1" :bold t :height 1.2))))
+ '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
 
-  ;; 関連モジュールの読み込み
-  (autoload 'org-eldoc-load "org-eldoc" nil t)
-  
-  ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
-  ;; (advice-add 'org-eldoc-load :override #'my--org-eldoc-load)
-  (add-hook 'org-mode-hook #'org-eldoc-load)
+;; 関連モジュールの読み込み
+(autoload 'org-eldoc-load "org-eldoc" nil t)
 
-  ;; org ファイルの集中管理
-  (setq org-directory (concat (getenv "SYNCROOT") "/org/"))
+;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
+;; (advice-add 'org-eldoc-load :override #'my--org-eldoc-load)
+(add-hook 'org-mode-hook #'org-eldoc-load)
 
-  ;; org-store-link で heading に自動的に挿入される id を使う
-  (setq org-id-link-to-org-use-id t)
+;; org ファイルの集中管理
+(setq org-directory (concat (getenv "SYNCROOT") "/org/"))
 
-  ;; ..org-id-locations の格納先
-  (setq org-id-locations-file
-        (concat (getenv "SYNCROOT") "/usr/emacs.d/.org-id-locations"))
+;; org-store-link で heading に自動的に挿入される id を使う
+(setq org-id-link-to-org-use-id t)
 
-  ;; アーカイブファイルの名称を指定
-  (setq org-archive-location "%s_archive::")
+;; ..org-id-locations の格納先
+(setq org-id-locations-file
+      (concat (getenv "SYNCROOT") "/usr/emacs.d/.org-id-locations"))
 
-  ;; タイムスタンプによるログ収集設定 DONE 時に CLOSED: を記入．
-  (setq org-log-done 'time) ; 'time 以外に，'(done), '(state) を指定できる
+;; アーカイブファイルの名称を指定
+(setq org-archive-location "%s_archive::")
 
-  ;; ログをドロアーに入れる
-  (setq org-log-into-drawer t)
+;; タイムスタンプによるログ収集設定 DONE 時に CLOSED: を記入．
+(setq org-log-done 'time) ; 'time 以外に，'(done), '(state) を指定できる
 
-  ;; タスク繰り返し時にログを残さない
-  (setq org-log-repeat nil)
+;; ログをドロアーに入れる
+(setq org-log-into-drawer t)
 
-  ;; タスク繰り返し時にログを残さないが，LAST_REPEAT は記録する．
-  (advice-add 'org-todo :after #'my--org-last-repeat)
+;; タスク繰り返し時にログを残さない
+(setq org-log-repeat nil)
 
-  ;; indent を electric-indent-mode の振る舞いに合わせる
-  ;; (setq org-adapt-indentation t) ;; t の場合，ドロアがインデントされる．
+;; タスク繰り返し時にログを残さないが，LAST_REPEAT は記録する．
+(advice-add 'org-todo :after #'my--org-last-repeat)
 
-  ;; Set checksum program path for windows
-  (when (eq window-system 'w32)
-    (setq org-mobile-checksum-binary (concat (getenv "SYNCROOT") "/do/cksum.exe")))
+;; indent を electric-indent-mode の振る舞いに合わせる
+;; (setq org-adapt-indentation t) ;; t の場合，ドロアがインデントされる．
 
-  ;; Set default table export format
-  (setq org-table-export-default-format "orgtbl-to-csv")
+;; Set checksum program path for windows
+(when (eq window-system 'w32)
+  (setq org-mobile-checksum-binary (concat (getenv "SYNCROOT") "/do/cksum.exe")))
 
-  ;; Toggle inline images display at startup
-  (setq org-startup-with-inline-images t)
+;; Set default table export format
+(setq org-table-export-default-format "orgtbl-to-csv")
 
-  ;; dvipng
-  (setq org-export-with-LaTeX-fragments t)
+;; Toggle inline images display at startup
+(setq org-startup-with-inline-images t)
 
-  ;; 数式をハイライト
-  (setq org-highlight-latex-and-related '(latex entities))
+;; dvipng
+(setq org-export-with-LaTeX-fragments t)
 
-  ;; orgバッファ内の全ての動的ブロックを保存直前に変更する
-  ;; (add-hook 'before-save-hook #'org-update-all-dblocks)
+;; 数式をハイライト
+(setq org-highlight-latex-and-related '(latex entities))
 
-  ;; アンダースコアをエクスポートしない（_{}で明示的に表現できる）
-  (setq org-export-with-sub-superscripts nil)
+;; orgバッファ内の全ての動的ブロックを保存直前に変更する
+;; (add-hook 'before-save-hook #'org-update-all-dblocks)
 
-  ;; #+options: \n:t と同じ
-  (setq org-export-preserve-breaks t)
+;; アンダースコアをエクスポートしない（_{}で明示的に表現できる）
+(setq org-export-with-sub-superscripts nil)
 
-  ;; タイマーの音
-  ;; (lsetq org-clock-sound "");
+;; #+options: \n:t と同じ
+(setq org-export-preserve-breaks t)
 
-  ;; org-clock の計測時間をモードラインではなくタイトルに表示する
-  (setq org-clock-clocked-in-display 'frame-title)
+;; タイマーの音
+;; (lsetq org-clock-sound "");
 
-  ;; 1分未満は記録しない
-  (setq org-clock-out-remove-zero-time-clocks t)
+;; org-clock の計測時間をモードラインではなくタイトルに表示する
+(setq org-clock-clocked-in-display 'frame-title)
 
-  ;; 再起動後に clock を復帰させる（clock-out で抜けない限り終了中の期間も計上されてしまう）
-  ;; check also org-clock-persist in org-clock.el
-  (org-clock-persistence-insinuate)
+;; 1分未満は記録しない
+(setq org-clock-out-remove-zero-time-clocks t)
 
-  ;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
-  ;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
+;; 再起動後に clock を復帰させる（clock-out で抜けない限り終了中の期間も計上されてしまう）
+;; check also org-clock-persist in org-clock.el
+(org-clock-persistence-insinuate)
 
-  ;; undo 時に reveal して表示を改善する
-  ;; (defun my--org:undo (&optional _ARG)
-  ;;   (when (and (eq major-mode 'org-mode)
-  ;;              (not (org-before-first-heading-p)))
-  ;;     (org-overview)
-  ;;     (org-reveal)
-  ;;     (org-cycle-hide-drawers 'all)
-  ;;     (org-show-entry)
-  ;;     (show-children)
-  ;;     (org-show-siblings)))
-  ;; (advice-add 'undo :after #'my--org:undo)
+;; org-clock-out 時にステータスを変える（also configure org-todo-keywords）
+;; (setq org-clock-out-switch-to-state #'my-promote-todo-revision)
 
-  ;; 非表示状態の領域への書き込みを防ぐ
-  ;; "Editing in invisible areas is prohibited, make them visible first"
-  (setq org-catch-invisible-edits 'show-and-error)
-  (advice-add 'org-return :around #'my--org-return)
+;; undo 時に reveal して表示を改善する
+;; (defun my--org:undo (&optional _ARG)
+;;   (when (and (eq major-mode 'org-mode)
+;;                (not (org-before-first-heading-p)))
+;;       (org-overview)
+;;       (org-reveal)
+;;       (org-cycle-hide-drawers 'all)
+;;       (org-show-entry)
+;;       (show-children)
+;;       (org-show-siblings)))
+;; (advice-add 'undo :after #'my--org:undo)
 
-  ;; ブリッツにアルファベットを使う
-  (setq org-list-allow-alphabetical t)
+;; 非表示状態の領域への書き込みを防ぐ
+;; "Editing in invisible areas is prohibited, make them visible first"
+(setq org-catch-invisible-edits 'show-and-error)
+(advice-add 'org-return :around #'my--org-return)
 
-  ;; - を優先．親のブリッツ表示を継承させない
-  (setq org-list-demote-modify-bullet
-        '(("+" . "-")
-          ("*" . "-")
-          ("1." . "-")
-          ("1)" . "-")
-          ("A)" . "-")
-          ("B)" . "-")
-          ("a)" . "-")
-          ("b)" . "-")
-          ("A." . "-")
-          ("B." . "-")
-          ("a." . "-")
-          ("b." . "-")))
+;; ブリッツにアルファベットを使う
+(setq org-list-allow-alphabetical t)
 
-  ;; 完了したタスクの配色を変える
-  ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
-  (font-lock-add-keywords
-   'org-mode
-   `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
-      1 'org-headline-done prepend))
-   'append)
+;; - を優先．親のブリッツ表示を継承させない
+(setq org-list-demote-modify-bullet
+      '(("+" . "-")
+        ("*" . "-")
+        ("1." . "-")
+        ("1)" . "-")
+        ("A)" . "-")
+        ("B)" . "-")
+        ("a)" . "-")
+        ("b)" . "-")
+        ("A." . "-")
+        ("B." . "-")
+        ("a." . "-")
+        ("b." . "-")))
 
-  ;; プロパティ等を自動的閉じる．
-  (add-hook 'org-tab-first-hook 'my-org-hide-drawers)
+;; 完了したタスクの配色を変える
+;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
+(font-lock-add-keywords
+ 'org-mode
+ `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+    1 'org-headline-done prepend))
+ 'append)
 
-  (keymap-set org-mode-map "C-c f 2" 'my-do-org-update-statistics-cookies)
+;; プロパティ等を自動的閉じる．
+(add-hook 'org-tab-first-hook 'my-org-hide-drawers)
 
-  ;; C-c & が yasnippet にオーバーライドされているのを張り替える
-  (keymap-set org-mode-map "C-c 4" 'org-mark-ring-goto)
+(keymap-set org-mode-map "C-c f 2" 'my-do-org-update-statistics-cookies)
 
-  ;; (org-transpose-element) が割り当てられているので取り返す．
-  (org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
+;; C-c & が yasnippet にオーバーライドされているのを張り替える
+(keymap-set org-mode-map "C-c 4" 'org-mark-ring-goto)
 
-  ;; C-c C-o でファイルを開くとき，外部アプリケーションで開く
-  (add-to-list 'org-file-apps '("\\.xlsx\\'" . default))
-  (add-to-list 'org-file-apps '("\\.docx\\'" . default))
-  (add-to-list 'org-file-apps '("\\.pptx\\'" . default)))
+;; (org-transpose-element) が割り当てられているので取り返す．
+(org-defkey org-mode-map "\C-\M-t" 'beginning-of-buffer)
+
+;; C-c C-o でファイルを開くとき，外部アプリケーションで開く
+(add-to-list 'org-file-apps '("\\.xlsx\\'" . default))
+(add-to-list 'org-file-apps '("\\.docx\\'" . default))
+(add-to-list 'org-file-apps '("\\.pptx\\'" . default))
+
 
 (with-eval-after-load "ox"
   (add-to-list 'org-modules 'ox-odt)
@@ -208,6 +208,8 @@
   ;; エコー表示前に保存する
   (advice-add 'org-table-field-info :before #'my--org-table-field-info))
 
+(keymap-set org-mode-map "C-c f 1" 'my-ox-upload-icalendar)
+
 ;; ~/Dropbox/Public は第三者に探索される可能性があるので要注意
 ;; default = ~/org.ics
 ;; C-c C-e i org-export-icalendar-this-file
@@ -216,8 +218,6 @@
 (when (autoload-if-found '(my-ox-icalendar
                            my-async-ox-icalendar my-ox-icalendar-cleanup)
                          "ox-icalendar" nil t)
-  (with-eval-after-load "org"
-    (keymap-set org-mode-map "C-c f 1" 'my-ox-upload-icalendar))
 
   (with-eval-after-load "ox-icalendar"
     (defvar org-ical-file-in-orz-server nil) ;; see private.el
@@ -242,31 +242,29 @@
     ;; (setq org-icalendar-use-deadline '(event-if-todo event-if-not-todo))
     (setq org-icalendar-use-deadline '(event-if-todo))))
 
-(with-eval-after-load "org"
-  (setq org-use-speed-commands t)
+(setq org-use-speed-commands t)
 
-  (when (version< (org-version) "9.4.6")
-    (defvaralias 'org-speed-commands 'org-speed-commands-user))
+(when (version< (org-version) "9.4.6")
+  (defvaralias 'org-speed-commands 'org-speed-commands-user))
 
-  ;; "C"(org-shifttab) をオーバーライド
-  (add-to-list 'org-speed-commands '("C" org-copy-subtree))
-  (add-to-list 'org-speed-commands '("d" my-done-with-update-list))
-  ;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
-  (add-to-list 'org-speed-commands
-               '("D" my-org-todo-complete-no-repeat "DONE"))
-  ;; (add-to-list 'org-speed-commands '("N" org-shiftmetadown))
-  ;; (add-to-list 'org-speed-commands '("P" org-shiftmetaup))
-  (add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
-  (add-to-list 'org-speed-commands '("h" org-hugo-export-wim-to-md))
-  (add-to-list 'org-speed-commands '("E" my-export-subtree-as-html))
-  (add-to-list 'org-speed-commands '("P" my-toggle-org-pin-subtree))
-  (add-to-list 'org-speed-commands '("." my-org-deadline-today))
-  (add-to-list 'org-speed-commands '("!" my-org-default-property))
-  (add-to-list 'org-speed-commands '("y" my-org-yank))
-  (add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
-  (add-to-list 'org-speed-commands
-               '("$" call-interactively 'org-archive-subtree)))
-
+;; "C"(org-shifttab) をオーバーライド
+(add-to-list 'org-speed-commands '("C" org-copy-subtree))
+(add-to-list 'org-speed-commands '("d" my-done-with-update-list))
+;; (add-to-list 'org-speed-commands '("S" call-interactively 'widen))
+(add-to-list 'org-speed-commands
+             '("D" my-org-todo-complete-no-repeat "DONE"))
+;; (add-to-list 'org-speed-commands '("N" org-shiftmetadown))
+;; (add-to-list 'org-speed-commands '("P" org-shiftmetaup))
+(add-to-list 'org-speed-commands '("H" my-hugo-export-upload))
+(add-to-list 'org-speed-commands '("h" org-hugo-export-wim-to-md))
+(add-to-list 'org-speed-commands '("E" my-export-subtree-as-html))
+(add-to-list 'org-speed-commands '("P" my-toggle-org-pin-subtree))
+(add-to-list 'org-speed-commands '("." my-org-deadline-today))
+(add-to-list 'org-speed-commands '("!" my-org-default-property))
+(add-to-list 'org-speed-commands '("y" my-org-yank))
+(add-to-list 'org-speed-commands '("x" my-org-move-subtree-to-the-last))
+(add-to-list 'org-speed-commands
+             '("$" call-interactively 'org-archive-subtree))
 
 
 ;; ツリーをカットする時に，カレントサブツリーと親の統計情報を更新する
@@ -287,107 +285,105 @@
 ;; narrowing+編集開始時に領域の最後に改行を置く FIXME
 (advice-add 'org-narrow-to-subtree :before #'my--add-newline-narrowed-end)
 
-(with-eval-after-load "org"
-  ;; Font lock を使う
-  ;; (global-font-lock-mode 1) ;; see org-mode-hook
+;; Font lock を使う
+;; (global-font-lock-mode 1) ;; see org-mode-hook
 
-  ;; ウィンドウの端で折り返す
-  (setq org-startup-truncated nil)
+;; ウィンドウの端で折り返す
+(setq org-startup-truncated nil)
 
-  ;; サブツリー以下の * を略式表示する
-  (setq org-hide-leading-stars t)
+;; サブツリー以下の * を略式表示する
+(setq org-hide-leading-stars t)
 
-  ;; Color setting for TODO keywords
-  ;; Color for priorities
-  ;; (setq org-priority-faces
-  ;;  '(("?A" :foreground "#E01B4C" :background "#FFFFFF" :weight bold)
-  ;;    ("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
-  ;;    ("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
-  ;; Color setting for Tags
+;; Color setting for TODO keywords
+;; Color for priorities
+;; (setq org-priority-faces
+;;  '(("?A" :foreground "#E01B4C" :background "#FFFFFF" :weight bold)
+;;      ("?B" :foreground "#1739BF" :background "#FFFFFF" :weight bold)
+;;      ("?C" :foreground "#575757" :background "#FFFFFF" :weight bold)))
+;; Color setting for Tags
 
-  ;; #CC3333
-  (setq org-todo-keyword-faces
-        '(("FOCUS"    :foreground "#FF0000" :background "#FFCC66")
-          ("BUG"      :foreground "#FF0000" :background "#FFCC66")
-          ("CHECK"    :foreground "#FF9900" :background "#FFF0F0" :underline t)
-          ("ICAL"     :foreground "#33CC66")
-          ("APPROVED" :foreground "#66CC66")
-          ("QUESTION" :foreground "#FF0000")
-          ("WAIT"     :foreground "#333333" :background "#CCCCCC")
-          ("MAIL"     :foreground "#CC3300" :background "#FFEE99")
-          ("PLAN"     :foreground "#FF6600")
-          ("PLAN2"    :foreground "#FFFFFF" :background "#FF6600")
-          ("REV1"     :foreground "#3366FF")
-          ("REV2"     :foreground "#3366FF" :background "#99CCFF")
-          ("REV3"     :foreground "#FFFFFF" :background "#3366FF")
-          ("SLEEP"    :foreground "#9999CC")))
+;; #CC3333
+(setq org-todo-keyword-faces
+      '(("FOCUS"    :foreground "#FF0000" :background "#FFCC66")
+        ("BUG"      :foreground "#FF0000" :background "#FFCC66")
+        ("CHECK"    :foreground "#FF9900" :background "#FFF0F0" :underline t)
+        ("ICAL"     :foreground "#33CC66")
+        ("APPROVED" :foreground "#66CC66")
+        ("QUESTION" :foreground "#FF0000")
+        ("WAIT"     :foreground "#333333" :background "#CCCCCC")
+        ("MAIL"     :foreground "#CC3300" :background "#FFEE99")
+        ("PLAN"     :foreground "#FF6600")
+        ("PLAN2"    :foreground "#FFFFFF" :background "#FF6600")
+        ("REV1"     :foreground "#3366FF")
+        ("REV2"     :foreground "#3366FF" :background "#99CCFF")
+        ("REV3"     :foreground "#FFFFFF" :background "#3366FF")
+        ("SLEEP"    :foreground "#9999CC")))
 
-  ;; (:foreground "#0000FF" :bold t)     ; default. do NOT put this bottom
-  (setq org-tag-faces
-        '(("Achievement" :foreground "#66CC66")
-          ("Bug"         :foreground "#FF0000")
-          ("Report"      :foreground "#66CC66")
-          ("Background"  :foreground "#66CC99")
-          ("Meeting"     :foreground "#66CC99")
-          ("Chore"       :foreground "#6699CC")
-          ("Remind"      :foreground "#6699CC")
-          ("project"     :foreground "#6666CC")
-          ("read"        :foreground "#6666CC")
-          ("book"        :foreground "#6666CC")
-          ("Doing"       :foreground "#FF0000")
-          ("Draft"       :foreground "#9933CC") ;; Draft(r1,r2,r3)->Review(1,2)
-          ("Review"      :foreground "#6633CC")
-          ("Revisit"     :foreground "#6633CC")
-          ("Redmine"     :foreground "#CC6666")
-          ("Ongoing"     :foreground "#CC6666") ; for non scheduled/reminder
-          ("Template"    :foreground "#66CC66")
-          ("Repeat"      :foreground "#CC9999") ; for interval tasks
-          ("Mag"         :foreground "#9966CC")
-          ("pin"         :foreground "#FF0000")
-          ("buy"         :foreground "#9966CC")
-          ("pay"         :foreground "#CC6699")
-          ("try"         :foreground "#FF3366")
-          ("secret"      :foreground "#FF0000")
-          ("emacs"       :foreground "#6633CC")
-          ("note"        :foreground "#6633CC")
-          ("print"       :foreground "#6633CC")
-          ("study"       :foreground "#6666CC")
-          ("Implements"  :foreground "#CC9999" :weight bold)
-          ("Coding"      :foreground "#CC9999")
-          ("Editing"     :foreground "#CC9999" :weight bold)
-          ("work"        :foreground "#CC9999" :weight bold)
-          ("Survey"      :foreground "#CC9999" :weight bold)
-          ("Home"        :foreground "#CC9999" :weight bold)
-          ("Open"        :foreground "#CC9999" :weight bold)
-          ("Blog"        :foreground "#9966CC")
-          ("story"       :foreground "#FF7D7D")
-          ("plan"        :foreground "#FF7D7D")
-          ("issue"       :foreground "#FF7D7D")
-          ("Test"        :foreground "#FF0000" :weight bold)
-          ("attach"      :foreground "#FF0000")
-          ("drill"       :foreground "#66BB66" :underline t)
-          ("DEBUG"       :foreground "#FFFFFF" :background "#9966CC")
-          ("EVENT"       :foreground "#FFFFFF" :background "#9966CC")
-          ("Thinking"    :foreground "#FFFFFF" :background "#96A9FF")
-          ("Schedule"    :foreground "#FFFFFF" :background "#FF7D7D")
-          ("INPUT"       :foreground "#FFFFFF" :background "#CC6666")
-          ("OUTPUT"      :foreground "#FFFFFF" :background "#66CC99")
-          ("CYCLE"       :foreground "#FFFFFF" :background "#6699CC")
-          ("weekend"     :foreground "#FFFFFF" :background "#CC6666")
-          ("Log"         :foreground "#008500"))))
+;; (:foreground "#0000FF" :bold t)       ; default. do NOT put this bottom
+(setq org-tag-faces
+      '(("Achievement" :foreground "#66CC66")
+        ("Bug"   :foreground "#FF0000")
+        ("Report"        :foreground "#66CC66")
+        ("Background"    :foreground "#66CC99")
+        ("Meeting"       :foreground "#66CC99")
+        ("Chore"         :foreground "#6699CC")
+        ("Remind"        :foreground "#6699CC")
+        ("project"       :foreground "#6666CC")
+        ("read"  :foreground "#6666CC")
+        ("book"  :foreground "#6666CC")
+        ("Doing"         :foreground "#FF0000")
+        ("Draft"         :foreground "#9933CC") ;; Draft(r1,r2,r3)->Review(1,2)
+        ("Review"        :foreground "#6633CC")
+        ("Revisit"       :foreground "#6633CC")
+        ("Redmine"       :foreground "#CC6666")
+        ("Ongoing"       :foreground "#CC6666") ; for non scheduled/reminder
+        ("Template"      :foreground "#66CC66")
+        ("Repeat"        :foreground "#CC9999") ; for interval tasks
+        ("Mag"   :foreground "#9966CC")
+        ("pin"   :foreground "#FF0000")
+        ("buy"   :foreground "#9966CC")
+        ("pay"   :foreground "#CC6699")
+        ("try"   :foreground "#FF3366")
+        ("secret"        :foreground "#FF0000")
+        ("emacs"         :foreground "#6633CC")
+        ("note"  :foreground "#6633CC")
+        ("print"         :foreground "#6633CC")
+        ("study"         :foreground "#6666CC")
+        ("Implements"    :foreground "#CC9999" :weight bold)
+        ("Coding"        :foreground "#CC9999")
+        ("Editing"       :foreground "#CC9999" :weight bold)
+        ("work"  :foreground "#CC9999" :weight bold)
+        ("Survey"        :foreground "#CC9999" :weight bold)
+        ("Home"  :foreground "#CC9999" :weight bold)
+        ("Open"  :foreground "#CC9999" :weight bold)
+        ("Blog"  :foreground "#9966CC")
+        ("story"         :foreground "#FF7D7D")
+        ("plan"  :foreground "#FF7D7D")
+        ("issue"         :foreground "#FF7D7D")
+        ("Test"  :foreground "#FF0000" :weight bold)
+        ("attach"        :foreground "#FF0000")
+        ("drill"         :foreground "#66BB66" :underline t)
+        ("DEBUG"         :foreground "#FFFFFF" :background "#9966CC")
+        ("EVENT"         :foreground "#FFFFFF" :background "#9966CC")
+        ("Thinking"      :foreground "#FFFFFF" :background "#96A9FF")
+        ("Schedule"      :foreground "#FFFFFF" :background "#FF7D7D")
+        ("INPUT"         :foreground "#FFFFFF" :background "#CC6666")
+        ("OUTPUT"        :foreground "#FFFFFF" :background "#66CC99")
+        ("CYCLE"         :foreground "#FFFFFF" :background "#6699CC")
+        ("weekend"       :foreground "#FFFFFF" :background "#CC6666")
+        ("Log"   :foreground "#008500")))
 
-(with-eval-after-load "org"
-  (setq org-todo-keywords
-        '((sequence "TODO(t)" "PLAN(p)" "PLAN2(P)" "|" "DONE(d)")
-          (sequence "FOCUS(f)" "CHECK(C)" "ICAL(c)"  "|" "DONE(d)")
-          (sequence "WAIT(w)" "SLEEP(s)" "QUESTION(q)" "|" "DONE(d)")
-          (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|" "APPROVED(a@/!)")))
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "PLAN(p)" "PLAN2(P)" "|" "DONE(d)")
+        (sequence "FOCUS(f)" "CHECK(C)" "ICAL(c)"  "|" "DONE(d)")
+        (sequence "WAIT(w)" "SLEEP(s)" "QUESTION(q)" "|" "DONE(d)")
+        (sequence "REV1(1)" "REV2(2)" "REV3(3)" "|" "APPROVED(a@/!)")))
 
-  ;; Global counting of TODO items
-  (setq org-hierarchical-todo-statistics nil)
+;; Global counting of TODO items
+(setq org-hierarchical-todo-statistics nil)
 
-  ;; Global counting of checked TODO items
-  (setq org-hierarchical-checkbox-statistics nil))
+;; Global counting of checked TODO items
+(setq org-hierarchical-checkbox-statistics nil)
 
 ;; ;;;###autoload
 ;; (defun org-dblock-write:block-update-time (params)
@@ -395,58 +391,46 @@
 ;;   (let ((fmt (or (plist-get params :format) "%Y-%m-%d")))
 ;;     (i'nsert "" (format-time-string fmt (current-time)))))
 
-(with-eval-after-load "org"
-  (setq org-image-actual-width '(256))
-  (add-to-list 'image-file-name-extensions "jp2")
-  ;; (add-to-list 'image-file-name-extensions "j2c")
-  (add-to-list 'image-file-name-extensions "bmp")
-  (add-to-list 'image-file-name-extensions "psd"))
+(setq org-image-actual-width '(256))
+(add-to-list 'image-file-name-extensions "jp2")
+;; (add-to-list 'image-file-name-extensions "j2c")
+(add-to-list 'image-file-name-extensions "bmp")
+(add-to-list 'image-file-name-extensions "psd")
 
 (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist)
 
-(with-eval-after-load "org"
-  ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
-  (defvar ns-default-notification-sound "Pop")
+;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
+(defvar ns-default-notification-sound "Pop")
 
-  (defvar ns-alerter-command (concat (getenv "HOME") "/Dropbox/bin/alerter")
-    "Path to alerter command. see https://github.com/vjeantet/alerter")
-  (setq ns-alerter-command 'script) ;; the alerter is not work for now(2024-02-18).
-  (unless ns-alerter-command
-    (setq ns-alerter-command "")) ;; FIXME
-  (when (or (eq ns-alerter-command 'script)
-      (executable-find ns-alerter-command))
-    (setq org-show-notification-handler #'my-desktop-notification-handler)))
+(defvar ns-alerter-command (concat (getenv "HOME") "/Dropbox/bin/alerter")
+  "Path to alerter command. see https://github.com/vjeantet/alerter")
+(setq ns-alerter-command 'script) ;; the alerter is not work for now(2024-02-18).
+(unless ns-alerter-command
+  (setq ns-alerter-command "")) ;; FIXME
+(when (or (eq ns-alerter-command 'script)
+          (executable-find ns-alerter-command))
+  (setq org-show-notification-handler #'my-desktop-notification-handler))
 
 (unless noninteractive
-  (with-eval-after-load "org"
-    (let ((file "~/Dropbox/org/db/daily.org"))
-      (when (and (file-exists-p file)
-                 (require 'utility nil t))
-        (my-set-alarms-from-file file) ;; init
-        (add-hook 'after-save-hook #'my-update-alarms-from-file))))) ;; update
+  (let ((file "~/Dropbox/org/db/daily.org"))
+    (when (and (file-exists-p file)
+               (require 'utility nil t))
+      (my-set-alarms-from-file file) ;; init
+      (add-hook 'after-save-hook #'my-update-alarms-from-file)))) ;; update
 
-(when (autoload-if-found '(org-mode my-load-echo-org-link)
-                         "org" nil t)
-  (add-hook 'org-mode-hook #'my-load-echo-org-link)
+(defvar my-org-link-prompt "Link:")
 
-  (with-eval-after-load "org"
-    (defvar my-org-link-prompt "Link:")))
-
-(with-eval-after-load "org"
-  (org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
-  (org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
-  (org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
-  (org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward))
-
-(defvar my-org-promote-demote-independently nil)
+(org-defkey org-mode-map (kbd "M-p") #'my-org-meta-next)
+(org-defkey org-mode-map (kbd "M-n") #'my-org-meta-previous)
+(org-defkey org-mode-map (kbd "M-b") #'my-org-meta-backward)
+(org-defkey org-mode-map (kbd "M-f") #'my-org-meta-forward)
 
 (with-eval-after-load "eldoc"
   (defvar my-eldoc-disable-in-org-block nil)
   (advice-add 'eldoc-print-current-symbol-info :around
               #'my--eldoc-print-current-symbol-info))
 
-(with-eval-after-load "org"
-  (advice-add 'org-reveal :around #'my--org-reveal))
+(advice-add 'org-reveal :around #'my--org-reveal)
 
 (defface my-org-emphasis-bold
   '((default :inherit bold)
@@ -483,37 +467,35 @@
   "My strike-through emphasis for Org."
   :group 'my)
 
-(with-eval-after-load "org"
-  (custom-set-variables ;; call org-set-emph-re
-   '(org-emphasis-alist '(("~" org-code verbatim)
-                          ("=" org-verbatim verbatim)
-                          ("*" my-org-emphasis-bold)
-                          ("/" my-org-emphasis-italic)
-                          ("_" my-org-emphasis-underline)
-                          ("+" my-org-emphasis-strike-through))))
+(custom-set-variables ;; call org-set-emph-re
+ '(org-emphasis-alist '(("~" org-code verbatim)
+                        ("=" org-verbatim verbatim)
+                        ("*" my-org-emphasis-bold)
+                        ("/" my-org-emphasis-italic)
+                        ("_" my-org-emphasis-underline)
+                        ("+" my-org-emphasis-strike-through))))
 
-  (custom-set-faces
-   '(org-code
-     ((t (:foreground "red" :background "pink" :inherit shadow))))
-   '(org-verbatim
-     ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
+(custom-set-faces
+ '(org-code
+   ((t (:foreground "red" :background "pink" :inherit shadow))))
+ '(org-verbatim
+   ((t (:foreground "#ff6059" :background "PeachPuff" :inherit shadow)))))
 
-  (when (featurep 'org-extra-emphasis)
-    (org-extra-emphasis-update))) ;; to apply configured `org-emphasis-alist'
+(when (featurep 'org-extra-emphasis)
+  (org-extra-emphasis-update)) ;; to apply configured `org-emphasis-alist'
 
-(with-eval-after-load "org"
-  (keymap-set org-mode-map "C-c x" #'my-org-move-item-end)
-  (keymap-set org-mode-map "C-c X" #'my-org-move-item-begin))
+(keymap-set org-mode-map "C-c x" #'my-org-move-item-end)
+(keymap-set org-mode-map "C-c X" #'my-org-move-item-begin)
+
+;; (キャプチャ時に)作成日時をプロパティに入れる
+;; Thanks to https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook
+(defvar my-org-created-property-name "CREATED"
+  "The name of the org-mode property.
+This user property stores the creation date of the entry")
+(advice-add 'org-insert-todo-heading :after #'my--org-insert-todo-heading)
 
 (when (autoload-if-found '(org-capture)
                          "org-capture" nil t)
-  (with-eval-after-load "org"
-    ;; キャプチャ時に作成日時をプロパティに入れる
-    ;; Thanks to https://emacs.stackexchange.com/questions/21291/add-created-timestamp-to-logbook
-    (defvar my-org-created-property-name "CREATED"
-      "The name of the org-mode property.
-This user property stores the creation date of the entry")
-    (advice-add 'org-insert-todo-heading :after #'my--org-insert-todo-heading))
 
   (with-eval-after-load "org-capture"
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
@@ -586,19 +568,19 @@ This user property stores the creation date of the entry")
              "** %? :%(get-current-date-tags):\n\n%U")
             ))))
 
-(with-eval-after-load "org"
-  ;; アジェンダ作成対象（指定しないとagendaが生成されない）
-  ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
-  (dolist (file (mapcar
-                 (lambda (arg)
-                   (concat (getenv "SYNCROOT") "/org/" arg))
-                 '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
-                   "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                   "org2ja.org" "itr.org" "db/books.org")))
-    (when (file-exists-p (expand-file-name file))
-      (add-to-list 'org-agenda-files file 'append)))
-  (when (eq system-type 'windows-nt) ;; FIXME
-    (setq org-agenda-files '("~/Dropbox/org/next.org"))))
+;; アジェンダ作成対象（指定しないとagendaが生成されない）
+;; ここを間違うと，MobileOrg, iCal export もうまくいかない
+(dolist (file (mapcar
+               (lambda (arg)
+                 (concat (getenv "SYNCROOT") "/org/" arg))
+               '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
+                 "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
+                 "org2ja.org" "itr.org" "db/books.org")))
+  (when (file-exists-p (expand-file-name file))
+    (add-to-list 'org-agenda-files file 'append)))
+
+(when (eq system-type 'windows-nt) ;; FIXME
+  (setq org-agenda-files '("~/Dropbox/org/next.org")))
 
 (with-eval-after-load "org-agenda"
   ;; sorting strategy
@@ -715,6 +697,11 @@ This user property stores the creation date of the entry")
               (lambda () (interactive)
                 (org-eval-in-calendar '(minibuffer-keyboard-quit)))))
 
+(add-hook 'org-cycle-hook #'org-onit-clock-in-when-unfold)
+(keymap-set org-mode-map "<f11>" 'org-onit-toggle-doing)
+(keymap-set org-mode-map "M-<f11>" 'org-onit-toggle-auto)
+(keymap-set org-mode-map "S-<f11>" 'org-onit-goto-anchor)
+
 (when (autoload-if-found '(org-onit-toggle-doing
                            org-onit-mode
                            org-onit-toggle-auto org-clock-goto
@@ -722,12 +709,6 @@ This user property stores the creation date of the entry")
                            org-clock-goto org-onit-update-options)
                          "org-onit" nil t)
   (keymap-global-set "C-<f11>" 'org-clock-goto)
-
-  (with-eval-after-load "org"
-    (add-hook 'org-cycle-hook #'org-onit-clock-in-when-unfold)
-    (keymap-set org-mode-map "<f11>" 'org-onit-toggle-doing)
-    (keymap-set org-mode-map "M-<f11>" 'org-onit-toggle-auto)
-    (keymap-set org-mode-map "S-<f11>" 'org-onit-goto-anchor))
 
   (with-eval-after-load "org-onit"
     (autoload-if-found '(org-bookmark-jump org-bookmark-make-record)
@@ -757,99 +738,61 @@ This user property stores the creation date of the entry")
                            org-mode-line-string))
             " - %b"))))
 
+(org-defkey org-mode-map (kbd "C-c C-s") 'orgbox-schedule)
+
 (when (autoload-if-found '(orgbox-schedule orgbox-agenda-schedule)
-                   "orgbox" nil t)
-  (with-eval-after-load "org"
-    (org-defkey org-mode-map (kbd "C-c C-s") 'orgbox-schedule))
+                         "orgbox" nil t)
+  
   (with-eval-after-load "org-agenda"
     (org-defkey org-agenda-mode-map (kbd "C-c C-s") 'orgbox-agenda-schedule)))
-  ;; (require 'orgbox nil t)) ;; require org-agenda
+;; (require 'orgbox nil t)) ;; require org-agenda
 
-(when (autoload-if-found '(appt my--appt-display-message
-                                my--appt-disp-window appt-check)
-                         "appt" nil t)
+;; キャプチャ直後に更新
+(add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
 
-  (defvar my-org-agenda-to-appt-async t)
-  (with-eval-after-load "appt"
-    ;; モードラインに残り時間を表示しない
-    (setq appt-display-mode-line nil)
+;; アジェンダを開いたら・終了したらアラームリストを更新
+(unless noninteractive
+  (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt)
+  (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt))
 
-    ;; window を フレーム内に表示する
-    (setq appt-display-format 'echo)
+;; org-agenda-to-appt を非同期で使うための advice
+(advice-add 'read-char-exclusive :around #'my--read-char-exclusive)
+(advice-add 'org-check-agenda-file :override #'my--org-check-agenda-file)
 
-    ;; window を継続表示する時間[s]
-    (setq appt-display-duration 5)
+(when (eq window-system 'w32)
+  (message "--- my-org-agenda-to-appt-async was changed to nil for w32")
+  (setq my-org-agenda-to-appt-async nil))
 
-    ;; ビープ音の有無
-    (setq appt-audible nil)
+(when noninteractive
+  (setq my-org-agenda-to-appt-ready nil)) ;; FIXME
 
-    ;; 何分前から警告表示を開始するか[m]
-    (setq appt-message-warning-time 10)
+;; (with-eval-after-load "org-agenda"
+;;   (unless noninteractive
+;;     (appt-activate 1)))
 
-    ;; 警告表示開始から何分ごとにリマインドするか[m]
-    (setq appt-display-interval 1)
+;; リファイル先でサブディレクトリを指定するために一部フルパス化
+(let ((dir (expand-file-name org-directory)))
+  (setq org-refile-targets
+        `((,(concat dir "next.org") :level . 1)
+          (,(concat dir "org-ical.org") :level . 1)
+          (,(concat dir "itr.org") :level . 1)
+          (,(concat dir "academic.org") :level . 1)
+          (,(concat dir "tr/work.org") :level . 1)
+          (,(concat dir "minutes/wg1.org") :level . 1)
+          (,(concat dir "db/article.org") :level . 1)
+          (,(concat dir "db/maybe.org") :level . 1)
+          (,(concat dir "db/english.org") :level . 1)
+          (,(concat dir "db/money.org") :level . 1))))
 
-    (advice-add 'appt-display-message :override #'my--appt-display-message)
-    
-    (cond
-     ((eq appt-display-format 'echo)
-      (setq appt-disp-window-function 'my--appt-disp-window))
-     ((eq appt-display-format 'window)
-      (advice-add 'appt-disp-window :before #'my--appt-disp-window))))
+;; 不要な履歴が生成されるのを抑制し，常に最新を保つ．
+;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
+(advice-add 'org-refile :around #'my--org-refile)
+(advice-add 'org-sort-entries :after #'my--org-sort-entries)
 
-  (with-eval-after-load "ivy"
-    (defvar counsel-appt-time-msg-list nil))
-
-  ;; (with-eval-after-load "org-agenda"
-  ;;   (unless noninteractive
-  ;;     (appt-activate 1)))
-
-  (with-eval-after-load "org"
-    ;; キャプチャ直後に更新
-    (add-hook 'org-capture-before-finalize-hook #'my-org-agenda-to-appt)
-
-    ;; アジェンダを開いたら・終了したらアラームリストを更新
-    (unless noninteractive
-      (add-hook 'org-agenda-mode-hook #'my-org-agenda-to-appt)
-      (add-hook 'org-finalize-agenda-hook #'my-org-agenda-to-appt))
-
-    ;; org-agenda-to-appt を非同期で使うための advice
-    (advice-add 'read-char-exclusive :around #'my--read-char-exclusive)
-    (advice-add 'org-check-agenda-file :override #'my--org-check-agenda-file)
-
-    (when (eq window-system 'w32)
-      (message "--- my-org-agenda-to-appt-async was changed to nil for w32")
-      (setq my-org-agenda-to-appt-async nil))
-
-    (when noninteractive
-      (setq my-org-agenda-to-appt-ready nil)) ;; FIXME
-    ))
-
-(with-eval-after-load "org"
-  ;; リファイル先でサブディレクトリを指定するために一部フルパス化
-  (let ((dir (expand-file-name org-directory)))
-    (setq org-refile-targets
-          `((,(concat dir "next.org") :level . 1)
-            (,(concat dir "org-ical.org") :level . 1)
-            (,(concat dir "itr.org") :level . 1)
-            (,(concat dir "academic.org") :level . 1)
-            (,(concat dir "tr/work.org") :level . 1)
-            (,(concat dir "minutes/wg1.org") :level . 1)
-            (,(concat dir "db/article.org") :level . 1)
-            (,(concat dir "db/maybe.org") :level . 1)
-            (,(concat dir "db/english.org") :level . 1)
-            (,(concat dir "db/money.org") :level . 1))))
-
-  ;; 不要な履歴が生成されるのを抑制し，常に最新を保つ．
-  ;; [2/3]のような完了数が見出しにある時に転送先候補が重複表示されるため．
-  (advice-add 'org-refile :around #'my--org-refile)
-  (advice-add 'org-sort-entries :after #'my--org-sort-entries))
-
-(with-eval-after-load "org"
-  ;; will take 200[ms]
-  (unless noninteractive
-    (run-with-idle-timer (+ 7 my-default-loading-delay)
-                         nil #'my-org-babel-load-activate)))
+;; will take 200[ms]
+(unless noninteractive
+  (run-with-idle-timer (+ 7 my-default-loading-delay)
+                       nil #'my-org-babel-load-activate))
 
 (with-eval-after-load "ob-src"
   ;; 実装済みの言語に好きな名前を紐付ける
@@ -878,11 +821,10 @@ This user property stores the creation date of the entry")
   ;; (my-org-babel-load-activate)
   )
 
-(with-eval-after-load "org"
-  (add-to-list 'org-structure-template-alist
-               (if (version< "9.1.4" (org-version))
-                   '("S" . "src emacs-lisp")
-                 '("S" "#+begin_src emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>"))))
+(add-to-list 'org-structure-template-alist
+             (if (version< "9.1.4" (org-version))
+                 '("S" . "src emacs-lisp")
+               '("S" "#+begin_src emacs-lisp\n?\n#+END_SRC" "<src lang=\"emacs-lisp\">\n\n</src>")))
 
 (with-eval-after-load "org-src"
   ;; (my-org-src-block-face)
@@ -977,27 +919,25 @@ This user property stores the creation date of the entry")
 (with-eval-after-load "ox"
   (require 'ox-twbs nil t))
 
-(with-eval-after-load "org"
-  (when (require 'org-crypt nil t)
-    (require 'epa)
-    (setq org-crypt-key "") ;; <insert your key>
-    ;; org-encrypt-entries の影響を受けるタグを指定
-    (setq org-tags-exclude-from-inheritance (quote ("secret")))
-    ;; 自動保存の確認を無効に
-    (setq org-crypt-disable-auto-save 'nil)))
+(when (require 'org-crypt nil t)
+  (require 'epa)
+  (setq org-crypt-key "") ;; <insert your key>
+  ;; org-encrypt-entries の影響を受けるタグを指定
+  (setq org-tags-exclude-from-inheritance (quote ("secret")))
+  ;; 自動保存の確認を無効に
+  (setq org-crypt-disable-auto-save 'nil))
 
-(with-eval-after-load "org"
-  ;; (add-to-list 'org-modules 'org-mac-iCal)
-  ;; (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
+;; (add-to-list 'org-modules 'org-mac-iCal)
+;; (add-to-list 'org-modules 'org-mac-link) ;; includes org-mac-message
 
-  (autoload 'org-mac-link-get-link "org-mac-link" nil t)
-  (defun my-disable-org-mac-link-get-link ()
-    (interactive)
-    (message "As of 2025-10-18, `org-mac-link-get-link' is not working on Tahoe"))
-  ;; (keymap-set org-mode-map "C-c c" 'org-mac-link-get-link)
-  (keymap-set org-mode-map "C-c c" 'my-disable-org-mac-link-get-link)
-  (with-eval-after-load "org-mac-link"
-    (require 'org-mac-iCal nil t)))
+(autoload 'org-mac-link-get-link "org-mac-link" nil t)
+(defun my-disable-org-mac-link-get-link ()
+  (interactive)
+  (message "As of 2025-10-18, `org-mac-link-get-link' is not working on Tahoe"))
+;; (keymap-set org-mode-map "C-c c" 'org-mac-link-get-link)
+(keymap-set org-mode-map "C-c c" 'my-disable-org-mac-link-get-link)
+(with-eval-after-load "org-mac-link"
+  (require 'org-mac-iCal nil t))
 
 (with-eval-after-load "org-attach"
   (when (require 'org-download nil t)
@@ -1048,6 +988,7 @@ This user property stores the creation date of the entry")
     ;;    (advice-add 'org-todo :after #'my--ox-hugo:org-todo)
     ))
 
+(defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$")
 (with-eval-after-load "ox-html"
   (setq org-html-text-markup-alist
         '((bold . "<b>%s</b>")
@@ -1056,9 +997,6 @@ This user property stores the creation date of the entry")
           (strike-through . "<del>%s</del>")
           (underline . "<span class=\"org-underline\">%s</span>")
           (verbatim . "<code class=\"org-verbatim\">%s</code>"))))
-
-(with-eval-after-load "org"
-  (defvar md-link-format "^!\\[\\(.+\\)\\](\\(.+\\))$"))
 
 (when (autoload-if-found '(orglink-mode
                            global-orglink-mode my-orglink-mode-activate)
@@ -1126,17 +1064,16 @@ This user property stores the creation date of the entry")
   (require 'ox-qmd nil t) ;; Quita-style
   (require 'ox-gfm nil t)) ;; GitHub-style
 
-(with-eval-after-load "org"
-  (when (eq system-type 'darwin)
-    ;; Open `papers3://' link by C-c C-o.
-    ;; (org-add-link-type will be obsoleted from Org 9.
-    (when (fboundp 'org-link-set-parameters)
-      (org-link-set-parameters
-       "papers3"
-       :follow (lambda (path)
-                 (let ((cmd (concat "open papers3:" path)))
-                   (shell-command-to-string (shell-quote-argument cmd))
-                   (message "%s" cmd)))))))
+(when (eq system-type 'darwin)
+  ;; Open `papers3://' link by C-c C-o.
+  ;; (org-add-link-type will be obsoleted from Org 9.
+  (when (fboundp 'org-link-set-parameters)
+    (org-link-set-parameters
+     "papers3"
+     :follow (lambda (path)
+               (let ((cmd (concat "open papers3:" path)))
+                 (shell-command-to-string (shell-quote-argument cmd))
+                 (message "%s" cmd))))))
 
 (when (autoload-if-found '(org-attach du-org-attachments)
                          "org-attach" nil t)
@@ -1154,12 +1091,10 @@ This user property stores the creation date of the entry")
               (when (boundp 'org-attach-directory)
                 "data/")))))
 
-(when (autoload-if-found '(orgnav-search-root)
-                         "orgnav" nil t)
-  (with-eval-after-load "org"
-    (keymap-set org-mode-map "C-c f n"
-      (lambda () (interactive)
-        (orgnav-search-root 3 'orgnav--goto-action)))))
+(autoload-if-found '(orgnav-search-root) "orgnav" nil t)
+(keymap-set org-mode-map "C-c f n"
+            (lambda () (interactive)
+              (orgnav-search-root 3 'orgnav--goto-action)))
 
 (autoload-if-found '(toc-org-insert-toc) "toc-org" nil t)
 

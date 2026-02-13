@@ -4,21 +4,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                             TODO/DONE/FIXME
 
-(defun mac-toggle-input-method (&optional arg)
-  "Function to toggle input method on macOS."
-  (if arg
-      (progn
-        ;; (make-local-variable 'input-method-function)
-        (make-variable-buffer-local 'input-method-function)
-        (setq deactivate-current-input-method-function 'mac-toggle-input-method)
-        (setq input-method-function nil)
-        (setq describe-current-input-method-function nil)
-        (mac-toggle-input-source t))
-    (kill-local-variable 'input-method-function)
-    (setq describe-current-input-method-function nil)
-    (mac-toggle-input-source nil)))
-
-
 (with-eval-after-load "org"
   ;; (keymap-set org-mode-map "C-c c" 'ignore)
 

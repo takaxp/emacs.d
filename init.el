@@ -119,6 +119,7 @@
     t))
 
 ;; Copied from postpone-pre.el for speed up -- begin ;;;;;;;;;;;;;;;;;;;;;
+(require 'cl-seq)
 (defvar postpone-pre-init-time nil
   "A variable to store the duration of loading postponed packages.")
 
@@ -390,6 +391,10 @@
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
 
 (defalias 'run-timer 'my-countdown-timer)
+
+(add-hook 'org-mode-hook #'my-load-echo-org-link)
+
+(defvar my-org-promote-demote-independently nil)
 
 (my-tick-init-time "development")
 

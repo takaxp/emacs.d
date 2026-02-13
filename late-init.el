@@ -229,13 +229,6 @@ This function returns a timer object which you can use in
 
 (autoload 'mail "${HOME}/.local/config/my-mail.el.gpg" nil t)
 
-;;;###autoload
-(defun my-sleep-macos ()
-  "Sleep macOS."
-  (interactive)
-  (when (eq system-type 'darwin)
-    (shell-command "pmset sleepnow")))
-
 (when (memq window-system '(ns nil))
 
   (custom-set-faces
@@ -1798,6 +1791,42 @@ This function returns a timer object which you can use in
 ;; (with-eval-after-load "org") 内で設定すると(何故か)複数回呼ばれてしまう．
 (run-with-idle-timer 180 t #'my-org-agenda-to-appt)
 
+(when (autoload-if-found '(appt my--appt-display-message
+                                my--appt-disp-window appt-check)
+                         "appt" nil t)
+
+  (defvar my-org-agenda-to-appt-async t)
+  (with-eval-after-load "appt"
+    ;; モードラインに残り時間を表示しない
+    (setq appt-display-mode-line nil)
+
+    ;; window を フレーム内に表示する
+    (setq appt-display-format 'echo)
+
+    ;; window を継続表示する時間[s]
+    (setq appt-display-duration 5)
+
+    ;; ビープ音の有無
+    (setq appt-audible nil)
+
+    ;; 何分前から警告表示を開始するか[m]
+    (setq appt-message-warning-time 10)
+
+    ;; 警告表示開始から何分ごとにリマインドするか[m]
+    (setq appt-display-interval 1)
+
+    (advice-add 'appt-display-message :override #'my--appt-display-message)
+
+    (cond
+     ((eq appt-display-format 'echo)
+      (setq appt-disp-window-function 'my--appt-disp-window))
+     ((eq appt-display-format 'window)
+      (advice-add 'appt-disp-window :before #'my--appt-disp-window))))
+
+  (with-eval-after-load "ivy"
+    (defvar counsel-appt-time-msg-list nil))
+)
+
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "nerd-icons"
   (setq-default prettify-symbols-alist
@@ -1877,7 +1906,7 @@ This function returns a timer object which you can use in
       (cond ((require 'nerd-icons nil t)
              ;; (nerd-icons-octicon "nf-oct-typography"
              ;;					:face 'mode-line-ime-on-face)
-             (nerd-icons-mdicon "nf-md-ideogram_cjk_variant" ;; IME
+             (nerd-icons-mdicon "nf-md-ideogram_cjk_variant" ;; 󱌲
                                  :face 'mode-line-ime-on-face))
             ((require 'icons-in-terminal nil t)
              (icons-in-terminal-octicon "keyboard"

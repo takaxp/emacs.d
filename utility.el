@@ -183,6 +183,13 @@ This function is called directly from the C code."
     (cancel-timer my-secret-close-timer)))
 
 ;;;###autoload
+(defun my-sleep-macos ()
+  "Sleep macOS."
+  (interactive)
+  (when (eq system-type 'darwin)
+    (shell-command "pmset sleepnow")))
+
+;;;###autoload
 (defun my-isearch-ime-deactivate-sticky ()
   (unless (region-active-p)
     (mac-ime-deactivate-sticky)))
