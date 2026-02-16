@@ -204,7 +204,7 @@
     (advice-add 'find-file-read-args :around #'my--find-file-read-args)))
 
 (defvar my-secret-org-file "secret.org.gpg")
-(defvar my-secret-autolock-time 60)
+(defvar my-secret-autolock-time 300)
 (defvar my-secret-close-timer
   (run-with-idle-timer my-secret-autolock-time
            t #'my-lock-secret-buffer my-secret-org-file))

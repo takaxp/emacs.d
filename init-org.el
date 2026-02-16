@@ -1,7 +1,7 @@
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (defvar my-init-org-start (current-time))
-(unless (featurep 'postpone)
-  (call-interactively 'postpone-pre))
+;; (unless (featurep 'postpone)
+;;   (call-interactively 'postpone-pre))
 
 (add-hook 'org-mode-hook #'my-org-mode-indent-conf)
 

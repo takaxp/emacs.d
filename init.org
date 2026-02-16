@@ -113,8 +113,8 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle init-org.el :exports none
 ;; init-org.el --- My config for org mode -*- lexical-binding: t -*-
 (defvar my-init-org-start (current-time))
-(unless (featurep 'postpone)
-  (call-interactively 'postpone-pre))
+;; (unless (featurep 'postpone)
+;;   (call-interactively 'postpone-pre))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :exports none
@@ -131,8 +131,8 @@ Then load the following at startup
 #+begin_src emacs-lisp :tangle utility.el
 ;; utility.el --- My utility.el -*- lexical-binding: t -*-
 ;; "my-" and "ad:" functions associated with my 'init.el'
-(unless (featurep 'postpone)
-  (call-interactively 'postpone-pre))
+;; (unless (featurep 'postpone)
+;;   (call-interactively 'postpone-pre))
 (unless noninteractive
   (defvar my-utility-start (current-time)))
 #+end_src
@@ -152,11 +152,9 @@ Then load the following at startup
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (unless (getenv "LIBRARY_PATH")
   (setenv "LIBRARY_PATH"
-          (string-join
-           '("/opt/homebrew/opt/gcc/lib/gcc/15"
-             "/opt/homebrew/opt/libgccjit/lib/gcc/15"
-             "/opt/homebrew/opt/gcc/lib/gcc/15/gcc/aarch64-apple-darwin24/15")
-          ":")))
+          "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
+;; (message "--- %s" (getenv "LIBRARY_PATH"))
+;; M-x my-get-libgccjit-library-path
 ;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
 #+end_src
 
@@ -1081,6 +1079,38 @@ This function returns a timer object which you can use in
   (add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done))
 #+end_src
 
+** TODO Native comp のビルドパスを取得
+:PROPERTIES:
+:CUSTOM_ID: org722bba84
+:ID:       82F3DA12-797C-4C40-802E-25F77A7BE077
+:END:
+
+起動のたびに brew に関する情報を集めて libgccjit 用に LIBRARY_PATH を設定するのは高コストなので， setenv で設定するべきパスを事前に取得する．
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-get-libgccjit-library-path ()
+  "Return \"LIBRARY_PATH\" to use libgccjit on macOS."
+  (interactive)
+  (let* ((lpath-prefix (string-chop-newline
+                        (shell-command-to-string "brew --prefix")))
+         (gcc-brew-list (string-chop-newline
+                         (shell-command-to-string "brew list --version gcc")))
+         (gcc-major-version
+          (if (string-match "^[^0-9]*\\([0-9]+\\)" gcc-brew-list)
+              (match-string 1 gcc-brew-list) "0"))
+         (gcc-triplet (string-chop-newline
+                       (shell-command-to-string
+                        (format "%s/bin/gcc-%s -dumpmachine"
+                                lpath-prefix gcc-major-version)))))
+    (message "%s" (string-join
+                   `(,(concat lpath-prefix "/opt/gcc/lib/gcc/current/gcc/"
+                              gcc-triplet "/" gcc-major-version)
+                     ;; add a new path here
+                     )
+                   ":"))))
+#+end_src
+
 ** custom.el の指定
 :PROPERTIES:
 :CUSTOM_ID: orgb6d21621
@@ -1867,7 +1897,7 @@ echo "--- done."
     :ID:       4E958002-BA51-4182-A9CF-AF33A090120E
     :END:
 
-密かに =el-get= に移行．コマンドラインからも効率よく管理可能．
+=el-get= に移行．コマンドラインからも効率よく管理可能．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(el-get-version
@@ -2215,7 +2245,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
 #+begin_src emacs-lisp :tangle init.el
 (defvar my-secret-org-file "secret.org.gpg")
-(defvar my-secret-autolock-time 60)
+(defvar my-secret-autolock-time 300)
 (defvar my-secret-close-timer
   (run-with-idle-timer my-secret-autolock-time
            t #'my-lock-secret-buffer my-secret-org-file))
@@ -3142,6 +3172,7 @@ cycle-buffer を使うと，バッファの履歴をスライドショーのよ�
    CLOSED: [2018-09-23 Sun 15:19]
    :PROPERTIES:
    :CUSTOM_ID: org1af5f062
+   :ID:       AB26AFDE-41A4-48C1-8BBF-23564AFC162C
    :END:
 
 https://raw.github.com/takaxp/EmacsScripts/master/SmoothScroll.el
@@ -11973,6 +12004,7 @@ This user property stores the creation date of the entry")
 
 ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
 ;; Need review
+
 ;;;###autoload
 (defun my--appt-display-message (string mins)
   "Display a reminder about an appointment.
@@ -12053,7 +12085,7 @@ update it for multiple appts?")
   "Make sure FILE exists.  If not, ask user what to do."
   (let ((read-char-default-timeout 0)) ;; not nil
     (unless (file-exists-p file)
-      (message "Non-existent agenda file %s.  [R]emove from list or [A]bort?"
+      (message "Non-existent agenda file %s.    [R]emove from list or [A]bort?"
                (abbreviate-file-name file))
       (let ((r (downcase (or (read-char-exclusive) ?r))))
         (cond
@@ -15631,7 +15663,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
                  (message (concat (format "[async] %s package" count)
                                   (if (> count 1) "s are" " is")
                                   " NOT installed."))))))))
-    (error "missing async.el")))
+    (message "missing async.el")))
 #+end_src
 
 ** [async] 古いバックアップファイルを削除
@@ -15655,11 +15687,11 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
      `(lambda ()
         (sleep-for (or ',defer 5))
         (setq load-path ',load-path)
-        (when (and (load (concat (getenv "HOME") "/.emacs") t)
-                   (require 'init nil t)) ;; FIXME
+        (when (load (concat (getenv "HOME") "/.emacs") t)
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)
+       ;; (message "--- %s" result)
        (if result
            (let ((inhibit-message nil)
                  (message-log-max 5000))
@@ -16917,10 +16949,10 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 ;;(setq browse-url-browser-function 'browse-url-chrome)
 #+end_src
 ** バックアップファイルの削除
-   :PROPERTIES:
-   :CUSTOM_ID: orgca3eae6b
-   :ID:       5239A0B1-407A-4715-A070-70FE47E96A49
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgca3eae6b
+:ID:       5239A0B1-407A-4715-A070-70FE47E96A49
+:END:
 
 #+begin_src emacs-lisp :tangle utility.el
 ;; find ~/.emacs.d/backup  -type f -name '*15-04-24_*' -print0 | while read -r -d '' file; do echo -n " \"$file\""; done | xargs -0

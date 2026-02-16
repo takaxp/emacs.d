@@ -1,7 +1,7 @@
 ;; utility.el --- My utility.el -*- lexical-binding: t -*-
 ;; "my-" and "ad:" functions associated with my 'init.el'
-(unless (featurep 'postpone)
-  (call-interactively 'postpone-pre))
+;; (unless (featurep 'postpone)
+;;   (call-interactively 'postpone-pre))
 (unless noninteractive
   (defvar my-utility-start (current-time)))
 
@@ -110,6 +110,28 @@ This function is called directly from the C code."
 ;;;###autoload
 (defun my-native-comp-packages-done ()
   (message "Native Compilation...done"))
+
+;;;###autoload
+(defun my-get-libgccjit-library-path ()
+  "Return \"LIBRARY_PATH\" to use libgccjit on macOS."
+  (interactive)
+  (let* ((lpath-prefix (string-chop-newline
+                        (shell-command-to-string "brew --prefix")))
+         (gcc-brew-list (string-chop-newline
+                         (shell-command-to-string "brew list --version gcc")))
+         (gcc-major-version
+          (if (string-match "^[^0-9]*\\([0-9]+\\)" gcc-brew-list)
+              (match-string 1 gcc-brew-list) "0"))
+         (gcc-triplet (string-chop-newline
+                       (shell-command-to-string
+                        (format "%s/bin/gcc-%s -dumpmachine"
+                                lpath-prefix gcc-major-version)))))
+    (message "%s" (string-join
+                   `(,(concat lpath-prefix "/opt/gcc/lib/gcc/current/gcc/"
+                              gcc-triplet "/" gcc-major-version)
+                     ;; add a new path here
+                     )
+                   ":"))))
 
 (defvar my-elget-delete-eln-file-packages nil)
 (add-to-list 'my-elget-delete-eln-file-packages 'org-appear)
@@ -2313,6 +2335,7 @@ will not be modified."
 
 ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
 ;; Need review
+
 ;;;###autoload
 (defun my--appt-display-message (string mins)
   "Display a reminder about an appointment.
@@ -2393,7 +2416,7 @@ update it for multiple appts?")
   "Make sure FILE exists.  If not, ask user what to do."
   (let ((read-char-default-timeout 0)) ;; not nil
     (unless (file-exists-p file)
-      (message "Non-existent agenda file %s.  [R]emove from list or [A]bort?"
+      (message "Non-existent agenda file %s.    [R]emove from list or [A]bort?"
                (abbreviate-file-name file))
       (let ((r (downcase (or (read-char-exclusive) ?r))))
         (cond
@@ -3470,7 +3493,7 @@ Uses `all-the-icons-material' to fetch the icon."
                  (message (concat (format "[async] %s package" count)
                                   (if (> count 1) "s are" " is")
                                   " NOT installed."))))))))
-    (error "missing async.el")))
+    (message "missing async.el")))
 
 ;;;###autoload
 (defun my-delete-old-backup (&optional defer)
@@ -3480,11 +3503,11 @@ Uses `all-the-icons-material' to fetch the icon."
      `(lambda ()
         (sleep-for (or ',defer 5))
         (setq load-path ',load-path)
-        (when (and (load (concat (getenv "HOME") "/.emacs") t)
-                   (require 'init nil t)) ;; FIXME
+        (when (load (concat (getenv "HOME") "/.emacs") t)
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)
+       ;; (message "--- %s" result)
        (if result
            (let ((inhibit-message nil)
                  (message-log-max 5000))

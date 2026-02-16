@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-02-13 金 17:10 -->
+<!-- 2026-02-16 月 11:33 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -240,22 +240,23 @@
 <li><a href="#org5a18ac68">2.22. Native comp が使えるかを判定する</a></li>
 <li><a href="#org81081865">2.23. Native comp の警告を非表示にする</a></li>
 <li><a href="#org65713cda">2.24. Native comp がコンパイルした後にメッセージを表示する</a></li>
-<li><a href="#orgb6d21621">2.25. custom.el の指定</a></li>
-<li><a href="#orgfd894e86">2.26. elget パッケージを native comp する</a></li>
-<li><a href="#orgb59612b6">2.27. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#org0b7d9710">2.28. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
+<li><a href="#org722bba84">2.25. <span class="todo TODO">TODO</span> Native comp のビルドパスを取得</a></li>
+<li><a href="#orgb6d21621">2.26. custom.el の指定</a></li>
+<li><a href="#orgfd894e86">2.27. elget パッケージを native comp する</a></li>
+<li><a href="#orgb59612b6">2.28. [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org0b7d9710">2.29. [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a>
 <ul>
-<li><a href="#org42722212">2.28.1. 関数版</a></li>
-<li><a href="#org1498f6ce">2.28.2. マクロ版</a></li>
+<li><a href="#org42722212">2.29.1. 関数版</a></li>
+<li><a href="#org1498f6ce">2.29.2. マクロ版</a></li>
 </ul>
 </li>
-<li><a href="#orgdb356e99">2.29. loadとrequireの実行時間を計測</a></li>
-<li><a href="#orgfca510d8">2.30. <span class="done DONE">DONE</span> [shut-up.el] Messages 出力を封じる（制御する）</a>
+<li><a href="#orgdb356e99">2.30. loadとrequireの実行時間を計測</a></li>
+<li><a href="#orgfca510d8">2.31. <span class="done DONE">DONE</span> [shut-up.el] Messages 出力を封じる（制御する）</a>
 <ul>
-<li><a href="#orgb6593164">2.30.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#orgb6593164">2.31.1. with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
 </ul>
 </li>
-<li><a href="#orgcea06248">2.31. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
+<li><a href="#orgcea06248">2.32. <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</a></li>
 </ul>
 </li>
 <li><a href="#org8e58f563">3. コア設定</a>
@@ -947,9 +948,9 @@ Then load the following at startup
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">utility.el --- My utility.el -*- lexical-binding: t -*-
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">"my-" and "ad:" functions associated with my '</span><span style="color: #008b8b;">init.el</span><span style="color: #b22222;">'
-</span>(<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">postpone</span>)
-  (call-interactively 'postpone-pre))
-(<span style="color: #a020f0;">unless</span> noninteractive
+</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">(unless (featurep 'postpone)
+</span><span style="color: #b22222;">;;   </span><span style="color: #b22222;">(call-interactively 'postpone-pre))
+</span>(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-utility-start</span> (current-time)))
 </pre>
 </div>
@@ -969,12 +970,10 @@ Then load the following at startup
 </span><span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">unless</span> (getenv <span style="color: #8b2252;">"LIBRARY_PATH"</span>)
   (setenv <span style="color: #8b2252;">"LIBRARY_PATH"</span>
-          (string-join
-           '(<span style="color: #8b2252;">"/opt/homebrew/opt/gcc/lib/gcc/15"</span>
-             <span style="color: #8b2252;">"/opt/homebrew/opt/libgccjit/lib/gcc/15"</span>
-             <span style="color: #8b2252;">"/opt/homebrew/opt/gcc/lib/gcc/15/gcc/aarch64-apple-darwin24/15"</span>)
-          <span style="color: #8b2252;">":"</span>)))
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".</span>
+          <span style="color: #8b2252;">"/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"</span>))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- %s" (getenv "LIBRARY_PATH"))
+</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">M-x my-get-libgccjit-library-path
+</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".</span>
 </pre>
 </div>
 
@@ -1938,8 +1937,41 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 </div>
+<div id="outline-container-org722bba84" class="outline-3">
+<h3 id="org722bba84"><span class="section-number-3">2.25.</span> <span class="todo TODO">TODO</span> Native comp のビルドパスを取得</h3>
+<div class="outline-text-3" id="text-org722bba84">
+<p>
+起動のたびに brew に関する情報を集めて libgccjit 用に LIBRARY_PATH を設定するのは高コストなので， setenv で設定するべきパスを事前に取得する．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-get-libgccjit-library-path</span> ()
+  <span style="color: #8b2252;">"Return \"LIBRARY_PATH\" to use libgccjit on macOS."</span>
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">let*</span> ((lpath-prefix (string-chop-newline
+                        (shell-command-to-string <span style="color: #8b2252;">"brew --prefix"</span>)))
+         (gcc-brew-list (string-chop-newline
+                         (shell-command-to-string <span style="color: #8b2252;">"brew list --version gcc"</span>)))
+         (gcc-major-version
+          (<span style="color: #a020f0;">if</span> (string-match <span style="color: #8b2252;">"^[</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">0-9]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> gcc-brew-list)
+              (match-string 1 gcc-brew-list) <span style="color: #8b2252;">"0"</span>))
+         (gcc-triplet (string-chop-newline
+                       (shell-command-to-string
+                        (format <span style="color: #8b2252;">"%s/bin/gcc-%s -dumpmachine"</span>
+                                lpath-prefix gcc-major-version)))))
+    (message <span style="color: #8b2252;">"%s"</span> (string-join
+                   `(,(concat lpath-prefix <span style="color: #8b2252;">"/opt/gcc/lib/gcc/current/gcc/"</span>
+                              gcc-triplet <span style="color: #8b2252;">"/"</span> gcc-major-version)
+                     <span style="color: #b22222;">;; </span><span style="color: #b22222;">add a new path here
+</span>                     )
+                   <span style="color: #8b2252;">":"</span>))))
+</pre>
+</div>
+</div>
+</div>
 <div id="outline-container-orgb6d21621" class="outline-3">
-<h3 id="orgb6d21621"><span class="section-number-3">2.25.</span> custom.el の指定</h3>
+<h3 id="orgb6d21621"><span class="section-number-3">2.26.</span> custom.el の指定</h3>
 <div class="outline-text-3" id="text-orgb6d21621">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #b22222;">;; </span><span style="color: #b22222;">Suppress exporting of custom-set-variables (25.1 or later)
@@ -1949,7 +1981,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-orgfd894e86" class="outline-3">
-<h3 id="orgfd894e86"><span class="section-number-3">2.26.</span> elget パッケージを native comp する</h3>
+<h3 id="orgfd894e86"><span class="section-number-3">2.27.</span> elget パッケージを native comp する</h3>
 <div class="outline-text-3" id="text-orgfd894e86">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-delete-eln-file-packages</span> nil)
@@ -1972,7 +2004,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-orgb59612b6" class="outline-3">
-<h3 id="orgb59612b6"><span class="section-number-3">2.27.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="orgb59612b6"><span class="section-number-3">2.28.</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgb59612b6">
 <ul class="org-ul">
 <li><a href="https://github.com/purcell/exec-path-from-shell">purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell</a></li>
@@ -1991,7 +2023,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-org0b7d9710" class="outline-3">
-<h3 id="org0b7d9710"><span class="section-number-3">2.28.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org0b7d9710"><span class="section-number-3">2.29.</span> [eval-after-autoload-if-found] 遅延読み込み&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org0b7d9710">
 <p>
 <b>現在は使っていません．非推奨です．</b>
@@ -2074,7 +2106,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </p>
 </div>
 <div id="outline-container-org42722212" class="outline-4">
-<h4 id="org42722212"><span class="section-number-4">2.28.1.</span> 関数版</h4>
+<h4 id="org42722212"><span class="section-number-4">2.29.1.</span> 関数版</h4>
 <div class="outline-text-4" id="text-org42722212">
 <p>
 関数版にリスト <code>my-disabled-packages</code> を追加しました．このリストに事前に Lisp ファイル名を入れておくと，一切の設定をスキップするものです． <code>eval-after-atoload-if-found</code> を定義する前に次のような変数を設定しておきます．バイトコンパイルしていないファイルに書いておけば，パッケージのON/OFFを簡単に制御できます．
@@ -2129,7 +2161,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 <div id="outline-container-org1498f6ce" class="outline-4">
-<h4 id="org1498f6ce"><span class="section-number-4">2.28.2.</span> マクロ版</h4>
+<h4 id="org1498f6ce"><span class="section-number-4">2.29.2.</span> マクロ版</h4>
 <div class="outline-text-4" id="text-org1498f6ce">
 <p>
 以下はマクロ版です．引数の渡し方が関数と少し違うので要注意です．
@@ -2163,7 +2195,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 <div id="outline-container-orgdb356e99" class="outline-3">
-<h3 id="orgdb356e99"><span class="section-number-3">2.29.</span> loadとrequireの実行時間を計測</h3>
+<h3 id="orgdb356e99"><span class="section-number-3">2.30.</span> loadとrequireの実行時間を計測</h3>
 <div class="outline-text-3" id="text-orgdb356e99">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-minimum-time-to-print</span> 0.5)
@@ -2188,7 +2220,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
 </div>
 </div>
 <div id="outline-container-orgfca510d8" class="outline-3">
-<h3 id="orgfca510d8"><span class="section-number-3">2.30.</span> <span class="done DONE">DONE</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
+<h3 id="orgfca510d8"><span class="section-number-3">2.31.</span> <span class="done DONE">DONE</span> [shut-up.el] Messages 出力を封じる（制御する）</h3>
 <div class="outline-text-3" id="text-orgfca510d8">
 <p>
 Note: <code>my--suppress-message</code> と save-silently で十分制御可能になったので，使わなくなりました．
@@ -2208,7 +2240,7 @@ Note: <code>my--suppress-message</code> と save-silently で十分制御可能�
 </div>
 </div>
 <div id="outline-container-orgb6593164" class="outline-4">
-<h4 id="orgb6593164"><span class="section-number-4">2.30.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h4>
+<h4 id="orgb6593164"><span class="section-number-4">2.31.1.</span> with-suppressed-message&#xa0;&#xa0;&#xa0;<span class="tag"><span class="obsolete">obsolete</span></span></h4>
 <div class="outline-text-4" id="text-orgb6593164">
 <p>
 以下はそれ以前のアプローチ． <code>recentf-save-list</code> を <code>find-file-hook</code> にぶら下げていますが，そのままだと <code>org-agenda</code> の初回実行時にたくさんのメッセージが出てしまうところ，このマクロを介すだけで抑制可能です． <code>message-log-max</code> で制御できるのがすごい．
@@ -2230,7 +2262,7 @@ Note: <code>my--suppress-message</code> と save-silently で十分制御可能�
 </div>
 </div>
 <div id="outline-container-orgcea06248" class="outline-3">
-<h3 id="orgcea06248"><span class="section-number-3">2.31.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
+<h3 id="orgcea06248"><span class="section-number-3">2.32.</span> <span class="done DONE">DONE</span> [window-focus-p] フォーカス判定</h3>
 <div class="outline-text-3" id="text-orgcea06248">
 <p>
 フォーカスが当たっているのかを判定するための関数です．
@@ -2770,7 +2802,7 @@ $<span style="color: #a0522d;">COMMAND</span> $<span style="color: #a0522d;">LOA
 <h4 id="org6c5717fc"><span class="section-number-4">3.13.5.</span> [el-get.el] パッケージ管理（GUI，CUI）</h4>
 <div class="outline-text-4" id="text-org6c5717fc">
 <p>
-密かに <code>el-get</code> に移行．コマンドラインからも効率よく管理可能．
+<code>el-get</code> に移行．コマンドラインからも効率よく管理可能．
 </p>
 
 <div class="org-src-container">
@@ -3165,7 +3197,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-secret-org-file</span> <span style="color: #8b2252;">"secret.org.gpg"</span>)
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-secret-autolock-time</span> 60)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-secret-autolock-time</span> 300)
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-secret-close-timer</span>
   (run-with-idle-timer my-secret-autolock-time
            t #'my-lock-secret-buffer my-secret-org-file))
@@ -13721,7 +13753,8 @@ This user property stores the creation date of the entry"</span>)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">appt-display-format &#12364; 'echo &#12391;&#12418; appt-disp-window-function &#12434;&#21628;&#12406;
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">Need review
-</span><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--appt-display-message</span> (string mins)
   <span style="color: #8b2252;">"Display a reminder about an appointment.
 The string STRING describes the appointment, due in integer MINS minutes.
@@ -13801,7 +13834,7 @@ update it for multiple appts?"</span>)
   <span style="color: #8b2252;">"Make sure FILE exists.  If not, ask user what to do."</span>
   (<span style="color: #a020f0;">let</span> ((read-char-default-timeout 0)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">not nil
 </span>    (<span style="color: #a020f0;">unless</span> (file-exists-p file)
-      (message <span style="color: #8b2252;">"Non-existent agenda file %s.  [R]emove from list or [A]bort?"</span>
+      (message <span style="color: #8b2252;">"Non-existent agenda file %s.    [R]emove from list or [A]bort?"</span>
                (abbreviate-file-name file))
       (<span style="color: #a020f0;">let</span> ((r (downcase (<span style="color: #a020f0;">or</span> (read-char-exclusive) ?r))))
         (<span style="color: #a020f0;">cond</span>
@@ -14455,7 +14488,7 @@ org-mode の表のようにフェイスを統一しています． <code>calfw</
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgf2bbfb6"><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orge284c60"><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15451,7 +15484,7 @@ Papers3.app は，各文献に <code>papers3://</code> で始まるURIを割り�
 </ul>
 
 
-<div id="org7687204" class="figure">
+<div id="orgca8e6a4" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" />
 </p>
 </div>
@@ -17617,7 +17650,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
                  (message (concat (format <span style="color: #8b2252;">"[async] %s package"</span> count)
                                   (<span style="color: #a020f0;">if</span> (&gt; count 1) <span style="color: #8b2252;">"s are"</span> <span style="color: #8b2252;">" is"</span>)
                                   <span style="color: #8b2252;">" NOT installed."</span>))))))))
-    (<span style="color: #ff0000; font-weight: bold;">error</span> <span style="color: #8b2252;">"missing async.el"</span>)))
+    (message <span style="color: #8b2252;">"missing async.el"</span>)))
 </pre>
 </div>
 </div>
@@ -17641,12 +17674,12 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
 </span>     `(<span style="color: #a020f0;">lambda</span> ()
         (sleep-for (<span style="color: #a020f0;">or</span> ',defer 5))
         (<span style="color: #a020f0;">setq</span> load-path ',load-path)
-        (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (load (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/.emacs"</span>) t)
-                   (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init</span> nil t)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME
-</span>          (recursive-delete-backup-files 7)
+        (<span style="color: #a020f0;">when</span> (load (concat (getenv <span style="color: #8b2252;">"HOME"</span>) <span style="color: #8b2252;">"/.emacs"</span>) t)
+          (recursive-delete-backup-files 7)
           t))
      (<span style="color: #a020f0;">lambda</span> (result)
-       (<span style="color: #a020f0;">if</span> result
+       <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- %s" result)
+</span>       (<span style="color: #a020f0;">if</span> result
            (<span style="color: #a020f0;">let</span> ((inhibit-message nil)
                  (message-log-max 5000))
              (<span style="color: #a020f0;">unless</span> (eval '(active-minibuffer-window))
@@ -19956,7 +19989,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2026-02-13 金 17:10</p>
+<p class="date">Created: 2026-02-16 月 11:33</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

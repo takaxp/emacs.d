@@ -4,11 +4,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (unless (getenv "LIBRARY_PATH")
   (setenv "LIBRARY_PATH"
-          (string-join
-           '("/opt/homebrew/opt/gcc/lib/gcc/15"
-             "/opt/homebrew/opt/libgccjit/lib/gcc/15"
-             "/opt/homebrew/opt/gcc/lib/gcc/15/gcc/aarch64-apple-darwin24/15")
-          ":")))
+          "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
+;; (message "--- %s" (getenv "LIBRARY_PATH"))
+;; M-x my-get-libgccjit-library-path
 ;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
 
 (unless noninteractive
