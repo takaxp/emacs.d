@@ -2213,6 +2213,16 @@ This function returns a timer object which you can use in
                          "google-this" nil t)
   (keymap-global-set "C-c f g" 'my-google-this))
 
+(when (autoload-if-found '(gt-translate)
+                         "gt" "gt.el" t)
+  (with-eval-after-load "gt"
+    (setq gt-langs '(en ja))
+    (setq gt-default-translator
+          (gt-translator
+           :taker (gt-taker :text 'buffer :pick 'paragraph)
+           :engines (list (gt-google-engine))
+           :render (gt-render)))))
+
 (when (autoload-if-found '(osx-lib-say osx-lib-say-region)
                          "osx-lib" nil t)
   (with-eval-after-load "osx-lib"

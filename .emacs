@@ -3,23 +3,6 @@
 ;;					    https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                             TODO/DONE/FIXME
-
-(with-eval-after-load "init"
-  (autoload-if-found '(gt-translate) "gt" "gt.el" t))
-
-;;;###autoload
-(defun my-google-translate-this ()
-  (interactive)
-  (gt-translate))
-
-(with-eval-after-load "gt"
-  (setq gt-langs '(en ja))
-  (setq gt-default-translator
-	(gt-translator
-	 :taker (gt-taker :text 'buffer :pick 'paragraph)
-	 :engines (list (gt-google-engine))
-	 :render (gt-render))))
-
 (with-eval-after-load "org"
   ;; (keymap-set org-mode-map "C-c c" 'ignore)
 
@@ -131,6 +114,15 @@
 	my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
 	my-frame-appearance nil     ;; {nil, 'dark, 'light}
 	my-skip-check-autoload-file t)
+
+  ;; Enable Native Compile (t: enable, nil: disable)
+  (unless nil
+    (setq native-comp-jit-compilation nil
+	  native-comp-enable-subr-trampolines nil
+	  native-comp-eln-load-path nil))
+  ;; Run the following to delete the cached eln files for next session
+  ;; (delete-directory (format "%s%s" (car native-comp-eln-load-path) comp-native-version-dir) t t)
+  ;; and run batch-compile.sh -b
 
   (defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))
   (defvar my-ad-require-p nil

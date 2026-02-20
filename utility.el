@@ -3523,6 +3523,11 @@ Uses `all-the-icons-material' to fetch the icon."
   (google-this (current-word) t))
 
 ;;;###autoload
+(defun my-google-translate-this ()
+  (interactive)
+  (gt-translate))
+
+;;;###autoload
 (defun my-gif-screencast-opendir-dired ()
   "Open directories for screenshots and generated GIFs by Dired."
   (interactive)

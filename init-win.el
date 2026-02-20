@@ -310,14 +310,13 @@
     (insert (format-time-string "%Y-%m-%d")))
 
   (defun my-kill-all-file-buffers ()
-    "Kill all buffers visiting files."
+    "Kill all visiting files.  see also `kill-matching-buffers-no-ask'."
     (interactive)
     (dolist (buffer (buffer-list))
-      (when (or (and (buffer-live-p buffer)
-                     (buffer-file-name buffer))
-		(and (switch-to-buffer buffer)
-                     (eq major-mode 'dired-mode)
-                     (file-directory-p (dired-current-directory))))
+      (when (and (buffer-live-p buffer)
+		 (or (buffer-file-name buffer)
+                     (with-current-buffer buffer
+                       (derived-mode-p 'dired-mode))))
 	(kill-buffer buffer)))
     (delete-windows-on)
     (scratch-buffer)

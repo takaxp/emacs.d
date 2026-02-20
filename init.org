@@ -16059,10 +16059,35 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
   (keymap-global-set "C-c f g" 'my-google-this))
 #+end_src
 
+** TODO [gt.el] グーグル翻訳を使う
+:PROPERTIES:
+:CUSTOM_ID: org0c2d8f36
+:ID:       DBE75BCA-F57B-4641-90A6-5E1AB8C1B30E
+:END:
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-google-translate-this ()
+  (interactive)
+  (gt-translate))
+#+end_src
+
+#+begin_src emacs-lisp :tangle late-init.el
+(when (autoload-if-found '(gt-translate)
+                         "gt" "gt.el" t)
+  (with-eval-after-load "gt"
+    (setq gt-langs '(en ja))
+    (setq gt-default-translator
+          (gt-translator
+           :taker (gt-taker :text 'buffer :pick 'paragraph)
+           :engines (list (gt-google-engine))
+           :render (gt-render)))))
+#+end_src
+
 ** [multi-term.el] ターミナル
-   :PROPERTIES:
-   :CUSTOM_ID: orgc6fce61d
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgc6fce61d
+:END:
 
 たまに使いたくなるので一応．
 
