@@ -129,7 +129,7 @@ This function is called directly from the C code."
     (message "%s" (string-join
                    `(,(concat lpath-prefix "/opt/gcc/lib/gcc/current/gcc/"
                               gcc-triplet "/" gcc-major-version)
-                     ;; add a new path here
+                     ;; add a new path here, if needed.
                      )
                    ":"))))
 
@@ -2480,7 +2480,7 @@ update it for multiple appts?")
     (require 'ob-gnuplot nil t)
     (require 'ob-octave nil t)
     (require 'ob-go nil t)
-    (if (featurep 'async)
+    (if (require 'async nil t)
         (require 'ob-async nil t)
       (message "--- ob-async is not loaded due to missing async.el"))
     (custom-set-variables ;; will call `org-babel-do-load-languages'
@@ -3495,7 +3495,7 @@ Uses `all-the-icons-material' to fetch the icon."
                  (message (concat (format "[async] %s package" count)
                                   (if (> count 1) "s are" " is")
                                   " NOT installed."))))))))
-    (message "missing async.el")))
+    (message "--- missing async.el")))
 
 ;;;###autoload
 (defun my-delete-old-backup (&optional defer)
@@ -4253,18 +4253,20 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 
 ;;;###autoload
 (defun my-kill-all-file-buffers ()
-  "Kill all buffers visiting files."
+  "Kill all visiting files.  see also `kill-matching-buffers-no-ask'."
   (interactive)
   (dolist (buffer (buffer-list))
-    (when (or (and (buffer-live-p buffer)
-                   (buffer-file-name buffer))
-              (and (switch-to-buffer buffer)
-                   (eq major-mode 'dired-mode)
-                   (file-directory-p (dired-current-directory))))
+    ;; 対象を訪問中のファイルとdired関連のみに限定．ログなどのバッファは残す．
+    (when (and (buffer-live-p buffer)
+               (or (buffer-file-name buffer)
+                   (with-current-buffer buffer
+                     (derived-mode-p 'dired-mode))))
       (kill-buffer buffer)))
+  ;; ウィンドウ分割を解いて，スクラッチバッファを表示
   (delete-windows-on)
-  ;;  (scratch-buffer) is available after 29.1
-  (pop-to-buffer-same-window (get-scratch-buffer-create))
+  (if (version< "29" (format "%s" emacs-major-version))
+      (scratch-buffer)
+    (pop-to-buffer-same-window (get-scratch-buffer-create)))
   (message "Quit Emacs? (C-c C-x)"))
 
 ;;;###autoload

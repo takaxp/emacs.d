@@ -2,12 +2,12 @@
 ;; Configurations for Emacs
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; to support native compiling
 (unless (getenv "LIBRARY_PATH")
   (setenv "LIBRARY_PATH"
           "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
 ;; (message "--- %s" (getenv "LIBRARY_PATH"))
-;; M-x my-get-libgccjit-library-path
-;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
+;; To see the path in your envrinment, M-x my-get-libgccjit-library-path
 
 (unless noninteractive
   (defvar my-early-start (current-time))

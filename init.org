@@ -150,12 +150,12 @@ Then load the following at startup
 ;; Configurations for Emacs
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; to support native compiling
 (unless (getenv "LIBRARY_PATH")
   (setenv "LIBRARY_PATH"
           "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
 ;; (message "--- %s" (getenv "LIBRARY_PATH"))
-;; M-x my-get-libgccjit-library-path
-;; for Intel mac user, replace "aarch64-apple-darwin24" with "x86_64-apple-darwin24".
+;; To see the path in your envrinment, M-x my-get-libgccjit-library-path
 #+end_src
 
 #+begin_src emacs-lisp :tangle early-init.el
@@ -1106,7 +1106,7 @@ This function returns a timer object which you can use in
     (message "%s" (string-join
                    `(,(concat lpath-prefix "/opt/gcc/lib/gcc/current/gcc/"
                               gcc-triplet "/" gcc-major-version)
-                     ;; add a new path here
+                     ;; add a new path here, if needed.
                      )
                    ":"))))
 #+end_src
@@ -3741,6 +3741,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   (keymap-set view-mode-map "n" 'my-org-view-next-heading)
   (keymap-set view-mode-map "p" 'my-org-view-previous-heading)
   (keymap-set view-mode-map "g" #'my-google-this)
+  (keymap-set view-mode-map "G" #'my-google-translate-this)
   (keymap-set view-mode-map "<tab>" 'my-view-tab)
   (keymap-set view-mode-map "S-<tab>" 'my-view-shifttab)
   (unless my-toggle-modeline-global
@@ -4388,11 +4389,11 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
-    (sp-pair "<" ">")
+    ;; (sp-pair "<" ">")
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "$" "$" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "'" "'" :actions '(wrap)) ;; 選択時のみ有効
-;;    (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
+    (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "_" "_" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "~" "~" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "[" "]" :actions '(wrap)) ;; 選択時のみ有効
@@ -4535,6 +4536,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
     (keymap-set selected-keymap "d" #'osx-dictionary-search-pointer)
     (keymap-set selected-keymap "5" #'query-replace-from-region)
     (keymap-set selected-keymap "g" #'my-google-this)
+    (keymap-set selected-keymap "G" #'my-google-translate-this)
     (keymap-set selected-keymap "s" #'osx-lib-say-region)
     (keymap-set selected-keymap "q" #'selected-off)
     (keymap-set selected-keymap "x" #'my-hex-to-decimal)
@@ -6514,6 +6516,8 @@ Obeys `widen-automatically', which see."
     (setq ivy-count-format "%d.%d ")
     ;; (setq ivy-truncate-lines nil) ;; 選択候補も折り返されてしまう．
     ;; (setq ivy-wrap t)
+
+    (keymap-set ivy-minibuffer-map "S-SPC" 'my-toggle-ime-ns)
     (ivy-mode 1))
 
   (with-eval-after-load "counsel"
@@ -12251,7 +12255,7 @@ update it for multiple appts?")
     (require 'ob-gnuplot nil t)
     (require 'ob-octave nil t)
     (require 'ob-go nil t)
-    (if (featurep 'async)
+    (if (require 'async nil t)
         (require 'ob-async nil t)
       (message "--- ob-async is not loaded due to missing async.el"))
     (custom-set-variables ;; will call `org-babel-do-load-languages'
@@ -15665,7 +15669,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
                  (message (concat (format "[async] %s package" count)
                                   (if (> count 1) "s are" " is")
                                   " NOT installed."))))))))
-    (message "missing async.el")))
+    (message "--- missing async.el")))
 #+end_src
 
 ** [async] 古いバックアップファイルを削除
@@ -17693,18 +17697,20 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-kill-all-file-buffers ()
-  "Kill all buffers visiting files."
+  "Kill all visiting files.  see also `kill-matching-buffers-no-ask'."
   (interactive)
   (dolist (buffer (buffer-list))
-    (when (or (and (buffer-live-p buffer)
-                   (buffer-file-name buffer))
-              (and (switch-to-buffer buffer)
-                   (eq major-mode 'dired-mode)
-                   (file-directory-p (dired-current-directory))))
+    ;; 対象を訪問中のファイルとdired関連のみに限定．ログなどのバッファは残す．
+    (when (and (buffer-live-p buffer)
+               (or (buffer-file-name buffer)
+                   (with-current-buffer buffer
+                     (derived-mode-p 'dired-mode))))
       (kill-buffer buffer)))
+  ;; ウィンドウ分割を解いて，スクラッチバッファを表示
   (delete-windows-on)
-  ;;  (scratch-buffer) is available after 29.1
-  (pop-to-buffer-same-window (get-scratch-buffer-create))
+  (if (version< "29" (format "%s" emacs-major-version))
+      (scratch-buffer)
+    (pop-to-buffer-same-window (get-scratch-buffer-create)))
   (message "Quit Emacs? (C-c C-x)"))
 #+end_src
 

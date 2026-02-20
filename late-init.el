@@ -499,6 +499,7 @@ This function returns a timer object which you can use in
   (keymap-set view-mode-map "n" 'my-org-view-next-heading)
   (keymap-set view-mode-map "p" 'my-org-view-previous-heading)
   (keymap-set view-mode-map "g" #'my-google-this)
+  (keymap-set view-mode-map "G" #'my-google-translate-this)
   (keymap-set view-mode-map "<tab>" 'my-view-tab)
   (keymap-set view-mode-map "S-<tab>" 'my-view-shifttab)
   (unless my-toggle-modeline-global
@@ -735,11 +736,11 @@ This function returns a timer object which you can use in
     (sp-pair "`" nil :actions :rem)
     (sp-pair "'" nil :actions :rem)
     (sp-pair "[" nil :actions :rem)
-    (sp-pair "<" ">")
+    ;; (sp-pair "<" ">")
     (sp-local-pair 'org-mode "=" "=")
     (sp-local-pair 'org-mode "$" "$" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "'" "'" :actions '(wrap)) ;; 選択時のみ有効
-;;    (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
+    (sp-local-pair 'org-mode "<" ">" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "_" "_" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "~" "~" :actions '(wrap)) ;; 選択時のみ有効
     (sp-local-pair 'org-mode "[" "]" :actions '(wrap)) ;; 選択時のみ有効
@@ -788,6 +789,7 @@ This function returns a timer object which you can use in
     (keymap-set selected-keymap "d" #'osx-dictionary-search-pointer)
     (keymap-set selected-keymap "5" #'query-replace-from-region)
     (keymap-set selected-keymap "g" #'my-google-this)
+    (keymap-set selected-keymap "G" #'my-google-translate-this)
     (keymap-set selected-keymap "s" #'osx-lib-say-region)
     (keymap-set selected-keymap "q" #'selected-off)
     (keymap-set selected-keymap "x" #'my-hex-to-decimal)
@@ -1223,6 +1225,8 @@ This function returns a timer object which you can use in
     (setq ivy-count-format "%d.%d ")
     ;; (setq ivy-truncate-lines nil) ;; 選択候補も折り返されてしまう．
     ;; (setq ivy-wrap t)
+
+    (keymap-set ivy-minibuffer-map "S-SPC" 'my-toggle-ime-ns)
     (ivy-mode 1))
 
   (with-eval-after-load "counsel"

@@ -4,6 +4,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                             TODO/DONE/FIXME
 
+(with-eval-after-load "init"
+  (autoload-if-found '(gt-translate) "gt" "gt.el" t))
+
+;;;###autoload
+(defun my-google-translate-this ()
+  (interactive)
+  (gt-translate))
+
+(with-eval-after-load "gt"
+  (setq gt-langs '(en ja))
+  (setq gt-default-translator
+	(gt-translator
+	 :taker (gt-taker :text 'buffer :pick 'paragraph)
+	 :engines (list (gt-google-engine))
+	 :render (gt-render))))
+
 (with-eval-after-load "org"
   ;; (keymap-set org-mode-map "C-c c" 'ignore)
 
