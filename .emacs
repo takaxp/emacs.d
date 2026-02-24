@@ -3,6 +3,7 @@
 ;;					    https://takaxp.github.io/init.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                             TODO/DONE/FIXME
+
 (with-eval-after-load "org"
   ;; (keymap-set org-mode-map "C-c c" 'ignore)
 
@@ -70,6 +71,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot mode selection
 ;; Note: `load-path' and `exec-path' are both configured in early-init.el
+
+;; Enable Native Compile (t: enable, nil: disable)
+;; run batch-compile.sh -d to delete cached eln files.
+(unless nil
+  (setq native-comp-jit-compilation nil
+	native-comp-enable-subr-trampolines nil))
+
+(defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))
+(defvar my-ad-require-p nil
+  "If non-nil, override `require' and `load' to show loading times.")
+(defvar my-profiler-p nil
+  "If non-nil, use built-in profiler.el.")
+(defvar my-loading-profile-p nil
+  "If non-nil, show ticks while booting.")
+(defvar my-secure-boot nil
+  "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
+
 (cond
  ;; minimal boot or DOOM Emacs (use toggle-doom.sh to switch)
  (nil
@@ -115,25 +133,6 @@
 	my-frame-appearance nil     ;; {nil, 'dark, 'light}
 	my-skip-check-autoload-file t)
 
-  ;; Enable Native Compile (t: enable, nil: disable)
-  (unless nil
-    (setq native-comp-jit-compilation nil
-	  native-comp-enable-subr-trampolines nil
-	  native-comp-eln-load-path nil))
-  ;; Run the following to delete the cached eln files for next session
-  ;; (delete-directory (format "%s%s" (car native-comp-eln-load-path) comp-native-version-dir) t t)
-  ;; and run batch-compile.sh -b
-
-  (defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))
-  (defvar my-ad-require-p nil
-    "If non-nil, override `require' and `load' to show loading times.")
-  (defvar my-profiler-p nil
-    "If non-nil, use built-in profiler.el.")
-  (defvar my-loading-profile-p nil
-    "If non-nil, show ticks while booting.")
-  (defvar my-secure-boot nil
-    "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
-
   (setq measure-exec-time-list '(
 				 my-private-conf-activate
 				 my-org-babel-load-activate
@@ -142,7 +141,7 @@
 				 ;; my-show-org-buffer
 				 ))
   ;; (require 'my-eshell nil t)
-  (require 'init nil t)))
+  (require 'init)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (package-initialize) ;; do not delete this line here for previous versions

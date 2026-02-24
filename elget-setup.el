@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 (defvar my-elget-threads 1)
 (defvar my-elget-initialize nil)
 (defvar my-elget--verbose nil)

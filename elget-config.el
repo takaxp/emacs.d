@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; 1. Do not rely on the pre-defined recipes. Specify Git repository directly.
 ;; 2. Use emacsmirror not to install packages under ~/.emacs.d/elpa.
 ;; 3. Write private recipes in ~/.emacs.d/recipes if needed.

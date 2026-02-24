@@ -564,7 +564,7 @@ This function returns a timer object which you can use in
   (keymap-global-set "<f7>" 'ispell-word)
 
   (with-eval-after-load "ispell"
-    ;; This could hild other messages from loading functions regarding org-mode.
+    ;; This could hide other messages from loading functions regarding org-mode.
     (advice-add 'ispell-init-process :around #'my--suppress-message)
 
     ;; for English and Japanese mixed
@@ -640,8 +640,7 @@ This function returns a timer object which you can use in
     ;; C-; をオーバーライド
     (keymap-set flyspell-mode-map "C-;" 'comment-dwim)
     (setq flyspell-duplicate-distance 0)
-    ;; (setq flyspell-mode-line-string " F")
-    (setq flyspell-mode-line-string "")
+    (setq flyspell-mode-line-string " F")
     ;; (setq flyspell-large-region 200)
     (set-face-attribute 'flyspell-duplicate nil
                         :foreground "#EA5506" :bold t
@@ -661,9 +660,11 @@ This function returns a timer object which you can use in
     (with-eval-after-load "auto-complete"
       (ac-flyspell-workaround))
 
-    ;; [FIXME] nextstep+inline-patch版で flyspell すると，日本語nyuuのようになる場合があるので，それを回避（IME が ONになったら一時的に flyspell を止める）
-    (add-hook 'input-method-activate-hook #'my-flyspell-off)
-    (add-hook 'input-method-deactivate-hook #'my-flyspell-on)))
+    ;; [FIXME] nextstep+inline-patch版で flyspell すると，日本語nyuuのようになる場合があるので，それを回避（入力中は，flyspell を無効化）
+    (if (require 'super-save nil t)
+        (add-hook 'after-save-hook #'my-flyspell-on)
+      (run-with-idle-timer 1.6 t #'my-flyspell-on))
+    (add-hook 'post-self-insert-hook 'my-flyspell-off)))
 
 (autoload-if-found '(counsel-world-clock) "counsel-world-clock" nil t)
 

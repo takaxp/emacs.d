@@ -122,10 +122,6 @@ Then load the following at startup
   ;; only top-level setting will be loaded. This will not actually load `org' so settings in `with-eval-after-load' will not be loaded.
   ;; (require 'init-org nil t)
   (require 'late-init nil t))
-
-(unless noninteractive
-  (with-eval-after-load "org"
-    (require 'init-org nil t)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
@@ -3886,7 +3882,7 @@ lang en_US
   (keymap-global-set "<f7>" 'ispell-word)
 
   (with-eval-after-load "ispell"
-    ;; This could hild other messages from loading functions regarding org-mode.
+    ;; This could hide other messages from loading functions regarding org-mode.
     (advice-add 'ispell-init-process :around #'my--suppress-message)
 
     ;; for English and Japanese mixed
@@ -3997,8 +3993,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     ;; C-; をオーバーライド
     (keymap-set flyspell-mode-map "C-;" 'comment-dwim)
     (setq flyspell-duplicate-distance 0)
-    ;; (setq flyspell-mode-line-string " F")
-    (setq flyspell-mode-line-string "")
+    (setq flyspell-mode-line-string " F")
     ;; (setq flyspell-large-region 200)
     (set-face-attribute 'flyspell-duplicate nil
                         :foreground "#EA5506" :bold t
@@ -4018,9 +4013,11 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     (with-eval-after-load "auto-complete"
       (ac-flyspell-workaround))
 
-    ;; [FIXME] nextstep+inline-patch版で flyspell すると，日本語nyuuのようになる場合があるので，それを回避（IME が ONになったら一時的に flyspell を止める）
-    (add-hook 'input-method-activate-hook #'my-flyspell-off)
-    (add-hook 'input-method-deactivate-hook #'my-flyspell-on)))
+    ;; [FIXME] nextstep+inline-patch版で flyspell すると，日本語nyuuのようになる場合があるので，それを回避（入力中は，flyspell を無効化）
+    (if (require 'super-save nil t)
+        (add-hook 'after-save-hook #'my-flyspell-on)
+      (run-with-idle-timer 1.6 t #'my-flyspell-on))
+    (add-hook 'post-self-insert-hook 'my-flyspell-off)))
 #+end_src
 
 ** リージョン内の文字をカウントする
@@ -6409,23 +6406,23 @@ go get -v github.com/mdempsky/gocode
 Elements of SEQUENCE are transformed by FUNCTION before being
 sorted.  FUNCTION must be a function of one argument."
   (seq-sort (lambda (a b)
-        (funcall pred
-           (funcall function a)
-           (funcall function b)))
-      sequence))
+              (funcall pred
+                       (funcall function a)
+                       (funcall function b)))
+            sequence))
 
 ;;;###autoload
 (defun ivy--sort-by-len (name candidates)
   "Sort CANDIDATES based on similarity of their length with NAME."
   (let ((name-len (length name))
-  (candidates-count (length candidates)))
-    (if (< 500 candidates-count)
-  candidates
+        (candidates-count (length candidates)))
+    (if (< 2000 candidates-count)
+        candidates
       (seq-sort-by #'length
-       (lambda (a b)
-         (< (abs (- name-len a))
-      (abs (- name-len b))))
-       candidates))))
+                   (lambda (a b)
+                     (< (abs (- name-len a))
+                        (abs (- name-len b))))
+                   candidates))))
 
 ;;;###autoload
 (defun my-disable-counsel-find-file (&rest args)
@@ -6445,9 +6442,9 @@ sorted.  FUNCTION must be a function of one argument."
 (defun my-counsel-fzf-in-dir (_arg)
   "Search again with new root directory."
   (counsel-fzf ivy-text
-         (read-directory-name
-    (concat (car (split-string counsel-fzf-cmd))
-      " in directory: "))))
+               (read-directory-name
+                (concat (car (split-string counsel-fzf-cmd))
+                        " in directory: "))))
 
 ;;;###autoload
 (defun my-counsel-ag-in-dir (_arg)
@@ -6461,17 +6458,17 @@ sorted.  FUNCTION must be a function of one argument."
 Obeys `widen-automatically', which see."
   (interactive)
   (let* ((counsel--mark-ring-calling-point (point))
-   (marks (copy-sequence mark-ring))
-   (marks (delete-dups marks))
-   (marks
-    ;; mark-marker is empty?
-    (if (equal (mark-marker) (make-marker))
-        marks
-      (cons (copy-marker (mark-marker)) marks)))
-   (candidates (counsel-mark--get-candidates marks)))
+         (marks (copy-sequence mark-ring))
+         (marks (delete-dups marks))
+         (marks
+          ;; mark-marker is empty?
+          (if (equal (mark-marker) (make-marker))
+              marks
+            (cons (copy-marker (mark-marker)) marks)))
+         (candidates (counsel-mark--get-candidates marks)))
     (delete-dups candidates) ;; [added] remove duplicated lines
     (if candidates
-  (counsel-mark--ivy-read "Mark: " candidates 'counsel-mark-ring)
+        (counsel-mark--ivy-read "Mark: " candidates 'counsel-mark-ring)
       (message "Mark ring is empty"))
     counsel--mark-ring-calling-point)) ;; To avoid an warning on lexical val.
 #+end_src
@@ -10004,10 +10001,10 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
   :CUSTOM_ID: org47616d05
   :END:
 ** 基本設定
-   :PROPERTIES:
-   :CUSTOM_ID: orgf66bb6fe
-   :ID:       3B731ADC-9C9A-4AF9-B742-983104983EB1
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgf66bb6fe
+:ID:       3B731ADC-9C9A-4AF9-B742-983104983EB1
+:END:
 
 Org Mode は巨大なパッケージなので，設定項目が必然的に増えます．一度に全部を設定しようとせず，必須機能と見た目の設定から入り，興味があり使いたい機能の設定へと徐々に拡張するのが近道です．
 
@@ -12240,10 +12237,10 @@ update it for multiple appts?")
 #+end_src
 
 ** [org-babel] Orgバッファでソースコードを扱う
-   :PROPERTIES:
-   :CUSTOM_ID: org49ca5eb9
-   :ID:       544679A8-BD80-4239-8734-46762A93B580
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org49ca5eb9
+:ID:       544679A8-BD80-4239-8734-46762A93B580
+:END:
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -12293,7 +12290,7 @@ update it for multiple appts?")
   (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
-  (setq org-confirm-babel-evaluate nil)
+  (setq org-confirm-babel-evaluate nil) ;; ソースブロック実行時の警告表示を停止
   (setq org-src-window-setup 'current-window)
   ;; org-src-window-setup (current-window, other-window, other-frame)
 
@@ -15693,7 +15690,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
      `(lambda ()
         (sleep-for (or ',defer 5))
         (setq load-path ',load-path)
-        (when (load (concat (getenv "HOME") "/.emacs") t)
+        (when (and (load (concat (getenv "HOME") "/.emacs") t)
+                   (require 'init nil t)) ;; loading init.el explicitly
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)
@@ -16065,6 +16063,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 :ID:       DBE75BCA-F57B-4641-90A6-5E1AB8C1B30E
 :END:
 
+- https://github.com/lorniu/gt.el
+
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-google-translate-this ()
@@ -16181,6 +16181,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 ** [gif-screencast.el] ユーザアクションのたびにスクショを取る
    :PROPERTIES:
    :CUSTOM_ID: org2906cf09
+   :ID:       1069E627-0E0B-461C-B92B-03732B8596F0
    :END:
 
  - [[https://gitlab.com/ambrevar/emacs-gif-screencast][Ambrevar / emacs-gif-screencast · GitLab]]
@@ -17947,6 +17948,9 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 (my-tick-init-time "utility")
 ;; (when (bound-and-true-p my-profiler-p)
 ;;   (profiler-report))
+
+(with-eval-after-load "org"
+  (require 'init-org nil t))
 (provide 'init)
 #+end_src
 

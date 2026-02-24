@@ -809,7 +809,7 @@ This user property stores the creation date of the entry")
   (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
-  (setq org-confirm-babel-evaluate nil)
+  (setq org-confirm-babel-evaluate nil) ;; ソースブロック実行時の警告表示を停止
   (setq org-src-window-setup 'current-window)
   ;; org-src-window-setup (current-window, other-window, other-frame)
 

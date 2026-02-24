@@ -939,23 +939,23 @@ Call this function at updating `mode-line-mode'."
 Elements of SEQUENCE are transformed by FUNCTION before being
 sorted.  FUNCTION must be a function of one argument."
   (seq-sort (lambda (a b)
-        (funcall pred
-           (funcall function a)
-           (funcall function b)))
-      sequence))
+              (funcall pred
+                       (funcall function a)
+                       (funcall function b)))
+            sequence))
 
 ;;;###autoload
 (defun ivy--sort-by-len (name candidates)
   "Sort CANDIDATES based on similarity of their length with NAME."
   (let ((name-len (length name))
-  (candidates-count (length candidates)))
-    (if (< 500 candidates-count)
-  candidates
+        (candidates-count (length candidates)))
+    (if (< 2000 candidates-count)
+        candidates
       (seq-sort-by #'length
-       (lambda (a b)
-         (< (abs (- name-len a))
-      (abs (- name-len b))))
-       candidates))))
+                   (lambda (a b)
+                     (< (abs (- name-len a))
+                        (abs (- name-len b))))
+                   candidates))))
 
 ;;;###autoload
 (defun my-disable-counsel-find-file (&rest args)
@@ -975,9 +975,9 @@ sorted.  FUNCTION must be a function of one argument."
 (defun my-counsel-fzf-in-dir (_arg)
   "Search again with new root directory."
   (counsel-fzf ivy-text
-         (read-directory-name
-    (concat (car (split-string counsel-fzf-cmd))
-      " in directory: "))))
+               (read-directory-name
+                (concat (car (split-string counsel-fzf-cmd))
+                        " in directory: "))))
 
 ;;;###autoload
 (defun my-counsel-ag-in-dir (_arg)
@@ -991,17 +991,17 @@ sorted.  FUNCTION must be a function of one argument."
 Obeys `widen-automatically', which see."
   (interactive)
   (let* ((counsel--mark-ring-calling-point (point))
-   (marks (copy-sequence mark-ring))
-   (marks (delete-dups marks))
-   (marks
-    ;; mark-marker is empty?
-    (if (equal (mark-marker) (make-marker))
-        marks
-      (cons (copy-marker (mark-marker)) marks)))
-   (candidates (counsel-mark--get-candidates marks)))
+         (marks (copy-sequence mark-ring))
+         (marks (delete-dups marks))
+         (marks
+          ;; mark-marker is empty?
+          (if (equal (mark-marker) (make-marker))
+              marks
+            (cons (copy-marker (mark-marker)) marks)))
+         (candidates (counsel-mark--get-candidates marks)))
     (delete-dups candidates) ;; [added] remove duplicated lines
     (if candidates
-  (counsel-mark--ivy-read "Mark: " candidates 'counsel-mark-ring)
+        (counsel-mark--ivy-read "Mark: " candidates 'counsel-mark-ring)
       (message "Mark ring is empty"))
     counsel--mark-ring-calling-point)) ;; To avoid an warning on lexical val.
 
@@ -3505,7 +3505,8 @@ Uses `all-the-icons-material' to fetch the icon."
      `(lambda ()
         (sleep-for (or ',defer 5))
         (setq load-path ',load-path)
-        (when (load (concat (getenv "HOME") "/.emacs") t)
+        (when (and (load (concat (getenv "HOME") "/.emacs") t)
+                   (require 'init nil t)) ;; loading init.el explicitly
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)

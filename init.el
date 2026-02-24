@@ -23,10 +23,6 @@
   ;; (require 'init-org nil t)
   (require 'late-init nil t))
 
-(unless noninteractive
-  (with-eval-after-load "org"
-    (require 'init-org nil t)))
-
 (defun my-emacs-init-time ()
   "Emacs booting time in msec."
   (let ((inhibit-message t))
@@ -527,4 +523,7 @@
 (my-tick-init-time "utility")
 ;; (when (bound-and-true-p my-profiler-p)
 ;;   (profiler-report))
+
+(with-eval-after-load "org"
+  (require 'init-org nil t))
 (provide 'init)
