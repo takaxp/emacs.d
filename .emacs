@@ -69,14 +69,7 @@
       (recentf-cleanup))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Boot mode selection
 ;; Note: `load-path' and `exec-path' are both configured in early-init.el
-
-;; Enable Native Compile (t: enable, nil: disable)
-;; run batch-compile.sh -d to delete cached eln files.
-(unless nil
-  (setq native-comp-jit-compilation nil
-	native-comp-enable-subr-trampolines nil))
 
 (defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))
 (defvar my-ad-require-p nil
@@ -87,7 +80,13 @@
   "If non-nil, show ticks while booting.")
 (defvar my-secure-boot nil
   "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
+;; Enable Native Compile (t: enable, nil: disable)
+;; run batch-compile.sh -d to delete cached eln files.
+(unless nil
+  (setq native-comp-jit-compilation nil
+	native-comp-enable-subr-trampolines nil))
 
+;; BOOT MODE SELECTION
 (cond
  ;; minimal boot or DOOM Emacs (use toggle-doom.sh to switch)
  (nil
@@ -132,7 +131,6 @@
 	my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
 	my-frame-appearance nil     ;; {nil, 'dark, 'light}
 	my-skip-check-autoload-file t)
-
   (setq measure-exec-time-list '(
 				 my-private-conf-activate
 				 my-org-babel-load-activate
